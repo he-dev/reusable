@@ -7,8 +7,8 @@
     <ProjectGuid>{2575D10B-414A-4CD6-8BAA-BD6074B5DEC6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Reusable</RootNamespace>
-    <AssemblyName>Reusable.MarkupBuilder</AssemblyName>
+    <RootNamespace>Reusable.Markup</RootNamespace>
+    <AssemblyName>Reusable.Markup.MarkupBuilder</AssemblyName>
     <TargetFrameworkVersion Condition=" '$(TargetFrameworkVersion)' == '' ">v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

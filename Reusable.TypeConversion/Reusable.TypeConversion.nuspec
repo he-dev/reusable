@@ -1,22 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.Collections</id>
+    <id>Reusable.TypeConversion</id>
     <version>1.0.1</version>
-    <title>Reusable.Collections</title>
+    <title>Reusable.TypeConversion</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/he-dev/Reusable</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/he-dev/Reusable/master/_nuget/recycling.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>Additional collections.</description>
+    <description>Type conversion framework.</description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2016 He-Dev</copyright>
     <tags>Utility Extension</tags>
+    <dependencies>
+      <dependency id="Newtonsoft.Json" version="9.0.1" />
+      <dependency id="Reusable.Drawing.Color32" version="1.0.1" />
+      <dependency id="Reusable.Extensions" version="1.0.1" />
+      <dependency id="Reusable.Formatter" version="1.0.1" />
+    </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\Reusable.Collections.dll" target="lib\net452" />
-    <file src="bin\Release\Reusable.Collections.pdb" target="lib\net452" />
+    <file src="bin\Release\Reusable.TypeConversion.dll" target="lib\net452" />
+    <file src="bin\Release\Reusable.TypeConversion.pdb" target="lib\net452" />
   </files>
 </package>

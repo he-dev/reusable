@@ -1,29 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using NLog.Targets;
 
-namespace NLogTargetBuilder
+namespace Reusable.Logging.NLogExtensions
 {
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            var config = NLog.LogManager.Configuration;
-            config.UpdateCommandText();
+    //class Program
+    //{
+    //    static void Main(string[] args)
+    //    {
+    //        var config = NLog.LogManager.Configuration;
+    //        config.UpdateCommandText();
 
-            var logger = NLog.LogManager.GetLogger("Program");
-            logger.Debug("Hallo Log!");
+    //        var logger = NLog.LogManager.GetLogger("Program");
+    //        logger.Debug("Hallo Log!");
 
-            var dbTarget = config.AllTargets[2] as DatabaseTarget;
-            dbTarget.CommandText = "asdlfj";
-        }
-    }
+    //        var dbTarget = config.AllTargets[2] as DatabaseTarget;
+    //        dbTarget.CommandText = "asdlfj";
+    //    }
+    //}
 
-    static class NLogExtensions
+    static class LoggingConfigurationExtensions
     {
         public static void UpdateCommandText(this NLog.Config.LoggingConfiguration config)
         {
