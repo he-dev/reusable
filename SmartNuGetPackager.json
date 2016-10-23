@@ -1,0 +1,14 @@
+{
+  "PackageDirectoryName": "C:\\Home\\Projects\\NuGet\\packages",
+  "NuGetConfigName": "C:\\Home\\Projects\\NuGet\\NuGet.config",
+  "Version": "1.0.1",
+  "IsPrerelease": false,
+  "MsBuild": {
+    "Target": "Rebuild",
+    "NoLogo": true,
+    "Properties": {
+      "Configuration": "Release"
+    },
+    "ProjectFile": null
+  }
+}
