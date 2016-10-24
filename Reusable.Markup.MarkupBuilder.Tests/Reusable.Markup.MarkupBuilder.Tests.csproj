@@ -3,11 +3,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{1C57955E-551D-439B-BD6F-FAE274E4AF27}</ProjectGuid>
+    <ProjectGuid>{6714F200-6C83-446F-8A30-87F142814DC8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Reusable.Tests</RootNamespace>
-    <AssemblyName>Reusable.CronExpression.Tests</AssemblyName>
+    <RootNamespace>Reusable.Markup.Tests</RootNamespace>
+    <AssemblyName>Reusable.Markup.MarkupBuilder.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -35,6 +35,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
   </ItemGroup>
   <Choose>
@@ -50,13 +51,17 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="CronExpressionTest.cs" />
+    <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.CronExpression\Reusable.CronExpression.csproj">
-      <Project>{f9a60853-3238-4870-977e-130cf611f9f9}</Project>
-      <Name>Reusable.CronExpression</Name>
+    <ProjectReference Include="..\Reusable.FluentValidation\Reusable.FluentValidation.csproj">
+      <Project>{aba07d6f-bb71-4aa6-aa20-7330e394d082}</Project>
+      <Name>Reusable.FluentValidation</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Reusable.Markup.MarkupBuilder\Reusable.Markup.MarkupBuilder.csproj">
+      <Project>{2575d10b-414a-4cd6-8baa-bd6074b5dec6}</Project>
+      <Name>Reusable.Markup.MarkupBuilder</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

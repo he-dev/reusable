@@ -5,7 +5,7 @@ using Reusable;
 namespace DotNetBits.CronExpressionBit.Tests
 {
     [TestClass]
-    public class CronExpressionTests
+    public class CronExpressionTest
     {
         [TestMethod]
         public void TestMethod1()

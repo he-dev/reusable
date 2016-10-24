@@ -3,11 +3,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{1C57955E-551D-439B-BD6F-FAE274E4AF27}</ProjectGuid>
+    <ProjectGuid>{DA0E4890-C2E2-4F64-936C-02DDA1B44CBD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Reusable.Tests</RootNamespace>
-    <AssemblyName>Reusable.CronExpression.Tests</AssemblyName>
+    <RootNamespace>Reusable.FluentValidation.Tests</RootNamespace>
+    <AssemblyName>Reusable.FluentValidation.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -50,14 +50,22 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="CronExpressionTest.cs" />
+    <Compile Include="ExceptionValidationTests.cs" />
+    <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Validations\BooleanValidationTests.cs" />
+    <Compile Include="Validations\EnumerableValidationTests.cs" />
+    <Compile Include="Validations\GenericValidationTests.cs" />
+    <Compile Include="Validations\StringValidationTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.CronExpression\Reusable.CronExpression.csproj">
-      <Project>{f9a60853-3238-4870-977e-130cf611f9f9}</Project>
-      <Name>Reusable.CronExpression</Name>
+    <ProjectReference Include="..\Reusable.FluentValidation\Reusable.FluentValidation.csproj">
+      <Project>{aba07d6f-bb71-4aa6-aa20-7330e394d082}</Project>
+      <Name>Reusable.FluentValidation</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Tests\Validations\" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

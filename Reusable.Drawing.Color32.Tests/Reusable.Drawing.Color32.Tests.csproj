@@ -3,11 +3,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{1C57955E-551D-439B-BD6F-FAE274E4AF27}</ProjectGuid>
+    <ProjectGuid>{E2196FAB-4848-4B98-9152-0AFC38509041}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Reusable.Tests</RootNamespace>
-    <AssemblyName>Reusable.CronExpression.Tests</AssemblyName>
+    <RootNamespace>Reusable.Drawing.Tests</RootNamespace>
+    <AssemblyName>Reusable.Drawing.Color32.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -36,6 +36,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Drawing" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -50,13 +51,18 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="CronExpressionTest.cs" />
+    <Compile Include="Color32Tests.cs" />
+    <Compile Include="ColorParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.CronExpression\Reusable.CronExpression.csproj">
-      <Project>{f9a60853-3238-4870-977e-130cf611f9f9}</Project>
-      <Name>Reusable.CronExpression</Name>
+    <ProjectReference Include="..\Reusable.Drawing.Color32\Reusable.Drawing.Color32.csproj">
+      <Project>{848000fb-9f96-408b-915a-46472af79b99}</Project>
+      <Name>Reusable.Drawing.Color32</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Reusable.FluentValidation\Reusable.FluentValidation.csproj">
+      <Project>{aba07d6f-bb71-4aa6-aa20-7330e394d082}</Project>
+      <Name>Reusable.FluentValidation</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>
