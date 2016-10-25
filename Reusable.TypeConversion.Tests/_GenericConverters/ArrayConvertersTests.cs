@@ -13,7 +13,7 @@ namespace Reusable.TypeConversion.Tests
         {
             var result =
                 TypeConverter.Empty
-                    .Add<EnumerableObjectToArrayObjectConverter>()
+                    .Add<EnumerableToArrayConverter>()
                     .Add<StringToInt32Converter>()
                     .Convert(new[] { "3", "7" }, typeof(int[])) as int[];
 

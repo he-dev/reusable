@@ -52,7 +52,6 @@
   </Choose>
   <ItemGroup>
     <Compile Include="ConverterTest.cs" />
-    <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="_GenericConverters\ArrayConvertersTests.cs" />
     <Compile Include="_GenericConverters\DictionaryConvertersTests.cs" />

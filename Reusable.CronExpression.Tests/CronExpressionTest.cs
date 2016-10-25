@@ -1,8 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable;
 
-namespace DotNetBits.CronExpressionBit.Tests
+namespace Reusable.Tests
 {
     [TestClass]
     public class CronExpressionTest

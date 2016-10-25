@@ -1,9 +1,7 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.FluentValidation;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.FluentValidation.Validations;
 
-namespace SmartUtilities.Tests.Unit.Frameworks.InlineValidation.Validations
+namespace Reusable.FluentValidation.Tests.Validations
 {
     [TestClass]
     public class StringValidationTests

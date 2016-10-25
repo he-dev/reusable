@@ -7,7 +7,7 @@
         public abstract bool TryConvert(ConversionContext context, object arg, out object instance);
     }
 
-    public abstract class StaticConverter<TArg, TResult> : TypeConverter
+    public abstract class SpecificConverter<TArg, TResult> : TypeConverter
     {
         public override bool TryConvert(ConversionContext context, object arg, out object instance)
         {
@@ -32,7 +32,7 @@
         public abstract TResult Convert(TArg value, ConversionContext context);
     }
 
-    public abstract class DynamicConverter<TArg> : TypeConverter
+    public abstract class GenericConverter<TArg> : TypeConverter
     {
         public abstract object Convert(TArg value, ConversionContext context);
     }
