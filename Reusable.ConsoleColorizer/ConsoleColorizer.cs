@@ -7,7 +7,7 @@ using System.Xml.Linq;
 
 namespace Reusable
 {
-    internal class ConsoleColorizer
+    public class ConsoleColorizer
     {
         public static void Render(string xml)
         {
@@ -17,6 +17,7 @@ namespace Reusable
         public static void Render(IEnumerable<XNode> xNodes)
         {
             RenderInternal(xNodes);
+            Console.WriteLine();
             Console.ResetColor();
         }
 
