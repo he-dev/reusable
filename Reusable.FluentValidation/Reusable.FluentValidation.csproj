@@ -7,7 +7,7 @@
     <ProjectGuid>{ABA07D6F-BB71-4AA6-AA20-7330E394D082}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Reusable.FluentValidation</RootNamespace>
+    <RootNamespace>Reusable</RootNamespace>
     <AssemblyName>Reusable.FluentValidation</AssemblyName>
     <TargetFrameworkVersion Condition=" '$(TargetFrameworkVersion)' == '' ">v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Reusable.FluentValidation.Testing.Validations
+namespace Reusable.Testing.Validations
 {
     public static class ExceptionValidation
     {

@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Reusable
 {
-    public static class Composition
+    public static class TypeConverterComposition
     {
         public static TypeConverter Add<TConverter>(this TypeConverter current)
             where TConverter : TypeConverter, new() 

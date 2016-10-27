@@ -1,7 +1,7 @@
 ﻿using System;
 using Reusable.Extensions;
 
-namespace Reusable.FluentValidation
+namespace Reusable
 {
     public class ValidationException : Exception
     {

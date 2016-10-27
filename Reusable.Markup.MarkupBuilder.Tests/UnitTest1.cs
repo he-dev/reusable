@@ -1,9 +1,9 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Extensions;
-using Reusable.FluentValidation.Testing;
-using Reusable.FluentValidation.Validations;
 using Reusable.Renderers;
+using Reusable.Testing;
+using Reusable.Validations;
 
 namespace Reusable.Markup.Tests
 {

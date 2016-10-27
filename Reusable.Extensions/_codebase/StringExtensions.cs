@@ -121,6 +121,16 @@ namespace Reusable.Extensions
         //    var result = string.Join(" ", strings);
         //    return result; // asObject ? $"{{{result}}}" : result;
         //}
+
+        public static string ToConnectionStringName(this string value)
+        {
+            if (string.IsNullOrEmpty(value)) { throw new ArgumentNullException(nameof(value)); }
+
+            return Regex
+                .Match(value, "^name=(?<connectionStringName>.+)", RegexOptions.IgnoreCase)
+                .Groups["connectionStringName"]
+                .Value;
+        }
     }
 
     internal class PropertyInfoEqualityComparer : IEqualityComparer<PropertyInfo>

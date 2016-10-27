@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable;
+// ReSharper disable EqualExpressionComparison
 
 namespace Reusable.Tests
 {
@@ -74,31 +75,37 @@ namespace Reusable.Tests
         [TestMethod]
         public void Sort_WithoutLabels()
         {
-            var semVers = new[]
-            {
-                "2.1.0",
-                "2.0.0",
-                "2.1.1",
-                "1.0.0",
-            }.Select(SemanticVersion.Parse);
-
-            var sortedSemVers = semVers.OrderBy(sv => sv).Select(x => x.ToString()).ToList();
             // 1.0.0 < 2.0.0 < 2.1.0 < 2.1.1.
-            CollectionAssert.AreEqual(new[]
-            {
-                "1.0.0",
-                "2.0.0",
-                "2.1.0",
-                "2.1.1",
-            }, sortedSemVers);
 
-            // Example: 1.0.0-alpha < 1.0.0-alpha.1 < 1.0.0-alpha.beta < 1.0.0-beta < 1.0.0-beta.2 < 1.0.0-beta.11 < 1.0.0-rc.1 < 1.0.0.
+            var actual = new[]
+            {
+            "2.1.0",
+            "2.0.0",
+            "2.1.1",
+            "1.0.0",
+        }
+            .Select(SemanticVersion.Parse)
+            .OrderBy(x => x)
+            .Select(x => x.ToString())
+            .ToList();
+
+            var expected = new[]
+            {
+            "1.0.0",
+            "2.0.0",
+            "2.1.0",
+            "2.1.1",
+        };
+
+            CollectionAssert.AreEqual(expected, actual);
         }
 
         [TestMethod]
         public void Sort_WithLabels()
         {
-            var random = new[]
+            // Example: 1.0.0-alpha < 1.0.0-alpha.1 < 1.0.0-alpha.beta < 1.0.0-beta < 1.0.0-beta.2 < 1.0.0-beta.11 < 1.0.0-rc.1 < 1.0.0.
+
+            var actual = new[]
             {
                 "1.0.0-beta.11",
                 "1.0.0-alpha.beta",
@@ -108,7 +115,11 @@ namespace Reusable.Tests
                 "1.0.0-beta.2",
                 "1.0.0-beta",
                 "1.0.0",
-            }.Select(SemanticVersion.Parse);
+            }
+            .Select(SemanticVersion.Parse)
+            .OrderBy(x => x)
+            .Select(x => x.ToString())
+            .ToList();
 
             var exptected = new[]
             {
@@ -120,11 +131,9 @@ namespace Reusable.Tests
                 "1.0.0-beta.11",
                 "1.0.0-rc.1",
                 "1.0.0",
-            }.Select(SemanticVersion.Parse).ToList();
+            };
 
-            var sorted = random.OrderBy(sv => sv).ToList();
-            CollectionAssert.AreEqual(exptected, sorted);
-
+            CollectionAssert.AreEqual(exptected, actual);
         }
     }
 }

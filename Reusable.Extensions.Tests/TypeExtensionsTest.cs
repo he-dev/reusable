@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.FluentValidation.Testing;
-using Reusable.FluentValidation.Validations;
+using Reusable.Testing;
+using Reusable.Validations;
 
 namespace Reusable.Extensions.Tests
 {

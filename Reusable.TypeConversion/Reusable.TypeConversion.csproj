@@ -74,10 +74,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="_codebase\CompositeConverter.cs" />
-    <Compile Include="_codebase\Composition.cs" />
+    <Compile Include="_codebase\TypeConverterComposition.cs" />
     <Compile Include="_codebase\ConversionContext.cs" />
-    <Compile Include="_codebase\Conversions.cs" />
-    <Compile Include="_codebase\ConverterSets.cs" />
+    <Compile Include="_codebase\TypeConversions.cs" />
+    <Compile Include="_codebase\TypeConverterSets.cs" />
     <Compile Include="_codebase\Converters\_GenericConverters\ArrayConverters.cs" />
     <Compile Include="_codebase\Converters\_GenericConverters\DictionaryConverters.cs" />
     <Compile Include="_codebase\Converters\_GenericConverters\HashSetConverters.cs" />
@@ -102,6 +102,7 @@
     <Compile Include="_codebase\Converters\_SpecificConverters\UInt64Converters.cs" />
     <Compile Include="_codebase\Converters\_SpecificConverters\Int64Converters.cs" />
     <Compile Include="_codebase\Converters\_SpecificConverters\Int32Converters.cs" />
+    <Compile Include="_codebase\TypeConverterAttribute.cs" />
     <Compile Include="_codebase\TypeConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

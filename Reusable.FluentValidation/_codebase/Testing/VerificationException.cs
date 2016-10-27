@@ -1,7 +1,7 @@
 using System;
 using Reusable.Extensions;
 
-namespace Reusable.FluentValidation.Testing
+namespace Reusable.Testing
 {
     public class VerificationException : Exception
     {

@@ -2,7 +2,7 @@
 using System.Linq;
 using Reusable.Extensions;
 
-namespace Reusable.FluentValidation.Validations
+namespace Reusable.Validations
 {
     public static class EnumerableValidation
     {

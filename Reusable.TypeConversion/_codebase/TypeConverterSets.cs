@@ -2,7 +2,7 @@
 
 namespace Reusable
 {
-    public static class ConverterSets
+    public static class TypeConverterSets
     {
         public static readonly TypeConverter BasicConverter = TypeConverter.Empty.Add(new TypeConverter[]
         {

@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Reusable.FluentValidation.Testing
+namespace Reusable.Testing
 {
     public static class VerificationContextBuilder
     {

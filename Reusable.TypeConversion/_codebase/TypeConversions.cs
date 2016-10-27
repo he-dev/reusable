@@ -3,7 +3,7 @@ using System.Globalization;
 
 namespace Reusable
 {
-    public static class Conversions
+    public static class TypeConversions
     {
         public static object Convert(this TypeConverter converter, object arg, Type type, CultureInfo culture = null)
         {
