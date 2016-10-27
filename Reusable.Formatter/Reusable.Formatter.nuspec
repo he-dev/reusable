@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Formatter</id>
-    <version>1.0.6</version>
+    <version>1.0.7</version>
     <title>Reusable.Formatter</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -15,7 +15,7 @@
     <copyright>Copyright 2016 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
-      <dependency id="Reusable.Extensions" version="1.0.6" />
+      <dependency id="Reusable.Extensions" version="1.0.7" />
     </dependencies>
   </metadata>
   <files>
