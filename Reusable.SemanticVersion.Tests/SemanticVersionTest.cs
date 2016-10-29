@@ -2,6 +2,9 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable;
+using Reusable.Testing;
+using Reusable.Validations;
+
 // ReSharper disable EqualExpressionComparison
 
 namespace Reusable.Tests
@@ -12,15 +15,15 @@ namespace Reusable.Tests
         [TestMethod]
         public void Parse_VariousVersions()
         {
-            var semVer = SemanticVersion.Parse("1.2.3");
-            Assert.AreEqual(1, semVer.Major);
-            Assert.AreEqual(2, semVer.Minor);
-            Assert.AreEqual(3, semVer.Patch);
-
-            semVer = SemanticVersion.Parse("v1.2.3-beta");
-            Assert.AreEqual(1, semVer.Major);
-            Assert.AreEqual(2, semVer.Minor);
-            Assert.AreEqual(3, semVer.Patch);
+            SemanticVersion.Parse("0.0.0").Verify().IsNotNull();
+            SemanticVersion.Parse("1.0.0").Verify().IsNotNull();
+            SemanticVersion.Parse("0.1.0").Verify().IsNotNull();
+            SemanticVersion.Parse("0.0.1").Verify().IsNotNull();
+            SemanticVersion.Parse("01.0.0").Verify().IsNull();
+            SemanticVersion.Parse("0.01.0").Verify().IsNull();
+            SemanticVersion.Parse("0.0.01").Verify().IsNull();
+            SemanticVersion.Parse("1.0.0-label1").Verify().IsNotNull();
+            SemanticVersion.Parse("1.0.0-label1.label2").Verify().IsNotNull();
         }
 
 #pragma warning disable 1718

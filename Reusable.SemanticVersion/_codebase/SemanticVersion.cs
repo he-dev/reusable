@@ -16,42 +16,47 @@ namespace Reusable
     [DebuggerDisplay("{ToString(),nq}")]
     public class SemanticVersion : IComparable<SemanticVersion>, IComparer<SemanticVersion>
     {
-        private SemanticVersion() { }
+        private readonly List<string> _labels;
 
         public SemanticVersion(int major, int minor, int patch, IEnumerable<string> labels = null)
         {
-            Minor = major.Validate(nameof(major)).IsGreaterThenOrEqual(0).Value;
+            Major = major.Validate(nameof(major)).IsGreaterThenOrEqual(0).Value;
             Minor = minor.Validate(nameof(minor)).IsGreaterThenOrEqual(0).Value;
             Patch = patch.Validate(nameof(patch)).IsGreaterThenOrEqual(0).Value;
-            Labels = labels?.ToList();
+            _labels = labels?.ToList();
         }
 
         public static SemanticVersion Parse(string value)
         {
-            value.Validate(nameof(value)).IsNotNullOrEmpty();
+            if (string.IsNullOrEmpty(value))
+            {
+                return null;
+            }
 
-            var versionMatch = Regex.Match(value, @"v?(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)(-(?<labels>.+))?", RegexOptions.IgnoreCase);
+            var versionPatterns = new[] { "major", "minor", "patch" }.Select(x => $"(?<{x}>(?!0)[0-9]+|0)");
+
+            var versionMatch = Regex.Match(value.Trim(), $"^v?{string.Join("[\\.]", versionPatterns)}(-(?<labels>[a-z0-9\\.-]+))?$");
             if (!versionMatch.Success)
             {
                 return null;
             }
 
             return new SemanticVersion
-            {
-                Major = int.Parse(versionMatch.Groups["major"].Value),
-                Minor = int.Parse(versionMatch.Groups["minor"].Value),
-                Patch = int.Parse(versionMatch.Groups["patch"].Value),
-                Labels = versionMatch.Groups["labels"].Value.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries).ToList()
-            };
+            (
+                major: int.Parse(versionMatch.Groups["major"].Value),
+                minor: int.Parse(versionMatch.Groups["minor"].Value),
+                patch: int.Parse(versionMatch.Groups["patch"].Value),
+                labels: versionMatch.Groups["labels"].Value.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries).ToList()
+            );
         }
 
-        public int Major { get; private set; }
+        public int Major { get; }
 
-        public int Minor { get; private set; }
+        public int Minor { get; }
 
-        public int Patch { get; private set; }
+        public int Patch { get; }
 
-        public List<string> Labels { get; private set; }
+        public IReadOnlyList<string> Labels => _labels;
 
         public bool IsPrerelease => Labels?.Count > 0;
 
@@ -84,23 +89,23 @@ namespace Reusable
             return ToString() == semVer.ToString();
         }
 
-        public int Compare(SemanticVersion x, SemanticVersion y)
+        public int Compare(SemanticVersion left, SemanticVersion right)
         {
             const int less = -1;
             const int equal = 0;
             const int greater = 1;
 
-            if (object.Equals(x, null) && object.Equals(y, null))
+            if (object.Equals(left, null) && object.Equals(right, null))
             {
                 return equal;
             }
 
-            if (object.Equals(x, null))
+            if (object.Equals(left, null))
             {
                 return less;
             }
 
-            if (object.Equals(y, null))
+            if (object.Equals(right, null))
             {
                 return greater;
             }
@@ -109,8 +114,8 @@ namespace Reusable
             // major, minor, patch and pre-release identifiers in that order.
             // (Build metadata does not figure into precedence).
 
-            var xVersions = new[] { x.Major, x.Minor, x.Patch };
-            var yVersions = new[] { y.Major, y.Minor, y.Patch };
+            var xVersions = new[] { left.Major, left.Minor, left.Patch };
+            var yVersions = new[] { right.Major, right.Minor, right.Patch };
 
             // Precedence is determined by the first difference
             // when comparing each of these identifiers from left to right.
@@ -126,14 +131,14 @@ namespace Reusable
             // a pre-release version has lower precedence than a normal version. 
             // Example: 1.0.0-alpha < 1.0.0.
 
-            if (x.IsPrerelease && !y.IsPrerelease)
+            if (left.IsPrerelease && !right.IsPrerelease)
             {
-                return -1;
+                return less;
             }
 
-            if (!x.IsPrerelease && y.IsPrerelease)
+            if (!left.IsPrerelease && right.IsPrerelease)
             {
-                return 1;
+                return greater;
             }
 
             // Precedence for two pre-release versions with the same major, minor, and patch version 
@@ -141,7 +146,7 @@ namespace Reusable
             // until a difference is found as follows:     
 
             var labelComparer = new LabelComparer();
-            var labelDiffs = x.Labels.ZipWithDefault(y.Labels, (l1, l2) => labelComparer.Compare(l1, l2));
+            var labelDiffs = left.Labels.ZipWithDefault(right.Labels, (l1, l2) => labelComparer.Compare(l1, l2));
             var firstLabelDiff = labelDiffs.FirstOrDefault(diff => diff != 0);
 
             return firstLabelDiff;
@@ -152,96 +157,96 @@ namespace Reusable
             return Compare(this, other);
         }
 
-        public static explicit operator SemanticVersion(string semVer)
+        public static explicit operator SemanticVersion(string value)
         {
-            return string.IsNullOrEmpty(semVer) ? null : Parse(semVer);
+            return string.IsNullOrEmpty(value) ? null : Parse(value);
         }
 
-        public static implicit operator string(SemanticVersion semVer)
+        public static implicit operator string(SemanticVersion value)
         {
-            return semVer.ToString();
+            return value.ToString();
         }
 
-        public static bool operator <(SemanticVersion semVer1, SemanticVersion semVer2)
+        public static bool operator <(SemanticVersion left, SemanticVersion right)
         {
-            return semVer1.CompareTo(semVer2) < 0;
+            return left.CompareTo(right) < 0;
         }
 
-        public static bool operator >(SemanticVersion semVer1, SemanticVersion semVer2)
+        public static bool operator >(SemanticVersion left, SemanticVersion right)
         {
-            return semVer1.CompareTo(semVer2) > 0;
+            return left.CompareTo(right) > 0;
         }
 
-        public static bool operator ==(SemanticVersion semVer1, SemanticVersion semVer2)
+        public static bool operator ==(SemanticVersion left, SemanticVersion right)
         {
-            if (ReferenceEquals(semVer1, semVer2))
+            if (ReferenceEquals(left, right))
             {
                 return true;
             }
 
-            if (ReferenceEquals(semVer1, null) || ReferenceEquals(semVer2, null))
+            if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
             {
                 return false;
             }
 
-            return semVer1.CompareTo(semVer2) == 0;
+            return left.CompareTo(right) == 0;
         }
 
-        public static bool operator !=(SemanticVersion semVer1, SemanticVersion semVer2)
+        public static bool operator !=(SemanticVersion left, SemanticVersion right)
         {
-            return !(semVer1 == semVer2);
+            return !(left == right);
         }
 
-        public static bool operator <=(SemanticVersion semVer1, SemanticVersion semVer2)
+        public static bool operator <=(SemanticVersion left, SemanticVersion right)
         {
-            return semVer1 < semVer2 || semVer1 == semVer2;
+            return left.CompareTo(right) <= 0;
         }
 
-        public static bool operator >=(SemanticVersion semVer1, SemanticVersion semVer2)
+        public static bool operator >=(SemanticVersion left, SemanticVersion right)
         {
-            return semVer1 > semVer2 || semVer1 == semVer2;
+            return left.CompareTo(right) >= 0;
         }
     }
 
     internal class LabelComparer : IComparer<string>
     {
-        public int Compare(string x, string y)
+        public int Compare(string left, string right)
         {
-            if (ReferenceEquals(x, null) && ReferenceEquals(y, null))
+            if (ReferenceEquals(left, null) && ReferenceEquals(right, null))
             {
                 return 0;
             }
 
-            if (ReferenceEquals(x, null))
+            if (ReferenceEquals(left, null))
             {
                 return -1;
             }
 
-            if (ReferenceEquals(y, null))
+            if (ReferenceEquals(right, null))
             {
                 return 1;
             }
 
             // Identifiers consisting of only digits are compared numerically.
-            if (x.IsNumeric() && y.IsNumeric())
+            if (left.IsNumeric() && right.IsNumeric())
             {
-                return int.Parse(x).CompareTo(int.Parse(y));
+                return int.Parse(left).CompareTo(int.Parse(right));
             }
 
             // Identifiers with letters or hyphens are compared lexically in ASCII sort order.
-            if (!x.IsNumeric() && !y.IsNumeric())
+            if (!left.IsNumeric() && !right.IsNumeric())
             {
-                return string.Compare(x, y, StringComparison.Ordinal);
+                return string.Compare(left, right, StringComparison.Ordinal);
             }
 
             // Numeric identifiers always have lower precedence than non-numeric identifiers.
-            return x.IsNumeric() ? -1 : 1;
+            return left.IsNumeric() ? -1 : 1;
         }
     }
 
     internal static class StringExtensions
     {
-        public static bool IsNumeric(this string value) 
+        public static bool IsNumeric(this string value)
             => !string.IsNullOrEmpty(value) && Regex.IsMatch(value, @"^\d+$");
     }
 }
