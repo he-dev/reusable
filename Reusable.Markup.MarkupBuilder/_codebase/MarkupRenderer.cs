@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Reusable
+namespace Reusable.Markup
 {
     public class MarkupRenderer : IMarkupRenderer
     {

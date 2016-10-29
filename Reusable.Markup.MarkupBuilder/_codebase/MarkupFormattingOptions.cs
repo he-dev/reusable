@@ -1,6 +1,6 @@
 using System;
 
-namespace Reusable
+namespace Reusable.Markup
 {
     [Flags]
     public enum MarkupFormattingOptions

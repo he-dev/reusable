@@ -1,6 +1,6 @@
 using System.Dynamic;
 
-namespace Reusable
+namespace Reusable.Markup
 {
     public interface IMarkupBuilderExtension
     {

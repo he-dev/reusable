@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 
-namespace Reusable.Extensions
+namespace Reusable.Markup.Extensions
 {
     // ReSharper disable once InconsistentNaming
     public class createElementExtension : IMarkupBuilderExtension

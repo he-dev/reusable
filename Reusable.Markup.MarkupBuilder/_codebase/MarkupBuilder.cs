@@ -5,7 +5,7 @@ using System.Dynamic;
 using System.Linq;
 using Reusable.Extensions;
 
-namespace Reusable
+namespace Reusable.Markup
 {
     public class MarkupBuilder : DynamicObject, IEnumerable<object>
     {

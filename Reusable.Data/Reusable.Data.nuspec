@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Data</id>
-    <version>1.0.7</version>
+    <version>1.0.8</version>
     <title>Reusable.Data</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -15,7 +15,7 @@
     <copyright>Copyright 2016 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
-      <dependency id="Reusable.FluentValidation" version="1.0.7" />
+      <dependency id="Reusable.FluentValidation" version="1.0.8" />
     </dependencies>
   </metadata>
   <files>

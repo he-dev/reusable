@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Extensions;
-using Reusable.Renderers;
+using Reusable.Markup.Extensions;
+using Reusable.Markup.Renderers;
 using Reusable.Testing;
 using Reusable.Validations;
 

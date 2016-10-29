@@ -1,4 +1,4 @@
-﻿namespace Reusable.Renderers
+﻿namespace Reusable.Markup.Renderers
 {
     public class HtmlRenderer : IMarkupRenderer
     {

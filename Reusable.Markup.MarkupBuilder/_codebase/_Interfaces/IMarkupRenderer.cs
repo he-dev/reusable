@@ -1,4 +1,4 @@
-﻿namespace Reusable
+﻿namespace Reusable.Markup
 {
     public interface IMarkupRenderer
     {

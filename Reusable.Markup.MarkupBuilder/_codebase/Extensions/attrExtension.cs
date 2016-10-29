@@ -1,6 +1,6 @@
 using System.Dynamic;
 
-namespace Reusable.Extensions
+namespace Reusable.Markup.Extensions
 {
     // ReSharper disable once InconsistentNaming
     public class attrExtension : IMarkupBuilderExtension
