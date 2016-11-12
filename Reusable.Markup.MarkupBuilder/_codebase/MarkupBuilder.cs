@@ -9,13 +9,11 @@ namespace Reusable.Markup
 {
     public class MarkupBuilder : DynamicObject, IEnumerable<object>
     {
-        private readonly Dictionary<string, string> _attributes = new Dictionary<string, string>();
         private readonly List<object> _content = new List<object>();
-        private readonly List<IMarkupBuilderExtension> _extensions = new List<IMarkupBuilderExtension>();
 
         private MarkupBuilder(MarkupBuilder markupBuilder, string tag)
         {
-            _extensions = markupBuilder._extensions;
+            Extensions = markupBuilder.Extensions;
             Renderer = markupBuilder.Renderer;
             Tag = tag;
         }
@@ -30,11 +28,11 @@ namespace Reusable.Markup
         // The first builder has no tag and thus is not a real element.
         public bool IsElement => !string.IsNullOrEmpty(Tag);
 
-        public IDictionary<string, string> Attributes => _attributes;
+        public IDictionary<string, string> Attributes { get; } = new Dictionary<string, string>();
 
         public MarkupBuilder Parent { get; private set; }
 
-        public IEnumerable<IMarkupBuilderExtension> Extensions => _extensions.AsReadOnly();
+        public MarkupBuilderExtensionCollection Extensions { get; } = new MarkupBuilderExtensionCollection();
 
         internal int Depth
         {
@@ -62,15 +60,7 @@ namespace Reusable.Markup
                 Add(child);
             }
             return child;
-        }
-
-        public MarkupBuilder Add<T>(Action<T> configureExtension = null) where T : IMarkupBuilderExtension, new()
-        {
-            var extension = new T();
-            _extensions.Add(extension);
-            configureExtension?.Invoke(extension);
-            return this;
-        }
+        }       
 
         public MarkupBuilder Add(object content)
         {
@@ -132,13 +122,15 @@ namespace Reusable.Markup
                 }
             }
 
-            var isContentEnumerable =
-                args.Any() &&
-                args.First().GetType().IsEnumerable() &&
-                args.First().GetType() != typeof(string) &&
-                args.First().GetType() != typeof(MarkupBuilder);
+            var arg0 = args.FirstOrDefault();
 
-            var content = isContentEnumerable ? (IEnumerable<object>)args.First() : args;
+            var isContentEnumerable =
+                arg0 != null &&
+                arg0.GetType().IsEnumerable() &&
+                arg0.GetType() != typeof(string) &&
+                arg0.GetType() != typeof(MarkupBuilder);
+
+            var content = isContentEnumerable ? (IEnumerable<object>)arg0 : args;
             result = Create(binder.Name).AddRange(content);
             return true;
         }

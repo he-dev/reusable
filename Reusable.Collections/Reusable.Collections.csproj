@@ -71,6 +71,12 @@
   <ItemGroup>
     <Compile Include="_codebase\AutoKeyDictionary.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="_codebase\FibonacciSequence.cs" />
+    <Compile Include="_codebase\FibonacciSequenceFactory.cs" />
+    <Compile Include="_codebase\GeneratedSequence.cs" />
+    <Compile Include="_codebase\GeometricSequence.cs" />
+    <Compile Include="_codebase\GeometricSequenceFactory.cs" />
+    <Compile Include="_codebase\RegularSequence.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
