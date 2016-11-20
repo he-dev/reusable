@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Reusable.Collections;
 
 namespace Reusable.ExceptionHandling
 {
@@ -67,16 +68,16 @@ namespace Reusable.ExceptionHandling
             }
             catch (Exception ex)
             {
-                OnLog($"Attempt #{Count} [Error] ({Thread.CurrentThread.ManagedThreadId})");
+                OnLog($"Attempt #{Count} [Failure] ({Thread.CurrentThread.ManagedThreadId})");
                 _exceptions.Add(ex);
+
                 var attempt = new Attempt(ex, Count);
                 handleException(attempt);
-                if (!attempt.Handled)
-                {
-                    OnLog($"{ex.GetType().Name} [Throw] ({Thread.CurrentThread.ManagedThreadId})");
-                    throw;
-                }
-                return false;
+
+                if (attempt.Handled) { return false; }
+
+                OnLog($"Attempt #{Count} [{ex.GetType().Name}] ({Thread.CurrentThread.ManagedThreadId})");
+                throw;
             }
         }
     }

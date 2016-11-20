@@ -1,14 +1,27 @@
 using System;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.Testing;
+using Reusable.Validations;
 
 namespace Reusable.Extensions.Tests
 {
     [TestClass]
     public class StringExtensionsTest
     {
+        [TestMethod]
+        public void GetConnectionStringName_ValueWithName()
+        {
+            "name=Foo.bar".GetConnectionStringName().Verify().IsNotNullOrEmpty().IsEqual("Foo.bar");
+        }
 
+        [TestMethod]
+        public void GetConnectionStringName_ValueWithoutName()
+        {
+            "Foo.bar".GetConnectionStringName().Verify().IsNullOrEmpty();
+        }
     }
+
     [TestClass]
     public class Format
     {

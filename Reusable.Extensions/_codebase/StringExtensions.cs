@@ -122,7 +122,7 @@ namespace Reusable.Extensions
         //    return result; // asObject ? $"{{{result}}}" : result;
         //}
 
-        public static string ToConnectionStringName(this string value)
+        public static string GetConnectionStringName(this string value)
         {
             if (string.IsNullOrEmpty(value)) { throw new ArgumentNullException(nameof(value)); }
 

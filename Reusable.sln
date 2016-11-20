@@ -63,6 +63,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ExceptionHandling"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ExceptionHandling.Tests", "Reusable.ExceptionHandling.Tests\Reusable.ExceptionHandling.Tests.csproj", "{579EB969-CAE0-4F11-AEC3-05CD266333BB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Collections.Tests", "Reusable.Collections.Tests\Reusable.Collections.Tests.csproj", "{C4D5FB3F-06F9-4C18-8962-C06BE4419FFE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -157,6 +159,10 @@ Global
 		{579EB969-CAE0-4F11-AEC3-05CD266333BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{579EB969-CAE0-4F11-AEC3-05CD266333BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{579EB969-CAE0-4F11-AEC3-05CD266333BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4D5FB3F-06F9-4C18-8962-C06BE4419FFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4D5FB3F-06F9-4C18-8962-C06BE4419FFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4D5FB3F-06F9-4C18-8962-C06BE4419FFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4D5FB3F-06F9-4C18-8962-C06BE4419FFE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -189,5 +195,6 @@ Global
 		{621F9779-3968-4F12-B8DA-FFC2C3257D93} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
 		{011AC24E-4550-44E5-8101-BE3956770780} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
 		{579EB969-CAE0-4F11-AEC3-05CD266333BB} = {AC36C881-1733-4649-ACBC-03B6F9A9334C}
+		{C4D5FB3F-06F9-4C18-8962-C06BE4419FFE} = {AC36C881-1733-4649-ACBC-03B6F9A9334C}
 	EndGlobalSection
 EndGlobal

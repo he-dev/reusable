@@ -74,6 +74,8 @@
     <Compile Include="_codebase\FibonacciSequence.cs" />
     <Compile Include="_codebase\FibonacciSequenceFactory.cs" />
     <Compile Include="_codebase\GeneratedSequence.cs" />
+    <Compile Include="_codebase\HarmonicSequence.cs" />
+    <Compile Include="_codebase\LinearSequence.cs" />
     <Compile Include="_codebase\GeometricSequence.cs" />
     <Compile Include="_codebase\GeometricSequenceFactory.cs" />
     <Compile Include="_codebase\RegularSequence.cs" />

@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.FluentValidation</id>
-    <version>1.0.8</version>
+    <version>1.3.0</version>
     <title>Reusable.FluentValidation</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -16,8 +16,8 @@
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="Newtonsoft.Json" version="9.0.1" />
-      <dependency id="Reusable.Extensions" version="1.0.8" />
-      <dependency id="Reusable.Formatter" version="1.0.8" />
+      <dependency id="Reusable.Extensions" version="1.3.0" />
+      <dependency id="Reusable.Formatter" version="1.3.0" />
     </dependencies>
   </metadata>
   <files>

@@ -8,29 +8,31 @@ namespace Reusable.Collections
 {
     public class FibonacciSequence<T> : GeneratedSequence<T>
     {
-        private T _preview;
-        private T _current;
+        private readonly T _first;
         private readonly Func<T, T, T> _sum;
 
-        public FibonacciSequence(T firstTwo, T firstStep, int count, Func<T, T, T> sum) : base(count)
+        public FibonacciSequence(int count, T first, Func<T, T, T> sum) : base(count)
         {
+            _first = first;
             _sum = sum;
-            _preview = firstTwo;
-            _current = _sum(_preview, firstStep);
         }
-
+       
         protected override IEnumerable<T> Generate()
         {
-            yield return _preview;
-            yield return _preview;
-            yield return _current;
+            yield return _first;
+            yield return _first;
+
+            var preview = _first;
+            var current = _sum(_first, _first);
+
+            yield return current;
 
             while (true)
             {
-                var newCurrent = _sum(_preview, _current);
+                var newCurrent = _sum(preview, current);
                 yield return newCurrent;
-                _preview = _current;
-                _current = newCurrent;
+                preview = current;
+                current = newCurrent;
             }
         }
     }

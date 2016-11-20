@@ -7,27 +7,27 @@ using System.Threading.Tasks;
 
 namespace Reusable.ExceptionHandling
 {
-    public class Breaker : Try
+    public class CancellableRetry : Try
     {
-        public Breaker(Retry retry, Fuse fuse)
+        public CancellableRetry(Retry retry, CircuitBreaker circuitBreaker)
         {
             Retry = retry;
-            Fuse = fuse;
+            CircuitBreaker = circuitBreaker;
         }
 
         private Retry Retry { get; }
 
-        public Fuse Fuse { get; }
+        public CircuitBreaker CircuitBreaker { get; }
 
         public override T Execute<T>(Func<T> body, Action<Attempt> handleException)
         {
-            if (Fuse.Blown && Fuse.TimedOut)
+            if (CircuitBreaker.State == CircutBreakerState.Open && CircuitBreaker.TimedOut)
             {
-                Fuse.Reset();
+                CircuitBreaker.Reset();
                 OnLog($"Breaker [Closed] ({Thread.CurrentThread.ManagedThreadId})");
             }
 
-            if (!Fuse.Blown)
+            if (CircuitBreaker.State == CircutBreakerState.Closed)
             {
                 try
                 {
@@ -46,13 +46,13 @@ namespace Reusable.ExceptionHandling
 
         public override async Task<T> ExecuteAsync<T>(Func<T> body, CancellationToken cancellationToken, Action<Attempt> handleException)
         {
-            if (Fuse.Blown && Fuse.TimedOut)
+            if (CircuitBreaker.State == CircutBreakerState.Open && CircuitBreaker.TimedOut)
             {
-                Fuse.Reset();
+                CircuitBreaker.Reset();
                 OnLog($"Breaker [Closed] ({Thread.CurrentThread.ManagedThreadId})");
             }
 
-            if (Fuse.Blown) { return default(T); }
+            if (CircuitBreaker.State == CircutBreakerState.Open) { return default(T); }
 
             try
             {
@@ -66,9 +66,9 @@ namespace Reusable.ExceptionHandling
 
         private void HandleException(Attempt attempt, Action<Attempt> handleException)
         {
-            if (Fuse.PassOne().Blown)
+            if (CircuitBreaker.PassOne().State == CircutBreakerState.Open)
             {
-                OnLog($"Fuse [Blown] ({Thread.CurrentThread.ManagedThreadId})");
+                OnLog($"CircuitBreaker [Blown] ({Thread.CurrentThread.ManagedThreadId})");
                 throw new RetryCancelledException();
             }
 

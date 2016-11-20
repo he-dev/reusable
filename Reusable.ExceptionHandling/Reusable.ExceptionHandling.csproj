@@ -41,8 +41,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attempt.cs" />
-    <Compile Include="Breaker.cs" />
-    <Compile Include="Fuse.cs" />
+    <Compile Include="CancellableRetry.cs" />
+    <Compile Include="CircuitBreaker.cs" />
+    <Compile Include="CircutBreakerState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Retry.cs" />
     <Compile Include="RetryCancelledException.cs" />
@@ -53,6 +54,10 @@
     <ProjectReference Include="..\Reusable.Clock\Reusable.Clock.csproj">
       <Project>{621f9779-3968-4f12-b8da-ffc2c3257d93}</Project>
       <Name>Reusable.Clock</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Reusable.Collections\Reusable.Collections.csproj">
+      <Project>{77d13361-f166-46e9-901b-50b836d684d3}</Project>
+      <Name>Reusable.Collections</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

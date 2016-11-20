@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Reusable.Collections
 {
-    public class AutoKeyDictionary<TKey, TValue> : IDictionary<TKey, TValue>
+    public class AutoKeyDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>
     {
         private readonly Func<TValue, TKey> _keySelector;
 
@@ -51,6 +51,10 @@ namespace Reusable.Collections
         public ICollection<TKey> Keys => _values.Keys;
 
         public ICollection<TValue> Values => _values.Values;
+
+        IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => _values.Keys;
+
+        IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => _values.Values;        
 
         public void Add(TValue item) => _values.Add(_keySelector(item), item);
 

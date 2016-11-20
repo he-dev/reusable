@@ -77,6 +77,7 @@
     <Compile Include="_codebase\EnumerableExtensions.cs" />
     <Compile Include="_codebase\ExceptionExtensions.cs" />
     <Compile Include="_codebase\MethodInfoExtensions.cs" />
+    <Compile Include="_codebase\ObjectExtensions.cs" />
     <Compile Include="_codebase\StringExtensions.cs" />
     <Compile Include="_codebase\TypeExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

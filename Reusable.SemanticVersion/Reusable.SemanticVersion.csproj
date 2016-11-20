@@ -69,8 +69,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LabelComparer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="_codebase\SemanticVersion.cs" />
+    <Compile Include="SemanticVersion.cs" />
+    <Compile Include="StringExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Extensions\Reusable.Extensions.csproj">

@@ -8,19 +8,19 @@ namespace Reusable.Collections
 {
     public class GeometricSequenceFactory
     {
-        public static GeometricSequence<TimeSpan> Double(TimeSpan first, int count)
+        public static GeometricSequence<TimeSpan> Double(int count, TimeSpan first)
         {
-            return new GeometricSequence<TimeSpan>(first, x => TimeSpan.FromTicks(x.Ticks * 2), count);
+            return new GeometricSequence<TimeSpan>(count, first, 2, (x, y) => TimeSpan.FromTicks((int)(x.Ticks * y)));
         }
 
-        public static GeometricSequence<TimeSpan> Triple(TimeSpan first, int count)
+        public static GeometricSequence<TimeSpan> Triple(int count, TimeSpan first)
         {
-            return new GeometricSequence<TimeSpan>(first, x => TimeSpan.FromTicks(x.Ticks * 3), count);
+            return new GeometricSequence<TimeSpan>(count, first, 3, (x, y) => TimeSpan.FromTicks((int)(x.Ticks * y)));
         }
 
-        public static GeometricSequence<TimeSpan> Halve(TimeSpan first, int count)
+        public static GeometricSequence<TimeSpan> Halve(int count, TimeSpan first)
         {
-            return new GeometricSequence<TimeSpan>(first, x => TimeSpan.FromTicks(x.Ticks / 2), count);
+            return new GeometricSequence<TimeSpan>(count, first, 0.5, (x, y) => TimeSpan.FromTicks((int)(x.Ticks * y)));
         }
     }
 }
