@@ -1,8 +1,8 @@
 using System;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Testing;
-using Reusable.Validations;
+using Reusable.Fuse;
+using Reusable.Fuse.Testing;
 
 namespace Reusable.Extensions.Tests
 {
@@ -100,7 +100,7 @@ namespace Reusable.Extensions.Tests
             }
             catch (Exception ex)
             {
-                var json = ex.ToJson();
+                //var json = ex.ToJson();
             }
         }
     }

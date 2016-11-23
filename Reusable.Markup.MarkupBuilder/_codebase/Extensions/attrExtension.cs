@@ -1,4 +1,5 @@
 using System.Dynamic;
+using Reusable.Fuse;
 
 namespace Reusable.Markup.Extensions
 {
@@ -15,7 +16,9 @@ namespace Reusable.Markup.Extensions
         {
             if (binder.Name == "attr")
             {
-                builder.Attributes.Add(binder.Name, (string)args[0]);
+                args.Validate(nameof(args)).IsNotNull().Then(x => x.Length, nameof(args.Length)).IsEqual(2);
+
+                builder.Attributes.Add((string)args[0], (string)args[1]);
                 result = builder;
                 return true;
             }

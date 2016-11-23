@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Reusable.Extensions;
-using Reusable.Validations;
+using Reusable.Collections;
+using Reusable.Fuse;
 
 namespace Reusable
 {

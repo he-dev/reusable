@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace Reusable
+namespace Reusable.Converters
 {
     public class CompositeConverter : TypeConverter
     {

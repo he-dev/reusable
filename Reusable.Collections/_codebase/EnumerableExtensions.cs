@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace SmartLibs.EnumerableLib
+namespace Reusable.Collections
 {
     public static class EnumerableExtensions
     {
@@ -51,6 +49,21 @@ namespace SmartLibs.EnumerableLib
             if (enumerable == null) { throw new ArgumentNullException(nameof(enumerable)); }
 
             return enumerable.Concat(new[] { item });
+        }
+
+        public static string Join<T>(this IEnumerable<T> values, string separator)
+        {
+            if (values == null) { throw new ArgumentNullException(nameof(values)); }
+            return string.Join(separator, values);
+        }
+
+        public static IEnumerable<TArg> Except<TArg, TProjection>(this IEnumerable<TArg> first, IEnumerable<TArg> second, Func<TArg, TProjection> projection)
+        {
+            if (first == null) { throw new ArgumentNullException(nameof(first)); }
+            if (second == null) throw new ArgumentNullException(nameof(second));
+            if (projection == null) throw new ArgumentNullException(nameof(projection));
+
+            return first.Except(second, new AutoEqualityComparer<TArg, TProjection>(projection));
         }
     }
 }

@@ -1,7 +1,6 @@
-﻿using System;
-using Reusable.Extensions;
+﻿ using System;
 
-namespace Reusable
+namespace Reusable.Fuse
 {
     public class ValidationException : Exception
     {
@@ -10,10 +9,5 @@ namespace Reusable
 
         public ValidationException(string message)
             : base(message) { }
-
-        public override string ToString()
-        {
-            return this.ToJson();
-        }
     }
 }

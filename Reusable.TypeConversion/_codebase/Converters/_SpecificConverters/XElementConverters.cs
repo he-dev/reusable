@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using System.Xml.Linq;
 
-namespace Reusable.Converters
+namespace Reusable.Converters.Converters
 {
     public class StringToXElementConverter : SpecificConverter<String, XElement>
     {

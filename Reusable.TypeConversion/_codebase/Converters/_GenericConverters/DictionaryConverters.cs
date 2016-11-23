@@ -1,11 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Reusable.Extensions;
 
 // ReSharper disable BuiltInTypeReferenceStyle
 
-namespace Reusable.Converters
+namespace Reusable.Converters.Converters
 {
     public class DictionaryObjectObjectToDictionaryObjectObjectConverter : GenericConverter<IDictionary>
     {

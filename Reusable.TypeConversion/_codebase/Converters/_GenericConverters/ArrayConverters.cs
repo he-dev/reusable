@@ -1,9 +1,8 @@
 using System;
 using System.Collections;
 using System.Linq;
-using Reusable.Extensions;
 
-namespace Reusable.Converters
+namespace Reusable.Converters.Converters
 {
     public class EnumerableObjectToArrayObjectConverter : GenericConverter<IEnumerable>
     {

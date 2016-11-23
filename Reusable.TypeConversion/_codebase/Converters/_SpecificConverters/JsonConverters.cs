@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace Reusable.Converters
+namespace Reusable.Converters.Converters
 {
     public class JsonToObjectConverter<T> : SpecificConverter<String, T>
     {

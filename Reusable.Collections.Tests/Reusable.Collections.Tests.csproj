@@ -57,13 +57,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Collections\Reusable.Collections.csproj">
-      <Project>{77d13361-f166-46e9-901b-50b836d684d3}</Project>
-      <Name>Reusable.Collections</Name>
+    <ProjectReference Include="..\Reusable.Extensions\Reusable.Utils.csproj">
+      <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
+      <Name>Reusable.Utils</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Reusable.FluentValidation\Reusable.FluentValidation.csproj">
+    <ProjectReference Include="..\Reusable.FluentValidation\Reusable.Fuse.csproj">
       <Project>{aba07d6f-bb71-4aa6-aa20-7330e394d082}</Project>
-      <Name>Reusable.FluentValidation</Name>
+      <Name>Reusable.Fuse</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

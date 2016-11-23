@@ -1,6 +1,6 @@
-﻿using Reusable.Converters;
+﻿using Reusable.Converters.Converters;
 
-namespace Reusable
+namespace Reusable.Converters
 {
     public static class TypeConverterSets
     {

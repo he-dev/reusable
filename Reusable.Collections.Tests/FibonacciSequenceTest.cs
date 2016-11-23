@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Testing;
-using Reusable.Validations;
+using Reusable.Fuse.Testing;
+using Reusable.Sequences;
 
 namespace Reusable.Collections.Tests
 {

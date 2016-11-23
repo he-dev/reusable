@@ -56,14 +56,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Clock\Reusable.Clock.csproj">
-      <Project>{621f9779-3968-4f12-b8da-ffc2c3257d93}</Project>
-      <Name>Reusable.Clock</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Reusable.Collections\Reusable.Collections.csproj">
-      <Project>{77d13361-f166-46e9-901b-50b836d684d3}</Project>
-      <Name>Reusable.Collections</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Reusable.ExceptionHandling\Reusable.ExceptionHandling.csproj">
       <Project>{011ac24e-4550-44e5-8101-be3956770780}</Project>
       <Name>Reusable.ExceptionHandling</Name>

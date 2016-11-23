@@ -1,7 +1,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Converters;
-using Reusable.Testing;
-using Reusable.Validations;
+using Reusable.Converters.Converters;
+using Reusable.Fuse;
+using Reusable.Fuse.Testing;
 
 namespace Reusable.TypeConversion.Tests
 {

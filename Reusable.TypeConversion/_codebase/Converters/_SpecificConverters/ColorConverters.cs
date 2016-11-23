@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Drawing;
-using System.Runtime.Serialization;
 using Reusable.Drawing;
 using Reusable.Formatters;
 
-namespace Reusable.Converters
+namespace Reusable.Converters.Converters
 {
     public class StringToColorConverter : SpecificConverter<String, Color>
     {

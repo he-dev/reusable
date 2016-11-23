@@ -2,8 +2,8 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable;
-using Reusable.Testing;
-using Reusable.Validations;
+using Reusable.Fuse;
+using Reusable.Fuse.Testing;
 
 // ReSharper disable EqualExpressionComparison
 

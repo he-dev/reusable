@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Reusable.Converters
+namespace Reusable.Converters.Converters
 {
     public class StringToByteConverter : SpecificConverter<String, Byte>
     {

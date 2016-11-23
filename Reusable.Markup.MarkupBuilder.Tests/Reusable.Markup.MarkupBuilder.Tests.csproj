@@ -55,9 +55,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.FluentValidation\Reusable.FluentValidation.csproj">
+    <ProjectReference Include="..\Reusable.FluentValidation\Reusable.Fuse.csproj">
       <Project>{aba07d6f-bb71-4aa6-aa20-7330e394d082}</Project>
-      <Name>Reusable.FluentValidation</Name>
+      <Name>Reusable.Fuse</Name>
     </ProjectReference>
     <ProjectReference Include="..\Reusable.Markup.MarkupBuilder\Reusable.Markup.MarkupBuilder.csproj">
       <Project>{2575d10b-414a-4cd6-8baa-bd6074b5dec6}</Project>

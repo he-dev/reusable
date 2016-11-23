@@ -1,9 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Reusable.Extensions;
 
-namespace Reusable.Converters
+namespace Reusable.Converters.Converters
 {
     public class EnumerableObjectToHashSetObjectConverter : GenericConverter<IEnumerable>
     {

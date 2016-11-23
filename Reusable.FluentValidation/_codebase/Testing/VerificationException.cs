@@ -1,7 +1,6 @@
 using System;
-using Reusable.Extensions;
 
-namespace Reusable.Testing
+namespace Reusable.Fuse.Testing
 {
     public class VerificationException : Exception
     {
@@ -9,11 +8,6 @@ namespace Reusable.Testing
             : base(message, innerException) { }
 
         public VerificationException(string message)
-            : base(message) { }
-
-        public override string ToString()
-        {
-            return this.ToJson();
-        }
+            : base(message) { }        
     }
 }

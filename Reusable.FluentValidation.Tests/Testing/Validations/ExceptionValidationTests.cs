@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Testing;
-using Reusable.Testing.Validations;
+using Reusable.Fuse.Testing;
 
 namespace Reusable.FluentValidation.Tests.Testing.Validations
 {

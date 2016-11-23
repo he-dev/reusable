@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace Reusable.DataAnnotations
+namespace Reusable.Converters
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class TypeConverterAttribute : Attribute

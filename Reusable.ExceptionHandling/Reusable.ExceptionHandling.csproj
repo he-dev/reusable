@@ -50,16 +50,6 @@
     <Compile Include="Threshold.cs" />
     <Compile Include="Try.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Reusable.Clock\Reusable.Clock.csproj">
-      <Project>{621f9779-3968-4f12-b8da-ffc2c3257d93}</Project>
-      <Name>Reusable.Clock</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Reusable.Collections\Reusable.Collections.csproj">
-      <Project>{77d13361-f166-46e9-901b-50b836d684d3}</Project>
-      <Name>Reusable.Collections</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

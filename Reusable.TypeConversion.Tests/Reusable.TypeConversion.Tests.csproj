@@ -63,17 +63,13 @@
     <Compile Include="_SpecificConverters\SByteConvertersTest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Drawing.Color32\Reusable.Drawing.Color32.csproj">
-      <Project>{848000fb-9f96-408b-915a-46472af79b99}</Project>
-      <Name>Reusable.Drawing.Color32</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Reusable.FluentValidation\Reusable.FluentValidation.csproj">
+    <ProjectReference Include="..\Reusable.FluentValidation\Reusable.Fuse.csproj">
       <Project>{aba07d6f-bb71-4aa6-aa20-7330e394d082}</Project>
-      <Name>Reusable.FluentValidation</Name>
+      <Name>Reusable.Fuse</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Reusable.TypeConversion\Reusable.TypeConversion.csproj">
+    <ProjectReference Include="..\Reusable.TypeConversion\Reusable.Converters.csproj">
       <Project>{d7da0768-b385-40de-abac-0a6b0c5b73f4}</Project>
-      <Name>Reusable.TypeConversion</Name>
+      <Name>Reusable.Converters</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

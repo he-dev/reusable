@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Testing;
-using Reusable.Validations;
+using Reusable.Fuse;
+using Reusable.Fuse.Testing;
 
 namespace Reusable.Extensions.Tests
 {

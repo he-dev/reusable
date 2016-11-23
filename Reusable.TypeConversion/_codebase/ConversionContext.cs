@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace Reusable
+namespace Reusable.Converters
 {
     public class ConversionContext
     {
