@@ -3,11 +3,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6714F200-6C83-446F-8A30-87F142814DC8}</ProjectGuid>
+    <ProjectGuid>{D2F588A5-F519-4CE3-BC3A-4274984E3448}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Reusable.Markup.Tests</RootNamespace>
-    <AssemblyName>Reusable.Markup.MarkupBuilder.Tests</AssemblyName>
+    <RootNamespace>Reusable.Converters.Tests</RootNamespace>
+    <AssemblyName>Reusable.Converters.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -35,8 +35,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
+    <Reference Include="System.Drawing" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -51,17 +51,25 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="ConverterTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="_GenericConverters\ArrayConvertersTests.cs" />
+    <Compile Include="_GenericConverters\DictionaryConvertersTests.cs" />
+    <Compile Include="_GenericConverters\HashSetConvertersTests.cs" />
+    <Compile Include="_GenericConverters\ListConvertersTests.cs" />
+    <Compile Include="_SpecificConverters\BooleanConvertersTests.cs" />
+    <Compile Include="_SpecificConverters\ColorConvertersTests.cs" />
+    <Compile Include="_SpecificConverters\JsonConvertersTests.cs" />
+    <Compile Include="_SpecificConverters\SByteConvertersTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Fuse\Reusable.Fuse.csproj">
       <Project>{aba07d6f-bb71-4aa6-aa20-7330e394d082}</Project>
       <Name>Reusable.Fuse</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Reusable.Markup.MarkupBuilder\Reusable.Markup.MarkupBuilder.csproj">
-      <Project>{2575d10b-414a-4cd6-8baa-bd6074b5dec6}</Project>
-      <Name>Reusable.Markup.MarkupBuilder</Name>
+    <ProjectReference Include="..\Reusable.Converters\Reusable.Converters.csproj">
+      <Project>{d7da0768-b385-40de-abac-0a6b0c5b73f4}</Project>
+      <Name>Reusable.Converters</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

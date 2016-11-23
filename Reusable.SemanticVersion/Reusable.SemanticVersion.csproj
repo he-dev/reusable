@@ -75,13 +75,13 @@
     <Compile Include="StringExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Extensions\Reusable.Utils.csproj">
-      <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
-      <Name>Reusable.Utils</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Reusable.FluentValidation\Reusable.Fuse.csproj">
+    <ProjectReference Include="..\Reusable.Fuse\Reusable.Fuse.csproj">
       <Project>{aba07d6f-bb71-4aa6-aa20-7330e394d082}</Project>
       <Name>Reusable.Fuse</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Reusable.Utils\Reusable.Utils.csproj">
+      <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
+      <Name>Reusable.Utils</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

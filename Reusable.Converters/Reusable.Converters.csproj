@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{2575D10B-414A-4CD6-8BAA-BD6074B5DEC6}</ProjectGuid>
+    <ProjectGuid>{D7DA0768-B385-40DE-ABAC-0A6B0C5B73F4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Reusable.Markup</RootNamespace>
-    <AssemblyName>Reusable.Markup.MarkupBuilder</AssemblyName>
+    <RootNamespace>Reusable.Converters</RootNamespace>
+    <AssemblyName>Reusable.Converters</AssemblyName>
     <TargetFrameworkVersion Condition=" '$(TargetFrameworkVersion)' == '' ">v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -58,6 +58,10 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -69,28 +73,50 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="_codebase\Extensions\attrExtension.cs" />
-    <Compile Include="_codebase\Extensions\createElementExtension.cs" />
-    <Compile Include="_codebase\Extensions\cssExtension.cs" />
-    <Compile Include="_codebase\HtmlFormatting.cs" />
-    <Compile Include="_codebase\MarkupBuilderExtensionCollection.cs" />
-    <Compile Include="_codebase\Renderers\HtmlRenderer.cs" />
-    <Compile Include="_codebase\_Interfaces\IMarkupBuilderExtension.cs" />
-    <Compile Include="_codebase\_Interfaces\IMarkupRenderer.cs" />
-    <Compile Include="_codebase\MarkupBuilder.cs" />
-    <Compile Include="_codebase\MarkupFormatting.cs" />
-    <Compile Include="_codebase\MarkupFormattingOptions.cs" />
-    <Compile Include="_codebase\MarkupRenderer.cs" />
+    <Compile Include="_codebase\CompositeConverter.cs" />
+    <Compile Include="_codebase\TypeConverterComposition.cs" />
+    <Compile Include="_codebase\ConversionContext.cs" />
+    <Compile Include="_codebase\TypeConversions.cs" />
+    <Compile Include="_codebase\TypeConverterSets.cs" />
+    <Compile Include="_codebase\_Converters.Generic\ArrayConverters.cs" />
+    <Compile Include="_codebase\_Converters.Generic\DictionaryConverters.cs" />
+    <Compile Include="_codebase\_Converters.Generic\HashSetConverters.cs" />
+    <Compile Include="_codebase\_Converters.Generic\ListConverters.cs" />
+    <Compile Include="_codebase\_Converters.Specific\JsonConverters.cs" />
+    <Compile Include="_codebase\_Converters.Generic\EnumConverters.cs" />
+    <Compile Include="_codebase\_Converters.Specific\ColorConverters.cs" />
+    <Compile Include="_codebase\_Converters.Specific\XDocumentConverters.cs" />
+    <Compile Include="_codebase\_Converters.Specific\XElementConverters.cs" />
+    <Compile Include="_codebase\_Converters.Specific\TimeSpanConverters.cs" />
+    <Compile Include="_codebase\_Converters.Specific\DecimalConverters.cs" />
+    <Compile Include="_codebase\_Converters.Specific\BooleanConverters.cs" />
+    <Compile Include="_codebase\_Converters.Specific\SByteConverters.cs" />
+    <Compile Include="_codebase\_Converters.Specific\ByteConverters.cs" />
+    <Compile Include="_codebase\_Converters.Specific\CharConverters.cs" />
+    <Compile Include="_codebase\_Converters.Specific\SingleConverters.cs" />
+    <Compile Include="_codebase\_Converters.Specific\DoubleConverters.cs" />
+    <Compile Include="_codebase\_Converters.Specific\UInt16Converters.cs" />
+    <Compile Include="_codebase\_Converters.Specific\Int16Converters.cs" />
+    <Compile Include="_codebase\_Converters.Specific\DateTimeConverters.cs" />
+    <Compile Include="_codebase\_Converters.Specific\UInt32Converters.cs" />
+    <Compile Include="_codebase\_Converters.Specific\UInt64Converters.cs" />
+    <Compile Include="_codebase\_Converters.Specific\Int64Converters.cs" />
+    <Compile Include="_codebase\_Converters.Specific\Int32Converters.cs" />
+    <Compile Include="_codebase\TypeConverterAttribute.cs" />
+    <Compile Include="_codebase\TypeConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Fuse\Reusable.Fuse.csproj">
-      <Project>{aba07d6f-bb71-4aa6-aa20-7330e394d082}</Project>
-      <Name>Reusable.Fuse</Name>
-    </ProjectReference>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Reusable.Utils\Reusable.Utils.csproj">
       <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
       <Name>Reusable.Utils</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Reusable.Fuse\Reusable.Fuse.csproj">
+      <Project>{aba07d6f-bb71-4aa6-aa20-7330e394d082}</Project>
+      <Name>Reusable.Fuse</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
