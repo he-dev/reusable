@@ -73,6 +73,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="_codebase\Commands\CommandComposition.cs" />
+    <Compile Include="_codebase\Commands\LinkedCommand.cs" />
     <Compile Include="_codebase\Data\AppConfigRepository.cs" />
     <Compile Include="_codebase\Data\Annotations\IgnoreAttribute.cs" />
     <Compile Include="_codebase\Data\Annotations\OptionalAttribute.cs" />
