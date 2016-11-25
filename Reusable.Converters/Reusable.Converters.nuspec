@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.TypeConversion</id>
+    <id>Reusable.Converters</id>
     <version>2.0.0</version>
-    <title>Reusable.TypeConversion</title>
+    <title>Reusable.Converters</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
@@ -21,7 +21,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\Reusable.TypeConversion.dll" target="lib\net452" />
-    <file src="bin\Release\Reusable.TypeConversion.pdb" target="lib\net452" />
+    <file src="bin\Release\Reusable.Converters.dll" target="lib\net452" />
+    <file src="bin\Release\Reusable.Converters.pdb" target="lib\net452" />
   </files>
 </package>
