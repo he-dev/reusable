@@ -4,7 +4,7 @@ namespace Reusable.Clocks
 {
     public interface IClock
     {
-        DateTime GetNow();
-        DateTime GetUtcNow();
+        DateTime Now();
+        DateTime UtcNow();
     }
 }

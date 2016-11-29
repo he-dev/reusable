@@ -4,6 +4,8 @@ using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Reusable.Fuse;
+
 //using Reusable.Validations;
 
 namespace Reusable.Data
@@ -12,7 +14,7 @@ namespace Reusable.Data
     {
         public string GetConnectionString(string name)
         {
-            //name.Validate(nameof(name)).IsNotNullOrEmpty();
+            name.Validate(nameof(name)).IsNotNullOrEmpty();
 
             var connectionStringSettings =
                 ConfigurationManager.ConnectionStrings
@@ -23,7 +25,7 @@ namespace Reusable.Data
 
         public string GetAppSetting(string name)
         {
-            //name.Validate(nameof(name)).IsNotNullOrEmpty();
+            name.Validate(nameof(name)).IsNotNullOrEmpty();
 
             var value = ConfigurationManager.AppSettings[name];
             return value;

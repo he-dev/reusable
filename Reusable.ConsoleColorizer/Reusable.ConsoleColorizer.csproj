@@ -40,10 +40,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConsoleColorizer.cs" />
-    <Compile Include="ConsoleStyle.cs" />
+    <Compile Include="_codebase\ConsoleColorizer.cs" />
+    <Compile Include="_codebase\ConsoleStyle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="XElementExtensions.cs" />
+    <Compile Include="_codebase\XElementExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

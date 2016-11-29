@@ -4,7 +4,7 @@ namespace Reusable.Clocks
 {
     public class SystemClock : IClock
     {
-        public DateTime GetNow() => DateTime.Now;
-        public DateTime GetUtcNow() => DateTime.UtcNow;
+        public DateTime Now() => DateTime.Now;
+        public DateTime UtcNow() => DateTime.UtcNow;
     }
 }
