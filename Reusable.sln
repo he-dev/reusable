@@ -33,6 +33,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Utils.Tests", "Reu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Converters.Tests", "Reusable.Converters.Tests\Reusable.Converters.Tests.csproj", "{D2F588A5-F519-4CE3-BC3A-4274984E3448}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Shelly", "Reusable.CommandLine\Reusable.Shelly.csproj", "{82DBEED3-E1ED-4E95-B4CE-D29BBCC1F888}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.CommandLine.Tests", "Reusable.CommandLine.Tests\Reusable.CommandLine.Tests.csproj", "{DDEF5B61-C7D2-4D8E-B6FB-D5534CB93247}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -85,6 +89,14 @@ Global
 		{D2F588A5-F519-4CE3-BC3A-4274984E3448}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D2F588A5-F519-4CE3-BC3A-4274984E3448}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2F588A5-F519-4CE3-BC3A-4274984E3448}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82DBEED3-E1ED-4E95-B4CE-D29BBCC1F888}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82DBEED3-E1ED-4E95-B4CE-D29BBCC1F888}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82DBEED3-E1ED-4E95-B4CE-D29BBCC1F888}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82DBEED3-E1ED-4E95-B4CE-D29BBCC1F888}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDEF5B61-C7D2-4D8E-B6FB-D5534CB93247}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDEF5B61-C7D2-4D8E-B6FB-D5534CB93247}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDEF5B61-C7D2-4D8E-B6FB-D5534CB93247}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDEF5B61-C7D2-4D8E-B6FB-D5534CB93247}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -102,5 +114,7 @@ Global
 		{DA0E4890-C2E2-4F64-936C-02DDA1B44CBD} = {AC36C881-1733-4649-ACBC-03B6F9A9334C}
 		{26B07985-D705-45DE-934D-B16F6B1FE6D6} = {AC36C881-1733-4649-ACBC-03B6F9A9334C}
 		{D2F588A5-F519-4CE3-BC3A-4274984E3448} = {AC36C881-1733-4649-ACBC-03B6F9A9334C}
+		{82DBEED3-E1ED-4E95-B4CE-D29BBCC1F888} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
+		{DDEF5B61-C7D2-4D8E-B6FB-D5534CB93247} = {AC36C881-1733-4649-ACBC-03B6F9A9334C}
 	EndGlobalSection
 EndGlobal

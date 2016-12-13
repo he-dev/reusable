@@ -93,7 +93,7 @@ namespace Reusable
                 Caller = (sf.GetMethod() as MethodInfo)?.ToShortString() ?? string.Empty,
                 FileName = Path.GetFileName(sf.GetFileName()),
                 LineNumber = sf.GetFileLineNumber(),
-            });
+            }) ?? Enumerable.Empty<dynamic>();
             return result;
         }
     }

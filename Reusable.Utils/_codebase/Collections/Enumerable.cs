@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Reusable.Collections
 {
-    public static class Enumerable
+    public static class EnumerableExtensions
     {
         /// <summary>
         /// Applies a specified function to the corresponding elements of two sequences, producing a sequence of the results.

@@ -107,6 +107,7 @@
     <Compile Include="_codebase\Sequences\RegularSequence.cs" />
     <Compile Include="_codebase\Conditional.cs" />
     <Compile Include="_codebase\Reflection.cs" />
+    <Compile Include="_codebase\SingleInstance.cs" />
     <Compile Include="_codebase\StringInterpolation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
