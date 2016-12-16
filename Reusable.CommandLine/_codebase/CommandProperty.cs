@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Reusable.Shelly
@@ -19,10 +20,10 @@ namespace Reusable.Shelly
             {
                 yield return _property.Name;
 
-                var alias = _property.GetCustomAttribute<AliasAttribute>()?.ToString();
-                if (!string.IsNullOrEmpty(alias))
+                var alias = _property.GetCustomAttribute<AliasAttribute>();
+                foreach (var a in alias ?? Enumerable.Empty<string>())
                 {
-                    yield return alias;
+                    yield return a;
                 }
             }
         }

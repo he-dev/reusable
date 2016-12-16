@@ -13,7 +13,7 @@ namespace Reusable.Shelly.Reflection
     {
         public static IEnumerable<string> GetCommandNames(this Type commandType)
         {
-            commandType.Validate(nameof(commandType)).IsNotNull().IsAssignableFrom<Command>();
+            commandType.Validate(nameof(commandType)).IsNotNull().IsAssignableTo<Command>();
 
             var name = Regex.Replace(commandType.Name, $"{nameof(Command)}$", string.Empty, RegexOptions.IgnoreCase);
             var alias = commandType.GetCustomAttribute<AliasAttribute>();
@@ -42,7 +42,7 @@ namespace Reusable.Shelly.Reflection
             {
                 foreach (var x in alias)
                 {
-                    yield return $"{@namespace}.{x}";
+                    yield return $"{x}";
                 }
             }
         }
@@ -62,7 +62,7 @@ namespace Reusable.Shelly.Reflection
 
         public static IEnumerable<CommandProperty> GetCommandProperties(this Type commandType)
         {
-            commandType.Validate(nameof(commandType)).IsNotNull().IsAssignableFrom<Command>();
+            commandType.Validate(nameof(commandType)).IsNotNull().IsAssignableTo<Command>();
 
             var parameters =
                 from property in commandType.GetProperties(BindingFlags.Instance | BindingFlags.Public)
@@ -79,16 +79,16 @@ namespace Reusable.Shelly.Reflection
             return command.GetType().GetCommandProperties();
         }
 
-        public static void ValidateCommandPropertyNamesAreUnique(this Type commandType)
+        public static void ValidateCommandPropertyNames(this Type commandType)
         {
-            commandType.Validate(nameof(commandType)).IsNotNull().IsAssignableFrom<Command>();
+            commandType.Validate(nameof(commandType)).IsNotNull().IsAssignableTo<Command>();
 
             try
             {
                 commandType
                     .GetCommandProperties()
                     .SelectMany(x => x.Names)
-                    .ValidateCommandPropertyNamesAreUnique();
+                    .ValidateCommandPropertyNames();
             }
             catch (Exception ex)
             {
@@ -96,7 +96,7 @@ namespace Reusable.Shelly.Reflection
             }
         }
 
-        public static void ValidateCommandPropertyNamesAreUnique(this IEnumerable<string> names)
+        public static void ValidateCommandPropertyNames(this IEnumerable<string> names)
         {
             var duplicateNames = names
                 .GroupBy(x => x)

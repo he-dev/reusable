@@ -52,28 +52,24 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="_codebase\CommandFactory.cs" />
-    <Compile Include="_codebase\CommandInfo.cs" />
+    <Compile Include="_codebase\Data\CommandInfo.cs" />
     <Compile Include="_codebase\CommandLineBuilder.cs" />
-    <Compile Include="_codebase\CommandLineException.cs" />
+    <Compile Include="_codebase\CommandLineBuilderExtensions.cs" />
     <Compile Include="_codebase\CommandLineParser.cs" />
     <Compile Include="_codebase\CommandLineArgument.cs" />
+    <Compile Include="_codebase\CommandLineParseResult.cs" />
     <Compile Include="_codebase\CommandProperty.cs" />
     <Compile Include="_codebase\Data\ArgumentSummary.cs" />
     <Compile Include="_codebase\Data\CommandSummary.cs" />
     <Compile Include="_codebase\Commands\HelpCommand.cs" />
     <Compile Include="_codebase\Exceptions.cs" />
-    <Compile Include="_codebase\ILogger.cs" />
     <Compile Include="_codebase\Reflection\CommandExtensions.cs" />
-    <Compile Include="_codebase\LoggerExtensions.cs" />
-    <Compile Include="_codebase\Writers\DebugLogger.cs" />
-    <Compile Include="_codebase\Writers\ConsoleLogger.cs" />
     <Compile Include="_codebase\_Attributes\NamespaceAttribute.cs" />
     <Compile Include="_codebase\_Attributes\ParameterAttribute.cs" />
     <Compile Include="_codebase\Command.cs" />
     <Compile Include="_codebase\CommandLine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="_codebase\_Attributes\AliasAttribute.cs" />
-    <Compile Include="_codebase\_enums\LogLevel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -82,7 +78,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="_codebase\_Interfaces\" />
+    <Folder Include="_codebase\Writers\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Converters\Reusable.Converters.csproj">

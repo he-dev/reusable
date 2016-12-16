@@ -1,13 +1,13 @@
 ﻿using System;
 
-namespace Reusable.Shelly
+namespace Reusable.Shelly.Data
 {
     public class CommandInfo
     {
         private CommandInfo(Type commandType, object[] args)
         {
             CommandType = commandType;
-            Args = args;
+            Args = args ?? new object[0];
         }
 
         public Type CommandType { get; }

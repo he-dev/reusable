@@ -20,11 +20,15 @@ namespace Reusable.Shelly.Commands
     [Description("Display help.")]
     public class HelpCommand : Command
     {
+        private readonly CommandLine _commandLine;
+
         private readonly IHelpWriter _helpWriter;
 
-        public HelpCommand(IHelpWriter helpWriter)
+        public HelpCommand(CommandLine commandLine, IHelpWriter helpWriter)
         {
+            commandLine.Validate(nameof(commandLine)).IsNotNull();
             helpWriter.Validate(nameof(helpWriter)).IsNotNull();
+            _commandLine = commandLine;
             _helpWriter = helpWriter;
         }
 
@@ -39,11 +43,11 @@ namespace Reusable.Shelly.Commands
 
             if (string.IsNullOrEmpty(CommandName))
             {
-                _helpWriter.WriteCommands(CreateCommandSummaries(CommandLine.Commands));
+                _helpWriter.WriteCommands(CreateCommandSummaries(_commandLine.Commands));
             }
             else
             {
-                var command = CommandLine.FindCommand(CommandName);
+                var command = _commandLine.FindCommand(CommandName);
                 if (command == null)
                 {
                     throw new Exception($"Command \"{CommandName}\" not found.");

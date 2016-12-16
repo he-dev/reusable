@@ -23,7 +23,7 @@ namespace Reusable.Fuse
         {
             return current.Check(
                 value => value.SequenceEqual(other),
-                message ?? $"\"{current.MemberName}\" must have the same elements as the other collection.");
+                message ?? $"Sequence \"{current.MemberName}\" must contain [{string.Join(", ", other.Quote())}] but does [{string.Join(", ", current.Value.Quote())}].");
         }
 
         public static ICurrent<IEnumerable<T>> Contains<T>(this ICurrent<IEnumerable<T>> current, T element, IEqualityComparer<T> comparer = null , string message = null)
@@ -38,6 +38,11 @@ namespace Reusable.Fuse
             return current.Check(
                 value => comparer != null ? !value.Contains(element, comparer) : !value.Contains(element),
                 message ?? $"\"{current.MemberName}\" collection must not contain \"{element}\".");
+        }
+
+        private static IEnumerable<string> Quote<T>(this IEnumerable<T> values)
+        {
+            return values.Select(x => $"\"{x}\"");
         }
     }
 }

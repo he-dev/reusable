@@ -5,14 +5,9 @@ using System.Text.RegularExpressions;
 
 namespace Reusable.Shelly
 {
-    //public interface ICommandLineParser
-    //{
-    //    ArgumentCollection Parse(IEnumerable<string> args, string argumentPrefix, string nameValueSeparator);
-    //}
-
-    public class CommandLineParser //: ICommandLineParser
+    public class CommandLineParser
     {
-        public IEnumerable<IGrouping<string, string>> Parse(IEnumerable<string> args, string parameterPrefix, string parameterValueSeparator = null)
+        public CommandLineParseResult Parse(IEnumerable<string> args, string argumentPrefix, string argumentValueSeparator, IEnumerable<string> commandNames)
         {
             // ~ ignores null or empty args
             if (args == null) { return null; }
@@ -20,24 +15,35 @@ namespace Reusable.Shelly
             // https://regex101.com/r/qY0lT3/3
             // ^(?<prefix>-)?(?<name>[a-z][a-z0-9-_]*)
 
-            var parameterMatcher = new Regex($"^(?<prefix>(?:{parameterPrefix}))(?<name>([a-z_][a-z0-9-_]*|\\?))", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
+            var parameterMatcher = new Regex($"^(?<prefix>(?:{argumentPrefix}))(?<name>([a-z_][a-z0-9-_]*|\\?))", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
 
-            var parameters = new List<CommandLineArgument> { new CommandLineArgument(string.Empty) };
-            var lastParameter = new Func<CommandLineArgument>(() => parameters.Last());
+            var arguments = new List<CommandLineArgument>();
+            var lastParameter = new Func<CommandLineArgument>(() => arguments.Last());
+
+            var commandName = string.Empty;
+            var isFirstArg = true;
 
             foreach (var arg in args)
             {
+                if (isFirstArg && commandNames.Contains(arg, StringComparer.OrdinalIgnoreCase))
+                {
+                    commandName = arg;
+                    isFirstArg = false;
+                    continue;
+                }
+
                 var parameterMatch = parameterMatcher.Match(arg);
+
                 if (parameterMatch.Success)
                 {
-                    parameters.Add(new CommandLineArgument(parameterMatch.Groups["name"].Value));
+                    arguments.Add(new CommandLineArgument(parameterMatch.Groups["name"].Value));
 
-                    if (string.IsNullOrEmpty(parameterValueSeparator))
+                    if (string.IsNullOrEmpty(argumentValueSeparator))
                     {
                         continue;
                     }
 
-                    var separatorIndex = arg.IndexOf(parameterValueSeparator, StringComparison.OrdinalIgnoreCase);
+                    var separatorIndex = arg.IndexOf(argumentValueSeparator, StringComparison.OrdinalIgnoreCase);
                     if (separatorIndex <= 0)
                     {
                         continue;
@@ -48,11 +54,15 @@ namespace Reusable.Shelly
                 }
                 else
                 {
+                    if (!arguments.Any())
+                    {
+                        arguments.Add(new CommandLineArgument(string.Empty));
+                    }
                     lastParameter().Add(arg);
                 }
             }
 
-            return parameters;
+            return new CommandLineParseResult(commandName, arguments);
         }
     }
 }

@@ -35,7 +35,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Converters.Tests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Shelly", "Reusable.CommandLine\Reusable.Shelly.csproj", "{82DBEED3-E1ED-4E95-B4CE-D29BBCC1F888}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.CommandLine.Tests", "Reusable.CommandLine.Tests\Reusable.CommandLine.Tests.csproj", "{DDEF5B61-C7D2-4D8E-B6FB-D5534CB93247}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Shelly.Tests", "Reusable.CommandLine.Tests\Reusable.Shelly.Tests.csproj", "{DDEF5B61-C7D2-4D8E-B6FB-D5534CB93247}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

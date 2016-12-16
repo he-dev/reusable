@@ -104,11 +104,11 @@ namespace Reusable.Fuse
                 value => type.IsInstanceOfType(value),
                 message ?? $"\"{current.MemberName}\" must be instance of \"{type.FullName}\".");
         }
-
-        public static ICurrent<Type> IsAssignableFrom<T>(this ICurrent<Type> current, string message = null)
+        
+        public static ICurrent<Type> IsAssignableTo<T>(this ICurrent<Type> current, string message = null)
         {
             return current.Check(
-                value => value.IsAssignableFrom(typeof(T)),
+                value => typeof(T).IsAssignableFrom(value),
                 message ?? $"\"{current.MemberName}\" must be assignable from \"{typeof(T).FullName}\".");
         }
     }    

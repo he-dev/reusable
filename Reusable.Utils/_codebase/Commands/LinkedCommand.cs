@@ -34,5 +34,10 @@ namespace Reusable.Commands
             _pre.Execute(arg);
             _post.Execute(arg);
         }
+
+        protected void OnCanExecuteChanged()
+        {
+            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+        }
     }
 }

@@ -1,30 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Reusable.Shelly.Commands;
+using Reusable.Shelly.Data;
 using Reusable.Shelly.Reflection;
-using Reusable.Shelly.Writers;
 
 namespace Reusable.Shelly
 {
     public class CommandLineBuilder
     {
         private readonly List<CommandInfo> _commands = new List<CommandInfo>();
-        private string _argznentPrefix = "-";
+        private string _argumentPrefix = "-";
         private string _argumentValueSeparator = ":";
-#if DEBUG
-        private ILogger _logger = Shelly.Logger.Empty.Add<ConsoleLogger>(LogLevel.Trace).Add<DebugLogger>(LogLevel.Trace);
-#else
-            private ILogger _logger = Candle.Logger.Empty.Add<ConsoleLogger>().Add<DebugLogger>();
-#endif
 
-        public CommandLineBuilder()
-        {
-        }
+        //public CommandLineBuilder() { }
 
         public CommandLineBuilder ArgumentPrefix(string argumentPrefix)
         {
-            _argznentPrefix = argumentPrefix;
+            _argumentPrefix = argumentPrefix;
             return this;
         }
 
@@ -43,7 +35,7 @@ namespace Reusable.Shelly
                 throw new ArgumentException($"Command '{typeof(TCommand).FullName}' cannot be added because there is already another command with this name: \"{nameCollision}\".");
             }
 
-            typeof(TCommand).ValidateCommandPropertyNamesAreUnique();
+            typeof(TCommand).ValidateCommandPropertyNames();
 
             _commands.Add(CommandInfo.Create<TCommand>(args));
             return this;
@@ -59,12 +51,13 @@ namespace Reusable.Shelly
         {
             if (_commands.Any(x => x.IsDefault))
             {
-                // todo: throw DefaultCommandException
+                throw new InvalidOperationException("There is already another default command.");
             }
+
             var cmd = _commands.LastOrDefault();
             if (cmd == null)
             {
-                // todo: throw CommandNotRegisteredException
+                throw new InvalidOperationException("There need to be at least registered command in order to set it as default.");
             }
 
             cmd.IsDefault = true;
@@ -72,23 +65,9 @@ namespace Reusable.Shelly
             return this;
         }
 
-        public CommandLineBuilder Logger(ILogger logger)
-        {
-            _logger = logger;
-            return this;
-        }
-
         public CommandLine Build()
         {
-            return new CommandLine(_commands, _argznentPrefix, _argumentValueSeparator);
-        }
-    }
-
-    public static class CommandLineBuilderExtensions
-    {
-        public static CommandLineBuilder RegisterHelpCommand(this CommandLineBuilder builder, IHelpWriter helpWriter)
-        {
-            return builder.Register<HelpCommand>(helpWriter);
+            return new CommandLine(_commands, _argumentPrefix, _argumentValueSeparator);
         }
     }
 }

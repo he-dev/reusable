@@ -66,5 +66,10 @@ namespace Reusable.Collections
 
             return first.Except(second, new AutoEqualityComparer<TArg, TProjection>(projection));
         }
+
+        public static IEnumerable<string> Quote<T>(this IEnumerable<T> values)
+        {
+            return values.Select(x => $"\"{x}\"");
+        }
     }
 }
