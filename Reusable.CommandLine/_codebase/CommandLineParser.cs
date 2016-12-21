@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Reusable.Shelly.Collections;
 
 namespace Reusable.Shelly
 {
     public class CommandLineParser
     {
-        public CommandLineParseResult Parse(IEnumerable<string> args, string argumentPrefix, string argumentValueSeparator, IEnumerable<string> commandNames)
+        public ArgumentCollection Parse(IEnumerable<string> args, string argumentPrefix, string argumentValueSeparator, IList<string> commandNames)
         {
             // ~ ignores null or empty args
             if (args == null) { return null; }
@@ -17,8 +18,8 @@ namespace Reusable.Shelly
 
             var parameterMatcher = new Regex($"^(?<prefix>(?:{argumentPrefix}))(?<name>([a-z_][a-z0-9-_]*|\\?))", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
 
-            var arguments = new List<CommandLineArgument>();
-            var lastParameter = new Func<CommandLineArgument>(() => arguments.Last());
+            var arguments = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+            var lastArgumentName = (string)null;
 
             var commandName = string.Empty;
             var isFirstArg = true;
@@ -36,7 +37,8 @@ namespace Reusable.Shelly
 
                 if (parameterMatch.Success)
                 {
-                    arguments.Add(new CommandLineArgument(parameterMatch.Groups["name"].Value));
+                    lastArgumentName = parameterMatch.Groups["name"].Value;
+                    arguments.Add(lastArgumentName, new List<string>());
 
                     if (string.IsNullOrEmpty(argumentValueSeparator))
                     {
@@ -50,19 +52,19 @@ namespace Reusable.Shelly
                     }
 
                     var value = arg.Substring(separatorIndex + 1);
-                    lastParameter().Add(value);
+                    arguments[lastArgumentName].Add(value);
                 }
                 else
                 {
                     if (!arguments.Any())
                     {
-                        arguments.Add(new CommandLineArgument(string.Empty));
+                        arguments.Add(lastArgumentName = string.Empty, new List<string>());
                     }
-                    lastParameter().Add(arg);
+                    arguments[lastArgumentName].Add(arg);
                 }
             }
 
-            return new CommandLineParseResult(commandName, arguments);
+            return new ArgumentCollection(commandName, arguments);
         }
     }
 }

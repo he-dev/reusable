@@ -30,10 +30,10 @@ namespace Reusable.Shelly
         {
             args.Validate(nameof(args)).IsNotNull();
 
-            var commandNames = Commands.SelectMany(x => x.CommandType.GetCommandNames());
+            var commandNames = Commands.SelectMany(x => x.CommandType.GetCommandNames()).ToList();
             var parseResult = CommandLineParser.Parse(args, ArgumentPrefix, ArgumentValueSeparator, commandNames);
             var commandInfo = FindCommand(parseResult.CommandName);
-            var command = CommandFactory.CreateCommand(commandInfo, parseResult.Arguments, this);
+            var command = CommandFactory.CreateCommand(commandInfo, this);
             command.Execute();
         }
 

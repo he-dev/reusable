@@ -50,7 +50,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="_src\DatabaseParameterInfoExtensions.cs" />
+    <Compile Include="_src\DatabaseTargetExtensions.cs" />
+    <Compile Include="_src\DatabaseTargetQueryGenerator.cs" />
+    <Compile Include="_src\LoggingConfigurationExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

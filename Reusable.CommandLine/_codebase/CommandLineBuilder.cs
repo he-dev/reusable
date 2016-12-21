@@ -41,7 +41,7 @@ namespace Reusable.Shelly
             return this;
         }
 
-        public CommandLineBuilder Register<TCommand>() where TCommand : Command, new()
+        public CommandLineBuilder Register<TCommand>() where TCommand : Command
         {
             Register<TCommand>(null);
             return this;

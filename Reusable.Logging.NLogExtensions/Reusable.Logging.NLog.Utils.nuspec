@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.Logging.NLogExtensions</id>
+    <id>  </id>
     <version>2.0.1</version>
-    <title>Reusable.Logging.NLogExtensions</title>
+    <title>Reusable.Logging.NLog.Utils</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
@@ -21,7 +21,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\Reusable.Logging.NLogExtensions.dll" target="lib\net452" />
-    <file src="bin\Release\Reusable.Logging.NLogExtensions.pdb" target="lib\net452" />
+    <file src="bin\Release\Reusable.Logging.NLog.Utils.dll" target="lib\net452" />
+    <file src="bin\Release\Reusable.Logging.NLog.Utils.pdb" target="lib\net452" />
   </files>
 </package>

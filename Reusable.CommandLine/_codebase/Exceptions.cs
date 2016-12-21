@@ -15,4 +15,9 @@ namespace Reusable.Shelly
         public string ArgumentType { get; set; }
         public string Value { get; set; }
     }
+
+    public class CommnadNotFoundException : Exception
+    {
+        public CommnadNotFoundException(string message) : base(message) { }
+    }
 }

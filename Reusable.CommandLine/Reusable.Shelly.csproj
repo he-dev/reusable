@@ -51,19 +51,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="_codebase\Collections\ArgumentCollection.cs" />
     <Compile Include="_codebase\CommandFactory.cs" />
     <Compile Include="_codebase\Data\CommandInfo.cs" />
     <Compile Include="_codebase\CommandLineBuilder.cs" />
     <Compile Include="_codebase\CommandLineBuilderExtensions.cs" />
     <Compile Include="_codebase\CommandLineParser.cs" />
     <Compile Include="_codebase\CommandLineArgument.cs" />
-    <Compile Include="_codebase\CommandLineParseResult.cs" />
     <Compile Include="_codebase\CommandProperty.cs" />
     <Compile Include="_codebase\Data\ArgumentSummary.cs" />
     <Compile Include="_codebase\Data\CommandSummary.cs" />
     <Compile Include="_codebase\Commands\HelpCommand.cs" />
     <Compile Include="_codebase\Exceptions.cs" />
     <Compile Include="_codebase\Reflection\CommandExtensions.cs" />
+    <Compile Include="_codebase\Reflection\CommandPropertyMapper.cs" />
     <Compile Include="_codebase\_Attributes\NamespaceAttribute.cs" />
     <Compile Include="_codebase\_Attributes\ParameterAttribute.cs" />
     <Compile Include="_codebase\Command.cs" />
