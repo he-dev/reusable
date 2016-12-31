@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NLog.Layouts;
+﻿using NLog.Layouts;
 using NLog.Targets;
 
-namespace Reusable.Logging.NLogExtensions
+namespace Reusable.Logging.NLog.Utils
 {
     public static class DatabaseTargetExtensions
     {

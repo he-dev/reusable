@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using NLog.Targets;
 using NLog.Config;
+using NLog.Targets;
 
-namespace Reusable.Logging.NLogExtensions
+namespace Reusable.Logging.NLog.Utils
 {
     public static class LoggingConfigurationExtensions
     {

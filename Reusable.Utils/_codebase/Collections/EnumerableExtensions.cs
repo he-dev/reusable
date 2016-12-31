@@ -71,5 +71,43 @@ namespace Reusable.Collections
         {
             return values.Select(x => $"\"{x}\"");
         }
+
+        public static IEnumerable<T> TakeOrRepeat<T>(this IEnumerable<T> values, int count)
+        {
+            if (values == null) { throw new ArgumentNullException(nameof(values)); }
+            if (count < 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                   paramName: nameof(count),
+                   actualValue: count,
+                   message: "Count must be greater or equal 0."
+                );
+            }
+
+            var counter = 0;
+            var enumerator = values.GetEnumerator();
+            var moveNext = new Func<bool>(() =>
+            {
+                if (enumerator.MoveNext())
+                {
+                    return true;
+                }
+                // Could not move-next. Reset enumerator and try again.
+                enumerator = values.GetEnumerator();
+                return enumerator.MoveNext();
+            });
+
+            while (counter++ < count)
+            {
+                if (moveNext())
+                {
+                    yield return enumerator.Current;
+                }
+                else
+                {
+                    yield break;
+                }
+            }
+        }
     }
 }

@@ -19,8 +19,8 @@ It contains the following parts:
   - `Reusable.Clocks.IClock` - clock interface
   - `Reusable.Clocks.SystemClock` - provides system date and time
   - `Reusable.Clocks.TestClock` - date and time for testing
-  - `Resuable.Collection` - contains classes that  
-  - `Resuable.Collections.AutoEqualityComparer` - 
+  - `Resuable.Collection` - contains classes that
+  - `Resuable.Collections.AutoEqualityComparer` -
   - `Resuable.Collections.AutoEqualityComparerFactory`
   - `Resuable.Collections.AutoKeyDictionary`
   - `Resuable.Collections.Enumerable`

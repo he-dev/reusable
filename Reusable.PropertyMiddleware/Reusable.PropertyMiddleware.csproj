@@ -1,20 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A9161314-0576-4CF5-A018-279A590C61DC}</ProjectGuid>
+    <ProjectGuid>{55B0A875-7F36-4073-9A1B-F0DB39FC2C40}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Reusable.Logging.NLog.Utils</RootNamespace>
-    <AssemblyName>Reusable.Logging.NLog.Utils</AssemblyName>
+    <RootNamespace>Reusable.PropertyMiddleware</RootNamespace>
+    <AssemblyName>Reusable.PropertyMiddleware</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -24,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -32,14 +29,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.3.8\lib\net45\NLog.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -50,28 +40,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="_src\DatabaseParameterInfoExtensions.cs" />
-    <Compile Include="_src\DatabaseTargetExtensions.cs" />
-    <Compile Include="_src\DatabaseTargetQueryGenerator.cs" />
-    <Compile Include="_src\LoggingConfigurationExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="_codebase\ExpressionExtensions.cs" />
+    <Compile Include="_codebase\ExpressionFactory.cs" />
+    <Compile Include="_codebase\PropertyReader.cs" />
+    <Compile Include="_codebase\PropertyReaderExtensions.cs" />
+    <Compile Include="_codebase\PropertyWriter.cs" />
+    <Compile Include="_codebase\PropertyWriterExtensions.cs" />
+    <Compile Include="_codebase\Collections.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-    <Content Include="NLog.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <None Include="NLog.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="packages.config" />
+    <ProjectReference Include="..\Reusable.Fuse\Reusable.Fuse.csproj">
+      <Project>{aba07d6f-bb71-4aa6-aa20-7330e394d082}</Project>
+      <Name>Reusable.Fuse</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
