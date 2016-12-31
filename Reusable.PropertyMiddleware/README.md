@@ -10,32 +10,42 @@ It can work with up to two dimensional indexers.
 
 ### Getting values
 
-You can get property values by creating an instance of the `PropertyReader<T>` and calling the `GetValue` method.
+You can get property values by first creating an instance of the `PropertyReader<T>` 
 
 ```cs
 var reader = new PropertyReader<Foo>();
-var bar = reader.GetValue<string>(foo, nameof(Foo.Bar);
 ```
 
-Using indexers is equaly simple. After the property name (which is ignored, thus `null`) specify the index:
+and then calling the appropriate `GetValue` method.
+
+```cs
+// Normal property
+var result1 = reader.GetValue<string>(foo, nameof(Foo.Bar);
+
+// Indexer
+var result2 = reader.GetValue<int, string>(foo, null, 1);
+```
+
+When using an indexers you can ommit the property name, here `null`, it will be ignored anyway.
 
 ```cs
 var reader = new PropertyReader<Foo>();
-var value = reader.GetValue<int, string>(foo, null, 1);
+
 ```
 
 ### Setting values
 
-You can get property values by creating an instance of the `PropertyWriter<T>` and calling the `SetValue` method.
+You can set property values by first creating an instance of the `PropertyWriter<T>` 
 
 ```cs
 var writer = new PropertyWriter<Foo>();
-writer.SetValue<string>(foo, nameof(Foo.Bar), "new-value");
 ```
-
-Using indexers is equaly simple. After the property name (which is ignored, thus `null`) specify the index:
+and calling the appropriate `SetValue` method
 
 ```cs
-var writer = new PropertyWriter<Foo>();
-writer.GetValue<int, string>(foo, null, "new-value", 1);
+// Normal property
+writer.SetValue<string>(foo, nameof(Foo.Bar), "new-value");
+
+// Indexer
+writer.SetValue<int, string>(foo, null, "new-value", 1);
 ```
