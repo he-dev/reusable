@@ -14,14 +14,14 @@ You can get property values by creating an instance of the `PropertyReader<T>` a
 
 ```cs
 var reader = new PropertyReader<Foo>();
-var bar = reader.GetValue<string>(foo, nameof(Foo.Bar));
+var bar = reader.GetValue<string>(foo, nameof(Foo.Bar);
 ```
 
 Using indexers is equaly simple. After the property name (which is ignored, thus `null`) specify the index:
 
 ```cs
 var reader = new PropertyReader<Foo>();
-var value = reader.GetValue<int, string>(foo, null, 1))
+var value = reader.GetValue<int, string>(foo, null, 1);
 ```
 
 ### Setting values
@@ -37,5 +37,5 @@ Using indexers is equaly simple. After the property name (which is ignored, thus
 
 ```cs
 var writer = new PropertyWriter<Foo>();
-writer.GetValue<int, string>(foo, null, "new-value", 1))
+writer.GetValue<int, string>(foo, null, "new-value", 1);
 ```
