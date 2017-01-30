@@ -2,43 +2,29 @@
 
 namespace Reusable.Converters
 {
-    public class StringToEnumConverter : GenericConverter<String>
+    public class StringToEnumConverter : TypeConverter<String, object>
     {
-        public override bool TryConvert(ConversionContext context, object arg, out object instance)
+        public override bool CanConvert(object value, Type targetType)
         {
-            if (context.Type.BaseType == typeof(Enum) && arg is String)
-            {
-                instance = Convert((string)arg, context);
-                return true;
-            }
-
-            instance = null;
-            return false;
+            return value is string && targetType.IsEnum;
         }
 
-        public override object Convert(String value, ConversionContext context)
+        protected override object ConvertCore(IConversionContext<string> context)
         {
-            return Enum.Parse(context.Type, value);
+            return Enum.Parse(context.TargetType, context.Value);
         }
     }
 
-    public class EnumToStringConverter : GenericConverter<Enum>
+    public class EnumToStringConverter : TypeConverter<Enum, string>
     {
-        public override bool TryConvert(ConversionContext context, object arg, out object instance)
+        public override bool CanConvert(object value, Type targetType)
         {
-            if (context.Type == typeof(String) && arg.GetType().BaseType == typeof(Enum))
-            {
-                instance = Convert((Enum)arg, context);
-                return true;
-            }
-
-            instance = null;
-            return false;
+            return value.GetType().IsEnum && targetType == typeof(string);
         }
 
-        public override object Convert(Enum value, ConversionContext context)
+        protected override string ConvertCore(IConversionContext<Enum> context)
         {
-            return value.ToString();
+            return context.Value.ToString();
         }
     }
 }

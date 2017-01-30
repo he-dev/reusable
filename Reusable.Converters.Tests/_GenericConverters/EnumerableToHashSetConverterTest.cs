@@ -1,20 +1,19 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Converters;
 using Reusable.Fuse;
 using Reusable.Fuse.Testing;
 
-namespace Reusable.TypeConversion.Tests
+namespace Reusable.Converters.Tests
 {
     [TestClass]
-    public class HashSetConvertersTests : ConverterTest
+    public class EnumerableToHashSetConverterTest : ConverterTest
     {
         [TestMethod]
-        public void ConvertEnumerableStringToHashSetObject()
+        public void Convert_StringArray_HashSetInt32()
         {
             var result =
                 TypeConverter.Empty
-                    .Add<EnumerableObjectToHashSetObjectConverter>()
+                    .Add<EnumerableToHashSetConverter>()
                     .Add<StringToInt32Converter>()
                     .Convert(new[] { "3", "7" }, typeof(HashSet<int>)) as HashSet<int>;
 
@@ -24,11 +23,11 @@ namespace Reusable.TypeConversion.Tests
         }
 
         [TestMethod]
-        public void ConvertEnumerableObjectToHashSetString()
+        public void Convert_Int32Array_HashSetString()
         {
             var result =
                 TypeConverter.Empty
-                    .Add<EnumerableObjectToHashSetStringConverter>()
+                    .Add<EnumerableToHashSetConverter>()
                     .Add<Int32ToStringConverter>()
                     .Convert(new[] { 3, 7 }, typeof(HashSet<string>)) as HashSet<string>;
 

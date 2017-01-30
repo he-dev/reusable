@@ -1,20 +1,24 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Reusable.Converters
 {
-    public class StringToDoubleConverter : SpecificConverter<String, Double>
+    public class StringToDoubleConverter : TypeConverter<String, Double>
     {
-        public override Double Convert(string value, ConversionContext context)
+        protected override double ConvertCore(IConversionContext<string> context)
         {
-            return Double.Parse(value, context.Culture);
+            return Double.Parse(context.Value, NumberStyles.Float | NumberStyles.AllowThousands, context.FormatProvider);
         }
     }
 
-    public class DoubleToStringConverter : SpecificConverter<double, string>
+    public class DoubleToStringConverter : TypeConverter<double, string>
     {
-        public override string Convert(Double value, ConversionContext context)
+        protected override string ConvertCore(IConversionContext<double> context)
         {
-            return value.ToString(context.Culture);
+            return
+                string.IsNullOrEmpty(context.Format)
+                    ? context.Value.ToString(context.FormatProvider)
+                    : context.Value.ToString(context.Format, context.FormatProvider);
         }
     }
 }

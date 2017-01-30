@@ -2,19 +2,20 @@
 
 namespace Reusable.Converters
 {
-    public class StringToBooleanConverter : SpecificConverter<String, Boolean>
+    //[Conversion(typeof(string), typeof(bool))]
+    public class StringToBooleanConverter : TypeConverter<string, bool>
     {
-        public override bool Convert(string value, ConversionContext context)
+        protected override bool ConvertCore(IConversionContext<string> context)
         {
-            return bool.Parse(value);
+            return bool.Parse(context.Value);
         }
     }
 
-    public class BooleanToStringConverter : SpecificConverter<bool, string>
+    public class BooleanToStringConverter : TypeConverter<bool, string>
     {
-        public override string Convert(Boolean value, ConversionContext context)
+        protected override string ConvertCore(IConversionContext<bool> context)
         {
-            return value.ToString(context.Culture);
+            return context.Value.ToString(context.FormatProvider);
         }
     }
 }

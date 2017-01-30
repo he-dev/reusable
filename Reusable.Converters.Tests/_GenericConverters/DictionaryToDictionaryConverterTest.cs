@@ -1,20 +1,19 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Converters;
 using Reusable.Fuse;
 using Reusable.Fuse.Testing;
 
-namespace Reusable.TypeConversion.Tests
+namespace Reusable.Converters.Tests
 {
     [TestClass]
-    public class DictionaryConvertersTests : ConverterTest
+    public class DictionaryToDictionaryConverterTest
     {
         [TestMethod]
-        public void ConvertDictionaryStringStringToDictionaryObjectObject()
+        public void Convert_DictionaryStringString_DictionaryEnumInt32()
         {
             var result =
                 TypeConverter.Empty
-                    .Add<DictionaryObjectObjectToDictionaryObjectObjectConverter>()
+                    .Add<DictionaryToDictionaryConverter>()
                     .Add<StringToInt32Converter>()
                     .Add<StringToEnumConverter>()
                     .Convert(new Dictionary<string, string>
@@ -30,11 +29,11 @@ namespace Reusable.TypeConversion.Tests
         }
 
         [TestMethod]
-        public void ConvertDictionaryObjectObjectToDictionaryStringString()
+        public void Convert_DictionaryEnumInt32_DictionaryStringString()
         {
             var result =
                 TypeConverter.Empty
-                    .Add<DictionaryObjectObjectToDictionaryStringStringConverter>()
+                    .Add<DictionaryToDictionaryConverter>()
                     .Add<Int32ToStringConverter>()
                     .Add<EnumToStringConverter>()
                     .Convert(new Dictionary<TestEnum, int>

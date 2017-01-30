@@ -1,39 +1,95 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 
 namespace Reusable.Converters
 {
-    public class CompositeConverter : TypeConverter
+    public class CompositeConverter : TypeConverter, IEnumerable<TypeConverter>
     {
-        internal CompositeConverter() { }
+        private readonly HashSet<TypeConverter> _converters = new HashSet<TypeConverter>();
 
-        internal CompositeConverter(TypeConverter first, TypeConverter second)
+        internal CompositeConverter(IEnumerable<TypeConverter> converters)
         {
-            var currentConverters = (first as CompositeConverter)?.Converters ?? new[] { first };
-            Converters = currentConverters.Concat(new[] { second }).ToArray();
-        }        
-
-        //public static readonly TypeConverter Empty = new CompositeConverter();
-
-        public TypeConverter[] Converters { get; } = Enumerable.Empty<TypeConverter>().ToArray();
-
-        public CompositeConverter Add<TConverter>() where TConverter : TypeConverter, new() => (this + new TConverter());
-
-        //public CompositeConverter Add() where TConverter : TypeConverter, new() => (this + new TConverter());
-
-        public override bool TryConvert(ConversionContext context, object arg, out object instance)
-        {
-            foreach (var converter in Converters)
-            {
-                if (converter.TryConvert(context, arg, out instance))
-                {
-                    return true;
-                }
-            }
-            instance = null;
-            return false;
+            var groups = converters.Where(x => x != null).GroupBy(x => x is CompositeConverter).ToList();
+            var currentConverters = groups.SingleOrDefault(g => g.Key)?.Cast<CompositeConverter>().SelectMany(x => x) ?? Enumerable.Empty<TypeConverter>();
+            var newConverters = groups.SingleOrDefault(g => !g.Key) ?? Enumerable.Empty<TypeConverter>();
+            _converters.UnionWith(currentConverters);
+            _converters.UnionWith(newConverters);
         }
 
-        public static CompositeConverter operator +(CompositeConverter left, TypeConverter right) =>
-            new CompositeConverter(left, right);
+        internal CompositeConverter(params TypeConverter[] converters) 
+            : this((IEnumerable<TypeConverter>)converters)
+        {
+        }
+
+        public override Type FromType { get { throw new NotSupportedException($"{nameof(CompositeConverter)} does not support {nameof(FromType)} property."); } }
+
+        public override Type ToType { get { throw new NotSupportedException($"{nameof(CompositeConverter)} does not support {nameof(ToType)} property"); } }
+
+        public override bool CanConvert(object value, Type targetType)
+        {
+            return _converters.Any(x => x.CanConvert(value, targetType));
+        }
+
+        protected override object ConvertCore(IConversionContext<object> context)
+        {
+            if (!NeedsConversion(context.Value, context.TargetType))
+            {
+                return context.Value;
+            }
+
+            var converter = FindConverter(context.Value, context.TargetType);
+
+            return converter.Convert(
+                new ConversionContext<object>(
+                    context.Value,
+                    context.TargetType,
+                    context.Format,
+                    context.FormatProvider,
+                    this
+                )
+            );
+        }
+
+        private TypeConverter FindConverter(object value, Type targetType)
+        {
+            var converter = _converters.FirstOrDefault(x => x.CanConvert(value, targetType));
+            if (converter == null)
+            {
+                throw new TypeConverterNotFoundException(value?.GetType(), targetType);
+            }
+            return converter;
+        }
+
+        public static CompositeConverter operator +(CompositeConverter left, TypeConverter right)
+        {
+            return new CompositeConverter(left, right);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public IEnumerator<TypeConverter> GetEnumerator()
+        {
+            return _converters.GetEnumerator();
+        }
+    }
+
+    public class TypeConverterNotFoundException : Exception
+    {
+        public TypeConverterNotFoundException(Type valueType, Type targetType)
+        {
+            ValueType = valueType;
+            TargetType = targetType;
+        }
+
+        public Type ValueType { get; }
+        public Type TargetType { get; }
+
+        public override string Message => $"Could not convert '{ValueType}' to '{TargetType}.";
     }
 }

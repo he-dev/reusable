@@ -1,20 +1,21 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Reusable.Converters
 {
-    public class StringToInt16Converter : SpecificConverter<String, Int16>
+    public class StringToInt16Converter : TypeConverter<String, Int16>
     {
-        public override Int16 Convert(string value, ConversionContext context)
+        protected override short ConvertCore(IConversionContext<string> context)
         {
-            return Int16.Parse(value, context.Culture);
+            return Int16.Parse(context.Value, NumberStyles.Integer, context.FormatProvider);
         }
     }
 
-    public class Int16ToStringConverter : SpecificConverter<short, string>
+    public class Int16ToStringConverter : TypeConverter<short, string>
     {
-        public override string Convert(Int16 value, ConversionContext context)
+        protected override string ConvertCore(IConversionContext<short> context)
         {
-            return value.ToString(context.Culture);
+            return context.Value.ToString(context.FormatProvider);
         }
     }
 }

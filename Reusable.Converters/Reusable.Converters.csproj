@@ -76,8 +76,6 @@
     <Compile Include="_codebase\CompositeConverter.cs" />
     <Compile Include="_codebase\TypeConverterComposition.cs" />
     <Compile Include="_codebase\ConversionContext.cs" />
-    <Compile Include="_codebase\TypeConversions.cs" />
-    <Compile Include="_codebase\TypeConverterSets.cs" />
     <Compile Include="_codebase\_Converters.Generic\ArrayConverters.cs" />
     <Compile Include="_codebase\_Converters.Generic\DictionaryConverters.cs" />
     <Compile Include="_codebase\_Converters.Generic\HashSetConverters.cs" />

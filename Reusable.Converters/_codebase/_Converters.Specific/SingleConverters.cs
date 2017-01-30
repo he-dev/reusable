@@ -2,19 +2,22 @@
 
 namespace Reusable.Converters
 {
-    public class StringToSingleConverter : SpecificConverter<String, Single>
+    public class StringToSingleConverter : TypeConverter<String, Single>
     {
-        public override Single Convert(string value, ConversionContext context)
+        protected override Single ConvertCore(IConversionContext<String> context)
         {
-            return Single.Parse(value, context.Culture);
+            return Single.Parse(context.Value, context.FormatProvider);
         }
     }
 
-    public class SingleToStringConverter : SpecificConverter<float, string>
+    public class SingleToStringConverter : TypeConverter<float, string>
     {
-        public override string Convert(Single value, ConversionContext context)
+        protected override string ConvertCore(IConversionContext<Single> context)
         {
-            return value.ToString(context.Culture);
+            return
+                string.IsNullOrEmpty(context.Format)
+                    ? context.Value.ToString(context.FormatProvider)
+                    : context.Value.ToString(context.Format, context.FormatProvider);
         }
     }
 }

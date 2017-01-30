@@ -1,29 +1,60 @@
 ﻿using System;
+using System.Globalization;
 using Newtonsoft.Json;
 
 namespace Reusable.Converters
 {
-    public class JsonToObjectConverter<T> : SpecificConverter<String, T>
+    public abstract class JsonConverter<TValue, TResult> : TypeConverter<TValue, TResult>
     {
-        public override T Convert(string value, ConversionContext context)
+        protected JsonConverter(JsonSerializerSettings settings)
         {
-            return JsonConvert.DeserializeObject<T>(value, new JsonSerializerSettings
-            {
-                Culture = context.Culture,
-                TypeNameHandling = TypeNameHandling.Auto
-            });
+            Settings = settings;
         }
+
+        protected JsonSerializerSettings Settings { get; }
     }
 
-    public class ObjectToJsonConverter<T> : SpecificConverter<T, String>
+    public class JsonToObjectConverter<T> : JsonConverter<String, T>
     {
-        public override string Convert(T value, ConversionContext context)
+        public JsonToObjectConverter(JsonSerializerSettings settings) : base(settings)
         {
-            return JsonConvert.SerializeObject(value, new JsonSerializerSettings
-            {
-                Culture = context.Culture,
-                Formatting = Formatting.Indented
-            });
+            // there's nothing else to do
+        }
+
+        public JsonToObjectConverter() : this(new JsonSerializerSettings
+        {
+            Culture = CultureInfo.InvariantCulture,
+            TypeNameHandling = TypeNameHandling.Auto
+        })
+        {
+            // there's nothing else to do
+        }
+
+        protected override T ConvertCore(IConversionContext<string> context)
+        {
+            return JsonConvert.DeserializeObject<T>(context.Value, Settings);
+        }        
+    }
+
+    public class ObjectToJsonConverter<T> : JsonConverter<T, String>
+    {
+        public ObjectToJsonConverter(JsonSerializerSettings settings) : base(settings)
+        {
+            // there's nothing else to do
+        }
+
+        public ObjectToJsonConverter() : this(new JsonSerializerSettings
+        {
+            Culture = CultureInfo.InvariantCulture,
+            Formatting = Formatting.Indented
+        })
+        {
+            // there's nothing else to do
+        }
+
+        protected override string ConvertCore(IConversionContext<T> context)
+        {
+            return JsonConvert.SerializeObject(context.Value, Settings);
         }
     }
 }

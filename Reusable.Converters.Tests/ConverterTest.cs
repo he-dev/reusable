@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Converters;
 using Reusable.Fuse;
 using Reusable.Fuse.Testing;
 
-namespace Reusable.TypeConversion.Tests
+namespace Reusable.Converters.Tests
 {
     [TestClass]
     public class ConverterTest

@@ -7,11 +7,12 @@ namespace Reusable.Converters
 {
     public static class TypeConverterComposition
     {
-        public static TypeConverter Add<TConverter>(this TypeConverter current) where TConverter : TypeConverter, new()
+        public static TypeConverter Add(this TypeConverter current, TypeConverter register)
         {
             current.Validate(nameof(current)).IsNotNull();
+            register.Validate(nameof(register)).IsNotNull();
 
-            return current.Add(new TConverter());
+            return new CompositeConverter(current, register);
         }
 
         public static TypeConverter Add(this TypeConverter current, Type converterType)
@@ -19,7 +20,19 @@ namespace Reusable.Converters
             current.Validate(nameof(current)).IsNotNull();
             converterType.Validate(nameof(converterType)).IsNotNull();
 
-            return current.Add((TypeConverter) Activator.CreateInstance(converterType));
+            return current.Add((TypeConverter)Activator.CreateInstance(converterType));
+        }
+
+        public static TypeConverter Add<TConverter>(this TypeConverter current) where TConverter : TypeConverter, new()
+        {
+            current.Validate(nameof(current)).IsNotNull();
+
+            return current.Add(new TConverter());
+        }
+
+        public static TypeConverter Add(this TypeConverter current, params TypeConverter[] converters)
+        {
+            return current.Add((IEnumerable<TypeConverter>)converters);
         }
 
         public static TypeConverter Add(this TypeConverter current, IEnumerable<TypeConverter> converters)
@@ -30,14 +43,17 @@ namespace Reusable.Converters
             return converters.Aggregate(current, (x, converter) => x.Add(converter));
         }
 
-
-        // base method to be used above
-        public static TypeConverter Add(this TypeConverter current, TypeConverter register)
+        public static TypeConverter Remove(this TypeConverter current, IEnumerable<TypeConverter> remove)
         {
-            current.Validate(nameof(current)).IsNotNull();
-            register.Validate(nameof(register)).IsNotNull();
+            var compositeConverter = current as CompositeConverter;
+            if (compositeConverter == null) return new CompositeConverter(current);
+            var converters = compositeConverter.Except(remove);
+            return new CompositeConverter(converters);
+        }
 
-            return new CompositeConverter(current, register);
+        public static TypeConverter Remove(this TypeConverter current, params TypeConverter[] remove)
+        {
+            return current.Remove((IEnumerable<TypeConverter>) remove);
         }
     }
 }

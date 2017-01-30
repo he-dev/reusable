@@ -65,6 +65,11 @@
     <Compile Include="Drawing\ColorParser.cs" />
     <Compile Include="EnumerableExtensionsTest.cs" />
     <Compile Include="ExceptionExtensionsTest.cs" />
+    <Compile Include="Formatters\BracketFormatterTest.cs" />
+    <Compile Include="Formatters\CaseFormatterTest.cs" />
+    <Compile Include="Formatters\HexadecimalColorFormatterTest.cs" />
+    <Compile Include="Formatters\DecimalColorFormatterTest.cs" />
+    <Compile Include="Formatters\DefaultFormatterTest.cs" />
     <Compile Include="Formatters\FormatterTest.cs" />
     <Compile Include="MethodInfoExtensionsTest.cs" />
     <Compile Include="ObjectExtensionsTest.cs" />

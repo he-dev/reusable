@@ -5,23 +5,23 @@ using System.Xml.Linq;
 
 namespace Reusable.Converters
 {
-    public class StringToXDocumentConverter : SpecificConverter<String, XDocument>
+    public class StringToXDocumentConverter : TypeConverter<String, XDocument>
     {
-        public override XDocument Convert(string value, ConversionContext context)
+        protected override XDocument ConvertCore(IConversionContext<String> context)
         {
-            return XDocument.Parse(value);
+            return XDocument.Parse(context.Value);
         }
     }
 
-    public class XDocumentToStringConverter : SpecificConverter<XDocument, string>
+    public class XDocumentToStringConverter : TypeConverter<XDocument, string>
     {
-        public override string Convert(XDocument value, ConversionContext context)
+        protected override string ConvertCore(IConversionContext<XDocument> context)
         {
             using (var memoryStream = new MemoryStream())
             using (var streamWriter = new StreamWriter(memoryStream))
             {
                 var saveMethod = typeof(XDocument).GetMethod("Save", new[] { typeof(StreamWriter), typeof(SaveOptions) });
-                saveMethod.Invoke(value, new object[] { streamWriter, SaveOptions.DisableFormatting });
+                saveMethod.Invoke(context.Value, new object[] { streamWriter, SaveOptions.DisableFormatting });
                 var xml = Encoding.UTF8.GetString(memoryStream.ToArray());
                 return xml;
             }

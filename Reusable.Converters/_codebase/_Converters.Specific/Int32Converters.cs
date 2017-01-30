@@ -1,20 +1,21 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Reusable.Converters
 {
-    public class StringToInt32Converter : SpecificConverter<String, Int32>
+    public class StringToInt32Converter : TypeConverter<String, Int32>
     {
-        public override Int32 Convert(string value, ConversionContext context)
+        protected override int ConvertCore(IConversionContext<string> context)
         {
-            return Int32.Parse(value, context.Culture);
+            return Int32.Parse(context.Value, NumberStyles.Integer, context.FormatProvider);
         }
     }
 
-    public class Int32ToStringConverter : SpecificConverter<Int32, String>
+    public class Int32ToStringConverter : TypeConverter<Int32, String>
     {
-        public override string Convert(Int32 value, ConversionContext context)
+        protected override string ConvertCore(IConversionContext<int> context)
         {
-            return value.ToString(context.Culture);
+            return context.Value.ToString(context.FormatProvider);
         }
     }
 }

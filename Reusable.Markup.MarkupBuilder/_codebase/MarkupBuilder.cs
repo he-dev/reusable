@@ -6,15 +6,21 @@ using System.Linq;
 
 namespace Reusable.Markup
 {
-    public class MarkupBuilder : DynamicObject, IEnumerable<object>
+    public interface IElement : IEnumerable<object>
     {
-        private readonly List<object> _content = new List<object>();
+        string Name { get; }
+        IDictionary<string, string> Attributes { get; }
+        IList<object> Content { get; }
+        IElement Parent { get; }
+    }
 
-        private MarkupBuilder(MarkupBuilder markupBuilder, string tag)
+    public class MarkupBuilder : DynamicObject, IElement
+    {
+        private MarkupBuilder(MarkupBuilder markupBuilder, string name)
         {
             Extensions = markupBuilder.Extensions;
             Renderer = markupBuilder.Renderer;
-            Tag = tag;
+            Name = name;
         }
 
         public MarkupBuilder(IMarkupRenderer renderer)
@@ -22,14 +28,8 @@ namespace Reusable.Markup
             Renderer = renderer;
         }
 
-        public string Tag { get; }
-
         // The first builder has no tag and thus is not a real element.
-        public bool IsElement => !string.IsNullOrEmpty(Tag);
-
-        public IDictionary<string, string> Attributes { get; } = new Dictionary<string, string>();
-
-        public MarkupBuilder Parent { get; private set; }
+        private bool IsContainer => !string.IsNullOrEmpty(Name);
 
         public MarkupBuilderExtensionCollection Extensions { get; } = new MarkupBuilderExtensionCollection();
 
@@ -51,41 +51,23 @@ namespace Reusable.Markup
         // Using a renderer + ToString allows us to see the markup in the debug.
         public IMarkupRenderer Renderer { get; }
 
-        public MarkupBuilder Create(string tag)
-        {
-            var child = new MarkupBuilder(this, tag);
-            if (IsElement)
-            {
-                Add(child);
-            }
-            return child;
-        }       
+        #region IElement
 
-        public MarkupBuilder Add(object content)
-        {
-            if (content == null) { return this; }
-            _content.Add(content);
-            var builder = content as MarkupBuilder;
-            if (builder != null) { builder.Parent = this; }
-            return this;
-        }
+        public string Name { get; }
 
-        public MarkupBuilder AddRange(IEnumerable<object> content)
-        {
-            foreach (var item in content) { Add(item); }
-            return this;
-        }
+        public IDictionary<string, string> Attributes { get; } = new Dictionary<string, string>();
 
-        public MarkupBuilder AddRange(params object[] content)
-        {
-            return AddRange((IEnumerable<object>)content);
-        }
+        public IList<object> Content { get; } = new List<object>();
 
-        public IEnumerator<object> GetEnumerator() => _content.GetEnumerator();
+        public IElement Parent { get; private set; }
+
+        public IEnumerator<object> GetEnumerator() => Content.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        // --- DynamicObject members
+        #endregion
+
+        #region DynamicObject
 
         public override bool TryConvert(ConvertBinder binder, out object result)
         {
@@ -98,18 +80,18 @@ namespace Reusable.Markup
             return false;
         }
 
-        public override bool TryGetMember(GetMemberBinder binder, out object result)
-        {
-            foreach (var extension in Extensions)
-            {
-                if (extension.TryGetMember(this, binder, out result))
-                {
-                    return true;
-                }
-            }
-            result = Create(binder.Name);
-            return true;
-        }
+        //public override bool TryGetMember(GetMemberBinder binder, out object result)
+        //{
+        //    foreach (var extension in Extensions)
+        //    {
+        //        if (extension.TryGetMember(this, binder, out result))
+        //        {
+        //            return true;
+        //        }
+        //    }
+        //    result = CreateElement(binder.Name);
+        //    return true;
+        //}
 
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
@@ -121,17 +103,66 @@ namespace Reusable.Markup
                 }
             }
 
-            var arg0 = args.FirstOrDefault();
+            var element = CreateElement(binder.Name);
 
-            var isContentEnumerable =
-                arg0 != null &&
-                arg0.GetType().IsEnumerable() &&
-                arg0.GetType() != typeof(string) &&
-                arg0.GetType() != typeof(MarkupBuilder);
+            foreach (var arg in args.Where(x => x != null))
+            {
+                element.Add(arg);
+            }
 
-            var content = isContentEnumerable ? (IEnumerable<object>)arg0 : args;
-            result = Create(binder.Name).AddRange(content);
+            result = element;
             return true;
+        }
+
+        #endregion
+
+        private MarkupBuilder CreateElement(string name)
+        {
+            var element = new MarkupBuilder(this, name);
+            if (IsContainer)
+            {
+                Add(element);
+            }
+            return element;
+        }
+
+        public void Add(object obj)
+        {
+            if (obj == null)
+            {
+                return;
+            }
+
+
+            var builder = obj as MarkupBuilder;
+            if (builder != null)
+            {
+                Content.Add(obj);
+                if (IsContainer)
+                {
+                    builder.Parent = this;
+                }
+                return;
+            }
+            else
+            {
+                var objects = obj as IEnumerable<object>;
+                if (objects != null)
+                {
+                    AddRange(objects);
+                    return;
+                }
+            }
+
+            Content.Add(obj);
+        }
+
+        private void AddRange(IEnumerable<object> content)
+        {
+            foreach (var item in content)
+            {
+                Add(item);
+            }
         }
 
         public override string ToString()

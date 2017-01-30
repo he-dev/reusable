@@ -17,7 +17,7 @@ namespace Reusable
             if (string.IsNullOrEmpty(str)) { return str; }
             if (getValueOrDefault == null) { throw new ArgumentNullException(nameof(getValueOrDefault)); }
 
-            formatProvider = formatProvider ?? Formatter.Default(); // new DefaultFormatter();
+            formatProvider = formatProvider ?? CustomFormatter.Default(); // new DefaultFormatter();
 
             // https://regex101.com/r/sK1tS8/5
             var result = Regex.Replace(str, "(?<!{){(?<name>[a-zA-Z_][a-zA-Z0-9_]*)(,(?<alignment>-?\\d+))?(:(?<formatString>.*?))?}(?!})", match =>

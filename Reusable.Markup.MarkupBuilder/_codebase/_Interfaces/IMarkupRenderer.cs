@@ -2,6 +2,6 @@
 {
     public interface IMarkupRenderer
     {
-        string Render(MarkupBuilder markupBuilder);
+        string Render(IElement element);
     }
 }

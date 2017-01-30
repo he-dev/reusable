@@ -2,19 +2,19 @@
 
 namespace Reusable.Converters
 {
-    public class StringToTimeSpanConverter : SpecificConverter<String, TimeSpan>
+    public class StringToTimeSpanConverter : TypeConverter<String, TimeSpan>
     {
-        public override TimeSpan Convert(string value, ConversionContext context)
+        protected override TimeSpan ConvertCore(IConversionContext<String> context)
         {
-            return TimeSpan.Parse(value, context.Culture);
+            return TimeSpan.Parse(context.Value, context.FormatProvider);
         }
     }
 
-    public class TimeSpanToStringConverter : SpecificConverter<TimeSpan, String>
+    public class TimeSpanToStringConverter : TypeConverter<TimeSpan, String>
     {
-        public override string Convert(TimeSpan value, ConversionContext context)
+        protected override string ConvertCore(IConversionContext<TimeSpan> context)
         {
-            return value.ToString();
+            return context.Value.ToString();
         }
     }
 }

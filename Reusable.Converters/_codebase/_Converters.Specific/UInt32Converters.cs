@@ -2,19 +2,19 @@
 
 namespace Reusable.Converters
 {
-    public class StringToUInt32Converter : SpecificConverter<String, UInt32>
+    public class StringToUInt32Converter : TypeConverter<String, UInt32>
     {
-        public override UInt32 Convert(string value, ConversionContext context)
+        protected override UInt32 ConvertCore(IConversionContext<String> context)
         {
-            return UInt32.Parse(value, context.Culture);
+            return UInt32.Parse(context.Value, context.FormatProvider);
         }
     }
 
-    public class UInt32ToStringConverter : SpecificConverter<uint, string>
+    public class UInt32ToStringConverter : TypeConverter<uint, string>
     {
-        public override string Convert(UInt32 value, ConversionContext context)
+        protected override string ConvertCore(IConversionContext<UInt32> context)
         {
-            return value.ToString(context.Culture);
+            return context.Value.ToString(context.FormatProvider);
         }
     }
 }

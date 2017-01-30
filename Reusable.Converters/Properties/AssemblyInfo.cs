@@ -36,4 +36,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("4.0.37.0")]
 //[assembly: AssemblyInformationalVersion("4.0.8")]
 
-[assembly: InternalsVisibleTo("SmartUtilities.Tests")]
+[assembly: InternalsVisibleTo("Reusable.Converters.Tests")]

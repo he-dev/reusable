@@ -4,68 +4,24 @@ using System.Collections.Generic;
 
 namespace Reusable.Converters
 {
-    public class EnumerableObjectToHashSetObjectConverter : GenericConverter<IEnumerable>
+    public class EnumerableToHashSetConverter : TypeConverter<IEnumerable, object>
     {
-        public override bool TryConvert(ConversionContext context, object arg, out object instance)
+        public override bool CanConvert(object value, Type targetType)
         {
-            if (context.Type.IsHashSet() && arg.GetType().IsEnumerable())
-            {
-                instance = Convert((IEnumerable)arg, context);
-                return true;
-            }
-
-            instance = null;
-            return false;
+            return value.GetType().IsEnumerable() && targetType.IsHashSet();
         }
 
-        public override object Convert(IEnumerable values, ConversionContext context)
+        protected override object ConvertCore(IConversionContext<IEnumerable> context)
         {
-            var valueType = context.Type.GetGenericArguments()[0];
-
+            var valueType = context.TargetType.GetGenericArguments()[0];
             var hashSetType = typeof(HashSet<>).MakeGenericType(valueType);
             var hashSet = Activator.CreateInstance(hashSetType);
-            var addMethod = hashSetType.GetMethod("Add");
+            var addMethod = hashSetType.GetMethod(nameof(HashSet<object>.Add));
 
-            foreach (var value in values)
+            foreach (var value in context.Value)
             {
-                addMethod.Invoke(hashSet, new[]
-                {
-                    context.Service.Convert(value, valueType, context.Culture)
-                });
-            }
-
-            return hashSet;
-        }
-    }
-
-    public class EnumerableObjectToHashSetStringConverter : GenericConverter<IEnumerable>
-    {
-        public override bool TryConvert(ConversionContext context, object arg, out object instance)
-        {
-            if (context.Type.IsHashSet() && arg.GetType().IsEnumerable())
-            {
-                instance = Convert((IEnumerable)arg, context);
-                return true;
-            }
-
-            instance = null;
-            return false;
-        }
-
-        public override object Convert(IEnumerable values, ConversionContext context)
-        {
-            var valueType = context.Type.GetGenericArguments()[0];
-
-            var hashSetType = typeof(HashSet<>).MakeGenericType(valueType);
-            var hashSet = Activator.CreateInstance(hashSetType);
-            var addMethod = hashSetType.GetMethod("Add");
-
-            foreach (var value in values)
-            {
-                addMethod.Invoke(hashSet, new[]
-                {
-                    context.Service.Convert(value, valueType, context.Culture)
-                });
+                var element = context.Converter.Convert(value, valueType, context.Format, context.FormatProvider);
+                addMethod.Invoke(hashSet, new[] { element });
             }
 
             return hashSet;

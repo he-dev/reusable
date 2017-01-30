@@ -9,7 +9,7 @@ namespace Reusable.Converters
         {
             if (!typeof(TypeConverter).IsAssignableFrom(type))
             {
-                throw new ArgumentException($"Type must be derived from '{typeof(TypeConverter).FullName}'", nameof(type));
+                throw new ArgumentException($"'{nameof(type)}' must implement the '{typeof(TypeConverter).FullName}'", nameof(type));
             }
             Type = type;
         }

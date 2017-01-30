@@ -6,70 +6,30 @@ using System.Collections.Generic;
 
 namespace Reusable.Converters
 {
-    public class DictionaryObjectObjectToDictionaryObjectObjectConverter : GenericConverter<IDictionary>
+    public class DictionaryToDictionaryConverter : TypeConverter<IDictionary, object>
     {
-        public override bool TryConvert(ConversionContext context, object arg, out object instance)
+        public override bool CanConvert(object value, Type targetType)
         {
-            if (context.Type.IsDictionary() && arg.GetType().IsDictionary())
-            {
-                instance = Convert((IDictionary)arg, context);
-                return true;
-            }
-
-            instance = null;
-            return false;
+            return value.GetType().IsDictionary() && targetType.IsDictionary();
         }
 
-        public override object Convert(IDictionary values, ConversionContext context)
+        protected override object ConvertCore(IConversionContext<IDictionary> context)
         {
-            var keyType = context.Type.GetGenericArguments()[0];
-            var valueType = context.Type.GetGenericArguments()[1];
+            var keyType = context.TargetType.GetGenericArguments()[0];
+            var valueType = context.TargetType.GetGenericArguments()[1];
 
             var dictionaryType = typeof(Dictionary<,>).MakeGenericType(keyType, valueType);
-            var dictionary = (IDictionary)Activator.CreateInstance(dictionaryType);
+            var result = (IDictionary)Activator.CreateInstance(dictionaryType);
 
-            foreach (var key in values.Keys)
+            var dictionary = context.Value;
+            foreach (var key in dictionary.Keys)
             {
-                dictionary.Add(
-                    context.Service.Convert(key, keyType, context.Culture),
-                    context.Service.Convert(values[key], valueType, context.Culture));
+                result.Add(
+                    context.Converter.Convert(key, keyType, context.Format, context.FormatProvider),
+                    context.Converter.Convert(dictionary[key], valueType, context.Format, context.FormatProvider));
             }
 
-            return dictionary;
+            return result;
         }
-    }
-
-    public class DictionaryObjectObjectToDictionaryStringStringConverter : GenericConverter<IDictionary>
-    {
-        public override bool TryConvert(ConversionContext context, object arg, out object instance)
-        {
-            var isValidType =
-                context.Type == typeof(Dictionary<string, string>) ||
-                context.Type == typeof(IDictionary<string, string>);
-
-            if (isValidType && arg.GetType().IsDictionary())
-            {
-                instance = Convert((IDictionary)arg, context);
-                return true;
-            }
-
-            instance = null;
-            return false;
-        }
-
-        public override object Convert(IDictionary values, ConversionContext context)
-        {
-            var dictionaryType = typeof(Dictionary<,>).MakeGenericType(typeof(string), typeof(string));
-            var dictionary = (IDictionary)Activator.CreateInstance(dictionaryType);
-
-            foreach (var key in values.Keys)
-            {
-                dictionary.Add(
-                    context.Service.Convert(key, typeof(string), context.Culture),
-                    context.Service.Convert(values[key], typeof(string), context.Culture));
-            }
-
-            return dictionary;
-        }
-    }
+    }    
 }

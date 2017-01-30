@@ -1,15 +1,14 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Converters;
 using Reusable.Fuse;
 using Reusable.Fuse.Testing;
 
-namespace Reusable.TypeConversion.Tests
+namespace Reusable.Converters.Tests
 {
     [TestClass]
     public class SByteConvertersTest : ConverterTest
     {
         [TestMethod]
-        public void ConvertStringToSByte()
+        public void Convert_String_SByte()
         {
             Convert<StringToSByteConverter>(sbyte.MaxValue.ToString(), typeof(sbyte))
                 .Verify()
@@ -18,7 +17,7 @@ namespace Reusable.TypeConversion.Tests
         }
 
         [TestMethod]
-        public void ConvertSByteToString()
+        public void Convert_SByte_String()
         {
             Convert<SByteToStringConverter>(sbyte.MaxValue, typeof(string))
                 .Verify()

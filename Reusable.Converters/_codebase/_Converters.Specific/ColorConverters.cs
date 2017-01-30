@@ -1,42 +1,44 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
+using System.Linq;
 using Reusable.Drawing;
-using Reusable.Formatters;
 
 namespace Reusable.Converters
 {
-    public class StringToColorConverter : SpecificConverter<String, Color>
+    public class StringToColorConverter : TypeConverter<String, Color>
     {
-        private static readonly ColorParser[] ColorParsers =
-        {
-            new NameColorParser(),
-            new DecimalColorParser(),
-            new HexadecimalColorParser()
-        };
+        private readonly IEnumerable<ColorParser> _colorParsers;
 
-        public override Color Convert(string value, ConversionContext context)
+        public StringToColorConverter() : this(new ColorParser[] { new HexadecimalColorParser() }) { }
+
+        public StringToColorConverter(IEnumerable<ColorParser> colorParsers)
         {
-            foreach (var colorParser in ColorParsers)
+            _colorParsers = colorParsers;
+        }
+
+        protected override Color ConvertCore(IConversionContext<String> context)
+        {
+            foreach (var colorParser in _colorParsers)
             {
                 var argb = 0;
-                if (colorParser.TryParse(value, out argb))
+                if (colorParser.TryParse(context.Value, out argb))
                 {
                     return new Color32(argb);
                 }
             }
-            return new Color32();
+            return Color.Empty;
         }
     }
 
     // ---
 
-    public class ColorToStringConverter : SpecificConverter<Color, String>
+    public class ColorToStringConverter : TypeConverter<Color, String>
     {
-        private static readonly Formatter Formatter = Formatter.Default().Add<HexadecimalColorFormatter>();
-
-        public override String Convert(Color value, ConversionContext context)
+        protected override String ConvertCore(IConversionContext<Color> context)
         {
-            return string.Format(Formatter, "{0:rgb-hex}", value);
+            return string.Format(context.FormatProvider, context.Format, context.Value);
         }
     }
 }

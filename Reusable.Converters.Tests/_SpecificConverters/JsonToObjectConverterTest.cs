@@ -1,41 +1,44 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Converters;
 using Reusable.Fuse;
 using Reusable.Fuse.Testing;
 
-namespace Reusable.TypeConversion.Tests
+namespace Reusable.Converters.Tests
 {
     [TestClass]
-    public class JsonConvertersTests
+    public class JsonToObjectConverterTest
     {
         [TestMethod]
-        public void Convert_ToInterface()
+        public void Convert_JsonTypeName_Interface()
         {
-            var json = @"{ ""$type"": ""SmartUtilities.Tests.Frameworks.InfiniteConversion.Converters.Foo2, SmartUtilities.Tests"" }";
+            var json = @"{ ""$type"": ""Reusable.Converters.Tests.Foo2, Reusable.Converters.Tests"" }";
 
-            var converter = TypeConverter.Empty.Add<JsonToObjectConverter<Foo>>();
+            var converter = TypeConverter.Empty
+                .Add<JsonToObjectConverter<Foo>>();
 
             var foo = converter.Convert(json, typeof(Foo));
             foo.Verify().IsInstanceOfType(typeof(Foo2));
         }
 
         [TestMethod]
-        public void Convert_ToAbstractClass()
+        public void Convert_JsonTypeName_AbstractClass()
         {
-            var json = @"{ ""$type"": ""SmartUtilities.Tests.Frameworks.InfiniteConversion.Converters.Bar1, SmartUtilities.Tests"" }";
+            var json = @"{ ""$type"": ""Reusable.Converters.Tests.Bar1, Reusable.Converters.Tests"" }";
 
-            var converter = TypeConverter.Empty.Add<JsonToObjectConverter<Bar>>();
+            var converter = TypeConverter.Empty
+                .Add<JsonToObjectConverter<Bar>>();
 
             var bar = converter.Convert(json, typeof(Bar));
             bar.Verify().IsInstanceOfType(typeof(Bar1));
         }
 
         [TestMethod]
-        public void Convert_Array()
+        public void Convert_JsonArray_ArrayInt32()
         {
             var json = @"[1, 2, 3]";
 
-            var converter = TypeConverter.Empty.Add<JsonToObjectConverter<int[]>>().Add<StringToInt32Converter>();
+            var converter = TypeConverter.Empty
+                .Add<JsonToObjectConverter<int[]>>()
+                .Add<StringToInt32Converter>();
 
             var result = converter.Convert(json, typeof(int[])) as int[];
             result.Verify().IsNotNull().SequenceEqual(new int[] { 1, 2, 3 });

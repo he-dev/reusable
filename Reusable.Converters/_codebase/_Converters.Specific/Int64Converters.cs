@@ -1,20 +1,21 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Reusable.Converters
 {
-    public class StringToInt64Converter : SpecificConverter<String, Int64>
+    public class StringToInt64Converter : TypeConverter<String, Int64>
     {
-        public override Int64 Convert(string value, ConversionContext context)
+        protected override long ConvertCore(IConversionContext<string> context)
         {
-            return Int64.Parse(value, context.Culture);
+            return Int64.Parse(context.Value, NumberStyles.Integer, context.FormatProvider);
         }
     }
 
-    public class Int64ToStringConverter : SpecificConverter<long, string>
+    public class Int64ToStringConverter : TypeConverter<long, string>
     {
-        public override string Convert(Int64 value, ConversionContext context)
+        protected override string ConvertCore(IConversionContext<long> context)
         {
-            return value.ToString(context.Culture);
+            return context.Value.ToString(context.FormatProvider);
         }
     }
 }

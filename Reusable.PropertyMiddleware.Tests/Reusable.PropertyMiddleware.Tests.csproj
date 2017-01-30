@@ -58,7 +58,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.PropertyX\Reusable.PropertyMiddleware.csproj">
+    <ProjectReference Include="..\Reusable.PropertyMiddleware\Reusable.PropertyMiddleware.csproj">
       <Project>{55b0a875-7f36-4073-9a1b-f0db39fc2c40}</Project>
       <Name>Reusable.PropertyMiddleware</Name>
     </ProjectReference>

@@ -9,9 +9,9 @@
 
         private MarkupRenderer MarkupRenderer { get; set; }
 
-        public string Render(MarkupBuilder markupBuilder)
+        public string Render(IElement element)
         {
-            return MarkupRenderer.Render(markupBuilder);
+            return MarkupRenderer.Render(element);
         }
     }
 }

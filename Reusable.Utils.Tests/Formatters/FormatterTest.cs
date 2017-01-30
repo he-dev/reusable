@@ -12,7 +12,7 @@ namespace Reusable.Tests
         [TestMethod]
         public void AllFormats()
         {
-            var formatter = Formatter.Default()
+            var formatter = CustomFormatter.Default()
                 .Add<CaseFormatter>()
                 .Add<BracketFormatter>()
                 .Add<QuoteFormatter>()

@@ -2,7 +2,7 @@ using System;
 
 namespace Reusable.Formatters
 {
-    public class CaseFormatter : Formatter
+    public class QuoteFormatter : CustomFormatter
     {
         public override string Format(string format, object arg, IFormatProvider formatProvider)
         {
@@ -11,17 +11,18 @@ namespace Reusable.Formatters
                 return null;
             }
 
-            if (format.Equals("u", StringComparison.OrdinalIgnoreCase))
+            if (format.Equals("dq", StringComparison.OrdinalIgnoreCase))
             {
-                return arg.ToString().ToUpper();
+                return $"\"{arg}\"";
             }
 
-            if (format.Equals("l", StringComparison.OrdinalIgnoreCase))
+            if (format.Equals("sq", StringComparison.OrdinalIgnoreCase))
             {
-                return arg.ToString().ToLower();
+                return $"'{arg}'";
             }
 
             return null;
+           
         }
     }
 }

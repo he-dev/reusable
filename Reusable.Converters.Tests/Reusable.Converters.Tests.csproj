@@ -46,20 +46,24 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">
+          <Private>False</Private>
+        </Reference>
       </ItemGroup>
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="CompositeConverterTest.cs" />
     <Compile Include="ConverterTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="_GenericConverters\ArrayConvertersTests.cs" />
-    <Compile Include="_GenericConverters\DictionaryConvertersTests.cs" />
-    <Compile Include="_GenericConverters\HashSetConvertersTests.cs" />
-    <Compile Include="_GenericConverters\ListConvertersTests.cs" />
-    <Compile Include="_SpecificConverters\BooleanConvertersTests.cs" />
-    <Compile Include="_SpecificConverters\ColorConvertersTests.cs" />
-    <Compile Include="_SpecificConverters\JsonConvertersTests.cs" />
+    <Compile Include="TypeConverterTest.cs" />
+    <Compile Include="_GenericConverters\EnumerableToArrayConverterTest.cs" />
+    <Compile Include="_GenericConverters\DictionaryToDictionaryConverterTest.cs" />
+    <Compile Include="_GenericConverters\EnumerableToHashSetConverterTest.cs" />
+    <Compile Include="_GenericConverters\EnumerableToListConverterTest.cs" />
+    <Compile Include="_SpecificConverters\BooleanConvertersTest.cs" />
+    <Compile Include="_SpecificConverters\ColorConverterTest.cs" />
+    <Compile Include="_SpecificConverters\JsonToObjectConverterTest.cs" />
     <Compile Include="_SpecificConverters\SByteConvertersTest.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -70,6 +74,10 @@
     <ProjectReference Include="..\Reusable.Converters\Reusable.Converters.csproj">
       <Project>{d7da0768-b385-40de-abac-0a6b0c5b73f4}</Project>
       <Name>Reusable.Converters</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Reusable.Utils\Reusable.Utils.csproj">
+      <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
+      <Name>Reusable.Utils</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

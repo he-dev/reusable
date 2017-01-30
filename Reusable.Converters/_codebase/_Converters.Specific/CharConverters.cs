@@ -2,19 +2,19 @@
 
 namespace Reusable.Converters
 {
-    public class StringToCharConverter : SpecificConverter<String, Char>
+    public class StringToCharConverter : TypeConverter<String, Char>
     {
-        public override Char Convert(string value, ConversionContext context)
+        protected override char ConvertCore(IConversionContext<string> context)
         {
-            return Char.Parse(value);
+            return char.Parse(context.Value);
         }
     }
 
-    public class CharToStringConverter : SpecificConverter<char, string>
+    public class CharToStringConverter : TypeConverter<char, string>
     {
-        public override string Convert(Char value, ConversionContext context)
+        protected override string ConvertCore(IConversionContext<char> context)
         {
-            return value.ToString(context.Culture);
+            return context.Value.ToString(context.FormatProvider);
         }
     }
 }

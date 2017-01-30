@@ -70,7 +70,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="_codebase\Extensions\attrExtension.cs" />
-    <Compile Include="_codebase\Extensions\createElementExtension.cs" />
     <Compile Include="_codebase\Extensions\cssExtension.cs" />
     <Compile Include="_codebase\HtmlFormatting.cs" />
     <Compile Include="_codebase\MarkupBuilderExtensionCollection.cs" />

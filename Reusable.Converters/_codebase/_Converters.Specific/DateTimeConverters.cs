@@ -1,20 +1,27 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Reusable.Converters
 {
-    public class StringToDateTimeConverter : SpecificConverter<String, DateTime>
+    public class StringToDateTimeConverter : TypeConverter<String, DateTime>
     {
-        public override DateTime Convert(string value, ConversionContext context)
+        protected override DateTime ConvertCore(IConversionContext<string> context)
         {
-            return DateTime.Parse(value, context.Culture);
+            return
+                string.IsNullOrEmpty(context.Format)
+                    ? DateTime.Parse(context.Value, context.FormatProvider, DateTimeStyles.None)
+                    : DateTime.ParseExact(context.Value, context.Format, context.FormatProvider, DateTimeStyles.None);
         }
     }
 
-    public class DateTimeToStringConverter : SpecificConverter<DateTime, String>
+    public class DateTimeToStringConverter : TypeConverter<DateTime, String>
     {
-        public override string Convert(DateTime value, ConversionContext context)
+        protected override string ConvertCore(IConversionContext<DateTime> context)
         {
-            return value.ToString(context.Culture);
+            return
+                string.IsNullOrEmpty(context.Format)
+                    ? context.Value.ToString(context.FormatProvider)
+                    : context.Value.ToString(context.Format, context.FormatProvider);
         }
     }
 }

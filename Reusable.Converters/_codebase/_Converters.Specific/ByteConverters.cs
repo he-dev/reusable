@@ -1,20 +1,21 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Reusable.Converters
 {
-    public class StringToByteConverter : SpecificConverter<String, Byte>
+    public class StringToByteConverter : TypeConverter<String, Byte>
     {
-        public override Byte Convert(string value, ConversionContext context)
+        protected override byte ConvertCore(IConversionContext<string> context)
         {
-            return Byte.Parse(value, (IFormatProvider)context.Culture);
+            return byte.Parse(context.Value);
         }
     }
 
-    public class ByteToStringConverter : SpecificConverter<byte, string>
+    public class ByteToStringConverter : TypeConverter<Byte, String>
     {
-        public override string Convert(Byte value, ConversionContext context)
+        protected override string ConvertCore(IConversionContext<byte> context)
         {
-            return value.ToString(context.Culture);
+            return context.Value.ToString(context.FormatProvider);
         }
     }
 }

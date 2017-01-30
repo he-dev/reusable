@@ -2,19 +2,19 @@
 
 namespace Reusable.Converters
 {
-    public class StringToSByteConverter : SpecificConverter<String, SByte>
+    public class StringToSByteConverter : TypeConverter<String, SByte>
     {
-        public override SByte Convert(string value, ConversionContext context)
+        protected override SByte ConvertCore(IConversionContext<String> context)
         {
-            return SByte.Parse(value, context.Culture);
+            return SByte.Parse(context.Value, context.FormatProvider);
         }
     }
 
-    public class SByteToStringConverter : SpecificConverter<sbyte, string>
+    public class SByteToStringConverter : TypeConverter<sbyte, string>
     {
-        public override string Convert(SByte value, ConversionContext context)
+        protected override string ConvertCore(IConversionContext<SByte> context)
         {
-            return value.ToString(context.Culture);
+            return context.Value.ToString(context.FormatProvider);
         }
     }
 }

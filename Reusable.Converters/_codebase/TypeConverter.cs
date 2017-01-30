@@ -1,39 +1,120 @@
-﻿namespace Reusable.Converters
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+
+namespace Reusable.Converters
 {
-    public abstract class TypeConverter
+    public abstract class TypeConverter : IEqualityComparer<TypeConverter>
     {
-        public static TypeConverter Empty => new CompositeConverter();
+        public static TypeConverter Empty => new EmptyConverter();
 
-        public abstract bool TryConvert(ConversionContext context, object arg, out object instance);
-    }
+        public abstract Type FromType { get; }
 
-    public abstract class SpecificConverter<TArg, TResult> : TypeConverter
-    {
-        public override bool TryConvert(ConversionContext context, object arg, out object instance)
+        public abstract Type ToType { get; }
+
+        public abstract bool CanConvert(object value, Type targetType);
+
+        public object Convert(object value, Type targetType)
         {
-            //// Type conversion is not necessary.
-            //if (arg.GetType() == context.Type)
-            //{
-            //    instance = arg;
-            //    return true;
-            //}
-
-            instance = default(TArg);
-
-            var canConvert = context.Type.IsAssignableFrom(typeof(TResult)) && arg is TArg;
-            if (!canConvert)
-            {
-                return false;
-            }
-            instance = Convert((TArg)arg, context);
-            return true;
+            return Convert(value, targetType, null, CultureInfo.InvariantCulture);
         }
 
-        public abstract TResult Convert(TArg value, ConversionContext context);
+        public object Convert(object value, Type targetType, string format, IFormatProvider formatProvider)
+        {
+            return Convert(new ConversionContext<object>(value, targetType, format, formatProvider, Empty));
+        }
+
+        public object Convert(IConversionContext<object> context)
+        {
+            if (!NeedsConversion(context.Value, context.TargetType))
+            {
+                return context.Value;
+            }
+
+            if (CanConvert(context.Value, context.TargetType))
+            {
+                return ConvertCore(context);
+            }
+
+            throw new FormatException($"Could not convert '{context.Value?.GetType()}' to '{context.TargetType}'.");
+        }
+
+        protected abstract object ConvertCore(IConversionContext<object> context);
+
+        protected virtual bool NeedsConversion(object value, Type targetType)
+        {
+            return value.GetType() != targetType;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return 
+                !ReferenceEquals(obj, null) && 
+                Equals(this, (TypeConverter)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return GetHashCode(this);
+        }
+
+        public bool Equals(TypeConverter x, TypeConverter y)
+        {
+            return 
+                !ReferenceEquals(x, null) &&
+                !ReferenceEquals(y, null) &&
+                x.FromType == y.FromType && 
+                x.ToType == y.ToType;
+        }
+
+        public int GetHashCode(TypeConverter obj)
+        {
+            if (ReferenceEquals(obj.FromType, null) || ReferenceEquals(obj.ToType, null)) return 0;
+
+            unchecked
+            {
+                var hash = 17;
+                hash = hash * 31 + obj.FromType.GetHashCode();
+                hash = hash * 31 + obj.ToType.GetHashCode();
+                return hash;
+            }
+        }
     }
 
-    public abstract class GenericConverter<TArg> : TypeConverter
+    public abstract class TypeConverter<TValue, TResult> : TypeConverter
     {
-        public abstract object Convert(TArg value, ConversionContext context);
+        public override Type FromType => typeof(TValue);
+
+        public override Type ToType => typeof(TResult);
+
+        public override bool CanConvert(object value, Type targetType)
+        {
+            return targetType.IsAssignableFrom(typeof(TResult)) && value.GetType() == typeof(TValue);
+        }
+
+        protected override object ConvertCore(IConversionContext<object> context)
+        {
+            return ConvertCore(new ConversionContext<TValue>(context));
+        }
+
+        protected abstract TResult ConvertCore(IConversionContext<TValue> context);
     }
+
+    public class EmptyConverter : TypeConverter
+    {
+        public override Type FromType => null;
+
+        public override Type ToType => null;
+
+        public override bool CanConvert(object value, Type targetType)
+        {
+            return false;
+        }
+
+        protected override object ConvertCore(IConversionContext<object> context)
+        {
+            return null;
+        }
+    }
+
 }

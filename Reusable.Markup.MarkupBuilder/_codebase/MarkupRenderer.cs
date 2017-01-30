@@ -13,20 +13,20 @@ namespace Reusable.Markup
 
         private MarkupFormatting MarkupFormatting { get; set; }
 
-        public string Render(MarkupBuilder markupBuilder)
+        public string Render(IElement element)
         {
-            var content = markupBuilder.Aggregate(new StringBuilder(), (sb, next) =>
+            var content = element.Aggregate(new StringBuilder(), (sb, next) =>
             {
                 var mb = next as MarkupBuilder;
                 return sb.Append(mb == null ? next : Render(mb));
             })
             .ToString();
 
-            var hasParent = markupBuilder.Parent != null;
-            var placeOpeningTagOnNewLine = hasParent && MarkupFormatting[markupBuilder.Tag].HasFlag(MarkupFormattingOptions.PlaceOpeningTagOnNewLine);
-            var placeClosingTagOnNewLine = MarkupFormatting[markupBuilder.Tag].HasFlag(MarkupFormattingOptions.PlaceClosingTagOnNewLine);
-            var isVoid = MarkupFormatting[markupBuilder.Tag].HasFlag(MarkupFormattingOptions.IsVoid);
-            var indent = IndentString(MarkupFormatting.IndentWidth * markupBuilder.Depth);
+            var hasParent = element.Parent != null;
+            var placeOpeningTagOnNewLine = hasParent && MarkupFormatting[element.Name].HasFlag(MarkupFormattingOptions.PlaceOpeningTagOnNewLine);
+            var placeClosingTagOnNewLine = MarkupFormatting[element.Name].HasFlag(MarkupFormattingOptions.PlaceClosingTagOnNewLine);
+            var isVoid = MarkupFormatting[element.Name].HasFlag(MarkupFormattingOptions.IsVoid);
+            var indent = IndentString(MarkupFormatting.IndentWidth * CalcDepth(element));
 
             var html = new StringBuilder();
 
@@ -36,7 +36,7 @@ namespace Reusable.Markup
                 html.Append(indent);
             }
 
-            html.Append(CreateOpeningElement(markupBuilder.Tag, markupBuilder.Attributes));
+            html.Append(CreateOpeningElement(element.Name, element.Attributes));
 
             if (isVoid) { return html.ToString(); }
 
@@ -48,7 +48,7 @@ namespace Reusable.Markup
                 html.Append(hasParent ? indent : string.Empty);
             }
 
-            html.Append(CreateClosingElement(markupBuilder.Tag));
+            html.Append(CreateClosingElement(element.Name));
 
             return html.ToString();
         }
@@ -90,6 +90,18 @@ namespace Reusable.Markup
                 .Append(tag)
                 .Append(">")
                 .ToString();
+        }
+
+        internal int CalcDepth(IElement element)
+        {
+            var depth = 0;
+            var parent = element.Parent;
+            while (parent != null)
+            {
+                depth++;
+                parent = parent.Parent;
+            }
+            return depth;
         }
     }
 }

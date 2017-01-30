@@ -4,60 +4,24 @@ using System.Linq;
 
 namespace Reusable.Converters
 {
-    public class EnumerableObjectToArrayObjectConverter : GenericConverter<IEnumerable>
+    public class EnumerableToArrayConverter : TypeConverter<IEnumerable, object>
     {
-        public override bool TryConvert(ConversionContext context, object arg, out object instance)
+        public override bool CanConvert(object value, Type targetType)
         {
-            if (context.Type.IsArray && arg.GetType().IsEnumerable())
-            {
-                instance = Convert((IEnumerable)arg, context);
-                return true;
-            }
-
-            instance = null;
-            return false;
+            return targetType.IsArray && value.GetType().IsEnumerable();
         }
 
-        public override object Convert(IEnumerable values, ConversionContext context)
+        protected override object ConvertCore(IConversionContext<IEnumerable> context)
         {
-            var elements = values.Cast<object>().ToArray();
+            var elements = context.Value.Cast<object>().ToArray();
 
-            var elementType = context.Type.GetElementType();
+            var elementType = context.TargetType.GetElementType();
             var array = Array.CreateInstance(elementType, elements.Length);
 
             for (var i = 0; i < elements.Length; i++)
             {
-                array.SetValue(context.Service.Convert(elements[i], elementType), i);
-            }
-
-            return array;
-        }
-    }
-
-    public class EnumerableObjectToArrayStringConverter : GenericConverter<IEnumerable>
-    {
-        public override bool TryConvert(ConversionContext context, object arg, out object instance)
-        {
-            if (context.Type.IsArray && arg.GetType().IsEnumerable())
-            {
-                instance = Convert((IEnumerable)arg, context);
-                return true;
-            }
-
-            instance = null;
-            return false;
-        }
-
-        public override object Convert(IEnumerable values, ConversionContext context)
-        {
-            var elements = values.Cast<object>().ToArray();
-
-            var elementType = context.Type.GetElementType();
-            var array = Array.CreateInstance(elementType, elements.Length);
-
-            for (var i = 0; i < elements.Length; i++)
-            {
-                array.SetValue(context.Service.Convert(elements[i], elementType), i);
+                var value = context.Converter.Convert(elements[i], elementType, context.Format, context.FormatProvider);
+                array.SetValue(value, i);
             }
 
             return array;
