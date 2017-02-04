@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Converters</id>
-    <version>2.4.2</version>
+    <version>2.4.4</version>
     <title>Reusable.Converters</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -16,8 +16,8 @@
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="Newtonsoft.Json" version="9.0.1" />
-      <dependency id="Reusable.Utils" version="2.4.2" />
-      <dependency id="Reusable.Fuse" version="2.4.2" />
+      <dependency id="Reusable.Utils" version="2.4.4" />
+      <dependency id="Reusable.Fuse" version="2.4.4" />
     </dependencies>
   </metadata>
   <files>

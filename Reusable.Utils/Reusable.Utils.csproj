@@ -82,7 +82,7 @@
     <Compile Include="_codebase\Data\AppConfigRepository.cs" />
     <Compile Include="_codebase\Data\Annotations\IgnoreAttribute.cs" />
     <Compile Include="_codebase\Data\Annotations\OptionalAttribute.cs" />
-    <Compile Include="_codebase\Data\Annotations\FormatStringAttribute.cs" />
+    <Compile Include="_codebase\Data\Annotations\FormatAttribute.cs" />
     <Compile Include="_codebase\Drawing\Color32.cs" />
     <Compile Include="_codebase\Drawing\ColorParser.cs" />
     <Compile Include="_codebase\CustomFormatter.cs" />

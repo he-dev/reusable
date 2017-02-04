@@ -8,7 +8,7 @@ namespace Reusable.Formatters
 {    
     public class HexadecimalColorFormatter : CustomFormatter
     {
-        private static readonly string[] Formats = { "AARRGGBB", "RRGGBB", "RRGGBBAA" };
+        private static readonly string[] Formats = { "#AARRGGBB", "#RRGGBB", "#RRGGBBAA" };
 
         private static readonly Dictionary<string, Func<Color, byte>> ColorMap = new Dictionary<string, Func<Color, byte>>(StringComparer.OrdinalIgnoreCase)
         {

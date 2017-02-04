@@ -3,12 +3,15 @@
 namespace Reusable.Data.Annotations
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
-    public class FormatStringAttribute : Attribute
+    public class FormatAttribute : Attribute
     {
-        public FormatStringAttribute(string formatString)
+        public FormatAttribute(Type formatProviderType, string formatString)
         {
+            FormatProvider = (IFormatProvider)Activator.CreateInstance(formatProviderType);
             FormatString = formatString;
         }
+
+        public IFormatProvider FormatProvider { get; set; }
 
         public string FormatString { get; }
 

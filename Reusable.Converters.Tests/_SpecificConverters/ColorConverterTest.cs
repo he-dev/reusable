@@ -48,7 +48,7 @@ namespace Reusable.Converters.Tests
         public void Convert_Color_Hex()
         {
             var converter = TypeConverter.Empty.Add(new ColorToStringConverter());
-            var result = converter.Convert(Color.DeepPink, typeof(String), "{0:rgb-hex}", new HexadecimalColorFormatter());
+            var result = converter.Convert(Color.DeepPink, typeof(String), "{0:#RRGGBB}", new HexadecimalColorFormatter());
             result
                 .Verify()
                 .IsNotNull()

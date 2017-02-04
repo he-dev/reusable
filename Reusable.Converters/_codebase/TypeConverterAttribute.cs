@@ -2,7 +2,7 @@
 
 namespace Reusable.Converters
 {
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class TypeConverterAttribute : Attribute
     {
         public TypeConverterAttribute(Type type)
