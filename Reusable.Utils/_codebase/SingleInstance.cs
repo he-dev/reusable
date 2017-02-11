@@ -36,4 +36,9 @@ namespace Reusable
             _mutex.Dispose();
         }
     }
+
+    // TODO consider using this in the next version
+    // keep the mutex reference alive until the normal 
+    //termination of the program
+    // GC.KeepAlive(_mutex);
 }

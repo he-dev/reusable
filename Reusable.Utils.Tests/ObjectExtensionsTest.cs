@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Fuse;
 using Reusable.Fuse.Testing;
+using Reusable.Fuse;
 
-namespace Reusable.Extensions.Tests
+namespace Reusable.Tests
 {
     [TestClass]
     public class ObjectExtensionsTest

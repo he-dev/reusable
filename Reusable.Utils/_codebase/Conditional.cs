@@ -1,23 +1,69 @@
 ﻿using System;
+// ReSharper disable InconsistentNaming
 
 namespace Reusable
 {
     public static class Conditional
     {
-        // ReSharper disable once InconsistentNaming
-        public static TResult IIf<TArg, TResult>
-        (
-            this TArg arg,
-            Func<TArg, bool> predicate,
-            Func<TArg, TResult> ifTrue,
-            Func<TArg, TResult> ifFalse = null
-        )
+        public static bool IsNull<T>(T value)
         {
-            if (predicate == null) { throw new ArgumentNullException(nameof(predicate)); }
-            if (predicate == null) { throw new ArgumentNullException(nameof(ifTrue)); }
-
-            return predicate(arg) ? ifTrue(arg) : (ifFalse == null ? default(TResult) : ifFalse(arg));
+            return ReferenceEquals(value, null);
         }
+
+        public static bool IsNotNull<T>(T value)
+        {
+            return !IsNull(value);
+        }
+
+        public static bool IsNullOrEmpty(string value)
+        {
+            return string.IsNullOrEmpty(value);
+        }
+
+        public static bool IsNotNullOrEmpty(string value)
+        {
+            return !IsNullOrEmpty(value);
+        }
+
+
+        public static TResult IIf<TValue, TResult>(this TValue value, Func<TValue, bool> predicate, Func<TValue, TResult> ifTrue, Func<TValue, TResult> ifFalse = null)
+        {
+            if (predicate(value))
+            {
+                return ifTrue(value);
+            }
+
+            return ifFalse == null ? default(TResult) : ifFalse(value);
+        }
+
+        #region IIf
+
+        // ReSharper disable once InconsistentNaming
+        public static TResult IIf<TValue, TResult>(this TValue value, Func<TValue, bool> predicate, Func<TResult> ifTrue, Func<TResult> ifFalse = null)
+        {
+            return value.IIf(predicate, x => ifTrue(), x => ifFalse == null ? default(TResult) : ifFalse());
+        }
+
+        // ReSharper disable once InconsistentNaming
+        public static TResult IIf<TValue, TResult>(this TValue value, Func<TValue, bool> predicate, TResult ifTrue, TResult ifFalse = default(TResult))
+        {
+            return value.IIf(predicate, x => ifTrue, x => ifFalse);
+        }
+
+        // ReSharper disable once InconsistentNaming
+        public static void IIf<TValue>(this TValue arg, Func<TValue, bool> predicate, Action<TValue> ifTrue, Action<TValue> ifFalse = null)
+        {
+            if (predicate(arg))
+            {
+                ifTrue(arg);
+            }
+            else
+            {
+                ifFalse?.Invoke(arg);
+            }
+        }
+
+        #endregion
 
         public static bool IfInstanceOf<T>(this object arg, Action<T> body) where T : class
         {

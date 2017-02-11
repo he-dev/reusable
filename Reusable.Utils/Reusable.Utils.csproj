@@ -87,6 +87,7 @@
     <Compile Include="_codebase\Drawing\ColorParser.cs" />
     <Compile Include="_codebase\CustomFormatter.cs" />
     <Compile Include="_codebase\CustomFormatterComposition.cs" />
+    <Compile Include="_codebase\ResourceReader.cs" />
     <Compile Include="_codebase\Formatters\BracketFormatter.cs" />
     <Compile Include="_codebase\Formatters\CaseFormatter.cs" />
     <Compile Include="_codebase\Formatters\DecimalColorFormatter.cs" />
