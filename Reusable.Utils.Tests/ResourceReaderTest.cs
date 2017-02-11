@@ -10,7 +10,7 @@ namespace Reusable.Tests
     public class ResourceReaderTest
     {
         [TestMethod]
-        public void GetEmbededResourceNames_()
+        public void GetEmbededResourceNames_Void_AllResourceNames()
         {
             var names = ResourceReader.GetEmbededResourceNames<ResourceReaderTest>();
             names.Count().Verify().IsEqual(2);
