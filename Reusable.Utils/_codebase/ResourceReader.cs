@@ -33,6 +33,12 @@ namespace Reusable
             return ReadEmbeddedResource(typeof(TAssembly), typeof(TNamespace), name);
         }
 
+        public static string ReadEmbeddedResource<TAssembly>(string name)
+        {
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
+            return ReadEmbeddedResource(typeof(TAssembly), typeof(TAssembly), name);
+        }
+
         public static string ReadEmbeddedResource(Type assemblyType, Type namespaceType, string name)
         {
             if (assemblyType == null) throw new ArgumentNullException(nameof(assemblyType));
