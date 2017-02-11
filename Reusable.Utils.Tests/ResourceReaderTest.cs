@@ -18,7 +18,7 @@ namespace Reusable.Tests
         [TestMethod]
         public void ReadEmbededResource_ResourceName_ResourceText()
         {
-            var text = ResourceReader.ReadEmbededResource<ResourceReaderTest, ResourceReaderTest>("TextFile1.txt");
+            var text = ResourceReader.ReadEmbeddedResource<ResourceReaderTest, ResourceReaderTest>("TextFile1.txt");
             Assert.AreEqual("Resource1", text);
         }
     }
