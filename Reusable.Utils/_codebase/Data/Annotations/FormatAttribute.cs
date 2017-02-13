@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Reusable.Data.Annotations
 {
@@ -8,6 +9,12 @@ namespace Reusable.Data.Annotations
         public FormatAttribute(Type formatProviderType, string formatString)
         {
             FormatProvider = (IFormatProvider)Activator.CreateInstance(formatProviderType);
+            FormatString = formatString;
+        }
+
+        public FormatAttribute(string formatString)
+        {
+            FormatProvider = CultureInfo.InvariantCulture; // (IFormatProvider)Activator.CreateInstance(formatProviderType);
             FormatString = formatString;
         }
 

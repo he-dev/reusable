@@ -5,13 +5,13 @@ namespace Reusable.Fuse
     public static class ValidationBuilder
     {
         [DebuggerNonUserCode]
-        public static Current<T> Validate<T>(this T value, string memberName)
+        public static SpecificationContext<T> Validate<T>(this T value, string memberName)
         {
-            return new Current<T>(value, memberName, typeof(ValidationException));
+            return new SpecificationContext<T>(value, memberName, typeof(ValidationException));
         }
 
         [DebuggerNonUserCode]
-        public static Current<T> Validate<T>(this T value)
+        public static SpecificationContext<T> Validate<T>(this T value)
         {
             return Validate(value, nameof(value));
         }

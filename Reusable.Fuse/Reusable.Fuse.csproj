@@ -73,17 +73,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="_codebase\CurrentExtensions.cs" />
-    <Compile Include="_codebase\Validations.Enumerable.cs" />
-    <Compile Include="_codebase\Validations.Boolean.cs" />
-    <Compile Include="_codebase\Validations.String.cs" />
+    <Compile Include="_codebase\SpecificationContextExtensions.cs" />
+    <Compile Include="_codebase\_Validations\Validations.Enumerable.cs" />
+    <Compile Include="_codebase\_Validations\Validations.Boolean.cs" />
+    <Compile Include="_codebase\_Validations\Validations.String.cs" />
     <Compile Include="_codebase\Testing\VerificationException.cs" />
     <Compile Include="_codebase\ValidationException.cs" />
     <Compile Include="_codebase\Testing\Validations.Exception.cs" />
-    <Compile Include="_codebase\Current.cs" />
+    <Compile Include="_codebase\SpecificationContext.cs" />
     <Compile Include="_codebase\Testing\VerificationBuilder.cs" />
     <Compile Include="_codebase\ValidationBuilder.cs" />
-    <Compile Include="_codebase\Validations.Generic.cs" />
+    <Compile Include="_codebase\_Validations\Validations.Generic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

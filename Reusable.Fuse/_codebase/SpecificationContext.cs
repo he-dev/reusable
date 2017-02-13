@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace Reusable.Fuse
 {
-    public interface ICurrent<out T>
+    public interface ISpecificationContext<out T>
     {
         T Value { get; }
 
@@ -12,10 +12,10 @@ namespace Reusable.Fuse
         Type ExceptionType { get; }
     }
 
-    public class Current<T> : ICurrent<T>
+    public class SpecificationContext<T> : ISpecificationContext<T>
     {
         [DebuggerStepThrough]
-        public Current(T value, string memberName, Type exceptionType)
+        public SpecificationContext(T value, string memberName, Type exceptionType)
         {
             Value = value;
             MemberName = memberName;

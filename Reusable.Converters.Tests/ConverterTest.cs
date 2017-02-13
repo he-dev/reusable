@@ -13,7 +13,7 @@ namespace Reusable.Converters.Tests
             return TypeConverter.Empty.Add<TConverter>().Convert(arg, type);
         }
 
-        protected ICurrent<TResult> Convert<TConverter, TResult>(object arg, Type type) where TConverter : TypeConverter, new()
+        protected ISpecificationContext<TResult> Convert<TConverter, TResult>(object arg, Type type) where TConverter : TypeConverter, new()
         {
             return TypeConverter.Empty.Add<TConverter>().Convert(arg, type).Verify().IsNotNull().Cast<TResult>();
         }
