@@ -1,7 +1,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Formatters;
+using Reusable.StringFormatting;
 using Reusable.Fuse;
 using Reusable.Fuse.Testing;
+using Reusable.StringFormatting.Formatters;
 
 namespace Reusable.Tests.Formatters
 {

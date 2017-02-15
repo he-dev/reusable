@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Formatters;
+using Reusable.StringFormatting;
 
 namespace Reusable.Tests.Formatters
 {

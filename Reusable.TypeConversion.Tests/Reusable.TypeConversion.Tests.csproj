@@ -3,11 +3,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6D35981D-75BD-42C2-BBFD-FCEED1BC23EC}</ProjectGuid>
+    <ProjectGuid>{D2F588A5-F519-4CE3-BC3A-4274984E3448}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Reusable.Tests</RootNamespace>
-    <AssemblyName>Reusable.SemanticVersion.Tests</AssemblyName>
+    <RootNamespace>Reusable.TypeConversion.Tests</RootNamespace>
+    <AssemblyName>Reusable.TypeConversion.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -37,6 +37,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Drawing" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -46,22 +47,38 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">
+          <Private>False</Private>
+        </Reference>
       </ItemGroup>
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="SemanticVersionTest.cs" />
+    <Compile Include="CompositeConverterTest.cs" />
+    <Compile Include="ConverterTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypeConverterTest.cs" />
+    <Compile Include="_GenericConverters\EnumerableToArrayConverterTest.cs" />
+    <Compile Include="_GenericConverters\DictionaryToDictionaryConverterTest.cs" />
+    <Compile Include="_GenericConverters\EnumerableToHashSetConverterTest.cs" />
+    <Compile Include="_GenericConverters\EnumerableToListConverterTest.cs" />
+    <Compile Include="_SpecificConverters\BooleanConvertersTest.cs" />
+    <Compile Include="_SpecificConverters\ColorConverterTest.cs" />
+    <Compile Include="_SpecificConverters\JsonToObjectConverterTest.cs" />
+    <Compile Include="_SpecificConverters\SByteConvertersTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Fuse\Reusable.Fuse.csproj">
       <Project>{aba07d6f-bb71-4aa6-aa20-7330e394d082}</Project>
       <Name>Reusable.Fuse</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Reusable.SemanticVersion\Reusable.SemanticVersion.csproj">
-      <Project>{d7dce0bd-e152-4e27-9d58-1175344ae98f}</Project>
-      <Name>Reusable.SemanticVersion</Name>
+    <ProjectReference Include="..\Reusable.TypeConversion\Reusable.TypeConversion.csproj">
+      <Project>{d7da0768-b385-40de-abac-0a6b0c5b73f4}</Project>
+      <Name>Reusable.TypeConversion</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Reusable.Utils\Reusable.Utils.csproj">
+      <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
+      <Name>Reusable.Utils</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>
