@@ -1,28 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Reusable.Shelly.Collections
 {
     public class ArgumentCollection
     {
-        private readonly Dictionary<string, List<string>> _arguments;
+        private readonly Dictionary<string, IList<string>> _arguments = new Dictionary<string, IList<string>>(StringComparer.OrdinalIgnoreCase);
 
-        internal ArgumentCollection(string commandName, Dictionary<string, List<string>> arguments)
+        internal ArgumentCollection(IEnumerable<Argument> arguments)
         {
-            CommandName = commandName;
-            _arguments = arguments;
+            _arguments = arguments.ToDictionary(x => x.Key, x => (IList<string>)x, StringComparer.OrdinalIgnoreCase);
         }
 
-        public string CommandName { get; }
+        public string CommandName => _arguments[string.Empty].FirstOrDefault();
 
-        public List<string> this[string argumentName]
+        public IList<string> this[string name]
         {
-            get
-            {
-                var argumentValues = (List<string>)null;
-                return _arguments.TryGetValue(argumentName, out argumentValues) ? argumentValues : null;
-            }
-            set { _arguments[argumentName] = value; }
+            get => _arguments.TryGetValue(name, out IList<string> values) ? values : null;
+            set => _arguments[name] = value;
         }
 
         public bool ContainsArgument(string argumentName) => _arguments.ContainsKey(argumentName);

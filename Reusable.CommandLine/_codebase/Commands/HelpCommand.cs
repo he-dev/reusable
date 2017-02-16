@@ -16,7 +16,7 @@ namespace Reusable.Shelly.Commands
         void WriteArguments(IEnumerable<ArgumentSummary> argumentSummaries);
     }
 
-    [Alias("h", "?")]
+    [Shortcut("h", "?")]
     [Description("Display help.")]
     public class HelpCommand : Command
     {
@@ -33,7 +33,7 @@ namespace Reusable.Shelly.Commands
         }
 
         [Parameter(Position = 1)]
-        [Alias("Command", "cmd")]
+        [Shortcut("Command", "cmd")]
         [Description("Display command usage.")]
         public string CommandName { get; set; }        
 

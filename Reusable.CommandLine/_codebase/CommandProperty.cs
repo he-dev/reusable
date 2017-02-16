@@ -20,7 +20,7 @@ namespace Reusable.Shelly
             {
                 yield return _property.Name;
 
-                var alias = _property.GetCustomAttribute<AliasAttribute>();
+                var alias = _property.GetCustomAttribute<ShortcutAttribute>();
                 foreach (var a in alias ?? Enumerable.Empty<string>())
                 {
                     yield return a;

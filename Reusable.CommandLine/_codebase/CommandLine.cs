@@ -4,35 +4,34 @@ using System.Linq;
 using Reusable.Fuse;
 using Reusable.Shelly.Data;
 using Reusable.Shelly.Reflection;
+using Reusable.Shelly.Collections;
 
 namespace Reusable.Shelly
 {
     public class CommandLine
     {
-        internal CommandLine(IEnumerable<CommandInfo> commands, string argumentPrefix, string argumentValueSeparator)
+        internal CommandLine(CommandCollection commands, string argumentPrefix, char nameValueSeparator)
         {
             Commands = commands;
             ArgumentPrefix = argumentPrefix;
-            ArgumentValueSeparator = argumentValueSeparator;
+            NameValueSeparator = nameValueSeparator;
         }
 
         public string ArgumentPrefix { get; }
 
-        public string ArgumentValueSeparator { get; }
+        public char NameValueSeparator { get; }
 
-        public IEnumerable<CommandInfo> Commands { get; }
-
-        internal CommandFactory CommandFactory { get; } = new CommandFactory();
-
-        internal CommandLineParser CommandLineParser { get; } = new CommandLineParser();
+        public CommandCollection Commands { get; }
 
         public void Execute(IEnumerable<string> args)
         {
             args.Validate(nameof(args)).IsNotNull();
 
             var commandNames = Commands.SelectMany(x => x.CommandType.GetCommandNames()).ToList();
-            var parseResult = CommandLineParser.Parse(args, ArgumentPrefix, ArgumentValueSeparator, commandNames);
-            var commandInfo = FindCommand(parseResult.CommandName);
+
+            var tokens = CommandLineTokenizer.Tokenize(string.Join(" ", args), NameValueSeparator);
+            var arguments = CommandLineParser.Parse(tokens, ArgumentPrefix);
+            var commandInfo = FindCommand(arguments.CommandName);
             var command = CommandFactory.CreateCommand(commandInfo, this);
             command.Execute();
         }

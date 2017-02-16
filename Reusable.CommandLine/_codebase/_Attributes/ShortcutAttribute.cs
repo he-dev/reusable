@@ -5,15 +5,11 @@ using System.Collections.Generic;
 namespace Reusable.Shelly
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property)]
-    public class AliasAttribute : Attribute, IEnumerable<string>
+    public class ShortcutAttribute : Attribute, IEnumerable<string>
     {
         private readonly IEnumerable<string> _names;
 
-        public AliasAttribute(params string[] names)
-        {
-            if (names == null) throw new ArgumentNullException(nameof(names));
-            _names = names;
-        }
+        public ShortcutAttribute(params string[] names) => _names = names ?? throw new ArgumentNullException(nameof(names));
 
         public IEnumerator<string> GetEnumerator() => _names.GetEnumerator();
 
