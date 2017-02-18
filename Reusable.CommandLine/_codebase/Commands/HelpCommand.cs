@@ -7,76 +7,66 @@ using System.Text;
 using Reusable.Fuse;
 using Reusable.Shelly.Data;
 using Reusable.Shelly.Reflection;
+using System.Windows.Input;
 
 namespace Reusable.Shelly.Commands
 {
-    public interface IHelpWriter
-    {
-        void WriteCommands(IEnumerable<CommandSummary> commandSummaries);
-        void WriteArguments(IEnumerable<ArgumentSummary> argumentSummaries);
-    }
-
-    [Shortcut("h", "?")]
+    [Shortcuts("h", "?")]
     [Description("Display help.")]
-    public class HelpCommand : Command
+    public class HelpCommand : ICommand
     {
-        private readonly CommandLine _commandLine;
+        public event EventHandler CanExecuteChanged;   
 
-        private readonly IHelpWriter _helpWriter;
+        public bool CanExecute(object parameter) => true;
 
-        public HelpCommand(CommandLine commandLine, IHelpWriter helpWriter)
+        public void Execute(object parameter)
         {
-            commandLine.Validate(nameof(commandLine)).IsNotNull();
-            helpWriter.Validate(nameof(helpWriter)).IsNotNull();
-            _commandLine = commandLine;
-            _helpWriter = helpWriter;
+            Execute(parameter as CommandLineContext);
         }
 
-        [Parameter(Position = 1)]
-        [Shortcut("Command", "cmd")]
-        [Description("Display command usage.")]
-        public string CommandName { get; set; }        
-
-        public override void Execute()
+        private void Execute(CommandLineContext context)
         {
-            //if (CommandLine == null) { throw new InvalidOperationException($"{nameof(CommandLine)} must be set first."); }
+            var parameters = context.Parameters as HelpCommandParameters;
 
-            if (string.IsNullOrEmpty(CommandName))
-            {
-                _helpWriter.WriteCommands(CreateCommandSummaries(_commandLine.Commands));
-            }
-            else
-            {
-                var command = _commandLine.FindCommand(CommandName);
-                if (command == null)
-                {
-                    throw new Exception($"Command \"{CommandName}\" not found.");
-                }
-                _helpWriter.WriteArguments(CreateArgumentSummaries(command));
-            }            
+            //if (string.IsNullOrEmpty(parameters.CommandName))
+            //{
+            //    CreateCommandSummaries(parameters.CommandName.Commands);
+            //}
+            //else
+            //{
+            //    var command = _commandLine.FindCommand(CommandName);
+            //    if (command == null)
+            //    {
+            //        throw new Exception($"Command \"{CommandName}\" not found.");
+            //    }
+            //    _helpWriter.WriteArguments(CreateArgumentSummaries(command));
+            //}            
+
         }
 
         private static IEnumerable<CommandSummary> CreateCommandSummaries(IEnumerable<CommandInfo> commands)
         {
-            return commands.Select(command => new CommandSummary
-            {
-                Names = command.CommandType.GetCommandNames().ToArray(),
-                Description = command.CommandType.GetDescription(),
-                IsDefault = command.IsDefault
-            });
+            //return commands.Select(command => new CommandSummary
+            //{
+            //    Names = command.CommandType.GetCommandNames().ToArray(),
+            //    Description = command.CommandType.GetDescription(),
+            //    IsDefault = command.IsDefault
+            //});
+            return null;
         }
 
         private static IEnumerable<ArgumentSummary> CreateArgumentSummaries(CommandInfo command)
         {
-            return command.CommandType.GetCommandProperties().Select(commandProperty => new ArgumentSummary
-            {
-                Names = commandProperty.Names.ToArray(),
-                //Description = commandProperty..GetDescription(),
-                Type = commandProperty.Type,
-                Mandatory = commandProperty.Mandatory,
-                Position = commandProperty.Position,
-                ListSeparator = commandProperty.ListSeparator
-            });
+            //return command.CommandType.GetCommandProperties().Select(commandProperty => new ArgumentSummary
+            //{
+            //    Names = commandProperty.Names.ToArray(),
+            //    //Description = commandProperty..GetDescription(),
+            //    Type = commandProperty.Type,
+            //    Mandatory = commandProperty.Mandatory,
+            //    Position = commandProperty.Position,
+            //    ListSeparator = commandProperty.ListSeparator
+            //});
+            return null;
         }
 
         //private void RenderCommandUsage(Type commandType)

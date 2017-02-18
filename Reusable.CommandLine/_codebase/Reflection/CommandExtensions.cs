@@ -15,7 +15,7 @@ namespace Reusable.Shelly.Reflection
         {
             property.Validate(nameof(property)).IsNotNull();
 
-            var customNames = property.GetCustomAttribute<ShortcutAttribute>();
+            var customNames = property.GetCustomAttribute<ShortcutsAttribute>();
             if (customNames != null)
             {
                 return customNames;

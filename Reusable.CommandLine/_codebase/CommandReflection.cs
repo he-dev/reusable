@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Reusable.Shelly.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -11,23 +12,20 @@ namespace Reusable.Shelly
 {
     internal class CommandReflection
     {
-        public static IEnumerable<CommandProperty> GetCommandProperties(Type commandType)
+        public static IEnumerable<CommandParameterInfo> GetCommandProperties(Type commandType)
         {
             return
                 from property in commandType.GetProperties(BindingFlags.Instance | BindingFlags.Public)
                 where property.GetCustomAttribute<ParameterAttribute>() != null
-                select new CommandProperty(property);
+                select new CommandParameterInfo(property);
         }
 
-        public static IList<string> GetCommandNames(Type commandType)
+        public static StringSetCI GetCommandNames(Type commandType)
         {
             var names = new List<string>();
 
-            var commandName =
-                commandType.GetCustomAttribute<CommandNameAttribute>() ??
-                Regex.Replace(commandType.Name, $"Command$", string.Empty, RegexOptions.IgnoreCase);
-
-            var shotcutAttribute = commandType.GetCustomAttribute<ShortcutAttribute>() ?? Enumerable.Empty<string>();
+            var commandName = GetCommandNameOrDefault();
+            var shotcutAttribute = commandType.GetCustomAttribute<ShortcutsAttribute>() ?? Enumerable.Empty<string>();
             var namespaceAttribute = commandType.GetCustomAttribute<NamespaceAttribute>();
 
             if (namespaceAttribute != null)
@@ -44,7 +42,11 @@ namespace Reusable.Shelly
 
             sort:
 
-            return names.OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToList();
+            return StringSetCI.Create(names.OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToArray());
+
+            string GetCommandNameOrDefault() =>
+                commandType.GetCustomAttribute<CommandNameAttribute>() ??
+                Regex.Replace(commandType.Name, $"Command$", string.Empty, RegexOptions.IgnoreCase);
         }
 
         public static IEnumerable<string> GetCommandName(ICommand command) => GetCommandNames(command.GetType());

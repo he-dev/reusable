@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Fuse;
 using Reusable.Fuse.Testing;
 using Reusable.Shelly.Data;
+using System.Windows.Input;
 
 namespace Reusable.Shelly.Tests
 {
@@ -11,95 +12,40 @@ namespace Reusable.Shelly.Tests
     public class CommandLineBuilderTest
     {
         [TestMethod]
-        public void ctor_CreatesDefaultBuilder()
+        public void Register_SingleCommand_AnonymousCommandLine()
         {
-            var builder = new CommandLineBuilder();
-            var cmdln = builder.Build();
-            cmdln.ArgumentPrefix.Verify().IsEqual("-");
-            cmdln.ArgumentValueSeparator.Verify().IsEqual(":");
-            cmdln.Commands.Verify().IsEmpty();
+            var executed = false;
+            var execute = new Action<object>(o => { executed = true; });
+            var cmdLn = CommandLine.Builder.Register(new[] { "test" }, execute).Build();
+            cmdLn.Execute("test");
+            executed.Verify().IsTrue();
         }
 
-        [TestMethod]
-        public void ctor_UseCustomArgumentSettings()
+        private class TestCommand : ICommand
         {
-            var builder = new CommandLineBuilder();
-            builder.ArgumentPrefix("/").ArgumentValueSeparator("=");
-            var cmdln = builder.Build();
+            public event EventHandler CanExecuteChanged;
 
-            cmdln.ArgumentPrefix.Verify().IsEqual("/");
-            cmdln.ArgumentValueSeparator.Verify().IsEqual("=");
-            cmdln.Commands.Verify().IsEmpty();
-        }
-
-        [TestMethod]
-        public void Register_CommandWithoutArguments()
-        {
-            var builder = new CommandLineBuilder();
-            builder.Register<TestCommand>();
-            var cmdln = builder.Build();
-
-            cmdln.Commands.Count().Verify().IsEqual(1);
-            var cmd = cmdln.Commands.Single();
-            cmd.CommandType.Verify().IsTrue(x => x == typeof(TestCommand));
-            cmd.Args.Verify(nameof(CommandInfo.Args)).IsNotNull().IsEmpty();
-            cmd.IsDefault.Verify().IsFalse();
-        }
-
-        [TestMethod]
-        public void Register_CommandWithArguments()
-        {
-            var builder = new CommandLineBuilder();
-            builder.Register<TestCommand>(new object());
-            var commandLine = builder.Build();
-
-            commandLine.Commands.Count().Verify().IsEqual(1);
-            var cmd = commandLine.Commands.Single();
-            cmd.CommandType.Verify().IsTrue(x => x == typeof(TestCommand));
-            cmd.Args.Verify(nameof(CommandInfo.Args)).IsNotNull().IsNotEmpty();
-            cmd.Args.Single().Verify().IsInstanceOfType(typeof(object));
-            cmd.IsDefault.Verify().IsFalse();
-        }
-
-        [TestMethod]
-        public void AsDefault_FirstCommand()
-        {
-            var builder = new CommandLineBuilder();
-            builder.Register<TestCommand>().AsDefault();
-            var commandLine = builder.Build();
-
-            commandLine.Commands.Count().Verify().IsEqual(1);
-            var cmd = commandLine.Commands.Single();
-            cmd.IsDefault.Verify(nameof(CommandInfo.IsDefault)).IsTrue();
-        }
-
-        [TestMethod]
-        public void AsDefault_SecondCommandThrows()
-        {
-            new Action(() =>
+            public bool CanExecute(object parameter)
             {
-                var builder = new CommandLineBuilder();
-                builder.Register<TestCommand>().AsDefault();
-                builder.Register<Test2Command>().AsDefault();
-            })
-            .Verify().Throws<InvalidOperationException>();
-        }
+                throw new NotImplementedException();
+            }
 
-        private class TestCommand : Command
-        {
-            public TestCommand() { }
-
-            public TestCommand(object arg) { }
-
-            public override void Execute()
+            public void Execute(object parameter)
             {
                 throw new NotImplementedException();
             }
         }
 
-        private class Test2Command : Command
+        private class Test2Command : ICommand
         {
-            public override void Execute()
+            public event EventHandler CanExecuteChanged;
+
+            public bool CanExecute(object parameter)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Execute(object parameter)
             {
                 throw new NotImplementedException();
             }

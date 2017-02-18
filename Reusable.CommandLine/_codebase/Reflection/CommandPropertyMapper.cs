@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Reusable.Converters;
+using Reusable.TypeConversion;
 
 namespace Reusable.Shelly.Reflection
 {
@@ -28,10 +28,10 @@ namespace Reusable.Shelly.Reflection
             new StringToDateTimeConverter(),
             new StringToEnumConverter(),
 
-            new EnumerableObjectToArrayObjectConverter(),
-            new EnumerableObjectToListObjectConverter(),
-            new EnumerableObjectToHashSetObjectConverter(),
-            new DictionaryObjectObjectToDictionaryObjectObjectConverter(),
+            //new EnumerableObjectToArrayObjectConverter(),
+            //new EnumerableObjectToListObjectConverter(),
+            //new EnumerableObjectToHashSetObjectConverter(),
+            //new DictionaryObjectObjectToDictionaryObjectObjectConverter(),
         });
 
         public void PopulateProperties(Command command, IEnumerable<IGrouping<string, string>> arguments)

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using Reusable.Shelly.Collections;
+using Reusable.Shelly.Data;
 
 namespace Reusable.Shelly
 {
@@ -9,7 +10,7 @@ namespace Reusable.Shelly
     {
         public static ArgumentCollection Parse(IEnumerable<string> args, string prefix)
         {
-            var arguments = new List<Argument>();
+            var arguments = new List<CommandLineArgument>();
 
             foreach (var arg in args)
             {
@@ -19,16 +20,15 @@ namespace Reusable.Shelly
                         switch (arg.StartsWith(prefix))
                         {
                             case true:
-                                arguments.Add(new Argument(Regex.Replace(arg, $"^{prefix}", string.Empty)));
+                                arguments.Add(new CommandLineArgument(Regex.Replace(arg, $"^{prefix}", string.Empty)));
                                 break;
                             default:
                                 arguments.Last().Add(arg);
                                 break;
                         }
                         break;
-
                     default:
-                        arguments.Add(new Argument(arg));
+                        arguments.Add(new CommandLineArgument(arg));
                         break;
                 }
             }

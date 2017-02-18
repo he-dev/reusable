@@ -85,6 +85,7 @@
     <Compile Include="_codebase\Data\Annotations\FormatAttribute.cs" />
     <Compile Include="_codebase\Drawing\Color32.cs" />
     <Compile Include="_codebase\Drawing\ColorParser.cs" />
+    <Compile Include="_codebase\NameSet.cs" />
     <Compile Include="_codebase\StringFormatting\CustomFormatter.cs" />
     <Compile Include="_codebase\StringFormatting\CustomFormatterComposition.cs" />
     <Compile Include="_codebase\ResourceReader.cs" />

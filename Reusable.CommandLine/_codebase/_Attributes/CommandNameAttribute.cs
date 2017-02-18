@@ -10,6 +10,6 @@ namespace Reusable.Shelly
         private readonly string _names;
         public CommandNameAttribute(string names) => _names = names ?? throw new ArgumentNullException(nameof(names));
         public override string ToString() => _names;
-        public static implicit operator string(CommandNameAttribute commandNameAttribute) => commandNameAttribute.ToString();
+        public static implicit operator string(CommandNameAttribute commandNameAttribute) => commandNameAttribute?.ToString();
     }
 }

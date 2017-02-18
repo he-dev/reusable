@@ -1,24 +1,48 @@
 ﻿using System;
+using System.Windows.Input;
+using Reusable;
+using System.Collections.Generic;
+using Reusable.Shelly.Collections;
 
 namespace Reusable.Shelly.Data
 {
     public class CommandInfo
     {
-        private CommandInfo(Type commandType, object[] args)
+        public CommandInfo(ICommand command, StringSetCI names, CommandParameterCollection parameters)
         {
-            CommandType = commandType;
-            Args = args ?? new object[0];
+            Instance = command;
+            Names = names;
+            Parameters = parameters;
         }
 
-        public Type CommandType { get; }
+        public CommandInfo(ICommand command)
+            : this(
+                  command, 
+                  CommandReflection.GetCommandNames(command.GetType()), null
+            )
+        { }
 
-        public object[] Args { get; }
+        public CommandInfo(ICommand command, StringSetCI names) 
+            : this(
+                  command, 
+                  names, 
+                  null
+            )
+        { }
 
-        public bool IsDefault { get; internal set; }
 
-        internal static CommandInfo Create<TCommand>(object[] args) where TCommand : Command
-        {
-            return new CommandInfo(typeof(TCommand), args);
-        }
+        public CommandInfo(ICommand command, Type parameterType)
+            : this(
+                  command,
+                  CommandReflection.GetCommandNames(command.GetType()),
+                  new CommandParameterCollection(parameterType)
+            )
+        { }
+
+        public ICommand Instance { get; }
+
+        public StringSetCI Names { get; }
+
+        public CommandParameterCollection Parameters { get; }
     }
 }

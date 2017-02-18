@@ -5,11 +5,11 @@ using System.Reflection;
 
 namespace Reusable.Shelly
 {
-    internal class CommandProperty
+    internal class CommandParameterInfo
     {
         private readonly PropertyInfo _property;
 
-        public CommandProperty(PropertyInfo property)
+        public CommandParameterInfo(PropertyInfo property)
         {
             _property = property;
         }
@@ -20,7 +20,7 @@ namespace Reusable.Shelly
             {
                 yield return _property.Name;
 
-                var alias = _property.GetCustomAttribute<ShortcutAttribute>();
+                var alias = _property.GetCustomAttribute<ShortcutsAttribute>();
                 foreach (var a in alias ?? Enumerable.Empty<string>())
                 {
                     yield return a;

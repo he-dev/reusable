@@ -5,55 +5,58 @@ using Reusable.Fuse;
 using Reusable.Shelly.Data;
 using Reusable.Shelly.Reflection;
 using Reusable.Shelly.Collections;
+using System.Windows.Input;
 
 namespace Reusable.Shelly
 {
     public class CommandLine
     {
-        internal CommandLine(CommandCollection commands, string argumentPrefix, char nameValueSeparator)
+        internal CommandLine(CommandCollection commands, char argumentPrefix, char nameValueSeparator, CommandInfo helpCommand, Action<string> log)
         {
             Commands = commands;
             ArgumentPrefix = argumentPrefix;
-            NameValueSeparator = nameValueSeparator;
+            ArgumentValueSeparator = nameValueSeparator;
+            HelpCommand = helpCommand;
+            Log = log;
         }
 
-        public string ArgumentPrefix { get; }
+        public static CommandLineBuilder Builder => new CommandLineBuilder();
 
-        public char NameValueSeparator { get; }
+        private CommandInfo HelpCommand { get; }
+
+        public char ArgumentPrefix { get; }
+
+        public char ArgumentValueSeparator { get; }
 
         public CommandCollection Commands { get; }
 
-        public void Execute(IEnumerable<string> args)
+        private Action<string> Log { get; }
+
+        public void Execute(string commandLine)
         {
-            args.Validate(nameof(args)).IsNotNull();
+            var tokens = CommandLineTokenizer.Tokenize(commandLine ?? throw new ArgumentNullException(nameof(commandLine)), ArgumentValueSeparator);
+            var arguments = CommandLineParser.Parse(tokens, ArgumentPrefix.ToString());
 
-            var commandNames = Commands.SelectMany(x => x.CommandType.GetCommandNames()).ToList();
-
-            var tokens = CommandLineTokenizer.Tokenize(string.Join(" ", args), NameValueSeparator);
-            var arguments = CommandLineParser.Parse(tokens, ArgumentPrefix);
-            var commandInfo = FindCommand(arguments.CommandName);
-            var command = CommandFactory.CreateCommand(commandInfo, this);
-            command.Execute();
-        }
-
-        public CommandInfo FindCommand(string name)
-        {
-            if (string.IsNullOrEmpty(name))
+            if (arguments.CommandName == HelpCommand.Names)
             {
-                return Commands
-                    .FirstOrDefault(x => x.IsDefault)
-                    .Validate()
-                    .Throws(typeof(CommnadNotFoundException))
-                    .IsNotNull("Default command not found.").Value;
+                HelpCommand.Instance.Execute(new CommandLineContext(this, new object(), Log));
             }
+            else
+            {
+                var command = Commands[arguments.CommandName];
+                if (command == null)
+                {
+                    // log
+                }
+                else
+                {
 
-            return Commands
-                .SingleOrDefault(x => x.CommandType.GetCommandNames().Contains(name, StringComparer.OrdinalIgnoreCase))
-                .Validate()
-                .Throws(typeof(CommnadNotFoundException))
-                .IsNotNull($"Command \"{name}\" not found.").Value;
+                    command.Instance.Execute(new CommandLineContext(this, new object(), Log));
+                }
+            }
         }
-    }
 
-   
+        public void Execute(IEnumerable<string> args) => Execute(string.Join(" ", args ?? throw new ArgumentNullException(nameof(args))));
+
+    }
 }
