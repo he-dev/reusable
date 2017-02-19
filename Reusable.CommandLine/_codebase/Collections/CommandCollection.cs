@@ -9,13 +9,16 @@ using System.Windows.Input;
 
 namespace Reusable.Shelly.Collections
 {
-    public class CommandCollection : IEnumerable<CommandInfo>
+    public class CommandCollection : IEnumerable<CommandInfo>, ICollection
     {
         private readonly Dictionary<StringSet, CommandInfo> _commands = new Dictionary<StringSet, CommandInfo>(new HashSetOverlapsComparer<string>());
+
 
         public CommandInfo this[StringSet nameSet] => _commands.TryGetValue(nameSet, out CommandInfo command) ? command : null;
 
         public CommandInfo this[string name] => this[StringSet.CreateCI(name)];
+
+        public bool TryGetCommand(StringSet nameSet, out CommandInfo command) => _commands.TryGetValue(nameSet, out command);
 
         public void Add(CommandInfo command)
         {
@@ -43,6 +46,21 @@ namespace Reusable.Shelly.Collections
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+        public void CopyTo(Array array, int index)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
-    }    
+
+        #region ICollection
+
+        public int Count => _commands.Count;
+
+        public object SyncRoot => null;
+
+        public bool IsSynchronized => false;
+
+        #endregion
+    }
 }

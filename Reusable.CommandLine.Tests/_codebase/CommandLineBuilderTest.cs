@@ -12,12 +12,12 @@ namespace Reusable.Shelly.Tests
     public class CommandLineBuilderTest
     {
         [TestMethod]
-        public void Register_SingleCommand_AnonymousCommandLine()
+        public void Register_SingleCommand_DefaultCommandLine()
         {
             var executed = false;
             var execute = new Action<object>(o => { executed = true; });
             var cmdLn = CommandLine.Builder.Register(new[] { "test" }, execute).Build();
-            cmdLn.Execute("test");
+            cmdLn.Execute("-a");
             executed.Verify().IsTrue();
         }
 

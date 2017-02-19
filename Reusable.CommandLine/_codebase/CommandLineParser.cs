@@ -14,23 +14,26 @@ namespace Reusable.Shelly
 
             foreach (var arg in args)
             {
-                switch (arguments.Any())
+                switch (arg.StartsWith(prefix))
                 {
                     case true:
-                        switch (arg.StartsWith(prefix))
+                        arguments.Add(new CommandLineArgument(Regex.Replace(arg, $"^{prefix}", string.Empty)));
+                        break;
+
+                    case false:
+                        switch (arguments.Any())
                         {
                             case true:
-                                arguments.Add(new CommandLineArgument(Regex.Replace(arg, $"^{prefix}", string.Empty)));
-                                break;
-                            default:
                                 arguments.Last().Add(arg);
+                                break;
+
+                            case false:
+                                arguments.Add(new CommandLineArgument(string.Empty) { arg });
                                 break;
                         }
                         break;
-                    default:
-                        arguments.Add(new CommandLineArgument(string.Empty) { arg });
-                        break;
                 }
+
             }
             return new ArgumentCollection(arguments);
         }

@@ -37,23 +37,31 @@ namespace Reusable.Shelly
             var tokens = CommandLineTokenizer.Tokenize(commandLine ?? throw new ArgumentNullException(nameof(commandLine)), ArgumentValueSeparator);
             var arguments = CommandLineParser.Parse(tokens, ArgumentPrefix.ToString());
 
-            if (arguments.CommandName == HelpCommand.Names)
+            switch (arguments.CommandName)
             {
-                HelpCommand.Instance.Execute(new CommandLineContext(this, new object(), Log));
-            }
-            else
-            {
-                var command = Commands[arguments.CommandName];
-                if (command == null)
-                {
-                    // log
-                }
-                else
-                {
+                case StringSet names when names.Overlaps(HelpCommand.Names):
+                    HelpCommand.Instance.Execute(new CommandLineContext(this, new object(), Log));
+                    break;
 
+                case StringSet names when Commands.TryGetCommand(names, out CommandInfo command):
                     command.Instance.Execute(new CommandLineContext(this, new object(), Log));
-                }
+                    break;
+
+                case null:
+                    switch (CanUseImplicitMode())
+                    {
+                        case true:
+                            Commands.Single().Instance.Execute(new CommandLineContext(this, new object(), Log));
+                            break;
+
+                        case false:
+                            // Log("Invalid command name.")
+                            break;
+                    }
+                    break;
             }
+
+            bool CanUseImplicitMode() => Commands.Count == 1;
         }
 
         public void Execute(IEnumerable<string> args) => Execute(string.Join(" ", args ?? throw new ArgumentNullException(nameof(args))));
