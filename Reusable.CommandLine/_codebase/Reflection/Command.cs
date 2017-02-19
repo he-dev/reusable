@@ -10,9 +10,9 @@ using System.Windows.Input;
 
 namespace Reusable.Shelly
 {
-    internal class CommandReflection
+    internal class Command
     {
-        public static IEnumerable<CommandParameterInfo> GetCommandProperties(Type commandType)
+        public static IEnumerable<CommandParameterInfo> GetParameters(Type commandType)
         {
             return
                 from property in commandType.GetProperties(BindingFlags.Instance | BindingFlags.Public)
@@ -20,7 +20,7 @@ namespace Reusable.Shelly
                 select new CommandParameterInfo(property);
         }
 
-        public static StringSetCI GetCommandNames(Type commandType)
+        public static StringSet GetNames(Type commandType)
         {
             var names = new List<string>();
 
@@ -33,22 +33,21 @@ namespace Reusable.Shelly
                 names.Add($"{namespaceAttribute}.{commandName}");
                 names.AddRange((shotcutAttribute).Select(x => $"{namespaceAttribute}.{x}"));
 
-                // Jump over command name and shortcuts.
-                if (namespaceAttribute.Mandatory) goto sort;
+                if (namespaceAttribute.Mandatory) goto skipNamesWithoutNamespace;
             }
 
             names.Add(commandName);
             names.AddRange(shotcutAttribute);
 
-            sort:
+            skipNamesWithoutNamespace:
 
-            return StringSetCI.Create(names.OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToArray());
+            return StringSet.CreateCI(names.OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToArray());
 
             string GetCommandNameOrDefault() =>
                 commandType.GetCustomAttribute<CommandNameAttribute>() ??
                 Regex.Replace(commandType.Name, $"Command$", string.Empty, RegexOptions.IgnoreCase);
         }
 
-        public static IEnumerable<string> GetCommandName(ICommand command) => GetCommandNames(command.GetType());
+        public static IEnumerable<string> GetNames(ICommand command) => GetNames(command.GetType());
     }
 }

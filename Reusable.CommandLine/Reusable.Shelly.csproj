@@ -56,7 +56,8 @@
     <Compile Include="_codebase\Collections\CommandCollection.cs" />
     <Compile Include="_codebase\CommandLineTokenizer.cs" />
     <Compile Include="_codebase\CommandParameterFactory.cs" />
-    <Compile Include="_codebase\CommandReflection.cs" />
+    <Compile Include="_codebase\Reflection\CommandParameter.cs" />
+    <Compile Include="_codebase\Reflection\Command.cs" />
     <Compile Include="_codebase\Commands\SimpleCommand.cs" />
     <Compile Include="_codebase\Data\HelpCommandParameters.cs" />
     <Compile Include="_codebase\CommandValidator.cs" />

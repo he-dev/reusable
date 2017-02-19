@@ -14,7 +14,7 @@ namespace Reusable.Shelly.Collections
             _arguments = arguments.ToDictionary(x => x.Key, x => (IList<string>)x, StringComparer.OrdinalIgnoreCase);
         }
 
-        public StringSetCI CommandName => StringSetCI.Create(_arguments[string.Empty].FirstOrDefault());
+        public StringSet CommandName => _arguments.TryGetValue(string.Empty, out IList<string> values) ? StringSet.CreateCI(values.FirstOrDefault()) : null;
 
         public IList<string> this[string name]
         {

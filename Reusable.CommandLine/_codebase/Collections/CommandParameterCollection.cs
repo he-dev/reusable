@@ -12,14 +12,14 @@ namespace Reusable.Shelly.Collections
 {
     public class CommandParameterCollection : IEnumerable<CommandParameterInfo>
     {
-        private readonly IDictionary<StringSetCI, CommandParameterInfo> _parameters;
+        private readonly IDictionary<StringSet, CommandParameterInfo> _parameters;
 
         public CommandParameterCollection(Type parameterType, IEnumerable<CommandParameterInfo> parameters)
         {
             if (!parameterType.HasDefaultConstructor()) throw new ArgumentException($"'{nameof(parameterType)}' '{parameterType}' must have a default constructor.");
 
             ParameterType = parameterType;
-            _parameters = (IDictionary<StringSetCI, CommandParameterInfo>)parameters.ToDictionary(keySelector: x => x.Names, elementSelector: x => x, comparer: new SetOverlapsComparer<string>());
+            _parameters = parameters.ToDictionary<CommandParameterInfo, StringSet, CommandParameterInfo>(keySelector: x => x.Names, elementSelector: x => x, comparer: new HashSetOverlapsComparer<string>());
         }
 
         public CommandParameterCollection(Type parameterType)
@@ -31,9 +31,9 @@ namespace Reusable.Shelly.Collections
                     .Select(p => new CommandParameterInfo(p)))
         { }
 
-        public CommandParameterInfo this[StringSetCI nameSet] => _parameters.TryGetValue(nameSet, out CommandParameterInfo parameter) ? parameter : null;
+        public CommandParameterInfo this[StringSet nameSet] => _parameters.TryGetValue(nameSet, out CommandParameterInfo parameter) ? parameter : null;
 
-        public CommandParameterInfo this[string name] => this[StringSetCI.Create(name)];
+        public CommandParameterInfo this[string name] => this[StringSet.CreateCI(name)];
 
         public Type ParameterType { get; }
 

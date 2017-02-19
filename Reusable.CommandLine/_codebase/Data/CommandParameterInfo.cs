@@ -9,19 +9,30 @@ namespace Reusable.Shelly.Data
 {
     public class CommandParameterInfo
     {
-        private CommandParameterInfo(StringSetCI names, bool required, int position, char listSeparator) { }
-
-        public CommandParameterInfo(PropertyInfo property)
+        private CommandParameterInfo(StringSet names, bool required, int? position, char? listSeparator)
         {
-            throw new NotImplementedException();
+            Names = names;
+            Required = required;
+            Position = position;
+            ListSeparator = listSeparator;
         }
 
-        public StringSetCI Names { get; }
+        public CommandParameterInfo(PropertyInfo property) 
+            : this(
+                  CommandParameter.GetNames(property),
+                  false,
+                  default(int?),
+                  default(char?)
+            )
+        {
+        }
+
+        public StringSet  Names { get; }
 
         public bool Required { get; }
 
-        public char ListSeparator { get; }
+        public char? ListSeparator { get; }
 
-        public int Position { get; }
+        public int? Position { get; }
     }
 }

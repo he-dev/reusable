@@ -12,7 +12,7 @@ namespace Reusable.Shelly
         {
             try
             {
-                var names = CommandReflection.GetCommandProperties(commandType).SelectMany(x => x.Names);
+                var names = Command.GetParameters(commandType).SelectMany(x => x.Names);
                 ValidatePropertyNames(names);
             }
             catch (Exception ex)

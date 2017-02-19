@@ -28,7 +28,7 @@ namespace Reusable.Shelly
                         }
                         break;
                     default:
-                        arguments.Add(new CommandLineArgument(arg));
+                        arguments.Add(new CommandLineArgument(string.Empty) { arg });
                         break;
                 }
             }

@@ -3,12 +3,15 @@ using System.Windows.Input;
 using Reusable;
 using System.Collections.Generic;
 using Reusable.Shelly.Collections;
+using System.Reflection;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Reusable.Shelly.Data
 {
     public class CommandInfo
     {
-        public CommandInfo(ICommand command, StringSetCI names, CommandParameterCollection parameters)
+        public CommandInfo(ICommand command, StringSet names, CommandParameterCollection parameters)
         {
             Instance = command;
             Names = names;
@@ -18,11 +21,11 @@ namespace Reusable.Shelly.Data
         public CommandInfo(ICommand command)
             : this(
                   command, 
-                  CommandReflection.GetCommandNames(command.GetType()), null
+                  Command.GetNames(command.GetType()), null
             )
         { }
 
-        public CommandInfo(ICommand command, StringSetCI names) 
+        public CommandInfo(ICommand command, StringSet names) 
             : this(
                   command, 
                   names, 
@@ -34,15 +37,15 @@ namespace Reusable.Shelly.Data
         public CommandInfo(ICommand command, Type parameterType)
             : this(
                   command,
-                  CommandReflection.GetCommandNames(command.GetType()),
+                  Command.GetNames(command.GetType()),
                   new CommandParameterCollection(parameterType)
             )
         { }
 
         public ICommand Instance { get; }
 
-        public StringSetCI Names { get; }
+        public StringSet Names { get; }
 
-        public CommandParameterCollection Parameters { get; }
+        public CommandParameterCollection Parameters { get; }       
     }
 }

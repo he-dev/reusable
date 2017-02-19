@@ -56,7 +56,7 @@ namespace Reusable.Shelly
             => Register(new CommandInfo(new TCommand()));
 
         public CommandLineBuilder Register(string[] names, Action<object> excecute)
-            => Register(new CommandInfo(new SimpleCommand(excecute), StringSetCI.Create(names)));
+            => Register(new CommandInfo(new SimpleCommand(excecute), StringSet.CreateCI(names)));
 
         public CommandLineBuilder Help<TCommand>() where TCommand : ICommand, new()
         {

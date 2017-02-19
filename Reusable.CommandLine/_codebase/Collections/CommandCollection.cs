@@ -11,11 +11,11 @@ namespace Reusable.Shelly.Collections
 {
     public class CommandCollection : IEnumerable<CommandInfo>
     {
-        private readonly Dictionary<StringSetCI, CommandInfo> _commands = new Dictionary<StringSetCI, CommandInfo>();
+        private readonly Dictionary<StringSet, CommandInfo> _commands = new Dictionary<StringSet, CommandInfo>(new HashSetOverlapsComparer<string>());
 
-        public CommandInfo this[StringSetCI nameSet] => _commands.TryGetValue(nameSet, out CommandInfo command) ? command : null;
+        public CommandInfo this[StringSet nameSet] => _commands.TryGetValue(nameSet, out CommandInfo command) ? command : null;
 
-        public CommandInfo this[string name] => this[StringSetCI.Create(name)];
+        public CommandInfo this[string name] => this[StringSet.CreateCI(name)];
 
         public void Add(CommandInfo command)
         {
