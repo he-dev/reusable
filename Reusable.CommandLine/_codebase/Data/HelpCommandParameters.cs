@@ -4,10 +4,8 @@ namespace Reusable.Shelly.Data
 {
     public class HelpCommandParameters
     {
-        public CommandLine CommandLine { get; set; }
-
         [Parameter(Position = 1)]
-        [Shortcuts("Command", "cmd")]
+        [Shortcuts("cmd")]
         [Description("Display command usage.")]
         public string CommandName { get; set; }
     }

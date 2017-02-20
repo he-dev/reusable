@@ -9,40 +9,25 @@ using System.Windows.Input;
 
 namespace Reusable.Shelly.Collections
 {
-    public class CommandCollection : IEnumerable<CommandInfo>, ICollection
+    public class CommandCollection : IEnumerable<ICommand>, ICollection
     {
-        private readonly Dictionary<StringSet, CommandInfo> _commands = new Dictionary<StringSet, CommandInfo>(new HashSetOverlapsComparer<string>());
+        private readonly IList<ICommand> _commands = new List<ICommand>();
 
+        public ICommand this[ISet<string> nameSet] => _commands.SingleOrDefault(command => command.CanExecute(nameSet));
 
-        public CommandInfo this[StringSet nameSet] => _commands.TryGetValue(nameSet, out CommandInfo command) ? command : null;
+        public ICommand this[string name] => this[ImmutableNameSet.Create(name)];
 
-        public CommandInfo this[string name] => this[StringSet.CreateCI(name)];
-
-        public bool TryGetCommand(StringSet nameSet, out CommandInfo command) => _commands.TryGetValue(nameSet, out command);
-
-        public void Add(CommandInfo command)
+        public bool TryGetCommand(StringSet nameSet, out ICommand command)
         {
-            CommandValidator.ValidatePropertyNames(command.GetType());
-            _commands.Add(command.Names, command);
+            command = this[nameSet];
+            return command != null;
         }
 
-        //public void Add(ICommand command, StringSetCI names, CommandParameterCollection parameters)
-        //{
-        //    //if (_commands.ContainsKey(StringSetCI.Create(names))) throw new ArgumentException($"Command '{command.GetType().FullName}' cannot be added because there is already another command with this name: \"{string.Join(", ", CommandReflection.GetCommandNames(command.GetType()))}\".");
-        //    Add(new CommandInfo(command, names, parameters));
-        //}
-
-        //public void Add(ICommand command, CommandParameterCollection parameters)
-        //{
-        //    //if (_commands.ContainsKey(StringSetCI.Create(names))) throw new ArgumentException($"Command '{command.GetType().FullName}' cannot be added because there is already another command with this name: \"{string.Join(", ", CommandReflection.GetCommandNames(command.GetType()))}\".");
-        //    Add(new CommandInfo(command, parameters));
-        //}
-
-        //public void Add(ICommand command, Type parameterType) => Add(command, new CommandParameterCollection(parameterType));
+        public void Add(ICommand command) => _commands.Add(command);
 
         #region IEnumerable
 
-        public IEnumerator<CommandInfo> GetEnumerator() => _commands.Values.GetEnumerator();
+        public IEnumerator<ICommand> GetEnumerator() => _commands.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 

@@ -11,7 +11,9 @@ namespace Reusable.Shelly
 {
     internal class CommandParameterFactory
     {
-        public static object CreateCommandParameter(Type parameterType, ArgumentCollection arguments, TypeConverter converter)
+        private readonly TypeConverter _converter;
+
+        public object CreateCommandParameter(Type parameterType, ArgumentCollection arguments, TypeConverter converter)
         {
             var parameter = Activator.CreateInstance(parameterType);
             var parameterProperties = parameterType.GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(p => p.GetCustomAttribute<ParameterAttribute>() != null);

@@ -26,7 +26,7 @@ namespace Reusable.Shelly.Commands
 
         private void Execute(CommandLineContext context)
         {
-            var parameters = context.Parameters as HelpCommandParameters;
+            var parameters = context.Parameter as HelpCommandParameters;
 
             //if (string.IsNullOrEmpty(parameters.CommandName))
             //{
@@ -44,30 +44,30 @@ namespace Reusable.Shelly.Commands
 
         }
 
-        private static IEnumerable<CommandSummary> CreateCommandSummaries(IEnumerable<CommandInfo> commands)
-        {
-            //return commands.Select(command => new CommandSummary
-            //{
-            //    Names = command.CommandType.GetCommandNames().ToArray(),
-            //    Description = command.CommandType.GetDescription(),
-            //    IsDefault = command.IsDefault
-            //});
-            return null;
-        }
+        //private static IEnumerable<CommandSummary> CreateCommandSummaries(IEnumerable<CommandInfo> commands)
+        //{
+        //    //return commands.Select(command => new CommandSummary
+        //    //{
+        //    //    Names = command.CommandType.GetCommandNames().ToArray(),
+        //    //    Description = command.CommandType.GetDescription(),
+        //    //    IsDefault = command.IsDefault
+        //    //});
+        //    return null;
+        //}
 
-        private static IEnumerable<ArgumentSummary> CreateArgumentSummaries(CommandInfo command)
-        {
-            //return command.CommandType.GetCommandProperties().Select(commandProperty => new ArgumentSummary
-            //{
-            //    Names = commandProperty.Names.ToArray(),
-            //    //Description = commandProperty..GetDescription(),
-            //    Type = commandProperty.Type,
-            //    Mandatory = commandProperty.Mandatory,
-            //    Position = commandProperty.Position,
-            //    ListSeparator = commandProperty.ListSeparator
-            //});
-            return null;
-        }
+        //private static IEnumerable<ArgumentSummary> CreateArgumentSummaries(CommandInfo command)
+        //{
+        //    //return command.CommandType.GetCommandProperties().Select(commandProperty => new ArgumentSummary
+        //    //{
+        //    //    Names = commandProperty.Names.ToArray(),
+        //    //    //Description = commandProperty..GetDescription(),
+        //    //    Type = commandProperty.Type,
+        //    //    Mandatory = commandProperty.Mandatory,
+        //    //    Position = commandProperty.Position,
+        //    //    ListSeparator = commandProperty.ListSeparator
+        //    //});
+        //    return null;
+        //}
 
         //private void RenderCommandUsage(Type commandType)
         //{

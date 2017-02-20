@@ -16,7 +16,6 @@ namespace Reusable.Shelly
         private readonly CommandCollection _commands = new CommandCollection();
         private char _argumentPrefix = '-';
         private char _argumentValueSeparator = ':';
-        private CommandInfo _helpCommand = new CommandInfo(new HelpCommand(), typeof(HelpCommandParameters));
         private Action<string> _log = s => { };
         private TypeConverter _converter = TypeConverter.Empty;
 
@@ -34,34 +33,25 @@ namespace Reusable.Shelly
             return this;
         }
 
-        private CommandLineBuilder Register(CommandInfo command) { _commands.Add(command); return this; }
-
-        //private CommandLineBuilder Register(ICommand command, string[] names, Type parameterType)
-        //{
-        //    _commands.Add(
-        //        command ?? throw new ArgumentNullException(nameof(command)),
-        //        StringSetCI.Create(names),
-        //        new CommandParameterCollection(parameterType)
-        //    );
-        //    return this;
-        //}
+        private CommandLineBuilder Register(ICommand command) { _commands.Add(command); return this; }
 
         public CommandLineBuilder Register<TCommand, TParameters>()
             where TCommand : ICommand, new()
             where TParameters : new()
-            => Register(new CommandInfo(new TCommand(), typeof(TParameters)));
+            => Register(new ProxyCommand(new TCommand(), typeof(TParameters)));
 
         public CommandLineBuilder Register<TCommand>()
             where TCommand : ICommand, new()
-            => Register(new CommandInfo(new TCommand()));
+            => Register(new ProxyCommand(new TCommand()));
 
         public CommandLineBuilder Register(string[] names, Action<object> excecute)
-            => Register(new CommandInfo(new SimpleCommand(excecute), StringSet.CreateCI(names)));
+            => Register(new ProxyCommand(new SimpleCommand(excecute), ImmutableNameSet.Create(names)));
 
-        public CommandLineBuilder Help<TCommand>() where TCommand : ICommand, new()
+        public CommandLineBuilder AsDefault()
         {
-            _helpCommand = new CommandInfo(new TCommand(), typeof(HelpCommandParameters));
-            return this;
+            if (_commands.Any(x => x is DefaultCommand)) throw new InvalidOperationException("There is already a default command.");
+            var command = _commands.LastOrDefault() ?? throw new InvalidOperationException("There are no registered commands.");
+            return Register(new DefaultCommand(command));
         }
 
         public CommandLineBuilder Log(Action<string> log)
@@ -79,8 +69,12 @@ namespace Reusable.Shelly
             _commands,
             _argumentPrefix,
             _argumentValueSeparator,
-            _helpCommand,
             _log
         );
+    }
+
+    public static class CommandLineBuilderExtensions
+    {
+        public static CommandLineBuilder RegisterHelpCommand(this CommandLineBuilder builder) => builder.Register<HelpCommand, HelpCommandParameters>(); 
     }
 }

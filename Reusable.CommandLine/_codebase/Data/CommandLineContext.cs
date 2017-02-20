@@ -11,13 +11,18 @@ namespace Reusable.Shelly.Data
         public CommandLineContext(CommandLine commandLine, object parameters, Action<string> log)
         {
             CommandLine = commandLine;
-            Parameters = parameters;
+            Parameter = parameters;
             Log = log;
+        }
+
+        public CommandLineContext(CommandLine commandLine, Action<string> log)
+            : this(commandLine, null, log)
+        {
         }
 
         public CommandLine CommandLine { get; set; }
 
-        public object Parameters { get; set; }
+        public object Parameter { get; set; }
 
         public Action<string> Log { get; set; }
     }

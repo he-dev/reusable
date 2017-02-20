@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Reusable.Shelly.Collections;
 using Reusable.Shelly.Data;
+using System;
 
 namespace Reusable.Shelly
 {
@@ -10,9 +11,11 @@ namespace Reusable.Shelly
     {
         public static ArgumentCollection Parse(IEnumerable<string> args, string prefix)
         {
+            if (string.IsNullOrEmpty(prefix)) throw new ArgumentNullException(nameof(prefix));
+
             var arguments = new List<CommandLineArgument>();
 
-            foreach (var arg in args)
+            foreach (var arg in args ?? throw new ArgumentNullException(nameof(args)))
             {
                 switch (arg.StartsWith(prefix))
                 {

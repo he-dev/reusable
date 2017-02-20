@@ -11,18 +11,15 @@ namespace Reusable.Shelly
 {
     public class CommandLine
     {
-        internal CommandLine(CommandCollection commands, char argumentPrefix, char nameValueSeparator, CommandInfo helpCommand, Action<string> log)
+        internal CommandLine(CommandCollection commands, char argumentPrefix, char nameValueSeparator, Action<string> log)
         {
             Commands = commands;
             ArgumentPrefix = argumentPrefix;
             ArgumentValueSeparator = nameValueSeparator;
-            HelpCommand = helpCommand;
             Log = log;
         }
 
         public static CommandLineBuilder Builder => new CommandLineBuilder();
-
-        private CommandInfo HelpCommand { get; }
 
         public char ArgumentPrefix { get; }
 
@@ -36,35 +33,24 @@ namespace Reusable.Shelly
         {
             var tokens = CommandLineTokenizer.Tokenize(commandLine ?? throw new ArgumentNullException(nameof(commandLine)), ArgumentValueSeparator);
             var arguments = CommandLineParser.Parse(tokens, ArgumentPrefix.ToString());
+            var context = new CommandLineContext(this, arguments, Log);
 
             switch (arguments.CommandName)
             {
-                case StringSet names when names.Overlaps(HelpCommand.Names):
-                    HelpCommand.Instance.Execute(new CommandLineContext(this, new object(), Log));
+                case StringSet nameSet when Commands.TryGetCommand(nameSet, out ICommand command):
+                    command.Execute(context);
                     break;
 
-                case StringSet names when Commands.TryGetCommand(names, out CommandInfo command):
-                    command.Instance.Execute(new CommandLineContext(this, new object(), Log));
+                case null when Commands.TryGetCommand(DefaultCommand.NameSet, out ICommand command):
+                    command.Execute(context);
                     break;
 
                 case null:
-                    switch (CanUseImplicitMode())
-                    {
-                        case true:
-                            Commands.Single().Instance.Execute(new CommandLineContext(this, new object(), Log));
-                            break;
-
-                        case false:
-                            // Log("Invalid command name.")
-                            break;
-                    }
+                    // Log("Invalid command name.")
                     break;
             }
-
-            bool CanUseImplicitMode() => Commands.Count == 1;
         }
 
         public void Execute(IEnumerable<string> args) => Execute(string.Join(" ", args ?? throw new ArgumentNullException(nameof(args))));
-
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,6 +24,8 @@ namespace Reusable
 
         public static StringSet CreateCS(params string[] values) => CreateCI((IEnumerable<string>)values);
     }
+
+
 
     //public class StringSetCI : StringSet
     //{
