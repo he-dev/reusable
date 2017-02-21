@@ -8,32 +8,32 @@ namespace Reusable.Shelly
 {
     internal static class CommandValidator
     {
-        public static void ValidatePropertyNames(this Type commandType)
-        {
-            try
-            {
-                var names = Command.GetParameters(commandType).SelectMany(x => x.Names);
-                ValidatePropertyNames(names);
-            }
-            catch (Exception ex)
-            {
-                throw new ArgumentException($"Command \"{commandType.FullName}\" has some invalid properties.", ex);
-            }
-        }
+        //public static void ValidatePropertyNames(this Type commandType)
+        //{
+        //    try
+        //    {
+        //        var names = Command.GetParameters(commandType).SelectMany(x => x.Names);
+        //        ValidatePropertyNames(names);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new ArgumentException($"Command \"{commandType.FullName}\" has some invalid properties.", ex);
+        //    }
+        //}
 
-        private static void ValidatePropertyNames(IEnumerable<string> names)
-        {
-            var duplicateNames = names
-                .GroupBy(x => x)
-                .Where(g => g.Count() > 1)
-                .Select(g => g.Key)
-                .ToList();
+        //private static void ValidatePropertyNames(IEnumerable<string> names)
+        //{
+        //    var duplicateNames = names
+        //        .GroupBy(x => x)
+        //        .Where(g => g.Count() > 1)
+        //        .Select(g => g.Key)
+        //        .ToList();
 
-            if (duplicateNames.Any())
-            {
-                throw new ArgumentException($"Duplicate property names found: [{string.Join(", ", duplicateNames)}].");
-            }
-        }
+        //    if (duplicateNames.Any())
+        //    {
+        //        throw new ArgumentException($"Duplicate property names found: [{string.Join(", ", duplicateNames)}].");
+        //    }
+        //}
 
         //public static TCommand Validate<TCommand>(this TCommand command, StringComparer stringComparer) where TCommand : Command, new()
         //{

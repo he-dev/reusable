@@ -7,7 +7,6 @@ namespace Reusable.Shelly
     {
         private const int CommandNamePosition = 0;
         private string _name;
-
         private int _position = -1;
 
         public string Name

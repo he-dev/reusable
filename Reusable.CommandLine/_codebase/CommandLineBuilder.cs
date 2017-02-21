@@ -2,18 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using Reusable.Shelly.Data;
-using Reusable.Shelly.Reflection;
 using Reusable.Shelly.Collections;
 using Reusable.Shelly.Commands;
 using System.Windows.Input;
 using Reusable.TypeConversion;
-using System.Reflection;
 
 namespace Reusable.Shelly
 {
     public class CommandLineBuilder
     {
-        private readonly CommandCollection _commands = new CommandCollection();
+        private readonly HashSet<ICommand> _commands = new HashSet<ICommand>(new ProxyCommandComparer());
         private char _argumentPrefix = '-';
         private char _argumentValueSeparator = ':';
         private Action<string> _log = s => { };
@@ -33,7 +31,11 @@ namespace Reusable.Shelly
             return this;
         }
 
-        private CommandLineBuilder Register(ICommand command) { _commands.Add(command); return this; }
+        private CommandLineBuilder Register(ICommand command)
+        {
+            if (!_commands.Add(command)) throw new DuplicateCommandNameException((command as ProxyCommand).Names);
+            return this;
+        }
 
         public CommandLineBuilder Register<TCommand, TParameters>()
             where TCommand : ICommand, new()
@@ -73,8 +75,23 @@ namespace Reusable.Shelly
         );
     }
 
+    internal class ProxyCommandComparer : IEqualityComparer<ICommand>
+    {
+        public bool Equals(ICommand x, ICommand y)
+        {
+            return
+                !ReferenceEquals(x, null) &&
+                !ReferenceEquals(y, null) &&
+                (x is ProxyCommand pc1) &&
+                (y is ProxyCommand pc2) &&
+                pc1.Names.Overlaps(pc2.Names);
+        }
+
+        public int GetHashCode(ICommand obj) => 0;
+    }
+
     public static class CommandLineBuilderExtensions
     {
-        public static CommandLineBuilder RegisterHelpCommand(this CommandLineBuilder builder) => builder.Register<HelpCommand, HelpCommandParameters>(); 
+        public static CommandLineBuilder RegisterHelpCommand(this CommandLineBuilder builder) => builder.Register<HelpCommand, HelpCommandParameters>();
     }
 }

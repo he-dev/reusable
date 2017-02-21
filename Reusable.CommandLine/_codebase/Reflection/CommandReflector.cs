@@ -1,6 +1,8 @@
-﻿using Reusable.Shelly.Data;
+﻿using Reusable.Shelly.Collections;
+using Reusable.Shelly.Data;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -10,17 +12,9 @@ using System.Windows.Input;
 
 namespace Reusable.Shelly
 {
-    internal class Command
+    internal class CommandReflector
     {
-        public static IEnumerable<CommandParameterInfo> GetParameters(Type commandType)
-        {
-            return
-                from property in commandType.GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                where property.GetCustomAttribute<ParameterAttribute>() != null
-                select new CommandParameterInfo(property);
-        }
-
-        public static StringSet GetNames(Type commandType)
+        public static ImmutableHashSet<string> GetNames(Type commandType)
         {
             var names = new List<string>();
 
@@ -41,13 +35,13 @@ namespace Reusable.Shelly
 
             skipNamesWithoutNamespace:
 
-            return StringSet.CreateCI(names.OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToArray());
+            return ImmutableNameSet.Create(names.OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToArray());
 
             string GetCommandNameOrDefault() =>
                 commandType.GetCustomAttribute<CommandNameAttribute>() ??
                 Regex.Replace(commandType.Name, $"Command$", string.Empty, RegexOptions.IgnoreCase);
         }
 
-        public static IEnumerable<string> GetNames(ICommand command) => GetNames(command.GetType());
+        public static ImmutableHashSet<string> GetNames(ICommand command) => GetNames(command.GetType());
     }
 }

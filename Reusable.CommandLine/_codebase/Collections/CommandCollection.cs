@@ -6,12 +6,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
 using System.Windows.Input;
+using System.Collections.Immutable;
 
 namespace Reusable.Shelly.Collections
 {
-    public class CommandCollection : IEnumerable<ICommand>, ICollection
+    public class CommandCollection : IEnumerable<ICommand>
     {
-        private readonly IList<ICommand> _commands = new List<ICommand>();
+        private readonly IImmutableList<ICommand> _commands;
+
+        public CommandCollection(IEnumerable<ICommand> commands) => _commands.ToImmutableList();
 
         public ICommand this[ISet<string> nameSet] => _commands.SingleOrDefault(command => command.CanExecute(nameSet));
 
@@ -23,29 +26,18 @@ namespace Reusable.Shelly.Collections
             return command != null;
         }
 
-        public void Add(ICommand command) => _commands.Add(command);
+        //public void Add(ICommand command)
+        //{
+        //    //if (_commands.Any)
+        //    _commands.Add(command);
+        //}
 
         #region IEnumerable
 
         public IEnumerator<ICommand> GetEnumerator() => _commands.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();        
 
-        public void CopyTo(Array array, int index)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
-        #region ICollection
-
-        public int Count => _commands.Count;
-
-        public object SyncRoot => null;
-
-        public bool IsSynchronized => false;
-
-        #endregion
+        #endregion        
     }
 }

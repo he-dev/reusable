@@ -55,15 +55,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="_codebase\Collections\ArgumentCollection.cs" />
-    <Compile Include="_codebase\Collections\CommandParameterCollection.cs" />
     <Compile Include="_codebase\Collections\CommandCollection.cs" />
+    <Compile Include="_codebase\Collections\ParameterCollection.cs" />
     <Compile Include="_codebase\Collections\ImmutableNameSet.cs" />
     <Compile Include="_codebase\CommandLineTokenizer.cs" />
-    <Compile Include="_codebase\CommandParameterFactory.cs" />
+    <Compile Include="_codebase\ParameterFactory.cs" />
     <Compile Include="_codebase\Commands\DefaultCommand.cs" />
     <Compile Include="_codebase\Commands\ProxyCommand.cs" />
-    <Compile Include="_codebase\Reflection\CommandParameter.cs" />
-    <Compile Include="_codebase\Reflection\Command.cs" />
+    <Compile Include="_codebase\Data\ParameterInfo.cs" />
+    <Compile Include="_codebase\Reflection\CommandReflector.cs" />
     <Compile Include="_codebase\Commands\SimpleCommand.cs" />
     <Compile Include="_codebase\Data\HelpCommandParameters.cs" />
     <Compile Include="_codebase\CommandValidator.cs" />
@@ -74,9 +74,9 @@
     <Compile Include="_codebase\Data\CommandLineContext.cs" />
     <Compile Include="_codebase\Data\CommandSummary.cs" />
     <Compile Include="_codebase\Commands\HelpCommand.cs" />
-    <Compile Include="_codebase\Data\CommandParameterInfo.cs" />
     <Compile Include="_codebase\Exceptions.cs" />
-    <Compile Include="_codebase\Reflection\CommandExtensions.cs" />
+    <Compile Include="_codebase\Reflection\ParameterReflector.cs" />
+    <Compile Include="_codebase\Validators\ParameterValidator.cs" />
     <Compile Include="_codebase\_Attributes\NamespaceAttribute.cs" />
     <Compile Include="_codebase\_Attributes\ParameterAttribute.cs" />
     <Compile Include="_codebase\CommandLine.cs" />

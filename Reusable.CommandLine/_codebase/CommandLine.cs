@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Reusable.Fuse;
 using Reusable.Shelly.Data;
-using Reusable.Shelly.Reflection;
 using Reusable.Shelly.Collections;
 using System.Windows.Input;
 
@@ -11,9 +10,9 @@ namespace Reusable.Shelly
 {
     public class CommandLine
     {
-        internal CommandLine(CommandCollection commands, char argumentPrefix, char nameValueSeparator, Action<string> log)
+        internal CommandLine(IEnumerable<ICommand> commands, char argumentPrefix, char nameValueSeparator, Action<string> log)
         {
-            Commands = commands;
+            Commands = new CommandCollection(commands);
             ArgumentPrefix = argumentPrefix;
             ArgumentValueSeparator = nameValueSeparator;
             Log = log;

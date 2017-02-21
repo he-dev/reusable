@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using Reusable.Fuse;
 using Reusable.Shelly.Data;
-using Reusable.Shelly.Reflection;
 using System.Windows.Input;
 
 namespace Reusable.Shelly.Commands

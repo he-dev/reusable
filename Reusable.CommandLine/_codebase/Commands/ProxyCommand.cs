@@ -14,42 +14,28 @@ namespace Reusable.Shelly.Data
     {
         private readonly ICommand _command;
         private readonly ImmutableHashSet<string> _names;
-        private readonly CommandParameterCollection _parameters;        
+        private readonly ParameterFactory _parameterFactory;
 
-
-        public ProxyCommand(ICommand command, ImmutableHashSet<string> names, CommandParameterCollection parameters)
+        public ProxyCommand(ICommand command, ImmutableHashSet<string> names, Type parameterType)
         {
             _command = command;
             _names = names;
-            _parameters = parameters;
+            _parameterFactory = new ParameterFactory(parameterType, null);
         }
 
         public ProxyCommand(ICommand command)
-            : this(
-                  command, 
-                  Command.GetNames(command.GetType()), null
-            )
+            : this(command, CommandReflector.GetNames(command), null)
         { }
 
-        public ProxyCommand(ICommand command, ImmutableHashSet<string> names) 
-            : this(
-                  command, 
-                  names, 
-                  null
-            )
+        public ProxyCommand(ICommand command, ImmutableHashSet<string> names)
+            : this(command, names, null)
         { }
 
         public ProxyCommand(ICommand command, Type parameterType)
-            : this(
-                  command,
-                  Command.GetNames(command.GetType()),
-                  new CommandParameterCollection(parameterType)
-            )
+            : this(command, CommandReflector.GetNames(command.GetType()), parameterType)
         { }
 
         public ImmutableHashSet<string> Names => _names;
-
-        public CommandParameterCollection Parameters => _parameters;
 
         public event EventHandler CanExecuteChanged;
 
@@ -68,8 +54,9 @@ namespace Reusable.Shelly.Data
 
             // TODO map from arguments to parameter object
             var arguments = (ArgumentCollection)context.Parameter;
+            var commandParameter = _parameterFactory.CreateParameter(arguments);
 
-            _command.Execute(null);
+            _command.Execute(commandParameter);
         }
     }
 }
