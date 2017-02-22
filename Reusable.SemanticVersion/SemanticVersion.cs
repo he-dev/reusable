@@ -131,7 +131,7 @@ namespace Reusable
 
         public static explicit operator SemanticVersion(string value) => Parse(value);
 
-        public static implicit operator string(SemanticVersion value) => value.ToString();
+        public static implicit operator string(SemanticVersion value) => value?.ToString();
 
         public static bool operator <(SemanticVersion left, SemanticVersion right)
         {
