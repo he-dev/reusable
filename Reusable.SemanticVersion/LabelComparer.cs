@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Reusable
 {
@@ -9,33 +10,35 @@ namespace Reusable
         {
             if (ReferenceEquals(left, null) && ReferenceEquals(right, null))
             {
-                return 0;
+                return ComparisonResult.Equal;
             }
 
             if (ReferenceEquals(left, null))
             {
-                return -1;
+                return ComparisonResult.LessThen;
             }
 
             if (ReferenceEquals(right, null))
             {
-                return 1;
+                return ComparisonResult.GreaterThen;
             }
 
+            var numeric = new[] { left.IsNumeric(), right.IsNumeric() };
+
             // Identifiers consisting of only digits are compared numerically.
-            if (left.IsNumeric() && right.IsNumeric())
+            if (numeric.All(x => x))
             {
                 return int.Parse(left).CompareTo(int.Parse(right));
             }
 
             // Identifiers with letters or hyphens are compared lexically in ASCII sort order.
-            if (!left.IsNumeric() && !right.IsNumeric())
+            if (numeric.All(x => !x))
             {
                 return string.Compare(left, right, StringComparison.Ordinal);
             }
 
             // Numeric identifiers always have lower precedence than non-numeric identifiers.
-            return left.IsNumeric() ? -1 : 1;
+            return left.IsNumeric() ? ComparisonResult.LessThen : ComparisonResult.GreaterThen;
         }
     }
 }

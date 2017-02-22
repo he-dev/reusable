@@ -1,24 +1,18 @@
-﻿using System.Windows.Input;
-using Reusable.Fuse;
+﻿using System;
+using System.Windows.Input;
 
 namespace Reusable.Commands
 {
     public static class CommandComposition
     {
-        public static ICommand Pre(this ICommand current, ICommand pre)
-        {
-            current.Validate(nameof(current)).IsNotNull();
-            pre.Validate(nameof(pre)).IsNotNull();
+        public static ICommand Pre(this ICommand current, ICommand pre) => new LinkedCommand(
+            pre ?? throw new ArgumentNullException(nameof(pre)),
+            current ?? throw new ArgumentNullException(nameof(current))
+        );
 
-            return new LinkedCommand(pre, current);
-        }
-
-        public static ICommand Post(this ICommand current, ICommand post)
-        {
-            current.Validate(nameof(current)).IsNotNull();
-            post.Validate(nameof(post)).IsNotNull();
-
-            return new LinkedCommand(current, post);
-        }
+        public static ICommand Post(this ICommand current, ICommand post) => new LinkedCommand(
+            current ?? throw new ArgumentNullException(nameof(current)),
+            post ?? throw new ArgumentNullException(nameof(post))
+        );
     }
 }

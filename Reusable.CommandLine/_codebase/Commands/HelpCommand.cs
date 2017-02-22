@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using Reusable.Fuse;
 using Reusable.Shelly.Data;
 using System.Windows.Input;
 

@@ -49,11 +49,5 @@
     <Compile Include="_codebase\PropertyWriterExtensions.cs" />
     <Compile Include="_codebase\Collections.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Reusable.Fuse\Reusable.Fuse.csproj">
-      <Project>{aba07d6f-bb71-4aa6-aa20-7330e394d082}</Project>
-      <Name>Reusable.Fuse</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

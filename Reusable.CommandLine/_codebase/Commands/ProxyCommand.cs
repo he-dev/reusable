@@ -43,7 +43,7 @@ namespace Reusable.Shelly.Data
         {
             switch (parameter)
             {
-                case StringSet nameSet when _names.Overlaps(nameSet): return _command.CanExecute(parameter);
+                case ImmutableHashSet<string> nameSet when _names.Overlaps(nameSet): return _command.CanExecute(parameter);
                 default: return false;
             }
         }

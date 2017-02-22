@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Reusable.Fuse;
 
 namespace Reusable.Commands
 {
@@ -15,11 +14,8 @@ namespace Reusable.Commands
 
         public LinkedCommand(ICommand pre, ICommand post)
         {
-            pre.Validate(nameof(pre)).IsNotNull();
-            post.Validate(nameof(post)).IsNotNull();
-
-            _pre = pre;
-            _post = post;
+            _pre = pre ?? throw new ArgumentNullException(nameof(pre));
+            _post = post ?? throw new ArgumentNullException(nameof(post));
         }
 
         public event EventHandler CanExecuteChanged;

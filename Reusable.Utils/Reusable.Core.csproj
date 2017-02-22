@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Reusable</RootNamespace>
-    <AssemblyName>Reusable.Utils</AssemblyName>
+    <AssemblyName>Reusable.Core</AssemblyName>
     <TargetFrameworkVersion Condition=" '$(TargetFrameworkVersion)' == '' ">v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -82,13 +82,13 @@
   <ItemGroup>
     <Compile Include="_codebase\Commands\CommandComposition.cs" />
     <Compile Include="_codebase\Commands\LinkedCommand.cs" />
+    <Compile Include="_codebase\ComparisonResult.cs" />
     <Compile Include="_codebase\Data\AppConfigRepository.cs" />
     <Compile Include="_codebase\Data\Annotations\IgnoreAttribute.cs" />
     <Compile Include="_codebase\Data\Annotations\OptionalAttribute.cs" />
     <Compile Include="_codebase\Data\Annotations\FormatAttribute.cs" />
     <Compile Include="_codebase\Drawing\Color32.cs" />
     <Compile Include="_codebase\Drawing\ColorParser.cs" />
-    <Compile Include="_codebase\StringSet.cs" />
     <Compile Include="_codebase\StringFormatting\CustomFormatter.cs" />
     <Compile Include="_codebase\StringFormatting\CustomFormatterComposition.cs" />
     <Compile Include="_codebase\ResourceReader.cs" />
@@ -130,12 +130,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Reusable.Fuse\Reusable.Fuse.csproj">
-      <Project>{aba07d6f-bb71-4aa6-aa20-7330e394d082}</Project>
-      <Name>Reusable.Fuse</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="_codebase\Experimental\" />

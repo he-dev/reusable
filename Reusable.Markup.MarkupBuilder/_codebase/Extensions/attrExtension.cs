@@ -1,5 +1,5 @@
+using System;
 using System.Dynamic;
-using Reusable.Fuse;
 
 namespace Reusable.Markup.Extensions
 {
@@ -16,12 +16,15 @@ namespace Reusable.Markup.Extensions
         {
             if (binder.Name == "attr")
             {
-                args.Validate(nameof(args)).IsNotNull().Then(x => x.Length, nameof(args.Length)).IsEqual(2);
+                if (args == null) throw new ArgumentNullException(nameof(args));
+                if (args.Length != 2) throw new ArgumentOutOfRangeException(nameof(args), "There must be exactly two arguments.");
+                //args.Validate(nameof(args)).IsNotNull().Then(x => x.Length, nameof(args.Length)).IsEqual(2);
 
                 builder.Attributes.Add((string)args[0], (string)args[1]);
                 result = builder;
                 return true;
             }
+
             result = null;
             return false;
         }

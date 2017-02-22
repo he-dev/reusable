@@ -93,15 +93,11 @@
   <ItemGroup>
     <ProjectReference Include="..\Reusable.TypeConversion\Reusable.TypeConversion.csproj">
       <Project>{d7da0768-b385-40de-abac-0a6b0c5b73f4}</Project>
-      <Name>Reusable.Converters</Name>
+      <Name>Reusable.TypeConversion</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Reusable.Fuse\Reusable.Fuse.csproj">
-      <Project>{aba07d6f-bb71-4aa6-aa20-7330e394d082}</Project>
-      <Name>Reusable.Fuse</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Reusable.Utils\Reusable.Utils.csproj">
+    <ProjectReference Include="..\Reusable.Utils\Reusable.Core.csproj">
       <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
-      <Name>Reusable.Utils</Name>
+      <Name>Reusable.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

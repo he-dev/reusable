@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Reusable.Fuse;
 using Reusable.Shelly.Data;
 using Reusable.Shelly.Collections;
 using System.Windows.Input;

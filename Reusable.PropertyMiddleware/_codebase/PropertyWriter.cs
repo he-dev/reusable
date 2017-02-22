@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Reusable.Fuse;
 
 namespace Reusable.PropertyMiddleware
 {
@@ -10,8 +9,8 @@ namespace Reusable.PropertyMiddleware
 
         public PropertyWriter<T> SetValue<TValue>(T obj, string propertyName, TValue value)
         {
-            obj.Validate(nameof(obj)).IsNotNull();
-            propertyName.Validate(nameof(propertyName)).IsNotNullOrEmpty();
+            if (obj == null) throw new ArgumentNullException(nameof(obj));
+            if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
 
             GetOrCreateSetterDelegate(
                 propertyName,
@@ -22,7 +21,8 @@ namespace Reusable.PropertyMiddleware
 
         public PropertyWriter<T> SetValue<TValue, TIndex1>(T obj, string propertyName, TValue value, TIndex1 index1)
         {
-            obj.Validate(nameof(obj)).IsNotNull();
+            if (obj == null) throw new ArgumentNullException(nameof(obj));
+            if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
 
             propertyName = typeof(TIndex1).FullName;
 
@@ -35,7 +35,8 @@ namespace Reusable.PropertyMiddleware
 
         public PropertyWriter<T> SetValue<TValue, TIndex1, TIndex2>(T obj, string propertyName, TValue value, TIndex1 index1, TIndex2 index2)
         {
-            obj.Validate(nameof(obj)).IsNotNull();
+            if (obj == null) throw new ArgumentNullException(nameof(obj));
+            if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
 
             propertyName = typeof(TIndex1).FullName + ", " + typeof(TIndex2).FullName;
 

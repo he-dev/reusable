@@ -1,26 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.Utils</id>
-    <version>2.8.0</version>
-    <title>Reusable.Utils</title>
+    <id>Reusable.Logging.NLog.Tools</id>
+    <version>2.12.0</version>
+    <title>Reusable.Logging.NLog.Tools</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/he-dev/Reusable</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/he-dev/Reusable/master/_nuget/recycling.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>Additional collections.</description>
+    <description>Tools for NLog.</description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2016 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
-      <dependency id="Newtonsoft.Json" version="9.0.1" />
-      <dependency id="Reusable.Fuse" version="2.8.0" />
+      <dependency id="NLog" version="4.3.8" />
+      <dependency id="NLog.Config" version="4.3.8" />
+      <dependency id="NLog.Schema" version="4.3.8" />
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\Reusable.Utils.dll" target="lib\net452" />
-    <file src="bin\Release\Reusable.Utils.pdb" target="lib\net452" />
+    <file src="bin\Release\Reusable.Logging.NLog.Tools.dll" target="lib\net452" />
+    <file src="bin\Release\Reusable.Logging.NLog.Tools.pdb" target="lib\net452" />
   </files>
 </package>

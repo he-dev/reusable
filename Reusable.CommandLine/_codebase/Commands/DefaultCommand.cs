@@ -27,7 +27,7 @@ namespace Reusable.Shelly.Data
         {
             switch (parameter)
             {
-                case StringSet nameSet when NameSet.Overlaps(nameSet): return true;
+                case ImmutableHashSet<string> nameSet when NameSet.Overlaps(nameSet): return true;
                 default: return false;
             }
         }

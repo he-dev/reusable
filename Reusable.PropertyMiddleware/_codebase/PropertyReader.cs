@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Reusable.Fuse;
 
 namespace Reusable.PropertyMiddleware
 {
@@ -10,8 +9,8 @@ namespace Reusable.PropertyMiddleware
 
         public TResult GetValue<TResult>(T obj, string propertyName)
         {
-            obj.Validate(nameof(obj)).IsNotNull();
-            propertyName.Validate(nameof(propertyName)).IsNotNullOrEmpty();
+            if (obj == null) throw new ArgumentNullException(nameof(obj));
+            if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
 
             return GetOrCreateGetterDelegate(
                 propertyName,
@@ -21,7 +20,8 @@ namespace Reusable.PropertyMiddleware
 
         public TResult GetValue<TIndex1, TResult>(T obj, string propertyName, TIndex1 index1)
         {
-            obj.Validate(nameof(obj)).IsNotNull();
+            if (obj == null) throw new ArgumentNullException(nameof(obj));
+            if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
 
             propertyName = typeof(TIndex1).FullName;
             return GetOrCreateGetterDelegate(
@@ -32,7 +32,8 @@ namespace Reusable.PropertyMiddleware
 
         public TResult GetValue<TIndex1, TIndex2, TResult>(T obj, string propertyName, TIndex1 index1, TIndex2 index2)
         {
-            obj.Validate(nameof(obj)).IsNotNull();
+            if (obj == null) throw new ArgumentNullException(nameof(obj));
+            if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
 
             propertyName = typeof(TIndex1).FullName + ", " + typeof(TIndex2).FullName;
             return GetOrCreateGetterDelegate(
@@ -43,8 +44,7 @@ namespace Reusable.PropertyMiddleware
 
         private TFunc GetOrCreateGetterDelegate<TFunc>(string propertyName, Func<TFunc> getterDelegateFactory)
         {
-            var cacheItem = default(object);
-            if (_cache.TryGetValue(propertyName, out cacheItem))
+            if (_cache.TryGetValue(propertyName, out object cacheItem))
             {
                 return (TFunc)cacheItem;
             }
