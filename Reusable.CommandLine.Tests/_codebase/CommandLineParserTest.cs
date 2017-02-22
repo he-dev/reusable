@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Fuse;
 using Reusable.Fuse.Testing;
+using Reusable.Shelly.Collections;
 
 namespace Reusable.Shelly.Tests
 {
@@ -12,29 +13,29 @@ namespace Reusable.Shelly.Tests
     public class CommandLineParserTest
     {
         [TestMethod]
-        public void Parse_Empty()
+        public void Parse_Empty_EmptyCollection()
         {
-            var result = new CommandLineParser().Parse(new string[0], "-", ":", new string[0]);
-            result.CommandName.Verify().IsNullOrEmpty();
-            result.Arguments.Verify().IsEmpty();
+            var arguments = CommandLineParser.Parse(new string[0], "-");
+            arguments.Verify().IsNotNull();
+            arguments.Verify().IsEmpty();
         }
 
         [TestMethod]
         public void Parse_Command()
         {
-            var result = new CommandLineParser().Parse(new[] { "foo" }, "-", ":", new[] { "foo" });
-            result.CommandName.Verify().IsEqual("foo");
-            result.Arguments.Verify().IsEmpty();
+            var arguments = CommandLineParser.Parse(new[] { "foo" }, "-");
+            arguments.CommandName.Verify().IsTrue(x => x.Overlaps(ImmutableNameSet.Create("foo")));
         }
 
         [TestMethod]
         public void Parse_CommandWithArguments()
         {
-            var result = new CommandLineParser().Parse(new[] { "foo", "qux", "-bar:baz" }, "-", ":", new[] { "foo" });
-            result.CommandName.Verify().IsEqual("foo");
-            result.Arguments.Count().Verify().IsEqual(2);
-            result.Arguments.Single(x => x.Key == string.Empty).First().Verify().IsEqual("qux");
-            result.Arguments.Single(x => x.Key == "bar").First().Verify().IsEqual("baz");
+            var arguments = CommandLineParser.Parse(new[] { "foo", "qux", "-bar:baz" }, "-");
+            arguments.CommandName.Verify().IsTrue(x => x.Overlaps(ImmutableNameSet.Create("foo")));
+
+            arguments.Count().Verify().IsEqual(2);
+            //arguments.Single(x => x.Key == string.Empty).First().Verify().IsEqual("qux");
+            //arguments.Single(x => x.Key == "bar").First().Verify().IsEqual("baz");
         }
     }
 }

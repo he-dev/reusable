@@ -25,9 +25,9 @@ namespace Reusable.Shelly
             //var parameter = Activator.CreateInstance(parameterType);
             //var parameterProperties = parameterType.GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(p => p.GetCustomAttribute<ParameterAttribute>() != null);
 
-            //foreach (var property in parameterProperties)
+            foreach (var parameter in _parameters)
             {
-                //var names = property.GetCustomAttribute<ParameterAttribute>
+                var values = arguments[parameter.Names];
             }
 
             return null;

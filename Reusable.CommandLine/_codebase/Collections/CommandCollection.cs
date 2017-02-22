@@ -20,7 +20,7 @@ namespace Reusable.Shelly.Collections
 
         public ICommand this[string name] => this[ImmutableNameSet.Create(name)];
 
-        public bool TryGetCommand(StringSet nameSet, out ICommand command)
+        public bool TryGetCommand(ImmutableHashSet<string> nameSet, out ICommand command)
         {
             command = this[nameSet];
             return command != null;

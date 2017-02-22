@@ -6,6 +6,7 @@ using Reusable.Shelly.Collections;
 using System.Reflection;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Collections.Immutable;
 
 namespace Reusable.Shelly.Data
 {
@@ -13,7 +14,7 @@ namespace Reusable.Shelly.Data
     {
         private readonly ICommand _command;
 
-        public static readonly StringSet NameSet = StringSet.CreateCI("default");
+        public static readonly ImmutableHashSet<string> NameSet = ImmutableNameSet.Create("__default");
 
         public event EventHandler CanExecuteChanged;
 

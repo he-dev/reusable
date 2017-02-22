@@ -1,25 +1,46 @@
 ﻿using Reusable.Shelly.Data;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
+using System.Collections;
 
 namespace Reusable.Shelly.Collections
 {
-    public class ArgumentCollection
+    public class ArgumentCollection : IEnumerable<IGrouping<ImmutableHashSet<string>, string>>
     {
-        private readonly Dictionary<string, IList<string>> _arguments = new Dictionary<string, IList<string>>(StringComparer.OrdinalIgnoreCase);
+        private readonly IList<CommandLineArgument> _arguments = new List<CommandLineArgument>();
 
-        internal ArgumentCollection(IEnumerable<CommandLineArgument> arguments)
+        internal ArgumentCollection() { }
+
+        public ImmutableHashSet<string> CommandName
         {
-            _arguments = arguments.ToDictionary(x => x.Key, x => (IList<string>)x, StringComparer.OrdinalIgnoreCase);
+            get
+            {
+                var values = _arguments.SingleOrDefault(g => g.Key.Overlaps(ImmutableNameSet.Create(string.Empty)));
+                return ImmutableNameSet.Create(values.FirstOrDefault() ?? string.Empty);
+            }
         }
 
-        public StringSet CommandName => _arguments.TryGetValue(string.Empty, out IList<string> values) ? StringSet.CreateCI(values.FirstOrDefault()) : null;
-
-        public IList<string> this[string name]
+        public CommandLineArgument this[ImmutableHashSet<string> name]
         {
-            get => _arguments.TryGetValue(name, out IList<string> values) ? values : null;
-            set => _arguments[name] = value;
+            get => _arguments.SingleOrDefault(g => g.Key.Overlaps(name));
+            //set => _arguments[name] = value;
         }
+
+        public void Add(ImmutableHashSet<string> name, string value)
+        {
+            var argument = this[name];
+            if (argument == null) _arguments.Add(argument = new CommandLineArgument(name));
+            if (!string.IsNullOrEmpty(value)) argument.Add(value);
+        }
+
+        #region IEnumerable
+
+        public IEnumerator<IGrouping<ImmutableHashSet<string>, string>> GetEnumerator() => _arguments.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        #endregion
     }
 }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Reusable.Shelly
+namespace Reusable.Shelly.Validators
 {
     internal static class CommandValidator
     {

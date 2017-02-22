@@ -5,6 +5,7 @@ using Reusable.Fuse;
 using Reusable.Shelly.Data;
 using Reusable.Shelly.Collections;
 using System.Windows.Input;
+using System.Collections.Immutable;
 
 namespace Reusable.Shelly
 {
@@ -36,7 +37,7 @@ namespace Reusable.Shelly
 
             switch (arguments.CommandName)
             {
-                case StringSet nameSet when Commands.TryGetCommand(nameSet, out ICommand command):
+                case ImmutableHashSet<string> nameSet when Commands.TryGetCommand(nameSet, out ICommand command):
                     command.Execute(context);
                     break;
 

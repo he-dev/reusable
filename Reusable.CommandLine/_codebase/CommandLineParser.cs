@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using Reusable.Shelly.Collections;
 using Reusable.Shelly.Data;
 using System;
+using System.Collections.Immutable;
 
 namespace Reusable.Shelly
 {
@@ -13,32 +14,25 @@ namespace Reusable.Shelly
         {
             if (string.IsNullOrEmpty(prefix)) throw new ArgumentNullException(nameof(prefix));
 
-            var arguments = new List<CommandLineArgument>();
+            var arguments = new ArgumentCollection();
+            var currentArgumentName = ImmutableNameSet.Create(string.Empty);
 
             foreach (var arg in args ?? throw new ArgumentNullException(nameof(args)))
             {
                 switch (arg.StartsWith(prefix))
                 {
                     case true:
-                        arguments.Add(new CommandLineArgument(Regex.Replace(arg, $"^{prefix}", string.Empty)));
+                        currentArgumentName = ImmutableNameSet.Create(Regex.Replace(arg, $"^{prefix}", string.Empty));
+                        arguments.Add(currentArgumentName, null);
                         break;
 
                     case false:
-                        switch (arguments.Any())
-                        {
-                            case true:
-                                arguments.Last().Add(arg);
-                                break;
-
-                            case false:
-                                arguments.Add(new CommandLineArgument(string.Empty) { arg });
-                                break;
-                        }
+                        arguments.Add(currentArgumentName, arg);
                         break;
                 }
 
             }
-            return new ArgumentCollection(arguments);
+            return arguments;
         }
     }
 }
