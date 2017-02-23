@@ -20,7 +20,7 @@ namespace Reusable.Shelly.Data
         {
             _command = command;
             _names = names;
-            _parameterFactory = new ParameterFactory(parameterType, null);
+            _parameterFactory = new ParameterFactory(parameterType);
         }
 
         public ProxyCommand(ICommand command)
@@ -52,7 +52,6 @@ namespace Reusable.Shelly.Data
         {
             var context = (CommandLineContext)parameter;
 
-            // TODO map from arguments to parameter object
             var arguments = (ArgumentCollection)context.Parameter;
             var commandParameter = _parameterFactory.CreateParameter(arguments);
 

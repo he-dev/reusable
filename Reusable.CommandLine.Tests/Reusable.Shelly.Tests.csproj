@@ -61,8 +61,10 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestCommands.cs" />
+    <Compile Include="_codebase\Collections\ArgumentCollectionTest.cs" />
     <Compile Include="_codebase\CommandLineParserTest.cs" />
     <Compile Include="_codebase\CommandLineTest.cs" />
+    <Compile Include="_codebase\CommandLineTokenizerTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -9,6 +9,8 @@ namespace Reusable.Shelly.Collections
 {
     public static class ImmutableNameSet
     {
+        public static readonly ImmutableHashSet<string> Empty = Create(string.Empty);
+
         public static ImmutableHashSet<string> Create(IEnumerable<string> values) => Create(values.ToArray());
 
         public static ImmutableHashSet<string> Create(params string[] values) => ImmutableHashSet.Create(StringComparer.OrdinalIgnoreCase, values);

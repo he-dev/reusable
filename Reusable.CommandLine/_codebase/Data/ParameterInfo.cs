@@ -31,9 +31,9 @@ namespace Reusable.Shelly.Data
 
         public bool Required { get; }
 
-        public int? Position { get; }
+        public int Position { get; }
 
-        public char? ListSeparator { get; }
+        public char ListSeparator { get; }
 
         public static ImmutableHashSet<string> GetNames(PropertyInfo property)
         {

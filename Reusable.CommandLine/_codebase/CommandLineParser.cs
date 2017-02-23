@@ -15,7 +15,7 @@ namespace Reusable.Shelly
             if (string.IsNullOrEmpty(prefix)) throw new ArgumentNullException(nameof(prefix));
 
             var arguments = new ArgumentCollection();
-            var currentArgumentName = ImmutableNameSet.Create(string.Empty);
+            var currentArgumentName = ImmutableNameSet.Empty;
 
             foreach (var arg in args ?? throw new ArgumentNullException(nameof(args)))
             {

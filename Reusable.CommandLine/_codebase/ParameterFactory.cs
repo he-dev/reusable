@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Reusable.TypeConversion;
 using Reusable.Shelly.Collections;
+using System.Collections.Immutable;
 
 namespace Reusable.Shelly
 {
@@ -14,23 +15,51 @@ namespace Reusable.Shelly
         private readonly TypeConverter _converter;
         private readonly ParameterCollection _parameters;
 
-        public ParameterFactory(Type parameterType, TypeConverter converter)
+        public ParameterFactory(Type parameterType)
         {
             _parameters = new ParameterCollection(parameterType);
-            _converter = converter;
+            _converter = DefaultConverter;
         }
 
         public object CreateParameter(ArgumentCollection arguments)
         {
-            //var parameter = Activator.CreateInstance(parameterType);
+            var instance = Activator.CreateInstance(_parameters.ParameterType);
             //var parameterProperties = parameterType.GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(p => p.GetCustomAttribute<ParameterAttribute>() != null);
 
             foreach (var parameter in _parameters)
             {
-                var values = arguments[parameter.Names];
+                var arg = arguments[parameter.Names] ?? arguments[parameter.Position];
+                
+                if (parameter.Required && arg == null) throw new ParameterNotFoundException();               
             }
 
             return null;
+
         }
+
+        private TypeConverter DefaultConverter => TypeConverter.Empty.Add(new TypeConverter[]
+        {
+            new StringToSByteConverter(),
+            new StringToByteConverter(),
+            new StringToCharConverter(),
+            new StringToInt16Converter(),
+            new StringToInt32Converter(),
+            new StringToInt64Converter(),
+            new StringToUInt16Converter(),
+            new StringToUInt32Converter(),
+            new StringToUInt64Converter(),
+            new StringToSingleConverter(),
+            new StringToDoubleConverter(),
+            new StringToDecimalConverter(),
+            new StringToColorConverter(),
+            new StringToBooleanConverter(),
+            new StringToDateTimeConverter(),
+            new StringToEnumConverter(),
+
+            //new EnumerableObjectToArrayObjectConverter(),
+            //new EnumerableObjectToListObjectConverter(),
+            //new EnumerableObjectToHashSetObjectConverter(),
+            //new DictionaryObjectObjectToDictionaryObjectObjectConverter(),
+        });
     }
 }

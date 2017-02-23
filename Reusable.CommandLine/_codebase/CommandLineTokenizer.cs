@@ -27,7 +27,7 @@ namespace Reusable.Shelly
             {
                 switch (c)
                 {
-                    case '\\' when !escapeMode:
+                    case '\\' when !quoted:
                         escapeMode = true;
                         // Don't eat escape-char yet.
                         break;
