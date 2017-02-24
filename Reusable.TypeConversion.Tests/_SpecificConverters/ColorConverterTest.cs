@@ -34,7 +34,7 @@ namespace Reusable.TypeConversion.Tests
         }
 
         [TestMethod]
-        public void Conert_Hex_Color()
+        public void Convert_Hex_Color()
         {
             var converter = TypeConverter.Empty.Add(new StringToColorConverter(new[] { new HexadecimalColorParser() }));
             var result = converter.Convert(Color.Beige.ToArgb().ToString("X"), typeof(Color));

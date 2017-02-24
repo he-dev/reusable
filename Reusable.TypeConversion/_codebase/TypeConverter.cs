@@ -43,7 +43,7 @@ namespace Reusable.TypeConversion
 
         protected virtual bool IsConverted(object value, Type targetType)
         {
-            return value.GetType() != targetType;
+            return value.GetType() == targetType;
         }
 
         public override bool Equals(object obj)

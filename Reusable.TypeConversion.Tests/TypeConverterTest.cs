@@ -1,5 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.Fuse.Testing;
+using Reusable.Fuse;
 
 namespace Reusable.TypeConversion.Tests
 {
@@ -46,6 +48,14 @@ namespace Reusable.TypeConversion.Tests
         public void GetHashCode_SomeConverter_NonZero()
         {
             Assert.IsTrue(new BooleanToStringConverter().GetHashCode() > 0);
+        }
+
+        [TestMethod]
+        public void Convert_String_String()
+        {
+            var converter = TypeConverter.Empty.Add<StringToBooleanConverter>();
+            var result = converter.Convert("foo", typeof(string));
+            result.Verify().IsNotNull().IsTrue(x => (x is string y) && y == "foo");
         }
     }
 }

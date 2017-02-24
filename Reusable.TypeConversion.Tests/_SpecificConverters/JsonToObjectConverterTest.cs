@@ -10,7 +10,7 @@ namespace Reusable.TypeConversion.Tests
         [TestMethod]
         public void Convert_JsonTypeName_Interface()
         {
-            var json = @"{ ""$type"": ""Reusable.Converters.Tests.Foo2, Reusable.Converters.Tests"" }";
+            var json = $@"{{ ""$type"": ""{typeof(Foo2).FullName}, {typeof(Foo2).Namespace}"" }}";
 
             var converter = TypeConverter.Empty
                 .Add<JsonToObjectConverter<Foo>>();
@@ -22,7 +22,7 @@ namespace Reusable.TypeConversion.Tests
         [TestMethod]
         public void Convert_JsonTypeName_AbstractClass()
         {
-            var json = @"{ ""$type"": ""Reusable.Converters.Tests.Bar1, Reusable.Converters.Tests"" }";
+            var json = $@"{{ ""$type"": ""{typeof(Bar1).FullName}, {typeof(Bar1).Namespace}"" }}";
 
             var converter = TypeConverter.Empty
                 .Add<JsonToObjectConverter<Bar>>();
