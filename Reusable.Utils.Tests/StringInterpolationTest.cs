@@ -3,11 +3,13 @@ using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Fuse;
 using Reusable.Fuse.Testing;
+using System.Linq;
+using System.Collections.Generic;
 
-namespace Reusable.Extensions.Tests
+namespace Reusable.Tests
 {
     [TestClass]
-    public class StringExtensionsTest
+    public class StringInterpolationTest
     {
         [TestMethod]
         public void GetConnectionStringName_ValueWithName()
@@ -20,13 +22,9 @@ namespace Reusable.Extensions.Tests
         {
             "Foo.bar".GetConnectionStringName().Verify().IsNullOrEmpty();
         }
-    }
 
-    [TestClass]
-    public class Format
-    {
         [TestMethod]
-        public void ReplacesName()
+        public void Format_ReplacesName()
         {
             Assert.AreEqual(
                 "The quick brown fox jumps over the lazy dog.",
@@ -50,7 +48,7 @@ namespace Reusable.Extensions.Tests
         }
 
         [TestMethod]
-        public void ReplacesEscapedName()
+        public void Format_ReplacesEscapedName()
         {
             Assert.AreEqual(
                 "The quick {brown} fox jumps over the lazy dog.",
@@ -58,7 +56,7 @@ namespace Reusable.Extensions.Tests
         }
 
         [TestMethod]
-        public void IgnoresInvalidBracePair()
+        public void Format_IgnoresInvalidBracePair()
         {
             Assert.AreEqual(
                 "The quick {brown}} fox jumps over {{the} lazy dog.",
@@ -66,7 +64,7 @@ namespace Reusable.Extensions.Tests
         }
 
         [TestMethod]
-        public void IgnoresNullValue()
+        public void Format_IgnoresNullValue()
         {
             Assert.AreEqual(
                 "The quick {brown}} fox {Verb} over {{the} lazy dog.",
@@ -74,7 +72,8 @@ namespace Reusable.Extensions.Tests
         }
 
         [TestMethod]
-        public void IgnoresNullObject()
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void Format_IgnoresNullObject()
         {
             Assert.AreEqual(
                 "The quick {brown}} fox {Verb} over {{the} lazy dog.",
@@ -82,10 +81,38 @@ namespace Reusable.Extensions.Tests
         }
 
         [TestMethod]
-        public void IgnoresNullString()
+        public void Format_IgnoresNullString()
         {
             Assert.IsNull(((string)null).Format((object)null));
         }
+
+        [TestMethod]
+        public void GetNames_NoNames_Empty()
+        {
+            var result = StringInterpolation.GetNames("foo bar baz").ToList();
+            CollectionAssert.AreEqual(new string[] { }, result);
+        }
+
+        [TestMethod]
+        public void GetNames_TextWithNames_Names()
+        {
+            var result = StringInterpolation.GetNames("foo {bar} baz {qux} waldo").ToList();
+            CollectionAssert.AreEqual(new[] { "bar", "qux" }, result);
+        }
+
+        [TestMethod]
+        public void FormatAll_Templates_Formats()
+        {
+            var constants = new Dictionary<string, object>
+            {
+                { "x", "foo {y} baz" },
+                { "y", "bar {z} qux" },
+                { "z", "waldo" },
+            };
+
+            Assert.AreEqual("foo bar waldo qux baz", "{x}".FormatAll(constants));
+        }
+
     }
 
     [TestClass]

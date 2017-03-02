@@ -11,56 +11,85 @@ namespace Reusable
 {
     public static class StringInterpolation
     {
-        public static string Format(this string str, Func<string, object> getValueOrDefault, IFormatProvider formatProvider = null)
+        private static readonly string PlaceholderPattern = "(?<!{){(?<Name>[a-zA-Z_][a-zA-Z0-9_]*)(,(?<Alignment>-?\\d+))?(:(?<FormatString>.*?))?}(?!})";
+
+        private static class GroupName
         {
-            if (string.IsNullOrEmpty(str)) { return str; }
+            public const string Name = nameof(Name);
+            public const string Alignment = nameof(Alignment);
+            public const string FormatString = nameof(FormatString);
+        }
+
+        public static string Format(this string text, Func<string, object> getValueOrDefault, IFormatProvider formatProvider = null)
+        {
+            if (string.IsNullOrEmpty(text)) { return text; }
             if (getValueOrDefault == null) { throw new ArgumentNullException(nameof(getValueOrDefault)); }
 
             formatProvider = formatProvider ?? new DefaultFormatter();
 
             // https://regex101.com/r/sK1tS8/5
-            var result = Regex.Replace(str, "(?<!{){(?<name>[a-zA-Z_][a-zA-Z0-9_]*)(,(?<alignment>-?\\d+))?(:(?<formatString>.*?))?}(?!})", match =>
+            var result = Regex.Replace(text, PlaceholderPattern, match =>
             {
-                var name = match.Groups["name"].Value;
+                var name = match.Groups[GroupName.Name].Value;
                 var value = getValueOrDefault(name);
                 if (value == null)
                 {
-                    return "{" + name + "}";
+                    return $"{{{name}}}";
                 }
-                var alignment = match.Groups["alignment"].Success ? "," + match.Groups["alignment"].Value : string.Empty;
-                var formatString = match.Groups["formatString"].Success ? ":" + match.Groups["formatString"].Value : string.Empty;
-                return string.Format(formatProvider, "{0" + alignment + formatString + "}", value);
+                var alignment = match.Groups[GroupName.Alignment].Success ? "," + match.Groups[GroupName.Alignment].Value : string.Empty;
+                var formatString = match.Groups[GroupName.FormatString].Success ? ":" + match.Groups[GroupName.FormatString].Value : string.Empty;
+                return string.Format(formatProvider, $"{{0{alignment}{formatString}}}", value);
             });
 
             // https://regex101.com/r/zG6tF7/3
-            result = Regex.Replace(result, "{{(?<contents>.+?)}}", match => "{" + match.Groups["contents"].Value + "}");
+            result = Regex.Replace(result, "{{(?<contents>.+?)}}", match => $"{{{match.Groups["contents"].Value}}}");
 
             return result;
         }
 
-        public static string Format(this string str, IDictionary<string, object> data, IFormatProvider formatProvider = null)
+        public static string Format(this string text, IDictionary<string, object> data, IFormatProvider formatProvider = null)
         {
-            if (string.IsNullOrEmpty(str)) { return str; }
+            if (string.IsNullOrEmpty(text)) { return text; }
             if (data == null) { throw new ArgumentNullException(nameof(data)); }
 
-            return Format(str, name =>
+            return Format(text, name =>
             {
-                var value = (object)null;
-                return data.TryGetValue(name, out value) ? value : null;
+                return data.TryGetValue(name, out object value) ? value : null;
             }, formatProvider);
         }
 
-        public static string Format(this string str, object data, IFormatProvider formatProvider = null)
+        public static string Format(this string text, object data, IFormatProvider formatProvider = null)
         {
-            if (string.IsNullOrEmpty(str)) { return str; }
+            if (string.IsNullOrEmpty(text)) { return text; }
             if (data == null) { throw new ArgumentNullException(nameof(data)); }
 
             var properties = data.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance).ToDictionary(p => p.Name, p => p);
-            return Format(str, name =>
+            return Format(text, name =>
             {
-                var property = (PropertyInfo)null;
-                return properties.TryGetValue(name, out property) ? property.GetValue(data) : null;
+                return properties.TryGetValue(name, out PropertyInfo property) ? property.GetValue(data) : null;
             }, formatProvider);
+        }
+
+        public static string FormatAll(this string text, IDictionary<string, object> data, IFormatProvider formatProvider = null)
+        {
+            if (string.IsNullOrEmpty(text)) { return text; }
+            if (data == null) { throw new ArgumentNullException(nameof(data)); }
+
+            formatProvider = formatProvider ?? new DefaultFormatter();
+
+            var dependencies = data.ToDictionary(x => x.Key, x => GetNames(string.Format(formatProvider, "{0}", x.Value)));
+            Validator.ValidateDependencies(dependencies);
+
+            while (text.ToString() != (text = text.Format(data, formatProvider))) ;
+            return text;
+        }
+
+        public static IEnumerable<string> GetNames(string text)
+        {
+            return
+                string.IsNullOrEmpty(text)
+                    ? Enumerable.Empty<string>()
+                    : Regex.Matches(text, PlaceholderPattern).Cast<Match>().Select(m => m.Groups[GroupName.Name].Value);
         }
 
         //public static string ToJson<TException>(
@@ -73,7 +102,7 @@ namespace Reusable
         //    var json = JsonConvert.SerializeObject(exceptionInfos, formatting);
         //    return json;
         //}
-      
+
         //public static string ToDebugString(this object data, IEnumerable<string> exclude = null, IFormatProvider formatProvider = null)
         //{
         //    exclude = exclude ?? Enumerable.Empty<string>();

@@ -1,8 +1,12 @@
-# Reusable v2.0.0
+# Reusable v2.13.0
 
 `Reusable` is a collection of libraries that I use in my other projects.
 
 ## Changelog
+
+### v2.13.0
+
+- 
 
 ### v2.0.0
 
@@ -51,9 +55,9 @@ It contains the following parts:
   - `Resuable.Reflection`
   - `Resuable.StringInterpolation`
 - `Reusable.ConsoleColorizer` for easier console styling via xml.
-- `Reusable.Converters` for easier and extendable type conversion.
+- `Reusable.TypeConversion` for easier and extendable type conversion.
 - `Reusable.Fuse` for consistent and fluent inline validation and verification.
-- `Reusable.Logging.NLogExtensions` for easier `NLog` configuration.
+- `Reusable.Logging.NLog.Tools` for easier `NLog` configuration.
 - `Reusable.Markup.MakrupBuilder` for easier dynamic html/xml creation.
 - `Reusable.SemanticVersion` for working with semantic versions.
 
