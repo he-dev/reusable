@@ -12,29 +12,33 @@ namespace Reusable.Shelly.Tests
     public class CommandLineTest
     {
         [TestMethod]
-        public void Execute_NoArgs_DefaultCommand()
+        public void Execute_EmptyCommandLine_DefaultCommand()
         {
             var executed = false;
             var execute = new Action<object>(o => { executed = true; });
-            var cmdLn = CommandLine.Builder.Register(new[] { "test" }, execute).AsDefault().Build();
+            var cmdLn = CommandLine.Builder.Register(execute, "test").AsDefault().Build();
             cmdLn.Execute("");
             executed.Verify().IsTrue();
         }
 
         [TestMethod]
-        public void Execute_CommandName_SelectedCommand()
+        public void Execute_CommandLineWithName_SelectedCommand()
         {
-            var executedT1 = false;
-            var executedT2 = false;
-            var executeT1 = new Action<object>(o => { executedT1 = true; });
-            var executeT2 = new Action<object>(o => { executedT2 = true; });
+            var executed = new bool[2];
+            var execute = new Action<object>[] 
+            {
+                o => { executed[0] = true; },
+                o => { executed[1] = true; }
+            };
+
             var cmdLn = CommandLine.Builder
-                .Register(new[] { "test1", "t1" }, executeT1)
-                .Register(new[] { "test2", "t2" }, executeT2)
+                .Register(execute[0], "test1", "t1")
+                .Register(execute[1], "test2", "t2")
                 .Build();
             cmdLn.Execute("t2");
-            executedT1.Verify().IsFalse();
-            executedT2.Verify().IsTrue();
+
+            executed[0].Verify().IsFalse();
+            executed[1].Verify().IsTrue();
         }
     }
 }

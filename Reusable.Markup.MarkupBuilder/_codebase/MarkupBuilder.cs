@@ -16,37 +16,20 @@ namespace Reusable.Markup
 
     public class MarkupBuilder : DynamicObject, IElement
     {
-        private MarkupBuilder(MarkupBuilder markupBuilder, string name)
-        {
-            Extensions = markupBuilder.Extensions;
-            Renderer = markupBuilder.Renderer;
-            Name = name;
-        }
-
         public MarkupBuilder(IMarkupRenderer renderer)
         {
-            Renderer = renderer;
+            Renderer = renderer ?? throw new ArgumentNullException(nameof(renderer));
         }
 
-        // The first builder has no tag and thus is not a real element.
-        private bool IsContainer => !string.IsNullOrEmpty(Name);
+        private MarkupBuilder(IMarkupRenderer renderer, MarkupBuilderExtensionCollection extensions, string name, IEnumerable<object> content)
+        {
+            Renderer = renderer;
+            Extensions = extensions;
+            Name = name;
+            Add(content);
+        }
 
         public MarkupBuilderExtensionCollection Extensions { get; } = new MarkupBuilderExtensionCollection();
-
-        internal int Depth
-        {
-            get
-            {
-                var depth = 0;
-                var parent = Parent;
-                while (parent != null)
-                {
-                    depth++;
-                    parent = parent.Parent;
-                }
-                return depth;
-            }
-        }
 
         // Using a renderer + ToString allows us to see the markup in the debug.
         public IMarkupRenderer Renderer { get; }
@@ -71,13 +54,16 @@ namespace Reusable.Markup
 
         public override bool TryConvert(ConvertBinder binder, out object result)
         {
-            if (binder.ReturnType == typeof(string))
+            switch (Type.GetTypeCode(binder.ReturnType))
             {
-                result = ToString();
-                return true;
+                case TypeCode.String:
+                    result = ToString();
+                    return true;
+
+                default:
+                    result = null;
+                    return false;
             }
-            result = null;
-            return false;
         }
 
         //public override bool TryGetMember(GetMemberBinder binder, out object result)
@@ -95,79 +81,45 @@ namespace Reusable.Markup
 
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
-            foreach (var extension in Extensions)
-            {
-                if (extension.TryInvokeMember(this, binder, args, out result))
-                {
-                    return true;
-                }
-            }
-
-            var element = CreateElement(binder.Name);
-
-            foreach (var arg in args.Where(x => x != null))
-            {
-                element.Add(arg);
-            }
-
-            result = element;
+            foreach (var extension in Extensions) if (extension.TryInvokeMember(this, binder, args, out result)) return true;
+            result = Add(new MarkupBuilder(Renderer, Extensions, binder.Name, args));
             return true;
         }
 
         #endregion
 
-        private MarkupBuilder CreateElement(string name)
+        public object Add(object obj)
         {
-            var element = new MarkupBuilder(this, name);
-            if (IsContainer)
+            switch (obj)
             {
-                Add(element);
+                case MarkupBuilder builder:
+                    if (IsElement(builder))
+                    {
+                        Content.Add(obj);
+                        builder.Parent = this;
+                    }
+                    break;
+
+                case IEnumerable<object> collection:
+                    foreach (var item in collection.Where(x => x != null)) Add(item); ;
+                    break;
+
+                case null:
+                    // Do nothing.
+                    break;
+
+                default:
+                    // Anything else just add.
+                    Content.Add(obj);
+                    break;
             }
-            return element;
+
+            return obj;
+
+            // The first builder has no tag and thus is not a real element.
+            bool IsElement(MarkupBuilder builder) => !string.IsNullOrEmpty(Name);
         }
 
-        public void Add(object obj)
-        {
-            if (obj == null)
-            {
-                return;
-            }
-
-
-            var builder = obj as MarkupBuilder;
-            if (builder != null)
-            {
-                Content.Add(obj);
-                if (IsContainer)
-                {
-                    builder.Parent = this;
-                }
-                return;
-            }
-            else
-            {
-                var objects = obj as IEnumerable<object>;
-                if (objects != null)
-                {
-                    AddRange(objects);
-                    return;
-                }
-            }
-
-            Content.Add(obj);
-        }
-
-        private void AddRange(IEnumerable<object> content)
-        {
-            foreach (var item in content)
-            {
-                Add(item);
-            }
-        }
-
-        public override string ToString()
-        {
-            return Renderer?.Render(this) ?? base.ToString();
-        }
+        public override string ToString() => Renderer?.Render(this) ?? base.ToString();
     }
 }

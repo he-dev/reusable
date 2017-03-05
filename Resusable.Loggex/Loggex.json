@@ -1,0 +1,74 @@
+﻿{
+  "WriteIntervalMilliseconds": 100,
+  "Recorders": [
+    {
+      "$type": "Loggex.Recorders.OutputWindow, Loggex",
+      "Enabled": "true",
+      "Loggers": {
+        "*": { "LogLevel": "Debug" },
+        "Program": { "LogLevel": "Debug" },
+        "Internal": { "LogLevel": "Debug" }
+      },
+      "Templates": {
+        "Record": "{utcnow:yyyyMMdd} | {logger:U} | {loglevel:U} | {message} | {exception}"
+      },
+      "NullValue": "N/A"
+    },
+    {
+      "$type": "Loggex.Recorders.PlainTextFile, Loggex",
+      "Enabled": "true",
+      "Loggers": {
+        "*": { "Verbosity": "Debug" }
+      },
+      "Templates": {
+        "Record": "{utcnow} | {logger:U} | {loglevel:U} | {message} | {exception}"
+      },
+      "NullValue": "N/A",
+      "FileName": "C:\\Home\\temp\\test_{hour:D2}.log"
+    },
+    {
+      "$type": "Loggex.Recorders.SqlServer, Loggex",
+      "Enabled": "true",
+      "Loggers": {
+        "*": {
+          "Verbosity": "Debug"
+        }
+      },
+      "ConnectionString": "Data Source=MTK4MQ;Integrated Security=SSPI;Initial Catalog=TestDb;",
+      "TableSchema": "loggex",
+      "TableName": "TestLog",
+      "Templates": {
+        "Id": null,
+        "Timestamp": "{utcnow}",
+        "Message": "{message}",
+        "Exception": "{exception}",
+        "Logger": "{logger:U}",
+        "IsCompleted": null
+      }
+    },
+    {
+      "$type": "Loggex.Recorders.EventLog, Loggex",
+      "Enabled": "false",
+      "Loggers": {
+        "*": {
+          "Importance": "High"
+        }
+      },
+      "Templates": {
+        "Logger": "Logger: {logger.toupper}${newline}",
+        "Message": "Message: {messasge}${newline}"
+      },
+      "Source": "Loggex"
+    },
+    {
+      "$type": "Loggex.Recorders.Console, Loggex",
+      "Enabled": "true",
+      "Loggers": { "*": { "Verbosity": "Debug" } },
+      "Templates": {
+        "Logger": "{logger.toupper}",
+        "Message": " | {message}"
+      },
+      "Colored": "true"
+    }
+  ]
+}

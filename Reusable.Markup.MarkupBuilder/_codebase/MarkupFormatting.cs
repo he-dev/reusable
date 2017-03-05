@@ -2,21 +2,13 @@
 
 namespace Reusable.Markup
 {
-    public abstract class MarkupFormatting
+    public abstract class MarkupFormatting : Dictionary<string, MarkupFormattingOptions>
     {
-        public MarkupFormattingOptions this[string tag]
+        public new MarkupFormattingOptions this[string tag]
         {
-            get
-            {
-                var tagFormattingOptions = MarkupFormattingOptions.None;
-                return
-                    TagFormattingOptions.TryGetValue(tag, out tagFormattingOptions)
-                    ? tagFormattingOptions
-                    : MarkupFormattingOptions.None;
-            }
+            get => TryGetValue(tag, out MarkupFormattingOptions tagFormattingOptions) ? tagFormattingOptions : MarkupFormattingOptions.None;
+            set => base[tag] = value;
         }
-
-        public Dictionary<string, MarkupFormattingOptions> TagFormattingOptions { get; set; }
 
         public int IndentWidth { get; set; }
     }

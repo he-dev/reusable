@@ -46,8 +46,8 @@ namespace Reusable.Shelly
             where TCommand : ICommand, new()
             => Register(new ProxyCommand(new TCommand()));
 
-        public CommandLineBuilder Register(string[] names, Action<object> excecute)
-            => Register(new ProxyCommand(new SimpleCommand(excecute), ImmutableNameSet.Create(names)));
+        public CommandLineBuilder Register(Action<object> execute, params string[] names)
+            => Register(new ProxyCommand(new SimpleCommand(execute), ImmutableNameSet.Create(names)));
 
         public CommandLineBuilder AsDefault()
         {

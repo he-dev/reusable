@@ -4,36 +4,37 @@ namespace Reusable.Markup
 {
     public class HtmlFormatting : MarkupFormatting
     {
-        public HtmlFormatting()
+        public HtmlFormatting() : this(indentWidth: 4)
         {
-            TagFormattingOptions = new Dictionary<string, MarkupFormattingOptions>
-            {
-                { "body", MarkupFormattingOptions.PlaceClosingTagOnNewLine },
-                { "br", MarkupFormattingOptions.IsVoid },
-                { "span", MarkupFormattingOptions.None },
-                { "p", MarkupFormattingOptions.PlaceOpeningTagOnNewLine },
-                { "pre", MarkupFormattingOptions.PlaceOpeningTagOnNewLine },
-                { "h1", MarkupFormattingOptions.PlaceOpeningTagOnNewLine },
-                { "h2", MarkupFormattingOptions.PlaceOpeningTagOnNewLine },
-                { "h3", MarkupFormattingOptions.PlaceOpeningTagOnNewLine },
-                { "h4", MarkupFormattingOptions.PlaceOpeningTagOnNewLine },
-                { "h5", MarkupFormattingOptions.PlaceOpeningTagOnNewLine },
-                { "h6", MarkupFormattingOptions.PlaceOpeningTagOnNewLine },
-                { "ul", MarkupFormattingOptions.PlaceBothTagsOnNewLine },
-                { "ol", MarkupFormattingOptions.PlaceBothTagsOnNewLine },
-                { "li", MarkupFormattingOptions.PlaceOpeningTagOnNewLine },
-                { "table", MarkupFormattingOptions.PlaceClosingTagOnNewLine },
-                { "caption", MarkupFormattingOptions.PlaceOpeningTagOnNewLine },
-                { "thead", MarkupFormattingOptions.PlaceBothTagsOnNewLine },
-                { "tbody", MarkupFormattingOptions.PlaceBothTagsOnNewLine },
-                { "tfoot", MarkupFormattingOptions.PlaceBothTagsOnNewLine },
-                { "tr", MarkupFormattingOptions.PlaceBothTagsOnNewLine },
-                { "th", MarkupFormattingOptions.PlaceOpeningTagOnNewLine },
-                { "td", MarkupFormattingOptions.PlaceOpeningTagOnNewLine },
-                { "colgroup", MarkupFormattingOptions.PlaceOpeningTagOnNewLine },
-                { "col", MarkupFormattingOptions.PlaceOpeningTagOnNewLine },
-            };
-            IndentWidth = 4;
+            this["body"] = MarkupFormattingOptions.PlaceClosingTagOnNewLine;
+            this["br"] = MarkupFormattingOptions.IsVoid;
+            this["span"] = MarkupFormattingOptions.None;
+            this["p"] = MarkupFormattingOptions.PlaceOpeningTagOnNewLine;
+            this["pre"] = MarkupFormattingOptions.PlaceOpeningTagOnNewLine;
+            this["h1"] = MarkupFormattingOptions.PlaceOpeningTagOnNewLine;
+            this["h2"] = MarkupFormattingOptions.PlaceOpeningTagOnNewLine;
+            this["h3"] = MarkupFormattingOptions.PlaceOpeningTagOnNewLine;
+            this["h4"] = MarkupFormattingOptions.PlaceOpeningTagOnNewLine;
+            this["h5"] = MarkupFormattingOptions.PlaceOpeningTagOnNewLine;
+            this["h6"] = MarkupFormattingOptions.PlaceOpeningTagOnNewLine;
+            this["ul"] = MarkupFormattingOptions.PlaceBothTagsOnNewLine;
+            this["ol"] = MarkupFormattingOptions.PlaceBothTagsOnNewLine;
+            this["li"] = MarkupFormattingOptions.PlaceOpeningTagOnNewLine;
+            this["table"] = MarkupFormattingOptions.PlaceClosingTagOnNewLine;
+            this["caption"] = MarkupFormattingOptions.PlaceOpeningTagOnNewLine;
+            this["thead"] = MarkupFormattingOptions.PlaceBothTagsOnNewLine;
+            this["tbody"] = MarkupFormattingOptions.PlaceBothTagsOnNewLine;
+            this["tfoot"] = MarkupFormattingOptions.PlaceBothTagsOnNewLine;
+            this["tr"] = MarkupFormattingOptions.PlaceBothTagsOnNewLine;
+            this["th"] = MarkupFormattingOptions.PlaceOpeningTagOnNewLine;
+            this["td"] = MarkupFormattingOptions.PlaceOpeningTagOnNewLine;
+            this["colgroup"] = MarkupFormattingOptions.PlaceOpeningTagOnNewLine;
+            this["col"] = MarkupFormattingOptions.PlaceOpeningTagOnNewLine;
+        }
+
+        public HtmlFormatting(int indentWidth)
+        {
+            IndentWidth = indentWidth;
         }
     }
 }

@@ -18,11 +18,18 @@ namespace Reusable.Shelly.Collections
 
         public ParameterCollection(Type parameterType)
         {
-            if (!parameterType.HasDefaultConstructor()) throw new ArgumentException($"'{nameof(parameterType)}' '{parameterType}' must have a default constructor.");
+            if (parameterType == null)
+            {
+                _parameters = ImmutableList<Data.ParameterInfo>.Empty;
+            }
+            else
+            {
+                if (!parameterType.HasDefaultConstructor()) throw new ArgumentException($"'{nameof(parameterType)}' '{parameterType}' must have a default constructor.");
 
-            ParameterType = parameterType;
-            _parameters = ParameterReflector.GetParameters(parameterType).ToImmutableList();
-            ParameterValidator.ValidateParameterNamesUniqueness(_parameters);
+                ParameterType = parameterType;
+                _parameters = ParameterReflector.GetParameters(parameterType).ToImmutableList();
+                ParameterValidator.ValidateParameterNamesUniqueness(_parameters);
+            }
         }
 
         public Type ParameterType { get; }

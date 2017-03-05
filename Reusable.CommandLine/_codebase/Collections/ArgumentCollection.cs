@@ -13,12 +13,18 @@ namespace Reusable.Shelly.Collections
 
         internal ArgumentCollection() { }
 
+        public CommandLineArgument AnonymousArguments
+        {
+            get => _arguments.SingleOrDefault(g => g.Key.Overlaps(ImmutableNameSet.Empty));
+        }
+
         public ImmutableHashSet<string> CommandName
         {
+            // Command-name is at argument-0.
             get
             {
-                var values = _arguments.SingleOrDefault(g => g.Key.Overlaps(ImmutableNameSet.Create(string.Empty)));
-                return ImmutableNameSet.Create(values.FirstOrDefault() ?? string.Empty);
+                var commandName = AnonymousArguments?.FirstOrDefault();
+                return string.IsNullOrEmpty(commandName) ? null : ImmutableNameSet.Create(commandName);
             }
         }
 

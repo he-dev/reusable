@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 using NLog;
 using NLog.Targets;
 
-namespace Reusable.Logging.NLog.Utils
+namespace Reusable.Logging.NLog.Tools
 {
     public static class DatabaseTargetQueryGenerator
     {
@@ -16,13 +16,15 @@ namespace Reusable.Logging.NLog.Utils
             // https://regex101.com/r/19GjqR/1
             // h t t ps://regex101.com/delete/QObrsCHVjaX8gGCysAn6yApJ
 
-            var tableNameMatcher = new Regex(@"^(\[(?<schemaName>[a-z_][a-z0-9_@$#]*)\].)?\[(?<tableName>[a-z_][a-z0-9_@$#]*)\]$");
+            var tableNameMatcher = new Regex(@"^(\[(?<schemaName>[a-z_][a-z0-9_@$#]*)\].)?\[(?<tableName>[a-z_][a-z0-9_@$#]*)\]$", RegexOptions.IgnoreCase);
 
-            var databaseTargets = LogManager.Configuration.DatabaseTargets(databaseTarget => tableNameMatcher.IsMatch(databaseTarget.CommandText()));
+            var databaseTargets = LogManager.Configuration.AllTargets.OfType<DatabaseTarget>().Where(CanGenerateInsertQuery);
             foreach (var databaseTarget in databaseTargets)
             {
                 databaseTarget.CommandText = databaseTarget.GenerateInsertQuery();
             }
+
+            bool CanGenerateInsertQuery(DatabaseTarget databaseTarget) => tableNameMatcher.IsMatch(databaseTarget.CommandText());
         }
 
         private static string GenerateInsertQuery(this DatabaseTarget databaseTarget)
@@ -35,10 +37,7 @@ namespace Reusable.Logging.NLog.Utils
                 string.Join(", ", databaseTarget.Parameters.Select(x => x.Name())),
                 string.Join(", ", databaseTarget.Parameters.Select(x =>
                 {
-                    var sql =
-                        x.Nullable()
-                            ? string.Format("NULLIF({0}, '')", x.FullName())
-                            : x.FullName();
+                    var sql = x.Nullable() ? $"NULLIF({x.FullName()}, '')" : x.FullName();
 
                     // Rename the SqlParameter because otherwise SqlCommand will complain about it.
                     x.Name = x.FullName();

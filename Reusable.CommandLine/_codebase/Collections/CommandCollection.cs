@@ -14,7 +14,7 @@ namespace Reusable.Shelly.Collections
     {
         private readonly IImmutableList<ICommand> _commands;
 
-        public CommandCollection(IEnumerable<ICommand> commands) => _commands.ToImmutableList();
+        public CommandCollection(IEnumerable<ICommand> commands) => _commands = commands.ToImmutableList();
 
         public ICommand this[ISet<string> nameSet] => _commands.SingleOrDefault(command => command.CanExecute(nameSet));
 
@@ -36,8 +36,8 @@ namespace Reusable.Shelly.Collections
 
         public IEnumerator<ICommand> GetEnumerator() => _commands.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();        
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        #endregion        
+        #endregion
     }
 }

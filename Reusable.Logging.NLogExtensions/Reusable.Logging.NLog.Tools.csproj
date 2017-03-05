@@ -52,7 +52,7 @@
     <Compile Include="_src\DatabaseParameterInfoExtensions.cs" />
     <Compile Include="_src\DatabaseTargetExtensions.cs" />
     <Compile Include="_src\DatabaseTargetQueryGenerator.cs" />
-    <Compile Include="_src\LoggingConfigurationExtensions.cs" />
+    <Compile Include="_src\LayoutRenderers\InvariantPropertiesLayoutRenderer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -65,6 +65,7 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

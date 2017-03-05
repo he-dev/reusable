@@ -69,13 +69,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="_codebase\Extensions\attrExtension.cs" />
     <Compile Include="_codebase\Extensions\cssExtension.cs" />
+    <Compile Include="_codebase\Extensions\styleExtension.cs" />
     <Compile Include="_codebase\HtmlFormatting.cs" />
     <Compile Include="_codebase\MarkupBuilderExtensionCollection.cs" />
     <Compile Include="_codebase\Renderers\HtmlRenderer.cs" />
     <Compile Include="_codebase\_Interfaces\IMarkupBuilderExtension.cs" />
-    <Compile Include="_codebase\_Interfaces\IMarkupRenderer.cs" />
     <Compile Include="_codebase\MarkupBuilder.cs" />
     <Compile Include="_codebase\MarkupFormatting.cs" />
     <Compile Include="_codebase\MarkupFormattingOptions.cs" />

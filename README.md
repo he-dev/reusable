@@ -6,7 +6,7 @@
 
 ### v2.13.0
 
-- 
+- Bug fixes and improvements.
 
 ### v2.0.0
 
@@ -18,13 +18,13 @@ Why? I didn't want to write the same things over and over agian so I put them in
 
 It contains the following parts:
 
-- `Reusable.Utils` - contains general purpose utilities.
-  - `Reusable.Clocks` - wrappers for `DateTime`
-  - `Reusable.Clocks.IClock` - clock interface
-  - `Reusable.Clocks.SystemClock` - provides system date and time
-  - `Reusable.Clocks.TestClock` - date and time for testing
-  - `Resuable.Collection` - contains classes that
-  - `Resuable.Collections.AutoEqualityComparer` -
+- `Reusable.Core` - General purpose utilities.
+  - `Reusable.Clocks` - Wrappers for `DateTime`
+  - `Reusable.Clocks.IClock` - The base interace for clocks.
+  - `Reusable.Clocks.SystemClock` - System date and time.
+  - `Reusable.Clocks.TestClock` - Date and time for testing.
+  - `Resuable.Collection` - Custom collections.
+  - `Resuable.Collections.AutoEqualityComparer` - 
   - `Resuable.Collections.AutoEqualityComparerFactory`
   - `Resuable.Collections.AutoKeyDictionary`
   - `Resuable.Collections.Enumerable`

@@ -1,3 +1,4 @@
+using System;
 using System.Dynamic;
 
 namespace Reusable.Markup.Extensions
@@ -13,14 +14,18 @@ namespace Reusable.Markup.Extensions
 
         public bool TryInvokeMember(MarkupBuilder builder, InvokeMemberBinder binder, object[] args, out object result)
         {
-            if (binder.Name == "css")
+            switch (binder.Name)
             {
-                builder.Attributes.Add("style", (string)args[0]);
-                result = builder;
-                return true;
+                case "css":
+                    if (args == null || args.Length != 1) throw new ArgumentException(paramName: nameof(args), message: "css must have exactly one argument.");
+                    builder.Attributes.Add("style", (string)args[0]);
+                    result = builder;
+                    return true;
+
+                default:
+                    result = null;
+                    return false;
             }
-            result = null;
-            return false;
         }
     }
 }

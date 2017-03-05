@@ -9,8 +9,7 @@ namespace Reusable.Drawing
     {
         public int Parse(string value)
         {
-            int result;
-            if (!TryParse(value, out result))
+            if (!TryParse(value, out int result))
             {
                 throw new FormatException($"Unknown color format: '{value}'");
             }

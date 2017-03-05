@@ -15,7 +15,6 @@ namespace Reusable.Markup.Tests
         private dynamic Html { get; set; }
 
         [TestInitialize]
-
         public void TestInitialize()
         {
             var builder = new MarkupBuilder(new HtmlRenderer());

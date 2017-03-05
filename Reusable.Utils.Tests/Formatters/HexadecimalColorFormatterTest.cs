@@ -14,11 +14,11 @@ namespace Reusable.Tests.Formatters
     public class HexadecimalColorFormatterTest
     {
         [TestMethod]
-        public void Format_Color_AARRGGBB()
+        public void Format_Color_0xARGB()
         {
             var formatter = CustomFormatter.Default().Add<HexadecimalColorFormatter>();
 
-            var text = string.Format(formatter, "{0:AARRGGBB}", Color.DarkRed);
+            var text = string.Format(formatter, "{0:0xARGB}", Color.DarkRed);
 
             var formattedText = "FF8B0000";
 

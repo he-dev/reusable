@@ -14,7 +14,7 @@ namespace Reusable.Shelly.Data
     {
         private readonly ICommand _command;
 
-        public static readonly ImmutableHashSet<string> NameSet = ImmutableNameSet.Create("__default");
+        public static readonly ImmutableHashSet<string> NameSet = ImmutableNameSet.Create("Default");
 
         public event EventHandler CanExecuteChanged;
 

@@ -20,7 +20,7 @@ namespace Reusable.Tests
                 .Add<DecimalColorFormatter>()
                 .Add<HexadecimalColorFormatter>();
 
-            var text = "foo {a:dq} {b:sb} {c:u}".Format(new
+            var text = "foo {a:double} {b:square} {c:u}".Format(new
             {
                 a = "bar",
                 b = "baz",

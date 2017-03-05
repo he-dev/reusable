@@ -9,32 +9,25 @@ namespace Reusable.Markup
 {
     public class MarkupBuilderExtensionCollection : IEnumerable<IMarkupBuilderExtension>
     {
-        private readonly List<IMarkupBuilderExtension> _extensions = new List<IMarkupBuilderExtension>();
+        private readonly HashSet<IMarkupBuilderExtension> _extensions = new HashSet<IMarkupBuilderExtension>(new TypeComparer());
 
-        public MarkupBuilderExtensionCollection Add<T>() where T : IMarkupBuilderExtension, new()
+        public MarkupBuilderExtensionCollection Add(IMarkupBuilderExtension extension)
         {
-            if (_extensions.OfType<T>().Any())
-            {
-                throw new ArgumentException($"Extension \"{typeof(T).Name}\" is already added.");
-            }
-
-            _extensions.Add(new T());
+            if (!_extensions.Add(extension)) throw new ArgumentException($"Extension \"{extension.GetType().Name}\" is already added.");
             return this;
         }
 
-        public T Get<T>() where T : IMarkupBuilderExtension
-        {
-            return _extensions.OfType<T>().SingleOrDefault();
-        }
+        public MarkupBuilderExtensionCollection Add<T>() where T : IMarkupBuilderExtension, new() => Add(new T());
 
-        public IEnumerator<IMarkupBuilderExtension> GetEnumerator()
-        {
-            return _extensions.GetEnumerator();
-        }
+        public IEnumerator<IMarkupBuilderExtension> GetEnumerator() => _extensions.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    internal class TypeComparer : IEqualityComparer<IMarkupBuilderExtension>
+    {
+        public bool Equals(IMarkupBuilderExtension x, IMarkupBuilderExtension y) => x.GetType() == y.GetType();
+
+        public int GetHashCode(IMarkupBuilderExtension obj) => obj.GetType().GetHashCode();
     }
 }

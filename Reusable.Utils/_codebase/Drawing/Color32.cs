@@ -8,7 +8,7 @@ namespace Reusable.Drawing
     [StructLayout(LayoutKind.Explicit)]
     public struct Color32 : IFormattable
     {
-        private static readonly ColorParser[] ColorParsers = 
+        private static readonly ColorParser[] ColorParsers =
         {
             new NameColorParser(),
             new DecimalColorParser(),
@@ -65,20 +65,14 @@ namespace Reusable.Drawing
 
         public static Color32 Parse(string value)
         {
-            Color32 color;
-            if (!TryParse(value, out color))
-            {
-                throw new FormatException($"Unknown color format: '{color}'");
-            }
-            return color;
+            if (TryParse(value, out Color32 color)) return color; else throw new FormatException($"Unknown color format: '{color}'");
         }
 
         public static bool TryParse(string value, out Color32 color)
         {
             foreach (var colorParser in ColorParsers)
             {
-                var result = 0;
-                if (colorParser.TryParse(value, out result))
+                if (colorParser.TryParse(value, out int result))
                 {
                     color = new Color32(result);
                     return true;
@@ -88,81 +82,25 @@ namespace Reusable.Drawing
             return false;
         }
 
-        public static implicit operator Color32(string value)
-        {
-            return Parse(value);
-        }
+        public int ToArgb() => ((Color)this).ToArgb();
 
-        public static implicit operator Color(Color32 color)
-        {
-            return Color.FromArgb(color.Alpha, color.Red, color.Green, color.Blue);
-        }
+        public static implicit operator Color32(string value) => Parse(value);
 
-        public static implicit operator Color32(Color color)
-        {
-            return new Color32(color);
-        }
+        public static implicit operator Color(Color32 color) => Color.FromArgb(color.Alpha, color.Red, color.Green, color.Blue);
 
-        public override bool Equals(object obj)
-        {
-            return obj != null && ((Color)this).Equals(obj);
-        }
+        public static implicit operator Color32(Color color) => new Color32(color);
 
-        public override int GetHashCode()
-        {
-            return ((Color)this).GetHashCode();
-        }
+        public override bool Equals(object obj) => (obj is Color color && ((Color)this).Equals(obj));
 
-        public override string ToString()
-        {
-            return ToHex();
-        }
+        public override int GetHashCode() => ((Color)this).GetHashCode();
 
-        public int ToArgb()
-        {
-            return _value;
-        }
+        //public override string ToString() => ToHex();
 
-        public string ToDec()
-        {
-            const string separator = ",";
+        public string ToString(string format, IFormatProvider formatProvider) => string.Format(formatProvider, format, this);
 
-            return new StringBuilder()
-                .Append(Alpha != 0xFF ? Alpha + separator : string.Empty)
-                .Append(Red).Append(separator)
-                .Append(Green).Append(separator)
-                .Append(Blue)
-                .ToString();
-        }
+        public static bool operator ==(Color32 x, Color32 y) => x._value == y._value;
 
-        public string ToHex()
-        {
-            const string hexFormat = "X2";
-
-            var color = new StringBuilder()
-                .Append("#")
-                .Append(Alpha != 0xFF ? Alpha.ToString(hexFormat) : string.Empty)
-                .Append(Red.ToString(hexFormat))
-                .Append(Green.ToString(hexFormat))
-                .Append(Blue.ToString(hexFormat))
-                .ToString();
-            return color;
-        }
-
-        public string ToString(string format, IFormatProvider formatProvider)
-        {
-            return null;
-        }
-
-        public static bool operator ==(Color32 x, Color32 y)
-        {
-            return x._value == y._value;
-        }
-
-        public static bool operator !=(Color32 x, Color32 y)
-        {
-            return !(x == y);
-        }
+        public static bool operator !=(Color32 x, Color32 y) => !(x == y);
     }
 
 

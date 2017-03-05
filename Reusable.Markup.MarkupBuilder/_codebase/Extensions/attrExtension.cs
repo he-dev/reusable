@@ -14,19 +14,18 @@ namespace Reusable.Markup.Extensions
 
         public bool TryInvokeMember(MarkupBuilder builder, InvokeMemberBinder binder, object[] args, out object result)
         {
-            if (binder.Name == "attr")
+            switch (binder.Name)
             {
-                if (args == null) throw new ArgumentNullException(nameof(args));
-                if (args.Length != 2) throw new ArgumentOutOfRangeException(nameof(args), "There must be exactly two arguments.");
-                //args.Validate(nameof(args)).IsNotNull().Then(x => x.Length, nameof(args.Length)).IsEqual(2);
+                case "attr":
+                    if (args == null || args.Length != 2) throw new ArgumentException(nameof(args), "attr must have exactly two arguments: attribute name and attribute value.");
+                    builder.Attributes.Add((string)args[0], (string)args[1]);
+                    result = builder;
+                    return true;
 
-                builder.Attributes.Add((string)args[0], (string)args[1]);
-                result = builder;
-                return true;
+                default:
+                    result = null;
+                    return false;
             }
-
-            result = null;
-            return false;
         }
     }
 }

@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>Reusable.Email</id>
+    <version>2.24.5</version>
+    <title>Reusable.Email</title>
+    <authors>He-Dev</authors>
+    <owners>He-Dev</owners>
+    <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/he-dev/Reusable</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/he-dev/Reusable/master/_nuget/recycling.png</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>Provides email models.</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2016 He-Dev</copyright>
+    <tags>Utility Extension</tags>
+  </metadata>
+  <files>
+    <file src="bin\Release\Reusable.Email.dll" target="lib\net452" />
+    <file src="bin\Release\Reusable.Email.pdb" target="lib\net452" />
+  </files>
+</package>

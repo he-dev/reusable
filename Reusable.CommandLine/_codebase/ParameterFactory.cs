@@ -23,6 +23,8 @@ namespace Reusable.Shelly
 
         public object CreateParameter(ArgumentCollection arguments)
         {
+            if (!_parameters.Any()) return null;
+
             var instance = Activator.CreateInstance(_parameters.ParameterType);
             //var parameterProperties = parameterType.GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(p => p.GetCustomAttribute<ParameterAttribute>() != null);
 

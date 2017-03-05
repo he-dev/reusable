@@ -1,25 +1,24 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace Reusable.StringFormatting.Formatters
 {
+    // https://en.wikipedia.org/wiki/Bracket
     public class BracketFormatter : CustomFormatter
     {
-        private static readonly Dictionary<string, Func<object, string>> FormatFuncs = new Dictionary<string, Func<object, string>>
-        {
-            ["[]"] = s => $"[{s}]",
-            ["{}"] = s => $"{{{s}}}",
-            ["()"] = s => $"({s})"
-        };
+        public static readonly IImmutableDictionary<string, string> Brackets = ImmutableDictionary.Create<string, string>()
+            .Add("round", "({0})")
+            .Add("square", "[{0}]")
+            .Add("curly", "{{{0}}}")
+            .Add("angle", "<{0}>")
+            .Add("guillemet", "«{0}»");
+
         public override string Format(string format, object arg, IFormatProvider formatProvider)
         {
-            if (string.IsNullOrEmpty(format))
-            {
-                return null;
-            }
-
-            Func<object, string> formatFunc;
-            return FormatFuncs.TryGetValue(format, out formatFunc) ? formatFunc(arg) : null;
+            return 
+                !string.IsNullOrEmpty(format) && 
+                Brackets.TryGetValue(format, out string pattern) ? string.Format(formatProvider, pattern, arg) : null;
         }
     }
 }
