@@ -11,7 +11,7 @@ namespace Reusable
 {
     public static class StringInterpolation
     {
-        private static readonly string PlaceholderPattern = "(?<!{){(?<Name>[a-zA-Z_][a-zA-Z0-9_]*)(,(?<Alignment>-?\\d+))?(:(?<FormatString>.*?))?}(?!})";
+        private static readonly string PlaceholderPattern = "(?<!{){(?<Name>[a-zA-Z_][a-zA-Z0-9_.-]*)(,(?<Alignment>-?\\d+))?(:(?<FormatString>.*?))?}(?!})";
 
         private static class GroupName
         {

@@ -87,6 +87,12 @@ namespace Reusable.Tests
         }
 
         [TestMethod]
+        public void Format_NameWithDot_FormattedString()
+        {
+            Assert.AreEqual("foo waldo qux", "foo {bar.baz} qux".Format(new Dictionary<string, object> { ["bar.baz"] = "waldo" }));
+        }
+
+        [TestMethod]
         public void GetNames_NoNames_Empty()
         {
             var result = StringInterpolation.GetNames("foo bar baz").ToList();
