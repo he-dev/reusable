@@ -30,7 +30,7 @@ namespace Reusable.Logging
             set { _logLevel = value; this[nameof(LogLevel)] = value; }
         }        
 
-        public static LogEntry New() => CreateLogEntry(LogLevel.Info);
+        public static LogEntry New() => CreateLogEntry(LogLevel.Info).Info();
 
         private static LogEntry CreateLogEntry(LogLevel logLevel) => new LogEntry(logLevel)
             .SetValue(new Now())

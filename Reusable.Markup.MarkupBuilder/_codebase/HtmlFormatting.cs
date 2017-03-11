@@ -30,6 +30,7 @@ namespace Reusable.Markup
             this["td"] = MarkupFormattingOptions.PlaceOpeningTagOnNewLine;
             this["colgroup"] = MarkupFormattingOptions.PlaceOpeningTagOnNewLine;
             this["col"] = MarkupFormattingOptions.PlaceOpeningTagOnNewLine;
+            this["hr"] = MarkupFormattingOptions.PlaceOpeningTagOnNewLine | MarkupFormattingOptions.IsVoid;
         }
 
         public HtmlFormatting(int indentWidth)

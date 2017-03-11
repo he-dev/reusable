@@ -11,7 +11,7 @@ namespace Reusable.Markup.Extensions
     {
         private IDictionary<string, string> _styles;
 
-        public styleExtension(IDictionary<string, string> styles) => _styles = new Dictionary<string, string>();
+        public styleExtension(IDictionary<string, string> styles) => _styles = new Dictionary<string, string>(styles);
 
         public IDictionary<string, string> Styles
         {
@@ -47,7 +47,7 @@ namespace Reusable.Markup.Extensions
                 default:
                     result = null;
                     return false;
-            }            
+            }
         }
     }
 }
