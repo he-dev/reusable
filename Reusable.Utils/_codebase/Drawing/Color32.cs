@@ -96,7 +96,7 @@ namespace Reusable.Drawing
 
         //public override string ToString() => ToHex();
 
-        public string ToString(string format, IFormatProvider formatProvider) => string.Format(formatProvider, format, this);
+        public string ToString(string format, IFormatProvider formatProvider) => string.Format(formatProvider, format, (Color)this);
 
         public static bool operator ==(Color32 x, Color32 y) => x._value == y._value;
 

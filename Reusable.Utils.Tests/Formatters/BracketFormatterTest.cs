@@ -14,7 +14,7 @@ namespace Reusable.Tests.Formatters
         {
             var formatter = CustomFormatter.Default().Add<BracketFormatter>();
 
-            var text = string.Format(formatter, "foo {0:[]} bar", 20);
+            var text = string.Format(formatter, "foo {0:square} bar", 20);
 
             var formattedText = "foo [20] bar";
 
@@ -26,7 +26,7 @@ namespace Reusable.Tests.Formatters
         {
             var formatter = CustomFormatter.Default().Add<BracketFormatter>();
 
-            var text = string.Format(formatter, "foo {0:{{}}} bar", 20);
+            var text = string.Format(formatter, "foo {0:curly} bar", 20);
 
             var formattedText = "foo {20} bar";
 

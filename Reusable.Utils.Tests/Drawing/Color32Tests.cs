@@ -3,6 +3,7 @@ using System.Drawing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Fuse;
 using Reusable.Fuse.Testing;
+using Reusable.StringFormatting.Formatters;
 
 namespace Reusable.Drawing.Tests
 {
@@ -52,14 +53,14 @@ namespace Reusable.Drawing.Tests
         public void SerializesToHexWithoutAlpha()
         {
             var color32 = new Color32(Color.Chartreuse);
-            var hex = color32.ToString();
+            var hex = color32.ToString("#{0:0xRGB}", new HexadecimalColorFormatter());
             Assert.AreEqual("#7FFF00", hex);
         }
 
         [TestMethod]
         public void SerializesToHexWithAlpha()
         {
-            Assert.AreEqual("#9BDE212B", new Color32("155, 222, 33, 43").ToString());
+            Assert.AreEqual("9BDE212B", new Color32("155, 222, 33, 43").ToString("{0:0xARGB}", new HexadecimalColorFormatter()));
         }
     }
 }

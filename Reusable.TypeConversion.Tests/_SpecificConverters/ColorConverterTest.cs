@@ -48,11 +48,11 @@ namespace Reusable.TypeConversion.Tests
         public void Convert_Color_Hex()
         {
             var converter = TypeConverter.Empty.Add(new ColorToStringConverter());
-            var result = converter.Convert(Color.DeepPink, typeof(String), "{0:#RRGGBB}", new HexadecimalColorFormatter());
+            var result = converter.Convert(Color.DeepPink, typeof(String), "{0:0xRGB}", new HexadecimalColorFormatter());
             result
                 .Verify()
                 .IsNotNull()
-                .IsTrue(x => (string)x == "#FF1493");
+                .IsTrue(x => (string)x == "FF1493");
         }
     }
 }

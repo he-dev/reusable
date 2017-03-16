@@ -7,7 +7,7 @@ namespace Reusable.StringFormatting.Formatters
     // https://en.wikipedia.org/wiki/Bracket
     public class BracketFormatter : CustomFormatter
     {
-        public static readonly IImmutableDictionary<string, string> Brackets = ImmutableDictionary.Create<string, string>()
+        public static readonly IImmutableDictionary<string, string> Formats = ImmutableDictionary.Create<string, string>()
             .Add("round", "({0})")
             .Add("square", "[{0}]")
             .Add("curly", "{{{0}}}")
@@ -18,7 +18,7 @@ namespace Reusable.StringFormatting.Formatters
         {
             return 
                 !string.IsNullOrEmpty(format) && 
-                Brackets.TryGetValue(format, out string pattern) ? string.Format(formatProvider, pattern, arg) : null;
+                Formats.TryGetValue(format, out string pattern) ? string.Format(formatProvider, pattern, arg) : null;
         }
     }
 }
