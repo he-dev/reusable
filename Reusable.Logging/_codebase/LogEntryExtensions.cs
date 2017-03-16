@@ -29,6 +29,8 @@ namespace Reusable.Logging
 
         public static LogEntry Message(this LogEntry entry, string message) => entry.MessageBuilder(b => b.Clear().Append(message));
 
+        public static StringBuilder MessageBuilder(this LogEntry entry) => entry.GetValueOrCreate(nameof(Message), () => new StringBuilder());
+
         public static LogEntry Exception(this LogEntry entry, Exception exception) => entry.SetValue(nameof(Exception), exception);
 
         public static LogEntry Stopwatch(this LogEntry entry, Action<Stopwatch> stopwatch)
@@ -45,8 +47,7 @@ namespace Reusable.Logging
 
         public static T GetValueOrCreate<T>(this LogEntry entry, string name, Func<T> create)
         {
-            if (!entry.TryGetValue(name, out object value)) entry[name] = (value = create());
-            return (T)value;
+            return entry.TryGetValue(name, out object value) ? (T)value : (T)(entry[name] = (value = create()));
         }
 
         public static T GetValue<T>(this LogEntry entry, string name) => entry.TryGetValue(name, out object value) ? (T)value : default(T);
@@ -60,5 +61,6 @@ namespace Reusable.Logging
         public static LogEntry SetValue(this LogEntry entry, IComputedProperty property) => entry.SetValue(property.Name, property);
 
         public static AutoLogEntry AsAutoLog(this LogEntry logEntry, ILogger logger) => new AutoLogEntry(logEntry, logger);
+
     }
 }

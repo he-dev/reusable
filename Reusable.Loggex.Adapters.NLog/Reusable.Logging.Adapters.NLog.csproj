@@ -46,15 +46,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="_codebase\NLogAdapter.cs" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Resusable.Loggex\Reusable.Logging.csproj">
+    <ProjectReference Include="..\Reusable.Logging\Reusable.Logging.csproj">
       <Project>{eb8d2ed6-beb3-4d35-b03d-508f95a9341f}</Project>
       <Name>Reusable.Logging</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

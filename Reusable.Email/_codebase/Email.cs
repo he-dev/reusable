@@ -14,6 +14,15 @@ namespace Reusable
     {
         private string _from;
 
+        private readonly Func<SmtpClient> _smtpClientFactory;
+
+        public Email() : this(() => new SmtpClient()) { }
+
+        public Email(Func<SmtpClient> smtpClientFactory)
+        {
+            _smtpClientFactory = smtpClientFactory ?? throw new ArgumentNullException(nameof(smtpClientFactory));
+        }
+
         public string From
         {
             get
@@ -35,15 +44,11 @@ namespace Reusable
             set => _from = value;
         }
 
-        public List<string> To { get; set; } = new List<string>();
-
         public bool IsHighPriority { get; set; }
 
         public TSubject Subject { get; set; }
 
         public TBody Body { get; set; }
-
-        public void Send() => Send(To);
 
         public void Send(string to) => Send(Regex.Split(to, "[,;]"));
 
@@ -64,7 +69,7 @@ namespace Reusable
             {
                 foreach (var address in to.Where(x => !string.IsNullOrWhiteSpace(x))) mailMessage.To.Add(new MailAddress(address.Trim()));
 
-                using (var smtpClient = new SmtpClient()) smtpClient.Send(mailMessage);
+                using (var smtpClient = _smtpClientFactory()) smtpClient.Send(mailMessage);
             }
         }
 

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26206.0
+VisualStudioVersion = 15.0.26228.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}"
 EndProject
@@ -41,13 +41,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.TypeConversion", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.TypeConversion.Tests", "Reusable.TypeConversion.Tests\Reusable.TypeConversion.Tests.csproj", "{D2F588A5-F519-4CE3-BC3A-4274984E3448}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Logging", "Resusable.Loggex\Reusable.Logging.csproj", "{EB8D2ED6-BEB3-4D35-B03D-508F95A9341F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Logging.Adapters.NLog", "Reusable.Loggex.Adapters.NLog\Reusable.Logging.Adapters.NLog.csproj", "{02EA9013-5DBC-4FD6-93C5-4189C34018D1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Logging.Loggex", "Reusable.Logging.Loggex\Reusable.Logging.Loggex.csproj", "{12AD464C-350D-4265-B225-84BDB336D169}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Email", "Reusable.Email\Reusable.Email.csproj", "{E0C2960A-DC0A-44FE-9AEA-3538ABB8DC16}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Logging", "Reusable.Logging\Reusable.Logging.csproj", "{EB8D2ED6-BEB3-4D35-B03D-508F95A9341F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Logging.Tests", "Reusable.Logging.Tests\Reusable.Logging.Tests.csproj", "{26617FF1-7295-4FE9-9554-4967C480930C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -117,10 +119,6 @@ Global
 		{D2F588A5-F519-4CE3-BC3A-4274984E3448}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2F588A5-F519-4CE3-BC3A-4274984E3448}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D2F588A5-F519-4CE3-BC3A-4274984E3448}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EB8D2ED6-BEB3-4D35-B03D-508F95A9341F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EB8D2ED6-BEB3-4D35-B03D-508F95A9341F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EB8D2ED6-BEB3-4D35-B03D-508F95A9341F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EB8D2ED6-BEB3-4D35-B03D-508F95A9341F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{02EA9013-5DBC-4FD6-93C5-4189C34018D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{02EA9013-5DBC-4FD6-93C5-4189C34018D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{02EA9013-5DBC-4FD6-93C5-4189C34018D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -133,6 +131,14 @@ Global
 		{E0C2960A-DC0A-44FE-9AEA-3538ABB8DC16}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E0C2960A-DC0A-44FE-9AEA-3538ABB8DC16}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E0C2960A-DC0A-44FE-9AEA-3538ABB8DC16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB8D2ED6-BEB3-4D35-B03D-508F95A9341F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB8D2ED6-BEB3-4D35-B03D-508F95A9341F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB8D2ED6-BEB3-4D35-B03D-508F95A9341F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB8D2ED6-BEB3-4D35-B03D-508F95A9341F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26617FF1-7295-4FE9-9554-4967C480930C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26617FF1-7295-4FE9-9554-4967C480930C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26617FF1-7295-4FE9-9554-4967C480930C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26617FF1-7295-4FE9-9554-4967C480930C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -154,9 +160,10 @@ Global
 		{155B243A-402A-4B2A-AB15-76CA8944EA5C} = {AC36C881-1733-4649-ACBC-03B6F9A9334C}
 		{D7DA0768-B385-40DE-ABAC-0A6B0C5B73F4} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
 		{D2F588A5-F519-4CE3-BC3A-4274984E3448} = {AC36C881-1733-4649-ACBC-03B6F9A9334C}
-		{EB8D2ED6-BEB3-4D35-B03D-508F95A9341F} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
 		{02EA9013-5DBC-4FD6-93C5-4189C34018D1} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
 		{12AD464C-350D-4265-B225-84BDB336D169} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
 		{E0C2960A-DC0A-44FE-9AEA-3538ABB8DC16} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
+		{EB8D2ED6-BEB3-4D35-B03D-508F95A9341F} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
+		{26617FF1-7295-4FE9-9554-4967C480930C} = {AC36C881-1733-4649-ACBC-03B6F9A9334C}
 	EndGlobalSection
 EndGlobal

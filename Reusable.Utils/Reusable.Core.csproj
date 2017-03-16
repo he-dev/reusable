@@ -89,6 +89,7 @@
     <Compile Include="_codebase\Data\Annotations\FormatAttribute.cs" />
     <Compile Include="_codebase\Data\DataTableExtensions.cs" />
     <Compile Include="_codebase\Drawing\ColorExtensions.cs" />
+    <Compile Include="_codebase\Usingifier.cs" />
     <Compile Include="_codebase\Validator.cs" />
     <Compile Include="_codebase\Drawing\Color32.cs" />
     <Compile Include="_codebase\Drawing\ColorParser.cs" />

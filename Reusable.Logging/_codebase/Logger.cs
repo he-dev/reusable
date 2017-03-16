@@ -25,7 +25,16 @@ namespace Reusable.Logging
 
         public void Log(LogEntry logEntry)
         {
-            if (CanLog(logEntry ?? throw new ArgumentNullException(nameof(logEntry)))) LogCore(ComputeProperties());
+            if (CanLog(logEntry ?? throw new ArgumentNullException(nameof(logEntry))))
+            {
+                logEntry = ComputeProperties();
+
+                var message = logEntry.MessageBuilder().ToString().FormatAll(logEntry);
+                logEntry.Message(message);
+
+                LogCore(logEntry);
+            }
+
 
             logEntry.SetValue(nameof(ILogger.Name), Name);
 

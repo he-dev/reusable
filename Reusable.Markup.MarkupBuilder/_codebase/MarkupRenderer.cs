@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -10,14 +11,26 @@ namespace Reusable.Markup
         string Render(IElement element);
     }
 
+    public delegate string HtmlEncodeCallback(object value, IFormatProvider formatProvider);
+
     public class MarkupRenderer : IMarkupRenderer
     {
+        private readonly HtmlEncodeCallback _htmlEncode;
+
+        //public MarkupRenderer(MarkupFormatting markupFormatting, HtmlEncodeCallback htmlEncode)
+        //{
+        //    MarkupFormatting = markupFormatting ?? throw new ArgumentNullException(nameof(markupFormatting));
+        //    _htmlEncode = htmlEncode ?? throw new ArgumentNullException(nameof(htmlEncode));
+        //}
+
         public MarkupRenderer(MarkupFormatting markupFormatting)
         {
             MarkupFormatting = markupFormatting ?? throw new ArgumentNullException(nameof(markupFormatting));
         }
 
         private MarkupFormatting MarkupFormatting { get; set; }
+
+        public CultureInfo Culture { get; set; } = CultureInfo.InvariantCulture;
 
         public string Render(IElement element)
         {
@@ -94,5 +107,7 @@ namespace Reusable.Markup
             }
             return depth;
         }
+
+        private static string HtmlEncode(object value, IFormatProvider formatProvider) => System.Web.HttpUtility.HtmlEncode(string.Format(formatProvider, "{0}", value));
     }
 }
