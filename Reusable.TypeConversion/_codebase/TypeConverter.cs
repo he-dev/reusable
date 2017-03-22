@@ -58,6 +58,8 @@ namespace Reusable.TypeConversion
             return GetHashCode(this);
         }
 
+        #region IEqualityComparer
+
         public bool Equals(TypeConverter x, TypeConverter y)
         {
             return 
@@ -79,6 +81,8 @@ namespace Reusable.TypeConversion
                 return hash;
             }
         }
+
+        #endregion
     }
 
     public abstract class TypeConverter<TValue, TResult> : TypeConverter

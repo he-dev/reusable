@@ -1,15 +1,16 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("RapidCommandLine.Tests")]
+[assembly: AssemblyTitle("Reusable.Colin")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("RapidCommandLine.Tests")]
-[assembly: AssemblyCopyright("Copyright © he-dev 2016")]
+[assembly: AssemblyProduct("Reusable.Colin")]
+[assembly: AssemblyCopyright("Copyright © he-dev 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -19,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("ddef5b61-c7d2-4d8e-b6fb-d5534cb93247")]
+[assembly: Guid("82dbeed3-e1ed-4e95-b4ce-d29bbcc1f888")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -33,3 +34,4 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: InternalsVisibleTo("Reusable.Colin.Tests")]

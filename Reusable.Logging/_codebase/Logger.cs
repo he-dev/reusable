@@ -27,22 +27,18 @@ namespace Reusable.Logging
         {
             if (CanLog(logEntry ?? throw new ArgumentNullException(nameof(logEntry))))
             {
-                logEntry = ComputeProperties();
+                logEntry.SetValue(nameof(ILogger.Name), Name);
+
+                foreach (var property in (Dictionary<string, object>)ComputedProperties)
+                {
+                    logEntry[property.Key] = ((IComputedProperty)property.Value).Compute(logEntry);
+                }
 
                 var message = logEntry.MessageBuilder().ToString().FormatAll(logEntry);
                 logEntry.Message(message);
 
                 LogCore(logEntry);
-            }
-
-
-            logEntry.SetValue(nameof(ILogger.Name), Name);
-
-            LogEntry ComputeProperties() => new LogEntry(logEntry.Concat((Dictionary<string, object>)ComputedProperties).ToDictionary(
-                x => x.Key,
-                x => x.Value is IComputedProperty p ? p.Compute(logEntry) : x.Value,
-                StringComparer.OrdinalIgnoreCase
-            ));
+            }            
         }
 
         protected abstract void LogCore(LogEntry logEntry);
@@ -57,10 +53,5 @@ namespace Reusable.Logging
         public bool CanLog(LogEntry logEntry) => false;
 
         public void Log(LogEntry logEntry) { }
-    }
-
-    public static class LoggerExtensions
-    {
-
     }
 }

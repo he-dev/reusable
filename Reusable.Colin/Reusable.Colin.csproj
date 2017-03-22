@@ -7,8 +7,8 @@
     <ProjectGuid>{82DBEED3-E1ED-4E95-B4CE-D29BBCC1F888}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Reusable.Shelly</RootNamespace>
-    <AssemblyName>Reusable.Shelly</AssemblyName>
+    <RootNamespace>Reusable.Colin</RootNamespace>
+    <AssemblyName>Reusable.Colin</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -95,7 +95,7 @@
       <Project>{d7da0768-b385-40de-abac-0a6b0c5b73f4}</Project>
       <Name>Reusable.TypeConversion</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Reusable.Utils\Reusable.Core.csproj">
+    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj">
       <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
       <Name>Reusable.Core</Name>
     </ProjectReference>

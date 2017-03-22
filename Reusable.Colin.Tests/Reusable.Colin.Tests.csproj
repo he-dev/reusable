@@ -6,8 +6,8 @@
     <ProjectGuid>{DDEF5B61-C7D2-4D8E-B6FB-D5534CB93247}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Reusable.Shelly.Tests</RootNamespace>
-    <AssemblyName>Reusable.Shelly.Tests</AssemblyName>
+    <RootNamespace>Reusable.Colin.Tests</RootNamespace>
+    <AssemblyName>Reusable.Colin.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -74,7 +74,7 @@
     <Folder Include="_codebase\Commnads\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.CommandLine\Reusable.Shelly.csproj">
+    <ProjectReference Include="..\Reusable.Colin\Reusable.Colin.csproj">
       <Project>{82dbeed3-e1ed-4e95-b4ce-d29bbcc1f888}</Project>
       <Name>Reusable.Shelly</Name>
     </ProjectReference>

@@ -23,15 +23,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConsoleColorizer",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Fuse", "Reusable.Fuse\Reusable.Fuse.csproj", "{ABA07D6F-BB71-4AA6-AA20-7330E394D082}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Core", "Reusable.Utils\Reusable.Core.csproj", "{429E2201-906E-4484-9361-4A16170B0D99}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Core", "Reusable.Core\Reusable.Core.csproj", "{429E2201-906E-4484-9361-4A16170B0D99}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Fuse.Tests", "Reusable.Fuse.Tests\Reusable.Fuse.Tests.csproj", "{DA0E4890-C2E2-4F64-936C-02DDA1B44CBD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Core.Tests", "Reusable.Utils.Tests\Reusable.Core.Tests.csproj", "{26B07985-D705-45DE-934D-B16F6B1FE6D6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Core.Tests", "Reusable.Core.Tests\Reusable.Core.Tests.csproj", "{26B07985-D705-45DE-934D-B16F6B1FE6D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Shelly", "Reusable.CommandLine\Reusable.Shelly.csproj", "{82DBEED3-E1ED-4E95-B4CE-D29BBCC1F888}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Colin", "Reusable.Colin\Reusable.Colin.csproj", "{82DBEED3-E1ED-4E95-B4CE-D29BBCC1F888}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Shelly.Tests", "Reusable.CommandLine.Tests\Reusable.Shelly.Tests.csproj", "{DDEF5B61-C7D2-4D8E-B6FB-D5534CB93247}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Colin.Tests", "Reusable.Colin.Tests\Reusable.Colin.Tests.csproj", "{DDEF5B61-C7D2-4D8E-B6FB-D5534CB93247}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.PropertyMiddleware", "Reusable.PropertyMiddleware\Reusable.PropertyMiddleware.csproj", "{55B0A875-7F36-4073-9A1B-F0DB39FC2C40}"
 EndProject
@@ -41,7 +41,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.TypeConversion", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.TypeConversion.Tests", "Reusable.TypeConversion.Tests\Reusable.TypeConversion.Tests.csproj", "{D2F588A5-F519-4CE3-BC3A-4274984E3448}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Logging.Adapters.NLog", "Reusable.Loggex.Adapters.NLog\Reusable.Logging.Adapters.NLog.csproj", "{02EA9013-5DBC-4FD6-93C5-4189C34018D1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Logging.Adapters.NLog", "Reusable.Logging.Adapters.NLog\Reusable.Logging.Adapters.NLog.csproj", "{02EA9013-5DBC-4FD6-93C5-4189C34018D1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Logging.Loggex", "Reusable.Logging.Loggex\Reusable.Logging.Loggex.csproj", "{12AD464C-350D-4265-B225-84BDB336D169}"
 EndProject

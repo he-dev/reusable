@@ -28,7 +28,7 @@ namespace Reusable.Logging.Collections
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public static implicit operator Dictionary<string, object>(ComputedPropertyCollection properties) => properties.ToDictionary(x => x.Name, x => (object)x);
+        public static explicit operator Dictionary<string, object>(ComputedPropertyCollection properties) => properties.ToDictionary(x => x.Name, x => (object)x);
     }
 
     internal class ComputedPropertyComparer : IEqualityComparer<IComputedProperty>

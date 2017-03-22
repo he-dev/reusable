@@ -23,7 +23,7 @@ namespace Reusable.Logging.Adapters
         {
             var logEventInfo = new NLog.LogEventInfo
             {
-                Level = NLog.LogLevel.FromOrdinal((int)logEntry.LogLevel),
+                Level = NLog.LogLevel.FromString(logEntry.LogLevel.ToString()),
                 LoggerName = _logger.Name,
                 Message = logEntry.GetValue<StringBuilder>(nameof(NLog.LogEventInfo.Message)).ToString(),
                 Exception = logEntry.GetValue<Exception>(nameof(NLog.LogEventInfo.Exception)),

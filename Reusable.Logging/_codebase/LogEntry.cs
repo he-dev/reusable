@@ -11,24 +11,27 @@ namespace Reusable.Logging
     {
         private LogLevel _logLevel;
 
-        private LogEntry(LogEntry logEntry) : base(logEntry)
-        {
-            _logLevel = logEntry._logLevel;
-        }
+        //private LogEntry(LogEntry logEntry) : base(logEntry)
+        //{
+        //    _logLevel = logEntry._logLevel;
+        //}
 
         public LogEntry(LogLevel logLevel) : base(StringComparer.OrdinalIgnoreCase)
         {
             LogLevel = logLevel;
         }
 
-        public LogEntry(IDictionary<string, object> logEntry) : base(logEntry, StringComparer.OrdinalIgnoreCase) { }
+        public LogEntry(LogEntry logEntry) : base(logEntry, StringComparer.OrdinalIgnoreCase)
+        {
+            LogLevel = logEntry.LogLevel;
+        }
 
         // This needs to be a property for performance reasons.
         public LogLevel LogLevel
         {
             get => _logLevel;
             set { _logLevel = value; this[nameof(LogLevel)] = value; }
-        }        
+        }
 
         public static LogEntry New() => CreateLogEntry(LogLevel.Info).Info();
 
