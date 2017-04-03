@@ -1,5 +1,4 @@
-﻿using Reusable.Shelly.Collections;
-using Reusable.TypeConversion;
+﻿using Reusable.TypeConversion;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -7,27 +6,22 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Reusable.Colin.Collections;
 
-namespace Reusable.Shelly.Data
+namespace Reusable.Colin.Data
 {
     internal class ParameterInfo
     {
-        private readonly PropertyInfo _propertyInfo;
-
         public ParameterInfo(PropertyInfo property)
         {
             Property = property;
-            Names = GetNames(property);
-
-            var parameterAtrribute = property.GetCustomAttribute<ParameterAttribute>();
-            Required = parameterAtrribute.Required;
-            Position = parameterAtrribute.Position;
-            ListSeparator = parameterAtrribute.ListSeparator;
+            Names = ImmutableNameSet.Create(GetNames(property));
+            (Required, Position, ListSeparator) = property.GetCustomAttribute<ParameterAttribute>();
         }
 
         public PropertyInfo Property { get; }
 
-        public ImmutableHashSet<string> Names { get; }
+        public ImmutableNameSet Names { get; }
 
         public bool Required { get; }
 
@@ -35,22 +29,18 @@ namespace Reusable.Shelly.Data
 
         public char ListSeparator { get; }
 
-        public static ImmutableHashSet<string> GetNames(PropertyInfo property)
+        public static IEnumerable<string> GetNames(PropertyInfo property)
         {
-            var names = new List<string>();
+            var customName = property.GetCustomAttribute<ParameterAttribute>()?.Name;
+            yield return 
+                string.IsNullOrEmpty(customName)
+                    ? property.Name
+                    : customName;
 
-            var parameterAtrribute = property.GetCustomAttribute<ParameterAttribute>();
-            if (string.IsNullOrEmpty(parameterAtrribute.Name))
+            foreach (var name in property.GetCustomAttribute<AlsoKnownAsAttribute>() ?? Enumerable.Empty<string>())
             {
-                names.Add(property.Name);
+                yield return name;
             }
-            else
-            {
-                names.Add(parameterAtrribute.Name);
-            }
-
-            names.AddRange(property.GetCustomAttribute<ShortcutsAttribute>() ?? Enumerable.Empty<string>());
-            return ImmutableNameSet.Create(names);
         }
     }
 }

@@ -1,6 +1,6 @@
 using System;
 
-namespace Reusable.Shelly.Data
+namespace Reusable.Colin.Data
 {
     public class ArgumentSummary
     {

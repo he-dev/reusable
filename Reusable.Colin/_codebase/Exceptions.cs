@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace Reusable.Shelly
+namespace Reusable.Colin
 {
     public class ParameterNotFoundException : Exception
     {

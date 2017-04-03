@@ -28,6 +28,7 @@ namespace Reusable.Fuse
         [DebuggerNonUserCode]
         public string MemberName { get; }
 
+        [DebuggerNonUserCode]
         public Type ExceptionType { get; }
 
     }

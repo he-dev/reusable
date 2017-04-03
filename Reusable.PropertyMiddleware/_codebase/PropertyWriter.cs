@@ -49,8 +49,7 @@ namespace Reusable.PropertyMiddleware
 
         private TAction GetOrCreateSetterDelegate<TAction>(string propertyName, Func<TAction> setterDelegateFactory)
         {
-            var cacheItem = default(object);
-            if (_cache.TryGetValue(propertyName, out cacheItem))
+            if (_cache.TryGetValue(propertyName, out object cacheItem))
             {
                 return (TAction)cacheItem;
             }

@@ -1,10 +1,10 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Shelly.Collections;
+using Reusable.Colin.Collections;
 using Reusable.Fuse.Testing;
 using Reusable.Fuse;
 
-namespace Reusable.Shelly.Tests.Collections
+namespace Reusable.Colin.Tests.Collections
 {
     [TestClass]
     public class ArgumentCollectionTest

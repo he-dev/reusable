@@ -14,7 +14,7 @@ namespace Reusable.Collections.Tests
         [TestMethod]
         public void Generate_TenItems()
         {
-            var fs = new FibonacciSequence<int>(10, 1, (x, y) => x + y);
+            var fs = new FibonacciSequence<int>(1, (x, y) => x + y).Take(10);
             fs.ToList().Verify().SequenceEqual(new[] { 1, 1, 2, 3, 5, 8, 13, 21, 34, 55 });
         }
     }

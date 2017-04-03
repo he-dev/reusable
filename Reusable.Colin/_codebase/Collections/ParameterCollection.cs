@@ -6,33 +6,33 @@ using System.Threading.Tasks;
 using System.Collections;
 using System.Windows.Input;
 using System.Reflection;
-using Reusable.Shelly;
-using Reusable.Shelly.Validators;
+using Reusable.Colin;
 using System.Collections.Immutable;
+using Reusable.Colin.Validators;
+using Reusable.Extensions;
 
-namespace Reusable.Shelly.Collections
+namespace Reusable.Colin.Collections
 {
-    internal class ParameterCollection : IEnumerable<Data.ParameterInfo>
+   internal class ParameterCollection : IEnumerable<Data.ParameterInfo>
     {
         private readonly IImmutableList<Data.ParameterInfo> _parameters;
 
-        public ParameterCollection(Type parameterType)
-        {
-            if (parameterType == null)
-            {
-                _parameters = ImmutableList<Data.ParameterInfo>.Empty;
-            }
-            else
-            {
-                if (!parameterType.HasDefaultConstructor()) throw new ArgumentException($"'{nameof(parameterType)}' '{parameterType}' must have a default constructor.");
+        private ParameterCollection() => _parameters = ImmutableList<Data.ParameterInfo>.Empty;
 
-                ParameterType = parameterType;
-                _parameters = ParameterReflector.GetParameters(parameterType).ToImmutableList();
-                ParameterValidator.ValidateParameterNamesUniqueness(_parameters);
-            }
+        private ParameterCollection(Type parameterType)
+        {
+            if (!parameterType.HasDefaultConstructor()) throw new ArgumentException($"'{nameof(parameterType)}' '{parameterType}' must have a default constructor.");
+
+            ParameterType = parameterType;
+            _parameters = ParameterReflector.GetParameters(parameterType).ToImmutableList();
+            ParameterValidator.ValidateParameterNamesUniqueness(_parameters);
         }
 
+        public static ParameterCollection Empty => new ParameterCollection();
+
         public Type ParameterType { get; }
+
+        public static ParameterCollection Create(Type parameterType) => parameterType == null ? Empty : new ParameterCollection(parameterType);
 
         #region IEnumerable
 

@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Reusable.Colin.Collections;
 
-namespace Reusable.Shelly.Data
+namespace Reusable.Colin.Data
 {
     public class CommandLineContext
     {
-        public CommandLineContext(CommandLine commandLine, object parameters, Action<string> log)
+        public CommandLineContext(CommandLine commandLine, ArgumentCollection argumentses, Action<string> log)
         {
             CommandLine = commandLine;
-            Parameter = parameters;
+            Arguments = argumentses;
             Log = log;
         }
 
@@ -20,9 +21,9 @@ namespace Reusable.Shelly.Data
         {
         }
 
-        public CommandLine CommandLine { get; set; }
+        public CommandLine CommandLine { get; }
 
-        public object Parameter { get; set; }
+        public ArgumentCollection Arguments { get; }
 
         public Action<string> Log { get; set; }
     }

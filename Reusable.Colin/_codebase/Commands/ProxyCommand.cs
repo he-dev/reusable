@@ -2,21 +2,22 @@
 using System.Windows.Input;
 using Reusable;
 using System.Collections.Generic;
-using Reusable.Shelly.Collections;
 using System.Reflection;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Collections.Immutable;
+using Reusable.Colin.Collections;
+using Reusable.Colin.Data;
 
-namespace Reusable.Shelly.Data
+namespace Reusable.Colin.Commands
 {
     public class ProxyCommand : ICommand
     {
         private readonly ICommand _command;
-        private readonly ImmutableHashSet<string> _names;
+        private readonly ImmutableNameSet _names;
         private readonly ParameterFactory _parameterFactory;
 
-        public ProxyCommand(ICommand command, ImmutableHashSet<string> names, Type parameterType)
+        public ProxyCommand(ICommand command, ImmutableNameSet names, Type parameterType)
         {
             _command = command;
             _names = names;
@@ -27,7 +28,7 @@ namespace Reusable.Shelly.Data
             : this(command, CommandReflector.GetNames(command), null)
         { }
 
-        public ProxyCommand(ICommand command, ImmutableHashSet<string> names)
+        public ProxyCommand(ICommand command, ImmutableNameSet names)
             : this(command, names, null)
         { }
 
@@ -35,7 +36,7 @@ namespace Reusable.Shelly.Data
             : this(command, CommandReflector.GetNames(command.GetType()), parameterType)
         { }
 
-        public ImmutableHashSet<string> Names => _names;
+        public ImmutableNameSet Names => _names;
 
         public event EventHandler CanExecuteChanged;
 
@@ -43,7 +44,7 @@ namespace Reusable.Shelly.Data
         {
             switch (parameter)
             {
-                case ImmutableHashSet<string> nameSet when _names.Overlaps(nameSet): return _command.CanExecute(parameter);
+                case ImmutableNameSet nameSet when _names.Overlaps(nameSet): return _command.CanExecute(parameter);
                 default: return false;
             }
         }
@@ -51,10 +52,7 @@ namespace Reusable.Shelly.Data
         public void Execute(object parameter)
         {
             var context = (CommandLineContext)parameter;
-
-            var arguments = (ArgumentCollection)context.Parameter;
-            var commandParameter = _parameterFactory.CreateParameter(arguments);
-
+            var commandParameter = _parameterFactory.CreateParameter(context.Arguments);
             _command.Execute(commandParameter);
         }
     }

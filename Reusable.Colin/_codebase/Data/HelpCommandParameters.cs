@@ -1,11 +1,11 @@
 ﻿using System.ComponentModel;
 
-namespace Reusable.Shelly.Data
+namespace Reusable.Colin.Data
 {
     public class HelpCommandParameters
     {
         [Parameter(Position = 1)]
-        [Shortcuts("cmd")]
+        [AlsoKnownAs("cmd")]
         [Description("Display command usage.")]
         public string CommandName { get; set; }
     }

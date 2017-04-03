@@ -38,4 +38,12 @@ namespace Reusable
             }
         }
     }
+
+    public static class UsingifierExtensions
+    {
+        public static Usingifier<T> Usingify<T>(this T obj, Action<T> cleanUp, bool autoDispose = false) where T : class
+        {
+            return new Usingifier<T>(() => obj, cleanUp, autoDispose);
+        }
+    }
 }

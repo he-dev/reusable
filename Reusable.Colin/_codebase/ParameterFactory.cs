@@ -5,10 +5,10 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Reusable.TypeConversion;
-using Reusable.Shelly.Collections;
 using System.Collections.Immutable;
+using Reusable.Colin.Collections;
 
-namespace Reusable.Shelly
+namespace Reusable.Colin
 {
     internal class ParameterFactory
     {
@@ -17,7 +17,7 @@ namespace Reusable.Shelly
 
         public ParameterFactory(Type parameterType)
         {
-            _parameters = new ParameterCollection(parameterType);
+            _parameters = ParameterCollection.Create(parameterType);
             _converter = DefaultConverter;
         }
 

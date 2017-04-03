@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Reusable.Sequences
 {
-    public class FibonacciSequence<T> : GeneratedSequence<T>
+    public class FibonacciSequence<T> : Sequence<T>
     {
         private readonly T _first;
         private readonly Func<T, T, T> _sum;
 
-        public FibonacciSequence(int count, T first, Func<T, T, T> sum) : base(count)
+        public FibonacciSequence(T first, Func<T, T, T> sum)
         {
             _first = first;
-            _sum = sum;
+            _sum = sum ?? throw new ArgumentNullException(nameof(sum));
         }
        
         protected override IEnumerable<T> Generate()
@@ -31,6 +32,24 @@ namespace Reusable.Sequences
                 preview = current;
                 current = newCurrent;
             }
+        }
+    }
+
+    public class FibonacciSequence
+    {
+        public static IEnumerable<TimeSpan> Create(TimeSpan first, int count)
+        {
+            return new FibonacciSequence<TimeSpan>(first, (x, y) => x + y).Take(count);
+        }
+
+        public static IEnumerable<int> Create(int first, int count)
+        {
+            return new FibonacciSequence<int>(first, (x, y) => x + y).Take(count);
+        }
+
+        public static IEnumerable<int> Create(int count)
+        {
+            return new FibonacciSequence<int>(1, (x, y) => x + y).Take(count);
         }
     }
 }

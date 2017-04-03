@@ -14,9 +14,9 @@ namespace Reusable.Collections.Tests
         public void Generate_SixItems()
         {
             var hs = new HarmonicSequence<int>(
-                new LinearSequence<int>(count: 4, first: 1, constant: 1, add: (x, y) => x + y), 
+                new LinearSequence<int>(first: 1, constant: 1, add: (x, y) => x + y), 
                 first: 12, 
-                divide: (x, y) => x / y);
+                divide: (x, y) => x / y).Take(4);
             hs.ToList().Verify().SequenceEqual(new[] { 12, 6, 4, 3 });
         }
     }

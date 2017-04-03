@@ -1,4 +1,4 @@
-﻿using Reusable.Shelly.Data;
+﻿using Reusable.Colin.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ using System.Collections;
 using System.Windows.Input;
 using System.Collections.Immutable;
 
-namespace Reusable.Shelly.Collections
+namespace Reusable.Colin.Collections
 {
     public class CommandCollection : IEnumerable<ICommand>
     {
@@ -16,11 +16,11 @@ namespace Reusable.Shelly.Collections
 
         public CommandCollection(IEnumerable<ICommand> commands) => _commands = commands.ToImmutableList();
 
-        public ICommand this[ISet<string> nameSet] => _commands.SingleOrDefault(command => command.CanExecute(nameSet));
+        public ICommand this[ImmutableNameSet nameSet] => _commands.SingleOrDefault(command => command.CanExecute(nameSet));
 
         public ICommand this[string name] => this[ImmutableNameSet.Create(name)];
 
-        public bool TryGetCommand(ImmutableHashSet<string> nameSet, out ICommand command)
+        public bool TryGetCommand(ImmutableNameSet nameSet, out ICommand command)
         {
             command = this[nameSet];
             return command != null;

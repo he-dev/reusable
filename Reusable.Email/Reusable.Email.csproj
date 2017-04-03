@@ -45,6 +45,7 @@
     <Compile Include="_codebase\Email.cs" />
     <Compile Include="_codebase\EmailBody.cs" />
     <Compile Include="_codebase\EmailSubject.cs" />
+    <Compile Include="_codebase\IEmailClient.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

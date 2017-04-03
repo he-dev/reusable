@@ -64,7 +64,7 @@ namespace Reusable.Collections
             if (projection == null) throw new ArgumentNullException(nameof(projection));
             if (ReferenceEquals(first, projection)) { throw new ArgumentException(paramName: nameof(projection), message: "Projection must be an anonymous type."); }
 
-            return first.Except(second, new AutoEqualityComparer<TArg, TProjection>(projection));
+            return first.Except(second, new ProjectionComparer<TArg, TProjection>(projection));
         }
 
         public static IEnumerable<string> Quote<T>(this IEnumerable<T> values)
@@ -108,6 +108,6 @@ namespace Reusable.Collections
                     yield break;
                 }
             }
-        }
+        }        
     }
 }

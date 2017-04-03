@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace Reusable.Shelly.Tests.Commands
+namespace Reusable.Colin.Tests.Commands
 {
     internal class FooCommand : ICommand
     {

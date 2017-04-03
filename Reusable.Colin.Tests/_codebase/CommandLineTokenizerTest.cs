@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Fuse.Testing;
 using Reusable.Fuse;
 
-namespace Reusable.Shelly.Tests
+namespace Reusable.Colin.Tests
 {
     [TestClass]
     public class CommandLineTokenizerTest
@@ -34,6 +34,13 @@ namespace Reusable.Shelly.Tests
             tokens[3].Verify().IsEqual(@"baz");
             tokens[4].Verify().IsEqual(@"-qux");
             tokens[5].Verify().IsEqual(@"quux baar");
+        }
+
+        [TestMethod]
+        public void Tokenize_CommandLineWithPipe_MultipleTokensSplittedOnPipe()
+        {
+            var tokens = CommandLineTokenizer.Tokenize(@"foo.bar -baz -qux:""quux baar""|bar.baz -foo", ':');
+            tokens.Verify().SequenceEqual(new[] { "foo.bar", "-baz", "-qux", "quux baar", "|", "bar.baz", "-foo" });
         }
     }
 }

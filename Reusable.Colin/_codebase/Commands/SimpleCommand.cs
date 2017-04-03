@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace Reusable.Shelly.Commands
+namespace Reusable.Colin.Commands
 {
     public class SimpleCommand : ICommand
     {

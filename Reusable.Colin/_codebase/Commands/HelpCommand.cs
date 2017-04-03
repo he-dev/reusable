@@ -4,12 +4,12 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using Reusable.Shelly.Data;
 using System.Windows.Input;
+using Reusable.Colin.Data;
 
-namespace Reusable.Shelly.Commands
+namespace Reusable.Colin.Commands
 {
-    [Shortcuts("h", "?")]
+    [AlsoKnownAs("h", "?")]
     [Description("Display help.")]
     public class HelpCommand : ICommand
     {
@@ -24,7 +24,7 @@ namespace Reusable.Shelly.Commands
 
         private void Execute(CommandLineContext context)
         {
-            var parameters = context.Parameter as HelpCommandParameters;
+            //var parameters = context.Arguments as HelpCommandParameters;
 
             //if (string.IsNullOrEmpty(parameters.CommandName))
             //{

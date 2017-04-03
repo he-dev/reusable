@@ -3,10 +3,10 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Fuse;
 using Reusable.Fuse.Testing;
-using Reusable.Shelly.Data;
+using Reusable.Colin.Data;
 using System.Windows.Input;
 
-namespace Reusable.Shelly.Tests
+namespace Reusable.Colin.Tests
 {
     [TestClass]
     public class CommandLineTest
@@ -52,7 +52,7 @@ namespace Reusable.Shelly.Tests
                 .ArgumentValueSeparator('=')
                 .Build();
 
-            cmdLn.Execute("bar -requiredparameter:abc");
+            cmdLn.Execute("bar -requiredparameter=abc");
         }
 
         class FooCommand : ICommand

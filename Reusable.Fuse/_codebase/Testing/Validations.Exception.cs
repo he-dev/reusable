@@ -9,15 +9,14 @@ namespace Reusable.Fuse.Testing
             return new SpecificationContext<Action>(action, string.Empty, typeof(VerificationException));
         }
 
-        public static TExpectedException Throws<TExpectedException>(this ISpecificationContext<Action> specificationContext)
-            where TExpectedException : Exception
+        public static TExpectedException Throws<TExpectedException>(this ISpecificationContext<Action> specificationContext) where TExpectedException : Exception
         {
             if (specificationContext == null) throw new ArgumentNullException(nameof(specificationContext));
             try
             {
                 specificationContext.Value();
                 throw new VerificationException($"Exception of type '{typeof(TExpectedException)}' was expected but none has been thrown.");
-            }            
+            }
             catch (TExpectedException ex)
             {
                 return ex;
@@ -40,5 +39,5 @@ namespace Reusable.Fuse.Testing
         //        throw new VerificationException($"Exception of type '{ex.GetType()}' was thrown but none has been expected.", ex);
         //    }
         //}
-    }    
+    }
 }

@@ -1,3 +1,4 @@
+using Reusable.Tests.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -8,106 +9,94 @@ namespace Reusable.Markup
 {
     public interface IMarkupRenderer
     {
-        string Render(IElement element);
+        string Render(IMarkupElement markupElement);
     }
 
-    public delegate string HtmlEncodeCallback(object value, IFormatProvider formatProvider);
-
-    public class MarkupRenderer : IMarkupRenderer
+    public abstract class MarkupRenderer : IMarkupRenderer
     {
-        private readonly HtmlEncodeCallback _htmlEncode;
+        private readonly IMarkupFormatting _formatting;
+        private readonly ISanitizer _sanitizer;
+        private readonly IFormatProvider _formatProvider;
 
-        //public MarkupRenderer(MarkupFormatting markupFormatting, HtmlEncodeCallback htmlEncode)
-        //{
-        //    MarkupFormatting = markupFormatting ?? throw new ArgumentNullException(nameof(markupFormatting));
-        //    _htmlEncode = htmlEncode ?? throw new ArgumentNullException(nameof(htmlEncode));
-        //}
-
-        public MarkupRenderer(MarkupFormatting markupFormatting)
+        protected MarkupRenderer(IMarkupFormatting formatting, ISanitizer sanitizer, IFormatProvider formatProvider)
         {
-            MarkupFormatting = markupFormatting ?? throw new ArgumentNullException(nameof(markupFormatting));
+            _formatting = formatting ?? throw new ArgumentNullException(nameof(formatting));
+            _sanitizer = sanitizer ?? throw new ArgumentNullException(nameof(sanitizer));
+            _formatProvider = formatProvider ?? throw new ArgumentNullException(nameof(formatProvider));
         }
 
-        private MarkupFormatting MarkupFormatting { get; set; }
+        protected MarkupRenderer(IMarkupFormatting formatting, ISanitizer sanitizer)
+            : this(formatting, sanitizer, CultureInfo.InvariantCulture)
+        { }
 
-        public CultureInfo Culture { get; set; } = CultureInfo.InvariantCulture;
+        #region IMarkupRenderer
 
-        public string Render(IElement element)
+        public string Render(IMarkupElement markupElement)
         {
-            var content = element.Aggregate(
-                new StringBuilder(),
-                (result, next) => result.Append(next is IElement e ? Render(e) : next)
-            )
-            .ToString();
+            var content = (markupElement ?? throw new ArgumentNullException(nameof(markupElement))).Aggregate(
+                    new StringBuilder(),
+                    (result, next) => result.Append(
+                        next is IMarkupElement e
+                            ? Render(e)
+                            : _sanitizer.Sanitize(next, _formatProvider)
+                    )
+                )
+                .ToString();
 
-            var hasParent = element.Parent != null;
-            var placeOpeningTagOnNewLine = hasParent && MarkupFormatting[element.Name].HasFlag(MarkupFormattingOptions.PlaceOpeningTagOnNewLine);
-            var placeClosingTagOnNewLine = MarkupFormatting[element.Name].HasFlag(MarkupFormattingOptions.PlaceClosingTagOnNewLine);
-            var isVoid = MarkupFormatting[element.Name].HasFlag(MarkupFormattingOptions.IsVoid);
-            var indent = IndentString(MarkupFormatting.IndentWidth * CalcDepth(element));
+            var indent = markupElement.Parent != null;
+            var placeOpeningTagOnNewLine = _formatting[markupElement.Name].HasFlag(MarkupFormattingOptions.PlaceOpeningTagOnNewLine);
+            var placeClosingTagOnNewLine = _formatting[markupElement.Name].HasFlag(MarkupFormattingOptions.PlaceClosingTagOnNewLine);
+            var hasClosingTag = _formatting[markupElement.Name].HasFlag(MarkupFormattingOptions.IsVoid) == false;
+            var indentString = IndentString(_formatting.IndentWidth, markupElement.Depth);
 
-            var html = new StringBuilder();
-
-            if (placeOpeningTagOnNewLine)
-            {
-                html.AppendLine();
-                html.Append(indent);
-            }
-
-            html.Append(CreateOpeningElement(element.Name, element.Attributes));
-
-            if (!isVoid)
-            {
-                html.Append(content);
-
-                if (placeClosingTagOnNewLine)
-                {
-                    html.AppendLine();
-                    html.Append(hasParent ? indent : string.Empty);
-                }
-
-                html.Append(CreateClosingElement(element.Name));
-            }
+            var html =
+                new StringBuilder()
+                    .Append(IndentTag(placeOpeningTagOnNewLine, indent, indentString))
+                    .Append(RenderOpeningTag(markupElement.Name, markupElement.Attributes))
+                    .AppendWhen(() => hasClosingTag, sb => sb
+                        .Append(content)
+                        .Append(IndentTag(placeClosingTagOnNewLine, indent, indentString))
+                        .Append(RenderClosingTag(markupElement.Name)));
 
             return html.ToString();
         }
 
-        private static string IndentString(int indentWidth) => new string(' ', indentWidth);
+        #endregion
 
-        private string CreateOpeningElement(string tag, IEnumerable<KeyValuePair<string, string>> attributes)
+        private static string IndentTag(bool newLine, bool indent, string indentString)
         {
-            var attributeString = CreateAttributeString(attributes);
-            attributeString = string.IsNullOrEmpty(attributeString) ? string.Empty : $" {attributeString}";
-            return $"<{tag}{attributeString}>";
+            return
+                new StringBuilder()
+                    .AppendWhen(() => newLine, sb => sb.AppendLine())
+                    .AppendWhen(() => newLine && indent, sb => sb.Append(indentString))
+                    .ToString();
         }
 
-        private static string CreateAttributeString(IEnumerable<KeyValuePair<string, string>> attributes)
+        private static string RenderOpeningTag(string tag, IEnumerable<KeyValuePair<string, string>> attributes)
         {
-            return attributes.Aggregate(
-                new StringBuilder(),
-                (result, next) => result
-                    .Append(result.Length > 0 ? " " : string.Empty)
-                    .Append($"{next.Key}=\"{next.Value}\"")
-            ).ToString();
+            return
+                new StringBuilder()
+                    .Append($"<{tag}")
+                    .AppendWhen(
+                        () => RenderAttributes(attributes).ToList(),
+                        attributeStrings => attributeStrings.Any(),
+                        (sb, attributeStrings) => sb.Append($" {(string.Join(" ", attributeStrings))}"))
+                    .Append(">").ToString();
         }
 
-        private static string CreateClosingElement(string tag)
+        private static IEnumerable<string> RenderAttributes(IEnumerable<KeyValuePair<string, string>> attributes)
+        {
+            return attributes.Select(attr => $"{attr.Key}=\"{attr.Value}\"");
+        }
+
+        private static string RenderClosingTag(string tag)
         {
             return $"</{tag}>";
         }
 
-        internal int CalcDepth(IElement element)
+        private static string IndentString(int indentWidth, int depth)
         {
-            var depth = 0;
-            var parent = element.Parent;
-            while (parent != null)
-            {
-                depth++;
-                parent = parent.Parent;
-            }
-            return depth;
+            return new string(' ', indentWidth * depth);
         }
-
-        private static string HtmlEncode(object value, IFormatProvider formatProvider) => System.Web.HttpUtility.HtmlEncode(string.Format(formatProvider, "{0}", value));
     }
 }

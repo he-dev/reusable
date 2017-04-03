@@ -8,8 +8,24 @@ namespace Reusable.Tests
     public class ValidatorTest
     {
         [TestMethod]
-        [ExpectedException(typeof(CircularDependencyException))]
-        public void ValidateDependencies_CircularDependencies_Throws()
+        //[ExpectedException(typeof(CircularDependencyException))]
+        public void ValidateDependencies_ValidDependencies_Passes()
+        {
+            var values = new Dictionary<string, IEnumerable<string>>
+            {
+                { "c", new string[] {  } },
+                { "x", new string[] { "y" } },
+                { "y", new string[] { "c", "z" } },
+                { "z", new string[] { "c" } },
+            };
+
+            var result = DependencyValidator.ValidateDependencies(values);
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        //[ExpectedException(typeof(CircularDependencyException))]
+        public void ValidateDependencies_CircularDependencies_Fails()
         {
             var values = new Dictionary<string, IEnumerable<string>>
             {
@@ -19,12 +35,13 @@ namespace Reusable.Tests
                 { "z", new string[] { "x" } },
             };
 
-            Validator.ValidateDependencies(values);
+            var result = DependencyValidator.ValidateDependencies(values);
+            Assert.IsFalse(result);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(MissingDependencyException))]
-        public void ValidateDependencies_MissingDependencies_Throws()
+        //[ExpectedException(typeof(MissingDependencyException))]
+        public void ValidateDependencies_MissingDependencies_Fails()
         {
             var values = new Dictionary<string, IEnumerable<string>>
             {
@@ -34,7 +51,8 @@ namespace Reusable.Tests
                 { "z", new string[] { "a" } },
             };
 
-            Validator.ValidateDependencies(values);
+            var result = DependencyValidator.ValidateDependencies(values);
+            Assert.IsFalse(result);
         }
     }
 }

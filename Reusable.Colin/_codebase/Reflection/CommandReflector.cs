@@ -1,5 +1,4 @@
-﻿using Reusable.Shelly.Collections;
-using Reusable.Shelly.Data;
+﻿using Reusable.Colin.Data;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -9,17 +8,18 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Reusable.Colin.Collections;
 
-namespace Reusable.Shelly
+namespace Reusable.Colin
 {
     internal class CommandReflector
     {
-        public static ImmutableHashSet<string> GetNames(Type commandType)
+        public static ImmutableNameSet GetNames(Type commandType)
         {
             var names = new List<string>();
 
             var commandName = GetCommandNameOrDefault();
-            var shotcutAttribute = commandType.GetCustomAttribute<ShortcutsAttribute>() ?? Enumerable.Empty<string>();
+            var shotcutAttribute = commandType.GetCustomAttribute<AlsoKnownAsAttribute>() ?? Enumerable.Empty<string>();
             var namespaceAttribute = commandType.GetCustomAttribute<NamespaceAttribute>();
 
             if (namespaceAttribute != null)
@@ -42,6 +42,6 @@ namespace Reusable.Shelly
                 Regex.Replace(commandType.Name, $"Command$", string.Empty, RegexOptions.IgnoreCase);
         }
 
-        public static ImmutableHashSet<string> GetNames(ICommand command) => GetNames(command.GetType());
+        public static ImmutableNameSet GetNames(ICommand command) => GetNames(command.GetType());
     }
 }

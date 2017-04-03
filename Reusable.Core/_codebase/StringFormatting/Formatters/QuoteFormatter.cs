@@ -11,9 +11,7 @@ namespace Reusable.StringFormatting.Formatters
 
         public override string Format(string format, object arg, IFormatProvider formatProvider)
         {
-            return
-                !string.IsNullOrEmpty(format) &&
-                Quotes.TryGetValue(format, out string pattern) ? string.Format(formatProvider, pattern, arg) : null;
+            return Quotes.TryGetValue(format ?? string.Empty, out string pattern) ? string.Format(formatProvider, pattern, arg) : null;
         }
     }
 }

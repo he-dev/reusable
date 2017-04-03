@@ -3,17 +3,17 @@ using System.Collections.Generic;
 
 namespace Reusable.Sequences
 {
-    public class LinearSequence<T> : GeneratedSequence<T>
+    public class LinearSequence<T> : Sequence<T>
     {
         private readonly T _first;
         private readonly T _constant;
         private readonly Func<T, T, T> _add;
 
-        public LinearSequence(int count, T first, T constant, Func<T, T, T> add) : base(count)
+        public LinearSequence(T first, T constant, Func<T, T, T> add)
         {
             _first = first;
             _constant = constant;
-            _add = add;
+            _add = add ?? throw new ArgumentNullException(nameof(add));
         }
 
         protected override IEnumerable<T> Generate()

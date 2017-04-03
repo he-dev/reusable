@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Reusable.Shelly
+namespace Reusable.Colin
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class CommandNameAttribute : Attribute

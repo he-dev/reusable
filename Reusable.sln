@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.9
+VisualStudioVersion = 15.0.26228.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}"
 EndProject
@@ -51,6 +51,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Logging", "Reusabl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Logging.Tests", "Reusable.Logging.Tests\Reusable.Logging.Tests.csproj", "{26617FF1-7295-4FE9-9554-4967C480930C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{88C83431-E9D4-42D4-8544-F4B06742048A}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Email.Clients.SmtpClient", "Reusable.Email.Clients.SmtpClient\Reusable.Email.Clients.SmtpClient.csproj", "{37354896-3562-4C99-B003-910411461622}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -76,7 +83,6 @@ Global
 		{6D35981D-75BD-42C2-BBFD-FCEED1BC23EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D35981D-75BD-42C2-BBFD-FCEED1BC23EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6714F200-6C83-446F-8A30-87F142814DC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6714F200-6C83-446F-8A30-87F142814DC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6714F200-6C83-446F-8A30-87F142814DC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CCBFED64-492B-4E15-9816-0FD76E390C7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CCBFED64-492B-4E15-9816-0FD76E390C7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
@@ -139,6 +145,10 @@ Global
 		{26617FF1-7295-4FE9-9554-4967C480930C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{26617FF1-7295-4FE9-9554-4967C480930C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{26617FF1-7295-4FE9-9554-4967C480930C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37354896-3562-4C99-B003-910411461622}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37354896-3562-4C99-B003-910411461622}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37354896-3562-4C99-B003-910411461622}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37354896-3562-4C99-B003-910411461622}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -165,5 +175,6 @@ Global
 		{E0C2960A-DC0A-44FE-9AEA-3538ABB8DC16} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
 		{EB8D2ED6-BEB3-4D35-B03D-508F95A9341F} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
 		{26617FF1-7295-4FE9-9554-4967C480930C} = {AC36C881-1733-4649-ACBC-03B6F9A9334C}
+		{37354896-3562-4C99-B003-910411461622} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
 	EndGlobalSection
 EndGlobal

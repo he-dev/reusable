@@ -1,16 +1,16 @@
-using Reusable.Shelly.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Reusable.Colin.Collections;
 
-namespace Reusable.Shelly.Data
+namespace Reusable.Colin.Data
 {
-    public class CommandLineArgument : List<string>, IGrouping<ImmutableHashSet<string>, string>
+    public class CommandLineArgument : List<string>, IGrouping<ImmutableNameSet, string>
     {
         internal CommandLineArgument(string key) => Key = ImmutableNameSet.Create(key);
 
-        internal CommandLineArgument(ImmutableHashSet<string> key) => Key = key;
+        internal CommandLineArgument(ImmutableNameSet key) => Key = key;
 
-        public ImmutableHashSet<string> Key { get; }
+        public ImmutableNameSet Key { get; }
     }
 }

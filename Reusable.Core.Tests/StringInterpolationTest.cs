@@ -5,23 +5,14 @@ using Reusable.Fuse;
 using Reusable.Fuse.Testing;
 using System.Linq;
 using System.Collections.Generic;
+using Reusable.Extensions;
 
 namespace Reusable.Tests
 {
     [TestClass]
     public class StringInterpolationTest
     {
-        [TestMethod]
-        public void GetConnectionStringName_ValueWithName()
-        {
-            "name=Foo.bar".GetConnectionStringName().Verify().IsNotNullOrEmpty().IsEqual("Foo.bar");
-        }
-
-        [TestMethod]
-        public void GetConnectionStringName_ValueWithoutName()
-        {
-            "Foo.bar".GetConnectionStringName().Verify().IsNullOrEmpty();
-        }
+       
 
         [TestMethod]
         public void Format_ReplacesName()
@@ -48,11 +39,35 @@ namespace Reusable.Tests
         }
 
         [TestMethod]
-        public void Format_ReplacesEscapedName()
+        public void Format_NameWithAlignmentNotFound_UnchangedNameWithAlignment()
+        {
+            Assert.AreEqual(
+                "The quick {brown,4} fox jumps over the lazy dog.",
+                "The quick {brown,4} fox jumps over the lazy dog.".Format(new { fox = "dummy" }));
+        }
+
+        [TestMethod]
+        public void Format_NameWithAlignmentAndFormatNotFound_UnchangedNameWithAlignmentAndFormat()
+        {
+            Assert.AreEqual(
+                "The quick {brown,4:abc} fox jumps over the lazy dog.",
+                "The quick {brown,4:abc} fox jumps over the lazy dog.".Format(new { fox = "dummy" }));
+        }
+
+        [TestMethod]
+        public void Format_EscapedName_UnescapesName()
         {
             Assert.AreEqual(
                 "The quick {brown} fox jumps over the lazy dog.",
                 "The quick {{brown}} fox jumps over the lazy dog.".Format(new { fox = "dummy" }));
+        }
+
+        [TestMethod]
+        public void Format_EscapedNameWithAlignment_UnescapesNameWithAlignment()
+        {
+            Assert.AreEqual(
+                "The quick {brown,4} fox jumps over the lazy dog.",
+                "The quick {{brown,4}} fox jumps over the lazy dog.".Format(new { fox = "dummy" }));
         }
 
         [TestMethod]
@@ -64,10 +79,10 @@ namespace Reusable.Tests
         }
 
         [TestMethod]
-        public void Format_IgnoresNullValue()
+        public void Format_NullValue_EmptyString()
         {
             Assert.AreEqual(
-                "The quick {brown}} fox {Verb} over {{the} lazy dog.",
+                "The quick {brown}} fox  over {{the} lazy dog.",
                 "The quick {brown}} fox {Verb} over {{the} lazy dog.".Format(new { Verb = (string)null }));
         }
 

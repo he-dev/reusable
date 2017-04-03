@@ -45,9 +45,10 @@ namespace Reusable.StringFormatting
 
         public override string Format(string format, object arg, IFormatProvider formatProvider)
         {
-            return _formatters
-                .Select(formatter => formatter.Format(format, arg, formatProvider))
-                .FirstOrDefault(result => result != null);
+            return 
+                _formatters
+                    .Select(formatter => formatter.Format(format, arg, formatProvider))
+                    .FirstOrDefault(Conditional.IsNotNull);
         }
     }
 

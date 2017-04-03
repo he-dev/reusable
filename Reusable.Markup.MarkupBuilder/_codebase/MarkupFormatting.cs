@@ -2,7 +2,14 @@
 
 namespace Reusable.Markup
 {
-    public abstract class MarkupFormatting : Dictionary<string, MarkupFormattingOptions>
+    public interface IMarkupFormatting
+    {
+        MarkupFormattingOptions this[string name] { get; }
+
+        int IndentWidth { get; }
+    }
+
+    public abstract class MarkupFormatting : Dictionary<string, MarkupFormattingOptions>, IMarkupFormatting
     {
         public new MarkupFormattingOptions this[string tag]
         {

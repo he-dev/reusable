@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Reusable.Shelly.Data;
-using Reusable.Shelly.Collections;
-using Reusable.Shelly.Commands;
 using System.Windows.Input;
+using Reusable.Colin.Collections;
+using Reusable.Colin.Commands;
+using Reusable.Colin.Data;
 using Reusable.TypeConversion;
 
-namespace Reusable.Shelly
+namespace Reusable.Colin
 {
     public class CommandLineBuilder
     {

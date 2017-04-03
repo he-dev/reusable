@@ -70,19 +70,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="_codebase\Extensions\attrExtension.cs" />
-    <Compile Include="_codebase\Extensions\cssExtension.cs" />
-    <Compile Include="_codebase\Extensions\styleExtension.cs" />
-    <Compile Include="_codebase\HtmlFormatting.cs" />
-    <Compile Include="_codebase\MarkupBuilderExtensionCollection.cs" />
-    <Compile Include="_codebase\Renderers\HtmlRenderer.cs" />
-    <Compile Include="_codebase\_Interfaces\IMarkupBuilderExtension.cs" />
-    <Compile Include="_codebase\MarkupBuilder.cs" />
+    <Compile Include="_codebase\Html\HtmlExtensions.cs" />
+    <Compile Include="_codebase\Html\HtmlFormatting.cs" />
+    <Compile Include="_codebase\Html\HtmlRenderer.cs" />
+    <Compile Include="_codebase\Html\HtmlSanitizer.cs" />
+    <Compile Include="_codebase\ISanitizer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="_codebase\MarkupElement.cs" />
+    <Compile Include="_codebase\MarkupElementExtensions.cs" />
+    <Compile Include="_codebase\MarkupFormatter.cs" />
     <Compile Include="_codebase\MarkupFormatting.cs" />
     <Compile Include="_codebase\MarkupFormattingOptions.cs" />
     <Compile Include="_codebase\MarkupRenderer.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj">

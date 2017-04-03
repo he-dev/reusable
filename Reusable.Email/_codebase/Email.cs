@@ -8,70 +8,34 @@ using System.Text.RegularExpressions;
 
 namespace Reusable
 {
-    public class Email<TSubject, TBody>
+    public interface IEmail<TSubject, TBody>
         where TSubject : EmailSubject
         where TBody : EmailBody
     {
-        private string _from;
+        string From { get; set; }
 
-        private readonly Func<SmtpClient> _smtpClientFactory;
+        string To { get; set; }
 
-        public Email() : this(() => new SmtpClient()) { }
+        bool HighPriority { get; set; }
 
-        public Email(Func<SmtpClient> smtpClientFactory)
-        {
-            _smtpClientFactory = smtpClientFactory ?? throw new ArgumentNullException(nameof(smtpClientFactory));
-        }
+        TSubject Subject { get; set; }
 
-        public string From
-        {
-            get
-            {
-                return
-                    string.IsNullOrEmpty(_from)
-                        ? GetFrom()
-                        : _from;
+        TBody Body { get; set; }
+    }
 
-                string GetFrom()
-                {
-                    var configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-                    var mailSettingsSectionGroup =
-                        configuration.GetSectionGroup("system.net/mailSettings") as MailSettingsSectionGroup ??
-                        throw new ArgumentNullException("From", $"You need to specify the sender either by setting the {nameof(From)} property or via app.config <system.net><mailSettings> section.");
-                    return mailSettingsSectionGroup.Smtp.From;
-                }
-            }
-            set => _from = value;
-        }
+    public class Email<TSubject, TBody> : IEmail<TSubject, TBody> 
+        where TSubject : EmailSubject
+        where TBody : EmailBody
+    {
+        public string From { get; set; }
 
-        public bool IsHighPriority { get; set; }
+        public string To { get; set; }
+
+        public bool HighPriority { get; set; }
 
         public TSubject Subject { get; set; }
 
         public TBody Body { get; set; }
-
-        public void Send(string to) => Send(Regex.Split(to, "[,;]"));
-
-        public void Send(IEnumerable<string> to)
-        {
-            using (var mailMessage = new MailMessage
-            {
-                Subject = (Subject ?? throw new InvalidOperationException("Subject not set.")).ToString(),
-                SubjectEncoding = Subject.Encoding,
-
-                Body = (Body ?? throw new InvalidOperationException("Body not set.")).ToString(),
-                BodyEncoding = Body.Encoding,
-                IsBodyHtml = Body.IsHtml,
-
-                Priority = IsHighPriority ? MailPriority.High : MailPriority.Normal,
-                From = new MailAddress(From),
-            })
-            {
-                foreach (var address in to.Where(x => !string.IsNullOrWhiteSpace(x))) mailMessage.To.Add(new MailAddress(address.Trim()));
-
-                using (var smtpClient = _smtpClientFactory()) smtpClient.Send(mailMessage);
-            }
-        }
 
         public override string ToString() => Body?.ToString() ?? string.Empty;
     }

@@ -5,18 +5,28 @@ namespace Reusable.Fuse
 {
     public static class SpecificationContextExtensions
     {
-        public static ISpecificationContext<T> Check<T>(this ISpecificationContext<T> specificationContext, Predicate<T> predicate, string message)
+        public static ISpecificationContext<T> AssertIsTrue<T>(this ISpecificationContext<T> context, Predicate<T> predicate, string message)
         {
-            if (specificationContext == null) throw new ArgumentNullException(nameof(specificationContext));
+            if (context == null) throw new ArgumentNullException(nameof(context));
             if (predicate == null) throw new ArgumentNullException(nameof(predicate));
             if (string.IsNullOrEmpty(message)) { throw new ArgumentNullException(nameof(message)); }
 
-            if (predicate(specificationContext.Value))
-            {
-                return specificationContext;
-            }
+            return
+                predicate(context.Value) == true
+                    ? context
+                    : throw (Exception)Activator.CreateInstance(context.ExceptionType, message);
+        }
 
-            throw (Exception)Activator.CreateInstance(specificationContext.ExceptionType, message);
+        public static ISpecificationContext<T> AssertIsFalse<T>(this ISpecificationContext<T> context, Predicate<T> predicate, string message)
+        {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (predicate == null) throw new ArgumentNullException(nameof(predicate));
+            if (string.IsNullOrEmpty(message)) { throw new ArgumentNullException(nameof(message)); }
+
+            return
+                predicate(context.Value) == false
+                    ? context
+                    : throw (Exception)Activator.CreateInstance(context.ExceptionType, message);
         }
 
         public static ISpecificationContext<T> Throws<T>(this ISpecificationContext<T> specificationContext, Type exceptionType)

@@ -1,6 +1,6 @@
 using System;
 
-namespace Reusable.Shelly
+namespace Reusable.Colin
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class NamespaceAttribute : Attribute

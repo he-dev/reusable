@@ -1,13 +1,13 @@
-﻿using Reusable.Shelly.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Collections;
+using Reusable.Colin.Data;
 
-namespace Reusable.Shelly.Collections
+namespace Reusable.Colin.Collections
 {
-    public class ArgumentCollection : IEnumerable<IGrouping<ImmutableHashSet<string>, string>>
+    public class ArgumentCollection : IEnumerable<IGrouping<ImmutableNameSet, string>>
     {
         private readonly IList<CommandLineArgument> _arguments = new List<CommandLineArgument>();
 
@@ -18,7 +18,7 @@ namespace Reusable.Shelly.Collections
             get => _arguments.SingleOrDefault(g => g.Key.Overlaps(ImmutableNameSet.Empty));
         }
 
-        public ImmutableHashSet<string> CommandName
+        public ImmutableNameSet CommandName
         {
             // Command-name is at argument-0.
             get
@@ -28,7 +28,7 @@ namespace Reusable.Shelly.Collections
             }
         }
 
-        public CommandLineArgument this[ImmutableHashSet<string> name]
+        public CommandLineArgument this[ImmutableNameSet name]
         {
             get => _arguments.SingleOrDefault(g => g.Key.Overlaps(name));
         }
@@ -48,7 +48,7 @@ namespace Reusable.Shelly.Collections
             }
         }
 
-        public void Add(ImmutableHashSet<string> name, string value)
+        public void Add(ImmutableNameSet name, string value)
         {
             var argument = this[name];
             if (argument == null) _arguments.Add(argument = new CommandLineArgument(name));
@@ -59,7 +59,7 @@ namespace Reusable.Shelly.Collections
 
         #region IEnumerable
 
-        public IEnumerator<IGrouping<ImmutableHashSet<string>, string>> GetEnumerator() => _arguments.GetEnumerator();
+        public IEnumerator<IGrouping<ImmutableNameSet, string>> GetEnumerator() => _arguments.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 

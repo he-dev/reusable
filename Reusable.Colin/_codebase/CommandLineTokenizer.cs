@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Reusable.Shelly
+namespace Reusable.Colin
 {
     public class CommandLineTokenizer
     {
         public static IList<string> Tokenize(string text, char? nameValueSeparator = null)
         {
             var escapableChars = new HashSet<char> { '\\', '"' };
-            var separators = new HashSet<char> { ' ' };
+            var separators = new HashSet<char> { ' ', '|' };
             var tokens = new List<string>();
             var token = new StringBuilder();
             var escapeMode = false;
@@ -59,6 +59,11 @@ namespace Reusable.Shelly
                                     case true when token.Length > 0:
                                         tokens.Add(token.ToString());
                                         token.Clear();
+                                        switch (c)
+                                        {
+                                            // Pipe is a special token so it's collected.
+                                            case '|': tokens.Add(c.ToString()); break;
+                                        }
                                         break;
 
                                     case true:

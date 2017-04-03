@@ -1,6 +1,6 @@
 using System;
 
-namespace Reusable.Shelly
+namespace Reusable.Colin
 {
     [AttributeUsage(AttributeTargets.Property)]
     public class ParameterAttribute : Attribute
@@ -26,6 +26,13 @@ namespace Reusable.Shelly
                 if (!(value > CommandNamePosition)) throw new ArgumentOutOfRangeException(nameof(Position), $"Position must be greater then {CommandNamePosition}.");
                 _position = value;
             }
+        }
+
+        public void Deconstruct(out bool required, out int position, out char listSeparator)
+        {
+            required = Required;
+            listSeparator = ListSeparator;
+            position = Position;
         }
     }
 }
