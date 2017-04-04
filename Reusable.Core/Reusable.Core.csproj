@@ -106,6 +106,7 @@
     <Compile Include="_codebase\Extensions\StringExtensions.cs" />
     <Compile Include="_codebase\Extensions\TypeExtensions.cs" />
     <Compile Include="_codebase\Result.cs" />
+    <Compile Include="_codebase\Try.cs" />
     <Compile Include="_codebase\Usingifier.cs" />
     <Compile Include="_codebase\DependencyValidator.cs" />
     <Compile Include="_codebase\Drawing\Color32.cs" />

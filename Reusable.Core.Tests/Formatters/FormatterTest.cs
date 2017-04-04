@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.Extensions;
 using Reusable.StringFormatting;
 using Reusable.Fuse;
 using Reusable.Fuse.Testing;

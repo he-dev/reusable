@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Reusable.Extensions;
 
 namespace Reusable
 {
@@ -35,8 +36,7 @@ namespace Reusable
 
         public static string ReadEmbeddedResource<TAssembly>(string name)
         {
-            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
-            return ReadEmbeddedResource(typeof(TAssembly), name);
+            return ReadEmbeddedResource(typeof(TAssembly), name.NullIfEmpty() ?? throw new ArgumentNullException(nameof(name)));
         }
 
         //public static string ReadEmbeddedResource(Type assemblyType, Type namespaceType, string name)

@@ -1,24 +1,20 @@
 ﻿using System;
 using System.CodeDom;
 using System.CodeDom.Compiler;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading.Tasks;
-using Reusable.Collections;
 
-namespace Reusable
+namespace Reusable.Extensions
 {
     public static class StringPrettifier
     {
         public static string ToPrettyString<TException>(this TException exception, ExceptionOrder order = ExceptionOrder.Ascending, int indentWidth = 4) where TException : Exception
         {
             var nodes = exception.Flatten();
-            var exceptionStrings = nodes.Select<(Exception Exception, int Depth), string>(n => BuildExceptionString(n.Exception, n.Depth)).ToList();
+            var exceptionStrings = nodes.Select(n => BuildExceptionString(n.Exception, n.Depth)).ToList();
 
             if (order == ExceptionOrder.Ascending) { exceptionStrings.Reverse(); }
 

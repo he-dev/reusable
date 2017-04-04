@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Reusable.StringFormatting;
 
-namespace Reusable
+namespace Reusable.Extensions
 {
     public delegate bool TryGetValueCallback(string name, out object value);
 

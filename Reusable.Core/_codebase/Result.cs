@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace Reusable
 {
@@ -82,35 +81,5 @@ namespace Reusable
         public static implicit operator Result<T>(Exception exception) => Fail(exception);
 
         public static implicit operator T(Result<T> result) => result.Value;
-    }
-
-    public static class Try
-    {
-        public static Result Execute(Action action, string message = null)
-        {
-            var stopwatch = Stopwatch.StartNew();
-            try
-            {
-                action();
-                return Result.Ok(stopwatch.Elapsed);
-            }
-            catch (Exception ex)
-            {
-                return (ex, message, stopwatch.Elapsed);
-            }
-        }
-
-        public static Result<T> Execute<T>(Func<T> action, string message = null)
-        {
-            var stopwatch = Stopwatch.StartNew();
-            try
-            {
-                return (action(), stopwatch.Elapsed);
-            }
-            catch (Exception ex)
-            {
-                return (ex, message, stopwatch.Elapsed);
-            }
-        }
     }
 }

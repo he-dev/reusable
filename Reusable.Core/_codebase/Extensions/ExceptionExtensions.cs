@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Reusable.Collections;
-using System.IO;
 
-namespace Reusable
+namespace Reusable.Extensions
 {
     public static class ExceptionExtensions
     {

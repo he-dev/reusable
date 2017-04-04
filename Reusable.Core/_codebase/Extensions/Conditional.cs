@@ -1,7 +1,8 @@
 ﻿using System;
+
 // ReSharper disable InconsistentNaming
 
-namespace Reusable
+namespace Reusable.Extensions
 {
     public static class Conditional
     {
