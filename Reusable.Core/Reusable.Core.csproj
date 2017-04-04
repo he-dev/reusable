@@ -83,6 +83,14 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="_codebase\Data\SqlClient\ColumnInfo.cs" />
+    <Compile Include="_codebase\Data\SqlClient\SchemaCollectionNames.cs" />
+    <Compile Include="_codebase\Data\SqlClient\SchemaColumnNameAttribute.cs" />
+    <Compile Include="_codebase\Data\SqlClient\SchemaInfo.cs" />
+    <Compile Include="_codebase\Data\SqlClient\SchemaRestriction.cs" />
+    <Compile Include="_codebase\Data\SqlClient\SqlConnectionExtensions.cs" />
+    <Compile Include="_codebase\Data\SqlClient\SqlServer.cs" />
+    <Compile Include="_codebase\Data\SqlClient\TableInfo.cs" />
     <Compile Include="_codebase\DateTimeServices\UtcDateTimeService.cs" />
     <Compile Include="_codebase\Commands\LinkCommandComposer.cs" />
     <Compile Include="_codebase\Commands\LinkCommand.cs" />

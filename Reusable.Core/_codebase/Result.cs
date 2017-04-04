@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Reusable
 {
@@ -70,11 +67,11 @@ namespace Reusable
         public static Result<T> Ok(T value, TimeSpan elapsed) => new Result<T>(value, elapsed);
         public static Result<T> Ok(T value) => Ok(value, TimeSpan.Zero);
 
-        public static new Result<T> Fail(Exception exception, string message, TimeSpan elapsed) => new Result<T>(exception, message, elapsed);
-        public static new Result<T> Fail(Exception exception, string message) => new Result<T>(exception, message, TimeSpan.Zero);
-        public static new Result<T> Fail(Exception exception, TimeSpan elapsed) => Fail(exception, null, elapsed);
-        public static new Result<T> Fail(Exception exception) => Fail(exception, null, TimeSpan.Zero);
-        public static new Result<T> Fail(string message) => Fail(null, message, TimeSpan.Zero);
+        public new static Result<T> Fail(Exception exception, string message, TimeSpan elapsed) => new Result<T>(exception, message, elapsed);
+        public new static Result<T> Fail(Exception exception, string message) => new Result<T>(exception, message, TimeSpan.Zero);
+        public new static Result<T> Fail(Exception exception, TimeSpan elapsed) => Fail(exception, null, elapsed);
+        public new static Result<T> Fail(Exception exception) => Fail(exception, null, TimeSpan.Zero);
+        public new static Result<T> Fail(string message) => Fail(null, message, TimeSpan.Zero);
 
         public static implicit operator Result<T>((T Value, TimeSpan Elapsed) t) => Ok(t.Value, t.Elapsed);
         public static implicit operator Result<T>(T value) => Ok(value);
