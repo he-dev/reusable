@@ -76,7 +76,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Colin\Reusable.Colin.csproj">
       <Project>{82dbeed3-e1ed-4e95-b4ce-d29bbcc1f888}</Project>
-      <Name>Reusable.Shelly</Name>
+      <Name>Reusable.Colin</Name>
     </ProjectReference>
     <ProjectReference Include="..\Reusable.Fuse\Reusable.Fuse.csproj">
       <Project>{aba07d6f-bb71-4aa6-aa20-7330e394d082}</Project>

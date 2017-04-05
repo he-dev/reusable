@@ -59,9 +59,9 @@
       <Project>{aba07d6f-bb71-4aa6-aa20-7330e394d082}</Project>
       <Name>Reusable.Fuse</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Reusable.Markup.MarkupBuilder\Reusable.Markup.MarkupBuilder.csproj">
+    <ProjectReference Include="..\Reusable.Markup.MarkupBuilder\Reusable.Markup.csproj">
       <Project>{2575d10b-414a-4cd6-8baa-bd6074b5dec6}</Project>
-      <Name>Reusable.Markup.MarkupBuilder</Name>
+      <Name>Reusable.Markup</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -53,10 +53,7 @@ namespace Reusable.Extensions
 
         public static IEnumerable<(object Key, object Value)> GetData(this Exception exception)
         {
-            foreach (var key in exception.Data.Keys)
-            {
-                yield return (Key: key, Value: exception.Data[key]);
-            }
+            return from object key in exception.Data.Keys select (Key: key, Value: exception.Data[key]);
         }
 
         public static IEnumerable<(string Caller, string FileName, int LineNumber)> GetStackTrace(this Exception exception)

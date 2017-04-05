@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Fuse;
 using Reusable.Fuse.Testing;
 using Reusable.Markup.Extensions;
+using Reusable.Markup.Html;
 using Reusable.Markup.Renderers;
 
 namespace Reusable.Markup.Tests

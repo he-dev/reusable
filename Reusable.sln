@@ -9,7 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{AC36C881
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.SemanticVersion", "Reusable.SemanticVersion\Reusable.SemanticVersion.csproj", "{D7DCE0BD-E152-4E27-9D58-1175344AE98F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Markup.MarkupBuilder", "Reusable.Markup.MarkupBuilder\Reusable.Markup.MarkupBuilder.csproj", "{2575D10B-414A-4CD6-8BAA-BD6074B5DEC6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Markup", "Reusable.Markup.MarkupBuilder\Reusable.Markup.csproj", "{2575D10B-414A-4CD6-8BAA-BD6074B5DEC6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Console", "Reusable.Console\Reusable.Console.csproj", "{E54BF790-49F1-43FC-B1D6-1D616113545D}"
 EndProject

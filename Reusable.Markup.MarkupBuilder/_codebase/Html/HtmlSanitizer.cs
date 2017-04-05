@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Reusable.Markup
+namespace Reusable.Markup.Html
 {
     public class HtmlSanitizer : ISanitizer
     {

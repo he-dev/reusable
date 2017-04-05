@@ -59,9 +59,9 @@
       <Project>{eb8d2ed6-beb3-4d35-b03d-508f95a9341f}</Project>
       <Name>Reusable.Logging</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Reusable.Markup.MarkupBuilder\Reusable.Markup.MarkupBuilder.csproj">
+    <ProjectReference Include="..\Reusable.Markup.MarkupBuilder\Reusable.Markup.csproj">
       <Project>{2575D10B-414A-4CD6-8BAA-BD6074B5DEC6}</Project>
-      <Name>Reusable.Markup.MarkupBuilder</Name>
+      <Name>Reusable.Markup</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

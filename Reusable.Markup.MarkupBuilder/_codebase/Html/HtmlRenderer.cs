@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace Reusable.Markup
+namespace Reusable.Markup.Html
 {
     public class HtmlRenderer : MarkupRenderer
     {

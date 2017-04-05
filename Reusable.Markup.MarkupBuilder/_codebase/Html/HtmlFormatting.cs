@@ -1,6 +1,6 @@
 
 
-namespace Reusable.Markup
+namespace Reusable.Markup.Html
 {
 
     public class HtmlFormatting : MarkupFormatting
