@@ -58,9 +58,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Email.Clients.SmtpClient", "Reusable.Email.Clients.SmtpClient\Reusable.Email.Clients.SmtpClient.csproj", "{37354896-3562-4C99-B003-910411461622}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Core", "Reusable.Configuration\Reusable.ConfigWhiz.Core.csproj", "{B507CF1E-FD24-465B-B8BC-F00F58C2D7C6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Core", "Reusable.ConfigWhiz.Core\Reusable.ConfigWhiz.Core.csproj", "{B507CF1E-FD24-465B-B8BC-F00F58C2D7C6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Core.Tests", "Reusable.Configuration.Tests\Reusable.ConfigWhiz.Core.Tests.csproj", "{6CE60C89-58DC-47E8-ACA3-E557FB5E52BE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Core.Tests", "Reusable.ConfigWhiz.Core.Tests\Reusable.ConfigWhiz.Core.Tests.csproj", "{6CE60C89-58DC-47E8-ACA3-E557FB5E52BE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Datastores.SqlServer", "Reusable.ConfigWhiz.Datastores.SqlServer\Reusable.ConfigWhiz.Datastores.SqlServer.csproj", "{E30DCF5F-366A-421C-893C-6FDC23C4A129}"
 EndProject
