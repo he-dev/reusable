@@ -52,34 +52,67 @@ namespace Reusable
         }
     }
 
-    public class Result<T> : Result
+    public class Result<TValue> : Result
     {
-        private readonly T _value;
+        private readonly TValue _value;
 
         protected Result(Exception exception, string message, TimeSpan elapsed) : base(exception, message, elapsed) { }
-        protected Result(T value, TimeSpan elapsed) : this(null, null, elapsed) => _value = value;
+        protected Result(TValue value, TimeSpan elapsed) : this(null, null, elapsed) => _value = value;
 
-        public T Value => Succees ? _value : throw new InvalidOperationException("Value isn't available because the result is in error state.");
+        public TValue Value => Succees ? _value : throw new InvalidOperationException("Value isn't available because the result is in error state.");
 
-        public IEnumerable<TValue> AsEnumerable<TValue>() => Value as IEnumerable<TValue> ?? throw new InvalidCastException($"Cannot cast {typeof(T).Name} to {typeof(TValue).Name}.");
+        public IEnumerable<TValue> AsEnumerable<TValue>() => Value as IEnumerable<TValue> ?? throw new InvalidCastException($"Cannot cast {typeof(TValue).Name} to {typeof(TValue).Name}.");
 
-        public static Result<T> Ok(T value, TimeSpan elapsed) => new Result<T>(value, elapsed);
-        public static Result<T> Ok(T value) => Ok(value, TimeSpan.Zero);
+        public static Result<TValue> Ok(TValue value, TimeSpan elapsed) => new Result<TValue>(value, elapsed);
+        public static Result<TValue> Ok(TValue value) => Ok(value, TimeSpan.Zero);
 
-        public new static Result<T> Fail(Exception exception, string message, TimeSpan elapsed) => new Result<T>(exception, message, elapsed);
-        public new static Result<T> Fail(Exception exception, string message) => new Result<T>(exception, message, TimeSpan.Zero);
-        public new static Result<T> Fail(Exception exception, TimeSpan elapsed) => Fail(exception, null, elapsed);
-        public new static Result<T> Fail(Exception exception) => Fail(exception, null, TimeSpan.Zero);
-        public new static Result<T> Fail(string message) => Fail(null, message, TimeSpan.Zero);
+        public new static Result<TValue> Fail(Exception exception, string message, TimeSpan elapsed) => new Result<TValue>(exception, message, elapsed);
+        public new static Result<TValue> Fail(Exception exception, string message) => new Result<TValue>(exception, message, TimeSpan.Zero);
+        public new static Result<TValue> Fail(Exception exception, TimeSpan elapsed) => Fail(exception, null, elapsed);
+        public new static Result<TValue> Fail(Exception exception) => Fail(exception, null, TimeSpan.Zero);
+        public new static Result<TValue> Fail(string message) => Fail(null, message, TimeSpan.Zero);
 
-        public static implicit operator Result<T>((T Value, TimeSpan Elapsed) t) => Ok(t.Value, t.Elapsed);
-        public static implicit operator Result<T>(T value) => Ok(value);
+        public static implicit operator Result<TValue>((TValue Value, TimeSpan Elapsed) t) => Ok(t.Value, t.Elapsed);
+        public static implicit operator Result<TValue>(TValue value) => Ok(value);
 
-        public static implicit operator Result<T>((Exception Exception, string Message, TimeSpan Elapsed) t) => Fail(t.Exception, t.Message, t.Elapsed);
-        public static implicit operator Result<T>((Exception Exception, string Message) t) => Fail(t.Exception, t.Message);
-        public static implicit operator Result<T>((Exception Exception, TimeSpan Elapsed) t) => Fail(t.Exception, t.Elapsed);
-        public static implicit operator Result<T>(Exception exception) => Fail(exception);
+        public static implicit operator Result<TValue>((Exception Exception, string Message, TimeSpan Elapsed) t) => Fail(t.Exception, t.Message, t.Elapsed);
+        public static implicit operator Result<TValue>((Exception Exception, string Message) t) => Fail(t.Exception, t.Message);
+        public static implicit operator Result<TValue>((Exception Exception, TimeSpan Elapsed) t) => Fail(t.Exception, t.Elapsed);
+        public static implicit operator Result<TValue>(Exception exception) => Fail(exception);
 
-        public static implicit operator T(Result<T> result) => result.Value;
+        public static implicit operator TValue(Result<TValue> result) => result.Value;
+    }
+
+    public class Result<TTarget, TValue> : Result
+    {
+        private readonly TTarget _target;
+        private readonly TValue _value;
+
+        protected Result(TTarget target, Exception exception, string message, TimeSpan elapsed) : base(exception, message, elapsed) { _target = target; }
+        protected Result(TTarget target, TValue value, TimeSpan elapsed) : this(target, null, null, elapsed) => _value = value;
+
+        public TTarget Target => _target;
+        public TValue Value => Succees ? _value : throw new InvalidOperationException("Value isn't available because the result is in error state.");
+
+        public IEnumerable<TElement> AsEnumerable<TElement>() => Value as IEnumerable<TElement> ?? throw new InvalidCastException($"Cannot cast {typeof(TValue).Name} to {typeof(TElement).Name}.");
+
+        public static Result<TTarget, TValue> Ok(TTarget target, TValue value, TimeSpan elapsed) => new Result<TTarget, TValue>(target, value, elapsed);
+        public static Result<TTarget, TValue> Ok(TTarget target, TValue value) => Ok(target, value, TimeSpan.Zero);
+
+        public static Result<TTarget, TValue> Fail(TTarget target, Exception exception, string message, TimeSpan elapsed) => new Result<TTarget, TValue>(target, exception, message, elapsed);
+        public static Result<TTarget, TValue> Fail(TTarget target, Exception exception, string message) => new Result<TTarget, TValue>(target, exception, message, TimeSpan.Zero);
+        public static Result<TTarget, TValue> Fail(TTarget target, Exception exception, TimeSpan elapsed) => Fail(target, exception, null, elapsed);
+        public static Result<TTarget, TValue> Fail(TTarget target, Exception exception) => Fail(target, exception, null, TimeSpan.Zero);
+        public static Result<TTarget, TValue> Fail(TTarget target, string message) => Fail(target, null, message, TimeSpan.Zero);
+
+        public static implicit operator Result<TTarget, TValue>((TTarget Target, TValue Value, TimeSpan Elapsed) t) => Ok(t.Target, t.Value, t.Elapsed);
+        public static implicit operator Result<TTarget, TValue>((TTarget Target, TValue Value) t) => Ok(t.Target, t.Value);
+
+        public static implicit operator Result<TTarget, TValue>((TTarget Target, Exception Exception, string Message, TimeSpan Elapsed) t) => Fail(t.Target, t.Exception, t.Message, t.Elapsed);
+        public static implicit operator Result<TTarget, TValue>((TTarget Target, Exception Exception, string Message) t) => Fail(t.Target, t.Exception, t.Message);
+        public static implicit operator Result<TTarget, TValue>((TTarget Target, Exception Exception, TimeSpan Elapsed) t) => Fail(t.Target, t.Exception, t.Elapsed);
+        public static implicit operator Result<TTarget, TValue>((TTarget Target, Exception Exception) t) => Fail(t.Target, t.Exception);
+
+        public static implicit operator TValue(Result<TTarget, TValue> result) => result.Value;
     }
 }

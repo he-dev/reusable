@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.10
+VisualStudioVersion = 15.0.26403.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}"
 EndProject
@@ -57,6 +57,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Email.Clients.SmtpClient", "Reusable.Email.Clients.SmtpClient\Reusable.Email.Clients.SmtpClient.csproj", "{37354896-3562-4C99-B003-910411461622}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Core", "Reusable.Configuration\Reusable.ConfigWhiz.Core.csproj", "{B507CF1E-FD24-465B-B8BC-F00F58C2D7C6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Core.Tests", "Reusable.Configuration.Tests\Reusable.ConfigWhiz.Core.Tests.csproj", "{6CE60C89-58DC-47E8-ACA3-E557FB5E52BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Datastores.SqlServer", "Reusable.ConfigWhiz.Datastores.SqlServer\Reusable.ConfigWhiz.Datastores.SqlServer.csproj", "{E30DCF5F-366A-421C-893C-6FDC23C4A129}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Datastores.AppConfig", "Reusable.ConfigWhiz.Datastores.AppConfig\Reusable.ConfigWhiz.Datastores.AppConfig.csproj", "{BAAA760F-2053-4679-B257-4EB6848142A8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -149,6 +157,22 @@ Global
 		{37354896-3562-4C99-B003-910411461622}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37354896-3562-4C99-B003-910411461622}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37354896-3562-4C99-B003-910411461622}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B507CF1E-FD24-465B-B8BC-F00F58C2D7C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B507CF1E-FD24-465B-B8BC-F00F58C2D7C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B507CF1E-FD24-465B-B8BC-F00F58C2D7C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B507CF1E-FD24-465B-B8BC-F00F58C2D7C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CE60C89-58DC-47E8-ACA3-E557FB5E52BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CE60C89-58DC-47E8-ACA3-E557FB5E52BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CE60C89-58DC-47E8-ACA3-E557FB5E52BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CE60C89-58DC-47E8-ACA3-E557FB5E52BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E30DCF5F-366A-421C-893C-6FDC23C4A129}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E30DCF5F-366A-421C-893C-6FDC23C4A129}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E30DCF5F-366A-421C-893C-6FDC23C4A129}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E30DCF5F-366A-421C-893C-6FDC23C4A129}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAAA760F-2053-4679-B257-4EB6848142A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAAA760F-2053-4679-B257-4EB6848142A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAAA760F-2053-4679-B257-4EB6848142A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BAAA760F-2053-4679-B257-4EB6848142A8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -176,5 +200,9 @@ Global
 		{EB8D2ED6-BEB3-4D35-B03D-508F95A9341F} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
 		{26617FF1-7295-4FE9-9554-4967C480930C} = {AC36C881-1733-4649-ACBC-03B6F9A9334C}
 		{37354896-3562-4C99-B003-910411461622} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
+		{B507CF1E-FD24-465B-B8BC-F00F58C2D7C6} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
+		{6CE60C89-58DC-47E8-ACA3-E557FB5E52BE} = {AC36C881-1733-4649-ACBC-03B6F9A9334C}
+		{E30DCF5F-366A-421C-893C-6FDC23C4A129} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
+		{BAAA760F-2053-4679-B257-4EB6848142A8} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
 	EndGlobalSection
 EndGlobal

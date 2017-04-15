@@ -18,7 +18,7 @@ namespace Reusable.StringFormatting
 
         public virtual object GetFormat(Type formatType)
         {
-            return formatType == typeof(ICustomFormatter) ? this : null;
+            return formatType == typeof(ICustomFormatter) || formatType == GetType() ? this : null;
         }
 
         public abstract string Format(string format, object arg, IFormatProvider formatProvider);

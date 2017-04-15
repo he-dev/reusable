@@ -6,13 +6,13 @@ namespace Reusable.Extensions
 {
     public static class Conditional
     {
-        public static bool IsNull<T>(T value) => ReferenceEquals(value, null);
+        public static bool IsNull<T>(this T value) => ReferenceEquals(value, null);
 
-        public static bool IsNotNull<T>(T value) => !IsNull(value);
+        public static bool IsNotNull<T>(this T value) => !IsNull(value);
 
-        public static bool IsNullOrEmpty(string value) => string.IsNullOrEmpty(value);
+        public static bool IsNullOrEmpty(this string value) => string.IsNullOrEmpty(value);
 
-        public static bool IsNotNullOrEmpty(string value) => !IsNullOrEmpty(value);
+        public static bool IsNotNullOrEmpty(this string value) => !IsNullOrEmpty(value);
 
 
         public static TResult IIf<TValue, TResult>(this TValue value, Func<TValue, bool> predicate, Func<TValue, TResult> ifTrue, Func<TValue, TResult> ifFalse = null)

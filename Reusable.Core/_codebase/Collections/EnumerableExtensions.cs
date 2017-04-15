@@ -51,11 +51,9 @@ namespace Reusable.Collections
             return enumerable.Concat(new[] { item });
         }
 
-        public static string Join<T>(this IEnumerable<T> values, string separator)
-        {
-            if (values == null) { throw new ArgumentNullException(nameof(values)); }
-            return string.Join(separator, values);
-        }
+        public static string Join<T>(this IEnumerable<T> values, string separator) => string.Join(
+            separator ?? throw new ArgumentNullException(nameof(separator)),
+            values ?? throw new ArgumentNullException(nameof(values)));
 
         public static IEnumerable<TArg> Except<TArg, TProjection>(this IEnumerable<TArg> first, IEnumerable<TArg> second, Func<TArg, TProjection> projection)
         {
@@ -108,6 +106,19 @@ namespace Reusable.Collections
                     yield break;
                 }
             }
-        }        
+        }
+
+        public static bool TryAdd<TKey, TValue>(this IDictionary<TKey, TValue> @this, TKey key, TValue value)
+        {
+            if (@this.ContainsKey(key))
+            {
+                return false;
+            }
+            else
+            {
+                @this.Add(key, value);
+                return true;
+            }
+        }
     }
 }

@@ -91,6 +91,7 @@
     <Compile Include="_codebase\Data\SqlClient\SqlConnectionExtensions.cs" />
     <Compile Include="_codebase\Data\SqlClient\SqlServer.cs" />
     <Compile Include="_codebase\Data\SqlClient\TableInfo.cs" />
+    <Compile Include="_codebase\Data\TableMetadata.cs" />
     <Compile Include="_codebase\DateTimeServices\UtcDateTimeService.cs" />
     <Compile Include="_codebase\Commands\LinkCommandComposer.cs" />
     <Compile Include="_codebase\Commands\LinkCommand.cs" />

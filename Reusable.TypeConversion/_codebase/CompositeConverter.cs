@@ -12,21 +12,18 @@ namespace Reusable.TypeConversion
 
         internal CompositeConverter(IEnumerable<TypeConverter> converters)
         {
-            var groups = converters.Where(x => x != null).GroupBy(x => x is CompositeConverter).ToList();
-            var currentConverters = groups.SingleOrDefault(g => g.Key)?.Cast<CompositeConverter>().SelectMany(x => x) ?? Enumerable.Empty<TypeConverter>();
-            var newConverters = groups.SingleOrDefault(g => !g.Key) ?? Enumerable.Empty<TypeConverter>();
+            var compositeConverters = converters.Where(x => x != null).ToLookup(x => x is CompositeConverter);
+            var currentConverters = compositeConverters[true].Cast<CompositeConverter>().SelectMany(x => x);
+            var newConverters = compositeConverters[false];
             _converters.UnionWith(currentConverters);
             _converters.UnionWith(newConverters);
         }
 
-        internal CompositeConverter(params TypeConverter[] converters) 
-            : this((IEnumerable<TypeConverter>)converters)
-        {
-        }
+        internal CompositeConverter(params TypeConverter[] converters) : this((IEnumerable<TypeConverter>)converters) { }
 
-        public override Type FromType { get { throw new NotSupportedException($"{nameof(CompositeConverter)} does not support {nameof(FromType)} property."); } }
+        public override Type FromType => throw new NotSupportedException($"{nameof(CompositeConverter)} does not support {nameof(FromType)} property.");
 
-        public override Type ToType { get { throw new NotSupportedException($"{nameof(CompositeConverter)} does not support {nameof(ToType)} property"); } }
+        public override Type ToType => throw new NotSupportedException($"{nameof(CompositeConverter)} does not support {nameof(ToType)} property");
 
         public override bool CanConvert(object value, Type targetType)
         {

@@ -5,15 +5,15 @@ namespace Reusable.TypeConversion
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class TypeConverterAttribute : Attribute
     {
-        public TypeConverterAttribute(Type type)
+        public TypeConverterAttribute(Type converterType)
         {
-            if (!typeof(TypeConverter).IsAssignableFrom(type))
+            if (!typeof(TypeConverter).IsAssignableFrom(converterType))
             {
-                throw new ArgumentException($"'{nameof(type)}' must implement the '{typeof(TypeConverter).FullName}'", nameof(type));
+                throw new ArgumentException($"'{nameof(converterType)}' must implement the '{typeof(TypeConverter).FullName}'", nameof(converterType));
             }
-            Type = type;
+            ConverterType = converterType;
         }
 
-        public Type Type { get; }
+        public Type ConverterType { get; }
     }
 }

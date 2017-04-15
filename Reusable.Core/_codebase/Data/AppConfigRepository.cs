@@ -18,6 +18,8 @@ namespace Reusable.Data
 
     public class AppConfigRepository : IAppConfigRepository
     {
+        public static readonly AppConfigRepository Deafult = new AppConfigRepository();
+
         public string[] AppSettingsKeys => ConfigurationManager.AppSettings.AllKeys;
 
         public string GetAppSetting(string name)
@@ -33,9 +35,10 @@ namespace Reusable.Data
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
 
             var connectionStringSettings =
-                ConfigurationManager.ConnectionStrings
-                .Cast<ConnectionStringSettings>()
-                .SingleOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+                ConfigurationManager
+                    .ConnectionStrings
+                    .Cast<ConnectionStringSettings>()
+                    .SingleOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
             return connectionStringSettings?.ConnectionString;
         }
     }
