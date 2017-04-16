@@ -47,11 +47,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="Configuration.cs" />
     <Compile Include="Datastore.cs" />
     <Compile Include="Datastores\Memory.cs" />
+    <Compile Include="Data\Annotations\ItemizedAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Data\Setting.cs" />
+    <Compile Include="SettingContainer.cs" />
+    <Compile Include="SettingPath.cs" />
+    <Compile Include="SettingPathComparer.cs" />
+    <Compile Include="SettingPathExtensions.cs" />
+    <Compile Include="SettingPathFormat.cs" />
+    <Compile Include="SettingPathFormatter.cs" />
+    <Compile Include="SettingProxy.cs" />
+    <Compile Include="TypeConverterFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj">

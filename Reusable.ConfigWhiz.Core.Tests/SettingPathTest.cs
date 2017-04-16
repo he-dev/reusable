@@ -37,7 +37,7 @@ namespace Reusable.ConfigWhiz.Tests
         [TestMethod]
         public void Parse_FullWeak_ConsumerNamesAndContainerNames()
         {
-            var settingPath = SettingPath.Parse("abc.jkl.xyz[Any].Foo.Bar");
+            var settingPath = SettingPath.Parse("abc.jkl.xyz.Foo.Bar");
             settingPath.ConsumerNamespace.Verify().SequenceEqual(new[] { "abc", "jkl" });
             settingPath.ConsumerName.Verify().IsEqual("xyz");
             settingPath.InstanceName.Verify().IsNullOrEmpty();
@@ -49,7 +49,7 @@ namespace Reusable.ConfigWhiz.Tests
         [TestMethod]
         public void Parse_FullStrong_ConsumerNamesAndContainerNamesAndKey()
         {
-            var settingPath = SettingPath.Parse("abc.jkl.xyz[Any].Foo.Bar[\"Baz\"]");
+            var settingPath = SettingPath.Parse("abc.jkl.xyz.Foo.Bar[\"Baz\"]");
             settingPath.ConsumerNamespace.Verify().SequenceEqual(new[] { "abc", "jkl" });
             settingPath.ConsumerName.Verify().IsEqual("xyz");
             settingPath.InstanceName.Verify().IsNullOrEmpty();
@@ -87,15 +87,15 @@ namespace Reusable.ConfigWhiz.Tests
         [TestMethod]
         public void ToString_FullWeak_SettingPath()
         {
-            var settingPath = SettingPath.Parse(@"abc.jkl.xyz[Any].Foo.Bar");
-            settingPath.ToString(SettingPathFormat.FullWeak, SettingPathFormatter.Instance).Verify().IsEqual(@"abc.jkl.xyz[Any].Foo.Bar");
+            var settingPath = SettingPath.Parse(@"abc.jkl.xyz.Foo.Bar");
+            settingPath.ToString(SettingPathFormat.FullWeak, SettingPathFormatter.Instance).Verify().IsEqual(@"abc.jkl.xyz.Foo.Bar");
         }
 
         [TestMethod]
         public void ToString_FullStrong_SettingPath()
         {
-            var settingPath = SettingPath.Parse(@"abc.jkl.xyz[Any].Foo.Barr[""Baz""]");
-            settingPath.ToString(SettingPathFormat.FullStrong, SettingPathFormatter.Instance).Verify().IsEqual(@"abc.jkl.xyz[Any].Foo.Barr[""Baz""]");
+            var settingPath = SettingPath.Parse(@"abc.jkl.xyz.Foo.Barr[""Baz""]");
+            settingPath.ToString(SettingPathFormat.FullStrong, SettingPathFormatter.Instance).Verify().IsEqual(@"abc.jkl.xyz.Foo.Barr[""Baz""]");
         }
 
         [TestMethod]

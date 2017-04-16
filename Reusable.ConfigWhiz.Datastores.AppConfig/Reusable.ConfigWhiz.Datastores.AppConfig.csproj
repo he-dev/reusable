@@ -48,7 +48,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Configuration\Reusable.ConfigWhiz.Core.csproj">
+    <ProjectReference Include="..\Reusable.ConfigWhiz.Core\Reusable.ConfigWhiz.Core.csproj">
       <Project>{b507cf1e-fd24-465b-b8bc-f00f58c2d7c6}</Project>
       <Name>Reusable.ConfigWhiz.Core</Name>
     </ProjectReference>

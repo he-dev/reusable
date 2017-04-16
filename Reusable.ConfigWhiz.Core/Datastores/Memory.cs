@@ -7,22 +7,22 @@ using Reusable.ConfigWhiz.Data;
 
 namespace Reusable.ConfigWhiz.Datastores
 {
-    public class MemoryStore : Datastore, IEnumerable<ISetting>
+    public class Memory : Datastore, IEnumerable<ISetting>
     {
-        public MemoryStore()
-            : base(new[] { typeof(string) })
+        public Memory(object handle)
+            : base(handle, new[] { typeof(string) })
         { }
 
-        protected MemoryStore(IEnumerable<Type> supportedTypes)
-            : base(supportedTypes)
+        protected Memory(object handle, IEnumerable<Type> supportedTypes)
+            : base(handle, supportedTypes)
         { }
 
         public override Result<IEnumerable<ISetting>> Read(SettingPath settingPath)
         {
-            var name = settingPath.ToString(SettingPathFormat.FullWeak, SettingPathFormatter.Instance);
+            var name = settingPath.ToFullWeakString();
             return
                 (from x in Data
-                 where x.Path.ToString(SettingPathFormat.FullWeak, SettingPathFormatter.Instance).Equals(name, StringComparison.OrdinalIgnoreCase)
+                 where x.Path.ToFullWeakString().Equals(name, StringComparison.OrdinalIgnoreCase)
                  select x).ToList();
         }
 

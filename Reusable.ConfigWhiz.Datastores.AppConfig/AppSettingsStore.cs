@@ -13,7 +13,7 @@ namespace Reusable.ConfigWhiz.Datastores.AppConfig
         //private readonly System.Configuration.Configuration _exeConfiguration;
         //private readonly AppSettingsSection _appSettingsSection;
 
-        public AppSettingsStore() : base(new[] { typeof(string) })
+        public AppSettingsStore(object handle) : base(handle, new[] { typeof(string) })
         {
             //_exeConfiguration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);            
             //_appSettingsSection = _exeConfiguration.AppSettings;

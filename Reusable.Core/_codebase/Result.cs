@@ -103,6 +103,7 @@ namespace Reusable
         public static Result<TTarget, TValue> Fail(TTarget target, Exception exception, string message) => new Result<TTarget, TValue>(target, exception, message, TimeSpan.Zero);
         public static Result<TTarget, TValue> Fail(TTarget target, Exception exception, TimeSpan elapsed) => Fail(target, exception, null, elapsed);
         public static Result<TTarget, TValue> Fail(TTarget target, Exception exception) => Fail(target, exception, null, TimeSpan.Zero);
+        public static Result<TTarget, TValue> Fail(TTarget target, string message, TimeSpan elapsed) => Fail(target, null, message, elapsed);
         public static Result<TTarget, TValue> Fail(TTarget target, string message) => Fail(target, null, message, TimeSpan.Zero);
 
         public static implicit operator Result<TTarget, TValue>((TTarget Target, TValue Value, TimeSpan Elapsed) t) => Ok(t.Target, t.Value, t.Elapsed);
