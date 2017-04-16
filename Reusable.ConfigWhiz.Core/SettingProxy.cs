@@ -40,47 +40,46 @@ namespace Reusable.ConfigWhiz
 
         public Type Type => _property.PropertyType;
 
+        public SettingPath Path => SettingPath.Create(_containerPath, _property, string.Empty);
+
         private object Value
         {
             get => _property.GetValue(_container);
             set => _property.SetValue(_container, value);
         }
 
-        public Result<SettingProxy, bool> Load(LoadOption loadOption)
+        public Result Load(LoadOption loadOption)
         {
             var sw = Stopwatch.StartNew();
 
-            // a.b - full-weak
-            // App.Windows.MainWindow["Window1"].WindowDimensions.Height
-            var path = SettingPath.Create(_containerPath, _property, null);
-
+            // Try to load the setting with each datastore.
             foreach (var store in _stores)
             {
-                var settings = store.Read(path);
+                var settings = store.Read(Path);
                 if (!settings) { continue; }
 
                 var data = GetData(settings.AsEnumerable<ISetting>());
-                if (!data) return Result<SettingProxy, bool>.Fail(this, data.Message, sw.Elapsed);
+                if (!data) return Result.Fail(data.Message, sw.Elapsed);
                 var value = data.Value == null ? null : _converter.Convert(data.Value, Type, Format?.FormatString, Format?.FormatProvider ?? CultureInfo.InvariantCulture);
 
                 foreach (var validation in Validations)
                 {
                     try
                     {
-                        validation.Validate(value, path.ToString(SettingPathFormat.FullWeak, SettingPathFormatter.Instance));
+                        validation.Validate(value, Path.ToString(SettingPathFormat.FullWeak, SettingPathFormatter.Instance));
                     }
-                    catch (ValidationException ex) { return (this, ex, "Could not validate setting.", sw.Elapsed); }
-                    catch (Exception ex) { return (this, ex, "Unexpected validation error.", sw.Elapsed); }
+                    catch (ValidationException ex) { return Result.Fail(ex, $"'{Path.ToFullWeakString()}' failed validation.", sw.Elapsed); }
+                    catch (Exception ex) { return Result.Fail(ex, $"'{Path.ToFullWeakString()}' raised an unexpected validation error.", sw.Elapsed); }
                 }
 
-                if (value == null) return (this, false, sw.Elapsed);
+                if (value == null) return Result.Fail($"'{Path.ToFullWeakString()}' is null.", sw.Elapsed);
 
                 _currentStore = store;
                 Value = value;
-                return (this, true, sw.Elapsed);
+                return Result.Ok(sw.Elapsed);
             }
 
-            return Result<SettingProxy, bool>.Fail(this, "Setting not found.", sw.Elapsed);
+            return Result.Fail($"'{Path.ToFullWeakString()}' not found.", sw.Elapsed);
 
             Result<object> GetData(IEnumerable<ISetting> settings)
             {
@@ -88,7 +87,7 @@ namespace Reusable.ConfigWhiz
                 {
                     case true when Type.IsDictionary(): return Result<object>.Ok(settings.ToDictionary(x => x.Path.ElementName, x => x.Value));
                     case true when Type.IsEnumerable(): return Result<object>.Ok(settings.Select(x => x.Value));
-                    case true: return Result<object>.Fail($"Setting type '{Type}' is not supported for itemized settings.");
+                    case true: return Result<object>.Fail($"'{Path.ToFullWeakString()}' uses a type '{Type}' that is not supported for itemized settings.");
                     default: return settings.SingleOrDefault()?.Value;
                 }
             }

@@ -16,33 +16,33 @@ namespace Reusable.ConfigWhiz
             _settingStores = settingStores;
         }
 
-        public static readonly TypeConverter DefaultConverter = TypeConverterFactory.CreateDefaultConverter();
+        public static readonly TypeConverter DefaultConverter = TypeConverterFactory.CreateDefaultConverter();        
 
-        #region Get overloads
+        #region Load overloads
 
-        public TContainer Get<TConsumer, TContainer>(TConsumer consumer, Func<TConsumer, string> selectConsumerName, LoadOption loadOption) where TContainer : new()
+        public Result<TContainer> Load<TConsumer, TContainer>(TConsumer consumer, Func<TConsumer, string> selectConsumerName, LoadOption loadOption) where TContainer : new()
         {
-            return Get<TConsumer, TContainer>(selectConsumerName(consumer), loadOption);
+            return Load<TConsumer, TContainer>(selectConsumerName(consumer), loadOption);
         }
 
-        public TContainer Get<TConsumer, TContainer>(TConsumer consumer, Func<TConsumer, string> selectConsumerName) where TContainer : new()
+        public Result<TContainer> Load<TConsumer, TContainer>(TConsumer consumer, Func<TConsumer, string> selectConsumerName) where TContainer : new()
         {
-            return Get<TConsumer, TContainer>(selectConsumerName(consumer), LoadOption.Update);
+            return Load<TConsumer, TContainer>(selectConsumerName(consumer), LoadOption.Update);
         }
 
-        public TContainer Get<TConsumer, TContainer>(LoadOption loadOption) where TContainer : new()
+        public Result<TContainer> Load<TConsumer, TContainer>(LoadOption loadOption) where TContainer : new()
         {
-            return Get<TConsumer, TContainer>(ConsumerName.Any, loadOption);
+            return Load<TConsumer, TContainer>(ConsumerName.Any, loadOption);
         }
 
-        public TContainer Get<TConsumer, TContainer>() where TContainer : new()
+        public Result<TContainer> Load<TConsumer, TContainer>() where TContainer : new()
         {
-            return Get<TConsumer, TContainer>(ConsumerName.Any, LoadOption.Cached);
+            return Load<TConsumer, TContainer>(ConsumerName.Any, LoadOption.Cached);
         }
 
         #endregion
 
-        private TContainer Get<TConsumer, TContainer>(object consumerName, LoadOption loadOption) where TContainer : new()
+        private Result<TContainer> Load<TConsumer, TContainer>(object consumerName, LoadOption loadOption) where TContainer : new()
         {
             if (consumerName is string s && s.IsNotNullOrEmpty()) throw new ArgumentNullException(nameof(consumerName));
 

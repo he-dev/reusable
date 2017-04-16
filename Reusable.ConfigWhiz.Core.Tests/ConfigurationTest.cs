@@ -19,7 +19,7 @@ namespace Reusable.ConfigWhiz.Tests
             };
             var configuration = new Configuration(ImmutableList<IDatastore>.Empty.Add(memory));
 
-            var foo = configuration.Get<Foo, Bar>();
+            var foo = configuration.Load<Foo, Bar>();
             foo.Verify().IsNotNull();
             foo.Baz.Verify().IsEqual("bar");
         }

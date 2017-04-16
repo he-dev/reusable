@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
@@ -22,14 +23,14 @@ namespace Reusable.ConfigWhiz
 
         public TContainer As<TContainer>() => (TContainer)_container;
 
-        public IImmutableList<Result<SettingProxy, bool>> Load(LoadOption loadOption)
+        public IEnumerable<Result> Load(LoadOption loadOption)
         {
-            return (from p in _proxies select p.Load(loadOption)).ToImmutableList();
+            return (from p in _proxies select p.Load(loadOption)).ToList();
         }
 
-        public IImmutableList<Result<SettingProxy, bool>> Save()
+        public IEnumerable<Result> Save()
         {
-            return (from p in _proxies select p.Save()).ToImmutableList();
+            return (from p in _proxies select p.Save()).ToList();
         }
 
         public static SettingContainer Create<TConsumer, TContainer>(string containerName, IImmutableList<IDatastore> stores) where TContainer : new()
