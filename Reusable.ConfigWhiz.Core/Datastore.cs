@@ -8,9 +8,9 @@ namespace Reusable.ConfigWhiz
 {
     public interface IDatastore
     {
-        object Handle { get; }
+        string Handle { get; }
         IImmutableSet<Type> SupportedTypes { get; }
-        Result<IEnumerable<ISetting>> Read(SettingPath path);
+        Result<IEnumerable<ISetting>> Read(SettingPath settingPath);
         Result Write(IGrouping<SettingPath, ISetting> settings);
     }
 
@@ -18,15 +18,15 @@ namespace Reusable.ConfigWhiz
     {
         protected Datastore(object handle, IEnumerable<Type> supportedTypes)
         {
-            Handle = handle == DatastoreHandle.Default ? GetType().Name : handle;
+            Handle = handle == DatastoreHandle.Default ? GetType().Name : handle.ToString();
             SupportedTypes = supportedTypes.ToImmutableHashSet();
         }
 
-        public object Handle { get; }
+        public string Handle { get; }
 
         public IImmutableSet<Type> SupportedTypes { get; }
 
-        public abstract Result<IEnumerable<ISetting>> Read(SettingPath path);
+        public abstract Result<IEnumerable<ISetting>> Read(SettingPath settingPath);
 
         public abstract Result Write(IGrouping<SettingPath, ISetting> settings);
     }

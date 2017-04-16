@@ -19,11 +19,11 @@ namespace Reusable.ConfigWhiz.Datastores.AppConfig
             //_appSettingsSection = _exeConfiguration.AppSettings;
         }
 
-        public override Result<IEnumerable<ISetting>> Read(SettingPath setting)
+        public override Result<IEnumerable<ISetting>> Read(SettingPath settingPath)
         {
             var exeConfig = OpenExeConfiguration();
 
-            var settingName = setting.ToString(SettingPathFormat.FullWeak, SettingPathFormatter.Instance);
+            var settingName = settingPath.ToString(SettingPathFormat.FullWeak, SettingPathFormatter.Instance);
             var keys = exeConfig.AppSettings.Settings.AllKeys.Where(key => key.StartsWith(settingName, StringComparison.OrdinalIgnoreCase));
             var settings =
                 from k in keys

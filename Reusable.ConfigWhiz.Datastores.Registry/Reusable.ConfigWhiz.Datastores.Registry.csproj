@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E30DCF5F-366A-421C-893C-6FDC23C4A129}</ProjectGuid>
+    <ProjectGuid>{C3CD7DAB-7921-4EE4-9059-ABF96C241FA0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Reusable.ConfigWhiz.Datastores</RootNamespace>
-    <AssemblyName>Reusable.ConfigWhiz.Datastores.SqlServer</AssemblyName>
+    <AssemblyName>Reusable.ConfigWhiz.Datastores.Registry</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -43,8 +43,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SettingCommandFactory.cs" />
-    <Compile Include="SqlServer.cs" />
+    <Compile Include="Exceptions.cs" />
+    <Compile Include="Registry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

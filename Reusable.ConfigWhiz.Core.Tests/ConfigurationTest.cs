@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.ConfigWhiz.Datastores;
+using Reusable.Extensions;
 using Reusable.Fuse;
 using Reusable.Fuse.Testing;
 
@@ -19,6 +20,7 @@ namespace Reusable.ConfigWhiz.Tests
             var configuration = new Configuration(ImmutableList<IDatastore>.Empty.Add(memory));
 
             var foo = configuration.Get<Foo, Bar>();
+            foo.Verify().IsNotNull();
             foo.Baz.Verify().IsEqual("bar");
         }
 

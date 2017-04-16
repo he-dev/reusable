@@ -2,22 +2,25 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Data;
-using System.Data.SqlClient;
-using System.Diagnostics;
+using System.Data.SQLite;
 using System.Linq;
+using System.Text;
 using Reusable.ConfigWhiz.Data;
 using Reusable.Data;
 using Reusable.Extensions;
 
 namespace Reusable.ConfigWhiz.Datastores
 {
-    public class SqlServer : Datastore
+    public class SQLite : Datastore
     {
+        private Encoding _dataEncoding = Encoding.Default;
+        private Encoding _settingEncoding = Encoding.UTF8;
+
         private readonly string _connectionString;
         private readonly SettingCommandFactory _settingCommandFactory;
         private readonly IImmutableDictionary<string, object> _where;
 
-        public SqlServer(object handle, string nameOrConnectionString, TableMetadata<SqlDbType> tableMetadata, IImmutableDictionary<string, object> where)
+        public SQLite(object handle, string nameOrConnectionString, TableMetadata<DbType> tableMetadata, IImmutableDictionary<string, object> where)
             : base(handle, new[] { typeof(string) })
         {
             var connectionStringName = nameOrConnectionString.ExtractConnectionStringName();
@@ -32,9 +35,23 @@ namespace Reusable.ConfigWhiz.Datastores
             _settingCommandFactory = new SettingCommandFactory(tableMetadata ?? throw new ArgumentNullException(nameof(tableMetadata)));
         }
 
-        public SqlServer(object handle, string nameOrConnectionString) : this(handle, nameOrConnectionString, DefaultMetadata, ImmutableDictionary<string, object>.Empty) { }
+        public static readonly TableMetadata<DbType> DefaultMetadata = TableMetadata<DbType>.Create("dbo", "Setting").AddColumn("Name", DbType.String, 200).AddColumn("Value", DbType.String, -1);
 
-        public static readonly TableMetadata<SqlDbType> DefaultMetadata = TableMetadata<SqlDbType>.Create("dbo", "Setting").AddColumn("Name", SqlDbType.NVarChar, 200).AddColumn("Value", SqlDbType.NVarChar, -1);
+        public bool RecodeDataEnabled { get; set; } = true;
+
+        public bool RecodeSettingEnabled { get; set; } = true;
+
+        public Encoding DataEncoding
+        {
+            get => _dataEncoding;
+            set => _dataEncoding = value ?? throw new ArgumentNullException(nameof(DataEncoding));
+        }
+
+        public Encoding SettingEncoding
+        {
+            get => _settingEncoding;
+            set => _settingEncoding = value ?? throw new ArgumentNullException(nameof(SettingEncoding));
+        }
 
         public override Result<IEnumerable<ISetting>> Read(SettingPath settingPath)
         {
@@ -46,15 +63,16 @@ namespace Reusable.ConfigWhiz.Datastores
                 using (var settingReader = command.ExecuteReader())
                 {
                     var settings = new List<ISetting>();
-
                     while (settingReader.Read())
                     {
-                        var result = new Setting
+                        var value = (string)settingReader[nameof(Setting.Value)];
+
+                        var setting = new Setting
                         {
-                            Path = SettingPath.Parse((string)settingReader[nameof(Setting.Path)]),
-                            Value = settingReader[nameof(Setting.Value)],
+                            Path = SettingPath.Parse((string)settingReader[SettingProperty.Name]),
+                            Value = RecodeDataEnabled ? value.Recode(DataEncoding, SettingEncoding) : value
                         };
-                        settings.Add(result);
+                        settings.Add(setting);
                     }
                     return settings;
                 }
@@ -63,7 +81,7 @@ namespace Reusable.ConfigWhiz.Datastores
 
         public override Result Write(IGrouping<SettingPath, ISetting> settings)
         {
-            void DeleteObsoleteSettings(SqlConnection connection, SqlTransaction transaction)
+            void DeleteObsoleteSettings(SQLiteConnection connection, SQLiteTransaction transaction)
             {
                 using (var deleteCommand = _settingCommandFactory.CreateDeleteCommand(connection, settings.Key, _where))
                 {
@@ -73,10 +91,15 @@ namespace Reusable.ConfigWhiz.Datastores
                 }
             }
 
-            void InsertNewSettings(SqlConnection connection, SqlTransaction transaction)
+            void InsertNewSettings(SQLiteConnection connection, SQLiteTransaction transaction)
             {
                 foreach (var setting in settings)
                 {
+                    if (RecodeSettingEnabled && setting.Value is string)
+                    {
+                        setting.Value = ((string)setting.Value).Recode(SettingEncoding, DataEncoding);
+                    }
+
                     using (var insertCommand = _settingCommandFactory.CreateInsertCommand(connection, setting.Path, setting.Value, _where))
                     {
                         insertCommand.Transaction = transaction;
@@ -85,8 +108,6 @@ namespace Reusable.ConfigWhiz.Datastores
                     }
                 }
             }
-
-            var sw = Stopwatch.StartNew();
 
             using (var connection = OpenConnection())
             using (var transaction = connection.BeginTransaction())
@@ -100,30 +121,25 @@ namespace Reusable.ConfigWhiz.Datastores
                 catch (Exception ex)
                 {
                     transaction.Rollback();
-                    return Result.Fail(ex, sw.Elapsed);
+                    return ex;
                 }
+                return Result.Ok();
             }
-
-            return Result.Ok(sw.Elapsed);
         }
 
-        private SqlConnection OpenConnection()
+        private SQLiteConnection OpenConnection()
         {
-            var connection = new SqlConnection(_connectionString);
+            var connection = new SQLiteConnection(_connectionString);
             connection.Open();
             return connection;
         }
     }
 
-    public class ColumnConfigurationNotFoundException : Exception
+    public static class StringEncoder
     {
-        internal ColumnConfigurationNotFoundException(string column)
+        public static string Recode(this string value, Encoding from, Encoding to)
         {
-            Column = column;
+            return to.GetString(from.GetBytes(value));
         }
-
-        public string Column { get; set; }
-
-        public override string Message => $"\"{Column}\" column configuration not found. Ensure that it is set via the \"{nameof(SqlServer)}\" builder.";
     }
 }

@@ -113,14 +113,11 @@ namespace Reusable.ConfigWhiz
                 settingName: property.Name,
                 elementName: elementName
             )
-        {
-        }
+        { }
 
         public string SettingName { get; }
 
         public string ElementName { get; }
-
-        //public const string AnyInstance = "Any";
 
         private string DebuggerDisplay => new string[] {
             $"{nameof(ConsumerNamespace)} = \"{string.Join(", ", ConsumerNamespace)}\"",

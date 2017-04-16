@@ -79,4 +79,14 @@ namespace Reusable.ConfigWhiz
         public override string ToString() => _name;
         public static implicit operator string(ConsumerName consumerName) => consumerName._name;
     }
+
+    public class SettingProperty
+    {
+        private readonly string _name;
+        private SettingProperty(string name) { _name = name; }
+        public static readonly SettingProperty Name = new SettingProperty(nameof(Name));
+        public static readonly SettingProperty Value = new SettingProperty(nameof(Value));
+        public override string ToString() => _name;
+        public static implicit operator string(SettingProperty settingProperty) => settingProperty._name;
+    }
 }
