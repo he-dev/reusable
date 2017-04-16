@@ -28,7 +28,7 @@ namespace Reusable.ConfigWhiz
 
         public Result<TContainer> Load<TConsumer, TContainer>(TConsumer consumer, Func<TConsumer, string> selectConsumerName) where TContainer : new()
         {
-            return Load<TConsumer, TContainer>(selectConsumerName(consumer), LoadOption.Update);
+            return Load<TConsumer, TContainer>(selectConsumerName(consumer), LoadOption.Cached);
         }
 
         public Result<TContainer> Load<TConsumer, TContainer>(LoadOption loadOption) where TContainer : new()

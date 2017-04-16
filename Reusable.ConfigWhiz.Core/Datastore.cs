@@ -36,4 +36,20 @@ namespace Reusable.ConfigWhiz
         private DatastoreHandle() { }
         public static readonly DatastoreHandle Default = new DatastoreHandle();
     }
+
+    public class DatasourceComparer : IEqualityComparer<IDatastore>
+    {
+        public bool Equals(IDatastore x, IDatastore y)
+        {
+            return
+                !ReferenceEquals(x, null) &&
+                !ReferenceEquals(y, null) &&
+                x.Handle == y.Handle;
+        }
+
+        public int GetHashCode(IDatastore obj)
+        {
+            return obj.GetHashCode();
+        }
+    }
 }
