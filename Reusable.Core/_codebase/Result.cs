@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace Reusable
 {
@@ -82,6 +83,7 @@ namespace Reusable
         public IEnumerable<TElement> AsEnumerable<TElement>() => Value as IEnumerable<TElement> ?? throw new InvalidCastException($"Cannot cast {typeof(TValue).Name} to {typeof(TElement).Name}.");
 
         public static Result<TValue> Ok(TValue value, TimeSpan elapsed) => new Result<TValue>(value, elapsed);
+        public static Result<TValue> Ok(TValue value, IEnumerable<Result> innerResults) => Ok(value, innerResults.Aggregate(TimeSpan.Zero, (current, next) => current.Add(next.Elapsed)));
         public static Result<TValue> Ok(TValue value) => Ok(value, TimeSpan.Zero);
 
         public new static Result<TValue> Fail(Exception exception, string message, TimeSpan elapsed) => new Result<TValue>(exception, message, elapsed);
@@ -92,6 +94,14 @@ namespace Reusable
         public new static Result<TValue> Fail(Exception exception) => Fail(exception, null, TimeSpan.Zero);
         public new static Result<TValue> Fail(string message, IEnumerable<Result> innerResults) => Fail(null, message, innerResults);
         public new static Result<TValue> Fail(string message) => Fail(null, message, TimeSpan.Zero);
+
+        public static Result<TValue> Conditional(Func<bool> predicate, Func<TValue> onSuccess, Func<string> onFailure)
+        {
+            return
+                predicate()
+                    ? Ok(onSuccess())
+                    : Fail(onFailure());
+        }
 
         public static implicit operator Result<TValue>((TValue Value, TimeSpan Elapsed) t) => Ok(t.Value, t.Elapsed);
         public static implicit operator Result<TValue>(TValue value) => Ok(value);

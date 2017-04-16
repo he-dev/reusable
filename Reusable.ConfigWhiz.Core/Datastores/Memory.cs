@@ -20,10 +20,11 @@ namespace Reusable.ConfigWhiz.Datastores
         public override Result<IEnumerable<ISetting>> Read(SettingPath settingPath)
         {
             var name = settingPath.ToFullWeakString();
-            return
+            var settings =
                 (from x in Data
                  where x.Path.ToFullWeakString().Equals(name, StringComparison.OrdinalIgnoreCase)
                  select x).ToList();
+            return Result<IEnumerable<ISetting>>.Conditional(() => settings.Any(), () => settings, () => $"'{settingPath.ToFullWeakString()}' not found.");
         }
 
         public override Result Write(IGrouping<SettingPath, ISetting> settings)

@@ -45,7 +45,7 @@ namespace Reusable.ConfigWhiz
 
         private Result<TContainer> Load<TConsumer, TContainer>(object consumerName, LoadOption loadOption) where TContainer : new()
         {
-            if (consumerName is string s && s.IsNotNullOrEmpty()) throw new ArgumentNullException(nameof(consumerName));
+            if (consumerName is string s && s.IsNullOrEmpty()) throw new ArgumentNullException(nameof(consumerName));
 
             var key = ContainerPath.Create<TConsumer, TContainer>(consumerName.ToString());
 
