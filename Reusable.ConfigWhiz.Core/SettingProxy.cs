@@ -93,9 +93,9 @@ namespace Reusable.ConfigWhiz
             }
         }
 
-        public Result<SettingProxy, bool> Save()
+        public Result Save()
         {
-            return Result<SettingProxy, bool>.Ok(this, true);
+            return Result.Ok();
         }
     }
 }

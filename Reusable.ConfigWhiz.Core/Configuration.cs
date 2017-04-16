@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
+using System.Linq;
 using Reusable.Collections;
 using Reusable.Extensions;
 using Reusable.TypeConversion;
@@ -16,7 +17,7 @@ namespace Reusable.ConfigWhiz
             _settingStores = settingStores;
         }
 
-        public static readonly TypeConverter DefaultConverter = TypeConverterFactory.CreateDefaultConverter();        
+        public static readonly TypeConverter DefaultConverter = TypeConverterFactory.CreateDefaultConverter();
 
         #region Load overloads
 
@@ -55,11 +56,12 @@ namespace Reusable.ConfigWhiz
             else
             {
                 container = SettingContainer.Create<TConsumer, TContainer>(consumerName.ToString(), _settingStores);
-                container.Load(LoadOption.Resolve);
-
+                var results = container.Load(LoadOption.Resolve);
                 _containers.Add(container);
+
+                if (results.Any(x => x.Failure)) return Result<TContainer>.Fail("Could not load one or more settings.", results.Where(x => x.Failure));
             }
-            return container.As<TContainer>();
+            return Result<TContainer>.Ok(container.As<TContainer>());
         }
     }
 

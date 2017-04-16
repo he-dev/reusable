@@ -23,12 +23,12 @@ namespace Reusable.ConfigWhiz
 
         public TContainer As<TContainer>() => (TContainer)_container;
 
-        public IEnumerable<Result> Load(LoadOption loadOption)
+        public IList<Result> Load(LoadOption loadOption)
         {
             return (from p in _proxies select p.Load(loadOption)).ToList();
         }
 
-        public IEnumerable<Result> Save()
+        public IList<Result> Save()
         {
             return (from p in _proxies select p.Save()).ToList();
         }

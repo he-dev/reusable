@@ -20,8 +20,9 @@ namespace Reusable.ConfigWhiz.Tests
             var configuration = new Configuration(ImmutableList<IDatastore>.Empty.Add(memory));
 
             var foo = configuration.Load<Foo, Bar>();
-            foo.Verify().IsNotNull();
-            foo.Baz.Verify().IsEqual("bar");
+            foo.Succees.Verify().IsTrue();
+            foo.Value.Verify().IsNotNull();
+            foo.Value.Baz.Verify().IsEqual("bar");
         }
 
         internal class Foo { }
