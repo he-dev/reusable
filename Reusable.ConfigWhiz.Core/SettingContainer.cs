@@ -33,7 +33,7 @@ namespace Reusable.ConfigWhiz
             return (from p in _proxies select p.Save()).ToList();
         }
 
-        public static SettingContainer Create<TConsumer, TContainer>(string containerName, IImmutableList<IDatastore> stores) where TContainer : new()
+        public static SettingContainer Create<TConsumer, TContainer>(string containerName, IImmutableSet<IDatastore> stores) where TContainer : new()
         {
             var container = new TContainer();
             var containerKey = ContainerPath.Create<TConsumer, TContainer>(containerName);

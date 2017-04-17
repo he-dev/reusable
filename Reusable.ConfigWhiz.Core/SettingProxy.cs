@@ -19,11 +19,11 @@ namespace Reusable.ConfigWhiz
         private readonly ContainerPath _containerPath;
         private readonly object _container;
         private readonly PropertyInfo _property;
-        private readonly IImmutableList<IDatastore> _stores;
+        private readonly IImmutableSet<IDatastore> _stores;
         private readonly TypeConverter _converter;
         private IDatastore _currentStore;
 
-        public SettingProxy(object container, ContainerPath containerPath, PropertyInfo property, IImmutableList<IDatastore> stores, TypeConverter converter)
+        public SettingProxy(object container, ContainerPath containerPath, PropertyInfo property, IImmutableSet<IDatastore> stores, TypeConverter converter)
         {
             _container = container;
             _containerPath = containerPath;
@@ -48,50 +48,97 @@ namespace Reusable.ConfigWhiz
             set => _property.SetValue(_container, value);
         }
 
+        #region Loading
+
         public Result Load(LoadOption loadOption)
         {
-            var sw = Stopwatch.StartNew();
 
+            if (loadOption == LoadOption.Update && _currentStore.IsNotNull())
+            {
+                return Try.Execute(Update);
+            }
+            else
+            {
+                return Try.Execute(Resolve);
+            }
+        }
+
+        private Result Update()
+        {
+            var value = Load(_currentStore);
+            if (value)
+            {
+                Value = value.Value;
+                return Result.Ok();
+            }
+            else
+            {
+                return Result.Fail($"'{Path.ToFullWeakString()}' not be updasted.");
+            }
+        }
+
+        private Result Resolve()
+        {
             // Try to load the setting with each datastore.
             foreach (var store in _stores)
             {
-                var settings = store.Read(Path);
-                if (!settings) { continue; }
+                var value = Load(store);
 
-                var data = GetData(settings.AsEnumerable<ISetting>());
-                if (!data) return Result.Fail(data.Message, sw.Elapsed);
-                var value = data.Value == null ? null : _converter.Convert(data.Value, Type, Format?.FormatString, Format?.FormatProvider ?? CultureInfo.InvariantCulture);
-
-                foreach (var validation in Validations)
+                if (value.Succees)
                 {
-                    try
-                    {
-                        validation.Validate(value, Path.ToString(SettingPathFormat.FullWeak, SettingPathFormatter.Instance));
-                    }
-                    catch (ValidationException ex) { return Result.Fail(ex, $"'{Path.ToFullWeakString()}' failed validation.", sw.Elapsed); }
-                    catch (Exception ex) { return Result.Fail(ex, $"'{Path.ToFullWeakString()}' raised an unexpected validation error.", sw.Elapsed); }
+                    _currentStore = store;
+                    Value = value.Value;
+                    return Result.Ok();
                 }
-
-                if (value == null) return Result.Fail($"'{Path.ToFullWeakString()}' is null.", sw.Elapsed);
-
-                _currentStore = store;
-                Value = value;
-                return Result.Ok(sw.Elapsed);
             }
 
-            return Result.Fail($"'{Path.ToFullWeakString()}' not found.", sw.Elapsed);
+            return Result.Fail($"'{Path.ToFullWeakString()}' not found in any datastore.");
+        }
 
-            Result<object> GetData(IEnumerable<ISetting> settings)
+        private Result<object> Load(IDatastore store)
+        {
+            var settings = store.Read(Path);
+            if (!settings)
             {
-                switch (IsItemized)
+                return Result.Fail($"'{Path.ToFullWeakString()}' not found in '{store.Handle}'.");
+            }
+
+            var data = GetData(settings.AsEnumerable<ISetting>());
+            if (!data)
+            {
+                return Result.Fail(data.Message);
+            }
+
+            var value = data.Value == null ? null : _converter.Convert(data.Value, Type, Format?.FormatString, Format?.FormatProvider ?? CultureInfo.InvariantCulture);
+
+            foreach (var validation in Validations)
+            {
+                try
                 {
-                    case true when Type.IsDictionary(): return Result<object>.Ok(settings.ToDictionary(x => x.Path.ElementName, x => x.Value));
-                    case true when Type.IsEnumerable(): return Result<object>.Ok(settings.Select(x => x.Value));
-                    case true: return Result<object>.Fail($"'{Path.ToFullWeakString()}' uses a type '{Type}' that is not supported for itemized settings.");
-                    default: return settings.SingleOrDefault()?.Value;
+                    validation.Validate(value, Path.ToString(SettingPathFormat.FullWeak, SettingPathFormatter.Instance));
                 }
+                catch (ValidationException ex) { return Result.Fail(ex, $"'{Path.ToFullWeakString()}' failed validation."); }
+                catch (Exception ex) { return Result.Fail(ex, $"'{Path.ToFullWeakString()}' raised an unexpected validation error."); }
+            }
+
+            return Result<object>.Conditional(
+                () => value != null,
+                () => value,
+                () => $"'{Path.ToFullWeakString()}' is null.");
+        }
+
+        private Result<object> GetData(IEnumerable<ISetting> settings)
+        {
+            switch (IsItemized)
+            {
+                case true when Type.IsDictionary(): return Result<object>.Ok(settings.ToDictionary(x => x.Path.ElementName, x => x.Value));
+                case true when Type.IsEnumerable(): return Result<object>.Ok(settings.Select(x => x.Value));
+                case true: return Result<object>.Fail($"'{Path.ToFullWeakString()}' uses a type '{Type}' that is not supported for itemized settings.");
+                default: return settings.SingleOrDefault()?.Value;
             }
         }
+
+        #endregion
 
         public Result Save()
         {

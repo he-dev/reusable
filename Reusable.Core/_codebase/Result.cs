@@ -47,6 +47,14 @@ namespace Reusable
         public static Result Fail(string message, IEnumerable<Result> innerResults) => Fail(null, message, innerResults);
         public static Result Fail(string message) => Fail(null, message, TimeSpan.Zero);
 
+        //public static Result Conditional(Func<bool> predicate, Func<TimeSpan> onSuccess, Func<(string Message, TimeSpan Elapsed)> onFailure)
+        //{
+        //    return
+        //        predicate()
+        //            ? Ok(onSuccess())
+        //            : Fail(onFailure());
+        //}
+
         public static implicit operator Result((Exception Exception, string Message, TimeSpan Elapsed) t) => Fail(t.Exception, t.Message, t.Elapsed);
         public static implicit operator Result((Exception Exception, string Message, IEnumerable<Result> InnerResults) t) => Fail(t.Exception, t.Message, t.InnerResults);
         public static implicit operator Result((Exception Exception, string Message) t) => Fail(t.Exception, t.Message);

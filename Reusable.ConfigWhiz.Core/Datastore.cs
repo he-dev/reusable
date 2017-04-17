@@ -37,14 +37,14 @@ namespace Reusable.ConfigWhiz
         public static readonly DatastoreHandle Default = new DatastoreHandle();
     }
 
-    public class DatasourceComparer : IEqualityComparer<IDatastore>
+    public class DatastoreComparer : IEqualityComparer<IDatastore>
     {
         public bool Equals(IDatastore x, IDatastore y)
         {
             return
                 !ReferenceEquals(x, null) &&
                 !ReferenceEquals(y, null) &&
-                x.Handle == y.Handle;
+                x.Handle.Equals(y.Handle, StringComparison.OrdinalIgnoreCase);
         }
 
         public int GetHashCode(IDatastore obj)

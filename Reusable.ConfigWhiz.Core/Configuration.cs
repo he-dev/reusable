@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Reusable.Collections;
@@ -9,12 +10,17 @@ namespace Reusable.ConfigWhiz
 {
     public class Configuration
     {
-        private readonly IImmutableList<IDatastore> _settingStores;
+        private readonly IImmutableSet<IDatastore> _settingStores;
         private readonly AutoKeyDictionary<ContainerPath, SettingContainer> _containers = new AutoKeyDictionary<ContainerPath, SettingContainer>(x => x.Path);
 
-        public Configuration(IImmutableList<IDatastore> settingStores)
+        public Configuration(IEnumerable<IDatastore> settingStores)
         {
-            _settingStores = settingStores;
+            var builder = ImmutableHashSet.CreateBuilder(new DatastoreComparer());
+            foreach (var store in settingStores)
+            {
+                if (!builder.Add(store)) throw new ArgumentException($"Datastore '{store.Handle}' already exists.");
+            }
+            _settingStores = builder.ToImmutable();
         }
 
         public static readonly TypeConverter DefaultConverter = TypeConverterFactory.CreateDefaultConverter();
@@ -49,7 +55,7 @@ namespace Reusable.ConfigWhiz
 
             var key = ContainerPath.Create<TConsumer, TContainer>(consumerName.ToString());
 
-            if (_containers.TryGetValue(key, out SettingContainer container) && loadOption != LoadOption.Cached)
+            if (_containers.TryGetValue(key, out SettingContainer container))
             {
                 container.Load(loadOption);
             }
