@@ -11,20 +11,20 @@ namespace Reusable
 {
     public class ResourceReader
     {
-        public static IEnumerable<string> FindEmbeddedResources<TAssembly>(Func<string, bool> predicate)
+        public static IEnumerable<string> FindEmbeddedResources<TNamespaceProvider>(Func<string, bool> predicate)
         {
             if (predicate == null) throw new ArgumentNullException(nameof(predicate));
 
             return
-                GetEmbededResourceNames<TAssembly>()
+                GetEmbededResourceNames<TNamespaceProvider>()
                     .Where(predicate)
-                    .Select(name => ReadEmbeddedResource(typeof(TAssembly), name))
+                    .Select(name => ReadEmbeddedResource(typeof(TNamespaceProvider), name))
                     .Where(Conditional.IsNotNullOrEmpty);
         }
 
-        public static IEnumerable<string> GetEmbededResourceNames<TAssembly>()
+        public static IEnumerable<string> GetEmbededResourceNames<TNamespaceProvider>()
         {
-            var assembly = Assembly.GetAssembly(typeof(TAssembly));
+            var assembly = Assembly.GetAssembly(typeof(TNamespaceProvider));
             return assembly.GetManifestResourceNames();
         }
 
@@ -34,9 +34,9 @@ namespace Reusable
         //    return ReadEmbeddedResource(typeof(TAssembly), typeof(TNamespace), name);
         //}
 
-        public static string ReadEmbeddedResource<TAssembly>(string name)
+        public static string ReadEmbeddedResource<TNamespaceProvider>(string name)
         {
-            return ReadEmbeddedResource(typeof(TAssembly), name.NullIfEmpty() ?? throw new ArgumentNullException(nameof(name)));
+            return ReadEmbeddedResource(typeof(TNamespaceProvider), name.NullIfEmpty() ?? throw new ArgumentNullException(nameof(name)));
         }
 
         //public static string ReadEmbeddedResource(Type assemblyType, Type namespaceType, string name)
@@ -48,13 +48,13 @@ namespace Reusable
         //    return ReadEmbeddedResource(assemblyType, $"{namespaceType.Namespace}.{name}");
         //}
 
-        public static string ReadEmbeddedResource(Type assemblyType, string name)
+        public static string ReadEmbeddedResource(Type namespaceType, string name)
         {
-            if (assemblyType == null) throw new ArgumentNullException(nameof(assemblyType));
+            if (namespaceType == null) throw new ArgumentNullException(nameof(namespaceType));
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
 
-            var assembly = Assembly.GetAssembly(assemblyType);
-            using (var resourceStream = assembly.GetManifestResourceStream(name))
+            var assembly = Assembly.GetAssembly(namespaceType);
+            using (var resourceStream = assembly.GetManifestResourceStream($"{namespaceType.Namespace}.{name}"))
             {
                 if (resourceStream == null) return null;
                 using (var streamReader = new StreamReader(resourceStream))

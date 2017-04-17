@@ -84,7 +84,7 @@ namespace Reusable.ConfigWhiz
                 (from store in _stores
                  let value = Load(store)
                  where value.Succees
-                 select new { value, store }).FirstOrDefault();
+                 select new { value.Value, store }).FirstOrDefault();
 
             if (result == null)
             {
@@ -92,17 +92,17 @@ namespace Reusable.ConfigWhiz
             }
 
             _currentStore = result.store;
-            Value = result.value.Value;
+            Value = result.Value;
             return Result.Ok();
         }
 
         private Result<object> Load(IDatastore store)
         {
             var settings = store.Read(Path);
-            if (!settings) return Result.Fail($"'{Path.ToFullWeakString()}' not found in '{store.Handle}'.");
+            if (!settings) return Result<object>.Fail($"'{Path.ToFullWeakString()}' not found in '{store.Handle}'.");
 
             var data = GetData(settings.AsEnumerable<ISetting>());
-            if (!data) return Result.Fail(data.Message);
+            if (!data) return Result<object>.Fail(data.Message);
 
             var value = data.Value == null ? null : _converter.Convert(data.Value, Type, Format?.FormatString, Format?.FormatProvider ?? CultureInfo.InvariantCulture);
 

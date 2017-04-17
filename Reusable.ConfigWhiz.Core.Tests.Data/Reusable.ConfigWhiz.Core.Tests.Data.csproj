@@ -59,7 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Settings.json" />
+    <EmbeddedResource Include="Settings.json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.ConfigWhiz.Core\Reusable.ConfigWhiz.Core.csproj">

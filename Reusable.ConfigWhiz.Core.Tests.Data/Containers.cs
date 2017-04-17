@@ -44,10 +44,10 @@ namespace Reusable.ConfigWhiz.Core.Tests.Data
         public DateTime DateTime { get; set; }
 
         [Ignore]
-        public string OptionalString { get; set; } = "Optional value";
+        public string IgnoreString { get; set; } = "Ignore value";
     }
 
-    public class Rainbow
+    public class Drawing
     {
         [Format("#RRGGBB", typeof(HexadecimalColorFormatter))]
         public Color ColorName { get; set; }

@@ -53,6 +53,12 @@ namespace Reusable.ConfigWhiz.Datastores
             Value = value
         });
 
+        public Memory AddRange(IEnumerable<ISetting> settings)
+        {
+            foreach (var setting in settings) Add(setting);
+            return this;
+        }
+
         public IEnumerator<ISetting> GetEnumerator() => Data.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
