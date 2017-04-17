@@ -47,14 +47,6 @@ namespace Reusable
         public static Result Fail(string message, IEnumerable<Result> innerResults) => Fail(null, message, innerResults);
         public static Result Fail(string message) => Fail(null, message, TimeSpan.Zero);
 
-        //public static Result Conditional(Func<bool> predicate, Func<TimeSpan> onSuccess, Func<(string Message, TimeSpan Elapsed)> onFailure)
-        //{
-        //    return
-        //        predicate()
-        //            ? Ok(onSuccess())
-        //            : Fail(onFailure());
-        //}
-
         public static implicit operator Result((Exception Exception, string Message, TimeSpan Elapsed) t) => Fail(t.Exception, t.Message, t.Elapsed);
         public static implicit operator Result((Exception Exception, string Message, IEnumerable<Result> InnerResults) t) => Fail(t.Exception, t.Message, t.InnerResults);
         public static implicit operator Result((Exception Exception, string Message) t) => Fail(t.Exception, t.Message);
@@ -123,6 +115,15 @@ namespace Reusable
 
         public static implicit operator TValue(Result<TValue> result) => result.Value;
     }
+
+    //public static class ResultExtensions
+    //{
+    //    public static Result OnSuccess(this Result @this, Func<Result> @do) => @this.Succees ? @do() : @this;
+    //    public static Result OnFailure(this Result @this, Func<Result> @do) => @this.Failure ? @do() : @this;
+
+    //    public static Result<T> OnSuccess<T>(this Result<T> @this, Action<Result<T>> @do) => @this.Succees ? @do(@this) : @this;
+    //    public static Result<T> OnFailure<T>(this Result<T> @this, Func<Result<T>> @do) => @this.Failure ? @do() : @this;
+    //}
 
     // This wasn't a good idea but...
     //public class Result<TTarget, TValue> : Result

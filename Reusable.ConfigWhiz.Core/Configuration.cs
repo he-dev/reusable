@@ -25,6 +25,10 @@ namespace Reusable.ConfigWhiz
 
         public static readonly TypeConverter DefaultConverter = TypeConverterFactory.CreateDefaultConverter();
 
+        //public Action<string> Log { get; set; } // for future use
+
+        //private void OnLog(string message) => Log?.Invoke(message); // for future use
+
         #region Load overloads
 
         public Result<TContainer> Load<TConsumer, TContainer>(TConsumer consumer, Func<TConsumer, string> selectConsumerName, LoadOption loadOption) where TContainer : new()

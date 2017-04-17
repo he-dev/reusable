@@ -79,35 +79,30 @@ namespace Reusable.ConfigWhiz
 
         private Result Resolve()
         {
-            // Try to load the setting with each datastore.
-            foreach (var store in _stores)
-            {
-                var value = Load(store);
+            // Try to load the setting with each datastore and pick the first one that succeeded.
+            var result =
+                (from store in _stores
+                 let value = Load(store)
+                 where value.Succees
+                 select new { value, store }).FirstOrDefault();
 
-                if (value.Succees)
-                {
-                    _currentStore = store;
-                    Value = value.Value;
-                    return Result.Ok();
-                }
+            if (result == null)
+            {
+                return Result.Fail($"'{Path.ToFullWeakString()}' not found in any datastore.");
             }
 
-            return Result.Fail($"'{Path.ToFullWeakString()}' not found in any datastore.");
+            _currentStore = result.store;
+            Value = result.value.Value;
+            return Result.Ok();
         }
 
         private Result<object> Load(IDatastore store)
         {
             var settings = store.Read(Path);
-            if (!settings)
-            {
-                return Result.Fail($"'{Path.ToFullWeakString()}' not found in '{store.Handle}'.");
-            }
+            if (!settings) return Result.Fail($"'{Path.ToFullWeakString()}' not found in '{store.Handle}'.");
 
             var data = GetData(settings.AsEnumerable<ISetting>());
-            if (!data)
-            {
-                return Result.Fail(data.Message);
-            }
+            if (!data) return Result.Fail(data.Message);
 
             var value = data.Value == null ? null : _converter.Convert(data.Value, Type, Format?.FormatString, Format?.FormatProvider ?? CultureInfo.InvariantCulture);
 

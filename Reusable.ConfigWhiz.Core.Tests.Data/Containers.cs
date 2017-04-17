@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using Reusable.ConfigWhiz.Data.Annotations;
 using Reusable.Data.Annotations;
 using Reusable.StringFormatting.Formatters;
 using Reusable.TypeConversion;
 
-namespace Reusable.ConfigWhiz.Tests
+namespace Reusable.ConfigWhiz.Core.Tests.Data
 {
+    public class Bar
+    {
+        public string Baz { get; set; }
+    }
+
     public class Numeric
     {
         public SByte SByte { get; set; }

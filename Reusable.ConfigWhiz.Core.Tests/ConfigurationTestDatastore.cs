@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.ConfigWhiz.Core.Tests.Data;
 using Reusable.ConfigWhiz.Datastores;
 using Reusable.Extensions;
 using Reusable.Fuse;
@@ -12,13 +13,7 @@ namespace Reusable.ConfigWhiz.Tests
     public abstract class ConfigurationTestDatastore
     {
         protected IEnumerable<IDatastore> Datastores { get; set; }
-
-        [TestInitialize]
-        public virtual void TestInitialize()
-        {
-
-        }
-
+        
         [TestMethod]
         public void Get_ConsumerWithoutName_GotContainer()
         {
@@ -32,13 +27,6 @@ namespace Reusable.ConfigWhiz.Tests
             foo.Succees.Verify().IsTrue();
             foo.Value.Verify().IsNotNull();
             foo.Value.Baz.Verify().IsEqual("bar");
-        }
-
-        internal class Foo { }
-
-        internal class Bar
-        {
-            public string Baz { get; set; }
-        }
+        }        
     }
 }
