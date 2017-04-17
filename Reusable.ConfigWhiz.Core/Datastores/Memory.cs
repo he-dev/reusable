@@ -9,12 +9,14 @@ namespace Reusable.ConfigWhiz.Datastores
 {
     public class Memory : Datastore, IEnumerable<ISetting>
     {
-        public Memory(object handle)
-            : base(handle, new[] { typeof(string) })
+        public Memory() : this(CreateDefaultName<Memory>()) { }
+
+        public Memory(string name)
+            : base(name, new[] { typeof(string) })
         { }
 
-        protected Memory(object handle, IEnumerable<Type> supportedTypes)
-            : base(handle, supportedTypes)
+        protected Memory(string name, IEnumerable<Type> supportedTypes)
+            : base(name, supportedTypes)
         { }
 
         public override Result<IEnumerable<ISetting>> Read(SettingPath settingPath)

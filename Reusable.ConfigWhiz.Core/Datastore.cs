@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Reusable.ConfigWhiz.Data;
+using Reusable.Extensions;
 
 namespace Reusable.ConfigWhiz
 {
     public interface IDatastore
     {
-        string Handle { get; }
+        string Name { get; }
         IImmutableSet<Type> SupportedTypes { get; }
         Result<IEnumerable<ISetting>> Read(SettingPath settingPath);
         Result Write(IGrouping<SettingPath, ISetting> settings);
@@ -16,25 +17,26 @@ namespace Reusable.ConfigWhiz
 
     public abstract class Datastore : IDatastore
     {
-        protected Datastore(object handle, IEnumerable<Type> supportedTypes)
+        private static volatile int _instanceCounter;
+
+        protected Datastore(string name, IEnumerable<Type> supportedTypes)
         {
-            Handle = handle == DatastoreHandle.Default ? GetType().Name : handle.ToString();
+            Name = name.NullIfEmpty() ?? throw new ArgumentNullException(nameof(name));
             SupportedTypes = supportedTypes.ToImmutableHashSet();
         }
 
-        public string Handle { get; }
+        public string Name { get; }
 
         public IImmutableSet<Type> SupportedTypes { get; }
 
         public abstract Result<IEnumerable<ISetting>> Read(SettingPath settingPath);
 
         public abstract Result Write(IGrouping<SettingPath, ISetting> settings);
-    }
 
-    public class DatastoreHandle
-    {
-        private DatastoreHandle() { }
-        public static readonly DatastoreHandle Default = new DatastoreHandle();
+        protected static string CreateDefaultName<T>()
+        {
+            return $"{typeof(T).Name}{_instanceCounter++}";
+        }
     }
 
     public class DatastoreComparer : IEqualityComparer<IDatastore>
@@ -44,7 +46,7 @@ namespace Reusable.ConfigWhiz
             return
                 !ReferenceEquals(x, null) &&
                 !ReferenceEquals(y, null) &&
-                x.Handle.Equals(y.Handle, StringComparison.OrdinalIgnoreCase);
+                x.Name.Equals(y.Name, StringComparison.OrdinalIgnoreCase);
         }
 
         public int GetHashCode(IDatastore obj)

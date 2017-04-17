@@ -3,5 +3,5 @@
 namespace Reusable.ConfigWhiz.Data.Annotations
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public class ItemizedAttribute : Attribute { }
+    public class ItemizedAttribute : Attribute { }    
 }

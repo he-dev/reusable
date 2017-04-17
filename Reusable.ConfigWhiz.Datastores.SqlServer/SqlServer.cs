@@ -17,8 +17,8 @@ namespace Reusable.ConfigWhiz.Datastores
         private readonly SettingCommandFactory _settingCommandFactory;
         private readonly IImmutableDictionary<string, object> _where;
 
-        public SqlServer(object handle, string nameOrConnectionString, TableMetadata<SqlDbType> tableMetadata, IImmutableDictionary<string, object> where)
-            : base(handle, new[] { typeof(string) })
+        public SqlServer(string name, string nameOrConnectionString, TableMetadata<SqlDbType> tableMetadata, IImmutableDictionary<string, object> where)
+            : base(name, new[] { typeof(string) })
         {
             var connectionStringName = nameOrConnectionString.ExtractConnectionStringName();
             _connectionString =
@@ -32,7 +32,11 @@ namespace Reusable.ConfigWhiz.Datastores
             _settingCommandFactory = new SettingCommandFactory(tableMetadata ?? throw new ArgumentNullException(nameof(tableMetadata)));
         }
 
-        public SqlServer(object handle, string nameOrConnectionString) : this(handle, nameOrConnectionString, DefaultMetadata, ImmutableDictionary<string, object>.Empty) { }
+        public SqlServer(string name, string nameOrConnectionString)
+            : this(name, nameOrConnectionString, DefaultMetadata, ImmutableDictionary<string, object>.Empty) { }
+
+        public SqlServer(string nameOrConnectionString)
+            : this(CreateDefaultName<SqlServer>(), nameOrConnectionString) { }
 
         public static readonly TableMetadata<SqlDbType> DefaultMetadata = TableMetadata<SqlDbType>.Create("dbo", "Setting").AddColumn("Name", SqlDbType.NVarChar, 200).AddColumn("Value", SqlDbType.NVarChar, -1);
 

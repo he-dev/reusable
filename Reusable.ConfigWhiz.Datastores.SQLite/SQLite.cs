@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Data;
@@ -20,8 +20,8 @@ namespace Reusable.ConfigWhiz.Datastores
         private readonly SettingCommandFactory _settingCommandFactory;
         private readonly IImmutableDictionary<string, object> _where;
 
-        public SQLite(object handle, string nameOrConnectionString, TableMetadata<DbType> tableMetadata, IImmutableDictionary<string, object> where)
-            : base(handle, new[] { typeof(string) })
+        public SQLite(string name, string nameOrConnectionString, TableMetadata<DbType> tableMetadata, IImmutableDictionary<string, object> where)
+            : base(name, new[] { typeof(string) })
         {
             var connectionStringName = nameOrConnectionString.ExtractConnectionStringName();
             _connectionString =
@@ -34,6 +34,9 @@ namespace Reusable.ConfigWhiz.Datastores
             _where = where ?? throw new ArgumentNullException(nameof(where));
             _settingCommandFactory = new SettingCommandFactory(tableMetadata ?? throw new ArgumentNullException(nameof(tableMetadata)));
         }
+
+        public SQLite(string nameOrConnectionString, TableMetadata<DbType> tableMetadata, IImmutableDictionary<string, object> where)
+            : this(CreateDefaultName<SQLite>(), nameOrConnectionString, tableMetadata, where) { }
 
         public static readonly TableMetadata<DbType> DefaultMetadata = TableMetadata<DbType>.Create("dbo", "Setting").AddColumn("Name", DbType.String, 200).AddColumn("Value", DbType.String, -1);
 

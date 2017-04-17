@@ -40,10 +40,10 @@ namespace Reusable.ConfigWhiz.Tests
         {
             var configuration = new Configuration(Datastores);
 
-            var foo = configuration.Load<Foo, Bar>();
-            foo.Succees.Verify().IsTrue();
-            foo.Value.Verify().IsNotNull();
-            foo.Value.Baz.Verify().IsEqual("bar");
+            var load = configuration.Load<Foo, Bar>();
+            load.Succees.Verify().IsTrue();
+            load.Value.Verify().IsNotNull();
+            load.Value.Baz.Verify().IsEqual("bar");
         }
 
         [TestMethod]
@@ -52,33 +52,12 @@ namespace Reusable.ConfigWhiz.Tests
             var configuration = new Configuration(Datastores);
 
             var foo1 = new Foo { Name = "qux" };
-            var foo = configuration.Load<Foo, Bar>(foo1, x => x.Name);
-            foo.Succees.Verify().IsTrue();
-            foo.Value.Verify().IsNotNull();
-            foo.Value.Baz.Verify().IsEqual("bar");
-        }
-
-        [TestMethod]
-        public void Load_Numeric_Success()
-        {
-            var configuration = new Configuration(Datastores);
-
-            var load = configuration.Load<Foo, Numeric>();
+            var load = configuration.Load<Foo, Bar>(foo1, x => x.Name);
             load.Succees.Verify().IsTrue();
-            var foo = load.Value;
-            foo.Verify().IsNotNull();
-            foo.SByte.Verify().IsEqual(SByte.MaxValue);
-            foo.Byte.Verify().IsEqual(Byte.MaxValue);
-            foo.Char.Verify().IsEqual(Char.MaxValue);
-            foo.Int16.Verify().IsEqual(Int16.MaxValue);
-            foo.Int32.Verify().IsEqual(Int32.MaxValue);
-            foo.Int64.Verify().IsEqual(Int64.MaxValue);
-            foo.UInt16.Verify().IsEqual(UInt16.MaxValue);
-            foo.UInt32.Verify().IsEqual(UInt32.MaxValue);
-            foo.UInt64.Verify().IsEqual(UInt64.MaxValue);
-            foo.Single.Verify().IsEqual(Single.MaxValue);
-            foo.Double.Verify().IsEqual(Double.MaxValue);
-            foo.Decimal.Verify().IsEqual(Decimal.MaxValue);
+            load.Value.Verify().IsNotNull();
+            load.Value.Baz.Verify().IsEqual("bar");
         }
+
+        
     }
 }

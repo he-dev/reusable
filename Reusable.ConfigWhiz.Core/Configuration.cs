@@ -18,7 +18,7 @@ namespace Reusable.ConfigWhiz
             var builder = ImmutableHashSet.CreateBuilder(new DatastoreComparer());
             foreach (var store in settingStores)
             {
-                if (!builder.Add(store)) throw new ArgumentException($"Datastore '{store.Handle}' already exists.");
+                if (!builder.Add(store)) throw new ArgumentException($"Datastore '{store.Name}' already exists.");
             }
             _settingStores = builder.ToImmutable();
         }

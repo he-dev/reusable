@@ -72,6 +72,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Datasto
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Core.Tests.Data", "Reusable.ConfigWhiz.Core.Tests.Data\Reusable.ConfigWhiz.Core.Tests.Data.csproj", "{B3AFABD6-950F-4993-A09E-BE9AF369DB09}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Datastores.SqlServer.Tests", "Reusable.ConfigWhiz.Datastores.SqlServer.Tests\Reusable.ConfigWhiz.Datastores.SqlServer.Tests.csproj", "{7BB974DF-FA8F-4661-9375-F12975112F04}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -191,6 +193,10 @@ Global
 		{B3AFABD6-950F-4993-A09E-BE9AF369DB09}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B3AFABD6-950F-4993-A09E-BE9AF369DB09}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B3AFABD6-950F-4993-A09E-BE9AF369DB09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7BB974DF-FA8F-4661-9375-F12975112F04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7BB974DF-FA8F-4661-9375-F12975112F04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7BB974DF-FA8F-4661-9375-F12975112F04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7BB974DF-FA8F-4661-9375-F12975112F04}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -225,5 +231,6 @@ Global
 		{C3CD7DAB-7921-4EE4-9059-ABF96C241FA0} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
 		{E5F4DA27-E7C9-4D2B-9750-C71ABF7204DE} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
 		{B3AFABD6-950F-4993-A09E-BE9AF369DB09} = {AC36C881-1733-4649-ACBC-03B6F9A9334C}
+		{7BB974DF-FA8F-4661-9375-F12975112F04} = {AC36C881-1733-4649-ACBC-03B6F9A9334C}
 	EndGlobalSection
 EndGlobal

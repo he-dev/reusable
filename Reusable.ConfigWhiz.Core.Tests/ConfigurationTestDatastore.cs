@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -13,22 +14,29 @@ namespace Reusable.ConfigWhiz.Tests
     public abstract class ConfigurationTestDatastore
     {
         protected IEnumerable<IDatastore> Datastores { get; set; }
-        
+
         [TestMethod]
-        public void Load_ConsumerWithoutName_GotContainer()
+        public void Load_Numeric_Success()
         {
-            return;
+            var configuration = new Configuration(Datastores);
 
-            var memory = new Memory(DatastoreHandle.Default)
-            {
-                { "Reusable.ConfigWhiz.Tests.Foo.Bar.Baz", "bar" }
-            };
-            var configuration = new Configuration(ImmutableList<IDatastore>.Empty.Add(memory));
+            var load = configuration.Load<Foo, Numeric>();
+            load.Succees.Verify().IsTrue();
+            load.Value.Verify().IsNotNull();
 
-            var foo = configuration.Load<Foo, Bar>();
-            foo.Succees.Verify().IsTrue();
-            foo.Value.Verify().IsNotNull();
-            foo.Value.Baz.Verify().IsEqual("bar");
-        }        
+            var numeric = load.Value;
+            numeric.SByte.Verify().IsEqual(SByte.MaxValue);
+            numeric.Byte.Verify().IsEqual(Byte.MaxValue);
+            numeric.Char.Verify().IsEqual(Char.MaxValue);
+            numeric.Int16.Verify().IsEqual(Int16.MaxValue);
+            numeric.Int32.Verify().IsEqual(Int32.MaxValue);
+            numeric.Int64.Verify().IsEqual(Int64.MaxValue);
+            numeric.UInt16.Verify().IsEqual(UInt16.MaxValue);
+            numeric.UInt32.Verify().IsEqual(UInt32.MaxValue);
+            numeric.UInt64.Verify().IsEqual(UInt64.MaxValue);
+            numeric.Single.Verify().IsEqual(Single.MaxValue);
+            numeric.Double.Verify().IsEqual(Double.MaxValue);
+            numeric.Decimal.Verify().IsEqual(Decimal.MaxValue);
+        }
     }
 }

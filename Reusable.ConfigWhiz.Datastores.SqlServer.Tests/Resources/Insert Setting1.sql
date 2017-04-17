@@ -1,0 +1,1 @@
+INSERT INTO [Setting1]([Name], [Value]) VALUES(@Name, @Value);

@@ -99,7 +99,7 @@ namespace Reusable.ConfigWhiz
         private Result<object> Load(IDatastore store)
         {
             var settings = store.Read(Path);
-            if (!settings) return Result<object>.Fail($"'{Path.ToFullWeakString()}' not found in '{store.Handle}'.");
+            if (!settings) return Result<object>.Fail($"'{Path.ToFullWeakString()}' not found in '{store.Name}'.");
 
             var data = GetData(settings.AsEnumerable<ISetting>());
             if (!data) return Result<object>.Fail(data.Message);

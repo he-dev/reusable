@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -22,8 +22,8 @@ namespace Reusable.ConfigWhiz.Datastores
             { typeof(byte[]), RegistryValueKind.Binary },
         };
 
-        public Registry(object handle, RegistryKey baseKey, string subKey)
-            : base(handle, new[]
+        public Registry(string name, RegistryKey baseKey, string subKey)
+            : base(name, new[]
             {
                 typeof(int),
                 typeof(byte[]),
@@ -33,6 +33,8 @@ namespace Reusable.ConfigWhiz.Datastores
             _baseKey = baseKey ?? throw new ArgumentNullException(nameof(baseKey));
             _baseSubKeyName = subKey.NullIfEmpty() ?? throw new ArgumentNullException(nameof(subKey));
         }
+
+        public Registry(RegistryKey baseKey, string subKey) :this(CreateDefaultName<Registry>(), baseKey, subKey) { }
 
         public override Result<IEnumerable<ISetting>> Read(SettingPath settingPath)
         {
@@ -89,29 +91,29 @@ namespace Reusable.ConfigWhiz.Datastores
 
         //public const string DefaultKey = @"Software\SmartConfig";
 
-        public static Registry CreateForCurrentUser(object handle, string subRegistryKey)
+        public static Registry CreateForCurrentUser(string name, string subRegistryKey)
         {
-            return new Registry(handle, Microsoft.Win32.Registry.CurrentUser, subRegistryKey);
+            return new Registry(name, Microsoft.Win32.Registry.CurrentUser, subRegistryKey);
         }
 
-        public static Registry CreateForClassesRoot(object handle, string subRegistryKey)
+        public static Registry CreateForClassesRoot(string name, string subRegistryKey)
         {
-            return new Registry(handle, Microsoft.Win32.Registry.ClassesRoot, subRegistryKey);
+            return new Registry(name, Microsoft.Win32.Registry.ClassesRoot, subRegistryKey);
         }
 
-        public static Registry CreateForCurrentConfig(object handle, string subRegistryKey)
+        public static Registry CreateForCurrentConfig(string name, string subRegistryKey)
         {
-            return new Registry(handle, Microsoft.Win32.Registry.CurrentConfig, subRegistryKey);
+            return new Registry(name, Microsoft.Win32.Registry.CurrentConfig, subRegistryKey);
         }
 
-        public static Registry CreateForLocalMachine(object handle, string subRegistryKey)
+        public static Registry CreateForLocalMachine(string name, string subRegistryKey)
         {
-            return new Registry(handle, Microsoft.Win32.Registry.LocalMachine, subRegistryKey);
+            return new Registry(name, Microsoft.Win32.Registry.LocalMachine, subRegistryKey);
         }
 
-        public static Registry CreateForUsers(object handle, string subRegistryKey)
+        public static Registry CreateForUsers(string name, string subRegistryKey)
         {
-            return new Registry(handle, Microsoft.Win32.Registry.Users, subRegistryKey);
+            return new Registry(name, Microsoft.Win32.Registry.Users, subRegistryKey);
         }
     }
 }

@@ -8,16 +8,18 @@ using Reusable.ConfigWhiz.Data;
 
 namespace Reusable.ConfigWhiz.Datastores.AppConfig
 {
-    public class AppSettingsStore : Datastore
+    public class AppSettings : Datastore
     {
         //private readonly System.Configuration.Configuration _exeConfiguration;
         //private readonly AppSettingsSection _appSettingsSection;
 
-        public AppSettingsStore(object handle) : base(handle, new[] { typeof(string) })
+        public AppSettings(string name) : base(name, new[] { typeof(string) })
         {
             //_exeConfiguration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);            
             //_appSettingsSection = _exeConfiguration.AppSettings;
         }
+
+        public AppSettings() : base(CreateDefaultName<AppSettings>(), new[] { typeof(string) }) { }
 
         public override Result<IEnumerable<ISetting>> Read(SettingPath settingPath)
         {
