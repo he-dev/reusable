@@ -1,6 +1,6 @@
 # Reusable.ConfigWhiz v1.0.0-alpha
 
-The new `ConfigWhiz` is similar to `SmartConfig` in that it does not use any magic strings. All configurations and datatypes are strongly typed. It is however more powerfull. Here are the highlights:
+The new `ConfigWhiz` is similar to `SmartConfig` in that it does not use any magic strings. All configurations and datatypes are strongly typed. It is however more powerful. Internally it actually still uses many parts of older _SmartConfig_ but on the surface it's entirely new. The setting name is now more powerful too so the old names will need small adjustments to work with `ConfigWhiz` but the data format does not change. Here are the highlights:
 
 - It does not use static classes any more. The `Configuration` object can be used with DI.
 - It can use multiple datastores that are not bound to any container. Datastores are tested one after another and the first one that contains a setting is used and associated with the setting. The setting will be saved in the same datastore. 
