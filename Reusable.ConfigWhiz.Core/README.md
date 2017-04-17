@@ -31,13 +31,13 @@ var datastores = new IDatastore[]
 
 var configuration = new Configuration(Datastores);
 
-var load = configuration.Load<Foo, Bar>(); // returns Result<Foo>
+var load = configuration.Load<Foo, Bar>(); // returns Result<Bar>
 
 load.Succees.Verify().IsTrue(); // Reusable.Fuse
 load.Value.Verify().IsNotNull();
 load.Value.Baz.Verify().IsEqual("bar");
 
-var foo = load.Value;
+var bar = load.Value;
 
 ```
 
