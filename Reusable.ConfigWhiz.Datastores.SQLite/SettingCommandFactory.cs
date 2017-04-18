@@ -110,14 +110,14 @@ namespace Reusable.ConfigWhiz.Datastores
                 var table = $"{quote(_tableMetadata.TableName)}";
 
                 var columns = where.Keys.Select(columnName => quote(columnName)).Aggregate(
-                    $"[{SettingProperty.Name}], [{nameof(Setting.Value)}]",
+                    $"[{SettingProperty.Name}], [{SettingProperty.Value}]",
                     (result, next) => $"{result}, {next}"
                 );
 
                 sql.Append($"INSERT OR REPLACE INTO {table}({columns})").AppendLine();
 
                 var parameterNames = where.Keys.Aggregate(
-                    $"@{SettingProperty.Name}, @{nameof(Setting.Value)}",
+                    $"@{SettingProperty.Name}, @{SettingProperty.Value}",
                     (result, next) => $"{result}, @{next}"
                 );
 

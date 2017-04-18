@@ -12,7 +12,7 @@ using Reusable.Fuse.Testing;
 
 namespace Reusable.ConfigWhiz.Tests
 {
-    [TestClass]
+    //[TestClass]
     public abstract class ConfigurationTestDatastore
     {
         protected IEnumerable<IDatastore> Datastores { get; set; }

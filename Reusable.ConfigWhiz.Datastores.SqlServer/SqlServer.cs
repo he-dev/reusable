@@ -55,8 +55,8 @@ namespace Reusable.ConfigWhiz.Datastores
                     {
                         var result = new Setting
                         {
-                            Path = SettingPath.Parse((string)settingReader[nameof(Setting.Path)]),
-                            Value = settingReader[nameof(Setting.Value)],
+                            Path = SettingPath.Parse((string)settingReader[SettingProperty.Name]),
+                            Value = settingReader[SettingProperty.Value],
                         };
                         settings.Add(result);
                     }
@@ -129,5 +129,18 @@ namespace Reusable.ConfigWhiz.Datastores
         public string Column { get; set; }
 
         public override string Message => $"\"{Column}\" column configuration not found. Ensure that it is set via the \"{nameof(SqlServer)}\" builder.";
+    }
+
+    public static class TableMetadataExtensions
+    {
+        public static TableMetadata<SqlDbType> AddNameColumn(this TableMetadata<SqlDbType> tableMetadata, int length = 200)
+        {
+            return tableMetadata.AddColumn("Name", SqlDbType.NVarChar, length);
+        }
+
+        public static TableMetadata<SqlDbType> AddValueColumn(this TableMetadata<SqlDbType> tableMetadata, int length = -1)
+        {
+            return tableMetadata.AddColumn("Value", SqlDbType.NVarChar, length);
+        }
     }
 }

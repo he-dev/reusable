@@ -15,7 +15,7 @@ namespace Reusable.Extensions
 
         public static string ExtractConnectionStringName(this string value)
         {
-            if (value.IsNotNullOrEmpty()) { throw new ArgumentNullException(nameof(value)); }
+            if (value.IsNullOrEmpty()) { throw new ArgumentNullException(nameof(value)); }
 
             return Regex
                 .Match(value, @"\Aname=(?<name>.+)", RegexOptions.IgnoreCase)

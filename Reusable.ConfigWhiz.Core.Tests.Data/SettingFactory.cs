@@ -8,16 +8,16 @@ namespace Reusable.ConfigWhiz.Core.Tests.Data
 {
     public class SettingFactory
     {
-        public static IEnumerable<ISetting> ReadSettings<TConsumer>()
+        public static IEnumerable<ISetting> ReadSettings<T>()
         {
-            var json = ResourceReader.ReadEmbeddedResource<TConsumer>("Settings.json");
+            var json = ResourceReader.ReadEmbeddedResource<SettingFactory>("Settings.json");
             var testData = JsonConvert.DeserializeObject<TestData>(json);
             var settings =
                 from property in typeof(TestData).GetProperties(BindingFlags.Instance | BindingFlags.Public)
                 from s in property.GetValue(testData) as Dictionary<string, string>
                 select new Setting
                 {
-                    Path = SettingPath.Parse($"{typeof(TConsumer).Namespace}.{typeof(TConsumer).Name}.{property.Name}.{s.Key}"),
+                    Path = SettingPath.Parse($"{typeof(T).Namespace}.{typeof(T).Name}.{property.Name}.{s.Key}"),
                     Value = s.Value
                 };
             return settings;

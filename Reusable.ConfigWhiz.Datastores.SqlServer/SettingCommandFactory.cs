@@ -33,7 +33,7 @@ namespace Reusable.ConfigWhiz.Datastores
                 sql.Append($"SELECT *").AppendLine();
                 sql.Append($"FROM {table}").AppendLine();
                 sql.Append(where.Aggregate(
-                    $"WHERE ([{nameof(Setting.Path)}] = @{nameof(Setting.Path)} OR [{nameof(Setting.Path)}] LIKE @{nameof(Setting.Path)} + N'[[]%]')",
+                    $"WHERE ([{SettingProperty.Name}] = @{SettingProperty.Name} OR [{SettingProperty.Name}] LIKE @{SettingProperty.Name} + N'[[]%]')",
                     (result, next) => $"{result} AND {Sanitize(next.Key)} = @{next.Key}")
                 );
             }
@@ -43,7 +43,7 @@ namespace Reusable.ConfigWhiz.Datastores
 
             // --- add parameters & values
 
-            AddParameter(command, nameof(Setting.Path), settingPath.ToString("a.b", SettingPathFormatter.Instance));
+            AddParameter(command, SettingProperty.Name, settingPath.ToFullWeakString());
             AddParameters(command, where);
 
             return command;
@@ -68,7 +68,7 @@ namespace Reusable.ConfigWhiz.Datastores
 
                 sql.Append($"DELETE FROM {table}").AppendLine();
                 sql.Append(where.Keys.Aggregate(
-                    $"WHERE ([{nameof(Setting.Path)}] = @{nameof(Setting.Path)} OR [{nameof(Setting.Path)}] LIKE @{nameof(Setting.Path)} + N'[[]%]')",
+                    $"WHERE ([{SettingProperty.Name}] = @{SettingProperty.Name} OR [{SettingProperty.Name}] LIKE @{SettingProperty.Name} + N'[[]%]')",
                     (result, next) => $"{result} AND {Sanitize(next)} = @{next} ")
                 );
             }
@@ -79,7 +79,7 @@ namespace Reusable.ConfigWhiz.Datastores
 
             // --- add parameters & values
 
-            AddParameter(command, nameof(Setting.Path), settingPath.ToString("a.b", SettingPathFormatter.Instance));
+            AddParameter(command, SettingProperty.Name, settingPath.ToFullWeakString());
             AddParameters(command, where);
 
             return command;
@@ -108,24 +108,24 @@ namespace Reusable.ConfigWhiz.Datastores
                 var table = $"{Sanitize(_tableMetadata.SchemaName)}.{Sanitize(_tableMetadata.TableName)}";
 
                 sql.Append($"UPDATE {table}").AppendLine();
-                sql.Append($"SET [{nameof(Setting.Value)}] = @{nameof(Setting.Value)}").AppendLine();
+                sql.Append($"SET [{SettingProperty.Value}] = @{SettingProperty.Value}").AppendLine();
 
                 sql.Append(where.Keys.Aggregate(
-                    $"WHERE ([{nameof(Setting.Path)}] = @{nameof(Setting.Path)} OR [{nameof(Setting.Path)}] LIKE @{nameof(Setting.Path)} + N'[[]%]')",
+                    $"WHERE ([{SettingProperty.Name}] = @{SettingProperty.Name} OR [{SettingProperty.Name}] LIKE @{SettingProperty.Name} + N'[[]%]')",
                     (result, next) => $"{result} AND {Sanitize(next)} = @{next} ")
                 ).AppendLine();
 
                 sql.Append($"IF @@ROWCOUNT = 0").AppendLine();
 
                 var columns = where.Keys.Select(Sanitize).Aggregate(
-                    $"[{nameof(Setting.Path)}], [{nameof(Setting.Value)}]",
+                    $"[{SettingProperty.Name}], [{SettingProperty.Value}]",
                     (result, next) => $"{result}, {next}"
                 );
 
                 sql.Append($"INSERT INTO {table}({columns})").AppendLine();
 
                 var parameterNames = where.Keys.Aggregate(
-                    $"@{nameof(Setting.Path)}, @{nameof(Setting.Value)}",
+                    $"@{SettingProperty.Name}, @{SettingProperty.Value}",
                     (result, next) => $"{result}, @{next}"
                 );
 
@@ -138,8 +138,8 @@ namespace Reusable.ConfigWhiz.Datastores
 
             // --- add parameters
 
-            AddParameter(command, nameof(Setting.Path), settingPath.ToString("a.b[]", SettingPathFormatter.Instance));
-            AddParameter(command, nameof(Setting.Value), value);
+            AddParameter(command, SettingProperty.Name, settingPath.ToFullStrongString());
+            AddParameter(command, SettingProperty.Value, value);
             AddParameters(command, where);
 
             return command;
@@ -152,7 +152,7 @@ namespace Reusable.ConfigWhiz.Datastores
                 throw new ColumnConfigurationNotFoundException(name);
             }
 
-            var parameter = command.Parameters.Add(name, column.DbType, column.Length);
+            var parameter = command.Parameters.Add($"@{name}", column.DbType, column.Length);
 
             if (value != null)
             {
