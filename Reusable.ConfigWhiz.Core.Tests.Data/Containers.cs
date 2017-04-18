@@ -47,7 +47,7 @@ namespace Reusable.ConfigWhiz.Core.Tests.Data
         public string IgnoreString { get; set; } = "Ignore value";
     }
 
-    public class Drawing
+    public class Paint
     {
         [Format("#RRGGBB", typeof(HexadecimalColorFormatter))]
         public Color ColorName { get; set; }

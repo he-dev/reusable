@@ -43,7 +43,7 @@ namespace Reusable.ConfigWhiz
                     .Append(delimiter)
                     .Append(settingPath.ConsumerName)
                     .AppendWhen(
-                        () => settingPath.InstanceName?.Trim('"') ?? string.Empty, 
+                        () => settingPath.InstanceName ?? string.Empty, 
                         instanceName => instanceName.IsNotNullOrEmpty(), 
                         (sb, instanceName) => sb.Append($"[\"{instanceName}\"]"))
                     .Append(delimiter);
@@ -56,7 +56,7 @@ namespace Reusable.ConfigWhiz
 
             if (match.Groups["strong"].Success && settingPath.ElementName.IsNotNullOrEmpty())
             {
-                name.Append($"[\"{settingPath.ElementName.Trim('"')}\"]");
+                name.Append($"[\"{settingPath.ElementName}\"]");
             }
 
             return name.ToString();

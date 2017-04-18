@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 
 namespace Reusable.Fuse
 {
@@ -116,6 +117,29 @@ namespace Reusable.Fuse
             return specificationContext.AssertIsTrue(
                 value => typeof(T).IsAssignableFrom(value),
                 message ?? $"\"{specificationContext.MemberName}\" must be assignable from \"{typeof(T).FullName}\".");
+        }
+
+    }
+}
+
+// System.Drawing types need to be in a separate namespace because otherwise they pollute everything and the reference to this namespace needs to be added.
+namespace Reusable.Fuse.Drawing
+{
+    public static class DrawingValidations
+    {
+        public static ISpecificationContext<Color> IsEqual(this ISpecificationContext<Color> specificationContext, Color equalValue, string message = null)
+        {
+            return specificationContext.AssertIsTrue(
+                // Default color equality does not work because it compares the name too which may differ even though the colors are the same.
+                value => value.ToArgb() == equalValue.ToArgb(),
+                message ?? $"\"{specificationContext.MemberName}\" must be equal \"{equalValue}\" but is \"{specificationContext.Value}\".");
+        }
+
+        public static ISpecificationContext<Color> IsNotEqual(this ISpecificationContext<Color> specificationContext, Color equalValue, string message = null)
+        {
+            return specificationContext.AssertIsFalse(
+                value => value == equalValue,
+                message ?? $"\"{specificationContext.MemberName}\" must be equal \"{equalValue}\" but is \"{specificationContext.Value}\".");
         }
     }
 }

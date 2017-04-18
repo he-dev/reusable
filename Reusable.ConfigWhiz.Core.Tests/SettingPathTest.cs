@@ -31,7 +31,7 @@ namespace Reusable.ConfigWhiz.Tests
             settingPath.InstanceName.Verify().IsNullOrEmpty();
             settingPath.ContainerName.Verify().IsEqual("Foo");
             settingPath.SettingName.Verify().IsEqual("Bar");
-            settingPath.ElementName.Verify().IsEqual("\"Baz\"");
+            settingPath.ElementName.Verify().IsEqual("Baz");
         }
 
         [TestMethod]
@@ -55,7 +55,7 @@ namespace Reusable.ConfigWhiz.Tests
             settingPath.InstanceName.Verify().IsNullOrEmpty();
             settingPath.ContainerName.Verify().IsEqual("Foo");
             settingPath.SettingName.Verify().IsEqual("Bar");
-            settingPath.ElementName.Verify().IsEqual("\"Baz\"");
+            settingPath.ElementName.Verify().IsEqual("Baz");
         }
 
         [TestMethod]
@@ -64,10 +64,22 @@ namespace Reusable.ConfigWhiz.Tests
             var settingPath = SettingPath.Parse("abc.jkl.xyz[\"qwe\"].Foo.Bar[\"Baz\"]");
             settingPath.ConsumerNamespace.Verify().SequenceEqual(new[] { "abc", "jkl" });
             settingPath.ConsumerName.Verify().IsEqual("xyz");
-            settingPath.InstanceName.Verify().IsEqual("\"qwe\"");
+            settingPath.InstanceName.Verify().IsEqual("qwe");
             settingPath.ContainerName.Verify().IsEqual("Foo");
             settingPath.SettingName.Verify().IsEqual("Bar");
-            settingPath.ElementName.Verify().IsEqual("\"Baz\"");
+            settingPath.ElementName.Verify().IsEqual("Baz");
+        }
+
+        [TestMethod]
+        public void Parse_FullStrongWithUnqotedName_Success()
+        {
+            var settingPath = SettingPath.Parse("abc.jkl.xyz.Foo.Bar[Baz]");
+            settingPath.ConsumerNamespace.Verify().SequenceEqual(new[] { "abc", "jkl" });
+            settingPath.ConsumerName.Verify().IsEqual("xyz");
+            settingPath.InstanceName.Verify().IsNullOrEmpty();
+            settingPath.ContainerName.Verify().IsEqual("Foo");
+            settingPath.SettingName.Verify().IsEqual("Bar");
+            settingPath.ElementName.Verify().IsEqual("Baz");
         }
 
         [TestMethod]

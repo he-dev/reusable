@@ -52,6 +52,7 @@
     </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Reusable.ConfigWhiz.Core.Tests\ConfigurationTestDatastore.cs">

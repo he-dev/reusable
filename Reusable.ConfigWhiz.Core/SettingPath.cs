@@ -146,14 +146,14 @@ namespace Reusable.ConfigWhiz
 
         public static SettingPath Parse(string value)
         {
-            var matches = Regex.Matches(value, @"(?<Delimiter>[^a-z0-9_])?(?<Name>[a-z_][a-z0-9_]*)(?:\[(?<Key>"".+?""|any)\])?", RegexOptions.IgnoreCase);
+            var matches = Regex.Matches(value, @"(?<Delimiter>[^a-z0-9_])?(?<Name>[a-z_][a-z0-9_]*)(?:\[(?<Key>"".+?""|'.+?'|.+?)\])?", RegexOptions.IgnoreCase);
 
             var items =
                 (from m in matches.Cast<Match>()
                  select (
                  Delimiter: m.Groups["Delimiter"].Value,
                  Name: m.Groups["Name"].Value,
-                 Key: m.Groups["Key"].Value
+                 Key: m.Groups["Key"].Value.Trim('"', '\'')
                  )).ToList();
 
             var containerNameCount = 2;

@@ -28,7 +28,7 @@ namespace Reusable.ConfigWhiz.Core.Tests.Data
             public Dictionary<string, string> Numeric { get; set; }
             public Dictionary<string, string> Literal { get; set; }
             public Dictionary<string, string> Other { get; set; }
-            public Dictionary<string, string> Drawing { get; set; }
+            public Dictionary<string, string> Paint { get; set; }
             public Dictionary<string, string> Collection { get; set; }
         }
     }
