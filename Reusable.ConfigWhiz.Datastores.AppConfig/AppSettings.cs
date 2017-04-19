@@ -21,7 +21,7 @@ namespace Reusable.ConfigWhiz.Datastores.AppConfig
 
         public AppSettings() : base(CreateDefaultName<AppSettings>(), new[] { typeof(string) }) { }
 
-        public override Result<IEnumerable<ISetting>> Read(SettingPath settingPath)
+        public override ICollection<ISetting> Read(SettingPath settingPath)
         {
             var exeConfig = OpenExeConfiguration();
 
@@ -34,15 +34,17 @@ namespace Reusable.ConfigWhiz.Datastores.AppConfig
                     Path = SettingPath.Parse(k),
                     Value = exeConfig.AppSettings.Settings[k].Value
                 };
-            return settings.ToList();
+            return settings.Cast<ISetting>().ToList();
         }
 
-        public override Result Write(IGrouping<SettingPath, ISetting> settings)
+        public override int Write(IGrouping<SettingPath, ISetting> settings)
         {
             var exeConfig = OpenExeConfiguration();
 
             // If we are saving an itemized setting its keys might have changed.
             // Since we don't know the old keys we need to delete all keys that are alike first.
+
+            var settingsAffected = 0;
 
             void DeleteSettingGroup(AppSettingsSection appSettings)
             {
@@ -51,22 +53,21 @@ namespace Reusable.ConfigWhiz.Datastores.AppConfig
                 foreach (var key in keys)
                 {
                     appSettings.Settings.Remove(key);
+                    settingsAffected++;
                 }
             }
 
-            foreach (var group in settings)
-            {
-                DeleteSettingGroup(exeConfig.AppSettings);
+            DeleteSettingGroup(exeConfig.AppSettings);
 
-                foreach (var setting in settings)
-                {
-                    var settingName = settings.Key.ToString(SettingPathFormat.FullStrong, SettingPathFormatter.Instance);
-                    exeConfig.AppSettings.Settings.Add(settingName, (string)setting.Value);
-                }
+            foreach (var setting in settings)
+            {
+                var settingName = settings.Key.ToString(SettingPathFormat.FullStrong, SettingPathFormatter.Instance);
+                exeConfig.AppSettings.Settings.Add(settingName, (string)setting.Value);
+                settingsAffected++;
             }
             exeConfig.Save(ConfigurationSaveMode.Minimal);
 
-            return Result.Ok();
+            return settingsAffected;
         }
 
 

@@ -36,12 +36,12 @@ namespace Reusable.ConfigWhiz.Datastores
 
         public Registry(RegistryKey baseKey, string subKey) :this(CreateDefaultName<Registry>(), baseKey, subKey) { }
 
-        public override Result<IEnumerable<ISetting>> Read(SettingPath settingPath)
+        public override ICollection<ISetting> Read(SettingPath settingPath)
         {
             var subKeyName = Path.Combine(_baseSubKeyName, string.Join("\\", settingPath.ConsumerNamespace));
             using (var subKey = _baseKey.OpenSubKey(subKeyName, false))
             {
-                if (subKey == null) return Result<IEnumerable<ISetting>>.Fail($"Could not open or create \"{_baseKey.Name}\\{_baseSubKeyName}\\{subKeyName}\".");
+                if (subKey == null) throw new SubKeyException(_baseKey.Name, _baseSubKeyName, subKeyName);
 
                 var shortWeakPath = settingPath.ToShortWeakString();
                 var settings =
@@ -53,12 +53,14 @@ namespace Reusable.ConfigWhiz.Datastores
                         Path = valuePath,
                         Value = subKey.GetValue(valueName)
                     };
-                return settings.ToList();
+                return settings.Cast<ISetting>().ToList();
             }
         }
 
-        public override Result Write(IGrouping<SettingPath, ISetting> settings)
+        public override int Write(IGrouping<SettingPath, ISetting> settings)
         {
+            var settingsAffected = 0;
+
             void DeleteObsoleteSettings(RegistryKey registryKey)
             {
                 var obsoleteNames =
@@ -66,13 +68,17 @@ namespace Reusable.ConfigWhiz.Datastores
                     where SettingPath.Parse(valueName).ToShortWeakString().Equals(settings.Key.ToShortWeakString(), StringComparison.OrdinalIgnoreCase)
                     select valueName;
 
-                foreach (var obsoleteName in obsoleteNames) registryKey.DeleteValue(obsoleteName);
+                foreach (var obsoleteName in obsoleteNames)
+                {
+                    registryKey.DeleteValue(obsoleteName);
+                    settingsAffected++;
+                }
             }
 
             var subKeyName = Path.Combine(_baseSubKeyName, string.Join("\\", settings.Key.ConsumerNamespace));
             using (var subKey = _baseKey.OpenSubKey(subKeyName, true) ?? _baseKey.CreateSubKey(subKeyName))
             {
-                if (subKey == null) return Result<IEnumerable<ISetting>>.Fail($"Could not open or create \"{_baseKey.Name}\\{_baseSubKeyName}\\{subKeyName}\".");
+                if (subKey == null) throw new SubKeyException(_baseKey.Name, _baseSubKeyName, subKeyName);
 
                 DeleteObsoleteSettings(subKey);
 
@@ -84,9 +90,10 @@ namespace Reusable.ConfigWhiz.Datastores
                     }
 
                     subKey.SetValue(setting.Path.ToShortStrongString(), setting.Value, registryValueKind);
+                    settingsAffected++;
                 }
             }
-            return Result.Ok();
+            return settingsAffected;
         }
 
         //public const string DefaultKey = @"Software\SmartConfig";
@@ -116,4 +123,6 @@ namespace Reusable.ConfigWhiz.Datastores
             return new Registry(name, Microsoft.Win32.Registry.Users, subRegistryKey);
         }
     }
+
+
 }

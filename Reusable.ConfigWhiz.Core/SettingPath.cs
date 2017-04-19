@@ -119,13 +119,14 @@ namespace Reusable.ConfigWhiz
 
         public string ElementName { get; }
 
-        private string DebuggerDisplay => new string[] {
-            $"{nameof(ConsumerNamespace)} = \"{string.Join(", ", ConsumerNamespace)}\"",
-            $"{nameof(ConsumerName)} = \"{ConsumerName}\"",
-            $"{nameof(InstanceName)} = \"{InstanceName}\"",
-            $"{nameof(SettingName)} = \"{SettingName}\"",
-            $"{nameof(ElementName)} = \"{ElementName}\""
-        }.Join(" ");
+        private string DebuggerDisplay => this.ToFullStrongString();
+        //new string[] {
+        //    $"{nameof(ConsumerNamespace)} = \"{string.Join(", ", ConsumerNamespace)}\"",
+        //    $"{nameof(ConsumerName)} = \"{ConsumerName}\"",
+        //    $"{nameof(InstanceName)} = \"{InstanceName}\"",
+        //    $"{nameof(SettingName)} = \"{SettingName}\"",
+        //    $"{nameof(ElementName)} = \"{ElementName}\""
+        //}.Join(" ");
 
         public static SettingPath Create(Type consumerType, string instanceName, PropertyInfo property, string elementName)
         {

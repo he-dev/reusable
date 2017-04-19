@@ -23,9 +23,9 @@ namespace Reusable.ConfigWhiz.Datastores
         //public override string ToString() => this.ToJson();
     }
 
-    public class OpenOrCreateSubKeyException : Exception
+    public class SubKeyException : Exception
     {
-        internal OpenOrCreateSubKeyException(string baseKeyName, string baseKeySubName, string subKeyName)
+        internal SubKeyException(string baseKeyName, string baseKeySubName, string subKeyName)
         {
             BaseKeyName = baseKeyName;
             BaseKeySubName = baseKeySubName;

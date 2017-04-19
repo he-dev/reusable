@@ -31,5 +31,51 @@ namespace Reusable
                 return (ex, message, stopwatch.Elapsed);
             }
         }
+
+        public static bool Execute(Action action, string message, out Result result)
+        {
+            var stopwatch = Stopwatch.StartNew();
+            try
+            {
+                action();
+                result = Result.Ok(stopwatch.Elapsed);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                result = Result.Fail(ex, message, stopwatch.Elapsed);
+                return false;
+            }
+        }
+
+        public static bool Execute<T>(Func<T> action, string message, out Result<T> result)
+        {
+            var stopwatch = Stopwatch.StartNew();
+            try
+            {
+                result = Result<T>.Ok(action(), stopwatch.Elapsed);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                result = Result<T>.Fail(ex, message, stopwatch.Elapsed);
+                return false;
+            }
+        }
+
+        public static bool Execute<T>(Func<Result<T>> action, string message, out Result<T> result)
+        {
+            var stopwatch = Stopwatch.StartNew();
+            try
+            {
+                result = Result<T>.Ok(action(), stopwatch.Elapsed);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                result = Result<T>.Fail(ex, message, stopwatch.Elapsed);
+                return false;
+            }
+        }
     }
 }

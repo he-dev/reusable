@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
 using System.Data;
 using System.Data.SqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -22,9 +23,9 @@ namespace Reusable.ConfigWhiz.Datastores.Tests
 
             Datastores = new IDatastore[]
             {
-                new Reusable.ConfigWhiz.Datastores.SqlServer(
+                new SqlServer(
                     "SqlServer1",
-                    "name=TestDb",                     
+                    "name=TestDb",
                     TableMetadata<SqlDbType>
                         .Create("dbo", "Setting3")
                             .AddNameColumn()
@@ -36,6 +37,38 @@ namespace Reusable.ConfigWhiz.Datastores.Tests
             };
 
             Utils.ResetData(Environment, Version, Salt);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void ctor_MissingDefaultColumns_Throws()
+        {
+            var store = new SqlServer(
+                "SqlServer1",
+                "name=TestDb",
+                TableMetadata<SqlDbType>
+                    .Create("dbo", "Setting3")
+                    .AddColumn("Environment", SqlDbType.NVarChar, 200)
+                    .AddColumn("Version", SqlDbType.NVarChar, 50),
+                ImmutableDictionary<string, object>.Empty.Add("Environment", "Test").Add("Version", "1.0")
+            );
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void ctor_MissingConstraints_Throws()
+        {
+            var store = new SqlServer(
+                "SqlServer1",
+                "name=TestDb",
+                TableMetadata<SqlDbType>
+                    .Create("dbo", "Setting3")
+                    .AddNameColumn()
+                    .AddValueColumn()
+                    .AddColumn("Environment", SqlDbType.NVarChar, 200)
+                    .AddColumn("Version", SqlDbType.NVarChar, 50),
+                ImmutableDictionary<string, object>.Empty.Add("Environment", "Test")
+            );
         }
 
         private static class Utils

@@ -98,11 +98,11 @@ namespace Reusable.ConfigWhiz
 
         private Result<object> Load(IDatastore store)
         {
-            var settings = store.Read(Path);
-            if (!settings) return Result<object>.Fail($"'{Path.ToFullWeakString()}' not found in '{store.Name}'.");
+            var settings = Try.Execute(() => store.Read(Path));
+            if (!settings || !settings.Value.Any()) return Result<object>.Fail(settings, $"'{Path.ToFullWeakString()}' not found in '{store.Name}'.");
 
             var data = GetData(settings.AsEnumerable<ISetting>());
-            if (!data) return Result<object>.Fail(data.Message);
+            if (!data) return data;
 
             var value = data.Value == null ? null : _converter.Convert(data.Value, Type, Format?.FormatString, Format?.FormatProvider ?? CultureInfo.InvariantCulture);
 
@@ -137,6 +137,7 @@ namespace Reusable.ConfigWhiz
 
         public Result Save()
         {
+
             return Result.Ok();
         }
     }

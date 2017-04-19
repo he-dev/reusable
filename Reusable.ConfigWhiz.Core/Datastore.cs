@@ -11,8 +11,8 @@ namespace Reusable.ConfigWhiz
     {
         string Name { get; }
         IImmutableSet<Type> SupportedTypes { get; }
-        Result<IEnumerable<ISetting>> Read(SettingPath settingPath);
-        Result Write(IGrouping<SettingPath, ISetting> settings);
+        ICollection<ISetting> Read(SettingPath settingPath);
+        int Write(IGrouping<SettingPath, ISetting> settings);
     }
 
     public abstract class Datastore : IDatastore
@@ -22,16 +22,16 @@ namespace Reusable.ConfigWhiz
         protected Datastore(string name, IEnumerable<Type> supportedTypes)
         {
             Name = name.NullIfEmpty() ?? throw new ArgumentNullException(nameof(name));
-            SupportedTypes = supportedTypes.ToImmutableHashSet();
+            SupportedTypes = (supportedTypes ?? throw new ArgumentNullException(nameof(supportedTypes))).ToImmutableHashSet();
         }
 
         public string Name { get; }
 
         public IImmutableSet<Type> SupportedTypes { get; }
 
-        public abstract Result<IEnumerable<ISetting>> Read(SettingPath settingPath);
+        public abstract ICollection<ISetting> Read(SettingPath settingPath);
 
-        public abstract Result Write(IGrouping<SettingPath, ISetting> settings);
+        public abstract int Write(IGrouping<SettingPath, ISetting> settings);
 
         protected static string CreateDefaultName<T>()
         {

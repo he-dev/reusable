@@ -30,6 +30,29 @@ namespace Reusable.ConfigWhiz.Datastores
 
             _where = where ?? throw new ArgumentNullException(nameof(where));
             _settingCommandFactory = new SettingCommandFactory(tableMetadata ?? throw new ArgumentNullException(nameof(tableMetadata)));
+
+            #region Validate default columns exist
+
+            var defaultColumnsExist =
+                tableMetadata.Columns.ContainsKey(SettingProperty.Name) &&
+                tableMetadata.Columns.ContainsKey(SettingProperty.Value);
+
+            if (!defaultColumnsExist) throw new ArgumentException($"Table metadata does not contain one or more default columns: [{SettingProperty.Name}, {SettingProperty.Value}].");
+
+            #endregion
+
+            #region Validate custom table columns are constrained by 'where'
+
+            var unconstrainedCustomColumns =
+                (from customColumn in tableMetadata.Columns.Select(x => x.Key)
+                 where
+                     !SettingProperty.Exists(customColumn) &&
+                     !@where.ContainsKey(customColumn)
+                 select customColumn).ToList();
+            if (unconstrainedCustomColumns.Any()) throw new ArgumentException($"One or more custom columns are not constrained: [{string.Join(", ", unconstrainedCustomColumns)}]");
+
+            #endregion
+
         }
 
         public SqlServer(string name, string nameOrConnectionString)
@@ -38,9 +61,19 @@ namespace Reusable.ConfigWhiz.Datastores
         public SqlServer(string nameOrConnectionString)
             : this(CreateDefaultName<SqlServer>(), nameOrConnectionString) { }
 
-        public static readonly TableMetadata<SqlDbType> DefaultMetadata = TableMetadata<SqlDbType>.Create("dbo", "Setting").AddColumn("Name", SqlDbType.NVarChar, 200).AddColumn("Value", SqlDbType.NVarChar, -1);
+        public static readonly TableMetadata<SqlDbType> DefaultMetadata =
+            TableMetadata<SqlDbType>
+                .Create("dbo", "Setting")
+                .AddColumn("Name", SqlDbType.NVarChar, 200)
+                .AddColumn("Value", SqlDbType.NVarChar, -1);
 
-        public override Result<IEnumerable<ISetting>> Read(SettingPath settingPath)
+        public static TableMetadata<SqlDbType> CreateDefaultMetadata(string schemaName, string tableName) =>
+            TableMetadata<SqlDbType>
+                .Create(schemaName, tableName)
+                .AddColumn("Name", SqlDbType.NVarChar, 200)
+                .AddColumn("Value", SqlDbType.NVarChar, -1);
+
+        public override ICollection<ISetting> Read(SettingPath settingPath)
         {
             using (var connection = OpenConnection())
             using (var command = _settingCommandFactory.CreateSelectCommand(connection, settingPath, _where))
@@ -65,15 +98,17 @@ namespace Reusable.ConfigWhiz.Datastores
             }
         }
 
-        public override Result Write(IGrouping<SettingPath, ISetting> settings)
+        public override int Write(IGrouping<SettingPath, ISetting> settings)
         {
+            var affectedRows = 0;
+
             void DeleteObsoleteSettings(SqlConnection connection, SqlTransaction transaction)
             {
                 using (var deleteCommand = _settingCommandFactory.CreateDeleteCommand(connection, settings.Key, _where))
                 {
                     deleteCommand.Transaction = transaction;
                     deleteCommand.Prepare();
-                    deleteCommand.ExecuteNonQuery();
+                    affectedRows += deleteCommand.ExecuteNonQuery();
                 }
             }
 
@@ -81,16 +116,14 @@ namespace Reusable.ConfigWhiz.Datastores
             {
                 foreach (var setting in settings)
                 {
-                    using (var insertCommand = _settingCommandFactory.CreateInsertCommand(connection, setting.Path, setting.Value, _where))
+                    using (var cmd = _settingCommandFactory.CreateInsertCommand(connection, setting.Path, setting.Value, _where))
                     {
-                        insertCommand.Transaction = transaction;
-                        insertCommand.Prepare();
-                        insertCommand.ExecuteNonQuery();
+                        cmd.Transaction = transaction;
+                        cmd.Prepare();
+                        affectedRows += cmd.ExecuteNonQuery();
                     }
                 }
             }
-
-            var sw = Stopwatch.StartNew();
 
             using (var connection = OpenConnection())
             using (var transaction = connection.BeginTransaction())
@@ -101,14 +134,13 @@ namespace Reusable.ConfigWhiz.Datastores
                     InsertNewSettings(connection, transaction);
                     transaction.Commit();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     transaction.Rollback();
-                    return Result.Fail(ex, sw.Elapsed);
+                    throw;
                 }
             }
-
-            return Result.Ok(sw.Elapsed);
+            return affectedRows;
         }
 
         private SqlConnection OpenConnection()
@@ -133,14 +165,14 @@ namespace Reusable.ConfigWhiz.Datastores
 
     public static class TableMetadataExtensions
     {
-        public static TableMetadata<SqlDbType> AddNameColumn(this TableMetadata<SqlDbType> tableMetadata, int length = 200)
+        public static TableMetadata<SqlDbType> AddNameColumn(this TableMetadata<SqlDbType> tableMetadata, SqlDbType dbType = SqlDbType.NVarChar, int length = 200)
         {
-            return tableMetadata.AddColumn("Name", SqlDbType.NVarChar, length);
+            return tableMetadata.AddColumn(SettingProperty.Name, dbType, length);
         }
 
-        public static TableMetadata<SqlDbType> AddValueColumn(this TableMetadata<SqlDbType> tableMetadata, int length = -1)
+        public static TableMetadata<SqlDbType> AddValueColumn(this TableMetadata<SqlDbType> tableMetadata, SqlDbType dbType = SqlDbType.NVarChar, int length = -1)
         {
-            return tableMetadata.AddColumn("Value", SqlDbType.NVarChar, length);
+            return tableMetadata.AddColumn(SettingProperty.Value, dbType, length);
         }
     }
 }

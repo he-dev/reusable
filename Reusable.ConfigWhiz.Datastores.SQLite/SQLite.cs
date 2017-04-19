@@ -56,7 +56,7 @@ namespace Reusable.ConfigWhiz.Datastores
             set => _settingEncoding = value ?? throw new ArgumentNullException(nameof(SettingEncoding));
         }
 
-        public override Result<IEnumerable<ISetting>> Read(SettingPath settingPath)
+        public override ICollection<ISetting> Read(SettingPath settingPath)
         {
             using (var connection = OpenConnection())
             using (var command = _settingCommandFactory.CreateSelectCommand(connection, settingPath, _where))
@@ -82,15 +82,17 @@ namespace Reusable.ConfigWhiz.Datastores
             }
         }
 
-        public override Result Write(IGrouping<SettingPath, ISetting> settings)
+        public override int Write(IGrouping<SettingPath, ISetting> settings)
         {
+            var rowsAffected = 0;
+
             void DeleteObsoleteSettings(SQLiteConnection connection, SQLiteTransaction transaction)
             {
                 using (var deleteCommand = _settingCommandFactory.CreateDeleteCommand(connection, settings.Key, _where))
                 {
                     deleteCommand.Transaction = transaction;
                     deleteCommand.Prepare();
-                    deleteCommand.ExecuteNonQuery();
+                    rowsAffected += deleteCommand.ExecuteNonQuery();
                 }
             }
 
@@ -107,7 +109,7 @@ namespace Reusable.ConfigWhiz.Datastores
                     {
                         insertCommand.Transaction = transaction;
                         insertCommand.Prepare();
-                        insertCommand.ExecuteNonQuery();
+                        rowsAffected += insertCommand.ExecuteNonQuery();
                     }
                 }
             }
@@ -121,12 +123,12 @@ namespace Reusable.ConfigWhiz.Datastores
                     InsertNewSettings(connection, transaction);
                     transaction.Commit();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     transaction.Rollback();
-                    return ex;
+                    throw;
                 }
-                return Result.Ok();
+                return rowsAffected;
             }
         }
 

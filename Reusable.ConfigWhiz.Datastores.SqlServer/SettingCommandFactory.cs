@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using Reusable.ConfigWhiz.Data;
 using Reusable.Data;
@@ -43,8 +44,11 @@ namespace Reusable.ConfigWhiz.Datastores
 
             // --- add parameters & values
 
-            AddParameter(command, SettingProperty.Name, settingPath.ToFullWeakString());
-            AddParameters(command, where);
+            (command, _tableMetadata).AddParameter(
+                ImmutableDictionary<string, object>.Empty
+                    .Add(SettingProperty.Name, settingPath.ToFullWeakString())
+                    .AddRange(where)
+            );
 
             return command;
         }
@@ -79,8 +83,11 @@ namespace Reusable.ConfigWhiz.Datastores
 
             // --- add parameters & values
 
-            AddParameter(command, SettingProperty.Name, settingPath.ToFullWeakString());
-            AddParameters(command, where);
+            (command, _tableMetadata).AddParameter(
+                ImmutableDictionary<string, object>.Empty
+                    .Add(SettingProperty.Name, settingPath.ToFullWeakString())
+                    .AddRange(where)
+            );
 
             return command;
         }
@@ -138,34 +145,34 @@ namespace Reusable.ConfigWhiz.Datastores
 
             // --- add parameters
 
-            AddParameter(command, SettingProperty.Name, settingPath.ToFullStrongString());
-            AddParameter(command, SettingProperty.Value, value);
-            AddParameters(command, where);
+            (command, _tableMetadata).AddParameter(
+                ImmutableDictionary<string, object>.Empty
+                    .Add(SettingProperty.Name, settingPath.ToFullStrongString())
+                    .Add(SettingProperty.Value, value)
+                    .AddRange(where)
+            );
 
             return command;
-        }
+        }       
+    }
 
-        private void AddParameter(SqlCommand command, string name, object value = null)
-        {
-            if (!_tableMetadata.Columns.TryGetValue(name, out ColumnMetadata<SqlDbType> column))
-            {
-                throw new ColumnConfigurationNotFoundException(name);
-            }
-
-            var parameter = command.Parameters.Add($"@{name}", column.DbType, column.Length);
-
-            if (value != null)
-            {
-                parameter.Value = value;
-            }
-        }
-
-        private void AddParameters(SqlCommand command, IEnumerable<KeyValuePair<string, object>> parameters)
+    internal static class SqlCommandExtensions
+    {
+        public static (SqlCommand cmd, TableMetadata<SqlDbType> tableMetadata) AddParameter(this (SqlCommand cmd, TableMetadata<SqlDbType> tableMetadata) @this, IImmutableDictionary<string, object> parameters)
         {
             foreach (var parameter in parameters)
             {
-                AddParameter(command, parameter.Key, parameter.Value);
+                if (@this.tableMetadata.Columns.TryGetValue(parameter.Key, out ColumnMetadata<SqlDbType> column))
+                {
+                    var sqlParameter = @this.cmd.Parameters.Add($"@{parameter.Key}", column.DbType, column.Length);
+                    if (parameter.Value != null) sqlParameter.Value = parameter.Value;
+                }
+                else
+                {
+                    throw new ColumnConfigurationNotFoundException(parameter.Key);
+                }
             }
+            return @this;
         }
     }
 }

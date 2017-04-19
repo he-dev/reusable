@@ -98,6 +98,10 @@ namespace Reusable.ConfigWhiz
         private SettingProperty(string name) { _name = name; }
         public static readonly SettingProperty Name = new SettingProperty(nameof(Name));
         public static readonly SettingProperty Value = new SettingProperty(nameof(Value));
+        //public static readonly IEnumerable<SettingProperty> Default = new[] { Name, Value };
+        public static bool Exists(string name) => 
+            name.Equals(nameof(Name), StringComparison.OrdinalIgnoreCase) || 
+            name.Equals(nameof(Value), StringComparison.OrdinalIgnoreCase);
         public override string ToString() => _name;
         public static implicit operator string(SettingProperty settingProperty) => settingProperty._name;
     }

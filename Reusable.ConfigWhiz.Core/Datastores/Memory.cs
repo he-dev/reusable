@@ -19,17 +19,17 @@ namespace Reusable.ConfigWhiz.Datastores
             : base(name, supportedTypes)
         { }
 
-        public override Result<IEnumerable<ISetting>> Read(SettingPath settingPath)
+        public override ICollection<ISetting> Read(SettingPath settingPath)
         {
             var name = settingPath.ToFullWeakString();
             var settings =
                 (from x in Data
                  where x.Path.ToFullWeakString().Equals(name, StringComparison.OrdinalIgnoreCase)
                  select x).ToList();
-            return Result<IEnumerable<ISetting>>.Conditional(() => settings.Any(), () => settings, () => $"'{settingPath.ToFullWeakString()}' not found.");
+            return settings;
         }
 
-        public override Result Write(IGrouping<SettingPath, ISetting> settings)
+        public override int Write(IGrouping<SettingPath, ISetting> settings)
         {
             var name = settings.Key.ToString(SettingPathFormat.FullWeak, SettingPathFormatter.Instance);
             var obsoleteSettings =
@@ -40,7 +40,7 @@ namespace Reusable.ConfigWhiz.Datastores
 
             foreach (var setting in settings) Add(setting);
 
-            return Result.Ok();
+            return obsoleteSettings.Count;
         }
 
         public List<ISetting> Data { [DebuggerStepThrough] get; [DebuggerStepThrough] set; } = new List<ISetting>();
