@@ -36,7 +36,7 @@ namespace Reusable.ConfigWhiz.Datastores
 
         public Registry(RegistryKey baseKey, string subKey) :this(CreateDefaultName<Registry>(), baseKey, subKey) { }
 
-        public override ICollection<ISetting> Read(SettingPath settingPath)
+        protected override ICollection<ISetting> ReadCore(SettingPath settingPath)
         {
             var subKeyName = Path.Combine(_baseSubKeyName, string.Join("\\", settingPath.ConsumerNamespace));
             using (var subKey = _baseKey.OpenSubKey(subKeyName, false))
@@ -57,7 +57,7 @@ namespace Reusable.ConfigWhiz.Datastores
             }
         }
 
-        public override int Write(IGrouping<SettingPath, ISetting> settings)
+        protected override int WriteCore(IGrouping<SettingPath, ISetting> settings)
         {
             var settingsAffected = 0;
 

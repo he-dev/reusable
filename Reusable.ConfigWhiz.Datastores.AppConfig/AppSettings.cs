@@ -21,7 +21,7 @@ namespace Reusable.ConfigWhiz.Datastores.AppConfig
 
         public AppSettings() : base(CreateDefaultName<AppSettings>(), new[] { typeof(string) }) { }
 
-        public override ICollection<ISetting> Read(SettingPath settingPath)
+        protected override ICollection<ISetting> ReadCore(SettingPath settingPath)
         {
             var exeConfig = OpenExeConfiguration();
 
@@ -37,7 +37,7 @@ namespace Reusable.ConfigWhiz.Datastores.AppConfig
             return settings.Cast<ISetting>().ToList();
         }
 
-        public override int Write(IGrouping<SettingPath, ISetting> settings)
+        protected override int WriteCore(IGrouping<SettingPath, ISetting> settings)
         {
             var exeConfig = OpenExeConfiguration();
 

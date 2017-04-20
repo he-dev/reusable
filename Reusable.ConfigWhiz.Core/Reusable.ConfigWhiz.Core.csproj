@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration.cs" />
+    <Compile Include="Converters\EnumerableToDictionaryConverter.cs" />
     <Compile Include="Datastore.cs" />
     <Compile Include="Datastores\Memory.cs" />
     <Compile Include="Data\Annotations\ItemizedAttribute.cs" />

@@ -73,7 +73,7 @@ namespace Reusable.ConfigWhiz.Datastores
                 .AddColumn("Name", SqlDbType.NVarChar, 200)
                 .AddColumn("Value", SqlDbType.NVarChar, -1);
 
-        public override ICollection<ISetting> Read(SettingPath settingPath)
+        protected override ICollection<ISetting> ReadCore(SettingPath settingPath)
         {
             using (var connection = OpenConnection())
             using (var command = _settingCommandFactory.CreateSelectCommand(connection, settingPath, _where))
@@ -98,7 +98,7 @@ namespace Reusable.ConfigWhiz.Datastores
             }
         }
 
-        public override int Write(IGrouping<SettingPath, ISetting> settings)
+        protected override int WriteCore(IGrouping<SettingPath, ISetting> settings)
         {
             var affectedRows = 0;
 

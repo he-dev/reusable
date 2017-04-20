@@ -56,7 +56,7 @@ namespace Reusable.ConfigWhiz.Datastores
             set => _settingEncoding = value ?? throw new ArgumentNullException(nameof(SettingEncoding));
         }
 
-        public override ICollection<ISetting> Read(SettingPath settingPath)
+        protected override ICollection<ISetting> ReadCore(SettingPath settingPath)
         {
             using (var connection = OpenConnection())
             using (var command = _settingCommandFactory.CreateSelectCommand(connection, settingPath, _where))
@@ -82,7 +82,7 @@ namespace Reusable.ConfigWhiz.Datastores
             }
         }
 
-        public override int Write(IGrouping<SettingPath, ISetting> settings)
+        protected override int WriteCore(IGrouping<SettingPath, ISetting> settings)
         {
             var rowsAffected = 0;
 

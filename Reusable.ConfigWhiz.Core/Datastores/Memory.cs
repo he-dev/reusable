@@ -19,7 +19,7 @@ namespace Reusable.ConfigWhiz.Datastores
             : base(name, supportedTypes)
         { }
 
-        public override ICollection<ISetting> Read(SettingPath settingPath)
+        protected override ICollection<ISetting> ReadCore(SettingPath settingPath)
         {
             var name = settingPath.ToFullWeakString();
             var settings =
@@ -29,7 +29,7 @@ namespace Reusable.ConfigWhiz.Datastores
             return settings;
         }
 
-        public override int Write(IGrouping<SettingPath, ISetting> settings)
+        protected override int WriteCore(IGrouping<SettingPath, ISetting> settings)
         {
             var name = settings.Key.ToString(SettingPathFormat.FullWeak, SettingPathFormatter.Instance);
             var obsoleteSettings =

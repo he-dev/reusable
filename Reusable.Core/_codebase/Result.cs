@@ -92,6 +92,7 @@ namespace Reusable
         public TValue Value => Succees ? _value : throw new InvalidOperationException("Value isn't available because the result is in error state.");
 
         public IEnumerable<TElement> AsEnumerable<TElement>() => Value as IEnumerable<TElement> ?? throw new InvalidCastException($"Cannot cast {typeof(TValue).Name} to {typeof(TElement).Name}.");
+        public IEnumerable<TElement> AsCollection<TElement>() => Value as ICollection<TElement> ?? throw new InvalidCastException($"Cannot cast {typeof(TValue).Name} to {typeof(TElement).Name}.");
 
         public static Result<TValue> Ok(TValue value, TimeSpan elapsed) => new Result<TValue>(value, elapsed);
         public static Result<TValue> Ok(TValue value, IEnumerable<Result> innerResults) => Ok(value, innerResults.Aggregate(TimeSpan.Zero, (current, next) => current.Add(next.Elapsed)));
@@ -103,6 +104,7 @@ namespace Reusable
         public new static Result<TValue> Fail(Exception exception, TimeSpan elapsed) => Fail(exception, null, elapsed);
         public new static Result<TValue> Fail(Exception exception, IEnumerable<Result> innerResults) => Fail(exception, null, innerResults);
         public new static Result<TValue> Fail(Exception exception) => Fail(exception, null, TimeSpan.Zero);
+        public new static Result<TValue> Fail(string message, TimeSpan elapsed) => Fail(null, message, elapsed);
         public new static Result<TValue> Fail(string message, IEnumerable<Result> innerResults) => Fail(null, message, innerResults);
         public new static Result<TValue> Fail(string message) => Fail(null, message, TimeSpan.Zero);
         public new static Result<TValue> Fail(Result result, string message) => Fail(result.Exception, message, result.Elapsed);

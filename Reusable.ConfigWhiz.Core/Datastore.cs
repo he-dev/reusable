@@ -29,9 +29,33 @@ namespace Reusable.ConfigWhiz
 
         public IImmutableSet<Type> SupportedTypes { get; }
 
-        public abstract ICollection<ISetting> Read(SettingPath settingPath);
+        public ICollection<ISetting> Read(SettingPath settingPath)
+        {
+            try
+            {
+                return ReadCore(settingPath);
+            }
+            catch (Exception innerException)
+            {
+                throw new DatastoreReadException(this, settingPath, innerException);
+            }
+        }
 
-        public abstract int Write(IGrouping<SettingPath, ISetting> settings);
+        protected abstract ICollection<ISetting> ReadCore(SettingPath settingPath);
+
+        public int Write(IGrouping<SettingPath, ISetting> settings)
+        {
+            try
+            {
+                return WriteCore(settings);
+            }
+            catch (Exception innerException)
+            {
+                throw new DatastoreWriteException(this, settings.Key, innerException);
+            }
+        }
+
+        protected abstract int WriteCore(IGrouping<SettingPath, ISetting> settings);
 
         protected static string CreateDefaultName<T>()
         {
@@ -53,5 +77,17 @@ namespace Reusable.ConfigWhiz
         {
             return obj.GetHashCode();
         }
+    }
+
+    public class DatastoreReadException : Exception
+    {
+        public DatastoreReadException(IDatastore datastore, SettingPath path, Exception innerException)
+        : base($"Could not read '{path.ToFullWeakString()}' from '{datastore.Name}'.", innerException) { }
+    }
+
+    public class DatastoreWriteException : Exception
+    {
+        public DatastoreWriteException(IDatastore datastore, SettingPath path, Exception innerException)
+            : base($"Could not write '{path.ToFullWeakString()}' to '{datastore.Name}'.", innerException) { }
     }
 }
