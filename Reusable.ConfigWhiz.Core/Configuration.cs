@@ -10,15 +10,16 @@ namespace Reusable.ConfigWhiz
 {
     public class Configuration
     {
-        private readonly IImmutableSet<IDatastore> _settingStores;
+        private readonly IImmutableList<IDatastore> _settingStores;
         private readonly AutoKeyDictionary<ContainerPath, SettingContainer> _containers = new AutoKeyDictionary<ContainerPath, SettingContainer>(x => x.Path);
 
         public Configuration(IEnumerable<IDatastore> settingStores)
         {
-            var builder = ImmutableHashSet.CreateBuilder(new DatastoreComparer());
+            var builder = ImmutableList.CreateBuilder<IDatastore>();//new DatastoreComparer());
             foreach (var store in settingStores)
             {
-                if (!builder.Add(store)) throw new ArgumentException($"Datastore '{store.Name}' already exists.");
+                if (builder.Exists(x => x.Name.Equals(store.Name, StringComparison.OrdinalIgnoreCase))) throw new ArgumentException($"Datastore '{store.Name}' already exists.");
+                builder.Add(store);
             }
             _settingStores = builder.ToImmutable();
         }
@@ -31,29 +32,29 @@ namespace Reusable.ConfigWhiz
 
         #region Load overloads
 
-        public Result<TContainer> Load<TConsumer, TContainer>(TConsumer consumer, Func<TConsumer, string> selectConsumerName, LoadOption loadOption) where TContainer : new()
+        public TContainer Load<TConsumer, TContainer>(TConsumer consumer, Func<TConsumer, string> selectConsumerName, LoadOption loadOption) where TContainer : new()
         {
             return Load<TConsumer, TContainer>(selectConsumerName(consumer), loadOption);
         }
 
-        public Result<TContainer> Load<TConsumer, TContainer>(TConsumer consumer, Func<TConsumer, string> selectConsumerName) where TContainer : new()
+        public TContainer Load<TConsumer, TContainer>(TConsumer consumer, Func<TConsumer, string> selectConsumerName) where TContainer : new()
         {
-            return Load<TConsumer, TContainer>(selectConsumerName(consumer), LoadOption.Cached);
+            return Load<TConsumer, TContainer>(selectConsumerName(consumer), LoadOption.Retrieve);
         }
 
-        public Result<TContainer> Load<TConsumer, TContainer>(LoadOption loadOption) where TContainer : new()
+        public TContainer Load<TConsumer, TContainer>(LoadOption loadOption) where TContainer : new()
         {
             return Load<TConsumer, TContainer>(ConsumerName.Any, loadOption);
         }
 
-        public Result<TContainer> Load<TConsumer, TContainer>() where TContainer : new()
+        public TContainer Load<TConsumer, TContainer>() where TContainer : new()
         {
-            return Load<TConsumer, TContainer>(ConsumerName.Any, LoadOption.Cached);
+            return Load<TConsumer, TContainer>(ConsumerName.Any, LoadOption.Retrieve);
         }
 
         #endregion
 
-        private Result<TContainer> Load<TConsumer, TContainer>(object consumerName, LoadOption loadOption) where TContainer : new()
+        private TContainer Load<TConsumer, TContainer>(object consumerName, LoadOption loadOption) where TContainer : new()
         {
             if (consumerName is string s && s.IsNullOrEmpty()) throw new ArgumentNullException(nameof(consumerName));
 
@@ -66,21 +67,22 @@ namespace Reusable.ConfigWhiz
             else
             {
                 container = SettingContainer.Create<TConsumer, TContainer>(consumerName.ToString(), _settingStores);
-                var results = container.Load(LoadOption.Resolve);
+                container.Load(LoadOption.Resolve);
                 _containers.Add(container);
-
-                if (results.Any(x => x.Failure)) return Result<TContainer>.Fail("Could not load one or more settings.", results.Where(x => x.Failure));
             }
-            return Result<TContainer>.Ok(container.As<TContainer>());
+            return container.As<TContainer>();
         }
     }
 
-    public class LoadOption
+    public abstract class LoadOption
     {
         private LoadOption() { }
-        public static readonly LoadOption Resolve = new LoadOption();
-        public static readonly LoadOption Update = new LoadOption();
-        public static readonly LoadOption Cached = new LoadOption();
+        public static readonly LoadOption Resolve = new ResolveOption();
+        public static readonly LoadOption Update = new UpdateOption();
+        public static readonly LoadOption Retrieve = new RetrieveOption();
+        private class ResolveOption : LoadOption { }
+        private class UpdateOption : LoadOption { }
+        private class RetrieveOption : LoadOption { }
     }
 
     public class ConsumerName

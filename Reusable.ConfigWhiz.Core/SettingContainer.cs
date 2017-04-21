@@ -23,9 +23,9 @@ namespace Reusable.ConfigWhiz
 
         public TContainer As<TContainer>() => (TContainer)_container;
 
-        public IList<Result> Load(LoadOption loadOption)
+        public void Load(LoadOption loadOption)
         {
-            return (from p in _proxies select p.Load(loadOption)).ToList();
+            foreach (var proxy in _proxies) proxy.Load(loadOption);
         }
 
         public IList<Result> Save()
@@ -33,7 +33,7 @@ namespace Reusable.ConfigWhiz
             return (from p in _proxies select p.Save()).ToList();
         }
 
-        public static SettingContainer Create<TConsumer, TContainer>(string containerName, IImmutableSet<IDatastore> stores) where TContainer : new()
+        public static SettingContainer Create<TConsumer, TContainer>(string containerName, IImmutableList<IDatastore> stores) where TContainer : new()
         {
             var container = new TContainer();
             var containerKey = ContainerPath.Create<TConsumer, TContainer>(containerName);
