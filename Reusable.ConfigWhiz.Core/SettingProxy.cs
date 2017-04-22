@@ -31,11 +31,10 @@ namespace Reusable.ConfigWhiz
             _reader = new SettingReader(this, converter, stores);
             _writer = new SettingWriter(this, converter);
 
-            DefaultDatastore = stores.SingleOrDefault(s => s.Name.Equals(_property.GetCustomAttribute<DefaultDatastoreAttribute>()?.ToString(), StringComparison.OrdinalIgnoreCase));
-            FallbackDatastore = stores.SingleOrDefault(s => s.Name.Equals(
+            DefaultDatastore = stores.SingleOrDefault(s => s.Equals(_property.GetCustomAttribute<DefaultDatastoreAttribute>()?.ToString()));
+            FallbackDatastore = stores.SingleOrDefault(s => s.Equals(
                 _property.GetCustomAttribute<FallbackDatastoreAttribute>()?.ToString() ??
-                _property.DeclaringType.GetCustomAttribute<FallbackDatastoreAttribute>()?.ToString(), 
-                StringComparison.OrdinalIgnoreCase));
+                _property.DeclaringType.GetCustomAttribute<FallbackDatastoreAttribute>()?.ToString()));
         }
 
         public IEnumerable<ValidationAttribute> Validations => _property.GetCustomAttributes<ValidationAttribute>();

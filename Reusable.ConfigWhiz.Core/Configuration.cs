@@ -10,18 +10,28 @@ namespace Reusable.ConfigWhiz
 {
     public class Configuration
     {
-        private readonly IImmutableList<IDatastore> _settingStores;
+        private readonly IImmutableList<IDatastore> _datastores;
         private readonly AutoKeyDictionary<ContainerPath, SettingContainer> _containers = new AutoKeyDictionary<ContainerPath, SettingContainer>(x => x.Path);
 
-        public Configuration(IEnumerable<IDatastore> settingStores)
+        public Configuration(params IDatastore[] datastores) : this((IEnumerable<IDatastore>)datastores) { }
+
+        public Configuration(IEnumerable<IDatastore> datastores)
         {
-            var builder = ImmutableList.CreateBuilder<IDatastore>();//new DatastoreComparer());
-            foreach (var store in settingStores)
+            var builder = ImmutableList.CreateBuilder<IDatastore>();
+            foreach (var store in datastores)
             {
-                if (builder.Exists(x => x.Name.Equals(store.Name, StringComparison.OrdinalIgnoreCase))) throw new ArgumentException($"Datastore '{store.Name}' already exists.");
+                if (builder.Contains(store))
+                {
+                    throw new DuplicateDatatastoreException(store);
+                }
                 builder.Add(store);
             }
-            _settingStores = builder.ToImmutable();
+            _datastores = builder.ToImmutable();
+
+            if (!_datastores.Any())
+            {
+                throw new ArgumentException("You need to specify at least one datastore.");
+            }
         }
 
         public static readonly TypeConverter DefaultConverter = TypeConverterFactory.CreateDefaultConverter();
@@ -66,12 +76,27 @@ namespace Reusable.ConfigWhiz
             }
             else
             {
-                container = SettingContainer.Create<TConsumer, TContainer>(consumerName.ToString(), _settingStores);
+                container = SettingContainer<TContainer>.Create<TConsumer>(consumerName.ToString(), _datastores);
                 container.Load(LoadOption.Resolve);
                 _containers.Add(container);
             }
-            return container.As<TContainer>();
+            return (SettingContainer<TContainer>)container;
         }
+
+        public void Save()
+        {
+            foreach (var container in _containers)
+            {
+                container.Value.Save();
+            }
+        }
+    }
+
+    public class DuplicateDatatastoreException : Exception
+    {
+        public DuplicateDatatastoreException(IDatastore datastore)
+            : base($"Another datastore with the name '{datastore.Name}' already exists.")
+        { }
     }
 
     public abstract class LoadOption
@@ -101,8 +126,8 @@ namespace Reusable.ConfigWhiz
         public static readonly SettingProperty Name = new SettingProperty(nameof(Name));
         public static readonly SettingProperty Value = new SettingProperty(nameof(Value));
         //public static readonly IEnumerable<SettingProperty> Default = new[] { Name, Value };
-        public static bool Exists(string name) => 
-            name.Equals(nameof(Name), StringComparison.OrdinalIgnoreCase) || 
+        public static bool Exists(string name) =>
+            name.Equals(nameof(Name), StringComparison.OrdinalIgnoreCase) ||
             name.Equals(nameof(Value), StringComparison.OrdinalIgnoreCase);
         public override string ToString() => _name;
         public static implicit operator string(SettingProperty settingProperty) => settingProperty._name;

@@ -52,6 +52,7 @@
     <Compile Include="Datastore.cs" />
     <Compile Include="Datastores\Memory.cs" />
     <Compile Include="Data\Annotations\DefaultDatastoreAttribute.cs" />
+    <Compile Include="Data\Annotations\FallbackDatastoreAttribute.cs" />
     <Compile Include="Data\Annotations\ItemizedAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Data\Setting.cs" />

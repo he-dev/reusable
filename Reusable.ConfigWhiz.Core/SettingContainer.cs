@@ -1,39 +1,93 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using Reusable.Data.Annotations;
+using Reusable.Extensions;
 using Reusable.TypeConversion;
+using TypeConverterAttribute = Reusable.TypeConversion.TypeConverterAttribute;
 
 namespace Reusable.ConfigWhiz
 {
-    public class SettingContainer
+    public abstract class SettingContainer
     {
-        private readonly object _container;
-        private readonly IImmutableList<SettingProxy> _proxies;
-
-        public SettingContainer(object container, ContainerPath path, IImmutableList<SettingProxy> proxies)
+        protected SettingContainer(object value, ContainerPath path, IImmutableList<SettingProxy> proxies)
         {
-            _container = container;
-            _proxies = proxies;
+            Value = value;
             Path = path;
+            Proxies = proxies;
         }
 
+        protected IImmutableList<SettingProxy> Proxies { get; }
         public ContainerPath Path { get; }
+        public object Value { get; }
+        public abstract void Load(LoadOption loadOption);
+        public abstract void Save();
+    }
 
-        public TContainer As<TContainer>() => (TContainer)_container;
+    public class SettingContainer<TContainer> : SettingContainer where TContainer : new()
+    {
+        protected SettingContainer(TContainer value, ContainerPath path, IImmutableList<SettingProxy> proxies) 
+            : base(value, path, proxies)
+        {}
 
-        public void Load(LoadOption loadOption)
+        public override void Load(LoadOption loadOption)
         {
-            foreach (var proxy in _proxies) proxy.Load(loadOption);
+            var innerExceptions = new List<Exception>();
+
+            foreach (var proxy in Proxies)
+            {
+                try
+                {
+                    proxy.Load(loadOption);
+                }
+                catch (DatastoreReadException)
+                {
+                    // Cannot continue if datastore fails to read.
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    innerExceptions.Add(ex);
+                }
+            }
+
+            if (innerExceptions.Any())
+            {
+                throw new AggregateException("Could not read one or more settings. See inner exceptions for details.", innerExceptions);
+            }
         }
 
-        public IList<Result> Save()
+        public override void Save()
         {
-            return (from p in _proxies select p.Save()).ToList();
+            var innerExceptions = new List<Exception>();
+
+            foreach (var proxy in Proxies)
+            {
+                try
+                {
+                    proxy.Save();
+                }
+                catch (DatastoreWriteException)
+                {
+                    // Cannot continue if datastore fails to write.
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    innerExceptions.Add(ex);
+                }
+            }
+
+            if (innerExceptions.Any())
+            {
+                throw new AggregateException("Could not write one or more settings. See inner exceptions for details.", innerExceptions);
+            }
         }
 
-        public static SettingContainer Create<TConsumer, TContainer>(string containerName, IImmutableList<IDatastore> stores) where TContainer : new()
+        public static SettingContainer Create<TConsumer>(string containerName, IImmutableList<IDatastore> stores)
         {
             var container = new TContainer();
             var containerKey = ContainerPath.Create<TConsumer, TContainer>(containerName);
@@ -45,16 +99,14 @@ namespace Reusable.ConfigWhiz
                         Configuration.DefaultConverter,
                         (current, next) => current.Add(next.ConverterType));
 
-            var properties =
-                from property in typeof(TContainer).GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                where property.GetCustomAttribute<IgnoreAttribute>() == null
-                select property;
-
             var proxies =
-                from property in properties
+                from property in typeof(TContainer).GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                where property.GetCustomAttribute<IgnoreAttribute>().IsNull()
                 select new SettingProxy(container, containerKey, property, stores, converter);
 
-            return new SettingContainer(container, containerKey, proxies.ToImmutableList());
+            return new SettingContainer<TContainer>(container, containerKey, proxies.ToImmutableList());
         }
+
+        public static implicit operator TContainer(SettingContainer<TContainer> settingContainer) => (TContainer)settingContainer.Value;
     }
 }

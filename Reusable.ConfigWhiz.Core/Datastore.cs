@@ -7,7 +7,7 @@ using Reusable.Extensions;
 
 namespace Reusable.ConfigWhiz
 {
-    public interface IDatastore
+    public interface IDatastore : IEquatable<IDatastore>, IEquatable<string>
     {
         string Name { get; }
         IImmutableSet<Type> SupportedTypes { get; }
@@ -61,6 +61,10 @@ namespace Reusable.ConfigWhiz
         {
             return $"{typeof(T).Name}{_instanceCounter++}";
         }
+
+        public bool Equals(IDatastore other) => Equals(other?.Name); 
+
+        public bool Equals(string other) => Name.Equals(other, StringComparison.OrdinalIgnoreCase);
     }
 
     public class DatastoreComparer : IEqualityComparer<IDatastore>
