@@ -61,7 +61,7 @@ namespace Reusable.ConfigWhiz.Datastores.AppConfig
 
             foreach (var setting in settings)
             {
-                var settingName = settings.Key.ToString(SettingPathFormat.FullStrong, SettingPathFormatter.Instance);
+                var settingName = setting.Path.ToFullStrongString();
                 exeConfig.AppSettings.Settings.Add(settingName, (string)setting.Value);
                 settingsAffected++;
             }

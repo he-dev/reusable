@@ -59,7 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Reusable.ConfigWhiz.Core.Tests\ConfigurationTestDatastore.cs">
-      <Link>ConfigurationTestDatastore.cs</Link>
+      <Link>_linked\ConfigurationTestDatastore.cs</Link>
     </Compile>
     <Compile Include="ConfigurationTestSqlServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

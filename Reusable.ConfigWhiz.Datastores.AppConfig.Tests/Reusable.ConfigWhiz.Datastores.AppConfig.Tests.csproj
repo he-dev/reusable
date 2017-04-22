@@ -7,9 +7,9 @@
     <ProjectGuid>{175822A8-9DBE-4C9B-AB22-075795B31264}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Reusable.ConfigWhiz.Datastores.AppConfig.Tests</RootNamespace>
+    <RootNamespace>Reusable.ConfigWhiz.Datastores.Tests</RootNamespace>
     <AssemblyName>Reusable.ConfigWhiz.Datastores.AppConfig.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">15.0</VisualStudioVersion>
@@ -19,6 +19,7 @@
     <TestProjectType>UnitTest</TestProjectType>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -48,13 +49,19 @@
     <Reference Include="System.Collections.Immutable, Version=1.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Collections.Immutable.1.3.1\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
     </Reference>
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="..\Reusable.ConfigWhiz.Core.Tests\ConfigurationTestDatastore.cs">
+      <Link>_linked\ConfigurationTestDatastore.cs</Link>
+    </Compile>
+    <Compile Include="ConfigurationTestAppConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -69,6 +76,10 @@
     <ProjectReference Include="..\Reusable.ConfigWhiz.Datastores.AppConfig\Reusable.ConfigWhiz.Datastores.AppConfig.csproj">
       <Project>{baaa760f-2053-4679-b257-4eb6848142a8}</Project>
       <Name>Reusable.ConfigWhiz.Datastores.AppConfig</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj">
+      <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
+      <Name>Reusable.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\Reusable.Fuse\Reusable.Fuse.csproj">
       <Project>{aba07d6f-bb71-4aa6-aa20-7330e394d082}</Project>
