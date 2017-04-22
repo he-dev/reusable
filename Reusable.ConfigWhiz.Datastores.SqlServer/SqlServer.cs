@@ -67,12 +67,6 @@ namespace Reusable.ConfigWhiz.Datastores
                 .AddColumn("Name", SqlDbType.NVarChar, 200)
                 .AddColumn("Value", SqlDbType.NVarChar, -1);
 
-        public static TableMetadata<SqlDbType> CreateDefaultMetadata(string schemaName, string tableName) =>
-            TableMetadata<SqlDbType>
-                .Create(schemaName, tableName)
-                .AddColumn("Name", SqlDbType.NVarChar, 200)
-                .AddColumn("Value", SqlDbType.NVarChar, -1);
-
         protected override ICollection<ISetting> ReadCore(SettingPath settingPath)
         {
             using (var connection = OpenConnection())

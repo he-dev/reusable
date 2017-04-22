@@ -32,14 +32,14 @@ namespace Reusable.ConfigWhiz.Datastores
             var dbProviderFactory = DbProviderFactories.GetFactory(connection);
             using (var commandBuilder = dbProviderFactory.CreateCommandBuilder())
             {
-                var quote = new Func<string, string>(identifier => commandBuilder.QuoteIdentifier(identifier));
+                string Sanitize(string identifier) => commandBuilder.QuoteIdentifier(identifier);
 
-                var table = $"{quote(_tableMetadata.TableName)}";
+                var table = $"{Sanitize(_tableMetadata.TableName)}";
 
                 sql.Append($"SELECT * FROM {table}").AppendLine();
                 sql.Append(where.Keys.Aggregate(
                     $"WHERE ([{SettingProperty.Name}] = @{SettingProperty.Name} OR [{SettingProperty.Name}] LIKE @{SettingProperty.Name} || '[%]')",
-                    (result, key) => $"{result} AND {quote(key)} = @{key}")
+                    (result, key) => $"{result} AND {Sanitize(key)} = @{key}")
                 );
             }
 
@@ -49,8 +49,10 @@ namespace Reusable.ConfigWhiz.Datastores
 
             // --- add parameters
 
-            AddParameter(command, SettingProperty.Name, settingPath.ToFullWeakString());
-            AddParameters(command, where);
+            (command, _tableMetadata).AddParameter(
+                ImmutableDictionary<string, object>.Empty
+                    .Add(SettingProperty.Name, settingPath.ToFullWeakString())
+                    .AddRange(where));
 
             return command;
         }
@@ -68,14 +70,14 @@ namespace Reusable.ConfigWhiz.Datastores
             var dbProviderFactory = DbProviderFactories.GetFactory(connection);
             using (var commandBuilder = dbProviderFactory.CreateCommandBuilder())
             {
-                var quote = new Func<string, string>(identifier => commandBuilder.QuoteIdentifier(identifier));
+                string Sanitize(string identifier) => commandBuilder.QuoteIdentifier(identifier);
 
-                var table = $"{quote(_tableMetadata.TableName)}";
+                var table = $"{Sanitize(_tableMetadata.TableName)}";
 
                 sql.Append($"DELETE FROM {table}").AppendLine();
                 sql.Append(where.Keys.Aggregate(
                     $"WHERE ([{SettingProperty.Name}] = @{SettingProperty.Name} OR [{SettingProperty.Name}] LIKE @{SettingProperty.Name} || '[%]')",
-                    (result, key) => $"{result} AND {quote(key)} = @{key} ")
+                    (result, key) => $"{result} AND {Sanitize(key)} = @{key} ")
                 );
             }
 
@@ -84,9 +86,11 @@ namespace Reusable.ConfigWhiz.Datastores
             command.CommandText = sql.ToString();
 
             // --- add parameters & values
-
-            AddParameter(command, SettingProperty.Name, settingPath.ToFullWeakString());
-            AddParameters(command, where);
+     
+            (command, _tableMetadata).AddParameter(
+                ImmutableDictionary<string, object>.Empty
+                    .Add(SettingProperty.Name, settingPath.ToFullWeakString())
+                    .AddRange(where));
 
             return command;
         }
@@ -105,11 +109,11 @@ namespace Reusable.ConfigWhiz.Datastores
             var dbProviderFactory = DbProviderFactories.GetFactory(connection);
             using (var commandBuilder = dbProviderFactory.CreateCommandBuilder())
             {
-                var quote = new Func<string, string>(identifier => commandBuilder.QuoteIdentifier(identifier));
+                string Sanitize(string identifier) => commandBuilder.QuoteIdentifier(identifier);
 
-                var table = $"{quote(_tableMetadata.TableName)}";
+                var table = $"{Sanitize(_tableMetadata.TableName)}";
 
-                var columns = where.Keys.Select(columnName => quote(columnName)).Aggregate(
+                var columns = where.Keys.Select(Sanitize).Aggregate(
                     $"[{SettingProperty.Name}], [{SettingProperty.Value}]",
                     (result, next) => $"{result}, {next}"
                 );
@@ -130,35 +134,15 @@ namespace Reusable.ConfigWhiz.Datastores
 
             // --- add parameters
 
-            AddParameter(command, SettingProperty.Name, settingPath.ToFullStrongString());
-            AddParameter(command, SettingProperty.Value, value);
-            AddParameters(command, where);
+            (command, _tableMetadata).AddParameter(
+                ImmutableDictionary<string, object>.Empty
+                    .Add(SettingProperty.Name, settingPath.ToFullStrongString())
+                    .Add(SettingProperty.Value, value)
+                    .AddRange(where));
 
             return command;
         }
 
-        private void AddParameter(SQLiteCommand command, string name, object value = null)
-        {
-            if (!_tableMetadata.Columns.TryGetValue(name, out ColumnMetadata<DbType> column))
-            {
-                throw new ColumnConfigurationNotFoundException(name);
-            }
-
-            var parameter = command.Parameters.Add(name, column.DbType, column.Length);
-
-            if (value != null)
-            {
-                parameter.Value = value;
-            }
-        }
-
-        private void AddParameters(SQLiteCommand command, IEnumerable<KeyValuePair<string, object>> parameters)
-        {
-            foreach (var parameter in parameters)
-            {
-                AddParameter(command, parameter.Key, parameter.Value);
-            }
-        }
     }
 
     public class ColumnConfigurationNotFoundException : Exception
@@ -171,5 +155,25 @@ namespace Reusable.ConfigWhiz.Datastores
         public string Column { get; set; }
 
         public override string Message => $"\"{Column}\" column configuration not found. Ensure that it is set via the \"{nameof(SQLite)}\" builder.";
+    }
+
+    internal static class SqlCommandExtensions
+    {
+        public static (SQLiteCommand cmd, TableMetadata<DbType> tableMetadata) AddParameter(this (SQLiteCommand cmd, TableMetadata<DbType> tableMetadata) @this, IImmutableDictionary<string, object> parameters)
+        {
+            foreach (var parameter in parameters)
+            {
+                if (@this.tableMetadata.Columns.TryGetValue(parameter.Key, out ColumnMetadata<DbType> column))
+                {
+                    var sqlParameter = @this.cmd.Parameters.Add($"@{parameter.Key}", column.DbType, column.Length);
+                    if (parameter.Value != null) sqlParameter.Value = parameter.Value;
+                }
+                else
+                {
+                    throw new ColumnConfigurationNotFoundException(parameter.Key);
+                }
+            }
+            return @this;
+        }
     }
 }

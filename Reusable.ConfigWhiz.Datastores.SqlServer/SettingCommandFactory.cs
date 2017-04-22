@@ -149,8 +149,7 @@ namespace Reusable.ConfigWhiz.Datastores
                 ImmutableDictionary<string, object>.Empty
                     .Add(SettingProperty.Name, settingPath.ToFullStrongString())
                     .Add(SettingProperty.Value, value)
-                    .AddRange(where)
-            );
+                    .AddRange(where));
 
             return command;
         }       

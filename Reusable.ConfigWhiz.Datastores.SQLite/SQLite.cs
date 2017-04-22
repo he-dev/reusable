@@ -11,6 +11,7 @@ using Reusable.Extensions;
 
 namespace Reusable.ConfigWhiz.Datastores
 {
+    // ReSharper disable once InconsistentNaming
     public class SQLite : Datastore
     {
         private Encoding _dataEncoding = Encoding.Default;
@@ -38,7 +39,11 @@ namespace Reusable.ConfigWhiz.Datastores
         public SQLite(string nameOrConnectionString, TableMetadata<DbType> tableMetadata, IImmutableDictionary<string, object> where)
             : this(CreateDefaultName<SQLite>(), nameOrConnectionString, tableMetadata, where) { }
 
-        public static readonly TableMetadata<DbType> DefaultMetadata = TableMetadata<DbType>.Create("dbo", "Setting").AddColumn("Name", DbType.String, 200).AddColumn("Value", DbType.String, -1);
+        public static readonly TableMetadata<DbType> DefaultMetadata = 
+            TableMetadata<DbType>
+                .Create("dbo", "Setting")
+                .AddColumn("Name", DbType.String, 200)
+                .AddColumn("Value", DbType.String, -1);
 
         public bool RecodeDataEnabled { get; set; } = true;
 
