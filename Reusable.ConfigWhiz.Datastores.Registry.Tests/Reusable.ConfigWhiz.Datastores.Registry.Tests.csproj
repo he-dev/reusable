@@ -50,9 +50,14 @@
       <HintPath>..\packages\System.Collections.Immutable.1.3.1\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
     </Reference>
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="..\Reusable.ConfigWhiz.Core.Tests\ConfigurationTestDatastore.cs">
+      <Link>_linked\ConfigurationTestDatastore.cs</Link>
+    </Compile>
+    <Compile Include="ConfigurationTestRegistry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
