@@ -62,7 +62,7 @@ namespace Reusable.ConfigWhiz
             _reader.Read(loadOption);
         }
 
-        public Result Save()
+        public int Save()
         {
             return _writer.Write(_reader.CurrentStore);
         }

@@ -4,12 +4,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{26617FF1-7295-4FE9-9554-4967C480930C}</ProjectGuid>
+    <ProjectGuid>{ED78FE95-73D1-4806-A3FE-41392C3E6E5F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Reusable.Logging.Tests</RootNamespace>
-    <AssemblyName>Reusable.Logging.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <RootNamespace>Reusable.ConfigWhiz.Datastores.SQLite.Tests</RootNamespace>
+    <AssemblyName>Reusable.ConfigWhiz.Datastores.SQLite.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">15.0</VisualStudioVersion>
@@ -45,25 +45,43 @@
       <HintPath>..\packages\MSTest.TestFramework.1.1.17\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Collections.Immutable, Version=1.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.1.3.1\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Mocks\MockLogger.cs" />
-    <Compile Include="LoggerTest.cs" />
-    <Compile Include="Mocks\MockProperty.cs" />
+    <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Logging\Reusable.Logging.csproj">
-      <Project>{eb8d2ed6-beb3-4d35-b03d-508f95a9341f}</Project>
-      <Name>Reusable.Logging</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Data\" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Reusable.ConfigWhiz.Core.Tests.Data\Reusable.ConfigWhiz.Core.Tests.Data.csproj">
+      <Project>{b3afabd6-950f-4993-a09e-be9af369db09}</Project>
+      <Name>Reusable.ConfigWhiz.Core.Tests.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Reusable.ConfigWhiz.Core\Reusable.ConfigWhiz.Core.csproj">
+      <Project>{b507cf1e-fd24-465b-b8bc-f00f58c2d7c6}</Project>
+      <Name>Reusable.ConfigWhiz.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Reusable.ConfigWhiz.Datastores.SQLite\Reusable.ConfigWhiz.Datastores.SQLite.csproj">
+      <Project>{e5f4da27-e7c9-4d2b-9750-c71abf7204de}</Project>
+      <Name>Reusable.ConfigWhiz.Datastores.SQLite</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj">
+      <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
+      <Name>Reusable.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Reusable.Fuse\Reusable.Fuse.csproj">
+      <Project>{aba07d6f-bb71-4aa6-aa20-7330e394d082}</Project>
+      <Name>Reusable.Fuse</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Reusable.TypeConversion\Reusable.TypeConversion.csproj">
+      <Project>{d7da0768-b385-40de-abac-0a6b0c5b73f4}</Project>
+      <Name>Reusable.TypeConversion</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using Reusable.ConfigWhiz.Converters;
 using Reusable.ConfigWhiz.Data;
+using Reusable.Extensions;
 using Reusable.TypeConversion;
 
 namespace Reusable.ConfigWhiz
@@ -24,19 +25,23 @@ namespace Reusable.ConfigWhiz
 
         private SettingProxy Setting { get; }
 
-        public Result Write(IDatastore datastore)
+        public int Write(IDatastore datastore)
         {
             var data = Serialize(datastore);
             var group = new SettingGroup(Setting.Path, data);
-            datastore.Write(group);
-            return Result.Ok();
+            return datastore.Write(group);            
         }
 
         private ICollection<ISetting> Serialize(IDatastore datastore)
         {
             if (Setting.IsItemized)
             {
-                var storeType = GetDataType(Setting.Type.GetElementType());
+                var settingType = 
+                    Setting.Type.IsDictionary() 
+                        ? Setting.Type.GetGenericArguments()[1] // a dictionary's value type
+                        : Setting.Type.GetElementType();
+
+                var storeType = GetDataType(settingType);
                 var items = (IDictionary)Convert(Itemizer, typeof(Dictionary<object, object>));
                 var settings = items.Keys.Cast<object>().Select(key => new Setting
                     {

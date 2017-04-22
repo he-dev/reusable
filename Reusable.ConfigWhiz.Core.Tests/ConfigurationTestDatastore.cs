@@ -83,6 +83,17 @@ namespace Reusable.ConfigWhiz.Tests
             literal.Verify().IsNotNull();
             literal.StringDE.Verify().IsEqual("äöüß");
             literal.StringPL.Verify().IsEqual("ąęśćżźó");
+
+            literal.StringDE += "---";
+            literal.StringPL += "---";
+
+            configuration.Save();
+
+            configuration = new Configuration(Datastores);
+            literal = configuration.Load<Foo, Literal>();
+
+            literal.StringDE.Verify().IsEqual("äöüß---");
+            literal.StringPL.Verify().IsEqual("ąęśćżźó---");
         }
 
         [TestMethod]
@@ -95,6 +106,19 @@ namespace Reusable.ConfigWhiz.Tests
             other.Boolean.Verify().IsTrue();
             other.Enum.Verify().IsEqual(TestEnum.TestValue2);
             other.DateTime.Verify().IsEqual(new DateTime(2016, 7, 30));
+
+
+            other.Boolean = !other.Boolean;
+            other.Enum = TestEnum.TestValue3;
+            other.DateTime = other.DateTime.AddDays(-1);
+
+            configuration.Save();
+            configuration = new Configuration(Datastores);
+            other = configuration.Load<Foo, Other>();
+
+            other.Boolean.Verify().IsFalse();
+            other.Enum.Verify().IsTrue(x => x == TestEnum.TestValue3);
+            other.DateTime.Verify().IsEqual(new DateTime(2016, 7, 30).AddDays(-1));
         }
 
         [TestMethod]
@@ -107,6 +131,10 @@ namespace Reusable.ConfigWhiz.Tests
             paint.ColorName.Verify().IsEqual(Color.DarkRed);
             paint.ColorDec.Verify().IsEqual(Color.Plum);
             paint.ColorHex.Verify().IsEqual(Color.Beige);
+
+            // modify
+
+
         }
 
         [TestMethod]
@@ -120,20 +148,27 @@ namespace Reusable.ConfigWhiz.Tests
             collection.ArrayInt32.Verify().SequenceEqual(new[] { 5, 8 });
             collection.DictionaryStringInt32.Verify().IsNotNull();
             collection.DictionaryStringInt32.Verify().DictionaryEqual(new Dictionary<string, int> { ["foo"] = 21, ["bar"] = 34 });
+
+            // modify
+
+            collection.JsonArray = new List<int>(new[] { 8, 9, 0, 1 });
+            collection.ArrayInt32 = new[] { 4, 6 };
+            collection.DictionaryStringInt32.Add("baz", 88);
+
+            // reaload
+
+            configuration.Save();
+            configuration = new Configuration(Datastores);
+            collection = configuration.Load<Foo, Collection>();
+
+            // verify
+
+            collection.JsonArray.Verify().SequenceEqual(new[] { 8, 9, 0, 1 });
+            collection.ArrayInt32.Verify().SequenceEqual(new[] { 4, 6 });
+            collection.DictionaryStringInt32.Verify().IsNotNull();
+            collection.DictionaryStringInt32.Verify().DictionaryEqual(new Dictionary<string, int> { ["foo"] = 21, ["bar"] = 34, ["baz"] = 88 });
         }
 
-        #endregion
-
-        #region Save tests
-
-        [TestMethod]
-        public void Save_Numeric_Success()
-        {
-            var configuration = new Configuration(Datastores);
-
-            var numeric = configuration.Load<Foo, Numeric>();
-        }
-
-        #endregion
+        #endregion        
     }
 }

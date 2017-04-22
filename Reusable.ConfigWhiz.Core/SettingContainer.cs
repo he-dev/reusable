@@ -24,14 +24,14 @@ namespace Reusable.ConfigWhiz
         public ContainerPath Path { get; }
         public object Value { get; }
         public abstract void Load(LoadOption loadOption);
-        public abstract void Save();
+        public abstract int Save();
     }
 
     public class SettingContainer<TContainer> : SettingContainer where TContainer : new()
     {
-        protected SettingContainer(TContainer value, ContainerPath path, IImmutableList<SettingProxy> proxies) 
+        protected SettingContainer(TContainer value, ContainerPath path, IImmutableList<SettingProxy> proxies)
             : base(value, path, proxies)
-        {}
+        { }
 
         public override void Load(LoadOption loadOption)
         {
@@ -60,15 +60,16 @@ namespace Reusable.ConfigWhiz
             }
         }
 
-        public override void Save()
+        public override int Save()
         {
             var innerExceptions = new List<Exception>();
 
+            var settingsAffected = 0;
             foreach (var proxy in Proxies)
             {
                 try
                 {
-                    proxy.Save();
+                    settingsAffected += proxy.Save();
                 }
                 catch (DatastoreWriteException)
                 {
@@ -85,6 +86,8 @@ namespace Reusable.ConfigWhiz
             {
                 throw new AggregateException("Could not write one or more settings. See inner exceptions for details.", innerExceptions);
             }
+
+            return settingsAffected;
         }
 
         public static SettingContainer Create<TConsumer>(string containerName, IImmutableList<IDatastore> stores)

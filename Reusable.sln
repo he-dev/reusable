@@ -78,6 +78,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ConfigWhiz", "ConfigWhiz", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ConfigWhiz", "ConfigWhiz", "{EC65300B-18E7-4460-9881-0C3F93DD26FA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Datastores.AppConfig.Tests", "Reusable.ConfigWhiz.Datastores.AppConfig.Tests\Reusable.ConfigWhiz.Datastores.AppConfig.Tests.csproj", "{175822A8-9DBE-4C9B-AB22-075795B31264}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Datastores.Registry.Tests", "Reusable.ConfigWhiz.Datastores.Registry.Tests\Reusable.ConfigWhiz.Datastores.Registry.Tests.csproj", "{7EADFE57-CA96-4391-804A-44DD7F6D76B7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Datastores.SQLite.Tests", "Reusable.ConfigWhiz.Datastores.SQLite.Tests\Reusable.ConfigWhiz.Datastores.SQLite.Tests.csproj", "{ED78FE95-73D1-4806-A3FE-41392C3E6E5F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -201,6 +207,18 @@ Global
 		{7BB974DF-FA8F-4661-9375-F12975112F04}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7BB974DF-FA8F-4661-9375-F12975112F04}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7BB974DF-FA8F-4661-9375-F12975112F04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{175822A8-9DBE-4C9B-AB22-075795B31264}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{175822A8-9DBE-4C9B-AB22-075795B31264}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{175822A8-9DBE-4C9B-AB22-075795B31264}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{175822A8-9DBE-4C9B-AB22-075795B31264}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EADFE57-CA96-4391-804A-44DD7F6D76B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EADFE57-CA96-4391-804A-44DD7F6D76B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EADFE57-CA96-4391-804A-44DD7F6D76B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EADFE57-CA96-4391-804A-44DD7F6D76B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED78FE95-73D1-4806-A3FE-41392C3E6E5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED78FE95-73D1-4806-A3FE-41392C3E6E5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED78FE95-73D1-4806-A3FE-41392C3E6E5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED78FE95-73D1-4806-A3FE-41392C3E6E5F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -238,5 +256,8 @@ Global
 		{7BB974DF-FA8F-4661-9375-F12975112F04} = {EC65300B-18E7-4460-9881-0C3F93DD26FA}
 		{5CF1AE23-CE89-4087-9C37-6AC7CB2C1E51} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
 		{EC65300B-18E7-4460-9881-0C3F93DD26FA} = {AC36C881-1733-4649-ACBC-03B6F9A9334C}
+		{175822A8-9DBE-4C9B-AB22-075795B31264} = {EC65300B-18E7-4460-9881-0C3F93DD26FA}
+		{7EADFE57-CA96-4391-804A-44DD7F6D76B7} = {EC65300B-18E7-4460-9881-0C3F93DD26FA}
+		{ED78FE95-73D1-4806-A3FE-41392C3E6E5F} = {EC65300B-18E7-4460-9881-0C3F93DD26FA}
 	EndGlobalSection
 EndGlobal
