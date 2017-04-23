@@ -7,7 +7,7 @@
     <ProjectGuid>{E0C2960A-DC0A-44FE-9AEA-3538ABB8DC16}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Reusable.Email</RootNamespace>
+    <RootNamespace>Reusable</RootNamespace>
     <AssemblyName>Reusable.Email</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -46,6 +46,9 @@
     <Compile Include="_codebase\EmailBody.cs" />
     <Compile Include="_codebase\EmailSubject.cs" />
     <Compile Include="_codebase\IEmailClient.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Reusable.Email.nuspec" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

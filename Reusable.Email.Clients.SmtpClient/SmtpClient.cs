@@ -13,7 +13,7 @@ namespace Reusable.Email.Clients.SmtpClient
     /// <summary>
     /// Uses the System.Net.Mail.SmtpClient to send emails.
     /// </summary>
-    public class SmtpClient : IEmailClient
+    public class SmtpClient : EmailClient
     {
         public string From
         {
@@ -25,15 +25,8 @@ namespace Reusable.Email.Clients.SmtpClient
             }
         }
 
-        public void Send<TSubject, TBody>(IEmail<TSubject, TBody> email)
-            where TSubject : EmailSubject
-            where TBody : EmailBody
+        protected override void SendCore<TSubject, TBody>(IEmail<TSubject, TBody> email)
         {
-            if (email == null) throw new ArgumentNullException(nameof(email));
-            if (email.To == null) throw new InvalidOperationException($"You need to set {nameof(Email)}.{nameof(IEmail<TSubject, TBody>.To)} first.");
-            if (email.Subject == null) throw new InvalidOperationException($"You need to set {nameof(Email)}.{nameof(IEmail<TSubject, TBody>.Subject)} first.");
-            if (email.Body == null) throw new InvalidOperationException($"You need to set {nameof(Email)}.{nameof(IEmail<TSubject, TBody>.Body)} first.");
-
             using (var smtpClient = new SystemClient())
             using (var mailMessage = new MailMessage())
             {
