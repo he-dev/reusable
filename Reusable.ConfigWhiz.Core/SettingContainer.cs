@@ -65,7 +65,7 @@ namespace Reusable.ConfigWhiz
             var innerExceptions = new List<Exception>();
 
             var settingsAffected = 0;
-            foreach (var proxy in Proxies)
+            foreach (var proxy in Proxies.Where(p => !p.ReadOnly))
             {
                 try
                 {

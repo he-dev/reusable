@@ -90,7 +90,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResourceReaderTest.cs" />
     <Compile Include="Extensions\StringExtensionsTest.cs" />
-    <Compile Include="ResultTest.cs" />
     <Compile Include="UsingifierExtensionsTest.cs" />
     <Compile Include="UsingifierTest.cs" />
     <Compile Include="ValidatorTest.cs" />

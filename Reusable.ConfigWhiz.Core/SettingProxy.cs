@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
@@ -9,7 +10,7 @@ using Reusable.ConfigWhiz.Data;
 using Reusable.ConfigWhiz.Data.Annotations;
 using Reusable.Data.Annotations;
 using Reusable.Extensions;
-using Reusable.TypeConversion;
+using TypeConverter = Reusable.TypeConversion.TypeConverter;
 
 namespace Reusable.ConfigWhiz
 {
@@ -46,6 +47,8 @@ namespace Reusable.ConfigWhiz
         public Type Type => _property.PropertyType;
 
         public SettingPath Path => SettingPath.Create(_containerPath, _property, string.Empty);
+
+        public bool ReadOnly => _property.GetCustomAttribute<ReadOnlyAttribute>().IsNotNull();
 
         public IDatastore DefaultDatastore { get; }
 

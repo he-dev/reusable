@@ -89,8 +89,7 @@ namespace Reusable.Extensions
             formatProvider = formatProvider ?? new DefaultFormatter();
 
             var dependencies = data.ToDictionary(x => x.Key, x => GetNames(string.Format(formatProvider, "{0}", x.Value)));
-            var dependencyValidationResult = DependencyValidator.ValidateDependencies(dependencies);
-            if (!dependencyValidationResult) throw new ArgumentException(dependencyValidationResult.Message);
+            DependencyValidator.ValidateDependencies(dependencies);
 
             while (text.ToString() != (text = text.Format(data, formatProvider))) ;
             return text;

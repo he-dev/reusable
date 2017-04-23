@@ -8,7 +8,7 @@ namespace Reusable
 {
     public static class DependencyValidator
     {
-        public static Result ValidateDependencies(Dictionary<string, IEnumerable<string>> dict)
+        public static void ValidateDependencies(Dictionary<string, IEnumerable<string>> dict)
         {
             // Convert dictionary into directed graph.
             var edges = new HashSet<Tuple<string, string>>(dict.SelectMany(x => x.Value.Select(y => Tuple.Create(x.Key, y))));
@@ -38,32 +38,32 @@ namespace Reusable
 
             if (edges.Any())
             {
-                //throw new CircularDependencyException(edges.Select(e => e.Item1).Distinct());
-                return Result.Fail($"Circular dependecies found: [{string.Join(", ", edges.Select(e => e.Item1).Distinct().Reverse().Select(x => $"'{x}'"))}]");
+                throw new CircularDependencyException(edges.Select(e => e.Item1).Distinct());
+                //return Result.Fail($"Circular dependecies found: [{string.Join(", ", edges.Select(e => e.Item1).Distinct().Reverse().Select(x => $"'{x}'"))}]");
             }
 
             var missingNodes = sorted.Where(node => !dict.ContainsKey(node)).ToList();
             if (missingNodes.Any())
             {
-                //throw new MissingDependencyException(missingNodes);
-                return Result.Fail($"Missing dependecies found: [{string.Join(", ", missingNodes.Select(x => $"'{x}'"))}]");
+                throw new MissingDependencyException(missingNodes);
+                //return Result.Fail($"Missing dependecies found: [{string.Join(", ", missingNodes.Select(x => $"'{x}'"))}]");
             }
 
-            return Result.Ok();
+            //return Result.Ok();
         }
     }
 
-    //public class CircularDependencyException : Exception
-    //{
-    //    public CircularDependencyException(IEnumerable<string> path)
-    //        : base($"Circular dependecies: [{string.Join(", ", path.Reverse().Select(x => $"'{x}'"))}]")
-    //    { }
-    //}
+    public class CircularDependencyException : Exception
+    {
+        public CircularDependencyException(IEnumerable<string> path)
+            : base($"Circular dependecies: [{string.Join(", ", path.Reverse().Select(x => $"'{x}'"))}]")
+        { }
+    }
 
-    //public class MissingDependencyException : Exception
-    //{
-    //    public MissingDependencyException(IEnumerable<string> names)
-    //        : base($"Missing dependecies: [{string.Join(", ", names.Select(x => $"'{x}'"))}]")
-    //    { }
-    //}
+    public class MissingDependencyException : Exception
+    {
+        public MissingDependencyException(IEnumerable<string> names)
+            : base($"Missing dependecies: [{string.Join(", ", names.Select(x => $"'{x}'"))}]")
+        { }
+    }
 }

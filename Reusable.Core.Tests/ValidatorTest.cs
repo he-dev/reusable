@@ -8,7 +8,7 @@ namespace Reusable.Tests
     public class ValidatorTest
     {
         [TestMethod]
-        //[ExpectedException(typeof(CircularDependencyException))]
+        [ExpectedException(typeof(CircularDependencyException))]
         public void ValidateDependencies_ValidDependencies_Passes()
         {
             var values = new Dictionary<string, IEnumerable<string>>
@@ -19,12 +19,11 @@ namespace Reusable.Tests
                 { "z", new string[] { "c" } },
             };
 
-            var result = DependencyValidator.ValidateDependencies(values);
-            Assert.IsTrue(result);
+            DependencyValidator.ValidateDependencies(values);
         }
 
         [TestMethod]
-        //[ExpectedException(typeof(CircularDependencyException))]
+        [ExpectedException(typeof(CircularDependencyException))]
         public void ValidateDependencies_CircularDependencies_Fails()
         {
             var values = new Dictionary<string, IEnumerable<string>>
@@ -35,12 +34,11 @@ namespace Reusable.Tests
                 { "z", new string[] { "x" } },
             };
 
-            var result = DependencyValidator.ValidateDependencies(values);
-            Assert.IsFalse(result);
+            DependencyValidator.ValidateDependencies(values);
         }
 
         [TestMethod]
-        //[ExpectedException(typeof(MissingDependencyException))]
+        [ExpectedException(typeof(MissingDependencyException))]
         public void ValidateDependencies_MissingDependencies_Fails()
         {
             var values = new Dictionary<string, IEnumerable<string>>
@@ -51,8 +49,7 @@ namespace Reusable.Tests
                 { "z", new string[] { "a" } },
             };
 
-            var result = DependencyValidator.ValidateDependencies(values);
-            Assert.IsFalse(result);
+            DependencyValidator.ValidateDependencies(values);
         }
     }
 }

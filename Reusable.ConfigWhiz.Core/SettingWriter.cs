@@ -29,32 +29,32 @@ namespace Reusable.ConfigWhiz
         {
             var data = Serialize(datastore);
             var group = new SettingGroup(Setting.Path, data);
-            return datastore.Write(group);            
+            return datastore.Write(group);
         }
 
         private ICollection<ISetting> Serialize(IDatastore datastore)
         {
             if (Setting.IsItemized)
             {
-                var settingType = 
-                    Setting.Type.IsDictionary() 
+                var settingType =
+                    Setting.Type.IsDictionary()
                         ? Setting.Type.GetGenericArguments()[1] // a dictionary's value type
                         : Setting.Type.GetElementType();
 
                 var storeType = GetDataType(settingType);
                 var items = (IDictionary)Convert(Itemizer, typeof(Dictionary<object, object>));
                 var settings = items.Keys.Cast<object>().Select(key => new Setting
-                    {
-                        Path = new SettingPath(
-                            Setting.Path.ConsumerNamespace,
-                            Setting.Path.ConsumerName,
-                            Setting.Path.InstanceName,
-                            Setting.Path.ContainerName,
-                            Setting.Path.SettingName,
-                            elementName: (string)Converter.Convert(key, typeof(string))),
-                        Value = Converter.Convert(items[key], storeType)
-                    })
-                    .Cast<ISetting>().ToList();
+                {
+                    Path = new SettingPath(
+                        Setting.Path.ConsumerNamespace,
+                        Setting.Path.ConsumerName,
+                        Setting.Path.InstanceName,
+                        Setting.Path.ContainerName,
+                        Setting.Path.SettingName,
+                        elementName: (string)Converter.Convert(key, typeof(string))),
+                    Value = Converter.Convert(items[key], storeType)
+                })
+                .Cast<ISetting>().ToList();
 
                 return settings;
             }

@@ -5,76 +5,67 @@ namespace Reusable
 {
     public static class Try
     {
-        public static Result Execute(Action action, string message = null)
+        public static bool Execute<TLocal>(Action action, Func<TLocal> preAction, Action<TLocal, Exception> postAction)
         {
-            var stopwatch = Stopwatch.StartNew();
+            var local = preAction();
             try
             {
                 action();
-                return Result.Ok(stopwatch.Elapsed);
+                postAction(local, null);
+                return true;
             }
             catch (Exception ex)
             {
-                return (ex, message, stopwatch.Elapsed);
+                postAction(local, ex);
+                return false;
             }
         }
 
-        public static Result<T> Execute<T>(Func<T> action, string message = null)
+        public static bool Execute<TLocal, TResult>(Func<TResult> action, Func<TLocal> preAction, Action<TLocal, Exception> postAction, out TResult result)
         {
-            var stopwatch = Stopwatch.StartNew();
+            var local = preAction();
             try
             {
-                return (action(), stopwatch.Elapsed);
+                result = action();
+                postAction(local, null);
+                return true;
             }
             catch (Exception ex)
             {
-                return (ex, message, stopwatch.Elapsed);
+                result = default(TResult);
+                postAction(local, ex);
+                return false;
             }
         }
 
-        public static bool Execute(Action action, string message, out Result result)
+        public static void Execute<TLocal>(Action action, Func<TLocal> preAction, Action<TLocal> postAction)
         {
-            var stopwatch = Stopwatch.StartNew();
+            var local = preAction();
             try
             {
                 action();
-                result = Result.Ok(stopwatch.Elapsed);
-                return true;
+                postAction(local);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                result = Result.Fail(ex, message, stopwatch.Elapsed);
-                return false;
-            }
-        }
-
-        public static bool Execute<T>(Func<T> action, string message, out Result<T> result)
-        {
-            var stopwatch = Stopwatch.StartNew();
-            try
-            {
-                result = Result<T>.Ok(action(), stopwatch.Elapsed);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                result = Result<T>.Fail(ex, message, stopwatch.Elapsed);
-                return false;
+                postAction(local);
+                throw;
             }
         }
 
-        public static bool Execute<T>(Func<Result<T>> action, string message, out Result<T> result)
+        public static TResult Execute<TLocal, TResult>(Func<TResult> action, Func<TLocal> preAction, Action<TLocal> postAction)
         {
-            var stopwatch = Stopwatch.StartNew();
+            var local = preAction();
             try
             {
-                result = Result<T>.Ok(action(), stopwatch.Elapsed);
-                return true;
+                var result = action();
+                postAction(local);
+                return result;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                result = Result<T>.Fail(ex, message, stopwatch.Elapsed);
-                return false;
+                postAction(local);
+                throw;
             }
         }
     }
