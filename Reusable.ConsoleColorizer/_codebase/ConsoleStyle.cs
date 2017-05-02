@@ -1,34 +1,28 @@
 using System;
+using System.Xml.Linq;
 
 namespace Reusable
 {
-    public struct ConsoleStyle
+    public class ConsoleStyle
     {
         public ConsoleStyle(ConsoleColor foregroundColor, ConsoleColor backgroundColor)
-            : this()
         {
             ForegroundColor = foregroundColor;
             BackgroundColor = backgroundColor;
         }
 
-        public ConsoleStyle(string foregroundColorName, string backgroundColorName)
-        {
-            ConsoleColor foregroundColor;
-            ForegroundColor = Enum.TryParse(foregroundColorName, true, out foregroundColor)
-                ? foregroundColor
-                : Console.ForegroundColor;
-
-            ConsoleColor backgroundColor;
-            BackgroundColor = Enum.TryParse(backgroundColorName, true, out backgroundColor)
-                ? backgroundColor
-                : Console.BackgroundColor;
-        }
+        public static ConsoleStyle Current => new ConsoleStyle(Console.ForegroundColor, Console.BackgroundColor);
 
         public ConsoleColor ForegroundColor { get; }
 
         public ConsoleColor BackgroundColor { get; }
 
-        public static ConsoleStyle Current => new ConsoleStyle(Console.ForegroundColor, Console.BackgroundColor);
+        public static ConsoleStyle Parse(XElement xElement)
+        {
+            return new ConsoleStyle(
+                Enum.TryParse(xElement.Attribute("color")?.Value, true, out ConsoleColor foregroundColor) ? foregroundColor : Console.ForegroundColor,
+                Enum.TryParse(xElement.Attribute("background-color")?.Value, true, out ConsoleColor backgroundColor) ? backgroundColor : Console.BackgroundColor);
+        }
 
         public void Apply()
         {

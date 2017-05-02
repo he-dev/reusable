@@ -43,7 +43,12 @@
     <Compile Include="_codebase\ConsoleColorizer.cs" />
     <Compile Include="_codebase\ConsoleStyle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="_codebase\XElementExtensions.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj">
+      <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
+      <Name>Reusable.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

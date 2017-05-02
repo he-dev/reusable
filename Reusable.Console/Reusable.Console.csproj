@@ -51,6 +51,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Reusable.ConsoleColorizer\Reusable.ConsoleColorizer.csproj">
+      <Project>{ccbfed64-492b-4e15-9816-0fd76e390c7f}</Project>
+      <Name>Reusable.ConsoleColorizer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj">
       <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
       <Name>Reusable.Core</Name>

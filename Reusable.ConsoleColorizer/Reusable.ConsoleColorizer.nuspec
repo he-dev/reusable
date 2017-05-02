@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.ConsoleColorizer</id>
-    <version>2.29.0</version>
+    <version>3.0.1</version>
     <title>Reusable.ConsoleColorizer</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -14,6 +14,9 @@
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2016 He-Dev</copyright>
     <tags>Utility Extension</tags>
+    <dependencies>
+      <dependency id="Reusable.Core" version="3.0.1" />
+    </dependencies>
   </metadata>
   <files>
     <file src="bin\Release\Reusable.ConsoleColorizer.dll" target="lib\net452" />

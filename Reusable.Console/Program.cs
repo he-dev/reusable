@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Reusable;
 using Reusable.Extensions;
 
 namespace SmartLibs.Console
@@ -19,6 +20,8 @@ namespace SmartLibs.Console
     {
         static void Main(string[] args)
         {
+
+            ConsoleColorizer.RenderLine("<p>&gt;<span background-color='red'>Hallo</span> x <span color='darkyellow'>colors!</span></p>");
             //var logger = LoggerFactory.CreateLogger("test");
             //logger.Trace(x => x.Message("blah"));
             //LogEntry.New().Debug().Message("blah").Log(logger);
@@ -48,6 +51,7 @@ namespace SmartLibs.Console
             //        .style("font-size: 2em;"));
 
             //var result2 = table2.ToString("html", htmlFormatter); // htmlRenderer.Render(table2);
+            System.Console.ReadKey();
         }
     }
 }

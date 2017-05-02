@@ -1,77 +1,18 @@
 # Reusable v2.27.3
 
-`Reusable` is a collection of gereral purpose libraries that I use in my other projects because I didn't want to write the same things over and over agian so.
+`Reusable` is a collection of gereral purpose libraries that I use in my other projects.
 
 ## Components
 
-  - `Reusable`
-    - `IDateTimeService` - The base interace for date-time services.
-    - `Result` - Can be used to wrap the result value.
-    - `Try` - Can be used to execute actions and return a `Result`.
-  - `Resuable.Collections` - Custom collections.
-    - `AutoKeyDictionary` - A dictionary that takes a delegate for the key that is a part of the value.
-    - `EnumerableExtensions`
-    - `ProjectionComparer` - A comparer for projection objects.
-  - `Resuable.Commands`
-    - `LinkCommand` - A command that links two other commands to execute them before and/or after the main command.
-    - `LInkCommandComposer` - A composer for linked commands.
-  - `Resuable.Data`
-    - `AppConfigRepository` - A helper repository for reading the app.config.
-    - `DataTableExtensions` - Helper extensions for adding columns and rows to datatables.
-  - `Reusable.Data.SqlClient` - Sql Server reflection.
-    - `SchemaInfo`
-    - `ColumnInfo`
-    - `TableInfo`
-    - `SqlServer` - A service that provides Sql Server reflection methods.
-    - `SqlConnectionExtensions` - Sql connection extensions for Sql Server reflection.
-
-  - `Reusable.DateTimeServices`
-    - `FixedDateTimeService` - Date and time for testing.
-    - `LocalDateTimeService` - System date and time (local).
-    - `UtcDateTimeService` - System date and time ().    
-  
-  - `Resuable.Data.Annotations`
-    - `FormatAttribute` - Allows to specify the format for a property.
-    - `IgnoreAttribute` - Allows to ignore a member.
-  - `Resuable.Drawing`
-    - `Color32` - A serializable color structure.
-    - `ColorExtensions`
-    - `ColorParser`
-  - `Reusable.Extensions`
-    - `Conditional` - Conditional extensions for common conditions.
-    - `ExceptionExtensions`
-    - `StringExtensions`
-    - `StringInterpolation` - A utility for replacing named placeholders in strings.
-    - `StringPrettifier` - A utility that creates pretty strings.
-    - `TypeExtensions`
-  - `Resuable.Sequences`  - Utilities for creating sequences.
-    - `FibonacciSequence`
-    - `FibonacciSequenceFactory`
-    - `GeneratedSequence`  
-    - `GeometricSequence`
-    - `HarmonicSequence`
-    - `LinearSequence`
-    - `RegularSequence`
-  - `Reusable.StringFormatting`
-    - `CustomFormatter`
-    - `CustomFormatterComposition`
-  - `Reusable.StringFormatting.Formatters` - Custom string formatters.
-    - `BracketFormatter`
-    - `CaseFormatter`
-    - `DecimalColorFormatter`
-    - `HexadecimalColorFormatter`
-    - `QuoteFormatter`
-  - `Reusable.ComparisonResult` - Defines constants for common comparison results.
-  - `Resuable.Reflection`
-  - `Reusable.ResourceReader` - A utility for reading resources.
-  - `Reusable.Usingifier` - A utility for making things _disposable_.
-  - `Reusable.Validator`
-- `Reusable.ConsoleColorizer` for easier console styling via xml.
-- `Reusable.TypeConversion` for easier and extendable type conversion.
-- `Reusable.Fuse` for consistent and fluent inline validation and verification.
-- `Reusable.Logging.NLog.Tools` for easier `NLog` configuration.
-- `Reusable.Markup.MakrupBuilder` for easier dynamic html/xml creation.
-- `Reusable.SemanticVersion` for working with semantic versions.
+- [`Reusable.Core`](abc) - This library provides the most common utilities.
+- `Reusable.ConfigWhiz` - This is the new _smarter_ SmartConfig.
+- `Reusable.Colin` - This is a command line interface.
+- `Reusable.ConsoleColorizer` - This is for easier console styling via xml.
+- `Reusable.TypeConversion` - This is for easier and extendable type conversion.
+- `Reusable.Fuse` - This is for consistent and fluent inline validation and verification.
+- `Reusable.Logging.NLog.Tools` - This is for easier `NLog` configuration.
+- `Reusable.Markup` - This is for creating html/xml markup.
+- `Reusable.SemanticVersion` - This is for working with semantic versions.
 
 ---
 

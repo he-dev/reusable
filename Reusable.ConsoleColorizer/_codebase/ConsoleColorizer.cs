@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Reusable.Extensions;
 
 namespace Reusable
 {
@@ -11,47 +12,47 @@ namespace Reusable
     {
         public static void Render(string xml)
         {
-            Render(XElement.Parse(xml).Nodes());
+            Render(XElement.Parse(xml.NullIfEmpty() ?? throw new ArgumentNullException(nameof(xml))).Nodes());
+            Console.ResetColor();
+        }
+
+        public static void RenderLine(string xml)
+        {
+            Render(XElement.Parse(xml.NullIfEmpty() ?? throw new ArgumentNullException(nameof(xml))).Nodes());
+            Console.WriteLine();
+            Console.ResetColor();
         }
 
         public static void Render(IEnumerable<XNode> xNodes)
         {
-            RenderInternal(xNodes);
-            Console.WriteLine();
-            Console.ResetColor();
+            RenderInternal(xNodes ?? throw new ArgumentNullException(nameof(xNodes)));
         }
 
         private static void RenderInternal(IEnumerable<XNode> xNodes)
         {
             foreach (var xNode in xNodes)
             {
-                new Func<bool>(() => Render(xNode as XElement) || Render(xNode))();
+                switch (xNode)
+                {
+                    case XElement xElement: Render(xElement); break;
+                    case XText xText: Render(xText); break;
+                }
             }
         }
 
-        private static bool Render(XElement xElement)
+        private static void Render(XElement xElement)
         {
-            if (xElement == null)
+            using (var currentStyle = new Usingifier<ConsoleStyle>(() => ConsoleStyle.Current, style => style.Apply()))
             {
-                return false;
+                currentStyle.Initialize();
+                ConsoleStyle.Parse(xElement).Apply();
+                RenderInternal(xElement.Nodes());
             }
-
-            var savedConsoleStyle = ConsoleStyle.Current;
-            xElement.ToConsoleStyle().Apply();
-            RenderInternal(xElement.Nodes());
-            savedConsoleStyle.Apply();
-            return true;
         }
 
-        private static bool Render(XNode xNode)
+        private static void Render(XText xText)
         {
-            var xText = xNode as XText;
-            if (xText == null)
-            {
-                return false;
-            }
             Console.Write(xText.Value);
-            return true;
         }
     }
 }
