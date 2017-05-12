@@ -70,18 +70,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="_codebase\Html\HtmlExtensions.cs" />
-    <Compile Include="_codebase\Html\HtmlFormatting.cs" />
-    <Compile Include="_codebase\Html\HtmlRenderer.cs" />
-    <Compile Include="_codebase\Html\HtmlSanitizer.cs" />
-    <Compile Include="_codebase\ISanitizer.cs" />
+    <Compile Include="TehCodez\Formatters\HtmlFormatter.cs" />
+    <Compile Include="TehCodez\Html\HtmlExtensions.cs" />
+    <Compile Include="TehCodez\Html\HtmlFormatting.cs" />
+    <Compile Include="TehCodez\Html\HtmlRenderer.cs" />
+    <Compile Include="TehCodez\Html\HtmlSanitizer.cs" />
+    <Compile Include="TehCodez\Html\MarkupElementExtensions.cs" />
+    <Compile Include="TehCodez\ISanitizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="_codebase\MarkupElement.cs" />
-    <Compile Include="_codebase\MarkupElementExtensions.cs" />
-    <Compile Include="_codebase\MarkupFormatter.cs" />
-    <Compile Include="_codebase\MarkupFormatting.cs" />
-    <Compile Include="_codebase\MarkupFormattingOptions.cs" />
-    <Compile Include="_codebase\MarkupRenderer.cs" />
+    <Compile Include="TehCodez\MarkupElement.cs" />
+    <Compile Include="TehCodez\MarkupElementExtensions.cs" />
+    <Compile Include="TehCodez\MarkupFormatting.cs" />
+    <Compile Include="TehCodez\MarkupFormattingOptions.cs" />
+    <Compile Include="TehCodez\MarkupRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj">

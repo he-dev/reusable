@@ -13,6 +13,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using Reusable;
 using Reusable.Extensions;
+using Reusable.Markup;
 
 namespace SmartLibs.Console
 {
@@ -20,7 +21,7 @@ namespace SmartLibs.Console
     {
         static void Main(string[] args)
         {
-
+            
             ConsoleColorizer.RenderLine("<p>&gt;<span background-color='red'>Hallo</span> x <span color='darkyellow'>colors!</span></p>");
             //var logger = LoggerFactory.CreateLogger("test");
             //logger.Trace(x => x.Message("blah"));

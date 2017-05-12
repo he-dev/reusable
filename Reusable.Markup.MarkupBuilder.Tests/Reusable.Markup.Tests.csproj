@@ -56,10 +56,14 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="MarkupBuilderTest.cs" />
+    <Compile Include="HtmlTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj">
+      <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
+      <Name>Reusable.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Reusable.Fuse\Reusable.Fuse.csproj">
       <Project>{aba07d6f-bb71-4aa6-aa20-7330e394d082}</Project>
       <Name>Reusable.Fuse</Name>
@@ -70,18 +74,15 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="HtmlFiles\ToString_003.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="HtmlFiles\ToString_002.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="HtmlFiles\ToString_001.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <EmbeddedResource Include="Resources\ToString_003.html" />
+    <EmbeddedResource Include="Resources\ToString_002.html" />
+    <EmbeddedResource Include="Resources\ToString_001.html" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\ToString_004.html" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
 using System.Net.Configuration;
 using System.Net.Mail;
-using System.Text;
-using System.Threading.Tasks;
 using SystemClient = System.Net.Mail.SmtpClient;
 
-namespace Reusable.Email.Clients.SmtpClient
+namespace Reusable.EmailClients
 {
     /// <summary>
     /// Uses the System.Net.Mail.SmtpClient to send emails.
@@ -21,7 +17,7 @@ namespace Reusable.Email.Clients.SmtpClient
             {
                 var configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
                 var mailSettingsSectionGroup = configuration.GetSectionGroup("system.net/mailSettings") as MailSettingsSectionGroup;
-                return mailSettingsSectionGroup?.Smtp.From ?? throw new InvalidOperationException($"You need to specify the sender either by setting the {nameof(From)} property on the {nameof(Email)} or via app.config <system.net><mailSettings> section.");
+                return mailSettingsSectionGroup?.Smtp.From ?? throw new InvalidOperationException($"You need to specify the sender either by setting the {nameof(From)} property on the {nameof(Email<EmailSubject, EmailBody>)} or via app.config <system.net><mailSettings> section.");
             }
         }
 

@@ -1,7 +1,6 @@
-﻿using System;
-using Microsoft.Office.Interop.Outlook;
+﻿using Microsoft.Office.Interop.Outlook;
 
-namespace Reusable.EmailClients.OutlookClient
+namespace Reusable.EmailClients
 {
     /// <summary>
     /// Sends emails via Microsoft.Office.Interop.Outlook.

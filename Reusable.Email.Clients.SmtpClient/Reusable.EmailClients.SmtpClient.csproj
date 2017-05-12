@@ -7,7 +7,7 @@
     <ProjectGuid>{37354896-3562-4C99-B003-910411461622}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Reusable.EmailClients.SmtpClient</RootNamespace>
+    <RootNamespace>Reusable.EmailClients</RootNamespace>
     <AssemblyName>Reusable.EmailClients.SmtpClient</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

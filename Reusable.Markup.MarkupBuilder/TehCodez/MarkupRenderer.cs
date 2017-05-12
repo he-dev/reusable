@@ -44,7 +44,7 @@ namespace Reusable.Markup
                 .ToString();
 
             var indent = markupElement.Parent != null;
-            var placeOpeningTagOnNewLine = _formatting[markupElement.Name].HasFlag(MarkupFormattingOptions.PlaceOpeningTagOnNewLine);
+            var placeOpeningTagOnNewLine = _formatting[markupElement.Name].HasFlag(MarkupFormattingOptions.PlaceOpeningTagOnNewLine) && markupElement.Parent.IsNotNull();
             var placeClosingTagOnNewLine = _formatting[markupElement.Name].HasFlag(MarkupFormattingOptions.PlaceClosingTagOnNewLine);
             var hasClosingTag = _formatting[markupElement.Name].HasFlag(MarkupFormattingOptions.IsVoid) == false;
             var indentString = IndentString(_formatting.IndentWidth, markupElement.Depth);
@@ -80,7 +80,7 @@ namespace Reusable.Markup
                     .AppendWhen(
                         () => RenderAttributes(attributes).ToList(),
                         attributeStrings => attributeStrings.Any(),
-                        (sb, attributeStrings) => sb.Append($" {(string.Join(" ", attributeStrings))}"))
+                        (sb, attributeStrings) => sb.Append($" {string.Join(" ", attributeStrings)}"))
                     .Append(">").ToString();
         }
 

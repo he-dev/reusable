@@ -7,7 +7,7 @@
     <ProjectGuid>{2981DB10-8383-47FF-9E18-12534AD86D3B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Reusable.EmailClients.OutlookClient</RootNamespace>
+    <RootNamespace>Reusable.EmailClients</RootNamespace>
     <AssemblyName>Reusable.EmailClients.OutlookClient</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

@@ -36,13 +36,13 @@ namespace Reusable.Markup
 
         private string DebuggerDisplay => $"<{Name} attribute-count=\"{Attributes?.Count ?? 0}\" children-count=\"{Count}\">";
 
+        public static IMarkupElement Builder => default(IMarkupElement);
+
         #region IMarkupElement
 
-        public static IMarkupElement Builder => default(IMarkupElement);
         public string Name { get; }
         public IDictionary<string, string> Attributes { get; }
         public IMarkupElement Parent { get; set; }
-
         public int Depth => Parent?.Depth + 1 ?? 0;
 
         #endregion
@@ -76,7 +76,7 @@ namespace Reusable.Markup
         public string ToString(string format, IFormatProvider formatProvider)
         {
             return 
-                (formatProvider.GetFormat(typeof(MarkupFormatter)) is ICustomFormatter formatter) 
+                formatProvider.GetFormat(typeof(MarkupElement)) is ICustomFormatter formatter
                     ? formatter.Format(format, this, formatProvider) 
                     : base.ToString();
         }
