@@ -68,32 +68,32 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="Collections\ProjectionComparerTest.cs" />
-    <Compile Include="Collections\AutoKeyDictionaryTest.cs" />
-    <Compile Include="Data\DataTableExtensionsTest.cs" />
-    <Compile Include="Drawing\Color32Tests.cs" />
-    <Compile Include="Drawing\ColorParser.cs" />
-    <Compile Include="EnumerableExtensionsTest.cs" />
-    <Compile Include="ExceptionExtensionsTest.cs" />
-    <Compile Include="Formatters\BracketFormatterTest.cs" />
-    <Compile Include="Formatters\CaseFormatterTest.cs" />
-    <Compile Include="Formatters\HexadecimalColorFormatterTest.cs" />
-    <Compile Include="Formatters\DecimalColorFormatterTest.cs" />
-    <Compile Include="Formatters\DefaultFormatterTest.cs" />
-    <Compile Include="Formatters\FormatterTest.cs" />
-    <Compile Include="MethodInfoExtensionsTest.cs" />
-    <Compile Include="ObjectExtensionsTest.cs" />
-    <Compile Include="Sequences\FibonacciSequenceTest.cs" />
-    <Compile Include="Sequences\HarmonicSequenceTest.cs" />
-    <Compile Include="StringInterpolationTest.cs" />
-    <Compile Include="ReflectionTest.cs" />
+    <Compile Include="TehCodez\Collections\ProjectionComparerTest.cs" />
+    <Compile Include="TehCodez\Collections\AutoKeyDictionaryTest.cs" />
+    <Compile Include="TehCodez\Data\DataTableExtensionsTest.cs" />
+    <Compile Include="TehCodez\Drawing\Color32Tests.cs" />
+    <Compile Include="TehCodez\Drawing\ColorParser.cs" />
+    <Compile Include="TehCodez\EnumerableExtensionsTest.cs" />
+    <Compile Include="TehCodez\ExceptionExtensionsTest.cs" />
+    <Compile Include="TehCodez\Formatters\BracketFormatterTest.cs" />
+    <Compile Include="TehCodez\Formatters\CaseFormatterTest.cs" />
+    <Compile Include="TehCodez\Formatters\HexadecimalColorFormatterTest.cs" />
+    <Compile Include="TehCodez\Formatters\DecimalColorFormatterTest.cs" />
+    <Compile Include="TehCodez\Formatters\DefaultFormatterTest.cs" />
+    <Compile Include="TehCodez\Formatters\FormatterTest.cs" />
+    <Compile Include="TehCodez\MethodInfoExtensionsTest.cs" />
+    <Compile Include="TehCodez\ObjectExtensionsTest.cs" />
+    <Compile Include="TehCodez\Sequences\FibonacciSequenceTest.cs" />
+    <Compile Include="TehCodez\Sequences\HarmonicSequenceTest.cs" />
+    <Compile Include="TehCodez\StringInterpolationTest.cs" />
+    <Compile Include="TehCodez\ReflectionTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ResourceReaderTest.cs" />
-    <Compile Include="Extensions\StringExtensionsTest.cs" />
-    <Compile Include="UsingifierExtensionsTest.cs" />
-    <Compile Include="UsingifierTest.cs" />
-    <Compile Include="ValidatorTest.cs" />
-    <Compile Include="Windows\DependencyPropertyBuilderTest.cs" />
+    <Compile Include="TehCodez\ResourceReaderTest.cs" />
+    <Compile Include="TehCodez\Extensions\StringExtensionsTest.cs" />
+    <Compile Include="TehCodez\UsingifierExtensionsTest.cs" />
+    <Compile Include="TehCodez\UsingifierTest.cs" />
+    <Compile Include="TehCodez\ValidatorTest.cs" />
+    <Compile Include="TehCodez\Windows\DependencyPropertyBuilderTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj">
@@ -109,7 +109,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Experimental\" />
+    <Folder Include="TehCodez\Experimental\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="TextFile1.txt" />

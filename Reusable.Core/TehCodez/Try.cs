@@ -21,19 +21,19 @@ namespace Reusable
             }
         }
 
-        public static bool Execute<TLocal, TResult>(Func<TResult> action, Func<TLocal> preAction, Action<TLocal, Exception> postAction, out TResult result)
+        public static bool Execute<TLocal, TResult>(Func<TResult> action, Func<TLocal> preAction, Action<TLocal, TResult, Exception> postAction, out TResult result)
         {
             var local = preAction();
             try
             {
                 result = action();
-                postAction(local, null);
+                postAction(local, result, default(Exception));
                 return true;
             }
             catch (Exception ex)
             {
                 result = default(TResult);
-                postAction(local, ex);
+                postAction(local, result, ex);
                 return false;
             }
         }
@@ -46,25 +46,25 @@ namespace Reusable
                 action();
                 postAction(local, true);
             }
-            catch (Exception)
+            catch
             {
                 postAction(local, false);
                 throw;
             }
         }
 
-        public static TResult Execute<TLocal, TResult>(Func<TResult> action, Func<TLocal> preAction, Action<TLocal, bool> postAction)
+        public static TResult Execute<TLocal, TResult>(Func<TResult> action, Func<TLocal> preAction, Action<TLocal, TResult, bool> postAction)
         {
             var local = preAction();
             try
             {
                 var result = action();
-                postAction(local, true);
+                postAction(local, result, true);
                 return result;
             }
-            catch (Exception)
+            catch
             {
-                postAction(local, false);
+                postAction(local, default(TResult), false);
                 throw;
             }
         }
