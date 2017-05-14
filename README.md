@@ -4,7 +4,7 @@
 
 ## Components
 
-- [`Reusable.Core`](abc) - This library provides the most common utilities.
+- [`Reusable.Core`](https://github.com/he-dev/Reusable/blob/master/Reusable.Core/README.md) - This library provides the most common utilities.
 - `Reusable.ConfigWhiz` - This is the new _smarter_ SmartConfig.
 - `Reusable.Colin` - This is a command line interface.
 - `Reusable.ConsoleColorizer` - This is for easier console styling via xml.
