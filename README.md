@@ -1,11 +1,11 @@
-# Reusable v2.27.3
+# Reusable v3
 
 `Reusable` is a collection of gereral purpose libraries that I use in my other projects.
 
 ## Components
 
 - [`Reusable.Core`](https://github.com/he-dev/Reusable/blob/master/Reusable.Core/README.md) - This library provides the most common utilities.
-- `Reusable.ConfigWhiz` - This is the new _smarter_ SmartConfig.
+- [`Reusable.ConfigWhiz`](https://github.com/he-dev/Reusable/blob/master/Reusable.ConfigWhiz.Core/README.md) - This is the new _smarter_ SmartConfig.
 - `Reusable.Colin` - This is a command line interface.
 - `Reusable.ConsoleColorizer` - This is for easier console styling via xml.
 - `Reusable.TypeConversion` - This is for easier and extendable type conversion.
