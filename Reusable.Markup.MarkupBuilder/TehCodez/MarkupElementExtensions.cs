@@ -26,13 +26,7 @@ namespace Reusable.Markup
         {
             var element = MarkupElement.Create(name, @this).Append(content);
             return @this ?? element;
-        }
-
-        public static IMarkupElement Element(this IMarkupElement @this, string name, Func<IMarkupElement, IEnumerable<IMarkupElement>> createContent)
-        {
-            var element = MarkupElement.Create(name, @this).Append(createContent(MarkupElement.Builder));
-            return @this ?? element;
-        }
+        }      
 
         public static IMarkupElement Element(this IMarkupElement @this, string name, params object[] content)
         {
@@ -40,23 +34,16 @@ namespace Reusable.Markup
             return @this ?? element;
         }
 
-        public static IMarkupElement Elements<T>(this IMarkupElement @this, string name, IEnumerable<T> content, Action<IMarkupElement, T, int> configureElement)
+        public static IMarkupElement Elements<T>(this IMarkupElement @this, string name, IEnumerable<T> content, Func<IMarkupElement, T, IMarkupElement> configureElement)
         {
             if (@this.IsNull()) { throw new ArgumentNullException(paramName: nameof(@this), message: "You cannot add elements to a null element (or builder)."); }
 
-            var index = 0;
             foreach (var item in content)
             {
-                var element = MarkupElement.Create(name);
+                var element = configureElement(MarkupElement.Create(name), item);
                 @this.Add(element);
-                configureElement?.Invoke(element, item, index++);
             }
             return @this;
-        }
-
-        public static IMarkupElement Elements<T>(this IMarkupElement @this, string name, IEnumerable<T> content, Action<IMarkupElement, T> configureElement)
-        {
-            return @this.Elements(name, content, (current, x, i) => configureElement(current, x));
         }
 
         public static IMarkupElement Append(this IMarkupElement @this, object content)

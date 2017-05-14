@@ -108,9 +108,9 @@ namespace Reusable.Markup.Tests
                 .Element("table", table => table
                     .Element("tbody", tbody => tbody
                         .Elements("tr", data, (tr, row) => tr
-                            .Elements("td", row, (td, x) => td.Append(x)))))
-                .ToHtml();
-            Assert.AreEqual(Expected().Trim(), html.Trim());
+                            .Elements("td", row, (td, x) => td.Append(x)))));
+            //.ToHtml();
+            Assert.AreEqual(Expected().Trim(), html.ToHtml().Trim());
         }
 
         private static string Expected([CallerMemberName] string memberName = null)
