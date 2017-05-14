@@ -4,7 +4,6 @@ This package contains the following utilities:
 
   - `Reusable`
     - `IDateTimeService` - The base interace for date-time services.
-    - `Result` - Can be used to wrap the result value.
     - `Try` - Can be used to execute actions and return a `Result`.
   - `Resuable.Collections` - Custom collections.
     - `AutoKeyDictionary` - A dictionary that takes a delegate for the key that is a part of the value.
