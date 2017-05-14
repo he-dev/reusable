@@ -1,8 +1,6 @@
-# Reusable v2.27.3
+# Reusable.Core
 
-`Reusable` is a collection of gereral purpose libraries that I use in my other projects because I didn't want to write the same things over and over agian so.
-
-## Components
+This package contains the following utilities:
 
   - `Reusable`
     - `IDateTimeService` - The base interace for date-time services.
