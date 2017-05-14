@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Logging.Adapters.NLog</id>
-    <version>3.3.1</version>
+    <version>3.3.10</version>
     <title>Reusable.Logging.Adapters.NLog</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -16,7 +16,7 @@
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="NLog" version="4.4.3" />
-      <dependency id="Reusable.Logging" version="3.3.1" />
+      <dependency id="Reusable.Logging" version="3.3.10" />
     </dependencies>
   </metadata>
   <files>

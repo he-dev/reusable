@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.Markup.MarkupBuilder</id>
-    <version>3.3.1</version>
-    <title>Reusable.Markup.MarkupBuilder</title>
+    <id>Reusable.Markup</id>
+    <version>3.3.10</version>
+    <title>Reusable.Markup</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
@@ -15,11 +15,11 @@
     <copyright>Copyright 2016 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
-      <dependency id="Reusable.Core" version="3.3.1" />
+      <dependency id="Reusable.Core" version="3.3.10" />
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\Reusable.Markup.MarkupBuilder.dll" target="lib\net452" />
-    <file src="bin\Release\Reusable.Markup.MarkupBuilder.pdb" target="lib\net452" />
+    <file src="bin\Release\Reusable.Markup.dll" target="lib\net452" />
+    <file src="bin\Release\Reusable.Markup.pdb" target="lib\net452" />
   </files>
 </package>

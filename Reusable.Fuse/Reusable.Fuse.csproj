@@ -72,17 +72,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="_codebase\SpecificationContextExtensions.cs" />
-    <Compile Include="_codebase\_Validations\Validations.Enumerable.cs" />
-    <Compile Include="_codebase\_Validations\Validations.Boolean.cs" />
-    <Compile Include="_codebase\_Validations\Validations.String.cs" />
-    <Compile Include="_codebase\Testing\VerificationException.cs" />
-    <Compile Include="_codebase\ValidationException.cs" />
-    <Compile Include="_codebase\Testing\Validations.Exception.cs" />
-    <Compile Include="_codebase\SpecificationContext.cs" />
-    <Compile Include="_codebase\Testing\VerificationBuilder.cs" />
-    <Compile Include="_codebase\ValidationBuilder.cs" />
-    <Compile Include="_codebase\_Validations\Validations.Generic.cs" />
+    <Compile Include="TehCodez\SpecificationContextExtensions.cs" />
+    <Compile Include="TehCodez\_Validations\Validations.Enumerable.cs" />
+    <Compile Include="TehCodez\_Validations\Validations.Boolean.cs" />
+    <Compile Include="TehCodez\_Validations\Validations.String.cs" />
+    <Compile Include="TehCodez\Testing\VerificationException.cs" />
+    <Compile Include="TehCodez\ValidationException.cs" />
+    <Compile Include="TehCodez\Testing\Validations.Exception.cs" />
+    <Compile Include="TehCodez\SpecificationContext.cs" />
+    <Compile Include="TehCodez\Testing\VerificationBuilder.cs" />
+    <Compile Include="TehCodez\ValidationBuilder.cs" />
+    <Compile Include="TehCodez\_Validations\Validations.Generic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

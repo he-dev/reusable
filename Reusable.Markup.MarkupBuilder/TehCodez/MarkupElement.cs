@@ -12,25 +12,16 @@ namespace Reusable.Markup
         IDictionary<string, string> Attributes { get; }
         IMarkupElement Parent { get; set; }
         int Depth { get; }
-        void AddRange(IEnumerable<object> items);
     }
 
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class MarkupElement : IMarkupElement
     {
         private readonly List<object> _content = new List<object>();
 
-        public MarkupElement(string name, IEnumerable<object> content)
+        private MarkupElement(string name)
         {
             Name = name.NullIfEmpty() ?? throw new ArgumentNullException(nameof(name));
-            AddRange(content ?? throw new ArgumentNullException(nameof(content)));
-            Attributes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        }
-
-        public MarkupElement(string name, IEnumerable<Func<IMarkupElement, object>> content)
-        {
-            Name = name.NullIfEmpty() ?? throw new ArgumentNullException(nameof(name));
-            foreach (var item in content ?? throw new ArgumentNullException(nameof(content))) item(this);
             Attributes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
 
@@ -47,16 +38,20 @@ namespace Reusable.Markup
 
         #endregion
 
+        public static IMarkupElement Create(string name, IMarkupElement parent = default(IMarkupElement))
+        {
+            var element = new MarkupElement(name);
+            parent?.Add(element);
+            return element;
+        }
+
         #region ICollection<object>
 
         public int Count => _content.Count;
         public bool IsReadOnly => false;
         public void Add(object item)
         {
-            switch (item)
-            {
-                case IMarkupElement e: e.Parent = this; break;
-            }
+            if (item is IMarkupElement markupElement) { markupElement.Parent = this; }
             _content.Add(item);
         }
         public bool Contains(object item) => _content.Contains(item);
@@ -66,18 +61,13 @@ namespace Reusable.Markup
         public IEnumerator<object> GetEnumerator() => _content.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        #endregion       
-
-        public void AddRange(IEnumerable<object> items)
-        {
-            foreach (var item in items ?? throw new ArgumentNullException(nameof(items))) Add(item);
-        }
+        #endregion
 
         public string ToString(string format, IFormatProvider formatProvider)
         {
-            return 
+            return
                 formatProvider.GetFormat(typeof(MarkupElement)) is ICustomFormatter formatter
-                    ? formatter.Format(format, this, formatProvider) 
+                    ? formatter.Format(format, this, formatProvider)
                     : base.ToString();
         }
     }

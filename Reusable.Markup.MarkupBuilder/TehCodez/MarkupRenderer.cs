@@ -38,9 +38,7 @@ namespace Reusable.Markup
                     (result, next) => result.Append(
                         next is IMarkupElement e
                             ? Render(e)
-                            : _sanitizer.Sanitize(next, _formatProvider)
-                    )
-                )
+                            : _sanitizer.Sanitize(next, _formatProvider)))
                 .ToString();
 
             var indent = markupElement.Parent != null;
