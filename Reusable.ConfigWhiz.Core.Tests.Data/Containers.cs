@@ -72,6 +72,13 @@ namespace Reusable.ConfigWhiz.Core.Tests.Data
         public Dictionary<string, int> DictionaryStringInt32 { get; set; }
     }
 
+    [SettingName("MyContainer")]
+    public class Renamed
+    {
+        [SettingName("MySetting")]
+        public string Bar { get; set; }
+    }
+
     public enum TestEnum
     {
         TestValue1,

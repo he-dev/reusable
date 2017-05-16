@@ -6,18 +6,29 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Reusable.Collections;
+using Reusable.ConfigWhiz.Data.Annotations;
+using Reusable.ConfigWhiz.Extensions;
 using Reusable.Extensions;
 
 namespace Reusable.ConfigWhiz
 {
     public class ContainerPath : IEquatable<ContainerPath>
     {
-        protected ContainerPath(IImmutableList<string> consumerNamespace, string consumerName, string instanceName, string containerName)
+        protected ContainerPath(IEnumerable<string> consumerNamespace, string consumerName, string instanceName, string containerName)
         {
-            ConsumerNamespace = consumerNamespace;
+            ConsumerNamespace = consumerNamespace.ToImmutableList();
             ConsumerName = consumerName;
             InstanceName = instanceName;
             ContainerName = containerName;
+        }
+
+        protected ContainerPath(IEnumerable<string> consumerNamespace, Type consumerType, string instanceName, Type containerType) 
+            : this(
+                  consumerNamespace, 
+                  consumerType.GetCustomNameOrDefault(), 
+                  instanceName, 
+                  containerType.GetCustomNameOrDefault())
+        {
         }
 
         public IImmutableList<string> ConsumerNamespace { get; }
@@ -33,9 +44,9 @@ namespace Reusable.ConfigWhiz
             // ReSharper disable once PossibleNullReferenceException
             return new ContainerPath(
                 consumerNamespace: typeof(TConsumer).Namespace.Split('.').ToImmutableList(),
-                consumerName: typeof(TConsumer).Name,
+                consumerType: typeof(TConsumer),
                 instanceName: instanceName,
-                containerName: typeof(TContainer).Name);
+                containerType: typeof(TContainer));
         }
 
         #region IEquatable<ContainerPath>
@@ -104,22 +115,24 @@ namespace Reusable.ConfigWhiz
             ElementName = elementName;
         }
 
-        private SettingPath(Type consumerType, string instanceName, PropertyInfo property, string elementName)
-            : this(
+        protected SettingPath(Type consumerType, string instanceName, PropertyInfo property, string elementName)
+            : base(
                 consumerNamespace: consumerType.Namespace.Split('.'),
-                consumerName: consumerType.Name,
+                consumerType: consumerType,
                 instanceName: instanceName,
-                containerName: property.DeclaringType.Name,
-                settingName: property.Name,
-                elementName: elementName
+                containerType: property.DeclaringType
             )
-        { }
+        {
+            SettingName = property.GetCustomNameOrDefault();
+            ElementName = elementName;
+        }
 
         public string SettingName { get; }
 
         public string ElementName { get; }
 
         private string DebuggerDisplay => this.ToFullStrongString();
+
         //new string[] {
         //    $"{nameof(ConsumerNamespace)} = \"{string.Join(", ", ConsumerNamespace)}\"",
         //    $"{nameof(ConsumerName)} = \"{ConsumerName}\"",
@@ -127,6 +140,7 @@ namespace Reusable.ConfigWhiz
         //    $"{nameof(SettingName)} = \"{SettingName}\"",
         //    $"{nameof(ElementName)} = \"{ElementName}\""
         //}.Join(" ");
+
 
         public static SettingPath Create(Type consumerType, string instanceName, PropertyInfo property, string elementName)
         {
@@ -139,8 +153,8 @@ namespace Reusable.ConfigWhiz
                 containerPath.ConsumerNamespace,
                 containerPath.ConsumerName,
                 containerPath.InstanceName,
-                property.DeclaringType.Name,
-                property.Name,
+                property.DeclaringType.GetCustomNameOrDefault(),
+                property.GetCustomNameOrDefault(),
                 elementName
             );
         }

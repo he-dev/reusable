@@ -27,7 +27,8 @@ namespace Reusable.ConfigWhiz.Tests
             {
                 new Memory("Memory1")
                 {
-                    { $@"{ns}.Foo.Bar.Qux", "quux" }
+                    { $@"{ns}.Foo.Bar.Qux", "quux" },
+                    { $@"{ns}.Foo.MyContainer.MySetting", "waldo" }
                 },
                 new Memory("Memory2")
                 {
@@ -116,7 +117,18 @@ namespace Reusable.ConfigWhiz.Tests
 
         #endregion
 
-  
+        #region Other
+
+        [TestMethod]
+        public void Load_Renamed_Success()
+        {
+            var configuration = new Configuration(Datastores);
+
+            var renamed = configuration.Load<Foo, Renamed>();
+            renamed.Bar.Verify().IsEqual("waldo");
+        }
+
+        #endregion
 
         private class MockDatastore : Datastore
         {

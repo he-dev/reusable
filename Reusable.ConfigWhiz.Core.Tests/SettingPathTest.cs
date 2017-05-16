@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.ConfigWhiz.Core.Tests.Data;
 using Reusable.Fuse;
 using Reusable.Fuse.Testing;
 
@@ -116,5 +117,11 @@ namespace Reusable.ConfigWhiz.Tests
             var settingPath = SettingPath.Parse(@"abc.jkl.xyz[""qwe""].Foo.Barr[""Baz""]");
             settingPath.ToString(SettingPathFormat.FullStrong, SettingPathFormatter.Instance).Verify().IsEqual(@"abc.jkl.xyz[""qwe""].Foo.Barr[""Baz""]");
         }
+
+        //[TestMethod]
+        //public void ToString_Renamed_SettingPath()
+        //{
+        //    var settingPath = SettingPath.Create<Foo, Renamed>(string.Empty);
+        //}
     }
 }
