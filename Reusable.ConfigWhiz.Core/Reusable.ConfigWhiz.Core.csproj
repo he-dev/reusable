@@ -55,6 +55,7 @@
     <Compile Include="Data\Annotations\FallbackDatastoreAttribute.cs" />
     <Compile Include="Data\Annotations\ItemizedAttribute.cs" />
     <Compile Include="Data\Annotations\SettingNameAttribute.cs" />
+    <Compile Include="Data\Annotations\SettingNamespaceAttribute.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Data\Setting.cs" />
