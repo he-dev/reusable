@@ -5,13 +5,17 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Reusable.Extensions;
 
 namespace Reusable
 {
-    public class ResourceReader
+    public static class ResourceReader
     {
-        public static IEnumerable<string> FindEmbeddedResources<TNamespaceProvider>(Func<string, bool> predicate)
+        [NotNull]
+        [ItemNotNull]
+        [ContractAnnotation("null => halt")]
+        public static IEnumerable<string> FindEmbeddedResources<TNamespaceProvider>([NotNull] Func<string, bool> predicate)
         {
             if (predicate == null) throw new ArgumentNullException(nameof(predicate));
 
@@ -22,39 +26,30 @@ namespace Reusable
                     .Where(Conditional.IsNotNullOrEmpty);
         }
 
+        [NotNull]
+        [ItemNotNull]
         public static IEnumerable<string> GetEmbededResourceNames<TNamespaceProvider>()
         {
             var assembly = Assembly.GetAssembly(typeof(TNamespaceProvider));
             return assembly.GetManifestResourceNames();
         }
 
-        //public static string ReadEmbeddedResource<TAssembly, TNamespace>(string name)
-        //{
-        //    if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
-        //    return ReadEmbeddedResource(typeof(TAssembly), typeof(TNamespace), name);
-        //}
-
-        public static string ReadEmbeddedResource<TNamespaceProvider>(string name)
+        [CanBeNull]
+        [ContractAnnotation("name:null => halt")]
+        public static string ReadEmbeddedResource<TNamespaceProvider>([NotNull] string name)
         {
             return ReadEmbeddedResource(typeof(TNamespaceProvider), name.NullIfEmpty() ?? throw new ArgumentNullException(nameof(name)));
         }
 
-        //public static string ReadEmbeddedResource(Type assemblyType, Type namespaceType, string name)
-        //{
-        //    if (assemblyType == null) throw new ArgumentNullException(nameof(assemblyType));
-        //    if (namespaceType == null) throw new ArgumentNullException(nameof(namespaceType));
-        //    if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
-
-        //    return ReadEmbeddedResource(assemblyType, $"{namespaceType.Namespace}.{name}");
-        //}
-
-        public static string ReadEmbeddedResource(Type namespaceType, string name)
+        [CanBeNull]
+        [ContractAnnotation("namespaceProvider:null => halt; name:null => halt")]
+        public static string ReadEmbeddedResource([NotNull] Type namespaceProvider, [NotNull] string name)
         {
-            if (namespaceType == null) throw new ArgumentNullException(nameof(namespaceType));
+            if (namespaceProvider == null) throw new ArgumentNullException(nameof(namespaceProvider));
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
 
-            var assembly = Assembly.GetAssembly(namespaceType);
-            using (var resourceStream = assembly.GetManifestResourceStream($"{namespaceType.Namespace}.{name}"))
+            var assembly = Assembly.GetAssembly(namespaceProvider);
+            using (var resourceStream = assembly.GetManifestResourceStream($"{namespaceProvider.Namespace}.{name}"))
             {
                 if (resourceStream == null) return null;
                 using (var streamReader = new StreamReader(resourceStream))

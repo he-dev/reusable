@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 using Reusable.StringFormatting;
 
 namespace Reusable.Extensions
-{
+{    
     public delegate bool TryGetValueCallback(string name, out object value);
 
     public static class StringInterpolation
@@ -20,6 +21,9 @@ namespace Reusable.Extensions
             public const string FormatString = nameof(FormatString);
         }
 
+        [Pure]
+        [CanBeNull]
+        [ContractAnnotation("text: null => null; text: notnull => notnull; tryGetValue: null => stop")]
         public static string Format(this string text, TryGetValueCallback tryGetValue, IFormatProvider formatProvider = null)
         {
             if (string.IsNullOrEmpty(text)) { return text; }
@@ -52,6 +56,9 @@ namespace Reusable.Extensions
             return result;
         }
 
+        [Pure]
+        [CanBeNull]
+        [ContractAnnotation("text: null => null; data: null => stop")]
         public static string Format(this string text, IDictionary<string, object> data, IFormatProvider formatProvider = null)
         {
             if (string.IsNullOrEmpty(text)) { return text; }
@@ -60,6 +67,9 @@ namespace Reusable.Extensions
             return Format(text, data.TryGetValue, formatProvider);
         }
 
+        [Pure]
+        [CanBeNull]
+        [ContractAnnotation("text: null => null; data: null => stop")]
         public static string Format(this string text, object data, IFormatProvider formatProvider = null)
         {
             if (string.IsNullOrEmpty(text)) { return text; }
@@ -81,6 +91,9 @@ namespace Reusable.Extensions
             }, formatProvider);
         }
 
+        [Pure]
+        [CanBeNull]
+        [ContractAnnotation("text: null => null; data: null => stop")]
         public static string FormatAll(this string text, IDictionary<string, object> data, IFormatProvider formatProvider = null)
         {
             if (string.IsNullOrEmpty(text)) { return text; }
@@ -95,6 +108,9 @@ namespace Reusable.Extensions
             return text;
         }
 
+        [Pure]
+        [NotNull]
+        [ItemNotNull]
         public static IEnumerable<string> GetNames(string text)
         {
             return

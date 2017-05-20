@@ -1,6 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Reusable.PropertyMiddleware.Tests
+namespace Reusable.ExpressProperty.Tests
 {
     [TestClass]
     public class PropertyWriterTest

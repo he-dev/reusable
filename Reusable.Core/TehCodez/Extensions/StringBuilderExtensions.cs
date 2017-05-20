@@ -5,6 +5,8 @@ namespace Reusable.Extensions
 {
     public static class StringBuilderExtensions
     {
+        public static bool Any(this StringBuilder @this) => @this.Length > 0;
+
         public static StringBuilder AppendWhen(this StringBuilder @this, Func<bool> predicate, Func<StringBuilder, StringBuilder> append)
         {
             return predicate() ? append(@this) : @this;

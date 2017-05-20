@@ -39,6 +39,7 @@ namespace Reusable.ConfigWhiz
 
         public string ContainerName { get; }
 
+
         public static ContainerPath Create<TConsumer, TContainer>(string instanceName)
         {
             // ReSharper disable once PossibleNullReferenceException

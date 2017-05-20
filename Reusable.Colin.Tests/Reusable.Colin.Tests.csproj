@@ -51,6 +51,9 @@
     <Reference Include="System.Collections.Immutable, Version=1.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Collections.Immutable.1.3.1\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
     </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.3.1\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -62,18 +65,21 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TehCodez\Collections\ImmutableNameSetEqualityComparerTest.cs" />
+    <Compile Include="TehCodez\Collections\ImmutableNameSetTest.cs" />
+    <Compile Include="TehCodez\ParameterFactoryTest.cs" />
     <Compile Include="TestCommands.cs" />
-    <Compile Include="_codebase\Collections\ArgumentCollectionTest.cs" />
-    <Compile Include="_codebase\CommandLineParserTest.cs" />
-    <Compile Include="_codebase\CommandLineTest.cs" />
-    <Compile Include="_codebase\CommandLineTokenizerTest.cs" />
+    <Compile Include="TehCodez\Collections\ArgumentCollectionTest.cs" />
+    <Compile Include="TehCodez\CommandLineParserTest.cs" />
+    <Compile Include="TehCodez\CommandLineTest.cs" />
+    <Compile Include="TehCodez\CommandLineTokenizerTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="_codebase\Commnads\" />
+    <Folder Include="TehCodez\Commnads\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Colin\Reusable.Colin.csproj">

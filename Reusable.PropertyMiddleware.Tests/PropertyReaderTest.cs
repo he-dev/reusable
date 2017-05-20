@@ -1,6 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Reusable.PropertyMiddleware.Tests
+namespace Reusable.ExpressProperty.Tests
 {
     [TestClass]
     public class PropertyReaderTest
@@ -41,6 +41,14 @@ namespace Reusable.PropertyMiddleware.Tests
                 Bar = "baz"
             };
             Assert.AreEqual("a8", reader.GetValue<int, int, string>(foo, null, 1, 8));
+        }
+
+        [TestMethod]
+        public void FooTest()
+        {
+            var reader = PropertyReader.Create(typeof(Foo));
+            var foo = new Foo { Bar = "bar" };
+            var result = reader(foo, 1);
         }
 
         private class Foo

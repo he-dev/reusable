@@ -73,16 +73,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TehCodez\SpecificationContextExtensions.cs" />
-    <Compile Include="TehCodez\_Validations\Validations.Enumerable.cs" />
-    <Compile Include="TehCodez\_Validations\Validations.Boolean.cs" />
-    <Compile Include="TehCodez\_Validations\Validations.String.cs" />
+    <Compile Include="TehCodez\Validations\EnumerableValidations.cs" />
+    <Compile Include="TehCodez\Validations\BooleanValidations.cs" />
+    <Compile Include="TehCodez\Validations\StringValidations.cs" />
     <Compile Include="TehCodez\Testing\VerificationException.cs" />
     <Compile Include="TehCodez\ValidationException.cs" />
     <Compile Include="TehCodez\Testing\Validations.Exception.cs" />
     <Compile Include="TehCodez\SpecificationContext.cs" />
     <Compile Include="TehCodez\Testing\VerificationBuilder.cs" />
     <Compile Include="TehCodez\ValidationBuilder.cs" />
-    <Compile Include="TehCodez\_Validations\Validations.Generic.cs" />
+    <Compile Include="TehCodez\Validations\GenericValidations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

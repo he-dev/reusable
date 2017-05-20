@@ -4,6 +4,7 @@ using System.CodeDom.Compiler;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
+using JetBrains.Annotations;
 using Reusable.Extensions;
 
 namespace Reusable
@@ -17,7 +18,8 @@ namespace Reusable
 
         // --- non-extensions        
 
-        public static Type GetElemenType(Type type)
+        [CanBeNull]
+        public static Type GetElementType([NotNull] Type type)
         {
             if (type == null) { throw new ArgumentNullException(nameof(type)); }
 
@@ -44,14 +46,16 @@ namespace Reusable
             return null;
         }
 
-        public static Type GetElemenType(object obj)
+        [CanBeNull]
+        public static Type GetElementType([NotNull] object obj)
         {
-            return GetElemenType(obj?.GetType());
+            return GetElementType(obj?.GetType());
         }
 
-        public static Type GetElemenType<T>()
+        [CanBeNull]
+        public static Type GetElementType<T>()
         {
-            return GetElemenType(typeof(T));
+            return GetElementType(typeof(T));
         }
     }
 }
