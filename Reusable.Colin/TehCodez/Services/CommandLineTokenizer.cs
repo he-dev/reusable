@@ -16,8 +16,7 @@ namespace Reusable.Colin.Services
             if (text == null) throw new ArgumentNullException(nameof(text));
 
             var escapableChars = new HashSet<char> { '\\', '"' };
-            var separators = new HashSet<char> { ' ', '|' };
-            //var tokens = new List<string>();
+            var separators = new HashSet<char> { ' ', '|', ',' };
             var token = new StringBuilder();
             var escapeMode = false;
             var quoted = false;
@@ -64,14 +63,12 @@ namespace Reusable.Colin.Services
                                 switch (IsUnquotedSeparator(c))
                                 {
                                     case true when token.Length > 0:
-                                        //tokens.Add(token.ToString());
                                         yield return token.ToString();
                                         token.Clear();
                                         switch (c)
                                         {
                                             // Pipe is a special token so it's collected.
                                             case '|':
-                                                //tokens.Add(c.ToString());
                                                 yield return c.ToString();
                                                 break;
                                         }
@@ -93,11 +90,8 @@ namespace Reusable.Colin.Services
 
             if (token.Any())
             {
-                // tokens.Add(token.ToString());
                 yield return token.ToString();
             }
-
-            //return tokens;
         }
     }
 }

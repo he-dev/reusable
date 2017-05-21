@@ -3,6 +3,7 @@ using System.Linq;
 using System.Windows.Input;
 using JetBrains.Annotations;
 using Reusable.Colin.Commands;
+using Reusable.Colin.Data;
 
 namespace Reusable.Colin.Collections
 {
@@ -36,6 +37,23 @@ namespace Reusable.Colin.Collections
                         ? command
                         : default(ICommand);
             }
+        }
+
+        internal static bool Contains(this ArgumentLookup @this, ParameterInfo parameter)
+        {
+            return
+                parameter.Position > 0
+                    ? @this.AnonymousArguments().ElementAtOrDefault(parameter.Position) != null
+                    : @this.Contains(parameter.Names);
+        }
+
+        [NotNull]
+        internal static IEnumerable<string> Parameter(this ArgumentLookup @this, ParameterInfo parameter)
+        {
+            return
+                parameter.Position > 0 
+                    ? new[] { @this.AnonymousArguments().ElementAtOrDefault(parameter.Position) } 
+                    : @this[parameter.Names];
         }
     }
 }

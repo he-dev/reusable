@@ -16,6 +16,7 @@ namespace Reusable.Colin
     {
         [CanBeNull]
         private readonly Type _parameterType;
+        [CanBeNull]
         private readonly IImmutableList<Data.ParameterInfo> _parameters;
         private readonly TypeConverter _converter;
 
@@ -23,6 +24,7 @@ namespace Reusable.Colin
         {
             _parameterType = parameterType;
             if (parameterType == null) return;
+
             if (!parameterType.HasDefaultConstructor()) throw new ArgumentException($"The '{nameof(parameterType)}' '{parameterType}' must have a default constructor.");
 
             _parameters = CreateParameters(parameterType).ToImmutableList();
@@ -50,16 +52,64 @@ namespace Reusable.Colin
 
             foreach (var parameter in _parameters)
             {
-                if (parameter.Required)
+                if (parameter.Required && !arguments.Contains(parameter))
                 {
-                    if (!arguments.Contains(parameter.Names)) throw new ParameterNotFoundException();
+                    throw new ParameterNotFoundException(parameter.Names);
                 }
-                var arg = arguments[parameter.Names] ?? arguments[parameter.Position];
 
-                if (parameter.Required && arg == null)
+                var values = arguments.Parameter(parameter).ToList();
+
+                if (TryGetParameterData(parameter, values, out (object data, Type dataType) result))
+                {
+                    var value = _converter.Convert(result.data, result.dataType);
+                    parameter.Property.SetValue(instance, value);
+                }
             }
 
-            return null;
+            return instance;
+        }
+
+        private static bool TryGetParameterData([NotNull] Data.ParameterInfo parameter, [NotNull] ICollection<string> values, out (object data, Type dataType) result)
+        {
+            // Boolean paramater need special treatment because their value is optional. 
+            // Just setting the flag means that its default value should be used.
+            if (parameter.Property.PropertyType == typeof(bool))
+            {
+                var value = values.SingleOrDefault();
+                if (value != null)
+                {
+                    result.data = value;
+                    result.dataType = typeof(bool);
+                    return true;
+                }
+            }
+            else
+            {
+                if (values.Any())
+                {
+                    if (parameter.Property.PropertyType.IsEnumerable())
+                    {
+                        result.data = values;
+                        result.dataType = parameter.Property.PropertyType;
+                        return true;
+                    }
+
+                    result.data = values.Single();
+                    result.dataType = parameter.Property.PropertyType;
+                    return true;
+                }
+            }
+
+            if (parameter.DefaultValue != null)
+            {
+                result.data = parameter.DefaultValue;
+                result.dataType = parameter.DefaultValue.GetType();
+                return true;
+            }
+
+            result.data = null;
+            result.dataType = null;
+            return false;
 
         }
 
@@ -82,6 +132,7 @@ namespace Reusable.Colin
             new StringToDateTimeConverter(),
             new StringToEnumConverter(),
 
+            new EnumerableToArrayConverter()
             //new EnumerableObjectToArrayObjectConverter(),
             //new EnumerableObjectToListObjectConverter(),
             //new EnumerableObjectToHashSetObjectConverter(),

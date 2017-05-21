@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Fuse;
@@ -27,7 +28,7 @@ namespace Reusable.Colin.Tests
         public void Execute_CommandLineWithName_ExecutedCommandByName()
         {
             var testCmd1 = new TestCommand();
-            var testCmd2 = new TestCommand();            
+            var testCmd2 = new TestCommand();
 
             var cmdLn = CommandLine.Builder
                 .Register<object>(testCmd1, "test1", "t1")
@@ -40,20 +41,26 @@ namespace Reusable.Colin.Tests
         }
 
         [TestMethod]
-        public void Execute_CommandWithParameters_ExecutedCommandWithParameters()
+        public void Execute_CommandWithParameters_Executed()
         {
+            var testCmd = new TestCommand();
             var cmdLn = CommandLine.Builder
-                .Register<FooCommand>()
-                .Register<BarCommand, BarParameters>()
-                .Register<BazCommand>()
-                .ArgumentPrefix('-')
-                .ArgumentValueSeparator('=')
+                .Register<TestParameter>(testCmd)
                 .Build();
 
-            cmdLn.Execute("bar -requiredparameter=abc");
+            cmdLn.Execute("test -foo:oof -bar:3 -arr: 4 5 6 -flag1 -flag2:false");
+
+            Assert.AreEqual(1, testCmd.Parameters.Count);
+
+            var param = testCmd.Parameters.OfType<TestParameter>().Single();
+
+            Assert.AreEqual("oof", param.Foo);
+            Assert.AreEqual(3, param.Bar);
+            Assert.AreEqual(1.5, param.Baz);
+            CollectionAssert.AreEqual(new[] { 4, 5, 6 }, param.Arr);
         }
 
-        class TestCommand : ICommand
+        private class TestCommand : ICommand
         {
             public event EventHandler CanExecuteChanged;
 
@@ -65,6 +72,30 @@ namespace Reusable.Colin.Tests
             {
                 Parameters.Add(parameter);
             }
+        }
+
+        private class TestParameter
+        {
+            [Parameter]
+            public string Foo { get; set; }
+
+            [Parameter(CanCreateShortName = false)]
+            public int Bar { get; set; }
+
+            [Parameter(CanCreateShortName = false)]
+            [DefaultValue(1.5)]
+            public double Baz { get; set; }
+
+            [Parameter(CanCreateShortName = false)]
+            public int[] Arr { get; set; }
+
+            [Parameter(CanCreateShortName = false)]
+            [DefaultValue(true)]
+            public bool Flag1 { get; set; }
+
+            [Parameter(CanCreateShortName = false)]
+            [DefaultValue(true)]
+            public bool Flag2 { get; set; }
         }
 
         class FooCommand : ICommand

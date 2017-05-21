@@ -50,5 +50,7 @@ namespace Reusable.Colin.Tests
             [Parameter("Foo")]
             public string Bar { get; set; }
         }
+
+        
     }
 }

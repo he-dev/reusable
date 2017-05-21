@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using JetBrains.Annotations;
+using Reusable.Colin.Collections;
 
 namespace Reusable.Colin
 {
     public class ParameterNotFoundException : Exception
     {
-        
+        public ParameterNotFoundException([NotNull] ImmutableNameSet parameterNames)
+            : base(parameterNames.ToString())
+        { }
     }
 
     public class ArgumentMappingException : Exception

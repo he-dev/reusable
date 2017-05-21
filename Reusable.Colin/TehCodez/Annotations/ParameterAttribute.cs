@@ -23,11 +23,9 @@ namespace Reusable.Colin.Annotations
         /// </summary>
         public bool Required
         {
-            get => Position > 0 || _required;
+            get => Position > CommandNamePosition || _required;
             set => _required = value;
         }
-
-        public char ListSeparator { get; set; } = char.MinValue;
 
         /// <summary>
         /// Indicates whether a short name should be created from the capital letters. It is false if Names is not empty.
@@ -50,10 +48,9 @@ namespace Reusable.Colin.Annotations
             }
         }
 
-        public void Deconstruct(out bool required, out int position, out char listSeparator)
+        public void Deconstruct(out bool required, out int position)
         {
             required = Required;
-            listSeparator = ListSeparator;
             position = Position;
         }
     }

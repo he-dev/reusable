@@ -1,11 +1,6 @@
-﻿using Reusable.TypeConversion;
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
+﻿using System.ComponentModel;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Reusable.Colin.Annotations;
 using Reusable.Colin.Collections;
 
@@ -17,17 +12,18 @@ namespace Reusable.Colin.Data
         {
             Property = property;
             Names = ImmutableNameSet.From(property);
-            (Required, Position, ListSeparator) = property.GetCustomAttribute<ParameterAttribute>();
+            (Required, Position) = property.GetCustomAttribute<ParameterAttribute>();
         }
 
         public PropertyInfo Property { get; }
+
+        [CanBeNull]
+        public object DefaultValue => Property.GetCustomAttribute<DefaultValueAttribute>()?.Value;
 
         public ImmutableNameSet Names { get; }
 
         public bool Required { get; }
 
         public int Position { get; }
-
-        public char ListSeparator { get; }
     }
 }

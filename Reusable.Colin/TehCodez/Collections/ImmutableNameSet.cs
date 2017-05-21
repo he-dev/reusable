@@ -125,6 +125,8 @@ namespace Reusable.Colin.Collections
 
         public override int GetHashCode() => Comparer.GetHashCode(this);
 
+        public override string ToString() => $"Names = [{string.Join(", ", this)}]";
+
         public static bool operator ==(ImmutableNameSet left, ImmutableNameSet right) => Comparer.Equals(left, right);
 
         public static bool operator !=(ImmutableNameSet left, ImmutableNameSet right) => !(left == right);

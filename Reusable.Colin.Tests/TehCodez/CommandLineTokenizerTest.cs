@@ -11,14 +11,14 @@ namespace Reusable.Colin.Tests
     public class CommandLineTokenizerTest
     {
         [TestMethod]
-        public void Tokenize_Empty_EmptyTokens()
+        public void Tokenize_EmptyCommandLine_NoTokens()
         {
             var tokens = string.Empty.Tokenize().ToList();
             tokens.Count.Verify().IsEqual(0);
         }
 
         [TestMethod]
-        public void Tokenize_FileNameOnly_SingleToken()
+        public void Tokenize_FileNameWithSpacesOnly_SingleToken()
         {
             var tokens = @"""C:\foo\bar baz\qux.baar""".Tokenize().ToList();
             tokens.Count.Verify().IsEqual(1);
@@ -43,6 +43,13 @@ namespace Reusable.Colin.Tests
         {
             var tokens = @"foo.bar -baz -qux:""quux baar""|bar.baz -foo".Tokenize(':').ToList();
             tokens.Verify().SequenceEqual(new[] { "foo.bar", "-baz", "-qux", "quux baar", "|", "bar.baz", "-foo" });
+        }
+
+        [TestMethod]
+        public void Tokenize_ListArgument_MultipleTokens()
+        {
+            var tokens = "-foo:1, 2, 3".Tokenize(':').ToList();
+            CollectionAssert.AreEqual(new[] { "-foo", "1", "2", "3" }, tokens);
         }
     }
 }

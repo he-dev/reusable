@@ -91,9 +91,7 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="TehCodez\Reflection\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\Reusable.TypeConversion\Reusable.TypeConversion.csproj">
       <Project>{d7da0768-b385-40de-abac-0a6b0c5b73f4}</Project>
