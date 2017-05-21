@@ -10,6 +10,7 @@ using Reusable.Colin.Data;
 using System.Windows.Input;
 using Reusable.Colin.Annotations;
 using Reusable.Colin.Collections;
+using Reusable.Colin.Services;
 
 namespace Reusable.Colin.Tests
 {

@@ -1,34 +1,29 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Colin;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Reusable.Colin.Annotations;
+using Reusable.Colin.Services;
 
-namespace Reusable.Colin.Tests
+namespace Reusable.Colin.Tests.Services
 {
     [TestClass]
-    public class ParameterFactoryTest
+    public class CommandParameterFactoryTest
     {
         [TestMethod]
         public void ctor_ParameterWithDefaultConstructor_CreatesInstance()
         {
-            new ParameterFactory(typeof(Foo));
+            new CommandParameterFactory(typeof(Foo));
         }
 
         [TestMethod]
         public void ctor_UniqueParameter_CreatesInstance()
         {
-            new ParameterFactory(typeof(UniqueParameters));
+            new CommandParameterFactory(typeof(UniqueParameters));
         }
 
         [TestMethod]
         [ExpectedException(typeof(DuplicateParameterNameException))]
         public void ctor_DuplicateParameters_Throws()
         {
-            new ParameterFactory(typeof(DuplicateParameters));
+            new CommandParameterFactory(typeof(DuplicateParameters));
         }
 
         private class Foo { }

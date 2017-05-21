@@ -2,10 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Windows.Input;
 using Reusable.Colin.Collections;
-using Reusable.Colin.Commands;
+using Reusable.Colin.Services;
+using Reusable.TypeConversion;
 
 namespace Reusable.Colin
 {
@@ -41,10 +40,7 @@ namespace Reusable.Colin
 
         #region IImmutableDictionary
 
-        public CommandInvoker this[ImmutableNameSet key]
-        {
-            get { throw new NotImplementedException(); }
-        }
+        public CommandInvoker this[ImmutableNameSet key] => _commands[key];
 
         public int Count => _commands.Count;
 
@@ -79,5 +75,24 @@ namespace Reusable.Colin
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion
+
+        public static readonly TypeConverter DefaultConverter = TypeConverter.Empty.Add(
+            new StringToSByteConverter(),
+            new StringToByteConverter(),
+            new StringToCharConverter(),
+            new StringToInt16Converter(),
+            new StringToInt32Converter(),
+            new StringToInt64Converter(),
+            new StringToUInt16Converter(),
+            new StringToUInt32Converter(),
+            new StringToUInt64Converter(),
+            new StringToSingleConverter(),
+            new StringToDoubleConverter(),
+            new StringToDecimalConverter(),
+            new StringToColorConverter(),
+            new StringToBooleanConverter(),
+            new StringToDateTimeConverter(),
+            new StringToEnumConverter(),
+            new EnumerableToArrayConverter());
     }
 }

@@ -9,11 +9,11 @@ namespace Reusable.Colin.Validators
 {
     internal static class ParameterValidator
     {
-        public static void ValidateParameterNamesUniqueness(IEnumerable<Data.ParameterInfo> parameters)
+        public static void ValidateParameterNamesUniqueness(IEnumerable<Data.CommandParameter> parameters)
         {
             var duplicateNames =
                 parameters
-                    .SelectMany(p => p.Names)
+                    .SelectMany(p => p.Name)
                     .GroupBy(x => x, StringComparer.OrdinalIgnoreCase)
                     .Where(g => g.Count() > 1)
                     .Select(g => g.Key)

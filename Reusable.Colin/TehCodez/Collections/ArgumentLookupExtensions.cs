@@ -4,6 +4,7 @@ using System.Windows.Input;
 using JetBrains.Annotations;
 using Reusable.Colin.Commands;
 using Reusable.Colin.Data;
+using Reusable.Colin.Services;
 
 namespace Reusable.Colin.Collections
 {
@@ -39,21 +40,21 @@ namespace Reusable.Colin.Collections
             }
         }
 
-        internal static bool Contains(this ArgumentLookup @this, ParameterInfo parameter)
+        internal static bool Contains(this ArgumentLookup @this, CommandParameter commandParameter)
         {
             return
-                parameter.Position > 0
-                    ? @this.AnonymousArguments().ElementAtOrDefault(parameter.Position) != null
-                    : @this.Contains(parameter.Names);
+                commandParameter.Position > 0
+                    ? @this.AnonymousArguments().ElementAtOrDefault(commandParameter.Position) != null
+                    : @this.Contains(commandParameter.Name);
         }
 
         [NotNull]
-        internal static IEnumerable<string> Parameter(this ArgumentLookup @this, ParameterInfo parameter)
+        internal static IEnumerable<string> Parameter(this ArgumentLookup @this, CommandParameter commandParameter)
         {
             return
-                parameter.Position > 0 
-                    ? new[] { @this.AnonymousArguments().ElementAtOrDefault(parameter.Position) } 
-                    : @this[parameter.Names];
+                commandParameter.Position > 0 
+                    ? new[] { @this.AnonymousArguments().ElementAtOrDefault(commandParameter.Position) } 
+                    : @this[commandParameter.Name];
         }
     }
 }

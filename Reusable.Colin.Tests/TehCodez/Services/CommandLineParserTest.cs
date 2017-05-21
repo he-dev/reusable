@@ -1,14 +1,11 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Colin.Collections;
 using Reusable.Colin.Services;
 using Reusable.Fuse;
 using Reusable.Fuse.Testing;
 
-namespace Reusable.Colin.Tests
+namespace Reusable.Colin.Tests.Services
 {
     [TestClass]
     public class CommandLineParserTest
@@ -16,7 +13,7 @@ namespace Reusable.Colin.Tests
         [TestMethod]
         public void Parse_Empty_EmptyCollection()
         {
-            var arguments = CommandLineParser.Parse(new string[0], "-").ToList();
+            var arguments = new string[0].Parse("-").ToList();
             arguments.Verify().IsEmpty();
         }
 

@@ -6,12 +6,12 @@ using Reusable.Colin.Collections;
 
 namespace Reusable.Colin.Data
 {
-    public class ParameterInfo
+    public class CommandParameter
     {
-        public ParameterInfo(PropertyInfo property)
+        public CommandParameter(PropertyInfo property)
         {
             Property = property;
-            Names = ImmutableNameSet.From(property);
+            Name = ImmutableNameSet.From(property);
             (Required, Position) = property.GetCustomAttribute<ParameterAttribute>();
         }
 
@@ -20,7 +20,7 @@ namespace Reusable.Colin.Data
         [CanBeNull]
         public object DefaultValue => Property.GetCustomAttribute<DefaultValueAttribute>()?.Value;
 
-        public ImmutableNameSet Names { get; }
+        public ImmutableNameSet Name { get; }
 
         public bool Required { get; }
 

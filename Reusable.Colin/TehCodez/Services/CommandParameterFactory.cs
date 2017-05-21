@@ -1,27 +1,27 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
-using Reusable.TypeConversion;
-using System.Collections.Immutable;
 using JetBrains.Annotations;
 using Reusable.Colin.Annotations;
 using Reusable.Colin.Collections;
 using Reusable.Colin.Validators;
 using Reusable.Extensions;
-using ParameterInfo = Reusable.Colin.Data.ParameterInfo;
+using Reusable.TypeConversion;
+using Reusable.Colin.Data;
 
-namespace Reusable.Colin
+namespace Reusable.Colin.Services
 {
-    public class ParameterFactory : IEnumerable<Data.ParameterInfo>
+    public class CommandParameterFactory : IEnumerable<CommandParameter>
     {
         [CanBeNull]
-        private readonly IImmutableList<Data.ParameterInfo> _parameters;
+        private readonly IImmutableList<CommandParameter> _parameters;
 
         private readonly TypeConverter _converter;
 
-        public ParameterFactory([CanBeNull] Type parameterType)
+        public CommandParameterFactory([CanBeNull] Type parameterType)
         {
             ParameterType = parameterType;
             if (parameterType == null) return;
@@ -29,7 +29,7 @@ namespace Reusable.Colin
             if (!parameterType.HasDefaultConstructor()) throw new ArgumentException($"The '{nameof(parameterType)}' '{parameterType}' must have a default constructor.");
 
             _parameters = CreateParameters(parameterType).ToImmutableList();
-            _converter = DefaultConverter;
+            _converter = CommandLine.DefaultConverter;
 
             ParameterValidator.ValidateParameterNamesUniqueness(_parameters);
         }
@@ -39,13 +39,13 @@ namespace Reusable.Colin
 
         [NotNull]
         [ItemNotNull]
-        internal static IEnumerable<Data.ParameterInfo> CreateParameters(Type parameterType)
+        internal static IEnumerable<CommandParameter> CreateParameters(Type parameterType)
         {
             return
                 parameterType
                     .GetProperties(BindingFlags.Instance | BindingFlags.Public)
                     .Where(p => p.GetCustomAttribute<ParameterAttribute>() != null)
-                    .Select(p => new Data.ParameterInfo(p));
+                    .Select(p => new CommandParameter(p));
         }
 
         public object CreateParameter(ArgumentLookup arguments)
@@ -54,11 +54,12 @@ namespace Reusable.Colin
 
             var instance = Activator.CreateInstance(ParameterType);
 
+            // ReSharper disable once PossibleNullReferenceException
             foreach (var parameter in _parameters)
             {
                 if (parameter.Required && !arguments.Contains(parameter))
                 {
-                    throw new ParameterNotFoundException(parameter.Names);
+                    throw new ParameterNotFoundException(parameter.Name);
                 }
 
                 var values = arguments.Parameter(parameter).ToList();
@@ -73,11 +74,11 @@ namespace Reusable.Colin
             return instance;
         }
 
-        private static bool TryGetParameterData([NotNull] Data.ParameterInfo parameter, [NotNull] ICollection<string> values, out (object data, Type dataType) result)
+        private static bool TryGetParameterData([NotNull] CommandParameter commandParameter, [NotNull] ICollection<string> values, out (object data, Type dataType) result)
         {
             // Boolean paramater need special treatment because their value is optional. 
             // Just setting the flag means that its default value should be used.
-            if (parameter.Property.PropertyType == typeof(bool))
+            if (commandParameter.Property.PropertyType == typeof(bool))
             {
                 var value = values.SingleOrDefault();
                 if (value != null)
@@ -91,23 +92,23 @@ namespace Reusable.Colin
             {
                 if (values.Any())
                 {
-                    if (parameter.Property.PropertyType.IsEnumerable())
+                    if (commandParameter.Property.PropertyType.IsEnumerable())
                     {
                         result.data = values;
-                        result.dataType = parameter.Property.PropertyType;
+                        result.dataType = commandParameter.Property.PropertyType;
                         return true;
                     }
 
                     result.data = values.Single();
-                    result.dataType = parameter.Property.PropertyType;
+                    result.dataType = commandParameter.Property.PropertyType;
                     return true;
                 }
             }
 
-            if (parameter.DefaultValue != null)
+            if (commandParameter.DefaultValue != null)
             {
-                result.data = parameter.DefaultValue;
-                result.dataType = parameter.DefaultValue.GetType();
+                result.data = commandParameter.DefaultValue;
+                result.dataType = commandParameter.DefaultValue.GetType();
                 return true;
             }
 
@@ -117,35 +118,9 @@ namespace Reusable.Colin
 
         }
 
-        private TypeConverter DefaultConverter => TypeConverter.Empty.Add(new TypeConverter[]
-        {
-            new StringToSByteConverter(),
-            new StringToByteConverter(),
-            new StringToCharConverter(),
-            new StringToInt16Converter(),
-            new StringToInt32Converter(),
-            new StringToInt64Converter(),
-            new StringToUInt16Converter(),
-            new StringToUInt32Converter(),
-            new StringToUInt64Converter(),
-            new StringToSingleConverter(),
-            new StringToDoubleConverter(),
-            new StringToDecimalConverter(),
-            new StringToColorConverter(),
-            new StringToBooleanConverter(),
-            new StringToDateTimeConverter(),
-            new StringToEnumConverter(),
+        #region  IEnumerable
 
-            new EnumerableToArrayConverter()
-            //new EnumerableObjectToArrayObjectConverter(),
-            //new EnumerableObjectToListObjectConverter(),
-            //new EnumerableObjectToHashSetObjectConverter(),
-            //new DictionaryObjectObjectToDictionaryObjectObjectConverter(),
-        });
-
-        #region  IEnumerable<T>
-        
-        public IEnumerator<Data.ParameterInfo> GetEnumerator() => _parameters.GetEnumerator();
+        public IEnumerator<CommandParameter> GetEnumerator() => _parameters.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 

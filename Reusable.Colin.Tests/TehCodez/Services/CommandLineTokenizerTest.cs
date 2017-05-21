@@ -1,11 +1,10 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Colin.Services;
-using Reusable.Fuse.Testing;
 using Reusable.Fuse;
+using Reusable.Fuse.Testing;
 
-namespace Reusable.Colin.Tests
+namespace Reusable.Colin.Tests.Services
 {
     [TestClass]
     public class CommandLineTokenizerTest

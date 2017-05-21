@@ -8,6 +8,7 @@ using System.Windows.Input;
 using Reusable.Colin.Annotations;
 using Reusable.Colin.Collections;
 using Reusable.Colin.Data;
+using Reusable.Colin.Services;
 
 namespace Reusable.Colin.Commands
 {
