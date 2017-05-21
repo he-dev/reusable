@@ -1,14 +1,27 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
+using JetBrains.Annotations;
 using Reusable.Colin.Collections;
 using Reusable.Colin.Data;
 
 namespace Reusable.Colin.Commands
 {
-    public class ProxyCommand : ICommand
+    public interface IProxyCommand : ICommand
+    {
+        [NotNull]
+        ImmutableNameSet Name { get; }
+
+        [NotNull]
+        [ItemNotNull]
+        IEnumerable<Data.ParameterInfo> Parameters { get; }
+    }
+
+    public class ProxyCommand : IProxyCommand
     {
         private readonly ICommand _command;
+
         private readonly ParameterFactory _parameterFactory;
 
         public ProxyCommand(ICommand command, Type parameterType, params string[] names)
@@ -21,7 +34,16 @@ namespace Reusable.Colin.Commands
                     : ImmutableNameSet.From(command);
         }
 
+        public ProxyCommand(ProxyCommand command, ImmutableNameSet name)
+        {
+            _command = command._command;
+            _parameterFactory = command._parameterFactory;
+            Name = name;
+        }
+
         public ImmutableNameSet Name { get; }
+
+        public IEnumerable<Data.ParameterInfo> Parameters => _parameterFactory;
 
         public event EventHandler CanExecuteChanged;
 
@@ -33,10 +55,23 @@ namespace Reusable.Colin.Commands
 
         public void Execute(object parameter)
         {
-            if (!(parameter is CommandLineContext ctx)) throw new ArgumentException($"The '{nameof(parameter)}' must be a '{nameof(CommandLineContext)}'.");
+            if (!(parameter is CommandLineContext commandLineContext)) { throw new ArgumentException($"The '{nameof(parameter)}' must be a '{nameof(CommandLineContext)}'."); }
 
-            var commandParameter = _parameterFactory.CreateParameter(ctx.Arguments);
-            _command.Execute(commandParameter);
+            var commandParameter = _parameterFactory.CreateParameter(commandLineContext.Arguments);
+            _command.Execute(new ExecuteContext(commandLineContext.CommandLine, commandParameter));
         }
+    }
+
+    public class ExecuteContext
+    {
+        internal ExecuteContext(CommandLine commandLine, object parameter)
+        {
+            CommandLine = commandLine;
+            Parameter = parameter;
+        }
+
+        public CommandLine CommandLine { get; }
+
+        public object Parameter { get; }
     }
 }

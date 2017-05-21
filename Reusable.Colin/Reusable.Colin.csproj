@@ -65,11 +65,9 @@
     <Compile Include="TehCodez\CommandLineExtensions.cs" />
     <Compile Include="TehCodez\Services\CommandLineTokenizer.cs" />
     <Compile Include="TehCodez\ParameterFactory.cs" />
-    <Compile Include="TehCodez\Commands\DefaultCommand.cs" />
-    <Compile Include="TehCodez\Commands\ProxyCommand.cs" />
     <Compile Include="TehCodez\Data\ParameterInfo.cs" />
     <Compile Include="TehCodez\Commands\SimpleCommand.cs" />
-    <Compile Include="TehCodez\Data\HelpCommandParameters.cs" />
+    <Compile Include="TehCodez\Data\HelpCommandParameter.cs" />
     <Compile Include="TehCodez\CommandLineBuilder.cs" />
     <Compile Include="TehCodez\Services\CommandLineParser.cs" />
     <Compile Include="TehCodez\Data\CommandLineArgument.cs" />

@@ -21,13 +21,13 @@ namespace Reusable.Colin
         }
 
         [ContractAnnotation("commandLine: null => halt")]
-        public static void Execute(this IEnumerable<(ICommand Command, ArgumentLookup Arguments)> pairs, [NotNull] CommandLine commandLine)
+        public static void Execute(this IEnumerable<(CommandInvoker CommandInvoker, ArgumentLookup Arguments)> pairs, [NotNull] CommandLine commandLine)
         {
             if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
 
             foreach (var pair in pairs)
             {
-                pair.Command.Execute(new CommandLineContext(commandLine, pair.Arguments));
+                pair.CommandInvoker.Invoke(commandLine, pair.Arguments);
             }
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -9,20 +10,20 @@ using Reusable.Colin.Annotations;
 using Reusable.Colin.Collections;
 using Reusable.Colin.Validators;
 using Reusable.Extensions;
+using ParameterInfo = Reusable.Colin.Data.ParameterInfo;
 
 namespace Reusable.Colin
 {
-    public class ParameterFactory
+    public class ParameterFactory : IEnumerable<Data.ParameterInfo>
     {
         [CanBeNull]
-        private readonly Type _parameterType;
-        [CanBeNull]
         private readonly IImmutableList<Data.ParameterInfo> _parameters;
+
         private readonly TypeConverter _converter;
 
         public ParameterFactory([CanBeNull] Type parameterType)
         {
-            _parameterType = parameterType;
+            ParameterType = parameterType;
             if (parameterType == null) return;
 
             if (!parameterType.HasDefaultConstructor()) throw new ArgumentException($"The '{nameof(parameterType)}' '{parameterType}' must have a default constructor.");
@@ -32,6 +33,9 @@ namespace Reusable.Colin
 
             ParameterValidator.ValidateParameterNamesUniqueness(_parameters);
         }
+
+        [CanBeNull]
+        public Type ParameterType { get; }
 
         [NotNull]
         [ItemNotNull]
@@ -46,9 +50,9 @@ namespace Reusable.Colin
 
         public object CreateParameter(ArgumentLookup arguments)
         {
-            if (_parameterType == null) return null;
+            if (ParameterType == null) return null;
 
-            var instance = Activator.CreateInstance(_parameterType);
+            var instance = Activator.CreateInstance(ParameterType);
 
             foreach (var parameter in _parameters)
             {
@@ -138,5 +142,13 @@ namespace Reusable.Colin
             //new EnumerableObjectToHashSetObjectConverter(),
             //new DictionaryObjectObjectToDictionaryObjectObjectConverter(),
         });
+
+        #region  IEnumerable<T>
+        
+        public IEnumerator<Data.ParameterInfo> GetEnumerator() => _parameters.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        #endregion
     }
 }

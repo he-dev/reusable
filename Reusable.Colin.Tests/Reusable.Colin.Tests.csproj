@@ -68,7 +68,6 @@
     <Compile Include="TehCodez\Collections\ImmutableNameSetEqualityComparerTest.cs" />
     <Compile Include="TehCodez\Collections\ImmutableNameSetTest.cs" />
     <Compile Include="TehCodez\ParameterFactoryTest.cs" />
-    <Compile Include="TestCommands.cs" />
     <Compile Include="TehCodez\Collections\ArgumentCollectionTest.cs" />
     <Compile Include="TehCodez\CommandLineParserTest.cs" />
     <Compile Include="TehCodez\CommandLineTest.cs" />

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Input;
 using Reusable.Colin.Annotations;
+using Reusable.Colin.Collections;
 using Reusable.Colin.Data;
 
 namespace Reusable.Colin.Commands
@@ -14,32 +15,36 @@ namespace Reusable.Colin.Commands
     [Description("Display help.")]
     public class HelpCommand : ICommand
     {
-        public event EventHandler CanExecuteChanged;   
+        public event EventHandler CanExecuteChanged;
 
         public bool CanExecute(object parameter) => true;
 
         public void Execute(object parameter)
         {
-            Execute(parameter as CommandLineContext);
+            if (!(parameter is ExecuteContext context))
+            {
+                throw new ArgumentException(message: $"'{nameof(ExecuteContext)} expected but found '{parameter?.GetType()}'", paramName: nameof(parameter));
+            }
+            Execute(context.Parameter as HelpCommandParameter, context.CommandLine);
         }
 
-        private void Execute(CommandLineContext context)
+        private void Execute(HelpCommandParameter parameter, CommandLine commandLine)
         {
-            //var parameters = context.Arguments as HelpCommandParameters;
+            if (string.IsNullOrEmpty(parameter.CommandName))
+            {
+                //CreateCommandSummaries(parameters.CommandName.Commands);
+                // Write command list.
+            }
+            else
+            {
+                // Write argument list for the command.
+                if (commandLine.TryGetValue(ImmutableNameSet.Create(parameter.CommandName), out CommandInvoker command))
+                {
+                    //throw new Exception($"Command \"{CommandName}\" not found.");
+                }
 
-            //if (string.IsNullOrEmpty(parameters.CommandName))
-            //{
-            //    CreateCommandSummaries(parameters.CommandName.Commands);
-            //}
-            //else
-            //{
-            //    var command = _commandLine.FindCommand(CommandName);
-            //    if (command == null)
-            //    {
-            //        throw new Exception($"Command \"{CommandName}\" not found.");
-            //    }
-            //    _helpWriter.WriteArguments(CreateArgumentSummaries(command));
-            //}            
+                //_helpWriter.WriteArguments(CreateArgumentSummaries(command));
+            }
 
         }
 

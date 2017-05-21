@@ -9,6 +9,7 @@ using Reusable.Fuse.Testing;
 using Reusable.Colin.Data;
 using System.Windows.Input;
 using Reusable.Colin.Annotations;
+using Reusable.Colin.Collections;
 
 namespace Reusable.Colin.Tests
 {
@@ -19,7 +20,7 @@ namespace Reusable.Colin.Tests
         public void Execute_EmptyCommandLine_NoCommandExecuted()
         {
             var testCmd = new TestCommand();
-            var cmdLn = CommandLine.Builder.Register<object>(testCmd).AsDefault().Build();
+            var cmdLn = CommandLine.Builder.Register(testCmd).AsDefault().Build();
             cmdLn.Execute("");
             Assert.AreEqual(0, testCmd.Parameters.Count);
         }
@@ -70,7 +71,7 @@ namespace Reusable.Colin.Tests
 
             public void Execute(object parameter)
             {
-                Parameters.Add(parameter);
+                Parameters.Add((parameter as ExecuteContext).Parameter);
             }
         }
 

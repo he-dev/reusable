@@ -30,7 +30,7 @@ namespace Reusable.Colin.Collections
         public static ImmutableNameSet Create([NotNull] params string[] names)
         {
             if (names == null) throw new ArgumentNullException(nameof(names));
-            if (names.Length == 0) throw new ArgumentException("You need to specify at least one name.", nameof(names));
+            //if (names.Length == 0) throw new ArgumentException("You need to specify at least one name.", nameof(names));
 
             return new ImmutableNameSet(names.OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToArray());
         }

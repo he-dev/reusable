@@ -21,7 +21,7 @@ namespace Reusable.Colin.Collections
         }
 
         [NotNull]
-        public static IEnumerable<(ICommand Command, ArgumentLookup Arguments)> FindCommands([NotNull][ItemNotNull] this IEnumerable<ArgumentLookup> arguments, [NotNull] CommandLine commandLine)
+        public static IEnumerable<(CommandInvoker CommandInvoker, ArgumentLookup Arguments)> FindCommands([NotNull][ItemNotNull] this IEnumerable<ArgumentLookup> arguments, [NotNull] CommandLine commandLine)
         {
             return
                 from a in arguments
@@ -29,13 +29,13 @@ namespace Reusable.Colin.Collections
                 where c != null
                 select (c, a);
 
-            ICommand GetCommandOrDefault(ImmutableNameSet name)
+            CommandInvoker GetCommandOrDefault(ImmutableNameSet name)
             {
                 return
-                    commandLine.TryGetValue(name, out ICommand command) ||
-                    commandLine.TryGetValue(DefaultCommand.Name, out command)
+                    commandLine.TryGetValue(name, out CommandInvoker command) ||
+                    commandLine.TryGetValue(CommandLine.DefaultCommandName, out command)
                         ? command
-                        : default(ICommand);
+                        : default(CommandInvoker);
             }
         }
 

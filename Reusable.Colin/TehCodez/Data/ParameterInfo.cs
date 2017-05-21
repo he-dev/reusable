@@ -6,7 +6,7 @@ using Reusable.Colin.Collections;
 
 namespace Reusable.Colin.Data
 {
-    internal class ParameterInfo
+    public class ParameterInfo
     {
         public ParameterInfo(PropertyInfo property)
         {
