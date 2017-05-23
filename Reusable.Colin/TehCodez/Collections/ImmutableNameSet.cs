@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Input;
 using JetBrains.Annotations;
@@ -35,6 +34,7 @@ namespace Reusable.Colin.Collections
             return new ImmutableNameSet(names.OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToArray());
         }
 
+        [PublicAPI]
         [NotNull]
         public static ImmutableNameSet From([NotNull] Type type)
         {

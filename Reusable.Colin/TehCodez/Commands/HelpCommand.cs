@@ -1,19 +1,20 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Windows.Input;
+using JetBrains.Annotations;
 using Reusable.Colin.Annotations;
 using Reusable.Colin.Collections;
 using Reusable.Colin.Data;
+using Reusable.Colin.Logging;
 using Reusable.Colin.Services;
 
 namespace Reusable.Colin.Commands
 {
     [CommandName("help", "h", "?")]
     [Description("Display help.")]
+    [PublicAPI]
     public class HelpCommand : ICommand
     {
         public event EventHandler CanExecuteChanged;
@@ -22,57 +23,58 @@ namespace Reusable.Colin.Commands
 
         public void Execute(object parameter)
         {
-            if (!(parameter is ExecuteContext context))
+            if (!(parameter is CommandContext context))
             {
-                throw new ArgumentException(message: $"'{nameof(ExecuteContext)} expected but found '{parameter?.GetType()}'", paramName: nameof(parameter));
+                throw new ArgumentException(message: $"'{nameof(CommandContext)} expected but found '{parameter?.GetType()}'", paramName: nameof(parameter));
             }
-            Execute(context.Parameter as HelpCommandParameter, context.CommandLine);
-        }
 
-        private void Execute(HelpCommandParameter parameter, CommandLine commandLine)
-        {
-            if (string.IsNullOrEmpty(parameter.CommandName))
+            // ReSharper disable once PossibleNullReferenceException
+            var commandName = ((HelpCommandParameter)context.Parameter).CommandName;
+            
+            if (string.IsNullOrEmpty(commandName))
             {
-                //CreateCommandSummaries(parameters.CommandName.Commands);
-                // Write command list.
+                RenderCommandList(context.CommandLine.Select(x => new CommandSummary
+                {
+                    Names = x.Key,
+                    //IsDefault = context.CommandLine.
+                }), context.Logger);
             }
             else
             {
                 // Write argument list for the command.
-                if (commandLine.TryGetValue(ImmutableNameSet.Create(parameter.CommandName), out CommandInvoker command))
+                if (context.CommandLine.TryGetValue(ImmutableNameSet.Create(commandName), out CommandExecutor command))
                 {
-                    //throw new Exception($"Command \"{CommandName}\" not found.");
+                    RenderParameterList(command.CommandParameterFactory.Select(x => new ParameterSummary
+                    {
+                        Names = x.Name,
+                        Type = x.Property.PropertyType,
+                        Required = x.Required,
+                        Position = x.Position
+                    }), context.Logger);
                 }
-
-                //_helpWriter.WriteArguments(CreateArgumentSummaries(command));
+                else
+                {
+                    context.Logger.Error($"Command {commandName} not found.");
+                }
             }
-
         }
 
-        //private static IEnumerable<CommandSummary> CreateCommandSummaries(IEnumerable<CommandInfo> commands)
-        //{
-        //    //return commands.Select(command => new CommandSummary
-        //    //{
-        //    //    Names = command.CommandType.GetCommandNames().ToArray(),
-        //    //    Description = command.CommandType.GetDescription(),
-        //    //    IsDefault = command.IsDefault
-        //    //});
-        //    return null;
-        //}
+        protected virtual void RenderCommandList(IEnumerable<CommandSummary> commandSummaries, ILogger logger)
+        {
+            foreach (var commandSummary in commandSummaries)
+            {
+                logger.Info(commandSummary.Names.First());
+            }
+        }
 
-        //private static IEnumerable<ArgumentSummary> CreateArgumentSummaries(CommandInfo command)
-        //{
-        //    //return command.CommandType.GetCommandProperties().Select(commandProperty => new ArgumentSummary
-        //    //{
-        //    //    Names = commandProperty.Names.ToArray(),
-        //    //    //Description = commandProperty..GetDescription(),
-        //    //    Type = commandProperty.Type,
-        //    //    Mandatory = commandProperty.Mandatory,
-        //    //    Position = commandProperty.Position,
-        //    //    ListSeparator = commandProperty.ListSeparator
-        //    //});
-        //    return null;
-        //}
+        protected virtual void RenderParameterList(IEnumerable<ParameterSummary> parameterSummaries, ILogger logger)
+        {
+            foreach (var parameterSummary in parameterSummaries)
+            {
+                logger.Info(parameterSummary.Names.First());
+            }
+        }
+                
 
         //private void RenderCommandUsage(Type commandType)
         //{

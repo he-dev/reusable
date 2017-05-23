@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Colin.Annotations;
 using Reusable.Colin.Services;
 
@@ -20,7 +21,7 @@ namespace Reusable.Colin.Tests.Services
         }
 
         [TestMethod]
-        [ExpectedException(typeof(DuplicateParameterNameException))]
+        [ExpectedException(typeof(ArgumentException))]
         public void ctor_DuplicateParameters_Throws()
         {
             new CommandParameterFactory(typeof(DuplicateParameters));

@@ -32,11 +32,14 @@ namespace Reusable.Colin.Services
             _converter = CommandLine.DefaultConverter;
 
             ParameterValidator.ValidateParameterNamesUniqueness(_parameters);
+            ParameterValidator.ValidateParameterPositions(_parameters);
         }
 
+        [PublicAPI]
         [CanBeNull]
         public Type ParameterType { get; }
 
+        [PublicAPI]
         [NotNull]
         [ItemNotNull]
         internal static IEnumerable<CommandParameter> CreateParameters(Type parameterType)
@@ -120,10 +123,18 @@ namespace Reusable.Colin.Services
 
         #region  IEnumerable
 
-        public IEnumerator<CommandParameter> GetEnumerator() => _parameters.GetEnumerator();
+        public IEnumerator<CommandParameter> GetEnumerator() => _parameters?.GetEnumerator() ?? Enumerable.Empty<CommandParameter>().GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion
+    }
+
+    public class ParameterNotFoundException : Exception
+    {
+        // ReSharper disable once SuggestBaseTypeForParameter
+        public ParameterNotFoundException([NotNull] ImmutableNameSet parameterNames)
+            : base(parameterNames.ToString())
+        { }
     }
 }

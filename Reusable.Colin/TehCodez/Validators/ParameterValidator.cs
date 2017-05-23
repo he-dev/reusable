@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using JetBrains.Annotations;
+using Reusable.Colin.Data;
 
 namespace Reusable.Colin.Validators
 {
     internal static class ParameterValidator
     {
-        public static void ValidateParameterNamesUniqueness(IEnumerable<Data.CommandParameter> parameters)
+        public static void ValidateParameterNamesUniqueness(IReadOnlyCollection<CommandParameter> parameters)
         {
             var duplicateNames =
                 parameters
@@ -21,8 +19,22 @@ namespace Reusable.Colin.Validators
 
             if (duplicateNames.Any())
             {
-                throw new DuplicateParameterNameException(parameters.First().Property.DeclaringType, duplicateNames);
+                // ReSharper disable once PossibleNullReferenceException
+                throw new ArgumentException($"{parameters.First().Property.DeclaringType.Name} contains duplicate parameter names: [{string.Join(", ", duplicateNames)}].");
             }
+        }
+
+        public static void ValidateParameterPositions(IReadOnlyCollection<CommandParameter> parameters)
+        {
+            var positions = parameters.Where(p => p.Position > 0).Select(p => p.Position).ToList();
+
+            var mid = positions.Count % 2 == 0 ? 0 : (positions.Count / 2) + 1;
+            var sum = (((1 + positions.Count) * (positions.Count / 2)) + mid);
+            if (sum != positions.Sum())
+            {
+                // ReSharper disable once PossibleNullReferenceException
+                throw new ArgumentException($"The {parameters.First().Property.DeclaringType.Name} has some invalid parameter positions. They must begin with 1 and have positions increasing by 1.");
+            }            
         }
     }
 }

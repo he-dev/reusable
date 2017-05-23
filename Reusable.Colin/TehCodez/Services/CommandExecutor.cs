@@ -3,12 +3,14 @@ using System.Linq;
 using System.Windows.Input;
 using JetBrains.Annotations;
 using Reusable.Colin.Collections;
+using Reusable.Colin.Data;
+using Reusable.Colin.Logging;
 
 namespace Reusable.Colin.Services
 {
-    public class CommandInvoker
+    public class CommandExecutor
     {
-        public CommandInvoker(ICommand command, ImmutableNameSet name, Type parameterType)
+        public CommandExecutor(ICommand command, ImmutableNameSet name, Type parameterType)
         {
             Command = command;
 
@@ -20,34 +22,22 @@ namespace Reusable.Colin.Services
             CommandParameterFactory = new CommandParameterFactory(parameterType);
         }
 
+        [PublicAPI]
         [NotNull]
         public ICommand Command { get; }
 
+        [PublicAPI]
         [NotNull]
         public ImmutableNameSet Name { get; }
 
+        [PublicAPI]
         [NotNull]
         public CommandParameterFactory CommandParameterFactory { get; }
 
-        public void Invoke(CommandLine commandLine, ArgumentLookup argument)
+        public void Execute(ArgumentLookup argument, CommandLine commandLine, ILogger logger)
         {
             var commandParameter = CommandParameterFactory.CreateParameter(argument);
-            Command.Execute(new ExecuteContext(commandLine, commandParameter));
+            Command.Execute(new CommandContext(commandParameter, commandLine, logger));
         }
-    }
-
-    public class ExecuteContext
-    {
-        internal ExecuteContext(CommandLine commandLine, object parameter)
-        {
-            CommandLine = commandLine;
-            Parameter = parameter;
-        }
-
-        [NotNull]
-        public CommandLine CommandLine { get; }
-
-        [CanBeNull]
-        public object Parameter { get; }
     }
 }

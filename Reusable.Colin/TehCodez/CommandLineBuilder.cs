@@ -1,68 +1,84 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+using System;
+using System.Linq;
+using System.Windows.Input;
 using JetBrains.Annotations;
 using Reusable.Colin.Collections;
+using Reusable.Colin.Commands;
 using Reusable.Colin.Services;
 
 namespace Reusable.Colin
 {
-    public class CommandLineBuilder
+    public static class CommandLineBuilder
     {
-        private readonly IDictionary<ImmutableNameSet, CommandInvoker> _commands = new Dictionary<ImmutableNameSet, CommandInvoker>(ImmutableNameSet.Comparer);
-        private char _argumentPrefix = '-';
-        private char _argumentValueSeparator = ':';
-        private Action<string> _log = m => { };
-        private CommandInvoker _lastCommandInvoker;
-
-        internal CommandLineBuilder() { }
-
         [NotNull]
-        public CommandLineBuilder ArgumentPrefix(char argumentPrefix)
+        [PublicAPI]
+        public static CommandLine Add<TCommand, TParameter>(this CommandLine commandLine)
+            where TCommand : ICommand, new()
+            where TParameter : new()
         {
-            _argumentPrefix = argumentPrefix;
-            return this;
+            return commandLine.Add(new CommandExecutor(new TCommand(), ImmutableNameSet.Empty, typeof(TParameter)));
         }
 
         [NotNull]
-        public CommandLineBuilder ArgumentValueSeparator(char argumentValueSeparator)
+        [PublicAPI]
+        public static CommandLine Add<TCommand>(this CommandLine commandLine)
+            where TCommand : ICommand, new()
         {
-            _argumentValueSeparator = argumentValueSeparator;
-            return this;
+            return commandLine.Add(new CommandExecutor(new TCommand(), ImmutableNameSet.Empty, null));
         }
-        
+
         [NotNull]
-        public CommandLineBuilder Register(CommandInvoker commandInvoker)
+        [PublicAPI]
+        public static CommandLine Add<TParameter>(this CommandLine commandLine, ICommand command, params string[] names)
+            where TParameter : new()
         {
-            if (_commands.ContainsKey(commandInvoker.Name)) { throw new DuplicateCommandNameException(commandInvoker.Name); }
-            _commands.Add(commandInvoker.Name, commandInvoker);
-            if (commandInvoker.Name != CommandLine.DefaultCommandName)
+            return commandLine.Add(new CommandExecutor(command, ImmutableNameSet.Create(names), typeof(TParameter)));
+        }
+
+        [NotNull]
+        [PublicAPI]
+        public static CommandLine Add(this CommandLine commandLine, ICommand command, params string[] names)
+        {
+            return commandLine.Add(new CommandExecutor(command, ImmutableNameSet.Create(names), null));
+        }
+
+        [NotNull]
+        [PublicAPI]
+        public static CommandLine Add(this CommandLine commandLine, [NotNull] Action<object> action, [NotNull] params string[] names)
+        {
+            if (action == null) throw new ArgumentNullException(nameof(action));
+            if (names == null) throw new ArgumentNullException(nameof(names));
+            if (!names.Any()) throw new ArgumentException(paramName: nameof(names), message: "You need to specify at least one name.");
+
+            return commandLine.Add(new CommandExecutor(new SimpleCommand(action), ImmutableNameSet.Create(names), null));
+        }
+
+        [NotNull]
+        private static CommandLine Add(this CommandLine commandLine, CommandExecutor commandExecutor)
+        {
+            if (commandLine.ContainsKey(commandExecutor.Name))
             {
-                _lastCommandInvoker = commandInvoker;
+                throw new ArgumentException($"A command with the name {commandExecutor.Name} already exists.");
             }
-            return this;
+
+            return new CommandLine(commandLine.Add(commandExecutor.Name, commandExecutor));
         }
 
         [NotNull]
-        public CommandLineBuilder AsDefault()
+        [PublicAPI]
+        public static CommandLine Default(this CommandLine commandLine, string name)
         {
-            if (_commands.ContainsKey(CommandLine.DefaultCommandName)) { throw new InvalidOperationException("There is already a default command. Only one command can be default."); }
-            if (_lastCommandInvoker == null) { throw new InvalidOperationException("There are no registered commands. You need to register at least one command."); }
+            if (commandLine.ContainsKey(CommandLine.DefaultCommandName))
+            {
+                throw new ArgumentException("Default command is already added. There can be only one default command.");
+            }
 
-            return Register(
-                new CommandInvoker(
-                    _lastCommandInvoker.Command,
-                    CommandLine.DefaultCommandName,
-                    _lastCommandInvoker.CommandParameterFactory.ParameterType));
+            if (commandLine.TryGetValue(ImmutableNameSet.Create(name), out CommandExecutor invoker))
+            {
+                return new CommandLine(commandLine.Add(CommandLine.DefaultCommandName, invoker));
+            }
+
+            throw new ArgumentException($"Command {name} is not added yet.");
         }
-
-        [NotNull]
-        public CommandLineBuilder Log([NotNull] Action<string> log)
-        {
-            _log = log ?? throw new ArgumentNullException(nameof(log));
-            return this;
-        }
-
-        public CommandLine Build() => new CommandLine(_argumentPrefix, _argumentValueSeparator, _log, _commands.ToImmutableDictionary(ImmutableNameSet.Comparer));
     }
 }
