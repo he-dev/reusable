@@ -64,11 +64,14 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="Helpers\BarCommand.cs" />
+    <Compile Include="Helpers\BazCommand.cs" />
+    <Compile Include="Helpers\FooCommand.cs" />
+    <Compile Include="Helpers\TestCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TehCodez\Collections\ImmutableNameSetEqualityComparerTest.cs" />
     <Compile Include="TehCodez\Collections\ImmutableNameSetTest.cs" />
     <Compile Include="TehCodez\Services\CommandParameterFactoryTest.cs" />
-    <Compile Include="TehCodez\Collections\ArgumentCollectionTest.cs" />
     <Compile Include="TehCodez\Services\CommandLineParserTest.cs" />
     <Compile Include="TehCodez\CommandLineTest.cs" />
     <Compile Include="TehCodez\Services\CommandLineTokenizerTest.cs" />

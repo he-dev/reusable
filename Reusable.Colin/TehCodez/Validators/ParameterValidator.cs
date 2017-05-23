@@ -36,5 +36,7 @@ namespace Reusable.Colin.Validators
                 throw new ArgumentException($"The {parameters.First().Property.DeclaringType.Name} has some invalid parameter positions. They must begin with 1 and have positions increasing by 1.");
             }            
         }
+
+        // todo: validate parameter types
     }
 }
