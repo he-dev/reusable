@@ -19,7 +19,7 @@ namespace Reusable.Colin.Services
                     ? ImmutableNameSet.Create(name)
                     : ImmutableNameSet.From(command);
 
-            CommandParameterFactory = new CommandParameterFactory(parameterType);
+            ParameterFactory = new CommandParameterFactory(parameterType);
         }
 
         [PublicAPI]
@@ -32,12 +32,12 @@ namespace Reusable.Colin.Services
 
         [PublicAPI]
         [NotNull]
-        public CommandParameterFactory CommandParameterFactory { get; }
+        public CommandParameterFactory ParameterFactory { get; }
 
-        public void Execute(ArgumentLookup argument, CommandLine commandLine, ILogger logger)
-        {
-            var commandParameter = CommandParameterFactory.CreateParameter(argument);
-            Command.Execute(new CommandContext(commandParameter, commandLine, logger));
-        }
+        //public void Execute(ArgumentLookup argument, CommandCollection commands, ILogger logger)
+        //{
+        //    var commandParameter = ParameterFactory.CreateParameter(argument);
+        //    Command.Execute(new CommandContext(commandParameter, commands, logger));
+        //}
     }
 }

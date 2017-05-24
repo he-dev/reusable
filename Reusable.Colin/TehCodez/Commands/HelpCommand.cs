@@ -33,7 +33,7 @@ namespace Reusable.Colin.Commands
             
             if (string.IsNullOrEmpty(commandName))
             {
-                RenderCommandList(context.CommandLine.Select(x => new CommandSummary
+                RenderCommandList(context.CommandCollection.Select(x => new CommandSummary
                 {
                     Names = x.Key,
                     //IsDefault = context.CommandLine.
@@ -42,9 +42,9 @@ namespace Reusable.Colin.Commands
             else
             {
                 // Write argument list for the command.
-                if (context.CommandLine.TryGetValue(ImmutableNameSet.Create(commandName), out CommandExecutor command))
+                if (context.CommandCollection.TryGetValue(ImmutableNameSet.Create(commandName), out Services.CommandExecutor command))
                 {
-                    RenderParameterList(command.CommandParameterFactory.Select(x => new ParameterSummary
+                    RenderParameterList(command.ParameterFactory.Select(x => new ParameterSummary
                     {
                         Names = x.Name,
                         Type = x.Property.PropertyType,

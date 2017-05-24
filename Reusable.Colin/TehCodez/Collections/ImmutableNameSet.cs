@@ -22,6 +22,8 @@ namespace Reusable.Colin.Collections
 
         public static readonly ImmutableNameSet Empty = Create(string.Empty);
 
+        public static readonly ImmutableNameSet DefaultCommandName = Create("Default");
+
         [NotNull]
         public static ImmutableNameSet Create(IEnumerable<string> values) => Create(values.ToArray());
 

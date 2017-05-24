@@ -15,18 +15,6 @@ namespace Reusable.Colin.Collections
 
         public IEnumerable<string> this[ImmutableNameSet name] => _arguments.TryGetValue(name, out CommandLineArgument argument) ? argument : Enumerable.Empty<string>();
 
-        public IEnumerable<string> this[params string[] names] => this[ImmutableNameSet.Create(names)];
-
-        public CommandLineArgument this[int position]
-        {
-            get
-            {
-                if (!(position > 0)) return null;
-                var value = this[ImmutableNameSet.Empty].ElementAtOrDefault(position);
-                return value == null ? null : new CommandLineArgument(ImmutableNameSet.Empty) { value };
-            }
-        }
-
         public int Count => _arguments.Count;
 
         public bool Contains(ImmutableNameSet name) => _arguments.ContainsKey(name);
@@ -54,7 +42,7 @@ namespace Reusable.Colin.Collections
 
             if (_arguments.ContainsKey(name))
             {
-                throw new InvalidOperationException($"Argument '{name}' already added.");
+                throw new InvalidOperationException($"An argument with the name '{name}' is already added.");
             }
 
             _arguments.Add(name, new CommandLineArgument(name));

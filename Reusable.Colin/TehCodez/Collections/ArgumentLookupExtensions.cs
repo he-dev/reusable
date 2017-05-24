@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Colin.Data;
@@ -9,54 +10,51 @@ namespace Reusable.Colin.Collections
     public static class ArgumentLookupExtensions
     {
         [NotNull]
-        [PublicAPI]
-        public static IEnumerable<string> AnonymousArguments([NotNull] this ArgumentLookup @this) => @this[ImmutableNameSet.Empty];
+        public static IEnumerable<string> AnonymousValues([NotNull] this ILookup<ImmutableNameSet, string> arguments) => arguments[ImmutableNameSet.Empty];
 
         [CanBeNull]
-        [PublicAPI]
-        public static ImmutableNameSet CommandName([NotNull] this ArgumentLookup @this)
+        public static ImmutableNameSet CommandName([NotNull] this ILookup<ImmutableNameSet, string> arguments)
         {
-            // Command-name is at argument-0.
-            var commandName = @this.AnonymousArguments().FirstOrDefault();
+            // Command-name is the first anonymous value (0).
+            var commandName = arguments.AnonymousValues().FirstOrDefault();
             return string.IsNullOrEmpty(commandName) ? null : ImmutableNameSet.Create(commandName);
         }
 
-        [NotNull]
-        [PublicAPI]
-        public static IEnumerable<(CommandExecutor CommandInvoker, ArgumentLookup Arguments)> FindCommands([NotNull][ItemNotNull] this IEnumerable<ArgumentLookup> arguments, [NotNull] CommandLine commandLine)
+        [CanBeNull]
+        public static Services.CommandExecutor Executor([NotNull][ItemNotNull] this ILookup<ImmutableNameSet, string> arguments, [NotNull] CommandCollection commandCollection)
         {
-            return
-                from a in arguments
-                let c = GetCommandOrDefault(a.CommandName())
-                where c != null
-                select (c, a);
-
-            CommandExecutor GetCommandOrDefault(ImmutableNameSet name)
+            if (commandCollection.Count == 1)
             {
-                return
-                    commandLine.TryGetValue(name, out CommandExecutor command) ||
-                    commandLine.TryGetValue(CommandLine.DefaultCommandName, out command)
-                        ? command
-                        : default(CommandExecutor);
+                return commandCollection.Single().Value;
             }
+
+            // Default command is used whenever there is no command name or there are no arguments.
+            var commandName = 
+                arguments.Any() 
+                    ? arguments.CommandName() ?? ImmutableNameSet.DefaultCommandName 
+                    : ImmutableNameSet.DefaultCommandName;
+
+            return
+                commandCollection.TryGetValue(commandName, out Services.CommandExecutor command)
+                    ? command
+                    : default(Services.CommandExecutor);
         }
 
-        [PublicAPI]
-        internal static bool Contains(this ArgumentLookup @this, CommandParameter commandParameter)
+        internal static bool Contains(this ILookup<ImmutableNameSet, string> arguments, CommandParameter commandParameter)
         {
             return
                 commandParameter.Position > 0
-                    ? @this.AnonymousArguments().ElementAtOrDefault(commandParameter.Position) != null
-                    : @this.Contains(commandParameter.Name);
+                    ? arguments.AnonymousValues().ElementAtOrDefault(commandParameter.Position) != null
+                    : arguments.Contains(commandParameter.Name);
         }
 
         [NotNull]
-        internal static IEnumerable<string> Parameter(this ArgumentLookup @this, CommandParameter commandParameter)
+        internal static IEnumerable<string> Parameter(this ILookup<ImmutableNameSet, string> arguments, CommandParameter commandParameter)
         {
             return
-                commandParameter.Position > 0 
-                    ? new[] { @this.AnonymousArguments().ElementAtOrDefault(commandParameter.Position) } 
-                    : @this[commandParameter.Name];
+                commandParameter.Position > 0
+                    ? new[] { arguments.AnonymousValues().ElementAtOrDefault(commandParameter.Position) }
+                    : arguments[commandParameter.Name];
         }
     }
 }

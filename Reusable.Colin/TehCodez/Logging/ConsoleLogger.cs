@@ -20,7 +20,7 @@ namespace Reusable.Colin.Logging
 
         public ConsoleLogger([CanBeNull] IDictionary<LogLevel, ConsoleColor> colors = null)
         {
-            _colors = colors.ToImmutableDictionary() ?? DefaultColors;
+            _colors = colors?.ToImmutableDictionary() ?? DefaultColors;
         }
 
         public ILogger Log(string message, LogLevel logLevel)

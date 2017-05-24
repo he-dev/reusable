@@ -62,7 +62,7 @@
     <Compile Include="TehCodez\Collections\ArgumentLookup.cs" />
     <Compile Include="TehCodez\Collections\ArgumentLookupExtensions.cs" />
     <Compile Include="TehCodez\Collections\ImmutableNameSet.cs" />
-    <Compile Include="TehCodez\CommandLineBuilder.cs" />
+    <Compile Include="TehCodez\CommandCollectionBuilder.cs" />
     <Compile Include="TehCodez\CommandLineSettings.cs" />
     <Compile Include="TehCodez\Logging\ConsoleLogger.cs" />
     <Compile Include="TehCodez\Logging\ILogger.cs" />
@@ -70,7 +70,7 @@
     <Compile Include="TehCodez\Logging\LogLevel.cs" />
     <Compile Include="TehCodez\Data\CommandContext.cs" />
     <Compile Include="TehCodez\Services\CommandExecutor.cs" />
-    <Compile Include="TehCodez\CommandLineExecutor.cs" />
+    <Compile Include="TehCodez\CommandExecutor.cs" />
     <Compile Include="TehCodez\Services\CommandLineTokenizer.cs" />
     <Compile Include="TehCodez\Services\CommandParameterFactory.cs" />
     <Compile Include="TehCodez\Data\CommandParameter.cs" />
@@ -84,7 +84,7 @@
     <Compile Include="TehCodez\Validators\ParameterValidator.cs" />
     <Compile Include="TehCodez\Annotations\CommandNamespaceAttribute.cs" />
     <Compile Include="TehCodez\Annotations\ParameterAttribute.cs" />
-    <Compile Include="TehCodez\CommandLine.cs" />
+    <Compile Include="TehCodez\CommandCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TehCodez\Annotations\CommandNameAttribute.cs" />
   </ItemGroup>

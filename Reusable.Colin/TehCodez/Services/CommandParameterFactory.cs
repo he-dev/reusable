@@ -29,7 +29,7 @@ namespace Reusable.Colin.Services
             if (!parameterType.HasDefaultConstructor()) throw new ArgumentException($"The '{nameof(parameterType)}' '{parameterType}' must have a default constructor.");
 
             _parameters = CreateParameters(parameterType).ToImmutableList();
-            _converter = CommandLine.DefaultConverter;
+            _converter = DefaultConverter;
 
             ParameterValidator.ValidateParameterNamesUniqueness(_parameters);
             ParameterValidator.ValidateParameterPositions(_parameters);
@@ -128,6 +128,26 @@ namespace Reusable.Colin.Services
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion
+
+        [PublicAPI]
+        public static readonly TypeConverter DefaultConverter = TypeConverter.Empty.Add(
+            new StringToSByteConverter(),
+            new StringToByteConverter(),
+            new StringToCharConverter(),
+            new StringToInt16Converter(),
+            new StringToInt32Converter(),
+            new StringToInt64Converter(),
+            new StringToUInt16Converter(),
+            new StringToUInt32Converter(),
+            new StringToUInt64Converter(),
+            new StringToSingleConverter(),
+            new StringToDoubleConverter(),
+            new StringToDecimalConverter(),
+            new StringToColorConverter(),
+            new StringToBooleanConverter(),
+            new StringToDateTimeConverter(),
+            new StringToEnumConverter(),
+            new EnumerableToArrayConverter());
     }
 
     public class ParameterNotFoundException : Exception

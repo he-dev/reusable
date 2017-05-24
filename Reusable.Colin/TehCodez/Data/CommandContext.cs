@@ -5,10 +5,10 @@ namespace Reusable.Colin.Data
 {
     public class CommandContext
     {
-        internal CommandContext(object parameter, CommandLine commandLine, ILogger logger)
+        internal CommandContext(object parameter, CommandCollection commandCollection, ILogger logger)
         {
             Parameter = parameter;
-            CommandLine = commandLine;
+            CommandCollection = commandCollection;
             Logger = logger;
         }
 
@@ -16,7 +16,7 @@ namespace Reusable.Colin.Data
         public object Parameter { get; }
 
         [NotNull]
-        public CommandLine CommandLine { get; }
+        public CommandCollection CommandCollection { get; }
 
         [CanBeNull]
         public ILogger Logger { get; }

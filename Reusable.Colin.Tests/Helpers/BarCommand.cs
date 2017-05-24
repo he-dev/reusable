@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows.Input;
 using Reusable.Colin.Annotations;
-using Reusable.Colin.Tests.Commands;
 
 namespace Reusable.Colin.Tests.Helpers
 {
