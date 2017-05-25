@@ -22,16 +22,16 @@ using Reusable.Markup;
 
 namespace SmartLibs.Console
 {
-    class Program
+    internal class Program
     {
         static void Main(string[] args)
         {
             var commands =
                 CommandCollection.Empty
                     .Add<HelpCommand, HelpCommandParameter>()
-                    .Add<TestCommand>();
+                    .Add<TestCommand, TestCommandParameter>();
 
-            commands.Execute("help");
+            commands.Execute("help help");
 
             //ConsoleColorizer.RenderLine("<p>&gt;<span background-color='red'>Hallo</span> x <span color='darkyellow'>colors!</span></p>");
             //var logger = LoggerFactory.CreateLogger("test");

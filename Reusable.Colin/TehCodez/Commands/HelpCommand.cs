@@ -34,8 +34,8 @@ namespace Reusable.Colin.Commands
             }
 
             // ReSharper disable once PossibleNullReferenceException
-            var commandName = ((HelpCommandParameter)context.Parameter).CommandName;
-            
+            var commandName = ((HelpCommandParameter)context.Parameter).Command;
+
             if (string.IsNullOrEmpty(commandName))
             {
                 RenderCommandList(context.CommandCollection.Select(x => new CommandSummary
@@ -48,15 +48,23 @@ namespace Reusable.Colin.Commands
             else
             {
                 // Write argument list for the command.
-                if (context.CommandCollection.TryGetValue(ImmutableNameSet.Create(commandName), out Services.CommandMapping command))
+                if (context.CommandCollection.TryGetValue(ImmutableNameSet.Create(commandName), out Services.CommandMapping mapping))
                 {
-                    RenderParameterList(command.ParameterFactory.Select(x => new ParameterSummary
+                    var commandSummary = new CommandSummary
                     {
-                        Names = x.Name,
+                        Names = mapping.Name,
+                        Description = mapping.Command.GetType().GetCustomAttribute<DescriptionAttribute>()?.Description
+                    };
+
+                    var parameterSummaries = mapping.ParameterFactory.Select(x => new ParameterSummary
+                    {
+                        Names = x.Name.OrderByDescending(n => n.Length).ToArray(),
                         Type = x.Property.PropertyType,
                         Required = x.Required,
                         Position = x.Position
-                    }), context.Logger);
+                    });
+
+                    RenderParameterList(commandSummary, parameterSummaries, context.Logger);
                 }
                 else
                 {
@@ -80,10 +88,7 @@ namespace Reusable.Colin.Commands
                 }
 
                 logger.Debug("NAME");
-                foreach (var name in commandSummary.Names.OrderByDescending(n => n.Length))
-                {
-                    logger.Info($"{indent}{name}");
-                }
+                logger.Info($"{indent}{string.Join(" | ", commandSummary.Names.OrderByDescending(n => n.Length))}");
 
                 logger.Info(string.Empty);
                 logger.Debug("ABOUT");
@@ -93,76 +98,66 @@ namespace Reusable.Colin.Commands
             }
         }
 
-        protected virtual void RenderParameterList(IEnumerable<ParameterSummary> parameterSummaries, ILogger logger)
+        protected virtual void RenderParameterList(CommandSummary commandSummary, IEnumerable<ParameterSummary> parameterSummaries, ILogger logger)
         {
-            foreach (var parameterSummary in parameterSummaries)
+            var indent = new string(' ', IndentWidth);
+
+            logger.Debug("NAME");
+            logger.Info($"{indent}{string.Join(" | ", commandSummary.Names.OrderByDescending(n => n.Length))}");
+
+            logger.Info(string.Empty);
+            logger.Debug("ABOUT");
+            logger.Info($"{indent}{(string.IsNullOrEmpty(commandSummary.Description) ? "N/A" : commandSummary.Description)}");
+
+            logger.Info(string.Empty);
+
+            logger.Debug("SYNTAX");
+            logger.Info(string.Empty);
+
+            var positional =
+                from p in parameterSummaries
+                where p.Position > 0
+                orderby p.Position
+                let text = $"{p.Position}:{p.Names.First()}"
+                select p.Required ? text.Required() : text.Optional();
+
+            var required =
+                from p in parameterSummaries
+                where p.Required && p.Position < 1
+                orderby p.Names.First()
+                select $"{p.Names.First()}".Required();
+
+            var optional =
+                from p in parameterSummaries
+                where !p.Required && p.Position < 1
+                orderby p.Names.First()
+                select $"{p.Names.First()}".Optional();
+
+            logger.Info($"{indent}{commandSummary.Names.OrderByDescending(n => n).First()} {string.Join(" ", positional.Concat(required).Concat(optional))}");
+
+            logger.Info(string.Empty);
+            logger.Debug("ARGUMENTS");
+            logger.Info(string.Empty);
+
+            foreach (var parameter in positional.Concat(required.Concat(optional)))
             {
-                logger.Info(parameterSummary.Names.First());
+                
             }
         }
-                
-
-        //private void RenderCommandUsage(Type commandType)
-        //{
-        //    Debug.Assert(commandType != null);
-
-        //    Logger.Info(commandType.Description() ?? "(No description)");
-        //    Logger.Info(string.Empty);
-
-        //    var parameters = ReflectionHelper.GetCommandProperties(commandType).Aggregate(
-        //        new StringBuilder($"<{string.Join("|", commandType.Names())}>"), (result, p) => 
-        //        {
-        //            var names = $"{string.Join($"|", p.Names.Select(n => $"{CommandLine.ArgumentPrefix}{n}"))}";
-        //            if (p.Position > 0)
-        //            {
-        //                names = $"{names}|{p.Position}";
-        //            }
-        //            return result.Append($" {(p.Mandatory ? $"<{names}>" : $"[{names}]")}");
-        //        }).ToString();
-        //    Logger.Info(parameters);            
-        //}
-
-        //private void RenderParameterDescription(Type commandType)
-        //{
-        //    var parameters = ReflectionHelper.GetCommandProperties(commandType);
-        //    Logger.Info(parameters.Aggregate(new StringBuilder(), (result, p) 
-        //        => result.AppendLine().AppendFormat(" {0}  {1}", p.Names.First().PadRight(14), p.Description)).ToString()
-        //    );
-        //    Logger.Info(string.Empty);
-        //}
     }
 
-
-    //internal class ArgumentOrderComparer : IComparer<Argument>
-    //{
-    //    public int Compare(Argument x, Argument y)
-    //    {
-    //        var args = new[]
-    //        {
-    //            new {a = x, o = -1}, new {a = y, o = 1}
-    //        };
-
-    //        if (args.Any(z => z.a.Properties.HasPosition))
-    //        {
-    //            return args.All(z => z.a.Properties.HasPosition) ? x.Properties.Position - y.Properties.Position : args.First(z => z.a.Properties.HasPosition).o;
-    //        }
-
-    //        if (args.Any(z => z.a.Properties.IsRequired))
-    //        {
-    //            return args.All(z => z.a.Properties.IsRequired) ? string.Compare(x.Names.First(), y.Names.First(), StringComparison.OrdinalIgnoreCase) : args.First(z => z.a.Properties.IsRequired).o;
-    //        }
-
-    //        return string.Compare(x.Names.First(), y.Names.First(), StringComparison.OrdinalIgnoreCase);
-    //    }
-    //}
+    internal static class StringExtensions
+    {
+        public static string Optional(this string value) => $"<{value}>";
+        public static string Required(this string value) => $"[{value}]";
+    }
 }
 
 /*
  
 
 NAME
-    command1
-    cmd1
+    command1 | cmd1
     
 ABOUT
     Does this
@@ -178,10 +173,12 @@ ABOUT
 ---
 
 NAME
+
     command1 
     cmd1
     
 ABOUT
+
     Does this.
 
 SYNTAX

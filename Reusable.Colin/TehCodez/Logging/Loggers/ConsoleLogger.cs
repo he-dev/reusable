@@ -10,7 +10,7 @@ namespace Reusable.Colin.Logging.Loggers
     {
         public static readonly IImmutableDictionary<LogLevel, ConsoleColor> DefaultColors = new Dictionary<LogLevel, ConsoleColor>
             {
-                [LogLevel.Debug] = ConsoleColor.Gray,
+                [LogLevel.Debug] = ConsoleColor.DarkGray,
                 [LogLevel.Warn] = ConsoleColor.Yellow,
                 [LogLevel.Error] = ConsoleColor.Red,
             }

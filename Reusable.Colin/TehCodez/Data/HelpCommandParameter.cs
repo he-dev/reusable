@@ -9,6 +9,6 @@ namespace Reusable.Colin.Data
     {
         [Parameter(Position = 1, Required = false)]
         [Description("Display command usage.")]
-        public string CommandName { get; set; }
+        public string Command { get; set; }
     }
 }
