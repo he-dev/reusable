@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -51,7 +52,7 @@ namespace Reusable.Colin.Services
                     .Select(p => new CommandParameter(p));
         }
 
-        public object CreateParameter(ArgumentLookup arguments)
+        public object CreateParameter(ArgumentLookup arguments, CultureInfo culture)
         {
             if (ParameterType == null) return null;
 
@@ -60,16 +61,20 @@ namespace Reusable.Colin.Services
             // ReSharper disable once PossibleNullReferenceException
             foreach (var parameter in _parameters)
             {
-                if (parameter.Required && !arguments.Contains(parameter))
+                if (!arguments.Contains(parameter))
                 {
-                    throw new ParameterNotFoundException(parameter.Name);
+                    if (parameter.Required)
+                    {
+                        throw new ParameterNotFoundException(parameter.Name);
+                    }
+                    continue;
                 }
 
                 var values = arguments.Parameter(parameter).ToList();
 
                 if (TryGetParameterData(parameter, values, out (object data, Type dataType) result))
                 {
-                    var value = _converter.Convert(result.data, result.dataType);
+                    var value = _converter.Convert(result.data, result.dataType, null, CultureInfo.InvariantCulture);
                     parameter.Property.SetValue(instance, value);
                 }
             }

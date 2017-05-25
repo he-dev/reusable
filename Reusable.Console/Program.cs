@@ -11,7 +11,12 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using System.Windows.Input;
 using Reusable;
+using Reusable.Colin;
+using Reusable.Colin.Annotations;
+using Reusable.Colin.Commands;
+using Reusable.Colin.Data;
 using Reusable.Extensions;
 using Reusable.Markup;
 
@@ -21,8 +26,14 @@ namespace SmartLibs.Console
     {
         static void Main(string[] args)
         {
-            
-            ConsoleColorizer.RenderLine("<p>&gt;<span background-color='red'>Hallo</span> x <span color='darkyellow'>colors!</span></p>");
+            var commands =
+                CommandCollection.Empty
+                    .Add<HelpCommand, HelpCommandParameter>()
+                    .Add<TestCommand>();
+
+            commands.Execute("help");
+
+            //ConsoleColorizer.RenderLine("<p>&gt;<span background-color='red'>Hallo</span> x <span color='darkyellow'>colors!</span></p>");
             //var logger = LoggerFactory.CreateLogger("test");
             //logger.Trace(x => x.Message("blah"));
             //LogEntry.New().Debug().Message("blah").Log(logger);
@@ -54,6 +65,30 @@ namespace SmartLibs.Console
             //var result2 = table2.ToString("html", htmlFormatter); // htmlRenderer.Render(table2);
             System.Console.ReadKey();
         }
+    }
+
+    class TestCommand : ICommand
+    {
+        public bool CanExecute(object parameter)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Execute(object parameter)
+        {
+            throw new NotImplementedException();
+        }
+
+        public event EventHandler CanExecuteChanged;
+    }
+
+    class TestCommandParameter
+    {
+        [Parameter(Required = false)]
+        public string Foo { get; set; }
+
+        [Parameter(Required = false)]
+        public int Bar { get; set; }
     }
 }
 

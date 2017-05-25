@@ -34,6 +34,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Collections.Immutable, Version=1.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.1.3.1\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
@@ -49,8 +52,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Reusable.Colin\Reusable.Colin.csproj">
+      <Project>{82dbeed3-e1ed-4e95-b4ce-d29bbcc1f888}</Project>
+      <Name>Reusable.Colin</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Reusable.ConsoleColorizer\Reusable.ConsoleColorizer.csproj">
       <Project>{ccbfed64-492b-4e15-9816-0fd76e390c7f}</Project>
       <Name>Reusable.ConsoleColorizer</Name>

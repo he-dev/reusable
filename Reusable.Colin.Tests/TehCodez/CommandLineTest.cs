@@ -14,14 +14,14 @@ namespace Reusable.Colin.Tests
         [ExpectedException(typeof(ArgumentException))]
         public void Add_DuplicateCommands_Throws()
         {
-            new CommandCollection().Add<TestCommand>().Add<TestCommand>();
+            CommandCollection.Empty.Add<TestCommand>().Add<TestCommand>();
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void Add_DefaultWithEmptyCommandLine_Throws()
         {
-            new CommandCollection().Default("test");
+            CommandCollection.Empty.Default("test");
         }
 
         [TestMethod]
@@ -30,7 +30,7 @@ namespace Reusable.Colin.Tests
         {
             var testCmd1 = new TestCommand();
             var testCmd2 = new TestCommand();
-            new CommandCollection()
+            CommandCollection.Empty
                 .Add<object>(testCmd1, "test1", "t1")
                 .Add<object>(testCmd2, "test2", "t2")
                 .Default("test")
@@ -41,14 +41,14 @@ namespace Reusable.Colin.Tests
         [ExpectedException(typeof(ArgumentException))]
         public void Add_SingleCommandAsDefault_Throws()
         {
-            new CommandCollection().Add<TestCommand>().Default("test");
+            CommandCollection.Empty.Add<TestCommand>().Default("test");
         }
 
         [TestMethod]
         public void Execute_EmptyCommandLine_DefaultCommandExecuted()
         {
             var testCmd = new TestCommand();
-            var cmdLn = new CommandCollection().Add(testCmd);
+            var cmdLn = CommandCollection.Empty.Add(testCmd);
             cmdLn.Execute("");
             Assert.AreEqual(1, testCmd.Parameters.Count);
         }
@@ -59,7 +59,7 @@ namespace Reusable.Colin.Tests
             var testCmd1 = new TestCommand();
             var testCmd2 = new TestCommand();
 
-            var cmdLn = new CommandCollection()
+            var cmdLn = CommandCollection.Empty
                 .Add<object>(testCmd1, "test1", "t1")
                 .Add<object>(testCmd2, "test2", "t2");
             cmdLn.Execute("t2");
@@ -72,10 +72,10 @@ namespace Reusable.Colin.Tests
         public void Execute_CommandWithParameters_Executed()
         {
             var testCmd = new TestCommand();
-            var cmdLn = new CommandCollection()
+            var cmdLn = CommandCollection.Empty
                 .Add<TestParameter>(testCmd);
 
-            cmdLn.Execute("test -foo:oof -bar:3 -arr: 4 5 6 -flag1 -flag2:false");
+            cmdLn.Execute("-foo:oof -bar:3 -arr: 4 5 6 -flag1 -flag2:false");
 
             Assert.AreEqual(1, testCmd.Parameters.Count);
 

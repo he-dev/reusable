@@ -64,13 +64,14 @@
     <Compile Include="TehCodez\Collections\ImmutableNameSet.cs" />
     <Compile Include="TehCodez\CommandCollectionBuilder.cs" />
     <Compile Include="TehCodez\CommandLineSettings.cs" />
-    <Compile Include="TehCodez\Logging\ConsoleLogger.cs" />
     <Compile Include="TehCodez\Logging\ILogger.cs" />
     <Compile Include="TehCodez\Logging\LoggerExtensions.cs" />
+    <Compile Include="TehCodez\Logging\Loggers\ConsoleLogger.cs" />
+    <Compile Include="TehCodez\Logging\Loggers\NullLogger.cs" />
     <Compile Include="TehCodez\Logging\LogLevel.cs" />
     <Compile Include="TehCodez\Data\CommandContext.cs" />
-    <Compile Include="TehCodez\Services\CommandExecutor.cs" />
-    <Compile Include="TehCodez\CommandExecutor.cs" />
+    <Compile Include="TehCodez\Services\CommandMapping.cs" />
+    <Compile Include="TehCodez\CommandLineExecutor.cs" />
     <Compile Include="TehCodez\Services\CommandLineTokenizer.cs" />
     <Compile Include="TehCodez\Services\CommandParameterFactory.cs" />
     <Compile Include="TehCodez\Data\CommandParameter.cs" />

@@ -17,7 +17,7 @@ namespace Reusable.Colin
             where TCommand : ICommand, new()
             where TParameter : new()
         {
-            return commandCollection.Add(new Services.CommandExecutor(new TCommand(), ImmutableNameSet.Empty, typeof(TParameter)));
+            return commandCollection.Add(new CommandMapping(new TCommand(), ImmutableNameSet.Empty, typeof(TParameter)));
         }
 
         [NotNull]
@@ -25,7 +25,7 @@ namespace Reusable.Colin
         public static CommandCollection Add<TCommand>(this CommandCollection commandCollection)
             where TCommand : ICommand, new()
         {
-            return commandCollection.Add(new Services.CommandExecutor(new TCommand(), ImmutableNameSet.Empty, null));
+            return commandCollection.Add(new CommandMapping(new TCommand(), ImmutableNameSet.Empty, null));
         }
 
         [NotNull]
@@ -33,14 +33,14 @@ namespace Reusable.Colin
         public static CommandCollection Add<TParameter>(this CommandCollection commandCollection, ICommand command, params string[] names)
             where TParameter : new()
         {
-            return commandCollection.Add(new Services.CommandExecutor(command, ImmutableNameSet.Create(names), typeof(TParameter)));
+            return commandCollection.Add(new CommandMapping(command, ImmutableNameSet.Create(names), typeof(TParameter)));
         }
 
         [NotNull]
         [PublicAPI]
         public static CommandCollection Add(this CommandCollection commandCollection, ICommand command, params string[] names)
         {
-            return commandCollection.Add(new Services.CommandExecutor(command, ImmutableNameSet.Create(names), null));
+            return commandCollection.Add(new CommandMapping(command, ImmutableNameSet.Create(names), null));
         }
 
         [NotNull]
@@ -51,18 +51,18 @@ namespace Reusable.Colin
             if (names == null) throw new ArgumentNullException(nameof(names));
             if (!names.Any()) throw new ArgumentException(paramName: nameof(names), message: "You need to specify at least one name.");
 
-            return commandCollection.Add(new Services.CommandExecutor(new SimpleCommand(action), ImmutableNameSet.Create(names), null));
+            return commandCollection.Add(new CommandMapping(new SimpleCommand(action), ImmutableNameSet.Create(names), null));
         }
 
         [NotNull]
-        private static CommandCollection Add(this CommandCollection commandCollection, Services.CommandExecutor commandExecutor)
+        private static CommandCollection Add(this CommandCollection commandCollection, CommandMapping commandMapping)
         {
-            if (commandCollection.ContainsKey(commandExecutor.Name))
+            if (commandCollection.ContainsKey(commandMapping.Name))
             {
-                throw new ArgumentException($"A command with the name {commandExecutor.Name} already exists.");
+                throw new ArgumentException($"A command with the name {commandMapping.Name} already exists.");
             }
 
-            return new CommandCollection(commandCollection.Add(commandExecutor.Name, commandExecutor));
+            return new CommandCollection(commandCollection.Add(commandMapping.Name, commandMapping));
         }
 
         [NotNull]
@@ -79,7 +79,7 @@ namespace Reusable.Colin
                 throw new ArgumentException("Default command can be added only when there are at least two commands.");
             }
 
-            if (commandCollection.TryGetValue(ImmutableNameSet.Create(name), out Services.CommandExecutor invoker))
+            if (commandCollection.TryGetValue(ImmutableNameSet.Create(name), out CommandMapping invoker))
             {
                 return new CommandCollection(commandCollection.Add(ImmutableNameSet.DefaultCommandName, invoker));
             }

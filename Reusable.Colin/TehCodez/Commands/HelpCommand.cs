@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Input;
 using JetBrains.Annotations;
 using Reusable.Colin.Annotations;
@@ -12,11 +13,15 @@ using Reusable.Colin.Services;
 
 namespace Reusable.Colin.Commands
 {
+    [PublicAPI]
     [CommandName("help", "h", "?")]
     [Description("Display help.")]
-    [PublicAPI]
     public class HelpCommand : ICommand
     {
+        public int IndentWidth { get; set; } = 4;
+
+        public int NameColumnWidth { get; set; } = 30;
+
         public event EventHandler CanExecuteChanged;
 
         public bool CanExecute(object parameter) => true;
@@ -37,12 +42,13 @@ namespace Reusable.Colin.Commands
                 {
                     Names = x.Key,
                     //IsDefault = context.CommandLine.
+                    Description = x.Value.Command.GetType().GetCustomAttribute<DescriptionAttribute>()?.Description
                 }), context.Logger);
             }
             else
             {
                 // Write argument list for the command.
-                if (context.CommandCollection.TryGetValue(ImmutableNameSet.Create(commandName), out Services.CommandExecutor command))
+                if (context.CommandCollection.TryGetValue(ImmutableNameSet.Create(commandName), out Services.CommandMapping command))
                 {
                     RenderParameterList(command.ParameterFactory.Select(x => new ParameterSummary
                     {
@@ -61,9 +67,29 @@ namespace Reusable.Colin.Commands
 
         protected virtual void RenderCommandList(IEnumerable<CommandSummary> commandSummaries, ILogger logger)
         {
+            var indent = new string(' ', IndentWidth);
+
+            var count = 0;
             foreach (var commandSummary in commandSummaries)
             {
-                logger.Info(commandSummary.Names.First());
+                if (count > 0)
+                {
+                    logger.Info(string.Empty);
+                    logger.Debug("---");
+                    logger.Info(string.Empty);
+                }
+
+                logger.Debug("NAME");
+                foreach (var name in commandSummary.Names.OrderByDescending(n => n.Length))
+                {
+                    logger.Info($"{indent}{name}");
+                }
+
+                logger.Info(string.Empty);
+                logger.Debug("ABOUT");
+                logger.Info($"{indent}{commandSummary.Description}");
+
+                count++;
             }
         }
 
@@ -130,3 +156,42 @@ namespace Reusable.Colin.Commands
     //    }
     //}
 }
+
+/*
+ 
+
+NAME
+    command1
+    cmd1
+    
+ABOUT
+    Does this
+
+---
+
+NAME
+    command2
+
+ABOUT
+    Does that.
+
+---
+
+NAME
+    command1 
+    cmd1
+    
+ABOUT
+    Does this.
+
+SYNTAX
+
+    command1 <1:arg1> <2:arg2> <arg3> <arg3> [arg4] [arg5]
+
+ARGUMENTS
+
+    arg1            blah
+    arg2            blah     
+     
+     
+     */

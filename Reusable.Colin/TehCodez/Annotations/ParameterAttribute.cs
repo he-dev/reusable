@@ -1,9 +1,11 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Reusable.Colin.Annotations
 {
     [AttributeUsage(AttributeTargets.Property)]
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class ParameterAttribute : Attribute
     {
         private const int CommandNamePosition = 0;
@@ -16,14 +18,18 @@ namespace Reusable.Colin.Annotations
             Names = names;
         }
 
+        private string DebuggerDisplay => $"{nameof(Names)} = [{string.Join(", ", Names)}] {nameof(Required)} = {Required} {nameof(Position)} = {Position}";
+
         public string[] Names { get; }
 
         /// <summary>
-        /// Gets or sets a value indication whether this paramter is required. It is automatically true if the Position is greater then 0.
+        /// Gets or sets a value indication whether this paramter is required. 
         /// </summary>
+        // It is automatically true if the Position is greater then 0.
         public bool Required
         {
-            get => Position > CommandNamePosition || _required;
+            //get => Position > CommandNamePosition || _required;
+            get => _required;
             set => _required = value;
         }
 

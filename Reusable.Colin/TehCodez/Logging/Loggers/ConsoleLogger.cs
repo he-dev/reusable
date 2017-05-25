@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using JetBrains.Annotations;
 
-namespace Reusable.Colin.Logging
+namespace Reusable.Colin.Logging.Loggers
 {
     [PublicAPI]
     public class ConsoleLogger : ILogger

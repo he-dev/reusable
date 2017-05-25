@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -14,13 +15,14 @@ namespace Reusable.Colin.Collections
     /// <summary>
     /// Name set used for command and argument names.
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class ImmutableNameSet : IImmutableSet<string>
     {
         private readonly IImmutableSet<string> _names;
 
         private ImmutableNameSet(params string[] names) => _names = ImmutableHashSet.Create(StringComparer.OrdinalIgnoreCase, names);
 
-        public static readonly ImmutableNameSet Empty = Create(string.Empty);
+        public static readonly ImmutableNameSet Empty = Create();
 
         public static readonly ImmutableNameSet DefaultCommandName = Create("Default");
 
@@ -33,8 +35,10 @@ namespace Reusable.Colin.Collections
             if (names == null) throw new ArgumentNullException(nameof(names));
             //if (names.Length == 0) throw new ArgumentException("You need to specify at least one name.", nameof(names));
 
-            return new ImmutableNameSet(names.OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToArray());
+            return new ImmutableNameSet(names);
         }
+
+        private string DebuggerDisplay => ToString();
 
         [PublicAPI]
         [NotNull]
@@ -72,6 +76,7 @@ namespace Reusable.Colin.Collections
             return From(command.GetType());
         }
 
+        [NotNull]
         public static ImmutableNameSet From([NotNull] PropertyInfo parameterProperty)
         {
             var parameter = parameterProperty.GetCustomAttribute<ParameterAttribute>();
@@ -142,7 +147,7 @@ namespace Reusable.Colin.Collections
                 return
                     !ReferenceEquals(x, null) &&
                     !ReferenceEquals(y, null) &&
-                    x.Overlaps(y);
+                    (x.Overlaps(y) || (!x.Any() && !y.Any()));
             }
 
             // The hash code are always different thus this comparer. We need to check if the sets overlap so we cannot relay on the hash code.

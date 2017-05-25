@@ -10,10 +10,9 @@ namespace Reusable.Colin.Services
     public static class CommandLineParser
     {
         [NotNull]
-        public static IEnumerable<ArgumentLookup> Parse([NotNull] this IEnumerable<string> args, [NotNull] string argumentPrefix)
+        public static IEnumerable<ArgumentLookup> Parse([NotNull] this IEnumerable<string> args, char argumentPrefix)
         {
             if (args == null) { throw new ArgumentNullException(nameof(args)); }
-            if (string.IsNullOrEmpty(argumentPrefix)) { throw new ArgumentNullException(nameof(argumentPrefix)); }
 
             var arguments = new ArgumentLookup();
             var currentArgumentName = ImmutableNameSet.Empty;
@@ -28,7 +27,7 @@ namespace Reusable.Colin.Services
                         break;
 
                     // ReSharper disable once PatternAlwaysOfType
-                    case string value when value.StartsWith(argumentPrefix):
+                    case string value when value.StartsWith(argumentPrefix.ToString()):
                         currentArgumentName = ImmutableNameSet.Create(Regex.Replace(arg, $"^{argumentPrefix}", string.Empty));
                         arguments.Add(currentArgumentName);
                         break;

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Windows.Input;
 using JetBrains.Annotations;
@@ -8,11 +9,12 @@ using Reusable.Colin.Logging;
 
 namespace Reusable.Colin.Services
 {
-    public class CommandExecutor
+    public class CommandMapping
     {
-        public CommandExecutor(ICommand command, ImmutableNameSet name, Type parameterType)
+        public CommandMapping([NotNull] ICommand command, [NotNull] ImmutableNameSet name, Type parameterType)
         {
-            Command = command;
+            if (name == null) throw new ArgumentNullException(nameof(name));
+            Command = command ?? throw new ArgumentNullException(nameof(command));
 
             Name =
                 name.Any()
@@ -24,20 +26,14 @@ namespace Reusable.Colin.Services
 
         [PublicAPI]
         [NotNull]
-        public ICommand Command { get; }
-
-        [PublicAPI]
-        [NotNull]
         public ImmutableNameSet Name { get; }
 
         [PublicAPI]
         [NotNull]
-        public CommandParameterFactory ParameterFactory { get; }
+        public ICommand Command { get; }
 
-        //public void Execute(ArgumentLookup argument, CommandCollection commands, ILogger logger)
-        //{
-        //    var commandParameter = ParameterFactory.CreateParameter(argument);
-        //    Command.Execute(new CommandContext(commandParameter, commands, logger));
-        //}
+        [PublicAPI]
+        [NotNull]
+        public CommandParameterFactory ParameterFactory { get; }
     }
 }

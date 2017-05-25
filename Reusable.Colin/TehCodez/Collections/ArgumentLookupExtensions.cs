@@ -21,7 +21,7 @@ namespace Reusable.Colin.Collections
         }
 
         [CanBeNull]
-        public static Services.CommandExecutor Executor([NotNull][ItemNotNull] this ILookup<ImmutableNameSet, string> arguments, [NotNull] CommandCollection commandCollection)
+        public static CommandMapping Map([NotNull][ItemNotNull] this ILookup<ImmutableNameSet, string> arguments, [NotNull] CommandCollection commandCollection)
         {
             if (commandCollection.Count == 1)
             {
@@ -35,9 +35,9 @@ namespace Reusable.Colin.Collections
                     : ImmutableNameSet.DefaultCommandName;
 
             return
-                commandCollection.TryGetValue(commandName, out Services.CommandExecutor command)
+                commandCollection.TryGetValue(commandName, out CommandMapping command)
                     ? command
-                    : default(Services.CommandExecutor);
+                    : default(CommandMapping);
         }
 
         internal static bool Contains(this ILookup<ImmutableNameSet, string> arguments, CommandParameter commandParameter)
