@@ -8,7 +8,7 @@ namespace Reusable.Tests
     public class ValidatorTest
     {
         [TestMethod]
-        [ExpectedException(typeof(CircularDependencyException))]
+        //[ExpectedException(typeof(CircularDependencyException))]
         public void ValidateDependencies_ValidDependencies_Passes()
         {
             var values = new Dictionary<string, IEnumerable<string>>

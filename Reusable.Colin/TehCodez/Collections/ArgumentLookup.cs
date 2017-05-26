@@ -67,12 +67,4 @@ namespace Reusable.Colin.Collections
 
         #endregion
     }
-
-    public static class ArgumentLoopExtensions
-    {
-        public static string ToCommandLine(this ILookup<ImmutableNameSet, string> arguments, string format)
-        {
-            return string.Join(" ", arguments.Select(argument => argument.ToCommandLine(format)));
-        }
-    }
 }

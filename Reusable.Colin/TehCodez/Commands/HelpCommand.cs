@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Reusable.Colin.Annotations;
 using Reusable.Colin.Collections;
 using Reusable.Colin.Data;
+using Reusable.Colin.Data.Help;
 using Reusable.Colin.Logging;
 using Reusable.Colin.Services;
 
@@ -21,7 +22,7 @@ namespace Reusable.Colin.Commands
     {
         public int IndentWidth { get; set; } = 4;
 
-        public int[] ColumnWidths { get; set; } = new[] { 17, 60 };
+        public int[] ColumnWidths { get; set; } = { 17, 60 };
 
         public event EventHandler CanExecuteChanged;
 

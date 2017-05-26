@@ -79,8 +79,8 @@
     <Compile Include="TehCodez\Data\HelpCommandParameter.cs" />
     <Compile Include="TehCodez\Services\CommandLineParser.cs" />
     <Compile Include="TehCodez\Data\CommandLineArgument.cs" />
-    <Compile Include="TehCodez\Data\ParameterSummary.cs" />
-    <Compile Include="TehCodez\Data\CommandSummary.cs" />
+    <Compile Include="TehCodez\Data\Help\ParameterSummary.cs" />
+    <Compile Include="TehCodez\Data\Help\CommandSummary.cs" />
     <Compile Include="TehCodez\Commands\HelpCommand.cs" />
     <Compile Include="TehCodez\Validators\ParameterValidator.cs" />
     <Compile Include="TehCodez\Annotations\CommandNamespaceAttribute.cs" />

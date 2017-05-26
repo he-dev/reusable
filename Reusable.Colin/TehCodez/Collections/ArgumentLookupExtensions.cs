@@ -56,5 +56,10 @@ namespace Reusable.Colin.Collections
                     ? new[] { arguments.AnonymousValues().ElementAtOrDefault(commandParameter.Position) }
                     : arguments[commandParameter.Name];
         }
+
+        public static string ToCommandLine(this ILookup<ImmutableNameSet, string> arguments, string format)
+        {
+            return string.Join(" ", arguments.Select(argument => argument.ToCommandLine(format)));
+        }
     }
 }

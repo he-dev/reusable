@@ -67,7 +67,7 @@ namespace Reusable.Colin.Services
                     {
                         throw new ParameterNotFoundException(parameter.Name);
                     }
-                    continue;
+                    //continue;
                 }
 
                 var values = arguments.Parameter(parameter).ToList();
@@ -113,6 +113,7 @@ namespace Reusable.Colin.Services
                 }
             }
 
+            // Still didn't find the value. Try to use the default one.
             if (commandParameter.DefaultValue != null)
             {
                 result.data = commandParameter.DefaultValue;
