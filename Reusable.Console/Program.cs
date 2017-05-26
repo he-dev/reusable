@@ -31,7 +31,7 @@ namespace SmartLibs.Console
                     .Add<HelpCommand, HelpCommandParameter>()
                     .Add<TestCommand, TestCommandParameter>();
 
-            commands.Execute("help help");
+            commands.Execute(args);
 
             //ConsoleColorizer.RenderLine("<p>&gt;<span background-color='red'>Hallo</span> x <span color='darkyellow'>colors!</span></p>");
             //var logger = LoggerFactory.CreateLogger("test");
@@ -63,7 +63,7 @@ namespace SmartLibs.Console
             //        .style("font-size: 2em;"));
 
             //var result2 = table2.ToString("html", htmlFormatter); // htmlRenderer.Render(table2);
-            System.Console.ReadKey();
+            //System.Console.ReadKey();
         }
     }
 

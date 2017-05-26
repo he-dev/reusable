@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Windows.Input;
 using JetBrains.Annotations;
 using Reusable.Colin.Annotations;
@@ -20,7 +21,7 @@ namespace Reusable.Colin.Commands
     {
         public int IndentWidth { get; set; } = 4;
 
-        public int NameColumnWidth { get; set; } = 30;
+        public int[] ColumnWidths { get; set; } = new[] { 17, 60 };
 
         public event EventHandler CanExecuteChanged;
 
@@ -30,89 +31,97 @@ namespace Reusable.Colin.Commands
         {
             if (!(parameter is CommandContext context))
             {
-                throw new ArgumentException(message: $"'{nameof(CommandContext)} expected but found '{parameter?.GetType()}'", paramName: nameof(parameter));
+                throw new ArgumentException(
+                    message: $"'{nameof(CommandContext)} expected but found '{parameter?.GetType()}'", 
+                    paramName: nameof(parameter));
             }
 
-            // ReSharper disable once PossibleNullReferenceException
-            var commandName = ((HelpCommandParameter)context.Parameter).Command;
+            if (!(context.Parameter is HelpCommandParameter commandParameter))
+            {
+                throw new ArgumentException(
+                    message: $"'{nameof(HelpCommandParameter)} expected but found '{context.Parameter?.GetType()}'",
+                    paramName: nameof(parameter));
+            }
+
+            var commandName = commandParameter.Command;
 
             if (string.IsNullOrEmpty(commandName))
             {
-                RenderCommandList(context.CommandCollection.Select(x => new CommandSummary
-                {
-                    Names = x.Key,
-                    //IsDefault = context.CommandLine.
-                    Description = x.Value.Command.GetType().GetCustomAttribute<DescriptionAttribute>()?.Description
-                }), context.Logger);
+                RenderCommandList(context);
             }
             else
             {
-                // Write argument list for the command.
                 if (context.CommandCollection.TryGetValue(ImmutableNameSet.Create(commandName), out Services.CommandMapping mapping))
                 {
-                    var commandSummary = new CommandSummary
-                    {
-                        Names = mapping.Name,
-                        Description = mapping.Command.GetType().GetCustomAttribute<DescriptionAttribute>()?.Description
-                    };
-
-                    var parameterSummaries = mapping.ParameterFactory.Select(x => new ParameterSummary
-                    {
-                        Names = x.Name.OrderByDescending(n => n.Length).ToArray(),
-                        Type = x.Property.PropertyType,
-                        Required = x.Required,
-                        Position = x.Position
-                    });
-
-                    RenderParameterList(commandSummary, parameterSummaries, context.Logger);
+                    RenderParameterList(context, mapping);
                 }
                 else
                 {
-                    context.Logger.Error($"Command {commandName} not found.");
+                    context.Logger.Error($"Command \"{commandName}\" not found.");
                 }
             }
         }
 
-        protected virtual void RenderCommandList(IEnumerable<CommandSummary> commandSummaries, ILogger logger)
+        protected virtual void RenderCommandList(CommandContext context)
         {
-            var indent = new string(' ', IndentWidth);
+            context.Logger.Info(string.Empty);
+            context.Logger.Info($"{new string(' ', IndentWidth)}Commands");
 
-            var count = 0;
+            var commandSummaries = context.CommandCollection.Select(x => new CommandSummary
+            {
+                Names = x.Key.OrderByDescending(n => n.Length),
+                Description = x.Value.Command.GetType().GetCustomAttribute<DescriptionAttribute>()?.Description
+            });
+
+            var captions = new[] { "NAME", "ABOUT" };
+
+            context.Logger.Info(string.Empty);
+            context.Logger.Debug(RenderColumns(captions, ColumnWidths));
+            context.Logger.Debug(RenderColumns(captions.Select(h => new string('-', h.Length)), ColumnWidths));
+
             foreach (var commandSummary in commandSummaries)
             {
-                if (count > 0)
+                context.Logger.Info(RenderColumns(new[]
                 {
-                    logger.Info(string.Empty);
-                    logger.Debug("---");
-                    logger.Info(string.Empty);
-                }
-
-                logger.Debug("NAME");
-                logger.Info($"{indent}{string.Join(" | ", commandSummary.Names.OrderByDescending(n => n.Length))}");
-
-                logger.Info(string.Empty);
-                logger.Debug("ABOUT");
-                logger.Info($"{indent}{commandSummary.Description}");
-
-                count++;
+                    commandSummary.Names.First(),
+                    string.IsNullOrEmpty(commandSummary.Description) ? "N/A" : commandSummary.Description
+                }, ColumnWidths));
             }
+            context.Logger.Info(string.Empty);
+            context.Logger.Info(string.Empty);
         }
 
-        protected virtual void RenderParameterList(CommandSummary commandSummary, IEnumerable<ParameterSummary> parameterSummaries, ILogger logger)
+        protected virtual void RenderParameterList(CommandContext context, CommandMapping mapping)
         {
+            var commandSummary = new CommandSummary
+            {
+                Names = mapping.Name.OrderByDescending(n => n.Length),
+                Description = mapping.Command.GetType().GetCustomAttribute<DescriptionAttribute>()?.Description
+            };
+
+            var parameterSummaries = mapping.ParameterFactory.Select(x => new ParameterSummary
+            {
+                Names = x.Name.OrderByDescending(n => n.Length),
+                Type = x.Property.PropertyType,
+                Required = x.Required,
+                Position = x.Position
+            });
+
+
             var indent = new string(' ', IndentWidth);
 
-            logger.Debug("NAME");
-            logger.Info($"{indent}{string.Join(" | ", commandSummary.Names.OrderByDescending(n => n.Length))}");
+            context.Logger.Info(string.Empty);
+            context.Logger.Debug("NAME");
+            context.Logger.Info(string.Join(Environment.NewLine, commandSummary.Names.Select(n => $"{indent}{n}")));
 
-            logger.Info(string.Empty);
-            logger.Debug("ABOUT");
-            logger.Info($"{indent}{(string.IsNullOrEmpty(commandSummary.Description) ? "N/A" : commandSummary.Description)}");
+            context.Logger.Info(string.Empty);
+            context.Logger.Debug("ABOUT");
+            context.Logger.Info($"{indent}{(string.IsNullOrEmpty(commandSummary.Description) ? "N/A" : commandSummary.Description)}");
 
-            logger.Info(string.Empty);
+            context.Logger.Info(string.Empty);
 
-            logger.Debug("SYNTAX");
-            logger.Info(string.Empty);
+            context.Logger.Debug("SYNTAX");
+            context.Logger.Info(string.Empty);
 
             var positional =
                 from p in parameterSummaries
@@ -133,42 +142,56 @@ namespace Reusable.Colin.Commands
                 orderby p.Names.First()
                 select $"{p.Names.First()}".Optional();
 
-            logger.Info($"{indent}{commandSummary.Names.OrderByDescending(n => n).First()} {string.Join(" ", positional.Concat(required).Concat(optional))}");
+            context.Logger.Info($"{indent}{commandSummary.Names.First()} {string.Join(" ", positional.Concat(required).Concat(optional))}");
 
-            logger.Info(string.Empty);
-            logger.Debug("ARGUMENTS");
-            logger.Info(string.Empty);
+            context.Logger.Info(string.Empty);
+            context.Logger.Debug("ARGUMENTS");
+            context.Logger.Info(string.Empty);
 
-            foreach (var parameter in positional.Concat(required.Concat(optional)))
+            foreach (var parameterSummary in parameterSummaries.OrderBy(p => p.Names.First()))
             {
-                
+                var name = parameterSummary.Names.First();
+                var type = parameterSummary.Type.Name;
+                context.Logger.Info(RenderColumns(new[] { $"{indent}{name}", type }, ColumnWidths));
+            }
+
+            context.Logger.Info(string.Empty);
+            context.Logger.Info(string.Empty);
+        }
+
+        private static string RenderColumns(IEnumerable<string> values, IEnumerable<int> columnWidths)
+        {
+            var result = new StringBuilder();
+            foreach (var tuple in values.Zip(columnWidths, (x, w) => (Value: x, Width: w)))
+            {
+                result.Append(Pad(tuple.Value, tuple.Width));
+            }
+
+            return result.ToString();
+
+            string Pad(string value, int width)
+            {
+                return
+                    width < 0
+                        ? value.PadLeft(-width, ' ')
+                        : value.PadRight(width, ' ');
             }
         }
     }
 
     internal static class StringExtensions
     {
-        public static string Optional(this string value) => $"<{value}>";
-        public static string Required(this string value) => $"[{value}]";
+        public static string Required(this string value) => $"<{value}>";
+        public static string Optional(this string value) => $"[{value}]";
     }
 }
 
 /*
  
-
-NAME
-    command1 | cmd1
-    
-ABOUT
-    Does this
-
----
-
-NAME
-    command2
-
-ABOUT
-    Does that.
+NAME                ABOUT
+----
+command1     Does this.
+cmd1             N/A
 
 ---
 
@@ -187,8 +210,8 @@ SYNTAX
 
 ARGUMENTS
 
-    arg1            blah
-    arg2            blah     
+    arg1         blah
+    arg2         blah     
      
      
      */
