@@ -1,44 +1,36 @@
-﻿using Reusable.Logging.ComputedProperties;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Reusable.Logging.ComputedProperties;
 
 namespace Reusable.Logging
 {
     public class LogEntry : Dictionary<string, object>
     {
-        private LogLevel _logLevel;
-
-        //private LogEntry(LogEntry logEntry) : base(logEntry)
-        //{
-        //    _logLevel = logEntry._logLevel;
-        //}
-
         public LogEntry(LogLevel logLevel) : base(StringComparer.OrdinalIgnoreCase)
         {
-            LogLevel = logLevel;
+            this[nameof(LogLevel)] = logLevel;
         }
 
         public LogEntry(LogEntry logEntry) : base(logEntry, StringComparer.OrdinalIgnoreCase)
-        {
-            LogLevel = logEntry.LogLevel;
-        }
+        { }
 
-        // This needs to be a property for performance reasons.
-        public LogLevel LogLevel
-        {
-            get => _logLevel;
-            set { _logLevel = value; this[nameof(LogLevel)] = value; }
-        }
+        public LogLevel LogLevel => (LogLevel)this[nameof(LogLevel)];
+
+        //public static Func<DateTime>
 
         public static LogEntry New() => CreateLogEntry(LogLevel.Info).Info();
 
-        private static LogEntry CreateLogEntry(LogLevel logLevel) => new LogEntry(logLevel)
-            .SetValue(new Now())
-            .SetValue(new UtcNow())
-            .SetValue(new ThreadId());
+        private static LogEntry CreateLogEntry(LogLevel logLevel)
+        {
+            return 
+                new LogEntry(logLevel)
+                    .SetValue(new Now())
+                    .SetValue(new UtcNow())
+                    .SetValue(new ThreadId());
+        }
     }
 
     public class AutoLogEntry : LogEntry, IDisposable

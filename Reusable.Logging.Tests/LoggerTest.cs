@@ -3,7 +3,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Logging.Tests.Mocks;
 using System.Linq;
 using System.Text;
-using Reusable.Logging.ComputedProperties;
 
 namespace Reusable.Logging.Tests
 {

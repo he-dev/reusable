@@ -41,10 +41,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="_codebase\LoggerConfiguration.cs" />
-    <Compile Include="_codebase\Loggex.cs" />
-    <Compile Include="_codebase\Recorder.cs" />
-    <Compile Include="_codebase\Recorders\MemoryRecorder.cs" />
+    <Compile Include="TehCodez\LoggerConfiguration.cs" />
+    <Compile Include="TehCodez\Loggex.cs" />
+    <Compile Include="TehCodez\Recorder.cs" />
+    <Compile Include="TehCodez\Recorders\MemoryRecorder.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Logging\Reusable.Logging.csproj">

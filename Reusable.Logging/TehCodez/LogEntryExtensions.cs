@@ -9,10 +9,8 @@ using System.Threading.Tasks;
 namespace Reusable.Logging
 {
     public static class LogEntryExtensions
-    {
-        //public static LogEntry Name(this LogEntry entry, string name) => entry.Set(nameof(Name), name);
-
-        public static LogEntry LogLevel(this LogEntry entry, LogLevel logLevel) { entry.LogLevel = logLevel; return entry; }
+    {       
+        public static LogEntry LogLevel(this LogEntry entry, LogLevel logLevel) { entry[nameof(LogLevel)] = logLevel; return entry; }
 
         public static LogEntry Trace(this LogEntry entry) => entry.LogLevel(Logging.LogLevel.Trace);
         public static LogEntry Debug(this LogEntry entry) => entry.LogLevel(Logging.LogLevel.Debug);

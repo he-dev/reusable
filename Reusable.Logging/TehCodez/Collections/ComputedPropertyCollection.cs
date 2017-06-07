@@ -1,10 +1,10 @@
-﻿using Reusable.Logging.ComputedProperties;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Reusable.Logging.ComputedProperties;
 
 namespace Reusable.Logging.Collections
 {
@@ -19,8 +19,8 @@ namespace Reusable.Logging.Collections
         
         public ComputedPropertyCollection Add(string name, Func<LogEntry, object> compute)
         {
-            if (string.IsNullOrEmpty(name)) { throw new ArgumentNullException("name"); }
-            Add(new LambdaProperty(name, compute ?? throw new ArgumentNullException(nameof(compute))));
+            if (string.IsNullOrEmpty(name)) { throw new ArgumentNullException(nameof(name)); }
+            Add(new Lambda(name, compute ?? throw new ArgumentNullException(nameof(compute))));
             return this;
         }
 
@@ -33,7 +33,13 @@ namespace Reusable.Logging.Collections
 
     internal class ComputedPropertyComparer : IEqualityComparer<IComputedProperty>
     {
-        public bool Equals(IComputedProperty x, IComputedProperty y) => x.Name == y.Name;
+        public bool Equals(IComputedProperty x, IComputedProperty y)
+        {
+            return 
+                !ReferenceEquals(x, null) &&
+                !ReferenceEquals(y, null) &&
+                x.Name.Equals(y.Name, StringComparison.OrdinalIgnoreCase);
+        }
 
         public int GetHashCode(IComputedProperty obj) => obj.Name.GetHashCode();
     }

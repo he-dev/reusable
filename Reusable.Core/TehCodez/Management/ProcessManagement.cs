@@ -8,7 +8,7 @@ using Reusable.Extensions;
 
 namespace Reusable.Management
 {
-    public static class Wmi
+    public static class ProcessManagement
     {
         public static IEnumerable<string> GetCommandLines(string processName)
         {
@@ -16,8 +16,9 @@ namespace Reusable.Management
 
             var query = $"SELECT CommandLine FROM Win32_Process WHERE Name = '{processName}'";
             using (var searcher = new ManagementObjectSearcher(query))
+            using (var results = searcher.Get())
             {
-                foreach (var instance in searcher.Get())
+                foreach (var instance in results)
                 {
                     yield return instance["CommandLine"].ToString();
                 }

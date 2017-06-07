@@ -27,7 +27,7 @@ namespace Reusable.Logging.Adapters
                 LoggerName = _logger.Name,
                 Message = logEntry.GetValue<StringBuilder>(nameof(NLog.LogEventInfo.Message)).ToString(),
                 Exception = logEntry.GetValue<Exception>(nameof(NLog.LogEventInfo.Exception)),
-                // TimeStamp = log.GetValue<DateTime>(nameof(Log.Timestamp)),
+                //TimeStamp = log.GetValue<DateTime>(nameof(Log.Timestamp)),
             };
 
             foreach (var property in logEntry) logEventInfo.Properties[property.Key] = property.Value;

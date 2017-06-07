@@ -1,5 +1,4 @@
 ﻿using Reusable.Logging.Collections;
-using Reusable.Logging.ComputedProperties;
 using System;
 using System.Collections.Generic;
 using System.Linq;

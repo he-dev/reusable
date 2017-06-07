@@ -109,7 +109,7 @@
     <Compile Include="TehCodez\Extensions\StringBuilderExtensions.cs" />
     <Compile Include="TehCodez\Extensions\StringExtensions.cs" />
     <Compile Include="TehCodez\Extensions\TypeExtensions.cs" />
-    <Compile Include="TehCodez\Management\Wmi.cs" />
+    <Compile Include="TehCodez\Management\ProcessManagement.cs" />
     <Compile Include="TehCodez\Try.cs" />
     <Compile Include="TehCodez\Usingifier.cs" />
     <Compile Include="TehCodez\DependencyValidator.cs" />
