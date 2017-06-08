@@ -169,6 +169,30 @@ namespace Reusable.ConfigWhiz.Tests
             collection.DictionaryStringInt32.Verify().DictionaryEqual(new Dictionary<string, int> { ["foo"] = 21, ["bar"] = 34, ["baz"] = 88 });
         }
 
-        #endregion        
+        [TestMethod]
+        public void Load_DataSource_Cache_SameObject()
+        {
+            var configuration = new Configuration(Datastores);
+
+            var numeric1 = configuration.Load<Foo, Numeric>();
+            var numeric2 = configuration.Load<Foo, Numeric>();
+            Assert.IsNotNull(numeric1);
+            Assert.IsNotNull(numeric2);
+            Assert.AreSame(numeric1, numeric2);
+        }
+
+        [TestMethod]
+        public void Load_DataSource_Provider_SameObject()
+        {
+            var configuration = new Configuration(Datastores);
+
+            var numeric1 = configuration.Load<Foo, Numeric>();
+            var numeric2 = configuration.Load<Foo, Numeric>(DataSource.Provider);
+            Assert.IsNotNull(numeric1);
+            Assert.IsNotNull(numeric2);
+            Assert.AreSame(numeric1, numeric2);
+        }
+
+        #endregion
     }
 }

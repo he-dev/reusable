@@ -12,8 +12,8 @@ namespace Reusable.TypeConversion.Tests
         {
             var result =
                 TypeConverter.Empty
-                    .Add<EnumerableToArrayConverter>()
                     .Add<StringToInt32Converter>()
+                    .Add<EnumerableToArrayConverter>()
                     .Convert(new[] { "3", "7" }, typeof(int[])) as int[];
 
             result.Verify().IsNotNull();
@@ -27,8 +27,8 @@ namespace Reusable.TypeConversion.Tests
         {
             var result =
                 TypeConverter.Empty
-                    .Add<EnumerableToArrayConverter>()
                     .Add<Int32ToStringConverter>()
+                    .Add<EnumerableToArrayConverter>()
                     .Convert(new[] { 3, 7 }, typeof(string[])) as string[];
 
             result.Verify().IsNotNull();

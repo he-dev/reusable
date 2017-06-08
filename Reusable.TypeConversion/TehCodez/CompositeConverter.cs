@@ -8,18 +8,23 @@ namespace Reusable.TypeConversion
 {
     public class CompositeConverter : TypeConverter, IEnumerable<TypeConverter>
     {
-        private readonly HashSet<TypeConverter> _converters = new HashSet<TypeConverter>();
+        private readonly IEnumerable<TypeConverter> _converters;
 
-        internal CompositeConverter(IEnumerable<TypeConverter> converters)
+        //internal CompositeConverter(IEnumerable<TypeConverter> converters)
+        //{
+        //    var compositeConverters = converters.Where(x => x != null).ToLookup(x => x is CompositeConverter);
+        //    var currentConverters = compositeConverters[true].Cast<CompositeConverter>().SelectMany(x => x);
+        //    var newConverters = compositeConverters[false];
+        //    _converters.UnionWith(currentConverters);
+        //    _converters.UnionWith(newConverters);
+        //}
+
+        //internal CompositeConverter(params TypeConverter[] converters) : this((IEnumerable<TypeConverter>)converters) { }
+
+        internal CompositeConverter(params TypeConverter[] converters)
         {
-            var compositeConverters = converters.Where(x => x != null).ToLookup(x => x is CompositeConverter);
-            var currentConverters = compositeConverters[true].Cast<CompositeConverter>().SelectMany(x => x);
-            var newConverters = compositeConverters[false];
-            _converters.UnionWith(currentConverters);
-            _converters.UnionWith(newConverters);
+            _converters = converters;
         }
-
-        internal CompositeConverter(params TypeConverter[] converters) : this((IEnumerable<TypeConverter>)converters) { }
 
         public override Type FromType => throw new NotSupportedException($"{nameof(CompositeConverter)} does not support {nameof(FromType)} property.");
 

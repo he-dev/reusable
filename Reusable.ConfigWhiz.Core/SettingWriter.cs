@@ -16,10 +16,9 @@ namespace Reusable.ConfigWhiz
         {
             Setting = setting;
             Converter = converter;
-            Itemizer = TypeConverter.Empty.Add<EnumerableToDictionaryConverter>(); ;
         }
 
-        private TypeConverter Itemizer { get; }
+        private static TypeConverter Itemizer { get; } = TypeConverter.Empty.Add<EnumerableToDictionaryConverter>();
 
         private TypeConverter Converter { get; }
 

@@ -23,7 +23,7 @@ namespace Reusable.ConfigWhiz
         protected IImmutableList<SettingProxy> Proxies { get; }
         public ContainerPath Path { get; }
         public object Value { get; }
-        public abstract void Load(LoadOption loadOption);
+        public abstract void Load();
         public abstract int Save();
     }
 
@@ -33,7 +33,7 @@ namespace Reusable.ConfigWhiz
             : base(value, path, proxies)
         { }
 
-        public override void Load(LoadOption loadOption)
+        public override void Load()
         {
             var innerExceptions = new List<Exception>();
 
@@ -41,7 +41,7 @@ namespace Reusable.ConfigWhiz
             {
                 try
                 {
-                    proxy.Load(loadOption);
+                    proxy.Load();
                 }
                 catch (DatastoreReadException)
                 {

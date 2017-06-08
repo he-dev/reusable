@@ -16,7 +16,7 @@ namespace Reusable.TypeConversion
 
         public static TypeConverter Add(this TypeConverter current, Type converterType)
         {
-            return (current ?? throw new ArgumentNullException(nameof(current))).Add((TypeConverter)Activator.CreateInstance(converterType ?? throw new ArgumentNullException(nameof(converterType))));
+            return current.Add((TypeConverter)Activator.CreateInstance(converterType ?? throw new ArgumentNullException(nameof(converterType))));
         }
 
         public static TypeConverter Add<TConverter>(this TypeConverter current) where TConverter : TypeConverter, new()
@@ -40,7 +40,7 @@ namespace Reusable.TypeConversion
         {
             var compositeConverter = current as CompositeConverter;
             if (compositeConverter == null) return new CompositeConverter(current);
-            var converters = compositeConverter.Except(remove);
+            var converters = compositeConverter.Except(remove).ToArray();
             return new CompositeConverter(converters);
         }
 

@@ -13,9 +13,9 @@ namespace Reusable.TypeConversion.Tests
         {
             var result =
                 TypeConverter.Empty
-                    .Add<DictionaryToDictionaryConverter>()
                     .Add<StringToInt32Converter>()
                     .Add<StringToEnumConverter>()
+                    .Add<DictionaryToDictionaryConverter>()
                     .Convert(new Dictionary<string, string>
                     {
                         ["Foo"] = "3",
@@ -31,16 +31,17 @@ namespace Reusable.TypeConversion.Tests
         [TestMethod]
         public void Convert_DictionaryEnumInt32_DictionaryStringString()
         {
-            var result =
+            var converter =
                 TypeConverter.Empty
-                    .Add<DictionaryToDictionaryConverter>()
                     .Add<Int32ToStringConverter>()
                     .Add<EnumToStringConverter>()
-                    .Convert(new Dictionary<TestEnum, int>
-                    {
-                        [TestEnum.Foo] = 3,
-                        [TestEnum.Bar] = 7
-                    }, typeof(Dictionary<string, string>)) as Dictionary<string, string>;
+                    .Add<DictionaryToDictionaryConverter>();
+
+            var result = converter.Convert(new Dictionary<TestEnum, int>
+            {
+                [TestEnum.Foo] = 3,
+                [TestEnum.Bar] = 7
+            }, typeof(Dictionary<string, string>)) as Dictionary<string, string>;
 
             result.Verify().IsNotNull();
             result.Count.Verify().IsEqual(2);

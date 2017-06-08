@@ -24,10 +24,10 @@ namespace Reusable.TypeConversion.Tests
         }
 
         [TestMethod]
-        public void ctor_PassTwoSameConverters_CreatesWithOneConverter()
+        public void ctor_PassTwoSameConverters_CreatesWithTwoConverters()
         {
             var converter = new CompositeConverter(new BooleanToStringConverter(), new BooleanToStringConverter());
-            converter.Count().Verify().IsEqual(1);
+            converter.Count().Verify().IsEqual(2);
         }
     }
 }

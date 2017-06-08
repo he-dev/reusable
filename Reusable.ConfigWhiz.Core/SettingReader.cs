@@ -27,12 +27,12 @@ namespace Reusable.ConfigWhiz
 
         public IDatastore CurrentStore { get; private set; }
 
-        public void Read(LoadOption loadOption)
+        public void Read()
         {
             var (store, settings) =
-                loadOption == LoadOption.Update && CurrentStore.IsNotNull()
-                    ? (CurrentStore, CurrentStore.Read(Setting.Path))
-                    : Resolve();
+                CurrentStore == null
+                    ? Resolve()
+                    : (CurrentStore, CurrentStore.Read(Setting.Path));
 
             var values = GetValues(settings);
             var value = Convert(values);

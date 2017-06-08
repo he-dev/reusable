@@ -13,8 +13,8 @@ namespace Reusable.TypeConversion.Tests
         {
             var result =
                 TypeConverter.Empty
-                    .Add<EnumerableToListConverter>()
                     .Add<StringToInt32Converter>()
+                    .Add<EnumerableToListConverter>()
                     .Convert(new[] { "3", "7" }, typeof(List<int>)) as List<int>;
 
             result.Verify().IsNotNull();
@@ -28,8 +28,8 @@ namespace Reusable.TypeConversion.Tests
         {
             var result =
                 TypeConverter.Empty
-                    .Add<EnumerableToListConverter>()
                     .Add<Int32ToStringConverter>()
+                    .Add<EnumerableToListConverter>()
                     .Convert(new[] { 3, 7 }, typeof(IList<string>)) as IList<string>;
 
             result.Verify().IsNotNull();

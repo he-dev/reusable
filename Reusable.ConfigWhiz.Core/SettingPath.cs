@@ -91,7 +91,7 @@ namespace Reusable.ConfigWhiz
                 !ReferenceEquals(right, null) &&
                 left.ConsumerNamespace.SequenceEqual(right.ConsumerNamespace, StringComparer.OrdinalIgnoreCase) &&
                 left.ConsumerName.Equals(right.ConsumerName, StringComparison.OrdinalIgnoreCase) &&
-                (left.InstanceName.IsNotNullOrEmpty() && right.InstanceName.IsNotNullOrEmpty() && left.InstanceName.Equals(right.InstanceName, StringComparison.OrdinalIgnoreCase)) &&
+                string.Equals(left.InstanceName, right.InstanceName, StringComparison.OrdinalIgnoreCase) &&
                 left.ContainerName.Equals(right.ContainerName, StringComparison.OrdinalIgnoreCase);
         }
 

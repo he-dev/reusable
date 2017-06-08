@@ -13,8 +13,8 @@ namespace Reusable.TypeConversion.Tests
         {
             var result =
                 TypeConverter.Empty
-                    .Add<EnumerableToHashSetConverter>()
                     .Add<StringToInt32Converter>()
+                    .Add<EnumerableToHashSetConverter>()
                     .Convert(new[] { "3", "7" }, typeof(HashSet<int>)) as HashSet<int>;
 
             result.Verify().IsNotNull();
@@ -27,8 +27,8 @@ namespace Reusable.TypeConversion.Tests
         {
             var result =
                 TypeConverter.Empty
-                    .Add<EnumerableToHashSetConverter>()
                     .Add<Int32ToStringConverter>()
+                    .Add<EnumerableToHashSetConverter>()
                     .Convert(new[] { 3, 7 }, typeof(HashSet<string>)) as HashSet<string>;
 
             result.Verify().IsNotNull();

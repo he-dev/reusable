@@ -60,9 +60,9 @@ namespace Reusable.ConfigWhiz
             set => _property.SetValue(_container, value);
         }
 
-        public void Load(LoadOption loadOption)
+        public void Load()
         {
-            _reader.Read(loadOption);
+            _reader.Read();
         }
 
         public int Save()

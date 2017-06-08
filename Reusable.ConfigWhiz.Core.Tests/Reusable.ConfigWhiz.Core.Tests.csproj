@@ -61,6 +61,7 @@
     <Compile Include="ConfigurationTestDatastore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SettingPathTest.cs" />
+    <Compile Include="ContainerPathTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
