@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Logging</id>
-    <version>3.3.11</version>
+    <version>3.3.13</version>
     <title>Reusable.Logging</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -15,7 +15,7 @@
     <copyright>Copyright 2016 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
-      <dependency id="Reusable.Core" version="3.3.11" />
+      <dependency id="Reusable.Core" version="3.3.13" />
     </dependencies>
   </metadata>
   <files>
