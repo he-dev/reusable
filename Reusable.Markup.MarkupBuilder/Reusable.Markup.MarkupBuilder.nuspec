@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Markup</id>
-    <version>3.3.13</version>
+    <version>3.33.11</version>
     <title>Reusable.Markup</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -15,7 +15,7 @@
     <copyright>Copyright 2016 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
-      <dependency id="Reusable.Core" version="3.3.13" />
+      <dependency id="Reusable.Core" version="3.33.11" />
     </dependencies>
   </metadata>
   <files>
