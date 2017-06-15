@@ -16,17 +16,20 @@ namespace Reusable.Markup.Tests
     {
         private static readonly IMarkupElement HtmlBuilder = MarkupElement.Builder;
 
+        private static readonly IMarkupFormatting Formatting = new MarkupFormatting(
+            MarkupFormattingTemplate.Parse(ResourceReader.ReadEmbeddedResource<MarkupFormattingTemplateTest>("Resources.FormattingTemplate.html")));
+
         [TestMethod]
         public void ToString_001()
         {
-            var html = HtmlBuilder.Element("h1").ToHtml();
+            var html = HtmlBuilder.Element("h1").ToHtml(Formatting);
             Assert.AreEqual(Expected(), html);
         }
 
         [TestMethod]
         public void ToString_002()
         {
-            var html = HtmlBuilder.Element("h1", h1 => h1.Element("span")).ToHtml();
+            var html = HtmlBuilder.Element("h1", h1 => h1.Element("span")).ToHtml(Formatting);
             Assert.AreEqual(Expected(), html);
         }
 
@@ -45,7 +48,7 @@ namespace Reusable.Markup.Tests
                         .Append("foo ")
                         .Element("span", "qux")
                         .Append(" baz")))
-                .ToHtml();
+                .ToHtml(Formatting);
             Assert.AreEqual(Expected(), html);
         }
 
@@ -69,7 +72,7 @@ namespace Reusable.Markup.Tests
                     .Element("tfoot", tfoot => tfoot
                         .Element("tr", tr => tr
                             .Elements("td", new[] { "foo", "bar", "baz" }, (td, x) => td.Append(x)))))
-                .ToHtml();
+                .ToHtml(Formatting);
             Assert.AreEqual(Expected().Trim(), html.Trim());
         }
 
@@ -78,7 +81,7 @@ namespace Reusable.Markup.Tests
         {
             var html = HtmlBuilder
                 .Element("ul", ul => ul.Elements("li", new object[] { "foo", "bar", "baz" }, (li, x) => li.Append(x))
-            ).ToHtml();
+            ).ToHtml(Formatting);
             Assert.AreEqual(Expected().Trim(), html.Trim());
         }
 
@@ -91,7 +94,7 @@ namespace Reusable.Markup.Tests
                 HtmlBuilder
                     .Element("ul", ul => ul
                         .Elements("li", dataTable.AsEnumerable().Take(3).Select(x => x.Field<string>("value")), (li, x) => li.Append(x)))
-                .ToHtml();
+                .ToHtml(Formatting);
             Assert.AreEqual(Expected().Trim(), html.Trim());
         }
 
@@ -110,7 +113,7 @@ namespace Reusable.Markup.Tests
                         .Elements("tr", data, (tr, row) => tr
                             .Elements("td", row, (td, x) => td.Append(x)))));
             //.ToHtml();
-            Assert.AreEqual(Expected().Trim(), html.ToHtml().Trim());
+            Assert.AreEqual(Expected().Trim(), html.ToHtml(Formatting).Trim());
         }
 
         private static string Expected([CallerMemberName] string memberName = null)

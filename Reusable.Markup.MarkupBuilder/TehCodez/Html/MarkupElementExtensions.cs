@@ -3,14 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Reusable.Markup.Formatters;
 
 namespace Reusable.Markup.Html
 {
     public static class MarkupElementExtensions
     {
-        private static readonly HtmlFormatting Formatting = new HtmlFormatting();
-
-        public static string ToHtml(this IMarkupElement @this, HtmlFormatting formatting = null) => @this.ToString("html", new HtmlFormatter(new HtmlRenderer(formatting ?? Formatting)));
+        public static string ToHtml(this IMarkupElement @this, [NotNull] IMarkupFormatting formatting)
+        {
+            return @this.ToString("html", new HtmlFormatter(new HtmlRenderer(formatting)));
+        }
     }
 }

@@ -58,6 +58,9 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="JetBrains.Annotations, Version=10.4.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <HintPath>..\packages\JetBrains.Annotations.10.4.0\lib\net\JetBrains.Annotations.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -71,17 +74,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TehCodez\Formatters\HtmlFormatter.cs" />
+    <Compile Include="TehCodez\Html\Css.cs" />
     <Compile Include="TehCodez\Html\HtmlExtensions.cs" />
-    <Compile Include="TehCodez\Html\HtmlFormatting.cs" />
     <Compile Include="TehCodez\Html\HtmlRenderer.cs" />
     <Compile Include="TehCodez\Html\HtmlSanitizer.cs" />
     <Compile Include="TehCodez\Html\MarkupElementExtensions.cs" />
+    <Compile Include="TehCodez\Html\StyleVisitor.cs" />
     <Compile Include="TehCodez\ISanitizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TehCodez\MarkupElement.cs" />
     <Compile Include="TehCodez\MarkupElementExtensions.cs" />
     <Compile Include="TehCodez\MarkupFormatting.cs" />
     <Compile Include="TehCodez\MarkupFormattingOptions.cs" />
+    <Compile Include="TehCodez\MarkupFormattingTemplate.cs" />
     <Compile Include="TehCodez\MarkupRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -89,6 +94,9 @@
       <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
       <Name>Reusable.Core</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

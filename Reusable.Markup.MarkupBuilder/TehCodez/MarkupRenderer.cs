@@ -12,22 +12,22 @@ namespace Reusable.Markup
         string Render(IMarkupElement markupElement);
     }
 
-    public abstract class MarkupRenderer : IMarkupRenderer
+    public class MarkupRenderer : IMarkupRenderer
     {
         private readonly IMarkupFormatting _formatting;
         private readonly ISanitizer _sanitizer;
         private readonly IFormatProvider _formatProvider;
 
-        protected MarkupRenderer(IMarkupFormatting formatting, ISanitizer sanitizer, IFormatProvider formatProvider)
+        public MarkupRenderer(IMarkupFormatting formatting, ISanitizer sanitizer, IFormatProvider formatProvider)
         {
             _formatting = formatting ?? throw new ArgumentNullException(nameof(formatting));
             _sanitizer = sanitizer ?? throw new ArgumentNullException(nameof(sanitizer));
             _formatProvider = formatProvider ?? throw new ArgumentNullException(nameof(formatProvider));
         }
 
-        protected MarkupRenderer(IMarkupFormatting formatting, ISanitizer sanitizer)
-            : this(formatting, sanitizer, CultureInfo.InvariantCulture)
-        { }
+        //public MarkupRenderer(IMarkupFormatting formatting, ISanitizer sanitizer)
+        //    : this(formatting, sanitizer, CultureInfo.InvariantCulture)
+        //{ }
 
         #region IMarkupRenderer
 
