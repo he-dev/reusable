@@ -10,9 +10,14 @@ namespace Reusable.Markup.Html
 {
     public static class MarkupElementExtensions
     {
-        public static string ToHtml(this IMarkupElement @this, [NotNull] IMarkupFormatting formatting)
+        public static string ToHtml(this IMarkupElement element, [NotNull] IMarkupFormatting formatting)
         {
-            return @this.ToString("html", new HtmlFormatter(new HtmlRenderer(formatting)));
+            return element.ToString(HtmlFormat.Html, new HtmlFormatter(new HtmlRenderer(formatting)));
+        }
+
+        public static string ToHtml(this IMarkupElement element, [NotNull] IMarkupFormatting formatting, [NotNull, ItemNotNull] IEnumerable<IMarkupVisitor> visitors)
+        {
+            return element.ToString(HtmlFormat.Html, new HtmlFormatter(new HtmlRenderer(formatting, visitors)));
         }
     }
 }

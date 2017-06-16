@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Markup.Html;
 
-namespace Reusable.Markup.Tests
+namespace Reusable.Markup.Tests.Html
 {
     [TestClass]
     public class StyleVisitorTest

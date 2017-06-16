@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using Reusable.Extensions;
 
 namespace Reusable.Markup.Html
 {
@@ -39,8 +40,25 @@ namespace Reusable.Markup.Html
             return element;
         }
 
-        // Gets element, id and class selectors.
-        private static IEnumerable<string> GetSelectors(IMarkupElement element)
+        private IMarkupElement Element(IMarkupElement element)
+        {
+            var selectors = CreateSelectors(element).Distinct(StringComparer.OrdinalIgnoreCase);
+            var style = GetStyles(selectors);
+
+            if (string.IsNullOrEmpty(style))
+            {
+                element.Attributes.Remove("style");
+            }
+            else
+            {
+                element.Attributes.Add("style", style);
+            }
+
+            return element;
+        }
+
+        // Gets element, #id and .class selectors.
+        private static IEnumerable<string> CreateSelectors(IMarkupElement element)
         {
             yield return element.Name;
 
@@ -51,28 +69,11 @@ namespace Reusable.Markup.Html
 
             if (element.Attributes.TryGetValue("class", out var classes))
             {
-                foreach (var className in Regex.Split(classes, @"\s+").Select(className => className.Trim()))
+                foreach (var className in Regex.Split(classes, @"\s+").Select(className => className.Trim()).Where(Conditional.IsNotNullOrEmpty))
                 {
                     yield return $".{className}";
                 }
             }
-        }
-
-        private IMarkupElement Element(IMarkupElement element)
-        {
-            var selectors = GetSelectors(element).Distinct(StringComparer.OrdinalIgnoreCase);
-            var style = GetStyles(selectors);
-
-            if (string.IsNullOrEmpty(style))
-            {
-                element.Attributes.Remove("style");
-            }
-            else
-            {
-                element.Attributes["style"] = style;
-            }
-
-            return element;
         }
 
         private string GetStyles(IEnumerable<string> selectors)
@@ -96,7 +97,8 @@ namespace Reusable.Markup.Html
     //{
     //    public abstract IMarkupElement Visit(IMarkupElement element);
 
-    //    protected abstract string Element(IEnumerable<string> selectors);
+    //    protected abstract IMarkupElement Element(IMarkupElement element);
+
     //    protected abstract string Text(string text);
     //}
 

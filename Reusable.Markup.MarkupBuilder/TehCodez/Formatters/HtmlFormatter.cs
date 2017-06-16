@@ -7,6 +7,7 @@ namespace Reusable.Markup.Formatters
     {
         private readonly IMarkupRenderer _renderer;
 
+
         public HtmlFormatter(IMarkupRenderer renderer)
         {
             _renderer = renderer ?? throw new ArgumentNullException(nameof(renderer));
@@ -14,15 +15,20 @@ namespace Reusable.Markup.Formatters
 
         public override object GetFormat(Type formatType)
         {
-            return formatType == typeof(MarkupElement) ? this : null;
+            return formatType == typeof(IMarkupElement) ? this : null;
         }
 
         public override string Format(string format, object arg, IFormatProvider formatProvider)
         {
             return
-                format.Equals("html", StringComparison.OrdinalIgnoreCase) && (arg is IMarkupElement root)
+                format.Equals(HtmlFormat.Html, StringComparison.OrdinalIgnoreCase) && (arg is IMarkupElement root)
                     ? _renderer.Render(root)
-                    : base.ToString();
+                    : ToString();
         }
+    }
+
+    public static class HtmlFormat
+    {
+        public const string Html = "Html";
     }
 }
