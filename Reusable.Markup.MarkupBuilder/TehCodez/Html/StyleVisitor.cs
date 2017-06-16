@@ -13,39 +13,6 @@ namespace Reusable.Markup.Html
         IMarkupElement Visit([NotNull] IMarkupElement element);
     }
 
-    //public abstract class MarkupVisitor : IMarkupVisitor
-    //{
-    //    public abstract IMarkupElement Visit(IMarkupElement element);
-
-    //    protected abstract string Element(IEnumerable<string> selectors);
-    //    protected abstract string Text(string text);
-    //}
-
-    //public class MultiVisitor : MarkupVisitor
-    //{
-    //    private readonly IEnumerable<MarkupVisitor> _visitors;
-
-    //    public MultiVisitor(IEnumerable<MarkupVisitor> visitors)
-    //    {
-    //        _visitors = visitors;
-    //    }
-
-    //    public override IMarkupElement Visit(IMarkupElement element)
-    //    {
-    //        throw new NotImplementedException();
-    //    }
-
-    //    protected override string Element(IEnumerable<string> selectors)
-    //    {
-    //        throw new NotImplementedException();
-    //    }
-
-    //    protected override string Text(string text)
-    //    {
-    //        throw new NotImplementedException();
-    //    }
-    //}
-
     public class StyleVisitor : IMarkupVisitor
     {
         private readonly IDictionary<string, string> _styles;
@@ -59,13 +26,13 @@ namespace Reusable.Markup.Html
         {
             if (element == null) throw new ArgumentNullException(nameof(element));
 
-            element = Element(element);            
-
-            foreach (var child in element)
+            foreach (var child in Element(element))
             {
-                if (child is IMarkupElement e)
+                switch (child)
                 {
-                    Visit(e);
+                    case IMarkupElement e:
+                        Element(e);
+                        break;
                 }
             }
 
@@ -124,4 +91,37 @@ namespace Reusable.Markup.Html
             return styles.ToString();
         }
     }
+
+    //public abstract class MarkupVisitor : IMarkupVisitor
+    //{
+    //    public abstract IMarkupElement Visit(IMarkupElement element);
+
+    //    protected abstract string Element(IEnumerable<string> selectors);
+    //    protected abstract string Text(string text);
+    //}
+
+    //public class MultiVisitor : MarkupVisitor
+    //{
+    //    private readonly IEnumerable<MarkupVisitor> _visitors;
+
+    //    public MultiVisitor(IEnumerable<MarkupVisitor> visitors)
+    //    {
+    //        _visitors = visitors;
+    //    }
+
+    //    public override IMarkupElement Visit(IMarkupElement element)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+
+    //    protected override string Element(IEnumerable<string> selectors)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+
+    //    protected override string Text(string text)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+    //}
 }

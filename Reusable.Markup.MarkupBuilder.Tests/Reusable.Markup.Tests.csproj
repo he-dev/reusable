@@ -67,6 +67,8 @@
     <Compile Include="HtmlTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StyleVisitorTest.cs" />
+    <Compile Include="TehCodez\AssemblyGlobal.cs" />
+    <Compile Include="TehCodez\Html\SimpleCssParserTest.cs" />
     <Compile Include="TehCodez\MarkupFormattingTemplateTest.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -105,6 +107,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\FormattingTemplate.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\styles.css" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

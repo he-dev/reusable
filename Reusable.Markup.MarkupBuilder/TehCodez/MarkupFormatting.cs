@@ -28,6 +28,8 @@ namespace Reusable.Markup
             _options = options?.ToDictionary(x => x.Key, x => x.Value, StringComparer.OrdinalIgnoreCase) ?? throw new ArgumentNullException(nameof(options));
         }
 
+        public static  IMarkupFormatting Empty = new MarkupFormatting(new KeyValuePair<string, MarkupFormattingOptions>[0]);
+
         // This never ever changes.
         public int IndentWidth { get; set; } = 4;
 
