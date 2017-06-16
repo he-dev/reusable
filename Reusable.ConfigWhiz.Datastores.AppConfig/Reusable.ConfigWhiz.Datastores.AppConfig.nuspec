@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.ConfigWhiz.Datastores.AppConfig</id>
-    <version>3.4.0</version>
+    <version>3.40.0</version>
     <title>Reusable.ConfigWhiz.Datastores.AppConfig</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -17,8 +17,8 @@
     <dependencies>
       <dependency id="System.Collections.Immutable" version="1.3.1" />
       <dependency id="System.ValueTuple" version="4.3.1" />
-      <dependency id="Reusable.ConfigWhiz.Core" version="3.4.0" />
-      <dependency id="Reusable.Core" version="3.4.0" />
+      <dependency id="Reusable.ConfigWhiz.Core" version="3.40.0" />
+      <dependency id="Reusable.Core" version="3.40.0" />
     </dependencies>
   </metadata>
   <files>

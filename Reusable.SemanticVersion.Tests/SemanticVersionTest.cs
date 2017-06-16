@@ -86,7 +86,7 @@ namespace Reusable.Tests
         public void CompareTo_LessThen()
         {
             Assert.IsTrue(SemanticVersion.Parse("1.0.0") < SemanticVersion.Parse("2.0.0"));
-            Assert.IsTrue(SemanticVersion.Parse("1.1.0") < SemanticVersion.Parse("1.2.0"));
+            Assert.IsTrue(SemanticVersion.Parse("1.1.0") < SemanticVersion.Parse("1.22.0"));
             Assert.IsTrue(SemanticVersion.Parse("1.1.1") < SemanticVersion.Parse("1.1.2"));
         }
 
