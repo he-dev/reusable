@@ -27,6 +27,7 @@ namespace Reusable.Markup.Html
         [ItemNotNull]
         private static IEnumerable<CssRule> MatchRules(string css)
         {
+            // https://regex101.com/r/iJ8MZX/3
             return
                 Regex
                     .Matches(css.Minify(), @"(?<selectors>[a-z0-9_\-\.,\s#]+)\s*{(?<declarations>.+?)}", RegexOptions.IgnoreCase)

@@ -35,5 +35,31 @@ namespace Reusable.Markup.Tests.Html
 
             Assert.AreEqual(@"<p>foo <span class=""qux"" style=""font-family: sans-serif;"">bar</span> baz</p>", html.ToHtml(Formatting));
         }
+
+        [TestMethod]
+        public void Visit_Table_Applied()
+        {
+            var table = Html.Element("table").Class("foo");
+
+            var tbody = Html.Element("tbody");
+            var tr = Html.Element("tr");
+
+            tr.Element("td", td => td.Class("bar").Append("baz1"));
+            tr.Element("td", td => td.Class("bar").Append("baz2"));
+            
+            table.Add(tbody);
+            tbody.Add(tr);            
+
+            var styleVisitor = new StyleVisitor(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [".foo"] = "font-family: sans-serif;",
+                [".bar"] = "font-family: consolas;"
+            });
+
+            table = styleVisitor.Visit(table);
+            var result = table.ToHtml(Formatting);
+
+            Assert.AreEqual(@"<p>foo <span class=""qux"" style=""font-family: sans-serif;"">bar</span> baz</p>", result);
+        }
     }
 }

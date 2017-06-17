@@ -32,7 +32,8 @@ namespace Reusable.Markup.Html
                 switch (child)
                 {
                     case IMarkupElement e:
-                        Element(e);
+                        //Element(e);
+                        Visit(e);
                         break;
                 }
             }
@@ -45,11 +46,9 @@ namespace Reusable.Markup.Html
             var selectors = CreateSelectors(element).Distinct(StringComparer.OrdinalIgnoreCase);
             var style = GetStyles(selectors);
 
-            if (string.IsNullOrEmpty(style))
-            {
-                element.Attributes.Remove("style");
-            }
-            else
+            element.Attributes.Remove("style");
+
+            if (!string.IsNullOrEmpty(style))
             {
                 element.Attributes.Add("style", style);
             }
