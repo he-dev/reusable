@@ -20,7 +20,9 @@ namespace Reusable.Markup.Html
         public Css Parse(string css)
         {
             if (css == null) throw new ArgumentNullException(nameof(css));
-            return new Css(MatchRules(css));
+
+            var cssRules = MatchRules(css);
+            return new Css(cssRules);
         }
 
         [NotNull]
@@ -29,12 +31,15 @@ namespace Reusable.Markup.Html
         {
             // https://regex101.com/r/iJ8MZX/3
             return
-                Regex
+                from m in Regex
                     .Matches(css.Minify(), @"(?<selectors>[a-z0-9_\-\.,\s#]+)\s*{(?<declarations>.+?)}", RegexOptions.IgnoreCase)
                     .Cast<Match>()
-                    .Select(m => new CssRule(
-                            selectors: SplitSelectors(m.Groups["selectors"].Value),
-                            declarations: m.Groups["declarations"].Value.Trim()));
+                from selector in SplitSelectors(m.Groups["selectors"].Value)
+                select new CssRule
+                {
+                    Selector = selector,
+                    Declarations = m.Groups["declarations"].Value.Trim()
+                };
         }
 
         [NotNull]
@@ -52,27 +57,10 @@ namespace Reusable.Markup.Html
     [PublicAPI]
     public class CssRule
     {
-        private ISet<string> _selectors = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        public CssRule() { }
-
-        public CssRule([NotNull] IEnumerable<string> selectors, [NotNull] string declarations)
-        {
-            if (selectors == null) throw new ArgumentNullException(nameof(selectors));
-
-            Selectors = new HashSet<string>(selectors, StringComparer.OrdinalIgnoreCase);
-            Declarations = declarations ?? throw new ArgumentNullException(nameof(declarations));
-        }
+        [NotNull]
+        public string Selector { get; set; }
 
         [NotNull]
-        [ItemNotNull]
-        public ISet<string> Selectors
-        {
-            get => _selectors;
-            set => _selectors = value ?? throw new ArgumentNullException(nameof(Selectors));
-        }
-
-        [CanBeNull]
         public string Declarations { get; set; }
     }
 
@@ -98,16 +86,6 @@ namespace Reusable.Markup.Html
         public IEnumerator<CssRule> GetEnumerator() => _cssRules.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        public static implicit operator Dictionary<string, string>(Css css)
-        {
-            return
-                css
-                    .SelectMany(rule => rule
-                        .Selectors
-                        .Select(selector => new KeyValuePair<string, string>(selector, rule.Declarations)))
-                    .ToDictionary(x => x.Key, x => x.Value);
-        }
     }
 
     internal static class StringExtensions

@@ -79,7 +79,7 @@
     <Compile Include="TehCodez\Html\HtmlRenderer.cs" />
     <Compile Include="TehCodez\Html\HtmlSanitizer.cs" />
     <Compile Include="TehCodez\Html\MarkupElementExtensions.cs" />
-    <Compile Include="TehCodez\Html\StyleVisitor.cs" />
+    <Compile Include="TehCodez\Html\CssInliner.cs" />
     <Compile Include="TehCodez\ISanitizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TehCodez\MarkupElement.cs" />

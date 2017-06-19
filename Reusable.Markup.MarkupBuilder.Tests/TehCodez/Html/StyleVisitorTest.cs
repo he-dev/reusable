@@ -24,16 +24,13 @@ namespace Reusable.Markup.Tests.Html
                         .Append("bar"))
                     .Append(" baz"));
 
-            Assert.AreEqual(@"<p>foo <span class=""qux"">bar</span> baz</p>", html.ToHtml(Formatting));
+            Assert.AreEqual(@"<p>foo <span class=""qux"">bar</span> baz</p>", html.ToHtml(MarkupFormatting.Empty));            
 
-            var styleVisitor = new StyleVisitor(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-            {
-                [".qux"] = "font-family: sans-serif;"
-            });
+            var cssRules = new[] {new CssRule {Selector = ".qux", Declarations = "font-family: sans-serif;"}};
 
-            html = styleVisitor.Visit(html);
+            html = new CssInliner().Inline(cssRules, html);
 
-            Assert.AreEqual(@"<p>foo <span class=""qux"" style=""font-family: sans-serif;"">bar</span> baz</p>", html.ToHtml(Formatting));
+            Assert.AreEqual(@"<p>foo <span class=""qux"" style=""font-family: sans-serif;"">bar</span> baz</p>", html.ToHtml(MarkupFormatting.Empty));
         }
 
         [TestMethod]
@@ -44,22 +41,27 @@ namespace Reusable.Markup.Tests.Html
             var tbody = Html.Element("tbody");
             var tr = Html.Element("tr");
 
-            tr.Element("td", td => td.Class("bar").Append("baz1"));
+            tr.Element("td", td => td.Class("bar foo").Append("baz1"));
             tr.Element("td", td => td.Class("bar").Append("baz2"));
             
             table.Add(tbody);
             tbody.Add(tr);            
 
-            var styleVisitor = new StyleVisitor(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            var cssRules = new[]
             {
-                [".foo"] = "font-family: sans-serif;",
-                [".bar"] = "font-family: consolas;"
-            });
+                new CssRule { Selector = ".foo", Declarations = "font-family: sans-serif;" },
+                new CssRule { Selector = ".bar", Declarations = "font-family: consolas;" }
+            };
 
-            table = styleVisitor.Visit(table);
-            var result = table.ToHtml(Formatting);
+            table = new CssInliner().Inline(cssRules, table);
+
+            var result = table.ToHtml(MarkupFormatting.Empty);
 
             Assert.AreEqual(@"<p>foo <span class=""qux"" style=""font-family: sans-serif;"">bar</span> baz</p>", result);
+            /*
+             <table class="foo" style="font-family: sans-serif;"><tbody><tr><td class="bar foo" style="font-family: sans-serif;font-family: consolas;">baz1</td><td class="bar" style="font-family: consolas;">baz2</td></tr></tbody></table>
+             
+             */
         }
     }
 }

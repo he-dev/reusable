@@ -8,32 +8,37 @@ using Reusable.Extensions;
 
 namespace Reusable.Markup.Html
 {
-    public interface IMarkupVisitor
+    //public interface IMarkupModifier
+    //{
+    //    [NotNull]
+    //    IMarkupElement Apply([NotNull] IMarkupElement element);
+    //}
+
+    public interface ICssInliner
     {
         [NotNull]
-        IMarkupElement Visit([NotNull] IMarkupElement element);
+        IMarkupElement Inline([NotNull] IEnumerable<CssRule> cssRules, [NotNull] IMarkupElement element);
     }
 
-    public class StyleVisitor : IMarkupVisitor
+    public class CssInliner // : IMarkupModifier
     {
-        private readonly IDictionary<string, string> _styles;
+        //private readonly IDictionary<string, string> _styles;
 
-        public StyleVisitor([NotNull] IDictionary<string, string> styles)
-        {
-            _styles = styles ?? throw new ArgumentNullException(nameof(styles));
-        }
+        //public CssInliner()
+        //{
+        //    //_styles = styles ?? throw new ArgumentNullException(nameof(styles));
+        //}
 
-        public IMarkupElement Visit(IMarkupElement element)
+        public IMarkupElement Inline(IEnumerable<CssRule> cssRules, IMarkupElement element)
         {
             if (element == null) throw new ArgumentNullException(nameof(element));
 
-            foreach (var child in Element(element))
+            foreach (var child in Element(cssRules, element))
             {
                 switch (child)
                 {
                     case IMarkupElement e:
-                        //Element(e);
-                        Visit(e);
+                        Inline(cssRules, e);
                         break;
                 }
             }
@@ -41,10 +46,11 @@ namespace Reusable.Markup.Html
             return element;
         }
 
-        private IMarkupElement Element(IMarkupElement element)
+        private IMarkupElement Element(IEnumerable<CssRule> cssRules, IMarkupElement element)
         {
             var selectors = CreateSelectors(element).Distinct(StringComparer.OrdinalIgnoreCase);
-            var style = GetStyles(selectors);
+            var currentCssRules = FindCssRules(cssRules, selectors);
+            var style = ConcatenateCssRules(currentCssRules);
 
             element.Attributes.Remove("style");
 
@@ -75,18 +81,24 @@ namespace Reusable.Markup.Html
             }
         }
 
-        private string GetStyles(IEnumerable<string> selectors)
+        private IEnumerable<CssRule> FindCssRules(IEnumerable<CssRule> cssRules, IEnumerable<string> selectors)
+        {
+            return
+                from cssRule in cssRules
+                where selectors.Contains(cssRule.Selector, StringComparer.OrdinalIgnoreCase)
+                select cssRule;
+        }
+
+        private static string ConcatenateCssRules(IEnumerable<CssRule> cssRules)
         {
             var styles = new StringBuilder();
-            foreach (var selector in selectors)
+
+            foreach (var cssRule in cssRules)
             {
-                if (_styles.TryGetValue(selector, out var style))
-                {
-                    // Fix the ";" but trim it first in case there is already one to avoid an "if".
-                    styles
-                        .Append(style.Trim().TrimEnd(';'))
-                        .Append(";");
-                }
+                // Fix the ";" but trim it first in case there is already one to avoid an "if".
+                styles
+                    .Append(cssRule.Declarations.Trim().TrimEnd(';'))
+                    .Append(";");
             }
             return styles.ToString();
         }

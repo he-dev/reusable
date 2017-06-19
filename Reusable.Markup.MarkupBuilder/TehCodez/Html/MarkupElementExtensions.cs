@@ -16,10 +16,10 @@ namespace Reusable.Markup.Html
             return element.ToString(HtmlFormat.Html, new HtmlFormatter(new HtmlRenderer(formatting)));
         }
 
-        public static string ToHtml(this IMarkupElement element, [NotNull] IMarkupFormatting formatting, [NotNull, ItemNotNull] IEnumerable<IMarkupVisitor> visitors)
-        {
-            return element.ToString(HtmlFormat.Html, new HtmlFormatter(new HtmlRenderer(formatting, visitors)));
-        }
+        //public static string ToHtml(this IMarkupElement element, [NotNull] IMarkupFormatting formatting, [NotNull, ItemNotNull] IEnumerable<IMarkupModifier> visitors)
+        //{
+        //    return element.ToString(HtmlFormat.Html, new HtmlFormatter(new HtmlRenderer(formatting, visitors)));
+        //}
 
         public static IMarkupElement Class(this IMarkupElement element, params string[] names)
         {
