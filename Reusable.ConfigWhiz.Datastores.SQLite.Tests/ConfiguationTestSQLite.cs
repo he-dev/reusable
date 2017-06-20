@@ -65,8 +65,11 @@ namespace Reusable.ConfigWhiz.Datastores.Tests
                     command.Transaction = transaction;
                     try
                     {
-                        command.CommandText = ResourceReader.ReadEmbeddedResource<ConfiguationTestSQLite>("Resources.Truncate Setting tables.sql");
+                        command.CommandText = ResourceReader.ReadEmbeddedResource<ConfiguationTestSQLite>("Resources.Create Setting tables.sql");
                         command.ExecuteNonQuery();
+
+                        //command.CommandText = ResourceReader.ReadEmbeddedResource<ConfiguationTestSQLite>("Resources.Truncate Setting tables.sql");
+                        //command.ExecuteNonQuery();
 
                         // Insert test data.
                         InsertSetting3(command, environment, version);
