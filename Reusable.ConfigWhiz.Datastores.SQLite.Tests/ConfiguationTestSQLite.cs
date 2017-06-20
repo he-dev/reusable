@@ -65,11 +65,8 @@ namespace Reusable.ConfigWhiz.Datastores.Tests
                     command.Transaction = transaction;
                     try
                     {
-                        command.CommandText = ResourceReader.ReadEmbeddedResource<ConfiguationTestSQLite>("Resources.CreateSettingTables.sql");
+                        command.CommandText = ResourceReader.ReadEmbeddedResource<ConfiguationTestSQLite>("Resources.Truncate Setting tables.sql");
                         command.ExecuteNonQuery();
-
-                        //command.CommandText = ResourceReader.ReadEmbeddedResource<ConfigurationTest>("Resources.TruncateSettingTables.sql");
-                        //command.ExecuteNonQuery();
 
                         // Insert test data.
                         InsertSetting3(command, environment, version);
@@ -86,7 +83,7 @@ namespace Reusable.ConfigWhiz.Datastores.Tests
 
             private static void InsertSetting3(SQLiteCommand command, string environment, string version)
             {
-                command.CommandText = ResourceReader.ReadEmbeddedResource<ConfiguationTestSQLite>("Resources.InsertSetting3.sql");
+                command.CommandText = ResourceReader.ReadEmbeddedResource<ConfiguationTestSQLite>("Resources.Insert Setting3.sql");
                 command.Parameters.Clear();
                 command.Parameters.Add("@Name", DbType.String, 200);
                 command.Parameters.Add("@Value", DbType.String, -1);

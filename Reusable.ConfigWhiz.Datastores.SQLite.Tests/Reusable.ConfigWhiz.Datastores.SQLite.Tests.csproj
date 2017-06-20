@@ -98,10 +98,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\CreateSettingTables.sql" />
-    <EmbeddedResource Include="Resources\InsertSetting1.sql" />
-    <EmbeddedResource Include="Resources\InsertSetting3.sql" />
-    <EmbeddedResource Include="Resources\TruncateSettingTables.sql" />
+    <EmbeddedResource Include="Resources\Create Setting tables.sql" />
+    <EmbeddedResource Include="Resources\Insert Setting1.sql" />
+    <EmbeddedResource Include="Resources\Insert Setting3.sql" />
+    <EmbeddedResource Include="Resources\Truncate Setting tables.sql" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -10,8 +10,51 @@ using Reusable.Extensions;
 
 namespace Reusable
 {
+    [PublicAPI]
     public static class ResourceReader
     {
+        [CanBeNull]
+        [ContractAnnotation("name:null => halt")]
+        public static string ReadEmbeddedResource([NotNull] string name, [NotNull] Assembly assembly)
+        {
+            if (assembly == null) throw new ArgumentNullException(nameof(assembly));
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
+
+            using (var resourceStream = assembly.GetManifestResourceStream(name))
+            {
+                if (resourceStream == null) return null;
+                using (var streamReader = new StreamReader(resourceStream))
+                {
+                    return streamReader.ReadToEnd();
+                }
+            }
+        }
+
+        [CanBeNull]
+        [ContractAnnotation("namespaceProvider:null => halt; name:null => halt")]
+        public static string ReadEmbeddedResource([NotNull] string name, [NotNull] Type namespaceProvider)
+        {
+            if (namespaceProvider == null) throw new ArgumentNullException(nameof(namespaceProvider));
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
+
+            return ReadEmbeddedResource($"{namespaceProvider.Namespace}.{name}", Assembly.GetAssembly(namespaceProvider));
+        }
+
+
+        [CanBeNull]
+        [ContractAnnotation("name:null => halt")]
+        public static string ReadEmbeddedResource<TNamespaceProvider>([NotNull] string name)
+        {
+            return ReadEmbeddedResource(name, typeof(TNamespaceProvider));
+        }
+
+        [CanBeNull]
+        [ContractAnnotation("name:null => halt")]
+        public static string ReadEmbeddedResource([NotNull] string name)
+        {
+            return ReadEmbeddedResource(name, Assembly.GetCallingAssembly());
+        }
+
         [NotNull]
         [ItemNotNull]
         [ContractAnnotation("null => halt")]
@@ -22,7 +65,7 @@ namespace Reusable
             return
                 GetEmbededResourceNames<TNamespaceProvider>()
                     .Where(predicate)
-                    .Select(name => ReadEmbeddedResource(typeof(TNamespaceProvider), name))
+                    .Select(name => ReadEmbeddedResource(name, typeof(TNamespaceProvider)))
                     .Where(Conditional.IsNotNullOrEmpty);
         }
 
@@ -32,31 +75,6 @@ namespace Reusable
         {
             var assembly = Assembly.GetAssembly(typeof(TNamespaceProvider));
             return assembly.GetManifestResourceNames();
-        }
-
-        [CanBeNull]
-        [ContractAnnotation("name:null => halt")]
-        public static string ReadEmbeddedResource<TNamespaceProvider>([NotNull] string name)
-        {
-            return ReadEmbeddedResource(typeof(TNamespaceProvider), name.NullIfEmpty() ?? throw new ArgumentNullException(nameof(name)));
-        }
-
-        [CanBeNull]
-        [ContractAnnotation("namespaceProvider:null => halt; name:null => halt")]
-        public static string ReadEmbeddedResource([NotNull] Type namespaceProvider, [NotNull] string name)
-        {
-            if (namespaceProvider == null) throw new ArgumentNullException(nameof(namespaceProvider));
-            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
-
-            var assembly = Assembly.GetAssembly(namespaceProvider);
-            using (var resourceStream = assembly.GetManifestResourceStream($"{namespaceProvider.Namespace}.{name}"))
-            {
-                if (resourceStream == null) return null;
-                using (var streamReader = new StreamReader(resourceStream))
-                {
-                    return streamReader.ReadToEnd();
-                }
-            }
         }
     }
 }

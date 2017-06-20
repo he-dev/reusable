@@ -8,27 +8,14 @@ using Reusable.Extensions;
 
 namespace Reusable.Markup.Html
 {
-    //public interface IMarkupModifier
-    //{
-    //    [NotNull]
-    //    IMarkupElement Apply([NotNull] IMarkupElement element);
-    //}
-
     public interface ICssInliner
     {
         [NotNull]
         IMarkupElement Inline([NotNull] IEnumerable<CssRule> cssRules, [NotNull] IMarkupElement element);
     }
 
-    public class CssInliner // : IMarkupModifier
+    public class CssInliner 
     {
-        //private readonly IDictionary<string, string> _styles;
-
-        //public CssInliner()
-        //{
-        //    //_styles = styles ?? throw new ArgumentNullException(nameof(styles));
-        //}
-
         public IMarkupElement Inline(IEnumerable<CssRule> cssRules, IMarkupElement element)
         {
             if (element == null) throw new ArgumentNullException(nameof(element));
@@ -91,50 +78,7 @@ namespace Reusable.Markup.Html
 
         private static string ConcatenateCssRules(IEnumerable<CssRule> cssRules)
         {
-            var styles = new StringBuilder();
-
-            foreach (var cssRule in cssRules)
-            {
-                // Fix the ";" but trim it first in case there is already one to avoid an "if".
-                styles
-                    .Append(cssRule.Declarations.Trim().TrimEnd(';'))
-                    .Append(";");
-            }
-            return styles.ToString();
+            return string.Join(" ", cssRules.Select(cssRule => $"{cssRule.Declarations.Trim().TrimEnd(';')};"));
         }
-    }
-
-    //public abstract class MarkupVisitor : IMarkupVisitor
-    //{
-    //    public abstract IMarkupElement Visit(IMarkupElement element);
-
-    //    protected abstract IMarkupElement Element(IMarkupElement element);
-
-    //    protected abstract string Text(string text);
-    //}
-
-    //public class MultiVisitor : MarkupVisitor
-    //{
-    //    private readonly IEnumerable<MarkupVisitor> _visitors;
-
-    //    public MultiVisitor(IEnumerable<MarkupVisitor> visitors)
-    //    {
-    //        _visitors = visitors;
-    //    }
-
-    //    public override IMarkupElement Visit(IMarkupElement element)
-    //    {
-    //        throw new NotImplementedException();
-    //    }
-
-    //    protected override string Element(IEnumerable<string> selectors)
-    //    {
-    //        throw new NotImplementedException();
-    //    }
-
-    //    protected override string Text(string text)
-    //    {
-    //        throw new NotImplementedException();
-    //    }
-    //}
+    }    
 }

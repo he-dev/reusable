@@ -82,11 +82,11 @@ namespace Reusable.ConfigWhiz.Datastores.Tests
                     sqlCommand.Transaction = transaction;
                     try
                     {
-                        sqlCommand.CommandText = ResourceReader.ReadEmbeddedResource<ConfigurationTestSqlServer>("Resources.Create Setting tables.sql");
-                        sqlCommand.ExecuteNonQuery();
-
                         sqlCommand.CommandText = ResourceReader.ReadEmbeddedResource<ConfigurationTestSqlServer>("Resources.Truncate Setting tables.sql");
                         sqlCommand.ExecuteNonQuery();
+
+                        //sqlCommand.CommandText = ResourceReader.ReadEmbeddedResource<ConfigurationTestSqlServer>("Insert Setting3.sql");
+                        //sqlCommand.ExecuteNonQuery();
 
                         // Insert test data.
                         //InsertSetting1(sqlCommand);

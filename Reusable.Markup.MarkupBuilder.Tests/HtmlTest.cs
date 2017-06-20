@@ -17,7 +17,7 @@ namespace Reusable.Markup.Tests
         private static readonly IMarkupElement HtmlBuilder = MarkupElement.Builder;
 
         private static readonly IMarkupFormatting Formatting = new MarkupFormatting(
-            MarkupFormattingTemplate.Parse(ResourceReader.ReadEmbeddedResource<MarkupFormattingTemplateTest>("Resources.FormattingTemplate.html")));
+            MarkupFormattingTemplate.Parse(ResourceReader.ReadEmbeddedResource("Reusable.Markup.Tests.Resources.FormattingTemplate.html")));
 
         [TestMethod]
         public void ToString_001()
@@ -118,7 +118,7 @@ namespace Reusable.Markup.Tests
 
         private static string Expected([CallerMemberName] string memberName = null)
         {
-            return ResourceReader.ReadEmbeddedResource<HtmlTest>($@"Resources.{memberName}.html");
+            return ResourceReader.ReadEmbeddedResource<HtmlTest>(memberName);
         }
     }
 }

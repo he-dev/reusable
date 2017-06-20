@@ -11,7 +11,7 @@ namespace Reusable.Markup.Tests.Html
         [TestMethod]
         public void Parse_Styles_Styles()
         {
-            var css = new SimpleCssParser().Parse(ResourceReader.ReadEmbeddedResource<AssemblyGlobal>("Resources.styles.css"));
+            var css = new SimpleCssParser().Parse(ResourceReader.ReadEmbeddedResource("Reusable.Markup.Tests.Resources.styles.css"));
             Assert.AreEqual(4, css.Count());            
         }
     }

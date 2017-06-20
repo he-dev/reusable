@@ -10,7 +10,7 @@ namespace Reusable.Markup.Tests
         [TestMethod]
         public void Parse_FormattingTemplate_Options()
         {
-            var template = ResourceReader.ReadEmbeddedResource<MarkupFormattingTemplateTest>("Resources.FormattingTemplate.html");
+            var template = ResourceReader.ReadEmbeddedResource<MarkupFormattingTemplateTest>("Reusable.Markup.Tests.Resources.FormattingTemplate.html");
 
             Assert.IsNotNull(template);
 

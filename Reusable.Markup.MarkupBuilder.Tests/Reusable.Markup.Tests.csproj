@@ -66,7 +66,7 @@
   <ItemGroup>
     <Compile Include="HtmlTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TehCodez\Html\StyleVisitorTest.cs" />
+    <Compile Include="TehCodez\Html\CssInlinerTest.cs" />
     <Compile Include="TehCodez\AssemblyGlobal.cs" />
     <Compile Include="TehCodez\Html\SimpleCssParserTest.cs" />
     <Compile Include="TehCodez\MarkupFormattingTemplateTest.cs" />
@@ -110,6 +110,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\styles.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\CssInliner_Inline_TableStyles.html" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
