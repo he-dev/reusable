@@ -5,10 +5,11 @@ using System.Globalization;
 using System.Linq;
 using Reusable.ConfigWhiz.Converters;
 using Reusable.ConfigWhiz.Data;
+using Reusable.ConfigWhiz.Paths;
 using Reusable.Extensions;
 using Reusable.TypeConversion;
 
-namespace Reusable.ConfigWhiz
+namespace Reusable.ConfigWhiz.IO
 {
     internal class SettingWriter
     {
@@ -27,7 +28,7 @@ namespace Reusable.ConfigWhiz
         public int Write(IDatastore datastore)
         {
             var data = Serialize(datastore);
-            var group = new SettingGroup(Setting.Path, data);
+            var group = new SettingGroup(Setting.Identifier, data);
             return datastore.Write(group);
         }
 
@@ -44,13 +45,14 @@ namespace Reusable.ConfigWhiz
                 var items = (IDictionary)Convert(Itemizer, typeof(Dictionary<object, object>));
                 var settings = items.Keys.Cast<object>().Select(key => new Setting
                 {
-                    Path = new SettingPath(
-                        Setting.Path.ConsumerNamespace,
-                        Setting.Path.ConsumerName,
-                        Setting.Path.InstanceName,
-                        Setting.Path.ContainerName,
-                        Setting.Path.SettingName,
-                        elementName: (string)Converter.Convert(key, typeof(string))),
+                    Identifier = new Identifier(
+                        Setting.Identifier.Context,
+                        Setting.Identifier.Consumer,
+                        Setting.Identifier.Instance,
+                        Setting.Identifier.Container,
+                        Setting.Identifier.Setting,
+                        element: (string)Converter.Convert(key, typeof(string)),
+                        length: Setting.Identifier.Length),
                     Value = Converter.Convert(items[key], storeType)
                 })
                 .Cast<ISetting>().ToList();
@@ -65,7 +67,7 @@ namespace Reusable.ConfigWhiz
                 {
                     new Setting
                     {
-                        Path = Setting.Path,
+                        Identifier = Setting.Identifier,
                         Value = value
                     }
                 };

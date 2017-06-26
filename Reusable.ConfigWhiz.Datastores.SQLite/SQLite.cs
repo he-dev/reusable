@@ -6,6 +6,7 @@ using System.Data.SQLite;
 using System.Linq;
 using System.Text;
 using Reusable.ConfigWhiz.Data;
+using Reusable.ConfigWhiz.Paths;
 using Reusable.Data;
 using Reusable.Extensions;
 
@@ -61,10 +62,10 @@ namespace Reusable.ConfigWhiz.Datastores
             set => _settingEncoding = value ?? throw new ArgumentNullException(nameof(SettingEncoding));
         }
 
-        protected override ICollection<ISetting> ReadCore(SettingPath settingPath)
+        protected override ICollection<ISetting> ReadCore(SettingIdentifier settingIdentifier)
         {
             using (var connection = OpenConnection())
-            using (var command = _settingCommandFactory.CreateSelectCommand(connection, settingPath, _where))
+            using (var command = _settingCommandFactory.CreateSelectCommand(connection, settingIdentifier, _where))
             {
                 command.Prepare();
 
@@ -77,7 +78,7 @@ namespace Reusable.ConfigWhiz.Datastores
 
                         var setting = new Setting
                         {
-                            Path = SettingPath.Parse((string)settingReader[SettingProperty.Name]),
+                            Identifier = SettingIdentifier.Parse((string)settingReader[SettingProperty.Name]),
                             Value = RecodeDataEnabled ? value.Recode(DataEncoding, SettingEncoding) : value
                         };
                         settings.Add(setting);
@@ -87,7 +88,7 @@ namespace Reusable.ConfigWhiz.Datastores
             }
         }
 
-        protected override int WriteCore(IGrouping<SettingPath, ISetting> settings)
+        protected override int WriteCore(IGrouping<SettingIdentifier, ISetting> settings)
         {
             var rowsAffected = 0;
 
@@ -110,7 +111,7 @@ namespace Reusable.ConfigWhiz.Datastores
                         setting.Value = ((string)setting.Value).Recode(SettingEncoding, DataEncoding);
                     }
 
-                    using (var insertCommand = _settingCommandFactory.CreateInsertCommand(connection, setting.Path, setting.Value, _where))
+                    using (var insertCommand = _settingCommandFactory.CreateInsertCommand(connection, setting.Identifier, setting.Value, _where))
                     {
                         insertCommand.Transaction = transaction;
                         insertCommand.Prepare();

@@ -3,33 +3,24 @@ using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
 using Reusable.ConfigWhiz.Data;
+using Reusable.ConfigWhiz.Paths;
 
-namespace Reusable.ConfigWhiz.Core.Tests.Data
+namespace Reusable.ConfigWhiz.Tests.Common
 {
     public class SettingFactory
     {
-        public static IEnumerable<ISetting> ReadSettings<T>()
+        public static IEnumerable<ISetting> ReadSettings()
         {
             var json = ResourceReader.ReadEmbeddedResource<SettingFactory>("Settings.json");
-            var testData = JsonConvert.DeserializeObject<TestData>(json);
+            var testData = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
             var settings =
-                from property in typeof(TestData).GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                from s in property.GetValue(testData) as Dictionary<string, string>
+                from item in testData
                 select new Setting
                 {
-                    Path = SettingPath.Parse($"{typeof(T).Namespace}.{typeof(T).Name}.{property.Name}.{s.Key}"),
-                    Value = s.Value
+                    Identifier = Identifier.Parse(item.Key), //$"{typeof(T).Namespace}.{typeof(T).Name}.{property.Name}.{s.Key}"),
+                    Value = item.Value
                 };
             return settings;
-        }
-
-        private class TestData
-        {
-            public Dictionary<string, string> Numeric { get; set; }
-            public Dictionary<string, string> Literal { get; set; }
-            public Dictionary<string, string> Other { get; set; }
-            public Dictionary<string, string> Paint { get; set; }
-            public Dictionary<string, string> Collection { get; set; }
         }
     }
 }

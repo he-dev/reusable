@@ -8,6 +8,9 @@ using System.Linq;
 using System.Reflection;
 using Reusable.ConfigWhiz.Data;
 using Reusable.ConfigWhiz.Data.Annotations;
+using Reusable.ConfigWhiz.Extensions;
+using Reusable.ConfigWhiz.IO;
+using Reusable.ConfigWhiz.Paths;
 using Reusable.Data.Annotations;
 using Reusable.Extensions;
 using TypeConverter = Reusable.TypeConversion.TypeConverter;
@@ -16,39 +19,39 @@ namespace Reusable.ConfigWhiz
 {
     public class SettingProxy
     {
-        private readonly ContainerPath _containerPath;
+        private readonly Identifier _containerIdentifier;
         private readonly object _container;
-        private readonly PropertyInfo _property;
+        private readonly PropertyInfo _settingProperty;
 
         private readonly SettingReader _reader;
         private readonly SettingWriter _writer;
 
-        public SettingProxy(object container, ContainerPath containerPath, PropertyInfo property, IImmutableList<IDatastore> stores, TypeConverter converter)
+        public SettingProxy(Identifier containerIdentifier, object container, PropertyInfo settingProperty, IImmutableList<IDatastore> stores, TypeConverter converter)
         {
             _container = container;
-            _containerPath = containerPath;
-            _property = property;
+            _containerIdentifier = containerIdentifier;
+            _settingProperty = settingProperty;
 
             _reader = new SettingReader(this, converter, stores);
             _writer = new SettingWriter(this, converter);
 
-            DefaultDatastore = stores.SingleOrDefault(s => s.Equals(_property.GetCustomAttribute<DefaultDatastoreAttribute>()?.ToString()));
+            DefaultDatastore = stores.SingleOrDefault(s => s.Equals(_settingProperty.GetCustomAttribute<DefaultDatastoreAttribute>()?.ToString()));
             FallbackDatastore = stores.SingleOrDefault(s => s.Equals(
-                _property.GetCustomAttribute<FallbackDatastoreAttribute>()?.ToString() ??
-                _property.DeclaringType.GetCustomAttribute<FallbackDatastoreAttribute>()?.ToString()));
+                _settingProperty.GetCustomAttribute<FallbackDatastoreAttribute>()?.ToString() ??
+                _settingProperty.DeclaringType.GetCustomAttribute<FallbackDatastoreAttribute>()?.ToString()));
         }
 
-        public IEnumerable<ValidationAttribute> Validations => _property.GetCustomAttributes<ValidationAttribute>();
+        public IEnumerable<ValidationAttribute> Validations => _settingProperty.GetCustomAttributes<ValidationAttribute>();
 
-        public bool IsItemized => _property.GetCustomAttribute<ItemizedAttribute>().IsNotNull();
+        public bool IsItemized => _settingProperty.GetCustomAttribute<ItemizedAttribute>().IsNotNull();
 
-        public FormatAttribute Format => _property.GetCustomAttribute<FormatAttribute>();
+        public FormatAttribute Format => _settingProperty.GetCustomAttribute<FormatAttribute>();
 
-        public Type Type => _property.PropertyType;
+        public Type Type => _settingProperty.PropertyType;
 
-        public SettingPath Path => SettingPath.Create(_containerPath, _property, string.Empty);
+        public Identifier Identifier => Identifier.From(_containerIdentifier, _settingProperty.GetCustomNameOrDefault());
 
-        public bool ReadOnly => _property.GetCustomAttribute<ReadOnlyAttribute>().IsNotNull();
+        public bool ReadOnly => _settingProperty.GetCustomAttribute<ReadOnlyAttribute>().IsNotNull();
 
         public IDatastore DefaultDatastore { get; }
 
@@ -56,8 +59,8 @@ namespace Reusable.ConfigWhiz
 
         internal object Value
         {
-            get => _property.GetValue(_container);
-            set => _property.SetValue(_container, value);
+            get => _settingProperty.GetValue(_container);
+            set => _settingProperty.SetValue(_container, value);
         }
 
         public void Load()
@@ -71,9 +74,9 @@ namespace Reusable.ConfigWhiz
         }
     }
 
-    internal class SettingGroup : List<ISetting>, IGrouping<SettingPath, ISetting>
+    internal class SettingGroup : List<ISetting>, IGrouping<Identifier, ISetting>
     {
-        public SettingGroup(SettingPath key, IEnumerable<ISetting> settings) : base(settings) => Key = key;
-        public SettingPath Key { get; }
+        public SettingGroup(Identifier key, IEnumerable<ISetting> settings) : base(settings) => Key = key;
+        public Identifier Key { get; }
     }
 }

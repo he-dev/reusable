@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Reusable.ConfigWhiz.Data;
+using Reusable.ConfigWhiz.Paths;
 
 namespace Reusable.ConfigWhiz.Datastores
 {
@@ -19,22 +20,22 @@ namespace Reusable.ConfigWhiz.Datastores
             : base(name, supportedTypes)
         { }
 
-        protected override ICollection<ISetting> ReadCore(SettingPath settingPath)
+        protected override ICollection<ISetting> ReadCore(Identifier identifier)
         {
-            var name = settingPath.ToFullWeakString();
+            var name = identifier.ToString();
             var settings =
                 (from x in Data
-                 where x.Path.ToFullWeakString().Equals(name, StringComparison.OrdinalIgnoreCase)
+                 where x.Identifier.ToString().StartsWith(name, StringComparison.OrdinalIgnoreCase)
                  select x).ToList();
             return settings;
         }
 
-        protected override int WriteCore(IGrouping<SettingPath, ISetting> settings)
+        protected override int WriteCore(IGrouping<Identifier, ISetting> settings)
         {
-            var name = settings.Key.ToString(SettingPathFormat.FullWeak, SettingPathFormatter.Instance);
+            var name = settings.Key.ToString(); //($".{IdentifierLength}" IdentifierFormat.FullWeak, IdentifierFormatter.Instance);
             var obsoleteSettings =
                 (from x in Data
-                 where x.Path.ToString(SettingPathFormat.FullWeak, SettingPathFormatter.Instance).Equals(name, StringComparison.OrdinalIgnoreCase)
+                 where x.Identifier.ToString().StartsWith(name, StringComparison.OrdinalIgnoreCase)
                  select x).ToList();
             obsoleteSettings.ForEach(x => Data.Remove(x));
 
@@ -51,7 +52,7 @@ namespace Reusable.ConfigWhiz.Datastores
 
         public void Add(string name, object value) => Data.Add(new Setting
         {
-            Path = SettingPath.Parse(name),
+            Identifier = Identifier.Parse(name),
             Value = value
         });
 

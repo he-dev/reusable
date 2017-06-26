@@ -1,20 +1,21 @@
 using System.Diagnostics;
+using Reusable.ConfigWhiz.Paths;
 
 namespace Reusable.ConfigWhiz.Data
 {
     public interface ISetting
     {
-        SettingPath Path { get; set; }
+        Identifier Identifier { get; set; }
         object Value { get; set; }
     }
 
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class Setting : ISetting
     {
-        public SettingPath Path { [DebuggerStepThrough]get; [DebuggerStepThrough]set; }
+        public Identifier Identifier { [DebuggerStepThrough]get; [DebuggerStepThrough]set; }
 
         public object Value { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
-        private string DebuggerDisplay => Path.ToString(SettingPathFormat.FullStrong, SettingPathFormatter.Instance);
+        private string DebuggerDisplay => Identifier.ToString($".{IdentifierLength.Unique}", IdentifierFormatter.Instance);
     }
 }

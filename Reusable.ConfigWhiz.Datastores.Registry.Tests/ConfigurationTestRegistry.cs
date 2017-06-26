@@ -2,10 +2,11 @@
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Collections;
-using Reusable.ConfigWhiz.Core.Tests.Data;
 using Reusable.ConfigWhiz.Tests;
 using Reusable.Extensions;
 using System.Linq;
+using Reusable.ConfigWhiz.Paths;
+using Reusable.ConfigWhiz.Tests.Common;
 
 namespace Reusable.ConfigWhiz.Datastores.Tests
 {
@@ -38,13 +39,13 @@ namespace Reusable.ConfigWhiz.Datastores.Tests
                     }
                 }
 
-                foreach (var setting in SettingFactory.ReadSettings<Foo>())
+                foreach (var setting in SettingFactory.ReadSettings<TestConsumer>())
                 {
-                    var registryPath = setting.Path.ConsumerNamespace.Join("\\");
+                    var registryPath = setting.Identifier.Context.Join("\\");
                     var subKeyName = Path.Combine(TestRegistryKey, registryPath);
                     using (var subKey = baseKey.CreateSubKey(subKeyName, writable: true))
                     {
-                        subKey.SetValue(setting.Path.ToShortStrongString(), setting.Value);
+                        subKey.SetValue(setting.Identifier.ToShortStrongString(), setting.Value);
                     }
                 }
             }

@@ -4,33 +4,33 @@ using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using Reusable.ConfigWhiz.Paths;
 using Reusable.Data.Annotations;
 using Reusable.Extensions;
 using Reusable.TypeConversion;
-using TypeConverterAttribute = Reusable.TypeConversion.TypeConverterAttribute;
 
 namespace Reusable.ConfigWhiz
 {
     public abstract class SettingContainer
     {
-        protected SettingContainer(object value, ContainerPath path, IImmutableList<SettingProxy> proxies)
+        protected SettingContainer(object instance, Identifier identifier, IImmutableList<SettingProxy> proxies)
         {
-            Value = value;
-            Path = path;
+            Value = instance;
+            Identifier = identifier;
             Proxies = proxies;
         }
 
         protected IImmutableList<SettingProxy> Proxies { get; }
-        public ContainerPath Path { get; }
+        public Identifier Identifier { get; }
         public object Value { get; }
         public abstract void Load();
         public abstract int Save();
     }
 
-    public class SettingContainer<TContainer> : SettingContainer where TContainer : new()
+    public class SettingContainer<TContainer> : SettingContainer where TContainer : class, new()
     {
-        protected SettingContainer(TContainer value, ContainerPath path, IImmutableList<SettingProxy> proxies)
-            : base(value, path, proxies)
+        protected SettingContainer(TContainer instance, Identifier identifier, IImmutableList<SettingProxy> proxies)
+            : base(instance, identifier, proxies)
         { }
 
         public override void Load()
@@ -90,14 +90,13 @@ namespace Reusable.ConfigWhiz
             return settingsAffected;
         }
 
-        public static SettingContainer Create<TConsumer>(string containerName, IImmutableList<IDatastore> stores)
+        public static SettingContainer<TContainer> Create(Identifier identifier, IImmutableList<IDatastore> datastores)
         {
             var container = new TContainer();
-            var containerKey = ContainerPath.Create<TConsumer, TContainer>(containerName);
 
             var converter =
                 typeof(TContainer)
-                    .GetCustomAttributes<TypeConverterAttribute>()
+                    .GetCustomAttributes<Reusable.TypeConversion.TypeConverterAttribute>()
                     .Aggregate(
                         Configuration.DefaultConverter,
                         (current, next) => current.Add(next.ConverterType));
@@ -105,9 +104,9 @@ namespace Reusable.ConfigWhiz
             var proxies =
                 from property in typeof(TContainer).GetProperties(BindingFlags.Instance | BindingFlags.Public)
                 where property.GetCustomAttribute<IgnoreAttribute>().IsNull()
-                select new SettingProxy(container, containerKey, property, stores, converter);
+                select new SettingProxy(Identifier.From(identifier, property.Name), container, property, datastores, converter);
 
-            return new SettingContainer<TContainer>(container, containerKey, proxies.ToImmutableList());
+            return new SettingContainer<TContainer>(container, identifier, proxies.ToImmutableList());
         }
 
         public static implicit operator TContainer(SettingContainer<TContainer> settingContainer) => (TContainer)settingContainer.Value;

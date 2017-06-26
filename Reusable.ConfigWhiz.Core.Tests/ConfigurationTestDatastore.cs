@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Drawing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.ConfigWhiz.Core.Tests.Data;
 using Reusable.ConfigWhiz.Datastores;
+using Reusable.ConfigWhiz.Tests.Common;
+using CData = Reusable.ConfigWhiz.Tests.Common.Data;
 using Reusable.Extensions;
 using Reusable.Fuse;
 using Reusable.Fuse.Drawing;
@@ -24,7 +25,7 @@ namespace Reusable.ConfigWhiz.Tests
         {
             var configuration = new Configuration(Datastores);
 
-            var numeric = configuration.Load<Foo, Numeric>();
+            var numeric = configuration.Resolve<TestConsumer, CData.Numeric>();
             numeric.Verify().IsNotNull();
 
             numeric.SByte.Verify().IsEqual(SByte.MaxValue);
@@ -58,7 +59,7 @@ namespace Reusable.ConfigWhiz.Tests
             configuration.Save();
 
             configuration = new Configuration(Datastores);
-            numeric = configuration.Load<Foo, Numeric>();
+            numeric = configuration.Resolve<TestConsumer, CData.Numeric>();
 
             numeric.SByte.Verify().IsEqual((SByte)(SByte.MaxValue - 1));
             numeric.Byte.Verify().IsEqual((Byte)(Byte.MaxValue - 1));
@@ -79,7 +80,7 @@ namespace Reusable.ConfigWhiz.Tests
         {
             var configuration = new Configuration(Datastores);
 
-            var literal = configuration.Load<Foo, Literal>();
+            var literal = configuration.Resolve<TestConsumer, CData.Literal>();
             literal.Verify().IsNotNull();
             literal.StringDE.Verify().IsEqual("äöüß");
             literal.StringPL.Verify().IsEqual("ąęśćżźó");
@@ -90,7 +91,7 @@ namespace Reusable.ConfigWhiz.Tests
             configuration.Save();
 
             configuration = new Configuration(Datastores);
-            literal = configuration.Load<Foo, Literal>();
+            literal = configuration.Resolve<TestConsumer, CData.Literal>();
 
             literal.StringDE.Verify().IsEqual("äöüß---");
             literal.StringPL.Verify().IsEqual("ąęśćżźó---");
@@ -101,7 +102,7 @@ namespace Reusable.ConfigWhiz.Tests
         {
             var configuration = new Configuration(Datastores);
 
-            var other = configuration.Load<Foo, Other>();
+            var other = configuration.Resolve<TestConsumer, CData.Other>();
             other.Verify().IsNotNull();
             other.Boolean.Verify().IsTrue();
             other.Enum.Verify().IsEqual(TestEnum.TestValue2);
@@ -114,7 +115,7 @@ namespace Reusable.ConfigWhiz.Tests
 
             configuration.Save();
             configuration = new Configuration(Datastores);
-            other = configuration.Load<Foo, Other>();
+            other = configuration.Resolve<TestConsumer, CData.Other>();
 
             other.Boolean.Verify().IsFalse();
             other.Enum.Verify().IsTrue(x => x == TestEnum.TestValue3);
@@ -126,7 +127,7 @@ namespace Reusable.ConfigWhiz.Tests
         {
             var configuration = new Configuration(Datastores);
 
-            var paint = configuration.Load<Foo, Paint>();
+            var paint = configuration.Resolve<TestConsumer, CData.Paint>();
             paint.Verify().IsNotNull();
             paint.ColorName.Verify().IsEqual(Color.DarkRed);
             paint.ColorDec.Verify().IsEqual(Color.Plum);
@@ -142,7 +143,7 @@ namespace Reusable.ConfigWhiz.Tests
         {
             var configuration = new Configuration(Datastores);
 
-            var collection = configuration.Load<Foo, Collection>();
+            var collection = configuration.Resolve<CData.Collection>(IdentifierLength.Medium);
             collection.Verify().IsNotNull();
             collection.JsonArray.Verify().SequenceEqual(new[] { 5, 8, 13 });
             collection.ArrayInt32.Verify().SequenceEqual(new[] { 5, 8 });
@@ -159,7 +160,7 @@ namespace Reusable.ConfigWhiz.Tests
 
             configuration.Save();
             configuration = new Configuration(Datastores);
-            collection = configuration.Load<Foo, Collection>();
+            collection = configuration.Resolve<TestConsumer, CData.Collection>();
 
             // verify
 
@@ -174,8 +175,8 @@ namespace Reusable.ConfigWhiz.Tests
         {
             var configuration = new Configuration(Datastores);
 
-            var numeric1 = configuration.Load<Foo, Numeric>();
-            var numeric2 = configuration.Load<Foo, Numeric>();
+            var numeric1 = configuration.Resolve<TestConsumer, CData.Numeric>();
+            var numeric2 = configuration.Resolve<TestConsumer, CData.Numeric>();
             Assert.IsNotNull(numeric1);
             Assert.IsNotNull(numeric2);
             Assert.AreSame(numeric1, numeric2);
@@ -186,8 +187,8 @@ namespace Reusable.ConfigWhiz.Tests
         {
             var configuration = new Configuration(Datastores);
 
-            var numeric1 = configuration.Load<Foo, Numeric>();
-            var numeric2 = configuration.Load<Foo, Numeric>(DataSource.Provider);
+            var numeric1 = configuration.Resolve<TestConsumer, CData.Numeric>();
+            var numeric2 = configuration.Resolve<TestConsumer, CData.Numeric>(); //DataOrigin.Provider);
             Assert.IsNotNull(numeric1);
             Assert.IsNotNull(numeric2);
             Assert.AreSame(numeric1, numeric2);

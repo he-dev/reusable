@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.12
+VisualStudioVersion = 15.0.26430.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}"
 EndProject
@@ -66,7 +66,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Datasto
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Datastores.SQLite", "Reusable.ConfigWhiz.Datastores.SQLite\Reusable.ConfigWhiz.Datastores.SQLite.csproj", "{E5F4DA27-E7C9-4D2B-9750-C71ABF7204DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Core.Tests.Data", "Reusable.ConfigWhiz.Core.Tests.Data\Reusable.ConfigWhiz.Core.Tests.Data.csproj", "{B3AFABD6-950F-4993-A09E-BE9AF369DB09}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Core.Tests.Common", "Reusable.ConfigWhiz.Core.Tests.Data\Reusable.ConfigWhiz.Core.Tests.Common.csproj", "{B3AFABD6-950F-4993-A09E-BE9AF369DB09}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Datastores.SqlServer.Tests", "Reusable.ConfigWhiz.Datastores.SqlServer.Tests\Reusable.ConfigWhiz.Datastores.SqlServer.Tests.csproj", "{7BB974DF-FA8F-4661-9375-F12975112F04}"
 EndProject

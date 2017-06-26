@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.ConfigWhiz.Core.Tests.Data;
-using Reusable.ConfigWhiz.Data;
-using Reusable.ConfigWhiz.Data.Annotations;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.ConfigWhiz.Datastores;
+using Reusable.ConfigWhiz.IO;
+using Reusable.ConfigWhiz.Tests.Common;
+using CData = Reusable.ConfigWhiz.Tests.Common.Data;
 using Reusable.Extensions;
 using Reusable.Fuse;
 using Reusable.Fuse.Testing;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 // ReSharper disable InconsistentNaming
 // ReSharper disable BuiltInTypeReferenceStyle
 
@@ -21,21 +20,22 @@ namespace Reusable.ConfigWhiz.Tests
         [TestInitialize]
         public void TestInitialize()
         {
-            var ns = typeof(Foo).Namespace;
+            var ns = typeof(TestConsumer).Namespace;
 
             Datastores = new IDatastore[]
             {
                 new Memory("Memory1")
                 {
-                    { $@"{ns}.Foo.Bar.Qux", "quux" },
-                    { $@"{ns}.Foo.MyContainer.MySetting", "waldo" }
+                    { $"{ns}.TestConsumer.Bar.Qux", "quux" },
+                    { $"{ns}.TestConsumer.MyContainer.MySetting", "waldo" },
+                    { $"{ns}.TestConsumer.Qux", "corge" }
                 },
                 new Memory("Memory2")
                 {
-                    { $@"{ns}.Foo.Bar.Baz", "bar" },
-                    { $@"{ns}.Foo[""qux""].Bar.Baz", "bar" }
+                    { $"{ns}.TestConsumer.Bar.Baz", "bar" },
+                    { $"{ns}.TestConsumer[\"qux\"].Bar.Baz", "bar" }
                 },
-                new Memory("Memory3").AddRange(SettingFactory.ReadSettings<Foo>()),
+                new Memory("Memory3").AddRange(SettingFactory.ReadSettings()),
             };
         }
 
@@ -59,8 +59,8 @@ namespace Reusable.ConfigWhiz.Tests
         [ExpectedException(typeof(DatastoreReadException))]
         public void ctor_CannotReadFromDatastore_Throws()
         {
-            var configuration = new Configuration(new MockDatastore("mock1", new List<Type>()));
-            configuration.Load<Foo, Bar>();
+            var configuration = new Configuration(new TestDatastore("mock1", new List<Type>()));
+            configuration.Resolve<TestConsumer, CData.Bar>();
         }
 
         [TestMethod]
@@ -69,7 +69,7 @@ namespace Reusable.ConfigWhiz.Tests
             var ex = new Action(() =>
             {
                 var configuration = new Configuration(new Memory("mem1"));
-                configuration.Load<Foo, Baz>();
+                configuration.Resolve<TestConsumer, CData.TestContainer1>();
             }).Verify().Throws<AggregateException>();
 
             ex.InnerExceptions.First().Verify().IsInstanceOfType(typeof(DatastoreNotFoundException));
@@ -82,9 +82,9 @@ namespace Reusable.ConfigWhiz.Tests
             {
                 var configuration = new Configuration(new Memory("mem1")
                 {
-                    { $@"{typeof(Foo).Namespace}.Foo.Baz2.Qux2", "quux" }
+                    { $"{typeof(TestConsumer).Namespace}.TestConsumer.TestContainer2.TestSetting2", "quux" }
                 });
-                configuration.Load<Foo, Baz2>();
+                configuration.Resolve<TestConsumer, CData.TestContainer2>();
             }).Verify().Throws<AggregateException>();
 
             ex.InnerExceptions.First().Verify().IsInstanceOfType(typeof(UnsupportedItemizedTypeException));
@@ -99,7 +99,7 @@ namespace Reusable.ConfigWhiz.Tests
         {
             var configuration = new Configuration(Datastores);
 
-            var bar = configuration.Load<Foo, Bar>();
+            var bar = configuration.Resolve<TestConsumer, CData.Bar>();
             bar.Verify().IsNotNull();
             bar.Baz.Verify().IsEqual("bar");
         }
@@ -109,10 +109,20 @@ namespace Reusable.ConfigWhiz.Tests
         {
             var configuration = new Configuration(Datastores);
 
-            var foo1 = new Foo { Name = "qux" };
-            var bar = configuration.Load<Foo, Bar>(foo1, x => x.Name);
+            var consumer = new TestConsumer { Name = "qux" };
+            var bar = configuration.Resolve<TestConsumer, CData.Bar>(consumer, x => x.Name);
             bar.Verify().IsNotNull();
             bar.Baz.Verify().IsEqual("bar");
+        }
+
+        [TestMethod]
+        public void Load_SameConsumerAndContaierName_DoubleNameSkipped()
+        {
+            var configuration = new Configuration(Datastores);
+
+            var container = configuration.Resolve<TestConsumer, CData.TestConsumer>();
+            container.Verify().IsNotNull();
+            container.Qux.Verify().IsEqual("corge");
         }
 
         #endregion
@@ -124,40 +134,11 @@ namespace Reusable.ConfigWhiz.Tests
         {
             var configuration = new Configuration(Datastores);
 
-            var renamed = configuration.Load<Foo, Renamed>();
+            var renamed = configuration.Resolve<TestConsumer, CData.Renamed>();
             renamed.Bar.Verify().IsEqual("waldo");
         }
 
         #endregion
 
-        private class MockDatastore : Datastore
-        {
-            public MockDatastore(string name, IEnumerable<Type> supportedTypes) : base(name, supportedTypes)
-            {
-            }
-
-            protected override ICollection<ISetting> ReadCore(SettingPath settingPath)
-            {
-                throw new NotImplementedException();
-            }
-
-            protected override int WriteCore(IGrouping<SettingPath, ISetting> settings)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        [DefaultDatastore("Datastore1")]
-        private class Baz
-        {
-            public string Qux { get; set; }
-        }
-
-        [DefaultDatastore("Datastore1")]
-        private class Baz2
-        {
-            [Itemized]
-            public string Qux2 { get; set; }
-        }
     }
 }

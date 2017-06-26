@@ -1,43 +1,33 @@
 ﻿{
-  "Numeric": {
-    "SByte": "127",
-    "Byte": "255",
-    "Char": "￿",
-    "Int16": "32767",
-    "Int32": "2147483647",
-    "Int64": "9223372036854775807",
-    "UInt16": "65535",
-    "UInt32": "4294967295",
-    "UInt64": "18446744073709551615",
-    "Single": "3.40282347E+38",
-    "Double": "1.7976931348623157E+308",
-    "Decimal": "79228162514264337593543950335"
-  },
+	"Numeric.SByte": "127",
+	"Numeric.Byte": "255",
+	"Numeric.Char": "￿",
+	"Numeric.Int16": "32767",
+	"Numeric.Int32": "2147483647",
+	"Numeric.Int64": "9223372036854775807",
+	"Numeric.UInt16": "65535",
+	"Numeric.UInt32": "4294967295",
+	"Numeric.UInt64": "18446744073709551615",
+	"Numeric.Single": "3.40282347E+38",
+	"Numeric.Double": "1.7976931348623157E+308",
+	"Numeric.Decimal": "79228162514264337593543950335",
 
-  "Literal": {
-    "StringDE": "äöüß",
-    "StringPL": "ąęśćżźó"
-  },
+	"Literal.StringDE": "äöüß",
+	"Literal.StringPL": "ąęśćżźó",
 
-  "Other": {
-    "Boolean": "True",
-    "Enum": "TestValue2",
-    "DateTime": "07/30/2016 00:00:00"
-  },
+	"Other.Boolean": "True",
+	"Other.Enum": "TestValue2",
+	"Other.DateTime": "07/30/2016 00:00:00",
 
-  "Paint": {
-    "ColorName": "DarkRed",
-    "ColorDec": "221,160,221", // Plum
-    "ColorHex": "FFF5F5DC" // Beige
-  },
+	"Paint.ColorName": "DarkRed",
+	"Paint.ColorDec": "221,160,221", // Plum
+	"Paint.ColorHex": "FFF5F5DC", // Beige
 
-  "Collection": {
-    "JsonArray": "[5, 8, 13]",
+	"Collection.JsonArray": "[5, 8, 13]",
 
-    "ArrayInt32[0]": "5",
-    "ArrayInt32[1]": "8",
+	"Collection.ArrayInt32[0]": "5",
+	"Collection.ArrayInt32[1]": "8",
 
-    "DictionaryStringInt32[foo]": "21",
-    "DictionaryStringInt32[bar]": "34"
-  }
+	"Collection.DictionaryStringInt32[foo]": "21",
+	"Collection.DictionaryStringInt32[bar]": "34"
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Reusable.ConfigWhiz.Data;
+using Reusable.ConfigWhiz.Paths;
 using Reusable.Extensions;
 
 namespace Reusable.ConfigWhiz
@@ -11,8 +12,8 @@ namespace Reusable.ConfigWhiz
     {
         string Name { get; }
         IImmutableSet<Type> SupportedTypes { get; }
-        ICollection<ISetting> Read(SettingPath settingPath);
-        int Write(IGrouping<SettingPath, ISetting> settings);
+        ICollection<ISetting> Read(Identifier identifier);
+        int Write(IGrouping<Identifier, ISetting> settings);
     }
 
     public abstract class Datastore : IDatastore
@@ -29,21 +30,21 @@ namespace Reusable.ConfigWhiz
 
         public IImmutableSet<Type> SupportedTypes { get; }
 
-        public ICollection<ISetting> Read(SettingPath settingPath)
+        public ICollection<ISetting> Read(Identifier identifier)
         {
             try
             {
-                return ReadCore(settingPath);
+                return ReadCore(identifier);
             }
             catch (Exception innerException)
             {
-                throw new DatastoreReadException(this, settingPath, innerException);
+                throw new DatastoreReadException(this, identifier, innerException);
             }
         }
 
-        protected abstract ICollection<ISetting> ReadCore(SettingPath settingPath);
+        protected abstract ICollection<ISetting> ReadCore(Identifier identifier);
 
-        public int Write(IGrouping<SettingPath, ISetting> settings)
+        public int Write(IGrouping<Identifier, ISetting> settings)
         {
             try
             {
@@ -55,7 +56,7 @@ namespace Reusable.ConfigWhiz
             }
         }
 
-        protected abstract int WriteCore(IGrouping<SettingPath, ISetting> settings);
+        protected abstract int WriteCore(IGrouping<Identifier, ISetting> settings);
 
         protected static string CreateDefaultName<T>()
         {
@@ -85,13 +86,13 @@ namespace Reusable.ConfigWhiz
 
     public class DatastoreReadException : Exception
     {
-        public DatastoreReadException(IDatastore datastore, SettingPath path, Exception innerException)
-        : base($"Could not read '{path.ToFullWeakString()}' from '{datastore.Name}'.", innerException) { }
+        public DatastoreReadException(IDatastore datastore, Identifier identifier, Exception innerException)
+        : base($"Could not read '{identifier}' from '{datastore.Name}'.", innerException) { }
     }
 
     public class DatastoreWriteException : Exception
     {
-        public DatastoreWriteException(IDatastore datastore, SettingPath path, Exception innerException)
-            : base($"Could not write '{path.ToFullWeakString()}' to '{datastore.Name}'.", innerException) { }
+        public DatastoreWriteException(IDatastore datastore, Identifier identifier, Exception innerException)
+            : base($"Could not write '{identifier}' to '{datastore.Name}'.", innerException) { }
     }
 }

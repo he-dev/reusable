@@ -60,16 +60,16 @@
     <Compile Include="ConfigurationTestCore.cs" />
     <Compile Include="ConfigurationTestDatastore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SettingPathTest.cs" />
-    <Compile Include="ContainerPathTest.cs" />
+    <Compile Include="IdentifierTest.cs" />
+    <Compile Include="TestDatastore.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.ConfigWhiz.Core.Tests.Data\Reusable.ConfigWhiz.Core.Tests.Data.csproj">
+    <ProjectReference Include="..\Reusable.ConfigWhiz.Core.Tests.Data\Reusable.ConfigWhiz.Core.Tests.Common.csproj">
       <Project>{b3afabd6-950f-4993-a09e-be9af369db09}</Project>
-      <Name>Reusable.ConfigWhiz.Core.Tests.Data</Name>
+      <Name>Reusable.ConfigWhiz.Core.Tests.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\Reusable.ConfigWhiz.Core\Reusable.ConfigWhiz.Core.csproj">
       <Project>{b507cf1e-fd24-465b-b8bc-f00f58c2d7c6}</Project>

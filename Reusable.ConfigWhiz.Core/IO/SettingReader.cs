@@ -5,10 +5,11 @@ using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
 using Reusable.ConfigWhiz.Data;
+using Reusable.ConfigWhiz.Paths;
 using Reusable.Extensions;
 using Reusable.TypeConversion;
 
-namespace Reusable.ConfigWhiz
+namespace Reusable.ConfigWhiz.IO
 {
     internal class SettingReader
     {
@@ -32,14 +33,14 @@ namespace Reusable.ConfigWhiz
             var (store, settings) =
                 CurrentStore == null
                     ? Resolve()
-                    : (CurrentStore, CurrentStore.Read(Setting.Path));
+                    : (CurrentStore, CurrentStore.Read(Setting.Identifier));
 
             var values = GetValues(settings);
             var value = Convert(values);
 
             foreach (var validation in Setting.Validations)
             {
-                validation.Validate(value, Setting.Path.ToFullWeakString());
+                validation.Validate(value, Setting.Identifier.ToString());
             }
 
             CurrentStore = CurrentStore ?? store;
@@ -51,36 +52,36 @@ namespace Reusable.ConfigWhiz
             // Try to use a named datastore first.
             if (Setting.DefaultDatastore.IsNotNull())
             {
-                return (Setting.DefaultDatastore, Setting.DefaultDatastore?.Read(Setting.Path));
+                return (Setting.DefaultDatastore, Setting.DefaultDatastore?.Read(Setting.Identifier));
             }
 
             // Probe each datastore for the setting.
             foreach (var store in Datastores)
             {
-                var settings = store.Read(Setting.Path);
+                var settings = store.Read(Setting.Identifier);
                 if (settings.Any()) return (store, settings);
             }
 
             if (Setting.FallbackDatastore.IsNotNull())
             {
-                return (Setting.FallbackDatastore, Setting.FallbackDatastore?.Read(Setting.Path));
+                return (Setting.FallbackDatastore, Setting.FallbackDatastore?.Read(Setting.Identifier));
             }
 
-            throw new DatastoreNotFoundException(Setting.Path);
+            throw new DatastoreNotFoundException(Setting.Identifier);
         }
 
         private object GetValues(ICollection<ISetting> settings)
         {
             if (Setting.IsItemized)
             {
-                if (Setting.Type.IsDictionary()) return settings.ToDictionary(x => x.Path.ElementName, x => x.Value);
+                if (Setting.Type.IsDictionary()) return settings.ToDictionary(x => x.Identifier.Element, x => x.Value);
                 if (Setting.Type.IsEnumerable()) return settings.Select(x => x.Value);
-                throw new UnsupportedItemizedTypeException(Setting.Path, Setting.Type);
+                throw new UnsupportedItemizedTypeException(Setting.Identifier, Setting.Type);
             }
 
             if (settings.Count > 1)
             {
-                throw new MultipleSettingMatchesException(Setting.Path, CurrentStore);
+                throw new MultipleSettingMatchesException(Setting.Identifier, CurrentStore);
             }
 
             return settings.SingleOrDefault()?.Value;
@@ -94,22 +95,22 @@ namespace Reusable.ConfigWhiz
 
     public class UnsupportedItemizedTypeException : Exception
     {
-        public UnsupportedItemizedTypeException(SettingPath settingPath, Type settingType)
-            : base($"'{settingType}' type used by '{settingPath.ToFullWeakString()}' setting is not supported for itemized settings. You can use either {nameof(IDictionary)} or {nameof(IEnumerable)}.")
+        public UnsupportedItemizedTypeException(Identifier identifier, Type settingType)
+            : base($"'{settingType}' type used by '{identifier}' setting is not supported for itemized settings. You can use either {nameof(IDictionary)} or {nameof(IEnumerable)}.")
         { }
     }
 
     public class MultipleSettingMatchesException : Exception
     {
-        public MultipleSettingMatchesException(SettingPath settingPath, IDatastore datastore)
-            : base($"Found multiple matches of '{settingPath.ToFullWeakString()}' in '{datastore.Name}'  but expected one.")
+        public MultipleSettingMatchesException(Identifier identifier, IDatastore datastore)
+            : base($"Found multiple matches of '{identifier}' in '{datastore.Name}'  but expected one.")
         { }
     }
 
     public class DatastoreNotFoundException : Exception
     {
-        public DatastoreNotFoundException(SettingPath settingPath)
-            : base($"Could not find datastore for '{settingPath.ToFullWeakString()}'")
+        public DatastoreNotFoundException(Identifier identifier)
+            : base($"Could not find datastore for '{identifier}'")
         { }
     }
 }

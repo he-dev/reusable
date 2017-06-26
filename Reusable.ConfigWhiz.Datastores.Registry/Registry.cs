@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Win32;
 using Reusable.ConfigWhiz.Data;
+using Reusable.ConfigWhiz.Paths;
 using Reusable.Extensions;
 
 namespace Reusable.ConfigWhiz.Datastores
@@ -36,28 +37,28 @@ namespace Reusable.ConfigWhiz.Datastores
 
         public Registry(RegistryKey baseKey, string subKey) :this(CreateDefaultName<Registry>(), baseKey, subKey) { }
 
-        protected override ICollection<ISetting> ReadCore(SettingPath settingPath)
+        protected override ICollection<ISetting> ReadCore(SettingIdentifier settingIdentifier)
         {
-            var subKeyName = Path.Combine(_baseSubKeyName, string.Join("\\", settingPath.ConsumerNamespace));
+            var subKeyName = Path.Combine(_baseSubKeyName, string.Join("\\", settingIdentifier.Context));
             using (var subKey = _baseKey.OpenSubKey(subKeyName, false))
             {
                 if (subKey == null) throw new SubKeyException(_baseKey.Name, _baseSubKeyName, subKeyName);
 
-                var shortWeakPath = settingPath.ToShortWeakString();
+                var shortWeakPath = settingIdentifier.ToShortWeakString();
                 var settings =
                     from valueName in subKey.GetValueNames()
-                    let valuePath = SettingPath.Parse(valueName)
+                    let valuePath = SettingIdentifier.Parse(valueName)
                     where valuePath.ToShortWeakString().Equals(shortWeakPath, StringComparison.OrdinalIgnoreCase)
                     select new Setting
                     {
-                        Path = valuePath,
+                        Identifier = valuePath,
                         Value = subKey.GetValue(valueName)
                     };
                 return settings.Cast<ISetting>().ToList();
             }
         }
 
-        protected override int WriteCore(IGrouping<SettingPath, ISetting> settings)
+        protected override int WriteCore(IGrouping<SettingIdentifier, ISetting> settings)
         {
             var settingsAffected = 0;
 
@@ -65,7 +66,7 @@ namespace Reusable.ConfigWhiz.Datastores
             {
                 var obsoleteNames =
                     from valueName in registryKey.GetValueNames()
-                    where SettingPath.Parse(valueName).ToShortWeakString().Equals(settings.Key.ToShortWeakString(), StringComparison.OrdinalIgnoreCase)
+                    where SettingIdentifier.Parse(valueName).ToShortWeakString().Equals(settings.Key.ToShortWeakString(), StringComparison.OrdinalIgnoreCase)
                     select valueName;
 
                 foreach (var obsoleteName in obsoleteNames)
@@ -75,7 +76,7 @@ namespace Reusable.ConfigWhiz.Datastores
                 }
             }
 
-            var subKeyName = Path.Combine(_baseSubKeyName, string.Join("\\", settings.Key.ConsumerNamespace));
+            var subKeyName = Path.Combine(_baseSubKeyName, string.Join("\\", settings.Key.Context));
             using (var subKey = _baseKey.OpenSubKey(subKeyName, true) ?? _baseKey.CreateSubKey(subKeyName))
             {
                 if (subKey == null) throw new SubKeyException(_baseKey.Name, _baseSubKeyName, subKeyName);
@@ -89,7 +90,7 @@ namespace Reusable.ConfigWhiz.Datastores
                         throw new InvalidTypeException(setting.Value.GetType(), SupportedTypes);
                     }
 
-                    subKey.SetValue(setting.Path.ToShortStrongString(), setting.Value, registryValueKind);
+                    subKey.SetValue(setting.Identifier.ToShortStrongString(), setting.Value, registryValueKind);
                     settingsAffected++;
                 }
             }

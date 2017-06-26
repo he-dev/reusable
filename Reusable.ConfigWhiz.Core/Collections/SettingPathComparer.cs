@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
+using Reusable.ConfigWhiz.Paths;
 
-namespace Reusable.ConfigWhiz
+namespace Reusable.ConfigWhiz.Collections
 {
-    public class SettingPathComparer : IEqualityComparer<SettingPath>
+    public class SettingPathComparer : IEqualityComparer<Identifier>
     {
         private static readonly SettingPathFormatter Formatter = new SettingPathFormatter();
 
@@ -14,7 +15,7 @@ namespace Reusable.ConfigWhiz
 
         public SettingPathFormat Format { get; }
 
-        public bool Equals(SettingPath x, SettingPath y)
+        public bool Equals(Identifier x, Identifier y)
         {
             return
                 !ReferenceEquals(x, null) &&
@@ -22,7 +23,7 @@ namespace Reusable.ConfigWhiz
                 x.ToString(Format, Formatter).Equals(y.ToString(Format, Formatter), StringComparison.OrdinalIgnoreCase);
         }
 
-        public int GetHashCode(SettingPath obj)
+        public int GetHashCode(Identifier obj)
         {
             return obj.ToString(Format, Formatter).GetHashCode();
         }

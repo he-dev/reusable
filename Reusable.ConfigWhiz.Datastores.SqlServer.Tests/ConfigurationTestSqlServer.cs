@@ -3,8 +3,9 @@ using System.Collections.Immutable;
 using System.Data;
 using System.Data.SqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.ConfigWhiz.Core.Tests.Data;
+using Reusable.ConfigWhiz.Paths;
 using Reusable.ConfigWhiz.Tests;
+using Reusable.ConfigWhiz.Tests.Common;
 using Reusable.Data;
 
 namespace Reusable.ConfigWhiz.Datastores.Tests
@@ -19,7 +20,7 @@ namespace Reusable.ConfigWhiz.Datastores.Tests
         [TestInitialize]
         public void TestInitialize()
         {
-            var ns = typeof(Foo).Namespace;
+            var ns = typeof(TestConsumer).Namespace;
 
             Datastores = new IDatastore[]
             {
@@ -126,9 +127,9 @@ namespace Reusable.ConfigWhiz.Datastores.Tests
                 sqlCommand.Parameters.Add("@Environment", SqlDbType.NVarChar, 50);
                 sqlCommand.Parameters.Add("@Version", SqlDbType.NVarChar, 50);
 
-                foreach (var setting in SettingFactory.ReadSettings<Foo>())
+                foreach (var setting in SettingFactory.ReadSettings<TestConsumer>())
                 {
-                    sqlCommand.Parameters["@Name"].Value = setting.Path.ToFullStrongString();
+                    sqlCommand.Parameters["@Name"].Value = setting.Identifier.ToFullStrongString();
                     sqlCommand.Parameters["@Value"].Value = setting.Value;
                     sqlCommand.Parameters["@Environment"].Value = environment;
                     sqlCommand.Parameters["@Version"].Value = version;

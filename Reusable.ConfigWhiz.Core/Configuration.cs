@@ -1,20 +1,31 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using JetBrains.Annotations;
 using Reusable.Collections;
+using Reusable.ConfigWhiz.Paths;
 using Reusable.Extensions;
 using Reusable.TypeConversion;
 
 namespace Reusable.ConfigWhiz
 {
-    public class Configuration
+    public interface IConfiguration
+    {
+        [CanBeNull]
+        TContainer Resolve<TContainer>(Identifier identifier, DataOrigin dataOrigin = DataOrigin.Cache) where TContainer : class, new();
+    }
+
+    public class Configuration : IConfiguration
     {
         private readonly IImmutableList<IDatastore> _datastores;
 
-        private readonly AutoKeyDictionary<ContainerPath, SettingContainer> _containers = new AutoKeyDictionary<ContainerPath, SettingContainer>(x => x.Path);
+        private readonly AutoKeyDictionary<Identifier, SettingContainer> _containers = new AutoKeyDictionary<Identifier, SettingContainer>(x => x.Identifier);
 
-        public Configuration(params IDatastore[] datastores) : this((IEnumerable<IDatastore>)datastores) { }
+        public Configuration(params IDatastore[] datastores)
+            : this((IEnumerable<IDatastore>)datastores)
+        { }
 
         public Configuration(IEnumerable<IDatastore> datastores)
         {
@@ -41,41 +52,22 @@ namespace Reusable.ConfigWhiz
 
         //private void OnLog(string message) => Log?.Invoke(message); // for future use
 
-        #region Load overloads
-
-        public TContainer Load<TConsumer, TContainer>(TConsumer consumer, Func<TConsumer, string> selectConsumerName, DataSource dataSource = DataSource.Cache) where TContainer : new()
+        public TContainer Resolve<TContainer>(Identifier identifier, DataOrigin dataOrigin) where TContainer : class, new()
         {
-            var consumerName = selectConsumerName(consumer);
-            if (consumerName.IsNullOrEmpty()) { throw new ArgumentNullException(nameof(selectConsumerName)); }
-            return Load<TConsumer, TContainer>(consumerName, dataSource);
-        }
-
-        public TContainer Load<TConsumer, TContainer>(DataSource dataSource = DataSource.Cache) where TContainer : new()
-        {
-            return Load<TConsumer, TContainer>(null, dataSource);
-        }
-
-        #endregion
-
-        private TContainer Load<TConsumer, TContainer>(string consumerName, DataSource dataSource) where TContainer : new()
-        {
-            var key = ContainerPath.Create<TConsumer, TContainer>(consumerName);
-
-            if (_containers.TryGetValue(key, out SettingContainer container))
+            if (_containers.TryGetValue(identifier, out SettingContainer container))
             {
-                if (dataSource == DataSource.Provider)
+                if (dataOrigin == DataOrigin.Provider)
                 {
                     container.Load();
-                }
-                return (SettingContainer<TContainer>)container;
+                }                
             }
             else
             {
-                container = SettingContainer<TContainer>.Create<TConsumer>(consumerName, _datastores);
+                container = SettingContainer<TContainer>.Create(identifier, _datastores);
                 container.Load();
                 _containers.Add(container);
-                return (SettingContainer<TContainer>)container;
             }
+            return container.Value as TContainer;
         }
 
         public void Save()
@@ -94,7 +86,7 @@ namespace Reusable.ConfigWhiz
         { }
     }
 
-    public enum DataSource
+    public enum DataOrigin
     {
         Cache,
         Provider
