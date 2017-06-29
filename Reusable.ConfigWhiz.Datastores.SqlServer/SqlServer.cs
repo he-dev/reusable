@@ -68,7 +68,7 @@ namespace Reusable.ConfigWhiz.Datastores
                 .AddColumn("Name", SqlDbType.NVarChar, 200)
                 .AddColumn("Value", SqlDbType.NVarChar, -1);
 
-        protected override ICollection<ISetting> ReadCore(SettingIdentifier settingIdentifier)
+        protected override ICollection<IEntity> ReadCore(SettingIdentifier settingIdentifier)
         {
             using (var connection = OpenConnection())
             using (var command = _settingCommandFactory.CreateSelectCommand(connection, settingIdentifier, _where))
@@ -77,11 +77,11 @@ namespace Reusable.ConfigWhiz.Datastores
 
                 using (var settingReader = command.ExecuteReader())
                 {
-                    var settings = new List<ISetting>();
+                    var settings = new List<IEntity>();
 
                     while (settingReader.Read())
                     {
-                        var result = new Setting
+                        var result = new Entity
                         {
                             Identifier = SettingIdentifier.Parse((string)settingReader[SettingProperty.Name]),
                             Value = settingReader[SettingProperty.Value],
@@ -93,7 +93,7 @@ namespace Reusable.ConfigWhiz.Datastores
             }
         }
 
-        protected override int WriteCore(IGrouping<SettingIdentifier, ISetting> settings)
+        protected override int WriteCore(IGrouping<SettingIdentifier, IEntity> settings)
         {
             var affectedRows = 0;
 

@@ -14,7 +14,7 @@ using Reusable.Data.SqlClient;
 namespace Reusable.ConfigWhiz.Datastores.Tests
 {
     [TestClass]
-    public class ConfiguationTestSQLite : ConfigurationTestDatastore
+    public class ConfiguationTestSQLite : ConfigurationTestBase
     {
         private const string Environment = "Test";
         private const string Version = "1.0";

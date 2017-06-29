@@ -11,7 +11,7 @@ using Reusable.ConfigWhiz.Tests.Common;
 namespace Reusable.ConfigWhiz.Datastores.Tests
 {
     [TestClass]
-    public class ConfigurationTestRegistry : ConfigurationTestDatastore
+    public class ConfigurationTestRegistry : ConfigurationTestBase
     {
         private const string TestRegistryKey = @"Software\ConfigWhiz\Tests";
 

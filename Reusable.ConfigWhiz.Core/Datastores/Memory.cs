@@ -8,7 +8,7 @@ using Reusable.ConfigWhiz.Paths;
 
 namespace Reusable.ConfigWhiz.Datastores
 {
-    public class Memory : Datastore, IEnumerable<ISetting>
+    public class Memory : Datastore, IEnumerable<IEntity>
     {
         public Memory() : this(CreateDefaultName<Memory>()) { }
 
@@ -20,7 +20,7 @@ namespace Reusable.ConfigWhiz.Datastores
             : base(name, supportedTypes)
         { }
 
-        protected override ICollection<ISetting> ReadCore(Identifier identifier)
+        protected override ICollection<IEntity> ReadCore(Identifier identifier)
         {
             var name = identifier.ToString();
             var settings =
@@ -30,7 +30,7 @@ namespace Reusable.ConfigWhiz.Datastores
             return settings;
         }
 
-        protected override int WriteCore(IGrouping<Identifier, ISetting> settings)
+        protected override int WriteCore(IGrouping<Identifier, IEntity> settings)
         {
             var name = settings.Key.ToString(); //($".{IdentifierLength}" IdentifierFormat.FullWeak, IdentifierFormatter.Instance);
             var obsoleteSettings =
@@ -44,25 +44,25 @@ namespace Reusable.ConfigWhiz.Datastores
             return obsoleteSettings.Count;
         }
 
-        public List<ISetting> Data { [DebuggerStepThrough] get; [DebuggerStepThrough] set; } = new List<ISetting>();
+        public List<IEntity> Data { [DebuggerStepThrough] get; [DebuggerStepThrough] set; } = new List<IEntity>();
 
         #region IEnumerable
 
-        public void Add(ISetting setting) => Data.Add(setting);
+        public void Add(IEntity entity) => Data.Add(entity);
 
-        public void Add(string name, object value) => Data.Add(new Setting
+        public void Add(string name, object value) => Data.Add(new Entity
         {
             Identifier = Identifier.Parse(name),
             Value = value
         });
 
-        public Memory AddRange(IEnumerable<ISetting> settings)
+        public Memory AddRange(IEnumerable<IEntity> settings)
         {
             foreach (var setting in settings) Add(setting);
             return this;
         }
 
-        public IEnumerator<ISetting> GetEnumerator() => Data.GetEnumerator();
+        public IEnumerator<IEntity> GetEnumerator() => Data.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 

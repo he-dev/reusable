@@ -64,10 +64,11 @@
     <Compile Include="Data\Annotations\SettingNamespaceAttribute.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Data\Setting.cs" />
-    <Compile Include="SettingContainer.cs" />
+    <Compile Include="Data\Entity.cs" />
+    <Compile Include="Data\SettingContainer.cs" />
     <Compile Include="IdentifierFormatter.cs" />
-    <Compile Include="SettingProxy.cs" />
+    <Compile Include="SettingConverter.cs" />
+    <Compile Include="Data\Setting.cs" />
     <Compile Include="IO\SettingReader.cs" />
     <Compile Include="IO\SettingWriter.cs" />
     <Compile Include="TypeConverterFactory.cs" />

@@ -11,85 +11,76 @@ using Reusable.TypeConversion;
 
 namespace Reusable.ConfigWhiz.IO
 {
-    internal class SettingReader
+    public class SettingReader
     {
-        public SettingReader(SettingProxy setting, TypeConverter converter, IImmutableList<IDatastore> datastores)
+        private readonly IEnumerable<IDatastore> _datastores;
+        private readonly DatastoreCache _datastoreCache;
+        private readonly SettingConverter _converter;
+
+        public SettingReader(DatastoreCache datastoreCache, SettingConverter converter, IEnumerable<IDatastore> datastores)
         {
-            Setting = setting;
-            Converter = converter;
-            Datastores = datastores;
+            _datastores = datastores;
+            _datastoreCache = datastoreCache;
+            _converter = converter;
         }
 
-        public TypeConverter Converter { get; set; }
-
-        public IImmutableList<IDatastore> Datastores { get; }
-
-        public SettingProxy Setting { get; }
-
-        public IDatastore CurrentStore { get; private set; }
-
-        public void Read()
+        public SettingContainer Read(SettingContainer container, bool cached)
         {
-            var (store, settings) =
-                CurrentStore == null
-                    ? Resolve()
-                    : (CurrentStore, CurrentStore.Read(Setting.Identifier));
-
-            var values = GetValues(settings);
-            var value = Convert(values);
-
-            foreach (var validation in Setting.Validations)
+            if (cached && _datastoreCache.Contains(container.Identifier))
             {
-                validation.Validate(value, Setting.Identifier.ToString());
+                return container;
             }
 
-            CurrentStore = CurrentStore ?? store;
-            Setting.Value = value;
+            var innerExceptions = new List<Exception>();
+
+            foreach (var setting in container)
+            {
+                try
+                {
+                    var entities = Read(setting.Identifier);
+                    setting.Value = _converter.Deserialize(setting, entities);
+                }
+                catch (DatastoreReadException)
+                {
+                    // Cannot continue if datastore fails to read.
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    innerExceptions.Add(ex);
+                }
+            }
+
+            if (innerExceptions.Any())
+            {
+                throw new AggregateException("Could not read one or more settings. See inner exceptions for details.", innerExceptions);
+            }
+
+            return container;
         }
 
-        private (IDatastore store, ICollection<ISetting> settings) Resolve()
+        private ICollection<IEntity> Read(Identifier identifier)
         {
-            // Try to use a named datastore first.
-            if (Setting.DefaultDatastore.IsNotNull())
-            {
-                return (Setting.DefaultDatastore, Setting.DefaultDatastore?.Read(Setting.Identifier));
-            }
-
-            // Probe each datastore for the setting.
-            foreach (var store in Datastores)
-            {
-                var settings = store.Read(Setting.Identifier);
-                if (settings.Any()) return (store, settings);
-            }
-
-            if (Setting.FallbackDatastore.IsNotNull())
-            {
-                return (Setting.FallbackDatastore, Setting.FallbackDatastore?.Read(Setting.Identifier));
-            }
-
-            throw new DatastoreNotFoundException(Setting.Identifier);
+            return
+                _datastoreCache.TryGetDatastore(identifier, out var datastore) 
+                    ? datastore.Read(identifier) 
+                    : Resolve(identifier);
         }
 
-        private object GetValues(ICollection<ISetting> settings)
+        private ICollection<IEntity> Resolve(Identifier identifier)
         {
-            if (Setting.IsItemized)
+            foreach (var datastore in _datastores)
             {
-                if (Setting.Type.IsDictionary()) return settings.ToDictionary(x => x.Identifier.Element, x => x.Value);
-                if (Setting.Type.IsEnumerable()) return settings.Select(x => x.Value);
-                throw new UnsupportedItemizedTypeException(Setting.Identifier, Setting.Type);
+                var settings = datastore.Read(identifier);
+                if (settings.Any())
+                {
+                    _datastoreCache.Remove(identifier);
+                    _datastoreCache.Add(identifier, datastore);
+                    return settings;
+                }
             }
 
-            if (settings.Count > 1)
-            {
-                throw new MultipleSettingMatchesException(Setting.Identifier, CurrentStore);
-            }
-
-            return settings.SingleOrDefault()?.Value;
-        }
-
-        private object Convert(object value)
-        {
-            return value == null ? null : Converter.Convert(value, Setting.Type, Setting.Format?.FormatString, Setting.Format?.FormatProvider ?? CultureInfo.InvariantCulture);
+            throw new DatastoreNotFoundException(identifier);
         }
     }
 

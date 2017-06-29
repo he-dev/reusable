@@ -22,7 +22,7 @@ namespace Reusable.ConfigWhiz.Datastores.AppConfig
 
         public AppSettings() : base(CreateDefaultName<AppSettings>(), new[] { typeof(string) }) { }
 
-        protected override ICollection<ISetting> ReadCore(SettingIdentifier settingIdentifier)
+        protected override ICollection<IEntity> ReadCore(SettingIdentifier settingIdentifier)
         {
             var exeConfig = OpenExeConfiguration();
 
@@ -30,15 +30,15 @@ namespace Reusable.ConfigWhiz.Datastores.AppConfig
             var keys = exeConfig.AppSettings.Settings.AllKeys.Where(key => key.StartsWith(settingName, StringComparison.OrdinalIgnoreCase));
             var settings =
                 from k in keys
-                select new Setting
+                select new Entity
                 {
                     Identifier = SettingIdentifier.Parse(k),
                     Value = exeConfig.AppSettings.Settings[k].Value
                 };
-            return settings.Cast<ISetting>().ToList();
+            return settings.Cast<IEntity>().ToList();
         }
 
-        protected override int WriteCore(IGrouping<SettingIdentifier, ISetting> settings)
+        protected override int WriteCore(IGrouping<SettingIdentifier, IEntity> settings)
         {
             var exeConfig = OpenExeConfiguration();
 

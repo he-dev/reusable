@@ -9,13 +9,13 @@ namespace Reusable.ConfigWhiz.Tests.Common
 {
     public class SettingFactory
     {
-        public static IEnumerable<ISetting> ReadSettings()
+        public static IEnumerable<IEntity> ReadSettings()
         {
             var json = ResourceReader.ReadEmbeddedResource<SettingFactory>("Settings.json");
             var testData = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
             var settings =
                 from item in testData
-                select new Setting
+                select new Entity
                 {
                     Identifier = Identifier.Parse(item.Key), //$"{typeof(T).Namespace}.{typeof(T).Name}.{property.Name}.{s.Key}"),
                     Value = item.Value

@@ -11,84 +11,55 @@ using Reusable.TypeConversion;
 
 namespace Reusable.ConfigWhiz.IO
 {
-    internal class SettingWriter
+    public class SettingWriter
     {
-        public SettingWriter(SettingProxy setting, TypeConverter converter)
+        private readonly DatastoreCache _datastoreCache;
+        private readonly SettingConverter _converter;
+
+        public SettingWriter(DatastoreCache datastoreCache, SettingConverter converter)
         {
-            Setting = setting;
-            Converter = converter;
+            _datastoreCache = datastoreCache;
+            _converter = converter;
         }
 
-        private static TypeConverter Itemizer { get; } = TypeConverter.Empty.Add<EnumerableToDictionaryConverter>();
-
-        private TypeConverter Converter { get; }
-
-        private SettingProxy Setting { get; }
-
-        public int Write(IDatastore datastore)
+        public int Write(SettingContainer container)
         {
-            var data = Serialize(datastore);
-            var group = new SettingGroup(Setting.Identifier, data);
-            return datastore.Write(group);
-        }
+            var innerExceptions = new List<Exception>();
 
-        private ICollection<ISetting> Serialize(IDatastore datastore)
-        {
-            if (Setting.IsItemized)
+            var settingsAffected = 0;
+
+            foreach (var setting in container)
             {
-                var settingType =
-                    Setting.Type.IsDictionary()
-                        ? Setting.Type.GetGenericArguments()[1] // a dictionary's value type
-                        : Setting.Type.GetElementType();
-
-                var storeType = GetDataType(settingType);
-                var items = (IDictionary)Convert(Itemizer, typeof(Dictionary<object, object>));
-                var settings = items.Keys.Cast<object>().Select(key => new Setting
+                try
                 {
-                    Identifier = new Identifier(
-                        Setting.Identifier.Context,
-                        Setting.Identifier.Consumer,
-                        Setting.Identifier.Instance,
-                        Setting.Identifier.Container,
-                        Setting.Identifier.Setting,
-                        element: (string)Converter.Convert(key, typeof(string)),
-                        length: Setting.Identifier.Length),
-                    Value = Converter.Convert(items[key], storeType)
-                })
-                .Cast<ISetting>().ToList();
-
-                return settings;
-            }
-            else
-            {
-                var settingType = GetDataType(Setting.Type);
-                var value = Convert(Converter, settingType);
-                var settings = new[]
-                {
-                    new Setting
+                    if (_datastoreCache.TryGetDatastore(setting.Identifier, out var datastore))
                     {
-                        Identifier = Setting.Identifier,
-                        Value = value
+                        var entities = _converter.Serialize(setting, datastore.SupportedTypes);
+                        settingsAffected += entities.Count();
+                        datastore.Write(entities);
                     }
-                };
-                return settings;
+                    else
+                    {
+                        // todo throw datastore not initialized
+                    }
+                }
+                catch (DatastoreWriteException)
+                {
+                    // Cannot continue if datastore fails to write.
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    innerExceptions.Add(ex);
+                }
             }
 
-            Type GetDataType(Type settingType)
+            if (innerExceptions.Any())
             {
-                return
-                    new[] { settingType, typeof(string) }.FirstOrDefault(datastore.SupportedTypes.Contains)
-                    ?? throw new NotSupportedException($"'{Setting.Type.GetElementType()}' is not a supported data type."); ;
+                throw new AggregateException("Could not write one or more settings. See inner exceptions for details.", innerExceptions);
             }
 
-            object Convert(TypeConverter converter, Type targetType)
-            {
-                return converter.Convert(
-                    Setting.Value,
-                    targetType,
-                    Setting.Format?.FormatString,
-                    Setting.Format?.FormatProvider ?? CultureInfo.InvariantCulture);
-            }
+            return settingsAffected;
         }
     }
 }

@@ -8,7 +8,7 @@ using Reusable.ConfigWhiz.Tests.Common;
 namespace Reusable.ConfigWhiz.Datastores.Tests
 {
     [TestClass]
-    public class ConfigurationTestAppConfig : ConfigurationTestDatastore
+    public class ConfigurationTestAppConfig : ConfigurationTestBase
     {
         [TestInitialize]
         public void TestInitialize()

@@ -15,7 +15,7 @@ using System.Linq;
 namespace Reusable.ConfigWhiz.Tests
 {
     [TestClass]
-    public class ConfigurationTestCore : ConfigurationTestDatastore
+    public class ConfigurationTestCore : ConfigurationTestBase
     {
         [TestInitialize]
         public void TestInitialize()
@@ -52,15 +52,15 @@ namespace Reusable.ConfigWhiz.Tests
         [ExpectedException(typeof(DuplicateDatatastoreException))]
         public void ctor_DuplicateDatastores_Throws()
         {
-            var configuration = new Configuration(new Memory("mem1"), new Memory("mem1"));
+            var configuration = new Configuration(new[] { new Memory("mem1"), new Memory("mem1") });
         }
 
         [TestMethod]
         [ExpectedException(typeof(DatastoreReadException))]
         public void ctor_CannotReadFromDatastore_Throws()
         {
-            var configuration = new Configuration(new TestDatastore("mock1", new List<Type>()));
-            configuration.Resolve<TestConsumer, CData.Bar>();
+            var configuration = new Configuration(new[] { new TestDatastore("mock1", new List<Type>()) });
+            configuration.Get<TestConsumer, CData.Bar>();
         }
 
         [TestMethod]
@@ -68,8 +68,8 @@ namespace Reusable.ConfigWhiz.Tests
         {
             var ex = new Action(() =>
             {
-                var configuration = new Configuration(new Memory("mem1"));
-                configuration.Resolve<TestConsumer, CData.TestContainer1>();
+                var configuration = new Configuration(new[] { new Memory("mem1") });
+                configuration.Get<TestConsumer, CData.TestContainer1>();
             }).Verify().Throws<AggregateException>();
 
             ex.InnerExceptions.First().Verify().IsInstanceOfType(typeof(DatastoreNotFoundException));
@@ -80,11 +80,11 @@ namespace Reusable.ConfigWhiz.Tests
         {
             var ex = new Action(() =>
             {
-                var configuration = new Configuration(new Memory("mem1")
+                var configuration = new Configuration(new[] { new Memory("mem1")
                 {
                     { $"{typeof(TestConsumer).Namespace}.TestConsumer.TestContainer2.TestSetting2", "quux" }
-                });
-                configuration.Resolve<TestConsumer, CData.TestContainer2>();
+                }});
+                configuration.Get<TestConsumer, CData.TestContainer2>();
             }).Verify().Throws<AggregateException>();
 
             ex.InnerExceptions.First().Verify().IsInstanceOfType(typeof(UnsupportedItemizedTypeException));
@@ -99,7 +99,7 @@ namespace Reusable.ConfigWhiz.Tests
         {
             var configuration = new Configuration(Datastores);
 
-            var bar = configuration.Resolve<TestConsumer, CData.Bar>();
+            var bar = configuration.Get<TestConsumer, CData.Bar>();
             bar.Verify().IsNotNull();
             bar.Baz.Verify().IsEqual("bar");
         }
@@ -110,7 +110,7 @@ namespace Reusable.ConfigWhiz.Tests
             var configuration = new Configuration(Datastores);
 
             var consumer = new TestConsumer { Name = "qux" };
-            var bar = configuration.Resolve<TestConsumer, CData.Bar>(consumer, x => x.Name);
+            var bar = configuration.Get<TestConsumer, CData.Bar>(consumer, x => x.Name);
             bar.Verify().IsNotNull();
             bar.Baz.Verify().IsEqual("bar");
         }
@@ -120,7 +120,7 @@ namespace Reusable.ConfigWhiz.Tests
         {
             var configuration = new Configuration(Datastores);
 
-            var container = configuration.Resolve<TestConsumer, CData.TestConsumer>();
+            var container = configuration.Get<TestConsumer, CData.TestConsumer>();
             container.Verify().IsNotNull();
             container.Qux.Verify().IsEqual("corge");
         }
@@ -134,7 +134,7 @@ namespace Reusable.ConfigWhiz.Tests
         {
             var configuration = new Configuration(Datastores);
 
-            var renamed = configuration.Resolve<TestConsumer, CData.Renamed>();
+            var renamed = configuration.Get<TestConsumer, CData.Renamed>();
             renamed.Bar.Verify().IsEqual("waldo");
         }
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
@@ -10,6 +11,7 @@ using Reusable.Extensions;
 
 namespace Reusable.ConfigWhiz.Paths
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class Identifier : IEquatable<Identifier>, IFormattable
     {
         public Identifier(
@@ -29,6 +31,8 @@ namespace Reusable.ConfigWhiz.Paths
             Element = element.NullIfEmpty();
             Length = length;
         }
+
+        private string DebuggerDisplay => ToString();
 
         [NotNull, ItemNotNull]
         public IImmutableList<string> Context { get; }
@@ -183,6 +187,8 @@ namespace Reusable.ConfigWhiz.Paths
 
         public string ToString(string format, IFormatProvider formatProvider)
         {
+            if (format.IsNullOrEmpty() || formatProvider == null) { return ToString(); }
+
             return
                 formatProvider.GetFormat(typeof(ICustomFormatter)) is ICustomFormatter x
                     ? x.Format(format, this, formatProvider)

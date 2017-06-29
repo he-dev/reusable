@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using JetBrains.Annotations;
 using Reusable.ConfigWhiz.Data;
 using Reusable.ConfigWhiz.Paths;
 using Reusable.Extensions;
@@ -10,10 +11,16 @@ namespace Reusable.ConfigWhiz
 {
     public interface IDatastore : IEquatable<IDatastore>, IEquatable<string>
     {
+        [NotNull]
         string Name { get; }
+
+        [NotNull, ItemNotNull]
         IImmutableSet<Type> SupportedTypes { get; }
-        ICollection<ISetting> Read(Identifier identifier);
-        int Write(IGrouping<Identifier, ISetting> settings);
+
+        [NotNull, ItemNotNull]
+        ICollection<IEntity> Read([NotNull] Identifier identifier);
+
+        int Write([NotNull, ItemNotNull] IGrouping<Identifier, IEntity> settings);
     }
 
     public abstract class Datastore : IDatastore
@@ -30,7 +37,7 @@ namespace Reusable.ConfigWhiz
 
         public IImmutableSet<Type> SupportedTypes { get; }
 
-        public ICollection<ISetting> Read(Identifier identifier)
+        public ICollection<IEntity> Read(Identifier identifier)
         {
             try
             {
@@ -42,9 +49,9 @@ namespace Reusable.ConfigWhiz
             }
         }
 
-        protected abstract ICollection<ISetting> ReadCore(Identifier identifier);
+        protected abstract ICollection<IEntity> ReadCore(Identifier identifier);
 
-        public int Write(IGrouping<Identifier, ISetting> settings)
+        public int Write(IGrouping<Identifier, IEntity> settings)
         {
             try
             {
@@ -56,7 +63,7 @@ namespace Reusable.ConfigWhiz
             }
         }
 
-        protected abstract int WriteCore(IGrouping<Identifier, ISetting> settings);
+        protected abstract int WriteCore(IGrouping<Identifier, IEntity> settings);
 
         protected static string CreateDefaultName<T>()
         {

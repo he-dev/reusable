@@ -11,7 +11,7 @@ using Reusable.Data;
 namespace Reusable.ConfigWhiz.Datastores.Tests
 {
     [TestClass]
-    public class ConfigurationTestSqlServer : ConfigurationTestDatastore
+    public class ConfigurationTestSqlServer : ConfigurationTestBase
     {
         private const string Environment = "Test";
         private const string Version = "1.0";

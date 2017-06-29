@@ -57,8 +57,8 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Reusable.ConfigWhiz.Core.Tests\ConfigurationTestDatastore.cs">
-      <Link>_linked\ConfigurationTestDatastore.cs</Link>
+    <Compile Include="..\Reusable.ConfigWhiz.Core.Tests\ConfigurationTestBase.cs">
+      <Link>_linked\ConfigurationTestBase.cs</Link>
     </Compile>
     <Compile Include="ConfiguationTestSQLite.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

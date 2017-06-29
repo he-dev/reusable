@@ -37,7 +37,7 @@ namespace Reusable.ConfigWhiz.Datastores
 
         public Registry(RegistryKey baseKey, string subKey) :this(CreateDefaultName<Registry>(), baseKey, subKey) { }
 
-        protected override ICollection<ISetting> ReadCore(SettingIdentifier settingIdentifier)
+        protected override ICollection<IEntity> ReadCore(SettingIdentifier settingIdentifier)
         {
             var subKeyName = Path.Combine(_baseSubKeyName, string.Join("\\", settingIdentifier.Context));
             using (var subKey = _baseKey.OpenSubKey(subKeyName, false))
@@ -49,16 +49,16 @@ namespace Reusable.ConfigWhiz.Datastores
                     from valueName in subKey.GetValueNames()
                     let valuePath = SettingIdentifier.Parse(valueName)
                     where valuePath.ToShortWeakString().Equals(shortWeakPath, StringComparison.OrdinalIgnoreCase)
-                    select new Setting
+                    select new Entity
                     {
                         Identifier = valuePath,
                         Value = subKey.GetValue(valueName)
                     };
-                return settings.Cast<ISetting>().ToList();
+                return settings.Cast<IEntity>().ToList();
             }
         }
 
-        protected override int WriteCore(IGrouping<SettingIdentifier, ISetting> settings)
+        protected override int WriteCore(IGrouping<SettingIdentifier, IEntity> settings)
         {
             var settingsAffected = 0;
 

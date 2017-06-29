@@ -5,46 +5,79 @@ using System.Collections.Immutable;
 using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Collections;
+using Reusable.ConfigWhiz.Data;
+using Reusable.ConfigWhiz.IO;
 using Reusable.ConfigWhiz.Paths;
 using Reusable.Extensions;
 using Reusable.TypeConversion;
 
 namespace Reusable.ConfigWhiz
 {
+    public class DatastoreCache
+    {
+        private readonly IDictionary<Identifier, IDatastore> _datastores = new Dictionary<Identifier, IDatastore>();
+
+        public bool TryGetDatastore(Identifier identifier, out IDatastore datastore)
+        {
+            return _datastores.TryGetValue(identifier, out datastore);
+        }
+
+        public void Add(Identifier identifier, IDatastore datastore)
+        {
+            _datastores.Add(identifier, datastore);
+        }
+
+        public void Remove(Identifier identifier)
+        {
+            _datastores.Remove(identifier);
+        }
+
+        public bool Contains(Identifier identifier) => _datastores.ContainsKey(identifier);
+    }
+
     public interface IConfiguration
     {
         [CanBeNull]
-        TContainer Resolve<TContainer>(Identifier identifier, DataOrigin dataOrigin = DataOrigin.Cache) where TContainer : class, new();
+        TContainer Get<TContainer>(Identifier identifier, bool cached = true) where TContainer : class, new();
     }
-
+        
     public class Configuration : IConfiguration
     {
-        private readonly IImmutableList<IDatastore> _datastores;
+        private readonly SettingReader _reader;
+        private readonly SettingWriter _writer;
 
-        private readonly AutoKeyDictionary<Identifier, SettingContainer> _containers = new AutoKeyDictionary<Identifier, SettingContainer>(x => x.Identifier);
-
-        public Configuration(params IDatastore[] datastores)
-            : this((IEnumerable<IDatastore>)datastores)
+        private readonly IDictionary<IEquatable<Identifier>, SettingContainer> _containers = new Dictionary<IEquatable<Identifier>, SettingContainer>();
+        
+        public Configuration(IEnumerable<IDatastore> datastores) : this(datastores, DefaultConverter)
         { }
-
-        public Configuration(IEnumerable<IDatastore> datastores)
+        
+            public Configuration(IEnumerable<IDatastore> datastores, TypeConverter converter)
         {
-            var builder = ImmutableList.CreateBuilder<IDatastore>();
-            foreach (var store in datastores)
-            {
-                if (builder.Contains(store))
-                {
-                    throw new DuplicateDatatastoreException(store);
-                }
-                builder.Add(store);
-            }
-            _datastores = builder.ToImmutable();
-
-            if (!_datastores.Any())
-            {
-                throw new ArgumentException("You need to specify at least one datastore.");
-            }
+            datastores = datastores.ToList();
+            var datastoreCache = new DatastoreCache();
+            var settingConverter = new SettingConverter(converter);
+            _reader = new SettingReader(datastoreCache, settingConverter, datastores);
+            _writer = new SettingWriter(datastoreCache, settingConverter);
         }
+
+        //public Configuration(IEnumerable<IDatastore> datastores)
+        //{
+        //    var builder = ImmutableList.CreateBuilder<IDatastore>();
+        //    foreach (var store in datastores)
+        //    {
+        //        if (builder.Contains(store))
+        //        {
+        //            throw new DuplicateDatatastoreException(store);
+        //        }
+        //        builder.Add(store);
+        //    }
+        //    _datastores = builder.ToImmutable();
+
+        //    if (!_datastores.Any())
+        //    {
+        //        throw new ArgumentException("You need to specify at least one datastore.");
+        //    }
+        //}
 
         public static readonly TypeConverter DefaultConverter = TypeConverterFactory.CreateDefaultConverter();
 
@@ -52,29 +85,28 @@ namespace Reusable.ConfigWhiz
 
         //private void OnLog(string message) => Log?.Invoke(message); // for future use
 
-        public TContainer Resolve<TContainer>(Identifier identifier, DataOrigin dataOrigin) where TContainer : class, new()
+        public TContainer Get<TContainer>(Identifier identifier, bool cached) where TContainer : class, new()
         {
-            if (_containers.TryGetValue(identifier, out SettingContainer container))
-            {
-                if (dataOrigin == DataOrigin.Provider)
-                {
-                    container.Load();
-                }                
-            }
-            else
-            {
-                container = SettingContainer<TContainer>.Create(identifier, _datastores);
-                container.Load();
-                _containers.Add(container);
-            }
-            return container.Value as TContainer;
+            var container = GetContainer<TContainer>(identifier);
+            return _reader.Read(container, cached).As<TContainer>();            
+        }
+
+        private SettingContainer GetContainer<TContainer>(Identifier identifier) where TContainer : class, new()
+        {
+            return _containers.TryGetValue(identifier, out var container) ? container : Cache(SettingContainer.Create<TContainer>(identifier));
+        }
+
+        private SettingContainer Cache(SettingContainer settingContainer)
+        {
+            _containers.Add(settingContainer, settingContainer);
+            return settingContainer;
         }
 
         public void Save()
         {
-            foreach (var container in _containers)
+            foreach (var container in _containers.Values)
             {
-                container.Value.Save();
+                _writer.Write(container);
             }
         }
     }
@@ -91,15 +123,6 @@ namespace Reusable.ConfigWhiz
         Cache,
         Provider
     }
-
-    //public class ConsumerName
-    //{
-    //    private readonly string _name;
-    //    private ConsumerName(string name) { _name = name; }
-    //    public static readonly ConsumerName Any = new ConsumerName(string.Empty);
-    //    public override string ToString() => _name;
-    //    public static implicit operator string(ConsumerName consumerName) => consumerName._name;
-    //}
 
     public class SettingProperty
     {

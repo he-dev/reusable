@@ -24,7 +24,6 @@
 	"Paint.ColorHex": "FFF5F5DC", // Beige
 
 	"Collection.JsonArray": "[5, 8, 13]",
-
 	"Collection.ArrayInt32[0]": "5",
 	"Collection.ArrayInt32[1]": "8",
 
