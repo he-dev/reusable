@@ -7,8 +7,8 @@
     <ProjectGuid>{B3AFABD6-950F-4993-A09E-BE9AF369DB09}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Reusable.ConfigWhiz.Tests.Common</RootNamespace>
-    <AssemblyName>Reusable.ConfigWhiz.Core.Tests.Common</AssemblyName>
+    <RootNamespace>Reusable.SmartConfig.Tests.Common</RootNamespace>
+    <AssemblyName>Reusable.SmartConfig.Core.Tests.Common</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
