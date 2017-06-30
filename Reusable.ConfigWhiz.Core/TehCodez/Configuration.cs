@@ -38,6 +38,8 @@ namespace Reusable.SmartConfig
             _writer = new SettingWriter(datastoreCache, settingConverter);
         }
 
+        public static ConfigurationBuilder Builder => new ConfigurationBuilder();
+
         public static readonly TypeConverter DefaultConverter = TypeConverterFactory.CreateDefaultConverter();
 
         //public Action<string> Log { get; set; } // for future use

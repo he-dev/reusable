@@ -140,11 +140,11 @@ namespace Reusable.SmartConfig.Tests
         [TestMethod]
         public void Load_Collection_Loaded()
         {
-            var converter = Configuration.DefaultConverter
-                .Add<JsonToObjectConverter<List<int>>>()
-                .Add<ObjectToJsonConverter<List<int>>>();
-
-            var configuration = new Configuration(Datastores, converter);
+            var configuration = Configuration.Builder
+                .WithDatastores(Datastores)
+                .WithConverter<JsonToObjectConverter<List<int>>>()
+                .WithConverter<ObjectToJsonConverter<List<int>>>()
+                .Build();
 
             var collection = configuration.Get<CollectionConfiguration>();
             collection.Verify().IsNotNull();
@@ -162,7 +162,11 @@ namespace Reusable.SmartConfig.Tests
             // reaload
 
             configuration.Save();
-            configuration = new Configuration(Datastores, converter);
+            configuration = Configuration.Builder
+                .WithDatastores(Datastores)
+                .WithConverter<JsonToObjectConverter<List<int>>>()
+                .WithConverter<ObjectToJsonConverter<List<int>>>()
+                .Build();
             collection = configuration.Get<CollectionConfiguration>();
 
             // verify

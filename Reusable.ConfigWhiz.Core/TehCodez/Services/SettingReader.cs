@@ -19,6 +19,8 @@ namespace Reusable.SmartConfig.Services
             _converter = converter;
         }
 
+        //public Action<string> Log { get; set; }
+
         public SettingContainer Read(SettingContainer container, bool cached)
         {
             if (cached && _datastoreCache.Contains(container.Id))
