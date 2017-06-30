@@ -39,7 +39,7 @@ namespace Reusable.ConfigWhiz.Datastores
 
                 sql.Append($"SELECT * FROM {table}").AppendLine();
                 sql.Append(where.Keys.Aggregate(
-                    $"WHERE ([{SettingProperty.Name}] = @{SettingProperty.Name} OR [{SettingProperty.Name}] LIKE @{SettingProperty.Name} || '[%]')",
+                    $"WHERE ([{EntityProperty.Name}] = @{EntityProperty.Name} OR [{EntityProperty.Name}] LIKE @{EntityProperty.Name} || '[%]')",
                     (result, key) => $"{result} AND {Sanitize(key)} = @{key}")
                 );
             }
@@ -52,7 +52,7 @@ namespace Reusable.ConfigWhiz.Datastores
 
             (command, _tableMetadata).AddParameter(
                 ImmutableDictionary<string, object>.Empty
-                    .Add(SettingProperty.Name, id.ToString())
+                    .Add(EntityProperty.Name, id.ToString())
                     .AddRange(where));
 
             return command;
@@ -77,7 +77,7 @@ namespace Reusable.ConfigWhiz.Datastores
 
                 sql.Append($"DELETE FROM {table}").AppendLine();
                 sql.Append(where.Keys.Aggregate(
-                    $"WHERE ([{SettingProperty.Name}] = @{SettingProperty.Name} OR [{SettingProperty.Name}] LIKE @{SettingProperty.Name} || '[%]')",
+                    $"WHERE ([{EntityProperty.Name}] = @{EntityProperty.Name} OR [{EntityProperty.Name}] LIKE @{EntityProperty.Name} || '[%]')",
                     (result, key) => $"{result} AND {Sanitize(key)} = @{key} ")
                 );
             }
@@ -90,7 +90,7 @@ namespace Reusable.ConfigWhiz.Datastores
      
             (command, _tableMetadata).AddParameter(
                 ImmutableDictionary<string, object>.Empty
-                    .Add(SettingProperty.Name, id.ToString())
+                    .Add(EntityProperty.Name, id.ToString())
                     .AddRange(where));
 
             return command;
@@ -115,14 +115,14 @@ namespace Reusable.ConfigWhiz.Datastores
                 var table = $"{Sanitize(_tableMetadata.TableName)}";
 
                 var columns = where.Keys.Select(Sanitize).Aggregate(
-                    $"[{SettingProperty.Name}], [{SettingProperty.Value}]",
+                    $"[{EntityProperty.Name}], [{EntityProperty.Value}]",
                     (result, next) => $"{result}, {next}"
                 );
 
                 sql.Append($"INSERT OR REPLACE INTO {table}({columns})").AppendLine();
 
                 var parameterNames = where.Keys.Aggregate(
-                    $"@{SettingProperty.Name}, @{SettingProperty.Value}",
+                    $"@{EntityProperty.Name}, @{EntityProperty.Value}",
                     (result, next) => $"{result}, @{next}"
                 );
 
@@ -137,8 +137,8 @@ namespace Reusable.ConfigWhiz.Datastores
 
             (command, _tableMetadata).AddParameter(
                 ImmutableDictionary<string, object>.Empty
-                    .Add(SettingProperty.Name, id.ToString())
-                    .Add(SettingProperty.Value, value)
+                    .Add(EntityProperty.Name, id.ToString())
+                    .Add(EntityProperty.Value, value)
                     .AddRange(where));
 
             return command;

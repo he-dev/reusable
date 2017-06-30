@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using Reusable.Collections;
 using Reusable.SmartConfig.Data;
 
 namespace Reusable.SmartConfig.Datastores.AppConfig
@@ -23,14 +24,13 @@ namespace Reusable.SmartConfig.Datastores.AppConfig
         {
             var exeConfig = OpenExeConfiguration();
 
-            var settingName = id.ToString();
-            var keys = exeConfig.AppSettings.Settings.AllKeys.Where(key => key.StartsWith(settingName, StringComparison.OrdinalIgnoreCase));
+            var keys = exeConfig.AppSettings.Settings.AllKeys.Select(Identifier.Parse).Where(x => x.StartsWith(id));
             var settings =
                 from k in keys
                 select new Entity
                 {
-                    Id = Identifier.Parse(k),
-                    Value = exeConfig.AppSettings.Settings[k].Value
+                    Id = k,
+                    Value = exeConfig.AppSettings.Settings[k.ToString()].Value
                 };
             return settings.Cast<IEntity>().ToList();
         }
@@ -46,11 +46,11 @@ namespace Reusable.SmartConfig.Datastores.AppConfig
 
             void DeleteSettingGroup(AppSettingsSection appSettings)
             {
-                var settingName = settings.Key.ToString();
-                var keys = appSettings.Settings.AllKeys.Where(key => key.StartsWith(settingName, StringComparison.OrdinalIgnoreCase));
+                //var settingName = settings.Key.ToString();
+                var keys = appSettings.Settings.AllKeys.Select(Identifier.Parse).Where(x => x.StartsWith(settings.Key));
                 foreach (var key in keys)
                 {
-                    appSettings.Settings.Remove(key);
+                    appSettings.Settings.Remove(key.ToString());
                     settingsAffected++;
                 }
             }

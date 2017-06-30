@@ -26,7 +26,8 @@ namespace Reusable.SmartConfig.Tests
                 {
                     { "Bar.Qux", "quux" },
                     { "MyContainer.MySetting", "waldo" },
-                    { "Qux", "corge" }
+                    { "Qux", "corge" },
+                    { "SimpleSetting", "foo" },
                 },
                 new Memory("Memory2")
                 {
@@ -102,6 +103,16 @@ namespace Reusable.SmartConfig.Tests
         }
 
         #endregion
+
+        [TestMethod]
+        public void Load_SimpleSetting_Loaded()
+        {
+            var configuration = new Configuration(Datastores);
+
+            var result = configuration.Get<SimpleConfiguration>();
+            Assert.IsNotNull(result);
+            Assert.AreEqual("foo", result.SimpleSetting);
+        }
 
         [TestMethod]
         public void Load_SameContainer_SameObject()

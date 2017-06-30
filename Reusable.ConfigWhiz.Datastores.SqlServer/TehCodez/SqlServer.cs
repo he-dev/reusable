@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Data;
 using System.Data.SqlClient;
-using System.Diagnostics;
 using System.Linq;
 using Reusable.Data;
 using Reusable.Extensions;
-using Reusable.SmartConfig;
 using Reusable.SmartConfig.Data;
 
-namespace Reusable.ConfigWhiz.Datastores
+namespace Reusable.SmartConfig.Datastores
 {
     public class SqlServer : Datastore
     {
@@ -35,10 +33,10 @@ namespace Reusable.ConfigWhiz.Datastores
             #region Validate default columns exist
 
             var defaultColumnsExist =
-                tableMetadata.Columns.ContainsKey(SettingProperty.Name) &&
-                tableMetadata.Columns.ContainsKey(SettingProperty.Value);
+                tableMetadata.Columns.ContainsKey(EntityProperty.Name) &&
+                tableMetadata.Columns.ContainsKey(EntityProperty.Value);
 
-            if (!defaultColumnsExist) throw new ArgumentException($"Table metadata does not contain one or more default columns: [{SettingProperty.Name}, {SettingProperty.Value}].");
+            if (!defaultColumnsExist) throw new ArgumentException($"Table metadata does not contain one or more default columns: [{EntityProperty.Name}, {EntityProperty.Value}].");
 
             #endregion
 
@@ -47,7 +45,7 @@ namespace Reusable.ConfigWhiz.Datastores
             var unconstrainedCustomColumns =
                 (from customColumn in tableMetadata.Columns.Select(x => x.Key)
                  where
-                     !SettingProperty.Exists(customColumn) &&
+                     !EntityProperty.Exists(customColumn) &&
                      !@where.ContainsKey(customColumn)
                  select customColumn).ToList();
             if (unconstrainedCustomColumns.Any()) throw new ArgumentException($"One or more custom columns are not constrained: [{string.Join(", ", unconstrainedCustomColumns)}]");
@@ -83,8 +81,8 @@ namespace Reusable.ConfigWhiz.Datastores
                     {
                         var result = new Entity
                         {
-                            Id = Identifier.Parse((string)settingReader[SettingProperty.Name]),
-                            Value = settingReader[SettingProperty.Value],
+                            Id = Identifier.Parse((string)settingReader[EntityProperty.Name]),
+                            Value = settingReader[EntityProperty.Value],
                         };
                         settings.Add(result);
                     }
@@ -162,12 +160,12 @@ namespace Reusable.ConfigWhiz.Datastores
     {
         public static TableMetadata<SqlDbType> AddNameColumn(this TableMetadata<SqlDbType> tableMetadata, SqlDbType dbType = SqlDbType.NVarChar, int length = 200)
         {
-            return tableMetadata.AddColumn(SettingProperty.Name, dbType, length);
+            return tableMetadata.AddColumn(EntityProperty.Name, dbType, length);
         }
 
         public static TableMetadata<SqlDbType> AddValueColumn(this TableMetadata<SqlDbType> tableMetadata, SqlDbType dbType = SqlDbType.NVarChar, int length = -1)
         {
-            return tableMetadata.AddColumn(SettingProperty.Value, dbType, length);
+            return tableMetadata.AddColumn(EntityProperty.Value, dbType, length);
         }
     }
 }

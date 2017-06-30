@@ -74,22 +74,6 @@ namespace Reusable.SmartConfig
         public bool Equals(string other) => Name.Equals(other, StringComparison.OrdinalIgnoreCase);
     }
 
-    public class DatastoreComparer : IEqualityComparer<IDatastore>
-    {
-        public bool Equals(IDatastore x, IDatastore y)
-        {
-            return
-                !ReferenceEquals(x, null) &&
-                !ReferenceEquals(y, null) &&
-                x.Name.Equals(y.Name, StringComparison.OrdinalIgnoreCase);
-        }
-
-        public int GetHashCode(IDatastore obj)
-        {
-            return obj.GetHashCode();
-        }
-    }
-
     public class DatastoreReadException : Exception
     {
         public DatastoreReadException(IDatastore datastore, IIdentifier id, Exception innerException)

@@ -50,16 +50,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TehCodez\Collections\DatastoreComparer.cs" />
     <Compile Include="TehCodez\Configuration.cs" />
     <Compile Include="TehCodez\ConfigurationExtensions.cs" />
+    <Compile Include="TehCodez\Data\DatastoreCache.cs" />
+    <Compile Include="TehCodez\Data\EntityProperty.cs" />
     <Compile Include="TehCodez\Data\Identifier.cs" />
     <Compile Include="TehCodez\Converters\EnumerableToDictionaryConverter.cs" />
     <Compile Include="TehCodez\Datastore.cs" />
     <Compile Include="TehCodez\Datastores\Memory.cs" />
-    <Compile Include="TehCodez\Annotations\DefaultDatastoreAttribute.cs" />
-    <Compile Include="TehCodez\Annotations\FallbackDatastoreAttribute.cs" />
     <Compile Include="TehCodez\Annotations\ItemizedAttribute.cs" />
     <Compile Include="TehCodez\Annotations\SettingNameAttribute.cs" />
+    <Compile Include="TehCodez\Data\Token.cs" />
+    <Compile Include="TehCodez\Data\TokenType.cs" />
+    <Compile Include="TehCodez\Extensions\StringExtensions.cs" />
     <Compile Include="TehCodez\Extensions\TypeExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TehCodez\Data\Entity.cs" />

@@ -46,8 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SettingCommandFactory.cs" />
-    <Compile Include="SqlServer.cs" />
+    <Compile Include="TehCodez\SettingCommandFactory.cs" />
+    <Compile Include="TehCodez\SqlServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.ConfigWhiz.Datastores;
 using Reusable.Data;
+using Reusable.SmartConfig.Data;
 using Reusable.SmartConfig.Tests;
 using Reusable.SmartConfig.Tests.Common;
 
@@ -31,8 +32,8 @@ namespace Reusable.SmartConfig.Datastores.Tests
                     "name=configdb",
                     TableMetadata<DbType>
                         .Create("dbo", "Setting3")
-                        .AddColumn(SettingProperty.Name, DbType.String, 200)
-                        .AddColumn(SettingProperty.Value, DbType.String, -1)
+                        .AddColumn(EntityProperty.Name, DbType.String, 200)
+                        .AddColumn(EntityProperty.Value, DbType.String, -1)
                         .AddColumn("Environment", DbType.String, 200)
                         .AddColumn("Version", DbType.String, 50),
                     ImmutableDictionary<string, object>.Empty

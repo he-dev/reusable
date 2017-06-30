@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Win32;
+using Reusable.Collections;
 using Reusable.Extensions;
 using Reusable.SmartConfig.Data;
 
@@ -36,26 +37,25 @@ namespace Reusable.SmartConfig.Datastores.TehCodez
 
         protected override ICollection<IEntity> ReadCore(IIdentifier id)
         {
-            var subKeyName = Path.Combine(_baseSubKeyName, string.Join("\\", id.Context));
-            using (var subKey = _baseKey.OpenSubKey(subKeyName, false))
+            //var subKeyName = Path.Combine(_baseSubKeyName, string.Join("\\", id.Context));
+            using (var subKey = _baseKey.OpenSubKey(_baseSubKeyName, false))
             {
-                if (subKey == null) throw new SubKeyException(_baseKey.Name, _baseSubKeyName, subKeyName);
+                if (subKey == null) throw new SubKeyException(_baseKey.Name, _baseSubKeyName, _baseSubKeyName);
 
-                var shortWeakPath = id.ToShortWeakString();
                 var settings =
                     from valueName in subKey.GetValueNames()
-                    let valuePath = SettingIdentifier.Parse(valueName)
-                    where valuePath.ToShortWeakString().Equals(shortWeakPath, StringComparison.OrdinalIgnoreCase)
+                    let currentId = Identifier.Parse(valueName)
+                    where currentId.StartsWith(id)
                     select new Entity
                     {
-                        Id = valuePath,
+                        Id = currentId,
                         Value = subKey.GetValue(valueName)
                     };
                 return settings.Cast<IEntity>().ToList();
             }
         }
 
-        protected override int WriteCore(IGrouping<SettingIdentifier, IEntity> settings)
+        protected override int WriteCore(IGrouping<IIdentifier, IEntity> settings)
         {
             var settingsAffected = 0;
 
@@ -63,7 +63,7 @@ namespace Reusable.SmartConfig.Datastores.TehCodez
             {
                 var obsoleteNames =
                     from valueName in registryKey.GetValueNames()
-                    where SettingIdentifier.Parse(valueName).ToShortWeakString().Equals(settings.Key.ToShortWeakString(), StringComparison.OrdinalIgnoreCase)
+                    where Identifier.Parse(valueName).StartsWith(settings.Key)
                     select valueName;
 
                 foreach (var obsoleteName in obsoleteNames)
@@ -73,10 +73,10 @@ namespace Reusable.SmartConfig.Datastores.TehCodez
                 }
             }
 
-            var subKeyName = Path.Combine(_baseSubKeyName, string.Join("\\", settings.Key.Context));
-            using (var subKey = _baseKey.OpenSubKey(subKeyName, true) ?? _baseKey.CreateSubKey(subKeyName))
+            //var subKeyName = Path.Combine(_baseSubKeyName, string.Join("\\", settings.Key.Context));
+            using (var subKey = _baseKey.OpenSubKey(_baseSubKeyName, true) ?? _baseKey.CreateSubKey(_baseSubKeyName))
             {
-                if (subKey == null) throw new SubKeyException(_baseKey.Name, _baseSubKeyName, subKeyName);
+                if (subKey == null) throw new SubKeyException(_baseKey.Name, _baseSubKeyName, _baseSubKeyName);
 
                 DeleteObsoleteSettings(subKey);
 
@@ -87,7 +87,7 @@ namespace Reusable.SmartConfig.Datastores.TehCodez
                         throw new InvalidTypeException(setting.Value.GetType(), SupportedTypes);
                     }
 
-                    subKey.SetValue(setting.Id.ToShortStrongString(), setting.Value, registryValueKind);
+                    subKey.SetValue(setting.Id.ToString(), setting.Value, registryValueKind);
                     settingsAffected++;
                 }
             }

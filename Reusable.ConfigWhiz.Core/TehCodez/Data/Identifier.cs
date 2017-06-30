@@ -9,63 +9,7 @@ using Reusable.SmartConfig.Extensions;
 
 namespace Reusable.SmartConfig.Data
 {
-    public static class StringExtensions
-    {
-        public static string TrimEnd(this string input, string pattern, bool ignoreCase = false)
-        {
-            return Regex.Replace(input, $"{pattern}$", string.Empty, ignoreCase ? RegexOptions.IgnoreCase : RegexOptions.None);
-        }
-    }
-    public interface IToken : IEquatable<IToken>
-    {
-        string Value { get; }
-        TokenType Type { get; }
-    }
-
-    public class Token : IToken
-    {
-        public Token(string value, TokenType type)
-        {
-            Value = value;
-            Type = type;
-        }
-
-        public string Value { get; }
-
-        public TokenType Type { get; }
-
-        public static IToken Literal(string value) => new Token(value, TokenType.Literal);
-
-        public static IToken Element(string value) => new Token(value, TokenType.Element);
-
-        public bool Equals(IToken other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return StringComparer.OrdinalIgnoreCase.Equals(Value, other.Value) && Type == other.Type;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj is IToken token && Equals(token);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return ((Value != null ? Value.GetHashCode() : 0) * 397) ^ (int)Type;
-            }
-        }
-    }
-
-    public enum TokenType
-    {
-        Literal,
-        Element,
-    }
+   
 
     public interface IIdentifier : IEnumerable<IToken>, IEquatable<IIdentifier>, IFormattable { }
 
@@ -73,7 +17,7 @@ namespace Reusable.SmartConfig.Data
     public class Identifier : IIdentifier
     {
         // language=regexp
-        private static string ContainerSuffix = "Config(uration)?|Setting(s)?";
+        public const string ContainerSuffix = "Config(uration)?|Setting(s)?";
 
         private readonly IEnumerable<IToken> _tokens;
 
@@ -87,33 +31,29 @@ namespace Reusable.SmartConfig.Data
 
         private string DebuggerDisplay => ToString();
 
+        //public bool IsEmpty => !this.Any();
+
         public static IIdentifier Create(params IToken[] tokens) => new Identifier(tokens);
 
         public static IIdentifier Create<TContainer>()
         {
-            return new Identifier(new IToken[]
-            {
-                new Token(typeof(TContainer).GetCustomNameOrDefault().TrimEnd(ContainerSuffix, true), TokenType.Literal)
-            });
+            return new Identifier(
+                new Token(typeof(TContainer).GetCustomNameOrDefault().TrimEnd(ContainerSuffix, true), TokenType.Literal));
         }
 
         public static IIdentifier Create<TConsumer, TContainer>()
         {
-            return new Identifier(new IToken[]
-            {
-                new Token(typeof(TConsumer).GetCustomNameOrDefault(), TokenType.Literal),
-                new Token(typeof(TContainer).GetCustomNameOrDefault().TrimEnd(ContainerSuffix, true), TokenType.Literal)
-            });
+            return new Identifier(
+                new Token(typeof(TConsumer).GetCustomNameOrDefault(), TokenType.Literal), 
+                new Token(typeof(TContainer).GetCustomNameOrDefault().TrimEnd(ContainerSuffix, true), TokenType.Literal));
         }
 
         public static IIdentifier Create<TConsumer, TContainer>(TConsumer consumer, Func<TConsumer, string> getInstanceName)
         {
-            return new Identifier(new IToken[]
-            {
-                new Token(typeof(TConsumer).GetCustomNameOrDefault(), TokenType.Literal),
-                new Token(getInstanceName(consumer), TokenType.Element),
-                new Token(typeof(TContainer).GetCustomNameOrDefault().TrimEnd(ContainerSuffix, true), TokenType.Literal)
-            });
+            return new Identifier(
+                new Token(typeof(TConsumer).GetCustomNameOrDefault(), TokenType.Literal), 
+                new Token(getInstanceName(consumer), TokenType.Element), 
+                new Token(typeof(TContainer).GetCustomNameOrDefault().TrimEnd(ContainerSuffix, true), TokenType.Literal));
         }
 
         public static IIdentifier From(IIdentifier identifier, string setting)

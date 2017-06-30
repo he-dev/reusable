@@ -3,7 +3,6 @@ using System.Collections.Immutable;
 using System.Data;
 using System.Data.SqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.ConfigWhiz.Datastores;
 using Reusable.Data;
 using Reusable.SmartConfig.Tests;
 using Reusable.SmartConfig.Tests.Common;

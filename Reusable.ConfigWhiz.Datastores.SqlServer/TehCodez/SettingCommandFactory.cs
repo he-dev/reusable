@@ -1,16 +1,13 @@
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Net.Http.Headers;
 using System.Text;
 using Reusable.Data;
-using Reusable.SmartConfig;
 using Reusable.SmartConfig.Data;
 
-namespace Reusable.ConfigWhiz.Datastores
+namespace Reusable.SmartConfig.Datastores
 {
     internal class SettingCommandFactory
     {
@@ -35,7 +32,7 @@ namespace Reusable.ConfigWhiz.Datastores
                 sql.Append($"SELECT *").AppendLine();
                 sql.Append($"FROM {table}").AppendLine();
                 sql.Append(where.Aggregate(
-                    $"WHERE ([{SettingProperty.Name}] = @{SettingProperty.Name} OR [{SettingProperty.Name}] LIKE @{SettingProperty.Name} + N'[[]%]')",
+                    $"WHERE ([{EntityProperty.Name}] = @{EntityProperty.Name} OR [{EntityProperty.Name}] LIKE @{EntityProperty.Name} + N'[[]%]')",
                     (result, next) => $"{result} AND {Sanitize(next.Key)} = @{next.Key}")
                 );
             }
@@ -47,7 +44,7 @@ namespace Reusable.ConfigWhiz.Datastores
 
             (command, _tableMetadata).AddParameter(
                 ImmutableDictionary<string, object>.Empty
-                    .Add(SettingProperty.Name, id.ToString())
+                    .Add(EntityProperty.Name, id.ToString())
                     .AddRange(where)
             );
 
@@ -73,7 +70,7 @@ namespace Reusable.ConfigWhiz.Datastores
 
                 sql.Append($"DELETE FROM {table}").AppendLine();
                 sql.Append(where.Keys.Aggregate(
-                    $"WHERE ([{SettingProperty.Name}] = @{SettingProperty.Name} OR [{SettingProperty.Name}] LIKE @{SettingProperty.Name} + N'[[]%]')",
+                    $"WHERE ([{EntityProperty.Name}] = @{EntityProperty.Name} OR [{EntityProperty.Name}] LIKE @{EntityProperty.Name} + N'[[]%]')",
                     (result, next) => $"{result} AND {Sanitize(next)} = @{next} ")
                 );
             }
@@ -86,7 +83,7 @@ namespace Reusable.ConfigWhiz.Datastores
 
             (command, _tableMetadata).AddParameter(
                 ImmutableDictionary<string, object>.Empty
-                    .Add(SettingProperty.Name, id.ToString())
+                    .Add(EntityProperty.Name, id.ToString())
                     .AddRange(where)
             );
 
@@ -116,24 +113,24 @@ namespace Reusable.ConfigWhiz.Datastores
                 var table = $"{Sanitize(_tableMetadata.SchemaName)}.{Sanitize(_tableMetadata.TableName)}";
 
                 sql.Append($"UPDATE {table}").AppendLine();
-                sql.Append($"SET [{SettingProperty.Value}] = @{SettingProperty.Value}").AppendLine();
+                sql.Append($"SET [{EntityProperty.Value}] = @{EntityProperty.Value}").AppendLine();
 
                 sql.Append(where.Keys.Aggregate(
-                    $"WHERE ([{SettingProperty.Name}] = @{SettingProperty.Name} OR [{SettingProperty.Name}] LIKE @{SettingProperty.Name} + N'[[]%]')",
+                    $"WHERE ([{EntityProperty.Name}] = @{EntityProperty.Name} OR [{EntityProperty.Name}] LIKE @{EntityProperty.Name} + N'[[]%]')",
                     (result, next) => $"{result} AND {Sanitize(next)} = @{next} ")
                 ).AppendLine();
 
                 sql.Append($"IF @@ROWCOUNT = 0").AppendLine();
 
                 var columns = where.Keys.Select(Sanitize).Aggregate(
-                    $"[{SettingProperty.Name}], [{SettingProperty.Value}]",
+                    $"[{EntityProperty.Name}], [{EntityProperty.Value}]",
                     (result, next) => $"{result}, {next}"
                 );
 
                 sql.Append($"INSERT INTO {table}({columns})").AppendLine();
 
                 var parameterNames = where.Keys.Aggregate(
-                    $"@{SettingProperty.Name}, @{SettingProperty.Value}",
+                    $"@{EntityProperty.Name}, @{EntityProperty.Value}",
                     (result, next) => $"{result}, @{next}"
                 );
 
@@ -148,8 +145,8 @@ namespace Reusable.ConfigWhiz.Datastores
 
             (command, _tableMetadata).AddParameter(
                 ImmutableDictionary<string, object>.Empty
-                    .Add(SettingProperty.Name, id.ToString())
-                    .Add(SettingProperty.Value, value)
+                    .Add(EntityProperty.Name, id.ToString())
+                    .Add(EntityProperty.Value, value)
                     .AddRange(where));
 
             return command;

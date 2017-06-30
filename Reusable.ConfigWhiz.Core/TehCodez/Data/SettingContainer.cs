@@ -26,7 +26,7 @@ namespace Reusable.SmartConfig.Data
             _settings =
                 (from property in instance.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public)
                  where property.GetCustomAttribute<IgnoreAttribute>().IsNull()
-                 select new Setting(Identifier.From(id, property.GetCustomNameOrDefault()), instance, property)).ToList();
+                 select new Setting(id, instance, property)).ToList();
         }
 
         [NotNull]

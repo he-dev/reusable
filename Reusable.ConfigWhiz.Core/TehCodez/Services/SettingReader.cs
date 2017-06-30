@@ -96,7 +96,7 @@ namespace Reusable.SmartConfig.Services
     public class DatastoreNotFoundException : Exception
     {
         public DatastoreNotFoundException(IIdentifier id)
-            : base($"Could not find datastore for '{id}'")
+            : base($"Could not find datastore for '{id.ToString()}'")
         { }
     }
 }

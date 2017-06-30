@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Reusable.Collections;
 using Reusable.SmartConfig.Data;
 
 namespace Reusable.SmartConfig.Datastores
@@ -21,20 +22,18 @@ namespace Reusable.SmartConfig.Datastores
 
         protected override ICollection<IEntity> ReadCore(IIdentifier id)
         {
-            var name = id.ToString();
             var settings =
                 (from x in Data
-                 where x.Id.ToString().StartsWith(name, StringComparison.OrdinalIgnoreCase)
+                 where x.Id.StartsWith(id)
                  select x).ToList();
             return settings;
         }
 
         protected override int WriteCore(IGrouping<IIdentifier, IEntity> settings)
         {
-            var name = settings.Key.ToString(); //($".{IdentifierLength}" IdentifierFormat.FullWeak, IdentifierFormatter.Instance);
             var obsoleteSettings =
                 (from x in Data
-                 where x.Id.ToString().StartsWith(name, StringComparison.OrdinalIgnoreCase)
+                 where x.Id.StartsWith(settings.Key)
                  select x).ToList();
             obsoleteSettings.ForEach(x => Data.Remove(x));
 

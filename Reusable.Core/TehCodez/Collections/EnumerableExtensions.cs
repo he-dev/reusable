@@ -120,5 +120,23 @@ namespace Reusable.Collections
                 return true;
             }
         }
+
+        public static bool StartsWith<TSource>(this IEnumerable<TSource> first, IEnumerable<TSource> second, IEqualityComparer<TSource> comparer = null)
+        {
+            if (comparer == null) comparer = EqualityComparer<TSource>.Default;
+            if (first == null) throw new ArgumentNullException(nameof(first));
+            if (second == null) throw new ArgumentNullException(nameof(second));
+
+            using (var e1 = first.GetEnumerator())
+            using (var e2 = second.GetEnumerator())
+            {
+                while (e2.MoveNext())
+                {
+                    if (!(e1.MoveNext() && comparer.Equals(e1.Current, e2.Current))) return false;
+                }
+                if (e2.MoveNext()) return false;
+            }
+            return true;
+        }
     }
 }

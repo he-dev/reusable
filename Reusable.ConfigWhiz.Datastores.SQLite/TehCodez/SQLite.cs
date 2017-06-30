@@ -78,7 +78,7 @@ namespace Reusable.ConfigWhiz.Datastores
 
                         var setting = new Entity
                         {
-                            Id = Identifier.Parse((string)settingReader[SettingProperty.Name]),
+                            Id = Identifier.Parse((string)settingReader[EntityProperty.Name]),
                             Value = RecodeDataEnabled ? value.Recode(DataEncoding, SettingEncoding) : value
                         };
                         settings.Add(setting);
