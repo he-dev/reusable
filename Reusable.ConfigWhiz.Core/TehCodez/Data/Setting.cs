@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using Reusable.ConfigWhiz.Data.Annotations;
 using Reusable.ConfigWhiz.Extensions;
-using Reusable.ConfigWhiz.Paths;
 using Reusable.Data.Annotations;
 using Reusable.Extensions;
 

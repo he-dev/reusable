@@ -6,7 +6,6 @@ using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using Reusable.ConfigWhiz.Data;
-using Reusable.ConfigWhiz.Paths;
 using Reusable.Data;
 using Reusable.Extensions;
 
@@ -68,10 +67,10 @@ namespace Reusable.ConfigWhiz.Datastores
                 .AddColumn("Name", SqlDbType.NVarChar, 200)
                 .AddColumn("Value", SqlDbType.NVarChar, -1);
 
-        protected override ICollection<IEntity> ReadCore(SettingIdentifier settingIdentifier)
+        protected override ICollection<IEntity> ReadCore(IIdentifier id)
         {
             using (var connection = OpenConnection())
-            using (var command = _settingCommandFactory.CreateSelectCommand(connection, settingIdentifier, _where))
+            using (var command = _settingCommandFactory.CreateSelectCommand(connection, id, _where))
             {
                 command.Prepare();
 
@@ -83,7 +82,7 @@ namespace Reusable.ConfigWhiz.Datastores
                     {
                         var result = new Entity
                         {
-                            Id = SettingIdentifier.Parse((string)settingReader[SettingProperty.Name]),
+                            Id = Identifier.Parse((string)settingReader[SettingProperty.Name]),
                             Value = settingReader[SettingProperty.Value],
                         };
                         settings.Add(result);
@@ -93,7 +92,7 @@ namespace Reusable.ConfigWhiz.Datastores
             }
         }
 
-        protected override int WriteCore(IGrouping<SettingIdentifier, IEntity> settings)
+        protected override int WriteCore(IGrouping<IIdentifier, IEntity> settings)
         {
             var affectedRows = 0;
 

@@ -7,7 +7,6 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using Reusable.ConfigWhiz.Data;
-using Reusable.ConfigWhiz.Paths;
 using Reusable.Data;
 
 namespace Reusable.ConfigWhiz.Datastores
@@ -21,7 +20,7 @@ namespace Reusable.ConfigWhiz.Datastores
             _tableMetadata = tableMetadata;
         }
 
-        public SqlCommand CreateSelectCommand(SqlConnection connection, SettingIdentifier settingIdentifier, IImmutableDictionary<string, object> where)
+        public SqlCommand CreateSelectCommand(SqlConnection connection, IIdentifier id, IImmutableDictionary<string, object> where)
         {
             var sql = new StringBuilder();
 
@@ -47,14 +46,14 @@ namespace Reusable.ConfigWhiz.Datastores
 
             (command, _tableMetadata).AddParameter(
                 ImmutableDictionary<string, object>.Empty
-                    .Add(SettingProperty.Name, settingIdentifier.ToFullWeakString())
+                    .Add(SettingProperty.Name, id.ToString())
                     .AddRange(where)
             );
 
             return command;
         }
 
-        public SqlCommand CreateDeleteCommand(SqlConnection connection, SettingIdentifier settingIdentifier, IImmutableDictionary<string, object> where)
+        public SqlCommand CreateDeleteCommand(SqlConnection connection, IIdentifier id, IImmutableDictionary<string, object> where)
         {
             /*
              
@@ -86,14 +85,14 @@ namespace Reusable.ConfigWhiz.Datastores
 
             (command, _tableMetadata).AddParameter(
                 ImmutableDictionary<string, object>.Empty
-                    .Add(SettingProperty.Name, settingIdentifier.ToFullWeakString())
+                    .Add(SettingProperty.Name, id.ToString())
                     .AddRange(where)
             );
 
             return command;
         }
 
-        public SqlCommand CreateInsertCommand(SqlConnection connection, SettingIdentifier settingIdentifier, object value, IImmutableDictionary<string, object> where)
+        public SqlCommand CreateInsertCommand(SqlConnection connection, IIdentifier id, object value, IImmutableDictionary<string, object> where)
         {
             /*
              
@@ -148,7 +147,7 @@ namespace Reusable.ConfigWhiz.Datastores
 
             (command, _tableMetadata).AddParameter(
                 ImmutableDictionary<string, object>.Empty
-                    .Add(SettingProperty.Name, settingIdentifier.ToFullStrongString())
+                    .Add(SettingProperty.Name, id.ToString())
                     .Add(SettingProperty.Value, value)
                     .AddRange(where));
 

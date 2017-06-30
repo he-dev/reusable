@@ -175,8 +175,6 @@ namespace Reusable.ConfigWhiz.Tests
             collection.DictionaryStringInt32.Verify().DictionaryEqual(new Dictionary<string, int> { ["foo"] = 21, ["bar"] = 34, ["baz"] = 88 });
         }
 
-        
-
         #endregion
     }
 }

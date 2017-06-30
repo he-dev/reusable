@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.ConfigWhiz.Paths;
+using Reusable.ConfigWhiz.Data;
 using Reusable.ConfigWhiz.Tests.Common;
 using Reusable.ConfigWhiz.Tests.Common.Configurations;
 

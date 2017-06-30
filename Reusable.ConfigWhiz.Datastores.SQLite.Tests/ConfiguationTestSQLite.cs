@@ -3,7 +3,6 @@ using System.Data;
 using System.Data.SQLite;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.ConfigWhiz.Paths;
 using Reusable.ConfigWhiz.Tests;
 using Reusable.ConfigWhiz.Tests.Common;
 using Reusable.Data;
@@ -94,9 +93,9 @@ namespace Reusable.ConfigWhiz.Datastores.Tests
                 command.Parameters.Add("@Environment", DbType.String, 50);
                 command.Parameters.Add("@Version", DbType.String, 50);
 
-                foreach (var setting in SettingFactory.ReadSettings<TestConsumer>())
+                foreach (var setting in SettingFactory.ReadSettings())
                 {
-                    command.Parameters["@Name"].Value = setting.Id.ToFullStrongString();
+                    command.Parameters["@Name"].Value = setting.Id.ToString();
                     command.Parameters["@Value"].Value = setting.Value.ToString().Recode(Encoding.UTF8, Encoding.Default);
                     command.Parameters["@Environment"].Value = environment;
                     command.Parameters["@Version"].Value = version;

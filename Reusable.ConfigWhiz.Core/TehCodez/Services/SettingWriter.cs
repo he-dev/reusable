@@ -1,15 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using Reusable.ConfigWhiz.Converters;
 using Reusable.ConfigWhiz.Data;
-using Reusable.ConfigWhiz.Paths;
-using Reusable.Extensions;
-using Reusable.TypeConversion;
 
-namespace Reusable.ConfigWhiz.IO
+namespace Reusable.ConfigWhiz.Services
 {
     public class SettingWriter
     {

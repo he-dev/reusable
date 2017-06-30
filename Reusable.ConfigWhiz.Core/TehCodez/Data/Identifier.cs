@@ -1,17 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
-using JetBrains.Annotations;
-using Reusable.Collections;
 using Reusable.ConfigWhiz.Extensions;
-using Reusable.Extensions;
 
-namespace Reusable.ConfigWhiz.Paths
+namespace Reusable.ConfigWhiz.Data
 {
     public static class StringExtensions
     {

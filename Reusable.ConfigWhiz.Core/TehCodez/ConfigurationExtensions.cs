@@ -1,6 +1,6 @@
 using System;
 using JetBrains.Annotations;
-using Reusable.ConfigWhiz.Paths;
+using Reusable.ConfigWhiz.Data;
 
 namespace Reusable.ConfigWhiz
 {

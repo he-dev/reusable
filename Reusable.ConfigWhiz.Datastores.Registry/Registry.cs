@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Win32;
 using Reusable.ConfigWhiz.Data;
-using Reusable.ConfigWhiz.Paths;
 using Reusable.Extensions;
 
 namespace Reusable.ConfigWhiz.Datastores

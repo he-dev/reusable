@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using Reusable.ConfigWhiz.Paths;
 
 namespace Reusable.ConfigWhiz.Data
 {

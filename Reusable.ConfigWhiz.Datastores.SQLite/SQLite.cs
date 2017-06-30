@@ -6,7 +6,6 @@ using System.Data.SQLite;
 using System.Linq;
 using System.Text;
 using Reusable.ConfigWhiz.Data;
-using Reusable.ConfigWhiz.Paths;
 using Reusable.Data;
 using Reusable.Extensions;
 
@@ -62,10 +61,10 @@ namespace Reusable.ConfigWhiz.Datastores
             set => _settingEncoding = value ?? throw new ArgumentNullException(nameof(SettingEncoding));
         }
 
-        protected override ICollection<IEntity> ReadCore(SettingIdentifier settingIdentifier)
+        protected override ICollection<IEntity> ReadCore(IIdentifier id)
         {
             using (var connection = OpenConnection())
-            using (var command = _settingCommandFactory.CreateSelectCommand(connection, settingIdentifier, _where))
+            using (var command = _settingCommandFactory.CreateSelectCommand(connection, id, _where))
             {
                 command.Prepare();
 
@@ -78,7 +77,7 @@ namespace Reusable.ConfigWhiz.Datastores
 
                         var setting = new Entity
                         {
-                            Id = SettingIdentifier.Parse((string)settingReader[SettingProperty.Name]),
+                            Id = Identifier.Parse((string)settingReader[SettingProperty.Name]),
                             Value = RecodeDataEnabled ? value.Recode(DataEncoding, SettingEncoding) : value
                         };
                         settings.Add(setting);
@@ -88,7 +87,7 @@ namespace Reusable.ConfigWhiz.Datastores
             }
         }
 
-        protected override int WriteCore(IGrouping<SettingIdentifier, IEntity> settings)
+        protected override int WriteCore(IGrouping<IIdentifier, IEntity> settings)
         {
             var rowsAffected = 0;
 

@@ -1,7 +1,7 @@
 using Reusable.Drawing;
 using Reusable.TypeConversion;
 
-namespace Reusable.ConfigWhiz
+namespace Reusable.ConfigWhiz.Services
 {
     public static class TypeConverterFactory
     {

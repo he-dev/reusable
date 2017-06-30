@@ -4,7 +4,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using JetBrains.Annotations;
 using Reusable.ConfigWhiz.Data;
-using Reusable.ConfigWhiz.Paths;
 using Reusable.Extensions;
 
 namespace Reusable.ConfigWhiz

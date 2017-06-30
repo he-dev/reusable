@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Reusable.ConfigWhiz.Data;
-using Reusable.ConfigWhiz.Paths;
 
 namespace Reusable.ConfigWhiz.Datastores
 {

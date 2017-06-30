@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Reusable.ConfigWhiz.Data;
-using Reusable.ConfigWhiz.Paths;
 using Reusable.Data;
 
 namespace Reusable.ConfigWhiz.Datastores
@@ -22,7 +21,7 @@ namespace Reusable.ConfigWhiz.Datastores
             _tableMetadata = tableMetadata;
         }
 
-        public SQLiteCommand CreateSelectCommand(SQLiteConnection connection, SettingIdentifier settingIdentifier, IImmutableDictionary<string, object> where)
+        public SQLiteCommand CreateSelectCommand(SQLiteConnection connection, IIdentifier id, IImmutableDictionary<string, object> where)
         {
             // --- build sql
 
@@ -52,13 +51,13 @@ namespace Reusable.ConfigWhiz.Datastores
 
             (command, _tableMetadata).AddParameter(
                 ImmutableDictionary<string, object>.Empty
-                    .Add(SettingProperty.Name, settingIdentifier.ToFullWeakString())
+                    .Add(SettingProperty.Name, id.ToString())
                     .AddRange(where));
 
             return command;
         }
 
-        public SQLiteCommand CreateDeleteCommand(SQLiteConnection connection, SettingIdentifier settingIdentifier, IImmutableDictionary<string, object> where)
+        public SQLiteCommand CreateDeleteCommand(SQLiteConnection connection, IIdentifier id, IImmutableDictionary<string, object> where)
         {
             /*
              
@@ -90,13 +89,13 @@ namespace Reusable.ConfigWhiz.Datastores
      
             (command, _tableMetadata).AddParameter(
                 ImmutableDictionary<string, object>.Empty
-                    .Add(SettingProperty.Name, settingIdentifier.ToFullWeakString())
+                    .Add(SettingProperty.Name, id.ToString())
                     .AddRange(where));
 
             return command;
         }
 
-        public SQLiteCommand CreateInsertCommand(SQLiteConnection connection, SettingIdentifier settingIdentifier, object value, IImmutableDictionary<string, object> where)
+        public SQLiteCommand CreateInsertCommand(SQLiteConnection connection, IIdentifier id, object value, IImmutableDictionary<string, object> where)
         {
             /*
                 INSERT OR REPLACE INTO Setting([Name], [Value])
@@ -137,7 +136,7 @@ namespace Reusable.ConfigWhiz.Datastores
 
             (command, _tableMetadata).AddParameter(
                 ImmutableDictionary<string, object>.Empty
-                    .Add(SettingProperty.Name, settingIdentifier.ToFullStrongString())
+                    .Add(SettingProperty.Name, id.ToString())
                     .Add(SettingProperty.Value, value)
                     .AddRange(where));
 

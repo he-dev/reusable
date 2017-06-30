@@ -52,24 +52,24 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Configurations\EmptyConfiguration.cs" />
-    <Compile Include="Configurations\Bar.cs" />
-    <Compile Include="Configurations\_types\CollectionConfiguration.cs" />
-    <Compile Include="Configurations\_types\LiteralConfiguration.cs" />
-    <Compile Include="Configurations\_types\OtherConfiguration.cs" />
-    <Compile Include="Configurations\_types\DrawingConfiguration.cs" />
-    <Compile Include="Configurations\_types\RenamedConfiguration.cs" />
-    <Compile Include="Configurations\TestContainer1.cs" />
-    <Compile Include="Configurations\TestContainer2.cs" />
-    <Compile Include="Configurations\_types\NumericConfiguration.cs" />
-    <Compile Include="TestEnum.cs" />
-    <Compile Include="TestConsumer.cs" />
+    <Compile Include="TehCodez\Configurations\EmptyConfiguration.cs" />
+    <Compile Include="TehCodez\Configurations\NonExistingConfiguration.cs" />
+    <Compile Include="TehCodez\Configurations\CollectionConfiguration.cs" />
+    <Compile Include="TehCodez\Configurations\LiteralConfiguration.cs" />
+    <Compile Include="TehCodez\Configurations\OtherConfiguration.cs" />
+    <Compile Include="TehCodez\Configurations\DrawingConfiguration.cs" />
+    <Compile Include="TehCodez\Configurations\RenamedConfiguration.cs" />
+    <Compile Include="TehCodez\Configurations\TestContainer1.cs" />
+    <Compile Include="TehCodez\Configurations\TestContainer2.cs" />
+    <Compile Include="TehCodez\Configurations\NumericConfiguration.cs" />
+    <Compile Include="TehCodez\TestEnum.cs" />
+    <Compile Include="TehCodez\TestConsumer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SettingFactory.cs" />
+    <Compile Include="TehCodez\SettingFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <EmbeddedResource Include="Settings.json" />
+    <EmbeddedResource Include="Resources\Settings.json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.ConfigWhiz.Core\Reusable.ConfigWhiz.Core.csproj">

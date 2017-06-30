@@ -5,7 +5,6 @@ using Reusable.Collections;
 using Reusable.ConfigWhiz.Tests;
 using Reusable.Extensions;
 using System.Linq;
-using Reusable.ConfigWhiz.Paths;
 using Reusable.ConfigWhiz.Tests.Common;
 
 namespace Reusable.ConfigWhiz.Datastores.Tests

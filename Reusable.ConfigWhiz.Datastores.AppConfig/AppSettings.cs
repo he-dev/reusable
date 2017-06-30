@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Reusable.ConfigWhiz.Data;
-using Reusable.ConfigWhiz.Paths;
 
 namespace Reusable.ConfigWhiz.Datastores.AppConfig
 {
@@ -22,23 +21,23 @@ namespace Reusable.ConfigWhiz.Datastores.AppConfig
 
         public AppSettings() : base(CreateDefaultName<AppSettings>(), new[] { typeof(string) }) { }
 
-        protected override ICollection<IEntity> ReadCore(SettingIdentifier settingIdentifier)
+        protected override ICollection<IEntity> ReadCore(IIdentifier id)
         {
             var exeConfig = OpenExeConfiguration();
 
-            var settingName = settingIdentifier.ToString(IdentifierFormat.FullWeak, IdentifierFormatter.Instance);
+            var settingName = id.ToString();
             var keys = exeConfig.AppSettings.Settings.AllKeys.Where(key => key.StartsWith(settingName, StringComparison.OrdinalIgnoreCase));
             var settings =
                 from k in keys
                 select new Entity
                 {
-                    Id = SettingIdentifier.Parse(k),
+                    Id = Identifier.Parse(k),
                     Value = exeConfig.AppSettings.Settings[k].Value
                 };
             return settings.Cast<IEntity>().ToList();
         }
 
-        protected override int WriteCore(IGrouping<SettingIdentifier, IEntity> settings)
+        protected override int WriteCore(IGrouping<IIdentifier, IEntity> settings)
         {
             var exeConfig = OpenExeConfiguration();
 
@@ -49,7 +48,7 @@ namespace Reusable.ConfigWhiz.Datastores.AppConfig
 
             void DeleteSettingGroup(AppSettingsSection appSettings)
             {
-                var settingName = settings.Key.ToString(IdentifierFormat.FullWeak, IdentifierFormatter.Instance);
+                var settingName = settings.Key.ToString();
                 var keys = appSettings.Settings.AllKeys.Where(key => key.StartsWith(settingName, StringComparison.OrdinalIgnoreCase));
                 foreach (var key in keys)
                 {
@@ -62,7 +61,7 @@ namespace Reusable.ConfigWhiz.Datastores.AppConfig
 
             foreach (var setting in settings)
             {
-                var settingName = setting.Id.ToFullStrongString();
+                var settingName = setting.Id.ToString();
                 exeConfig.AppSettings.Settings.Add(settingName, (string)setting.Value);
                 settingsAffected++;
             }

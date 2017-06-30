@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.ConfigWhiz.Datastores;
-using Reusable.ConfigWhiz.IO;
 using Reusable.ConfigWhiz.Tests.Common;
 using CData = Reusable.ConfigWhiz.Tests.Common.Data;
 using Reusable.Extensions;
@@ -9,6 +8,7 @@ using Reusable.Fuse.Testing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Reusable.ConfigWhiz.Services;
 using Reusable.ConfigWhiz.Tests.Common.Configurations;
 
 // ReSharper disable InconsistentNaming
@@ -60,17 +60,17 @@ namespace Reusable.ConfigWhiz.Tests
         public void ctor_CannotReadFromDatastore_Throws()
         {
             var configuration = new Configuration(new[] { new TestDatastore("mock1", new List<Type>()) });
-            configuration.Get<TestConsumer, CData.Bar>();
+            configuration.Get<TestConsumer, NonExistingConfiguration>();
         }
 
         [TestMethod]
         public void ctor_NoDefaultDatastore_Throws()
         {
-            var ex = new Action(() =>
+            var ex = Assert.ThrowsException<AggregateException>(() =>
             {
                 var configuration = new Configuration(new[] { new Memory("mem1") });
                 configuration.Get<TestConsumer, CData.TestContainer1>();
-            }).Verify().Throws<AggregateException>();
+            });
 
             ex.InnerExceptions.First().Verify().IsInstanceOfType(typeof(DatastoreNotFoundException));
         }

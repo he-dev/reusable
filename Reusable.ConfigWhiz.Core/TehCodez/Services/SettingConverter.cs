@@ -2,17 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
 using Reusable.ConfigWhiz.Converters;
 using Reusable.ConfigWhiz.Data;
-using Reusable.ConfigWhiz.IO;
-using Reusable.ConfigWhiz.Paths;
 using Reusable.Extensions;
 using Reusable.TypeConversion;
 
-namespace Reusable.ConfigWhiz
+namespace Reusable.ConfigWhiz.Services
 {
     public class SettingConverter
     {

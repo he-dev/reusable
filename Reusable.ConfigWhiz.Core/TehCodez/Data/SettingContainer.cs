@@ -5,8 +5,6 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Reusable.ConfigWhiz.Extensions;
-using Reusable.ConfigWhiz.IO;
-using Reusable.ConfigWhiz.Paths;
 using Reusable.Data.Annotations;
 using Reusable.Extensions;
 
