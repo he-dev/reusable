@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Reusable.ConfigWhiz.Datastores.AppConfig")]
+[assembly: AssemblyTitle("Reusable.SmartConfig.Datastores.AppConfig")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Reusable.ConfigWhiz.Datastores.AppConfig")]
+[assembly: AssemblyProduct("Reusable.SmartConfig.Datastores.AppConfig")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

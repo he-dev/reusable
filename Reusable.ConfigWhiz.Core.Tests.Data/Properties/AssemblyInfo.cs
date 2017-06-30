@@ -2,11 +2,11 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("Reusable.ConfigWhiz.Core.Tests.Data")]
+[assembly: AssemblyTitle("Reusable.SmartConfig.Core.Tests.Data")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Reusable.ConfigWhiz.Core.Tests.Data")]
+[assembly: AssemblyProduct("Reusable.SmartConfig.Core.Tests.Data")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
