@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Reusable.ConfigWhiz.Data.Annotations
+namespace Reusable.SmartConfig.Annotations
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property)]
     public class FallbackDatastoreAttribute : Attribute

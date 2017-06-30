@@ -5,9 +5,9 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Reusable.ConfigWhiz.Extensions;
+using Reusable.SmartConfig.Extensions;
 
-namespace Reusable.ConfigWhiz.Data
+namespace Reusable.SmartConfig.Data
 {
     public static class StringExtensions
     {

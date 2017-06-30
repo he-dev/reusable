@@ -1,8 +1,8 @@
 using System;
 using JetBrains.Annotations;
-using Reusable.ConfigWhiz.Data;
+using Reusable.SmartConfig.Data;
 
-namespace Reusable.ConfigWhiz
+namespace Reusable.SmartConfig
 {
     public static class ConfigurationExtensions
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Reusable.ConfigWhiz.Data.Annotations
+namespace Reusable.SmartConfig.Annotations
 {
     [AttributeUsage(AttributeTargets.Property)]
     public class ItemizedAttribute : Attribute { }

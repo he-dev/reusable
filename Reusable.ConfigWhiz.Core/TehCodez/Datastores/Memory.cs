@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Reusable.ConfigWhiz.Data;
+using Reusable.SmartConfig.Data;
 
-namespace Reusable.ConfigWhiz.Datastores
+namespace Reusable.SmartConfig.Datastores
 {
     public class Memory : Datastore, IEnumerable<IEntity>
     {

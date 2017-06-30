@@ -3,14 +3,14 @@ using System.Data;
 using System.Data.SQLite;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.ConfigWhiz.Tests;
-using Reusable.ConfigWhiz.Tests.Common;
+using Reusable.ConfigWhiz.Datastores;
 using Reusable.Data;
-using Reusable.Data.SqlClient;
+using Reusable.SmartConfig.Tests;
+using Reusable.SmartConfig.Tests.Common;
 
 // ReSharper disable InconsistentNaming
 
-namespace Reusable.ConfigWhiz.Datastores.Tests
+namespace Reusable.SmartConfig.Datastores.Tests
 {
     [TestClass]
     public class ConfiguationTestSQLite : ConfigurationTestBase

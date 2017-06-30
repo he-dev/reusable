@@ -1,4 +1,4 @@
-namespace Reusable.ConfigWhiz.Tests.Common
+namespace Reusable.SmartConfig.Tests.Common
 {
     public class TestConsumer
     {

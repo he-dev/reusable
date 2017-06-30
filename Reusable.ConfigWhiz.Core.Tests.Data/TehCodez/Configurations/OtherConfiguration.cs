@@ -1,7 +1,7 @@
 using System;
 using Reusable.Data.Annotations;
 
-namespace Reusable.ConfigWhiz.Tests.Common.Configurations
+namespace Reusable.SmartConfig.Tests.Common.Configurations
 {
     public class OtherConfiguration
     {

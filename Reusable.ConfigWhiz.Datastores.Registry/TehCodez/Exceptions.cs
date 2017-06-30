@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Reusable.ConfigWhiz.Datastores
+namespace Reusable.SmartConfig.Datastores.TehCodez
 {
     public class InvalidTypeException : Exception
     {

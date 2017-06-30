@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace Reusable.ConfigWhiz.Data
+namespace Reusable.SmartConfig.Data
 {
     public interface IEntity
     {

@@ -2,7 +2,7 @@ using System.Drawing;
 using Reusable.Data.Annotations;
 using Reusable.StringFormatting.Formatters;
 
-namespace Reusable.ConfigWhiz.Tests.Common.Configurations
+namespace Reusable.SmartConfig.Tests.Common.Configurations
 {
     public class DrawingConfiguration
     {

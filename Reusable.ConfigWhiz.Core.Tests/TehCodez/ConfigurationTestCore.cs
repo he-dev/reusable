@@ -1,20 +1,18 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.ConfigWhiz.Datastores;
-using Reusable.ConfigWhiz.Tests.Common;
-using CData = Reusable.ConfigWhiz.Tests.Common.Data;
-using Reusable.Extensions;
-using Reusable.Fuse;
-using Reusable.Fuse.Testing;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Reusable.ConfigWhiz.Services;
-using Reusable.ConfigWhiz.Tests.Common.Configurations;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.Fuse;
+using Reusable.Fuse.Testing;
+using Reusable.SmartConfig.Datastores;
+using Reusable.SmartConfig.Services;
+using Reusable.SmartConfig.Tests.Common;
+using Reusable.SmartConfig.Tests.Common.Configurations;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable BuiltInTypeReferenceStyle
 
-namespace Reusable.ConfigWhiz.Tests
+namespace Reusable.SmartConfig.Tests
 {
     [TestClass]
     public class ConfigurationTestCore : ConfigurationTestBase
@@ -69,7 +67,7 @@ namespace Reusable.ConfigWhiz.Tests
             var ex = Assert.ThrowsException<AggregateException>(() =>
             {
                 var configuration = new Configuration(new[] { new Memory("mem1") });
-                configuration.Get<TestConsumer, CData.TestContainer1>();
+                configuration.Get<TestConsumer, TestContainer1>();
             });
 
             ex.InnerExceptions.First().Verify().IsInstanceOfType(typeof(DatastoreNotFoundException));

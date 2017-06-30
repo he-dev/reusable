@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Reusable.ConfigWhiz.Annotations;
-using Reusable.ConfigWhiz.Data.Annotations;
+﻿using System.Reflection;
+using Reusable.SmartConfig.Annotations;
 
-namespace Reusable.ConfigWhiz.Extensions
+namespace Reusable.SmartConfig.Extensions
 {
     internal static class TypeExtensions
     {

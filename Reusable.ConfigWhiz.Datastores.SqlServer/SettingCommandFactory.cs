@@ -6,8 +6,9 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
-using Reusable.ConfigWhiz.Data;
 using Reusable.Data;
+using Reusable.SmartConfig;
+using Reusable.SmartConfig.Data;
 
 namespace Reusable.ConfigWhiz.Datastores
 {

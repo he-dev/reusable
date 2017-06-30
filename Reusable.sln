@@ -56,7 +56,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.EmailClients.SmtpC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.SmartConfig.Core", "Reusable.ConfigWhiz.Core\Reusable.SmartConfig.Core.csproj", "{B507CF1E-FD24-465B-B8BC-F00F58C2D7C6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.SmartConfigCore.Tests", "Reusable.ConfigWhiz.Core.Tests\Reusable.SmartConfigCore.Tests.csproj", "{6CE60C89-58DC-47E8-ACA3-E557FB5E52BE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.SmartConfig.Core.Tests", "Reusable.ConfigWhiz.Core.Tests\Reusable.SmartConfig.Core.Tests.csproj", "{6CE60C89-58DC-47E8-ACA3-E557FB5E52BE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.SmartConfig.Datastores.SqlServer", "Reusable.ConfigWhiz.Datastores.SqlServer\Reusable.SmartConfig.Datastores.SqlServer.csproj", "{E30DCF5F-366A-421C-893C-6FDC23C4A129}"
 EndProject

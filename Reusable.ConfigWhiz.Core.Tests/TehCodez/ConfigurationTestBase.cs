@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Drawing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.ConfigWhiz.Datastores;
-using Reusable.ConfigWhiz.Tests.Common;
-using Reusable.ConfigWhiz.Tests.Common.Configurations;
 using Reusable.Extensions;
 using Reusable.Fuse;
 using Reusable.Fuse.Drawing;
 using Reusable.Fuse.Testing;
+using Reusable.SmartConfig.Tests.Common;
+using Reusable.SmartConfig.Tests.Common.Configurations;
 using Reusable.TypeConversion;
 
-namespace Reusable.ConfigWhiz.Tests
+namespace Reusable.SmartConfig.Tests
 {
     //[TestClass]
     public abstract class ConfigurationTestBase

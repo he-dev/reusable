@@ -2,9 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Reusable.ConfigWhiz.Data;
+using Reusable.SmartConfig.Data;
 
-namespace Reusable.ConfigWhiz.Services
+namespace Reusable.SmartConfig.Services
 {
     public class SettingReader
     {

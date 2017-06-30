@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Newtonsoft.Json;
-using Reusable.ConfigWhiz.Data;
+using Reusable.SmartConfig.Data;
 
-namespace Reusable.ConfigWhiz.Tests.Common
+namespace Reusable.SmartConfig.Tests.Common
 {
     public abstract class SettingFactory
     {

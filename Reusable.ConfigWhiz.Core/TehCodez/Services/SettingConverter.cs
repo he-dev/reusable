@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
-using Reusable.ConfigWhiz.Converters;
-using Reusable.ConfigWhiz.Data;
 using Reusable.Extensions;
+using Reusable.SmartConfig.Converters;
+using Reusable.SmartConfig.Data;
 using Reusable.TypeConversion;
 
-namespace Reusable.ConfigWhiz.Services
+namespace Reusable.SmartConfig.Services
 {
     public class SettingConverter
     {

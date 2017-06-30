@@ -4,12 +4,11 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
-using Reusable.ConfigWhiz.Data.Annotations;
-using Reusable.ConfigWhiz.Extensions;
 using Reusable.Data.Annotations;
 using Reusable.Extensions;
+using Reusable.SmartConfig.Annotations;
 
-namespace Reusable.ConfigWhiz.Data
+namespace Reusable.SmartConfig.Data
 {
     public class Setting
     {

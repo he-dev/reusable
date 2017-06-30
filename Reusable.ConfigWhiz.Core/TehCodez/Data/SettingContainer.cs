@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Reusable.ConfigWhiz.Extensions;
 using Reusable.Data.Annotations;
 using Reusable.Extensions;
+using Reusable.SmartConfig.Extensions;
 
-namespace Reusable.ConfigWhiz.Data
+namespace Reusable.SmartConfig.Data
 {
     public class SettingContainer : IEquatable<IIdentifier>, IEnumerable<Setting>
     {

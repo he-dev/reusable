@@ -3,11 +3,12 @@ using System.Collections.Immutable;
 using System.Data;
 using System.Data.SqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.ConfigWhiz.Tests;
-using Reusable.ConfigWhiz.Tests.Common;
+using Reusable.ConfigWhiz.Datastores;
 using Reusable.Data;
+using Reusable.SmartConfig.Tests;
+using Reusable.SmartConfig.Tests.Common;
 
-namespace Reusable.ConfigWhiz.Datastores.Tests
+namespace Reusable.SmartConfig.Datastores.Tests
 {
     [TestClass]
     public class ConfigurationTestSqlServer : ConfigurationTestBase

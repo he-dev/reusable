@@ -1,11 +1,9 @@
-﻿using System;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.ConfigWhiz.Data;
-using Reusable.ConfigWhiz.Tests.Common;
-using Reusable.ConfigWhiz.Tests.Common.Configurations;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.SmartConfig.Data;
+using Reusable.SmartConfig.Tests.Common;
+using Reusable.SmartConfig.Tests.Common.Configurations;
 
-namespace Reusable.ConfigWhiz.Tests
+namespace Reusable.SmartConfig.Tests
 {
     [TestClass]
     public class IdentifierTest

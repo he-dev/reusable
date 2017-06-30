@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Reusable.Extensions;
 using Reusable.TypeConversion;
 
-namespace Reusable.ConfigWhiz.Converters
+namespace Reusable.SmartConfig.Converters
 {
     // Converts enumerables to dictionaries. This converter is used for itemized settings.
     internal class EnumerableToDictionaryConverter : TypeConverter<IEnumerable, IDictionary>

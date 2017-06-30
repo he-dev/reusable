@@ -7,8 +7,9 @@ using System.Data.SQLite;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Reusable.ConfigWhiz.Data;
 using Reusable.Data;
+using Reusable.SmartConfig;
+using Reusable.SmartConfig.Data;
 
 namespace Reusable.ConfigWhiz.Datastores
 {

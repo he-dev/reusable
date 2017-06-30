@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using JetBrains.Annotations;
-using Reusable.Collections;
-using Reusable.ConfigWhiz.Data;
-using Reusable.ConfigWhiz.Services;
-using Reusable.Extensions;
+using Reusable.SmartConfig.Data;
+using Reusable.SmartConfig.Services;
 using Reusable.TypeConversion;
 
-namespace Reusable.ConfigWhiz
+namespace Reusable.SmartConfig
 {
     public class DatastoreCache
     {

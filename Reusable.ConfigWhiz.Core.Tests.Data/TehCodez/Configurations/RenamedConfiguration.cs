@@ -1,7 +1,6 @@
-using Reusable.ConfigWhiz.Annotations;
-using Reusable.ConfigWhiz.Data.Annotations;
+using Reusable.SmartConfig.Annotations;
 
-namespace Reusable.ConfigWhiz.Tests.Common.Configurations
+namespace Reusable.SmartConfig.Tests.Common.Configurations
 {
     [SettingName("MyContainer")]
     public class RenamedConfiguration

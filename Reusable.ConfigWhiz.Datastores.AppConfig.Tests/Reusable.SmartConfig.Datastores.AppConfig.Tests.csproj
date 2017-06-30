@@ -54,10 +54,10 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Reusable.ConfigWhiz.Core.Tests\ConfigurationTestBase.cs">
-      <Link>_linked\ConfigurationTestBase.cs</Link>
+    <Compile Include="..\Reusable.ConfigWhiz.Core.Tests\TehCodez\ConfigurationTestBase.cs">
+      <Link>TehCodez\ConfigurationTestBase.cs</Link>
     </Compile>
-    <Compile Include="ConfigurationTestAppConfig.cs" />
+    <Compile Include="TehCodez\ConfigurationTestAppConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

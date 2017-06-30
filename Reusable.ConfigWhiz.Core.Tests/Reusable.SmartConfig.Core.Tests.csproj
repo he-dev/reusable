@@ -57,11 +57,11 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigurationTestCore.cs" />
-    <Compile Include="ConfigurationTestBase.cs" />
+    <Compile Include="TehCodez\ConfigurationTestCore.cs" />
+    <Compile Include="TehCodez\ConfigurationTestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="IdentifierTest.cs" />
-    <Compile Include="TestDatastore.cs" />
+    <Compile Include="TehCodez\IdentifierTest.cs" />
+    <Compile Include="TehCodez\TestDatastore.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

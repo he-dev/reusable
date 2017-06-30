@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Reusable.ConfigWhiz.Data;
+using Reusable.SmartConfig.Data;
 
-namespace Reusable.ConfigWhiz.Tests
+namespace Reusable.SmartConfig.Tests
 {
     internal class TestDatastore : Datastore
     {

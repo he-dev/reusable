@@ -5,9 +5,10 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
-using Reusable.ConfigWhiz.Data;
 using Reusable.Data;
 using Reusable.Extensions;
+using Reusable.SmartConfig;
+using Reusable.SmartConfig.Data;
 
 namespace Reusable.ConfigWhiz.Datastores
 {

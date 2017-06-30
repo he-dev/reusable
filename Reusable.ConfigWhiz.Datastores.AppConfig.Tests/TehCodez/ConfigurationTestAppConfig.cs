@@ -1,10 +1,10 @@
 ﻿using System.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.ConfigWhiz.Datastores.AppConfig;
-using Reusable.ConfigWhiz.Tests;
-using Reusable.ConfigWhiz.Tests.Common;
+using Reusable.SmartConfig.Datastores.AppConfig;
+using Reusable.SmartConfig.Tests;
+using Reusable.SmartConfig.Tests.Common;
 
-namespace Reusable.ConfigWhiz.Datastores.Tests
+namespace Reusable.SmartConfig.Datastores.Tests
 {
     [TestClass]
     public class ConfigurationTestAppConfig : ConfigurationTestBase

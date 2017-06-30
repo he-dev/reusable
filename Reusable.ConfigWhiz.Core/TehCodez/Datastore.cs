@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using JetBrains.Annotations;
-using Reusable.ConfigWhiz.Data;
 using Reusable.Extensions;
+using Reusable.SmartConfig.Data;
 
-namespace Reusable.ConfigWhiz
+namespace Reusable.SmartConfig
 {
     public interface IDatastore : IEquatable<IDatastore>, IEquatable<string>
     {

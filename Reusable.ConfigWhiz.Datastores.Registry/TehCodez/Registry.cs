@@ -2,13 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Win32;
-using Reusable.ConfigWhiz.Data;
 using Reusable.Extensions;
+using Reusable.SmartConfig.Data;
 
-namespace Reusable.ConfigWhiz.Datastores
+namespace Reusable.SmartConfig.Datastores.TehCodez
 {
     public class Registry : Datastore
     {
@@ -36,14 +34,14 @@ namespace Reusable.ConfigWhiz.Datastores
 
         public Registry(RegistryKey baseKey, string subKey) :this(CreateDefaultName<Registry>(), baseKey, subKey) { }
 
-        protected override ICollection<IEntity> ReadCore(SettingIdentifier settingIdentifier)
+        protected override ICollection<IEntity> ReadCore(IIdentifier id)
         {
-            var subKeyName = Path.Combine(_baseSubKeyName, string.Join("\\", settingIdentifier.Context));
+            var subKeyName = Path.Combine(_baseSubKeyName, string.Join("\\", id.Context));
             using (var subKey = _baseKey.OpenSubKey(subKeyName, false))
             {
                 if (subKey == null) throw new SubKeyException(_baseKey.Name, _baseSubKeyName, subKeyName);
 
-                var shortWeakPath = settingIdentifier.ToShortWeakString();
+                var shortWeakPath = id.ToShortWeakString();
                 var settings =
                     from valueName in subKey.GetValueNames()
                     let valuePath = SettingIdentifier.Parse(valueName)
