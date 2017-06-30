@@ -1,13 +1,9 @@
-using System;
 using System.Collections.Generic;
 using Reusable.ConfigWhiz.Data.Annotations;
-using Reusable.TypeConversion;
 
-namespace Reusable.ConfigWhiz.Tests.Common.Data
+namespace Reusable.ConfigWhiz.Tests.Common.Configurations
 {
-    [TypeConverter(typeof(JsonToObjectConverter<List<Int32>>))]
-    [TypeConverter(typeof(ObjectToJsonConverter<List<Int32>>))]
-    public class Collection
+    public class CollectionConfiguration
     {        
         public List<int> JsonArray { get; set; }
 

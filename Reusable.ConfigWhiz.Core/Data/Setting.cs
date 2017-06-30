@@ -14,18 +14,17 @@ namespace Reusable.ConfigWhiz.Data
 {
     public class Setting
     {
-        private readonly Identifier _identifier;
         private readonly object _container;
         private readonly PropertyInfo _property;
 
-        public Setting(Identifier identifier, object container, PropertyInfo property)
+        public Setting(IIdentifier id, object container, PropertyInfo property)
         {
-            _identifier = identifier;
+            Id = id;
             _container = container;
             _property = property;
         }
 
-        public Identifier Identifier => Identifier.From(_identifier, _property.GetCustomNameOrDefault());
+        public IIdentifier Id { get; }
 
         public Type Type => _property.PropertyType;
 
@@ -44,9 +43,9 @@ namespace Reusable.ConfigWhiz.Data
         }
     }
 
-    internal class SettingGroup : List<IEntity>, IGrouping<Identifier, IEntity>
+    internal class SettingGroup : List<IEntity>, IGrouping<IIdentifier, IEntity>
     {
-        public SettingGroup(Identifier key, IEnumerable<IEntity> settings) : base(settings) => Key = key;
-        public Identifier Key { get; }
+        public SettingGroup(IIdentifier key, IEnumerable<IEntity> settings) : base(settings) => Key = key;
+        public IIdentifier Key { get; }
     }
 }

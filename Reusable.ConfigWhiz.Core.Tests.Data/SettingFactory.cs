@@ -17,7 +17,7 @@ namespace Reusable.ConfigWhiz.Tests.Common
                 from item in testData
                 select new Entity
                 {
-                    Identifier = Identifier.Parse(item.Key), //$"{typeof(T).Namespace}.{typeof(T).Name}.{property.Name}.{s.Key}"),
+                    Id = Identifier.Parse(item.Key), //$"{typeof(T).Namespace}.{typeof(T).Name}.{property.Name}.{s.Key}"),
                     Value = item.Value
                 };
             return settings;

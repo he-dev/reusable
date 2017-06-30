@@ -52,16 +52,16 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\Bar.cs" />
-    <Compile Include="Data\_types\Collection.cs" />
-    <Compile Include="Data\_types\Literal.cs" />
-    <Compile Include="Data\_types\Other.cs" />
-    <Compile Include="Data\_types\Paint.cs" />
-    <Compile Include="Data\_types\Renamed.cs" />
-    <Compile Include="Data\TestContainer1.cs" />
-    <Compile Include="Data\TestContainer2.cs" />
-    <Compile Include="Data\TestConsumer.cs" />
-    <Compile Include="Data\_types\Numeric.cs" />
+    <Compile Include="Configurations\EmptyConfiguration.cs" />
+    <Compile Include="Configurations\Bar.cs" />
+    <Compile Include="Configurations\_types\CollectionConfiguration.cs" />
+    <Compile Include="Configurations\_types\LiteralConfiguration.cs" />
+    <Compile Include="Configurations\_types\OtherConfiguration.cs" />
+    <Compile Include="Configurations\_types\DrawingConfiguration.cs" />
+    <Compile Include="Configurations\_types\RenamedConfiguration.cs" />
+    <Compile Include="Configurations\TestContainer1.cs" />
+    <Compile Include="Configurations\TestContainer2.cs" />
+    <Compile Include="Configurations\_types\NumericConfiguration.cs" />
     <Compile Include="TestEnum.cs" />
     <Compile Include="TestConsumer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

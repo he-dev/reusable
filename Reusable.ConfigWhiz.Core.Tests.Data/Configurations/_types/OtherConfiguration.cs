@@ -1,9 +1,9 @@
 using System;
 using Reusable.Data.Annotations;
 
-namespace Reusable.ConfigWhiz.Tests.Common.Data
+namespace Reusable.ConfigWhiz.Tests.Common.Configurations
 {
-    public class Other
+    public class OtherConfiguration
     {
         public Boolean Boolean { get; set; }
         public TestEnum Enum { get; set; }

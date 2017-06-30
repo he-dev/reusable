@@ -1,8 +1,8 @@
 using System;
 
-namespace Reusable.ConfigWhiz.Tests.Common.Data
+namespace Reusable.ConfigWhiz.Tests.Common.Configurations
 {
-    public class Literal
+    public class LiteralConfiguration
     {
         public String StringDE { get; set; }
         public String StringPL { get; set; }

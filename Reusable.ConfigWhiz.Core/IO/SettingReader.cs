@@ -26,7 +26,7 @@ namespace Reusable.ConfigWhiz.IO
 
         public SettingContainer Read(SettingContainer container, bool cached)
         {
-            if (cached && _datastoreCache.Contains(container.Identifier))
+            if (cached && _datastoreCache.Contains(container.Id))
             {
                 return container;
             }
@@ -37,7 +37,7 @@ namespace Reusable.ConfigWhiz.IO
             {
                 try
                 {
-                    var entities = Read(setting.Identifier);
+                    var entities = Read(setting.Id);
                     setting.Value = _converter.Deserialize(setting, entities);
                 }
                 catch (DatastoreReadException)
@@ -59,49 +59,49 @@ namespace Reusable.ConfigWhiz.IO
             return container;
         }
 
-        private ICollection<IEntity> Read(Identifier identifier)
+        private ICollection<IEntity> Read(IIdentifier id)
         {
             return
-                _datastoreCache.TryGetDatastore(identifier, out var datastore) 
-                    ? datastore.Read(identifier) 
-                    : Resolve(identifier);
+                _datastoreCache.TryGetDatastore(id, out var datastore) 
+                    ? datastore.Read(id) 
+                    : Resolve(id);
         }
 
-        private ICollection<IEntity> Resolve(Identifier identifier)
+        private ICollection<IEntity> Resolve(IIdentifier id)
         {
             foreach (var datastore in _datastores)
             {
-                var settings = datastore.Read(identifier);
+                var settings = datastore.Read(id);
                 if (settings.Any())
                 {
-                    _datastoreCache.Remove(identifier);
-                    _datastoreCache.Add(identifier, datastore);
+                    _datastoreCache.Remove(id);
+                    _datastoreCache.Add(id, datastore);
                     return settings;
                 }
             }
 
-            throw new DatastoreNotFoundException(identifier);
+            throw new DatastoreNotFoundException(id);
         }
     }
 
     public class UnsupportedItemizedTypeException : Exception
     {
-        public UnsupportedItemizedTypeException(Identifier identifier, Type settingType)
-            : base($"'{settingType}' type used by '{identifier}' setting is not supported for itemized settings. You can use either {nameof(IDictionary)} or {nameof(IEnumerable)}.")
+        public UnsupportedItemizedTypeException(IIdentifier id, Type settingType)
+            : base($"'{settingType}' type used by '{id}' setting is not supported for itemized settings. You can use either {nameof(IDictionary)} or {nameof(IEnumerable)}.")
         { }
     }
 
     public class MultipleSettingMatchesException : Exception
     {
-        public MultipleSettingMatchesException(Identifier identifier, IDatastore datastore)
-            : base($"Found multiple matches of '{identifier}' in '{datastore.Name}'  but expected one.")
+        public MultipleSettingMatchesException(IIdentifier id, IDatastore datastore)
+            : base($"Found multiple matches of '{id}' in '{datastore.Name}'  but expected one.")
         { }
     }
 
     public class DatastoreNotFoundException : Exception
     {
-        public DatastoreNotFoundException(Identifier identifier)
-            : base($"Could not find datastore for '{identifier}'")
+        public DatastoreNotFoundException(IIdentifier id)
+            : base($"Could not find datastore for '{id}'")
         { }
     }
 }

@@ -51,7 +51,7 @@ namespace Reusable.ConfigWhiz.Datastores
                     where valuePath.ToShortWeakString().Equals(shortWeakPath, StringComparison.OrdinalIgnoreCase)
                     select new Entity
                     {
-                        Identifier = valuePath,
+                        Id = valuePath,
                         Value = subKey.GetValue(valueName)
                     };
                 return settings.Cast<IEntity>().ToList();
@@ -90,7 +90,7 @@ namespace Reusable.ConfigWhiz.Datastores
                         throw new InvalidTypeException(setting.Value.GetType(), SupportedTypes);
                     }
 
-                    subKey.SetValue(setting.Identifier.ToShortStrongString(), setting.Value, registryValueKind);
+                    subKey.SetValue(setting.Id.ToShortStrongString(), setting.Value, registryValueKind);
                     settingsAffected++;
                 }
             }

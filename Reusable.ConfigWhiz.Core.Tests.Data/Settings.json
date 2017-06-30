@@ -19,9 +19,9 @@
 	"Other.Enum": "TestValue2",
 	"Other.DateTime": "07/30/2016 00:00:00",
 
-	"Paint.ColorName": "DarkRed",
-	"Paint.ColorDec": "221,160,221", // Plum
-	"Paint.ColorHex": "FFF5F5DC", // Beige
+	"Drawing.ColorName": "DarkRed",
+	"Drawing.ColorDec": "221,160,221", // Plum
+	"Drawing.ColorHex": "FFF5F5DC", // Beige
 
 	"Collection.JsonArray": "[5, 8, 13]",
 	"Collection.ArrayInt32[0]": "5",

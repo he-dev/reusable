@@ -129,7 +129,7 @@ namespace Reusable.ConfigWhiz.Datastores.Tests
 
                 foreach (var setting in SettingFactory.ReadSettings<TestConsumer>())
                 {
-                    sqlCommand.Parameters["@Name"].Value = setting.Identifier.ToFullStrongString();
+                    sqlCommand.Parameters["@Name"].Value = setting.Id.ToFullStrongString();
                     sqlCommand.Parameters["@Value"].Value = setting.Value;
                     sqlCommand.Parameters["@Environment"].Value = environment;
                     sqlCommand.Parameters["@Version"].Value = version;

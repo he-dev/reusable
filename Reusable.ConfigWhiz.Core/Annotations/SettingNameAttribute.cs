@@ -1,7 +1,7 @@
 using System;
 using Reusable.Extensions;
 
-namespace Reusable.ConfigWhiz.Data.Annotations
+namespace Reusable.ConfigWhiz.Annotations
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property)]
     public class SettingNameAttribute : Attribute

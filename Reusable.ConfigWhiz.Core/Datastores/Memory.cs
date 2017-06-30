@@ -20,22 +20,22 @@ namespace Reusable.ConfigWhiz.Datastores
             : base(name, supportedTypes)
         { }
 
-        protected override ICollection<IEntity> ReadCore(Identifier identifier)
+        protected override ICollection<IEntity> ReadCore(IIdentifier id)
         {
-            var name = identifier.ToString();
+            var name = id.ToString();
             var settings =
                 (from x in Data
-                 where x.Identifier.ToString().StartsWith(name, StringComparison.OrdinalIgnoreCase)
+                 where x.Id.ToString().StartsWith(name, StringComparison.OrdinalIgnoreCase)
                  select x).ToList();
             return settings;
         }
 
-        protected override int WriteCore(IGrouping<Identifier, IEntity> settings)
+        protected override int WriteCore(IGrouping<IIdentifier, IEntity> settings)
         {
             var name = settings.Key.ToString(); //($".{IdentifierLength}" IdentifierFormat.FullWeak, IdentifierFormatter.Instance);
             var obsoleteSettings =
                 (from x in Data
-                 where x.Identifier.ToString().StartsWith(name, StringComparison.OrdinalIgnoreCase)
+                 where x.Id.ToString().StartsWith(name, StringComparison.OrdinalIgnoreCase)
                  select x).ToList();
             obsoleteSettings.ForEach(x => Data.Remove(x));
 
@@ -52,7 +52,7 @@ namespace Reusable.ConfigWhiz.Datastores
 
         public void Add(string name, object value) => Data.Add(new Entity
         {
-            Identifier = Identifier.Parse(name),
+            Id = Identifier.Parse(name),
             Value = value
         });
 

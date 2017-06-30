@@ -41,11 +41,11 @@ namespace Reusable.ConfigWhiz.Datastores.Tests
 
                 foreach (var setting in SettingFactory.ReadSettings<TestConsumer>())
                 {
-                    var registryPath = setting.Identifier.Context.Join("\\");
+                    var registryPath = setting.Id.Context.Join("\\");
                     var subKeyName = Path.Combine(TestRegistryKey, registryPath);
                     using (var subKey = baseKey.CreateSubKey(subKeyName, writable: true))
                     {
-                        subKey.SetValue(setting.Identifier.ToShortStrongString(), setting.Value);
+                        subKey.SetValue(setting.Id.ToShortStrongString(), setting.Value);
                     }
                 }
             }

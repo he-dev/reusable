@@ -5,7 +5,7 @@ using System.Drawing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.ConfigWhiz.Datastores;
 using Reusable.ConfigWhiz.Tests.Common;
-using CData = Reusable.ConfigWhiz.Tests.Common.Data;
+using Reusable.ConfigWhiz.Tests.Common.Configurations;
 using Reusable.Extensions;
 using Reusable.Fuse;
 using Reusable.Fuse.Drawing;
@@ -22,11 +22,11 @@ namespace Reusable.ConfigWhiz.Tests
         #region Load tests
 
         [TestMethod]
-        public void Load_Numeric_Success()
+        public void Load_Numeric_Loaded()
         {
             var configuration = new Configuration(Datastores);
 
-            var numeric = configuration.Get<TestConsumer, CData.Numeric>();
+            var numeric = configuration.Get<NumericConfiguration>();
             numeric.Verify().IsNotNull();
 
             numeric.SByte.Verify().IsEqual(SByte.MaxValue);
@@ -60,7 +60,7 @@ namespace Reusable.ConfigWhiz.Tests
             configuration.Save();
 
             configuration = new Configuration(Datastores);
-            numeric = configuration.Get<TestConsumer, CData.Numeric>();
+            numeric = configuration.Get<NumericConfiguration>();
 
             numeric.SByte.Verify().IsEqual((SByte)(SByte.MaxValue - 1));
             numeric.Byte.Verify().IsEqual((Byte)(Byte.MaxValue - 1));
@@ -77,11 +77,11 @@ namespace Reusable.ConfigWhiz.Tests
         }
 
         [TestMethod]
-        public void Load_Literal_Success()
+        public void Load_Literal_Loaded()
         {
             var configuration = new Configuration(Datastores);
 
-            var literal = configuration.Get<TestConsumer, CData.Literal>();
+            var literal = configuration.Get<LiteralConfiguration>();
             literal.Verify().IsNotNull();
             literal.StringDE.Verify().IsEqual("äöüß");
             literal.StringPL.Verify().IsEqual("ąęśćżźó");
@@ -92,18 +92,18 @@ namespace Reusable.ConfigWhiz.Tests
             configuration.Save();
 
             configuration = new Configuration(Datastores);
-            literal = configuration.Get<TestConsumer, CData.Literal>();
+            literal = configuration.Get<LiteralConfiguration>();
 
             literal.StringDE.Verify().IsEqual("äöüß---");
             literal.StringPL.Verify().IsEqual("ąęśćżźó---");
         }
 
         [TestMethod]
-        public void Load_Other_Success()
+        public void Load_Other_Loaded()
         {
             var configuration = new Configuration(Datastores);
 
-            var other = configuration.Get<TestConsumer, CData.Other>();
+            var other = configuration.Get<OtherConfiguration>();
             other.Verify().IsNotNull();
             other.Boolean.Verify().IsTrue();
             other.Enum.Verify().IsEqual(TestEnum.TestValue2);
@@ -116,7 +116,7 @@ namespace Reusable.ConfigWhiz.Tests
 
             configuration.Save();
             configuration = new Configuration(Datastores);
-            other = configuration.Get<TestConsumer, CData.Other>();
+            other = configuration.Get<OtherConfiguration>();
 
             other.Boolean.Verify().IsFalse();
             other.Enum.Verify().IsTrue(x => x == TestEnum.TestValue3);
@@ -124,11 +124,11 @@ namespace Reusable.ConfigWhiz.Tests
         }
 
         [TestMethod]
-        public void Load_Paint_Success()
+        public void Load_Drawing_Loaded()
         {
             var configuration = new Configuration(Datastores);
 
-            var paint = configuration.Get<TestConsumer, CData.Paint>();
+            var paint = configuration.Get<DrawingConfiguration>();
             paint.Verify().IsNotNull();
             paint.ColorName.Verify().IsEqual(Color.DarkRed);
             paint.ColorDec.Verify().IsEqual(Color.Plum);
@@ -140,7 +140,7 @@ namespace Reusable.ConfigWhiz.Tests
         }
 
         [TestMethod]
-        public void Load_Collection_Success()
+        public void Load_Collection_Loaded()
         {
             var converter = Configuration.DefaultConverter
                 .Add<JsonToObjectConverter<List<int>>>()
@@ -148,7 +148,7 @@ namespace Reusable.ConfigWhiz.Tests
 
             var configuration = new Configuration(Datastores, converter);
 
-            var collection = configuration.Get<CData.Collection>(IdentifierLength.Medium);
+            var collection = configuration.Get<CollectionConfiguration>();
             collection.Verify().IsNotNull();
             collection.JsonArray.Verify().SequenceEqual(new[] { 5, 8, 13 });
             collection.ArrayInt32.Verify().SequenceEqual(new[] { 5, 8 });
@@ -165,7 +165,7 @@ namespace Reusable.ConfigWhiz.Tests
 
             configuration.Save();
             configuration = new Configuration(Datastores, converter);
-            collection = configuration.Get<TestConsumer, CData.Collection>();
+            collection = configuration.Get<CollectionConfiguration>();
 
             // verify
 
@@ -175,29 +175,7 @@ namespace Reusable.ConfigWhiz.Tests
             collection.DictionaryStringInt32.Verify().DictionaryEqual(new Dictionary<string, int> { ["foo"] = 21, ["bar"] = 34, ["baz"] = 88 });
         }
 
-        [TestMethod]
-        public void Load_DataSource_Cache_SameObject()
-        {
-            var configuration = new Configuration(Datastores);
-
-            var numeric1 = configuration.Get<TestConsumer, CData.Numeric>();
-            var numeric2 = configuration.Get<TestConsumer, CData.Numeric>();
-            Assert.IsNotNull(numeric1);
-            Assert.IsNotNull(numeric2);
-            Assert.AreSame(numeric1, numeric2);
-        }
-
-        [TestMethod]
-        public void Load_DataSource_Provider_SameObject()
-        {
-            var configuration = new Configuration(Datastores);
-
-            var numeric1 = configuration.Get<TestConsumer, CData.Numeric>();
-            var numeric2 = configuration.Get<TestConsumer, CData.Numeric>(); //DataOrigin.Provider);
-            Assert.IsNotNull(numeric1);
-            Assert.IsNotNull(numeric2);
-            Assert.AreSame(numeric1, numeric2);
-        }
+        
 
         #endregion
     }

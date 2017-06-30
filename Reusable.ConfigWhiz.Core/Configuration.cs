@@ -15,30 +15,30 @@ namespace Reusable.ConfigWhiz
 {
     public class DatastoreCache
     {
-        private readonly IDictionary<Identifier, IDatastore> _datastores = new Dictionary<Identifier, IDatastore>();
+        private readonly IDictionary<IIdentifier, IDatastore> _datastores = new Dictionary<IIdentifier, IDatastore>();
 
-        public bool TryGetDatastore(Identifier identifier, out IDatastore datastore)
+        public bool TryGetDatastore(IIdentifier identifier, out IDatastore datastore)
         {
             return _datastores.TryGetValue(identifier, out datastore);
         }
 
-        public void Add(Identifier identifier, IDatastore datastore)
+        public void Add(IIdentifier id, IDatastore datastore)
         {
-            _datastores.Add(identifier, datastore);
+            _datastores.Add(id, datastore);
         }
 
-        public void Remove(Identifier identifier)
+        public void Remove(IIdentifier id)
         {
-            _datastores.Remove(identifier);
+            _datastores.Remove(id);
         }
 
-        public bool Contains(Identifier identifier) => _datastores.ContainsKey(identifier);
+        public bool Contains(IIdentifier id) => _datastores.ContainsKey(id);
     }
 
     public interface IConfiguration
     {
         [CanBeNull]
-        TContainer Get<TContainer>(Identifier identifier, bool cached = true) where TContainer : class, new();
+        TContainer Get<TContainer>(IIdentifier id, bool cached = true) where TContainer : class, new();
     }
         
     public class Configuration : IConfiguration
@@ -46,7 +46,7 @@ namespace Reusable.ConfigWhiz
         private readonly SettingReader _reader;
         private readonly SettingWriter _writer;
 
-        private readonly IDictionary<IEquatable<Identifier>, SettingContainer> _containers = new Dictionary<IEquatable<Identifier>, SettingContainer>();
+        private readonly IDictionary<IEquatable<IIdentifier>, SettingContainer> _containers = new Dictionary<IEquatable<IIdentifier>, SettingContainer>();
         
         public Configuration(IEnumerable<IDatastore> datastores) : this(datastores, DefaultConverter)
         { }
@@ -85,13 +85,13 @@ namespace Reusable.ConfigWhiz
 
         //private void OnLog(string message) => Log?.Invoke(message); // for future use
 
-        public TContainer Get<TContainer>(Identifier identifier, bool cached) where TContainer : class, new()
+        public TContainer Get<TContainer>(IIdentifier id, bool cached) where TContainer : class, new()
         {
-            var container = GetContainer<TContainer>(identifier);
+            var container = GetContainer<TContainer>(id);
             return _reader.Read(container, cached).As<TContainer>();            
         }
 
-        private SettingContainer GetContainer<TContainer>(Identifier identifier) where TContainer : class, new()
+        private SettingContainer GetContainer<TContainer>(IIdentifier identifier) where TContainer : class, new()
         {
             return _containers.TryGetValue(identifier, out var container) ? container : Cache(SettingContainer.Create<TContainer>(identifier));
         }

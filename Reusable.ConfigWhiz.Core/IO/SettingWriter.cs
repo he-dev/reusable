@@ -32,7 +32,7 @@ namespace Reusable.ConfigWhiz.IO
             {
                 try
                 {
-                    if (_datastoreCache.TryGetDatastore(setting.Identifier, out var datastore))
+                    if (_datastoreCache.TryGetDatastore(setting.Id, out var datastore))
                     {
                         var entities = _converter.Serialize(setting, datastore.SupportedTypes);
                         settingsAffected += entities.Count();

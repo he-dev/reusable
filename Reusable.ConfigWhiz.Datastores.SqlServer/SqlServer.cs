@@ -83,7 +83,7 @@ namespace Reusable.ConfigWhiz.Datastores
                     {
                         var result = new Entity
                         {
-                            Identifier = SettingIdentifier.Parse((string)settingReader[SettingProperty.Name]),
+                            Id = SettingIdentifier.Parse((string)settingReader[SettingProperty.Name]),
                             Value = settingReader[SettingProperty.Value],
                         };
                         settings.Add(result);
@@ -111,7 +111,7 @@ namespace Reusable.ConfigWhiz.Datastores
             {
                 foreach (var setting in settings)
                 {
-                    using (var cmd = _settingCommandFactory.CreateInsertCommand(connection, setting.Identifier, setting.Value, _where))
+                    using (var cmd = _settingCommandFactory.CreateInsertCommand(connection, setting.Id, setting.Value, _where))
                     {
                         cmd.Transaction = transaction;
                         cmd.Prepare();

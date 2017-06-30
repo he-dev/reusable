@@ -30,7 +30,7 @@ namespace Reusable.ConfigWhiz.Datastores.Tests
 
             foreach (var setting in SettingFactory.ReadSettings<TestConsumer>())
             {
-                exeConfiguration.AppSettings.Settings.Add(setting.Identifier.ToFullStrongString(), setting.Value.ToString());
+                exeConfiguration.AppSettings.Settings.Add(setting.Id.ToFullStrongString(), setting.Value.ToString());
             }            
 
             exeConfiguration.Save(ConfigurationSaveMode.Minimal);

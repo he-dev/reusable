@@ -78,7 +78,7 @@ namespace Reusable.ConfigWhiz.Datastores
 
                         var setting = new Entity
                         {
-                            Identifier = SettingIdentifier.Parse((string)settingReader[SettingProperty.Name]),
+                            Id = SettingIdentifier.Parse((string)settingReader[SettingProperty.Name]),
                             Value = RecodeDataEnabled ? value.Recode(DataEncoding, SettingEncoding) : value
                         };
                         settings.Add(setting);
@@ -111,7 +111,7 @@ namespace Reusable.ConfigWhiz.Datastores
                         setting.Value = ((string)setting.Value).Recode(SettingEncoding, DataEncoding);
                     }
 
-                    using (var insertCommand = _settingCommandFactory.CreateInsertCommand(connection, setting.Identifier, setting.Value, _where))
+                    using (var insertCommand = _settingCommandFactory.CreateInsertCommand(connection, setting.Id, setting.Value, _where))
                     {
                         insertCommand.Transaction = transaction;
                         insertCommand.Prepare();

@@ -2,8 +2,8 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.ConfigWhiz.Paths;
-using Reusable.Fuse;
-using Reusable.Fuse.Testing;
+using Reusable.ConfigWhiz.Tests.Common;
+using Reusable.ConfigWhiz.Tests.Common.Configurations;
 
 namespace Reusable.ConfigWhiz.Tests
 {
@@ -11,121 +11,102 @@ namespace Reusable.ConfigWhiz.Tests
     public class IdentifierTest
     {
         [TestMethod]
-        public void Parse_ContainerSetting_Identifier()
+        public void Create_Container_Consumer()
         {
-            Assert.IsTrue(new Identifier(Enumerable.Empty<string>(), null, null, "Foo", "Bar", null, IdentifierLength.Medium).Equals(Identifier.Parse("Foo.Bar")));
+            Assert.AreEqual("Empty", Identifier.Create<EmptyConfiguration>().ToString());
         }
 
         [TestMethod]
-        public void Parse_ShortStrong_TwoNamesAndKey()
+        public void Create_ConsumerContainer_ConsumerContainer()
         {
-            var settingPath = Identifier.Parse("Foo.Bar[\"Baz\"]");
-            settingPath.Context.Verify().IsEmpty();
-            settingPath.Consumer.Verify().IsNullOrEmpty();
-            settingPath.Instance.Verify().IsNullOrEmpty();
-            settingPath.Container.Verify().IsEqual("Foo");
-            settingPath.Setting.Verify().IsEqual("Bar");
-            settingPath.Element.Verify().IsEqual("Baz");
+            Assert.AreEqual("TestConsumer.Empty", Identifier.Create<TestConsumer, EmptyConfiguration>().ToString());
         }
 
         [TestMethod]
-        public void Parse_FullWeak_ConsumerNamesAndContainerNames()
+        public void Load_ConsumerInstanceContainer_ConsumerInstanceContainer()
         {
-            var settingPath = Identifier.Parse("abc.jkl.xyz.Foo.Bar");
-            settingPath.Context.Verify().SequenceEqual(new[] { "abc", "jkl" });
-            settingPath.Consumer.Verify().IsEqual("xyz");
-            settingPath.Instance.Verify().IsNullOrEmpty();
-            settingPath.Container.Verify().IsEqual("Foo");
-            settingPath.Setting.Verify().IsEqual("Bar");
-            settingPath.Element.Verify().IsNullOrEmpty();
+            var consumer = new TestConsumer { Name = "qux" };
+            Assert.AreEqual("TestConsumer[qux].Empty", Identifier.Create<TestConsumer, EmptyConfiguration>(consumer, c => c.Name).ToString());
         }
 
         [TestMethod]
-        public void Parse_FullStrong_ConsumerNamesAndContainerNamesAndKey()
+        public void Parse_Container_Identifier()
         {
-            var settingPath = Identifier.Parse("abc.jkl.xyz.Foo.Bar[\"Baz\"]");
-            settingPath.Context.Verify().SequenceEqual(new[] { "abc", "jkl" });
-            settingPath.Consumer.Verify().IsEqual("xyz");
-            settingPath.Instance.Verify().IsNullOrEmpty();
-            settingPath.Container.Verify().IsEqual("Foo");
-            settingPath.Setting.Verify().IsEqual("Bar");
-            settingPath.Element.Verify().IsEqual("Baz");
+            Assert.AreEqual(
+                Identifier.Create(Token.Literal("foo")), 
+                Identifier.Parse("foo"));
         }
 
         [TestMethod]
-        public void Parse_FullStrongWithName_ConsumerNamesConsumerNameAndContainerNamesAndKey()
+        public void Parse_ConsumerContainerElement_Identifier()
         {
-            var settingPath = Identifier.Parse("abc.jkl.xyz[\"qwe\"].Foo.Bar[\"Baz\"]");
-            settingPath.Context.Verify().SequenceEqual(new[] { "abc", "jkl" });
-            settingPath.Consumer.Verify().IsEqual("xyz");
-            settingPath.Instance.Verify().IsEqual("qwe");
-            settingPath.Container.Verify().IsEqual("Foo");
-            settingPath.Setting.Verify().IsEqual("Bar");
-            settingPath.Element.Verify().IsEqual("Baz");
+            Assert.AreEqual(
+                Identifier.Create(Token.Literal("foo"), Token.Literal("bar"), Token.Element("baz")),
+                Identifier.Parse("Foo.Bar[Baz]"));
         }
 
         [TestMethod]
-        public void Parse_FullStrongWithUnqotedName_Success()
+        public void Parse_ConsumerInstanceContainerElement_Identifier()
         {
-            var settingPath = Identifier.Parse("abc.jkl.xyz.Foo.Bar[Baz]");
-            settingPath.Context.Verify().SequenceEqual(new[] { "abc", "jkl" });
-            settingPath.Consumer.Verify().IsEqual("xyz");
-            settingPath.Instance.Verify().IsNullOrEmpty();
-            settingPath.Container.Verify().IsEqual("Foo");
-            settingPath.Setting.Verify().IsEqual("Bar");
-            settingPath.Element.Verify().IsEqual("Baz");
+            Assert.AreEqual(
+                Identifier.Create(Token.Literal("foo"), Token.Element("qux"), Token.Literal("bar"), Token.Element("baz")),
+                Identifier.Parse("Foo[qux].Bar[Baz]"));
         }
 
         [TestMethod]
-        public void ToString_Short_Setting()
+        public void ToString_Container_String()
         {
-            var settingPath = Identifier.Parse(@"Bar");
-            settingPath.ToString($".{IdentifierLength.Short}", IdentifierFormatter.Instance).Verify().IsEqual("Bar");
+            Assert.AreEqual("bar", Identifier.Create(Token.Literal("bar")).ToString());
         }
 
         [TestMethod]
-        public void ToString_ShortWithElement_SettingElement()
+        public void ToString_ContainerElement_String()
         {
-            var settingPath = Identifier.Parse(@"Bar[""Baz""]");
-            settingPath.ToString($".{IdentifierLength.Short}", IdentifierFormatter.Instance).Verify().IsEqual(@"Bar[""Baz""]");
+            Assert.AreEqual("bar[baz]", Identifier.Create(Token.Literal("bar"), Token.Element("baz")).ToString());
         }
 
         [TestMethod]
-        public void ToString_Medium_ContainerSetting()
+        public void ToString_ConsumerContainerElement_String()
         {
-            var settingPath = Identifier.Parse(@"Container.Setting");
-            settingPath.ToString($".{IdentifierLength.Medium}", IdentifierFormatter.Instance).Verify().IsEqual(@"Container.Setting");
+            Assert.AreEqual("foo.bar[baz]", Identifier.Create(Token.Literal("foo"), Token.Literal("bar"), Token.Element("baz")).ToString());
         }
 
         [TestMethod]
-        public void ToString_Long_ConsumerContainerSetting()
+        public void ToString_ConsumerInstanceContainerElement_String()
         {
-            var settingPath = Identifier.Parse(@"Consumer.Container.Setting");
-            settingPath.ToString($".{IdentifierLength.Long}", IdentifierFormatter.Instance).Verify().IsEqual(@"Consumer.Container.Setting");
+            Assert.AreEqual("foo[qux].bar[baz]", Identifier.Create(Token.Literal("foo"), Token.Element("qux"), Token.Literal("bar"), Token.Element("baz")).ToString());
         }
 
         [TestMethod]
-        public void ToString_Unique_NamespaceConsumerContainerSetting()
+        public void ToString_SameConsequtiveLiterals_Collapsed()
         {
-            var settingPath = Identifier.Parse(@"Namespace.Consumer.Container.Setting");
-            settingPath.ToString($".{IdentifierLength.Unique}", IdentifierFormatter.Instance).Verify().IsEqual(@"Namespace.Consumer.Container.Setting");
+            Assert.AreEqual(
+                "foo.bar[baz]", 
+                Identifier.Create(
+                    Token.Literal("foo"), 
+                    Token.Literal("foo"),
+                    Token.Literal("bar"), 
+                    Token.Element("baz")
+                ).ToString()
+            );
         }
 
         [TestMethod]
         public void Equals_SameProperties_True()
         {
-            var identifier1 = new Identifier(Enumerable.Empty<string>(), "Consumer", "Instance", "Container", "Setting", "Element", IdentifierLength.Long);
-            var identifier2 = new Identifier(Enumerable.Empty<string>(), "Consumer", "Instance", "Container", "Setting", "Element", IdentifierLength.Long);
-            Assert.IsTrue(identifier1 == identifier2);
-            Assert.IsTrue(identifier1 == identifier1);
+            var identifier1 = Identifier.Parse("foo.bar[baz]");
+            var identifier2 = Identifier.Parse("foo.bar[baz]");
+            Assert.AreEqual(identifier1, identifier2);
+            Assert.AreNotSame(identifier1, identifier2);
         }
 
         [TestMethod]
         public void Equals_DifferentProperties_False()
         {
-            var identifier1 = new Identifier(Enumerable.Empty<string>(), "Consumer1", "Instance1", "Container1", "Setting1", "Element1", IdentifierLength.Long);
-            var identifier2 = new Identifier(Enumerable.Empty<string>(), "Consumer2", "Instance2", "Container2", "Setting2", "Element2", IdentifierLength.Long);
-            Assert.IsFalse(identifier1 == identifier2);
+            var identifier1 = Identifier.Parse("foo.bar[baz]");
+            var identifier2 = Identifier.Parse("foo[qux].bar[baz]");
+            Assert.AreNotEqual(identifier1, identifier2);
+            Assert.AreNotSame(identifier1, identifier2);
         }
 
     }

@@ -18,9 +18,9 @@ namespace Reusable.ConfigWhiz
         IImmutableSet<Type> SupportedTypes { get; }
 
         [NotNull, ItemNotNull]
-        ICollection<IEntity> Read([NotNull] Identifier identifier);
+        ICollection<IEntity> Read([NotNull] IIdentifier id);
 
-        int Write([NotNull, ItemNotNull] IGrouping<Identifier, IEntity> settings);
+        int Write([NotNull, ItemNotNull] IGrouping<IIdentifier, IEntity> settings);
     }
 
     public abstract class Datastore : IDatastore
@@ -37,21 +37,21 @@ namespace Reusable.ConfigWhiz
 
         public IImmutableSet<Type> SupportedTypes { get; }
 
-        public ICollection<IEntity> Read(Identifier identifier)
+        public ICollection<IEntity> Read(IIdentifier id)
         {
             try
             {
-                return ReadCore(identifier);
+                return ReadCore(id);
             }
             catch (Exception innerException)
             {
-                throw new DatastoreReadException(this, identifier, innerException);
+                throw new DatastoreReadException(this, id, innerException);
             }
         }
 
-        protected abstract ICollection<IEntity> ReadCore(Identifier identifier);
+        protected abstract ICollection<IEntity> ReadCore(IIdentifier id);
 
-        public int Write(IGrouping<Identifier, IEntity> settings)
+        public int Write(IGrouping<IIdentifier, IEntity> settings)
         {
             try
             {
@@ -63,7 +63,7 @@ namespace Reusable.ConfigWhiz
             }
         }
 
-        protected abstract int WriteCore(IGrouping<Identifier, IEntity> settings);
+        protected abstract int WriteCore(IGrouping<IIdentifier, IEntity> settings);
 
         protected static string CreateDefaultName<T>()
         {
@@ -93,13 +93,13 @@ namespace Reusable.ConfigWhiz
 
     public class DatastoreReadException : Exception
     {
-        public DatastoreReadException(IDatastore datastore, Identifier identifier, Exception innerException)
-        : base($"Could not read '{identifier}' from '{datastore.Name}'.", innerException) { }
+        public DatastoreReadException(IDatastore datastore, IIdentifier id, Exception innerException)
+        : base($"Could not read '{id}' from '{datastore.Name}'.", innerException) { }
     }
 
     public class DatastoreWriteException : Exception
     {
-        public DatastoreWriteException(IDatastore datastore, Identifier identifier, Exception innerException)
-            : base($"Could not write '{identifier}' to '{datastore.Name}'.", innerException) { }
+        public DatastoreWriteException(IDatastore datastore, IIdentifier id, Exception innerException)
+            : base($"Could not write '{id}' to '{datastore.Name}'.", innerException) { }
     }
 }

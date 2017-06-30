@@ -1,6 +1,6 @@
 ﻿using Reusable.ConfigWhiz.Data.Annotations;
 
-namespace Reusable.ConfigWhiz.Tests.Common.Data
+namespace Reusable.ConfigWhiz.Tests.Common.Configurations
 {
     [DefaultDatastore("Datastore1")]
     public class TestContainer2

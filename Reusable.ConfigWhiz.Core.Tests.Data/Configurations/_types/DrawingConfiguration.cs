@@ -2,9 +2,9 @@ using System.Drawing;
 using Reusable.Data.Annotations;
 using Reusable.StringFormatting.Formatters;
 
-namespace Reusable.ConfigWhiz.Tests.Common.Data
+namespace Reusable.ConfigWhiz.Tests.Common.Configurations
 {
-    public class Paint
+    public class DrawingConfiguration
     {
         [Format("#RRGGBB", typeof(HexadecimalColorFormatter))]
         public Color ColorName { get; set; }

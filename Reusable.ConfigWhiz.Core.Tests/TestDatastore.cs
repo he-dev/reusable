@@ -14,12 +14,12 @@ namespace Reusable.ConfigWhiz.Tests
         {
         }
 
-        protected override ICollection<IEntity> ReadCore(Identifier identifier)
+        protected override ICollection<IEntity> ReadCore(IIdentifier id)
         {
             throw new NotImplementedException();
         }
 
-        protected override int WriteCore(IGrouping<Identifier, IEntity> settings)
+        protected override int WriteCore(IGrouping<IIdentifier, IEntity> settings)
         {
             throw new NotImplementedException();
         }

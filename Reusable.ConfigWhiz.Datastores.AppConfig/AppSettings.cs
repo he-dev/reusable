@@ -32,7 +32,7 @@ namespace Reusable.ConfigWhiz.Datastores.AppConfig
                 from k in keys
                 select new Entity
                 {
-                    Identifier = SettingIdentifier.Parse(k),
+                    Id = SettingIdentifier.Parse(k),
                     Value = exeConfig.AppSettings.Settings[k].Value
                 };
             return settings.Cast<IEntity>().ToList();
@@ -62,7 +62,7 @@ namespace Reusable.ConfigWhiz.Datastores.AppConfig
 
             foreach (var setting in settings)
             {
-                var settingName = setting.Identifier.ToFullStrongString();
+                var settingName = setting.Id.ToFullStrongString();
                 exeConfig.AppSettings.Settings.Add(settingName, (string)setting.Value);
                 settingsAffected++;
             }

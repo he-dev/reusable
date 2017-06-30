@@ -1,9 +1,9 @@
 using System;
 using Reusable.Data.Annotations;
 
-namespace Reusable.ConfigWhiz.Tests.Common.Data
+namespace Reusable.ConfigWhiz.Tests.Common.Configurations
 {
-    public class Numeric
+    public class NumericConfiguration
     {
         public SByte SByte { get; set; }
         public Byte Byte { get; set; }

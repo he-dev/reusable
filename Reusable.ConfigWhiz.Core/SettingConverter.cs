@@ -32,7 +32,7 @@ namespace Reusable.ConfigWhiz
 
             foreach (var validation in setting.Validations)
             {
-                validation.Validate(value, setting.Identifier.ToString());
+                validation.Validate(value, setting.Id.ToString());
             }
 
             return value;
@@ -42,7 +42,7 @@ namespace Reusable.ConfigWhiz
         {
             if (itemized)
             {
-                if (type.IsDictionary()) return settings.ToDictionary(x => x.Identifier.Element, x => x.Value);
+                if (type.IsDictionary()) return settings.ToDictionary(x => x.Id.Last().Value, x => x.Value);
                 if (type.IsEnumerable()) return settings.Select(x => x.Value);
                 throw new UnsupportedItemizedTypeException(null, type);
             }
@@ -55,7 +55,7 @@ namespace Reusable.ConfigWhiz
             return settings.SingleOrDefault()?.Value;
         }
 
-        public IGrouping<Identifier, IEntity> Serialize(Setting setting, IImmutableSet<Type> supportedTypes)
+        public IGrouping<IIdentifier, IEntity> Serialize(Setting setting, IImmutableSet<Type> supportedTypes)
         {
             if (setting.Itemized)
             {
@@ -66,21 +66,16 @@ namespace Reusable.ConfigWhiz
 
                 var targetType = ResolveDataType(elementType, supportedTypes);
                 var items = (IDictionary)Convert(setting, Itemizer, typeof(Dictionary<object, object>));
-                var entities = items.Keys.Cast<object>().Select(key => new Entity
-                {
-                    Identifier = new Identifier(
-                            setting.Identifier.Context,
-                            setting.Identifier.Consumer,
-                            setting.Identifier.Instance,
-                            setting.Identifier.Container,
-                            setting.Identifier.Setting,
-                            element: (string)_converter.Convert(key, typeof(string)),
-                            length: setting.Identifier.Length),
-                    Value = _converter.Convert(items[key], targetType)
-                })
-                .Cast<IEntity>().ToList();
+                var entities =
+                    from key in items.Keys.Cast<object>()
+                    let element = (string) _converter.Convert(key, typeof(string))
+                    select new Entity
+                    {
+                        Id = new Identifier(setting.Id.Concat(new IToken[] {new Token(element, TokenType.Element)})),
+                        Value = _converter.Convert(items[key], targetType)
+                    };
 
-                return new SettingGroup(setting.Identifier, entities);
+                return new SettingGroup(setting.Id, entities.ToList());
             }
             else
             {
@@ -90,11 +85,11 @@ namespace Reusable.ConfigWhiz
                 {
                     new Entity
                     {
-                        Identifier = setting.Identifier,
+                        Id = setting.Id,
                         Value = value
                     }
                 };
-                return new SettingGroup(setting.Identifier, entities);
+                return new SettingGroup(setting.Id, entities);
             }
 
 
