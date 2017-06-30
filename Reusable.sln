@@ -54,31 +54,31 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.EmailClients.SmtpClient", "Reusable.Email.Clients.SmtpClient\Reusable.EmailClients.SmtpClient.csproj", "{37354896-3562-4C99-B003-910411461622}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Core", "Reusable.ConfigWhiz.Core\Reusable.ConfigWhiz.Core.csproj", "{B507CF1E-FD24-465B-B8BC-F00F58C2D7C6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.SmartConfig.Core", "Reusable.ConfigWhiz.Core\Reusable.SmartConfig.Core.csproj", "{B507CF1E-FD24-465B-B8BC-F00F58C2D7C6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Core.Tests", "Reusable.ConfigWhiz.Core.Tests\Reusable.ConfigWhiz.Core.Tests.csproj", "{6CE60C89-58DC-47E8-ACA3-E557FB5E52BE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.SmartConfigCore.Tests", "Reusable.ConfigWhiz.Core.Tests\Reusable.SmartConfigCore.Tests.csproj", "{6CE60C89-58DC-47E8-ACA3-E557FB5E52BE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Datastores.SqlServer", "Reusable.ConfigWhiz.Datastores.SqlServer\Reusable.ConfigWhiz.Datastores.SqlServer.csproj", "{E30DCF5F-366A-421C-893C-6FDC23C4A129}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.SmartConfig.Datastores.SqlServer", "Reusable.ConfigWhiz.Datastores.SqlServer\Reusable.SmartConfig.Datastores.SqlServer.csproj", "{E30DCF5F-366A-421C-893C-6FDC23C4A129}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Datastores.AppConfig", "Reusable.ConfigWhiz.Datastores.AppConfig\Reusable.ConfigWhiz.Datastores.AppConfig.csproj", "{BAAA760F-2053-4679-B257-4EB6848142A8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.SmartConfig.Datastores.AppConfig", "Reusable.ConfigWhiz.Datastores.AppConfig\Reusable.SmartConfig.Datastores.AppConfig.csproj", "{BAAA760F-2053-4679-B257-4EB6848142A8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Datastores.Registry", "Reusable.ConfigWhiz.Datastores.Registry\Reusable.ConfigWhiz.Datastores.Registry.csproj", "{C3CD7DAB-7921-4EE4-9059-ABF96C241FA0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.SmartConfig.Datastores.Registry", "Reusable.ConfigWhiz.Datastores.Registry\Reusable.SmartConfig.Datastores.Registry.csproj", "{C3CD7DAB-7921-4EE4-9059-ABF96C241FA0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Datastores.SQLite", "Reusable.ConfigWhiz.Datastores.SQLite\Reusable.ConfigWhiz.Datastores.SQLite.csproj", "{E5F4DA27-E7C9-4D2B-9750-C71ABF7204DE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.SmartConfig.Datastores.SQLite", "Reusable.ConfigWhiz.Datastores.SQLite\Reusable.SmartConfig.Datastores.SQLite.csproj", "{E5F4DA27-E7C9-4D2B-9750-C71ABF7204DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Core.Tests.Common", "Reusable.ConfigWhiz.Core.Tests.Data\Reusable.ConfigWhiz.Core.Tests.Common.csproj", "{B3AFABD6-950F-4993-A09E-BE9AF369DB09}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.SmartConfig.Core.Tests.Common", "Reusable.ConfigWhiz.Core.Tests.Data\Reusable.SmartConfig.Core.Tests.Common.csproj", "{B3AFABD6-950F-4993-A09E-BE9AF369DB09}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Datastores.SqlServer.Tests", "Reusable.ConfigWhiz.Datastores.SqlServer.Tests\Reusable.ConfigWhiz.Datastores.SqlServer.Tests.csproj", "{7BB974DF-FA8F-4661-9375-F12975112F04}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.SmartConfig.Datastores.SqlServer.Tests", "Reusable.ConfigWhiz.Datastores.SqlServer.Tests\Reusable.SmartConfig.Datastores.SqlServer.Tests.csproj", "{7BB974DF-FA8F-4661-9375-F12975112F04}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ConfigWhiz", "ConfigWhiz", "{5CF1AE23-CE89-4087-9C37-6AC7CB2C1E51}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SmartConfig", "SmartConfig", "{5CF1AE23-CE89-4087-9C37-6AC7CB2C1E51}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ConfigWhiz", "ConfigWhiz", "{EC65300B-18E7-4460-9881-0C3F93DD26FA}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SmartConfig", "SmartConfig", "{EC65300B-18E7-4460-9881-0C3F93DD26FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Datastores.AppConfig.Tests", "Reusable.ConfigWhiz.Datastores.AppConfig.Tests\Reusable.ConfigWhiz.Datastores.AppConfig.Tests.csproj", "{175822A8-9DBE-4C9B-AB22-075795B31264}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.SmartConfig.Datastores.AppConfig.Tests", "Reusable.ConfigWhiz.Datastores.AppConfig.Tests\Reusable.SmartConfig.Datastores.AppConfig.Tests.csproj", "{175822A8-9DBE-4C9B-AB22-075795B31264}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Datastores.Registry.Tests", "Reusable.ConfigWhiz.Datastores.Registry.Tests\Reusable.ConfigWhiz.Datastores.Registry.Tests.csproj", "{7EADFE57-CA96-4391-804A-44DD7F6D76B7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.SmartConfig.Datastores.Registry.Tests", "Reusable.ConfigWhiz.Datastores.Registry.Tests\Reusable.SmartConfig.Datastores.Registry.Tests.csproj", "{7EADFE57-CA96-4391-804A-44DD7F6D76B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ConfigWhiz.Datastores.SQLite.Tests", "Reusable.ConfigWhiz.Datastores.SQLite.Tests\Reusable.ConfigWhiz.Datastores.SQLite.Tests.csproj", "{ED78FE95-73D1-4806-A3FE-41392C3E6E5F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.SmartConfig.Datastores.SQLite.Tests", "Reusable.ConfigWhiz.Datastores.SQLite.Tests\Reusable.SmartConfig.Datastores.SQLite.Tests.csproj", "{ED78FE95-73D1-4806-A3FE-41392C3E6E5F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.EmailClients.OutlookClient", "Reusable.Email.Clients.OutlookClient\Reusable.EmailClients.OutlookClient.csproj", "{2981DB10-8383-47FF-9E18-12534AD86D3B}"
 EndProject

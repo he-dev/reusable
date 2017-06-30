@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.ConfigWhiz.Datastores.SqlServer</id>
+    <id>Reusable.SmartConfig.Datastores.SqlServer</id>
     <version>3.42.0</version>
-    <title>Reusable.ConfigWhiz.Datastores.SqlServer</title>
+    <title>Reusable.SmartConfig.Datastores.SqlServer</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
@@ -17,12 +17,12 @@
     <dependencies>
       <dependency id="System.Collections.Immutable" version="1.3.1" />
       <dependency id="System.ValueTuple" version="4.3.1" />
-      <dependency id="Reusable.ConfigWhiz.Core" version="3.42.0" />
+      <dependency id="Reusable.SmartConfig.Core" version="3.42.0" />
       <dependency id="Reusable.Core" version="3.42.0" />
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\Reusable.ConfigWhiz.Datastores.SqlServer.dll" target="lib\net452" />
-    <file src="bin\Release\Reusable.ConfigWhiz.Datastores.SqlServer.pdb" target="lib\net452" />
+    <file src="bin\Release\Reusable.SmartConfig.Datastores.SqlServer.dll" target="lib\net452" />
+    <file src="bin\Release\Reusable.SmartConfig.Datastores.SqlServer.pdb" target="lib\net452" />
   </files>
 </package>
