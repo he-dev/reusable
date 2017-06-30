@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="TehCodez\Collections\DatastoreComparer.cs" />
     <Compile Include="TehCodez\Configuration.cs" />
+    <Compile Include="TehCodez\ConfigurationBuilder.cs" />
     <Compile Include="TehCodez\ConfigurationExtensions.cs" />
     <Compile Include="TehCodez\Data\DatastoreCache.cs" />
     <Compile Include="TehCodez\Data\EntityProperty.cs" />
