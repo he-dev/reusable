@@ -1,7 +1,7 @@
 using System;
 using JetBrains.Annotations;
 
-namespace Reusable.Colin.Annotations
+namespace Reusable.CommandLine.Annotations
 {
     [AttributeUsage(AttributeTargets.Class)]
     [UsedImplicitly]

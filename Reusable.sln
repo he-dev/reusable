@@ -29,9 +29,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Fuse.Tests", "Reus
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Core.Tests", "Reusable.Core.Tests\Reusable.Core.Tests.csproj", "{26B07985-D705-45DE-934D-B16F6B1FE6D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Colin", "Reusable.Colin\Reusable.Colin.csproj", "{82DBEED3-E1ED-4E95-B4CE-D29BBCC1F888}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.CommandLine", "Reusable.Colin\Reusable.CommandLine.csproj", "{82DBEED3-E1ED-4E95-B4CE-D29BBCC1F888}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Colin.Tests", "Reusable.Colin.Tests\Reusable.Colin.Tests.csproj", "{DDEF5B61-C7D2-4D8E-B6FB-D5534CB93247}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.CommandLine.Tests", "Reusable.Colin.Tests\Reusable.CommandLine.Tests.csproj", "{DDEF5B61-C7D2-4D8E-B6FB-D5534CB93247}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.TypeConversion", "Reusable.TypeConversion\Reusable.TypeConversion.csproj", "{D7DA0768-B385-40DE-ABAC-0A6B0C5B73F4}"
 EndProject

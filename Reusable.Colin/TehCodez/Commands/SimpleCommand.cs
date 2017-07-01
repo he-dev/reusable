@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace Reusable.Colin.Commands
+namespace Reusable.CommandLine.Commands
 {
     public class SimpleCommand : ICommand
     {

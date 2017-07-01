@@ -1,4 +1,6 @@
-namespace Reusable.Colin.Logging
+using Reusable.Colin.Logging;
+
+namespace Reusable.CommandLine.Logging
 {
     public interface ILogger
     {

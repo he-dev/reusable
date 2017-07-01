@@ -1,30 +1,30 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
-using Reusable.Colin.Data;
+using Reusable.CommandLine.Data;
 
-namespace Reusable.Colin.Collections
+namespace Reusable.CommandLine.Collections
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class ArgumentLookup : ILookup<ImmutableNameSet, string>
+    public class ArgumentLookup : ILookup<IImmutableNameSet, string>
     {
-        private readonly IDictionary<ImmutableNameSet, CommandLineArgument> _arguments = new Dictionary<ImmutableNameSet, CommandLineArgument>(ImmutableNameSet.Comparer);
+        private readonly IDictionary<IEquatable<IImmutableNameSet>, CommandLineArgument> _arguments = new Dictionary<IEquatable<IImmutableNameSet>, CommandLineArgument>();
 
         internal ArgumentLookup() { }
 
         private string DebuggerDisplay => this.ToCommandLine("-:");
 
-        public IEnumerable<string> this[ImmutableNameSet name] => _arguments.TryGetValue(name, out CommandLineArgument argument) ? argument : Enumerable.Empty<string>();
+        public IEnumerable<string> this[IImmutableNameSet name] => _arguments.TryGetValue(name, out var argument) ? argument : Enumerable.Empty<string>();
 
         public int Count => _arguments.Count;
 
-        public bool Contains(ImmutableNameSet name) => _arguments.ContainsKey(name);
+        public bool Contains(IImmutableNameSet name) => _arguments.ContainsKey(name);
 
         [ContractAnnotation("name: null => halt; value: null => halt")]
-        public void Add([NotNull] ImmutableNameSet name, [NotNull] string value)
+        public void Add([NotNull] IImmutableNameSet name, [NotNull] string value)
         {
             if (name == null) throw new ArgumentNullException(nameof(name));
             if (value == null) throw new ArgumentNullException(nameof(value));
@@ -40,7 +40,7 @@ namespace Reusable.Colin.Collections
         }
 
         [ContractAnnotation("name: null => halt")]
-        public void Add([NotNull] ImmutableNameSet name)
+        public void Add([NotNull] IImmutableNameSet name)
         {
             if (name == null) throw new ArgumentNullException(nameof(name));
 
@@ -56,12 +56,12 @@ namespace Reusable.Colin.Collections
 
         public void Add(CommandLineArgument argument)
         {
-            _arguments.Add(argument.Key, argument);
+            _arguments.Add(argument, argument);
         }
 
         #region IEnumerable
 
-        public IEnumerator<IGrouping<ImmutableNameSet, string>> GetEnumerator() => _arguments.Values.GetEnumerator();
+        public IEnumerator<IGrouping<IImmutableNameSet, string>> GetEnumerator() => _arguments.Values.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 

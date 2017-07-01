@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
-using Reusable.Colin.Collections;
+using Reusable.CommandLine.Collections;
 
-namespace Reusable.Colin.Services
+namespace Reusable.CommandLine.Services
 {
     public static class CommandLineParser
     {

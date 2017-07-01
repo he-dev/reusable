@@ -1,9 +1,8 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Colin.Collections;
-using Reusable.Colin.Data;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.CommandLine.Collections;
+using Reusable.CommandLine.Data;
 
-namespace Reusable.Colin.Tests.Collections
+namespace Reusable.CommandLine.Tests.Collections
 {
     [TestClass]
     public class ArgumentLookupTest

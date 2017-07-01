@@ -56,9 +56,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Colin\Reusable.Colin.csproj">
+    <ProjectReference Include="..\Reusable.Colin\Reusable.CommandLine.csproj">
       <Project>{82dbeed3-e1ed-4e95-b4ce-d29bbcc1f888}</Project>
-      <Name>Reusable.Colin</Name>
+      <Name>Reusable.CommandLine</Name>
     </ProjectReference>
     <ProjectReference Include="..\Reusable.ConsoleColorizer\Reusable.ConsoleColorizer.csproj">
       <Project>{ccbfed64-492b-4e15-9816-0fd76e390c7f}</Project>

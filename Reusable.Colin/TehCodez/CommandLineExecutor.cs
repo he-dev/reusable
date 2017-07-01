@@ -1,16 +1,21 @@
-using JetBrains.Annotations;
-using Reusable.Colin.Collections;
-using Reusable.Colin.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
+using Reusable.Colin;
 using Reusable.Colin.Data;
 using Reusable.Colin.Logging;
+using Reusable.CommandLine.Collections;
+using Reusable.CommandLine.Data;
+using Reusable.CommandLine.Logging;
+using Reusable.CommandLine.Services;
 
-namespace Reusable.Colin
+namespace Reusable.CommandLine
 {
     public static class CommandLineExecutor
     {
+        private static readonly ICommandLineTokenizer Tokenizer = new CommandLineTokenizer();
+
         [PublicAPI]
         [ContractAnnotation("commands: null => halt; text: null => halt")]
         public static void Execute([NotNull] this CommandCollection commands, [NotNull] string text, CommandLineSettings settings = null)
@@ -18,8 +23,7 @@ namespace Reusable.Colin
             settings = settings ?? CommandLineSettings.Default;
 
             var executables =
-                text
-                    .Tokenize(settings.ArgumentValueSeparator)
+                Tokenizer.Tokenize(text)
                     .PrependCommandName(commands)
                     .Parse(settings.ArgumentPrefix)
                     .Select(argument => new

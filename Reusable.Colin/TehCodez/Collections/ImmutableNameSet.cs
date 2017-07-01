@@ -5,32 +5,41 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Input;
 using JetBrains.Annotations;
-using Reusable.Colin.Annotations;
+using Reusable.CommandLine.Annotations;
+using Reusable.CommandLine.Services;
 
-namespace Reusable.Colin.Collections
+namespace Reusable.CommandLine.Collections
 {
+    public interface IImmutableNameSet : IImmutableSet<string>, IEquatable<IImmutableSet<string>>, IEquatable<IImmutableNameSet> { }
+
     /// <summary>
     /// Name set used for command and argument names.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class ImmutableNameSet : IImmutableSet<string>
+    public class ImmutableNameSet : IImmutableNameSet
     {
         private readonly IImmutableSet<string> _names;
 
         private ImmutableNameSet(params string[] names) => _names = ImmutableHashSet.Create(StringComparer.OrdinalIgnoreCase, names);
 
-        public static readonly ImmutableNameSet Empty = Create();
-
-        public static readonly ImmutableNameSet DefaultCommandName = Create("Default");
+        [NotNull]
+        public static readonly IImmutableNameSet Empty = Create();
 
         [NotNull]
-        public static ImmutableNameSet Create(IEnumerable<string> values) => Create(values.ToArray());
+        public static readonly IImmutableNameSet DefaultCommandName = Create("Default");
 
         [NotNull]
-        public static ImmutableNameSet Create([NotNull] params string[] names)
+        public static IEqualityComparer<IImmutableSet<string>> Comparer { get; } = new ImmutableNameSetEqualityComparer();
+
+        [NotNull]
+        public static IImmutableNameSet Create(IEnumerable<string> values) => Create(values.ToArray());
+
+        [NotNull]
+        public static IImmutableNameSet Create([NotNull] params string[] names)
         {
             if (names == null) throw new ArgumentNullException(nameof(names));
             //if (names.Length == 0) throw new ArgumentException("You need to specify at least one name.", nameof(names));
@@ -40,70 +49,14 @@ namespace Reusable.Colin.Collections
 
         private string DebuggerDisplay => ToString();
 
-        [PublicAPI]
         [NotNull]
-        public static ImmutableNameSet From([NotNull] Type type)
-        {
-            if (type == null) throw new ArgumentNullException(nameof(type));
-            if (!typeof(ICommand).IsAssignableFrom(type)) { throw new ArgumentException(paramName: nameof(type), message: $"'{nameof(type)}' needs to be derived from '{nameof(ICommand)}'"); }
-
-            var names = GetCommandNames();
-            AddCommandNamespace();
-
-            return Create(names);
-
-            List<string> GetCommandNames()
-            {
-                return
-                    type.GetCustomAttribute<CommandNameAttribute>()?.ToList() ??
-                    new List<string> { Regex.Replace(type.Name, "Command$", string.Empty, RegexOptions.IgnoreCase) };
-            }
-
-            void AddCommandNamespace()
-            {
-                var commandNamespace = type.GetCustomAttribute<CommandNamespaceAttribute>();
-                if (commandNamespace == null) return;
-                if (commandNamespace.Required) { names.Clear(); }
-                names.AddRange(names.Select(n => $"{commandNamespace}.{n}"));
-            }
-        }
+        public static IImmutableNameSet From([NotNull] Type type) => CommandNameFactory.From(type);        
 
         [NotNull]
-        public static ImmutableNameSet From([NotNull] ICommand command)
-        {
-            if (command == null) throw new ArgumentNullException(nameof(command));
-
-            return From(command.GetType());
-        }
+        public static IImmutableNameSet From([NotNull] ICommand command) => From(command?.GetType());
 
         [NotNull]
-        public static ImmutableNameSet From([NotNull] PropertyInfo parameterProperty)
-        {
-            var parameter = parameterProperty.GetCustomAttribute<ParameterAttribute>();
-            if (parameter.Names.Any())
-            {
-                return Create(parameter.Names);
-            }
-
-            // Get the default name first.
-            var names = new List<string> { parameterProperty.Name };
-
-            if (parameter.CanCreateShortName)
-            {
-                var initials =
-                    Regex
-                        .Matches(parameterProperty.Name, "[A-Z]")
-                        .Cast<Match>()
-                        .Select(m => m.Groups[0].Value)
-                        .ToList();
-                if (initials.Any())
-                {
-                    names.Add(string.Join(string.Empty, initials));
-                }
-            }
-
-            return Create(names);
-        }
+        public static IImmutableNameSet From([NotNull] PropertyInfo parameterProperty) => ParameterNameFactory.From(parameterProperty);        
 
         #region IImmutableSet<string>
 
@@ -128,9 +81,13 @@ namespace Reusable.Colin.Collections
 
         #endregion
 
-        public override bool Equals(object obj) => Comparer.Equals(this, obj as ImmutableNameSet);
+        public override bool Equals(object obj) => Comparer.Equals(this, obj as IImmutableSet<string>);
 
         public override int GetHashCode() => Comparer.GetHashCode(this);
+
+        public bool Equals(IImmutableSet<string> other) => Comparer.Equals(this, other);
+
+        public bool Equals(IImmutableNameSet other) => Comparer.Equals(this, other);
 
         public override string ToString() => $"Names = [{string.Join(", ", this)}]";
 
@@ -138,20 +95,17 @@ namespace Reusable.Colin.Collections
 
         public static bool operator !=(ImmutableNameSet left, ImmutableNameSet right) => !(left == right);
 
-        public static IEqualityComparer<ImmutableNameSet> Comparer { get; } = new ImmutableNameSetEqualityComparer();
-
-        private sealed class ImmutableNameSetEqualityComparer : IEqualityComparer<ImmutableNameSet>
+        private sealed class ImmutableNameSetEqualityComparer : IEqualityComparer<IImmutableSet<string>>
         {
-            public bool Equals(ImmutableNameSet x, ImmutableNameSet y)
+            public bool Equals(IImmutableSet<string> x, IImmutableSet<string> y)
             {
-                return
-                    !ReferenceEquals(x, null) &&
-                    !ReferenceEquals(y, null) &&
-                    (x.Overlaps(y) || (!x.Any() && !y.Any()));
+                if (ReferenceEquals(x, null)) return false;
+                if (ReferenceEquals(y, null)) return false;
+                return ReferenceEquals(x, y) || x.Overlaps(y) || (!x.Any() && !y.Any());
             }
 
             // The hash code are always different thus this comparer. We need to check if the sets overlap so we cannot relay on the hash code.
-            public int GetHashCode(ImmutableNameSet obj) => 0;
+            public int GetHashCode(IImmutableSet<string> obj) => 0;
         }
     }
 }

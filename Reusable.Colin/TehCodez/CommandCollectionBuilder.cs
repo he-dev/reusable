@@ -1,18 +1,16 @@
 using System;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Windows.Input;
 using JetBrains.Annotations;
-using Reusable.Colin.Collections;
-using Reusable.Colin.Commands;
-using Reusable.Colin.Services;
+using Reusable.CommandLine.Collections;
+using Reusable.CommandLine.Commands;
+using Reusable.CommandLine.Services;
 
-namespace Reusable.Colin
+namespace Reusable.CommandLine
 {
     public static class CommandCollectionBuilder
     {
         [NotNull]
-        [PublicAPI]
         public static CommandCollection Add<TCommand, TParameter>(this CommandCollection commandCollection)
             where TCommand : ICommand, new()
             where TParameter : new()
@@ -21,7 +19,6 @@ namespace Reusable.Colin
         }
 
         [NotNull]
-        [PublicAPI]
         public static CommandCollection Add<TCommand>(this CommandCollection commandCollection)
             where TCommand : ICommand, new()
         {
@@ -29,7 +26,6 @@ namespace Reusable.Colin
         }
 
         [NotNull]
-        [PublicAPI]
         public static CommandCollection Add<TParameter>(this CommandCollection commandCollection, ICommand command, params string[] names)
             where TParameter : new()
         {
@@ -37,14 +33,12 @@ namespace Reusable.Colin
         }
 
         [NotNull]
-        [PublicAPI]
         public static CommandCollection Add(this CommandCollection commandCollection, ICommand command, params string[] names)
         {
             return commandCollection.Add(new CommandMapping(command, ImmutableNameSet.Create(names), null));
         }
 
         [NotNull]
-        [PublicAPI]
         public static CommandCollection Add(this CommandCollection commandCollection, [NotNull] Action<object> action, [NotNull] params string[] names)
         {
             if (action == null) throw new ArgumentNullException(nameof(action));

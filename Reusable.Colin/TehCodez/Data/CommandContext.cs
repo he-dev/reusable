@@ -1,7 +1,8 @@
 using JetBrains.Annotations;
 using Reusable.Colin.Logging;
+using Reusable.CommandLine.Logging;
 
-namespace Reusable.Colin.Data
+namespace Reusable.CommandLine.Data
 {
     public class CommandContext
     {

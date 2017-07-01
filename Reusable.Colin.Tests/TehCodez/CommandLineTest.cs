@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.CommandLine.Tests.Helpers;
 using Reusable.Fuse;
 using Reusable.Fuse.Testing;
-using Reusable.Colin.Tests.Helpers;
 
-namespace Reusable.Colin.Tests
+namespace Reusable.CommandLine.Tests
 {
     [TestClass]
     public class CommandLineTest

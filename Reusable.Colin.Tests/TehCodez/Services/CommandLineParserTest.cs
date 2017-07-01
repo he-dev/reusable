@@ -1,11 +1,11 @@
 ﻿using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Colin.Collections;
-using Reusable.Colin.Services;
+using Reusable.CommandLine.Collections;
+using Reusable.CommandLine.Services;
 using Reusable.Fuse;
 using Reusable.Fuse.Testing;
 
-namespace Reusable.Colin.Tests.Services
+namespace Reusable.CommandLine.Tests.Services
 {
     [TestClass]
     public class CommandLineParserTest

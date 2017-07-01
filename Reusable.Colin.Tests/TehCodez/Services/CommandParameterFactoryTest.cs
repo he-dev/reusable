@@ -1,9 +1,9 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Colin.Annotations;
-using Reusable.Colin.Services;
+using Reusable.CommandLine.Annotations;
+using Reusable.CommandLine.Services;
 
-namespace Reusable.Colin.Tests.Services
+namespace Reusable.CommandLine.Tests.Services
 {
     [TestClass]
     public class CommandParameterFactoryTest

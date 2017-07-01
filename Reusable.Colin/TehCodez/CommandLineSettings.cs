@@ -3,9 +3,10 @@ using System.Globalization;
 using JetBrains.Annotations;
 using Reusable.Colin.Logging;
 using Reusable.Colin.Logging.Loggers;
-using Reusable.Colin.Services;
+using Reusable.CommandLine.Logging;
+using Reusable.CommandLine.Logging.Loggers;
 
-namespace Reusable.Colin
+namespace Reusable.CommandLine
 {
     public class CommandLineSettings
     {

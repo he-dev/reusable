@@ -1,17 +1,14 @@
 using System;
-using System.Globalization;
 using System.Linq;
 using System.Windows.Input;
 using JetBrains.Annotations;
-using Reusable.Colin.Collections;
-using Reusable.Colin.Data;
-using Reusable.Colin.Logging;
+using Reusable.CommandLine.Collections;
 
-namespace Reusable.Colin.Services
+namespace Reusable.CommandLine.Services
 {
     public class CommandMapping
     {
-        public CommandMapping([NotNull] ICommand command, [NotNull] ImmutableNameSet name, Type parameterType)
+        public CommandMapping([NotNull] ICommand command, [NotNull] IImmutableNameSet name, Type parameterType)
         {
             if (name == null) throw new ArgumentNullException(nameof(name));
             Command = command ?? throw new ArgumentNullException(nameof(command));
@@ -26,7 +23,7 @@ namespace Reusable.Colin.Services
 
         [PublicAPI]
         [NotNull]
-        public ImmutableNameSet Name { get; }
+        public IImmutableNameSet Name { get; }
 
         [PublicAPI]
         [NotNull]

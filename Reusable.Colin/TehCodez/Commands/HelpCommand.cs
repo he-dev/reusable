@@ -6,17 +6,18 @@ using System.Reflection;
 using System.Text;
 using System.Windows.Input;
 using JetBrains.Annotations;
-using Reusable.Colin.Annotations;
-using Reusable.Colin.Collections;
-using Reusable.Colin.Data;
-using Reusable.Colin.Data.Help;
 using Reusable.Colin.Logging;
-using Reusable.Colin.Services;
+using Reusable.CommandLine.Annotations;
+using Reusable.CommandLine.Collections;
+using Reusable.CommandLine.Data;
+using Reusable.CommandLine.Data.Help;
+using Reusable.CommandLine.Logging;
+using Reusable.CommandLine.Services;
 
-namespace Reusable.Colin.Commands
+namespace Reusable.CommandLine.Commands
 {
     [PublicAPI]
-    [CommandName("help", "h", "?")]
+    [CommandNames("help", "h", "?")]
     [Description("Display help.")]
     public class HelpCommand : ICommand
     {
@@ -52,7 +53,7 @@ namespace Reusable.Colin.Commands
             }
             else
             {
-                if (context.CommandCollection.TryGetValue(ImmutableNameSet.Create(commandName), out Services.CommandMapping mapping))
+                if (context.CommandCollection.TryGetValue(ImmutableNameSet.Create(commandName), out CommandMapping mapping))
                 {
                     RenderParameterList(context, mapping);
                 }

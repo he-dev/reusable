@@ -1,19 +1,19 @@
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Colin.Data;
-using Reusable.Colin.Services;
+using Reusable.CommandLine.Data;
+using Reusable.CommandLine.Services;
 
-namespace Reusable.Colin.Collections
+namespace Reusable.CommandLine.Collections
 {
     public static class ArgumentLookupExtensions
     {
         [NotNull]
-        public static IEnumerable<string> AnonymousValues([NotNull] this ILookup<ImmutableNameSet, string> arguments) => arguments[ImmutableNameSet.Empty];
+        public static IEnumerable<string> AnonymousValues([NotNull] this ILookup<IImmutableNameSet, string> arguments) => arguments[ImmutableNameSet.Empty];
 
         [CanBeNull]
-        public static ImmutableNameSet CommandName([NotNull] this ILookup<ImmutableNameSet, string> arguments)
+        public static IImmutableNameSet CommandName([NotNull] this ILookup<IImmutableNameSet, string> arguments)
         {
             // Command-name is the first anonymous value (0).
             var commandName = arguments.AnonymousValues().FirstOrDefault();
@@ -21,7 +21,7 @@ namespace Reusable.Colin.Collections
         }
 
         [CanBeNull]
-        public static CommandMapping Map([NotNull][ItemNotNull] this ILookup<ImmutableNameSet, string> arguments, [NotNull] CommandCollection commandCollection)
+        public static CommandMapping Map([NotNull][ItemNotNull] this ILookup<IImmutableNameSet, string> arguments, [NotNull] CommandCollection commandCollection)
         {
             if (commandCollection.Count == 1)
             {
@@ -40,7 +40,7 @@ namespace Reusable.Colin.Collections
                     : default(CommandMapping);
         }
 
-        internal static bool Contains(this ILookup<ImmutableNameSet, string> arguments, CommandParameter commandParameter)
+        internal static bool Contains(this ILookup<IImmutableNameSet, string> arguments, CommandParameter commandParameter)
         {
             return
                 commandParameter.Position > 0
@@ -49,7 +49,7 @@ namespace Reusable.Colin.Collections
         }
 
         [NotNull]
-        internal static IEnumerable<string> Parameter(this ILookup<ImmutableNameSet, string> arguments, CommandParameter commandParameter)
+        internal static IEnumerable<string> Parameter(this ILookup<IImmutableNameSet, string> arguments, CommandParameter commandParameter)
         {
             return
                 commandParameter.Position > 0
@@ -57,7 +57,7 @@ namespace Reusable.Colin.Collections
                     : arguments[commandParameter.Name];
         }
 
-        public static string ToCommandLine(this ILookup<ImmutableNameSet, string> arguments, string format)
+        public static string ToCommandLine(this ILookup<IImmutableNameSet, string> arguments, string format)
         {
             return string.Join(" ", arguments.Select(argument => argument.ToCommandLine(format)));
         }

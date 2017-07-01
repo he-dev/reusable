@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using JetBrains.Annotations;
+using Reusable.CommandLine.Logging;
 
 namespace Reusable.Colin.Logging.Loggers
 {

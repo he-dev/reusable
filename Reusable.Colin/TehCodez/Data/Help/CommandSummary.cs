@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Reusable.Colin.Data.Help
+namespace Reusable.CommandLine.Data.Help
 {
     public class CommandSummary
     {

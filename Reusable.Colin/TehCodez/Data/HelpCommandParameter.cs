@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 using JetBrains.Annotations;
-using Reusable.Colin.Annotations;
+using Reusable.CommandLine.Annotations;
 
-namespace Reusable.Colin.Data
+namespace Reusable.CommandLine.Data
 {
     [PublicAPI]
     public class HelpCommandParameter

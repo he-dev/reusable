@@ -6,14 +6,14 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Reusable.Colin.Annotations;
-using Reusable.Colin.Collections;
-using Reusable.Colin.Validators;
+using Reusable.Colin.Data;
+using Reusable.CommandLine.Annotations;
+using Reusable.CommandLine.Collections;
+using Reusable.CommandLine.Validators;
 using Reusable.Extensions;
 using Reusable.TypeConversion;
-using Reusable.Colin.Data;
 
-namespace Reusable.Colin.Services
+namespace Reusable.CommandLine.Services
 {
     public class CommandParameterFactory : IEnumerable<CommandParameter>
     {
@@ -159,7 +159,7 @@ namespace Reusable.Colin.Services
     public class ParameterNotFoundException : Exception
     {
         // ReSharper disable once SuggestBaseTypeForParameter
-        public ParameterNotFoundException([NotNull] ImmutableNameSet parameterNames)
+        public ParameterNotFoundException([NotNull] IImmutableNameSet parameterNames)
             : base(parameterNames.ToString())
         { }
     }

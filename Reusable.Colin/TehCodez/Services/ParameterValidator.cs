@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Reusable.Colin.Data;
 
-namespace Reusable.Colin.Validators
+namespace Reusable.CommandLine.Validators
 {
     internal static class ParameterValidator
     {
