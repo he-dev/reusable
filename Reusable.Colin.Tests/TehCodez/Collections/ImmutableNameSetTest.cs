@@ -1,6 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.Windows.Input;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.CommandLine.Annotations;
 using Reusable.CommandLine.Collections;
+using Reusable.CommandLine.Tests.Helpers;
 
 namespace Reusable.CommandLine.Tests.Collections
 {
@@ -28,7 +31,23 @@ namespace Reusable.CommandLine.Tests.Collections
         [TestMethod]
         public void From_Command_NoAttribute_DefaultName()
         {
+            Assert.AreEqual(ImmutableNameSet.Create("Test1"), ImmutableNameSet.From(new Test1Command()));
+        }
 
+        [TestMethod]
+        public void From_Command_AllowShortName_DefaultNameAndShortName()
+        {
+            var name = ImmutableNameSet.From(new Test2Command());
+            Assert.AreEqual(ImmutableNameSet.Create("Test2"), name);
+            Assert.AreEqual(ImmutableNameSet.Create("T"), name);
+        }
+
+        [TestMethod]
+        public void From_Command_CustomNames_CustomNames()
+        {
+            var name = ImmutableNameSet.From(new Test3Command());
+            Assert.AreEqual(ImmutableNameSet.Create("test"), name);
+            Assert.AreEqual(ImmutableNameSet.Create("tst"), name);
         }
 
         [TestMethod]
@@ -64,6 +83,53 @@ namespace Reusable.CommandLine.Tests.Collections
 
             [Parameter(AllowShortName = true)]
             public string Corge { get; set; }
+        }
+
+        private class Test1Command : ICommand
+        {
+            public bool CanExecute(object parameter)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Execute(object parameter)
+            {
+                throw new NotImplementedException();
+            }
+
+            public event EventHandler CanExecuteChanged;
+        }
+
+        [CommandNames(AllowShortName = true)]
+        private class Test2Command : ICommand
+        {
+            public bool CanExecute(object parameter)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Execute(object parameter)
+            {
+                throw new NotImplementedException();
+            }
+
+            public event EventHandler CanExecuteChanged;
+        }
+
+        [CommandNames("test", "tst")]
+        private class Test3Command : ICommand
+        {
+            public bool CanExecute(object parameter)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Execute(object parameter)
+            {
+                throw new NotImplementedException();
+            }
+
+            public event EventHandler CanExecuteChanged;
         }
     }
 }
