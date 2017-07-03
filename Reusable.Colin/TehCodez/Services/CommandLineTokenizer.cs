@@ -16,8 +16,8 @@ namespace Reusable.CommandLine.Services
 
     public class CommandLineTokenizer : ICommandLineTokenizer
     {
-        private static readonly IImmutableSet<char> Separators = new[] { ' ', '|', ',', ':', '=' }.ToImmutableHashSet();
-        private static readonly ISet<char> Escapables = new[] { '\\', '"' }.Concat(Separators).ToImmutableHashSet();
+        public static readonly IImmutableSet<char> Separators = new[] { ' ', '|', ',', ':', '=' }.ToImmutableHashSet();
+        public static readonly IImmutableSet<char> Escapables = new[] { '\\', '"' }.Concat(Separators).ToImmutableHashSet();
 
         public IEnumerable<string> Tokenize(string text)
         {

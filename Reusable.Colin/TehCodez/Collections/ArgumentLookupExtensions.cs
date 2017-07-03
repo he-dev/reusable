@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Input;
 using JetBrains.Annotations;
-using Reusable.Colin.Data;
 using Reusable.CommandLine.Data;
 using Reusable.CommandLine.Services;
 
@@ -21,40 +21,42 @@ namespace Reusable.CommandLine.Collections
         }
 
         [CanBeNull]
-        public static CommandMapping Map([NotNull][ItemNotNull] this ILookup<IImmutableNameSet, string> arguments, [NotNull] CommandCollection commandCollection)
+        public static CommandMetadata FindCommand([NotNull][ItemNotNull] this ILookup<IImmutableNameSet, string> arguments, [NotNull] CommandContainer commands)
         {
-            if (commandCollection.Count == 1)
+            // The help-command requires special treatment and does not count as a "real" command so exclude it from count.
+            bool IsHelpCommand(IImmutableNameSet name) => name.Overlaps(new[] { "help" });
+
+            var commandCount = commands.Count(c => !IsHelpCommand(c.Value.CommandName));
+
+            if (commandCount == 1)
             {
-                return commandCollection.Single().Value;
+                return commands.Single(c => !IsHelpCommand(c.Value.CommandName)).Value;
             }
 
             // Default command is used whenever there is no command name or there are no arguments.
-            var commandName = 
-                arguments.Any() 
-                    ? arguments.CommandName() ?? ImmutableNameSet.DefaultCommandName 
-                    : ImmutableNameSet.DefaultCommandName;
+            //var commandName =
+            //    arguments.Any()
+            //        ? arguments.CommandName() ?? ImmutableNameSet.DefaultCommandName
+            //        : ImmutableNameSet.DefaultCommandName;
 
-            return
-                commandCollection.TryGetValue(commandName, out CommandMapping command)
-                    ? command
-                    : default(CommandMapping);
+            return commands.TryGetValue(arguments.CommandName(), out var command) ? command : default(CommandMetadata);
         }
 
-        internal static bool Contains(this ILookup<IImmutableNameSet, string> arguments, CommandParameter commandParameter)
+        internal static bool Contains(this ILookup<IImmutableNameSet, string> arguments, ArgumentMetadata argument)
         {
             return
-                commandParameter.Position > 0
-                    ? arguments.AnonymousValues().ElementAtOrDefault(commandParameter.Position) != null
-                    : arguments.Contains(commandParameter.Name);
+                argument.Position > 0
+                    ? arguments.AnonymousValues().ElementAtOrDefault(argument.Position) != null
+                    : arguments.Contains(argument.Name);
         }
 
         [NotNull]
-        internal static IEnumerable<string> Parameter(this ILookup<IImmutableNameSet, string> arguments, CommandParameter commandParameter)
+        internal static IEnumerable<string> Parameter(this ILookup<IImmutableNameSet, string> arguments, ArgumentMetadata argument)
         {
             return
-                commandParameter.Position > 0
-                    ? new[] { arguments.AnonymousValues().ElementAtOrDefault(commandParameter.Position) }
-                    : arguments[commandParameter.Name];
+                argument.Position > 0
+                    ? new[] { arguments.AnonymousValues().ElementAtOrDefault(argument.Position) }
+                    : arguments[argument.Name];
         }
 
         public static string ToCommandLine(this ILookup<IImmutableNameSet, string> arguments, string format)

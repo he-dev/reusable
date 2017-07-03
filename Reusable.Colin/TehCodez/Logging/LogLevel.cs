@@ -1,4 +1,4 @@
-namespace Reusable.Colin.Logging
+namespace Reusable.CommandLine.Logging
 {
     public enum LogLevel
     {

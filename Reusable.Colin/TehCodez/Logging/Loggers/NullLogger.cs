@@ -1,5 +1,3 @@
-using Reusable.Colin.Logging;
-
 namespace Reusable.CommandLine.Logging.Loggers
 {
     public class NullLogger : ILogger

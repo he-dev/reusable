@@ -2,9 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using JetBrains.Annotations;
-using Reusable.CommandLine.Logging;
 
-namespace Reusable.Colin.Logging.Loggers
+namespace Reusable.CommandLine.Logging.Loggers
 {
     [PublicAPI]
     public class ConsoleLogger : ILogger

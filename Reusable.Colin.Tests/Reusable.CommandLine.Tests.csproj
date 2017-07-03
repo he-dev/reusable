@@ -72,7 +72,6 @@
     <Compile Include="TehCodez\Collections\ImmutableNameSetTest.cs" />
     <Compile Include="TehCodez\Collections\ArgumentLookupTest.cs" />
     <Compile Include="TehCodez\Data\CommandLineArgumentTest.cs" />
-    <Compile Include="TehCodez\Services\CommandParameterFactoryTest.cs" />
     <Compile Include="TehCodez\Services\CommandLineParserTest.cs" />
     <Compile Include="TehCodez\CommandLineTest.cs" />
     <Compile Include="TehCodez\Services\CommandLineTokenizerTest.cs" />

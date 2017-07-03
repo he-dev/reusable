@@ -3,6 +3,7 @@ using System.Windows.Input;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.CommandLine.Annotations;
 using Reusable.CommandLine.Collections;
+using Reusable.CommandLine.Services;
 using Reusable.CommandLine.Tests.Helpers;
 
 namespace Reusable.CommandLine.Tests.Collections
@@ -31,13 +32,13 @@ namespace Reusable.CommandLine.Tests.Collections
         [TestMethod]
         public void From_Command_NoAttribute_DefaultName()
         {
-            Assert.AreEqual(ImmutableNameSet.Create("Test1"), ImmutableNameSet.From(new Test1Command()));
+            Assert.AreEqual(ImmutableNameSet.Create("Test1"), ImmutableNameSetFactory.CreateCommandNameSet<Test1Command>());
         }
 
         [TestMethod]
         public void From_Command_AllowShortName_DefaultNameAndShortName()
         {
-            var name = ImmutableNameSet.From(new Test2Command());
+            var name = ImmutableNameSetFactory.CreateCommandNameSet<Test2Command>();
             Assert.AreEqual(ImmutableNameSet.Create("Test2"), name);
             Assert.AreEqual(ImmutableNameSet.Create("T"), name);
         }
@@ -45,7 +46,7 @@ namespace Reusable.CommandLine.Tests.Collections
         [TestMethod]
         public void From_Command_CustomNames_CustomNames()
         {
-            var name = ImmutableNameSet.From(new Test3Command());
+            var name = ImmutableNameSetFactory.CreateCommandNameSet<Test3Command>();
             Assert.AreEqual(ImmutableNameSet.Create("test"), name);
             Assert.AreEqual(ImmutableNameSet.Create("tst"), name);
         }
@@ -53,14 +54,14 @@ namespace Reusable.CommandLine.Tests.Collections
         [TestMethod]
         public void From_PropertyInfo_DefaultParameter_DefaultName()
         {
-            var name = ImmutableNameSet.From(typeof(Foo).GetProperty(nameof(Foo.Bar)));
+            var name = ImmutableNameSetFactory.CreateParameterNameSet(typeof(Foo).GetProperty(nameof(Foo.Bar)));
             Assert.AreEqual(ImmutableNameSet.Create("Bar"), name);
         }
 
         [TestMethod]
         public void From_PropertyInfo_AllowShortName_DefaultAndShortNames()
         {
-            var name = ImmutableNameSet.From(typeof(Foo).GetProperty(nameof(Foo.Corge)));
+            var name = ImmutableNameSetFactory.CreateParameterNameSet(typeof(Foo).GetProperty(nameof(Foo.Corge)));
             Assert.AreEqual(ImmutableNameSet.Create("Corge"), name);
             Assert.AreEqual(ImmutableNameSet.Create("C"), name);
         }
@@ -68,7 +69,7 @@ namespace Reusable.CommandLine.Tests.Collections
         [TestMethod]
         public void From_PropertyInfo_CustomNames_CustomNames()
         {
-            var name = ImmutableNameSet.From(typeof(Foo).GetProperty(nameof(Foo.Baz)));
+            var name = ImmutableNameSetFactory.CreateParameterNameSet(typeof(Foo).GetProperty(nameof(Foo.Baz)));
             Assert.AreEqual(ImmutableNameSet.Create("Qux"), name);
             Assert.AreEqual(ImmutableNameSet.Create("Q"), name);
         }

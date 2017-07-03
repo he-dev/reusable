@@ -6,87 +6,84 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Reusable.Colin.Data;
 using Reusable.CommandLine.Annotations;
 using Reusable.CommandLine.Collections;
-using Reusable.CommandLine.Validators;
+using Reusable.CommandLine.Data;
 using Reusable.Extensions;
 using Reusable.TypeConversion;
 
 namespace Reusable.CommandLine.Services
 {
-    public class CommandParameterFactory : IEnumerable<CommandParameter>
+    public abstract class CommandParameterFactory
     {
-        [CanBeNull]
-        private readonly IImmutableList<CommandParameter> _parameters;
-
-        private readonly TypeConverter _converter;
-
-        public CommandParameterFactory([CanBeNull] Type parameterType)
+        public static ParameterMetadata CreateCommandParameterMetadata([CanBeNull] Type parameterType)
         {
-            ParameterType = parameterType;
-            if (parameterType == null) return;
+            if (parameterType == null)
+            {
+                return new ParameterMetadata(null, Enumerable.Empty<ArgumentMetadata>());
+            }
 
-            if (!parameterType.HasDefaultConstructor()) throw new ArgumentException($"The '{nameof(parameterType)}' '{parameterType}' must have a default constructor.");
+            if (!parameterType.HasDefaultConstructor())
+            {
+                throw new ArgumentException($"The '{nameof(parameterType)}' '{parameterType}' must have a default constructor.");
+            }
 
-            _parameters = CreateParameters(parameterType).ToImmutableList();
-            _converter = DefaultConverter;
+            var argumentMetadata = CreateParameters(parameterType).ToImmutableList();
 
-            ParameterValidator.ValidateParameterNamesUniqueness(_parameters);
-            ParameterValidator.ValidateParameterPositions(_parameters);
+            ParameterValidator.ValidateParameterNamesUniqueness(argumentMetadata);
+            ParameterValidator.ValidateParameterPositions(argumentMetadata);
+
+            return new ParameterMetadata(parameterType, argumentMetadata);
         }
 
-        [PublicAPI]
-        [CanBeNull]
-        public Type ParameterType { get; }
-
-        [PublicAPI]
-        [NotNull]
-        [ItemNotNull]
-        internal static IEnumerable<CommandParameter> CreateParameters(Type parameterType)
+        [NotNull, ItemNotNull]
+        private static IEnumerable<ArgumentMetadata> CreateParameters([NotNull] Type parameterType)
         {
             return
                 parameterType
                     .GetProperties(BindingFlags.Instance | BindingFlags.Public)
                     .Where(p => p.GetCustomAttribute<ParameterAttribute>() != null)
-                    .Select(p => new CommandParameter(p));
+                    .Select(p => new ArgumentMetadata(ImmutableNameSetFactory.CreateParameterNameSet(p), p));
         }
 
-        public object CreateParameter(ArgumentLookup arguments, CultureInfo culture)
+        public static object CreateParameter(ParameterMetadata parameter, ArgumentLookup arguments, CultureInfo culture)
         {
-            if (ParameterType == null) return null;
+            if (parameter.ParameterType == null)
+            {
+                return null;
+            }
 
-            var instance = Activator.CreateInstance(ParameterType);
+            var instance = Activator.CreateInstance(parameter.ParameterType);
 
             // ReSharper disable once PossibleNullReferenceException
-            foreach (var parameter in _parameters)
+            foreach (var property in parameter)
             {
-                if (!arguments.Contains(parameter))
+                if (!arguments.Contains(property))
                 {
-                    if (parameter.Required)
+                    if (property.Required)
                     {
-                        throw new ParameterNotFoundException(parameter.Name);
+                        throw new ParameterNotFoundException(property.Name);
                     }
                     //continue;
                 }
 
-                var values = arguments.Parameter(parameter).ToList();
+                var values = arguments.Parameter(property).ToList();
 
-                if (TryGetParameterData(parameter, values, out (object data, Type dataType) result))
+                if (TryGetParameterData(property, values, out (object data, Type dataType) result))
                 {
-                    var value = _converter.Convert(result.data, result.dataType, null, CultureInfo.InvariantCulture);
-                    parameter.Property.SetValue(instance, value);
+                    var value = DefaultConverter.Convert(result.data, result.dataType, null, culture);
+                    property.Property.SetValue(instance, value);
                 }
             }
 
             return instance;
         }
 
-        private static bool TryGetParameterData([NotNull] CommandParameter commandParameter, [NotNull] ICollection<string> values, out (object data, Type dataType) result)
+        private static bool TryGetParameterData([NotNull] ArgumentMetadata argument, [NotNull] ICollection<string> values, out (object data, Type dataType) result)
         {
             // Boolean paramater need special treatment because their value is optional. 
             // Just setting the flag means that its default value should be used.
-            if (commandParameter.Property.PropertyType == typeof(bool))
+            if (argument.Property.PropertyType == typeof(bool))
             {
                 var value = values.SingleOrDefault();
                 if (value != null)
@@ -100,24 +97,24 @@ namespace Reusable.CommandLine.Services
             {
                 if (values.Any())
                 {
-                    if (commandParameter.Property.PropertyType.IsEnumerable())
+                    if (argument.Property.PropertyType.IsEnumerable())
                     {
                         result.data = values;
-                        result.dataType = commandParameter.Property.PropertyType;
+                        result.dataType = argument.Property.PropertyType;
                         return true;
                     }
 
                     result.data = values.Single();
-                    result.dataType = commandParameter.Property.PropertyType;
+                    result.dataType = argument.Property.PropertyType;
                     return true;
                 }
             }
 
             // Still didn't find the value. Try to use the default one.
-            if (commandParameter.DefaultValue != null)
+            if (argument.DefaultValue != null)
             {
-                result.data = commandParameter.DefaultValue;
-                result.dataType = commandParameter.DefaultValue.GetType();
+                result.data = argument.DefaultValue;
+                result.dataType = argument.DefaultValue.GetType();
                 return true;
             }
 
@@ -126,14 +123,7 @@ namespace Reusable.CommandLine.Services
             return false;
 
         }
-
-        #region  IEnumerable
-
-        public IEnumerator<CommandParameter> GetEnumerator() => _parameters?.GetEnumerator() ?? Enumerable.Empty<CommandParameter>().GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        #endregion
+        
 
         [PublicAPI]
         public static readonly TypeConverter DefaultConverter = TypeConverter.Empty.Add(

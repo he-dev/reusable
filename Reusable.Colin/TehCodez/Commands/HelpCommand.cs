@@ -6,11 +6,9 @@ using System.Reflection;
 using System.Text;
 using System.Windows.Input;
 using JetBrains.Annotations;
-using Reusable.Colin.Logging;
 using Reusable.CommandLine.Annotations;
 using Reusable.CommandLine.Collections;
 using Reusable.CommandLine.Data;
-using Reusable.CommandLine.Data.Help;
 using Reusable.CommandLine.Logging;
 using Reusable.CommandLine.Services;
 
@@ -45,22 +43,23 @@ namespace Reusable.CommandLine.Commands
                     paramName: nameof(parameter));
             }
 
-            var commandName = commandParameter.Command;
+            var commandName = ImmutableNameSet.Create(commandParameter.Command);
 
-            if (string.IsNullOrEmpty(commandName))
+            if (commandName.Any())
             {
-                RenderCommandList(context);
-            }
-            else
-            {
-                if (context.CommandCollection.TryGetValue(ImmutableNameSet.Create(commandName), out CommandMapping mapping))
+                if (context.CommandContainer.TryGetValue(commandName, out var commandMetadata))
                 {
-                    RenderParameterList(context, mapping);
+                    commandName = context.CommandContainer.Keys.Single(k => k.Overlaps(commandName));
+                    RenderParameterList(context, commandMetadata);
                 }
                 else
                 {
                     context.Logger.Error($"Command \"{commandName}\" not found.");
                 }
+            }
+            else
+            {
+                RenderCommandList(context);
             }
         }
 
@@ -69,10 +68,10 @@ namespace Reusable.CommandLine.Commands
             context.Logger.Info(string.Empty);
             context.Logger.Info($"{new string(' ', IndentWidth)}Commands");
 
-            var commandSummaries = context.CommandCollection.Select(x => new CommandSummary
+            var commandSummaries = context.CommandContainer.Select(x => new CommandSummary
             {
                 Names = x.Key.OrderByDescending(n => n.Length),
-                Description = x.Value.Command.GetType().GetCustomAttribute<DescriptionAttribute>()?.Description
+                Description = x.Value.GetType().GetCustomAttribute<DescriptionAttribute>()?.Description
             });
 
             var captions = new[] { "NAME", "ABOUT" };
@@ -93,15 +92,15 @@ namespace Reusable.CommandLine.Commands
             context.Logger.Info(string.Empty);
         }
 
-        protected virtual void RenderParameterList(CommandContext context, CommandMapping mapping)
+        protected virtual void RenderParameterList(CommandContext context, CommandMetadata commandMetadata)
         {
             var commandSummary = new CommandSummary
             {
-                Names = mapping.Name.OrderByDescending(n => n.Length),
-                Description = mapping.Command.GetType().GetCustomAttribute<DescriptionAttribute>()?.Description
+                Names = commandMetadata.CommandName.OrderByDescending(n => n.Length),
+                Description = commandMetadata.Command.GetType().GetCustomAttribute<DescriptionAttribute>()?.Description
             };
 
-            var parameterSummaries = mapping.ParameterFactory.Select(x => new ParameterSummary
+            var parameterSummaries = commandMetadata.Parameter.Select(x => new ArgumentSummary
             {
                 Names = x.Name.OrderByDescending(n => n.Length),
                 Type = x.Property.PropertyType,
@@ -178,6 +177,28 @@ namespace Reusable.CommandLine.Commands
                         ? value.PadLeft(-width, ' ')
                         : value.PadRight(width, ' ');
             }
+        }
+
+        private class CommandSummary
+        {
+            public IEnumerable<string> Names { get; set; }
+
+            public string Description { get; set; }
+
+            public bool IsDefault { get; set; }
+        }
+
+        private class ArgumentSummary
+        {
+            public IEnumerable<string> Names { get; set; }
+
+            public Type Type { get; set; }
+
+            public bool Required { get; set; }
+
+            public int Position { get; set; }
+
+            public string Description { get; set; }
         }
     }
 

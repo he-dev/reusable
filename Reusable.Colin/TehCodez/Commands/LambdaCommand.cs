@@ -3,11 +3,11 @@ using System.Windows.Input;
 
 namespace Reusable.CommandLine.Commands
 {
-    public class SimpleCommand : ICommand
+    public class LambdaCommand : ICommand
     {
         private readonly Action<object> _execute;
 
-        public SimpleCommand(Action<object> execute) => _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+        public LambdaCommand(Action<object> execute) => _execute = execute ?? throw new ArgumentNullException(nameof(execute));
 
         public event EventHandler CanExecuteChanged;
 

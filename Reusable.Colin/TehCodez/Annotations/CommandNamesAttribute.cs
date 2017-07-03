@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 
 namespace Reusable.CommandLine.Annotations
 {
+    [UsedImplicitly]
     [AttributeUsage(AttributeTargets.Class)]
     public class CommandNamesAttribute : Attribute, IEnumerable<string>
     {
@@ -25,6 +26,4 @@ namespace Reusable.CommandLine.Annotations
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
-
-
 }

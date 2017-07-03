@@ -14,41 +14,41 @@ namespace Reusable.CommandLine.Tests
         [ExpectedException(typeof(ArgumentException))]
         public void Add_DuplicateCommands_Throws()
         {
-            CommandCollection.Empty.Add<TestCommand>().Add<TestCommand>();
+            CommandContainer.Empty.Add<TestCommand>().Add<TestCommand>();
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void Add_DefaultWithEmptyCommandLine_Throws()
-        {
-            CommandCollection.Empty.Default("test");
-        }
+        //[TestMethod]
+        //[ExpectedException(typeof(ArgumentException))]
+        //public void Add_DefaultWithEmptyCommandLine_Throws()
+        //{
+        //    CommandContainer.Empty.Default("test");
+        //}
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void Add_TwoDefaultCommands_Throws()
-        {
-            var testCmd1 = new TestCommand();
-            var testCmd2 = new TestCommand();
-            CommandCollection.Empty
-                .Add<object>(testCmd1, "test1", "t1")
-                .Add<object>(testCmd2, "test2", "t2")
-                .Default("test")
-                .Default("test");
-        }
+        //[TestMethod]
+        //[ExpectedException(typeof(ArgumentException))]
+        //public void Add_TwoDefaultCommands_Throws()
+        //{
+        //    var testCmd1 = new TestCommand();
+        //    var testCmd2 = new TestCommand();
+        //    CommandContainer.Empty
+        //        .Add<object>(testCmd1, "test1", "t1")
+        //        .Add<object>(testCmd2, "test2", "t2")
+        //        .Default("test")
+        //        .Default("test");
+        //}
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void Add_SingleCommandAsDefault_Throws()
-        {
-            CommandCollection.Empty.Add<TestCommand>().Default("test");
-        }
+        //[TestMethod]
+        //[ExpectedException(typeof(ArgumentException))]
+        //public void Add_SingleCommandAsDefault_Throws()
+        //{
+        //    CommandContainer.Empty.Add<TestCommand>().Default("test");
+        //}
 
         [TestMethod]
         public void Execute_EmptyCommandLine_DefaultCommandExecuted()
         {
             var testCmd = new TestCommand();
-            var cmdLn = CommandCollection.Empty.Add(testCmd);
+            var cmdLn = CommandContainer.Empty.Add(testCmd);
             cmdLn.Execute("");
             Assert.AreEqual(1, testCmd.Parameters.Count);
         }
@@ -59,7 +59,7 @@ namespace Reusable.CommandLine.Tests
             var testCmd1 = new TestCommand();
             var testCmd2 = new TestCommand();
 
-            var cmdLn = CommandCollection.Empty
+            var cmdLn = CommandContainer.Empty
                 .Add<object>(testCmd1, "test1", "t1")
                 .Add<object>(testCmd2, "test2", "t2");
             cmdLn.Execute("t2");
@@ -72,7 +72,7 @@ namespace Reusable.CommandLine.Tests
         public void Execute_CommandWithParameters_Executed()
         {
             var testCmd = new TestCommand();
-            var cmdLn = CommandCollection.Empty
+            var cmdLn = CommandContainer.Empty
                 .Add<TestParameter>(testCmd);
 
             cmdLn.Execute("-foo:oof -bar:3 -arr: 4 5 6 -flag1 -flag2:false");

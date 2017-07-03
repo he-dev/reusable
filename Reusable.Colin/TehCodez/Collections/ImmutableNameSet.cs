@@ -5,11 +5,8 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Windows.Input;
 using JetBrains.Annotations;
-using Reusable.CommandLine.Annotations;
 using Reusable.CommandLine.Services;
 
 namespace Reusable.CommandLine.Collections
@@ -29,8 +26,8 @@ namespace Reusable.CommandLine.Collections
         [NotNull]
         public static readonly IImmutableNameSet Empty = Create();
 
-        [NotNull]
-        public static readonly IImmutableNameSet DefaultCommandName = Create("Default");
+        //[NotNull]
+        //public static readonly IImmutableNameSet DefaultCommandName = Create("Default");
 
         [NotNull]
         public static IEqualityComparer<IImmutableSet<string>> Comparer { get; } = new ImmutableNameSetEqualityComparer();
@@ -49,14 +46,14 @@ namespace Reusable.CommandLine.Collections
 
         private string DebuggerDisplay => ToString();
 
-        [NotNull]
-        public static IImmutableNameSet From([NotNull] Type type) => CommandNameFactory.From(type);        
+        //[NotNull]
+        //public static IImmutableNameSet From([NotNull] Type type) => CommandNameFactory.From(type);        
 
-        [NotNull]
-        public static IImmutableNameSet From([NotNull] ICommand command) => From(command?.GetType());
+        //[NotNull]
+        //public static IImmutableNameSet From([NotNull] ICommand command) => From(command?.GetType());
 
-        [NotNull]
-        public static IImmutableNameSet From([NotNull] PropertyInfo parameterProperty) => ParameterNameFactory.From(parameterProperty);        
+        //[NotNull]
+        //public static IImmutableNameSet From([NotNull] PropertyInfo parameterProperty) => immna ParameterNameFactory.From(parameterProperty);        
 
         #region IImmutableSet<string>
 
@@ -89,7 +86,7 @@ namespace Reusable.CommandLine.Collections
 
         public bool Equals(IImmutableNameSet other) => Comparer.Equals(this, other);
 
-        public override string ToString() => $"Names = [{string.Join(", ", this)}]";
+        public override string ToString() => $"[{string.Join(", ", this)}]";
 
         public static bool operator ==(ImmutableNameSet left, ImmutableNameSet right) => Comparer.Equals(left, right);
 

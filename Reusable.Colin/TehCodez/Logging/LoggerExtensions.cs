@@ -1,5 +1,4 @@
 using JetBrains.Annotations;
-using Reusable.Colin.Logging;
 
 namespace Reusable.CommandLine.Logging
 {

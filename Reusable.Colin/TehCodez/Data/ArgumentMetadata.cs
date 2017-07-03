@@ -5,21 +5,22 @@ using JetBrains.Annotations;
 using Reusable.CommandLine.Annotations;
 using Reusable.CommandLine.Collections;
 
-namespace Reusable.Colin.Data
+namespace Reusable.CommandLine.Data
 {
-    public class CommandParameter
+    public class ArgumentMetadata
     {
-        public CommandParameter([NotNull] PropertyInfo property)
+        public ArgumentMetadata(IImmutableNameSet name, [NotNull] PropertyInfo property)
         {
+            Name = name;
             Property = property ?? throw new ArgumentNullException(nameof(property));
-            Name = ImmutableNameSet.From(property);
             (Required, Position) = property.GetCustomAttribute<ParameterAttribute>();
         }
 
-        public PropertyInfo Property { get; }
-
         [NotNull]
         public IImmutableNameSet Name { get; }
+
+        [NotNull]
+        public PropertyInfo Property { get; }
 
         [CanBeNull]
         public object DefaultValue => Property.GetCustomAttribute<DefaultValueAttribute>()?.Value;

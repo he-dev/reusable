@@ -1,8 +1,6 @@
 using System;
 using System.Globalization;
 using JetBrains.Annotations;
-using Reusable.Colin.Logging;
-using Reusable.Colin.Logging.Loggers;
 using Reusable.CommandLine.Logging;
 using Reusable.CommandLine.Logging.Loggers;
 
