@@ -1,10 +1,15 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Windows.Input;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.CommandLine.Annotations;
 using Reusable.CommandLine.Collections;
 using Reusable.CommandLine.Services;
 using Reusable.CommandLine.Tests.Helpers;
+using Reusable.TestBase.Collections;
 
 namespace Reusable.CommandLine.Tests.Collections
 {
@@ -133,4 +138,28 @@ namespace Reusable.CommandLine.Tests.Collections
             public event EventHandler CanExecuteChanged;
         }
     }
+
+    [TestClass]
+    public class ImmutableNameSetEqualityComparerTest : EqualityComparerTest<IImmutableSet<string>>
+    {
+        public ImmutableNameSetEqualityComparerTest() : base(ImmutableNameSet.Comparer)
+        {
+            IgnoreHashCode = true;
+        }
+
+        protected override IEnumerable<(IImmutableSet<string> Left, IImmutableSet<string> Right)> GetEqualElements()
+        {
+            yield return (ImmutableNameSet.Create("foo"), ImmutableNameSet.Create("FOO"));
+            yield return (ImmutableNameSet.Create("foo"), ImmutableNameSet.Create("FOO", "bar"));
+            yield return (ImmutableNameSet.Create("foo"), ImmutableNameSet.Create("foo"));
+        }
+
+        protected override IEnumerable<(IImmutableSet<string> Left, IImmutableSet<string> Right)> GetNonEqualElements()
+        {
+            yield return (ImmutableNameSet.Create("foo"), ImmutableNameSet.Create("bar"));
+            yield return (ImmutableNameSet.Create("baz"), ImmutableNameSet.Create("foo"));
+            yield return (null, ImmutableNameSet.Create("foo"));
+            yield return (null, null);
+        }
+    }  
 }

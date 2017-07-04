@@ -9,8 +9,11 @@ namespace Reusable.CommandLine.Services
 {
     public static class CommandLineParser
     {
+        // language=regexp
+        private const string ArgumentPrefix = @"^[-/\.]";
+
         [NotNull]
-        public static IEnumerable<ArgumentLookup> Parse([NotNull] this IEnumerable<string> args, char argumentPrefix)
+        public static IEnumerable<ArgumentLookup> Parse([NotNull] this IEnumerable<string> args)
         {
             if (args == null) { throw new ArgumentNullException(nameof(args)); }
 
@@ -27,8 +30,8 @@ namespace Reusable.CommandLine.Services
                         break;
 
                     // ReSharper disable once PatternAlwaysOfType
-                    case string value when value.StartsWith(argumentPrefix.ToString()):
-                        currentArgumentName = ImmutableNameSet.Create(Regex.Replace(arg, $"^{argumentPrefix}", string.Empty));
+                    case string value when Regex.IsMatch(value, ArgumentPrefix):
+                        currentArgumentName = ImmutableNameSet.Create(Regex.Replace(arg, ArgumentPrefix, string.Empty));
                         arguments.Add(currentArgumentName);
                         break;
 

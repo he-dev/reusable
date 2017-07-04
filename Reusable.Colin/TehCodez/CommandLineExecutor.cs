@@ -23,13 +23,13 @@ namespace Reusable.CommandLine
             var executables =
                 Tokenizer.Tokenize(text)
                     .PrependCommandName(commands)
-                    .Parse(settings.ArgumentPrefix)
+                    .Parse()
                     .Select(argument => (Argument: argument, CommandMetadata: argument.FindCommand(commands)))
                     .ToLookup(x => x.CommandMetadata != null);
 
             if (executables[false].Any())
             {
-                var nonExecutable = executables[false].Select(x => x.Argument.ToCommandLine($"{settings.ArgumentPrefix}{settings.ArgumentValueSeparator}"));
+                var nonExecutable = executables[false].Select(x => x.Argument.ToCommandLineString("-:"));
                 settings.Logger.Error($"Command not found. Arguments: [{string.Join(" | ", nonExecutable)}]");
                 return;
             }

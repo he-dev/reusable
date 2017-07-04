@@ -16,7 +16,7 @@ namespace Reusable.CommandLine.Tests.Data
                 "baz qux"
             };
 
-            Assert.AreEqual("-foo:bar, \"baz qux\"", arguments.ToCommandLine("-:"));
+            Assert.AreEqual("-foo:bar, \"baz qux\"", arguments.ToCommandLineString("-:"));
         }
 
         [TestMethod]
@@ -28,7 +28,7 @@ namespace Reusable.CommandLine.Tests.Data
                 "baz qux"
             };
 
-            Assert.AreEqual("bar, \"baz qux\"", arguments.ToCommandLine("-:"));
+            Assert.AreEqual("bar, \"baz qux\"", arguments.ToCommandLineString("-:"));
         }
     }
 }

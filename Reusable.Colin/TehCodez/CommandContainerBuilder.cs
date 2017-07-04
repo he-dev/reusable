@@ -64,27 +64,6 @@ namespace Reusable.CommandLine
             }
 
             return new CommandContainer(commandContainer.Add(name, new CommandMetadata(name, command, parameterType)));
-        }
-
-        //[NotNull]
-        //public static CommandContainer Default(this CommandContainer commandCollection, string name)
-        //{
-        //    if (commandCollection.ContainsKey(ImmutableNameSet.DefaultCommandName))
-        //    {
-        //        throw new ArgumentException("Default command is already added. There can be only one default command.");
-        //    }
-
-        //    if (commandCollection.Count < 2)
-        //    {
-        //        throw new ArgumentException("Default command can be added only when there are at least two commands.");
-        //    }
-
-        //    if (commandCollection.TryGetValue(ImmutableNameSet.Create(name), out var command))
-        //    {
-        //        return commandCollection.Add(ImmutableNameSet.DefaultCommandName, command, null);
-        //    }
-
-        //    throw new ArgumentException($"Command {name} is not added yet.");
-        //}
+        }        
     }
 }

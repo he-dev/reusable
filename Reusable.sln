@@ -90,6 +90,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Crony", "Reusable.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Crony.Tests", "Reusable.Crony.Tests\Reusable.Crony.Tests.csproj", "{5C78C13A-0E3D-40D1-B6B7-A0C7ABC38BF7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.TestBase", "Reusable.TestBase\Reusable.TestBase.csproj", "{6F51B67F-D4DB-4570-842F-F2113E0F7016}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -230,6 +232,10 @@ Global
 		{5C78C13A-0E3D-40D1-B6B7-A0C7ABC38BF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5C78C13A-0E3D-40D1-B6B7-A0C7ABC38BF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5C78C13A-0E3D-40D1-B6B7-A0C7ABC38BF7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F51B67F-D4DB-4570-842F-F2113E0F7016}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F51B67F-D4DB-4570-842F-F2113E0F7016}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F51B67F-D4DB-4570-842F-F2113E0F7016}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F51B67F-D4DB-4570-842F-F2113E0F7016}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -273,5 +279,6 @@ Global
 		{A645D1B3-1DEB-4731-BEEA-D9388D24CD7B} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
 		{32848999-77B4-4E3D-BF36-584B9CB237F5} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
 		{5C78C13A-0E3D-40D1-B6B7-A0C7ABC38BF7} = {AC36C881-1733-4649-ACBC-03B6F9A9334C}
+		{6F51B67F-D4DB-4570-842F-F2113E0F7016} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
 	EndGlobalSection
 EndGlobal

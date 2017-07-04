@@ -59,9 +59,9 @@ namespace Reusable.CommandLine.Collections
                     : arguments[argument.Name];
         }
 
-        public static string ToCommandLine(this ILookup<IImmutableNameSet, string> arguments, string format)
+        public static string ToCommandLineString(this ILookup<IImmutableNameSet, string> arguments, string format)
         {
-            return string.Join(" ", arguments.Select(argument => argument.ToCommandLine(format)));
+            return string.Join(" ", arguments.Select(argument => argument.ToCommandLineString(format)));
         }
     }
 }

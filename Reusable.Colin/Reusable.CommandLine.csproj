@@ -64,6 +64,7 @@
     <Compile Include="TehCodez\Collections\ImmutableNameSet.cs" />
     <Compile Include="TehCodez\CommandContainerBuilder.cs" />
     <Compile Include="TehCodez\CommandLineSettings.cs" />
+    <Compile Include="TehCodez\Data\CommandLineArgumentExtensions.cs" />
     <Compile Include="TehCodez\Data\CommandMetadata.cs" />
     <Compile Include="TehCodez\Data\ParameterMetadata.cs" />
     <Compile Include="TehCodez\Logging\ILogger.cs" />
@@ -74,7 +75,6 @@
     <Compile Include="TehCodez\Data\CommandContext.cs" />
     <Compile Include="TehCodez\CommandLineExecutor.cs" />
     <Compile Include="TehCodez\Services\CommandLineTokenizer.cs" />
-    <Compile Include="TehCodez\Services\CommandNameFactory.cs" />
     <Compile Include="TehCodez\Data\ArgumentMetadata.cs" />
     <Compile Include="TehCodez\Commands\LambdaCommand.cs" />
     <Compile Include="TehCodez\Data\HelpCommandParameter.cs" />

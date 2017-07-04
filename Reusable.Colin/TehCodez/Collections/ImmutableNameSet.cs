@@ -102,7 +102,7 @@ namespace Reusable.CommandLine.Collections
             }
 
             // The hash code are always different thus this comparer. We need to check if the sets overlap so we cannot relay on the hash code.
-            public int GetHashCode(IImmutableSet<string> obj) => 0;
+            public int GetHashCode(IImmutableSet<string> obj) => 0; //obj.Aggregate(0, (current, next) => (current * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(next));
         }
     }
 }

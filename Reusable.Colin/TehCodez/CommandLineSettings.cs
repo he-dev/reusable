@@ -9,13 +9,7 @@ namespace Reusable.CommandLine
     public class CommandLineSettings
     {
         [NotNull] private ILogger _logger = new NullLogger();
-        [NotNull] private CultureInfo _culture = CultureInfo.InvariantCulture;
-
-        [PublicAPI]
-        public char ArgumentPrefix { get; set; }
-
-        [PublicAPI]
-        public char ArgumentValueSeparator { get; set; }
+        [NotNull] private CultureInfo _culture = CultureInfo.InvariantCulture;        
 
         [PublicAPI]
         [NotNull]
@@ -36,8 +30,6 @@ namespace Reusable.CommandLine
         [NotNull]
         public static CommandLineSettings Default => new CommandLineSettings
         {
-            ArgumentPrefix = '-',
-            ArgumentValueSeparator = ':',
             Logger = new ConsoleLogger(),
             Culture = CultureInfo.InvariantCulture
         };
