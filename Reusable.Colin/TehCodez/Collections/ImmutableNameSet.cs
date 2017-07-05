@@ -78,7 +78,12 @@ namespace Reusable.CommandLine.Collections
 
         #endregion
 
-        public override bool Equals(object obj) => Comparer.Equals(this, obj as IImmutableSet<string>);
+        public override bool Equals(object obj)
+        {
+            return 
+                (obj is IImmutableSet<string> immutableSet && Equals(immutableSet)) || 
+                (obj is ImmutableNameSet immutableNameSet && Equals(immutableNameSet));
+        }
 
         public override int GetHashCode() => Comparer.GetHashCode(this);
 
@@ -96,6 +101,7 @@ namespace Reusable.CommandLine.Collections
         {
             public bool Equals(IImmutableSet<string> x, IImmutableSet<string> y)
             {
+                if (ReferenceEquals(x, null) && ReferenceEquals(y, null)) return true;
                 if (ReferenceEquals(x, null)) return false;
                 if (ReferenceEquals(y, null)) return false;
                 return ReferenceEquals(x, y) || x.Overlaps(y) || (!x.Any() && !y.Any());

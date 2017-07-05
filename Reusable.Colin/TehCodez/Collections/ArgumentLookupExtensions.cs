@@ -10,13 +10,13 @@ namespace Reusable.CommandLine.Collections
     public static class ArgumentLookupExtensions
     {
         [NotNull]
-        public static IEnumerable<string> AnonymousValues([NotNull] this ILookup<IImmutableNameSet, string> arguments) => arguments[ImmutableNameSet.Empty];
+        public static IEnumerable<string> Anonymous([NotNull] this ILookup<IImmutableNameSet, string> arguments) => arguments[ImmutableNameSet.Empty];
 
         [CanBeNull]
         public static IImmutableNameSet CommandName([NotNull] this ILookup<IImmutableNameSet, string> arguments)
         {
             // Command-name is the first anonymous value (0).
-            var commandName = arguments.AnonymousValues().FirstOrDefault();
+            var commandName = arguments.Anonymous().FirstOrDefault();
             return string.IsNullOrEmpty(commandName) ? null : ImmutableNameSet.Create(commandName);
         }
 
@@ -46,7 +46,7 @@ namespace Reusable.CommandLine.Collections
         {
             return
                 argument.Position > 0
-                    ? arguments.AnonymousValues().ElementAtOrDefault(argument.Position) != null
+                    ? arguments.Anonymous().ElementAtOrDefault(argument.Position) != null
                     : arguments.Contains(argument.Name);
         }
 
@@ -55,7 +55,7 @@ namespace Reusable.CommandLine.Collections
         {
             return
                 argument.Position > 0
-                    ? new[] { arguments.AnonymousValues().ElementAtOrDefault(argument.Position) }
+                    ? new[] { arguments.Anonymous().ElementAtOrDefault(argument.Position) }
                     : arguments[argument.Name];
         }
 

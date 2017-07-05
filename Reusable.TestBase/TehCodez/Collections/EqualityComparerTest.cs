@@ -12,33 +12,12 @@ namespace Reusable.TestBase.Collections
             _comparer = comparer;
         }
 
-        protected bool IgnoreHashCode { get; set; }
-
         [TestMethod]
         public void GetHashCode_SameElements_SameHashCodes()
         {
-            if (IgnoreHashCode)
-            {
-                return;
-            }
-
             foreach (var x in GetEqualElements())
             {
-                Assert.AreEqual(_comparer.GetHashCode(x.Left), _comparer.GetHashCode(x.Right), $"{x.Left} == {x.Right}");
-            }
-        }
-
-        [TestMethod]
-        public void GetHashCode_DifferentElements_DifferentHashCodes()
-        {
-            if (IgnoreHashCode)
-            {
-                return;
-            }
-
-            foreach (var x in GetNonEqualElements())
-            {
-                Assert.AreNotEqual(_comparer.GetHashCode(x.Left), _comparer.GetHashCode(x.Right), $"{x.Left} != {x.Right}");
+                Assert.AreEqual(_comparer.GetHashCode(x.Left), _comparer.GetHashCode(x.Right), $"{_comparer.GetHashCode(x.Left)} == {_comparer.GetHashCode(x.Right)}");
             }
         }
 
@@ -48,8 +27,9 @@ namespace Reusable.TestBase.Collections
             foreach (var x in GetEqualElements())
             {
                 Assert.IsTrue(_comparer.Equals(x.Left, x.Right), $"{x.Left} == {x.Right}");
-                Assert.IsTrue(_comparer.Equals(x.Left, x.Left), $"{x.Left} == {x.Right}");
-                Assert.IsTrue(_comparer.Equals(x.Right, x.Right), $"{x.Left} == {x.Right}");
+                Assert.IsTrue(_comparer.Equals(x.Right, x.Left), $"{x.Right} == {x.Left}");
+                Assert.IsTrue(_comparer.Equals(x.Left, x.Left), $"{x.Left} == {x.Left}");
+                Assert.IsTrue(_comparer.Equals(x.Right, x.Right), $"{x.Right} == {x.Right}");
             }
         }
 
@@ -59,6 +39,7 @@ namespace Reusable.TestBase.Collections
             foreach (var x in GetNonEqualElements())
             {
                 Assert.IsFalse(_comparer.Equals(x.Left, x.Right), $"{x.Left} != {x.Right}");
+                Assert.IsFalse(_comparer.Equals(x.Right, x.Left), $"{x.Right} != {x.Left}");
             }
         }
 

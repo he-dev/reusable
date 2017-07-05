@@ -142,16 +142,15 @@ namespace Reusable.CommandLine.Tests.Collections
     [TestClass]
     public class ImmutableNameSetEqualityComparerTest : EqualityComparerTest<IImmutableSet<string>>
     {
-        public ImmutableNameSetEqualityComparerTest() : base(ImmutableNameSet.Comparer)
-        {
-            IgnoreHashCode = true;
-        }
+        public ImmutableNameSetEqualityComparerTest() : base(ImmutableNameSet.Comparer) { }
 
         protected override IEnumerable<(IImmutableSet<string> Left, IImmutableSet<string> Right)> GetEqualElements()
         {
             yield return (ImmutableNameSet.Create("foo"), ImmutableNameSet.Create("FOO"));
             yield return (ImmutableNameSet.Create("foo"), ImmutableNameSet.Create("FOO", "bar"));
             yield return (ImmutableNameSet.Create("foo"), ImmutableNameSet.Create("foo"));
+            yield return (ImmutableNameSet.Create(), ImmutableNameSet.Create());
+            yield return (null, null);
         }
 
         protected override IEnumerable<(IImmutableSet<string> Left, IImmutableSet<string> Right)> GetNonEqualElements()
@@ -159,7 +158,6 @@ namespace Reusable.CommandLine.Tests.Collections
             yield return (ImmutableNameSet.Create("foo"), ImmutableNameSet.Create("bar"));
             yield return (ImmutableNameSet.Create("baz"), ImmutableNameSet.Create("foo"));
             yield return (null, ImmutableNameSet.Create("foo"));
-            yield return (null, null);
         }
-    }  
+    }
 }

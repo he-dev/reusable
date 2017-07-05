@@ -79,7 +79,7 @@
     <Compile Include="TehCodez\Commands\LambdaCommand.cs" />
     <Compile Include="TehCodez\Data\HelpCommandParameter.cs" />
     <Compile Include="TehCodez\Services\CommandLineParser.cs" />
-    <Compile Include="TehCodez\Data\CommandLineArgument.cs" />
+    <Compile Include="TehCodez\Collections\ArgumentGrouping.cs" />
     <Compile Include="TehCodez\Commands\HelpCommand.cs" />
     <Compile Include="TehCodez\Services\CommandParameterFactory.cs" />
     <Compile Include="TehCodez\Services\ImmutableNameSetFactory.cs" />

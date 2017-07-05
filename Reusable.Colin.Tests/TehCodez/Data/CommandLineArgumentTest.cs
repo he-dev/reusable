@@ -10,7 +10,7 @@ namespace Reusable.CommandLine.Tests.Data
         [TestMethod]
         public void ToCommandLine_WithKey_Formatted()
         {
-            var arguments = new CommandLineArgument(ImmutableNameSet.Create("foo"))
+            var arguments = new ArgumentGrouping(ImmutableNameSet.Create("foo"))
             {
                 "bar",
                 "baz qux"
@@ -22,7 +22,7 @@ namespace Reusable.CommandLine.Tests.Data
         [TestMethod]
         public void ToCommandLine_WithoutKey_Formatted()
         {
-            var arguments = new CommandLineArgument(ImmutableNameSet.Empty)
+            var arguments = new ArgumentGrouping(ImmutableNameSet.Empty)
             {
                 "bar",
                 "baz qux"

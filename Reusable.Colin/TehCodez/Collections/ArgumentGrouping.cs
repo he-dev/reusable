@@ -1,22 +1,21 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Reusable.CommandLine.Collections;
 
-namespace Reusable.CommandLine.Data
+namespace Reusable.CommandLine.Collections
 {
     /// <summary>
     /// This class represents a single command-line argument with all its values.
     /// </summary>
-    public class CommandLineArgument : List<string>, IGrouping<IImmutableNameSet, string>, IEquatable<IImmutableNameSet>
+    public class ArgumentGrouping : List<string>, IGrouping<IImmutableNameSet, string>, IEquatable<IImmutableNameSet>
     {
-        internal CommandLineArgument(IImmutableNameSet key) => Key = key;
+        internal ArgumentGrouping(IImmutableNameSet key) => Key = key;
 
         public IImmutableNameSet Key { get; }
 
         public bool Equals(IImmutableNameSet other)
         {
-            return ImmutableNameSet.Comparer.Equals(Key, other);
+            return Key.Equals(other);
         }
 
         public override bool Equals(object obj)
@@ -26,7 +25,7 @@ namespace Reusable.CommandLine.Data
 
         public override int GetHashCode()
         {
-            return ImmutableNameSet.Comparer.GetHashCode(Key);
+            return Key.GetHashCode();
         }
     }
 }
