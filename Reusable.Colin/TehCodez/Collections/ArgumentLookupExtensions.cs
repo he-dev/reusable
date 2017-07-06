@@ -20,28 +20,6 @@ namespace Reusable.CommandLine.Collections
             return string.IsNullOrEmpty(commandName) ? null : ImmutableNameSet.Create(commandName);
         }
 
-        [CanBeNull]
-        public static CommandMetadata FindCommand([NotNull][ItemNotNull] this ILookup<IImmutableNameSet, string> arguments, [NotNull] CommandContainer commands)
-        {
-            // The help-command requires special treatment and does not count as a "real" command so exclude it from count.
-            bool IsHelpCommand(IImmutableNameSet name) => name.Overlaps(new[] { "help" });
-
-            var commandCount = commands.Count(c => !IsHelpCommand(c.Value.CommandName));
-
-            if (commandCount == 1)
-            {
-                return commands.Single(c => !IsHelpCommand(c.Value.CommandName)).Value;
-            }
-
-            // Default command is used whenever there is no command name or there are no arguments.
-            //var commandName =
-            //    arguments.Any()
-            //        ? arguments.CommandName() ?? ImmutableNameSet.DefaultCommandName
-            //        : ImmutableNameSet.DefaultCommandName;
-
-            return commands.TryGetValue(arguments.CommandName(), out var command) ? command : default(CommandMetadata);
-        }
-
         internal static bool Contains(this ILookup<IImmutableNameSet, string> arguments, ArgumentMetadata argument)
         {
             return
@@ -53,10 +31,17 @@ namespace Reusable.CommandLine.Collections
         [NotNull]
         internal static IEnumerable<string> Parameter(this ILookup<IImmutableNameSet, string> arguments, ArgumentMetadata argument)
         {
-            return
-                argument.Position > 0
-                    ? new[] { arguments.Anonymous().ElementAtOrDefault(argument.Position) }
-                    : arguments[argument.Name];
+            if (argument.Position > 0)
+            {
+                yield return arguments.Anonymous().ElementAtOrDefault(argument.Position);
+            }
+            else
+            {
+                foreach (var value in arguments[argument.Name])
+                {
+                    yield return value;
+                }
+            }
         }
 
         public static string ToCommandLineString(this ILookup<IImmutableNameSet, string> arguments, string format)

@@ -2,7 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Windows.Input;
+using JetBrains.Annotations;
 using Reusable.CommandLine.Collections;
 using Reusable.CommandLine.Commands;
 using Reusable.CommandLine.Data;
@@ -64,5 +66,21 @@ namespace Reusable.CommandLine
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion        
+    }
+
+    public static class CommandContainerExtensions
+    {
+        [CanBeNull]
+        public static CommandMetadata Find([NotNull] this CommandContainer commands, [CanBeNull] IImmutableNameSet commandName)
+        {
+            // The help-command requires special treatment and does not count as a "real" command so exclude it from count.
+
+            var nonHelpCommands = commands.ToLookup(c => !c.Value.CommandName.Equals(ImmutableNameSet.Help));
+
+            return
+                nonHelpCommands[true].Count() == 1
+                    ? nonHelpCommands[true].Single().Value
+                    : (commandName != null && commands.TryGetValue(commandName, out var command) ? command : default(CommandMetadata));
+        }
     }
 }

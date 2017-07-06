@@ -80,21 +80,21 @@
     <Compile Include="TehCodez\Collections\ArgumentLookupTest.cs" />
     <Compile Include="TehCodez\Collections\ArgumentLookupExtensionsTest.cs" />
     <Compile Include="TehCodez\Data\CommandLineArgumentTest.cs" />
+    <Compile Include="TehCodez\Commnads\TestCommand.cs" />
     <Compile Include="TehCodez\Services\CommandLineParserTest.cs" />
     <Compile Include="TehCodez\CommandLineTest.cs" />
     <Compile Include="TehCodez\Services\CommandLineTokenizerTest.cs" />
-    <Compile Include="TehCodez\ParameterAttributeTest.cs" />
+    <Compile Include="TehCodez\Annotations\ParameterAttributeTest.cs" />
     <Compile Include="TehCodez\Services\CommandParameterFactoryTest.cs" />
     <Compile Include="TehCodez\Services\ImmutableNameSetFactoryTest.cs" />
     <Compile Include="TehCodez\CommandContainerBuilderTest.cs" />
+    <Compile Include="TehCodez\CommandContainerExtensionsTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="TehCodez\Commnads\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Colin\Reusable.CommandLine.csproj">
       <Project>{82dbeed3-e1ed-4e95-b4ce-d29bbcc1f888}</Project>

@@ -24,7 +24,7 @@ namespace Reusable.CommandLine
                 Tokenizer.Tokenize(text)
                     .PrependCommandName(commands)
                     .Parse()
-                    .Select(argument => (Argument: argument, CommandMetadata: argument.FindCommand(commands)))
+                    .Select(argument => (Argument: argument, CommandMetadata: commands.Find(argument.CommandName())))
                     .ToLookup(x => x.CommandMetadata != null);
 
             if (executables[false].Any())

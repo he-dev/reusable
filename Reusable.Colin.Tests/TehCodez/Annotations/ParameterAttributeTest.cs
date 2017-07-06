@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Reusable.CommandLine.Tests
+namespace Reusable.CommandLine.Tests.Annotations
 {
     [TestClass]
     public class ParameterAttributeTest

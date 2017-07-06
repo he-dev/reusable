@@ -26,6 +26,9 @@ namespace Reusable.CommandLine.Collections
         [NotNull]
         public static readonly IImmutableNameSet Empty = Create();
 
+        [NotNull]
+        public static readonly IImmutableNameSet Help = Create(nameof(Help));
+
         //[NotNull]
         //public static readonly IImmutableNameSet DefaultCommandName = Create("Default");
 
