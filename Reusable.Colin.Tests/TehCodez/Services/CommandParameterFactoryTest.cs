@@ -21,10 +21,9 @@ namespace Reusable.CommandLine.Tests.Services
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void ctor_DuplicateParameters_Throws()
         {
-            //new CommandParameterFactory(typeof(DuplicateParameters));
+            Assert.ThrowsException<ArgumentException>(() => CommandParameterFactory.CreateCommandParameterMetadata(typeof(DuplicateParameters)));
         }
 
         private class Foo { }
