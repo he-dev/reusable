@@ -1,53 +1,107 @@
 ﻿using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Colin.Services;
+using Reusable.CommandLine.Services;
 using Reusable.Fuse;
 using Reusable.Fuse.Testing;
 
-namespace Reusable.Colin.Tests.Services
+namespace Reusable.CommandLine.Tests.Services
 {
     [TestClass]
     public class CommandLineTokenizerTest
     {
+        private static readonly ICommandLineTokenizer Tokenizer = new CommandLineTokenizer();
+
         [TestMethod]
-        public void Tokenize_EmptyCommandLine_NoTokens()
+        public void Tokenize_Empty_Empty()
         {
-            var tokens = string.Empty.Tokenize().ToList();
-            tokens.Count.Verify().IsEqual(0);
+            var tokens = Tokenizer.Tokenize(string.Empty).ToList();
+            Assert.IsFalse(tokens.Any());
         }
 
         [TestMethod]
-        public void Tokenize_FileNameWithSpacesOnly_SingleToken()
+        public void Tokenize_Quoted_SingleToken()
         {
-            var tokens = @"""C:\foo\bar baz\qux.baar""".Tokenize().ToList();
-            tokens.Count.Verify().IsEqual(1);
-            tokens[0].Verify().IsEqual(@"C:\foo\bar baz\qux.baar");
+            var tokens = Tokenizer.Tokenize(@"""foo bar""").ToList();
+            Assert.AreEqual(@"foo bar", tokens.Single());
         }
 
         [TestMethod]
-        public void Tokenize_FileNameWithArguments_MultipleTokens()
+        public void Tokenize_SpaceSeparated_SpaceSeparated()
         {
-            var tokens = @"""C:\foo\bar baz\qux.baar"" -foo -bar:baz -qux:""quux baar""".Tokenize(':').ToList();
-            tokens.Count.Verify().IsEqual(6);
-            tokens[0].Verify().IsEqual(@"C:\foo\bar baz\qux.baar");
-            tokens[1].Verify().IsEqual(@"-foo");
-            tokens[2].Verify().IsEqual(@"-bar");
-            tokens[3].Verify().IsEqual(@"baz");
-            tokens[4].Verify().IsEqual(@"-qux");
-            tokens[5].Verify().IsEqual(@"quux baar");
+            var tokens = Tokenizer.Tokenize(@"foo bar baz").ToList();
+            Assert.AreEqual(3, tokens.Count);
+            CollectionAssert.AreEqual(new[] { "foo", "bar", "baz" }, tokens);
         }
 
         [TestMethod]
-        public void Tokenize_CommandLineWithPipe_MultipleTokensSplittedOnPipe()
+        public void Tokenize_ColonSeparated_ColonSeparated()
         {
-            var tokens = @"foo.bar -baz -qux:""quux baar""|bar.baz -foo".Tokenize(':').ToList();
-            tokens.Verify().SequenceEqual(new[] { "foo.bar", "-baz", "-qux", "quux baar", "|", "bar.baz", "-foo" });
+            var tokens = Tokenizer.Tokenize(@"-foo:bar -baz:qux").ToList();
+            Assert.AreEqual(4, tokens.Count);
+            CollectionAssert.AreEqual(new[] { "-foo", "bar", "-baz", "qux" }, tokens);
         }
 
         [TestMethod]
-        public void Tokenize_ListArgument_MultipleTokens()
+        public void Tokenize_EqualSignSeparated_EqualSignSeparated()
         {
-            var tokens = "-foo:1, 2, 3".Tokenize(':').ToList();
+            var tokens = Tokenizer.Tokenize(@"-foo=bar -baz=qux").ToList();
+            Assert.AreEqual(4, tokens.Count);
+            CollectionAssert.AreEqual(new[] { "-foo", "bar", "-baz", "qux" }, tokens);
+        }
+
+        [TestMethod]
+        public void Tokenize_MixedSeparated_MixedSignSeparated()
+        {
+            var tokens = Tokenizer.Tokenize(@"-foo=bar -baz:qux").ToList();
+            Assert.AreEqual(4, tokens.Count);
+            CollectionAssert.AreEqual(new[] { "-foo", "bar", "-baz", "qux" }, tokens);
+        }
+
+        [TestMethod]
+        public void Tokenize_EscapedSeparators_NotSeparated()
+        {
+            var tokens = Tokenizer.Tokenize(@"-foo\=bar -baz\:qux").ToList();
+            Assert.AreEqual(2, tokens.Count);
+            CollectionAssert.AreEqual(new[] { "-foo=bar", "-baz:qux" }, tokens);
+        }
+
+        [TestMethod]
+        public void Tokenize_EscapedEscapeChar_NotSeparated()
+        {
+            var tokens = Tokenizer.Tokenize(@"foo\\bar").ToList();
+            Assert.AreEqual(1, tokens.Count);
+            CollectionAssert.AreEqual(new[] { "foo\\bar" }, tokens);
+        }
+
+        [TestMethod]
+        public void Tokenize_QuotedPath_NotSeparated()
+        {
+            var tokens = Tokenizer.Tokenize(@"""C:foo\bar\baz.qux""").ToList();
+            Assert.AreEqual(1, tokens.Count);
+            CollectionAssert.AreEqual(new[] { @"C:foo\bar\baz.qux" }, tokens);
+        }
+
+        [TestMethod]
+        public void Tokenize_RelativePath_NotSeparated()
+        {
+            var tokens = Tokenizer.Tokenize(@"\bar\baz.qux").ToList();
+            Assert.AreEqual(1, tokens.Count);
+            CollectionAssert.AreEqual(new[] { @"\bar\baz.qux" }, tokens);
+        }
+
+        [TestMethod]
+        public void Tokenize_PipeSeparated_PipeCollected()
+        {
+            var tokens = Tokenizer.Tokenize(@"-foo|-baz").ToList();
+            Assert.AreEqual(3, tokens.Count);
+            CollectionAssert.AreEqual(new[] { "-foo", "|", "-baz" }, tokens);
+        }
+
+        [TestMethod]
+        public void Tokenize_CommaSeparated_CommaSeparated()
+        {
+            var tokens = Tokenizer.Tokenize(@"-foo:1, 2, 3").ToList();
+            Assert.AreEqual(4, tokens.Count);
             CollectionAssert.AreEqual(new[] { "-foo", "1", "2", "3" }, tokens);
         }
     }

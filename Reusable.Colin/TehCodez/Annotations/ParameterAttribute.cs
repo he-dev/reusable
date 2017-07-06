@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 
-namespace Reusable.Colin.Annotations
+namespace Reusable.CommandLine.Annotations
 {
     [AttributeUsage(AttributeTargets.Property)]
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
@@ -11,7 +11,7 @@ namespace Reusable.Colin.Annotations
         private const int CommandNamePosition = 0;
         private int _position = -1;
         private bool _required;
-        private bool _canCreateShortName = true;
+        private bool _allowShortName;
 
         public ParameterAttribute(params string[] names)
         {
@@ -36,10 +36,10 @@ namespace Reusable.Colin.Annotations
         /// <summary>
         /// Indicates whether a short name should be created from the capital letters. It is false if Names is not empty.
         /// </summary>
-        public bool CanCreateShortName
+        public bool AllowShortName
         {
-            get => !Names.Any() && _canCreateShortName;
-            set => _canCreateShortName = value;
+            get => !Names.Any() && _allowShortName;
+            set => _allowShortName = value;
         }
 
         /// <summary>

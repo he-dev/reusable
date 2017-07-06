@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Reusable.Colin.Data;
+using Reusable.CommandLine.Data;
 
-namespace Reusable.Colin.Validators
+namespace Reusable.CommandLine.Services
 {
     internal static class ParameterValidator
     {
-        public static void ValidateParameterNamesUniqueness(IReadOnlyCollection<CommandParameter> parameters)
+        public static void ValidateParameterNamesUniqueness(IReadOnlyCollection<ArgumentMetadata> parameters)
         {
             var duplicateNames =
                 parameters
@@ -24,7 +24,7 @@ namespace Reusable.Colin.Validators
             }
         }
 
-        public static void ValidateParameterPositions(IReadOnlyCollection<CommandParameter> parameters)
+        public static void ValidateParameterPositions(IReadOnlyCollection<ArgumentMetadata> parameters)
         {
             var positions = parameters.Where(p => p.Position > 0).Select(p => p.Position).ToList();
 

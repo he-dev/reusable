@@ -1,23 +1,14 @@
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using Reusable.Colin.Collections;
+using Reusable.CommandLine.Collections;
 
-namespace Reusable.Colin.Data
+namespace Reusable.CommandLine.Data
 {
-    public class CommandLineArgument : List<string>, IGrouping<ImmutableNameSet, string>
-    {
-        internal CommandLineArgument(ImmutableNameSet key) => Key = key;
-
-        public ImmutableNameSet Key { get; }
-    }
-
     public static class CommandLineArgumentExtensions
     {
-        public static string ToCommandLine(this IGrouping<ImmutableNameSet, string> argument, string format)
+        public static string ToCommandLineString(this IGrouping<IImmutableNameSet, string> argument, string format)
         {
             var match = Regex.Match(format, @"(?<ArgumentPrefix>[-\/\.])(?<ArgumentValueSeparator>[:= ])");
             if (!match.Success) { throw new FormatException(@"Invalid format. Expected argument prefix: [-/.], argument value separator: [:=]"); }
@@ -39,5 +30,4 @@ namespace Reusable.Colin.Data
             return result.ToString();
         }
     }
-
 }

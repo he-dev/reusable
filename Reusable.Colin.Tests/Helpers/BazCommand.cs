@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace Reusable.Colin.Tests.Helpers
+namespace Reusable.CommandLine.Tests.Helpers
 {
     class BazCommand : ICommand
     {

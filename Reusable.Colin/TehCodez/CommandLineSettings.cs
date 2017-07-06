@@ -1,22 +1,15 @@
 using System;
 using System.Globalization;
 using JetBrains.Annotations;
-using Reusable.Colin.Logging;
-using Reusable.Colin.Logging.Loggers;
-using Reusable.Colin.Services;
+using Reusable.CommandLine.Logging;
+using Reusable.CommandLine.Logging.Loggers;
 
-namespace Reusable.Colin
+namespace Reusable.CommandLine
 {
     public class CommandLineSettings
     {
         [NotNull] private ILogger _logger = new NullLogger();
-        [NotNull] private CultureInfo _culture = CultureInfo.InvariantCulture;
-
-        [PublicAPI]
-        public char ArgumentPrefix { get; set; }
-
-        [PublicAPI]
-        public char ArgumentValueSeparator { get; set; }
+        [NotNull] private CultureInfo _culture = CultureInfo.InvariantCulture;        
 
         [PublicAPI]
         [NotNull]
@@ -37,8 +30,6 @@ namespace Reusable.Colin
         [NotNull]
         public static CommandLineSettings Default => new CommandLineSettings
         {
-            ArgumentPrefix = '-',
-            ArgumentValueSeparator = ':',
             Logger = new ConsoleLogger(),
             Culture = CultureInfo.InvariantCulture
         };

@@ -13,10 +13,10 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Windows.Input;
 using Reusable;
-using Reusable.Colin;
-using Reusable.Colin.Annotations;
-using Reusable.Colin.Commands;
-using Reusable.Colin.Data;
+using Reusable.CommandLine;
+using Reusable.CommandLine.Annotations;
+using Reusable.CommandLine.Commands;
+using Reusable.CommandLine.Data;
 using Reusable.Extensions;
 using Reusable.Markup;
 
@@ -27,7 +27,7 @@ namespace SmartLibs.Console
         static void Main(string[] args)
         {
             var commands =
-                CommandCollection.Empty
+                CommandContainer.Empty
                     .Add<HelpCommand, HelpCommandParameter>()
                     .Add<TestCommand, TestCommandParameter>();
 

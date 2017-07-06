@@ -1,40 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 
-namespace Reusable.Colin.Services
+namespace Reusable.CommandLine.Services
 {
-    public static class CommandLineTokenizer
+    public interface ICommandLineTokenizer
     {
-        [NotNull]
-        [ItemNotNull]
-        [ContractAnnotation("text: null => halt")]
-        public static IEnumerable<string> Tokenize([NotNull] this string text, char? nameValueSeparator = null)
+        [NotNull, ItemNotNull, ContractAnnotation("text: null => halt")]
+        IEnumerable<string> Tokenize(string text);
+    }
+
+    public class CommandLineTokenizer : ICommandLineTokenizer
+    {
+        public static readonly IImmutableSet<char> Separators = new[] { ' ', '|', ',', ':', '=' }.ToImmutableHashSet();
+        public static readonly IImmutableSet<char> Escapables = new[] { '\\', '"' }.Concat(Separators).ToImmutableHashSet();
+
+        public IEnumerable<string> Tokenize(string text)
         {
             if (text == null) throw new ArgumentNullException(nameof(text));
 
-            var escapableChars = new HashSet<char> { '\\', '"' };
-            var separators = new HashSet<char> { ' ', '|', ',' };
             var token = new StringBuilder();
-            var escapeMode = false;
+            var escaped = false;
             var quoted = false;
 
-            if (nameValueSeparator.HasValue)
-            {
-                escapableChars.Add(nameValueSeparator.Value);
-                separators.Add(nameValueSeparator.Value);
-            }
+            bool IsUnquotedSeparator(char c) => Separators.Contains(c) && !quoted;
 
-            bool IsUnquotedSeparator(char c) => separators.Contains(c) && !quoted;
-
-            foreach (var c in text ?? throw new ArgumentNullException(nameof(text)))
+            foreach (var c in text)
             {
                 switch (c)
                 {
-                    case '\\' when !quoted:
-                        escapeMode = true;
+                    case '\\' when !quoted && !escaped:
+                        escaped = true;
                         // Don't eat escape-char yet.
                         break;
 
@@ -45,18 +45,18 @@ namespace Reusable.Colin.Services
 
                     default:
 
-                        switch (escapeMode)
+                        switch (escaped)
                         {
                             case true:
-                                switch (!escapableChars.Contains(c))
+                                switch (!Escapables.Contains(c))
                                 {
                                     case true:
-                                        token.Append(escapeMode);
+                                        // Eat escape-char becasue it doesn't escape any valid char.
+                                        token.Append("\\");
                                         break;
                                 }
                                 token.Append(c);
-                                escapeMode = false;
-                                // Escape-char already eaten.
+                                escaped = false;
                                 break;
 
                             default:
@@ -67,7 +67,7 @@ namespace Reusable.Colin.Services
                                         token.Clear();
                                         switch (c)
                                         {
-                                            // Pipe is a special token so it's collected.
+                                            // Pipe is a special separator that is treated like a token.
                                             case '|':
                                                 yield return c.ToString();
                                                 break;

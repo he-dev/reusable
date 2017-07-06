@@ -1,4 +1,4 @@
-namespace Reusable.Colin.Logging.Loggers
+namespace Reusable.CommandLine.Logging.Loggers
 {
     public class NullLogger : ILogger
     {

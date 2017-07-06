@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Input;
-using Reusable.Colin.Annotations;
-using Reusable.Colin.Data;
+using Reusable.CommandLine.Annotations;
+using Reusable.CommandLine.Data;
 
-namespace Reusable.Colin.Tests.Helpers
+namespace Reusable.CommandLine.Tests.Helpers
 {
     class TestCommand : ICommand
     {
@@ -26,21 +26,21 @@ namespace Reusable.Colin.Tests.Helpers
         [Parameter]
         public string Foo { get; set; }
 
-        [Parameter(CanCreateShortName = false)]
+        [Parameter(AllowShortName = false)]
         public int Bar { get; set; }
 
-        [Parameter(CanCreateShortName = false)]
+        [Parameter(AllowShortName = false)]
         [DefaultValue(1.5)]
         public double Baz { get; set; }
 
-        [Parameter(CanCreateShortName = false)]
+        [Parameter(AllowShortName = false)]
         public int[] Arr { get; set; }
 
-        [Parameter(CanCreateShortName = false)]
+        [Parameter(AllowShortName = false)]
         [DefaultValue(true)]
         public bool Flag1 { get; set; }
 
-        [Parameter(CanCreateShortName = false)]
+        [Parameter(AllowShortName = false)]
         [DefaultValue(true)]
         public bool Flag2 { get; set; }
     }

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Windows.Input;
-using Reusable.Colin.Annotations;
+using Reusable.CommandLine.Annotations;
 
-namespace Reusable.Colin.Tests.Helpers
+namespace Reusable.CommandLine.Tests.Helpers
 {
     class BarCommand : ICommand
     {

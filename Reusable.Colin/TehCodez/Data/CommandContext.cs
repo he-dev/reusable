@@ -1,14 +1,14 @@
 using JetBrains.Annotations;
-using Reusable.Colin.Logging;
+using Reusable.CommandLine.Logging;
 
-namespace Reusable.Colin.Data
+namespace Reusable.CommandLine.Data
 {
     public class CommandContext
     {
-        internal CommandContext(object parameter, CommandCollection commandCollection, ILogger logger)
+        internal CommandContext(object parameter, CommandContainer commandContainer, ILogger logger)
         {
             Parameter = parameter;
-            CommandCollection = commandCollection;
+            CommandContainer = commandContainer;
             Logger = logger;
         }
 
@@ -16,7 +16,7 @@ namespace Reusable.Colin.Data
         public object Parameter { get; }
 
         [NotNull]
-        public CommandCollection CommandCollection { get; }
+        public CommandContainer CommandContainer { get; }
 
         [CanBeNull]
         public ILogger Logger { get; }

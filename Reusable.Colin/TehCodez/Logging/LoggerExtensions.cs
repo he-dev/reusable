@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace Reusable.Colin.Logging
+namespace Reusable.CommandLine.Logging
 {
     [PublicAPI]
     public static class LoggerExtensions

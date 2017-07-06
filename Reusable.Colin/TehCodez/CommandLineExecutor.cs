@@ -1,57 +1,55 @@
-using JetBrains.Annotations;
-using Reusable.Colin.Collections;
-using Reusable.Colin.Services;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using Reusable.Colin.Data;
-using Reusable.Colin.Logging;
+using JetBrains.Annotations;
+using Reusable.CommandLine.Collections;
+using Reusable.CommandLine.Data;
+using Reusable.CommandLine.Logging;
+using Reusable.CommandLine.Services;
 
-namespace Reusable.Colin
+namespace Reusable.CommandLine
 {
     public static class CommandLineExecutor
     {
+        private static readonly ICommandLineTokenizer Tokenizer = new CommandLineTokenizer();
+
         [PublicAPI]
         [ContractAnnotation("commands: null => halt; text: null => halt")]
-        public static void Execute([NotNull] this CommandCollection commands, [NotNull] string text, CommandLineSettings settings = null)
+        public static void Execute([NotNull] this CommandContainer commands, [NotNull] string text, CommandLineSettings settings = null)
         {
             settings = settings ?? CommandLineSettings.Default;
 
             var executables =
-                text
-                    .Tokenize(settings.ArgumentValueSeparator)
+                Tokenizer.Tokenize(text)
                     .PrependCommandName(commands)
-                    .Parse(settings.ArgumentPrefix)
-                    .Select(argument => new
-                    {
-                        Argument = argument,
-                        Mapping = argument.Map(commands),
-                    })
-                    .ToLookup(x => x.Mapping != null);
+                    .Parse()
+                    .Select(argument => (Argument: argument, CommandMetadata: commands.Find(argument.CommandName())))
+                    .ToLookup(x => x.CommandMetadata != null);
 
             if (executables[false].Any())
             {
-                var nonExecutable = executables[false].Select(x => x.Argument.ToCommandLine($"{settings.ArgumentPrefix}{settings.ArgumentValueSeparator}"));
+                var nonExecutable = executables[false].Select(x => x.Argument.ToCommandLineString("-:"));
                 settings.Logger.Error($"Command not found. Arguments: [{string.Join(" | ", nonExecutable)}]");
                 return;
             }
 
             foreach (var executable in executables[true])
             {
-                var commandParameter = executable.Mapping.ParameterFactory.CreateParameter(executable.Argument, settings.Culture);
-                executable.Mapping.Command.Execute(new CommandContext(commandParameter, commands, settings.Logger));
+                var parameter = CommandParameterFactory.CreateParameter(executable.CommandMetadata.Parameter, executable.Argument, settings.Culture);
+                executable.CommandMetadata.Command.Execute(new CommandContext(parameter, commands, settings.Logger));                
             }
         }
 
         [PublicAPI]
         [ContractAnnotation("=> halt")]
-        public static void Execute([NotNull] this CommandCollection commands, [NotNull] IEnumerable<string> args, CommandLineSettings settings = null)
+        public static void Execute([NotNull] this CommandContainer commands, [NotNull] IEnumerable<string> args, CommandLineSettings settings = null)
         {
             commands.Execute(string.Join(" ", args ?? throw new ArgumentNullException(nameof(args))), settings);
         }
 
         // Prepends command name to the collection of tokens when there is only one command. It's considered as default.
-        private static IEnumerable<string> PrependCommandName(this IEnumerable<string> tokens, CommandCollection commands)
+        private static IEnumerable<string> PrependCommandName(this IEnumerable<string> tokens, CommandContainer commands)
         {
             return
                 commands.Count == 1
