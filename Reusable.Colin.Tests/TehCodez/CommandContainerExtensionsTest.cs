@@ -34,8 +34,8 @@ namespace Reusable.CommandLine.Tests
             Assert.AreSame(foo, result.Command);
         }
 
-        private class FooCommand : TestCommand { }
+        private class FooCommand : Commnads.FooCommand { }
 
-        private class BarCommand : TestCommand { }
+        private class BarCommand : Commnads.FooCommand { }
     }
 }

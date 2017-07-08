@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.CommandLine.Collections;
 using Reusable.CommandLine.Data;
-using Reusable.TestBase.Collections;
+using Reusable.TestTools.UnitTesting.Infrastructure.Collections;
 
 namespace Reusable.CommandLine.Tests.Collections
 {

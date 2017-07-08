@@ -1,27 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Windows.Input;
+﻿using System.ComponentModel;
 using Reusable.CommandLine.Annotations;
-using Reusable.CommandLine.Data;
 
-namespace Reusable.CommandLine.Tests.Helpers
+namespace Reusable.CommandLine.Tests.Data
 {
-    class TestCommand : ICommand
-    {
-        public event EventHandler CanExecuteChanged;
-
-        public IList<object> Parameters { get; } = new List<object>();
-
-        public bool CanExecute(object parameter) => true;
-
-        public void Execute(object parameter)
-        {
-            Parameters.Add((parameter as CommandContext).Parameter);
-        }
-    }
-
-    class TestParameter
+    internal class TestParameter
     {
         [Parameter]
         public string Foo { get; set; }

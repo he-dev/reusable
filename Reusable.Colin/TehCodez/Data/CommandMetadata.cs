@@ -26,4 +26,6 @@ namespace Reusable.CommandLine.Data
         [NotNull]
         public ParameterMetadata Parameter { get; }
     }
+
+
 }

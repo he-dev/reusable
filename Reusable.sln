@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.14
+VisualStudioVersion = 15.0.26430.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}"
 EndProject
@@ -90,7 +90,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Crony", "Reusable.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Crony.Tests", "Reusable.Crony.Tests\Reusable.Crony.Tests.csproj", "{5C78C13A-0E3D-40D1-B6B7-A0C7ABC38BF7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.TestBase", "Reusable.TestBase\Reusable.TestBase.csproj", "{6F51B67F-D4DB-4570-842F-F2113E0F7016}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.TestTools.UnitTesting.Infrastructure", "Reusable.TestBase\Reusable.TestTools.UnitTesting.Infrastructure.csproj", "{6F51B67F-D4DB-4570-842F-F2113E0F7016}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.TestTools.UnitTesting.AssertExtensions", "Reusable.TestTools.UnitTesting.AssertExtensions\Reusable.TestTools.UnitTesting.AssertExtensions.csproj", "{FBCB78CD-68DD-497F-AE6E-5084A799F24E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -236,6 +238,10 @@ Global
 		{6F51B67F-D4DB-4570-842F-F2113E0F7016}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F51B67F-D4DB-4570-842F-F2113E0F7016}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F51B67F-D4DB-4570-842F-F2113E0F7016}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBCB78CD-68DD-497F-AE6E-5084A799F24E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBCB78CD-68DD-497F-AE6E-5084A799F24E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBCB78CD-68DD-497F-AE6E-5084A799F24E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBCB78CD-68DD-497F-AE6E-5084A799F24E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -280,5 +286,6 @@ Global
 		{32848999-77B4-4E3D-BF36-584B9CB237F5} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
 		{5C78C13A-0E3D-40D1-B6B7-A0C7ABC38BF7} = {AC36C881-1733-4649-ACBC-03B6F9A9334C}
 		{6F51B67F-D4DB-4570-842F-F2113E0F7016} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
+		{FBCB78CD-68DD-497F-AE6E-5084A799F24E} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
 	EndGlobalSection
 EndGlobal

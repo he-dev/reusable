@@ -29,12 +29,12 @@ namespace Reusable.CommandLine.Commands
 
         public void Execute(object parameter)
         {
-            if (!(parameter is CommandContext context))
-            {
-                throw new ArgumentException(
-                    message: $"'{nameof(CommandContext)} expected but found '{parameter?.GetType()}'", 
-                    paramName: nameof(parameter));
-            }
+            //if (!(parameter is CommandContext context))
+            //{
+            //    throw new ArgumentException(
+            //        message: $"'{nameof(CommandContext)} expected but found '{parameter?.GetType()}'", 
+            //        paramName: nameof(parameter));
+            //}
 
             if (!(context.Parameter is HelpCommandParameter commandParameter))
             {

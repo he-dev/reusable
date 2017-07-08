@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
 using Reusable.CommandLine.Collections;
 using Reusable.CommandLine.Data;
 using Reusable.CommandLine.Logging;
 using Reusable.CommandLine.Services;
+using System.Collections.Immutable;
+using Reusable.CommandLine.Commands;
 
 namespace Reusable.CommandLine
 {
@@ -16,16 +17,23 @@ namespace Reusable.CommandLine
 
         [PublicAPI]
         [ContractAnnotation("commands: null => halt; text: null => halt")]
-        public static void Execute([NotNull] this CommandContainer commands, [NotNull] string text, CommandLineSettings settings = null)
+        public static void Execute([NotNull] this string text, [NotNull] CommandContainer commands, CommandLineSettings settings = null)
         {
             settings = settings ?? CommandLineSettings.Default;
 
             var executables =
-                Tokenizer.Tokenize(text)
-                    .PrependCommandName(commands)
+                Tokenizer
+                    .Tokenize(text)
+                    //.PrependCommandName(commands)
                     .Parse()
-                    .Select(argument => (Argument: argument, CommandMetadata: commands.Find(argument.CommandName())))
-                    .ToLookup(x => x.CommandMetadata != null);
+                    .Select(argument => (Argument: argument, Command: commands.Find(argument.CommandName())))
+                    .ToLookup(x => x.Command != null);
+
+            if (!executables.Any())
+            {
+                settings.Logger.Error("Default ");
+                return;
+            }
 
             if (executables[false].Any())
             {
@@ -34,18 +42,18 @@ namespace Reusable.CommandLine
                 return;
             }
 
+
             foreach (var executable in executables[true])
             {
-                var parameter = CommandParameterFactory.CreateParameter(executable.CommandMetadata.Parameter, executable.Argument, settings.Culture);
-                executable.CommandMetadata.Command.Execute(new CommandContext(parameter, commands, settings.Logger));                
+                executable.Command.Execute(new ConsoleContext(executable.Argument, settings.Culture, commands, settings.Logger));                
             }
         }
 
         [PublicAPI]
         [ContractAnnotation("=> halt")]
-        public static void Execute([NotNull] this CommandContainer commands, [NotNull] IEnumerable<string> args, CommandLineSettings settings = null)
+        public static void Execute([NotNull] this IEnumerable<string> args, [NotNull] CommandContainer commands, CommandLineSettings settings = null)
         {
-            commands.Execute(string.Join(" ", args ?? throw new ArgumentNullException(nameof(args))), settings);
+            string.Join(" ", args ?? throw new ArgumentNullException(nameof(args))).Execute(commands, settings);
         }
 
         // Prepends command name to the collection of tokens when there is only one command. It's considered as default.

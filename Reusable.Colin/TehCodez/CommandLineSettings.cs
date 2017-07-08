@@ -11,7 +11,6 @@ namespace Reusable.CommandLine
         [NotNull] private ILogger _logger = new NullLogger();
         [NotNull] private CultureInfo _culture = CultureInfo.InvariantCulture;        
 
-        [PublicAPI]
         [NotNull]
         public ILogger Logger
         {
@@ -19,8 +18,7 @@ namespace Reusable.CommandLine
             set => _logger = value ?? throw new ArgumentNullException(nameof(Logger));
         }
 
-        [PublicAPI]
-        [CanBeNull]
+        [NotNull]
         public CultureInfo Culture
         {
             get => _culture;

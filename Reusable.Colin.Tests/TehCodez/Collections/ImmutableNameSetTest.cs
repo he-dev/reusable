@@ -8,8 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.CommandLine.Annotations;
 using Reusable.CommandLine.Collections;
 using Reusable.CommandLine.Services;
-using Reusable.CommandLine.Tests.Helpers;
-using Reusable.TestBase.Collections;
+using Reusable.TestTools.UnitTesting.Infrastructure.Collections;
 
 namespace Reusable.CommandLine.Tests.Collections
 {

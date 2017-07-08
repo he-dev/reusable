@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.SmartConfig.Datastores.SQLite</id>
-    <version>3.42.0</version>
+    <version>3.43.0</version>
     <title>Reusable.SmartConfig.Datastores.SQLite</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -18,8 +18,8 @@
       <dependency id="System.Collections.Immutable" version="1.3.1" />
       <dependency id="System.Data.SQLite.Core" version="1.0.105.1" />
       <dependency id="System.ValueTuple" version="4.3.1" />
-      <dependency id="Reusable.SmartConfig.Core" version="3.42.0" />
-      <dependency id="Reusable.Core" version="3.42.0" />
+      <dependency id="Reusable.SmartConfig.Core" version="3.43.0" />
+      <dependency id="Reusable.Core" version="3.43.0" />
     </dependencies>
   </metadata>
   <files>
