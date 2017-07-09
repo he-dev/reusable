@@ -82,5 +82,15 @@ namespace Reusable.CommandLine
                     ? nonHelpCommands[true].Single().Value
                     : (commandName != null && commands.TryGetValue(commandName, out var command) ? command : default(IConsoleCommand));
         }
+
+        public static IEnumerable<IConsoleCommand> PrimaryCommands([NotNull] this CommandContainer commands)
+        {
+            return commands.Where(IsNotHelpCommand).Select(x => x.Value);
+
+            bool IsNotHelpCommand(KeyValuePair<IImmutableNameSet, IConsoleCommand> kvp)
+            {
+                return !kvp.Value.Name.Equals(ImmutableNameSet.Help);
+            }
+        }
     }
 }

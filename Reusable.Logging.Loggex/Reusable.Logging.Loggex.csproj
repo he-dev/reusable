@@ -47,9 +47,9 @@
     <Compile Include="TehCodez\Recorders\MemoryRecorder.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Logging\Reusable.Logging.csproj">
+    <ProjectReference Include="..\Reusable.Logging\Reusable.Loggex.csproj">
       <Project>{eb8d2ed6-beb3-4d35-b03d-508f95a9341f}</Project>
-      <Name>Reusable.Logging</Name>
+      <Name>Reusable.Loggex</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

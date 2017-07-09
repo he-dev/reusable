@@ -17,7 +17,7 @@ namespace Reusable.CommandLine.Tests
         public void Execute_EmptyString_EmptyContainer_DoesNothing()
         {
             var cmdLn = CommandContainer.Empty;
-            string.Empty.Execute(cmdLn);
+            Assert.IsFalse(string.Empty.Execute(cmdLn));
         }
 
         [TestMethod]
@@ -25,18 +25,15 @@ namespace Reusable.CommandLine.Tests
         {
             var cmd = new FooCommand();
             var cmdLn = CommandContainer.Empty.Add(cmd);
-            string.Empty.Execute(cmdLn);
+            Assert.IsTrue(string.Empty.Execute(cmdLn));
             Assert.That.CountEquals(1, cmd.ExecuteLog);
         }
 
         [TestMethod]
         public void Execute_EmptyString_TwoCommands_Throws()
         {
-            Assert.ThrowsException<ArgumentException>(() =>
-            {
-                var cmdLn = CommandContainer.Empty.Add<FooCommand>().Add<BarCommand>();
-                string.Empty.Execute(cmdLn);
-            });
+            var cmdLn = CommandContainer.Empty.Add<FooCommand>().Add<BarCommand>();
+            Assert.IsFalse(string.Empty.Execute(cmdLn));
         }
 
         [TestMethod]

@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace Reusable.Logging.ComputedProperties
+namespace Reusable.Loggex.ComputedProperties
 {
     public class ThreadId : ComputedProperty
     {

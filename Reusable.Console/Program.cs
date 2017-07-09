@@ -1,5 +1,4 @@
-﻿using Reusable.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -18,6 +17,9 @@ using Reusable.CommandLine.Annotations;
 using Reusable.CommandLine.Commands;
 using Reusable.CommandLine.Data;
 using Reusable.Extensions;
+using Reusable.Loggex;
+using Reusable.Loggex.ComputedProperties;
+using Reusable.Loggex.Recorders.NLogRecorder.Recorders;
 using Reusable.Markup;
 
 namespace SmartLibs.Console
@@ -31,7 +33,26 @@ namespace SmartLibs.Console
                     .Add<HelpCommand, HelpCommandParameter>()
                     .Add<TestCommand, TestCommandParameter>();
 
-            commands.Execute(args);
+            Logger.Configuration = new LoggerConfiguration
+            {
+                ComputedProperties = { new ElapsedSeconds() },
+                Recorders = { new NLogRecorder("NLog") },
+                Filters =
+                {
+                    new LogFilter
+                    {
+                        LogLevel = LogLevel.Debug,
+                        Recorders = { "NLog" }
+                    }
+                }
+            };
+
+            Reusable.Logging.NLog.Tools.LayoutRenderers.InvariantPropertiesLayoutRenderer.Register();
+
+            var logger = Logger.Create("TestLogger");
+            logger.Log(e => e.Debug().Message("Test message"));
+
+            //commands.Execute(args);
 
             //ConsoleColorizer.RenderLine("<p>&gt;<span background-color='red'>Hallo</span> x <span color='darkyellow'>colors!</span></p>");
             //var logger = LoggerFactory.CreateLogger("test");

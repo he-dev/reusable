@@ -37,15 +37,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.TypeConversion", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.TypeConversion.Tests", "Reusable.TypeConversion.Tests\Reusable.TypeConversion.Tests.csproj", "{D2F588A5-F519-4CE3-BC3A-4274984E3448}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Logging.Adapters.NLog", "Reusable.Logging.Adapters.NLog\Reusable.Logging.Adapters.NLog.csproj", "{02EA9013-5DBC-4FD6-93C5-4189C34018D1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Loggex.Recorders.NLog", "Reusable.Logging.Adapters.NLog\Reusable.Loggex.Recorders.NLog.csproj", "{02EA9013-5DBC-4FD6-93C5-4189C34018D1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Logging.Loggex", "Reusable.Logging.Loggex\Reusable.Logging.Loggex.csproj", "{12AD464C-350D-4265-B225-84BDB336D169}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Email", "Reusable.Email\Reusable.Email.csproj", "{E0C2960A-DC0A-44FE-9AEA-3538ABB8DC16}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Logging", "Reusable.Logging\Reusable.Logging.csproj", "{EB8D2ED6-BEB3-4D35-B03D-508F95A9341F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Loggex", "Reusable.Logging\Reusable.Loggex.csproj", "{EB8D2ED6-BEB3-4D35-B03D-508F95A9341F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Logging.Tests", "Reusable.Logging.Tests\Reusable.Logging.Tests.csproj", "{26617FF1-7295-4FE9-9554-4967C480930C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Loggex.Tests", "Reusable.Logging.Tests\Reusable.Loggex.Tests.csproj", "{26617FF1-7295-4FE9-9554-4967C480930C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{88C83431-E9D4-42D4-8544-F4B06742048A}"
 	ProjectSection(SolutionItems) = preProject

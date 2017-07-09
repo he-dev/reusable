@@ -6,18 +6,18 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Reusable.Logging
+namespace Reusable.Loggex
 {
     public static class LogEntryExtensions
     {       
         public static LogEntry LogLevel(this LogEntry entry, LogLevel logLevel) { entry[nameof(LogLevel)] = logLevel; return entry; }
 
-        public static LogEntry Trace(this LogEntry entry) => entry.LogLevel(Logging.LogLevel.Trace);
-        public static LogEntry Debug(this LogEntry entry) => entry.LogLevel(Logging.LogLevel.Debug);
-        public static LogEntry Info(this LogEntry entry) => entry.LogLevel(Logging.LogLevel.Info);
-        public static LogEntry Warn(this LogEntry entry) => entry.LogLevel(Logging.LogLevel.Warn);
-        public static LogEntry Error(this LogEntry entry) => entry.LogLevel(Logging.LogLevel.Error);
-        public static LogEntry Fatal(this LogEntry entry) => entry.LogLevel(Logging.LogLevel.Fatal);
+        public static LogEntry Trace(this LogEntry entry) => entry.LogLevel(Loggex.LogLevel.Trace);
+        public static LogEntry Debug(this LogEntry entry) => entry.LogLevel(Loggex.LogLevel.Debug);
+        public static LogEntry Info(this LogEntry entry) => entry.LogLevel(Loggex.LogLevel.Info);
+        public static LogEntry Warn(this LogEntry entry) => entry.LogLevel(Loggex.LogLevel.Warn);
+        public static LogEntry Error(this LogEntry entry) => entry.LogLevel(Loggex.LogLevel.Error);
+        public static LogEntry Fatal(this LogEntry entry) => entry.LogLevel(Loggex.LogLevel.Fatal);
 
         public static LogEntry MessageBuilder(this LogEntry entry, Action<StringBuilder> builder)
         {
@@ -50,7 +50,7 @@ namespace Reusable.Logging
 
         public static T GetValue<T>(this LogEntry entry, string name) => entry.TryGetValue(name, out object value) ? (T)value : default(T);
 
-        public static LogEntry SetValue<T>(this LogEntry entry, string name, T value)
+        public static LogEntry SetValue<T>(this LogEntry entry, CaseInsensitiveString name, T value)
         {
             (entry ?? throw new ArgumentNullException(nameof(entry)))[name] = value;
             return entry;

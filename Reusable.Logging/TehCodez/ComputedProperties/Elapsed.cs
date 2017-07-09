@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace Reusable.Logging.ComputedProperties
+namespace Reusable.Loggex.ComputedProperties
 {
     public abstract class Elapsed : ComputedProperty
     {

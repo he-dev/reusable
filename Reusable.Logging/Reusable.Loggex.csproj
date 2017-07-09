@@ -7,8 +7,8 @@
     <ProjectGuid>{EB8D2ED6-BEB3-4D35-B03D-508F95A9341F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Reusable.Logging</RootNamespace>
-    <AssemblyName>Reusable.Logging</AssemblyName>
+    <RootNamespace>Reusable.Loggex</RootNamespace>
+    <AssemblyName>Reusable.Loggex</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,9 +30,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="JetBrains.Annotations, Version=10.4.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <HintPath>..\packages\JetBrains.Annotations.10.4.0\lib\net\JetBrains.Annotations.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.ValueTuple, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.3.1\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -55,14 +61,21 @@
     <Compile Include="TehCodez\ComputedProperties\ThreadId.cs" />
     <Compile Include="TehCodez\ComputedProperties\UtcNow.cs" />
     <Compile Include="TehCodez\ComputedProperty.cs" />
-    <Compile Include="TehCodez\Logger.cs" />
+    <Compile Include="TehCodez\LogFilter.cs" />
+    <Compile Include="TehCodez\Logger.Factory.cs" />
     <Compile Include="TehCodez\LogEntry.cs" />
     <Compile Include="TehCodez\LogEntryExtensions.cs" />
-    <Compile Include="TehCodez\LoggerFactory.cs" />
+    <Compile Include="TehCodez\Logger.Instance.cs" />
+    <Compile Include="TehCodez\Logger.Configuration.cs" />
     <Compile Include="TehCodez\LogLevel.cs" />
+    <Compile Include="TehCodez\Recorders\ConsoleRecorder.cs" />
+    <Compile Include="TehCodez\Recorders\MemoryRecorder.cs" />
+    <Compile Include="TehCodez\Recorders\NullRecorder.cs" />
+    <Compile Include="TehCodez\IRecorder.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Loggex.json" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj">
@@ -70,5 +83,6 @@
       <Name>Reusable.Core</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

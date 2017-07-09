@@ -7,8 +7,8 @@
     <ProjectGuid>{02EA9013-5DBC-4FD6-93C5-4189C34018D1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Reusable.Logging.Adapters</RootNamespace>
-    <AssemblyName>Reusable.Logging.Adapters.NLog</AssemblyName>
+    <RootNamespace>Reusable.Loggex.Recorders.NLogRecorder</RootNamespace>
+    <AssemblyName>Reusable.Loggex.Recorders.NLogRecorder</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -31,7 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.4.3\lib\net45\NLog.dll</HintPath>
+      <HintPath>..\packages\NLog.4.4.11\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -44,12 +44,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TehCodez\NLogAdapter.cs" />
+    <Compile Include="TehCodez\Recorders\NLogRecorder.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Logging\Reusable.Logging.csproj">
+    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj">
+      <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
+      <Name>Reusable.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Reusable.Logging\Reusable.Loggex.csproj">
       <Project>{eb8d2ed6-beb3-4d35-b03d-508f95a9341f}</Project>
-      <Name>Reusable.Logging</Name>
+      <Name>Reusable.Loggex</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

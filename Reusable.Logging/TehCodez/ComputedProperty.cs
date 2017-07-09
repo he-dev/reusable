@@ -3,22 +3,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Reusable.Logging
+namespace Reusable.Loggex
 {
     public interface IComputedProperty
     {
-        string Name { get; }
+        CaseInsensitiveString Name { get; }
 
         object Compute(LogEntry log);
     }
 
     public abstract class ComputedProperty : IComputedProperty
     {
-        protected ComputedProperty(string name) => Name = name;
+        protected ComputedProperty(CaseInsensitiveString name) => Name = name;
 
         protected ComputedProperty() => Name = GetType().Name;
 
-        public string Name { get; }
+        public CaseInsensitiveString Name { get; }
 
         public abstract object Compute(LogEntry log);
     }

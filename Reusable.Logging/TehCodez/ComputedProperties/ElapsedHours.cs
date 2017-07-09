@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Reusable.Logging.ComputedProperties
+namespace Reusable.Loggex.ComputedProperties
 {
     public class ElapsedHours : Elapsed
     {

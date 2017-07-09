@@ -86,6 +86,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TehCodez\CaseInsensitiveString.cs" />
     <Compile Include="TehCodez\Data\SqlClient\ColumnInfo.cs" />
     <Compile Include="TehCodez\Data\SqlClient\SchemaCollectionNames.cs" />
     <Compile Include="TehCodez\Data\SqlClient\SchemaColumnNameAttribute.cs" />

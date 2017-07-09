@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using JetBrains.Annotations;
 using Reusable.CommandLine.Annotations;
-using Reusable.CommandLine.Logging;
+using Reusable.Loggex;
 
 namespace Reusable.CommandLine.Data
 {
@@ -13,12 +13,19 @@ namespace Reusable.CommandLine.Data
         public string Command { get; set; }
     }
 
-    public class ConsoleCommandParameter
+    public interface IConsoleCommandParameter
     {
         [NotNull]
-        public CommandContainer Commands { get; set; }
+        CommandContainer Commands { get; set; }
 
         [NotNull]
+        ILogger Logger { get; set; }
+    }
+
+    public class ConsoleCommandParameter : IConsoleCommandParameter
+    {
+        public CommandContainer Commands { get; set; }
+
         public ILogger Logger { get; set; }
     }
 }

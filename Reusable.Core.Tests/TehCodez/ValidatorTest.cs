@@ -52,18 +52,5 @@ namespace Reusable.Tests
 
             DependencyValidator.ValidateDependencies(values);
         }
-
-        [TestMethod]
-        public void MyTestMethod()
-        {
-            var numbers = new[] { 1, 2, 3 }.Select(x =>
-            {
-                Assert.Fail("Wrong number.");
-                return x;
-            });
-
-            CollectionAssert.AreEqual(new[] { 1, 2, 3 }, numbers.ToList());
-
-        }
     }
 }

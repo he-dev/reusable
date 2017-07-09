@@ -4,15 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace Reusable.Loggex
 {
-    public enum LogLevel
+    public interface IRecorder
     {
-        Trace,
-        Debug,
-        Info,
-        Warn,
-        Error,
-        Fatal
+        CaseInsensitiveString Name { get; set; }
+
+        void Log(LogEntry logEntry);
     }
 }

@@ -68,11 +68,6 @@
     <Compile Include="TehCodez\Data\CommandLineArgumentExtensions.cs" />
     <Compile Include="TehCodez\Data\ConsoleContext.cs" />
     <Compile Include="TehCodez\Data\ParameterMetadata.cs" />
-    <Compile Include="TehCodez\Logging\ILogger.cs" />
-    <Compile Include="TehCodez\Logging\LoggerExtensions.cs" />
-    <Compile Include="TehCodez\Logging\Loggers\ConsoleLogger.cs" />
-    <Compile Include="TehCodez\Logging\Loggers\NullLogger.cs" />
-    <Compile Include="TehCodez\Logging\LogLevel.cs" />
     <Compile Include="TehCodez\CommandLineExecutor.cs" />
     <Compile Include="TehCodez\Services\CommandLineTokenizer.cs" />
     <Compile Include="TehCodez\Data\ArgumentMetadata.cs" />
@@ -97,6 +92,10 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <ProjectReference Include="..\Reusable.Logging\Reusable.Loggex.csproj">
+      <Project>{eb8d2ed6-beb3-4d35-b03d-508f95a9341f}</Project>
+      <Name>Reusable.Loggex</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Reusable.TypeConversion\Reusable.TypeConversion.csproj">
       <Project>{d7da0768-b385-40de-abac-0a6b0c5b73f4}</Project>
       <Name>Reusable.TypeConversion</Name>

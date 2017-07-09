@@ -1,6 +1,6 @@
 ﻿using System.Configuration;
 
-namespace Reusable.Logging.ComputedProperties
+namespace Reusable.Loggex.ComputedProperties
 {
     public class AppSetting : ComputedProperty
     {

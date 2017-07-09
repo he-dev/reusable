@@ -34,6 +34,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.4.4.11\lib\net45\NLog.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections.Immutable, Version=1.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Collections.Immutable.1.3.1\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
@@ -53,6 +56,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -68,9 +74,17 @@
       <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
       <Name>Reusable.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Reusable.Logging\Reusable.Logging.csproj">
+    <ProjectReference Include="..\Reusable.Logging.Adapters.NLog\Reusable.Loggex.Recorders.NLog.csproj">
+      <Project>{02EA9013-5DBC-4FD6-93C5-4189C34018D1}</Project>
+      <Name>Reusable.Loggex.Recorders.NLog</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Reusable.Logging.NLogExtensions\Reusable.Logging.NLog.Tools.csproj">
+      <Project>{a9161314-0576-4cf5-a018-279a590c61dc}</Project>
+      <Name>Reusable.Logging.NLog.Tools</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Reusable.Logging\Reusable.Loggex.csproj">
       <Project>{eb8d2ed6-beb3-4d35-b03d-508f95a9341f}</Project>
-      <Name>Reusable.Logging</Name>
+      <Name>Reusable.Loggex</Name>
     </ProjectReference>
     <ProjectReference Include="..\Reusable.Markup.MarkupBuilder\Reusable.Markup.csproj">
       <Project>{2575D10B-414A-4CD6-8BAA-BD6074B5DEC6}</Project>

@@ -76,6 +76,12 @@ namespace Reusable.CommandLine.Services
                 }
             }
 
+            if (instance is ConsoleCommandParameter consoleParameter)
+            {
+                consoleParameter.Commands = context.Commands;
+                consoleParameter.Logger = context.Logger;
+            }
+
             return instance;
         }
 

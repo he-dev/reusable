@@ -8,12 +8,16 @@ namespace Reusable.Logging.Loggex
 {
     public interface IRecorder
     {
-        void Write(LogEntry logEntry);
+        string Name { get; set; }
+
+        void Log(LogEntry logEntry);
     }
 
     public class Recorder : IRecorder
     {
-        public void Write(LogEntry logEntry)
+        public string Name { get; set; }
+
+        public void Log(LogEntry logEntry)
         {
             throw new NotImplementedException();
         }

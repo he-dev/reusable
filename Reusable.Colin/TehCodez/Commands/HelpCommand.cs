@@ -9,8 +9,7 @@ using JetBrains.Annotations;
 using Reusable.CommandLine.Annotations;
 using Reusable.CommandLine.Collections;
 using Reusable.CommandLine.Data;
-using Reusable.CommandLine.Logging;
-using Reusable.CommandLine.Services;
+using Reusable.Loggex;
 
 namespace Reusable.CommandLine.Commands
 {
@@ -29,46 +28,49 @@ namespace Reusable.CommandLine.Commands
 
         public void Execute(object parameter)
         {
-            //if (!(parameter is CommandContext context))
-            //{
-            //    throw new ArgumentException(
-            //        message: $"'{nameof(CommandContext)} expected but found '{parameter?.GetType()}'", 
-            //        paramName: nameof(parameter));
-            //}
 
-            if (!(context.Parameter is HelpCommandParameter commandParameter))
+            if (parameter is HelpCommandParameter commandParameter)
+            {
+                Execute(commandParameter);
+            }
+            else
             {
                 throw new ArgumentException(
-                    message: $"'{nameof(HelpCommandParameter)} expected but found '{context.Parameter?.GetType()}'",
+                    message: $"'{nameof(HelpCommandParameter)} expected but found '{parameter?.GetType()}'",
                     paramName: nameof(parameter));
             }
 
-            var commandName = ImmutableNameSet.Create(commandParameter.Command);
+        }
+
+        private void Execute(HelpCommandParameter parameter)
+        {
+            var commandName = ImmutableNameSet.Create(parameter.Command);
 
             if (commandName.Any())
             {
-                if (context.CommandContainer.TryGetValue(commandName, out var commandMetadata))
+                if (parameter.Commands.TryGetValue(commandName, out var consoleCommand))
                 {
-                    commandName = context.CommandContainer.Keys.Single(k => k.Overlaps(commandName));
-                    RenderParameterList(context, commandMetadata);
+                    commandName = parameter.Commands.Keys.Single(k => k.Overlaps(commandName));
+                    RenderParameterList(consoleCommand, parameter.Logger);
                 }
                 else
                 {
-                    context.Logger.Error($"Command \"{commandName}\" not found.");
+                    parameter.Logger.Log(e => e.Error().Message($"Command \"{commandName}\" not found."));
                 }
             }
             else
             {
-                RenderCommandList(context);
+                RenderCommandList(parameter.Commands, parameter.Logger);
             }
+            
         }
 
-        protected virtual void RenderCommandList(CommandContext context)
+        protected virtual void RenderCommandList(CommandContainer commands, ILogger logger)
         {
-            context.Logger.Info(string.Empty);
-            context.Logger.Info($"{new string(' ', IndentWidth)}Commands");
+            logger.Log(e => e.Message(string.Empty));
+            logger.Log(e => e.Message($"{new string(' ', IndentWidth)}Commands"));
 
-            var commandSummaries = context.CommandContainer.Select(x => new CommandSummary
+            var commandSummaries = commands.Select(x => new CommandSummary
             {
                 Names = x.Key.OrderByDescending(n => n.Length),
                 Description = x.Value.GetType().GetCustomAttribute<DescriptionAttribute>()?.Description
@@ -76,31 +78,31 @@ namespace Reusable.CommandLine.Commands
 
             var captions = new[] { "NAME", "ABOUT" };
 
-            context.Logger.Info(string.Empty);
-            context.Logger.Debug(RenderColumns(captions, ColumnWidths));
-            context.Logger.Debug(RenderColumns(captions.Select(h => new string('-', h.Length)), ColumnWidths));
+            logger.Log(e => e.Message(string.Empty));
+            logger.Log(e => e.Debug().Message(RenderColumns(captions, ColumnWidths)));
+            logger.Log(e => e.Debug().Message(RenderColumns(captions.Select(h => new string('-', h.Length)), ColumnWidths)));
 
             foreach (var commandSummary in commandSummaries)
             {
-                context.Logger.Info(RenderColumns(new[]
+                logger.Log(e => e.Message(RenderColumns(new[]
                 {
                     commandSummary.Names.First(),
                     string.IsNullOrEmpty(commandSummary.Description) ? "N/A" : commandSummary.Description
-                }, ColumnWidths));
+                }, ColumnWidths)));
             }
-            context.Logger.Info(string.Empty);
-            context.Logger.Info(string.Empty);
+            logger.Log(e => e.Message(string.Empty));
+            logger.Log(e => e.Message(string.Empty));
         }
 
-        protected virtual void RenderParameterList(CommandContext context, CommandMetadata commandMetadata)
+        protected virtual void RenderParameterList(IConsoleCommand command, ILogger logger)
         {
             var commandSummary = new CommandSummary
             {
-                Names = commandMetadata.CommandName.OrderByDescending(n => n.Length),
-                Description = commandMetadata.Command.GetType().GetCustomAttribute<DescriptionAttribute>()?.Description
+                Names = command.Name.OrderByDescending(n => n.Length),
+                Description = command.GetType().GetCustomAttribute<DescriptionAttribute>()?.Description
             };
 
-            var parameterSummaries = commandMetadata.Parameter.Select(x => new ArgumentSummary
+            var parameterSummaries = command.Parameter.Select(x => new ArgumentSummary
             {
                 Names = x.Name.OrderByDescending(n => n.Length),
                 Type = x.Property.PropertyType,
@@ -111,18 +113,18 @@ namespace Reusable.CommandLine.Commands
 
             var indent = new string(' ', IndentWidth);
 
-            context.Logger.Info(string.Empty);
-            context.Logger.Debug("NAME");
-            context.Logger.Info(string.Join(Environment.NewLine, commandSummary.Names.Select(n => $"{indent}{n}")));
+            logger.Log(e => e.Message(string.Empty));
+            logger.Log(e => e.Debug().Message("NAME"));
+            logger.Log(e => e.Message(string.Join(Environment.NewLine, commandSummary.Names.Select(n => $"{indent}{n}"))));
 
-            context.Logger.Info(string.Empty);
-            context.Logger.Debug("ABOUT");
-            context.Logger.Info($"{indent}{(string.IsNullOrEmpty(commandSummary.Description) ? "N/A" : commandSummary.Description)}");
+            logger.Log(e => e.Message(string.Empty));
+            logger.Log(e => e.Debug().Message("ABOUT"));
+            logger.Log(e => e.Message($"{indent}{(string.IsNullOrEmpty(commandSummary.Description) ? "N/A" : commandSummary.Description)}"));
 
-            context.Logger.Info(string.Empty);
+            logger.Log(e => e.Message(string.Empty));
 
-            context.Logger.Debug("SYNTAX");
-            context.Logger.Info(string.Empty);
+            logger.Log(e => e.Debug().Message("SYNTAX"));
+            logger.Log(e => e.Message(string.Empty));
 
             var positional =
                 from p in parameterSummaries
@@ -143,21 +145,21 @@ namespace Reusable.CommandLine.Commands
                 orderby p.Names.First()
                 select $"{p.Names.First()}".Optional();
 
-            context.Logger.Info($"{indent}{commandSummary.Names.First()} {string.Join(" ", positional.Concat(required).Concat(optional))}");
+            logger.Log(e => e.Message($"{indent}{commandSummary.Names.First()} {string.Join(" ", positional.Concat(required).Concat(optional))}"));
 
-            context.Logger.Info(string.Empty);
-            context.Logger.Debug("ARGUMENTS");
-            context.Logger.Info(string.Empty);
+            logger.Log(e => e.Message(string.Empty));
+            logger.Log(e => e.Debug().Message("ARGUMENTS"));
+            logger.Log(e => e.Message(string.Empty));
 
             foreach (var parameterSummary in parameterSummaries.OrderBy(p => p.Names.First()))
             {
                 var name = parameterSummary.Names.First();
                 var type = parameterSummary.Type.Name;
-                context.Logger.Info(RenderColumns(new[] { $"{indent}{name}", type }, ColumnWidths));
+                logger.Log(e => e.Message(RenderColumns(new[] { $"{indent}{name}", type }, ColumnWidths)));
             }
 
-            context.Logger.Info(string.Empty);
-            context.Logger.Info(string.Empty);
+            logger.Log(e => e.Message(string.Empty));
+            logger.Log(e => e.Message(string.Empty));
         }
 
         private static string RenderColumns(IEnumerable<string> values, IEnumerable<int> columnWidths)

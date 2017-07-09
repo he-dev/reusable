@@ -4,10 +4,9 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reusable.CommandLine.Collections;
 using Reusable.CommandLine.Data;
-using Reusable.CommandLine.Logging;
 using Reusable.CommandLine.Services;
-using System.Collections.Immutable;
 using Reusable.CommandLine.Commands;
+using Reusable.Loggex;
 
 namespace Reusable.CommandLine
 {
@@ -17,7 +16,7 @@ namespace Reusable.CommandLine
 
         [PublicAPI]
         [ContractAnnotation("commands: null => halt; text: null => halt")]
-        public static void Execute([NotNull] this string text, [NotNull] CommandContainer commands, CommandLineSettings settings = null)
+        public static bool Execute([NotNull] this string text, [NotNull] CommandContainer commands, CommandLineSettings settings = null)
         {
             settings = settings ?? CommandLineSettings.Default;
 
@@ -27,26 +26,41 @@ namespace Reusable.CommandLine
                     //.PrependCommandName(commands)
                     .Parse()
                     .Select(argument => (Argument: argument, Command: commands.Find(argument.CommandName())))
-                    .ToLookup(x => x.Command != null);
+                    .ToLookup(IsExecutable);
 
-            if (!executables.Any())
+            if (executables.Any())
             {
-                settings.Logger.Error("Default ");
-                return;
+                if (executables[false].Any())
+                {
+                    var nonExecutable = executables[false].Select(x => x.Argument.ToCommandLineString("-:"));
+                    settings.Logger.Log(e => e.Error().Message($"Command not found. Arguments: [{string.Join(" | ", nonExecutable)}]"));
+                    return false;
+                }
+                else
+                {
+                    foreach (var executable in executables[true])
+                    {
+                        executable.Command.Execute(new ConsoleContext(executable.Argument, settings.Culture, commands, settings.Logger));
+                    }
+                    return true;
+                }
+            }
+            else
+            {
+                var primaryCommands = commands.PrimaryCommands().ToList();
+                if (primaryCommands.Count == 1)
+                {
+                    primaryCommands.Single().Execute(new ConsoleContext(ArgumentLookup.Empty, settings.Culture, commands, settings.Logger));
+                    return true;
+                }
+                else
+                {
+                    settings.Logger.Log(e => e.Error().Message("Command not found."));
+                    return false;
+                }
             }
 
-            if (executables[false].Any())
-            {
-                var nonExecutable = executables[false].Select(x => x.Argument.ToCommandLineString("-:"));
-                settings.Logger.Error($"Command not found. Arguments: [{string.Join(" | ", nonExecutable)}]");
-                return;
-            }
-
-
-            foreach (var executable in executables[true])
-            {
-                executable.Command.Execute(new ConsoleContext(executable.Argument, settings.Culture, commands, settings.Logger));                
-            }
+            bool IsExecutable((ArgumentLookup Arguments, IConsoleCommand Command) t) => t.Command != null;
         }
 
         [PublicAPI]

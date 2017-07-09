@@ -1,7 +1,7 @@
 using System.Globalization;
 using JetBrains.Annotations;
 using Reusable.CommandLine.Collections;
-using Reusable.CommandLine.Logging;
+using Reusable.Loggex;
 
 namespace Reusable.CommandLine.Data
 {
