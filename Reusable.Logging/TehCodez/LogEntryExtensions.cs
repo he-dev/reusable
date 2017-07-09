@@ -19,15 +19,15 @@ namespace Reusable.Loggex
         public static LogEntry Error(this LogEntry entry) => entry.LogLevel(Loggex.LogLevel.Error);
         public static LogEntry Fatal(this LogEntry entry) => entry.LogLevel(Loggex.LogLevel.Fatal);
 
-        public static LogEntry MessageBuilder(this LogEntry entry, Action<StringBuilder> builder)
+        public static LogEntry Message(this LogEntry entry, string message) => entry.Message(b => b.Clear().Append(message));
+
+        public static LogEntry Message(this LogEntry entry, Action<StringBuilder> builder)
         {
-            builder(entry.GetValueOrCreate(nameof(Message), () => new StringBuilder()));
+            var messageBuilder = entry.MessageBuilder();
+            builder(messageBuilder);
             return entry;
         }
 
-        public static LogEntry Message(this LogEntry entry, string message) => entry.MessageBuilder(b => b.Clear().Append(message));
-
-        public static StringBuilder MessageBuilder(this LogEntry entry) => entry.GetValueOrCreate(nameof(Message), () => new StringBuilder());
 
         public static LogEntry Exception(this LogEntry entry, Exception exception) => entry.SetValue(nameof(Exception), exception);
 
@@ -41,11 +41,13 @@ namespace Reusable.Loggex
 
         public static LogEntry LineNumber(this LogEntry entry, [CallerLineNumber] int lineNumber = 0) => entry.SetValue(nameof(LineNumber), lineNumber);
 
-        public static void Log(this LogEntry entry, ILogger logger) => logger.Log(entry);
+        //public static void Log(this LogEntry entry, ILogger logger) => logger.Log(entry);
+
+        private static StringBuilder MessageBuilder(this LogEntry entry) => entry.GetValueOrCreate(nameof(Message), () => new StringBuilder());
 
         public static T GetValueOrCreate<T>(this LogEntry entry, string name, Func<T> create)
         {
-            return entry.TryGetValue(name, out object value) ? (T)value : (T)(entry[name] = (value = create()));
+            return (T)(entry.TryGetValue(name, out var value) ? value : (entry[name] = create()));
         }
 
         public static T GetValue<T>(this LogEntry entry, string name) => entry.TryGetValue(name, out object value) ? (T)value : default(T);
@@ -58,7 +60,7 @@ namespace Reusable.Loggex
 
         public static LogEntry SetValue(this LogEntry entry, IComputedProperty property) => entry.SetValue(property.Name, property);
 
-        public static AutoLogEntry AsAutoLog(this LogEntry logEntry, ILogger logger) => new AutoLogEntry(logEntry, logger);
+        //public static AutoLogEntry AsAutoLog(this LogEntry logEntry, ILogger logger) => new AutoLogEntry(logEntry, logger);
 
     }
 }

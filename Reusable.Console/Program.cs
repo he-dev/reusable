@@ -28,10 +28,10 @@ namespace SmartLibs.Console
     {
         static void Main(string[] args)
         {
-            var commands =
-                CommandContainer.Empty
-                    .Add<HelpCommand, HelpCommandParameter>()
-                    .Add<TestCommand, TestCommandParameter>();
+            //var commands =
+            //    CommandContainer.Empty
+            //        .Add<HelpCommand, HelpCommandParameter>()
+            //        .Add<TestCommand, TestCommandParameter>();
 
             Logger.Configuration = new LoggerConfiguration
             {

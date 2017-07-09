@@ -23,7 +23,7 @@ namespace Reusable.Loggex.Recorders
             colors = colors ?? DefaultColors;
         }
 
-        public CaseInsensitiveString Name { get; set; } = nameof(ConsoleRecorder);
+        public CaseInsensitiveString Name { get; set; } = "Console";
 
         public void Log(LogEntry logEntry)
         {

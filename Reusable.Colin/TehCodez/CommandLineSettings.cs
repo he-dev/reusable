@@ -31,7 +31,15 @@ namespace Reusable.CommandLine
         {
             Logger = Loggex.Logger.Create("CommandLine", new LoggerConfiguration
             {
-                //Recorders = { new ConsoleRecorder() }, Filters = 
+                Recorders = { new ConsoleRecorder() },
+                Filters =
+                {
+                    new LogFilter
+                    {
+                        LogLevel = LogLevel.Debug,
+                        Recorders = { "Console" }
+                    }
+                }
             }),
             Culture = CultureInfo.InvariantCulture
         };

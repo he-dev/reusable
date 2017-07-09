@@ -9,12 +9,12 @@ namespace Reusable.Loggex
 {
     public class LogEntry : Dictionary<CaseInsensitiveString, object>
     {
-        public LogEntry(LogLevel logLevel)
+        private LogEntry(LogLevel logLevel)
         {
             this[nameof(LogLevel)] = logLevel;
         }
 
-        public LogEntry(LogEntry logEntry) : base(logEntry) { }
+        //public LogEntry(LogEntry logEntry) : base(logEntry) { }
 
         public LogLevel LogLevel => (LogLevel)this[nameof(LogLevel)];
 
@@ -36,12 +36,12 @@ namespace Reusable.Loggex
         }
     }
 
-    public class AutoLogEntry : LogEntry, IDisposable
-    {
-        private readonly ILogger _logger;
+    //public class AutoLogEntry : LogEntry, IDisposable
+    //{
+    //    private readonly ILogger _logger;
 
-        public AutoLogEntry(LogEntry logEntry, ILogger logger) : base(logEntry) => _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    //    public AutoLogEntry(LogEntry logEntry, ILogger logger) : base(logEntry) => _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        public void Dispose() => this.Log(_logger);
-    }
+    //    public void Dispose() => this.Log(_logger);
+    //}
 }

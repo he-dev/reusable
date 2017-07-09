@@ -6,13 +6,13 @@ namespace Reusable.Loggex
 {
     public interface ILogFilter
     {
-        ISet<CaseInsensitiveString> Loggers { get; set; }
+        ISet<CaseInsensitiveString> Loggers { get; }
 
-        ISet<CaseInsensitiveString> Recorders { get; set; }
+        ISet<CaseInsensitiveString> Recorders { get; }
 
-        LogLevel LogLevel { get; set; }
+        LogLevel LogLevel { get; }
 
-        bool OnMatchGoToNext { get; set; }
+        bool Stop { get; }
 
         bool IsMatch(ILogger logger, IRecorder recorder, LogEntry logEntry);
     }
@@ -25,7 +25,7 @@ namespace Reusable.Loggex
 
         public LogLevel LogLevel { get; set; } = LogLevel.Info;
 
-        public bool OnMatchGoToNext { get; set; } = true;
+        public bool Stop { get; set; } = true;
 
         public bool IsMatch(ILogger logger, IRecorder recorder, LogEntry logEntry)
         {
