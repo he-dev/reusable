@@ -32,7 +32,7 @@ namespace Reusable.Loggex
             return
                 (!Loggers.Any() || Loggers.Contains(logger.Name)) &&
                 Recorders.Contains(recorder.Name) &&
-                LogLevel >= logEntry.LogLevel();
+                logEntry.LogLevel() >= LogLevel;
         }
     }
 }
