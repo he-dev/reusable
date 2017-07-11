@@ -13,7 +13,7 @@ namespace Reusable.Logging.Tests
         [TestMethod]
         public void Log_MessageWithElapsedSeconds_ValueInserted()
         {
-            var logEntry = LogEntry.New().Message($"foo {{{nameof(MockProperty)}}} bar");
+            var logEntry = LogEntry.Create().Message($"foo {{{nameof(MockProperty)}}} bar");
             //var logger = new MockLogger();
             //Logger.ComputedProperties.Add(new MockProperty("baz"));
 

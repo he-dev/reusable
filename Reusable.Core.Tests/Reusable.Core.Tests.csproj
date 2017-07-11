@@ -69,6 +69,12 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="..\Reusable.TestBase\TehCodez\ComparableTest.cs">
+      <Link>Linked\ComparableTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Reusable.TestBase\TehCodez\EquatableTest.cs">
+      <Link>Linked\EquatableTest.cs</Link>
+    </Compile>
     <Compile Include="TehCodez\Collections\ProjectionComparerTest.cs" />
     <Compile Include="TehCodez\Collections\AutoKeyDictionaryTest.cs" />
     <Compile Include="TehCodez\Data\DataTableExtensionsTest.cs" />
@@ -91,6 +97,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TehCodez\ResourceReaderTest.cs" />
     <Compile Include="TehCodez\Extensions\StringExtensionsTest.cs" />
+    <Compile Include="TehCodez\CaseInsensitiveStringTest.cs" />
     <Compile Include="TehCodez\UsingifierExtensionsTest.cs" />
     <Compile Include="TehCodez\UsingifierTest.cs" />
     <Compile Include="TehCodez\ValidatorTest.cs" />
@@ -104,6 +111,10 @@
     <ProjectReference Include="..\Reusable.Fuse\Reusable.Fuse.csproj">
       <Project>{aba07d6f-bb71-4aa6-aa20-7330e394d082}</Project>
       <Name>Reusable.Fuse</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Reusable.TestTools.UnitTesting.AssertExtensions\Reusable.TestTools.UnitTesting.AssertExtensions.csproj">
+      <Project>{fbcb78cd-68dd-497f-ae6e-5084a799f24e}</Project>
+      <Name>Reusable.TestTools.UnitTesting.AssertExtensions</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

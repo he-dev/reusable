@@ -32,7 +32,7 @@ namespace Reusable.Loggex
                 logEntry[property.Name] = property.Compute(logEntry);
             }
 
-            var message = logEntry.Message.Format(logEntry);
+            var message = logEntry.Message().Format(logEntry);
             logEntry.Message(message);
 
             var matches =
@@ -58,12 +58,12 @@ namespace Reusable.Loggex
     {
         public static ILogger Log(this ILogger logger, Func<LogEntry, LogEntry> logEntry)
         {
-            return logger.Log(logEntry(LogEntry.New()));
+            return logger.Log(logEntry(LogEntry.Create()));
         }
 
         public static (ILogger Logger, LogEntry LogEntry) BeginLog(this ILogger logger)
         {
-            return (logger, LogEntry.New());
+            return (logger, LogEntry.Create());
         }
 
         public static ILogger EndLog(this (ILogger Logger, LogEntry LogEntry) t)

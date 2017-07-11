@@ -28,8 +28,8 @@ namespace Reusable.Loggex.Recorders.NLogRecorder.Recorders
             {
                 Level = NLog.LogLevel.FromString(logEntry.LogLevel.ToString()),
                 LoggerName = logger.Name,
-                Message = logEntry.GetValue<StringBuilder>(nameof(NLog.LogEventInfo.Message)).ToString(),
-                Exception = logEntry.GetValue<Exception>(nameof(NLog.LogEventInfo.Exception)),
+                Message = logEntry.GetValueOrDefault<StringBuilder>(nameof(NLog.LogEventInfo.Message)).ToString(),
+                Exception = logEntry.GetValueOrDefault<Exception>(nameof(NLog.LogEventInfo.Exception)),
                 //TimeStamp = log.GetValue<DateTime>(nameof(Log.Timestamp)),
             };
 

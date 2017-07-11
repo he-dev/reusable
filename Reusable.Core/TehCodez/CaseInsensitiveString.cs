@@ -32,10 +32,9 @@ namespace Reusable
 
         public bool EndsWith(string value) => this.value.EndsWith(value, StringComparison.OrdinalIgnoreCase);
         
-        public bool IsMatch([NotNull] string regexp)
+        public bool IsMatch([NotNull, RegexPattern] string regexp)
         {
             if (regexp == null) throw new ArgumentNullException(nameof(regexp));
-            if (this == null) throw new InvalidOperationException("You cannot match a null string.");
 
             return Regex.IsMatch(value, regexp, RegexOptions.IgnoreCase);
         }
@@ -82,7 +81,7 @@ namespace Reusable
 
         public int CompareTo(string other)
         {
-            if (ReferenceEquals(this, other)) return 0;
+            if (ReferenceEquals(value, other)) return 0;
             if (ReferenceEquals(null, other)) return 1;
             return string.Compare(value, other, StringComparison.OrdinalIgnoreCase);
         }

@@ -5,11 +5,14 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace Reusable.Loggex
 {
     public static class LogEntryExtensions
-    {       
+    {
+        #region Setters
+
         public static LogEntry LogLevel(this LogEntry entry, LogLevel logLevel) { entry[nameof(LogLevel)] = logLevel; return entry; }
 
         public static LogEntry Trace(this LogEntry entry) => entry.LogLevel(Loggex.LogLevel.Trace);
@@ -23,11 +26,10 @@ namespace Reusable.Loggex
 
         public static LogEntry Message(this LogEntry entry, Action<StringBuilder> builder)
         {
-            var messageBuilder = entry.MessageBuilder();
+            var messageBuilder = entry.GetValueOrCreate(nameof(Message), () => new StringBuilder());
             builder(messageBuilder);
             return entry;
         }
-
 
         public static LogEntry Exception(this LogEntry entry, Exception exception) => entry.SetValue(nameof(Exception), exception);
 
@@ -41,26 +43,38 @@ namespace Reusable.Loggex
 
         public static LogEntry LineNumber(this LogEntry entry, [CallerLineNumber] int lineNumber = 0) => entry.SetValue(nameof(LineNumber), lineNumber);
 
-        //public static void Log(this LogEntry entry, ILogger logger) => logger.Log(entry);
+        #endregion
 
-        private static StringBuilder MessageBuilder(this LogEntry entry) => entry.GetValueOrCreate(nameof(Message), () => new StringBuilder());
+        #region Getters
 
-        public static T GetValueOrCreate<T>(this LogEntry entry, string name, Func<T> create)
+        public static LogLevel LogLevel(this LogEntry logEntry) => (LogLevel)logEntry[nameof(LogLevel)];
+
+        public static CaseInsensitiveString Name(this LogEntry logEntry) => (CaseInsensitiveString)logEntry[nameof(ILogger.Name)];
+
+        public static string Message(this LogEntry logEntry) => logEntry.GetValueOrCreate(nameof(Message), () => new StringBuilder()).ToString();
+
+        #endregion
+
+        [NotNull]
+        private static T GetValueOrCreate<T>(this LogEntry entry, string name, Func<T> create)
         {
             return (T)(entry.TryGetValue(name, out var value) ? value : (entry[name] = create()));
         }
 
-        public static T GetValue<T>(this LogEntry entry, string name) => entry.TryGetValue(name, out object value) ? (T)value : default(T);
+        [CanBeNull]
+        public static T GetValueOrDefault<T>(this LogEntry entry, string name) => entry.TryGetValue(name, out object value) ? (T)value : default(T);
 
+        [NotNull]
         public static LogEntry SetValue<T>(this LogEntry entry, CaseInsensitiveString name, T value)
         {
             (entry ?? throw new ArgumentNullException(nameof(entry)))[name] = value;
             return entry;
         }
 
-        public static LogEntry SetValue(this LogEntry entry, IComputedProperty property) => entry.SetValue(property.Name, property);
-
-        //public static AutoLogEntry AsAutoLog(this LogEntry logEntry, ILogger logger) => new AutoLogEntry(logEntry, logger);
-
+        [NotNull]
+        public static LogEntry SetProperty<T>(this LogEntry entry, T property) where T : IComputedProperty
+        {
+            return entry.SetValue(property.Name, property);
+        }
     }
 }

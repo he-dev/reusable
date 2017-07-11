@@ -4,6 +4,6 @@ namespace Reusable.Loggex.ComputedProperties
 {
     public class ElapsedMinutes : Elapsed
     {
-        protected override double ComputeCore(TimeSpan elapsed) => elapsed.TotalMinutes;
+        protected override double Compute(TimeSpan elapsed) => elapsed.TotalMinutes;
     }
 }

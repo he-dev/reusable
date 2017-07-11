@@ -6,7 +6,7 @@ namespace Reusable.Loggex.Recorders
     {
         public CaseInsensitiveString Name { get; set; } = nameof(MemoryRecorder);
 
-        public List<LogEntry> Logs { get; set; } = new List<LogEntry>();
+        public List<LogEntry> Logs { get; } = new List<LogEntry>();
 
         public void Log(LogEntry logEntry)
         {

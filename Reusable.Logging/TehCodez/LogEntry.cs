@@ -9,30 +9,16 @@ namespace Reusable.Loggex
 {
     public class LogEntry : Dictionary<CaseInsensitiveString, object>
     {
-        private LogEntry(LogLevel logLevel)
-        {
-            this[nameof(LogLevel)] = logLevel;
-        }
+        private LogEntry() { }
 
-        //public LogEntry(LogEntry logEntry) : base(logEntry) { }
-
-        public LogLevel LogLevel => (LogLevel)this[nameof(LogLevel)];
-
-        public CaseInsensitiveString Name => (CaseInsensitiveString)this[nameof(ILogger.Name)];
-
-        public string Message => this.GetValue<StringBuilder>(nameof(Message)).ToString();
-
-        //public static Func<DateTime>
-
-        public static LogEntry New() => CreateLogEntry(LogLevel.Info);
-
-        private static LogEntry CreateLogEntry(LogLevel logLevel)
+        public static LogEntry Create(LogLevel logLevel = LogLevel.Info)
         {
             return
-                new LogEntry(logLevel)
-                    .SetValue(new Now())
-                    .SetValue(new UtcNow())
-                    .SetValue(new ThreadId());
+                new LogEntry()
+                    .LogLevel(logLevel)
+                    .SetProperty(new Now())
+                    .SetProperty(new UtcNow())
+                    .SetProperty(new ThreadId());
         }
     }
 

@@ -27,11 +27,11 @@ namespace Reusable.Loggex.Recorders
 
         public void Log(LogEntry logEntry)
         {
-            if (colors.TryGetValue(logEntry.LogLevel, out ConsoleColor color))
+            if (colors.TryGetValue(logEntry.LogLevel(), out ConsoleColor color))
             {
                 Console.ForegroundColor = color;
             }
-            Console.WriteLine(logEntry.Message);
+            Console.WriteLine(logEntry.Message());
             Console.ResetColor();
         }
     }

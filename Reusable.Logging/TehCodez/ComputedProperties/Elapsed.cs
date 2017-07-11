@@ -11,10 +11,10 @@ namespace Reusable.Loggex.ComputedProperties
 
         public override object Compute(LogEntry logEntry)
         {
-            var stopwatch = logEntry.GetValue<Stopwatch>(nameof(Stopwatch));
-            return stopwatch == null ? null : (object)Math.Round(ComputeCore(stopwatch.Elapsed), Digits);
+            var stopwatch = logEntry.GetValueOrDefault<Stopwatch>(nameof(Stopwatch));
+            return stopwatch == null ? null : (object)Math.Round(Compute(stopwatch.Elapsed), Digits);
         }
 
-        protected abstract double ComputeCore(TimeSpan elapsed);
+        protected abstract double Compute(TimeSpan elapsed);
     }
 }
