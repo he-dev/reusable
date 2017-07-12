@@ -67,6 +67,7 @@
     <Compile Include="TehCodez\LogEntryExtensions.cs" />
     <Compile Include="TehCodez\Logger.Instance.cs" />
     <Compile Include="TehCodez\Logger.Configuration.cs" />
+    <Compile Include="TehCodez\Logger.Extensions.cs" />
     <Compile Include="TehCodez\LogLevel.cs" />
     <Compile Include="TehCodez\Recorders\ConsoleRecorder.cs" />
     <Compile Include="TehCodez\Recorders\MemoryRecorder.cs" />

@@ -49,22 +49,4 @@ namespace Reusable.Logging.Loggex
             return this;
         }
     }
-
-    public static class LoggerExtensions
-    {
-        public static ILogger Log(this ILogger logger, Func<LogEntry, LogEntry> logEntry)
-        {
-            return logger.Log(logEntry(LogEntry.Create()));
-        }
-
-        public static (ILogger Logger, LogEntry LogEntry) BeginLog(this ILogger logger)
-        {
-            return (logger, LogEntry.Create());
-        }
-
-        public static ILogger EndLog(this (ILogger Logger, LogEntry LogEntry) t)
-        {
-            return t.Logger.Log(t.LogEntry);
-        }
-    }
 }
