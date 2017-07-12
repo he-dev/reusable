@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Logging.Loggex.Recorders.NLog</id>
-    <version>3.50.0</version>
+    <version>3.50.1</version>
     <title>Reusable.Logging.Loggex.Recorders.NLog</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -16,8 +16,8 @@
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="NLog" version="4.4.11" />
-      <dependency id="Reusable.Core" version="3.50.0" />
-      <dependency id="Reusable.Logging.Loggex" version="3.50.0" />
+      <dependency id="Reusable.Core" version="3.50.1" />
+      <dependency id="Reusable.Logging.Loggex" version="3.50.1" />
     </dependencies>
   </metadata>
   <files>
