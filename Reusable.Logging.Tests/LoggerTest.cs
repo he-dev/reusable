@@ -1,11 +1,7 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Logging.Tests.Mocks;
-using System.Linq;
-using System.Text;
-using Reusable.Loggex;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.Logging.Loggex.Tests.Mocks;
 
-namespace Reusable.Logging.Tests
+namespace Reusable.Logging.Loggex.Tests
 {
     [TestClass]
     public class LoggerTest

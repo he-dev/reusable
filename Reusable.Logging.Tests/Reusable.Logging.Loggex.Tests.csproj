@@ -7,8 +7,8 @@
     <ProjectGuid>{26617FF1-7295-4FE9-9554-4967C480930C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Reusable.Loggex.Tests</RootNamespace>
-    <AssemblyName>Reusable.Loggex.Tests</AssemblyName>
+    <RootNamespace>Reusable.Logging.Loggex.Tests</RootNamespace>
+    <AssemblyName>Reusable.Logging.Loggex.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -58,9 +58,9 @@
       <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
       <Name>Reusable.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Reusable.Logging\Reusable.Loggex.csproj">
+    <ProjectReference Include="..\Reusable.Logging\Reusable.Logging.Loggex.csproj">
       <Project>{eb8d2ed6-beb3-4d35-b03d-508f95a9341f}</Project>
-      <Name>Reusable.Loggex</Name>
+      <Name>Reusable.Logging.Loggex</Name>
     </ProjectReference>
     <ProjectReference Include="..\Reusable.TestTools.UnitTesting.AssertExtensions\Reusable.TestTools.UnitTesting.AssertExtensions.csproj">
       <Project>{fbcb78cd-68dd-497f-ae6e-5084a799f24e}</Project>

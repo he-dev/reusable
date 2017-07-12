@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 
-namespace Reusable.Loggex.Recorders
+namespace Reusable.Logging.Loggex.Recorders
 {
     public class MemoryRecorder : IRecorder
     {
-        public CaseInsensitiveString Name { get; set; } = nameof(MemoryRecorder);
+        public CaseInsensitiveString Name { get; set; } = "Memory";
 
         public List<LogEntry> Logs { get; } = new List<LogEntry>();
 

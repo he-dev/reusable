@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 using Reusable.CommandLine.Annotations;
 using Reusable.CommandLine.Collections;
 using Reusable.CommandLine.Data;
-using Reusable.Loggex;
+using Reusable.Logging.Loggex;
 
 namespace Reusable.CommandLine.Commands
 {

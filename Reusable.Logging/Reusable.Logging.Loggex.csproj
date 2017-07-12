@@ -7,8 +7,8 @@
     <ProjectGuid>{EB8D2ED6-BEB3-4D35-B03D-508F95A9341F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Reusable.Loggex</RootNamespace>
-    <AssemblyName>Reusable.Loggex</AssemblyName>
+    <RootNamespace>Reusable.Logging.Loggex</RootNamespace>
+    <AssemblyName>Reusable.Logging.Loggex</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

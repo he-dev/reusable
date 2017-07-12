@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Reusable.Loggex.ComputedProperties;
+﻿using System.Collections.Generic;
+using Reusable.Logging.Loggex.ComputedProperties;
 
-namespace Reusable.Loggex
+namespace Reusable.Logging.Loggex
 {
     public class LogEntry : Dictionary<CaseInsensitiveString, object>
     {
@@ -21,13 +17,4 @@ namespace Reusable.Loggex
                     .SetProperty(new ThreadId());
         }
     }
-
-    //public class AutoLogEntry : LogEntry, IDisposable
-    //{
-    //    private readonly ILogger _logger;
-
-    //    public AutoLogEntry(LogEntry logEntry, ILogger logger) : base(logEntry) => _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
-    //    public void Dispose() => this.Log(_logger);
-    //}
 }

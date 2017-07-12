@@ -17,9 +17,9 @@ using Reusable.CommandLine.Annotations;
 using Reusable.CommandLine.Commands;
 using Reusable.CommandLine.Data;
 using Reusable.Extensions;
-using Reusable.Loggex;
-using Reusable.Loggex.ComputedProperties;
-using Reusable.Loggex.Recorders.NLogRecorder.Recorders;
+using Reusable.Logging.Loggex;
+using Reusable.Logging.Loggex.ComputedProperties;
+using Reusable.Logging.Loggex.Recorders.NLogRecorder.Recorders;
 using Reusable.Markup;
 
 namespace SmartLibs.Console

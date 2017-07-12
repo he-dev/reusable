@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.SmartConfig.Core</id>
-    <version>3.43.0</version>
+    <version>3.50.0</version>
     <title>Reusable.SmartConfig.Core</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -18,8 +18,8 @@
       <dependency id="JetBrains.Annotations" version="10.4.0" />
       <dependency id="System.Collections.Immutable" version="1.3.1" />
       <dependency id="System.ValueTuple" version="4.3.1" />
-      <dependency id="Reusable.Core" version="3.43.0" />
-      <dependency id="Reusable.TypeConversion" version="3.43.0" />
+      <dependency id="Reusable.Core" version="3.50.0" />
+      <dependency id="Reusable.TypeConversion" version="3.50.0" />
     </dependencies>
   </metadata>
   <files>

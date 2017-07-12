@@ -1,8 +1,8 @@
 using System;
 using System.Globalization;
 using JetBrains.Annotations;
-using Reusable.Loggex;
-using Reusable.Loggex.Recorders;
+using Reusable.Logging.Loggex;
+using Reusable.Logging.Loggex.Recorders;
 
 namespace Reusable.CommandLine
 {
@@ -29,7 +29,7 @@ namespace Reusable.CommandLine
         [NotNull]
         public static CommandLineSettings Default => new CommandLineSettings
         {
-            Logger = Loggex.Logger.Create("CommandLine", new LoggerConfiguration
+            Logger = Logging.Loggex.Logger.Create("CommandLine", new LoggerConfiguration
             {
                 Recorders = { new ConsoleRecorder() },
                 Filters =

@@ -1,25 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.Loggex</id>
-    <version>3.43.0</version>
-    <title>Reusable.Loggex</title>
+    <id>Reusable.Logging.Loggex.Recorders.NLog</id>
+    <version>3.50.0</version>
+    <title>Reusable.Logging.Loggex.Recorders.NLog</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/he-dev/Reusable</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/he-dev/Reusable/master/_nuget/recycling.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>Provides a logger abstraction layer.</description>
+    <description>Provides NLog recorder for Loggex.</description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2016 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
-      <dependency id="Reusable.Core" version="3.43.0" />
+      <dependency id="NLog" version="4.4.11" />
+      <dependency id="Reusable.Core" version="3.50.0" />
+      <dependency id="Reusable.Logging.Loggex" version="3.50.0" />
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\Reusable.Loggex.dll" target="lib\net452" />
-    <file src="bin\Release\Reusable.Loggex.pdb" target="lib\net452" />
+    <file src="bin\Release\Reusable.Logging.Loggex.Recorders.NLog.dll" target="lib\net452" />
+    <file src="bin\Release\Reusable.Logging.Loggex.Recorders.NLog.pdb" target="lib\net452" />
   </files>
 </package>

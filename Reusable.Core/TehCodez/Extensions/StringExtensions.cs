@@ -21,6 +21,8 @@ namespace Reusable.Extensions
                 .Match(value, @"\Aname=(?<name>.+)", RegexOptions.IgnoreCase)
                 .Groups["name"]
                 .Value;
-        }     
+        }
+
+        public static bool IsNumeric(this string value) => int.TryParse(value, out int x);
     }
 }

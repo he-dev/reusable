@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Reusable.Loggex.Recorders
+namespace Reusable.Logging.Loggex.Recorders
 {
     public class ConsoleRecorder : IRecorder
     {

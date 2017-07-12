@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Reusable.Loggex.Collections;
+using Reusable.Logging.Loggex.Collections;
 
-namespace Reusable.Loggex
+namespace Reusable.Logging.Loggex
 {
     public class LoggerConfiguration
     {

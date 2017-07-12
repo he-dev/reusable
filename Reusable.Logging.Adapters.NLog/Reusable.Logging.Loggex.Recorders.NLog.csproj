@@ -7,8 +7,8 @@
     <ProjectGuid>{02EA9013-5DBC-4FD6-93C5-4189C34018D1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Reusable.Loggex.Recorders.NLogRecorder</RootNamespace>
-    <AssemblyName>Reusable.Loggex.Recorders.NLogRecorder</AssemblyName>
+    <RootNamespace>Reusable.Logging.Loggex.Recorders.NLog</RootNamespace>
+    <AssemblyName>Reusable.Logging.Loggex.Recorders.NLog</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -51,9 +51,9 @@
       <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
       <Name>Reusable.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Reusable.Logging\Reusable.Loggex.csproj">
+    <ProjectReference Include="..\Reusable.Logging\Reusable.Logging.Loggex.csproj">
       <Project>{eb8d2ed6-beb3-4d35-b03d-508f95a9341f}</Project>
-      <Name>Reusable.Loggex</Name>
+      <Name>Reusable.Logging.Loggex</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

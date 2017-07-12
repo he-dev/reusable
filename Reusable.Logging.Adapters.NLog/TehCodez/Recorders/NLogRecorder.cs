@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Reusable.Loggex.Recorders.NLogRecorder.Recorders
+namespace Reusable.Logging.Loggex.Recorders.NLogRecorder.Recorders
 {
     public class NLogRecorder : IRecorder
     {
@@ -17,7 +17,7 @@ namespace Reusable.Loggex.Recorders.NLogRecorder.Recorders
 
         public void Log(LogEntry logEntry)
         {
-            var logger = GetLogger((string)logEntry.Name);
+            var logger = GetLogger(logEntry.Name().ToString());
             
             //if (!logger.IsEnabled(NLog.LogLevel.FromOrdinal((int)logEntry.LogLevel)))
             {
@@ -26,7 +26,7 @@ namespace Reusable.Loggex.Recorders.NLogRecorder.Recorders
 
             var logEventInfo = new NLog.LogEventInfo
             {
-                Level = NLog.LogLevel.FromString(logEntry.LogLevel.ToString()),
+                Level = NLog.LogLevel.FromString(logEntry.LogLevel().ToString()),
                 LoggerName = logger.Name,
                 Message = logEntry.GetValueOrDefault<StringBuilder>(nameof(NLog.LogEventInfo.Message)).ToString(),
                 Exception = logEntry.GetValueOrDefault<Exception>(nameof(NLog.LogEventInfo.Exception)),

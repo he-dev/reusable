@@ -1,9 +1,4 @@
-﻿using System;
-using System.Linq;
-using JetBrains.Annotations;
-using Reusable.Extensions;
-
-namespace Reusable.Loggex
+﻿namespace Reusable.Logging.Loggex
 {
     public interface ILogger
     {

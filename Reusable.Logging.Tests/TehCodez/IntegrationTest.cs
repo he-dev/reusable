@@ -1,9 +1,9 @@
 ﻿using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Loggex.Recorders;
+using Reusable.Logging.Loggex.Recorders;
 using Reusable.TestTools.UnitTesting.AssertExtensions.TehCodez;
 
-namespace Reusable.Loggex.Tests
+namespace Reusable.Logging.Loggex.Tests
 {
     [TestClass]
     public class LoggexIntegrationTest
@@ -59,7 +59,7 @@ namespace Reusable.Loggex.Tests
             logger.Log(e => e.Message("foo").Debug());
 
             Assert.That.IsEmpty(memoryRecorder.Logs);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Logging.Logger.LogMessage("Test");
+            //Microsoft.VisualStudio.TestTools.UnitTesting.Logging.Logger.LogMessage("Test");
         }
     }
 }

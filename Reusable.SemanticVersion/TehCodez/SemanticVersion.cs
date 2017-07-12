@@ -23,6 +23,18 @@ namespace Reusable
 
         public SemanticVersion(int major, int minor, int patch) : this(major, minor, patch, Enumerable.Empty<string>()) { }
 
+        private string DebuggerDisplay => ToString();
+
+        public int Major { get; }
+
+        public int Minor { get; }
+
+        public int Patch { get; }
+
+        public IReadOnlyList<string> Labels { get; }
+
+        public bool IsPrerelease => Labels?.Count > 0;
+
         public static SemanticVersion Parse(string value)
         {
             if (TryParse(value, out SemanticVersion result)) return result;
@@ -31,9 +43,11 @@ namespace Reusable
 
         public static bool TryParse(string value, out SemanticVersion result)
         {
-            result = null;
-
-            if (string.IsNullOrEmpty(value)) return false;
+            if (string.IsNullOrEmpty(value))
+            {
+                result = default(SemanticVersion);
+                return false;
+            }
 
             var versionPatterns = new[] { "major", "minor", "patch" }.Select(x => $"(?<{x}>(?!0)[0-9]+|0)");
 
@@ -50,20 +64,9 @@ namespace Reusable
                 return true;
             }
 
+            result = default(SemanticVersion);
             return false;
         }
-
-        private string DebuggerDisplay => ToString();
-
-        public int Major { get; }
-
-        public int Minor { get; }
-
-        public int Patch { get; }
-
-        public IReadOnlyList<string> Labels { get; }
-
-        public bool IsPrerelease => Labels?.Count > 0;
 
         public override string ToString()
         {

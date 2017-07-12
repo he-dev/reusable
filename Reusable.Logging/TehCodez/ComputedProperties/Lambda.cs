@@ -1,7 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Reusable.Loggex.ComputedProperties
+namespace Reusable.Logging.Loggex.ComputedProperties
 {
     internal class Lambda : ComputedProperty
     {

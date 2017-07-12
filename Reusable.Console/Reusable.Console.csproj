@@ -74,17 +74,17 @@
       <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
       <Name>Reusable.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Reusable.Logging.Adapters.NLog\Reusable.Loggex.Recorders.NLog.csproj">
+    <ProjectReference Include="..\Reusable.Logging.Adapters.NLog\Reusable.Logging.Loggex.Recorders.NLog.csproj">
       <Project>{02EA9013-5DBC-4FD6-93C5-4189C34018D1}</Project>
-      <Name>Reusable.Loggex.Recorders.NLog</Name>
+      <Name>Reusable.Logging.Loggex.Recorders.NLog</Name>
     </ProjectReference>
     <ProjectReference Include="..\Reusable.Logging.NLogExtensions\Reusable.Logging.NLog.Tools.csproj">
       <Project>{a9161314-0576-4cf5-a018-279a590c61dc}</Project>
       <Name>Reusable.Logging.NLog.Tools</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Reusable.Logging\Reusable.Loggex.csproj">
+    <ProjectReference Include="..\Reusable.Logging\Reusable.Logging.Loggex.csproj">
       <Project>{eb8d2ed6-beb3-4d35-b03d-508f95a9341f}</Project>
-      <Name>Reusable.Loggex</Name>
+      <Name>Reusable.Logging.Loggex</Name>
     </ProjectReference>
     <ProjectReference Include="..\Reusable.Markup.MarkupBuilder\Reusable.Markup.csproj">
       <Project>{2575D10B-414A-4CD6-8BAA-BD6074B5DEC6}</Project>

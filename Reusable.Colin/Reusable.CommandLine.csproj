@@ -92,9 +92,9 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Logging\Reusable.Loggex.csproj">
+    <ProjectReference Include="..\Reusable.Logging\Reusable.Logging.Loggex.csproj">
       <Project>{eb8d2ed6-beb3-4d35-b03d-508f95a9341f}</Project>
-      <Name>Reusable.Loggex</Name>
+      <Name>Reusable.Logging.Loggex</Name>
     </ProjectReference>
     <ProjectReference Include="..\Reusable.TypeConversion\Reusable.TypeConversion.csproj">
       <Project>{d7da0768-b385-40de-abac-0a6b0c5b73f4}</Project>

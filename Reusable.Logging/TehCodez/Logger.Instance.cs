@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Extensions;
-using Reusable.Loggex.Collections;
 
-namespace Reusable.Loggex
+namespace Reusable.Logging.Loggex
 {
     public partial class Logger
     {

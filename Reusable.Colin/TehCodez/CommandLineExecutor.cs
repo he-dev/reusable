@@ -6,7 +6,7 @@ using Reusable.CommandLine.Collections;
 using Reusable.CommandLine.Data;
 using Reusable.CommandLine.Services;
 using Reusable.CommandLine.Commands;
-using Reusable.Loggex;
+using Reusable.Logging.Loggex;
 
 namespace Reusable.CommandLine
 {

@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Reusable.Loggex.ComputedProperties;
+using Reusable.Logging.Loggex.ComputedProperties;
 
-namespace Reusable.Loggex.Collections
+namespace Reusable.Logging.Loggex.Collections
 {
     public class ComputedPropertyCollection : IEnumerable<IComputedProperty>
     {
