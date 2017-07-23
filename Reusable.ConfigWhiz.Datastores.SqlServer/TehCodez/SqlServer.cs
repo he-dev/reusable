@@ -109,7 +109,7 @@ namespace Reusable.SmartConfig.Datastores
             {
                 foreach (var setting in settings)
                 {
-                    using (var cmd = _settingCommandFactory.CreateInsertCommand(connection, setting.Id, setting.Value, _where))
+                    using (var cmd = _settingCommandFactory.CreateInsertCommand(connection, setting.Name, setting.Value, _where))
                     {
                         cmd.Transaction = transaction;
                         cmd.Prepare();

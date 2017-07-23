@@ -10,8 +10,6 @@ namespace Reusable.SmartConfig
     {
         private readonly List<IDatastore> _datastores = new List<IDatastore>();
 
-        private TypeConverter _converter = Configuration.DefaultConverter;
-
         [NotNull]
         public ConfigurationBuilder WithDatastore<T>([NotNull] T datastore) where T : IDatastore
         {
@@ -28,17 +26,17 @@ namespace Reusable.SmartConfig
             return this;
         }
 
-        [NotNull]
-        public ConfigurationBuilder WithConverter<T>() where T : TypeConverter, new()
-        {
-            _converter = _converter.Add<T>();            
-            return this;
-        }
+        //[NotNull]
+        //public ConfigurationBuilder WithConverter<T>() where T : TypeConverter, new()
+        //{
+        //    _converter = _converter.Add<T>();            
+        //    return this;
+        //}
 
         [NotNull]
         public IConfiguration Build()
         {
-            return new Configuration(_datastores, _converter);
+            return new Configuration(_datastores);
         }
     }
 }

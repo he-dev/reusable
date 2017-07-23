@@ -20,26 +20,27 @@ namespace Reusable.SmartConfig.Datastores
             : base(name, supportedTypes)
         { }
 
-        protected override ICollection<IEntity> ReadCore(IIdentifier id)
+        protected override IEntity ReadCore(IEnumerable<CaseInsensitiveString> names)
         {
-            var settings =
-                (from x in Data
-                 where x.Id.StartsWith(id)
-                 select x).ToList();
-            return settings;
+            var setting =
+                (from name in names
+                 from x in Data
+                 where x.Name.Equals(name)
+                 select x).FirstOrDefault();
+            return setting;
         }
 
-        protected override int WriteCore(IGrouping<IIdentifier, IEntity> settings)
+        protected override void WriteCore(IEntity setting)
         {
-            var obsoleteSettings =
-                (from x in Data
-                 where x.Id.StartsWith(settings.Key)
-                 select x).ToList();
-            obsoleteSettings.ForEach(x => Data.Remove(x));
+            //var obsoleteSettings =
+            //    (from x in Data
+            //     where x.Name.StartsWith(settings.Key)
+            //     select x).ToList();
+            //obsoleteSettings.ForEach(x => Data.Remove(x));
 
-            foreach (var setting in settings) Add(setting);
+            //foreach (var setting in settings) Add(setting);
 
-            return obsoleteSettings.Count;
+            //return obsoleteSettings.Count;
         }
 
         public List<IEntity> Data { [DebuggerStepThrough] get; [DebuggerStepThrough] set; } = new List<IEntity>();
@@ -50,7 +51,7 @@ namespace Reusable.SmartConfig.Datastores
 
         public void Add(string name, object value) => Data.Add(new Entity
         {
-            Id = Identifier.Parse(name),
+            Name = name,
             Value = value
         });
 

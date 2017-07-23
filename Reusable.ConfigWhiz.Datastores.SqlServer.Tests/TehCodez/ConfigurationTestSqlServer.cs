@@ -128,7 +128,7 @@ namespace Reusable.SmartConfig.Datastores.Tests
 
                 foreach (var setting in SettingFactory.ReadSettings())
                 {
-                    sqlCommand.Parameters["@Name"].Value = setting.Id.ToString();
+                    sqlCommand.Parameters["@Name"].Value = setting.Name.ToString();
                     sqlCommand.Parameters["@Value"].Value = setting.Value;
                     sqlCommand.Parameters["@Environment"].Value = environment;
                     sqlCommand.Parameters["@Version"].Value = version;

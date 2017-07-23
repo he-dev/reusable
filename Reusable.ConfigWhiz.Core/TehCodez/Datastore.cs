@@ -14,12 +14,12 @@ namespace Reusable.SmartConfig
         string Name { get; }
 
         [NotNull, ItemNotNull]
-        IImmutableSet<Type> SupportedTypes { get; }
+        IImmutableSet<Type> CustomTypes { get; }
 
-        [NotNull, ItemNotNull]
-        ICollection<IEntity> Read([NotNull] IIdentifier id);
+        [CanBeNull]
+        IEntity Read([NotNull, ItemNotNull] IEnumerable<CaseInsensitiveString> names);
 
-        int Write([NotNull, ItemNotNull] IGrouping<IIdentifier, IEntity> settings);
+        void Write([NotNull] IEntity setting);
     }
 
     public abstract class Datastore : IDatastore
@@ -29,40 +29,40 @@ namespace Reusable.SmartConfig
         protected Datastore(string name, IEnumerable<Type> supportedTypes)
         {
             Name = name.NullIfEmpty() ?? throw new ArgumentNullException(nameof(name));
-            SupportedTypes = (supportedTypes ?? throw new ArgumentNullException(nameof(supportedTypes))).ToImmutableHashSet();
+            CustomTypes = (supportedTypes ?? throw new ArgumentNullException(nameof(supportedTypes))).ToImmutableHashSet();
         }
 
         public string Name { get; }
 
-        public IImmutableSet<Type> SupportedTypes { get; }
+        public IImmutableSet<Type> CustomTypes { get; }
 
-        public ICollection<IEntity> Read(IIdentifier id)
+        public IEntity Read(IEnumerable<CaseInsensitiveString> names)
         {
             try
             {
-                return ReadCore(id);
+                return ReadCore(names);
             }
             catch (Exception innerException)
             {
-                throw new DatastoreReadException(this, id, innerException);
+                throw new DatastoreReadException(this, names, innerException);
             }
         }
 
-        protected abstract ICollection<IEntity> ReadCore(IIdentifier id);
+        protected abstract IEntity ReadCore(IEnumerable<CaseInsensitiveString> names);
 
-        public int Write(IGrouping<IIdentifier, IEntity> settings)
+        public void Write(IEntity setting)
         {
             try
             {
-                return WriteCore(settings);
+                WriteCore(setting);
             }
             catch (Exception innerException)
             {
-                throw new DatastoreWriteException(this, settings.Key, innerException);
+                throw new DatastoreWriteException(this, setting.Name, innerException);
             }
         }
 
-        protected abstract int WriteCore(IGrouping<IIdentifier, IEntity> settings);
+        protected abstract void WriteCore(IEntity setting);
 
         protected static string CreateDefaultName<T>()
         {
@@ -76,13 +76,13 @@ namespace Reusable.SmartConfig
 
     public class DatastoreReadException : Exception
     {
-        public DatastoreReadException(IDatastore datastore, IIdentifier id, Exception innerException)
-        : base($"Could not read '{id}' from '{datastore.Name}'.", innerException) { }
+        public DatastoreReadException(IDatastore datastore, IEnumerable<CaseInsensitiveString> names, Exception innerException)
+        : base($"Could not read {string.Join(", ", names.ToJson())} from '{datastore.Name}'.", innerException) { }
     }
 
     public class DatastoreWriteException : Exception
     {
-        public DatastoreWriteException(IDatastore datastore, IIdentifier id, Exception innerException)
-            : base($"Could not write '{id}' to '{datastore.Name}'.", innerException) { }
+        public DatastoreWriteException(IDatastore datastore, CaseInsensitiveString name, Exception innerException)
+            : base($"Could not write '{name.ToString()}' to '{datastore.Name}'.", innerException) { }
     }
 }

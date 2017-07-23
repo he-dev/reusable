@@ -43,7 +43,7 @@ namespace Reusable.SmartConfig.Datastores.Tests
                     //var subKeyName = Path.Combine(TestRegistryKey, registryPath);
                     using (var subKey = baseKey.CreateSubKey(TestRegistryKey, writable: true))
                     {
-                        subKey.SetValue(setting.Id.ToString(), setting.Value);
+                        subKey.SetValue(setting.Name.ToString(), setting.Value);
                     }
                 }
             }

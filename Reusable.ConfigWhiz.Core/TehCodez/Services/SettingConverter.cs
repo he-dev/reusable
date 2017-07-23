@@ -39,7 +39,7 @@ namespace Reusable.SmartConfig.Services
         {
             if (itemized)
             {
-                if (type.IsDictionary()) return settings.ToDictionary(x => x.Id.Last().Value, x => x.Value);
+                if (type.IsDictionary()) return settings.ToDictionary(x => x.Name.Last().Value, x => x.Value);
                 if (type.IsEnumerable()) return settings.Select(x => x.Value);
                 throw new UnsupportedItemizedTypeException(null, type);
             }

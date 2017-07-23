@@ -59,7 +59,7 @@ namespace Reusable.SmartConfig.Datastores.AppConfig
 
             foreach (var setting in settings)
             {
-                var settingName = setting.Id.ToString();
+                var settingName = setting.Name.ToString();
                 exeConfig.AppSettings.Settings.Add(settingName, (string)setting.Value);
                 settingsAffected++;
             }

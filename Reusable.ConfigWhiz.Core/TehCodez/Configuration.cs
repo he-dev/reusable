@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
+using Reusable.Extensions;
 using Reusable.SmartConfig.Collections;
 using Reusable.SmartConfig.Data;
-using Reusable.SmartConfig.Services;
 using Reusable.TypeConversion;
 
 namespace Reusable.SmartConfig
@@ -12,64 +16,160 @@ namespace Reusable.SmartConfig
     public interface IConfiguration
     {
         [CanBeNull]
-        TContainer Get<TContainer>(IIdentifier id, bool cached = true) where TContainer : class, new();
+        T GetValue<T>([NotNull] CaseInsensitiveString name);
 
-        void Save();
+        void Save([NotNull] CaseInsensitiveString name, [NotNull] object value);
+    }
+
+    public static class ConfigurationExtensions
+    {
+        public static T GetValue<T>(this IConfiguration config, Expression<Func<T>> expression)
+        {
+            var memberExpr = expression.Body as MemberExpression ?? throw new ArgumentException("Expression must be a member expression.");
+            var name = $"{memberExpr.Member.DeclaringType.Namespace}+{memberExpr.Member.DeclaringType.Name}.{memberExpr.Member.Name}";
+            return config.GetValue<T>(name);
+        }
+
+        public static T GetValue<T>(this IConfiguration config, Expression<Func<T>> expression, string instance)
+        {
+            var memberExpr = expression.Body as MemberExpression ?? throw new ArgumentException("Expression must be a member expression.");
+            var name = $"{memberExpr.Member.DeclaringType.Namespace}+{memberExpr.Member.DeclaringType.Name}.{memberExpr.Member.Name}&{instance}";
+            return config.GetValue<T>(name);
+        }
+
+        public static Configuration AddValidation<T>(this Configuration config, Expression<Func<T>> expression, params ValidationAttribute[] validations)
+        {
+            var memberExpr = expression.Body as MemberExpression ?? throw new ArgumentException("Expression must be a member expression.");
+            var name = $"{memberExpr.Member.DeclaringType.Namespace}+{memberExpr.Member.DeclaringType.Name}.{memberExpr.Member.Name}";
+            return config.AddValidation(name, validations);
+        }
     }
 
     public class Configuration : IConfiguration
     {
-        private readonly SettingReader _reader;
-        private readonly SettingWriter _writer;
+        private readonly IList<IDatastore> _datastores = new List<IDatastore>();
 
-        private readonly IDictionary<IEquatable<IIdentifier>, SettingContainer> _containers = new Dictionary<IEquatable<IIdentifier>, SettingContainer>();
+        private readonly JsonSerializerSettings _jsonSerializerSettings;
 
-        public Configuration(IEnumerable<IDatastore> datastores) : this(datastores, DefaultConverter) { }
+        // <actual-name, datastore>
+        private readonly IDictionary<CaseInsensitiveString, IDatastore> _settingDatastores = new Dictionary<CaseInsensitiveString, IDatastore>();
 
-        public Configuration(IEnumerable<IDatastore> datastores, TypeConverter converter)
+        private readonly IDictionary<CaseInsensitiveString, IEnumerable<ValidationAttribute>> _settingValidations = new Dictionary<CaseInsensitiveString, IEnumerable<ValidationAttribute>>();
+
+        // <full-name, actual-name>
+        private readonly IDictionary<CaseInsensitiveString, CaseInsensitiveString> _actualNames = new Dictionary<CaseInsensitiveString, CaseInsensitiveString>();
+
+        public Configuration(JsonSerializerSettings jsonSerializerSettings = null)
         {
-            datastores = datastores.ToList();
-            var duplicateDatastores = datastores.GroupBy(x => x, new DatastoreComparer()).Where(g => g.Count() > 1).Select(g => g.Key.Name).ToList();
-            if (duplicateDatastores.Any()) { throw new DuplicateDatatastoreException(duplicateDatastores); }
-
-            var datastoreCache = new DatastoreCache();
-            var settingConverter = new SettingConverter(converter);
-            _reader = new SettingReader(datastoreCache, settingConverter, datastores);
-            _writer = new SettingWriter(datastoreCache, settingConverter);
+            _jsonSerializerSettings = jsonSerializerSettings ?? new JsonSerializerSettings();
         }
-
-        public static ConfigurationBuilder Builder => new ConfigurationBuilder();
-
-        public static readonly TypeConverter DefaultConverter = TypeConverterFactory.CreateDefaultConverter();
 
         //public Action<string> Log { get; set; } // for future use
 
         //private void OnLog(string message) => Log?.Invoke(message); // for future use
 
-        public TContainer Get<TContainer>(IIdentifier id, bool cached) where TContainer : class, new()
+        public Configuration AddDatastore(IDatastore datastore)
         {
-            var container = GetContainer<TContainer>(id);
-            return _reader.Read(container, cached).As<TContainer>();
+            _datastores.Add(datastore);
+            return this;
         }
 
-        private SettingContainer GetContainer<TContainer>(IIdentifier identifier) where TContainer : class, new()
+        public Configuration AddValidation(CaseInsensitiveString name, params ValidationAttribute[] validations)
         {
-            return _containers.TryGetValue(identifier, out var container) ? container : Cache(SettingContainer.Create<TContainer>(identifier));
+            return this;
         }
 
-        private SettingContainer Cache(SettingContainer settingContainer)
+        public T GetValue<T>(CaseInsensitiveString name)
         {
-            _containers.Add(settingContainer, settingContainer);
-            return settingContainer;
-        }
+            var names = name.GenerateNames();
 
-        public void Save()
-        {
-            foreach (var container in _containers.Values)
+            var setting =
+                _datastores
+                    .Select(datastore => datastore.Read(names))
+                    .FirstOrDefault(Conditional.IsNotNull) ?? throw new DatastoreNotFoundException(names);
+
+            _actualNames[name] = setting.Name;
+
+            switch (setting.Value)
             {
-                _writer.Write(container);
+                case T value: return value;
+                case string value: return JsonConvert.DeserializeObject<T>(value, _jsonSerializerSettings);
+                default: throw new ArgumentException($"Unsupported value type '{typeof(T).Name}'.");
             }
         }
+
+        public void Save(CaseInsensitiveString name, object value)
+        {
+            if (_actualNames.TryGetValue(name, out var actualName) && _settingDatastores.TryGetValue(actualName, out var datastore))
+            {
+                var setting = new Entity
+                {
+                    Name = actualName,
+                    Value = datastore.CustomTypes.Contains(value.GetType()) ? value : JsonConvert.SerializeObject(value, _jsonSerializerSettings)
+                };
+                datastore.Write(setting);
+            }
+            else
+            {
+                throw new ArgumentException("Setting not initialized.");
+            }
+        }
+    }
+
+    public static class NameGenerator
+    {
+        // language=regexp
+        private const string NamePattern = @"(?:(?<Namespace>[a-z0-9_.]+)\+)?(?:(?<Type>[a-z0-9_]+)\.)?(?<Name>[a-z0-9_]+)(?:&(?<Instance>[a-z0-9_]+))?";
+
+        public static IEnumerable<CaseInsensitiveString> GenerateNames([NotNull] this CaseInsensitiveString name)
+        {
+
+            /*
+            
+            Paths in order of resolution
+            
+            Program.Environment&Foo
+            Environment&Foo
+            TheApp+Program.Environment&Foo
+
+            Program.Environment
+            Environment
+            TheApp+Program.Environment
+
+             */
+
+            var match = Regex.Match(name.ToString(), NamePattern, RegexOptions.IgnoreCase);
+            if (!match.Success)
+            {
+                throw new ArgumentException("Invalid name.");
+            }
+
+            if (match.Groups["Instance"].Success)
+            {
+                yield return $"{match.Groups["Type"].Value}.{match.Groups["Name"].Value}&{match.Groups["Instance"].Value}";
+                yield return $"{match.Groups["Name"].Value}&{match.Groups["Instance"].Value}";
+                yield return $"{match.Groups["Namespace"].Value}+{match.Groups["Type"].Value}.{match.Groups["Name"].Value}&{match.Groups["Instance"].Value}";
+            }
+
+            yield return $"{match.Groups["Type"].Value}.{match.Groups["Name"].Value}";
+            yield return $"{match.Groups["Name"].Value}";
+            yield return $"{match.Groups["Namespace"].Value}+{match.Groups["Type"].Value}.{match.Groups["Name"].Value}";
+        }
+    }
+
+    public static class CaseInsensitiveStringExtensions
+    {
+        public static string ToJson(this IEnumerable<CaseInsensitiveString> names)
+        {
+            return $"[{string.Join(", ", names.Select(name => name.ToString()))}]";
+        }
+    }
+
+    public class DatastoreNotFoundException : Exception
+    {
+        public DatastoreNotFoundException(IEnumerable<CaseInsensitiveString> names)
+            : base($"Could not find [{string.Join(", ", names.Select(n => n.ToString()))}]")
+        { }
     }
 
     public class DuplicateDatatastoreException : Exception

@@ -84,10 +84,10 @@ namespace Reusable.SmartConfig.Datastores.TehCodez
                 {
                     if (!_registryValueKinds.TryGetValue(setting.Value.GetType(), out RegistryValueKind registryValueKind))
                     {
-                        throw new InvalidTypeException(setting.Value.GetType(), SupportedTypes);
+                        throw new InvalidTypeException(setting.Value.GetType(), CustomTypes);
                     }
 
-                    subKey.SetValue(setting.Id.ToString(), setting.Value, registryValueKind);
+                    subKey.SetValue(setting.Name.ToString(), setting.Value, registryValueKind);
                     settingsAffected++;
                 }
             }

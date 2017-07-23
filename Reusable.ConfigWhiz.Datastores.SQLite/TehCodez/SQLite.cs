@@ -111,7 +111,7 @@ namespace Reusable.ConfigWhiz.Datastores
                         setting.Value = ((string)setting.Value).Recode(SettingEncoding, DataEncoding);
                     }
 
-                    using (var insertCommand = _settingCommandFactory.CreateInsertCommand(connection, setting.Id, setting.Value, _where))
+                    using (var insertCommand = _settingCommandFactory.CreateInsertCommand(connection, setting.Name, setting.Value, _where))
                     {
                         insertCommand.Transaction = transaction;
                         insertCommand.Prepare();

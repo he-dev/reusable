@@ -29,7 +29,7 @@ namespace Reusable.SmartConfig.Datastores.Tests
 
             foreach (var setting in SettingFactory.ReadSettings())
             {
-                exeConfiguration.AppSettings.Settings.Add(setting.Id.ToString(), setting.Value.ToString());
+                exeConfiguration.AppSettings.Settings.Add(setting.Name.ToString(), setting.Value.ToString());
             }            
 
             exeConfiguration.Save(ConfigurationSaveMode.Minimal);
