@@ -28,6 +28,8 @@ namespace Reusable
 
         public int Length => value.Length;
 
+        public static CaseInsensitiveString Create(string value) => new CaseInsensitiveString(value);
+
         public bool StartsWith(string value) => this.value.StartsWith(value, StringComparison.OrdinalIgnoreCase);
 
         public bool EndsWith(string value) => this.value.EndsWith(value, StringComparison.OrdinalIgnoreCase);

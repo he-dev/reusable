@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using Reusable.Collections;
+using Reusable.Extensions;
 using Reusable.SmartConfig.Data;
 
 namespace Reusable.SmartConfig.Datastores.AppConfig
@@ -20,22 +21,25 @@ namespace Reusable.SmartConfig.Datastores.AppConfig
 
         public AppSettings() : base(CreateDefaultName<AppSettings>(), new[] { typeof(string) }) { }
 
-        protected override ICollection<IEntity> ReadCore(IIdentifier id)
+        protected override IEntity ReadCore(IEnumerable<CaseInsensitiveString> names)
         {
             var exeConfig = OpenExeConfiguration();
 
-            var keys = exeConfig.AppSettings.Settings.AllKeys.Select(Identifier.Parse).Where(x => x.StartsWith(id));
-            var settings =
-                from k in keys
-                select new Entity
+            var result =
+                (from n in names
+                 let v = exeConfig.AppSettings.Settings[n.ToString()].Value
+                 where !string.IsNullOrEmpty(v)
+                 select (Name: n, Value: v)).FirstOrDefault();
+
+            return
+                result.Value.IsNullOrEmpty() ? null : new Entity
                 {
-                    Id = k,
-                    Value = exeConfig.AppSettings.Settings[k.ToString()].Value
+                    Name = result.Name,
+                    Value = result.Value
                 };
-            return settings.Cast<IEntity>().ToList();
         }
 
-        protected override int WriteCore(IGrouping<IIdentifier, IEntity> settings)
+        protected override void WriteCore(IEntity setting)
         {
             var exeConfig = OpenExeConfiguration();
 

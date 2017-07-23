@@ -56,7 +56,6 @@
     <Compile Include="TehCodez\Collections\DatastoreComparer.cs" />
     <Compile Include="TehCodez\Configuration.cs" />
     <Compile Include="TehCodez\Data\EntityProperty.cs" />
-    <Compile Include="TehCodez\Converters\EnumerableToDictionaryConverter.cs" />
     <Compile Include="TehCodez\Datastore.cs" />
     <Compile Include="TehCodez\Datastores\Memory.cs" />
     <Compile Include="TehCodez\Extensions\StringExtensions.cs" />

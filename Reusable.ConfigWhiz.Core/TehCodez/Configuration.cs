@@ -76,6 +76,7 @@ namespace Reusable.SmartConfig
 
         public Configuration AddValidation(CaseInsensitiveString name, params ValidationAttribute[] validations)
         {
+            _settingValidations[name] = validations;
             return this;
         }
 
@@ -87,6 +88,8 @@ namespace Reusable.SmartConfig
                 _datastores
                     .Select(datastore => datastore.Read(names))
                     .FirstOrDefault(Conditional.IsNotNull) ?? throw new DatastoreNotFoundException(names);
+
+            //if(_actualNames)
 
             _actualNames[name] = setting.Name;
 
