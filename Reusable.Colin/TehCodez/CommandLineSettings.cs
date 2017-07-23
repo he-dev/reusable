@@ -1,17 +1,17 @@
 using System;
 using System.Globalization;
 using JetBrains.Annotations;
-using Reusable.CommandLine.Logging;
-using Reusable.CommandLine.Logging.Loggers;
+using Reusable.Logging.Loggex;
+using Reusable.Logging.Loggex.Recorders;
 
 namespace Reusable.CommandLine
 {
     public class CommandLineSettings
     {
-        [NotNull] private ILogger _logger = new NullLogger();
-        [NotNull] private CultureInfo _culture = CultureInfo.InvariantCulture;        
+        [NotNull] private ILogger _logger;
 
-        [PublicAPI]
+        [NotNull] private CultureInfo _culture;
+
         [NotNull]
         public ILogger Logger
         {
@@ -19,8 +19,7 @@ namespace Reusable.CommandLine
             set => _logger = value ?? throw new ArgumentNullException(nameof(Logger));
         }
 
-        [PublicAPI]
-        [CanBeNull]
+        [NotNull]
         public CultureInfo Culture
         {
             get => _culture;
@@ -30,7 +29,18 @@ namespace Reusable.CommandLine
         [NotNull]
         public static CommandLineSettings Default => new CommandLineSettings
         {
-            Logger = new ConsoleLogger(),
+            Logger = Logging.Loggex.Logger.Create("CommandLine", new LoggerConfiguration
+            {
+                Recorders = { new ConsoleRecorder() },
+                Filters =
+                {
+                    new LogFilter
+                    {
+                        LogLevel = LogLevel.Debug,
+                        Recorders = { "Console" }
+                    }
+                }
+            }),
             Culture = CultureInfo.InvariantCulture
         };
     }

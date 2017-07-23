@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.TypeConversion</id>
-    <version>3.42.0</version>
+    <version>3.50.3</version>
     <title>Reusable.TypeConversion</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -15,8 +15,8 @@
     <copyright>Copyright 2016 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
-      <dependency id="Newtonsoft.Json" version="10.0.2" />
-      <dependency id="Reusable.Core" version="3.42.0" />
+      <dependency id="Newtonsoft.Json" version="10.0.3" />
+      <dependency id="Reusable.Core" version="3.50.3" />
     </dependencies>
   </metadata>
   <files>

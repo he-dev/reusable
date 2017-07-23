@@ -1,44 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Reusable.Logging.ComputedProperties;
+﻿using System.Collections.Generic;
+using Reusable.Logging.Loggex.ComputedProperties;
 
-namespace Reusable.Logging
+namespace Reusable.Logging.Loggex
 {
-    public class LogEntry : Dictionary<string, object>
+    public class LogEntry : Dictionary<CaseInsensitiveString, object>
     {
-        public LogEntry(LogLevel logLevel) : base(StringComparer.OrdinalIgnoreCase)
+        private LogEntry() { }
+
+        public static LogEntry Create(LogLevel logLevel = LogLevel.Info)
         {
-            this[nameof(LogLevel)] = logLevel;
+            return
+                new LogEntry()
+                    .LogLevel(logLevel)
+                    .SetProperty(new Now())
+                    .SetProperty(new UtcNow())
+                    .SetProperty(new ThreadId());
         }
-
-        public LogEntry(LogEntry logEntry) : base(logEntry, StringComparer.OrdinalIgnoreCase)
-        { }
-
-        public LogLevel LogLevel => (LogLevel)this[nameof(LogLevel)];
-
-        //public static Func<DateTime>
-
-        public static LogEntry New() => CreateLogEntry(LogLevel.Info).Info();
-
-        private static LogEntry CreateLogEntry(LogLevel logLevel)
-        {
-            return 
-                new LogEntry(logLevel)
-                    .SetValue(new Now())
-                    .SetValue(new UtcNow())
-                    .SetValue(new ThreadId());
-        }
-    }
-
-    public class AutoLogEntry : LogEntry, IDisposable
-    {
-        private readonly ILogger _logger;
-
-        public AutoLogEntry(LogEntry logEntry, ILogger logger) : base(logEntry) => _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
-        public void Dispose() => this.Log(_logger);
     }
 }

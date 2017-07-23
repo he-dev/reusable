@@ -58,12 +58,13 @@ namespace Reusable.CommandLine
             {
                 throw new ArgumentException($"A command with the name {name} already exists.");
             }
+
             if (!name.Any())
             {
                 throw new ArgumentException("Command name must not be empty.");
             }
 
-            return new CommandContainer(commandContainer.Add(name, new CommandMetadata(name, command, parameterType)));
+            return new CommandContainer(commandContainer.Add(name, new ConsoleCommand(command, name, parameterType)));
         }        
     }
 }

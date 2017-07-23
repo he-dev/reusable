@@ -40,7 +40,7 @@
       <HintPath>..\packages\JetBrains.Annotations.10.4.0\lib\net\JetBrains.Annotations.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections.Immutable, Version=1.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -64,15 +64,10 @@
     <Compile Include="TehCodez\Collections\ImmutableNameSet.cs" />
     <Compile Include="TehCodez\CommandContainerBuilder.cs" />
     <Compile Include="TehCodez\CommandLineSettings.cs" />
+    <Compile Include="TehCodez\Commands\ConsoleCommand.cs" />
     <Compile Include="TehCodez\Data\CommandLineArgumentExtensions.cs" />
-    <Compile Include="TehCodez\Data\CommandMetadata.cs" />
+    <Compile Include="TehCodez\Data\ConsoleContext.cs" />
     <Compile Include="TehCodez\Data\ParameterMetadata.cs" />
-    <Compile Include="TehCodez\Logging\ILogger.cs" />
-    <Compile Include="TehCodez\Logging\LoggerExtensions.cs" />
-    <Compile Include="TehCodez\Logging\Loggers\ConsoleLogger.cs" />
-    <Compile Include="TehCodez\Logging\Loggers\NullLogger.cs" />
-    <Compile Include="TehCodez\Logging\LogLevel.cs" />
-    <Compile Include="TehCodez\Data\CommandContext.cs" />
     <Compile Include="TehCodez\CommandLineExecutor.cs" />
     <Compile Include="TehCodez\Services\CommandLineTokenizer.cs" />
     <Compile Include="TehCodez\Data\ArgumentMetadata.cs" />
@@ -97,6 +92,10 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <ProjectReference Include="..\Reusable.Logging\Reusable.Logging.Loggex.csproj">
+      <Project>{eb8d2ed6-beb3-4d35-b03d-508f95a9341f}</Project>
+      <Name>Reusable.Logging.Loggex</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Reusable.TypeConversion\Reusable.TypeConversion.csproj">
       <Project>{d7da0768-b385-40de-abac-0a6b0c5b73f4}</Project>
       <Name>Reusable.TypeConversion</Name>

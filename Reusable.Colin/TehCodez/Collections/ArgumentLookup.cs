@@ -17,6 +17,8 @@ namespace Reusable.CommandLine.Collections
 
         private string DebuggerDisplay => this.ToCommandLineString("-:");
 
+        public static ArgumentLookup Empty => new ArgumentLookup();
+
         #region ILookup
 
         public IEnumerable<string> this[IImmutableNameSet name] => _arguments.TryGetValue(name, out var argument) ? argument : Enumerable.Empty<string>();

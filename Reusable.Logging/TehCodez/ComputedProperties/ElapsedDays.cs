@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace Reusable.Logging.ComputedProperties
+namespace Reusable.Logging.Loggex.ComputedProperties
 {
     public class ElapsedDays : Elapsed
     {
-        protected override double ComputeCore(TimeSpan elapsed) => elapsed.TotalDays;
+        protected override double Compute(TimeSpan elapsed) => elapsed.TotalDays;
     }
 }

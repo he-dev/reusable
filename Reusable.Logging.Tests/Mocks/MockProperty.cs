@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Reusable.Logging.Tests.Mocks
+﻿namespace Reusable.Logging.Loggex.Tests.Mocks
 {
     class MockProperty : ComputedProperty
     {

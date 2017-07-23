@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
 using Reusable.CommandLine.Collections;
 using Reusable.CommandLine.Data;
-using Reusable.CommandLine.Logging;
 using Reusable.CommandLine.Services;
+using Reusable.CommandLine.Commands;
+using Reusable.Logging.Loggex;
 
 namespace Reusable.CommandLine
 {
@@ -16,36 +16,58 @@ namespace Reusable.CommandLine
 
         [PublicAPI]
         [ContractAnnotation("commands: null => halt; text: null => halt")]
-        public static void Execute([NotNull] this CommandContainer commands, [NotNull] string text, CommandLineSettings settings = null)
+        public static bool Execute([NotNull] this string text, [NotNull] CommandContainer commands, CommandLineSettings settings = null)
         {
             settings = settings ?? CommandLineSettings.Default;
 
             var executables =
-                Tokenizer.Tokenize(text)
-                    .PrependCommandName(commands)
+                Tokenizer
+                    .Tokenize(text)
+                    //.PrependCommandName(commands)
                     .Parse()
-                    .Select(argument => (Argument: argument, CommandMetadata: commands.Find(argument.CommandName())))
-                    .ToLookup(x => x.CommandMetadata != null);
+                    .Select(argument => (Argument: argument, Command: commands.Find(argument.CommandName())))
+                    .ToLookup(IsExecutable);
 
-            if (executables[false].Any())
+            if (executables.Any())
             {
-                var nonExecutable = executables[false].Select(x => x.Argument.ToCommandLineString("-:"));
-                settings.Logger.Error($"Command not found. Arguments: [{string.Join(" | ", nonExecutable)}]");
-                return;
+                if (executables[false].Any())
+                {
+                    var nonExecutable = executables[false].Select(x => x.Argument.ToCommandLineString("-:"));
+                    settings.Logger.Log(e => e.Error().Message($"Command not found. Arguments: [{string.Join(" | ", nonExecutable)}]"));
+                    return false;
+                }
+                else
+                {
+                    foreach (var executable in executables[true])
+                    {
+                        executable.Command.Execute(new ConsoleContext(executable.Argument, settings.Culture, commands, settings.Logger));
+                    }
+                    return true;
+                }
+            }
+            else
+            {
+                var primaryCommands = commands.PrimaryCommands().ToList();
+                if (primaryCommands.Count == 1)
+                {
+                    primaryCommands.Single().Execute(new ConsoleContext(ArgumentLookup.Empty, settings.Culture, commands, settings.Logger));
+                    return true;
+                }
+                else
+                {
+                    settings.Logger.Log(e => e.Error().Message("Command not found."));
+                    return false;
+                }
             }
 
-            foreach (var executable in executables[true])
-            {
-                var parameter = CommandParameterFactory.CreateParameter(executable.CommandMetadata.Parameter, executable.Argument, settings.Culture);
-                executable.CommandMetadata.Command.Execute(new CommandContext(parameter, commands, settings.Logger));                
-            }
+            bool IsExecutable((ArgumentLookup Arguments, IConsoleCommand Command) t) => t.Command != null;
         }
 
         [PublicAPI]
         [ContractAnnotation("=> halt")]
-        public static void Execute([NotNull] this CommandContainer commands, [NotNull] IEnumerable<string> args, CommandLineSettings settings = null)
+        public static void Execute([NotNull] this IEnumerable<string> args, [NotNull] CommandContainer commands, CommandLineSettings settings = null)
         {
-            commands.Execute(string.Join(" ", args ?? throw new ArgumentNullException(nameof(args))), settings);
+            string.Join(" ", args ?? throw new ArgumentNullException(nameof(args))).Execute(commands, settings);
         }
 
         // Prepends command name to the collection of tokens when there is only one command. It's considered as default.

@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.CommandLine.Services;
 using Reusable.Fuse;
 using Reusable.Fuse.Testing;
+using Reusable.TestTools.UnitTesting.AssertExtensions.TehCodez;
 
 namespace Reusable.CommandLine.Tests.Services
 {
@@ -15,7 +16,7 @@ namespace Reusable.CommandLine.Tests.Services
         public void Tokenize_Empty_Empty()
         {
             var tokens = Tokenizer.Tokenize(string.Empty).ToList();
-            Assert.IsFalse(tokens.Any());
+            Assert.That.IsEmpty(tokens);
         }
 
         [TestMethod]

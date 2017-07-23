@@ -65,7 +65,7 @@ namespace Reusable.Drawing
 
         public static Color32 Parse(string value)
         {
-            if (TryParse(value, out Color32 color)) return color; else throw new FormatException($"Unknown color format: '{color}'");
+            if (TryParse(value, out Color32 color)) return color; else throw new FormatException($"Unknown color format: '{color.ToString()}'");
         }
 
         public static bool TryParse(string value, out Color32 color)

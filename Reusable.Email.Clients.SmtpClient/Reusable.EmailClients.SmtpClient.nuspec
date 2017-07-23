@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.EmailClients.SmtpClient</id>
-    <version>3.42.0</version>
+    <version>3.50.3</version>
     <title>Reusable.EmailClients.SmtpClient</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -15,7 +15,7 @@
     <copyright>Copyright 2017 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
-      <dependency id="Reusable.Email" version="3.42.0" />
+      <dependency id="Reusable.Email" version="3.50.3" />
     </dependencies>
   </metadata>
   <files>

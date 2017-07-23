@@ -46,7 +46,7 @@ namespace Reusable.CommandLine.Services
                     .Select(p => new ArgumentMetadata(ImmutableNameSetFactory.CreateParameterNameSet(p), p));
         }
 
-        public static object CreateParameter(ParameterMetadata parameter, ArgumentLookup arguments, CultureInfo culture)
+        public static object CreateParameter(ParameterMetadata parameter, ConsoleContext context)
         {
             if (parameter.ParameterType == null)
             {
@@ -58,7 +58,7 @@ namespace Reusable.CommandLine.Services
             // ReSharper disable once PossibleNullReferenceException
             foreach (var property in parameter)
             {
-                if (!arguments.Contains(property))
+                if (!context.Arguments.Contains(property))
                 {
                     if (property.Required)
                     {
@@ -67,13 +67,19 @@ namespace Reusable.CommandLine.Services
                     //continue;
                 }
 
-                var values = arguments.Parameter(property).ToList();
+                var values = context.Arguments.Parameter(property).ToList();
 
                 if (TryGetParameterData(property, values, out (object data, Type dataType) result))
                 {
-                    var value = DefaultConverter.Convert(result.data, result.dataType, null, culture);
+                    var value = DefaultConverter.Convert(result.data, result.dataType, null, context.Culture);
                     property.Property.SetValue(instance, value);
                 }
+            }
+
+            if (instance is ConsoleCommandParameter consoleParameter)
+            {
+                consoleParameter.Commands = context.Commands;
+                consoleParameter.Logger = context.Logger;
             }
 
             return instance;

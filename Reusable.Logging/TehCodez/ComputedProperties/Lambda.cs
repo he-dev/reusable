@@ -1,19 +1,17 @@
 ﻿using System;
+using JetBrains.Annotations;
 
-namespace Reusable.Logging.ComputedProperties
+namespace Reusable.Logging.Loggex.ComputedProperties
 {
-    internal class Lambda : IComputedProperty
+    internal class Lambda : ComputedProperty
     {
         private readonly Func<LogEntry, object> _compute;
 
-        public Lambda(string name, Func<LogEntry, object> compute)
+        public Lambda(CaseInsensitiveString name, [NotNull] Func<LogEntry, object> compute) : base(name)
         {
-            Name = name;
-            _compute = compute;
+            _compute = compute ?? throw new ArgumentNullException(nameof(compute));
         }
 
-        public string Name { get; }
-
-        public object Compute(LogEntry logEntry) => _compute(logEntry);
+        public override object Compute(LogEntry logEntry) => _compute(logEntry);
     }
 }

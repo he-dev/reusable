@@ -21,7 +21,8 @@ namespace Reusable.CommandLine.Tests
             var commands = CommandContainer.Empty.Add(foo);
             var result = commands.Find(ImmutableNameSet.Create("foo"));
             Assert.IsNotNull(result);
-            Assert.AreSame(foo, result.Command);
+            Assert.AreEqual(ImmutableNameSet.Create("foo"), result.Name);
+            //Assert.AreSame(foo, result);
         }
 
         [TestMethod]
@@ -31,11 +32,12 @@ namespace Reusable.CommandLine.Tests
             var commands = CommandContainer.Empty.Add(foo).Add<BarCommand>();
             var result = commands.Find(ImmutableNameSet.Create("foo"));
             Assert.IsNotNull(result);
-            Assert.AreSame(foo, result.Command);
+            Assert.AreEqual(ImmutableNameSet.Create("foo"), result.Name);
+            //Assert.AreSame(foo, result);
         }
 
-        private class FooCommand : TestCommand { }
+        private class FooCommand : Commnads.FooCommand { }
 
-        private class BarCommand : TestCommand { }
+        private class BarCommand : Commnads.FooCommand { }
     }
 }

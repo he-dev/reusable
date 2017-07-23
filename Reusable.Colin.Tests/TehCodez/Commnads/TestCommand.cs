@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows.Input;
 
 namespace Reusable.CommandLine.Tests.Commnads
@@ -7,8 +8,17 @@ namespace Reusable.CommandLine.Tests.Commnads
     {
         public event EventHandler CanExecuteChanged;
 
-        public virtual bool CanExecute(object parameter) => throw new NotImplementedException();
+        public IList<object> ExecuteLog { get; } = new List<object>();
 
-        public virtual void Execute(object parameter) => throw new NotImplementedException();
+        public bool CanExecute(object parameter) => true;
+
+        public virtual void Execute(object parameter)
+        {
+            ExecuteLog.Add(parameter);
+        }
     }
+
+    internal class FooCommand : TestCommand { }
+
+    internal class BarCommand : TestCommand { }
 }

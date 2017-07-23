@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Reusable.TestBase.Collections
+namespace Reusable.TestTools.UnitTesting.Infrastructure.Collections
 {
     public abstract class EqualityComparerTest<T>
     {

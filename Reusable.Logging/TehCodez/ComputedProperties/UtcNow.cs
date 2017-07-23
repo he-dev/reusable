@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Reusable.Logging.ComputedProperties
+namespace Reusable.Logging.Loggex.ComputedProperties
 {
     public class UtcNow : ComputedProperty
     {

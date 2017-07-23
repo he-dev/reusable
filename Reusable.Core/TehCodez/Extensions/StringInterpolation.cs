@@ -70,6 +70,22 @@ namespace Reusable.Extensions
         [Pure]
         [CanBeNull]
         [ContractAnnotation("text: null => null; data: null => stop")]
+        public static string Format(this string text, IDictionary<CaseInsensitiveString, object> data, IFormatProvider formatProvider = null)
+        {
+            if (string.IsNullOrEmpty(text)) { return text; }
+            if (data == null) { throw new ArgumentNullException(nameof(data)); }
+
+            bool TryGetValue(string name, out object value)
+            {
+                return data.TryGetValue(name, out value);
+            }
+
+            return Format(text, TryGetValue, formatProvider);           
+        }
+
+        [Pure]
+        [CanBeNull]
+        [ContractAnnotation("text: null => null; data: null => stop")]
         public static string Format(this string text, object data, IFormatProvider formatProvider = null)
         {
             if (string.IsNullOrEmpty(text)) { return text; }
