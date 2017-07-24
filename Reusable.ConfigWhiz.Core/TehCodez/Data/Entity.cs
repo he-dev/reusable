@@ -5,6 +5,7 @@ namespace Reusable.SmartConfig.Data
     public interface IEntity
     {
         CaseInsensitiveString Name { get; set; }
+
         object Value { get; set; }
     }
 
@@ -15,6 +16,10 @@ namespace Reusable.SmartConfig.Data
 
         public object Value { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
-        private string DebuggerDisplay => Name.ToString();
+        private string DebuggerDisplay => ToString();
+
+        public override string ToString() => Name.ToString();
+
+        public static implicit operator string(Entity entity) => entity.ToString();
     }
 }

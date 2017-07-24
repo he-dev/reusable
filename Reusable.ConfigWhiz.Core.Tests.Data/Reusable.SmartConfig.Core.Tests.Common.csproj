@@ -54,15 +54,10 @@
   <ItemGroup>
     <Compile Include="TehCodez\Configurations\EmptyConfiguration.cs" />
     <Compile Include="TehCodez\Configurations\NonExistingConfiguration.cs" />
-    <Compile Include="TehCodez\Configurations\CollectionConfiguration.cs" />
     <Compile Include="TehCodez\Configurations\LiteralConfiguration.cs" />
     <Compile Include="TehCodez\Configurations\OtherConfiguration.cs" />
     <Compile Include="TehCodez\Configurations\DrawingConfiguration.cs" />
-    <Compile Include="TehCodez\Configurations\RenamedConfiguration.cs" />
-    <Compile Include="TehCodez\Configurations\SimpleConfiguration.cs" />
-    <Compile Include="TehCodez\Configurations\TestContainer1.cs" />
-    <Compile Include="TehCodez\Configurations\TestContainer2.cs" />
-    <Compile Include="TehCodez\Configurations\NumericConfiguration.cs" />
+    <Compile Include="TehCodez\Configurations\Numeric.cs" />
     <Compile Include="TehCodez\TestEnum.cs" />
     <Compile Include="TehCodez\TestConsumer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -25,14 +25,19 @@ namespace Reusable.SmartConfig
     public abstract class Datastore : IDatastore
     {
         private static volatile int _instanceCounter;
+        private string _name;
 
-        protected Datastore(string name, IEnumerable<Type> supportedTypes)
+        protected Datastore(IEnumerable<Type> supportedTypes)
         {
-            Name = name.NullIfEmpty() ?? throw new ArgumentNullException(nameof(name));
+            Name = CreateDefaultName(GetType());
             CustomTypes = (supportedTypes ?? throw new ArgumentNullException(nameof(supportedTypes))).ToImmutableHashSet();
         }
 
-        public string Name { get; }
+        public string Name
+        {
+            get => _name;
+            set => _name = value ?? throw new ArgumentNullException(nameof(Name));
+        }
 
         public IImmutableSet<Type> CustomTypes { get; }
 
@@ -64,9 +69,9 @@ namespace Reusable.SmartConfig
 
         protected abstract void WriteCore(IEntity setting);
 
-        protected static string CreateDefaultName<T>()
+        protected static string CreateDefaultName(Type datastoreType)
         {
-            return $"{typeof(T).Name}{_instanceCounter++}";
+            return $"{datastoreType.Name}{_instanceCounter++}";
         }
 
         public bool Equals(IDatastore other) => Equals(other?.Name); 

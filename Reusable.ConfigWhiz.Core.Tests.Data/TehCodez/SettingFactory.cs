@@ -15,7 +15,7 @@ namespace Reusable.SmartConfig.Tests.Common
                 from item in testData
                 select new Entity
                 {
-                    Id = Identifier.Parse(item.Key),
+                    Name = item.Key,
                     Value = item.Value
                 };
             return settings;

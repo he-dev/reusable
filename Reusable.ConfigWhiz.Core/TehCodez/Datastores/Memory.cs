@@ -10,15 +10,9 @@ namespace Reusable.SmartConfig.Datastores
 {
     public class Memory : Datastore, IEnumerable<IEntity>
     {
-        public Memory() : this(CreateDefaultName<Memory>()) { }
+        public Memory() : base(new[] { typeof(string) }) { }
 
-        public Memory(string name)
-            : base(name, new[] { typeof(string) })
-        { }
-
-        protected Memory(string name, IEnumerable<Type> supportedTypes)
-            : base(name, supportedTypes)
-        { }
+        protected Memory(IEnumerable<Type> supportedTypes) : base(supportedTypes) { }
 
         protected override IEntity ReadCore(IEnumerable<CaseInsensitiveString> names)
         {

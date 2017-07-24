@@ -3,7 +3,7 @@ using Reusable.Data.Annotations;
 
 namespace Reusable.SmartConfig.Tests.Common.Configurations
 {
-    public class NumericConfiguration
+    public class Numeric
     {
         public SByte SByte { get; set; }
         public Byte Byte { get; set; }

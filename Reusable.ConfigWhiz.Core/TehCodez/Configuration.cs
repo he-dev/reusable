@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
@@ -23,6 +24,32 @@ namespace Reusable.SmartConfig
 
     public static class ConfigurationExtensions
     {
+        public static IConfiguration SetValue<T>(this IConfiguration configuration, Expression<Func<T>> expression)
+        {
+            var value = configuration.GetValue(expression);
+
+            if (expression.Body is MemberExpression memberExpression)
+            {
+                if (memberExpression.Member.MemberType == MemberTypes.Property)
+                {
+                    if (memberExpression.Expression is MemberExpression anonymousMemberExpression)
+                    {
+                        // Extract constant value from the anonyous-wrapper
+                        if (anonymousMemberExpression.Member.MemberType == MemberTypes.Field)
+                        {
+                            var container = ((ConstantExpression)anonymousMemberExpression.Expression).Value;
+                            var obj = ((FieldInfo)anonymousMemberExpression.Member).GetValue(container);
+                            ((PropertyInfo)memberExpression.Member).SetValue(obj, value);
+                        }
+                    }
+                }
+            }
+
+            return configuration;
+        }
+
+
+
         public static T GetValue<T>(this IConfiguration config, Expression<Func<T>> expression)
         {
             var memberExpr = expression.Body as MemberExpression ?? throw new ArgumentException("Expression must be a member expression.");
@@ -47,9 +74,7 @@ namespace Reusable.SmartConfig
 
     public class Configuration : IConfiguration
     {
-        private readonly IList<IDatastore> _datastores = new List<IDatastore>();
-
-        private readonly JsonSerializerSettings _jsonSerializerSettings;
+        private readonly IList<IDatastore> _datastores;
 
         // <actual-name, datastore>
         private readonly IDictionary<CaseInsensitiveString, IDatastore> _settingDatastores = new Dictionary<CaseInsensitiveString, IDatastore>();
@@ -59,19 +84,23 @@ namespace Reusable.SmartConfig
         // <full-name, actual-name>
         private readonly IDictionary<CaseInsensitiveString, CaseInsensitiveString> _actualNames = new Dictionary<CaseInsensitiveString, CaseInsensitiveString>();
 
-        public Configuration(JsonSerializerSettings jsonSerializerSettings = null)
+        private JsonSerializerSettings _jsonSerializerSettings;
+
+        public Configuration(params IDatastore[] datastores)
         {
-            _jsonSerializerSettings = jsonSerializerSettings ?? new JsonSerializerSettings();
+            _datastores = datastores;
         }
+
+        public Configuration(IEnumerable<IDatastore> datastores) : this(datastores.ToArray()) { }
 
         //public Action<string> Log { get; set; } // for future use
 
         //private void OnLog(string message) => Log?.Invoke(message); // for future use
 
-        public Configuration AddDatastore(IDatastore datastore)
+        public JsonSerializerSettings JsonSerializerSettings
         {
-            _datastores.Add(datastore);
-            return this;
+            get => _jsonSerializerSettings;
+            set => _jsonSerializerSettings = value ?? throw new ArgumentNullException(nameof(JsonSerializerSettings));
         }
 
         public Configuration AddValidation(CaseInsensitiveString name, params ValidationAttribute[] validations)
