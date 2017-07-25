@@ -11,7 +11,7 @@ namespace Reusable.SmartConfig
     public interface IDatastore : IEquatable<IDatastore>, IEquatable<string>
     {
         [NotNull]
-        string Name { get; }
+        CaseInsensitiveString Name { get; }
 
         [NotNull, ItemNotNull]
         IImmutableSet<Type> CustomTypes { get; }
@@ -25,7 +25,7 @@ namespace Reusable.SmartConfig
     public abstract class Datastore : IDatastore
     {
         private static volatile int _instanceCounter;
-        private string _name;
+        private CaseInsensitiveString _name;
 
         protected Datastore(IEnumerable<Type> supportedTypes)
         {
@@ -33,7 +33,7 @@ namespace Reusable.SmartConfig
             CustomTypes = (supportedTypes ?? throw new ArgumentNullException(nameof(supportedTypes))).ToImmutableHashSet();
         }
 
-        public string Name
+        public CaseInsensitiveString Name
         {
             get => _name;
             set => _name = value ?? throw new ArgumentNullException(nameof(Name));

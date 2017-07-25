@@ -159,11 +159,35 @@ namespace Reusable.SmartConfig
         }
     }
 
-    public static class SettingConverter
+    public interface ISettingConverter
     {
-        public static T To<T>(this IEntity setting)
+        T Deserialize<T>(object value);
+
+        object Serialize(object value);
+    }
+
+    public class JsonSettingConverter : ISettingConverter
+    {
+        private readonly JsonSerializerSettings _settings;
+
+        public JsonSettingConverter()
         {
-            return default(T);
+            
+        }
+
+        public T Deserialize<T>(object value)
+        {
+            switch (value)
+            {
+                case T x: return x;
+                case string x: return JsonConvert.DeserializeObject<T>(x, _settings);
+                default: throw new ArgumentException($"Unsupported value type '{typeof(T).Name}'.");
+            }
+        }
+
+        public object Serialize(object value)
+        {
+            return null;
         }
     }
 
@@ -231,12 +255,18 @@ namespace Reusable.SmartConfig
         {
             var names = settingName.GenerateNames();
 
-            var setting =
-                _datastores
-                    .Select(datastore => datastore.Read(names))
-                    .FirstOrDefault(Conditional.IsNotNull) ?? throw new SettingNotFoundException(names);
-
-            return setting;
+            if (datasourceName == null)
+            {
+                return
+                    _datastores
+                        .Select(datastore => datastore.Read(names))
+                        .FirstOrDefault(Conditional.IsNotNull);
+            }
+            else
+            {
+                var datastore = _datastores.SingleOrDefault(ds => ds.Name.Equals(datasourceName)) ?? throw new ArgumentException($"Datastore '{datasourceName.ToString()}' not found.");
+                return datastore.Read(names);
+            }
         }
 
         public void SaveValue(CaseInsensitiveString settingName, object value)
@@ -257,12 +287,22 @@ namespace Reusable.SmartConfig
         }
     }
 
+    [UsedImplicitly]
     public class SmartSettingAttribute : Attribute
     {
         // Name = "[member]" => the same as property/field
         public string Name { get; set; }
 
         public string Datasource { get; set; }
+
+        public SettingNameLevel NameLevel { get; set; }
+    }
+
+    public enum SettingNameLevel
+    {
+        One,
+        Two,
+        Three
     }
 
     public static class NameGenerator
