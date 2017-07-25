@@ -136,5 +136,82 @@ namespace Reusable.SmartConfig.Tests
         //    Assert.IsNotNull(numeric2);
         //    Assert.AreSame(numeric1, numeric2);
         //}
+
+        [TestMethod]
+        public void Load_InstanceMembers_OnTheType_Loaded()
+        {
+            var config = new Configuration(new Memory
+            {
+                { "PublicProperty", "a" },
+                { "PrivateProperty", "b" },
+                { "PublicField", "c" },
+                { "PrivateField", "d" },
+                { "PrivateReadOnlyField", "e" },
+            });
+
+            var x = new InstanceClass(config);
+
+            config.SetValue(() => x.PublicProperty);
+            config.SetValue(() => x.PublicField);
+
+            Assert.AreEqual("a", x.PublicProperty);
+            Assert.AreEqual("c", x.PublicField);
+        }
+
+        [TestMethod]
+        public void Load_InstanceMembers_InsideConstructor_Loaded()
+        {
+            var config = new Configuration(new Memory
+            {
+                { "PublicProperty", "a" },
+                { "PrivateProperty", "b" },
+                { "PublicField", "c" },
+                { "PrivateField", "d" },
+                { "PrivateReadOnlyField", "e" },
+            });
+
+            var x = new InstanceClass(config);
+
+            Assert.AreEqual("a", x.PublicProperty);
+            Assert.AreEqual("c", x.PublicField);
+        }
+
+
+
+        public class InstanceClass
+        {
+            public InstanceClass() { }
+            public InstanceClass(IConfiguration config)
+            {
+                config.SetValue(() => PublicProperty);
+                config.SetValue(() => PrivateProperty);
+                config.SetValue(() => PublicField);
+                config.SetValue(() => PrivateField);
+                config.SetValue(() => PrivateReadOnlyField);
+            }
+
+            public string PublicProperty { get; set; }
+
+            private string PrivateProperty { get; set; }
+
+            public string PublicField;
+
+            private string PrivateField;
+
+            private readonly string PrivateReadOnlyField;
+        }
+
+        public static class StaticClass
+        {
+            public static string PublicProperty { get; set; }
+
+            private static string PrivateProperty { get; set; }
+
+            public static string PublicField;
+
+            private static string PrivateField;
+
+            private static readonly string PrivateReadOnlyField;
+        }
     }
 }

@@ -22,33 +22,56 @@ namespace Reusable.SmartConfig
         void Save([NotNull] CaseInsensitiveString name, [NotNull] object value);
     }
 
+    public static class MemberSetter
+    {
+        public static void SetValue<T>([NotNull] this Expression<Func<T>> expression, object value)
+        {
+            if (expression == null) throw new ArgumentNullException(nameof(expression));
+            if (expression.Body is MemberExpression memberExpression)
+            {
+                var obj = GetObject(memberExpression.Expression);
+
+                switch (memberExpression.Member.MemberType)
+                {
+                    case MemberTypes.Property:
+                        ((PropertyInfo)memberExpression.Member).SetValue(obj, value);
+                        break;
+                    case MemberTypes.Field:
+                        ((FieldInfo)memberExpression.Member).SetValue(obj, value);
+                        break;
+                    default:
+                        throw new ArgumentException($"Member must be either a {nameof(MemberTypes.Property)} or a {nameof(MemberTypes.Field)}.");
+                }
+            }
+            else
+            {
+                throw new ArgumentException($"Expression must be a {nameof(MemberExpression)}.");
+            }
+        }
+
+        private static object GetObject(Expression expression)
+        {
+            if (expression is MemberExpression anonymousMemberExpression)
+            {
+                // Extract constant value from the anonyous-wrapper
+                var container = ((ConstantExpression)anonymousMemberExpression.Expression).Value;
+                return ((FieldInfo)anonymousMemberExpression.Member).GetValue(container);
+            }
+            else
+            {
+                return ((ConstantExpression)expression).Value;
+            }
+        }
+    }
+
     public static class ConfigurationExtensions
     {
         public static IConfiguration SetValue<T>(this IConfiguration configuration, Expression<Func<T>> expression)
         {
             var value = configuration.GetValue(expression);
-
-            if (expression.Body is MemberExpression memberExpression)
-            {
-                if (memberExpression.Member.MemberType == MemberTypes.Property)
-                {
-                    if (memberExpression.Expression is MemberExpression anonymousMemberExpression)
-                    {
-                        // Extract constant value from the anonyous-wrapper
-                        if (anonymousMemberExpression.Member.MemberType == MemberTypes.Field)
-                        {
-                            var container = ((ConstantExpression)anonymousMemberExpression.Expression).Value;
-                            var obj = ((FieldInfo)anonymousMemberExpression.Member).GetValue(container);
-                            ((PropertyInfo)memberExpression.Member).SetValue(obj, value);
-                        }
-                    }
-                }
-            }
-
+            expression.SetValue(value);
             return configuration;
         }
-
-
 
         public static T GetValue<T>(this IConfiguration config, Expression<Func<T>> expression)
         {
