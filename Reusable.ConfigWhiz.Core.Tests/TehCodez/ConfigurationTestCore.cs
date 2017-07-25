@@ -70,7 +70,7 @@ namespace Reusable.SmartConfig.Tests
                 //configuration.Get<TestConsumer, TestContainer1>();
             });
 
-            ex.InnerExceptions.First().Verify().IsInstanceOfType(typeof(DatastoreNotFoundException));
+            ex.InnerExceptions.First().Verify().IsInstanceOfType(typeof(SettingNotFoundException));
         }
 
         //[TestMethod]
@@ -153,9 +153,9 @@ namespace Reusable.SmartConfig.Tests
 
             config.SetValue(() => x.PublicProperty);
             config.SetValue(() => x.PublicField);
+            config.SetValue(() => x.PublicReadOnlyProperty);
 
-            Assert.AreEqual("a", x.PublicProperty);
-            Assert.AreEqual("c", x.PublicField);
+            CollectionAssert.AreEqual(new[] { "a", null, "c", null, null, "f" }, x.GetValues().ToList());
         }
 
         [TestMethod]
@@ -168,19 +168,38 @@ namespace Reusable.SmartConfig.Tests
                 { "PublicField", "c" },
                 { "PrivateField", "d" },
                 { "PrivateReadOnlyField", "e" },
+                { "PublicReadOnlyProperty", "f" },
             });
 
             var x = new InstanceClass(config);
 
-            Assert.AreEqual("a", x.PublicProperty);
-            Assert.AreEqual("c", x.PublicField);
+            CollectionAssert.AreEqual(new[] { "a", "b", "c", "d", "e", "f" }, x.GetValues().ToList());
         }
 
+        [TestMethod]
+        public void Load_StaticMembers_Loaded()
+        {
+            var config = new Configuration(new Memory
+            {
+                { "PublicProperty", "a" },
+                { "PrivateProperty", "b" },
+                { "PublicField", "c" },
+                { "PrivateField", "d" },
+                { "PrivateReadOnlyField", "e" },
+                { "PublicReadOnlyProperty", "f" },
+            });
 
+            config.SetValue(() => StaticClass.PublicProperty);
+            config.SetValue(() => StaticClass.PublicField);
+            config.SetValue(() => StaticClass.PublicReadOnlyProperty);
+
+            CollectionAssert.AreEqual(new[] { "a", null, "c", null, null, "f" }, StaticClass.GetValues().ToList());
+        }
 
         public class InstanceClass
         {
             public InstanceClass() { }
+
             public InstanceClass(IConfiguration config)
             {
                 config.SetValue(() => PublicProperty);
@@ -188,6 +207,7 @@ namespace Reusable.SmartConfig.Tests
                 config.SetValue(() => PublicField);
                 config.SetValue(() => PrivateField);
                 config.SetValue(() => PrivateReadOnlyField);
+                config.SetValue(() => PublicReadOnlyProperty);
             }
 
             public string PublicProperty { get; set; }
@@ -199,6 +219,18 @@ namespace Reusable.SmartConfig.Tests
             private string PrivateField;
 
             private readonly string PrivateReadOnlyField;
+
+            public string PublicReadOnlyProperty { get; }
+
+            public IEnumerable<object> GetValues()
+            {
+                yield return PublicProperty;
+                yield return PrivateProperty;
+                yield return PublicField;
+                yield return PrivateField;
+                yield return PrivateReadOnlyField;
+                yield return PublicReadOnlyProperty;
+            }
         }
 
         public static class StaticClass
@@ -212,6 +244,18 @@ namespace Reusable.SmartConfig.Tests
             private static string PrivateField;
 
             private static readonly string PrivateReadOnlyField;
+
+            public static string PublicReadOnlyProperty { get; }
+
+            public static IEnumerable<object> GetValues()
+            {
+                yield return PublicProperty;
+                yield return PrivateProperty;
+                yield return PublicField;
+                yield return PrivateField;
+                yield return PrivateReadOnlyField;
+                yield return PublicReadOnlyProperty;
+            }
         }
     }
 }

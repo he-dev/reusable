@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
@@ -17,16 +18,19 @@ namespace Reusable.SmartConfig
     public interface IConfiguration
     {
         [CanBeNull]
-        T GetValue<T>([NotNull] CaseInsensitiveString name);
+        T GetValue<T>([NotNull] CaseInsensitiveString settingName, [CanBeNull] CaseInsensitiveString datasourceName = null);
 
-        void Save([NotNull] CaseInsensitiveString name, [NotNull] object value);
+        [CanBeNull]
+        IEntity GetValue([NotNull] CaseInsensitiveString settingName, [CanBeNull] CaseInsensitiveString datasourceName = null);
+
+        void SaveValue([NotNull] CaseInsensitiveString settingName, [NotNull] object value);
     }
 
     public static class MemberSetter
     {
         public static void SetValue<T>([NotNull] this Expression<Func<T>> expression, object value)
         {
-            if (expression == null) throw new ArgumentNullException(nameof(expression));
+            if (expression == null) { throw new ArgumentNullException(nameof(expression)); }
             if (expression.Body is MemberExpression memberExpression)
             {
                 var obj = GetObject(memberExpression.Expression);
@@ -34,7 +38,21 @@ namespace Reusable.SmartConfig
                 switch (memberExpression.Member.MemberType)
                 {
                     case MemberTypes.Property:
-                        ((PropertyInfo)memberExpression.Member).SetValue(obj, value);
+                        var property = (PropertyInfo)memberExpression.Member;
+                        if (property.CanWrite)
+                        {
+                            ((PropertyInfo)memberExpression.Member).SetValue(obj, value);
+                        }
+                        else
+                        {
+                            var bindingFlags = BindingFlags.NonPublic | (obj == null ? BindingFlags.Static : BindingFlags.Instance);
+                            var backingField = (obj?.GetType() ?? property.DeclaringType).GetField($"<{property.Name}>k__BackingField", bindingFlags);
+                            if (backingField == null)
+                            {
+                                throw new BackingFieldNotFoundException(property.Name);
+                            }
+                            backingField.SetValue(obj, value);
+                        }
                         break;
                     case MemberTypes.Field:
                         ((FieldInfo)memberExpression.Member).SetValue(obj, value);
@@ -51,6 +69,11 @@ namespace Reusable.SmartConfig
 
         private static object GetObject(Expression expression)
         {
+            // This is a static class.
+            if (expression == null)
+            {
+                return null;
+            }
             if (expression is MemberExpression anonymousMemberExpression)
             {
                 // Extract constant value from the anonyous-wrapper
@@ -64,34 +87,83 @@ namespace Reusable.SmartConfig
         }
     }
 
+    public class BackingFieldNotFoundException : Exception
+    {
+        public BackingFieldNotFoundException(string propertyName)
+            : base($"Property {propertyName} does not have a backing field.")
+        { }
+    }
+
     public static class ConfigurationExtensions
     {
+        private const string NamespaceSeparator = "+";
+
+        private const string InstanceSeparator = ",";
+
         public static IConfiguration SetValue<T>(this IConfiguration configuration, Expression<Func<T>> expression)
         {
             var value = configuration.GetValue(expression);
+
+
+
             expression.SetValue(value);
             return configuration;
         }
 
         public static T GetValue<T>(this IConfiguration config, Expression<Func<T>> expression)
         {
-            var memberExpr = expression.Body as MemberExpression ?? throw new ArgumentException("Expression must be a member expression.");
-            var name = $"{memberExpr.Member.DeclaringType.Namespace}+{memberExpr.Member.DeclaringType.Name}.{memberExpr.Member.Name}";
-            return config.GetValue<T>(name);
+            var name = $"{expression.ToRootName()}";
+
+            var smartConfig = expression.GetSmartSettingAttribute();
+
+            name = smartConfig?.Name ?? name;
+
+            var setting = config.GetValue(name, smartConfig?.Datasource);
+
+            return default(T);
         }
 
         public static T GetValue<T>(this IConfiguration config, Expression<Func<T>> expression, string instance)
         {
-            var memberExpr = expression.Body as MemberExpression ?? throw new ArgumentException("Expression must be a member expression.");
-            var name = $"{memberExpr.Member.DeclaringType.Namespace}+{memberExpr.Member.DeclaringType.Name}.{memberExpr.Member.Name}&{instance}";
+            var name = $"{expression.ToRootName()}{InstanceSeparator}{instance}";
             return config.GetValue<T>(name);
         }
 
         public static Configuration AddValidation<T>(this Configuration config, Expression<Func<T>> expression, params ValidationAttribute[] validations)
         {
-            var memberExpr = expression.Body as MemberExpression ?? throw new ArgumentException("Expression must be a member expression.");
-            var name = $"{memberExpr.Member.DeclaringType.Namespace}+{memberExpr.Member.DeclaringType.Name}.{memberExpr.Member.Name}";
+            var name = $"{expression.ToRootName()}";
             return config.AddValidation(name, validations);
+        }
+
+        private static string ToRootName<T>(this Expression<Func<T>> expression)
+        {
+            var memberExpr = expression.Body as MemberExpression ?? throw new ArgumentException("Expression must be a member expression.");
+
+            // Namespace+Object.Property
+            return
+                $"{memberExpr.Member.DeclaringType.Namespace}" +
+                $"{NamespaceSeparator}" +
+                $"{memberExpr.Member.DeclaringType.Name}.{memberExpr.Member.Name}";
+        }
+
+        private static SmartSettingAttribute GetSmartSettingAttribute<T>(this Expression<Func<T>> expression)
+        {
+            var memberExpr = expression.Body as MemberExpression ?? throw new ArgumentException("Expression must be a member expression.");
+            return memberExpr.Member.GetCustomAttribute<SmartSettingAttribute>();
+        }
+
+        private static object GetDefaultValue<T>(this Expression<Func<T>> expression)
+        {
+            var memberExpr = expression.Body as MemberExpression ?? throw new ArgumentException("Expression must be a member expression.");
+            return memberExpr.Member.GetCustomAttribute<DefaultValueAttribute>()?.Value;
+        }
+    }
+
+    public static class SettingConverter
+    {
+        public static T To<T>(this IEntity setting)
+        {
+            return default(T);
         }
     }
 
@@ -114,7 +186,9 @@ namespace Reusable.SmartConfig
             _datastores = datastores;
         }
 
-        public Configuration(IEnumerable<IDatastore> datastores) : this(datastores.ToArray()) { }
+        public Configuration(IEnumerable<IDatastore> datastores)
+            : this(datastores.ToArray())
+        { }
 
         //public Action<string> Log { get; set; } // for future use
 
@@ -132,18 +206,18 @@ namespace Reusable.SmartConfig
             return this;
         }
 
-        public T GetValue<T>(CaseInsensitiveString name)
+        public T GetValue<T>(CaseInsensitiveString settingName, CaseInsensitiveString datasourceName)
         {
-            var names = name.GenerateNames();
+            var names = settingName.GenerateNames();
 
             var setting =
                 _datastores
                     .Select(datastore => datastore.Read(names))
-                    .FirstOrDefault(Conditional.IsNotNull) ?? throw new DatastoreNotFoundException(names);
+                    .FirstOrDefault(Conditional.IsNotNull) ?? throw new SettingNotFoundException(names);
 
             //if(_actualNames)
 
-            _actualNames[name] = setting.Name;
+            _actualNames[settingName] = setting.Name;
 
             switch (setting.Value)
             {
@@ -153,9 +227,21 @@ namespace Reusable.SmartConfig
             }
         }
 
-        public void Save(CaseInsensitiveString name, object value)
+        public IEntity GetValue(CaseInsensitiveString settingName, CaseInsensitiveString datasourceName = null)
         {
-            if (_actualNames.TryGetValue(name, out var actualName) && _settingDatastores.TryGetValue(actualName, out var datastore))
+            var names = settingName.GenerateNames();
+
+            var setting =
+                _datastores
+                    .Select(datastore => datastore.Read(names))
+                    .FirstOrDefault(Conditional.IsNotNull) ?? throw new SettingNotFoundException(names);
+
+            return setting;
+        }
+
+        public void SaveValue(CaseInsensitiveString settingName, object value)
+        {
+            if (_actualNames.TryGetValue(settingName, out var actualName) && _settingDatastores.TryGetValue(actualName, out var datastore))
             {
                 var setting = new Entity
                 {
@@ -169,6 +255,14 @@ namespace Reusable.SmartConfig
                 throw new ArgumentException("Setting not initialized.");
             }
         }
+    }
+
+    public class SmartSettingAttribute : Attribute
+    {
+        // Name = "[member]" => the same as property/field
+        public string Name { get; set; }
+
+        public string Datasource { get; set; }
     }
 
     public static class NameGenerator
@@ -220,9 +314,9 @@ namespace Reusable.SmartConfig
         }
     }
 
-    public class DatastoreNotFoundException : Exception
+    public class SettingNotFoundException : Exception
     {
-        public DatastoreNotFoundException(IEnumerable<CaseInsensitiveString> names)
+        public SettingNotFoundException(IEnumerable<CaseInsensitiveString> names)
             : base($"Could not find [{string.Join(", ", names.Select(n => n.ToString()))}]")
         { }
     }
