@@ -47,7 +47,7 @@ namespace Reusable.SmartConfig.Datastores
             set => _where = value ?? throw new ArgumentNullException(nameof(Where));
         }
 
-        protected override IEntity ReadCore(IEnumerable<CaseInsensitiveString> names)
+        protected override ISetting ReadCore(IEnumerable<CaseInsensitiveString> names)
         {
             using (var connection = OpenConnection())
             using (var command = connection.CreateSelectCommand(this, names))
@@ -56,14 +56,14 @@ namespace Reusable.SmartConfig.Datastores
 
                 using (var settingReader = command.ExecuteReader())
                 {
-                    var settings = new List<IEntity>();
+                    var settings = new List<ISetting>();
 
                     while (settingReader.Read())
                     {
-                        var result = new Entity
+                        var result = new Setting
                         {
-                            Name = (string)settingReader[nameof(IEntity.Name)],
-                            Value = settingReader[nameof(IEntity.Value)],
+                            Name = (string)settingReader[nameof(ISetting.Name)],
+                            Value = settingReader[nameof(ISetting.Value)],
                         };
                         settings.Add(result);
                     }
@@ -77,7 +77,7 @@ namespace Reusable.SmartConfig.Datastores
             }
         }
 
-        protected override void WriteCore(IEntity setting)
+        protected override void WriteCore(ISetting setting)
         {
             using (var connection = OpenConnection())
             using (var transaction = connection.BeginTransaction())

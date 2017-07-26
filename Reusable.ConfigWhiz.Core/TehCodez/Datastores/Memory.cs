@@ -8,13 +8,13 @@ using Reusable.SmartConfig.Data;
 
 namespace Reusable.SmartConfig.Datastores
 {
-    public class Memory : Datastore, IEnumerable<IEntity>
+    public class Memory : Datastore, IEnumerable<ISetting>
     {
         public Memory() : base(new[] { typeof(string) }) { }
 
         protected Memory(IEnumerable<Type> supportedTypes) : base(supportedTypes) { }
 
-        protected override IEntity ReadCore(IEnumerable<CaseInsensitiveString> names)
+        protected override ISetting ReadCore(IEnumerable<CaseInsensitiveString> names)
         {
             var setting =
                 (from name in names
@@ -24,7 +24,7 @@ namespace Reusable.SmartConfig.Datastores
             return setting;
         }
 
-        protected override void WriteCore(IEntity setting)
+        protected override void WriteCore(ISetting setting)
         {
             //var obsoleteSettings =
             //    (from x in Data
@@ -37,25 +37,25 @@ namespace Reusable.SmartConfig.Datastores
             //return obsoleteSettings.Count;
         }
 
-        public List<IEntity> Data { [DebuggerStepThrough] get; [DebuggerStepThrough] set; } = new List<IEntity>();
+        public List<ISetting> Data { [DebuggerStepThrough] get; [DebuggerStepThrough] set; } = new List<ISetting>();
 
         #region IEnumerable
 
-        public void Add(IEntity entity) => Data.Add(entity);
+        public void Add(ISetting setting) => Data.Add(setting);
 
-        public void Add(string name, object value) => Data.Add(new Entity
+        public void Add(string name, object value) => Data.Add(new Setting
         {
             Name = name,
             Value = value
         });
 
-        public Memory AddRange(IEnumerable<IEntity> settings)
+        public Memory AddRange(IEnumerable<ISetting> settings)
         {
             foreach (var setting in settings) Add(setting);
             return this;
         }
 
-        public IEnumerator<IEntity> GetEnumerator() => Data.GetEnumerator();
+        public IEnumerator<ISetting> GetEnumerator() => Data.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 

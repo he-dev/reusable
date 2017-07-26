@@ -147,13 +147,14 @@ namespace Reusable.SmartConfig.Tests
                 { "PublicField", "c" },
                 { "PrivateField", "d" },
                 { "PrivateReadOnlyField", "e" },
+                { "PublicReadOnlyProperty", "f" },
             });
 
-            var x = new InstanceClass(config);
+            var x = new InstanceClass();
 
-            config.SetValue(() => x.PublicProperty);
-            config.SetValue(() => x.PublicField);
-            config.SetValue(() => x.PublicReadOnlyProperty);
+            config.Apply(() => x.PublicProperty);
+            config.Apply(() => x.PublicField);
+            config.Apply(() => x.PublicReadOnlyProperty);
 
             CollectionAssert.AreEqual(new[] { "a", null, "c", null, null, "f" }, x.GetValues().ToList());
         }
@@ -189,9 +190,9 @@ namespace Reusable.SmartConfig.Tests
                 { "PublicReadOnlyProperty", "f" },
             });
 
-            config.SetValue(() => StaticClass.PublicProperty);
-            config.SetValue(() => StaticClass.PublicField);
-            config.SetValue(() => StaticClass.PublicReadOnlyProperty);
+            config.Apply(() => StaticClass.PublicProperty);
+            config.Apply(() => StaticClass.PublicField);
+            config.Apply(() => StaticClass.PublicReadOnlyProperty);
 
             CollectionAssert.AreEqual(new[] { "a", null, "c", null, null, "f" }, StaticClass.GetValues().ToList());
         }
@@ -202,12 +203,12 @@ namespace Reusable.SmartConfig.Tests
 
             public InstanceClass(IConfiguration config)
             {
-                config.SetValue(() => PublicProperty);
-                config.SetValue(() => PrivateProperty);
-                config.SetValue(() => PublicField);
-                config.SetValue(() => PrivateField);
-                config.SetValue(() => PrivateReadOnlyField);
-                config.SetValue(() => PublicReadOnlyProperty);
+                config.Apply(() => PublicProperty);
+                config.Apply(() => PrivateProperty);
+                config.Apply(() => PublicField);
+                config.Apply(() => PrivateField);
+                config.Apply(() => PrivateReadOnlyField);
+                config.Apply(() => PublicReadOnlyProperty);
             }
 
             public string PublicProperty { get; set; }

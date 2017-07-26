@@ -62,7 +62,7 @@ namespace Reusable.ConfigWhiz.Datastores
             set => _settingEncoding = value ?? throw new ArgumentNullException(nameof(SettingEncoding));
         }
 
-        protected override ICollection<IEntity> ReadCore(IIdentifier id)
+        protected override ICollection<ISetting> ReadCore(IIdentifier id)
         {
             using (var connection = OpenConnection())
             using (var command = _settingCommandFactory.CreateSelectCommand(connection, id, _where))
@@ -71,12 +71,12 @@ namespace Reusable.ConfigWhiz.Datastores
 
                 using (var settingReader = command.ExecuteReader())
                 {
-                    var settings = new List<IEntity>();
+                    var settings = new List<ISetting>();
                     while (settingReader.Read())
                     {
-                        var value = (string)settingReader[nameof(Entity.Value)];
+                        var value = (string)settingReader[nameof(Setting.Value)];
 
-                        var setting = new Entity
+                        var setting = new Setting
                         {
                             Id = Identifier.Parse((string)settingReader[EntityProperty.Name]),
                             Value = RecodeDataEnabled ? value.Recode(DataEncoding, SettingEncoding) : value
@@ -88,7 +88,7 @@ namespace Reusable.ConfigWhiz.Datastores
             }
         }
 
-        protected override int WriteCore(IGrouping<IIdentifier, IEntity> settings)
+        protected override int WriteCore(IGrouping<IIdentifier, ISetting> settings)
         {
             var rowsAffected = 0;
 

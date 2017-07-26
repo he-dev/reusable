@@ -26,18 +26,18 @@ namespace Reusable.SmartConfig.Tests
 
             var numeric = new Numeric();
 
-            configuration.SetValue(() => numeric.SByte);
-            configuration.SetValue(() => numeric.Byte);
+            configuration.Apply(() => numeric.SByte);
+            configuration.Apply(() => numeric.Byte);
             //configuration.SetValue(() => numeric.Char);
-            configuration.SetValue(() => numeric.Int16);
-            configuration.SetValue(() => numeric.Int32);
-            configuration.SetValue(() => numeric.Int64);
-            configuration.SetValue(() => numeric.UInt16);
-            configuration.SetValue(() => numeric.UInt32);
-            configuration.SetValue(() => numeric.UInt64);
-            configuration.SetValue(() => numeric.Single);
-            configuration.SetValue(() => numeric.Double);
-            configuration.SetValue(() => numeric.Decimal);
+            configuration.Apply(() => numeric.Int16);
+            configuration.Apply(() => numeric.Int32);
+            configuration.Apply(() => numeric.Int64);
+            configuration.Apply(() => numeric.UInt16);
+            configuration.Apply(() => numeric.UInt32);
+            configuration.Apply(() => numeric.UInt64);
+            configuration.Apply(() => numeric.Single);
+            configuration.Apply(() => numeric.Double);
+            configuration.Apply(() => numeric.Decimal);
 
             //var numeric = configuration.For<>().GetValue<NumericConfiguration>(x => x.SByte);
             numeric.Verify().IsNotNull();

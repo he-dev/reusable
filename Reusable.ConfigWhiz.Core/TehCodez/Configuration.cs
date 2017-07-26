@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -18,17 +19,14 @@ namespace Reusable.SmartConfig
     public interface IConfiguration
     {
         [CanBeNull]
-        T GetValue<T>([NotNull] CaseInsensitiveString settingName, [CanBeNull] CaseInsensitiveString datasourceName = null);
+        T Select<T>([NotNull] CaseInsensitiveString settingName, [CanBeNull] CaseInsensitiveString datasourceName = null, [CanBeNull] object defaultValue = null);
 
-        [CanBeNull]
-        IEntity GetValue([NotNull] CaseInsensitiveString settingName, [CanBeNull] CaseInsensitiveString datasourceName = null);
-
-        void SaveValue([NotNull] CaseInsensitiveString settingName, [NotNull] object value);
+        void Update([NotNull] CaseInsensitiveString settingName, [NotNull] object value);
     }
 
     public static class MemberSetter
     {
-        public static void SetValue<T>([NotNull] this Expression<Func<T>> expression, object value)
+        public static void Apply<T>([NotNull] this Expression<Func<T>> expression, [CanBeNull] object value)
         {
             if (expression == null) { throw new ArgumentNullException(nameof(expression)); }
             if (expression.Body is MemberExpression memberExpression)
@@ -100,42 +98,28 @@ namespace Reusable.SmartConfig
 
         private const string InstanceSeparator = ",";
 
-        public static IConfiguration SetValue<T>(this IConfiguration configuration, Expression<Func<T>> expression)
+        public static IConfiguration Apply<T>(this IConfiguration configuration, Expression<Func<T>> expression, string instance = null)
         {
-            var value = configuration.GetValue(expression);
-
-
-
-            expression.SetValue(value);
+            var value = configuration.Select(expression, instance);
+            expression.Apply(value);
             return configuration;
         }
 
-        public static T GetValue<T>(this IConfiguration config, Expression<Func<T>> expression)
+        public static T Select<T>(this IConfiguration config, Expression<Func<T>> expression, string instance = null)
         {
-            var name = $"{expression.ToRootName()}";
-
             var smartConfig = expression.GetSmartSettingAttribute();
-
-            name = smartConfig?.Name ?? name;
-
-            var setting = config.GetValue(name, smartConfig?.Datasource);
-
-            return default(T);
+            var name = smartConfig?.Name ?? expression.CreateName(instance);
+            var setting = config.Select<T>(name, smartConfig?.Datasource, expression.GetDefaultValue());            
+            return setting;
         }
 
-        public static T GetValue<T>(this IConfiguration config, Expression<Func<T>> expression, string instance)
-        {
-            var name = $"{expression.ToRootName()}{InstanceSeparator}{instance}";
-            return config.GetValue<T>(name);
-        }
+        //public static Configuration AddValidation<T>(this Configuration config, Expression<Func<T>> expression, params ValidationAttribute[] validations)
+        //{
+        //    var name = $"{expression.CreateName()}";
+        //    return config.AddValidation(name, validations);
+        //}
 
-        public static Configuration AddValidation<T>(this Configuration config, Expression<Func<T>> expression, params ValidationAttribute[] validations)
-        {
-            var name = $"{expression.ToRootName()}";
-            return config.AddValidation(name, validations);
-        }
-
-        private static string ToRootName<T>(this Expression<Func<T>> expression)
+        private static CaseInsensitiveString CreateName<T>(this Expression<Func<T>> expression, string instance)
         {
             var memberExpr = expression.Body as MemberExpression ?? throw new ArgumentException("Expression must be a member expression.");
 
@@ -143,7 +127,8 @@ namespace Reusable.SmartConfig
             return
                 $"{memberExpr.Member.DeclaringType.Namespace}" +
                 $"{NamespaceSeparator}" +
-                $"{memberExpr.Member.DeclaringType.Name}.{memberExpr.Member.Name}";
+                $"{memberExpr.Member.DeclaringType.Name}.{memberExpr.Member.Name}" +
+                (string.IsNullOrEmpty(instance) ? string.Empty : $"{InstanceSeparator}{instance}");
         }
 
         private static SmartSettingAttribute GetSmartSettingAttribute<T>(this Expression<Func<T>> expression)
@@ -163,31 +148,53 @@ namespace Reusable.SmartConfig
     {
         T Deserialize<T>(object value);
 
-        object Serialize(object value);
+        object Serialize(object value, IImmutableSet<Type> customTypes);
     }
 
-    public class JsonSettingConverter : ISettingConverter
+    public abstract class SettingConverter : ISettingConverter
     {
-        private readonly JsonSerializerSettings _settings;
-
-        public JsonSettingConverter()
-        {
-            
-        }
-
         public T Deserialize<T>(object value)
         {
-            switch (value)
-            {
-                case T x: return x;
-                case string x: return JsonConvert.DeserializeObject<T>(x, _settings);
-                default: throw new ArgumentException($"Unsupported value type '{typeof(T).Name}'.");
-            }
+            if (value == null) return default(T);
+            return (value is T x) ? x : DeserializeCore<T>(value);
         }
 
-        public object Serialize(object value)
+        protected abstract T DeserializeCore<T>(object value);
+
+        public object Serialize(object value, IImmutableSet<Type> customTypes)
         {
-            return null;
+            if (value == null) return null;
+            return customTypes.Contains(value.GetType()) ? value : SerializeCore(value);
+        }
+
+        protected abstract object SerializeCore(object value);
+    }
+
+    public class JsonSettingConverter : SettingConverter
+    {
+        public JsonSettingConverter(JsonSerializerSettings settings = null)
+        {
+            JsonSerializerSettings = settings ?? new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented,
+                TypeNameHandling = TypeNameHandling.Auto
+            };
+        }
+
+        public JsonSerializerSettings JsonSerializerSettings { get; }
+
+        protected override T DeserializeCore<T>(object value)
+        {
+            if (value is string s)
+            {
+                return JsonConvert.DeserializeObject<T>(s, JsonSerializerSettings);
+            }
+            throw new ArgumentException($"Unsupported type '{typeof(T).Name}'.");
+        }
+
+        protected override object SerializeCore(object value)
+        {
+            return JsonConvert.SerializeObject(value, JsonSerializerSettings);
         }
     }
 
@@ -195,15 +202,9 @@ namespace Reusable.SmartConfig
     {
         private readonly IList<IDatastore> _datastores;
 
-        // <actual-name, datastore>
-        private readonly IDictionary<CaseInsensitiveString, IDatastore> _settingDatastores = new Dictionary<CaseInsensitiveString, IDatastore>();
+        private readonly IDictionary<CaseInsensitiveString, (CaseInsensitiveString ActualName, IDatastore Datastore)> _settings = new Dictionary<CaseInsensitiveString, (CaseInsensitiveString ActualName, IDatastore Datastore)>();
 
-        private readonly IDictionary<CaseInsensitiveString, IEnumerable<ValidationAttribute>> _settingValidations = new Dictionary<CaseInsensitiveString, IEnumerable<ValidationAttribute>>();
-
-        // <full-name, actual-name>
-        private readonly IDictionary<CaseInsensitiveString, CaseInsensitiveString> _actualNames = new Dictionary<CaseInsensitiveString, CaseInsensitiveString>();
-
-        private JsonSerializerSettings _jsonSerializerSettings;
+        private ISettingConverter _settingConverter = new JsonSettingConverter();
 
         public Configuration(params IDatastore[] datastores)
         {
@@ -218,71 +219,44 @@ namespace Reusable.SmartConfig
 
         //private void OnLog(string message) => Log?.Invoke(message); // for future use
 
-        public JsonSerializerSettings JsonSerializerSettings
+        public ISettingConverter SettingConverter
         {
-            get => _jsonSerializerSettings;
-            set => _jsonSerializerSettings = value ?? throw new ArgumentNullException(nameof(JsonSerializerSettings));
+            get => _settingConverter;
+            set => _settingConverter = value ?? throw new ArgumentNullException(nameof(SettingConverter));
+        }
+        
+        public T Select<T>(CaseInsensitiveString settingName, CaseInsensitiveString datasourceName, object defaultValue)
+        {
+            var setting = GetSetting(settingName, datasourceName);
+            return _settingConverter.Deserialize<T>(setting.Value ?? defaultValue);
         }
 
-        public Configuration AddValidation(CaseInsensitiveString name, params ValidationAttribute[] validations)
-        {
-            _settingValidations[name] = validations;
-            return this;
-        }
-
-        public T GetValue<T>(CaseInsensitiveString settingName, CaseInsensitiveString datasourceName)
+        private ISetting GetSetting(CaseInsensitiveString settingName, CaseInsensitiveString datasourceName = null)
         {
             var names = settingName.GenerateNames();
 
-            var setting =
-                _datastores
-                    .Select(datastore => datastore.Read(names))
-                    .FirstOrDefault(Conditional.IsNotNull) ?? throw new SettingNotFoundException(names);
+            var result =
+                (from ds in _datastores.Where(ds => datasourceName == null || ds.Name.Equals(datasourceName))
+                 select (Datastore: ds, Setting: ds.Read(names))).FirstOrDefault(t => t.Setting.IsNotNull());
 
-            //if(_actualNames)
-
-            _actualNames[settingName] = setting.Name;
-
-            switch (setting.Value)
-            {
-                case T value: return value;
-                case string value: return JsonConvert.DeserializeObject<T>(value, _jsonSerializerSettings);
-                default: throw new ArgumentException($"Unsupported value type '{typeof(T).Name}'.");
-            }
+            _settings[settingName] = (result.Setting?.Name, result.Datastore ?? throw new SettingNotFoundException(settingName));
+            return result.Setting;
         }
 
-        public IEntity GetValue(CaseInsensitiveString settingName, CaseInsensitiveString datasourceName = null)
+        public void Update(CaseInsensitiveString settingName, object value)
         {
-            var names = settingName.GenerateNames();
-
-            if (datasourceName == null)
+            if (_settings.TryGetValue(settingName, out var t))
             {
-                return
-                    _datastores
-                        .Select(datastore => datastore.Read(names))
-                        .FirstOrDefault(Conditional.IsNotNull);
-            }
-            else
-            {
-                var datastore = _datastores.SingleOrDefault(ds => ds.Name.Equals(datasourceName)) ?? throw new ArgumentException($"Datastore '{datasourceName.ToString()}' not found.");
-                return datastore.Read(names);
-            }
-        }
-
-        public void SaveValue(CaseInsensitiveString settingName, object value)
-        {
-            if (_actualNames.TryGetValue(settingName, out var actualName) && _settingDatastores.TryGetValue(actualName, out var datastore))
-            {
-                var setting = new Entity
+                var setting = new Setting
                 {
-                    Name = actualName,
-                    Value = datastore.CustomTypes.Contains(value.GetType()) ? value : JsonConvert.SerializeObject(value, _jsonSerializerSettings)
+                    Name = t.ActualName,
+                    Value = _settingConverter.Serialize(value, t.Datastore.CustomTypes)
                 };
-                datastore.Write(setting);
+                t.Datastore.Write(setting);
             }
             else
             {
-                throw new ArgumentException("Setting not initialized.");
+                throw new ArgumentException($"Setting '{settingName.ToString()}' not initialized.");
             }
         }
     }
@@ -291,18 +265,9 @@ namespace Reusable.SmartConfig
     public class SmartSettingAttribute : Attribute
     {
         // Name = "[member]" => the same as property/field
-        public string Name { get; set; }
+        public CaseInsensitiveString Name { get; set; }
 
-        public string Datasource { get; set; }
-
-        public SettingNameLevel NameLevel { get; set; }
-    }
-
-    public enum SettingNameLevel
-    {
-        One,
-        Two,
-        Three
+        public CaseInsensitiveString Datasource { get; set; }
     }
 
     public static class NameGenerator
@@ -356,8 +321,8 @@ namespace Reusable.SmartConfig
 
     public class SettingNotFoundException : Exception
     {
-        public SettingNotFoundException(IEnumerable<CaseInsensitiveString> names)
-            : base($"Could not find [{string.Join(", ", names.Select(n => n.ToString()))}]")
+        public SettingNotFoundException(CaseInsensitiveString name)
+            : base($"Could not find '{name.ToString()}'.")
         { }
     }
 

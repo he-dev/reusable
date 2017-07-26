@@ -15,7 +15,7 @@ namespace Reusable.SmartConfig.Datastores.AppConfig
 
         public AppSettings() : base(new[] { typeof(string) }) { }
 
-        protected override IEntity ReadCore(IEnumerable<CaseInsensitiveString> names)
+        protected override ISetting ReadCore(IEnumerable<CaseInsensitiveString> names)
         {
             var exeConfig = OpenExeConfiguration();
 
@@ -25,14 +25,14 @@ namespace Reusable.SmartConfig.Datastores.AppConfig
                  where !string.IsNullOrEmpty(v)
                  select (Name: n, Value: v)).FirstOrDefault();
 
-            return result.Value.IsNullOrEmpty() ? null : new Entity
+            return result.Value.IsNullOrEmpty() ? null : new Setting
             {
                 Name = result.Name,
                 Value = result.Value
             };
         }
 
-        protected override void WriteCore(IEntity setting)
+        protected override void WriteCore(ISetting setting)
         {
             var exeConfig = OpenExeConfiguration();
 

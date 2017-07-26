@@ -17,9 +17,9 @@ namespace Reusable.SmartConfig
         IImmutableSet<Type> CustomTypes { get; }
 
         [CanBeNull]
-        IEntity Read([NotNull, ItemNotNull] IEnumerable<CaseInsensitiveString> names);
+        ISetting Read([NotNull, ItemNotNull] IEnumerable<CaseInsensitiveString> names);
 
-        void Write([NotNull] IEntity setting);
+        void Write([NotNull] ISetting setting);
     }
 
     public abstract class Datastore : IDatastore
@@ -41,7 +41,7 @@ namespace Reusable.SmartConfig
 
         public IImmutableSet<Type> CustomTypes { get; }
 
-        public IEntity Read(IEnumerable<CaseInsensitiveString> names)
+        public ISetting Read(IEnumerable<CaseInsensitiveString> names)
         {
             try
             {
@@ -53,9 +53,9 @@ namespace Reusable.SmartConfig
             }
         }
 
-        protected abstract IEntity ReadCore(IEnumerable<CaseInsensitiveString> names);
+        protected abstract ISetting ReadCore(IEnumerable<CaseInsensitiveString> names);
 
-        public void Write(IEntity setting)
+        public void Write(ISetting setting)
         {
             try
             {
@@ -67,7 +67,7 @@ namespace Reusable.SmartConfig
             }
         }
 
-        protected abstract void WriteCore(IEntity setting);
+        protected abstract void WriteCore(ISetting setting);
 
         protected static string CreateDefaultName(Type datastoreType)
         {
@@ -76,7 +76,7 @@ namespace Reusable.SmartConfig
 
         public bool Equals(IDatastore other) => Equals(other?.Name); 
 
-        public bool Equals(string other) => Name.Equals(other, StringComparison.OrdinalIgnoreCase);
+        public bool Equals(string other) => Name.Equals(other);
     }
 
     public class DatastoreReadException : Exception

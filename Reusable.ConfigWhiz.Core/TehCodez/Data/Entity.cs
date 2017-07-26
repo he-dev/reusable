@@ -2,7 +2,7 @@ using System.Diagnostics;
 
 namespace Reusable.SmartConfig.Data
 {
-    public interface IEntity
+    public interface ISetting
     {
         CaseInsensitiveString Name { get; set; }
 
@@ -10,7 +10,7 @@ namespace Reusable.SmartConfig.Data
     }
 
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    public class Entity : IEntity
+    public class Setting : ISetting
     {
         public CaseInsensitiveString Name { [DebuggerStepThrough]get; [DebuggerStepThrough]set; }
 
@@ -20,6 +20,6 @@ namespace Reusable.SmartConfig.Data
 
         public override string ToString() => Name.ToString();
 
-        public static implicit operator string(Entity entity) => entity.ToString();
+        public static implicit operator string(Setting setting) => setting.ToString();
     }
 }

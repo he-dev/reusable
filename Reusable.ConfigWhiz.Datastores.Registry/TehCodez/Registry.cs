@@ -35,7 +35,7 @@ namespace Reusable.SmartConfig.Datastores.TehCodez
 
         public Registry(RegistryKey baseKey, string subKey) :this(CreateDefaultName<Registry>(), baseKey, subKey) { }
 
-        protected override ICollection<IEntity> ReadCore(IIdentifier id)
+        protected override ICollection<ISetting> ReadCore(IIdentifier id)
         {
             //var subKeyName = Path.Combine(_baseSubKeyName, string.Join("\\", id.Context));
             using (var subKey = _baseKey.OpenSubKey(_baseSubKeyName, false))
@@ -46,16 +46,16 @@ namespace Reusable.SmartConfig.Datastores.TehCodez
                     from valueName in subKey.GetValueNames()
                     let currentId = Identifier.Parse(valueName)
                     where currentId.StartsWith(id)
-                    select new Entity
+                    select new Setting
                     {
                         Id = currentId,
                         Value = subKey.GetValue(valueName)
                     };
-                return settings.Cast<IEntity>().ToList();
+                return settings.Cast<ISetting>().ToList();
             }
         }
 
-        protected override int WriteCore(IGrouping<IIdentifier, IEntity> settings)
+        protected override int WriteCore(IGrouping<IIdentifier, ISetting> settings)
         {
             var settingsAffected = 0;
 

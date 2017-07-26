@@ -26,7 +26,7 @@ namespace Reusable.SmartConfig.Datastores
                 sql.Append($"SELECT *").AppendLine();
                 sql.Append($"FROM {table}").AppendLine();
                 sql.Append(datastore.Where.Aggregate(
-                    $"WHERE [{nameof(IEntity.Name)}] IN ({names.CreateParameterNames(nameof(IEntity.Name))})",
+                    $"WHERE [{nameof(ISetting.Name)}] IN ({names.CreateParameterNames(nameof(ISetting.Name))})",
                     (current, next) => $"{current} AND {Sanitize(next.Key)} = @{next.Key}")
                 );
             }
@@ -37,7 +37,7 @@ namespace Reusable.SmartConfig.Datastores
             // --- add parameters & values
 
             command
-                .AddParameters(names, nameof(IEntity.Name))
+                .AddParameters(names, nameof(ISetting.Name))
                 .AddParameters(datastore.Where);            
 
             return command;
@@ -82,7 +82,7 @@ namespace Reusable.SmartConfig.Datastores
         ////    return command;
         ////}
 
-        public static SqlCommand CreateUpdateCommand(this SqlConnection connection, SqlServer datastore, IEntity setting)
+        public static SqlCommand CreateUpdateCommand(this SqlConnection connection, SqlServer datastore, ISetting setting)
         {
             /*
              
@@ -105,24 +105,24 @@ namespace Reusable.SmartConfig.Datastores
                 var table = $"{Sanitize(datastore.Schema)}.{Sanitize(datastore.Table)}";
 
                 sql.Append($"UPDATE {table}").AppendLine();
-                sql.Append($"SET [{nameof(IEntity.Value)}] = @{nameof(IEntity.Value)}").AppendLine();
+                sql.Append($"SET [{nameof(ISetting.Value)}] = @{nameof(ISetting.Value)}").AppendLine();
 
                 sql.Append(datastore.Where.Aggregate(
-                    $"WHERE ([{nameof(IEntity.Name)}] = @{nameof(IEntity.Name)}",
+                    $"WHERE ([{nameof(ISetting.Name)}] = @{nameof(ISetting.Name)}",
                     (result, next) => $"{result} AND {Sanitize(next.Key)} = @{next.Key} ")
                 ).AppendLine();
 
                 sql.Append($"IF @@ROWCOUNT = 0").AppendLine();
 
                 var columns = datastore.Where.Keys.Select(Sanitize).Aggregate(
-                    $"[{nameof(IEntity.Name)}], [{nameof(IEntity.Value)}]", 
+                    $"[{nameof(ISetting.Name)}], [{nameof(ISetting.Value)}]", 
                     (result, next) => $"{result}, {next}"
                 );
 
                 sql.Append($"INSERT INTO {table}({columns})").AppendLine();
 
                 var parameterNames = datastore.Where.Keys.Aggregate(
-                    $"@{nameof(IEntity.Name)}, @{nameof(IEntity.Value)}",
+                    $"@{nameof(ISetting.Name)}, @{nameof(ISetting.Value)}",
                     (result, next) => $"{result}, @{next}"
                 );
 
@@ -135,8 +135,8 @@ namespace Reusable.SmartConfig.Datastores
 
             // --- add parameters
 
-            command.Parameters.AddWithValue(nameof(IEntity.Name), setting.Name.ToString());
-            command.Parameters.AddWithValue(nameof(IEntity.Value), setting.Value);
+            command.Parameters.AddWithValue(nameof(ISetting.Name), setting.Name.ToString());
+            command.Parameters.AddWithValue(nameof(ISetting.Value), setting.Value);
 
             command.AddParameters(datastore.Where);            
 

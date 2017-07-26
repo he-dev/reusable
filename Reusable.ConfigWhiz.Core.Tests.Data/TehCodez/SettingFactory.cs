@@ -7,13 +7,13 @@ namespace Reusable.SmartConfig.Tests.Common
 {
     public abstract class SettingFactory
     {
-        public static IEnumerable<IEntity> ReadSettings()
+        public static IEnumerable<ISetting> ReadSettings()
         {
             var json = ResourceReader.ReadEmbeddedResource<SettingFactory>("Resources.Settings.json");
             var testData = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
             var settings =
                 from item in testData
-                select new Entity
+                select new Setting
                 {
                     Name = item.Key,
                     Value = item.Value
