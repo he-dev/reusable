@@ -53,14 +53,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TehCodez\Annotations\SmartSettingAttribute.cs" />
     <Compile Include="TehCodez\Collections\DatastoreComparer.cs" />
     <Compile Include="TehCodez\Configuration.cs" />
+    <Compile Include="TehCodez\ConfigurationExtensions.cs" />
     <Compile Include="TehCodez\Data\EntityProperty.cs" />
     <Compile Include="TehCodez\Datastore.cs" />
     <Compile Include="TehCodez\Datastores\Memory.cs" />
-    <Compile Include="TehCodez\Extensions\StringExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TehCodez\Data\Entity.cs" />
+    <Compile Include="TehCodez\Services\JsonSettingConverter.cs" />
+    <Compile Include="TehCodez\Services\MemberExpressionExtensions.cs" />
+    <Compile Include="TehCodez\Services\NameGenerator.cs" />
+    <Compile Include="TehCodez\Services\SettingConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj">
@@ -75,8 +80,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="TehCodez\Annotations\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

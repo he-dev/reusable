@@ -1,7 +1,7 @@
 using System;
 using Reusable.Data.Annotations;
 
-namespace Reusable.SmartConfig.Tests.Common.Configurations
+namespace Reusable.SmartConfig.Tests.Common.TestClasses
 {
     public class Numeric
     {

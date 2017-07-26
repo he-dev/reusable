@@ -26,15 +26,8 @@ namespace Reusable.SmartConfig.Datastores
 
         protected override void WriteCore(ISetting setting)
         {
-            //var obsoleteSettings =
-            //    (from x in Data
-            //     where x.Name.StartsWith(settings.Key)
-            //     select x).ToList();
-            //obsoleteSettings.ForEach(x => Data.Remove(x));
-
-            //foreach (var setting in settings) Add(setting);
-
-            //return obsoleteSettings.Count;
+            var current = Data.Single(x => x.Name.Equals(setting.Name));
+            current.Value = setting.Value;            
         }
 
         public List<ISetting> Data { [DebuggerStepThrough] get; [DebuggerStepThrough] set; } = new List<ISetting>();

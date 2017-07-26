@@ -1,4 +1,4 @@
-namespace Reusable.SmartConfig.Tests.Common.Configurations
+namespace Reusable.SmartConfig.Tests.Common.TestClasses
 {
     public class NonExistingConfiguration
     {

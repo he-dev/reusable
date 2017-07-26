@@ -1,9 +1,9 @@
 using System;
 using Reusable.Data.Annotations;
 
-namespace Reusable.SmartConfig.Tests.Common.Configurations
+namespace Reusable.SmartConfig.Tests.Common.TestClasses
 {
-    public class OtherConfiguration
+    public class Other
     {
         public Boolean Boolean { get; set; }
         public TestEnum Enum { get; set; }

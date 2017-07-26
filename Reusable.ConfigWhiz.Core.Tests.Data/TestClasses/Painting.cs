@@ -2,9 +2,9 @@ using System.Drawing;
 using Reusable.Data.Annotations;
 using Reusable.StringFormatting.Formatters;
 
-namespace Reusable.SmartConfig.Tests.Common.Configurations
+namespace Reusable.SmartConfig.Tests.Common.TestClasses
 {
-    public class DrawingConfiguration
+    public class Painting
     {
         [Format("#RRGGBB", typeof(HexadecimalColorFormatter))]
         public Color ColorName { get; set; }

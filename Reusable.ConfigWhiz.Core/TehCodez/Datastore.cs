@@ -82,12 +82,12 @@ namespace Reusable.SmartConfig
     public class DatastoreReadException : Exception
     {
         public DatastoreReadException(IDatastore datastore, IEnumerable<CaseInsensitiveString> names, Exception innerException)
-        : base($"Could not read {string.Join(", ", names.ToJson())} from '{datastore.Name}'.", innerException) { }
+        : base($"Could not read '{names.Last().ToString()}' from '{datastore.Name.ToString()}'.", innerException) { }
     }
 
     public class DatastoreWriteException : Exception
     {
         public DatastoreWriteException(IDatastore datastore, CaseInsensitiveString name, Exception innerException)
-            : base($"Could not write '{name.ToString()}' to '{datastore.Name}'.", innerException) { }
+            : base($"Could not write '{name.ToString()}' to '{datastore.Name.ToString()}'.", innerException) { }
     }
 }

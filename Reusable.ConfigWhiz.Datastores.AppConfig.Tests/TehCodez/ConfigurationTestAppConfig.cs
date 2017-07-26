@@ -14,7 +14,7 @@ namespace Reusable.SmartConfig.Datastores.Tests
         {
             Datastores = new IDatastore[]
             {
-                new AppSettings("AppSetting1"), 
+                new AppSettings(), 
             };
 
             ResetData();

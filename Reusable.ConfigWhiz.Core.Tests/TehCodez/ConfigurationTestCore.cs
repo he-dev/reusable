@@ -6,7 +6,6 @@ using Reusable.Fuse;
 using Reusable.Fuse.Testing;
 using Reusable.SmartConfig.Datastores;
 using Reusable.SmartConfig.Tests.Common;
-using Reusable.SmartConfig.Tests.Common.Configurations;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable BuiltInTypeReferenceStyle
@@ -37,60 +36,21 @@ namespace Reusable.SmartConfig.Tests
             };
         }
 
-        #region Exception tests
+        #region Exceptions        
 
         [TestMethod]
-        //[ExpectedException(typeof(ArgumentException))]
-        public void ctor_NoDatastores_Throws()
+        public void Select_SettingDoesNotExist_SettingNotFoundException()
         {
-            var configuration = new Configuration(Enumerable.Empty<IDatastore>());
-        }
-
-        //[TestMethod]
-        //[ExpectedException(typeof(DuplicateDatatastoreException))]
-        //public void ctor_DuplicateDatastores_Throws()
-        //{
-        //    var configuration = new Configuration(new[] { new Memory("mem1"), new Memory("mem1") });
-        //}
-
-        [TestMethod]
-        [ExpectedException(typeof(DatastoreReadException))]
-        public void ctor_CannotReadFromDatastore_Throws()
-        {
-            //var configuration = new Configuration(new[] { new TestDatastore("mock1", new List<Type>()) });
-            //configuration.Get<TestConsumer, NonExistingConfiguration>();
-        }
-
-        [TestMethod]
-        public void ctor_NoDefaultDatastore_Throws()
-        {
-            var ex = Assert.ThrowsException<AggregateException>(() =>
+            Assert.ThrowsException<SettingNotFoundException>(() =>
             {
-                //var configuration = new Configuration(new[] { new Memory("mem1") });
-                //configuration.Get<TestConsumer, TestContainer1>();
+                var config = new Configuration();
+                config.Select<int>(CaseInsensitiveString.Create("abc"));
             });
-
-            ex.InnerExceptions.First().Verify().IsInstanceOfType(typeof(SettingNotFoundException));
         }
-
-        //[TestMethod]
-        //public void ctor_ItemizedSettingWithInvalidType_Throws()
-        //{
-        //    var ex = new Action(() =>
-        //    {
-        //        var configuration = new Configuration(new[] { new Memory("mem1")
-        //        {
-        //            { $"{typeof(TestConsumer).Namespace}.TestConsumer.TestContainer2.TestSetting2", "quux" }
-        //        }});
-        //        configuration.Get<TestConsumer, TestContainer2>();
-        //    }).Verify().Throws<AggregateException>();
-
-        //    ex.InnerExceptions.First().Verify().IsInstanceOfType(typeof(UnsupportedItemizedTypeException));
-        //}
 
         #endregion
 
-        #region Other
+        #region IO
 
         [TestMethod]
         public void Load_Renamed_Success()

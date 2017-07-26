@@ -7,7 +7,7 @@ using Reusable.Fuse;
 using Reusable.Fuse.Drawing;
 using Reusable.Fuse.Testing;
 using Reusable.SmartConfig.Tests.Common;
-using Reusable.SmartConfig.Tests.Common.Configurations;
+using Reusable.SmartConfig.Tests.Common.TestClasses;
 using Reusable.TypeConversion;
 
 namespace Reusable.SmartConfig.Tests
@@ -20,7 +20,7 @@ namespace Reusable.SmartConfig.Tests
         #region Load tests
 
         [TestMethod]
-        public void Load_Numeric_Loaded()
+        public void IO_Numeric()
         {
             var configuration = new Configuration(Datastores);
 
@@ -39,21 +39,17 @@ namespace Reusable.SmartConfig.Tests
             configuration.Apply(() => numeric.Double);
             configuration.Apply(() => numeric.Decimal);
 
-            //var numeric = configuration.For<>().GetValue<NumericConfiguration>(x => x.SByte);
-            numeric.Verify().IsNotNull();
-
-            numeric.SByte.Verify().IsEqual(SByte.MaxValue);
-            numeric.Byte.Verify().IsEqual(Byte.MaxValue);
-            //numeric.Char.Verify().IsEqual(Char.MaxValue);
-            numeric.Int16.Verify().IsEqual(Int16.MaxValue);
-            numeric.Int32.Verify().IsEqual(Int32.MaxValue);
-            numeric.Int64.Verify().IsEqual(Int64.MaxValue);
-            numeric.UInt16.Verify().IsEqual(UInt16.MaxValue);
-            numeric.UInt32.Verify().IsEqual(UInt32.MaxValue);
-            numeric.UInt64.Verify().IsEqual(UInt64.MaxValue);
-            numeric.Single.Verify().IsEqual(Single.MaxValue);
-            numeric.Double.Verify().IsEqual(Double.MaxValue);
-            numeric.Decimal.Verify().IsEqual(Decimal.MaxValue);
+            Assert.AreEqual(SByte.MaxValue, numeric.SByte);
+            Assert.AreEqual(Byte.MaxValue, numeric.Byte);
+            Assert.AreEqual(Int16.MaxValue, numeric.Int16);
+            Assert.AreEqual(Int32.MaxValue, numeric.Int32);
+            Assert.AreEqual(Int64.MaxValue, numeric.Int64);
+            Assert.AreEqual(UInt16.MaxValue, numeric.UInt16);
+            Assert.AreEqual(UInt32.MaxValue, numeric.UInt32);
+            Assert.AreEqual(UInt64.MaxValue, numeric.UInt64);
+            Assert.AreEqual(Single.MaxValue, numeric.Single);
+            Assert.AreEqual(Double.MaxValue, numeric.Double);
+            Assert.AreEqual(Decimal.MaxValue, numeric.Decimal);
 
             // Modify settings
 
@@ -70,82 +66,127 @@ namespace Reusable.SmartConfig.Tests
             numeric.Double = Double.MinValue;
             numeric.Decimal -= 1;
 
-            //configuration.Save();
+            configuration.Update(() => numeric.SByte);
+            configuration.Update(() => numeric.Byte);
+            configuration.Update(() => numeric.Int16);
+            configuration.Update(() => numeric.Int32);
+            configuration.Update(() => numeric.Int64);
+            configuration.Update(() => numeric.UInt16);
+            configuration.Update(() => numeric.UInt32);
+            configuration.Update(() => numeric.UInt64);
+            configuration.Update(() => numeric.Single);
+            configuration.Update(() => numeric.Double);
+            configuration.Update(() => numeric.Decimal);
 
             configuration = new Configuration(Datastores);
-            //numeric = configuration.Get<NumericConfiguration>();
 
-            numeric.SByte.Verify().IsEqual((SByte)(SByte.MaxValue - 1));
-            numeric.Byte.Verify().IsEqual((Byte)(Byte.MaxValue - 1));
-            numeric.Char.Verify().IsEqual((Char)(Char.MaxValue - 1));
-            numeric.Int16.Verify().IsEqual((Int16)(Int16.MaxValue - 1));
-            numeric.Int32.Verify().IsEqual(Int32.MaxValue - 1);
-            numeric.Int64.Verify().IsEqual(Int64.MaxValue - 1);
-            numeric.UInt16.Verify().IsEqual((UInt16)(UInt16.MaxValue - 1));
-            numeric.UInt32.Verify().IsEqual(UInt32.MaxValue - 1);
-            numeric.UInt64.Verify().IsEqual(UInt64.MaxValue - 1);
-            numeric.Single.Verify().IsEqual(Single.MinValue);
-            numeric.Double.Verify().IsEqual(Double.MinValue);
-            numeric.Decimal.Verify().IsEqual(Decimal.MaxValue - 1);
+            numeric = new Numeric();
+
+            configuration.Apply(() => numeric.SByte);
+            configuration.Apply(() => numeric.Byte);
+            //configuration.SetValue(() => numeric.Char);
+            configuration.Apply(() => numeric.Int16);
+            configuration.Apply(() => numeric.Int32);
+            configuration.Apply(() => numeric.Int64);
+            configuration.Apply(() => numeric.UInt16);
+            configuration.Apply(() => numeric.UInt32);
+            configuration.Apply(() => numeric.UInt64);
+            configuration.Apply(() => numeric.Single);
+            configuration.Apply(() => numeric.Double);
+            configuration.Apply(() => numeric.Decimal);
+
+            Assert.AreEqual(SByte.MaxValue - 1, numeric.SByte);
+            Assert.AreEqual(Byte.MaxValue - 1, numeric.Byte);
+            Assert.AreEqual(Int16.MaxValue - 1, numeric.Int16);
+            Assert.AreEqual(Int32.MaxValue - 1, numeric.Int32);
+            Assert.AreEqual(Int64.MaxValue - 1, numeric.Int64);
+            Assert.AreEqual(UInt16.MaxValue - 1, numeric.UInt16);
+            Assert.AreEqual(UInt32.MaxValue - 1, numeric.UInt32);
+            Assert.AreEqual(UInt64.MaxValue - 1, numeric.UInt64);
+            Assert.AreEqual(Single.MinValue, numeric.Single);
+            Assert.AreEqual(Double.MinValue, numeric.Double);
+            Assert.AreEqual(Decimal.MaxValue - 1, numeric.Decimal);            
         }
 
         [TestMethod]
-        public void Load_Literal_Loaded()
+        public void IO_Literal()
         {
-            var configuration = new Configuration(Datastores);
+            var config = new Configuration(Datastores);
 
-            var literal = new LiteralConfiguration();// configuration.Get<LiteralConfiguration>();
-            literal.Verify().IsNotNull();
-            literal.StringDE.Verify().IsEqual("äöüß");
-            literal.StringPL.Verify().IsEqual("ąęśćżźó");
+            var literal = new Literal();// configuration.Get<LiteralConfiguration>();
+
+            config.Apply(() => literal.StringPL);
+            config.Apply(() => literal.StringDE);
+
+            Assert.AreEqual("ąęśćżźó", literal.StringPL);
+            Assert.AreEqual("äöüß", literal.StringDE);
 
             literal.StringDE += "---";
             literal.StringPL += "---";
 
-            //configuration.Save();
+            config.Update(() => literal.StringPL);
+            config.Update(() => literal.StringDE);
 
-            configuration = new Configuration(Datastores);
-            //literal = configuration.Get<LiteralConfiguration>();
+            config = new Configuration(Datastores);
+            literal = new Literal();
 
-            literal.StringDE.Verify().IsEqual("äöüß---");
-            literal.StringPL.Verify().IsEqual("ąęśćżźó---");
+            config.Apply(() => literal.StringPL);
+            config.Apply(() => literal.StringDE);
+
+            Assert.AreEqual("ąęśćżźó---", literal.StringPL);
+            Assert.AreEqual("äöüß---", literal.StringDE);
         }
 
         [TestMethod]
-        public void Load_Other_Loaded()
+        public void IO_Other()
         {
-            var configuration = new Configuration(Datastores);
+            var config = new Configuration(Datastores);
 
-            var other = new OtherConfiguration();// configuration.Get<OtherConfiguration>();
-            other.Verify().IsNotNull();
-            other.Boolean.Verify().IsTrue();
-            other.Enum.Verify().IsEqual(TestEnum.TestValue2);
-            other.DateTime.Verify().IsEqual(new DateTime(2016, 7, 30));
+            var other = new Other();
 
+            config.Apply(() => other.Boolean);
+            config.Apply(() => other.Enum);
+            config.Apply(() => other.DateTime);
+            
+            Assert.AreEqual(true, other.Boolean);
+            Assert.AreEqual(TestEnum.TestValue2, other.Enum);
+            Assert.AreEqual(new DateTime(2016, 7, 30), other.DateTime);
 
             other.Boolean = !other.Boolean;
             other.Enum = TestEnum.TestValue3;
             other.DateTime = other.DateTime.AddDays(-1);
 
-            //configuration.Save();
-            configuration = new Configuration(Datastores);
-            //other = configuration.Get<OtherConfiguration>();
+            config.Update(() => other.Boolean);
+            config.Update(() => other.Enum);
+            config.Update(() => other.DateTime);
 
-            other.Boolean.Verify().IsFalse();
-            other.Enum.Verify().IsTrue(x => x == TestEnum.TestValue3);
-            other.DateTime.Verify().IsEqual(new DateTime(2016, 7, 30).AddDays(-1));
+            config = new Configuration(Datastores);
+
+            other = new Other();
+
+            config.Apply(() => other.Boolean);
+            config.Apply(() => other.Enum);
+            config.Apply(() => other.DateTime);
+
+            Assert.AreEqual(false, other.Boolean);
+            Assert.AreEqual(TestEnum.TestValue3, other.Enum);
+            Assert.AreEqual(new DateTime(2016, 7, 30).AddDays(-1), other.DateTime);
         }
 
         [TestMethod]
-        public void Load_Drawing_Loaded()
+        public void IO_Painting()
         {
-            var configuration = new Configuration(Datastores);
+            var config = new Configuration(Datastores);
 
-            var paint = new DrawingConfiguration();// configuration.Get<DrawingConfiguration>();
-            paint.Verify().IsNotNull();
-            paint.ColorName.Verify().IsEqual(Color.DarkRed);
-            paint.ColorDec.Verify().IsEqual(Color.Plum);
-            paint.ColorHex.Verify().IsEqual(Color.Beige);
+            var paint = new Painting();
+
+            config.Apply(() => paint.ColorName);
+            config.Apply(() => paint.ColorDec);
+            config.Apply(() => paint.ColorHex);
+
+            Assert.AreEqual(Color.Red, paint.ColorName);
+            Assert.AreEqual(Color.Plum, paint.ColorDec);
+            Assert.AreEqual(Color.Beige, paint.ColorHex);
 
             // modify
 

@@ -57,9 +57,9 @@
   <ItemGroup>
     <Compile Include="TestClasses\EmptyConfiguration.cs" />
     <Compile Include="TestClasses\NonExistingConfiguration.cs" />
-    <Compile Include="TestClasses\LiteralConfiguration.cs" />
-    <Compile Include="TestClasses\OtherConfiguration.cs" />
-    <Compile Include="TestClasses\DrawingConfiguration.cs" />
+    <Compile Include="TestClasses\Literal.cs" />
+    <Compile Include="TestClasses\Other.cs" />
+    <Compile Include="TestClasses\Painting.cs" />
     <Compile Include="TestClasses\Numeric.cs" />
     <Compile Include="TehCodez\TestEnum.cs" />
     <Compile Include="TehCodez\TestConsumer.cs" />
