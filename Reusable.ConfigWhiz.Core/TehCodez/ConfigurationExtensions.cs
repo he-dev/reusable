@@ -17,29 +17,21 @@ namespace Reusable.SmartConfig
 
         private const string InstanceSeparator = ",";
 
-        public static IConfiguration Apply<T>(this IConfiguration configuration, Expression<Func<T>> expression, string instance = null)
+        public static IConfiguration Apply<TValue>(this IConfiguration configuration, Expression<Func<TValue>> expression, string instance = null)
         {
             var value = configuration.Select(expression, instance);
             expression.Apply(value);
             return configuration;
         }
 
-        public static T Select<T>(this IConfiguration config, Expression<Func<T>> expression, string instance = null, bool cached = false)
+        public static (IConfiguration Configuration, TObject Object) For<TObject>(this IConfiguration config)
         {
-            return config.Select<T>((LambdaExpression)expression, instance, cached);
+            return (config, default(TObject));
         }
 
-        public static IConfiguration Update<T>(this IConfiguration config, Expression<Func<T>> expression, string instance = null)
+        public static TValue Select<TValue>(this IConfiguration config, Expression<Func<TValue>> expression, string instance = null, bool cached = false)
         {
-            var smartConfig = expression.GetSmartSettingAttribute();
-            var name = smartConfig?.Name ?? expression.CreateName(instance);
-            config.Update(name, expression.Select());
-            return config;
-        }
-
-        public static (IConfiguration Configuration, T obj) For<T>(this IConfiguration config)
-        {
-            return (config, default(T));
+            return config.Select<TValue>((LambdaExpression)expression, instance, cached);
         }
 
         public static TValue Select<TObject, TValue>(this (IConfiguration Configuration, TObject obj) t, Expression<Func<TObject, TValue>> expression)
@@ -47,14 +39,22 @@ namespace Reusable.SmartConfig
             return t.Configuration.Select<TValue>(expression);
         }
 
-        private static T Select<T>(this IConfiguration config, LambdaExpression expression, string instance = null, bool cached = false)
+        public static IConfiguration Update<TValue>(this IConfiguration config, Expression<Func<TValue>> expression, string instance = null)
+        {
+            var smartConfig = expression.GetSmartSettingAttribute();
+            var name = smartConfig?.Name ?? expression.CreateName(instance);
+            config.Update(name, expression.Select());
+            return config;
+        }
+
+        private static TValue Select<TValue>(this IConfiguration config, LambdaExpression expression, string instance = null, bool cached = false)
         {
             var smartConfig = expression.GetSmartSettingAttribute();
             var name = smartConfig?.Name ?? expression.CreateName(instance);
 
-            if (cached && Cache.TryGetValue(name, out var value)) { return (T)value; }
+            if (cached && Cache.TryGetValue(name, out var value)) { return (TValue)value; }
 
-            var setting = config.Select<T>(name, smartConfig?.Datasource, expression.GetDefaultValue());
+            var setting = config.Select<TValue>(name, smartConfig?.Datasource, expression.GetDefaultValue());
             expression.Validate(setting, name);
 
             if (cached) { Cache[name] = setting; }
