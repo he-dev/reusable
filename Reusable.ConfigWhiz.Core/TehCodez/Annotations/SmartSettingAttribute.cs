@@ -8,9 +8,9 @@ namespace Reusable.SmartConfig.Annotations
     {
         // Name = "[member]" => the same as property/field
         [CanBeNull]
-        public CaseInsensitiveString Name { get; set; }
+        public string Name { get; set; }
 
         [CanBeNull]
-        public CaseInsensitiveString Datasource { get; set; }
+        public string Datasource { get; set; }
     }
 }

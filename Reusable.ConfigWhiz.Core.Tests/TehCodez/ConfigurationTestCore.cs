@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Fuse;
 using Reusable.Fuse.Testing;
+using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Datastores;
 using Reusable.SmartConfig.Tests.Common;
 
@@ -22,7 +23,7 @@ namespace Reusable.SmartConfig.Tests
             {
                 new Memory
                 {
-                    { "Bar.Qux", "quux" },
+                    { "Renamed", "abc" },
                     { "MyContainer.MySetting", "waldo" },
                     { "Qux", "corge" },
                     { "SimpleSetting", "foo" },
@@ -55,10 +56,19 @@ namespace Reusable.SmartConfig.Tests
         [TestMethod]
         public void Load_Renamed_Success()
         {
-            var configuration = new Configuration(Datastores);
+            var config = new Configuration(Datastores);
 
-            //var renamed = configuration.Get<RenamedConfiguration>();
-            //renamed.Bar.Verify().IsEqual("waldo");
+            var class1 = new Class1();
+            var value = config.Select(() => class1.Setting);
+            var value2 = config.For<Class1>().Select(x => x.Setting);
+
+            Assert.AreEqual("abc", value);
+        }
+
+        private class Class1
+        {
+            [SmartSetting(Name = "Renamed")]
+            public string Setting { get; set; }
         }
 
         #endregion
