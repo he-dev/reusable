@@ -9,7 +9,7 @@ namespace Reusable.Drawing
     [UsedImplicitly]
     public abstract class ColorParser
     {
-        protected const int InvalidColor = -1;
+        protected const int Empty = 0;
 
         [ContractAnnotation("value: null => halt")]
         public int Parse([NotNull] string value)
@@ -32,7 +32,7 @@ namespace Reusable.Drawing
         {
             if (value == null)
             {
-                color = InvalidColor;
+                color = Empty;
                 return false;
             }
             return TryParseCore(value, out color);
@@ -57,7 +57,7 @@ namespace Reusable.Drawing
         private const string DelimiterPattern = @"[,;:]";
 
         // language=regexp
-        private readonly string _argbPattern = 
+        private readonly string _argbPattern =
             // Using $ everywhere for consistency.
             $"^(?:" +
             $"(?<A>{ColorPattern}){DelimiterPattern})?" +
@@ -80,7 +80,7 @@ namespace Reusable.Drawing
                 return true;
             }
 
-            color = InvalidColor;
+            color = Empty;
             return false;
         }
     }
@@ -104,7 +104,7 @@ namespace Reusable.Drawing
                 return true;
             }
 
-            color = InvalidColor;
+            color = Empty;
             return false;
         }
     }
@@ -121,7 +121,7 @@ namespace Reusable.Drawing
                 return true;
             }
 
-            color = InvalidColor;
+            color = Empty;
             return false;
         }
     }
