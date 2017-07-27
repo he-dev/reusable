@@ -25,47 +25,15 @@ namespace Reusable.SmartConfig.Datastores.Tests
                 {
                     Schema = "dbo",
                     Table = "Setting3",
-                    Where =
-                    {
-                        { "Environment",  "Test" },
-                        { "Version", "1.0" }
-                    }
+                    Where = 
+                        ImmutableDictionary
+                            .Create<string, object>()
+                            .Add("Environment",  "Test")
+                            .Add("Version", "1.0")
                 }
             };
 
             Utils.ResetData(Environment, Version, Salt);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void ctor_MissingDefaultColumns_Throws()
-        {
-            var store = new SqlServer("name=TestDb")
-            {
-                Schema = "dbo",
-                Table = "Setting3",
-                Where =
-                {
-                    { "Environment", "Test" },
-                    { "Version", "1.0" }
-                }
-            };
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void ctor_MissingConstraints_Throws()
-        {
-            var store = new SqlServer("name=TestDb")
-            {
-                Schema = "dbo",
-                Table = "Setting3",
-                Where =
-                {
-                    { "Environment", "Test" },
-                    { "Version", "1.0" }
-                }
-            };
         }
 
         private static class Utils

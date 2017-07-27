@@ -17,7 +17,7 @@ namespace Reusable.SmartConfig.Services
     {
         public T Deserialize<T>(object value)
         {
-            return (value is T x) ? x : DeserializeCore<T>(value);
+            return (!(value is string) && value is T x) ? x : DeserializeCore<T>(value);
         }
 
         [NotNull]

@@ -18,7 +18,7 @@ namespace Reusable.SmartConfig.Datastores
         private string _table = "Setting";
         private IImmutableDictionary<string, object> _where = ImmutableDictionary<string, object>.Empty;
 
-        public SqlServer(string nameOrConnectionString) : base(new[] { typeof(string) })
+        public SqlServer(string nameOrConnectionString) :base(Enumerable.Empty<Type>())
         {
             var connectionStringName = nameOrConnectionString.ExtractConnectionStringName();
             _connectionString =
@@ -52,7 +52,7 @@ namespace Reusable.SmartConfig.Datastores
             using (var connection = OpenConnection())
             using (var command = connection.CreateSelectCommand(this, names))
             {
-                command.Prepare();
+                //command.Prepare();
 
                 using (var settingReader = command.ExecuteReader())
                 {
@@ -84,8 +84,9 @@ namespace Reusable.SmartConfig.Datastores
             using (var cmd = connection.CreateUpdateCommand(this, setting))
             {
                 cmd.Transaction = transaction;
-                cmd.Prepare();
+                //cmd.Prepare();
                 cmd.ExecuteNonQuery();
+                transaction.Commit();
             }
         }
 

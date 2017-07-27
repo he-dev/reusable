@@ -108,7 +108,7 @@ namespace Reusable.SmartConfig.Datastores
                 sql.Append($"SET [{nameof(ISetting.Value)}] = @{nameof(ISetting.Value)}").AppendLine();
 
                 sql.Append(datastore.Where.Aggregate(
-                    $"WHERE ([{nameof(ISetting.Name)}] = @{nameof(ISetting.Name)}",
+                    $"WHERE [{nameof(ISetting.Name)}] = @{nameof(ISetting.Name)}",
                     (result, next) => $"{result} AND {Sanitize(next.Key)} = @{next.Key} ")
                 ).AppendLine();
 
@@ -164,7 +164,7 @@ namespace Reusable.SmartConfig.Datastores
         {
             foreach (var t in values.Select((x, i) => (Value: x, Index: i)))
             {
-                cmd.Parameters.AddWithValue($"@{name}_{t.Index}", t.Value);
+                cmd.Parameters.AddWithValue($"@{name.ToString()}_{t.Index}", t.Value.ToString());
             }
             return cmd;
         }

@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Fuse;
-using Reusable.Fuse.Testing;
 using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Datastores;
 using Reusable.SmartConfig.Tests.Common;
@@ -27,6 +26,8 @@ namespace Reusable.SmartConfig.Tests
                 {
                     { "TestSetting1", "abc" },
                     { "TestSetting3", "xyz" },
+                    { "TestSetting4", null },
+                    { "TestSetting5", null },
                 },
                 new Memory
                 {
@@ -76,6 +77,24 @@ namespace Reusable.SmartConfig.Tests
             var config = new Configuration(Datastores);
             var value = config.For<TestClass>().Select(x => x.TestSetting2);
             Assert.AreEqual("xyz", value);
+        }        
+
+        [TestMethod]
+        public void Select_Default_Value()
+        {
+            var config = new Configuration(Datastores);
+            var value = config.For<TestClass>().Select(x => x.TestSetting4);
+            Assert.AreEqual("jkl", value);
+        }
+
+        [TestMethod]
+        public void Select_Required_Validated()
+        {
+            Assert.ThrowsException<ValidationException>(() =>
+            {
+                var config = new Configuration(Datastores);
+                var value = config.For<TestClass>().Select(x => x.TestSetting5);
+            });
         }
 
         private class TestClass
@@ -84,6 +103,12 @@ namespace Reusable.SmartConfig.Tests
 
             [SmartSetting(Name = "TestSetting3")]
             public string TestSetting2 { get; set; }
+
+            [DefaultValue("jkl")]
+            public string TestSetting4 { get; set; }
+
+            [Required]
+            public string TestSetting5 { get; set; }
         }
 
         #endregion       

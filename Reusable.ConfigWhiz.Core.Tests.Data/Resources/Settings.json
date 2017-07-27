@@ -12,8 +12,8 @@
   "Numeric.Double": "1.7976931348623157E+308",
   "Numeric.Decimal": "79228162514264337593543950335",
 
-  "Literal.StringDE": "äöüß",
-  "Literal.StringPL": "ąęśćżźó",
+  "Literal.StringDE": "\"äöüß\"",
+  "Literal.StringPL": "\"ąęśćżźó\"",
 
   "Other.Boolean": "true",
   "Other.Enum": "'TestValue2'",

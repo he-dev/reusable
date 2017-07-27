@@ -176,6 +176,8 @@ namespace Reusable.SmartConfig.Tests
         [TestMethod]
         public void IO_Painting()
         {
+            Assert.Inconclusive("Requires custom json-converters.");
+
             var config = new Configuration(Datastores);
 
             var paint = new Painting();
