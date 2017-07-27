@@ -13,10 +13,6 @@ namespace Reusable.SmartConfig
     {
         private static readonly IDictionary<CaseInsensitiveString, object> Cache = new Dictionary<CaseInsensitiveString, object>();
 
-        private const string NamespaceSeparator = "+";
-
-        private const string InstanceSeparator = ",";
-
         public static IConfiguration Apply<TValue>(this IConfiguration configuration, Expression<Func<TValue>> expression, string instance = null)
         {
             var value = configuration.Select(expression, instance);
@@ -29,22 +25,14 @@ namespace Reusable.SmartConfig
             return (config, default(TObject));
         }
 
-        public static TValue Select<TValue>(this IConfiguration config, Expression<Func<TValue>> expression, string instance = null, bool cached = false)
-        {
-            return config.Select<TValue>((LambdaExpression)expression, instance, cached);
-        }
-
         public static TValue Select<TObject, TValue>(this (IConfiguration Configuration, TObject obj) t, Expression<Func<TObject, TValue>> expression)
         {
             return t.Configuration.Select<TValue>(expression);
         }
 
-        public static IConfiguration Update<TValue>(this IConfiguration config, Expression<Func<TValue>> expression, string instance = null)
+        public static TValue Select<TValue>(this IConfiguration config, Expression<Func<TValue>> expression, string instance = null, bool cached = false)
         {
-            var smartConfig = expression.GetSmartSettingAttribute();
-            var name = smartConfig?.Name ?? expression.CreateName(instance);
-            config.Update(name, expression.Select());
-            return config;
+            return config.Select<TValue>((LambdaExpression)expression, instance, cached);
         }
 
         private static TValue Select<TValue>(this IConfiguration config, LambdaExpression expression, string instance = null, bool cached = false)
@@ -62,7 +50,22 @@ namespace Reusable.SmartConfig
             return setting;
         }
 
-        private static CaseInsensitiveString CreateName(this LambdaExpression lambdaExpression, string instance)
+        public static IConfiguration Update<TValue>(this IConfiguration config, Expression<Func<TValue>> expression, string instance = null)
+        {
+            var smartConfig = expression.GetSmartSettingAttribute();
+            var name = smartConfig?.Name ?? expression.CreateName(instance);
+            config.Update(name, expression.Select());
+            return config;
+        }
+    }
+
+    internal static class ExpressionExtensions
+    {
+        private const string NamespaceSeparator = "+";
+
+        private const string InstanceSeparator = ",";
+
+        public static CaseInsensitiveString CreateName(this LambdaExpression lambdaExpression, string instance)
         {
             var memberExpr = lambdaExpression.Body as MemberExpression ?? throw new ArgumentException("Expression must be a member expression.");
 
@@ -74,19 +77,19 @@ namespace Reusable.SmartConfig
                 (string.IsNullOrEmpty(instance) ? string.Empty : $"{InstanceSeparator}{instance}");
         }
 
-        private static SmartSettingAttribute GetSmartSettingAttribute(this LambdaExpression expression)
+        public static SmartSettingAttribute GetSmartSettingAttribute(this LambdaExpression expression)
         {
             var memberExpr = expression.Body as MemberExpression ?? throw new ArgumentException("Expression must be a member expression.");
             return memberExpr.Member.GetCustomAttribute<SmartSettingAttribute>();
         }
 
-        private static object GetDefaultValue(this LambdaExpression expression)
+        public static object GetDefaultValue(this LambdaExpression expression)
         {
             var memberExpr = expression.Body as MemberExpression ?? throw new ArgumentException("Expression must be a member expression.");
             return memberExpr.Member.GetCustomAttribute<DefaultValueAttribute>()?.Value;
         }
 
-        private static void Validate(this LambdaExpression expression, object value, CaseInsensitiveString name)
+        public static void Validate(this LambdaExpression expression, object value, CaseInsensitiveString name)
         {
             var memberExpr = expression.Body as MemberExpression ?? throw new ArgumentException("Expression must be a member expression.");
             foreach (var validation in memberExpr.Member.GetCustomAttributes<ValidationAttribute>())
