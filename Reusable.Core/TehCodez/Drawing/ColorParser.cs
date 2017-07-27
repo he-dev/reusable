@@ -2,88 +2,127 @@
 using System.Drawing;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 
 namespace Reusable.Drawing
 {
+    [UsedImplicitly]
     public abstract class ColorParser
     {
-        public int Parse(string value)
+        protected const int InvalidColor = -1;
+
+        [ContractAnnotation("value: null => halt")]
+        public int Parse([NotNull] string value)
         {
-            if (!TryParse(value, out int result))
+            if (value == null)
             {
-                throw new FormatException($"Unknown color format: '{value}'");
+                throw new ArgumentNullException(nameof(value));
             }
-            return result;
+
+            if (TryParse(value, out int result))
+            {
+                return result;
+            }
+
+            throw new FormatException($"Unknown color format: '{value}'");
         }
-        public abstract bool TryParse(string value, out int color);
+
+        [ContractAnnotation("value: null => false")]
+        public bool TryParse([CanBeNull] string value, out int color)
+        {
+            if (value == null)
+            {
+                color = InvalidColor;
+                return false;
+            }
+            return TryParseCore(value, out color);
+        }
+
+        protected abstract bool TryParseCore([NotNull] string value, out int color);
+
+        // Removes all spaces from a string.
+        [ContractAnnotation("value: null => null; notnull => notnull")]
+        protected static string Minify([CanBeNull] string value)
+        {
+            return value == null ? null : Regex.Replace(value, @"\s", string.Empty);
+        }
     }
 
     public class DecimalColorParser : ColorParser
     {
-        public override bool TryParse(string value, out int color)
+        // language=regexp
+        private const string ColorPattern = @"\d{1,2}|[1][0-9][0-9]|[2][0-5][0-5]";
+
+        // language=regexp
+        private const string DelimiterPattern = @"[,;:]";
+
+        // language=regexp
+        private readonly string _argbPattern = 
+            // Using $ everywhere for consistency.
+            $"^(?:" +
+            $"(?<A>{ColorPattern}){DelimiterPattern})?" +
+            $"(?<R>{ColorPattern}){DelimiterPattern}" +
+            $"(?<G>{ColorPattern}){DelimiterPattern}" +
+            $"(?<B>{ColorPattern}" +
+            $")$";
+
+        protected override bool TryParseCore(string value, out int color)
         {
-            value = Regex.Replace(value, @"\s", string.Empty);
-
-            const string colorPattern = @"\d{1,2}|[1][0-9][0-9]|[2][0-5][0-5]";
-            const string delimiterPattern = @"[,;:]";
-            var pattern = string.Format(@"^(?:(?<A>{0}){1})?(?<R>{0}){1}(?<G>{0}){1}(?<B>{0})$", colorPattern, delimiterPattern);
-
-            var match = Regex.Match(value, pattern);
-            if (!match.Success)
+            var match = Regex.Match(Minify(value), _argbPattern, RegexOptions.ExplicitCapture);
+            if (match.Success)
             {
-                color = 0;
-                return false;
+                var alpha = match.Groups["A"].Success ? int.Parse(match.Groups["A"].Value) : 255;
+                var red = int.Parse(match.Groups["R"].Value);
+                var green = int.Parse(match.Groups["G"].Value);
+                var blue = int.Parse(match.Groups["B"].Value);
+
+                color = Color.FromArgb(alpha, red, green, blue).ToArgb();
+                return true;
             }
 
-            var alpha = match.Groups["A"].Success ? int.Parse(match.Groups["A"].Value) : 255;
-            var red = int.Parse(match.Groups["R"].Value);
-            var green = int.Parse(match.Groups["G"].Value);
-            var blue = int.Parse(match.Groups["B"].Value);
-
-            color = Color.FromArgb(alpha, red, green, blue).ToArgb();
-            return true;
+            color = InvalidColor;
+            return false;
         }
     }
 
     public class HexadecimalColorParser : ColorParser
     {
-        public override bool TryParse(string value, out int color)
-        {
-            value = Regex.Replace(value, @"\s", string.Empty);
+        // language=regexp
+        private const string ColorPattern = @"^(0x|#)?(?<A>[A-F0-9]{2})?(?<R>[A-F0-9]{2})(?<G>[A-F0-9]{2})(?<B>[A-F0-9]{2})$";
 
-            var match = Regex.Match(value, @"^#?(?<A>[A-F0-9]{2})?(?<R>[A-F0-9]{2})(?<G>[A-F0-9]{2})(?<B>[A-F0-9]{2})$", RegexOptions.IgnoreCase);
-            if (!match.Success)
+        protected override bool TryParseCore(string value, out int color)
+        {
+            var match = Regex.Match(Minify(value), ColorPattern, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
+            if (match.Success)
             {
-                color = 0;
-                return false;
+                var alpha = match.Groups["A"].Success ? int.Parse(match.Groups["A"].Value, NumberStyles.HexNumber) : 255;
+                var red = int.Parse(match.Groups["R"].Value, NumberStyles.HexNumber);
+                var green = int.Parse(match.Groups["G"].Value, NumberStyles.HexNumber);
+                var blue = int.Parse(match.Groups["B"].Value, NumberStyles.HexNumber);
+
+                color = Color.FromArgb(alpha, red, green, blue).ToArgb();
+                return true;
             }
 
-            var alpha = match.Groups["A"].Success ? int.Parse(match.Groups["A"].Value, NumberStyles.HexNumber) : 255;
-            var red = int.Parse(match.Groups["R"].Value, NumberStyles.HexNumber);
-            var green = int.Parse(match.Groups["G"].Value, NumberStyles.HexNumber);
-            var blue = int.Parse(match.Groups["B"].Value, NumberStyles.HexNumber);
-
-            color = Color.FromArgb(alpha, red, green, blue).ToArgb();
-            return true;
+            color = InvalidColor;
+            return false;
         }
     }
 
     public class NameColorParser : ColorParser
     {
-        public override bool TryParse(string value, out int color)
+        protected override bool TryParseCore(string value, out int color)
         {
-            value = Regex.Replace(value, @"\s", string.Empty);
+            var colorFromName = Color.FromName(Minify(value));
 
-            var colorFromName = Color.FromName(value);
-
-            if (!colorFromName.IsKnownColor)
+            if (colorFromName.IsKnownColor)
             {
-                color = 0;
-                return false;
+                color = colorFromName.ToArgb();
+                return true;
             }
 
-            color = colorFromName.ToArgb();
-            return true;
+            color = InvalidColor;
+            return false;
         }
     }
 }
