@@ -19,21 +19,18 @@ namespace Reusable.SmartConfig.Datastores.Tests
         [TestInitialize]
         public void TestInitialize()
         {
-            var ns = typeof(TestConsumer).Namespace;
-
             Datastores = new IDatastore[]
             {
-                new SqlServer(
-                    "SqlServer1",
-                    "name=TestDb",
-                    TableMetadata<SqlDbType>
-                        .Create("dbo", "Setting3")
-                            .AddNameColumn()
-                            .AddValueColumn()
-                            .AddColumn("Environment", SqlDbType.NVarChar, 200)
-                            .AddColumn("Version", SqlDbType.NVarChar, 50),
-                    ImmutableDictionary<string, object>.Empty.Add("Environment", "Test").Add("Version", "1.0")
-                )
+                new SqlServer("name=TestDb")
+                {
+                    Schema = "dbo",
+                    Table = "Setting3",
+                    Where =
+                    {
+                        { "Environment",  "Test" },
+                        { "Version", "1.0" }
+                    }
+                }
             };
 
             Utils.ResetData(Environment, Version, Salt);
@@ -43,32 +40,32 @@ namespace Reusable.SmartConfig.Datastores.Tests
         [ExpectedException(typeof(ArgumentException))]
         public void ctor_MissingDefaultColumns_Throws()
         {
-            var store = new SqlServer(
-                "SqlServer1",
-                "name=TestDb",
-                TableMetadata<SqlDbType>
-                    .Create("dbo", "Setting3")
-                    .AddColumn("Environment", SqlDbType.NVarChar, 200)
-                    .AddColumn("Version", SqlDbType.NVarChar, 50),
-                ImmutableDictionary<string, object>.Empty.Add("Environment", "Test").Add("Version", "1.0")
-            );
+            var store = new SqlServer("name=TestDb")
+            {
+                Schema = "dbo",
+                Table = "Setting3",
+                Where =
+                {
+                    { "Environment", "Test" },
+                    { "Version", "1.0" }
+                }
+            };
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void ctor_MissingConstraints_Throws()
         {
-            var store = new SqlServer(
-                "SqlServer1",
-                "name=TestDb",
-                TableMetadata<SqlDbType>
-                    .Create("dbo", "Setting3")
-                    .AddNameColumn()
-                    .AddValueColumn()
-                    .AddColumn("Environment", SqlDbType.NVarChar, 200)
-                    .AddColumn("Version", SqlDbType.NVarChar, 50),
-                ImmutableDictionary<string, object>.Empty.Add("Environment", "Test")
-            );
+            var store = new SqlServer("name=TestDb")
+            {
+                Schema = "dbo",
+                Table = "Setting3",
+                Where =
+                {
+                    { "Environment", "Test" },
+                    { "Version", "1.0" }
+                }
+            };
         }
 
         private static class Utils

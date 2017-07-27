@@ -17,6 +17,7 @@ namespace Reusable.SmartConfig.Services
 
         [NotNull]
         public JsonSerializerSettings JsonSerializerSettings { get; }
+
         protected override T DeserializeCore<T>(object value)
         {
             if (value is string s)

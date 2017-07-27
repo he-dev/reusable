@@ -22,14 +22,20 @@ namespace Reusable.SmartConfig
         void Write([NotNull] ISetting setting);
     }
 
+    [PublicAPI]
     public abstract class Datastore : IDatastore
     {
         private static volatile int _instanceCounter;
+
         private CaseInsensitiveString _name;
 
-        protected Datastore(IEnumerable<Type> supportedTypes)
+        private Datastore()
         {
             Name = CreateDefaultName(GetType());
+        }
+
+        protected Datastore(IEnumerable<Type> supportedTypes) : this()
+        {
             CustomTypes = (supportedTypes ?? throw new ArgumentNullException(nameof(supportedTypes))).ToImmutableHashSet();
         }
 
@@ -49,7 +55,7 @@ namespace Reusable.SmartConfig
             }
             catch (Exception innerException)
             {
-                throw new DatastoreReadException(this, names, innerException);
+                throw new DatastoreReadException(this, names.Last(), innerException);
             }
         }
 
@@ -74,15 +80,15 @@ namespace Reusable.SmartConfig
             return $"{datastoreType.Name}{_instanceCounter++}";
         }
 
-        public bool Equals(IDatastore other) => Equals(other?.Name); 
+        public bool Equals(IDatastore other) => Equals(other?.Name);
 
         public bool Equals(string other) => Name.Equals(other);
     }
 
     public class DatastoreReadException : Exception
     {
-        public DatastoreReadException(IDatastore datastore, IEnumerable<CaseInsensitiveString> names, Exception innerException)
-        : base($"Could not read '{names.Last().ToString()}' from '{datastore.Name.ToString()}'.", innerException) { }
+        public DatastoreReadException(IDatastore datastore, CaseInsensitiveString name, Exception innerException)
+        : base($"Could not read '{name.ToString()}' from '{datastore.Name.ToString()}'.", innerException) { }
     }
 
     public class DatastoreWriteException : Exception

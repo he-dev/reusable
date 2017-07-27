@@ -10,9 +10,7 @@ namespace Reusable.SmartConfig.Datastores
 {
     public class Memory : Datastore, IEnumerable<ISetting>
     {
-        public Memory() : base(new[] { typeof(string) }) { }
-
-        protected Memory(IEnumerable<Type> supportedTypes) : base(supportedTypes) { }
+        public Memory() : base(Enumerable.Empty<Type>()) { }        
 
         protected override ISetting ReadCore(IEnumerable<CaseInsensitiveString> names)
         {

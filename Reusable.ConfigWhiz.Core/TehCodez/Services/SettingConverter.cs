@@ -28,6 +28,7 @@ namespace Reusable.SmartConfig.Services
             return customTypes.Contains(value.GetType()) ? value : SerializeCore(value);
         }
 
+        [NotNull]
         protected abstract object SerializeCore([NotNull]object value);
     }
 }

@@ -52,7 +52,8 @@ namespace Reusable.SmartConfig
         public T Select<T>(CaseInsensitiveString settingName, CaseInsensitiveString datasourceName = null, object defaultValue = null)
         {
             var setting = GetSetting(settingName, datasourceName);
-            return _settingConverter.Deserialize<T>(setting.Value ?? defaultValue);
+            var value = setting.Value ?? defaultValue;
+            return value == null ? default(T) : _settingConverter.Deserialize<T>(value);
         }
 
         private ISetting GetSetting(CaseInsensitiveString settingName, CaseInsensitiveString datasourceName = null)
@@ -91,14 +92,6 @@ namespace Reusable.SmartConfig
         //}
     }
 
-    //public static class CaseInsensitiveStringExtensions
-    //{
-    //    public static string ToJson(this IEnumerable<CaseInsensitiveString> names)
-    //    {
-    //        return $"[{string.Join(", ", names.Select(name => name.ToString()))}]";
-    //    }
-    //}
-
     public class BackingFieldNotFoundException : Exception
     {
         public BackingFieldNotFoundException(string propertyName)
@@ -110,13 +103,6 @@ namespace Reusable.SmartConfig
     {
         public SettingNotFoundException(CaseInsensitiveString name)
             : base($"Could not find '{name.ToString()}'.")
-        { }
-    }
-
-    public class DuplicateDatatastoreException : Exception
-    {
-        public DuplicateDatatastoreException(IEnumerable<string> datastoreNames)
-            : base($"Duplicate datastore names found: [{string.Join(", ", datastoreNames)}].")
         { }
     }
 }

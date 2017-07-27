@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Fuse;
 using Reusable.Fuse.Testing;
@@ -23,10 +25,8 @@ namespace Reusable.SmartConfig.Tests
             {
                 new Memory
                 {
-                    { "Renamed", "abc" },
-                    { "MyContainer.MySetting", "waldo" },
-                    { "Qux", "corge" },
-                    { "SimpleSetting", "foo" },
+                    { "TestSetting1", "abc" },
+                    { "TestSetting3", "xyz" },
                 },
                 new Memory
                 {
@@ -54,58 +54,39 @@ namespace Reusable.SmartConfig.Tests
         #region IO
 
         [TestMethod]
-        public void Load_Renamed_Success()
+        public void Select_ByVariable_Value()
         {
             var config = new Configuration(Datastores);
-
-            var class1 = new Class1();
-            var value = config.Select(() => class1.Setting);
-            var value2 = config.For<Class1>().Select(x => x.Setting);
-
+            var testClass = new TestClass();
+            var value = config.Select(() => testClass.TestSetting1);
             Assert.AreEqual("abc", value);
         }
 
-        private class Class1
-        {
-            [SmartSetting(Name = "Renamed")]
-            public string Setting { get; set; }
-        }
-
-        #endregion
-
         [TestMethod]
-        public void Load_SimpleSetting_Loaded()
+        public void Select_ByType_Value()
         {
-            var configuration = new Configuration(Datastores);
-
-            //var result = configuration.Get<SimpleConfiguration>();
-            //Assert.IsNotNull(result);
-            //Assert.AreEqual("foo", result.SimpleSetting);
+            var config = new Configuration(Datastores);
+            var value = config.For<TestClass>().Select(x => x.TestSetting1);
+            Assert.AreEqual("abc", value);
         }
 
         [TestMethod]
-        public void Load_SameContainer_SameObject()
+        public void Select_Renamed_Value()
         {
-            var configuration = new Configuration(Datastores);
-
-            //var numeric1 = configuration.Get<EmptyConfiguration>();
-            //var numeric2 = configuration.Get<EmptyConfiguration>();
-            //Assert.IsNotNull(numeric1);
-            //Assert.IsNotNull(numeric2);
-            //Assert.AreSame(numeric1, numeric2);
+            var config = new Configuration(Datastores);
+            var value = config.For<TestClass>().Select(x => x.TestSetting2);
+            Assert.AreEqual("xyz", value);
         }
 
-        //[TestMethod]
-        //public void Load_DataSource_Provider_SameObject()
-        //{
-        //    var configuration = new Configuration(Datastores);
+        private class TestClass
+        {
+            public string TestSetting1 { get; set; }
 
-        //    var numeric1 = configuration.Get<TestConsumer, NumericConfiguration>();
-        //    var numeric2 = configuration.Get<TestConsumer, NumericConfiguration>(); //DataOrigin.Provider);
-        //    Assert.IsNotNull(numeric1);
-        //    Assert.IsNotNull(numeric2);
-        //    Assert.AreSame(numeric1, numeric2);
-        //}
+            [SmartSetting(Name = "TestSetting3")]
+            public string TestSetting2 { get; set; }
+        }
+
+        #endregion       
 
         [TestMethod]
         public void Load_InstanceMembers_OnTheType_Loaded()
@@ -173,6 +154,8 @@ namespace Reusable.SmartConfig.Tests
 
             public InstanceClass(IConfiguration config)
             {
+                PublicProperty = config.Select(() => PublicProperty);
+
                 config.Apply(() => PublicProperty);
                 config.Apply(() => PrivateProperty);
                 config.Apply(() => PublicField);
