@@ -58,6 +58,9 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="JetBrains.Annotations, Version=11.0.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <HintPath>..\packages\JetBrains.Annotations.11.0.0\lib\net20\JetBrains.Annotations.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -73,14 +76,15 @@
     <Compile Include="TehCodez\LabelComparer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TehCodez\SemanticVersion.cs" />
-    <Compile Include="TehCodez\VersionOutOfRangeException.cs" />
-    <Compile Include="TehCodez\VersionValidator.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj">
       <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
       <Name>Reusable.Core</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

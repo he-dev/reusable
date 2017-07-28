@@ -12,7 +12,7 @@ namespace Reusable
             if (ReferenceEquals(left, null) && ReferenceEquals(right, null))
             {
                 return ComparisonResult.Equal;
-            }
+            }            
 
             if (ReferenceEquals(left, null))
             {

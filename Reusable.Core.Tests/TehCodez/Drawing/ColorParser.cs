@@ -44,7 +44,6 @@ namespace Reusable.Tests.Drawing
         }
 
         protected abstract string GetCadetBlue();
-
     }
 
     [TestClass]

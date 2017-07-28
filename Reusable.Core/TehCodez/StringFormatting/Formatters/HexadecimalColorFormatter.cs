@@ -11,14 +11,15 @@ namespace Reusable.StringFormatting.Formatters
 {
     public class HexadecimalColorFormatter : CustomFormatter
     {
+        // language=regexp
+        private const string FormatPattern = "(0x|#)(?<ColorComponents>ARGB|RGB|RGBA)";
+
         [ContractAnnotation("format: null => null; arg: null => null")]
         public override string Format(string format, object arg, IFormatProvider formatProvider)
         {
-            if (format == null) return null;
-
-            if (arg is Color color)
+            if (format != null && arg is Color color)
             {
-                var match = Regex.Match(format, "(0x|#)(?<ColorComponents>ARGB|RGB|RGBA)", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
+                var match = Regex.Match(format, FormatPattern, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
                 if (match.Success)
                 {
                     return Regex.Replace(

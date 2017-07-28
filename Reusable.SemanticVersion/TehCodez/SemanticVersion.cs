@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 using Reusable.Collections;
 
 namespace Reusable
@@ -12,35 +14,60 @@ namespace Reusable
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class SemanticVersion : IComparable<SemanticVersion>, IComparer<SemanticVersion>
     {
-        public SemanticVersion(int major, int minor, int patch, IEnumerable<string> labels)
-        {
-            VersionValidator.ValidateMinVersion(major, minor, patch);
-            Major = major;
-            Minor = minor;
-            Patch = patch;
-            Labels = (labels ?? throw new ArgumentNullException(nameof(labels))).ToList();
-        }
+        private int _major;
+        private int _minor;
+        private int _patch;
 
-        public SemanticVersion(int major, int minor, int patch) : this(major, minor, patch, Enumerable.Empty<string>()) { }
+        [NotNull]
+        [ItemNotNull]
+        private List<string> _labels = new List<string>();
 
         private string DebuggerDisplay => ToString();
 
-        public int Major { get; }
+        public int Major
+        {
+            get => _major;
+            set => _major = ValidateVersion(value);
+        }
 
-        public int Minor { get; }
+        public int Minor
+        {
+            get => _minor;
+            set => _minor = ValidateVersion(value);
+        }
 
-        public int Patch { get; }
+        public int Patch
+        {
+            get => _patch;
+            set => _patch = ValidateVersion(value);
+        }
 
-        public IReadOnlyList<string> Labels { get; }
+        private static int ValidateVersion(int version, [CallerMemberName] string memberName = null)
+        {
+            if (version < 0) throw new ArgumentOutOfRangeException($"{memberName} version must be >= 0.");
+            return version;
+        }
 
-        public bool IsPrerelease => Labels?.Count > 0;
+        [NotNull, ItemNotNull]
+        public List<string> Labels
+        {
+            get => _labels;
+            set => _labels = value ?? throw new ArgumentNullException(nameof(Labels));
+        }
 
+        public bool IsPrerelease => Labels.Any();
+
+        [ContractAnnotation("value: null => halt")]
         public static SemanticVersion Parse(string value)
         {
-            if (TryParse(value, out SemanticVersion result)) return result;
+            if (TryParse(value, out SemanticVersion result))
+            {
+                return result;
+            }
             throw new InvalidVersionException($"'{value}' is not a valid version.");
         }
 
+        [ContractAnnotation("value: null => false, result: null")]
         public static bool TryParse(string value, out SemanticVersion result)
         {
             if (string.IsNullOrEmpty(value))
@@ -55,12 +82,12 @@ namespace Reusable
             if (versionMatch.Success)
             {
                 result = new SemanticVersion
-                (
-                    major: int.Parse(versionMatch.Groups["major"].Value),
-                    minor: int.Parse(versionMatch.Groups["minor"].Value),
-                    patch: int.Parse(versionMatch.Groups["patch"].Value),
-                    labels: versionMatch.Groups["labels"].Value.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries)
-                );
+                {
+                    Major = int.Parse(versionMatch.Groups["major"].Value),
+                    Minor = int.Parse(versionMatch.Groups["minor"].Value),
+                    Patch = int.Parse(versionMatch.Groups["patch"].Value),
+                    Labels = versionMatch.Groups["labels"].Value.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries).ToList()
+                };
                 return true;
             }
 
