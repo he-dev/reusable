@@ -13,24 +13,24 @@ namespace Reusable.Tests
     public class SemanticVersionTest
     {
         [TestMethod]
-        [ExpectedException(typeof(VersionOutOfRangeException))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void ctor_MajorVersionLessThenZero_VersionOutOfRangeException()
         {
-            new SemanticVersion(-1, 1, 1);
+            new SemanticVersion { Major = -1, Minor = 1, Patch = 1 };
         }
 
         [TestMethod]
-        [ExpectedException(typeof(VersionOutOfRangeException))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void ctor_MinorVersionLessThenZero_VersionOutOfRangeException()
         {
-            new SemanticVersion(1, -1, 1);
+            new SemanticVersion { Major = 1, Minor = -1, Patch = 1 };
         }
 
         [TestMethod]
-        [ExpectedException(typeof(VersionOutOfRangeException))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void ctor_PatchVersionLessThenZero_VersionOutOfRangeException()
         {
-            new SemanticVersion(1, 1, -1);
+            new SemanticVersion { Major = 1, Minor = 1, Patch = -1 };
         }
 
         [TestMethod]
@@ -146,7 +146,7 @@ namespace Reusable.Tests
             };
 
             CollectionAssert.AreEqual(expected, actual);
-        }        
+        }
 
         [TestMethod]
         public void Sort_WithLabels()
