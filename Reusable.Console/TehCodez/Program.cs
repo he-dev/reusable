@@ -11,6 +11,11 @@ namespace Reusable.Console
             
             //System.Console.ReadKey();
         }
+
+        private static void foo(ref readonly int x)
+        {
+            
+        }
     }
 
     public static class Event
