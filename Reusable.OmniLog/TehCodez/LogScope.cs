@@ -53,4 +53,11 @@ namespace Reusable.OmniLog
             Current = Current.Parent;
         }
     }
+
+    public interface ILogScopeMerge
+    {
+        SoftString Name { get; }
+
+        KeyValuePair<SoftString, object> Merge(IEnumerable<KeyValuePair<SoftString, object>> items);
+    }
 }

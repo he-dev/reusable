@@ -109,7 +109,7 @@ namespace Reusable.OmniLog
         #endregion
 
         // Flattens log by picking the first item from each group. Groups are built on the key.
-        public static Log Flatten(this Log log)
+        public static Log Flatten(this Log log, IDictionary<SoftString, ILogScopeMerge> scopeMerges)
         {
             var items = log.SelectMany(l =>
             {
@@ -124,7 +124,7 @@ namespace Reusable.OmniLog
             var innerScope =
                 items
                     .GroupBy(i => i.Key)
-                    .Select(i => i.First());
+                    .Select(scope => scopeMerges.TryGetValue(scope.Key, out var merge) ? merge.Merge(scope) : scope.First());
 
             return new Log().AddRange(innerScope);
         }

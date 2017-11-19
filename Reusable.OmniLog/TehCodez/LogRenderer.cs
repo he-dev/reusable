@@ -31,9 +31,8 @@ namespace Reusable.OmniLog
                     // Don't render LogLevel because we cannot filter without it.
                     //				case LogLevel logLevel:
                     //					log[item.Key] = logLevel.ToString();
-                    //					break;
+                    //					break;s
 
-                    // Render message.
                     case MessageFunc messageFunc:
                         log[LogProperty.Message] = messageFunc();
                         break;
@@ -42,13 +41,12 @@ namespace Reusable.OmniLog
                         log[item.Key] = computable.Compute(rawLog);
                         break;                    
 
-                    // Compute scope.
-                    case Log dictionary:
-                        log[item.Key] = dictionary.Compute(rawLog);
+                    case LogScope scope:
+                        log[item.Key] = scope.Compute(rawLog);
                         break;
 
                     case LogBag bag:
-                        // Skip the log-bag.
+                        // Skip the log-bag because it's not renderable.
                         continue;
 
                     default:

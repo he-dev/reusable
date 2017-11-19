@@ -22,6 +22,13 @@ namespace Reusable.OmniLog
             [LogLevel.Fatal] = NLog.LogLevel.Fatal,
         };
 
+        private readonly IDictionary<SoftString, ILogScopeMerge> _scopeMerges;
+
+        private NLogRx(IEnumerable<ILogScopeMerge> scopeMerges)
+        {
+             _scopeMerges = scopeMerges.ToDictionary(m => m.Name, m => m);
+        }
+
         protected override IObserver<Log> Initialize()
         {
             return Observer.Create<Log>(Log);
@@ -29,12 +36,12 @@ namespace Reusable.OmniLog
 
         private void Log(Log log)
         {
-            GetLogger(log.Name()).Log(CreateLogEventInfo(log));
+            GetLogger(log.Name()).Log(CreateLogEventInfo(log, _scopeMerges));
         }
 
-        private static NLog.LogEventInfo CreateLogEventInfo(Log log)
+        private static NLog.LogEventInfo CreateLogEventInfo(Log log, IDictionary<SoftString, ILogScopeMerge> scopeMerges)
         {
-            log = log.Flatten();
+            log = log.Flatten(scopeMerges);
             var logEventInfo = new NLog.LogEventInfo
             {
                 Level = LogLevelMap[log.LogLevel()],
@@ -54,6 +61,6 @@ namespace Reusable.OmniLog
             return _cache.GetOrAdd(name, n => NLog.LogManager.GetLogger(name.ToString()));
         }
 
-        public static IObserver<Log> Create() => new NLogRx();        
+        public static IObserver<Log> Create(IEnumerable<ILogScopeMerge> scopeMerges) => new NLogRx(scopeMerges);        
     }
 }

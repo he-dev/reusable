@@ -36,7 +36,7 @@
 		//["Environment"] = "${environmentLayout}",
 		["Logger"] = "${logger}",
 		["Level"] = "${level:lowercase=true}",
-		["ElapsedMilliseconds"] = "${event-properties:item=ElapsedMilliseconds}",
+		//["ElapsedMilliseconds"] = "${event-properties:item=ElapsedMilliseconds}",
 		["Exception"] = "${onexception:${exceptionLayout}}",
 	};
 	var indentWidth = 3;

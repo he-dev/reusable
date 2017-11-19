@@ -50,9 +50,4 @@ namespace Reusable.OmniLog
 
         #endregion
     }
-
-    //// Marker interface for log properties that return a DateTime value.
-    //public interface IDateTimeProperty : ILogAttachement
-    //{
-    //}
 }
