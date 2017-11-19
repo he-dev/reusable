@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>Reusable.SmartConfig.SqlServer</id>
+    <version>1.0.22</version>
+    <title>Reusable.SmartConfig.SqlServer</title>
+    <authors>He-Dev</authors>
+    <owners>He-Dev</owners>
+    <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/he-dev/Reusable</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/he-dev/Reusable/master/_nuget/recycling.png</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>This package provides a datastore for accessing the SQL server.</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2017 He-Dev</copyright>
+    <tags>Utility Extension</tags>
+    <dependencies>
+      <dependency id="JetBrains.Annotations" version="11.1.0" />
+      <dependency id="System.ValueTuple" version="4.4.0" />
+      <dependency id="Reusable.SmartConfig.Core" version="1.0.22" />
+      <dependency id="Reusable.Core" version="1.0.22" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\Release\Reusable.SmartConfig.SqlServer.dll" target="lib\net452" />
+    <file src="bin\Release\Reusable.SmartConfig.SqlServer.pdb" target="lib\net452" />
+  </files>
+</package>

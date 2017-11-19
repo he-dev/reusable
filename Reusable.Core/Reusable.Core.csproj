@@ -1,0 +1,176 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{429E2201-906E-4484-9361-4A16170B0D99}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Reusable</RootNamespace>
+    <AssemblyName>Reusable.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <DebugSymbols>true</DebugSymbols>
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="JetBrains.Annotations, Version=11.1.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <HintPath>..\packages\JetBrains.Annotations.11.1.0\lib\net20\JetBrains.Annotations.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Collections.Immutable, Version=1.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.1.4.0\lib\netstandard2.0\System.Collections.Immutable.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.4.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="TehCodez\Abstractions\IFilterFactory.cs" />
+    <Compile Include="TehCodez\Abstractions\IStopwatch.cs" />
+    <Compile Include="TehCodez\AsyncDetector.cs" />
+    <Compile Include="TehCodez\Diagnostics\DebuggerString.cs" />
+    <Compile Include="TehCodez\ExitCode.cs" />
+    <Compile Include="TehCodez\ProcessExecutor.cs" />
+    <Compile Include="TehCodez\Collections\RelayEqualityComparer.cs" />
+    <Compile Include="TehCodez\Collections\RelayEquatable.cs" />
+    <Compile Include="TehCodez\Collections\AutoEqualityExpressionFactory.cs" />
+    <Compile Include="TehCodez\Collections\AutoEqualityPropertyAttribute.cs" />
+    <Compile Include="TehCodez\Collections\PainlessDictionary.cs" />
+    <Compile Include="TehCodez\Collections\PainlessDictionaryExtensions.cs" />
+    <Compile Include="TehCodez\Collections\PainlessDictionaryFactory.cs" />
+    <Compile Include="TehCodez\ProcessExecutorExtensions.cs" />
+    <Compile Include="TehCodez\SearchResult.cs" />
+    <Compile Include="TehCodez\Data\TreeNode.cs" />
+    <Compile Include="TehCodez\Collections\AutoEquality.cs" />
+    <Compile Include="TehCodez\Exceptionize\DynamicException.cs" />
+    <Compile Include="TehCodez\Exceptionize\DynamicExceptionFactory.cs" />
+    <Compile Include="TehCodez\Exceptionize\DynamicExceptionFactoryExtensions.cs" />
+    <Compile Include="TehCodez\Exceptionize\DynamicExceptionExtensions.cs" />
+    <Compile Include="TehCodez\BinaryOperation.cs" />
+    <Compile Include="TehCodez\Exceptionize\DynamicExceptionTemplate.cs" />
+    <Compile Include="TehCodez\Extensions\RelayEquatableExtensions.cs" />
+    <Compile Include="TehCodez\Extensions\DummyExtensions.cs" />
+    <Compile Include="TehCodez\Extensions\MatchExtensions.cs" />
+    <Compile Include="TehCodez\Extensions\StackExtensions.cs" />
+    <Compile Include="TehCodez\Extensions\StringPrettifierExtensions.cs" />
+    <Compile Include="TehCodez\Abstractions\IDateTime.cs" />
+    <Compile Include="TehCodez\IO\FileSystem.cs" />
+    <Compile Include="TehCodez\IO\Filters\DirectoryFilterFactory.cs" />
+    <Compile Include="TehCodez\IO\Filters\FileFilterFactory.cs" />
+    <Compile Include="TehCodez\IO\Filters\PathFilterFactory.cs" />
+    <Compile Include="TehCodez\Isolated.cs" />
+    <Compile Include="TehCodez\KeySets\KeySet.cs" />
+    <Compile Include="TehCodez\KeySets\SoftKeySet.cs" />
+    <Compile Include="TehCodez\ObjectFactory.cs" />
+    <Compile Include="TehCodez\Range.cs" />
+    <Compile Include="TehCodez\Range.IEquatable.cs" />
+    <Compile Include="TehCodez\RangeExtensions.cs" />
+    <Compile Include="TehCodez\SoftString.Operators.cs" />
+    <Compile Include="TehCodez\SoftString.IComparable.cs" />
+    <Compile Include="TehCodez\SoftString.IEquatable.cs" />
+    <Compile Include="TehCodez\SoftString.cs" />
+    <Compile Include="TehCodez\Data\Repositories\ConnectionStringRepository.cs" />
+    <Compile Include="TehCodez\Data\Repositories\AppSettingRepository.cs" />
+    <Compile Include="TehCodez\Reflection\ResourceReaderExtensions.cs" />
+    <Compile Include="TehCodez\DateTimes\UtcDateTime.cs" />
+    <Compile Include="TehCodez\ComparisonResult.cs" />
+    <Compile Include="TehCodez\Data\DataTableExtensions.cs" />
+    <Compile Include="TehCodez\Drawing\ColorExtensions.cs" />
+    <Compile Include="TehCodez\Extensions\DictionaryExtensions.cs" />
+    <Compile Include="TehCodez\Extensions\FunctionalExtensions.cs" />
+    <Compile Include="TehCodez\Extensions\StringBuilderExtensions.cs" />
+    <Compile Include="TehCodez\Extensions\StringExtensions.cs" />
+    <Compile Include="TehCodez\SoftStringComparer.cs" />
+    <Compile Include="TehCodez\SoftStringExtensions.cs" />
+    <Compile Include="TehCodez\Stopwatches\SystemStopwatch.cs" />
+    <Compile Include="TehCodez\StringExtensions.cs" />
+    <Compile Include="TehCodez\StringPrettifier.cs" />
+    <Compile Include="TehCodez\Disposable.cs" />
+    <Compile Include="TehCodez\DependencyValidator.cs" />
+    <Compile Include="TehCodez\Drawing\Color32.cs" />
+    <Compile Include="TehCodez\Drawing\ColorParser.cs" />
+    <Compile Include="TehCodez\CustomFormatter.cs" />
+    <Compile Include="TehCodez\CustomFormatterComposer.cs" />
+    <Compile Include="TehCodez\Reflection\ResourceReader.cs" />
+    <Compile Include="TehCodez\Formatters\BracketFormatter.cs" />
+    <Compile Include="TehCodez\Formatters\CaseFormatter.cs" />
+    <Compile Include="TehCodez\Formatters\DecimalColorFormatter.cs" />
+    <Compile Include="TehCodez\Formatters\HexadecimalColorFormatter.cs" />
+    <Compile Include="TehCodez\Formatters\QuoteFormatter.cs" />
+    <Compile Include="TehCodez\DateTimes\LocalDateTime.cs" />
+    <Compile Include="TehCodez\Collections\ProjectionComparer.cs" />
+    <Compile Include="TehCodez\Extensions\EnumerableExtensions.cs" />
+    <Compile Include="TehCodez\Extensions\ExceptionExtensions.cs" />
+    <Compile Include="TehCodez\Extensions\Conditional.cs" />
+    <Compile Include="TehCodez\Reflection\TypeExtensions.cs" />
+    <Compile Include="TehCodez\Extensions\StringInterpolation.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

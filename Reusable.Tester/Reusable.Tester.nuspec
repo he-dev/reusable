@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>Reusable.Tester</id>
+    <version>1.0.22</version>
+    <title>Reusable.Tester</title>
+    <authors>He-Dev</authors>
+    <owners>He-Dev</owners>
+    <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/he-dev/Reusable</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/he-dev/Reusable/master/_nuget/recycling.png</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>This package provides extensions for string unit-testing.</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2017 He-Dev</copyright>
+    <tags>Utility Extension</tags>
+    <dependencies>
+      <dependency id="JetBrains.Annotations" version="11.1.0" />
+      <dependency id="MSTest.TestFramework" version="1.2.0" />
+      <dependency id="System.Reactive" version="3.1.1" />
+      <dependency id="System.Reactive.Core" version="3.1.1" />
+      <dependency id="System.Reactive.Interfaces" version="3.1.1" />
+      <dependency id="System.Reactive.Linq" version="3.1.1" />
+      <dependency id="System.Reactive.PlatformServices" version="3.1.1" />
+      <dependency id="System.Reactive.Windows.Threading" version="3.1.1" />
+      <dependency id="System.ValueTuple" version="4.4.0" />
+      <dependency id="Reusable.Core" version="1.0.22" />
+      <dependency id="Reusable.OmniLog" version="1.0.22" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\Release\Reusable.Tester.dll" target="lib\net462" />
+    <file src="bin\Release\Reusable.Tester.pdb" target="lib\net462" />
+  </files>
+</package>
