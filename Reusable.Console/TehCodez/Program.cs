@@ -18,11 +18,5 @@ namespace Reusable.Console
         //}
     }
 
-    public static class Event
-    {
-        public const string ApplicationStart = nameof(ApplicationStart);
-        public const string ApplicationExit = nameof(ApplicationExit);
-        public const string InitializeConfiguration = nameof(InitializeConfiguration);
-        public const string InitializeContainer = nameof(InitializeContainer);
-    }
+   
 }

@@ -90,8 +90,9 @@
       <Name>Reusable.OmniLog</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Sql\" />
+    <Content Include="Sql\CREATE TABLE [dbo].[SemLog].sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

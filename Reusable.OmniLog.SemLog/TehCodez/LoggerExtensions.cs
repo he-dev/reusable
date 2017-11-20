@@ -26,6 +26,7 @@ namespace Reusable.OmniLog.SemLog
         public static void State(
             this ILogger logger, 
             Layer layer, 
+            string name,
             Action<StateBuilder> state, 
             string message = null,
             [CallerMemberName] string callerMemberName = null,
@@ -35,6 +36,7 @@ namespace Reusable.OmniLog.SemLog
             logger.Log(LogLevelMap[layer], log =>
             {
                 log.With(nameof(Layer), layer);
+                log.With("State", name);
 
                 var stateBuilder = new StateBuilder();
                 state(stateBuilder);

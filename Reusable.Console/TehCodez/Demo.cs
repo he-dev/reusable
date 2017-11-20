@@ -68,19 +68,19 @@ namespace Reusable.Console
                 }
             };          
 
-            var var = loggerFactory.CreateLogger("Demo");
+            var logger = loggerFactory.CreateLogger("Demo");
 
             //for (int i = 0; i < 10000; i++)
             {
-                using (var.BeginScope(s => s.Transaction(123).Elapsed()))
+                using (logger.BeginScope(s => s.Transaction(123).Elapsed()))
                 {
-                    var.State(Layer.Business, s => s.Expected("foo"), message: "Hallo state!");
-                    var.State(Layer.Business, s => s.Expected("foo").Actual("foo"), message: "Hallo state!");
-                    using (var.BeginScope(s => s.Transaction(456).Elapsed()))
+                    logger.State(Layer.Business, "state", s => s.Expected("foo"), message: "Hallo state!");
+                    logger.State(Layer.Business, "state", s => s.Expected("foo").Actual("foo"), message: "Hallo state!");
+                    using (logger.BeginScope(s => s.Transaction(456).Elapsed()))
                     {
-                        var.State(Layer.Business, s => s.Expected(new { FirstName = "John", LastName = "Doe" }).Actual("foo"), message: "Hallo state!");
-                        var.Event(Layer.Application, Event.ApplicationStart, Result.Success, "Hallo event!");
-                        var.Trace("Just a trace");
+                        logger.State(Layer.Business, "CustomerName", s => s.Expected(new { FirstName = "John", LastName = "Doe" }).Actual("foo"), message: "Hallo state!");
+                        logger.Event(Layer.Application, Event.ApplicationStart, Result.Success, "Hallo event!");
+                        logger.Trace("Just a trace");
                     }
                 }
             }
@@ -95,5 +95,13 @@ namespace Reusable.Console
 
             var result = converter.Convert("123", typeof(int));
         }
+    }
+
+    public static class Event
+    {
+        public const string ApplicationStart = nameof(ApplicationStart);
+        public const string ApplicationExit = nameof(ApplicationExit);
+        public const string InitializeConfiguration = nameof(InitializeConfiguration);
+        public const string InitializeContainer = nameof(InitializeContainer);
     }
 }
