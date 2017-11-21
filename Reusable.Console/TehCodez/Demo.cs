@@ -61,9 +61,10 @@ namespace Reusable.Console
                     Attachements = new HashSet<ILogAttachement>(AppSetting.FromAppConfig("omnilog:", "Environment", "Product"))
                     {
                         new Timestamp<UtcDateTime>(),
-                        new Expected(),
-                        new Actual(),
-                        new AreEqual()
+                        new Snapshot()
+                        //new Expected(),
+                        //new Actual(),
+                        //new AreEqual()
                     }
                 }
             };          
@@ -74,11 +75,10 @@ namespace Reusable.Console
             {
                 using (logger.BeginScope(s => s.Transaction(123).Elapsed()))
                 {
-                    logger.State(Layer.Business, "state", s => s.Expected("foo"), message: "Hallo state!");
-                    logger.State(Layer.Business, "state", s => s.Expected("foo").Actual("foo"), message: "Hallo state!");
+                    logger.State(Layer.Business, () => ("foo", "bar", "Hallo state!"), LogLevel.Warning);
                     using (logger.BeginScope(s => s.Transaction(456).Elapsed()))
                     {
-                        logger.State(Layer.Business, "CustomerName", s => s.Expected(new { FirstName = "John", LastName = "Doe" }).Actual("foo"), message: "Hallo state!");
+                        logger.State(Layer.Business, () => ("Customer", new { FirstName = "John", LastName = "Doe" }, "Hallo state!"));
                         logger.Event(Layer.Application, Event.ApplicationStart, Result.Success, "Hallo event!");
                         logger.Trace("Just a trace");
                     }

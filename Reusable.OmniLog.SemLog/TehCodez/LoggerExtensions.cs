@@ -24,49 +24,64 @@ namespace Reusable.OmniLog.SemLog
         };
 
         public static void State(
-            this ILogger logger, 
-            Layer layer, 
-            string name,
-            Action<StateBuilder> state, 
-            string message = null,
+            this ILogger logger,
+            Layer layer,
+            Func<(string Name, object Object, string Message)> snapshot,
+            LogLevel level,
             [CallerMemberName] string callerMemberName = null,
             [CallerLineNumber] int callerLineNumber = 0,
             [CallerFilePath] string callerFilePath = null)
         {
-            logger.Log(LogLevelMap[layer], log =>
+            level = level ?? LogLevelMap[layer];
+            logger.Log(level, log =>
             {
+                var s = snapshot();
+
                 log.With(nameof(Layer), layer);
-                log.With("State", name);
+                log.With("State", s.Name);
 
-                var stateBuilder = new StateBuilder();
-                state(stateBuilder);
-
-                var (expected, actual) = stateBuilder;
-
-                if ((!(expected is null) || !(actual is null)) && log.Bag() is null)
+                if (!log.ContainsKey("Bag"))
                 {
-                    log.Bag(new LogBag());
+                    log.Add("Bag", new LogBag());
+                }
+                log.Bag().Add(nameof(Snapshot), s.Object);
+
+                if (!(s.Message is null))
+                {
+                    log.Message(s.Message);
                 }
 
-                if (!(expected is null))
-                {
-                    log.Bag().Add(nameof(Expected), expected);
-                }
-
-                if (!(actual is null))
-                {
-                    log.Bag().Add(nameof(Actual), actual);
-                }
-
-                if (!(message is null))
-                {
-                    log.Message(message);
-                }
 
                 log.Add(LogProperty.CallerMemberName, callerMemberName);
                 log.Add(LogProperty.CallerLineNumber, callerLineNumber);
                 log.Add(LogProperty.CallerFilePath, Path.GetFileName(callerFilePath));
             });
+        }
+
+        public static void State(
+            this ILogger logger,
+            Layer layer,
+            Func<(string Name, object Object)> snapshot,
+            [CallerMemberName] string callerMemberName = null,
+            [CallerLineNumber] int callerLineNumber = 0,
+            [CallerFilePath] string callerFilePath = null)
+        {
+            logger.State(layer, () =>
+            {
+                var s = snapshot();
+                return (s.Name, s.Object, null);
+            }, null, callerMemberName, callerLineNumber, callerFilePath);
+        }
+
+        public static void State(
+            this ILogger logger,
+            Layer layer,
+            Func<(string Name, object Object, string Message)> snapshot,
+            [CallerMemberName] string callerMemberName = null,
+            [CallerLineNumber] int callerLineNumber = 0,
+            [CallerFilePath] string callerFilePath = null)
+        {
+            logger.State(layer, snapshot, null, callerMemberName, callerLineNumber, callerFilePath);
         }
 
         public static void Event(

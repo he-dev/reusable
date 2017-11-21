@@ -5,13 +5,13 @@ using Reusable.OmniLog.Collections;
 
 namespace Reusable.OmniLog.SemLog.Attachements
 {
-    public abstract class State : LogAttachement
+    public class Snapshot : LogAttachement
     {
-        protected State(string name) : base(name)
+        public Snapshot() : base(nameof(Snapshot))
         {
             Settings = new JsonSerializerSettings
             {
-                NullValueHandling = NullValueHandling.Ignore,
+                NullValueHandling = NullValueHandling.Include,
                 Formatting = Formatting.Indented,
                 Converters = { new StringEnumConverter() }
             };

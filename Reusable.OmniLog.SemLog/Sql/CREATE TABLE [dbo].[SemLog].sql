@@ -1,5 +1,4 @@
-
-/****** Object:  Table [dbo].[SemLog]    Script Date: 2017-11-20 11:59:55 ******/
+/****** Object:  Table [dbo].[SemLog]    Script Date: 2017-11-21 13:11:48 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -16,9 +15,7 @@ CREATE TABLE [dbo].[SemLog](
 	[Layer] [nvarchar](50) NOT NULL,
 	[Level] [nvarchar](50) NOT NULL,
 	[State] [nvarchar](50) NULL,
-	[Expected] [nvarchar](max) NULL,
-	[Actual] [nvarchar](max) NULL,
-	[AreEqual] [bit] NULL,
+	[Snapshot] [nvarchar](max) NULL,
 	[Event] [nvarchar](50) NULL,
 	[Elapsed] [bigint] NULL,
 	[Result] [nvarchar](50) NULL,
@@ -37,7 +34,7 @@ GO
 SET ANSI_PADDING ON
 GO
 
-/****** Object:  Index [IX_Environment]    Script Date: 2017-11-20 11:59:55 ******/
+/****** Object:  Index [IX_Environment]    Script Date: 2017-11-21 13:11:48 ******/
 CREATE NONCLUSTERED INDEX [IX_Environment] ON [dbo].[SemLog]
 (
 	[Environment] ASC
@@ -47,7 +44,7 @@ GO
 SET ANSI_PADDING ON
 GO
 
-/****** Object:  Index [IX_Event]    Script Date: 2017-11-20 11:59:55 ******/
+/****** Object:  Index [IX_Event]    Script Date: 2017-11-21 13:11:48 ******/
 CREATE NONCLUSTERED INDEX [IX_Event] ON [dbo].[SemLog]
 (
 	[Event] ASC
@@ -57,7 +54,7 @@ GO
 SET ANSI_PADDING ON
 GO
 
-/****** Object:  Index [IX_Layer]    Script Date: 2017-11-20 11:59:55 ******/
+/****** Object:  Index [IX_Layer]    Script Date: 2017-11-21 13:11:48 ******/
 CREATE NONCLUSTERED INDEX [IX_Layer] ON [dbo].[SemLog]
 (
 	[Layer] ASC
@@ -67,7 +64,7 @@ GO
 SET ANSI_PADDING ON
 GO
 
-/****** Object:  Index [IX_Level]    Script Date: 2017-11-20 11:59:55 ******/
+/****** Object:  Index [IX_Level]    Script Date: 2017-11-21 13:11:48 ******/
 CREATE NONCLUSTERED INDEX [IX_Level] ON [dbo].[SemLog]
 (
 	[Level] ASC
@@ -77,7 +74,7 @@ GO
 SET ANSI_PADDING ON
 GO
 
-/****** Object:  Index [IX_Logger]    Script Date: 2017-11-20 11:59:55 ******/
+/****** Object:  Index [IX_Logger]    Script Date: 2017-11-21 13:11:48 ******/
 CREATE NONCLUSTERED INDEX [IX_Logger] ON [dbo].[SemLog]
 (
 	[Logger] ASC
@@ -87,7 +84,7 @@ GO
 SET ANSI_PADDING ON
 GO
 
-/****** Object:  Index [IX_Product]    Script Date: 2017-11-20 11:59:55 ******/
+/****** Object:  Index [IX_Product]    Script Date: 2017-11-21 13:11:48 ******/
 CREATE NONCLUSTERED INDEX [IX_Product] ON [dbo].[SemLog]
 (
 	[Product] ASC
@@ -97,7 +94,7 @@ GO
 SET ANSI_PADDING ON
 GO
 
-/****** Object:  Index [IX_Result]    Script Date: 2017-11-20 11:59:55 ******/
+/****** Object:  Index [IX_Result]    Script Date: 2017-11-21 13:11:48 ******/
 CREATE NONCLUSTERED INDEX [IX_Result] ON [dbo].[SemLog]
 (
 	[Result] ASC
@@ -107,7 +104,7 @@ GO
 SET ANSI_PADDING ON
 GO
 
-/****** Object:  Index [IX_State]    Script Date: 2017-11-20 11:59:55 ******/
+/****** Object:  Index [IX_State]    Script Date: 2017-11-21 13:11:48 ******/
 CREATE NONCLUSTERED INDEX [IX_State] ON [dbo].[SemLog]
 (
 	[State] ASC
@@ -117,7 +114,7 @@ GO
 SET ANSI_PADDING ON
 GO
 
-/****** Object:  Index [IX_Transaction]    Script Date: 2017-11-20 11:59:55 ******/
+/****** Object:  Index [IX_Transaction]    Script Date: 2017-11-21 13:11:48 ******/
 CREATE NONCLUSTERED INDEX [IX_Transaction] ON [dbo].[SemLog]
 (
 	[Transaction] ASC
