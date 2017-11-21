@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Tester</id>
-    <version>1.0.22</version>
+    <version>3.78.0</version>
     <title>Reusable.Tester</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -24,8 +24,8 @@
       <dependency id="System.Reactive.PlatformServices" version="3.1.1" />
       <dependency id="System.Reactive.Windows.Threading" version="3.1.1" />
       <dependency id="System.ValueTuple" version="4.4.0" />
-      <dependency id="Reusable.Core" version="1.0.22" />
-      <dependency id="Reusable.OmniLog" version="1.0.22" />
+      <dependency id="Reusable.Core" version="3.78.0" />
+      <dependency id="Reusable.OmniLog" version="3.78.0" />
     </dependencies>
   </metadata>
   <files>

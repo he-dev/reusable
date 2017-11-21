@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.SmartConfig.Core</id>
-    <version>1.0.22</version>
+    <version>3.78.0</version>
     <title>Reusable.SmartConfig.Core</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -17,7 +17,7 @@
     <dependencies>
       <dependency id="JetBrains.Annotations" version="11.1.0" />
       <dependency id="System.ValueTuple" version="4.4.0" />
-      <dependency id="Reusable.Core" version="1.0.22" />
+      <dependency id="Reusable.Core" version="3.78.0" />
     </dependencies>
   </metadata>
   <files>

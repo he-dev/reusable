@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.SmartConfig.JsonSettingConverter</id>
-    <version>1.0.22</version>
+    <version>3.78.0</version>
     <title>Reusable.SmartConfig.JsonSettingConverter</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -18,10 +18,10 @@
       <dependency id="JetBrains.Annotations" version="11.1.0" />
       <dependency id="Newtonsoft.Json" version="10.0.3" />
       <dependency id="System.ValueTuple" version="4.4.0" />
-      <dependency id="Reusable.SmartConfig.Core" version="1.0.22" />
-      <dependency id="Reusable.Core" version="1.0.22" />
-      <dependency id="Reusable.ThirdParty.JsonNetUtilities" version="1.0.22" />
-      <dependency id="Reusable.Converters" version="1.0.22" />
+      <dependency id="Reusable.SmartConfig.Core" version="3.78.0" />
+      <dependency id="Reusable.Core" version="3.78.0" />
+      <dependency id="Reusable.ThirdParty.JsonNetUtilities" version="3.78.0" />
+      <dependency id="Reusable.Converters" version="3.78.0" />
     </dependencies>
   </metadata>
   <files>

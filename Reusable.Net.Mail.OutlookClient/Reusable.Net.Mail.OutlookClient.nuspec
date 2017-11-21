@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Net.Mail.OutlookClient</id>
-    <version>1.0.22</version>
+    <version>3.78.0</version>
     <title>Reusable.Net.Mail.OutlookClient</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -16,7 +16,7 @@
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="11.1.0" />
-      <dependency id="Reusable.Net.Mail" version="1.0.22" />
+      <dependency id="Reusable.Net.Mail" version="3.78.0" />
     </dependencies>
   </metadata>
   <files>
