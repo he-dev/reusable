@@ -89,6 +89,7 @@
     <Compile Include="TehCodez\LoggerConfiguration.cs" />
     <Compile Include="TehCodez\LoggerExtensions.cs" />
     <Compile Include="TehCodez\LoggerFactory.cs" />
+    <Compile Include="TehCodez\LoggerFactoryExtensions.cs" />
     <Compile Include="TehCodez\LoggerFilter.cs" />
     <Compile Include="TehCodez\LogLevel.cs" />
     <Compile Include="TehCodez\LogProperty.cs" />
