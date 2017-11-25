@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Net.Configuration;
 using System.Net.Mail;
+using System.Threading.Tasks;
 using SystemClient = System.Net.Mail.SmtpClient;
 
 namespace Reusable.Net.Mail
@@ -20,11 +21,11 @@ namespace Reusable.Net.Mail
                 return 
                     mailSettingsSectionGroup?.Smtp.From 
                     ?? throw new InvalidOperationException(
-                        $"You need to specify the sender either by setting the {nameof(From)} property on the {nameof(Email<EmailSubject, EmailBody>)} or via app.config <system.net><mailSettings> section.");
+                        $"You need to specify the sender either by setting the {nameof(From)} property on the {nameof(Email<IEmailSubject, IEmailBody>)} or via app.config <system.net><mailSettings> section.");
             }
         }
 
-        protected override void SendCore<TSubject, TBody>(IEmail<TSubject, TBody> email)
+        protected override async Task SendAsyncCore<TSubject, TBody>(IEmail<TSubject, TBody> email)
         {
             using (var smtpClient = new SystemClient())
             using (var mailMessage = new MailMessage())
@@ -43,7 +44,9 @@ namespace Reusable.Net.Mail
                 {
                     mailMessage.To.Add(new MailAddress(to));
                 }
+                
                 smtpClient.Send(mailMessage);
+                await smtpClient.SendMailAsync(mailMessage);
             }
         }
     }

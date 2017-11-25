@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Reusable.Tests
 {
     [TestClass]
-    public class UsingifierExtensionsTest
+    public class DisposableExtensionsTest
     {
         [TestMethod]
         public void Usingify_NotInitialized_NotDisposed()

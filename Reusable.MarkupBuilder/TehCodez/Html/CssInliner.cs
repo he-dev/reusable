@@ -11,10 +11,10 @@ namespace Reusable.MarkupBuilder.Html
     public interface ICssInliner
     {
         [NotNull]
-        IHtmlElement Inline([NotNull] ICollection<CssRuleSet> cssRules, [NotNull] IHtmlElement element);
+        T Inline<T>(ICollection<CssRuleSet> cssRules, T element) where T : IHtmlElement;
     }
 
-    public class CssInliner
+    public class CssInliner : ICssInliner
     {
         public T Inline<T>(ICollection<CssRuleSet> cssRules, T element) where T : IHtmlElement
         {

@@ -82,6 +82,7 @@
   <ItemGroup>
     <Compile Include="TehCodez\Abstractions\IFilterFactory.cs" />
     <Compile Include="TehCodez\Abstractions\IStopwatch.cs" />
+    <Compile Include="TehCodez\AppDomainPaths.cs" />
     <Compile Include="TehCodez\AsyncDetector.cs" />
     <Compile Include="TehCodez\Diagnostics\DebuggerString.cs" />
     <Compile Include="TehCodez\ExitCode.cs" />

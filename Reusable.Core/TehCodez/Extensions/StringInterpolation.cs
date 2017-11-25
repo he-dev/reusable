@@ -85,8 +85,7 @@ namespace Reusable.Extensions
         }
 
         [Pure]
-        [CanBeNull]
-        [ContractAnnotation("text: null => null; data: null => stop")]
+        [CanBeNull, ContractAnnotation("text: null => null; data: null => stop")]
         public static string Format(this string text, object data, IFormatProvider formatProvider = null)
         {
             if (string.IsNullOrEmpty(text)) { return text; }
@@ -109,8 +108,7 @@ namespace Reusable.Extensions
         }
 
         [Pure]
-        [CanBeNull]
-        [ContractAnnotation("text: null => null; data: null => stop")]
+        [CanBeNull, ContractAnnotation("text: null => null; data: null => stop")]
         public static string FormatAll(this string text, IDictionary<string, object> data, IFormatProvider formatProvider = null)
         {
             if (string.IsNullOrEmpty(text)) { return text; }
@@ -119,6 +117,22 @@ namespace Reusable.Extensions
             formatProvider = formatProvider ?? new DefaultFormatter();
 
             var dependencies = data.ToDictionary(x => x.Key, x => GetNames(string.Format(formatProvider, "{0}", x.Value)));
+            DependencyValidator.ValidateDependencies(dependencies);
+
+            while (text.ToString() != (text = text.Format(data, formatProvider))) ;
+            return text;
+        }
+
+        [Pure]
+        [CanBeNull, ContractAnnotation("text: null => null; data: null => stop")]
+        public static string FormatAll(this string text, IDictionary<SoftString, object> data, IFormatProvider formatProvider = null)
+        {
+            if (string.IsNullOrEmpty(text)) { return text; }
+            if (data == null) { throw new ArgumentNullException(nameof(data)); }
+
+            formatProvider = formatProvider ?? new DefaultFormatter();
+
+            var dependencies = data.ToDictionary(x => x.Key, x => GetNames(string.Format(formatProvider, "{0}", x.Value)).Select(SoftString.Create));
             DependencyValidator.ValidateDependencies(dependencies);
 
             while (text.ToString() != (text = text.Format(data, formatProvider))) ;

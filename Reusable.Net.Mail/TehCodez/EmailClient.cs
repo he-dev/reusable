@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using Reusable.Exceptionize;
 using Reusable.Flawless;
 
@@ -9,30 +10,30 @@ namespace Reusable.Net.Mail
 {
     public interface IEmailClient
     {
-        void Send<TSubject, TBody>(IEmail<TSubject, TBody> email)
-            where TSubject : EmailSubject
-            where TBody : EmailBody;
+        Task SendAsync<TSubject, TBody>(IEmail<TSubject, TBody> email)
+            where TSubject : IEmailSubject
+            where TBody : IEmailBody;
     }
 
     public abstract class EmailClient : IEmailClient
     {
-        private static readonly Validator<IEmail<EmailSubject, EmailBody>> EmailValidator =
-            Validator<IEmail<EmailSubject, EmailBody>>.Empty
+        private static readonly Validator<IEmail<IEmailSubject, IEmailBody>> EmailValidator =
+            Validator<IEmail<IEmailSubject, IEmailBody>>.Empty
                 .IsNotValidWhen(e => e.To == null)
                 .IsNotValidWhen(e => e.Subject == null)
                 .IsNotValidWhen(e => e.Body == null);
         
-        public void Send<TSubject, TBody>(IEmail<TSubject, TBody> email)
-            where TSubject : EmailSubject
-            where TBody : EmailBody
+        public async Task SendAsync<TSubject, TBody>(IEmail<TSubject, TBody> email)
+            where TSubject : IEmailSubject
+            where TBody : IEmailBody
         {
             if (email == null) throw new ArgumentNullException(nameof(email));
             
-            ((IEmail<EmailSubject, EmailBody>)email).ValidateWith(EmailValidator).ThrowIfNotValid();
+            ((IEmail<IEmailSubject, IEmailBody>)email).ValidateWith(EmailValidator).ThrowIfNotValid();
             
             try
             {
-                SendCore(email);
+                await SendAsyncCore(email);
             }
             catch (Exception innerException)
             {
@@ -44,8 +45,8 @@ namespace Reusable.Net.Mail
             }
         }
 
-        protected abstract void SendCore<TSubject, TBody>(IEmail<TSubject, TBody> email)
-            where TSubject : EmailSubject
-            where TBody : EmailBody;
+        protected abstract Task SendAsyncCore<TSubject, TBody>(IEmail<TSubject, TBody> email)
+            where TSubject : IEmailSubject
+            where TBody : IEmailBody;
     }
 }

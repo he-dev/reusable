@@ -2,7 +2,16 @@
 
 namespace Reusable.Net.Mail
 {
-    public abstract class EmailBody
+    public interface IEmailBody
+    {
+        bool IsHtml { get; }
+
+        Encoding Encoding { get; }
+
+        string ToString();
+    }
+
+    public abstract class EmailBody : IEmailBody
     {
         protected EmailBody() => Encoding = Encoding.UTF8;
 

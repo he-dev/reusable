@@ -69,5 +69,8 @@ namespace Reusable.Extensions
         {
             return value.IndexOf(other, comparisonType) >= 0;
         }
+
+        [CanBeNull, ContractAnnotation("value: null => null; notnull => notnull")]
+        public static SoftString ToSoftString(this string value) => value is null ? null : SoftString.Create(value);
     }
 }

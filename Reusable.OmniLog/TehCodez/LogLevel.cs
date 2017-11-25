@@ -101,6 +101,10 @@ namespace Reusable.OmniLog
 
         public static implicit operator int(LogLevel logLevel) => logLevel?.Flag ?? throw new ArgumentNullException(nameof(logLevel));
 
+        public static implicit operator LogLevel(string value) => Parse(value);
+
+        public static implicit operator LogLevel(int value) => FromFlags(value);
+
         #region Operators
 
         public static bool operator ==(LogLevel left, LogLevel right) => Comparer.Compare(left, right) == 0;

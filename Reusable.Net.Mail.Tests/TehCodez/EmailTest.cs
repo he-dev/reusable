@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Exceptionize;
 using Reusable.Tester;
@@ -13,15 +14,15 @@ namespace Reusable.Net.Mail.Tests
         {
             var testEmail = new TestEmail();
 
-            var ex = Assert.That.ThrowsExceptionFiltered<DynamicException>(() => new TestClient().Send(testEmail));
+            var ex = Assert.That.ThrowsExceptionFiltered<DynamicException>(() => new TestClient().SendAsync(testEmail));
 
         }
 
-        private class TestEmail : Email<EmailSubject, EmailBody> { }
+        private class TestEmail : Email<IEmailSubject, IEmailBody> { }
 
         private class TestClient : EmailClient
         {
-            protected override void SendCore<TSubject, TBody>(IEmail<TSubject, TBody> email)
+            protected override Task SendAsyncCore<TSubject, TBody>(IEmail<TSubject, TBody> email)
             {
                 throw new NotImplementedException();
             }

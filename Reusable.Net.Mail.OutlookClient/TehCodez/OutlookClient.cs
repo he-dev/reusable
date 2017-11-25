@@ -1,4 +1,5 @@
-﻿using Microsoft.Office.Interop.Outlook;
+﻿using System.Threading.Tasks;
+using Microsoft.Office.Interop.Outlook;
 
 namespace Reusable.Net.Mail
 {
@@ -7,7 +8,7 @@ namespace Reusable.Net.Mail
     /// </summary>
     public class OutlookClient : EmailClient
     {
-        protected override void SendCore<TSubject, TBody>(IEmail<TSubject, TBody> email)
+        protected override Task SendAsyncCore<TSubject, TBody>(IEmail<TSubject, TBody> email)
         {
             var app = new Application();
             var mailItem = app.CreateItem(OlItemType.olMailItem);
@@ -29,6 +30,8 @@ namespace Reusable.Net.Mail
             mailItem.Importance = email.HighPriority ? OlImportance.olImportanceHigh : OlImportance.olImportanceNormal;
             //mailItem.Display(false);
             mailItem.Send();
+
+            return Task.CompletedTask;
         }
     }
 

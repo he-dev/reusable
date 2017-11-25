@@ -69,7 +69,7 @@
     <Compile Include="TehCodez\Email.cs" />
     <Compile Include="TehCodez\EmailBody.cs" />
     <Compile Include="TehCodez\EmailSubject.cs" />
-    <Compile Include="TehCodez\IEmailClient.cs" />
+    <Compile Include="TehCodez\EmailClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

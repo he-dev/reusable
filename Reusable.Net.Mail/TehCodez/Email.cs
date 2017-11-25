@@ -1,23 +1,23 @@
 ﻿namespace Reusable.Net.Mail
 {
-    public interface IEmail<TSubject, TBody>
-        where TSubject : EmailSubject
-        where TBody : EmailBody
+    public interface IEmail<out TSubject, out TBody>
+        where TSubject : IEmailSubject
+        where TBody : IEmailBody
     {
-        string From { get; set; }
+        string From { get; }
 
-        string To { get; set; }
+        string To { get; }
 
-        bool HighPriority { get; set; }
+        bool HighPriority { get; }
 
-        TSubject Subject { get; set; }
+        TSubject Subject { get; }
 
-        TBody Body { get; set; }
+        TBody Body { get; }
     }
 
     public class Email<TSubject, TBody> : IEmail<TSubject, TBody> 
-        where TSubject : EmailSubject
-        where TBody : EmailBody
+        where TSubject : IEmailSubject
+        where TBody : IEmailBody
     {
         public string From { get; set; }
 

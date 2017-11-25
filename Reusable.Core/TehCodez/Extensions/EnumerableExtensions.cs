@@ -238,6 +238,16 @@ namespace Reusable.Extensions
                 return single;
             }
         }
+
+        public static int CalcHashCode<T>([NotNull, ItemCanBeNull] this IEnumerable<T> values)
+        {
+            if (values == null) throw new ArgumentNullException(nameof(values));
+
+            unchecked
+            {
+                return values.Aggregate(0, (current, next) => (current * 397) ^ next?.GetHashCode() ?? 0);
+            }
+        }
     }
 
     public class EmptySequenceException : Exception { }

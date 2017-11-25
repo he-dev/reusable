@@ -2,7 +2,14 @@
 
 namespace Reusable.Net.Mail
 {
-    public abstract class EmailSubject
+    public interface IEmailSubject
+    {
+        Encoding Encoding { get; }
+
+        string ToString();
+    }
+
+    public abstract class EmailSubject : IEmailSubject
     {
         protected EmailSubject()
         {
