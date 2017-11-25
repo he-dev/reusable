@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Reusable.Exceptionize;
+using Reusable.Extensions;
 
 namespace Reusable.MarkupBuilder
 {
@@ -18,6 +20,15 @@ namespace Reusable.MarkupBuilder
                 var parameterType = typeof(string);
 
                 var constructor = typeof(T).GetConstructor(new[] { parameterType });
+
+                if (constructor is null)
+                {
+                    throw DynamicException.Factory.CreateDynamicException(
+                        $"ConstructorNotFound{nameof(Exception)}",
+                        $"Markup elements must have a constructor that takes one parameter 'string: name'. Affected type: {typeof(T).ToPrettyString().QuoteWith("'")}",
+                        null
+                    );
+                }
 
                 var nameParameter = Expression.Parameter(parameterType, nameof(name));
 
