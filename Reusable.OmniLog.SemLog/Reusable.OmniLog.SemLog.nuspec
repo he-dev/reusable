@@ -1,24 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.Commander</id>
+    <id>Reusable.OmniLog.SemLog</id>
     <version>3.90.0</version>
-    <title>Reusable.Commander</title>
+    <title>Reusable.OmniLog.SemLog</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/he-dev/Reusable</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/he-dev/Reusable/master/_nuget/recycling.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>XML rendering engine with colors.</description>
+    <description>Provides a logger abstraction layer.</description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2016 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
-      <dependency id="Autofac" version="4.6.2" />
       <dependency id="JetBrains.Annotations" version="11.1.0" />
       <dependency id="Newtonsoft.Json" version="10.0.3" />
-      <dependency id="System.Collections.Immutable" version="1.4.0" />
       <dependency id="System.Reactive" version="3.1.1" />
       <dependency id="System.Reactive.Core" version="3.1.1" />
       <dependency id="System.Reactive.Interfaces" version="3.1.1" />
@@ -26,13 +24,12 @@
       <dependency id="System.Reactive.PlatformServices" version="3.1.1" />
       <dependency id="System.Reactive.Windows.Threading" version="3.1.1" />
       <dependency id="System.ValueTuple" version="4.4.0" />
-      <dependency id="Reusable.OmniLog" version="3.90.0" />
-      <dependency id="Reusable.Converters" version="3.90.0" />
       <dependency id="Reusable.Core" version="3.90.0" />
+      <dependency id="Reusable.OmniLog" version="3.90.0" />
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\Reusable.Commander.dll" target="lib\net462" />
-    <file src="bin\Release\Reusable.Commander.pdb" target="lib\net462" />
+    <file src="bin\Release\Reusable.OmniLog.SemLog.dll" target="lib\net462" />
+    <file src="bin\Release\Reusable.OmniLog.SemLog.pdb" target="lib\net462" />
   </files>
 </package>

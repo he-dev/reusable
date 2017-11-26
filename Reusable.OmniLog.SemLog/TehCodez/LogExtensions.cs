@@ -19,6 +19,11 @@ namespace Reusable.OmniLog.SemLog
             log.Add(new ElapsedMilliseconds("Elapsed").ToLogProperty());
             return log;
         }
+
+        public static Log Layer(this Log log, Layer layer)
+        {
+            return log.With(nameof(Layer), layer);
+        }
     }
 
     public class TransactionMerge : ILogScopeMerge

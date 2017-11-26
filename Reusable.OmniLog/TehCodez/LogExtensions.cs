@@ -97,7 +97,8 @@ namespace Reusable.OmniLog
 
         public static Log With(this Log log, SoftString name, object value)
         {
-            log.Add(name, value);
+            //log.Add(name, value);
+            log[name] = value;
             return log;
         }
 

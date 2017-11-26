@@ -5,11 +5,38 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
+using Reusable.Extensions;
 using Reusable.OmniLog.Collections;
 using Reusable.OmniLog.SemLog.Attachements;
 
 namespace Reusable.OmniLog.SemLog
 {
+    [PublicAPI]
+    public static class Snapshot
+    {
+        public static Func<(string Name, object Object)> From(object obj, string name)
+        {
+            return () => (name, obj);
+        }
+
+        public static Func<(string Name, object Object)> Properties<T>(object obj, string name = null)
+        {
+            return From(obj, $"{nameof(Properties)}/{typeof(T).ToPrettyString()}/{name}");
+        }
+
+        public static Func<(string Name, object Object)> Variables(object obj, string name = null)
+        {
+            return From(obj, $"{nameof(Variables)}/{name}");
+        }
+
+        public static Func<(string Name, object Object)> Arguments(object obj, string name = null)
+        {
+            return From(obj, $"{nameof(Arguments)}/{name}");
+        }
+    }
+
+    [PublicAPI]
     public static class LoggerExtensions
     {
         private static readonly IDictionary<Layer, LogLevel> LogLevelMap = new Dictionary<Layer, LogLevel>
@@ -26,8 +53,9 @@ namespace Reusable.OmniLog.SemLog
         public static void State(
             this ILogger logger,
             Layer layer,
-            Func<(string Name, object Object, string Message)> snapshot,
-            LogLevel level,
+            Func<(string Name, object Object)> snapshot,
+            string message = null,
+            LogLevel level = null,
             [CallerMemberName] string callerMemberName = null,
             [CallerLineNumber] int callerLineNumber = 0,
             [CallerFilePath] string callerFilePath = null)
@@ -46,11 +74,10 @@ namespace Reusable.OmniLog.SemLog
                 }
                 log.Bag().Add(nameof(Snapshot), s.Object);
 
-                if (!(s.Message is null))
+                if (!(message is null))
                 {
-                    log.Message(s.Message);
+                    log.Message(message);
                 }
-
 
                 log.Add(LogProperty.CallerMemberName, callerMemberName);
                 log.Add(LogProperty.CallerLineNumber, callerLineNumber);
@@ -58,31 +85,6 @@ namespace Reusable.OmniLog.SemLog
             });
         }
 
-        public static void State(
-            this ILogger logger,
-            Layer layer,
-            Func<(string Name, object Object)> snapshot,
-            [CallerMemberName] string callerMemberName = null,
-            [CallerLineNumber] int callerLineNumber = 0,
-            [CallerFilePath] string callerFilePath = null)
-        {
-            logger.State(layer, () =>
-            {
-                var s = snapshot();
-                return (s.Name, s.Object, null);
-            }, null, callerMemberName, callerLineNumber, callerFilePath);
-        }
-
-        public static void State(
-            this ILogger logger,
-            Layer layer,
-            Func<(string Name, object Object, string Message)> snapshot,
-            [CallerMemberName] string callerMemberName = null,
-            [CallerLineNumber] int callerLineNumber = 0,
-            [CallerFilePath] string callerFilePath = null)
-        {
-            logger.State(layer, snapshot, null, callerMemberName, callerLineNumber, callerFilePath);
-        }
 
         public static void Event(
             this ILogger logger,
@@ -128,29 +130,126 @@ namespace Reusable.OmniLog.SemLog
                 log.Add(LogProperty.CallerFilePath, Path.GetFileName(callerFilePath));
             });
         }
-    }
 
-    public class StateBuilder
-    {
-        private object _expected;
-        private object _actual;
+        #region Scope state
 
-        public StateBuilder Expected(object expected)
+        //public static void State(
+        //    this ILogger logger,
+        //    Func<(string Name, object Object)> snapshot,
+        //    string message = null,
+        //    LogLevel level = null,
+        //    [CallerMemberName] string callerMemberName = null,
+        //    [CallerLineNumber] int callerLineNumber = 0,
+        //    [CallerFilePath] string callerFilePath = null)
+        //{
+        //    if (LogScope.Current.TryGetValue("Layer", out var layer))
+        //    {
+        //        logger.State((Layer)layer, snapshot, message, level, callerMemberName, callerLineNumber, callerFilePath);
+        //    }
+        //    else
+        //    {
+        //        throw new InvalidOperationException("You can use this method only within a scope with a Layer.");
+        //    }
+        //}
+
+        #endregion
+
+            #region Events by result
+
+            public static void Success(
+            this ILogger logger,
+            Layer layer,
+            string message = null,
+            [CallerMemberName] string callerMemberName = null,
+            [CallerLineNumber] int callerLineNumber = 0,
+            [CallerFilePath] string callerFilePath = null)
         {
-            _expected = expected;
-            return this;
+            logger.Event(layer, callerMemberName, Result.Success, message, null, callerMemberName, callerLineNumber, callerFilePath);
         }
 
-        public StateBuilder Actual(object actual)
+        public static void Success(
+            this ILogger logger,
+            Layer layer,
+            string name,
+            string message = null,
+            [CallerMemberName] string callerMemberName = null,
+            [CallerLineNumber] int callerLineNumber = 0,
+            [CallerFilePath] string callerFilePath = null)
         {
-            _actual = actual;
-            return this;
+            logger.Event(layer, name, Result.Success, message, null, callerMemberName, callerLineNumber, callerFilePath);
         }
 
-        public void Deconstruct(out object expected, out object actual)
+        public static void Completed(
+            this ILogger logger,
+            Layer layer,
+            string message = null,
+            [CallerMemberName] string callerMemberName = null,
+            [CallerLineNumber] int callerLineNumber = 0,
+            [CallerFilePath] string callerFilePath = null)
         {
-            expected = _expected;
-            actual = _actual;
+            logger.Event(layer, callerMemberName, Result.Completed, message, null, callerMemberName, callerLineNumber, callerFilePath);
         }
-    }
+
+        public static void Completed(
+            this ILogger logger,
+            Layer layer,
+            string name,
+            string message = null,
+            [CallerMemberName] string callerMemberName = null,
+            [CallerLineNumber] int callerLineNumber = 0,
+            [CallerFilePath] string callerFilePath = null)
+        {
+            logger.Event(layer, name, Result.Completed, message, null, callerMemberName, callerLineNumber, callerFilePath);
+        }
+
+        public static void Failure(
+            this ILogger logger,
+            Layer layer,
+            Exception exception,
+            [CallerMemberName] string callerMemberName = null,
+            [CallerLineNumber] int callerLineNumber = 0,
+            [CallerFilePath] string callerFilePath = null)
+        {
+            logger.Event(layer, callerMemberName, Result.Failure, null, exception, callerMemberName, callerLineNumber, callerFilePath);
+        }
+
+        public static void Failure(
+            this ILogger logger,
+            Layer layer,
+            string name,
+            string message,
+            Exception exception,
+            [CallerMemberName] string callerMemberName = null,
+            [CallerLineNumber] int callerLineNumber = 0,
+            [CallerFilePath] string callerFilePath = null)
+        {
+            logger.Event(layer, name, Result.Failure, message, exception, callerMemberName, callerLineNumber, callerFilePath);
+        }
+
+        public static void Failure(
+            this ILogger logger,
+            Layer layer,
+            string name,
+            Exception exception,
+            [CallerMemberName] string callerMemberName = null,
+            [CallerLineNumber] int callerLineNumber = 0,
+            [CallerFilePath] string callerFilePath = null)
+        {
+            logger.Event(layer, name, Result.Failure, null, exception, callerMemberName, callerLineNumber, callerFilePath);
+        }
+
+        public static void Failure(
+            this ILogger logger,
+            Layer layer,
+            string name,
+            string message = null,
+            [CallerMemberName] string callerMemberName = null,
+            [CallerLineNumber] int callerLineNumber = 0,
+            [CallerFilePath] string callerFilePath = null)
+        {
+            logger.Event(layer, name, Result.Failure, message, null, callerMemberName, callerLineNumber, callerFilePath);
+        }
+
+        #endregion
+    }    
 }
