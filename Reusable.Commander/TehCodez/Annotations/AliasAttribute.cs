@@ -3,10 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Reusable.Extensions;
 
-// ReSharper disable once CheckNamespace
-namespace Reusable.CommandLine
+namespace Reusable.Commander
 {
     [UsedImplicitly]
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = false)]

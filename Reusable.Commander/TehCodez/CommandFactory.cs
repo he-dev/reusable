@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Autofac.Features.Indexed;
 using JetBrains.Annotations;
-using Reusable.CommandLine;
-using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog;
 

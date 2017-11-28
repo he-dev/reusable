@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Collections;
-using Reusable.CommandLine;
 
 namespace Reusable.Commander
 {

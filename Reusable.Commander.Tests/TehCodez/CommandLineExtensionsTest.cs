@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.CommandLine;
 
 namespace Reusable.Commander.Tests
 {

@@ -10,7 +10,6 @@ using Autofac;
 using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Commander.Commands;
-using Reusable.CommandLine;
 using Reusable.Converters;
 using Reusable.Exceptionize;
 using Reusable.Extensions;

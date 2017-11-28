@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.CommandLine;
 using Reusable.Tester;
 
 namespace Reusable.Commander.Tests

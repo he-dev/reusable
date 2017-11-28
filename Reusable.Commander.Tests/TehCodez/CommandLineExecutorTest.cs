@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Autofac;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Reusable.CommandLine;
 using Reusable.OmniLog;
 using Reusable.Tester;
 using IContainer = Autofac.IContainer;

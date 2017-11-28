@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 
-// ReSharper disable once CheckNamespace
-namespace Reusable.CommandLine
+namespace Reusable
 {
     [PublicAPI]
     public class SoftKeySet : KeySet<SoftString>

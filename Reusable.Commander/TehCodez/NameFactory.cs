@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows.Input;
 using JetBrains.Annotations;
-using Reusable.CommandLine;
 using Reusable.Extensions;
 
 namespace Reusable.Commander

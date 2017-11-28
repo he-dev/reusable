@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Reusable.CommandLine;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog;

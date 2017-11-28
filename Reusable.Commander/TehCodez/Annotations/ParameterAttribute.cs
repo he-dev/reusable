@@ -2,9 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Reusable.CommandLine;
 
-// ReSharper disable once CheckNamespace
 namespace Reusable.Commander
 {
     [UsedImplicitly]
