@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
+using System.Linq.Custom;
 
 namespace Reusable
 {

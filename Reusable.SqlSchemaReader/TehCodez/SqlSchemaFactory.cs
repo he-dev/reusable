@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Extensions;
+using System.Linq.Custom;
 
 namespace Reusable.Data.SqlClient
 {

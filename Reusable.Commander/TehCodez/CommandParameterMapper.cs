@@ -11,6 +11,7 @@ using Reusable.Extensions;
 using Reusable.OmniLog;
 using Reusable.Reflection;
 using TypeConverter = Reusable.Converters.TypeConverter;
+using System.Linq.Custom;
 
 namespace Reusable.Commander
 {

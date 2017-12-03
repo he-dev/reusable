@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Reusable.Collections;
+using System.Linq.Custom;
 
 namespace Reusable.Extensions
 {

@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Text;
 using Reusable.Extensions;
+using System.Linq.Custom;
 
 namespace Reusable.Diagnostics
 {

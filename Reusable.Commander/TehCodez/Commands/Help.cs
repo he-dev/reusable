@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog;
+using System.Linq.Custom;
 
 namespace Reusable.Commander.Commands
 {

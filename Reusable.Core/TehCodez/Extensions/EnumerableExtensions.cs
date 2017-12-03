@@ -4,9 +4,10 @@ using JetBrains.Annotations;
 using Reusable.Collections;
 
 //namespace Reusable.Extensions
-namespace System.Linq
+namespace System.Linq.Custom
 {
     using Reusable.Extensions;
+    using System.Linq;
 
     [PublicAPI]
     public static class EnumerableExtensions

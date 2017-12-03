@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
+using System.Linq.Custom;
 
 namespace Reusable.Commander
 {

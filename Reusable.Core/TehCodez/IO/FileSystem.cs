@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Extensions;
+using System.Linq.Custom;
 
 namespace Reusable.IO
 {

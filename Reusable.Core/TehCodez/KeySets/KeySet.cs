@@ -7,6 +7,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Extensions;
+using System.Linq.Custom;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable

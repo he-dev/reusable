@@ -3,6 +3,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Extensions;
+using System.Linq.Custom;
 
 namespace Reusable.Tester
 {

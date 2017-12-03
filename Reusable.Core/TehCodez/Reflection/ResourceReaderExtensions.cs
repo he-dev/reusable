@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
+using System.Linq.Custom;
 
 namespace Reusable.Reflection
 {

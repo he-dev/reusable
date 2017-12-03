@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Extensions;
+using System.Linq.Custom;
 
 namespace Reusable.Tester.Mocks
 {

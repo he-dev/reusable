@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.MarkupBuilder.Formatters;
+using System.Linq.Custom;
 
 // ReSharper disable InconsistentNaming - lower-case method names are intentional because it's how the look in html
 

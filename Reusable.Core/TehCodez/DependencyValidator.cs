@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
+using System.Linq.Custom;
 
 namespace Reusable
 {
