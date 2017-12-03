@@ -106,6 +106,7 @@
     <Compile Include="TehCodez\DisposableExtensionsTest.cs" />
     <Compile Include="TehCodez\DisposableTest.cs" />
     <Compile Include="TehCodez\DependencyValidatorTest.cs" />
+    <Compile Include="TehCodez\PrettyStringTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj">

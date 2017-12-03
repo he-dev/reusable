@@ -80,6 +80,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="TehCodez\Abstractions\IFilterFactory.cs" />
     <Compile Include="TehCodez\Abstractions\IStopwatch.cs" />
     <Compile Include="TehCodez\AppDomainPaths.cs" />
@@ -108,7 +109,7 @@
     <Compile Include="TehCodez\Extensions\DummyExtensions.cs" />
     <Compile Include="TehCodez\Extensions\MatchExtensions.cs" />
     <Compile Include="TehCodez\Extensions\StackExtensions.cs" />
-    <Compile Include="TehCodez\Extensions\StringPrettifierExtensions.cs" />
+    <Compile Include="TehCodez\Extensions\PrettyStringExtensions.cs" />
     <Compile Include="TehCodez\Abstractions\IDateTime.cs" />
     <Compile Include="TehCodez\IO\FileSystem.cs" />
     <Compile Include="TehCodez\IO\Filters\DirectoryFilterFactory.cs" />
@@ -140,7 +141,7 @@
     <Compile Include="TehCodez\SoftStringExtensions.cs" />
     <Compile Include="TehCodez\Stopwatches\SystemStopwatch.cs" />
     <Compile Include="TehCodez\StringExtensions.cs" />
-    <Compile Include="TehCodez\StringPrettifier.cs" />
+    <Compile Include="TehCodez\PrettyString.cs" />
     <Compile Include="TehCodez\Disposable.cs" />
     <Compile Include="TehCodez\DependencyValidator.cs" />
     <Compile Include="TehCodez\Drawing\Color32.cs" />

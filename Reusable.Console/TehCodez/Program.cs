@@ -9,12 +9,12 @@ namespace Reusable.Console
     {
         private static void Main(string[] args)
         {
+            var foo = new int[0];
+            var bar = foo.Append(2);
+
             Demo.ConsoleColorizer();
             Demo.SemLog();
 
-            var foo = new int[0];
-
-            var bar = foo.Append(2);
 
             //System.Console.ReadKey();
         }
@@ -24,6 +24,4 @@ namespace Reusable.Console
             
         //}
     }
-
-   
 }

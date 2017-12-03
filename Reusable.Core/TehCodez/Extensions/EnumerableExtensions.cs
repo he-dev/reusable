@@ -2,15 +2,14 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Reusable.Collections;
+using Reusable.Extensions;
 
-//namespace Reusable.Extensions
+// ReSharper disable once CheckNamespace
 namespace System.Linq.Custom
 {
-    using Reusable.Extensions;
-    using System.Linq;
-
     [PublicAPI]
-    public static class EnumerableExtensions
+    // ReSharper disable once InconsistentNaming - I want this lower case because otherwise it conflicts with the .net class.
+    public static class enumerable
     {
         /// <summary>
         /// Applies a specified function to the corresponding elements of two sequences, producing a sequence of the results.
@@ -251,8 +250,19 @@ namespace System.Linq.Custom
                 return values.Aggregate(0, (current, next) => (current * 397) ^ next?.GetHashCode() ?? 0);
             }
         }
+
+        [NotNull, ItemCanBeNull]
+        public static IEnumerable<T> Always<T>(T item)
+        {
+            while (true)
+            {
+                yield return item;
+            }
+            // ReSharper disable once IteratorNeverReturns - Since it's 'Always' this is by design.
+        }
     }
 
     public class EmptySequenceException : Exception { }
+
     public class MoreThanOneElementException : Exception { }
 }

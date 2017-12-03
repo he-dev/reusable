@@ -23,7 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <LangVersion>default</LangVersion>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -101,6 +101,7 @@
     <Compile Include="TehCodez\Demo.cs" />
     <Compile Include="TehCodez\PlayingWithEnvDTE.cs" />
     <Compile Include="TehCodez\Program.cs" />
+    <Compile Include="TehCodez\XMerge.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

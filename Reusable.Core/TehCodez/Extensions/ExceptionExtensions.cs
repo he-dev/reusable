@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Linq.Custom;
 using System.Reflection;
 using JetBrains.Annotations;
 using Reusable.Collections;
-using System.Linq.Custom;
 
 namespace Reusable.Extensions
 {

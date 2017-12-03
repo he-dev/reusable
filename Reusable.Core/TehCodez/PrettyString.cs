@@ -10,7 +10,7 @@ using JetBrains.Annotations;
 
 namespace Reusable
 {
-    public interface IStringPrettifier
+    public interface IPrettyString
     {
         [NotNull, ContractAnnotation("type: null => halt")]
         string Render([NotNull] Type type);
@@ -19,7 +19,7 @@ namespace Reusable
         string Render([NotNull] MethodInfo methodInfo);
     }
     
-    public class StringPrettifier : IStringPrettifier
+    public class PrettyString : IPrettyString
     {
         //public static string ToPrettyString<TException>(this TException exception, ExceptionOrder order = ExceptionOrder.Ascending, int indentWidth = 4) where TException : Exception
         //{

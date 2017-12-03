@@ -9,30 +9,36 @@ using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.OmniLog.Collections;
 using Reusable.OmniLog.SemLog.Attachements;
+using System.Linq.Custom;
 
 namespace Reusable.OmniLog.SemLog
 {
     [PublicAPI]
     public static class Snapshot
     {
-        public static Func<(string Name, object Object)> From(object obj, string name)
-        {
-            return () => (name, obj);
-        }
-
         public static Func<(string Name, object Object)> Properties<T>(object obj, string name = null)
         {
-            return From(obj, $"{nameof(Properties)}/{typeof(T).ToPrettyString()}/{name}");
+            return From(obj, nameof(Properties), typeof(T).ToPrettyString().ToShortName(), name);
+        }
+
+        public static Func<(string Name, object Object)> Properties(Type type, object obj, string name = null)
+        {
+            return From(obj, nameof(Properties), type.ToPrettyString().ToShortName(), name);
         }
 
         public static Func<(string Name, object Object)> Variables(object obj, string name = null)
         {
-            return From(obj, $"{nameof(Variables)}/{name}");
+            return From(obj, nameof(Variables), name);
         }
 
         public static Func<(string Name, object Object)> Arguments(object obj, string name = null)
         {
-            return From(obj, $"{nameof(Arguments)}/{name}");
+            return From(obj, nameof(Arguments), name);
+        }
+
+        public static Func<(string Name, object Object)> From(object obj, params string[] path)
+        {
+            return () => (path.Where(Conditional.IsNotNullOrEmpty).Join("/"), obj);
         }
     }
 
@@ -154,15 +160,15 @@ namespace Reusable.OmniLog.SemLog
 
         #endregion
 
-            #region Events by result
+        #region Events by result
 
-            public static void Success(
-            this ILogger logger,
-            Layer layer,
-            string message = null,
-            [CallerMemberName] string callerMemberName = null,
-            [CallerLineNumber] int callerLineNumber = 0,
-            [CallerFilePath] string callerFilePath = null)
+        public static void Success(
+        this ILogger logger,
+        Layer layer,
+        string message = null,
+        [CallerMemberName] string callerMemberName = null,
+        [CallerLineNumber] int callerLineNumber = 0,
+        [CallerFilePath] string callerFilePath = null)
         {
             logger.Event(layer, callerMemberName, Result.Success, message, null, callerMemberName, callerLineNumber, callerFilePath);
         }
@@ -251,5 +257,5 @@ namespace Reusable.OmniLog.SemLog
         }
 
         #endregion
-    }    
+    }
 }

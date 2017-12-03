@@ -3,9 +3,9 @@ using System.Reflection;
 
 namespace Reusable.Extensions
 {
-    public static class StringPrettifierExtensions
+    public static class PrettyStringExtensions
     {
-        private static readonly IStringPrettifier Prettifier = new StringPrettifier();
+        private static readonly IPrettyString Prettifier = new PrettyString();
         
         public static string ToPrettyString(this Type type)
         {
