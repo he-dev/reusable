@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Collections;
 
-namespace Reusable.Extensions
+//namespace Reusable.Extensions
+namespace System.Linq
 {
+    using Reusable.Extensions;
+
     [PublicAPI]
     public static class EnumerableExtensions
     {
@@ -92,12 +94,12 @@ namespace Reusable.Extensions
             return first.Except(second, new ProjectionComparer<TArg, TProjection>(projection));
         }
 
-        public static IEnumerable<string> QuoteWith<T>(this IEnumerable<T> values, string quotationMark)
+        public static IEnumerable<string> QuoteAllWith<T>(this IEnumerable<T> values, string quotationMark)
         {
             return values.Select(x => x?.ToString().QuoteWith(quotationMark));
         }
 
-        public static IEnumerable<string> QuoteWith<T>(this IEnumerable<T> values, char quotationMark)
+        public static IEnumerable<string> QuoteAllWith<T>(this IEnumerable<T> values, char quotationMark)
         {
             return values.Select(x => x?.ToString().QuoteWith(quotationMark));
         }
@@ -193,7 +195,7 @@ namespace Reusable.Extensions
             return first.StartsWith(second, EqualityComparer<TSource>.Default);
         }
 
-        public static bool Empty<TSource>([NotNull] this IEnumerable<TSource> source)
+        public static bool None<TSource>([NotNull] this IEnumerable<TSource> source)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
 

@@ -107,7 +107,7 @@ namespace Reusable.Commander
                     else
                     {
                         // Parameter is required but not values are specified. This is an error.
-                        if (parameter.IsRequired && values.Empty())
+                        if (parameter.IsRequired && values.None())
                         {
                             throw ($"ArgumentNotFound{nameof(Exception)}", $"The required argument {parameter.Name} was not found.").ToDynamicException();
                         }

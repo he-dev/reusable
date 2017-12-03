@@ -26,7 +26,7 @@ namespace Reusable
 
         static KeySet()
         {
-            Comparer = RelayEqualityComparer<IImmutableSet<TKey>>.CreateWithoutHashCode((left, right) => left.Overlaps(right) || (left.Empty() && right.Empty()));
+            Comparer = RelayEqualityComparer<IImmutableSet<TKey>>.CreateWithoutHashCode((left, right) => left.Overlaps(right) || (left.None() && right.None()));
         }
 
         protected KeySet([NotNull] params TKey[] keys) => _keys = ImmutableHashSet.Create(keys);

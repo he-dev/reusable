@@ -82,14 +82,14 @@ namespace Reusable
 
             if (edges.Any())
             {
-                var circularNamesFormatted = edges.Select(e => e.Item1).Distinct().Reverse().QuoteWith("'").Join(", ").EncloseWith('[', ']', 1);
+                var circularNamesFormatted = edges.Select(e => e.Item1).Distinct().Reverse().QuoteAllWith("'").Join(", ").EncloseWith('[', ']', 1);
                 throw DynamicException.Factory.CreateDynamicException(new CircularDependencyExceptionTemplate { Names = circularNamesFormatted });
             }
 
             var missingNodes = sorted.Where(node => !dependencies.ContainsKey(node)).ToList();
             if (missingNodes.Any())
             {
-                var missingNamesFormatted = missingNodes.QuoteWith("'").Join(", ").EncloseWith('[', ']', 1);
+                var missingNamesFormatted = missingNodes.QuoteAllWith("'").Join(", ").EncloseWith('[', ']', 1);
                 throw DynamicException.Factory.CreateDynamicException(new MissingDependencyExceptionTemplate { Names = missingNamesFormatted });
             }
         }

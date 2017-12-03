@@ -7,7 +7,6 @@ using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Attachements;
 using Reusable.OmniLog.SemLog;
-using Reusable.OmniLog.SemLog.Attachements;
 
 namespace Reusable.Console
 {
@@ -61,7 +60,7 @@ namespace Reusable.Console
                     Attachements = new HashSet<ILogAttachement>(AppSetting.FromAppConfig("omnilog:", "Environment", "Product"))
                     {
                         new Timestamp<UtcDateTime>(),
-                        new Snapshot()
+                        new OmniLog.SemLog.Attachements.Snapshot()
                         //new Expected(),
                         //new Actual(),
                         //new AreEqual()
@@ -75,10 +74,10 @@ namespace Reusable.Console
             {
                 using (logger.BeginScope(s => s.Transaction(123).Elapsed()))
                 {
-                    logger.State(Layer.Business, () => ("foo", "bar", "Hallo state!"), LogLevel.Warning);
+                    logger.State(Layer.Business, () => ("foo", "bar"), "Hallo state!", LogLevel.Warning);
                     using (logger.BeginScope(s => s.Transaction(456).Elapsed()))
                     {
-                        logger.State(Layer.Business, () => ("Customer", new { FirstName = "John", LastName = "Doe" }, "Hallo state!"));
+                        logger.State(Layer.Business, () => ("Customer", new { FirstName = "John", LastName = "Doe" }), "Hallo state!");
                         logger.Event(Layer.Application, Event.ApplicationStart, Result.Success, "Hallo event!");
                         logger.Trace("Just a trace");
                     }

@@ -53,7 +53,7 @@ namespace Reusable.Commander.Commands
 
                 if (command is null)
                 {
-                    Logger.Error($"Command {commandName.QuoteWith("'")} not found.");
+                    Logger.Error($"Command {commandName.QuoteAllWith("'")} not found.");
                 }
                 else
                 {
