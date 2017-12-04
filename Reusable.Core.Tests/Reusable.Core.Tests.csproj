@@ -81,6 +81,7 @@
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="TehCodez\Diagnostics\DebuggerStringTest.cs" />
+    <Compile Include="TehCodez\Extensions\EnumerableExtensionsTest.cs" />
     <Compile Include="TehCodez\KeySetTest.cs" />
     <Compile Include="TehCodez\SoftStringTest.cs" />
     <Compile Include="TehCodez\Collections\ProjectionComparerTest.cs" />

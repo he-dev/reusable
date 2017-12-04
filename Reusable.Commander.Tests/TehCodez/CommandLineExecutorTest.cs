@@ -11,6 +11,7 @@ using Moq;
 using Reusable.OmniLog;
 using Reusable.Tester;
 using IContainer = Autofac.IContainer;
+using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
 
 namespace Reusable.Commander.Tests
 {

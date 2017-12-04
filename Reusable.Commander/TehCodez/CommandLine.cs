@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Collections;
+using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
 
 namespace Reusable.Commander
 {
@@ -45,30 +46,47 @@ namespace Reusable.Commander
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        #endregion
+        #endregion       
 
-        [ContractAnnotation("name: null => halt")]
-        public void Add([NotNull] SoftKeySet name)
+        [ContractAnnotation("keySet: null => halt")]
+        public void Add([NotNull] SoftKeySet keySet)
         {
-            if (name == null) throw new ArgumentNullException(nameof(name));
+            if (keySet == null) throw new ArgumentNullException(nameof(keySet));
 
-            _arguments.Add(name, new CommandArgument(name));
+            _arguments.Add(keySet, new CommandArgument(keySet));
         }
 
-        [ContractAnnotation("name: null => halt; value: null => halt")]
-        public void Add([NotNull] SoftKeySet name, [NotNull] string value)
+        [ContractAnnotation("keySet: null => halt; value: null => halt")]
+        public void Add([NotNull] SoftKeySet keySet, [NotNull] string value)
         {
-            if (name == null) throw new ArgumentNullException(nameof(name));
+            if (keySet == null) throw new ArgumentNullException(nameof(keySet));
             if (value == null) throw new ArgumentNullException(nameof(value));
 
-            if (_arguments.TryGetValue(name, out var argument))
+            if (_arguments.TryGetValue(keySet, out var argument))
             {
                 argument.Add(value);
             }
             else
             {
-                _arguments.Add(name, new CommandArgument(name) {value});
+                _arguments.Add(keySet, new CommandArgument(keySet) {value});
             }
+        }
+
+        [ContractAnnotation("key: null => halt")]
+        public void Add([NotNull] SoftString key)
+        {
+            if (key == null) throw new ArgumentNullException(nameof(key));
+
+            Add(ImmutableKeySet<SoftString>.Create(key));
+        }
+
+        [ContractAnnotation("key: null => halt; value: null => halt")]
+        public void Add([NotNull] SoftString key, [NotNull] string value)
+        {
+            if (key == null) throw new ArgumentNullException(nameof(key));
+            if (value == null) throw new ArgumentNullException(nameof(value));
+
+            Add(ImmutableKeySet<SoftString>.Create(key), value);
         }
 
         public override string ToString()

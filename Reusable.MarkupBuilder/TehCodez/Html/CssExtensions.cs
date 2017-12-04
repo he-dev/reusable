@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Custom;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Extensions;
-using System.Linq.Custom;
 
 namespace Reusable.MarkupBuilder.Html
 {

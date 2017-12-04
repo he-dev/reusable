@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Autofac.Features.Indexed;
 using JetBrains.Annotations;
+using Reusable.Collections;
 using Reusable.Extensions;
 using Reusable.OmniLog;
+using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
 
 namespace Reusable.Commander
 {

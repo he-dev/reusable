@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Custom;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
-using System.Linq.Custom;
 
 namespace Reusable.Reflection
 {

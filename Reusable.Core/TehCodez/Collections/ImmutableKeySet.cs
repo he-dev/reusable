@@ -4,20 +4,18 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
-using Reusable.Collections;
-using Reusable.Extensions;
 using System.Linq.Custom;
+using JetBrains.Annotations;
+using Reusable.Extensions;
 
-// ReSharper disable once CheckNamespace
-namespace Reusable
+namespace Reusable.Collections
 {
     /// <summary>
     /// Name set used for command and argument names.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     // ReSharper disable once InheritdocConsiderUsage
-    public class KeySet<TKey> : IImmutableSet<TKey>, IEquatable<IImmutableSet<TKey>> where TKey : IEquatable<TKey>
+    public class ImmutableKeySet<TKey> : IImmutableSet<TKey>, IEquatable<IImmutableSet<TKey>> where TKey : IEquatable<TKey>
     {
         [NotNull]
         private static readonly IEqualityComparer<IImmutableSet<TKey>> Comparer;
@@ -25,22 +23,22 @@ namespace Reusable
         [NotNull]
         private readonly IImmutableSet<TKey> _keys;
 
-        static KeySet()
+        static ImmutableKeySet()
         {
             Comparer = RelayEqualityComparer<IImmutableSet<TKey>>.CreateWithoutHashCode((left, right) => left.Overlaps(right) || (left.None() && right.None()));
         }
 
-        protected KeySet([NotNull] params TKey[] keys) => _keys = ImmutableHashSet.Create(keys);
+        protected ImmutableKeySet([NotNull] params TKey[] keys) => _keys = ImmutableHashSet.Create(keys);
 
         private string DebuggerDisplay => ToString();
 
         [NotNull]
-        public static readonly KeySet<TKey> Empty = Create();
+        public static readonly ImmutableKeySet<TKey> Empty = Create();
 
         #region Factories
 
         [NotNull]
-        public static KeySet<TKey> Create([NotNull] IEnumerable<TKey> values)
+        public static ImmutableKeySet<TKey> Create([NotNull] IEnumerable<TKey> values)
         {
             if (values == null) throw new ArgumentNullException(nameof(values));
 
@@ -48,11 +46,11 @@ namespace Reusable
         }
 
         [NotNull]
-        public static KeySet<TKey> Create([NotNull] params TKey[] keys)
+        public static ImmutableKeySet<TKey> Create([NotNull] params TKey[] keys)
         {
             if (keys == null) throw new ArgumentNullException(nameof(keys));
 
-            return new KeySet<TKey>(keys);
+            return new ImmutableKeySet<TKey>(keys);
         }
 
         #endregion
@@ -84,7 +82,7 @@ namespace Reusable
 
         public bool Equals(IImmutableSet<TKey> other) => Comparer.Equals(this, other);
 
-        public override bool Equals(object obj) => (obj is KeySet<TKey> keys && Equals(keys));
+        public override bool Equals(object obj) => (obj is ImmutableKeySet<TKey> keys && Equals(keys));
 
         public override int GetHashCode() => Comparer.GetHashCode(this);
 
@@ -94,10 +92,23 @@ namespace Reusable
 
         #region Operators
 
-        public static bool operator ==(KeySet<TKey> left, KeySet<TKey> right) => Comparer.Equals(left, right);
+        public static bool operator ==(ImmutableKeySet<TKey> left, ImmutableKeySet<TKey> right) => Comparer.Equals(left, right);
 
-        public static bool operator !=(KeySet<TKey> left, KeySet<TKey> right) => !(left == right);
+        public static bool operator !=(ImmutableKeySet<TKey> left, ImmutableKeySet<TKey> right) => !(left == right);
 
         #endregion       
+    }
+
+    public static class KeySet
+    {
+        public static ImmutableKeySet<T> Create<T>(params T[] keys) where T : IEquatable<T>
+        {
+            return ImmutableKeySet<T>.Create(keys);
+        }
+
+        public static ImmutableKeySet<T> Create<T>(IEnumerable<T> keys) where T : IEquatable<T>
+        {
+            return ImmutableKeySet<T>.Create(keys);
+        }
     }
 }

@@ -1,6 +1,6 @@
 using System.Linq;
-using Reusable.Extensions;
 using System.Linq.Custom;
+using Reusable.Extensions;
 
 namespace Reusable.MarkupBuilder.Html
 {

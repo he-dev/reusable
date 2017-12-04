@@ -3,12 +3,12 @@ using Reusable.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Custom;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Reusable.Exceptionize;
-using System.Linq.Custom;
 
 namespace Reusable.Console.XTest
 {

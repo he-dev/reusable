@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Input;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.Collections;
 
 namespace Reusable.Tests
 {
@@ -11,19 +12,19 @@ namespace Reusable.Tests
         [TestMethod]
         public void Equals_DifferentNames_False()
         {
-            Assert.AreNotEqual(KeySet<SoftString>.Create("foo"), KeySet<SoftString>.Create("bar"));
+            Assert.AreNotEqual(ImmutableKeySet<SoftString>.Create("foo"), ImmutableKeySet<SoftString>.Create("bar"));
         }
 
         [TestMethod]
         public void Equals_SameNames_True()
         {
-            Assert.AreEqual(KeySet<SoftString>.Create("foo"), KeySet<SoftString>.Create("foo"));
+            Assert.AreEqual(ImmutableKeySet<SoftString>.Create("foo"), ImmutableKeySet<SoftString>.Create("foo"));
         }
 
         [TestMethod]
         public void Equals_CommonNames_True()
         {
-            Assert.AreEqual(KeySet<SoftString>.Create("foo"), KeySet<SoftString>.Create("bar", "FOO"));
+            Assert.AreEqual(ImmutableKeySet<SoftString>.Create("foo"), ImmutableKeySet<SoftString>.Create("bar", "FOO"));
         }       
     }    
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Custom;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,7 +10,6 @@ using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.OmniLog.Collections;
 using Reusable.OmniLog.SemLog.Attachements;
-using System.Linq.Custom;
 
 namespace Reusable.OmniLog.SemLog
 {

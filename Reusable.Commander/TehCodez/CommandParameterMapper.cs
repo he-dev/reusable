@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Custom;
 using System.Net.Http.Headers;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -11,7 +12,6 @@ using Reusable.Extensions;
 using Reusable.OmniLog;
 using Reusable.Reflection;
 using TypeConverter = Reusable.Converters.TypeConverter;
-using System.Linq.Custom;
 
 namespace Reusable.Commander
 {

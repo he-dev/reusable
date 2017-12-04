@@ -128,6 +128,11 @@ namespace Reusable.OmniLog
 
         public void Dispose()
         {
+            if (_disposed)
+            {
+                return;                
+            }
+
             _observers.Clear();
             _dispose();
             _disposed = true;

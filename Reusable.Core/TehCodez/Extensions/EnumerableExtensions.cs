@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Extensions;
@@ -104,39 +103,29 @@ namespace System.Linq.Custom
             return values.Select(x => x?.ToString().QuoteWith(quotationMark));
         }
 
-        public static IEnumerable<T> LoopTake<T>(this IEnumerable<T> values, int count)
+        [NotNull, ItemCanBeNull, ContractAnnotation("values: null => halt")]
+        public static IEnumerable<T> Loop<T>(this IEnumerable<T> values, int startAt = 0)
         {
-            if (values == null)
-            {
-                throw new ArgumentNullException(nameof(values));
-            }
-            if (count < 0)
-            {
-                throw new ArgumentOutOfRangeException(
-                    paramName: nameof(count),
-                    actualValue: count,
-                    message: "Count must be greater or equal 0."
-                );
-            }
+            if (values == null) { throw new ArgumentNullException(nameof(values)); }
+            if (startAt < 0) { throw new ArgumentOutOfRangeException(paramName: nameof(startAt), message: $"{nameof(startAt)} must be >= 0"); }
 
-            var took = 0;
+            var moves = 0;
 
             // ReSharper disable once PossibleMultipleEnumeration
             var enumerator = values.GetEnumerator();
 
             try
             {
-                while (took < count)
+                while (TryMoveNext(enumerator, out enumerator))
                 {
-                    if (MoveNext(ref enumerator))
+                    moves++;
+
+                    if (startAt > 0 && moves <= startAt)
                     {
-                        yield return enumerator.Current;
+                        continue;
                     }
-                    else
-                    {
-                        yield break;
-                    }
-                    took++;
+
+                    yield return enumerator.Current;
                 }
             }
             finally
@@ -144,22 +133,24 @@ namespace System.Linq.Custom
                 enumerator.Dispose();
             }
 
-            bool MoveNext(ref IEnumerator<T> e)
+            bool TryMoveNext(IEnumerator<T> currentEnumerator, out IEnumerator<T> newEnumerator)
             {
-                if (e.MoveNext())
+                if (currentEnumerator.MoveNext())
                 {
+                    newEnumerator = currentEnumerator;
                     return true;
                 }
-                // Could not move-next. Reset enumerator and try again.
                 else
                 {
-                    e.Dispose();
+                    // Get a new enumerator because we took all elements and try again.
+
+                    currentEnumerator.Dispose();
 
                     // ReSharper disable once PossibleMultipleEnumeration
-                    e = values.GetEnumerator();
+                    newEnumerator = values.GetEnumerator();
 
-                    // If we couldn't move after reset then we're done trying.
-                    return e.MoveNext();
+                    // If we couldn't move after reset then we're done trying because the collection is empty.
+                    return newEnumerator.MoveNext();
                 }
             }
         }
@@ -260,9 +251,27 @@ namespace System.Linq.Custom
             }
             // ReSharper disable once IteratorNeverReturns - Since it's 'Always' this is by design.
         }
+
+        public static bool In<T>([CanBeNull] this T value, params T[] others)
+        {
+            return value.In((IEnumerable<T>)others);
+        }
+
+        public static bool In<T>([CanBeNull] this T value, [NotNull] IEnumerable<T> others, IEqualityComparer<T> comparer = null)
+        {
+            if (others == null) throw new ArgumentNullException(nameof(others));
+
+            return others.Contains(value, comparer ?? EqualityComparer<T>.Default);
+        }
     }
 
-    public class EmptySequenceException : Exception { }
+    public class EmptySequenceException : Exception
+    {
+        public EmptySequenceException() : base("Sequence does not contain any elements.") { }
+    }
 
-    public class MoreThanOneElementException : Exception { }
+    public class MoreThanOneElementException : Exception
+    {
+        public MoreThanOneElementException() : base("Sequence contains more then one element.") { }
+    }
 }

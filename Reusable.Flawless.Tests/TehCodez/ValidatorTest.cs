@@ -90,8 +90,8 @@ namespace Reusable.Flawless.Tests
         [TestMethod]
         public void ValidateWith_MultipleRules_Validations()
         {
-            var age = 5;
-            var lastName = "Doe";
+            //var age = 5;
+            //var lastName = "Doe";
 
             var validator = Validator<Person>.Empty
                 .IsNotValidWhen(p => p.FirstName == null);

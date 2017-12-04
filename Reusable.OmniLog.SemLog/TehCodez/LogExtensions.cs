@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Custom;
 using Reusable.Extensions;
 using Reusable.OmniLog.Attachements;
 using Reusable.OmniLog.Collections;
-using System.Linq.Custom;
 
 namespace Reusable.OmniLog.SemLog
 {
