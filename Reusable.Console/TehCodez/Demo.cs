@@ -78,10 +78,11 @@ namespace Reusable.Console
                     using (logger.BeginScope(s => s.Transaction(456).Elapsed()))
                     {
                         var customer = new { FirstName = "John", LastName = "Doe" };
-                        logger.Log(Snapshot.Objects(customer, nameof(customer)), Layer.Business);
+                        logger.Log(Category.Snapshot.Objects(customer, nameof(customer)), Layer.Business);
                         //logger.Event(Layer.Application, Event.ApplicationStart, Result.Success, "Hallo event!");
-                        logger.Log(Event.Started("TestLogger"), Layer.Application);
-                        logger.Log(Event.Failed("TestLogger", new DivideByZeroException("Cannot divide.")), Layer.Application);
+                        logger.Log(Category.Action.Started("TestLogger"), Layer.Application);
+                        logger.Log(Category.Action.Cancelled("TestLogger"), Layer.Application);
+                        logger.Log(Category.Action.Failed("TestLogger", new DivideByZeroException("Cannot divide.")), Layer.Application);
                         logger.Trace("Just a trace");
                     }
                 }

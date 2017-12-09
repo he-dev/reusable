@@ -85,7 +85,7 @@ namespace Reusable.OmniLog
             {
                 var log = new Log();
                 log.Name(_name);
-                log.LogLevel(logLevel);
+                log.Level(logLevel);
                 logAction(log);
 
                 var rendered = log.Render(Attachements);

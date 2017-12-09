@@ -19,7 +19,7 @@ namespace Reusable.OmniLog
         {
             if (logLevel == null) throw new ArgumentNullException(nameof(logLevel));
 
-            return log => logPredicate(log) && log.LogLevel() >= logLevel;
+            return log => logPredicate(log) && log.Level() >= logLevel;
         }
 
         [NotNull]
@@ -27,7 +27,7 @@ namespace Reusable.OmniLog
         {
             if (logLevel == null) throw new ArgumentNullException(nameof(logLevel));
 
-            return log => logPredicate(log) && logLevel.Contains(log.LogLevel());
+            return log => logPredicate(log) && logLevel.Contains(log.Level());
         }
         
         [NotNull]

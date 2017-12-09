@@ -20,7 +20,7 @@ namespace Reusable.OmniLog
 
         public static TimeSpan Elapsed(this Log log, object value = null) => log.Property<TimeSpan>(value);
 
-        public static LogLevel LogLevel(this Log log, object value = null) => log.Property<LogLevel>(value);
+        public static LogLevel Level(this Log log, object value = null) => log.Property<LogLevel>(value);
 
         public static string Message(this Log log, object value = null) => log.Property<string>(value);
 

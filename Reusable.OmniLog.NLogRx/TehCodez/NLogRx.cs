@@ -44,7 +44,7 @@ namespace Reusable.OmniLog
             log = log.Flatten(scopeMerges);
             var logEventInfo = new NLog.LogEventInfo
             {
-                Level = LogLevelMap[log.LogLevel()],
+                Level = LogLevelMap[log.Level()],
                 LoggerName = log.Name().ToString(),
                 Message = log.Message(),
                 Exception = log.Exception(),

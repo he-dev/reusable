@@ -26,7 +26,7 @@ namespace Reusable.OmniLog.Tests
             var log = memoryRx.Logs.First();
 
             Assert.AreEqual("MockLogger", log.Name());
-            Assert.AreEqual(LogLevel.Information, log.LogLevel());
+            Assert.AreEqual(LogLevel.Information, log.Level());
             Assert.AreEqual("Hallo OmniLog!", log.Message());
             Assert.AreEqual(timestamp, log.Timestamp());
         }

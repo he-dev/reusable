@@ -4,9 +4,12 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Reusable.OmniLog.Collections;
+using Reusable.OmniLog.SemanticExtensions.Attachements;
 
 namespace Reusable.OmniLog.SemanticExtensions
 {
+    public delegate (string Name, object Object) CreateCategoryFunc(Log log);    
+
     [PublicAPI]
     public static class LoggerExtensions
     {
@@ -23,7 +26,7 @@ namespace Reusable.OmniLog.SemanticExtensions
 
         public static void Log(
             this ILogger logger,
-            Func<Log, (string Name, object Object)> categoryFunc,
+            CreateCategoryFunc createCategoryFunc,
             Layer layer,
             Action<Log> logAction = null,
             [CallerMemberName] string callerMemberName = null,
@@ -32,15 +35,9 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             logger.Log(LogLevelMap[layer], log =>
             {
-                var category = categoryFunc(log);
+                var category = createCategoryFunc(log);
 
-                log.With(nameof(Layer), layer);
-                log.With(nameof(Category), category.Name);
-
-                if (!(log.Exception() is null))
-                {
-                    log.LogLevel(LogLevel.Error);
-                }
+                log.With(nameof(Category), category.Name);               
 
                 if (!log.ContainsKey("Bag"))
                 {
@@ -48,12 +45,13 @@ namespace Reusable.OmniLog.SemanticExtensions
                 }
                 log.Bag().Add(nameof(Snapshot), category.Object);
 
+                log.With(nameof(Layer), layer);
                 log.Add(LogProperty.CallerMemberName, callerMemberName);
                 log.Add(LogProperty.CallerLineNumber, callerLineNumber);
                 log.Add(LogProperty.CallerFilePath, Path.GetFileName(callerFilePath));
 
                 logAction?.Invoke(log);
             });
-        }        
+        }
     }
 }
