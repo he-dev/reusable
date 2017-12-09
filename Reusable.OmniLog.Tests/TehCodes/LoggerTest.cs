@@ -35,8 +35,9 @@ namespace Reusable.OmniLog.Tests
         public void Log_LogFilterGreaterThenOrEqual_Logged()
         {
             var memoryRx = MemoryRx.Create();
-            var loggerFactory = new LoggerFactory(memoryRx)
+            var loggerFactory = new LoggerFactory
             {
+                Observers = { memoryRx },
                 Configuration = new LoggerConfiguration
                 {
                     LogPredicate = LogFilter.Any.Min(LogLevel.Information)
@@ -61,8 +62,9 @@ namespace Reusable.OmniLog.Tests
             //var (memoryRx, loggerFactory, logger) = MockLogger.Create(new DateTime(2017, 5, 1), 10);
 
             var memoryRx = MemoryRx.Create();
-            var loggerFactory = new LoggerFactory(memoryRx)
+            var loggerFactory = new LoggerFactory
             {
+                Observers = { memoryRx },
                 Configuration = new LoggerConfiguration
                 {
                     LogPredicate = LogFilter.Any.Contains(LogLevel.Debug | LogLevel.Error)
@@ -102,7 +104,7 @@ namespace Reusable.OmniLog.Tests
             var memoryRx1 = MemoryRx.Create();
             var memoryRx2 = MemoryRx.Create();
 
-            var loggerFactory = new LoggerFactory(memoryRx1, memoryRx2);
+            var loggerFactory = new LoggerFactory { Observers = { memoryRx1, memoryRx2 } };
 
             var logger1 = loggerFactory.CreateLogger("Logger1");
             var logger2 = loggerFactory.CreateLogger("Logger2");

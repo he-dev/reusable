@@ -5,8 +5,8 @@ using Reusable.Converters;
 using Reusable.DateTimes;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
-using Reusable.OmniLog.Attachements;
-using Reusable.OmniLog.SemLog;
+using Reusable.OmniLog.SemanticExtensions;
+using Reusable.Extensions;
 
 namespace Reusable.Console
 {
@@ -14,18 +14,19 @@ namespace Reusable.Console
     {
         public static void ConsoleColorizer()
         {
-            Reusable.ThirdParty.NLogUtilities.LayoutRenderers.IgnoreCaseEventPropertiesLayoutRenderer.Register();
+            Reusable.ThirdParty.NLogUtilities.LayoutRenderers.SmartPropertiesLayoutRenderer.Register();
 
-            var loggerFactory = new LoggerFactory(new[]
+            var loggerFactory = new LoggerFactory
             {
-                ConsoleTemplateRx.Create(new ConsoleTemplateRenderer()),
-            })
-            {
+                Observers =
+                {
+                    ConsoleTemplateRx.Create(new ConsoleTemplateRenderer()),
+                },
                 Configuration = new LoggerConfiguration
                 {
                     Attachements = new HashSet<ILogAttachement>
                     {
-                        new Timestamp<UtcDateTime>(),
+                        new OmniLog.Attachements.Timestamp<UtcDateTime>(),
                     }
                 }
             };
@@ -47,26 +48,25 @@ namespace Reusable.Console
 
         public static void SemLog()
         {
-            Reusable.ThirdParty.NLogUtilities.LayoutRenderers.IgnoreCaseEventPropertiesLayoutRenderer.Register();
+            Reusable.ThirdParty.NLogUtilities.LayoutRenderers.SmartPropertiesLayoutRenderer.Register();
 
-            var loggerFactory = new LoggerFactory(new[]
+            var loggerFactory = new LoggerFactory
             {
-                ConsoleTemplateRx.Create(new ConsoleTemplateRenderer()),
-                NLogRx.Create(new [] { new TransactionMerge() })
-            })
-            {
+                Observers =
+                {
+                    ConsoleTemplateRx.Create(new ConsoleTemplateRenderer()),
+                    NLogRx.Create(new [] { new TransactionMerge() })
+                },
                 Configuration = new LoggerConfiguration
                 {
-                    Attachements = new HashSet<ILogAttachement>(AppSetting.FromAppConfig("omnilog:", "Environment", "Product"))
+                    Attachements =
                     {
-                        new Timestamp<UtcDateTime>(),
-                        new OmniLog.SemLog.Attachements.Snapshot()
-                        //new Expected(),
-                        //new Actual(),
-                        //new AreEqual()
+                        OmniLog.Attachements.AppSetting.CreateMany("omnilog:", "Environment", "Product"),
+                        new OmniLog.Attachements.Timestamp<UtcDateTime>(),
+                        new OmniLog.SemanticExtensions.Attachements.Snapshot(new OmniLog.SemanticExtensions.Attachements.JsonSnapshotSerializer())
                     }
                 }
-            };          
+            };
 
             var logger = loggerFactory.CreateLogger("Demo");
 
@@ -74,11 +74,14 @@ namespace Reusable.Console
             {
                 using (logger.BeginScope(s => s.Transaction(123).Elapsed()))
                 {
-                    logger.State(Layer.Business, () => ("foo", "bar"), "Hallo state!", LogLevel.Warning);
+                    logger.Log(_ => ("foo", "bar"), Layer.Business, log => log.Message("Hallo state!"));
                     using (logger.BeginScope(s => s.Transaction(456).Elapsed()))
                     {
-                        logger.State(Layer.Business, () => ("Customer", new { FirstName = "John", LastName = "Doe" }), "Hallo state!");
-                        logger.Event(Layer.Application, Event.ApplicationStart, Result.Success, "Hallo event!");
+                        var customer = new { FirstName = "John", LastName = "Doe" };
+                        logger.Log(Snapshot.Objects(customer, nameof(customer)), Layer.Business);
+                        //logger.Event(Layer.Application, Event.ApplicationStart, Result.Success, "Hallo event!");
+                        logger.Log(Event.Started("TestLogger"), Layer.Application);
+                        logger.Log(Event.Failed("TestLogger", new DivideByZeroException("Cannot divide.")), Layer.Application);
                         logger.Trace("Just a trace");
                     }
                 }
@@ -94,13 +97,5 @@ namespace Reusable.Console
 
             var result = converter.Convert("123", typeof(int));
         }
-    }
-
-    public static class Event
-    {
-        public const string ApplicationStart = nameof(ApplicationStart);
-        public const string ApplicationExit = nameof(ApplicationExit);
-        public const string InitializeConfiguration = nameof(InitializeConfiguration);
-        public const string InitializeContainer = nameof(InitializeContainer);
     }
 }

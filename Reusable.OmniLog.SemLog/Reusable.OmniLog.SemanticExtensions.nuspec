@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.OmniLog.SemLog</id>
+    <id>Reusable.OmniLog.SemanticExtensions</id>
     <version>3.91.0</version>
-    <title>Reusable.OmniLog.SemLog</title>
+    <title>Reusable.OmniLog.SemanticExtensions</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
@@ -29,7 +29,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\Reusable.OmniLog.SemLog.dll" target="lib\net462" />
-    <file src="bin\Release\Reusable.OmniLog.SemLog.pdb" target="lib\net462" />
+    <file src="bin\Release\Reusable.OmniLog.SemanticExtensions.dll" target="lib\net462" />
+    <file src="bin\Release\Reusable.OmniLog.SemanticExtensions.pdb" target="lib\net462" />
   </files>
 </package>

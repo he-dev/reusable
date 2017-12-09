@@ -61,6 +61,8 @@ namespace Reusable.OmniLog
             return _cache.GetOrAdd(name, n => NLog.LogManager.GetLogger(name.ToString()));
         }
 
-        public static IObserver<Log> Create(IEnumerable<ILogScopeMerge> scopeMerges) => new NLogRx(scopeMerges);        
+        public static IObserver<Log> Create(IEnumerable<ILogScopeMerge> scopeMerges) => new NLogRx(scopeMerges);
+
+        public static IObserver<Log> Create() => new NLogRx(Enumerable.Empty<ILogScopeMerge>());        
     }
 }

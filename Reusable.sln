@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2008
+VisualStudioVersion = 15.0.27130.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}"
 EndProject
@@ -95,7 +95,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ThirdParty.JsonNet
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Tester.Tests", "Reusable.Tester.Tests\Reusable.Tester.Tests.csproj", "{FD93FC48-78C0-4E58-B373-3F59B1EAA293}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.OmniLog.SemLog", "Reusable.OmniLog.SemLog\Reusable.OmniLog.SemLog.csproj", "{7D2AE64A-854E-41BF-AB1D-CA3AA8ADFA9A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.OmniLog.SemanticExtensions", "Reusable.OmniLog.SemLog\Reusable.OmniLog.SemanticExtensions.csproj", "{7D2AE64A-854E-41BF-AB1D-CA3AA8ADFA9A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,6 +1,8 @@
-﻿// ReSharper disable InconsistentNaming
-namespace Reusable.OmniLog.SemLog
+﻿
+
+namespace Reusable.OmniLog.SemanticExtensions
 {
+    // ReSharper disable InconsistentNaming - we want the IO to be inconsistent
     public enum Layer
     {
         // Trace
@@ -18,4 +20,21 @@ namespace Reusable.OmniLog.SemLog
         // Information
         Business,
     }
+
+    internal enum Category
+    {
+        Events,
+        Properties,
+        Fields,
+        Variables,
+        Arguments,
+        Objects
+    }
+
+    //public enum Event
+    //{
+    //    Started,
+    //    Finished,
+    //    Failed,
+    //}
 }

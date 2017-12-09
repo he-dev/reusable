@@ -19,11 +19,11 @@ namespace Reusable.OmniLog.Attachements
             return ConfigurationManager.AppSettings[_key];
         }
 
-        public static IEnumerable<AppSetting> FromAppConfig(string prefix, params string[] keys)
+        public static IEnumerable<AppSetting> CreateMany(string prefix, params string[] keys)
         {
             return
                 from key in keys
                 select new AppSetting(key, $"{prefix}{key}");
-        }
+        }        
     }
 }

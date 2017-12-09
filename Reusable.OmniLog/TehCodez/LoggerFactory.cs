@@ -24,17 +24,11 @@ namespace Reusable.OmniLog
     {
         private readonly ConcurrentDictionary<SoftString, (ILogger Logger, IDisposable Subscriptions)> _cache;
 
-        private readonly IEnumerable<IObserver<Log>> _observers;
+        //private readonly IEnumerable<IObserver<Log>> _observers;
 
-        public LoggerFactory(IEnumerable<IObserver<Log>> observers)
+        public LoggerFactory()
         {
-            _observers = observers.ToList();
             _cache = new ConcurrentDictionary<SoftString, (ILogger Logger, IDisposable Subscriptions)>();
-        }
-
-        public LoggerFactory(params IObserver<Log>[] observers)
-            : this(observers.AsEnumerable())
-        {
         }
 
         private string DebuggerDisplay => DebuggerString.Create<LoggerFactory>(new
@@ -42,6 +36,9 @@ namespace Reusable.OmniLog
             LoggerCount = _cache.Count,
             AttachementCount = Configuration.Attachements.Count
         });
+
+        [NotNull]
+        public IList<IObserver<Log>> Observers { get; set; } = new List<IObserver<Log>>();
 
         [NotNull]
         public LoggerConfiguration Configuration { get; set; } = new LoggerConfiguration();
@@ -58,28 +55,30 @@ namespace Reusable.OmniLog
 
             return _cache.GetOrAdd(name, n =>
             {
-                var unsubscribeLogger = (Action)(() =>
+                void UnsubscribeLogger()
                 {
                     if (_cache.TryRemove(name, out var item))
                     {
                         item.Subscriptions.Dispose();
                     }
-                });
+                }
 
-                var logger = new Logger(name, LoggerMatches, LogMatches, unsubscribeLogger)
+                var logger = new Logger(name, LoggerMatches, LogMatches, UnsubscribeLogger)
                 {
                     Attachements = Configuration.Attachements
                 };
 
-                var subscriptions = _observers.Select(logger.Subscribe).ToList();
+                var subscriptions = Observers.Select(logger.Subscribe).ToList();
 
-                return (logger, Disposable.Create(() =>
+                void Unsubscribe()
                 {
                     foreach (var subscription in subscriptions)
                     {
                         subscription.Dispose();
                     }
-                }));
+                }
+
+                return (logger, Disposable.Create(Unsubscribe));
             }).Logger;
         }
 

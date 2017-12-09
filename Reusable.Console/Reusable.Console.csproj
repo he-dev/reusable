@@ -134,9 +134,9 @@
       <Project>{40681b6d-3d25-45fd-beb7-063df4d4d70c}</Project>
       <Name>Reusable.OmniLog.NLogRx</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Reusable.OmniLog.SemLog\Reusable.OmniLog.SemLog.csproj">
+    <ProjectReference Include="..\Reusable.OmniLog.SemLog\Reusable.OmniLog.SemanticExtensions.csproj">
       <Project>{7d2ae64a-854e-41bf-ab1d-ca3aa8adfa9a}</Project>
-      <Name>Reusable.OmniLog.SemLog</Name>
+      <Name>Reusable.OmniLog.SemanticExtensions</Name>
     </ProjectReference>
     <ProjectReference Include="..\Reusable.OmniLog\Reusable.OmniLog.csproj">
       <Project>{3f1a4c5b-1ba9-45c7-bf73-465bd8669897}</Project>

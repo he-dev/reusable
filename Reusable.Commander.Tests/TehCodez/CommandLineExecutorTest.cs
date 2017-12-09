@@ -21,7 +21,7 @@ namespace Reusable.Commander.Tests
         private static TestLocal InitializeCommander(ICommandRegistrationContainer registrations, Action<IConsoleCommand> assert)
         {
             var memoryRx = MemoryRx.Create();
-            var loggerFactory = new LoggerFactory(memoryRx);
+            var loggerFactory = new LoggerFactory { Observers = { memoryRx } };
 
             var builder = new ContainerBuilder();
 
@@ -163,7 +163,7 @@ namespace Reusable.Commander.Tests
             public DateTime DateTimeProperty { get; set; }
 
             [Parameter, Alias("JustProperty")]
-            public string AliasProperty { get; set; }           
+            public string AliasProperty { get; set; }
         }
 
         [Alias("test")]

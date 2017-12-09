@@ -3,11 +3,36 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Reusable.OmniLog.Collections;
 
-namespace Reusable.OmniLog.SemLog.Attachements
+namespace Reusable.OmniLog.SemanticExtensions.Attachements
 {
     public class Snapshot : LogAttachement
     {
-        public Snapshot() : base(nameof(Snapshot))
+        private readonly ISnapshotSerializer _serializer;
+
+        public Snapshot(ISnapshotSerializer serializer) : base(nameof(Snapshot))
+        {
+            _serializer = serializer;
+        }
+
+        public override object Compute(Log log)
+        {
+            if (log.TryGetValue("Bag", out var bag) && bag is LogBag b && b.TryGetValue(Name.ToString(), out var obj))
+            {
+                return _serializer.SerializeObject(obj);
+            }
+            return null;
+        }
+    }
+
+    [PublicAPI]
+    public interface ISnapshotSerializer
+    {
+        object SerializeObject(object obj);
+    }
+
+    public class JsonSnapshotSerializer : ISnapshotSerializer
+    {
+        public JsonSnapshotSerializer()
         {
             Settings = new JsonSerializerSettings
             {
@@ -20,13 +45,9 @@ namespace Reusable.OmniLog.SemLog.Attachements
         [NotNull]
         public JsonSerializerSettings Settings { get; set; }
 
-        public override object Compute(Log log)
+        public object SerializeObject(object obj)
         {
-            if (log.TryGetValue("Bag", out var bag) && bag is LogBag b && b.TryGetValue(Name.ToString(), out var obj))
-            {
-                return obj is string ? obj : JsonConvert.SerializeObject(obj, Settings);
-            }
-            return null;
+            return obj is string ? obj : JsonConvert.SerializeObject(obj, Settings);
         }
     }
 }

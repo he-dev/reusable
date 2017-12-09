@@ -20,7 +20,7 @@
 	var connectionString = "data source=(local);initial catalog=testingdb;integrated security=true";
 	var database = "testingdb";
 	var schema = "dbo";
-	var tablePattern = "SemLog";
+	var tablePattern = "SemLog2";
 	var mainLogPattern = "";
 	var internalLogFile = @"c:\temp\NLog.Reusable.Console.log";
 	
@@ -131,7 +131,7 @@ foreach(var column in nonIndexColumns)
 	else
 	{
 #>
-			<parameter name="@<#=column.ColumnName#>" layout="${<# Write(column.DataType == "float" ? "invariant" : "ignore-case-event");#>-properties:item=<#=column.ColumnName#>}" />
+			<parameter name="@<#=column.ColumnName#>" layout="${smart-properties:key=<#=column.ColumnName#>:ignoreCase=true}" />
 <#
 	}
 }

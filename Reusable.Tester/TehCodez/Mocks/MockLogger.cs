@@ -18,8 +18,9 @@ namespace Reusable.Tester.Mocks
         {
             var memoryRx = MemoryRx.Create();
 
-            var loggerFactory = new LoggerFactory(memoryRx)
+            var loggerFactory = new LoggerFactory
             {
+                Observers = { memoryRx },
                 Configuration = new LoggerConfiguration
                 {
                     Attachements =
