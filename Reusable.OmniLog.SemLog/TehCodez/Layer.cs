@@ -19,22 +19,5 @@ namespace Reusable.OmniLog.SemanticExtensions
         
         // Information
         Business,
-    }
-
-    internal enum Category
-    {
-        Events,
-        Properties,
-        Fields,
-        Variables,
-        Arguments,
-        Objects
-    }
-
-    //public enum Event
-    //{
-    //    Started,
-    //    Finished,
-    //    Failed,
-    //}
+    }    
 }
