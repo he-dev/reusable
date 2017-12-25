@@ -21,30 +21,23 @@ namespace Reusable.Collections
 
         #region Equals method
 
-        public static Expression CreateEqualsExpression<TProperty>(
-            PropertyInfo property,
-            AutoEqualityPropertyAttribute attribute,
-            Expression leftParameter,
-            Expression rightParameter)
+        public static Expression CreateEqualsExpression<TProperty>(AutoEqualityPropertyContext context)
         {
             var labelTarget = Expression.Label(typeof(bool));
 
-            var guardBlockExpression = CreateNullGuardBlockExpression<TProperty>(property, leftParameter, rightParameter, labelTarget);
-            var equalsMethodExpression = CreateEqualsMethodExpression<TProperty>(property, attribute, leftParameter, rightParameter);
+            var nullGuardBlockExpression = CreateNullGuardBlockExpression<TProperty>(context, labelTarget);
+            var equalsMethodExpression = CreateEqualsMethodExpression<TProperty>(context);
 
             return Expression.Block(new[]
             {
-                guardBlockExpression,
+                nullGuardBlockExpression,
                 Expression.Return(labelTarget, equalsMethodExpression),
                 Expression.Label(labelTarget, defaultValue: Expression.Constant(false))
             });
         }
 
-        private static Expression CreateNullGuardBlockExpression<TProperty>(
-            PropertyInfo property,
-            Expression leftParameter,
-            Expression rightParameter,
-            LabelTarget labelTarget)
+        // Creates the three canonical null guard conditions.
+        private static Expression CreateNullGuardBlockExpression<TProperty>(AutoEqualityPropertyContext context, LabelTarget labelTarget)
         {
             var areEqualExpression = CreateIfThenExpression((left, right) => ReferenceEquals(left, right), true);
             var leftIsNullExpression = CreateIfThenExpression((left, right) => ReferenceEquals(left, null), false);
@@ -63,35 +56,37 @@ namespace Reusable.Collections
 
                 var referenceEquasInvokeExpression = Expression.Invoke(
                     referenceEquasExpression,
-                    Expression.Property(leftParameter, property),
-                    Expression.Property(rightParameter, property)
+                    Expression.Property(context.LeftParameter, context.Property),
+                    Expression.Property(context.RightParameter, context.Property)
                 );
 
-                return Expression.IfThen(referenceEquasInvokeExpression, Expression.Return(labelTarget, Expression.Constant(result)));
+                return Expression.IfThen(
+                    referenceEquasInvokeExpression,
+                    Expression.Return(labelTarget, Expression.Constant(result))
+                );
             }
         }
 
-        private static Expression CreateEqualsMethodExpression<TProperty>(
-            PropertyInfo property,
-            AutoEqualityPropertyAttribute attribute,
-            Expression leftParameter,
-            Expression rightParameter)
+        private static Expression CreateEqualsMethodExpression<TProperty>(AutoEqualityPropertyContext context)
         {
-
-            if (HasDefaultComparer(property.PropertyType))
+            if (HasDefaultComparer(context.Property.PropertyType))
             {
                 // Short-cut to have compiler write this expression for us.
-                var equalsFunc = (Expression<Func<TProperty, TProperty, bool>>)((x, y) => GetComparer<TProperty>(attribute).Equals(x, y));
+                var equalsFunc = (Expression<Func<TProperty, TProperty, bool>>)((x, y) => GetComparer<TProperty>(context.Attribute).Equals(x, y));
 
                 return Expression.Invoke(
                     equalsFunc,
-                    Expression.Property(leftParameter, property),
-                    Expression.Property(rightParameter, property)
+                    Expression.Property(context.LeftParameter, context.Property),
+                    Expression.Property(context.RightParameter, context.Property)
                 );
             }
 
-            var equalsMethod = GetEqualsMethod(property.PropertyType);
-            return Expression.Call(Expression.Property(leftParameter, property), equalsMethod, Expression.Property(rightParameter, property));
+            var equalsMethod = GetEqualsMethod(context.Property.PropertyType);
+            return Expression.Call(
+                Expression.Property(context.LeftParameter, context.Property), 
+                equalsMethod, 
+                Expression.Property(context.RightParameter, context.Property)
+            );
         }
 
         [SuppressMessage("ReSharper", "RedundantExplicitArrayCreation")] // Using Type[] for consistency
@@ -123,30 +118,26 @@ namespace Reusable.Collections
         #region GetHashCode method 
 
         // The 'rightParameter' argument is not used but by having the same signature for both methods allows for a few optimizations in other places.
-        public static Expression CreateGetHashCodeExpression<TProperty>(
-            PropertyInfo property,
-            AutoEqualityPropertyAttribute attribute,
-            Expression leftParameter,
-            Expression rightParameter)
+        public static Expression CreateGetHashCodeExpression<TProperty>(AutoEqualityPropertyContext context)
         {
-            if (HasDefaultComparer(property.PropertyType))
+            if (HasDefaultComparer(context.Property.PropertyType))
             {
                 // Short-cut to have compiler write this expression for us.
-                var getHashCodeFunc = (Expression<Func<TProperty, int>>)((obj) => GetComparer<TProperty>(attribute).GetHashCode(obj));
+                var getHashCodeFunc = (Expression<Func<TProperty, int>>)((obj) => GetComparer<TProperty>(context.Attribute).GetHashCode(obj));
 
                 return Expression.Invoke(
                     getHashCodeFunc,
-                    Expression.Property(leftParameter, property)
+                    Expression.Property(context.LeftParameter, context.Property)
                 );
             }
 
             // Call the instance 'GetHashCode' method by default.
 
-            var getHashCodeMethod = property.PropertyType.GetMethod(nameof(GetHashCode));
+            var getHashCodeMethod = context.Property.PropertyType.GetMethod(nameof(GetHashCode));
 
             // ReSharper disable once AssignNullToNotNullAttribute - getHashCodeMethod is never null
             return Expression.Call(
-                Expression.Property(leftParameter, property),
+                Expression.Property(context.LeftParameter, context.Property),
                 getHashCodeMethod
             );
         }
