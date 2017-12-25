@@ -44,6 +44,45 @@ namespace Reusable.Tests.Collections
             Assert.That.Equatable().IsCanonical(p1);
         }
 
+        [TestMethod]
+        public void Builder_Ordinal_False()
+        {
+            var p1 = new Person { FirstName = "John", LastName = "Doe", DateOfBirth = new DateTime(2017, 5, 1), ShoeSize = Size.M, Type = typeof(string) };
+            var p2 = new Person { FirstName = "JOHN", LastName = "Doe", DateOfBirth = new DateTime(2017, 5, 1), ShoeSize = Size.M, Type = typeof(string) };
+
+            var comparer = AutoEquality<Person>.Builder.Use(p => p.FirstName).Build();
+
+            Assert.IsFalse(comparer.Equals(p1, p2));
+        }
+
+        [TestMethod]
+        public void Builder_OrdinalIgnoreCase_False()
+        {
+            var p1 = new Person { FirstName = "John", LastName = "Doe", DateOfBirth = new DateTime(2017, 5, 1), ShoeSize = Size.M, Type = typeof(string) };
+            var p2 = new Person { FirstName = "JOHN", LastName = "Doe", DateOfBirth = new DateTime(2017, 5, 1), ShoeSize = Size.M, Type = typeof(string) };
+
+            var comparer = AutoEquality<Person>.Builder.Use(p => p.FirstName, StringComparison.OrdinalIgnoreCase).Build();
+
+            Assert.IsTrue(comparer.Equals(p1, p2));
+        }
+
+        [TestMethod]
+        public void Equals_TypeWithDefaultEquals_True()
+        {
+            var p1 = new Person { FirstName = "John", LastName = "Doe", DateOfBirth = new DateTime(2017, 5, 1), ShoeSize = Size.M, Type = typeof(string) };
+            var p2 = new Person { FirstName = "JOHN", LastName = "Doe", DateOfBirth = new DateTime(2017, 5, 1), ShoeSize = Size.M, Type = typeof(string) };
+
+            var comparer = AutoEquality<Person>.Builder
+                .Use(p => p.FirstName, StringComparison.OrdinalIgnoreCase)
+                .Use(p => p.Type)
+                .Build();
+
+            Assert.IsTrue(comparer.Equals(p1, p2));
+            Assert.IsTrue(comparer.GetHashCode(p1) == comparer.GetHashCode(p2));
+
+            Assert.IsTrue(p1.Equals(p2));
+        }
+
         #region Test data
 
         public partial class Person
