@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Linq;
 using System.Linq.Custom;
@@ -10,6 +11,7 @@ using Reusable.Extensions;
 
 namespace Reusable.Data.SqlClient
 {
+    // This class provides utility methods for creating sql-schema types from data-tables.
     public abstract class SqlSchemaFactory
     {
         private static readonly ConcurrentDictionary<Type, Func<DataRow, object>> CreateSqlSchemaFuncs = new ConcurrentDictionary<Type, Func<DataRow, object>>();
@@ -19,22 +21,23 @@ namespace Reusable.Data.SqlClient
         {
             var createSqlSchema = CreateSqlSchemaFuncs.GetOrAdd(typeof(TSqlSchema), CreateSqlSchemaFactoryFunc<TSqlSchema>);
 
-            return (TSqlSchema) createSqlSchema(dataRow);
+            return (TSqlSchema)createSqlSchema(dataRow);
         }
 
         private static Func<DataRow, object> CreateSqlSchemaFactoryFunc<TSqlSchema>(Type type) where TSqlSchema : new()
         {
             var properties =
                 (from property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                 where !property.IsDefined(typeof(NotMappedAttribute))
                  let sqlName = FormatName(property.Name)
                  select (property, sqlName)).ToList();
 
             return (row) =>
             {
                 var sqlSchema = new TSqlSchema();
-                foreach (var item in properties.Where(x => !row[x.sqlName].Equals(DBNull.Value)))
+                foreach (var (property, sqlName) in properties.Where(x => !row[x.sqlName].Equals(DBNull.Value)))
                 {
-                    item.property.SetValue(sqlSchema, row[item.sqlName]);
+                    property.SetValue(sqlSchema, row[sqlName]);
                 }
                 return sqlSchema;
             };

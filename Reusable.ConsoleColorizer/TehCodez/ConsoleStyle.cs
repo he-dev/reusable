@@ -67,13 +67,11 @@ namespace Reusable.ConsoleColorizer
 
         public IDisposable Apply()
         {
-            return Disposable<ConsoleStyle>.CreateInitialized(() =>
-            {
-                var restoreStyle = Current;
-                Console.ForegroundColor = ForegroundColor;
-                Console.BackgroundColor = BackgroundColor;
-                return restoreStyle;
-            }, restoreStyle =>
+            var restoreStyle = Current;
+            Console.ForegroundColor = ForegroundColor;
+            Console.BackgroundColor = BackgroundColor;
+
+            return Disposable.Create(() =>
             {
                 Console.ForegroundColor = restoreStyle.ForegroundColor;
                 Console.BackgroundColor = restoreStyle.BackgroundColor;

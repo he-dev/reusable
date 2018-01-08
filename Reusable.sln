@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.0
+VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}"
 EndProject
@@ -71,7 +71,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.SmartConfig.Bindin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Sequences", "Reusable.Sequences\Reusable.Sequences.csproj", "{A32E0541-8D41-472F-BD25-0D8419C6AABC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.SqlSchemaReader", "Reusable.SqlSchemaReader\Reusable.SqlSchemaReader.csproj", "{E8E80901-ABE3-4BBF-A787-DCB6C627783D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.SqlSchema", "Reusable.SqlSchemaReader\Reusable.SqlSchema.csproj", "{E8E80901-ABE3-4BBF-A787-DCB6C627783D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.SmartConfig.InMemory", "Reusable.SmartConfig.InMemory\Reusable.SmartConfig.InMemory.csproj", "{59D31F62-A9E6-4F25-8BC1-497BF0A010AD}"
 EndProject
@@ -96,6 +96,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Tester.Tests", "Reusable.Tester.Tests\Reusable.Tester.Tests.csproj", "{FD93FC48-78C0-4E58-B373-3F59B1EAA293}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.OmniLog.SemanticExtensions", "Reusable.OmniLog.SemLog\Reusable.OmniLog.SemanticExtensions.csproj", "{7D2AE64A-854E-41BF-AB1D-CA3AA8ADFA9A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Csv", "Reusable.Csv\Reusable.Csv.csproj", "{E7AD8002-780A-44B4-9B5C-C91274674BFA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -493,6 +495,18 @@ Global
 		{7D2AE64A-854E-41BF-AB1D-CA3AA8ADFA9A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7D2AE64A-854E-41BF-AB1D-CA3AA8ADFA9A}.Release|x86.ActiveCfg = Release|Any CPU
 		{7D2AE64A-854E-41BF-AB1D-CA3AA8ADFA9A}.Release|x86.Build.0 = Release|Any CPU
+		{E7AD8002-780A-44B4-9B5C-C91274674BFA}.Debug.Core|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7AD8002-780A-44B4-9B5C-C91274674BFA}.Debug.Core|Any CPU.Build.0 = Debug|Any CPU
+		{E7AD8002-780A-44B4-9B5C-C91274674BFA}.Debug.Core|x86.ActiveCfg = Debug|Any CPU
+		{E7AD8002-780A-44B4-9B5C-C91274674BFA}.Debug.Core|x86.Build.0 = Debug|Any CPU
+		{E7AD8002-780A-44B4-9B5C-C91274674BFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7AD8002-780A-44B4-9B5C-C91274674BFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7AD8002-780A-44B4-9B5C-C91274674BFA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E7AD8002-780A-44B4-9B5C-C91274674BFA}.Debug|x86.Build.0 = Debug|Any CPU
+		{E7AD8002-780A-44B4-9B5C-C91274674BFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7AD8002-780A-44B4-9B5C-C91274674BFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7AD8002-780A-44B4-9B5C-C91274674BFA}.Release|x86.ActiveCfg = Release|Any CPU
+		{E7AD8002-780A-44B4-9B5C-C91274674BFA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -539,6 +553,7 @@ Global
 		{37C5C43A-159A-4312-BF3B-E00F7BE456E7} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
 		{FD93FC48-78C0-4E58-B373-3F59B1EAA293} = {AC36C881-1733-4649-ACBC-03B6F9A9334C}
 		{7D2AE64A-854E-41BF-AB1D-CA3AA8ADFA9A} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
+		{E7AD8002-780A-44B4-9B5C-C91274674BFA} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8F168DB3-D451-4BCF-A4BB-3D55EA356164}

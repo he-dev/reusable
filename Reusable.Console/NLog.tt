@@ -2,7 +2,8 @@
 <#@ assembly name="System.Core" #>
 <#@ assembly name="System.Data" #>
 <#@ assembly name="System.configuration" #>
-<#@ assembly name="$(ProjectDir)\$(OutDir)\Reusable.SqlSchemaReader.dll" #>
+<#@ assembly name="$(ProjectDir)\$(OutDir)\Reusable.Core.dll" #>
+<#@ assembly name="$(ProjectDir)\$(OutDir)\Reusable.SqlSchema.dll" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Text.RegularExpressions" #>
@@ -65,17 +66,20 @@
   <variable name="debuggerLayout" value="OmniLog » ${level:uppercase=true} | ${message}${onexception:${newline}${exceptionLayout}}" />
 
   <#
-	var sqlSchemaReader = new SqlSchemaReader();
+	//var sqlSchemaReader = new SqlSchemaReader();
 	var tableNameMatches = (Func<SqlTableSchema, bool>)(sqlTableSchema => Regex.IsMatch(sqlTableSchema.TableName, tablePattern, RegexOptions.IgnoreCase));
 	var sqlTableSchemaRestriction = new SqlTableSchema
 	{
 		TableSchema = schema
 	};
-	var tables = 
-		sqlSchemaReader
-			.GetSqlTableSchemas(connectionString, sqlTableSchemaRestriction)
-			.Where(tableNameMatches)
-			.ToList();
+	var tables = SqlHelper.ExecuteAsync(connectionString, conn => 
+	{
+		return
+			conn
+				.GetTableSchemas(sqlTableSchemaRestriction)
+				.Where(tableNameMatches)
+				.ToList();
+	}).GetAwaiter().GetResult();
   #>
   <targets>    
 
@@ -89,7 +93,15 @@ foreach(var table in tables)
 		TableSchema = schema,
 		TableName = table.TableName
 	};
-	var columns = sqlSchemaReader.GetSqlColumnSchemas(connectionString, sqlColumnSchemaRestriction);
+	var columns = SqlHelper.ExecuteAsync(connectionString, conn => 
+	{
+		return
+			conn
+				.GetColumnSchemas(sqlColumnSchemaRestriction)
+				.ToList();
+	}).GetAwaiter().GetResult();
+
+	//sqlSchemaReader.GetSqlColumnSchemas(connectionString, sqlColumnSchemaRestriction);
 #>	
 		<target xsi:type="Database" name="<#=table.TableName#>" dbProvider="System.Data.SqlClient" connectionString="<#=connectionString#>">
 			<commandText>

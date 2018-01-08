@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.SqlSchemaReader</id>
+    <id>Reusable.SqlSchema</id>
     <version>3.94.2</version>
-    <title>Reusable.SqlSchemaReader</title>
+    <title>Reusable.SqlSchema</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
@@ -21,7 +21,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\Reusable.SqlSchemaReader.dll" target="lib\net462" />
-    <file src="bin\Release\Reusable.SqlSchemaReader.pdb" target="lib\net462" />
+    <file src="bin\Release\Reusable.SqlSchema.dll" target="lib\net462" />
+    <file src="bin\Release\Reusable.SqlSchema.pdb" target="lib\net462" />
   </files>
 </package>

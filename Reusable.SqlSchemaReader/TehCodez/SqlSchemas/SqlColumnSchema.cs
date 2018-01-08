@@ -1,11 +1,21 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data;
 using System.Diagnostics;
 using JetBrains.Annotations;
 
 namespace Reusable.Data.SqlClient
 {
     [UsedImplicitly, PublicAPI, DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class SqlColumnSchema
+    public class  SqlColumnSchema
     {
+        private static readonly IReadOnlyDictionary<SqlDbType, Type> SqlDbTypeMap = new Dictionary<SqlDbType, Type>
+        {
+            [SqlDbType.NVarChar] = typeof(string),
+            [SqlDbType.Bit] = typeof(bool),
+        };
+
         private string DebuggerDisplay => $"[{TableCatalog}].[{TableSchema}].[{TableName}].[{ColumnName}] ({DataType})";
 
         public string TableCatalog { get; set; }
@@ -23,6 +33,12 @@ namespace Reusable.Data.SqlClient
         public string IsNullable { get; set; }
 
         public string DataType { get; set; }
+
+        /// <summary>
+        /// Gets the corresponding .NET Framework type.
+        /// </summary>
+        [NotMapped]
+        public Type FrameworkType => SqlDbTypeMap[(SqlDbType)Enum.Parse(typeof(SqlDbType), DataType, ignoreCase: true)];
 
         public int CharacterMaximumLength { get; set; }
 

@@ -1,0 +1,7 @@
+﻿Name;Value
+foo;bar
+baz;qux
+"foo;\r\nfoo";qux
+foo"";""bar
+"foo;""foo";qux
+;

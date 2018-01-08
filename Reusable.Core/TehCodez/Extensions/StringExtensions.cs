@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -70,7 +71,24 @@ namespace Reusable.Extensions
             return value.IndexOf(other, comparisonType) >= 0;
         }
 
-        [CanBeNull, ContractAnnotation("value: null => null; notnull => notnull")]
+        [CanBeNull, ContractAnnotation("value: null => null; value: notnull => notnull")]
         public static SoftString ToSoftString(this string value) => value is null ? null : SoftString.Create(value);
+
+        [NotNull, ContractAnnotation("value: null => halt; encoding: null => halt")]
+        public static StreamReader ToStreamReader([NotNull] this string value, [NotNull] Encoding encoding)
+        {
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
+
+            return new StreamReader(new MemoryStream(encoding.GetBytes(value)));
+        }
+
+        [NotNull, ContractAnnotation("value: null => halt; value: notnull => notnull")]
+        public static StreamReader ToStreamReader([NotNull] this string value)
+        {
+            if (value == null) throw new ArgumentNullException(nameof(value));
+
+            return value.ToStreamReader(Encoding.UTF8);
+        }
     }
 }

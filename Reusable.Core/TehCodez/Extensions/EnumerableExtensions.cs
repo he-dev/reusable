@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Data;
 using JetBrains.Annotations;
 using Reusable.Collections;
+using Reusable.Data;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 
 // ReSharper disable once CheckNamespace
@@ -252,6 +255,16 @@ namespace System.Linq.Custom
             // ReSharper disable once IteratorNeverReturns - Since it's 'Always' this is by design.
         }
 
+        public static IEnumerable<T> Always<T>([NotNull] Func<T> get)
+        {
+            if (get == null) throw new ArgumentNullException(nameof(get));
+
+            while (true)
+            {
+                yield return get();
+            }
+        }
+
         public static bool In<T>([CanBeNull] this T value, params T[] others)
         {
             return value.In((IEnumerable<T>)others);
@@ -262,7 +275,7 @@ namespace System.Linq.Custom
             if (others == null) throw new ArgumentNullException(nameof(others));
 
             return others.Contains(value, comparer ?? EqualityComparer<T>.Default);
-        }
+        }        
     }
 
     public class EmptySequenceException : Exception

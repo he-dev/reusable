@@ -7,12 +7,12 @@ namespace Reusable.Data.SqlClient.Tests
     [TestClass]
     public class SqlSchemaReaderTest
     {
-        private readonly ISqlSchemaReader _sqlSchemaReader = new SqlClient.SqlSchemaReader();
+        private readonly ISqlSchema _sqlSchema = new SqlClient.SqlSchema();
 
         [TestMethod]
         public void GetSqlTableSchemas_TestingDb_OneTable()
         {
-            var tableSchemas = _sqlSchemaReader.GetSqlTableSchemas(
+            var tableSchemas = _sqlSchema.GetSqlTableSchemas(
                 connectionString: ConfigurationManager.ConnectionStrings["TestingDb"].ConnectionString,
                 schemaRestriction: new SqlTableSchema
                 {
@@ -30,7 +30,7 @@ namespace Reusable.Data.SqlClient.Tests
         [TestMethod]
         public void GetSqlColumnSchemas_TestingDb_ThreeColumns()
         {
-            var columnSchemas = _sqlSchemaReader.GetSqlColumnSchemas(
+            var columnSchemas = _sqlSchema.GetSqlColumnSchemas(
                 connectionString: ConfigurationManager.ConnectionStrings["TestingDb"].ConnectionString,
                 schemaRestriction: new SqlColumnSchema
                 {

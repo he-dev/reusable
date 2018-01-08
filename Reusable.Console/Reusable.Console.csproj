@@ -142,9 +142,9 @@
       <Project>{3f1a4c5b-1ba9-45c7-bf73-465bd8669897}</Project>
       <Name>Reusable.OmniLog</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Reusable.SqlSchemaReader\Reusable.SqlSchemaReader.csproj">
+    <ProjectReference Include="..\Reusable.SqlSchemaReader\Reusable.SqlSchema.csproj">
       <Project>{e8e80901-abe3-4bbf-a787-dcb6c627783d}</Project>
-      <Name>Reusable.SqlSchemaReader</Name>
+      <Name>Reusable.SqlSchema</Name>
     </ProjectReference>
     <ProjectReference Include="..\Reusable.ThirdParty.NLogUtilities\Reusable.ThirdParty.NLogUtilities.csproj">
       <Project>{a9161314-0576-4cf5-a018-279a590c61dc}</Project>

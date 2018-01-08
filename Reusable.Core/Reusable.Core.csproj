@@ -67,6 +67,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ValueTuple.4.4.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
     </Reference>
@@ -84,6 +85,7 @@
     <Compile Include="TehCodez\AsyncDetector.cs" />
     <Compile Include="TehCodez\Collections\AutoEqualityBuilder.cs" />
     <Compile Include="TehCodez\Collections\AutoEqualityPropertyContext.cs" />
+    <Compile Include="TehCodez\Data\SqlClient\SqlHelper.cs" />
     <Compile Include="TehCodez\Diagnostics\DebuggerString.cs" />
     <Compile Include="TehCodez\ExitCode.cs" />
     <Compile Include="TehCodez\Extensions\HashSetExtensions.cs" />

@@ -46,22 +46,39 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net47\System.ValueTuple.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TehCodez\Data\UnitTest1.cs" />
     <Compile Include="TehCodez\Mocks\MockStopwatchTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+    <None Include="TestData\Seed-no-id.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Reusable.Converters\Reusable.Converters.csproj">
+      <Project>{d7da0768-b385-40de-abac-0a6b0c5b73f4}</Project>
+      <Name>Reusable.Converters</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj">
       <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
       <Name>Reusable.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Reusable.Csv\Reusable.Csv.csproj">
+      <Project>{e7ad8002-780a-44b4-9b5c-c91274674bfa}</Project>
+      <Name>Reusable.Csv</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Reusable.SqlSchemaReader\Reusable.SqlSchema.csproj">
+      <Project>{E8E80901-ABE3-4BBF-A787-DCB6C627783D}</Project>
+      <Name>Reusable.SqlSchema</Name>
     </ProjectReference>
     <ProjectReference Include="..\Reusable.Tester\Reusable.Tester.csproj">
       <Project>{fbcb78cd-68dd-497f-ae6e-5084a799f24e}</Project>
