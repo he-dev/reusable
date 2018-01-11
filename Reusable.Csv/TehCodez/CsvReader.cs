@@ -6,9 +6,12 @@ using System.Linq;
 using System.Linq.Custom;
 using System.Text;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
+using Reusable.Extensions;
 
 namespace Reusable
 {
+    [PublicAPI]
     public interface ICsvReader : IDisposable
     {
         Task<IList<string>> ReadLineAsync();
@@ -16,6 +19,8 @@ namespace Reusable
 
     public class CsvReader : ICsvReader
     {
+        public const char DefaultSeparator = ';';
+
         private const char DoubleQuote = '"';
         private const char CarriageReturn = '\r';
         private const char LineFeed = '\n';
@@ -29,11 +34,11 @@ namespace Reusable
         private bool _isEndOfLine;
         private bool _isEndOfStream;
 
-        public CsvReader(TextReader csv, char separator = ';')
+        public CsvReader(TextReader csv, char separator = DefaultSeparator)
         {
             _csv = csv;
             _separator = separator;
-        }       
+        }
 
         private char Current => _current[0];
 
@@ -123,22 +128,54 @@ namespace Reusable
             return !(_isEndOfStream = await _csv.ReadAsync(_current, 0, CharCount) == NoCharRead);
         }
 
+        [NotNull]
+        public static CsvReader FromFile([NotNull] string path, char separator = DefaultSeparator)
+        {
+            if (path == null) throw new ArgumentNullException(nameof(path));
+            return new CsvReader(File.OpenText(path), separator);
+        }
+
+        [NotNull]
+        public static CsvReader FromString([NotNull] string csv, char separator = DefaultSeparator, Encoding encoding = null)
+        {
+            if (csv == null) throw new ArgumentNullException(nameof(csv));
+            return new CsvReader(csv.ToStreamReader(encoding ?? Encoding.UTF8), separator);
+        }
+
         public void Dispose()
         {
             _csv.Dispose();
         }
     }
 
+    // This interface supports dependency-injection.
     public interface ICsvReaderFactory
     {
-        ICsvReader CreateFromFile(string path);
+        [NotNull]
+        ICsvReader CreateFromStream([NotNull] TextReader csv, char separator = CsvReader.DefaultSeparator);
+
+        [NotNull]
+        ICsvReader CreateFromFile([NotNull] string path, char separator = CsvReader.DefaultSeparator);
+
+        [NotNull]
+        ICsvReader CreateFromString([NotNull] string csv, char separator = CsvReader.DefaultSeparator, Encoding encoding = null);
     }
 
-    public class CsvReaderFactory
+    public class CsvReaderFactory : ICsvReaderFactory
     {
-        public ICsvReader CreateFromFile(string path)
+        public ICsvReader CreateFromStream([NotNull] TextReader csv, char separator = CsvReader.DefaultSeparator)
         {
-            return new CsvReader(File.OpenText(path));
+            return new CsvReader(csv, separator);
+        }
+
+        public ICsvReader CreateFromFile(string path, char separator = CsvReader.DefaultSeparator)
+        {
+            return CsvReader.FromFile(path, separator);
+        }
+
+        public ICsvReader CreateFromString(string csv, char separator = CsvReader.DefaultSeparator, Encoding encoding = null)
+        {
+            return CsvReader.FromString(csv, separator, encoding);
         }
     }
 }

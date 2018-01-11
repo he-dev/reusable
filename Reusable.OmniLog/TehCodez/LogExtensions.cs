@@ -92,7 +92,7 @@ namespace Reusable.OmniLog
 
         public static Log With<T>(this Log log) where T : ILogAttachement, new()
         {
-            return log.Then(l => l.Add(new T().ToLogProperty()));
+            return log.Next(l => l.Add(new T().ToLogProperty()));
         }
 
         public static Log With(this Log log, SoftString name, object value)

@@ -12,15 +12,8 @@ namespace Reusable.Data
     {
         public static DataTable AddRow([NotNull] this DataTable dataTable, [NotNull] params object[] values)
         {
-            if (dataTable == null)
-            {
-                throw new ArgumentNullException(nameof(dataTable));
-            }
-
-            if (values == null)
-            {
-                throw new ArgumentNullException(nameof(values));
-            }
+            if (dataTable == null) { throw new ArgumentNullException(nameof(dataTable)); }
+            if (values == null) { throw new ArgumentNullException(nameof(values)); }
 
             var newRow = dataTable.NewRow();
             newRow.ItemArray = values;

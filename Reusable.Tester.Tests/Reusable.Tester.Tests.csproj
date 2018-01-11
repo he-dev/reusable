@@ -52,14 +52,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TehCodez\Data\UnitTest1.cs" />
+    <Compile Include="TehCodez\Data\SqlTableSeederTest.cs" />
     <Compile Include="TehCodez\Mocks\MockStopwatchTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
-    <None Include="TestData\Seed-no-id.csv">
+    <None Include="TestData\SqlTableSeederTest-with-id.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\SqlTableSeederTest-without-id.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

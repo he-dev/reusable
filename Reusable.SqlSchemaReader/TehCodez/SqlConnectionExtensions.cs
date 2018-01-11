@@ -9,11 +9,11 @@ using Reusable.Reflection;
 
 namespace Reusable.Data.SqlClient
 {
-    internal class Dummy { }
+    internal class NamespaceProvider { }
 
     public static class SqlConnectionExtensions
     {
-        private static readonly string GetIdentityColumnsQuery = ResourceReader<Dummy>.FindString(name => name.EndsWith($"{nameof(GetIdentityColumns)}.sql"));
+        private static readonly string GetIdentityColumnsQuery = ResourceReader<NamespaceProvider>.FindString(name => name.EndsWith($"{nameof(GetIdentityColumns)}.sql"));
 
         public static IList<SqlTableSchema> GetTableSchemas(this SqlConnection sqlConnection, SqlTableSchema schemaRestriction)
         {
@@ -30,6 +30,9 @@ namespace Reusable.Data.SqlClient
             }
         }
 
+        /// <summary>
+        /// Gets column schemas ordered by their ordinal-position.
+        /// </summary>
         public static IList<SqlColumnSchema> GetColumnSchemas(this SqlConnection sqlConnection, SqlColumnSchema schemaRestriction)
         {
             if (sqlConnection == null) throw new ArgumentNullException(nameof(sqlConnection));
@@ -68,7 +71,7 @@ namespace Reusable.Data.SqlClient
         }
 
         [NotNull]
-        public static IDictionary<string, Type> GetColumnFrameworkTypes(this SqlConnection connection, [NotNull] string schema, [NotNull] string table)
+        public static IList<(string Name, Type Type)> GetColumnFrameworkTypes(this SqlConnection connection, [NotNull] string schema, [NotNull] string table)
         {
             if (schema == null) throw new ArgumentNullException(nameof(schema));
             if (table == null) throw new ArgumentNullException(nameof(table));
@@ -78,7 +81,8 @@ namespace Reusable.Data.SqlClient
                 TableSchema = schema,
                 TableName = table
             })
-            .ToDictionary(x => x.ColumnName, x => x.FrameworkType, StringComparer.OrdinalIgnoreCase);
+            .Select((column, ordinal) => (column.ColumnName, column.FrameworkType))
+            .ToList();
         }
 
 

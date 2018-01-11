@@ -9,11 +9,12 @@ namespace Reusable.Extensions
 {
     public static class FunctionalExtensions
     {
-        public static T Then<T>(this T obj, [NotNull] Action<T> mutate)
+        [CanBeNull]
+        public static T Next<T>([CanBeNull] this T obj, [NotNull] Action<T> next)
         {
-            if (mutate == null) { throw new ArgumentNullException(nameof(mutate)); }
+            if (next == null) { throw new ArgumentNullException(nameof(next)); }
 
-            mutate(obj);
+            next(obj);
             return obj;
         }
     }

@@ -1,5 +1,5 @@
 ﻿SELECT
-	[name] as column_name,
+	[name], -- as column_name,
 	seed_value, 
 	increment_value, 
 	last_value,

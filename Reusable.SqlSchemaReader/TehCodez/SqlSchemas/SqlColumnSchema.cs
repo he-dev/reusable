@@ -4,16 +4,19 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Diagnostics;
 using JetBrains.Annotations;
+using Reusable.Collections;
 
 namespace Reusable.Data.SqlClient
 {
     [UsedImplicitly, PublicAPI, DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class  SqlColumnSchema
     {
-        private static readonly IReadOnlyDictionary<SqlDbType, Type> SqlDbTypeMap = new Dictionary<SqlDbType, Type>
+        private static readonly IDictionary<SqlDbType, Type> SqlDbTypeMap = new PainlessDictionary<SqlDbType, Type>
         {
             [SqlDbType.NVarChar] = typeof(string),
             [SqlDbType.Bit] = typeof(bool),
+            [SqlDbType.Int] = typeof(int),
+            [SqlDbType.DateTime2] = typeof(DateTime),
         };
 
         private string DebuggerDisplay => $"[{TableCatalog}].[{TableSchema}].[{TableName}].[{ColumnName}] ({DataType})";

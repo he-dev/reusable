@@ -98,6 +98,8 @@
     <Compile Include="TehCodez\Collections\PainlessDictionaryExtensions.cs" />
     <Compile Include="TehCodez\Collections\PainlessDictionaryFactory.cs" />
     <Compile Include="TehCodez\ProcessExecutorExtensions.cs" />
+    <Compile Include="TehCodez\Retry.cs" />
+    <Compile Include="TehCodez\RetryExtensions.cs" />
     <Compile Include="TehCodez\SearchResult.cs" />
     <Compile Include="TehCodez\Data\TreeNode.cs" />
     <Compile Include="TehCodez\Collections\AutoEquality.cs" />
