@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.ThirdParty.JsonNetUtilities</id>
+    <id>Reusable.Utilities.ThirdParty.JsonNet</id>
     <version>3.94.2</version>
-    <title>Reusable.ThirdParty.JsonNetUtilities</title>
+    <title>Reusable.Utilities.ThirdParty.JsonNet</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
@@ -21,7 +21,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\Reusable.ThirdParty.JsonNetUtilities.dll" target="lib\net462" />
-    <file src="bin\Release\Reusable.ThirdParty.JsonNetUtilities.pdb" target="lib\net462" />
+    <file src="bin\Release\Reusable.Utilities.ThirdParty.JsonNet.dll" target="lib\net462" />
+    <file src="bin\Release\Reusable.Utilities.ThirdParty.JsonNet.pdb" target="lib\net462" />
   </files>
 </package>

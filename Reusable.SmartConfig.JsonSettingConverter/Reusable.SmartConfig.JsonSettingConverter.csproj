@@ -84,9 +84,9 @@
       <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
       <Name>Reusable.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Reusable.ThirdParty.JsonNetUtilities\Reusable.ThirdParty.JsonNetUtilities.csproj">
+    <ProjectReference Include="..\Reusable.ThirdParty.JsonNetUtilities\Reusable.Utilities.ThirdParty.JsonNet.csproj">
       <Project>{37c5c43a-159a-4312-bf3b-e00f7be456e7}</Project>
-      <Name>Reusable.ThirdParty.JsonNetUtilities</Name>
+      <Name>Reusable.Utilities.ThirdParty.JsonNet</Name>
     </ProjectReference>
     <ProjectReference Include="..\Reusable.Converters\Reusable.Converters.csproj">
       <Project>{d7da0768-b385-40de-abac-0a6b0c5b73f4}</Project>

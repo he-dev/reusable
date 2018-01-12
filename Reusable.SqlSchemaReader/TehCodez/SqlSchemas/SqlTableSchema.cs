@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using JetBrains.Annotations;
 
-namespace Reusable.Data.SqlClient
+namespace Reusable.Utilities.SqlClient
 {
     [UsedImplicitly, PublicAPI, DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class SqlTableSchema

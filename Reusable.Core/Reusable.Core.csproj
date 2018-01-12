@@ -85,7 +85,6 @@
     <Compile Include="TehCodez\AsyncDetector.cs" />
     <Compile Include="TehCodez\Collections\AutoEqualityBuilder.cs" />
     <Compile Include="TehCodez\Collections\AutoEqualityPropertyContext.cs" />
-    <Compile Include="TehCodez\Data\SqlClient\SqlHelper.cs" />
     <Compile Include="TehCodez\Diagnostics\DebuggerString.cs" />
     <Compile Include="TehCodez\ExitCode.cs" />
     <Compile Include="TehCodez\Extensions\HashSetExtensions.cs" />

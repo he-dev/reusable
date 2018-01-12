@@ -7,9 +7,8 @@ using System.Linq.Custom;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
-using Reusable.Extensions;
 
-namespace Reusable.Data.SqlClient
+namespace Reusable.Utilities.SqlClient
 {
     // This class provides utility methods for creating sql-schema types from data-tables.
     public abstract class SqlSchemaFactory

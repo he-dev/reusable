@@ -23,14 +23,12 @@ namespace Reusable
         [NotNull, ContractAnnotation("rows: null => halt")]
         public static DataTable ToDataTable(
             [NotNull, ItemNotNull] this IEnumerable<IEnumerable<string>> rows,
-            [NotNull] IEnumerable<(string Name, Type Type)> columns,
+            [NotNull] IEnumerable<(SoftString Name, Type Type)> columns,
             [NotNull] ITypeConverter converter)
         {
             if (rows == null) throw new ArgumentNullException(nameof(rows));
             if (columns == null) throw new ArgumentNullException(nameof(columns));
             if (converter == null) throw new ArgumentNullException(nameof(converter));
-
-            var columnMap = default(IDictionary<int, int>);
 
             using (var enumerator = rows.GetEnumerator())
             {
@@ -39,18 +37,15 @@ namespace Reusable
                 {
                     if (dataTable is default)
                     {
-                        dataTable = CreateDataTable(columns);
-                        columnMap = CreateColumnMap(enumerator.Current, columns.Select(x => x.Name));
+                        dataTable = CreateDataTable(enumerator.Current, columns);
                     }
                     else
                     {
-                        var values = new object[columns.Count()];
-
-                        foreach (var item in enumerator.Current.Select((value, ordinal) => (value, ordinal)))
+                        var values = new object[dataTable.Columns.Count];
+                        var columnTypes = dataTable.Columns.Cast<DataColumn>().Select(dc => dc.DataType);
+                        foreach (var (value, type, ordinal) in enumerator.Current.Zip(columnTypes, (value, type) => (value, type)).Select((zip, ordinal) => (zip.value, zip.type, ordinal)))
                         {
-                            var columnOrdinal = columnMap[item.ordinal];
-                            var column = columns.ElementAt(columnOrdinal);
-                            values[columnOrdinal] = converter.Convert(item.value, column.Type);
+                            values[ordinal] = converter.Convert(value, type);
                         }
 
                         dataTable.AddRow(values);
@@ -60,13 +55,13 @@ namespace Reusable
             }
         }
 
-        private static DataTable CreateDataTable(IEnumerable<(string Name, Type Type)> columns)
+        private static DataTable CreateDataTable(IEnumerable<string> header, IEnumerable<(SoftString Name, Type Type)> columns)
         {
             var dataTable = new DataTable();
 
-            foreach (var (name, type) in columns)
+            foreach (var name in header)
             {
-                dataTable.AddColumn(name, c => c.DataType = type);
+                dataTable.AddColumn(name, c => c.DataType = columns.Single(column => column.Name.Equals(name)).Type);
             }
 
             return dataTable;

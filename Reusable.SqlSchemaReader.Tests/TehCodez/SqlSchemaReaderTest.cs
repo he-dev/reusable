@@ -1,6 +1,7 @@
 ﻿using System.Configuration;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.Utilities.SqlClient;
 
 namespace Reusable.Data.SqlClient.Tests
 {

@@ -17,10 +17,6 @@ namespace Reusable.Data.SqlClient
         /// <summary>
         /// Executes the specified action within a transaction scope.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="connectionString"></param>
-        /// <param name="execute"></param>
-        /// <returns></returns>
         public static T Execute<T>(string connectionString, Func<SqlConnection, T> execute)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -36,10 +32,6 @@ namespace Reusable.Data.SqlClient
         /// <summary>
         /// Executes the specified action within a transaction scope.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="connectionString"></param>
-        /// <param name="execute"></param>
-        /// <returns></returns>
         public static async Task<T> ExecuteAsync<T>(string connectionString, Func<SqlConnection, Task<T>> execute)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -55,9 +47,6 @@ namespace Reusable.Data.SqlClient
         /// <summary>
         /// Executes the specified action within a transaction scope.
         /// </summary>
-        /// <param name="connectionString"></param>
-        /// <param name="execute"></param>
-        /// <returns></returns>
         public static async Task ExecuteAsync(string connectionString, Func<SqlConnection, Task> execute)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -80,5 +69,33 @@ namespace Reusable.Data.SqlClient
                 return names.Select(commandBuilder.QuoteIdentifier).Join(".");
             }
         }
+
+        // it turned out that sql-bulk-copy can already do this
+        //public static async Task<IDisposable> ToggleIdentityInsertAsync(this SqlConnection connection, string schema, string table, IEnumerable<SoftString> columns)
+        //{
+        //    var identityColumns = connection.GetIdentityColumns(schema, table).Select(x => x.Name.ToSoftString()).ToList();
+        //    var containsIdentityColumns = columns.Any(column => identityColumns.Contains(column));
+
+        //    if (containsIdentityColumns)
+        //    {
+        //        var identifier = connection.CreateIdentifier(schema, table);
+        //        using (var command = connection.CreateCommand())
+        //        {
+        //            command.CommandText = $"set identity_insert {identifier} on";
+        //            await command.ExecuteNonQueryAsync();
+        //        }
+
+        //        return Disposable.Create(async () =>
+        //        {
+        //            using (var command = connection.CreateCommand())
+        //            {
+        //                command.CommandText = $"set identity_insert {identifier} off";
+        //                await command.ExecuteNonQueryAsync();
+        //            }
+        //        });
+        //    }
+
+        //    return Disposable.Create(() => { });
+        //}
     }
 }
