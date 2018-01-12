@@ -2,8 +2,7 @@
 <#@ assembly name="System.Core" #>
 <#@ assembly name="System.Data" #>
 <#@ assembly name="System.configuration" #>
-<#@ assembly name="$(ProjectDir)\$(OutDir)\Reusable.Core.dll" #>
-<#@ assembly name="$(ProjectDir)\$(OutDir)\Reusable.SqlSchema.dll" #>
+<#@ assembly name="$(ProjectDir)\$(OutDir)\Reusable.Utilities.SqlClient.dll" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Text.RegularExpressions" #>
@@ -11,14 +10,14 @@
 <#@ import namespace="System.Data" #>
 <#@ import namespace="System.Data.SqlClient" #>
 <#@ import namespace="System.Collections.Generic" #>
-<#@ import namespace="Reusable.Data.SqlClient" #>
+<#@ import namespace="Reusable.Utilities.SqlClient" #>
 <#@ output extension=".config" #>
 <?xml version="1.0" encoding="utf-8" ?>
 <#
 	
 	// --- SETTINGS ---
 
-	var connectionString = "data source=(local);initial catalog=testingdb;integrated security=true";
+	var connectionString = "data source=(local);initial catalog=testdb;integrated security=true";
 	var database = "testingdb";
 	var schema = "dbo";
 	var tablePattern = "SemLog2";
@@ -72,14 +71,14 @@
 	{
 		TableSchema = schema
 	};
-	var tables = SqlHelper.ExecuteAsync(connectionString, conn => 
+	var tables = SqlHelper.Execute(connectionString, conn => 
 	{
 		return
 			conn
 				.GetTableSchemas(sqlTableSchemaRestriction)
 				.Where(tableNameMatches)
 				.ToList();
-	}).GetAwaiter().GetResult();
+	});
   #>
   <targets>    
 
@@ -93,13 +92,13 @@ foreach(var table in tables)
 		TableSchema = schema,
 		TableName = table.TableName
 	};
-	var columns = SqlHelper.ExecuteAsync(connectionString, conn => 
+	var columns = SqlHelper.Execute(connectionString, conn => 
 	{
 		return
 			conn
 				.GetColumnSchemas(sqlColumnSchemaRestriction)
 				.ToList();
-	}).GetAwaiter().GetResult();
+	});
 
 	//sqlSchemaReader.GetSqlColumnSchemas(connectionString, sqlColumnSchemaRestriction);
 #>	

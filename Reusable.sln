@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.MarkupBuilder", "R
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Console", "Reusable.Console\Reusable.Console.csproj", "{E54BF790-49F1-43FC-B1D6-1D616113545D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ThirdParty.NLogUtilities", "Reusable.ThirdParty.NLogUtilities\Reusable.ThirdParty.NLogUtilities.csproj", "{A9161314-0576-4CF5-A018-279A590C61DC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Utilities.ThirdParty.NLog", "Reusable.ThirdParty.NLogUtilities\Reusable.Utilities.ThirdParty.NLog.csproj", "{A9161314-0576-4CF5-A018-279A590C61DC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.SemanticVersion.Tests", "Reusable.SemanticVersion.Tests\Reusable.SemanticVersion.Tests.csproj", "{6D35981D-75BD-42C2-BBFD-FCEED1BC23EC}"
 EndProject
@@ -71,7 +71,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.SmartConfig.Bindin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Sequences", "Reusable.Sequences\Reusable.Sequences.csproj", "{A32E0541-8D41-472F-BD25-0D8419C6AABC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.SqlSchema", "Reusable.SqlSchemaReader\Reusable.SqlSchema.csproj", "{E8E80901-ABE3-4BBF-A787-DCB6C627783D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Utilities.SqlClient", "Reusable.SqlSchemaReader\Reusable.Utilities.SqlClient.csproj", "{E8E80901-ABE3-4BBF-A787-DCB6C627783D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.SmartConfig.InMemory", "Reusable.SmartConfig.InMemory\Reusable.SmartConfig.InMemory.csproj", "{59D31F62-A9E6-4F25-8BC1-497BF0A010AD}"
 EndProject
@@ -91,7 +91,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Net.Mail.Tests", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.SmartConfig.JsonSettingConverter.Tests", "Reusable.SmartConfig.JsonSettingConverter.Tests\Reusable.SmartConfig.JsonSettingConverter.Tests.csproj", "{A003934F-9D63-45EC-9DA9-125567967CD3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.ThirdParty.JsonNetUtilities", "Reusable.ThirdParty.JsonNetUtilities\Reusable.ThirdParty.JsonNetUtilities.csproj", "{37C5C43A-159A-4312-BF3B-E00F7BE456E7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Utilities.ThirdParty.JsonNet", "Reusable.ThirdParty.JsonNetUtilities\Reusable.Utilities.ThirdParty.JsonNet.csproj", "{37C5C43A-159A-4312-BF3B-E00F7BE456E7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Tester.Tests", "Reusable.Tester.Tests\Reusable.Tester.Tests.csproj", "{FD93FC48-78C0-4E58-B373-3F59B1EAA293}"
 EndProject

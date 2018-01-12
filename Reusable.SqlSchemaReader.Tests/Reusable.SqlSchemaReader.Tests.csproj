@@ -71,9 +71,9 @@
       <Project>{fbcb78cd-68dd-497f-ae6e-5084a799f24e}</Project>
       <Name>Reusable.Tester</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Reusable.SqlSchemaReader\Reusable.SqlSchema.csproj">
+    <ProjectReference Include="..\Reusable.SqlSchemaReader\Reusable.Utilities.SqlClient.csproj">
       <Project>{e8e80901-abe3-4bbf-a787-dcb6c627783d}</Project>
-      <Name>Reusable.SqlSchema</Name>
+      <Name>Reusable.Utilities.SqlClient</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

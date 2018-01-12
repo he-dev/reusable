@@ -6,7 +6,7 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using Reusable.Collections;
 
-namespace Reusable.Data.SqlClient
+namespace Reusable.Utilities.SqlClient
 {
     [UsedImplicitly, PublicAPI, DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class  SqlColumnSchema
