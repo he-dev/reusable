@@ -275,7 +275,34 @@ namespace System.Linq.Custom
             if (others == null) throw new ArgumentNullException(nameof(others));
 
             return others.Contains(value, comparer ?? EqualityComparer<T>.Default);
-        }        
+        }
+
+        [NotNull, ItemCanBeNull]
+        public static IEnumerable<T> Shuffle<T>([NotNull, ItemCanBeNull] this IEnumerable<T> source, [CanBeNull] Random random = null)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+
+            random = random ?? new Random();
+
+            // https://stackoverflow.com/a/1287572/235671
+            // https://stackoverflow.com/a/1665080/235671
+
+            var copy = source.ToArray();
+
+            // Iterating backwards. Note i > 0 to avoid final pointless iteration
+            for (var i = copy.Length - 1; i > 0; i--)
+            {
+                // Swap element "i" with a random earlier element it (or itself)
+                // ... except we don't really need to swap it fully, as we can
+                // return it immediately, and afterwards it's irrelevant.
+                var swap = random.Next(i + 1);
+                yield return copy[swap];
+                copy[swap] = copy[i];
+            }
+
+            // there is one item remaining that was not returned - we return it now
+            yield return copy[0];
+        }
     }
 
     public class EmptySequenceException : Exception
