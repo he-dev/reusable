@@ -65,7 +65,7 @@ namespace Reusable.SmartConfig.Datastores.Tests
 
         private static void TruncateSetting3(IDbCommand cmd)
         {
-            cmd.CommandText = ResourceReader<ConfigurationTestSqlServer>.FindString(name => name.Contains(nameof(TruncateSetting3)));
+            cmd.CommandText = ResourceReader.Default.FindString(name => name.Contains(nameof(TruncateSetting3)));
             cmd.ExecuteNonQuery();
         }
 
@@ -86,7 +86,7 @@ namespace Reusable.SmartConfig.Datastores.Tests
 
         private static void InsertSetting3(SqlCommand cmd, string environment, string version)
         {
-            cmd.CommandText = ResourceReader<ConfigurationTestSqlServer>.FindString(name => name.Contains(nameof(InsertSetting3)));
+            cmd.CommandText = ResourceReader.Default.FindString(name => name.Contains(nameof(InsertSetting3)));
             cmd.Parameters.Clear();
             cmd.Parameters.Add("@Name", SqlDbType.NVarChar, 200);
             cmd.Parameters.Add("@Value", SqlDbType.NVarChar, -1);

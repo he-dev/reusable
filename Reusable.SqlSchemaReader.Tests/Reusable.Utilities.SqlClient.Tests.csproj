@@ -7,9 +7,9 @@
     <ProjectGuid>{C4FCDEB1-B494-4352-8D35-61EFA152425D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Reusable.Data.SqlClient.Tests</RootNamespace>
-    <AssemblyName>Reusable.SqlSchemaReader.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <RootNamespace>Reusable.Utilities.SqlClient.Tests</RootNamespace>
+    <AssemblyName>Reusable.Utilities.SqlClient.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">15.0</VisualStudioVersion>
@@ -29,6 +29,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -50,11 +51,12 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net461\System.ValueTuple.dll</HintPath>
+      <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net47\System.ValueTuple.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TehCodez\SqlSchemaReaderTest.cs" />
+    <Compile Include="TehCodez\SqlSchemas\SqlSchemaReaderTest.cs" />
+    <Compile Include="TehCodez\SqlTableSeederTest.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -63,9 +65,21 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Reusable.Converters\Reusable.Converters.csproj">
+      <Project>{D7DA0768-B385-40DE-ABAC-0A6B0C5B73F4}</Project>
+      <Name>Reusable.Converters</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj">
       <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
       <Name>Reusable.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Reusable.Csv\Reusable.FileFormats.Csv.csproj">
+      <Project>{e7ad8002-780a-44b4-9b5c-c91274674bfa}</Project>
+      <Name>Reusable.FileFormats.Csv</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Reusable.FileFormats.Csv.SqlExtensions\Reusable.FileFormats.Csv.SqlExtensions.csproj">
+      <Project>{066cdaa2-687f-4347-af84-a2d23c3ce14d}</Project>
+      <Name>Reusable.FileFormats.Csv.SqlExtensions</Name>
     </ProjectReference>
     <ProjectReference Include="..\Reusable.Tester\Reusable.Tester.csproj">
       <Project>{fbcb78cd-68dd-497f-ae6e-5084a799f24e}</Project>

@@ -12,12 +12,11 @@ using Reusable.Exceptionize;
 
 namespace Reusable
 {
+    [PublicAPI]
     public static class CsvConverter
     {
         /// <summary>
-        /// Creates a data-table from rows and converts columns to target types.
-        /// The first row must be a header.
-        /// In order to use it with SqlBulkInsert columns must be ordered.
+        /// Creates a data-table from rows and converts columns to target types. The first row must be a header.
         /// </summary>
         /// <returns></returns>
         [NotNull, ContractAnnotation("rows: null => halt")]
@@ -65,19 +64,6 @@ namespace Reusable
             }
 
             return dataTable;
-        }
-
-        // There might be fewer columns in a csv then the target table has so we need to calculate their offsets.
-        // <csv-column-ordinal, sql-column-ordinal>
-        private static IDictionary<int, int> CreateColumnMap(IEnumerable<string> csvNames, IEnumerable<string> sqlNames)
-        {
-            var csvMap = csvNames.Select((name, ordinal) => (name, ordinal)).ToList();
-            var sqlMap = sqlNames.Select((name, ordinal) => (name, ordinal)).ToList();
-            return
-                csvMap
-                    .ToDictionary(
-                        x => x.ordinal,
-                        x => sqlMap.Single(y => y.name.Equals(x.name, StringComparison.OrdinalIgnoreCase)).ordinal);
-        }
+        }       
     }
 }

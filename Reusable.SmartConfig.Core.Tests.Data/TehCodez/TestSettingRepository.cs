@@ -13,7 +13,7 @@ namespace Reusable.SmartConfig.Tests.Common
         {
             get
             {
-                var json = ResourceReader<TestSettingRepository>.FindString(name => name.Contains("Settings"));
+                var json = ResourceReader.Default.FindString(name => name.Contains("Settings"));
                 var testData = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
                 return
                     from item in testData

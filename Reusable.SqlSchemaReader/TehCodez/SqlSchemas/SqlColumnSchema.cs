@@ -6,11 +6,12 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using Reusable.Collections;
 
-namespace Reusable.Utilities.SqlClient
+namespace Reusable.Utilities.SqlClient.SqlSchemas
 {
     [UsedImplicitly, PublicAPI, DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class  SqlColumnSchema
     {
+        // todo add other mappings
         private static readonly IDictionary<SqlDbType, Type> SqlDbTypeMap = new PainlessDictionary<SqlDbType, Type>
         {
             [SqlDbType.NVarChar] = typeof(string),

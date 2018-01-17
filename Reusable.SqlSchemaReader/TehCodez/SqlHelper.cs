@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
@@ -74,6 +75,25 @@ namespace Reusable.Utilities.SqlClient
                 execute(connection);
                 scope.Complete();
             }
-        }        
+        }
+
+        public static Task<T> ExecuteQueryAsync<T>(this SqlConnection connection, string query, Func<SqlCommand, CancellationToken, Task<T>> body, CancellationToken cancellationToken)
+        {
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandType = CommandType.Text;
+                command.CommandText = query;
+                return body(command, cancellationToken);
+            }
+        }
+
+        public static T ExecuteQuery<T>(this SqlConnection connection, string query, Func<SqlCommand, T> body)
+        {
+            return
+                connection
+                    .ExecuteQueryAsync(query, (command, _) => Task.FromResult(body(command)), CancellationToken.None)
+                    .GetAwaiter()
+                    .GetResult();
+        }
     }
 }

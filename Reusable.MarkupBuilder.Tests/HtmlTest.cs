@@ -15,20 +15,20 @@ namespace Reusable.MarkupBuilder.Tests
     {
         private static readonly HtmlElement HtmlBuilder = HtmlElement.Builder;
 
-        private static readonly HtmlFormatting Formatting = HtmlFormatting.Parse(ResourceReader<HtmlTest>.FindString(name => name.Contains("FormattingTemplate")));
+        private static readonly HtmlFormatting Formatting = HtmlFormatting.Parse(ResourceReader.Default.FindString(name => name.Contains("FormattingTemplate")));
 
         [TestMethod]
         public void ToString_001()
         {
             var html = HtmlBuilder.Element("h1").ToHtml(Formatting);
-            Assert.AreEqual(ResourceReader<HtmlTest>.FindString(name => name.Contains(nameof(ToString_001))), html);
+            Assert.AreEqual(ResourceReader.Default.FindString(name => name.Contains(nameof(ToString_001))), html);
         }
 
         [TestMethod]
         public void ToString_002()
         {
             var html = HtmlBuilder.Element("h1", h1 => h1.Element("span")).ToHtml(Formatting);
-            Assert.AreEqual(ResourceReader<HtmlTest>.FindString(name => name.Contains(nameof(ToString_002))), html);
+            Assert.AreEqual(ResourceReader.Default.FindString(name => name.Contains(nameof(ToString_002))), html);
         }
 
         [TestMethod]
@@ -47,7 +47,7 @@ namespace Reusable.MarkupBuilder.Tests
                         .Element("span", "qux")
                         .Append(" baz")))
                 .ToHtml(Formatting);
-            Assert.AreEqual(ResourceReader<HtmlTest>.FindString(name => name.Contains(nameof(ToString_003))), html);
+            Assert.AreEqual(ResourceReader.Default.FindString(name => name.Contains(nameof(ToString_003))), html);
         }
 
         [TestMethod]
@@ -72,7 +72,7 @@ namespace Reusable.MarkupBuilder.Tests
                             .Elements("td", new[] { "foo", "bar", "baz" }, (td, x) => td.Append(x)))))
                 .ToHtml(Formatting);
             Assert.AreEqual(
-                ResourceReader<HtmlTest>.FindString(name => name.Contains(nameof(ToString_004))).Trim(), 
+                ResourceReader.Default.FindString(name => name.Contains(nameof(ToString_004))).Trim(), 
                 html.Trim());
         }
 
@@ -83,7 +83,7 @@ namespace Reusable.MarkupBuilder.Tests
                 .Element("ul", ul => ul.Elements("li", new object[] { "foo", "bar", "baz" }, (li, x) => li.Append(x))
             ).ToHtml(Formatting);
             Assert.AreEqual(
-                ResourceReader<HtmlTest>.FindString(name => name.Contains(nameof(ToString_005))).Trim(), 
+                ResourceReader.Default.FindString(name => name.Contains(nameof(ToString_005))).Trim(), 
                 html.Trim());
         }
 
@@ -98,7 +98,7 @@ namespace Reusable.MarkupBuilder.Tests
                         .Elements("li", dataTable.AsEnumerable().Take(3).Select(x => x.Field<string>("value")), (li, x) => li.Append(x)))
                 .ToHtml(Formatting);
             Assert.AreEqual(
-                ResourceReader<HtmlTest>.FindString(name => name.Contains(nameof(ToString_006))).Trim(), 
+                ResourceReader.Default.FindString(name => name.Contains(nameof(ToString_006))).Trim(), 
                 html.Trim());
         }
 
@@ -118,7 +118,7 @@ namespace Reusable.MarkupBuilder.Tests
                             .Elements("td", row, (td, x) => td.Append(x)))));
             //.ToHtml();
             Assert.AreEqual(
-                ResourceReader<HtmlTest>.FindString(name => name.Contains(nameof(ToString_007))).Trim(), 
+                ResourceReader.Default.FindString(name => name.Contains(nameof(ToString_007))).Trim(), 
                 html.ToHtml(Formatting).Trim());
         }
     }

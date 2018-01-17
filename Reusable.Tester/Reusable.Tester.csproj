@@ -105,7 +105,6 @@
     <Compile Include="TehCodez\Mocks\MockStopwatch.cs" />
     <Compile Include="TehCodez\Mocks\MockLogger.cs" />
     <Compile Include="TehCodez\Mocks\MockTimestamp.cs" />
-    <Compile Include="TehCodez\Utilities\SqlTableSeeder.cs" />
     <Compile Include="TehCodez\TypeAssertExtensions.cs" />
     <Compile Include="TehCodez\UnaryOperatorAssertExtensions.cs" />
   </ItemGroup>

@@ -10,28 +10,42 @@ namespace Reusable.Reflection
 {
     public interface IResourceReader
     {
+        /// <summary>
+        /// Gets resource names from the specified assembly.
+        /// </summary>
         [NotNull, ItemNotNull]
         IEnumerable<string> GetResourceNames([NotNull] Assembly assembly);
 
+        /// <summary>
+        /// Gets resource stream with the exact name from the specified assembly.
+        /// </summary>
+        /// <returns></returns>
         [NotNull]
-        Stream GetStream([NotNull] Assembly assembly, [NotNull] string name);
+        Stream GetStream([NotNull] string name, [NotNull] Assembly assembly);
 
+        /// <summary>
+        /// Gets resource string with the exact name from the specified assembly.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="assembly"></param>
+        /// <returns></returns>
         [NotNull]
-        string GetString([NotNull] Assembly assembly, [NotNull] string name);
+        string GetString([NotNull] string name, [NotNull] Assembly assembly);
     }
 
     public class ResourceReader : IResourceReader
     {
-        //[NotNull]
-        //public static readonly IResourceRepository Default = new ResourceRepository();
+        [NotNull]
+        public static readonly IResourceReader Default = new ResourceReader();
 
         public IEnumerable<string> GetResourceNames(Assembly assembly)
         {
             if (assembly == null) throw new ArgumentNullException(nameof(assembly));
+
             return assembly.GetManifestResourceNames();
         }
 
-        public Stream GetStream(Assembly assembly, string name)
+        public Stream GetStream(string name, Assembly assembly)
         {
             if (assembly == null) throw new ArgumentNullException(nameof(assembly));
             if (name == null) throw new ArgumentNullException(nameof(name));
@@ -43,44 +57,13 @@ namespace Reusable.Reflection
                             null);
         }
 
-        public string GetString(Assembly assembly, string name)
+        public string GetString(string name, Assembly assembly)
         {
-            using (var resourceStream = GetStream(assembly, name))
+            using (var resourceStream = GetStream(name, assembly))
             using (var streamReader = new StreamReader(resourceStream))
             {
                 return streamReader.ReadToEnd();
             }
         }
-    }
-
-    public static class ResourceReader<T>
-    {
-        [NotNull]
-        // ReSharper disable once StaticMemberInGenericType
-        private static readonly IResourceReader Resources = new ResourceReader();
-
-        [NotNull, ItemNotNull]
-        public static IEnumerable<string> GetResourceNames()
-        {
-            return Resources.GetResourceNames(typeof(T).Assembly);
-        }
-
-        [NotNull]
-        public static Stream FindStream([NotNull] Expression<Func<string, bool>> predicateExpression)
-        {
-            return Resources.FindStream<T>(predicateExpression);
-        }
-
-        [NotNull]
-        public static string FindString([NotNull] Expression<Func<string, bool>> predicateExpression)
-        {
-            return Resources.FindString<T>(predicateExpression);
-        }
-
-        [NotNull]
-        public static string FindName([NotNull] Expression<Func<string, bool>> predicateExpression)
-        {
-            return Resources.FindName<T>(predicateExpression);
-        }
-    }
+    }   
 }

@@ -1,4 +1,4 @@
-namespace Reusable.Utilities.SqlClient
+namespace Reusable.Utilities.SqlClient.SqlSchemas
 {
     // This is a custom class for the identity-column query.
     public class SqlIdentityColumnSchema

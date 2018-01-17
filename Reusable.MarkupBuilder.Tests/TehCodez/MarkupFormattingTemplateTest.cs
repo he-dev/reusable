@@ -10,7 +10,7 @@ namespace Reusable.MarkupBuilder.Tests
         [TestMethod]
         public void Parse_FormattingTemplate_Options()
         {
-            var template = ResourceReader<MarkupFormattingTemplateTest>.FindString(name => name.Contains("FormattingTemplate"));
+            var template = ResourceReader.Default.FindString(name => name.Contains("FormattingTemplate"));
 
             Assert.IsNotNull(template);
 

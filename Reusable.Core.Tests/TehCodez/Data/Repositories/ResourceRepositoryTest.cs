@@ -11,14 +11,14 @@ namespace Reusable.Tests.Data.Repositories
         [TestMethod]
         public void GetResourceNames_Void_AllResourceNames()
         {
-            var names = ResourceReader<ResourceRepositoryTest>.GetResourceNames();
+            var names = ResourceReader.Default.GetResourceNames();
             Assert.AreEqual(3, names.Count());
         }
 
         [TestMethod]
         public void FindString_ByFileName_ResourceText()
         {
-            var text = ResourceReader<ResourceRepositoryTest>.FindString(name => name.Contains("TestFile1"));
+            var text = ResourceReader.Default.FindString(name => name.Contains("TestFile1"));
             Assert.AreEqual("Hallo!", text);
         }
     }

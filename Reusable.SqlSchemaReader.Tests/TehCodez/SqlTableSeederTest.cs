@@ -1,30 +1,24 @@
-﻿using System.Data;
-using System.Threading.Tasks;
+﻿using System.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Converters;
-using Reusable.Utilities.SqlClient;
 using Reusable.Utilities.SqlClient.SqlSchemas;
+using System.Linq;
 
-namespace Reusable.Tester.Tests.Utilities
+namespace Reusable.Utilities.SqlClient.Tests
 {
     [TestClass]
     public class SqlTableSeederTest
     {
-        private const string ConnectonString = "Data Source=(local);Initial Catalog=TestDb;Integrated Security=SSPI;";
+        private static readonly string ConnectonString = ConfigurationManager.ConnectionStrings["TestDb"].ConnectionString;
         private const string Schema = "dbo";
-        private const string Table = "SqlTableSeederTest";
-        private static readonly ITypeConverter Converter =
-            TypeConverter
-                .Empty
-                .Add<StringToInt32Converter>()
-                .Add<StringToDateTimeConverter>();
+        private const string Table = "SqlTableSeederTest";        
 
         [TestMethod]
         public void SeedAsync_WithoutId_Seeded()
         {
             var csvReader = CsvReader.FromFile(@"testdata\SqlTableSeederTest-without-id.csv");
-            var sqlColumns = SqlHelper.Execute(ConnectonString, connection => connection.GetColumnFrameworkTypes(Schema, Table));
-            var csv = csvReader.AsEnumerable().ToDataTable(sqlColumns, Converter);
+            var sqlColumns = SqlHelper.Execute(ConnectonString, connection => connection.GetColumnFrameworkTypes(Schema, Table)).AsEnumerable();
+            var csv = csvReader.AsEnumerable().ToDataTable(sqlColumns, SqlTypeConverter.Default);
 
             SqlHelper.Execute(ConnectonString, connection => connection.Seed(Schema, Table, csv));
 
@@ -41,7 +35,7 @@ namespace Reusable.Tester.Tests.Utilities
 
             var sqlColumns = SqlHelper.Execute(ConnectonString, connection => connection.GetColumnFrameworkTypes(Schema, Table));
 
-            var csv = csvReader.AsEnumerable().ToDataTable(sqlColumns, Converter);
+            var csv = csvReader.AsEnumerable().ToDataTable(sqlColumns, SqlTypeConverter.Default);
             SqlHelper.Execute(ConnectonString, connection => connection.Seed(Schema, Table, csv));
             Assert.AreEqual(2, SqlHelper.Execute(ConnectonString, connection =>
            {

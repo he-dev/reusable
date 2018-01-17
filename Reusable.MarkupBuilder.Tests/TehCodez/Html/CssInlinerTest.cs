@@ -11,7 +11,7 @@ namespace Reusable.MarkupBuilder.Tests.Html
     {
         private static readonly HtmlElement Html = HtmlElement.Builder;
 
-        private static readonly HtmlFormatting Formatting = HtmlFormatting.Parse(ResourceReader<MarkupFormattingTemplateTest>.FindString(name => name.Contains("FormattingTemplate")));
+        private static readonly HtmlFormatting Formatting = HtmlFormatting.Parse(ResourceReader.Default.FindString(name => name.Contains("FormattingTemplate")));
 
         [TestMethod]
         public void Inline_SpanStyles_Inlined()
@@ -57,7 +57,7 @@ namespace Reusable.MarkupBuilder.Tests.Html
 
             var result = table.ToHtml(Formatting);
 
-            Assert.AreEqual(ResourceReader<CssInlinerTest>.FindString(name => name.Contains("CssInliner_Inline_TableStyles")).Trim(), result.Trim());
+            Assert.AreEqual(ResourceReader.Default.FindString(name => name.Contains("CssInliner_Inline_TableStyles")).Trim(), result.Trim());
         }
     }
 }

@@ -1,4 +1,4 @@
-namespace Reusable.Utilities.SqlClient
+namespace Reusable.Utilities.SqlClient.SqlSchemas
 {
     public static class SqlSchemaCollection
     {

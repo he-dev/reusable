@@ -1,6 +1,6 @@
 using System;
 
-namespace Reusable.Utilities.SqlClient
+namespace Reusable.Utilities.SqlClient.SqlSchemas
 {
     /// <inheritdoc />
     /// <summary>

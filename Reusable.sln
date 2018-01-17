@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2010
+VisualStudioVersion = 15.0.27130.2024
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}"
 EndProject
@@ -85,7 +85,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Flawless", "Reusab
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Flawless.Tests", "Reusable.Flawless.Tests\Reusable.Flawless.Tests.csproj", "{956747CF-1FBE-4B62-B021-B6A2278902FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.SqlSchemaReader.Tests", "Reusable.SqlSchemaReader.Tests\Reusable.SqlSchemaReader.Tests.csproj", "{C4FCDEB1-B494-4352-8D35-61EFA152425D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Utilities.SqlClient.Tests", "Reusable.SqlSchemaReader.Tests\Reusable.Utilities.SqlClient.Tests.csproj", "{C4FCDEB1-B494-4352-8D35-61EFA152425D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Net.Mail.Tests", "Reusable.Net.Mail.Tests\Reusable.Net.Mail.Tests.csproj", "{3D01BF7F-4601-45A4-B00E-3F54090EC56F}"
 EndProject
@@ -97,7 +97,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Tester.Tests", "Re
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.OmniLog.SemanticExtensions", "Reusable.OmniLog.SemLog\Reusable.OmniLog.SemanticExtensions.csproj", "{7D2AE64A-854E-41BF-AB1D-CA3AA8ADFA9A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Csv", "Reusable.Csv\Reusable.Csv.csproj", "{E7AD8002-780A-44B4-9B5C-C91274674BFA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.FileFormats.Csv", "Reusable.Csv\Reusable.FileFormats.Csv.csproj", "{E7AD8002-780A-44B4-9B5C-C91274674BFA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.FileFormats.Csv.SqlExtensions", "Reusable.FileFormats.Csv.SqlExtensions\Reusable.FileFormats.Csv.SqlExtensions.csproj", "{066CDAA2-687F-4347-AF84-A2D23C3CE14D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -506,6 +508,18 @@ Global
 		{E7AD8002-780A-44B4-9B5C-C91274674BFA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E7AD8002-780A-44B4-9B5C-C91274674BFA}.Release|x86.ActiveCfg = Release|Any CPU
 		{E7AD8002-780A-44B4-9B5C-C91274674BFA}.Release|x86.Build.0 = Release|Any CPU
+		{066CDAA2-687F-4347-AF84-A2D23C3CE14D}.Debug.Core|Any CPU.ActiveCfg = Debug|Any CPU
+		{066CDAA2-687F-4347-AF84-A2D23C3CE14D}.Debug.Core|Any CPU.Build.0 = Debug|Any CPU
+		{066CDAA2-687F-4347-AF84-A2D23C3CE14D}.Debug.Core|x86.ActiveCfg = Debug|Any CPU
+		{066CDAA2-687F-4347-AF84-A2D23C3CE14D}.Debug.Core|x86.Build.0 = Debug|Any CPU
+		{066CDAA2-687F-4347-AF84-A2D23C3CE14D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{066CDAA2-687F-4347-AF84-A2D23C3CE14D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{066CDAA2-687F-4347-AF84-A2D23C3CE14D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{066CDAA2-687F-4347-AF84-A2D23C3CE14D}.Debug|x86.Build.0 = Debug|Any CPU
+		{066CDAA2-687F-4347-AF84-A2D23C3CE14D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{066CDAA2-687F-4347-AF84-A2D23C3CE14D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{066CDAA2-687F-4347-AF84-A2D23C3CE14D}.Release|x86.ActiveCfg = Release|Any CPU
+		{066CDAA2-687F-4347-AF84-A2D23C3CE14D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -553,6 +567,7 @@ Global
 		{FD93FC48-78C0-4E58-B373-3F59B1EAA293} = {AC36C881-1733-4649-ACBC-03B6F9A9334C}
 		{7D2AE64A-854E-41BF-AB1D-CA3AA8ADFA9A} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
 		{E7AD8002-780A-44B4-9B5C-C91274674BFA} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
+		{066CDAA2-687F-4347-AF84-A2D23C3CE14D} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8F168DB3-D451-4BCF-A4BB-3D55EA356164}

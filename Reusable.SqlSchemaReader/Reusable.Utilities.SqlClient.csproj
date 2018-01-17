@@ -73,16 +73,22 @@
     <Compile Include="TehCodez\SqlHelper.cs" />
     <Compile Include="TehCodez\SqlSchemas\ColumnOrdinalAttribute.cs" />
     <Compile Include="TehCodez\SqlSchemas\SqlColumnSchema.cs" />
-    <Compile Include="TehCodez\SqlSchemaCollection.cs" />
-    <Compile Include="TehCodez\SqlSchemaFactory.cs" />
+    <Compile Include="TehCodez\SqlSchemas\SqlSchemaCollection.cs" />
+    <Compile Include="TehCodez\SqlSchemas\SqlSchemaFactory.cs" />
     <Compile Include="TehCodez\SqlConnectionExtensions.cs" />
     <Compile Include="TehCodez\SqlSchemas\SqlIdentityColumnSchema.cs" />
+    <Compile Include="TehCodez\SqlSchemas\SqlSchemaReader.cs" />
     <Compile Include="TehCodez\SqlSchemas\SqlTableSchema.cs" />
+    <Compile Include="TehCodez\SqlTableSeeder.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Reusable.Converters\Reusable.Converters.csproj">
+      <Project>{d7da0768-b385-40de-abac-0a6b0c5b73f4}</Project>
+      <Name>Reusable.Converters</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj">
       <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
       <Name>Reusable.Core</Name>
@@ -92,7 +98,7 @@
     <EmbeddedResource Include="SQL\GetPrimaryKeysAsync.sql" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="SQL\GetIdentityColumns.sql" />
+    <EmbeddedResource Include="SQL\GetIdentityColumnSchemas.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
