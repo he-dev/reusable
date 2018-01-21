@@ -2,15 +2,11 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Linq.Custom;
-using System.Text;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Converters;
 using Reusable.Data;
-using Reusable.Exceptionize;
 
-namespace Reusable
+namespace Reusable.FileFormats.Csv
 {
     [PublicAPI]
     public static class CsvConverter

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net47</TargetFramework>
-    <RootNamespace>Reusable</RootNamespace>
+    <RootNamespace>Reusable.FileFormats.Csv.SqlExtensions</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

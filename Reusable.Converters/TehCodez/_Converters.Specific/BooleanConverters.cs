@@ -1,6 +1,5 @@
 ﻿namespace Reusable.Converters
 {
-    //[Conversion(typeof(string), typeof(bool))]
     public class StringToBooleanConverter : TypeConverter<string, bool>
     {
         protected override bool ConvertCore(IConversionContext<string> context)

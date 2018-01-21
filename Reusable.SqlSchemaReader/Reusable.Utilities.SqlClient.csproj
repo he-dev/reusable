@@ -79,7 +79,7 @@
     <Compile Include="TehCodez\SqlSchemas\SqlIdentityColumnSchema.cs" />
     <Compile Include="TehCodez\SqlSchemas\SqlSchemaReader.cs" />
     <Compile Include="TehCodez\SqlSchemas\SqlTableSchema.cs" />
-    <Compile Include="TehCodez\SqlTableSeeder.cs" />
+    <Compile Include="TehCodez\SqlSeeder.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

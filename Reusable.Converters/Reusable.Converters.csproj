@@ -83,6 +83,8 @@
     <Compile Include="TehCodez\_Converters.Generic\DictionaryConverters.cs" />
     <Compile Include="TehCodez\_Converters.Generic\HashSetConverters.cs" />
     <Compile Include="TehCodez\_Converters.Generic\ListConverters.cs" />
+    <Compile Include="TehCodez\_Converters.Specific\Guid.cs" />
+    <Compile Include="TehCodez\_Converters.Specific\DateTimeOffset.cs" />
     <Compile Include="TehCodez\_Converters.Specific\JsonConverters.cs" />
     <Compile Include="TehCodez\_Converters.Generic\EnumConverters.cs" />
     <Compile Include="TehCodez\_Converters.Specific\ColorConverters.cs" />

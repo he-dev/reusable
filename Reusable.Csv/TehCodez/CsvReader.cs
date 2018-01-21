@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Linq.Custom;
@@ -9,7 +8,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 
-namespace Reusable
+namespace Reusable.FileFormats.Csv
 {
     [PublicAPI]
     public interface ICsvReader : IDisposable

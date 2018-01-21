@@ -10,7 +10,7 @@ using JetBrains.Annotations;
 namespace Reusable.Utilities.SqlClient
 {
     [PublicAPI]
-    public static class SqlTableSeeder
+    public static class SqlSeeder
     {
         public static async Task SeedAsync([NotNull] this SqlConnection connection, [NotNull] string schema, [NotNull] string table, [NotNull] DataTable data, bool truncate = true)
         {

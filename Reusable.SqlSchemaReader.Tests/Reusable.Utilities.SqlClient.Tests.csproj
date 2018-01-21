@@ -56,13 +56,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TehCodez\SqlSchemas\SqlSchemaReaderTest.cs" />
-    <Compile Include="TehCodez\SqlTableSeederTest.cs" />
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="TehCodez\SqlSeederTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="TestData\SqlSeederTest\SeedAsync_ContainsId_Seeded.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\SqlSeederTest\SeedAsync_DoesNotContainId_Seeded.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Converters\Reusable.Converters.csproj">

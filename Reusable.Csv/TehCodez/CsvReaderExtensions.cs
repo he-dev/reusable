@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Custom;
 using JetBrains.Annotations;
 
-namespace Reusable
+namespace Reusable.FileFormats.Csv
 {
     public static class CsvReaderExtensions
     {

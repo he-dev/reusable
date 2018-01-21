@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Converters;
+using Reusable.FileFormats.Csv;
 using Reusable.Utilities.SqlClient;
 using Reusable.Utilities.SqlClient.SqlSchemas;
 

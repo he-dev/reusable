@@ -34,6 +34,7 @@ namespace Reusable.Converters
                         break;
                 }
             }
+
             //_converters = converters;
         }
 
@@ -58,8 +59,8 @@ namespace Reusable.Converters
             if (converter == null)
             {
                 throw DynamicException.Factory.CreateDynamicException(
-                    $"TypeConverterNotFound{nameof(Exception)}", 
-                    $"Could not find converter from '{context.FromType.Name}' to '{context.ToType.Name}.", 
+                    $"TypeConverterNotFound{nameof(Exception)}",
+                    $"Could not find converter from '{context.FromType.Name}' to '{context.ToType.Name}.",
                     null);
             }
 
@@ -85,19 +86,5 @@ namespace Reusable.Converters
         {
             return _converters.GetEnumerator();
         }
-    }
-
-    public class TypeConverterNotFoundException : Exception
-    {
-        public TypeConverterNotFoundException(Type valueType, Type targetType)
-        {
-            ValueType = valueType;
-            TargetType = targetType;
-        }
-
-        public Type ValueType { get; }
-        public Type TargetType { get; }
-
-        public override string Message => $"Could not convert '{ValueType}' to '{TargetType}.";
     }
 }
