@@ -1,1 +1,0 @@
-INSERT OR REPLACE INTO [Setting1]([Name], [Value]) VALUES(@Name, @Value);

@@ -2,7 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net47</TargetFramework>
-    <RootNamespace>Reusable.SmartConfig</RootNamespace>
+    <RootNamespace>Reusable.SmartConfig.Converters</RootNamespace>
+    <AssemblyName>Reusable.SmartConfig.Converters.JsonSettingConverter</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -18,23 +19,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="TehCodez\Converters\**" />
-    <EmbeddedResource Remove="TehCodez\Converters\**" />
-    <None Remove="TehCodez\Converters\**" />
+    <Folder Include="TehCodez\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
-    <ProjectReference Include="..\Reusable.Flawless\Reusable.Flawless.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <ProjectReference Include="..\Reusable.Converters\Reusable.Converters.csproj" />
+    <ProjectReference Include="..\Reusable.SmartConfig.Core\Reusable.SmartConfig.Core.csproj" />
+    <ProjectReference Include="..\Reusable.ThirdParty.JsonNetUtilities\Reusable.Utilities.ThirdParty.JsonNet.csproj" />
   </ItemGroup>
 
 </Project>

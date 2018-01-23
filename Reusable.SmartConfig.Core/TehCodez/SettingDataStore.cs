@@ -82,4 +82,13 @@ namespace Reusable.SmartConfig
             return $"{datastoreType.Name}{_instanceCounter++}";
         }
     }
+
+    public abstract partial class SettingDataStore
+    {
+        public override int GetHashCode() => AutoEquality<ISettingDataStore>.Comparer.GetHashCode(this);
+
+        public override bool Equals(object obj) => Equals(obj as ISettingDataStore);
+
+        public bool Equals(ISettingDataStore other) => AutoEquality<ISettingDataStore>.Comparer.Equals(this, other);
+    }
 }

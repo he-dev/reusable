@@ -5,7 +5,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Reusable.Extensions;
-using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Data;
 using Reusable.SmartConfig.Helpers;
 

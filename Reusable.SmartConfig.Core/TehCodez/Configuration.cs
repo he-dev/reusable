@@ -11,6 +11,7 @@ using Reusable.SmartConfig.Helpers;
 
 namespace Reusable.SmartConfig
 {
+    [PublicAPI]
     public interface IConfiguration
     {
         [CanBeNull]
@@ -19,34 +20,23 @@ namespace Reusable.SmartConfig
         void Update([NotNull] SoftString settingName, [CanBeNull] object value);
     }
 
-    public interface IConfigurationProperties
+    public class Configuration : IConfiguration
     {
-        [NotNull] 
-        DatastoreCollection Datastores { get; set; }
-
-        [NotNull]
-        ISettingConverter Converter { get; set; }
-
-        [NotNull]
-        ISettingNameGenerator SettingNameGenerator { get; set; }
-    }
-
-    public class Configuration : IConfiguration, IEnumerable<ISettingDataStore>
-    {
-        private readonly IConfigurationProperties _properties;
-        private readonly IDictionary<SoftString, (SoftString ActualName, ISettingDataStore Datastore)> _settings = new Dictionary<SoftString, (SoftString ActualName, ISettingDataStore Datastore)>();
-
-        public Configuration(Action<IConfigurationProperties> propertiesAction)
+        [NotNull] [ItemNotNull] private readonly IEnumerable<ISettingDataStore> _dataStores;
+        private readonly ISettingConverter _converter;
+        private readonly IDictionary<SoftString, (SoftString ActualName, ISettingDataStore Datastore)> _settingCache = new Dictionary<SoftString, (SoftString ActualName, ISettingDataStore Datastore)>();
+        
+        public Configuration([NotNull, ItemNotNull] IEnumerable<ISettingDataStore> dataStores, [NotNull] ISettingConverter converter)
         {
-            _properties = ObjectFactory.CreateInstance<IConfigurationProperties>();
-            _properties.Datastores = new DatastoreCollection();
-            _properties.SettingNameGenerator = new SettingNameGenerator();
-            propertiesAction(_properties);
+            if (dataStores == null) throw new ArgumentNullException(nameof(dataStores));
+            if (converter == null) throw new ArgumentNullException(nameof(converter));
+
+            _dataStores = dataStores.ToList();
+            _converter = converter;
         }
 
-        //public Action<string> Log { get; set; } // for future use
-
-        //private void OnLog(string message) => Log?.Invoke(message); // for future use        
+        [NotNull]
+        public ISettingNameGenerator NameGenerator { get; set; } = new SettingNameGenerator();
 
         public object Select(SoftString settingName, Type settingType, SoftString datastoreName)
         {
@@ -54,16 +44,16 @@ namespace Reusable.SmartConfig
             if (settingType == null) throw new ArgumentNullException(nameof(settingType));
 
             var setting = GetSetting(settingName, datastoreName);
-            return setting.Value == null ? null : _properties.Converter.Deserialize(setting.Value, settingType);
+            return setting.Value == null ? null : _converter.Deserialize(setting.Value, settingType);
         }
 
         private ISetting GetSetting([NotNull] SoftString settingFullName, [CanBeNull] SoftString datastoreName)
         {
             // We search for the setting by all names so we need a list of all available names.
-            var names = _properties.SettingNameGenerator.GenerateSettingNames(SettingName.Parse(settingFullName.ToString())).Select(name => (SoftString)(string)name).ToList();
+            var names = NameGenerator.GenerateSettingNames(SettingName.Parse(settingFullName.ToString())).Select(name => (SoftString)(string)name).ToList();
 
             var settingQuery =
-                from datastore in _properties.Datastores
+                from datastore in _dataStores
                 where datastoreName.IsNullOrEmpty() || datastore.Name.Equals(datastoreName)
                 select (Datastore: datastore, Setting: datastore.Read(names));
 
@@ -81,19 +71,19 @@ namespace Reusable.SmartConfig
 
         private void CacheSettingDatastore([NotNull] SoftString settingFullName, [NotNull] SoftString settingActualName, [NotNull] ISettingDataStore settingDataStore)
         {
-            _settings[settingFullName] = (settingActualName, settingDataStore);
+            _settingCache[settingFullName] = (settingActualName, settingDataStore);
         }
 
         public void Update(SoftString settingName, object value)
         {
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
 
-            if (_settings.TryGetValue(settingName, out var t))
+            if (_settingCache.TryGetValue(settingName, out var t))
             {
                 var setting = new Setting
                 {
                     Name = t.ActualName,
-                    Value = value.IsNull() ? null : _properties.Converter.Serialize(value, t.Datastore.CustomTypes)
+                    Value = value.IsNull() ? null : _converter.Serialize(value, t.Datastore.CustomTypes)
                 };
                 t.Datastore.Write(setting);
             }
@@ -101,20 +91,6 @@ namespace Reusable.SmartConfig
             {
                 throw ("SettingNotInitializedException", $"Setting {settingName.ToString().QuoteWith("'")} needs to be initialized before you can update it.").ToDynamicException();
             }
-        }
-
-        #region IEnumerable 
-
-        public IEnumerator<ISettingDataStore> GetEnumerator()
-        {
-            return _properties.Datastores.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        #endregion
+        }      
     }
 }

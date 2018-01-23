@@ -6,7 +6,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
-using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Data;
 
 namespace Reusable.SmartConfig.Helpers

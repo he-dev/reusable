@@ -1,2 +1,0 @@
---TRUNCATE TABLE [Setting1];
-TRUNCATE TABLE [Setting3];
