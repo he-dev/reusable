@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Reusable.Extensions;
 
-namespace Reusable.SmartConfig.Helpers
+namespace Reusable.SmartConfig.Reflection
 {
     // Finds the type of the class a setting belongs to
     public class ClassTypeFinder : ExpressionVisitor

@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.SmartConfig.Data;
 
-namespace Reusable.SmartConfig.Helpers
+namespace Reusable.SmartConfig
 {
     public interface ISettingNameGenerator
     {

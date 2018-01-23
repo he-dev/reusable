@@ -1,16 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.SmartConfig.Data;
 
-namespace Reusable.SmartConfig.Helpers
+namespace Reusable.SmartConfig.Reflection
 {
-    public static class ExpressionHelper
+    public static class SettingExpressionHelper
     {
         [NotNull]
         public static SettingName GetSettingName([NotNull] this LambdaExpression lambdaExpression, [CanBeNull] string instance = null)
@@ -71,31 +69,7 @@ namespace Reusable.SmartConfig.Helpers
             }
         }
 
-        // Gets the object this member belongs to or null if it's in a static class.
-        //[CanBeNull]
-        //public static object GetObject(this MemberExpression memberExpression)
-        //{
-        //    switch (memberExpression.Expression)
-        //    {
-        //        case null:
-        //            // This is a static class.
-        //            return null;
-
-        //        case MemberExpression anonymousMemberExpression:
-        //            // Extract constant value from the anonyous-wrapper
-        //            var container = ((ConstantExpression)anonymousMemberExpression.Expression).Value;
-        //            return ((FieldInfo)anonymousMemberExpression.Member).GetValue(container);
-
-        //        case ConstantExpression constantExpression:
-        //            return constantExpression.Value;
-
-        //        //case ParameterExpression parameterExpression:
-        //        //    return parameterExpression;
-        //        default:
-        //            throw new ArgumentException($"Expression '{memberExpression.Expression.GetType().Name}' is not supported.");
-        //    }
-        //}
-
+        [NotNull]
         public static MemberExpression MemberExpression(this LambdaExpression lambdaExpression)
         {
             if (lambdaExpression.Body is MemberExpression memberExpression)
@@ -107,7 +81,31 @@ namespace Reusable.SmartConfig.Helpers
         }
     }
 
-    
+    // Gets the object this member belongs to or null if it's in a static class.
+    //[CanBeNull]
+    //public static object GetObject(this MemberExpression memberExpression)
+    //{
+    //    switch (memberExpression.Expression)
+    //    {
+    //        case null:
+    //            // This is a static class.
+    //            return null;
+
+    //        case MemberExpression anonymousMemberExpression:
+    //            // Extract constant value from the anonyous-wrapper
+    //            var container = ((ConstantExpression)anonymousMemberExpression.Expression).Value;
+    //            return ((FieldInfo)anonymousMemberExpression.Member).GetValue(container);
+
+    //        case ConstantExpression constantExpression:
+    //            return constantExpression.Value;
+
+    //        //case ParameterExpression parameterExpression:
+    //        //    return parameterExpression;
+    //        default:
+    //            throw new ArgumentException($"Expression '{memberExpression.Expression.GetType().Name}' is not supported.");
+    //    }
+    //}
+
 
     //    // Derived type used in construtor.
     //    Type GetDerivedTypeInsideClass()

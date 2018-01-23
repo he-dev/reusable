@@ -5,9 +5,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
-using Reusable.SmartConfig.Collections;
 using Reusable.SmartConfig.Data;
-using Reusable.SmartConfig.Helpers;
 
 namespace Reusable.SmartConfig
 {
@@ -22,7 +20,7 @@ namespace Reusable.SmartConfig
 
     public class Configuration : IConfiguration
     {
-        [NotNull] [ItemNotNull] private readonly IEnumerable<ISettingDataStore> _dataStores;
+        private readonly IEnumerable<ISettingDataStore> _dataStores;
         private readonly ISettingConverter _converter;
         private readonly IDictionary<SoftString, (SoftString ActualName, ISettingDataStore Datastore)> _settingCache = new Dictionary<SoftString, (SoftString ActualName, ISettingDataStore Datastore)>();
         

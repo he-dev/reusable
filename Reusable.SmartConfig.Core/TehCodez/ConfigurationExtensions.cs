@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.SmartConfig.Data;
-using Reusable.SmartConfig.Helpers;
+using Reusable.SmartConfig.Reflection;
 
 namespace Reusable.SmartConfig
 {

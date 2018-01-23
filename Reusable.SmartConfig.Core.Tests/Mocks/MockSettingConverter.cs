@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Reusable.SmartConfig.Converters
+namespace Reusable.SmartConfig.Tests.Mocks
 {
-    public class NullSettingConverter : ISettingConverter
+    public class MockSettingConverter : ISettingConverter
     {
         public object Deserialize(object value, Type targetType)
         {
