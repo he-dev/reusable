@@ -31,10 +31,10 @@ namespace Reusable.SmartConfig
         ISettingNameGenerator SettingNameGenerator { get; set; }
     }
 
-    public class Configuration : IConfiguration, IEnumerable<IDatastore>
+    public class Configuration : IConfiguration, IEnumerable<ISettingDataStore>
     {
         private readonly IConfigurationProperties _properties;
-        private readonly IDictionary<SoftString, (SoftString ActualName, IDatastore Datastore)> _settings = new Dictionary<SoftString, (SoftString ActualName, IDatastore Datastore)>();
+        private readonly IDictionary<SoftString, (SoftString ActualName, ISettingDataStore Datastore)> _settings = new Dictionary<SoftString, (SoftString ActualName, ISettingDataStore Datastore)>();
 
         public Configuration(Action<IConfigurationProperties> propertiesAction)
         {
@@ -79,9 +79,9 @@ namespace Reusable.SmartConfig
             return result.Setting;
         }
 
-        private void CacheSettingDatastore([NotNull] SoftString settingFullName, [NotNull] SoftString settingActualName, [NotNull] IDatastore datastore)
+        private void CacheSettingDatastore([NotNull] SoftString settingFullName, [NotNull] SoftString settingActualName, [NotNull] ISettingDataStore settingDataStore)
         {
-            _settings[settingFullName] = (settingActualName, datastore);
+            _settings[settingFullName] = (settingActualName, settingDataStore);
         }
 
         public void Update(SoftString settingName, object value)
@@ -105,7 +105,7 @@ namespace Reusable.SmartConfig
 
         #region IEnumerable 
 
-        public IEnumerator<IDatastore> GetEnumerator()
+        public IEnumerator<ISettingDataStore> GetEnumerator()
         {
             return _properties.Datastores.GetEnumerator();
         }

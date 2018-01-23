@@ -11,7 +11,7 @@ namespace Reusable.SmartConfig.Datastores.Tests
         [TestInitialize]
         public void TestInitialize()
         {
-            Datastores = new IDatastore[]
+            Datastores = new ISettingDataStore[]
             {
                 new AppSettings(), 
             };

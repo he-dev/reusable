@@ -6,7 +6,7 @@ using Reusable.SmartConfig.Data;
 
 namespace Reusable.SmartConfig
 {
-    public class AppSettings : Datastore
+    public class AppSettings : SettingDataStore
     {
         //private readonly System.Configuration.Configuration _exeConfiguration;
         //private readonly AppSettingsSection _appSettingsSection;

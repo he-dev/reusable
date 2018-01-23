@@ -62,6 +62,15 @@ namespace Reusable.SmartConfig
         {
             return (T)(config.Select(settingName, typeof(T), null) ?? default(T));
         }
+
+        [NotNull]
+        public static Lazy<T> SelectLazy<T>([NotNull] this IConfiguration config, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instance = null)
+        {
+            if (config == null) throw new ArgumentNullException(nameof(config));
+            if (expression == null) throw new ArgumentNullException(nameof(expression));
+
+            return new Lazy<T>(() => config.Select(expression, instance));
+        }
     }
 
     public static class SettingUpdater

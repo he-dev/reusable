@@ -8,13 +8,13 @@ using Reusable.SmartConfig.Data;
 
 namespace Reusable.SmartConfig
 {
-    public abstract partial class Datastore
+    public abstract partial class SettingDataStore
     {
-        public override int GetHashCode() => AutoEquality<IDatastore>.Comparer.GetHashCode(this);
+        public override int GetHashCode() => AutoEquality<ISettingDataStore>.Comparer.GetHashCode(this);
 
-        public override bool Equals(object obj) => Equals(obj as IDatastore);
+        public override bool Equals(object obj) => Equals(obj as ISettingDataStore);
 
-        public bool Equals(IDatastore other) => AutoEquality<IDatastore>.Comparer.Equals(this, other);
+        public bool Equals(ISettingDataStore other) => AutoEquality<ISettingDataStore>.Comparer.Equals(this, other);
 
         //public bool Equals(string other) => Name.Equals(other);
     }

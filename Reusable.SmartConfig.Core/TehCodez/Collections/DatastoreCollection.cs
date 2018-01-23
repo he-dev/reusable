@@ -5,16 +5,16 @@ using JetBrains.Annotations;
 
 namespace Reusable.SmartConfig.Collections
 {
-    public class DatastoreCollection : ICollection<IDatastore>
+    public class DatastoreCollection : ICollection<ISettingDataStore>
     {
-        private readonly IList<IDatastore> _datastores;
+        private readonly IList<ISettingDataStore> _datastores;
 
         public DatastoreCollection()
         {
-            _datastores = new List<IDatastore>();
+            _datastores = new List<ISettingDataStore>();
         }
 
-        public DatastoreCollection([ItemNotNull] [NotNull] IEnumerable<IDatastore> datastores) : this()
+        public DatastoreCollection([ItemNotNull] [NotNull] IEnumerable<ISettingDataStore> datastores) : this()
         {
             if (datastores == null)
             {
@@ -31,7 +31,7 @@ namespace Reusable.SmartConfig.Collections
 
         public bool IsReadOnly => _datastores.IsReadOnly;
 
-        public void Add([NotNull] IDatastore item)
+        public void Add([NotNull] ISettingDataStore item)
         {
             if (item == null)
             {
@@ -41,7 +41,7 @@ namespace Reusable.SmartConfig.Collections
             _datastores.Add(item);
         }
 
-        public void AddRange(IEnumerable<IDatastore> datastores)
+        public void AddRange(IEnumerable<ISettingDataStore> datastores)
         {
             foreach (var datastore in datastores)
             {
@@ -54,22 +54,22 @@ namespace Reusable.SmartConfig.Collections
             _datastores.Clear();
         }
 
-        public bool Contains(IDatastore item)
+        public bool Contains(ISettingDataStore item)
         {
             return _datastores.Contains(item);
         }
 
-        public void CopyTo(IDatastore[] array, int arrayIndex)
+        public void CopyTo(ISettingDataStore[] array, int arrayIndex)
         {
             _datastores.CopyTo(array, arrayIndex);
         }
 
-        public bool Remove(IDatastore item)
+        public bool Remove(ISettingDataStore item)
         {
             return _datastores.Remove(item);
         }
 
-        public IEnumerator<IDatastore> GetEnumerator()
+        public IEnumerator<ISettingDataStore> GetEnumerator()
         {
             return _datastores.GetEnumerator();
         }

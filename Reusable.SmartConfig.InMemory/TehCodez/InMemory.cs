@@ -8,7 +8,7 @@ using Reusable.SmartConfig.Data;
 
 namespace Reusable.SmartConfig
 {
-    public class InMemory : Datastore, IEnumerable<ISetting>
+    public class InMemory : SettingDataStore, IEnumerable<ISetting>
     {
         public InMemory() : base(Enumerable.Empty<Type>()) { }
 

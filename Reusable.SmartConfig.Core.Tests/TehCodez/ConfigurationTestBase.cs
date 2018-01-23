@@ -12,7 +12,7 @@ namespace Reusable.SmartConfig.Tests
     //[TestClass]
     public abstract class ConfigurationTestBase
     {
-        protected IEnumerable<IDatastore> Datastores { get; set; }
+        protected IEnumerable<ISettingDataStore> Datastores { get; set; }
 
         #region Load tests
 
@@ -294,7 +294,7 @@ namespace Reusable.SmartConfig.Tests
 
     public static class TestConfigurationOptionsExtensions
     {
-        public static IConfigurationProperties UseMultiple(this IConfigurationProperties properties, IEnumerable<IDatastore> datastores)
+        public static IConfigurationProperties UseMultiple(this IConfigurationProperties properties, IEnumerable<ISettingDataStore> datastores)
         {
             properties.Datastores.AddRange(datastores);
             return properties;

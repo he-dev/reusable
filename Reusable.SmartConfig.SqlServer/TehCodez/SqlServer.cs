@@ -11,7 +11,7 @@ using Reusable.SmartConfig.Internal;
 
 namespace Reusable.SmartConfig
 {
-    public class SqlServer : Datastore
+    public class SqlServer : SettingDataStore
     {
         private static readonly ConnectionStringRepository ConnectionStringRepository = new ConnectionStringRepository();
         private readonly string _connectionString;

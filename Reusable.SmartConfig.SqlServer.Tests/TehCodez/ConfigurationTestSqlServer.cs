@@ -24,7 +24,7 @@ namespace Reusable.SmartConfig.Datastores.Tests
         {
             ResetData(Environment, Version, Salt);
 
-            Datastores = new IDatastore[]
+            Datastores = new ISettingDataStore[]
             {
                 new SqlServer("name=TestDb")
                 {

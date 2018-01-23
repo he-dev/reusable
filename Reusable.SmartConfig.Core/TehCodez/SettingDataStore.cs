@@ -9,7 +9,7 @@ using Reusable.SmartConfig.Data;
 
 namespace Reusable.SmartConfig
 {
-    public interface IDatastore : IEquatable<IDatastore>
+    public interface ISettingDataStore : IEquatable<ISettingDataStore>
     {
         [AutoEqualityProperty]
         [NotNull]
@@ -25,18 +25,18 @@ namespace Reusable.SmartConfig
     }
 
     [PublicAPI]
-    public abstract partial class Datastore : IDatastore
+    public abstract partial class SettingDataStore : ISettingDataStore
     {
         private static volatile int _instanceCounter;
 
         private SoftString _name;
 
-        private Datastore()
+        private SettingDataStore()
         {
             Name = CreateDefaultName(GetType());
         }
 
-        protected Datastore(IEnumerable<Type> supportedTypes) : this()
+        protected SettingDataStore(IEnumerable<Type> supportedTypes) : this()
         {
             CustomTypes = new HashSet<Type>(supportedTypes ?? throw new ArgumentNullException(nameof(supportedTypes)));
         }
