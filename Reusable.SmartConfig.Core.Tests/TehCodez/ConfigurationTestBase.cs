@@ -3,22 +3,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Extensions;
-using Reusable.SmartConfig.Binding;
-using Reusable.SmartConfig.Tests.Common;
-using Reusable.SmartConfig.Tests.Common.TestClasses;
 
 namespace Reusable.SmartConfig.Tests
 {
-    [TestClass]
-    public class ConfigurationTest
-    {
-        [TestMethod]
-        public void Select_()
-        {
-            //var converter = 
-        }
-    }
-
     //[TestClass]
     public abstract class ConfigurationTestBase
     {

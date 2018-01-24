@@ -4,8 +4,6 @@
     <TargetFramework>net47</TargetFramework>
 
     <IsPackable>false</IsPackable>
-
-    <RootNamespace>Reusable.SmartConfig.Tests</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -13,21 +11,8 @@
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
-
+  
   <ItemGroup>
-    <Compile Remove="Mocks\**" />
-    <EmbeddedResource Remove="Mocks\**" />
-    <None Remove="Mocks\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="TehCodez\ConfigurationTestBase.cs" />
-    <Compile Remove="TehCodez\ConfigurationTestCore.cs" />
-    <Compile Remove="TehCodez\TestDatastore.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="JustMock" Version="2018.1.117.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.2.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
@@ -36,7 +21,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
     <ProjectReference Include="..\Reusable.SmartConfig.Core\Reusable.SmartConfig.Core.csproj" />
-    <ProjectReference Include="..\Reusable.Tester\Reusable.Tester.csproj" />
   </ItemGroup>
 
 </Project>

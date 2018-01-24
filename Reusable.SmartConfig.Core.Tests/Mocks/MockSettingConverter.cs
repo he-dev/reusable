@@ -10,7 +10,7 @@ namespace Reusable.SmartConfig.Tests.Mocks
             return value;
         }
 
-        public object Serialize(object value, ISet<Type> customTypes)
+        public object Serialize(object value, ISet<Type> supportedTypes)
         {
             return value;
         }

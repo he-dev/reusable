@@ -15,11 +15,11 @@ namespace Reusable.SmartConfig
         [NotNull]
         SoftString Name { get; }
 
-        [NotNull, ItemNotNull]
-        ISet<Type> CustomTypes { get; }
+        [NotNull]
+        ISettingNameGenerator SettingNameGenerator { get; }
 
         [CanBeNull]
-        ISetting Read([NotNull, ItemNotNull] IEnumerable<SoftString> names);
+        ISetting Read([NotNull] SoftString settingName, Type settingType);
 
         void Write([NotNull] ISetting setting);
     }
@@ -29,16 +29,21 @@ namespace Reusable.SmartConfig
     {
         private static volatile int _instanceCounter;
 
+        private readonly ISettingConverter _converter;
+
+        private ISettingNameGenerator _settingNameGenerator;
+
         private SoftString _name;
 
         private SettingDataStore()
         {
             Name = CreateDefaultName(GetType());
+            SettingNameGenerator = SmartConfig.SettingNameGenerator.Default;
         }
 
-        protected SettingDataStore(IEnumerable<Type> supportedTypes) : this()
+        protected SettingDataStore(ISettingConverter converter) : this()
         {
-            CustomTypes = new HashSet<Type>(supportedTypes ?? throw new ArgumentNullException(nameof(supportedTypes)));
+            _converter = converter ?? throw new ArgumentNullException(nameof(converter));
         }
 
         public SoftString Name
@@ -47,13 +52,23 @@ namespace Reusable.SmartConfig
             set => _name = value ?? throw new ArgumentNullException(nameof(Name));
         }
 
-        public ISet<Type> CustomTypes { get; }
-
-        public ISetting Read(IEnumerable<SoftString> names)
+        public ISettingNameGenerator SettingNameGenerator
         {
+            get => _settingNameGenerator;
+            set => _settingNameGenerator = value ?? throw new ArgumentNullException(nameof(SettingNameGenerator));
+        }
+
+        public ISetting Read(SoftString settingName, Type settingType)
+        {
+            var names = SettingNameGenerator.GenerateSettingNames(settingName).Select(name => (SoftString)(string)name).ToList();
             try
             {
-                return ReadCore(names);
+                var setting = ReadCore(names);
+                return new Setting
+                {
+                    Name = setting.Name,
+                    Value = _converter.Deserialize(setting, settingType)
+                };
             }
             catch (Exception innerException)
             {
@@ -67,7 +82,11 @@ namespace Reusable.SmartConfig
         {
             try
             {
-                WriteCore(setting);
+                WriteCore(new Setting
+                {
+                    Name = setting.Name,
+                    Value = setting.Value.IsNull() ? null : _converter.Serialize(setting.Value)
+                });
             }
             catch (Exception innerException)
             {

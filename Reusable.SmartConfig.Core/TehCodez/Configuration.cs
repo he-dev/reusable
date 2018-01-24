@@ -21,39 +21,33 @@ namespace Reusable.SmartConfig
     public class Configuration : IConfiguration
     {
         private readonly IEnumerable<ISettingDataStore> _dataStores;
-        private readonly ISettingConverter _converter;
         private readonly IDictionary<SoftString, (SoftString ActualName, ISettingDataStore Datastore)> _settingCache = new Dictionary<SoftString, (SoftString ActualName, ISettingDataStore Datastore)>();
         
-        public Configuration([NotNull, ItemNotNull] IEnumerable<ISettingDataStore> dataStores, [NotNull] ISettingConverter converter)
+        public Configuration([NotNull, ItemNotNull] IEnumerable<ISettingDataStore> dataStores)
         {
             if (dataStores == null) throw new ArgumentNullException(nameof(dataStores));
-            if (converter == null) throw new ArgumentNullException(nameof(converter));
 
             _dataStores = dataStores.ToList();
-            _converter = converter;
         }
-
-        [NotNull]
-        public ISettingNameGenerator NameGenerator { get; set; } = new SettingNameGenerator();
 
         public object Select(SoftString settingName, Type settingType, SoftString datastoreName)
         {
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
             if (settingType == null) throw new ArgumentNullException(nameof(settingType));
 
-            var setting = GetSetting(settingName, datastoreName);
-            return setting.Value == null ? null : _converter.Deserialize(setting.Value, settingType);
+            var setting = GetSetting(settingName, settingType, datastoreName);
+            return setting.Value;
         }
 
-        private ISetting GetSetting([NotNull] SoftString settingFullName, [CanBeNull] SoftString datastoreName)
+        private ISetting GetSetting([NotNull] SoftString settingFullName, Type settingType, [CanBeNull] SoftString datastoreName)
         {
             // We search for the setting by all names so we need a list of all available names.
-            var names = NameGenerator.GenerateSettingNames(SettingName.Parse(settingFullName.ToString())).Select(name => (SoftString)(string)name).ToList();
+            var name = SettingName.Parse(settingFullName.ToString());
 
             var settingQuery =
                 from datastore in _dataStores
                 where datastoreName.IsNullOrEmpty() || datastore.Name.Equals(datastoreName)
-                select (Datastore: datastore, Setting: datastore.Read(names));
+                select (Datastore: datastore, Setting: datastore.Read(name, settingType));
 
             var result = settingQuery.FirstOrDefault(t => t.Setting.IsNotNull());
 
@@ -81,7 +75,7 @@ namespace Reusable.SmartConfig
                 var setting = new Setting
                 {
                     Name = t.ActualName,
-                    Value = value.IsNull() ? null : _converter.Serialize(value, t.Datastore.CustomTypes)
+                    Value = value
                 };
                 t.Datastore.Write(setting);
             }

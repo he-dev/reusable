@@ -3,19 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Reusable.Collections;
 using Reusable.SmartConfig.Data;
 
-namespace Reusable.SmartConfig
+namespace Reusable.SmartConfig.DataStores
 {
     public class InMemory : SettingDataStore, IEnumerable<ISetting>
     {
-        public InMemory() : base(Enumerable.Empty<Type>()) { }
-
-        public InMemory(IEnumerable<ISetting> settings) : base(Enumerable.Empty<Type>())
-        {
-            AddRange(settings);
-        }
+        public InMemory(ISettingConverter converter) : base(converter) { }        
 
         protected override ISetting ReadCore(IEnumerable<SoftString> names)
         {

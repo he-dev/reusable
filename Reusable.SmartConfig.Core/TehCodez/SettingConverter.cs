@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 
 namespace Reusable.SmartConfig
@@ -10,11 +11,21 @@ namespace Reusable.SmartConfig
         object Deserialize([NotNull] object value, [NotNull] Type targetType);
 
         [NotNull]
-        object Serialize([NotNull] object value, [NotNull, ItemNotNull] ISet<Type> toTypes);
+        object Serialize([NotNull] object value);
     }
 
     public abstract class SettingConverter : ISettingConverter
     {
+        private readonly ISet<Type> _supportedTypes;
+
+        private readonly Type _fallbackType;
+
+        protected SettingConverter(IEnumerable<Type> supportedTypes)
+        {
+            _supportedTypes = new HashSet<Type>(supportedTypes ?? throw new ArgumentNullException(nameof(supportedTypes)));
+            _fallbackType = supportedTypes.FirstOrDefault() ?? throw new ArgumentException("There must be at least one supprted type.");
+        }
+
         public object Deserialize(object value, Type targetType)
         {
             if (value.GetType() == targetType)
@@ -33,12 +44,17 @@ namespace Reusable.SmartConfig
         [NotNull]
         protected abstract object DeserializeCore([NotNull]object value, [NotNull] Type toType);
 
-        public object Serialize(object value, ISet<Type> toTypes)
+        public object Serialize(object value)
         {
-            return toTypes.Contains(value.GetType()) ? value : SerializeCore(value);
+            var targetType = 
+                _supportedTypes.Contains(value.GetType()) 
+                    ? value.GetType() 
+                    : _fallbackType;
+
+            return SerializeCore(value, targetType);
         }
 
         [NotNull]
-        protected abstract object SerializeCore([NotNull]object value);
+        protected abstract object SerializeCore([NotNull]object value, [NotNull] Type targetType);
     }
 }

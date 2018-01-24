@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.SmartConfig.Data;
-using Reusable.SmartConfig.Helpers;
 
 namespace Reusable.SmartConfig.Tests.Services
 {

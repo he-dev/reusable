@@ -13,7 +13,7 @@ namespace Reusable.SmartConfig
         /// Generates setting names ordered by the usage frequency.
         /// </summary>
         [NotNull, ItemNotNull]
-        IEnumerable<SettingName> GenerateSettingNames([NotNull] SettingName fullSettingName);
+        IEnumerable<SettingName> GenerateSettingNames([NotNull] SoftString settingName);
     }
 
     /*
@@ -48,11 +48,14 @@ namespace Reusable.SmartConfig
 
         public SettingNameGenerator() : this(SettingNamesByUsageFrequency) { }
 
-        public IEnumerable<SettingName> GenerateSettingNames(SettingName settingName)
+        public static readonly ISettingNameGenerator Default = new SettingNameGenerator();
+
+        public IEnumerable<SettingName> GenerateSettingNames(SoftString settingName)
         {
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
 
-            return GenerateSettingNamesWithInstance(settingName).Concat(GenerateSettingNamesWithoutInstance(settingName));            
+            var localSettingName = SettingName.Parse(settingName.ToString());
+            return GenerateSettingNamesWithInstance(localSettingName).Concat(GenerateSettingNamesWithoutInstance(localSettingName));            
         }
 
         private IEnumerable<SettingName> GenerateSettingNamesWithInstance(SettingName settingName)

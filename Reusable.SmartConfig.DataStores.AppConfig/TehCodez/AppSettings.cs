@@ -11,7 +11,7 @@ namespace Reusable.SmartConfig
         //private readonly System.Configuration.Configuration _exeConfiguration;
         //private readonly AppSettingsSection _appSettingsSection;
 
-        public AppSettings() : base(new[] { typeof(string) }) { }
+        public AppSettings() : base(converter: new[] { typeof(string) }) { }
 
         protected override ISetting ReadCore(IEnumerable<SoftString> names)
         {

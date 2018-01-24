@@ -18,7 +18,7 @@ namespace Reusable.SmartConfig
         private string _table = "Setting";
         private IReadOnlyDictionary<string, object> _where = new Dictionary<string, object>();
 
-        public SqlServer(string nameOrConnectionString) : base(Enumerable.Empty<Type>())
+        public SqlServer(string nameOrConnectionString) : base(converter: Enumerable.Empty<Type>())
         {
             _connectionString =
                 ConnectionStringRepository.GetConnectionString(nameOrConnectionString) ??

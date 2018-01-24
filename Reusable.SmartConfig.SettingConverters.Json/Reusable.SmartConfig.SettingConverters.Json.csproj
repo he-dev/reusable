@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net47</TargetFramework>
-    <RootNamespace>Reusable.SmartConfig.DataStores</RootNamespace>
-    <AssemblyName>Reusable.SmartConfig.DataStores.JsonRelay</AssemblyName>
+    <RootNamespace>Reusable.SmartConfig.SettingConverters</RootNamespace>
+    <AssemblyName>Reusable.SmartConfig.SettingConverters.Json</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
