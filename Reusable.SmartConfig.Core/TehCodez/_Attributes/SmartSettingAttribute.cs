@@ -12,5 +12,7 @@ namespace Reusable.SmartConfig
 
         [CanBeNull]
         public string DatastoreName { get; set; }
+
+        public bool Cached { get; set; } = true;
     }
 }

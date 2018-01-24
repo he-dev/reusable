@@ -10,7 +10,7 @@ namespace Reusable.SmartConfig.Tests.Services
         [TestMethod]
         public void GenerateNames_BaseName_NamesByFrequency()
         {
-            var settingNameGenerator = new SettingNameGenerator();
+            var settingNameGenerator = new SettingNameByUsageGenerator();
 
             CollectionAssert.AreEqual(
                 new[]
@@ -25,7 +25,7 @@ namespace Reusable.SmartConfig.Tests.Services
         [TestMethod]
         public void GenerateNames_BaseNameWithInstance_NamesByFrequency()
         {
-            var settingNameGenerator = new SettingNameGenerator();
+            var settingNameGenerator = new SettingNameByUsageGenerator();
 
             CollectionAssert.AreEqual(
                 new[]

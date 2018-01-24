@@ -37,7 +37,7 @@ namespace Reusable.SmartConfig.Utilities
             var name = expression.GetSettingName(instance);
 
             var settingDatastoreName = expression.GetCustomAttribute<SmartSettingAttribute>()?.DatastoreName;
-            var setting = config.Select(name, typeof(T), settingDatastoreName) ?? GetDefaultValue();
+            var setting = config.GetValue(name, typeof(T), settingDatastoreName) ?? GetDefaultValue();
             var validations = expression.GetCustomAttributes<ValidationAttribute>();
             Validate(validations, name, setting);
 
@@ -61,7 +61,7 @@ namespace Reusable.SmartConfig.Utilities
         [CanBeNull]
         public static T Select<T>(this IConfiguration config, [NotNull] SoftString settingName)
         {
-            return (T)(config.Select(settingName, typeof(T), null) ?? default(T));
+            return (T)(config.GetValue(settingName, typeof(T), null) ?? default(T));
         }
 
         [NotNull]
@@ -84,7 +84,7 @@ namespace Reusable.SmartConfig.Utilities
 
             var name = lambdaExpression.GetSettingName(instance);
             var value = lambdaExpression.GetValue();
-            config.Update(name, value);
+            config.SetValue(name, value);
             return config;
         }
     }
@@ -119,7 +119,7 @@ namespace Reusable.SmartConfig.Utilities
                     )
                 );
                 var settingName = lambdaExpression.GetSettingName(instance);
-                var value = configuration.Select(settingName, property.PropertyType, null);
+                var value = configuration.GetValue(settingName, property.PropertyType, null);
                 lambdaExpression.Set(value);
             }
             return configuration;

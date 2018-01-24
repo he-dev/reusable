@@ -7,15 +7,6 @@ using Reusable.SmartConfig.Data;
 
 namespace Reusable.SmartConfig
 {
-    public interface ISettingNameGenerator
-    {
-        /// <summary>
-        /// Generates setting names ordered by the usage frequency.
-        /// </summary>
-        [NotNull, ItemNotNull]
-        IEnumerable<SettingName> GenerateSettingNames([NotNull] SoftString settingName);
-    }
-
     /*
 
     Setting names are ordered by the usage frequency.
@@ -29,7 +20,7 @@ namespace Reusable.SmartConfig
     Namespace+Type.Property
 
      */
-    public class SettingNameGenerator : ISettingNameGenerator
+    public class SettingNameByUsageGenerator : ISettingNameGenerator
     {
         [NotNull, ItemNotNull]
         private readonly IEnumerable<Func<SettingName, SettingName>> _settingNameFactories;
@@ -41,21 +32,24 @@ namespace Reusable.SmartConfig
             source => new SettingName(source.Property) { Namespace = source.Namespace, Type = source.Type, Instance = source.Instance }
         };
 
-        public SettingNameGenerator([NotNull, ItemNotNull] IEnumerable<Func<SettingName, SettingName>> settingNameFactories)
+        public SettingNameByUsageGenerator([NotNull, ItemNotNull] IEnumerable<Func<SettingName, SettingName>> settingNameFactories)
         {
             _settingNameFactories = settingNameFactories ?? throw new ArgumentNullException(nameof(settingNameFactories));
         }
 
-        public SettingNameGenerator() : this(SettingNamesByUsageFrequency) { }
+        public SettingNameByUsageGenerator() : this(SettingNamesByUsageFrequency) { }
 
-        public static readonly ISettingNameGenerator Default = new SettingNameGenerator();
+        public static readonly ISettingNameGenerator Default = new SettingNameByUsageGenerator();
 
         public IEnumerable<SettingName> GenerateSettingNames(SoftString settingName)
         {
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
 
             var localSettingName = SettingName.Parse(settingName.ToString());
-            return GenerateSettingNamesWithInstance(localSettingName).Concat(GenerateSettingNamesWithoutInstance(localSettingName));            
+            return 
+                GenerateSettingNamesWithInstance(localSettingName)
+                    .Concat(GenerateSettingNamesWithoutInstance(localSettingName))
+                    .Distinct();            
         }
 
         private IEnumerable<SettingName> GenerateSettingNamesWithInstance(SettingName settingName)

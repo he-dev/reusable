@@ -43,7 +43,7 @@ namespace Reusable.SmartConfig.Tests
                 _dictionaryDataStore
             });
 
-            var actualValue = configuration.Select("Setting1", typeof(int), null);
+            var actualValue = configuration.GetValue("Setting1", typeof(int), null);
 
             Assert.AreEqual("foo-value", actualValue);
         }
@@ -56,7 +56,7 @@ namespace Reusable.SmartConfig.Tests
                 _dictionaryDataStore
             });
 
-            var ex = Assert.That.ThrowsExceptionFiltered<DynamicException>(() => configuration.Select("Setting3", typeof(int), null));
+            var ex = Assert.That.ThrowsExceptionFiltered<DynamicException>(() => configuration.GetValue("Setting3", typeof(int), null));
             Assert.AreEqual("Setting 'Setting3' not found.", ex.Message);
         }
     }

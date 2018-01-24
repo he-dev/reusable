@@ -123,7 +123,7 @@ namespace Reusable.Collections
             if (HasDefaultComparer(context.Property.PropertyType))
             {
                 // Short-cut to have compiler write this expression for us.
-                var getHashCodeFunc = (Expression<Func<TProperty, int>>)((obj) => GetComparer<TProperty>(context.Attribute).GetHashCode(obj));
+                var getHashCodeFunc = (Expression<Func<TProperty, int>>)((obj) => ReferenceEquals(obj, null) ? 0 : GetComparer<TProperty>(context.Attribute).GetHashCode(obj));
 
                 return Expression.Invoke(
                     getHashCodeFunc,

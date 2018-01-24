@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq.Custom;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -29,7 +30,7 @@ namespace Reusable.SmartConfig.SettingConverters
         [NotNull]
         private ISet<Type> _stringTypes;
 
-        public JsonSettingConverter() : base(new[] { typeof(string) })
+        public JsonSettingConverter(params  Type[] otherSupportedTypes) : base(otherSupportedTypes.Prepend(typeof(string)))
         {
             _converter = TypeConverter.Empty;
             _settings = new JsonSerializerSettings();

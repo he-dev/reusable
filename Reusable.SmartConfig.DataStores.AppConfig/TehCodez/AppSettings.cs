@@ -4,14 +4,14 @@ using System.Linq;
 using Reusable.Extensions;
 using Reusable.SmartConfig.Data;
 
-namespace Reusable.SmartConfig
+namespace Reusable.SmartConfig.DataStores
 {
     public class AppSettings : SettingDataStore
     {
         //private readonly System.Configuration.Configuration _exeConfiguration;
         //private readonly AppSettingsSection _appSettingsSection;
 
-        public AppSettings() : base(converter: new[] { typeof(string) }) { }
+        public AppSettings(ISettingConverter converter) : base(converter) { }
 
         protected override ISetting ReadCore(IEnumerable<SoftString> names)
         {

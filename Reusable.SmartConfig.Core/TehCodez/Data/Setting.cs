@@ -1,14 +1,16 @@
 using System.Diagnostics;
+using JetBrains.Annotations;
 
 namespace Reusable.SmartConfig.Data
 {
+    [PublicAPI]
     public interface ISetting
     {
         SoftString Name { get; set; }
 
         object Value { get; set; }
     }
-
+    
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class Setting : ISetting
     {

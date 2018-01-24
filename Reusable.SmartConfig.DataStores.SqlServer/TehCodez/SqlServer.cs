@@ -7,18 +7,25 @@ using Reusable.Extensions;
 using Reusable.SmartConfig.Data;
 using Reusable.SmartConfig.Internal;
 
-namespace Reusable.SmartConfig
+namespace Reusable.SmartConfig.DataStores
 {
     public class SqlServer : SettingDataStore
     {
         private static readonly ConnectionStringRepository ConnectionStringRepository = new ConnectionStringRepository();
+        
         private readonly string _connectionString;
 
-        private string _schema = "dbo";
-        private string _table = "Setting";
+        public const string DefaultSchema = "dbo";
+        
+        public const string DefaultTable = "Setting";
+
+        private string _schema;
+
+        private string _table;
+        
         private IReadOnlyDictionary<string, object> _where = new Dictionary<string, object>();
 
-        public SqlServer(string nameOrConnectionString) : base(converter: Enumerable.Empty<Type>())
+        public SqlServer(string nameOrConnectionString, ISettingConverter converter) : base(converter)
         {
             _connectionString =
                 ConnectionStringRepository.GetConnectionString(nameOrConnectionString) ??

@@ -3,12 +3,13 @@ using System.Collections;
 using System.Text;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using Reusable.Collections;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 
 namespace Reusable.SmartConfig.Data
 {
-    public class SettingName
+    public partial class SettingName
     {
         public const string NamespaceSeparator = "+";
         public const string TypeSeparator = ".";
@@ -36,12 +37,15 @@ namespace Reusable.SmartConfig.Data
         }
 
         [CanBeNull]
+        [AutoEqualityProperty]
         public string Namespace { get; set; }
 
         [CanBeNull]
+        [AutoEqualityProperty]
         public string Type { get; set; }
 
         [NotNull]
+        [AutoEqualityProperty]
         public string Property
         {
             get => _property;
@@ -49,6 +53,7 @@ namespace Reusable.SmartConfig.Data
         }
 
         [CanBeNull]
+        [AutoEqualityProperty]
         public string Instance { get; set; }
 
         [ContractAnnotation("value: null => halt"), NotNull]
@@ -89,5 +94,14 @@ namespace Reusable.SmartConfig.Data
         public static implicit operator string(SettingName settingName) => settingName?.ToString();
 
         public static implicit operator SoftString(SettingName settingName) => settingName?.ToString();
+    }
+
+    public partial class SettingName : IEquatable<SettingName>
+    {
+        public bool Equals(SettingName other) => AutoEquality<SettingName>.Comparer.Equals(this, other);
+
+        public override bool Equals(object obj) => obj is SettingName settingName && Equals(settingName);
+
+        public override int GetHashCode() => AutoEquality<SettingName>.Comparer.GetHashCode(this);
     }
 }

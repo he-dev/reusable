@@ -55,8 +55,8 @@ namespace Reusable.Collections
 
             var equalityExpressions =
                 from item in equalityProperties
-                let equalsMethod = genericCreateEqualsExpressionMethodInfo.MakeGenericMethod(item.Property.PropertyType)
-                let getHashCodeMethod = genericCreateGetHashCodeExpressionMethodInfo.MakeGenericMethod(item.Property.PropertyType)
+                let createEqualsExpressionMethod = genericCreateEqualsExpressionMethodInfo.MakeGenericMethod(item.Property.PropertyType)
+                let createGetHashCodeMethod = genericCreateGetHashCodeExpressionMethodInfo.MakeGenericMethod(item.Property.PropertyType)
                 let parameters = new object[]
                 {
                     new AutoEqualityPropertyContext
@@ -69,8 +69,8 @@ namespace Reusable.Collections
                 }
                 select
                 (
-                    EqualsExpression: (Expression)equalsMethod.Invoke(null, parameters),
-                    GetHashCodeExpression: (Expression)getHashCodeMethod.Invoke(null, parameters)
+                    EqualsExpression: (Expression)createEqualsExpressionMethod.Invoke(null, parameters),
+                    GetHashCodeExpression: (Expression)createGetHashCodeMethod.Invoke(null, parameters)
                 );
 
             var equalityComparer = equalityExpressions.Aggregate((next, current) =>
