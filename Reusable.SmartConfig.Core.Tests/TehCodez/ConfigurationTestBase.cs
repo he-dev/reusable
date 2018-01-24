@@ -9,6 +9,16 @@ using Reusable.SmartConfig.Tests.Common.TestClasses;
 
 namespace Reusable.SmartConfig.Tests
 {
+    [TestClass]
+    public class ConfigurationTest
+    {
+        [TestMethod]
+        public void Select_()
+        {
+            //var converter = 
+        }
+    }
+
     //[TestClass]
     public abstract class ConfigurationTestBase
     {

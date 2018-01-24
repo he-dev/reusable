@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Reusable.ThirdParty.JsonNetUtilities;
 
-namespace Reusable.SmartConfig.Converters
+namespace Reusable.SmartConfig.DataStores
 {
     public static class JsonSettingConverterFactory
     {

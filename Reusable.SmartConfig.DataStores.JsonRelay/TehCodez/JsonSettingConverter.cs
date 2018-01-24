@@ -3,9 +3,30 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Converters;
+using Reusable.SmartConfig.Data;
 
-namespace Reusable.SmartConfig.Converters
+namespace Reusable.SmartConfig.DataStores
 {
+    public class JsonRelay : SettingDataStore
+    {
+        private readonly ISettingDataStore _dataStore;
+
+        public JsonRelay(ISettingDataStore dataStore) : base(dataStore.CustomTypes)
+        {
+            _dataStore = dataStore;
+        }
+
+        protected override ISetting ReadCore(IEnumerable<SoftString> names)
+        {
+            return TODO_IMPLEMENT_ME;
+        }
+
+        protected override void WriteCore(ISetting setting)
+        {
+            TODO_IMPLEMENT_ME();
+        }
+    }
+
     /*
      *
      * This converter is build on top of the Reusable.Converters.
@@ -94,27 +115,5 @@ namespace Reusable.SmartConfig.Converters
             var objectToJsonConverterType = typeof(ObjectToJsonConverter<>).MakeGenericType(fromType);
             return (ITypeConverter) Activator.CreateInstance(objectToJsonConverterType, _settings, StringTypes);
         }
-    }
-
-    [PublicAPI]
-    public static class JsonSettingConverterConfigurationOptionsExtensions
-    {
-        [NotNull]
-        public static IConfigurationProperties UseJsonConverter(this IConfigurationProperties properties)
-        {
-            return properties.UseJsonConverter(converter => { });
-        }
-
-        [NotNull]
-        public static IConfigurationProperties UseJsonConverter([NotNull] this IConfigurationProperties properties, [NotNull] Action<JsonSettingConverter> jsonSettingConverterAction)
-        {
-            if (properties == null) throw new ArgumentNullException(nameof(properties));
-            if (jsonSettingConverterAction == null) throw new ArgumentNullException(nameof(jsonSettingConverterAction));
-
-            var converter = JsonSettingConverterFactory.CreateDefault();
-            jsonSettingConverterAction.Invoke(converter);
-            properties.Converter = converter;
-            return properties;
-        }
-    }
+    }    
 }
