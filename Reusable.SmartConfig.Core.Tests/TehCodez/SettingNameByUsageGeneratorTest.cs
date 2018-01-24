@@ -8,7 +8,7 @@ namespace Reusable.SmartConfig.Tests
     public class SettingNameByUsageGeneratorTest
     {
         [TestMethod]
-        public void GenerateSettingNames_SettingNameWithoutInstance_FourNames()
+        public void GenerateSettingNames_SettingNameWithoutInstance_TwoNames()
         {
             var names = SettingNameByUsageGenerator.Default.GenerateSettingNames("foo.bar+baz").ToList();
             
@@ -20,11 +20,12 @@ namespace Reusable.SmartConfig.Tests
         public void GenerateSettingNames_SettingNameWithInstance_FourNames()
         {
             var names = SettingNameByUsageGenerator.Default.GenerateSettingNames("foo.bar+baz,qux").ToList();
-            
+
+            Assert.That.Collection().CountEquals(4, names);
             Assert.AreEqual("baz,qux", names.ElementAt(0));
-            Assert.AreEqual("baz", names.ElementAt(1));
-            Assert.AreEqual("foo.bar+baz", names.ElementAt(2));
-            Assert.AreEqual("foo.bar+baz,qux", names.ElementAt(3));
+            Assert.AreEqual("foo.bar+baz,qux", names.ElementAt(1));
+            Assert.AreEqual("baz", names.ElementAt(2));
+            Assert.AreEqual("foo.bar+baz", names.ElementAt(3));
         }
     }
 }
