@@ -10,7 +10,7 @@ namespace Reusable.SmartConfig.Data
 
         object Value { get; set; }
     }
-    
+
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class Setting : ISetting
     {
@@ -22,9 +22,21 @@ namespace Reusable.SmartConfig.Data
             Value = value;
         }
 
-        public SoftString Name { [DebuggerStepThrough]get; [DebuggerStepThrough]set; }
+        public SoftString Name
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
 
-        public object Value { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
+        public object Value
+        {
+            [DebuggerStepThrough]
+            get;
+            [DebuggerStepThrough]
+            set;
+        }
 
         public static ISetting Create(SoftString name, object value) => new Setting(name, value);
 

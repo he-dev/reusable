@@ -28,12 +28,14 @@ namespace Reusable.SmartConfig
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
             if (settingType == null) throw new ArgumentNullException(nameof(settingType));
 
-            var result = 
+            var result =
                 _settingFinder
-                    .FindSetting(_dataStores, settingName, settingType, dataStoreName)
-                    .Next(x => CacheSettingName(settingName, x.Setting.Name, x.DataStore));
+                    .FindSetting(_dataStores, settingName, settingType, dataStoreName);
+            //.Next(x => CacheSettingName(settingName, x.Setting.Name, x.DataStore));
+            
+            CacheSettingName(settingName, result.Setting.Name, result.DataStore);
 
-            return result.Setting;
+            return result.Setting.Value;
         }
 
         private void CacheSettingName(SoftString settingFullName, SoftString settingActualName, ISettingDataStore settingDataStore)

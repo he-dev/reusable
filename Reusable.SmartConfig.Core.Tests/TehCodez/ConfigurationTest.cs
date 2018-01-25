@@ -36,20 +36,31 @@ namespace Reusable.SmartConfig.Tests
         }
 
         [TestMethod]
-        public void Select_NameExists_Value()
+        public void GetValue_NameExists_Value()
         {
-            var configuration = new Configuration(new[]
-            {
-                _dictionaryDataStore
-            });
+            var setting = new Setting { Name = "foo", Value = "bar" };
+            var dataStore = Mock.Create<ISettingDataStore>();
+            var settingFinder = Mock.Create<ISettingFinder>();
+            settingFinder
+                .Arrange(x => x
+                    .FindSetting(
+                        Arg.IsAny<IEnumerable<ISettingDataStore>>(),
+                        Arg.IsAny<SoftString>(),
+                        Arg.IsAny<Type>(),
+                        Arg.IsAny<SettingName>()
+                    )
+                )
+                .Returns((dataStore, setting));
 
-            var actualValue = configuration.GetValue("Setting1", typeof(int), null);
+            var configuration = new Configuration(new [] { dataStore }, settingFinder);
 
-            Assert.AreEqual("foo-value", actualValue);
+            var actualValue = configuration.GetValue("foo", typeof(int), null);
+
+            Assert.AreEqual("bar", actualValue);
         }
 
         [TestMethod]
-        public void Select_NameDoesNotExist_Throws()
+        public void GetValue_NameDoesNotExist_Throws()
         {
             var configuration = new Configuration(new[]
             {

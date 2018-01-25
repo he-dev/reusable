@@ -15,6 +15,13 @@ namespace Reusable.SmartConfig.Data
         public const string TypeSeparator = ".";
         public const string InstanceSeparator = ",";
 
+        // [Namespace+][Type.]Property[,Instance]
+        public static readonly string Format =
+            $"[{nameof(Namespace)}{NamespaceSeparator}]" +
+            $"[{nameof(Type)}{TypeSeparator}]" +
+            $"{nameof(Property)}" +
+            $"[{InstanceSeparator}{nameof(Instance)}]";
+
         private static readonly string NamePattern =
             $"(?:(?<Namespace>[a-z0-9_.]+)\\{NamespaceSeparator})?" +
             $"(?:(?<Type>[a-z0-9_]+)\\{TypeSeparator})?" +
@@ -22,9 +29,9 @@ namespace Reusable.SmartConfig.Data
             $"(?:{InstanceSeparator}(?<Instance>[a-z0-9_]+))?";
 
         [NotNull]
-        private string _property;
+        private SoftString _property;
 
-        public SettingName([NotNull] string property)
+        public SettingName([NotNull] SoftString property)
         {
             _property = property ?? throw new ArgumentNullException(nameof(property));
         }
@@ -38,15 +45,15 @@ namespace Reusable.SmartConfig.Data
 
         [CanBeNull]
         [AutoEqualityProperty]
-        public string Namespace { get; set; }
+        public SoftString Namespace { get; set; }
 
         [CanBeNull]
         [AutoEqualityProperty]
-        public string Type { get; set; }
+        public SoftString Type { get; set; }
 
         [NotNull]
         [AutoEqualityProperty]
-        public string Property
+        public SoftString Property
         {
             get => _property;
             set => _property = value ?? throw new ArgumentNullException(nameof(Property));
@@ -54,7 +61,7 @@ namespace Reusable.SmartConfig.Data
 
         [CanBeNull]
         [AutoEqualityProperty]
-        public string Instance { get; set; }
+        public SoftString Instance { get; set; }
 
         [ContractAnnotation("value: null => halt"), NotNull]
         public static SettingName Parse([NotNull] string value)
@@ -72,22 +79,16 @@ namespace Reusable.SmartConfig.Data
                 };
             }
 
-            var settingNameFormat =
-                $"[{nameof(Namespace)}{NamespaceSeparator}]" +
-                $"[{nameof(Type)}{TypeSeparator}]" +
-                $"{nameof(Property)}" +
-                $"[{InstanceSeparator}{nameof(Instance)}]";
-
-            throw ("SettingNameFormatException", $"Could not parse setting {value.QuoteWith("'")}. Expected format: {settingNameFormat}").ToDynamicException();
+            throw ("SettingNameFormatException", $"Could not parse setting {value.QuoteWith("'")}. Expected format: {Format}").ToDynamicException();
         }
 
         public override string ToString()
         {
             return new StringBuilder()
-                .AppendWhen(!Namespace.IsNullOrEmpty(), () => $"{Namespace}{NamespaceSeparator}")
-                .AppendWhen(!Type.IsNullOrEmpty(), () => $"{Type}{TypeSeparator}")
+                .AppendWhen(Namespace.IsNotNullOrEmpty(), () => $"{Namespace?.ToString()}{NamespaceSeparator}")
+                .AppendWhen(Type.IsNotNullOrEmpty(), () => $"{Type?.ToString()}{TypeSeparator}")
                 .Append(Property)
-                .AppendWhen(!Instance.IsNullOrEmpty(), () => $"{InstanceSeparator}{Instance}")
+                .AppendWhen(Instance.IsNotNullOrEmpty(), () => $"{InstanceSeparator}{Instance?.ToString()}")
                 .ToString();
         }
 
