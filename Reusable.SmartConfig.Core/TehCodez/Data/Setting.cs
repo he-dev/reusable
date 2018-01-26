@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
 
@@ -6,39 +7,26 @@ namespace Reusable.SmartConfig.Data
     [PublicAPI]
     public interface ISetting
     {
-        SoftString Name { get; set; }
+        [NotNull]
+        SoftString Name { get; }
 
+        [CanBeNull]
         object Value { get; set; }
     }
 
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class Setting : ISetting
     {
-        public Setting() { }
-
-        public Setting(SoftString name, object value)
+        public Setting([NotNull] SoftString name)
         {
-            Name = name;
-            Value = value;
+            Name = name ?? throw new ArgumentNullException(nameof(name));
         }
 
-        public SoftString Name
-        {
-            [DebuggerStepThrough]
-            get;
-            [DebuggerStepThrough]
-            set;
-        }
+        public SoftString Name { get; }
 
-        public object Value
-        {
-            [DebuggerStepThrough]
-            get;
-            [DebuggerStepThrough]
-            set;
-        }
+        public object Value { get; set; }
 
-        public static ISetting Create(SoftString name, object value) => new Setting(name, value);
+        public static ISetting Create(SoftString name, object value) => new Setting(name) { Value = value };
 
         private string DebuggerDisplay => ToString();
 

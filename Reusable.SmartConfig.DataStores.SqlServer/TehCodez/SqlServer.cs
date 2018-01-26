@@ -12,17 +12,17 @@ namespace Reusable.SmartConfig.DataStores
     public class SqlServer : SettingDataStore
     {
         private static readonly ConnectionStringRepository ConnectionStringRepository = new ConnectionStringRepository();
-        
+
         private readonly string _connectionString;
 
         public const string DefaultSchema = "dbo";
-        
+
         public const string DefaultTable = "Setting";
 
         private string _schema;
 
         private string _table;
-        
+
         private IReadOnlyDictionary<string, object> _where = new Dictionary<string, object>();
 
         public SqlServer(string nameOrConnectionString, ISettingConverter converter) : base(converter)
@@ -65,9 +65,8 @@ namespace Reusable.SmartConfig.DataStores
 
                     while (settingReader.Read())
                     {
-                        var result = new Setting
+                        var result = new Setting((string)settingReader[nameof(ISetting.Name)])
                         {
-                            Name = (string)settingReader[nameof(ISetting.Name)],
                             Value = settingReader[nameof(ISetting.Value)],
                         };
                         settings.Add(result);

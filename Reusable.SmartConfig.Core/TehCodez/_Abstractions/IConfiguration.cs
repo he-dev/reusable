@@ -7,8 +7,8 @@ namespace Reusable.SmartConfig
     public interface IConfiguration
     {
         [CanBeNull]
-        object GetValue([NotNull] SoftString settingName, [NotNull] Type settingType, [CanBeNull] SoftString dataStoreName);
+        object GetValue([NotNull] SoftString settingName, [CanBeNull] Type settingType, [CanBeNull] SoftString dataStoreName);
 
-        void SetValue([NotNull] SoftString settingName, [CanBeNull] object value);
+        void SetValue([NotNull] SoftString settingName, [CanBeNull] object value, [CanBeNull] SoftString dataStoreName);
     }
 }

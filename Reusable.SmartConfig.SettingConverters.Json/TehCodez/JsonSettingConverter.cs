@@ -74,12 +74,12 @@ namespace Reusable.SmartConfig.SettingConverters
             set => _stringTypes = value ?? throw new ArgumentNullException(nameof(StringTypes));
         }
 
-        protected override object DeserializeCore(object value, Type toType)
+        protected override object DeserializeCore(object value, Type targetType)
         {
-            if (!(value is string)) throw new ArgumentException($"Unsupported type '{toType.Name}'. Only {typeof(string).Name} is allowed.");
+            if (!(value is string)) throw new ArgumentException($"Unsupported type '{targetType.Name}'. Only {typeof(string).Name} is allowed.");
 
-            AddJsonToObjectConverter(toType);
-            return _converter.Convert(value, toType);
+            AddJsonToObjectConverter(targetType);
+            return _converter.Convert(value, targetType);
         }
 
         protected override object SerializeCore(object value, Type targetType)

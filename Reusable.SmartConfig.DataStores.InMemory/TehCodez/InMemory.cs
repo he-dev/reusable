@@ -33,9 +33,8 @@ namespace Reusable.SmartConfig.DataStores
 
         public void Add(ISetting setting) => Data.Add(setting);
 
-        public void Add(string name, object value) => Data.Add(new Setting
+        public void Add(string name, object value) => Data.Add(new Setting(name)
         {
-            Name = name,
             Value = value
         });
 

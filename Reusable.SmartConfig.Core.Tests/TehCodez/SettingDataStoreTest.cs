@@ -38,7 +38,7 @@ namespace Reusable.SmartConfig.Tests
             Mock
                 .NonPublic
                 .Arrange<ISetting>(dataStore, "ReadCore", ArgExpr.IsAny<IEnumerable<SoftString>>())
-                .Returns(new Setting("foo", "bar"));
+                .Returns(new Setting("foo") { Value = "bar" });
 
             dataStore.Read("foo", typeof(string));
 
@@ -48,7 +48,7 @@ namespace Reusable.SmartConfig.Tests
         [TestMethod]
         public void Write_Any_WriteCoreCalled()
         {
-            var setting = new Setting("foo", "bar");
+            var setting = new Setting("foo") { Value = "bar" };
             var settingConverter = Mock.Create<ISettingConverter>();
             var dataStore = Mock.Create<SettingDataStore>(Behavior.CallOriginal, settingConverter);
             Mock
@@ -64,7 +64,7 @@ namespace Reusable.SmartConfig.Tests
         [TestMethod]
         public void Write_Any_SettingConverterSerializeCalled()
         {
-            var setting = new Setting("foo", "bar");
+            var setting = new Setting("foo") { Value = "bar" };
 
             var settingConverter = Mock.Create<ISettingConverter>();
             Mock

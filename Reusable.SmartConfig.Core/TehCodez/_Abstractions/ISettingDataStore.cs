@@ -15,7 +15,7 @@ namespace Reusable.SmartConfig
         ISettingNameGenerator SettingNameGenerator { get; }
 
         [CanBeNull]
-        ISetting Read([NotNull] SoftString settingName, Type settingType);
+        ISetting Read([NotNull] SoftString settingName, [CanBeNull] Type settingType);
 
         void Write([NotNull] ISetting setting);
     }

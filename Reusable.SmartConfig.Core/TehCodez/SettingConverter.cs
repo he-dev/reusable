@@ -19,27 +19,20 @@ namespace Reusable.SmartConfig
 
         public object Deserialize(object value, Type targetType)
         {
-            if (value.GetType() == targetType)
-            {
-                return value;
-            }
-
-            if (value is string)
-            {
-                return DeserializeCore(value, targetType);
-            }
-
-            throw new ArgumentException($"Unsupported type: {value.GetType().Name}");
+            return
+                value.GetType() == targetType 
+                    ? value 
+                    : DeserializeCore(value, targetType);
         }
 
         [NotNull]
-        protected abstract object DeserializeCore([NotNull]object value, [NotNull] Type toType);
+        protected abstract object DeserializeCore([NotNull]object value, [NotNull] Type targetType);
 
         public object Serialize(object value)
         {
-            var targetType = 
-                _supportedTypes.Contains(value.GetType()) 
-                    ? value.GetType() 
+            var targetType =
+                _supportedTypes.Contains(value.GetType())
+                    ? value.GetType()
                     : _fallbackType;
 
             return SerializeCore(value, targetType);

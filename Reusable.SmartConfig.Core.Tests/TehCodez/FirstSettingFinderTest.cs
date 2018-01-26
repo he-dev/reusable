@@ -24,7 +24,7 @@ namespace Reusable.SmartConfig.Tests
 
             dataStore2
                 .Arrange(x => x.Read(Arg.Matches<SoftString>(arg => arg == SoftString.Create("setting2")), Arg.IsAny<Type>()))
-                .Returns(new Setting { Name = "setting2", Value = "bar" });
+                .Returns(new Setting("setting2") { Value = "bar" });
 
             dataStore3
                 .Arrange(x => x.Read(Arg.IsAny<SoftString>(), Arg.IsAny<Type>()))
@@ -48,7 +48,7 @@ namespace Reusable.SmartConfig.Tests
 
             var settingFinder = new FirstSettingFinder();
 
-            var settingFound =  settingFinder.TryFindSetting(new[] { dataStore1 }, "setting2", typeof(string), null, out var result);
+            var settingFound = settingFinder.TryFindSetting(new[] { dataStore1 }, "setting2", typeof(string), null, out var result);
 
             Assert.IsFalse(settingFound);
         }

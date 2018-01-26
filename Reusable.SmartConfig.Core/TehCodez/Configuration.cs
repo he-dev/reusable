@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Custom;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
@@ -20,13 +21,14 @@ namespace Reusable.SmartConfig
             if (dataStores == null) throw new ArgumentNullException(nameof(dataStores));
 
             _dataStores = dataStores.ToList();
+            if (_dataStores.None()) { throw new ArgumentException("You need to specify at least one data-store."); }
+
             _settingFinder = settingFinder ?? new FirstSettingFinder();
         }
 
         public object GetValue(SoftString settingName, Type settingType, SoftString dataStoreName)
         {
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
-            if (settingType == null) throw new ArgumentNullException(nameof(settingType));
 
             if (_settingFinder.TryFindSetting(_dataStores, settingName, settingType, dataStoreName, out var result))
             {
@@ -39,27 +41,42 @@ namespace Reusable.SmartConfig
             }
         }
 
-        private void CacheSettingName(SoftString settingFullName, SoftString settingActualName, ISettingDataStore settingDataStore)
+        private void CacheSettingName(SoftString settingName, SoftString settingActualName, ISettingDataStore settingDataStore)
         {
-            _settingMap[settingFullName] = (settingActualName, settingDataStore);
+            _settingMap[settingName] = (settingActualName, settingDataStore);
         }
 
-        public void SetValue(SoftString settingName, object value)
+        public void SetValue(SoftString settingName, object value, SoftString dataStoreName)
         {
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
 
             if (_settingMap.TryGetValue(settingName, out var item))
             {
-                var setting = new Setting
-                {
-                    Name = item.ActualName,
-                    Value = value
-                };
-                item.Datastore.Write(setting);
+                item.Datastore.Write(new Setting(item.ActualName) { Value = value });
             }
             else
             {
-                throw ("SettingNotInitializedException", $"Setting {settingName.ToString().QuoteWith("'")} needs to be initialized before you can update it.").ToDynamicException();
+                if (_settingFinder.TryFindSetting(_dataStores, settingName, null, dataStoreName, out var result))
+                {
+                    CacheSettingName(settingName, result.Setting.Name, result.DataStore);
+                    SetValue(settingName, value, dataStoreName);
+                }
+                else
+                {
+                    var dataStore = _dataStores.FirstOrDefault(x => dataStoreName is null || x.Name.Equals(dataStoreName));
+                    if (dataStore is null)
+                    {
+                        throw DynamicException.Factory.CreateDynamicException(
+                            $"SettingDataStoreNotFound{nameof(Exception)}",
+                            $"Could not find setting data store {dataStoreName.ToString().QuoteWith("'")}",
+                            null
+                        );
+                    }
+
+                    var defaultSettingName = dataStore.SettingNameGenerator.GenerateSettingNames(settingName).First();
+                    dataStore.Write(new Setting(defaultSettingName) { Value = value });
+                }
+                //throw ("SettingNotInitializedException", $"Setting {settingName.ToString().QuoteWith("'")} needs to be initialized before you can update it.").ToDynamicException();
             }
         }
     }

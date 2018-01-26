@@ -28,6 +28,9 @@
     <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework">
       <HintPath>..\packages\MSTest.TestFramework.1.2.0\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.dll</HintPath>
     </Reference>
+    <Reference Include="Telerik.JustMock">
+      <HintPath>..\..\..\..\Users\Engineer\.nuget\packages\justmock\2018.1.117.2\lib\Net\Telerik.JustMock.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

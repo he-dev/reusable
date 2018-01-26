@@ -19,7 +19,6 @@ namespace Reusable.SmartConfig
         {
             if (dataStores == null) throw new ArgumentNullException(nameof(dataStores));
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
-            if (settingType == null) throw new ArgumentNullException(nameof(settingType));
 
             var anyDataStore = dataStoreName.IsNullOrEmpty();
             var settingQuery =

@@ -10,7 +10,7 @@ namespace Reusable.SmartConfig
         bool TryFindSetting(
             [NotNull] IEnumerable<ISettingDataStore> dataStores,
             [NotNull] SoftString settingName,
-            [NotNull] Type settingType, 
+            [CanBeNull] Type settingType, 
             [CanBeNull] SoftString dataStoreName,
             out (ISettingDataStore DataStore, ISetting Setting) result);
     }

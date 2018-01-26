@@ -23,9 +23,8 @@ namespace Reusable.SmartConfig.DataStores
                  where !string.IsNullOrEmpty(v)
                  select (Name: n, Value: v)).FirstOrDefault();
 
-            return result.Value.IsNullOrEmpty() ? null : new Setting
+            return result.Value.IsNullOrEmpty() ? null : new Setting(result.Name)
             {
-                Name = result.Name,
                 Value = result.Value
             };
         }
