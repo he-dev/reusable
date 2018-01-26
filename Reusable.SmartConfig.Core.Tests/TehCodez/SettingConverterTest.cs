@@ -19,7 +19,11 @@ namespace Reusable.SmartConfig.Tests
 
             Mock
                 .NonPublic
-                .Arrange<object>(settingConverter, "DeserializeCore", ArgExpr.IsAny<object>(), ArgExpr.IsAny<Type>())
+                .Arrange<object>(
+                    settingConverter, 
+                    "DeserializeCore", 
+                    ArgExpr.IsAny<object>(), 
+                    ArgExpr.IsAny<Type>())
                 .OccursNever();
 
             var result = settingConverter.Deserialize("foo", typeof(string));
@@ -35,7 +39,11 @@ namespace Reusable.SmartConfig.Tests
 
             Mock
                 .NonPublic
-                .Arrange<object>(settingConverter, "DeserializeCore", ArgExpr.IsAny<object>(), ArgExpr.IsAny<Type>())
+                .Arrange<object>(
+                    settingConverter, 
+                    "DeserializeCore", 
+                    ArgExpr.IsAny<object>(), 
+                    ArgExpr.IsAny<Type>())
                 .OccursOnce();
 
             settingConverter.Deserialize("foo", typeof(int));
@@ -44,7 +52,7 @@ namespace Reusable.SmartConfig.Tests
         }
 
         [TestMethod]
-        public void Serialize_ValueHasSupportedType_SerializeCoreCalledWithSupportedType()
+        public void Serialize_ValueHasSupportedType_SerializeCoreNotCalled()
         {
             var settingConverter = Mock.Create<SettingConverter>(Behavior.CallOriginal, (IEnumerable<Type>)new[] { typeof(string) });
 
@@ -54,8 +62,8 @@ namespace Reusable.SmartConfig.Tests
                     settingConverter,
                     "SerializeCore",
                     ArgExpr.IsAny<object>(),
-                    ArgExpr.Matches<Type>(t => t == typeof(string)))
-                .OccursOnce();
+                    ArgExpr.IsAny<Type>())
+                .OccursNever();
 
             settingConverter.Serialize("foo");
 

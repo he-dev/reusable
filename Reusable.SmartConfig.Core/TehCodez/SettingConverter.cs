@@ -20,8 +20,8 @@ namespace Reusable.SmartConfig
         public object Deserialize(object value, Type targetType)
         {
             return
-                value.GetType() == targetType 
-                    ? value 
+                value.GetType() == targetType
+                    ? value
                     : DeserializeCore(value, targetType);
         }
 
@@ -35,7 +35,10 @@ namespace Reusable.SmartConfig
                     ? value.GetType()
                     : _fallbackType;
 
-            return SerializeCore(value, targetType);
+            return
+                value.GetType() == targetType
+                    ? value
+                    : SerializeCore(value, targetType);
         }
 
         [NotNull]
