@@ -44,6 +44,7 @@ namespace Reusable.Collections
 
         internal static IEqualityComparer<T> Create(IEnumerable<(PropertyInfo Property, AutoEqualityPropertyAttribute Attribute)> equalityProperties)
         {
+            //var objParameters = equalityProperties.Select(ep => Expression.Parameter(ep.Property.PropertyType, ep.Property.Name)).ToList();
             var leftParameter = Expression.Parameter(typeof(T), "left");
             var rightParameter = Expression.Parameter(typeof(T), "right");
 

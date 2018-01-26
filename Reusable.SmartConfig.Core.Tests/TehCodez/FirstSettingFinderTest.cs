@@ -12,7 +12,7 @@ namespace Reusable.SmartConfig.Tests
     public class FirstSettingFinderTest
     {
         [TestMethod]
-        public void FindSetting_AnyDataSource_Finds()
+        public void TryFindSetting_DataSourceMatches_True()
         {
             var dataStore1 = Mock.Create<ISettingDataStore>();
             var dataStore2 = Mock.Create<ISettingDataStore>();
@@ -31,20 +31,26 @@ namespace Reusable.SmartConfig.Tests
                 .Returns(default(ISetting));
 
             var settingFinder = new FirstSettingFinder();
-            var result = settingFinder.FindSetting(new[] { dataStore1, dataStore2, dataStore3 }, "setting2", typeof(string), null);
+            var settingFound = settingFinder.TryFindSetting(new[] { dataStore1, dataStore2, dataStore3 }, "setting2", typeof(string), null, out var result);
 
+            Assert.IsTrue(settingFound);
             Assert.AreSame(dataStore2, result.DataStore);
             Assert.AreEqual("bar", result.Setting.Value);
         }
 
         [TestMethod]
-        public void FindSetting_NoDataSource_Throws()
+        public void TryFindSetting_NoDataSource_False()
         {
             var dataStore1 = Mock.Create<ISettingDataStore>();
-           
+            dataStore1
+                .Arrange(x => x.Read(Arg.IsAny<SoftString>(), Arg.IsAny<Type>()))
+                .Returns(default(ISetting));
+
             var settingFinder = new FirstSettingFinder();
 
-            Assert.That.ThrowsExceptionFiltered<DynamicException>(() => settingFinder.FindSetting(new[] {dataStore1}, "setting2", typeof(string), null));
+            var settingFound =  settingFinder.TryFindSetting(new[] { dataStore1 }, "setting2", typeof(string), null, out var result);
+
+            Assert.IsFalse(settingFound);
         }
     }
 }

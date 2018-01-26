@@ -14,7 +14,7 @@ namespace Reusable.SmartConfig
         private readonly IEnumerable<ISettingDataStore> _dataStores;
         private readonly ISettingFinder _settingFinder;
         private readonly IDictionary<SoftString, (SoftString ActualName, ISettingDataStore Datastore)> _settingMap = new Dictionary<SoftString, (SoftString ActualName, ISettingDataStore Datastore)>();
-        
+
         public Configuration([NotNull, ItemNotNull] IEnumerable<ISettingDataStore> dataStores, ISettingFinder settingFinder = null)
         {
             if (dataStores == null) throw new ArgumentNullException(nameof(dataStores));
@@ -28,14 +28,15 @@ namespace Reusable.SmartConfig
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
             if (settingType == null) throw new ArgumentNullException(nameof(settingType));
 
-            var result =
-                _settingFinder
-                    .FindSetting(_dataStores, settingName, settingType, dataStoreName);
-            //.Next(x => CacheSettingName(settingName, x.Setting.Name, x.DataStore));
-            
-            CacheSettingName(settingName, result.Setting.Name, result.DataStore);
-
-            return result.Setting.Value;
+            if (_settingFinder.TryFindSetting(_dataStores, settingName, settingType, dataStoreName, out var result))
+            {
+                CacheSettingName(settingName, result.Setting.Name, result.DataStore);
+                return result.Setting.Value;
+            }
+            else
+            {
+                throw ("SettingNotFoundException", $"Setting {settingName.ToString().QuoteWith("'")} not found.").ToDynamicException();
+            }
         }
 
         private void CacheSettingName(SoftString settingFullName, SoftString settingActualName, ISettingDataStore settingDataStore)
@@ -60,6 +61,6 @@ namespace Reusable.SmartConfig
             {
                 throw ("SettingNotInitializedException", $"Setting {settingName.ToString().QuoteWith("'")} needs to be initialized before you can update it.").ToDynamicException();
             }
-        }      
+        }
     }
 }

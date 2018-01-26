@@ -10,31 +10,37 @@ namespace Reusable.SmartConfig
 {
     public class FirstSettingFinder : ISettingFinder
     {
-        public (ISettingDataStore DataStore, ISetting Setting) FindSetting(
-            IEnumerable<ISettingDataStore> dataStores, 
-            SoftString settingName, 
-            Type settingType, 
-            SoftString dataStoreName)
+        public bool TryFindSetting(
+            IEnumerable<ISettingDataStore> dataStores,
+            SoftString settingName,
+            Type settingType,
+            SoftString dataStoreName,
+            out (ISettingDataStore DataStore, ISetting Setting) result)
         {
             if (dataStores == null) throw new ArgumentNullException(nameof(dataStores));
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
             if (settingType == null) throw new ArgumentNullException(nameof(settingType));
-            if (dataStoreName == null) throw new ArgumentNullException(nameof(dataStoreName));
 
             var anyDataStore = dataStoreName.IsNullOrEmpty();
             var settingQuery =
                 from datastore in dataStores
-                where  anyDataStore || datastore.Name.Equals(dataStoreName)
-                select (Datastore: datastore, Setting: datastore.Read(settingName, settingType));
+                where anyDataStore || datastore.Name.Equals(dataStoreName)
+                let setting = datastore.Read(settingName, settingType)
+                where setting != null
+                select new { Datastore = datastore, Setting =  setting};
 
-            var setting = settingQuery.FirstOrDefault(t => t.Setting.IsNotNull());
+            var first = settingQuery.FirstOrDefault();
 
-            if (setting.Datastore.IsNull())
+            if (first is default)
             {
-                throw ("SettingNotFoundException", $"Setting {settingName.ToString().QuoteWith("'")} not found.").ToDynamicException();
+                result = default((ISettingDataStore, ISetting));
+                return false;
             }
-
-            return setting;
+            else
+            {
+                result = (first.Datastore, first.Setting);
+                return true;
+            }
         }
     }
 }

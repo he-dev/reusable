@@ -49,7 +49,8 @@ namespace Reusable.SmartConfig
             try
             {
                 var setting = ReadCore(names);
-                return new Setting
+
+                return setting is null ? null : new Setting
                 {
                     Name = setting.Name,
                     Value = _converter.Deserialize(setting, settingType)
@@ -61,6 +62,7 @@ namespace Reusable.SmartConfig
             }
         }
 
+        [CanBeNull]
         protected abstract ISetting ReadCore(IEnumerable<SoftString> names);
 
         public void Write(ISetting setting)

@@ -39,32 +39,15 @@ namespace Reusable.Collections
         // Creates the three canonical null guard conditions.
         private static Expression CreateNullGuardBlockExpression<TProperty>(AutoEqualityPropertyContext context, LabelTarget labelTarget)
         {
-            var areEqualExpression = CreateIfThenExpression((left, right) => ReferenceEquals(left, right), true);
-            var leftIsNullExpression = CreateIfThenExpression((left, right) => ReferenceEquals(left, null), false);
-            var rightIsNullExpression = CreateIfThenExpression((left, right) => ReferenceEquals(left, null), false);
+            var areEqualExpression = CreateIfThenExpression<TProperty, bool>(context, labelTarget, (left, right) => ReferenceEquals(left, right), true);
+            var leftIsNullExpression = CreateIfThenExpression<TProperty, bool>(context, labelTarget, (left, right) => ReferenceEquals(left, null), false);
+            var rightIsNullExpression = CreateIfThenExpression<TProperty, bool>(context, labelTarget, (left, right) => ReferenceEquals(left, null), false);
 
-            return Expression.Block(new[]
-            {
+            return Expression.Block(
                 areEqualExpression,
                 leftIsNullExpression,
-                rightIsNullExpression,
-            });
-
-            Expression CreateIfThenExpression(Func<TProperty, TProperty, bool> referenceEquals, bool result)
-            {
-                var referenceEquasExpression = (Expression<Func<TProperty, TProperty, bool>>)((left, right) => referenceEquals(left, right));
-
-                var referenceEquasInvokeExpression = Expression.Invoke(
-                    referenceEquasExpression,
-                    Expression.Property(context.LeftParameter, context.Property),
-                    Expression.Property(context.RightParameter, context.Property)
-                );
-
-                return Expression.IfThen(
-                    referenceEquasInvokeExpression,
-                    Expression.Return(labelTarget, Expression.Constant(result))
-                );
-            }
+                rightIsNullExpression
+            );
         }
 
         private static Expression CreateEqualsMethodExpression<TProperty>(AutoEqualityPropertyContext context)
@@ -83,8 +66,8 @@ namespace Reusable.Collections
 
             var equalsMethod = GetEqualsMethod(context.Property.PropertyType);
             return Expression.Call(
-                Expression.Property(context.LeftParameter, context.Property), 
-                equalsMethod, 
+                Expression.Property(context.LeftParameter, context.Property),
+                equalsMethod,
                 Expression.Property(context.RightParameter, context.Property)
             );
         }
@@ -123,7 +106,25 @@ namespace Reusable.Collections
             if (HasDefaultComparer(context.Property.PropertyType))
             {
                 // Short-cut to have compiler write this expression for us.
-                var getHashCodeFunc = (Expression<Func<TProperty, int>>)((obj) => ReferenceEquals(obj, null) ? 0 : GetComparer<TProperty>(context.Attribute).GetHashCode(obj));
+                //var getHashCodeFunc = (Expression<Func<TProperty, int>>)((obj) => ReferenceEquals(obj, null) ? 0 : GetComparer<TProperty>(context.Attribute).GetHashCode(obj));
+                var getHashCodeFunc = (Expression<Func<TProperty, int>>)((obj) => GetComparer<TProperty>(context.Attribute).GetHashCode(obj));
+
+                return Expression.Invoke(
+                    getHashCodeFunc,
+                    Expression.Property(context.LeftParameter, context.Property)
+                );
+            }
+            else
+            {
+
+                // Call the instance 'GetHashCode' method by default.
+
+                var labelTarget = Expression.Label(typeof(int));
+
+                //var getHashCodeNullGuardExpression = CreateGetHashCodeNullGuardExpression<TProperty>(context, labelTarget);
+                //var getHashCodeMethod = context.Property.PropertyType.GetMethod(nameof(GetHashCode));
+
+                var getHashCodeFunc = (Expression<Func<TProperty, int>>) ((obj) => ReferenceEquals(obj, null) ? 0 : obj.GetHashCode());
 
                 return Expression.Invoke(
                     getHashCodeFunc,
@@ -131,18 +132,62 @@ namespace Reusable.Collections
                 );
             }
 
-            // Call the instance 'GetHashCode' method by default.
-
-            var getHashCodeMethod = context.Property.PropertyType.GetMethod(nameof(GetHashCode));
-
             // ReSharper disable once AssignNullToNotNullAttribute - getHashCodeMethod is never null
-            return Expression.Call(
-                Expression.Property(context.LeftParameter, context.Property),
-                getHashCodeMethod
-            );
+            //var getHashCodeExpression = Expression.Call(
+            //    Expression.Property(context.LeftParameter, context.Property),
+            //    getHashCodeMethod
+            //);
+
+            //return Expression.Block(new[]
+            //{
+            //    getHashCodeNullGuardExpression,
+            //    Expression.Return(labelTarget, getHashCodeExpression),
+            //    Expression.Label(labelTarget, defaultValue: Expression.Constant(0))
+            //});
+        }
+
+        private static Expression CreateGetHashCodeNullGuardExpression<TProperty>(AutoEqualityPropertyContext context, LabelTarget labelTarget)
+        {
+            var propertyIsNullExpression = CreateIfThenExpression<TProperty, int>(labelTarget, (left, right) => ReferenceEquals(left, right), context.LeftParameter, Expression.Constant(null, typeof(TProperty)), 0);
+
+            return Expression.Block(propertyIsNullExpression);
         }
 
         #endregion
+
+        private static Expression CreateIfThenExpression<TProperty, TResult>(AutoEqualityPropertyContext context, LabelTarget labelTarget, Func<TProperty, TProperty, bool> referenceEquals, TResult result)
+        {
+            // Let the compiler create this expression for us.
+            var referenceEquasExpression = (Expression<Func<TProperty, TProperty, bool>>)((left, right) => referenceEquals(left, right));
+
+            var referenceEquasInvokeExpression = Expression.Invoke(
+                referenceEquasExpression,
+                Expression.Property(context.LeftParameter, context.Property),
+                Expression.Property(context.RightParameter, context.Property)
+            );
+
+            return Expression.IfThen(
+                referenceEquasInvokeExpression,
+                Expression.Return(labelTarget, Expression.Constant(result))
+            );
+        }
+
+        private static Expression CreateIfThenExpression<TProperty, TResult>(LabelTarget labelTarget, Func<TProperty, TProperty, bool> referenceEquals, Expression objA, Expression objB, TResult result)
+        {
+            // Let the compiler create this expression for us.
+            var referenceEquasExpression = (Expression<Func<TProperty, TProperty, bool>>)((left, right) => referenceEquals(left, right));
+
+            var referenceEquasInvokeExpression = Expression.Invoke(
+                referenceEquasExpression,
+                objA,
+                objB
+            );
+
+            return Expression.IfThen(
+                referenceEquasInvokeExpression,
+                Expression.Return(labelTarget, Expression.Constant(result))
+            );
+        }
 
         private static bool HasDefaultComparer(Type type)
         {

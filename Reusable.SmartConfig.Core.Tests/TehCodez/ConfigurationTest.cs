@@ -40,14 +40,17 @@ namespace Reusable.SmartConfig.Tests
         {
             var setting = new Setting { Name = "foo", Value = "bar" };
             var dataStore = Mock.Create<ISettingDataStore>();
+
+            var result = default((ISettingDataStore, ISetting));
             var settingFinder = Mock.Create<ISettingFinder>();
-            settingFinder
-                .Arrange(x => x
-                    .FindSetting(
+            Mock
+                .Arrange(() => settingFinder
+                    .TryFindSetting(
                         Arg.IsAny<IEnumerable<ISettingDataStore>>(),
                         Arg.IsAny<SoftString>(),
                         Arg.IsAny<Type>(),
-                        Arg.IsAny<SettingName>()
+                        Arg.IsAny<SettingName>(),
+                        out result
                     )
                 )
                 .Returns((dataStore, setting));
