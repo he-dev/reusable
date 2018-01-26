@@ -66,21 +66,7 @@ namespace Reusable.SmartConfig.SettingConverters.Json.Tests
             }
         }
 
-        [TestMethod]
-        public void Deserialize_ValueHasTargetType_DeserializeCoreNotCalled()
-        {
-            var settingConverter = Mock.Create<SettingConverter>();
-
-            Mock
-                .NonPublic
-                .Arrange<object>(settingConverter, "DeserializeCore", ArgExpr.IsAny<object>(), ArgExpr.IsAny<Type>())
-                .OccursNever();
-
-            var result = settingConverter.Deserialize("foo", typeof(string));
-
-            settingConverter.Assert();
-            Assert.AreEqual("foo", result);
-        }
+        
 
         public enum TestEnum
         {
