@@ -53,7 +53,7 @@ namespace Reusable.SmartConfig
                 return setting is null ? null : new Setting
                 {
                     Name = setting.Name,
-                    Value = _converter.Deserialize(setting, settingType)
+                    Value = _converter.Deserialize(setting.Value, settingType)
                 };
             }
             catch (Exception innerException)
@@ -72,7 +72,7 @@ namespace Reusable.SmartConfig
                 WriteCore(new Setting
                 {
                     Name = setting.Name,
-                    Value = setting.Value.IsNull() ? null : _converter.Serialize(setting.Value)
+                    Value = setting.Value is null ? null : _converter.Serialize(setting.Value)
                 });
             }
             catch (Exception innerException)
