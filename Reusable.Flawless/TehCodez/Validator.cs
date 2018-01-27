@@ -2,51 +2,50 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Custom;
 using JetBrains.Annotations;
 
 namespace Reusable.Flawless
 {
-    [PublicAPI]
-    public class Validator<T> : IEnumerable<ValidationRule<T>>
+    public interface IValidator<T> : IEnumerable<IValidationRule<T>>
     {
-        private readonly List<ValidationRule<T>> _rules;
+        [NotNull]
+        IEnumerable<IValidationResult<T>> Validate([CanBeNull] T obj);
+    }
 
-        public Validator([NotNull] IEnumerable<ValidationRule<T>> rules)
+    [PublicAPI]
+    public class Validator<T> : IValidator<T>
+    {
+        private readonly List<IValidationRule<T>> _rules;
+
+        internal Validator([NotNull] IEnumerable<IValidationRule<T>> rules)
         {
             if (rules == null) throw new ArgumentNullException(nameof(rules));
 
             _rules = rules.ToList();
         }
 
-        public static Validator<T> Empty => new Validator<T>(Enumerable.Empty<ValidationRule<T>>());
+        public static Validator<T> Empty => new Validator<T>(Enumerable.Empty<IValidationRule<T>>());
 
-        public Validator<T> Add([NotNull] ValidationRule<T> rule)
+        public Validator<T> Add([NotNull] IValidationRule<T> rule)
         {
-            if (rule == null) throw new ArgumentNullException(nameof(rule));
-
-            return new Validator<T>(_rules.Concat(new[] { rule }));
+            return new Validator<T>(_rules.Append(rule ?? throw new ArgumentNullException(nameof(rule))));
         }
 
-        public IEnumerable<IValidation<T>> Validate(T obj)
+        public IEnumerable<IValidationResult<T>> Validate(T obj)
         {
             foreach (var rule in _rules)
             {
-                if (rule.IsMet(obj))
+                var result = rule.Evaluate(obj);
+                yield return result;
+                if (!result.Success && rule.Options.HasFlag(ValidationOptions.StopOnFailure))
                 {
-                    yield return PassedValidation<T>.Create(rule);
-                }
-                else
-                {
-                    yield return FailedValidation<T>.Create(rule);
-                    if (rule.Options.HasFlag(ValidationOptions.StopOnFailure))
-                    {
-                        yield break;
-                    }
+                    yield break;
                 }
             }
         }
 
-        public IEnumerator<ValidationRule<T>> GetEnumerator()
+        public IEnumerator<IValidationRule<T>> GetEnumerator()
         {
             return _rules.GetEnumerator();
         }
@@ -56,9 +55,14 @@ namespace Reusable.Flawless
             return GetEnumerator();
         }
 
-        public static Validator<T> operator +(Validator<T> validator, ValidationRule<T> rule)
+        public static Validator<T> operator +(Validator<T> validator, IValidationRule<T> rule)
         {
             return validator.Add(rule);
         }
+    }
+
+    public static class Validator
+    {
+        public static IValidator<T> Create<T>() => Validator<T>.Empty;
     }
 }

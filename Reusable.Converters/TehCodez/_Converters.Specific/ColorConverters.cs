@@ -34,7 +34,7 @@ namespace Reusable.Converters
 
     public class ColorToStringConverter : TypeConverter<Color, String>
     {
-        private static readonly Validator<IConversionContext<Color>> ContextValidator= 
+        private static readonly IValidator<IConversionContext<Color>> ContextValidator= 
             Validator<IConversionContext<Color>>.Empty
                 .IsNotValidWhen(x => x.Format == null);
 

@@ -88,6 +88,7 @@
     <Compile Include="TehCodez\Diagnostics\DebuggerString.cs" />
     <Compile Include="TehCodez\ExitCode.cs" />
     <Compile Include="TehCodez\Extensions\HashSetExtensions.cs" />
+    <Compile Include="TehCodez\Lazy.cs" />
     <Compile Include="TehCodez\ProcessExecutor.cs" />
     <Compile Include="TehCodez\Collections\RelayEqualityComparer.cs" />
     <Compile Include="TehCodez\Collections\RelayEquatable.cs" />

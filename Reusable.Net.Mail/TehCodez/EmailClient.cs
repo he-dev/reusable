@@ -17,7 +17,7 @@ namespace Reusable.Net.Mail
 
     public abstract class EmailClient : IEmailClient
     {
-        private static readonly Validator<IEmail<IEmailSubject, IEmailBody>> EmailValidator =
+        private static readonly IValidator<IEmail<IEmailSubject, IEmailBody>> EmailValidator =
             Validator<IEmail<IEmailSubject, IEmailBody>>.Empty
                 .IsNotValidWhen(e => e.To == null)
                 .IsNotValidWhen(e => e.Subject == null)

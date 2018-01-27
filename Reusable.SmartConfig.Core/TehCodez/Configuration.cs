@@ -6,6 +6,7 @@ using System.Linq.Custom;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
+using Reusable.Flawless;
 using Reusable.SmartConfig.Data;
 
 namespace Reusable.SmartConfig
@@ -15,13 +16,16 @@ namespace Reusable.SmartConfig
         private readonly IEnumerable<ISettingDataStore> _dataStores;
         private readonly ISettingFinder _settingFinder;
         private readonly IDictionary<SoftString, (SoftString ActualName, ISettingDataStore Datastore)> _settingMap = new Dictionary<SoftString, (SoftString ActualName, ISettingDataStore Datastore)>();
+        private static readonly IValidator<IEnumerable<ISettingDataStore>> DataStoresValidator = 
+            Validator
+                .Create<IEnumerable<ISettingDataStore>>()
+                .IsValidWhen(x => x.Any(), _ => "You need to specify at least one data-store.");
 
         public Configuration([NotNull, ItemNotNull] IEnumerable<ISettingDataStore> dataStores, ISettingFinder settingFinder = null)
         {
             if (dataStores == null) throw new ArgumentNullException(nameof(dataStores));
 
-            _dataStores = dataStores.ToList();
-            if (_dataStores.None()) { throw new ArgumentException("You need to specify at least one data-store."); }
+            _dataStores = dataStores.ToList().ValidateWith(DataStoresValidator).ThrowIfNotValid();
 
             _settingFinder = settingFinder ?? new FirstSettingFinder();
         }

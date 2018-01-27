@@ -46,13 +46,21 @@ namespace Reusable.Flawless
             return base.VisitUnary(node);
         }
 
-        public static Expression Prettify([NotNull] Expression target, [NotNull] ParameterExpression from, [NotNull] ParameterExpression to)
-        {
-            if (target == null) throw new ArgumentNullException(nameof(target));
-            if (from == null) throw new ArgumentNullException(nameof(from));
-            if (to == null) throw new ArgumentNullException(nameof(to));
+        //public static Expression Prettify([NotNull] Expression target, [NotNull] ParameterExpression from, [NotNull] ParameterExpression to)
+        //{
+        //    if (target == null) throw new ArgumentNullException(nameof(target));
+        //    if (from == null) throw new ArgumentNullException(nameof(from));
+        //    if (to == null) throw new ArgumentNullException(nameof(to));
 
-            return new ValidationExpressionPrettifier(from, to).Visit(target);
+        //    return new ValidationExpressionPrettifier(from, to).Visit(target);
+        //}
+
+        public static Expression Prettify<T>([NotNull] Expression<Func<T, bool>> expression)
+        {
+            if (expression == null) throw new ArgumentNullException(nameof(expression));
+
+            var parameterReplacement = Expression.Parameter(typeof(T), $"<{typeof(T).Name}>");
+            return new ValidationExpressionPrettifier(expression.Parameters[0], parameterReplacement).Visit(expression.Body);
         }
     }
 }

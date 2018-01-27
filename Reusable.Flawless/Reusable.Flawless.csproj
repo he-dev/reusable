@@ -77,8 +77,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TehCodez\ValidationContext.cs" />
+    <Compile Include="TehCodez\ValidationContextExtensions.cs" />
     <Compile Include="TehCodez\ValidationExpressionPrettifier.cs" />
-    <Compile Include="TehCodez\Validation.cs" />
+    <Compile Include="TehCodez\ValidationResult.cs" />
     <Compile Include="TehCodez\ValidationOptions.cs" />
     <Compile Include="TehCodez\ValidationRule.cs" />
     <Compile Include="TehCodez\ValidatorComposer.cs" />

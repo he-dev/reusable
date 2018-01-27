@@ -1,32 +1,40 @@
 ﻿using System;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
+using Reusable.Extensions;
 
 namespace Reusable.Flawless
 {
-    public class ValidationRule<T>
+    public interface IValidationRule<T>
     {
+        ValidationOptions Options { get; }
+
+        [NotNull]
+        IValidationResult<T> Evaluate([CanBeNull] T obj);
+    }
+
+    internal class ValidationRule<T> : IValidationRule<T>
+    {
+        private readonly Lazy<Func<T, bool>> _predicate;
+        private readonly Func<T, string> _message;
         private readonly Lazy<string> _expressionString;
 
-        private readonly Lazy<Func<T, bool>> _predicate;
-
-        public ValidationRule(Expression<Func<T, bool>> expression, ValidationOptions options)
+        public ValidationRule([NotNull] Expression<Func<T, bool>> expression, [NotNull] Func<T, string> messageFactory, ValidationOptions options)
         {
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
-            _predicate = new Lazy<Func<T, bool>>(() => expression.Compile());
-            _expressionString = new Lazy<string>(() => CreateExpressionString(expression));
+            _predicate = Lazy.Create(expression.Compile);
+            _expressionString = Lazy.Create(ValidationExpressionPrettifier.Prettify(expression).ToString);
+            _message = messageFactory ?? throw new ArgumentNullException(nameof(messageFactory));
             Options = options;
         }
 
         public ValidationOptions Options { get; }
 
-        private static string CreateExpressionString(Expression<Func<T, bool>> expression)
+        public IValidationResult<T> Evaluate(T obj)
         {
-            var typeParameterReplacement = Expression.Parameter(typeof(T), $"<{typeof(T).Name}>");
-            return ValidationExpressionPrettifier.Prettify(expression.Body, expression.Parameters[0], typeParameterReplacement).ToString();
+            return new ValidationResult<T>(_predicate.Value(obj), _expressionString.Value, _message(obj));
         }
-
-        public bool IsMet(T obj) => _predicate.Value(obj);
 
         public override string ToString() => _expressionString.Value;
 

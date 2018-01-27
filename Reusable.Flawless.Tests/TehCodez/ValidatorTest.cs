@@ -10,36 +10,36 @@ namespace Reusable.Flawless.Tests
     public class ValidatorTest
     {
         //[TestMethod]
-        public void TestMethod1()
-        {
-            var age = 5;
-            var lastName = "Doe";
+        //public void TestMethod1()
+        //{
+        //    var age = 5;
+        //    var lastName = "Doe";
 
-            var personValidator = Validator<Person>.Empty
-                .IsNotValidWhen(p => p == null, ValidationOptions.StopOnFailure)
-                .IsValidWhen(p => !string.IsNullOrEmpty(p.FirstName))
-                .IsNotValidWhen(p => p.LastName == null)
-                //.Where(p => p.LastName != null)
-                //.Where(p => !p.LastName.StartsWith("D"))
-                .IsNotValidWhen(p => p.LastName.StartsWith("D"))
-                .IsValidWhen(p => p.LastName != null)
-                .IsValidWhen(p => p.LastName == lastName)
-                .IsValidWhen(p => p.DayOfBirth == DateTime.Today)
-                .IsValidWhen(p => p.Age > age);
+        //    var personValidator = Validator<Person>.Empty
+        //        .IsNotValidWhen(p => p == null, ValidationOptions.StopOnFailure)
+        //        .IsValidWhen(p => !string.IsNullOrEmpty(p.FirstName))
+        //        .IsNotValidWhen(p => p.LastName == null)
+        //        //.Where(p => p.LastName != null)
+        //        //.Where(p => !p.LastName.StartsWith("D"))
+        //        .IsNotValidWhen(p => p.LastName.StartsWith("D"))
+        //        .IsValidWhen(p => p.LastName != null)
+        //        .IsValidWhen(p => p.LastName == lastName)
+        //        .IsValidWhen(p => p.DayOfBirth == DateTime.Today)
+        //        .IsValidWhen(p => p.Age > age);
 
-            var person = new Person
-            {
-                FirstName = "John",
-                LastName = "Doe"
-            };
+        //    var person = new Person
+        //    {
+        //        FirstName = "John",
+        //        LastName = "Doe"
+        //    };
 
-            personValidator.Validate(person);
+        //    personValidator.Validate(person);
 
-            person.ValidateWith(personValidator).AllSuccess();
-            default(Person).ValidateWith(personValidator);
+        //    person.ValidateWith(personValidator).AllSuccess();
+        //    default(Person).ValidateWith(personValidator);
 
-            //person.ThrowIfInvalid(personValidator);
-        }
+        //    //person.ThrowIfInvalid(personValidator);
+        //}
 
         [TestMethod]
         public void Count_SingleRule_One()
@@ -60,7 +60,7 @@ namespace Reusable.Flawless.Tests
         {
             var validator = Validator<Person>.Empty.IsValidWhen(p => p.FirstName != null);
             var person = new Person { FirstName = "John" };
-            Assert.IsTrue(person.ValidateWith(validator).AllSuccess());
+            Assert.IsTrue(person.ValidateWith(validator));
         }
 
         [TestMethod]
@@ -68,7 +68,7 @@ namespace Reusable.Flawless.Tests
         {
             var validator = Validator<Person>.Empty.IsValidWhen(p => p.FirstName != null);
             var person = new Person();
-            Assert.IsFalse(person.ValidateWith(validator).AllSuccess());
+            Assert.IsFalse(person.ValidateWith(validator));
         }
 
         [TestMethod]
@@ -76,7 +76,7 @@ namespace Reusable.Flawless.Tests
         {
             var validator = Validator<Person>.Empty.IsValidWhen(p => p.FirstName != null).IsValidWhen(p => p.LastName != null);
             var person = new Person { FirstName = "John", LastName = "Doe" };
-            Assert.IsTrue(person.ValidateWith(validator).AllSuccess());
+            Assert.IsTrue(person.ValidateWith(validator));
         }
 
         [TestMethod]
@@ -84,7 +84,7 @@ namespace Reusable.Flawless.Tests
         {
             var validator = Validator<Person>.Empty.IsValidWhen(p => p.FirstName != null).IsValidWhen(p => p.LastName != null);
             var person = new Person();
-            Assert.IsFalse(person.ValidateWith(validator).AllSuccess());
+            Assert.IsFalse(person.ValidateWith(validator));
         }
 
         [TestMethod]
@@ -97,9 +97,9 @@ namespace Reusable.Flawless.Tests
                 .IsNotValidWhen(p => p.FirstName == null);
 
             var person = new Person();
-            var validations = person.ValidateWith(validator).ToList();
+            var context = person.ValidateWith(validator);
 
-            Assert.AreEqual("Not((<Person>.FirstName == null))", validations.ElementAt(0).Expression);
+            Assert.AreEqual("Not((<Person>.FirstName == null))", context.Results.ElementAt(0).Expression);
         }
 
         [TestMethod]
