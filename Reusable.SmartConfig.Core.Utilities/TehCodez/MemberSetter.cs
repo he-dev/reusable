@@ -4,7 +4,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
-using Reusable.SmartConfig.Reflection;
+using Reusable.SmartConfig.Utilities.Reflection;
 
 namespace Reusable.SmartConfig.Utilities
 {

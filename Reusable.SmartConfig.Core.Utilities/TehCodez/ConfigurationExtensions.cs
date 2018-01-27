@@ -8,102 +8,104 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.SmartConfig.Data;
-using Reusable.SmartConfig.Reflection;
+using Reusable.SmartConfig.Utilities.Reflection;
 
 namespace Reusable.SmartConfig.Utilities
 {
-    public static class SettingSelector
+    public static class ConfigurationExtensions
     {
-        public static (IConfiguration Configuration, TObject Object) From<TObject>([NotNull] this IConfiguration config)
-        {
-            return (config, default(TObject));
-        }
+        //public static (IConfiguration Configuration, TObject Object) From<TObject>([NotNull] this IConfiguration config)
+        //{
+        //    return (config, default(TObject));
+        //}
+
+        //[CanBeNull]
+        //public static TValue GetValue<TObject, TValue>(this (IConfiguration Configuration, TObject obj) t, [NotNull] Expression<Func<TObject, TValue>> expression)
+        //{
+        //    return t.Configuration.GetValue<TValue>(expression);
+        //}
+
+        #region GetValue overloads
 
         [CanBeNull]
-        public static TValue Select<TObject, TValue>(this (IConfiguration Configuration, TObject obj) t, [NotNull] Expression<Func<TObject, TValue>> expression)
-        {
-            return t.Configuration.Select<TValue>(expression);
-        }
-
-        [CanBeNull]
-        public static T Select<T>([NotNull] this IConfiguration config, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instance = null)
-        {
-            return config.Select<T>((LambdaExpression)expression, instance);
-        }
-
-        [CanBeNull]
-        private static T Select<T>([NotNull] this IConfiguration config, [NotNull] LambdaExpression expression, [CanBeNull] string instance = null)
-        {
-            var name = expression.GetSettingName(instance);
-
-            var settingDatastoreName = expression.GetCustomAttribute<SmartSettingAttribute>()?.DatastoreName;
-            var setting = config.GetValue(name, typeof(T), settingDatastoreName) ?? GetDefaultValue();
-            var validations = expression.GetCustomAttributes<ValidationAttribute>();
-            Validate(validations, name, setting);
-
-            return (T)setting;
-
-            T GetDefaultValue()
-            {
-                var defaultValue = expression.GetCustomAttribute<DefaultValueAttribute>()?.Value;
-                return defaultValue == null ? default(T) : (T)defaultValue;
-            }
-        }
-
-        private static void Validate(IEnumerable<ValidationAttribute> validations, SettingName name, object value)
-        {
-            foreach (var validation in validations)
-            {
-                validation.Validate(value, $"Setting {name.ToString().QuoteWith("'")} is not valid.");
-            }
-        }
-
-        [CanBeNull]
-        public static T Select<T>(this IConfiguration config, [NotNull] SoftString settingName)
-        {
-            return (T)(config.GetValue(settingName, typeof(T), null) ?? default(T));
-        }
-
-        [NotNull]
-        public static Lazy<T> LazySelect<T>([NotNull] this IConfiguration config, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instance = null)
+        private static T GetValue<T>([NotNull] this IConfiguration config, [NotNull] LambdaExpression expression, [CanBeNull] string instance = null)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
-            return new Lazy<T>(() => config.Select(expression, instance));
-        }
-    }
+            var settingName = expression.GetSettingName(instance);
+            var settingDataStoreName = expression.GetCustomAttribute<SmartSettingAttribute>()?.DataStoreName;
+            var settingValue = config.GetValue(settingName, typeof(T), settingDataStoreName) ?? expression.GetCustomAttribute<DefaultValueAttribute>()?.Value;
 
-    public static class SettingUpdater
-    {
-        [NotNull]
-        public static IConfiguration Update<TValue>([NotNull] this IConfiguration config, [NotNull] Expression<Func<TValue>> lambdaExpression, [CanBeNull] string instance = null)
+            expression
+                .GetCustomAttributes<ValidationAttribute>()
+                .Validate(settingName, settingValue);
+
+            return (T)settingValue;
+        }
+
+        [CanBeNull]
+        public static T GetValue<T>([NotNull] this IConfiguration config, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instance = null)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
-            if (lambdaExpression == null) throw new ArgumentNullException(nameof(lambdaExpression));
+            if (expression == null) throw new ArgumentNullException(nameof(expression));
 
-            var name = lambdaExpression.GetSettingName(instance);
-            var value = lambdaExpression.GetValue();
-            config.SetValue(name, value);
+            return config.GetValue<T>((LambdaExpression)expression, instance);
+        }
+
+        [CanBeNull]
+        public static T GetValue<T>(this IConfiguration config, [NotNull] SoftString settingName)
+        {
+            return (T)config.GetValue(settingName, typeof(T), null);
+        }
+
+        [NotNull]
+        public static Lazy<T> GetValueLazy<T>([NotNull] this IConfiguration config, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instance = null)
+        {
+            if (config == null) throw new ArgumentNullException(nameof(config));
+            if (expression == null) throw new ArgumentNullException(nameof(expression));
+
+            return Lazy.Create(() => config.GetValue(expression, instance));
+        }
+
+        #endregion
+
+        #region SetValue overloads
+
+        [NotNull]
+        public static IConfiguration SetValue<TValue>([NotNull] this IConfiguration config, [NotNull] Expression<Func<TValue>> expression, [CanBeNull] string instance = null)
+        {
+            if (config == null) throw new ArgumentNullException(nameof(config));
+            if (expression == null) throw new ArgumentNullException(nameof(expression));
+
+            var settingName = expression.GetSettingName(instance);
+            var settingValue = expression.GetValue();
+
+            expression
+                .GetCustomAttributes<ValidationAttribute>()
+                .Validate(settingName, settingValue);
+
+            config.SetValue(settingName, settingValue, null);
             return config;
         }
-    }
 
-    public static class ConfigurationExtensions
-    {
+        #endregion
+
+        #region AssignValue overloads
+
         [NotNull]
-        public static IConfiguration Assign<TValue>([NotNull] this IConfiguration configuration, [NotNull] Expression<Func<TValue>> expression, [CanBeNull] string instance = null)
+        public static IConfiguration AssignValue<TValue>([NotNull] this IConfiguration configuration, [NotNull] Expression<Func<TValue>> expression, [CanBeNull] string instance = null)
         {
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
-            var value = configuration.Select(expression, instance);
+            var value = configuration.GetValue(expression, instance);
             expression.Set(value);
             return configuration;
         }
 
         [NotNull]
-        public static IConfiguration Assign<T>([NotNull] this IConfiguration configuration, [NotNull] T obj, [CanBeNull] string instance = null)
+        public static IConfiguration AssignValues<T>([NotNull] this IConfiguration configuration, [NotNull] T obj, [CanBeNull] string instance = null)
         {
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
             if (obj == null) throw new ArgumentNullException(nameof(obj));
@@ -114,7 +116,7 @@ namespace Reusable.SmartConfig.Utilities
                 // Create a lambda-expression so that we can reuse the extensions for it we already have.
                 var lambdaExpression = Expression.Lambda(
                     Expression.Property(
-                        Expression.Constant(obj), 
+                        Expression.Constant(obj),
                         property.Name
                     )
                 );
@@ -123,6 +125,16 @@ namespace Reusable.SmartConfig.Utilities
                 lambdaExpression.Set(value);
             }
             return configuration;
+        }
+
+        #endregion
+
+        private static void Validate(this IEnumerable<ValidationAttribute> validations, SettingName settingName, object value)
+        {
+            foreach (var validation in validations)
+            {
+                validation.Validate(value, $"Setting {settingName.ToString().QuoteWith("'")} is not valid.");
+            }
         }
     }
 }

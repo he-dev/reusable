@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using Reusable.Extensions;
 
-namespace Reusable.SmartConfig.Reflection
+namespace Reusable.SmartConfig.Utilities.Reflection
 {
     public class ObjectFinder : ExpressionVisitor
     {

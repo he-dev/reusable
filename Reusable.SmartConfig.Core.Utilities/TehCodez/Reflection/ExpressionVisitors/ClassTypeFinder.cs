@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Reusable.Extensions;
 
-namespace Reusable.SmartConfig.Reflection
+namespace Reusable.SmartConfig.Utilities.Reflection
 {
     // Finds the type of the class a setting belongs to
     public class ClassTypeFinder : ExpressionVisitor
@@ -36,6 +36,9 @@ namespace Reusable.SmartConfig.Reflection
             {
                 case FieldInfo field when field.IsStatic:
                 case PropertyInfo property when property.GetGetMethod(_nonPublic).IsStatic:
+                    _classType = node.Member.DeclaringType;
+                    break;
+                case PropertyInfo property:
                     _classType = node.Member.DeclaringType;
                     break;
             }

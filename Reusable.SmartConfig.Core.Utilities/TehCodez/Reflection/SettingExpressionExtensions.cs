@@ -6,9 +6,9 @@ using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.SmartConfig.Data;
 
-namespace Reusable.SmartConfig.Reflection
+namespace Reusable.SmartConfig.Utilities.Reflection
 {
-    public static class SettingExpressionHelper
+    public static class SettingExpressionExtensions
     {
         [NotNull]
         public static SettingName GetSettingName([NotNull] this LambdaExpression lambdaExpression, [CanBeNull] string instance = null)

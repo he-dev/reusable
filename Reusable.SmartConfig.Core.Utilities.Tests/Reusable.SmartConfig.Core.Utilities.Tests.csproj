@@ -24,4 +24,10 @@
     <ProjectReference Include="..\Reusable.SmartConfig.Core\Reusable.SmartConfig.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="Telerik.JustMock">
+      <HintPath>..\..\..\..\Users\Engineer\.nuget\packages\justmock\2018.1.117.2\lib\Net\Telerik.JustMock.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
