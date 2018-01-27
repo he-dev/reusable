@@ -2,18 +2,15 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Transactions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Data;
 using Reusable.Data.Repositories;
 using Reusable.Reflection;
-using Reusable.SmartConfig.Tests;
-using Reusable.SmartConfig.Tests.Common;
+using Telerik.JustMock;
 
-namespace Reusable.SmartConfig.Datastores.Tests
+namespace Reusable.SmartConfig.DataStores.Tests
 {
     [TestClass]
-    public class ConfigurationTestSqlServer : ConfigurationTestBase
+    public class SqlServerTest
     {
         private const string Environment = "Test";
         private const string Version = "1.0";
@@ -36,6 +33,22 @@ namespace Reusable.SmartConfig.Datastores.Tests
                         ["Version"] = "1.0"
                     }
                 }
+            };
+        }
+
+        [TestMethod]
+        public void MyTestMethod()
+        {
+            var converter = Mock.Create<ISettingConverter>();
+            Mock
+                .Arrange(() => converter.Deserialize(Arg.IsAny<object>(), Arg.IsAny<Type>()))
+                .Returns(obj => obj)
+                .Occurs(2);
+
+            var sqlServer = new SqlServer("name=TestDb", converter)
+            {
+                Schema = "reusable",
+                Table = "SmartConfig.DataStores.Tests.SqlServerTest"
             };
         }
 

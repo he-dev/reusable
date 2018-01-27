@@ -4,6 +4,8 @@
     <TargetFramework>net47</TargetFramework>
 
     <IsPackable>false</IsPackable>
+
+    <RootNamespace>Reusable.SmartConfig.DataStores.Tests</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -19,12 +21,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="TehCodez\" />
+    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
+    <ProjectReference Include="..\Reusable.SmartConfig.Core\Reusable.SmartConfig.Core.csproj" />
+    <ProjectReference Include="..\Reusable.SmartConfig.DataStores.SqlServer\Reusable.SmartConfig.DataStores.SqlServer.csproj" />
+    <ProjectReference Include="..\Reusable.Tester\Reusable.Tester.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
-    <ProjectReference Include="..\Reusable.SmartConfig.Core\Reusable.SmartConfig.Core.csproj" />
+    <Reference Include="Telerik.JustMock">
+      <HintPath>..\..\..\..\Users\Engineer\.nuget\packages\justmock\2018.1.117.2\lib\Net\Telerik.JustMock.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
