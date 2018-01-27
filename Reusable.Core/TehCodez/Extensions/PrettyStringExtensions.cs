@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using JetBrains.Annotations;
 
 namespace Reusable.Extensions
 {
@@ -7,14 +8,20 @@ namespace Reusable.Extensions
     {
         private static readonly IPrettyString Prettifier = new PrettyString();
         
-        public static string ToPrettyString(this Type type)
+        [NotNull, ContractAnnotation("type: null => halt")]
+        public static string ToPrettyString([NotNull] this Type type, bool includeNamespace = false)
         {
-            return Prettifier.Render(type);
+            if (type == null) throw new ArgumentNullException(nameof(type));
+
+            return Prettifier.Render(type, includeNamespace);
         }
         
-        public static string ToPrettyString(this MethodInfo methodInfo)
+        [NotNull, ContractAnnotation("methodInfo: null => halt")]
+        public static string ToPrettyString([NotNull] this MethodInfo methodInfo, bool includeNamespace = false)
         {
-            return Prettifier.Render(methodInfo);
+            if (methodInfo == null) throw new ArgumentNullException(nameof(methodInfo));
+
+            return Prettifier.Render(methodInfo, includeNamespace);
         }
     }
 }

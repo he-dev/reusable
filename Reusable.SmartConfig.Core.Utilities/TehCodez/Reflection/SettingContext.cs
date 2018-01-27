@@ -34,7 +34,7 @@ namespace Reusable.SmartConfig.Utilities.Reflection
 
             _expression = expression;
 
-            (OwnerType, Object) = ClassFinder.FindClass(expression, nonPublic);
+            (ClassType, ClassInstance) = ClassFinder.FindClass(expression, nonPublic);
 
             var memberExpression = (MemberExpression)_expression.Body;
 
@@ -42,17 +42,17 @@ namespace Reusable.SmartConfig.Utilities.Reflection
 
             SettingName = new SettingName(CustomSettingName ?? memberExpression.Member.Name)
             {
-                Namespace = OwnerType.Namespace,
-                Type = OwnerType.Name,
+                Namespace = ClassType.Namespace,
+                Type = ClassType.ToPrettyString(),
                 Instance = instance
             };
         }
 
         [NotNull]
-        public Type OwnerType { get; }
+        public Type ClassType { get; }
 
         [CanBeNull]
-        public object Object { get; }
+        public object ClassInstance { get; }
 
         [NotNull]
         public SettingName SettingName { get; }
@@ -79,12 +79,12 @@ namespace Reusable.SmartConfig.Utilities.Reflection
 
             if (member is PropertyInfo property)
             {
-                return property.GetValue(Object);
+                return property.GetValue(ClassInstance);
             }
 
             if (member is FieldInfo field)
             {
-                return field.GetValue(Object);
+                return field.GetValue(ClassInstance);
             }
 
             throw new ArgumentException($"Member must be either a {nameof(MemberTypes.Property)} or a {nameof(MemberTypes.Field)}.");
@@ -98,19 +98,19 @@ namespace Reusable.SmartConfig.Utilities.Reflection
             {
                 if (property.CanWrite)
                 {
-                    property.SetValue(Object, value);
+                    property.SetValue(ClassInstance, value);
                 }
                 // This is a readonly property. We try to write directly to the backing-field.
                 else
                 {
-                    var bindingFlags = BindingFlags.NonPublic | (Object == null ? BindingFlags.Static : BindingFlags.Instance);
-                    var backingField = OwnerType.GetField($"<{property.Name}>k__BackingField", bindingFlags);
+                    var bindingFlags = BindingFlags.NonPublic | (ClassInstance == null ? BindingFlags.Static : BindingFlags.Instance);
+                    var backingField = ClassType.GetField($"<{property.Name}>k__BackingField", bindingFlags);
                     if (backingField is null)
                     {
                         throw ("BackingFieldNotFoundException", $"Property {property.Name.QuoteWith("'")} does not have a default backing field.").ToDynamicException();
                     }
 
-                    backingField.SetValue(Object, value);
+                    backingField.SetValue(ClassInstance, value);
                 }
                 return;
             }
@@ -118,7 +118,7 @@ namespace Reusable.SmartConfig.Utilities.Reflection
             if (member is FieldInfo field)
             {
 
-                field.SetValue(Object, value);
+                field.SetValue(ClassInstance, value);
                 return;
             }
 

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 
 namespace Reusable
@@ -13,10 +14,10 @@ namespace Reusable
     public interface IPrettyString
     {
         [NotNull, ContractAnnotation("type: null => halt")]
-        string Render([NotNull] Type type);
+        string Render([NotNull] Type type, bool includeNamespace = false);
         
         [NotNull, ContractAnnotation("methodInfo: null => halt")]
-        string Render([NotNull] MethodInfo methodInfo);
+        string Render([NotNull] MethodInfo methodInfo, bool includeNamespace = false);
     }
     
     public class PrettyString : IPrettyString
@@ -42,7 +43,7 @@ namespace Reusable
         //    }
         //}
 
-        public string Render(Type type)
+        public string Render(Type type, bool includeNamespace)
         {
             if (type == null) throw new ArgumentNullException(nameof(type));
             
@@ -51,15 +52,16 @@ namespace Reusable
             {
                 var typeReferenceExpression = new CodeTypeReferenceExpression(type);
                 codeDomProvider.GenerateCodeFromExpression(typeReferenceExpression, stringWriter, new CodeGeneratorOptions());
-                return stringWriter.GetStringBuilder().ToString();
+                var typeName = stringWriter.GetStringBuilder().ToString();
+                return includeNamespace ? typeName : RemoveNamespace(typeName);
             }
         }
 
-        public string Render(MethodInfo method)
+        public string Render(MethodInfo method, bool includeNamespace)
         {
             if (method == null) { throw new ArgumentNullException(nameof(method)); }
 
-            var parameters = method.GetParameters().Select(p => $"{Render(p.ParameterType)} {p.Name}");
+            var parameters = method.GetParameters().Select(p => $"{Render(p.ParameterType, includeNamespace)} {p.Name}");
 
             // public/internal/protected/private [static] [abstract/virtual/override] retVal
 
@@ -87,14 +89,19 @@ namespace Reusable
                 .Append(method.IsStatic ? " static" : string.Empty)
                 .Append(string.IsNullOrEmpty(inheritanceModifier) ? string.Empty : $" {inheritanceModifier}")
                 .Append(method.GetCustomAttribute<AsyncStateMachineAttribute>() == null ? string.Empty : " async")
-                .Append(" ").Append(Render(method.ReturnType))
+                .Append(" ").Append(Render(method.ReturnType, includeNamespace))
                 .Append(" ").Append(method.Name)
                 .Append("(").Append(string.Join(", ", parameters)).Append(") { ... }")
                 .Append(" } ")
                 .ToString();
 
-            return signature;
-        }       
+            return includeNamespace ? signature : RemoveNamespace(signature);
+        }
+
+        private static string RemoveNamespace(string typeName)
+        {
+            return Regex.Replace(typeName, @"[a-z0-9_]+\.", string.Empty, RegexOptions.IgnoreCase);
+        }
     }    
 
     //public enum ExceptionOrder

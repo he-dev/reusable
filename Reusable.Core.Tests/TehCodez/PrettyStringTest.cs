@@ -9,11 +9,19 @@ namespace Reusable.Tests
     public class PrettyStringTest
     {
         [TestMethod]
-        public void Render_Type_Full()
+        public void Render_Type_TypeNameWithNamespace()
         {
             var type = typeof(List<IEnumerable<string>>);
-            var prettyString = type.ToPrettyString();
+            var prettyString = type.ToPrettyString(includeNamespace: true);
             Assert.AreEqual("System.Collections.Generic.List<System.Collections.Generic.IEnumerable<string>>", prettyString);
+        }
+
+        [TestMethod]
+        public void Render_Type_TypeNameWithoutNamespace()
+        {
+            var type = typeof(List<IEnumerable<string>>);
+            var prettyString = type.ToPrettyString(includeNamespace: false);
+            Assert.AreEqual("List<IEnumerable<string>>", prettyString);
         }
     }
 }
