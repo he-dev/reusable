@@ -7,13 +7,13 @@ namespace Reusable.SmartConfig
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
     public class SmartSettingAttribute : Attribute
     {
-        // Name = "[member]" => the same as property/field
         [CanBeNull]
         public string Name { get; set; }
 
         [CanBeNull]
         public string DataStoreName { get; set; }
 
-        public bool Cached { get; set; } = true;
+        // todo for future use
+        //public bool Cached { get; set; } = true;
     }
 }

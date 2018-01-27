@@ -49,6 +49,7 @@ namespace Reusable.SmartConfig.Utilities.Reflection
                 case PropertyInfo property when property.GetGetMethod(_nonPublic).IsStatic:
                     _type = node.Member.DeclaringType;
                     break;
+                // ReSharper disable once UnusedVariable
                 case PropertyInfo property:
                     _type = node.Member.DeclaringType;
                     break;

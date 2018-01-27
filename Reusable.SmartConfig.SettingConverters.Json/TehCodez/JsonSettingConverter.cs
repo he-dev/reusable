@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Reusable.Converters;
+using Reusable.Extensions;
 using Reusable.ThirdParty.JsonNetUtilities;
 
 namespace Reusable.SmartConfig.SettingConverters
@@ -76,7 +77,7 @@ namespace Reusable.SmartConfig.SettingConverters
 
         protected override object DeserializeCore(object value, Type targetType)
         {
-            if (!(value is string)) throw new ArgumentException($"Unsupported type '{targetType.Name}'. Only {typeof(string).Name} is allowed.");
+            if (!(value is string)) throw new ArgumentException($"Unsupported type '{targetType.ToPrettyString()}'. Only {typeof(string).ToPrettyString()} is allowed.");
 
             AddJsonToObjectConverter(targetType);
             return _converter.Convert(value, targetType);

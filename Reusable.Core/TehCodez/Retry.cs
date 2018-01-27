@@ -97,72 +97,72 @@ namespace Reusable
     }
 
     // todo: not tested yet
-    internal class RetryBreaker : IRetryBreaker
-    {
-        private readonly IObserver<Exception> _observer;
+    //internal class RetryBreaker : IRetryBreaker
+    //{
+    //    private readonly IObserver<Exception> _observer;
 
-        private CircutBrakerState _state = CircutBrakerState.Closed;
+    //    private CircutBrakerState _state = CircutBrakerState.Closed;
 
-        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+    //    private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
-        private RetryBreaker(int maxFailureCount, TimeSpan maxFailureInterval, Func<Exception, bool> filter = null)
-        {
-            //var openFuse = Observer.Create<Exception>(exception =>
-            //{
-            //    switch (_state)
-            //    {
-            //        case CircutBrakerState.Closed:
-            //            _state = CircutBrakerState.Open;
-            //            _cancellationTokenSource.Cancel();
-            //            //Debug.WriteLine($"Circut broken! [{Thread.CurrentThread.ManagedThreadId}]");
-            //            break;
+    //    private RetryBreaker(int maxFailureCount, TimeSpan maxFailureInterval, Func<Exception, bool> filter = null)
+    //    {
+    //        //var openFuse = Observer.Create<Exception>(exception =>
+    //        //{
+    //        //    switch (_state)
+    //        //    {
+    //        //        case CircutBrakerState.Closed:
+    //        //            _state = CircutBrakerState.Open;
+    //        //            _cancellationTokenSource.Cancel();
+    //        //            //Debug.WriteLine($"Circut broken! [{Thread.CurrentThread.ManagedThreadId}]");
+    //        //            break;
 
-            //        case CircutBrakerState.HalfOpen:
-            //            // I currently don't have any use case for this.
-            //            break;
+    //        //        case CircutBrakerState.HalfOpen:
+    //        //            // I currently don't have any use case for this.
+    //        //            break;
 
-            //        case CircutBrakerState.Open:
-            //            // There is nothing to do when Open.
-            //            break;
-            //    }
-            //});
+    //        //        case CircutBrakerState.Open:
+    //        //            // There is nothing to do when Open.
+    //        //            break;
+    //        //    }
+    //        //});
 
-            //_observer = new Subject<Exception>();
-            //((IObservable<Exception>)_observer)
-            //    .Where(ex => filter == null || filter(ex))
-            //    .Fuse(maxFailureCount, maxFailureInterval)
-            //    .Subscribe(openFuse);
-        }
+    //        //_observer = new Subject<Exception>();
+    //        //((IObservable<Exception>)_observer)
+    //        //    .Where(ex => filter == null || filter(ex))
+    //        //    .Fuse(maxFailureCount, maxFailureInterval)
+    //        //    .Subscribe(openFuse);
+    //    }
 
-        public CircutBrakerState State => _state;
+    //    public CircutBrakerState State => _state;
 
-        public CancellationToken Token => _cancellationTokenSource.Token;
+    //    public CancellationToken Token => _cancellationTokenSource.Token;
 
-        public void OnNext(Exception exception) => _observer.OnNext(exception);
+    //    public void OnNext(Exception exception) => _observer.OnNext(exception);
 
-        public void OnCompleted() => _observer.OnCompleted();
+    //    public void OnCompleted() => _observer.OnCompleted();
 
-        public void OnError(Exception exception) => _observer.OnError(exception);
+    //    public void OnError(Exception exception) => _observer.OnError(exception);
 
-        public void Reset()
-        {
-            _state = CircutBrakerState.Closed;
-            _cancellationTokenSource.Dispose();
-            _cancellationTokenSource = new CancellationTokenSource();
-        }
+    //    public void Reset()
+    //    {
+    //        _state = CircutBrakerState.Closed;
+    //        _cancellationTokenSource.Dispose();
+    //        _cancellationTokenSource = new CancellationTokenSource();
+    //    }
 
-        public void Dispose() => _cancellationTokenSource.Dispose();
+    //    public void Dispose() => _cancellationTokenSource.Dispose();
 
-        public static RetryBreaker Create(int maxFailureCount, TimeSpan maxFailureInterval, Func<Exception, bool> filter = null)
-        {
-            return new RetryBreaker(maxFailureCount, maxFailureInterval, filter);
-        }
-    }
+    //    public static RetryBreaker Create(int maxFailureCount, TimeSpan maxFailureInterval, Func<Exception, bool> filter = null)
+    //    {
+    //        return new RetryBreaker(maxFailureCount, maxFailureInterval, filter);
+    //    }
+    //}
 
-    public enum CircutBrakerState
-    {
-        Closed,
-        HalfOpen,
-        Open,
-    }
+    //public enum CircutBrakerState
+    //{
+    //    Closed,
+    //    HalfOpen,
+    //    Open,
+    //}
 }

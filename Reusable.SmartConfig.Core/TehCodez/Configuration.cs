@@ -19,14 +19,13 @@ namespace Reusable.SmartConfig
         private static readonly IValidator<IEnumerable<ISettingDataStore>> DataStoresValidator = 
             Validator
                 .Create<IEnumerable<ISettingDataStore>>()
+                .IsNotValidWhen(dataStores => dataStores == null, ValidationOptions.StopOnFailure)
                 .IsValidWhen(x => x.Any(), _ => "You need to specify at least one data-store.");
 
         public Configuration([NotNull, ItemNotNull] IEnumerable<ISettingDataStore> dataStores, ISettingFinder settingFinder = null)
         {
-            if (dataStores == null) throw new ArgumentNullException(nameof(dataStores));
-
-            _dataStores = dataStores.ToList().ValidateWith(DataStoresValidator).ThrowIfNotValid();
-
+            // ReSharper disable once ConstantConditionalAccessQualifier - yes, this can be null
+            _dataStores = (dataStores?.ToList()).ValidateWith(DataStoresValidator).ThrowIfNotValid();
             _settingFinder = settingFinder ?? new FirstSettingFinder();
         }
 
@@ -72,7 +71,7 @@ namespace Reusable.SmartConfig
                     {
                         throw DynamicException.Factory.CreateDynamicException(
                             $"SettingDataStoreNotFound{nameof(Exception)}",
-                            $"Could not find setting data store {dataStoreName.ToString().QuoteWith("'")}",
+                            $"Could not find setting data store {dataStoreName?.ToString().QuoteWith("'")}",
                             null
                         );
                     }

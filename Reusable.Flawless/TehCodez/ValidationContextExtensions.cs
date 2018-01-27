@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
+using Reusable.Extensions;
 
 namespace Reusable.Flawless
 {
@@ -23,8 +24,8 @@ namespace Reusable.Flawless
 
             throw DynamicException.Factory.CreateDynamicException
             (
-                name: $"{typeof(T).Name}Validation{nameof(Exception)}",
-                message: $"Object of type '{typeof(T).Name}' does not meet one or more requirements.{Environment.NewLine}{Environment.NewLine}{requriements}",
+                name: $"{typeof(T).ToPrettyString()}Validation{nameof(Exception)}",
+                message: $"Object of type '{typeof(T).ToPrettyString()}' does not meet one or more requirements.{Environment.NewLine}{Environment.NewLine}{requriements}",
                 innerException: null
             );
         }

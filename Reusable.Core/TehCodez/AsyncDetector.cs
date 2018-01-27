@@ -62,7 +62,7 @@ namespace Reusable
             return new AsyncScope(_stopwatch, scope => _runtimes.Add(scope));
         }
 
-        // LINQPad
+        // ReSharper disable once UnusedMember.Local - this is for LINQPad
         private object ToDump() => new { MaxAsyncDegree, AsyncGroupCount };
 
     }

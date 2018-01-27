@@ -18,10 +18,10 @@ namespace Reusable.SmartConfig.DataStores
             var exeConfig = OpenExeConfiguration();
 
             var result =
-                (from n in names
-                 let v = exeConfig.AppSettings.Settings[n.ToString()]?.Value
-                 where !string.IsNullOrEmpty(v)
-                 select (Name: n, Value: v)).FirstOrDefault();
+                (from name in names
+                 let value = exeConfig.AppSettings.Settings[name.ToString()]?.Value
+                 where !string.IsNullOrEmpty(value)
+                 select (Name: name, Value: value)).FirstOrDefault();
 
             return result.Value.IsNullOrEmpty() ? null : new Setting(result.Name)
             {
@@ -35,7 +35,7 @@ namespace Reusable.SmartConfig.DataStores
 
             if (exeConfig.AppSettings.Settings.AllKeys.Any(k => setting.Name.Equals(k)))
             {
-                exeConfig.AppSettings.Settings[setting.ToString()].Value = setting.Value.ToString();
+                exeConfig.AppSettings.Settings[setting.ToString()].Value = setting.Value?.ToString();
             }
             else
             {
@@ -45,6 +45,9 @@ namespace Reusable.SmartConfig.DataStores
             exeConfig.Save(ConfigurationSaveMode.Minimal);
         }
 
-        private static System.Configuration.Configuration OpenExeConfiguration() => ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+        private static System.Configuration.Configuration OpenExeConfiguration()
+        {
+            return ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+        }
     }
 }

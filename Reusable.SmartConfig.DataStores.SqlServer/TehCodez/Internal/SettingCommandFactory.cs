@@ -5,9 +5,8 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using Reusable.SmartConfig.Data;
-using Reusable.SmartConfig.DataStores;
 
-namespace Reusable.SmartConfig.Internal
+namespace Reusable.SmartConfig.DataStores.Internal
 {
     internal static class SettingCommandFactory
     {

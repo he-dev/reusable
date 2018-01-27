@@ -7,44 +7,46 @@ using Reusable.SmartConfig.Data;
 
 namespace Reusable.SmartConfig.DataStores
 {
-    public class InMemory : SettingDataStore, IEnumerable<ISetting>
+    public class InMemory : SettingDataStore, IEnumerable<KeyValuePair<SoftString, object>>
     {
-        public InMemory(ISettingConverter converter) : base(converter) { }        
+        private readonly IDictionary<SoftString, object> _settings = new Dictionary<SoftString, object>();
+
+        public InMemory(ISettingConverter converter) : base(converter) { }
 
         protected override ISetting ReadCore(IEnumerable<SoftString> names)
         {
-            var setting =
-                (from name in names
-                 from x in Data
-                 where x.Name.Equals(name)
-                 select x).FirstOrDefault();
-            return setting;
+            foreach (var name in names)
+            {
+                if (_settings.TryGetValue(name, out var value))
+                {
+                    return new Setting(name) { Value = value };
+                }
+            }
+
+            return default;
         }
 
         protected override void WriteCore(ISetting setting)
         {
-            var current = Data.Single(x => x.Name.Equals(setting.Name));
-            current.Value = setting.Value;            
+            _settings[setting.Name] = setting.Value;
         }
-
-        public List<ISetting> Data { [DebuggerStepThrough] get; [DebuggerStepThrough] set; } = new List<ISetting>();
 
         #region IEnumerable
 
-        public void Add(ISetting setting) => Data.Add(setting);
+        public void Add(ISetting setting) => Write(setting);
 
-        public void Add(string name, object value) => Data.Add(new Setting(name)
-        {
-            Value = value
-        });
+        public void Add(string name, object value) => Write(new Setting(name) { Value = value });
 
         public InMemory AddRange(IEnumerable<ISetting> settings)
         {
-            foreach (var setting in settings) Add(setting);
+            foreach (var setting in settings)
+            {
+                Add(setting);
+            }
             return this;
         }
 
-        public IEnumerator<ISetting> GetEnumerator() => Data.GetEnumerator();
+        public IEnumerator<KeyValuePair<SoftString, object>> GetEnumerator() => _settings.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 

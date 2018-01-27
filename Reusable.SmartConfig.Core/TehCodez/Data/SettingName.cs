@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
@@ -82,6 +83,7 @@ namespace Reusable.SmartConfig.Data
             throw ("SettingNameFormatException", $"Could not parse setting {value.QuoteWith("'")}. Expected format: {Format}").ToDynamicException();
         }
 
+        [SuppressMessage("ReSharper", "RedundantToStringCall")] // it's not redundant, SoftString does not implicitly convert to string.
         public override string ToString()
         {
             return new StringBuilder()

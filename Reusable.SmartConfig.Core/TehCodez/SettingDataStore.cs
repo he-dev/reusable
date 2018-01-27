@@ -23,7 +23,7 @@ namespace Reusable.SmartConfig
         private SettingDataStore()
         {
             Name = CreateDefaultName(GetType());
-            SettingNameGenerator = SmartConfig.SettingNameByUsageGenerator.Default;
+            SettingNameGenerator = SettingNameByUsageGenerator.Default;
         }
 
         protected SettingDataStore(ISettingConverter converter) : this()
@@ -52,7 +52,7 @@ namespace Reusable.SmartConfig
 
                 return setting is null ? null : new Setting(setting.Name)
                 {
-                    Value = settingType is null ? setting.Value : _converter.Deserialize(setting.Value, settingType)
+                    Value = settingType is null ? setting.Value : (setting.Value is null ? null : _converter.Deserialize(setting.Value, settingType))
                 };
             }
             catch (Exception innerException)

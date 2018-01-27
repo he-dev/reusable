@@ -44,4 +44,17 @@ namespace Reusable.SmartConfig
         [NotNull]
         protected abstract object SerializeCore([NotNull]object value, [NotNull] Type targetType);
     }
+
+    public class RelaySettingConverter : ISettingConverter
+    {
+        public object Deserialize(object value, Type targetType)
+        {
+            return value;
+        }
+
+        public object Serialize(object value)
+        {
+            return value;
+        }
+    }
 }

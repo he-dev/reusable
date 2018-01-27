@@ -100,6 +100,7 @@ namespace Reusable
 
         private static string RemoveNamespace(string typeName)
         {
+            // https://regex101.com/r/WuNXIf/1
             return Regex.Replace(typeName, @"[a-z0-9_]+\.", string.Empty, RegexOptions.IgnoreCase);
         }
     }    

@@ -17,7 +17,7 @@ namespace Reusable.SmartConfig.Utilities.Reflection
     [PublicAPI]
     public class SettingContext
     {
-        private static readonly IValidator<LambdaExpression> LambdaExpressionValidator =
+        private static readonly IValidator<LambdaExpression> SettingExpressionValidator =
             Validator
                 .Create<LambdaExpression>()
                 .IsNotValidWhen(expression => expression == null, ValidationOptions.StopOnFailure)
@@ -29,7 +29,7 @@ namespace Reusable.SmartConfig.Utilities.Reflection
         public SettingContext([NotNull] LambdaExpression expression, [CanBeNull] string instance, bool nonPublic = false)
         {
             expression
-                .ValidateWith(LambdaExpressionValidator)
+                .ValidateWith(SettingExpressionValidator)
                 .ThrowIfNotValid();
 
             _expression = expression;

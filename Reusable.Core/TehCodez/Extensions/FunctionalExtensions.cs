@@ -9,7 +9,7 @@ namespace Reusable.Extensions
 {
     public static class FunctionalExtensions
     {
-        [CanBeNull]
+        [CanBeNull, ContractAnnotation("obj: null => null; obj: notnull => notnull")]
         public static T Next<T>([CanBeNull] this T obj, [NotNull] Action<T> next)
         {
             if (next == null) { throw new ArgumentNullException(nameof(next)); }
