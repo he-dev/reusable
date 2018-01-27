@@ -24,10 +24,12 @@
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
     <ProjectReference Include="..\Reusable.SmartConfig.Core\Reusable.SmartConfig.Core.csproj" />
     <ProjectReference Include="..\Reusable.SmartConfig.DataStores.SqlServer\Reusable.SmartConfig.DataStores.SqlServer.csproj" />
+    <ProjectReference Include="..\Reusable.SqlSchemaReader\Reusable.Utilities.SqlClient.csproj" />
     <ProjectReference Include="..\Reusable.Tester\Reusable.Tester.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="System.Configuration" />
     <Reference Include="Telerik.JustMock">
       <HintPath>..\..\..\..\Users\Engineer\.nuget\packages\justmock\2018.1.117.2\lib\Net\Telerik.JustMock.dll</HintPath>
     </Reference>

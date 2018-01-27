@@ -10,7 +10,7 @@ namespace Reusable.SmartConfig.DataStores.Internal
 {
     internal static class SettingCommandFactory
     {
-        public static SqlCommand CreateSelectCommand(this SqlConnection connection, SqlServer datastore, IEnumerable<SoftString> names)
+        public static SqlCommand CreateSelectCommand(this SqlConnection connection, SqlServer sqlServer, IEnumerable<SoftString> names)
         {
             var sql = new StringBuilder();
 
@@ -19,12 +19,12 @@ namespace Reusable.SmartConfig.DataStores.Internal
             {
                 string Sanitize(string identifier) => commandBuilder.QuoteIdentifier(identifier);
 
-                var table = $"{Sanitize(datastore.Schema)}.{Sanitize(datastore.Table)}";
+                var table = $"{Sanitize(sqlServer.Schema)}.{Sanitize(sqlServer.Table)}";
 
                 sql.Append($"SELECT *").AppendLine();
                 sql.Append($"FROM {table}").AppendLine();
-                sql.Append(datastore.Where.Aggregate(
-                    $"WHERE [{nameof(ISetting.Name)}] IN ({names.CreateParameterNames(nameof(ISetting.Name))})",
+                sql.Append(sqlServer.Where.Aggregate(
+                    $"WHERE [{sqlServer.ColumnMapping.Name}] IN ({names.CreateParameterNames(sqlServer.ColumnMapping.Name)})",
                     (current, next) => $"{current} AND {Sanitize(next.Key)} = @{next.Key}")
                 );
             }
@@ -35,8 +35,8 @@ namespace Reusable.SmartConfig.DataStores.Internal
             // --- add parameters & values
 
             command
-                .AddParameters(names, nameof(ISetting.Name))
-                .AddParameters(datastore.Where);            
+                .AddParameters(names, sqlServer.ColumnMapping.Name)
+                .AddParameters(sqlServer.Where);            
 
             return command;
         }
@@ -80,7 +80,7 @@ namespace Reusable.SmartConfig.DataStores.Internal
         ////    return command;
         ////}
 
-        public static SqlCommand CreateUpdateCommand(this SqlConnection connection, SqlServer datastore, ISetting setting)
+        public static SqlCommand CreateUpdateCommand(this SqlConnection connection, SqlServer sqlServer, ISetting setting)
         {
             /*
              
@@ -100,27 +100,27 @@ namespace Reusable.SmartConfig.DataStores.Internal
             {
                 string Sanitize(string identifier) => commandBuilder.QuoteIdentifier(identifier);
 
-                var table = $"{Sanitize(datastore.Schema)}.{Sanitize(datastore.Table)}";
+                var table = $"{Sanitize(sqlServer.Schema)}.{Sanitize(sqlServer.Table)}";
 
                 sql.Append($"UPDATE {table}").AppendLine();
-                sql.Append($"SET [{nameof(ISetting.Value)}] = @{nameof(ISetting.Value)}").AppendLine();
+                sql.Append($"SET [{sqlServer.ColumnMapping.Value}] = @{sqlServer.ColumnMapping.Value}").AppendLine();
 
-                sql.Append(datastore.Where.Aggregate(
-                    $"WHERE [{nameof(ISetting.Name)}] = @{nameof(ISetting.Name)}",
+                sql.Append(sqlServer.Where.Aggregate(
+                    $"WHERE [{sqlServer.ColumnMapping.Name}] = @{sqlServer.ColumnMapping.Name}",
                     (result, next) => $"{result} AND {Sanitize(next.Key)} = @{next.Key} ")
                 ).AppendLine();
 
                 sql.Append($"IF @@ROWCOUNT = 0").AppendLine();
 
-                var columns = datastore.Where.Keys.Select(Sanitize).Aggregate(
-                    $"[{nameof(ISetting.Name)}], [{nameof(ISetting.Value)}]", 
+                var columns = sqlServer.Where.Keys.Select(Sanitize).Aggregate(
+                    $"[{sqlServer.ColumnMapping.Name}], [{sqlServer.ColumnMapping.Value}]", 
                     (result, next) => $"{result}, {next}"
                 );
 
                 sql.Append($"INSERT INTO {table}({columns})").AppendLine();
 
-                var parameterNames = datastore.Where.Keys.Aggregate(
-                    $"@{nameof(ISetting.Name)}, @{nameof(ISetting.Value)}",
+                var parameterNames = sqlServer.Where.Keys.Aggregate(
+                    $"@{sqlServer.ColumnMapping.Name}, @{sqlServer.ColumnMapping.Value}",
                     (result, next) => $"{result}, @{next}"
                 );
 
@@ -133,10 +133,10 @@ namespace Reusable.SmartConfig.DataStores.Internal
 
             // --- add parameters
 
-            command.Parameters.AddWithValue(nameof(ISetting.Name), setting.Name.ToString());
-            command.Parameters.AddWithValue(nameof(ISetting.Value), setting.Value);
+            command.Parameters.AddWithValue(sqlServer.ColumnMapping.Name, setting.Name.ToString());
+            command.Parameters.AddWithValue(sqlServer.ColumnMapping.Value, setting.Value);
 
-            command.AddParameters(datastore.Where);            
+            command.AddParameters(sqlServer.Where);            
 
             return command;
         }

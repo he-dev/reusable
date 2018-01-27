@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using JetBrains.Annotations;
 using Reusable.Data.Repositories;
 using Reusable.Extensions;
 using Reusable.SmartConfig.Data;
@@ -26,6 +27,8 @@ namespace Reusable.SmartConfig.DataStores
 
         private IReadOnlyDictionary<string, object> _where = new Dictionary<string, object>();
 
+        private SqlServerColumnMapping _columnMapping;
+
         public SqlServer(string nameOrConnectionString, ISettingConverter converter) : base(converter)
         {
             _connectionString =
@@ -33,6 +36,15 @@ namespace Reusable.SmartConfig.DataStores
                 throw new ArgumentNullException(
                     paramName: nameof(nameOrConnectionString),
                     message: $"Connection string '{nameOrConnectionString}' not found.");
+
+            ColumnMapping = new SqlServerColumnMapping();
+        }
+
+        [NotNull]
+        public SqlServerColumnMapping ColumnMapping
+        {
+            get => _columnMapping;
+            set => _columnMapping = value ?? throw new ArgumentNullException(nameof(ColumnMapping));
         }
 
         public string Schema
@@ -67,9 +79,9 @@ namespace Reusable.SmartConfig.DataStores
 
                     while (settingReader.Read())
                     {
-                        var result = new Setting((string)settingReader[nameof(ISetting.Name)])
+                        var result = new Setting((string)settingReader[ColumnMapping.Name])
                         {
-                            Value = settingReader[nameof(ISetting.Value)],
+                            Value = settingReader[ColumnMapping.Value],
                         };
                         settings.Add(result);
                     }
