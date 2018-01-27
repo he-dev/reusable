@@ -14,6 +14,7 @@ using Validator = Reusable.Flawless.Validator;
 
 namespace Reusable.SmartConfig.Utilities.Reflection
 {
+    [PublicAPI]
     public class SettingContext
     {
         private static readonly IValidator<LambdaExpression> LambdaExpressionValidator =
@@ -62,11 +63,8 @@ namespace Reusable.SmartConfig.Utilities.Reflection
         [CanBeNull]
         public string CustomSettingName => Attributes.OfType<SmartSettingAttribute>().SingleOrDefault()?.Name;
 
-        //[CanBeNull]
-        //public SmartSettingAttribute Options => Attributes.OfType<SmartSettingAttribute>().SingleOrDefault();
-
         [CanBeNull]
-        public object DefaultValue=> Attributes.OfType<DefaultValueAttribute>().SingleOrDefault()?.Value;
+        public object DefaultValue => Attributes.OfType<DefaultValueAttribute>().SingleOrDefault()?.Value;
 
         [NotNull, ItemNotNull]
         public IEnumerable<ValidationAttribute> Validations => Attributes.OfType<ValidationAttribute>();
@@ -74,22 +72,22 @@ namespace Reusable.SmartConfig.Utilities.Reflection
         [NotNull, ItemNotNull]
         public IEnumerable<Attribute> Attributes { get; }
 
+        [CanBeNull]
         public object GetValue()
         {
-            var memberExpression = (MemberExpression)_expression.Body;
+            var member = ((MemberExpression)_expression.Body).Member;
 
-            switch (memberExpression.Member.MemberType)
+            if (member is PropertyInfo property)
             {
-                case MemberTypes.Property:
-                    var property = (PropertyInfo)memberExpression.Member;
-                    return property.GetValue(Object);
-
-                case MemberTypes.Field:
-                    return ((FieldInfo)memberExpression.Member).GetValue(Object);
-
-                default:
-                    throw new ArgumentException($"Member must be either a {nameof(MemberTypes.Property)} or a {nameof(MemberTypes.Field)}.");
+                return property.GetValue(Object);
             }
+
+            if (member is FieldInfo field)
+            {
+                return field.GetValue(Object);
+            }
+
+            throw new ArgumentException($"Member must be either a {nameof(MemberTypes.Property)} or a {nameof(MemberTypes.Field)}.");
         }
 
         public void SetValue([CanBeNull] object value)
