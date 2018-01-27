@@ -16,10 +16,17 @@
   <ItemGroup>
     <Compile Remove="TehCodez\Collections\**" />
     <Compile Remove="TehCodez\Converters\**" />
+    <Compile Remove="TehCodez\Reflection\ExpressionVisitors\**" />
     <EmbeddedResource Remove="TehCodez\Collections\**" />
     <EmbeddedResource Remove="TehCodez\Converters\**" />
+    <EmbeddedResource Remove="TehCodez\Reflection\ExpressionVisitors\**" />
     <None Remove="TehCodez\Collections\**" />
     <None Remove="TehCodez\Converters\**" />
+    <None Remove="TehCodez\Reflection\ExpressionVisitors\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="TehCodez\MemberSetter.cs" />
+    <Compile Remove="TehCodez\Reflection\SettingExpressionExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />

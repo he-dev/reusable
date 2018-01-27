@@ -9,6 +9,8 @@ namespace Reusable.SmartConfig.Core.Utilities.Tests
     [TestClass]
     public class ConfigurationExtensionsTest
     {
+        #region GetValue tests
+
         [TestMethod]
         public void GetValue_InstanceProperty_GotValue()
         {
@@ -43,7 +45,7 @@ namespace Reusable.SmartConfig.Core.Utilities.Tests
                 .OccursOnce();
 
             var testClass = new TestClass();
-            testClass.AssertLocal(configuration);
+            testClass.AssertGetValue(configuration);
         }
 
         [TestMethod]
@@ -78,8 +80,51 @@ namespace Reusable.SmartConfig.Core.Utilities.Tests
                 .Returns("bar")
                 .OccursOnce();
 
-            TestClass.AssertLocalStatic(configuration);
+            TestClass.AssertGetValueStatic(configuration);
         }
+
+        #endregion
+
+        #region AssignValue(s) tests
+
+        [TestMethod]
+        public void AssignValue_InstanceProperty_Assigned()
+        {
+            var configuration = Mock.Create<IConfiguration>();
+            Mock
+                .Arrange(() => configuration.GetValue(
+                    Arg.Matches<SoftString>(name => name == SoftString.Create("Reusable.SmartConfig.Core.Utilities.Tests+TestClass.Foo")),
+                    Arg.IsAny<Type>(),
+                    Arg.IsAny<SoftString>())
+                )
+                .Returns("foo")
+                .OccursOnce();
+
+            var testClass = new TestClass();
+            configuration.AssignValue(() => testClass.Foo);
+
+            configuration.Assert();
+            Assert.AreEqual("foo", testClass.Foo);
+        }
+
+        [TestMethod]
+        public void AssignValue_InstancePropertyLocal_Assigned()
+        {
+            var configuration = Mock.Create<IConfiguration>();
+            Mock
+                .Arrange(() => configuration.GetValue(
+                    Arg.Matches<SoftString>(name => name == SoftString.Create("Reusable.SmartConfig.Core.Utilities.Tests+TestClass.Foo")),
+                    Arg.IsAny<Type>(),
+                    Arg.IsAny<SoftString>())
+                )
+                .Returns("foo")
+                .OccursOnce();
+
+            var testClass = new TestClass();
+            testClass.AssertAssignValue(configuration);
+        }
+
+        #endregion
     }
 
     internal class TestClass
@@ -88,7 +133,7 @@ namespace Reusable.SmartConfig.Core.Utilities.Tests
 
         public static string Bar { get; set; }
 
-        public void AssertLocal(IConfiguration configuration)
+        public void AssertGetValue(IConfiguration configuration)
         {
             var value = configuration.GetValue(() => Foo);
 
@@ -96,12 +141,20 @@ namespace Reusable.SmartConfig.Core.Utilities.Tests
             Assert.AreEqual("foo", value);
         }
 
-        public static void AssertLocalStatic(IConfiguration configuration)
+        public static void AssertGetValueStatic(IConfiguration configuration)
         {
             var value = configuration.GetValue(() => Bar);
 
             configuration.Assert();
             Assert.AreEqual("bar", value);
+        }
+
+        public void AssertAssignValue(IConfiguration configuration)
+        {
+            configuration.AssignValue(() => Foo);
+
+            configuration.Assert();
+            Assert.AreEqual("foo", Foo);
         }
     }
 }

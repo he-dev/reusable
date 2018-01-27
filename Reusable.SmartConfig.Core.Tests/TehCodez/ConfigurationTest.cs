@@ -17,7 +17,7 @@ namespace Reusable.SmartConfig.Tests
         {
             var dataStore = Mock.Create<ISettingDataStore>();
 
-            var result = default((ISettingDataStore, ISetting));
+            var result = (dataStore, (ISetting)new Setting("foo") { Value = "bar" });
 
             var settingFinder = Mock.Create<ISettingFinder>();
             Mock
@@ -30,7 +30,7 @@ namespace Reusable.SmartConfig.Tests
                         out result
                     )
                 )
-                .Returns((dataStore, new Setting("foo") { Value = "bar" }));
+                .Returns(true);
 
             var configuration = new Configuration(new[] { dataStore }, settingFinder);
 

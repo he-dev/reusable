@@ -9,7 +9,7 @@ namespace Reusable.SmartConfig.Core.Utilities.Tests.Reflection
     public class SettingExpressionExtensionsTest
     {
         [TestMethod]
-        public void GetSettingName_Closure_FullName()
+        public void GetSettingName_Instance_FullName()
         {
             var testClass1 = new TestClass1();
             var testClass2 = new TestClass2();
@@ -20,43 +20,35 @@ namespace Reusable.SmartConfig.Core.Utilities.Tests.Reflection
         }
 
         [TestMethod]
-        public void GetSettingName_Instance_FullName()
+        public void GetSettingName_Local_FullName()
         {
             var testClass1 = new TestClass1();
             var testClass2 = new TestClass2();
             var expression1 = ((Expression<Func<object>>)(() => testClass1.Foo));
             var expression2 = ((Expression<Func<object>>)(() => testClass2.Foo));
             
-            testClass1.Assert();
+            testClass1.AssertFoo();
         }
     }
 
-    class TestClass1
+    internal class TestClass1
     {       
         public string Foo { get; set; }
 
-        public void Assert()
+        public static string Bar { get; set; }
+
+        public void AssertFoo()
         {
             var expression1 = ((Expression<Func<object>>)(() => Foo));
             var expression2 = ((Expression<Func<object>>)(() => Foo));
 
             var settingName2 = expression2.GetSettingName();
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Reusable.SmartConfig.Core.Utilities.Tests.Reflection+TestClass1.Foo", settingName2);
+            Assert.AreEqual("Reusable.SmartConfig.Core.Utilities.Tests.Reflection+TestClass1.Foo", settingName2);
         }
     }
 
-    class TestClass2
-    {
-        public TestClass2()
-        {
-            
-        }
-
-        public TestClass2(IConfiguration configuration)
-        {
-            
-        }
-
+    internal class TestClass2
+    {        
         public string Foo { get; set; }
     }
 }
