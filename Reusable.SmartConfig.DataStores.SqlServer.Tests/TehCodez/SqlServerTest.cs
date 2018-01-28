@@ -134,7 +134,36 @@ namespace Reusable.SmartConfig.DataStores.Tests
         [TestMethod]
         public void Write_ByName_ValueInserted()
         {
+            var converter = Mock.Create<ISettingConverter>();
+            Mock
+                .Arrange(() => converter.Deserialize(
+                    Arg.Matches<object>(value => value.Equals("fooo-inserted")),
+                    Arg.Matches<Type>(type => type == typeof(string))
+                ))
+                .Returns(obj => obj)
+                .Occurs(1);
 
+            Mock
+                .Arrange(() => converter.Serialize(
+                    Arg.Matches<object>(value => value.Equals("fooo-inserted"))
+                ))
+                .Returns(obj => obj)
+                .Occurs(1);
+
+
+            var sqlServer = new SqlServer("name=TestDb", converter)
+            {
+                SettingTableName = (Schema, Table),
+                ColumnMapping = ("_name", "_value")
+            };
+
+            sqlServer.Write(new Setting("foo_new") { Value = "fooo-inserted" });
+            var setting = sqlServer.Read("foo_new", typeof(string));
+
+            converter.Assert();
+
+            Assert.IsNotNull(setting);
+            Assert.AreEqual("fooo-inserted", setting.Value);
         }
     }
 }
