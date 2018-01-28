@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>net47</TargetFramework>
     <IsPackable>false</IsPackable>
-    <RootNamespace>Reusable.SmartConfig.Tests</RootNamespace>
+    <RootNamespace>Reusable.SmartConfig.Tests.Integration</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <LangVersion>latest</LangVersion>

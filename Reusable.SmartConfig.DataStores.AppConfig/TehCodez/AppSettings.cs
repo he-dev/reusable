@@ -9,12 +9,9 @@ namespace Reusable.SmartConfig.DataStores
 {
     public class AppSettings : SettingDataStore
     {
-        //private readonly System.Configuration.Configuration _exeConfiguration;
-        //private readonly AppSettingsSection _appSettingsSection;
-
         public AppSettings(ISettingConverter converter) : base(converter) { }
 
-        protected override ISetting ReadCore(IEnumerable<SoftString> names)
+        protected override ISetting ReadCore(IReadOnlyCollection<SoftString> names)
         {
             var exeConfig = OpenExeConfiguration();
 

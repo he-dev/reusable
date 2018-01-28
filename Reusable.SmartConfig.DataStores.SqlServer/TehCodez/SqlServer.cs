@@ -57,34 +57,29 @@ namespace Reusable.SmartConfig.DataStores
             set => _where = value ?? throw new ArgumentNullException(nameof(Where));
         }
 
-        [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")] // it's fine to enumerate names multiple times
-        protected override ISetting ReadCore(IEnumerable<SoftString> names)
+        protected override ISetting ReadCore(IReadOnlyCollection<SoftString> names)
         {
             return SqlHelper.Execute(ConnectionString, connection =>
             {
                 using (var command = connection.CreateSelectCommand(this, names))
+                using (var settingReader = command.ExecuteReader())
                 {
-                    //command.Prepare();
-
-                    using (var settingReader = command.ExecuteReader())
+                    if (settingReader.Read())
                     {
+                        var setting = new Setting((string)settingReader[ColumnMapping.Name])
+                        {
+                            Value = settingReader[ColumnMapping.Value],
+                        };
+
                         if (settingReader.Read())
                         {
-                            var setting = new Setting((string)settingReader[ColumnMapping.Name])
-                            {
-                                Value = settingReader[ColumnMapping.Value],
-                            };
-
-                            if (settingReader.Read())
-                            {
-                                throw CreateAmbiguousSettingException(names);
-                            }
-
-                            return setting;
+                            throw CreateAmbiguousSettingException(names);
                         }
 
-                        return null;
+                        return setting;
                     }
+
+                    return null;
                 }
             });
         }

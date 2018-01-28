@@ -13,7 +13,7 @@ namespace Reusable.SmartConfig.DataStores
 
         public InMemory(ISettingConverter converter) : base(converter) { }
 
-        protected override ISetting ReadCore(IEnumerable<SoftString> names)
+        protected override ISetting ReadCore(IReadOnlyCollection<SoftString> names)
         {
             foreach (var name in names)
             {

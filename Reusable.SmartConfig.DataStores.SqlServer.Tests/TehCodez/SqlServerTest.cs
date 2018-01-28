@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
-using System.Data.SqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Data;
-using Reusable.Data.Repositories;
 using Reusable.Exceptionize;
-using Reusable.Reflection;
 using Reusable.SmartConfig.Data;
 using Reusable.Tester;
 using Reusable.Utilities.SqlClient;
@@ -19,8 +15,7 @@ namespace Reusable.SmartConfig.DataStores.Tests
     [TestClass]
     public class SqlServerTest
     {
-        private const string Schema = "reusable";
-        private const string Table = "SmartConfig.DataStores.Tests.SqlServerTest";
+        private static readonly SqlFourPartName SettingTableName = ("reusable", "SmartConfig.DataStores.Tests.SqlServerTest");
 
         [TestInitialize]
         public void TestInitialize()
@@ -38,7 +33,7 @@ namespace Reusable.SmartConfig.DataStores.Tests
 
             SqlHelper.Execute("name=TestDb", connection =>
             {
-                connection.Seed(Schema, Table, data);
+                connection.Seed(SettingTableName, data);
             });
         }
 
@@ -56,7 +51,7 @@ namespace Reusable.SmartConfig.DataStores.Tests
 
             var sqlServer = new SqlServer("name=TestDb", converter)
             {
-                SettingTableName = (Schema, Table),
+                SettingTableName = SettingTableName,
                 ColumnMapping = ("_name", "_value")
             };
 
@@ -82,7 +77,7 @@ namespace Reusable.SmartConfig.DataStores.Tests
 
             var sqlServer = new SqlServer("name=TestDb", converter)
             {
-                SettingTableName = (Schema, Table),
+                SettingTableName = SettingTableName,
                 ColumnMapping = ("_name", "_value"),
                 Where = new Dictionary<string, object>
                 {
@@ -111,14 +106,14 @@ namespace Reusable.SmartConfig.DataStores.Tests
 
             var sqlServer = new SqlServer("name=TestDb", converter)
             {
-                SettingTableName = (Schema, Table),
+                SettingTableName = SettingTableName,
                 ColumnMapping = ("_name", "_value")
             };
 
             var exception = Assert.That.ThrowsExceptionFiltered<DynamicException>(() => sqlServer.Read("qux", typeof(string)));
 
             converter.Assert();
-            Assert.AreEqual("SettingReadException", exception.GetType().Name);
+            Assert.AreEqual("ReadSettingException", exception.GetType().Name);
             Assert.AreEqual("AmbiguousSettingException", exception.InnerException.GetType().Name);
         }
 
@@ -144,7 +139,7 @@ namespace Reusable.SmartConfig.DataStores.Tests
 
             var sqlServer = new SqlServer("name=TestDb", converter)
             {
-                SettingTableName = (Schema, Table),
+                SettingTableName = SettingTableName,
                 ColumnMapping = ("_name", "_value")
             };
 
@@ -179,7 +174,7 @@ namespace Reusable.SmartConfig.DataStores.Tests
 
             var sqlServer = new SqlServer("name=TestDb", converter)
             {
-                SettingTableName = (Schema, Table),
+                SettingTableName = SettingTableName,
                 ColumnMapping = ("_name", "_value")
             };
 

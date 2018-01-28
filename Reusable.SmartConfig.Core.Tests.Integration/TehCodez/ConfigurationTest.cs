@@ -1,129 +1,77 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Exceptionize;
-using Reusable.SmartConfig.Data;
-using Reusable.Tester;
-using Telerik.JustMock;
-using Telerik.JustMock.Helpers;
+using Reusable.Data;
+using Reusable.SmartConfig.DataStores;
+using Reusable.SmartConfig.SettingConverters;
+using Reusable.SmartConfig.Utilities;
+using Reusable.Utilities.SqlClient;
 
-namespace Reusable.SmartConfig.Tests
+namespace Reusable.SmartConfig.Tests.Integration
 {
     [TestClass]
     public class ConfigurationTest
     {
-        [TestMethod]
-        public void GetValue_SettingExists_Value()
+        private static readonly SqlFourPartName SettingTableName = ("reusable", "SmartConfig.DataStores.Tests.SqlServerTest");
+
+        [TestInitialize]
+        public void TestInitialize()
         {
-            var dataStore = Mock.Create<ISettingDataStore>();
+            var data =
+                new DataTable()
+                    .AddColumn("_name", column => column.DataType = typeof(string))
+                    .AddColumn("_value", column => column.DataType = typeof(string))
+                    .AddColumn("_other", column => column.DataType = typeof(string))
+                    .AddRow("TestClass1.Foo", "123", "integration")
+                    .AddRow("TestClass2.Bar", "text", "integration")
+                    .AddRow("TestClass3.Baz", "1.23", "integration")
+                    // Used for exeption testing.
+                    .AddRow("TestClass3.Qux", "quux", "integration")
+                    .AddRow("Reusable.SmartConfig.Tests+TestClass3.Qux", "quux", "integration")
+                ;
 
-            var result = (dataStore, (ISetting)new Setting("foo") { Value = "bar" });
-
-            var settingFinder = Mock.Create<ISettingFinder>();
-            Mock
-                .Arrange(() => settingFinder
-                    .TryFindSetting(
-                        Arg.IsAny<IEnumerable<ISettingDataStore>>(),
-                        Arg.IsAny<SoftString>(),
-                        Arg.IsAny<Type>(),
-                        Arg.IsAny<SettingName>(),
-                        out result
-                    )
-                )
-                .Returns(true);
-
-            var configuration = new Configuration(new[] { dataStore }, settingFinder);
-
-            var actualValue = configuration.GetValue("foo", typeof(int), null);
-
-            Assert.AreEqual("bar", actualValue);
+            SqlHelper.Execute("name=TestDb", connection =>
+            {
+                connection.Seed(SettingTableName, data);
+            });
         }
 
         [TestMethod]
-        public void GetValue_SettingDoesNotExist_Throws()
+        public void GetValue_ByExpression_Value()
         {
-            var dataStore = Mock.Create<ISettingDataStore>();
+            var settingConverter = new JsonSettingConverter(typeof(string));
+            var configuration = new Configuration(new ISettingDataStore[]
+            {
+                new AppSettings(settingConverter),
+                new SqlServer("name=TestDb", settingConverter)
+                {
+                    SettingTableName = SettingTableName,
+                    ColumnMapping = ("_name", "_value"),
+                    Where = new Dictionary<string, object>
+                    {
+                        ["_other"] = "integration"
+                    }
+                },
+            });
 
-            Mock
-                .Arrange(() => dataStore.Read(Arg.IsAny<SoftString>(), Arg.IsAny<Type>()))
-                .Returns(default(ISetting));
+            var testClass1 = new TestClass1();
+            var testClass2 = new TestClass2();
 
-            var configuration = new Configuration(new[] { dataStore });
+            var foo = configuration.GetValue(() => testClass1.Foo);
+            var bar = configuration.GetValue(() => testClass2.Bar);
 
-            var ex = Assert.That.ThrowsExceptionFiltered<DynamicException>(() => configuration.GetValue("foo", typeof(int), null));
-            Assert.AreEqual("Setting 'foo' not found.", ex.Message);
+            Assert.AreEqual(123, foo);
+            Assert.AreEqual("text", bar);
         }
+    }
 
-        [TestMethod]
-        public void SetValue_SettingInitialized_WriteCalled()
-        {
-            var dataStore = Mock.Create<ISettingDataStore>();
-            
-            Mock
-                .Arrange(() => dataStore.Write(Arg.IsAny<ISetting>()))
-                .OccursOnce();
+    internal class TestClass1
+    {
+        public int Foo { get; set; }
+    }
 
-            var result = (dataStore, (ISetting)new Setting("baz.qux") { Value = 123 });
-
-            var settingFinder = Mock.Create<ISettingFinder>();
-            Mock
-                .Arrange(() => settingFinder
-                    .TryFindSetting(
-                        Arg.IsAny<IEnumerable<ISettingDataStore>>(),
-                        Arg.IsAny<SoftString>(),
-                        Arg.IsAny<Type>(),
-                        Arg.IsAny<SettingName>(),
-                        out result
-                    )
-                )
-                .Returns(true)
-                .OccursOnce();
-
-            var configuration = new Configuration(new[] { dataStore }, settingFinder);
-
-            configuration.GetValue("foo.bar+baz.qux,quux", typeof(int), null);
-            configuration.SetValue("foo.bar+baz.qux,quux", 123, null);
-
-            settingFinder.Assert();
-            dataStore.Assert();
-        }
-
-        [TestMethod]
-        public void SetValue_SettingNotInitialized_WriteCalled()
-        {
-            var dataStore = Mock.Create<ISettingDataStore>();
-
-            Mock
-                .Arrange(() => dataStore.Read(Arg.IsAny<SoftString>(), Arg.IsAny<Type>()))
-                .Returns(new Setting("baz.qux") { Value = 123 });
-
-            Mock
-                .Arrange(() => dataStore.Write(Arg.IsAny<ISetting>()))
-                .OccursOnce();
-
-            var result = (dataStore, (ISetting)new Setting("baz.qux") { Value = 123 });
-
-            var settingFinder = Mock.Create<ISettingFinder>();
-            Mock
-                .Arrange(() => settingFinder
-                    .TryFindSetting(
-                        Arg.IsAny<IEnumerable<ISettingDataStore>>(),
-                        Arg.IsAny<SoftString>(),
-                        Arg.IsAny<Type>(),
-                        Arg.IsAny<SettingName>(),
-                        out result
-                    )
-                )
-                .Returns(true)
-                .OccursOnce();
-
-            var configuration = new Configuration(new[] { dataStore }, settingFinder);
-
-            //configuration.GetValue("foo.bar+baz.qux,quux", typeof(int), null);
-            configuration.SetValue("foo.bar+baz.qux,quux", 123, null);
-
-            settingFinder.Assert();
-            dataStore.Assert();
-        }
+    internal class TestClass2
+    {
+        public string Bar { get; set; }
     }
 }

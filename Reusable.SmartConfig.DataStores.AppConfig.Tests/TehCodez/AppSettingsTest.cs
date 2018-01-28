@@ -16,7 +16,7 @@ namespace Reusable.SmartConfig.DataStores.Tests
         }
 
         [TestMethod]
-        public void Read_foo()
+        public void Read_ByName_Setting()
         {
             var converter = Mock.Create<ISettingConverter>();
             Mock
@@ -25,10 +25,6 @@ namespace Reusable.SmartConfig.DataStores.Tests
                 .Occurs(2);
 
             var appSettings = new AppSettings(converter);
-            //var configuration = new Configuration(new[] { appSettings });
-
-            //var foo = configuration.GetValue("foo", typeof(string), null);
-            //var baz = configuration.GetValue("bar", typeof(string), null);
 
             var foo = appSettings.Read("foo", typeof(string));
             var baz = appSettings.Read("baz", typeof(string));

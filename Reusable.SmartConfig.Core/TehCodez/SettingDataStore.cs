@@ -47,7 +47,14 @@ namespace Reusable.SmartConfig
 
         public ISetting Read(SoftString settingName, Type settingType)
         {
-            var names = SettingNameGenerator.GenerateSettingNames(settingName).Select(name => (SoftString)(string)name).ToList();
+            if (settingName == null) throw new ArgumentNullException(nameof(settingName));
+
+            // Materialize the generated names because we'll be using it multiple times.
+            var names = 
+                SettingNameGenerator
+                    .GenerateSettingNames(settingName)
+                    .Select(name => (SoftString)(string)name)
+                    .ToList();
             try
             {
                 var setting = ReadCore(names);
@@ -59,15 +66,17 @@ namespace Reusable.SmartConfig
             }
             catch (Exception innerException)
             {
-                throw ($"SettingRead{nameof(Exception)}", $"Cannot read {settingName.ToString().QuoteWith("'")} from {Name.ToString().QuoteWith("'")}.", innerException).ToDynamicException();
+                throw ($"ReadSetting{nameof(Exception)}", $"Cannot read {settingName.ToString().QuoteWith("'")} from {Name.ToString().QuoteWith("'")}.", innerException).ToDynamicException();
             }
         }
 
         [CanBeNull]
-        protected abstract ISetting ReadCore(IEnumerable<SoftString> names);
+        protected abstract ISetting ReadCore(IReadOnlyCollection<SoftString> names);
 
         public void Write(ISetting setting)
         {
+            if (setting == null) throw new ArgumentNullException(nameof(setting));
+
             try
             {
                 WriteCore(new Setting(setting.Name)
@@ -77,7 +86,7 @@ namespace Reusable.SmartConfig
             }
             catch (Exception innerException)
             {
-                throw ($"SettingWrite{nameof(Exception)}", $"Cannot write {setting.Name.ToString().QuoteWith("'")} to {Name.ToString().QuoteWith("'")}.", innerException).ToDynamicException();
+                throw ($"WriteSetting{nameof(Exception)}", $"Cannot write {setting.Name.ToString().QuoteWith("'")} to {Name.ToString().QuoteWith("'")}.", innerException).ToDynamicException();
             }
         }
 

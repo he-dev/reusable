@@ -12,11 +12,10 @@ namespace Reusable.Utilities.SqlClient
     [PublicAPI]
     public static class SqlSeeder
     {
-        public static async Task SeedAsync([NotNull] this SqlConnection connection, [NotNull] string schema, [NotNull] string table, [NotNull] DataTable data, bool truncate = true)
+        public static async Task SeedAsync([NotNull] this SqlConnection connection, [NotNull] SqlFourPartName objectName, [NotNull] DataTable data, bool truncate = true)
         {
             if (connection == null) throw new ArgumentNullException(nameof(connection));
-            if (schema == null) throw new ArgumentNullException(nameof(schema));
-            if (table == null) throw new ArgumentNullException(nameof(table));
+            if (objectName == null) throw new ArgumentNullException(nameof(objectName));
             if (data == null) throw new ArgumentNullException(nameof(data));
 
             if (Transaction.Current == null)
@@ -24,7 +23,7 @@ namespace Reusable.Utilities.SqlClient
                 throw new InvalidOperationException($"{nameof(SeedAsync)} can be executed only within a transaction scope.");
             }
 
-            var identifier = connection.CreateIdentifier(schema, table);
+            var identifier = objectName.Render(connection);
 
             if (truncate)
             {
@@ -46,9 +45,9 @@ namespace Reusable.Utilities.SqlClient
             }
         }
 
-        public static void Seed(this SqlConnection connection, string schema, string table, DataTable data, bool truncate = true)
+        public static void Seed(this SqlConnection connection, SqlFourPartName objectName, DataTable data, bool truncate = true)
         {
-            SeedAsync(connection, schema, table, data, truncate).GetAwaiter().GetResult();
+            SeedAsync(connection, objectName, data, truncate).GetAwaiter().GetResult();
         }
     }
 }

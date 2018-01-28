@@ -12,6 +12,7 @@ using Reusable.Reflection;
 
 namespace Reusable.Utilities.SqlClient
 {
+    [PublicAPI]
     public static class SqlConnectionExtensions
     {
         [NotNull, ContractAnnotation("connection: null => halt")]
