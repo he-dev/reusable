@@ -8,6 +8,9 @@ using Reusable.SmartConfig.Data;
 
 namespace Reusable.SmartConfig
 {
+    /// <summary>
+    /// The same setting can be defined in multiple data-stores. This setting-finder picks the first setting it finds.
+    /// </summary>
     public class FirstSettingFinder : ISettingFinder
     {
         public bool TryFindSetting(
