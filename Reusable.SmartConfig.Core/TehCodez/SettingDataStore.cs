@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Custom;
 using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Exceptionize;
@@ -85,6 +86,15 @@ namespace Reusable.SmartConfig
         private static string CreateDefaultName(Type datastoreType)
         {
             return datastoreType.ToPrettyString() +  InstanceCounters.AddOrUpdate(datastoreType.ToPrettyString(), name => 1, (name, counter) => counter + 1);
+        }
+
+        protected Exception CreateAmbiguousSettingException(IEnumerable<SoftString> names)
+        {
+            throw DynamicException.Factory.CreateDynamicException(
+                $"AmbiguousSetting{nameof(Exception)}",
+                $"Mutliple settings found: {names.Select(name => name.ToString()).Join(", ").EncloseWith("[]")}",
+                null
+            );
         }
     }
 

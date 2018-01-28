@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -17,11 +18,16 @@ namespace Reusable.SmartConfig.DataStores
         {
             var exeConfig = OpenExeConfiguration();
 
+            if (exeConfig.AppSettings.Settings.AllKeys.Count(key => names.Contains(key)) > 1)
+            {
+                throw CreateAmbiguousSettingException(names);
+            }
+
             var result =
                 (from name in names
-                 let value = exeConfig.AppSettings.Settings[name.ToString()]?.Value
-                 where !string.IsNullOrEmpty(value)
-                 select (Name: name, Value: value)).FirstOrDefault();
+                 let setting = exeConfig.AppSettings.Settings[name.ToString()]
+                 where !(setting is null)
+                 select (Name: name, setting.Value)).SingleOrDefault();
 
             return result.Value.IsNullOrEmpty() ? null : new Setting(result.Name)
             {

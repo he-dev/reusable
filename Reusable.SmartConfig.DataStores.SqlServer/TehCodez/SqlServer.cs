@@ -77,11 +77,7 @@ namespace Reusable.SmartConfig.DataStores
 
                             if (settingReader.Read())
                             {
-                                throw DynamicException.Factory.CreateDynamicException(
-                                    $"AmbiguousSetting{nameof(Exception)}",
-                                    $"Mutliple settings found: {names.Select(name => name.ToString()).Join(", ").EncloseWith("[]")}",
-                                    null
-                                );
+                                throw CreateAmbiguousSettingException(names);
                             }
 
                             return setting;
