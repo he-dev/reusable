@@ -19,9 +19,9 @@ namespace Reusable.SmartConfig.Tests.Integration
         {
             var data =
                 new DataTable()
-                    .AddColumn("_name", column => column.DataType = typeof(string))
-                    .AddColumn("_value", column => column.DataType = typeof(string))
-                    .AddColumn("_other", column => column.DataType = typeof(string))
+                    .AddColumn("_name", typeof(string))
+                    .AddColumn("_value", typeof(string))
+                    .AddColumn("_other", typeof(string))
                     .AddRow("TestClass1.Foo", "123", "integration")
                     .AddRow("TestClass2.Bar", "text", "integration")
                     .AddRow("TestClass3.Baz", "1.23", "integration")

@@ -22,9 +22,9 @@ namespace Reusable.SmartConfig.DataStores.Tests
         {
             var data =
                 new DataTable()
-                    .AddColumn("_name", column => column.DataType = typeof(string))
-                    .AddColumn("_value", column => column.DataType = typeof(string))
-                    .AddColumn("_other", column => column.DataType = typeof(string))
+                    .AddColumn("_name", typeof(string))
+                    .AddColumn("_value", typeof(string))
+                    .AddColumn("_other", typeof(string))
                     .AddRow("foo", "fooo", null)
                     .AddRow("bar", "baar", null)
                     .AddRow("baz", "baaz", "baaaz")
