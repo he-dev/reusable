@@ -58,6 +58,7 @@
     <Compile Include="TehCodez\SqlSchemas\SqlSchemaReaderTest.cs" />
     <Compile Include="TehCodez\SqlSeederTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TehCodez\SqlFourPartNameTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

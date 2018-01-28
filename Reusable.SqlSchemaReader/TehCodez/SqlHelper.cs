@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Linq.Custom;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -36,7 +36,7 @@ namespace Reusable.Utilities.SqlClient
         /// </summary>
         public static async Task ExecuteAsync(string nameOrConnectionString, Func<SqlConnection, CancellationToken, Task> body, CancellationToken cancellationToken)
         {
-            var connectionString = ConnectionStringRepository.Default.GetConnectionString(nameOrConnectionString);            
+            var connectionString = ConnectionStringRepository.Default.GetConnectionString(nameOrConnectionString);
 
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             using (var connection = new SqlConnection(connectionString))
@@ -99,4 +99,6 @@ namespace Reusable.Utilities.SqlClient
                     .GetResult();
         }
     }
+
+    
 }

@@ -15,7 +15,7 @@ namespace Reusable.Utilities.SqlClient
     public static class SqlConnectionExtensions
     {
         [NotNull, ContractAnnotation("connection: null => halt")]
-        public static string CreateIdentifier([NotNull] this SqlConnection connection, [NotNull] params string[] names)
+        public static string CreateIdentifier([NotNull] this SqlConnection connection, [NotNull] IEnumerable<string> names)
         {
             if (connection == null) throw new ArgumentNullException(nameof(connection));
             if (names == null) throw new ArgumentNullException(nameof(names));
@@ -25,6 +25,12 @@ namespace Reusable.Utilities.SqlClient
                 // ReSharper disable once PossibleNullReferenceException - commandBuilder is never null for SqlConnection.
                 return names.Select(commandBuilder.QuoteIdentifier).Join(".");
             }
+        }
+
+        [NotNull, ContractAnnotation("connection: null => halt")]
+        public static string CreateIdentifier([NotNull] this SqlConnection connection, [NotNull] params string[] names)
+        {
+            return connection.CreateIdentifier((IEnumerable<string>)names);
         }
 
 

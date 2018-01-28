@@ -70,6 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TehCodez\SqlFourPartName.cs" />
     <Compile Include="TehCodez\SqlHelper.cs" />
     <Compile Include="TehCodez\SqlSchemas\ColumnOrdinalAttribute.cs" />
     <Compile Include="TehCodez\SqlSchemas\SqlColumnSchema.cs" />
@@ -92,6 +93,10 @@
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj">
       <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
       <Name>Reusable.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Reusable.Flawless\Reusable.Flawless.csproj">
+      <Project>{bc9c9c4a-7b6c-434a-ae5d-39d1aa553dfa}</Project>
+      <Name>Reusable.Flawless</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

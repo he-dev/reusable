@@ -8,6 +8,7 @@ using Reusable.Data.Repositories;
 using Reusable.Extensions;
 using Reusable.SmartConfig.Data;
 using Reusable.SmartConfig.DataStores.Internal;
+using Reusable.Utilities.SqlClient;
 
 namespace Reusable.SmartConfig.DataStores
 {
@@ -27,6 +28,8 @@ namespace Reusable.SmartConfig.DataStores
 
         private IReadOnlyDictionary<string, object> _where = new Dictionary<string, object>();
 
+        private SqlFourPartName _settingTableName;
+
         private SqlServerColumnMapping _columnMapping;
 
         public SqlServer(string nameOrConnectionString, ISettingConverter converter) : base(converter)
@@ -37,7 +40,15 @@ namespace Reusable.SmartConfig.DataStores
                     paramName: nameof(nameOrConnectionString),
                     message: $"Connection string '{nameOrConnectionString}' not found.");
 
+            SettingTableName = (DefaultSchema, DefaultTable);
             ColumnMapping = new SqlServerColumnMapping();
+        }
+
+        [NotNull]
+        public SqlFourPartName SettingTableName
+        {
+            get => _settingTableName;
+            set => _settingTableName = value ?? throw new ArgumentNullException(nameof(SettingTableName));
         }
 
         [NotNull]
@@ -45,19 +56,7 @@ namespace Reusable.SmartConfig.DataStores
         {
             get => _columnMapping;
             set => _columnMapping = value ?? throw new ArgumentNullException(nameof(ColumnMapping));
-        }
-
-        public string Schema
-        {
-            get => _schema;
-            set => _schema = value ?? throw new ArgumentNullException(nameof(Schema));
-        }
-
-        public string Table
-        {
-            get => _table;
-            set => _table = value ?? throw new ArgumentNullException(nameof(Table));
-        }
+        }        
 
         public IReadOnlyDictionary<string, object> Where
         {

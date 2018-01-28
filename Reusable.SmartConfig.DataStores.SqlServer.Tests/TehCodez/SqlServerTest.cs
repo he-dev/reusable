@@ -50,8 +50,7 @@ namespace Reusable.SmartConfig.DataStores.Tests
 
             var sqlServer = new SqlServer("name=TestDb", converter)
             {
-                Schema = Schema,
-                Table = Table,
+                SettingTableName = (Schema, Table),
                 ColumnMapping = new SqlServerColumnMapping
                 {
                     Name = "_name",
