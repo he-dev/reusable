@@ -14,8 +14,11 @@ namespace Reusable.SmartConfig
     public class Configuration : IConfiguration
     {
         private readonly IEnumerable<ISettingDataStore> _dataStores;
+
         private readonly ISettingFinder _settingFinder;
+
         private readonly IDictionary<SoftString, (SoftString ActualName, ISettingDataStore Datastore)> _settingMap = new Dictionary<SoftString, (SoftString ActualName, ISettingDataStore Datastore)>();
+
         private static readonly IValidator<IEnumerable<ISettingDataStore>> DataStoresValidator = 
             Validator
                 .Create<IEnumerable<ISettingDataStore>>()

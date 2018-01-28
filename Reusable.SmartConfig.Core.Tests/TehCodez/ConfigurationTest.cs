@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Exceptionize;
 using Reusable.SmartConfig.Data;
@@ -12,6 +13,14 @@ namespace Reusable.SmartConfig.Tests
     [TestClass]
     public class ConfigurationTest
     {
+        [TestMethod]
+        public void ctor_EmptyDataStores_Throws()
+        {
+            var exception = Assert.That.ThrowsExceptionFiltered<DynamicException>(() => new Configuration(Enumerable.Empty<ISettingDataStore>()));
+
+            Assert.AreEqual("IEnumerable<ISettingDataStore>ValidationException", exception.GetType().Name);
+        }
+
         [TestMethod]
         public void GetValue_SettingExists_Value()
         {
