@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -12,7 +13,7 @@ namespace Reusable.SmartConfig
     [PublicAPI]
     public abstract partial class SettingDataStore : ISettingDataStore
     {
-        private static volatile int _instanceCounter;
+        private static readonly ConcurrentDictionary<SoftString, int> InstanceCounters = new ConcurrentDictionary<SoftString, int>();
 
         private readonly ISettingConverter _converter;
 
@@ -57,7 +58,7 @@ namespace Reusable.SmartConfig
             }
             catch (Exception innerException)
             {
-                throw ("SettingReadException", $"Cannot read {names.Last().ToString().QuoteWith("'")} from {Name.ToString().QuoteWith("'")}.", innerException).ToDynamicException();
+                throw ($"SettingRead{nameof(Exception)}", $"Cannot read {settingName.ToString().QuoteWith("'")} from {Name.ToString().QuoteWith("'")}.", innerException).ToDynamicException();
             }
         }
 
@@ -75,24 +76,33 @@ namespace Reusable.SmartConfig
             }
             catch (Exception innerException)
             {
-                throw ("SettingWriteException", $"Cannot write {setting.Name.ToString().QuoteWith("'")} to {Name.ToString().QuoteWith("'")}.", innerException).ToDynamicException();
+                throw ($"SettingWrite{nameof(Exception)}", $"Cannot write {setting.Name.ToString().QuoteWith("'")} to {Name.ToString().QuoteWith("'")}.", innerException).ToDynamicException();
             }
         }
 
         protected abstract void WriteCore(ISetting setting);
 
-        protected static string CreateDefaultName(Type datastoreType)
+        private static string CreateDefaultName(Type datastoreType)
         {
-            return $"{datastoreType.Name}{_instanceCounter++}";
+            return datastoreType.ToPrettyString() +  InstanceCounters.AddOrUpdate(datastoreType.ToPrettyString(), name => 1, (name, counter) => counter + 1);
         }
     }
 
     public abstract partial class SettingDataStore
     {
-        public override int GetHashCode() => AutoEquality<ISettingDataStore>.Comparer.GetHashCode(this);
+        public override int GetHashCode()
+        {
+            return AutoEquality<ISettingDataStore>.Comparer.GetHashCode(this);
+        }
 
-        public override bool Equals(object obj) => Equals(obj as ISettingDataStore);
+        public override bool Equals(object obj)
+        {
+            return obj is ISettingDataStore other && Equals(other);
+        }
 
-        public bool Equals(ISettingDataStore other) => AutoEquality<ISettingDataStore>.Comparer.Equals(this, other);
+        public bool Equals(ISettingDataStore other)
+        {
+            return AutoEquality<ISettingDataStore>.Comparer.Equals(this, other);
+        }
     }
 }

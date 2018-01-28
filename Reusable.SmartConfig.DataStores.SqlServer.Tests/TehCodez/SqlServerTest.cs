@@ -6,8 +6,10 @@ using System.Data.SqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Data;
 using Reusable.Data.Repositories;
+using Reusable.Exceptionize;
 using Reusable.Reflection;
 using Reusable.SmartConfig.Data;
+using Reusable.Tester;
 using Reusable.Utilities.SqlClient;
 using Telerik.JustMock;
 using Telerik.JustMock.Helpers;
@@ -94,6 +96,30 @@ namespace Reusable.SmartConfig.DataStores.Tests
 
             Assert.IsNotNull(setting);
             Assert.AreEqual("barx", setting.Value);
+        }
+
+        [TestMethod]
+        public void Read_ByAmbigousName_Throws()
+        {
+            var converter = Mock.Create<ISettingConverter>();
+            Mock
+                .Arrange(() => converter.Deserialize(
+                    Arg.IsAny<object>(),
+                    Arg.IsAny<Type>()
+                ))
+                .OccursNever();
+
+            var sqlServer = new SqlServer("name=TestDb", converter)
+            {
+                SettingTableName = (Schema, Table),
+                ColumnMapping = ("_name", "_value")
+            };
+
+            var exception = Assert.That.ThrowsExceptionFiltered<DynamicException>(() => sqlServer.Read("qux", typeof(string)));
+
+            converter.Assert();
+            Assert.AreEqual("SettingReadException", exception.GetType().Name);
+            Assert.AreEqual("AmbiguousSettingException", exception.InnerException.GetType().Name);
         }
 
         [TestMethod]

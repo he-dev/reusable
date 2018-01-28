@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Linq.Custom;
 using JetBrains.Annotations;
 using Reusable.Data.Repositories;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.SmartConfig.Data;
 using Reusable.SmartConfig.DataStores.Internal;
@@ -66,22 +68,26 @@ namespace Reusable.SmartConfig.DataStores
 
                     using (var settingReader = command.ExecuteReader())
                     {
-                        var settings = new List<ISetting>();
-
-                        while (settingReader.Read())
+                        if (settingReader.Read())
                         {
-                            var result = new Setting((string)settingReader[ColumnMapping.Name])
+                            var setting = new Setting((string)settingReader[ColumnMapping.Name])
                             {
                                 Value = settingReader[ColumnMapping.Value],
                             };
-                            settings.Add(result);
+
+                            if (settingReader.Read())
+                            {
+                                throw DynamicException.Factory.CreateDynamicException(
+                                    $"AmbiguousSetting{nameof(Exception)}",
+                                    $"Mutliple settings found: {names.Select(name => name.ToString()).Join(", ").EncloseWith("[]")}",
+                                    null
+                                );
+                            }
+
+                            return setting;
                         }
 
-                        return
-                            (from name in names
-                             from setting in settings
-                             where name.Equals(setting.Name)
-                             select setting).FirstOrDefault(Conditional.IsNotNull);
+                        return null;
                     }
                 }
             });
@@ -96,7 +102,7 @@ namespace Reusable.SmartConfig.DataStores
                     //cmd.Prepare();
                     cmd.ExecuteNonQuery();
                 }
-            });            
+            });
         }
     }
 }

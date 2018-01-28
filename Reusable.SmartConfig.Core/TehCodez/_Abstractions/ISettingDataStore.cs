@@ -7,8 +7,8 @@ namespace Reusable.SmartConfig
 {
     public interface ISettingDataStore : IEquatable<ISettingDataStore>
     {
-        [AutoEqualityProperty]
         [NotNull]
+        [AutoEqualityProperty]
         SoftString Name { get; }
 
         [NotNull]
