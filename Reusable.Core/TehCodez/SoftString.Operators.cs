@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -13,7 +14,8 @@ namespace Reusable
     {
         public static explicit operator string(SoftString obj) => obj?._value;
 
-        public static implicit operator SoftString(string value) => value == null ? default(SoftString) : new SoftString(value);
+        [DebuggerStepThrough]
+        public static implicit operator SoftString(string value) => value == null ? default : new SoftString(value);
 
         public static bool operator ==(SoftString left, SoftString right) => Comparer.Equals(left, right);
 

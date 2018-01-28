@@ -17,14 +17,16 @@ namespace Reusable.SmartConfig.Data
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class Setting : ISetting
     {
+        [DebuggerStepThrough]
         public Setting([NotNull] SoftString name)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
         }
 
-        public SoftString Name { get; }
+        public SoftString Name { [DebuggerStepThrough]get; }
 
-        public object Value { get; set; }
+
+        public object Value { [DebuggerStepThrough]get; [DebuggerStepThrough]set; }
 
         public static ISetting Create(SoftString name, object value) => new Setting(name) { Value = value };
 

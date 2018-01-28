@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Data;
 using Reusable.Data.Repositories;
 using Reusable.Reflection;
+using Reusable.SmartConfig.Data;
 using Reusable.Utilities.SqlClient;
 using Telerik.JustMock;
 using Telerik.JustMock.Helpers;
@@ -93,6 +94,47 @@ namespace Reusable.SmartConfig.DataStores.Tests
 
             Assert.IsNotNull(setting);
             Assert.AreEqual("barx", setting.Value);
+        }
+
+        [TestMethod]
+        public void Write_ByName_ValueUpdated()
+        {
+            var converter = Mock.Create<ISettingConverter>();
+            Mock
+                .Arrange(() => converter.Deserialize(
+                    Arg.Matches<object>(value => value.Equals("fooo-updated")),
+                    Arg.Matches<Type>(type => type == typeof(string))
+                ))
+                .Returns(obj => obj)
+                .Occurs(1);
+
+            Mock
+                .Arrange(() => converter.Serialize(
+                    Arg.Matches<object>(value => value.Equals("fooo-updated"))
+                ))
+                .Returns(obj => obj)
+                .Occurs(1);
+
+
+            var sqlServer = new SqlServer("name=TestDb", converter)
+            {
+                SettingTableName = (Schema, Table),
+                ColumnMapping = ("_name", "_value")
+            };
+
+            sqlServer.Write(new Setting("foo") { Value = "fooo-updated" });
+            var setting = sqlServer.Read("foo", typeof(string));
+
+            converter.Assert();
+
+            Assert.IsNotNull(setting);
+            Assert.AreEqual("fooo-updated", setting.Value);
+        }
+
+        [TestMethod]
+        public void Write_ByName_ValueInserted()
+        {
+
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -17,12 +18,14 @@ namespace Reusable
 
         public SoftString() { }
 
+        [DebuggerStepThrough]
         public SoftString([NotNull] string value)
         {
             if (value == null) throw new ArgumentNullException(nameof(value));
             _value = value.Trim();
         }
 
+        [DebuggerStepThrough]
         public SoftString(char value)
             : this(value.ToString())
         { }
