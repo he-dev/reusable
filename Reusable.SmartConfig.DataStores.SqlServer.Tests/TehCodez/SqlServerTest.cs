@@ -30,39 +30,69 @@ namespace Reusable.SmartConfig.DataStores.Tests
                     .AddRow("foo", "fooo", null)
                     .AddRow("bar", "baar", null)
                     .AddRow("baz", "baaz", "baaaz")
-                    .AddRow("qux", "bar", "baaaz")
-                    .AddRow("qux", "bar", "quuux");
+                    .AddRow("qux", "barz", "baaaz")
+                    .AddRow("qux", "barx", "quuux");
 
             SqlHelper.Execute("name=TestDb", connection =>
             {
                 connection.Seed(Schema, Table, data);
-            });            
+            });
         }
 
         [TestMethod]
-        public void MyTestMethod()
+        public void Read_ByName_Setting()
         {
             var converter = Mock.Create<ISettingConverter>();
             Mock
-                .Arrange(() => converter.Deserialize(Arg.IsAny<object>(), Arg.IsAny<Type>()))
+                .Arrange(() => converter.Deserialize(
+                    Arg.Matches<object>(value => value.Equals("fooo")),
+                    Arg.Matches<Type>(type => type == typeof(string))
+                ))
                 .Returns(obj => obj)
-                .Occurs(2);
+                .Occurs(1);
 
             var sqlServer = new SqlServer("name=TestDb", converter)
             {
                 SettingTableName = (Schema, Table),
-                ColumnMapping = new SqlServerColumnMapping
+                ColumnMapping = ("_name", "_value")
+            };
+
+            var setting = sqlServer.Read("foo", typeof(string));
+
+            converter.Assert();
+
+            Assert.IsNotNull(setting);
+            Assert.AreEqual("fooo", setting.Value);
+        }
+
+        [TestMethod]
+        public void Read_ByNameAndOther_Setting()
+        {
+            var converter = Mock.Create<ISettingConverter>();
+            Mock
+                .Arrange(() => converter.Deserialize(
+                    Arg.Matches<object>(value => value.Equals("barx")),
+                    Arg.Matches<Type>(type => type == typeof(string))
+                ))
+                .Returns(obj => obj)
+                .Occurs(1);
+
+            var sqlServer = new SqlServer("name=TestDb", converter)
+            {
+                SettingTableName = (Schema, Table),
+                ColumnMapping = ("_name", "_value"),
+                Where = new Dictionary<string, object>
                 {
-                    Name = "_name",
-                    Value = "_value"
+                    ["_other"] = "quuux"
                 }
             };
 
-            var foo = sqlServer.Read("foo", typeof(string));
+            var setting = sqlServer.Read("qux", typeof(string));
 
-            //converter.Assert();
+            converter.Assert();
 
-            Assert.AreEqual("fooo", foo.Value);
-        }        
+            Assert.IsNotNull(setting);
+            Assert.AreEqual("barx", setting.Value);
+        }
     }
 }

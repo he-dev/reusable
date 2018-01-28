@@ -33,5 +33,14 @@ namespace Reusable.SmartConfig.DataStores
             get => _value;
             set => _value = value.ValidateWith(ColumnValidator).ThrowIfNotValid();
         }
+
+        public static implicit operator SqlServerColumnMapping((string name, string value) mapping)
+        {
+            return new SqlServerColumnMapping
+            {
+                Name = mapping.name,
+                Value = mapping.value
+            };
+        }
     }
 }

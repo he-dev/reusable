@@ -33,7 +33,7 @@ namespace Reusable.SmartConfig.DataStores
         }
 
         [NotNull]
-        public string ConnectionString { get; set; }
+        public string ConnectionString { get; }
 
         [NotNull]
         public SqlFourPartName SettingTableName
@@ -58,44 +58,45 @@ namespace Reusable.SmartConfig.DataStores
         [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")] // it's fine to enumerate names multiple times
         protected override ISetting ReadCore(IEnumerable<SoftString> names)
         {
-            using (var connection = new SqlConnection(ConnectionString).Next(c => c.Open()))
-            using (var command = connection.CreateSelectCommand(this, names))
+            return SqlHelper.Execute(ConnectionString, connection =>
             {
-                //command.Prepare();
-
-                using (var settingReader = command.ExecuteReader())
+                using (var command = connection.CreateSelectCommand(this, names))
                 {
-                    var settings = new List<ISetting>();
+                    //command.Prepare();
 
-                    while (settingReader.Read())
+                    using (var settingReader = command.ExecuteReader())
                     {
-                        var result = new Setting((string)settingReader[ColumnMapping.Name])
-                        {
-                            Value = settingReader[ColumnMapping.Value],
-                        };
-                        settings.Add(result);
-                    }
+                        var settings = new List<ISetting>();
 
-                    return
-                        (from name in names
-                         from setting in settings
-                         where name.Equals(setting.Name)
-                         select setting).FirstOrDefault(Conditional.IsNotNull);
+                        while (settingReader.Read())
+                        {
+                            var result = new Setting((string)settingReader[ColumnMapping.Name])
+                            {
+                                Value = settingReader[ColumnMapping.Value],
+                            };
+                            settings.Add(result);
+                        }
+
+                        return
+                            (from name in names
+                             from setting in settings
+                             where name.Equals(setting.Name)
+                             select setting).FirstOrDefault(Conditional.IsNotNull);
+                    }
                 }
-            }
+            });
         }
 
         protected override void WriteCore(ISetting setting)
         {
-            using (var connection = new SqlConnection(ConnectionString).Next(c => c.Open()))
-            using (var transaction = connection.BeginTransaction())
-            using (var cmd = connection.CreateUpdateCommand(this, setting))
+            SqlHelper.Execute(ConnectionString, connection =>
             {
-                cmd.Transaction = transaction;
-                //cmd.Prepare();
-                cmd.ExecuteNonQuery();
-                transaction.Commit();
-            }
+                using (var cmd = connection.CreateUpdateCommand(this, setting))
+                {
+                    //cmd.Prepare();
+                    cmd.ExecuteNonQuery();
+                }
+            });            
         }
     }
 }
