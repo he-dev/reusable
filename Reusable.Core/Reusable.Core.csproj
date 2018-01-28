@@ -143,7 +143,6 @@
     <Compile Include="TehCodez\SoftStringComparer.cs" />
     <Compile Include="TehCodez\SoftStringExtensions.cs" />
     <Compile Include="TehCodez\Stopwatches\SystemStopwatch.cs" />
-    <Compile Include="TehCodez\StringExtensions.cs" />
     <Compile Include="TehCodez\PrettyString.cs" />
     <Compile Include="TehCodez\Disposable.cs" />
     <Compile Include="TehCodez\DependencyValidator.cs" />

@@ -25,20 +25,20 @@ namespace Reusable
             return string.Join(string.Empty, capitalizedWords);
         }
 
-        [NotNull, ContractAnnotation("typeFullName: null => halt; notnull => notnull")]
-        public static string ToShortName([NotNull] this string typeFullName)
-        {
-            if (typeFullName == null) throw new ArgumentNullException(nameof(typeFullName));
+        //[NotNull, ContractAnnotation("typeFullName: null => halt; notnull => notnull")]
+        //public static string ToShortName([NotNull] this string typeFullName)
+        //{
+        //    if (typeFullName == null) throw new ArgumentNullException(nameof(typeFullName));
 
-            // https://regex101.com/r/p5FY2y/1
-            return 
-                Regex
-                    .Replace(
-                        typeFullName, 
-                        @"(?:(?:\.?(?<type>[a-z]+)))+", 
-                        m => m.Groups["type"].Value, 
-                        RegexOptions.IgnoreCase
-                    );
-        }
+        //    // https://regex101.com/r/p5FY2y/1
+        //    return 
+        //        Regex
+        //            .Replace(
+        //                typeFullName, 
+        //                @"(?:(?:\.?(?<type>[a-z]+)))+", 
+        //                m => m.Groups["type"].Value, 
+        //                RegexOptions.IgnoreCase
+        //            );
+        //}
     }
 }

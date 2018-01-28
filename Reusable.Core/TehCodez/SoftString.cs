@@ -16,14 +16,14 @@ namespace Reusable
 
         private readonly string _value;
 
-        public SoftString() { }
-
         [DebuggerStepThrough]
         public SoftString([NotNull] string value)
         {
             if (value == null) throw new ArgumentNullException(nameof(value));
             _value = value.Trim();
         }
+
+        public SoftString() : this(string.Empty) { }
 
         [DebuggerStepThrough]
         public SoftString(char value)
