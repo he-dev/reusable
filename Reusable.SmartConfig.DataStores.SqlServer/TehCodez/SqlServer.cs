@@ -14,17 +14,9 @@ namespace Reusable.SmartConfig.DataStores
 {
     public class SqlServer : SettingDataStore
     {
-        private static readonly ConnectionStringRepository ConnectionStringRepository = new ConnectionStringRepository();
-
-        private readonly string _connectionString;
-
         public const string DefaultSchema = "dbo";
 
         public const string DefaultTable = "Setting";
-
-        private string _schema;
-
-        private string _table;
 
         private IReadOnlyDictionary<string, object> _where = new Dictionary<string, object>();
 
@@ -34,15 +26,14 @@ namespace Reusable.SmartConfig.DataStores
 
         public SqlServer(string nameOrConnectionString, ISettingConverter converter) : base(converter)
         {
-            _connectionString =
-                ConnectionStringRepository.GetConnectionString(nameOrConnectionString) ??
-                throw new ArgumentNullException(
-                    paramName: nameof(nameOrConnectionString),
-                    message: $"Connection string '{nameOrConnectionString}' not found.");
+            ConnectionString = ConnectionStringRepository.Default.GetConnectionString(nameOrConnectionString);
 
             SettingTableName = (DefaultSchema, DefaultTable);
             ColumnMapping = new SqlServerColumnMapping();
         }
+
+        [NotNull]
+        public string ConnectionString { get; set; }
 
         [NotNull]
         public SqlFourPartName SettingTableName
@@ -56,7 +47,7 @@ namespace Reusable.SmartConfig.DataStores
         {
             get => _columnMapping;
             set => _columnMapping = value ?? throw new ArgumentNullException(nameof(ColumnMapping));
-        }        
+        }
 
         public IReadOnlyDictionary<string, object> Where
         {
@@ -67,7 +58,7 @@ namespace Reusable.SmartConfig.DataStores
         [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")] // it's fine to enumerate names multiple times
         protected override ISetting ReadCore(IEnumerable<SoftString> names)
         {
-            using (var connection = new SqlConnection(_connectionString).Next(c => c.Open()))
+            using (var connection = new SqlConnection(ConnectionString).Next(c => c.Open()))
             using (var command = connection.CreateSelectCommand(this, names))
             {
                 //command.Prepare();
@@ -96,7 +87,7 @@ namespace Reusable.SmartConfig.DataStores
 
         protected override void WriteCore(ISetting setting)
         {
-            using (var connection = new SqlConnection(_connectionString).Next(c => c.Open()))
+            using (var connection = new SqlConnection(ConnectionString).Next(c => c.Open()))
             using (var transaction = connection.BeginTransaction())
             using (var cmd = connection.CreateUpdateCommand(this, setting))
             {
