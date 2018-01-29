@@ -25,10 +25,10 @@ namespace Reusable.SmartConfig
         private SettingDataStore()
         {
             Name = CreateDefaultName(GetType());
-            SettingNameGenerator = SettingNameByUsageGenerator.Default;
+            SettingNameGenerator = new SettingNameByUsageGenerator();
         }
 
-        protected SettingDataStore(ISettingConverter converter) : this()
+        protected SettingDataStore([NotNull] ISettingConverter converter) : this()
         {
             _converter = converter ?? throw new ArgumentNullException(nameof(converter));
         }
