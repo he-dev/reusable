@@ -29,6 +29,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="System.ComponentModel.DataAnnotations">
+      <HintPath>..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6.2\System.ComponentModel.DataAnnotations.dll</HintPath>
+    </Reference>
     <Reference Include="Telerik.JustMock">
       <HintPath>..\..\..\..\Users\Engineer\.nuget\packages\justmock\2018.1.117.2\lib\Net\Telerik.JustMock.dll</HintPath>
     </Reference>
