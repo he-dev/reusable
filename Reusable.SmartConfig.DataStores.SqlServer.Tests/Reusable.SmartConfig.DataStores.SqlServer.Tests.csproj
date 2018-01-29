@@ -25,7 +25,7 @@
     <ProjectReference Include="..\Reusable.SmartConfig.Core\Reusable.SmartConfig.Core.csproj" />
     <ProjectReference Include="..\Reusable.SmartConfig.DataStores.SqlServer\Reusable.SmartConfig.DataStores.SqlServer.csproj" />
     <ProjectReference Include="..\Reusable.SqlSchemaReader\Reusable.Utilities.SqlClient.csproj" />
-    <ProjectReference Include="..\Reusable.Tester\Reusable.Tester.csproj" />
+    <ProjectReference Include="..\Reusable.Tester\Reusable.Utilities.MSTest.csproj" />
   </ItemGroup>
 
   <ItemGroup>

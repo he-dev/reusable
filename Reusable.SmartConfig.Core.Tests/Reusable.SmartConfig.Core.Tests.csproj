@@ -28,6 +28,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
     <ProjectReference Include="..\Reusable.SmartConfig.Core\Reusable.SmartConfig.Core.csproj" />
-    <ProjectReference Include="..\Reusable.Tester\Reusable.Tester.csproj" />
+    <ProjectReference Include="..\Reusable.Tester\Reusable.Utilities.MSTest.csproj" />
   </ItemGroup>
 </Project>

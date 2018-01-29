@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.SmartConfig.InMemory</id>
+    <id>Reusable.SmartConfig.DataStores.InMemory</id>
     <version>3.96.0</version>
-    <title>Reusable.SmartConfig.InMemory</title>
+    <title>Reusable.SmartConfig.DataStores.InMemory</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
@@ -22,7 +22,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\Reusable.SmartConfig.InMemory.dll" target="lib\net452" />
-    <file src="bin\Release\Reusable.SmartConfig.InMemory.pdb" target="lib\net452" />
+    <file src="bin\Release\net47\Reusable.SmartConfig.DataStores.InMemory.dll" target="lib\net47" />
+    <file src="bin\Release\net47\Reusable.SmartConfig.DataStores.InMemory.pdb" target="lib\net47" />
   </files>
 </package>

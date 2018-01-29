@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.SmartConfig.AppConfig</id>
+    <id>Reusable.SmartConfig.DataStores.AppConfig</id>
     <version>3.96.0</version>
-    <title>Reusable.SmartConfig.AppConfig</title>
+    <title>Reusable.SmartConfig.DataStores.AppConfig</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
@@ -22,7 +22,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\Reusable.SmartConfig.AppConfig.dll" target="lib\net452" />
-    <file src="bin\Release\Reusable.SmartConfig.AppConfig.pdb" target="lib\net452" />
+    <file src="bin\Release\net47\Reusable.SmartConfig.DataStores.AppConfig.dll" target="lib\net47" />
+    <file src="bin\Release\net47\Reusable.SmartConfig.DataStores.AppConfig.pdb" target="lib\net47" />
   </files>
 </package>

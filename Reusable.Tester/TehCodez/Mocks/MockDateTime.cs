@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 
-namespace Reusable.Tester.Mocks
+namespace Reusable.Utilities.MSTest.Mocks
 {
     public class MockDateTime : IDateTime
     {

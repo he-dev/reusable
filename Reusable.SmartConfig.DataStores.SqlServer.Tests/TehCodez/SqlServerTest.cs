@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.SmartConfig.Data;
-using Reusable.Tester;
+using Reusable.Utilities.MSTest;
 using Reusable.Utilities.SqlClient;
 using Telerik.JustMock;
 using Telerik.JustMock.Helpers;

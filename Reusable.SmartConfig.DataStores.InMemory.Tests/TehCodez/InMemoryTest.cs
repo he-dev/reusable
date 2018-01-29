@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.SmartConfig.Data;
-using Reusable.Tester;
+using Reusable.Utilities.MSTest;
 using Telerik.JustMock;
 using Telerik.JustMock.Helpers;
 

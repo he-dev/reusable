@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Extensions;
 
-namespace Reusable.Tester
+namespace Reusable.Utilities.MSTest
 {
     public interface IEqualityComparerAssertExtensions { }
 

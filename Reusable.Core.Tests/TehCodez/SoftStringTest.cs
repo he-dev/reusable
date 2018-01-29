@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Tester;
+using Reusable.Utilities.MSTest;
 
 // ReSharper disable InconsistentNaming
 

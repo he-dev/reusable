@@ -2,9 +2,9 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Extensions;
-using Reusable.Tester.Mocks;
+using Reusable.Utilities.MSTest.Mocks;
 
-namespace Reusable.Tester.Tests.Mocks
+namespace Reusable.Utilities.MSTest.Tests.Mocks
 {
     [TestClass]
     public class MockStopwatchTest
