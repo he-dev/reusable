@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Tester;
+using Reusable.Utilities.MSTest;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.OmniLog.Tests

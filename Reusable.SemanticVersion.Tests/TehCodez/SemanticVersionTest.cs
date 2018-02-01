@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable;
 using Reusable.Exceptionize;
-using Reusable.Tester;
+using Reusable.Utilities.MSTest;
 
 // ReSharper disable EqualExpressionComparison
 

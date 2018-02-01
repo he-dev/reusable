@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Tester;
+using Reusable.Utilities.MSTest;
 using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
 
 namespace Reusable.Commander.Tests

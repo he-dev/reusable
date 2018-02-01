@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Tester;
+using Reusable.Utilities.MSTest;
 
 namespace Reusable.Converters.Tests
 {

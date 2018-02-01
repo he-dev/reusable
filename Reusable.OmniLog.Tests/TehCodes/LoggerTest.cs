@@ -4,8 +4,8 @@ using System.Linq;
 using System.Reactive.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.OmniLog.Collections;
-using Reusable.Tester;
-using Reusable.Tester.Mocks;
+using Reusable.Utilities.MSTest;
+using Reusable.Utilities.MSTest.Mocks;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.OmniLog.Tests

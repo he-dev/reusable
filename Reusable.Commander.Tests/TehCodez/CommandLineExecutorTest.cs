@@ -9,7 +9,7 @@ using Autofac;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Reusable.OmniLog;
-using Reusable.Tester;
+using Reusable.Utilities.MSTest;
 using IContainer = Autofac.IContainer;
 using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
 
