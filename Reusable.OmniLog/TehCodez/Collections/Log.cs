@@ -1,9 +1,9 @@
-﻿using Reusable.Collections;
+﻿using System.Collections.Generic;
+using Reusable.Collections;
 
 namespace Reusable.OmniLog.Collections
 {
-    public class Log : PainlessDictionary<SoftString, object>
-    {
-        
-    }
+    public interface ILog : IDictionary<SoftString, object> { }
+
+    public class Log : PainlessDictionary<SoftString, object>, ILog { }
 }

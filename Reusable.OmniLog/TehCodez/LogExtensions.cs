@@ -116,8 +116,8 @@ namespace Reusable.OmniLog
             {
                 switch (l.Value)
                 {
-                    case IEnumerable<KeyValuePair<SoftString, object>> dictionary: return dictionary;
-                    default: return new[] { new KeyValuePair<SoftString, object>(l.Key, l.Value) };
+                    case ILog sublog: return sublog;
+                    default: return new Log { [l.Key] = l.Value };
                 }
             });
 

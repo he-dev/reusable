@@ -15,7 +15,7 @@ namespace Reusable.OmniLog
         private LogScope(SoftString name, int depth, IEnumerable<(SoftString Key, object Value)> state)
         {
             Depth = depth;
-            Name = name is null ? $"{nameof(LogScope)}{depth}" : name;
+            Name = name ?? $"{nameof(LogScope)}{depth}";
             this.AddRange(state);
             this.Scope(Name);
         }
@@ -52,15 +52,5 @@ namespace Reusable.OmniLog
         {
             Current = Current.Parent;
         }
-    }
-
-    /// <summary>
-    /// Use this interface to implement merging of scope logs.
-    /// </summary>
-    public interface ILogScopeMerge
-    {
-        SoftString Name { get; }
-
-        KeyValuePair<SoftString, object> Merge(IEnumerable<KeyValuePair<SoftString, object>> items);
     }
 }

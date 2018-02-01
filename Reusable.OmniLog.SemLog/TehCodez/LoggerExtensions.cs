@@ -8,7 +8,7 @@ using Reusable.OmniLog.SemanticExtensions.Attachements;
 
 namespace Reusable.OmniLog.SemanticExtensions
 {
-    public delegate (string Name, object Object) CreateCategoryFunc(Log log);    
+    public delegate (string CategoryName, string ObjectName, object Object) CreateCategoryFunc();
 
     [PublicAPI]
     public static class LoggerExtensions
@@ -35,15 +35,15 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             logger.Log(LogLevelMap[layer], log =>
             {
-                var category = createCategoryFunc(log);
+                var (categoryName, objectName, dump) = createCategoryFunc();
 
-                log.With(nameof(Category), category.Name);               
+                log.With(nameof(Category), categoryName);
 
-                if (!log.ContainsKey("Bag"))
+                if (!log.ContainsKey(nameof(LogBag)))
                 {
-                    log.Add("Bag", new LogBag());
+                    log.Add(nameof(LogBag), new LogBag());
                 }
-                log.Bag().Add(nameof(Snapshot), category.Object);
+                log.Bag().Add(nameof(Snapshot), new LogCategorySnapshot { Name = objectName, Dump = dump });
 
                 log.With(nameof(Layer), layer);
                 log.Add(LogProperty.CallerMemberName, callerMemberName);

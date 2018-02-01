@@ -11,13 +11,9 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// <summary>
         /// Attaches transaction to each log.
         /// </summary>
-        /// <param name="log"></param>
-        /// <param name="transaction"></param>
-        /// <returns></returns>
-        public static Log Transaction(this Log log, object transaction)
+        public static Log Transaction(this Log log, string name, object obj)
         {
-            log.Property<string>(transaction.ToString());
-            return log;
+            return log.With(name, obj);
         }
 
         /// <summary>
@@ -27,23 +23,20 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// <returns></returns>
         public static Log Elapsed(this Log log)
         {
-            log.Add(new ElapsedMilliseconds("Elapsed").ToLogProperty());
+            log.Add(new ElapsedMilliseconds(nameof(Elapsed)).ToLogProperty());
             return log;
         }
 
         /// <summary>
         /// Attaches layer to each log.
         /// </summary>
-        /// <param name="log"></param>
-        /// <param name="layer"></param>
-        /// <returns></returns>
         public static Log Layer(this Log log, Layer layer)
         {
             return log.With(nameof(Layer), layer);
         }
     }
 
-    public class TransactionMerge : ILogScopeMerge
+    public class LogTransactionMerge : ILogScopeMerge
     {
         public SoftString Name => "Transaction";
 

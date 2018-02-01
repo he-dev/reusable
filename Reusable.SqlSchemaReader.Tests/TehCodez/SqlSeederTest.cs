@@ -24,7 +24,7 @@ namespace Reusable.Utilities.SqlClient.Tests
             var sqlColumns = SqlHelper.Execute(ConnectonString, connection => connection.GetColumnFrameworkTypes(Schema, Table)).AsEnumerable();
             var csv = csvReader.AsEnumerable().ToDataTable(sqlColumns, SqlTypeConverter.Default);
 
-            SqlHelper.Execute(ConnectonString, connection => connection.Seed(Schema, Table, csv));
+            SqlHelper.Execute(ConnectonString, connection => connection.Seed((Schema, Table), csv));
 
             Assert.AreEqual(3, SqlHelper.Execute(ConnectonString, connection =>
             {
@@ -39,7 +39,7 @@ namespace Reusable.Utilities.SqlClient.Tests
             var sqlColumns = SqlHelper.Execute(ConnectonString, connection => connection.GetColumnFrameworkTypes(Schema, Table));
             var csv = csvReader.AsEnumerable().ToDataTable(sqlColumns, SqlTypeConverter.Default);
 
-            SqlHelper.Execute(ConnectonString, connection => connection.Seed(Schema, Table, csv));
+            SqlHelper.Execute(ConnectonString, connection => connection.Seed((Schema, Table), csv));
 
             Assert.AreEqual(2, SqlHelper.Execute(ConnectonString, connection =>
             {
