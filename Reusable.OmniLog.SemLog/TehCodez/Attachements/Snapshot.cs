@@ -16,7 +16,7 @@ namespace Reusable.OmniLog.SemanticExtensions.Attachements
 
         public override object Compute(Log log)
         {
-            if (log.TryGetValue(nameof(LogBag), out var bag) && bag is LogBag b && b.TryGetValue(Name.ToString(), out var obj))
+            if (log.TryGetValue(nameof(LogBag), out var value) && value is LogBag bag && bag.TryGetValue(Name.ToString(), out var obj))
             {
                 return _serializer.SerializeObject(obj);
             }

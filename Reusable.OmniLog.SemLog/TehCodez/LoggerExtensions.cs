@@ -56,6 +56,9 @@ namespace Reusable.OmniLog.SemanticExtensions
             });
         }
 
+        /// <summary>
+        /// Begins a new transaction-scope.
+        /// </summary>
         public static LogScope BeginTransaction(this ILogger logger, object state, Action<Log> logAction = null)
         {
             return logger.BeginScope(null, new { Transaction = state }, logAction ?? (_ => { }));
