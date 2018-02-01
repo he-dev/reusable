@@ -49,7 +49,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SmartConfig", "SmartConfig"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Net.Mail.OutlookClient", "Reusable.Net.Mail.OutlookClient\Reusable.Net.Mail.OutlookClient.csproj", "{2981DB10-8383-47FF-9E18-12534AD86D3B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Tester", "Reusable.Tester\Reusable.Tester.csproj", "{FBCB78CD-68DD-497F-AE6E-5084A799F24E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Utilities.MSTest", "Reusable.Tester\Reusable.Utilities.MSTest.csproj", "{FBCB78CD-68DD-497F-AE6E-5084A799F24E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Sequences", "Reusable.Sequences\Reusable.Sequences.csproj", "{A32E0541-8D41-472F-BD25-0D8419C6AABC}"
 EndProject
@@ -71,7 +71,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Net.Mail.Tests", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Utilities.ThirdParty.JsonNet", "Reusable.ThirdParty.JsonNetUtilities\Reusable.Utilities.ThirdParty.JsonNet.csproj", "{37C5C43A-159A-4312-BF3B-E00F7BE456E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Tester.Tests", "Reusable.Tester.Tests\Reusable.Tester.Tests.csproj", "{FD93FC48-78C0-4E58-B373-3F59B1EAA293}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Utilities.MSTest.Tests", "Reusable.Tester.Tests\Reusable.Utilities.MSTest.Tests.csproj", "{FD93FC48-78C0-4E58-B373-3F59B1EAA293}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.OmniLog.SemanticExtensions", "Reusable.OmniLog.SemLog\Reusable.OmniLog.SemanticExtensions.csproj", "{7D2AE64A-854E-41BF-AB1D-CA3AA8ADFA9A}"
 EndProject

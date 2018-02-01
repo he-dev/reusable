@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Extensions;
 using Reusable.Reflection;
-using Reusable.Tester;
+using Reusable.Utilities.MSTest;
 
 namespace Reusable.Tests
 {

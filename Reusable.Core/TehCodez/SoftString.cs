@@ -44,11 +44,11 @@ namespace Reusable
 
         public bool EndsWith(string value) => _value.EndsWith((string)(SoftString)value, StringComparison.OrdinalIgnoreCase);
 
-        public bool IsMatch([NotNull, RegexPattern] string pattern)
+        public bool IsMatch([NotNull, RegexPattern] string pattern, RegexOptions options = RegexOptions.IgnoreCase)
         {
             if (pattern == null) throw new ArgumentNullException(nameof(pattern));
 
-            return Regex.IsMatch(ToString(), pattern, RegexOptions.IgnoreCase);
+            return Regex.IsMatch(ToString(), pattern, options);
         }
 
         public override string ToString() => _value ?? string.Empty;

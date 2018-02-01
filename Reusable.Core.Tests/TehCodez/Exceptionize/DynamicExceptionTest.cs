@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Exceptionize;
-using Reusable.Tester;
+using Reusable.Utilities.MSTest;
 
 namespace Reusable.Tests.Exceptionable
 {

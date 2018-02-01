@@ -2,7 +2,7 @@
 
 namespace Reusable.OmniLog
 {
-    public delegate bool LoggerPredicate(LogLevel logLevel, SoftString softString);
+    public delegate bool LoggerPredicate([NotNull] LogLevel logLevel, [NotNull] SoftString category);
     
     public static class LoggerFilter
     {

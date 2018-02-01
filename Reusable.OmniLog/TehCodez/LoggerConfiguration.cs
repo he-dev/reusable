@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using JetBrains.Annotations;
-using Reusable.OmniLog.Collections;
 
 namespace Reusable.OmniLog
 {

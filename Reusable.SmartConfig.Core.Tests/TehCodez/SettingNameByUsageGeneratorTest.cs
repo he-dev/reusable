@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Tester;
+using Reusable.Utilities.MSTest;
 
 namespace Reusable.SmartConfig.Tests
 {
@@ -10,7 +10,7 @@ namespace Reusable.SmartConfig.Tests
         [TestMethod]
         public void GenerateSettingNames_SettingNameWithoutInstance_TwoNames()
         {
-            var names = SettingNameByUsageGenerator.Default.GenerateSettingNames("foo.bar+baz").ToList();
+            var names = new SettingNameByUsageGenerator().GenerateSettingNames("foo.bar+baz").ToList();
             
             Assert.That.Collection().CountEquals(2, names);
             Assert.AreEqual("baz", names.ElementAt(0));
@@ -19,7 +19,7 @@ namespace Reusable.SmartConfig.Tests
         [TestMethod]
         public void GenerateSettingNames_SettingNameWithInstance_FourNames()
         {
-            var names = SettingNameByUsageGenerator.Default.GenerateSettingNames("foo.bar+baz,qux").ToList();
+            var names = new SettingNameByUsageGenerator().GenerateSettingNames("foo.bar+baz,qux").ToList();
 
             Assert.That.Collection().CountEquals(4, names);
             Assert.AreEqual("baz,qux", names.ElementAt(0));

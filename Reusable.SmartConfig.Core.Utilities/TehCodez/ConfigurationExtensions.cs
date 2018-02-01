@@ -54,8 +54,11 @@ namespace Reusable.SmartConfig.Utilities
         }
 
         [CanBeNull]
-        public static T GetValue<T>(this IConfiguration config, [NotNull] SoftString settingName)
+        public static T GetValue<T>([NotNull] this IConfiguration config, [NotNull] SoftString settingName)
         {
+            if (config == null) throw new ArgumentNullException(nameof(config));
+            if (settingName == null) throw new ArgumentNullException(nameof(settingName));
+
             return (T)config.GetValue(settingName, typeof(T), null);
         }
 
@@ -94,12 +97,14 @@ namespace Reusable.SmartConfig.Utilities
 
         #region AssignValue overloads
 
+        /// <summary>
+        /// Assigns the same setting value to the specified member.
+        /// </summary>
         [NotNull]
         public static IConfiguration AssignValue<T>([NotNull] this IConfiguration configuration, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instance = null)
         {
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
-
 
             var settingContext = new SettingContext(expression, instance);
 
@@ -109,13 +114,20 @@ namespace Reusable.SmartConfig.Utilities
             return configuration;
         }
 
+        /// <summary>
+        /// Assigns setting values to all members decorated with the the SmartSettingAttribute.
+        /// </summary>
         [NotNull]
         public static IConfiguration AssignValues<T>([NotNull] this IConfiguration configuration, [NotNull] T obj, [CanBeNull] string instance = null)
         {
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
             if (obj == null) throw new ArgumentNullException(nameof(obj));
 
-            var properties = typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(p => p.GetCustomAttribute<SmartSettingAttribute>() != null);
+            var properties = 
+                typeof(T)
+                    .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                    .Where(p => p.GetCustomAttribute<SmartSettingAttribute>() != null);
+
             foreach (var property in properties)
             {
                 // Create a lambda-expression so that we can reuse the extensions for it we already have.
@@ -127,7 +139,7 @@ namespace Reusable.SmartConfig.Utilities
                 );
 
                 var settingContext = new SettingContext(expression, instance);
-                var value = configuration.GetValue<T>(expression, instance);
+                var value = configuration.GetValue(settingContext.SettingName, property.PropertyType, settingContext.DataStoreName);
                 settingContext.SetValue(value);
             }
             return configuration;

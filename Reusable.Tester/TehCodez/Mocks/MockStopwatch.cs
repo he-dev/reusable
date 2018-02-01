@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Custom;
 using JetBrains.Annotations;
-using Reusable.Extensions;
 
-namespace Reusable.Tester.Mocks
+namespace Reusable.Utilities.MSTest.Mocks
 {
     [PublicAPI]
     public class MockStopwatch : IStopwatch, IDisposable

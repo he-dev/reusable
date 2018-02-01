@@ -13,7 +13,7 @@ namespace Reusable.MarkupBuilder
     {
         private static readonly ConcurrentDictionary<Type, object> MarkupElementFactoryCache = new ConcurrentDictionary<Type, object>();
 
-        private static T Create<T>(string name) where T : class, IMarkupElement
+        private static T CreateElement<T>(string name) where T : class, IMarkupElement
         {
             var create = (Func<string, T>)MarkupElementFactoryCache.GetOrAdd(typeof(T), markupElementType =>
             {
@@ -51,7 +51,7 @@ namespace Reusable.MarkupBuilder
         [NotNull]
         public static T Element<T, TLocal>([CanBeNull] this T @this, string name, TLocal local, Action<T, TLocal> body) where T : class, IMarkupElement
         {
-            var element = Create<T>(name);
+            var element = CreateElement<T>(name);
 
             body.Invoke(element, local);
 
@@ -89,7 +89,7 @@ namespace Reusable.MarkupBuilder
         {
             foreach (var item in content)
             {
-                var current = Create<T>(name);
+                var current = CreateElement<T>(name);
                 contentAction(current, item);
                 @this.Add(current);
             }

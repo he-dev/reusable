@@ -3,6 +3,7 @@ using System;
 using Telerik.JustMock;
 using Reusable.SmartConfig.Utilities;
 using Telerik.JustMock.Helpers;
+using System.ComponentModel.DataAnnotations;
 
 namespace Reusable.SmartConfig.Core.Utilities.Tests
 {
@@ -83,6 +84,43 @@ namespace Reusable.SmartConfig.Core.Utilities.Tests
             TestClass.AssertGetValueStatic(configuration);
         }
 
+        [TestMethod]
+        public void GetValue_SettingWithValidation_Valid()
+        {
+            var configuration = Mock.Create<IConfiguration>();
+            Mock
+                .Arrange(() => configuration.GetValue(
+                    Arg.IsAny<SoftString>(),
+                    Arg.IsAny<Type>(),
+                    Arg.IsAny<SoftString>())
+                )
+                .Returns("foo")
+                .OccursOnce();
+
+            var testClass3 = new TestClass3();
+            var value = configuration.GetValue(() => testClass3.Foo);
+
+            configuration.Assert();
+            Assert.AreEqual("foo", value);
+        }
+
+        [TestMethod]
+        public void GetValue_SettingWithValidation_Throws()
+        {
+            var configuration = Mock.Create<IConfiguration>();
+            Mock
+                .Arrange(() => configuration.GetValue(
+                    Arg.IsAny<SoftString>(),
+                    Arg.IsAny<Type>(),
+                    Arg.IsAny<SoftString>())
+                )
+                .Returns((object)null)
+                .OccursOnce();
+
+            var testClass3 = new TestClass3();
+            var validationException = Assert.ThrowsException<ValidationException>(() => configuration.GetValue(() => testClass3.Foo));
+        }
+
         #endregion
 
         #region AssignValue(s) tests
@@ -124,6 +162,29 @@ namespace Reusable.SmartConfig.Core.Utilities.Tests
             testClass.AssertAssignValue(configuration);
         }
 
+        [TestMethod]
+        public void AssignValues_InstanceProperties_Assigned()
+        {
+            var counter = 1;
+
+            var configuration = Mock.Create<IConfiguration>();
+            Mock
+                .Arrange(() => configuration.GetValue(
+                    Arg.IsAny<SoftString>(),
+                    Arg.IsAny<Type>(),
+                    Arg.IsAny<SoftString>())
+                )
+                .Returns(() => "Setting" + counter++)
+                .Occurs(2);
+
+            var testClass2 = new TestClass2();
+            configuration.AssignValues(testClass2);
+
+            configuration.Assert();
+            Assert.AreEqual("Setting1", testClass2.Foo);
+            Assert.AreEqual("Setting2", testClass2.Bar);
+
+        }
         #endregion
     }
 
@@ -156,5 +217,20 @@ namespace Reusable.SmartConfig.Core.Utilities.Tests
             configuration.Assert();
             Assert.AreEqual("foo", Foo);
         }
+    }
+
+    internal class TestClass2
+    {
+        [SmartSetting]
+        public string Foo { get; set; }
+
+        [SmartSetting]
+        public string Bar { get; set; }
+    }
+
+    internal class TestClass3
+    {
+        [Required]
+        public string Foo { get; set; }
     }
 }

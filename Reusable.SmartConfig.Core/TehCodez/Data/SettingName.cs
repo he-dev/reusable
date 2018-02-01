@@ -10,6 +10,7 @@ using Reusable.Extensions;
 
 namespace Reusable.SmartConfig.Data
 {
+    [PublicAPI]
     public partial class SettingName
     {
         public const string NamespaceSeparator = "+";

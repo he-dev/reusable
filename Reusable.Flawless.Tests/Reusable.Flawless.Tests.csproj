@@ -104,9 +104,9 @@
       <Project>{bc9c9c4a-7b6c-434a-ae5d-39d1aa553dfa}</Project>
       <Name>Reusable.Flawless</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Reusable.Tester\Reusable.Tester.csproj">
+    <ProjectReference Include="..\Reusable.Tester\Reusable.Utilities.MSTest.csproj">
       <Project>{fbcb78cd-68dd-497f-ae6e-5084a799f24e}</Project>
-      <Name>Reusable.Tester</Name>
+      <Name>Reusable.Utilities.MSTest</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

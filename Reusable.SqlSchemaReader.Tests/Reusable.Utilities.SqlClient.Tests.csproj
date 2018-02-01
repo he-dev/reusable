@@ -87,9 +87,9 @@
       <Project>{066cdaa2-687f-4347-af84-a2d23c3ce14d}</Project>
       <Name>Reusable.FileFormats.Csv.SqlExtensions</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Reusable.Tester\Reusable.Tester.csproj">
+    <ProjectReference Include="..\Reusable.Tester\Reusable.Utilities.MSTest.csproj">
       <Project>{fbcb78cd-68dd-497f-ae6e-5084a799f24e}</Project>
-      <Name>Reusable.Tester</Name>
+      <Name>Reusable.Utilities.MSTest</Name>
     </ProjectReference>
     <ProjectReference Include="..\Reusable.SqlSchemaReader\Reusable.Utilities.SqlClient.csproj">
       <Project>{e8e80901-abe3-4bbf-a787-dcb6c627783d}</Project>

@@ -4,7 +4,7 @@ using System.Linq;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Collections;
 
-namespace Reusable.Tester.Mocks
+namespace Reusable.Utilities.MSTest.Mocks
 {
     public class MockTimestamp : LogAttachement
     {

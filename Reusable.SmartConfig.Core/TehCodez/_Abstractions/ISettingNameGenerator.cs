@@ -7,7 +7,7 @@ namespace Reusable.SmartConfig
     public interface ISettingNameGenerator
     {
         /// <summary>
-        /// Generates setting names ordered by the usage frequency.
+        /// Generates setting names.
         /// </summary>
         [NotNull, ItemNotNull]
         IEnumerable<SettingName> GenerateSettingNames([NotNull] SoftString settingName);

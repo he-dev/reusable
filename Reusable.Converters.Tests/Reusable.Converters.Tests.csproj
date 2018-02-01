@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Reusable.Converters.Tests</RootNamespace>
     <AssemblyName>Reusable.Converters.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -97,9 +97,9 @@
     <Compile Include="_SpecificConverters\SByteConvertersTest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Tester\Reusable.Tester.csproj">
+    <ProjectReference Include="..\Reusable.Tester\Reusable.Utilities.MSTest.csproj">
       <Project>{fbcb78cd-68dd-497f-ae6e-5084a799f24e}</Project>
-      <Name>Reusable.Tester</Name>
+      <Name>Reusable.Utilities.MSTest</Name>
     </ProjectReference>
     <ProjectReference Include="..\Reusable.Converters\Reusable.Converters.csproj">
       <Project>{d7da0768-b385-40de-abac-0a6b0c5b73f4}</Project>
