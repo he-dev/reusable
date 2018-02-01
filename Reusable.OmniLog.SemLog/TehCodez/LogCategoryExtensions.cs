@@ -13,35 +13,66 @@ namespace Reusable.OmniLog.SemanticExtensions
     [PublicAPI]
     public static class LogCategoryExtensions
     {
-        public static CreateCategoryFunc Object(this ILogCategory category, object obj, string name)
+        #region IData extensions
+
+        public static CreateCategoryFunc Object(this IData category, object obj, string name)
         {
             return category.From(nameof(Object), name, obj);
         }
 
-        public static CreateCategoryFunc Field(this ILogCategory category, object obj, string name)
+        public static CreateCategoryFunc Field(this IData category, object obj, string name)
         {
             return category.From(nameof(Field), name, obj);
         }
 
-        public static CreateCategoryFunc Property(this ILogCategory category, object obj, string name)
+        public static CreateCategoryFunc Property(this IData category, object obj, string name)
         {
             return category.From(nameof(Property), name, obj);
         }
 
-        public static CreateCategoryFunc Action(this ILogCategory category, object obj, string name)
-        {
-            return category.From(nameof(Action), name, obj);
-        }
-
-        public static CreateCategoryFunc Argument(this ILogCategory category, object obj, string name)
+        public static CreateCategoryFunc Argument(this IData category, object obj, string name)
         {
             return category.From(nameof(Argument), name, obj);
         }
 
-        public static CreateCategoryFunc Variable(this ILogCategory category, object obj, string name)
+        public static CreateCategoryFunc Variable(this IData category, object obj, string name)
         {
             return category.From(nameof(Variable), name, obj);
         }
+
+        #endregion
+
+        #region IAction extensions
+
+        public static CreateCategoryFunc Started(this IAction category, string name)
+        {
+            return category.From(nameof(Action), name, nameof(Started));
+        }
+
+        public static CreateCategoryFunc Cancelled(this IAction category, string name, string reason = null)
+        {
+            return log =>
+            {
+                log.Message(reason);
+                return (nameof(Action), name, nameof(Cancelled));
+            };
+        }
+
+        public static CreateCategoryFunc Failed(this IAction category, string name, Exception exception = null)
+        {
+            return log =>
+            {
+                log.Exception(exception);
+                return (nameof(Action), name, nameof(Failed));
+            };
+        }
+
+        public static CreateCategoryFunc Finished(this IAction category, string name)
+        {
+            return category.From(nameof(Action), name, nameof(Finished));
+        }
+
+        #endregion
 
         /// <summary>
         /// Allows to create any type of snapshot.
@@ -49,7 +80,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// <returns></returns>
         private static CreateCategoryFunc From(this ILogCategory category, string categoryName, string objectName, object obj)
         {
-            return () => (categoryName, objectName, obj);
+            return log => (categoryName, objectName, obj);
         }
     }
 }

@@ -70,6 +70,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TehCodez\JsonStateSerializer.cs" />
     <Compile Include="TehCodez\LogCategory.cs" />
     <Compile Include="TehCodez\LoggerExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -77,6 +78,8 @@
     <Compile Include="TehCodez\LogExtensions.cs" />
     <Compile Include="TehCodez\Attachements\Snapshot.cs" />
     <Compile Include="TehCodez\LogCategoryExtensions.cs" />
+    <Compile Include="TehCodez\LogTransactionMerge.cs" />
+    <Compile Include="TehCodez\_Abstractions\IStateSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Custom;
 
 namespace Reusable.OmniLog
 {
@@ -10,5 +12,5 @@ namespace Reusable.OmniLog
         SoftString Name { get; }
 
         KeyValuePair<SoftString, object> Merge(IEnumerable<KeyValuePair<SoftString, object>> items);
-    }
+    }    
 }

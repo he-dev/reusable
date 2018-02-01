@@ -66,7 +66,7 @@ namespace Reusable.OmniLog
         public static ILogger Trace(this ILogger logger, MessageFunc messageFunc, Func<Log, Log> logFunc = null)
         {
             return logger.Log(LogLevel.Trace, messageFunc, logFunc ?? (_ => _));
-        }               
+        }
 
         public static ILogger Debug(this ILogger logger, MessageFunc messageFunc, Func<Log, Log> logFunc = null)
         {
@@ -92,13 +92,13 @@ namespace Reusable.OmniLog
         {
             return logger.Log(LogLevel.Fatal, messageFunc, logFunc ?? (_ => _));
         }
-        
+
         public static T TraceReturn<T>(this ILogger logger, T obj, Func<T, string> messageFunc, Func<Log, Log> logFunc = null)
         {
             logger.Log(LogLevel.Trace, () => messageFunc(obj), logFunc ?? (_ => _));
             return obj;
         }
-        
+
         public static T DebugReturn<T>(this ILogger logger, T obj, Func<T, string> messageFunc, Func<Log, Log> logFunc = null)
         {
             logger.Log(LogLevel.Debug, () => messageFunc(obj), logFunc ?? (_ => _));
@@ -133,9 +133,9 @@ namespace Reusable.OmniLog
 
         #region BeginScope	
 
-        public static LogScope BeginScope(this ILogger logger, object state)
+        public static LogScope BeginScope(this ILogger logger, object state, Action<Log> logAction = null)
         {
-            return logger.BeginScope(null, state, log => { });
+            return logger.BeginScope(null, state, logAction ?? (_ => { }));
         }
 
         public static LogScope BeginScope(this ILogger logger, Action<Log> logAction)

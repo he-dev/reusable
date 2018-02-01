@@ -11,6 +11,7 @@
 <#@ import namespace="System.Data.SqlClient" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="Reusable.Utilities.SqlClient" #>
+<#@ import namespace="Reusable.Utilities.SqlClient.SqlSchemas" #>
 <#@ output extension=".config" #>
 <?xml version="1.0" encoding="utf-8" ?>
 <#
@@ -20,7 +21,7 @@
 	var connectionString = "data source=(local);initial catalog=TestDb;integrated security=true";
 	var database = "testingdb";
 	var schema = "dbo";
-	var tablePattern = "SemLog2";
+	var tablePattern = "SemLog3";
 	var mainLogPattern = "";
 	var internalLogFile = @"c:\temp\NLog.Reusable.Console.log";
 	

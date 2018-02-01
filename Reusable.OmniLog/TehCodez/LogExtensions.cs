@@ -30,7 +30,7 @@ namespace Reusable.OmniLog
 
         public static SoftString Scope(this Log log, object value = null) => log.Property<SoftString>(value);
 
-        public static LogBag Bag(this Log log, object value = null) => log.Property<LogBag>(value);
+        public static LogBag Bag(this Log log, object value = null) => log.Property<LogBag>(value, nameof(LogBag));
 
         public static IEnumerable<SoftString> Scopes(this Log log)
         {

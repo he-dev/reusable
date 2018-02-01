@@ -1,31 +1,32 @@
-USE [TestingDb]
+USE [TestDb]
 GO
 
-/****** Object:  Table [dbo].[SemLog2]    Script Date: 08.12.2017 19:53:25 ******/
+/****** Object:  Table [dbo].[SemLog3]    Script Date: 2018-02-01 13:50:49 ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE TABLE [dbo].[SemLog2](
+CREATE TABLE [dbo].[SemLog3](
 	[Id] [bigint] IDENTITY(1,1) NOT NULL,
 	[Timestamp] [datetime2](7) NOT NULL,
 	[Environment] [nvarchar](50) NOT NULL,
 	[Product] [nvarchar](50) NOT NULL,
 	[Logger] [nvarchar](50) NOT NULL,
-	[Transaction] [nvarchar](50) NULL,
+	[Scope] [nvarchar](max) NULL,
 	[Layer] [nvarchar](50) NOT NULL,
 	[Level] [nvarchar](50) NOT NULL,
-	[Category] [nvarchar](50) NULL,
-	[Snapshot] [nvarchar](max) NULL,
+	[Category] [nvarchar](50) NOT NULL,
+	[Identifier] [nvarchar](50) NOT NULL,
+	[Snapshot] [nvarchar](max) NOT NULL,
 	[Elapsed] [bigint] NULL,
 	[Message] [nvarchar](max) NULL,
 	[Exception] [nvarchar](max) NULL,
 	[CallerMemberName] [nvarchar](200) NULL,
 	[CallerLineNumber] [int] NULL,
 	[CallerFilePath] [nvarchar](200) NULL,
- CONSTRAINT [PK_SemLog2] PRIMARY KEY CLUSTERED 
+ CONSTRAINT [PK_SemLog3] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 80) ON [PRIMARY]
@@ -35,58 +36,8 @@ GO
 SET ANSI_PADDING ON
 GO
 
-/****** Object:  Index [SemLog2_IX_Environment]    Script Date: 08.12.2017 19:53:25 ******/
-CREATE NONCLUSTERED INDEX [SemLog2_IX_Environment] ON [dbo].[SemLog2]
-(
-	[Environment] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 80) ON [PRIMARY]
-GO
-
-SET ANSI_PADDING ON
-GO
-
-/****** Object:  Index [SemLog2_IX_Layer]    Script Date: 08.12.2017 19:53:25 ******/
-CREATE NONCLUSTERED INDEX [SemLog2_IX_Layer] ON [dbo].[SemLog2]
-(
-	[Layer] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 80) ON [PRIMARY]
-GO
-
-SET ANSI_PADDING ON
-GO
-
-/****** Object:  Index [SemLog2_IX_Level]    Script Date: 08.12.2017 19:53:25 ******/
-CREATE NONCLUSTERED INDEX [SemLog2_IX_Level] ON [dbo].[SemLog2]
-(
-	[Level] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 80) ON [PRIMARY]
-GO
-
-SET ANSI_PADDING ON
-GO
-
-/****** Object:  Index [SemLog2_IX_Logger]    Script Date: 08.12.2017 19:53:25 ******/
-CREATE NONCLUSTERED INDEX [SemLog2_IX_Logger] ON [dbo].[SemLog2]
-(
-	[Logger] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 80) ON [PRIMARY]
-GO
-
-SET ANSI_PADDING ON
-GO
-
-/****** Object:  Index [SemLog2_IX_Product]    Script Date: 08.12.2017 19:53:25 ******/
-CREATE NONCLUSTERED INDEX [SemLog2_IX_Product] ON [dbo].[SemLog2]
-(
-	[Product] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 80) ON [PRIMARY]
-GO
-
-SET ANSI_PADDING ON
-GO
-
-/****** Object:  Index [SemLog2_IX_State]    Script Date: 08.12.2017 19:53:25 ******/
-CREATE NONCLUSTERED INDEX [SemLog2_IX_State] ON [dbo].[SemLog2]
+/****** Object:  Index [SemLog3_IX_Category]    Script Date: 2018-02-01 13:50:49 ******/
+CREATE NONCLUSTERED INDEX [SemLog3_IX_Category] ON [dbo].[SemLog3]
 (
 	[Category] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 80) ON [PRIMARY]
@@ -95,11 +46,50 @@ GO
 SET ANSI_PADDING ON
 GO
 
-/****** Object:  Index [SemLog2_IX_Transaction]    Script Date: 08.12.2017 19:53:25 ******/
-CREATE NONCLUSTERED INDEX [SemLog2_IX_Transaction] ON [dbo].[SemLog2]
+/****** Object:  Index [SemLog3_IX_Environment]    Script Date: 2018-02-01 13:50:49 ******/
+CREATE NONCLUSTERED INDEX [SemLog3_IX_Environment] ON [dbo].[SemLog3]
 (
-	[Transaction] ASC
+	[Environment] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 80) ON [PRIMARY]
 GO
 
+SET ANSI_PADDING ON
+GO
+
+/****** Object:  Index [SemLog3_IX_Layer]    Script Date: 2018-02-01 13:50:49 ******/
+CREATE NONCLUSTERED INDEX [SemLog3_IX_Layer] ON [dbo].[SemLog3]
+(
+	[Layer] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 80) ON [PRIMARY]
+GO
+
+SET ANSI_PADDING ON
+GO
+
+/****** Object:  Index [SemLog3_IX_Level]    Script Date: 2018-02-01 13:50:49 ******/
+CREATE NONCLUSTERED INDEX [SemLog3_IX_Level] ON [dbo].[SemLog3]
+(
+	[Level] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 80) ON [PRIMARY]
+GO
+
+SET ANSI_PADDING ON
+GO
+
+/****** Object:  Index [SemLog3_IX_Logger]    Script Date: 2018-02-01 13:50:49 ******/
+CREATE NONCLUSTERED INDEX [SemLog3_IX_Logger] ON [dbo].[SemLog3]
+(
+	[Logger] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 80) ON [PRIMARY]
+GO
+
+SET ANSI_PADDING ON
+GO
+
+/****** Object:  Index [SemLog3_IX_Product]    Script Date: 2018-02-01 13:50:49 ******/
+CREATE NONCLUSTERED INDEX [SemLog3_IX_Product] ON [dbo].[SemLog3]
+(
+	[Product] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 80) ON [PRIMARY]
+GO
 

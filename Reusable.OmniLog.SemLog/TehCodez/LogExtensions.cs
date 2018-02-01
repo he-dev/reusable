@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Custom;
+﻿using System.Linq.Custom;
 using Reusable.OmniLog.Attachements;
 using Reusable.OmniLog.Collections;
 
@@ -33,16 +31,6 @@ namespace Reusable.OmniLog.SemanticExtensions
         public static Log Layer(this Log log, Layer layer)
         {
             return log.With(nameof(Layer), layer);
-        }
-    }
-
-    public class LogTransactionMerge : ILogScopeMerge
-    {
-        public SoftString Name => "Transaction";
-
-        public KeyValuePair<SoftString, object> Merge(IEnumerable<KeyValuePair<SoftString, object>> items)
-        {
-            return new KeyValuePair<SoftString, object>(items.First().Key, items.Select(i => i.Value.ToString()).Reverse().Join("/"));
         }
     }
 }

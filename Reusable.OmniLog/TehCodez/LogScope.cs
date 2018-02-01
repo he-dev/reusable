@@ -38,9 +38,9 @@ namespace Reusable.OmniLog
             private set => _current.Value = value;
         }
 
-        public static LogScope Push(SoftString name, IEnumerable<(SoftString Key, object Value)> state, Action<Log> logAction)
+        public static LogScope Push(SoftString scopeName, IEnumerable<(SoftString Key, object Value)> state, Action<Log> logAction)
         {
-            var scope = Current = new LogScope(name, Current?.Depth + 1 ?? 0, state)
+            var scope = Current = new LogScope(scopeName, Current?.Depth + 1 ?? 0, state)
             {
                 Parent = Current
             };

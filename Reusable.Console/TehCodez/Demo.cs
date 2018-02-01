@@ -63,7 +63,7 @@ namespace Reusable.Console
                     {
                         OmniLog.Attachements.AppSetting.CreateMany("omnilog:", "Environment", "Product"),
                         new OmniLog.Attachements.Timestamp<UtcDateTime>(),
-                        new OmniLog.SemanticExtensions.Attachements.Snapshot(new OmniLog.SemanticExtensions.Attachements.JsonSnapshotSerializer())
+                        new OmniLog.SemanticExtensions.Attachements.Snapshot()
                     }
                 }
             };
@@ -72,18 +72,18 @@ namespace Reusable.Console
 
             //for (int i = 0; i < 10000; i++)
             {
-                using (logger.BeginScope(s => s.Transaction(123).Elapsed()))
+                using (logger.BeginTransaction(new { OuterTransaction = 123 }, log => log.Elapsed()))
                 {
-                    logger.Log(_ => ("foo", "bar"), Layer.Business, log => log.Message("Hallo state!"));
-                    using (logger.BeginScope(s => s.Transaction(456).Elapsed()))
+                    logger.Log(Category.Data.Variable("foo", "bar"), Layer.Business, log => log.Message("Hallo variable!"));
+                    using (logger.BeginTransaction(new { InnerTransaction = 456 }, log => log.Elapsed()))
                     {
                         var customer = new { FirstName = "John", LastName = "Doe" };
-                        logger.Log(Category.Is.Object(customer, nameof(customer)), Layer.Business);
+                        logger.Log(Category.Data.Object(customer, nameof(customer)), Layer.Business);
                         //logger.Event(Layer.Application, Event.ApplicationStart, Result.Success, "Hallo event!");
                         logger.Log(Category.Action.Started("TestLogger"), Layer.Application);
-                        logger.Log(Category.Action.Cancelled("TestLogger"), Layer.Application);
+                        logger.Log(Category.Action.Cancelled("TestLogger", "No connection."), Layer.Application);
                         logger.Log(Category.Action.Failed("TestLogger", new DivideByZeroException("Cannot divide.")), Layer.Application);
-                        logger.Trace("Just a trace");
+                        //logger.Trace("Just a trace");
                     }
                 }
             }
