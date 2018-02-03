@@ -1,22 +1,33 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Reusable.Exceptionize;
 
 namespace Reusable.OmniLog
 {
     public static class Reflection
     {
-        internal static IEnumerable<(SoftString Key, object Value)> GetProperties(object obj)
+        public static IEnumerable<(SoftString PropertyName, object PropertyValue)> GetProperties(object obj)
         {
             if (obj is null)
             {
                 yield break;
             }
 
+            if (!obj.GetType().Name.StartsWith("<>f__AnonymousType1"))
+            {
+                DynamicException.Factory.CreateDynamicException(
+                    $"ObjectType{nameof(Exception)}",
+                    "Object must be an anonymous type. Try new { ... }",
+                    null
+                );
+            }
+
             var properties = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
             foreach (var property in properties)
             {
-                yield return (Key: (SoftString) property.Name, Value: property.GetValue(obj));
+                yield return (property.Name, property.GetValue(obj));
             }
         }
 

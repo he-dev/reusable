@@ -12,9 +12,10 @@ namespace Reusable.OmniLog.Attachements
         {
 
         }
+
         public override object Compute(Log log)
         {
             return (long)((TimeSpan)base.Compute(log)).TotalMilliseconds;
-        }
+        }        
     }
 }

@@ -48,6 +48,6 @@ namespace Reusable.OmniLog
 
         public override int GetHashCode() => AutoEquality<ILogAttachement>.Comparer.GetHashCode(this);
 
-        #endregion
+        #endregion        
     }
 }

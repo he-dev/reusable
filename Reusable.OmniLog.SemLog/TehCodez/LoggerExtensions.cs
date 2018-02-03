@@ -3,57 +3,59 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using Reusable.Exceptionize;
 using Reusable.OmniLog.Collections;
 using Reusable.OmniLog.SemanticExtensions.Attachements;
 
 namespace Reusable.OmniLog.SemanticExtensions
 {
-    public delegate (string CategoryName, string ObjectName, object Object) CreateCategoryFunc(Log log);
+    //public delegate (string CategoryName, string ObjectName, object Object) CreateCategoryFunc(Log log);
+    public delegate (string CategoryName, object Dump) CreateCategoryFunc(Log log);
 
     [PublicAPI]
     public static class LoggerExtensions
     {
-        private static readonly IDictionary<Layer, LogLevel> LogLevelMap = new Dictionary<Layer, LogLevel>
-        {
-            [Layer.Business] = LogLevel.Information,
-            [Layer.Application] = LogLevel.Debug,
-            [Layer.Presentation] = LogLevel.Trace,
-            [Layer.IO] = LogLevel.Trace,
-            [Layer.Database] = LogLevel.Trace,
-            [Layer.Network] = LogLevel.Trace,
-            [Layer.External] = LogLevel.Trace,
-        };
+        //private static readonly IDictionary<Layer, LogLevel> LogLevelMap = new Dictionary<Layer, LogLevel>
+        //{
+        //    [Layer.Business] = LogLevel.Information,
+        //    [Layer.Application] = LogLevel.Debug,
+        //    [Layer.Presentation] = LogLevel.Trace,
+        //    [Layer.IO] = LogLevel.Trace,
+        //    [Layer.Database] = LogLevel.Trace,
+        //    [Layer.Network] = LogLevel.Trace,
+        //    [Layer.External] = LogLevel.Trace,
+        //};
 
         public static void Log(
             this ILogger logger,
-            CreateCategoryFunc createCategoryFunc,
-            Layer layer,
+            IAbstractionContext abstractionContext,
             Action<Log> logAction = null,
             [CallerMemberName] string callerMemberName = null,
             [CallerLineNumber] int callerLineNumber = 0,
             [CallerFilePath] string callerFilePath = null)
         {
-            logger.Log(LogLevelMap[layer], log =>
+            foreach (var dump in Reflection.GetProperties(abstractionContext.Dump))
             {
-                var (categoryName, objectName, dump) = createCategoryFunc(log);
-
-                log.With(nameof(Category), categoryName);
-                log.With("Identifier", objectName);
-
-                if (!log.ContainsKey(nameof(LogBag)))
+                logger.Log(abstractionContext.LogLevel, log =>
                 {
-                    log.Add(nameof(LogBag), new LogBag());
-                }
+                    log.With(nameof(Category), abstractionContext.CategoryName);
+                    log.With("Identifier", dump.PropertyName);
 
-                log.Bag().Add(nameof(Snapshot), dump);
+                    if (!log.ContainsKey(nameof(LogBag)))
+                    {
+                        log.Add(nameof(LogBag), new LogBag());
+                    }
 
-                log.With(nameof(Layer), layer);
-                log.Add(LogProperty.CallerMemberName, callerMemberName);
-                log.Add(LogProperty.CallerLineNumber, callerLineNumber);
-                log.Add(LogProperty.CallerFilePath, Path.GetFileName(callerFilePath));
+                    log.Bag().Add(nameof(Snapshot), dump);
 
-                logAction?.Invoke(log);
-            });
+                    log.With("Layer", abstractionContext.LayerName);
+                    log.Add(LogProperty.CallerMemberName, callerMemberName);
+                    log.Add(LogProperty.CallerLineNumber, callerLineNumber);
+                    log.Add(LogProperty.CallerFilePath, Path.GetFileName(callerFilePath));
+
+                    logAction?.Invoke(log);
+                });
+            }
         }
 
         /// <summary>

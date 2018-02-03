@@ -90,22 +90,22 @@ namespace Reusable.OmniLog
             return log;
         }
 
-        public static Log With<T>(this Log log) where T : ILogAttachement, new()
+        public static Log With<T>(this Log log, (SoftString Name, T Value) item)
         {
-            return log.Next(l => l.Add(new T().ToLogProperty()));
+            log[item.Name] = item.Value;
+            return log;
         }
 
-        public static Log With(this Log log, SoftString name, object value)
+        public static Log With<T>(this Log log, SoftString name, T value)
         {
-            //log.Add(name, value);
             log[name] = value;
             return log;
         }
 
-        public static Log With(this Log log, [CanBeNull] Func<Log, Log> logFunc)
-        {
-            return (logFunc ?? (_ => _))(log);
-        }
+        //public static Log With(this Log log, [CanBeNull] Func<Log, Log> logFunc)
+        //{
+        //    return (logFunc ?? (_ => _))(log);
+        //}
 
         #endregion
 

@@ -50,6 +50,22 @@ namespace Reusable.SmartConfig.Core.Utilities.Tests.Reflection
             TestClass1.AssertBar();
         }
 
+        [TestMethod]
+        public void FindClass_Variable_TypeInstnce()
+        {
+            var foo = "fooo";
+            var bar = new { bar = "baar" };
+
+            var expression1 = (Expression<Func<object>>)(() => foo);
+            var expression2 = (Expression<Func<object>>)(() => bar);
+
+            var (type, instance) = ClassFinder.FindClass(expression1);
+            var (type2, instance2) = ClassFinder.FindClass(expression2);
+
+            Assert.AreEqual(typeof(string), type);
+            Assert.AreSame(foo, instance);
+        }
+
         internal class TestClass1
         {
             public string Foo { get; set; }

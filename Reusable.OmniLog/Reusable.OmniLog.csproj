@@ -74,7 +74,6 @@
     <Compile Include="TehCodez\Collections\AttachementDictionary.cs" />
     <Compile Include="TehCodez\Collections\Log.cs" />
     <Compile Include="TehCodez\Collections\LogBag.cs" />
-    <Compile Include="TehCodez\LogAttachementExtensions.cs" />
     <Compile Include="TehCodez\LogAttachement.cs" />
     <Compile Include="TehCodez\Attachements\AppSetting.cs" />
     <Compile Include="TehCodez\Attachements\Elapsed.cs" />

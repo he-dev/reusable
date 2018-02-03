@@ -18,13 +18,4 @@ namespace Reusable.OmniLog.SemanticExtensions
 
         public static IAction Action => default;
     }
-
-    internal class LogCategorySnapshot
-    {
-        [JsonProperty(Order = 1)]
-        public string Name { get; set; }
-
-        [JsonProperty(Order = 2)]
-        public object Dump { get; set; }
-    }
 }

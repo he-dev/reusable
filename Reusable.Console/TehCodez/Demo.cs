@@ -70,22 +70,24 @@ namespace Reusable.Console
 
             var logger = loggerFactory.CreateLogger("Demo");
 
+            var abstractionContext = Abstraction.Layer.Business().Action().Failed("Main");
+
             //for (int i = 0; i < 10000; i++)
             {
-                using (logger.BeginTransaction(new { OuterTransaction = 123 }, log => log.Elapsed()))
-                {
-                    logger.Log(Category.Data.Variable("foo", "bar"), Layer.Business, log => log.Message("Hallo variable!"));
-                    using (logger.BeginTransaction(new { InnerTransaction = 456 }, log => log.Elapsed()))
-                    {
-                        var customer = new { FirstName = "John", LastName = "Doe" };
-                        logger.Log(Category.Data.Object(customer, nameof(customer)), Layer.Business);
-                        //logger.Event(Layer.Application, Event.ApplicationStart, Result.Success, "Hallo event!");
-                        logger.Log(Category.Action.Started("TestLogger"), Layer.Application);
-                        logger.Log(Category.Action.Cancelled("TestLogger", "No connection."), Layer.Application);
-                        logger.Log(Category.Action.Failed("TestLogger", new DivideByZeroException("Cannot divide.")), Layer.Application);
-                        //logger.Trace("Just a trace");
-                    }
-                }
+                //using (logger.BeginTransaction(new { OuterTransaction = 123 }, log => log.Elapsed()))
+                //{
+                //    logger.Log(Category.Data.Variable("foo", "bar"), Layer.Business, log => log.Message("Hallo variable!"));
+                //    using (logger.BeginTransaction(new { InnerTransaction = 456 }, log => log.Elapsed()))
+                //    {
+                //        var customer = new { FirstName = "John", LastName = "Doe" };
+                //        logger.Log(Category.Data.Object(customer, nameof(customer)), Layer.Business);
+                //        //logger.Event(Layer.Application, Event.ApplicationStart, Result.Success, "Hallo event!");
+                //        logger.Log(Category.Action.Started("TestLogger"), Layer.Application);
+                //        logger.Log(Category.Action.Cancelled("TestLogger", "No connection."), Layer.Application);
+                //        logger.Log(Category.Action.Failed("TestLogger", new DivideByZeroException("Cannot divide.")), Layer.Application);
+                //        //logger.Trace("Just a trace");
+                //    }
+                //}
             }
         }
 

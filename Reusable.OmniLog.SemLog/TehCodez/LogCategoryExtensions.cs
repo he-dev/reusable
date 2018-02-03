@@ -17,27 +17,27 @@ namespace Reusable.OmniLog.SemanticExtensions
 
         public static CreateCategoryFunc Object(this IData category, object obj, string name)
         {
-            return category.From(nameof(Object), name, obj);
+            return log => (nameof(Object), name, obj);
         }
 
         public static CreateCategoryFunc Field(this IData category, object obj, string name)
         {
-            return category.From(nameof(Field), name, obj);
+            return log => (nameof(Field), name, obj);
         }
 
         public static CreateCategoryFunc Property(this IData category, object obj, string name)
         {
-            return category.From(nameof(Property), name, obj);
+            return log => (nameof(Property), name, obj);
         }
 
         public static CreateCategoryFunc Argument(this IData category, object obj, string name)
         {
-            return category.From(nameof(Argument), name, obj);
+            return log => (nameof(Argument), name, obj);
         }
 
         public static CreateCategoryFunc Variable(this IData category, object obj, string name)
         {
-            return category.From(nameof(Variable), name, obj);
+            return log => (nameof(Variable), name, obj);
         }
 
         #endregion
@@ -46,7 +46,7 @@ namespace Reusable.OmniLog.SemanticExtensions
 
         public static CreateCategoryFunc Started(this IAction category, string name)
         {
-            return category.From(nameof(Action), name, nameof(Started));
+            return log => (nameof(Action), name, nameof(Started));
         }
 
         public static CreateCategoryFunc Cancelled(this IAction category, string name, string reason = null)
@@ -69,18 +69,9 @@ namespace Reusable.OmniLog.SemanticExtensions
 
         public static CreateCategoryFunc Finished(this IAction category, string name)
         {
-            return category.From(nameof(Action), name, nameof(Finished));
+            return log => (nameof(Action), name, nameof(Finished));
         }
 
-        #endregion
-
-        /// <summary>
-        /// Allows to create any type of snapshot.
-        /// </summary>
-        /// <returns></returns>
-        private static CreateCategoryFunc From(this ILogCategory category, string categoryName, string objectName, object obj)
-        {
-            return log => (categoryName, objectName, obj);
-        }
+        #endregion        
     }
 }
