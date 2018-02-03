@@ -12,7 +12,7 @@ namespace Reusable.OmniLog
     {
         private static readonly AsyncLocal<LogScope> _current = new AsyncLocal<LogScope>();
 
-        private LogScope(SoftString name, int depth, IEnumerable<(SoftString Key, object Value)> state)
+        private LogScope(SoftString name, int depth, IEnumerable<KeyValuePair<SoftString, object>> state)
         {
             Depth = depth;
             Name = name ?? $"{nameof(LogScope)}{depth}";
@@ -38,7 +38,7 @@ namespace Reusable.OmniLog
             private set => _current.Value = value;
         }
 
-        public static LogScope Push(SoftString scopeName, IEnumerable<(SoftString Key, object Value)> state, Action<Log> logAction)
+        public static LogScope Push(SoftString scopeName, IEnumerable<KeyValuePair<SoftString, object>> state, Action<Log> logAction)
         {
             var scope = Current = new LogScope(scopeName, Current?.Depth + 1 ?? 0, state)
             {

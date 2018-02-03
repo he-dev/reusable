@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -64,5 +65,14 @@ namespace Reusable
         public static bool IsNullOrEmpty([CanBeNull] SoftString value) => string.IsNullOrEmpty(value?._value);
 
         public static bool IsNullOrWhiteSpace([CanBeNull] SoftString value) => string.IsNullOrWhiteSpace(value?._value);
+    }
+
+    [Serializable]
+    public partial class SoftString : ISerializable
+    {
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("_value", _value, typeof(string));
+        }
     }
 }

@@ -8,7 +8,7 @@ namespace Reusable.OmniLog
 {
     public static class Reflection
     {
-        public static IEnumerable<(SoftString PropertyName, object PropertyValue)> GetProperties(object obj)
+        public static IEnumerable<KeyValuePair<SoftString, object>> GetProperties(object obj)
         {
             if (obj is null)
             {
@@ -27,7 +27,7 @@ namespace Reusable.OmniLog
             var properties = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
             foreach (var property in properties)
             {
-                yield return (property.Name, property.GetValue(obj));
+                yield return new KeyValuePair<SoftString, object>(property.Name, property.GetValue(obj));
             }
         }
 

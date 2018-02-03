@@ -9,46 +9,34 @@ using Reusable.OmniLog.SemanticExtensions.Attachements;
 
 namespace Reusable.OmniLog.SemanticExtensions
 {
-    //public delegate (string CategoryName, string ObjectName, object Object) CreateCategoryFunc(Log log);
-    public delegate (string CategoryName, object Dump) CreateCategoryFunc(Log log);
-
     [PublicAPI]
     public static class LoggerExtensions
     {
-        //private static readonly IDictionary<Layer, LogLevel> LogLevelMap = new Dictionary<Layer, LogLevel>
-        //{
-        //    [Layer.Business] = LogLevel.Information,
-        //    [Layer.Application] = LogLevel.Debug,
-        //    [Layer.Presentation] = LogLevel.Trace,
-        //    [Layer.IO] = LogLevel.Trace,
-        //    [Layer.Database] = LogLevel.Trace,
-        //    [Layer.Network] = LogLevel.Trace,
-        //    [Layer.External] = LogLevel.Trace,
-        //};
-
+        // We use context as the name and not abstractionContext because it otherwise interfers with intellisense.
+        // The name abstractionContext appears first on the list and you need to scroll to get the Abstraction.
         public static void Log(
             this ILogger logger,
-            IAbstractionContext abstractionContext,
+            IAbstractionContext context,
             Action<Log> logAction = null,
             [CallerMemberName] string callerMemberName = null,
             [CallerLineNumber] int callerLineNumber = 0,
             [CallerFilePath] string callerFilePath = null)
         {
-            foreach (var dump in Reflection.GetProperties(abstractionContext.Dump))
+            foreach (var dump in Reflection.GetProperties(context.Dump))
             {
-                logger.Log(abstractionContext.LogLevel, log =>
+                logger.Log(context.LogLevel, log =>
                 {
-                    log.With(nameof(Category), abstractionContext.CategoryName);
-                    log.With("Identifier", dump.PropertyName);
+                    log.With("Category", context.CategoryName);
+                    log.With("Identifier", dump.Key);
 
                     if (!log.ContainsKey(nameof(LogBag)))
                     {
                         log.Add(nameof(LogBag), new LogBag());
                     }
 
-                    log.Bag().Add(nameof(Snapshot), dump);
+                    log.Bag().Add(nameof(Snapshot), dump.Value);
 
-                    log.With("Layer", abstractionContext.LayerName);
+                    log.With("Layer", context.LayerName);
                     log.Add(LogProperty.CallerMemberName, callerMemberName);
                     log.Add(LogProperty.CallerLineNumber, callerLineNumber);
                     log.Add(LogProperty.CallerFilePath, Path.GetFileName(callerFilePath));

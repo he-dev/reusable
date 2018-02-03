@@ -113,7 +113,7 @@ namespace Reusable.OmniLog.SemanticExtensions
     {
         public AbstractionContext(IAbstractionLayerCategory layerCategory, object dump)
         {
-            (LogLevel, LayerName) = layerCategory.Layer;
+            (LayerName, LogLevel) = layerCategory.Layer;
             CategoryName = layerCategory.Name;
             Dump = dump;
         }
@@ -195,13 +195,54 @@ namespace Reusable.OmniLog.SemanticExtensions
         }
     }
 
+    // These extensions need to recreate the AbstractionLayerData with a new name 
+    // because the identifier is the name of the extension and not Data.
+
     public static class AbstractionLayerDataExtensions
     {
-        public static IAbstractionContext Object(this IAbstractionLayerData data, object obj)
+        /// <summary>
+        /// Logs object dumps. The dump object must be an anonymous type with at leas one property: new { foo[, bar] }
+        /// </summary>
+        public static IAbstractionContext Object(this IAbstractionLayerData data, object dump)
         {
-            return new AbstractionContext(data, obj);
+            return new AbstractionContext(new AbstractionLayerData(data.Layer, nameof(Object)), dump);
+        }
+
+        /// <summary>
+        /// Logs field dumps. The dump object must be an anonymous type with at leas one property: new { foo[, bar] }
+        /// </summary>
+        public static IAbstractionContext Field(this IAbstractionLayerData data, object dump)
+        {
+            return new AbstractionContext(new AbstractionLayerData(data.Layer, nameof(Field)), dump);
+        }
+
+        /// <summary>
+        /// Logs variable dumps. The dump object must be an anonymous type with at leas one property: new { foo[, bar] }
+        /// </summary>
+        public static IAbstractionContext Variable(this IAbstractionLayerData data, object dump)
+        {
+            return new AbstractionContext(new AbstractionLayerData(data.Layer, nameof(Variable)), dump);
+        }
+
+
+        /// <summary>
+        /// Logs argument dumps. The dump object must be an anonymous type with at leas one property: new { foo[, bar] }
+        /// </summary>
+        public static IAbstractionContext Argument(this IAbstractionLayerData data, object dump)
+        {
+            return new AbstractionContext(new AbstractionLayerData(data.Layer, nameof(Argument)), dump);
+        }
+
+        /// <summary>
+        /// Logs property dumps. The dump object must be an anonymous type with at leas one property: new { foo[, bar] }
+        /// </summary>
+        public static IAbstractionContext Property(this IAbstractionLayerData data, object dump)
+        {
+            return new AbstractionContext(new AbstractionLayerData(data.Layer, nameof(Property)), dump);
         }
     }
+
+    // The property name of each dump maps to the Identifier column.
 
     public static class AbstractionLayerActionExtensions
     {
@@ -215,7 +256,7 @@ namespace Reusable.OmniLog.SemanticExtensions
             return new AbstractionContext(action, new { Finished = methodName });
         }
 
-        public static IAbstractionContext Canceled(this IAbstractionLayerAction action, string methodName)
+        public static IAbstractionContext Cancelled(this IAbstractionLayerAction action, string methodName)
         {
             return new AbstractionContext(action, new { Canceled = methodName });
         }
