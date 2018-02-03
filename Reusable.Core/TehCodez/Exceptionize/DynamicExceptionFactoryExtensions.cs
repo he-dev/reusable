@@ -30,6 +30,13 @@ namespace Reusable.Exceptionize
             return factory.CreateDynamicException($"{memberName}{nameof(Exception)}", message, innerException);
         }
 
+        //public static Exception CreateDynamicException([NotNull] this IDynamicExceptionFactory factory, string name, string message = null, Exception innerException = null)
+        //{
+        //    if (factory == null) throw new ArgumentNullException(nameof(factory));
+
+        //    return factory.CreateDynamicException($"{name}{nameof(Exception)}", message, innerException);
+        //}
+
         public static Exception ToDynamicException(this (string Name, string Message) template)
         {
             return DynamicException.Factory.CreateDynamicException(template.Name, template.Message, null);

@@ -47,11 +47,24 @@ namespace Reusable.OmniLog.SemanticExtensions
         }
 
         /// <summary>
-        /// Begins a new transaction-scope.
+        /// Begins a new transaction-scope with attached Elapsed.
         /// </summary>
         public static LogScope BeginTransaction(this ILogger logger, object state, Action<Log> logAction = null)
         {
-            return logger.BeginScope(null, new { Transaction = state }, logAction ?? (_ => { }));
+            logger.Log(Abstraction.Layer.Logging().Action().Started("Transaction"));
+
+            return logger.BeginScope(null, new { Transaction = state }, logAction ?? (log => log.Elapsed()));
+        }
+
+        public static void Commit(this ILogger logger)
+        {
+            if (LogScope.Current is null)
+            {
+                throw new InvalidOperationException("Commit can be called only within a log-scope.");
+            }
+
+            logger.Log(Abstraction.Layer.Logging().Action().Finished("Transaction"));
         }
     }
+
 }

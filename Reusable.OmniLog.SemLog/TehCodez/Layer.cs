@@ -150,6 +150,11 @@ namespace Reusable.OmniLog.SemanticExtensions
             return new AbstractionLayer(nameof(Infrastructure), logLevel ?? LogLevel.Debug);
         }
 
+        public static IAbstractionLayer Logging(this IAbstraction abstraction, LogLevel logLevel = null)
+        {
+            return new AbstractionLayer(nameof(Logging), logLevel ?? LogLevel.Debug);
+        }
+
         #endregion
 
         #region Trace

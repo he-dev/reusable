@@ -46,48 +46,39 @@ namespace Reusable.Console
             );
         }
 
-        public static void SemLog()
+        public static void SemanticExtensions()
         {
             Reusable.ThirdParty.NLogUtilities.LayoutRenderers.SmartPropertiesLayoutRenderer.Register();
 
-            var loggerFactory = new LoggerFactory
-            {
-                Observers =
-                {
-                    ConsoleTemplateRx.Create(new ConsoleTemplateRenderer()),
-                    NLogRx.Create(new [] { new LogTransactionMerge() })
-                },
-                Configuration = new LoggerConfiguration
-                {
-                    Attachements =
-                    {
-                        OmniLog.Attachements.AppSetting.CreateMany("omnilog:", "Environment", "Product"),
-                        new OmniLog.Attachements.Timestamp<UtcDateTime>(),
-                        new OmniLog.SemanticExtensions.Attachements.Snapshot()
-                    }
-                }
-            };
+            var loggerFactory = LoggerFactorySetup.SetupLoggerFactory("development", "Reusable.Console", NLogRx.Create);         
 
             var logger = loggerFactory.CreateLogger("Demo");
 
-            using (logger.BeginTransaction(new { OuterTransaction = 123 }, log => log.Elapsed()))
+            // Opening outer-transaction.
+            using (logger.BeginTransaction(new { OuterTransaction = 123 }))
             {
+                // Logging some single business variable and a message.
                 logger.Log(Abstraction.Layer.Business().Data().Variable(new { foo = "bar" }), log => log.Message("Hallo variable!"));
-                using (logger.BeginTransaction(new { InnerTransaction = 456 }, log => log.Elapsed()))
+
+                // Opening innter-transaction.
+                using (logger.BeginTransaction(new { InnerTransaction = 456 }))
                 {
+                    // Logging an entire object in a single line.
                     var customer = new { FirstName = "John", LastName = "Doe" };
                     logger.Log(Abstraction.Layer.Business().Data().Object(new { customer }));
 
+                    // Logging multiple variables in a single line.
                     var baz = 123;
                     var qux = "quux";
 
                     logger.Log(Abstraction.Layer.Infrastructure().Data().Variable(new { baz, qux }));
                     
-                    //logger.Event(Layer.Application, Event.ApplicationStart, Result.Success, "Hallo event!");
-                    logger.Log(Abstraction.Layer.Infrastructure().Action().Started("TestLogger"));
-                    logger.Log(Abstraction.Layer.Infrastructure().Action().Cancelled("TestLogger"), log => log.Message("No connection."));
-                    logger.Log(Abstraction.Layer.Infrastructure().Action().Failed("TestLogger"), log => log.Exception(new DivideByZeroException("Cannot divide.")));
-                    //logger.Trace("Just a trace");
+                    // Logging action results.
+                    logger.Log(Abstraction.Layer.Infrastructure().Action().Started("DoSomething"));
+                    logger.Log(Abstraction.Layer.Infrastructure().Action().Cancelled("DoSomething"), log => log.Message("No connection."));
+                    logger.Log(Abstraction.Layer.Infrastructure().Action().Failed("DoSomething"), log => log.Exception(new DivideByZeroException("Cannot divide.")));
+
+                    logger.Commit();
                 }
             }
         }

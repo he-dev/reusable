@@ -76,6 +76,7 @@
     <Compile Include="TehCodez\Layer.cs" />
     <Compile Include="TehCodez\LogExtensions.cs" />
     <Compile Include="TehCodez\Attachements\Snapshot.cs" />
+    <Compile Include="TehCodez\LoggerFactorySetup.cs" />
     <Compile Include="TehCodez\LogTransactionMerge.cs" />
     <Compile Include="TehCodez\_Abstractions\IStateSerializer.cs" />
   </ItemGroup>

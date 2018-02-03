@@ -13,7 +13,7 @@ namespace Reusable.Console
             var bar = foo.Append(2);
 
             Demo.ConsoleColorizer();
-            Demo.SemLog();
+            Demo.SemanticExtensions();
 
 
             //System.Console.ReadKey();

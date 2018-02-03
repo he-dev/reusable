@@ -10,9 +10,9 @@ namespace Reusable.Exceptionize
     public interface IDynamicExceptionFactory
     {
         /// <summary>
-        /// Creates a dynamic exception where the name should end with 'Exception'. In debug mode there is an Assert that will remind you of this.
+        /// Creates a dynamic exception. If the name does not end with 'Exception' then it's added automatically. In debug mode there is an Assert that will remind you of this.
         /// </summary>
-        /// <param name="name">The name of the exception. It should end with 'Exception'. An Assert will remind you of this in DEBUG mode.</param>
+        /// <param name="name">The name of the exception. If the name does not end with 'Exception' then it's added automatically. An Assert will remind you of this in DEBUG mode.</param>
         /// <param name="message">The message for the exception. It can be 'null' but you should provide it anyway if you want to find what wend wrong later</param>
         /// <param name="innerException">The inner exception. It can be 'null' but remember to set it if you have one.</param>
         [NotNull, ContractAnnotation("name: null => halt")]
@@ -35,7 +35,12 @@ namespace Reusable.Exceptionize
         {
             if (name == null) throw new ArgumentNullException(nameof(name));
 
-            var dynamicExceptionType = GetDynamicExceptionType(name);            
+            if (name.EndsWith(nameof(Exception)))
+            {
+                name += nameof(Exception);
+            }
+
+            var dynamicExceptionType = GetDynamicExceptionType(name);
             return (Exception)Activator.CreateInstance(dynamicExceptionType, message, innerException);
         }
 
