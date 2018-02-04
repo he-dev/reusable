@@ -1,10 +1,25 @@
-# Reusable v3.70.0
+# Reusable v4.0.0
 
-`Reusable` is a collection of gereral purpose libraries that I use in many of my other projects. Their main purpose is to support **DRY**. I don't like writing the same code over and over. So if anything looks like it could be reused somewhere else I put it here.
+`Reusable` is a collection of libraries that I use in my other projects.
 
-The solution has undergone a huge clean-up and now contains only code that I think is ready for production and I use it as such. Not every part is covered with tests yet but step by step it will.
+##Core
 
-_(Currently the only project that is still being developed and not ready is the `CommandLine`)_
+##SmartConfig
+##Flawless
+##Converters
+##OmniLog
+##OmniLog.SemanticExtensions
+##Commander
+##ConsoleColorizer
+##Tester
+
+
+##JsonNet
+##NLog
+
+##SemanticVersion
+##Csv
+
 
 ---
 
