@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.Tester</id>
-    <version>3.96.0</version>
-    <title>Reusable.Tester</title>
+    <id>Reusable.Utilities.MSTest</id>
+    <version>4.0.0</version>
+    <title>Reusable.Utilities.MSTest</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
@@ -24,14 +24,14 @@
       <dependency id="System.Reactive.PlatformServices" version="3.1.1" />
       <dependency id="System.Reactive.Windows.Threading" version="3.1.1" />
       <dependency id="System.ValueTuple" version="4.4.0" />
-      <dependency id="Reusable.Converters" version="3.96.0" />
-      <dependency id="Reusable.Core" version="3.96.0" />
-      <dependency id="Reusable.OmniLog" version="3.96.0" />
-      <dependency id="Reusable.Utilities.SqlClient" version="3.96.0" />
+      <dependency id="Reusable.Converters" version="4.0.0" />
+      <dependency id="Reusable.Core" version="4.0.0" />
+      <dependency id="Reusable.OmniLog" version="4.0.0" />
+      <dependency id="Reusable.Utilities.SqlClient" version="4.0.0" />
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\Reusable.Tester.dll" target="lib\net462" />
-    <file src="bin\Release\Reusable.Tester.pdb" target="lib\net462" />
+    <file src="bin\Release\Reusable.Utilities.MSTest.dll" target="lib\net47" />
+    <file src="bin\Release\Reusable.Utilities.MSTest.pdb" target="lib\net47" />
   </files>
 </package>

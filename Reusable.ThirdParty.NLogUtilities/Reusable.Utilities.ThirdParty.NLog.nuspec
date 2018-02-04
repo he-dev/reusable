@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Utilities.ThirdParty.NLog</id>
-    <version>3.96.0</version>
+    <version>4.0.0</version>
     <title>Reusable.Utilities.ThirdParty.NLog</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -20,7 +20,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\Reusable.Utilities.ThirdParty.NLog.dll" target="lib\net462" />
-    <file src="bin\Release\Reusable.Utilities.ThirdParty.NLog.pdb" target="lib\net462" />
+    <file src="bin\Release\Reusable.Utilities.ThirdParty.NLog.dll" target="lib\net47" />
+    <file src="bin\Release\Reusable.Utilities.ThirdParty.NLog.pdb" target="lib\net47" />
   </files>
 </package>

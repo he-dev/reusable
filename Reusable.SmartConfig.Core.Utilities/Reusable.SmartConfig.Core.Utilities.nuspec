@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.SmartConfig.Core.Utilities</id>
-    <version>3.96.0</version>
+    <version>4.0.0</version>
     <title>Reusable.SmartConfig.Core.Utilities</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -11,13 +11,13 @@
     <iconUrl>https://raw.githubusercontent.com/he-dev/Reusable/master/_nuget/recycling.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>This package provides utilities that exend the core library by adding several useful extensions.</description>
-    <releaseNotes></releaseNotes> 
+    <releaseNotes></releaseNotes>
     <copyright>Copyright 2017 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
-      <dependency id="JetBrains.Annotations" version="11.1.0" />
-      <dependency id="System.ValueTuple" version="4.4.0" />
-      <dependency id="Reusable.Core" version="3.96.0" />
+      <dependency id="Reusable.Core" version="4.0.0" />
+      <dependency id="Reusable.Flawless" version="4.0.0" />
+      <dependency id="Reusable.SmartConfig.Core" version="4.0.0" />
     </dependencies>
   </metadata>
   <files>

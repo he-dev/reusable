@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.SmartConfig.DataStores.SqlServer</id>
-    <version>3.96.0</version>
+    <version>4.0.0</version>
     <title>Reusable.SmartConfig.DataStores.SqlServer</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -15,10 +15,10 @@
     <copyright>Copyright 2017 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
-      <dependency id="JetBrains.Annotations" version="11.1.0" />
-      <dependency id="System.ValueTuple" version="4.4.0" />
-      <dependency id="Reusable.SmartConfig.Core" version="3.96.0" />
-      <dependency id="Reusable.Core" version="3.96.0" />
+      <dependency id="Reusable.Core" version="4.0.0" />
+      <dependency id="Reusable.Flawless" version="4.0.0" />
+      <dependency id="Reusable.SmartConfig.Core" version="4.0.0" />
+      <dependency id="Reusable.Utilities.SqlClient" version="4.0.0" />
     </dependencies>
   </metadata>
   <files>

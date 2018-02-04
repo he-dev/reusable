@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.ConsoleColorizer</id>
-    <version>3.96.0</version>
+    <version>4.0.0</version>
     <title>Reusable.ConsoleColorizer</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -23,13 +23,13 @@
       <dependency id="System.Reactive.PlatformServices" version="3.1.1" />
       <dependency id="System.Reactive.Windows.Threading" version="3.1.1" />
       <dependency id="System.ValueTuple" version="4.4.0" />
-      <dependency id="Reusable.Core" version="3.96.0" />
-      <dependency id="Reusable.MarkupBuilder" version="3.96.0" />
-      <dependency id="Reusable.OmniLog" version="3.96.0" />
+      <dependency id="Reusable.Core" version="4.0.0" />
+      <dependency id="Reusable.MarkupBuilder" version="4.0.0" />
+      <dependency id="Reusable.OmniLog" version="4.0.0" />
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\Reusable.ConsoleColorizer.dll" target="lib\net462" />
-    <file src="bin\Release\Reusable.ConsoleColorizer.pdb" target="lib\net462" />
+    <file src="bin\Release\Reusable.ConsoleColorizer.dll" target="lib\net47" />
+    <file src="bin\Release\Reusable.ConsoleColorizer.pdb" target="lib\net47" />
   </files>
 </package>
