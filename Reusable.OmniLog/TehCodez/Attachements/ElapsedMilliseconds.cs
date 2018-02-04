@@ -10,6 +10,9 @@ namespace Reusable.OmniLog.Attachements
     {
         public ElapsedMilliseconds() { }
 
+        /// <summary>
+        /// Creates a new instance of ElapsedMilliseconds and allows to override the default name which is "ElapsedMilliseconds".
+        /// </summary>
         public ElapsedMilliseconds(string name) : base(name)
         {
 
@@ -17,16 +20,8 @@ namespace Reusable.OmniLog.Attachements
 
         public override object Compute(ILog log)
         {
-            var innermostElapsed =
-                LogScope
-                    .Current
-                    .Flatten()
-                    .Select(scope => scope.TryGetValue(Name, out var value) && value is Elapsed elapsed ? elapsed : null)
-                    .Where(Conditional.IsNotNull)
-                    .FirstOrDefault();
-
-            //return (long)((TimeSpan)base.Compute(log)).TotalMilliseconds;
-            return innermostElapsed is null ? null : (object)(long)innermostElapsed.Value.TotalMilliseconds;//Compute(log);
+            var elapsed = base.Compute(log);
+            return elapsed is null ? null : (object)(long)((TimeSpan)elapsed).TotalMilliseconds;
         }
     }
 }

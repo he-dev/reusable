@@ -30,8 +30,6 @@ namespace Reusable.OmniLog
 
         public static SoftString Scope(this ILog log, object value = null) => log.Property<SoftString>(value);
 
-        public static LogBag Bag(this ILog log, object value = null) => log.Property<LogBag>(value, nameof(LogBag));
-
         public static IEnumerable<SoftString> Scopes(this ILog log)
         {
             foreach (var logValue in log.Values)
@@ -59,7 +57,7 @@ namespace Reusable.OmniLog
             }
             else
             {
-                if (value == LogProperty.Unset)
+                if (value == LogProperties.Unset)
                 {
                     log.Remove(propertyName);
                 }
@@ -83,9 +81,9 @@ namespace Reusable.OmniLog
             [CallerFilePath] string callerFilePath = null
         )
         {
-            log.Add(LogProperty.CallerMemberName, callerMemberName);
-            log.Add(LogProperty.CallerLineNumber, callerLineNumber);
-            log.Add(LogProperty.CallerFilePath, callerFilePath);
+            log.Add(LogProperties.CallerMemberName, callerMemberName);
+            log.Add(LogProperties.CallerLineNumber, callerLineNumber);
+            log.Add(LogProperties.CallerFilePath, callerFilePath);
 
             return log;
         }
@@ -126,7 +124,6 @@ namespace Reusable.OmniLog
                 items
                     .GroupBy(i => i.Key)
                     .Select(scope => scope.First());
-                    //.Select(scope => scopeMerges.TryGetValue(scope.Key, out var merge) ? merge.Merge(scope) : scope.First());
 
             return new Log().AddRange(innerScope);
         }

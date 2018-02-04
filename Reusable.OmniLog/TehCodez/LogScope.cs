@@ -11,14 +11,14 @@ namespace Reusable.OmniLog
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class LogScope : Log, IDisposable
     {
+        // ReSharper disable once InconsistentNaming - This cannot be renamed because it'd confilict with the property that has the same name.
         private static readonly AsyncLocal<LogScope> _current = new AsyncLocal<LogScope>();
 
         private LogScope(SoftString name, int depth, object state)
         {
             Depth = depth;
             Name = name ?? $"{nameof(LogScope)}{depth}";
-            //this.AddRange(state);
-            this.Add("State", state);
+            this.Add(LogProperties.State, state);
             this.Scope(Name);
         }
 
@@ -40,18 +40,12 @@ namespace Reusable.OmniLog
             private set => _current.Value = value;
         }
 
-        public static LogScope Push(SoftString scopeName, object state)//, Action<Log> logAction)
-        {
-            //var properties = 
-            //    state is null 
-            //        ? Enumerable.Empty<KeyValuePair<SoftString, object>>() 
-            //        : Reflection.GetProperties(state);
-
+        public static LogScope Push(SoftString scopeName, object state)
+        {            
             var scope = Current = new LogScope(scopeName, Current?.Depth + 1 ?? 0, state)
             {
                 Parent = Current
             };
-            //logAction(scope);
             return scope;
         }        
 

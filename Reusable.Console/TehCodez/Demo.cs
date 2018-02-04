@@ -50,7 +50,7 @@ namespace Reusable.Console
         {
             Reusable.ThirdParty.NLogUtilities.LayoutRenderers.SmartPropertiesLayoutRenderer.Register();
 
-            var loggerFactory = LoggerFactorySetup.SetupLoggerFactory("development", "Reusable.Console", NLogRx.Create);
+            var loggerFactory = LoggerFactorySetup.SetupLoggerFactory("development", "Reusable.Console", new[] { NLogRx.Create() });
 
             var logger = loggerFactory.CreateLogger("Demo");
 

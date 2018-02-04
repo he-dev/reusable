@@ -36,21 +36,13 @@ namespace Reusable.OmniLog
                     //		break;s
 
                     case MessageFunc messageFunc:
-                        log[LogProperty.Message] = messageFunc();
+                        log[LogProperties.Message] = messageFunc();
                         break;
 
                     case ILogAttachement computable:
                         log[item.Key] = computable.Compute(rawLog);
                         break;
-
-                    //case LogScope scope:
-                    //    log[item.Key] = scope.Compute(rawLog);
-                    //    break;
-
-                    //case LogBag bag:
-                    //    // Skip the log-bag because it's not renderable.
-                    //    continue;
-
+                    
                     default:
                         log[item.Key] = item.Value;
                         break;

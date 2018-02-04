@@ -26,45 +26,21 @@ namespace Reusable.OmniLog.SemanticExtensions
             {
                 logger.Log(context.LogLevel, log =>
                 {
+                    // It's ok to hardcode these property names here because this is the only place they are used.
+
                     log.With("Category", context.CategoryName);
                     log.With("Identifier", dump.Key);
-
-                    //if (!log.ContainsKey(nameof(LogBag)))
-                    //{
-                    //    log.Add(nameof(LogBag), new LogBag());
-                    //}
 
                     log.Add(nameof(Snapshot) + nameof(Object), dump.Value);
 
                     log.With("Layer", context.LayerName);
-                    log.Add(LogProperty.CallerMemberName, callerMemberName);
-                    log.Add(LogProperty.CallerLineNumber, callerLineNumber);
-                    log.Add(LogProperty.CallerFilePath, Path.GetFileName(callerFilePath));
+                    log.Add(LogProperties.CallerMemberName, callerMemberName);
+                    log.Add(LogProperties.CallerLineNumber, callerLineNumber);
+                    log.Add(LogProperties.CallerFilePath, Path.GetFileName(callerFilePath));
 
                     logAction?.Invoke(log);
                 });
             }
         }
-
-        ///// <summary>
-        ///// Begins a new transaction-scope with attached Elapsed.
-        ///// </summary>
-        //public static LogScope BeginTransaction(this ILogger logger, object state, Action<Log> logAction = null)
-        //{
-        //    logger.Log(Abstraction.Layer.Logging().Action().Started("Transaction"));
-
-        //    return logger.BeginScope(null, new { Transaction = state }, logAction ?? (log => log.Elapsed()));
-        //}
-
-        //public static void Commit(this ILogger logger)
-        //{
-        //    if (LogScope.Current is null)
-        //    {
-        //        throw new InvalidOperationException("Commit can be called only within a log-scope.");
-        //    }
-
-        //    logger.Log(Abstraction.Layer.Logging().Action().Finished("Transaction"));
-        //}
     }
-
 }

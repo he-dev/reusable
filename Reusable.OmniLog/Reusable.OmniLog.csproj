@@ -71,9 +71,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TehCodez\Attachements\ElapsedMilliseconds.cs" />
+    <Compile Include="TehCodez\Attachements\Scope.cs" />
     <Compile Include="TehCodez\Collections\AttachementDictionary.cs" />
     <Compile Include="TehCodez\Collections\Log.cs" />
-    <Compile Include="TehCodez\Collections\LogBag.cs" />
     <Compile Include="TehCodez\LogAttachement.cs" />
     <Compile Include="TehCodez\Attachements\AppSetting.cs" />
     <Compile Include="TehCodez\Attachements\Elapsed.cs" />
@@ -91,7 +91,7 @@
     <Compile Include="TehCodez\LoggerFactoryExtensions.cs" />
     <Compile Include="TehCodez\LoggerFilter.cs" />
     <Compile Include="TehCodez\LogLevel.cs" />
-    <Compile Include="TehCodez\LogProperty.cs" />
+    <Compile Include="TehCodez\LogProperties.cs" />
     <Compile Include="TehCodez\LogRenderer.cs" />
     <Compile Include="TehCodez\LogRx.cs" />
     <Compile Include="TehCodez\LogScope.cs" />

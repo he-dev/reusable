@@ -1,9 +1,10 @@
 ﻿namespace Reusable.OmniLog
 {
-    // This class provides names for most common log properties.    
-    public static class LogProperty
+    /// <summary>
+    /// This class provides default property names.
+    /// </summary>
+    public static class LogProperties
     {
-        public static readonly SoftString Scope = nameof(Scope);
         public static readonly SoftString Category = nameof(Category);
         public static readonly SoftString LogLevel = nameof(LogLevel);
         public static readonly SoftString Message = nameof(Message);
@@ -13,6 +14,9 @@
         public static readonly SoftString CallerMemberName = nameof(CallerMemberName);
         public static readonly SoftString CallerLineNumber = nameof(CallerLineNumber);
         public static readonly SoftString CallerFilePath = nameof(CallerFilePath);
+
+        public static readonly SoftString Scope = nameof(Scope);
+        public static readonly SoftString State = nameof(State);
 
         // This field can be used to remove a property from log.
         public static readonly object Unset = new object();

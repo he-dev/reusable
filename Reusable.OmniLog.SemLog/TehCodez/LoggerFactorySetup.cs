@@ -13,8 +13,7 @@ namespace Reusable.OmniLog.SemanticExtensions
     /// This helper delegate is meant to be used for dependency injection.
     /// </summary>
     /// <returns></returns>
-    public delegate ILoggerFactory SetupLoggerFactoryFunc([NotNull] string environment, [NotNull] string product, [NotNull] Func<IObserver<Log>> createRx);
-    //public delegate ILoggerFactory SetupLoggerFactoryFunc([NotNull] string environment, [NotNull] string product, [NotNull] Func<IEnumerable<ILogScopeMerge>, IObserver<Log>> createRx);
+    public delegate ILoggerFactory SetupLoggerFactoryFunc([NotNull] string environment, [NotNull] string product, [NotNull] IList<IObserver<Log>> rxs, [CanBeNull] IStateSerializer stateSerializer = null);
 
     /// <summary>
     /// This class provides methods that create ILoggerFactory that is already set-up for semantic logging.
@@ -22,18 +21,15 @@ namespace Reusable.OmniLog.SemanticExtensions
     public class LoggerFactorySetup
     {
         [NotNull]
-        public static ILoggerFactory SetupLoggerFactory([NotNull] string environment, [NotNull] string product, [NotNull] Func<IObserver<Log>> createRx)
+        public static ILoggerFactory SetupLoggerFactory([NotNull] string environment, [NotNull] string product, [NotNull] IList<IObserver<Log>> rxs, [CanBeNull] IStateSerializer stateSerializer = null)
         {
             if (environment == null) throw new ArgumentNullException(nameof(environment));
             if (product == null) throw new ArgumentNullException(nameof(product));
-            if (createRx == null) throw new ArgumentNullException(nameof(createRx));
+            if (rxs == null) throw new ArgumentNullException(nameof(rxs));
 
             return new LoggerFactory
             {
-                Observers =
-                {
-                    createRx() //new[] { new LogTransactionMerge() })
-                },
+                Observers = rxs,
                 Configuration = new LoggerConfiguration
                 {
                     Attachements =
@@ -41,7 +37,7 @@ namespace Reusable.OmniLog.SemanticExtensions
                         new OmniLog.Attachements.Lambda("Environment", _ => environment),
                         new OmniLog.Attachements.Lambda("Product", _ => product),
                         new OmniLog.Attachements.Timestamp<UtcDateTime>(),
-                        new OmniLog.Attachements.Scope(new JsonStateSerializer
+                        new OmniLog.Attachements.Scope(stateSerializer ?? new JsonStateSerializer
                         {
                             Settings = new JsonSerializerSettings
                             {
