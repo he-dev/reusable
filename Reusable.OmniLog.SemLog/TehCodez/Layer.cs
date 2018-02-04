@@ -136,47 +136,47 @@ namespace Reusable.OmniLog.SemanticExtensions
     {
         #region Information
 
-        public static IAbstractionLayer Business(this IAbstraction abstraction, LogLevel logLevel = null)
+        public static IAbstractionLayer Business(this IAbstraction abstraction)
         {
-            return new AbstractionLayer(nameof(Business), logLevel ?? LogLevel.Information);
+            return new AbstractionLayer(nameof(Business), LogLevel.Information);
         }
 
         #endregion
 
         #region Debug
 
-        public static IAbstractionLayer Infrastructure(this IAbstraction abstraction, LogLevel logLevel = null)
+        public static IAbstractionLayer Infrastructure(this IAbstraction abstraction)
         {
-            return new AbstractionLayer(nameof(Infrastructure), logLevel ?? LogLevel.Debug);
+            return new AbstractionLayer(nameof(Infrastructure), LogLevel.Debug);
         }
 
-        public static IAbstractionLayer Logging(this IAbstraction abstraction, LogLevel logLevel = null)
+        public static IAbstractionLayer Logging(this IAbstraction abstraction)
         {
-            return new AbstractionLayer(nameof(Logging), logLevel ?? LogLevel.Debug);
+            return new AbstractionLayer(nameof(Logging), LogLevel.Debug);
         }
 
         #endregion
 
         #region Trace
 
-        public static IAbstractionLayer Presentation(this IAbstraction abstraction, LogLevel logLevel = null)
+        public static IAbstractionLayer Presentation(this IAbstraction abstraction)
         {
-            return new AbstractionLayer(nameof(Presentation), logLevel ?? LogLevel.Trace);
+            return new AbstractionLayer(nameof(Presentation), LogLevel.Trace);
         }
 
-        public static IAbstractionLayer IO(this IAbstraction abstraction, LogLevel logLevel = null)
+        public static IAbstractionLayer IO(this IAbstraction abstraction)
         {
-            return new AbstractionLayer(nameof(IO), logLevel ?? LogLevel.Trace);
+            return new AbstractionLayer(nameof(IO), LogLevel.Trace);
         }
 
-        public static IAbstractionLayer Database(this IAbstraction abstraction, LogLevel logLevel = null)
+        public static IAbstractionLayer Database(this IAbstraction abstraction)
         {
-            return new AbstractionLayer(nameof(Database), logLevel ?? LogLevel.Trace);
+            return new AbstractionLayer(nameof(Database), LogLevel.Trace);
         }
 
-        public static IAbstractionLayer Network(this IAbstraction abstraction, LogLevel logLevel = null)
+        public static IAbstractionLayer Network(this IAbstraction abstraction)
         {
-            return new AbstractionLayer(nameof(Network), logLevel ?? LogLevel.Trace);
+            return new AbstractionLayer(nameof(Network), LogLevel.Trace);
         }
 
         #endregion
