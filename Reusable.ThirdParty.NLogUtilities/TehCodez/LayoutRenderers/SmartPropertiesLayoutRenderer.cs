@@ -7,7 +7,7 @@ using NLog;
 using NLog.Config;
 using NLog.LayoutRenderers;
 
-namespace Reusable.ThirdParty.NLogUtilities.LayoutRenderers
+namespace Reusable.Utilities.ThirdParty.NLog.LayoutRenderers
 {
     [UsedImplicitly, PublicAPI]
     [LayoutRenderer(Name)]

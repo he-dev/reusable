@@ -1,7 +1,7 @@
 ﻿using NLog.Layouts;
 using NLog.Targets;
 
-namespace Reusable.ThirdParty.NLogUtilities
+namespace Reusable.Utilities.ThirdParty.NLog
 {
     public static class DatabaseTargetExtensions
     {

@@ -7,6 +7,7 @@ using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.Extensions;
+using Reusable.Utilities.ThirdParty.NLog.LayoutRenderers;
 
 namespace Reusable.Console
 {
@@ -14,7 +15,7 @@ namespace Reusable.Console
     {
         public static void ConsoleColorizer()
         {
-            Reusable.ThirdParty.NLogUtilities.LayoutRenderers.SmartPropertiesLayoutRenderer.Register();
+            SmartPropertiesLayoutRenderer.Register();
 
             var loggerFactory = new LoggerFactory
             {
@@ -48,7 +49,7 @@ namespace Reusable.Console
 
         public static void SemanticExtensions()
         {
-            Reusable.ThirdParty.NLogUtilities.LayoutRenderers.SmartPropertiesLayoutRenderer.Register();
+            SmartPropertiesLayoutRenderer.Register();
 
             var loggerFactory = LoggerFactorySetup.SetupLoggerFactory("development", "Reusable.Console", new[] { NLogRx.Create() });
 

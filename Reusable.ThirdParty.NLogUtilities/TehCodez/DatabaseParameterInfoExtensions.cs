@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using NLog.Targets;
 
-namespace Reusable.ThirdParty.NLogUtilities
+namespace Reusable.Utilities.ThirdParty.NLog
 {
     public static class DatabaseParameterInfoExtensions
     {
