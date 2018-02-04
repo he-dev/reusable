@@ -74,11 +74,8 @@
     <Compile Include="TehCodez\LoggerExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TehCodez\Layer.cs" />
-    <Compile Include="TehCodez\LogExtensions.cs" />
     <Compile Include="TehCodez\Attachements\Snapshot.cs" />
     <Compile Include="TehCodez\LoggerFactorySetup.cs" />
-    <Compile Include="TehCodez\LogTransactionMerge.cs" />
-    <Compile Include="TehCodez\_Abstractions\IStateSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -93,8 +90,14 @@
       <Project>{3f1a4c5b-1ba9-45c7-bf73-465bd8669897}</Project>
       <Name>Reusable.OmniLog</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Reusable.ThirdParty.JsonNetUtilities\Reusable.Utilities.ThirdParty.JsonNet.csproj">
+      <Project>{37C5C43A-159A-4312-BF3B-E00F7BE456E7}</Project>
+      <Name>Reusable.Utilities.ThirdParty.JsonNet</Name>
+    </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="TehCodez\_Abstractions\" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="Sql\CREATE TABLE [dbo].[SemLog].sql" />
   </ItemGroup>

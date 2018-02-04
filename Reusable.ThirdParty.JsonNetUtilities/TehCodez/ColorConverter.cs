@@ -9,10 +9,10 @@ using Reusable.Drawing;
 using Reusable.Extensions;
 using Reusable.Formatters;
 
-namespace Reusable.ThirdParty.JsonNetUtilities
+namespace Reusable.Utilities.ThirdParty.JsonNet
 {
     [PublicAPI]
-    public class JsonColorConverter : JsonConverter
+    public class ColorConverter : JsonConverter
     {
         [NotNull]
         private IEnumerable<ColorParser> _colorParsers;
@@ -23,7 +23,7 @@ namespace Reusable.ThirdParty.JsonNetUtilities
         [NotNull]
         private string _colorFormat;
 
-        public JsonColorConverter()
+        public ColorConverter()
         {
             _colorParsers = new ColorParser[]
             {

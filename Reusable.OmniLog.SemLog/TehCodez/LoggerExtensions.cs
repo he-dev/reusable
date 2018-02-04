@@ -29,12 +29,12 @@ namespace Reusable.OmniLog.SemanticExtensions
                     log.With("Category", context.CategoryName);
                     log.With("Identifier", dump.Key);
 
-                    if (!log.ContainsKey(nameof(LogBag)))
-                    {
-                        log.Add(nameof(LogBag), new LogBag());
-                    }
+                    //if (!log.ContainsKey(nameof(LogBag)))
+                    //{
+                    //    log.Add(nameof(LogBag), new LogBag());
+                    //}
 
-                    log.Bag().Add(nameof(Snapshot), dump.Value);
+                    log.Add(nameof(Snapshot) + nameof(Object), dump.Value);
 
                     log.With("Layer", context.LayerName);
                     log.Add(LogProperty.CallerMemberName, callerMemberName);
@@ -46,25 +46,25 @@ namespace Reusable.OmniLog.SemanticExtensions
             }
         }
 
-        /// <summary>
-        /// Begins a new transaction-scope with attached Elapsed.
-        /// </summary>
-        public static LogScope BeginTransaction(this ILogger logger, object state, Action<Log> logAction = null)
-        {
-            logger.Log(Abstraction.Layer.Logging().Action().Started("Transaction"));
+        ///// <summary>
+        ///// Begins a new transaction-scope with attached Elapsed.
+        ///// </summary>
+        //public static LogScope BeginTransaction(this ILogger logger, object state, Action<Log> logAction = null)
+        //{
+        //    logger.Log(Abstraction.Layer.Logging().Action().Started("Transaction"));
 
-            return logger.BeginScope(null, new { Transaction = state }, logAction ?? (log => log.Elapsed()));
-        }
+        //    return logger.BeginScope(null, new { Transaction = state }, logAction ?? (log => log.Elapsed()));
+        //}
 
-        public static void Commit(this ILogger logger)
-        {
-            if (LogScope.Current is null)
-            {
-                throw new InvalidOperationException("Commit can be called only within a log-scope.");
-            }
+        //public static void Commit(this ILogger logger)
+        //{
+        //    if (LogScope.Current is null)
+        //    {
+        //        throw new InvalidOperationException("Commit can be called only within a log-scope.");
+        //    }
 
-            logger.Log(Abstraction.Layer.Logging().Action().Finished("Transaction"));
-        }
+        //    logger.Log(Abstraction.Layer.Logging().Action().Finished("Transaction"));
+        //}
     }
 
 }

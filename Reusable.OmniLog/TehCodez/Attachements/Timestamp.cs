@@ -13,7 +13,7 @@ namespace Reusable.OmniLog.Attachements
             _dateTime = new T();
         }
 
-        public override object Compute(Log log)
+        public override object Compute(ILog log)
         {
             return _dateTime.Now();
         }

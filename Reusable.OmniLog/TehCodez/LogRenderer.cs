@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Custom;
 using Reusable.Collections;
 using Reusable.OmniLog.Collections;
 
@@ -12,9 +13,10 @@ namespace Reusable.OmniLog
             // Recreate the log with all properties and compute them.
 
             var properties =
-                log.Select(l => (l.Key, l.Value))
-                    .Concat(attachements.Select(a => (a.Name, (object)a)))
-                    .Concat(LogScope.Current.Flatten().Select(scope => (Key: scope.Name, Value: (object) scope)));
+                log
+                    .Concat(attachements.Select(attachement => new KeyValuePair<SoftString, object>(attachement.Name, attachement)));
+                    //.Append(new KeyValuePair<SoftString, object>("Scopes", LogScope.Current.Flatten().Select(scope => scope).ToList()));
+                    //.Concat(LogScope.Current.Flatten().Select(scope => (Key: scope.Name, Value: (object)scope)));
 
             log = new Log().AddRange(properties);
             return log.Compute(log);
@@ -29,9 +31,9 @@ namespace Reusable.OmniLog
                 switch (item.Value)
                 {
                     // Don't render LogLevel because we cannot filter without it.
-                    //				case LogLevel logLevel:
-                    //					log[item.Key] = logLevel.ToString();
-                    //					break;s
+                    //	case LogLevel logLevel:
+                    //		log[item.Key] = logLevel.ToString();
+                    //		break;s
 
                     case MessageFunc messageFunc:
                         log[LogProperty.Message] = messageFunc();
@@ -39,15 +41,15 @@ namespace Reusable.OmniLog
 
                     case ILogAttachement computable:
                         log[item.Key] = computable.Compute(rawLog);
-                        break;                    
-
-                    case LogScope scope:
-                        log[item.Key] = scope.Compute(rawLog);
                         break;
 
-                    case LogBag bag:
-                        // Skip the log-bag because it's not renderable.
-                        continue;
+                    //case LogScope scope:
+                    //    log[item.Key] = scope.Compute(rawLog);
+                    //    break;
+
+                    //case LogBag bag:
+                    //    // Skip the log-bag because it's not renderable.
+                    //    continue;
 
                     default:
                         log[item.Key] = item.Value;

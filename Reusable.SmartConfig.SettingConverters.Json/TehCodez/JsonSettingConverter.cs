@@ -7,7 +7,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Reusable.Converters;
 using Reusable.Extensions;
-using Reusable.ThirdParty.JsonNetUtilities;
+using Reusable.Utilities.ThirdParty.JsonNet;
+using ColorConverter = Reusable.Utilities.ThirdParty.JsonNet.ColorConverter;
 
 namespace Reusable.SmartConfig.SettingConverters
 {
@@ -48,7 +49,7 @@ namespace Reusable.SmartConfig.SettingConverters
                 Converters =
                 {
                     new StringEnumConverter(),
-                    new JsonColorConverter()
+                    new ColorConverter()
                 }
             },
             StringTypes = new HashSet<Type>

@@ -14,7 +14,7 @@ namespace Reusable.OmniLog.Attachements
             _key = key;
         }
 
-        public override object Compute(Log log)
+        public override object Compute(ILog log)
         {
             return ConfigurationManager.AppSettings[_key];
         }

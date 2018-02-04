@@ -21,7 +21,7 @@ namespace Reusable.Utilities.MSTest.Mocks
             _timestampCount = timestampList.Count;
         }
 
-        public override object Compute(Log log)
+        public override object Compute(ILog log)
         {
             if (_timestamps.MoveNext())
             {

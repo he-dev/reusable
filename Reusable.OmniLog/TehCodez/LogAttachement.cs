@@ -18,7 +18,7 @@ namespace Reusable.OmniLog
         SoftString Name { get; }
 
         [CanBeNull]
-        object Compute([NotNull] Log log);
+        object Compute([NotNull] ILog log);
     }
 
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
@@ -29,16 +29,16 @@ namespace Reusable.OmniLog
             Name = name ?? throw new ArgumentNullException(nameof(name));
         }
 
-        private string DebuggerDisplay => DebuggerString.Create<LogAttachement>(new { Name = Name.ToString() });
-
         protected LogAttachement()
         {
             Name = GetType().Name;
         }
 
+        private string DebuggerDisplay => DebuggerString.Create<LogAttachement>(new { Name = Name.ToString() });
+
         public SoftString Name { get; }
 
-        public abstract object Compute(Log log);
+        public abstract object Compute(ILog log);
 
         #region IEquatable
 
@@ -48,6 +48,6 @@ namespace Reusable.OmniLog
 
         public override int GetHashCode() => AutoEquality<ILogAttachement>.Comparer.GetHashCode(this);
 
-        #endregion        
+        #endregion
     }
 }

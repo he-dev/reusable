@@ -50,18 +50,18 @@ namespace Reusable.Console
         {
             Reusable.ThirdParty.NLogUtilities.LayoutRenderers.SmartPropertiesLayoutRenderer.Register();
 
-            var loggerFactory = LoggerFactorySetup.SetupLoggerFactory("development", "Reusable.Console", NLogRx.Create);         
+            var loggerFactory = LoggerFactorySetup.SetupLoggerFactory("development", "Reusable.Console", NLogRx.Create);
 
             var logger = loggerFactory.CreateLogger("Demo");
 
             // Opening outer-transaction.
-            using (logger.BeginTransaction(new { OuterTransaction = 123 }))
+            using (logger.BeginScope("OuterScope", new { CustomerId = 123 }).AttachElapsed())
             {
                 // Logging some single business variable and a message.
                 logger.Log(Abstraction.Layer.Business().Data().Variable(new { foo = "bar" }), log => log.Message("Hallo variable!"));
 
                 // Opening innter-transaction.
-                using (logger.BeginTransaction(new { InnerTransaction = 456 }))
+                using (logger.BeginScope("InnerScope", new { ItemId = 456 }).AttachElapsed())
                 {
                     // Logging an entire object in a single line.
                     var customer = new { FirstName = "John", LastName = "Doe" };
@@ -72,13 +72,11 @@ namespace Reusable.Console
                     var qux = "quux";
 
                     logger.Log(Abstraction.Layer.Infrastructure().Data().Variable(new { baz, qux }));
-                    
+
                     // Logging action results.
                     logger.Log(Abstraction.Layer.Infrastructure().Action().Started("DoSomething"));
                     logger.Log(Abstraction.Layer.Infrastructure().Action().Cancelled("DoSomething"), log => log.Message("No connection."));
                     logger.Log(Abstraction.Layer.Infrastructure().Action().Failed("DoSomething"), log => log.Exception(new DivideByZeroException("Cannot divide.")));
-
-                    logger.Commit();
                 }
             }
         }

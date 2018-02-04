@@ -5,7 +5,7 @@ namespace Reusable.OmniLog.Attachements
 {
     public class ThreadId : LogAttachement
     {
-        public override object Compute(Log log)
+        public override object Compute(ILog log)
         {
             return Thread.CurrentThread.ManagedThreadId;
         }

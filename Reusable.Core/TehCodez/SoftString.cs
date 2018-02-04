@@ -67,12 +67,12 @@ namespace Reusable
         public static bool IsNullOrWhiteSpace([CanBeNull] SoftString value) => string.IsNullOrWhiteSpace(value?._value);
     }
 
-    [Serializable]
-    public partial class SoftString : ISerializable
-    {
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("_value", _value, typeof(string));
-        }
-    }
+    //[Serializable]
+    //public partial class SoftString : ISerializable
+    //{
+    //    void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
+    //    {
+    //        info.AddValue("_value", _value, typeof(string));
+    //    }
+    //}
 }

@@ -12,7 +12,7 @@ namespace Reusable.Console
             var foo = new int[0];
             var bar = foo.Append(2);
 
-            Demo.ConsoleColorizer();
+            //Demo.ConsoleColorizer();
             Demo.SemanticExtensions();
 
 

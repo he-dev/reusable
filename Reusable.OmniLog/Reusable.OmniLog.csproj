@@ -100,7 +100,7 @@
     <Compile Include="TehCodez\Observers\DebugRx.cs" />
     <Compile Include="TehCodez\Observers\MemoryRx.cs" />
     <Compile Include="TehCodez\Reflection.cs" />
-    <Compile Include="TehCodez\_Abstractions\ILogScopeMerge.cs" />
+    <Compile Include="TehCodez\_Abstractions\IStateSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj">

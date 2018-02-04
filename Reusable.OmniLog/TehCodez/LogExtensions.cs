@@ -14,29 +14,29 @@ namespace Reusable.OmniLog
     {
         #region Log properties
 
-        public static SoftString Name(this Log log, object value = null) => log.Property<SoftString>(value);
+        public static SoftString Name(this ILog log, object value = null) => log.Property<SoftString>(value);
 
-        public static DateTime Timestamp(this Log log, object value = null) => log.Property<DateTime>(value);
+        public static DateTime Timestamp(this ILog log, object value = null) => log.Property<DateTime>(value);
 
-        public static TimeSpan Elapsed(this Log log, object value = null) => log.Property<TimeSpan>(value);
+        public static TimeSpan Elapsed(this ILog log, object value = null) => log.Property<TimeSpan>(value);
 
-        public static LogLevel Level(this Log log, object value = null) => log.Property<LogLevel>(value);
+        public static LogLevel Level(this ILog log, object value = null) => log.Property<LogLevel>(value);
 
-        public static string Message(this Log log, object value = null) => log.Property<string>(value);
+        public static string Message(this ILog log, object value = null) => log.Property<string>(value);
 
-        public static MessageFunc MessageFunc(this Log log, object value = null) => log.Property<MessageFunc>(value);
+        public static MessageFunc MessageFunc(this ILog log, object value = null) => log.Property<MessageFunc>(value);
 
-        public static Exception Exception(this Log log, object value = null) => log.Property<Exception>(value);
+        public static Exception Exception(this ILog log, object value = null) => log.Property<Exception>(value);
 
-        public static SoftString Scope(this Log log, object value = null) => log.Property<SoftString>(value);
+        public static SoftString Scope(this ILog log, object value = null) => log.Property<SoftString>(value);
 
-        public static LogBag Bag(this Log log, object value = null) => log.Property<LogBag>(value, nameof(LogBag));
+        public static LogBag Bag(this ILog log, object value = null) => log.Property<LogBag>(value, nameof(LogBag));
 
-        public static IEnumerable<SoftString> Scopes(this Log log)
+        public static IEnumerable<SoftString> Scopes(this ILog log)
         {
             foreach (var logValue in log.Values)
             {
-                if (logValue is Log nestedLog)
+                if (logValue is ILog nestedLog)
                 {
                     var scope = nestedLog.Scope();
                     if (scope.IsNotNull())
@@ -49,7 +49,7 @@ namespace Reusable.OmniLog
 
         // 'propertyName' is never null because it is set  by the compiler.
         [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
-        public static T Property<T>(this Log log, object value = null, [CallerMemberName] string propertyName = null)
+        public static T Property<T>(this ILog log, object value = null, [CallerMemberName] string propertyName = null)
         {
             var isGetterMode = value == null;
 
@@ -76,8 +76,8 @@ namespace Reusable.OmniLog
 
         #region With
 
-        public static Log WithCallerInfo(
-            this Log log,
+        public static ILog WithCallerInfo(
+            this ILog log,
             [CallerMemberName] string callerMemberName = null,
             [CallerLineNumber] int callerLineNumber = 0,
             [CallerFilePath] string callerFilePath = null
@@ -90,13 +90,13 @@ namespace Reusable.OmniLog
             return log;
         }
 
-        public static Log With<T>(this Log log, (SoftString Name, T Value) item)
+        public static ILog With<T>(this ILog log, (SoftString Name, T Value) item)
         {
             log[item.Name] = item.Value;
             return log;
         }
 
-        public static Log With<T>(this Log log, SoftString name, T value)
+        public static ILog With<T>(this ILog log, SoftString name, T value)
         {
             log[name] = value;
             return log;
@@ -110,7 +110,7 @@ namespace Reusable.OmniLog
         #endregion
 
         // Flattens log by picking the first item from each group. Groups are built on the key.
-        public static Log Flatten(this Log log, IDictionary<SoftString, ILogScopeMerge> scopeMerges)
+        public static Log Flatten(this ILog log) //, IDictionary<SoftString, ILogScopeMerge> scopeMerges)
         {
             var items = log.SelectMany(l =>
             {
@@ -125,13 +125,14 @@ namespace Reusable.OmniLog
             var innerScope =
                 items
                     .GroupBy(i => i.Key)
-                    .Select(scope => scopeMerges.TryGetValue(scope.Key, out var merge) ? merge.Merge(scope) : scope.First());
+                    .Select(scope => scope.First());
+                    //.Select(scope => scopeMerges.TryGetValue(scope.Key, out var merge) ? merge.Merge(scope) : scope.First());
 
             return new Log().AddRange(innerScope);
         }
 
         // Finds a value by path. A path is a dot separated string of names.
-        public static object FindValue(this Log log, string path)
+        public static object FindValue(this ILog log, string path)
         {
             var names = path.Split('.');
 

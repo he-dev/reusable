@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Reusable.OmniLog.Attachements;
 
 namespace Reusable.OmniLog
 {
@@ -12,6 +13,16 @@ namespace Reusable.OmniLog
                 yield return current;
                 current = current.Parent;
             }
+        }
+
+        /// <summary>
+        /// Attaches elapsed-milliseconds to each log.
+        /// </summary>
+        public static LogScope AttachElapsed(this LogScope scope)
+        {
+            var elapsed = new ElapsedMilliseconds(nameof(Elapsed));
+            scope.With(elapsed.Name, elapsed);
+            return scope;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using Reusable.Collections;
 using Reusable.OmniLog.Collections;
@@ -12,11 +13,12 @@ namespace Reusable.OmniLog
     {
         private static readonly AsyncLocal<LogScope> _current = new AsyncLocal<LogScope>();
 
-        private LogScope(SoftString name, int depth, IEnumerable<KeyValuePair<SoftString, object>> state)
+        private LogScope(SoftString name, int depth, object state)
         {
             Depth = depth;
             Name = name ?? $"{nameof(LogScope)}{depth}";
-            this.AddRange(state);
+            //this.AddRange(state);
+            this.Add("State", state);
             this.Scope(Name);
         }
 
@@ -38,15 +40,20 @@ namespace Reusable.OmniLog
             private set => _current.Value = value;
         }
 
-        public static LogScope Push(SoftString scopeName, IEnumerable<KeyValuePair<SoftString, object>> state, Action<Log> logAction)
+        public static LogScope Push(SoftString scopeName, object state)//, Action<Log> logAction)
         {
+            //var properties = 
+            //    state is null 
+            //        ? Enumerable.Empty<KeyValuePair<SoftString, object>>() 
+            //        : Reflection.GetProperties(state);
+
             var scope = Current = new LogScope(scopeName, Current?.Depth + 1 ?? 0, state)
             {
                 Parent = Current
             };
-            logAction(scope);
+            //logAction(scope);
             return scope;
-        }
+        }        
 
         public void Dispose()
         {

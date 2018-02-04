@@ -133,30 +133,35 @@ namespace Reusable.OmniLog
 
         #region BeginScope	
 
-        public static LogScope BeginScope(this ILogger logger, object state, Action<Log> logAction = null)
+        public static LogScope BeginScope(this ILogger logger, SoftString name, object state)//, Action<Log> logAction)
         {
-            return logger.BeginScope(null, state, logAction ?? (_ => { }));
+            return LogScope.Push(name, state);
         }
 
-        public static LogScope BeginScope(this ILogger logger, Action<Log> logAction)
+        //public static LogScope BeginScope(this ILogger logger, SoftString name, object state)
+        //{
+        //    return logger.BeginScope(name, state, log => { });
+        //}
+
+        public static LogScope BeginScope(this ILogger logger, SoftString name)
         {
-            return logger.BeginScope(null, null, logAction);
+            return logger.BeginScope(name, null);
         }
 
-        public static LogScope BeginScope(this ILogger logger, SoftString name, object state)
-        {
-            return logger.BeginScope(name, state, log => { });
-        }
+        //public static LogScope BeginScope(this ILogger logger, object state, Action<Log> logAction = null)
+        //{
+        //    return logger.BeginScope(null, state, logAction ?? (_ => { }));
+        //}
 
-        public static LogScope BeginScope(this ILogger logger, SoftString name, Action<Log> logAction)
-        {
-            return logger.BeginScope(name, null, logAction);
-        }
+        //public static LogScope BeginScope(this ILogger logger, Action<Log> logAction)
+        //{
+        //    return logger.BeginScope(null, null, logAction);
+        //}
 
-        public static LogScope BeginScope(this ILogger logger, SoftString name, object state, Action<Log> logAction)
-        {
-            return LogScope.Push(name, Reflection.GetProperties(state), logAction);
-        }
+        //public static LogScope BeginScope(this ILogger logger, SoftString name, Action<Log> logAction)
+        //{
+        //    return logger.BeginScope(name, null, logAction);
+        //}
 
         #endregion
     }
