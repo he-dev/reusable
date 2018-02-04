@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Linq.Custom;
 using JetBrains.Annotations;
 using Reusable.OmniLog.Collections;
 
@@ -27,9 +28,10 @@ namespace Reusable.OmniLog.Attachements
                     {
                         scope.Name,
                         Context = scope[LogProperties.State]
-                    });
+                    })
+                    .ToList();
 
-            return _serializer.SerializeObject(states);
+            return states.None() ? null : _serializer.SerializeObject(states);
         }
     }
 }

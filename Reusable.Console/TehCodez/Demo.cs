@@ -54,6 +54,8 @@ namespace Reusable.Console
 
             var logger = loggerFactory.CreateLogger("Demo");
 
+            logger.Log(Abstraction.Layer.Infrastructure().Action().Started("SemLogTest"));
+
             // Opening outer-transaction.
             using (logger.BeginScope("OuterScope", new { CustomerId = 123 }).AttachElapsed())
             {

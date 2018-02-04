@@ -21,7 +21,7 @@
 	var connectionString = "data source=(local);initial catalog=TestDb;integrated security=true";
 	//var database = "testingdb";
 	var schema = "dbo";
-	var tablePattern = "SemLog3";
+	var tablePattern = "SemLog";
 	var mainLogPattern = "";
 	var internalLogFile = @"c:\temp\NLog.Reusable.Console.log";
 	
