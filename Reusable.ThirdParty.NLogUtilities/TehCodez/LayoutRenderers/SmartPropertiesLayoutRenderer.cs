@@ -9,6 +9,9 @@ using NLog.LayoutRenderers;
 
 namespace Reusable.Utilities.ThirdParty.NLog.LayoutRenderers
 {
+    /// <summary>
+    /// This layour-renderer provides a case-insensitive access to logger properties and formats the value with an invariant culture by default.
+    /// </summary>
     [UsedImplicitly, PublicAPI]
     [LayoutRenderer(Name)]
     public class SmartPropertiesLayoutRenderer : LayoutRenderer
@@ -35,6 +38,9 @@ namespace Reusable.Utilities.ThirdParty.NLog.LayoutRenderers
             }
         }
 
+        /// <summary>
+        /// This helper method allows to easily register this renderer.
+        /// </summary>
         public static void Register()
         {
             ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition(Name, typeof(SmartPropertiesLayoutRenderer));
