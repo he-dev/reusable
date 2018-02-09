@@ -45,7 +45,6 @@ namespace Reusable.Net.Mail
                     mailMessage.To.Add(new MailAddress(to));
                 }
                 
-                smtpClient.Send(mailMessage);
                 await smtpClient.SendMailAsync(mailMessage);
             }
         }
