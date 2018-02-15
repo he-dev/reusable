@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.SmartConfig.Core</id>
-    <version>4.0.2</version>
+    <version>4.0.3</version>
     <title>Reusable.SmartConfig.Core</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -15,8 +15,8 @@
     <copyright>Copyright 2018 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
-      <dependency id="Reusable.Core" version="4.0.2" />
-      <dependency id="Reusable.Flawless" version="4.0.2" />
+      <dependency id="Reusable.Core" version="4.0.3" />
+      <dependency id="Reusable.Flawless" version="4.0.3" />
     </dependencies>
   </metadata>
   <files>
