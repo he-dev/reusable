@@ -106,8 +106,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.SmartConfig.Core.T
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{BCF6C265-5E08-4CF6-B336-788673FD3053}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Utilities.SmartConfig.DataStores.SqlServer", "Reusable.Utilities.SmartConfig.DataStores.SqlServer\Reusable.Utilities.SmartConfig.DataStores.SqlServer.csproj", "{9059A6B6-EFDF-419C-A420-A1F4267E68E4}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug.Core|Any CPU = Debug.Core|Any CPU
@@ -586,18 +584,6 @@ Global
 		{40584DA6-9A70-4B34-A463-99EC0F3CA65C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{40584DA6-9A70-4B34-A463-99EC0F3CA65C}.Release|x86.ActiveCfg = Release|Any CPU
 		{40584DA6-9A70-4B34-A463-99EC0F3CA65C}.Release|x86.Build.0 = Release|Any CPU
-		{9059A6B6-EFDF-419C-A420-A1F4267E68E4}.Debug.Core|Any CPU.ActiveCfg = Debug|Any CPU
-		{9059A6B6-EFDF-419C-A420-A1F4267E68E4}.Debug.Core|Any CPU.Build.0 = Debug|Any CPU
-		{9059A6B6-EFDF-419C-A420-A1F4267E68E4}.Debug.Core|x86.ActiveCfg = Debug|Any CPU
-		{9059A6B6-EFDF-419C-A420-A1F4267E68E4}.Debug.Core|x86.Build.0 = Debug|Any CPU
-		{9059A6B6-EFDF-419C-A420-A1F4267E68E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9059A6B6-EFDF-419C-A420-A1F4267E68E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9059A6B6-EFDF-419C-A420-A1F4267E68E4}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{9059A6B6-EFDF-419C-A420-A1F4267E68E4}.Debug|x86.Build.0 = Debug|Any CPU
-		{9059A6B6-EFDF-419C-A420-A1F4267E68E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9059A6B6-EFDF-419C-A420-A1F4267E68E4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9059A6B6-EFDF-419C-A420-A1F4267E68E4}.Release|x86.ActiveCfg = Release|Any CPU
-		{9059A6B6-EFDF-419C-A420-A1F4267E68E4}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -649,7 +635,6 @@ Global
 		{FB5D213F-5792-4A5A-9678-D1B86F15610C} = {EC65300B-18E7-4460-9881-0C3F93DD26FA}
 		{40584DA6-9A70-4B34-A463-99EC0F3CA65C} = {EC65300B-18E7-4460-9881-0C3F93DD26FA}
 		{BCF6C265-5E08-4CF6-B336-788673FD3053} = {20A5712D-D0EB-4C24-9B44-ABE2F665F3F8}
-		{9059A6B6-EFDF-419C-A420-A1F4267E68E4} = {BCF6C265-5E08-4CF6-B336-788673FD3053}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8F168DB3-D451-4BCF-A4BB-3D55EA356164}

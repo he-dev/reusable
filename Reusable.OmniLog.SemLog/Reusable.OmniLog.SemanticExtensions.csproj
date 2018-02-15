@@ -95,11 +95,9 @@
       <Name>Reusable.Utilities.ThirdParty.JsonNet</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="TehCodez\_Abstractions\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Sql\CREATE TABLE [dbo].[SemLog].sql" />
+    <Content Include="sql\CREATE TABLE [dbo].[SemLog].sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
