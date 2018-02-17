@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.SmartConfig.SettingConverters.Json</id>
-    <version>4.0.3</version>
+    <version>4.1.0</version>
     <title>Reusable.SmartConfig.SettingConverters.Json</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -15,9 +15,9 @@
     <copyright>Copyright 2017 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
-      <dependency id="Reusable.Converters" version="4.0.3" />
-      <dependency id="Reusable.SmartConfig.Core" version="4.0.3" />
-      <dependency id="Reusable.Utilities.ThirdParty.JsonNet" version="4.0.3" />
+      <dependency id="Reusable.Converters" version="4.1.0" />
+      <dependency id="Reusable.SmartConfig.Core" version="4.1.0" />
+      <dependency id="Reusable.Utilities.ThirdParty.JsonNet" version="4.1.0" />
     </dependencies>
   </metadata>
   <files>
