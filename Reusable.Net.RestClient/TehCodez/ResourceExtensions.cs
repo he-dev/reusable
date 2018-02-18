@@ -19,7 +19,8 @@ namespace Reusable.Net
                     ?.ToString()
                 ?? Regex.Replace(typeof(TResource).Name, "^I", string.Empty);
 
-            return (IResourceContext<TResource>)Activator.CreateInstance(typeof(ResourceContext<TResource>), new object[] { client, resourceName });
+            //return (IResourceContext<TResource>)Activator.CreateInstance(typeof(ResourceContext<TResource>), new object[] { client, resourceName });
+            return new ResourceContext<TResource>(client, resourceName);
         }
     }
 

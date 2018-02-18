@@ -101,6 +101,7 @@
     <Compile Include="TehCodez\Demo.cs" />
     <Compile Include="TehCodez\PlayingWithEnvDTE.cs" />
     <Compile Include="TehCodez\Program.cs" />
+    <Compile Include="TehCodez\Demos\RestClientDemo.cs" />
     <Compile Include="TehCodez\XMerge.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -129,6 +130,10 @@
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj">
       <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
       <Name>Reusable.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Reusable.Net.RestClient\Reusable.Net.RestClient.csproj">
+      <Project>{7A9510A9-0FC7-4532-BEEC-8F1AF97BDFAD}</Project>
+      <Name>Reusable.Net.RestClient</Name>
     </ProjectReference>
     <ProjectReference Include="..\Reusable.OmniLog.NLogRx\Reusable.OmniLog.NLogRx.csproj">
       <Project>{40681b6d-3d25-45fd-beb7-063df4d4d70c}</Project>
