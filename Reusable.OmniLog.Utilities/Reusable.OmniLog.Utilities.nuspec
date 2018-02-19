@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.OmniLog.Utilities.Utilities</id>
-    <version>4.1.0</version>
+    <id>Reusable.OmniLog.Utilities</id>
+    <version>4.2.0</version>
     <title>Reusable.OmniLog.Utilities</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -15,16 +15,8 @@
     <copyright>Copyright 2016 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
-      <dependency id="JetBrains.Annotations" version="11.1.0" />
-      <dependency id="System.Collections.Immutable" version="1.4.0" />
-      <dependency id="System.Reactive" version="3.1.1" />
-      <dependency id="System.Reactive.Core" version="3.1.1" />
-      <dependency id="System.Reactive.Interfaces" version="3.1.1" />
-      <dependency id="System.Reactive.Linq" version="3.1.1" />
-      <dependency id="System.Reactive.PlatformServices" version="3.1.1" />
-      <dependency id="System.Reactive.Windows.Threading" version="3.1.1" />
-      <dependency id="System.ValueTuple" version="4.4.0" />
-      <dependency id="Reusable.Core" version="4.1.0" />
+      <dependency id="Reusable.Core" version="4.2.0" />
+      <dependency id="Reusable.OmniLog" version="4.2.0" />
     </dependencies>
   </metadata>
   <files>

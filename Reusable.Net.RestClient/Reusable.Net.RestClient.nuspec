@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Net.RestClient</id>
-    <version>4.1.0</version>
+    <version>4.2.0</version>
     <title>Reusable.Net.RestClient</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -15,7 +15,7 @@
     <copyright>Copyright 2018 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
-      <dependency id="Reusable.Core" version="4.1.0" />
+      <dependency id="Reusable.Core" version="4.2.0" />
     </dependencies>
   </metadata>
   <files>
