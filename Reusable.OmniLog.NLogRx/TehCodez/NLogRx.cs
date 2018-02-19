@@ -54,6 +54,6 @@ namespace Reusable.OmniLog
             return _cache.GetOrAdd(name, n => NLog.LogManager.GetLogger(name.ToString()));
         }
 
-        public static IObserver<Log> Create() => new NLogRx();
+        public static NLogRx Create() => new NLogRx();
     }
 }
