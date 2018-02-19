@@ -2,6 +2,9 @@
 using Reusable.OmniLog.Collections;
 using System.Linq;
 using System.Linq.Custom;
+using Reusable.OmniLog;
+using Reusable.OmniLog.SemanticExtensions;
+using Reusable.OmniLog.Utilities;
 
 namespace Reusable.Console
 {
@@ -13,15 +16,13 @@ namespace Reusable.Console
             var bar = foo.Append(2);
 
             //Demo.ConsoleColorizer();
-            Demo.SemanticExtensions();
+            //Demo.SemanticExtensions();
+
+            var rxFilter = new AppConfigRxFilter(NLogRx.Create());
+            var loggerFactory = LoggerFactorySetup.SetupLoggerFactory("development", "VaultNET", rxFilter);
 
 
-            //System.Console.ReadKey();
+            System.Console.ReadKey();
         }
-
-        //private static void foo(ref readonly int x)
-        //{
-            
-        //}
     }
 }

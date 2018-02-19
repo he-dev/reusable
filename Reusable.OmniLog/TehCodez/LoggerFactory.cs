@@ -34,7 +34,7 @@ namespace Reusable.OmniLog
         });
 
         [NotNull]
-        public IList<IObserver<Log>> Observers { get; set; } = new List<IObserver<Log>>();
+        public IList<ILogRx> Observers { get; set; } = new List<ILogRx>();
 
         [NotNull]
         public LoggerConfiguration Configuration { get; set; } = new LoggerConfiguration();

@@ -8,16 +8,28 @@ using Reusable.OmniLog.Collections;
 namespace Reusable.ConsoleColorizer
 {
     [UsedImplicitly]
-    public class ConsoleTemplateRx
+    public class ConsoleTemplateRx : LogRx
     {
-        public static IObserver<Log> Create(IConsoleTemplateRenderer templateRenderer)
+        private readonly IConsoleTemplateRenderer _templateRenderer;
+
+        public ConsoleTemplateRx(IConsoleTemplateRenderer templateRenderer)
+        {
+            _templateRenderer = templateRenderer;
+        }
+
+        public static ConsoleTemplateRx Create(IConsoleTemplateRenderer templateRenderer)
+        {
+            return new ConsoleTemplateRx(templateRenderer);
+        }
+
+        protected override IObserver<Log> Initialize()
         {
             return Observer.Create<Log>(log =>
             {
                 var template = log.Property<string>(null, nameof(LoggerExtensions.ConsoleMessage));
                 if (template.IsNotNullOrEmpty())
                 {
-                    templateRenderer.Render(template);
+                    _templateRenderer.Render(template);
                 }
             });
         }
