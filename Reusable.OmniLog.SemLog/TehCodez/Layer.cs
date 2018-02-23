@@ -245,6 +245,14 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             return new AbstractionContext(new AbstractionLayerData(data.Layer, nameof(Property)), dump);
         }
+
+        /// <summary>
+        /// Logs property dumps. The dump object must be an anonymous type with at leas one property: new { foo[, bar] }
+        /// </summary>
+        public static IAbstractionContext Metric(this IAbstractionLayerData data, object dump)
+        {
+            return new AbstractionContext(new AbstractionLayerData(data.Layer, nameof(Metric)), dump);
+        }
     }
 
     // The property name of each dump maps to the Identifier column.

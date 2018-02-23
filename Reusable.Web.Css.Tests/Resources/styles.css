@@ -1,0 +1,12 @@
+﻿h1 { 
+	font-family: Sans-Serif; color: green; font-weight: normal; margin-top: 1.5em; 
+}
+h2 { 
+	font-family: Sans-Serif; color: green; font-weight: normal; margin-top: 1.5em; 
+}
+#foo, p { 
+	font-family: Sans-Serif; color: green; 
+}
+hr, .foo { 
+	border: 0; border-bottom: 1px solid #ccc; background: #ccc;
+}

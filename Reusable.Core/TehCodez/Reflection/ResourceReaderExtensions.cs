@@ -58,6 +58,18 @@ namespace Reusable.Reflection
             return reader.FindString(predicateExpression, Assembly.GetCallingAssembly());
         }
 
+        /// <summary>
+        /// Finds a string in the calling assembly.
+        /// </summary>
+        [NotNull]
+        public static string FindString([NotNull] this IResourceReader reader, [NotNull] string name)
+        {
+            if (reader == null) throw new ArgumentNullException(nameof(reader));
+            if (name == null) throw new ArgumentNullException(nameof(name));
+
+            return reader.FindString(current => current.EndsWith(name, StringComparison.OrdinalIgnoreCase), Assembly.GetCallingAssembly());
+        }
+
         [NotNull]
         public static string FindString([NotNull] this IResourceReader reader, [NotNull] Expression<Func<string, bool>> predicateExpression, [NotNull] Assembly assembly)
         {
