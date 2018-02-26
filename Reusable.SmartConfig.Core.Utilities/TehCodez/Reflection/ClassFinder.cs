@@ -54,7 +54,15 @@ namespace Reusable.SmartConfig.Utilities.Reflection
                     break;
                 // ReSharper disable once UnusedVariable
                 case PropertyInfo property:
-                    _type = node.Member.DeclaringType;
+                    if (node.Expression.NodeType == ExpressionType.Constant)
+                    {
+                        Visit(node.Expression);
+                    }
+                    else
+                    {
+                        _type = node.Member.DeclaringType;
+                    }
+
                     break;
             }
             return base.VisitMember(node);
@@ -67,7 +75,7 @@ namespace Reusable.SmartConfig.Utilities.Reflection
             // - this.Members
 
             var isClosureClass = node.Type.Name.StartsWith("<>c__DisplayClass");
-            //_type = isClosureClass ? node.Type.GetFields()[0].FieldType : node.Type;
+            _type = isClosureClass ? node.Type.GetFields()[0].FieldType : node.Type;
             _instance = isClosureClass ? node.Type.GetFields().Single(f => f.FieldType == _type).GetValue(node.Value) : node.Value;
             return base.VisitConstant(node);
         }

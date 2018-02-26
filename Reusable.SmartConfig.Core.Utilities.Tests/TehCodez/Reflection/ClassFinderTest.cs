@@ -66,6 +66,21 @@ namespace Reusable.SmartConfig.Core.Utilities.Tests.Reflection
             Assert.AreSame(foo, instance);
         }
 
+        [TestMethod]
+        public void FindClass_BaseDerived_Base()
+        {
+            var foo = new DerivedClass { Foo = "bar" };
+
+            var expression1 = (Expression<Func<object>>)(() => foo);
+
+            var (type, instance) = ClassFinder.FindClass(expression1);
+
+            Assert.AreEqual(typeof(DerivedClass), type);
+            //Assert.AreSame(foo, instance);
+
+            new DerivedClass("foo");
+        }
+
         internal class TestClass1
         {
             public string Foo { get; set; }
@@ -100,6 +115,29 @@ namespace Reusable.SmartConfig.Core.Utilities.Tests.Reflection
             public string Foo { get; set; }
 
             public static string Bar { get; set; }
+        }
+
+        internal abstract class BaseClass
+        {
+            public string Foo { get; set; }
+        }
+
+        internal class DerivedClass : BaseClass
+        {
+            public DerivedClass()
+            {
+                
+            }
+
+            public DerivedClass(string str)
+            {
+                var expression1 = (Expression<Func<object>>)(() => Foo);
+
+                var (type, instance) = ClassFinder.FindClass(expression1);
+
+                Assert.AreEqual(typeof(DerivedClass), type);
+                
+            }
         }
     }
 
