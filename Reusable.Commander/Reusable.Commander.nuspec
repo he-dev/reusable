@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Commander</id>
-    <version>4.4.0</version>
+    <version>4.4.1</version>
     <title>Reusable.Commander</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -26,9 +26,9 @@
       <dependency id="System.Reactive.PlatformServices" version="3.1.1" />
       <dependency id="System.Reactive.Windows.Threading" version="3.1.1" />
       <dependency id="System.ValueTuple" version="4.4.0" />
-      <dependency id="Reusable.OmniLog" version="4.4.0" />
-      <dependency id="Reusable.Converters" version="4.4.0" />
-      <dependency id="Reusable.Core" version="4.4.0" />
+      <dependency id="Reusable.OmniLog" version="4.4.1" />
+      <dependency id="Reusable.Converters" version="4.4.1" />
+      <dependency id="Reusable.Core" version="4.4.1" />
     </dependencies>
   </metadata>
   <files>
