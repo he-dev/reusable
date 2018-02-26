@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.SmartConfig.DataStores.AppConfig</id>
-    <version>4.4.1</version>
+    <version>4.4.2</version>
     <title>Reusable.SmartConfig.DataStores.AppConfig</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -15,8 +15,8 @@
     <copyright>Copyright 2017 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
-      <dependency id="Reusable.Core" version="4.4.1" />
-      <dependency id="Reusable.SmartConfig.Core" version="4.4.1" />
+      <dependency id="Reusable.Core" version="4.4.2" />
+      <dependency id="Reusable.SmartConfig.Core" version="4.4.2" />
     </dependencies>
   </metadata>
   <files>
