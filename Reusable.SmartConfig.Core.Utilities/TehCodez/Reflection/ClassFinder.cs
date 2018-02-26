@@ -10,6 +10,7 @@ namespace Reusable.SmartConfig.Utilities.Reflection
     public class ClassFinder : ExpressionVisitor
     {
         private readonly bool _nonPublic;
+        private string _memberName;
         private Type _type;
         private object _instance;
 
@@ -43,17 +44,26 @@ namespace Reusable.SmartConfig.Utilities.Reflection
             // - static fields
             // - static and instance properties
 
+            //if (node.NodeType == ExpressionType.MemberAccess)
+            //{
+            //    return base.Visit(node.Expression);
+            //}
+
             switch (node.Member)
             {
                 case FieldInfo field when field.IsStatic:
                 case PropertyInfo property when property.GetGetMethod(_nonPublic).IsStatic:
                     _type = node.Member.DeclaringType;
                     break;
+                // Occurs when accessin properties by variable: (() => testClass1.Foo)
                 case FieldInfo field:
+                    _memberName = node.Member.Name;
                     _type = field.FieldType;
                     break;
-                // ReSharper disable once UnusedVariable
+                // (() => this.Foo)
+                // (() => variable.Foo)
                 case PropertyInfo property:
+                    _memberName = node.Member.Name;
                     _type = node.Member.DeclaringType;
                     break;
             }
@@ -66,9 +76,9 @@ namespace Reusable.SmartConfig.Utilities.Reflection
             // - closures
             // - this.Members
 
-            var isClosureClass = node.Type.Name.StartsWith("<>c__DisplayClass");
-            //_type = isClosureClass ? node.Type.GetFields()[0].FieldType : node.Type;
-            _instance = isClosureClass ? node.Type.GetFields().Single(f => f.FieldType == _type).GetValue(node.Value) : node.Value;
+            var isClosureClass = node.Type.Name.StartsWith("<>c__DisplayClass");            
+            _type = isClosureClass ? node.Type.GetField(_memberName).FieldType : node.Value.GetType();
+            _instance = isClosureClass ? node.Type.GetField(_memberName).GetValue(node.Value) : node.Value;
             return base.VisitConstant(node);
         }
 

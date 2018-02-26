@@ -13,6 +13,7 @@ namespace Reusable.SmartConfig.Core.Utilities.Tests.Reflection
         {
             var testClass1 = new TestClass1();
             var testClass2 = new TestClass2();
+            var testClass3 = new TestClass2();
 
             var expression1 = (Expression<Func<object>>)(() => testClass1.Foo);
             var expression2 = (Expression<Func<object>>)(() => testClass2.Foo);
@@ -66,6 +67,27 @@ namespace Reusable.SmartConfig.Core.Utilities.Tests.Reflection
             Assert.AreSame(foo, instance);
         }
 
+        [TestMethod]
+        public void FindClass_BaseDerived_Base()
+        {
+            var foo1 = new DerivedClass1 { Foo = "bar" };
+            var foo2 = new DerivedClass2 { Foo = "baz" };
+
+            var expression1 = (Expression<Func<object>>)(() => foo1.Foo);
+            var expression2 = (Expression<Func<object>>)(() => foo2.Foo);
+
+            var (type, instance) = ClassFinder.FindClass(expression2);
+
+            Assert.AreEqual(typeof(DerivedClass2), type);
+            Assert.AreSame(foo2, instance);
+        }
+
+        [TestMethod]
+        public void FindClass_BaseDerivedConstructor_Base()
+        {
+            new DerivedClass2("foo");
+        }
+
         internal class TestClass1
         {
             public string Foo { get; set; }
@@ -100,6 +122,49 @@ namespace Reusable.SmartConfig.Core.Utilities.Tests.Reflection
             public string Foo { get; set; }
 
             public static string Bar { get; set; }
+        }
+
+        internal abstract class BaseClass
+        {
+            public string Foo { get; set; }
+        }
+
+        internal class DerivedClass1 : BaseClass
+        {
+            public DerivedClass1()
+            {
+                
+            }
+
+            public DerivedClass1(string str)
+            {
+                var expression1 = (Expression<Func<object>>)(() => this.Foo);
+
+                var (type, instance) = ClassFinder.FindClass(expression1);
+
+                Assert.AreEqual(typeof(DerivedClass1), type);
+                Assert.AreSame(this, instance);
+                
+            }
+        }
+
+        internal class DerivedClass2 : BaseClass
+        {
+            public DerivedClass2()
+            {
+
+            }
+
+            public DerivedClass2(string str)
+            {
+                var expression1 = (Expression<Func<object>>)(() => this.Foo);
+
+                var (type, instance) = ClassFinder.FindClass(expression1);
+
+                Assert.AreEqual(typeof(DerivedClass2), type);
+                Assert.AreSame(this, instance);
+
+            }
         }
     }
 
