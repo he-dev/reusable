@@ -58,13 +58,13 @@ namespace Reusable.SmartConfig.Utilities.Reflection
                 // Occurs when accessin properties by variable: (() => testClass1.Foo)
                 case FieldInfo field:
                     _memberName = node.Member.Name;
-                    _type = field.FieldType;
+                    //_type = field.FieldType;
                     break;
                 // (() => this.Foo)
                 // (() => variable.Foo)
                 case PropertyInfo property:
                     _memberName = node.Member.Name;
-                    _type = node.Member.DeclaringType;
+                    //_type = node.Member.DeclaringType;
                     break;
             }
             return base.VisitMember(node);
