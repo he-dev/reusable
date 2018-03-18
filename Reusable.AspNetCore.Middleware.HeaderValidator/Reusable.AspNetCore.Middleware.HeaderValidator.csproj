@@ -32,10 +32,4 @@
     <ProjectReference Include="..\Reusable.OmniLog\Reusable.OmniLog.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="Reusable.Core">
-      <HintPath>..\..\..\..\Users\Engineer\.nuget\packages\reusable.core\4.0.3\lib\net47\Reusable.Core.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
 </Project>
