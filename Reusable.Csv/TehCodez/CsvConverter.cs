@@ -30,7 +30,7 @@ namespace Reusable.FileFormats.Csv
                 var dataTable = default(DataTable);
                 while (enumerator.MoveNext())
                 {
-                    if (dataTable is default)
+                    if (dataTable is null)
                     {
                         dataTable = CreateDataTable(enumerator.Current, columns);
                     }

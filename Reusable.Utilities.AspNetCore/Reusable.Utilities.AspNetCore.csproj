@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net47</TargetFramework>
+    <AssemblyName>Reusable.Utilities.AspNetCore</AssemblyName>
+    <RootNamespace>Reusable.Utilities.AspNetCore</RootNamespace>
+    <Platforms>AnyCPU</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.2" />
+    <PackageReference Include="Reusable.Core" Version="4.4.0" />
+    <PackageReference Include="Reusable.OmniLog" Version="4.4.0" />
+    <PackageReference Include="Reusable.OmniLog.SemanticExtensions" Version="4.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Reusable.OmniLog">
+      <HintPath>..\..\..\..\Users\Engineer\.nuget\packages\reusable.omnilog\4.0.3\lib\net47\Reusable.OmniLog.dll</HintPath>
+    </Reference>
+    <Reference Include="Reusable.OmniLog.SemanticExtensions">
+      <HintPath>..\..\..\..\Users\Engineer\.nuget\packages\reusable.omnilog.semanticextensions\4.0.3\lib\net462\Reusable.OmniLog.SemanticExtensions.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

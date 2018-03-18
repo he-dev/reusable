@@ -33,7 +33,7 @@ namespace Reusable.SmartConfig
 
             var first = settingQuery.FirstOrDefault();
 
-            if (first is default)
+            if (first is null)
             {
                 result = default((ISettingDataStore, ISetting));
                 return false;
