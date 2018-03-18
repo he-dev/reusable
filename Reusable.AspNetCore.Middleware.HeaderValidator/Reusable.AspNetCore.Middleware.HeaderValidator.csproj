@@ -21,21 +21,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
-    <PackageReference Include="System.Collections.Immutable" Version="1.4.0" />    
+    <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />    
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.0.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog\Reusable.OmniLog.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Reusable.Core">
-      <HintPath>..\..\..\..\Users\Engineer\.nuget\packages\reusable.core\4.0.3\lib\net47\Reusable.Core.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>

@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.FileFormats.Csv.SqlExtensions</id>
-    <version>4.4.2</version>
+    <version>4.5.0</version>
     <title>Reusable.FileFormats.Csv.SqlExtensions</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -15,8 +15,9 @@
     <copyright>Copyright 2016 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
-      <dependency id="Reusable.Converters" version="4.4.2" />
-      <dependency id="Reusable.Core" version="4.4.2" />
+      <dependency id="JetBrains.Annotations" version="11.1.0" />
+      <dependency id="Reusable.Converters" version="4.5.0" />
+      <dependency id="Reusable.Core" version="4.5.0" />
     </dependencies>
   </metadata>
   <files>

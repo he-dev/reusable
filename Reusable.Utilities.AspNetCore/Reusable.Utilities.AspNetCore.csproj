@@ -15,19 +15,13 @@
 
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.2" />
-    <PackageReference Include="Reusable.Core" Version="4.4.0" />
-    <PackageReference Include="Reusable.OmniLog" Version="4.4.0" />
-    <PackageReference Include="Reusable.OmniLog.SemanticExtensions" Version="4.4.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Reusable.OmniLog">
-      <HintPath>..\..\..\..\Users\Engineer\.nuget\packages\reusable.omnilog\4.0.3\lib\net47\Reusable.OmniLog.dll</HintPath>
-    </Reference>
-    <Reference Include="Reusable.OmniLog.SemanticExtensions">
-      <HintPath>..\..\..\..\Users\Engineer\.nuget\packages\reusable.omnilog.semanticextensions\4.0.3\lib\net462\Reusable.OmniLog.SemanticExtensions.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
+    <ProjectReference Include="..\Reusable.OmniLog.SemLog\Reusable.OmniLog.SemanticExtensions.csproj" />
+    <ProjectReference Include="..\Reusable.OmniLog\Reusable.OmniLog.csproj" />
   </ItemGroup>
 
 </Project>

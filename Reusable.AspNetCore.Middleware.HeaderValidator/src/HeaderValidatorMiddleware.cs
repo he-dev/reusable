@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Custom;
 using System.Threading.Tasks;
@@ -12,22 +12,23 @@ namespace Reusable.AspNetCore.Middleware
     public class HeaderValidatorMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly IImmutableSet<SoftString> _requiredHeaders;
-        private readonly IImmutableSet<SoftString> _excludedPaths;
 
-        public HeaderValidatorMiddleware(RequestDelegate next, IEnumerable<string> requiredHeaders, IEnumerable<string> excludedPaths)
+        private readonly IEnumerable<SoftString> _requiredHeaders;
+
+        public HeaderValidatorMiddleware(RequestDelegate next, IEnumerable<string> requiredHeaders)
         {
             _next = next;
-            _requiredHeaders = requiredHeaders.Select(SoftString.Create).ToImmutableHashSet();
-            _excludedPaths = excludedPaths.Select(SoftString.Create).ToImmutableHashSet();
+            _requiredHeaders = requiredHeaders.Select(SoftString.Create).ToList();
         }
 
         public async Task Invoke(HttpContext context)
         {
-            // Ignore default route from mandatory headers.
-            var isExcludedPath = context.Request.Path.HasValue && _excludedPaths.Contains(context.Request.Path.Value); // == "/api/home")
-            var missingHeaders = _requiredHeaders.Where(name => !context.Request.Headers.ContainsKey(name.ToString())).ToList();
-            if (missingHeaders.Any() && !isExcludedPath)
+            var missingHeaders = 
+                _requiredHeaders
+                    .Except(context.Request.Headers.Keys.Select(SoftString.Create))
+                    .ToList();
+
+            if (missingHeaders.Any())
             {
                 context.Response.StatusCode = 400;
                 await context.Response.WriteAsync($"One or more required headers are missing: {missingHeaders.Select(header => header.ToString()).Join(", ").EncloseWith("[]")}");
@@ -41,14 +42,9 @@ namespace Reusable.AspNetCore.Middleware
 
     public static class HeaderValidatorMiddlewareExtensions
     {
-        //public static IApplicationBuilder UseHeaderValidator(this IApplicationBuilder builder, IEnumerable<string> requiredHeaders, IEnumerable<string> excludedPaths)
-        //{
-        //    return builder.UseMiddleware<HeaderValidatorMiddleware>(requiredHeaders, excludedPaths);
-        //}
-
-        public static IApplicationBuilder UseHeaderValidator(this IApplicationBuilder builder, IEnumerable<string> requiredHeaders)
+        public static IApplicationBuilder UseHeaderValidator(this IApplicationBuilder builder, params string[] requiredHeaders)
         {
-            return builder.UseMiddleware<HeaderValidatorMiddleware>(requiredHeaders, Enumerable.Empty<string>());
+            return builder.UseMiddleware<HeaderValidatorMiddleware>(requiredHeaders.ToList());
         }
     }
 }
