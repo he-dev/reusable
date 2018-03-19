@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Net.RestClient</id>
-    <version>4.5.0</version>
+    <version>4.5.1</version>
     <title>Reusable.Net.RestClient</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -17,7 +17,7 @@
     <dependencies>
       <dependency id="JetBrains.Annotations" version="11.1.0" />
       <dependency id="Microsoft.AspNet.WebApi.Client" version="5.2.4" />
-      <dependency id="Reusable.Core" version="4.5.0" />
+      <dependency id="Reusable.Core" version="4.5.1" />
     </dependencies>
   </metadata>
   <files>

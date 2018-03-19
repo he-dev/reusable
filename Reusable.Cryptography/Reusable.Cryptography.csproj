@@ -18,15 +18,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="NetLine\**" />
-    <Compile Remove="NewSkies\**" />
-    <EmbeddedResource Remove="NetLine\**" />
-    <EmbeddedResource Remove="NewSkies\**" />
-    <None Remove="NetLine\**" />
-    <None Remove="NewSkies\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
   </ItemGroup>
 
