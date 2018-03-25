@@ -133,14 +133,19 @@ namespace Reusable.OmniLog
 
         #region BeginScope	
 
-        public static LogScope BeginScope(this ILogger logger, SoftString name, object state)//, Action<Log> logAction)
+        public static LogScope BeginScope(this ILogger logger, SoftString name, SoftString correlationId, object context)
         {
-            return LogScope.Push(name, state);
+            return LogScope.Push(name, correlationId, context);
+        }
+
+        public static LogScope BeginScope(this ILogger logger, SoftString name, object context)
+        {
+            return logger.BeginScope(name, null, context);
         }        
 
         public static LogScope BeginScope(this ILogger logger, SoftString name)
         {
-            return logger.BeginScope(name, null);
+            return logger.BeginScope(name, null, null);
         }        
 
         #endregion

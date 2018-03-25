@@ -16,7 +16,7 @@ namespace Reusable.Console
             var bar = foo.Append(2);
 
             //Demo.ConsoleColorizer();
-            //Demo.SemanticExtensions();
+            Demo.SemanticExtensions();
 
             var rxFilter = new AppConfigRxFilter(NLogRx.Create());
             var loggerFactory = LoggerFactorySetup.SetupLoggerFactory("development", "VaultNET", rxFilter);

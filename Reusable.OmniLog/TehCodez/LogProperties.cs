@@ -15,8 +15,9 @@
         public static readonly SoftString CallerLineNumber = nameof(CallerLineNumber);
         public static readonly SoftString CallerFilePath = nameof(CallerFilePath);
 
-        public static readonly SoftString Scope = nameof(Scope);
-        public static readonly SoftString State = nameof(State);
+        //public static readonly SoftString Scope = nameof(Scope);
+        //public static readonly SoftString CorrelationId = nameof(CorrelationId);
+        //public static readonly SoftString Context = nameof(Context);
 
         // This field can be used to remove a property from log.
         public static readonly object Unset = new object();

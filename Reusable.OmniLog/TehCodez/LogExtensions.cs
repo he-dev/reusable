@@ -28,32 +28,37 @@ namespace Reusable.OmniLog
 
         public static Exception Exception(this ILog log, object value = null) => log.Property<Exception>(value);
 
-        public static SoftString Scope(this ILog log, object value = null) => log.Property<SoftString>(value);
+        //public static SoftString Scope(this ILog log, object value = null) => log.Property<SoftString>(value);
 
-        public static IEnumerable<SoftString> Scopes(this ILog log)
+        public static IEnumerable<ILogScope> Scopes(this ILog log)
         {
-            foreach (var logValue in log.Values)
-            {
-                if (logValue is ILog nestedLog)
-                {
-                    var scope = nestedLog.Scope();
-                    if (scope.IsNotNull())
-                    {
-                        yield return scope;
-                    }
-                }
-            }
+            return
+                LogScope
+                    .Current
+                    .Flatten();
+
+            //foreach (var logValue in log.Values)
+            //{
+            //    if (logValue is ILog nestedLog)
+            //    {
+            //        var scope = nestedLog.Scope();
+            //        if (scope.IsNotNull())
+            //        {
+            //            yield return scope;
+            //        }
+            //    }
+            //}
         }
 
         // 'propertyName' is never null because it is set  by the compiler.
-        [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
+        //[SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
         public static T Property<T>(this ILog log, object value = null, [CallerMemberName] string propertyName = null)
         {
             var isGetterMode = value == null;
 
             if (isGetterMode)
             {
-                return log.TryGetValue(propertyName, out var obj) && obj is T result ? result : default(T);
+                return log.TryGetValue(propertyName, out var obj) && obj is T result ? result : default;
             }
             else
             {
@@ -66,7 +71,7 @@ namespace Reusable.OmniLog
                     log[propertyName] = value;
                 }
 
-                return default(T);
+                return default;
             }
         }
 
@@ -97,6 +102,14 @@ namespace Reusable.OmniLog
         public static ILog With<T>(this ILog log, SoftString name, T value)
         {
             log[name] = value;
+            return log;
+        }
+
+        public static TLog With<TAttachement, TLog>(this TLog log, TAttachement attachement)
+            where TAttachement : ILogAttachement
+            where TLog : ILog
+        {
+            log[attachement.Name] = attachement;
             return log;
         }
 

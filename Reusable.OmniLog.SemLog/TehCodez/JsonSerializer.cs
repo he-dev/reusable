@@ -4,9 +4,9 @@ using Newtonsoft.Json.Converters;
 
 namespace Reusable.OmniLog.SemanticExtensions
 {
-    public class JsonStateSerializer : IStateSerializer
+    public class JsonSerializer : ISerializer
     {
-        public JsonStateSerializer()
+        public JsonSerializer()
         {
             Settings = new JsonSerializerSettings
             {
@@ -19,7 +19,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         [NotNull]
         public JsonSerializerSettings Settings { get; set; }
 
-        public object SerializeObject(object obj)
+        public object Serialize(object obj)
         {
             //return obj is string ? obj : JsonConvert.SerializeObject(obj, Settings);
             return  JsonConvert.SerializeObject(obj, Settings);

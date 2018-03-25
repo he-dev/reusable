@@ -11,27 +11,26 @@ namespace Reusable.OmniLog.Attachements
     /// </summary>
     public class Scope : LogAttachement
     {
-        private readonly IStateSerializer _serializer;
+        private readonly ISerializer _serializer;
 
-        public Scope([NotNull] IStateSerializer serializer)
+        public Scope([NotNull] ISerializer serializer)
         {
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         }
 
         public override object Compute(ILog log)
         {
-            var states =
+            var scopes =
                 LogScope
                     .Current
                     .Flatten()
-                    .Select(scope => new
-                    {
-                        scope.Name,
-                        Context = scope[LogProperties.State]
-                    })
+                    .Cast<ILogScope>()
                     .ToList();
 
-            return states.None() ? null : _serializer.SerializeObject(states);
+            return 
+                scopes.Any() 
+                    ? _serializer.Serialize(scopes) 
+                    : default;
         }
     }
 }

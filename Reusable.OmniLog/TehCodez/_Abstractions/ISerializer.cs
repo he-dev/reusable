@@ -3,8 +3,8 @@
 namespace Reusable.OmniLog
 {
     [PublicAPI]
-    public interface IStateSerializer
+    public interface ISerializer
     {
-        object SerializeObject(object obj);
+        object Serialize(object obj);
     }
 }

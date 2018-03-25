@@ -6,13 +6,13 @@ using Reusable.OmniLog.SemanticExtensions;
 
 namespace Reusable.Utilities.AspNetCore.ActionFilters
 {
-    public class ValidateModelAttribute : ActionFilterAttribute
+    public class ValidateModel : ActionFilterAttribute
     {
         private readonly ILogger _logger;
 
-        public ValidateModelAttribute(ILoggerFactory loggerFactory)
+        public ValidateModel(ILoggerFactory loggerFactory)
         {
-            _logger = loggerFactory.CreateLogger<ValidateModelAttribute>();
+            _logger = loggerFactory.CreateLogger<ValidateModel>();
         }
 
         public override void OnActionExecuting(ActionExecutingContext context)

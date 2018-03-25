@@ -20,9 +20,7 @@ namespace Reusable.OmniLog
         /// </summary>
         public static LogScope AttachElapsed(this LogScope scope)
         {
-            var elapsed = new ElapsedMilliseconds(nameof(Elapsed));
-            scope.With(elapsed.Name, elapsed);
-            return scope;
+            return scope.With(new ElapsedMilliseconds(nameof(Elapsed)));
         }
     }
 }

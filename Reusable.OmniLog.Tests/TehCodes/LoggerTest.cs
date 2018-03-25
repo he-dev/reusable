@@ -92,7 +92,7 @@ namespace Reusable.OmniLog.Tests
             using (logger.BeginScope("bar", new { TransactionId = 2 }))
             {
                 logger.Debug("Hallo debug!");
-                var scopes = memoryRx.Logs.Single().Scopes().ToList();
+                var scopes = memoryRx.Logs.Single().Scopes().Select(scope => scope.Name.ToString()).ToList();
                 Assert.AreEqual(2, scopes.Count);
                 CollectionAssert.AreEqual(new[] { "bar", "foo" }, scopes.Select(s => s.ToString()).ToList());
             }

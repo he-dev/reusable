@@ -22,7 +22,7 @@ namespace Reusable.OmniLog
     }
 
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    public abstract class LogAttachement : ILogAttachement
+    public abstract  class LogAttachement : ILogAttachement
     {
         protected LogAttachement([NotNull] string name)
         {

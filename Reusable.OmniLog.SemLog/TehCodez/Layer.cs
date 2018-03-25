@@ -37,14 +37,12 @@ namespace Reusable.OmniLog.SemanticExtensions
     }
 
     // Allows to write extensions against the Data catagory.
-    public interface IAbstractionLayerData : IAbstractionLayerCategory
-    {
-    }
+    public interface IAbstractionLayerData : IAbstractionLayerCategory { }
 
     // Allows to write extensions against the Action catagory.
-    public interface IAbstractionLayerAction : IAbstractionLayerCategory
-    {
-    }
+    public interface IAbstractionLayerAction : IAbstractionLayerCategory { }
+
+    public interface IAbstractionLayerEvent : IAbstractionLayerCategory { }
 
     // The result of building the abstraction.
     public interface IAbstractionContext
@@ -107,6 +105,11 @@ namespace Reusable.OmniLog.SemanticExtensions
     public class AbstractionLayerAction : AbstractionLayerCategory, IAbstractionLayerAction
     {
         public AbstractionLayerAction(IAbstractionLayer layer, string name) : base(layer, name) { }
+    }
+
+    public class AbstractionLayerEvent : AbstractionLayerCategory, IAbstractionLayerEvent
+    {
+        public AbstractionLayerEvent(IAbstractionLayer layer, string name) : base(layer, name) { }
     }
 
     public class AbstractionContext : IAbstractionContext
@@ -198,6 +201,11 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             return new AbstractionLayerAction(layer, nameof(Action));
         }
+
+        //public static IAbstractionLayerEvent Event(this IAbstractionLayer layer)
+        //{
+        //    return new AbstractionLayerEvent(layer, nameof(Event));
+        //}
     }
 
     // These extensions need to recreate the AbstractionLayerData with a new name 
@@ -280,5 +288,13 @@ namespace Reusable.OmniLog.SemanticExtensions
         }
     }
 
-    #endregion    
+    //public static class AbstractionLayerEventExtensions
+    //{
+    //    public static IAbstractionContext On(this IAbstractionLayerEvent context, string eventName)
+    //    {
+    //        return new AbstractionContext(context, new { On = eventName });
+    //    }
+    //}
+
+    #endregion
 }

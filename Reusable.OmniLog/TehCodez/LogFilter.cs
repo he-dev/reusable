@@ -49,7 +49,7 @@ namespace Reusable.OmniLog
         {
             if (logPredicate == null) throw new ArgumentNullException(nameof(logPredicate));
 
-            return log => logPredicate(log) && log.Scopes().Select(scope => scope.ToString()).Any(scope => Regex.IsMatch(scope, pattern, regexOptions));
+            return log => logPredicate(log) && log.Scopes().Select(scope => scope.Name.ToString()).Any(scope => Regex.IsMatch(scope, pattern, regexOptions));
         }
 
         [NotNull]
