@@ -129,4 +129,23 @@ namespace Reusable.OmniLog
             _disposed = true;
         }
     }
+
+    // ReSharper disable once UnusedTypeParameter - it is used by Autofac
+    public interface ILogger<T> : ILogger { }
+
+    public class Logger<T> : ILogger<T>
+    {
+        private readonly ILogger _logger;
+
+        public Logger(ILoggerFactory loggerFactory)
+        {
+            _logger = loggerFactory.CreateLogger<T>();
+        }
+
+        public SoftString Name => _logger.Name;
+
+        public ILogger Log(LogLevel logLevel, Action<Log> logAction) => _logger.Log(logLevel, logAction);
+
+        public void Dispose() => _logger.Dispose();
+    }
 }

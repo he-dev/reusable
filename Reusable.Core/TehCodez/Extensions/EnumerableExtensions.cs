@@ -270,11 +270,19 @@ namespace System.Linq.Custom
             return value.In((IEnumerable<T>)others);
         }
 
-        public static bool In<T>([CanBeNull] this T value, [NotNull] IEnumerable<T> others, IEqualityComparer<T> comparer = null)
+        public static bool In<T>([CanBeNull] this T value, [NotNull] IEnumerable<T> others)
         {
             if (others == null) throw new ArgumentNullException(nameof(others));
 
-            return others.Contains(value, comparer ?? EqualityComparer<T>.Default);
+            return others.Contains(value);
+        }
+
+        public static bool In<T>([CanBeNull] this T value, [NotNull] IEnumerable<T> others, [NotNull] IEqualityComparer<T> comparer)
+        {
+            if (others == null) throw new ArgumentNullException(nameof(others));
+            if (comparer == null) throw new ArgumentNullException(nameof(comparer));
+
+            return others.Contains(value, comparer);
         }
 
         [NotNull, ItemCanBeNull]

@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Utilities.ThirdParty.JsonNet</id>
-    <version>4.6.0</version>
+    <version>4.7.1</version>
     <title>Reusable.Utilities.ThirdParty.JsonNet</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -17,7 +17,7 @@
     <dependencies>
       <dependency id="JetBrains.Annotations" version="11.1.0" />
       <dependency id="Newtonsoft.Json" version="10.0.3" />
-      <dependency id="Reusable.Core" version="4.6.0" />
+      <dependency id="Reusable.Core" version="4.7.1" />
     </dependencies>
   </metadata>
   <files>
