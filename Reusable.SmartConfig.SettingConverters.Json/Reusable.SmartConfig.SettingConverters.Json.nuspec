@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.SmartConfig.SettingConverters.Json</id>
-    <version>4.8.0</version>
+    <version>4.9.0</version>
     <title>Reusable.SmartConfig.SettingConverters.Json</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -18,9 +18,9 @@
       <dependency id="JetBrains.Annotations" version="11.1.0" />
       <dependency id="Newtonsoft.Json" version="10.0.3" />
       <dependency id="System.ValueTuple" version="4.4.0" />
-      <dependency id="Reusable.Converters" version="4.8.0" />
-      <dependency id="Reusable.SmartConfig.Core" version="4.8.0" />
-      <dependency id="Reusable.Utilities.ThirdParty.JsonNet" version="4.8.0" />
+      <dependency id="Reusable.Converters" version="4.9.0" />
+      <dependency id="Reusable.SmartConfig.Core" version="4.9.0" />
+      <dependency id="Reusable.Utilities.ThirdParty.JsonNet" version="4.9.0" />
     </dependencies>
   </metadata>
   <files>

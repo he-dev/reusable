@@ -5,11 +5,11 @@ using System.Linq.Expressions;
 
 namespace Reusable.Diagnostics
 {
-    internal class DebuggerDisplayVisitor : ExpressionVisitor, IEnumerable<MemberExpression>
+    internal class DebuggerDisplayVisitor : ExpressionVisitor, IEnumerable<Expression>
     {
-        private readonly IList<MemberExpression> _members = new List<MemberExpression>();
+        private readonly IList<Expression> _members = new List<Expression>();
 
-        public static IEnumerable<MemberExpression> FindMembers(Expression expression)
+        public static IEnumerable<Expression> FindMembers(Expression expression)
         {
             var memberFinder = new DebuggerDisplayVisitor();
             memberFinder.Visit(expression);
@@ -22,9 +22,15 @@ namespace Reusable.Diagnostics
             return base.VisitMember(node);
         }
 
+        protected override Expression VisitMethodCall(MethodCallExpression node)
+        {
+            _members.Add(node);
+            return base.VisitMethodCall(node);
+        }
+
         #region IEnumerable<MemberExpression>
 
-        public IEnumerator<MemberExpression> GetEnumerator()
+        public IEnumerator<Expression> GetEnumerator()
         {
             return _members.Reverse().GetEnumerator();
         }

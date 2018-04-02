@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Reusable.Console;
 using Reusable.ConsoleColorizer;
 using Reusable.Converters;
@@ -12,7 +13,7 @@ using Reusable.OmniLog.SemanticExtensions;
 using Reusable.Extensions;
 using Reusable.Utilities.ThirdParty.NLog.LayoutRenderers;
 
-[assembly: DebuggerDisplay("{DebuggerDisplay(),nq}", Target = typeof(Person))]
+//[assembly: DebuggerDisplay("{DebuggerDisplay(),nq}", Target = typeof(Person))]
 
 namespace Reusable.Console
 {
@@ -116,6 +117,7 @@ namespace Reusable.Console
                 builder.Property(x => x.FirstName);
                 builder.Property(x => x.LastName);
                 builder.Property(x => x.DBNullTest);
+                builder.Property(x => x.GraduationYears.Sum());
                 builder.Property(x => x.Age.ToString("F2"));
                 builder.Property(x => x.GraduationYears.Count);
                 builder.Collection(x => x.GraduationYears);

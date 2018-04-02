@@ -23,9 +23,27 @@ namespace Reusable.Diagnostics
             return "[" + string.Join(", ", values.Select(FormatValue)) + "]";
         }
 
-        public static string FormatMemberName(this IEnumerable<MemberExpression> memberExpressions)
+        public static string FormatMemberName(this IEnumerable<Expression> expressions)
         {
-            return string.Join(".", memberExpressions.Select(m => m.Member.Name));
+            return string.Join(".", expressions.GetMemberNames());
+        }
+
+        private static IEnumerable<string> GetMemberNames(this IEnumerable<Expression> expressions)
+        {
+            foreach (var expression in expressions)
+            {
+                switch (expression)
+                {
+                    case MemberExpression memberExpression:
+                        yield return memberExpression.Member.Name;
+                        break;
+                    case MethodCallExpression methodCallExpression:
+                        // Ignore ToString calls.
+                        if (methodCallExpression.Method.Name == nameof(ToString)) continue;
+                        yield return $"{methodCallExpression.Method.Name}(..)";
+                        break;
+                }
+            }
         }
 
         private static readonly ISet<TypeCode> NumericTypeCodes = new HashSet<TypeCode>
