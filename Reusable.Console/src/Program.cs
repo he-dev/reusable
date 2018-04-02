@@ -21,6 +21,7 @@ namespace Reusable.Console
             var rxFilter = new AppConfigRxFilter(NLogRx.Create());
             var loggerFactory = LoggerFactorySetup.SetupLoggerFactory("development", "VaultNET", rxFilter);
 
+            Demo.DebuggerDisplay();
 
             System.Console.ReadKey();
         }

@@ -85,7 +85,10 @@
     <Compile Include="TehCodez\AsyncDetector.cs" />
     <Compile Include="TehCodez\Collections\AutoEqualityBuilder.cs" />
     <Compile Include="TehCodez\Collections\AutoEqualityPropertyContext.cs" />
-    <Compile Include="TehCodez\Diagnostics\DebuggerString.cs" />
+    <Compile Include="TehCodez\Diagnostics\DebuggerDisplayBuilder.cs" />
+    <Compile Include="TehCodez\Diagnostics\DebuggerDisplayFormatter.cs" />
+    <Compile Include="TehCodez\Diagnostics\DebuggerDisplayHelper.cs" />
+    <Compile Include="TehCodez\Diagnostics\DebuggerDisplayVisitor.cs" />
     <Compile Include="TehCodez\ExitCode.cs" />
     <Compile Include="TehCodez\Extensions\HashSetExtensions.cs" />
     <Compile Include="TehCodez\Lazy.cs" />

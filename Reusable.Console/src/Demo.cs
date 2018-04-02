@@ -1,13 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using Reusable.Console;
 using Reusable.ConsoleColorizer;
 using Reusable.Converters;
 using Reusable.DateTimes;
+using Reusable.Diagnostics;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.Extensions;
 using Reusable.Utilities.ThirdParty.NLog.LayoutRenderers;
+
+[assembly: DebuggerDisplay("{DebuggerDisplay(),nq}", Target = typeof(Person))]
 
 namespace Reusable.Console
 {
@@ -93,5 +98,60 @@ namespace Reusable.Console
 
             var result = converter.Convert("123", typeof(int));
         }
+
+        public static void DebuggerDisplay()
+        {
+            var person = new Person
+            {
+                FirstName = "John",
+                LastName = null,
+                Age = 123.456,
+                DBNullTest = DBNull.Value,
+                GraduationYears = { 1901, 1921, 1941 },
+                Nicknames = { "Johny", "Doe" }
+            };
+
+            var toString = DebuggerDisplayHelper<Person>.ToString(person, builder =>
+            {
+                builder.Property(x => x.FirstName);
+                builder.Property(x => x.LastName);
+                builder.Property(x => x.DBNullTest);
+                builder.Property(x => x.Age.ToString("F2"));
+                builder.Property(x => x.GraduationYears.Count);
+                builder.Collection(x => x.GraduationYears);
+                builder.Collection(x => x.GraduationYears, x => x.ToString("X2"));
+                builder.Collection(x => x.Nicknames);
+            });
+        }
+    }
+
+    public class Person
+    {
+        private string _testField = "TestValue";
+
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
+
+        public double Age { get; set; }
+
+        public object DBNullTest { get; set; } = DBNull.Value;
+
+        public IList<int> GraduationYears { get; set; } = new List<int>();
+
+        public IList<string> Nicknames { get; set; } = new List<string>();
+
+        private string DebuggerDisplay() => DebuggerDisplayHelper<Person>.ToString(this, builder =>
+        {
+            builder.Property(x => x.FirstName);
+            builder.Property(x => x.LastName);
+            builder.Property(x => x._testField);
+            builder.Property(x => x.DBNullTest);
+            builder.Property(x => x.Age.ToString("F2"));
+            builder.Property(x => x.GraduationYears.Count);
+            builder.Collection(x => x.GraduationYears);
+            builder.Collection(x => x.GraduationYears, x => x.ToString("X2"));
+            builder.Collection(x => x.Nicknames);
+        });
     }
 }

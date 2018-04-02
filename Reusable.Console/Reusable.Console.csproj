@@ -98,11 +98,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TehCodez\Demo.cs" />
-    <Compile Include="TehCodez\PlayingWithEnvDTE.cs" />
-    <Compile Include="TehCodez\Program.cs" />
-    <Compile Include="TehCodez\Demos\RestClientDemo.cs" />
-    <Compile Include="TehCodez\XMerge.cs" />
+    <Compile Include="src\Demo.cs" />
+    <Compile Include="src\PlayingWithEnvDTE.cs" />
+    <Compile Include="src\Program.cs" />
+    <Compile Include="src\Demos\RestClientDemo.cs" />
+    <Compile Include="src\XMerge.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

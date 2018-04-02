@@ -4,7 +4,10 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Diagnostics;
+using Reusable.OmniLog;
 using Reusable.OmniLog.Collections;
+
+[assembly: DebuggerDisplay("{DebuggerDisplay(),nq}", Target = typeof(Logger))]
 
 namespace Reusable.OmniLog
 {
@@ -21,7 +24,7 @@ namespace Reusable.OmniLog
         ILogger Log([NotNull] LogLevel logLevel, [NotNull] Action<Log> logAction);
     }
 
-    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+
     public class Logger : ILogger, IObservable<Log>, IEquatable<ILogger>
     {
         public static readonly IEnumerable<LogLevel> LogLevels;
@@ -56,7 +59,11 @@ namespace Reusable.OmniLog
             _observers = new HashSet<IObserver<Log>>();
         }
 
-        private string DebuggerDisplay => DebuggerString.Create<Logger>(new { Name = _name, AttachementCount = Attachements.Count });
+        private string DebuggerDisplay() => DebuggerDisplayHelper<Logger>.ToString(this, builder =>
+        {
+            builder.Property(x => _name);
+            builder.Property(x => Attachements.Count);
+        });
 
         internal HashSet<ILogAttachement> Attachements { get; set; } = new HashSet<ILogAttachement>();
 
@@ -121,7 +128,7 @@ namespace Reusable.OmniLog
         {
             if (_disposed)
             {
-                return;                
+                return;
             }
 
             _observers.Clear();

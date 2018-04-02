@@ -8,7 +8,10 @@ using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Diagnostics;
 using Reusable.Extensions;
+using Reusable.OmniLog;
 using Reusable.OmniLog.Collections;
+
+[assembly: DebuggerDisplay("{DebuggerDisplay(),nq}", Target = typeof(LogAttachement))]
 
 namespace Reusable.OmniLog
 {
@@ -20,9 +23,8 @@ namespace Reusable.OmniLog
         [CanBeNull]
         object Compute([NotNull] ILog log);
     }
-
-    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    public abstract  class LogAttachement : ILogAttachement
+   
+    public abstract class LogAttachement : ILogAttachement
     {
         protected LogAttachement([NotNull] string name)
         {
@@ -34,7 +36,7 @@ namespace Reusable.OmniLog
             Name = GetType().Name;
         }
 
-        private string DebuggerDisplay => DebuggerString.Create<LogAttachement>(new { Name = Name.ToString() });
+        private string DebuggerDisplay() => DebuggerDisplayHelper<LogAttachement>.ToString(this, builder => { builder.Property(x => x.Name); });
 
         public SoftString Name { get; }
 

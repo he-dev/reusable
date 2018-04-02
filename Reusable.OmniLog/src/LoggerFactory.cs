@@ -5,7 +5,10 @@ using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Diagnostics;
+using Reusable.OmniLog;
 using Reusable.OmniLog.Collections;
+
+[assembly: DebuggerDisplay("{DebuggerDisplay(),nq}", Target = typeof(LoggerFactory))]
 
 namespace Reusable.OmniLog
 {
@@ -27,10 +30,10 @@ namespace Reusable.OmniLog
             _cache = new ConcurrentDictionary<SoftString, (ILogger Logger, IDisposable Subscriptions)>();
         }
 
-        private string DebuggerDisplay => DebuggerString.Create<LoggerFactory>(new
+        private string DebuggerDisplay() => DebuggerDisplayHelper<LoggerFactory>.ToString(this, builder =>
         {
-            LoggerCount = _cache.Count,
-            AttachementCount = Configuration.Attachements.Count
+            builder.Property(x => x._cache.Count);
+            builder.Property(x => x.Configuration.Attachements.Count);
         });
 
         [NotNull]

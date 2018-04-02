@@ -80,35 +80,34 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="TehCodez\Diagnostics\DebuggerStringTest.cs" />
-    <Compile Include="TehCodez\Extensions\EnumerableExtensionsTest.cs" />
-    <Compile Include="TehCodez\KeySetTest.cs" />
-    <Compile Include="TehCodez\SoftStringTest.cs" />
-    <Compile Include="TehCodez\Collections\ProjectionComparerTest.cs" />
-    <Compile Include="TehCodez\Data\DataTableExtensionsTest.cs" />
-    <Compile Include="TehCodez\Drawing\Color32Tests.cs" />
-    <Compile Include="TehCodez\Drawing\ColorParser.cs" />
-    <Compile Include="TehCodez\Formatters\BracketFormatterTest.cs" />
-    <Compile Include="TehCodez\Formatters\CaseFormatterTest.cs" />
-    <Compile Include="TehCodez\Formatters\HexadecimalColorFormatterTest.cs" />
-    <Compile Include="TehCodez\Formatters\DecimalColorFormatterTest.cs" />
-    <Compile Include="TehCodez\Formatters\DefaultFormatterTest.cs" />
-    <Compile Include="TehCodez\Formatters\FormatterTest.cs" />
-    <Compile Include="TehCodez\StringInterpolationTest.cs" />
-    <Compile Include="TehCodez\ReflectionTest.cs" />
+    <Compile Include="src\Extensions\EnumerableExtensionsTest.cs" />
+    <Compile Include="src\KeySetTest.cs" />
+    <Compile Include="src\SoftStringTest.cs" />
+    <Compile Include="src\Collections\ProjectionComparerTest.cs" />
+    <Compile Include="src\Data\DataTableExtensionsTest.cs" />
+    <Compile Include="src\Drawing\Color32Tests.cs" />
+    <Compile Include="src\Drawing\ColorParser.cs" />
+    <Compile Include="src\Formatters\BracketFormatterTest.cs" />
+    <Compile Include="src\Formatters\CaseFormatterTest.cs" />
+    <Compile Include="src\Formatters\HexadecimalColorFormatterTest.cs" />
+    <Compile Include="src\Formatters\DecimalColorFormatterTest.cs" />
+    <Compile Include="src\Formatters\DefaultFormatterTest.cs" />
+    <Compile Include="src\Formatters\FormatterTest.cs" />
+    <Compile Include="src\StringInterpolationTest.cs" />
+    <Compile Include="src\ReflectionTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TehCodez\Data\Repositories\ResourceRepositoryTest.cs" />
-    <Compile Include="TehCodez\Extensions\StringExtensionsTest.cs" />
-    <Compile Include="TehCodez\Exceptionize\DynamicExceptionTest.cs" />
-    <Compile Include="TehCodez\Collections\AutoEqualityTest.cs" />
-    <Compile Include="TehCodez\ObjectFactoryTest.cs" />
-    <Compile Include="TehCodez\AsyncDetectorTest.cs" />
-    <Compile Include="TehCodez\RangeTest.cs" />
-    <Compile Include="TehCodez\DisposableExtensionsTest.cs" />
-    <Compile Include="TehCodez\DisposableTest.cs" />
-    <Compile Include="TehCodez\DependencyValidatorTest.cs" />
-    <Compile Include="TehCodez\PrettyStringTest.cs" />
-    <Compile Include="TehCodez\RetryTest.cs" />
+    <Compile Include="src\Data\Repositories\ResourceRepositoryTest.cs" />
+    <Compile Include="src\Extensions\StringExtensionsTest.cs" />
+    <Compile Include="src\Exceptionize\DynamicExceptionTest.cs" />
+    <Compile Include="src\Collections\AutoEqualityTest.cs" />
+    <Compile Include="src\ObjectFactoryTest.cs" />
+    <Compile Include="src\AsyncDetectorTest.cs" />
+    <Compile Include="src\RangeTest.cs" />
+    <Compile Include="src\DisposableExtensionsTest.cs" />
+    <Compile Include="src\DisposableTest.cs" />
+    <Compile Include="src\DependencyValidatorTest.cs" />
+    <Compile Include="src\PrettyStringTest.cs" />
+    <Compile Include="src\RetryTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj">
@@ -124,13 +123,15 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="src\Diagnostics\" />
+  </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="TextFile1.txt" />
     <EmbeddedResource Include="TextFile2.txt" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="TehCodez\Data\Repositories\ResourceRepositoryTest.TestFile1.txt" />
+    <EmbeddedResource Include="src\Data\Repositories\ResourceRepositoryTest.TestFile1.txt" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
