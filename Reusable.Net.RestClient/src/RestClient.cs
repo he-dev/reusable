@@ -3,12 +3,15 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Diagnostics;
 
 namespace Reusable.Net
 {
     [PublicAPI]
     public interface IRestClient
     {
+        string BaseUri { get; }
+
         Task<T> InvokeAsync<T>(HttpMethod httpMethod, UriDynamicPart uriDynamicPart, HttpMethodContext context, CancellationToken cancellationToken);
     }
 
@@ -28,6 +31,10 @@ namespace Reusable.Net
             _client.DefaultRequestHeaders.Accept.Clear();
             _defaultHttpRequestHeadersConfiguration = defaultHttpRequestHeadersConfiguration;
         }
+
+        private string DebuggerDisplay() => this.ToDebuggerDisplayString(builder => { builder.Property(x => x.BaseUri); });
+
+        public string BaseUri => _client.BaseAddress.ToString();
 
         public async Task<T> InvokeAsync<T>(HttpMethod httpMethod, UriDynamicPart uriDynamicPart, HttpMethodContext context, CancellationToken cancellationToken)
         {

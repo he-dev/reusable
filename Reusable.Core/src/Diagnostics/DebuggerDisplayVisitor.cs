@@ -7,9 +7,11 @@ namespace Reusable.Diagnostics
 {
     internal class DebuggerDisplayVisitor : ExpressionVisitor, IEnumerable<Expression>
     {
-        private readonly IList<Expression> _members = new List<Expression>();
+        // Member expressions are visited in revers order. 
+        // This allows fast inserts at the beginning and thus to avoid reversing it back.
+        private readonly LinkedList<Expression> _members = new LinkedList<Expression>();
 
-        public static IEnumerable<Expression> FindMembers(Expression expression)
+        public static IEnumerable<Expression> EnumerateMembers(Expression expression)
         {
             var memberFinder = new DebuggerDisplayVisitor();
             memberFinder.Visit(expression);
@@ -18,13 +20,13 @@ namespace Reusable.Diagnostics
 
         protected override Expression VisitMember(MemberExpression node)
         {
-            _members.Add(node);
+            _members.AddFirst(node);
             return base.VisitMember(node);
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            _members.Add(node);
+            _members.AddFirst(node);
             return base.VisitMethodCall(node);
         }
 
@@ -32,7 +34,7 @@ namespace Reusable.Diagnostics
 
         public IEnumerator<Expression> GetEnumerator()
         {
-            return _members.Reverse().GetEnumerator();
+            return _members.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

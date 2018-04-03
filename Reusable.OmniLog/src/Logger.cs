@@ -59,7 +59,7 @@ namespace Reusable.OmniLog
             _observers = new HashSet<IObserver<Log>>();
         }
 
-        private string DebuggerDisplay() => DebuggerDisplayHelper<Logger>.ToString(this, builder =>
+        private string DebuggerDisplay() => this.ToDebuggerDisplayString(builder =>
         {
             builder.Property(x => _name);
             builder.Property(x => Attachements.Count);

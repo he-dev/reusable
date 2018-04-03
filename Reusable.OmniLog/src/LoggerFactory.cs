@@ -30,7 +30,7 @@ namespace Reusable.OmniLog
             _cache = new ConcurrentDictionary<SoftString, (ILogger Logger, IDisposable Subscriptions)>();
         }
 
-        private string DebuggerDisplay() => DebuggerDisplayHelper<LoggerFactory>.ToString(this, builder =>
+        private string DebuggerDisplay() => this.ToDebuggerDisplayString(builder =>
         {
             builder.Property(x => x._cache.Count);
             builder.Property(x => x.Configuration.Attachements.Count);

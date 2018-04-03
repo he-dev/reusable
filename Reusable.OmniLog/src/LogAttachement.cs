@@ -36,7 +36,7 @@ namespace Reusable.OmniLog
             Name = GetType().Name;
         }
 
-        private string DebuggerDisplay() => DebuggerDisplayHelper<LogAttachement>.ToString(this, builder => { builder.Property(x => x.Name); });
+        private string DebuggerDisplay() => this.ToDebuggerDisplayString(builder => { builder.Property(x => x.Name); });
 
         public SoftString Name { get; }
 

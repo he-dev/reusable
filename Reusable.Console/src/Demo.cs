@@ -108,20 +108,22 @@ namespace Reusable.Console
                 LastName = null,
                 Age = 123.456,
                 DBNullTest = DBNull.Value,
-                GraduationYears = { 1901, 1921, 1941 },
+                GraduationYears = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 },
                 Nicknames = { "Johny", "Doe" }
             };
 
-            var toString = DebuggerDisplayHelper<Person>.ToString(person, builder =>
+            //var toStringNull = default(Person).ToDebuggerDisplayString(builder => { builder.Property(x => x.FirstName); });
+
+            var toString = person.ToDebuggerDisplayString(builder =>
             {
-                builder.Property(x => x.FirstName);
+                builder.Property(x => x.FirstName, "{0,8}");
                 builder.Property(x => x.LastName);
                 builder.Property(x => x.DBNullTest);
                 builder.Property(x => x.GraduationYears.Sum());
-                builder.Property(x => x.Age.ToString("F2"));
+                builder.Property(x => x.Age, "{0:F2}");
                 builder.Property(x => x.GraduationYears.Count);
                 builder.Collection(x => x.GraduationYears);
-                builder.Collection(x => x.GraduationYears, x => x.ToString("X2"));
+                builder.Collection(x => x.GraduationYears, x => x, "{0:X2}");
                 builder.Collection(x => x.Nicknames);
             });
         }
@@ -143,16 +145,17 @@ namespace Reusable.Console
 
         public IList<string> Nicknames { get; set; } = new List<string>();
 
-        private string DebuggerDisplay() => DebuggerDisplayHelper<Person>.ToString(this, builder =>
+        private string DebuggerDisplay() => this.ToDebuggerDisplayString(builder =>
         {
             builder.Property(x => x.FirstName);
             builder.Property(x => x.LastName);
             builder.Property(x => x._testField);
             builder.Property(x => x.DBNullTest);
             builder.Property(x => x.Age.ToString("F2"));
+            builder.Property(x => x.Age, "{0:F2}");
             builder.Property(x => x.GraduationYears.Count);
             builder.Collection(x => x.GraduationYears);
-            builder.Collection(x => x.GraduationYears, x => x.ToString("X2"));
+            builder.Collection(x => x.GraduationYears, x => x, "{0:X2}");
             builder.Collection(x => x.Nicknames);
         });
     }
