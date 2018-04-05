@@ -1,5 +1,7 @@
 ﻿
 
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
 
@@ -16,7 +18,7 @@ namespace Reusable.OmniLog.SemanticExtensions
      
     logger.Log(Abstraction.Layer.Business().Data().Object(new { customer }));
     logger.Log(Abstraction.Layer.Infrastructure().Data().Variable(new { customer }));
-    logger.Log(Abstraction.Layer.Infrastructure().Action().Failed(nameof(Main), ex));
+    logger.Log(Abstraction.Layer.Infrastructure().Action().Faulted(nameof(Main), ex));
 
      */
 
@@ -42,7 +44,7 @@ namespace Reusable.OmniLog.SemanticExtensions
     // Allows to write extensions against the Action catagory.
     public interface IAbstractionLayerAction : IAbstractionLayerCategory { }
 
-    public interface IAbstractionLayerEvent : IAbstractionLayerCategory { }
+    //public interface IAbstractionLayerEvent : IAbstractionLayerCategory { }
 
     // The result of building the abstraction.
     public interface IAbstractionContext
@@ -63,6 +65,11 @@ namespace Reusable.OmniLog.SemanticExtensions
     public abstract class Abstraction
     {
         public static IAbstraction Layer => default;
+
+        //public static IDictionary<SoftString, LogLevel> LogLevels = new Dictionary<SoftString, LogLevel>
+        //{
+        //    [nameof(AbstractionExtensions.Business)] = LogLevel.Information,
+        //};
     }
 
     public class AbstractionLayer : IAbstractionLayer
@@ -105,12 +112,7 @@ namespace Reusable.OmniLog.SemanticExtensions
     public class AbstractionLayerAction : AbstractionLayerCategory, IAbstractionLayerAction
     {
         public AbstractionLayerAction(IAbstractionLayer layer, string name) : base(layer, name) { }
-    }
-
-    public class AbstractionLayerEvent : AbstractionLayerCategory, IAbstractionLayerEvent
-    {
-        public AbstractionLayerEvent(IAbstractionLayer layer, string name) : base(layer, name) { }
-    }
+    }    
 
     public class AbstractionContext : IAbstractionContext
     {
@@ -183,11 +185,6 @@ namespace Reusable.OmniLog.SemanticExtensions
         }
 
         #endregion
-
-        //public static IAbstractionLayer External(this IAbstraction abstraction, LogLevel logLevel = null)
-        //{
-        //    return new AbstractionLayer(nameof(External), logLevel ?? LogLevel.Trace);
-        //}
     }
 
     public static class AbstractionLayerExtensions
@@ -201,11 +198,6 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             return new AbstractionLayerAction(layer, nameof(Action));
         }
-
-        //public static IAbstractionLayerEvent Event(this IAbstractionLayer layer)
-        //{
-        //    return new AbstractionLayerEvent(layer, nameof(Event));
-        //}
     }
 
     // These extensions need to recreate the AbstractionLayerData with a new name 
@@ -214,32 +206,15 @@ namespace Reusable.OmniLog.SemanticExtensions
     public static class AbstractionLayerDataExtensions
     {
         /// <summary>
-        /// Logs object dumps. The dump object must be an anonymous type with at leas one property: new { foo[, bar] }
-        /// </summary>
-        public static IAbstractionContext Object(this IAbstractionLayerData data, object dump)
-        {
-            return new AbstractionContext(new AbstractionLayerData(data.Layer, nameof(Object)), dump);
-        }
-
-        /// <summary>
-        /// Logs field dumps. The dump object must be an anonymous type with at leas one property: new { foo[, bar] }
-        /// </summary>
-        public static IAbstractionContext Field(this IAbstractionLayerData data, object dump)
-        {
-            return new AbstractionContext(new AbstractionLayerData(data.Layer, nameof(Field)), dump);
-        }
-
-        /// <summary>
-        /// Logs variable dumps. The dump object must be an anonymous type with at leas one property: new { foo[, bar] }
+        /// Logs variables. The dump must be an anonymous type with at least one property: new { foo[, bar] }
         /// </summary>
         public static IAbstractionContext Variable(this IAbstractionLayerData data, object dump)
         {
             return new AbstractionContext(new AbstractionLayerData(data.Layer, nameof(Variable)), dump);
         }
 
-
         /// <summary>
-        /// Logs argument dumps. The dump object must be an anonymous type with at leas one property: new { foo[, bar] }
+        /// Logs arguments. The dump must be an anonymous type with at leas one property: new { foo[, bar] }
         /// </summary>
         public static IAbstractionContext Argument(this IAbstractionLayerData data, object dump)
         {
@@ -247,19 +222,27 @@ namespace Reusable.OmniLog.SemanticExtensions
         }
 
         /// <summary>
-        /// Logs property dumps. The dump object must be an anonymous type with at leas one property: new { foo[, bar] }
+        /// Logs metadata. The dump must be an anonymous type with at leas one property: new { foo[, bar] }
         /// </summary>
-        public static IAbstractionContext Property(this IAbstractionLayerData data, object dump)
+        public static IAbstractionContext Meta(this IAbstractionLayerData data, object dump)
         {
-            return new AbstractionContext(new AbstractionLayerData(data.Layer, nameof(Property)), dump);
+            return new AbstractionContext(new AbstractionLayerData(data.Layer, nameof(Meta)), dump);
         }
 
         /// <summary>
-        /// Logs property dumps. The dump object must be an anonymous type with at leas one property: new { foo[, bar] }
+        /// Logs performance counters. The dump must be an anonymous type with at leas one property: new { foo[, bar] }
         /// </summary>
-        public static IAbstractionContext Metric(this IAbstractionLayerData data, object dump)
+        public static IAbstractionContext Composite(this IAbstractionLayerData data, object dump)
         {
-            return new AbstractionContext(new AbstractionLayerData(data.Layer, nameof(Metric)), dump);
+            return new AbstractionContext(new AbstractionLayerData(data.Layer, nameof(Composite)), dump);
+        }
+
+        /// <summary>
+        /// Logs performance counters. The dump must be an anonymous type with at leas one property: new { foo[, bar] }
+        /// </summary>
+        public static IAbstractionContext Counter(this IAbstractionLayerData data, object dump)
+        {
+            return new AbstractionContext(new AbstractionLayerData(data.Layer, nameof(Counter)), dump);
         }
     }
 
@@ -267,34 +250,26 @@ namespace Reusable.OmniLog.SemanticExtensions
 
     public static class AbstractionLayerActionExtensions
     {
-        public static IAbstractionContext Started(this IAbstractionLayerAction action, string methodName)
+        public static IAbstractionContext Running(this IAbstractionLayerAction action, string name)
         {
-            return new AbstractionContext(action, new { Started = methodName });
+            return new AbstractionContext(action, new { Running = name });
         }
 
-        public static IAbstractionContext Finished(this IAbstractionLayerAction action, string methodName)
+        public static IAbstractionContext Completed(this IAbstractionLayerAction action, string name)
         {
-            return new AbstractionContext(action, new { Finished = methodName });
+            return new AbstractionContext(action, new { Completed = name });
         }
 
-        public static IAbstractionContext Cancelled(this IAbstractionLayerAction action, string methodName)
+        public static IAbstractionContext Canceled(this IAbstractionLayerAction action, string name)
         {
-            return new AbstractionContext(action, new { Canceled = methodName });
+            return new AbstractionContext(action, new { Canceled = name });
         }
 
-        public static IAbstractionContext Failed(this IAbstractionLayerAction action, string methodName)
+        public static IAbstractionContext Faulted(this IAbstractionLayerAction action, string name)
         {
-            return new AbstractionContext(action, new { Failed = methodName });
+            return new AbstractionContext(action, new { Faulted = name });
         }
     }
-
-    //public static class AbstractionLayerEventExtensions
-    //{
-    //    public static IAbstractionContext On(this IAbstractionLayerEvent context, string eventName)
-    //    {
-    //        return new AbstractionContext(context, new { On = eventName });
-    //    }
-    //}
 
     #endregion
 }

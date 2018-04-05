@@ -123,7 +123,7 @@ namespace Reusable.AspNetCore.Middleware
                 }
                 catch (Exception ex)
                 {
-                    logger.Log(Abstraction.Layer.Network().Action().Failed("next"), log =>
+                    logger.Log(Abstraction.Layer.Network().Action().Faulted("next"), log =>
                     {
                         log.Exception(ex);
                         log.WithDisplayLogger(displayLogger);

@@ -61,7 +61,7 @@ namespace Reusable.Console
 
             var logger = loggerFactory.CreateLogger("Demo");
 
-            logger.Log(Abstraction.Layer.Infrastructure().Action().Started("SemLogTest"));
+            logger.Log(Abstraction.Layer.Infrastructure().Action().Running("SemLogTest"));
 
             // Opening outer-transaction.
             using (logger.BeginScope("OuterScope", new { CustomerId = 123 }).AttachElapsed())
@@ -83,9 +83,9 @@ namespace Reusable.Console
                     logger.Log(Abstraction.Layer.Infrastructure().Data().Variable(new { baz, qux }));
 
                     // Logging action results.
-                    logger.Log(Abstraction.Layer.Infrastructure().Action().Started("DoSomething"));
-                    logger.Log(Abstraction.Layer.Infrastructure().Action().Cancelled("DoSomething"), log => log.Message("No connection."));
-                    logger.Log(Abstraction.Layer.Infrastructure().Action().Failed("DoSomething"), log => log.Exception(new DivideByZeroException("Cannot divide.")));
+                    logger.Log(Abstraction.Layer.Infrastructure().Action().Running("DoSomething"));
+                    logger.Log(Abstraction.Layer.Infrastructure().Action().Canceled("DoSomething"), log => log.Message("No connection."));
+                    logger.Log(Abstraction.Layer.Infrastructure().Action().Faulted("DoSomething"), log => log.Exception(new DivideByZeroException("Cannot divide.")));
                 }
             }
         }
