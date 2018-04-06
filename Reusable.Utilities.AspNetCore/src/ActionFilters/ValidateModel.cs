@@ -23,9 +23,12 @@ namespace Reusable.Utilities.AspNetCore.ActionFilters
             }
 
             _logger.Log(
-                Abstraction.Layer.Network().Data().Object(new
+                Abstraction.Layer.Network().Argument(new
                 {
-                    ModelState = context.ModelState.Values.Select(value => value.Errors.Select(error => error.Exception.Message))
+                    context = new
+                    {
+                        ModelState = context.ModelState.Values.Select(value => value.Errors.Select(error => error.Exception.Message))
+                    }
                 }),
                 log => log.Level(LogLevel.Error)
             );

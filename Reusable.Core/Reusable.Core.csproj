@@ -91,6 +91,8 @@
     <Compile Include="src\Diagnostics\DebuggerDisplayVisitor.cs" />
     <Compile Include="src\ExitCode.cs" />
     <Compile Include="src\Extensions\HashSetExtensions.cs" />
+    <Compile Include="src\Extensions\ObjectExtensions.cs" />
+    <Compile Include="src\Reflection\CallerInfo.cs" />
     <Compile Include="src\Lazy.cs" />
     <Compile Include="src\ProcessExecutor.cs" />
     <Compile Include="src\Collections\RelayEqualityComparer.cs" />

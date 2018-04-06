@@ -99,7 +99,6 @@
     <Compile Include="src\Observers\ConsoleRx.cs" />
     <Compile Include="src\Observers\DebugRx.cs" />
     <Compile Include="src\Observers\MemoryRx.cs" />
-    <Compile Include="src\Reflection.cs" />
     <Compile Include="src\_Abstractions\ISerializer.cs" />
   </ItemGroup>
   <ItemGroup>

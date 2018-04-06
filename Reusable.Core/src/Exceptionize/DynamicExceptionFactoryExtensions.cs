@@ -6,6 +6,11 @@ namespace Reusable.Exceptionize
 {
     public static class DynamicExceptionFactoryExtensions
     {
+        public static Exception CreateDynamicException(this IDynamicExceptionFactory factory, string name, string message)
+        {
+            return factory.CreateDynamicException(name, message, null);
+        }
+
         /// <summary>
         /// Creates a DynamicException from the specified template.
         /// </summary>

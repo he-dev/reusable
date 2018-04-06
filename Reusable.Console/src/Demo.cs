@@ -61,31 +61,31 @@ namespace Reusable.Console
 
             var logger = loggerFactory.CreateLogger("Demo");
 
-            logger.Log(Abstraction.Layer.Infrastructure().Action().Running("SemLogTest"));
+            logger.Log(Abstraction.Layer.Infrastructure().Routine("SemLogTest").Running());
 
             // Opening outer-transaction.
             using (logger.BeginScope("OuterScope", new { CustomerId = 123 }).AttachElapsed())
             {
                 // Logging some single business variable and a message.
-                logger.Log(Abstraction.Layer.Business().Data().Variable(new { foo = "bar" }), log => log.Message("Hallo variable!"));
+                logger.Log(Abstraction.Layer.Business().Variable(new { foo = "bar" }), log => log.Message("Hallo variable!"));
 
                 // Opening innter-transaction.
                 using (logger.BeginScope("InnerScope", new { ItemId = 456 }).AttachElapsed())
                 {
                     // Logging an entire object in a single line.
                     var customer = new { FirstName = "John", LastName = "Doe" };
-                    logger.Log(Abstraction.Layer.Business().Data().Object(new { customer }));
+                    logger.Log(Abstraction.Layer.Business().Variable(new { customer }));
 
                     // Logging multiple variables in a single line.
                     var baz = 123;
                     var qux = "quux";
 
-                    logger.Log(Abstraction.Layer.Infrastructure().Data().Variable(new { baz, qux }));
+                    logger.Log(Abstraction.Layer.Infrastructure().Composite(new { multiple = new { baz, qux } }));
 
                     // Logging action results.
-                    logger.Log(Abstraction.Layer.Infrastructure().Action().Running("DoSomething"));
-                    logger.Log(Abstraction.Layer.Infrastructure().Action().Canceled("DoSomething"), log => log.Message("No connection."));
-                    logger.Log(Abstraction.Layer.Infrastructure().Action().Faulted("DoSomething"), log => log.Exception(new DivideByZeroException("Cannot divide.")));
+                    logger.Log(Abstraction.Layer.Infrastructure().Routine("DoSomething").Running());
+                    logger.Log(Abstraction.Layer.Infrastructure().Routine("DoSomething").Canceled(), "No connection.");
+                    logger.Log(Abstraction.Layer.Infrastructure().Routine("DoSomething").Faulted(), new DivideByZeroException("Cannot divide."));
                 }
             }
         }

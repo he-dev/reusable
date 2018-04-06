@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
+using Reusable.Extensions;
 using Reusable.OmniLog.Collections;
 using Reusable.OmniLog.SemanticExtensions.Attachements;
 // ReSharper disable ExplicitCallerInfoArgument - yes, we want to explicity set it via overloads.
@@ -23,9 +25,9 @@ namespace Reusable.OmniLog.SemanticExtensions
             [CallerLineNumber] int callerLineNumber = 0,
             [CallerFilePath] string callerFilePath = null)
         {
-            foreach (var dump in Reflection.GetProperties(context.Dump))
+            foreach (var dump in context.Dump.EnumerateProperties())
             {
-                logger.Log(context.LogLevel, log =>
+                logger.Log(context.LayerLevel, log =>
                 {
                     // It's ok to hardcode these property names here because this is the only place they are used.
 

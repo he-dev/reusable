@@ -46,7 +46,7 @@ namespace Reusable.AspNetCore.Middleware
 
             using (logger.BeginScope("Pipeline", correlation).AttachElapsed())
             {
-                logger.Log(Abstraction.Layer.Network().Data().Object(new
+                logger.Log(Abstraction.Layer.Network().Argument(new
                 {
                     context = new
                     {
@@ -99,7 +99,7 @@ namespace Reusable.AspNetCore.Middleware
                         }
                     }
 
-                    logger.Log(Abstraction.Layer.Network().Data().Object(new
+                    logger.Log(Abstraction.Layer.Network().Argument(new
                     {
                         context = new
                         {
@@ -123,7 +123,7 @@ namespace Reusable.AspNetCore.Middleware
                 }
                 catch (Exception ex)
                 {
-                    logger.Log(Abstraction.Layer.Network().Action().Faulted("next"), log =>
+                    logger.Log(Abstraction.Layer.Network().Routine("next").Faulted(), log =>
                     {
                         log.Exception(ex);
                         log.WithDisplayLogger(displayLogger);
