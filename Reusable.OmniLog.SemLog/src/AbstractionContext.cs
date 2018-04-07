@@ -9,7 +9,7 @@ namespace Reusable.OmniLog.SemanticExtensions
 {
     public interface IAbstractionContext
     {
-        LogLevel LayerLevel { get; }
+        LogLevel LogLevel { get; }
 
         string LayerName { get; }
 
@@ -22,12 +22,12 @@ namespace Reusable.OmniLog.SemanticExtensions
     {
         public AbstractionContext(IAbstractionLayer layer, object dump, [CallerMemberName] string categoryName = null)
         {
-            (LayerName, LayerLevel) = layer;
+            (LayerName, LogLevel) = layer;
             CategoryName = categoryName;
             Dump = dump;
         }
 
-        public LogLevel LayerLevel { get; }
+        public LogLevel LogLevel { get; }
 
         public string LayerName { get; }
 

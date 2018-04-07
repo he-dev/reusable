@@ -27,7 +27,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             foreach (var dump in context.Dump.EnumerateProperties())
             {
-                logger.Log(context.LayerLevel, log =>
+                logger.Log(context.LogLevel, log =>
                 {
                     // It's ok to hardcode these property names here because this is the only place they are used.
 

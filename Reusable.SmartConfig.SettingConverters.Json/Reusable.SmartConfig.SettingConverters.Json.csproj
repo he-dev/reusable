@@ -19,7 +19,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="TehCodez\" />
+    <Folder Include="src\" />
   </ItemGroup>
 
   <ItemGroup>

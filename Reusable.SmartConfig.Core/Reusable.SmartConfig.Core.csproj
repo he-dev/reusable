@@ -14,12 +14,12 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="TehCodez\Collections\**" />
-    <Compile Remove="TehCodez\Converters\**" />
-    <EmbeddedResource Remove="TehCodez\Collections\**" />
-    <EmbeddedResource Remove="TehCodez\Converters\**" />
-    <None Remove="TehCodez\Collections\**" />
-    <None Remove="TehCodez\Converters\**" />
+    <Compile Remove="src\Collections\**" />
+    <Compile Remove="src\Converters\**" />
+    <EmbeddedResource Remove="src\Collections\**" />
+    <EmbeddedResource Remove="src\Converters\**" />
+    <None Remove="src\Collections\**" />
+    <None Remove="src\Converters\**" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
