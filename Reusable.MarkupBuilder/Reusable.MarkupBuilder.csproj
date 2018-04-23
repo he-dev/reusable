@@ -73,26 +73,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TehCodez\Formatters\HtmlFormatter.cs" />
-    <Compile Include="TehCodez\Html\Css.cs" />
-    <Compile Include="TehCodez\Html\CssExtensions.cs" />
-    <Compile Include="TehCodez\Html\CssParser.cs" />
-    <Compile Include="TehCodez\Html\CssRuleSet.cs" />
-    <Compile Include="TehCodez\Html\HtmlElement.cs" />
-    <Compile Include="TehCodez\Html\HtmlExtensions.cs" />
-    <Compile Include="TehCodez\Html\HtmlRenderer.cs" />
-    <Compile Include="TehCodez\Html\HtmlSanitizer.cs" />
-    <Compile Include="TehCodez\Html\HtmlElementExtensions.cs" />
-    <Compile Include="TehCodez\Html\CssInliner.cs" />
-    <Compile Include="TehCodez\ISanitizer.cs" />
+    <Compile Include="src\Formatters\HtmlFormatter.cs" />
+    <Compile Include="src\Html\Css.cs" />
+    <Compile Include="src\Html\CssExtensions.cs" />
+    <Compile Include="src\Html\CssParser.cs" />
+    <Compile Include="src\Html\CssRuleSet.cs" />
+    <Compile Include="src\Html\HtmlElement.cs" />
+    <Compile Include="src\Html\HtmlExtensions.cs" />
+    <Compile Include="src\Html\HtmlRenderer.cs" />
+    <Compile Include="src\Html\HtmlSanitizer.cs" />
+    <Compile Include="src\Html\HtmlElementExtensions.cs" />
+    <Compile Include="src\Html\CssInliner.cs" />
+    <Compile Include="src\ISanitizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TehCodez\MarkupElement.cs" />
-    <Compile Include="TehCodez\MarkupElementExtensions.cs" />
-    <Compile Include="TehCodez\MarkupFormatting.cs" />
-    <Compile Include="TehCodez\MarkupFormattingOptions.cs" />
-    <Compile Include="TehCodez\MarkupFormattingTemplate.cs" />
-    <Compile Include="TehCodez\MarkupRenderer.cs" />
-    <Compile Include="TehCodez\Xml\XmlElement.cs" />
+    <Compile Include="src\MarkupElement.cs" />
+    <Compile Include="src\MarkupElementExtensions.cs" />
+    <Compile Include="src\MarkupFormatting.cs" />
+    <Compile Include="src\MarkupFormattingOptions.cs" />
+    <Compile Include="src\MarkupFormattingTemplate.cs" />
+    <Compile Include="src\MarkupRenderer.cs" />
+    <Compile Include="src\Xml\XmlElement.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj">

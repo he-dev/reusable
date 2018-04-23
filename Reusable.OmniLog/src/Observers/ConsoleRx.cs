@@ -18,7 +18,7 @@ namespace Reusable.OmniLog
             [LogLevel.Error] = ConsoleColor.Red,
             [LogLevel.Fatal] = ConsoleColor.Red,
         };
-        
+
         protected override IObserver<Log> Initialize()
         {
             return Observer.Create<Log>(log =>
@@ -38,7 +38,7 @@ namespace Reusable.OmniLog
 
         public static IObserver<Log> Create(bool colorful = true)
         {
-            return new ConsoleRx {Colorful = colorful};
+            return new ConsoleRx { Colorful = colorful };
         }
     }
 }

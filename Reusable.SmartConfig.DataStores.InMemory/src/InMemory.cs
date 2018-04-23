@@ -1,11 +1,8 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using Reusable.SmartConfig.Data;
 
-namespace Reusable.SmartConfig.DataStores
+namespace Reusable.SmartConfig
 {
     public class InMemory : SettingDataStore, IEnumerable<KeyValuePair<SoftString, object>>
     {

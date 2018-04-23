@@ -58,8 +58,8 @@
     <Reference Include="JetBrains.Annotations, Version=11.1.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
       <HintPath>..\packages\JetBrains.Annotations.11.1.0\lib\net20\JetBrains.Annotations.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -75,38 +75,38 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TehCodez\CompositeConverter.cs" />
-    <Compile Include="TehCodez\TypeConverterComposition.cs" />
-    <Compile Include="TehCodez\ConversionContext.cs" />
-    <Compile Include="TehCodez\TypeConverterExtensions.cs" />
-    <Compile Include="TehCodez\_Converters.Generic\ArrayConverters.cs" />
-    <Compile Include="TehCodez\_Converters.Generic\DictionaryConverters.cs" />
-    <Compile Include="TehCodez\_Converters.Generic\HashSetConverters.cs" />
-    <Compile Include="TehCodez\_Converters.Generic\ListConverters.cs" />
-    <Compile Include="TehCodez\_Converters.Specific\Guid.cs" />
-    <Compile Include="TehCodez\_Converters.Specific\DateTimeOffset.cs" />
-    <Compile Include="TehCodez\_Converters.Specific\JsonConverters.cs" />
-    <Compile Include="TehCodez\_Converters.Generic\EnumConverters.cs" />
-    <Compile Include="TehCodez\_Converters.Specific\ColorConverters.cs" />
-    <Compile Include="TehCodez\_Converters.Specific\XDocumentConverters.cs" />
-    <Compile Include="TehCodez\_Converters.Specific\XElementConverters.cs" />
-    <Compile Include="TehCodez\_Converters.Specific\TimeSpanConverters.cs" />
-    <Compile Include="TehCodez\_Converters.Specific\DecimalConverters.cs" />
-    <Compile Include="TehCodez\_Converters.Specific\BooleanConverters.cs" />
-    <Compile Include="TehCodez\_Converters.Specific\SByteConverters.cs" />
-    <Compile Include="TehCodez\_Converters.Specific\ByteConverters.cs" />
-    <Compile Include="TehCodez\_Converters.Specific\CharConverters.cs" />
-    <Compile Include="TehCodez\_Converters.Specific\SingleConverters.cs" />
-    <Compile Include="TehCodez\_Converters.Specific\DoubleConverters.cs" />
-    <Compile Include="TehCodez\_Converters.Specific\UInt16Converters.cs" />
-    <Compile Include="TehCodez\_Converters.Specific\Int16Converters.cs" />
-    <Compile Include="TehCodez\_Converters.Specific\DateTimeConverters.cs" />
-    <Compile Include="TehCodez\_Converters.Specific\UInt32Converters.cs" />
-    <Compile Include="TehCodez\_Converters.Specific\UInt64Converters.cs" />
-    <Compile Include="TehCodez\_Converters.Specific\Int64Converters.cs" />
-    <Compile Include="TehCodez\_Converters.Specific\Int32Converters.cs" />
-    <Compile Include="TehCodez\TypeConverterAttribute.cs" />
-    <Compile Include="TehCodez\TypeConverter.cs" />
+    <Compile Include="src\Infrastructure\CompositeConverter.cs" />
+    <Compile Include="src\Infrastructure\TypeConverterComposition.cs" />
+    <Compile Include="src\Infrastructure\ConversionContext.cs" />
+    <Compile Include="src\Infrastructure\TypeConverterExtensions.cs" />
+    <Compile Include="src\Implementations\Array.cs" />
+    <Compile Include="src\Implementations\Collections\Generic\Dictionary.cs" />
+    <Compile Include="src\Implementations\Collections\Generic\HashSet.cs" />
+    <Compile Include="src\Implementations\Collections\Generic\List.cs" />
+    <Compile Include="src\Implementations\Guid.cs" />
+    <Compile Include="src\Implementations\DateTimeOffset.cs" />
+    <Compile Include="src\Implementations\Json.cs" />
+    <Compile Include="src\Implementations\Enum.cs" />
+    <Compile Include="src\Implementations\Color.cs" />
+    <Compile Include="src\Implementations\XDocument.cs" />
+    <Compile Include="src\Implementations\XElement.cs" />
+    <Compile Include="src\Implementations\TimeSpan.cs" />
+    <Compile Include="src\Implementations\Decimal.cs" />
+    <Compile Include="src\Implementations\Boolean.cs" />
+    <Compile Include="src\Implementations\SByte.cs" />
+    <Compile Include="src\Implementations\Byte.cs" />
+    <Compile Include="src\Implementations\Char.cs" />
+    <Compile Include="src\Implementations\Single.cs" />
+    <Compile Include="src\Implementations\Double.cs" />
+    <Compile Include="src\Implementations\UInt16.cs" />
+    <Compile Include="src\Implementations\Int16.cs" />
+    <Compile Include="src\Implementations\DateTime.cs" />
+    <Compile Include="src\Implementations\UInt32.cs" />
+    <Compile Include="src\Implementations\UInt64.cs" />
+    <Compile Include="src\Implementations\Int64.cs" />
+    <Compile Include="src\Implementations\Int32.cs" />
+    <Compile Include="src\Infrastructure\TypeConverterAttribute.cs" />
+    <Compile Include="src\Infrastructure\TypeConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

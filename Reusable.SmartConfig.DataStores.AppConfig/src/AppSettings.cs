@@ -1,11 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using Reusable.Extensions;
 using Reusable.SmartConfig.Data;
 
-namespace Reusable.SmartConfig.DataStores
+namespace Reusable.SmartConfig
 {
     public class AppSettings : SettingDataStore
     {

@@ -15,24 +15,24 @@
     <None Remove="Mocks\**" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="TehCodez\ConfigurationTestBase.cs" />
-    <Compile Remove="TehCodez\ConfigurationTestCore.cs" />
-    <Compile Remove="TehCodez\TestDatastore.cs" />
+    <Compile Remove="src\ConfigurationTestBase.cs" />
+    <Compile Remove="src\ConfigurationTestCore.cs" />
+    <Compile Remove="src\TestDatastore.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="JustMock" Version="2018.1.117.2" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.6.1" />
-    <PackageReference Include="MSTest.TestAdapter" Version="1.2.0" />
-    <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.2.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.2.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
-    <ProjectReference Include="..\Reusable.SmartConfig.Core.Utilities\Reusable.SmartConfig.Core.Utilities.csproj" />
-    <ProjectReference Include="..\Reusable.SmartConfig.Core\Reusable.SmartConfig.Core.csproj" />
-    <ProjectReference Include="..\Reusable.SmartConfig.DataStores.AppConfig\Reusable.SmartConfig.DataStores.AppConfig.csproj" />
-    <ProjectReference Include="..\Reusable.SmartConfig.DataStores.InMemory\Reusable.SmartConfig.DataStores.InMemory.csproj" />
-    <ProjectReference Include="..\Reusable.SmartConfig.DataStores.SqlServer\Reusable.SmartConfig.DataStores.SqlServer.csproj" />
-    <ProjectReference Include="..\Reusable.SmartConfig.SettingConverters.Json\Reusable.SmartConfig.SettingConverters.Json.csproj" />
+    <ProjectReference Include="..\Reusable.SmartConfig.Core.Utilities\Reusable.SmartConfig.Utilities.csproj" />
+    <ProjectReference Include="..\Reusable.SmartConfig.Core\Reusable.SmartConfig.csproj" />
+    <ProjectReference Include="..\Reusable.SmartConfig.DataStores.AppConfig\Reusable.SmartConfig.AppConfig.csproj" />
+    <ProjectReference Include="..\Reusable.SmartConfig.DataStores.InMemory\Reusable.SmartConfig.InMemory.csproj" />
+    <ProjectReference Include="..\Reusable.SmartConfig.DataStores.SqlServer\Reusable.SmartConfig.SqlServer.csproj" />
+    <ProjectReference Include="..\Reusable.SmartConfig.SettingConverters.Json\Reusable.SmartConfig.JsonConverter.csproj" />
     <ProjectReference Include="..\Reusable.Tester\Reusable.Utilities.MSTest.csproj" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,21 @@
+﻿
+body {
+    font-family: "Segoe UI", sans-serif;
+}
+
+.setting-product-name {
+    color: dodgerblue;
+    font-weight: bold;
+}
+
+.setting-product-version {
+    color: gray;
+}
+
+.setting-profile {
+    color: mediumvioletred;
+}
+
+.setting-last-modified {
+    color: darkolivegreen;
+}

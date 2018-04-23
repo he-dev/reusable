@@ -67,10 +67,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TehCodez\Email.cs" />
-    <Compile Include="TehCodez\EmailBody.cs" />
-    <Compile Include="TehCodez\EmailSubject.cs" />
-    <Compile Include="TehCodez\EmailClient.cs" />
+    <Compile Include="src\Email.cs" />
+    <Compile Include="src\EmailBody.cs" />
+    <Compile Include="src\EmailSubject.cs" />
+    <Compile Include="src\EmailClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

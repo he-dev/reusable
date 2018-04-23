@@ -36,4 +36,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("4.0.37.0")]
 //[assembly: AssemblyInformationalVersion("4.0.8")]
 
-[assembly: InternalsVisibleTo("Reusable.Utils.Tests")]
+[assembly: InternalsVisibleTo("Reusable.Tests")]

@@ -37,8 +37,8 @@
     <Reference Include="JetBrains.Annotations, Version=11.1.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
       <HintPath>..\packages\JetBrains.Annotations.11.1.0\lib\net20\JetBrains.Annotations.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -91,9 +91,9 @@
       <Project>{3f1a4c5b-1ba9-45c7-bf73-465bd8669897}</Project>
       <Name>Reusable.OmniLog</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Reusable.ThirdParty.JsonNetUtilities\Reusable.Utilities.ThirdParty.JsonNet.csproj">
+    <ProjectReference Include="..\Reusable.ThirdParty.JsonNetUtilities\Reusable.Utilities.JsonNet.csproj">
       <Project>{37C5C43A-159A-4312-BF3B-E00F7BE456E7}</Project>
-      <Name>Reusable.Utilities.ThirdParty.JsonNet</Name>
+      <Name>Reusable.Utilities.JsonNet</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

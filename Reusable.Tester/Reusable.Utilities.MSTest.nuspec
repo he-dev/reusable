@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Utilities.MSTest</id>
-    <version>4.10.0</version>
+    <version>4.11.0</version>
     <title>Reusable.Utilities.MSTest</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -16,7 +16,7 @@
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="11.1.0" />
-      <dependency id="MSTest.TestFramework" version="1.2.0" />
+      <dependency id="MSTest.TestFramework" version="1.2.1" />
       <dependency id="System.Reactive" version="3.1.1" />
       <dependency id="System.Reactive.Core" version="3.1.1" />
       <dependency id="System.Reactive.Interfaces" version="3.1.1" />
@@ -24,10 +24,10 @@
       <dependency id="System.Reactive.PlatformServices" version="3.1.1" />
       <dependency id="System.Reactive.Windows.Threading" version="3.1.1" />
       <dependency id="System.ValueTuple" version="4.4.0" />
-      <dependency id="Reusable.Converters" version="4.10.0" />
-      <dependency id="Reusable.Core" version="4.10.0" />
-      <dependency id="Reusable.OmniLog" version="4.10.0" />
-      <dependency id="Reusable.Utilities.SqlClient" version="4.10.0" />
+      <dependency id="Reusable.Converters" version="4.11.0" />
+      <dependency id="Reusable.Core" version="4.11.0" />
+      <dependency id="Reusable.OmniLog" version="4.11.0" />
+      <dependency id="Reusable.Utilities.SqlClient" version="4.11.0" />
     </dependencies>
   </metadata>
   <files>

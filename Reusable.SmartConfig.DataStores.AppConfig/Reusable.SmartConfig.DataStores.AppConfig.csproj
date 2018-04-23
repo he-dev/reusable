@@ -1,38 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <TargetFramework>net47</TargetFramework>
-    <RootNamespace>Reusable.SmartConfig.DataStores</RootNamespace>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <LangVersion>latest</LangVersion>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <LangVersion>latest</LangVersion>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <Folder Include="src\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
-    <PackageReference Include="System.ValueTuple" Version="4.4.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
-    <ProjectReference Include="..\Reusable.SmartConfig.Core\Reusable.SmartConfig.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="System.Configuration" />
-  </ItemGroup>
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup />
 </Project>

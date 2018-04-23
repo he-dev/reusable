@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Utilities.ThirdParty.NLog</id>
-    <version>4.10.0</version>
+    <version>4.11.0</version>
     <title>Reusable.Utilities.ThirdParty.NLog</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -16,7 +16,7 @@
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="11.1.0" />
-      <dependency id="NLog" version="4.4.12" />
+      <dependency id="NLog" version="4.5.3" />
     </dependencies>
   </metadata>
   <files>

@@ -62,10 +62,10 @@
       <HintPath>..\packages\JetBrains.Annotations.11.1.0\lib\net20\JetBrains.Annotations.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\MSTest.TestFramework.1.2.0\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.dll</HintPath>
+      <HintPath>..\packages\MSTest.TestFramework.1.2.1\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\MSTest.TestFramework.1.2.0\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.dll</HintPath>
+      <HintPath>..\packages\MSTest.TestFramework.1.2.1\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -94,19 +94,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TehCodez\AssertExtensions.cs" />
-    <Compile Include="TehCodez\BinaryOperatorAssertExtensions.cs" />
-    <Compile Include="TehCodez\CollectionAssertExtensions.cs" />
-    <Compile Include="TehCodez\ComparableAssertExtensions.cs" />
-    <Compile Include="TehCodez\EqualityComparerAssertExtensions.cs" />
-    <Compile Include="TehCodez\EquatableAssertExtensions.cs" />
-    <Compile Include="TehCodez\LookupAssertExtensions.cs" />
-    <Compile Include="TehCodez\Mocks\MockDateTime.cs" />
-    <Compile Include="TehCodez\Mocks\MockStopwatch.cs" />
-    <Compile Include="TehCodez\Mocks\MockLogger.cs" />
-    <Compile Include="TehCodez\Mocks\MockTimestamp.cs" />
-    <Compile Include="TehCodez\TypeAssertExtensions.cs" />
-    <Compile Include="TehCodez\UnaryOperatorAssertExtensions.cs" />
+    <Compile Include="src\AssertExtensions.cs" />
+    <Compile Include="src\BinaryOperatorAssertExtensions.cs" />
+    <Compile Include="src\CollectionAssertExtensions.cs" />
+    <Compile Include="src\ComparableAssertExtensions.cs" />
+    <Compile Include="src\EqualityComparerAssertExtensions.cs" />
+    <Compile Include="src\EquatableAssertExtensions.cs" />
+    <Compile Include="src\LookupAssertExtensions.cs" />
+    <Compile Include="src\Mocks\MockDateTime.cs" />
+    <Compile Include="src\Mocks\MockStopwatch.cs" />
+    <Compile Include="src\Mocks\MockLogger.cs" />
+    <Compile Include="src\Mocks\MockTimestamp.cs" />
+    <Compile Include="src\TypeAssertExtensions.cs" />
+    <Compile Include="src\UnaryOperatorAssertExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

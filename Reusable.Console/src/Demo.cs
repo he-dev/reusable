@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Reusable.Console;
-using Reusable.ConsoleColorizer;
 using Reusable.Converters;
 using Reusable.DateTimes;
 using Reusable.Diagnostics;
@@ -27,7 +26,7 @@ namespace Reusable.Console
             {
                 Observers =
                 {
-                    ConsoleTemplateRx.Create(new ConsoleTemplateRenderer()),
+                    new ColoredConsoleRx(),
                 },
                 Configuration = new LoggerConfiguration
                 {
@@ -40,7 +39,7 @@ namespace Reusable.Console
 
             var consoleLogger = loggerFactory.CreateLogger("ConsoleTemplateTest");
 
-            consoleLogger.ConsoleMessageLine(m => m
+            consoleLogger.WriteLine(m => m
                 .text(">")
                 .span(s => s.text("foo").color(ConsoleColor.Red))
                 .text(" bar ")

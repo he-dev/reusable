@@ -1,0 +1,26 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    
+    <link rel="stylesheet" href="~/css/settings.css" />
+
+    <title>@ViewBag.Title</title>
+</head>
+<body>
+    <div>
+        @RenderBody()
+    </div>
+
+    <environment include="Development,DevelopmentPrimary,DevelopmentSecondary">
+        <script src="~/lib/jquery/jquery-3.3.1.js"></script>
+    </environment>
+
+    <environment include="Production">
+        <script src="~/lib/jquery/jquery-3.3.1.min.js"></script>
+    </environment>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

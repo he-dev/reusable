@@ -1,7 +1,7 @@
 ﻿using JetBrains.Annotations;
 using Reusable.Flawless;
 
-namespace Reusable.SmartConfig.DataStores
+namespace Reusable.SmartConfig
 {
     public class SqlServerColumnMapping
     {

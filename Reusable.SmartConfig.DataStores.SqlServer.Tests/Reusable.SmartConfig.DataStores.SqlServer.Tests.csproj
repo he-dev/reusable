@@ -16,17 +16,17 @@
   
   <ItemGroup>
     <PackageReference Include="JustMock" Version="2018.1.117.2" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.6.1" />
-    <PackageReference Include="MSTest.TestAdapter" Version="1.2.0" />
-    <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.2.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.2.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
-    <ProjectReference Include="..\Reusable.SmartConfig.Core\Reusable.SmartConfig.Core.csproj" />
-    <ProjectReference Include="..\Reusable.SmartConfig.DataStores.SqlServer\Reusable.SmartConfig.DataStores.SqlServer.csproj" />
-    <ProjectReference Include="..\Reusable.SqlSchemaReader\Reusable.Utilities.SqlClient.csproj" />
+    <ProjectReference Include="..\Reusable.SmartConfig.Core\Reusable.SmartConfig.csproj" />
+    <ProjectReference Include="..\Reusable.SmartConfig.DataStores.SqlServer\Reusable.SmartConfig.SqlServer.csproj" />
     <ProjectReference Include="..\Reusable.Tester\Reusable.Utilities.MSTest.csproj" />
+    <ProjectReference Include="..\Reusable.Utilities.SqlClient\Reusable.Utilities.SqlClient.csproj" />
   </ItemGroup>
 
   <ItemGroup>

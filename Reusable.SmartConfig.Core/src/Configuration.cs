@@ -19,18 +19,22 @@ namespace Reusable.SmartConfig
 
         private readonly IDictionary<SoftString, (SoftString ActualName, ISettingDataStore Datastore)> _settingMap = new Dictionary<SoftString, (SoftString ActualName, ISettingDataStore Datastore)>();
 
-        private static readonly IValidator<IEnumerable<ISettingDataStore>> DataStoresValidator = 
+        private static readonly IValidator<IEnumerable<ISettingDataStore>> DataStoresValidator =
             Validator
                 .Create<IEnumerable<ISettingDataStore>>()
                 .IsNotValidWhen(dataStores => dataStores == null, ValidationOptions.StopOnFailure)
                 .IsValidWhen(x => x.Any(), _ => "You need to specify at least one data-store.");
 
-        public Configuration([NotNull, ItemNotNull] IEnumerable<ISettingDataStore> dataStores, ISettingFinder settingFinder = null)
+        public Configuration([NotNull, ItemNotNull] IEnumerable<ISettingDataStore> dataStores, [NotNull] ISettingFinder settingFinder)
         {
             // ReSharper disable once ConstantConditionalAccessQualifier - yes, this can be null
             _dataStores = (dataStores?.ToList()).ValidateWith(DataStoresValidator).ThrowIfNotValid();
-            _settingFinder = settingFinder ?? new FirstSettingFinder();
+            _settingFinder = settingFinder ?? throw new ArgumentNullException(nameof(settingFinder));
         }
+
+        public Configuration([NotNull, ItemNotNull] IEnumerable<ISettingDataStore> dataStores)
+            : this(dataStores, new FirstSettingFinder())
+        { }
 
         public object GetValue(SoftString settingName, Type settingType, SoftString dataStoreName)
         {

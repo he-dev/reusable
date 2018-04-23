@@ -1,13 +1,12 @@
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using Reusable.SmartConfig.Data;
 using Reusable.Utilities.SqlClient;
 
-namespace Reusable.SmartConfig.DataStores.Internal
+namespace Reusable.SmartConfig.Internal
 {
     internal static class SettingCommandFactory
     {

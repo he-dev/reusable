@@ -58,8 +58,8 @@
     <Reference Include="JetBrains.Annotations, Version=11.1.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
       <HintPath>..\packages\JetBrains.Annotations.11.1.0\lib\net20\JetBrains.Annotations.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -77,16 +77,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TehCodez\ValidationContext.cs" />
-    <Compile Include="TehCodez\ValidationContextExtensions.cs" />
-    <Compile Include="TehCodez\ValidationExpressionPrettifier.cs" />
-    <Compile Include="TehCodez\ValidationResult.cs" />
-    <Compile Include="TehCodez\ValidationOptions.cs" />
-    <Compile Include="TehCodez\ValidationRule.cs" />
-    <Compile Include="TehCodez\ValidatorComposer.cs" />
-    <Compile Include="TehCodez\ValidatorExtensions.cs" />
+    <Compile Include="src\ValidationContext.cs" />
+    <Compile Include="src\ValidationContextExtensions.cs" />
+    <Compile Include="src\ValidationExpressionPrettifier.cs" />
+    <Compile Include="src\ValidationResult.cs" />
+    <Compile Include="src\ValidationOptions.cs" />
+    <Compile Include="src\ValidationRule.cs" />
+    <Compile Include="src\ValidatorComposer.cs" />
+    <Compile Include="src\ValidatorExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TehCodez\Validator.cs" />
+    <Compile Include="src\Validator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

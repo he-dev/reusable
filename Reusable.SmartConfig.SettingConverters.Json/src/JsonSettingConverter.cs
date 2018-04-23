@@ -7,10 +7,9 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Reusable.Converters;
 using Reusable.Extensions;
-using Reusable.Utilities.ThirdParty.JsonNet;
 using ColorConverter = Reusable.Utilities.ThirdParty.JsonNet.ColorConverter;
 
-namespace Reusable.SmartConfig.SettingConverters
+namespace Reusable.SmartConfig
 {
 
     /*

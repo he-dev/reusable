@@ -15,19 +15,19 @@
     <None Remove="Mocks\**" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="TehCodez\ConfigurationTestBase.cs" />
-    <Compile Remove="TehCodez\ConfigurationTestCore.cs" />
-    <Compile Remove="TehCodez\TestDatastore.cs" />
+    <Compile Remove="src\ConfigurationTestBase.cs" />
+    <Compile Remove="src\ConfigurationTestCore.cs" />
+    <Compile Remove="src\TestDatastore.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="JustMock" Version="2018.1.117.2" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.6.1" />
-    <PackageReference Include="MSTest.TestAdapter" Version="1.2.0" />
-    <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.2.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.2.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
-    <ProjectReference Include="..\Reusable.SmartConfig.Core\Reusable.SmartConfig.Core.csproj" />
+    <ProjectReference Include="..\Reusable.SmartConfig.Core\Reusable.SmartConfig.csproj" />
     <ProjectReference Include="..\Reusable.Tester\Reusable.Utilities.MSTest.csproj" />
   </ItemGroup>
 </Project>

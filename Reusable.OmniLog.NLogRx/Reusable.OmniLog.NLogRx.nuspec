@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.OmniLog.NLogRx</id>
-    <version>4.10.0</version>
+    <version>4.11.0</version>
     <title>Reusable.OmniLog.NLogRx</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -16,7 +16,7 @@
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="11.1.0" />
-      <dependency id="NLog" version="4.4.12" />
+      <dependency id="NLog" version="4.5.3" />
       <dependency id="System.Reactive" version="3.1.1" />
       <dependency id="System.Reactive.Core" version="3.1.1" />
       <dependency id="System.Reactive.Interfaces" version="3.1.1" />
@@ -24,8 +24,8 @@
       <dependency id="System.Reactive.PlatformServices" version="3.1.1" />
       <dependency id="System.Reactive.Windows.Threading" version="3.1.1" />
       <dependency id="System.ValueTuple" version="4.4.0" />
-      <dependency id="Reusable.Core" version="4.10.0" />
-      <dependency id="Reusable.OmniLog" version="4.10.0" />
+      <dependency id="Reusable.Core" version="4.11.0" />
+      <dependency id="Reusable.OmniLog" version="4.11.0" />
     </dependencies>
   </metadata>
   <files>

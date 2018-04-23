@@ -1,18 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Linq.Custom;
 using JetBrains.Annotations;
 using Reusable.Data.Repositories;
-using Reusable.Exceptionize;
-using Reusable.Extensions;
 using Reusable.SmartConfig.Data;
-using Reusable.SmartConfig.DataStores.Internal;
+using Reusable.SmartConfig.Internal;
 using Reusable.Utilities.SqlClient;
 
-namespace Reusable.SmartConfig.DataStores
+namespace Reusable.SmartConfig
 {
     public class SqlServer : SettingDataStore
     {

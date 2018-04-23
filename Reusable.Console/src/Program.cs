@@ -19,7 +19,7 @@ namespace Reusable.Console
             Demo.SemanticExtensions();
 
             var rxFilter = new AppConfigRxFilter(NLogRx.Create());
-            var loggerFactory = LoggerFactorySetup.SetupLoggerFactory("development", "VaultNET", rxFilter);
+            var loggerFactory = LoggerFactorySetup.SetupLoggerFactory("development", "Emerald", rxFilter);
 
             Demo.DebuggerDisplay();
 
