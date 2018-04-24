@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Flawless</id>
-    <version>4.11.0</version>
+    <version>5.0.0</version>
     <title>Reusable.Flawless</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/he-dev/Reusable</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/he-dev/Reusable/master/_nuget/recycling.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>This package provides general purpose core components.</description>
+    <description>Simple object validator.</description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2017 He-Dev</copyright>
     <tags>Utility Extension</tags>
@@ -18,7 +18,7 @@
       <dependency id="JetBrains.Annotations" version="11.1.0" />
       <dependency id="Newtonsoft.Json" version="11.0.2" />
       <dependency id="System.ValueTuple" version="4.4.0" />
-      <dependency id="Reusable.Core" version="4.11.0" />
+      <dependency id="Reusable.Core" version="5.0.0" />
     </dependencies>
   </metadata>
   <files>

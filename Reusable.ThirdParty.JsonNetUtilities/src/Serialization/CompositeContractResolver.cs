@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 using Newtonsoft.Json.Serialization;
 using Reusable.Extensions;
 
-namespace Reusable.Utilities.ThirdParty.JsonNet.Serialization
+namespace Reusable.Utilities.JsonNet.Serialization
 {
     public class CompositeContractResolver : IContractResolver, IEnumerable<IContractResolver>
     {

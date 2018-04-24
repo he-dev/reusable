@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.AspNetCore.Http.SemanticLogger</id>
-    <version>4.11.0</version>
+    <version>5.0.0</version>
     <title>Reusable.AspNetCore.Http.SemanticLogger</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -12,7 +12,7 @@
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>Provides semantic logger middleware for AspNetCore.</description>
     <releaseNotes></releaseNotes>
-    <copyright>Copyright 2016 He-Dev</copyright>
+    <copyright>Copyright 2018 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="11.1.0" />
@@ -22,8 +22,8 @@
       <dependency id="Microsoft.Tpl.Dataflow" version="4.5.24" />
       <dependency id="System.ValueTuple" version="4.4.0" />
       <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.0.2" />
-      <dependency id="Reusable.OmniLog.SemanticExtensions" version="4.11.0" />
-      <dependency id="Reusable.OmniLog" version="4.11.0" />
+      <dependency id="Reusable.OmniLog.SemanticExtensions" version="5.0.0" />
+      <dependency id="Reusable.OmniLog" version="5.0.0" />
     </dependencies>
   </metadata>
   <files>

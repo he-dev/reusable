@@ -9,7 +9,7 @@ using Reusable.Drawing;
 using Reusable.Extensions;
 using Reusable.Formatters;
 
-namespace Reusable.Utilities.ThirdParty.JsonNet
+namespace Reusable.Utilities.JsonNet
 {
     [PublicAPI]
     public class ColorConverter : JsonConverter

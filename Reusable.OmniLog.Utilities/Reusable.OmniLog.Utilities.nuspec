@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.OmniLog.Utilities</id>
-    <version>4.11.0</version>
+    <version>5.0.0</version>
     <title>Reusable.OmniLog.Utilities</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -10,14 +10,14 @@
     <projectUrl>https://github.com/he-dev/Reusable</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/he-dev/Reusable/master/_nuget/recycling.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>Tools for NLog.</description>
+    <description>Utilities for OmniLog.</description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2016 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="System.Collections.Immutable" version="1.4.0" />
-      <dependency id="Reusable.Core" version="4.11.0" />
-      <dependency id="Reusable.OmniLog" version="4.11.0" />
+      <dependency id="Reusable.Core" version="5.0.0" />
+      <dependency id="Reusable.OmniLog" version="5.0.0" />
     </dependencies>
   </metadata>
   <files>

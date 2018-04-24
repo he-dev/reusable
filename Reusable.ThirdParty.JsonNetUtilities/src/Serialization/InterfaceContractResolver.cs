@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace Reusable.Utilities.ThirdParty.JsonNet.Serialization
+namespace Reusable.Utilities.JsonNet.Serialization
 {
     public class InterfaceContractResolver<T> : DefaultContractResolver
     {

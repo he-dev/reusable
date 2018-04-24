@@ -4,7 +4,7 @@ using Reusable.MarkupBuilder.Html;
 
 namespace Reusable.OmniLog
 {
-    public static class LoggerExtensions
+    public static class ConsoleLoggerExtensions
     {
         public static ILogger Write(this ILogger logger, Func<HtmlElement, HtmlElement> paragraphAction)
         {

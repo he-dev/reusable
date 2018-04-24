@@ -13,7 +13,7 @@ using Reusable.OmniLog;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.Utilities.AspNetCore;
 using Reusable.Utilities.AspNetCore.Hosting;
-using Reusable.Utilities.ThirdParty.NLog.LayoutRenderers;
+using Reusable.Utilities.NLog.LayoutRenderers;
 
 [assembly: AspMvcViewLocationFormat("/src/Views/{1}/{0}.cshtml")]
 [assembly: AspMvcViewLocationFormat("/src/Views/Shared/{0}.cshtml")]
@@ -69,9 +69,13 @@ namespace Reusable.Apps.Server
             //});;
             
             services.AddSingleton<IConfiguration>(_configuration);
-            services.AddSingleton<ILoggerFactory>(LoggerFactorySetup.SetupLoggerFactory(_hostingEnvironment.EnvironmentName, "Emerald", new[] { NLogRx.Create() }));
-
-            
+            services.AddSingleton<ILoggerFactory>(
+                new LoggerFactoryBuilder()
+                    .Environment(_hostingEnvironment.EnvironmentName)
+                    .Product("Reusable.Apps.Server")
+                    .WithRx(NLogRx.Create())
+                    .Build()
+            );
 
             //services.AddScoped(serviceProvider => new ClientInfo(HeaderPrefix, serviceProvider.GetService<IMultipartName>()));
         }

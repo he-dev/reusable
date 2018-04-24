@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Utilities.MSTest</id>
-    <version>4.11.0</version>
+    <version>5.0.0</version>
     <title>Reusable.Utilities.MSTest</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/he-dev/Reusable</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/he-dev/Reusable/master/_nuget/recycling.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>This package provides extensions for string unit-testing.</description>
+    <description>Testing utilities.</description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2017 He-Dev</copyright>
     <tags>Utility Extension</tags>
@@ -24,10 +24,10 @@
       <dependency id="System.Reactive.PlatformServices" version="3.1.1" />
       <dependency id="System.Reactive.Windows.Threading" version="3.1.1" />
       <dependency id="System.ValueTuple" version="4.4.0" />
-      <dependency id="Reusable.Converters" version="4.11.0" />
-      <dependency id="Reusable.Core" version="4.11.0" />
-      <dependency id="Reusable.OmniLog" version="4.11.0" />
-      <dependency id="Reusable.Utilities.SqlClient" version="4.11.0" />
+      <dependency id="Reusable.Converters" version="5.0.0" />
+      <dependency id="Reusable.Core" version="5.0.0" />
+      <dependency id="Reusable.OmniLog" version="5.0.0" />
+      <dependency id="Reusable.Utilities.SqlClient" version="5.0.0" />
     </dependencies>
   </metadata>
   <files>

@@ -7,7 +7,7 @@ using NLog;
 using NLog.Config;
 using NLog.LayoutRenderers;
 
-namespace Reusable.Utilities.ThirdParty.NLog.LayoutRenderers
+namespace Reusable.Utilities.NLog.LayoutRenderers
 {
     /// <summary>
     /// This layour-renderer provides a case-insensitive access to logger properties and formats the value with an invariant culture by default.

@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.OmniLog.SemanticExtensions</id>
-    <version>4.11.0</version>
+    <version>5.0.0</version>
     <title>Reusable.OmniLog.SemanticExtensions</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/he-dev/Reusable</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/he-dev/Reusable/master/_nuget/recycling.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>Provides a logger abstraction layer.</description>
+    <description>Semantic template for OmniLog.</description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2016 He-Dev</copyright>
     <tags>Utility Extension</tags>
@@ -24,9 +24,10 @@
       <dependency id="System.Reactive.PlatformServices" version="3.1.1" />
       <dependency id="System.Reactive.Windows.Threading" version="3.1.1" />
       <dependency id="System.ValueTuple" version="4.4.0" />
-      <dependency id="Reusable.Core" version="4.11.0" />
-      <dependency id="Reusable.OmniLog" version="4.11.0" />
-      <dependency id="Reusable.Utilities.ThirdParty.JsonNet" version="4.11.0" />
+      <dependency id="Reusable.Core" version="5.0.0" />
+      <dependency id="Reusable.Flawless" version="5.0.0" />
+      <dependency id="Reusable.OmniLog" version="5.0.0" />
+      <dependency id="Reusable.Utilities.JsonNet" version="5.0.0" />
     </dependencies>
   </metadata>
   <files>

@@ -1,15 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Globalization;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Reusable.Drawing;
-using Reusable.Extensions;
-using Reusable.Formatters;
 
-namespace Reusable.Utilities.ThirdParty.JsonNet
+namespace Reusable.Utilities.JsonNet
 {
     [PublicAPI]
     public class SoftStringConverter : JsonConverter

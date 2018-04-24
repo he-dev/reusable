@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Reusable.Net;
 
-namespace Reusable.Console.Demos
+namespace Reusable.Apps.Demos
 {
     public static class RestClientDemo
     {

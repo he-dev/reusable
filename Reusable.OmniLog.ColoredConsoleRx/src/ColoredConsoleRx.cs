@@ -29,7 +29,7 @@ namespace Reusable.OmniLog
         {
             return Observer.Create<Log>(log =>
             {
-                var template = log.Property<string>(null, nameof(LoggerExtensions.Write));
+                var template = log.Property<string>(null, nameof(ConsoleLoggerExtensions.Write));
                 if (template.IsNotNullOrEmpty())
                 {
                     _renderer.Render(template);

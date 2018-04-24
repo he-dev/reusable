@@ -1,12 +1,9 @@
-﻿using System;
-using Reusable.OmniLog.Collections;
-using System.Linq;
-using System.Linq.Custom;
+﻿using System.Linq.Custom;
 using Reusable.OmniLog;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.OmniLog.Utilities;
 
-namespace Reusable.Console
+namespace Reusable.Apps
 {
     internal static class Program
     {
@@ -19,7 +16,13 @@ namespace Reusable.Console
             Demo.SemanticExtensions();
 
             var rxFilter = new AppConfigRxFilter(NLogRx.Create());
-            var loggerFactory = LoggerFactorySetup.SetupLoggerFactory("development", "Emerald", rxFilter);
+
+            var loggerFactory =
+                new LoggerFactoryBuilder()
+                    .Environment("development")
+                    .Product("Reusable.Apps.Console")
+                    .WithRxes(rxFilter)
+                    .Build();
 
             Demo.DebuggerDisplay();
 

@@ -1,20 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using Reusable.Console;
 using Reusable.Converters;
 using Reusable.DateTimes;
 using Reusable.Diagnostics;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.SemanticExtensions;
-using Reusable.Extensions;
-using Reusable.Utilities.ThirdParty.NLog.LayoutRenderers;
+using Reusable.Utilities.NLog.LayoutRenderers;
 
 //[assembly: DebuggerDisplay("{DebuggerDisplay(),nq}", Target = typeof(Person))]
 
-namespace Reusable.Console
+namespace Reusable.Apps
 {
     public static class Demo
     {
@@ -56,7 +53,12 @@ namespace Reusable.Console
         {
             SmartPropertiesLayoutRenderer.Register();
 
-            var loggerFactory = LoggerFactorySetup.SetupLoggerFactory("development", "Reusable.Console", new[] { NLogRx.Create() });
+            var loggerFactory =
+                new LoggerFactoryBuilder()
+                    .Environment("development")
+                    .Product("Reusable.Apps.Console")
+                    .WithRx(NLogRx.Create())
+                    .Build();
 
             var logger = loggerFactory.CreateLogger("Demo");
 

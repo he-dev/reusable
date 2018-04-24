@@ -87,6 +87,10 @@
       <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
       <Name>Reusable.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Reusable.Flawless\Reusable.Flawless.csproj">
+      <Project>{bc9c9c4a-7b6c-434a-ae5d-39d1aa553dfa}</Project>
+      <Name>Reusable.Flawless</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Reusable.OmniLog\Reusable.OmniLog.csproj">
       <Project>{3f1a4c5b-1ba9-45c7-bf73-465bd8669897}</Project>
       <Name>Reusable.OmniLog</Name>

@@ -48,8 +48,8 @@
     <ProjectReference Include="..\Reusable.Converters\Reusable.Converters.csproj" />
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
     <ProjectReference Include="..\Reusable.Cryptography\Reusable.Cryptography.csproj" />
+    <ProjectReference Include="..\Reusable.Csv.Utilities\Reusable.Csv.Utilities.csproj" />
     <ProjectReference Include="..\Reusable.Csv\Reusable.Csv.csproj" />
-    <ProjectReference Include="..\Reusable.FileFormats.Csv.SqlExtensions\Reusable.Csv.Utilities.csproj" />
     <ProjectReference Include="..\Reusable.Flawless\Reusable.Flawless.csproj" />
     <ProjectReference Include="..\Reusable.Net.Mail\Reusable.Net.Mail.csproj" />
     <ProjectReference Include="..\Reusable.Net.RestClient\Reusable.Net.RestClient.csproj" />

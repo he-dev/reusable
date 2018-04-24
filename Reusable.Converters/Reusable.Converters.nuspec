@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Converters</id>
-    <version>4.11.0</version>
+    <version>5.0.0</version>
     <title>Reusable.Converters</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -18,8 +18,8 @@
       <dependency id="JetBrains.Annotations" version="11.1.0" />
       <dependency id="Newtonsoft.Json" version="11.0.2" />
       <dependency id="System.ValueTuple" version="4.4.0" />
-      <dependency id="Reusable.Core" version="4.11.0" />
-      <dependency id="Reusable.Flawless" version="4.11.0" />
+      <dependency id="Reusable.Core" version="5.0.0" />
+      <dependency id="Reusable.Flawless" version="5.0.0" />
     </dependencies>
   </metadata>
   <files>

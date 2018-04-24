@@ -1,4 +1,4 @@
-﻿namespace Reusable.Console
+﻿namespace Reusable.Apps
 {
     public class PlayingWithEnvDTE
     {

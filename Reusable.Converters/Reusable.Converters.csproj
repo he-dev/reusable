@@ -75,10 +75,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\Infrastructure\CompositeConverter.cs" />
-    <Compile Include="src\Infrastructure\TypeConverterComposition.cs" />
-    <Compile Include="src\Infrastructure\ConversionContext.cs" />
-    <Compile Include="src\Infrastructure\TypeConverterExtensions.cs" />
+    <Compile Include="src\CompositeConverter.cs" />
+    <Compile Include="src\TypeConverterComposition.cs" />
+    <Compile Include="src\ConversionContext.cs" />
+    <Compile Include="src\TypeConverterExtensions.cs" />
     <Compile Include="src\Implementations\Array.cs" />
     <Compile Include="src\Implementations\Collections\Generic\Dictionary.cs" />
     <Compile Include="src\Implementations\Collections\Generic\HashSet.cs" />
@@ -105,8 +105,8 @@
     <Compile Include="src\Implementations\UInt64.cs" />
     <Compile Include="src\Implementations\Int64.cs" />
     <Compile Include="src\Implementations\Int32.cs" />
-    <Compile Include="src\Infrastructure\TypeConverterAttribute.cs" />
-    <Compile Include="src\Infrastructure\TypeConverter.cs" />
+    <Compile Include="src\TypeConverterAttribute.cs" />
+    <Compile Include="src\TypeConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
