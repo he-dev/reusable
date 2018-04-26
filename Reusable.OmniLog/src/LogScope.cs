@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using JetBrains.Annotations;
 using Reusable.Collections;
+using Reusable.Diagnostics;
 using Reusable.OmniLog.Collections;
 
 namespace Reusable.OmniLog
 {
     public interface ILogScope
     {
-        SoftString Name { get; }
-        SoftString CorrelationId { get; }
-        object Context { get; }
+        object CorrelationId { get; }
+        object CorrelationContext { get; }
         int Depth { get; }
     }
 
@@ -21,21 +22,22 @@ namespace Reusable.OmniLog
     {
         // ReSharper disable once InconsistentNaming - This cannot be renamed because it'd confilict with the property that has the same name.
         private static readonly AsyncLocal<LogScope> _current = new AsyncLocal<LogScope>();
-        private static Func<SoftString> _newCorrelationId = () => Guid.NewGuid().ToString("N");
 
-        private LogScope(SoftString name, SoftString correlationId, object context, int depth)
+        private static Func<object> _newCorrelationId = () => Guid.NewGuid().ToString("N");
+
+        private LogScope(object correlationId, object correlationContext, int depth)
         {
-            Name = name;
-            CorrelationId = correlationId ?? _newCorrelationId();
-            Context = context;
+            CorrelationId = correlationId ?? NewCorrelationId();
+            CorrelationContext = correlationContext;
             Depth = depth;
         }
 
-        private string DebuggerDisplay =>
-            $"{nameof(LogScope)}: " +
-            $"Name = {Name} " +
-            $"Depth = {Depth} " +
-            $"Count = {Count}";
+        private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
+        {
+            builder.Property(x => x.CorrelationId);
+            builder.Property(x => x.CorrelationContext);
+            builder.Property(x => x.Depth);
+        });
 
         public LogScope Parent { get; private set; }
 
@@ -48,7 +50,7 @@ namespace Reusable.OmniLog
             private set => _current.Value = value;
         }
 
-        public static Func<SoftString> NewCorrelationId
+        public static Func<object> NewCorrelationId
         {
             get => _newCorrelationId;
             set => _newCorrelationId = value ?? throw new ArgumentNullException(paramName: nameof(NewCorrelationId));
@@ -56,19 +58,13 @@ namespace Reusable.OmniLog
 
         #region ILogScope
 
-        public SoftString Name
+        public object CorrelationId
         {
-            get => this.Property<SoftString>();
-            private set => this.Property<SoftString>(value);
+            get => this.Property<object>();
+            private set => this.Property<object>(value);
         }
 
-        public SoftString CorrelationId
-        {
-            get => this.Property<SoftString>();
-            private set => this.Property<SoftString>(value);
-        }
-
-        public object Context
+        public object CorrelationContext
         {
             get => this.Property<object>();
             private set => this.Property<object>(value);
@@ -82,9 +78,9 @@ namespace Reusable.OmniLog
 
         #endregion
 
-        public static LogScope Push(SoftString scopeName, SoftString correlationid, object context)
+        public static LogScope Push([CanBeNull] object correlationId, [CanBeNull] object correlationContext)
         {
-            var scope = Current = new LogScope(scopeName, correlationid, context, Current?.Depth + 1 ?? 0)
+            var scope = Current = new LogScope(correlationId, correlationContext, Current?.Depth + 1 ?? 0)
             {
                 Parent = Current
             };

@@ -44,13 +44,13 @@ namespace Reusable.OmniLog
             return log => logPredicate(log) && logPredicate.LogRegex(l => l.Name()?.ToString() ?? string.Empty, pattern, regexOptions)(log);
         }
         
-        [NotNull]
-        public static LogPredicate ScopeRegex([NotNull] this LogPredicate logPredicate, [RegexPattern] string pattern, RegexOptions regexOptions = RegexOptions.IgnoreCase)
-        {
-            if (logPredicate == null) throw new ArgumentNullException(nameof(logPredicate));
+        //[NotNull]
+        //public static LogPredicate ScopeRegex([NotNull] this LogPredicate logPredicate, [RegexPattern] string pattern, RegexOptions regexOptions = RegexOptions.IgnoreCase)
+        //{
+        //    if (logPredicate == null) throw new ArgumentNullException(nameof(logPredicate));
 
-            return log => logPredicate(log) && log.Scopes().Select(scope => scope.Name.ToString()).Any(scope => Regex.IsMatch(scope, pattern, regexOptions));
-        }
+        //    return log => logPredicate(log) && log.Scopes().Select(scope => scope.Name.ToString()).Any(scope => Regex.IsMatch(scope, pattern, regexOptions));
+        //}
 
         [NotNull]
         public static LogPredicate LogRegex([NotNull] this LogPredicate logPredicate, Func<Log, string> getValue, [RegexPattern] string pattern, RegexOptions regexOptions = RegexOptions.None)

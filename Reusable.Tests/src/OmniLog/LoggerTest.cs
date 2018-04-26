@@ -84,17 +84,20 @@ namespace Reusable.OmniLog.Tests
         }
 
         [TestMethod]
-        public void Log_NestedScopes_ScopeNames()
+        public void Log_NestedScopes_CorrelationIds()
         {
             var (memoryRx, _, logger) = MockLogger.Create(new DateTime(2017, 5, 1), 10);
 
-            using (logger.BeginScope("foo", new { TransactionId = 1 }))
-            using (logger.BeginScope("bar", new { TransactionId = 2 }))
+            var correlationId = 3;
+            LogScope.NewCorrelationId = () => correlationId++;
+
+            using (logger.BeginScope(new { TransactionId = 1 }))
+            using (logger.BeginScope(new { TransactionId = 2 }))
             {
                 logger.Debug("Hallo debug!");
-                var scopes = memoryRx.Logs.Single().Scopes().Select(scope => scope.Name.ToString()).ToList();
-                Assert.AreEqual(2, scopes.Count);
-                CollectionAssert.AreEqual(new[] { "bar", "foo" }, scopes.Select(s => s.ToString()).ToList());
+                var scopeCorrelationIds = memoryRx.Logs.Single().Scopes().Select(scope => (int)scope.CorrelationId).ToList();
+                Assert.AreEqual(2, scopeCorrelationIds.Count);
+                Assert.That.Collection().AreEqual(new[] { 3, 4 }, scopeCorrelationIds);
             }
         }
 

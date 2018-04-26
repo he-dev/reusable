@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 using Reusable.Converters;
 using Reusable.DateTimes;
 using Reusable.Diagnostics;
@@ -58,6 +59,8 @@ namespace Reusable.Apps
                     .Environment("development")
                     .Product("Reusable.Apps.Console")
                     .WithRx(NLogRx.Create())
+                    .ScopeSerializer(serializer => { serializer.Formatting = Formatting.None; })
+                    .SnapshotSerializer(serializer => { serializer.Formatting = Formatting.None; })
                     .Build();
 
             var logger = loggerFactory.CreateLogger("Demo");
@@ -65,13 +68,13 @@ namespace Reusable.Apps
             logger.Log(Abstraction.Layer.Infrastructure().Routine("SemLogTest").Running());
 
             // Opening outer-transaction.
-            using (logger.BeginScope("OuterScope", new { CustomerId = 123 }).AttachElapsed())
+            using (logger.BeginScope(new { Name = "OuterScope", CustomerId = 123 }).AttachElapsed())
             {
                 // Logging some single business variable and a message.
                 logger.Log(Abstraction.Layer.Business().Variable(new { foo = "bar" }), log => log.Message("Hallo variable!"));
 
                 // Opening innter-transaction.
-                using (logger.BeginScope("InnerScope", new { ItemId = 456 }).AttachElapsed())
+                using (logger.BeginScope(new { Name = "InnerScope", ItemId = 456 }).AttachElapsed())
                 {
                     // Logging an entire object in a single line.
                     var customer = new { FirstName = "John", LastName = "Doe" };
