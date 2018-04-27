@@ -16,21 +16,21 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "Valut.Primary": {
+    "Kestrel.Development": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "home",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "DevelopmentPrimary"
+        "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "applicationUrl": "http://localhost:54245"
     },
-    "Valut.Secondary": {
+    "Kestrel.Staging": {
       "commandName": "Project",
       "launchBrowser": false,
-      "launchUrl": "api/home",
+      "launchUrl": "home",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "DevelopmentSecondary"
+        "ASPNETCORE_ENVIRONMENT": "Staging"
       },
       "applicationUrl": "http://localhost:54245"
     }

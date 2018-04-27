@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Custom;
 using JetBrains.Annotations;
+using Reusable.Collections;
 using Reusable.OmniLog.Collections;
 
 namespace Reusable.OmniLog.Attachements
@@ -24,13 +26,23 @@ namespace Reusable.OmniLog.Attachements
                 LogScope
                     .Current
                     .Flatten()
-                    .Cast<ILogScope>()
+                    //.Cast<ILogScope>()
+                    .Select(IgnoreAttachements)
                     .ToList();
 
-            return 
-                scopes.Any() 
-                    ? _serializer.Serialize(scopes) 
+            return
+                scopes.Any()
+                    ? _serializer.Serialize(scopes)
                     : default;
+        }
+
+        private static IEnumerable<KeyValuePair<SoftString, object>> IgnoreAttachements(ILog scope)
+        {
+            return
+                from x in scope
+                where !(x.Value is ILogAttachement)
+                orderby x.Key
+                select x;
         }
     }
 }

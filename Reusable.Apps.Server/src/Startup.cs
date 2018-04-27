@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Reusable.Apps.Server.Json;
 using Reusable.AspNetCore.Http;
 using Reusable.OmniLog;
@@ -74,6 +75,8 @@ namespace Reusable.Apps.Server
                     .Environment(_hostingEnvironment.EnvironmentName)
                     .Product("Reusable.Apps.Server")
                     .WithRx(NLogRx.Create())
+                    .ScopeSerializer(serializer => serializer.Formatting = Formatting.None)
+                    .SnapshotSerializer(serializer => serializer.Formatting = Formatting.None)
                     .Build()
             );
 
@@ -91,7 +94,10 @@ namespace Reusable.Apps.Server
 
 
 
-            app.UseSemanticLogger("X-Emerald", product => product is null ? "Unknown" : $"{product}_SemLog3");
+            app.UseSemanticLogger(config =>
+            {
+                config.MapProduct = _ => "Master_SemLog3";
+            });
 
             //app.UseWhen(
             //    httpContext => !httpContext.Request.Method.In(new[] { "GET" }, StringComparer.OrdinalIgnoreCase),

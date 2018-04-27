@@ -53,12 +53,13 @@ namespace Reusable.OmniLog.SemanticExtensions
                                 {
                                     new StringEnumConverter(),
                                     new SoftStringConverter(),
+                                    new KeyValuePairConverter<SoftString, object>()
                                 },
-                                ContractResolver = new CompositeContractResolver
-                                {
-                                    new InterfaceContractResolver<ILogScope>(),
-                                    new DefaultContractResolver()
-                                }
+                                //ContractResolver = new CompositeContractResolver
+                                //{
+                                //    new InterfaceContractResolver<ILogScope>(),
+                                //    new DefaultContractResolver()
+                                //}
                             }
                         }),
                         new OmniLog.Attachements.ElapsedMilliseconds("Elapsed"),
@@ -95,12 +96,13 @@ namespace Reusable.OmniLog.SemanticExtensions
                 {
                     new StringEnumConverter(),
                     new SoftStringConverter(),
+                    new KeyValuePairConverter<SoftString, object>()
                 },
-                ContractResolver = new CompositeContractResolver
-                {
-                    new InterfaceContractResolver<ILogScope>(),
-                    new DefaultContractResolver()
-                }
+                //ContractResolver = new CompositeContractResolver
+                //{
+                //    new InterfaceContractResolver<ILogScope>(),
+                //    new DefaultContractResolver()
+                //}
             };
 
             _snapshotSerializerSettings = new JsonSerializerSettings

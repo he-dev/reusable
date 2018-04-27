@@ -68,13 +68,13 @@ namespace Reusable.Apps
             logger.Log(Abstraction.Layer.Infrastructure().Routine("SemLogTest").Running());
 
             // Opening outer-transaction.
-            using (logger.BeginScope(new { Name = "OuterScope", CustomerId = 123 }).AttachElapsed())
+            using (logger.BeginScope().WithCorrelationId().WithCorrelationContext(new { Name = "OuterScope", CustomerId = 123 }).AttachElapsed())
             {
                 // Logging some single business variable and a message.
                 logger.Log(Abstraction.Layer.Business().Variable(new { foo = "bar" }), log => log.Message("Hallo variable!"));
 
                 // Opening innter-transaction.
-                using (logger.BeginScope(new { Name = "InnerScope", ItemId = 456 }).AttachElapsed())
+                using (logger.BeginScope().WithCorrelationId().WithCorrelationContext(new { Name = "InnerScope", ItemId = 456 }).AttachElapsed())
                 {
                     // Logging an entire object in a single line.
                     var customer = new { FirstName = "John", LastName = "Doe" };

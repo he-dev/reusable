@@ -99,7 +99,13 @@ namespace Reusable.OmniLog
             return log;
         }
 
-        public static ILog With<T>(this ILog log, SoftString name, T value)
+        //public static ILog With<T>(this ILog log, SoftString name, T value)
+        //{
+        //    log[name] = value;
+        //    return log;
+        //}
+
+        public static TLog With<TLog, T>(this TLog log, SoftString name, T value) where TLog : ILog
         {
             log[name] = value;
             return log;

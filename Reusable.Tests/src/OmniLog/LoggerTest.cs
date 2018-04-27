@@ -88,16 +88,13 @@ namespace Reusable.OmniLog.Tests
         {
             var (memoryRx, _, logger) = MockLogger.Create(new DateTime(2017, 5, 1), 10);
 
-            var correlationId = 3;
-            LogScope.NewCorrelationId = () => correlationId++;
-
-            using (logger.BeginScope(new { TransactionId = 1 }))
-            using (logger.BeginScope(new { TransactionId = 2 }))
+            using (logger.BeginScope().WithCorrelationId(1))
+            using (logger.BeginScope().WithCorrelationId(2))
             {
                 logger.Debug("Hallo debug!");
-                var scopeCorrelationIds = memoryRx.Logs.Single().Scopes().Select(scope => (int)scope.CorrelationId).ToList();
+                var scopeCorrelationIds = memoryRx.Logs.Single().Scopes().Select(scope => scope.CorrelationId<int>()).ToList();
                 Assert.AreEqual(2, scopeCorrelationIds.Count);
-                Assert.That.Collection().AreEqual(new[] { 3, 4 }, scopeCorrelationIds);
+                Assert.AreEqual(0, new[] { 1, 2 }.Except(scopeCorrelationIds).Count());
             }
         }
 

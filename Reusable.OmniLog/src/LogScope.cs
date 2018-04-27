@@ -10,32 +10,28 @@ using Reusable.OmniLog.Collections;
 
 namespace Reusable.OmniLog
 {
-    public interface ILogScope
+    public interface ILogScope : ILog, IDisposable
     {
-        object CorrelationId { get; }
-        object CorrelationContext { get; }
+        //object CorrelationId { get; }
+        //object CorrelationContext { get; }
         int Depth { get; }
     }
 
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    public class LogScope : Log, ILogScope, IDisposable
+    public class LogScope : Log, ILogScope
     {
         // ReSharper disable once InconsistentNaming - This cannot be renamed because it'd confilict with the property that has the same name.
         private static readonly AsyncLocal<LogScope> _current = new AsyncLocal<LogScope>();
 
-        private static Func<object> _newCorrelationId = () => Guid.NewGuid().ToString("N");
-
-        private LogScope(object correlationId, object correlationContext, int depth)
+        private LogScope(int depth)
         {
-            CorrelationId = correlationId ?? NewCorrelationId();
-            CorrelationContext = correlationContext;
             Depth = depth;
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
         {
-            builder.Property(x => x.CorrelationId);
-            builder.Property(x => x.CorrelationContext);
+            //builder.Property(x => x.CorrelationId);
+            //builder.Property(x => x.CorrelationContext);
             builder.Property(x => x.Depth);
         });
 
@@ -50,25 +46,19 @@ namespace Reusable.OmniLog
             private set => _current.Value = value;
         }
 
-        public static Func<object> NewCorrelationId
-        {
-            get => _newCorrelationId;
-            set => _newCorrelationId = value ?? throw new ArgumentNullException(paramName: nameof(NewCorrelationId));
-        }
-
         #region ILogScope
 
-        public object CorrelationId
-        {
-            get => this.Property<object>();
-            private set => this.Property<object>(value);
-        }
+        //public object CorrelationId
+        //{
+        //    get => this.Property<object>();
+        //    //private set => this.Property<object>(value);
+        //}
 
-        public object CorrelationContext
-        {
-            get => this.Property<object>();
-            private set => this.Property<object>(value);
-        }
+        //public object CorrelationContext
+        //{
+        //    get => this.Property<object>();
+        //    //private set => this.Property<object>(value);
+        //}
 
         public int Depth
         {
@@ -78,9 +68,18 @@ namespace Reusable.OmniLog
 
         #endregion
 
-        public static LogScope Push([CanBeNull] object correlationId, [CanBeNull] object correlationContext)
+        //public static LogScope Push([CanBeNull] object correlationId, [CanBeNull] object correlationContext)
+        //{
+        //    var scope = Current = new LogScope(correlationId, correlationContext, Current?.Depth + 1 ?? 0)
+        //    {
+        //        Parent = Current
+        //    };
+        //    return scope;
+        //}
+
+        public static LogScope Push()
         {
-            var scope = Current = new LogScope(correlationId, correlationContext, Current?.Depth + 1 ?? 0)
+            var scope = Current = new LogScope(Current?.Depth + 1 ?? 0)
             {
                 Parent = Current
             };
