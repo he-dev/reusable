@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Http.Headers;
 
-namespace Reusable.Net
+namespace Reusable.Net.Http
 {
     public class HttpRequestHeadersConfiguration
     {

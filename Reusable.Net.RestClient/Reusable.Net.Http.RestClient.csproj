@@ -2,7 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net47</TargetFramework>
-    <RootNamespace>Reusable.Net</RootNamespace>
+    <RootNamespace>Reusable.Net.Http</RootNamespace>
+    <AssemblyName>Reusable.Net.Http.RestClient</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -19,7 +20,7 @@
 
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
-    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.4" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.5" />
   </ItemGroup>
 
   <ItemGroup>

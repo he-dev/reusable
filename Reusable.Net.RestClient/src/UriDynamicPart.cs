@@ -3,7 +3,7 @@ using System.Linq;
 using System.Web;
 using JetBrains.Annotations;
 
-namespace Reusable.Net
+namespace Reusable.Net.Http
 {
     [PublicAPI]
     public class UriDynamicPart

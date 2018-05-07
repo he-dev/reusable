@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-namespace Reusable.Net
+namespace Reusable.Net.Http
 {
     public static class RestClientExtensions
     {

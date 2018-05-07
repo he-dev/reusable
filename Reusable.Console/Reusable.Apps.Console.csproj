@@ -135,9 +135,9 @@
       <Project>{429e2201-906e-4484-9361-4a16170b0d99}</Project>
       <Name>Reusable.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Reusable.Net.RestClient\Reusable.Net.RestClient.csproj">
+    <ProjectReference Include="..\Reusable.Net.RestClient\Reusable.Net.Http.RestClient.csproj">
       <Project>{7A9510A9-0FC7-4532-BEEC-8F1AF97BDFAD}</Project>
-      <Name>Reusable.Net.RestClient</Name>
+      <Name>Reusable.Net.Http.RestClient</Name>
     </ProjectReference>
     <ProjectReference Include="..\Reusable.OmniLog.ColoredConsoleRx\Reusable.OmniLog.ColoredConsoleRx.csproj">
       <Project>{6c54ecc6-ebbd-4d16-bc03-454d83013136}</Project>

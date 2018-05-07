@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Formatting;
 using JetBrains.Annotations;
 
-namespace Reusable.Net
+namespace Reusable.Net.Http
 {
     [PublicAPI]
     public class HttpMethodContext

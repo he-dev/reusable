@@ -52,7 +52,7 @@
     <ProjectReference Include="..\Reusable.Csv\Reusable.Csv.csproj" />
     <ProjectReference Include="..\Reusable.Flawless\Reusable.Flawless.csproj" />
     <ProjectReference Include="..\Reusable.Net.Mail\Reusable.Net.Mail.csproj" />
-    <ProjectReference Include="..\Reusable.Net.RestClient\Reusable.Net.RestClient.csproj" />
+    <ProjectReference Include="..\Reusable.Net.RestClient\Reusable.Net.Http.RestClient.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog.NLogRx\Reusable.OmniLog.NLogRx.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog.SemLog\Reusable.OmniLog.SemanticExtensions.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog.Utilities\Reusable.OmniLog.Utilities.csproj" />

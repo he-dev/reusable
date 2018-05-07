@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Diagnostics;
 
-namespace Reusable.Net
+namespace Reusable.Net.Http
 {
     [PublicAPI]
     public interface IRestClient

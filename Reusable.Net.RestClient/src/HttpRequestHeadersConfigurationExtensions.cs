@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Net.Http.Headers;
 
-namespace Reusable.Net
+namespace Reusable.Net.Http
 {
     public static class HttpRequestHeadersConfigurationExtensions
     {

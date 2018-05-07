@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.Net.RestClient</id>
-    <version>5.0.0</version>
-    <title>Reusable.Net.RestClient</title>
+    <id>Reusable.Net.Http.RestClient</id>
+    <version>5.1.0</version>
+    <title>Reusable.Net.Http.RestClient</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
@@ -17,11 +17,11 @@
     <dependencies>
       <dependency id="JetBrains.Annotations" version="11.1.0" />
       <dependency id="Microsoft.AspNet.WebApi.Client" version="5.2.4" />
-      <dependency id="Reusable.Core" version="5.0.0" />
+      <dependency id="Reusable.Core" version="5.1.0" />
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\net47\Reusable.Net.RestClient.dll" target="lib\net47" />
-    <file src="bin\Release\net47\Reusable.Net.RestClient.pdb" target="lib\net47" />
+    <file src="bin\Release\net47\Reusable.Net.Http.RestClient.dll" target="lib\net47" />
+    <file src="bin\Release\net47\Reusable.Net.Http.RestClient.pdb" target="lib\net47" />
   </files>
 </package>
