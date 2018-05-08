@@ -24,8 +24,8 @@ namespace Reusable.Utilities.JsonNet
             foreach (var item in items)
             {
                 writer.WritePropertyName(item.Key.ToString());
-                writer.WriteValue(item.Value);
-                //serializer.Serialize(writer, item.Value);
+                //writer.WriteValue(item.Value);
+                serializer.Serialize(writer, item.Value);
             }
             writer.WriteEndObject();
         }

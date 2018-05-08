@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.AspNetCore.Http.SemanticLogger</id>
-    <version>5.1.0</version>
+    <version>5.2.1</version>
     <title>Reusable.AspNetCore.Http.SemanticLogger</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -22,8 +22,8 @@
       <dependency id="Microsoft.Tpl.Dataflow" version="4.5.24" />
       <dependency id="System.ValueTuple" version="4.4.0" />
       <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.0.2" />
-      <dependency id="Reusable.OmniLog.SemanticExtensions" version="5.1.0" />
-      <dependency id="Reusable.OmniLog" version="5.1.0" />
+      <dependency id="Reusable.OmniLog.SemanticExtensions" version="5.2.1" />
+      <dependency id="Reusable.OmniLog" version="5.2.1" />
     </dependencies>
   </metadata>
   <files>
