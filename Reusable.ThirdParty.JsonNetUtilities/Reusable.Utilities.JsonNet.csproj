@@ -51,7 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="src\Extensions\SerializerExtensions.cs" />
+    <Compile Include="src\Extensions\JsonSerializerExtensions.cs" />
     <Compile Include="src\KeyValuePairConverter.cs" />
     <Compile Include="src\Serialization\CompositeContractResolver.cs" />
     <Compile Include="src\Serialization\InterfaceContractResolver.cs" />

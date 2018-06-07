@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace Reusable.Utilities.JsonNet.Extensions
 {
-    public static class SerializerExtensions
+    public static class JsonSerializerExtensions
     {
         [NotNull]
         public static byte[] SerializeToBytes<T>([NotNull] this JsonSerializer jsonSerializer, [NotNull] T obj)
@@ -22,7 +22,8 @@ namespace Reusable.Utilities.JsonNet.Extensions
             using (var jsonWriter = new JsonTextWriter(textWriter))
             {
                 jsonSerializer.Serialize(jsonWriter, obj);
-                return memoryStream.GetBuffer();
+                jsonWriter.Flush();
+                return memoryStream.ToArray();
             }
         }
 
