@@ -21,7 +21,7 @@ namespace Reusable.Utilities.JsonNet.Extensions
             using (var textWriter = new StreamWriter(memoryStream))
             using (var jsonWriter = new JsonTextWriter(textWriter))
             {
-                jsonSerializer.Serialize(jsonWriter, new object());
+                jsonSerializer.Serialize(jsonWriter, obj);
                 return memoryStream.GetBuffer();
             }
         }

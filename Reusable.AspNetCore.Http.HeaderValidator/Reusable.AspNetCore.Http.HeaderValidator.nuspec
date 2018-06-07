@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.AspNetCore.Http.HeaderValidator</id>
-    <version>5.2.2</version>
+    <version>5.2.3</version>
     <title>Reusable.AspNetCore.Http.HeaderValidator</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -18,8 +18,8 @@
       <dependency id="JetBrains.Annotations" version="11.1.0" />
       <dependency id="System.ValueTuple" version="4.4.0" />
       <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.0.2" />
-      <dependency id="Reusable.Core" version="5.2.2" />
-      <dependency id="Reusable.OmniLog" version="5.2.2" />
+      <dependency id="Reusable.Core" version="5.2.3" />
+      <dependency id="Reusable.OmniLog" version="5.2.3" />
     </dependencies>
   </metadata>
   <files>
