@@ -169,6 +169,7 @@
     <Compile Include="src\Reflection\TypeExtensions.cs" />
     <Compile Include="src\Extensions\StringInterpolation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\Tupleizer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
