@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Commander</id>
-    <version>5.2.1</version>
+    <version>5.2.6</version>
     <title>Reusable.Commander</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -15,20 +15,20 @@
     <copyright>Copyright 2016 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
-      <dependency id="Autofac" version="4.8.0" />
+      <dependency id="Autofac" version="4.8.1" />
       <dependency id="JetBrains.Annotations" version="11.1.0" />
       <dependency id="Newtonsoft.Json" version="11.0.2" />
-      <dependency id="System.Collections.Immutable" version="1.4.0" />
-      <dependency id="System.Reactive" version="3.1.1" />
-      <dependency id="System.Reactive.Core" version="3.1.1" />
-      <dependency id="System.Reactive.Interfaces" version="3.1.1" />
-      <dependency id="System.Reactive.Linq" version="3.1.1" />
-      <dependency id="System.Reactive.PlatformServices" version="3.1.1" />
-      <dependency id="System.Reactive.Windows.Threading" version="3.1.1" />
-      <dependency id="System.ValueTuple" version="4.4.0" />
-      <dependency id="Reusable.OmniLog" version="5.2.1" />
-      <dependency id="Reusable.Converters" version="5.2.1" />
-      <dependency id="Reusable.Core" version="5.2.1" />
+      <dependency id="System.Collections.Immutable" version="1.5.0" />
+      <dependency id="System.Reactive" version="4.0.0" />
+      <dependency id="System.Reactive.Core" version="4.0.0" />
+      <dependency id="System.Reactive.Interfaces" version="4.0.0" />
+      <dependency id="System.Reactive.Linq" version="4.0.0" />
+      <dependency id="System.Reactive.PlatformServices" version="4.0.0" />
+      <dependency id="System.Reactive.Windows.Threading" version="4.0.0" />
+      <dependency id="System.ValueTuple" version="4.5.0" />
+      <dependency id="Reusable.OmniLog" version="5.2.6" />
+      <dependency id="Reusable.Converters" version="5.2.6" />
+      <dependency id="Reusable.Core" version="5.2.6" />
     </dependencies>
   </metadata>
   <files>
