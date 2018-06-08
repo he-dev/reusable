@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,11 +16,15 @@ namespace Reusable.Tests.Utilities.JsonNet.Extensions
         [TestMethod]
         public void SerializeToBytes_string_bytes()
         {
-            var bytes = new JsonSerializer().SerializeToBytes("foo");
-            Assert.AreEqual(5, bytes.Length);
+            using (var memoryStream = new MemoryStream())
+            {
+                new JsonSerializer().Serialize(memoryStream, "foo");
+                var bytes = memoryStream.ToArray();
+                Assert.AreEqual(5, bytes.Length);
 
-            var foo = new JsonSerializer().Deserialize<string>(bytes);
-            Assert.AreEqual("foo", foo);
+                var foo = new JsonSerializer().Deserialize<string>(memoryStream);
+                Assert.AreEqual("foo", foo);
+            }
         }
     }
 }

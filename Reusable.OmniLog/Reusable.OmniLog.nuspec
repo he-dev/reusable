@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.OmniLog</id>
-    <version>5.2.5</version>
+    <version>5.2.6</version>
     <title>Reusable.OmniLog</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -24,7 +24,7 @@
       <dependency id="System.Reactive.PlatformServices" version="4.0.0" />
       <dependency id="System.Reactive.Windows.Threading" version="4.0.0" />
       <dependency id="System.ValueTuple" version="4.5.0" />
-      <dependency id="Reusable.Core" version="5.2.5" />
+      <dependency id="Reusable.Core" version="5.2.6" />
     </dependencies>
   </metadata>
   <files>

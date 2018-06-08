@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.MQLite</id>
-    <version>5.2.5</version>
+    <version>5.2.6</version>
     <title>Reusable.MQLite</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -17,7 +17,7 @@
     <dependencies>
       <dependency id="Microsoft.EntityFrameworkCore" version="2.1.0" />
       <dependency id="Microsoft.EntityFrameworkCore.SqlServer" version="2.1.0" />
-      <dependency id="Reusable.Core" version="5.2.5" />
+      <dependency id="Reusable.Core" version="5.2.6" />
     </dependencies>
   </metadata>
   <files>

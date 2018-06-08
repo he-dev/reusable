@@ -11,30 +11,27 @@ namespace Reusable.Utilities.JsonNet.Extensions
 {
     public static class JsonSerializerExtensions
     {
-        [NotNull]
-        public static byte[] SerializeToBytes<T>([NotNull] this JsonSerializer jsonSerializer, [NotNull] T obj)
+        public static void Serialize<T>([NotNull] this JsonSerializer jsonSerializer, [NotNull] Stream stream, [NotNull] T obj)
         {
             if (jsonSerializer == null) throw new ArgumentNullException(nameof(jsonSerializer));
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
             if (obj == null) throw new ArgumentNullException(nameof(obj));
 
-            using (var memoryStream = new MemoryStream())
-            using (var textWriter = new StreamWriter(memoryStream))
+            using (var textWriter = new StreamWriter(stream))
             using (var jsonWriter = new JsonTextWriter(textWriter))
             {
                 jsonSerializer.Serialize(jsonWriter, obj);
                 jsonWriter.Flush();
-                return memoryStream.ToArray();
             }
         }
 
         [NotNull]
-        public static T Deserialize<T>([NotNull] this JsonSerializer jsonSerializer, [NotNull] byte[] body)
+        public static T Deserialize<T>([NotNull] this JsonSerializer jsonSerializer, [NotNull] Stream stream)
         {
             if (jsonSerializer == null) throw new ArgumentNullException(nameof(jsonSerializer));
-            if (body == null) throw new ArgumentNullException(nameof(body));
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
 
-            using (var memoryStream = new MemoryStream(body))
-            using (var streamReader = new StreamReader(memoryStream))
+            using (var streamReader = new StreamReader(stream))
             using (var jsonTextReader = new JsonTextReader(streamReader))
             {
                 return jsonSerializer.Deserialize<T>(jsonTextReader);
