@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.OmniLog.SemanticExtensions</id>
-    <version>5.2.3</version>
+    <version>5.2.5</version>
     <title>Reusable.OmniLog.SemanticExtensions</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -17,17 +17,17 @@
     <dependencies>
       <dependency id="JetBrains.Annotations" version="11.1.0" />
       <dependency id="Newtonsoft.Json" version="11.0.2" />
-      <dependency id="System.Reactive" version="3.1.1" />
-      <dependency id="System.Reactive.Core" version="3.1.1" />
-      <dependency id="System.Reactive.Interfaces" version="3.1.1" />
-      <dependency id="System.Reactive.Linq" version="3.1.1" />
-      <dependency id="System.Reactive.PlatformServices" version="3.1.1" />
-      <dependency id="System.Reactive.Windows.Threading" version="3.1.1" />
-      <dependency id="System.ValueTuple" version="4.4.0" />
-      <dependency id="Reusable.Core" version="5.2.3" />
-      <dependency id="Reusable.Flawless" version="5.2.3" />
-      <dependency id="Reusable.OmniLog" version="5.2.3" />
-      <dependency id="Reusable.Utilities.JsonNet" version="5.2.3" />
+      <dependency id="System.Reactive" version="4.0.0" />
+      <dependency id="System.Reactive.Core" version="4.0.0" />
+      <dependency id="System.Reactive.Interfaces" version="4.0.0" />
+      <dependency id="System.Reactive.Linq" version="4.0.0" />
+      <dependency id="System.Reactive.PlatformServices" version="4.0.0" />
+      <dependency id="System.Reactive.Windows.Threading" version="4.0.0" />
+      <dependency id="System.ValueTuple" version="4.5.0" />
+      <dependency id="Reusable.Core" version="5.2.5" />
+      <dependency id="Reusable.Flawless" version="5.2.5" />
+      <dependency id="Reusable.OmniLog" version="5.2.5" />
+      <dependency id="Reusable.Utilities.JsonNet" version="5.2.5" />
     </dependencies>
   </metadata>
   <files>
