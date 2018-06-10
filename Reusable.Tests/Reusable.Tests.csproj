@@ -57,8 +57,6 @@
     <ProjectReference Include="..\Reusable.OmniLog.SemLog\Reusable.OmniLog.SemanticExtensions.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog.Utilities\Reusable.OmniLog.Utilities.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog\Reusable.OmniLog.csproj" />
-    <ProjectReference Include="..\Reusable.MQLite.Abstractions\Reusable.MQLite.Abstractions.csproj" />
-    <ProjectReference Include="..\Reusable.MQLite.JsonBody\Reusable.MQLite.JsonBody.csproj" />
     <ProjectReference Include="..\Reusable.MQLite\Reusable.MQLite.csproj" />
     <ProjectReference Include="..\Reusable.SemanticVersion\Reusable.SemanticVersion.csproj" />
     <ProjectReference Include="..\Reusable.Tester\Reusable.Utilities.MSTest.csproj" />

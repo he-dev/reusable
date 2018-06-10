@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Reusable.Net;
+using Reusable.Net.Http;
 
 namespace Reusable.Apps.Demos
 {

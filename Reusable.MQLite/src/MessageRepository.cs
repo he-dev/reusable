@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Reusable.MQLite.Entities;
 using Reusable.MQLite.Models;
+using TimeRange = Reusable.MQLite.Entities.TimeRange;
 
 [assembly: InternalsVisibleTo("Reusable.Tests")]
 
@@ -18,7 +19,7 @@ namespace Reusable.MQLite
     {
         Task<bool> ExistsAsync(string name, CancellationToken cancellationToken);
 
-        Task<int> EnqueueAsync(string name, Range<DateTime> timeRange, IEnumerable<NewMessage> data, EnqueueOptions options, CancellationToken cancellationToken);
+        Task<int> EnqueueAsync(string name, Range<DateTime> timeRange, IEnumerable<NewMessage> data, TimeSpan expires, CancellationToken cancellationToken);
 
         Task<List<Models.PendingMessage>> PeekAsync(string name, int count, CancellationToken cancellationToken);
 
@@ -28,11 +29,11 @@ namespace Reusable.MQLite
 
         Task<int> GetTimeRangeCountAsync(string name, CancellationToken cancellationToken);
 
-        Task<List<Models.TimeRange>> GetLastTimeRangeAsync(string name, int count, CancellationToken cancellationToken);
+        Task<Models.TimeRange> GetLastTimeRangeAsync(string name, bool ignoreEmpty, CancellationToken cancellationToken);
 
-        Task<int> RemoveTimeRangesAsync(string name, int count, CancellationToken cancellationToken);
+        Task<int> RemoveTimeRangesAsync(string name, DateTime? createdOnMin, DateTime? createdOnMax, CancellationToken cancellationToken);
 
-        Task<int> RemoveMessagesAsync(string name, int count, RemoveMessageOptions options, CancellationToken cancellationToken);
+        Task<int> RemoveMessagesAsync(string name, DateTime? createdOnMin, DateTime? createdOnMax, CancellationToken cancellationToken);
     }
 
     public class MessageRepository : IMessageRepository
@@ -59,39 +60,23 @@ namespace Reusable.MQLite
             }
         }
 
-        public async Task<int> EnqueueAsync(string name, Range<DateTime> timeRange, IEnumerable<NewMessage> data, EnqueueOptions options, CancellationToken cancellationToken)
+        public async Task<int> EnqueueAsync(string name, Range<DateTime> timeRange, IEnumerable<NewMessage> data, TimeSpan expires, CancellationToken cancellationToken)
         {
-            const int nothingEnqueued = 0;
-
             using (var context = CreateContext())
             {
-                var uniqueInQueue = options.HasFlag(EnqueueOptions.UniqueInQueue);
-                var uniqueInPending = options.HasFlag(EnqueueOptions.UniqueInPending);
-
-                var checkUniqueness =
-                    uniqueInQueue ||
-                    uniqueInPending;
+                var now = await GetUtcDateAsync(context.Database.GetDbConnection(), cancellationToken);
 
                 var messages =
                     (from item in data
-                     let isUniqueInQueue = uniqueInQueue && !context.Messages.Any(m => m.TimeRange.Queue.Name == name && m.Fingerprint == item.Fingerprint)
-                     let isUniqueInPending = uniqueInPending && !context.Messages.Any(m => m.TimeRange.Queue.Name == name && m.Fingerprint == item.Fingerprint && m.DeletedOn == null)
-                     where
-                        !checkUniqueness ||
-                        isUniqueInQueue ||
-                        isUniqueInPending
+                     let isNew = !context.Messages.Any(Exists(item.Fingerprint))
+                     let isExpired = !isNew && !context.Messages.Any(IsValid(item.Fingerprint, now))
+                     where isNew || isExpired
                      select new Message
                      {
                          Body = item.Body,
                          Fingerprint = item.Fingerprint
                      })
                     .ToList();
-
-                var allowEmptyTimeRange = options.HasFlag(EnqueueOptions.AllowEmptyTimeRange);
-                if (!messages.Any() && !allowEmptyTimeRange)
-                {
-                    return nothingEnqueued;
-                }
 
                 var newTimeRange = new Entities.TimeRange
                 {
@@ -104,6 +89,23 @@ namespace Reusable.MQLite
                 await context.TimeRanges.AddAsync(newTimeRange, cancellationToken);
                 return await context.SaveChangesAsync(cancellationToken);
             }
+
+            Expression<Func<Message, bool>> Exists(byte[] fingerprint)
+            {
+                return m =>
+                    m.TimeRange.Queue.Name == name &&
+                    m.Fingerprint == fingerprint &&
+                    m.DeletedOn == null;
+            }
+
+            Expression<Func<Message, bool>> IsValid(byte[] fingerprint, DateTime now)
+            {
+                return m =>
+                    m.TimeRange.Queue.Name == name &&
+                    m.Fingerprint == fingerprint &&
+                    m.DeletedOn != null &&
+                    now - m.TimeRange.CreatedOn <= expires;
+            }
         }
 
         public async Task<List<Models.PendingMessage>> PeekAsync(string name, int count, CancellationToken cancellationToken)
@@ -114,7 +116,6 @@ namespace Reusable.MQLite
                     await context
                         .Messages.AsNoTracking()
                         .Where(m => m.TimeRange.Queue.Name == name && m.DeletedOn == null)
-                        .OrderBy(m => m.Id)
                         .Take(count)
                         .Select(m => new Models.PendingMessage
                         {
@@ -190,53 +191,47 @@ namespace Reusable.MQLite
             }
         }
 
-        public async Task<List<Models.TimeRange>> GetLastTimeRangeAsync(string name, int count, CancellationToken cancellationToken)
+        public async Task<Models.TimeRange> GetLastTimeRangeAsync(string name, bool ignoreEmpty, CancellationToken cancellationToken)
         {
             using (var context = CreateContext())
             {
-                return
+                var lastTimeRange =
                     await context
                         .TimeRanges.AsNoTracking()
-                        .Where(tr => tr.Queue.Name == name)
                         .OrderByDescending(tr => tr.Id)
-                        .Take(count)
-                        .Select(p => new Models.TimeRange
-                        {
-                            Id = p.Id,
-                            StartsOn = p.StartsOn,
-                            EndsOn = p.EndsOn,
-                            CreatedOn = p.CreatedOn
-                        })
-                        .ToListAsync(cancellationToken);
+                        .FirstOrDefaultAsync(tr => tr.Queue.Name == name && ((ignoreEmpty && tr.Messages.Count > 0) || true), cancellationToken);
+
+                return lastTimeRange == null ? null : new Models.TimeRange
+                {
+                    Id = lastTimeRange.Id,
+                    StartsOn = lastTimeRange.StartsOn,
+                    EndsOn = lastTimeRange.EndsOn,
+                    CreatedOn = lastTimeRange.CreatedOn
+                };
             }
         }
 
-        public async Task<int> RemoveTimeRangesAsync(string name, int count, CancellationToken cancellationToken)
+        public async Task<int> RemoveTimeRangesAsync(string name, DateTime? createdOnMin, DateTime? createdOnMax, CancellationToken cancellationToken)
         {
             using (var context = CreateContext())
             {
                 var timeRanges =
                     context
                         .TimeRanges
-                        .Where(tr => tr.Queue.Name == name)
-                        .Take(count)
+                        .Where(tr => 
+                            tr.Queue.Name == name && 
+                            (!createdOnMin.HasValue || createdOnMin.Value <= tr.CreatedOn) &&
+                            (!createdOnMax.HasValue || tr.CreatedOn <= createdOnMax.Value)
+                        )
                         .Select(tr => tr);
-                        //.ToArrayAsync(cancellationToken);
-
-                //var optionalTake = new OptionalTake();
-                //var newExpression = optionalTake.Visit(timeRanges.Expression);
 
                 context.TimeRanges.RemoveRange(timeRanges);
                 return await context.SaveChangesAsync(cancellationToken);
             }
         }
 
-        public async Task<int> RemoveMessagesAsync(string name, int count, RemoveMessageOptions options, CancellationToken cancellationToken)
+        public async Task<int> RemoveMessagesAsync(string name, DateTime? createdOnMin, DateTime? createdOnMax, CancellationToken cancellationToken)
         {
-            var pendingOnly = options.HasFlag(RemoveMessageOptions.PendingOnly);
-            var deletedOnly = options.HasFlag(RemoveMessageOptions.DeletedOnly);
-            var any = options.HasFlag(RemoveMessageOptions.Any);
-
             using (var context = CreateContext())
             {
                 var messages =
@@ -244,13 +239,9 @@ namespace Reusable.MQLite
                         .Messages
                         .Where(m => 
                             m.TimeRange.Queue.Name == name && 
-                            (
-                                any || 
-                                (pendingOnly && m.DeletedOn == null) || 
-                                (deletedOnly && m.DeletedOn != null)
-                            )
+                            (!createdOnMin.HasValue || createdOnMin.Value <= m.TimeRange.CreatedOn) &&
+                            (!createdOnMax.HasValue || m.TimeRange.CreatedOn <= createdOnMax.Value)
                         )
-                        .Take(count)
                         .Select(tr => tr)
                         .ToArrayAsync(cancellationToken);
 
@@ -286,38 +277,12 @@ namespace Reusable.MQLite
                 return (DateTime)await command.ExecuteScalarAsync(cancellationToken);
             }
         }
-    }
 
-    [Flags]
-    public enum EnqueueOptions
-    {
-        None = 1 << 0,
-        AllowEmptyTimeRange = 1 << 1,
-        UniqueInPending = 1 << 2,
-        UniqueInQueue = 1 << 3
-    }
-
-    [Flags]
-    public enum RemoveMessageOptions
-    {
-        None = 1 << 0,
-        PendingOnly = 1 << 1,
-        DeletedOnly = 1 << 2,
-        Any =
-            PendingOnly |
-            DeletedOnly
-    }
-
-    internal class OptionalTake : ExpressionVisitor
-    {
-        protected override Expression VisitInvocation(InvocationExpression node)
-        {
-            return base.VisitInvocation(node);
-        }
-
-        protected override Expression VisitMethodCall(MethodCallExpression node)
-        {
-            return base.VisitMethodCall(node);
-        }
+        //private static Expression<Func<TimeRange, bool>> IsCreatedBetween(DateTime? createdOnMin, DateTime? createdOnMax)
+        //{
+        //    return tr =>
+        //        (!createdOnMin.HasValue || createdOnMin.Value <= tr.CreatedOn) &&
+        //        (!createdOnMax.HasValue || tr.CreatedOn <= createdOnMax.Value);
+        //}
     }
 }

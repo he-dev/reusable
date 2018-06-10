@@ -17,8 +17,7 @@ using Reusable.MQLite.Models;
 
 // ReSharper disable InconsistentNaming - it's test code so naming doesn't matter.
 
-// namespace Reusable.Tests.MQLite
-namespace Reusable.Tests.QLite
+namespace Reusable.Tests.MQLite
 {
     [TestClass]
     public class MessageRepositoryTest
@@ -29,7 +28,14 @@ namespace Reusable.Tests.QLite
         {
             public const string TestQueue1 = nameof(TestQueue1);
             public const string TestQueue2 = nameof(TestQueue2);
-            public const string TestQueue3 = nameof(TestQueue3);
+            public const string ControlQueue = nameof(ControlQueue);
+
+            public static IEnumerable<string> Enumerate()
+            {
+                yield return TestQueue1;
+                yield return TestQueue2;
+                yield return ControlQueue;
+            }
         }
 
         private static class TimeRanges
@@ -46,17 +52,20 @@ namespace Reusable.Tests.QLite
         {
             _repository = new MessageRepository(ConnectonString);
 
-            var removedTimeRanges1 = await _repository.RemoveTimeRangesAsync(QueueNames.TestQueue1, 200, CancellationToken.None);
-            var removedTimeRanges2 = await _repository.RemoveTimeRangesAsync(QueueNames.TestQueue2, 200, CancellationToken.None);
-            var removedTimeRanges3 = await _repository.RemoveTimeRangesAsync(QueueNames.TestQueue3, 200, CancellationToken.None);
+            // make sure we're starting with empty queues
+            foreach (var queueName in QueueNames.Enumerate())
+            {
+                var removedTimeRanges1 = await _repository.RemoveTimeRangesAsync(queueName, null, null, CancellationToken.None);
+                Assert.AreEqual(0, await _repository.GetTimeRangeCountAsync(queueName, CancellationToken.None));
+                Assert.AreEqual(0, await _repository.GetMessageCountAsync(queueName, CancellationToken.None));
+            }
+        }
 
-            Assert.AreEqual(0, await _repository.GetTimeRangeCountAsync(QueueNames.TestQueue1, CancellationToken.None));
-            Assert.AreEqual(0, await _repository.GetTimeRangeCountAsync(QueueNames.TestQueue2, CancellationToken.None));
-            Assert.AreEqual(0, await _repository.GetTimeRangeCountAsync(QueueNames.TestQueue3, CancellationToken.None));
-
-            Assert.AreEqual(0, await _repository.GetMessageCountAsync(QueueNames.TestQueue1, CancellationToken.None));
-            Assert.AreEqual(0, await _repository.GetMessageCountAsync(QueueNames.TestQueue2, CancellationToken.None));
-            Assert.AreEqual(0, await _repository.GetMessageCountAsync(QueueNames.TestQueue3, CancellationToken.None));
+        [TestMethod]
+        public async Task FullSimulation()
+        {
+            _repository.EnqueueAsync(QueueNames.TestQueue1, )
+            await Task.CompletedTask;
         }
 
         [TestMethod]
@@ -74,7 +83,7 @@ namespace Reusable.Tests.QLite
             Assert.AreEqual(1, enqueueCount);
             Assert.AreEqual(1, await _repository.GetTimeRangeCountAsync(QueueNames.TestQueue1, CancellationToken.None));
             Assert.AreEqual(0, await _repository.GetTimeRangeCountAsync(QueueNames.TestQueue2, CancellationToken.None));
-            Assert.AreEqual(0, await _repository.GetTimeRangeCountAsync(QueueNames.TestQueue3, CancellationToken.None));
+            Assert.AreEqual(0, await _repository.GetTimeRangeCountAsync(QueueNames.ControlQueue, CancellationToken.None));
         }
 
         [TestMethod]
@@ -92,7 +101,7 @@ namespace Reusable.Tests.QLite
             Assert.AreEqual(0, enqueueCount);
             Assert.AreEqual(0, await _repository.GetTimeRangeCountAsync(QueueNames.TestQueue1, CancellationToken.None));
             Assert.AreEqual(0, await _repository.GetTimeRangeCountAsync(QueueNames.TestQueue2, CancellationToken.None));
-            Assert.AreEqual(0, await _repository.GetTimeRangeCountAsync(QueueNames.TestQueue3, CancellationToken.None));
+            Assert.AreEqual(0, await _repository.GetTimeRangeCountAsync(QueueNames.ControlQueue, CancellationToken.None));
         }
 
         [TestMethod]
@@ -100,7 +109,7 @@ namespace Reusable.Tests.QLite
         {
             Assert.AreEqual(1, _repository.GetMessageCountAsync(QueueNames.TestQueue1, CancellationToken.None).GetAwaiter().GetResult());
             Assert.AreEqual(4, _repository.GetMessageCountAsync(QueueNames.TestQueue2, CancellationToken.None).GetAwaiter().GetResult());
-            Assert.AreEqual(0, _repository.GetMessageCountAsync(QueueNames.TestQueue3, CancellationToken.None).GetAwaiter().GetResult());
+            Assert.AreEqual(0, _repository.GetMessageCountAsync(QueueNames.ControlQueue, CancellationToken.None).GetAwaiter().GetResult());
         }
 
         [TestMethod]
@@ -108,7 +117,7 @@ namespace Reusable.Tests.QLite
         {
             Assert.AreEqual(1, _repository.GetLastTimeRangeAsync(QueueNames.TestQueue1, 10, CancellationToken.None).GetAwaiter().GetResult().Count);
             Assert.AreEqual(2, _repository.GetLastTimeRangeAsync(QueueNames.TestQueue2, 10, CancellationToken.None).GetAwaiter().GetResult().Count);
-            Assert.AreEqual(0, _repository.GetLastTimeRangeAsync(QueueNames.TestQueue3, 10, CancellationToken.None).GetAwaiter().GetResult().Count);
+            Assert.AreEqual(0, _repository.GetLastTimeRangeAsync(QueueNames.ControlQueue, 10, CancellationToken.None).GetAwaiter().GetResult().Count);
         }
 
         [TestMethod]
@@ -116,7 +125,7 @@ namespace Reusable.Tests.QLite
         {
             Assert.AreEqual(1, _repository.GetLastTimeRangeAsync(QueueNames.TestQueue1, 1, CancellationToken.None).GetAwaiter().GetResult().Count);
             Assert.AreEqual(1, _repository.GetLastTimeRangeAsync(QueueNames.TestQueue2, 1, CancellationToken.None).GetAwaiter().GetResult().Count);
-            Assert.AreEqual(0, _repository.GetLastTimeRangeAsync(QueueNames.TestQueue3, 1, CancellationToken.None).GetAwaiter().GetResult().Count);
+            Assert.AreEqual(0, _repository.GetLastTimeRangeAsync(QueueNames.ControlQueue, 1, CancellationToken.None).GetAwaiter().GetResult().Count);
         }
 
         [TestMethod]
@@ -139,7 +148,7 @@ namespace Reusable.Tests.QLite
 
             Assert.AreEqual(1, _repository.GetMessageCountAsync(QueueNames.TestQueue1, CancellationToken.None).GetAwaiter().GetResult());
             Assert.AreEqual(6, _repository.GetMessageCountAsync(QueueNames.TestQueue2, CancellationToken.None).GetAwaiter().GetResult());
-            Assert.AreEqual(0, _repository.GetMessageCountAsync(QueueNames.TestQueue3, CancellationToken.None).GetAwaiter().GetResult());
+            Assert.AreEqual(0, _repository.GetMessageCountAsync(QueueNames.ControlQueue, CancellationToken.None).GetAwaiter().GetResult());
         }
 
         [TestMethod]
@@ -169,7 +178,7 @@ namespace Reusable.Tests.QLite
 
             Assert.AreEqual(1, _repository.GetMessageCountAsync(QueueNames.TestQueue1, CancellationToken.None).GetAwaiter().GetResult());
             Assert.AreEqual(4, _repository.GetMessageCountAsync(QueueNames.TestQueue2, CancellationToken.None).GetAwaiter().GetResult());
-            Assert.AreEqual(0, _repository.GetMessageCountAsync(QueueNames.TestQueue3, CancellationToken.None).GetAwaiter().GetResult());
+            Assert.AreEqual(0, _repository.GetMessageCountAsync(QueueNames.ControlQueue, CancellationToken.None).GetAwaiter().GetResult());
         }
 
         [TestMethod]
@@ -208,7 +217,7 @@ namespace Reusable.Tests.QLite
 
             Assert.AreEqual(3, _repository.GetMessageCountAsync(QueueNames.TestQueue1, CancellationToken.None).GetAwaiter().GetResult());
             Assert.AreEqual(5, _repository.GetMessageCountAsync(QueueNames.TestQueue2, CancellationToken.None).GetAwaiter().GetResult());
-            Assert.AreEqual(0, _repository.GetMessageCountAsync(QueueNames.TestQueue3, CancellationToken.None).GetAwaiter().GetResult());
+            Assert.AreEqual(0, _repository.GetMessageCountAsync(QueueNames.ControlQueue, CancellationToken.None).GetAwaiter().GetResult());
         }
 
         [TestMethod]
@@ -216,7 +225,7 @@ namespace Reusable.Tests.QLite
         {
             var m1 = _repository.PeekAsync(QueueNames.TestQueue1, 2, CancellationToken.None).GetAwaiter().GetResult();
             var m2 = _repository.PeekAsync(QueueNames.TestQueue2, 2, CancellationToken.None).GetAwaiter().GetResult();
-            var m3 = _repository.PeekAsync(QueueNames.TestQueue3, 2, CancellationToken.None).GetAwaiter().GetResult();
+            var m3 = _repository.PeekAsync(QueueNames.ControlQueue, 2, CancellationToken.None).GetAwaiter().GetResult();
 
             Assert.AreEqual(1, m1.Count);
             Assert.AreEqual(2, m2.Count);

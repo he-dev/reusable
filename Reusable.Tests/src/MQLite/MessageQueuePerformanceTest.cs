@@ -7,7 +7,7 @@ using Reusable.Cryptography;
 using Reusable.Cryptography.Extensions;
 using Reusable.Data;
 using Reusable.MQLite;
-using Reusable.Tests.QLite;
+using Reusable.Tests.MQLite;
 using Reusable.Utilities.SqlClient;
 
 namespace Emerald.Tests.MessageDatabase
