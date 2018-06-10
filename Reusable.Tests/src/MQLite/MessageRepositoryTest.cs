@@ -4,15 +4,19 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
+using Reusable.Cryptography;
 using Reusable.Cryptography.Extensions;
 using Reusable.MQLite;
 using Reusable.MQLite.Models;
+using Reusable.Utilities.JsonNet.Extensions;
 
 
 // ReSharper disable InconsistentNaming - it's test code so naming doesn't matter.
@@ -38,216 +42,94 @@ namespace Reusable.Tests.MQLite
             }
         }
 
-        private static class TimeRanges
-        {
-            public static readonly Range<DateTime> Range_20550101_20550102 = new Range<DateTime>(min: (2055, 1, 1).ToDate().AtNoon(), max: (2055, 1, 2).ToDate().AtNoon());
-            public static readonly Range<DateTime> Range_20550102_20550103 = new Range<DateTime>(min: (2055, 1, 2).ToDate().AtNoon(), max: (2055, 1, 3).ToDate().AtNoon());
-            public static readonly Range<DateTime> Range_20550104_20550105 = new Range<DateTime>(min: (2055, 1, 4).ToDate().AtNoon(), max: (2055, 1, 5).ToDate().AtNoon());
-        }
-
-        private IMessageRepository _repository;
+        private IMessageRepository _messages;
 
         [TestInitialize]
         public async Task TestInitialize()
         {
-            _repository = new MessageRepository(ConnectonString);
+            _messages = new MessageRepository(ConnectonString);
 
             // make sure we're starting with empty queues
             foreach (var queueName in QueueNames.Enumerate())
             {
-                var removedTimeRanges1 = await _repository.RemoveTimeRangesAsync(queueName, null, null, CancellationToken.None);
-                Assert.AreEqual(0, await _repository.GetTimeRangeCountAsync(queueName, CancellationToken.None));
-                Assert.AreEqual(0, await _repository.GetMessageCountAsync(queueName, CancellationToken.None));
+                var removedTimeRanges1 = await _messages.RemoveTimeRangesAsync(queueName, null, null);
+                Assert.AreEqual(0, await _messages.GetTimeRangeCountAsync(queueName));
+                Assert.AreEqual(0, await _messages.GetPendingMessageCountAsync(queueName));
             }
         }
 
         [TestMethod]
         public async Task FullSimulation()
         {
-            _repository.EnqueueAsync(QueueNames.TestQueue1, )
-            await Task.CompletedTask;
+            // Prepare some test data
+
+            var range_20550101_20550102 = new Range<DateTime>(min: (2055, 1, 1).ToDate().AtNoon(), max: (2055, 1, 2).ToDate().AtNoon());
+            var range_20550102_20550103 = new Range<DateTime>(min: (2055, 1, 2).ToDate().AtNoon(), max: (2055, 1, 3).ToDate().AtNoon());
+            var range_20550104_20550105 = new Range<DateTime>(min: (2055, 1, 4).ToDate().AtNoon(), max: (2055, 1, 5).ToDate().AtNoon());
+
+            var _fingerprint =
+                FingerprintBuilder<TestQueue1Item>
+                    .Create(SHA256.ComputeSHA256)
+                    .For(x => x.Name, x => x.Trim().ToUpper())
+                    .Build();
+
+            var batch2 = new[] { new TestQueue1Item { Name = "Foo" }, new TestQueue1Item { Name = "Bar" } }.Select(x => new NewMessage
+            {
+                Body = x.Serialize(),
+                Fingerprint = _fingerprint(x)
+            });
+
+            #region Test1: Enqueue 2 + Peek 1 + Dequeue 1 + Enqueue 2
+
+            // Enqueue the complete batch
+            await _messages.EnqueueAsync(QueueNames.TestQueue1, range_20550101_20550102, batch2, TimeSpan.Zero);
+
+            Assert.AreEqual(1, await _messages.GetTimeRangeCountAsync(QueueNames.TestQueue1));
+            Assert.AreEqual(2, await _messages.GetPendingMessageCountAsync(QueueNames.TestQueue1));
+
+            var peekTestQueue1 = await _messages.PeekAsync(QueueNames.TestQueue1, 1);
+
+            Assert.AreEqual(1, peekTestQueue1.Count);
+
+            var item = peekTestQueue1.Single().Body.Deserialize<TestQueue1Item>();
+
+            Assert.AreEqual("Foo", item.Name);
+
+            await _messages.DequeueAsync(QueueNames.TestQueue1, new[] { peekTestQueue1.Single().Id });
+
+            // Enqueue again to make sure it's not repeated
+            await _messages.EnqueueAsync(QueueNames.TestQueue1, range_20550101_20550102, batch2, TimeSpan.Zero);
+            Assert.AreEqual(2, await _messages.GetTimeRangeCountAsync(QueueNames.TestQueue1));
+            Assert.AreEqual(1, await _messages.GetPendingMessageCountAsync(QueueNames.TestQueue1));
+
+            #endregion
         }
 
-        [TestMethod]
-        public async Task Enqueue_EmptyRange_Allowed_1()
+        private class TestQueue1Item
         {
-            var enqueueCount =
-                await _repository.EnqueueAsync(
-                    QueueNames.TestQueue1,
-                    TimeRanges.Range_20550101_20550102,
-                    new List<NewMessage>(),
-                    EnqueueOptions.AllowEmptyTimeRange,
-                    CancellationToken.None
-                );
+            public string Name { get; set; }
+        }
+    }
 
-            Assert.AreEqual(1, enqueueCount);
-            Assert.AreEqual(1, await _repository.GetTimeRangeCountAsync(QueueNames.TestQueue1, CancellationToken.None));
-            Assert.AreEqual(0, await _repository.GetTimeRangeCountAsync(QueueNames.TestQueue2, CancellationToken.None));
-            Assert.AreEqual(0, await _repository.GetTimeRangeCountAsync(QueueNames.ControlQueue, CancellationToken.None));
+    internal static class SerializationHelper
+    {
+        private static readonly JsonSerializer JsonSerlizer = new JsonSerializer();
+
+        public static byte[] Serialize<T>(this T obj)
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                JsonSerlizer.Serialize(memoryStream, obj);
+                return memoryStream.ToArray();
+            }
         }
 
-        [TestMethod]
-        public async Task Enqueue_EmptyRange_NotAllowed_0()
+        public static T Deserialize<T>(this byte[] data)
         {
-            var enqueueCount =
-                await _repository.EnqueueAsync(
-                    QueueNames.TestQueue1,
-                    TimeRanges.Range_20550101_20550102,
-                    new List<NewMessage>(),
-                    EnqueueOptions.None,
-                    CancellationToken.None
-                );
-
-            Assert.AreEqual(0, enqueueCount);
-            Assert.AreEqual(0, await _repository.GetTimeRangeCountAsync(QueueNames.TestQueue1, CancellationToken.None));
-            Assert.AreEqual(0, await _repository.GetTimeRangeCountAsync(QueueNames.TestQueue2, CancellationToken.None));
-            Assert.AreEqual(0, await _repository.GetTimeRangeCountAsync(QueueNames.ControlQueue, CancellationToken.None));
-        }
-
-        [TestMethod]
-        public void GetMessageCountAsync_UnchangedQueues_140()
-        {
-            Assert.AreEqual(1, _repository.GetMessageCountAsync(QueueNames.TestQueue1, CancellationToken.None).GetAwaiter().GetResult());
-            Assert.AreEqual(4, _repository.GetMessageCountAsync(QueueNames.TestQueue2, CancellationToken.None).GetAwaiter().GetResult());
-            Assert.AreEqual(0, _repository.GetMessageCountAsync(QueueNames.ControlQueue, CancellationToken.None).GetAwaiter().GetResult());
-        }
-
-        [TestMethod]
-        public void PeekTimeRangeAsync_UnchangedQueues_120()
-        {
-            Assert.AreEqual(1, _repository.GetLastTimeRangeAsync(QueueNames.TestQueue1, 10, CancellationToken.None).GetAwaiter().GetResult().Count);
-            Assert.AreEqual(2, _repository.GetLastTimeRangeAsync(QueueNames.TestQueue2, 10, CancellationToken.None).GetAwaiter().GetResult().Count);
-            Assert.AreEqual(0, _repository.GetLastTimeRangeAsync(QueueNames.ControlQueue, 10, CancellationToken.None).GetAwaiter().GetResult().Count);
-        }
-
-        [TestMethod]
-        public void PeekTimeRangeAsync_MaxCount_110()
-        {
-            Assert.AreEqual(1, _repository.GetLastTimeRangeAsync(QueueNames.TestQueue1, 1, CancellationToken.None).GetAwaiter().GetResult().Count);
-            Assert.AreEqual(1, _repository.GetLastTimeRangeAsync(QueueNames.TestQueue2, 1, CancellationToken.None).GetAwaiter().GetResult().Count);
-            Assert.AreEqual(0, _repository.GetLastTimeRangeAsync(QueueNames.ControlQueue, 1, CancellationToken.None).GetAwaiter().GetResult().Count);
-        }
-
-        [TestMethod]
-        public void EnqueueAsync_Q2Changed_160()
-        {
-            _repository.EnqueueAsync(
-                QueueNames.TestQueue2,
-                new Range<DateTime>(
-                    min: (2050, 1, 1).ToDate().AtNoon(),
-                    max: (2050, 1, 2).ToDate().AtNoon()
-                ),
-                new[]
-                {
-                    new NewMessage{ Body = "foo".ToBytes(), Fingerprint = "foo".ToBytes() },
-                    new NewMessage{ Body = "bar".ToBytes(), Fingerprint = "bar".ToBytes() }
-                },
-                EnqueueOptions.None,
-                CancellationToken.None
-            ).GetAwaiter().GetResult();
-
-            Assert.AreEqual(1, _repository.GetMessageCountAsync(QueueNames.TestQueue1, CancellationToken.None).GetAwaiter().GetResult());
-            Assert.AreEqual(6, _repository.GetMessageCountAsync(QueueNames.TestQueue2, CancellationToken.None).GetAwaiter().GetResult());
-            Assert.AreEqual(0, _repository.GetMessageCountAsync(QueueNames.ControlQueue, CancellationToken.None).GetAwaiter().GetResult());
-        }
-
-        [TestMethod]
-        public void EnqueueAsync_EmptyTimeRange_160()
-        {
-            _repository.EnqueueAsync(
-                QueueNames.TestQueue1,
-                new Range<DateTime>(
-                    min: (2050, 1, 1).ToDate().AtNoon(),
-                    max: (2050, 1, 2).ToDate().AtNoon()
-                ),
-                new List<NewMessage>(),
-                EnqueueOptions.AllowEmptyTimeRange,
-                CancellationToken.None
-            ).GetAwaiter().GetResult();
-
-            _repository.EnqueueAsync(
-                QueueNames.TestQueue2,
-                new Range<DateTime>(
-                    min: (2050, 1, 1).ToDate().AtNoon(),
-                    max: (2050, 1, 2).ToDate().AtNoon()
-                ),
-                new List<NewMessage>(),
-                EnqueueOptions.UniqueInPending,
-                CancellationToken.None
-            ).GetAwaiter().GetResult();
-
-            Assert.AreEqual(1, _repository.GetMessageCountAsync(QueueNames.TestQueue1, CancellationToken.None).GetAwaiter().GetResult());
-            Assert.AreEqual(4, _repository.GetMessageCountAsync(QueueNames.TestQueue2, CancellationToken.None).GetAwaiter().GetResult());
-            Assert.AreEqual(0, _repository.GetMessageCountAsync(QueueNames.ControlQueue, CancellationToken.None).GetAwaiter().GetResult());
-        }
-
-        [TestMethod]
-        public void EnqueueAsync_Duplicates_330()
-        {
-            _repository.EnqueueAsync(
-                QueueNames.TestQueue1,
-                new Range<DateTime>(
-                    min: (2050, 1, 1).ToDate().AtNoon(),
-                    max: (2050, 1, 2).ToDate().AtNoon()
-                ),
-                new[]
-                {
-                    new NewMessage { Body = "new-1".ToBytes(), Fingerprint = "new-1".ToBytes() },
-                    new NewMessage { Body = "new-2".ToBytes(), Fingerprint = "new-2".ToBytes() }
-                },
-                EnqueueOptions.AllowEmptyTimeRange,
-                CancellationToken.None
-            ).GetAwaiter().GetResult();
-
-            _repository.EnqueueAsync(
-                QueueNames.TestQueue2,
-                new Range<DateTime>(
-                    min: (2050, 1, 1).ToDate().AtNoon(),
-                    max: (2050, 1, 2).ToDate().AtNoon()
-                ),
-                new[]
-                {
-                    new NewMessage { Body = "new-1".ToBytes(), Fingerprint = "new-1".ToBytes() },
-                    new NewMessage { Body = "new-2".ToBytes(), Fingerprint = "new-2".ToBytes() },
-                    new NewMessage { Body = "new-4".ToBytes(), Fingerprint = "new-4".ToBytes() }
-                },
-                EnqueueOptions.UniqueInPending,
-                CancellationToken.None
-            ).GetAwaiter().GetResult();
-
-            Assert.AreEqual(3, _repository.GetMessageCountAsync(QueueNames.TestQueue1, CancellationToken.None).GetAwaiter().GetResult());
-            Assert.AreEqual(5, _repository.GetMessageCountAsync(QueueNames.TestQueue2, CancellationToken.None).GetAwaiter().GetResult());
-            Assert.AreEqual(0, _repository.GetMessageCountAsync(QueueNames.ControlQueue, CancellationToken.None).GetAwaiter().GetResult());
-        }
-
-        [TestMethod]
-        public void PeekMessageAsync_2_120()
-        {
-            var m1 = _repository.PeekAsync(QueueNames.TestQueue1, 2, CancellationToken.None).GetAwaiter().GetResult();
-            var m2 = _repository.PeekAsync(QueueNames.TestQueue2, 2, CancellationToken.None).GetAwaiter().GetResult();
-            var m3 = _repository.PeekAsync(QueueNames.ControlQueue, 2, CancellationToken.None).GetAwaiter().GetResult();
-
-            Assert.AreEqual(1, m1.Count);
-            Assert.AreEqual(2, m2.Count);
-            Assert.AreEqual(0, m3.Count);
-
-            Assert.AreEqual("new-1", Encoding.UTF8.GetString(m1[0].Body));
-
-            Assert.AreEqual("new-1", Encoding.UTF8.GetString(m2[0].Body));
-            Assert.AreEqual("new-2", Encoding.UTF8.GetString(m2[1].Body));
-        }
-
-        [TestMethod]
-        public void DequeueAsync_2_020()
-        {
-            var m1 = _repository.PeekAsync(QueueNames.TestQueue1, 2, CancellationToken.None).GetAwaiter().GetResult();
-            var m2 = _repository.PeekAsync(QueueNames.TestQueue2, 2, CancellationToken.None).GetAwaiter().GetResult();
-
-            _repository.DequeueAsync(QueueNames.TestQueue1, m1.Select(m => m.Id), CancellationToken.None).GetAwaiter().GetResult();
-            _repository.DequeueAsync(QueueNames.TestQueue2, m2.Select(m => m.Id), CancellationToken.None).GetAwaiter().GetResult();
-
-            Assert.AreEqual(0, _repository.GetMessageCountAsync(QueueNames.TestQueue1, CancellationToken.None).GetAwaiter().GetResult());
-            Assert.AreEqual(2, _repository.GetMessageCountAsync(QueueNames.TestQueue2, CancellationToken.None).GetAwaiter().GetResult());
+            using (var memoryStream = new MemoryStream(data))
+            {
+                return JsonSerlizer.Deserialize<T>(memoryStream);
+            }
         }
     }
 

@@ -8,6 +8,8 @@ namespace Reusable.MQLite.Entities
 
         public int TimeRangeId { get; set; }
 
+        public int Priority { get; set; }
+
         public byte[] Body { get; set; }
 
         public byte[] Fingerprint { get; set; }

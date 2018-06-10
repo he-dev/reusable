@@ -44,6 +44,10 @@ namespace Reusable.MQLite
                     .IsRequired();
 
                 entity
+                    .Property(p => p.Priority)
+                    .IsRequired();
+
+                entity
                     .Property(p => p.Body)
                     .IsRequired();
 

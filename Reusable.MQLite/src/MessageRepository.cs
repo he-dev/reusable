@@ -17,23 +17,23 @@ namespace Reusable.MQLite
 {
     public interface IMessageRepository
     {
-        Task<bool> ExistsAsync(string name, CancellationToken cancellationToken);
+        Task<bool> ExistsAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<int> EnqueueAsync(string name, Range<DateTime> timeRange, IEnumerable<NewMessage> data, TimeSpan expires, CancellationToken cancellationToken);
+        Task<int> EnqueueAsync(string name, Range<DateTime> timeRange, IEnumerable<NewMessage> data, TimeSpan expires, CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<List<Models.PendingMessage>> PeekAsync(string name, int count, CancellationToken cancellationToken);
+        Task<List<Models.PendingMessage>> PeekAsync(string name, int count, CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<int> DequeueAsync(string name, IEnumerable<long> messageIds, CancellationToken cancellationToken);
+        Task<int> DequeueAsync(string name, IEnumerable<long> messageIds, CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<int> GetMessageCountAsync(string name, CancellationToken cancellationToken);
+        Task<int> GetPendingMessageCountAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<int> GetTimeRangeCountAsync(string name, CancellationToken cancellationToken);
+        Task<int> GetTimeRangeCountAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<Models.TimeRange> GetLastTimeRangeAsync(string name, bool ignoreEmpty, CancellationToken cancellationToken);
+        Task<Models.TimeRange> GetLastTimeRangeAsync(string name, bool ignoreEmpty, CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<int> RemoveTimeRangesAsync(string name, DateTime? createdOnMin, DateTime? createdOnMax, CancellationToken cancellationToken);
+        Task<int> RemoveTimeRangesAsync(string name, DateTime? createdOnMin, DateTime? createdOnMax, CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<int> RemoveMessagesAsync(string name, DateTime? createdOnMin, DateTime? createdOnMax, CancellationToken cancellationToken);
+        Task<int> RemoveMessagesAsync(string name, DateTime? createdOnMin, DateTime? createdOnMax, CancellationToken cancellationToken = default(CancellationToken));
     }
 
     public class MessageRepository : IMessageRepository
@@ -69,12 +69,13 @@ namespace Reusable.MQLite
                 var messages =
                     (from item in data
                      let isNew = !context.Messages.Any(Exists(item.Fingerprint))
-                     let isExpired = !isNew && !context.Messages.Any(IsValid(item.Fingerprint, now))
-                     where isNew || isExpired
+                     let isExpired = isNew && !context.Messages.Any(IsValid(item.Fingerprint, now))
+                     where isNew && isExpired
                      select new Message
                      {
                          Body = item.Body,
-                         Fingerprint = item.Fingerprint
+                         Fingerprint = item.Fingerprint,
+                         Priority = 0
                      })
                     .ToList();
 
@@ -104,7 +105,10 @@ namespace Reusable.MQLite
                     m.TimeRange.Queue.Name == name &&
                     m.Fingerprint == fingerprint &&
                     m.DeletedOn != null &&
-                    now - m.TimeRange.CreatedOn <= expires;
+                    (
+                        expires == TimeSpan.Zero || 
+                        expires >= now - m.TimeRange.CreatedOn
+                    );
             }
         }
 
@@ -167,7 +171,7 @@ namespace Reusable.MQLite
             }
         }
 
-        public async Task<int> GetMessageCountAsync(string name, CancellationToken cancellationToken)
+        public async Task<int> GetPendingMessageCountAsync(string name, CancellationToken cancellationToken)
         {
             using (var context = CreateContext())
             {

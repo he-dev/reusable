@@ -77,7 +77,7 @@ namespace Emerald.Tests.MessageDatabase
                 _repository.DequeueAsync("test-queue-2", pendingMessages.Select(m => m.Id), CancellationToken.None).GetAwaiter().GetResult();
             }
 
-            Assert.AreEqual(0, _repository.GetMessageCountAsync("test-queue-2", CancellationToken.None).GetAwaiter().GetResult());
+            Assert.AreEqual(0, _repository.GetPendingMessageCountAsync("test-queue-2", CancellationToken.None).GetAwaiter().GetResult());
         }
     }
 }
