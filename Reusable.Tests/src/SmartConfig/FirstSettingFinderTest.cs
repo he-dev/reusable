@@ -13,9 +13,9 @@ namespace Reusable.Tests.SmartConfig
         [TestMethod]
         public void TryFindSetting_DataSourceMatches_True()
         {
-            var dataStore1 = Mock.Create<ISettingDataStore>();
-            var dataStore2 = Mock.Create<ISettingDataStore>();
-            var dataStore3 = Mock.Create<ISettingDataStore>();
+            var dataStore1 = Mock.Create<ISettingProvider>();
+            var dataStore2 = Mock.Create<ISettingProvider>();
+            var dataStore3 = Mock.Create<ISettingProvider>();
 
             dataStore1
                 .Arrange(x => x.Read(Arg.IsAny<SoftString>(), Arg.IsAny<Type>()))
@@ -40,7 +40,7 @@ namespace Reusable.Tests.SmartConfig
         [TestMethod]
         public void TryFindSetting_NoDataSource_False()
         {
-            var dataStore1 = Mock.Create<ISettingDataStore>();
+            var dataStore1 = Mock.Create<ISettingProvider>();
             dataStore1
                 .Arrange(x => x.Read(Arg.IsAny<SoftString>(), Arg.IsAny<Type>()))
                 .Returns(default(ISetting));

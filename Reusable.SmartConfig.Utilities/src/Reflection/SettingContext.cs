@@ -8,6 +8,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.Reflection;
+using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Data;
 using Reusable.Validation;
 
@@ -16,10 +17,10 @@ namespace Reusable.SmartConfig.Utilities.Reflection
     [PublicAPI]
     public class SettingContext
     {
-        private static readonly IValidator<LambdaExpression> SettingExpressionValidator =
-            Reusable.Validation.Validator
-                .Create<LambdaExpression>()
-                .IsNotValidWhen(expression => expression == null, ValidationOptions.StopOnFailure)
+        private static readonly IDataFuse<LambdaExpression> SettingExpressionValidator =
+            DataFuse
+                .For<LambdaExpression>()
+                .IsNotValidWhen(expression => expression == null, DataFuseOptions.StopOnFailure)
                 .IsValidWhen(expression => expression.Body is MemberExpression);
 
         [NotNull]
@@ -57,7 +58,7 @@ namespace Reusable.SmartConfig.Utilities.Reflection
         public SettingName SettingName { get; }
 
         [CanBeNull]
-        public string DataStoreName => Attributes.OfType<SmartSettingAttribute>().SingleOrDefault()?.DataStoreName;
+        public string ProviderName => Attributes.OfType<SmartSettingAttribute>().SingleOrDefault()?.DataStoreName;
 
         [CanBeNull]
         public string CustomSettingName => Attributes.OfType<SmartSettingAttribute>().SingleOrDefault()?.Name;

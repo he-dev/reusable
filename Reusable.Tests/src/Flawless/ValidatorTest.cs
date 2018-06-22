@@ -45,21 +45,21 @@ namespace Reusable.Flawless.Tests
         [TestMethod]
         public void Count_SingleRule_One()
         {
-            var validator = Validator<Person>.Empty.IsValidWhen(p => p.FirstName != null);
+            var validator = DataFuse<Person>.Empty.IsValidWhen(p => p.FirstName != null);
             Assert.That.Collection().CountEquals(1, validator);
         }
 
         [TestMethod]
         public void Count_ThreeRules_Three()
         {
-            var validator = Validator<Person>.Empty.IsValidWhen(p => p.FirstName != null).IsValidWhen(p => p.FirstName == "John").IsNotValidWhen(p => p.LastName == null);
+            var validator = DataFuse<Person>.Empty.IsValidWhen(p => p.FirstName != null).IsValidWhen(p => p.FirstName == "John").IsNotValidWhen(p => p.LastName == null);
             Assert.That.Collection().CountEquals(3, validator);
         }
 
         [TestMethod]
         public void IsValidWhen_SingleRule_True()
         {
-            var validator = Validator<Person>.Empty.IsValidWhen(p => p.FirstName != null);
+            var validator = DataFuse<Person>.Empty.IsValidWhen(p => p.FirstName != null);
             var person = new Person { FirstName = "John" };
             Assert.IsTrue(person.ValidateWith(validator));
         }
@@ -67,7 +67,7 @@ namespace Reusable.Flawless.Tests
         [TestMethod]
         public void IsValidWhen_SingleRule_False()
         {
-            var validator = Validator<Person>.Empty.IsValidWhen(p => p.FirstName != null);
+            var validator = DataFuse<Person>.Empty.IsValidWhen(p => p.FirstName != null);
             var person = new Person();
             Assert.IsFalse(person.ValidateWith(validator));
         }
@@ -75,7 +75,7 @@ namespace Reusable.Flawless.Tests
         [TestMethod]
         public void IsValidWhen_MultipleRules_True()
         {
-            var validator = Validator<Person>.Empty.IsValidWhen(p => p.FirstName != null).IsValidWhen(p => p.LastName != null);
+            var validator = DataFuse<Person>.Empty.IsValidWhen(p => p.FirstName != null).IsValidWhen(p => p.LastName != null);
             var person = new Person { FirstName = "John", LastName = "Doe" };
             Assert.IsTrue(person.ValidateWith(validator));
         }
@@ -83,7 +83,7 @@ namespace Reusable.Flawless.Tests
         [TestMethod]
         public void IsValidWhen_MultipleRules_False()
         {
-            var validator = Validator<Person>.Empty.IsValidWhen(p => p.FirstName != null).IsValidWhen(p => p.LastName != null);
+            var validator = DataFuse<Person>.Empty.IsValidWhen(p => p.FirstName != null).IsValidWhen(p => p.LastName != null);
             var person = new Person();
             Assert.IsFalse(person.ValidateWith(validator));
         }
@@ -94,7 +94,7 @@ namespace Reusable.Flawless.Tests
             //var age = 5;
             //var lastName = "Doe";
 
-            var validator = Validator<Person>.Empty
+            var validator = DataFuse<Person>.Empty
                 .IsNotValidWhen(p => p.FirstName == null);
 
             var person = new Person();
@@ -106,7 +106,7 @@ namespace Reusable.Flawless.Tests
         [TestMethod]
         public void ThrowIfInvalid_InvalidPerson_PersonValidationException()
         {
-            var validator = Validator<Person>.Empty.IsNotValidWhen(p => p.FirstName == null);
+            var validator = DataFuse<Person>.Empty.IsNotValidWhen(p => p.FirstName == null);
             var person = new Person();
 
             var ex = Assert.That.ThrowsExceptionFiltered<DynamicException>(() => person.ValidateWith(validator).ThrowIfNotValid(), e => e.NameEquals("PersonValidationException"));

@@ -13,26 +13,26 @@ namespace Reusable.SmartConfig
 {
     public class Configuration : IConfiguration
     {
-        private readonly IEnumerable<ISettingDataStore> _dataStores;
+        private readonly IEnumerable<ISettingProvider> _dataStores;
 
         private readonly ISettingFinder _settingFinder;
 
-        private readonly IDictionary<SoftString, (SoftString ActualName, ISettingDataStore Datastore)> _settingMap = new Dictionary<SoftString, (SoftString ActualName, ISettingDataStore Datastore)>();
+        private readonly IDictionary<SoftString, (SoftString ActualName, ISettingProvider Datastore)> _settingMap = new Dictionary<SoftString, (SoftString ActualName, ISettingProvider Datastore)>();
 
-        private static readonly IValidator<IEnumerable<ISettingDataStore>> DataStoresValidator =
-            Validator
-                .Create<IEnumerable<ISettingDataStore>>()
-                .IsNotValidWhen(dataStores => dataStores == null, ValidationOptions.StopOnFailure)
+        private static readonly IDataFuse<IEnumerable<ISettingProvider>> DataStoresValidator =
+            DataFuse
+                .For<IEnumerable<ISettingProvider>>()
+                .IsNotValidWhen(dataStores => dataStores == null, DataFuseOptions.StopOnFailure)
                 .IsValidWhen(x => x.Any(), _ => "You need to specify at least one data-store.");
 
-        public Configuration([NotNull, ItemNotNull] IEnumerable<ISettingDataStore> dataStores, [NotNull] ISettingFinder settingFinder)
+        public Configuration([NotNull, ItemNotNull] IEnumerable<ISettingProvider> dataStores, [NotNull] ISettingFinder settingFinder)
         {
             // ReSharper disable once ConstantConditionalAccessQualifier - yes, this can be null
             _dataStores = (dataStores?.ToList()).ValidateWith(DataStoresValidator).ThrowIfNotValid();
             _settingFinder = settingFinder ?? throw new ArgumentNullException(nameof(settingFinder));
         }
 
-        public Configuration([NotNull, ItemNotNull] IEnumerable<ISettingDataStore> dataStores)
+        public Configuration([NotNull, ItemNotNull] IEnumerable<ISettingProvider> dataStores)
             : this(dataStores, new FirstSettingFinder())
         { }
 
@@ -51,9 +51,9 @@ namespace Reusable.SmartConfig
             }
         }
 
-        private void CacheSettingName(SoftString settingName, SoftString settingActualName, ISettingDataStore settingDataStore)
+        private void CacheSettingName(SoftString settingName, SoftString settingActualName, ISettingProvider settingProvider)
         {
-            _settingMap[settingName] = (settingActualName, settingDataStore);
+            _settingMap[settingName] = (settingActualName, settingProvider);
         }
 
         public void SetValue(SoftString settingName, object value, SoftString dataStoreName)

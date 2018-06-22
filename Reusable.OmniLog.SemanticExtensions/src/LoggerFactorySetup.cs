@@ -71,9 +71,9 @@ namespace Reusable.OmniLog.SemanticExtensions
 
     public class LoggerFactoryBuilder
     {
-        private static readonly IValidator<LoggerFactoryBuilder> Validator =
-            Validation.Validator
-                .Create<LoggerFactoryBuilder>()
+        private static readonly IDataFuse<LoggerFactoryBuilder> Validator =
+            Validation.DataFuse
+                .For<LoggerFactoryBuilder>()
                 .IsValidWhen(builder => builder._rxes.Any(), "You need to add at least one Rx.")
                 .IsNotValidWhen(builder => string.IsNullOrEmpty(builder._environment), "You need to specify the environment.")
                 .IsNotValidWhen(builder => string.IsNullOrEmpty(builder._product), "You need to specif the product.");

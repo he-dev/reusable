@@ -12,7 +12,7 @@ using Reusable.SmartConfig.Data;
 namespace Reusable.SmartConfig
 {
     [PublicAPI]
-    public abstract partial class SettingDataStore : ISettingDataStore
+    public abstract class SettingProvider : ISettingProvider
     {
         private static readonly ConcurrentDictionary<SoftString, int> InstanceCounters = new ConcurrentDictionary<SoftString, int>();
 
@@ -22,13 +22,13 @@ namespace Reusable.SmartConfig
 
         private SoftString _name;
 
-        private SettingDataStore()
+        private SettingProvider()
         {
             Name = CreateDefaultName(GetType());
             SettingNameGenerator = new SettingNameByUsageGenerator();
         }
 
-        protected SettingDataStore([NotNull] ISettingConverter converter) : this()
+        protected SettingProvider([NotNull] ISettingConverter converter) : this()
         {
             _converter = converter ?? throw new ArgumentNullException(nameof(converter));
         }
@@ -50,7 +50,7 @@ namespace Reusable.SmartConfig
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
 
             // Materialize the generated names because we'll be using it multiple times.
-            var names = 
+            var names =
                 SettingNameGenerator
                     .GenerateSettingNames(settingName)
                     .Select(name => (SoftString)(string)name)
@@ -94,7 +94,7 @@ namespace Reusable.SmartConfig
 
         private static string CreateDefaultName(Type datastoreType)
         {
-            return datastoreType.ToPrettyString() +  InstanceCounters.AddOrUpdate(datastoreType.ToPrettyString(), name => 1, (name, counter) => counter + 1);
+            return datastoreType.ToPrettyString() + InstanceCounters.AddOrUpdate(datastoreType.ToPrettyString(), name => 1, (name, counter) => counter + 1);
         }
 
         protected Exception CreateAmbiguousSettingException(IEnumerable<SoftString> names)
@@ -105,23 +105,24 @@ namespace Reusable.SmartConfig
                 null
             );
         }
-    }
 
-    public abstract partial class SettingDataStore
-    {
+        #region IEquatable<ISettingProvider>
+
         public override int GetHashCode()
         {
-            return AutoEquality<ISettingDataStore>.Comparer.GetHashCode(this);
+            return AutoEquality<ISettingProvider>.Comparer.GetHashCode(this);
         }
 
         public override bool Equals(object obj)
         {
-            return obj is ISettingDataStore other && Equals(other);
+            return obj is ISettingProvider other && Equals(other);
         }
 
-        public bool Equals(ISettingDataStore other)
+        public bool Equals(ISettingProvider other)
         {
-            return AutoEquality<ISettingDataStore>.Comparer.Equals(this, other);
+            return AutoEquality<ISettingProvider>.Comparer.Equals(this, other);
         }
+
+        #endregion
     }
 }

@@ -5,9 +5,9 @@ using JetBrains.Annotations;
 
 namespace Reusable.Validation
 {
-    public class ValidationContext<T>
+    public class DataFuseContext<T>
     {
-        public ValidationContext(T obj, [NotNull] IList<IValidationResult<T>> results)
+        public DataFuseContext(T obj, [NotNull] IList<IDataFuseResult<T>> results)
         {
             if (obj == null) { throw new ArgumentNullException(nameof(obj)); }
             //if (results == null) { throw new ArgumentNullException(nameof(results)); }
@@ -20,8 +20,8 @@ namespace Reusable.Validation
         public T Object { get; }
 
         [NotNull]
-        public IList<IValidationResult<T>> Results { get; }
+        public IList<IDataFuseResult<T>> Results { get; }
 
-        public static implicit operator bool(ValidationContext<T> context) => context.Results.All(result => result.Success);
+        public static implicit operator bool(DataFuseContext<T> context) => context.Results.All(result => result.Success);
     }
 }

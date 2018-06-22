@@ -3,7 +3,7 @@
 namespace Reusable.Validation
 {
     [Flags]
-    public enum ValidationOptions
+    public enum DataFuseOptions
     {
         None = 0,
         StopOnFailure = 1 << 0,

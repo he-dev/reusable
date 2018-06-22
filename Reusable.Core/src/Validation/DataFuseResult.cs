@@ -5,7 +5,7 @@ using Reusable.Extensions;
 namespace Reusable.Validation
 {
     // ReSharper disable once UnusedTypeParameter - We need the T to be able to chain extensions and pass the T to them.
-    public interface IValidationResult<T>
+    public interface IDataFuseResult<T>
     {
         bool Success { get; }
 
@@ -16,7 +16,7 @@ namespace Reusable.Validation
         string Message { get; }
     }
 
-    internal class ValidationResult<T> : IValidationResult<T>
+    internal class DataFuseResult<T> : IDataFuseResult<T>
     {
         // ReSharper disable once StaticMemberInGenericType - this is ok because it's common to all instances.
         private static readonly IDictionary<bool, string> ResultStrings = new Dictionary<bool, string>
@@ -25,7 +25,7 @@ namespace Reusable.Validation
             [false] = "Failed"
         };
 
-        public ValidationResult(bool success, [NotNull] string expression, [CanBeNull] string message)
+        public DataFuseResult(bool success, [NotNull] string expression, [CanBeNull] string message)
         {
             Success = success;
             Expression = expression;

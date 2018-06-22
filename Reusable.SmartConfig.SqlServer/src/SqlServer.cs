@@ -8,7 +8,7 @@ using Reusable.Utilities.SqlClient;
 
 namespace Reusable.SmartConfig
 {
-    public class SqlServer : SettingDataStore
+    public class SqlServer : SettingProvider
     {
         public const string DefaultSchema = "dbo";
 

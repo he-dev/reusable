@@ -7,10 +7,10 @@ using Reusable.Reflection;
 
 namespace Reusable.Validation
 {
-    public static class ValidationContextExtensions
+    public static class DataFuseContextExtensions
     {
         [CanBeNull]
-        public static T ThrowIfNotValid<T>(this ValidationContext<T> context)
+        public static T ThrowIfNotValid<T>(this DataFuseContext<T> context)
         {
             if (context)
             {

@@ -4,7 +4,7 @@ using Reusable.SmartConfig.Data;
 
 namespace Reusable.SmartConfig
 {
-    public class InMemory : SettingDataStore, IEnumerable<KeyValuePair<SoftString, object>>
+    public class InMemory : SettingProvider, IEnumerable<KeyValuePair<SoftString, object>>
     {
         private readonly IDictionary<SoftString, object> _settings = new Dictionary<SoftString, object>();
 

@@ -11,7 +11,7 @@ using Reusable.Reflection;
 namespace Reusable.SmartConfig.Data
 {
     [PublicAPI]
-    public partial class SettingName
+    public class SettingName
     {
         public const string NamespaceSeparator = "+";
         public const string TypeSeparator = ".";
@@ -98,14 +98,15 @@ namespace Reusable.SmartConfig.Data
         public static implicit operator string(SettingName settingName) => settingName?.ToString();
 
         public static implicit operator SoftString(SettingName settingName) => settingName?.ToString();
-    }
 
-    public partial class SettingName : IEquatable<SettingName>
-    {
+        #region IEquatable<SettingName>
+
         public bool Equals(SettingName other) => AutoEquality<SettingName>.Comparer.Equals(this, other);
 
         public override bool Equals(object obj) => obj is SettingName settingName && Equals(settingName);
 
         public override int GetHashCode() => AutoEquality<SettingName>.Comparer.GetHashCode(this);
+
+        #endregion
     }
 }

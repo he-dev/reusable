@@ -5,10 +5,10 @@ namespace Reusable.SmartConfig
 {
     public class SqlServerColumnMapping
     {
-        private static readonly IValidator<string> ColumnValidator =
-            Validator
-                .Create<string>()
-                .IsNotValidWhen(column => column == null, ValidationOptions.StopOnFailure)
+        private static readonly IDataFuse<string> ColumnValidator =
+            DataFuse
+                .For<string>()
+                .IsNotValidWhen(column => column == null, DataFuseOptions.StopOnFailure)
                 .IsNotValidWhen(column => string.IsNullOrEmpty(column));
 
         private string _name;

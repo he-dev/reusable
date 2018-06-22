@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Reusable.Extensions;
+using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Data;
 using Reusable.SmartConfig.Utilities.Reflection;
 
@@ -35,7 +36,7 @@ namespace Reusable.SmartConfig.Utilities
 
             var settingContext = new SettingContext(expression, instance);
 
-            var settingValue = config.GetValue(settingContext.SettingName, typeof(T), settingContext.DataStoreName) ?? settingContext.DefaultValue;
+            var settingValue = config.GetValue(settingContext.SettingName, typeof(T), settingContext.ProviderName) ?? settingContext.DefaultValue;
 
             settingContext
                 .Validations
@@ -83,7 +84,7 @@ namespace Reusable.SmartConfig.Utilities
 
             var settingContext = new SettingContext(expression, instance);
 
-            var settingValue = config.GetValue(settingContext.SettingName, typeof(T), settingContext.DataStoreName) ?? settingContext.DefaultValue;
+            var settingValue = config.GetValue(settingContext.SettingName, typeof(T), settingContext.ProviderName) ?? settingContext.DefaultValue;
 
             settingContext
                 .Validations
@@ -139,7 +140,7 @@ namespace Reusable.SmartConfig.Utilities
                 );
 
                 var settingContext = new SettingContext(expression, instance);
-                var value = configuration.GetValue(settingContext.SettingName, property.PropertyType, settingContext.DataStoreName);
+                var value = configuration.GetValue(settingContext.SettingName, property.PropertyType, settingContext.ProviderName);
                 settingContext.SetValue(value);
             }
             return configuration;

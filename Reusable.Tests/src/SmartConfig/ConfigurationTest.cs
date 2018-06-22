@@ -17,7 +17,7 @@ namespace Reusable.Tests.SmartConfig
         [TestMethod]
         public void ctor_EmptyDataStores_Throws()
         {
-            var exception = Assert.That.ThrowsExceptionFiltered<DynamicException>(() => new Configuration(Enumerable.Empty<ISettingDataStore>()));
+            var exception = Assert.That.ThrowsExceptionFiltered<DynamicException>(() => new Configuration(Enumerable.Empty<ISettingProvider>()));
 
             Assert.AreEqual("IEnumerable<ISettingDataStore>ValidationException", exception.GetType().Name);
         }
@@ -25,7 +25,7 @@ namespace Reusable.Tests.SmartConfig
         [TestMethod]
         public void GetValue_SettingExists_Value()
         {
-            var dataStore = Mock.Create<ISettingDataStore>();
+            var dataStore = Mock.Create<ISettingProvider>();
 
             var result = (dataStore, (ISetting)new Setting("foo") { Value = "bar" });
 
@@ -33,7 +33,7 @@ namespace Reusable.Tests.SmartConfig
             Mock
                 .Arrange(() => settingFinder
                     .TryFindSetting(
-                        Arg.IsAny<IEnumerable<ISettingDataStore>>(),
+                        Arg.IsAny<IEnumerable<ISettingProvider>>(),
                         Arg.IsAny<SoftString>(),
                         Arg.IsAny<Type>(),
                         Arg.IsAny<SettingName>(),
@@ -52,7 +52,7 @@ namespace Reusable.Tests.SmartConfig
         [TestMethod]
         public void GetValue_SettingDoesNotExist_Throws()
         {
-            var dataStore = Mock.Create<ISettingDataStore>();
+            var dataStore = Mock.Create<ISettingProvider>();
 
             Mock
                 .Arrange(() => dataStore.Read(Arg.IsAny<SoftString>(), Arg.IsAny<Type>()))
@@ -67,7 +67,7 @@ namespace Reusable.Tests.SmartConfig
         [TestMethod]
         public void SetValue_SettingInitialized_WriteCalled()
         {
-            var dataStore = Mock.Create<ISettingDataStore>();
+            var dataStore = Mock.Create<ISettingProvider>();
             
             Mock
                 .Arrange(() => dataStore.Write(Arg.IsAny<ISetting>()))
@@ -79,7 +79,7 @@ namespace Reusable.Tests.SmartConfig
             Mock
                 .Arrange(() => settingFinder
                     .TryFindSetting(
-                        Arg.IsAny<IEnumerable<ISettingDataStore>>(),
+                        Arg.IsAny<IEnumerable<ISettingProvider>>(),
                         Arg.IsAny<SoftString>(),
                         Arg.IsAny<Type>(),
                         Arg.IsAny<SettingName>(),
@@ -101,7 +101,7 @@ namespace Reusable.Tests.SmartConfig
         [TestMethod]
         public void SetValue_SettingNotInitialized_WriteCalled()
         {
-            var dataStore = Mock.Create<ISettingDataStore>();
+            var dataStore = Mock.Create<ISettingProvider>();
 
             Mock
                 .Arrange(() => dataStore.Read(Arg.IsAny<SoftString>(), Arg.IsAny<Type>()))
@@ -117,7 +117,7 @@ namespace Reusable.Tests.SmartConfig
             Mock
                 .Arrange(() => settingFinder
                     .TryFindSetting(
-                        Arg.IsAny<IEnumerable<ISettingDataStore>>(),
+                        Arg.IsAny<IEnumerable<ISettingProvider>>(),
                         Arg.IsAny<SoftString>(),
                         Arg.IsAny<Type>(),
                         Arg.IsAny<SettingName>(),

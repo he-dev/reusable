@@ -6,7 +6,7 @@ using Reusable.SmartConfig.Data;
 
 namespace Reusable.SmartConfig
 {
-    public class AppSettings : SettingDataStore
+    public class AppSettings : SettingProvider
     {
         public AppSettings(ISettingConverter converter) : base(converter) { }
 

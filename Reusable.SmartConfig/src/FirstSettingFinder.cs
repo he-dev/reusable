@@ -13,11 +13,11 @@ namespace Reusable.SmartConfig
     public class FirstSettingFinder : ISettingFinder
     {
         public bool TryFindSetting(
-            IEnumerable<ISettingDataStore> dataStores,
+            IEnumerable<ISettingProvider> dataStores,
             SoftString settingName,
             Type settingType,
             SoftString dataStoreName,
-            out (ISettingDataStore DataStore, ISetting Setting) result)
+            out (ISettingProvider DataStore, ISetting Setting) result)
         {
             if (dataStores == null) throw new ArgumentNullException(nameof(dataStores));
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
@@ -28,13 +28,13 @@ namespace Reusable.SmartConfig
                 where anyDataStore || datastore.Name.Equals(dataStoreName)
                 let setting = datastore.Read(settingName, settingType)
                 where setting != null
-                select new { Datastore = datastore, Setting =  setting};
+                select new { Datastore = datastore, Setting = setting };
 
             var first = settingQuery.FirstOrDefault();
 
             if (first is null)
             {
-                result = default((ISettingDataStore, ISetting));
+                result = default((ISettingProvider, ISetting));
                 return false;
             }
             else

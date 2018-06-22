@@ -1,7 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Reusable.SmartConfig
+namespace Reusable.SmartConfig.Annotations
 {
     [UsedImplicitly]
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]

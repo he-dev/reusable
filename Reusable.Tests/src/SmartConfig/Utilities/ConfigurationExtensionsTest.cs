@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.SmartConfig;
+using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Utilities;
 using Telerik.JustMock;
 using Telerik.JustMock.Helpers;
@@ -11,6 +12,8 @@ namespace Reusable.Tests.SmartConfig.Utilities
     [TestClass]
     public class ConfigurationExtensionsTest
     {
+        private static readonly string Namespace = typeof(ConfigurationExtensionsTest).Namespace;
+
         #region GetValue tests
 
         [TestMethod]
@@ -19,7 +22,7 @@ namespace Reusable.Tests.SmartConfig.Utilities
             var configuration = Mock.Create<IConfiguration>();
             Mock
                 .Arrange(() => configuration.GetValue(
-                    Arg.Matches<SoftString>(name => name == SoftString.Create("Reusable.Tests.SmartConfig.Utilities+TestClass.Foo")),
+                    Arg.Matches<SoftString>(name => name == SoftString.Create($"{Namespace}+TestClass.Foo")),
                     Arg.IsAny<Type>(),
                     Arg.IsAny<SoftString>())
                 )
@@ -39,7 +42,7 @@ namespace Reusable.Tests.SmartConfig.Utilities
             var configuration = Mock.Create<IConfiguration>();
             Mock
                 .Arrange(() => configuration.GetValue(
-                    Arg.Matches<SoftString>(name => name == SoftString.Create("Reusable.SmartConfig.Core.Utilities.Tests+TestClass.Foo")),
+                    Arg.Matches<SoftString>(name => name == SoftString.Create($"{Namespace}+TestClass.Foo")),
                     Arg.IsAny<Type>(),
                     Arg.IsAny<SoftString>())
                 )
@@ -56,7 +59,7 @@ namespace Reusable.Tests.SmartConfig.Utilities
             var configuration = Mock.Create<IConfiguration>();
             Mock
                 .Arrange(() => configuration.GetValue(
-                    Arg.Matches<SoftString>(name => name == SoftString.Create("Reusable.SmartConfig.Core.Utilities.Tests+TestClass.Bar")),
+                    Arg.Matches<SoftString>(name => name == SoftString.Create($"{Namespace}+TestClass.Bar")),
                     Arg.IsAny<Type>(),
                     Arg.IsAny<SoftString>())
                 )
@@ -75,7 +78,7 @@ namespace Reusable.Tests.SmartConfig.Utilities
             var configuration = Mock.Create<IConfiguration>();
             Mock
                 .Arrange(() => configuration.GetValue(
-                    Arg.Matches<SoftString>(name => name == SoftString.Create("Reusable.SmartConfig.Core.Utilities.Tests+TestClass.Bar")),
+                    Arg.Matches<SoftString>(name => name == SoftString.Create($"{Namespace}+TestClass.Bar")),
                     Arg.IsAny<Type>(),
                     Arg.IsAny<SoftString>())
                 )
@@ -132,7 +135,7 @@ namespace Reusable.Tests.SmartConfig.Utilities
             var configuration = Mock.Create<IConfiguration>();
             Mock
                 .Arrange(() => configuration.GetValue(
-                    Arg.Matches<SoftString>(name => name == SoftString.Create("Reusable.SmartConfig.Core.Utilities.Tests+TestClass.Foo")),
+                    Arg.Matches<SoftString>(name => name == SoftString.Create($"{Namespace}+TestClass.Foo")),
                     Arg.IsAny<Type>(),
                     Arg.IsAny<SoftString>())
                 )
@@ -152,7 +155,7 @@ namespace Reusable.Tests.SmartConfig.Utilities
             var configuration = Mock.Create<IConfiguration>();
             Mock
                 .Arrange(() => configuration.GetValue(
-                    Arg.Matches<SoftString>(name => name == SoftString.Create("Reusable.SmartConfig.Core.Utilities.Tests+TestClass.Foo")),
+                    Arg.Matches<SoftString>(name => name == SoftString.Create($"{Namespace}+TestClass.Foo")),
                     Arg.IsAny<Type>(),
                     Arg.IsAny<SoftString>())
                 )

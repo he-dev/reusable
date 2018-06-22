@@ -11,6 +11,8 @@ namespace Reusable.Tests.SmartConfig
     [TestClass]
     public class ConfigurationTest2
     {
+        private static readonly string Namespace = typeof(ConfigurationTest2).Namespace;
+
         private static readonly SqlFourPartName SettingTableName = ("reusable", "SmartConfig.DataStores.Tests.SqlServerTest");
 
         [TestInitialize]
@@ -26,7 +28,7 @@ namespace Reusable.Tests.SmartConfig
                     .AddRow("TestClass3.Baz", "1.23", "integration")
                     // Used for exeption testing.
                     .AddRow("TestClass3.Qux", "quux", "integration")
-                    .AddRow("Reusable.SmartConfig.Tests+TestClass3.Qux", "quux", "integration")
+                    .AddRow($"{Namespace}+TestClass3.Qux", "quux", "integration")
                 ;
 
             SqlHelper.Execute("name=TestDb", connection =>
@@ -39,7 +41,7 @@ namespace Reusable.Tests.SmartConfig
         public void GetValue_ByExpression_Value()
         {
             var settingConverter = new JsonSettingConverter(typeof(string));
-            var configuration = new Configuration(new ISettingDataStore[]
+            var configuration = new Configuration(new ISettingProvider[]
             {
                 new AppSettings(settingConverter),
                 new SqlServer("name=TestDb", settingConverter)

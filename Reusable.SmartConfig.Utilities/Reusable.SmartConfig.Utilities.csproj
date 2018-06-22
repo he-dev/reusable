@@ -27,6 +27,7 @@
   <ItemGroup>
     <Compile Remove="src\MemberSetter.cs" />
     <Compile Remove="src\Reflection\SettingExpressionExtensions.cs" />
+    <Compile Remove="src\SettingFile.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />

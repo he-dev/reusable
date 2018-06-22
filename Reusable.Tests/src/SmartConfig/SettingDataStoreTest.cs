@@ -16,10 +16,10 @@ namespace Reusable.Tests.SmartConfig
         {
             var settingConverter = Mock.Create<ISettingConverter>();
 
-            var dataStore = Mock.Create<SettingDataStore>(Behavior.CallOriginal, settingConverter);
+            var dataStore = Mock.Create<SettingProvider>(Behavior.CallOriginal, settingConverter);
             Mock
                 .NonPublic
-                .Arrange<ISetting>(dataStore, "ReadCore", ArgExpr.IsAny<IEnumerable<SoftString>>())
+                .Arrange<ISetting>(dataStore, "ReadCore", ArgExpr.IsAny<IReadOnlyCollection<SoftString>>())
                 .MustBeCalled();
 
             dataStore.Read("foo", typeof(string));
@@ -35,10 +35,10 @@ namespace Reusable.Tests.SmartConfig
                 .Arrange(() => settingConverter.Deserialize(Arg.IsAny<object>(), Arg.IsAny<Type>()))
                 .OccursOnce();
 
-            var dataStore = Mock.Create<SettingDataStore>(Behavior.CallOriginal, settingConverter);
+            var dataStore = Mock.Create<SettingProvider>(Behavior.CallOriginal, settingConverter);
             Mock
                 .NonPublic
-                .Arrange<ISetting>(dataStore, "ReadCore", ArgExpr.IsAny<IEnumerable<SoftString>>())
+                .Arrange<ISetting>(dataStore, "ReadCore", ArgExpr.IsAny<IReadOnlyCollection<SoftString>>())
                 .Returns(new Setting("foo") { Value = "bar" });
 
             dataStore.Read("foo", typeof(string));
@@ -51,7 +51,7 @@ namespace Reusable.Tests.SmartConfig
         {
             var setting = new Setting("foo") { Value = "bar" };
             var settingConverter = Mock.Create<ISettingConverter>();
-            var dataStore = Mock.Create<SettingDataStore>(Behavior.CallOriginal, settingConverter);
+            var dataStore = Mock.Create<SettingProvider>(Behavior.CallOriginal, settingConverter);
             Mock
                 .NonPublic
                 .Arrange(dataStore, "WriteCore", ArgExpr.IsAny<ISetting>())
@@ -72,7 +72,7 @@ namespace Reusable.Tests.SmartConfig
                 .Arrange(() => settingConverter.Serialize(Arg.IsAny<object>()))
                 .OccursOnce();
 
-            var dataStore = Mock.Create<SettingDataStore>(Behavior.CallOriginal, settingConverter);
+            var dataStore = Mock.Create<SettingProvider>(Behavior.CallOriginal, settingConverter);
             Mock
                 .NonPublic
                 .Arrange(dataStore, "WriteCore", ArgExpr.IsAny<ISetting>());

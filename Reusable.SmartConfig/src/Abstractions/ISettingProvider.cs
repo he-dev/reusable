@@ -5,7 +5,7 @@ using Reusable.SmartConfig.Data;
 
 namespace Reusable.SmartConfig
 {
-    public interface ISettingDataStore : IEquatable<ISettingDataStore>
+    public interface ISettingProvider : IEquatable<ISettingProvider>
     {
         [NotNull]
         [AutoEqualityProperty]
