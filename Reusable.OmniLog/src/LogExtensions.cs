@@ -144,7 +144,7 @@ namespace Reusable.OmniLog
                     .GroupBy(i => i.Key)
                     .Select(scope => scope.First());
 
-            return new Log().AddRange(innerScope);
+            return new Log().AddRangeSafely(innerScope);
         }
 
         // Finds a value by path. A path is a dot separated string of names.

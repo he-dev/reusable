@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Exceptionize;
+using Reusable.Reflection;
 using Reusable.Utilities.MSTest;
 
 namespace Reusable.Net.Mail.Tests

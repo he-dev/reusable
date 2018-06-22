@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
-using Reusable.Exceptionize;
+using Reusable.Reflection;
 using Reusable.Utilities.MSTest;
 
 namespace Reusable.Tests

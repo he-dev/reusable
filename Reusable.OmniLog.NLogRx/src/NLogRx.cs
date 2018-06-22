@@ -44,7 +44,7 @@ namespace Reusable.OmniLog
                 TimeStamp = log.Timestamp(),
             };
 
-            logEventInfo.Properties.AddRange(log.Select(x => ((object)x.Key.ToString(), x.Value)));
+            logEventInfo.Properties.AddRangeSafely(log.Select(x => ((object)x.Key.ToString(), x.Value)));
 
             return logEventInfo;
         }

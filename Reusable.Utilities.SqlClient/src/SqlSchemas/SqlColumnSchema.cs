@@ -12,7 +12,7 @@ namespace Reusable.Utilities.SqlClient.SqlSchemas
     public class SqlColumnSchema
     {
         // Based on https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/sql-server-data-type-mappings
-        private static readonly IDictionary<SqlDbType, Type> SqlDbTypeMap = new PainlessDictionary<SqlDbType, Type>
+        private static readonly IDictionary<SqlDbType, Type> SqlDbTypeMap = new Dictionary<SqlDbType, Type>
         {
             [SqlDbType.BigInt] = typeof(long),
             [SqlDbType.Binary] = typeof(byte[]),

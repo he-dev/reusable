@@ -13,7 +13,7 @@ namespace Reusable.MarkupBuilder
     }
 
     [PublicAPI]
-    public abstract class MarkupFormatting : PainlessDictionary<string, MarkupFormattingOptions>, IMarkupFormatting
+    public abstract class MarkupFormatting : Dictionary<string, MarkupFormattingOptions>, IMarkupFormatting
     {
         protected MarkupFormatting(IEqualityComparer<string> comparer) : base(comparer)
         {
@@ -41,7 +41,7 @@ namespace Reusable.MarkupBuilder
             if (template == null) throw new ArgumentNullException(nameof(template));
 
             var templateRules = MarkupFormattingTemplate.Parse(template);
-            return new HtmlFormatting().AddRange(templateRules.Select(x => (x.Key, x.Value)));
+            return new HtmlFormatting().AddRangeSafely(templateRules.Select(x => (x.Key, x.Value)));
         }
 
         public static HtmlFormatting Load([NotNull] string fileName)

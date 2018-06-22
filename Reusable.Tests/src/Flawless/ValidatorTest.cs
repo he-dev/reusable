@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Exceptionize;
+using Reusable.Reflection;
 using Reusable.Utilities.MSTest;
+using Reusable.Validation;
 
 namespace Reusable.Flawless.Tests
 {

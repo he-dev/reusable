@@ -15,7 +15,7 @@ namespace Reusable.Commander.Tests
                 "baz qux"
             };
 
-            Assert.AreEqual("-foo:bar, \"baz qux\"", arguments.ToString());
+            Assert.AreEqual("-foo=bar, \"baz qux\"", arguments.ToString());
         }
 
         [TestMethod]

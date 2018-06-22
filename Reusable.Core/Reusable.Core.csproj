@@ -1,186 +1,32 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{429E2201-906E-4484-9361-4A16170B0D99}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFramework>net47</TargetFramework>
     <RootNamespace>Reusable</RootNamespace>
-    <AssemblyName>Reusable.Core</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>portable</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>portable</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-    <DebugSymbols>true</DebugSymbols>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="JetBrains.Annotations, Version=11.1.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
-      <HintPath>..\packages\JetBrains.Annotations.11.1.0\lib\net20\JetBrains.Annotations.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Collections.Immutable, Version=1.2.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Collections.Immutable.1.5.0\lib\netstandard2.0\System.Collections.Immutable.dll</HintPath>
-    </Reference>
+    <Compile Remove="src\Collections\PainlessDictionary.cs" />
+    <Compile Remove="src\Collections\PainlessDictionaryFactory.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="System.Collections.Immutable" Version="1.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Management" />
-    <Reference Include="System.Transactions" />
-    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="src\Abstractions\IFilterFactory.cs" />
-    <Compile Include="src\Abstractions\IStopwatch.cs" />
-    <Compile Include="src\AppDomainPaths.cs" />
-    <Compile Include="src\AsyncDetector.cs" />
-    <Compile Include="src\Collections\AutoEqualityBuilder.cs" />
-    <Compile Include="src\Collections\AutoEqualityPropertyContext.cs" />
-    <Compile Include="src\Diagnostics\DebuggerDisplayBuilder.cs" />
-    <Compile Include="src\Diagnostics\DebuggerDisplayFormatter.cs" />
-    <Compile Include="src\Diagnostics\DebuggerDisplayHelper.cs" />
-    <Compile Include="src\Diagnostics\DebuggerDisplayVisitor.cs" />
-    <Compile Include="src\ExitCode.cs" />
-    <Compile Include="src\Extensions\HashSetExtensions.cs" />
-    <Compile Include="src\Extensions\ObjectExtensions.cs" />
-    <Compile Include="src\Reflection\CallerInfo.cs" />
-    <Compile Include="src\Lazy.cs" />
-    <Compile Include="src\ProcessExecutor.cs" />
-    <Compile Include="src\Collections\RelayEqualityComparer.cs" />
-    <Compile Include="src\Collections\RelayEquatable.cs" />
-    <Compile Include="src\Collections\AutoEqualityExpressionFactory.cs" />
-    <Compile Include="src\Collections\AutoEqualityPropertyAttribute.cs" />
-    <Compile Include="src\Collections\PainlessDictionary.cs" />
-    <Compile Include="src\Collections\PainlessDictionaryExtensions.cs" />
-    <Compile Include="src\Collections\PainlessDictionaryFactory.cs" />
-    <Compile Include="src\ProcessExecutorExtensions.cs" />
-    <Compile Include="src\Retry.cs" />
-    <Compile Include="src\RetryExtensions.cs" />
-    <Compile Include="src\SearchResult.cs" />
-    <Compile Include="src\Data\TreeNode.cs" />
-    <Compile Include="src\Collections\AutoEquality.cs" />
-    <Compile Include="src\Exceptionize\DynamicException.cs" />
-    <Compile Include="src\Exceptionize\DynamicExceptionFactory.cs" />
-    <Compile Include="src\Exceptionize\DynamicExceptionFactoryExtensions.cs" />
-    <Compile Include="src\Exceptionize\DynamicExceptionExtensions.cs" />
-    <Compile Include="src\BinaryOperation.cs" />
-    <Compile Include="src\Exceptionize\DynamicExceptionTemplate.cs" />
-    <Compile Include="src\Extensions\RelayEquatableExtensions.cs" />
-    <Compile Include="src\Extensions\DummyExtensions.cs" />
-    <Compile Include="src\Extensions\MatchExtensions.cs" />
-    <Compile Include="src\Extensions\StackExtensions.cs" />
-    <Compile Include="src\Extensions\PrettyStringExtensions.cs" />
-    <Compile Include="src\Abstractions\IDateTime.cs" />
-    <Compile Include="src\IO\FileSystem.cs" />
-    <Compile Include="src\IO\Filters\DirectoryFilterFactory.cs" />
-    <Compile Include="src\IO\Filters\FileFilterFactory.cs" />
-    <Compile Include="src\IO\Filters\PathFilterFactory.cs" />
-    <Compile Include="src\Isolated.cs" />
-    <Compile Include="src\Collections\ImmutableKeySet.cs" />
-    <Compile Include="src\ObjectFactory.cs" />
-    <Compile Include="src\Range.cs" />
-    <Compile Include="src\Range.IEquatable.cs" />
-    <Compile Include="src\RangeExtensions.cs" />
-    <Compile Include="src\SoftString.Operators.cs" />
-    <Compile Include="src\SoftString.IComparable.cs" />
-    <Compile Include="src\SoftString.IEquatable.cs" />
-    <Compile Include="src\SoftString.cs" />
-    <Compile Include="src\Data\Repositories\ConnectionStringRepository.cs" />
-    <Compile Include="src\Data\Repositories\AppSettingRepository.cs" />
-    <Compile Include="src\Reflection\ResourceReaderExtensions.cs" />
-    <Compile Include="src\DateTimes\UtcDateTime.cs" />
-    <Compile Include="src\ComparisonResult.cs" />
-    <Compile Include="src\Data\DataTableExtensions.cs" />
-    <Compile Include="src\Drawing\ColorExtensions.cs" />
-    <Compile Include="src\Extensions\DictionaryExtensions.cs" />
-    <Compile Include="src\Extensions\FunctionalExtensions.cs" />
-    <Compile Include="src\Extensions\StringBuilderExtensions.cs" />
-    <Compile Include="src\Extensions\StringExtensions.cs" />
-    <Compile Include="src\SoftStringComparer.cs" />
-    <Compile Include="src\SoftStringExtensions.cs" />
-    <Compile Include="src\Stopwatches\SystemStopwatch.cs" />
-    <Compile Include="src\PrettyString.cs" />
-    <Compile Include="src\Disposable.cs" />
-    <Compile Include="src\DependencyValidator.cs" />
-    <Compile Include="src\Drawing\Color32.cs" />
-    <Compile Include="src\Drawing\ColorParser.cs" />
-    <Compile Include="src\CustomFormatter.cs" />
-    <Compile Include="src\CustomFormatterComposer.cs" />
-    <Compile Include="src\Reflection\ResourceReader.cs" />
-    <Compile Include="src\Formatters\BracketFormatter.cs" />
-    <Compile Include="src\Formatters\CaseFormatter.cs" />
-    <Compile Include="src\Formatters\DecimalColorFormatter.cs" />
-    <Compile Include="src\Formatters\HexadecimalColorFormatter.cs" />
-    <Compile Include="src\Formatters\QuoteFormatter.cs" />
-    <Compile Include="src\DateTimes\LocalDateTime.cs" />
-    <Compile Include="src\Collections\ProjectionComparer.cs" />
-    <Compile Include="src\Extensions\EnumerableExtensions.cs" />
-    <Compile Include="src\Extensions\ExceptionExtensions.cs" />
-    <Compile Include="src\Extensions\Conditional.cs" />
-    <Compile Include="src\Reflection\TypeExtensions.cs" />
-    <Compile Include="src\Extensions\StringInterpolation.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="src\Tupleizer.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
 </Project>

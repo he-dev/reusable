@@ -15,9 +15,12 @@ namespace Reusable.Collections
             _getHashCode = getHashCode;
         }
 
-        public static IEqualityComparer<T> CreateWithoutHashCode([NotNull] Func<T, T, bool> equals)
+        /// <summary>
+        /// Create an equality-comparer with hash-code zero.
+        /// </summary>
+        public static IEqualityComparer<T> Create([NotNull] Func<T, T, bool> equals)
         {
-            if (equals == null) throw new ArgumentNullException(nameof(@equals));
+            if (equals == null) throw new ArgumentNullException(nameof(equals));
             
             return Create(equals, _ => 0);
         }

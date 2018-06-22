@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.Diagnostics;
 using Reusable.Utilities.MSTest.Mocks;
 
 namespace Reusable.Tests
@@ -11,7 +12,7 @@ namespace Reusable.Tests
         [TestMethod]
         public void TestMethod1()
         {
-            var debugStopwatch = new MockStopwatch(new []
+            var debugStopwatch = new StopwatchMock(new []
             {
                 TimeSpan.FromSeconds(1),
                 TimeSpan.FromSeconds(3),

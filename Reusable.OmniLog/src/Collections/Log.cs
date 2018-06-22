@@ -5,5 +5,5 @@ namespace Reusable.OmniLog.Collections
 {
     public interface ILog : IDictionary<SoftString, object> { }
 
-    public class Log : PainlessDictionary<SoftString, object>, ILog { }
+    public class Log : Dictionary<SoftString, object>, ILog { }
 }

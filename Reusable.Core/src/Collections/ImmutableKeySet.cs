@@ -25,7 +25,7 @@ namespace Reusable.Collections
 
         static ImmutableKeySet()
         {
-            Comparer = RelayEqualityComparer<IImmutableSet<TKey>>.CreateWithoutHashCode((left, right) => left.Overlaps(right) || (left.None() && right.None()));
+            Comparer = RelayEqualityComparer<IImmutableSet<TKey>>.Create((left, right) => left.Overlaps(right) || (left.None() && right.None()));
         }
 
         protected ImmutableKeySet([NotNull] params TKey[] keys) => _keys = ImmutableHashSet.Create(keys);
@@ -99,7 +99,7 @@ namespace Reusable.Collections
         #endregion       
     }
 
-    public static class KeySet
+    public static class ImmutableKeySet
     {
         public static ImmutableKeySet<T> Create<T>(params T[] keys) where T : IEquatable<T>
         {

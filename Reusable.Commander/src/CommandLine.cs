@@ -20,7 +20,7 @@ namespace Reusable.Commander
     {
         public static readonly int CommandIndex = 0;
         
-        private readonly IDictionary<SoftKeySet, CommandArgument> _arguments = new PainlessDictionary<SoftKeySet, CommandArgument>();
+        private readonly IDictionary<SoftKeySet, CommandArgument> _arguments = new Dictionary<SoftKeySet, CommandArgument>();
 
         internal CommandLine()
         {

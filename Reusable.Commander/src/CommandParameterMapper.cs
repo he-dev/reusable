@@ -7,7 +7,6 @@ using System.Net.Http.Headers;
 using System.Reflection;
 using JetBrains.Annotations;
 using Reusable.Converters;
-using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog;
 using Reusable.Reflection;

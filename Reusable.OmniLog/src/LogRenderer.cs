@@ -18,7 +18,7 @@ namespace Reusable.OmniLog
                     //.Append(new KeyValuePair<SoftString, object>("Scopes", LogScope.Current.Flatten().Select(scope => scope).ToList()));
                     //.Concat(LogScope.Current.Flatten().Select(scope => (Key: scope.Name, Value: (object)scope)));
 
-            log = new Log().AddRange(properties);
+            log = new Log().AddRangeSafely(properties);
             return log.Compute(log);
         }
 

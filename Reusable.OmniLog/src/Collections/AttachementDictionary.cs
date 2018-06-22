@@ -1,8 +1,9 @@
-﻿using Reusable.Collections;
+﻿using System.Collections.Generic;
+using Reusable.Collections;
 
 namespace Reusable.OmniLog.Collections
 {
-    public class AttachementDictionary : PainlessDictionary<SoftString, object>
+    public class AttachementDictionary : Dictionary<SoftString, object>
     {
     }
 }

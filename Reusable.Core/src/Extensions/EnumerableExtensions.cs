@@ -3,7 +3,6 @@ using System.Data;
 using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Data;
-using Reusable.Exceptionize;
 using Reusable.Extensions;
 
 // ReSharper disable once CheckNamespace

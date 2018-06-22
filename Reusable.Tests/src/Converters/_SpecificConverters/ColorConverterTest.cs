@@ -42,7 +42,7 @@ namespace Reusable.Converters.Tests
             var converter = TypeConverter.Empty.Add(new ColorToStringConverter());
             var result = converter.Convert(Color.DeepPink, typeof(String), "{0:0xRGB}", new HexadecimalColorFormatter());
 
-            Assert.IsTrue(((string)result) == "FF1493");
+            Assert.IsTrue(((string)result) == "0xFF1493");
         }
     }
 }

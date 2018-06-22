@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
-using Reusable.Exceptionize;
+using Reusable.Reflection;
 
 namespace Reusable.Extensions
 {

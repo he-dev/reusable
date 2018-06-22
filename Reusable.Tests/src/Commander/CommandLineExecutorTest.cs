@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.Commander.Annotations;
 using Reusable.OmniLog;
 using Reusable.Utilities.MSTest;
 using IContainer = Autofac.IContainer;

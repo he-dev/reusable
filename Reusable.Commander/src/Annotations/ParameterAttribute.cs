@@ -1,9 +1,7 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Reusable.Commander
+namespace Reusable.Commander.Annotations
 {
     [UsedImplicitly]
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]

@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 
 namespace Reusable.Sequences
 {
+    [PublicAPI]
     public class HarmonicSequence<T> : Sequence<T>
     {
         private readonly T _one;

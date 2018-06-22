@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using JetBrains.Annotations;
-using Reusable.Exceptionize;
 using System.Linq.Expressions;
 
 namespace Reusable.Reflection

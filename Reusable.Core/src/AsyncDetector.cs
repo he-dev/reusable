@@ -20,7 +20,7 @@ namespace Reusable
             _stopwatch.Start();
         }
 
-        public AsyncDetector() : this(new SystemStopwatch())
+        public AsyncDetector() : this(new StopwatchDefault())
         {
         }
 
@@ -82,7 +82,7 @@ namespace Reusable
         //    Comparer = AdHocEqualityComparer<Range<TimeSpan>>.CreateWithoutHashCode((left, right) => left.OverlapsInclusive(right));
         //}
 
-        public static readonly IEqualityComparer<AsyncScope> Comparer = RelayEqualityComparer<AsyncScope>.CreateWithoutHashCode((left, right) => left.Interval.OverlapsInclusive(right.Interval));
+        public static readonly IEqualityComparer<AsyncScope> Comparer = RelayEqualityComparer<AsyncScope>.Create((left, right) => left.Interval.OverlapsInclusive(right.Interval));
 
         private readonly IStopwatch _stopwatch;
         private readonly Action<AsyncScope> _dispose;

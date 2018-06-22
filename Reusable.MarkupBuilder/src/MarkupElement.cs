@@ -23,7 +23,7 @@ namespace Reusable.MarkupBuilder
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
             Comparer = comparer ?? throw new ArgumentNullException(nameof(comparer));
-            Attributes = new PainlessDictionary<string, string>(comparer);
+            Attributes = new Dictionary<string, string>(comparer);
         }
 
         private string DebuggerDisplay => $"<{Name} attribute-count=\"{Attributes?.Count ?? 0}\" children-count=\"{Count}\">";

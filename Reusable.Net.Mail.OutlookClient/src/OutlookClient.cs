@@ -11,8 +11,8 @@ namespace Reusable.Net.Mail
         protected override Task SendAsyncCore<TSubject, TBody>(IEmail<TSubject, TBody> email)
         {
             var app = new Application();
-            var mailItem = app.CreateItem(OlItemType.olMailItem);
-
+            var mailItem = (dynamic)app.CreateItem(OlItemType.olMailItem);
+            
             mailItem.Subject = email.Subject.ToString();
             mailItem.To = email.To;
 

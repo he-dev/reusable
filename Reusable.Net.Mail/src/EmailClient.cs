@@ -3,8 +3,8 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Reusable.Exceptionize;
-using Reusable.Flawless;
+using Reusable.Reflection;
+using Reusable.Validation;
 
 namespace Reusable.Net.Mail
 {
