@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Reusable.Collections;
-using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
 
 namespace Reusable.Commander
 {
@@ -13,7 +12,7 @@ namespace Reusable.Commander
     /// </summary>
     public class CommandArgument : List<string>, IGrouping<SoftKeySet, string>, IEquatable<SoftKeySet>
     {
-        public static readonly SoftKeySet CommandNameKey = SoftKeySet.Empty;
+        public static readonly SoftKeySet CommandNameKey = SoftString.Empty;
 
         internal CommandArgument(SoftKeySet key) => Key = key;
 

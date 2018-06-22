@@ -9,7 +9,7 @@ namespace Reusable.Commander.Tests
         [TestMethod]
         public void ToString_WithKey_Formatted()
         {
-            var arguments = new CommandArgument(SoftKeySet.Create("foo"))
+            var arguments = new CommandArgument("foo")
             {
                 "bar",
                 "baz qux"
@@ -21,7 +21,7 @@ namespace Reusable.Commander.Tests
         [TestMethod]
         public void ToString_WithoutKey_Formatted()
         {
-            var arguments = new CommandArgument(SoftKeySet.Empty)
+            var arguments = new CommandArgument(SoftString.Empty)
             {
                 "bar",
                 "baz qux"

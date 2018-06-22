@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Extensions;
-using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
 
 namespace Reusable.Commander
 {
@@ -36,7 +35,7 @@ namespace Reusable.Commander
             var tokens = _tokenizer.Tokenize(commandLine);
 
             var arguments = CommandLine.Empty;
-            var currentArgumentName = SoftKeySet.Empty;
+            var currentArgumentName = (SoftKeySet)SoftString.Empty;
 
             foreach (var token in tokens)
             {
@@ -49,7 +48,7 @@ namespace Reusable.Commander
 
                     // ReSharper disable once PatternAlwaysOfType
                     case string value when Regex.IsMatch(value, ArgumentPrefix):
-                        currentArgumentName = SoftKeySet.Create(Regex.Replace(token, ArgumentPrefix, string.Empty));
+                        currentArgumentName =Regex.Replace(token, ArgumentPrefix, string.Empty);
                         arguments.Add(currentArgumentName);
                         break;
 

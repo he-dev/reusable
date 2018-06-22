@@ -45,9 +45,9 @@ namespace Reusable.Commander.Tests
         {
             var arguments = new CommandLine
             {
-                { SoftKeySet.Empty, "baz" },
-                { SoftKeySet.Empty, "qux" },
-                { SoftKeySet.Create("foo"), "bar" },
+                { SoftString.Empty, "baz" },
+                { SoftString.Empty, "qux" },
+                { SoftString.Create("foo"), "bar" },
             };
             Assert.AreEqual(SoftKeySet.Create("baz"), arguments.CommandName());
         }

@@ -14,24 +14,21 @@ namespace Reusable.Tests
     public class SemanticVersionTest
     {
         [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void ctor_MajorVersionLessThenZero_VersionOutOfRangeException()
         {
-            new SemanticVersion { Major = -1, Minor = 1, Patch = 1 };
+            Assert.That.ThrowsExceptionFiltered<DynamicException>(() => new SemanticVersion(-1, 1, 1));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void ctor_MinorVersionLessThenZero_VersionOutOfRangeException()
         {
-            new SemanticVersion { Major = 1, Minor = -1, Patch = 1 };
+            Assert.That.ThrowsExceptionFiltered<DynamicException>(() => new SemanticVersion(1, -1, 1));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void ctor_PatchVersionLessThenZero_VersionOutOfRangeException()
         {
-            new SemanticVersion { Major = 1, Minor = 1, Patch = -1 };
+            Assert.That.ThrowsExceptionFiltered<DynamicException>(() => new SemanticVersion(1, 1, -1));
         }
 
         [TestMethod]
@@ -64,6 +61,7 @@ namespace Reusable.Tests
         }
 
 #pragma warning disable 1718
+
         [TestMethod]
         public void Equals_VariousVersions()
         {
@@ -77,7 +75,7 @@ namespace Reusable.Tests
         [TestMethod]
         public void operator_Equals_Null()
         {
-            Assert.IsFalse(default(SemanticVersion) == default(SemanticVersion));
+            Assert.IsTrue(default(SemanticVersion) == default(SemanticVersion));
         }
 
         [TestMethod]

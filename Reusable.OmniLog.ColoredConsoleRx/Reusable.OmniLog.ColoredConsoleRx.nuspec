@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.OmniLog.ColoredConsoleRx</id>
-    <version>5.2.6</version>
+    <version>6.0.0</version>
     <title>Reusable.OmniLog.ColoredConsoleRx</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -17,9 +17,9 @@
     <dependencies>
       <dependency id="JetBrains.Annotations" version="11.1.0" />
       <dependency id="System.Reactive" version="4.0.0" />
-      <dependency id="Reusable.Core" version="5.2.6" />
-      <dependency id="Reusable.MarkupBuilder" version="5.2.6" />
-      <dependency id="Reusable.OmniLog" version="5.2.6" />
+      <dependency id="Reusable.Core" version="6.0.0" />
+      <dependency id="Reusable.MarkupBuilder" version="6.0.0" />
+      <dependency id="Reusable.OmniLog" version="6.0.0" />
     </dependencies>
   </metadata>
   <files>

@@ -28,7 +28,7 @@ namespace Reusable.Commander.Tests
         public void Parse_CommandWithArguments_CommandWithArguments()
         {
             var arguments = Parser.Parse("foo qux -bar baz").ToList().First();
-            Assert.AreEqual(SoftKeySet.Create("foo"), arguments.CommandName());
+            Assert.AreEqual((SoftKeySet)"foo", arguments.CommandName());
 
             //arguments.Verify().SequenceEqual(new[] {});
         }

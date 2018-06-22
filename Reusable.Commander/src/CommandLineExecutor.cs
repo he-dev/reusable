@@ -15,7 +15,6 @@ using Reusable.Converters;
 using Reusable.Extensions;
 using Reusable.OmniLog;
 using Reusable.Reflection;
-using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
 
 namespace Reusable.Commander
 {

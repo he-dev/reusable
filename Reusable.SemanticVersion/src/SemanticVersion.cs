@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Custom;
@@ -9,56 +10,60 @@ using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Extensions;
 using Reusable.Reflection;
+using Reusable.Validation;
 
 namespace Reusable
 {
     // http://semver.org
 
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class SemanticVersion : IComparable<SemanticVersion>, IComparer<SemanticVersion>
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+    public class SemanticVersion : IEquatable<SemanticVersion>, IComparable<SemanticVersion>, IComparer<SemanticVersion>
     {
-        private int _major;
-        private int _minor;
-        private int _patch;
+        private static readonly IDataFuse<SemanticVersion> VersionFuse =
+            DataFuse
+                .For<SemanticVersion>()
+                .IsValidWhen(x => x.Major >= 0, $"{nameof(Major)} version must be >= 0.")
+                .IsValidWhen(x => x.Minor >= 0, $"{nameof(Minor)} version must be >= 0.")
+                .IsValidWhen(x => x.Patch >= 0, $"{nameof(Patch)} version must be >= 0.");
 
-        [NotNull]
-        [ItemNotNull]
-        private List<string> _labels = new List<string>();
+        private static readonly Lazy<string> Pattern;
 
-        private string DebuggerDisplay => ToString();
-
-        public int Major
+        static SemanticVersion()
         {
-            get => _major;
-            set => _major = ValidateVersion(value);
+            Pattern = new Lazy<string>(() =>
+            {
+                var versionPatterns = new[] { "major", "minor", "patch" }.Select(x => $"(?<{x}>(?!0)[0-9]+|0)");
+                return $"^v?{string.Join("[\\.]", versionPatterns)}(-(?<labels>[a-z0-9\\.-]+))?$";
+            });
         }
 
-        public int Minor
+        public SemanticVersion(int major, int minor, int patch, IEnumerable<string> labels)
         {
-            get => _minor;
-            set => _minor = ValidateVersion(value);
+            Major = major;
+            Minor = minor;
+            Patch = patch;
+            Labels = labels.ToImmutableList();
+            this.ValidateWith(VersionFuse).ThrowIfNotValid();
         }
 
-        public int Patch
-        {
-            get => _patch;
-            set => _patch = ValidateVersion(value);
-        }
+        public SemanticVersion(int major, int minor, int patch)
+            : this(major, minor, patch, Enumerable.Empty<string>())
+        { }
 
-        private static int ValidateVersion(int version, [CallerMemberName] string memberName = null)
-        {
-            if (version < 0) throw new ArgumentOutOfRangeException($"{memberName} version must be >= 0.");
-            return version;
-        }
+        public static IComparer<SemanticVersion> Comparer { get; } = new SemanticVersionComparer();
+
+        public int Major { get; }
+
+        public int Minor { get; }
+
+        public int Patch { get; }
 
         [NotNull, ItemNotNull]
-        public List<string> Labels
-        {
-            get => _labels;
-            set => _labels = value ?? throw new ArgumentNullException(nameof(Labels));
-        }
+        public IImmutableList<string> Labels { get; }
 
         public bool IsPrerelease => Labels.Any();
+
+        private string DebuggerDisplay => ToString();
 
         [ContractAnnotation("value: null => halt")]
         public static SemanticVersion Parse(string value)
@@ -76,27 +81,23 @@ namespace Reusable
         {
             if (string.IsNullOrEmpty(value))
             {
-                result = default(SemanticVersion);
+                result = default;
                 return false;
             }
 
-            var versionPatterns = new[] { "major", "minor", "patch" }.Select(x => $"(?<{x}>(?!0)[0-9]+|0)");
+            var versionMatch = Regex.Match(value.Trim(), Pattern.Value);
+            result =
+                versionMatch.Success
+                    ? new SemanticVersion
+                    (
+                        major: int.Parse(versionMatch.Groups["major"].Value),
+                        minor: int.Parse(versionMatch.Groups["minor"].Value),
+                        patch: int.Parse(versionMatch.Groups["patch"].Value),
+                        labels: versionMatch.Groups["labels"].Value.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries).ToList()
+                    )
+                    : default;
 
-            var versionMatch = Regex.Match(value.Trim(), $"^v?{string.Join("[\\.]", versionPatterns)}(-(?<labels>[a-z0-9\\.-]+))?$");
-            if (versionMatch.Success)
-            {
-                result = new SemanticVersion
-                {
-                    Major = int.Parse(versionMatch.Groups["major"].Value),
-                    Minor = int.Parse(versionMatch.Groups["minor"].Value),
-                    Patch = int.Parse(versionMatch.Groups["patch"].Value),
-                    Labels = versionMatch.Groups["labels"].Value.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries).ToList()
-                };
-                return true;
-            }
-
-            result = default(SemanticVersion);
-            return false;
+            return !(result is null);
         }
 
         public override string ToString()
@@ -105,54 +106,19 @@ namespace Reusable
             return $"{Major}.{Minor}.{Patch}{labels}";
         }
 
-        public override bool Equals(object obj)
-        {
-            return
-                !ReferenceEquals(obj, null) &&
-                (obj is SemanticVersion other) &&
-                other == this;
-        }
+        #region IEquatable
 
         public override int GetHashCode() => ToString().GetHashCode();
 
+        public override bool Equals(object obj) => obj is SemanticVersion other && Equals(other);
+
+        public bool Equals(SemanticVersion obj) => Comparer.Compare(this, obj) == 0;
+
+        #endregion
+
         #region IComparer
 
-        public int Compare(SemanticVersion left, SemanticVersion right)
-        {
-            if (ReferenceEquals(left, right)) return ComparisonResult.Equal;
-            if (ReferenceEquals(left, null)) return ComparisonResult.LessThen;
-            if (ReferenceEquals(right, null)) return ComparisonResult.GreaterThen;
-
-            // Precedence MUST be calculated by separating the version into:
-            // major, minor, patch and pre-release identifiers in that order.
-            // (Build metadata does not figure into precedence).
-
-            var xVersions = new[] { left.Major, left.Minor, left.Patch };
-            var yVersions = new[] { right.Major, right.Minor, right.Patch };
-
-            // Precedence is determined by the first difference
-            // when comparing each of these identifiers from left to right.
-            // Example: 1.0.0 < 2.0.0 < 2.1.0 < 2.1.1.
-            var versionDifferences = xVersions.Zip(yVersions, (xv, yv) => xv.CompareTo(yv));
-            var firstVersionDifference = versionDifferences.FirstOrDefault(diff => diff != 0);
-            if (firstVersionDifference != 0) return firstVersionDifference;
-
-            // When major, minor, and patch are equal, 
-            // a pre-release version has lower precedence than a normal version. 
-            // Example: 1.0.0-alpha < 1.0.0.
-
-            if (left.IsPrerelease && !right.IsPrerelease) return ComparisonResult.LessThen;
-            if (!left.IsPrerelease && right.IsPrerelease) return ComparisonResult.GreaterThen;
-
-            // Precedence for two pre-release versions with the same major, minor, and patch version 
-            // MUST be determined by comparing each dot separated identifier from left to right 
-            // until a difference is found as follows:     
-
-            var labelDiffs = left.Labels.ZipAll(right.Labels, (l1, l2) => LabelComparer.Default.Compare(l1, l2));
-            var firstLabelDiff = labelDiffs.FirstOrDefault(diff => diff != 0);
-
-            return firstLabelDiff;
-        }
+        public int Compare(SemanticVersion left, SemanticVersion right) => Comparer.Compare(left, right);        
 
         #endregion
 
@@ -166,49 +132,20 @@ namespace Reusable
 
         public static implicit operator string(SemanticVersion value) => value?.ToString();
 
-        public static bool operator <(SemanticVersion left, SemanticVersion right)
-        {
-            return
-                !ReferenceEquals(left, null) &&
-                !ReferenceEquals(right, null) &&
-                left.CompareTo(right) < 0;
-        }
+        #region Operators
 
-        public static bool operator >(SemanticVersion left, SemanticVersion right)
-        {
-            return
-                !ReferenceEquals(left, null) &&
-                !ReferenceEquals(right, null) &&
-                left.CompareTo(right) > 0;
-        }
+        public static bool operator <(SemanticVersion left, SemanticVersion right) => Comparer.Compare(left, right) < 0;
 
-        public static bool operator ==(SemanticVersion left, SemanticVersion right)
-        {
-            return
-                !ReferenceEquals(left, null) &&
-                !ReferenceEquals(right, null) &&
-                left.CompareTo(right) == 0;
-        }
+        public static bool operator >(SemanticVersion left, SemanticVersion right) => Comparer.Compare(left, right) > 0;
 
-        public static bool operator !=(SemanticVersion left, SemanticVersion right)
-        {
-            return !(left == right);
-        }
+        public static bool operator ==(SemanticVersion left, SemanticVersion right) => Comparer.Compare(left, right) == 0;
 
-        public static bool operator <=(SemanticVersion left, SemanticVersion right)
-        {
-            return
-                !ReferenceEquals(left, null) &&
-                !ReferenceEquals(right, null) &&
-                left.CompareTo(right) <= 0;
-        }
+        public static bool operator !=(SemanticVersion left, SemanticVersion right) => !(left == right);
 
-        public static bool operator >=(SemanticVersion left, SemanticVersion right)
-        {
-            return
-                !ReferenceEquals(left, null) &&
-                !ReferenceEquals(right, null) &&
-                left.CompareTo(right) >= 0;
-        }
+        public static bool operator <=(SemanticVersion left, SemanticVersion right) => Comparer.Compare(left, right) <= 0;
+
+        public static bool operator >=(SemanticVersion left, SemanticVersion right) => Comparer.Compare(left, right) >= 0;
+
+        #endregion
     }
 }

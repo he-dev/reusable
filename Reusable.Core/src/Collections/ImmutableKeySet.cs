@@ -30,6 +30,8 @@ namespace Reusable.Collections
 
         protected ImmutableKeySet([NotNull] params TKey[] keys) => _keys = ImmutableHashSet.Create(keys);
 
+        protected ImmutableKeySet([NotNull] IEnumerable<TKey> keys) : this(keys.ToArray()) { }
+
         private string DebuggerDisplay => ToString();
 
         [NotNull]

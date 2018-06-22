@@ -1,25 +1,34 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Collections;
-using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
 
 namespace Reusable.Commander
 {
-    // foo -bar -baz qux
-    public interface ICommandLine : ILookup<SoftKeySet, string>
+    public class SoftKeySet : ImmutableKeySet<SoftString>
     {
+        public SoftKeySet(params SoftString[] keys) : base(keys) { }
+
+        public static implicit operator SoftKeySet(SoftString[] keys) => new SoftKeySet(keys);
+
+        public static implicit operator SoftKeySet(SoftString key) => new SoftKeySet(key);
+
+        public static implicit operator SoftKeySet(string key) => new SoftKeySet(key);
     }
 
-    
+    // foo -bar -baz qux
+    public interface ICommandLine : ILookup<SoftKeySet, string> { }
+
+
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class CommandLine : ICommandLine
     {
         public static readonly int CommandIndex = 0;
-        
+
         private readonly IDictionary<SoftKeySet, CommandArgument> _arguments = new Dictionary<SoftKeySet, CommandArgument>();
 
         internal CommandLine()
@@ -68,7 +77,7 @@ namespace Reusable.Commander
             }
             else
             {
-                _arguments.Add(keySet, new CommandArgument(keySet) {value});
+                _arguments.Add(keySet, new CommandArgument(keySet) { value });
             }
         }
 
@@ -77,7 +86,7 @@ namespace Reusable.Commander
         {
             if (key == null) throw new ArgumentNullException(nameof(key));
 
-            Add(ImmutableKeySet<SoftString>.Create(key));
+            Add((SoftKeySet)key);
         }
 
         [ContractAnnotation("key: null => halt; value: null => halt")]
@@ -86,14 +95,14 @@ namespace Reusable.Commander
             if (key == null) throw new ArgumentNullException(nameof(key));
             if (value == null) throw new ArgumentNullException(nameof(value));
 
-            Add(ImmutableKeySet<SoftString>.Create(key), value);
+            Add((SoftKeySet)key, value);
         }
 
         public override string ToString()
         {
             return string.Join(" ", this.Select(argument => argument.ToString()));
         }
-        
+
         public static implicit operator string(CommandLine commandLine) => commandLine?.ToString();
     }
 }

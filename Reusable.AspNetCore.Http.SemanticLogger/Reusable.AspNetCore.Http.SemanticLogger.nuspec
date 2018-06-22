@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.AspNetCore.Http.SemanticLogger</id>
-    <version>5.2.6</version>
+    <version>6.0.0</version>
     <title>Reusable.AspNetCore.Http.SemanticLogger</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -16,14 +16,14 @@
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="11.1.0" />
-      <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="2.1.0" />
-      <dependency id="Microsoft.Extensions.Configuration.Binder" version="2.1.0" />
-      <dependency id="Microsoft.Extensions.Logging.Abstractions" version="2.1.0" />
+      <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="2.1.1" />
+      <dependency id="Microsoft.Extensions.Configuration.Binder" version="2.1.1" />
+      <dependency id="Microsoft.Extensions.Logging.Abstractions" version="2.1.1" />
       <dependency id="Microsoft.Tpl.Dataflow" version="4.5.24" />
       <dependency id="System.ValueTuple" version="4.5.0" />
-      <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.1.0" />
-      <dependency id="Reusable.OmniLog.SemanticExtensions" version="5.2.6" />
-      <dependency id="Reusable.OmniLog" version="5.2.6" />
+      <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.1.1" />
+      <dependency id="Reusable.OmniLog.SemanticExtensions" version="6.0.0" />
+      <dependency id="Reusable.OmniLog" version="6.0.0" />
     </dependencies>
   </metadata>
   <files>

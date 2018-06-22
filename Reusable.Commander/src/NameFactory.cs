@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
@@ -35,7 +36,7 @@ namespace Reusable.Commander
                 names = names.Select(n => SoftString.Create($"{category}.{n}"));
             }
 
-            return SoftKeySet.Create(names);
+            return names.ToArray();
 
             IEnumerable<SoftString> GetCommandNames()
             {
@@ -58,7 +59,7 @@ namespace Reusable.Commander
             if (property == null) throw new ArgumentNullException(nameof(property));
 
             var names = GetParameterNames();
-            return SoftKeySet.Create(names);
+            return names.ToArray();
 
             IEnumerable<SoftString> GetParameterNames()
             {
