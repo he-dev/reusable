@@ -12,7 +12,7 @@ namespace Reusable.Tests
         [TestMethod]
         public void Format_Composite_Formatted()
         {
-            Assert.AreEqual("foo 'string' bar [1.50]", Format($"foo {typeof(string):lower|single} bar {1.5.ToString("F2", CultureInfo.InvariantCulture):square}", new CompositeFormatProvider
+            Assert.AreEqual("foo 'string' bar [1.50]", Format($"foo {typeof(string):lower|single} bar {Format($"{1.5:F2}", CultureInfo.InvariantCulture):square}", new CompositeFormatProvider
             {
                 typeof(PunctuationFormatProvider),
                 typeof(TypeFormatProvider),
@@ -24,7 +24,6 @@ namespace Reusable.Tests
                 typeof(PunctuationFormatProvider),
                 typeof(CaseFormatProvider),
                 typeof(TypeFormatProvider),
-                CultureInfo.InvariantCulture,
             }));
         }
 
