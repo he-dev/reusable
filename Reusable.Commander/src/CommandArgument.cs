@@ -18,6 +18,8 @@ namespace Reusable.Commander
 
         public SoftKeySet Key { get; }
 
+        public static CommandArgument Undefined { get; } = new CommandArgument(SoftString.Empty);
+
         #region IEquatable
 
         public bool Equals(SoftKeySet other) => Key.Equals(other);

@@ -109,7 +109,7 @@ namespace Reusable.Flawless.Tests
             var validator = DataFuse<Person>.Empty.IsNotValidWhen(p => p.FirstName == null);
             var person = new Person();
 
-            var ex = Assert.That.ThrowsExceptionFiltered<DynamicException>(() => person.ValidateWith(validator).ThrowIfNotValid(), e => e.NameEquals("PersonValidationException"));
+            var ex = Assert.That.ThrowsExceptionWhen<DynamicException>(() => person.ValidateWith(validator).ThrowIfNotValid(), e => e.NameEquals("PersonValidationException"));
         }
 
         public class Person

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.Net.Mail;
 using Reusable.Reflection;
 using Reusable.Utilities.MSTest;
 
-namespace Reusable.Net.Mail.Tests
+namespace Reusable.Tests.Net.Mail
 {
     [TestClass]
     public class UnitTest1
@@ -14,8 +15,7 @@ namespace Reusable.Net.Mail.Tests
         {
             var testEmail = new TestEmail();
 
-            var ex = Assert.That.ThrowsExceptionFiltered<DynamicException>(() => new TestClient().SendAsync(testEmail));
-
+            Assert.That.ThrowsExceptionWhen<DynamicException>(() => new TestClient().SendAsync(testEmail));
         }
 
         private class TestEmail : Email<IEmailSubject, IEmailBody> { }

@@ -5,24 +5,11 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
-using Reusable.Collections;
 
 namespace Reusable.Commander
 {
-    public class SoftKeySet : ImmutableKeySet<SoftString>
-    {
-        public SoftKeySet(params SoftString[] keys) : base(keys) { }
-
-        public static implicit operator SoftKeySet(SoftString[] keys) => new SoftKeySet(keys);
-
-        public static implicit operator SoftKeySet(SoftString key) => new SoftKeySet(key);
-
-        public static implicit operator SoftKeySet(string key) => new SoftKeySet(key);
-    }
-
     // foo -bar -baz qux
     public interface ICommandLine : ILookup<SoftKeySet, string> { }
-
 
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class CommandLine : ICommandLine
@@ -31,9 +18,7 @@ namespace Reusable.Commander
 
         private readonly IDictionary<SoftKeySet, CommandArgument> _arguments = new Dictionary<SoftKeySet, CommandArgument>();
 
-        internal CommandLine()
-        {
-        }
+        internal CommandLine() { }
 
         private string DebuggerDisplay => ToString();
 
@@ -41,7 +26,7 @@ namespace Reusable.Commander
 
         #region ILookup
 
-        public IEnumerable<string> this[SoftKeySet name] => _arguments.TryGetValue(name, out var argument) ? argument : Enumerable.Empty<string>();
+        public IEnumerable<string> this[SoftKeySet name] => _arguments.TryGetValue(name, out var argument) ? argument : CommandArgument.Undefined;
 
         public int Count => _arguments.Count;
 
@@ -98,10 +83,7 @@ namespace Reusable.Commander
             Add((SoftKeySet)key, value);
         }
 
-        public override string ToString()
-        {
-            return string.Join(" ", this.Select(argument => argument.ToString()));
-        }
+        public override string ToString() => string.Join(" ", this.Select(argument => argument.ToString()));
 
         public static implicit operator string(CommandLine commandLine) => commandLine?.ToString();
     }

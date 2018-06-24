@@ -17,9 +17,9 @@ namespace Reusable.Tests.SmartConfig
         [TestMethod]
         public void ctor_EmptyDataStores_Throws()
         {
-            var exception = Assert.That.ThrowsExceptionFiltered<DynamicException>(() => new Configuration(Enumerable.Empty<ISettingProvider>()));
+            var exception = Assert.That.ThrowsExceptionWhen<DynamicException>(() => new Configuration(Enumerable.Empty<ISettingProvider>()));
 
-            Assert.AreEqual("IEnumerable<ISettingDataStore>ValidationException", exception.GetType().Name);
+            Assert.AreEqual("IEnumerable<ISettingProvider>ValidationException", exception.GetType().Name);
         }
 
         [TestMethod]
@@ -60,7 +60,7 @@ namespace Reusable.Tests.SmartConfig
 
             var configuration = new Configuration(new[] { dataStore });
 
-            var ex = Assert.That.ThrowsExceptionFiltered<DynamicException>(() => configuration.GetValue("foo", typeof(int), null));
+            var ex = AssertExtensions.ThrowsExceptionWhen<DynamicException>(Assert.That, () => configuration.GetValue("foo", typeof(int), null));
             Assert.AreEqual("Setting 'foo' not found.", ex.Message);
         }
 

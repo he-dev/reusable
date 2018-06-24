@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 namespace Reusable.Commander.Annotations
 {
     [UsedImplicitly]
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property)]
     public class AliasAttribute : Attribute, IEnumerable<SoftString>
     {
         private readonly IEnumerable<SoftString> _values;

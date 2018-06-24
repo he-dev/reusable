@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Reflection;
 
@@ -14,9 +16,12 @@ namespace Reusable.Converters
         // We cannot use a dictionary because there are not unieque keys. Generic types can have multiple matches.
         private readonly HashSet<ITypeConverter> _converters;
 
+        private readonly ConcurrentDictionary<(Type fromType, Type toType), ITypeConverter> _cache;
+
         public CompositeConverter()
         {
             _converters = new HashSet<ITypeConverter>();
+            _cache = new ConcurrentDictionary<(Type fromType, Type toType), ITypeConverter>();
         }
 
         internal CompositeConverter(params ITypeConverter[] converters) : this()
@@ -27,64 +32,53 @@ namespace Reusable.Converters
                 {
                     // Flatten any composite converters for faster access.
                     case IEnumerable<ITypeConverter> composite:
-                        _converters.UnionWith(composite); //.AddRange(composite.Select(c => (Key: (c.FromType, c.ToType), Value: c)));
+                        _converters.UnionWith(composite);
                         break;
                     default:
-                        _converters.Add(converter); // (converter.FromType, converter.ToType), converter);
+                        _converters.Add(converter);
                         break;
                 }
             }
-
-            //_converters = converters;
         }
 
         public override Type FromType => throw new NotSupportedException($"{nameof(CompositeConverter)} does not support {nameof(FromType)} property.");
 
         public override Type ToType => throw new NotSupportedException($"{nameof(CompositeConverter)} does not support {nameof(ToType)} property");
 
-        public override bool CanConvert(Type fromType, Type toType)
-        {
-            return _converters.Any(c => c.CanConvert(fromType, toType));
-        }
+        // Finds a converter and caches the conversion.
+        [CanBeNull]
+        private ITypeConverter this[(Type fromType, Type toType) index] => _cache.GetOrAdd(index, key => _converters.FirstOrDefault(x => x.CanConvert(key.fromType, key.toType)));
+
+        public override bool CanConvert(Type fromType, Type toType) => !(this[(fromType, toType)] is null);
 
         protected override object ConvertCore(IConversionContext<object> context)
         {
-            if (IsConverted(context.FromType, context.ToType))
-            {
-                return context.Value;
-            }
+            var converter =
+                this[(context.FromType, context.ToType)]
+                ?? throw DynamicException.Factory.CreateDynamicException(
+                    $"TypeConverterNotFound{nameof(Exception)}",
+                    $"Cannot convert from '{context.FromType.Name}' to '{context.ToType.Name}.",
+                    null);
 
-            var converter = _converters.FirstOrDefault(x => x.CanConvert(context.FromType, context.ToType));
+            return converter.Convert(context);
+        }
 
-            if (converter == null)
+        public void Add(Type converterType)
+        {
+            if (!typeof(ITypeConverter).IsAssignableFrom(converterType))
             {
                 throw DynamicException.Factory.CreateDynamicException(
-                    $"TypeConverterNotFound{nameof(Exception)}",
-                    $"Could not find converter from '{context.FromType.Name}' to '{context.ToType.Name}.",
-                    null);
+                    $"InvalidType{nameof(Exception)}",
+                    $"'{nameof(converterType)}' must by of type '{nameof(ITypeConverter)}'");
             }
 
-            return converter.Convert(new ConversionContext<object>(context.Value, context.ToType)
-            {
-                Format = context.Format,
-                FormatProvider = context.FormatProvider,
-                Converter = this
-            });
+            _converters.Add((ITypeConverter)Activator.CreateInstance(converterType));
         }
 
-        public static CompositeConverter operator +(CompositeConverter left, TypeConverter right)
-        {
-            return new CompositeConverter(left, right);
-        }
+        public static CompositeConverter operator +(CompositeConverter left, TypeConverter right) => new CompositeConverter(left, right);
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        public IEnumerator<ITypeConverter> GetEnumerator() => _converters.GetEnumerator();
 
-        public IEnumerator<ITypeConverter> GetEnumerator()
-        {
-            return _converters.GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

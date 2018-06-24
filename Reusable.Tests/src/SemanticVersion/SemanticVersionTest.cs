@@ -16,19 +16,19 @@ namespace Reusable.Tests
         [TestMethod]
         public void ctor_MajorVersionLessThenZero_VersionOutOfRangeException()
         {
-            Assert.That.ThrowsExceptionFiltered<DynamicException>(() => new SemanticVersion(-1, 1, 1));
+            AssertExtensions.ThrowsExceptionWhen<DynamicException>(Assert.That, () => new SemanticVersion(-1, 1, 1));
         }
 
         [TestMethod]
         public void ctor_MinorVersionLessThenZero_VersionOutOfRangeException()
         {
-            Assert.That.ThrowsExceptionFiltered<DynamicException>(() => new SemanticVersion(1, -1, 1));
+            AssertExtensions.ThrowsExceptionWhen<DynamicException>(Assert.That, () => new SemanticVersion(1, -1, 1));
         }
 
         [TestMethod]
         public void ctor_PatchVersionLessThenZero_VersionOutOfRangeException()
         {
-            Assert.That.ThrowsExceptionFiltered<DynamicException>(() => new SemanticVersion(1, 1, -1));
+            AssertExtensions.ThrowsExceptionWhen<DynamicException>(Assert.That, () => new SemanticVersion(1, 1, -1));
         }
 
         [TestMethod]
@@ -45,19 +45,19 @@ namespace Reusable.Tests
         [TestMethod]
         public void Parse_InvalidMajorVersion_InvalidVersionException()
         {
-            Assert.That.ThrowsExceptionFiltered<DynamicException>(() => SemanticVersion.Parse("01.0.0"), ex => ex.NameEquals("VersionFormatException"));
+            Assert.That.ThrowsExceptionWhen<DynamicException>(() => SemanticVersion.Parse("01.0.0"), ex => ex.NameEquals("VersionFormatException"));
         }
 
         [TestMethod]
         public void Parse_InvalidMinorVersion_InvalidVersionException()
         {
-            Assert.That.ThrowsExceptionFiltered<DynamicException>(() => SemanticVersion.Parse("0.01.0"), ex => ex.NameEquals("VersionFormatException"));
+            Assert.That.ThrowsExceptionWhen<DynamicException>(() => SemanticVersion.Parse("0.01.0"), ex => ex.NameEquals("VersionFormatException"));
         }
 
         [TestMethod]
         public void Parse_InvalidPatchVersion_InvalidVersionException()
         {
-            Assert.That.ThrowsExceptionFiltered<DynamicException>(() => SemanticVersion.Parse("0.0.01"), ex => ex.NameEquals("VersionFormatException"));
+            Assert.That.ThrowsExceptionWhen<DynamicException>(() => SemanticVersion.Parse("0.0.01"), ex => ex.NameEquals("VersionFormatException"));
         }
 
 #pragma warning disable 1718

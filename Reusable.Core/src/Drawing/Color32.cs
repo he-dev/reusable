@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
 using JetBrains.Annotations;
+using Reusable.FormatProviders;
 
 namespace Reusable.Drawing
 {
@@ -13,8 +14,8 @@ namespace Reusable.Drawing
         private static readonly ColorParser[] ColorParsers =
         {
             new NameColorParser(),
-            new DecimalColorParser(),
-            new HexadecimalColorParser()
+            new RgbColorParser(),
+            new HexColorParser()
         };
 
         [FieldOffset(0)]
@@ -119,7 +120,7 @@ namespace Reusable.Drawing
 
         public override int GetHashCode() => ((Color)this).GetHashCode();
 
-        //public override string ToString() => ToHex();
+        public override string ToString() => ToString("#{0:alpha-hex}", new HexColorFormatProvider());
 
         public string ToString(string format, IFormatProvider formatProvider) => string.Format(formatProvider, format, (Color)this);
 

@@ -111,7 +111,7 @@ namespace Reusable.Tests.SmartConfig
                 ColumnMapping = ("_name", "_value")
             };
 
-            var exception = Assert.That.ThrowsExceptionFiltered<DynamicException>(() => sqlServer.Read("qux", typeof(string)));
+            var exception = AssertExtensions.ThrowsExceptionWhen<DynamicException>(Assert.That, () => sqlServer.Read("qux", typeof(string)));
 
             converter.Assert();
             Assert.AreEqual("ReadSettingException", exception.GetType().Name);

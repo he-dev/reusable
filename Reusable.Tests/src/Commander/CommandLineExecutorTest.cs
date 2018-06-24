@@ -18,7 +18,7 @@ namespace Reusable.Commander.Tests
     [TestClass]
     public class CommandLineExecutorTest
     {
-        private static TestLocal InitializeCommander(ICommandRegistrationContainer registrations, Action<IConsoleCommand> assert)
+        private static TestLocal InitializeCommander(ICommandCollection registrations, Action<IConsoleCommand> assert)
         {
             var memoryRx = MemoryRx.Create();
             var loggerFactory = new LoggerFactory { Observers = { memoryRx } };
@@ -85,7 +85,7 @@ namespace Reusable.Commander.Tests
                 CollectionAssert.AreEqual(new[] { 4, 5, 6 }, test.Int32ArrayProperty);
             }));
 
-            var commands = CommandRegistrationContainer.Empty.Register<TestCommandWithVariousTypes>();
+            var commands = CommandCollection.Empty.Add<TestCommandWithVariousTypes>();
 
             using (var local = InitializeCommander(commands, assertExecuteMock.Object))
             {
@@ -106,7 +106,7 @@ namespace Reusable.Commander.Tests
                 Assert.AreEqual("abc", test.PositionProperty);
             }));
 
-            var commands = CommandRegistrationContainer.Empty.Register<TestCommandWithPosition>();
+            var commands = CommandCollection.Empty.Add<TestCommandWithPosition>();
 
             using (var local = InitializeCommander(commands, assertExecuteMock.Object))
             {
@@ -128,7 +128,7 @@ namespace Reusable.Commander.Tests
                 Assert.IsFalse(test.Flag2);
             }));
 
-            var commands = CommandRegistrationContainer.Empty.Register<TestCommandWithFlag>();
+            var commands = CommandCollection.Empty.Add<TestCommandWithFlag>();
 
             using (var local = InitializeCommander(commands, assertExecuteMock.Object))
             {

@@ -48,7 +48,7 @@ namespace Reusable.Drawing
         }
     }
 
-    public class DecimalColorParser : ColorParser
+    public class RgbColorParser : ColorParser
     {
         // language=regexp
         private const string ColorPattern = @"\d{1,2}|[1][0-9][0-9]|[2][0-5][0-5]";
@@ -85,7 +85,7 @@ namespace Reusable.Drawing
         }
     }
 
-    public class HexadecimalColorParser : ColorParser
+    public class HexColorParser : ColorParser
     {
         // language=regexp
         private const string ColorPattern = @"^(0x|#)?(?<A>[A-F0-9]{2})?(?<R>[A-F0-9]{2})(?<G>[A-F0-9]{2})(?<B>[A-F0-9]{2})$";

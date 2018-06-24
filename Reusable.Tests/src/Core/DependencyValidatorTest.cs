@@ -36,7 +36,7 @@ namespace Reusable.Tests
                 { "z", new string[] { "x" } },
             };
 
-            Assert.That.ThrowsExceptionFiltered<DynamicException>(() => DependencyValidator.ValidateDependencies(values), ex => ex.NameEquals("CircularDependencyException"));
+            Assert.That.ThrowsExceptionWhen<DynamicException>(() => DependencyValidator.ValidateDependencies(values), ex => ex.NameEquals("CircularDependencyException"));
         }
 
         [TestMethod]
@@ -52,7 +52,7 @@ namespace Reusable.Tests
 
             DependencyValidator.ValidateDependencies(values);
 
-            Assert.That.ThrowsExceptionFiltered<DynamicException>(() => DependencyValidator.ValidateDependencies(values), ex => ex.NameEquals("MissingDependencyException"));
+            Assert.That.ThrowsExceptionWhen<DynamicException>(() => DependencyValidator.ValidateDependencies(values), ex => ex.NameEquals("MissingDependencyException"));
         }
     }
 }

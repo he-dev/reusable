@@ -1,27 +1,28 @@
 using System;
+using JetBrains.Annotations;
 
 namespace Reusable.MarkupBuilder.Formatters
 {
-    public class HtmlFormatter : CustomFormatter
+    public class HtmlFormatProvider : CustomFormatProvider
     {
-        private readonly IMarkupRenderer _renderer;
+        public HtmlFormatProvider(IMarkupRenderer markupRenderer) : base(new HtmlFormatter(markupRenderer)) { }
 
-        public HtmlFormatter(IMarkupRenderer renderer)
+        private class HtmlFormatter : ICustomFormatter
         {
-            _renderer = renderer ?? throw new ArgumentNullException(nameof(renderer));
-        }
+            private readonly IMarkupRenderer _renderer;
 
-        public override object GetFormat(Type formatType)
-        {
-            return formatType == typeof(IMarkupElement) ? this : null;
-        }
+            public HtmlFormatter(IMarkupRenderer renderer) => _renderer = renderer ?? throw new ArgumentNullException(nameof(renderer));
 
-        public override string Format(string format, object arg, IFormatProvider formatProvider)
-        {
-            return
-                format.Equals(HtmlFormat.Html, StringComparison.OrdinalIgnoreCase) && (arg is IMarkupElement root)
-                    ? _renderer.Render(root)
-                    : ToString();
+            public string Format(string format, object arg, IFormatProvider formatProvider)
+            {
+                if (!(format is null)) throw new ArgumentNullException($"'{nameof(HtmlFormatter)}' does not support formats.");
+                if (arg is null) return string.Empty;
+
+                return
+                    arg is IMarkupElement markupElement
+                        ? _renderer.Render(markupElement)
+                        : null;
+            }
         }
     }
 

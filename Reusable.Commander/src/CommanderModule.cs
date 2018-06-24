@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Immutable;
 using Autofac;
 using JetBrains.Annotations;
 using Reusable.Converters;
@@ -9,9 +10,9 @@ namespace Reusable.Commander
     [PublicAPI]
     public class CommanderModule : Autofac.Module
     {
-        private readonly ICommandRegistrationContainer _registrations;
+        private readonly ICommandCollection _registrations;
 
-        public CommanderModule([NotNull] ICommandRegistrationContainer registrations)
+        public CommanderModule([NotNull] ICommandCollection registrations)
         {
             _registrations = registrations ?? throw new ArgumentNullException(nameof(registrations));
         }

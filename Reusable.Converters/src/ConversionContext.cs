@@ -11,17 +11,17 @@ namespace Reusable.Converters
         /// </summary>
         [NotNull]
         TValue Value { get; }
-        
+
         [NotNull]
         Type FromType { get; }
 
         [NotNull]
         Type ToType { get; }
 
-        [CanBeNull]
+        [NotNull]
         string Format { get; }
 
-        [CanBeNull]
+        [NotNull]
         IFormatProvider FormatProvider { get; }
 
         [NotNull]
@@ -30,30 +30,62 @@ namespace Reusable.Converters
 
     public class ConversionContext<TValue> : IConversionContext<TValue>
     {
-        public ConversionContext([NotNull] TValue value, [NotNull] Type toType)
+        private string _format;
+        private IFormatProvider _formatProvider;
+
+        private ConversionContext()
+        {
+            Format = TypeConverter.DefaultFormat;
+            FormatProvider = TypeConverter.DefaultFormatProvider;
+        }
+
+        public ConversionContext([NotNull] TValue value, [NotNull] Type toType, [NotNull] ITypeConverter converter) 
+            : this()
         {
             if (value == null) throw new ArgumentNullException(nameof(value));
             if (toType == null) throw new ArgumentNullException(nameof(toType));
-            
+
             Value = value;
             ToType = toType;
+            Converter = converter;
         }
-        public TValue Value { get; }
-        public Type FromType => Value.GetType();
-        public Type ToType { get; }
-        public string Format { get; set; }
-        public IFormatProvider FormatProvider { get; set; } = CultureInfo.InvariantCulture;
-        public ITypeConverter Converter { get; set; } = TypeConverter.Empty;
 
-        [NotNull]
-        public static ConversionContext<TValue> FromContext<T>(object value, Type toType, IConversionContext<T> other)
+        public ConversionContext([NotNull] TValue value, [NotNull] Type toType)
+            : this(value, toType, TypeConverter.Empty)
+        { }
+
+        public ConversionContext([NotNull] IConversionContext<TValue> context)
+            : this(context.Value, context.ToType, context.Converter)
         {
-            return new ConversionContext<TValue>((TValue)value, toType)
-            {
-                Format = other.Format,
-                FormatProvider = other.FormatProvider,
-                Converter = other.Converter,
-            };
+            Format = context.Format;
+            FormatProvider = context.FormatProvider;
+        }
+
+        public ConversionContext([NotNull] TValue value, [NotNull] Type toType, [NotNull] IConversionContext<TValue> context)
+        : this(value, toType, context.Converter)
+        {
+            Format = context.Format;
+            FormatProvider = context.FormatProvider;
+        }
+
+        public TValue Value { get; }
+
+        public Type FromType => Value.GetType();
+
+        public Type ToType { get; }
+
+        public ITypeConverter Converter { get; }
+
+        public string Format
+        {
+            get => _format;
+            set => _format = value ?? throw new ArgumentNullException(nameof(Format));
+        }
+
+        public IFormatProvider FormatProvider
+        {
+            get => _formatProvider;
+            set => _formatProvider = value ?? throw new ArgumentNullException(nameof(FormatProvider));
         }
     }
 }

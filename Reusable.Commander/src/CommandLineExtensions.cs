@@ -10,6 +10,21 @@ namespace Reusable.Commander
         [NotNull]
         public static IEnumerable<string> Anonymous([NotNull] this ICommandLine arguments) => arguments[SoftString.Empty];
 
+        public static IEnumerable<string> Values(this ICommandLine commandLine, CommandParameter parameter)
+        {
+            if (parameter.Metadata.Position > CommandLine.CommandIndex)
+            {
+                return commandLine.Anonymous().Skip(parameter.Metadata.Position).Take(1);
+            }
+
+            if (commandLine.Contains(parameter.Name))
+            {
+                return commandLine[parameter.Name];
+            }
+
+            return CommandArgument.Undefined;
+        }
+
         [CanBeNull]
         public static SoftKeySet CommandName([NotNull] this ICommandLine arguments)
         {

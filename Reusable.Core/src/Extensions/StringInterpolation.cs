@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -30,7 +31,7 @@ namespace Reusable.Extensions
             if (string.IsNullOrEmpty(text)) { return text; }
             if (tryGetValue == null) { throw new ArgumentNullException(nameof(tryGetValue)); }
 
-            formatProvider = formatProvider ?? new DefaultFormatter();
+            formatProvider = formatProvider ?? CultureInfo.InvariantCulture;
 
             // https://regex101.com/r/sK1tS8/5
             var result = Regex.Replace(text, PlaceholderPattern, match =>
@@ -114,7 +115,7 @@ namespace Reusable.Extensions
             if (string.IsNullOrEmpty(text)) { return text; }
             if (data == null) { throw new ArgumentNullException(nameof(data)); }
 
-            formatProvider = formatProvider ?? new DefaultFormatter();
+            formatProvider = formatProvider ?? CultureInfo.InvariantCulture;
 
             var dependencies = data.ToDictionary(x => x.Key, x => GetNames(string.Format(formatProvider, "{0}", x.Value)));
             DependencyValidator.ValidateDependencies(dependencies);
@@ -130,7 +131,7 @@ namespace Reusable.Extensions
             if (string.IsNullOrEmpty(text)) { return text; }
             if (data == null) { throw new ArgumentNullException(nameof(data)); }
 
-            formatProvider = formatProvider ?? new DefaultFormatter();
+            formatProvider = formatProvider ?? CultureInfo.InvariantCulture;
 
             var dependencies = data.ToDictionary(x => x.Key, x => GetNames(string.Format(formatProvider, "{0}", x.Value)).Select(SoftString.Create));
             DependencyValidator.ValidateDependencies(dependencies);

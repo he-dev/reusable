@@ -49,7 +49,7 @@ namespace Reusable.Tests.Drawing
     [TestClass]
     public class DecimalColorParserTest : ColorParserTest
     {
-        public DecimalColorParserTest() : base(new DecimalColorParser()) { }
+        public DecimalColorParserTest() : base(new RgbColorParser()) { }
 
         protected override string GetCadetBlue() => "95,158,160";
     }
@@ -57,7 +57,7 @@ namespace Reusable.Tests.Drawing
     [TestClass]
     public class HexadecimalColorParserTest : ColorParserTest
     {
-        public HexadecimalColorParserTest() : base(new HexadecimalColorParser()) { }
+        public HexadecimalColorParserTest() : base(new HexColorParser()) { }
 
         protected override string GetCadetBlue() => "0x5F9EA0";
     }

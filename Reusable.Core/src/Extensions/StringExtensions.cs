@@ -90,5 +90,13 @@ namespace Reusable.Extensions
 
             return value.ToStreamReader(Encoding.UTF8);
         }
+
+        //public static string FormatWith([NotNull] this string formattable, [NotNull] IFormatProvider formatProvider)
+        //{
+        //    if (formattable == null) throw new ArgumentNullException(nameof(formattable));
+        //    if (formatProvider == null) throw new ArgumentNullException(nameof(formatProvider));
+
+        //    return ((FormattableString)formattable).ToString(formatProvider);
+        //}
     }
 }

@@ -22,9 +22,9 @@ namespace Reusable.Commander.Commands
     [Category("Testing")]
     public class Help : ConsoleCommand
     {
-        private readonly ICommandRegistrationContainer _commandRegistrations;
+        private readonly ICommandCollection _commandRegistrations;
 
-        public Help(ILoggerFactory loggerFactory, ICommandRegistrationContainer commandRegistrations) : base(loggerFactory)
+        public Help(ILoggerFactory loggerFactory, ICommandCollection commandRegistrations) : base(loggerFactory)
         {
             _commandRegistrations = commandRegistrations;
         }
@@ -67,7 +67,7 @@ namespace Reusable.Commander.Commands
             return Task.CompletedTask;
         }
 
-        protected virtual void RenderCommandList(IEnumerable<ICommandRegistration> commands)
+        protected virtual void RenderCommandList(IEnumerable<ICommandInfo> commands)
         {
             Logger.Information(string.Empty);
             Logger.Information($"{new string(' ', IndentWidth)}Commands");
@@ -96,7 +96,7 @@ namespace Reusable.Commander.Commands
             Logger.Information(string.Empty);
         }
 
-        protected virtual void RenderParameterList(ICommandRegistration command)
+        protected virtual void RenderParameterList(ICommandInfo command)
         {
 //            var commandParameterType = command.ParameterType();
 //            

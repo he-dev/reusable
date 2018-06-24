@@ -1,27 +1,69 @@
 ﻿using System;
+using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Extensions;
+using Reusable.FormatProviders;
+using static Reusable.StringHelper;
 
 namespace Reusable.Utilities.MSTest
 {
     public static class AssertExtensions
     {
-        public static T ThrowsExceptionFiltered<T>(this Assert assert, Action action, Func<T, bool> filter = null) where T : Exception
+        private static readonly IFormatProvider FormatProvider = new CompositeFormatProvider
+        {
+            typeof(TypeFormatProvider),
+            typeof(PunctuationFormatProvider)
+        };
+
+        [NotNull]
+        public static TException ThrowsExceptionWhen<TException>(this Assert assert, Action action, Func<TException, bool> filter = null) where TException : Exception
         {
             filter = filter ?? (ex => true);
 
             try
             {
                 action();
-                Assert.Fail($"Expected exception {typeof(T).Name.QuoteWith("'")}, but none was thrown.");
+                Assert.Fail(Format($"Expected exception {typeof(TException):single}, but none was thrown.", FormatProvider));
             }
-            catch (T ex) when (filter(ex))
+            catch (TException ex) when (filter(ex))
             {
                 return ex;
             }
+            catch (AssertFailedException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
-                Assert.Fail($"Expected exception '{typeof(T).Name}', but {ex.GetType().Namespace.QuoteWith("'")} was thrown.");
+                Assert.Fail(Format($"Expected exception {typeof(TException):single}, but {ex.GetType():single} was thrown.", FormatProvider));
+            }
+
+            // This is only to satisfy the compiler. We'll never reach to this as it'll always fail or return earlier.
+            return null;
+        }
+
+        [NotNull]
+        public static TException ThrowsExceptionWhen<TException>(this Assert assert, Func<Task> func, Func<TException, bool> filter = null) where TException : Exception
+        {
+            filter = filter ?? (ex => true);
+
+            try
+            {
+                func().GetAwaiter().GetResult();
+                Assert.Fail(Format($"Expected exception {typeof(TException):single}, but none was thrown.", FormatProvider));
+            }
+            catch (TException ex) when (filter(ex))
+            {
+                return ex;
+            }
+            catch (AssertFailedException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(Format($"Expected exception {typeof(TException):single}, but {ex.GetType():single} was thrown.", FormatProvider));
             }
 
             // This is only to satisfy the compiler. We'll never reach to this as it'll always fail or return earlier.

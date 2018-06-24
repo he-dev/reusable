@@ -38,7 +38,7 @@ namespace Reusable.Commander
             if (_commands.TryGetValue(name, out var command))
             {
                 _logger.Debug(() => $"Created command {name.FirstLongest().ToString().QuoteWith("'")}.");
-                return _mapper.Map(command, commandLine);
+                return _mapper.Map(command, name, commandLine);
             }
             else
             {
@@ -48,16 +48,5 @@ namespace Reusable.Commander
                         .Return(default(IConsoleCommand));
             }
         }
-    }
-
-    public static class SoftKeySetExtensions
-    {
-        [NotNull]
-        public static SoftString FirstLongest([NotNull] this SoftKeySet keys)
-        {
-            if (keys == null) throw new ArgumentNullException(nameof(keys));
-            
-            return keys.OrderByDescending(key => key.Length).First();
-        }
-    }
+    }    
 }

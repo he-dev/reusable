@@ -9,10 +9,10 @@ namespace Reusable.Commander
 {
     internal static class CommandParameterValidator
     {
-        public static void ValidateParameterNamesUniqueness(ICommandRegistration registration)
+        public static void ValidateParameterNamesUniqueness(ICommandInfo info)
         {
             var duplicateNames =
-                registration
+                info
                     .SelectMany(property => property.Name)
                     .GroupBy(propertyName => propertyName)
                     .Where(propertyNameGroup => propertyNameGroup.Count() > 1)

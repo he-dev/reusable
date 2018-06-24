@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Data;
 using System.Linq;
 using System.Linq.Custom;
@@ -20,13 +21,13 @@ namespace Reusable.Commander
 {
     public interface ICommandLineExecutor
     {
-        Task<IReadOnlyList<SoftKeySet>> ExecuteAsync([CanBeNull] string commandLineString, CancellationToken cancellationToken);
+        Task<IImmutableList<SoftKeySet>> ExecuteAsync([CanBeNull] string commandLineString, CancellationToken cancellationToken);
     }
 
     [UsedImplicitly]
     public class CommandLineExecutor : ICommandLineExecutor
     {
-        private static readonly IReadOnlyList<SoftKeySet> NoCommandsExecuted = new List<SoftKeySet>();
+        private static readonly IImmutableList<SoftKeySet> NoCommandsExecuted = ImmutableList<SoftKeySet>.Empty;
 
         private readonly ICommandLineParser _commandLineParser;
         private readonly ICommandFactory _commandFactory;
@@ -39,35 +40,35 @@ namespace Reusable.Commander
             _commandFactory = commandFactory ?? throw new ArgumentNullException(nameof(commandFactory));
         }
 
-        public static ICommandLineExecutor Create([NotNull] ILoggerFactory loggerFactory, [NotNull] ICommandRegistrationContainer commands)
-        {
-            if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
-            if (commands == null) throw new ArgumentNullException(nameof(commands));
+        //public static ICommandLineExecutor Create([NotNull] ILoggerFactory loggerFactory, [NotNull] ICommandRegistrationContainer commands)
+        //{
+        //    if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
+        //    if (commands == null) throw new ArgumentNullException(nameof(commands));
 
-            var builder = new ContainerBuilder();
+        //    var builder = new ContainerBuilder();
             
-            builder
-                .RegisterInstance(loggerFactory)
-                .As<ILoggerFactory>();
+        //    builder
+        //        .RegisterInstance(loggerFactory)
+        //        .As<ILoggerFactory>();
             
-            builder
-                .RegisterModule(new CommanderModule(commands));
+        //    builder
+        //        .RegisterModule(new CommanderModule(commands));
             
-            using (var container = builder.Build())
-            using (var scope = container.BeginLifetimeScope())
-            {
-                return scope.Resolve<ICommandLineExecutor>();
-            }
-        }
+        //    using (var container = builder.Build())
+        //    using (var scope = container.BeginLifetimeScope())
+        //    {
+        //        return scope.Resolve<ICommandLineExecutor>();
+        //    }
+        //}
 
-        public async Task<IReadOnlyList<SoftKeySet>> ExecuteAsync(string commandLineString, CancellationToken cancellationToken)
+        public async Task<IImmutableList<SoftKeySet>> ExecuteAsync(string commandLineString, CancellationToken cancellationToken)
         {
             if (commandLineString.IsNullOrEmpty())
             {
                 return NoCommandsExecuted;
             }
 
-            var commandLines = _commandLineParser.Parse(commandLineString).ToList();
+            var commandLines = _commandLineParser.Parse(commandLineString);
 
             var executables =
                 (from commandLine in commandLines
@@ -75,11 +76,10 @@ namespace Reusable.Commander
                  let command = _commandFactory.CreateCommand(commandName, commandLine)
                  select (commandName, command)).ToList();
 
-            var notFoundCommands = executables.Where(exe => exe.command is null).ToList();
-            if (notFoundCommands.Any())
+            var mismatchCommands = executables.Where(exe => exe.command is null).ToList();
+            if (mismatchCommands.Any())
             {
-                // From each command get only a single name but take the longest one as this is most likely the full-name.
-                var notFoundCommandNames = notFoundCommands.Select(exe => exe.commandName.OrderByDescending(name => name.Length).First().ToString());
+                var notFoundCommandNames = mismatchCommands.Select(exe => exe.commandName.FirstLongest().ToString());
                 throw DynamicException.Factory.CreateDynamicException(
                     $"CommandNotFound{nameof(Exception)}", 
                     $"Could not find one or more commands: {notFoundCommandNames.Join(", ").EncloseWith("[]")}.", 
@@ -88,18 +88,17 @@ namespace Reusable.Commander
 
             var executedCommands = new List<SoftKeySet>();
 
-            foreach (var executable in executables)
+            foreach (var (softKeySet, consoleCommand) in executables)
             {
-                await executable.command.ExecuteAsync(cancellationToken);
-                executedCommands.Add(executable.commandName);
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    break;
+                }
+                await consoleCommand.ExecuteAsync(cancellationToken);
+                executedCommands.Add(softKeySet);
             }
 
-            return executedCommands;            
+            return executedCommands.ToImmutableList();            
         }
-    }
-
-    // Allows to specify the culture for a parameter
-    public class CultureAttirbute : Attribute
-    {
     }
 }

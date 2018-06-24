@@ -16,6 +16,7 @@
   <ItemGroup>
     <Compile Remove="src\Collections\PainlessDictionary.cs" />
     <Compile Remove="src\Collections\PainlessDictionaryFactory.cs" />
+    <Compile Remove="src\FormatProviders\QuoteFormatter.cs" />
   </ItemGroup>
 
   <ItemGroup>

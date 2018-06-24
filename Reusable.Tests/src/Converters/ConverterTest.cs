@@ -1,7 +1,8 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.Converters;
 
-namespace Reusable.Converters.Tests
+namespace Reusable.Tests.Converters
 {
     [TestClass]
     public class ConverterTest

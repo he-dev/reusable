@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reusable.Drawing;
 using Reusable.Extensions;
-using Reusable.Formatters;
+using Reusable.FormatProviders;
 
 namespace Reusable.Utilities.JsonNet
 {
@@ -18,23 +18,22 @@ namespace Reusable.Utilities.JsonNet
         private IEnumerable<ColorParser> _colorParsers;
 
         [NotNull]
-        private ICustomFormatter _colorFormatter;
+        private string _colorFormat;
 
         [NotNull]
-        private string _colorFormat;
+        private IFormatProvider _colorFormatProvider;
 
         public ColorConverter()
         {
             _colorParsers = new ColorParser[]
             {
-                new DecimalColorParser(),
-                new HexadecimalColorParser(),
+                new RgbColorParser(),
+                new HexColorParser(),
                 new NameColorParser(),
             };
 
-            _colorFormatter = new HexadecimalColorFormatter();
-
-            _colorFormat = "#RGB";
+            _colorFormat = "{0:hex}";
+            _colorFormatProvider = new HexColorFormatProvider();
         }
 
         [NotNull, ItemNotNull]
@@ -45,17 +44,17 @@ namespace Reusable.Utilities.JsonNet
         }
 
         [NotNull]
-        public ICustomFormatter ColorFormatter
-        {
-            get => _colorFormatter;
-            set => _colorFormatter = value ?? throw new ArgumentNullException(nameof(ColorFormatter));
-        }
-
-        [NotNull]
         public string ColorFormat
         {
             get => _colorFormat;
             set => _colorFormat = value ?? throw new ArgumentNullException(nameof(ColorFormat));
+        }
+
+        [NotNull]
+        public IFormatProvider ColorFormatProvider
+        {
+            get => _colorFormatProvider;
+            set => _colorFormatProvider = value ?? throw new ArgumentNullException(nameof(ColorFormatProvider));
         }
 
         public override bool CanConvert(Type objectType)
@@ -80,12 +79,8 @@ namespace Reusable.Utilities.JsonNet
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var colorString = ColorFormatter.Format(ColorFormat, (Color)value, CultureInfo.InvariantCulture);
-            if (colorString.IsNullOrEmpty())
-            {
-                throw new JsonSerializationException($"Unrecognized color format: '{ColorFormat}'");
-            }
-            writer.WriteValue(colorString);
+            var hexColorString = string.Format(ColorFormatProvider, $"#{ColorFormat}", value); // ColorFormatProvider.Format(ColorFormat, (Color)value, CultureInfo.InvariantCulture);
+            writer.WriteValue(hexColorString);
         }
     }
 }

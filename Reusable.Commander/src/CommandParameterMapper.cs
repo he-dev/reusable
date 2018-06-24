@@ -10,25 +10,24 @@ using Reusable.Converters;
 using Reusable.Extensions;
 using Reusable.OmniLog;
 using Reusable.Reflection;
-using TypeConverter = Reusable.Converters.TypeConverter;
 
 namespace Reusable.Commander
 {
     public interface ICommandParameterMapper
     {
-        T Map<T>([NotNull] T command, [NotNull] ICommandLine commandLine) where T : IConsoleCommand;
+        T Map<T>([NotNull] T command, SoftKeySet commandName, [NotNull] ICommandLine commandLine) where T : IConsoleCommand;
     }
 
     [UsedImplicitly]
     public class CommandParameterMapper : ICommandParameterMapper
     {
         private readonly ILogger _logger;
-        private readonly ICommandRegistrationContainer _registrations;
+        private readonly ICommandCollection _registrations;
         private readonly ITypeConverter _converter;
 
         public CommandParameterMapper(
             [NotNull] ILoggerFactory loggerFactory,
-            [NotNull] ICommandRegistrationContainer registrations,
+            [NotNull] ICommandCollection registrations,
             [NotNull] ITypeConverter converter)
         {
             _logger = loggerFactory.CreateLogger(nameof(CommandParameterMapper));
@@ -36,34 +35,19 @@ namespace Reusable.Commander
             _converter = converter ?? throw new ArgumentNullException(nameof(converter));
         }
 
-        public T Map<T>(T command, ICommandLine commandLine) where T : IConsoleCommand
+        public T Map<T>(T command, SoftKeySet commandName, ICommandLine commandLine) where T : IConsoleCommand
         {
             if (command == null) throw new ArgumentNullException(nameof(command));
             if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
 
             // "Single" is fine because it's not possible to misconfigure the factory if commander-module is used so there is always a matching registration.
-            var registration = _registrations.Single(r => r.CommandType == command.GetType());
-
-            IEnumerable<string> GetValues(CommandParameter parameter)
-            {
-                if (parameter.Metadata.Position > CommandLine.CommandIndex)
-                {
-                    return commandLine.Anonymous().Skip(parameter.Metadata.Position).Take(1);
-                }
-
-                if (commandLine.Contains(parameter.Name))
-                {
-                    return commandLine[parameter.Name];
-                }
-
-                return null;
-            }
+            var registration = _registrations.Single(r => r.CommandName == commandName);            
 
             foreach (var parameter in registration)
             {
                 _logger.Trace($"Mapping parameter {parameter.Name}.");
 
-                var values = GetValues(parameter)?.ToList();
+                var values = commandLine.Values(parameter)?.ToList();
 
                 // If parameter does not exist at all...
                 if (values is null)
