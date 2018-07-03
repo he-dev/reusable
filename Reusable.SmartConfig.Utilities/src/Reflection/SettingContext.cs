@@ -34,7 +34,7 @@ namespace Reusable.SmartConfig.Utilities.Reflection
 
             _expression = expression;
 
-            (ClassType, ClassInstance) = ClassFinder.FindClass(expression, nonPublic);
+            (ClassType, _) = ClassFinder.FindClass(expression, nonPublic);
 
             var memberExpression = (MemberExpression)_expression.Body;
 

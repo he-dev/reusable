@@ -23,8 +23,8 @@ namespace Reusable.Tests.SmartConfig
                     .AddColumn("_name", typeof(string))
                     .AddColumn("_value", typeof(string))
                     .AddColumn("_other", typeof(string))
-                    .AddRow("TestClass1.Foo", "123", "integration")
-                    .AddRow("TestClass2.Bar", "text", "integration")
+                    .AddRow("MockType1.Foo", "123", "integration")
+                    .AddRow("MockType2.Bar", "text", "integration")
                     .AddRow("TestClass3.Baz", "1.23", "integration")
                     // Used for exeption testing.
                     .AddRow("TestClass3.Qux", "quux", "integration")

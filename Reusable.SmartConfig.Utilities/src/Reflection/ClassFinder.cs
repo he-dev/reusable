@@ -7,7 +7,7 @@ using Reusable.Reflection;
 namespace Reusable.SmartConfig.Utilities.Reflection
 {
     // Finds the type of the class a setting belongs to.
-    public class ClassFinder : ExpressionVisitor
+    internal class ClassFinder : ExpressionVisitor
     {
         private readonly bool _nonPublic;
         private string _memberName;
@@ -44,27 +44,18 @@ namespace Reusable.SmartConfig.Utilities.Reflection
             // - static fields
             // - static and instance properties
 
-            //if (node.NodeType == ExpressionType.MemberAccess)
-            //{
-            //    return base.Visit(node.Expression);
-            //}
-
             switch (node.Member)
             {
+                // (() => Type.Member)
                 case FieldInfo field when field.IsStatic:
                 case PropertyInfo property when property.GetGetMethod(_nonPublic).IsStatic:
                     _type = node.Member.DeclaringType;
                     break;
-                // Occurs when accessin properties by variable: (() => testClass1.Foo)
+                
+                // (() => instance.Member) (also this)
                 case FieldInfo field:
-                    _memberName = node.Member.Name;
-                    //_type = field.FieldType;
-                    break;
-                // (() => this.Foo)
-                // (() => variable.Foo)
                 case PropertyInfo property:
                     _memberName = node.Member.Name;
-                    //_type = node.Member.DeclaringType;
                     break;
             }
             return base.VisitMember(node);
