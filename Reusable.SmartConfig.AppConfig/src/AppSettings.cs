@@ -25,10 +25,7 @@ namespace Reusable.SmartConfig
                  where !(setting is null)
                  select (Name: name, setting.Value)).SingleOrDefault();
 
-            return result.Value.IsNullOrEmpty() ? null : new Setting(result.Name)
-            {
-                Value = result.Value
-            };
+            return result.Value.IsNullOrEmpty() ? null : new Setting(result.Name, result.Value);
         }
 
         protected override void WriteCore(ISetting setting)

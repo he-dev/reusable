@@ -13,22 +13,22 @@ namespace Reusable.SmartConfig
 {
     public class Configuration : IConfiguration
     {
-        private readonly IEnumerable<ISettingProvider> _dataStores;
+        private readonly IEnumerable<ISettingProvider> _providers;
 
         private readonly ISettingFinder _settingFinder;
 
-        private readonly IDictionary<SoftString, (SoftString ActualName, ISettingProvider Datastore)> _settingMap = new Dictionary<SoftString, (SoftString ActualName, ISettingProvider Datastore)>();
+        private readonly IDictionary<SoftString, (SoftString ActualName, ISettingProvider SettingProvider)> _settingMap = new Dictionary<SoftString, (SoftString ActualName, ISettingProvider SettingProvider)>();
 
-        private static readonly IDataFuse<IEnumerable<ISettingProvider>> DataStoresValidator =
+        private static readonly IDataFuse<IEnumerable<ISettingProvider>> SettingProviderValidator =
             DataFuse
                 .For<IEnumerable<ISettingProvider>>()
                 .IsNotValidWhen(dataStores => dataStores == null, DataFuseOptions.StopOnFailure)
-                .IsValidWhen(x => x.Any(), _ => "You need to specify at least one data-store.");
+                .IsValidWhen(x => x.Any(), _ => "You need to specify at least one setting-provider.");
 
         public Configuration([NotNull, ItemNotNull] IEnumerable<ISettingProvider> dataStores, [NotNull] ISettingFinder settingFinder)
         {
             // ReSharper disable once ConstantConditionalAccessQualifier - yes, this can be null
-            _dataStores = (dataStores?.ToList()).ValidateWith(DataStoresValidator).ThrowIfNotValid();
+            _providers = (dataStores?.ToList()).ValidateWith(SettingProviderValidator).ThrowIfNotValid();
             _settingFinder = settingFinder ?? throw new ArgumentNullException(nameof(settingFinder));
         }
 
@@ -40,9 +40,9 @@ namespace Reusable.SmartConfig
         {
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
 
-            if (_settingFinder.TryFindSetting(_dataStores, settingName, settingType, dataStoreName, out var result))
+            if (_settingFinder.TryFindSetting(_providers, settingName, settingType, dataStoreName, out var result))
             {
-                CacheSettingName(settingName, result.Setting.Name, result.DataStore);
+                CacheSettingName(settingName, result.Setting.Name, result.SettingProvider);
                 return result.Setting.Value;
             }
             else
@@ -56,35 +56,35 @@ namespace Reusable.SmartConfig
             _settingMap[settingName] = (settingActualName, settingProvider);
         }
 
-        public void SetValue(SoftString settingName, object value, SoftString dataStoreName)
+        public void SetValue(SoftString settingName, object value, SoftString providerName)
         {
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
 
             if (_settingMap.TryGetValue(settingName, out var item))
             {
-                item.Datastore.Write(new Setting(item.ActualName) { Value = value });
+                item.SettingProvider.Write(new Setting(item.ActualName, value));
             }
             else
             {
-                if (_settingFinder.TryFindSetting(_dataStores, settingName, null, dataStoreName, out var result))
+                if (_settingFinder.TryFindSetting(_providers, settingName, null, providerName, out var result))
                 {
-                    CacheSettingName(settingName, result.Setting.Name, result.DataStore);
-                    SetValue(settingName, value, dataStoreName);
+                    CacheSettingName(settingName, result.Setting.Name, result.SettingProvider);
+                    SetValue(settingName, value, providerName);
                 }
                 else
                 {
-                    var dataStore = _dataStores.FirstOrDefault(x => dataStoreName is null || x.Name.Equals(dataStoreName));
+                    var dataStore = _providers.FirstOrDefault(x => providerName is null || x.Name.Equals(providerName));
                     if (dataStore is null)
                     {
                         throw DynamicException.Factory.CreateDynamicException(
                             $"SettingDataStoreNotFound{nameof(Exception)}",
-                            $"Could not find setting data store {dataStoreName?.ToString().QuoteWith("'")}",
+                            $"Could not find setting data store {providerName?.ToString().QuoteWith("'")}",
                             null
                         );
                     }
 
                     var defaultSettingName = dataStore.SettingNameGenerator.GenerateSettingNames(settingName).First();
-                    dataStore.Write(new Setting(defaultSettingName) { Value = value });
+                    dataStore.Write(new Setting(defaultSettingName, value));
                 }
                 //throw ("SettingNotInitializedException", $"Setting {settingName.ToString().QuoteWith("'")} needs to be initialized before you can update it.").ToDynamicException();
             }

@@ -14,7 +14,7 @@ namespace Reusable.Tests.SmartConfig.Data
             var sn = new SettingName("foo");
             Assert.IsNull(sn.Namespace);
             Assert.IsNull(sn.Type);
-            Assert.AreEqual("foo", sn.Property.ToString());
+            Assert.AreEqual("foo", sn.Member.ToString());
             Assert.IsNull(sn.Instance);
         }
 
@@ -29,7 +29,7 @@ namespace Reusable.Tests.SmartConfig.Data
             });
             Assert.AreEqual("foo.bar", sn.Namespace.ToString());
             Assert.AreEqual("baz", sn.Type.ToString());
-            Assert.AreEqual("qux", sn.Property.ToString());
+            Assert.AreEqual("qux", sn.Member.ToString());
             Assert.AreEqual("quux", sn.Instance.ToString());
         }
 
@@ -40,7 +40,7 @@ namespace Reusable.Tests.SmartConfig.Data
 
             Assert.IsNull(settingName.Namespace);
             Assert.IsNull(settingName.Type);
-            Assert.AreEqual("qux", settingName.Property);
+            Assert.AreEqual("qux", settingName.Member);
             Assert.IsNull(settingName.Instance);
             Assert.AreEqual("qux", settingName.ToString());
         }
@@ -52,7 +52,7 @@ namespace Reusable.Tests.SmartConfig.Data
 
             Assert.IsNull(settingName.Namespace);
             Assert.AreEqual("baz", settingName.Type);
-            Assert.AreEqual("qux", settingName.Property);
+            Assert.AreEqual("qux", settingName.Member);
             Assert.IsNull(settingName.Instance);
             Assert.AreEqual("baz.qux", settingName.ToString());
         }
@@ -64,7 +64,7 @@ namespace Reusable.Tests.SmartConfig.Data
 
             Assert.AreEqual("foo.bar", settingName.Namespace);
             Assert.AreEqual("baz", settingName.Type);
-            Assert.AreEqual("qux", settingName.Property);
+            Assert.AreEqual("qux", settingName.Member);
             Assert.IsNull(settingName.Instance);
             Assert.AreEqual("foo.bar+baz.qux", settingName.ToString());
         }
@@ -76,7 +76,7 @@ namespace Reusable.Tests.SmartConfig.Data
 
             Assert.AreEqual("foo.bar", settingName.Namespace);
             Assert.AreEqual("baz", settingName.Type);
-            Assert.AreEqual("qux", settingName.Property);
+            Assert.AreEqual("qux", settingName.Member);
             Assert.AreEqual("quux", settingName.Instance);
             Assert.AreEqual("foo.bar+baz.qux,quux", settingName.ToString());
         }

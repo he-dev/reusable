@@ -26,6 +26,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="src\MemberSetter.cs" />
+    <Compile Remove="src\Reflection\ClassFinder.cs" />
     <Compile Remove="src\Reflection\SettingExpressionExtensions.cs" />
     <Compile Remove="src\SettingFile.cs" />
   </ItemGroup>

@@ -29,33 +29,33 @@ namespace Reusable.SmartConfig.Utilities
         #region GetValue overloads
 
         [CanBeNull]
-        private static T GetValue<T>([NotNull] this IConfiguration config, [NotNull] LambdaExpression expression, [CanBeNull] string instance = null)
+        private static T GetValueFor<T>([NotNull] this IConfiguration config, [NotNull] LambdaExpression expression, [CanBeNull] string instanceName = null)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
-            var settingContext = new SettingContext(expression, instance);
+            var settingInfo = SettingInfo.FromExpression(expression, false, instanceName);
 
-            var settingValue = config.GetValue(settingContext.SettingName, typeof(T), settingContext.ProviderName) ?? settingContext.DefaultValue;
+            var settingValue = config.GetValue(settingInfo.SettingName, typeof(T), settingInfo.ProviderName) ?? settingInfo.DefaultValue;
 
-            settingContext
+            settingInfo
                 .Validations
-                .Validate(settingContext.SettingName, settingValue);
+                .Validate(settingInfo.SettingName, settingValue);
 
             return (T)settingValue;
         }
 
         [CanBeNull]
-        public static T GetValue<T>([NotNull] this IConfiguration config, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instance = null)
+        public static T GetValueFor<T>([NotNull] this IConfiguration config, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instanceName = null)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
-            return config.GetValue<T>((LambdaExpression)expression, instance);
+            return config.GetValueFor<T>((LambdaExpression)expression, instanceName);
         }
 
         [CanBeNull]
-        public static T GetValue<T>([NotNull] this IConfiguration config, [NotNull] SoftString settingName)
+        public static T GetValueFor<T>([NotNull] this IConfiguration config, [NotNull] SoftString settingName)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
@@ -63,33 +63,51 @@ namespace Reusable.SmartConfig.Utilities
             return (T)config.GetValue(settingName, typeof(T), null);
         }
 
-        [NotNull]
-        public static Lazy<T> GetValueLazy<T>([NotNull] this IConfiguration config, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instance = null)
-        {
-            if (config == null) throw new ArgumentNullException(nameof(config));
-            if (expression == null) throw new ArgumentNullException(nameof(expression));
+        //[NotNull]
+        //public static Lazy<T> GetValueLazy<T>([NotNull] this IConfiguration config, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instance = null)
+        //{
+        //    if (config == null) throw new ArgumentNullException(nameof(config));
+        //    if (expression == null) throw new ArgumentNullException(nameof(expression));
 
-            return Lazy.Create(() => config.GetValue(expression, instance));
-        }
+        //    return Lazy.Create(() => config.GetValue(expression, instance));
+        //}
 
         #endregion
 
         #region SetValue overloads
 
+        //[NotNull]
+        //public static IConfiguration SetValue<T>([NotNull] this IConfiguration config, [NotNull] LambdaExpression expression, T value, [CanBeNull] string instance = null)
+        //{
+        //    if (config == null) throw new ArgumentNullException(nameof(config));
+        //    if (expression == null) throw new ArgumentNullException(nameof(expression));
+
+        //    var settingContext = SettingInfo.FromExpression(expression, false, instance);
+
+        //    //var settingValue = config.GetValue(settingContext.SettingName, typeof(T), settingContext.ProviderName) ?? settingContext.DefaultValue;
+
+        //    settingContext
+        //        .Validations
+        //        .Validate(settingContext.SettingName, settingValue);
+
+        //    config.SetValue(settingContext.SettingName, settingValue, null);
+        //    return config;
+        //}
+
         [NotNull]
-        public static IConfiguration SetValue<T>([NotNull] this IConfiguration config, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instance = null)
+        public static IConfiguration SetValueOf<T>([NotNull] this IConfiguration config, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instance = null)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
-            var settingContext = new SettingContext(expression, instance);
+            var settingContext = SettingInfo.FromExpression(expression, false, instance);
 
             var settingValue = config.GetValue(settingContext.SettingName, typeof(T), settingContext.ProviderName) ?? settingContext.DefaultValue;
 
             settingContext
                 .Validations
                 .Validate(settingContext.SettingName, settingValue);
-            
+
             config.SetValue(settingContext.SettingName, settingValue, null);
             return config;
         }
@@ -102,16 +120,16 @@ namespace Reusable.SmartConfig.Utilities
         /// Assigns the same setting value to the specified member.
         /// </summary>
         [NotNull]
-        public static IConfiguration AssignValue<T>([NotNull] this IConfiguration configuration, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instance = null)
+        public static IConfiguration AssignValueTo<T>([NotNull] this IConfiguration configuration, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instance = null)
         {
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
-            var settingContext = new SettingContext(expression, instance);
+            var settingContext = SettingInfo.FromExpression(expression, false, instance);
 
-            var value = configuration.GetValue(expression, instance);
+            var value = configuration.GetValueFor(expression, instance);
             settingContext.SetValue(value);
-            
+
             return configuration;
         }
 
@@ -119,17 +137,17 @@ namespace Reusable.SmartConfig.Utilities
         /// Assigns setting values to all members decorated with the the SmartSettingAttribute.
         /// </summary>
         [NotNull]
-        public static IConfiguration AssignValues<T>([NotNull] this IConfiguration configuration, [NotNull] T obj, [CanBeNull] string instance = null)
+        public static IConfiguration AssignValuesTo<T>([NotNull] this IConfiguration configuration, [NotNull] T obj, [CanBeNull] string instance = null)
         {
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
             if (obj == null) throw new ArgumentNullException(nameof(obj));
 
-            var properties = 
+            var settingProperties =
                 typeof(T)
                     .GetProperties(BindingFlags.Instance | BindingFlags.Public)
                     .Where(p => p.GetCustomAttribute<SmartSettingAttribute>() != null);
 
-            foreach (var property in properties)
+            foreach (var property in settingProperties)
             {
                 // Create a lambda-expression so that we can reuse the extensions for it we already have.
                 var expression = Expression.Lambda(
@@ -139,9 +157,9 @@ namespace Reusable.SmartConfig.Utilities
                     )
                 );
 
-                var settingContext = new SettingContext(expression, instance);
-                var value = configuration.GetValue(settingContext.SettingName, property.PropertyType, settingContext.ProviderName);
-                settingContext.SetValue(value);
+                var settingInfo = SettingInfo.FromExpression(expression, false, instance);
+                var value = configuration.GetValue(settingInfo.SettingName, property.PropertyType, settingInfo.ProviderName);
+                settingInfo.SetValue(value);
             }
             return configuration;
         }

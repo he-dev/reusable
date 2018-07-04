@@ -60,10 +60,10 @@ namespace Reusable.SmartConfig
                 {
                     if (settingReader.Read())
                     {
-                        var setting = new Setting((string)settingReader[ColumnMapping.Name])
-                        {
-                            Value = settingReader[ColumnMapping.Value],
-                        };
+                        var setting = new Setting(
+                            (string)settingReader[ColumnMapping.Name],
+                            settingReader[ColumnMapping.Value]
+                        );
 
                         if (settingReader.Read())
                         {

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
@@ -21,7 +23,7 @@ namespace Reusable.SmartConfig.Data
         public static readonly string Format =
             $"[{nameof(Namespace)}{NamespaceSeparator}]" +
             $"[{nameof(Type)}{TypeSeparator}]" +
-            $"{nameof(Property)}" +
+            $"{nameof(Member)}" +
             $"[{InstanceSeparator}{nameof(Instance)}]";
 
         private static readonly string NamePattern =
@@ -31,14 +33,14 @@ namespace Reusable.SmartConfig.Data
             $"(?:{InstanceSeparator}(?<Instance>[a-z0-9_]+))?";
 
         [NotNull]
-        private SoftString _property;
+        private SoftString _member;
 
-        public SettingName([NotNull] SoftString property)
+        public SettingName([NotNull] SoftString member)
         {
-            _property = property ?? throw new ArgumentNullException(nameof(property));
+            _member = member ?? throw new ArgumentNullException(nameof(member));
         }
 
-        public SettingName(SettingName settingName) : this(settingName.Property)
+        public SettingName(SettingName settingName) : this(settingName.Member)
         {
             Namespace = settingName.Namespace;
             Type = settingName.Type;
@@ -55,10 +57,10 @@ namespace Reusable.SmartConfig.Data
 
         [NotNull]
         [AutoEqualityProperty]
-        public SoftString Property
+        public SoftString Member
         {
-            get => _property;
-            set => _property = value ?? throw new ArgumentNullException(nameof(Property));
+            get => _member;
+            set => _member = value ?? throw new ArgumentNullException(nameof(Member));
         }
 
         [CanBeNull]
@@ -90,7 +92,7 @@ namespace Reusable.SmartConfig.Data
             return new StringBuilder()
                 .AppendWhen(Namespace.IsNotNullOrEmpty(), () => $"{Namespace?.ToString()}{NamespaceSeparator}")
                 .AppendWhen(Type.IsNotNullOrEmpty(), () => $"{Type?.ToString()}{TypeSeparator}")
-                .Append(Property)
+                .Append(Member)
                 .AppendWhen(Instance.IsNotNullOrEmpty(), () => $"{InstanceSeparator}{Instance?.ToString()}")
                 .ToString();
         }

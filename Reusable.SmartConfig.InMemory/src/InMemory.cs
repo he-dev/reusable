@@ -16,7 +16,7 @@ namespace Reusable.SmartConfig
             {
                 if (_settings.TryGetValue(name, out var value))
                 {
-                    return new Setting(name) { Value = value };
+                    return new Setting(name, value);
                 }
             }
 
@@ -32,7 +32,7 @@ namespace Reusable.SmartConfig
 
         public void Add(ISetting setting) => Write(setting);
 
-        public void Add(string name, object value) => Write(new Setting(name) { Value = value });
+        public void Add(string name, object value) => Write(new Setting(name, value));
 
         public InMemory AddRange(IEnumerable<ISetting> settings)
         {

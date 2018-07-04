@@ -25,9 +25,9 @@ namespace Reusable.Tests.SmartConfig
         [TestMethod]
         public void GetValue_SettingExists_Value()
         {
-            var dataStore = Mock.Create<ISettingProvider>();
+            var settingProvider = Mock.Create<ISettingProvider>();
 
-            var result = (dataStore, (ISetting)new Setting("foo") { Value = "bar" });
+            var result = (settingProvider, Setting.Create("foo", "bar"));
 
             var settingFinder = Mock.Create<ISettingFinder>();
             Mock
@@ -42,7 +42,7 @@ namespace Reusable.Tests.SmartConfig
                 )
                 .Returns(true);
 
-            var configuration = new Configuration(new[] { dataStore }, settingFinder);
+            var configuration = new Configuration(new[] { settingProvider }, settingFinder);
 
             var actualValue = configuration.GetValue("foo", typeof(int), null);
 
@@ -60,7 +60,7 @@ namespace Reusable.Tests.SmartConfig
 
             var configuration = new Configuration(new[] { dataStore });
 
-            var ex = AssertExtensions.ThrowsExceptionWhen<DynamicException>(Assert.That, () => configuration.GetValue("foo", typeof(int), null));
+            var ex = Assert.That.ThrowsExceptionWhen<DynamicException>(() => configuration.GetValue("foo", typeof(int), null));
             Assert.AreEqual("Setting 'foo' not found.", ex.Message);
         }
 
@@ -68,12 +68,12 @@ namespace Reusable.Tests.SmartConfig
         public void SetValue_SettingInitialized_WriteCalled()
         {
             var dataStore = Mock.Create<ISettingProvider>();
-            
+
             Mock
                 .Arrange(() => dataStore.Write(Arg.IsAny<ISetting>()))
                 .OccursOnce();
 
-            var result = (dataStore, (ISetting)new Setting("baz.qux") { Value = 123 });
+            var result = (dataStore, Setting.Create("baz.qux", 123));
 
             var settingFinder = Mock.Create<ISettingFinder>();
             Mock
@@ -105,13 +105,13 @@ namespace Reusable.Tests.SmartConfig
 
             Mock
                 .Arrange(() => dataStore.Read(Arg.IsAny<SoftString>(), Arg.IsAny<Type>()))
-                .Returns(new Setting("baz.qux") { Value = 123 });
+                .Returns(Setting.Create("baz.qux", 123));
 
             Mock
                 .Arrange(() => dataStore.Write(Arg.IsAny<ISetting>()))
                 .OccursOnce();
 
-            var result = (dataStore, (ISetting)new Setting("baz.qux") { Value = 123 });
+            var result = (dataStore, Setting.Create("baz.qux", 123));
 
             var settingFinder = Mock.Create<ISettingFinder>();
             Mock

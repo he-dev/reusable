@@ -24,9 +24,9 @@ namespace Reusable.SmartConfig
     {
         private static readonly IEnumerable<Func<SettingName, SettingName>> SettingNameFactories = new Func<SettingName, SettingName>[]
         {
-            source => new SettingName(source.Property) { Type = source.Type, Instance = source.Instance},
-            source => new SettingName(source.Property) { Instance = source.Instance },
-            source => new SettingName(source.Property) { Namespace = source.Namespace, Type = source.Type, Instance = source.Instance }
+            source => new SettingName(source.Member) { Type = source.Type, Instance = source.Instance},
+            source => new SettingName(source.Member) { Instance = source.Instance },
+            source => new SettingName(source.Member) { Namespace = source.Namespace, Type = source.Type, Instance = source.Instance }
         };
 
         public IEnumerable<SettingName> GenerateSettingNames(SoftString settingName)
@@ -52,7 +52,7 @@ namespace Reusable.SmartConfig
 
         private static IEnumerable<SettingName> GenerateSettingNamesWithoutInstance(SettingName settingName)
         {
-            var settingNameWithoutInstance = new SettingName(settingName.Property)
+            var settingNameWithoutInstance = new SettingName(settingName.Member)
             {
                 Namespace = settingName.Namespace,
                 Type = settingName.Type

@@ -23,8 +23,8 @@ namespace Reusable.Tests.SmartConfig
                     .AddColumn("_name", typeof(string))
                     .AddColumn("_value", typeof(string))
                     .AddColumn("_other", typeof(string))
-                    .AddRow("MockType1.Foo", "123", "integration")
-                    .AddRow("MockType2.Bar", "text", "integration")
+                    .AddRow("MockClass1.Foo", "123", "integration")
+                    .AddRow("MockClass2.Bar", "text", "integration")
                     .AddRow("TestClass3.Baz", "1.23", "integration")
                     // Used for exeption testing.
                     .AddRow("TestClass3.Qux", "quux", "integration")
@@ -58,8 +58,8 @@ namespace Reusable.Tests.SmartConfig
             var testClass1 = new TestClass1();
             var testClass2 = new TestClass2();
 
-            var foo = configuration.GetValue(() => testClass1.Foo);
-            var bar = configuration.GetValue(() => testClass2.Bar);
+            var foo = configuration.GetValueFor(() => testClass1.Foo);
+            var bar = configuration.GetValueFor(() => testClass2.Bar);
 
             Assert.AreEqual(123, foo);
             Assert.AreEqual("text", bar);

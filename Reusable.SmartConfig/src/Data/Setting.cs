@@ -13,7 +13,7 @@ namespace Reusable.SmartConfig.Data
         SoftString Name { get; }
 
         [CanBeNull]
-        object Value { get; set; }
+        object Value { get; }
     }
 
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
@@ -22,13 +22,18 @@ namespace Reusable.SmartConfig.Data
         private static readonly IEqualityComparer<SoftString> Comparer = RelayEqualityComparer<SoftString>.Create((left, right) => left.Equals(right), obj => obj.GetHashCode());
 
         [DebuggerStepThrough]
+        public Setting([NotNull] SoftString name, object value) : this(name) => Value = value ;//?? throw new ArgumentNullException(nameof(value));
+
+        [DebuggerStepThrough]
         public Setting([NotNull] SoftString name) => Name = name ?? throw new ArgumentNullException(nameof(name));
 
         public SoftString Name { [DebuggerStepThrough]get; }
 
-        public object Value { [DebuggerStepThrough]get; [DebuggerStepThrough]set; }
+        public object Value { [DebuggerStepThrough]get; }
 
-        public static ISetting Create(SoftString name, object value) => new Setting(name) { Value = value };
+        public static ISetting Create(SoftString name, object value) => new Setting(name, value);
+
+        public static ISetting Create(SoftString name) => new Setting(name);
 
         private string DebuggerDisplay => ToString();
 

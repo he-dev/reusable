@@ -9,6 +9,6 @@ namespace Reusable.SmartConfig
         [CanBeNull]
         object GetValue([NotNull] SoftString settingName, [CanBeNull] Type settingType, [CanBeNull] SoftString dataStoreName);
 
-        void SetValue([NotNull] SoftString settingName, [CanBeNull] object value, [CanBeNull] SoftString dataStoreName);
+        void SetValue([NotNull] SoftString settingName, [CanBeNull] object value, [CanBeNull] SoftString providerName);
     }
 }

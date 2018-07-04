@@ -8,10 +8,10 @@ namespace Reusable.SmartConfig
     public interface ISettingFinder
     {
         bool TryFindSetting(
-            [NotNull] IEnumerable<ISettingProvider> dataStores,
+            [NotNull] IEnumerable<ISettingProvider> providers,
             [NotNull] SoftString settingName,
             [CanBeNull] Type settingType, 
-            [CanBeNull] SoftString dataStoreName,
-            out (ISettingProvider DataStore, ISetting Setting) result);
+            [CanBeNull] SoftString providerName,
+            out (ISettingProvider SettingProvider, ISetting Setting) result);
     }
 }

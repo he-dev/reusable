@@ -144,7 +144,7 @@ namespace Reusable.Tests.SmartConfig
                 ColumnMapping = ("_name", "_value")
             };
 
-            sqlServer.Write(new Setting("foo") { Value = "fooo-updated" });
+            sqlServer.Write(new Setting("foo", "fooo-updated"));
             var setting = sqlServer.Read("foo", typeof(string));
 
             converter.Assert();
@@ -179,7 +179,7 @@ namespace Reusable.Tests.SmartConfig
                 ColumnMapping = ("_name", "_value")
             };
 
-            sqlServer.Write(new Setting("foo_new") { Value = "fooo-inserted" });
+            sqlServer.Write(new Setting("foo_new", "fooo-inserted"));
             var setting = sqlServer.Read("foo_new", typeof(string));
 
             converter.Assert();

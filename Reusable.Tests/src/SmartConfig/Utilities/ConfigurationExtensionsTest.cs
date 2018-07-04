@@ -30,7 +30,7 @@ namespace Reusable.Tests.SmartConfig.Utilities
                 .OccursOnce();
 
             var testClass = new TestClass();
-            var value = configuration.GetValue(() => testClass.Foo);
+            var value = configuration.GetValueFor(() => testClass.Foo);
 
             configuration.Assert();
             Assert.AreEqual("foo", value);
@@ -66,7 +66,7 @@ namespace Reusable.Tests.SmartConfig.Utilities
                 .Returns("bar")
                 .OccursOnce();
 
-            var value = configuration.GetValue(() => TestClass.Bar);
+            var value = configuration.GetValueFor(() => TestClass.Bar);
 
             configuration.Assert();
             Assert.AreEqual("bar", value);
@@ -102,7 +102,7 @@ namespace Reusable.Tests.SmartConfig.Utilities
                 .OccursOnce();
 
             var testClass3 = new TestClass3();
-            var value = configuration.GetValue(() => testClass3.Foo);
+            var value = configuration.GetValueFor(() => testClass3.Foo);
 
             configuration.Assert();
             Assert.AreEqual("foo", value);
@@ -122,7 +122,7 @@ namespace Reusable.Tests.SmartConfig.Utilities
                 .OccursOnce();
 
             var testClass3 = new TestClass3();
-            var validationException = Assert.ThrowsException<ValidationException>(() => configuration.GetValue(() => testClass3.Foo));
+            var validationException = Assert.ThrowsException<ValidationException>(() => configuration.GetValueFor(() => testClass3.Foo));
         }
 
         #endregion
@@ -143,7 +143,7 @@ namespace Reusable.Tests.SmartConfig.Utilities
                 .OccursOnce();
 
             var testClass = new TestClass();
-            configuration.AssignValue(() => testClass.Foo);
+            configuration.AssignValueTo(() => testClass.Foo);
 
             configuration.Assert();
             Assert.AreEqual("foo", testClass.Foo);
@@ -182,7 +182,7 @@ namespace Reusable.Tests.SmartConfig.Utilities
                 .Occurs(2);
 
             var testClass2 = new TestClass2();
-            configuration.AssignValues(testClass2);
+            configuration.AssignValuesTo(testClass2);
 
             configuration.Assert();
             Assert.AreEqual("Setting1", testClass2.Foo);
@@ -200,7 +200,7 @@ namespace Reusable.Tests.SmartConfig.Utilities
 
         public void AssertGetValue(IConfiguration configuration)
         {
-            var value = configuration.GetValue(() => Foo);
+            var value = configuration.GetValueFor(() => Foo);
 
             configuration.Assert();
             Assert.AreEqual("foo", value);
@@ -208,7 +208,7 @@ namespace Reusable.Tests.SmartConfig.Utilities
 
         public static void AssertGetValueStatic(IConfiguration configuration)
         {
-            var value = configuration.GetValue(() => Bar);
+            var value = configuration.GetValueFor(() => Bar);
 
             configuration.Assert();
             Assert.AreEqual("bar", value);
@@ -216,7 +216,7 @@ namespace Reusable.Tests.SmartConfig.Utilities
 
         public void AssertAssignValue(IConfiguration configuration)
         {
-            configuration.AssignValue(() => Foo);
+            configuration.AssignValueTo(() => Foo);
 
             configuration.Assert();
             Assert.AreEqual("foo", Foo);

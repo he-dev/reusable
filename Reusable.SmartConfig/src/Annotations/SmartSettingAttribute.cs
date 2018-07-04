@@ -11,7 +11,7 @@ namespace Reusable.SmartConfig.Annotations
         public string Name { get; set; }
 
         [CanBeNull]
-        public string DataStoreName { get; set; }
+        public string ProviderName { get; set; }
 
         // todo for future use
         //public bool Cached { get; set; } = true;

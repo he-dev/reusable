@@ -35,6 +35,7 @@
     <Compile Remove="src\Core\Diagnostics\DebuggerStringTest.cs" />
     <Compile Remove="src\Core\FormatProviders\BracketFormatterTest.cs" />
     <Compile Remove="src\Core\FormatProviders\DefaultFormatterTest.cs" />
+    <Compile Remove="src\SmartConfig\Utilities\Reflection\ClassFinderTest.cs" />
     <Compile Remove="src\SmartConfig\Utilities\Reflection\SettingExpressionExtensionsTest.cs" />
   </ItemGroup>
 
