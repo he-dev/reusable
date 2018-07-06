@@ -5,11 +5,12 @@ namespace Reusable.SmartConfig
 {
     public class SqlServerColumnMapping
     {
-        private static readonly IDataFuse<string> ColumnValidator =
-            DataFuse
-                .For<string>()
-                .IsNotValidWhen(column => column == null, DataFuseOptions.StopOnFailure)
-                .IsNotValidWhen(column => string.IsNullOrEmpty(column));
+        private static readonly IDuckValidator<string> ColumnValidator = new DuckValidator<string>(column =>
+        {
+            column
+                .IsNotValidWhen(c => c == null, DuckValidationRuleOptions.BreakOnFailure)
+                .IsNotValidWhen(c => string.IsNullOrEmpty(c));
+        });
 
         private string _name;
         private string _value;
@@ -24,14 +25,14 @@ namespace Reusable.SmartConfig
         public string Name
         {
             get => _name;
-            set => _name = value.ValidateWith(ColumnValidator).ThrowIfNotValid();
+            set => _name = value.ValidateWith(ColumnValidator).ThrowWhenNotValid();
         }
 
         [NotNull]
         public string Value
         {
             get => _value;
-            set => _value = value.ValidateWith(ColumnValidator).ThrowIfNotValid();
+            set => _value = value.ValidateWith(ColumnValidator).ThrowWhenNotValid();
         }
 
         public static implicit operator SqlServerColumnMapping((string name, string value) mapping)

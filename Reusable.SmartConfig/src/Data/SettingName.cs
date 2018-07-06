@@ -89,7 +89,7 @@ namespace Reusable.SmartConfig.Data
         [SuppressMessage("ReSharper", "RedundantToStringCall")] // it's not redundant, SoftString does not implicitly convert to string.
         public override string ToString()
         {
-            return new StringBuilder()
+            return new StringBuilder()                
                 .AppendWhen(Namespace.IsNotNullOrEmpty(), () => $"{Namespace?.ToString()}{NamespaceSeparator}")
                 .AppendWhen(Type.IsNotNullOrEmpty(), () => $"{Type?.ToString()}{TypeSeparator}")
                 .Append(Member)

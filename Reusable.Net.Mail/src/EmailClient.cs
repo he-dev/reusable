@@ -17,20 +17,24 @@ namespace Reusable.Net.Mail
 
     public abstract class EmailClient : IEmailClient
     {
-        private static readonly IDataFuse<IEmail<IEmailSubject, IEmailBody>> EmailValidator =
-            DataFuse<IEmail<IEmailSubject, IEmailBody>>.Empty
+        private static readonly IDuckValidator<IEmail<IEmailSubject, IEmailBody>> EmailValidator = new DuckValidator<IEmail<IEmailSubject, IEmailBody>>(email =>
+        {
+            email
                 .IsNotValidWhen(e => e.To == null)
                 .IsNotValidWhen(e => e.Subject == null)
                 .IsNotValidWhen(e => e.Body == null);
-        
+        });
+
         public async Task SendAsync<TSubject, TBody>(IEmail<TSubject, TBody> email)
             where TSubject : IEmailSubject
             where TBody : IEmailBody
         {
             if (email == null) throw new ArgumentNullException(nameof(email));
-            
-            ((IEmail<IEmailSubject, IEmailBody>)email).ValidateWith(EmailValidator).ThrowIfNotValid();
-            
+
+            EmailValidator
+                .Validate((IEmail<IEmailSubject, IEmailBody>)email)
+                .ThrowWhenNotValid();
+
             try
             {
                 await SendAsyncCore(email);
@@ -38,8 +42,8 @@ namespace Reusable.Net.Mail
             catch (Exception innerException)
             {
                 throw DynamicException.Factory.CreateDynamicException(
-                    $"SendEmail{nameof(Exception)}", 
-                    $"Could not send email: Subject = '{email.Subject}' To = '{email.To}' From = '{email.From}'.", 
+                    $"SendEmail{nameof(Exception)}",
+                    $"Could not send email: Subject = '{email.Subject}' To = '{email.To}' From = '{email.From}'.",
                     innerException
                 );
             }

@@ -17,6 +17,7 @@
     <Compile Remove="src\Collections\PainlessDictionary.cs" />
     <Compile Remove="src\Collections\PainlessDictionaryFactory.cs" />
     <Compile Remove="src\FormatProviders\QuoteFormatter.cs" />
+    <Compile Remove="src\Validation\DuckValidatorExtensions.cs" />
   </ItemGroup>
 
   <ItemGroup>

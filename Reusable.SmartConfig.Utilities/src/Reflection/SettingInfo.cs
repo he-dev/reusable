@@ -17,11 +17,12 @@ namespace Reusable.SmartConfig.Utilities.Reflection
     [PublicAPI]
     public class SettingInfo
     {
-        private static readonly IDataFuse<LambdaExpression> SettingExpressionValidator =
-            DataFuse
-                .For<LambdaExpression>()
-                .IsNotValidWhen(expression => expression == null, DataFuseOptions.StopOnFailure)
-                .IsValidWhen(expression => expression.Body is MemberExpression);
+        private static readonly IDuckValidator<LambdaExpression> SettingExpressionValidator = new DuckValidator<LambdaExpression>(expression =>
+        {
+            expression
+                .IsNotValidWhenNull()
+                .IsValidWhen(e => e.Body is MemberExpression);
+        });
 
         //[NotNull]
         //private readonly LambdaExpression _expression;

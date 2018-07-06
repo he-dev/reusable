@@ -27,20 +27,10 @@ namespace Reusable.SmartConfig
                 where providerName.IsNullOrEmpty() || provider.Name.Equals(providerName)
                 let setting = provider.Read(settingName, settingType)
                 where setting != null
-                select new { Datastore = provider, Setting = setting };
+                select (provider, setting);
 
-            var first = settingQuery.FirstOrDefault();
-
-            if (first is null)
-            {
-                result = default((ISettingProvider, ISetting));
-                return false;
-            }
-            else
-            {
-                result = (first.Datastore, first.Setting);
-                return true;
-            }
+            result = settingQuery.FirstOrDefault();
+            return !(result.SettingProvider is null && result.Setting is null);
         }
     }
 }

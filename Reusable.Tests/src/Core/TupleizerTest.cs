@@ -26,14 +26,14 @@ namespace Reusable.Tests
             Assert.IsNull(count);
         }
 
-        [TestMethod]
-        public void Parse_NoValues_NoResults()
-        {
-            var (success, (name, count)) = "-".Parse<string, int?>(@"(?<T1>(?i:[a-z]+))(?<T2>\d+)?");
+        //[TestMethod]
+        //public void Parse_NoValues_NoResults()
+        //{
+        //    var (success, (name, count)) = "-".Parse<string, int?>(@"(?<T1>(?i:[a-z]+))(?<T2>\d+)?");
 
-            Assert.IsFalse(success);
-            Assert.IsNull(name);
-            Assert.IsNull(count);
-        }
+        //    Assert.IsFalse(success);
+        //    Assert.IsNull(name);
+        //    Assert.IsNull(count);
+        //}
     }
 }

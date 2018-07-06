@@ -19,16 +19,17 @@ namespace Reusable.SmartConfig
 
         private readonly IDictionary<SoftString, (SoftString ActualName, ISettingProvider SettingProvider)> _settingMap = new Dictionary<SoftString, (SoftString ActualName, ISettingProvider SettingProvider)>();
 
-        private static readonly IDataFuse<IEnumerable<ISettingProvider>> SettingProviderValidator =
-            DataFuse
-                .For<IEnumerable<ISettingProvider>>()
-                .IsNotValidWhen(dataStores => dataStores == null, DataFuseOptions.StopOnFailure)
+        private static readonly IDuckValidator<IEnumerable<ISettingProvider>> SettingProviderValidator = new DuckValidator<IEnumerable<ISettingProvider>>(provider =>
+        {
+            provider
+                .IsNotValidWhen(dataStores => dataStores == null, DuckValidationRuleOptions.BreakOnFailure)
                 .IsValidWhen(x => x.Any(), _ => "You need to specify at least one setting-provider.");
+        });
 
         public Configuration([NotNull, ItemNotNull] IEnumerable<ISettingProvider> dataStores, [NotNull] ISettingFinder settingFinder)
         {
             // ReSharper disable once ConstantConditionalAccessQualifier - yes, this can be null
-            _providers = (dataStores?.ToList()).ValidateWith(SettingProviderValidator).ThrowIfNotValid();
+            _providers = (dataStores?.ToList()).ValidateWith(SettingProviderValidator).ThrowWhenNotValid();
             _settingFinder = settingFinder ?? throw new ArgumentNullException(nameof(settingFinder));
         }
 

@@ -71,12 +71,13 @@ namespace Reusable.OmniLog.SemanticExtensions
 
     public class LoggerFactoryBuilder
     {
-        private static readonly IDataFuse<LoggerFactoryBuilder> Validator =
-            Validation.DataFuse
-                .For<LoggerFactoryBuilder>()
+        private static readonly IDuckValidator<LoggerFactoryBuilder> Validator = new DuckValidator<LoggerFactoryBuilder>(loggerFactory =>
+        {
+            loggerFactory
                 .IsValidWhen(builder => builder._rxes.Any(), "You need to add at least one Rx.")
                 .IsNotValidWhen(builder => string.IsNullOrEmpty(builder._environment), "You need to specify the environment.")
                 .IsNotValidWhen(builder => string.IsNullOrEmpty(builder._product), "You need to specif the product.");
+        });
 
         private readonly List<ILogRx> _rxes;
         private string _environment;

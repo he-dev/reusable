@@ -10,24 +10,18 @@ namespace Reusable.Validation
     public static class DataFuseContextExtensions
     {
         [CanBeNull]
-        public static T ThrowIfNotValid<T>(this DataFuseContext<T> context)
+        public static T ThrowWhenNotValid<T>(this DuckValidationResult<T> duckValidationResult)
         {
-            if (context)
-            {
-                return context.Object;
-            }
-
-            var requriements = context.Results.Aggregate(
-                new StringBuilder(),
-                (result, validation) => result.AppendLine($"{validation}")
-            ).ToString();
-
-            throw DynamicException.Factory.CreateDynamicException
-            (
-                name: $"{typeof(T).ToPrettyString()}Validation{nameof(Exception)}",
-                message: $"Object of type '{typeof(T).ToPrettyString()}' does not meet one or more requirements.{Environment.NewLine}{Environment.NewLine}{requriements}",
-                innerException: null
-            );
+            return
+                duckValidationResult.Success
+                    ? duckValidationResult
+                    : throw DynamicException.Factory.CreateDynamicException
+                    (
+                        name: $"{typeof(T).ToPrettyString()}Validation{nameof(Exception)}",
+                        message: 
+                            $"Object of type '{typeof(T).ToPrettyString()}' does not meet one or more requirements.{Environment.NewLine}{Environment.NewLine}" +
+                            $"{string.Join(Environment.NewLine, duckValidationResult.Select(x => x.ToString()))}"
+                    );
         }
     }
 }

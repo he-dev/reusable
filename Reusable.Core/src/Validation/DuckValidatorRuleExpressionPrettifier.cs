@@ -7,13 +7,13 @@ namespace Reusable.Validation
     // We don't want to show the exact same expression as the condition
     // because there are variables and closures that don't look pretty.
     // We replace them with more friendly names.
-    internal class DataFuseExpressionPrettifier : ExpressionVisitor
+    internal class DuckValidatorRuleExpressionPrettifier : ExpressionVisitor
     {
         private readonly ParameterExpression _fromParameter;
 
         private readonly ParameterExpression _toParameter;
 
-        private DataFuseExpressionPrettifier(ParameterExpression fromParameter, ParameterExpression toParameter)
+        private DuckValidatorRuleExpressionPrettifier(ParameterExpression fromParameter, ParameterExpression toParameter)
         {
             _fromParameter = fromParameter;
             _toParameter = toParameter;
@@ -60,7 +60,7 @@ namespace Reusable.Validation
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
             var parameterReplacement = Expression.Parameter(typeof(T), $"<{typeof(T).Name}>");
-            return new DataFuseExpressionPrettifier(expression.Parameters[0], parameterReplacement).Visit(expression.Body);
+            return new DuckValidatorRuleExpressionPrettifier(expression.Parameters[0], parameterReplacement).Visit(expression.Body);
         }
     }
 }

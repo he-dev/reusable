@@ -3,9 +3,9 @@
 namespace Reusable.Validation
 {
     [Flags]
-    public enum DataFuseOptions
+    public enum DuckValidationRuleOptions
     {
         None = 0,
-        StopOnFailure = 1 << 0,
+        BreakOnFailure = 1 << 0,
     }
 }
