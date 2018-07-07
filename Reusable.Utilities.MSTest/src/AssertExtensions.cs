@@ -19,14 +19,12 @@ namespace Reusable.Utilities.MSTest
         [NotNull]
         public static TException ThrowsExceptionWhen<TException>(this Assert assert, Action action, Func<TException, bool> filter = null) where TException : Exception
         {
-            filter = filter ?? (ex => true);
-
             try
             {
                 action();
                 Assert.Fail(Format($"Expected exception {typeof(TException):single}, but none was thrown.", FormatProvider));
             }
-            catch (TException ex) when (filter(ex))
+            catch (TException ex) when ((filter ?? (_ => true))(ex))
             {
                 return ex;
             }
@@ -46,28 +44,7 @@ namespace Reusable.Utilities.MSTest
         [NotNull]
         public static TException ThrowsExceptionWhen<TException>(this Assert assert, Func<Task> func, Func<TException, bool> filter = null) where TException : Exception
         {
-            filter = filter ?? (ex => true);
-
-            try
-            {
-                func().GetAwaiter().GetResult();
-                Assert.Fail(Format($"Expected exception {typeof(TException):single}, but none was thrown.", FormatProvider));
-            }
-            catch (TException ex) when (filter(ex))
-            {
-                return ex;
-            }
-            catch (AssertFailedException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail(Format($"Expected exception {typeof(TException):single}, but {ex.GetType():single} was thrown.", FormatProvider));
-            }
-
-            // This is only to satisfy the compiler. We'll never reach to this as it'll always fail or return earlier.
-            return null;
+            return Assert.That.ThrowsExceptionWhen(() => func().GetAwaiter().GetResult(), filter);
         }
 
         #region Specialized asserts

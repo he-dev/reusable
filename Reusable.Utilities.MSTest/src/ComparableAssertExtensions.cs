@@ -10,7 +10,7 @@ namespace Reusable.Utilities.MSTest
 
     public static class ComparableAssertExtensions
     {
-        public static IComparableCompareToAssert CompareTo(this IComparableAssert assert) => default(IComparableCompareToAssert);
+        public static IComparableCompareToAssert CompareTo(this IComparableAssert assert) => default;
 
         public static void IsCanonical<T>(this IComparableAssert assert, IComparable<T> comparable, T less, T equal, T greater)
         {

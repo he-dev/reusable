@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 
 namespace Reusable.Extensions
-{    
+{
     public delegate bool TryGetValueCallback(string name, out object value);
 
     [PublicAPI]
@@ -40,16 +40,12 @@ namespace Reusable.Extensions
                 var alignment = match.Groups[GroupName.Alignment].Success ? "," + match.Groups[GroupName.Alignment].Value : string.Empty;
                 var formatString = match.Groups[GroupName.FormatString].Success ? ":" + match.Groups[GroupName.FormatString].Value : string.Empty;
 
-                if (tryGetValue(name, out var value))
-                {
-                    // Apply formatting.
-                    return string.Format(formatProvider, $"{{0{alignment}{formatString}}}", value);
-                }
-                else
-                {
-                    // Reconstruct the format string.
-                    return $"{{{name}{alignment}{formatString}}}";
-                }
+                return
+                    tryGetValue(name, out var value)
+                        // Apply formatting.
+                        ? string.Format(formatProvider, $"{{0{alignment}{formatString}}}", value)
+                        // Reconstruct the format string.
+                        : $"{{{name}{alignment}{formatString}}}";
             });
 
             // https://regex101.com/r/zG6tF7/3
@@ -82,7 +78,7 @@ namespace Reusable.Extensions
                 return data.TryGetValue(name, out value);
             }
 
-            return Format(text, TryGetValue, formatProvider);           
+            return Format(text, TryGetValue, formatProvider);
         }
 
         [Pure]

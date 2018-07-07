@@ -7,7 +7,7 @@ using Reusable.Reflection;
 
 namespace Reusable.Validation
 {
-    public static class DataFuseContextExtensions
+    public static class DuckValidationResultExtensions
     {
         [CanBeNull]
         public static T ThrowWhenNotValid<T>(this DuckValidationResult<T> duckValidationResult)

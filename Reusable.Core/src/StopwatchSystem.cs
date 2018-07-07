@@ -7,10 +7,7 @@ namespace Reusable
     {
         private readonly Stopwatch _stopwatch;
 
-        public StopwatchDefault()
-        {
-            _stopwatch = new Stopwatch();
-        }
+        public StopwatchDefault() => _stopwatch = new Stopwatch();
 
         public bool IsRunning => _stopwatch.IsRunning;
 
@@ -23,29 +20,14 @@ namespace Reusable
             return stopwatch;
         }
 
-        public void Start()
-        {
-            _stopwatch.Start();
-        }
+        public void Start() => _stopwatch.Start();
 
-        public void Stop()
-        {
-            _stopwatch.Stop();
-        }
+        public void Stop() => _stopwatch.Stop();
 
-        public void Restart()
-        {
-            _stopwatch.Restart();
-        }
+        public void Restart() => _stopwatch.Restart();
 
-        public void Reset()
-        {
-            _stopwatch.Restart();
-        }
+        public void Reset() => _stopwatch.Restart();
 
-        public override string ToString()
-        {
-            return _stopwatch.Elapsed.ToString();
-        }
+        public override string ToString() => _stopwatch.Elapsed.ToString();
     }
 }
