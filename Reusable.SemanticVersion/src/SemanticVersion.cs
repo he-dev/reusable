@@ -44,7 +44,7 @@ namespace Reusable
             Minor = minor;
             Patch = patch;
             Labels = labels.ToImmutableList();
-            this.ValidateWith(VersionValidator).ThrowWhenNotValid();
+            this.ValidateWith(VersionValidator).ThrowOrDefault();
         }
 
         public SemanticVersion(int major, int minor, int patch)

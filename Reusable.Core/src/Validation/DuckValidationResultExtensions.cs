@@ -10,7 +10,7 @@ namespace Reusable.Validation
     public static class DuckValidationResultExtensions
     {
         [CanBeNull]
-        public static T ThrowWhenNotValid<T>(this DuckValidationResult<T> duckValidationResult)
+        public static T ThrowOrDefault<T>(this DuckValidationResult<T> duckValidationResult)
         {
             return
                 duckValidationResult.Success

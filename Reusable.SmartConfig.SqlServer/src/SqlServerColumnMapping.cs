@@ -25,14 +25,14 @@ namespace Reusable.SmartConfig
         public string Name
         {
             get => _name;
-            set => _name = value.ValidateWith(ColumnValidator).ThrowWhenNotValid();
+            set => _name = value.ValidateWith(ColumnValidator).ThrowOrDefault();
         }
 
         [NotNull]
         public string Value
         {
             get => _value;
-            set => _value = value.ValidateWith(ColumnValidator).ThrowWhenNotValid();
+            set => _value = value.ValidateWith(ColumnValidator).ThrowOrDefault();
         }
 
         public static implicit operator SqlServerColumnMapping((string name, string value) mapping)

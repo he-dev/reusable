@@ -15,7 +15,7 @@ namespace Reusable.Tests.Net.Mail
         {
             var testEmail = new TestEmail();
 
-            Assert.That.ThrowsExceptionWhen<DynamicException>(() => new TestClient().SendAsync(testEmail));
+            Assert.That.Throws<DynamicException>(() => new TestClient().SendAsync(testEmail).GetAwaiter().GetResult());
         }
 
         private class TestEmail : Email<IEmailSubject, IEmailBody> { }

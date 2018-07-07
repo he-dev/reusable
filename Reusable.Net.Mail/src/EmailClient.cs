@@ -33,7 +33,7 @@ namespace Reusable.Net.Mail
 
             EmailValidator
                 .Validate((IEmail<IEmailSubject, IEmailBody>)email)
-                .ThrowWhenNotValid();
+                .ThrowOrDefault();
 
             try
             {

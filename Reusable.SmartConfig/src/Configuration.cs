@@ -29,7 +29,7 @@ namespace Reusable.SmartConfig
         public Configuration([NotNull, ItemNotNull] IEnumerable<ISettingProvider> dataStores, [NotNull] ISettingFinder settingFinder)
         {
             // ReSharper disable once ConstantConditionalAccessQualifier - yes, this can be null
-            _providers = (dataStores?.ToList()).ValidateWith(SettingProviderValidator).ThrowWhenNotValid();
+            _providers = (dataStores?.ToList()).ValidateWith(SettingProviderValidator).ThrowOrDefault();
             _settingFinder = settingFinder ?? throw new ArgumentNullException(nameof(settingFinder));
         }
 

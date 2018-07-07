@@ -1,14 +1,12 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Data;
-using Reusable.Data.Repositories;
 using Reusable.MarkupBuilder;
 using Reusable.MarkupBuilder.Html;
 using Reusable.Reflection;
 
-namespace Reusable.MarkupBuilder.Tests
+namespace Reusable.Tests.MarkupBuilder
 {
     [TestClass]
     public class HtmlTest
