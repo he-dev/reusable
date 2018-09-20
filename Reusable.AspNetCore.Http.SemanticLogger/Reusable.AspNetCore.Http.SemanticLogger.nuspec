@@ -16,6 +16,7 @@
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="11.1.0" />
+      <dependency id="Microsoft.AspNetCore.Mvc" version="2.1.1" />
       <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="2.1.1" />
       <dependency id="Microsoft.Extensions.Configuration.Binder" version="2.1.1" />
       <dependency id="Microsoft.Extensions.Logging.Abstractions" version="2.1.1" />

@@ -10,7 +10,10 @@ namespace Reusable.Commander
     public interface ICommandLineParser
     {
         [NotNull, ItemNotNull]
-        IEnumerable<CommandLine> Parse([CanBeNull] string commandLine);
+        IEnumerable<CommandLine> Parse([NotNull, ItemNotNull] IEnumerable<string> commandLine);
+
+        [NotNull, ItemNotNull]
+        IEnumerable<CommandLine> Parse([NotNull] string commandLine);
     }
 
     public class CommandLineParser : ICommandLineParser
@@ -25,14 +28,12 @@ namespace Reusable.Commander
         // language=regexp
         private const string ArgumentPrefix = @"^[-/\.]";
 
-        public IEnumerable<CommandLine> Parse(string commandLine)
+        public IEnumerable<CommandLine> Parse(IEnumerable<string> tokens)
         {
-            if (commandLine.IsNullOrEmpty())
+            if (tokens == null)
             {
-                yield break;
+                throw new ArgumentNullException(nameof(tokens));
             }
-
-            var tokens = _tokenizer.Tokenize(commandLine);
 
             var arguments = CommandLine.Empty;
             var currentArgumentName = (SoftKeySet)SoftString.Empty;
@@ -48,7 +49,7 @@ namespace Reusable.Commander
 
                     // ReSharper disable once PatternAlwaysOfType
                     case string value when Regex.IsMatch(value, ArgumentPrefix):
-                        currentArgumentName =Regex.Replace(token, ArgumentPrefix, string.Empty);
+                        currentArgumentName = Regex.Replace(token, ArgumentPrefix, string.Empty);
                         arguments.Add(currentArgumentName);
                         break;
 
@@ -62,6 +63,16 @@ namespace Reusable.Commander
             {
                 yield return arguments;
             }
+        }
+
+        public IEnumerable<CommandLine> Parse(string commandLine)
+        {
+            if (commandLine == null)
+            {
+                throw new ArgumentNullException(nameof(commandLine));
+            }
+
+            return Parse(_tokenizer.Tokenize(commandLine));           
         }
     }
 }

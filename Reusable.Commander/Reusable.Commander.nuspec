@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>Reusable.Commander</id>
+    <version>6.1.0</version>
+    <title>Reusable.Commander</title>
+    <authors>He-Dev</authors>
+    <owners>He-Dev</owners>
+    <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/he-dev/Reusable</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/he-dev/Reusable/master/_nuget/recycling.png</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>This package provides an easy to use command line framework.</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2017 He-Dev</copyright>
+    <tags>Utility Extension</tags>
+    <dependencies>
+      <dependency id="Autofac" version="4.8.1" />
+      <dependency id="JetBrains.Annotations" version="11.1.0" />
+      <dependency id="Reusable.Converters" version="6.1.0" />
+      <dependency id="Reusable.Core" version="6.1.0" />
+      <dependency id="Reusable.OmniLog" version="6.1.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\Release\net47\Reusable.Commander.dll" target="lib\net47" />
+    <file src="bin\Release\net47\Reusable.Commander.pdb" target="lib\net47" />
+  </files>
+</package>
