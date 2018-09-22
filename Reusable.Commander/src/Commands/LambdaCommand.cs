@@ -6,21 +6,21 @@ using Reusable.OmniLog;
 
 namespace Reusable.Commander.Commands
 {
-    public class LambdaCommand<TLocal> : ConsoleCommand
+    public class LambdaCommand<TBag> : ConsoleCommand<TBag> where TBag : new()
     {
-        private readonly TLocal _local;
-        
-        private readonly Func<TLocal, CancellationToken, Task> _execute;
+        private readonly Func<TBag, CancellationToken, Task> _execute;
 
-        public LambdaCommand(ILoggerFactory loggerFactory, TLocal local, [NotNull] Func<TLocal, CancellationToken, Task> execute) : base(loggerFactory)
+        public delegate LambdaCommand<TBag> Factory(SoftKeySet name, Func<TBag, CancellationToken, Task> execute);
+
+        public LambdaCommand(ILogger<LambdaCommand<TBag>> logger, ICommandLineMapper mapper, SoftKeySet name, [NotNull] Func<TBag, CancellationToken, Task> execute) 
+            : base(logger, mapper)
         {
-            _local = local;
             _execute = execute ?? throw new ArgumentNullException(nameof(execute));
         }
 
-        public override Task ExecuteAsync(CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(TBag parameter, CancellationToken cancellationToken)
         {
-            return _execute(_local, cancellationToken);
+            return _execute(parameter, cancellationToken);
         }
     }
 }

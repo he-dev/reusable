@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
+using Reusable.Commander;
 
-namespace Reusable.Commander.Tests
+namespace Reusable.Tests.Commander
 {
     [TestClass]
     public class CommandArgumentTest

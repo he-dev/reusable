@@ -8,62 +8,58 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.OmniLog;
+using Reusable.Reflection;
 
 namespace Reusable.Commander
 {
     public interface IConsoleCommand
     {
-        Task ExecuteAsync(CancellationToken cancellationToken);
+        SoftKeySet Name { get; }
+
+        Task ExecuteAsync(object parameter, CancellationToken cancellationToken);
     }
 
-    //    public interface IConditionalCommand : IConsoleCommand
-    //    {
-    //        Task<bool> CanExecuteAsync(object parameter);
-    //    }
-
-    public abstract class ConsoleCommand : IConsoleCommand
+    public interface ICommandBag
     {
-        protected ConsoleCommand(ILoggerFactory loggerFactory)
+    }
+
+    public abstract class ConsoleCommand<TBag> : IConsoleCommand where TBag : new()
+    {
+        private readonly ICommandLineMapper _mapper;
+
+        protected ConsoleCommand(ILogger logger, ICommandLineMapper mapper)
         {
-            var longestName = NameFactory.CreateCommandName(GetType()).OrderByDescending(name => name.Length).First();
-            Logger = loggerFactory.CreateLogger(longestName);
-        }        
+            Logger = logger;
+            _mapper = mapper;
+        }
 
         protected ILogger Logger { get; }
 
-        public abstract Task ExecuteAsync(CancellationToken cancellationToken);
-    }
+        public SoftKeySet Name => NameFactory.CreateCommandName(GetType());
 
-    //    internal class LinkedConsoleCommand : IConsoleCommand
-    //    {
-    //        private readonly IConsoleCommand _pre;
-    //        private readonly IConsoleCommand _post;
-    //
-    //        public LinkedConsoleCommand(IConsoleCommand pre, IConsoleCommand post)
-    //        {
-    //            _pre = pre;
-    //            _post = post;
-    //        }
-    //
-    //        public SoftKeySet Name => SoftKeySet.Create(_pre.Name.Concat(_post.Name)); // $"{nameof(LinkedConsoleCommand)}: {_pre.Name.ToString()} + {_post.Name.ToString()}";
-    //
-    //        public async Task ExecuteAsync(ICommandContext context)
-    //        {
-    //            await _pre.ExecuteAsync(context);
-    //            await _post.ExecuteAsync(context);
-    //        }
-    //    }
-    //
-    //    public static class ConsoleCommandComposer
-    //    {
-    //        public static IConsoleCommand Pre(this IConsoleCommand current, IConsoleCommand pre)
-    //        {
-    //            return new LinkedConsoleCommand(pre, current);
-    //        }
-    //
-    //        public static IConsoleCommand Post(this IConsoleCommand current, IConsoleCommand post)
-    //        {
-    //            return new LinkedConsoleCommand(current, post);
-    //        }
-    //    }
+        public async Task ExecuteAsync(object parameter, CancellationToken cancellationToken)
+        {
+            switch (parameter)
+            {
+                case null:
+                    await ExecuteAsync(default, cancellationToken);
+                    break;
+
+                case ICommandLine commandLine:
+                    await ExecuteAsync(_mapper.Map<TBag>(commandLine), cancellationToken);
+                    break;
+
+                case TBag bag:
+                    await ExecuteAsync(bag, cancellationToken);
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(
+                        paramName: nameof(parameter),
+                        message: $"{nameof(parameter)} must be either a {typeof(ICommandLine).Name} or {typeof(TBag).Name}.");
+            }
+        }
+
+        protected abstract Task ExecuteAsync(TBag parameter, CancellationToken cancellationToken);
+    }
 }

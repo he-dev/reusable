@@ -1,9 +1,9 @@
 ﻿using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.Commander;
 using Reusable.Utilities.MSTest;
-using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
 
-namespace Reusable.Commander.Tests
+namespace Reusable.Tests.Commander
 {
     [TestClass]
     public class CommandLineParserTest
@@ -21,14 +21,14 @@ namespace Reusable.Commander.Tests
         public void Parse_SingleCommand_SingleCommand()
         {
             var arguments = Parser.Parse("foo").ToList().First();
-            Assert.AreEqual(SoftKeySet.Create("foo"), arguments.CommandName());
+            Assert.AreEqual(Reusable.Commander.SoftKeySet.Create("foo"), arguments.CommandName());
         }
 
         [TestMethod]
         public void Parse_CommandWithArguments_CommandWithArguments()
         {
             var arguments = Parser.Parse("foo qux -bar baz").ToList().First();
-            Assert.AreEqual((SoftKeySet)"foo", arguments.CommandName());
+            Assert.AreEqual((Reusable.Commander.SoftKeySet)"foo", arguments.CommandName());
 
             //arguments.Verify().SequenceEqual(new[] {});
         }

@@ -16,19 +16,8 @@ using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
 
 namespace Reusable.Commander.Commands
 {
-    [PublicAPI]
-    [Alias("h", "?")]
-    [Description("Display help.")]
-    [Category("Testing")]
-    public class Help : ConsoleCommand
+    public class HelpBag
     {
-        private readonly ICommandCollection _commandRegistrations;
-
-        public Help(ILoggerFactory loggerFactory, ICommandCollection commandRegistrations) : base(loggerFactory)
-        {
-            _commandRegistrations = commandRegistrations;
-        }
-        
         public int IndentWidth { get; set; } = 4;
 
         public int[] ColumnWidths { get; set; } = {17, 60};
@@ -36,22 +25,37 @@ namespace Reusable.Commander.Commands
         [CanBeNull]
         [DefaultValue(false)]
         [Description("Display command usage.")]
-        [Parameter(Position = 1), Alias("cmd")]
+        [Position(1)]
+        [Alias("cmd")]
         public string Command { get; set; }
+    }
+    
+    [PublicAPI]
+    [Alias("h", "?")]
+    [Description("Display help.")]
+    [Category("Testing")]
+    public class Help : ConsoleCommand<HelpBag>
+    {
+        private readonly IEnumerable<IConsoleCommand> _commands;
 
-        public override Task ExecuteAsync(CancellationToken cancellationToken)
+        public Help(ILogger<Help> logger, ICommandLineMapper mapper, IEnumerable<IConsoleCommand> commands) : base(logger, mapper)
+        {
+            _commands = commands;
+        }                
+
+        protected override Task ExecuteAsync(HelpBag parameter, CancellationToken cancellationToken)
         {
             //var parameter = context.Parameter as Parameter ?? throw DynamicException.Factory.CreateDynamicException($"{nameof(Parameter)}Null{nameof(Exception)}", $"Command parameter must not be null.", null);
 
-            var commandName = Command is null ? null : SoftKeySet.Create(Command);
+            var commandName = parameter.Command is null ? null : SoftKeySet.Create(parameter.Command);
 
-            if (Command.IsNullOrEmpty())
+            if (parameter.Command.IsNullOrEmpty())
             {
-                //RenderCommandList(parameter.Commands, parameter.Logger);
+                RenderCommandList(parameter, _commands);
             }
             else
             {
-                var command = _commandRegistrations.SingleOrDefault(c => c.CommandName == commandName);
+                var command = _commands.SingleOrDefault(c => c.Name == commandName);
 
                 if (command is null)
                 {
@@ -67,10 +71,10 @@ namespace Reusable.Commander.Commands
             return Task.CompletedTask;
         }
 
-        protected virtual void RenderCommandList(IEnumerable<ICommandInfo> commands)
+        protected virtual void RenderCommandList(HelpBag parameter, IEnumerable<IConsoleCommand> commands)
         {
             Logger.Information(string.Empty);
-            Logger.Information($"{new string(' ', IndentWidth)}Commands");
+            Logger.Information($"{new string(' ', parameter.IndentWidth)}Commands");
 
             var commandSummaries = commands.Select(x => new CommandSummary
             {
@@ -81,8 +85,8 @@ namespace Reusable.Commander.Commands
             var captions = new[] { "NAME", "ABOUT" };
 
             Logger.Information(string.Empty);
-            Logger.Debug(RenderColumns(captions, ColumnWidths));
-            Logger.Debug(RenderColumns(captions.Select(h => new string('-', h.Length)), ColumnWidths));
+            Logger.Debug(RenderColumns(captions, parameter.ColumnWidths));
+            Logger.Debug(RenderColumns(captions.Select(h => new string('-', h.Length)), parameter.ColumnWidths));
 
             foreach (var commandSummary in commandSummaries)
             {
@@ -96,7 +100,7 @@ namespace Reusable.Commander.Commands
             Logger.Information(string.Empty);
         }
 
-        protected virtual void RenderParameterList(ICommandInfo command)
+        protected virtual void RenderParameterList(IConsoleCommand command)
         {
 //            var commandParameterType = command.ParameterType();
 //            

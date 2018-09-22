@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Custom;
+using System.Reflection;
 using Reusable.Extensions;
 using Reusable.Reflection;
 
@@ -9,10 +10,19 @@ namespace Reusable.Commander
 {
     internal static class CommandParameterValidator
     {
-        public static void ValidateParameterNamesUniqueness(ICommandInfo info)
+        public static void ValidateCommandBagPropertyUniqueness(Type commandType)
         {
+            var bagType = commandType.GetGenericArguments().FirstOrDefault();
+
+            if (bagType is null || !typeof(ICommandBag).IsAssignableFrom(bagType))
+            {
+                return;
+            }
+            
+            var bagProperties = bagType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+            
             var duplicateNames =
-                info
+                bagProperties
                     .SelectMany(property => property.Name)
                     .GroupBy(propertyName => propertyName)
                     .Where(propertyNameGroup => propertyNameGroup.Count() > 1)
@@ -22,7 +32,7 @@ namespace Reusable.Commander
             if (duplicateNames.Any())
             {
                 throw DynamicException.Factory.CreateDynamicException(
-                    $"DupliatePropertyName{nameof(Exception)}", 
+                    $"DuplicatePropertyName{nameof(Exception)}", 
                     $"Command line properties must have unique names. Duplicates: {duplicateNames.Join(", ").EncloseWith("[]")}", 
                     null
                 );

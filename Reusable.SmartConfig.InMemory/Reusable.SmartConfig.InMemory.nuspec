@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.SmartConfig.InMemory</id>
-    <version>6.1.0</version>
+    <version>7.0.9</version>
     <title>Reusable.SmartConfig.InMemory</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -15,10 +15,10 @@
     <copyright>Copyright 2017 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
-      <dependency id="JetBrains.Annotations" version="11.1.0" />
+      <dependency id="JetBrains.Annotations" version="2018.2.1" />
       <dependency id="System.ValueTuple" version="4.5.0" />
-      <dependency id="Reusable.Core" version="6.1.0" />
-      <dependency id="Reusable.SmartConfig" version="6.1.0" />
+      <dependency id="Reusable.Core" version="7.0.9" />
+      <dependency id="Reusable.SmartConfig" version="7.0.9" />
     </dependencies>
   </metadata>
   <files>

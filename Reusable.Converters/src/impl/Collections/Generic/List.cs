@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Reusable.Reflection;
 
-namespace Reusable.Converters.Collections.Generic
+namespace Reusable.Converters
 {
     public class EnumerableToListConverter : TypeConverter<IEnumerable, object>
     {

@@ -1,8 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-// ReSharper disable once CheckNamespace
-namespace Reusable.CommandLine
+namespace Reusable.Commander.Annotations
 {
     [UsedImplicitly]
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
@@ -19,6 +18,8 @@ namespace Reusable.CommandLine
             _position = position;
         }
 
-        public static implicit operator int(PositionAttribute attribute) => attribute._position;
+        public int Value => _position;
+
+        public static implicit operator int(PositionAttribute attribute) => attribute.Value;
     }
 }

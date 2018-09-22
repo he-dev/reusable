@@ -12,9 +12,9 @@ namespace Reusable.Commander
 
         public static IEnumerable<string> Values(this ICommandLine commandLine, CommandParameter parameter)
         {
-            if (parameter.Metadata.Position > CommandLine.CommandIndex)
+            if (parameter.Position.HasValue)
             {
-                return commandLine.Anonymous().Skip(parameter.Metadata.Position).Take(1);
+                return commandLine.Anonymous().Skip(parameter.Position.Value).Take(1);
             }
 
             if (commandLine.Contains(parameter.Name))

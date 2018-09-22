@@ -1,8 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Collections;
-using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
+using Reusable.Commander;
 
-namespace Reusable.Commander.Tests
+namespace Reusable.Tests.Commander
 {
     [TestClass]
     public class CommandLineExtensionsTest
@@ -49,7 +48,7 @@ namespace Reusable.Commander.Tests
                 { SoftString.Empty, "qux" },
                 { SoftString.Create("foo"), "bar" },
             };
-            Assert.AreEqual(SoftKeySet.Create("baz"), arguments.CommandName());
+            Assert.AreEqual(Reusable.Commander.SoftKeySet.Create("baz"), arguments.CommandName());
         }
     }
 }

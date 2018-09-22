@@ -10,10 +10,10 @@ namespace Reusable.Commander
     public interface ICommandLineParser
     {
         [NotNull, ItemNotNull]
-        IEnumerable<CommandLine> Parse([NotNull, ItemNotNull] IEnumerable<string> commandLine);
+        IEnumerable<ICommandLine> Parse([NotNull, ItemNotNull] IEnumerable<string> commandLine);
 
         [NotNull, ItemNotNull]
-        IEnumerable<CommandLine> Parse([NotNull] string commandLine);
+        IEnumerable<ICommandLine> Parse([NotNull] string commandLine);
     }
 
     public class CommandLineParser : ICommandLineParser
@@ -28,7 +28,7 @@ namespace Reusable.Commander
         // language=regexp
         private const string ArgumentPrefix = @"^[-/\.]";
 
-        public IEnumerable<CommandLine> Parse(IEnumerable<string> tokens)
+        public IEnumerable<ICommandLine> Parse(IEnumerable<string> tokens)
         {
             if (tokens == null)
             {
@@ -65,7 +65,7 @@ namespace Reusable.Commander
             }
         }
 
-        public IEnumerable<CommandLine> Parse(string commandLine)
+        public IEnumerable<ICommandLine> Parse(string commandLine)
         {
             if (commandLine == null)
             {

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using Autofac;
 using JetBrains.Annotations;
@@ -10,27 +11,26 @@ namespace Reusable.Commander
     [PublicAPI]
     public class CommanderModule : Autofac.Module
     {
-        private readonly ICommandCollection _registrations;
+        private readonly IEnumerable<Type> _commandTypes;
 
-        public CommanderModule([NotNull] ICommandCollection registrations)
+        public CommanderModule([NotNull] IEnumerable<Type> commandTypes)
         {
-            _registrations = registrations ?? throw new ArgumentNullException(nameof(registrations));
+            _commandTypes = commandTypes ?? throw new ArgumentNullException(nameof(commandTypes));
         }
 
-        public ITypeConverter Converter { get; set; } = CommandParameterMapper.DefaultConverter;
+        //public ITypeConverter Converter { get; set; } = CommandParameterMapper.DefaultConverter;
         
         protected override void Load(ContainerBuilder builder)
         {
-            foreach (var registration in _registrations)
+            foreach (var commandType in _commandTypes)
             {
+                CommandParameterValidator.ValidateCommandBagPropertyUniqueness(commandType);
+                
                 builder
-                    .RegisterType(registration.CommandType)
-                    .Keyed<IConsoleCommand>(registration.CommandName)
+                    .RegisterType(commandType)
+                    .Keyed<IConsoleCommand>(NameFactory.CreateCommandName(commandType))
                     .As<IConsoleCommand>();
-            }
-            
-            builder
-                .RegisterInstance(_registrations);
+            }           
             
             builder
                 .RegisterType<CommandLineTokenizer>()
@@ -41,13 +41,14 @@ namespace Reusable.Commander
                 .As<ICommandLineParser>();
 
             builder
-                .RegisterType<CommandParameterMapper>()
-                .WithParameter(new TypedParameter(typeof(ITypeConverter), Converter ?? throw new InvalidOperationException($"{nameof(Converter)} must not be null.")))
-                .As<ICommandParameterMapper>();
+                .RegisterType<CommandLineMapper>()
+                //.WithParameter(new TypedParameter(typeof(ITypeConverter), Converter ?? throw new InvalidOperationException($"{nameof(Converter)} must not be null.")))
+                .WithParameter(new TypedParameter(typeof(ITypeConverter), CommandLineMapper.DefaultConverter))
+                .As<ICommandLineMapper>();
 
-            builder
-                .RegisterType<CommandFactory>()
-                .As<ICommandFactory>();
+            //builder
+            //    .RegisterType<CommandFactory>()
+            //    .As<ICommandFactory>();
             
             builder
                 .RegisterType<CommandLineExecutor>()

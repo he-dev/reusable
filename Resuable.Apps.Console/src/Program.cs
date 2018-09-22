@@ -19,11 +19,11 @@ namespace Reusable.Apps
     {
         private static void Main(string[] args)
         {
-            Input.Listen().Subscribe(Autocomplete.Create(new[] { "foo", "bar", "baz", "baaz" }));
+            //Input.Listen().Subscribe(Autocomplete.Create(new[] { "foo", "bar", "baz", "baaz" }));
 
             //default(IEnumerable<string>).Contains().Contains("blah")
 
-            return;
+            //return;
             var foo = new int[0];
             var bar = foo.Append(2);
 
@@ -43,7 +43,14 @@ namespace Reusable.Apps
 
             System.Console.ReadKey();
         }
+    }
 
+    internal class Commands
+    {
+        public static void Test()
+        {
+            
+        }
     }
 
     internal class Input
