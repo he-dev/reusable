@@ -9,6 +9,8 @@ namespace Reusable.OmniLog
     [UsedImplicitly]
     public class ColoredConsoleRx : LogRx
     {
+        public static readonly string TemplatePropertyName = $"{nameof(ColoredConsoleRx)}.Template";
+
         private readonly IConsoleRenderer _renderer;
 
         public ColoredConsoleRx(IConsoleRenderer renderer)
@@ -29,7 +31,7 @@ namespace Reusable.OmniLog
         {
             return Observer.Create<Log>(log =>
             {
-                var template = log.Property<string>(null, nameof(ConsoleLoggerExtensions.Write));
+                var template = log.Property<string>(null, TemplatePropertyName);
                 if (template.IsNotNullOrEmpty())
                 {
                     _renderer.Render(template);

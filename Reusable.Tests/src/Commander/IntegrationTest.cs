@@ -18,7 +18,8 @@ namespace Reusable.Tests.Commander
     [TestClass]
     public class IntegrationTest
     {
-        private static Action<Bag1> _assert;
+        private static Action<Bag1> _cmd1Assert;
+        private static Action<Bag2> _cmd2Assert;
 
         [TestMethod]
         public async Task ExecuteAsync()
@@ -28,15 +29,15 @@ namespace Reusable.Tests.Commander
             {
                 var executor = scope.Resolve<ICommandLineExecutor>();
 
-                Assert.That.Throws<DynamicException>(
-                    () =>
-                    {
-                        executor.ExecuteAsync("cmd2").GetAwaiter().GetResult();
-                    },
-                    filter => filter.WhenName("CommandNotFoundException")
-                );
+                //Assert.That.Throws<DynamicException>(
+                //    () =>
+                //    {
+                //        executor.ExecuteAsync("cmd3").GetAwaiter().GetResult();
+                //    },
+                //    filter => filter.WhenName("CommandNotFoundException")
+                //);
 
-                _assert = bag =>
+                _cmd1Assert = bag =>
                 {
                     Assert.IsFalse(bag.Property01);
                     Assert.IsTrue(bag.Property02);
@@ -44,7 +45,13 @@ namespace Reusable.Tests.Commander
                     Assert.AreEqual("bar", bag.Property04);
                     Assert.That.Collection().AreEqual(new[] { 1, 2, 3 }, bag.Property05);
                 };
-                await executor.ExecuteAsync("cmd1 -p03:true -p04:bar -p05 1 2 3");
+
+                _cmd2Assert = bag =>
+                {
+                    Assert.AreEqual("baz", bag.Property04);
+                };
+
+                await executor.ExecuteAsync("cmd1 -p03:true -p04:bar -p05 1 2 3 | cmd2 -p04:baz");
             }
         }
 
@@ -63,7 +70,8 @@ namespace Reusable.Tests.Commander
             builder
                 .RegisterModule(new CommanderModule(new[]
                 {
-                    typeof(Command1)
+                    typeof(Command1),
+                    typeof(Command2)
                 }));
 
             return builder.Build();
@@ -78,12 +86,12 @@ namespace Reusable.Tests.Commander
 
             protected override Task ExecuteAsync(Bag1 parameter, CancellationToken cancellationToken)
             {
-                _assert(parameter);
+                _cmd1Assert(parameter);
                 return Task.CompletedTask;
             }
         }
 
-        private class Bag1
+        private class Bag1 : CommandBag
         {
             [DefaultValue(false)]
             public bool Property01 { get; set; }
@@ -100,7 +108,41 @@ namespace Reusable.Tests.Commander
             public string Property04 { get; set; }
 
             [Alias("p05")]
+            public IList<int> Property05 { get; set; }
+        }
+
+
+        [Alias("cmd2")]
+        private class Command2 : ConsoleCommand<Bag2>
+        {
+            public Command2(ILogger<Command2> logger, ICommandLineMapper mapper)
+                : base(logger, mapper)
+            { }
+
+            protected override Task ExecuteAsync(Bag2 parameter, CancellationToken cancellationToken)
+            {
+                _cmd2Assert(parameter);
+                return Task.CompletedTask;
+            }
+        }
+
+        private class Bag2 : CommandBag
+        {
+            [DefaultValue(false)]
+            public bool Property01 { get; set; }
+
+            [DefaultValue(true)]
+            public bool Property02 { get; set; }
+
+            [Alias("p03")]
+            [DefaultValue(false)]
+            public bool Property03 { get; set; }
+
+            [Alias("p04")]
             [DefaultValue("foo")]
+            public string Property04 { get; set; }
+
+            [Alias("p05")]
             public IList<int> Property05 { get; set; }
         }
     }

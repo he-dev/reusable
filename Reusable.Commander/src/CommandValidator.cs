@@ -3,26 +3,36 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
+using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.Reflection;
 
 namespace Reusable.Commander
 {
-    internal static class CommandParameterValidator
+    internal static class CommandValidator
     {
-        public static void ValidateCommandBagPropertyUniqueness(Type commandType)
+        public static void ValidateCommand([NotNull] Type commandType)
         {
-            var bagType = commandType.GetGenericArguments().FirstOrDefault();
-
-            if (bagType is null || !typeof(ICommandBag).IsAssignableFrom(bagType))
+            if (!typeof(IConsoleCommand).IsAssignableFrom(commandType))
             {
-                return;
+                throw DynamicException.Factory.CreateDynamicException(
+                    $"CommandType{nameof(Exception)}",
+                    $"{commandType.Name} is not derived from {typeof(IConsoleCommand).Name}.");
             }
-            
-            var bagProperties = bagType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
-            
+
+            var bagType = commandType.BaseType.GetGenericArguments().SingleOrDefault(t => typeof(ICommandBag).IsAssignableFrom(t));
+
+            if (bagType is null)
+            {
+                throw DynamicException.Factory.CreateDynamicException(
+                    $"CommandBag{nameof(Exception)}",
+                    $"{commandType.Name}'s bag is not derived from {typeof(ICommandBag).Name}.");
+            }
+
+            var parameters = bagType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly).Select(CommandParameter.Create);
+
             var duplicateNames =
-                bagProperties
+                parameters
                     .SelectMany(property => property.Name)
                     .GroupBy(propertyName => propertyName)
                     .Where(propertyNameGroup => propertyNameGroup.Count() > 1)
@@ -32,8 +42,8 @@ namespace Reusable.Commander
             if (duplicateNames.Any())
             {
                 throw DynamicException.Factory.CreateDynamicException(
-                    $"DuplicatePropertyName{nameof(Exception)}", 
-                    $"Command line properties must have unique names. Duplicates: {duplicateNames.Join(", ").EncloseWith("[]")}", 
+                    $"DuplicatePropertyName{nameof(Exception)}",
+                    $"Command line properties must have unique names. Duplicates: {duplicateNames.Join(", ").EncloseWith("[]")}",
                     null
                 );
             }

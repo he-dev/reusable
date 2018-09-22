@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
@@ -21,9 +22,22 @@ namespace Reusable.Commander
 
     public interface ICommandBag
     {
+        bool Async { get; set; }
     }
 
-    public abstract class ConsoleCommand<TBag> : IConsoleCommand where TBag : new()
+    public abstract class CommandBag : ICommandBag
+    {
+        [DefaultValue(false)]
+        public bool Async { get; set; }
+    }
+
+    internal class InternalBag : ICommandBag
+    {
+        [DefaultValue(false)]
+        public bool Async { get; set; }
+    }
+
+    public abstract class ConsoleCommand<TBag> : IConsoleCommand where TBag : ICommandBag, new()
     {
         private readonly ICommandLineMapper _mapper;
 

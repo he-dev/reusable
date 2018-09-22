@@ -9,11 +9,7 @@ using JetBrains.Annotations;
 namespace Reusable.Commander
 {
     // foo -bar -baz qux
-    public interface ICommandLine : ILookup<SoftKeySet, string>
-    {
-//        [CanBeNull]
-//        object Bag { get; }
-    }
+    public interface ICommandLine : ILookup<SoftKeySet, string> { }
 
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class CommandLine : ICommandLine
@@ -22,13 +18,11 @@ namespace Reusable.Commander
 
         private readonly IDictionary<SoftKeySet, CommandArgument> _arguments = new Dictionary<SoftKeySet, CommandArgument>();
 
-        internal CommandLine() {}
+        internal CommandLine() { }
 
         private string DebuggerDisplay => ToString();
 
         public static CommandLine Empty => new CommandLine();
-        
-        //public object Bag { get; }
 
         #region ILookup
 
@@ -46,13 +40,7 @@ namespace Reusable.Commander
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        #endregion
-
-//        public static ICommandLine FromBag<TBag>([NotNull] TBag bag)
-//        {
-//            if (bag == null) throw new ArgumentNullException(nameof(bag));
-//            return new CommandLine(bag);
-//        }
+        #endregion        
 
         [ContractAnnotation("keySet: null => halt")]
         public void Add([NotNull] SoftKeySet keySet)
@@ -93,10 +81,10 @@ namespace Reusable.Commander
             if (value == null) throw new ArgumentNullException(nameof(value));
 
             Add((SoftKeySet)key, value);
-        }     
+        }
 
         public override string ToString() => string.Join(" ", this.Select(argument => argument.ToString()));
 
-        public static implicit operator string(CommandLine commandLine) => commandLine?.ToString();        
+        public static implicit operator string(CommandLine commandLine) => commandLine?.ToString();
     }
 }

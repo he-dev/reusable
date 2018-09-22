@@ -90,17 +90,17 @@ namespace Reusable.Tests.Commander
         [TestMethod]
         public void Tokenize_PipeSeparatedWithoutSpace_PipeCollected()
         {
-            var tokens = Tokenizer.Tokenize(@"-foo|-baz").ToList();
-            Assert.AreEqual(3, tokens.Count);
-            CollectionAssert.AreEqual(new[] { "-foo", "|", "-baz" }, tokens);
+            var tokens = Tokenizer.Tokenize(@"foo -fooo|bar -baar").ToList();
+            Assert.AreEqual(5, tokens.Count);
+            CollectionAssert.AreEqual(new[] { "foo", "-fooo", "|", "bar", "-baar" }, tokens);
         }
 
         [TestMethod]
         public void Tokenize_PipeSeparatedWithSpace_PipeCollected()
         {
-            var tokens = Tokenizer.Tokenize(@"-foo | -baz").ToList();
-            Assert.AreEqual(3, tokens.Count);
-            CollectionAssert.AreEqual(new[] { "-foo", "|", "-baz" }, tokens);
+            var tokens = Tokenizer.Tokenize(@"foo -fooo | bar -baar").ToList();
+            Assert.AreEqual(5, tokens.Count);
+            CollectionAssert.AreEqual(new[] { "foo", "-fooo", "|", "bar", "-baar" }, tokens);
         }
 
         [TestMethod]

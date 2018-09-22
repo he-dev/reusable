@@ -15,7 +15,7 @@ namespace Reusable.Commander
 {
     public interface ICommandLineMapper
     {
-        TParameter Map<TParameter>([NotNull] ICommandLine commandLine) where TParameter : new();
+        TParameter Map<TParameter>([NotNull] ICommandLine commandLine) where TParameter : ICommandBag, new();
     }
 
     public class CommandLineMapper : ICommandLineMapper
@@ -53,7 +53,7 @@ namespace Reusable.Commander
             _converter = converter ?? throw new ArgumentNullException(nameof(converter));
         }
 
-        public TParameterBag Map<TParameterBag>(ICommandLine commandLine) where TParameterBag : new()
+        public TParameterBag Map<TParameterBag>(ICommandLine commandLine) where TParameterBag : ICommandBag, new()
         {
             if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
 

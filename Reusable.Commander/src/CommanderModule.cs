@@ -24,7 +24,7 @@ namespace Reusable.Commander
         {
             foreach (var commandType in _commandTypes)
             {
-                CommandParameterValidator.ValidateCommandBagPropertyUniqueness(commandType);
+                CommandValidator.ValidateCommand(commandType);
                 
                 builder
                     .RegisterType(commandType)

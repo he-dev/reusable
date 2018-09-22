@@ -45,6 +45,7 @@ namespace Reusable.Commander
                     case "|" when arguments.Any():
                         yield return arguments;
                         arguments = new CommandLine();
+                        currentArgumentName = (SoftKeySet)SoftString.Empty;
                         break;
 
                     // ReSharper disable once PatternAlwaysOfType
