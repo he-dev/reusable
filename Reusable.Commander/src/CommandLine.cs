@@ -22,11 +22,9 @@ namespace Reusable.Commander
 
         private string DebuggerDisplay => ToString();
 
-        public static CommandLine Empty => new CommandLine();
-
         #region ILookup
 
-        public IEnumerable<string> this[SoftKeySet name] => _arguments.TryGetValue(name, out var argument) ? argument : CommandArgument.Undefined;
+        public IEnumerable<string> this[SoftKeySet name] => _arguments.TryGetValue(name, out var argument) ? argument : CommandArgument.Empty;
 
         public int Count => _arguments.Count;
 

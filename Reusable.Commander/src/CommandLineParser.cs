@@ -35,34 +35,34 @@ namespace Reusable.Commander
                 throw new ArgumentNullException(nameof(tokens));
             }
 
-            var arguments = CommandLine.Empty;
-            var currentArgumentName = (SoftKeySet)SoftString.Empty;
+            var commandLine = new CommandLine();
+            var argumentName = CommandArgumentKeys.Anonymous;
 
             foreach (var token in tokens)
             {
                 switch (token)
                 {
-                    case "|" when arguments.Any():
-                        yield return arguments;
-                        arguments = new CommandLine();
-                        currentArgumentName = (SoftKeySet)SoftString.Empty;
+                    case "|" when commandLine.Any():
+                        yield return commandLine;
+                        commandLine = new CommandLine();
+                        argumentName = CommandArgumentKeys.Anonymous;
                         break;
 
                     // ReSharper disable once PatternAlwaysOfType
                     case string value when Regex.IsMatch(value, ArgumentPrefix):
-                        currentArgumentName = Regex.Replace(token, ArgumentPrefix, string.Empty);
-                        arguments.Add(currentArgumentName);
+                        argumentName = Regex.Replace(token, ArgumentPrefix, string.Empty);
+                        commandLine.Add(argumentName);
                         break;
 
                     default:
-                        arguments.Add(currentArgumentName, token);
+                        commandLine.Add(argumentName, token);
                         break;
                 }
             }
 
-            if (arguments.Any())
+            if (commandLine.Any())
             {
-                yield return arguments;
+                yield return commandLine;
             }
         }
 

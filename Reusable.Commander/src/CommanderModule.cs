@@ -45,10 +45,6 @@ namespace Reusable.Commander
                 //.WithParameter(new TypedParameter(typeof(ITypeConverter), Converter ?? throw new InvalidOperationException($"{nameof(Converter)} must not be null.")))
                 .WithParameter(new TypedParameter(typeof(ITypeConverter), CommandLineMapper.DefaultConverter))
                 .As<ICommandLineMapper>();
-
-            //builder
-            //    .RegisterType<CommandFactory>()
-            //    .As<ICommandFactory>();
             
             builder
                 .RegisterType<CommandLineExecutor>()

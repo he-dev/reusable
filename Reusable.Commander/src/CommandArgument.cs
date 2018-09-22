@@ -12,13 +12,11 @@ namespace Reusable.Commander
     /// </summary>
     public class CommandArgument : List<string>, IGrouping<SoftKeySet, string>, IEquatable<SoftKeySet>
     {
-        public static readonly SoftKeySet CommandNameKey = SoftString.Empty;
-
         internal CommandArgument(SoftKeySet key) => Key = key;
 
         public SoftKeySet Key { get; }
 
-        public static CommandArgument Undefined { get; } = new CommandArgument(SoftString.Empty);
+        public static CommandArgument Empty { get; } = new CommandArgument(SoftString.Empty);
 
         #region IEquatable
 
@@ -61,5 +59,10 @@ namespace Reusable.Commander
         }
 
         public static implicit operator string(CommandArgument commandArgument) => commandArgument?.ToString();
+    }
+
+    public static class CommandArgumentKeys
+    {
+        public static readonly SoftKeySet Anonymous = SoftString.Empty;        
     }
 }

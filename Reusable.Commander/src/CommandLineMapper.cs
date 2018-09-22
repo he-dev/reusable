@@ -15,7 +15,8 @@ namespace Reusable.Commander
 {
     public interface ICommandLineMapper
     {
-        TParameter Map<TParameter>([NotNull] ICommandLine commandLine) where TParameter : ICommandBag, new();
+        [NotNull]
+        TBag Map<TBag>([NotNull] ICommandLine commandLine) where TBag : ICommandBag, new();
     }
 
     public class CommandLineMapper : ICommandLineMapper
@@ -53,12 +54,12 @@ namespace Reusable.Commander
             _converter = converter ?? throw new ArgumentNullException(nameof(converter));
         }
 
-        public TParameterBag Map<TParameterBag>(ICommandLine commandLine) where TParameterBag : ICommandBag, new()
+        public TBag Map<TBag>(ICommandLine commandLine) where TBag : ICommandBag, new()
         {
             if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
 
-            var parameters = _cache.GetOrAdd(typeof(TParameterBag), GetParameters<TParameterBag>());
-            var bag = new TParameterBag();
+            var parameters = _cache.GetOrAdd(typeof(TBag), GetParameters<TBag>());
+            var bag = new TBag();
 
             foreach (var parameter in parameters)
             {
@@ -66,7 +67,7 @@ namespace Reusable.Commander
 
                 if (commandLine.Contains(parameter.Name))
                 {
-                    var values = commandLine.Values(parameter).ToList();
+                    var values = commandLine.ArgumentValues(parameter.Position, parameter.Name).ToList();
 
                     if (parameter.Type.IsEnumerable(ignore: typeof(string)))
                     {

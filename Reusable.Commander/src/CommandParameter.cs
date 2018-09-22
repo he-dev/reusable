@@ -40,6 +40,7 @@ namespace Reusable.Commander
         
         public bool IsRequired => _property.IsDefined(typeof(RequiredAttribute)) || Position > CommandLine.CommandIndex;
 
+        [NotNull]
         public static CommandParameter Create(PropertyInfo property) => new CommandParameter(property);
 
         public void SetValue(object obj, object value) => _property.SetValue(obj, value);

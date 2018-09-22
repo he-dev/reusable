@@ -15,6 +15,7 @@ namespace Reusable.Commander
 {
     public interface IConsoleCommand
     {
+        [NotNull]
         SoftKeySet Name { get; }
 
         Task ExecuteAsync(object parameter, CancellationToken cancellationToken);
@@ -31,11 +32,7 @@ namespace Reusable.Commander
         public bool Async { get; set; }
     }
 
-    internal class InternalBag : ICommandBag
-    {
-        [DefaultValue(false)]
-        public bool Async { get; set; }
-    }
+    internal class InternalBag : CommandBag { }
 
     public abstract class ConsoleCommand<TBag> : IConsoleCommand where TBag : ICommandBag, new()
     {

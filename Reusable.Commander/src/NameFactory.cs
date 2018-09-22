@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
@@ -15,40 +16,49 @@ namespace Reusable.Commander
 {
     internal static class NameFactory
     {
+        private static readonly ConcurrentDictionary<Type, SoftKeySet> CommandNameCache = new ConcurrentDictionary<Type, SoftKeySet>();
+
+        private static readonly ConcurrentDictionary<PropertyInfo, SoftKeySet> ParameterNameCache = new ConcurrentDictionary<PropertyInfo, SoftKeySet>();
+
         [NotNull]
-        public static SoftKeySet CreateCommandName([NotNull] Type commadType)
+        public static SoftKeySet CreateCommandName([NotNull] Type commandType)
         {
-            if (commadType == null)
+            if (commandType is null)
             {
-                throw new ArgumentNullException(nameof(commadType));
-            }
-            
-            if (!typeof(IConsoleCommand).IsAssignableFrom(commadType))
-            {
-                throw new ArgumentException(paramName: nameof(commadType), message: $"'{nameof(commadType)}' needs to be derived from '{nameof(ICommand)}'");
+                throw new ArgumentNullException(nameof(commandType));
             }
 
-            var names = GetCommandNames();
-
-            var category = commadType.GetCustomAttribute<CategoryAttribute>()?.Category;
-            if (category.IsNotNull())
+            if (!typeof(IConsoleCommand).IsAssignableFrom(commandType))
             {
-                names = names.Select(n => SoftString.Create($"{category}.{n}"));
+                throw new ArgumentException(
+                    paramName: nameof(commandType),
+                    message: $"'{nameof(commandType)}' needs to be derived from '{nameof(ICommand)}'");
             }
 
-            return names.ToArray();
-
-            IEnumerable<SoftString> GetCommandNames()
+            return CommandNameCache.GetOrAdd(commandType, t =>
             {
-                yield return GetCommandDefaultName(commadType);
-                foreach (var name in commadType.GetCustomAttribute<AliasAttribute>() ?? Enumerable.Empty<SoftString>())
-                {
-                    yield return name;
-                }
+                var category = t.GetCustomAttribute<CategoryAttribute>()?.Category;
+
+                var names = GetCommandNames(t);
+
+                return new SoftKeySet(
+                    category is null
+                        ? names
+                        : names.SelectMany(name => new[] { name, SoftString.Create($"{category}.{name}") })
+                );
+            });
+        }
+
+        private static IEnumerable<SoftString> GetCommandNames(Type commandType)
+        {
+            yield return GetDefaultCommandName(commandType);
+            foreach (var name in commandType.GetCustomAttribute<AliasAttribute>() ?? Enumerable.Empty<SoftString>())
+            {
+                yield return name;
             }
         }
 
-        private static string GetCommandDefaultName(Type commadType)
+        private static string GetDefaultCommandName(Type commadType)
         {
             return Regex.Replace(commadType.Name, "C(omman|m)d$", string.Empty, RegexOptions.IgnoreCase);
         }
@@ -58,19 +68,23 @@ namespace Reusable.Commander
         {
             if (property == null) throw new ArgumentNullException(nameof(property));
 
-            var names = GetParameterNames();
-            return names.ToArray();
-
-            IEnumerable<SoftString> GetParameterNames()
+            return ParameterNameCache.GetOrAdd(property, p =>
             {
-                // Always use the property name as default.
-                yield return property.Name;
+                var names = GetParameterNames(p);
+                return new SoftKeySet(names);
 
-                // Then get alias if any.
-                foreach (var alias in property.GetCustomAttribute<AliasAttribute>() ?? Enumerable.Empty<SoftString>())
-                {
-                    yield return alias;
-                }
+            });
+        }
+
+        private static IEnumerable<SoftString> GetParameterNames(PropertyInfo property)
+        {
+            // Always use the property name as default.
+            yield return property.Name;
+
+            // Then get alias if any.
+            foreach (var alias in property.GetCustomAttribute<AliasAttribute>() ?? Enumerable.Empty<SoftString>())
+            {
+                yield return alias;
             }
         }
 
