@@ -63,5 +63,14 @@ namespace Reusable.Tests.Commander.IntegrationTests
                 filter => filter.WhenName("^CommandNameNotFound")
             );
         }
+        
+        [TestMethod]
+        public void ExecuteAsync_NonExistingCommandName_Throws()
+        {
+            Assert.That.Throws<DynamicException>(
+                () => Executor.ExecuteAsync("a").GetAwaiter().GetResult(),
+                filter => filter.WhenName("^CommandNotFound")
+            );
+        }
     }
 }

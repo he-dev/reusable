@@ -38,28 +38,25 @@ namespace Reusable.Tests.Commander.IntegrationTests
 
     internal abstract class TestBag<TBag> : SimpleBag
     {
-        [NotMapped]
-        public Func<TBag, Task> Assert { get; set; }
+        
     }
 
     internal class Bag1 : TestBag<Bag1>
-    {
+    {        
+        public bool Bool1 { get; set; }
+
         [DefaultValue(false)]
-        public bool Property01 { get; set; }
+        public bool Bool2 { get; set; }
 
         [DefaultValue(true)]
-        public bool Property02 { get; set; }
+        public bool Bool3 { get; set; }
 
-        [Alias("p03")]
-        [DefaultValue(false)]
-        public bool Property03 { get; set; }
-
-        [Alias("p04")]
+        public string String1 { get; set; }
+        
         [DefaultValue("foo")]
-        public string Property04 { get; set; }
+        public string String2 { get; set; }
 
-        [Alias("p05")]
-        public IList<int> Property05 { get; set; }
+        public IList<int> List1 { get; set; }
     }
 
     [Alias("cmd2")]
