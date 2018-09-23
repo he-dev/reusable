@@ -4,14 +4,17 @@ using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
 using JetBrains.Annotations;
+using Reusable.Converters;
 using Reusable.Extensions;
 using Reusable.Reflection;
 
 namespace Reusable.Commander
 {
-    internal static class CommandValidator
+    internal class CommandValidator
     {
-        public static void ValidateCommand([NotNull] Type commandType)
+        private readonly ISet<SoftKeySet> _commandNames = new HashSet<SoftKeySet>();
+
+        public void ValidateCommand([NotNull] Type commandType, [NotNull] ITypeConverter converter)
         {
             if (!typeof(IConsoleCommand).IsAssignableFrom(commandType))
             {
@@ -20,17 +23,43 @@ namespace Reusable.Commander
                     $"{commandType.Name} is not derived from {typeof(IConsoleCommand).Name}.");
             }
 
-            var bagType = commandType.BaseType.GetGenericArguments().SingleOrDefault(t => typeof(ICommandBag).IsAssignableFrom(t));
+            var commandName = NameFactory.CreateCommandName(commandType);
 
-            if (bagType is null)
+            if (_commandNames.Add(commandName))
+            {
+                ValidateParameters(commandType, converter);                
+            }
+            else
             {
                 throw DynamicException.Factory.CreateDynamicException(
-                    $"CommandBag{nameof(Exception)}",
-                    $"{commandType.Name}'s bag is not derived from {typeof(ICommandBag).Name}.");
+                    $"DuplicateCommandName{nameof(Exception)}",
+                    $"Command names and aliases must be unique but there are duplicates: {commandName}");
             }
+        }
 
-            var parameters = bagType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly).Select(CommandParameter.Create);
+        private static void ValidateParameters(Type commandType, ITypeConverter converter)
+        {
+            // ReSharper disable once PossibleNullReferenceException
+            // The first validation makes sure that this is never null.
+            var bagType =
+                commandType
+                    .BaseType
+                    .GetGenericArguments()
+                    .Single(t => typeof(ICommandBag).IsAssignableFrom(t));
 
+            var parameters =
+                bagType
+                    .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
+                    .Select(CommandParameter.Create)
+                    .ToList();
+
+            ValidateParameterNames(parameters);
+            ValidateParameterPositions(parameters);
+            ValidateParameterTypes(parameters, converter);
+        }
+
+        private static void ValidateParameterNames(IList<CommandParameter> parameters)
+        {
             var duplicateNames =
                 parameters
                     .SelectMany(property => property.Name)
@@ -42,26 +71,45 @@ namespace Reusable.Commander
             if (duplicateNames.Any())
             {
                 throw DynamicException.Factory.CreateDynamicException(
-                    $"DuplicatePropertyName{nameof(Exception)}",
-                    $"Command line properties must have unique names. Duplicates: {duplicateNames.Join(", ").EncloseWith("[]")}",
-                    null
+                    $"DuplicateParameterName{nameof(Exception)}",
+                    $"There are one or more parameters with duplicate names: {duplicateNames.Join(", ").EncloseWith("[]")}"
                 );
             }
         }
 
-        //public static void ValidateParameterPositions(IReadOnlyCollection<ArgumentMetadata> parameters)
-        //{
-        //    var positions = parameters.Where(p => p.Position > 0).Select(p => p.Position).ToList();
+        private static void ValidateParameterPositions(IList<CommandParameter> parameters)
+        {
+            var positions =
+                parameters
+                    .Where(p => p.Position > 0)
+                    .Select(p => p.Position)
+                    .ToList();
 
-        //    var mid = positions.Count % 2 == 0 ? 0 : (positions.Count / 2) + 1;
-        //    var sum = (((1 + positions.Count) * (positions.Count / 2)) + mid);
-        //    if (sum != positions.Sum())
-        //    {
-        //        // ReSharper disable once PossibleNullReferenceException
-        //        throw new ArgumentException($"The {parameters.First().Property.DeclaringType.Name} has some invalid parameter positions. They must begin with 1 and have positions increasing by 1.");
-        //    }            
-        //}
+            var mid = positions.Count % 2 == 0 ? 0 : (positions.Count / 2) + 1;
+            var sum = (((1 + positions.Count) * (positions.Count / 2)) + mid);
+            if (sum != positions.Sum())
+            {
+                throw DynamicException.Factory.CreateDynamicException(
+                    $"ParameterPosition{nameof(Exception)}",
+                    $"There are one or more parameters with invalid positions. They must begin with 1 and be increasing by 1."
+                );
+            }
+        }
 
-        // todo: validate parameter types
+        private static void ValidateParameterTypes(IList<CommandParameter> parameters, ITypeConverter converter)
+        {
+            var unsupportedParameters =
+                parameters
+                    .Where(parameter => !converter.CanConvert(typeof(string), parameter.Type))
+                    .ToList();
+
+            if (unsupportedParameters.Any())
+            {
+                throw DynamicException.Factory.CreateDynamicException(
+                    $"UnsupportedParameterType{nameof(Exception)}",
+                    $"There are one or more parameters with unsupported types: {string.Join(", ", unsupportedParameters.Select(p => p.Type.Name)).EncloseWith("[]")}."
+                );
+            }
+        }
     }
 }

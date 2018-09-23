@@ -54,37 +54,33 @@ namespace Reusable.Commander
 
             var executables = FindCommands(commandLines).ToLookup(x => x.Bag.Async);
 
-            // Execute sequential commands first.
-            foreach (var (command, commandLine, _) in executables[sequential])
+            _logger.Log(Abstraction.Layer.Infrastructure().Meta(new
             {
-                if (cancellationToken.IsCancellationRequested)
+                CommandCount = new
                 {
-                    break;
+                    Executable = executables.Count,
+                    Sequential = executables[sequential].Count(),
+                    Async = executables[async].Count(),
                 }
-                await command.ExecuteAsync(commandLine, cancellationToken);
+            }));
+
+            using (var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+            {
+                // Execute sequential commands first.
+                foreach (var executable in executables[sequential])
+                {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        break;
+                    }
+
+                    await ExecuteAsync(executable, cts);
+                }
+
+                // Now execute the async commands.
+                var tasks = executables[async].Select(async executable => await ExecuteAsync(executable, cts));
+                await Task.WhenAll(tasks).ConfigureAwait(false);
             }
-
-            // Now execute the async commands.
-            var tasks = executables[async].Select(async executable =>
-            {
-                var loggerScope = _logger.BeginScope().WithCorrelationContext(new { Command = executable.Command.Name.FirstLongest().ToString() }).AttachElapsed();
-                try
-                {
-                    await executable.Command.ExecuteAsync(executable.CommandLine, cancellationToken);
-                    _logger.Log(Abstraction.Layer.Infrastructure().Routine(nameof(IConsoleCommand.ExecuteAsync)).Completed());
-                }
-                catch (Exception taskEx)
-                {
-                    _logger.Log(Abstraction.Layer.Infrastructure().Routine(nameof(IConsoleCommand.ExecuteAsync)).Faulted(), taskEx);
-                }
-                finally
-                {
-                    loggerScope.Dispose();
-                }
-            }).ToArray();
-
-            await Task.WhenAll(tasks);
-
         }
 
         public async Task ExecuteAsync(string commandLineString, CancellationToken cancellationToken)
@@ -111,7 +107,7 @@ namespace Reusable.Commander
                     item.commandLine.CommandName()
                     ?? throw DynamicException.Factory.CreateDynamicException(
                         $"CommandNameNotFound{nameof(Exception)}",
-                        $"Commad line {item.index} does not contain a command name.");
+                        $"Command line at {item.index} does not contain a command name.");
 
                 var command = _commands.SingleOrDefault(x => x.Name == commandName);
                 if (command is null)
@@ -120,7 +116,7 @@ namespace Reusable.Commander
                 }
                 else
                 {
-                    matches.Add((command, item.commandLine, _mapper.Map<InternalBag>(item.commandLine)));
+                    matches.Add((command, item.commandLine, _mapper.Map<SimpleBag>(item.commandLine)));
                 }
             }
 
@@ -133,6 +129,27 @@ namespace Reusable.Commander
             }
 
             return matches;
+        }
+
+        private async Task ExecuteAsync((IConsoleCommand Command, ICommandLine CommandLine, ICommandBag Bag) executable, CancellationTokenSource cancellationTokenSource)
+        {
+            using (_logger.BeginScope().WithCorrelationContext(new {Command = executable.Command.Name.FirstLongest().ToString()}).AttachElapsed())
+            {
+                try
+                {
+                    await executable.Command.ExecuteAsync(executable.CommandLine, cancellationTokenSource.Token);
+                    _logger.Log(Abstraction.Layer.Infrastructure().Routine(nameof(IConsoleCommand.ExecuteAsync)).Completed());
+                }
+                catch (Exception taskEx)
+                {
+                    _logger.Log(Abstraction.Layer.Infrastructure().Routine(nameof(IConsoleCommand.ExecuteAsync)).Faulted(), taskEx);
+                    if (executable.Bag.CanThrow)
+                    {
+                        cancellationTokenSource.Cancel();
+                        throw;
+                    }
+                }
+            }
         }
     }
 }

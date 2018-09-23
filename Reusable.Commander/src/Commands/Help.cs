@@ -16,7 +16,7 @@ using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
 
 namespace Reusable.Commander.Commands
 {
-    public class HelpBag : CommandBag
+    public class HelpBag : SimpleBag
     {
         public int IndentWidth { get; set; } = 4;
 

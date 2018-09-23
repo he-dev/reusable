@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
@@ -19,20 +18,7 @@ namespace Reusable.Commander
         SoftKeySet Name { get; }
 
         Task ExecuteAsync(object parameter, CancellationToken cancellationToken);
-    }
-
-    public interface ICommandBag
-    {
-        bool Async { get; set; }
-    }
-
-    public abstract class CommandBag : ICommandBag
-    {
-        [DefaultValue(false)]
-        public bool Async { get; set; }
-    }
-
-    internal class InternalBag : CommandBag { }
+    }    
 
     public abstract class ConsoleCommand<TBag> : IConsoleCommand where TBag : ICommandBag, new()
     {
@@ -46,7 +32,7 @@ namespace Reusable.Commander
 
         protected ILogger Logger { get; }
 
-        public SoftKeySet Name => NameFactory.CreateCommandName(GetType());
+        public virtual SoftKeySet Name => NameFactory.CreateCommandName(GetType());
 
         public async Task ExecuteAsync(object parameter, CancellationToken cancellationToken)
         {
@@ -67,7 +53,8 @@ namespace Reusable.Commander
                 default:
                     throw new ArgumentOutOfRangeException(
                         paramName: nameof(parameter),
-                        message: $"{nameof(parameter)} must be either a {typeof(ICommandLine).Name} or {typeof(TBag).Name}.");
+                        message: $"{nameof(parameter)} must be either a {typeof(ICommandLine).Name} or {typeof(TBag).Name}."
+                    );
             }
         }
 
