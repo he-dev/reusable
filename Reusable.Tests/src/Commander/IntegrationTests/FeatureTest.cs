@@ -1,22 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Commander;
-using Reusable.OmniLog;
-using System.ComponentModel;
-using System.Threading;
-using System.Threading.Tasks;
-using Autofac;
-using Reusable.Commander.Annotations;
-using Reusable.IO;
-using Reusable.Reflection;
 using Reusable.Utilities.MSTest;
-using IContainer = Autofac.IContainer;
 
-namespace Reusable.Tests.Commander
+namespace Reusable.Tests.Commander.IntegrationTests
 {
     [TestClass]
-    public partial class IntegrationTest
+    public class FeatureTest : IntegrationTest
     {
         [TestMethod]
         public async Task ExecuteAsync()

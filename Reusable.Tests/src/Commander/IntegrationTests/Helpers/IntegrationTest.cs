@@ -1,27 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using Autofac;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Commander;
 using Reusable.OmniLog;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Threading;
-using System.Threading.Tasks;
-using Autofac;
-using Reusable.Commander.Annotations;
-using Reusable.IO;
-using Reusable.Reflection;
-using Reusable.Utilities.MSTest;
 using IContainer = Autofac.IContainer;
 
-namespace Reusable.Tests.Commander
-{
-    public partial class IntegrationTest
+namespace Reusable.Tests.Commander.IntegrationTests
+{    
+    public abstract class IntegrationTest
     {
         private IDictionary<Type, ICommandBag> _bags;
         private IDisposable _testCleanup;
         
-        private ICommandLineExecutor Executor { get; set; }
+        protected ICommandLineExecutor Executor { get; private set; }
 
         [TestInitialize]
         public void TestInitialize()
@@ -45,7 +37,7 @@ namespace Reusable.Tests.Commander
             _testCleanup.Dispose();
         }
 
-        private void ExecuteAssert<TBag>(Action<TBag> assert)
+        protected void ExecuteAssert<TBag>(Action<TBag> assert)
         {
             assert((TBag) _bags[typeof(TBag)]);
         }
