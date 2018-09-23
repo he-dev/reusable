@@ -23,8 +23,7 @@ namespace Reusable.Commander
         public static SoftKeySet CommandName([NotNull] this ICommandLine commandLine)
         {
             // Command-name is the first anonymous argument.
-            var commandName = commandLine.AnonymousValues().FirstOrDefault();
-            return string.IsNullOrEmpty(commandName) ? default : commandName;
+            return commandLine.AnonymousValues().FirstOrDefault();
         }
     }
 }

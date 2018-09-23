@@ -12,11 +12,11 @@ namespace Reusable.Commander
 
         public SoftKeySet(IEnumerable<SoftString> keys) : base(keys) { }
 
-        public static implicit operator SoftKeySet(SoftString[] keys) => new SoftKeySet(keys);
+        public static implicit operator SoftKeySet(SoftString[] keys) => keys is null ? null : new SoftKeySet(keys);
 
-        public static implicit operator SoftKeySet(SoftString key) => new SoftKeySet(key);
+        public static implicit operator SoftKeySet(SoftString key) => key is null ? null : new SoftKeySet(key);
 
-        public static implicit operator SoftKeySet(string key) => new SoftKeySet(key);
+        public static implicit operator SoftKeySet(string key) => key is null ? null : new SoftKeySet(key);
     }
 
     public static class SoftKeySetExtensions

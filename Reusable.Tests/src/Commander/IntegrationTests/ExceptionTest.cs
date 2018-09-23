@@ -54,5 +54,14 @@ namespace Reusable.Tests.Commander.IntegrationTests
                 filter => filter.WhenName("UnsupportedParameterTypeException")
             );
         }
+        
+        [TestMethod]
+        public void ExecuteAsync_NoCommandName_Throws()
+        {
+            Assert.That.Throws<DynamicException>(
+                () => Executor.ExecuteAsync("-a").GetAwaiter().GetResult(),
+                filter => filter.WhenName("^CommandNameNotFound")
+            );
+        }
     }
 }
