@@ -8,7 +8,7 @@ namespace Reusable.Tests.Commander.IntegrationTests
     public class FeatureTest : IntegrationTest
     {
         [TestMethod]
-        public async Task ExecuteAsync()
+        public async Task ExecuteAsync_MultipleCommands_Executed()
         {
             //Assert.That.Throws<DynamicException>(
             //    () =>

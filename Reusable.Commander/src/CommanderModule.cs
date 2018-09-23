@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Autofac;
 using JetBrains.Annotations;
 using Reusable.Converters;
@@ -15,18 +16,22 @@ namespace Reusable.Commander
         private readonly IEnumerable<Type> _commandTypes;
         private readonly ITypeConverter _converter;
 
-        public CommanderModule([NotNull] IEnumerable<Type> commandTypes, ITypeConverter converter = null)
+        public CommanderModule([NotNull] IEnumerable<Type> commandTypes, [CanBeNull] ITypeConverter converter = null)
         {
-            _commandTypes = commandTypes ?? throw new ArgumentNullException(nameof(commandTypes));
+            _commandTypes = commandTypes?.ToList() ?? throw new ArgumentNullException(nameof(commandTypes));
             _converter = converter ?? CommandLineMapper.DefaultConverter;
+            
+            var commandValidator = new CommandValidator();
+            foreach (var commandType in _commandTypes)
+            {
+                commandValidator.ValidateCommand(commandType, _converter);                             
+            }
         }
         
         protected override void Load(ContainerBuilder builder)
         {
-            var commandValidator = new CommandValidator();
             foreach (var commandType in _commandTypes)
             {
-                commandValidator.ValidateCommand(commandType, _converter);
                 builder
                     .RegisterType(commandType)
                     .Keyed<IConsoleCommand>(NameFactory.CreateCommandName(commandType))

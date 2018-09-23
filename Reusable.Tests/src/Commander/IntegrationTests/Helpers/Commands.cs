@@ -90,4 +90,34 @@ namespace Reusable.Tests.Commander.IntegrationTests
         [Alias("p05")]
         public IList<int> Property05 { get; set; }
     }
+
+    #region Invalid bags
+
+    // Contains duplicate parameters.
+    internal class InvalidBag1 : SimpleBag
+    {
+        
+        public string A { get; set; }
+
+        [Alias("A")]
+        public string B { get; set; }
+    }
+    
+    // Contains invalid parameter positions.
+    internal class InvalidBag2 : SimpleBag
+    {        
+        [Position(1)]
+        public string A { get; set; }
+
+        [Position(3)]
+        public string B { get; set; }
+    }
+    
+    // Contains unsupported parameter type.
+    internal class InvalidBag3 : SimpleBag
+    {        
+        public AppDomain A { get; set; }
+    }
+
+    #endregion
 }

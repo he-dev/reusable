@@ -27,7 +27,7 @@ namespace Reusable.Commander
 
             if (_commandNames.Add(commandName))
             {
-                ValidateParameters(commandType, converter);                
+                ValidateParameters(commandType, converter);
             }
             else
             {
@@ -85,14 +85,17 @@ namespace Reusable.Commander
                     .Select(p => p.Position)
                     .ToList();
 
-            var mid = positions.Count % 2 == 0 ? 0 : (positions.Count / 2) + 1;
-            var sum = (((1 + positions.Count) * (positions.Count / 2)) + mid);
-            if (sum != positions.Sum())
+            if (positions.Any())
             {
-                throw DynamicException.Factory.CreateDynamicException(
-                    $"ParameterPosition{nameof(Exception)}",
-                    $"There are one or more parameters with invalid positions. They must begin with 1 and be increasing by 1."
-                );
+                var mid = positions.Count % 2 == 0 ? 0 : (positions.Count / 2) + 1;
+                var sum = (((1 + positions.Count) * (positions.Count / 2)) + mid);
+                if (sum != positions.Sum())
+                {
+                    throw DynamicException.Factory.CreateDynamicException(
+                        $"ParameterPosition{nameof(Exception)}",
+                        $"There are one or more parameters with invalid positions. They must begin with 1 and be increasing by 1."
+                    );
+                }
             }
         }
 

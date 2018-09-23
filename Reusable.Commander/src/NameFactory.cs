@@ -39,7 +39,7 @@ namespace Reusable.Commander
             {
                 var category = t.GetCustomAttribute<CategoryAttribute>()?.Category;
 
-                var names = GetCommandNames(t);
+                var names = GetCommandNames(t).Distinct();
 
                 return new SoftKeySet(
                     category is null
