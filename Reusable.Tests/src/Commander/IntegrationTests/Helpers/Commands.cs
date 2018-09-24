@@ -30,18 +30,23 @@ namespace Reusable.Tests.Commander.IntegrationTests
     [Alias("cmd1")]
     internal class Command1 : TestCommand<Bag1>
     {
+        private readonly IDictionary<Type, ICommandBag> _bags;
+
         public Command1(ILogger<Command1> logger, ICommandLineMapper mapper, IDictionary<Type, ICommandBag> bags)
             : base(logger, mapper, bags)
         {
+            _bags = bags;
+        }
+        
+        protected override Task ExecuteAsync(Bag1 parameter, CancellationToken cancellationToken)
+        {
+            _bags.Add(typeof(Bag1), parameter);
+            return Task.CompletedTask;
         }
     }
 
-    internal abstract class TestBag<TBag> : SimpleBag
-    {
-        
-    }
-
-    internal class Bag1 : TestBag<Bag1>
+    // Default values.
+    internal class Bag1 : SimpleBag
     {        
         public bool Bool1 { get; set; }
 
@@ -56,7 +61,21 @@ namespace Reusable.Tests.Commander.IntegrationTests
         [DefaultValue("foo")]
         public string String2 { get; set; }
 
-        public IList<int> List1 { get; set; }
+        public int Int1 { get; set; }
+
+        public int? Int2 { get; set; }
+
+        [DefaultValue(3)]
+        public int Int3 { get; set; }
+
+        public DateTime DateTime1 { get; set; }
+        
+        public DateTime? DateTime2 { get; set; }
+
+        [DefaultValue("2018/01/01")]
+        public DateTime DateTime3 { get; set; }
+            
+        public IList<int> List1 { get; set; }        
     }
 
     [Alias("cmd2")]

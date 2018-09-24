@@ -43,7 +43,10 @@ namespace Reusable.Commander
                     break;
 
                 case ICommandLine commandLine:
-                    await ExecuteAsync(_mapper.Map<TBag>(commandLine), cancellationToken);
+                    //await ExecuteAsync(_mapper.Map<TBag>(commandLine), cancellationToken);
+                    var bag_ = _mapper.Map<TBag>(commandLine);
+                    //await ExecuteAsync(bag_, cancellationToken);
+                    await ExecuteAsync(bag_, cancellationToken);
                     break;
 
                 case TBag bag:

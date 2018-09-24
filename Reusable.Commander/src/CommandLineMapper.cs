@@ -46,9 +46,11 @@ namespace Reusable.Commander
         private readonly ITypeConverter _converter;
         private readonly ConcurrentDictionary<Type, IEnumerable<CommandParameter>> _cache = new ConcurrentDictionary<Type, IEnumerable<CommandParameter>>();
 
-        public CommandLineMapper(
+        public CommandLineMapper
+        (
             [NotNull] ILogger<CommandLineMapper> logger,
-            [NotNull] ITypeConverter converter)
+            [NotNull] ITypeConverter converter
+        )
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _converter = converter ?? throw new ArgumentNullException(nameof(converter));
@@ -58,7 +60,7 @@ namespace Reusable.Commander
         {
             if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
 
-            var parameters = _cache.GetOrAdd(typeof(TBag), GetParameters<TBag>());
+            var parameters = _cache.GetOrAdd(typeof(TBag), GetParameters<TBag>());            
             var bag = new TBag();
 
             foreach (var parameter in parameters)
@@ -75,7 +77,8 @@ namespace Reusable.Commander
                         {
                             throw DynamicException.Factory.CreateDynamicException(
                                 $"{parameter.Name.FirstLongest().ToString()}ParameterException",
-                                $"Collection parameters must have at leas one value.");
+                                $"Collection parameters must have at leas one value."
+                            );
                         }
 
                         var value = _converter.Convert(values, parameter.Type);
@@ -87,7 +90,8 @@ namespace Reusable.Commander
                         {
                             throw DynamicException.Factory.CreateDynamicException(
                                 $"{parameter.Name.FirstLongest().ToString()}ParameterException",
-                                $"Simple parameters must not have more than one value.");
+                                $"Simple parameters must not have more than one value."
+                            );
                         }
 
                         if (parameter.Type == typeof(bool))
@@ -127,6 +131,7 @@ namespace Reusable.Commander
                     if (parameter.DefaultValue.IsNotNull())
                     {
                         parameter.SetValue(bag, parameter.DefaultValue);
+
                         //parameter.SetValue(bag, _converter.Convert(parameter.DefaultValue, parameter.Type));
                     }
                 }
@@ -140,6 +145,7 @@ namespace Reusable.Commander
             return
                 typeof(T)
                     .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+
                     //.Where(property => property.IsDefined(typeof(ParameterAttribute)))
                     .Select(CommandParameter.Create)
                     .ToList();
