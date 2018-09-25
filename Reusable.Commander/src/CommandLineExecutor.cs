@@ -22,7 +22,7 @@ namespace Reusable.Commander
 {
     public interface ICommandLineExecutor
     {
-        Task ExecuteAsync([NotNull, ItemNotNull] IList<ICommandLine> commandLines, CancellationToken cancellationToken = default);
+        Task ExecuteAsync([NotNull, ItemNotNull] IEnumerable<ICommandLine> commandLines, CancellationToken cancellationToken = default);
 
         Task ExecuteAsync([CanBeNull] string commandLineString, CancellationToken cancellationToken = default);
     }
@@ -49,7 +49,7 @@ namespace Reusable.Commander
             _commands = commands ?? throw new ArgumentNullException(nameof(commands));
         }
 
-        public async Task ExecuteAsync(IList<ICommandLine> commandLines, CancellationToken cancellationToken)
+        public async Task ExecuteAsync(IEnumerable<ICommandLine> commandLines, CancellationToken cancellationToken)
         {
             const bool sequential = false;
             const bool async = true;
@@ -104,13 +104,13 @@ namespace Reusable.Commander
                 );
             }
 
-            var commandLines = _commandLineParser.Parse(commandLineString).ToList();
+            var commandLines = _commandLineParser.Parse(commandLineString);
             await ExecuteAsync(commandLines, cancellationToken);
-        }        
+        }
 
         private async Task ExecuteAsync((IConsoleCommand Command, ICommandLine CommandLine, ICommandBag Bag) executable, CancellationTokenSource cancellationTokenSource)
         {
-            using (_logger.BeginScope().WithCorrelationContext(new { Command = executable.Command.Name.FirstLongest().ToString() }).AttachElapsed())
+            using (_logger.BeginScope().WithCorrelationContext(new {Command = executable.Command.Name.FirstLongest().ToString()}).AttachElapsed())
             {
                 try
                 {
@@ -121,22 +121,21 @@ namespace Reusable.Commander
                 {
                     _logger.Log(Abstraction.Layer.Infrastructure().Routine(nameof(IConsoleCommand.ExecuteAsync)).Faulted(), taskEx);
 
-                #if DEBUG
-
-                    // In debug mode (e.g. unit-testing) this should always throw. Otherwise we might hide some bugs.
-                    throw;
-
-                #endif
-
-                #pragma warning disable CS0162
-
                     if (executable.Bag.CanThrow)
                     {
                         cancellationTokenSource.Cancel();
                         throw;
                     }
-
-                #pragma warning restore CS0162
+#if DEBUG
+                    else
+                    {
+                        // In debug mode (e.g. unit-testing) this should always throw. Otherwise we might hide some bugs.
+                        throw DynamicException.Factory.CreateDynamicException(
+                            $"Unexpected{nameof(Exception)}",
+                            $"An unexpected exception occured while executing the '{executable.Command.Name.FirstLongest().ToString()}' command."
+                        );
+                    }
+#endif
                 }
             }
         }

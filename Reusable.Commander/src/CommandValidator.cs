@@ -16,6 +16,9 @@ namespace Reusable.Commander
 
         public void ValidateCommand([NotNull] Type commandType, [NotNull] ITypeConverter converter)
         {
+            if (commandType == null) throw new ArgumentNullException(nameof(commandType));
+            if (converter == null) throw new ArgumentNullException(nameof(converter));
+
             if (!typeof(IConsoleCommand).IsAssignableFrom(commandType))
             {
                 throw DynamicException.Factory.CreateDynamicException(
@@ -23,7 +26,7 @@ namespace Reusable.Commander
                     $"{commandType.Name} is not derived from {typeof(IConsoleCommand).Name}.");
             }
 
-            var commandName = NameFactory.CreateCommandName(commandType);
+            var commandName = CommandHelper.GetCommandName(commandType);
 
             if (_commandNames.Add(commandName))
             {
@@ -58,7 +61,7 @@ namespace Reusable.Commander
             ValidateParameterTypes(parameters, converter);
         }
 
-        private static void ValidateParameterNames(IList<CommandParameter> parameters)
+        private static void ValidateParameterNames(IEnumerable<CommandParameter> parameters)
         {
             var duplicateNames =
                 parameters
@@ -77,7 +80,7 @@ namespace Reusable.Commander
             }
         }
 
-        private static void ValidateParameterPositions(IList<CommandParameter> parameters)
+        private static void ValidateParameterPositions(IEnumerable<CommandParameter> parameters)
         {
             var positions =
                 parameters
@@ -99,7 +102,7 @@ namespace Reusable.Commander
             }
         }
 
-        private static void ValidateParameterTypes(IList<CommandParameter> parameters, ITypeConverter converter)
+        private static void ValidateParameterTypes(IEnumerable<CommandParameter> parameters, ITypeConverter converter)
         {
             var unsupportedParameters =
                 parameters

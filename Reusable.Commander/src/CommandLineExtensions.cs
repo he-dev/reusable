@@ -10,11 +10,18 @@ namespace Reusable.Commander
     public static class CommandLineExtensions
     {
         [NotNull, ItemNotNull]
-        public static IEnumerable<string> AnonymousValues([NotNull] this ICommandLine commandLine) => commandLine[CommandArgumentKeys.Anonymous];
+        public static IEnumerable<string> AnonymousValues([NotNull] this ICommandLine commandLine)
+        {
+            if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
+
+            return commandLine[CommandArgumentKeys.Anonymous];
+        }
 
         [NotNull, ItemNotNull]
-        public static IEnumerable<string> ArgumentValues(this ICommandLine commandLine, int? position, SoftKeySet name)
+        public static IEnumerable<string> ArgumentValues([NotNull] this ICommandLine commandLine, int? position, SoftKeySet name)
         {
+            if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
+            
             return
                 position.HasValue
                     ? commandLine.AnonymousValues().Skip(position.Value).Take(1)
@@ -24,6 +31,8 @@ namespace Reusable.Commander
         [NotNull]
         public static SoftKeySet CommandName([NotNull] this ICommandLine commandLine)
         {
+            if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
+            
             // Command-name is the first anonymous argument.
             return
                 commandLine

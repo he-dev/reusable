@@ -18,7 +18,7 @@ namespace Reusable.Commander
         private CommandParameter(PropertyInfo property)
         {
             _property = property;
-            Name = NameFactory.CreatePropertyName(property);
+            Name = CommandHelper.GetCommandParameterName(property);
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(b =>

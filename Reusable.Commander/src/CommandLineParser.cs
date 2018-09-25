@@ -10,7 +10,7 @@ namespace Reusable.Commander
     public interface ICommandLineParser
     {
         [NotNull, ItemNotNull]
-        IEnumerable<ICommandLine> Parse([NotNull, ItemNotNull] IEnumerable<string> commandLine);
+        IEnumerable<ICommandLine> Parse([NotNull, ItemCanBeNull] IEnumerable<string> commandLine);
 
         [NotNull, ItemNotNull]
         IEnumerable<ICommandLine> Parse([NotNull] string commandLine);
@@ -28,29 +28,27 @@ namespace Reusable.Commander
         // language=regexp
         private const string ArgumentPrefix = @"^[-/\.]";
 
+        private const string CommandSeparator = "|";
+
         public IEnumerable<ICommandLine> Parse(IEnumerable<string> tokens)
         {
-            if (tokens == null)
-            {
-                throw new ArgumentNullException(nameof(tokens));
-            }
+            if (tokens == null) throw new ArgumentNullException(nameof(tokens));
 
             var commandLine = new CommandLine();
             var argumentName = CommandArgumentKeys.Anonymous;
 
-            foreach (var token in tokens)
-            {
+            foreach (var token in tokens.Where(Conditional.IsNotNullOrEmpty))
+            {                
                 switch (token)
                 {
-                    case "|" when commandLine.Any():
+                    case CommandSeparator when commandLine.Any():
                         yield return commandLine;
                         commandLine = new CommandLine();
                         argumentName = CommandArgumentKeys.Anonymous;
                         break;
 
-                    // ReSharper disable once PatternAlwaysOfType
-                    case string value when Regex.IsMatch(value, ArgumentPrefix):
-                        argumentName = Regex.Replace(token, ArgumentPrefix, string.Empty);
+                    case string value when IsArgument(value):
+                        argumentName = RemoveArgumentPrefix(token);
                         commandLine.Add(argumentName);
                         break;
 
@@ -64,16 +62,17 @@ namespace Reusable.Commander
             {
                 yield return commandLine;
             }
+
+            bool IsArgument(string value) => Regex.IsMatch(value, ArgumentPrefix);
+
+            string RemoveArgumentPrefix(string value) => Regex.Replace(value, ArgumentPrefix, string.Empty);
         }
 
         public IEnumerable<ICommandLine> Parse(string commandLine)
         {
-            if (commandLine == null)
-            {
-                throw new ArgumentNullException(nameof(commandLine));
-            }
+            if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
 
-            return Parse(_tokenizer.Tokenize(commandLine));           
+            return Parse(_tokenizer.Tokenize(commandLine));
         }
     }
 }

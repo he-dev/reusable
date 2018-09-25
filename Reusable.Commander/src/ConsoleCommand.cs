@@ -32,7 +32,7 @@ namespace Reusable.Commander
 
         protected ILogger Logger { get; }
 
-        public virtual SoftKeySet Name => NameFactory.CreateCommandName(GetType());
+        public virtual SoftKeySet Name => CommandHelper.GetCommandName(GetType());
 
         public async Task ExecuteAsync(object parameter, CancellationToken cancellationToken)
         {

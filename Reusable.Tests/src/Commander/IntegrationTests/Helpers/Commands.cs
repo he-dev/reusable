@@ -36,12 +36,12 @@ namespace Reusable.Tests.Commander.IntegrationTests
             : base(logger, mapper, bags)
         {
             _bags = bags;
-        }       
+        }
     }
 
     // Default values.
     internal class Bag1 : SimpleBag
-    {        
+    {
         public bool Bool1 { get; set; }
 
         [DefaultValue(false)]
@@ -51,7 +51,7 @@ namespace Reusable.Tests.Commander.IntegrationTests
         public bool Bool3 { get; set; }
 
         public string String1 { get; set; }
-        
+
         [DefaultValue("foo")]
         public string String2 { get; set; }
 
@@ -63,13 +63,13 @@ namespace Reusable.Tests.Commander.IntegrationTests
         public int Int3 { get; set; }
 
         public DateTime DateTime1 { get; set; }
-        
+
         public DateTime? DateTime2 { get; set; }
 
         [DefaultValue("2018/01/01")]
         public DateTime DateTime3 { get; set; }
-            
-        public IList<int> List1 { get; set; }        
+
+        public IList<int> List1 { get; set; }
     }
 
     [Alias("cmd2")]
@@ -106,26 +106,25 @@ namespace Reusable.Tests.Commander.IntegrationTests
     // Contains duplicate parameters.
     internal class InvalidBag1 : SimpleBag
     {
-        
         public string A { get; set; }
 
         [Alias("A")]
         public string B { get; set; }
     }
-    
+
     // Contains invalid parameter positions.
     internal class InvalidBag2 : SimpleBag
-    {        
+    {
         [Position(1)]
         public string A { get; set; }
 
         [Position(3)]
         public string B { get; set; }
     }
-    
+
     // Contains unsupported parameter type.
     internal class InvalidBag3 : SimpleBag
-    {        
+    {
         public AppDomain A { get; set; }
     }
 

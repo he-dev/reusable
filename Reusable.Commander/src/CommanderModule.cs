@@ -13,28 +13,27 @@ namespace Reusable.Commander
     [PublicAPI]
     public class CommanderModule : Autofac.Module
     {
+        
         private readonly IEnumerable<Type> _commandTypes;
         private readonly ITypeConverter _converter;
 
         public CommanderModule([NotNull] IEnumerable<Type> commandTypes, [CanBeNull] ITypeConverter converter = null)
         {
-            _commandTypes = commandTypes?.ToList() ?? throw new ArgumentNullException(nameof(commandTypes));
-            _converter = converter ?? CommandLineMapper.DefaultConverter;
+            if (commandTypes == null) throw new ArgumentNullException(nameof(commandTypes));
             
-            var commandValidator = new CommandValidator();
-            foreach (var commandType in _commandTypes)
-            {
-                commandValidator.ValidateCommand(commandType, _converter);                             
-            }
+            _commandTypes = commandTypes.ToList();
+            _converter = converter ?? CommandLineMapper.DefaultConverter;
         }
         
         protected override void Load(ContainerBuilder builder)
         {
+            var commandValidator = new CommandValidator();
             foreach (var commandType in _commandTypes)
             {
+                commandValidator.ValidateCommand(commandType, _converter);                             
                 builder
                     .RegisterType(commandType)
-                    .Keyed<IConsoleCommand>(NameFactory.CreateCommandName(commandType))
+                    .Keyed<IConsoleCommand>(CommandHelper.GetCommandName(commandType))
                     .As<IConsoleCommand>();                
             }           
             

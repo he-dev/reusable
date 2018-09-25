@@ -14,19 +14,16 @@ using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
 
 namespace Reusable.Commander
 {
-    internal static class NameFactory
+    internal static class CommandHelper
     {
         private static readonly ConcurrentDictionary<Type, SoftKeySet> CommandNameCache = new ConcurrentDictionary<Type, SoftKeySet>();
 
         private static readonly ConcurrentDictionary<PropertyInfo, SoftKeySet> ParameterNameCache = new ConcurrentDictionary<PropertyInfo, SoftKeySet>();
 
         [NotNull]
-        public static SoftKeySet CreateCommandName([NotNull] Type commandType)
+        public static SoftKeySet GetCommandName([NotNull] Type commandType)
         {
-            if (commandType is null)
-            {
-                throw new ArgumentNullException(nameof(commandType));
-            }
+            if (commandType == null) throw new ArgumentNullException(nameof(commandType));
 
             if (!typeof(IConsoleCommand).IsAssignableFrom(commandType))
             {
@@ -64,7 +61,7 @@ namespace Reusable.Commander
         }
 
         [NotNull]
-        public static SoftKeySet CreatePropertyName([NotNull] PropertyInfo property)
+        public static SoftKeySet GetCommandParameterName([NotNull] PropertyInfo property)
         {
             if (property == null) throw new ArgumentNullException(nameof(property));
 

@@ -1,18 +1,26 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Reusable.Collections;
+using Reusable.Extensions;
 
 namespace Reusable.Commander
 {
     /// <summary>
     /// This class represents a single command-line argument with all its values.
     /// </summary>
-    public class CommandArgument : List<string>, IGrouping<SoftKeySet, string>, IEquatable<SoftKeySet>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
+    public class CommandArgument : List<string>, IGrouping<SoftKeySet, string>, IEquatable<SoftKeySet>, IFormattable
     {
+        public const string DefaultFormat = "-:";
+
         internal CommandArgument(SoftKeySet key) => Key = key;
+
+        private string DebuggerDisplay => ToString();
 
         public SoftKeySet Key { get; }
 
@@ -28,29 +36,28 @@ namespace Reusable.Commander
 
         #endregion
 
-        public override string ToString()
+        #region IFormattable
+
+        public string ToString(string format, IFormatProvider formatProvider)
         {
-            // TODO implement this as a custom formatter
+            //var match = Regex.Match(format, @"(?<ArgumentPrefix>[-\/\.])(?<ArgumentValueSeparator>[:= ])");
+            var (success, (argumentPrefix, argumentValueSeparator)) = format.Parse<string, string>(@"(?<ArgumentPrefix>[-\/\.])(?<ArgumentValueSeparator>[:= ])");
 
-            var format = "-=";
-
-            var match = Regex.Match(format, @"(?<ArgumentPrefix>[-\/\.])(?<ArgumentValueSeparator>[:= ])");
-
-            //            if (!match.Success)
-            //            {
-            //                throw new FormatException(@"Invalid format. Expected argument prefix: [-/.], argument value separator: [:=]");
-            //            }
+            if (!success)
+            {
+                throw new FormatException(@"Invalid format. Allowed values are argument prefixes [-/.] and argument value separators [:=], e.g. '-='.");
+            }
 
             var result = new StringBuilder();
 
             result.Append(
                 string.IsNullOrEmpty(Key.FirstOrDefault()?.ToString())
                     ? string.Empty
-                    : $"{match.Groups["ArgumentPrefix"].Value}{Key.FirstOrDefault()}");
+                    : $"{argumentPrefix}{Key.FirstOrDefault()}");
 
             result.Append(
-                result.Length > 0 && this.Any()
-                    ? match.Groups["ArgumentValueSeparator"].Value
+                result.Any() && this.Any()
+                    ? argumentValueSeparator
                     : string.Empty);
 
             result.Append(string.Join(", ", this.Select(x => x.Contains(' ') ? $"\"{x}\"" : x)));
@@ -58,11 +65,15 @@ namespace Reusable.Commander
             return result.ToString();
         }
 
+        #endregion
+
+        public override string ToString() => ToString(DefaultFormat, CultureInfo.InvariantCulture);
+
         public static implicit operator string(CommandArgument commandArgument) => commandArgument?.ToString();
     }
 
     public static class CommandArgumentKeys
     {
-        public static readonly SoftKeySet Anonymous = SoftString.Empty;        
+        public static readonly SoftKeySet Anonymous = SoftString.Empty;
     }
 }
