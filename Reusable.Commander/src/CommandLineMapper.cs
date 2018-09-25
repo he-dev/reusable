@@ -130,9 +130,12 @@ namespace Reusable.Commander
 
                     if (parameter.DefaultValue.IsNotNull())
                     {
-                        parameter.SetValue(bag, parameter.DefaultValue);
-
-                        //parameter.SetValue(bag, _converter.Convert(parameter.DefaultValue, parameter.Type));
+                        var value =
+                            parameter.DefaultValue is string
+                                ? _converter.Convert(parameter.DefaultValue, parameter.Type)
+                                : parameter.DefaultValue;
+                        
+                        parameter.SetValue(bag, value);
                     }
                 }
             }

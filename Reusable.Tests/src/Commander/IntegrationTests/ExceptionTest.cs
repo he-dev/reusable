@@ -60,7 +60,7 @@ namespace Reusable.Tests.Commander.IntegrationTests
         {
             Assert.That.Throws<DynamicException>(
                 () => Executor.ExecuteAsync("-a").GetAwaiter().GetResult(),
-                filter => filter.WhenName("^CommandNameNotFound")
+                filter => filter.WhenName("^InvalidCommandLine")
             );
         }
         
@@ -69,7 +69,7 @@ namespace Reusable.Tests.Commander.IntegrationTests
         {
             Assert.That.Throws<DynamicException>(
                 () => Executor.ExecuteAsync("a").GetAwaiter().GetResult(),
-                filter => filter.WhenName("^CommandNotFound")
+                filter => filter.WhenName("^InvalidCommandLine")
             );
         }
     }

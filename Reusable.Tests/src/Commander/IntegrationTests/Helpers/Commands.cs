@@ -36,13 +36,7 @@ namespace Reusable.Tests.Commander.IntegrationTests
             : base(logger, mapper, bags)
         {
             _bags = bags;
-        }
-        
-        protected override Task ExecuteAsync(Bag1 parameter, CancellationToken cancellationToken)
-        {
-            _bags.Add(typeof(Bag1), parameter);
-            return Task.CompletedTask;
-        }
+        }       
     }
 
     // Default values.

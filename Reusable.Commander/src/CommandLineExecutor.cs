@@ -35,11 +35,13 @@ namespace Reusable.Commander
         private readonly IEnumerable<IConsoleCommand> _commands;
         private readonly ILogger _logger;
 
-        public CommandLineExecutor(
+        public CommandLineExecutor
+        (
             [NotNull] ILogger<CommandLineExecutor> logger,
             [NotNull] ICommandLineParser commandLineParser,
             [NotNull] ICommandLineMapper mapper,
-            [NotNull] IEnumerable<IConsoleCommand> commands)
+            [NotNull] IEnumerable<IConsoleCommand> commands
+        )
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _commandLineParser = commandLineParser ?? throw new ArgumentNullException(nameof(commandLineParser));
@@ -52,17 +54,26 @@ namespace Reusable.Commander
             const bool sequential = false;
             const bool async = true;
 
-            var executables = FindCommands(commandLines).ToLookup(x => x.Bag.Async);
+            var executables =
+                _commands
+                    .Find(commandLines)
+                    .Select(t => (t.Command, t.CommandLine, Bag: _mapper.Map<SimpleBag>(t.CommandLine)))
+                    .ToLookup(x => x.Bag.Async);
 
-            _logger.Log(Abstraction.Layer.Infrastructure().Meta(new
-            {
-                CommandCount = new
-                {
-                    Executable = executables.Count,
-                    Sequential = executables[sequential].Count(),
-                    Async = executables[async].Count(),
-                }
-            }));
+            _logger.Log(
+                Abstraction.Layer.Infrastructure()
+                    .Meta(
+                        new
+                        {
+                            CommandCount = new
+                            {
+                                Executable = executables.Count,
+                                Sequential = executables[sequential].Count(),
+                                Async = executables[async].Count(),
+                            }
+                        }
+                    )
+            );
 
             using (var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
             {
@@ -88,52 +99,18 @@ namespace Reusable.Commander
             if (commandLineString.IsNullOrEmpty())
             {
                 throw DynamicException.Factory.CreateDynamicException(
-                    $"CommandNull{nameof(Exception)}",
-                    $"You need to specify at least one command.");
+                    $"CommandStringNullOrEmpty{nameof(Exception)}",
+                    $"You need to specify at least one command."
+                );
             }
 
             var commandLines = _commandLineParser.Parse(commandLineString).ToList();
             await ExecuteAsync(commandLines, cancellationToken);
-        }
-
-        private IList<(IConsoleCommand Command, ICommandLine CommandLine, ICommandBag Bag)> FindCommands(IList<ICommandLine> commandLines)
-        {
-            var matches = new List<(IConsoleCommand, ICommandLine, ICommandBag)>();
-            var notFound = new List<ICommandLine>();
-
-            foreach (var item in commandLines.Select((x, i) => (commandLine: x, index: i)))
-            {
-                var commandName =
-                    item.commandLine.CommandName()
-                    ?? throw DynamicException.Factory.CreateDynamicException(
-                        $"CommandNameNotFound{nameof(Exception)}",
-                        $"Command line at {item.index} does not contain a command name.");
-
-                var command = _commands.SingleOrDefault(x => x.Name == commandName);
-                if (command is null)
-                {
-                    notFound.Add(item.commandLine);
-                }
-                else
-                {
-                    matches.Add((command, item.commandLine, _mapper.Map<SimpleBag>(item.commandLine)));
-                }
-            }
-
-            if (notFound.Any())
-            {
-                var notFoundCommandNames = notFound.Select(commandLine => commandLine.CommandName().FirstLongest().ToString());
-                throw DynamicException.Factory.CreateDynamicException(
-                    $"CommandNotFound{nameof(Exception)}",
-                    $"Could not find one or more commands: {notFoundCommandNames.Join(", ").EncloseWith("[]")}.");
-            }
-
-            return matches;
-        }
+        }        
 
         private async Task ExecuteAsync((IConsoleCommand Command, ICommandLine CommandLine, ICommandBag Bag) executable, CancellationTokenSource cancellationTokenSource)
         {
-            using (_logger.BeginScope().WithCorrelationContext(new {Command = executable.Command.Name.FirstLongest().ToString()}).AttachElapsed())
+            using (_logger.BeginScope().WithCorrelationContext(new { Command = executable.Command.Name.FirstLongest().ToString() }).AttachElapsed())
             {
                 try
                 {
@@ -143,11 +120,23 @@ namespace Reusable.Commander
                 catch (Exception taskEx)
                 {
                     _logger.Log(Abstraction.Layer.Infrastructure().Routine(nameof(IConsoleCommand.ExecuteAsync)).Faulted(), taskEx);
+
+                #if DEBUG
+
+                    // In debug mode (e.g. unit-testing) this should always throw. Otherwise we might hide some bugs.
+                    throw;
+
+                #endif
+
+                #pragma warning disable CS0162
+
                     if (executable.Bag.CanThrow)
                     {
                         cancellationTokenSource.Cancel();
                         throw;
                     }
+
+                #pragma warning restore CS0162
                 }
             }
         }

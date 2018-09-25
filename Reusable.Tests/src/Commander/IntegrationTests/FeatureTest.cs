@@ -11,19 +11,19 @@ namespace Reusable.Tests.Commander.IntegrationTests
         public async Task ExecuteAsync_SingleCommand_Executed()
         {
             await Executor.ExecuteAsync("cmd1");
-            // ExecuteAssert<Bag1>(
-            //     bag =>
-            //     {
-            //         Assert.IsFalse(bag.Bool1);
-            //         Assert.IsFalse(bag.Bool2);
-            //         Assert.IsTrue(bag.Bool3);
-            //         Assert.IsNull(bag.String1);
-            //         Assert.AreEqual("foo", bag.String2);
-            //         Assert.AreEqual(0, bag.Int1);
-            //         Assert.IsNull(bag.Int2);
-            //         Assert.AreEqual(3, bag.Int3);
-            //     }
-            // );
+            ExecuteAssert<Bag1>(
+                bag =>
+                {
+                    Assert.IsFalse(bag.Bool1);
+                    Assert.IsFalse(bag.Bool2);
+                    Assert.IsTrue(bag.Bool3);
+                    Assert.IsNull(bag.String1);
+                    Assert.AreEqual("foo", bag.String2);
+                    Assert.AreEqual(0, bag.Int1);
+                    Assert.IsNull(bag.Int2);
+                    Assert.AreEqual(3, bag.Int3);
+                }
+            );
         }
 
         [TestMethod]
