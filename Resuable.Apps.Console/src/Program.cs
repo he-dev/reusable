@@ -13,6 +13,9 @@ using Reusable.OmniLog;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.OmniLog.Utilities;
 
+// Unreachable code detected
+#pragma warning disable CS0162 
+
 namespace Reusable.Apps
 {
     internal static class Program
@@ -72,7 +75,7 @@ namespace Reusable.Apps
     {
         public static IObserver<ConsoleKeyInfo> Create(IEnumerable<string> entries)
         {
-            const int maxMatchCount = 3;
+            //const int maxMatchCount = 3;
             const int unselected = -1;
             var buffer = new StringBuilder();
             var position = default((int CursorTop, int CursorLeft));
@@ -252,3 +255,5 @@ namespace Reusable.Apps
         }
     }
 }
+
+#pragma warning restore CS0162

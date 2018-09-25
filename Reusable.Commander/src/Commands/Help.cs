@@ -21,7 +21,7 @@ namespace Reusable.Commander.Commands
         public int IndentWidth { get; set; } = 4;
 
         public int[] ColumnWidths { get; set; } = {17, 60};
-        
+
         [CanBeNull]
         [DefaultValue(false)]
         [Description("Display command usage.")]
@@ -29,44 +29,31 @@ namespace Reusable.Commander.Commands
         [Alias("cmd")]
         public string Command { get; set; }
     }
-    
+
     [PublicAPI]
     [Alias("h", "?")]
     [Description("Display help.")]
-    [Category("Testing")]
     public class Help : ConsoleCommand<HelpBag>
     {
         private readonly IEnumerable<IConsoleCommand> _commands;
 
-        public Help(ILogger<Help> logger, ICommandLineMapper mapper, IEnumerable<IConsoleCommand> commands) : base(logger, mapper)
+        public Help(ILogger<Help> logger, ICommandLineMapper mapper, IEnumerable<IConsoleCommand> commands)
+            : base(logger, mapper)
         {
             _commands = commands;
-        }                
+        }
 
         protected override Task ExecuteAsync(HelpBag parameter, CancellationToken cancellationToken)
         {
-            //var parameter = context.Parameter as Parameter ?? throw DynamicException.Factory.CreateDynamicException($"{nameof(Parameter)}Null{nameof(Exception)}", $"Command parameter must not be null.", null);
-
-            var commandName = parameter.Command is null ? null : SoftKeySet.Create(parameter.Command);
-
             if (parameter.Command.IsNullOrEmpty())
             {
                 RenderCommandList(parameter, _commands);
             }
             else
             {
-                var command = _commands.SingleOrDefault(c => c.Name == commandName);
-
-                if (command is null)
-                {
-                    Logger.Error($"Command {commandName.QuoteAllWith("'")} not found.");
-                }
-                else
-                {
-                    RenderParameterList(command);
-                }
+                var command = _commands.Find(parameter.Command);
+                RenderParameterList(command);
             }
-                    
 
             return Task.CompletedTask;
         }
@@ -82,7 +69,7 @@ namespace Reusable.Commander.Commands
                 Description = x.GetType().GetCustomAttribute<DescriptionAttribute>()?.Description
             });
 
-            var captions = new[] { "NAME", "ABOUT" };
+            var captions = new[] {"NAME", "ABOUT"};
 
             Logger.Information(string.Empty);
             Logger.Debug(RenderColumns(captions, parameter.ColumnWidths));
@@ -96,6 +83,7 @@ namespace Reusable.Commander.Commands
 //                    string.IsNullOrEmpty(commandSummary.Description) ? "N/A" : commandSummary.Description
 //                }, ColumnWidths)));
             }
+
             Logger.Information(string.Empty);
             Logger.Information(string.Empty);
         }
@@ -210,7 +198,7 @@ namespace Reusable.Commander.Commands
 
             public string Description { get; set; }
         }
-        
+
 //        [PublicAPI]
 //        public class Parameter
 //        {
@@ -221,8 +209,6 @@ namespace Reusable.Commander.Commands
 //            [Description("Display command usage.")]
 //            public string Command { get; set; }
 //        }
-
-        
     }
 
     internal static class StringExtensions

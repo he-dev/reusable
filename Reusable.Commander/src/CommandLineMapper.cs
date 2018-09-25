@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
@@ -60,87 +61,95 @@ namespace Reusable.Commander
         {
             if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
 
-            var parameters = _cache.GetOrAdd(typeof(TBag), GetParameters<TBag>());            
+            var parameters = _cache.GetOrAdd(typeof(TBag), GetParameters<TBag>().ToList());            
             var bag = new TBag();
 
             foreach (var parameter in parameters)
             {
-                var longName = parameter.Name.FirstLongest().ToString();
+                Map(bag, commandLine, parameter);
+            }
 
-                if (commandLine.Contains(parameter.Name))
+            return bag;
+        }
+
+        private void Map<TBag>(TBag bag, ICommandLine commandLine, CommandParameter parameter) where TBag : ICommandBag, new()
+        {
+            var longName = parameter.Name.FirstLongest().ToString();
+
+            if (commandLine.Contains(parameter.Name))
+            {
+                var values = commandLine.ArgumentValues(parameter.Position, parameter.Name).ToList();
+
+                if (parameter.Type.IsEnumerable(ignore: typeof(string)))
                 {
-                    var values = commandLine.ArgumentValues(parameter.Position, parameter.Name).ToList();
-
-                    if (parameter.Type.IsEnumerable(ignore: typeof(string)))
+                    if (!values.Any())
                     {
-                        if (!values.Any())
-                        {
-                            throw DynamicException.Factory.CreateDynamicException(
-                                $"{parameter.Name.FirstLongest().ToString()}ParameterException",
-                                $"Collection parameters must have at leas one value."
-                            );
-                        }
-
-                        var value = _converter.Convert(values, parameter.Type);
-                        parameter.SetValue(bag, value);
+                        throw DynamicException.Factory.CreateDynamicException(
+                            $"NotEnoughValuesParameter{nameof(Exception)}",
+                            $"{longName} is a collection parameter and must have at least one value."
+                        );
                     }
-                    else
-                    {
-                        if (values.Count > 1)
-                        {
-                            throw DynamicException.Factory.CreateDynamicException(
-                                $"{parameter.Name.FirstLongest().ToString()}ParameterException",
-                                $"Simple parameters must not have more than one value."
-                            );
-                        }
 
-                        if (parameter.Type == typeof(bool))
-                        {
-                            if (values.Any())
-                            {
-                                var value = _converter.Convert(values.Single(), typeof(bool));
-                                parameter.SetValue(bag, value);
-                            }
-                            else
-                            {
-                                if (parameter.DefaultValue is bool defaultValue)
-                                {
-                                    parameter.SetValue(bag, !defaultValue);
-                                }
-                                else
-                                {
-                                    // Without a DefaultValue assume false but using the parameter negates it so use true.
-                                    parameter.SetValue(bag, true);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            var value = _converter.Convert(values.Single(), parameter.Type);
-                            parameter.SetValue(bag, value);
-                        }
-                    }
+                    var value = _converter.Convert(values, parameter.Type);
+                    parameter.SetValue(bag, value);
                 }
                 else
                 {
-                    if (parameter.IsRequired)
+                    if (values.Count > 1)
                     {
-                        throw ($"{longName}ParameterNotFound{nameof(Exception)}", $"{longName} is required.").ToDynamicException();
+                        throw DynamicException.Factory.CreateDynamicException(
+                            $"TooManyValuesParameter{nameof(Exception)}",
+                            $"{longName} is a simple parameter must not have more than one value."
+                        );
                     }
 
-                    if (parameter.DefaultValue.IsNotNull())
+                    if (parameter.Type == typeof(bool))
                     {
-                        var value =
-                            parameter.DefaultValue is string
-                                ? _converter.Convert(parameter.DefaultValue, parameter.Type)
-                                : parameter.DefaultValue;
-                        
+                        if (values.Any())
+                        {
+                            var value = _converter.Convert(values.Single(), typeof(bool));
+                            parameter.SetValue(bag, value);
+                        }
+                        else
+                        {
+                            if (parameter.DefaultValue is bool defaultValue)
+                            {
+                                parameter.SetValue(bag, !defaultValue);
+                            }
+                            else
+                            {
+                                // Without a DefaultValue assume false but using the parameter negates it so use true.
+                                parameter.SetValue(bag, true);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var value = _converter.Convert(values.Single(), parameter.Type);
                         parameter.SetValue(bag, value);
                     }
                 }
             }
+            else
+            {
+                if (parameter.IsRequired)
+                {
+                    throw DynamicException.Factory.CreateDynamicException(
+                        $"MissingParameter{nameof(Exception)}", 
+                        $"{longName} is required."
+                    );
+                }
 
-            return bag;
+                if (parameter.DefaultValue.IsNotNull())
+                {
+                    var value =
+                        parameter.DefaultValue is string
+                            ? _converter.Convert(parameter.DefaultValue, parameter.Type)
+                            : parameter.DefaultValue;
+
+                    parameter.SetValue(bag, value);
+                }
+            }
         }
 
         private static IEnumerable<CommandParameter> GetParameters<T>()
@@ -148,10 +157,8 @@ namespace Reusable.Commander
             return
                 typeof(T)
                     .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-
-                    //.Where(property => property.IsDefined(typeof(ParameterAttribute)))
-                    .Select(CommandParameter.Create)
-                    .ToList();
+                    .Where(p => !p.IsDefined(typeof(NotMappedAttribute)))
+                    .Select(CommandParameter.Create);
         }
     }
 }
