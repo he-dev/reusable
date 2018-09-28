@@ -8,17 +8,24 @@ namespace Reusable.Tests.Commander.IntegrationTests
     [TestClass]
     public class FeatureTest : IntegrationTest
     {
+        /*
+         
+         Use cases:
+         - creates bag with default types
+         - 
+          
+         */
         [TestMethod]
         public async Task ExecuteAsync_SingleCommand_Executed()
         {
             var bags = new BagTracker();
-            using (CreateContext(
+            using (var context = CreateContext(
                 commands => commands
-                    .Add("c", CreateExecuteCallback<Bag1>(bags)), out var executor
+                    .Add("c", CreateExecuteCallback<BagWithDefaultTypes>(bags))
             ))
             {
-                await executor.ExecuteAsync("c");
-                bags.Assert<Bag1>(
+                await context.Executor.ExecuteAsync("c");
+                bags.Assert<BagWithDefaultTypes>(
                     "c",
                     bag =>
                     {

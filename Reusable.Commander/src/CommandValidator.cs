@@ -19,25 +19,26 @@ namespace Reusable.Commander
             if (command.Type == null) throw new ArgumentNullException(nameof(command.Type));
             if (converter == null) throw new ArgumentNullException(nameof(converter));
 
-            if (!typeof(IConsoleCommand).IsAssignableFrom(command.Type))
-            {
-                throw DynamicException.Factory.CreateDynamicException(
-                    $"CommandType{nameof(Exception)}",
-                    $"{command.Type.Name} is not derived from {typeof(IConsoleCommand).Name}."
-                );
-            }
+            // This no longer applies because the builder does not allow other types.
+            //if (!typeof(IConsoleCommand).IsAssignableFrom(command.Type))
+            //{
+            //throw DynamicException.Factory.CreateDynamicException(
+            //$"CommandType",
+            //$"{command.Type.Name} is not derived from {typeof(IConsoleCommand).Name}."
+            //);
+            //}
 
             ValidateCommandName(command.Name);
             ValidateParameters(command.Type, converter);
-        }        
+        }
 
         private void ValidateCommandName(SoftKeySet name)
         {
             if (!_commandNames.Add(name))
             {
-                throw DynamicException.Factory.CreateDynamicException(
-                    $"DuplicateCommandName{nameof(Exception)}",
-                    $"Command names and aliases must be unique but there are duplicates: {name}"
+                throw DynamicException.Create(
+                    $"DuplicateCommandName",
+                    $"Another command with the name {name} has already been added."
                 );
             }
         }
@@ -75,8 +76,8 @@ namespace Reusable.Commander
 
             if (duplicateNames.Any())
             {
-                throw DynamicException.Factory.CreateDynamicException(
-                    $"DuplicateParameterName{nameof(Exception)}",
+                throw DynamicException.Create(
+                    $"DuplicateParameterName",
                     $"There are one or more parameters with duplicate names: {duplicateNames.Join(", ").EncloseWith("[]")}"
                 );
             }
@@ -96,8 +97,8 @@ namespace Reusable.Commander
                 var sum = (((1 + positions.Count) * (positions.Count / 2)) + mid);
                 if (sum != positions.Sum())
                 {
-                    throw DynamicException.Factory.CreateDynamicException(
-                        $"ParameterPosition{nameof(Exception)}",
+                    throw DynamicException.Create(
+                        $"ParameterPosition",
                         $"There are one or more parameters with invalid positions. They must begin with 1 and be increasing by 1."
                     );
                 }
@@ -113,8 +114,8 @@ namespace Reusable.Commander
 
             if (unsupportedParameters.Any())
             {
-                throw DynamicException.Factory.CreateDynamicException(
-                    $"UnsupportedParameterType{nameof(Exception)}",
+                throw DynamicException.Create(
+                    $"UnsupportedParameterType",
                     $"There are one or more parameters with unsupported types: {string.Join(", ", unsupportedParameters.Select(p => p.Type.Name)).EncloseWith("[]")}."
                 );
             }

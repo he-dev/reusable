@@ -21,8 +21,10 @@ namespace Reusable.Tests.Commander.IntegrationTests
         //     );
         // }
 
+        #region Command and parameter validation
+
         [TestMethod]
-        public void ctor_CommanderModule_ctor_DuplicateCommands_Throws()
+        public void Add_DuplicateCommandNames_Throws()
         {
             Assert.That.Throws<DynamicException>(
                 () =>
@@ -31,15 +33,17 @@ namespace Reusable.Tests.Commander.IntegrationTests
                     using (CreateContext(
                         commands => commands
                             .Add("c", CreateExecuteCallback<SimpleBag>(bags))
-                            .Add("c", CreateExecuteCallback<SimpleBag>(bags)), out _
-                    )) { }
+                            .Add("c", CreateExecuteCallback<SimpleBag>(bags))
+                    ))
+                    {
+                    }
                 },
-                filter => filter.WhenName("DuplicateCommandNameException")
+                filter => filter.When(name: "^DuplicateCommandName")
             );
         }
 
         [TestMethod]
-        public void ctor_CommanderModule_ctor_DuplicateParameters_Throws()
+        public void Add_DuplicateParameterNames_Throws()
         {
             Assert.That.Throws<DynamicException>(
                 () =>
@@ -47,15 +51,17 @@ namespace Reusable.Tests.Commander.IntegrationTests
                     var bags = new BagTracker();
                     using (CreateContext(
                         commands => commands
-                            .Add("c", CreateExecuteCallback<InvalidBag1>(bags)), out _
-                    )) { }
+                            .Add("c", CreateExecuteCallback<BagWithDuplicateParameter>(bags))
+                    ))
+                    {
+                    }
                 },
-                filter => filter.WhenName("^DuplicateParameterName")
+                filter => filter.When(name: "^DuplicateParameterName")
             );
         }
 
         [TestMethod]
-        public void ctor_CommanderModule_ctor_InvalidParameterPositions_Throws()
+        public void Add_InvalidParameterPosition_Throws()
         {
             Assert.That.Throws<DynamicException>(
                 () =>
@@ -63,15 +69,17 @@ namespace Reusable.Tests.Commander.IntegrationTests
                     var bags = new BagTracker();
                     using (CreateContext(
                         commands => commands
-                            .Add("c", CreateExecuteCallback<InvalidBag2>(bags)), out _
-                    )) { }
+                            .Add("c", CreateExecuteCallback<BagWithInvalidParameterPosition>(bags))
+                    ))
+                    {
+                    }
                 },
-                filter => filter.WhenName("^ParameterPositionException")
+                filter => filter.When(name: "^ParameterPositionException")
             );
         }
 
         [TestMethod]
-        public void ctor_CommanderModule_ctor_InvalidParameterTypes_Throws()
+        public void Add_UnsupportedParameterType_Throws()
         {
             Assert.That.Throws<DynamicException>(
                 () =>
@@ -79,12 +87,18 @@ namespace Reusable.Tests.Commander.IntegrationTests
                     var bags = new BagTracker();
                     using (CreateContext(
                         commands => commands
-                            .Add("c", CreateExecuteCallback<InvalidBag3>(bags)), out _
-                    )) { }
+                            .Add("c", CreateExecuteCallback<BagWithUnsupportedParameterType>(bags))
+                    ))
+                    {
+                    }
                 },
-                filter => filter.WhenName("^UnsupportedParameterTypeException")
+                filter => filter.When(name: "^UnsupportedParameterTypeException")
             );
         }
+
+        #endregion
+
+        #region Command-line validation
 
         [TestMethod]
         public void ExecuteAsync_NoCommandName_Throws()
@@ -93,15 +107,15 @@ namespace Reusable.Tests.Commander.IntegrationTests
                 () =>
                 {
                     var bags = new BagTracker();
-                    using (CreateContext(
+                    using (var context = CreateContext(
                         commands => commands
-                            .Add("c", CreateExecuteCallback<SimpleBag>(bags)), out var executor
+                            .Add("c", CreateExecuteCallback<SimpleBag>(bags))
                     ))
                     {
-                        executor.ExecuteAsync("-a").GetAwaiter().GetResult();
+                        context.Executor.ExecuteAsync("-a").GetAwaiter().GetResult();
                     }
                 },
-                filter => filter.WhenName("^InvalidCommandLine")
+                filter => filter.When(name: "^InvalidCommandLine")
             );
         }
 
@@ -112,16 +126,18 @@ namespace Reusable.Tests.Commander.IntegrationTests
                 () =>
                 {
                     var bags = new BagTracker();
-                    using (CreateContext(
+                    using (var context = CreateContext(
                         commands => commands
-                            .Add("c", CreateExecuteCallback<SimpleBag>(bags)), out var executor
+                            .Add("c", CreateExecuteCallback<SimpleBag>(bags))
                     ))
                     {
-                        executor.ExecuteAsync("b").GetAwaiter().GetResult();
+                        context.Executor.ExecuteAsync("b").GetAwaiter().GetResult();
                     }
                 },
-                filter => filter.WhenName("^InvalidCommandLine")
-            );            
+                filter => filter.When(name: "^InvalidCommandLine")
+            );
         }
+
+        #endregion
     }
 }

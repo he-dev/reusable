@@ -66,7 +66,11 @@ namespace Reusable.Utilities.MSTest
             void Fail(object thrownExceptionType)
             {
                 Assert.Fail(
-                    Format($"{Environment.NewLine}» Expected: <{typeof(TException)}>", FormatProvider) +
+                    Format($"{Environment.NewLine}» Expected: <{typeof(TException)}> when(name: '{filter.NamePattern ?? "ANY"}', message: '{filter.MessagePattern ?? "ANY"}')", FormatProvider) +
+                    //Format($"{Environment.NewLine}» Expected: <{typeof(TException)}>", FormatProvider) +
+                    //Format($"{Environment.NewLine}» when(name: '{filter.NamePattern ?? "ANY"}', message: '{filter.MessagePattern ?? "ANY"}')", FormatProvider) +
+                    //Format($"{Environment.NewLine}      name: {filter.NamePattern ?? "ANY"}", FormatProvider) +
+                    //Format($"{Environment.NewLine}   message: {filter.MessagePattern ?? "ANY"}", FormatProvider) +
                     Format($"{Environment.NewLine}» Actual: <{(thrownExceptionType == System.Type.Missing ? "none" : thrownExceptionType)}>", FormatProvider));
             }
         }
@@ -101,29 +105,37 @@ namespace Reusable.Utilities.MSTest
     public class ExceptionFilterBuilder<TException> where TException : Exception
     {
         [CanBeNull]
-        private string _namePattern;
+        public string NamePattern { get; private set; }
 
         [CanBeNull]
-        private string _messagePattern;
+        public string MessagePattern { get; private set; }
 
         [NotNull]
         public ExceptionFilterBuilder<TException> WhenName([NotNull, RegexPattern] string namePattern)
         {
-            _namePattern = namePattern ?? throw new ArgumentNullException(nameof(namePattern));
+            NamePattern = namePattern ?? throw new ArgumentNullException(nameof(namePattern));
             return this;
         }
 
         [NotNull]
         public ExceptionFilterBuilder<TException> WhenMessage([NotNull, RegexPattern] string messagePattern)
         {
-            _messagePattern = messagePattern ?? throw new ArgumentNullException(nameof(messagePattern));
+            MessagePattern = messagePattern ?? throw new ArgumentNullException(nameof(messagePattern));
             return this;
+        }
+
+        public void When([CanBeNull, RegexPattern] string name = default, [CanBeNull, RegexPattern] string message = default)
+        {
+            NamePattern = name;
+            MessagePattern = message;
         }
 
         internal bool IsMatch(TException exception) => IsNameMatch(exception) && IsMessageMatch(exception);
 
-        private bool IsNameMatch(TException exception) => _namePattern is null || Regex.IsMatch(exception.GetType().Name, _namePattern);
+        private bool IsNameMatch(TException exception) => NamePattern is null || Regex.IsMatch(exception.GetType().Name, NamePattern);
 
-        private bool IsMessageMatch(TException exception) => _messagePattern is null || Regex.IsMatch(exception.Message, _messagePattern);
+        private bool IsMessageMatch(TException exception) => MessagePattern is null || Regex.IsMatch(exception.Message, MessagePattern);
+
+        public override string ToString() => $"name: {NamePattern} && message: {MessagePattern}";
     }
 }

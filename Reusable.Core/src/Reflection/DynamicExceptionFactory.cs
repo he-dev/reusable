@@ -3,7 +3,9 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using Reusable.Extensions;
 
 namespace Reusable.Reflection
 {
@@ -19,7 +21,7 @@ namespace Reusable.Reflection
         Exception CreateDynamicException([NotNull] ExceptionName name, [CanBeNull] string message, [CanBeNull] Exception innerException);
 
         /// <summary>
-        /// Gets a dynamic excepiton type.
+        /// Gets a dynamic exception type.
         /// </summary>
         /// <param name="name"></param>
         Type GetDynamicExceptionType([NotNull] string name);
@@ -85,15 +87,17 @@ namespace Reusable.Reflection
     {
         private readonly string _name;
 
-        public ExceptionName([NotNull] string name)
+        private ExceptionName([NotNull] string name)
         {
-            _name = name ?? throw new ArgumentNullException(nameof(name));
+            if (name.IsNullOrEmpty()) throw new ArgumentNullException(nameof(name));
+            
+            _name =
+                Regex.IsMatch(name, $"{nameof(Exception)}$", RegexOptions.IgnoreCase)
+                    ? name
+                    : $"{name}{nameof(Exception)}";            
         }
 
-        public override string ToString()
-        {
-            return _name.EndsWith(nameof(Exception)) ? _name : $"{_name}{nameof(Exception)}";
-        }
+        public override string ToString() => _name;
 
         public static implicit operator ExceptionName(string name) => new ExceptionName(name);
 

@@ -35,7 +35,7 @@ namespace Reusable.Tests.Commander.IntegrationTests
     // }
 
     // Default values.
-    internal class Bag1 : SimpleBag
+    internal class BagWithDefaultTypes : SimpleBag
     {
         public bool Bool1 { get; set; }
 
@@ -97,7 +97,7 @@ namespace Reusable.Tests.Commander.IntegrationTests
 #region Invalid bags
 
     // Contains duplicate parameters.
-    internal class InvalidBag1 : SimpleBag
+    internal class BagWithDuplicateParameter : SimpleBag
     {
         public string A { get; set; }
 
@@ -106,7 +106,7 @@ namespace Reusable.Tests.Commander.IntegrationTests
     }
 
     // Contains invalid parameter positions.
-    internal class InvalidBag2 : SimpleBag
+    internal class BagWithInvalidParameterPosition : SimpleBag
     {
         [Position(1)]
         public string A { get; set; }
@@ -116,7 +116,7 @@ namespace Reusable.Tests.Commander.IntegrationTests
     }
 
     // Contains unsupported parameter type.
-    internal class InvalidBag3 : SimpleBag
+    internal class BagWithUnsupportedParameterType : SimpleBag
     {
         public AppDomain A { get; set; }
     }

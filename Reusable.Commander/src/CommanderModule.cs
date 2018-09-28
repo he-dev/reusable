@@ -19,11 +19,9 @@ namespace Reusable.Commander
     [PublicAPI]
     public class CommanderModule : Autofac.Module
     {
-        [NotNull]
-        private readonly ITypeConverter _parameterConverter;
+        [NotNull] private readonly ITypeConverter _parameterConverter;
 
-        [NotNull]
-        private readonly CommandRegistrationBuilder _commands;
+        [NotNull] private readonly CommandRegistrationBuilder _commands;
 
         public CommanderModule([NotNull] Action<CommandRegistrationBuilder> commands, [NotNull] ITypeConverter parameterConverter)
         {
@@ -33,25 +31,26 @@ namespace Reusable.Commander
             commands(_commands);
         }
 
-        public CommanderModule([NotNull] Action<CommandRegistrationBuilder> commands) : this(commands, CommandLineMapper.DefaultConverter) { }
+        public CommanderModule([NotNull] Action<CommandRegistrationBuilder> commands) : this(commands, CommandLineMapper.DefaultConverter)
+        {
+        }
 
         protected override void Load(ContainerBuilder builder)
         {
             foreach (var command in _commands)
             {
-                var registration = builder.RegisterType(command.Type);
+                var registration =
+                    builder
+                        .RegisterType(command.Type)
+                        .Keyed<IConsoleCommand>(command.Name)
+                        .As<IConsoleCommand>();
 
-                // Lambda commands have some extra properties that we need to set.
-                var isLambda = !(command.Execute is null);
-                if (isLambda)
+                // Lambda command ctor have some extra properties that we need to set.
+                if (command.IsLambda)
                 {
                     registration.WithParameter(new NamedParameter("name", command.Name));
                     registration.WithParameter(command.Execute);
                 }
-
-                registration
-                    .Keyed<IConsoleCommand>(command.Name)
-                    .As<IConsoleCommand>();
             }
 
             builder
@@ -73,7 +72,9 @@ namespace Reusable.Commander
         }
     }
 
-    // This class allows to easily register and validate commands.
+    /// <summary>
+    /// This class allows to easily register and validate commands.
+    /// </summary>
     public class CommandRegistrationBuilder : IEnumerable<CommandRegistrationBuilderItem>
     {
         private readonly ITypeConverter _parameterConverter;
@@ -87,10 +88,19 @@ namespace Reusable.Commander
             _validator = new CommandValidator();
         }
 
-        public CommandRegistrationBuilder Add<T>() where T : IConsoleCommand => Add((typeof(T), CommandHelper.GetCommandName(typeof(T)), default));
+        [NotNull]
+        public CommandRegistrationBuilder Add<T>() where T : IConsoleCommand
+        {
+            return Add((typeof(T), CommandHelper.GetCommandName(typeof(T)), default));
+        }
+        
+        [NotNull]
+        public CommandRegistrationBuilder Add<T>([NotNull] SoftKeySet name) where T : IConsoleCommand
+        {
+            return Add((typeof(T), name ?? throw new ArgumentNullException(nameof(name)), default));
+        }
 
-        public CommandRegistrationBuilder Add<T>([NotNull] SoftKeySet name) where T : IConsoleCommand => Add((typeof(T), name ?? throw new ArgumentNullException(nameof(name)), default));
-
+        [NotNull]
         public CommandRegistrationBuilder Add<T>([NotNull] SoftKeySet name, [NotNull] LambdaExecuteCallback<T> execute) where T : ICommandBag, new()
         {
             return Add(
@@ -102,6 +112,7 @@ namespace Reusable.Commander
             );
         }
 
+        [NotNull]
         private CommandRegistrationBuilder Add((Type Type, SoftKeySet Name, NamedParameter execute) command)
         {
             _validator.ValidateCommand((command.Type, command.Name), _parameterConverter);
@@ -109,13 +120,13 @@ namespace Reusable.Commander
             return this;
         }
 
-    #region IEnumerable
+        #region IEnumerable
 
         public IEnumerator<CommandRegistrationBuilderItem> GetEnumerator() => _commands.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    #endregion
+        #endregion
     }
 
     public class CommandRegistrationBuilderItem
@@ -130,5 +141,7 @@ namespace Reusable.Commander
         public SoftKeySet Name { get; }
 
         public NamedParameter Execute { get; }
+
+        public bool IsLambda => !(Execute is null);
     }
 }
