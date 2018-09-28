@@ -14,7 +14,7 @@ namespace Reusable.Commander
     {
         private readonly ISet<SoftKeySet> _commandNames = new HashSet<SoftKeySet>();
 
-        public (Type Type, SoftKeySet Name) ValidateCommand((Type Type, SoftKeySet Name) command, [NotNull] ITypeConverter converter)
+        public void ValidateCommand((Type Type, SoftKeySet Name) command, [NotNull] ITypeConverter converter)
         {
             if (command.Type == null) throw new ArgumentNullException(nameof(command.Type));
             if (converter == null) throw new ArgumentNullException(nameof(converter));
@@ -29,8 +29,6 @@ namespace Reusable.Commander
 
             ValidateCommandName(command.Name);
             ValidateParameters(command.Type, converter);
-
-            return command;
         }        
 
         private void ValidateCommandName(SoftKeySet name)

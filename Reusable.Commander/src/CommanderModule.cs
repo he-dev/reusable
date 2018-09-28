@@ -29,6 +29,7 @@ namespace Reusable.Commander
         {
             _parameterConverter = parameterConverter ?? throw new ArgumentNullException(nameof(parameterConverter));
             _commands = new CommandRegistrationBuilder(parameterConverter);
+            if (commands is null) throw new ArgumentNullException(nameof(commands));
             commands(_commands);
         }
 
@@ -40,7 +41,9 @@ namespace Reusable.Commander
             {
                 var registration = builder.RegisterType(command.Type);
 
-                if (!(command.Execute is null))
+                // Lambda commands have some extra properties that we need to set.
+                var isLambda = !(command.Execute is null);
+                if (isLambda)
                 {
                     registration.WithParameter(new NamedParameter("name", command.Name));
                     registration.WithParameter(command.Execute);
@@ -70,6 +73,7 @@ namespace Reusable.Commander
         }
     }
 
+    // This class allows to easily register and validate commands.
     public class CommandRegistrationBuilder : IEnumerable<CommandRegistrationBuilderItem>
     {
         private readonly ITypeConverter _parameterConverter;
@@ -87,13 +91,13 @@ namespace Reusable.Commander
 
         public CommandRegistrationBuilder Add<T>([NotNull] SoftKeySet name) where T : IConsoleCommand => Add((typeof(T), name ?? throw new ArgumentNullException(nameof(name)), default));
 
-        public CommandRegistrationBuilder Add<T>([NotNull] SoftKeySet name, LambdaExecuteCallback<T> execute) where T : ICommandBag, new()
+        public CommandRegistrationBuilder Add<T>([NotNull] SoftKeySet name, [NotNull] LambdaExecuteCallback<T> execute) where T : ICommandBag, new()
         {
             return Add(
                 (
                     typeof(Lambda<T>),
                     name ?? throw new ArgumentNullException(nameof(name)),
-                    new NamedParameter("execute", execute)
+                    new NamedParameter("execute", execute ?? throw new ArgumentNullException(nameof(execute)))
                 )
             );
         }

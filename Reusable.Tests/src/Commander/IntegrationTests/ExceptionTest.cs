@@ -38,49 +38,90 @@ namespace Reusable.Tests.Commander.IntegrationTests
             );
         }
 
-        // [TestMethod]
-        // public void ctor_CommanderModule_ctor_DuplicateParameters_Throws()
-        // {
-        //     Assert.That.Throws<DynamicException>(
-        //         () => new CommanderModule(new[] { typeof(Lambda<InvalidBag1>), typeof(Lambda<InvalidBag1>) }),
-        //         filter => filter.WhenName("DuplicateParameterNameException")
-        //     );
-        // }
-        //
-        // [TestMethod]
-        // public void ctor_CommanderModule_ctor_InvalidParameterPositions_Throws()
-        // {
-        //     Assert.That.Throws<DynamicException>(
-        //         () => new CommanderModule(new[] { typeof(Lambda<InvalidBag2>) }),
-        //         filter => filter.WhenName("ParameterPositionException")
-        //     );
-        // }
-        //
-        // [TestMethod]
-        // public void ctor_CommanderModule_ctor_InvalidParameterTypes_Throws()
-        // {
-        //     Assert.That.Throws<DynamicException>(
-        //         () => new CommanderModule(new[] { typeof(Lambda<InvalidBag3>) }),
-        //         filter => filter.WhenName("UnsupportedParameterTypeException")
-        //     );
-        // }
-        //
-        // [TestMethod]
-        // public void ExecuteAsync_NoCommandName_Throws()
-        // {
-        //     Assert.That.Throws<DynamicException>(
-        //         () => Executor.ExecuteAsync("-a").GetAwaiter().GetResult(),
-        //         filter => filter.WhenName("^InvalidCommandLine")
-        //     );
-        // }
-        //
-        // [TestMethod]
-        // public void ExecuteAsync_NonExistingCommandName_Throws()
-        // {
-        //     Assert.That.Throws<DynamicException>(
-        //         () => Executor.ExecuteAsync("a").GetAwaiter().GetResult(),
-        //         filter => filter.WhenName("^InvalidCommandLine")
-        //     );
-        // }
+        [TestMethod]
+        public void ctor_CommanderModule_ctor_DuplicateParameters_Throws()
+        {
+            Assert.That.Throws<DynamicException>(
+                () =>
+                {
+                    var bags = new BagTracker();
+                    using (CreateContext(
+                        commands => commands
+                            .Add("c", CreateExecuteCallback<InvalidBag1>(bags)), out _
+                    )) { }
+                },
+                filter => filter.WhenName("^DuplicateParameterName")
+            );
+        }
+
+        [TestMethod]
+        public void ctor_CommanderModule_ctor_InvalidParameterPositions_Throws()
+        {
+            Assert.That.Throws<DynamicException>(
+                () =>
+                {
+                    var bags = new BagTracker();
+                    using (CreateContext(
+                        commands => commands
+                            .Add("c", CreateExecuteCallback<InvalidBag2>(bags)), out _
+                    )) { }
+                },
+                filter => filter.WhenName("^ParameterPositionException")
+            );
+        }
+
+        [TestMethod]
+        public void ctor_CommanderModule_ctor_InvalidParameterTypes_Throws()
+        {
+            Assert.That.Throws<DynamicException>(
+                () =>
+                {
+                    var bags = new BagTracker();
+                    using (CreateContext(
+                        commands => commands
+                            .Add("c", CreateExecuteCallback<InvalidBag3>(bags)), out _
+                    )) { }
+                },
+                filter => filter.WhenName("^UnsupportedParameterTypeException")
+            );
+        }
+
+        [TestMethod]
+        public void ExecuteAsync_NoCommandName_Throws()
+        {
+            Assert.That.Throws<DynamicException>(
+                () =>
+                {
+                    var bags = new BagTracker();
+                    using (CreateContext(
+                        commands => commands
+                            .Add("c", CreateExecuteCallback<SimpleBag>(bags)), out var executor
+                    ))
+                    {
+                        executor.ExecuteAsync("-a").GetAwaiter().GetResult();
+                    }
+                },
+                filter => filter.WhenName("^InvalidCommandLine")
+            );
+        }
+
+        [TestMethod]
+        public void ExecuteAsync_NonExistingCommandName_Throws()
+        {
+            Assert.That.Throws<DynamicException>(
+                () =>
+                {
+                    var bags = new BagTracker();
+                    using (CreateContext(
+                        commands => commands
+                            .Add("c", CreateExecuteCallback<SimpleBag>(bags)), out var executor
+                    ))
+                    {
+                        executor.ExecuteAsync("b").GetAwaiter().GetResult();
+                    }
+                },
+                filter => filter.WhenName("^InvalidCommandLine")
+            );            
+        }
     }
 }
