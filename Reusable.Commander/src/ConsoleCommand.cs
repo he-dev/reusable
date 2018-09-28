@@ -18,22 +18,30 @@ namespace Reusable.Commander
         SoftKeySet Name { get; }
 
         Task ExecuteAsync([CanBeNull] object parameter, CancellationToken cancellationToken = default);
-    }    
+    }
 
     public abstract class ConsoleCommand<TBag> : IConsoleCommand where TBag : ICommandBag, new()
     {
         private readonly ICommandLineMapper _mapper;
 
+        protected ConsoleCommand([NotNull] ILogger logger, [NotNull] ICommandLineMapper mapper, SoftKeySet name) : this(logger, mapper)
+        {
+            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            Name = name;
+        }
+
         protected ConsoleCommand([NotNull] ILogger logger, [NotNull] ICommandLineMapper mapper)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            Name = CommandHelper.GetCommandName(GetType());
         }
 
         [NotNull]
         protected ILogger Logger { get; }
 
-        public virtual SoftKeySet Name => CommandHelper.GetCommandName(GetType());
+        public SoftKeySet Name { get; }
 
         public async Task ExecuteAsync(object parameter, CancellationToken cancellationToken)
         {

@@ -10,7 +10,7 @@ using Reusable.OmniLog;
 
 namespace Reusable.Tests.Commander.IntegrationTests
 {
-    internal abstract class TestCommand<TBag> : ConsoleCommand<TBag> where TBag : ICommandBag, new()
+    internal class TestCommand<TBag> : ConsoleCommand<TBag> where TBag : ICommandBag, new()
     {
         private readonly IDictionary<Type, ICommandBag> _bags;
 
@@ -27,17 +27,12 @@ namespace Reusable.Tests.Commander.IntegrationTests
         }
     }
 
-    [Alias("cmd1")]
-    internal class Command1 : TestCommand<Bag1>
-    {
-        private readonly IDictionary<Type, ICommandBag> _bags;
-
-        public Command1(ILogger<Command1> logger, ICommandLineMapper mapper, IDictionary<Type, ICommandBag> bags)
-            : base(logger, mapper, bags)
-        {
-            _bags = bags;
-        }
-    }
+    // [Alias("cmd1")]
+    // internal class Command1 : TestCommand<Bag1>
+    // {
+    //     public Command1(ILogger<Command1> logger, ICommandLineMapper mapper, IDictionary<Type, ICommandBag> bags)
+    //         : base(logger, mapper, bags) { }
+    // }
 
     // Default values.
     internal class Bag1 : SimpleBag
@@ -72,14 +67,12 @@ namespace Reusable.Tests.Commander.IntegrationTests
         public IList<int> List1 { get; set; }
     }
 
-    [Alias("cmd2")]
-    internal class Command2 : TestCommand<Bag2>
-    {
-        public Command2(ILogger<Command2> logger, ICommandLineMapper mapper, IDictionary<Type, ICommandBag> bags)
-            : base(logger, mapper, bags)
-        {
-        }
-    }
+    // [Alias("cmd2")]
+    // internal class Command2 : TestCommand<Bag2>
+    // {
+    //     public Command2(ILogger<Command2> logger, ICommandLineMapper mapper, IDictionary<Type, ICommandBag> bags)
+    //         : base(logger, mapper, bags) { }
+    // }
 
     internal class Bag2 : SimpleBag
     {
@@ -101,7 +94,7 @@ namespace Reusable.Tests.Commander.IntegrationTests
         public IList<int> Property05 { get; set; }
     }
 
-    #region Invalid bags
+#region Invalid bags
 
     // Contains duplicate parameters.
     internal class InvalidBag1 : SimpleBag
@@ -128,5 +121,5 @@ namespace Reusable.Tests.Commander.IntegrationTests
         public AppDomain A { get; set; }
     }
 
-    #endregion
+#endregion
 }

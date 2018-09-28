@@ -14,29 +14,33 @@ namespace Reusable.Commander
     {
         private readonly ISet<SoftKeySet> _commandNames = new HashSet<SoftKeySet>();
 
-        public void ValidateCommand([NotNull] Type commandType, [NotNull] ITypeConverter converter)
+        public (Type Type, SoftKeySet Name) ValidateCommand((Type Type, SoftKeySet Name) command, [NotNull] ITypeConverter converter)
         {
-            if (commandType == null) throw new ArgumentNullException(nameof(commandType));
+            if (command.Type == null) throw new ArgumentNullException(nameof(command.Type));
             if (converter == null) throw new ArgumentNullException(nameof(converter));
 
-            if (!typeof(IConsoleCommand).IsAssignableFrom(commandType))
+            if (!typeof(IConsoleCommand).IsAssignableFrom(command.Type))
             {
                 throw DynamicException.Factory.CreateDynamicException(
                     $"CommandType{nameof(Exception)}",
-                    $"{commandType.Name} is not derived from {typeof(IConsoleCommand).Name}.");
+                    $"{command.Type.Name} is not derived from {typeof(IConsoleCommand).Name}."
+                );
             }
 
-            var commandName = CommandHelper.GetCommandName(commandType);
+            ValidateCommandName(command.Name);
+            ValidateParameters(command.Type, converter);
 
-            if (_commandNames.Add(commandName))
-            {
-                ValidateParameters(commandType, converter);
-            }
-            else
+            return command;
+        }        
+
+        private void ValidateCommandName(SoftKeySet name)
+        {
+            if (!_commandNames.Add(name))
             {
                 throw DynamicException.Factory.CreateDynamicException(
                     $"DuplicateCommandName{nameof(Exception)}",
-                    $"Command names and aliases must be unique but there are duplicates: {commandName}");
+                    $"Command names and aliases must be unique but there are duplicates: {name}"
+                );
             }
         }
 
