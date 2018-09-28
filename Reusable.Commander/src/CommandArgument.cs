@@ -46,7 +46,7 @@ namespace Reusable.Commander
 
             if (!success)
             {
-                throw new FormatException(@"Invalid format. Allowed values are argument prefixes [-/.] and argument value separators [:=], e.g. '-='.");
+                throw new FormatException(@"Invalid command argument format. Allowed values are argument prefixes [-/.] and argument value separators [:=], e.g. '-='.");
             }
 
             var result = new StringBuilder();

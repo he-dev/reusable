@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.Commander;
+using Reusable.Commander.Commands;
 using Reusable.Utilities.MSTest;
+using static Reusable.Tests.Commander.Helper;
 
 namespace Reusable.Tests.Commander.IntegrationTests
 {
     [TestClass]
-    public class FeatureTest : IntegrationTest
+    public class FeatureTest
     {
         /*
          
@@ -43,6 +46,26 @@ namespace Reusable.Tests.Commander.IntegrationTests
                         Assert.IsNull(bag.List1);
                     }
                 );
+            }
+        }
+
+        [TestMethod]
+        public async Task ExecuteAsync_MultipleNames_Executed()
+        {
+            var executeCount = 0;
+
+            using (var context = CreateContext(
+                commands => commands
+                    .Add(new SoftKeySet("a", "b"), Execute<SimpleBag>((name, bag, ct) =>
+                    {
+                        executeCount++;
+                    }))
+            ))
+            {
+                await context.Executor.ExecuteAsync("a");
+                await context.Executor.ExecuteAsync("b");
+
+                Assert.AreEqual(2, executeCount);
             }
         }
 

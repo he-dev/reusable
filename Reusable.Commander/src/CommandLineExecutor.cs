@@ -98,8 +98,8 @@ namespace Reusable.Commander
         {
             if (commandLineString.IsNullOrEmpty())
             {
-                throw DynamicException.Factory.CreateDynamicException(
-                    $"CommandStringNullOrEmpty{nameof(Exception)}",
+                throw DynamicException.Create(
+                    $"CommandStringNullOrEmpty",
                     $"You need to specify at least one command."
                 );
             }
@@ -130,8 +130,8 @@ namespace Reusable.Commander
                     else
                     {
                         // In debug mode (e.g. unit-testing) this should always throw. Otherwise we might hide some bugs.
-                        throw DynamicException.Factory.CreateDynamicException(
-                            $"Unexpected{nameof(Exception)}",
+                        throw DynamicException.Create(
+                            $"Unexpected",
                             $"An unexpected exception occured while executing the '{executable.Command.Name.FirstLongest().ToString()}' command."
                         );
                     }

@@ -5,11 +5,12 @@ using Reusable.Commander;
 using Reusable.Commander.Commands;
 using Reusable.Reflection;
 using Reusable.Utilities.MSTest;
+using static Reusable.Tests.Commander.Helper;
 
 namespace Reusable.Tests.Commander.IntegrationTests
 {
     [TestClass]
-    public class ExceptionTest : IntegrationTest
+    public class ExceptionTest
     {
         // It's no longer possible to register any type so this test is irrelevant now.
         // [TestMethod]

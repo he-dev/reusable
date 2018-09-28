@@ -9,31 +9,7 @@ using Reusable.Commander.Annotations;
 using Reusable.OmniLog;
 
 namespace Reusable.Tests.Commander.IntegrationTests
-{
-    internal class TestCommand<TBag> : ConsoleCommand<TBag> where TBag : ICommandBag, new()
-    {
-        private readonly IDictionary<Type, ICommandBag> _bags;
-
-        protected TestCommand(ILogger logger, ICommandLineMapper mapper, IDictionary<Type, ICommandBag> bags)
-            : base(logger, mapper)
-        {
-            _bags = bags;
-        }
-
-        protected override Task ExecuteAsync(TBag parameter, CancellationToken cancellationToken)
-        {
-            _bags.Add(typeof(TBag), parameter);
-            return Task.CompletedTask;
-        }
-    }
-
-    // [Alias("cmd1")]
-    // internal class Command1 : TestCommand<Bag1>
-    // {
-    //     public Command1(ILogger<Command1> logger, ICommandLineMapper mapper, IDictionary<Type, ICommandBag> bags)
-    //         : base(logger, mapper, bags) { }
-    // }
-
+{    
     // Default values.
     internal class BagWithDefaultTypes : SimpleBag
     {
@@ -65,14 +41,7 @@ namespace Reusable.Tests.Commander.IntegrationTests
         public DateTime DateTime3 { get; set; }
 
         public IList<int> List1 { get; set; }
-    }
-
-    // [Alias("cmd2")]
-    // internal class Command2 : TestCommand<Bag2>
-    // {
-    //     public Command2(ILogger<Command2> logger, ICommandLineMapper mapper, IDictionary<Type, ICommandBag> bags)
-    //         : base(logger, mapper, bags) { }
-    // }
+    }    
 
     internal class Bag2 : SimpleBag
     {
