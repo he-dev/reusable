@@ -106,7 +106,7 @@ namespace Reusable.Tests.Validation
             var validator = new DuckValidator<Person>(model => model.IsNotValidWhen(p => p.FirstName == null));
             var person = new Person();
 
-            Assert.That.Throws<DynamicException>(() => validator.Validate(person).ThrowOrDefault(), filter => filter.WhenName("PersonValidationException"));
+            Assert.That.Throws<DynamicException>(() => validator.Validate(person).ThrowOrDefault(), filter => filter.When(name: "PersonValidationException"));
         }
 
         public class Person

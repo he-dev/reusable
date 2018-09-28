@@ -13,7 +13,7 @@ namespace Reusable.Tests.Reflection
         {
             Assert.That.Throws<DynamicException>(
                 () => throw (ErrorCode.BackgroundImageNotFoundException, "Where is the 'clouds.png' image?").ToDynamicException(),
-                filter => filter.WhenName(ErrorCode.BackgroundImageNotFoundException.ToString())
+                filter => filter.When(name: ErrorCode.BackgroundImageNotFoundException.ToString())
             );
         }
 
@@ -23,7 +23,7 @@ namespace Reusable.Tests.Reflection
             Assert.That.Throws<ArgumentException>(
                 () => throw ("ExceptionMissing", "Test message").ToDynamicException(),
                 // The custom message comes first and the parameter name is appended to the end of the message.
-                filter => filter.WhenMessage($"^Exception name must end with '{nameof(Exception)}'.") 
+                filter => filter.When(name: $"^Exception name must end with '{nameof(Exception)}'.") 
             );            
         }
 

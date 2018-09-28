@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
@@ -55,8 +56,7 @@ namespace Reusable.Commander
 
             var parameters =
                 bagType
-                    .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
-                    .Select(CommandParameter.Create)
+                    .GetParameters()
                     .ToList();
 
             ValidateParameterNames(parameters);

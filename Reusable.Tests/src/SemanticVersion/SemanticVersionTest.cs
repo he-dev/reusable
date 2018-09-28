@@ -45,19 +45,19 @@ namespace Reusable.Tests
         [TestMethod]
         public void Parse_InvalidMajorVersion_InvalidVersionException()
         {
-            Assert.That.Throws<DynamicException>(() => SemanticVersion.Parse("01.0.0"), filter => filter.WhenName("VersionFormatException"));
+            Assert.That.Throws<DynamicException>(() => SemanticVersion.Parse("01.0.0"), filter => filter.When(name: "VersionFormatException"));
         }
 
         [TestMethod]
         public void Parse_InvalidMinorVersion_InvalidVersionException()
         {
-            Assert.That.Throws<DynamicException>(() => SemanticVersion.Parse("0.01.0"), filter => filter.WhenName("VersionFormatException"));
+            Assert.That.Throws<DynamicException>(() => SemanticVersion.Parse("0.01.0"), filter => filter.When(name: "VersionFormatException"));
         }
 
         [TestMethod]
         public void Parse_InvalidPatchVersion_InvalidVersionException()
         {
-            Assert.That.Throws<DynamicException>(() => SemanticVersion.Parse("0.0.01"), filter => filter.WhenName("VersionFormatException"));
+            Assert.That.Throws<DynamicException>(() => SemanticVersion.Parse("0.0.01"), filter => filter.When(name: "VersionFormatException"));
         }
 
 #pragma warning disable 1718

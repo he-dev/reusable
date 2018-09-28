@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -83,6 +84,15 @@ namespace Reusable.Commander
             {
                 yield return alias;
             }
+        }
+        
+        public static IEnumerable<CommandParameter> GetParameters(this Type bagType)
+        {
+            return
+                bagType
+                    .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                    .Where(p => !p.IsDefined(typeof(NotMappedAttribute)))
+                    .Select(CommandParameter.Create);
         }
 
         //// Creates a short name from the capital letters.

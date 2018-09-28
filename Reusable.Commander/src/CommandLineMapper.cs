@@ -61,7 +61,7 @@ namespace Reusable.Commander
         {
             if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
 
-            var parameters = _cache.GetOrAdd(typeof(TBag), GetParameters<TBag>().ToList());            
+            var parameters = _cache.GetOrAdd(typeof(TBag), typeof(TBag).GetParameters().ToList());            
             var bag = new TBag();
 
             foreach (var parameter in parameters)
@@ -150,15 +150,6 @@ namespace Reusable.Commander
                     parameter.SetValue(bag, value);
                 }
             }
-        }
-
-        private static IEnumerable<CommandParameter> GetParameters<T>()
-        {
-            return
-                typeof(T)
-                    .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                    .Where(p => !p.IsDefined(typeof(NotMappedAttribute)))
-                    .Select(CommandParameter.Create);
-        }
+        }        
     }
 }

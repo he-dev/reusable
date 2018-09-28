@@ -12,6 +12,8 @@ namespace Reusable.Commander
 
         public SoftKeySet(IEnumerable<SoftString> keys) : base(keys) { }
 
+        public override string ToString() => string.Join(", ", this.Select(x => x.ToString()));
+
         public static implicit operator SoftKeySet(SoftString[] keys) => keys is null ? null : new SoftKeySet(keys);
 
         public static implicit operator SoftKeySet(SoftString key) => key is null ? null : new SoftKeySet(key);

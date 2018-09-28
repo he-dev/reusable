@@ -93,7 +93,7 @@ namespace Reusable.Commander
         {
             return Add((typeof(T), CommandHelper.GetCommandName(typeof(T)), default));
         }
-        
+
         [NotNull]
         public CommandRegistrationBuilder Add<T>([NotNull] SoftKeySet name) where T : IConsoleCommand
         {
@@ -115,9 +115,20 @@ namespace Reusable.Commander
         [NotNull]
         private CommandRegistrationBuilder Add((Type Type, SoftKeySet Name, NamedParameter execute) command)
         {
-            _validator.ValidateCommand((command.Type, command.Name), _parameterConverter);
-            _commands.Add(new CommandRegistrationBuilderItem(command));
-            return this;
+            try
+            {
+                _validator.ValidateCommand((command.Type, command.Name), _parameterConverter);
+                _commands.Add(new CommandRegistrationBuilderItem(command));
+                return this;
+            }
+            catch (Exception innerException)
+            {
+                throw DynamicException.Create(
+                    $"RegisterCommand",
+                    $"An error occured while trying to register the '{command.Name.FirstLongest().ToString()}' command. See the inner-exception for details.",
+                    innerException
+                );
+            }
         }
 
         #region IEnumerable

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Linq.Custom;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -37,18 +39,31 @@ namespace Reusable.Utilities.MSTest
 
         #region Throw overloads
 
-        public static TException Throws<TException>(this Assert assert, Action action, Action<ExceptionFilterBuilder<TException>> configureFilter) where TException : Exception
+        public static TException Throws<TException>(
+            this Assert assert,
+            Action action,
+            [CanBeNull] Action<ExceptionFilterBuilder> filter = default,
+            [CanBeNull] Action<ExceptionFilterBuilder> inner = default
+        ) where TException : Exception
         {
-            var filter = new ExceptionFilterBuilder<TException>();
-            configureFilter(filter);
+            var filterBuilder = new ExceptionFilterBuilder();
+            var innerBuilder = new ExceptionFilterBuilder();
+
+            filter?.Invoke(filterBuilder);
+            inner?.Invoke(innerBuilder);
 
             try
             {
                 action();
-                Fail(System.Type.Missing);
+                Fail(default);
             }
-            catch (TException ex) when (filter.IsMatch(ex))
+            catch (TException ex) when (filterBuilder.When(ex))
             {
+                if (!ex.SelectMany().Any(t => innerBuilder.When(t.Exception)))
+                {
+                    Fail(ex, true);
+                }
+
                 return ex;
             }
             catch (AssertFailedException)
@@ -57,28 +72,31 @@ namespace Reusable.Utilities.MSTest
             }
             catch (Exception ex)
             {
-                Fail(ex.GetType());
+                Fail(ex);
             }
 
             // This is only to satisfy the compiler. We'll never reach to this as it'll always fail or return earlier.
             return default;
 
-            void Fail(object thrownExceptionType)
+            void Fail(Exception thrownException, bool innerFailed = false)
             {
-                Assert.Fail(
-                    Format($"{Environment.NewLine}» Expected: <{typeof(TException)}> when(name: '{filter.NamePattern ?? "ANY"}', message: '{filter.MessagePattern ?? "ANY"}')", FormatProvider) +
-                    //Format($"{Environment.NewLine}» Expected: <{typeof(TException)}>", FormatProvider) +
-                    //Format($"{Environment.NewLine}» when(name: '{filter.NamePattern ?? "ANY"}', message: '{filter.MessagePattern ?? "ANY"}')", FormatProvider) +
-                    //Format($"{Environment.NewLine}      name: {filter.NamePattern ?? "ANY"}", FormatProvider) +
-                    //Format($"{Environment.NewLine}   message: {filter.MessagePattern ?? "ANY"}", FormatProvider) +
-                    Format($"{Environment.NewLine}» Actual: <{(thrownExceptionType == System.Type.Missing ? "none" : thrownExceptionType)}>", FormatProvider));
+                var messages = new[]
+                {
+                    string.Empty,
+                    !innerFailed
+                        ? Format($"» Expected: <{typeof(TException)}> when(name: '{filterBuilder.NamePattern ?? "ANY"}', message: '{filterBuilder.MessagePattern ?? "ANY"}')", FormatProvider)
+                        : Format($"» Expected: <<Inner{nameof(Exception)}>> when(name: '{innerBuilder.NamePattern ?? "ANY"}', message: '{innerBuilder.MessagePattern ?? "ANY"}')", FormatProvider),
+                    Format($"» Actual: <{thrownException?.GetType() ?? (object) "none"}> {(thrownException?.Message)}", FormatProvider),
+                };
+
+                Assert.Fail(messages.Join(Environment.NewLine));
             }
         }
 
-        public static TException Throws<TException>(this Assert assert, Action action) where TException : Exception
-        {
-            return assert.Throws<TException>(action, _ => { });
-        }
+//        public static TException Throws<TException>(this Assert assert, Action action) where TException : Exception
+//        {
+//            return assert.Throws<TException>(action, _ => { });
+//        }
 
         #endregion
 
@@ -102,7 +120,7 @@ namespace Reusable.Utilities.MSTest
 
     //public interface IThrows<TException> where TException : Exception { }
 
-    public class ExceptionFilterBuilder<TException> where TException : Exception
+    public class ExceptionFilterBuilder
     {
         [CanBeNull]
         public string NamePattern { get; private set; }
@@ -110,31 +128,17 @@ namespace Reusable.Utilities.MSTest
         [CanBeNull]
         public string MessagePattern { get; private set; }
 
-        [NotNull]
-        public ExceptionFilterBuilder<TException> WhenName([NotNull, RegexPattern] string namePattern)
-        {
-            NamePattern = namePattern ?? throw new ArgumentNullException(nameof(namePattern));
-            return this;
-        }
-
-        [NotNull]
-        public ExceptionFilterBuilder<TException> WhenMessage([NotNull, RegexPattern] string messagePattern)
-        {
-            MessagePattern = messagePattern ?? throw new ArgumentNullException(nameof(messagePattern));
-            return this;
-        }
-
         public void When([CanBeNull, RegexPattern] string name = default, [CanBeNull, RegexPattern] string message = default)
         {
             NamePattern = name;
             MessagePattern = message;
         }
 
-        internal bool IsMatch(TException exception) => IsNameMatch(exception) && IsMessageMatch(exception);
+        internal bool When<T>(T exception) where T : Exception => IsNameMatch(exception) && IsMessageMatch(exception);
 
-        private bool IsNameMatch(TException exception) => NamePattern is null || Regex.IsMatch(exception.GetType().Name, NamePattern);
+        private bool IsNameMatch<T>(T exception) where T : Exception => NamePattern is null || Regex.IsMatch(exception.GetType().Name, NamePattern);
 
-        private bool IsMessageMatch(TException exception) => MessagePattern is null || Regex.IsMatch(exception.Message, MessagePattern);
+        private bool IsMessageMatch<T>(T exception) where T : Exception => MessagePattern is null || Regex.IsMatch(exception.Message, MessagePattern);
 
         public override string ToString() => $"name: {NamePattern} && message: {MessagePattern}";
     }

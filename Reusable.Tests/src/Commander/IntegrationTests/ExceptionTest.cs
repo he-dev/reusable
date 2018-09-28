@@ -39,7 +39,8 @@ namespace Reusable.Tests.Commander.IntegrationTests
                     {
                     }
                 },
-                filter => filter.When(name: "^DuplicateCommandName")
+                filter => filter.When(name: "^RegisterCommand"),
+                inner => inner.When(name: "^DuplicateCommandName--")
             );
         }
 
