@@ -20,26 +20,42 @@ namespace Reusable.Commander
         Task ExecuteAsync([CanBeNull] object parameter, CancellationToken cancellationToken = default);
     }
 
-    public abstract class ConsoleCommand<TBag> : IConsoleCommand where TBag : ICommandBag, new()
+    public interface ICommandServiceProvider
     {
-        private readonly ICommandLineMapper _mapper;
+        ILogger Logger { get; }
 
-        protected ConsoleCommand([NotNull] ILogger logger, [NotNull] ICommandLineMapper mapper, SoftKeySet name) : this(logger, mapper)
+        ICommandLineMapper Mapper { get; }
+        
+        SoftKeySet Name { get; }
+    }
+
+    public class CommandServiceProvider<T> : ICommandServiceProvider where T : IConsoleCommand
+    {
+        public CommandServiceProvider(ILogger<T> logger, ICommandLineMapper mapper)
         {
-            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-            Name = name;
+            Logger = logger;
+            Mapper = mapper;
         }
 
-        protected ConsoleCommand([NotNull] ILogger logger, [NotNull] ICommandLineMapper mapper)
+        public ILogger Logger { get; }
+
+        public ICommandLineMapper Mapper { get; }
+
+        public SoftKeySet Name => CommandHelper.GetCommandName(typeof(T));
+    }
+
+    public abstract class ConsoleCommand<TBag> : IConsoleCommand where TBag : ICommandBag, new()
+    {
+        private readonly ICommandServiceProvider _serviceProvider;
+
+        protected ConsoleCommand([NotNull] ICommandServiceProvider serviceProvider, [CanBeNull] SoftKeySet name = default)
         {
-            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-            Name = CommandHelper.GetCommandName(GetType());
+            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+            Name = name ?? serviceProvider.Name;
         }
 
         [NotNull]
-        protected ILogger Logger { get; }
+        protected ILogger Logger => _serviceProvider.Logger;
 
         public SoftKeySet Name { get; }
 
@@ -52,7 +68,7 @@ namespace Reusable.Commander
                     break;
 
                 case ICommandLine commandLine:
-                    await ExecuteAsync(_mapper.Map<TBag>(commandLine), cancellationToken);
+                    await ExecuteAsync(_serviceProvider.Mapper.Map<TBag>(commandLine), cancellationToken);
                     break;
 
                 case TBag bag:
@@ -69,4 +85,12 @@ namespace Reusable.Commander
 
         protected abstract Task ExecuteAsync(TBag parameter, CancellationToken cancellationToken);
     }
+
+    public abstract class SimpleCommand : ConsoleCommand<SimpleBag>
+    {
+        protected SimpleCommand([NotNull] ICommandServiceProvider serviceProvider, SoftKeySet name)
+            : base(serviceProvider, name)
+        {
+        }
+    }         
 }

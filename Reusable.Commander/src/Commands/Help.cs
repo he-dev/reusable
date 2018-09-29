@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
@@ -10,22 +11,24 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Commander.Annotations;
+using Reusable.Commander.Utilities;
 using Reusable.Extensions;
 using Reusable.OmniLog;
-using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
 
 namespace Reusable.Commander.Commands
 {
     public class HelpBag : SimpleBag
     {
+        [NotMapped]
         public int IndentWidth { get; set; } = 4;
 
+        [NotMapped]
         public int[] ColumnWidths { get; set; } = {17, 60};
 
         [CanBeNull]
-        [DefaultValue(false)]
+        //[DefaultValue(false)]
         [Description("Display command usage.")]
-        [Position(1)]
+        //[Position(1)]
         [Alias("cmd")]
         public string Command { get; set; }
     }
@@ -35,10 +38,10 @@ namespace Reusable.Commander.Commands
     [Description("Display help.")]
     public class Help : ConsoleCommand<HelpBag>
     {
-        private readonly IEnumerable<IConsoleCommand> _commands;
-
-        public Help(ILogger<Help> logger, ICommandLineMapper mapper, IEnumerable<IConsoleCommand> commands)
-            : base(logger, mapper)
+        private readonly IList<Type> _commands;
+        
+        public Help(CommandServiceProvider<Help> serviceProvider, TypeList<IConsoleCommand> commands)
+            : base(serviceProvider)
         {
             _commands = commands;
         }
@@ -51,14 +54,14 @@ namespace Reusable.Commander.Commands
             }
             else
             {
-                var command = _commands.Find(parameter.Command);
-                RenderParameterList(command);
+                //var command = _commands.Find(parameter.Command);
+                //RenderParameterList(command);
             }
 
             return Task.CompletedTask;
         }
 
-        protected virtual void RenderCommandList(HelpBag parameter, IEnumerable<IConsoleCommand> commands)
+        protected virtual void RenderCommandList(HelpBag parameter, IList<Type> commands)
         {
             Logger.Information(string.Empty);
             Logger.Information($"{new string(' ', parameter.IndentWidth)}Commands");
@@ -66,7 +69,7 @@ namespace Reusable.Commander.Commands
             var commandSummaries = commands.Select(x => new CommandSummary
             {
                 //Names = x.Name.OrderByDescending(n => n.Length),
-                Description = x.GetType().GetCustomAttribute<DescriptionAttribute>()?.Description
+                Description = x.GetCustomAttribute<DescriptionAttribute>()?.Description
             });
 
             var captions = new[] {"NAME", "ABOUT"};

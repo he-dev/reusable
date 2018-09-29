@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Autofac;
 using JetBrains.Annotations;
 using Reusable.Commander.Commands;
+using Reusable.Commander.Utilities;
 using Reusable.Converters;
 using Reusable.OmniLog;
 using Reusable.Reflection;
@@ -37,22 +38,6 @@ namespace Reusable.Commander
 
         protected override void Load(ContainerBuilder builder)
         {
-            foreach (var command in _commands)
-            {
-                var registration =
-                    builder
-                        .RegisterType(command.Type)
-                        .Keyed<IConsoleCommand>(command.Name)
-                        .As<IConsoleCommand>();
-
-                // Lambda command ctor have some extra properties that we need to set.
-                if (command.IsLambda)
-                {
-                    registration.WithParameter(new NamedParameter("name", command.Name));
-                    registration.WithParameter(command.Execute);
-                }
-            }
-
             builder
                 .RegisterType<CommandLineTokenizer>()
                 .As<ICommandLineTokenizer>();
@@ -69,6 +54,28 @@ namespace Reusable.Commander
             builder
                 .RegisterType<CommandLineExecutor>()
                 .As<ICommandLineExecutor>();
+
+            builder
+                .RegisterGeneric(typeof(CommandServiceProvider<>));
+            
+            foreach (var command in _commands)
+            {
+                var registration =
+                    builder
+                        .RegisterType(command.Type)
+                        .Keyed<IConsoleCommand>(command.Name)
+                        .As<IConsoleCommand>();
+
+                // Lambda command ctor have some extra properties that we need to set.
+                if (command.IsLambda)
+                {
+                    registration.WithParameter(new NamedParameter("name", command.Name));
+                    registration.WithParameter(command.Execute);
+                }
+            }
+            
+            builder
+                .RegisterSource(new TypeListSource<IConsoleCommand>());
         }
     }
 
@@ -101,7 +108,7 @@ namespace Reusable.Commander
         }
 
         [NotNull]
-        public CommandRegistrationBuilder Add<T>([NotNull] SoftKeySet name, [NotNull] LambdaExecuteCallback<T> execute) where T : ICommandBag, new()
+        public CommandRegistrationBuilder Add<T>([NotNull] SoftKeySet name, [NotNull] ExecuteCallback<T> execute) where T : ICommandBag, new()
         {
             return Add(
                 (
