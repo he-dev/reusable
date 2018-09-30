@@ -163,7 +163,7 @@ namespace Reusable.Commander
                 {
                     try
                     {
-                        var commandName = commandLine.CommandName();
+                        var commandName = commandLine.CommandId();
                         return (GetCommand(commandName), commandLine);
                     }
                     catch (DynamicException ex)

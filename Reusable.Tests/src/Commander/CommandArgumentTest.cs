@@ -15,19 +15,19 @@ namespace Reusable.Tests.Commander
                 "baz qux"
             };
 
-            Assert.AreEqual("-foo=bar, \"baz qux\"", arguments.ToString());
+            Assert.AreEqual(@"-foo=bar, ""baz qux""", arguments.ToString());
         }
 
         [TestMethod]
         public void ToString_WithoutKey_Formatted()
         {
-            var arguments = new CommandArgument(SoftString.Empty)
+            var arguments = new CommandArgument()
             {
                 "bar",
                 "baz qux"
             };
 
-            Assert.AreEqual("bar, \"baz qux\"", arguments.ToString());
+            Assert.AreEqual(@"bar, ""baz qux""", arguments.ToString());
         }
     }
 }

@@ -20,11 +20,15 @@ namespace Reusable.Commander
 
         internal CommandArgument(Identifier key) => Key = key;
 
+        internal CommandArgument() : this(Identifier.Empty)
+        {
+        }
+
         private string DebuggerDisplay => ToString();
 
         public Identifier Key { get; }
 
-        public static CommandArgument Empty { get; } = new CommandArgument(SoftString.Empty);
+        public static CommandArgument Empty { get; } = new CommandArgument();
 
         #region IEquatable
 
@@ -72,9 +76,4 @@ namespace Reusable.Commander
 
         public static implicit operator string(CommandArgument commandArgument) => commandArgument?.ToString();
     }
-
-//    public static class CommandArgumentKeys
-//    {
-//        public static readonly SoftKeySet Anonymous = SoftString.Empty;
-//    }
 }

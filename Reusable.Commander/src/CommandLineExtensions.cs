@@ -29,7 +29,7 @@ namespace Reusable.Commander
         }
 
         [NotNull]
-        public static Identifier CommandName([NotNull] this ICommandLine commandLine)
+        public static Identifier CommandId([NotNull] this ICommandLine commandLine)
         {
             if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
             

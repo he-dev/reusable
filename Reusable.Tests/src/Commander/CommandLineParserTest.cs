@@ -21,14 +21,14 @@ namespace Reusable.Tests.Commander
         public void Parse_SingleCommand_SingleCommand()
         {
             var arguments = Parser.Parse("foo").ToList().First();
-            Assert.AreEqual(Reusable.Commander.Identifier.Create("foo"), arguments.CommandName());
+            Assert.AreEqual(Reusable.Commander.Identifier.Create("foo"), arguments.CommandId());
         }
 
         [TestMethod]
         public void Parse_CommandWithArguments_CommandWithArguments()
         {
             var arguments = Parser.Parse("foo qux -bar baz").ToList().First();
-            Assert.AreEqual((Reusable.Commander.Identifier)"foo", arguments.CommandName());
+            Assert.AreEqual((Reusable.Commander.Identifier)"foo", arguments.CommandId());
 
             //arguments.Verify().SequenceEqual(new[] {});
         }
