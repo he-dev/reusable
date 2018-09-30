@@ -13,12 +13,10 @@ namespace Reusable.Commander
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class CommandParameter
     {
-        private readonly PropertyInfo _property;
-
         private CommandParameter(PropertyInfo property)
         {
-            _property = property;
-            Id = CommandHelper.GetCommandParameterName(property);
+            Property = property;
+            Id = CommandHelper.GetCommandParameterId(property);
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(b =>
@@ -28,21 +26,29 @@ namespace Reusable.Commander
             b.Property(x => x.Position);
         });
 
-        public Identifier Id { get; }
-
-        public Type Type => _property.PropertyType;
-
-        [CanBeNull]
-        public int? Position => _property.GetCustomAttribute<PositionAttribute>()?.Value;
-
-        [CanBeNull]
-        public object DefaultValue => _property.GetCustomAttribute<DefaultValueAttribute>()?.Value;
-        
-        public bool IsRequired => _property.IsDefined(typeof(RequiredAttribute)) || Position > CommandLine.CommandIndex;
+        [NotNull]
+        private PropertyInfo Property { get; }
 
         [NotNull]
-        public static CommandParameter Create(PropertyInfo property) => new CommandParameter(property);
+        public Identifier Id { get; }
+        
+        [NotNull]
+        public Type Type => Property.PropertyType;
+        
+        [CanBeNull]
+        public string Description => Property.GetCustomAttribute<DescriptionAttribute>()?.Description;
 
-        public void SetValue(object obj, object value) => _property.SetValue(obj, value);
+        [CanBeNull]
+        public int? Position => Property.GetCustomAttribute<PositionAttribute>()?.Value;
+
+        [CanBeNull]
+        public object DefaultValue => Property.GetCustomAttribute<DefaultValueAttribute>()?.Value;
+        
+        public bool IsRequired => Property.IsDefined(typeof(RequiredAttribute)) || Position > CommandLine.CommandIndex;
+
+        [NotNull]
+        public static CommandParameter Create([NotNull] PropertyInfo property) => new CommandParameter(property ?? throw new ArgumentNullException(nameof(property)));
+
+        public void SetValue(object obj, object value) => Property.SetValue(obj, value);
     }
 }

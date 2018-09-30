@@ -51,6 +51,8 @@ namespace Reusable.Commander
         public override int GetHashCode() => 0;
 
         #endregion
+        
+        public override string ToString() => string.Join(", ", this.Select(x => x.ToString()));
 
         #region operators
 

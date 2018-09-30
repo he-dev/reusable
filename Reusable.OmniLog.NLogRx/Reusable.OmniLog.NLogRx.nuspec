@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.OmniLog.NLogRx</id>
-    <version>7.0.18</version>
+    <version>7.0.19</version>
     <title>Reusable.OmniLog.NLogRx</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -17,7 +17,7 @@
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2018.2.1" />
       <dependency id="NLog" version="4.5.10" />
-      <dependency id="Reusable.OmniLog" version="7.0.18" />
+      <dependency id="Reusable.OmniLog" version="7.0.19" />
     </dependencies>
   </metadata>
   <files>

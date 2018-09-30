@@ -14,7 +14,9 @@ namespace Reusable.Commander.Commands
     {
         private readonly ExecuteCallback<TBag> _execute;
 
-        public Lambda(CommandServiceProvider<Lambda<TBag>> serviceProvider, Identifier id, [NotNull] ExecuteCallback<TBag> execute)
+        public delegate Lambda<T> Factory<T>([NotNull] Identifier id, [NotNull] ExecuteCallback<TBag> execute) where T : ICommandBag, new();
+
+        public Lambda(CommandServiceProvider<Lambda<TBag>> serviceProvider, [NotNull] Identifier id, [NotNull] ExecuteCallback<TBag> execute)
             : base(serviceProvider, id)
         {
             _execute = execute ?? throw new ArgumentNullException(nameof(execute));

@@ -275,7 +275,7 @@ namespace System.Linq.Custom
         {
             if (others == null) throw new ArgumentNullException(nameof(others));
 
-            return others.Contains(value);
+            return value.In(others, EqualityComparer<T>.Default);
         }
 
         public static bool In<T>([CanBeNull] this T value, [NotNull] IEnumerable<T> others, [NotNull] IEqualityComparer<T> comparer)

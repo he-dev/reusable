@@ -62,7 +62,7 @@ namespace Reusable.Commander
         }
 
         [NotNull]
-        public static Identifier GetCommandParameterName([NotNull] PropertyInfo property)
+        public static Identifier GetCommandParameterId([NotNull] PropertyInfo property)
         {
             if (property == null) throw new ArgumentNullException(nameof(property));
 
@@ -92,17 +92,19 @@ namespace Reusable.Commander
                     .GetProperties(BindingFlags.Instance | BindingFlags.Public)
                     .Where(p => !p.IsDefined(typeof(NotMappedAttribute)))
                     .Select(CommandParameter.Create);
-        }       
+        }
 
-        //// Creates a short name from the capital letters.
-        //private static string CreateShortName(string fullName)
-        //{
-        //    return Regex
-        //        .Matches(fullName, "[A-Z]")
-        //        .Cast<Match>()
-        //        .Select(m => m.Groups[0].Value)
-        //        .Aggregate(new StringBuilder(), (current, next) => current.Append(next))
-        //        .ToString();
-        //}
-    }    
+        public static Type GetBagType(this Type commandType)
+        {
+            CommandValidator.ValidateCommandType(commandType);
+
+            // ReSharper disable once PossibleNullReferenceException
+            // The validation makes sure that this is never null.
+            return
+                commandType
+                    .BaseType
+                    .GetGenericArguments()
+                    .Single(t => typeof(ICommandBag).IsAssignableFrom(t));
+        }        
+    }
 }

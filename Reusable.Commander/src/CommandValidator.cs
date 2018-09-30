@@ -45,17 +45,10 @@ namespace Reusable.Commander
         }
 
         private static void ValidateParameters(Type commandType, ITypeConverter converter)
-        {
-            // ReSharper disable once PossibleNullReferenceException
-            // The first validation makes sure that this is never null.
-            var bagType =
-                commandType
-                    .BaseType
-                    .GetGenericArguments()
-                    .Single(t => typeof(ICommandBag).IsAssignableFrom(t));
-
+        {            
             var parameters =
-                bagType
+                commandType
+                    .GetBagType()
                     .GetParameters()
                     .ToList();
 
@@ -117,6 +110,17 @@ namespace Reusable.Commander
                 throw DynamicException.Create(
                     $"UnsupportedParameterType",
                     $"There are one or more parameters with unsupported types: {string.Join(", ", unsupportedParameters.Select(p => p.Type.Name)).EncloseWith("[]")}."
+                );
+            }
+        }
+
+        public static void ValidateCommandType(Type type)
+        {
+            if (!typeof(IConsoleCommand).IsAssignableFrom(type))
+            {
+                throw DynamicException.Factory.CreateDynamicException(
+                    $"CommandType",
+                    $"{type.Name} is not derived from {typeof(IConsoleCommand).Name}."
                 );
             }
         }

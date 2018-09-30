@@ -7,7 +7,6 @@ using System.Linq.Custom;
 using System.Reflection;
 using JetBrains.Annotations;
 using Reusable.Converters;
-using Reusable.Converters.Collections.Generic;
 using Reusable.Extensions;
 using Reusable.OmniLog;
 using Reusable.Reflection;
@@ -61,7 +60,7 @@ namespace Reusable.Commander
         {
             if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
 
-            var parameters = _cache.GetOrAdd(typeof(TBag), typeof(TBag).GetParameters().ToList());            
+            var parameters = _cache.GetOrAdd(typeof(TBag), bagType => bagType.GetParameters().ToList());            
             var bag = new TBag();
 
             foreach (var parameter in parameters)
@@ -80,7 +79,7 @@ namespace Reusable.Commander
             {
                 var values = commandLine.ArgumentValues(parameter.Position, parameter.Id).ToList();
 
-                if (parameter.Type.IsEnumerable(ignore: typeof(string)))
+                if (parameter.Type.IsEnumerable(except: typeof(string)))
                 {
                     if (!values.Any())
                     {

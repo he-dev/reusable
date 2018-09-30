@@ -22,6 +22,8 @@ using Reusable.Reflection;
 
 namespace Reusable.Commander.Commands
 {
+    [PublicAPI]
+    [UsedImplicitly]
     public class HelpBag : SimpleBag
     {
         [NotMapped]
@@ -97,8 +99,8 @@ namespace Reusable.Commander.Commands
         protected virtual void RenderParameterList(HelpBag parameter)
         {
             var commandId = new Identifier(parameter.Command);
-            var command = _commands.SingleOrDefault(t => CommandHelper.GetCommandId(t) == commandId);
-            if (command is null)
+            var commandType = _commands.SingleOrDefault(t => CommandHelper.GetCommandId(t) == commandId);
+            if (commandType is null)
             {
                 throw DynamicException.Create(
                     $"CommandNotFound",
@@ -113,78 +115,24 @@ namespace Reusable.Commander.Commands
             // Separators
             var separators = captions.Select(c => new string('-', c.Trim().Length)).Pad(parameter.ColumnWidths);
             Logger.WriteLine(p => p.text(string.Join(string.Empty, separators)));
+
+            var bagType = commandType.GetBagType();
+            var parameters =
+                from commandParameter in bagType.GetParameters()
+                orderby commandParameter.Id.Default.ToString()
+                select commandParameter;
             
-            
-
-//            var commandParameterType = command.ParameterType();
-//            
-//            var commandSummary = new CommandSummary
-//            {
-//                Names = command.Name.OrderByDescending(n => n.Length),
-//                Description = command.GetType().GetCustomAttribute<DescriptionAttribute>()?.Description
-//            };
-
-            //var parameterSummaries = command.Parameter.Select(x => new ArgumentSummary
-            //{
-            //    Names = x.Name.OrderByDescending(n => n.Length),
-            //    Type = x.Property.PropertyType,
-            //    Required = x.Required,
-            //    Position = x.Position
-            //});
-
-
-            //var indent = new string(' ', IndentWidth);
-
-            //logger.Log(e => e.Message(string.Empty));
-            //logger.Log(e => e.Debug().Message("NAME"));
-            //logger.Log(e => e.Message(string.Join(Environment.NewLine, commandSummary.Names.Select(n => $"{indent}{n}"))));
-
-            //logger.Log(e => e.Message(string.Empty));
-            //logger.Log(e => e.Debug().Message("ABOUT"));
-            //logger.Log(e => e.Message($"{indent}{(string.IsNullOrEmpty(commandSummary.Description) ? "N/A" : commandSummary.Description)}"));
-
-            //logger.Log(e => e.Message(string.Empty));
-
-            //logger.Log(e => e.Debug().Message("SYNTAX"));
-            //logger.Log(e => e.Message(string.Empty));
-
-            //var positional =
-            //    from p in parameterSummaries
-            //    where p.Position > 0
-            //    orderby p.Position
-            //    let text = $"{p.Position}:{p.Names.First()}"
-            //    select p.Required ? text.Required() : text.Optional();
-
-            //var required =
-            //    from p in parameterSummaries
-            //    where p.Required && p.Position < 1
-            //    orderby p.Names.First()
-            //    select $"{p.Names.First()}".Required();
-
-            //var optional =
-            //    from p in parameterSummaries
-            //    where !p.Required && p.Position < 1
-            //    orderby p.Names.First()
-            //    select $"{p.Names.First()}".Optional();
-
-            //logger.Log(e => e.Message($"{indent}{commandSummary.Names.First()} {string.Join(" ", positional.Concat(required).Concat(optional))}"));
-
-            //logger.Log(e => e.Message(string.Empty));
-            //logger.Log(e => e.Debug().Message("ARGUMENTS"));
-            //logger.Log(e => e.Message(string.Empty));
-
-            //foreach (var parameterSummary in parameterSummaries.OrderBy(p => p.Names.First()))
-            //{
-            //    var name = parameterSummary.Names.First();
-            //    var type = parameterSummary.Type.Name;
-            //    logger.Log(e => e.Message(RenderColumns(new[] { $"{indent}{name}", type }, ColumnWidths)));
-            //}
-
-            //logger.Log(e => e.Message(string.Empty));
-            //logger.Log(e => e.Message(string.Empty));
+            foreach (var commandParameter in parameters)
+            {
+                var defaultId = commandParameter.Id.Default.ToString();
+                var aliases = string.Join("|", commandParameter.Id.Aliases.Select(x => x.ToString()));
+                var description = commandParameter.Type.GetCustomAttribute<DescriptionAttribute>()?.Description ?? "N/A";
+                var row = new[] {$"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description}.Pad(parameter.ColumnWidths);
+                Logger.WriteLine(p => p.text(string.Join(string.Empty, row)));
+            }
         }
 
-        private static IEnumerable<string> RenderRow(IEnumerable<string> values, IEnumerable<int> columnWidths)
+        protected static IEnumerable<string> RenderRow(IEnumerable<string> values, IEnumerable<int> columnWidths)
         {
             foreach (var tuple in values.Zip(columnWidths, (x, w) => (Value: x, Width: w)))
             {

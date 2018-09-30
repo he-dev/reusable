@@ -19,8 +19,6 @@ namespace Reusable.Commander
         Task ExecuteAsync([CanBeNull] object parameter, CancellationToken cancellationToken = default);
     }
 
-    
-
     public abstract class ConsoleCommand<TBag> : IConsoleCommand where TBag : ICommandBag, new()
     {
         private readonly ICommandServiceProvider _serviceProvider;

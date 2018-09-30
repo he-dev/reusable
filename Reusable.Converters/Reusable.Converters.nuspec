@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Converters</id>
-    <version>7.0.18</version>
+    <version>7.0.19</version>
     <title>Reusable.Converters</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -16,7 +16,7 @@
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2018.2.1" />
-      <dependency id="Reusable.Core" version="7.0.18" />
+      <dependency id="Reusable.Core" version="7.0.19" />
     </dependencies>
   </metadata>
   <files>
