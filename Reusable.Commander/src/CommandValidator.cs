@@ -13,9 +13,9 @@ namespace Reusable.Commander
 {
     internal class CommandValidator
     {
-        private readonly ISet<SoftKeySet> _commandNames = new HashSet<SoftKeySet>();
+        private readonly ISet<Identifier> _commandNames = new HashSet<Identifier>();
 
-        public void ValidateCommand((Type Type, SoftKeySet Name) command, [NotNull] ITypeConverter converter)
+        public void ValidateCommand((Type Type, Identifier Id) command, [NotNull] ITypeConverter converter)
         {
             if (command.Type == null) throw new ArgumentNullException(nameof(command.Type));
             if (converter == null) throw new ArgumentNullException(nameof(converter));
@@ -29,17 +29,17 @@ namespace Reusable.Commander
             //);
             //}
 
-            ValidateCommandName(command.Name);
+            ValidateCommandName(command.Id);
             ValidateParameters(command.Type, converter);
         }
 
-        private void ValidateCommandName(SoftKeySet name)
+        private void ValidateCommandName(Identifier id)
         {
-            if (!_commandNames.Add(name))
+            if (!_commandNames.Add(id))
             {
                 throw DynamicException.Create(
                     $"DuplicateCommandName",
-                    $"Another command with the name {name} has already been added."
+                    $"Another command with the name {id} has already been added."
                 );
             }
         }
@@ -68,7 +68,7 @@ namespace Reusable.Commander
         {
             var duplicateNames =
                 parameters
-                    .SelectMany(property => property.Name)
+                    .SelectMany(property => property.Id)
                     .GroupBy(propertyName => propertyName)
                     .Where(propertyNameGroup => propertyNameGroup.Count() > 1)
                     .Select(propertyNameGroupWithMultipleNames => propertyNameGroupWithMultipleNames.Key)

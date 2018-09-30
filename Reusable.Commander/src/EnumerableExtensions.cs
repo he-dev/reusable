@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac.Features.Indexed;
 using JetBrains.Annotations;
 using Reusable.Reflection;
 
@@ -8,7 +9,7 @@ namespace Reusable.Commander
 {
     internal static class EnumerableExtensions
     {
-        public static IEnumerable<(IConsoleCommand Command, ICommandLine CommandLine)> Find(this IEnumerable<IConsoleCommand> commands, IEnumerable<ICommandLine> commandLines)
+        public static IEnumerable<(IConsoleCommand Command, ICommandLine CommandLine)> Find(this IIndex<Identifier, IConsoleCommand> commands, IEnumerable<ICommandLine> commandLines)
         {
             return commandLines.Select(
                 (commandLine, i) =>
@@ -31,14 +32,15 @@ namespace Reusable.Commander
         }
 
         [NotNull]
-        public static IConsoleCommand Find(this IEnumerable<IConsoleCommand> commands, SoftKeySet name)
+        private static IConsoleCommand Find(this IIndex<Identifier, IConsoleCommand> commands, Identifier commandId)
         {
             return
-                commands.SingleOrDefault(x => x.Name == name)
-                ?? throw DynamicException.Factory.CreateDynamicException(
-                    $"CommandNotFound{nameof(Exception)}",
-                    $"Could not find command '{name.FirstLongest().ToString()}'."
-                );
+                commands.TryGetValue(commandId, out var command)
+                    ? command
+                    : throw DynamicException.Factory.CreateDynamicException(
+                        $"CommandNotFound{nameof(Exception)}",
+                        $"Could not find command '{commandId.Default.ToString()}'."
+                    );
         }
     }
 }

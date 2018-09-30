@@ -15,14 +15,14 @@ using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
 
 namespace Reusable.Commander
 {
-    internal static class CommandHelper
+    public static class CommandHelper
     {
-        private static readonly ConcurrentDictionary<Type, SoftKeySet> CommandNameCache = new ConcurrentDictionary<Type, SoftKeySet>();
+        private static readonly ConcurrentDictionary<Type, Identifier> CommandNameCache = new ConcurrentDictionary<Type, Identifier>();
 
-        private static readonly ConcurrentDictionary<PropertyInfo, SoftKeySet> ParameterNameCache = new ConcurrentDictionary<PropertyInfo, SoftKeySet>();
+        private static readonly ConcurrentDictionary<PropertyInfo, Identifier> ParameterNameCache = new ConcurrentDictionary<PropertyInfo, Identifier>();
 
         [NotNull]
-        public static SoftKeySet GetCommandName([NotNull] Type commandType)
+        public static Identifier GetCommandId([NotNull] Type commandType)
         {
             if (commandType == null) throw new ArgumentNullException(nameof(commandType));
 
@@ -39,10 +39,10 @@ namespace Reusable.Commander
 
                 var names = GetCommandNames(t).Distinct();
 
-                return new SoftKeySet(
+                return new Identifier(
                     category is null
                         ? names
-                        : names.SelectMany(name => new[] { name, SoftString.Create($"{category}.{name}") })
+                        : names.SelectMany(name => new[] {name, SoftString.Create($"{category}.{name}")})
                 );
             });
         }
@@ -56,21 +56,20 @@ namespace Reusable.Commander
             }
         }
 
-        private static string GetDefaultCommandName(Type commadType)
+        private static SoftString GetDefaultCommandName(Type commandType)
         {
-            return Regex.Replace(commadType.Name, "C(omman|m)d$", string.Empty, RegexOptions.IgnoreCase);
+            return Regex.Replace(commandType.Name, "C(omman|m)d$", string.Empty, RegexOptions.IgnoreCase);
         }
 
         [NotNull]
-        public static SoftKeySet GetCommandParameterName([NotNull] PropertyInfo property)
+        public static Identifier GetCommandParameterName([NotNull] PropertyInfo property)
         {
             if (property == null) throw new ArgumentNullException(nameof(property));
 
             return ParameterNameCache.GetOrAdd(property, p =>
             {
                 var names = GetParameterNames(p);
-                return new SoftKeySet(names);
-
+                return new Identifier(names);
             });
         }
 
@@ -85,7 +84,7 @@ namespace Reusable.Commander
                 yield return alias;
             }
         }
-        
+
         public static IEnumerable<CommandParameter> GetParameters(this Type bagType)
         {
             return
@@ -93,7 +92,7 @@ namespace Reusable.Commander
                     .GetProperties(BindingFlags.Instance | BindingFlags.Public)
                     .Where(p => !p.IsDefined(typeof(NotMappedAttribute)))
                     .Select(CommandParameter.Create);
-        }
+        }       
 
         //// Creates a short name from the capital letters.
         //private static string CreateShortName(string fullName)
@@ -105,5 +104,5 @@ namespace Reusable.Commander
         //        .Aggregate(new StringBuilder(), (current, next) => current.Append(next))
         //        .ToString();
         //}
-    }
+    }    
 }

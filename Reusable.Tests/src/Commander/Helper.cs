@@ -37,7 +37,7 @@ namespace Reusable.Tests.Commander
             };
         }
         
-        internal static ExecuteCallback<T> Execute<T>(Action<SoftKeySet, T, CancellationToken> execute) where T : ICommandBag, new()
+        internal static ExecuteCallback<T> Execute<T>(Action<Identifier, T, CancellationToken> execute) where T : ICommandBag, new()
         {
             return (name, bag, cancellationToken) =>
             {
@@ -82,10 +82,10 @@ namespace Reusable.Tests.Commander
 
     internal class BagTracker
     {
-        private readonly IDictionary<SoftKeySet, ICommandBag> _bags = new Dictionary<SoftKeySet, ICommandBag>();
+        private readonly IDictionary<Identifier, ICommandBag> _bags = new Dictionary<Identifier, ICommandBag>();
 
-        public void Add(SoftKeySet name, ICommandBag bag) => _bags.Add(name, bag);
+        public void Add(Identifier commandId, ICommandBag bag) => _bags.Add(commandId, bag);
 
-        public void Assert<T>(SoftKeySet name, Action<T> assert) where T : ICommandBag, new() => assert((T) _bags[name]);
+        public void Assert<T>(Identifier commandId, Action<T> assert) where T : ICommandBag, new() => assert((T) _bags[commandId]);
     }
 }

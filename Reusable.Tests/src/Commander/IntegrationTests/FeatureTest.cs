@@ -56,7 +56,7 @@ namespace Reusable.Tests.Commander.IntegrationTests
 
             using (var context = CreateContext(
                 commands => commands
-                    .Add(new SoftKeySet("a", "b"), Execute<SimpleBag>((name, bag, ct) =>
+                    .Add(Identifier.Create("a", "b"), Execute<SimpleBag>((name, bag, ct) =>
                     {
                         executeCount++;
                     }))

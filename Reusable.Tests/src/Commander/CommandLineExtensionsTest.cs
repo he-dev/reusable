@@ -48,7 +48,7 @@ namespace Reusable.Tests.Commander
                 { SoftString.Empty, "qux" },
                 { SoftString.Create("foo"), "bar" },
             };
-            Assert.AreEqual(Reusable.Commander.SoftKeySet.Create("baz"), arguments.CommandName());
+            Assert.AreEqual(Reusable.Commander.Identifier.Create("baz"), arguments.CommandName());
         }
     }
 }

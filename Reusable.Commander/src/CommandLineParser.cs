@@ -35,7 +35,7 @@ namespace Reusable.Commander
             if (tokens == null) throw new ArgumentNullException(nameof(tokens));
 
             var commandLine = new CommandLine();
-            var argumentName = CommandArgumentKeys.Anonymous;
+            var argumentName = Identifier.Empty;
 
             foreach (var token in tokens.Where(Conditional.IsNotNullOrEmpty))
             {                
@@ -44,7 +44,7 @@ namespace Reusable.Commander
                     case CommandSeparator when commandLine.Any():
                         yield return commandLine;
                         commandLine = new CommandLine();
-                        argumentName = CommandArgumentKeys.Anonymous;
+                        argumentName = Identifier.Empty;
                         break;
 
                     case string value when IsArgument(value):

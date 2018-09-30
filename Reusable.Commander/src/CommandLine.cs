@@ -9,14 +9,14 @@ using JetBrains.Annotations;
 namespace Reusable.Commander
 {
     // foo -bar -baz qux
-    public interface ICommandLine : ILookup<SoftKeySet, string> { }
+    public interface ICommandLine : ILookup<Identifier, string> { }
 
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class CommandLine : ICommandLine
     {
         public static readonly int CommandIndex = 0;
 
-        private readonly IDictionary<SoftKeySet, CommandArgument> _arguments = new Dictionary<SoftKeySet, CommandArgument>();
+        private readonly IDictionary<Identifier, CommandArgument> _arguments = new Dictionary<Identifier, CommandArgument>();
 
         internal CommandLine() { }
 
@@ -24,61 +24,61 @@ namespace Reusable.Commander
 
         #region ILookup
 
-        public IEnumerable<string> this[SoftKeySet name] => _arguments.TryGetValue(name, out var argument) ? argument : CommandArgument.Empty;
+        public IEnumerable<string> this[Identifier id] => _arguments.TryGetValue(id, out var argument) ? argument : CommandArgument.Empty;
 
         public int Count => _arguments.Count;
 
-        public bool Contains(SoftKeySet name) => _arguments.ContainsKey(name);
+        public bool Contains(Identifier id) => _arguments.ContainsKey(id);
 
-        #endregion
-
+        #endregion 
+        
         #region IEnumerable
 
-        public IEnumerator<IGrouping<SoftKeySet, string>> GetEnumerator() => _arguments.Values.GetEnumerator();
+        public IEnumerator<IGrouping<Identifier, string>> GetEnumerator() => _arguments.Values.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion        
 
-        [ContractAnnotation("keySet: null => halt")]
-        public void Add([NotNull] SoftKeySet keySet)
+        [ContractAnnotation("id: null => halt")]
+        public void Add([NotNull] Identifier id)
         {
-            if (keySet == null) throw new ArgumentNullException(nameof(keySet));
+            if (id == null) throw new ArgumentNullException(nameof(id));
 
-            _arguments.Add(keySet, new CommandArgument(keySet));
+            _arguments.Add(id, new CommandArgument(id));
         }
 
-        [ContractAnnotation("keySet: null => halt; value: null => halt")]
-        public void Add([NotNull] SoftKeySet keySet, [NotNull] string value)
+        [ContractAnnotation("id: null => halt; value: null => halt")]
+        public void Add([NotNull] Identifier id, [NotNull] string value)
         {
-            if (keySet == null) throw new ArgumentNullException(nameof(keySet));
+            if (id == null) throw new ArgumentNullException(nameof(id));
             if (value == null) throw new ArgumentNullException(nameof(value));
 
-            if (_arguments.TryGetValue(keySet, out var argument))
+            if (_arguments.TryGetValue(id, out var argument))
             {
                 argument.Add(value);
             }
             else
             {
-                _arguments.Add(keySet, new CommandArgument(keySet) { value });
+                _arguments.Add(id, new CommandArgument(id) { value });
             }
         }
 
         [ContractAnnotation("key: null => halt")]
-        public void Add([NotNull] SoftString key)
+        public void Add([NotNull] SoftString id)
         {
-            if (key == null) throw new ArgumentNullException(nameof(key));
+            if (id == null) throw new ArgumentNullException(nameof(id));
 
-            Add((SoftKeySet)key);
+            Add((Identifier)id);
         }
 
         [ContractAnnotation("key: null => halt; value: null => halt")]
-        public void Add([NotNull] SoftString key, [NotNull] string value)
+        public void Add([NotNull] SoftString id, [NotNull] string value)
         {
-            if (key == null) throw new ArgumentNullException(nameof(key));
+            if (id == null) throw new ArgumentNullException(nameof(id));
             if (value == null) throw new ArgumentNullException(nameof(value));
 
-            Add((SoftKeySet)key, value);
+            Add((Identifier)id, value);
         }
 
         public override string ToString() => string.Join(" ", this.Select(argument => argument.ToString()));

@@ -58,7 +58,8 @@ namespace Reusable.Tests.Commander.IntegrationTests
                     {
                     }
                 },
-                filter => filter.When(name: "^DuplicateParameterName")
+                filter => filter.When(name: "^RegisterCommand"),
+                inner => inner.When(name: "^DuplicateParameterName")
             );
         }
 
@@ -76,7 +77,8 @@ namespace Reusable.Tests.Commander.IntegrationTests
                     {
                     }
                 },
-                filter => filter.When(name: "^ParameterPositionException")
+                filter => filter.When(name: "^RegisterCommand"),
+                inner => inner.When(name: "^ParameterPositionException")
             );
         }
 
@@ -94,7 +96,8 @@ namespace Reusable.Tests.Commander.IntegrationTests
                     {
                     }
                 },
-                filter => filter.When(name: "^UnsupportedParameterTypeException")
+                filter => filter.When(name: "^RegisterCommand"),
+                inner => inner.When(name: "^UnsupportedParameterTypeException")
             );
         }
 

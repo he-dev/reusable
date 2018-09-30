@@ -21,15 +21,15 @@ namespace Reusable.Commander.Annotations
         public static implicit operator int(PositionAttribute attribute) => attribute.Value;
     }
 
-    [UsedImplicitly]
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    public class GroupAttribute : Attribute
-    {
-        public GroupAttribute(int index)
-        {
-            Index = index;
-        }
-        
-        public int Index { get; }
-    }
+//    [UsedImplicitly]
+//    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+//    public class GroupAttribute : Attribute
+//    {
+//        public GroupAttribute(int index)
+//        {
+//            Index = index;
+//        }
+//        
+//        public int Index { get; }
+//    }
 }

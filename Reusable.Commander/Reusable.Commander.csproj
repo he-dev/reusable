@@ -19,6 +19,8 @@
     <Compile Remove="src\Annotations\ParameterAttribute.cs" />
     <Compile Remove="src\CommandCollection.cs" />
     <Compile Remove="src\CommandInfo.cs" />
+    <Compile Remove="src\EnumerableExtensions.cs" />
+    <Compile Remove="src\SoftKeySet.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,6 +31,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Converters\Reusable.Converters.csproj" />
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
+    <ProjectReference Include="..\Reusable.MarkupBuilder\Reusable.MarkupBuilder.csproj" />
+    <ProjectReference Include="..\Reusable.OmniLog.ColoredConsoleRx\Reusable.OmniLog.ColoredConsoleRx.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog.SemanticExtensions\Reusable.OmniLog.SemanticExtensions.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog\Reusable.OmniLog.csproj" />
   </ItemGroup>

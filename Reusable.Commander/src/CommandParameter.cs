@@ -18,17 +18,17 @@ namespace Reusable.Commander
         private CommandParameter(PropertyInfo property)
         {
             _property = property;
-            Name = CommandHelper.GetCommandParameterName(property);
+            Id = CommandHelper.GetCommandParameterName(property);
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(b =>
         {
-            b.Property(x => x.Name.FirstLongest().ToString());
+            b.Property(x => x.Id.Default.ToString());
             b.Property(x => x.Type.ToPrettyString(false));
             b.Property(x => x.Position);
         });
 
-        public SoftKeySet Name { get; }
+        public Identifier Id { get; }
 
         public Type Type => _property.PropertyType;
 

@@ -14,22 +14,22 @@ namespace Reusable.Commander
         {
             if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
 
-            return commandLine[CommandArgumentKeys.Anonymous];
+            return commandLine[Identifier.Empty];
         }
 
         [NotNull, ItemNotNull]
-        public static IEnumerable<string> ArgumentValues([NotNull] this ICommandLine commandLine, int? position, SoftKeySet name)
+        public static IEnumerable<string> ArgumentValues([NotNull] this ICommandLine commandLine, int? position, Identifier id)
         {
             if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
             
             return
                 position.HasValue
                     ? commandLine.AnonymousValues().Skip(position.Value).Take(1)
-                    : commandLine[name];
+                    : commandLine[id];
         }
 
         [NotNull]
-        public static SoftKeySet CommandName([NotNull] this ICommandLine commandLine)
+        public static Identifier CommandName([NotNull] this ICommandLine commandLine)
         {
             if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
             

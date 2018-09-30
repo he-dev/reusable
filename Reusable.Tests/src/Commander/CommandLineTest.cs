@@ -20,7 +20,7 @@ namespace Reusable.Tests.Commander
 
             var commandArgument = commandLine.Single();
 
-            Assert.AreEqual(Reusable.Commander.SoftKeySet.Create("foo"), commandArgument.Key);
+            Assert.AreEqual(Reusable.Commander.Identifier.Create("foo"), commandArgument.Key);
             Assert.That.Collection().CountEquals(0, commandArgument);
         }
 
@@ -37,7 +37,7 @@ namespace Reusable.Tests.Commander
 
             var commandArgument = commandLine.Single();
 
-            Assert.AreEqual(Reusable.Commander.SoftKeySet.Create("foo"), commandArgument.Key);
+            Assert.AreEqual(Reusable.Commander.Identifier.Create("foo"), commandArgument.Key);
             Assert.That.Collection().CountEquals(2, commandArgument);
             Assert.AreEqual("bar", commandArgument.ElementAt(0));
             Assert.AreEqual("baz", commandArgument.ElementAt(1));

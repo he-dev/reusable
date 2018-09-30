@@ -21,17 +21,17 @@ namespace Reusable.Commander
         public static implicit operator SoftKeySet(string key) => key is null ? null : new SoftKeySet(key);
     }
 
-    public static class SoftKeySetExtensions
-    {
-        /// <summary>
-        /// Gets the longest name because this one is most likely the full-name.
-        /// </summary>
-        [NotNull]
-        public static SoftString FirstLongest([NotNull] this SoftKeySet keys)
-        {
-            if (keys == null) throw new ArgumentNullException(nameof(keys));
-
-            return keys.OrderByDescending(key => key.Length).First();
-        }
-    }
+//    public static class SoftKeySetExtensions
+//    {
+//        /// <summary>
+//        /// Gets the longest name because this one is most likely the full-name.
+//        /// </summary>
+//        [NotNull]
+//        public static SoftString FirstLongest([NotNull] this SoftKeySet keys)
+//        {
+//            if (keys == null) throw new ArgumentNullException(nameof(keys));
+//
+//            return keys.OrderByDescending(key => key.Length).First();
+//        }
+//    }
 }

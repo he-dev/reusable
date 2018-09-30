@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
+using Autofac.Features.Indexed;
 using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Commander.Commands;
@@ -22,9 +23,14 @@ namespace Reusable.Commander
 {
     public interface ICommandLineExecutor
     {
+        [NotNull]
+        ICommandLineMapper Mapper { get; }
+        
         Task ExecuteAsync([NotNull, ItemNotNull] IEnumerable<ICommandLine> commandLines, CancellationToken cancellationToken = default);
 
         Task ExecuteAsync([CanBeNull] string commandLineString, CancellationToken cancellationToken = default);
+
+        Task ExecuteAsync<TBag>([NotNull] Identifier commandId, [CanBeNull] TBag parameter = default, CancellationToken cancellationToken = default) where TBag : ICommandBag, new();
     }
 
     [UsedImplicitly]
@@ -32,7 +38,7 @@ namespace Reusable.Commander
     {
         private readonly ICommandLineParser _commandLineParser;
         private readonly ICommandLineMapper _mapper;
-        private readonly IEnumerable<IConsoleCommand> _commands;
+        private readonly IIndex<Identifier, IConsoleCommand> _commands;
         private readonly ILogger _logger;
 
         public CommandLineExecutor
@@ -40,7 +46,7 @@ namespace Reusable.Commander
             [NotNull] ILogger<CommandLineExecutor> logger,
             [NotNull] ICommandLineParser commandLineParser,
             [NotNull] ICommandLineMapper mapper,
-            [NotNull] IEnumerable<IConsoleCommand> commands
+            [NotNull] IIndex<Identifier, IConsoleCommand> commands
         )
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -49,14 +55,15 @@ namespace Reusable.Commander
             _commands = commands ?? throw new ArgumentNullException(nameof(commands));
         }
 
+        public ICommandLineMapper Mapper => _mapper;
+
         public async Task ExecuteAsync(IEnumerable<ICommandLine> commandLines, CancellationToken cancellationToken)
         {
             const bool sequential = false;
             const bool async = true;
 
             var executables =
-                _commands
-                    .Find(commandLines)
+                GetCommands(commandLines)
                     .Select(t => (t.Command, t.CommandLine, Bag: _mapper.Map<SimpleBag>(t.CommandLine)))
                     .ToLookup(x => x.Bag.Async);
 
@@ -108,9 +115,16 @@ namespace Reusable.Commander
             await ExecuteAsync(commandLines, cancellationToken);
         }
 
+        public async Task ExecuteAsync<TBag>(Identifier commandId, TBag parameter, CancellationToken cancellationToken = default) where TBag : ICommandBag, new()
+        {
+            if (commandId == null) throw new ArgumentNullException(nameof(commandId));
+            
+            await GetCommand(commandId).ExecuteAsync(parameter, cancellationToken);
+        }
+
         private async Task ExecuteAsync((IConsoleCommand Command, ICommandLine CommandLine, ICommandBag Bag) executable, CancellationTokenSource cancellationTokenSource)
         {
-            using (_logger.BeginScope().WithCorrelationContext(new {Command = executable.Command.Name.FirstLongest().ToString()}).AttachElapsed())
+            using (_logger.BeginScope().WithCorrelationContext(new {Command = executable.Command.Id.Default.ToString()}).AttachElapsed())
             {
                 try
                 {
@@ -132,12 +146,50 @@ namespace Reusable.Commander
                         // In debug mode (e.g. unit-testing) this should always throw. Otherwise we might hide some bugs.
                         throw DynamicException.Create(
                             $"Unexpected",
-                            $"An unexpected exception occured while executing the '{executable.Command.Name.FirstLongest().ToString()}' command."
+                            $"An unexpected exception occured while executing the '{executable.Command.Id.Default.ToString()}' command."
                         );
                     }
 #endif
                 }
             }
         }
+
+        #region Helpers
+
+        private IEnumerable<(IConsoleCommand Command, ICommandLine CommandLine)> GetCommands(IEnumerable<ICommandLine> commandLines)
+        {
+            return commandLines.Select(
+                (commandLine, i) =>
+                {
+                    try
+                    {
+                        var commandName = commandLine.CommandName();
+                        return (GetCommand(commandName), commandLine);
+                    }
+                    catch (DynamicException ex)
+                    {
+                        throw DynamicException.Factory.CreateDynamicException(
+                            $"InvalidCommandLine{nameof(Exception)}",
+                            $"Command line at {i} is invalid. See the inner-exception for details.",
+                            ex
+                        );
+                    }
+                }
+            );
+        }
+
+        [NotNull]
+        private IConsoleCommand GetCommand(Identifier id)
+        {
+            return
+                _commands.TryGetValue(id, out var command)
+                    ? command
+                    : throw DynamicException.Factory.CreateDynamicException(
+                        $"CommandNotFound{nameof(Exception)}",
+                        $"Could not find command '{id.Default.ToString()}'."
+                    );
+        }
+
+        #endregion
     }
 }

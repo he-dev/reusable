@@ -74,11 +74,11 @@ namespace Reusable.Commander
 
         private void Map<TBag>(TBag bag, ICommandLine commandLine, CommandParameter parameter) where TBag : ICommandBag, new()
         {
-            var longName = parameter.Name.FirstLongest().ToString();
+            var defaultId = parameter.Id.Default.ToString();
 
-            if (commandLine.Contains(parameter.Name))
+            if (commandLine.Contains(parameter.Id))
             {
-                var values = commandLine.ArgumentValues(parameter.Position, parameter.Name).ToList();
+                var values = commandLine.ArgumentValues(parameter.Position, parameter.Id).ToList();
 
                 if (parameter.Type.IsEnumerable(ignore: typeof(string)))
                 {
@@ -86,7 +86,7 @@ namespace Reusable.Commander
                     {
                         throw DynamicException.Factory.CreateDynamicException(
                             $"NotEnoughValuesParameter{nameof(Exception)}",
-                            $"{longName} is a collection parameter and must have at least one value."
+                            $"{defaultId} is a collection parameter and must have at least one value."
                         );
                     }
 
@@ -99,7 +99,7 @@ namespace Reusable.Commander
                     {
                         throw DynamicException.Factory.CreateDynamicException(
                             $"TooManyValuesParameter{nameof(Exception)}",
-                            $"{longName} is a simple parameter must not have more than one value."
+                            $"{defaultId} is a simple parameter must not have more than one value."
                         );
                     }
 
@@ -136,7 +136,7 @@ namespace Reusable.Commander
                 {
                     throw DynamicException.Factory.CreateDynamicException(
                         $"MissingParameter{nameof(Exception)}", 
-                        $"{longName} is required."
+                        $"{defaultId} is required."
                     );
                 }
 

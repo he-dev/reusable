@@ -63,13 +63,13 @@ namespace Reusable.Commander
                 var registration =
                     builder
                         .RegisterType(command.Type)
-                        .Keyed<IConsoleCommand>(command.Name)
+                        .Keyed<IConsoleCommand>(command.Id)
                         .As<IConsoleCommand>();
 
                 // Lambda command ctor have some extra properties that we need to set.
                 if (command.IsLambda)
                 {
-                    registration.WithParameter(new NamedParameter("name", command.Name));
+                    registration.WithParameter(new NamedParameter("id", command.Id));
                     registration.WithParameter(command.Execute);
                 }
             }
@@ -98,33 +98,33 @@ namespace Reusable.Commander
         [NotNull]
         public CommandRegistrationBuilder Add<T>() where T : IConsoleCommand
         {
-            return Add((typeof(T), CommandHelper.GetCommandName(typeof(T)), default));
+            return Add((typeof(T), CommandHelper.GetCommandId(typeof(T)), default));
         }
 
         [NotNull]
-        public CommandRegistrationBuilder Add<T>([NotNull] SoftKeySet name) where T : IConsoleCommand
+        public CommandRegistrationBuilder Add<T>([NotNull] Identifier id) where T : IConsoleCommand
         {
-            return Add((typeof(T), name ?? throw new ArgumentNullException(nameof(name)), default));
+            return Add((typeof(T), id ?? throw new ArgumentNullException(nameof(id)), default));
         }
 
         [NotNull]
-        public CommandRegistrationBuilder Add<T>([NotNull] SoftKeySet name, [NotNull] ExecuteCallback<T> execute) where T : ICommandBag, new()
+        public CommandRegistrationBuilder Add<T>([NotNull] Identifier id, [NotNull] ExecuteCallback<T> execute) where T : ICommandBag, new()
         {
             return Add(
                 (
                     typeof(Lambda<T>),
-                    name ?? throw new ArgumentNullException(nameof(name)),
+                    id ?? throw new ArgumentNullException(nameof(id)),
                     new NamedParameter("execute", execute ?? throw new ArgumentNullException(nameof(execute)))
                 )
             );
         }
 
         [NotNull]
-        private CommandRegistrationBuilder Add((Type Type, SoftKeySet Name, NamedParameter execute) command)
+        private CommandRegistrationBuilder Add((Type Type, Identifier Id, NamedParameter execute) command)
         {
             try
             {
-                _validator.ValidateCommand((command.Type, command.Name), _parameterConverter);
+                _validator.ValidateCommand((command.Type, command.Id), _parameterConverter);
                 _commands.Add(new CommandRegistrationBuilderItem(command));
                 return this;
             }
@@ -132,7 +132,7 @@ namespace Reusable.Commander
             {
                 throw DynamicException.Create(
                     $"RegisterCommand",
-                    $"An error occured while trying to register the '{command.Name.FirstLongest().ToString()}' command. See the inner-exception for details.",
+                    $"An error occured while trying to register the '{command.Id.Default.ToString()}' command. See the inner-exception for details.",
                     innerException
                 );
             }
@@ -149,14 +149,14 @@ namespace Reusable.Commander
 
     public class CommandRegistrationBuilderItem
     {
-        internal CommandRegistrationBuilderItem((Type Type, SoftKeySet Name, NamedParameter Execute) command)
+        internal CommandRegistrationBuilderItem((Type Type, Identifier Id, NamedParameter Execute) command)
         {
-            (Type, Name, Execute) = command;
+            (Type, Id, Execute) = command;
         }
 
         public Type Type { get; }
 
-        public SoftKeySet Name { get; }
+        public Identifier Id { get; }
 
         public NamedParameter Execute { get; }
 

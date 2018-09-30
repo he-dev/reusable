@@ -14,23 +14,23 @@ namespace Reusable.Commander
     /// This class represents a single command-line argument with all its values.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class CommandArgument : List<string>, IGrouping<SoftKeySet, string>, IEquatable<SoftKeySet>, IFormattable
+    public class CommandArgument : List<string>, IGrouping<Identifier, string>, IEquatable<Identifier>, IFormattable
     {
         public const string DefaultFormat = "-:";
 
-        internal CommandArgument(SoftKeySet key) => Key = key;
+        internal CommandArgument(Identifier key) => Key = key;
 
         private string DebuggerDisplay => ToString();
 
-        public SoftKeySet Key { get; }
+        public Identifier Key { get; }
 
         public static CommandArgument Empty { get; } = new CommandArgument(SoftString.Empty);
 
         #region IEquatable
 
-        public bool Equals(SoftKeySet other) => Key.Equals(other);
+        public bool Equals(Identifier other) => Key.Equals(other);
 
-        public override bool Equals(object obj) => obj is SoftKeySet nameSet && Equals(nameSet);
+        public override bool Equals(object obj) => obj is Identifier identifier && Equals(identifier);
 
         public override int GetHashCode() => Key.GetHashCode();
 
@@ -73,8 +73,8 @@ namespace Reusable.Commander
         public static implicit operator string(CommandArgument commandArgument) => commandArgument?.ToString();
     }
 
-    public static class CommandArgumentKeys
-    {
-        public static readonly SoftKeySet Anonymous = SoftString.Empty;
-    }
+//    public static class CommandArgumentKeys
+//    {
+//        public static readonly SoftKeySet Anonymous = SoftString.Empty;
+//    }
 }

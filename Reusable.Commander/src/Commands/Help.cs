@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +16,9 @@ using JetBrains.Annotations;
 using Reusable.Commander.Annotations;
 using Reusable.Commander.Utilities;
 using Reusable.Extensions;
+using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
+using Reusable.Reflection;
 
 namespace Reusable.Commander.Commands
 {
@@ -23,7 +28,7 @@ namespace Reusable.Commander.Commands
         public int IndentWidth { get; set; } = 4;
 
         [NotMapped]
-        public int[] ColumnWidths { get; set; } = {17, 60};
+        public int[] ColumnWidths { get; set; } = {27, 50};
 
         [CanBeNull]
         //[DefaultValue(false)]
@@ -31,6 +36,8 @@ namespace Reusable.Commander.Commands
         //[Position(1)]
         [Alias("cmd")]
         public string Command { get; set; }
+
+        internal bool HasCommand => Command.IsNotNullOrEmpty();
     }
 
     [PublicAPI]
@@ -39,7 +46,7 @@ namespace Reusable.Commander.Commands
     public class Help : ConsoleCommand<HelpBag>
     {
         private readonly IList<Type> _commands;
-        
+
         public Help(CommandServiceProvider<Help> serviceProvider, TypeList<IConsoleCommand> commands)
             : base(serviceProvider)
         {
@@ -48,51 +55,67 @@ namespace Reusable.Commander.Commands
 
         protected override Task ExecuteAsync(HelpBag parameter, CancellationToken cancellationToken)
         {
-            if (parameter.Command.IsNullOrEmpty())
+            if (!parameter.HasCommand)
             {
-                RenderCommandList(parameter, _commands);
+                RenderCommandList(parameter);
             }
             else
             {
-                //var command = _commands.Find(parameter.Command);
-                //RenderParameterList(command);
+                RenderParameterList(parameter);
             }
 
             return Task.CompletedTask;
         }
 
-        protected virtual void RenderCommandList(HelpBag parameter, IList<Type> commands)
+        protected virtual void RenderCommandList(HelpBag parameter)
         {
-            Logger.Information(string.Empty);
-            Logger.Information($"{new string(' ', parameter.IndentWidth)}Commands");
+            // Headers
+            var captions = new[] {"NAME", "ABOUT"}.Pad(parameter.ColumnWidths);
+            Logger.WriteLine(p => p.text(string.Join(string.Empty, captions)));
 
-            var commandSummaries = commands.Select(x => new CommandSummary
+            // Separators
+            var separators = captions.Select(c => new string('-', c.Trim().Length)).Pad(parameter.ColumnWidths);
+            Logger.WriteLine(p => p.text(string.Join(string.Empty, separators)));
+
+            // Commands
+            var userExecutableCommands =
+                from commandType in _commands
+                where !commandType.IsDefined(typeof(InternalAttribute))
+                orderby CommandHelper.GetCommandId(commandType).Default
+                select commandType;
+
+            foreach (var commandType in userExecutableCommands)
             {
-                //Names = x.Name.OrderByDescending(n => n.Length),
-                Description = x.GetCustomAttribute<DescriptionAttribute>()?.Description
-            });
-
-            var captions = new[] {"NAME", "ABOUT"};
-
-            Logger.Information(string.Empty);
-            Logger.Debug(RenderColumns(captions, parameter.ColumnWidths));
-            Logger.Debug(RenderColumns(captions.Select(h => new string('-', h.Length)), parameter.ColumnWidths));
-
-            foreach (var commandSummary in commandSummaries)
-            {
-//                context.Logger.Log(e => e.Message(RenderColumns(new[]
-//                {
-//                    commandSummary.Names.First(),
-//                    string.IsNullOrEmpty(commandSummary.Description) ? "N/A" : commandSummary.Description
-//                }, ColumnWidths)));
+                var defaultId = CommandHelper.GetCommandId(commandType).Default.ToString();
+                var aliases = string.Join("|", CommandHelper.GetCommandId(commandType).Aliases.Select(x => x.ToString()));
+                var description = commandType.GetCustomAttribute<DescriptionAttribute>()?.Description ?? "N/A";
+                var row = new[] {$"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description}.Pad(parameter.ColumnWidths);
+                Logger.WriteLine(p => p.text(string.Join(string.Empty, row)));
             }
-
-            Logger.Information(string.Empty);
-            Logger.Information(string.Empty);
         }
 
-        protected virtual void RenderParameterList(IConsoleCommand command)
+        protected virtual void RenderParameterList(HelpBag parameter)
         {
+            var commandId = new Identifier(parameter.Command);
+            var command = _commands.SingleOrDefault(t => CommandHelper.GetCommandId(t) == commandId);
+            if (command is null)
+            {
+                throw DynamicException.Create(
+                    $"CommandNotFound",
+                    $"Could not find a command with the name '{parameter.Command}'"
+                );
+            }
+
+            // Headers
+            var captions = new[] {"NAME", "ABOUT"}.Pad(parameter.ColumnWidths);
+            Logger.WriteLine(p => p.text(string.Join(string.Empty, captions)));
+
+            // Separators
+            var separators = captions.Select(c => new string('-', c.Trim().Length)).Pad(parameter.ColumnWidths);
+            Logger.WriteLine(p => p.text(string.Join(string.Empty, separators)));
+            
+            
+
 //            var commandParameterType = command.ParameterType();
 //            
 //            var commandSummary = new CommandSummary
@@ -161,15 +184,31 @@ namespace Reusable.Commander.Commands
             //logger.Log(e => e.Message(string.Empty));
         }
 
-        private static string RenderColumns(IEnumerable<string> values, IEnumerable<int> columnWidths)
+        private static IEnumerable<string> RenderRow(IEnumerable<string> values, IEnumerable<int> columnWidths)
         {
-            var result = new StringBuilder();
             foreach (var tuple in values.Zip(columnWidths, (x, w) => (Value: x, Width: w)))
             {
-                result.Append(Pad(tuple.Value, tuple.Width));
+                yield return Pad(tuple.Value, tuple.Width);
             }
 
-            return result.ToString();
+            string Pad(string value, int width)
+            {
+                return
+                    width < 0
+                        ? value.PadLeft(-width, ' ')
+                        : value.PadRight(width, ' ');
+            }
+        }
+    }
+
+    internal static class HelpExtensions
+    {
+        public static IEnumerable<string> Pad(this IEnumerable<string> values, IEnumerable<int> columnWidths)
+        {
+            foreach (var tuple in values.Zip(columnWidths, (x, w) => (Value: x, Width: w)))
+            {
+                yield return Pad(tuple.Value, tuple.Width);
+            }
 
             string Pad(string value, int width)
             {
@@ -180,43 +219,8 @@ namespace Reusable.Commander.Commands
             }
         }
 
-        private class CommandSummary
-        {
-            public IEnumerable<SoftString> Names { get; set; }
-
-            public string Description { get; set; }
-
-            public bool IsDefault { get; set; }
-        }
-
-        private class ArgumentSummary
-        {
-            public IEnumerable<string> Names { get; set; }
-
-            public Type Type { get; set; }
-
-            public bool Required { get; set; }
-
-            public int Position { get; set; }
-
-            public string Description { get; set; }
-        }
-
-//        [PublicAPI]
-//        public class Parameter
-//        {
-//            //[CommandParameterProperty(Position = 1, Required = false)]
-//            [CanBeNull]
-//            [Position(1)]
-//            [DefaultValue(false)]
-//            [Description("Display command usage.")]
-//            public string Command { get; set; }
-//        }
-    }
-
-    internal static class StringExtensions
-    {
         public static string Required(this string value) => $"<{value}>";
+
         public static string Optional(this string value) => $"[{value}]";
     }
 }
