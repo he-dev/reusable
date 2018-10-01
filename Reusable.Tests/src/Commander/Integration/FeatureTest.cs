@@ -2,51 +2,14 @@
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Commander;
-using static Reusable.Tests.Commander.Integration.Helper;
 
 namespace Reusable.Tests.Commander.Integration
 {
+    using static Helper;
+
     [TestClass]
     public class FeatureIntegrationTest
     {
-        /*
-         
-         Use cases:
-         - creates bag with default types
-         - 
-          
-         */
-        [TestMethod]
-        public async Task CanCreateBagWithDefaultValues()
-        {
-            var tracker = new BagTracker();
-            using (var context = CreateContext(
-                commands => commands
-                    .Add("c", TrackBag<BagWithDefaultTypes>(tracker))
-            ))
-            {
-                await context.Executor.ExecuteAsync("c");
-                tracker.Assert<BagWithDefaultTypes>(
-                    "c",
-                    bag =>
-                    {
-                        Assert.IsFalse(bag.Bool1);
-                        Assert.IsFalse(bag.Bool2);
-                        Assert.IsTrue(bag.Bool3);
-                        Assert.IsNull(bag.String1);
-                        Assert.AreEqual("foo", bag.String2);
-                        Assert.AreEqual(0, bag.Int1);
-                        Assert.IsNull(bag.Int2);
-                        Assert.AreEqual(3, bag.Int3);
-                        Assert.AreEqual(DateTime.MinValue, bag.DateTime1);
-                        Assert.IsNull(bag.DateTime2);
-                        Assert.AreEqual(new DateTime(2018, 1, 1), bag.DateTime3);
-                        Assert.IsNull(bag.List1);
-                    }
-                );
-            }
-        }
-
         [TestMethod]
         public async Task CanExecuteCommandByAnyName()
         {
@@ -63,6 +26,125 @@ namespace Reusable.Tests.Commander.Integration
                 Assert.AreEqual(2, executeCount);
             }
         }
+
+        [TestMethod]
+        public async Task CanMapParameterByName()
+        {
+            var tracker = new BagTracker();
+            using (var context = CreateContext(
+                commands => commands
+                    .Add("c", Track<BagWithoutAliases>(tracker))
+            ))
+            {
+                await context.Executor.ExecuteAsync("c -StringWithoutAlias=abc");
+                tracker.Assert<BagWithoutAliases>(
+                    "c",
+                    bag =>
+                    {
+                        Assert.IsFalse(bag.Async);
+                        Assert.IsFalse(bag.CanThrow);
+                        Assert.AreEqual("abc", bag.StringWithoutAlias);
+                    }
+                );
+            }
+        }
+
+        [TestMethod]
+        public async Task CanMapParameterByAlias()
+        {
+            var tracker = new BagTracker();
+            using (var context = CreateContext(
+                commands => commands
+                    .Add("c", Track<BagWithAliases>(tracker))
+            ))
+            {
+                await context.Executor.ExecuteAsync("c -swa=abc");
+                tracker.Assert<BagWithAliases>(
+                    "c",
+                    bag =>
+                    {
+                        Assert.IsFalse(bag.Async);
+                        Assert.IsFalse(bag.CanThrow);
+                        Assert.AreEqual("abc", bag.StringWithAlias);
+                    }
+                );
+            }
+        }
+
+        [TestMethod]
+        public async Task CanCreateBagWithDefaultValues()
+        {
+            var tracker = new BagTracker();
+            using (var context = CreateContext(
+                commands => commands
+                    .Add("c", Track<BagWithDefaultValues>(tracker))
+            ))
+            {
+                await context.Executor.ExecuteAsync("c");
+                tracker.Assert<BagWithDefaultValues>(
+                    "c",
+                    bag =>
+                    {
+                        Assert.IsFalse(bag.Async);
+                        Assert.IsFalse(bag.CanThrow);
+                        Assert.IsFalse(bag.BoolOnly);
+                        Assert.IsFalse(bag.BoolWithDefaultValue1);
+                        Assert.IsTrue(bag.BoolWithDefaultValue2);
+                        Assert.IsNull(bag.StringOnly);
+                        Assert.AreEqual("foo", bag.StringWithDefaultValue);
+                        Assert.AreEqual(0, bag.Int32Only);
+                        Assert.IsNull(bag.NullableInt32Only);
+                        Assert.AreEqual(3, bag.Int32WithDefaultValue);
+                        Assert.AreEqual(DateTime.MinValue, bag.DateTimeOnly);
+                        Assert.IsNull(bag.NullableDateTime);
+                        Assert.AreEqual(new DateTime(2018, 1, 1), bag.DateTimeWithDefaultValue);
+                        Assert.IsNull(bag.ListOnly);
+                    }
+                );
+            }
+        }
+        
+        [TestMethod]
+        public async Task CanCreateBagWithFlagValues()
+        {
+            var tracker = new BagTracker();
+            using (var context = CreateContext(
+                commands => commands
+                    .Add("c", Track<SimpleBag>(tracker))
+            ))
+            {
+                await context.Executor.ExecuteAsync("c -async -canthrow=true");
+                tracker.Assert<SimpleBag>(
+                    "c",
+                    bag =>
+                    {
+                        Assert.IsTrue(bag.Async);
+                        Assert.IsTrue(bag.CanThrow);
+                    }
+                );
+            }
+        }
+
+        [TestMethod]
+        public async Task CanCreateBagWithCommandLineValues()
+        {
+            var tracker = new BagTracker();
+            using (var context = CreateContext(
+                commands => commands
+                    .Add("c", Track<BagWithMappedValues>(tracker))
+            ))
+            {
+                await context.Executor.ExecuteAsync("c");
+                tracker.Assert<BagWithMappedValues>(
+                    "c",
+                    bag =>
+                    {
+                        
+                    }
+                );
+            }
+        }
+
 
         // [TestMethod]
         // public async Task ExecuteAsync_MultipleCommands_Executed()

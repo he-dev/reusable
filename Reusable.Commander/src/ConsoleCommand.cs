@@ -19,6 +19,7 @@ namespace Reusable.Commander
         Task ExecuteAsync([CanBeNull] object parameter, CancellationToken cancellationToken = default);
     }
 
+    [PublicAPI]
     public abstract class ConsoleCommand<TBag> : IConsoleCommand where TBag : ICommandBag, new()
     {
         private readonly ICommandServiceProvider _serviceProvider;
@@ -33,6 +34,9 @@ namespace Reusable.Commander
         protected ILogger Logger => _serviceProvider.Logger;
 
         [NotNull]
+        protected ICommandLineMapper Mapper => _serviceProvider.Mapper;
+        
+        [NotNull]
         protected ICommandLineExecutor Executor => _serviceProvider.Executor;
 
         public Identifier Id { get; }
@@ -46,7 +50,7 @@ namespace Reusable.Commander
                     break;
 
                 case ICommandLine commandLine:
-                    await ExecuteAsync(_serviceProvider.Executor.Mapper.Map<TBag>(commandLine), cancellationToken);
+                    await ExecuteAsync(Mapper.Map<TBag>(commandLine), cancellationToken);
                     break;
 
                 case TBag bag:

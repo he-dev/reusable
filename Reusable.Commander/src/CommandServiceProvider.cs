@@ -6,6 +6,8 @@ namespace Reusable.Commander
     {
         ILogger Logger { get; }
 
+        ICommandLineMapper Mapper { get; }
+
         ICommandLineExecutor Executor { get; }
 
         Identifier DefaultId { get; }
@@ -13,13 +15,16 @@ namespace Reusable.Commander
     
     public class CommandServiceProvider<T> : ICommandServiceProvider where T : IConsoleCommand
     {
-        public CommandServiceProvider(ILogger<T> logger, ICommandLineExecutor executor)
+        public CommandServiceProvider(ILogger<T> logger, ICommandLineExecutor executor, ICommandLineMapper mapper)
         {
             Logger = logger;
             Executor = executor;
+            Mapper = mapper;
         }
 
         public ILogger Logger { get; }
+        
+        public ICommandLineMapper Mapper { get; }
 
         public ICommandLineExecutor Executor { get; }
 

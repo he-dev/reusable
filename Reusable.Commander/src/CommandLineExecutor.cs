@@ -23,9 +23,6 @@ namespace Reusable.Commander
 {
     public interface ICommandLineExecutor
     {
-        [NotNull]
-        ICommandLineMapper Mapper { get; }
-        
         Task ExecuteAsync([NotNull, ItemNotNull] IEnumerable<ICommandLine> commandLines, CancellationToken cancellationToken = default);
 
         Task ExecuteAsync([CanBeNull] string commandLineString, CancellationToken cancellationToken = default);
@@ -54,8 +51,6 @@ namespace Reusable.Commander
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _commands = commands ?? throw new ArgumentNullException(nameof(commands));
         }
-
-        public ICommandLineMapper Mapper => _mapper;
 
         public async Task ExecuteAsync(IEnumerable<ICommandLine> commandLines, CancellationToken cancellationToken)
         {
@@ -118,7 +113,7 @@ namespace Reusable.Commander
         public async Task ExecuteAsync<TBag>(Identifier commandId, TBag parameter, CancellationToken cancellationToken = default) where TBag : ICommandBag, new()
         {
             if (commandId == null) throw new ArgumentNullException(nameof(commandId));
-            
+
             await GetCommand(commandId).ExecuteAsync(parameter, cancellationToken);
         }
 
@@ -130,6 +125,10 @@ namespace Reusable.Commander
                 {
                     await executable.Command.ExecuteAsync(executable.CommandLine, cancellationTokenSource.Token);
                     _logger.Log(Abstraction.Layer.Infrastructure().Routine(nameof(IConsoleCommand.ExecuteAsync)).Completed());
+                }
+                catch (DynamicException ex) when (ex.NameMatches("^ParameterMapping"))
+                {
+                    throw;
                 }
                 catch (Exception taskEx)
                 {

@@ -30,7 +30,7 @@ namespace Reusable.Tests.Commander.Integration
             );
         }
 
-        internal static ExecuteCallback<TBag> TrackBag<TBag>(BagTracker bags) where TBag : ICommandBag, new()
+        internal static ExecuteCallback<TBag> Track<TBag>(BagTracker bags) where TBag : ICommandBag, new()
         {
             return (name, bag, cancellationToken) =>
             {
@@ -47,6 +47,12 @@ namespace Reusable.Tests.Commander.Integration
                 return Task.CompletedTask;
             };
         }
+        
+        internal static ExecuteCallback<TBag> ExecuteNoop<TBag>() where TBag : ICommandBag, new()
+        {
+            return (name, bag, cancellationToken) => Task.CompletedTask;
+        }
+        
 
         private static IContainer InitializeContainer(Action<CommandRegistrationBuilder> commands)
         {

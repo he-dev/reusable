@@ -1,51 +1,62 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using Reusable.Commander;
 using Reusable.Commander.Annotations;
 
 namespace Reusable.Tests.Commander.Integration
-{    
-    // Default values.
-    internal class BagWithDefaultTypes : SimpleBag
+{
+    internal class BagWithoutAliases : SimpleBag
     {
-        public bool Bool1 { get; set; }
+        public string StringWithoutAlias { get; set; }
+    }
+    
+    internal class BagWithAliases : SimpleBag
+    {
+        [Alias("swa")]
+        public string StringWithAlias { get; set; }
+    }
+
+    internal class BagWithDefaultValues : SimpleBag
+    {
+        public bool BoolOnly { get; set; }
 
         [DefaultValue(false)]
-        public bool Bool2 { get; set; }
+        public bool BoolWithDefaultValue1 { get; set; }
 
         [DefaultValue(true)]
-        public bool Bool3 { get; set; }
+        public bool BoolWithDefaultValue2 { get; set; }
 
-        public string String1 { get; set; }
+        public string StringOnly { get; set; }
 
         [DefaultValue("foo")]
-        public string String2 { get; set; }
+        public string StringWithDefaultValue { get; set; }
 
-        public int Int1 { get; set; }
+        public int Int32Only { get; set; }
 
-        public int? Int2 { get; set; }
+        public int? NullableInt32Only { get; set; }
 
         [DefaultValue(3)]
-        public int Int3 { get; set; }
+        public int Int32WithDefaultValue { get; set; }
 
-        public DateTime DateTime1 { get; set; }
+        public DateTime DateTimeOnly { get; set; }
 
-        public DateTime? DateTime2 { get; set; }
+        public DateTime? NullableDateTime { get; set; }
 
         [DefaultValue("2018/01/01")]
-        public DateTime DateTime3 { get; set; }
+        public DateTime DateTimeWithDefaultValue { get; set; }
 
-        public IList<int> List1 { get; set; }
-    }    
+        public IList<int> ListOnly { get; set; }
+    }
 
-    internal class Bag2 : SimpleBag
+    internal class BagWithMappedValues : SimpleBag
     {
         [DefaultValue(false)]
-        public bool Property01 { get; set; }
+        public bool BoolWithDefaultValue1 { get; set; }
 
         [DefaultValue(true)]
-        public bool Property02 { get; set; }
+        public bool BoolWithDefaultValue2 { get; set; }
 
         [Alias("p03")]
         [DefaultValue(false)]
@@ -59,7 +70,13 @@ namespace Reusable.Tests.Commander.Integration
         public IList<int> Property05 { get; set; }
     }
 
-#region Invalid bags
+    internal class BagWithRequiredValue : SimpleBag
+    {
+        [Required]
+        public string RequiredString { get; set; }
+    }
+
+    #region Invalid bags
 
     // Contains duplicate parameters.
     internal class BagWithDuplicateParameter : SimpleBag
@@ -86,5 +103,5 @@ namespace Reusable.Tests.Commander.Integration
         public AppDomain A { get; set; }
     }
 
-#endregion
+    #endregion
 }

@@ -5,6 +5,8 @@ using Reusable.Utilities.MSTest;
 
 namespace Reusable.Tests.Commander.Integration
 {
+    using static Helper;
+
     [TestClass]
     public class ExceptionIntegrationTest
     {
@@ -18,8 +20,6 @@ namespace Reusable.Tests.Commander.Integration
         //     );
         // }
 
-    #region Command and parameter validation
-
         [TestMethod]
         public void DisallowDuplicateCommandNames()
         {
@@ -27,11 +27,13 @@ namespace Reusable.Tests.Commander.Integration
                 () =>
                 {
                     var bags = new BagTracker();
-                    using (Helper.CreateContext(
+                    using (CreateContext(
                         commands => commands
-                            .Add("c", Helper.TrackBag<SimpleBag>(bags))
-                            .Add("c", Helper.TrackBag<SimpleBag>(bags))
-                    )) { }
+                            .Add("c", Track<SimpleBag>(bags))
+                            .Add("c", Track<SimpleBag>(bags))
+                    ))
+                    {
+                    }
                 },
                 filter => filter.When(name: "^RegisterCommand"),
                 inner => inner.When(name: "^DuplicateCommandName")
@@ -45,10 +47,12 @@ namespace Reusable.Tests.Commander.Integration
                 () =>
                 {
                     var bags = new BagTracker();
-                    using (Helper.CreateContext(
+                    using (CreateContext(
                         commands => commands
-                            .Add("c", Helper.TrackBag<BagWithDuplicateParameter>(bags))
-                    )) { }
+                            .Add("c", Track<BagWithDuplicateParameter>(bags))
+                    ))
+                    {
+                    }
                 },
                 filter => filter.When(name: "^RegisterCommand"),
                 inner => inner.When(name: "^DuplicateParameterName")
@@ -62,10 +66,12 @@ namespace Reusable.Tests.Commander.Integration
                 () =>
                 {
                     var bags = new BagTracker();
-                    using (Helper.CreateContext(
+                    using (CreateContext(
                         commands => commands
-                            .Add("c", Helper.TrackBag<BagWithInvalidParameterPosition>(bags))
-                    )) { }
+                            .Add("c", Track<BagWithInvalidParameterPosition>(bags))
+                    ))
+                    {
+                    }
                 },
                 filter => filter.When(name: "^RegisterCommand"),
                 inner => inner.When(name: "^ParameterPositionException")
@@ -79,19 +85,17 @@ namespace Reusable.Tests.Commander.Integration
                 () =>
                 {
                     var bags = new BagTracker();
-                    using (Helper.CreateContext(
+                    using (CreateContext(
                         commands => commands
-                            .Add("c", Helper.TrackBag<BagWithUnsupportedParameterType>(bags))
-                    )) { }
+                            .Add("c", Track<BagWithUnsupportedParameterType>(bags))
+                    ))
+                    {
+                    }
                 },
                 filter => filter.When(name: "^RegisterCommand"),
                 inner => inner.When(name: "^UnsupportedParameterTypeException")
             );
         }
-
-    #endregion
-
-    #region Command-line validation
 
         [TestMethod]
         public void DisallowCommandLineWithoutCommandName()
@@ -100,9 +104,9 @@ namespace Reusable.Tests.Commander.Integration
                 () =>
                 {
                     var bags = new BagTracker();
-                    using (var context = Helper.CreateContext(
+                    using (var context = CreateContext(
                         commands => commands
-                            .Add("c", Helper.TrackBag<SimpleBag>(bags))
+                            .Add("c", Track<SimpleBag>(bags))
                     ))
                     {
                         context.Executor.ExecuteAsync("-a").GetAwaiter().GetResult();
@@ -119,9 +123,9 @@ namespace Reusable.Tests.Commander.Integration
                 () =>
                 {
                     var bags = new BagTracker();
-                    using (var context = Helper.CreateContext(
+                    using (var context = CreateContext(
                         commands => commands
-                            .Add("c", Helper.TrackBag<SimpleBag>(bags))
+                            .Add("c", Track<SimpleBag>(bags))
                     ))
                     {
                         context.Executor.ExecuteAsync("b").GetAwaiter().GetResult();
@@ -131,6 +135,22 @@ namespace Reusable.Tests.Commander.Integration
             );
         }
 
-    #endregion
+        [TestMethod]
+        public void DisallowCommandLineWithMissingParameter()
+        {
+            Assert.That.Throws<DynamicException>(
+                () =>
+                {
+                    using (var context = CreateContext(
+                        commands => commands
+                            .Add("c", ExecuteNoop<BagWithRequiredValue>())
+                    ))
+                    {
+                        context.Executor.ExecuteAsync("c").GetAwaiter().GetResult();
+                    }
+                },
+                filter => filter.When(name: "^ParameterMapping")
+            );
+        }
     }
 }

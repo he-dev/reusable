@@ -21,8 +21,7 @@ namespace Reusable.Commander
 
     public class CommandLineMapper : ICommandLineMapper
     {
-        [PublicAPI]
-        public static readonly ITypeConverter DefaultConverter =
+        [PublicAPI] public static readonly ITypeConverter DefaultConverter =
             TypeConverter.Empty
                 .Add<StringToSByteConverter>()
                 .Add<StringToByteConverter>()
@@ -60,12 +59,22 @@ namespace Reusable.Commander
         {
             if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
 
-            var parameters = _cache.GetOrAdd(typeof(TBag), bagType => bagType.GetParameters().ToList());            
+            var parameters = _cache.GetOrAdd(typeof(TBag), bagType => bagType.GetParameters().ToList());
             var bag = new TBag();
 
             foreach (var parameter in parameters)
             {
-                Map(bag, commandLine, parameter);
+                try
+                {
+                    Map(bag, commandLine, parameter);
+                }
+                catch (Exception)
+                {
+                    throw DynamicException.Create(
+                        $"ParameterMapping",
+                        $"Could not map parameter '{parameter.Id.Default.ToString()}'. See inner exception for details."
+                    );
+                }
             }
 
             return bag;
@@ -73,8 +82,6 @@ namespace Reusable.Commander
 
         private void Map<TBag>(TBag bag, ICommandLine commandLine, CommandParameter parameter) where TBag : ICommandBag, new()
         {
-            var defaultId = parameter.Id.Default.ToString();
-
             if (commandLine.Contains(parameter.Id))
             {
                 var values = commandLine.ArgumentValues(parameter.Position, parameter.Id).ToList();
@@ -84,8 +91,8 @@ namespace Reusable.Commander
                     if (!values.Any())
                     {
                         throw DynamicException.Factory.CreateDynamicException(
-                            $"NotEnoughValuesParameter{nameof(Exception)}",
-                            $"{defaultId} is a collection parameter and must have at least one value."
+                            "EmptyCollection",
+                            "Collection parameter and must have at least one value."
                         );
                     }
 
@@ -96,9 +103,9 @@ namespace Reusable.Commander
                 {
                     if (values.Count > 1)
                     {
-                        throw DynamicException.Factory.CreateDynamicException(
-                            $"TooManyValuesParameter{nameof(Exception)}",
-                            $"{defaultId} is a simple parameter must not have more than one value."
+                        throw DynamicException.Create(
+                            "TooManyValues",
+                            "Simple parameter must have exactly one value."
                         );
                     }
 
@@ -134,8 +141,8 @@ namespace Reusable.Commander
                 if (parameter.IsRequired)
                 {
                     throw DynamicException.Factory.CreateDynamicException(
-                        $"MissingParameter{nameof(Exception)}", 
-                        $"{defaultId} is required."
+                        "MissingValue",
+                        "Required parameter must specify a value."
                     );
                 }
 
@@ -149,6 +156,6 @@ namespace Reusable.Commander
                     parameter.SetValue(bag, value);
                 }
             }
-        }        
+        }
     }
 }
