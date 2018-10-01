@@ -21,7 +21,8 @@ namespace Reusable.Tests.Commander.Integration
 
             var executor = scope.Resolve<ICommandLineExecutor>();
 
-            return new TestContext(Disposable.Create(() =>
+            return new TestContext(
+                Disposable.Create(() =>
                 {
                     scope.Dispose();
                     container.Dispose();
@@ -47,12 +48,12 @@ namespace Reusable.Tests.Commander.Integration
                 return Task.CompletedTask;
             };
         }
-        
+
         internal static ExecuteCallback<TBag> ExecuteNoop<TBag>() where TBag : ICommandBag, new()
         {
             return (name, bag, cancellationToken) => Task.CompletedTask;
         }
-        
+
 
         private static IContainer InitializeContainer(Action<CommandRegistrationBuilder> commands)
         {
