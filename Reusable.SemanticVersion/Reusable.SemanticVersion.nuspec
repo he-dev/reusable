@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.SemanticVersion</id>
-    <version>7.0.19</version>
+    <version>7.0.20</version>
     <title>Reusable.SemanticVersion</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -16,7 +16,7 @@
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2018.2.1" />
-      <dependency id="Reusable.Core" version="7.0.19" />
+      <dependency id="Reusable.Core" version="7.0.20" />
     </dependencies>
   </metadata>
   <files>
