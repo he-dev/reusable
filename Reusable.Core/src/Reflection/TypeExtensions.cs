@@ -45,21 +45,15 @@ namespace Reusable.Reflection
             return type.GetInterfaces().Contains(interfaceType);
         }
 
-        public static bool IsEnumerable(this Type type, params Type[] except)
+        public static bool IsEnumerableOfT(this Type type, params Type[] except)
         {
-            if (type == null)
-            {
-                throw new ArgumentNullException(nameof(type));
-            }
-
-            if (type.In(except))
-            {
-                return false;
-            }
+            if (type == null) throw new ArgumentNullException(nameof(type));
 
             return
+                type.NotIn(except) &&
                 type
                     .GetInterfaces()
+                    .Append(type) // In case 'type' itself is an interface.
                     .Where(x => x.IsGenericType)
                     .Select(x => x.GetGenericTypeDefinition())
                     .Contains(typeof(IEnumerable<>));
@@ -73,7 +67,6 @@ namespace Reusable.Reflection
             }
 
             if (type == typeof(string)) throw new ArgumentException(paramName: nameof(type), message: $"{nameof(type)} must not be a {typeof(string).Name}");
-
 
             return
                 type
@@ -153,7 +146,7 @@ namespace Reusable.Reflection
                 return type.GetElementType() ?? throw CreateArgumentException();
             }
 
-            if (type.IsEnumerable())
+            if (type.IsEnumerableOfT())
             {
                 var genericArguments = type.GetGenericArguments();
                 switch (genericArguments.Length)
@@ -174,6 +167,40 @@ namespace Reusable.Reflection
                 );
             }
         }
+
+        public static bool IsNullable([NotNull] this Type type)
+        {
+            if (type == null) throw new ArgumentNullException(nameof(type));
+
+            return
+                type.IsGenericType &&
+                type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        }
+
+        public static bool IsNullable<T>(this T value) => typeof(T).IsNullable();
+
+        [CanBeNull]
+        public static Type NullableType([NotNull] this Type type)
+        {
+            if (type == null) throw new ArgumentNullException(nameof(type));
+
+            return
+                type.IsNullable()
+                    ? type.GetGenericArguments().Single()
+                    : default;
+        }
+
+        public static bool TryGetNullableType([NotNull] this Type type, out Type valueType)
+        {
+            if (type == null) throw new ArgumentNullException(nameof(type));
+
+            valueType =
+                type.IsNullable()
+                    ? type.GetGenericArguments().Single()
+                    : default;
+
+            return !(valueType is null);
+        }
     }
 
     public static class Reflector<T>
@@ -184,7 +211,7 @@ namespace Reusable.Reflection
 
         public static bool Implements<TInterface>() => typeof(T).Implements(typeof(TInterface));
 
-        public static bool IsEnumerable() => typeof(T).IsEnumerable();
+        public static bool IsEnumerable() => typeof(T).IsEnumerableOfT();
 
         public static bool IsEnumerableOf<TElement>() => typeof(T).IsEnumerableOf<TElement>();
 

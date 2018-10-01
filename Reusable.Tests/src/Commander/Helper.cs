@@ -28,7 +28,7 @@ namespace Reusable.Tests.Commander
             );
         }
 
-        internal static ExecuteCallback<T> CreateExecuteCallback<T>(BagTracker bags) where T : ICommandBag, new()
+        internal static ExecuteCallback<TBag> TrackBag<TBag>(BagTracker bags) where TBag : ICommandBag, new()
         {
             return (name, bag, cancellationToken) =>
             {
@@ -37,7 +37,7 @@ namespace Reusable.Tests.Commander
             };
         }
         
-        internal static ExecuteCallback<T> Execute<T>(Action<Identifier, T, CancellationToken> execute) where T : ICommandBag, new()
+        internal static ExecuteCallback<TBag> Execute<TBag>(Action<Identifier, TBag, CancellationToken> execute) where TBag : ICommandBag, new()
         {
             return (name, bag, cancellationToken) =>
             {

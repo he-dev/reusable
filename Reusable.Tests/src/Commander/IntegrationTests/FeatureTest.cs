@@ -24,7 +24,7 @@ namespace Reusable.Tests.Commander.IntegrationTests
             var bags = new BagTracker();
             using (var context = CreateContext(
                 commands => commands
-                    .Add("c", CreateExecuteCallback<BagWithDefaultTypes>(bags))
+                    .Add("c", TrackBag<BagWithDefaultTypes>(bags))
             ))
             {
                 await context.Executor.ExecuteAsync("c");
@@ -56,10 +56,14 @@ namespace Reusable.Tests.Commander.IntegrationTests
 
             using (var context = CreateContext(
                 commands => commands
-                    .Add(Identifier.Create("a", "b"), Execute<SimpleBag>((name, bag, ct) =>
-                    {
-                        executeCount++;
-                    }))
+                    .Add(
+                        Identifier.Create("a", "b"), Execute<SimpleBag>(
+                            (name, bag, ct) =>
+                            {
+                                executeCount++;
+                            }
+                        )
+                    )
             ))
             {
                 await context.Executor.ExecuteAsync("a");

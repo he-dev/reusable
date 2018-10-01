@@ -13,32 +13,29 @@ namespace Reusable.Tests.Commander
         [TestMethod]
         public void Parse_Empty_EmptyCollection()
         {
-            var arguments = Parser.Parse("").ToList();
-            Assert.That.Collection().IsEmpty(arguments);
+            var commandLines = Parser.Parse(string.Empty).ToList();
+            Assert.That.Collection().IsEmpty(commandLines);
         }
 
         [TestMethod]
         public void Parse_SingleCommand_SingleCommand()
         {
-            var arguments = Parser.Parse("foo").ToList().First();
-            Assert.AreEqual(Reusable.Commander.Identifier.Create("foo"), arguments.CommandId());
+            var commandLine = Parser.Parse("foo").ToList().Single();
+            Assert.AreEqual(Identifier.Create("foo"), commandLine.CommandId());
         }
 
         [TestMethod]
         public void Parse_CommandWithArguments_CommandWithArguments()
         {
-            var arguments = Parser.Parse("foo qux -bar baz").ToList().First();
-            Assert.AreEqual((Reusable.Commander.Identifier)"foo", arguments.CommandId());
-
-            //arguments.Verify().SequenceEqual(new[] {});
+            var commandLine = Parser.Parse("foo qux -bar baz").ToList().Single();
+            Assert.AreEqual(Identifier.Create("foo"), commandLine.CommandId());
         }
 
         [TestMethod]
         public void Parse_MultipleCommands_MultipleResults()
         {
-            var arguments = Parser.Parse("foo.bar -baz -qux quux baar | bar.baz -foo").ToList();
-            Assert.That.Collection().CountEquals(2, arguments);
-
+            var commandLines = Parser.Parse("foo.bar -baz -qux quux baar | bar.baz -foo").ToList();
+            Assert.That.Collection().CountEquals(2, commandLines);
         }
     }
 }

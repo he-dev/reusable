@@ -270,6 +270,11 @@ namespace System.Linq.Custom
         {
             return value.In((IEnumerable<T>)others);
         }
+        
+        public static bool NotIn<T>([CanBeNull] this T value, params T[] others)
+        {
+            return !value.In((IEnumerable<T>)others);
+        }
 
         public static bool In<T>([CanBeNull] this T value, [NotNull] IEnumerable<T> others)
         {

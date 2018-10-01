@@ -22,7 +22,7 @@ namespace Reusable.Tests.Commander.IntegrationTests
         //     );
         // }
 
-        #region Command and parameter validation
+    #region Command and parameter validation
 
         [TestMethod]
         public void Add_DuplicateCommandNames_Throws()
@@ -33,11 +33,9 @@ namespace Reusable.Tests.Commander.IntegrationTests
                     var bags = new BagTracker();
                     using (CreateContext(
                         commands => commands
-                            .Add("c", CreateExecuteCallback<SimpleBag>(bags))
-                            .Add("c", CreateExecuteCallback<SimpleBag>(bags))
-                    ))
-                    {
-                    }
+                            .Add("c", TrackBag<SimpleBag>(bags))
+                            .Add("c", TrackBag<SimpleBag>(bags))
+                    )) { }
                 },
                 filter => filter.When(name: "^RegisterCommand"),
                 inner => inner.When(name: "^DuplicateCommandName")
@@ -53,10 +51,8 @@ namespace Reusable.Tests.Commander.IntegrationTests
                     var bags = new BagTracker();
                     using (CreateContext(
                         commands => commands
-                            .Add("c", CreateExecuteCallback<BagWithDuplicateParameter>(bags))
-                    ))
-                    {
-                    }
+                            .Add("c", TrackBag<BagWithDuplicateParameter>(bags))
+                    )) { }
                 },
                 filter => filter.When(name: "^RegisterCommand"),
                 inner => inner.When(name: "^DuplicateParameterName")
@@ -72,10 +68,8 @@ namespace Reusable.Tests.Commander.IntegrationTests
                     var bags = new BagTracker();
                     using (CreateContext(
                         commands => commands
-                            .Add("c", CreateExecuteCallback<BagWithInvalidParameterPosition>(bags))
-                    ))
-                    {
-                    }
+                            .Add("c", TrackBag<BagWithInvalidParameterPosition>(bags))
+                    )) { }
                 },
                 filter => filter.When(name: "^RegisterCommand"),
                 inner => inner.When(name: "^ParameterPositionException")
@@ -91,19 +85,17 @@ namespace Reusable.Tests.Commander.IntegrationTests
                     var bags = new BagTracker();
                     using (CreateContext(
                         commands => commands
-                            .Add("c", CreateExecuteCallback<BagWithUnsupportedParameterType>(bags))
-                    ))
-                    {
-                    }
+                            .Add("c", TrackBag<BagWithUnsupportedParameterType>(bags))
+                    )) { }
                 },
                 filter => filter.When(name: "^RegisterCommand"),
                 inner => inner.When(name: "^UnsupportedParameterTypeException")
             );
         }
 
-        #endregion
+    #endregion
 
-        #region Command-line validation
+    #region Command-line validation
 
         [TestMethod]
         public void ExecuteAsync_NoCommandName_Throws()
@@ -114,7 +106,7 @@ namespace Reusable.Tests.Commander.IntegrationTests
                     var bags = new BagTracker();
                     using (var context = CreateContext(
                         commands => commands
-                            .Add("c", CreateExecuteCallback<SimpleBag>(bags))
+                            .Add("c", TrackBag<SimpleBag>(bags))
                     ))
                     {
                         context.Executor.ExecuteAsync("-a").GetAwaiter().GetResult();
@@ -133,7 +125,7 @@ namespace Reusable.Tests.Commander.IntegrationTests
                     var bags = new BagTracker();
                     using (var context = CreateContext(
                         commands => commands
-                            .Add("c", CreateExecuteCallback<SimpleBag>(bags))
+                            .Add("c", TrackBag<SimpleBag>(bags))
                     ))
                     {
                         context.Executor.ExecuteAsync("b").GetAwaiter().GetResult();
@@ -143,6 +135,6 @@ namespace Reusable.Tests.Commander.IntegrationTests
             );
         }
 
-        #endregion
+    #endregion
     }
 }

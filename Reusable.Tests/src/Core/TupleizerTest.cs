@@ -9,7 +9,7 @@ namespace Reusable.Tests
         [TestMethod]
         public void Parse_TwoValues_TwoResults()
         {
-            var (success, (name, count)) = "foo3".Parse<string, int?>(@"(?<T1>(?i:[a-z]+))(?<T2>\d+)?");
+            var (success, (name, count)) = "foo3".Parse<string, int?>(@"(?<T1Name>(?i:[a-z]+))(?<T2Count>\d+)?");
 
             Assert.IsTrue(success);
             Assert.AreEqual("foo", name);

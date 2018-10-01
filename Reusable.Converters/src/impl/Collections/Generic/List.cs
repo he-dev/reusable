@@ -9,7 +9,7 @@ namespace Reusable.Converters
     {
         public override bool CanConvert(Type fromType, Type toType)
         {
-            return fromType.IsEnumerable(except: typeof(string)) && toType.IsList();
+            return fromType.IsEnumerableOfT(except: typeof(string)) && toType.IsList();
         }
 
         protected override object ConvertCore(IConversionContext<IEnumerable> context)

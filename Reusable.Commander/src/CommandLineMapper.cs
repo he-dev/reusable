@@ -79,7 +79,7 @@ namespace Reusable.Commander
             {
                 var values = commandLine.ArgumentValues(parameter.Position, parameter.Id).ToList();
 
-                if (parameter.Type.IsEnumerable(except: typeof(string)))
+                if (parameter.Type.IsEnumerableOfT(except: typeof(string)))
                 {
                     if (!values.Any())
                     {

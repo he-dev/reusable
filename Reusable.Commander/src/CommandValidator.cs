@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -99,10 +100,15 @@ namespace Reusable.Commander
         }
 
         private static void ValidateParameterTypes(IEnumerable<CommandParameter> parameters, ITypeConverter converter)
-        {
+        {            
             var unsupportedParameters =
                 parameters
-                    .Where(parameter => !converter.CanConvert(typeof(string), parameter.Type))
+                    .Where(parameter =>
+                        {
+                            var sourceType = parameter.Type.IsEnumerableOfT(except: typeof(string)) ? typeof(IEnumerable<string>) : typeof(string);
+                            return !converter.CanConvert(sourceType, parameter.Type);
+                        }
+                    )
                     .ToList();
 
             if (unsupportedParameters.Any())
