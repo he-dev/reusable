@@ -8,8 +8,10 @@ using Reusable.Commander.Commands;
 using Reusable.OmniLog;
 using IContainer = Autofac.IContainer;
 
-namespace Reusable.Tests.Commander
+namespace Reusable.Tests.Commander.Integration
 {
+    using static Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
+
     internal static class Helper
     {
         public static TestContext CreateContext(Action<CommandRegistrationBuilder> commands)
@@ -36,7 +38,7 @@ namespace Reusable.Tests.Commander
                 return Task.CompletedTask;
             };
         }
-        
+
         internal static ExecuteCallback<TBag> Execute<TBag>(Action<Identifier, TBag, CancellationToken> execute) where TBag : ICommandBag, new()
         {
             return (name, bag, cancellationToken) =>
@@ -44,7 +46,7 @@ namespace Reusable.Tests.Commander
                 execute(name, bag, cancellationToken);
                 return Task.CompletedTask;
             };
-        }  
+        }
 
         private static IContainer InitializeContainer(Action<CommandRegistrationBuilder> commands)
         {
@@ -86,6 +88,16 @@ namespace Reusable.Tests.Commander
 
         public void Add(Identifier commandId, ICommandBag bag) => _bags.Add(commandId, bag);
 
-        public void Assert<T>(Identifier commandId, Action<T> assert) where T : ICommandBag, new() => assert((T) _bags[commandId]);
+        public void Assert<T>(Identifier commandId, Action<T> assert) where T : ICommandBag, new()
+        {
+            if (_bags.TryGetValue(commandId, out var bag))
+            {
+                assert((T) bag);
+            }
+            else
+            {
+                Fail($"There is no bag for '{commandId.Default.ToString()}'.");
+            }
+        }
     }
 }

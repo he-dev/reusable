@@ -2,14 +2,12 @@
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Commander;
-using Reusable.Commander.Commands;
-using Reusable.Utilities.MSTest;
-using static Reusable.Tests.Commander.Helper;
+using static Reusable.Tests.Commander.Integration.Helper;
 
-namespace Reusable.Tests.Commander.IntegrationTests
+namespace Reusable.Tests.Commander.Integration
 {
     [TestClass]
-    public class FeatureTest
+    public class FeatureIntegrationTest
     {
         /*
          
@@ -19,16 +17,16 @@ namespace Reusable.Tests.Commander.IntegrationTests
           
          */
         [TestMethod]
-        public async Task ExecuteAsync_SingleCommand_Executed()
+        public async Task CanCreateBagWithDefaultValues()
         {
-            var bags = new BagTracker();
+            var tracker = new BagTracker();
             using (var context = CreateContext(
                 commands => commands
-                    .Add("c", TrackBag<BagWithDefaultTypes>(bags))
+                    .Add("c", TrackBag<BagWithDefaultTypes>(tracker))
             ))
             {
                 await context.Executor.ExecuteAsync("c");
-                bags.Assert<BagWithDefaultTypes>(
+                tracker.Assert<BagWithDefaultTypes>(
                     "c",
                     bag =>
                     {
@@ -50,20 +48,13 @@ namespace Reusable.Tests.Commander.IntegrationTests
         }
 
         [TestMethod]
-        public async Task ExecuteAsync_MultipleNames_Executed()
+        public async Task CanExecuteCommandByAnyName()
         {
             var executeCount = 0;
 
             using (var context = CreateContext(
                 commands => commands
-                    .Add(
-                        Identifier.Create("a", "b"), Execute<SimpleBag>(
-                            (name, bag, ct) =>
-                            {
-                                executeCount++;
-                            }
-                        )
-                    )
+                    .Add(Identifier.Create("a", "b"), Execute<SimpleBag>((name, bag, ct) => { executeCount++; }))
             ))
             {
                 await context.Executor.ExecuteAsync("a");

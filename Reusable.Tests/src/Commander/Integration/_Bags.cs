@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Threading;
-using System.Threading.Tasks;
 using Reusable.Commander;
 using Reusable.Commander.Annotations;
-using Reusable.OmniLog;
 
-namespace Reusable.Tests.Commander.IntegrationTests
+namespace Reusable.Tests.Commander.Integration
 {    
     // Default values.
     internal class BagWithDefaultTypes : SimpleBag

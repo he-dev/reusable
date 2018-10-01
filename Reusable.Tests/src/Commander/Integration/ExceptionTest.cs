@@ -1,16 +1,12 @@
-﻿using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Commander;
-using Reusable.Commander.Commands;
 using Reusable.Reflection;
 using Reusable.Utilities.MSTest;
-using static Reusable.Tests.Commander.Helper;
 
-namespace Reusable.Tests.Commander.IntegrationTests
+namespace Reusable.Tests.Commander.Integration
 {
     [TestClass]
-    public class ExceptionTest
+    public class ExceptionIntegrationTest
     {
         // It's no longer possible to register any type so this test is irrelevant now.
         // [TestMethod]
@@ -25,16 +21,16 @@ namespace Reusable.Tests.Commander.IntegrationTests
     #region Command and parameter validation
 
         [TestMethod]
-        public void Add_DuplicateCommandNames_Throws()
+        public void DisallowDuplicateCommandNames()
         {
             Assert.That.Throws<DynamicException>(
                 () =>
                 {
                     var bags = new BagTracker();
-                    using (CreateContext(
+                    using (Helper.CreateContext(
                         commands => commands
-                            .Add("c", TrackBag<SimpleBag>(bags))
-                            .Add("c", TrackBag<SimpleBag>(bags))
+                            .Add("c", Helper.TrackBag<SimpleBag>(bags))
+                            .Add("c", Helper.TrackBag<SimpleBag>(bags))
                     )) { }
                 },
                 filter => filter.When(name: "^RegisterCommand"),
@@ -43,15 +39,15 @@ namespace Reusable.Tests.Commander.IntegrationTests
         }
 
         [TestMethod]
-        public void Add_DuplicateParameterNames_Throws()
+        public void DisallowDuplicateParameterNames()
         {
             Assert.That.Throws<DynamicException>(
                 () =>
                 {
                     var bags = new BagTracker();
-                    using (CreateContext(
+                    using (Helper.CreateContext(
                         commands => commands
-                            .Add("c", TrackBag<BagWithDuplicateParameter>(bags))
+                            .Add("c", Helper.TrackBag<BagWithDuplicateParameter>(bags))
                     )) { }
                 },
                 filter => filter.When(name: "^RegisterCommand"),
@@ -60,15 +56,15 @@ namespace Reusable.Tests.Commander.IntegrationTests
         }
 
         [TestMethod]
-        public void Add_InvalidParameterPosition_Throws()
+        public void DisallowNonSequentialParameterPosition()
         {
             Assert.That.Throws<DynamicException>(
                 () =>
                 {
                     var bags = new BagTracker();
-                    using (CreateContext(
+                    using (Helper.CreateContext(
                         commands => commands
-                            .Add("c", TrackBag<BagWithInvalidParameterPosition>(bags))
+                            .Add("c", Helper.TrackBag<BagWithInvalidParameterPosition>(bags))
                     )) { }
                 },
                 filter => filter.When(name: "^RegisterCommand"),
@@ -77,15 +73,15 @@ namespace Reusable.Tests.Commander.IntegrationTests
         }
 
         [TestMethod]
-        public void Add_UnsupportedParameterType_Throws()
+        public void DisallowUnsupportedParameterType()
         {
             Assert.That.Throws<DynamicException>(
                 () =>
                 {
                     var bags = new BagTracker();
-                    using (CreateContext(
+                    using (Helper.CreateContext(
                         commands => commands
-                            .Add("c", TrackBag<BagWithUnsupportedParameterType>(bags))
+                            .Add("c", Helper.TrackBag<BagWithUnsupportedParameterType>(bags))
                     )) { }
                 },
                 filter => filter.When(name: "^RegisterCommand"),
@@ -98,15 +94,15 @@ namespace Reusable.Tests.Commander.IntegrationTests
     #region Command-line validation
 
         [TestMethod]
-        public void ExecuteAsync_NoCommandName_Throws()
+        public void DisallowCommandLineWithoutCommandName()
         {
             Assert.That.Throws<DynamicException>(
                 () =>
                 {
                     var bags = new BagTracker();
-                    using (var context = CreateContext(
+                    using (var context = Helper.CreateContext(
                         commands => commands
-                            .Add("c", TrackBag<SimpleBag>(bags))
+                            .Add("c", Helper.TrackBag<SimpleBag>(bags))
                     ))
                     {
                         context.Executor.ExecuteAsync("-a").GetAwaiter().GetResult();
@@ -117,15 +113,15 @@ namespace Reusable.Tests.Commander.IntegrationTests
         }
 
         [TestMethod]
-        public void ExecuteAsync_NonExistingCommandName_Throws()
+        public void DisallowNonExistingCommandName()
         {
             Assert.That.Throws<DynamicException>(
                 () =>
                 {
                     var bags = new BagTracker();
-                    using (var context = CreateContext(
+                    using (var context = Helper.CreateContext(
                         commands => commands
-                            .Add("c", TrackBag<SimpleBag>(bags))
+                            .Add("c", Helper.TrackBag<SimpleBag>(bags))
                     ))
                     {
                         context.Executor.ExecuteAsync("b").GetAwaiter().GetResult();
