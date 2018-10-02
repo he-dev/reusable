@@ -26,7 +26,7 @@ namespace Reusable.SmartConfig
                 from provider in providers
                 where providerName.IsNullOrEmpty() || provider.Name.Equals(providerName)
                 let setting = provider.Read(settingName, settingType)
-                where setting != null
+                where setting.IsNotNull()
                 select (provider, setting);
 
             result = settingQuery.FirstOrDefault();

@@ -1,5 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.Reflection;
 using Reusable.SmartConfig.Data;
+using Reusable.Utilities.MSTest;
 
 namespace Reusable.Tests.SmartConfig.Data
 {
@@ -9,7 +11,7 @@ namespace Reusable.Tests.SmartConfig.Data
         // foo.bar+baz.qux,quux
 
         [TestMethod]
-        public void ctor_Property_OtherNull()
+        public void ctor_CanInstantiateFromMember()
         {
             var sn = new SettingName("foo");
             Assert.IsNull(sn.Namespace);
@@ -19,7 +21,7 @@ namespace Reusable.Tests.SmartConfig.Data
         }
 
         [TestMethod]
-        public void copyCtor_SettingName_SettingName()
+        public void ctor_CanInstantiateFromOtherInstance()
         {
             var sn = new SettingName(new SettingName("qux")
             {
@@ -34,7 +36,13 @@ namespace Reusable.Tests.SmartConfig.Data
         }
 
         [TestMethod]
-        public void Parse_Property_Name()
+        public void Parse_DisallowsInvalidFormat()
+        {
+            Assert.That.Throws<DynamicException>(() => SettingName.Parse("foo+bar+baz"), filter => filter.When(name: "^SettingNameFormat"));
+        }
+
+        [TestMethod]
+        public void Parse_CanReadMember()
         {
             var settingName = SettingName.Parse("qux");
 
@@ -46,7 +54,7 @@ namespace Reusable.Tests.SmartConfig.Data
         }
 
         [TestMethod]
-        public void Parse_TypeProperty_Name()
+        public void Parse_CanReadTypeAndMember()
         {
             var settingName = SettingName.Parse("baz.qux");
 
@@ -58,7 +66,7 @@ namespace Reusable.Tests.SmartConfig.Data
         }
 
         [TestMethod]
-        public void Parse_NamespaceTypeProperty_Name()
+        public void Parse_CanReadNamespaceTypeAndMember()
         {
             var settingName = SettingName.Parse("foo.bar+baz.qux");
 
@@ -70,7 +78,7 @@ namespace Reusable.Tests.SmartConfig.Data
         }
 
         [TestMethod]
-        public void Parse_NamespaceTypePropertyInstance_Name()
+        public void Parse_CanReadNamespaceTypeMemberAndInstance()
         {
             var settingName = SettingName.Parse("foo.bar+baz.qux,quux");
 
@@ -82,7 +90,7 @@ namespace Reusable.Tests.SmartConfig.Data
         }
 
         [TestMethod]
-        public void Equals_SameValues_True()
+        public void Equals_CanCompareSimilarObjects()
         {
             Assert.AreEqual(
                 SettingName.Parse("foo.bar+baz.qux,quux"), 
@@ -106,7 +114,7 @@ namespace Reusable.Tests.SmartConfig.Data
         }
 
         [TestMethod]
-        public void Equals_DifferentValues_False()
+        public void Equals_CanCompareDifferentObjects()
         {
             Assert.AreNotEqual(
                 SettingName.Parse("foo.bar+baz.qux,quux"),

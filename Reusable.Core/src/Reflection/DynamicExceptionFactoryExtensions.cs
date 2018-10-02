@@ -44,22 +44,22 @@ namespace Reusable.Reflection
 
         public static Exception ToDynamicException(this (string Name, string Message) template)
         {
-            return DynamicException.Factory.CreateDynamicException(template.Name, template.Message, null);
+            return DynamicException.Create(template.Name, template.Message, null);
         }
 
         public static Exception ToDynamicException(this (Enum ErrorCode, string Message) template)
         {
-            return DynamicException.Factory.CreateDynamicException(template.ErrorCode.ToString(), template.Message, null);
+            return DynamicException.Create(template.ErrorCode.ToString(), template.Message, null);
         }
 
         public static Exception ToDynamicException(this (string Name, string Message, Exception InnerException) template)
         {
-            return DynamicException.Factory.CreateDynamicException(template.Name, template.Message, template.InnerException);
+            return DynamicException.Create(template.Name, template.Message, template.InnerException);
         }
 
         public static Exception ToDynamicException(this (Enum ErrorCode, string Message, Exception InnerException) template)
         {
-            return DynamicException.Factory.CreateDynamicException(template.ErrorCode.ToString(), template.Message, template.InnerException);
+            return DynamicException.Create(template.ErrorCode.ToString(), template.Message, template.InnerException);
         }
     }
 }

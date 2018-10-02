@@ -25,7 +25,7 @@ namespace Reusable.Extensions
         public static string QuoteWith(this string value, char quotationMark)
         {
             return value.QuoteWith(quotationMark.ToString());
-        }
+        }       
 
         public static string EncloseWith(this string value, string left, string right, int padding = 0)
         {

@@ -19,11 +19,11 @@ namespace Reusable.SmartConfig
 
         private readonly IDictionary<SoftString, (SoftString ActualName, ISettingProvider SettingProvider)> _settingMap = new Dictionary<SoftString, (SoftString ActualName, ISettingProvider SettingProvider)>();
 
-        private static readonly IDuckValidator<IEnumerable<ISettingProvider>> SettingProviderValidator = new DuckValidator<IEnumerable<ISettingProvider>>(provider =>
+        private static readonly IDuckValidator<IEnumerable<ISettingProvider>> SettingProviderValidator = new DuckValidator<IEnumerable<ISettingProvider>>(builder =>
         {
-            provider
-                .IsNotValidWhen(dataStores => dataStores == null, DuckValidationRuleOptions.BreakOnFailure)
-                .IsValidWhen(x => x.Any(), _ => "You need to specify at least one setting-provider.");
+            builder
+                .IsNotValidWhen(providers => providers == null, DuckValidationRuleOptions.BreakOnFailure)
+                .IsValidWhen(providers => providers.Any(), _ => "You need to specify at least one setting-provider.");
         });
 
         public Configuration([NotNull, ItemNotNull] IEnumerable<ISettingProvider> dataStores, [NotNull] ISettingFinder settingFinder)
@@ -35,7 +35,8 @@ namespace Reusable.SmartConfig
 
         public Configuration([NotNull, ItemNotNull] IEnumerable<ISettingProvider> dataStores)
             : this(dataStores, new FirstSettingFinder())
-        { }
+        {
+        }
 
         public object GetValue(SoftString settingName, Type settingType, SoftString dataStoreName)
         {
@@ -48,7 +49,7 @@ namespace Reusable.SmartConfig
             }
             else
             {
-                throw ("SettingNotFoundException", $"Setting {settingName.ToString().QuoteWith("'")} not found.").ToDynamicException();
+                throw ("SettingNotFound", $"Setting {settingName.ToString().QuoteWith("'")} not found.").ToDynamicException();
             }
         }
 
@@ -77,16 +78,17 @@ namespace Reusable.SmartConfig
                     var dataStore = _providers.FirstOrDefault(x => providerName is null || x.Name.Equals(providerName));
                     if (dataStore is null)
                     {
-                        throw DynamicException.Factory.CreateDynamicException(
-                            $"SettingDataStoreNotFound{nameof(Exception)}",
-                            $"Could not find setting data store {providerName?.ToString().QuoteWith("'")}",
-                            null
-                        );
+                        throw 
+                        (
+                            $"SettingDataStoreNotFound",
+                            $"Could not find setting data store {providerName?.ToString().QuoteWith("'")}"
+                        ).ToDynamicException();
                     }
 
                     var defaultSettingName = dataStore.SettingNameGenerator.GenerateSettingNames(settingName).First();
                     dataStore.Write(new Setting(defaultSettingName, value));
                 }
+
                 //throw ("SettingNotInitializedException", $"Setting {settingName.ToString().QuoteWith("'")} needs to be initialized before you can update it.").ToDynamicException();
             }
         }

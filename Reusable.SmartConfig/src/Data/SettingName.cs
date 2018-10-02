@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -11,7 +12,7 @@ using Reusable.Extensions;
 using Reusable.Reflection;
 
 namespace Reusable.SmartConfig.Data
-{
+{   
     [PublicAPI]
     public class SettingName
     {
@@ -19,7 +20,7 @@ namespace Reusable.SmartConfig.Data
         public const string TypeSeparator = ".";
         public const string InstanceSeparator = ",";
 
-        // [Namespace+][Type.]Property[,Instance]
+        // [Namespace+][Type.]Member[,Instance]
         public static readonly string Format =
             $"[{nameof(Namespace)}{NamespaceSeparator}]" +
             $"[{nameof(Type)}{TypeSeparator}]" +
@@ -29,11 +30,10 @@ namespace Reusable.SmartConfig.Data
         private static readonly string NamePattern =
             $"(?:(?<Namespace>[a-z0-9_.]+)\\{NamespaceSeparator})?" +
             $"(?:(?<Type>[a-z0-9_]+)\\{TypeSeparator})?" +
-            $"(?<Property>[a-z0-9_]+)" +
+            $"(?:(?<Member>[a-z0-9_]+))" +
             $"(?:{InstanceSeparator}(?<Instance>[a-z0-9_]+))?";
 
-        [NotNull]
-        private SoftString _member;
+        [NotNull] private SoftString _member;
 
         public SettingName([NotNull] SoftString member)
         {
@@ -73,29 +73,30 @@ namespace Reusable.SmartConfig.Data
             if (value == null) throw new ArgumentNullException(nameof(value));
 
             var match = Regex.Match(value, NamePattern, RegexOptions.IgnoreCase);
-            if (match.Success)
-            {
-                return new SettingName(match.Groups["Property"].Value)
-                {
-                    Namespace = match.Groups["Namespace"].Value.NullIfEmpty(),
-                    Type = match.Groups["Type"].Value.NullIfEmpty(),
-                    Instance = match.Groups["Instance"].Value.NullIfEmpty(),
-                };
-            }
-
-            throw ("SettingNameFormatException", $"Could not parse setting {value.QuoteWith("'")}. Expected format: {Format}").ToDynamicException();
+            return
+                match.Success
+                    ? new SettingName(match.Groups[nameof(Member)].Value)
+                    {
+                        Namespace = match.Groups[nameof(Namespace)].Value.NullIfEmpty(),
+                        Type = match.Groups[nameof(Type)].Value.NullIfEmpty(),
+                        Instance = match.Groups[nameof(Instance)].Value.NullIfEmpty(),
+                    }
+                    : throw ("SettingNameFormat", $"Could not parse setting {value.QuoteWith("'")}. Expected format: {Format}").ToDynamicException();
         }
 
-        [SuppressMessage("ReSharper", "RedundantToStringCall")] // it's not redundant, SoftString does not implicitly convert to string.
+        [SuppressMessage("ReSharper", "RedundantToStringCall")]
+        // it's not redundant, SoftString does not implicitly convert to string.
         public override string ToString()
         {
-            return new StringBuilder()                
+            return new StringBuilder()
                 .AppendWhen(Namespace.IsNotNullOrEmpty(), () => $"{Namespace?.ToString()}{NamespaceSeparator}")
                 .AppendWhen(Type.IsNotNullOrEmpty(), () => $"{Type?.ToString()}{TypeSeparator}")
                 .Append(Member)
                 .AppendWhen(Instance.IsNotNullOrEmpty(), () => $"{InstanceSeparator}{Instance?.ToString()}")
                 .ToString();
         }
+
+        public static implicit operator SettingName(string settingName) => Parse(settingName);
 
         public static implicit operator string(SettingName settingName) => settingName?.ToString();
 
