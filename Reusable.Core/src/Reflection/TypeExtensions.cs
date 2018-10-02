@@ -53,7 +53,7 @@ namespace Reusable.Reflection
                 type.NotIn(except) &&
                 type
                     .GetInterfaces()
-                    .Append(type) // In case 'type' itself is an interface.
+                    .Append(type) // In case 'type' itself is an IEnumerable<>.
                     .Where(x => x.IsGenericType)
                     .Select(x => x.GetGenericTypeDefinition())
                     .Contains(typeof(IEnumerable<>));

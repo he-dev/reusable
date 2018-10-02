@@ -11,7 +11,6 @@ using System.Windows.Input;
 using JetBrains.Annotations;
 using Reusable.Commander.Annotations;
 using Reusable.Extensions;
-using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
 
 namespace Reusable.Commander
 {
