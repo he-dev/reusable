@@ -199,4 +199,19 @@ namespace Reusable.SmartConfig.Data
             }
         }
     }
+
+    public readonly struct SettingNameOption
+    {
+        public SettingNameOption(SettingNameConvention? convention, bool? isRestricted)
+        {
+            Convention = convention;
+            IsRestricted = isRestricted;
+        }
+        
+        public static readonly SettingNameOption Default = new SettingNameOption();
+        
+        public SettingNameConvention? Convention { get; }
+
+        public bool? IsRestricted { get; }
+    }
 }

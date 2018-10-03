@@ -14,4 +14,14 @@ namespace Reusable.SmartConfig
 
         //IEnumerable<IList<string>> GenerateSettingNames(IEnumerable<string> names);
     }
+
+    public interface ISettingNameFactory
+    {
+        [NotNull, ItemNotNull]
+        IEnumerable<SettingName> CreateSettingNames
+        (
+            [NotNull] SettingName settingName,
+            SettingNameOption settingNameOption = default
+        );
+    }
 }

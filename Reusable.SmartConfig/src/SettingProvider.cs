@@ -20,6 +20,10 @@ namespace Reusable.SmartConfig
 
         private ISettingNameGenerator _settingNameGenerator;
 
+        private ISettingNameFactory _settingNameFactory;
+
+        private SettingNameOption _settingNameOption;
+
         private SoftString _name;
 
         private SettingProvider()
@@ -79,8 +83,42 @@ namespace Reusable.SmartConfig
             }
         }
 
+        public ISetting Read(SettingName settingName, SettingNameOption settingNameOption, Type settingType)
+        {
+            if (settingName == null) throw new ArgumentNullException(nameof(settingName));
+            if (settingType == null) throw new ArgumentNullException(nameof(settingType));
+
+            var names = _settingNameFactory.CreateSettingNames(
+                settingName,
+                new SettingNameOption(
+                    settingNameOption.Convention ?? _settingNameOption.Convention,
+                    settingNameOption.IsRestricted ?? _settingNameOption.IsRestricted
+                )
+            );
+
+            try
+            {
+                var setting = ReadCore(names);
+
+                return
+                    setting is null
+                        ? default
+                        : new Setting
+                        (
+                            setting.Name,
+                            setting.Value is null ? default : _converter.Deserialize(setting.Value, settingType)
+                        );
+            }
+            catch (Exception innerException)
+            {
+                throw ($"ReadSetting", $"An error occured while trying to read {settingName.ToString().QuoteWith("'")} from {Name.ToString().QuoteWith("'")}.", innerException).ToDynamicException();
+            }
+        }
+
         [CanBeNull]
         protected abstract ISetting ReadCore(IReadOnlyCollection<SoftString> names);
+
+        //protected abstract ISetting ReadCore(IEnumerable<SettingName> names);
 
         public void Write(ISetting setting)
         {

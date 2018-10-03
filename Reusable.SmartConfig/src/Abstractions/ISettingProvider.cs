@@ -18,5 +18,10 @@ namespace Reusable.SmartConfig
         ISetting Read([NotNull] SoftString settingName, [CanBeNull] Type settingType);
 
         void Write([NotNull] ISetting setting);
+        
+        
+        //ISetting Read([NotNull] SettingName settingName, [CanBeNull] Type settingType);
+        
+        //void Write([NotNull] ISetting setting);
     }
 }

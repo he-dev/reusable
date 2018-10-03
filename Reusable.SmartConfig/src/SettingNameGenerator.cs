@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Custom;
 using JetBrains.Annotations;
@@ -29,22 +30,22 @@ namespace Reusable.SmartConfig
     {
         Simple, // Member
         Normal, // Type.Member
-        Extended, // Namespace+Type.Member
-        Simple2, // Assembly:Member
-        Normal2, // Assembly:Type.Member       
-        Extended2, // Assembly:Namespace+Type.Member
+        Extended, // Namespace+Type.Member - Exact, Precise, Full, Complete, Long, Strong
+        //SimpleRestricted, // Assembly:Member SimpleWithModule | SimpleWithAssembly | Simple
+        //NormalRestricted, // Assembly:Type.Member       
+        //ExtendedRestricted, // Assembly:Namespace+Type.Member
     }
-    
+
     public class SettingNameGenerator : ISettingNameGenerator
     {
         private static readonly IList<IList<Token>> TokenCombinations = new IList<Token>[]
         {
-            new[] {Token.Member},
-            new[] {Token.Type, Token.Member},
-            new[] {Token.Namespace, Token.Type, Token.Member},
-            new[] {Token.Assembly, Token.Member},
-            new[] {Token.Assembly, Token.Type, Token.Member},
-            new[] {Token.Assembly, Token.Namespace, Token.Type, Token.Member},
+            new[] { Token.Member },
+            new[] { Token.Type, Token.Member },
+            new[] { Token.Namespace, Token.Type, Token.Member },
+            //new[] {Token.Assembly, Token.Member},
+            //new[] {Token.Assembly, Token.Type, Token.Member},
+            //new[] {Token.Assembly, Token.Namespace, Token.Type, Token.Member},
         };
 
         public IEnumerable<SettingName> GenerateSettingNames(SettingName settingName)
@@ -71,6 +72,32 @@ namespace Reusable.SmartConfig
             return
                 from tokens in TokenCombinations
                 select CreateSettingName(tokens, settingName);
+        }
+
+        private static SettingName CreateSettingName(IEnumerable<Token> tokens, SettingName settingName)
+        {
+            return new SettingName(tokens.ToDictionary(t => t, t => settingName[t]));
+        }
+    }
+
+    public class SettingNameFactory : ISettingNameFactory
+    {
+        private static readonly IList<IList<Token>> TokenCombinations = new IList<Token>[]
+        {
+            new[] { Token.Member },
+            new[] { Token.Type, Token.Member },
+            new[] { Token.Namespace, Token.Type, Token.Member },
+        };
+
+        public IEnumerable<SettingName> CreateSettingNames(SettingName settingName, SettingNameOption settingNameOption)
+        {
+            if (settingName == null) throw new ArgumentNullException(nameof(settingName));
+
+            return
+                from tokens in settingNameOption.Convention.HasValue ? new[] { TokenCombinations[(int)settingNameOption.Convention] } : TokenCombinations
+                let x = settingName[Token.Instance].IsEmpty ? tokens : tokens.Append(Token.Instance)
+                let y = settingNameOption.IsRestricted == true ? x.Prepend(SettingNameToken.Assembly) : x
+                select CreateSettingName(y, settingName);
         }
 
         private static SettingName CreateSettingName(IEnumerable<Token> tokens, SettingName settingName)
