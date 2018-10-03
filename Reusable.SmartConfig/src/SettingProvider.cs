@@ -88,13 +88,7 @@ namespace Reusable.SmartConfig
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
             if (settingType == null) throw new ArgumentNullException(nameof(settingType));
 
-            var names = _settingNameFactory.CreateSettingNames(
-                settingName,
-                new SettingNameOption(
-                    settingNameOption.Convention ?? _settingNameOption.Convention,
-                    settingNameOption.IsRestricted ?? _settingNameOption.IsRestricted
-                )
-            );
+            var names = _settingNameFactory.CreateSettingNames(settingName, settingNameOption.Merge(_settingNameOption));
 
             try
             {

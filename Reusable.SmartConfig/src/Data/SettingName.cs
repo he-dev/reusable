@@ -148,12 +148,13 @@ namespace Reusable.SmartConfig.Data
                     case Separator.Type:
                         if (tokens.Any())
                         {
-                            Add(Token.Type, name.Slice(min + 1, max - min - 1));                    
+                            Add(Token.Type, name.Slice(min + 1, max - min - 1));
                         }
                         else
                         {
                             Add(Token.Type, name.Slice(min, max - min));
                         }
+
                         //Add(Token.Type, name.Slice(min + 1, max - min - 1));
                         min = max;
                         break;
@@ -172,7 +173,7 @@ namespace Reusable.SmartConfig.Data
                 var token = tokens.ContainsKey(Token.Member) ? Token.Instance : Token.Member;
                 if (tokens.Any())
                 {
-                    Add(token, name.Slice(min + 1, max - min - 1));                    
+                    Add(token, name.Slice(min + 1, max - min - 1));
                 }
                 else
                 {
@@ -207,11 +208,21 @@ namespace Reusable.SmartConfig.Data
             Convention = convention;
             IsRestricted = isRestricted;
         }
-        
+
         public static readonly SettingNameOption Default = new SettingNameOption();
-        
+
+        [CanBeNull]
         public SettingNameConvention? Convention { get; }
 
+        [CanBeNull]
         public bool? IsRestricted { get; }
+
+        public SettingNameOption Merge(SettingNameOption other)
+        {
+            return new SettingNameOption(
+                Convention ?? other.Convention,
+                IsRestricted ?? other.IsRestricted
+            );
+        }
     }
 }
