@@ -13,27 +13,27 @@ namespace Reusable.Tests.SmartConfig.Data
         [TestMethod]
         public void ctor_CanInstantiateFromMember()
         {
-            var sn = new SettingName("foo");
-            Assert.IsNull(sn.Namespace);
-            Assert.IsNull(sn.Type);
-            Assert.AreEqual("foo", sn.Member.ToString());
-            Assert.IsNull(sn.Instance);
+            var sn = SettingName.Parse("foo");
+            Assert.That.IsNullOrEmpty(sn.Namespace);
+            Assert.That.IsNullOrEmpty(sn.Type);
+            Assert.AreEqual("foo", sn.Member);
+            Assert.That.IsNullOrEmpty(sn.Instance);
         }
 
-        [TestMethod]
-        public void ctor_CanInstantiateFromOtherInstance()
-        {
-            var sn = new SettingName(new SettingName("qux")
-            {
-                Namespace = "foo.bar",
-                Type = "baz",
-                Instance = "quux"
-            });
-            Assert.AreEqual("foo.bar", sn.Namespace.ToString());
-            Assert.AreEqual("baz", sn.Type.ToString());
-            Assert.AreEqual("qux", sn.Member.ToString());
-            Assert.AreEqual("quux", sn.Instance.ToString());
-        }
+//        [TestMethod]
+//        public void ctor_CanInstantiateFromOtherInstance()
+//        {
+//            var sn = new SettingName(new SettingName("qux")
+//            {
+//                Namespace = "foo.bar",
+//                Type = "baz",
+//                Instance = "quux"
+//            });
+//            Assert.AreEqual("foo.bar", sn.Namespace.ToString());
+//            Assert.AreEqual("baz", sn.Type.ToString());
+//            Assert.AreEqual("qux", sn.Member.ToString());
+//            Assert.AreEqual("quux", sn.Instance.ToString());
+//        }
 
         [TestMethod]
         public void Parse_DisallowsInvalidFormat()
@@ -46,10 +46,11 @@ namespace Reusable.Tests.SmartConfig.Data
         {
             var settingName = SettingName.Parse("qux");
 
-            Assert.IsNull(settingName.Namespace);
-            Assert.IsNull(settingName.Type);
+            Assert.That.IsNullOrEmpty(settingName.Assembly);
+            Assert.That.IsNullOrEmpty(settingName.Namespace);
+            Assert.That.IsNullOrEmpty(settingName.Type);
             Assert.AreEqual("qux", settingName.Member);
-            Assert.IsNull(settingName.Instance);
+            Assert.That.IsNullOrEmpty(settingName.Instance);
             Assert.AreEqual("qux", settingName.ToString());
         }
 
@@ -58,10 +59,10 @@ namespace Reusable.Tests.SmartConfig.Data
         {
             var settingName = SettingName.Parse("baz.qux");
 
-            Assert.IsNull(settingName.Namespace);
+            Assert.That.IsNullOrEmpty(settingName.Namespace);
             Assert.AreEqual("baz", settingName.Type);
             Assert.AreEqual("qux", settingName.Member);
-            Assert.IsNull(settingName.Instance);
+            Assert.That.IsNullOrEmpty(settingName.Instance);
             Assert.AreEqual("baz.qux", settingName.ToString());
         }
 
@@ -73,7 +74,7 @@ namespace Reusable.Tests.SmartConfig.Data
             Assert.AreEqual("foo.bar", settingName.Namespace);
             Assert.AreEqual("baz", settingName.Type);
             Assert.AreEqual("qux", settingName.Member);
-            Assert.IsNull(settingName.Instance);
+            Assert.That.IsNullOrEmpty(settingName.Instance);
             Assert.AreEqual("foo.bar+baz.qux", settingName.ToString());
         }
 

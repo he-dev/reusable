@@ -9,38 +9,41 @@ namespace Reusable.Tests.SmartConfig
     [TestClass]
     public class SettingNameGeneratorTest
     {
-        [TestMethod]
-        public void GenerateNames_BaseName_NamesByFrequency()
-        {
-            var settingNameGenerator = new SettingNameByUsageGenerator();
+        private static readonly ISettingNameGenerator Generator = new SettingNameGenerator();
 
+        [TestMethod]
+        public void GenerateSettingNames_CanGenerateNamesWithoutInstance()
+        {
             var expectedNames = new[]
             {
-                "baz.qux",
                 "qux",
+                "baz.qux",
                 "foo.bar+baz.qux",
             };
-            var actualNames = settingNameGenerator.GenerateSettingNames(SettingName.Parse("foo.bar+baz.qux")).Select(name => (string)name);
+            var actualNames =
+                Generator
+                    .GenerateSettingNames(SettingName.Parse("foo.bar+baz.qux"))
+                    .Select(name => name.ToString())
+                    .ToList();
 
             Assert.That.Collection().AreEqual(expectedNames, actualNames);
         }
 
         [TestMethod]
-        public void GenerateNames_BaseNameWithInstance_NamesByFrequency()
+        public void GenerateSettingNames_CanGenerateNamesWithInstance()
         {
-            var settingNameGenerator = new SettingNameByUsageGenerator();
-
-            var expectedNames = new []
+            var expectedNames = new[]
             {
-                "baz.qux,quux",
-                "qux,quux",
-                "foo.bar+baz.qux,quux",
-                "baz.qux",
-                "qux",
-                "foo.bar+baz.qux",
+                "qux,waldo",
+                "baz.qux,waldo",
+                "foo.bar+baz.qux,waldo",
             };
 
-            var actualNames = settingNameGenerator.GenerateSettingNames(SettingName.Parse("foo.bar+baz.qux,quux")).Select(name => (string)name);
+            var actualNames =
+                Generator
+                    .GenerateSettingNames(SettingName.Parse("foo.bar+baz.qux,waldo"))
+                    .Select(name => name.ToString())
+                    .ToList();
 
             Assert.That.Collection().AreEqual(expectedNames, actualNames);
         }

@@ -28,6 +28,23 @@ namespace Reusable.Tests.Commander.Integration
         }
 
         [TestMethod]
+        public async Task CanExecuteMultipleCommands()
+        {
+            var executeCount = 0;
+
+            using (var context = CreateContext(
+                commands => commands
+                    .Add(Identifier.Create("a"), Execute<SimpleBag>((i, b, c) => executeCount++))
+                    .Add(Identifier.Create("b"), Execute<SimpleBag>((i, b, c) => executeCount++))
+                ))
+            {
+                await context.Executor.ExecuteAsync("a|b");
+
+                Assert.AreEqual(2, executeCount);
+            }
+        }
+
+        [TestMethod]
         public async Task CanMapParameterByName()
         {
             var tracker = new BagTracker();
@@ -103,7 +120,7 @@ namespace Reusable.Tests.Commander.Integration
                 );
             }
         }
-        
+
         [TestMethod]
         public async Task CanCreateBagWithFlagValues()
         {
@@ -137,10 +154,7 @@ namespace Reusable.Tests.Commander.Integration
                 await context.Executor.ExecuteAsync("c");
                 tracker.Assert<BagWithMappedValues>(
                     "c",
-                    bag =>
-                    {
-                        
-                    }
+                    bag => { }
                 );
             }
         }

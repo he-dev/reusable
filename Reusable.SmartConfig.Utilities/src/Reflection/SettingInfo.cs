@@ -57,12 +57,14 @@ namespace Reusable.SmartConfig.Utilities.Reflection
 
             var name = member.GetCustomAttribute<SmartSettingAttribute>()?.Name ?? member.Name;
 
-            SettingName = new SettingName(name)
-            {
-                Namespace = Type.Namespace,
-                Type = Type.ToPrettyString(),
-                Instance = instanceName
-            };
+            SettingName = new SettingName
+            (
+                assembly: default, // todo - assembly name is not supported yet
+                schema: Type.Namespace,
+                type: Type.ToPrettyString(),
+                member: name,
+                instance: instanceName
+            );
         }
 
         [NotNull]
@@ -119,31 +121,30 @@ namespace Reusable.SmartConfig.Utilities.Reflection
             switch (Member)
             {
                 case PropertyInfo property:
+                {
+                    if (property.CanWrite)
                     {
-
-                        if (property.CanWrite)
-                        {
-                            property.SetValue(Instance, value);
-                        }
-                        // This is a readonly property. We try to write directly to the backing-field.
-                        else
-                        {
-                            var bindingFlags = BindingFlags.NonPublic | (Instance == null ? BindingFlags.Static : BindingFlags.Instance);
-                            var backingField = Type.GetField($"<{property.Name}>k__BackingField", bindingFlags);
-                            if (backingField is null)
-                            {
-                                throw ("BackingFieldNotFoundException", $"Property {property.Name.QuoteWith("'")} does not have a default backing field.").ToDynamicException();
-                            }
-
-                            backingField.SetValue(Instance, value);
-                        }
+                        property.SetValue(Instance, value);
                     }
+                    // This is a readonly property. We try to write directly to the backing-field.
+                    else
+                    {
+                        var bindingFlags = BindingFlags.NonPublic | (Instance == null ? BindingFlags.Static : BindingFlags.Instance);
+                        var backingField = Type.GetField($"<{property.Name}>k__BackingField", bindingFlags);
+                        if (backingField is null)
+                        {
+                            throw ("BackingFieldNotFoundException", $"Property {property.Name.QuoteWith("'")} does not have a default backing field.").ToDynamicException();
+                        }
+
+                        backingField.SetValue(Instance, value);
+                    }
+                }
                     break;
 
                 case FieldInfo field:
-                    {
-                        field.SetValue(Instance, value);
-                    }
+                {
+                    field.SetValue(Instance, value);
+                }
                     break;
 
                 default:

@@ -25,7 +25,7 @@ namespace Reusable.SmartConfig
         private SettingProvider()
         {
             Name = CreateDefaultName(GetType());
-            SettingNameGenerator = new SettingNameByUsageGenerator();
+            SettingNameGenerator = new SettingNameGenerator();
         }
 
         protected SettingProvider([NotNull] ISettingConverter converter) : this()
@@ -52,7 +52,7 @@ namespace Reusable.SmartConfig
             // Materialize the generated names because we'll be using it multiple times.
             var names =
                 SettingNameGenerator
-                    .GenerateSettingNames(settingName)
+                    .GenerateSettingNames(SettingName.Parse(settingName.ToString()))
                     .Select(name => (SoftString)(string)name)
                     .ToList();
             try

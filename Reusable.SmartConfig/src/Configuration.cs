@@ -85,7 +85,7 @@ namespace Reusable.SmartConfig
                         ).ToDynamicException();
                     }
 
-                    var defaultSettingName = dataStore.SettingNameGenerator.GenerateSettingNames(settingName).First();
+                    var defaultSettingName = dataStore.SettingNameGenerator.GenerateSettingNames(SettingName.Parse(settingName.ToString())).First();
                     dataStore.Write(new Setting(defaultSettingName, value));
                 }
 

@@ -18,6 +18,8 @@ namespace Reusable.Utilities.MSTest
             typeof(TypeFormatProvider),
             typeof(PunctuationFormatProvider)
         };
+        
+        public static void IsNullOrEmpty(this Assert assert, string value) => Assert.IsTrue(value.IsNullOrEmpty());
 
         #region Specialized asserts
 

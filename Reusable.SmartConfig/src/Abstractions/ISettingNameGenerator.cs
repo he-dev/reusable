@@ -10,7 +10,7 @@ namespace Reusable.SmartConfig
         /// Generates setting names.
         /// </summary>
         [NotNull, ItemNotNull]
-        IEnumerable<SettingName> GenerateSettingNames([NotNull] SoftString settingName);
+        IEnumerable<SettingName> GenerateSettingNames([NotNull] SettingName settingName);
 
         //IEnumerable<IList<string>> GenerateSettingNames(IEnumerable<string> names);
     }
