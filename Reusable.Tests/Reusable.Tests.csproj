@@ -27,6 +27,13 @@
     <None Remove="src\Core\Windows\**" />
     <None Remove="src\MQLite\**" />
     <Compile Remove="src\Commander\CommandLineExecutorTest.cs" />
+    <Compile Remove="src\SmartConfig\Utilities\ConfigurationExtensionsTest.cs" />
+    <Compile Remove="src\SmartConfig\AppSettingsTest.cs" />
+    <Compile Remove="src\SmartConfig\ConfigurationTest.cs" />
+    <Compile Remove="src\SmartConfig\ConfigurationTest2.cs" />
+    <Compile Remove="src\SmartConfig\SettingDataStoreTest.cs" />
+    <Compile Remove="src\SmartConfig\SettingNameGeneratorTest.cs" />
+    <Compile Remove="src\SmartConfig\SqlServerTest.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -89,6 +96,7 @@
 
   <ItemGroup>
     <Folder Include="src\Core\Diagnostics\" />
+    <Folder Include="src\SmartConfig\Utilities" />
   </ItemGroup>
 
 </Project>

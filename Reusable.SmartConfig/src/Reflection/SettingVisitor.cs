@@ -1,14 +1,9 @@
 using System;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using Reusable.Extensions;
 using Reusable.Reflection;
-using Reusable.SmartConfig.Annotations;
-using Reusable.SmartConfig.Data;
 
-namespace Reusable.SmartConfig.Utilities.Reflection
+namespace Reusable.SmartConfig.Reflection
 {
     // Finds the type of the class a setting belongs to.
     internal class SettingVisitor : ExpressionVisitor
@@ -29,7 +24,7 @@ namespace Reusable.SmartConfig.Utilities.Reflection
             if (visitor._type is null)
             {
                 throw ("UnsupportedSettingExpressionException", "Member's declaring type could not be determined.").ToDynamicException();
-            }
+            }                       
 
             return (visitor._type, visitor._instance, visitor._member);
         }

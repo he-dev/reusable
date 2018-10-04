@@ -11,7 +11,6 @@ using ColorConverter = Reusable.Utilities.JsonNet.ColorConverter;
 
 namespace Reusable.SmartConfig
 {
-
     /*
      *
      * This converter is build on top of the Reusable.Converters.
@@ -22,24 +21,20 @@ namespace Reusable.SmartConfig
     [PublicAPI]
     public class JsonSettingConverter : SettingConverter
     {
-        [NotNull]
-        private ITypeConverter _converter;
+        [NotNull] private ITypeConverter _converter;
 
-        [NotNull]
-        private JsonSerializerSettings _settings;
+        [NotNull] private JsonSerializerSettings _settings;
 
-        [NotNull]
-        private ISet<Type> _stringTypes;
+        [NotNull] private ISet<Type> _stringTypes;
 
-        public JsonSettingConverter(params  Type[] otherSupportedTypes) : base(otherSupportedTypes.Prepend(typeof(string)))
+        public JsonSettingConverter(params Type[] otherSupportedTypes) : base(otherSupportedTypes.Prepend(typeof(string)))
         {
             _converter = TypeConverter.Empty;
             _settings = new JsonSerializerSettings();
             _stringTypes = new HashSet<Type>();
         }
 
-        [NotNull]
-        public static readonly JsonSettingConverter Default = new JsonSettingConverter
+        [NotNull] public static readonly JsonSettingConverter Default = new JsonSettingConverter
         {
             Settings = new JsonSerializerSettings
             {

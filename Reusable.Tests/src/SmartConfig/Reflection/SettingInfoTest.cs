@@ -3,33 +3,36 @@ using System.Linq.Expressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.SmartConfig.Utilities.Reflection;
 
-namespace Reusable.Tests.SmartConfig.Utilities.Reflection
+namespace Reusable.Tests.SmartConfig.Reflection
 {
     [TestClass]
     public class SettingInfoTest
     {
         private static readonly string Namespace = typeof(SettingInfoTest).Namespace;
+        private static readonly string Assembly = typeof(SettingInfoTest).Assembly.GetName().Name;
 
         [TestMethod]
-        public void GetSettingInfo_Instance_SettingInfo()
+        public void GetSettingInfo_CanReflectInstanceProperty()
         {
-            var mock1 = new MockClass1();
-            var mock2 = new MockClass2();
-            var mock3 = new MockClass2();
+            var test1 = new TestClass1();
+            var test2 = new TestClass2();
+            var test3 = new TestClass2();
 
-            var expression1 = (Expression<Func<object>>)(() => mock1.InstanceProperty);
-            var expression2 = (Expression<Func<object>>)(() => mock2.InstanceProperty);
+            // We need multiple expressions to test whether it finds the correct closure.
+            var expression1 = (Expression<Func<object>>)(() => test1.InstanceProperty);
+            var expression2 = (Expression<Func<object>>)(() => test2.InstanceProperty);
 
             var setting = SettingInfo.FromExpression(expression2, false, null);
 
-            Assert.AreEqual($"{Namespace}+MockClass2.InstanceProperty", setting.ToString());
+            var asm = typeof(SettingInfoTest).Assembly.GetName().Name;
+            Assert.AreEqual($"{Assembly}:{Namespace}+TestClass2.InstanceProperty", setting.ToString());
         }
 
         [TestMethod]
         public void CreateSettingInfo_InstanceClosure_SettingInfo()
         {
-            var mock1 = new MockClass1();
-            var mock2 = new MockClass2();
+            var mock1 = new TestClass1();
+            var mock2 = new TestClass2();
 
             Assert.AreEqual(
                 $"{Namespace}+MockClass1.InstanceProperty",
@@ -39,8 +42,8 @@ namespace Reusable.Tests.SmartConfig.Utilities.Reflection
         [TestMethod]
         public void CreateSettingInfo_Static_SettingInfo()
         {
-            var expression1 = (Expression<Func<object>>)(() => MockClass1.StaticProperty);
-            var expression2 = (Expression<Func<object>>)(() => MockClass2.StaticProperty);
+            var expression1 = (Expression<Func<object>>)(() => TestClass1.StaticProperty);
+            var expression2 = (Expression<Func<object>>)(() => TestClass2.StaticProperty);
 
             Assert.AreEqual(
                 $"{Namespace}+MockClass2.StaticProperty",
@@ -52,7 +55,7 @@ namespace Reusable.Tests.SmartConfig.Utilities.Reflection
         {
             Assert.AreEqual(
                 $"{Namespace}+MockClass1.StaticProperty",
-                MockClass1.GetSettingInfo_StaticClosure().ToString());
+                TestClass1.GetSettingInfo_StaticClosure().ToString());
         }
 
         //[TestMethod]
@@ -78,8 +81,8 @@ namespace Reusable.Tests.SmartConfig.Utilities.Reflection
         [TestMethod]
         public void CreateSettingInfo_DerivedInstance_SettingInfo()
         {
-            var mock1 = new MockDerivedClass1 { InstanceProperty = "mock1" };
-            var mock2 = new MockDerivedClass2 { InstanceProperty = "mock2" };
+            var mock1 = new TestDerivedClass1 { InstanceProperty = "mock1" };
+            var mock2 = new TestDerivedClass2 { InstanceProperty = "mock2" };
 
             var expression1 = (Expression<Func<object>>)(() => mock1.InstanceProperty);
             var expression2 = (Expression<Func<object>>)(() => mock2.InstanceProperty);
@@ -95,7 +98,7 @@ namespace Reusable.Tests.SmartConfig.Utilities.Reflection
         //    new MockDerivedClass2("foo");
         //}
 
-        internal class MockClass1
+        internal class TestClass1
         {
             public string InstanceProperty { get; set; }
 
@@ -118,21 +121,21 @@ namespace Reusable.Tests.SmartConfig.Utilities.Reflection
             }
         }
 
-        internal class MockClass2
+        internal class TestClass2
         {
             public string InstanceProperty { get; set; }
 
             public static string StaticProperty { get; set; }
         }
 
-        internal abstract class MockBaseClass
+        internal abstract class TestBaseClass
         {
             public string InstanceProperty { get; set; }
         }
 
-        internal class MockDerivedClass1 : MockBaseClass
+        internal class TestDerivedClass1 : TestBaseClass
         {
-            public MockDerivedClass1() { }
+            public TestDerivedClass1() { }
 
             //public MockDerivedClass1(string str)
             //{
@@ -146,9 +149,9 @@ namespace Reusable.Tests.SmartConfig.Utilities.Reflection
             //}
         }
 
-        internal class MockDerivedClass2 : MockBaseClass
+        internal class TestDerivedClass2 : TestBaseClass
         {
-            public MockDerivedClass2()
+            public TestDerivedClass2()
             {
 
             }

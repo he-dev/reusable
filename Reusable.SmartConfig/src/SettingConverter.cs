@@ -14,7 +14,7 @@ namespace Reusable.SmartConfig
         protected SettingConverter(IEnumerable<Type> supportedTypes)
         {
             _supportedTypes = new HashSet<Type>(supportedTypes ?? throw new ArgumentNullException(nameof(supportedTypes)));
-            _fallbackType = supportedTypes.FirstOrDefault() ?? throw new ArgumentException("There must be at least one supprted type.");
+            _fallbackType = supportedTypes.FirstOrDefault() ?? throw new ArgumentException("There must be at least one supported type.");
         }
 
         public object Deserialize(object value, Type targetType)

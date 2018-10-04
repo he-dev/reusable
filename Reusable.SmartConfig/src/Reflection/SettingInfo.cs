@@ -12,7 +12,7 @@ using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Data;
 using Reusable.Validation;
 
-namespace Reusable.SmartConfig.Utilities.Reflection
+namespace Reusable.SmartConfig.Reflection
 {
     [PublicAPI]
     public class SettingInfo
@@ -49,24 +49,30 @@ namespace Reusable.SmartConfig.Utilities.Reflection
         //    };
         //}
 
-        private SettingInfo(Type type, object instance, MemberInfo member, string instanceName)
+        private SettingInfo(Type type, object instance, MemberInfo member)
         {
             Type = type;
             Instance = instance;
             Member = member;
 
-            var name = member.GetCustomAttribute<SmartSettingAttribute>()?.Name ?? member.Name;
+            var attributes = new SettingAttribute[]
+            {
+                type.Assembly.GetCustomAttribute<SettingAssemblyAttribute>(),
+                type.GetCustomAttribute<SettingTypeAttribute>(),
+                member.GetCustomAttribute<SettingAssemblyAttribute>(),
+            };
 
-            SettingName = new SettingName
-            (
-                assembly: default, // todo - assembly name is not supported yet
-                schema: Type.Namespace,
-                type: Type.ToPrettyString(),
-                member: name,
-                instance: instanceName
-            );
+            Prefix = attributes.Select(a => a?.Prefix).Last(Conditional.IsNotNullOrEmpty);
+            Schema = type.Namespace;
+            TypeName = member.GetCustomAttribute<SettingTypeAttribute>()?.Name ?? type.ToPrettyString();
+            MemberName = member.GetCustomAttribute<SettingAssemblyAttribute>()?.Name ?? member.Name;
+            ProviderName = attributes.Select(a => a?.ProviderName).LastOrDefault(Conditional.IsNotNullOrEmpty);
+            SettingNameComplexity = attributes.Select(a => a?.Complexity).LastOrDefault(Conditional.IsNotNull);
+            PrefixEnabled = attributes.Select(a => a.PrefixEnabled).LastOrDefault(Conditional.IsNotNull);
+            DefaultValue = member.GetCustomAttribute<DefaultValueAttribute>()?.Value;
+            Validations = member.GetCustomAttributes<ValidationAttribute>();
         }
-
+        
         [NotNull]
         public Type Type { get; }
 
@@ -77,27 +83,37 @@ namespace Reusable.SmartConfig.Utilities.Reflection
         private MemberInfo Member { get; }
 
         [CanBeNull]
-        private SmartSettingAttribute Attribute => Member.GetCustomAttribute<SmartSettingAttribute>();
-
-        [NotNull, ItemNotNull]
-        public IEnumerable<ValidationAttribute> Validations => Member.GetCustomAttributes<ValidationAttribute>();
-
+        public string Prefix { get; }
+        
         [CanBeNull]
-        public object DefaultValue => Member.GetCustomAttribute<DefaultValueAttribute>()?.Value;
-
+        public string Schema { get; }
+        
+        [CanBeNull]
+        public string TypeName { get; }
+        
         [NotNull]
-        public SettingName SettingName { get; }
+        public string MemberName { get; }
+        
+        
+        [NotNull, ItemNotNull]
+        public IEnumerable<ValidationAttribute> Validations { get; }
 
         [CanBeNull]
-        public string ProviderName => Attribute?.ProviderName;
+        public object DefaultValue { get; }
 
         [CanBeNull]
-        public string CustomSettingName => Attribute?.Name;
+        public string ProviderName { get; }
 
-        public static SettingInfo FromExpression(LambdaExpression expression, bool nonPublic, string key)
+        [CanBeNull]
+        public SettingNameComplexity? SettingNameComplexity { get; }
+
+        [CanBeNull]
+        public bool? PrefixEnabled { get; }
+
+        public static SettingInfo FromExpression(LambdaExpression expression, bool nonPublic)
         {
             var (type, instance, member) = SettingVisitor.GetSettingInfo(expression, nonPublic);
-            return new SettingInfo(type, instance, member, key);
+            return new SettingInfo(type, instance, member);
         }
 
         [CanBeNull]
@@ -152,6 +168,6 @@ namespace Reusable.SmartConfig.Utilities.Reflection
             }
         }
 
-        public override string ToString() => SettingName.ToString();
+        //public override string ToString() => SettingName.ToString();
     }
 }

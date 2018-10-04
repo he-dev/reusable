@@ -73,7 +73,7 @@ namespace Reusable.SmartConfig
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
 
             settingName = _settingNameFactory.CreateSettingName(settingName, settingNameConvention);
-            
+
             try
             {
                 value = value is null ? null : _converter.Serialize(value);
@@ -96,12 +96,12 @@ namespace Reusable.SmartConfig
         {
             throw DynamicException.Factory.CreateDynamicException(
                 $"AmbiguousSetting{nameof(Exception)}",
-                $"Mutliple settings found: {names.Select(name => name.ToString()).Join(", ").EncloseWith("[]")}",
+                $"Multiple settings found: {names.Select(name => name.ToString()).Join(", ").EncloseWith("[]")}",
                 null
             );
         }
 
-    #region IEquatable<ISettingProvider>
+        #region IEquatable<ISettingProvider>
 
         public override int GetHashCode()
         {
@@ -118,6 +118,6 @@ namespace Reusable.SmartConfig
             return AutoEquality<ISettingProvider>.Comparer.Equals(this, other);
         }
 
-    #endregion
+        #endregion
     }
 }

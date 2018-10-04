@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Reflection;
 using JetBrains.Annotations;
+using Reusable.Extensions;
+using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Data;
+using Reusable.SmartConfig.Reflection;
 
 namespace Reusable.SmartConfig
 {
@@ -8,9 +12,9 @@ namespace Reusable.SmartConfig
     public interface IConfiguration
     {
         [CanBeNull]
-        object GetValue([NotNull] GetValueQuery getValueQuery);
+        object GetValue([NotNull] GetValueQuery query);
 
-        void SetValue([NotNull] SetValueQuery setValueQuery);
+        void SetValue([NotNull] SetValueQuery query);
     }
 
     public class GetValueQuery
@@ -28,13 +32,33 @@ namespace Reusable.SmartConfig
         public Type SettingType { get; }
 
         [CanBeNull]
-        public SoftString Instance { get; set; }
-
-        [CanBeNull]
         public SoftString ProviderName { get; set; }
 
         [CanBeNull]
-        public SettingNameConvention? SettingNameConvention { get; set; }
+        public SettingNameComplexity? SettingNameComplexity { get; set; }
+        
+        [CanBeNull]
+        public bool? PrefixEnabled { get; set; }
+
+        public static GetValueQuery Create(SettingInfo settingInfo, string instance)
+        {
+            var settingName = new SettingName
+            (
+                prefix: settingInfo.Prefix, //.Type.Assembly.GetCustomAttribute<SettingAssemblyAttribute>()?.Name ?? Type.Assembly.GetName().Name,
+                schema: settingInfo.Schema,
+                type: settingInfo.TypeName,
+                member: settingInfo.MemberName,
+                instance: instance
+            );
+            
+            return new GetValueQuery(settingName, settingInfo.Type)
+            {
+                ProviderName = settingInfo.ProviderName,
+                SettingNameComplexity = settingInfo.SettingNameComplexity, 
+                PrefixEnabled = settingInfo.PrefixEnabled,
+            };
+            
+        }
     }
     
     public class SetValueQuery

@@ -46,7 +46,7 @@ namespace Reusable.Tests.SmartConfig.Data
         {
             var settingName = SettingName.Parse("qux");
 
-            Assert.That.IsNullOrEmpty(settingName.Assembly);
+            Assert.That.IsNullOrEmpty(settingName.Prefix);
             Assert.That.IsNullOrEmpty(settingName.Namespace);
             Assert.That.IsNullOrEmpty(settingName.Type);
             Assert.AreEqual("qux", settingName.Member);
@@ -88,6 +88,19 @@ namespace Reusable.Tests.SmartConfig.Data
             Assert.AreEqual("qux", settingName.Member);
             Assert.AreEqual("quux", settingName.Instance);
             Assert.AreEqual("foo.bar+baz.qux,quux", settingName.ToString());
+        }
+        
+        [TestMethod]
+        public void Parse_CanReadAssemblyNamespaceTypeMemberAndInstance()
+        {
+            var settingName = SettingName.Parse("Assem.bly:Name.space+Type.Member,Instance");
+
+            Assert.AreEqual("Assem.bly", settingName.Prefix);
+            Assert.AreEqual("Name.space", settingName.Namespace);
+            Assert.AreEqual("Type", settingName.Type);
+            Assert.AreEqual("Member", settingName.Member);
+            Assert.AreEqual("Instance", settingName.Instance);
+            Assert.AreEqual("Assem.bly:Name.space+Type.Member,Instance", settingName.ToString());
         }
 
         [TestMethod]

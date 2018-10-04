@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Linq.Expressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.SmartConfig.Utilities.Reflection;
 
-namespace Reusable.SmartConfig.Core.Utilities.Tests.Reflection
+namespace Reusable.Tests.SmartConfig.Reflection
 {
     [TestClass]
     public class SettingExpressionExtensionsTest

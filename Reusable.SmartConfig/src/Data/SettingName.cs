@@ -15,22 +15,17 @@ using Reusable.Reflection;
 namespace Reusable.SmartConfig.Data
 {
     using static SettingNameParser;
-    using Token = SettingNameToken;
+    using Token = SettingNameToken;    
 
-    public interface ISettingName
-    {
-        SoftString ToSoftString();
-    }
-    
     [PublicAPI]
     public class SettingName
     {
         private readonly IDictionary<SettingNameToken, ReadOnlyMemory<char>> _tokens;
 
-        public static readonly string Format = "[Assembly:][Name.space+][Type.]Member[,Instance]";
+        public static readonly string Format = "[Prefix:][Name.space+][Type.]Member[,Instance]";
 
         public SettingName(
-            [CanBeNull] string assembly,
+            [CanBeNull] string prefix,
             [CanBeNull] string schema,
             [CanBeNull] string type,
             [NotNull] string member,
@@ -41,7 +36,7 @@ namespace Reusable.SmartConfig.Data
 
             _tokens = new Dictionary<SettingNameToken, ReadOnlyMemory<char>>
             {
-                [Token.Assembly] = assembly is null ? ReadOnlyMemory<char>.Empty : new ReadOnlyMemory<char>(assembly.ToCharArray()),
+                [Token.Prefix] = prefix is null ? ReadOnlyMemory<char>.Empty : new ReadOnlyMemory<char>(prefix.ToCharArray()),
                 [Token.Namespace] = schema is null ? ReadOnlyMemory<char>.Empty : new ReadOnlyMemory<char>(schema.ToCharArray()),
                 [Token.Type] = type is null ? ReadOnlyMemory<char>.Empty : new ReadOnlyMemory<char>(type.ToCharArray()),
                 [Token.Member] = new ReadOnlyMemory<char>(member.ToCharArray()),
@@ -58,7 +53,7 @@ namespace Reusable.SmartConfig.Data
 
         [CanBeNull]
         [AutoEqualityProperty]
-        public string Assembly => this[Token.Assembly].ToString();
+        public string Prefix => this[Token.Prefix].ToString();
 
         [CanBeNull]
         [AutoEqualityProperty]
@@ -82,7 +77,7 @@ namespace Reusable.SmartConfig.Data
         public override string ToString()
         {
             return new StringBuilder()
-                .Append(this[Token.Assembly].IsEmpty ? default : $"{Assembly}{Separator.Assembly}")
+                .Append(this[Token.Prefix].IsEmpty ? default : $"{Prefix}{Separator.Prefix}")
                 .Append(this[Token.Namespace].IsEmpty ? default : $"{Namespace}{Separator.Namespace}")
                 .Append(this[Token.Type].IsEmpty ? default : $"{Type}{Separator.Type}")
                 .Append(this[Token.Member])
@@ -95,6 +90,10 @@ namespace Reusable.SmartConfig.Data
         public static implicit operator string(SettingName settingName) => settingName?.ToString();
 
         public static implicit operator SoftString(SettingName settingName) => settingName?.ToString();
+
+        public static bool operator ==(SettingName x, SettingName y) => AutoEquality<SettingName>.Comparer.Equals(x, y);
+
+        public static bool operator !=(SettingName x, SettingName y) => !(x == y);
 
         #region IEquatable<SettingName>
 
@@ -109,7 +108,7 @@ namespace Reusable.SmartConfig.Data
 
     public enum SettingNameToken
     {
-        Assembly,
+        Prefix,
         Namespace,
         Type,
         Member,
@@ -120,7 +119,7 @@ namespace Reusable.SmartConfig.Data
     {
         public static class Separator
         {
-            public const char Assembly = ':';
+            public const char Prefix = ':';
             public const char Namespace = '+';
             public const char Type = '.';
             public const char Member = ',';
@@ -138,13 +137,15 @@ namespace Reusable.SmartConfig.Data
             {
                 switch (c)
                 {
-                    case Separator.Assembly:
-                        Add(Token.Assembly, name.Slice(min, max - min));
+                    case Separator.Prefix:
+                        tokens.Clear();
+                        min = 0;
+                        Add(Token.Prefix, name.Slice(min, max - min));
                         min = max;
                         break;
 
                     case Separator.Namespace:
-                        min = tokens.TryGetValue(Token.Assembly, out var assembly) ? assembly.Length + 1 : 0;
+                        min = tokens.TryGetValue(Token.Prefix, out var assembly) ? assembly.Length + 1 : 0;
                         tokens.Remove(Token.Type);
                         Add(Token.Namespace, name.Slice(min, max - min));
                         min = max;
@@ -208,16 +209,16 @@ namespace Reusable.SmartConfig.Data
 
     public readonly struct SettingNameConvention
     {
-        public SettingNameConvention(SettingNameComplexity complexity, bool isRestricted = default)
+        public SettingNameConvention(SettingNameComplexity complexity, bool usePrefix)
         {
             Complexity = complexity;
-            IsRestricted = isRestricted;
+            UsePrefix = usePrefix;
         }
 
-        public static readonly SettingNameConvention Default = new SettingNameConvention(SettingNameComplexity.Medium);
+        public static readonly SettingNameConvention Default = new SettingNameConvention(SettingNameComplexity.Medium, false);
 
         public SettingNameComplexity Complexity { get; }
 
-        public bool IsRestricted { get; }        
+        public bool UsePrefix { get; }
     }
 }

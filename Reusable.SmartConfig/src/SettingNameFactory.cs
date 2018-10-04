@@ -28,26 +28,35 @@ namespace Reusable.SmartConfig
 
     public enum SettingNameComplexity
     {
+        //Inherit = -1,
+
         /// <summary>
         /// Member
         /// </summary>
-        Low,
+        Low = 0,
 
         /// <summary>
         /// Type.Member
         /// </summary>
-        Medium,
+        Medium = 1,
 
         /// <summary>
         /// Namespace+Type.Member
         /// </summary>
-        High,
+        High = 2,
+    }
+
+    public enum SettingNamePrefix
+    {
+        //Inherit = -1,
+        None = 0,
+        AssemblyName = 1
     }
 
     public interface ISettingNameFactory
     {
         [NotNull]
-        SettingName CreateSettingName([NotNull] SettingName settingName, SettingNameConvention? settingNameConvention = default);        
+        SettingName CreateSettingName([NotNull] SettingName settingName, SettingNameConvention? settingNameConvention = default);
     }
 
     public class SettingNameFactory : ISettingNameFactory
@@ -64,6 +73,7 @@ namespace Reusable.SmartConfig
         public SettingNameFactory(SettingNameConvention settingNameConvention)
         {
             _settingNameConvention = settingNameConvention;
+            // todo - check convention for not-inherit
         }
 
         public SettingName CreateSettingName(SettingName settingName, SettingNameConvention? settingNameConvention = default)
@@ -74,7 +84,7 @@ namespace Reusable.SmartConfig
 
             var tokens = TokenCombinations[(int)actualSettingNameConvention.Complexity].AsEnumerable();
             tokens = settingName[Token.Instance].IsEmpty ? tokens : tokens.Append(Token.Instance);
-            tokens = actualSettingNameConvention.IsRestricted ? tokens.Prepend(SettingNameToken.Assembly) : tokens;
+            tokens = actualSettingNameConvention.UsePrefix ? tokens.Prepend(SettingNameToken.Prefix) : tokens;
 
             return new SettingName(tokens.ToDictionary(t => t, t => settingName[t]));
         }

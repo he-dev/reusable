@@ -15,31 +15,41 @@ namespace Reusable.SmartConfig
     {
         public bool TryFindSetting
         (
-            GetValueQuery getValueQuery,
+            GetValueQuery query,
             IEnumerable<ISettingProvider> providers,
             out (ISettingProvider SettingProvider, ISetting Setting) result
         )
         {
             if (providers == null) throw new ArgumentNullException(nameof(providers));
-            if (getValueQuery == null) throw new ArgumentNullException(nameof(getValueQuery));
+            if (query == null) throw new ArgumentNullException(nameof(query));
 
-            if (!(getValueQuery.ProviderName is null))
+            if (!(query.ProviderName is null))
             {
                 providers = new[]
                 {
-                    providers.SingleOrDefault(p => p.Name == getValueQuery.ProviderName)
-                    ?? throw DynamicException.Create("ProviderNotFound", $"There is no such provider as {getValueQuery.ProviderName.ToString().QuoteWith("'")}.")
+                    providers.SingleOrDefault(p => p.Name == query.ProviderName)
+                    ?? throw DynamicException.Create("ProviderNotFound", $"There is no such provider as {query.ProviderName.ToString().QuoteWith("'")}.")
                 };
             }
 
-            var settings =
+            var findSetting =
                 from provider in providers
-                let setting = provider.Read(getValueQuery.SettingName, getValueQuery.SettingType, getValueQuery.SettingNameConvention)
+                let setting = provider.Read(query.SettingName, query.SettingType, query.SettingNameComplexity)
                 where setting.IsNotNull()
                 select (provider, setting);
 
-            result = settings.FirstOrDefault();
-            return !(result.SettingProvider is null && result.Setting is null);
+            result = findSetting.FirstOrDefault();
+            return !result.IsEmpty();
+        }
+    }
+
+    internal static class FirstSettingFinderHelper
+    {
+        public static bool IsEmpty(this (ISettingProvider SettingProvider, ISetting Setting) result)
+        {
+            return
+                result.SettingProvider is null &&
+                result.Setting is null;
         }
     }
 }
