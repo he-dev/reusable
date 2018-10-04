@@ -8,19 +8,11 @@ namespace Reusable.SmartConfig
     {
         private readonly IDictionary<SoftString, object> _settings = new Dictionary<SoftString, object>();
 
-        public InMemory(ISettingConverter converter) : base(converter) { }
+        public InMemory(ISettingConverter converter, SettingNameConvention settingNameConvention) : base(converter, settingNameConvention) { }
 
-        protected override ISetting ReadCore(IReadOnlyCollection<SoftString> names)
+        protected override ISetting ReadCore(SettingName name)
         {
-            foreach (var name in names)
-            {
-                if (_settings.TryGetValue(name, out var value))
-                {
-                    return new Setting(name, value);
-                }
-            }
-
-            return default;
+            return _settings.TryGetValue(name, out var value) ? new Setting(name, value) : default;
         }
 
         protected override void WriteCore(ISetting setting)
@@ -28,11 +20,11 @@ namespace Reusable.SmartConfig
             _settings[setting.Name] = setting.Value;
         }
 
-        #region IEnumerable
+    #region IEnumerable
 
-        public void Add(ISetting setting) => Write(setting);
+        public void Add(ISetting setting) => WriteCore(setting);
 
-        public void Add(string name, object value) => Write(new Setting(name, value));
+        public void Add(string name, object value) => WriteCore(new Setting(SettingName.Parse(name), value));
 
         public InMemory AddRange(IEnumerable<ISetting> settings)
         {
@@ -47,6 +39,6 @@ namespace Reusable.SmartConfig
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        #endregion
+    #endregion
     }
 }

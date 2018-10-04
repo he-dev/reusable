@@ -20,7 +20,7 @@ namespace Reusable.SmartConfig
 
         private SqlServerColumnMapping _columnMapping;
 
-        public SqlServer(string nameOrConnectionString, ISettingConverter converter) : base(converter)
+        public SqlServer(string nameOrConnectionString, ISettingConverter converter, SettingNameConvention settingNameConvention) : base(converter, settingNameConvention)
         {
             ConnectionString = ConnectionStringRepository.Default.GetConnectionString(nameOrConnectionString);
 
@@ -51,43 +51,47 @@ namespace Reusable.SmartConfig
             set => _where = value ?? throw new ArgumentNullException(nameof(Where));
         }
 
-        protected override ISetting ReadCore(IReadOnlyCollection<SoftString> names)
+        protected override ISetting ReadCore(SettingName name)
         {
-            return SqlHelper.Execute(ConnectionString, connection =>
-            {
-                using (var command = connection.CreateSelectCommand(this, names))
-                using (var settingReader = command.ExecuteReader())
+            return SqlHelper.Execute(
+                ConnectionString, connection =>
                 {
-                    if (settingReader.Read())
+                    using (var command = connection.CreateSelectCommand(this, new[] { (SoftString)name }))
+                    using (var settingReader = command.ExecuteReader())
                     {
-                        var setting = new Setting(
-                            (string)settingReader[ColumnMapping.Name],
-                            settingReader[ColumnMapping.Value]
-                        );
-
                         if (settingReader.Read())
                         {
-                            throw CreateAmbiguousSettingException(names);
+                            var setting = new Setting(
+                                (string)settingReader[ColumnMapping.Name],
+                                settingReader[ColumnMapping.Value]
+                            );
+
+                            if (settingReader.Read())
+                            {
+                                //                                throw CreateAmbiguousSettingException(names);
+                            }
+
+                            return setting;
                         }
 
-                        return setting;
+                        return null;
                     }
-
-                    return null;
                 }
-            });
+            );
         }
 
         protected override void WriteCore(ISetting setting)
         {
-            SqlHelper.Execute(ConnectionString, connection =>
-            {
-                using (var cmd = connection.CreateUpdateCommand(this, setting))
+            SqlHelper.Execute(
+                ConnectionString, connection =>
                 {
-                    //cmd.Prepare();
-                    cmd.ExecuteNonQuery();
+                    using (var cmd = connection.CreateUpdateCommand(this, setting))
+                    {
+                        //cmd.Prepare();
+                        cmd.ExecuteNonQuery();
+                    }
                 }
-            });
+            );
         }
     }
 }

@@ -45,7 +45,7 @@ namespace Reusable.Utilities.MSTest
         [TestMethod]
         public void CreateSettingNames_CanCreateNamesByConvention()
         {
-            var names = Factory.CreateSettingNames(SettingName.Parse("Assembly:Namespace+Type.Member,Instance"), new SettingNameOption(SettingNameConvention.Normal, false)).Select(x => x.ToString()).ToList();
+            var names = Factory.CreateSettingNames(SettingName.Parse("Assembly:Namespace+Type.Member,Instance"), new SettingNameConvention(SettingNameComplexity.Medium, false)).Select(x => x.ToString()).ToList();
 
             Assert.That.Collection().AreEqual(
                 new[]
@@ -59,7 +59,7 @@ namespace Reusable.Utilities.MSTest
         [TestMethod]
         public void CreateSettingNames_CanCreateRestrictedNamesWithInstance()
         {
-            var names = Factory.CreateSettingNames(SettingName.Parse("Assembly:Namespace+Type.Member,Instance"), new SettingNameOption(null, true)).Select(x => x.ToString()).ToList();
+            var names = Factory.CreateSettingNames(SettingName.Parse("Assembly:Namespace+Type.Member,Instance"), new SettingNameConvention(null, true)).Select(x => x.ToString()).ToList();
 
             Assert.That.Collection().AreEqual(
                 new[]

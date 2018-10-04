@@ -35,8 +35,12 @@ namespace Reusable.SmartConfig.Utilities
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
             var settingInfo = SettingInfo.FromExpression(expression, false, instanceName);
+            var query = new GetValueQuery(settingInfo.SettingName, typeof(T))
+            {
+                ProviderName = settingInfo.ProviderName
+            };
 
-            var settingValue = config.GetValue(settingInfo.SettingName, typeof(T), settingInfo.ProviderName) ?? settingInfo.DefaultValue;
+            var settingValue = config.GetValue(query) ?? settingInfo.DefaultValue;
 
             settingInfo
                 .Validations

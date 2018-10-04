@@ -17,6 +17,11 @@ namespace Reusable.SmartConfig.Data
     using static SettingNameParser;
     using Token = SettingNameToken;
 
+    public interface ISettingName
+    {
+        SoftString ToSoftString();
+    }
+    
     [PublicAPI]
     public class SettingName
     {
@@ -201,28 +206,18 @@ namespace Reusable.SmartConfig.Data
         }
     }
 
-    public readonly struct SettingNameOption
+    public readonly struct SettingNameConvention
     {
-        public SettingNameOption(SettingNameConvention? convention, bool? isRestricted)
+        public SettingNameConvention(SettingNameComplexity complexity, bool isRestricted = default)
         {
-            Convention = convention;
+            Complexity = complexity;
             IsRestricted = isRestricted;
         }
 
-        public static readonly SettingNameOption Default = new SettingNameOption();
+        public static readonly SettingNameConvention Default = new SettingNameConvention(SettingNameComplexity.Medium);
 
-        [CanBeNull]
-        public SettingNameConvention? Convention { get; }
+        public SettingNameComplexity Complexity { get; }
 
-        [CanBeNull]
-        public bool? IsRestricted { get; }
-
-        public SettingNameOption Merge(SettingNameOption other)
-        {
-            return new SettingNameOption(
-                Convention ?? other.Convention,
-                IsRestricted ?? other.IsRestricted
-            );
-        }
+        public bool IsRestricted { get; }        
     }
 }

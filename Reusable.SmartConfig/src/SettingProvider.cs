@@ -18,23 +18,19 @@ namespace Reusable.SmartConfig
 
         private readonly ISettingConverter _converter;
 
-        private ISettingNameGenerator _settingNameGenerator;
-
         private ISettingNameFactory _settingNameFactory;
-
-        private SettingNameOption _settingNameOption;
 
         private SoftString _name;
 
         private SettingProvider()
         {
             Name = CreateDefaultName(GetType());
-            SettingNameGenerator = new SettingNameGenerator();
         }
 
-        protected SettingProvider([NotNull] ISettingConverter converter) : this()
+        protected SettingProvider([NotNull] ISettingConverter converter, SettingNameConvention settingNameConvention) : this()
         {
             _converter = converter ?? throw new ArgumentNullException(nameof(converter));
+            _settingNameFactory = new SettingNameFactory(settingNameConvention);
         }
 
         public SoftString Name
@@ -43,56 +39,16 @@ namespace Reusable.SmartConfig
             set => _name = value ?? throw new ArgumentNullException(nameof(Name));
         }
 
-        public ISettingNameGenerator SettingNameGenerator
-        {
-            get => _settingNameGenerator;
-            set => _settingNameGenerator = value ?? throw new ArgumentNullException(nameof(SettingNameGenerator));
-        }
-
-        public ISetting Read(SoftString settingName, Type settingType)
-        {
-            if (settingName == null) throw new ArgumentNullException(nameof(settingName));
-
-            // Materialize the generated names because we'll be using it multiple times.
-            var names =
-                SettingNameGenerator
-                    .GenerateSettingNames(SettingName.Parse(settingName.ToString()))
-                    .Select(name => (SoftString)(string)name)
-                    .ToList();
-            try
-            {
-                var setting = ReadCore(names);
-
-                if (setting is null)
-                {
-                    return null;
-                }
-
-                var value =
-                    settingType is null
-                        ? setting.Value
-                        : (setting.Value is null
-                            ? null
-                            : _converter.Deserialize(setting.Value, settingType));
-
-                return new Setting(setting.Name, value);
-            }
-            catch (Exception innerException)
-            {
-                throw ($"ReadSetting{nameof(Exception)}", $"Cannot read {settingName.ToString().QuoteWith("'")} from {Name.ToString().QuoteWith("'")}.", innerException).ToDynamicException();
-            }
-        }
-
-        public ISetting Read(SettingName settingName, SettingNameOption settingNameOption, Type settingType)
+        public ISetting Read(SettingName settingName, Type settingType, SettingNameConvention? settingNameConvention)
         {
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
             if (settingType == null) throw new ArgumentNullException(nameof(settingType));
 
-            var names = _settingNameFactory.CreateSettingNames(settingName, settingNameOption.Merge(_settingNameOption));
+            settingName = _settingNameFactory.CreateSettingName(settingName, settingNameConvention);
 
             try
             {
-                var setting = ReadCore(names);
+                var setting = ReadCore(settingName);
 
                 return
                     setting is null
@@ -110,30 +66,30 @@ namespace Reusable.SmartConfig
         }
 
         [CanBeNull]
-        protected abstract ISetting ReadCore(IReadOnlyCollection<SoftString> names);
+        protected abstract ISetting ReadCore(SettingName name);
 
-        //protected abstract ISetting ReadCore(IEnumerable<SettingName> names);
-
-        public void Write(ISetting setting)
+        public void Write(SettingName settingName, object value, SettingNameConvention? settingNameConvention)
         {
-            if (setting == null) throw new ArgumentNullException(nameof(setting));
+            if (settingName == null) throw new ArgumentNullException(nameof(settingName));
 
+            settingName = _settingNameFactory.CreateSettingName(settingName, settingNameConvention);
+            
             try
             {
-                var value = setting.Value is null ? null : _converter.Serialize(setting.Value);
-                WriteCore(new Setting(setting.Name, value));
+                value = value is null ? null : _converter.Serialize(value);
+                WriteCore(new Setting(settingName, value));
             }
             catch (Exception innerException)
             {
-                throw ($"WriteSetting{nameof(Exception)}", $"Cannot write {setting.Name.ToString().QuoteWith("'")} to {Name.ToString().QuoteWith("'")}.", innerException).ToDynamicException();
+                throw ($"WriteSetting{nameof(Exception)}", $"Cannot write {settingName.ToString().QuoteWith("'")} to {Name.ToString().QuoteWith("'")}.", innerException).ToDynamicException();
             }
         }
 
         protected abstract void WriteCore(ISetting setting);
 
-        private static string CreateDefaultName(Type datastoreType)
+        private static string CreateDefaultName(Type providerType)
         {
-            return datastoreType.ToPrettyString() + InstanceCounters.AddOrUpdate(datastoreType.ToPrettyString(), name => 1, (name, counter) => counter + 1);
+            return providerType.ToPrettyString() + InstanceCounters.AddOrUpdate(providerType.ToPrettyString(), name => 1, (name, counter) => counter + 1);
         }
 
         protected Exception CreateAmbiguousSettingException(IEnumerable<SoftString> names)
@@ -145,7 +101,7 @@ namespace Reusable.SmartConfig
             );
         }
 
-        #region IEquatable<ISettingProvider>
+    #region IEquatable<ISettingProvider>
 
         public override int GetHashCode()
         {
@@ -162,6 +118,6 @@ namespace Reusable.SmartConfig
             return AutoEquality<ISettingProvider>.Comparer.Equals(this, other);
         }
 
-        #endregion
+    #endregion
     }
 }

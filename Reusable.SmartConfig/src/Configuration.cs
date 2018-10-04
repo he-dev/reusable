@@ -17,80 +17,85 @@ namespace Reusable.SmartConfig
 
         private readonly ISettingFinder _settingFinder;
 
-        private readonly IDictionary<SoftString, (SoftString ActualName, ISettingProvider SettingProvider)> _settingMap = new Dictionary<SoftString, (SoftString ActualName, ISettingProvider SettingProvider)>();
+        private readonly IDictionary<SettingName, SoftString> _settingProviders = new Dictionary<SettingName, SoftString>();
 
-        private static readonly IDuckValidator<IEnumerable<ISettingProvider>> SettingProviderValidator = new DuckValidator<IEnumerable<ISettingProvider>>(builder =>
-        {
-            builder
-                .IsNotValidWhen(providers => providers == null, DuckValidationRuleOptions.BreakOnFailure)
-                .IsValidWhen(providers => providers.Any(), _ => "You need to specify at least one setting-provider.");
-        });
+        private static readonly IDuckValidator<IEnumerable<ISettingProvider>> SettingProviderValidator = new DuckValidator<IEnumerable<ISettingProvider>>(
+            builder =>
+            {
+                builder
+                    .IsNotValidWhen(providers => providers == null, DuckValidationRuleOptions.BreakOnFailure)
+                    .IsValidWhen(providers => providers.Any(), _ => "You need to specify at least one setting-provider.");
+            }
+        );
 
-        public Configuration([NotNull, ItemNotNull] IEnumerable<ISettingProvider> dataStores, [NotNull] ISettingFinder settingFinder)
+        public Configuration([NotNull][ItemNotNull] IEnumerable<ISettingProvider> dataStores, [NotNull] ISettingFinder settingFinder)
         {
             // ReSharper disable once ConstantConditionalAccessQualifier - yes, this can be null
             _providers = (dataStores?.ToList()).ValidateWith(SettingProviderValidator).ThrowOrDefault();
             _settingFinder = settingFinder ?? throw new ArgumentNullException(nameof(settingFinder));
         }
 
-        public Configuration([NotNull, ItemNotNull] IEnumerable<ISettingProvider> dataStores)
-            : this(dataStores, new FirstSettingFinder())
-        {
-        }
+        public Configuration([NotNull][ItemNotNull] IEnumerable<ISettingProvider> dataStores)
+            : this(dataStores, new FirstSettingFinder()) { }
 
-        public object GetValue(SoftString settingName, Type settingType, SoftString dataStoreName)
+        public object GetValue(GetValueQuery getValueQuery)
         {
-            if (settingName == null) throw new ArgumentNullException(nameof(settingName));
+            if (getValueQuery == null) throw new ArgumentNullException(nameof(getValueQuery));
 
-            if (_settingFinder.TryFindSetting(_providers, settingName, settingType, dataStoreName, out var result))
+            if (getValueQuery.ProviderName is null && _settingProviders.TryGetValue(getValueQuery.SettingName, out var providerName))
             {
-                CacheSettingName(settingName, result.Setting.Name, result.SettingProvider);
+                getValueQuery.ProviderName = providerName;
+            }
+
+            if (_settingFinder.TryFindSetting(getValueQuery, _providers, out var result))
+            {
+                CacheProvider(getValueQuery.SettingName, result.SettingProvider.Name);
                 return result.Setting.Value;
             }
             else
             {
-                throw ("SettingNotFound", $"Setting {settingName.ToString().QuoteWith("'")} not found.").ToDynamicException();
+                throw ("SettingNotFound", $"Setting {getValueQuery.SettingName.ToString().QuoteWith("'")} not found.").ToDynamicException();
             }
-        }
+        }        
 
-        private void CacheSettingName(SoftString settingName, SoftString settingActualName, ISettingProvider settingProvider)
+        public void SetValue(SetValueQuery setValueQuery)
         {
-            _settingMap[settingName] = (settingActualName, settingProvider);
-        }
+            if (setValueQuery == null) throw new ArgumentNullException(nameof(setValueQuery));
 
-        public void SetValue(SoftString settingName, object value, SoftString providerName)
-        {
-            if (settingName == null) throw new ArgumentNullException(nameof(settingName));
-
-            if (_settingMap.TryGetValue(settingName, out var item))
+            if (_settingProviders.TryGetValue(setValueQuery.SettingName, out var providerName))
             {
-                item.SettingProvider.Write(new Setting(item.ActualName, value));
+                _providers.Single(p => p.Name == providerName).Write(setValueQuery.SettingName, setValueQuery.Value, setValueQuery.SettingNameConvention);
             }
             else
             {
-                if (_settingFinder.TryFindSetting(_providers, settingName, null, providerName, out var result))
-                {
-                    CacheSettingName(settingName, result.Setting.Name, result.SettingProvider);
-                    SetValue(settingName, value, providerName);
-                }
-                else
-                {
-                    var dataStore = _providers.FirstOrDefault(x => providerName is null || x.Name.Equals(providerName));
-                    if (dataStore is null)
-                    {
-                        throw 
-                        (
-                            $"SettingDataStoreNotFound",
-                            $"Could not find setting data store {providerName?.ToString().QuoteWith("'")}"
-                        ).ToDynamicException();
-                    }
-
-                    var defaultSettingName = dataStore.SettingNameGenerator.GenerateSettingNames(SettingName.Parse(settingName.ToString())).First();
-                    dataStore.Write(new Setting(defaultSettingName, value));
-                }
+                // if (_settingFinder.TryFindSetting(_providers, settingName, null, providerName, out var result))
+                // {
+                //     CacheProvider(settingName, result.Setting.Name, result.SettingProvider);
+                //     SetValue(settingName, value, providerName);
+                // }
+                // else
+                // {
+                //     var dataStore = _providers.FirstOrDefault(x => providerName is null || x.Name.Equals(providerName));
+                //     if (dataStore is null)
+                //     {
+                //         throw
+                //         (
+                //             $"SettingDataStoreNotFound",
+                //             $"Could not find setting data store {providerName?.ToString().QuoteWith("'")}"
+                //         ).ToDynamicException();
+                //     }
+                //
+                //     var defaultSettingName = dataStore.SettingNameGenerator.GenerateSettingNames(SettingName.Parse(settingName.ToString())).First();
+                //     dataStore.Write(new Setting(defaultSettingName, value));
+                // }
 
                 //throw ("SettingNotInitializedException", $"Setting {settingName.ToString().QuoteWith("'")} needs to be initialized before you can update it.").ToDynamicException();
             }
+        }
+        
+        private void CacheProvider(SettingName settingName, SoftString providerName)
+        {
+            _settingProviders[settingName] = providerName;
         }
     }
 }

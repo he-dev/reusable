@@ -9,19 +9,11 @@ namespace Reusable.SmartConfig
     {
         [NotNull]
         [AutoEqualityProperty]
-        SoftString Name { get; }
-
-        [NotNull]
-        ISettingNameGenerator SettingNameGenerator { get; }
+        SoftString Name { get; }        
 
         [CanBeNull]
-        ISetting Read([NotNull] SoftString settingName, [CanBeNull] Type settingType);
+        ISetting Read([NotNull] SettingName settingName, [NotNull] Type settingType, SettingNameConvention? settingNameConvention = default);
 
-        void Write([NotNull] ISetting setting);
-        
-        
-        //ISetting Read([NotNull] SettingName settingName, [CanBeNull] Type settingType);
-        
-        //void Write([NotNull] ISetting setting);
+        void Write([NotNull] SettingName settingName, [CanBeNull] object value, SettingNameConvention? settingNameConvention = default);
     }
 }

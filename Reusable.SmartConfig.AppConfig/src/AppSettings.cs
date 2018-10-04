@@ -8,24 +8,13 @@ namespace Reusable.SmartConfig
 {
     public class AppSettings : SettingProvider
     {
-        public AppSettings(ISettingConverter converter) : base(converter) { }
+        public AppSettings(ISettingConverter converter, SettingNameConvention settingNameConvention) : base(converter, settingNameConvention) { }
 
-        protected override ISetting ReadCore(IReadOnlyCollection<SoftString> names)
+        protected override ISetting ReadCore(SettingName name)
         {
             var exeConfig = OpenExeConfiguration();
-
-            if (exeConfig.AppSettings.Settings.AllKeys.Count(key => names.Contains(key)) > 1)
-            {
-                throw CreateAmbiguousSettingException(names);
-            }
-
-            var result =
-                (from name in names
-                 let setting = exeConfig.AppSettings.Settings[name.ToString()]
-                 where !(setting is null)
-                 select (Name: name, setting.Value)).SingleOrDefault();
-
-            return result.Value.IsNullOrEmpty() ? null : new Setting(result.Name, result.Value);
+            var value = exeConfig.AppSettings.Settings[name.ToString()];
+            return new Setting(name, value);
         }
 
         protected override void WriteCore(ISetting setting)
