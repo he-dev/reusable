@@ -122,4 +122,17 @@ namespace Reusable.SmartConfig.Annotations
         Disable = 0,
         Override = 1,
     }
+
+    public enum ProviderSearch
+    {
+        /// <summary>
+        /// Uses the specified provider, otherwise picks the first setting.
+        /// </summary>
+        Auto,
+        
+        /// <summary>
+        /// Ignores any provider name and picks the first setting.
+        /// </summary>
+        FirstMatch,
+    }    
 }

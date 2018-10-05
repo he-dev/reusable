@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Linq.Custom;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.Reflection;
+using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Data;
 using Reusable.Validation;
 
@@ -87,5 +89,14 @@ namespace Reusable.SmartConfig
         {
             _settingProviderNames[settingName] = providerName;
         }
+    }
+
+    [SettingType(Prefix = "SmartConfig", Complexity = SettingNameComplexity.Low)]
+    public class Internal
+    {
+        [DefaultValue(ProviderSearch.Auto)]
+        public ProviderSearch ProviderSearch { get; set; }
+
+        public string[] SearchableProviders { get; set; }
     }
 }
