@@ -28,7 +28,7 @@ namespace Reusable.SmartConfig
 
     public enum SettingNameComplexity
     {
-        //Inherit = -1,
+        Inherit = -1,
 
         /// <summary>
         /// Member
@@ -56,13 +56,11 @@ namespace Reusable.SmartConfig
     public interface ISettingNameFactory
     {
         [NotNull]
-        SettingName CreateSettingName([NotNull] SettingName settingName, SettingNameConvention? settingNameConvention = default);
+        SettingName CreateSettingName([NotNull] SettingName settingName, SettingNameComplexity? settingNameComplexity, bool prefixEnabled);
     }
 
     public class SettingNameFactory : ISettingNameFactory
     {
-        private readonly SettingNameConvention _settingNameConvention;
-
         private static readonly IList<IList<Token>> TokenCombinations = new IList<Token>[]
         {
             new[] { Token.Member },
@@ -70,13 +68,17 @@ namespace Reusable.SmartConfig
             new[] { Token.Namespace, Token.Type, Token.Member },
         };
 
-        public SettingNameFactory(SettingNameConvention settingNameConvention)
+        public SettingNameFactory(SettingNameComplexity settingNameComplexity, SettingNamePrefix settingNamePrefix)
         {
-            _settingNameConvention = settingNameConvention;
-            // todo - check convention for not-inherit
+            SettingNameComplexity = settingNameComplexity;
+            SettingNamePrefix = settingNamePrefix;
         }
+        
+        public SettingNameComplexity SettingNameComplexity { get; }
 
-        public SettingName CreateSettingName(SettingName settingName, SettingNameConvention? settingNameConvention = default)
+        public SettingNamePrefix SettingNamePrefix { get; }  
+
+        public SettingName CreateSettingName(SettingName settingName, SettingNameComplexity? settingNameComplexity, bool prefixEnabled)
         {
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
 

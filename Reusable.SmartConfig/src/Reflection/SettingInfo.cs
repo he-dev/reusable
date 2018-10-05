@@ -57,22 +57,28 @@ namespace Reusable.SmartConfig.Reflection
 
             var attributes = new SettingAttribute[]
             {
-                type.Assembly.GetCustomAttribute<SettingAssemblyAttribute>(),
+                type.Assembly.GetCustomAttribute<SettingPrefixAttribute>(),
                 type.GetCustomAttribute<SettingTypeAttribute>(),
-                member.GetCustomAttribute<SettingAssemblyAttribute>(),
+                member.GetCustomAttribute<SettingPrefixAttribute>(),
             };
+            
+            var prefixHandling = attributes.Select(a => a?.PrefixHandling).LastOrDefault(x=> x.HasValue) ?? PrefixHandling.Inherit; 
 
-            Prefix = attributes.Select(a => a?.Prefix).Last(Conditional.IsNotNullOrEmpty);
+            Prefix = 
+                prefixHandling == PrefixHandling.Inherit 
+            ? attributes.Select(a => a?.Name).Last(Conditional.IsNotNullOrEmpty)
+                    : 
             Schema = type.Namespace;
             TypeName = member.GetCustomAttribute<SettingTypeAttribute>()?.Name ?? type.ToPrettyString();
-            MemberName = member.GetCustomAttribute<SettingAssemblyAttribute>()?.Name ?? member.Name;
+            MemberName = member.GetCustomAttribute<SettingPrefixAttribute>()?.Name ?? member.Name;
+            
             ProviderName = attributes.Select(a => a?.ProviderName).LastOrDefault(Conditional.IsNotNullOrEmpty);
             SettingNameComplexity = attributes.Select(a => a?.Complexity).LastOrDefault(Conditional.IsNotNull);
-            PrefixEnabled = attributes.Select(a => a.PrefixEnabled).LastOrDefault(Conditional.IsNotNull);
+            PrefixHandlingEnabled = attributes.Select(a => a.PrefixEnabled).LastOrDefault(Conditional.IsNotNull);
             DefaultValue = member.GetCustomAttribute<DefaultValueAttribute>()?.Value;
             Validations = member.GetCustomAttributes<ValidationAttribute>();
         }
-        
+
         [NotNull]
         public Type Type { get; }
 
@@ -84,17 +90,16 @@ namespace Reusable.SmartConfig.Reflection
 
         [CanBeNull]
         public string Prefix { get; }
-        
+
         [CanBeNull]
         public string Schema { get; }
-        
+
         [CanBeNull]
         public string TypeName { get; }
-        
+
         [NotNull]
         public string MemberName { get; }
-        
-        
+
         [NotNull, ItemNotNull]
         public IEnumerable<ValidationAttribute> Validations { get; }
 
@@ -104,11 +109,9 @@ namespace Reusable.SmartConfig.Reflection
         [CanBeNull]
         public string ProviderName { get; }
 
-        [CanBeNull]
-        public SettingNameComplexity? SettingNameComplexity { get; }
+        public SettingNameComplexity SettingNameComplexity { get; }
 
-        [CanBeNull]
-        public bool? PrefixEnabled { get; }
+        public PrefixHandling PrefixHandling { get; }
 
         public static SettingInfo FromExpression(LambdaExpression expression, bool nonPublic)
         {

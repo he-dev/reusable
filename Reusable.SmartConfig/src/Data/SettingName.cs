@@ -207,18 +207,18 @@ namespace Reusable.SmartConfig.Data
         }
     }
 
-    public readonly struct SettingNameConvention
-    {
-        public SettingNameConvention(SettingNameComplexity complexity, bool usePrefix)
-        {
-            Complexity = complexity;
-            UsePrefix = usePrefix;
-        }
-
-        public static readonly SettingNameConvention Default = new SettingNameConvention(SettingNameComplexity.Medium, false);
-
-        public SettingNameComplexity Complexity { get; }
-
-        public bool UsePrefix { get; }
-    }
+//    public readonly struct SettingNameConvention
+//    {
+//        public SettingNameConvention(SettingNameComplexity complexity, bool usePrefix)
+//        {
+//            Complexity = complexity;
+//            UsePrefix = usePrefix;
+//        }
+//
+//        public static readonly SettingNameConvention Default = new SettingNameConvention(SettingNameComplexity.Medium, false);
+//
+//        public SettingNameComplexity Complexity { get; }
+//
+//        public bool UsePrefix { get; }
+//    }
 }

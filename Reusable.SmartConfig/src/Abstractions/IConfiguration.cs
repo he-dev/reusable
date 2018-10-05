@@ -24,9 +24,9 @@ namespace Reusable.SmartConfig
             SettingName = settingName;
             SettingType = settingType;
         }
-        
+
         [NotNull]
-        public SettingName SettingName { get; }              
+        public SettingName SettingName { get; }
 
         [NotNull]
         public Type SettingType { get; }
@@ -36,31 +36,11 @@ namespace Reusable.SmartConfig
 
         [CanBeNull]
         public SettingNameComplexity? SettingNameComplexity { get; set; }
-        
+
         [CanBeNull]
         public bool? PrefixEnabled { get; set; }
-
-        public static GetValueQuery Create(SettingInfo settingInfo, string instance)
-        {
-            var settingName = new SettingName
-            (
-                prefix: settingInfo.Prefix, //.Type.Assembly.GetCustomAttribute<SettingAssemblyAttribute>()?.Name ?? Type.Assembly.GetName().Name,
-                schema: settingInfo.Schema,
-                type: settingInfo.TypeName,
-                member: settingInfo.MemberName,
-                instance: instance
-            );
-            
-            return new GetValueQuery(settingName, settingInfo.Type)
-            {
-                ProviderName = settingInfo.ProviderName,
-                SettingNameComplexity = settingInfo.SettingNameComplexity, 
-                PrefixEnabled = settingInfo.PrefixEnabled,
-            };
-            
-        }
     }
-    
+
     public class SetValueQuery
     {
         public SetValueQuery(SettingName settingName, object value)
@@ -68,7 +48,7 @@ namespace Reusable.SmartConfig
             SettingName = settingName;
             Value = value;
         }
-        
+
         [NotNull]
         public SettingName SettingName { get; }
 
@@ -79,6 +59,50 @@ namespace Reusable.SmartConfig
         public SoftString ProviderName { get; set; }
 
         [CanBeNull]
-        public SettingNameConvention? SettingNameConvention { get; set; }
+        public SettingNameComplexity? SettingNameComplexity { get; set; }
+
+        [CanBeNull]
+        public bool? PrefixEnabled { get; set; }
+    }
+
+    public static class ValueQueryFactory
+    {
+        public static GetValueQuery CreateGetValueQuery(SettingInfo settingInfo, string instance)
+        {
+            var settingName = new SettingName
+            (
+                prefix: settingInfo.Prefix, //.Type.Assembly.GetCustomAttribute<SettingAssemblyAttribute>()?.Name ?? Type.Assembly.GetName().Name,
+                schema: settingInfo.Schema,
+                type: settingInfo.TypeName,
+                member: settingInfo.MemberName,
+                instance: instance
+            );
+
+            return new GetValueQuery(settingName, settingInfo.Type)
+            {
+                ProviderName = settingInfo.ProviderName,
+                SettingNameComplexity = settingInfo.SettingNameComplexity,
+                PrefixEnabled = settingInfo.PrefixHandlingEnabled,
+            };
+        }
+
+        public static SetValueQuery CreateSetValueQuery(SettingInfo settingInfo, string instance)
+        {
+            var settingName = new SettingName
+            (
+                prefix: settingInfo.Prefix, //.Type.Assembly.GetCustomAttribute<SettingAssemblyAttribute>()?.Name ?? Type.Assembly.GetName().Name,
+                schema: settingInfo.Schema,
+                type: settingInfo.TypeName,
+                member: settingInfo.MemberName,
+                instance: instance
+            );
+
+            return new SetValueQuery(settingName, settingInfo.Type)
+            {
+                ProviderName = settingInfo.ProviderName,
+                SettingNameComplexity = settingInfo.SettingNameComplexity,
+                PrefixEnabled = settingInfo.PrefixHandlingEnabled,
+            };
+        }
     }
 }

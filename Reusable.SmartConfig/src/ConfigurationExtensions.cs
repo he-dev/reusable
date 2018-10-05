@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Reusable.Extensions;
+using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Data;
 using Reusable.SmartConfig.Reflection;
 
@@ -33,7 +34,7 @@ namespace Reusable.SmartConfig
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
             var settingInfo = SettingInfo.FromExpression(expression, false);
-            var query = GetValueQuery.Create(settingInfo, instanceName);
+            var query = ValueQueryFactory.CreateGetValueQuery(settingInfo, instanceName);
 
             var settingValue = config.GetValue(query) ?? settingInfo.DefaultValue;
 
@@ -99,22 +100,17 @@ namespace Reusable.SmartConfig
             if (config == null) throw new ArgumentNullException(nameof(config));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
-            var settingInfo = SettingInfo.FromExpression(expression, false, instance);
+            var settingInfo = SettingInfo.FromExpression(expression, false);
+            var query = ValueQueryFactory.CreateSetValueQuery(settingInfo, instance);
 
-            // 
             //var settingValue = config.GetValue(settingInfo.SettingName, typeof(T), settingInfo.ProviderName) ?? settingInfo.DefaultValue;
 
             var settingValue = settingInfo.GetValue();
 
             settingInfo
                 .Validations
-                .Validate(settingInfo.SettingName, settingValue);
+                .Validate(query.SettingName, settingValue);
 
-            var query = new SetValueQuery(settingInfo.SettingName, settingValue)
-            {
-                ProviderName = settingInfo.ProviderName,
-                //SettingNameConvention = settingInfo.Convention
-            };
             config.SetValue(query);
             return config;
         }
@@ -132,7 +128,7 @@ namespace Reusable.SmartConfig
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
-            var settingContext = SettingInfo.FromExpression(expression, false, instance);
+            var settingContext = SettingInfo.FromExpression(expression, false);
 
             var value = configuration.GetValue(expression, instance);
             settingContext.SetValue(value);
@@ -152,7 +148,7 @@ namespace Reusable.SmartConfig
             var settingProperties =
                 typeof(T)
                     .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                    .Where(p => p.GetCustomAttribute<SmartSettingAttribute>() != null);
+                    .Where(p => p.GetCustomAttribute<SettingMemberAttribute>() != null);
 
             foreach (var property in settingProperties)
             {
@@ -164,7 +160,7 @@ namespace Reusable.SmartConfig
                     )
                 );
 
-                var settingInfo = SettingInfo.FromExpression(expression, false, instance);
+                var settingInfo = SettingInfo.FromExpression(expression, false);
                 //var value = configuration.GetValue(settingInfo.SettingName, property.PropertyType, settingInfo.ProviderName);
                 //settingInfo.SetValue(value);
             }

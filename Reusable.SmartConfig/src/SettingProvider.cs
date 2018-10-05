@@ -27,12 +27,13 @@ namespace Reusable.SmartConfig
             Name = CreateDefaultName(GetType());
         }
 
-        protected SettingProvider([NotNull] ISettingConverter converter, SettingNameConvention settingNameConvention) : this()
+        protected SettingProvider([NotNull] ISettingNameFactory settingNameFactory, [NotNull] ISettingConverter converter) 
+            : this()
         {
             _converter = converter ?? throw new ArgumentNullException(nameof(converter));
-            _settingNameFactory = new SettingNameFactory(settingNameConvention);
+            _settingNameFactory = settingNameFactory ?? throw new ArgumentNullException(nameof(settingNameFactory));
         }
-
+        
         public SoftString Name
         {
             get => _name;
