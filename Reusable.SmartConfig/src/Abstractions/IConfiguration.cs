@@ -67,41 +67,41 @@ namespace Reusable.SmartConfig
 
     public static class ValueQueryFactory
     {
-        public static GetValueQuery CreateGetValueQuery(SettingInfo settingInfo, string instance)
+        public static GetValueQuery CreateGetValueQuery(SettingMetadata settingMetadata, string instance)
         {
             var settingName = new SettingName
             (
-                prefix: settingInfo.Prefix, //.Type.Assembly.GetCustomAttribute<SettingAssemblyAttribute>()?.Name ?? Type.Assembly.GetName().Name,
-                schema: settingInfo.Schema,
-                type: settingInfo.TypeName,
-                member: settingInfo.MemberName,
+                prefix: settingMetadata.Prefix, //.Type.Assembly.GetCustomAttribute<SettingAssemblyAttribute>()?.Name ?? Type.Assembly.GetName().Name,
+                schema: settingMetadata.Schema,
+                type: settingMetadata.TypeName,
+                member: settingMetadata.MemberName,
                 instance: instance
             );
 
-            return new GetValueQuery(settingName, settingInfo.Type)
+            return new GetValueQuery(settingName, settingMetadata.Type)
             {
-                ProviderName = settingInfo.ProviderName,
-                SettingNameComplexity = settingInfo.SettingNameComplexity,
-                PrefixEnabled = settingInfo.PrefixHandlingEnabled,
+                ProviderName = settingMetadata.ProviderName,
+                SettingNameComplexity = settingMetadata.SettingNameComplexity,
+                PrefixEnabled = settingMetadata.PrefixHandlingEnabled,
             };
         }
 
-        public static SetValueQuery CreateSetValueQuery(SettingInfo settingInfo, string instance)
+        public static SetValueQuery CreateSetValueQuery(SettingMetadata settingMetadata, string instance)
         {
             var settingName = new SettingName
             (
-                prefix: settingInfo.Prefix, //.Type.Assembly.GetCustomAttribute<SettingAssemblyAttribute>()?.Name ?? Type.Assembly.GetName().Name,
-                schema: settingInfo.Schema,
-                type: settingInfo.TypeName,
-                member: settingInfo.MemberName,
+                prefix: settingMetadata.Prefix, //.Type.Assembly.GetCustomAttribute<SettingAssemblyAttribute>()?.Name ?? Type.Assembly.GetName().Name,
+                schema: settingMetadata.Schema,
+                type: settingMetadata.TypeName,
+                member: settingMetadata.MemberName,
                 instance: instance
             );
 
-            return new SetValueQuery(settingName, settingInfo.Type)
+            return new SetValueQuery(settingName, settingMetadata.Type)
             {
-                ProviderName = settingInfo.ProviderName,
-                SettingNameComplexity = settingInfo.SettingNameComplexity,
-                PrefixEnabled = settingInfo.PrefixHandlingEnabled,
+                ProviderName = settingMetadata.ProviderName,
+                SettingNameComplexity = settingMetadata.SettingNameComplexity,
+                PrefixEnabled = settingMetadata.PrefixHandlingEnabled,
             };
         }
     }

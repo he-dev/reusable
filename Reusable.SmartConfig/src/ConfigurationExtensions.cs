@@ -33,7 +33,7 @@ namespace Reusable.SmartConfig
             if (config == null) throw new ArgumentNullException(nameof(config));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
-            var settingInfo = SettingInfo.FromExpression(expression, false);
+            var settingInfo = SettingMetadata.FromExpression(expression, false);
             var query = ValueQueryFactory.CreateGetValueQuery(settingInfo, instanceName);
 
             var settingValue = config.GetValue(query) ?? settingInfo.DefaultValue;
@@ -100,7 +100,7 @@ namespace Reusable.SmartConfig
             if (config == null) throw new ArgumentNullException(nameof(config));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
-            var settingInfo = SettingInfo.FromExpression(expression, false);
+            var settingInfo = SettingMetadata.FromExpression(expression, false);
             var query = ValueQueryFactory.CreateSetValueQuery(settingInfo, instance);
 
             //var settingValue = config.GetValue(settingInfo.SettingName, typeof(T), settingInfo.ProviderName) ?? settingInfo.DefaultValue;
@@ -128,7 +128,7 @@ namespace Reusable.SmartConfig
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
-            var settingContext = SettingInfo.FromExpression(expression, false);
+            var settingContext = SettingMetadata.FromExpression(expression, false);
 
             var value = configuration.GetValue(expression, instance);
             settingContext.SetValue(value);
@@ -160,7 +160,7 @@ namespace Reusable.SmartConfig
                     )
                 );
 
-                var settingInfo = SettingInfo.FromExpression(expression, false);
+                var settingInfo = SettingMetadata.FromExpression(expression, false);
                 //var value = configuration.GetValue(settingInfo.SettingName, property.PropertyType, settingInfo.ProviderName);
                 //settingInfo.SetValue(value);
             }

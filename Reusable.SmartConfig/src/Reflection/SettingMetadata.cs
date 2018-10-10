@@ -15,7 +15,7 @@ using Reusable.Validation;
 namespace Reusable.SmartConfig.Reflection
 {
     [PublicAPI]
-    public class SettingInfo
+    public class SettingMetadata
     {
         private static readonly IDuckValidator<LambdaExpression> SettingExpressionValidator = new DuckValidator<LambdaExpression>(expression =>
         {
@@ -49,7 +49,7 @@ namespace Reusable.SmartConfig.Reflection
         //    };
         //}
 
-        private SettingInfo(Type type, object instance, MemberInfo member)
+        private SettingMetadata(Type type, object instance, MemberInfo member)
         {
             Type = type;
             Instance = instance;
@@ -57,24 +57,21 @@ namespace Reusable.SmartConfig.Reflection
 
             var attributes = new SettingAttribute[]
             {
-                type.Assembly.GetCustomAttribute<SettingPrefixAttribute>(),
-                type.GetCustomAttribute<SettingTypeAttribute>(),
-                member.GetCustomAttribute<SettingPrefixAttribute>(),
+                //type.Assembly.GetCustomAttribute<SettingPrefixAttribute>(),
+                //type.GetCustomAttribute<SettingTypeAttribute>(),
+                //member.GetCustomAttribute<SettingPrefixAttribute>(),
             };
             
             var prefixHandling = attributes.Select(a => a?.PrefixHandling).LastOrDefault(x=> x.HasValue) ?? PrefixHandling.Inherit; 
 
-            Prefix = 
-                prefixHandling == PrefixHandling.Inherit 
-            ? attributes.Select(a => a?.Name).Last(Conditional.IsNotNullOrEmpty)
-                    : 
+            //Prefix = prefixHandling == PrefixHandling.Inherit ? attributes.Select(a => a?.Name).Last(Conditional.IsNotNullOrEmpty) : 
             Schema = type.Namespace;
             TypeName = member.GetCustomAttribute<SettingTypeAttribute>()?.Name ?? type.ToPrettyString();
-            MemberName = member.GetCustomAttribute<SettingPrefixAttribute>()?.Name ?? member.Name;
+            //MemberName = member.GetCustomAttribute<SettingPrefixAttribute>()?.Name ?? member.Name;
             
             ProviderName = attributes.Select(a => a?.ProviderName).LastOrDefault(Conditional.IsNotNullOrEmpty);
-            SettingNameComplexity = attributes.Select(a => a?.Complexity).LastOrDefault(Conditional.IsNotNull);
-            PrefixHandlingEnabled = attributes.Select(a => a.PrefixEnabled).LastOrDefault(Conditional.IsNotNull);
+            //SettingNameComplexity = attributes.Select(a => a?.Complexity).LastOrDefault(Conditional.IsNotNull);
+            //PrefixHandlingEnabled = attributes.Select(a => a.PrefixEnabled).LastOrDefault(Conditional.IsNotNull);
             DefaultValue = member.GetCustomAttribute<DefaultValueAttribute>()?.Value;
             Validations = member.GetCustomAttributes<ValidationAttribute>();
         }
@@ -113,10 +110,10 @@ namespace Reusable.SmartConfig.Reflection
 
         public PrefixHandling PrefixHandling { get; }
 
-        public static SettingInfo FromExpression(LambdaExpression expression, bool nonPublic)
+        public static SettingMetadata FromExpression(LambdaExpression expression, bool nonPublic)
         {
             var (type, instance, member) = SettingVisitor.GetSettingInfo(expression, nonPublic);
-            return new SettingInfo(type, instance, member);
+            return new SettingMetadata(type, instance, member);
         }
 
         [CanBeNull]
