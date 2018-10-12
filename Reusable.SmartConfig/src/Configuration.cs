@@ -21,19 +21,19 @@ namespace Reusable.SmartConfig
 
         private readonly IDictionary<SettingName, SoftString> _settingProviderNames = new Dictionary<SettingName, SoftString>();
 
-        private static readonly IDuckValidator<IEnumerable<ISettingProvider>> SettingProviderValidator = new DuckValidator<IEnumerable<ISettingProvider>>(
+        private static readonly IWeelidator<IEnumerable<ISettingProvider>> SettingProviderWeelidator = new Weelidator<IEnumerable<ISettingProvider>>(
             builder =>
             {
-                builder
-                    .IsNotValidWhen(providers => providers == null, DuckValidationRuleOptions.BreakOnFailure)
-                    .IsValidWhen(providers => providers.Any(), _ => "You need to specify at least one setting-provider.");
+                builder.BlockNull();
+                builder.Ensure(providers => providers.Any()).WithMessage("You need to specify at least one setting-provider.");
             }
         );
 
         public Configuration([NotNull][ItemNotNull] IEnumerable<ISettingProvider> settingProviders, [NotNull] ISettingFinder settingFinder)
         {
-            // ReSharper disable once ConstantConditionalAccessQualifier - yes, this can be null
-            _providers = (settingProviders?.ToList()).ValidateWith(SettingProviderValidator).ThrowOrDefault();
+            if (settingProviders == null) throw new ArgumentNullException(nameof(settingProviders));
+
+            _providers = settingProviders.ToList().ValidateWith(SettingProviderWeelidator).ThrowIfInvalid();
             _settingFinder = settingFinder ?? throw new ArgumentNullException(nameof(settingFinder));
         }
 
@@ -89,14 +89,5 @@ namespace Reusable.SmartConfig
         {
             _settingProviderNames[settingName] = providerName;
         }
-    }
-
-    [SettingType(Prefix = "SmartConfig", Complexity = SettingNameComplexity.Low)]
-    public class Internal
-    {
-        [DefaultValue(ProviderSearch.Auto)]
-        public ProviderSearch ProviderSearch { get; set; }
-
-        public string[] SearchableProviders { get; set; }
     }
 }

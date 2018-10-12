@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq.Expressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.SmartConfig.Data;
+using Reusable.SmartConfig.Reflection;
 
 namespace Reusable.Tests.SmartConfig.Reflection
 {
@@ -14,8 +16,10 @@ namespace Reusable.Tests.SmartConfig.Reflection
             var testClass2 = new TestClass2();
             var expression1 = ((Expression<Func<object>>)(() => testClass1.Foo));
             var expression2 = ((Expression<Func<object>>)(() => testClass2.Foo));
-            var settingName2 = expression2.GetSettingName();
-            Assert.AreEqual("Reusable.SmartConfig.Core.Utilities.Tests.Reflection+TestClass2.Foo", settingName2);
+            var settingMetadata = SettingMetadata.FromExpression(expression2);
+            var settingName = SettingName.FromMetadata(settingMetadata, null);
+            
+            Assert.AreEqual("Reusable.SmartConfig.Core.Utilities.Tests.Reflection+TestClass2.Foo", settingName);
         }
 
         [TestMethod]
@@ -41,8 +45,10 @@ namespace Reusable.Tests.SmartConfig.Reflection
             var expression1 = ((Expression<Func<object>>)(() => Foo));
             var expression2 = ((Expression<Func<object>>)(() => Foo));
 
-            var settingName2 = expression2.GetSettingName();
-            Assert.AreEqual("Reusable.SmartConfig.Core.Utilities.Tests.Reflection+TestClass1.Foo", settingName2);
+            var settingMetadata = SettingMetadata.FromExpression(expression2);
+            var settingName = SettingName.FromMetadata(settingMetadata, null);
+            
+            Assert.AreEqual("Reusable.SmartConfig.Core.Utilities.Tests.Reflection+TestClass1.Foo", settingName);
         }
     }
 

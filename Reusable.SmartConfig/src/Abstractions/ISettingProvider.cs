@@ -12,8 +12,8 @@ namespace Reusable.SmartConfig
         SoftString Name { get; }        
 
         [CanBeNull]
-        ISetting Read([NotNull] SettingName settingName, [NotNull] Type settingType, SettingNameConvention? settingNameConvention = default);
+        ISetting Read([NotNull] SettingName settingName, [NotNull] Type settingType, SettingNameConvention settingNameConvention);
 
-        void Write([NotNull] SettingName settingName, [CanBeNull] object value, SettingNameConvention? settingNameConvention = default);
+        void Write([NotNull] SettingName settingName, [CanBeNull] object value, SettingNameConvention settingNameConvention);
     }
 }

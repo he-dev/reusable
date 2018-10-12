@@ -7,56 +7,40 @@ using Reusable.Validation;
 namespace Reusable.Tests.Validation
 {
     [TestClass]
-    public class DuckValidatorTest
+    public class WeelidatorTest
     {
         [TestMethod]
-        public void IsValidWhen_SingleRule_True()
+        public void CanEnsureMultipleRules()
         {
-            var validator = new DuckValidator<Person>(model => model.IsValidWhen(p => p.FirstName != null));
-            var person = new Person { FirstName = "John" };
-            Assert.IsTrue(validator.Validate(person).Success);
-        }
-
-        [TestMethod]
-        public void IsValidWhen_SingleRule_False()
-        {
-            var validator = new DuckValidator<Person>(model => model.IsValidWhen(p => p.FirstName != null));
-            var person = new Person();
-            Assert.IsFalse(validator.Validate(person).Success);
-        }
-
-        [TestMethod]
-        public void IsValidWhen_MultipleRules_True()
-        {
-            var validator = new DuckValidator<Person>(model =>
+            var validator = new Weelidator<Person>(builder =>
             {
-                model
-                    .IsValidWhen(p => p.FirstName != null)
-                    .IsValidWhen(p => p.LastName != null);
+                builder.Ensure(p => p.FirstName != null);
+                builder.Ensure(p => p.LastName != null);
             });
 
             var person = new Person { FirstName = "John", LastName = "Doe" };
             Assert.IsTrue(validator.Validate(person).Success);
-        }
+        }        
 
         [TestMethod]
-        public void IsValidWhen_MultipleRules_False()
+        public void CanBlockMultipleRules()
         {
-            var validator = new DuckValidator<Person>(model =>
+            var validator = new Weelidator<Person>(builder =>
             {
-                model
-                    .IsValidWhen(p => p.FirstName != null)
-                    .IsValidWhen(p => p.LastName != null);
+                builder.Block(p => p.FirstName == null);
+                builder.Block(p => p.LastName == null);
             });
 
             var person = new Person();
-            Assert.IsFalse(validator.Validate(person).Success);
+            var weelidationResult = validator.Validate(person);
+            Assert.IsFalse(weelidationResult.Success);
+            
         }
 
         [TestMethod]
         public void IsValidWhenNull_Null_True()
         {
-            var validator = new DuckValidator<Person>(model => model.IsValidWhenNull());
+            var validator = new Weelidator<Person>(model => model.EnsureNull());
             var person = default(Person);
             Assert.IsTrue(validator.Validate(person).Success);
         }
@@ -64,7 +48,7 @@ namespace Reusable.Tests.Validation
         [TestMethod]
         public void IsValidWhenNull_NotNull_False()
         {
-            var validator = new DuckValidator<Person>(model => model.IsValidWhenNull());
+            var validator = new Weelidator<Person>(model => model.EnsureNull());
             var person = new Person();
             Assert.IsFalse(validator.Validate(person).Success);
         }
@@ -72,7 +56,7 @@ namespace Reusable.Tests.Validation
         [TestMethod]
         public void IsNotValidWhenNull_NotNull_True()
         {
-            var validator = new DuckValidator<Person>(model => model.IsNotValidWhenNull());
+            var validator = new Weelidator<Person>(model => model.BlockNull());
             var person = new Person();
             Assert.IsTrue(validator.Validate(person).Success);
         }
@@ -80,7 +64,7 @@ namespace Reusable.Tests.Validation
         [TestMethod]
         public void IsNotValidWhenNull_Null_False()
         {
-            var validator = new DuckValidator<Person>(model => model.IsNotValidWhenNull());
+            var validator = new Weelidator<Person>(model => model.BlockNull());
             var person = default(Person);
             Assert.IsFalse(validator.Validate(person).Success);
         }
@@ -103,10 +87,10 @@ namespace Reusable.Tests.Validation
         [TestMethod]
         public void ThrowOrDefault_InvalidPerson_PersonValidationException()
         {
-            var validator = new DuckValidator<Person>(model => model.IsNotValidWhen(p => p.FirstName == null));
+            var validator = new Weelidator<Person>(model => model.Block(p => p.FirstName == null));
             var person = new Person();
 
-            Assert.That.Throws<DynamicException>(() => validator.Validate(person).ThrowOrDefault(), filter => filter.When(name: "PersonValidationException"));
+            Assert.That.Throws<DynamicException>(() => validator.Validate(person).ThrowIfInvalid(), filter => filter.When(name: "PersonValidationException"));
         }
 
         public class Person

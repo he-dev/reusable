@@ -34,11 +34,7 @@ namespace Reusable.SmartConfig
         [CanBeNull]
         public SoftString ProviderName { get; set; }
 
-        [CanBeNull]
-        public SettingNameComplexity? SettingNameComplexity { get; set; }
-
-        [CanBeNull]
-        public bool? PrefixEnabled { get; set; }
+        public SettingNameConvention SettingNameConvention { get; set; }
     }
 
     public class SetValueQuery
@@ -58,11 +54,7 @@ namespace Reusable.SmartConfig
         [CanBeNull]
         public SoftString ProviderName { get; set; }
 
-        [CanBeNull]
-        public SettingNameComplexity? SettingNameComplexity { get; set; }
-
-        [CanBeNull]
-        public bool? PrefixEnabled { get; set; }
+        public SettingNameConvention SettingNameConvention { get; set; }
     }
 
     public static class ValueQueryFactory
@@ -81,8 +73,7 @@ namespace Reusable.SmartConfig
             return new GetValueQuery(settingName, settingMetadata.Type)
             {
                 ProviderName = settingMetadata.ProviderName,
-                SettingNameComplexity = settingMetadata.SettingNameComplexity,
-                PrefixEnabled = settingMetadata.PrefixHandlingEnabled,
+                SettingNameConvention = new SettingNameConvention(settingMetadata.SettingNameComplexity, settingMetadata.PrefixHandling)
             };
         }
 
@@ -100,8 +91,7 @@ namespace Reusable.SmartConfig
             return new SetValueQuery(settingName, settingMetadata.Type)
             {
                 ProviderName = settingMetadata.ProviderName,
-                SettingNameComplexity = settingMetadata.SettingNameComplexity,
-                PrefixEnabled = settingMetadata.PrefixHandlingEnabled,
+                SettingNameConvention = new SettingNameConvention(settingMetadata.SettingNameComplexity, settingMetadata.PrefixHandling)
             };
         }
     }

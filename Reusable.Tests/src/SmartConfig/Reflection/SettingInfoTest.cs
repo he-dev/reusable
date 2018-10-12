@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.SmartConfig.Utilities.Reflection;
+using Reusable.SmartConfig.Reflection;
 
 namespace Reusable.Tests.SmartConfig.Reflection
 {
@@ -22,7 +22,7 @@ namespace Reusable.Tests.SmartConfig.Reflection
             var expression1 = (Expression<Func<object>>)(() => test1.InstanceProperty);
             var expression2 = (Expression<Func<object>>)(() => test2.InstanceProperty);
 
-            var setting = SettingInfo.FromExpression(expression2, false, null);
+            var setting = SettingMetadata.FromExpression(expression2, false);
 
             var asm = typeof(SettingInfoTest).Assembly.GetName().Name;
             Assert.AreEqual($"{Assembly}:{Namespace}+TestClass2.InstanceProperty", setting.ToString());
@@ -36,7 +36,7 @@ namespace Reusable.Tests.SmartConfig.Reflection
 
             Assert.AreEqual(
                 $"{Namespace}+MockClass1.InstanceProperty",
-                mock1.GetSettingInfo_InstanceClosure().ToString());
+                mock1.GetSettingMetadata_InstanceClosure().ToString());
         }
 
         [TestMethod]
@@ -47,7 +47,7 @@ namespace Reusable.Tests.SmartConfig.Reflection
 
             Assert.AreEqual(
                 $"{Namespace}+MockClass2.StaticProperty",
-                SettingInfo.FromExpression(expression2, false, null).ToString());
+                SettingMetadata.FromExpression(expression2, false).ToString());
         }
 
         [TestMethod]
@@ -55,7 +55,7 @@ namespace Reusable.Tests.SmartConfig.Reflection
         {
             Assert.AreEqual(
                 $"{Namespace}+MockClass1.StaticProperty",
-                TestClass1.GetSettingInfo_StaticClosure().ToString());
+                TestClass1.GetSettingMetadata_StaticClosure().ToString());
         }
 
         //[TestMethod]
@@ -89,7 +89,7 @@ namespace Reusable.Tests.SmartConfig.Reflection
 
             Assert.AreEqual(
                 $"{Namespace}+MockDerivedClass2.InstanceProperty",
-                SettingInfo.FromExpression(expression2, false, null).ToString());
+                SettingMetadata.FromExpression(expression2, false).ToString());
         }
 
         //[TestMethod]
@@ -102,22 +102,22 @@ namespace Reusable.Tests.SmartConfig.Reflection
         {
             public string InstanceProperty { get; set; }
 
-            public SettingInfo GetSettingInfo_InstanceClosure()
+            public SettingMetadata GetSettingMetadata_InstanceClosure()
             {
                 var expression1 = (Expression<Func<string>>)(() => InstanceProperty);
                 var expression2 = (Expression<Func<string>>)(() => InstanceProperty);
 
-                return SettingInfo.FromExpression(expression2, false, null);
+                return SettingMetadata.FromExpression(expression2, false);
             }
 
             public static string StaticProperty { get; set; }
 
-            public static SettingInfo GetSettingInfo_StaticClosure()
+            public static SettingMetadata GetSettingMetadata_StaticClosure()
             {
                 var expression1 = (Expression<Func<string>>)(() => StaticProperty);
                 var expression2 = (Expression<Func<string>>)(() => StaticProperty);
 
-                return SettingInfo.FromExpression(expression2, false, null);
+                return SettingMetadata.FromExpression(expression2, false);
             }
         }
 

@@ -17,11 +17,10 @@ namespace Reusable.SmartConfig.Reflection
     [PublicAPI]
     public class SettingMetadata
     {
-        private static readonly IDuckValidator<LambdaExpression> SettingExpressionValidator = new DuckValidator<LambdaExpression>(expression =>
+        private static readonly IWeelidator<LambdaExpression> SettingExpressionValidator = new Weelidator<LambdaExpression>(builder =>
         {
-            expression
-                .IsNotValidWhenNull()
-                .IsValidWhen(e => e.Body is MemberExpression);
+            builder.BlockNull();
+            builder.Ensure(e => e.Body is MemberExpression);
         });
 
         //[NotNull]
@@ -55,23 +54,23 @@ namespace Reusable.SmartConfig.Reflection
             Instance = instance;
             Member = member;
 
-            var attributes = new SettingAttribute[]
-            {
-                //type.Assembly.GetCustomAttribute<SettingPrefixAttribute>(),
-                //type.GetCustomAttribute<SettingTypeAttribute>(),
-                //member.GetCustomAttribute<SettingPrefixAttribute>(),
-            };
-            
-            var prefixHandling = attributes.Select(a => a?.PrefixHandling).LastOrDefault(x=> x.HasValue) ?? PrefixHandling.Inherit; 
+            var attributes =
+                new SettingAttribute[]
+                    {
+                        member.GetCustomAttribute<SettingMemberAttribute>(),
+                        type.GetCustomAttribute<SettingTypeAttribute>(),
+                    }
+                    .Where(Conditional.IsNotNull)
+                    .ToList();
 
-            //Prefix = prefixHandling == PrefixHandling.Inherit ? attributes.Select(a => a?.Name).Last(Conditional.IsNotNullOrEmpty) : 
+            Prefix = attributes.Select(x => x.Prefix).FirstOrDefault(Conditional.IsNotNullOrEmpty);
+            PrefixHandling = attributes.FirstOrDefault(x => x.PrefixHandling != PrefixHandling.Inherit)?.PrefixHandling ?? PrefixHandling.Inherit;
+
             Schema = type.Namespace;
             TypeName = member.GetCustomAttribute<SettingTypeAttribute>()?.Name ?? type.ToPrettyString();
-            //MemberName = member.GetCustomAttribute<SettingPrefixAttribute>()?.Name ?? member.Name;
-            
-            ProviderName = attributes.Select(a => a?.ProviderName).LastOrDefault(Conditional.IsNotNullOrEmpty);
-            //SettingNameComplexity = attributes.Select(a => a?.Complexity).LastOrDefault(Conditional.IsNotNull);
-            //PrefixHandlingEnabled = attributes.Select(a => a.PrefixEnabled).LastOrDefault(Conditional.IsNotNull);
+            MemberName = member.GetCustomAttribute<SettingMemberAttribute>()?.Name ?? member.Name;
+
+            ProviderName = attributes.Select(x => x.ProviderName).FirstOrDefault(Conditional.IsNotNullOrEmpty);
             DefaultValue = member.GetCustomAttribute<DefaultValueAttribute>()?.Value;
             Validations = member.GetCustomAttributes<ValidationAttribute>();
         }
@@ -110,7 +109,7 @@ namespace Reusable.SmartConfig.Reflection
 
         public PrefixHandling PrefixHandling { get; }
 
-        public static SettingMetadata FromExpression(LambdaExpression expression, bool nonPublic)
+        public static SettingMetadata FromExpression(LambdaExpression expression, bool nonPublic = false)
         {
             var (type, instance, member) = SettingVisitor.GetSettingInfo(expression, nonPublic);
             return new SettingMetadata(type, instance, member);
@@ -149,7 +148,7 @@ namespace Reusable.SmartConfig.Reflection
                         var backingField = Type.GetField($"<{property.Name}>k__BackingField", bindingFlags);
                         if (backingField is null)
                         {
-                            throw ("BackingFieldNotFoundException", $"Property {property.Name.QuoteWith("'")} does not have a default backing field.").ToDynamicException();
+                            throw ("BackingFieldNotFound", $"Property {property.Name.QuoteWith("'")} does not have a default backing field.").ToDynamicException();
                         }
 
                         backingField.SetValue(Instance, value);

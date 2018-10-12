@@ -11,6 +11,8 @@ using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Extensions;
 using Reusable.Reflection;
+using Reusable.SmartConfig.Annotations;
+using Reusable.SmartConfig.Reflection;
 
 namespace Reusable.SmartConfig.Data
 {
@@ -69,10 +71,22 @@ namespace Reusable.SmartConfig.Data
 
         [CanBeNull]
         [AutoEqualityProperty]
-        public string Instance => this[Token.Instance].ToString();
+        public string Instance => this[Token.Instance].ToString();        
 
         [NotNull]
         public static SettingName Parse([NotNull] string text) => new SettingName(Tokenize(text));
+
+        public static SettingName FromMetadata(SettingMetadata settingMetadata, string instance)
+        {
+            return new SettingName
+            (
+                prefix: settingMetadata.Prefix,
+                schema: settingMetadata.Schema,
+                type: settingMetadata.TypeName,
+                member: settingMetadata.MemberName,
+                instance: instance
+            );
+        }
 
         public override string ToString()
         {
@@ -207,18 +221,18 @@ namespace Reusable.SmartConfig.Data
         }
     }
 
-//    public readonly struct SettingNameConvention
-//    {
-//        public SettingNameConvention(SettingNameComplexity complexity, bool usePrefix)
-//        {
-//            Complexity = complexity;
-//            UsePrefix = usePrefix;
-//        }
-//
-//        public static readonly SettingNameConvention Default = new SettingNameConvention(SettingNameComplexity.Medium, false);
-//
-//        public SettingNameComplexity Complexity { get; }
-//
-//        public bool UsePrefix { get; }
-//    }
+    public readonly struct SettingNameConvention
+    {
+        public SettingNameConvention(SettingNameComplexity complexity, PrefixHandling prefixHandling)
+        {
+            Complexity = complexity;
+            PrefixHandling = prefixHandling;
+        }
+
+        public static readonly SettingNameConvention Default = new SettingNameConvention(SettingNameComplexity.Medium, PrefixHandling.Disable);
+
+        public SettingNameComplexity Complexity { get; }
+
+        public PrefixHandling PrefixHandling { get; }
+    }
 }

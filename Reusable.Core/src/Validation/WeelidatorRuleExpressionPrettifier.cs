@@ -8,13 +8,13 @@ namespace Reusable.Validation
     // We don't want to show the exact same expression as the condition
     // because there are variables and closures that don't look pretty.
     // We replace them with more friendly names.
-    internal class DuckValidatorRuleExpressionPrettifier : ExpressionVisitor
+    internal class WeelidatorRuleExpressionPrettifier : ExpressionVisitor
     {
         private readonly ParameterExpression _originalParameter;
 
         private readonly ParameterExpression _replacementParameter;
 
-        private DuckValidatorRuleExpressionPrettifier(ParameterExpression originalParameter, ParameterExpression replacementParameter)
+        private WeelidatorRuleExpressionPrettifier(ParameterExpression originalParameter, ParameterExpression replacementParameter)
         {
             _originalParameter = originalParameter;
             _replacementParameter = replacementParameter;
@@ -52,7 +52,7 @@ namespace Reusable.Validation
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
             var replacementParameter = Expression.Parameter(typeof(T), $"<{typeof(T).ToPrettyString()}>");
-            return new DuckValidatorRuleExpressionPrettifier(expression.Parameters[0], replacementParameter).Visit(expression.Body);
+            return new WeelidatorRuleExpressionPrettifier(expression.Parameters[0], replacementParameter).Visit(expression.Body);
         }
     }
 }

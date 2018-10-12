@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 
@@ -37,6 +38,11 @@ namespace Reusable.SmartConfig.Annotations
             : this(default, new HashSet<SoftString>(providerNames.Select(SoftString.Create)))
         {
         }
+        
+        public static readonly SettingProviderAttribute Default = new SettingProviderAttribute(new HashSet<Type>(), new HashSet<SoftString>())
+        {
+            SettingNameComplexity = SettingNameComplexity.Medium,
+        };
 
         [CanBeNull]
         public Type AssemblyType { get; set; }
@@ -44,7 +50,7 @@ namespace Reusable.SmartConfig.Annotations
         [CanBeNull]
         public string Prefix
         {
-            get => _prefix ?? (AssemblyType is default ? default : Assembly.GetAssembly(AssemblyType).GetName().Name);
+            get => _prefix ?? (AssemblyType is null ? default : Assembly.GetAssembly(AssemblyType).GetName().Name);
             set => _prefix = value;
         }
 
@@ -67,6 +73,12 @@ namespace Reusable.SmartConfig.Annotations
         internal SettingAttribute()
         {
         }
+        
+//        public static SettingAttribute Default { get; } = new SettingAttribute
+//        {
+//            Complexity = SettingNameComplexity.Medium,
+//            PrefixHandling = PrefixHandling.Disable
+//        };
 
         [CanBeNull]
         public string Prefix
@@ -75,7 +87,7 @@ namespace Reusable.SmartConfig.Annotations
             set
             {
                 _prefix = value;
-                _prefixHandling = _prefix.IsNullOrEmpty() ? PrefixHandling.Inherit : PrefixHandling.Override;
+                _prefixHandling = _prefix.IsNullOrEmpty() ? PrefixHandling.Inherit : PrefixHandling.Enable;
             }
         }
 
@@ -120,7 +132,7 @@ namespace Reusable.SmartConfig.Annotations
     {
         Inherit = -1,
         Disable = 0,
-        Override = 1,
+        Enable = 1,
     }
 
     public enum ProviderSearch

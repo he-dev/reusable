@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Custom;
 using JetBrains.Annotations;
 using Reusable.Extensions;
+using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Data;
 
 namespace Reusable.SmartConfig
@@ -56,7 +57,7 @@ namespace Reusable.SmartConfig
     public interface ISettingNameFactory
     {
         [NotNull]
-        SettingName CreateSettingName([NotNull] SettingName settingName, SettingNameComplexity? settingNameComplexity, bool prefixEnabled);
+        SettingName DeriveSettingName([NotNull] SettingName settingName, SettingNameConvention convention, [CanBeNull] string prefix);
     }
 
     public class SettingNameFactory : ISettingNameFactory
@@ -66,47 +67,25 @@ namespace Reusable.SmartConfig
             new[] { Token.Member },
             new[] { Token.Type, Token.Member },
             new[] { Token.Namespace, Token.Type, Token.Member },
-        };
-
-        public SettingNameFactory(SettingNameComplexity settingNameComplexity, SettingNamePrefix settingNamePrefix)
-        {
-            SettingNameComplexity = settingNameComplexity;
-            SettingNamePrefix = settingNamePrefix;
-        }
+        };        
         
-        public SettingNameComplexity SettingNameComplexity { get; }
-
-        public SettingNamePrefix SettingNamePrefix { get; }  
-
-        public SettingName CreateSettingName(SettingName settingName, SettingNameComplexity? settingNameComplexity, bool prefixEnabled)
+        public SettingName DeriveSettingName(SettingName settingName, SettingNameConvention convention, string prefix)
         {
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
 
-            var actualSettingNameConvention = settingNameConvention ?? _settingNameConvention;
+            var tokens = TokenCombinations[(int)convention.Complexity].ToDictionary(t => t, t => settingName[t]);
+            
+            if (!settingName[Token.Instance].IsEmpty)
+            {
+                tokens.Add(Token.Instance, settingName[SettingNameToken.Instance]);
+            }
 
-            var tokens = TokenCombinations[(int)actualSettingNameConvention.Complexity].AsEnumerable();
-            tokens = settingName[Token.Instance].IsEmpty ? tokens : tokens.Append(Token.Instance);
-            tokens = actualSettingNameConvention.UsePrefix ? tokens.Prepend(SettingNameToken.Prefix) : tokens;
+            if (convention.PrefixHandling == PrefixHandling.Enable && prefix.IsNotNullOrEmpty())
+            {
+                tokens.Add(SettingNameToken.Prefix, prefix.AsMemory());
+            } 
 
-            return new SettingName(tokens.ToDictionary(t => t, t => settingName[t]));
-        }
-
-        // public IEnumerable<SettingName> CreateSettingNames(SettingName settingName, SettingNameConvention settingNameConvention)
-        // {
-        //     if (settingName == null) throw new ArgumentNullException(nameof(settingName));
-        //
-        //     settingNameConvention = settingNameConvention.Merge(_settingNameConvention);
-        //     
-        //     return
-        //         from tokens in settingNameConvention.Complexity.HasValue ? new[] { TokenCombinations[(int)settingNameConvention.Complexity] } : TokenCombinations
-        //         let x = settingName[Token.Instance].IsEmpty ? tokens : tokens.Append(Token.Instance)
-        //         let y = settingNameConvention.IsRestricted == true ? x.Prepend(SettingNameToken.Assembly) : x
-        //         select CreateSettingName(y, settingName);
-        // }
-
-        // private static SettingName CreateSettingName(IEnumerable<Token> tokens, SettingName settingName)
-        // {
-        //     return new SettingName(tokens.ToDictionary(t => t, t => settingName[t]));
-        // }
+            return new SettingName(tokens);
+        }        
     }
 }

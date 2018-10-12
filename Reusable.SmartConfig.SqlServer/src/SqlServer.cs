@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Reusable.Data.Repositories;
 using Reusable.SmartConfig.Data;
-using Reusable.SmartConfig.Internal;
 using Reusable.Utilities.SqlClient;
 
 namespace Reusable.SmartConfig
 {
+    using Internal;
+    
     public class SqlServer : SettingProvider
     {
         public const string DefaultSchema = "dbo";
@@ -20,7 +21,7 @@ namespace Reusable.SmartConfig
 
         private SqlServerColumnMapping _columnMapping;
 
-        public SqlServer(string nameOrConnectionString, ISettingConverter converter, SettingNameConvention settingNameConvention) : base(converter, settingNameConvention)
+        public SqlServer(string nameOrConnectionString, ISettingConverter converter) : base(new SettingNameFactory(), converter)
         {
             ConnectionString = ConnectionStringRepository.Default.GetConnectionString(nameOrConnectionString);
 

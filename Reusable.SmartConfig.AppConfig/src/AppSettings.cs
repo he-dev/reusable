@@ -8,7 +8,7 @@ namespace Reusable.SmartConfig
 {
     public class AppSettings : SettingProvider
     {
-        public AppSettings(ISettingConverter converter, SettingNameConvention settingNameConvention) : base(converter, settingNameConvention) { }
+        public AppSettings(ISettingConverter converter) : base(new SettingNameFactory(), converter) { }
 
         protected override ISetting ReadCore(SettingName name)
         {

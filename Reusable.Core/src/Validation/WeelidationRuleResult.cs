@@ -5,7 +5,7 @@ using Reusable.Extensions;
 namespace Reusable.Validation
 {
     // ReSharper disable once UnusedTypeParameter - We need the T to be able to chain extensions and pass the T to them.
-    public interface IDuckValidationRuleResult<T>
+    public interface IWeelidationRuleResult<T>
     {
         [NotNull]
         string Expression { get; }
@@ -16,7 +16,7 @@ namespace Reusable.Validation
         string Message { get; }
     }
 
-    public class DuckValidationRuleResult<T> : IDuckValidationRuleResult<T>
+    public class WeelidationRuleResult<T> : IWeelidationRuleResult<T>
     {
         // ReSharper disable once StaticMemberInGenericType - this is ok because it's common to all instances.
         private static readonly IDictionary<bool, string> ResultStrings = new Dictionary<bool, string>
@@ -25,7 +25,7 @@ namespace Reusable.Validation
             [false] = "Failed"
         };
 
-        public DuckValidationRuleResult([NotNull] string expression, bool success, [NotNull] string message)
+        public WeelidationRuleResult([NotNull] string expression, bool success, [NotNull] string message)
         {
             Expression = expression;
             Success = success;

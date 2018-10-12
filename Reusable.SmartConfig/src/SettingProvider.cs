@@ -3,10 +3,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Custom;
+using System.Reflection;
 using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Extensions;
 using Reusable.Reflection;
+using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Data;
 
 namespace Reusable.SmartConfig
@@ -27,25 +29,26 @@ namespace Reusable.SmartConfig
             Name = CreateDefaultName(GetType());
         }
 
-        protected SettingProvider([NotNull] ISettingNameFactory settingNameFactory, [NotNull] ISettingConverter converter) 
+        protected SettingProvider([NotNull] ISettingNameFactory settingNameFactory, [NotNull] ISettingConverter converter)
             : this()
         {
             _converter = converter ?? throw new ArgumentNullException(nameof(converter));
             _settingNameFactory = settingNameFactory ?? throw new ArgumentNullException(nameof(settingNameFactory));
-        }
-        
+        }               
+
         public SoftString Name
         {
             get => _name;
             set => _name = value ?? throw new ArgumentNullException(nameof(Name));
         }
 
-        public ISetting Read(SettingName settingName, Type settingType, SettingNameConvention? settingNameConvention)
+        public ISetting Read(SettingName settingName, Type settingType, SettingNameConvention settingNameConvention)
         {
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
             if (settingType == null) throw new ArgumentNullException(nameof(settingType));
 
-            settingName = _settingNameFactory.CreateSettingName(settingName, settingNameConvention);
+            var (convention, prefix) = this.Convention(settingName, settingNameConvention);            
+            settingName = _settingNameFactory.DeriveSettingName(settingName, convention, prefix);
 
             try
             {
@@ -69,11 +72,12 @@ namespace Reusable.SmartConfig
         [CanBeNull]
         protected abstract ISetting ReadCore(SettingName name);
 
-        public void Write(SettingName settingName, object value, SettingNameConvention? settingNameConvention)
+        public void Write(SettingName settingName, object value, SettingNameConvention settingNameConvention)
         {
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
 
-            settingName = _settingNameFactory.CreateSettingName(settingName, settingNameConvention);
+            var (convention, prefix) = this.Convention(settingName, settingNameConvention);
+            settingName = _settingNameFactory.DeriveSettingName(settingName, convention, prefix);
 
             try
             {
@@ -120,5 +124,41 @@ namespace Reusable.SmartConfig
         }
 
         #endregion
+    }
+
+    internal static class SettingProviderExtensions
+    {
+        public static (SettingNameConvention Convention, string Prefix) Convention<T>
+        (
+            this T settingProvider,
+            string settingNamePrefix,
+            SettingNameConvention settingNameConvention
+        ) where T : ISettingProvider
+        {
+            var attributes =
+                AppDomain
+                    .CurrentDomain
+                    .GetAssemblies()
+                    .SelectMany(x => x.GetCustomAttributes<SettingProviderAttribute>())
+                    .ToList();
+
+            var current = attributes.Where(x => x.Contains(settingProvider)).ToList();
+
+            var settingNameComplexity =
+                current
+                    .Select(x => x.SettingNameComplexity)
+                    .Prepend(settingNameConvention.Complexity)
+                    .Append(SettingNameComplexity.Medium)
+                    .First(x => x != SettingNameComplexity.Inherit);
+
+            var prefix =
+                settingNameConvention.PrefixHandling == PrefixHandling.Inherit
+                    ? current
+                        .Select(x => x.Prefix)
+                        .FirstOrDefault(Conditional.IsNotNullOrEmpty)
+                    : settingNamePrefix;
+
+            return (new SettingNameConvention(settingNameComplexity, settingNameConvention.PrefixHandling), prefix);
+        }
     }
 }

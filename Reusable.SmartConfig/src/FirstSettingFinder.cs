@@ -34,7 +34,7 @@ namespace Reusable.SmartConfig
 
             var findSetting =
                 from provider in providers
-                let setting = provider.Read(query.SettingName, query.SettingType, query.SettingNameComplexity)
+                let setting = provider.Read(query.SettingName, query.SettingType, query.SettingNameConvention)
                 where setting.IsNotNull()
                 select (provider, setting);
 

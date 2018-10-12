@@ -6,9 +6,9 @@ using JetBrains.Annotations;
 
 namespace Reusable.Validation
 {
-    public class DuckValidationResult<T> : List<IDuckValidationRuleResult<T>>
+    public class WeelidationResult<T> : List<IWeelidationRuleResult<T>>
     {
-        public DuckValidationResult([CanBeNull] T value, [NotNull] IEnumerable<IDuckValidationRuleResult<T>> results) : base(results)
+        public WeelidationResult([CanBeNull] T value, [NotNull] IEnumerable<IWeelidationRuleResult<T>> results) : base(results)
         {
             Value = value;
         }
@@ -20,6 +20,6 @@ namespace Reusable.Validation
         //public static implicit operator bool(DuckValidationResult<T> context) => context.Results.All(result => result.Success);
 
         [CanBeNull]
-        public static implicit operator T(DuckValidationResult<T> result) => result.Value;       
+        public static implicit operator T(WeelidationResult<T> result) => result.Value;       
     }
 }

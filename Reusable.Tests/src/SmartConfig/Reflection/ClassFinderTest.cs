@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.SmartConfig.Data;
-using Reusable.SmartConfig.Utilities.Reflection;
+using Reusable.SmartConfig.Reflection;
 
 namespace Reusable.Tests.SmartConfig.Utilities.Reflection
 {
