@@ -18,25 +18,23 @@ namespace Reusable.Tests.SmartConfig
             var provider3 = Mock.Create<ISettingProvider>();
 
             provider1
-                .Arrange(x => x.Read(Arg.IsAny<SettingName>(), Arg.IsAny<Type>(), Arg.IsNull<SettingNameConvention>()))
+                .Arrange(x => x.Read(Arg.IsAny<SelectQuery>()))
                 .Returns(default(ISetting));
 
             provider2
                 .Arrange(x => x.Read(
-                    Arg.Matches<SettingName>(arg => arg == SettingName.Parse("Type.Member")),
-                    Arg.IsAny<Type>(),
-                    Arg.IsNull<SettingNameConvention>())
+                    Arg.Matches<SelectQuery>(arg => arg.SettingName == SettingName.Parse("Type.Member")))
                 )
                 .Returns(Setting.Create("Type.Member", "abc"));
 
             provider3
-                .Arrange(x => x.Read(Arg.IsAny<SettingName>(), Arg.IsAny<Type>(), Arg.IsNull<SettingNameConvention>()))
+                .Arrange(x => x.Read(Arg.IsAny<SelectQuery>()))
                 .Returns(default(ISetting));
 
             var settingFinder = new FirstSettingFinder();
             var settingFound = settingFinder.TryFindSetting
             (
-                new GetValueQuery(SettingName.Parse("Type.Member"), typeof(string)),
+                new SelectQuery(SettingName.Parse("Type.Member"), typeof(string)),
                 new[] { provider1, provider2, provider3 },
                 out var result
             );
@@ -51,14 +49,14 @@ namespace Reusable.Tests.SmartConfig
         {
             var provider = Mock.Create<ISettingProvider>();
             provider
-                .Arrange(x => x.Read(Arg.IsAny<SettingName>(), Arg.IsAny<Type>(), Arg.IsNull<SettingNameConvention>()))
+                .Arrange(x => x.Read(Arg.IsAny<SelectQuery>()))
                 .Returns(default(ISetting));
 
             var settingFinder = new FirstSettingFinder();
 
             var settingFound = settingFinder.TryFindSetting
             (
-                new GetValueQuery(SettingName.Parse("Type.Member"), typeof(string)),
+                new SelectQuery(SettingName.Parse("Type.Member"), typeof(string)),
                 new[] { provider },
                 out var result
             );

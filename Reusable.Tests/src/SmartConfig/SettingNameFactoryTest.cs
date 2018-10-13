@@ -16,37 +16,50 @@ namespace Reusable.Tests.SmartConfig
             Assert.AreEqual
             (
                 SettingName.Parse("Type.Member"),
-                Factory.CreateSettingName(
+                Factory.CreateProviderSettingName(
                     SettingName.Parse("Assembly:Namespace+Type.Member"),
-                    new SettingNameConvention(SettingNameComplexity.Medium, PrefixHandling.Disable),
-                    null
+                    new SettingProviderNaming
+                    {
+                        Complexity = SettingNameComplexity.Medium,
+                        PrefixHandling = PrefixHandling.Disable
+                    }
                 )
             );
 
             Assert.AreEqual
             (
                 SettingName.Parse("Type.Member,Instance"),
-                Factory.CreateSettingName(SettingName.Parse("Assembly:Namespace+Type.Member,Instance"),
-                    new SettingNameConvention(SettingNameComplexity.Medium, PrefixHandling.Disable),
-                    null
+                Factory.CreateProviderSettingName(SettingName.Parse("Assembly:Namespace+Type.Member,Instance"),
+                    new SettingProviderNaming
+                    {
+                        Complexity = SettingNameComplexity.Medium,
+                        PrefixHandling = PrefixHandling.Disable
+                    }
                 )
             );
-        
+
             Assert.AreEqual
             (
                 SettingName.Parse("Namespace+Type.Member"),
-                Factory.CreateSettingName(SettingName.Parse("Assembly:Namespace+Type.Member"),
-                    new SettingNameConvention(SettingNameComplexity.High, PrefixHandling.Enable),
-                    null
+                Factory.CreateProviderSettingName(SettingName.Parse("Assembly:Namespace+Type.Member"),
+                    new SettingProviderNaming
+                    {
+                        Complexity = SettingNameComplexity.High,
+                        PrefixHandling = PrefixHandling.Enable
+                    }
                 )
             );
 
             Assert.AreEqual
             (
                 SettingName.Parse("Assembly:Namespace+Type.Member,Instance"),
-                Factory.CreateSettingName(SettingName.Parse("Assembly:Namespace+Type.Member,Instance"),
-                    new SettingNameConvention(SettingNameComplexity.High, PrefixHandling.Enable),
-                    "Assembly"
+                Factory.CreateProviderSettingName(SettingName.Parse("Assembly:Namespace+Type.Member,Instance"),
+                    new SettingProviderNaming
+                    {
+                        Complexity = SettingNameComplexity.High,
+                        Prefix = "Assembly",
+                        PrefixHandling = PrefixHandling.Enable
+                    }
                 )
             );
         }

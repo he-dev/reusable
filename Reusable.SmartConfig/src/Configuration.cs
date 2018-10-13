@@ -13,6 +13,15 @@ using Reusable.Validation;
 
 namespace Reusable.SmartConfig
 {
+    [PublicAPI]
+    public interface IConfiguration
+    {
+        [CanBeNull]
+        object GetValue([NotNull] SelectQuery query);
+
+        void SetValue([NotNull] UpdateQuery query);
+    }
+
     public class Configuration : IConfiguration
     {
         private readonly IEnumerable<ISettingProvider> _providers;
@@ -42,24 +51,29 @@ namespace Reusable.SmartConfig
         {
         }
 
-        public object GetValue(GetValueQuery query)
+        public object GetValue(SelectQuery query)
         {
             if (query == null) throw new ArgumentNullException(nameof(query));
 
             query.ProviderName = _settingProviderNames.TryGetValue(query.SettingName, out var providerName) ? providerName : default;
 
-            if (_settingFinder.TryFindSetting(query, _providers, out var result))
+            try
             {
-                CacheProvider(query.SettingName, result.SettingProvider.Name);
-                return result.Setting.Value;
+                if (_settingFinder.TryFindSetting(query, _providers, out var result))
+                {
+                    CacheProvider(query.SettingName, result.SettingProvider.Name);
+                    return result.Setting.Value;
+                }
             }
-            else
+            catch (Exception ex)
             {
-                throw ("SettingNotFound", $"Setting {query.SettingName.ToString().QuoteWith("'")} not found.").ToDynamicException();
+                throw ($"{nameof(GetValue)}", $"Could not get value for {query.SettingName.ToString().QuoteWith("'")}. See the inner exception for details.").ToDynamicException();
             }
+
+            throw ("SettingNotFound", $"Setting {query.SettingName.ToString().QuoteWith("'")} not found.").ToDynamicException();
         }
 
-        public void SetValue(SetValueQuery query)
+        public void SetValue(UpdateQuery query)
         {
             if (query == null) throw new ArgumentNullException(nameof(query));
 
@@ -73,14 +87,9 @@ namespace Reusable.SmartConfig
                     )
                 );
 
-
             _providers
                 .Single(p => p.Name == providerName)
-                .Write(
-                    query.SettingName,
-                    query.Value,
-                    query.SettingNameConvention
-                );
+                .Write(query);
 
             CacheProvider(query.SettingName, providerName);
         }

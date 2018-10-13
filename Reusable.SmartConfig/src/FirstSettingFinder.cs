@@ -15,7 +15,7 @@ namespace Reusable.SmartConfig
     {
         public bool TryFindSetting
         (
-            GetValueQuery query,
+            SelectQuery query,
             IEnumerable<ISettingProvider> providers,
             out (ISettingProvider SettingProvider, ISetting Setting) result
         )
@@ -34,7 +34,7 @@ namespace Reusable.SmartConfig
 
             var findSetting =
                 from provider in providers
-                let setting = provider.Read(query.SettingName, query.SettingType, query.SettingNameConvention)
+                let setting = provider.Read(query)
                 where setting.IsNotNull()
                 select (provider, setting);
 

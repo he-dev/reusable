@@ -9,7 +9,7 @@ namespace Reusable.SmartConfig
     {
         bool TryFindSetting
         (
-            [NotNull] GetValueQuery query,
+            [NotNull] SelectQuery query,
             [NotNull] IEnumerable<ISettingProvider> providers,
             out (ISettingProvider SettingProvider, ISetting Setting) result
         );

@@ -57,7 +57,7 @@ namespace Reusable.SmartConfig
     public interface ISettingNameFactory
     {
         [NotNull]
-        SettingName CreateSettingName([NotNull] SettingName settingName, SettingNameConvention convention, [CanBeNull] string prefix);
+        SettingName CreateProviderSettingName([NotNull] SettingName settingName, SettingProviderNaming providerNaming);
     }
 
     public class SettingNameFactory : ISettingNameFactory
@@ -69,20 +69,20 @@ namespace Reusable.SmartConfig
             new[] { Token.Namespace, Token.Type, Token.Member },
         };        
         
-        public SettingName CreateSettingName(SettingName settingName, SettingNameConvention convention, string prefix)
+        public SettingName CreateProviderSettingName(SettingName settingName, SettingProviderNaming providerNaming)
         {
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
 
-            var tokens = TokenCombinations[(int)convention.Complexity].ToDictionary(t => t, t => settingName[t]);
+            var tokens = TokenCombinations[(int)providerNaming.Complexity].ToDictionary(t => t, t => settingName[t]);
             
             if (!settingName[Token.Instance].IsEmpty)
             {
                 tokens.Add(Token.Instance, settingName[SettingNameToken.Instance]);
             }
 
-            if (convention.PrefixHandling == PrefixHandling.Enable && prefix.IsNotNullOrEmpty())
+            if (providerNaming.PrefixHandling == PrefixHandling.Enable && providerNaming.Prefix.IsNotNullOrEmpty())
             {
-                tokens.Add(SettingNameToken.Prefix, prefix.AsMemory());
+                tokens.Add(SettingNameToken.Prefix, providerNaming.Prefix.AsMemory());
             } 
 
             return new SettingName(tokens);
