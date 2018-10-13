@@ -10,10 +10,11 @@ namespace Reusable.Tests.SmartConfig
     [TestClass]
     public class SettingConverterTest
     {
+        
         [TestMethod]
-        public void Deserialize_ValueHasTargetType_DeserializeCoreNotCalled()
+        public void DoesNotCallDeserializeCoreWhenSameTypes()
         {
-            var settingConverter = Mock.Create<SettingConverter>(Behavior.CallOriginal, (IEnumerable<Type>)new[] { typeof(string) });
+            var settingConverter = Mock.Create<SettingConverter>(Behavior.CallOriginal, (IEnumerable<Type>)new[] { typeof(string) }, typeof(string));
 
             Mock
                 .NonPublic
@@ -31,9 +32,9 @@ namespace Reusable.Tests.SmartConfig
         }
 
         [TestMethod]
-        public void Deserialize_ValueHasOtherType_DeserializeCoreCalled()
+        public void CallsDeserializeCoreWhenDifferentTypes()
         {
-            var settingConverter = Mock.Create<SettingConverter>(Behavior.CallOriginal, (IEnumerable<Type>)new[] { typeof(string) });
+            var settingConverter = Mock.Create<SettingConverter>(Behavior.CallOriginal, (IEnumerable<Type>)new[] { typeof(string) }, typeof(string));
 
             Mock
                 .NonPublic
@@ -50,9 +51,9 @@ namespace Reusable.Tests.SmartConfig
         }
 
         [TestMethod]
-        public void Serialize_ValueHasSupportedType_SerializeCoreNotCalled()
+        public void DoesNotCallSerializeCoreWhenSameTypes()
         {
-            var settingConverter = Mock.Create<SettingConverter>(Behavior.CallOriginal, (IEnumerable<Type>)new[] { typeof(string) });
+            var settingConverter = Mock.Create<SettingConverter>(Behavior.CallOriginal, (IEnumerable<Type>)new[] { typeof(string) }, typeof(string));
 
             Mock
                 .NonPublic
@@ -69,9 +70,9 @@ namespace Reusable.Tests.SmartConfig
         }
 
         [TestMethod]
-        public void Serialize_ValueHasUnsupportedType_SerializeCoreCalledWithFallbackType()
+        public void CallsSerializeCoreWithFallbackTypeWhenTypeNotSupported()
         {
-            var settingConverter = Mock.Create<SettingConverter>(Behavior.CallOriginal, (IEnumerable<Type>)new[] { typeof(string) });
+            var settingConverter = Mock.Create<SettingConverter>(Behavior.CallOriginal, (IEnumerable<Type>)new[] { typeof(string) }, typeof(string));
 
             Mock
                 .NonPublic

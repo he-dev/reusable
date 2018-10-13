@@ -10,8 +10,10 @@ namespace Reusable.Tests.SmartConfig
     [TestClass]
     public class FirstSettingFinderTest
     {
+        private static readonly ISettingFinder FirstSettingFinder = new FirstSettingFinder();
+        
         [TestMethod]
-        public void TryFindSetting_CanFindSettingByName()
+        public void CanFindSettingByName()
         {
             var provider1 = Mock.Create<ISettingProvider>();
             var provider2 = Mock.Create<ISettingProvider>();
@@ -22,17 +24,14 @@ namespace Reusable.Tests.SmartConfig
                 .Returns(default(ISetting));
 
             provider2
-                .Arrange(x => x.Read(
-                    Arg.Matches<SelectQuery>(arg => arg.SettingName == SettingName.Parse("Type.Member")))
-                )
+                .Arrange(x => x.Read(Arg.Matches<SelectQuery>(arg => arg.SettingName == SettingName.Parse("Type.Member"))))
                 .Returns(Setting.Create("Type.Member", "abc"));
 
             provider3
                 .Arrange(x => x.Read(Arg.IsAny<SelectQuery>()))
                 .Returns(default(ISetting));
 
-            var settingFinder = new FirstSettingFinder();
-            var settingFound = settingFinder.TryFindSetting
+            var settingFound = FirstSettingFinder.TryFindSetting
             (
                 new SelectQuery(SettingName.Parse("Type.Member"), typeof(string)),
                 new[] { provider1, provider2, provider3 },
@@ -45,16 +44,14 @@ namespace Reusable.Tests.SmartConfig
         }
 
         [TestMethod]
-        public void TryFindSetting_DoesNotFindNotExistingSetting()
+        public void DoesNotFindNotExistingSetting()
         {
             var provider = Mock.Create<ISettingProvider>();
             provider
                 .Arrange(x => x.Read(Arg.IsAny<SelectQuery>()))
                 .Returns(default(ISetting));
 
-            var settingFinder = new FirstSettingFinder();
-
-            var settingFound = settingFinder.TryFindSetting
+            var settingFound = FirstSettingFinder.TryFindSetting
             (
                 new SelectQuery(SettingName.Parse("Type.Member"), typeof(string)),
                 new[] { provider },

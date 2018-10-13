@@ -33,33 +33,16 @@ namespace Reusable.Reflection
             if (factory == null) throw new ArgumentNullException(nameof(factory));
 
             return factory.CreateDynamicException($"{memberName}{nameof(Exception)}", message, innerException);
-        }
-
-        //public static Exception CreateDynamicException([NotNull] this IDynamicExceptionFactory factory, string name, string message = null, Exception innerException = null)
-        //{
-        //    if (factory == null) throw new ArgumentNullException(nameof(factory));
-
-        //    return factory.CreateDynamicException($"{name}{nameof(Exception)}", message, innerException);
-        //}
+        }       
 
         public static Exception ToDynamicException(this (string Name, string Message) template)
         {
             return DynamicException.Create(template.Name, template.Message, null);
         }
 
-        public static Exception ToDynamicException(this (Enum ErrorCode, string Message) template)
-        {
-            return DynamicException.Create(template.ErrorCode.ToString(), template.Message, null);
-        }
-
         public static Exception ToDynamicException(this (string Name, string Message, Exception InnerException) template)
         {
             return DynamicException.Create(template.Name, template.Message, template.InnerException);
-        }
-
-        public static Exception ToDynamicException(this (Enum ErrorCode, string Message, Exception InnerException) template)
-        {
-            return DynamicException.Create(template.ErrorCode.ToString(), template.Message, template.InnerException);
         }
     }
 }

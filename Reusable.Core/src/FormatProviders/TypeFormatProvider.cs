@@ -12,6 +12,8 @@ namespace Reusable.FormatProviders
         {
         }
 
+        public static TypeFormatProvider Default { get; } = new TypeFormatProvider();
+
         private class TypeFormatter : ICustomFormatter
         {
             public string Format(string format, object arg, IFormatProvider formatProvider)
@@ -21,7 +23,7 @@ namespace Reusable.FormatProviders
                     case null: return string.Empty;
 
                     case Type type:
-                        
+
                         var typeString = type.ToPrettyString(includeNamespace: SoftString.Comparer.Equals(format, "wns"));
                         return
                             format is null

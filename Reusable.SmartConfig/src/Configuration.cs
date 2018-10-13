@@ -55,7 +55,7 @@ namespace Reusable.SmartConfig
         {
             if (query == null) throw new ArgumentNullException(nameof(query));
 
-            query.ProviderName = _settingProviderNames.TryGetValue(query.SettingName, out var providerName) ? providerName : default;
+            query.ProviderName = _settingProviderNames.TryGetValue(query.SettingName, out var providerName) ? providerName : query.ProviderName;
 
             try
             {
@@ -67,7 +67,7 @@ namespace Reusable.SmartConfig
             }
             catch (Exception ex)
             {
-                throw ($"{nameof(GetValue)}", $"Could not get value for {query.SettingName.ToString().QuoteWith("'")}. See the inner exception for details.").ToDynamicException();
+                throw ($"{nameof(GetValue)}", $"Could not get value for {query.SettingName.ToString().QuoteWith("'")}. See the inner exception for details.", ex).ToDynamicException();
             }
 
             throw ("SettingNotFound", $"Setting {query.SettingName.ToString().QuoteWith("'")} not found.").ToDynamicException();

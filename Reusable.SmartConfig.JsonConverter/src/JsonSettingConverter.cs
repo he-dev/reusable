@@ -27,7 +27,7 @@ namespace Reusable.SmartConfig
 
         [NotNull] private ISet<Type> _stringTypes;
 
-        public JsonSettingConverter(params Type[] otherSupportedTypes) : base(otherSupportedTypes.Prepend(typeof(string)))
+        public JsonSettingConverter(params Type[] otherSupportedTypes) : base(otherSupportedTypes, typeof(string))
         {
             _converter = TypeConverter.Empty;
             _settings = new JsonSerializerSettings();
