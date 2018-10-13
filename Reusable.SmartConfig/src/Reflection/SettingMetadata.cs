@@ -17,7 +17,7 @@ namespace Reusable.SmartConfig.Reflection
     [PublicAPI]
     public class SettingMetadata
     {
-        private static readonly IWeelidator<LambdaExpression> SettingExpressionValidator = new Weelidator<LambdaExpression>(builder =>
+        private static readonly IWeelidator<LambdaExpression> SettingExpressionWeelidator = Weelidator.For<LambdaExpression>(builder =>
         {
             builder.BlockNull();
             builder.Ensure(e => e.Body is MemberExpression);
@@ -63,11 +63,12 @@ namespace Reusable.SmartConfig.Reflection
                     .Where(Conditional.IsNotNull)
                     .ToList();
 
+            SettingNameComplexity = attributes.FirstOrDefault(x => x.Complexity != SettingNameComplexity.Inherit)?.Complexity ?? SettingNameComplexity.Inherit;
             Prefix = attributes.Select(x => x.Prefix).FirstOrDefault(Conditional.IsNotNullOrEmpty);
             PrefixHandling = attributes.FirstOrDefault(x => x.PrefixHandling != PrefixHandling.Inherit)?.PrefixHandling ?? PrefixHandling.Inherit;
 
             Schema = type.Namespace;
-            TypeName = member.GetCustomAttribute<SettingTypeAttribute>()?.Name ?? type.ToPrettyString();
+            TypeName = type.GetCustomAttribute<SettingTypeAttribute>()?.Name ?? type.ToPrettyString();
             MemberName = member.GetCustomAttribute<SettingMemberAttribute>()?.Name ?? member.Name;
 
             ProviderName = attributes.Select(x => x.ProviderName).FirstOrDefault(Conditional.IsNotNullOrEmpty);

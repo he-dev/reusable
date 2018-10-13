@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 
 namespace Reusable
 {
-    public static class StringHelper
+    public static class FormattableStringHelper
     {
         public static string Format([NotNull] FormattableString formattable, [NotNull] IFormatProvider formatProvider)
         {

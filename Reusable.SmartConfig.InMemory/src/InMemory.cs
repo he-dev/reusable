@@ -8,6 +8,11 @@ namespace Reusable.SmartConfig
     {
         private readonly IDictionary<SoftString, object> _settings = new Dictionary<SoftString, object>();
 
+        public InMemory(ISettingConverter converter, string name) : base(new SettingNameFactory(), converter)
+        {
+            Name = name;
+        }
+        
         public InMemory(ISettingConverter converter) : base(new SettingNameFactory(), converter)
         {
         }

@@ -7,10 +7,11 @@ using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Extensions;
 using Reusable.FormatProviders;
-using static Reusable.StringHelper;
 
 namespace Reusable.Utilities.MSTest
 {
+    using static FormattableStringHelper;
+    
     public static class AssertExtensions
     {
         private static readonly IFormatProvider FormatProvider = new CompositeFormatProvider

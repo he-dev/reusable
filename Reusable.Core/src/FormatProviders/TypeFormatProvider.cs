@@ -9,24 +9,28 @@ namespace Reusable.FormatProviders
     {
         public TypeFormatProvider()
             : base(new TypeFormatter())
-        { }
+        {
+        }
 
         private class TypeFormatter : ICustomFormatter
         {
             public string Format(string format, object arg, IFormatProvider formatProvider)
             {
-                if (arg is null) { return string.Empty; }
-
-                if (arg is Type type)
+                switch (arg)
                 {
-                    var typeString = type.ToPrettyString();
-                    return
-                        format is null
-                            ? typeString
-                            : string.Format(formatProvider, $"{{0:{format}}}", typeString);
-                }
+                    case null: return string.Empty;
 
-                return null;
+                    case Type type:
+                        
+                        var typeString = type.ToPrettyString(includeNamespace: SoftString.Comparer.Equals(format, "wns"));
+                        return
+                            format is null
+                                ? typeString
+                                : string.Format(formatProvider, $"{{0:{format}}}", typeString);
+                        break;
+
+                    default: return null;
+                }
             }
         }
     }
@@ -37,6 +41,6 @@ namespace Reusable.FormatProviders
 
         public CultureFormatProvider(CultureInfo culture) => _culture = culture ?? throw new ArgumentNullException(nameof(culture));
 
-        public object GetFormat(Type formatType) => _culture.GetFormat(formatType);        
+        public object GetFormat(Type formatType) => _culture.GetFormat(formatType);
     }
 }

@@ -33,12 +33,12 @@ namespace Reusable.SmartConfig
             if (config == null) throw new ArgumentNullException(nameof(config));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
-            var settingInfo = SettingMetadata.FromExpression(expression, false);
-            var query = ValueQueryFactory.CreateGetValueQuery(settingInfo, instanceName);
+            var settingMetadata = SettingMetadata.FromExpression(expression, false);
+            var query = ValueQueryFactory.CreateGetValueQuery(settingMetadata, instanceName);
 
-            var settingValue = config.GetValue(query) ?? settingInfo.DefaultValue;
+            var settingValue = config.GetValue(query) ?? settingMetadata.DefaultValue;
 
-            settingInfo
+            settingMetadata
                 .Validations
                 .Validate(query.SettingName, settingValue);
 

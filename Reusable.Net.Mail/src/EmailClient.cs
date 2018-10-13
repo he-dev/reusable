@@ -17,7 +17,7 @@ namespace Reusable.Net.Mail
 
     public abstract class EmailClient : IEmailClient
     {
-        private static readonly IWeelidator<IEmail<IEmailSubject, IEmailBody>> EmailValidator = new Weelidator<IEmail<IEmailSubject, IEmailBody>>(builder =>
+        private static readonly IWeelidator<IEmail<IEmailSubject, IEmailBody>> EmailWeelidator = Weelidator.For<IEmail<IEmailSubject, IEmailBody>>(builder =>
         {
             builder.Block(e => e.To == null);
             builder.Block(e => e.Subject == null);
@@ -30,7 +30,7 @@ namespace Reusable.Net.Mail
         {
             if (email == null) throw new ArgumentNullException(nameof(email));
 
-            EmailValidator
+            EmailWeelidator
                 .Validate((IEmail<IEmailSubject, IEmailBody>)email)
                 .ThrowIfInvalid();
 

@@ -47,12 +47,12 @@ namespace Reusable.SmartConfig
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
             if (settingType == null) throw new ArgumentNullException(nameof(settingType));
 
-            var (convention, prefix) = this.Convention(settingName, settingNameConvention);            
-            settingName = _settingNameFactory.DeriveSettingName(settingName, convention, prefix);
+            var (convention, prefix) = this.Convention(settingName.Prefix, settingNameConvention);            
+            var actualSettingName = _settingNameFactory.CreateSettingName(settingName, convention, prefix);
 
             try
             {
-                var setting = ReadCore(settingName);
+                var setting = ReadCore(actualSettingName);
 
                 return
                     setting is null
@@ -77,7 +77,7 @@ namespace Reusable.SmartConfig
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
 
             var (convention, prefix) = this.Convention(settingName, settingNameConvention);
-            settingName = _settingNameFactory.DeriveSettingName(settingName, convention, prefix);
+            settingName = _settingNameFactory.CreateSettingName(settingName, convention, prefix);
 
             try
             {
@@ -158,7 +158,7 @@ namespace Reusable.SmartConfig
                         .FirstOrDefault(Conditional.IsNotNullOrEmpty)
                     : settingNamePrefix;
 
-            return (new SettingNameConvention(settingNameComplexity, settingNameConvention.PrefixHandling), prefix);
+            return (new SettingNameConvention(settingNameComplexity, prefix.IsNullOrEmpty() ? settingNameConvention.PrefixHandling : PrefixHandling.Enable), prefix);
         }
     }
 }

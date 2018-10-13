@@ -15,7 +15,7 @@ namespace Reusable.Validation
     }
 
     [PublicAPI]
-    public class Weelidator<T> : IWeelidator<T>
+    internal class Weelidator<T> : IWeelidator<T>
     {
         private readonly IList<IWeelidationRule<T>> _rules;
 
@@ -23,38 +23,30 @@ namespace Reusable.Validation
         {
             var rules = new WeelidatorBuilder<T>();
             builder(rules);
-            _rules = rules.Build();
+            _rules = rules.Build();            
         }
 
-        //public static Weelidator<T> Empty => new Weelidator<T>(_ => { });
+        public WeelidationResult<T> Validate(T value) => new WeelidationResult<T>(value, Evaluate(value));
 
-        //public DuckValidator<T> Add([NotNull] IDuckValidationRule<T> rule)
-        //{
-        //    return new DuckValidator<T>(_rules.Append(rule ?? throw new ArgumentNullException(nameof(rule))));
-        //}
-
-        public WeelidationResult<T> Validate(T value)
-        {           
-            var results = new List<IWeelidationRuleResult<T>>();
-
-            foreach (var rule in _rules)
+        private IEnumerable<WeelidationRuleResult<T>> Evaluate(T value)
+        {
+            foreach (var (result, options) in _rules.Select(rule => (result: rule.Evaluate(value), options: rule.Options)))
             {
-                var result = rule.Evaluate(value);
-                results.Add(result);
-                if (!result.Success && rule.Options.HasFlag(WeelidationRuleOptions.BreakOnFailure))
+                yield return result;
+                if (!result && options.HasFlag(WeelidationRuleOptions.BreakOnFailure))
                 {
-                    break;
+                    yield break;
                 }
             }
-
-            return new WeelidationResult<T>(value, results);
         }
+
+        #region IEnumerable
 
         public IEnumerator<IWeelidationRule<T>> GetEnumerator() => _rules.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        //public static DuckValidator<T> operator +(DuckValidator<T> duckValidator, IDuckValidationRule<T> rule) => duckValidator.Add(rule);
+        #endregion
     }
 
     public static class Weelidator

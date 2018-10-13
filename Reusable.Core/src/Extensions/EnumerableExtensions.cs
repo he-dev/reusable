@@ -190,7 +190,7 @@ namespace System.Linq.Custom
             return first.StartsWith(second, EqualityComparer<TSource>.Default);
         }
 
-        public static bool None<TSource>([NotNull] this IEnumerable<TSource> source)
+        public static bool Empty<TSource>([NotNull] this IEnumerable<TSource> source)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
 
@@ -247,7 +247,7 @@ namespace System.Linq.Custom
         }
 
         [NotNull, ItemCanBeNull]
-        public static IEnumerable<T> Always<T>(T item)
+        public static IEnumerable<T> Repeat<T>(T item)
         {
             while (true)
             {
@@ -256,7 +256,7 @@ namespace System.Linq.Custom
             // ReSharper disable once IteratorNeverReturns - Since it's 'Always' this is by design.
         }
 
-        public static IEnumerable<T> Always<T>([NotNull] Func<T> get)
+        public static IEnumerable<T> Repeat<T>([NotNull] Func<T> get)
         {
             if (get == null) throw new ArgumentNullException(nameof(get));
 
@@ -317,6 +317,7 @@ namespace System.Linq.Custom
             // there is one item remaining that was not returned - we return it now
             yield return copy[0];
         }
+
     }
 
     public class EmptySequenceException : Exception

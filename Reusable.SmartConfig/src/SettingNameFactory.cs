@@ -57,7 +57,7 @@ namespace Reusable.SmartConfig
     public interface ISettingNameFactory
     {
         [NotNull]
-        SettingName DeriveSettingName([NotNull] SettingName settingName, SettingNameConvention convention, [CanBeNull] string prefix);
+        SettingName CreateSettingName([NotNull] SettingName settingName, SettingNameConvention convention, [CanBeNull] string prefix);
     }
 
     public class SettingNameFactory : ISettingNameFactory
@@ -69,7 +69,7 @@ namespace Reusable.SmartConfig
             new[] { Token.Namespace, Token.Type, Token.Member },
         };        
         
-        public SettingName DeriveSettingName(SettingName settingName, SettingNameConvention convention, string prefix)
+        public SettingName CreateSettingName(SettingName settingName, SettingNameConvention convention, string prefix)
         {
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
 

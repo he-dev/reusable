@@ -43,7 +43,7 @@ namespace Reusable.OmniLog.Utilities
 
         protected override bool Predicate(ILogRx rx)
         {
-            return _filters.None() || _filters.Contains(rx.GetType().Name);
+            return _filters.Empty() || _filters.Contains(rx.GetType().Name);
         }
     }
 }

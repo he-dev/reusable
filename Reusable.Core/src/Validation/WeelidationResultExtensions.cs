@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Linq.Custom;
 using System.Text;
 using JetBrains.Annotations;
 using Reusable.Extensions;
@@ -10,17 +11,18 @@ namespace Reusable.Validation
     public static class WeelidationResultExtensions
     {
         [CanBeNull]
-        public static T ThrowIfInvalid<T>(this WeelidationResult<T> weelidationResult)
+        public static T ThrowIfInvalid<T>([NotNull] this WeelidationResult<T> weelidationResult)
         {
+            if (weelidationResult == null) throw new ArgumentNullException(nameof(weelidationResult));
+
             return
-                weelidationResult.Success
+                weelidationResult
                     ? weelidationResult
-                    : throw DynamicException.Factory.CreateDynamicException
+                    : throw DynamicException.Create
                     (
-                        name: $"{typeof(T).ToPrettyString()}Validation",
-                        message: 
-                            $"Object of type '{typeof(T).ToPrettyString()}' does not meet one or more requirements.{Environment.NewLine}{Environment.NewLine}" +
-                            $"{string.Join(Environment.NewLine, weelidationResult.Select(x => x.ToString()))}"
+                        $"{typeof(T).ToPrettyString()}Validation",
+                        $"Object of type '{typeof(T).ToPrettyString()}' does not meet one or more requirements.{Environment.NewLine}{Environment.NewLine}" +
+                        $"{weelidationResult[false].Select(Func.ToString).Join(Environment.NewLine)}"
                     );
         }
     }

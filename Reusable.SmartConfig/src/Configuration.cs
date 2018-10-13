@@ -21,7 +21,7 @@ namespace Reusable.SmartConfig
 
         private readonly IDictionary<SettingName, SoftString> _settingProviderNames = new Dictionary<SettingName, SoftString>();
 
-        private static readonly IWeelidator<IEnumerable<ISettingProvider>> SettingProviderWeelidator = new Weelidator<IEnumerable<ISettingProvider>>(
+        private static readonly IWeelidator<IEnumerable<ISettingProvider>> SettingProviderWeelidator = Weelidator.For<IEnumerable<ISettingProvider>>(
             builder =>
             {
                 builder.BlockNull();

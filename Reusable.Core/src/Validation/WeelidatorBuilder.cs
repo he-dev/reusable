@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Custom;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Reusable.Reflection;
 
 namespace Reusable.Validation
 {
@@ -10,6 +12,7 @@ namespace Reusable.Validation
     {
         private readonly IList<WeelidatorRuleBuilder<T>> _ruleBuilders = new List<WeelidatorRuleBuilder<T>>();
         
+        [NotNull]
         public WeelidatorRuleBuilder<T> NewRule([NotNull] Expression<Func<T, bool>> expression)
         {
             var newRule = new WeelidatorRuleBuilder<T>(expression);
@@ -18,7 +21,11 @@ namespace Reusable.Validation
         }
 
         [NotNull, ItemNotNull]
-        public IList<IWeelidationRule<T>> Build() => _ruleBuilders.Select(rb => rb.Build()).ToList();
+        internal IList<IWeelidationRule<T>> Build()
+        {
+            if (_ruleBuilders.Empty()) throw new InvalidOperationException("You need to define at least one validation rule.");
+            return _ruleBuilders.Select(rb => rb.Build()).ToList();
+        }
     }
 
     public class WeelidatorRuleBuilder<T>
@@ -32,24 +39,28 @@ namespace Reusable.Validation
             _expression = expression ?? throw new ArgumentNullException(nameof(expression));
         }
 
+        [NotNull]
         public WeelidatorRuleBuilder<T> WithMessage(string message)
         {
             _createMessage = _ => message;
             return this;
         }
         
+        [NotNull]
         public WeelidatorRuleBuilder<T> WithMessage(Func<T, string> createMessage)
         {
             _createMessage = createMessage;
             return this;
         }
         
+        [NotNull]
         public WeelidatorRuleBuilder<T> BreakOnFailure()
         {
             _options |= WeelidationRuleOptions.BreakOnFailure;
             return this;
         }
         
+        [NotNull]
         public IWeelidationRule<T> Build()
         {
             return new WeelidationRule<T>(_expression, _createMessage, _options);

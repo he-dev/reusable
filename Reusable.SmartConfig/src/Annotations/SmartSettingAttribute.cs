@@ -30,12 +30,12 @@ namespace Reusable.SmartConfig.Annotations
         }
 
         public SettingProviderAttribute(params Type[] providerTypes)
-            : this(new HashSet<Type>(providerTypes), default)
+            : this(new HashSet<Type>(providerTypes), new HashSet<SoftString>())
         {
         }
 
         public SettingProviderAttribute(params string[] providerNames)
-            : this(default, new HashSet<SoftString>(providerNames.Select(SoftString.Create)))
+            : this(new HashSet<Type>(), new HashSet<SoftString>(providerNames.Select(SoftString.Create)))
         {
         }
         

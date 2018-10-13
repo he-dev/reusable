@@ -16,7 +16,7 @@ namespace Reusable.Tests.SmartConfig
             Assert.AreEqual
             (
                 SettingName.Parse("Type.Member"),
-                Factory.DeriveSettingName(
+                Factory.CreateSettingName(
                     SettingName.Parse("Assembly:Namespace+Type.Member"),
                     new SettingNameConvention(SettingNameComplexity.Medium, PrefixHandling.Disable),
                     null
@@ -26,7 +26,7 @@ namespace Reusable.Tests.SmartConfig
             Assert.AreEqual
             (
                 SettingName.Parse("Type.Member,Instance"),
-                Factory.DeriveSettingName(SettingName.Parse("Assembly:Namespace+Type.Member,Instance"),
+                Factory.CreateSettingName(SettingName.Parse("Assembly:Namespace+Type.Member,Instance"),
                     new SettingNameConvention(SettingNameComplexity.Medium, PrefixHandling.Disable),
                     null
                 )
@@ -35,7 +35,7 @@ namespace Reusable.Tests.SmartConfig
             Assert.AreEqual
             (
                 SettingName.Parse("Namespace+Type.Member"),
-                Factory.DeriveSettingName(SettingName.Parse("Assembly:Namespace+Type.Member"),
+                Factory.CreateSettingName(SettingName.Parse("Assembly:Namespace+Type.Member"),
                     new SettingNameConvention(SettingNameComplexity.High, PrefixHandling.Enable),
                     null
                 )
@@ -44,7 +44,7 @@ namespace Reusable.Tests.SmartConfig
             Assert.AreEqual
             (
                 SettingName.Parse("Assembly:Namespace+Type.Member,Instance"),
-                Factory.DeriveSettingName(SettingName.Parse("Assembly:Namespace+Type.Member,Instance"),
+                Factory.CreateSettingName(SettingName.Parse("Assembly:Namespace+Type.Member,Instance"),
                     new SettingNameConvention(SettingNameComplexity.High, PrefixHandling.Enable),
                     "Assembly"
                 )
