@@ -23,10 +23,10 @@ namespace Reusable.SmartConfig
 
             var settingNameComplexity =
                 current
-                    .Select(x => x.SettingNameComplexity)
-                    .Prepend(query.Complexity)
-                    .Append(SettingNameComplexity.Medium)
-                    .First(x => x != SettingNameComplexity.Inherit);
+                    .Select(x => x.SettingNameStrength)
+                    .Prepend(query.Strength)
+                    .Append(SettingNameStrength.Medium)
+                    .First(x => x != SettingNameStrength.Inherit);
 
             var prefix =
                 query.PrefixHandling == PrefixHandling.Inherit
@@ -37,7 +37,7 @@ namespace Reusable.SmartConfig
 
             return new SettingProviderNaming
             {
-                Complexity = settingNameComplexity, 
+                Strength = settingNameComplexity, 
                 Prefix = prefix, 
                 PrefixHandling = prefix.IsNullOrEmpty() ? query.PrefixHandling : PrefixHandling.Enable
             };

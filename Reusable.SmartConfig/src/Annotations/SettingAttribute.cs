@@ -8,17 +8,12 @@ using Reusable.Extensions;
 
 namespace Reusable.SmartConfig.Annotations
 {
-    public interface IPrefixable
-    {
-        string Prefix { get; }
-    }
-
     [UsedImplicitly]
     [AttributeUsage(AttributeTargets.Assembly)]
-    public class SettingProviderAttribute : Attribute, IPrefixable
+    public class SettingProviderAttribute : Attribute
     {
         private string _prefix;
-        private SettingNameComplexity _settingNameComplexity;
+        private SettingNameStrength _settingNameStrength;
         private readonly ISet<Type> _providerTypes;
         private readonly ISet<SoftString> _providerNames;
 
@@ -26,7 +21,7 @@ namespace Reusable.SmartConfig.Annotations
         {
             _providerTypes = providerTypes;
             _providerNames = providerNames;
-            _settingNameComplexity = SettingNameComplexity.Medium;
+            _settingNameStrength = SettingNameStrength.Medium;
         }
 
         public SettingProviderAttribute(params Type[] providerTypes)
@@ -38,10 +33,10 @@ namespace Reusable.SmartConfig.Annotations
             : this(new HashSet<Type>(), new HashSet<SoftString>(providerNames.Select(SoftString.Create)))
         {
         }
-        
+
         public static readonly SettingProviderAttribute Default = new SettingProviderAttribute(new HashSet<Type>(), new HashSet<SoftString>())
         {
-            SettingNameComplexity = SettingNameComplexity.Medium,
+            SettingNameStrength = SettingNameStrength.Medium,
         };
 
         [CanBeNull]
@@ -55,17 +50,17 @@ namespace Reusable.SmartConfig.Annotations
         }
 
         // todo - disallow .Inherit
-        public SettingNameComplexity SettingNameComplexity
+        public SettingNameStrength SettingNameStrength
         {
-            get => _settingNameComplexity;
-            set => _settingNameComplexity = value;
+            get => _settingNameStrength;
+            set => _settingNameStrength = value;
         }
 
         public bool Contains<T>(T provider) where T : ISettingProvider => _providerTypes.Contains(typeof(T)) || _providerNames.Contains(provider.Name);
     }
 
     [UsedImplicitly]
-    public class SettingAttribute : Attribute, IPrefixable
+    public class SettingAttribute : Attribute
     {
         [CanBeNull] private string _prefix;
         private PrefixHandling _prefixHandling = PrefixHandling.Inherit;
@@ -73,12 +68,6 @@ namespace Reusable.SmartConfig.Annotations
         internal SettingAttribute()
         {
         }
-        
-//        public static SettingAttribute Default { get; } = new SettingAttribute
-//        {
-//            Complexity = SettingNameComplexity.Medium,
-//            PrefixHandling = PrefixHandling.Disable
-//        };
 
         [CanBeNull]
         public string Prefix
@@ -97,7 +86,7 @@ namespace Reusable.SmartConfig.Annotations
         [CanBeNull]
         public string ProviderName { get; set; }
 
-        public SettingNameComplexity Complexity { get; set; } = SettingNameComplexity.Inherit;
+        public SettingNameStrength Strength { get; set; } = SettingNameStrength.Inherit;
 
         public PrefixHandling PrefixHandling
         {
@@ -141,10 +130,10 @@ namespace Reusable.SmartConfig.Annotations
         /// Uses the specified provider, otherwise picks the first setting.
         /// </summary>
         Auto,
-        
+
         /// <summary>
         /// Ignores any provider name and picks the first setting.
         /// </summary>
         FirstMatch,
-    }    
+    }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Reusable.Reflection;
@@ -23,21 +24,28 @@ namespace Reusable.SmartConfig.Reflection
 
             if (visitor._type is null)
             {
-                throw ("UnsupportedSettingExpressionException", "Member's declaring type could not be determined.").ToDynamicException();
-            }                       
+                throw ("UnsupportedSettingExpression", "Member's declaring type could not be determined.").ToDynamicException();
+            }
+
+            // This fixes the visitor not resolving the overriden member correctly.
+            if (visitor._member.DeclaringType != visitor._type)
+            {
+                visitor._member = visitor._type.GetMember(visitor._member.Name).Single();
+            }
 
             return (visitor._type, visitor._instance, visitor._member);
         }
 
-        //public override Expression Visit(Expression node)
-        //{
-        //    // Skip other expressions if we already found the class-type.
-        //    return
-        //        asdf()
-        //            ? base.Visit(node)
-        //            : node;
-        //    bool asdf() => _type is null || _instance is null;
-        //}
+//        public override Expression Visit(Expression node)
+//        {
+//            return base.Visit(node);
+//            // Skip other expressions if we already found the class-type.
+//            return
+//                asdf()
+//                    ? base.Visit(node)
+//                    : node;
+//            bool asdf() => _type is null || _instance is null;
+//        }
 
         protected override Expression VisitMember(MemberExpression node)
         {
@@ -62,6 +70,7 @@ namespace Reusable.SmartConfig.Reflection
                     _closureMemberName = node.Member.Name;
                     break;
             }
+
             return base.VisitMember(node);
         }
 

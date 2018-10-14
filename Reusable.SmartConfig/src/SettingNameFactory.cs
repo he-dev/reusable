@@ -27,7 +27,7 @@ namespace Reusable.SmartConfig
 
      */
 
-    public enum SettingNameComplexity
+    public enum SettingNameStrength
     {
         Inherit = -1,
 
@@ -73,7 +73,7 @@ namespace Reusable.SmartConfig
         {
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
 
-            var tokens = TokenCombinations[(int)providerNaming.Complexity].ToDictionary(t => t, t => settingName[t]);
+            var tokens = TokenCombinations[(int)providerNaming.Strength].ToDictionary(t => t, t => settingName[t]);
             
             if (!settingName[Token.Instance].IsEmpty)
             {

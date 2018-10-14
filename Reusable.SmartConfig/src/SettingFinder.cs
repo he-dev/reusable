@@ -8,6 +8,16 @@ using Reusable.SmartConfig.Data;
 
 namespace Reusable.SmartConfig
 {
+    public interface ISettingFinder
+    {
+        bool TryFindSetting
+        (
+            [NotNull] SelectQuery query,
+            [NotNull] IEnumerable<ISettingProvider> providers,
+            out (ISettingProvider SettingProvider, ISetting Setting) result
+        );
+    }
+    
     /// <summary>
     /// The same setting can be defined in multiple data-stores. This setting-finder picks the first setting it finds.
     /// </summary>

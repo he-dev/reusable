@@ -126,7 +126,7 @@ namespace Reusable.Tests.SmartConfig.Integration
     {
         public string Member1 { get; set; }
         
-        [SettingMember(Complexity = SettingNameComplexity.Low, PrefixHandling = PrefixHandling.Disable)]
+        [SettingMember(Strength = SettingNameStrength.Low, PrefixHandling = PrefixHandling.Disable)]
         public string Member2 { get; set; }
     }
 

@@ -9,6 +9,15 @@ namespace Reusable.SmartConfig
 {
     using static FormattableStringHelper;
 
+    public interface ISettingConverter
+    {
+        [NotNull]
+        object Deserialize([NotNull] object value, [NotNull] Type targetType);
+
+        [NotNull]
+        object Serialize([NotNull] object value);
+    }
+    
     public abstract class SettingConverter : ISettingConverter
     {
         private readonly ISet<Type> _supportedTypes;

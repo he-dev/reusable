@@ -81,7 +81,7 @@ namespace Reusable.SmartConfig.Data
             return new SettingName
             (
                 prefix: settingMetadata.Prefix,
-                schema: settingMetadata.Schema,
+                schema: settingMetadata.Namespace,
                 type: settingMetadata.TypeName,
                 member: settingMetadata.MemberName,
                 instance: instance

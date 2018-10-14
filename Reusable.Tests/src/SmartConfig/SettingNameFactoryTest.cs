@@ -20,7 +20,7 @@ namespace Reusable.Tests.SmartConfig
                     SettingName.Parse("Assembly:Namespace+Type.Member"),
                     new SettingProviderNaming
                     {
-                        Complexity = SettingNameComplexity.Medium,
+                        Strength = SettingNameStrength.Medium,
                         PrefixHandling = PrefixHandling.Disable
                     }
                 )
@@ -32,7 +32,7 @@ namespace Reusable.Tests.SmartConfig
                 Factory.CreateProviderSettingName(SettingName.Parse("Assembly:Namespace+Type.Member,Instance"),
                     new SettingProviderNaming
                     {
-                        Complexity = SettingNameComplexity.Medium,
+                        Strength = SettingNameStrength.Medium,
                         PrefixHandling = PrefixHandling.Disable
                     }
                 )
@@ -44,7 +44,7 @@ namespace Reusable.Tests.SmartConfig
                 Factory.CreateProviderSettingName(SettingName.Parse("Assembly:Namespace+Type.Member"),
                     new SettingProviderNaming
                     {
-                        Complexity = SettingNameComplexity.High,
+                        Strength = SettingNameStrength.High,
                         PrefixHandling = PrefixHandling.Enable
                     }
                 )
@@ -56,7 +56,7 @@ namespace Reusable.Tests.SmartConfig
                 Factory.CreateProviderSettingName(SettingName.Parse("Assembly:Namespace+Type.Member,Instance"),
                     new SettingProviderNaming
                     {
-                        Complexity = SettingNameComplexity.High,
+                        Strength = SettingNameStrength.High,
                         Prefix = "Assembly",
                         PrefixHandling = PrefixHandling.Enable
                     }

@@ -19,7 +19,7 @@ namespace Reusable.SmartConfig
         [CanBeNull]
         public SoftString ProviderName { get; set; }
 
-        public SettingNameComplexity Complexity { get; set; }
+        public SettingNameStrength Strength { get; set; }
 
         public PrefixHandling PrefixHandling { get; set; }
     }
@@ -53,7 +53,7 @@ namespace Reusable.SmartConfig
             var settingName = new SettingName
             (
                 prefix: settingMetadata.Prefix,
-                schema: settingMetadata.Schema,
+                schema: settingMetadata.Namespace,
                 type: settingMetadata.TypeName,
                 member: settingMetadata.MemberName,
                 instance: instance
@@ -62,7 +62,7 @@ namespace Reusable.SmartConfig
             return new SelectQuery(settingName, settingMetadata.Type)
             {
                 ProviderName = settingMetadata.ProviderName,
-                Complexity = settingMetadata.SettingNameComplexity,
+                Strength = settingMetadata.SettingNameStrength,
                 PrefixHandling = settingMetadata.PrefixHandling
             };
         }
@@ -72,7 +72,7 @@ namespace Reusable.SmartConfig
             var settingName = new SettingName
             (
                 prefix: settingMetadata.Prefix,
-                schema: settingMetadata.Schema,
+                schema: settingMetadata.Namespace,
                 type: settingMetadata.TypeName,
                 member: settingMetadata.MemberName,
                 instance: instance
@@ -81,7 +81,7 @@ namespace Reusable.SmartConfig
             return new UpdateQuery(settingName, settingMetadata.Type)
             {
                 ProviderName = settingMetadata.ProviderName,
-                Complexity = settingMetadata.SettingNameComplexity,
+                Strength = settingMetadata.SettingNameStrength,
                 PrefixHandling = settingMetadata.PrefixHandling
             };
         }

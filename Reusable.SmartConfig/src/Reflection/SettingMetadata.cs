@@ -23,51 +23,29 @@ namespace Reusable.SmartConfig.Reflection
             builder.Ensure(e => e.Body is MemberExpression);
         });
 
-        //[NotNull]
-        //private readonly LambdaExpression _expression;
-
-        //public SettingInfo([NotNull] LambdaExpression expression, [CanBeNull] string instance, bool nonPublic = false)
-        //{
-        //    expression
-        //        .ValidateWith(SettingExpressionValidator)
-        //        .ThrowIfNotValid();
-
-        //    _expression = expression;
-
-        //    (Type, Instance) = ClassFinder.FindClass(expression, nonPublic);
-
-        //    var memberExpression = (MemberExpression)_expression.Body;
-
-        //    Attributes = memberExpression.Member.GetCustomAttributes();
-
-        //    SettingName = new SettingName(CustomSettingName ?? memberExpression.Member.Name)
-        //    {
-        //        Namespace = Type.Namespace,
-        //        Type = Type.ToPrettyString(),
-        //        Instance = instance
-        //    };
-        //}
-
         private SettingMetadata(Type type, object instance, MemberInfo member)
         {
             Type = type;
             Instance = instance;
             Member = member;
 
+            var asdf1 = member.GetCustomAttributes<SettingMemberAttribute>(inherit: true);
+            var asdf2 = member.GetCustomAttributes<SettingMemberAttribute>(inherit: false);
+            
             var attributes =
                 new SettingAttribute[]
                     {
-                        member.GetCustomAttribute<SettingMemberAttribute>(),
+                        member.GetCustomAttributes<SettingMemberAttribute>(inherit: true).First(),
                         type.GetCustomAttribute<SettingTypeAttribute>(),
                     }
                     .Where(Conditional.IsNotNull)
                     .ToList();
 
-            SettingNameComplexity = attributes.FirstOrDefault(x => x.Complexity != SettingNameComplexity.Inherit)?.Complexity ?? SettingNameComplexity.Inherit;
+            SettingNameStrength = attributes.FirstOrDefault(x => x.Strength != SettingNameStrength.Inherit)?.Strength ?? SettingNameStrength.Inherit;
             Prefix = attributes.Select(x => x.Prefix).FirstOrDefault(Conditional.IsNotNullOrEmpty);
             PrefixHandling = attributes.FirstOrDefault(x => x.PrefixHandling != PrefixHandling.Inherit)?.PrefixHandling ?? PrefixHandling.Inherit;
 
-            Schema = type.Namespace;
+            Namespace = type.Namespace;
             TypeName = type.GetCustomAttribute<SettingTypeAttribute>()?.Name ?? type.ToPrettyString();
             MemberName = member.GetCustomAttribute<SettingMemberAttribute>()?.Name ?? member.Name;
 
@@ -83,13 +61,13 @@ namespace Reusable.SmartConfig.Reflection
         public object Instance { get; }
 
         [NotNull]
-        private MemberInfo Member { get; }
+        public MemberInfo Member { get; }
 
         [CanBeNull]
         public string Prefix { get; }
 
         [CanBeNull]
-        public string Schema { get; }
+        public string Namespace { get; }
 
         [CanBeNull]
         public string TypeName { get; }
@@ -106,12 +84,15 @@ namespace Reusable.SmartConfig.Reflection
         [CanBeNull]
         public string ProviderName { get; }
 
-        public SettingNameComplexity SettingNameComplexity { get; }
+        public SettingNameStrength SettingNameStrength { get; }
 
         public PrefixHandling PrefixHandling { get; }
 
+        [NotNull]
         public static SettingMetadata FromExpression(LambdaExpression expression, bool nonPublic = false)
         {
+            expression.ValidateWith(SettingExpressionWeelidator).ThrowIfInvalid();
+
             var (type, instance, member) = SettingVisitor.GetSettingInfo(expression, nonPublic);
             return new SettingMetadata(type, instance, member);
         }
