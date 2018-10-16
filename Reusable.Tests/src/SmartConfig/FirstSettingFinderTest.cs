@@ -13,7 +13,7 @@ namespace Reusable.Tests.SmartConfig
         private static readonly ISettingFinder FirstSettingFinder = new FirstSettingFinder();
         
         [TestMethod]
-        public void CanFindSettingByName()
+        public void TryFindSetting_CanFindSettingByName()
         {
             var provider1 = Mock.Create<ISettingProvider>();
             var provider2 = Mock.Create<ISettingProvider>();
@@ -44,7 +44,7 @@ namespace Reusable.Tests.SmartConfig
         }
 
         [TestMethod]
-        public void DoesNotFindNotExistingSetting()
+        public void TryFindSetting_DoesNotFindNotExistingSetting()
         {
             var provider = Mock.Create<ISettingProvider>();
             provider

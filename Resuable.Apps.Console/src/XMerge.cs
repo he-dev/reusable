@@ -26,7 +26,7 @@ namespace Reusable.Apps
             _keyMap = keyMap.ToDictionary(
                 x => x.Key.Split('/'),
                 x => new Func<XElement, string>(e => e.Attribute(x.Value).Value),
-                RelayEqualityComparer<IEnumerable<string>>.Create(
+                EqualityComparerFactory<IEnumerable<string>>.Create(
                     (left, right) => left.SequenceEqual(right),
                     (obj) => obj.CalcHashCode()
                 )

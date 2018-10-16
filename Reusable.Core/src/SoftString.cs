@@ -44,11 +44,11 @@ namespace Reusable
 
         public bool EndsWith(string value) => _value.EndsWith((string)(SoftString)value, StringComparison.OrdinalIgnoreCase);
 
-        public bool IsMatch([NotNull, RegexPattern] string pattern, RegexOptions options = RegexOptions.IgnoreCase)
+        public bool IsMatch([NotNull, RegexPattern] string pattern, RegexOptions options = RegexOptions.None)
         {
             if (pattern == null) throw new ArgumentNullException(nameof(pattern));
 
-            return Regex.IsMatch(ToString(), pattern, options);
+            return Regex.IsMatch(ToString(), pattern, options | RegexOptions.IgnoreCase);
         }
 
         public override string ToString() => _value;
@@ -64,14 +64,5 @@ namespace Reusable
         public static bool IsNullOrEmpty([CanBeNull] SoftString value) => string.IsNullOrEmpty(value?._value);
 
         public static bool IsNullOrWhiteSpace([CanBeNull] SoftString value) => string.IsNullOrWhiteSpace(value?._value);
-    }
-
-    //[Serializable]
-    //public partial class SoftString : ISerializable
-    //{
-    //    void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
-    //    {
-    //        info.AddValue("_value", _value, typeof(string));
-    //    }
-    //}
+    }    
 }

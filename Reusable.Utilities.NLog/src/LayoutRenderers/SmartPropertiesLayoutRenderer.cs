@@ -10,7 +10,7 @@ using NLog.LayoutRenderers;
 namespace Reusable.Utilities.NLog.LayoutRenderers
 {
     /// <summary>
-    /// This layour-renderer provides a case-insensitive access to logger properties and formats the value with an invariant culture by default.
+    /// This layout-renderer provides a case-insensitive access to logger properties and formats the value with an invariant culture by default.
     /// </summary>
     [UsedImplicitly, PublicAPI]
     [LayoutRenderer(Name)]
@@ -25,13 +25,14 @@ namespace Reusable.Utilities.NLog.LayoutRenderers
         public string Culture { get; set; } = string.Empty;
 
         public string Format { get; set; }
+        
+        private StringComparer Comparer => IgnoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal;
 
         protected override void Append(StringBuilder builder, LogEventInfo logEvent)
         {
             if (string.IsNullOrEmpty(Key)) throw new InvalidOperationException("You need to specify the property key.");
 
-            var comparer = IgnoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal;
-            var property = logEvent.Properties.SingleOrDefault(p => p.Key is string s && comparer.Equals(Key, s));
+            var property = logEvent.Properties.SingleOrDefault(p => p.Key is string s && Comparer.Equals(Key, s));
             if (!(property.Value is null))
             {
                 builder.AppendFormat(new CultureInfo(Culture), $"{{0{(Format is null ? string.Empty : ":" + Format)}}}", property.Value);

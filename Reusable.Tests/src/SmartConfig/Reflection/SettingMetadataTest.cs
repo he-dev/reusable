@@ -27,8 +27,6 @@ namespace Reusable.Tests.SmartConfig.Reflection
             var instance1 = new BasicType();
             var instance2 = new BasicType();
 
-            // We need multiple expressions to ensure that it finds the correct closure.
-
             var baseType = typeof(BasicType);
 
             // instance property as is
@@ -109,8 +107,6 @@ namespace Reusable.Tests.SmartConfig.Reflection
         {
             var instance1 = new BasicSubtype();
             var instance2 = new BasicSubtype();
-
-            // We need multiple expressions to ensure that it finds the correct closure.
 
             var baseType = typeof(BasicType);
             var derivedType = typeof(BasicSubtype);
@@ -197,8 +193,6 @@ namespace Reusable.Tests.SmartConfig.Reflection
             var instance1 = new CustomizedType();
             var instance2 = new CustomizedType();
 
-            // We need multiple expressions to ensure that it finds the correct closure.
-
             var baseType = typeof(CustomizedType);
 
             // instance property inherits type customization
@@ -229,7 +223,7 @@ namespace Reusable.Tests.SmartConfig.Reflection
                 AreEqual("InstanceProperty2x", actual.MemberName);
 
                 //AssertDefault(actual);
-                
+
                 AreEqual("Prefix2", actual.Prefix);
                 AreEqual("BaseClass2", actual.TypeName);
                 AreEqual("Provider2", actual.ProviderName);
@@ -272,8 +266,6 @@ namespace Reusable.Tests.SmartConfig.Reflection
             var instance1 = new CustomizedSubtype();
             var instance2 = new CustomizedSubtype();
 
-            // We need multiple expressions to ensure that it finds the correct closure.
-
             var baseType = typeof(CustomizedSubtype);
 
             // instance property inherits type customization
@@ -293,10 +285,12 @@ namespace Reusable.Tests.SmartConfig.Reflection
                 AreEqual("Provider1", actual.ProviderName);
                 AreEqual(SettingNameStrength.Low, actual.SettingNameStrength);
                 AreEqual(PrefixHandling.Enable, actual.PrefixHandling);
-            }            
+            }
         }
 
         #region Data
+
+        // We need multiple expressions to ensure that it finds the correct closure.
 
         /// <summary>
         /// Without annotations.
@@ -390,7 +384,7 @@ namespace Reusable.Tests.SmartConfig.Reflection
 
             [SettingMember(Name = "InstanceProperty2xx", Strength = SettingNameStrength.High, PrefixHandling = PrefixHandling.Disable)]
             public override string InstanceProperty2 { get; set; }
-            
+
             public override IEnumerable<LambdaExpression> InstanceProperty1Expressions()
             {
                 yield return CreateExpression(() => InstanceProperty1);

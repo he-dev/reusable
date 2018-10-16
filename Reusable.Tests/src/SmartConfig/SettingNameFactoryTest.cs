@@ -11,7 +11,7 @@ namespace Reusable.Tests.SmartConfig
         private static readonly ISettingNameFactory Factory = new SettingNameFactory();
 
         [TestMethod]
-        public void DeriveSettingName_CanUseDifferentConventions()
+        public void CreateProviderSettingName_CanUseDifferentConventions()
         {
             Assert.AreEqual
             (

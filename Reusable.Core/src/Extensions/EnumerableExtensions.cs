@@ -94,7 +94,7 @@ namespace System.Linq.Custom
                 throw new ArgumentException(paramName: nameof(projection), message: "Projection must be an anonymous type.");
             }
 
-            return first.Except(second, new ProjectionComparer<TArg, TProjection>(projection));
+            return first.Except(second, ProjectionEqualityComparer<TArg>.Create(projection));
         }
 
         public static IEnumerable<string> QuoteAllWith<T>(this IEnumerable<T> values, string quotationMark)

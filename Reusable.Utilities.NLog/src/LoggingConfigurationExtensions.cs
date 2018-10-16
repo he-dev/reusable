@@ -4,7 +4,7 @@ using System.Linq;
 using NLog.Config;
 using NLog.Targets;
 
-namespace Reusable.Logging.NLog.Tools
+namespace Reusable.Utilities.NLog
 {
     public static class LoggingConfigurationExtensions
     {

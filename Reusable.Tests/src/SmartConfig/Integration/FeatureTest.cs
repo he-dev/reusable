@@ -35,7 +35,7 @@ namespace Reusable.Tests.SmartConfig.Integration
         });
 
         [TestMethod]
-        public void CanGetValueByVariousNames()
+        public void GetValue_CanGetValueByVariousNames()
         {
             var test1 = new Test1();
             var test2 = new Test2();
@@ -56,7 +56,7 @@ namespace Reusable.Tests.SmartConfig.Integration
         }
 
         [TestMethod]
-        public void CanGetValueWithTypeOrMemberAnnotations()
+        public void GetValue_CanGetValueWithTypeOrMemberAnnotations()
         {
             var test2 = new Test2();
             var test3 = new Test3();
@@ -68,7 +68,7 @@ namespace Reusable.Tests.SmartConfig.Integration
         }
         
         [TestMethod]
-        public void CanGetValueWithAssemblyAnnotations()
+        public void GetValue_CanGetValueWithAssemblyAnnotations()
         {
             var test6 = new Test6();
 
@@ -77,7 +77,7 @@ namespace Reusable.Tests.SmartConfig.Integration
         }
         
         [TestMethod]
-        public void CanGetValueFromSpecificProvider()
+        public void GetValue_CanGetValueFromSpecificProvider()
         {
             var test7 = new Test7();
 
@@ -85,7 +85,7 @@ namespace Reusable.Tests.SmartConfig.Integration
         }
         
         [TestMethod]
-        public void ThrowsWhenProviderDoesNotExist()
+        public void GetValue_ThrowsWhenProviderDoesNotExist()
         {
             var test8 = new Test8();
 
