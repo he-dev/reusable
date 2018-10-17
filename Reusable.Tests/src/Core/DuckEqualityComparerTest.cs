@@ -18,6 +18,7 @@ namespace Reusable.Tests
         [TestMethod]
         public void Equals_CanCompareTowNamedTypes()
         {
+            var p0 = new PersonLib1 { FirstName = "John", LastName = "Doe" };
             var p1 = new PersonLib1 { FirstName = "John", LastName = "Doe" };
             var p2 = new PersonLib2 { FirstName = "JOHN", LastName = "Doe" };
             var p3 = new PersonLib2 { FirstName = "Joh", LastName = "Doe" };
@@ -29,6 +30,7 @@ namespace Reusable.Tests
                     .Compare(x => x.LastName, y => y.LastName, StringComparer.OrdinalIgnoreCase)
                     .Build();
 
+            //IsTrue(comparer.Equals(p0, p1));
             IsTrue(comparer.Equals(p1, p1));
             IsTrue(comparer.Equals(p2, p2));
 
@@ -124,11 +126,6 @@ namespace Reusable.Tests
         private readonly ParameterExpression _parameterX = Expression.Parameter(typeof(TX), "x");
         private readonly ParameterExpression _parameterY = Expression.Parameter(typeof(TY), "y");
 
-        private readonly IList<ParameterExpression> _variables = new List<ParameterExpression>();
-
-        //private Expression variableX = Expression.Variable(typeof(T), "valueX");
-        //private Expression variableY = Expression.Variable(typeof(T), "valueY");
-
         private readonly IList<(Expression equals, Expression getHashCodeX, Expression getHashCodeY)> _expressions = new List<(Expression, Expression, Expression)>();
 
         public DuckEqualityComparerBuilder<TX, TY> Compare<T>(
@@ -177,26 +174,8 @@ namespace Reusable.Tests
         {
             var label = Expression.Label(typeof(bool));
 
-//            var equals_ =Expression.Block(
-//                Expression.IfThenElse(
-//                    test: Expression.OrElse(
-//                        Expression.IsTrue(Expression.Equal(Expression.Invoke(getValueX, _parameterX), Expression.Constant(null))),
-//                        Expression.IsTrue(Expression.Equal(Expression.Invoke(getValueY, _parameterY), Expression.Constant(null)))
-//                    ),
-//                    ifTrue: Expression.Return(label, Expression.Invoke((Expression<Func<T, T, bool>>)((x, y) => false), Expression.Invoke(getValueX, _parameterX), Expression.Invoke(getValueY, _parameterY))),
-//                    ifFalse: Expression.Return(label, Expression.Invoke(
-//                        equals,
-//                        Expression.Invoke(getValueX, _parameterX),
-//                        Expression.Invoke(getValueY, _parameterY)
-//                    ))
-//                ), _parameterX, _parameterY);
-
-
             var variableX = Expression.Variable(typeof(T), "valueX");
             var variableY = Expression.Variable(typeof(T), "valueY");
-
-            //_variables.Add(variableX);
-            //_variables.Add(variableY);
 
             var equals_ =
                 Expression.Block(
@@ -208,22 +187,9 @@ namespace Reusable.Tests
                             Expression.IsTrue(Expression.Equal(variableX, Expression.Constant(null))),
                             Expression.IsTrue(Expression.Equal(variableY, Expression.Constant(null)))
                         ),
-                        ifTrue: Expression.Return(
-                            label,
-                            Expression.Invoke(
-                                (Expression<Func<T, T, bool>>)((x, y) => false),
-                                variableX,
-                                variableY
-                            )
-                        )
+                        ifTrue: Expression.Return(label, Expression.Invoke((Expression<Func<T, T, bool>>)((x, y) => false), variableX, variableY))
                     ),
-                    Expression.Return(
-                        label,
-                        Expression.Invoke(
-                            equals,
-                            variableX,
-                            variableY
-                        )),
+                    Expression.Return(label, Expression.Invoke(equals, variableX, variableY)),
                     Expression.Label(label, Expression.Constant(false))
                 );
 
@@ -295,26 +261,6 @@ namespace Reusable.Tests
                     getHashCodeExpressionY
                 );
         }
-
-//        public static Expression CreateIfThenExpression<TProperty, TResult>(Expression condition, Expression ifTrue, Expression ifFalse)
-//        {
-//            var labelTarget = Expression.Label(typeof(bool));
-//            
-//            // Let the compiler create this expression for us.
-//            var referenceEquasExpression = (Expression<Func<TProperty, TProperty, bool>>)((left, right) => referenceEquals(left, right));
-//
-//            var referenceEquasInvokeExpression = Expression.Invoke(
-//                referenceEquasExpression,
-//                objA,
-//                objB
-//            );
-//
-//            return Expression.IfThenElse(
-//                condition,
-//                ifTrue,
-//                ifFalse
-//            );
-//        }
     }
 
     public class DuckEqualityComparer<TX, TY> : EqualityComparer<object>
