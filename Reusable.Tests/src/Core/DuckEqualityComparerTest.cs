@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Cryptography.X509Certificates;
+using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Reflection;
 
@@ -15,51 +16,34 @@ namespace Reusable.Tests
     public class DuckEqualityComparerTest
     {
         [TestMethod]
-        public void Main()
+        public void Equals_CanCompareTowNamedTypes()
         {
             var p1 = new PersonLib1 { FirstName = "John", LastName = "Doe" };
             var p2 = new PersonLib2 { FirstName = "JOHN", LastName = "Doe" };
             var p3 = new PersonLib2 { FirstName = "Joh", LastName = "Doe" };
+            var p4 = new PersonLib2 { FirstName = default, LastName = "Doe" };
 
-            var stringComparer = StringComparer.OrdinalIgnoreCase;
-            var personComparer = DuckEqualityComparer<PersonLib1, PersonLib2>.Create(
-                equals: (x, y) =>
-                    stringComparer.Equals(x.FirstName, y.FirstName) &&
-                    stringComparer.Equals(x.LastName, y.LastName),
-                getHashCodeX: x =>
-                    stringComparer.GetHashCode(x.FirstName) +
-                    stringComparer.GetHashCode(x.LastName),
-                getHashCodeY: y =>
-                    stringComparer.GetHashCode(y.FirstName) +
-                    stringComparer.GetHashCode(y.LastName)
-            );
-
-            //	personComparer.Equals(p1, p1).Dump();
-            //	personComparer.Equals(p2, p2).Dump();
-            //
-            //	personComparer.Equals(p1, p2).Dump();
-            //	personComparer.Equals(p2, p1).Dump();
-            //
-            //	personComparer.Equals(p1, p3).Dump();
-            //	personComparer.Equals(p3, p1).Dump();
-
-
-            var personComparer2 =
+            var comparer =
                 new DuckEqualityComparerBuilder<PersonLib1, PersonLib2>()
                     .Compare(x => x.FirstName, y => y.FirstName, StringComparer.OrdinalIgnoreCase)
                     .Compare(x => x.LastName, y => y.LastName, StringComparer.OrdinalIgnoreCase)
                     .Build();
 
-            //personComparer2.Equals(p1, p1).Dump();
-            //personComparer2.Equals(p2, p2).Dump();
+            IsTrue(comparer.Equals(p1, p1));
+            IsTrue(comparer.Equals(p2, p2));
 
-            IsTrue(personComparer2.Equals(p1, p2));
-            IsTrue(personComparer2.Equals(p2, p1));
+            IsTrue(comparer.Equals(p1, p2));
+            IsTrue(comparer.Equals(p2, p1));
 
-            IsFalse(personComparer2.Equals(p1, p3));
-            IsFalse(personComparer2.Equals(p3, p1));
+            IsFalse(comparer.Equals(p1, p3));
+            IsFalse(comparer.Equals(p3, p1));
+            IsFalse(comparer.Equals(p1, p4));
+        }
 
-            var anonymousComparer =
+        [TestMethod]
+        public void Equals_CanCompareTwoAnonymousTypes()
+        {
+            var comparer =
                 DuckEqualityComparerBuilder
                     .Create(
                         new { FirstName1 = default(string), LastName1 = default(string) },
@@ -69,14 +53,68 @@ namespace Reusable.Tests
                     .Compare(x => x.LastName1, y => y.LastName2, StringComparer.OrdinalIgnoreCase)
                     .Build();
 
-            IsTrue(anonymousComparer.Equals(
+            IsTrue(comparer.Equals(
                 new { FirstName1 = "John", LastName1 = "Doe" },
                 new { FirstName2 = "JOHN", LastName2 = "DOE" }
             ));
+
+            IsFalse(comparer.Equals(
+                new { FirstName1 = "Johny", LastName1 = "Dope" },
+                new { FirstName2 = "JOHN", LastName2 = "DOE" }
+            ));
+        }
+
+        [TestMethod]
+        public void Equals_CanCompareNamedAndAnonymousTypes()
+        {
+            var comparer =
+                DuckEqualityComparerBuilder
+                    .Create(
+                        default(PersonLib1),
+                        new { FirstName2 = default(string), LastName2 = default(string) }
+                    )
+                    .Compare(x => x.FirstName, y => y.FirstName2, StringComparer.OrdinalIgnoreCase)
+                    .Compare(x => x.LastName, y => y.LastName2, StringComparer.OrdinalIgnoreCase)
+                    .Build();
+
+            IsTrue(comparer.Equals(
+                new PersonLib1 { FirstName = "John", LastName = "Doe" },
+                new { FirstName2 = "JOHN", LastName2 = "DOE" }
+            ));
+
+            IsFalse(comparer.Equals(
+                new PersonLib1 { FirstName = "Johny", LastName = "Dope" },
+                new { FirstName2 = "JOHN", LastName2 = "DOE" }
+            ));
+        }
+
+        [TestMethod]
+        public void Equals_CanCompareWithCustomEquals()
+        {
+            var comparer =
+                new DuckEqualityComparerBuilder<PersonLib1, PersonLib2>()
+                    .Compare(x => x.FirstName, y => y.FirstName, (x, y) => x.StartsWith(y, StringComparison.OrdinalIgnoreCase))
+                    .Compare(x => x.LastName, y => y.LastName, (x, y) => x.EndsWith(y, StringComparison.OrdinalIgnoreCase))
+                    .Build();
+
+            var p1 = new PersonLib1 { FirstName = "John", LastName = "Doe" };
+            var p2 = new PersonLib2 { FirstName = "JOHN", LastName = "Doe" };
+            var p3 = new PersonLib2 { FirstName = "Joh", LastName = "Doe" };
+            var p4 = new PersonLib2 { FirstName = default, LastName = "Doe" };
+
+            IsTrue(comparer.Equals(p1, p1));
+            IsTrue(comparer.Equals(p2, p2));
+
+            IsTrue(comparer.Equals(p1, p2));
+            IsTrue(comparer.Equals(p2, p1));
+
+            IsTrue(comparer.Equals(p1, p3));
+            IsTrue(comparer.Equals(p3, p1));
+            IsFalse(comparer.Equals(p1, p4));
         }
     }
 
-    public class DuckEqualityComparerBuilder
+    public static class DuckEqualityComparerBuilder
     {
         public static DuckEqualityComparerBuilder<TX, TY> Create<TX, TY>(TX x, TY y) => new DuckEqualityComparerBuilder<TX, TY>();
     }
@@ -85,6 +123,11 @@ namespace Reusable.Tests
     {
         private readonly ParameterExpression _parameterX = Expression.Parameter(typeof(TX), "x");
         private readonly ParameterExpression _parameterY = Expression.Parameter(typeof(TY), "y");
+
+        private readonly IList<ParameterExpression> _variables = new List<ParameterExpression>();
+
+        //private Expression variableX = Expression.Variable(typeof(T), "valueX");
+        //private Expression variableY = Expression.Variable(typeof(T), "valueY");
 
         private readonly IList<(Expression equals, Expression getHashCodeX, Expression getHashCodeY)> _expressions = new List<(Expression, Expression, Expression)>();
 
@@ -126,7 +169,86 @@ namespace Reusable.Tests
             return this;
         }
 
-        public IEqualityComparer<object> Build()
+        public DuckEqualityComparerBuilder<TX, TY> Compare<T>(
+            Expression<Func<TX, T>> getValueX,
+            Expression<Func<TY, T>> getValueY,
+            Expression<Func<T, T, bool>> equals
+        )
+        {
+            var label = Expression.Label(typeof(bool));
+
+//            var equals_ =Expression.Block(
+//                Expression.IfThenElse(
+//                    test: Expression.OrElse(
+//                        Expression.IsTrue(Expression.Equal(Expression.Invoke(getValueX, _parameterX), Expression.Constant(null))),
+//                        Expression.IsTrue(Expression.Equal(Expression.Invoke(getValueY, _parameterY), Expression.Constant(null)))
+//                    ),
+//                    ifTrue: Expression.Return(label, Expression.Invoke((Expression<Func<T, T, bool>>)((x, y) => false), Expression.Invoke(getValueX, _parameterX), Expression.Invoke(getValueY, _parameterY))),
+//                    ifFalse: Expression.Return(label, Expression.Invoke(
+//                        equals,
+//                        Expression.Invoke(getValueX, _parameterX),
+//                        Expression.Invoke(getValueY, _parameterY)
+//                    ))
+//                ), _parameterX, _parameterY);
+
+
+            var variableX = Expression.Variable(typeof(T), "valueX");
+            var variableY = Expression.Variable(typeof(T), "valueY");
+
+            //_variables.Add(variableX);
+            //_variables.Add(variableY);
+
+            var equals_ =
+                Expression.Block(
+                    new[] { variableX, variableY },
+                    Expression.Assign(variableX, Expression.Invoke(getValueX, _parameterX)),
+                    Expression.Assign(variableY, Expression.Invoke(getValueY, _parameterY)),
+                    Expression.IfThen(
+                        test: Expression.OrElse(
+                            Expression.IsTrue(Expression.Equal(variableX, Expression.Constant(null))),
+                            Expression.IsTrue(Expression.Equal(variableY, Expression.Constant(null)))
+                        ),
+                        ifTrue: Expression.Return(
+                            label,
+                            Expression.Invoke(
+                                (Expression<Func<T, T, bool>>)((x, y) => false),
+                                variableX,
+                                variableY
+                            )
+                        )
+                    ),
+                    Expression.Return(
+                        label,
+                        Expression.Invoke(
+                            equals,
+                            variableX,
+                            variableY
+                        )),
+                    Expression.Label(label, Expression.Constant(false))
+                );
+
+            // comparer.GetHashCode(getValueX(x))
+            var getHashCodeFunc = (Expression<Func<T, int>>)(obj => 0);
+
+            var getHashCodeX =
+                Expression.Invoke(
+                    getHashCodeFunc,
+                    Expression.Invoke(getValueX, _parameterX)
+                );
+
+            // comparer.GetHashCode(getValueY(y))
+            var getHashCodeY =
+                Expression.Invoke(
+                    getHashCodeFunc,
+                    Expression.Invoke(getValueY, _parameterY)
+                );
+
+            _expressions.Add((equals_, getHashCodeX, getHashCodeY));
+
+            return this;
+        }
+
+        public EqualityComparer<object> Build()
         {
             var equalityComparer = _expressions.Aggregate((next, current) =>
             (
@@ -135,7 +257,7 @@ namespace Reusable.Tests
                 getHashCodeY: ConcatenateGetHashCodeExpressions(current.getHashCodeY, next.getHashCodeY)
             ));
 
-            var equalsFunc = Expression.Lambda<Func<TX, TY, bool>>(equalityComparer.equals, _parameterX, _parameterY).Compile();
+            var equalsFunc = Expression.Lambda<Func<TX, TY, bool>>(equalityComparer.equals, new[] { _parameterX, _parameterY }).Compile();
             var getHashCodeXFunc = Expression.Lambda<Func<TX, int>>(equalityComparer.getHashCodeX, _parameterX).Compile();
             var getHashCodeYFunc = Expression.Lambda<Func<TY, int>>(equalityComparer.getHashCodeY, _parameterY).Compile();
 
@@ -145,6 +267,8 @@ namespace Reusable.Tests
                 getHashCodeYFunc
             );
         }
+
+        public static implicit operator EqualityComparer<object>(DuckEqualityComparerBuilder<TX, TY> builder) => builder.Build();
     }
 
     internal static class ExpressionHelper
@@ -152,30 +276,63 @@ namespace Reusable.Tests
         public static Expression ConcatenateEqualsExpressions(Expression equalsExpressionX, Expression equalsExpressionY)
         {
             // equals && equals
-            return Expression.AndAlso(equalsExpressionX, equalsExpressionY);
+            return
+                Expression.AndAlso(
+                    equalsExpressionX,
+                    equalsExpressionY
+                );
         }
 
         public static Expression ConcatenateGetHashCodeExpressions(Expression getHashCodeExpressionX, Expression getHashCodeExpressionY)
         {
             // x * 31 + y
-            return Expression.Add(Expression.Multiply(getHashCodeExpressionX, Expression.Constant(31)), getHashCodeExpressionY);
+            return
+                Expression.Add(
+                    Expression.Multiply(
+                        getHashCodeExpressionX,
+                        Expression.Constant(31)
+                    ),
+                    getHashCodeExpressionY
+                );
         }
+
+//        public static Expression CreateIfThenExpression<TProperty, TResult>(Expression condition, Expression ifTrue, Expression ifFalse)
+//        {
+//            var labelTarget = Expression.Label(typeof(bool));
+//            
+//            // Let the compiler create this expression for us.
+//            var referenceEquasExpression = (Expression<Func<TProperty, TProperty, bool>>)((left, right) => referenceEquals(left, right));
+//
+//            var referenceEquasInvokeExpression = Expression.Invoke(
+//                referenceEquasExpression,
+//                objA,
+//                objB
+//            );
+//
+//            return Expression.IfThenElse(
+//                condition,
+//                ifTrue,
+//                ifFalse
+//            );
+//        }
     }
 
-    public class DuckEqualityComparer<TX, TY> : IEqualityComparer<object>
+    public class DuckEqualityComparer<TX, TY> : EqualityComparer<object>
     {
         private readonly Func<TX, TY, bool> _equals;
         private readonly Func<TX, int> _getHashCodeX;
         private readonly Func<TY, int> _getHashCodeY;
+        private readonly bool _isCommutative;
 
-        private DuckEqualityComparer(Func<TX, TY, bool> equals, Func<TX, int> getHashCodeX, Func<TY, int> getHashCodeY)
+        private DuckEqualityComparer(Func<TX, TY, bool> equals, Func<TX, int> getHashCodeX, Func<TY, int> getHashCodeY, bool isCommutative = true)
         {
             _equals = equals;
             _getHashCodeX = getHashCodeX;
             _getHashCodeY = getHashCodeY;
+            _isCommutative = isCommutative;
         }
 
-        public new bool Equals(object x, object y)
+        public override bool Equals(object x, object y)
         {
             if (ReferenceEquals(x, y)) return true;
             if (ReferenceEquals(x, null)) return false;
@@ -185,7 +342,11 @@ namespace Reusable.Tests
             ValidateType(y);
 
             if (Equals((x, y))) return true;
-            if (Equals((y, x))) return true;
+            if (_isCommutative)
+            {
+                if (Equals((y, x))) return true;
+            }
+
             return false;
         }
 
@@ -194,7 +355,7 @@ namespace Reusable.Tests
             return t.x is TX x && t.y is TY y && _equals(x, y);
         }
 
-        public int GetHashCode(object obj)
+        public override int GetHashCode(object obj)
         {
             ValidateType(obj);
 
@@ -206,8 +367,17 @@ namespace Reusable.Tests
             }
         }
 
-        public static IEqualityComparer<object> Create(Func<TX, TY, bool> equals, Func<TX, int> getHashCodeX, Func<TY, int> getHashCodeY)
+        [NotNull]
+        public static EqualityComparer<object> Create(
+            [NotNull] Func<TX, TY, bool> equals,
+            [NotNull] Func<TX, int> getHashCodeX,
+            [NotNull] Func<TY, int> getHashCodeY
+        )
         {
+            if (equals == null) throw new ArgumentNullException(nameof(equals));
+            if (getHashCodeX == null) throw new ArgumentNullException(nameof(getHashCodeX));
+            if (getHashCodeY == null) throw new ArgumentNullException(nameof(getHashCodeY));
+
             return new DuckEqualityComparer<TX, TY>(equals, getHashCodeX, getHashCodeY);
         }
 
@@ -215,7 +385,7 @@ namespace Reusable.Tests
         {
             if (!(obj is TX || obj is TY))
             {
-                throw new ArgumentException($"Type '{obj.GetType().Name}' is not supported. Objects must be '{typeof(TX).Name}' and '{typeof(TY).Name}'");
+                throw new ArgumentException($"Type '{obj.GetType().Name}' is not supported. Objects must be '{typeof(TX).Name}' or '{typeof(TY).Name}'");
             }
         }
     }
@@ -225,6 +395,8 @@ namespace Reusable.Tests
         public string FirstName { get; set; }
 
         public string LastName { get; set; }
+
+        public int Age { get; set; }
     }
 
     class PersonLib2
@@ -232,5 +404,7 @@ namespace Reusable.Tests
         public string FirstName { get; set; }
 
         public string LastName { get; set; }
+
+        public DateTime DateOfBirth { get; set; }
     }
 }
