@@ -17,7 +17,7 @@ namespace Reusable.SmartConfig.Reflection
     [PublicAPI]
     public class SettingMetadata
     {
-        private static readonly IWeelidator<LambdaExpression> SettingExpressionWeelidator = Weelidator.For<LambdaExpression>(builder =>
+        private static readonly IBouncer<LambdaExpression> SettingExpressionBouncer = Bouncer.For<LambdaExpression>(builder =>
         {
             builder.BlockNull();
             builder.Ensure(e => e.Body is MemberExpression);
@@ -91,7 +91,7 @@ namespace Reusable.SmartConfig.Reflection
         [NotNull]
         public static SettingMetadata FromExpression(LambdaExpression expression, bool nonPublic = false)
         {
-            expression.ValidateWith(SettingExpressionWeelidator).ThrowIfInvalid();
+            expression.ValidateWith(SettingExpressionBouncer).ThrowIfInvalid();
 
             var (type, instance, member) = SettingVisitor.GetSettingInfo(expression, nonPublic);
             return new SettingMetadata(type, instance, member);

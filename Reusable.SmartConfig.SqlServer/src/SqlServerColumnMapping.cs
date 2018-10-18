@@ -5,7 +5,7 @@ namespace Reusable.SmartConfig
 {
     public class SqlServerColumnMapping
     {
-        private static readonly IWeelidator<string> ColumnWeelidator = Weelidator.For<string>(builder =>
+        private static readonly IBouncer<string> ColumnBouncer = Bouncer.For<string>(builder =>
         {
             builder.BlockNull();
             builder.Block(c => string.IsNullOrEmpty(c));
@@ -24,14 +24,14 @@ namespace Reusable.SmartConfig
         public string Name
         {
             get => _name;
-            set => _name = value.ValidateWith(ColumnWeelidator).ThrowIfInvalid();
+            set => _name = value.ValidateWith(ColumnBouncer).ThrowIfInvalid();
         }
 
         [NotNull]
         public string Value
         {
             get => _value;
-            set => _value = value.ValidateWith(ColumnWeelidator).ThrowIfInvalid();
+            set => _value = value.ValidateWith(ColumnBouncer).ThrowIfInvalid();
         }
 
         public static implicit operator SqlServerColumnMapping((string name, string value) mapping)

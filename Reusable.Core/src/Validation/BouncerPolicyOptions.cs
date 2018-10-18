@@ -3,7 +3,7 @@
 namespace Reusable.Validation
 {
     [Flags]
-    public enum WeelidationRuleOptions
+    public enum BouncerPolicyOptions
     {
         None = 0,
         

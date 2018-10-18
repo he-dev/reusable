@@ -8,16 +8,16 @@ using Reusable.Extensions;
 namespace Reusable.Validation
 {
     [PublicAPI]
-    public static class WeelidatorExtensions2
+    public static class BouncerExtensions
     {
         #region Ensure overloads
 
-        public static WeelidatorRuleBuilder<T> Ensure<T>(this WeelidatorBuilder<T> builder, Expression<Func<T, bool>> expression)
+        public static BouncerPolicyBuilder<T> Ensure<T>(this BouncerBuilder<T> builder, Expression<Func<T, bool>> expression)
         {
             return builder.NewRule(expression);
         }
 
-        public static WeelidatorRuleBuilder<T> EnsureNull<T>(this WeelidatorBuilder<T> builder)
+        public static BouncerPolicyBuilder<T> EnsureNull<T>(this BouncerBuilder<T> builder)
         {
             return
                 builder
@@ -30,13 +30,13 @@ namespace Reusable.Validation
 
         #region Block overloads
 
-        public static WeelidatorRuleBuilder<T> Block<T>(this WeelidatorBuilder<T> builder, Expression<Func<T, bool>> expression)
+        public static BouncerPolicyBuilder<T> Block<T>(this BouncerBuilder<T> builder, Expression<Func<T, bool>> expression)
         {
             var notExpression = Expression.Lambda<Func<T, bool>>(Expression.Not(expression.Body), expression.Parameters[0]);
             return builder.Ensure(notExpression);
         }
 
-        public static WeelidatorRuleBuilder<T> BlockNull<T>(this WeelidatorBuilder<T> builder)
+        public static BouncerPolicyBuilder<T> BlockNull<T>(this BouncerBuilder<T> builder)
         {
             return
                 builder

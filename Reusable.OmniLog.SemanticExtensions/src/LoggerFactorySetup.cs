@@ -71,7 +71,7 @@ namespace Reusable.OmniLog.SemanticExtensions
 
     public class LoggerFactoryBuilder
     {
-        private static readonly IWeelidator<LoggerFactoryBuilder> SelfWeelidator = Weelidator.For<LoggerFactoryBuilder>(builder =>
+        private static readonly IBouncer<LoggerFactoryBuilder> SelfBouncer = Bouncer.For<LoggerFactoryBuilder>(builder =>
         {
             builder.Ensure(x => x._rxes.Any()).WithMessage("You need to add at least one Rx.");
             builder.Block(x => string.IsNullOrEmpty(x._environment)).WithMessage("You need to specify the environment.");
@@ -154,7 +154,7 @@ namespace Reusable.OmniLog.SemanticExtensions
 
         public ILoggerFactory Build()
         {
-            SelfWeelidator.Validate(this);
+            SelfBouncer.Validate(this);
 
             return new LoggerFactory
             {

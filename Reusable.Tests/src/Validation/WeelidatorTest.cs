@@ -13,7 +13,7 @@ namespace Reusable.Tests.Validation
         [TestMethod]
         public void CanEnsureMultipleRules()
         {
-            var validator = Weelidator.For<Person>(builder =>
+            var validator = Bouncer.For<Person>(builder =>
             {
                 builder.Ensure(p => p.FirstName != null);
                 builder.Ensure(p => p.LastName != null);
@@ -26,7 +26,7 @@ namespace Reusable.Tests.Validation
         [TestMethod]
         public void CanBlockMultipleRules()
         {
-            var validator = Weelidator.For<Person>(builder =>
+            var validator = Bouncer.For<Person>(builder =>
             {
                 builder.Block(p => p.FirstName == null);
                 builder.Block(p => p.LastName == null);
@@ -43,7 +43,7 @@ namespace Reusable.Tests.Validation
         [TestMethod]
         public void IsValidWhenNull_Null_True()
         {
-            var validator = Weelidator.For<Person>(model => model.EnsureNull());
+            var validator = Bouncer.For<Person>(model => model.EnsureNull());
             var person = default(Person);
             Assert.IsTrue(validator.Validate(person).Success);
         }
@@ -51,7 +51,7 @@ namespace Reusable.Tests.Validation
         [TestMethod]
         public void IsValidWhenNull_NotNull_False()
         {
-            var validator = Weelidator.For<Person>(model => model.EnsureNull());
+            var validator = Bouncer.For<Person>(model => model.EnsureNull());
             var person = new Person();
             Assert.IsFalse(validator.Validate(person).Success);
         }
@@ -59,7 +59,7 @@ namespace Reusable.Tests.Validation
         [TestMethod]
         public void IsNotValidWhenNull_NotNull_True()
         {
-            var validator = Weelidator.For<Person>(model => model.BlockNull());
+            var validator = Bouncer.For<Person>(model => model.BlockNull());
             var person = new Person();
             Assert.IsTrue(validator.Validate(person).Success);
         }
@@ -67,7 +67,7 @@ namespace Reusable.Tests.Validation
         [TestMethod]
         public void IsNotValidWhenNull_Null_False()
         {
-            var validator = Weelidator.For<Person>(model => model.BlockNull());
+            var validator = Bouncer.For<Person>(model => model.BlockNull());
             var person = default(Person);
             Assert.IsFalse(validator.Validate(person).Success);
         }
@@ -90,7 +90,7 @@ namespace Reusable.Tests.Validation
         [TestMethod]
         public void ThrowOrDefault_InvalidPerson_PersonValidationException()
         {
-            var validator = Weelidator.For<Person>(model => model.Block(p => p.FirstName == null));
+            var validator = Bouncer.For<Person>(model => model.Block(p => p.FirstName == null));
             var person = new Person();
 
             Assert.That.Throws<DynamicException>(() => validator.Validate(person).ThrowIfInvalid(), filter => filter.When(name: "PersonValidationException"));
