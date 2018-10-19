@@ -1,74 +1,60 @@
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.Reflection;
+using Reusable.Diagnostics;
 
 namespace Reusable.Tests
 {
     [TestClass]
-    public class ExceptionTrapTest { }
-
-    public interface IExceptionTrap
+    public class ExceptionTrapTest
     {
-        void Throw
-        (
-            [CallerMemberName] string callerMemberName = null,
-            [CallerLineNumber] int callerLineNumber = 0,
-            [CallerFilePath] string callerFilePath = null
-        );
-    }
-
-    public class ExceptionTrap : IExceptionTrap
-    {
-        //private readonly ConcurrentDictionary<string, string> _
-        public void Throw(string callerMemberName = null, int callerLineNumber = 0, string callerFilePath = null) { }
-    }
-
-    public interface IExceptionTrigger
-    {
-        bool Enabled { get; }
-
-        bool Next();
-    }
-
-    public abstract class ExceptionTrigger : IExceptionTrigger
-    {
-        public bool Enabled { get; }
-        
-        public string Exception { get; }
-
-        public abstract bool Next();
-    }
-
-    public class CountedTrigger : ExceptionTrigger
-    {
-        private int _current;
-        
-        public int Max { get; set; }
-        
-        public override bool Next()
+        [TestMethod]
+        public void Throw()
         {
-            if (_current++ == Max)
+            var trap = new ExceptionTrap(new IExceptionTrigger[]
             {
-                _current = 0;
-                throw new Exception();
+                new CountedTrigger(new RegularSequence<int>(2))
+            });
+
+            var exceptionCount = 0;
+            for (var i = 1; i < 10; i++)
+            {
+                try
+                {
+                    trap.Throw();
+                }
+                catch (DynamicException ex)
+                {
+                    Assert.IsTrue(i % 2 == 0);
+                    exceptionCount++;
+                }
             }
+
+            Assert.AreEqual(4, exceptionCount);
         }
     }
-    
-    public  class TimedTrigger : ExceptionTrigger
+
+    /*
+    public class AddressRepository
     {
-        public override bool Next()
+        [CanBeNull]
+        public IExceptionTrap Trap { get; set; }
+
+        public IEnumerable<string> GetAddressesWithoutZip()
         {
-            throw new System.NotImplementedException();
+            Trap?.Throw();
+
+            // do stuff...
         }
     }
-    
-    public class FilteredTrigger : ExceptionTrigger
-    {
-        public override bool Next()
-        {
-            throw new System.NotImplementedException();
-        }
-    }
+    */
+
+
 }
