@@ -8,21 +8,21 @@ using Reusable.Reflection;
 
 namespace Reusable.Validation
 {
-    public static class WeelidationResultExtensions
+    public static class BouncerAuditExtensions
     {
         [CanBeNull]
-        public static T ThrowIfInvalid<T>([NotNull] this WeelidationResult<T> weelidationResult)
+        public static T ThrowIfInvalid<T>([NotNull] this BouncerAudit<T> bouncerAudit)
         {
-            if (weelidationResult == null) throw new ArgumentNullException(nameof(weelidationResult));
+            if (bouncerAudit == null) throw new ArgumentNullException(nameof(bouncerAudit));
 
             return
-                weelidationResult
-                    ? weelidationResult
+                bouncerAudit
+                    ? bouncerAudit
                     : throw DynamicException.Create
                     (
                         $"{typeof(T).ToPrettyString()}Validation",
                         $"Object of type '{typeof(T).ToPrettyString()}' does not meet one or more requirements.{Environment.NewLine}{Environment.NewLine}" +
-                        $"{weelidationResult[false].Select(Func.ToString).Join(Environment.NewLine)}"
+                        $"{bouncerAudit[false].Select(Func.ToString).Join(Environment.NewLine)}"
                     );
         }
     }

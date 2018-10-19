@@ -16,7 +16,7 @@ namespace Reusable.Validation
 //        string Message { get; }
 //    }
 
-    public class WeelidationRuleResult<T> //: IWeelidationRuleResult<T>
+    public class BouncerPolicyAudit<T> //: IWeelidationRuleResult<T>
     {
         // ReSharper disable once StaticMemberInGenericType - this is ok because it's common to all instances.
         private static readonly IDictionary<bool, string> ResultStrings = new Dictionary<bool, string>
@@ -25,21 +25,21 @@ namespace Reusable.Validation
             [false] = "Failed"
         };
 
-        public WeelidationRuleResult([NotNull] string expression, bool success, [NotNull] string message)
+        public BouncerPolicyAudit([NotNull] string expression, bool isFollowed, [NotNull] string message)
         {
             Expression = expression;
-            Success = success;
+            IsFollowed = isFollowed;
             Message = message;
         }
 
         public string Expression { get; }
 
-        public bool Success { get; }
+        public bool IsFollowed { get; }
 
         public string Message { get; }        
 
-        public override string ToString() => $"{Expression} | {ResultStrings[Success]} ({Message ?? "N/A"})";
+        public override string ToString() => $"{Expression} | {ResultStrings[IsFollowed]} ({Message ?? "N/A"})";
 
-        public static implicit operator bool(WeelidationRuleResult<T> ruleResult) => ruleResult.Success;
+        public static implicit operator bool(BouncerPolicyAudit<T> policyAudit) => policyAudit.IsFollowed;
     }    
 }

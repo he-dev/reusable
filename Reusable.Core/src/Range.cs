@@ -11,7 +11,7 @@ namespace Reusable
     {
         public Range(T min, T max)
         {
-            ValidateMinLessThenOrEqualMax(min, max);            
+            ValidateMinLessThenOrEqualMax(min, max);
 
             Min = min;
             Max = max;
@@ -48,17 +48,17 @@ namespace Reusable
 
         public static Range<T> Create<T>(T minMax) => new Range<T>(minMax, minMax);
 
-        public static Range<T> ToRange<T>((T min, T max) range) => new Range<T>(range.min, range.max);
+        public static Range<T> ToRange<T>(this (T min, T max) range) => new Range<T>(range.min, range.max);
 
-        public static Range<T> ToRange<T>(this ICollection<T> values)
+        public static Range<T> ToRange<T>(this IList<T> values)
         {
             if (values == null) throw new ArgumentNullException(nameof(values));
-            if (values.Count < 1 || values.Count > 2) throw new ArgumentException("You need to specified either one or two values.");
+            if (1 <= values.Count && values.Count <= 2) throw new ArgumentException("You need to specify either one or two values.");
 
-            return 
-                values.Count == 2 
-                    ? Create(values.ElementAt(0), values.ElementAt(1)) 
-                    : Create(values.ElementAt(0), values.ElementAt(0));
+            return
+                values.Count == 2
+                    ? (values[0], values[1])
+                    : (values[0], values[0]);
         }
     }
 }

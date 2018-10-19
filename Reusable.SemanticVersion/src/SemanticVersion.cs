@@ -19,7 +19,7 @@ namespace Reusable
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class SemanticVersion : IEquatable<SemanticVersion>, IComparable<SemanticVersion>, IComparer<SemanticVersion>
     {
-        private static readonly IWeelidator<SemanticVersion> VersionWeelidator = Weelidator.For<SemanticVersion>(builder =>
+        private static readonly IBouncer<SemanticVersion> VersionBouncer = Bouncer.For<SemanticVersion>(builder =>
         {
             builder.Ensure(x => x.Major >= 0);
             builder.Ensure(x => x.Minor >= 0);
@@ -43,7 +43,7 @@ namespace Reusable
             Minor = minor;
             Patch = patch;
             Labels = labels.ToImmutableList();
-            this.ValidateWith(VersionWeelidator).ThrowIfInvalid();
+            this.ValidateWith(VersionBouncer).ThrowIfInvalid();
         }
 
         public SemanticVersion(int major, int minor, int patch)

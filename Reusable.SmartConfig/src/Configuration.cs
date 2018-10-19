@@ -30,7 +30,7 @@ namespace Reusable.SmartConfig
 
         private readonly IDictionary<SettingName, SoftString> _settingProviderNames = new Dictionary<SettingName, SoftString>();
 
-        private static readonly IWeelidator<IEnumerable<ISettingProvider>> SettingProviderWeelidator = Weelidator.For<IEnumerable<ISettingProvider>>(
+        private static readonly IBouncer<IEnumerable<ISettingProvider>> SettingProviderBouncer = Bouncer.For<IEnumerable<ISettingProvider>>(
             builder =>
             {
                 builder.BlockNull();
@@ -42,7 +42,7 @@ namespace Reusable.SmartConfig
         {
             if (settingProviders == null) throw new ArgumentNullException(nameof(settingProviders));
 
-            _providers = settingProviders.ToList().ValidateWith(SettingProviderWeelidator).ThrowIfInvalid();
+            _providers = settingProviders.ToList().ValidateWith(SettingProviderBouncer).ThrowIfInvalid();
             _settingFinder = settingFinder ?? throw new ArgumentNullException(nameof(settingFinder));
         }
 

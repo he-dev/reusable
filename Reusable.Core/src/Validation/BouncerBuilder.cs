@@ -8,62 +8,62 @@ using Reusable.Reflection;
 
 namespace Reusable.Validation
 {
-    public class WeelidatorBuilder<T>
+    public class BouncerBuilder<T>
     {
-        private readonly IList<WeelidatorRuleBuilder<T>> _ruleBuilders = new List<WeelidatorRuleBuilder<T>>();
+        private readonly IList<BouncerPolicyBuilder<T>> _ruleBuilders = new List<BouncerPolicyBuilder<T>>();
         
         [NotNull]
-        public WeelidatorRuleBuilder<T> NewRule([NotNull] Expression<Func<T, bool>> expression)
+        public BouncerPolicyBuilder<T> NewRule([NotNull] Expression<Func<T, bool>> expression)
         {
-            var newRule = new WeelidatorRuleBuilder<T>(expression);
+            var newRule = new BouncerPolicyBuilder<T>(expression);
             _ruleBuilders.Add(newRule);
             return newRule;
         }
 
         [NotNull, ItemNotNull]
-        internal IList<IWeelidationRule<T>> Build()
+        internal IList<IBouncerPolicy<T>> Build()
         {
             if (_ruleBuilders.Empty()) throw new InvalidOperationException("You need to define at least one validation rule.");
             return _ruleBuilders.Select(rb => rb.Build()).ToList();
         }
     }
 
-    public class WeelidatorRuleBuilder<T>
+    public class BouncerPolicyBuilder<T>
     {
         private readonly Expression<Func<T, bool>> _expression;
         private Func<T, string> _createMessage = _ => string.Empty;
-        private WeelidationRuleOptions _options;
+        private BouncerPolicyOptions _options;
 
-        public WeelidatorRuleBuilder([NotNull] Expression<Func<T, bool>> expression)
+        public BouncerPolicyBuilder([NotNull] Expression<Func<T, bool>> expression)
         {
             _expression = expression ?? throw new ArgumentNullException(nameof(expression));
         }
 
         [NotNull]
-        public WeelidatorRuleBuilder<T> WithMessage(string message)
+        public BouncerPolicyBuilder<T> WithMessage(string message)
         {
             _createMessage = _ => message;
             return this;
         }
         
         [NotNull]
-        public WeelidatorRuleBuilder<T> WithMessage(Func<T, string> createMessage)
+        public BouncerPolicyBuilder<T> WithMessage(Func<T, string> createMessage)
         {
             _createMessage = createMessage;
             return this;
         }
         
         [NotNull]
-        public WeelidatorRuleBuilder<T> BreakOnFailure()
+        public BouncerPolicyBuilder<T> BreakOnFailure()
         {
-            _options |= WeelidationRuleOptions.BreakOnFailure;
+            _options |= BouncerPolicyOptions.BreakOnFailure;
             return this;
         }
         
         [NotNull]
-        public IWeelidationRule<T> Build()
+        public IBouncerPolicy<T> Build()
         {
-            return new WeelidationRule<T>(_expression, _createMessage, _options);
+            return new BouncerPolicy<T>(_expression, _createMessage, _options);
         }
     }
 }
