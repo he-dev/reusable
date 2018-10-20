@@ -10,28 +10,28 @@ namespace Reusable.Validation
 {
     public class BouncerBuilder<T>
     {
-        private readonly IList<BouncerPolicyBuilder<T>> _ruleBuilders = new List<BouncerPolicyBuilder<T>>();
+        private readonly IList<BouncerPolicyBuilder<T>> _policyBuilders = new List<BouncerPolicyBuilder<T>>();
         
         [NotNull]
-        public BouncerPolicyBuilder<T> NewRule([NotNull] Expression<Func<T, bool>> expression)
+        public BouncerPolicyBuilder<T> Policy([NotNull] Expression<Func<T, bool>> expression)
         {
-            var newRule = new BouncerPolicyBuilder<T>(expression);
-            _ruleBuilders.Add(newRule);
-            return newRule;
+            var policyBuilder = new BouncerPolicyBuilder<T>(expression);
+            _policyBuilders.Add(policyBuilder);
+            return policyBuilder;
         }
 
         [NotNull, ItemNotNull]
         internal IList<IBouncerPolicy<T>> Build()
         {
-            if (_ruleBuilders.Empty()) throw new InvalidOperationException("You need to define at least one validation rule.");
-            return _ruleBuilders.Select(rb => rb.Build()).ToList();
+            if (_policyBuilders.Empty()) throw new InvalidOperationException("You need to define at least one validation rule.");
+            return _policyBuilders.Select(rb => rb.Build()).ToList();
         }
     }
 
     public class BouncerPolicyBuilder<T>
     {
         private readonly Expression<Func<T, bool>> _expression;
-        private Func<T, string> _createMessage = _ => string.Empty;
+        private Func<T, string> _createMessage = _ => "N/A";
         private BouncerPolicyOptions _options;
 
         public BouncerPolicyBuilder([NotNull] Expression<Func<T, bool>> expression)

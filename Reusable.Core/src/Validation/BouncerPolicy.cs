@@ -9,7 +9,9 @@ namespace Reusable.Validation
     {
         BouncerPolicyOptions Options { get; }
         
-        BouncerPolicyAudit<T> Evaluate([CanBeNull] T obj);
+        BouncerPolicyCheck<T> Evaluate([CanBeNull] T obj);
+        
+        string GetMessage(T obj);
     }
 
     internal class BouncerPolicy<T> : IBouncerPolicy<T>
@@ -30,7 +32,11 @@ namespace Reusable.Validation
 
         public BouncerPolicyOptions Options { get; }
 
-        public BouncerPolicyAudit<T> Evaluate(T obj) => new BouncerPolicyAudit<T>(ToString(), _policy.Value(obj), _createMessage(obj));
+        public BouncerPolicyCheck<T> Evaluate(T obj) => new BouncerPolicyCheck<T>(ToString(), _policy.Value(obj), _createMessage(obj));
+        
+        //public bool Evaluate(T obj) => _policy.Value(obj);
+
+        public string GetMessage(T obj) => _createMessage(obj);
 
         public override string ToString() => _expressionString.Value;
 

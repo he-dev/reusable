@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -192,46 +191,5 @@ namespace Reusable.Diagnostics
         }
 
         public override string ToString() => $"{nameof(DelayedTrigger)}: {Delay} ({_stopwatch.Elapsed})";
-    }
-
-    public interface ISequence<out T> : IEnumerable<T>
-    {
-    }
-
-    public abstract class Sequence<T> : ISequence<T>
-    {
-        public abstract IEnumerator<T> GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
-
-    public class RegularSequence<T> : Sequence<T>
-    {
-        private readonly T _value;
-
-        public RegularSequence(T value) => _value = value;
-
-        public override IEnumerator<T> GetEnumerator()
-        {
-            while (true) yield return _value;
-            // ReSharper disable once IteratorNeverReturns - this is by design
-        }
-    }
-
-    public class RandomSequence : Sequence<int>
-    {
-        private readonly Func<int> _next;
-
-        public RandomSequence(int min, int max)
-        {
-            var random = new Random((int)DateTime.UtcNow.Ticks);
-            _next = () => random.Next(min, max);
-        }
-
-        public override IEnumerator<int> GetEnumerator()
-        {
-            while (true) yield return _next();
-            // ReSharper disable once IteratorNeverReturns - this is by design
-        }
     }
 }

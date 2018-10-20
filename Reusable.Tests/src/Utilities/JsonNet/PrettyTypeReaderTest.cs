@@ -10,7 +10,7 @@ using Reusable.Utilities.JsonNet;
 namespace Reusable.Tests.Utilities.JsonNet
 {
     [TestClass]
-    public class CustomTypeReaderTest
+    public class PrettyTypeReaderTest
     {
         [TestMethod]
         public void Deserialize_CanResolveTypeByAlias()
@@ -30,7 +30,7 @@ namespace Reusable.Tests.Utilities.JsonNet
 }
 ";
             using (var streamReader = json.ToStreamReader())
-            using (var jsonTextReader = new PrettyTypeReader(streamReader, typeof(CustomTypeReaderTest)))
+            using (var jsonTextReader = new PrettyTypeReader(streamReader, typeof(PrettyTypeReaderTest)))
             {
                 var jsonSerializer = new JsonSerializer { TypeNameHandling = TypeNameHandling.Auto };
                 var testClass0 = jsonSerializer.Deserialize<JsonTestClass0>(jsonTextReader);

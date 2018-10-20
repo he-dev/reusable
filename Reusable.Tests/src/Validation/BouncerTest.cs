@@ -8,7 +8,7 @@ using Reusable.Validation;
 namespace Reusable.Tests.Validation
 {
     [TestClass]
-    public class WeelidatorTest
+    public class BouncerTest
     {
         [TestMethod]
         public void CanEnsureMultipleRules()
@@ -34,7 +34,7 @@ namespace Reusable.Tests.Validation
 
             var person = new Person();
             var weelidationResult = validator.Validate(person);
-            Assert.AreEqual(2, weelidationResult.Count);
+            Assert.AreEqual(1, weelidationResult.Count);
             Assert.AreEqual(2, weelidationResult.False.Count());
             Assert.IsFalse(weelidationResult.Success);
             

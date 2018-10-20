@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.Collections.Generators;
 using Reusable.Reflection;
 using Reusable.Diagnostics;
 

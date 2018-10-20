@@ -14,7 +14,7 @@ namespace Reusable.Validation
 
         public static BouncerPolicyBuilder<T> Ensure<T>(this BouncerBuilder<T> builder, Expression<Func<T, bool>> expression)
         {
-            return builder.NewRule(expression);
+            return builder.Policy(expression);
         }
 
         public static BouncerPolicyBuilder<T> EnsureNull<T>(this BouncerBuilder<T> builder)

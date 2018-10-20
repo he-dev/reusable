@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace Reusable.Sequences
+namespace Reusable.Collections.Generators
 {
     public class FibonacciSequence<T> : Sequence<T>
     {

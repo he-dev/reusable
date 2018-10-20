@@ -5,35 +5,37 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Custom;
 using JetBrains.Annotations;
+using Reusable.Extensions;
 
 namespace Reusable.Validation
 {
     public interface IBouncer<T> : IEnumerable<IBouncerPolicy<T>>
     {
-        [NotNull]
-        BouncerAudit<T> Validate([CanBeNull] T value);
+        [NotNull, ItemNotNull]
+        BouncerPolicyCheckLookup<T> Validate([CanBeNull] T value);
     }
 
     [PublicAPI]
     internal class Bouncer<T> : IBouncer<T>
     {
-        private readonly IList<IBouncerPolicy<T>> _rules;
+        private readonly IList<IBouncerPolicy<T>> _policies;
 
         public Bouncer([NotNull] Action<BouncerBuilder<T>> builder)
         {
             var rules = new BouncerBuilder<T>();
             builder(rules);
-            _rules = rules.Build();            
+            _policies = rules.Build();
         }
 
-        public BouncerAudit<T> Validate(T value) => new BouncerAudit<T>(value, Evaluate(value));
+        public BouncerPolicyCheckLookup<T> Validate(T value) => new BouncerPolicyCheckLookup<T>(value, Evaluate(value).ToLookup(t => t.IsFollowed));
 
-        private IEnumerable<BouncerPolicyAudit<T>> Evaluate(T value)
+        private IEnumerable<BouncerPolicyCheck<T>> Evaluate(T value)
         {
-            foreach (var (result, options) in _rules.Select(rule => (result: rule.Evaluate(value), options: rule.Options)))
+            foreach (var policy in _policies)
             {
-                yield return result;
-                if (!result && options.HasFlag(BouncerPolicyOptions.BreakOnFailure))
+                var policyCheck = policy.Evaluate(value);
+                yield return policyCheck;
+                if (!policyCheck.IsFollowed && policy.Options.HasFlag(BouncerPolicyOptions.BreakOnFailure))
                 {
                     yield break;
                 }
@@ -42,7 +44,7 @@ namespace Reusable.Validation
 
         #region IEnumerable
 
-        public IEnumerator<IBouncerPolicy<T>> GetEnumerator() => _rules.GetEnumerator();
+        public IEnumerator<IBouncerPolicy<T>> GetEnumerator() => _policies.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
