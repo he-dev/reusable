@@ -18,29 +18,49 @@ namespace Reusable.Tests.Utilities.JsonNet
             var json =
                 @"
 {
-    ""MyClass"": {
-        ""-t"": ""MyClass2""
+    ""Test0"": {
+        ""$t"": ""JsonTestClass0""
+    },
+    ""Test1"": {
+        ""$t"": ""JsonTestClass1<int>""
+    },
+    ""Test2"": {
+        ""$t"": ""JsonTestClass2<int, string>""
     }
 }
 ";
-            var types = Assembly.GetExecutingAssembly().GetTypes();
             using (var streamReader = json.ToStreamReader())
-            using (var jsonTextReader = new CustomTypeReader(streamReader, "-t", TypeResolver.Create(typeof(CustomTypeReaderTest))))
+            using (var jsonTextReader = new PrettyTypeReader(streamReader, typeof(CustomTypeReaderTest)))
             {
-                var myClass1 = new JsonSerializer().Deserialize<MyClass1>(jsonTextReader);
+                var jsonSerializer = new JsonSerializer { TypeNameHandling = TypeNameHandling.Auto };
+                var testClass0 = jsonSerializer.Deserialize<JsonTestClass0>(jsonTextReader);
 
-                Assert.IsNotNull(myClass1);
-                Assert.IsNotNull(myClass1.MyClass);
+                Assert.IsNotNull(testClass0);
+                Assert.IsNotNull(testClass0.Test0);
+                Assert.IsNotNull(testClass0.Test1);
+                Assert.IsNotNull(testClass0.Test2);
             }
         }
     }
 
-    internal class MyClass1
+    internal class JsonTestClass0
     {
-        public MyClass2 MyClass { get; set; }
+        public JsonTestClass0 Test0 { get; set; }
+
+        public TestInterface Test1 { get; set; }
+
+        public TestInterface Test2 { get; set; }
     }
 
-    internal class MyClass2
+    internal interface TestInterface
+    {
+    }
+
+    internal class JsonTestClass1<T1> : TestInterface
+    {
+    }
+
+    internal class JsonTestClass2<T1, T2> : TestInterface
     {
     }
 }

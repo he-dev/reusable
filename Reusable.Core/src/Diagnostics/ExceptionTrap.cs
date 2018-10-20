@@ -72,29 +72,17 @@ namespace Reusable.Diagnostics
 
     public interface IExceptionTrigger
     {
-        //bool Enabled { get; }
-
         [CanBeNull]
         string Exception { get; }
 
         [CanBeNull]
         string Message { get; }
 
-//        [CanBeNull]
-//        string Namespace { get; }
-//
-//        [CanBeNull]
-//        string Type { get; }
-//
-//        [CanBeNull]
-//        string Member { get; }
-//
-//        [CanBeNull]
-//        string Id { get; }
-
         bool CanThrow((string Namespace, string Type, string Member, string Id) trap);
     }
 
+    [PublicAPI]
+    [UsedImplicitly]
     public abstract class ExceptionTrigger : IExceptionTrigger, IDisposable
     {
         private readonly IEnumerator<int> _sequence;
@@ -205,18 +193,6 @@ namespace Reusable.Diagnostics
 
         public override string ToString() => $"{nameof(DelayedTrigger)}: {Delay} ({_stopwatch.Elapsed})";
     }
-
-
-//    public class FilteredTrigger : ExceptionTrigger
-//    {
-//        protected override bool Next(string key)
-//        {
-//            throw new System.NotImplementedException();
-//        }
-//
-//        public override string ToString() => $"{nameof(CountedTrigger)}: {_current}";
-//    }
-
 
     public interface ISequence<out T> : IEnumerable<T>
     {
