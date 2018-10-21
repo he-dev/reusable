@@ -9,7 +9,7 @@ using Reusable.Extensions;
 namespace Reusable.SmartConfig.Annotations
 {
     [UsedImplicitly]
-    [AttributeUsage(AttributeTargets.Assembly)]
+    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
     public class SettingProviderAttribute : Attribute
     {
         private string _prefix;
@@ -56,7 +56,7 @@ namespace Reusable.SmartConfig.Annotations
             set => _settingNameStrength = value;
         }
 
-        public bool Contains<T>(T provider) where T : ISettingProvider => _providerTypes.Contains(typeof(T)) || _providerNames.Contains(provider.Name);
+        public bool Contains<T>(T provider) where T : ISettingProvider => _providerTypes.Contains(provider.GetType()) || _providerNames.Contains(provider.Name);
     }
 
     [UsedImplicitly]
@@ -85,6 +85,9 @@ namespace Reusable.SmartConfig.Annotations
 
         [CanBeNull]
         public string ProviderName { get; set; }
+
+        [CanBeNull]
+        public Type ProviderType { get; set; }
 
         public SettingNameStrength Strength { get; set; } = SettingNameStrength.Inherit;
 

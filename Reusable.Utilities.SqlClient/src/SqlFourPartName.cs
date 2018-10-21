@@ -64,7 +64,7 @@ namespace Reusable.Utilities.SqlClient
                     .Where(Conditional.IsNotNullOrEmpty)
                     .Select(name => name == OmittedNamePlaceholder.ToString() ? name : connection.CreateIdentifier(name) + NameSeparator)
                     .Join("")
-                    // NameSeparator is attched to each valid name so there is one at the end that is too many.
+                    // NameSeparator is attached to each valid name so there is one at the end that is too many.
                     // It's easier to remove it with TrimEnd than prevent adding it with an additional condition.
                     .TrimEnd(NameSeparator);
         }

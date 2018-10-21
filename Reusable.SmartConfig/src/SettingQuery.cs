@@ -18,6 +18,9 @@ namespace Reusable.SmartConfig
 
         [CanBeNull]
         public SoftString ProviderName { get; set; }
+        
+        [CanBeNull]
+        public Type ProviderType { get; set; }
 
         public SettingNameStrength Strength { get; set; }
 
@@ -59,7 +62,7 @@ namespace Reusable.SmartConfig
                 instance: instance
             );
 
-            return new SelectQuery(settingName, settingMetadata.Type)
+            return new SelectQuery(settingName, settingMetadata.MemberType)
             {
                 ProviderName = settingMetadata.ProviderName,
                 Strength = settingMetadata.SettingNameStrength,

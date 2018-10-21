@@ -10,14 +10,14 @@ namespace Reusable.SmartConfig
     {
         public AppSettings(ISettingConverter converter) : base(new SettingNameFactory(), converter) { }
 
-        protected override ISetting ReadCore(SettingName name)
+        protected override ISetting Read(SettingName name)
         {
             var exeConfig = OpenExeConfiguration();
-            var value = exeConfig.AppSettings.Settings[name.ToString()];
-            return new Setting(name, value);
+            var element = exeConfig.AppSettings.Settings[name.ToString()];
+            return element is null ? default : new Setting(name, element.Value);
         }
 
-        protected override void WriteCore(ISetting setting)
+        protected override void Write(ISetting setting)
         {
             var exeConfig = OpenExeConfiguration();
 

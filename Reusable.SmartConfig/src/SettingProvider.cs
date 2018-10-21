@@ -16,14 +16,14 @@ namespace Reusable.SmartConfig
     {
         [NotNull]
         [AutoEqualityProperty]
-        SoftString Name { get; }        
+        SoftString Name { get; }
 
         [CanBeNull]
         ISetting Read([NotNull] SelectQuery query);
 
         void Write([NotNull] UpdateQuery query);
     }
-    
+
     [PublicAPI]
     public abstract class SettingProvider : ISettingProvider
     {
@@ -55,12 +55,12 @@ namespace Reusable.SmartConfig
         {
             if (query == null) throw new ArgumentNullException(nameof(query));
 
-            var providerNaming= this.Naming(query);
+            var providerNaming = this.Naming(query);
             var providerSettingName = _settingNameFactory.CreateProviderSettingName(query.SettingName, providerNaming);
 
             try
             {
-                var setting = ReadCore(providerSettingName);
+                var setting = Read(providerSettingName);
 
                 return
                     setting is null
@@ -78,19 +78,19 @@ namespace Reusable.SmartConfig
         }
 
         [CanBeNull]
-        protected abstract ISetting ReadCore(SettingName name);
+        protected abstract ISetting Read(SettingName name);
 
         public void Write(UpdateQuery query)
         {
             if (query == null) throw new ArgumentNullException(nameof(query));
 
-            var providerNaming= this.Naming(query);
+            var providerNaming = this.Naming(query);
             var providerSettingName = _settingNameFactory.CreateProviderSettingName(query.SettingName, providerNaming);
 
             try
             {
                 var value = query.Value is null ? null : _converter.Serialize(query.Value);
-                WriteCore(new Setting(query.SettingName, value));
+                Write(new Setting(query.SettingName, value));
             }
             catch (Exception innerException)
             {
@@ -98,14 +98,14 @@ namespace Reusable.SmartConfig
             }
         }
 
-        protected abstract void WriteCore(ISetting setting);       
+        protected abstract void Write(ISetting setting);
 
         #region IEquatable<ISettingProvider>
 
         public bool Equals(ISettingProvider other) => AutoEquality<ISettingProvider>.Comparer.Equals(this, other);
-        
+
         public override bool Equals(object obj) => obj is ISettingProvider other && Equals(other);
-        
+
         public override int GetHashCode() => AutoEquality<ISettingProvider>.Comparer.GetHashCode(this);
 
         #endregion

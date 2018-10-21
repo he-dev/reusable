@@ -47,8 +47,9 @@ namespace Reusable.SmartConfig
         
         internal static string CreateDefaultName<T>(this T settingProvider) where T : ISettingProvider
         {
-            var count = SettingProviderCounters.AddOrUpdate(typeof(T).ToPrettyString(), name => 1, (name, counter) => counter + 1);
-            return typeof(T).ToPrettyString() + count;
+            var providerType = settingProvider.GetType();
+            var count = SettingProviderCounters.AddOrUpdate(providerType.ToPrettyString(), name => 1, (name, counter) => counter + 1);
+            return providerType.ToPrettyString() + count;
         }
     }
 }

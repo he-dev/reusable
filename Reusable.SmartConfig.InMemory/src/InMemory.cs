@@ -17,21 +17,21 @@ namespace Reusable.SmartConfig
         {
         }
 
-        protected override ISetting ReadCore(SettingName name)
+        protected override ISetting Read(SettingName name)
         {
             return _settings.TryGetValue(name, out var value) ? new Setting(name, value) : default;
         }
 
-        protected override void WriteCore(ISetting setting)
+        protected override void Write(ISetting setting)
         {
             _settings[setting.Name] = setting.Value;
         }
 
         #region IEnumerable
 
-        public void Add(ISetting setting) => WriteCore(setting);
+        public void Add(ISetting setting) => Write(setting);
 
-        public void Add(string name, object value) => WriteCore(new Setting(SettingName.Parse(name), value));
+        public void Add(string name, object value) => Write(new Setting(SettingName.Parse(name), value));
 
         public InMemory AddRange(IEnumerable<ISetting> settings)
         {

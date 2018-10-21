@@ -28,14 +28,15 @@ namespace Reusable.SmartConfig.Reflection
             Type = type;
             Instance = instance;
             Member = member;
+            MemberType = GetMemberType(member);
 
-            var asdf1 = member.GetCustomAttributes<SettingMemberAttribute>(inherit: true);
-            var asdf2 = member.GetCustomAttributes<SettingMemberAttribute>(inherit: false);
+            //var asdf1 = member.GetCustomAttributes<SettingMemberAttribute>(inherit: true);
+            //var asdf2 = member.GetCustomAttributes<SettingMemberAttribute>(inherit: false);
             
             var attributes =
                 new SettingAttribute[]
                     {
-                        member.GetCustomAttributes<SettingMemberAttribute>(inherit: true).First(),
+                        member.GetCustomAttributes<SettingMemberAttribute>(inherit: true).FirstOrDefault(),
                         type.GetCustomAttribute<SettingTypeAttribute>(),
                     }
                     .Where(Conditional.IsNotNull)
@@ -62,6 +63,9 @@ namespace Reusable.SmartConfig.Reflection
 
         [NotNull]
         public MemberInfo Member { get; }
+        
+        [NotNull]
+        public Type MemberType { get; }
 
         [CanBeNull]
         public string Prefix { get; }
@@ -95,6 +99,22 @@ namespace Reusable.SmartConfig.Reflection
 
             var (type, instance, member) = SettingVisitor.GetSettingInfo(expression, nonPublic);
             return new SettingMetadata(type, instance, member);
+        }
+        
+        [NotNull]
+        private Type GetMemberType(MemberInfo member)
+        {
+            switch (member)
+            {
+                case PropertyInfo property:
+                    return property.PropertyType;
+
+                case FieldInfo field:
+                    return field.FieldType;
+
+                default:
+                    throw new ArgumentException($"Member must be either a {nameof(MemberTypes.Property)} or a {nameof(MemberTypes.Field)}.");
+            }
         }
 
         [CanBeNull]
