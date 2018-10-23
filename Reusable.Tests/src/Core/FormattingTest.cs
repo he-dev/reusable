@@ -2,10 +2,11 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Extensions;
 using Reusable.FormatProviders;
-using static Reusable.StringHelper;
 
 namespace Reusable.Tests
 {
+    using static FormattableStringHelper;
+    
     [TestClass]
     public class FormattingTest
     {

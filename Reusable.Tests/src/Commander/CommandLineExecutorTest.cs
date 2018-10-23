@@ -1,19 +1,16 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.Commander;
 using Reusable.Commander.Annotations;
 using Reusable.OmniLog;
 using Reusable.Utilities.MSTest;
 using IContainer = Autofac.IContainer;
-using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
 
-namespace Reusable.Commander.Tests
+namespace Reusable.Tests.Commander
 {
     [TestClass]
     public class CommandLineExecutorTest
@@ -91,7 +88,7 @@ namespace Reusable.Commander.Tests
             {
                 var commandLineString = @"test -stringproperty abc -int32property 123 -datetimeproperty ""2017/5/1"" -booleanproperty false -int32arrayproperty 4 5 6 -justproperty noop";
                 var executedCommandNames = local.Executor.ExecuteAsync(commandLineString, CancellationToken.None).GetAwaiter().GetResult();
-                Assert.That.Collection().AreEqual(new[] { SoftKeySet.Create("test") }, executedCommandNames);
+                Assert.That.Collection().AreEqual(new[] { Reusable.Commander.SoftKeySet.Create("test") }, executedCommandNames);
                 assertExecuteMock.Verify(assert => assert(It.IsAny<IConsoleCommand>()), Times.Once);
             }
         }
@@ -112,7 +109,7 @@ namespace Reusable.Commander.Tests
             {
                 var commandLineString = @"test abc";
                 var executedCommandNames = local.Executor.ExecuteAsync(commandLineString, CancellationToken.None).GetAwaiter().GetResult();
-                Assert.That.Collection().AreEqual(new[] { SoftKeySet.Create("test") }, executedCommandNames);
+                Assert.That.Collection().AreEqual(new[] { Reusable.Commander.SoftKeySet.Create("test") }, executedCommandNames);
                 assertExecuteMock.Verify(assert => assert(It.IsAny<IConsoleCommand>()), Times.Once);
             }
         }
@@ -134,7 +131,7 @@ namespace Reusable.Commander.Tests
             {
                 var commandLineString = @"test -flag1 -flag2 false";
                 var executedCommandNames = local.Executor.ExecuteAsync(commandLineString, CancellationToken.None).GetAwaiter().GetResult();
-                Assert.That.Collection().AreEqual(new[] { SoftKeySet.Create("test") }, executedCommandNames);
+                Assert.That.Collection().AreEqual(new[] { Reusable.Commander.SoftKeySet.Create("test") }, executedCommandNames);
                 assertExecuteMock.Verify(assert => assert(It.IsAny<IConsoleCommand>()), Times.Once);
             }
         }

@@ -2,7 +2,11 @@
 <package>
   <metadata>
     <id>Reusable.Utilities.MSTest</id>
+<<<<<<< HEAD
     <version>6.1.1</version>
+=======
+    <version>7.0.20</version>
+>>>>>>> dev
     <title>Reusable.Utilities.MSTest</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -15,12 +19,17 @@
     <copyright>Copyright 2017 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
-      <dependency id="JetBrains.Annotations" version="11.1.0" />
-      <dependency id="Microsoft.NET.Test.Sdk" version="15.7.2" />
+      <dependency id="JetBrains.Annotations" version="2018.2.1" />
+      <dependency id="Microsoft.NET.Test.Sdk" version="15.8.0" />
       <dependency id="MSTest.TestAdapter" version="1.3.2" />
       <dependency id="MSTest.TestFramework" version="1.3.2" />
+<<<<<<< HEAD
       <dependency id="Reusable.Core" version="6.1.1" />
       <dependency id="Reusable.OmniLog" version="6.1.1" />
+=======
+      <dependency id="Reusable.Core" version="7.0.20" />
+      <dependency id="Reusable.OmniLog" version="7.0.20" />
+>>>>>>> dev
     </dependencies>
   </metadata>
   <files>

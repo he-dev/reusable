@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
+using Reusable.Commander;
 
-namespace Reusable.Commander.Tests
+namespace Reusable.Tests.Commander
 {
     [TestClass]
     public class CommandArgumentTest
@@ -15,19 +15,19 @@ namespace Reusable.Commander.Tests
                 "baz qux"
             };
 
-            Assert.AreEqual("-foo=bar, \"baz qux\"", arguments.ToString());
+            Assert.AreEqual(@"-foo=bar, ""baz qux""", arguments.ToString());
         }
 
         [TestMethod]
         public void ToString_WithoutKey_Formatted()
         {
-            var arguments = new CommandArgument(SoftString.Empty)
+            var arguments = new CommandArgument()
             {
                 "bar",
                 "baz qux"
             };
 
-            Assert.AreEqual("bar, \"baz qux\"", arguments.ToString());
+            Assert.AreEqual(@"bar, ""baz qux""", arguments.ToString());
         }
     }
 }

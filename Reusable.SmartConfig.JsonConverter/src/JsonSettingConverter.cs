@@ -11,7 +11,6 @@ using ColorConverter = Reusable.Utilities.JsonNet.ColorConverter;
 
 namespace Reusable.SmartConfig
 {
-
     /*
      *
      * This converter is build on top of the Reusable.Converters.
@@ -22,24 +21,20 @@ namespace Reusable.SmartConfig
     [PublicAPI]
     public class JsonSettingConverter : SettingConverter
     {
-        [NotNull]
-        private ITypeConverter _converter;
+        [NotNull] private ITypeConverter _converter;
 
-        [NotNull]
-        private JsonSerializerSettings _settings;
+        [NotNull] private JsonSerializerSettings _settings;
 
-        [NotNull]
-        private ISet<Type> _stringTypes;
+        [NotNull] private ISet<Type> _stringTypes;
 
-        public JsonSettingConverter(params  Type[] otherSupportedTypes) : base(otherSupportedTypes.Prepend(typeof(string)))
+        public JsonSettingConverter() : base(new Type[0], typeof(string))
         {
             _converter = TypeConverter.Empty;
             _settings = new JsonSerializerSettings();
             _stringTypes = new HashSet<Type>();
         }
 
-        [NotNull]
-        public static readonly JsonSettingConverter Default = new JsonSettingConverter
+        [NotNull] public static readonly JsonSettingConverter Default = new JsonSettingConverter
         {
             Settings = new JsonSerializerSettings
             {
@@ -79,49 +74,41 @@ namespace Reusable.SmartConfig
         {
             if (!(value is string)) throw new ArgumentException($"Unsupported type '{targetType.ToPrettyString()}'. Only {typeof(string).ToPrettyString()} is allowed.");
 
-            AddJsonToObjectConverter(targetType);
-            return _converter.Convert(value, targetType);
+            return GetOrAddDeserializer(targetType).Convert(value, targetType);
         }
 
         protected override object SerializeCore(object value, Type targetType)
         {
             var fromType = value.GetType();
-            AddObjectToJsonConverter(fromType);
-            return (string)_converter.Convert(value, targetType);
+            return (string)GetOrAddSerializer(fromType).Convert(value, targetType);
         }
 
-        private void AddJsonToObjectConverter(Type toType)
+        private ITypeConverter GetOrAddDeserializer(Type toType)
         {
             if (_converter.CanConvert(typeof(string), toType))
             {
-                return;
+                return _converter;
             }
 
-            var jsonToObjectConverter = CreateJsonToObjectConverter(toType);
-            _converter = _converter.Add(jsonToObjectConverter);
+            var converter = CreateJsonConverter(typeof(JsonToObjectConverter<>), toType);
+            return (_converter = _converter.Add(converter));
         }
 
-        private ITypeConverter CreateJsonToObjectConverter(Type toType)
-        {
-            var jsonToObjectConverterType = typeof(JsonToObjectConverter<>).MakeGenericType(toType);
-            return (ITypeConverter)Activator.CreateInstance(jsonToObjectConverterType, _settings, StringTypes);
-        }
-
-        private void AddObjectToJsonConverter(Type fromType)
+        private ITypeConverter GetOrAddSerializer(Type fromType)
         {
             if (_converter.CanConvert(fromType, typeof(string)))
             {
-                return;
+                return _converter;
             }
 
-            var objectToJsonConverter = CreateObjectToJsonConverter(fromType);
-            _converter = _converter.Add(objectToJsonConverter);
+            var converter = CreateJsonConverter(typeof(ObjectToJsonConverter<>), fromType);                
+            return (_converter = _converter.Add(converter));
         }
 
-        private ITypeConverter CreateObjectToJsonConverter(Type fromType)
+        private ITypeConverter CreateJsonConverter(Type converterType, Type valueType)
         {
-            var objectToJsonConverterType = typeof(ObjectToJsonConverter<>).MakeGenericType(fromType);
-            return (ITypeConverter)Activator.CreateInstance(objectToJsonConverterType, _settings, StringTypes);
+            var converterGenericType = converterType.MakeGenericType(valueType);
+            return (ITypeConverter)Activator.CreateInstance(converterGenericType, _settings, StringTypes);            
         }
     }
 }

@@ -3,13 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using Reusable.Reflection;
 
-namespace Reusable.Converters.Collections.Generic
+namespace Reusable.Converters
 {
     public class EnumerableToListConverter : TypeConverter<IEnumerable, object>
     {
         public override bool CanConvert(Type fromType, Type toType)
         {
-            return fromType.IsEnumerable() && toType.IsList();
+            return fromType.IsEnumerableOfT(except: typeof(string)) && toType.IsList();
         }
 
         protected override object ConvertCore(IConversionContext<IEnumerable> context)

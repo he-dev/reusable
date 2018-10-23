@@ -26,10 +26,20 @@
     <None Remove="src\Core\Experimental\**" />
     <None Remove="src\Core\Windows\**" />
     <None Remove="src\MQLite\**" />
+    <Compile Remove="src\Commander\CommandLineExecutorTest.cs" />
+    <Compile Remove="src\SmartConfig\Utilities\ConfigurationExtensionsTest.cs" />
+    <Compile Remove="src\SmartConfig\AppSettingsTest.cs" />
+    <Compile Remove="src\SmartConfig\ConfigurationTest.cs" />
+    <Compile Remove="src\SmartConfig\ConfigurationTest2.cs" />
+    <Compile Remove="src\SmartConfig\SettingNameGeneratorTest.cs" />
+    <Compile Remove="src\SmartConfig\SqlServerTest.cs" />
+    <Compile Remove="src\SmartConfig\Reflection\ClassFinderTest.cs" />
+    <Compile Remove="src\SmartConfig\Integration\AppSettingsTest.cs" />
+    <Compile Remove="src\SmartConfig\Integration\SqlServerTest.cs" />
+    <Compile Remove="src\SmartConfig\Integration\ConfigurationTest2.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="src\Commander\CommandLineExecutorTest.cs" />
     <Compile Remove="src\Converters\CompositeConverterTest.cs" />
     <Compile Remove="src\Core\Collections\AutoKeyDictionaryTest.cs" />
     <Compile Remove="src\Core\Diagnostics\DebuggerStringTest.cs" />
@@ -42,16 +52,17 @@
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.8.1" />
     <PackageReference Include="Dapper" Version="1.50.5" />
-    <PackageReference Include="JustMock" Version="2018.1.117.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.1.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.1.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.2" />
+    <PackageReference Include="JustMock" Version="2018.3.912.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.1.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.1.3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.3.2" />
     <PackageReference Include="MSTest.TestFramework" Version="1.3.2" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="NLog" Version="4.5.6" />
+    <PackageReference Include="NLog" Version="4.5.10" />
     <PackageReference Include="System.Collections.Immutable" Version="1.5.0" />
-    <PackageReference Include="System.Reactive" Version="4.0.0" />
+    <PackageReference Include="System.Memory" Version="4.5.1" />
+    <PackageReference Include="System.Reactive" Version="4.1.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
 
@@ -74,7 +85,6 @@
     <ProjectReference Include="..\Reusable.SmartConfig.InMemory\Reusable.SmartConfig.InMemory.csproj" />
     <ProjectReference Include="..\Reusable.SmartConfig.JsonConverter\Reusable.SmartConfig.JsonConverter.csproj" />
     <ProjectReference Include="..\Reusable.SmartConfig.SqlServer\Reusable.SmartConfig.SqlServer.csproj" />
-    <ProjectReference Include="..\Reusable.SmartConfig.Utilities\Reusable.SmartConfig.Utilities.csproj" />
     <ProjectReference Include="..\Reusable.SmartConfig\Reusable.SmartConfig.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.MSTest\Reusable.Utilities.MSTest.csproj" />
@@ -88,6 +98,7 @@
 
   <ItemGroup>
     <Folder Include="src\Core\Diagnostics\" />
+    <Folder Include="src\SmartConfig\Utilities" />
   </ItemGroup>
 
 </Project>

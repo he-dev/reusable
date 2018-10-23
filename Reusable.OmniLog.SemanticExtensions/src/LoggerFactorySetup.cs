@@ -71,12 +71,11 @@ namespace Reusable.OmniLog.SemanticExtensions
 
     public class LoggerFactoryBuilder
     {
-        private static readonly IDuckValidator<LoggerFactoryBuilder> Validator = new DuckValidator<LoggerFactoryBuilder>(loggerFactory =>
+        private static readonly IBouncer<LoggerFactoryBuilder> SelfBouncer = Bouncer.For<LoggerFactoryBuilder>(builder =>
         {
-            loggerFactory
-                .IsValidWhen(builder => builder._rxes.Any(), "You need to add at least one Rx.")
-                .IsNotValidWhen(builder => string.IsNullOrEmpty(builder._environment), "You need to specify the environment.")
-                .IsNotValidWhen(builder => string.IsNullOrEmpty(builder._product), "You need to specif the product.");
+            builder.Ensure(x => x._rxes.Any()).WithMessage("You need to add at least one Rx.");
+            builder.Block(x => string.IsNullOrEmpty(x._environment)).WithMessage("You need to specify the environment.");
+            builder.Block(x => string.IsNullOrEmpty(x._product)).WithMessage("You need to specif the product.");
         });
 
         private readonly List<ILogRx> _rxes;
@@ -155,7 +154,7 @@ namespace Reusable.OmniLog.SemanticExtensions
 
         public ILoggerFactory Build()
         {
-            Validator.Validate(this);
+            SelfBouncer.Validate(this);
 
             return new LoggerFactory
             {
@@ -167,9 +166,9 @@ namespace Reusable.OmniLog.SemanticExtensions
                         new OmniLog.Attachements.Lambda("Environment", _ => _environment),
                         new OmniLog.Attachements.Lambda("Product", _ => _product),
                         new OmniLog.Attachements.Timestamp<DateTimeUtc>(),
-                        new OmniLog.Attachements.Scope(new JsonSerializer{ Settings = _scopeSerializerSettings }),
+                        new OmniLog.Attachements.Scope(new JsonSerializer { Settings = _scopeSerializerSettings }),
                         new OmniLog.Attachements.ElapsedMilliseconds("Elapsed"),
-                        new OmniLog.SemanticExtensions.Attachements.Snapshot(new JsonSerializer{ Settings = _snapshotSerializerSettings })
+                        new OmniLog.SemanticExtensions.Attachements.Snapshot(new JsonSerializer { Settings = _snapshotSerializerSettings })
                     }
                 }
             };

@@ -13,17 +13,20 @@ using Reusable.OmniLog;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.OmniLog.Utilities;
 
+// Unreachable code detected - this is for testing so we don't care about it.
+#pragma warning disable CS0162 
+
 namespace Reusable.Apps
 {
     internal static class Program
     {
         private static void Main(string[] args)
         {
-            Input.Listen().Subscribe(Autocomplete.Create(new[] { "foo", "bar", "baz", "baaz" }));
+            //Input.Listen().Subscribe(Autocomplete.Create(new[] { "foo", "bar", "baz", "baaz" }));
 
             //default(IEnumerable<string>).Contains().Contains("blah")
 
-            return;
+            //return;
             var foo = new int[0];
             var bar = foo.Append(2);
 
@@ -43,7 +46,14 @@ namespace Reusable.Apps
 
             System.Console.ReadKey();
         }
+    }
 
+    internal class Commands
+    {
+        public static void Test()
+        {
+            
+        }
     }
 
     internal class Input
@@ -65,7 +75,7 @@ namespace Reusable.Apps
     {
         public static IObserver<ConsoleKeyInfo> Create(IEnumerable<string> entries)
         {
-            const int maxMatchCount = 3;
+            //const int maxMatchCount = 3;
             const int unselected = -1;
             var buffer = new StringBuilder();
             var position = default((int CursorTop, int CursorLeft));
@@ -245,3 +255,5 @@ namespace Reusable.Apps
         }
     }
 }
+
+#pragma warning restore CS0162

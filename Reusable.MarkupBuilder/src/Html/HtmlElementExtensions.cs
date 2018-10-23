@@ -15,7 +15,7 @@ namespace Reusable.MarkupBuilder.Html
     {
         public static string ToHtml<T>(this T element, [NotNull] HtmlFormatting formatting) where T : IHtmlElement
         {
-            return element.ToString(HtmlFormat.Html, new HtmlFormatProvider(new HtmlRenderer(formatting)));
+            return element.ToString(default, new HtmlFormatProvider(new HtmlRenderer(formatting)));
         }
 
         #region Html tags

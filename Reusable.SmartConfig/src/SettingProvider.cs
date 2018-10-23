@@ -7,30 +7,42 @@ using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Extensions;
 using Reusable.Reflection;
+using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Data;
 
 namespace Reusable.SmartConfig
 {
+    public interface ISettingProvider : IEquatable<ISettingProvider>
+    {
+        [NotNull]
+        [AutoEqualityProperty]
+        SoftString Name { get; }
+
+        [CanBeNull]
+        ISetting Read([NotNull] SelectQuery query);
+
+        void Write([NotNull] UpdateQuery query);
+    }
+
     [PublicAPI]
     public abstract class SettingProvider : ISettingProvider
     {
-        private static readonly ConcurrentDictionary<SoftString, int> InstanceCounters = new ConcurrentDictionary<SoftString, int>();
-
         private readonly ISettingConverter _converter;
 
-        private ISettingNameGenerator _settingNameGenerator;
+        private ISettingNameFactory _settingNameFactory;
 
         private SoftString _name;
 
         private SettingProvider()
         {
-            Name = CreateDefaultName(GetType());
-            SettingNameGenerator = new SettingNameByUsageGenerator();
+            Name = this.CreateDefaultName();
         }
 
-        protected SettingProvider([NotNull] ISettingConverter converter) : this()
+        protected SettingProvider([NotNull] ISettingNameFactory settingNameFactory, [NotNull] ISettingConverter converter)
+            : this()
         {
             _converter = converter ?? throw new ArgumentNullException(nameof(converter));
+            _settingNameFactory = settingNameFactory ?? throw new ArgumentNullException(nameof(settingNameFactory));
         }
 
         public SoftString Name
@@ -39,97 +51,72 @@ namespace Reusable.SmartConfig
             set => _name = value ?? throw new ArgumentNullException(nameof(Name));
         }
 
-        public ISettingNameGenerator SettingNameGenerator
+        public ISetting Read(SelectQuery query)
         {
-            get => _settingNameGenerator;
-            set => _settingNameGenerator = value ?? throw new ArgumentNullException(nameof(SettingNameGenerator));
-        }
+            if (query == null) throw new ArgumentNullException(nameof(query));
 
-        public ISetting Read(SoftString settingName, Type settingType)
-        {
-            if (settingName == null) throw new ArgumentNullException(nameof(settingName));
+            var providerNaming = this.SettingNaming(query);
+            var providerSettingName = _settingNameFactory.CreateProviderSettingName(query.SettingName, providerNaming);
 
-            // Materialize the generated names because we'll be using it multiple times.
-            var names =
-                SettingNameGenerator
-                    .GenerateSettingNames(settingName)
-                    .Select(name => (SoftString)(string)name)
-                    .ToList();
             try
             {
-                var setting = ReadCore(names);
+                var setting = Read(providerSettingName);
 
-                if (setting is null)
-                {
-                    return null;
-                }
-
-                var value =
-                    settingType is null
-                        ? setting.Value
-                        : (setting.Value is null
-                            ? null
-                            : _converter.Deserialize(setting.Value, settingType));
-
-                return new Setting(setting.Name, value);
+                return
+                    setting is null
+                        ? default
+                        : new Setting
+                        (
+                            setting.Name,
+                            setting.Value is null ? default : _converter.Deserialize(setting.Value, query.SettingType)
+                        );
             }
             catch (Exception innerException)
             {
-                throw ($"ReadSetting{nameof(Exception)}", $"Cannot read {settingName.ToString().QuoteWith("'")} from {Name.ToString().QuoteWith("'")}.", innerException).ToDynamicException();
+                throw ($"ReadSetting", $"An error occured while trying to read {providerSettingName.ToString().QuoteWith("'")} from {Name.ToString().QuoteWith("'")}.", innerException).ToDynamicException();
             }
         }
 
         [CanBeNull]
-        protected abstract ISetting ReadCore(IReadOnlyCollection<SoftString> names);
+        protected abstract ISetting Read(SettingName name);
 
-        public void Write(ISetting setting)
+        public void Write(UpdateQuery query)
         {
-            if (setting == null) throw new ArgumentNullException(nameof(setting));
+            if (query == null) throw new ArgumentNullException(nameof(query));
+
+            var providerNaming = this.SettingNaming(query);
+            var providerSettingName = _settingNameFactory.CreateProviderSettingName(query.SettingName, providerNaming);
 
             try
             {
-                var value = setting.Value is null ? null : _converter.Serialize(setting.Value);
-                WriteCore(new Setting(setting.Name, value));
+                var value = query.Value is null ? null : _converter.Serialize(query.Value);
+                Write(new Setting(providerSettingName, value));
             }
             catch (Exception innerException)
             {
-                throw ($"WriteSetting{nameof(Exception)}", $"Cannot write {setting.Name.ToString().QuoteWith("'")} to {Name.ToString().QuoteWith("'")}.", innerException).ToDynamicException();
+                throw ("WriteSetting", $"An error occured while trying to write {providerSettingName.ToString().QuoteWith("'")} to {Name.ToString().QuoteWith("'")}.", innerException).ToDynamicException();
             }
         }
 
-        protected abstract void WriteCore(ISetting setting);
-
-        private static string CreateDefaultName(Type datastoreType)
-        {
-            return datastoreType.ToPrettyString() + InstanceCounters.AddOrUpdate(datastoreType.ToPrettyString(), name => 1, (name, counter) => counter + 1);
-        }
-
-        protected Exception CreateAmbiguousSettingException(IEnumerable<SoftString> names)
-        {
-            throw DynamicException.Factory.CreateDynamicException(
-                $"AmbiguousSetting{nameof(Exception)}",
-                $"Mutliple settings found: {names.Select(name => name.ToString()).Join(", ").EncloseWith("[]")}",
-                null
-            );
-        }
+        protected abstract void Write(ISetting setting);
 
         #region IEquatable<ISettingProvider>
 
-        public override int GetHashCode()
-        {
-            return AutoEquality<ISettingProvider>.Comparer.GetHashCode(this);
-        }
+        public bool Equals(ISettingProvider other) => AutoEquality<ISettingProvider>.Comparer.Equals(this, other);
 
-        public override bool Equals(object obj)
-        {
-            return obj is ISettingProvider other && Equals(other);
-        }
+        public override bool Equals(object obj) => obj is ISettingProvider other && Equals(other);
 
-        public bool Equals(ISettingProvider other)
-        {
-            return AutoEquality<ISettingProvider>.Comparer.Equals(this, other);
-        }
+        public override int GetHashCode() => AutoEquality<ISettingProvider>.Comparer.GetHashCode(this);
 
         #endregion
+    }
+
+    public class SettingProviderNaming
+    {
+        public SettingNameStrength Strength { get; set; }
+
+        public string Prefix { get; set; }
+
+        public PrefixHandling PrefixHandling { get; set; }
     }
 }

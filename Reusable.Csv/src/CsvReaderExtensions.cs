@@ -15,7 +15,7 @@ namespace Reusable.Csv
 
             return 
                 enumerable
-                    .Always(async () => await csvReader.ReadLineAsync())
+                    .Repeat(async () => await csvReader.ReadLineAsync())
                     .TakeWhile(line => line.Result != null)
                     .Select(line => line.Result);
         }        

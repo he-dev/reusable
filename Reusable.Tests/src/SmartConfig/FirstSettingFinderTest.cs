@@ -10,44 +10,53 @@ namespace Reusable.Tests.SmartConfig
     [TestClass]
     public class FirstSettingFinderTest
     {
+        private static readonly ISettingFinder FirstSettingFinder = new FirstSettingFinder();
+        
         [TestMethod]
-        public void TryFindSetting_DataSourceMatches_True()
+        public void TryFindSetting_CanFindSettingByName()
         {
-            var dataStore1 = Mock.Create<ISettingProvider>();
-            var dataStore2 = Mock.Create<ISettingProvider>();
-            var dataStore3 = Mock.Create<ISettingProvider>();
+            var provider1 = Mock.Create<ISettingProvider>();
+            var provider2 = Mock.Create<ISettingProvider>();
+            var provider3 = Mock.Create<ISettingProvider>();
 
-            dataStore1
-                .Arrange(x => x.Read(Arg.IsAny<SoftString>(), Arg.IsAny<Type>()))
+            provider1
+                .Arrange(x => x.Read(Arg.IsAny<SelectQuery>()))
                 .Returns(default(ISetting));
 
-            dataStore2
-                .Arrange(x => x.Read(Arg.Matches<SoftString>(arg => arg == SoftString.Create("setting2")), Arg.IsAny<Type>()))
-                .Returns(Setting.Create("setting2", "bar"));
+            provider2
+                .Arrange(x => x.Read(Arg.Matches<SelectQuery>(arg => arg.SettingName == SettingName.Parse("Type.Member"))))
+                .Returns(Setting.Create("Type.Member", "abc"));
 
-            dataStore3
-                .Arrange(x => x.Read(Arg.IsAny<SoftString>(), Arg.IsAny<Type>()))
+            provider3
+                .Arrange(x => x.Read(Arg.IsAny<SelectQuery>()))
                 .Returns(default(ISetting));
 
-            var settingFinder = new FirstSettingFinder();
-            var settingFound = settingFinder.TryFindSetting(new[] { dataStore1, dataStore2, dataStore3 }, "setting2", typeof(string), null, out var result);
+            var settingFound = FirstSettingFinder.TryFindSetting
+            (
+                new SelectQuery(SettingName.Parse("Type.Member"), typeof(string)),
+                new[] { provider1, provider2, provider3 },
+                out var result
+            );
 
             Assert.IsTrue(settingFound);
-            Assert.AreSame(dataStore2, result.SettingProvider);
-            Assert.AreEqual("bar", result.Setting.Value);
+            Assert.AreSame(provider2, result.SettingProvider);
+            Assert.AreEqual("abc", result.Setting.Value);
         }
 
         [TestMethod]
-        public void TryFindSetting_NoDataSource_False()
+        public void TryFindSetting_DoesNotFindNotExistingSetting()
         {
-            var dataStore1 = Mock.Create<ISettingProvider>();
-            dataStore1
-                .Arrange(x => x.Read(Arg.IsAny<SoftString>(), Arg.IsAny<Type>()))
+            var provider = Mock.Create<ISettingProvider>();
+            provider
+                .Arrange(x => x.Read(Arg.IsAny<SelectQuery>()))
                 .Returns(default(ISetting));
 
-            var settingFinder = new FirstSettingFinder();
-
-            var settingFound = settingFinder.TryFindSetting(new[] { dataStore1 }, "setting2", typeof(string), null, out var result);
+            var settingFound = FirstSettingFinder.TryFindSetting
+            (
+                new SelectQuery(SettingName.Parse("Type.Member"), typeof(string)),
+                new[] { provider },
+                out var result
+            );
 
             Assert.IsFalse(settingFound);
         }

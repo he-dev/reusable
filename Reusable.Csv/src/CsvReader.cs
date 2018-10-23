@@ -52,7 +52,7 @@ namespace Reusable.Csv
 
             var line =
                 enumerable
-                    .Always(async () => await ReadFieldAsync())
+                    .Repeat(async () => await ReadFieldAsync())
                     .TakeWhile(field => field.Result != null)
                     .Select(t => t.Result)
                     .ToList();

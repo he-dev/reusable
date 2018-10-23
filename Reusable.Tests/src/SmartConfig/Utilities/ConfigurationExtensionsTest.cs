@@ -182,7 +182,7 @@ namespace Reusable.Tests.SmartConfig.Utilities
                 .Occurs(2);
 
             var testClass2 = new TestClass2();
-            configuration.AssignValuesTo(testClass2);
+            configuration.AssignValues(testClass2);
 
             configuration.Assert();
             Assert.AreEqual("Setting1", testClass2.Foo);

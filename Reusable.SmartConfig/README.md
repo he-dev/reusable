@@ -1,4 +1,4 @@
-# Reusable.ConfigWhiz v1.0.0-beta
+# Reusable.SmartConfig v7.0.0
 
 The new `ConfigWhiz` is similar to `SmartConfig` in that it does not use any magic strings. All configurations and data are strongly typed. It is however more powerful. 
 

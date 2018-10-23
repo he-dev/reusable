@@ -1,36 +1,47 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Collections;
+using Reusable.Reflection;
 
 namespace Reusable.Commander
 {
     public static class CommandLineExtensions
     {
-        [NotNull]
-        public static IEnumerable<string> Anonymous([NotNull] this ICommandLine arguments) => arguments[SoftString.Empty];
-
-        public static IEnumerable<string> Values(this ICommandLine commandLine, CommandParameter parameter)
+        [NotNull, ItemNotNull]
+        public static IEnumerable<string> AnonymousValues([NotNull] this ICommandLine commandLine)
         {
-            if (parameter.Metadata.Position > CommandLine.CommandIndex)
-            {
-                return commandLine.Anonymous().Skip(parameter.Metadata.Position).Take(1);
-            }
+            if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
 
-            if (commandLine.Contains(parameter.Name))
-            {
-                return commandLine[parameter.Name];
-            }
-
-            return CommandArgument.Undefined;
+            return commandLine[Identifier.Empty];
         }
 
-        [CanBeNull]
-        public static SoftKeySet CommandName([NotNull] this ICommandLine arguments)
+        [NotNull, ItemNotNull]
+        public static IEnumerable<string> ArgumentValues([NotNull] this ICommandLine commandLine, int? position, Identifier id)
         {
-            // Command-name is the first value.
-            var commandName = arguments[CommandArgument.CommandNameKey].First();
-            return string.IsNullOrEmpty(commandName) ? default : commandName;
+            if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
+            
+            return
+                position.HasValue
+                    ? commandLine.AnonymousValues().Skip(position.Value).Take(1)
+                    : commandLine[id];
+        }
+
+        [NotNull]
+        public static Identifier CommandId([NotNull] this ICommandLine commandLine)
+        {
+            if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
+            
+            // Command-name is the first anonymous argument.
+            return
+                commandLine
+                    .AnonymousValues()
+                    .FirstOrDefault()
+                    ?? throw DynamicException.Factory.CreateDynamicException(
+                            $"CommandNameNotFound{nameof(Exception)}",
+                            $"Command line '{commandLine}' does not contain a command name."
+                    );
         }
     }
 }

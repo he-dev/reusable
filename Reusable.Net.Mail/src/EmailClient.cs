@@ -17,12 +17,11 @@ namespace Reusable.Net.Mail
 
     public abstract class EmailClient : IEmailClient
     {
-        private static readonly IDuckValidator<IEmail<IEmailSubject, IEmailBody>> EmailValidator = new DuckValidator<IEmail<IEmailSubject, IEmailBody>>(email =>
+        private static readonly IBouncer<IEmail<IEmailSubject, IEmailBody>> EmailBouncer = Bouncer.For<IEmail<IEmailSubject, IEmailBody>>(builder =>
         {
-            email
-                .IsNotValidWhen(e => e.To == null)
-                .IsNotValidWhen(e => e.Subject == null)
-                .IsNotValidWhen(e => e.Body == null);
+            builder.Block(e => e.To == null);
+            builder.Block(e => e.Subject == null);
+            builder.Block(e => e.Body == null);
         });
 
         public async Task SendAsync<TSubject, TBody>(IEmail<TSubject, TBody> email)
@@ -31,9 +30,9 @@ namespace Reusable.Net.Mail
         {
             if (email == null) throw new ArgumentNullException(nameof(email));
 
-            EmailValidator
+            EmailBouncer
                 .Validate((IEmail<IEmailSubject, IEmailBody>)email)
-                .ThrowOrDefault();
+                .ThrowIfInvalid();
 
             try
             {

@@ -19,17 +19,17 @@ namespace Reusable.SmartConfig.Data
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class Setting : ISetting
     {
-        private static readonly IEqualityComparer<SoftString> Comparer = RelayEqualityComparer<SoftString>.Create((left, right) => left.Equals(right), obj => obj.GetHashCode());
+        private static readonly IEqualityComparer<SoftString> Comparer = EqualityComparerFactory<SoftString>.Create((left, right) => left.Equals(right), obj => obj.GetHashCode());
 
         [DebuggerStepThrough]
-        public Setting([NotNull] SoftString name, object value) : this(name) => Value = value ;//?? throw new ArgumentNullException(nameof(value));
+        public Setting([NotNull] SoftString name, object value) : this(name) => Value = value;
 
         [DebuggerStepThrough]
         public Setting([NotNull] SoftString name) => Name = name ?? throw new ArgumentNullException(nameof(name));
 
-        public SoftString Name { [DebuggerStepThrough]get; }
+        public SoftString Name { [DebuggerStepThrough] get; }
 
-        public object Value { [DebuggerStepThrough]get; }
+        public object Value { [DebuggerStepThrough] get; }
 
         public static ISetting Create(SoftString name, object value) => new Setting(name, value);
 

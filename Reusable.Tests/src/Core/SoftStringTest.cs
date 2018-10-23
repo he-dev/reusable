@@ -12,70 +12,64 @@ namespace Reusable.Tests
     public class SoftStringTest
     {
         [TestMethod]
-        public void ToString_NullString_Empty()
+        public void ctor_DisallowsNullValue()
         {
-            Assert.That.Collection().IsEmpty(SoftString.Create(null).ToString());            
-        }
-
-        [TestMethod]
-        public void ToString_EmptyString_Empty()
-        {
-            Assert.That.Collection().IsEmpty(SoftString.Create(string.Empty).ToString());
-            Assert.That.Collection().IsEmpty(SoftString.Empty.ToString());
+            // ReSharper disable once AssignNullToNotNullAttribute - we want it to be null
+            Assert.That.Throws<ArgumentNullException>(() => SoftString.Create(null));
         }
         
         [TestMethod]
-        public void ToString_NonEmptyString_NonEmpty()
+        public void ToString_ReturnsTrimmedValue()
         {
-            Assert.AreEqual("foo", SoftString.Create("foo").ToString());
-            Assert.AreEqual("fOo", SoftString.Create("fOo").ToString());
-        }
+            Assert.AreEqual(string.Empty, new SoftString().ToString());
+            Assert.AreEqual("foo", new SoftString(" foo ").ToString());            
+        }        
 
         [TestMethod]
-        public void this_IndexInRange_Char()
+        public void this_CanGetChar()
         {
             Assert.AreEqual('r', SoftString.Create("bar")[2]);
         }
 
         [TestMethod]
-        public void Length_StringWithWhitespace_StringWithoutWhitespace()
+        public void Length_GetsLengthOfTrimmedValue()
         {
             Assert.AreEqual(3, SoftString.Create(" fOo ").Length);
         }
 
         [TestMethod]
-        public void Equals_SameObjects_True()
+        public void Equals_CanIdentifySimilarValues()
         {
             Assert.That.Equatable().EqualsMethod().IsTrue(SoftString.Create("foo"), "foo", "fOo", "foo ", " fOo", " foo ");
         }
 
         [TestMethod]
-        public void Equals_DifferentValues_False()
+        public void Equals_CanIdentifyDifferentValues()
         {
             Assert.That.Equatable().EqualsMethod().IsFalse(SoftString.Create("foo"), "bar", "bar ", " bar", " bar ");
         }
 
         [TestMethod]
-        public void opEqual_SameValues_True()
+        public void opEqual_CanIdentifySimilarValues()
         {
             Assert.That.BinaryOperator().Equality().IsTrue(default(SoftString), default(string));
             Assert.That.BinaryOperator().Equality().IsTrue(SoftString.Create("foo"), "foo", "fOo", "foo ", " fOo", " foo ");
         }
 
         [TestMethod]
-        public void opEqual_DifferentValues_False()
+        public void opEqual_CanIdentifyDifferentValues()
         {
             Assert.That.BinaryOperator().Equality().IsFalse(SoftString.Create("foo"), "bar", " fOob");
         }
 
         [TestMethod]
-        public void opExplicit_SoftString_String_SoftString()
+        public void opExplicit_CanExplicitlyCastToString()
         {
             Assert.That.UnaryOperator().Convert(SoftString.Create("foo")).IsEqual("foo");
         }
 
         [TestMethod]
-        public void opImplicit_String_SoftString_SoftString()
+        public void opImplicit_CanImplicitlyCastFromString()
         {
             Assert.That.UnaryOperator().Convert("foo").IsEqual(SoftString.Create("foo"));
         }

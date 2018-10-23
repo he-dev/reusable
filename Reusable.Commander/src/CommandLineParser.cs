@@ -10,10 +10,10 @@ namespace Reusable.Commander
     public interface ICommandLineParser
     {
         [NotNull, ItemNotNull]
-        IEnumerable<CommandLine> Parse([NotNull, ItemNotNull] IEnumerable<string> commandLine);
+        IEnumerable<ICommandLine> Parse([NotNull, ItemCanBeNull] IEnumerable<string> commandLine);
 
         [NotNull, ItemNotNull]
-        IEnumerable<CommandLine> Parse([NotNull] string commandLine);
+        IEnumerable<ICommandLine> Parse([NotNull] string commandLine);
     }
 
     public class CommandLineParser : ICommandLineParser
@@ -28,51 +28,51 @@ namespace Reusable.Commander
         // language=regexp
         private const string ArgumentPrefix = @"^[-/\.]";
 
-        public IEnumerable<CommandLine> Parse(IEnumerable<string> tokens)
+        private const string CommandSeparator = "|";
+
+        public IEnumerable<ICommandLine> Parse(IEnumerable<string> tokens)
         {
-            if (tokens == null)
-            {
-                throw new ArgumentNullException(nameof(tokens));
-            }
+            if (tokens == null) throw new ArgumentNullException(nameof(tokens));
 
-            var arguments = CommandLine.Empty;
-            var currentArgumentName = (SoftKeySet)SoftString.Empty;
+            var commandLine = new CommandLine();
+            var argumentName = Identifier.Empty;
 
-            foreach (var token in tokens)
-            {
+            foreach (var token in tokens.Where(Conditional.IsNotNullOrEmpty))
+            {                
                 switch (token)
                 {
-                    case "|" when arguments.Any():
-                        yield return arguments;
-                        arguments = new CommandLine();
+                    case CommandSeparator when commandLine.Any():
+                        yield return commandLine;
+                        commandLine = new CommandLine();
+                        argumentName = Identifier.Empty;
                         break;
 
-                    // ReSharper disable once PatternAlwaysOfType
-                    case string value when Regex.IsMatch(value, ArgumentPrefix):
-                        currentArgumentName = Regex.Replace(token, ArgumentPrefix, string.Empty);
-                        arguments.Add(currentArgumentName);
+                    case string value when IsArgument(value):
+                        argumentName = RemoveArgumentPrefix(token);
+                        commandLine.Add(argumentName);
                         break;
 
                     default:
-                        arguments.Add(currentArgumentName, token);
+                        commandLine.Add(argumentName, token);
                         break;
                 }
             }
 
-            if (arguments.Any())
+            if (commandLine.Any())
             {
-                yield return arguments;
+                yield return commandLine;
             }
+
+            bool IsArgument(string value) => Regex.IsMatch(value, ArgumentPrefix);
+
+            string RemoveArgumentPrefix(string value) => Regex.Replace(value, ArgumentPrefix, string.Empty);
         }
 
-        public IEnumerable<CommandLine> Parse(string commandLine)
+        public IEnumerable<ICommandLine> Parse(string commandLine)
         {
-            if (commandLine == null)
-            {
-                throw new ArgumentNullException(nameof(commandLine));
-            }
+            if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
 
-            return Parse(_tokenizer.Tokenize(commandLine));           
+            return Parse(_tokenizer.Tokenize(commandLine));
         }
     }
 }

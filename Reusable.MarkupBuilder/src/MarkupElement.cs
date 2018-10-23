@@ -69,11 +69,10 @@ namespace Reusable.MarkupBuilder
             }
         }
 
-        // TODO check this implementation - especially GetFormat
         public string ToString(string format, IFormatProvider formatProvider)
         {
             return
-                formatProvider.GetFormat(typeof(IMarkupElement)) is ICustomFormatter formatter
+                formatProvider.GetFormat(typeof(ICustomFormatter)) is ICustomFormatter formatter
                     ? formatter.Format(format, this, formatProvider)
                     : base.ToString();
         }

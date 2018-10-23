@@ -1,94 +1,102 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Linq.Custom;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.Reflection;
+using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Data;
 using Reusable.Validation;
 
 namespace Reusable.SmartConfig
 {
+    [PublicAPI]
+    public interface IConfiguration
+    {
+        [CanBeNull]
+        object GetValue([NotNull] SelectQuery query);
+
+        void SetValue([NotNull] UpdateQuery query);
+    }
+
     public class Configuration : IConfiguration
     {
         private readonly IEnumerable<ISettingProvider> _providers;
 
         private readonly ISettingFinder _settingFinder;
 
-        private readonly IDictionary<SoftString, (SoftString ActualName, ISettingProvider SettingProvider)> _settingMap = new Dictionary<SoftString, (SoftString ActualName, ISettingProvider SettingProvider)>();
+        private readonly IDictionary<SettingName, SoftString> _settingProviderNames = new Dictionary<SettingName, SoftString>();
 
-        private static readonly IDuckValidator<IEnumerable<ISettingProvider>> SettingProviderValidator = new DuckValidator<IEnumerable<ISettingProvider>>(provider =>
-        {
-            provider
-                .IsNotValidWhen(dataStores => dataStores == null, DuckValidationRuleOptions.BreakOnFailure)
-                .IsValidWhen(x => x.Any(), _ => "You need to specify at least one setting-provider.");
-        });
+        private static readonly IBouncer<IEnumerable<ISettingProvider>> SettingProviderBouncer = Bouncer.For<IEnumerable<ISettingProvider>>(
+            builder =>
+            {
+                builder.BlockNull();
+                builder.Ensure(providers => providers.Any()).WithMessage("You need to specify at least one setting-provider.");
+            }
+        );
 
-        public Configuration([NotNull, ItemNotNull] IEnumerable<ISettingProvider> dataStores, [NotNull] ISettingFinder settingFinder)
+        public Configuration([NotNull][ItemNotNull] IEnumerable<ISettingProvider> settingProviders, [NotNull] ISettingFinder settingFinder)
         {
-            // ReSharper disable once ConstantConditionalAccessQualifier - yes, this can be null
-            _providers = (dataStores?.ToList()).ValidateWith(SettingProviderValidator).ThrowOrDefault();
+            if (settingProviders == null) throw new ArgumentNullException(nameof(settingProviders));
+
+            _providers = settingProviders.ToList().ValidateWith(SettingProviderBouncer).ThrowIfInvalid();
             _settingFinder = settingFinder ?? throw new ArgumentNullException(nameof(settingFinder));
         }
 
-        public Configuration([NotNull, ItemNotNull] IEnumerable<ISettingProvider> dataStores)
-            : this(dataStores, new FirstSettingFinder())
-        { }
-
-        public object GetValue(SoftString settingName, Type settingType, SoftString dataStoreName)
+        public Configuration([NotNull][ItemNotNull] IEnumerable<ISettingProvider> settingProviders)
+            : this(settingProviders, new FirstSettingFinder())
         {
-            if (settingName == null) throw new ArgumentNullException(nameof(settingName));
-
-            if (_settingFinder.TryFindSetting(_providers, settingName, settingType, dataStoreName, out var result))
-            {
-                CacheSettingName(settingName, result.Setting.Name, result.SettingProvider);
-                return result.Setting.Value;
-            }
-            else
-            {
-                throw ("SettingNotFoundException", $"Setting {settingName.ToString().QuoteWith("'")} not found.").ToDynamicException();
-            }
         }
 
-        private void CacheSettingName(SoftString settingName, SoftString settingActualName, ISettingProvider settingProvider)
+        public object GetValue(SelectQuery query)
         {
-            _settingMap[settingName] = (settingActualName, settingProvider);
+            if (query == null) throw new ArgumentNullException(nameof(query));
+
+            query.ProviderName = _settingProviderNames.TryGetValue(query.SettingName, out var providerName) ? providerName : query.ProviderName;
+
+            try
+            {
+                if (_settingFinder.TryFindSetting(query, _providers, out var result))
+                {
+                    CacheProvider(query.SettingName, result.SettingProvider.Name);
+                    return result.Setting.Value;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ($"{nameof(GetValue)}", $"Could not get value for {query.SettingName.ToString().QuoteWith("'")}. See the inner exception for details.", ex).ToDynamicException();
+            }
+
+            throw ("SettingNotFound", $"Setting {query.SettingName.ToString().QuoteWith("'")} not found.").ToDynamicException();
         }
 
-        public void SetValue(SoftString settingName, object value, SoftString providerName)
+        public void SetValue(UpdateQuery query)
         {
-            if (settingName == null) throw new ArgumentNullException(nameof(settingName));
+            if (query == null) throw new ArgumentNullException(nameof(query));
 
-            if (_settingMap.TryGetValue(settingName, out var item))
-            {
-                item.SettingProvider.Write(new Setting(item.ActualName, value));
-            }
-            else
-            {
-                if (_settingFinder.TryFindSetting(_providers, settingName, null, providerName, out var result))
-                {
-                    CacheSettingName(settingName, result.Setting.Name, result.SettingProvider);
-                    SetValue(settingName, value, providerName);
-                }
-                else
-                {
-                    var dataStore = _providers.FirstOrDefault(x => providerName is null || x.Name.Equals(providerName));
-                    if (dataStore is null)
-                    {
-                        throw DynamicException.Factory.CreateDynamicException(
-                            $"SettingDataStoreNotFound{nameof(Exception)}",
-                            $"Could not find setting data store {providerName?.ToString().QuoteWith("'")}",
-                            null
-                        );
-                    }
+            var providerName =
+                query.ProviderName
+                ?? (_settingProviderNames.TryGetValue(query.SettingName, out var pn)
+                    ? pn
+                    : throw DynamicException.Create(
+                        "MissingSettingProviderName",
+                        $"You need to specify a provider for '{query.SettingName}'."
+                    )
+                );
 
-                    var defaultSettingName = dataStore.SettingNameGenerator.GenerateSettingNames(settingName).First();
-                    dataStore.Write(new Setting(defaultSettingName, value));
-                }
-                //throw ("SettingNotInitializedException", $"Setting {settingName.ToString().QuoteWith("'")} needs to be initialized before you can update it.").ToDynamicException();
-            }
+            _providers
+                .Single(p => p.Name == providerName)
+                .Write(query);
+
+            CacheProvider(query.SettingName, providerName);
+        }
+
+        private void CacheProvider(SettingName settingName, SoftString providerName)
+        {
+            _settingProviderNames[settingName] = providerName;
         }
     }
 }

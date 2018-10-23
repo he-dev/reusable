@@ -8,22 +8,21 @@ namespace Reusable.SmartConfig
     {
         private readonly IDictionary<SoftString, object> _settings = new Dictionary<SoftString, object>();
 
-        public InMemory(ISettingConverter converter) : base(converter) { }
-
-        protected override ISetting ReadCore(IReadOnlyCollection<SoftString> names)
+        public InMemory(ISettingConverter converter, string name) : base(new SettingNameFactory(), converter)
         {
-            foreach (var name in names)
-            {
-                if (_settings.TryGetValue(name, out var value))
-                {
-                    return new Setting(name, value);
-                }
-            }
-
-            return default;
+            Name = name;
+        }
+        
+        public InMemory(ISettingConverter converter) : base(new SettingNameFactory(), converter)
+        {
         }
 
-        protected override void WriteCore(ISetting setting)
+        protected override ISetting Read(SettingName name)
+        {
+            return _settings.TryGetValue(name, out var value) ? new Setting(name, value) : default;
+        }
+
+        protected override void Write(ISetting setting)
         {
             _settings[setting.Name] = setting.Value;
         }
@@ -32,7 +31,7 @@ namespace Reusable.SmartConfig
 
         public void Add(ISetting setting) => Write(setting);
 
-        public void Add(string name, object value) => Write(new Setting(name, value));
+        public void Add(string name, object value) => Write(new Setting(SettingName.Parse(name), value));
 
         public InMemory AddRange(IEnumerable<ISetting> settings)
         {
@@ -40,6 +39,7 @@ namespace Reusable.SmartConfig
             {
                 Add(setting);
             }
+
             return this;
         }
 

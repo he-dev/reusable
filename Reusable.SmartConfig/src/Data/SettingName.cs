@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -9,97 +11,103 @@ using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Extensions;
 using Reusable.Reflection;
+using Reusable.SmartConfig.Annotations;
+using Reusable.SmartConfig.Reflection;
 
 namespace Reusable.SmartConfig.Data
 {
+    using static SettingNameParser;
+    using Token = SettingNameToken;
+
     [PublicAPI]
     public class SettingName
     {
-        public const string NamespaceSeparator = "+";
-        public const string TypeSeparator = ".";
-        public const string InstanceSeparator = ",";
+        private readonly IDictionary<SettingNameToken, ReadOnlyMemory<char>> _tokens;
 
-        // [Namespace+][Type.]Property[,Instance]
-        public static readonly string Format =
-            $"[{nameof(Namespace)}{NamespaceSeparator}]" +
-            $"[{nameof(Type)}{TypeSeparator}]" +
-            $"{nameof(Member)}" +
-            $"[{InstanceSeparator}{nameof(Instance)}]";
+        public static readonly string Format = "[Prefix:][Name.space+][Type.]Member[,Instance]";
 
-        private static readonly string NamePattern =
-            $"(?:(?<Namespace>[a-z0-9_.]+)\\{NamespaceSeparator})?" +
-            $"(?:(?<Type>[a-z0-9_]+)\\{TypeSeparator})?" +
-            $"(?<Property>[a-z0-9_]+)" +
-            $"(?:{InstanceSeparator}(?<Instance>[a-z0-9_]+))?";
-
-        [NotNull]
-        private SoftString _member;
-
-        public SettingName([NotNull] SoftString member)
+        public SettingName(
+            [CanBeNull] string prefix,
+            [CanBeNull] string schema,
+            [CanBeNull] string type,
+            [NotNull] string member,
+            [CanBeNull] string instance
+        )
         {
-            _member = member ?? throw new ArgumentNullException(nameof(member));
-        }
+            if (member == null) throw new ArgumentNullException(nameof(member));
 
-        public SettingName(SettingName settingName) : this(settingName.Member)
-        {
-            Namespace = settingName.Namespace;
-            Type = settingName.Type;
-            Instance = settingName.Instance;
-        }
-
-        [CanBeNull]
-        [AutoEqualityProperty]
-        public SoftString Namespace { get; set; }
-
-        [CanBeNull]
-        [AutoEqualityProperty]
-        public SoftString Type { get; set; }
-
-        [NotNull]
-        [AutoEqualityProperty]
-        public SoftString Member
-        {
-            get => _member;
-            set => _member = value ?? throw new ArgumentNullException(nameof(Member));
-        }
-
-        [CanBeNull]
-        [AutoEqualityProperty]
-        public SoftString Instance { get; set; }
-
-        [ContractAnnotation("value: null => halt"), NotNull]
-        public static SettingName Parse([NotNull] string value)
-        {
-            if (value == null) throw new ArgumentNullException(nameof(value));
-
-            var match = Regex.Match(value, NamePattern, RegexOptions.IgnoreCase);
-            if (match.Success)
+            _tokens = new Dictionary<SettingNameToken, ReadOnlyMemory<char>>
             {
-                return new SettingName(match.Groups["Property"].Value)
-                {
-                    Namespace = match.Groups["Namespace"].Value.NullIfEmpty(),
-                    Type = match.Groups["Type"].Value.NullIfEmpty(),
-                    Instance = match.Groups["Instance"].Value.NullIfEmpty(),
-                };
-            }
-
-            throw ("SettingNameFormatException", $"Could not parse setting {value.QuoteWith("'")}. Expected format: {Format}").ToDynamicException();
+                [Token.Prefix] = prefix is null ? ReadOnlyMemory<char>.Empty : new ReadOnlyMemory<char>(prefix.ToCharArray()),
+                [Token.Namespace] = schema is null ? ReadOnlyMemory<char>.Empty : new ReadOnlyMemory<char>(schema.ToCharArray()),
+                [Token.Type] = type is null ? ReadOnlyMemory<char>.Empty : new ReadOnlyMemory<char>(type.ToCharArray()),
+                [Token.Member] = new ReadOnlyMemory<char>(member.ToCharArray()),
+                [Token.Instance] = instance is null ? ReadOnlyMemory<char>.Empty : new ReadOnlyMemory<char>(instance.ToCharArray()),
+            };
         }
 
-        [SuppressMessage("ReSharper", "RedundantToStringCall")] // it's not redundant, SoftString does not implicitly convert to string.
+        public SettingName([NotNull] IDictionary<SettingNameToken, ReadOnlyMemory<char>> tokens)
+        {
+            _tokens = tokens ?? throw new ArgumentNullException(nameof(tokens));
+        }
+
+        public ReadOnlyMemory<char> this[Token token] => _tokens.TryGetValue(token, out var t) ? t : default;
+
+        [CanBeNull]
+        [AutoEqualityProperty]
+        public string Prefix => this[Token.Prefix].ToString();
+
+        [CanBeNull]
+        [AutoEqualityProperty]
+        public string Namespace => this[Token.Namespace].ToString();
+
+        [CanBeNull]
+        [AutoEqualityProperty]
+        public string Type => this[Token.Type].ToString();
+
+        [NotNull]
+        [AutoEqualityProperty]
+        public string Member => this[Token.Member].ToString();
+
+        [CanBeNull]
+        [AutoEqualityProperty]
+        public string Instance => this[Token.Instance].ToString();
+
+        [NotNull]
+        public static SettingName Parse([NotNull] string text) => new SettingName(Tokenize(text));
+
+        public static SettingName FromMetadata(SettingMetadata settingMetadata, string instance)
+        {
+            return new SettingName
+            (
+                prefix: settingMetadata.Prefix,
+                schema: settingMetadata.Namespace,
+                type: settingMetadata.TypeName,
+                member: settingMetadata.MemberName,
+                instance: instance
+            );
+        }
+
         public override string ToString()
         {
-            return new StringBuilder()                
-                .AppendWhen(Namespace.IsNotNullOrEmpty(), () => $"{Namespace?.ToString()}{NamespaceSeparator}")
-                .AppendWhen(Type.IsNotNullOrEmpty(), () => $"{Type?.ToString()}{TypeSeparator}")
-                .Append(Member)
-                .AppendWhen(Instance.IsNotNullOrEmpty(), () => $"{InstanceSeparator}{Instance?.ToString()}")
+            return new StringBuilder()
+                .Append(this[Token.Prefix].IsEmpty ? default : $"{Prefix}{Separator.Prefix}")
+                .Append(this[Token.Namespace].IsEmpty ? default : $"{Namespace}{Separator.Namespace}")
+                .Append(this[Token.Type].IsEmpty ? default : $"{Type}{Separator.Type}")
+                .Append(this[Token.Member])
+                .Append(this[Token.Instance].IsEmpty ? default : $"{Separator.Member}{Instance}")
                 .ToString();
         }
+
+        //public static implicit operator SettingName(string settingName) => Parse(settingName);
 
         public static implicit operator string(SettingName settingName) => settingName?.ToString();
 
         public static implicit operator SoftString(SettingName settingName) => settingName?.ToString();
+
+        public static bool operator ==(SettingName x, SettingName y) => AutoEquality<SettingName>.Comparer.Equals(x, y);
+
+        public static bool operator !=(SettingName x, SettingName y) => !(x == y);
 
         #region IEquatable<SettingName>
 
@@ -111,4 +119,6 @@ namespace Reusable.SmartConfig.Data
 
         #endregion
     }
+
+    
 }

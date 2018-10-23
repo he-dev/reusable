@@ -121,8 +121,9 @@ namespace Reusable.SmartConfig.Internal
 
             // --- add parameters
 
-            command.Parameters.AddWithValue(sqlServer.ColumnMapping.Name, setting.Name.ToString());
-            command.Parameters.AddWithValue(sqlServer.ColumnMapping.Value, setting.Value);
+            command.Parameters.AddWithValue($"@{sqlServer.ColumnMapping.Name}", setting.Name.ToString());
+            command.Parameters.AddWithValue($"@{sqlServer.ColumnMapping.Value}", setting.Value);
+            //command.Parameters.Add($"@{sqlServer.ColumnMapping.Value}", SqlDbType.NVarChar, 200).Value = setting.Value;
 
             command.AddParameters(sqlServer.Where);
 

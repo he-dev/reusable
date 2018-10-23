@@ -49,7 +49,7 @@ namespace Reusable.Converters
         public virtual bool CanConvert(Type fromType, Type toType)
         {
             TypeConverterHelper.AssertNotNull(fromType, toType);
-            return fromType == FromType && toType.IsAssignableFrom(ToType);
+            return IsConverted(fromType, toType) || (fromType == FromType && toType.IsAssignableFrom(ToType));
         }
 
         public object Convert(IConversionContext<object> context)

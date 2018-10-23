@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Custom;
 using System.Reflection;
 using JetBrains.Annotations;
 using Reusable.Extensions;
@@ -11,51 +12,62 @@ namespace Reusable.Reflection
     {
         public static bool HasDefaultConstructor(this Type type)
         {
-            if (type == null) { throw new ArgumentNullException(nameof(type)); }
+            if (type == null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
 
             return type.GetConstructor(Type.EmptyTypes) != null;
         }
 
         public static bool IsStatic(this Type type)
         {
-            if (type == null) { throw new ArgumentNullException(nameof(type)); }
+            if (type == null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
 
             return type.IsAbstract && type.IsSealed;
         }
 
         public static bool Implements(this Type type, Type interfaceType)
         {
-            if (type == null) { throw new ArgumentNullException(nameof(type)); }
-            if (!interfaceType.IsInterface) { throw new ArgumentException($"Type {nameof(type)} must be an interface."); }
+            if (type == null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
+
+            if (!interfaceType.IsInterface)
+            {
+                throw new ArgumentException($"Type {nameof(type)} must be an interface.");
+            }
 
             return type.GetInterfaces().Contains(interfaceType);
         }
 
-        public static bool IsEnumerable(this Type type, params Type[] ignore)
+        public static bool IsEnumerableOfT(this Type type, params Type[] except)
         {
-            if (type == null) { throw new ArgumentNullException(nameof(type)); }
-            //if (type == typeof(string)) throw new ArgumentException(paramName: nameof(type), message: $"{nameof(type)} must not be a {typeof(string).Name}");
+            if (type == null) throw new ArgumentNullException(nameof(type));
 
-            if (ignore.Any(t => type == t))
-            {
-                return false;
-            }
-            
             return
+                type.NotIn(except) &&
                 type
                     .GetInterfaces()
+                    .Append(type) // In case 'type' itself is an IEnumerable<>.
                     .Where(x => x.IsGenericType)
                     .Select(x => x.GetGenericTypeDefinition())
                     .Contains(typeof(IEnumerable<>));
         }
 
-        public static bool IsEnumerable<T>(this Type type)
+        public static bool IsEnumerableOf<T>(this Type type)
         {
-            if (type == null) { throw new ArgumentNullException(nameof(type)); }
+            if (type == null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
+
             if (type == typeof(string)) throw new ArgumentException(paramName: nameof(type), message: $"{nameof(type)} must not be a {typeof(string).Name}");
 
-            
-            
             return
                 type
                     .GetInterfaces()
@@ -64,32 +76,46 @@ namespace Reusable.Reflection
 
         public static bool IsDictionary(this Type type)
         {
-            if (type == null) { throw new ArgumentNullException(nameof(type)); }
+            if (type == null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
 
             return
                 type.IsGenericType &&
-                (type.GetGenericTypeDefinition() == typeof(Dictionary<,>) || type.GetGenericTypeDefinition() == typeof(IDictionary<,>));
+                type.GetGenericTypeDefinition().In(typeof(Dictionary<,>), typeof(IDictionary<,>));
         }
 
         public static bool IsList(this Type type)
         {
-            if (type == null) { throw new ArgumentNullException(nameof(type)); }
+            if (type == null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
 
             return
                 type.IsGenericType &&
-                (type.GetGenericTypeDefinition() == typeof(List<>) || type.GetGenericTypeDefinition() == typeof(IList<>));
+                type.GetGenericTypeDefinition().In(typeof(IList<>), typeof(List<>));
         }
 
         public static bool IsHashSet(this Type type)
         {
-            if (type == null) { throw new ArgumentNullException(nameof(type)); }
+            if (type == null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
 
-            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(HashSet<>);
+            return
+                type.IsGenericType &&
+                type.GetGenericTypeDefinition().In(typeof(HashSet<>), typeof(ISet<>));
         }
 
         public static IEnumerable<(Type Type, int Depth)> SelectMany(this Type type)
         {
-            if (type == null) { throw new ArgumentNullException(nameof(type)); }
+            if (type == null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
 
             var typeStack = new Stack<(Type Type, int Depth)>();
             typeStack.Push((type, 0));
@@ -110,14 +136,17 @@ namespace Reusable.Reflection
         [NotNull]
         public static Type GetElementType([NotNull] Type type)
         {
-            if (type == null) { throw new ArgumentNullException(nameof(type)); }
+            if (type == null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
 
             if (type.IsArray)
             {
                 return type.GetElementType() ?? throw CreateArgumentException();
             }
 
-            if (type.IsEnumerable())
+            if (type.IsEnumerableOfT())
             {
                 var genericArguments = type.GetGenericArguments();
                 switch (genericArguments.Length)
@@ -138,6 +167,40 @@ namespace Reusable.Reflection
                 );
             }
         }
+
+        public static bool IsNullable([NotNull] this Type type)
+        {
+            if (type == null) throw new ArgumentNullException(nameof(type));
+
+            return
+                type.IsGenericType &&
+                type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        }
+
+        public static bool IsNullable<T>(this T value) => typeof(T).IsNullable();
+
+        [CanBeNull]
+        public static Type NullableType([NotNull] this Type type)
+        {
+            if (type == null) throw new ArgumentNullException(nameof(type));
+
+            return
+                type.IsNullable()
+                    ? type.GetGenericArguments().Single()
+                    : default;
+        }
+
+        public static bool TryGetNullableType([NotNull] this Type type, out Type valueType)
+        {
+            if (type == null) throw new ArgumentNullException(nameof(type));
+
+            valueType =
+                type.IsNullable()
+                    ? type.GetGenericArguments().Single()
+                    : default;
+
+            return !(valueType is null);
+        }
     }
 
     public static class Reflector<T>
@@ -148,9 +211,9 @@ namespace Reusable.Reflection
 
         public static bool Implements<TInterface>() => typeof(T).Implements(typeof(TInterface));
 
-        public static bool IsEnumerable() => typeof(T).IsEnumerable();
+        public static bool IsEnumerable() => typeof(T).IsEnumerableOfT();
 
-        public static bool IsEnumerable<TElement>() => typeof(T).IsEnumerable<TElement>();
+        public static bool IsEnumerableOf<TElement>() => typeof(T).IsEnumerableOf<TElement>();
 
         public static bool IsDictionary() => typeof(T).IsDictionary();
 

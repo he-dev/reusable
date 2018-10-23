@@ -1,55 +1,59 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Collections;
-using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
+﻿using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.Commander;
+using Reusable.Reflection;
+using Reusable.Utilities.MSTest;
 
-namespace Reusable.Commander.Tests
+namespace Reusable.Tests.Commander
 {
     [TestClass]
     public class CommandLineExtensionsTest
     {
-        //[TestMethod]
-        //public void Anonymous_DoesNotContain_Empty()
-        //{
-        //    var arguments = new ArgumentLookup
-        //    {
-        //        { "foo", "bar" }
-        //    };
-        //    Assert.IsFalse(arguments.Anonymous().Any());
-        //}
-
-        //[TestMethod]
-        //public void Anonymous_Contains_NonEmpty()
-        //{
-        //    var arguments = new ArgumentLookup
-        //    {
-        //        { ImmutableNameSet.Empty, "baz" },
-        //        { ImmutableNameSet.Empty, "qux" },
-        //        { ImmutableNameSet.Create("foo"), "bar" },
-        //    };
-        //    Assert.IsTrue(arguments.Anonymous().Any());
-        //    Assert.AreEqual(2, arguments.Anonymous().Count());
-        //}
-
-        //[TestMethod]
-        //public void CommandName_DoesNotContains_Null()
-        //{
-        //    var arguments = new ArgumentLookup
-        //    {
-        //        { "foo", "bar" },
-        //    };
-        //    Assert.IsNull(arguments.CommandName());
-        //}
+        [TestMethod]
+        public void AnonymousValues_None_Empty()
+        {
+            var commandLine = new CommandLine
+            {
+                {"foo", "bar"}
+            };
+            Assert.IsFalse(commandLine.AnonymousValues().Any());
+        }
 
         [TestMethod]
-        public void CommandName_Contains_String()
+        public void AnonymousValues_Some_NonEmpty()
         {
-            var arguments = new CommandLine
+            var commandLine = new CommandLine
             {
-                { SoftString.Empty, "baz" },
-                { SoftString.Empty, "qux" },
-                { SoftString.Create("foo"), "bar" },
+                {Identifier.Empty, "baz"},
+                {Identifier.Empty, "qux"},
+                {Identifier.Empty, "bar"},
             };
-            Assert.AreEqual(SoftKeySet.Create("baz"), arguments.CommandName());
+            Assert.AreEqual(3, commandLine.AnonymousValues().Count());
+        }
+
+        [TestMethod]
+        public void CommandId_DoesNotContain_Throws()
+        {
+            var commandLine = new CommandLine
+            {
+                {"foo", "bar"},
+            };
+            Assert.That.Throws<DynamicException>(
+                () => commandLine.CommandId(),
+                filter => filter.When(name: "^CommandNameNotFound")
+            );
+        }
+
+        [TestMethod]
+        public void CommandId_Contains_Identifier()
+        {
+            var commandLine = new CommandLine
+            {
+                {Identifier.Empty, "baz"},
+                {Identifier.Empty, "qux"},
+                {Identifier.Create("foo"), "bar"},
+            };
+            Assert.AreEqual(Identifier.Create("baz"), commandLine.CommandId());
         }
     }
 }

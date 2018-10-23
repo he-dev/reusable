@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Reusable.Extensions;
+using Reusable.Reflection;
 
 namespace Reusable
 {
@@ -51,31 +53,27 @@ namespace Reusable
                     ? inputMatch
                         .Groups
                         .Cast<Group>()
-                        // First group is the entire match. We don't need it.
-                        .Skip(1)
+                        .Skip(1) // The first group is the entire match that we don't need.
                         .Where(g => g.Success)
-                        .Select(g =>
-                        {
-                            var ordinal = Regex.Match(g.Name, @"^(?:T(?<ordinal>\d+))").Groups["ordinal"];
-                            return
-                            (
-                                Ordinal:
-                                    ordinal.Success
-                                        ? int.TryParse(ordinal.Value, out var x) && x > 0 ? x : throw new ArgumentException($"Invalid 'Tx'. 'x' must be greater than 0.")
-                                        : throw new ArgumentException("Invalid group name. It must start with 'Tx' where 'x' is the ordinal of the T parameter and must be greater than 0."),
-                                Value:
-                                    string.IsNullOrEmpty(g.Value)
-                                        ? null
-                                        : g.Value
-                            );
-                        })
+                        .Select(
+                            g =>
+                            {
+                                var ordinal = Regex.Match(g.Name, @"^(?:T(?<ordinal>\d+))").Groups["ordinal"];
+                                return
+                                (
+                                    Ordinal: ordinal.Success && int.TryParse(ordinal.Value, out var x) && x > 0 ? x : throw DynamicException.Create("InvalidTypeIndex", $"Type index '{g.Name}' must begin with the upper-case 'T' and be followed by a 1 based index, e.g. 'T1'."),
+                                    Value: string.IsNullOrEmpty(g.Value) ? null : g.Value
+                                );
+                            }
+                        )
+                        .Where(g => g.Value.IsNotNull())
                         .ToDictionary(
                             g => g.Ordinal,
                             g => (object)g.Value
                         )
                     : new Dictionary<int, object>();
 
-            result[0] = inputMatch.Success;
+            result[Tupleizer.SuccessKey] = inputMatch.Success;
 
             return result;
         }
@@ -83,11 +81,13 @@ namespace Reusable
 
     internal static class Tupleizer
     {
+        public const int SuccessKey = 0;
+
         public static Tuple<bool, Tuple<T1, T2>> Tupleize<T1, T2>(this IDictionary<int, object> data)
         {
             return
                 Tuple.Create(
-                    data.GetValue<bool>(0),
+                    data.GetValue<bool>(SuccessKey),
                     Tuple.Create(
                         data.GetValue<T1>(1),
                         data.GetValue<T2>(2)
@@ -99,7 +99,7 @@ namespace Reusable
         {
             return
                 Tuple.Create(
-                    data.GetValue<bool>(0),
+                    data.GetValue<bool>(SuccessKey),
                     Tuple.Create(
                         data.GetValue<T1>(1),
                         data.GetValue<T2>(2),
@@ -112,7 +112,7 @@ namespace Reusable
         {
             return
                 Tuple.Create(
-                    data.GetValue<bool>(0),
+                    data.GetValue<bool>(SuccessKey),
                     Tuple.Create(
                         data.GetValue<T1>(1),
                         data.GetValue<T2>(2),
@@ -126,7 +126,7 @@ namespace Reusable
         {
             return
                 Tuple.Create(
-                    data.GetValue<bool>(0),
+                    data.GetValue<bool>(SuccessKey),
                     Tuple.Create(
                         data.GetValue<T1>(1),
                         data.GetValue<T2>(2),
@@ -141,7 +141,7 @@ namespace Reusable
         {
             return
                 Tuple.Create(
-                    data.GetValue<bool>(0),
+                    data.GetValue<bool>(SuccessKey),
                     Tuple.Create(
                         data.GetValue<T1>(1),
                         data.GetValue<T2>(2),
@@ -157,7 +157,7 @@ namespace Reusable
         {
             return
                 Tuple.Create(
-                    data.GetValue<bool>(0),
+                    data.GetValue<bool>(SuccessKey),
                     Tuple.Create(
                         data.GetValue<T1>(1),
                         data.GetValue<T2>(2),
@@ -170,24 +170,21 @@ namespace Reusable
                 );
         }
 
-        private static T GetValue<T>(this IDictionary<int, object> data, int itemIndex)
+        private static T GetValue<T>(this IDictionary<int, object> data, int key)
         {
-            if (!data.TryGetValue(itemIndex, out var value) || value is null)
+            if (data.TryGetValue(key, out var value))
             {
-                return default;
+                var valueType = typeof(T);
+                var targetType =
+                    valueType.IsNullable()
+                        ? valueType.GetGenericArguments().Single()
+                        : valueType;
+
+                return (T)Convert.ChangeType(value, targetType);
             }
             else
             {
-                var isNullable =
-                    typeof(T).IsGenericType &&
-                    typeof(T).GetGenericTypeDefinition() == typeof(Nullable<>);
-
-                var targetType =
-                    isNullable
-                        ? typeof(T).GetGenericArguments().Single()
-                        : typeof(T);
-
-                return (T)Convert.ChangeType(value, targetType);
+                return default;
             }
         }
     }

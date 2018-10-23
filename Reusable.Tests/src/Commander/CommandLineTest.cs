@@ -1,9 +1,9 @@
 ﻿using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.Commander;
 using Reusable.Utilities.MSTest;
-using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
 
-namespace Reusable.Commander.Tests
+namespace Reusable.Tests.Commander
 {
     [TestClass]
     public class CommandLineTest
@@ -20,7 +20,7 @@ namespace Reusable.Commander.Tests
 
             var commandArgument = commandLine.Single();
 
-            Assert.AreEqual(SoftKeySet.Create("foo"), commandArgument.Key);
+            Assert.AreEqual(Reusable.Commander.Identifier.Create("foo"), commandArgument.Key);
             Assert.That.Collection().CountEquals(0, commandArgument);
         }
 
@@ -37,7 +37,7 @@ namespace Reusable.Commander.Tests
 
             var commandArgument = commandLine.Single();
 
-            Assert.AreEqual(SoftKeySet.Create("foo"), commandArgument.Key);
+            Assert.AreEqual(Reusable.Commander.Identifier.Create("foo"), commandArgument.Key);
             Assert.That.Collection().CountEquals(2, commandArgument);
             Assert.AreEqual("bar", commandArgument.ElementAt(0));
             Assert.AreEqual("baz", commandArgument.ElementAt(1));

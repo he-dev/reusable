@@ -9,96 +9,186 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
+using Autofac.Features.Indexed;
 using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Commander.Commands;
 using Reusable.Converters;
 using Reusable.Extensions;
 using Reusable.OmniLog;
+using Reusable.OmniLog.SemanticExtensions;
 using Reusable.Reflection;
 
 namespace Reusable.Commander
 {
     public interface ICommandLineExecutor
     {
-        Task<IImmutableList<SoftKeySet>> ExecuteAsync([CanBeNull] string commandLineString, CancellationToken cancellationToken);
+        Task ExecuteAsync([NotNull, ItemNotNull] IEnumerable<ICommandLine> commandLines, CancellationToken cancellationToken = default);
+
+        Task ExecuteAsync([CanBeNull] string commandLineString, CancellationToken cancellationToken = default);
+
+        Task ExecuteAsync<TBag>([NotNull] Identifier commandId, [CanBeNull] TBag parameter = default, CancellationToken cancellationToken = default) where TBag : ICommandBag, new();
     }
 
     [UsedImplicitly]
     public class CommandLineExecutor : ICommandLineExecutor
     {
-        private static readonly IImmutableList<SoftKeySet> NoCommandsExecuted = ImmutableList<SoftKeySet>.Empty;
-
         private readonly ICommandLineParser _commandLineParser;
-        private readonly ICommandFactory _commandFactory;
+        private readonly ICommandLineMapper _mapper;
+        private readonly IIndex<Identifier, IConsoleCommand> _commands;
         private readonly ILogger _logger;
 
-        public CommandLineExecutor([NotNull] ILoggerFactory loggerFactory, [NotNull] ICommandLineParser commandLineParser, [NotNull] ICommandFactory commandFactory)
+        public CommandLineExecutor
+        (
+            [NotNull] ILogger<CommandLineExecutor> logger,
+            [NotNull] ICommandLineParser commandLineParser,
+            [NotNull] ICommandLineMapper mapper,
+            [NotNull] IIndex<Identifier, IConsoleCommand> commands
+        )
         {
-            _logger = loggerFactory.CreateLogger(nameof(CommandLineExecutor)) ?? throw new ArgumentNullException(nameof(loggerFactory));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _commandLineParser = commandLineParser ?? throw new ArgumentNullException(nameof(commandLineParser));
-            _commandFactory = commandFactory ?? throw new ArgumentNullException(nameof(commandFactory));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _commands = commands ?? throw new ArgumentNullException(nameof(commands));
         }
 
-        //public static ICommandLineExecutor Create([NotNull] ILoggerFactory loggerFactory, [NotNull] ICommandRegistrationContainer commands)
-        //{
-        //    if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
-        //    if (commands == null) throw new ArgumentNullException(nameof(commands));
+        public async Task ExecuteAsync(IEnumerable<ICommandLine> commandLines, CancellationToken cancellationToken)
+        {
+            const bool sequential = false;
+            const bool async = true;
 
-        //    var builder = new ContainerBuilder();
-            
-        //    builder
-        //        .RegisterInstance(loggerFactory)
-        //        .As<ILoggerFactory>();
-            
-        //    builder
-        //        .RegisterModule(new CommanderModule(commands));
-            
-        //    using (var container = builder.Build())
-        //    using (var scope = container.BeginLifetimeScope())
-        //    {
-        //        return scope.Resolve<ICommandLineExecutor>();
-        //    }
-        //}
+            var executables =
+                GetCommands(commandLines)
+                    .Select(t => (t.Command, t.CommandLine, Bag: _mapper.Map<SimpleBag>(t.CommandLine)))
+                    .ToLookup(x => x.Bag.Async);
 
-        public async Task<IImmutableList<SoftKeySet>> ExecuteAsync(string commandLineString, CancellationToken cancellationToken)
+            _logger.Log(
+                Abstraction.Layer.Infrastructure()
+                    .Meta(
+                        new
+                        {
+                            CommandCount = new
+                            {
+                                Executable = executables.Count,
+                                Sequential = executables[sequential].Count(),
+                                Async = executables[async].Count(),
+                            }
+                        }
+                    )
+            );
+
+            using (var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+            {
+                // Execute sequential commands first.
+                foreach (var executable in executables[sequential])
+                {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        break;
+                    }
+
+                    await ExecuteAsync(executable, cts);
+                }
+
+                // Now execute the async commands.
+                var tasks = executables[async].Select(async executable => await ExecuteAsync(executable, cts));
+                await Task.WhenAll(tasks).ConfigureAwait(false);
+            }
+        }
+
+        public async Task ExecuteAsync(string commandLineString, CancellationToken cancellationToken)
         {
             if (commandLineString.IsNullOrEmpty())
             {
-                return NoCommandsExecuted;
+                throw DynamicException.Create(
+                    $"CommandStringNullOrEmpty",
+                    $"You need to specify at least one command."
+                );
             }
 
             var commandLines = _commandLineParser.Parse(commandLineString);
-
-            var executables =
-                (from commandLine in commandLines
-                 let commandName = commandLine.CommandName()
-                 let command = _commandFactory.CreateCommand(commandName, commandLine)
-                 select (commandName, command)).ToList();
-
-            var mismatchCommands = executables.Where(exe => exe.command is null).ToList();
-            if (mismatchCommands.Any())
-            {
-                var notFoundCommandNames = mismatchCommands.Select(exe => exe.commandName.FirstLongest().ToString());
-                throw DynamicException.Factory.CreateDynamicException(
-                    $"CommandNotFound{nameof(Exception)}", 
-                    $"Could not find one or more commands: {notFoundCommandNames.Join(", ").EncloseWith("[]")}.", 
-                    null);
-            }            
-
-            var executedCommands = new List<SoftKeySet>();
-
-            foreach (var (softKeySet, consoleCommand) in executables)
-            {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    break;
-                }
-                await consoleCommand.ExecuteAsync(cancellationToken);
-                executedCommands.Add(softKeySet);
-            }
-
-            return executedCommands.ToImmutableList();            
+            await ExecuteAsync(commandLines, cancellationToken);
         }
+
+        public async Task ExecuteAsync<TBag>(Identifier commandId, TBag parameter, CancellationToken cancellationToken = default) where TBag : ICommandBag, new()
+        {
+            if (commandId == null) throw new ArgumentNullException(nameof(commandId));
+
+            await GetCommand(commandId).ExecuteAsync(parameter, cancellationToken);
+        }
+
+        private async Task ExecuteAsync((IConsoleCommand Command, ICommandLine CommandLine, ICommandBag Bag) executable, CancellationTokenSource cancellationTokenSource)
+        {
+            using (_logger.BeginScope().WithCorrelationContext(new {Command = executable.Command.Id.Default.ToString()}).AttachElapsed())
+            {
+                try
+                {
+                    await executable.Command.ExecuteAsync(executable.CommandLine, cancellationTokenSource.Token);
+                    _logger.Log(Abstraction.Layer.Infrastructure().Routine(nameof(IConsoleCommand.ExecuteAsync)).Completed());
+                }
+                catch (DynamicException ex) when (ex.NameMatches("^ParameterMapping"))
+                {
+                    throw;
+                }
+                catch (Exception taskEx)
+                {
+                    _logger.Log(Abstraction.Layer.Infrastructure().Routine(nameof(IConsoleCommand.ExecuteAsync)).Faulted(), taskEx);
+
+                    if (executable.Bag.CanThrow)
+                    {
+                        cancellationTokenSource.Cancel();
+                        throw;
+                    }
+#if DEBUG
+                    else
+                    {
+                        // In debug mode (e.g. unit-testing) this should always throw. Otherwise we might hide some bugs.
+                        throw DynamicException.Create(
+                            $"Unexpected",
+                            $"An unexpected exception occured while executing the '{executable.Command.Id.Default.ToString()}' command."
+                        );
+                    }
+#endif
+                }
+            }
+        }
+
+        #region Helpers
+
+        private IEnumerable<(IConsoleCommand Command, ICommandLine CommandLine)> GetCommands(IEnumerable<ICommandLine> commandLines)
+        {
+            return commandLines.Select(
+                (commandLine, i) =>
+                {
+                    try
+                    {
+                        var commandName = commandLine.CommandId();
+                        return (GetCommand(commandName), commandLine);
+                    }
+                    catch (DynamicException ex)
+                    {
+                        throw DynamicException.Factory.CreateDynamicException(
+                            $"InvalidCommandLine{nameof(Exception)}",
+                            $"Command line at {i} is invalid. See the inner-exception for details.",
+                            ex
+                        );
+                    }
+                }
+            );
+        }
+
+        [NotNull]
+        private IConsoleCommand GetCommand(Identifier id)
+        {
+            return
+                _commands.TryGetValue(id, out var command)
+                    ? command
+                    : throw DynamicException.Factory.CreateDynamicException(
+                        $"CommandNotFound{nameof(Exception)}",
+                        $"Could not find command '{id.Default.ToString()}'."
+                    );
+        }
+
+        #endregion
     }
 }

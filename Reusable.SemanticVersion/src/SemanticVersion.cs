@@ -19,12 +19,11 @@ namespace Reusable
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class SemanticVersion : IEquatable<SemanticVersion>, IComparable<SemanticVersion>, IComparer<SemanticVersion>
     {
-        private static readonly IDuckValidator<SemanticVersion> VersionValidator = new DuckValidator<SemanticVersion>(version =>
+        private static readonly IBouncer<SemanticVersion> VersionBouncer = Bouncer.For<SemanticVersion>(builder =>
         {
-            version
-                .IsValidWhen(x => x.Major >= 0)
-                .IsValidWhen(x => x.Minor >= 0)
-                .IsValidWhen(x => x.Patch >= 0);
+            builder.Ensure(x => x.Major >= 0);
+            builder.Ensure(x => x.Minor >= 0);
+            builder.Ensure(x => x.Patch >= 0);
         });
 
         private static readonly Lazy<string> Pattern;
@@ -44,12 +43,13 @@ namespace Reusable
             Minor = minor;
             Patch = patch;
             Labels = labels.ToImmutableList();
-            this.ValidateWith(VersionValidator).ThrowOrDefault();
+            this.ValidateWith(VersionBouncer).ThrowIfInvalid();
         }
 
         public SemanticVersion(int major, int minor, int patch)
             : this(major, minor, patch, Enumerable.Empty<string>())
-        { }
+        {
+        }
 
         public static IComparer<SemanticVersion> Comparer { get; } = new SemanticVersionComparer();
 
@@ -119,7 +119,7 @@ namespace Reusable
 
         #region IComparer
 
-        public int Compare(SemanticVersion left, SemanticVersion right) => Comparer.Compare(left, right);        
+        public int Compare(SemanticVersion left, SemanticVersion right) => Comparer.Compare(left, right);
 
         #endregion
 

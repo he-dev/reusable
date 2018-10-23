@@ -14,5 +14,11 @@ namespace Reusable.Reflection
         /// </summary>
         [NotNull]
         public static IDynamicExceptionFactory Factory => DynamicExceptionFactory.Default;
+
+        [NotNull]
+        public static Exception Create([NotNull] ExceptionName name, [CanBeNull] string message, [CanBeNull] Exception innerException = default)
+        {
+            return Factory.CreateDynamicException(name, message, innerException);
+        }
     }   
 }

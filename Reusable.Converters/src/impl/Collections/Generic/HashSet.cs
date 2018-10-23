@@ -3,13 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using Reusable.Reflection;
 
-namespace Reusable.Converters.Collections.Generic
+namespace Reusable.Converters
 {
     public class EnumerableToHashSetConverter : TypeConverter<IEnumerable, object>
     {
         public override bool CanConvert(Type fromType, Type toType)
         {
-            return fromType.IsEnumerable() && toType.IsHashSet();
+            return fromType.IsEnumerableOfT(except: typeof(string)) && toType.IsHashSet();
         }
 
         protected override object ConvertCore(IConversionContext<IEnumerable> context)
@@ -22,7 +22,7 @@ namespace Reusable.Converters.Collections.Generic
             foreach (var value in context.Value)
             {
                 var element = context.Converter.Convert(new ConversionContext<object>(value, valueType, context));
-                // ReSharper disable once PossibleNullReferenceException - this is never null
+                // ReSharper disable once PossibleNullReferenceException - addMethod is never null
                 addMethod.Invoke(hashSet, new[] {element});
             }
 
