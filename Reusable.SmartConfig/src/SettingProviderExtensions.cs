@@ -10,7 +10,7 @@ namespace Reusable.SmartConfig
 {
     public static class SettingProviderExtensions
     {
-        public static SettingProviderNaming Naming<T>(this T settingProvider, SettingQuery query) where T : ISettingProvider
+        public static SettingProviderNaming SettingNaming<T>(this T settingProvider, SettingQuery query) where T : ISettingProvider
         {
             var attributes =
                 AppDomain

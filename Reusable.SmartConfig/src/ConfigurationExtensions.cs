@@ -95,21 +95,21 @@ namespace Reusable.SmartConfig
         //}
 
         [NotNull]
-        public static IConfiguration SetValue<T>([NotNull] this IConfiguration config, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instance = null)
+        public static IConfiguration SetValue<T>([NotNull] this IConfiguration config, [NotNull] Expression<Func<T>> expression, [CanBeNull] T value, [CanBeNull] string instance = null)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
             var settingInfo = SettingMetadata.FromExpression(expression, false);
-            var query = ValueQueryFactory.CreateSetValueQuery(settingInfo, instance);
+            var query = ValueQueryFactory.CreateSetValueQuery(settingInfo, value, instance);
 
             //var settingValue = config.GetValue(settingInfo.SettingName, typeof(T), settingInfo.ProviderName) ?? settingInfo.DefaultValue;
 
-            var settingValue = settingInfo.GetValue();
+            //var settingValue = //settingInfo.GetValue();
 
             settingInfo
                 .Validations
-                .Validate(query.SettingName, settingValue);
+                .Validate(query.SettingName, value);
 
             config.SetValue(query);
             return config;

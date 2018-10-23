@@ -51,6 +51,7 @@ namespace Reusable.SmartConfig.Reflection
             MemberName = member.GetCustomAttribute<SettingMemberAttribute>()?.Name ?? member.Name;
 
             ProviderName = attributes.Select(x => x.ProviderName).FirstOrDefault(Conditional.IsNotNullOrEmpty);
+            ProviderType = attributes.Select(x => x.ProviderType).FirstOrDefault(Conditional.IsNotNull);
             DefaultValue = member.GetCustomAttribute<DefaultValueAttribute>()?.Value;
             Validations = member.GetCustomAttributes<ValidationAttribute>();
         }
@@ -87,6 +88,9 @@ namespace Reusable.SmartConfig.Reflection
 
         [CanBeNull]
         public string ProviderName { get; }
+        
+        [CanBeNull]
+        public Type ProviderType { get; }
 
         public SettingNameStrength SettingNameStrength { get; }
 

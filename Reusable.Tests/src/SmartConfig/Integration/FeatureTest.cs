@@ -42,8 +42,8 @@ namespace Reusable.Tests.SmartConfig.Integration
             {
                 { "Test7.Member", "Value7" },
             },
-            new AppSettings(new JsonSettingConverter(typeof(string))),
-            new SqlServer("name=TestDb", new JsonSettingConverter(typeof(string)) { StringTypes = new[] { typeof(string) }.ToImmutableHashSet() })
+            new AppSettings(new JsonSettingConverter()),
+            new SqlServer("name=TestDb", new JsonSettingConverter() { StringTypes = new[] { typeof(string) }.ToImmutableHashSet() })
             {
                 SettingTableName = SettingTableName,
                 ColumnMapping = ("_name", "_value"),
@@ -71,7 +71,7 @@ namespace Reusable.Tests.SmartConfig.Integration
             var exeConfiguration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 
             exeConfiguration.AppSettings.Settings.Clear();
-            exeConfiguration.ConnectionStrings.ConnectionStrings.Clear();
+            //exeConfiguration.ConnectionStrings.ConnectionStrings.Clear();
 
             foreach (var (key, value) in data)
             {
@@ -158,11 +158,15 @@ namespace Reusable.Tests.SmartConfig.Integration
         }
 
         [TestMethod]
-        public void GetValue_CanReadFromSqlServer()
+        public void GetValue_CanReadAndWriteWithSqlServer()
         {
             var test = new Test9 { Configuration = Configuration };
 
             Assert.AreEqual("Hallo!", test.Greeting);
+            
+            test.Greeting = "Yo!";
+            
+            Assert.AreEqual("Yo!", test.Greeting);
         }
 
         [TestMethod]
@@ -237,6 +241,10 @@ namespace Reusable.Tests.SmartConfig.Integration
         public string Salute => Configuration.GetValue(() => Salute);
 
         [SettingMember(ProviderType = typeof(SqlServer))]
-        public string Greeting => Configuration.GetValue(() => Greeting);
+        public string Greeting
+        {
+            get => Configuration.GetValue(() => Greeting);
+            set => Configuration.SetValue(() => Greeting, value);
+        }
     }
 }

@@ -55,7 +55,7 @@ namespace Reusable.SmartConfig
         {
             if (query == null) throw new ArgumentNullException(nameof(query));
 
-            var providerNaming = this.Naming(query);
+            var providerNaming = this.SettingNaming(query);
             var providerSettingName = _settingNameFactory.CreateProviderSettingName(query.SettingName, providerNaming);
 
             try
@@ -84,13 +84,13 @@ namespace Reusable.SmartConfig
         {
             if (query == null) throw new ArgumentNullException(nameof(query));
 
-            var providerNaming = this.Naming(query);
+            var providerNaming = this.SettingNaming(query);
             var providerSettingName = _settingNameFactory.CreateProviderSettingName(query.SettingName, providerNaming);
 
             try
             {
                 var value = query.Value is null ? null : _converter.Serialize(query.Value);
-                Write(new Setting(query.SettingName, value));
+                Write(new Setting(providerSettingName, value));
             }
             catch (Exception innerException)
             {

@@ -66,11 +66,12 @@ namespace Reusable.SmartConfig
             {
                 ProviderName = settingMetadata.ProviderName,
                 Strength = settingMetadata.SettingNameStrength,
-                PrefixHandling = settingMetadata.PrefixHandling
+                PrefixHandling = settingMetadata.PrefixHandling,
+                ProviderType = settingMetadata.ProviderType
             };
         }
 
-        public static UpdateQuery CreateSetValueQuery(SettingMetadata settingMetadata, string instance)
+        public static UpdateQuery CreateSetValueQuery<T>(SettingMetadata settingMetadata, T value, string instance)
         {
             var settingName = new SettingName
             (
@@ -81,11 +82,12 @@ namespace Reusable.SmartConfig
                 instance: instance
             );
 
-            return new UpdateQuery(settingName, settingMetadata.Type)
+            return new UpdateQuery(settingName, value)
             {
                 ProviderName = settingMetadata.ProviderName,
                 Strength = settingMetadata.SettingNameStrength,
-                PrefixHandling = settingMetadata.PrefixHandling
+                PrefixHandling = settingMetadata.PrefixHandling,
+                ProviderType = settingMetadata.ProviderType
             };
         }
     }
