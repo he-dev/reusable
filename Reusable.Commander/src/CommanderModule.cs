@@ -49,6 +49,9 @@ namespace Reusable.Commander
                 .As<ICommandLineMapper>();
 
             builder
+                .RegisterInstance((ExecuteExceptionCallback) (_ => { }));
+
+            builder
                 .RegisterType<CommandLineExecutor>()
                 .As<ICommandLineExecutor>();
 

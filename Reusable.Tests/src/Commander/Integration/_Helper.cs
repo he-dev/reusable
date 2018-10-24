@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Commander;
 using Reusable.Commander.Commands;
 using Reusable.OmniLog;
@@ -70,6 +71,12 @@ namespace Reusable.Tests.Commander.Integration
             builder
                 .RegisterModule(new CommanderModule(commands));
 
+            //builder
+            //    .RegisterInstance((ExecuteExceptionCallback)(ex =>
+            //    {
+            //        Fail(ex.Message);
+            //    }));
+
             return builder.Build();
         }
     }
@@ -99,7 +106,7 @@ namespace Reusable.Tests.Commander.Integration
         {
             if (_bags.TryGetValue(commandId, out var bag))
             {
-                assert((T) bag);
+                assert((T)bag);
             }
             else
             {

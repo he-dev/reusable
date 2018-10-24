@@ -9,6 +9,8 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
+using Autofac.Core;
+using Autofac.Features.AttributeFilters;
 using Autofac.Features.Indexed;
 using JetBrains.Annotations;
 using Reusable.Collections;
@@ -27,29 +29,34 @@ namespace Reusable.Commander
 
         Task ExecuteAsync([CanBeNull] string commandLineString, CancellationToken cancellationToken = default);
 
-        Task ExecuteAsync<TBag>([NotNull] Identifier commandId, [CanBeNull] TBag parameter = default, CancellationToken cancellationToken = default) where TBag : ICommandBag, new();
+        Task ExecuteAsync<TBag>([NotNull] Identifier identifier, [CanBeNull] TBag parameter = default, CancellationToken cancellationToken = default) where TBag : ICommandBag, new();
     }
+
+    public delegate void ExecuteExceptionCallback(Exception exception);
 
     [UsedImplicitly]
     public class CommandLineExecutor : ICommandLineExecutor
     {
+        private readonly ILogger _logger;
         private readonly ICommandLineParser _commandLineParser;
         private readonly ICommandLineMapper _mapper;
         private readonly IIndex<Identifier, IConsoleCommand> _commands;
-        private readonly ILogger _logger;
+        private readonly ExecuteExceptionCallback _executeExceptionCallback;
 
         public CommandLineExecutor
         (
             [NotNull] ILogger<CommandLineExecutor> logger,
             [NotNull] ICommandLineParser commandLineParser,
             [NotNull] ICommandLineMapper mapper,
-            [NotNull] IIndex<Identifier, IConsoleCommand> commands
+            [NotNull] IIndex<Identifier, IConsoleCommand> commands,
+            [NotNull] ExecuteExceptionCallback executeExceptionCallback
         )
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _commandLineParser = commandLineParser ?? throw new ArgumentNullException(nameof(commandLineParser));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _commands = commands ?? throw new ArgumentNullException(nameof(commands));
+            _executeExceptionCallback = executeExceptionCallback;
         }
 
         public async Task ExecuteAsync(IEnumerable<ICommandLine> commandLines, CancellationToken cancellationToken)
@@ -62,20 +69,15 @@ namespace Reusable.Commander
                     .Select(t => (t.Command, t.CommandLine, Bag: _mapper.Map<SimpleBag>(t.CommandLine)))
                     .ToLookup(x => x.Bag.Async);
 
-            _logger.Log(
-                Abstraction.Layer.Infrastructure()
-                    .Meta(
-                        new
-                        {
-                            CommandCount = new
-                            {
-                                Executable = executables.Count,
-                                Sequential = executables[sequential].Count(),
-                                Async = executables[async].Count(),
-                            }
-                        }
-                    )
-            );
+            _logger.Log(Abstraction.Layer.Infrastructure().Meta(new
+            {
+                CommandCount = new
+                {
+                    Executable = executables.Count,
+                    Sequential = executables[sequential].Count(),
+                    Async = executables[async].Count(),
+                }
+            }));
 
             using (var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
             {
@@ -110,45 +112,46 @@ namespace Reusable.Commander
             await ExecuteAsync(commandLines, cancellationToken);
         }
 
-        public async Task ExecuteAsync<TBag>(Identifier commandId, TBag parameter, CancellationToken cancellationToken = default) where TBag : ICommandBag, new()
+        public async Task ExecuteAsync<TBag>(Identifier identifier, TBag parameter, CancellationToken cancellationToken = default) where TBag : ICommandBag, new()
         {
-            if (commandId == null) throw new ArgumentNullException(nameof(commandId));
+            if (identifier == null) throw new ArgumentNullException(nameof(identifier));
 
-            await GetCommand(commandId).ExecuteAsync(parameter, cancellationToken);
+            await GetCommand(identifier).ExecuteAsync(parameter, cancellationToken);
         }
 
         private async Task ExecuteAsync((IConsoleCommand Command, ICommandLine CommandLine, ICommandBag Bag) executable, CancellationTokenSource cancellationTokenSource)
         {
-            using (_logger.BeginScope().WithCorrelationContext(new {Command = executable.Command.Id.Default.ToString()}).AttachElapsed())
+            using (_logger.BeginScope().WithCorrelationContext(new { Command = executable.Command.Id.Default.ToString() }).AttachElapsed())
             {
                 try
                 {
                     await executable.Command.ExecuteAsync(executable.CommandLine, cancellationTokenSource.Token);
                     _logger.Log(Abstraction.Layer.Infrastructure().Routine(nameof(IConsoleCommand.ExecuteAsync)).Completed());
                 }
-                catch (DynamicException ex) when (ex.NameMatches("^ParameterMapping"))
-                {
-                    throw;
-                }
+                //catch (DynamicException ex) when (ex.NameMatches("^ParameterMapping"))
+                //{
+                //    throw;
+                //}
                 catch (Exception taskEx)
                 {
                     _logger.Log(Abstraction.Layer.Infrastructure().Routine(nameof(IConsoleCommand.ExecuteAsync)).Faulted(), taskEx);
 
-                    if (executable.Bag.CanThrow)
+                    if (!executable.Bag.Async)
                     {
-                        cancellationTokenSource.Cancel();
-                        throw;
+                        cancellationTokenSource.Cancel();                        
                     }
-#if DEBUG
-                    else
-                    {
-                        // In debug mode (e.g. unit-testing) this should always throw. Otherwise we might hide some bugs.
-                        throw DynamicException.Create(
-                            $"Unexpected",
-                            $"An unexpected exception occured while executing the '{executable.Command.Id.Default.ToString()}' command."
-                        );
-                    }
-#endif
+
+                    _executeExceptionCallback(taskEx);
+//#if DEBUG
+//                    else
+//                    {
+//                        // In debug mode (e.g. unit-testing) this should always throw. Otherwise we might hide some bugs.
+//                        throw DynamicException.Create(
+//                            $"Unexpected",
+//                            $"An unexpected exception occured while executing the '{executable.Command.Id.Default.ToString()}' command."
+//                        );
+//                    }
+//#endif
                 }
             }
         }

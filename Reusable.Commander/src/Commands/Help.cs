@@ -126,7 +126,7 @@ namespace Reusable.Commander.Commands
             {
                 var defaultId = commandParameter.Id.Default.ToString();
                 var aliases = string.Join("|", commandParameter.Id.Aliases.Select(x => x.ToString()));
-                var description = commandParameter.Type.GetCustomAttribute<DescriptionAttribute>()?.Description ?? "N/A";
+                var description = commandParameter.Description ?? "N/A";
                 var row = new[] {$"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description}.Pad(parameter.ColumnWidths);
                 Logger.WriteLine(p => p.text(string.Join(string.Empty, row)));
             }
