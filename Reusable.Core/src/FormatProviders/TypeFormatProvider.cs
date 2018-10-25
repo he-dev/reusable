@@ -29,7 +29,6 @@ namespace Reusable.FormatProviders
                             format is null
                                 ? typeString
                                 : string.Format(formatProvider, $"{{0:{format}}}", typeString);
-                        break;
 
                     default: return null;
                 }
