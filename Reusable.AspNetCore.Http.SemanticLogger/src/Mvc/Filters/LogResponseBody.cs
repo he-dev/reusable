@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Reusable.AspNetCore.Http.Mvc.Filters
 {
+    /// <summary>
+    /// Enables logging of the response body by the Semantic Logger Middleware.
+    /// </summary>
     [UsedImplicitly]
     public class LogResponseBody : ActionFilterAttribute
     {

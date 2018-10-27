@@ -11,7 +11,7 @@ namespace Reusable.AspNetCore.Http
 {
     public class SemanticLoggerMiddleware
     {
-        private readonly ILoggerFactory _loggerFactory;
+        private readonly ILogger _logger;
         private readonly RequestDelegate _next;
         private readonly SemanticLoggerMiddlewareConfiguration _configuration;
 
@@ -21,7 +21,7 @@ namespace Reusable.AspNetCore.Http
             Action<SemanticLoggerMiddlewareConfiguration> configure)
         {
             _next = next;
-            _loggerFactory = loggerFactory;
+            _logger = loggerFactory.CreateLogger<SemanticLoggerMiddleware>();
             _configuration = new SemanticLoggerMiddlewareConfiguration();
             configure(_configuration);
         }
@@ -34,93 +34,96 @@ namespace Reusable.AspNetCore.Http
              that is logged into the Logger column instead of the table name.
              */
 
-            var product = _configuration.GetProduct(context);
+            //var product = _configuration.GetProduct(context);
+            var correlationContext = _configuration.GetCorrelationContext(context);
             var correlationId = _configuration.GetCorrelationId(context);
-            var logger = _loggerFactory.CreateLogger(_configuration.MapProduct(product));
+            //var logger = _loggerFactory.CreateLogger(_configuration.MapProduct(product));
 
-            var scope = logger.BeginScope().WithCorrelationId(correlationId).AttachElapsed();
-
-            logger.Log(Abstraction.Layer.Network().Argument(new
+            using (var scope = _logger.BeginScope().WithCorrelationId(correlationId).AttachElapsed())
             {
-                Request = new
+                if (!(correlationContext is null))
                 {
-                    Path = context.Request.Path.Value,
-                    Host = context.Request.Host.Value,
-                    context.Request.ContentLength,
-                    context.Request.ContentType,
-                    //context.Request.Cookies,
-                    context.Request.Headers,
-                    context.Request.IsHttps,
-                    context.Request.Method,
-                    context.Request.Protocol,
-                    context.Request.QueryString,
-                }
-            }), log =>
-            {
-                log.WithDisplayLogger(product);
-            });
-
-            try
-            {
-                var body = default(string);
-                var bodyBackup = context.Response.Body;
-
-                using (var memory = new MemoryStream())
-                {
-                    context.Response.Body = memory;
-
-                    await _next(context);
-
-                    memory.Seek(0, SeekOrigin.Begin);
-                    using (var reader = new StreamReader(memory))
-                    {
-                        if (context.ResponseBodyLoggingEnabled())
-                        {
-                            body = await reader.ReadToEndAsync();
-                        }
-
-                        // Restore Response.Body
-                        memory.Seek(0, SeekOrigin.Begin);
-                        if (!context.Response.StatusCode.In(304))
-                        {
-                            await memory.CopyToAsync(bodyBackup);
-                        }
-
-                        context.Response.Body = bodyBackup;
-                    }
+                    scope.WithCorrelationContext(correlationContext);
                 }
 
-                logger.Log(Abstraction.Layer.Network().Argument(new
+                _logger.Log(Abstraction.Layer.Network().Argument(new
                 {
-                    Response = new
+                    Request = new
                     {
-                        context.Response.ContentLength,
-                        context.Response.ContentType,
-                        context.Response.Headers,
-                        context.Response.StatusCode,
+                        Path = context.Request.Path.Value,
+                        Host = context.Request.Host.Value,
+                        context.Request.ContentLength,
+                        context.Request.ContentType,
+                        //context.Request.Cookies,
+                        context.Request.Headers,
+                        context.Request.IsHttps,
+                        context.Request.Method,
+                        context.Request.Protocol,
+                        context.Request.QueryString,
                     }
                 }), log =>
                 {
-                    log.Level(MapStatusCode(context.Response.StatusCode));
-                    log.WithDisplayLogger(product);
-                    if (context.ResponseBodyLoggingEnabled())
-                    {
-                        log.Message(body);
-                    }
+                    //log.WithDisplayLogger(product);
                 });
-            }
-            catch (Exception ex)
-            {
-                logger.Log(Abstraction.Layer.Network().Routine("next").Faulted(), log =>
+
+                try
                 {
-                    log.Exception(ex);
-                    log.WithDisplayLogger(product);
-                });
-                throw;
-            }
-            finally
-            {
-                scope.Dispose();
+                    var body = default(string);
+                    var bodyBackup = context.Response.Body;
+
+                    using (var memory = new MemoryStream())
+                    {
+                        context.Response.Body = memory;
+
+                        await _next(context);
+
+                        memory.Seek(0, SeekOrigin.Begin);
+                        using (var reader = new StreamReader(memory))
+                        {
+                            if (context.ResponseBodyLoggingEnabled())
+                            {
+                                body = await reader.ReadToEndAsync();
+                            }
+
+                            // Restore Response.Body
+                            memory.Seek(0, SeekOrigin.Begin);
+                            if (!context.Response.StatusCode.In(304))
+                            {
+                                await memory.CopyToAsync(bodyBackup);
+                            }
+
+                            context.Response.Body = bodyBackup;
+                        }
+                    }
+
+                    _logger.Log(Abstraction.Layer.Network().Argument(new
+                    {
+                        Response = new
+                        {
+                            context.Response.ContentLength,
+                            context.Response.ContentType,
+                            context.Response.Headers,
+                            context.Response.StatusCode,
+                        }
+                    }), log =>
+                    {
+                        log.Level(MapStatusCode(context.Response.StatusCode));
+                        //log.WithDisplayLogger(product);
+                        if (context.ResponseBodyLoggingEnabled())
+                        {
+                            log.Message(body);
+                        }
+                    });
+                }
+                catch (Exception ex)
+                {
+                    _logger.Log(Abstraction.Layer.Network().Routine("next").Faulted(), log =>
+                    {
+                        log.Exception(ex);
+                        //log.WithDisplayLogger(product);
+                    });
+                    throw;
+                }
             }
         }
 
@@ -147,9 +150,9 @@ namespace Reusable.AspNetCore.Http
 
     internal static class LogExtensions
     {
-        public static ILog WithDisplayLogger(this ILog log, string product)
+        public static ILog WithDisplayLogger(this ILog log, string logger)
         {
-            return log.With("DisplayLogger", product);
+            return log.With("DisplayLogger", logger);
         }
     }
 

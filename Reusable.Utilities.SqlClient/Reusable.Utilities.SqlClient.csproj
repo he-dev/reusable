@@ -13,6 +13,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="sql\GetIdentityColumnSchemas.sql" />
+    <None Remove="sql\GetPrimaryKeysAsync.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="sql\GetIdentityColumnSchemas.sql" />
+    <EmbeddedResource Include="sql\GetPrimaryKeysAsync.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" />
   </ItemGroup>
 

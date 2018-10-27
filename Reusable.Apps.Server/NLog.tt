@@ -21,8 +21,8 @@
 	var connectionString = "data source=(local);initial catalog=TestDb;Integrated Security=true;";
 	//var database = "testingdb";
 	var schema = "dbo";
-	var tablePattern = "_SemLog3$";
-	var fallbackLogPattern = "Master_SemLog3";
+	var tablePattern = "Master_SemLog3$";
+	var fallbackLogPattern = "Master_SemLog3$";
 	var internalLogFile = @"c:\temp\Reusable.Apps.Server.N.log";
 	
 #>
@@ -35,8 +35,8 @@
 	{
 		["Timestamp"] = "${longdate:universalTime=true}",
 		//["Environment"] = "${environmentLayout}",
-		//["Logger"] = "${logger}",
-		["Logger"] = "${smart-properties:key=DisplayLogger:ignoreCase=true}",
+		["Logger"] = "${logger}",
+		//["Logger"] = "${smart-properties:key=DisplayLogger:ignoreCase=true}",
 		["Level"] = "${level:lowercase=true}",
 		//["ElapsedMilliseconds"] = "${event-properties:item=ElapsedMilliseconds}",
 		["Exception"] = "${onexception:${exceptionLayout}}",

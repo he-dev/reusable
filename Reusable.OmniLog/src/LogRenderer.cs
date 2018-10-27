@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Linq.Custom;
 using Reusable.Collections;
+using Reusable.Extensions;
 using Reusable.OmniLog.Collections;
 
 namespace Reusable.OmniLog
