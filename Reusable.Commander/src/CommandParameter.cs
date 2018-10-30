@@ -44,7 +44,7 @@ namespace Reusable.Commander
         [CanBeNull]
         public object DefaultValue => Property.GetCustomAttribute<DefaultValueAttribute>()?.Value;
         
-        public bool IsRequired => Property.IsDefined(typeof(RequiredAttribute)) || Position > CommandLine.CommandIndex;
+        public bool IsRequired => Property.IsDefined(typeof(RequiredAttribute)) || Position.HasValue;
 
         [NotNull]
         public static CommandParameter Create([NotNull] PropertyInfo property) => new CommandParameter(property ?? throw new ArgumentNullException(nameof(property)));

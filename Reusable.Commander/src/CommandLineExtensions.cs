@@ -17,22 +17,42 @@ namespace Reusable.Commander
             return commandLine[Identifier.Empty];
         }
 
-        [NotNull, ItemNotNull]
-        public static IEnumerable<string> ArgumentValues([NotNull] this ICommandLine commandLine, int? position, Identifier id)
+        //[NotNull, ItemNotNull]
+        //public static IEnumerable<string> ArgumentValues([NotNull] this ICommandLine commandLine, int? position, Identifier id)
+        //{
+        //    if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
+
+        //    return
+        //        position.HasValue
+        //            ? commandLine.AnonymousValues().Skip(position.Value).Take(1)
+        //            : commandLine[id];
+        //}
+
+        public static bool TryGetArgumentValues([NotNull] this ICommandLine commandLine, Identifier id, int? position, [NotNull, ItemNotNull] out IList<string> values)
         {
             if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
-            
-            return
-                position.HasValue
-                    ? commandLine.AnonymousValues().Skip(position.Value).Take(1)
-                    : commandLine[id];
+
+            if (commandLine.Contains(id))
+            {
+                values = commandLine[id].ToList();
+                return true;
+            }
+
+            if (position.HasValue && commandLine.AnonymousValues().Count() >= position.Value)
+            {
+                values = new[] { commandLine.AnonymousValues().ElementAtOrDefault(position.Value) };
+                return true;
+            }
+
+            values = default;
+            return false;
         }
 
         [NotNull]
         public static Identifier CommandId([NotNull] this ICommandLine commandLine)
         {
             if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
-            
+
             // Command-name is the first anonymous argument.
             return
                 commandLine

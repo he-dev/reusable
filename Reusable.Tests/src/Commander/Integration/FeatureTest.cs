@@ -67,6 +67,25 @@ namespace Reusable.Tests.Commander.Integration
         }
 
         [TestMethod]
+        public async Task CanMapParameterByPosition()
+        {
+            var tracker = new BagTracker();
+            using (var context = CreateContext(
+                commands => commands.Add("c", Track<BagWithPositionalValues>(tracker)),
+                (ExecuteExceptionCallback)(ex => throw ex)
+            ))
+            {
+                await context.Executor.ExecuteAsync("c 3 kmh -ismetric");
+                tracker.Assert<BagWithPositionalValues>("c", bag =>
+                {
+                    Assert.AreEqual(3, bag.Speed);
+                    Assert.AreEqual("kmh", bag.Unit);
+                    Assert.AreEqual(true, bag.IsMetric);
+                });
+            }
+        }
+
+        [TestMethod]
         public async Task CanMapParameterByAlias()
         {
             var tracker = new BagTracker();

@@ -14,10 +14,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="src\IO\Filters\**" />
+    <EmbeddedResource Remove="src\IO\Filters\**" />
+    <None Remove="src\IO\Filters\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="src\Collections\PainlessDictionary.cs" />
     <Compile Remove="src\Collections\PainlessDictionaryFactory.cs" />
     <Compile Remove="src\Extensions\DictionaryHelper.cs" />
     <Compile Remove="src\FormatProviders\QuoteFormatter.cs" />
+    <Compile Remove="src\IO\DirectoryTreeExtensions.cs" />
+    <Compile Remove="src\IO\DirectoryTreeNode.cs" />
+    <Compile Remove="src\IO\DirectoryTreeNodeExtensions.cs" />
+    <Compile Remove="src\IO\DirectoryTreeNodeFilter.cs" />
+    <Compile Remove="src\IO\FileSystem.cs" />
   </ItemGroup>
 
   <ItemGroup>

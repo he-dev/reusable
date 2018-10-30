@@ -15,9 +15,9 @@ namespace Reusable.Tests.Commander.Integration
 
     internal static class Helper
     {
-        public static TestContext CreateContext(Action<CommandRegistrationBuilder> commands)
+        public static TestContext CreateContext(Action<CommandRegistrationBuilder> commands, ExecuteExceptionCallback executeExceptionCallback = null)
         {
-            var container = InitializeContainer(commands);
+            var container = InitializeContainer(commands, executeExceptionCallback);
             var scope = container.BeginLifetimeScope();
 
             var executor = scope.Resolve<ICommandLineExecutor>();
@@ -56,7 +56,7 @@ namespace Reusable.Tests.Commander.Integration
         }
 
 
-        private static IContainer InitializeContainer(Action<CommandRegistrationBuilder> commands)
+        private static IContainer InitializeContainer(Action<CommandRegistrationBuilder> commands, ExecuteExceptionCallback executeExceptionCallback = null)
         {
             var builder = new ContainerBuilder();
 
@@ -70,6 +70,12 @@ namespace Reusable.Tests.Commander.Integration
 
             builder
                 .RegisterModule(new CommanderModule(commands));
+
+            if (!(executeExceptionCallback is null))
+            {
+                builder
+                    .RegisterInstance(executeExceptionCallback);
+            }
 
             //builder
             //    .RegisterInstance((ExecuteExceptionCallback)(ex =>

@@ -76,6 +76,17 @@ namespace Reusable.Tests.Commander.Integration
         public string RequiredString { get; set; }
     }
 
+    internal class BagWithPositionalValues : SimpleBag
+    {
+        [Position(1)]
+        public int Speed { get; set; }
+
+        [Position(2)]
+        public string Unit { get; set; }
+
+        public bool IsMetric { get; set; }
+    }
+
     #region Invalid bags
 
     // Contains duplicate parameters.

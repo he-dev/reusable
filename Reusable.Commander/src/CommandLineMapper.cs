@@ -81,11 +81,9 @@ namespace Reusable.Commander
         }
 
         private void Map<TBag>(TBag bag, ICommandLine commandLine, CommandParameter parameter) where TBag : ICommandBag, new()
-        {
-            if (commandLine.Contains(parameter.Id))
+        {            
+            if (commandLine.TryGetArgumentValues(parameter.Id, parameter.Position, out var values))
             {
-                var values = commandLine.ArgumentValues(parameter.Position, parameter.Id).ToList();
-
                 if (parameter.Type.IsEnumerableOfT(except: typeof(string)))
                 {
                     if (!values.Any())
