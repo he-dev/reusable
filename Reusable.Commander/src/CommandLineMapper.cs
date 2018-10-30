@@ -68,11 +68,12 @@ namespace Reusable.Commander
                 {
                     Map(bag, commandLine, parameter);
                 }
-                catch (Exception)
+                catch (Exception inner)
                 {
                     throw DynamicException.Create(
                         $"ParameterMapping",
-                        $"Could not map parameter '{parameter.Id.Default.ToString()}'. See inner exception for details."
+                        $"Could not map parameter '{parameter.Id.Default.ToString()}'. See inner exception for details.",
+                        inner
                     );
                 }
             }

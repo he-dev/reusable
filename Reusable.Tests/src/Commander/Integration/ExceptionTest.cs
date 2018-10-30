@@ -152,5 +152,23 @@ namespace Reusable.Tests.Commander.Integration
                 filter => filter.When(name: "^ParameterMapping")
             );
         }
+
+        [TestMethod]
+        public void DisallowCommandLineWithMissingPositionalParameter()
+        {
+            Assert.That.Throws<DynamicException>(
+                () =>
+                {
+                    using (var context = CreateContext(
+                        commands => commands.Add("c", ExecuteNoop<BagWithPositionalValues>()),
+                        (ExecuteExceptionCallback)(ex => throw ex)
+                    ))
+                    {
+                        context.Executor.ExecuteAsync("c 3").GetAwaiter().GetResult();
+                    }
+                }
+                //filter => filter.When(name: "^ParameterMapping")
+            );
+        }
     }
 }

@@ -38,7 +38,7 @@ namespace Reusable.Commander
                 return true;
             }
 
-            if (position.HasValue && commandLine.AnonymousValues().Count() >= position.Value)
+            if (position.HasValue && position.Value <= commandLine.AnonymousValues().Count() - 1)
             {
                 values = new[] { commandLine.AnonymousValues().ElementAtOrDefault(position.Value) };
                 return true;
