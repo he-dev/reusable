@@ -17,12 +17,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="src\Core\Data\Repositories\**" />
     <Compile Remove="src\Core\Experimental\**" />
     <Compile Remove="src\Core\Windows\**" />
     <Compile Remove="src\MQLite\**" />
+    <EmbeddedResource Remove="src\Core\Data\Repositories\**" />
     <EmbeddedResource Remove="src\Core\Experimental\**" />
     <EmbeddedResource Remove="src\Core\Windows\**" />
     <EmbeddedResource Remove="src\MQLite\**" />
+    <None Remove="src\Core\Data\Repositories\**" />
     <None Remove="src\Core\Experimental\**" />
     <None Remove="src\Core\Windows\**" />
     <None Remove="src\MQLite\**" />
@@ -50,11 +53,31 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="res\MarkupBuilder\CssInliner_Inline_TableStyles.html" />
+    <None Remove="res\MarkupBuilder\FormattingTemplate.html" />
+    <None Remove="res\MarkupBuilder\styles.css" />
+    <None Remove="res\MarkupBuilder\ToString_001.html" />
+    <None Remove="res\MarkupBuilder\ToString_002.html" />
+    <None Remove="res\MarkupBuilder\ToString_003.html" />
+    <None Remove="res\MarkupBuilder\ToString_004.html" />
+    <None Remove="res\MarkupBuilder\ToString_005.html" />
+    <None Remove="res\MarkupBuilder\ToString_006.html" />
+    <None Remove="res\MarkupBuilder\ToString_007.html" />
     <None Remove="res\TextFile1.txt" />
     <None Remove="res\TextFile2.txt" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="res\MarkupBuilder\CssInliner_Inline_TableStyles.html" />
+    <EmbeddedResource Include="res\MarkupBuilder\FormattingTemplate.html" />
+    <EmbeddedResource Include="res\MarkupBuilder\styles.css" />
+    <EmbeddedResource Include="res\MarkupBuilder\ToString_001.html" />
+    <EmbeddedResource Include="res\MarkupBuilder\ToString_002.html" />
+    <EmbeddedResource Include="res\MarkupBuilder\ToString_003.html" />
+    <EmbeddedResource Include="res\MarkupBuilder\ToString_004.html" />
+    <EmbeddedResource Include="res\MarkupBuilder\ToString_005.html" />
+    <EmbeddedResource Include="res\MarkupBuilder\ToString_006.html" />
+    <EmbeddedResource Include="res\MarkupBuilder\ToString_007.html" />
     <EmbeddedResource Include="res\TextFile1.txt" />
     <EmbeddedResource Include="res\TextFile2.txt" />
   </ItemGroup>

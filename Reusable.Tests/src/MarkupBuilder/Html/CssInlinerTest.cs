@@ -1,17 +1,17 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Data.Repositories;
+using Reusable.IO.Extensions;
 using Reusable.MarkupBuilder;
 using Reusable.MarkupBuilder.Html;
 using Reusable.Reflection;
 
-namespace Reusable.MarkupBuilder.Tests.Html
+namespace Reusable.Tests.MarkupBuilder.Html
 {
     [TestClass]
     public class CssInlinerTest
     {
         private static readonly HtmlElement Html = HtmlElement.Builder;
 
-        private static readonly HtmlFormatting Formatting = HtmlFormatting.Parse(ResourceReader.Default.FindString(name => name.Contains("FormattingTemplate")));
+        private static readonly HtmlFormatting Formatting = HtmlFormatting.Parse(Helper.ResourceProvider.GetFileInfo("FormattingTemplate.html").ReadAllText());
 
         [TestMethod]
         public void Inline_SpanStyles_Inlined()
@@ -41,8 +41,8 @@ namespace Reusable.MarkupBuilder.Tests.Html
             var tbody = Html.Element("tbody");
             var tr = Html.Element("tr");
 
-            MarkupElementExtensions.Element(tr, "td", td => td.@class("bar foo").Append("baz1"));
-            MarkupElementExtensions.Element(tr, "td", td => td.@class("bar").Append("baz2"));
+            tr.Element("td", td => td.@class("bar foo").Append("baz1"));
+            tr.Element("td", td => td.@class("bar").Append("baz2"));
 
             table.Add(tbody);
             tbody.Add(tr);
@@ -57,7 +57,7 @@ namespace Reusable.MarkupBuilder.Tests.Html
 
             var result = table.ToHtml(Formatting);
 
-            Assert.AreEqual(ResourceReader.Default.FindString(name => name.Contains("CssInliner_Inline_TableStyles")).Trim(), result.Trim());
+            Assert.AreEqual(Helper.ResourceProvider.GetFileInfo("CssInliner_Inline_TableStyles.html").ReadAllText().Trim(), result.Trim());
         }
     }
 }

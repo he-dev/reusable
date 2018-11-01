@@ -27,11 +27,8 @@ namespace Reusable.IO
 
         public bool IsDirectory => false;
 
-        public Stream CreateReadStream()
-        {
-            // No protection necessary because there are no embedded directories.
-            return _getManifestResourceStream();
-        }
+        // No protection necessary because there are no embedded directories.
+        public Stream CreateReadStream() => _getManifestResourceStream();
 
         //public IEnumerator<IFileInfo> GetEnumerator()
         //{

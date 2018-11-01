@@ -2,11 +2,11 @@ using System.Collections.Generic;
 
 namespace Reusable.Collections.Generators
 {
-    public class RegularSequence<T> : Sequence<T>
+    public class ConstantSequence<T> : Sequence<T>
     {
         private readonly T _value;
 
-        public RegularSequence(T value) => _value = value;
+        public ConstantSequence(T value) => _value = value;
 
         public override IEnumerator<T> GetEnumerator()
         {

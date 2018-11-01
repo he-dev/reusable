@@ -12,11 +12,11 @@ namespace Reusable.Tests.Diagnostics
     {
         private static readonly IPhantomException PhantomException = new PhantomException(new IPhantomExceptionTrigger[]
         {
-            new CountedTrigger(new RegularSequence<int>(2))
+            new CountedTrigger(new ConstantSequence<int>(2))
             {
                 Filter = (default, nameof(PhantomExceptionTest), default, "James")
             },
-            new CountedTrigger(new RegularSequence<int>(3))
+            new CountedTrigger(new ConstantSequence<int>(3))
             {
                 Filter = (default, default, nameof(CanThrowByMember), default)
             }

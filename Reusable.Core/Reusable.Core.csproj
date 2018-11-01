@@ -29,6 +29,8 @@
     <Compile Remove="src\IO\DirectoryTreeNodeExtensions.cs" />
     <Compile Remove="src\IO\DirectoryTreeNodeFilter.cs" />
     <Compile Remove="src\IO\FileSystem.cs" />
+    <Compile Remove="src\Reflection\ResourceReader.cs" />
+    <Compile Remove="src\Reflection\ResourceReaderExtensions.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -2,6 +2,8 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
@@ -14,28 +16,27 @@ namespace Reusable.IO
         public EmbeddedFileProvider([NotNull] Assembly assembly)
         {
             _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
+            BasePath = _assembly.GetName().Name.Replace('.', '\\');
         }
+
+        public string BasePath { get; }
 
         public IFileInfo GetFileInfo(string path)
         {
             if (path == null) throw new ArgumentNullException(nameof(path));
 
             // Embedded resouce names are separated by '.' so replace the windows separator.
-            var name = path.Replace("\\", ".");
+            var fullName = Path.Combine(BasePath, path).Replace('\\', '.');
 
-            // Embedded resource name are case sensitive so find the actual name of the resource.
-            name =
-                _assembly
-                    .GetManifestResourceNames()
-                    .FirstOrDefault(n => n.Equals(name, StringComparison.OrdinalIgnoreCase));
+            // Embedded resource names are case sensitive so find the actual name of the resource.
+            var actualName = _assembly.GetManifestResourceNames().FirstOrDefault(name => SoftString.Comparer.Equals(name, fullName));
+            var getManifestResourceStream = actualName is null ? default(Func<Stream>) : () => _assembly.GetManifestResourceStream(fullName);
 
-            var getManifestResourceStream =
-                name is null
-                    ? default(Func<Stream>)
-                    : () => _assembly.GetManifestResourceStream(name);
-
-            return new EmbeddedFileInfo(path, getManifestResourceStream);
+            return new EmbeddedFileInfo(UndoConvertPath(fullName), getManifestResourceStream);
         }
+
+        // Convert path back to windows format but the last '.' - this is the file extension.
+        private static string UndoConvertPath(string path) => Regex.Replace(path, @"\.(?=.*?\.)", "\\");
 
         public IFileInfo CreateDirectory(string path)
         {
@@ -56,5 +57,10 @@ namespace Reusable.IO
         {
             throw new NotSupportedException($"{nameof(EmbeddedFileProvider)} does not support file deletion.");
         }
+    }
+
+    public static class EmbeddedFileProvider<T>
+    {
+        public static IFileProvider Default { get; } = new EmbeddedFileProvider(typeof(T).Assembly);
     }
 }

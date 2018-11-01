@@ -11,7 +11,7 @@ namespace Reusable.Tests.IO
         public void GetFileInfo_Test_txt_Text()
         {
             var fileProvider = new EmbeddedFileProvider(typeof(EmbeddedFileProviderTest).Assembly);
-            var file = fileProvider.GetFileInfo(@"reusable\tests\res\textfile1.txt");
+            var file = fileProvider.GetFileInfo(@"res\textfile1.txt");
 
             Assert.IsTrue(file.Exists);
             Assert.AreEqual("Resource1", file.ReadAllTextAsync().GetAwaiter().GetResult());

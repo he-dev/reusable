@@ -1,16 +1,19 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Data.Repositories;
+using Reusable.IO.Extensions;
+using Reusable.MarkupBuilder;
 using Reusable.Reflection;
 
-namespace Reusable.MarkupBuilder.Tests
+namespace Reusable.Tests.MarkupBuilder
 {
+    using static Helper;
+
     [TestClass]
     public class MarkupFormattingTemplateTest
     {
         [TestMethod]
         public void Parse_FormattingTemplate_Options()
         {
-            var template = ResourceReader.Default.FindString(name => name.Contains("FormattingTemplate"));
+            var template = ResourceProvider.GetFileInfo("FormattingTemplate.html").ReadAllText();
 
             Assert.IsNotNull(template);
 

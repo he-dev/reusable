@@ -29,8 +29,7 @@ namespace Reusable.Collections.Generators
                 previous = current;
                 current = newCurrent;
             }
+            // ReSharper disable once IteratorNeverReturns - this is by design
         }
-    }
-
-    
+    }    
 }
