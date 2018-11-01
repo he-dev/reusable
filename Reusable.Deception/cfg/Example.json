@@ -1,0 +1,10 @@
+[
+  {
+    "Exception": "Abc",
+    "Message": "This is not good.",
+    "Namespace": "/Name\\.space/",
+    "Type": "TestRunner",
+    "Member": "ToString",
+    "Id": "OnlyThis"
+  }
+]

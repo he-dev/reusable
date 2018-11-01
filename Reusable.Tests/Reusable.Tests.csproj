@@ -73,6 +73,7 @@
     <ProjectReference Include="..\Reusable.Cryptography\Reusable.Cryptography.csproj" />
     <ProjectReference Include="..\Reusable.Csv.Utilities\Reusable.Csv.Utilities.csproj" />
     <ProjectReference Include="..\Reusable.Csv\Reusable.Csv.csproj" />
+    <ProjectReference Include="..\Reusable.Deception\Reusable.Deception.csproj" />
     <ProjectReference Include="..\Reusable.MarkupBuilder\Reusable.MarkupBuilder.csproj" />
     <ProjectReference Include="..\Reusable.Net.Http.RestClient\Reusable.Net.Http.RestClient.csproj" />
     <ProjectReference Include="..\Reusable.Net.Mail\Reusable.Net.Mail.csproj" />
@@ -97,7 +98,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="src\Core\Diagnostics\" />
     <Folder Include="src\SmartConfig\Utilities" />
   </ItemGroup>
 

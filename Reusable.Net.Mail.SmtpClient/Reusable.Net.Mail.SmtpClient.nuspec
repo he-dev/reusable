@@ -12,7 +12,7 @@
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>Provides smtp email client.</description>
     <releaseNotes></releaseNotes>
-    <copyright>Copyright 2017 He-Dev</copyright>
+    <copyright>Copyright 2019 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2018.2.1" />

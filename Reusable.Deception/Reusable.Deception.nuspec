@@ -1,28 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.SmartConfig</id>
+    <id>Reusable.Deception</id>
     <version>7.0.26</version>
-    <title>Reusable.SmartConfig</title>
+    <title>Reusable.Deception</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/he-dev/Reusable</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/he-dev/Reusable/master/_nuget/recycling.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>This is the core package for SmartConfig. It provides only the basic functionality.</description>
+    <description>This package provides a tool for throwing phantom exception that can be used to test application stability</description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2019 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2018.2.1" />
-      <dependency id="System.Memory" version="4.5.1" />
-      <dependency id="System.ValueTuple" version="4.5.0" />
-      <dependency id="Reusable.Core" version="7.0.26" />
+      <dependency id="Newtonsoft.Json" version="11.0.2" />
+      <dependency id="System.Collections.Immutable" version="1.5.0" />
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\net47\Reusable.SmartConfig.dll" target="lib\net47" />
-    <file src="bin\Release\net47\Reusable.SmartConfig.pdb" target="lib\net47" />
+    <file src="bin\Release\net47\Reusable.Deception.dll" target="lib\net47" />
+    <file src="bin\Release\net47\Reusable.Deception.pdb" target="lib\net47" />
   </files>
 </package>

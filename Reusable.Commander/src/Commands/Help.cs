@@ -37,7 +37,7 @@ namespace Reusable.Commander.Commands
         [Description("Display command usage.")]
         //[Position(1)]
         [Alias("cmd")]
-        [Position(1)]
+        //[Position(1)]
         public string Command { get; set; }
 
         internal bool HasCommand => Command.IsNotNullOrEmpty();
