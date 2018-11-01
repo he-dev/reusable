@@ -50,6 +50,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="res\TextFile1.txt" />
+    <None Remove="res\TextFile2.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="res\TextFile1.txt" />
+    <EmbeddedResource Include="res\TextFile2.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Autofac" Version="4.8.1" />
     <PackageReference Include="Dapper" Version="1.50.5" />
     <PackageReference Include="JustMock" Version="2018.3.912.1" />

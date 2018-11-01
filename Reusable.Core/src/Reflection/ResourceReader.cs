@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 
 namespace Reusable.Reflection
 {
+    [Obsolete]
     public interface IResourceReader
     {
         /// <summary>
@@ -32,6 +33,7 @@ namespace Reusable.Reflection
         string GetString([NotNull] string name, [NotNull] Assembly assembly);
     }
 
+    [Obsolete]
     public class ResourceReader : IResourceReader
     {
         [NotNull]
