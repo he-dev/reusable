@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Reusable.Converters
+namespace Reusable.Convertia
 {
     public static class TypeConverterComposition
     {

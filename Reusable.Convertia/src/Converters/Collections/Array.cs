@@ -3,7 +3,7 @@ using System.Collections;
 using System.Linq;
 using Reusable.Reflection;
 
-namespace Reusable.Converters
+namespace Reusable.Convertia.Converters.Collections
 {
     public class EnumerableToArrayConverter : TypeConverter<IEnumerable, object>
     {

@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
-using Reusable.Converters;
+using Reusable.Convertia;
+using Reusable.Convertia.Converters;
 using Reusable.Diagnostics;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Reusable.Converters
+namespace Reusable.Convertia.Converters
 {
     public class StringToUInt32Converter : TypeConverter<String, UInt32>
     {

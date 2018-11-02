@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace Reusable.Converters
+namespace Reusable.Convertia
 {
     public static class TypeConverterExtensions
     {

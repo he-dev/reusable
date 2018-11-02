@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Autofac;
 using JetBrains.Annotations;
 using Reusable.Commander.Commands;
-using Reusable.Converters;
+using Reusable.Convertia;
 using Reusable.Reflection;
 
 namespace Reusable.Commander

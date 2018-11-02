@@ -5,7 +5,7 @@ using Reusable.Reflection;
 
 // ReSharper disable BuiltInTypeReferenceStyle
 
-namespace Reusable.Converters
+namespace Reusable.Convertia.Converters.Collections.Generic
 {
     public class DictionaryToDictionaryConverter : TypeConverter<IDictionary, object>
     {

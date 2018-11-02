@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Reusable.Converters
+namespace Reusable.Convertia.Converters
 {
     public class StringToCharConverter : TypeConverter<String, Char>
     {

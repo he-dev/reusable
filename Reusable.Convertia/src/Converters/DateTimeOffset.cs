@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace Reusable.Converters
+namespace Reusable.Convertia.Converters
 {
     public class StringToDateTimeOffsetConverter : TypeConverter<String, DateTimeOffset>
     {

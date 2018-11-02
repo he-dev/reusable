@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using System.Xml.Linq;
 
-namespace Reusable.Converters
+namespace Reusable.Convertia.Converters
 {
     public class StringToXDocumentConverter : TypeConverter<String, XDocument>
     {

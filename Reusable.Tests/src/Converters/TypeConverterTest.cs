@@ -1,5 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Converters;
+using Reusable.Convertia;
+using Reusable.Convertia.Converters;
 
 namespace Reusable.Tests.Converters
 {

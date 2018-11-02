@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Reusable.Converters
+namespace Reusable.Convertia
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class TypeConverterAttribute : Attribute

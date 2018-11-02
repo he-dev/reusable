@@ -5,7 +5,8 @@ using System.Linq.Custom;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using Reusable.Converters;
+using Reusable.Convertia;
+using Reusable.Convertia.Converters;
 using Reusable.Extensions;
 using ColorConverter = Reusable.Utilities.JsonNet.ColorConverter;
 

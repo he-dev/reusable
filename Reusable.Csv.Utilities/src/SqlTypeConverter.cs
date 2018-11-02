@@ -1,5 +1,6 @@
 ﻿using System;
-using Reusable.Converters;
+using Reusable.Convertia;
+using Reusable.Convertia.Converters;
 
 namespace Reusable.Csv.Utilities
 {

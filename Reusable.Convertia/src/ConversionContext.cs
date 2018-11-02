@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Globalization;
 using JetBrains.Annotations;
 
-namespace Reusable.Converters
+namespace Reusable.Convertia
 {
     public interface IConversionContext<out TValue>
     {

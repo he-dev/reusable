@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Autofac;
 using JetBrains.Annotations;
 using Reusable.Commander.Utilities;
-using Reusable.Converters;
+using Reusable.Convertia;
 using Reusable.OmniLog;
 
 namespace Reusable.Commander

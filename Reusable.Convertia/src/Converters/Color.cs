@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Drawing;
 using Reusable.Drawing;
-using Reusable.Validation;
 
-namespace Reusable.Converters
+namespace Reusable.Convertia.Converters
 {
     public class StringToColorConverter : TypeConverter<String, Color>
     {

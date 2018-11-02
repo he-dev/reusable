@@ -6,7 +6,7 @@ using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
 using JetBrains.Annotations;
-using Reusable.Converters;
+using Reusable.Convertia;
 using Reusable.Extensions;
 using Reusable.Reflection;
 

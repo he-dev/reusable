@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Diagnostics;
 using Reusable.Extensions;
 using Reusable.Reflection;
 
-namespace Reusable.Converters
+namespace Reusable.Convertia
 {
     public interface ITypeConverter : IEquatable<ITypeConverter>
     {

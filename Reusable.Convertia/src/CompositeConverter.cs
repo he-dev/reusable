@@ -4,10 +4,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Reusable.Collections;
 using Reusable.Reflection;
 
-namespace Reusable.Converters
+namespace Reusable.Convertia
 {
     // This converter diverges from the pure composite pattern and does not use the branch/leaf structure 
     // because with it converters need to be registered in a specific order if they depend on one another.

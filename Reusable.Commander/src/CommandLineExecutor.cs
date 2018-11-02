@@ -15,7 +15,6 @@ using Autofac.Features.Indexed;
 using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Commander.Commands;
-using Reusable.Converters;
 using Reusable.Extensions;
 using Reusable.OmniLog;
 using Reusable.OmniLog.SemanticExtensions;

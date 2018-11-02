@@ -1,4 +1,4 @@
-﻿namespace Reusable.Converters
+﻿namespace Reusable.Convertia.Converters
 {
     public class StringToBooleanConverter : TypeConverter<string, bool>
     {

@@ -2,6 +2,8 @@ using System;
 using System.Drawing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Converters;
+using Reusable.Convertia;
+using Reusable.Convertia.Converters;
 using Reusable.Drawing;
 using Reusable.FormatProviders;
 

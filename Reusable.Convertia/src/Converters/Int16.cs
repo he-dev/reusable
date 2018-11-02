@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace Reusable.Converters
+namespace Reusable.Convertia.Converters
 {
     public class StringToInt16Converter : TypeConverter<String, Int16>
     {

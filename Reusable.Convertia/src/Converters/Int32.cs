@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace Reusable.Converters
+namespace Reusable.Convertia.Converters
 {
     public class StringToInt32Converter : TypeConverter<String, Int32>
     {
