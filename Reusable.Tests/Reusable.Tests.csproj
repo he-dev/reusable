@@ -43,7 +43,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="src\Converters\CompositeConverterTest.cs" />
+    <Compile Remove="src\Convertia\CompositeConverterTest.cs" />
     <Compile Remove="src\Core\Collections\AutoKeyDictionaryTest.cs" />
     <Compile Remove="src\Core\Diagnostics\DebuggerStringTest.cs" />
     <Compile Remove="src\Core\FormatProviders\BracketFormatterTest.cs" />
@@ -101,7 +101,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Commander\Reusable.Commander.csproj" />
-    <ProjectReference Include="..\Reusable.Converters\Reusable.Converters.csproj" />
+    <ProjectReference Include="..\Reusable.Convertia\Reusable.Convertia.csproj" />
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
     <ProjectReference Include="..\Reusable.Cryptography\Reusable.Cryptography.csproj" />
     <ProjectReference Include="..\Reusable.Csv.Utilities\Reusable.Csv.Utilities.csproj" />

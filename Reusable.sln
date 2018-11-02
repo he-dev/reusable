@@ -25,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Utilities.SqlClien
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Commander", "Reusable.Commander\Reusable.Commander.csproj", "{89968832-E668-48AE-BAEF-19F4C689613B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Converters", "Reusable.Converters\Reusable.Converters.csproj", "{25A53836-CA06-4F6A-A321-199F004005D8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Convertia", "Reusable.Convertia\Reusable.Convertia.csproj", "{25A53836-CA06-4F6A-A321-199F004005D8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Core", "Reusable.Core\Reusable.Core.csproj", "{BB5232B3-D85B-480A-B301-4EEDF35FF151}"
 EndProject

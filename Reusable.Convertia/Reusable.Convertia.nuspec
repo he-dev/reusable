@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.Converters</id>
+    <id>Reusable.Convertia</id>
     <version>7.0.26</version>
-    <title>Reusable.Converters</title>
+    <title>Reusable.Convertia</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
@@ -20,7 +20,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\net47\Reusable.Converters.dll" target="lib\net47" />
-    <file src="bin\Release\net47\Reusable.Converters.pdb" target="lib\net47" />
+    <file src="bin\Release\net47\Reusable.Convertia.dll" target="lib\net47" />
+    <file src="bin\Release\net47\Reusable.Convertia.pdb" target="lib\net47" />
   </files>
 </package>
