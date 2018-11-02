@@ -19,7 +19,7 @@ namespace Reusable.Convertia.Converters
             StringTypes = stringTypes;
         }
 
-        protected JsonConverter(JsonSerializerSettings settings):this(settings, new HashSet<Type>())
+        protected JsonConverter(JsonSerializerSettings settings) : this(settings, new HashSet<Type>())
         {
         }
 
@@ -49,7 +49,7 @@ namespace Reusable.Convertia.Converters
         {
             // there's nothing else to do
         }
-        
+
         public JsonToObjectConverter(JsonSerializerSettings settings) : base(settings)
         {
             // there's nothing else to do
@@ -84,7 +84,7 @@ namespace Reusable.Convertia.Converters
         {
             // there's nothing else to do
         }
-        
+
         public ObjectToJsonConverter(JsonSerializerSettings settings) : base(settings)
         {
             // there's nothing else to do

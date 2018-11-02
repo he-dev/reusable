@@ -56,12 +56,26 @@ namespace Reusable.Convertia
                 IsConverted(context.FromType, context.ToType)
                     ? context.Value
                     : CanConvert(context.FromType, context.ToType)
-                        ? ConvertCore(context)
-                        : throw DynamicException.Factory.CreateDynamicException(
-                            $"InvalidConversion{nameof(Exception)}",
-                            $"Cannot convert from '{context.FromType.ToPrettyString()}' to '{context.ToType.ToPrettyString()}'.");
+                        ? ExecuteConvertCore()
+                        : throw DynamicException.Create(
+                            $"UnsupportedConversion",
+                            $"There is no converter from '{context.FromType.ToPrettyString()}' to '{context.ToType.ToPrettyString()}'.");
+
+            // This wrapps the inner exception.
+            object ExecuteConvertCore()
+            {
+                try { return ConvertCore(context); }
+                catch (Exception inner)
+                {
+                    throw DynamicException.Create(
+                        $"Conversion",
+                        $"Could not convert from '{context.FromType.ToPrettyString()}' to '{context.ToType.ToPrettyString()}'.",
+                        inner);
+                }
+            }
         }
 
+        [NotNull]
         protected abstract object ConvertCore([NotNull] IConversionContext<object> context);
 
         protected virtual bool IsConverted(Type fromType, Type toType)
