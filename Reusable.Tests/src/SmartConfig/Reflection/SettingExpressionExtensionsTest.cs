@@ -19,7 +19,7 @@ namespace Reusable.Tests.SmartConfig.Reflection
             var settingMetadata = SettingMetadata.FromExpression(expression2);
             var settingName = SettingName.FromMetadata(settingMetadata, null);
             
-            Assert.AreEqual("Reusable.SmartConfig.Core.Utilities.Tests.Reflection+TestClass2.Foo", settingName);
+            Assert.AreEqual("Reusable.Tests.SmartConfig.Reflection+TestClass2.Foo", settingName);
         }
 
         [TestMethod]
@@ -48,7 +48,7 @@ namespace Reusable.Tests.SmartConfig.Reflection
             var settingMetadata = SettingMetadata.FromExpression(expression2);
             var settingName = SettingName.FromMetadata(settingMetadata, null);
             
-            Assert.AreEqual("Reusable.SmartConfig.Core.Utilities.Tests.Reflection+TestClass1.Foo", settingName);
+            Assert.AreEqual("Reusable.Tests.SmartConfig.Reflection+TestClass1.Foo", settingName);
         }
     }
 

@@ -25,12 +25,12 @@ namespace Reusable.Convertia
         object Convert([NotNull] IConversionContext<object> context);
     }
 
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public abstract class TypeConverter : ITypeConverter
     {
         public static TypeConverter Empty => new CompositeConverter();
 
-        public static string DefaultFormat { get; } = string.Empty;
+        //public static string DefaultFormat { get; } = default;
 
         public static IFormatProvider DefaultFormatProvider { get; } = CultureInfo.InvariantCulture;
 
@@ -44,44 +44,51 @@ namespace Reusable.Convertia
             builder.Property(x => x.ToType);
         });
 
-        public virtual bool CanConvert(Type fromType, Type toType)
+        public bool CanConvert(Type fromType, Type toType)
         {
-            TypeConverterHelper.AssertNotNull(fromType, toType);
-            return IsConverted(fromType, toType) || (fromType == FromType && toType.IsAssignableFrom(ToType));
+            if (fromType == null) throw new ArgumentNullException(nameof(fromType));
+            if (toType == null) throw new ArgumentNullException(nameof(toType));
+
+            return IsConverted(fromType, toType) || SupportsConversion(fromType, toType);
         }
 
         public object Convert(IConversionContext<object> context)
         {
-            return
-                IsConverted(context.FromType, context.ToType)
-                    ? context.Value
-                    : CanConvert(context.FromType, context.ToType)
-                        ? ExecuteConvertCore()
-                        : throw DynamicException.Create(
-                            $"UnsupportedConversion",
-                            $"There is no converter from '{context.FromType.ToPrettyString()}' to '{context.ToType.ToPrettyString()}'.");
+            if (context == null) throw new ArgumentNullException(nameof(context));
 
-            // This wrapps the inner exception.
-            object ExecuteConvertCore()
+            if (IsConverted(context.FromType, context.ToType))
             {
-                try { return ConvertCore(context); }
-                catch (Exception inner)
-                {
-                    throw DynamicException.Create(
-                        $"Conversion",
-                        $"Could not convert from '{context.FromType.ToPrettyString()}' to '{context.ToType.ToPrettyString()}'.",
-                        inner);
-                }
+                return context.Value;
+            }
+
+            try
+            {
+                return
+                    CanConvert(context.FromType, context.ToType)
+                        ? ConvertCore(context)
+                        : throw DynamicException.Create
+                        (
+                            $"UnsupportedConversion",
+                            $"There is no converter from '{context.FromType.ToPrettyString()}' to '{context.ToType.ToPrettyString()}'."
+                        );
+            }
+            catch (Exception inner)
+            {
+                throw DynamicException.Create
+                (
+                    $"Conversion",
+                    $"Could not convert from '{context.FromType.ToPrettyString()}' to '{context.ToType.ToPrettyString()}'.",
+                    inner
+                );
             }
         }
 
         [NotNull]
         protected abstract object ConvertCore([NotNull] IConversionContext<object> context);
 
-        protected virtual bool IsConverted(Type fromType, Type toType)
-        {
-            return toType.IsAssignableFrom(fromType);
-        }
+        protected virtual bool SupportsConversion(Type fromType, Type toType) => fromType == FromType && toType.IsAssignableFrom(ToType);
+
+        private static bool IsConverted(Type fromType, Type toType) => toType.IsAssignableFrom(fromType);
 
         #region IEquatable
 
@@ -100,33 +107,30 @@ namespace Reusable.Convertia
 
         public override Type ToType => typeof(TResult);
 
-        protected override object ConvertCore(IConversionContext<object> context) => ConvertCore(new ConversionContext<TValue>((TValue)context.Value, context.ToType, context.Converter)
+        protected override object ConvertCore(IConversionContext<object> context)
         {
-            Format = context.Format,
-            FormatProvider = context.FormatProvider
-        });
+            return ConvertCore(new ConversionContext<TValue>((TValue)context.Value, context.ToType, context.Converter)
+            {
+                Format = context.Format,
+                FormatProvider = context.FormatProvider
+            });
+        }
 
+        [NotNull]
         protected abstract TResult ConvertCore(IConversionContext<TValue> context);
     }
 
-    //public class EmptyConverter : TypeConverter
-    //{
-    //    public override Type FromType => typeof(object);
-
-    //    public override Type ToType => typeof(object);
-
-    //    public override bool CanConvert(Type fromType, Type toType) => fromType == toType;
-
-    //    protected override object ConvertCore(IConversionContext<object> context) => context.Value;
-    //}
-
-    internal static class TypeConverterHelper
+    /// <summary>
+    /// Passes the value to be converted through without doing anything.
+    /// </summary>
+    public class RelayConverter : TypeConverter
     {
-        [ContractAnnotation("fromType: null => halt; toType: null => halt")]
-        public static void AssertNotNull([CanBeNull] Type fromType, [CanBeNull] Type toType)
-        {
-            if (fromType == null) throw new ArgumentNullException(nameof(fromType));
-            if (toType == null) throw new ArgumentNullException(nameof(toType));
-        }
+        public override Type FromType => typeof(object);
+
+        public override Type ToType => typeof(object);
+
+        protected override bool SupportsConversion(Type fromType, Type toType) => true;
+
+        protected override object ConvertCore(IConversionContext<object> context) => context.Value;
     }
 }

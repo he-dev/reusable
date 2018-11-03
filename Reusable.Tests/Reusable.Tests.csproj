@@ -43,7 +43,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="src\Convertia\CompositeConverterTest.cs" />
     <Compile Remove="src\Core\Collections\AutoKeyDictionaryTest.cs" />
     <Compile Remove="src\Core\Diagnostics\DebuggerStringTest.cs" />
     <Compile Remove="src\Core\FormatProviders\BracketFormatterTest.cs" />

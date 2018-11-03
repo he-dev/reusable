@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Reusable.Convertia;
 using Reusable.Convertia.Converters;
+using Reusable.Convertia.Converters.Generic;
 using Reusable.Extensions;
 using ColorConverter = Reusable.Utilities.JsonNet.ColorConverter;
 

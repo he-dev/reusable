@@ -1,8 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Converters;
 using Reusable.Convertia.Converters;
 
-namespace Reusable.Tests.Converters
+namespace Reusable.Tests.Convertia
 {
     [TestClass]
     public class SByteTest : ConverterTest

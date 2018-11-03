@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using JetBrains.Annotations;
 
 namespace Reusable.Convertia
@@ -17,7 +18,7 @@ namespace Reusable.Convertia
         [NotNull]
         Type ToType { get; }
 
-        [NotNull]
+        [CanBeNull]
         string Format { get; }
 
         [NotNull]
@@ -29,36 +30,36 @@ namespace Reusable.Convertia
 
     public class ConversionContext<TValue> : IConversionContext<TValue>
     {
-        private string _format;
         private IFormatProvider _formatProvider;
 
+        [DebuggerStepThrough]
         private ConversionContext()
         {
-            Format = TypeConverter.DefaultFormat;
+            //_format = TypeConverter.DefaultFormat;
             FormatProvider = TypeConverter.DefaultFormatProvider;
         }
 
+        [DebuggerStepThrough]
         public ConversionContext([NotNull] TValue value, [NotNull] Type toType, [NotNull] ITypeConverter converter) 
             : this()
         {
             if (value == null) throw new ArgumentNullException(nameof(value));
-            if (toType == null) throw new ArgumentNullException(nameof(toType));
 
             Value = value;
-            ToType = toType;
-            Converter = converter;
+            ToType = toType ?? throw new ArgumentNullException(nameof(toType));
+            Converter = converter ?? throw new ArgumentNullException(nameof(converter));
         }
 
-        public ConversionContext([NotNull] TValue value, [NotNull] Type toType)
-            : this(value, toType, TypeConverter.Empty)
-        { }
+        //public ConversionContext([NotNull] TValue value, [NotNull] Type toType)
+        //    : this(value, toType, TypeConverter.Empty)
+        //{ }
 
-        public ConversionContext([NotNull] IConversionContext<TValue> context)
-            : this(context.Value, context.ToType, context.Converter)
-        {
-            Format = context.Format;
-            FormatProvider = context.FormatProvider;
-        }
+        //public ConversionContext([NotNull] IConversionContext<TValue> context)
+        //    : this(context.Value, context.ToType, context.Converter)
+        //{
+        //    Format = context.Format;
+        //    FormatProvider = context.FormatProvider;
+        //}
 
         public ConversionContext([NotNull] TValue value, [NotNull] Type toType, [NotNull] IConversionContext<TValue> context)
         : this(value, toType, context.Converter)
@@ -75,11 +76,11 @@ namespace Reusable.Convertia
 
         public ITypeConverter Converter { get; }
 
-        public string Format
-        {
-            get => _format;
-            set => _format = value ?? throw new ArgumentNullException(nameof(Format));
-        }
+        public string Format { get; set; }
+        //{
+        //    get => _format;
+        //    set => _format = value ?? throw new ArgumentNullException(nameof(Format));
+        //}
 
         public IFormatProvider FormatProvider
         {

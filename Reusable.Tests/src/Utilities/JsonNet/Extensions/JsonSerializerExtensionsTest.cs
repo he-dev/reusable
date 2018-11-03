@@ -22,8 +22,11 @@ namespace Reusable.Tests.Utilities.JsonNet.Extensions
                 var bytes = memoryStream.ToArray();
                 Assert.AreEqual(5, bytes.Length);
 
-                var foo = new JsonSerializer().Deserialize<string>(memoryStream);
-                Assert.AreEqual("foo", foo);
+                using (var ms2 = new MemoryStream(bytes))
+                {
+                    var foo = new JsonSerializer().Deserialize<string>(ms2);
+                    Assert.AreEqual("foo", foo);
+                }
             }
         }
     }

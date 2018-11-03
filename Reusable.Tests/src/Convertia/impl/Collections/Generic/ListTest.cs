@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Converters;
 using Reusable.Convertia;
 using Reusable.Convertia.Converters;
 using Reusable.Convertia.Converters.Collections.Generic;
 
-namespace Reusable.Tests.Converters
+namespace Reusable.Tests.Convertia
 {
     [TestClass]
     public class ListTest

@@ -1,12 +1,11 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Converters;
 using Reusable.Convertia;
 using Reusable.Convertia.Converters;
 using Reusable.Convertia.Converters.Collections.Generic;
 using Reusable.Utilities.MSTest;
 
-namespace Reusable.Tests.Converters
+namespace Reusable.Tests.Convertia
 {
     [TestClass]
     public class DictionaryTest
@@ -40,11 +39,13 @@ namespace Reusable.Tests.Converters
                     .Add<EnumToStringConverter>()
                     .Add<DictionaryToDictionaryConverter>();
 
-            var result = converter.Convert(new Dictionary<TestEnum, int>
+            var source = new Dictionary<TestEnum, int>
             {
                 [TestEnum.Foo] = 3,
                 [TestEnum.Bar] = 7
-            }, typeof(Dictionary<string, string>)) as Dictionary<string, string>;
+            };
+
+            var result = converter.Convert(source, typeof(Dictionary<string, string>)) as Dictionary<string, string>;
 
             Assert.IsNotNull(result);
             Assert.That.Collection().CountEquals(2, result);

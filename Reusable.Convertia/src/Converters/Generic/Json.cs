@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 
-namespace Reusable.Convertia.Converters
+namespace Reusable.Convertia.Converters.Generic
 {
     [PublicAPI]
     public abstract class JsonConverter<TValue, TResult> : TypeConverter<TValue, TResult>

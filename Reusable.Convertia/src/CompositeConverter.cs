@@ -25,14 +25,17 @@ namespace Reusable.Convertia
 
         internal CompositeConverter(params ITypeConverter[] converters) : this()
         {
-            foreach (var converter in converters)
+            foreach (var (converter, i) in converters.Select((x, i) => (x, i)))
             {
                 switch (converter)
                 {
+                    case null: throw new ArgumentNullException($"Converter at {i} is null.");
+
                     // Flatten any composite converters for faster access.
                     case IEnumerable<ITypeConverter> composite:
                         _converters.UnionWith(composite);
                         break;
+
                     default:
                         _converters.Add(converter);
                         break;
@@ -44,31 +47,35 @@ namespace Reusable.Convertia
 
         public override Type ToType => throw new NotSupportedException($"{nameof(CompositeConverter)} does not support {nameof(ToType)} property");
 
-        // Finds a converter and caches the conversion.
-        [CanBeNull]
-        private ITypeConverter this[(Type fromType, Type toType) index] => _cache.GetOrAdd(index, key => _converters.FirstOrDefault(x => x.CanConvert(key.fromType, key.toType)));
+        private bool TryGetConverter(Type fromType, Type toType, out ITypeConverter converter)
+        {
+            converter = _cache.GetOrAdd((fromType, toType), key => _converters.FirstOrDefault(x => x.CanConvert(fromType, toType)));
+            return converter != null;
+        }
 
-        public override bool CanConvert(Type fromType, Type toType) => !(this[(fromType, toType)] is null);
+        protected override bool SupportsConversion(Type fromType, Type toType) => TryGetConverter(fromType, toType, out _);
 
         protected override object ConvertCore(IConversionContext<object> context)
         {
-            var converter =
-                this[(context.FromType, context.ToType)]
-                ?? throw DynamicException.Factory.CreateDynamicException(
-                    $"TypeConverterNotFound{nameof(Exception)}",
-                    $"Cannot convert from '{context.FromType.Name}' to '{context.ToType.Name}.",
-                    null);
-
-            return converter.Convert(context);
+            if (TryGetConverter(context.FromType, context.ToType, out var converter))
+            {
+                return converter.Convert(context);
+            }
+            else
+            {
+                throw DynamicException.Create
+                (
+                   $"TypeConverterNotFound{nameof(Exception)}",
+                   $"Cannot convert from '{context.FromType.Name}' to '{context.ToType.Name}."
+                );
+            }
         }
 
         public void Add(Type converterType)
         {
             if (!typeof(ITypeConverter).IsAssignableFrom(converterType))
             {
-                throw DynamicException.Factory.CreateDynamicException(
-                    $"InvalidType{nameof(Exception)}",
-                    $"'{nameof(converterType)}' must by of type '{nameof(ITypeConverter)}'");
+                throw new ArgumentException($"'{nameof(converterType)}' must by of type '{nameof(ITypeConverter)}'");
             }
 
             _converters.Add((ITypeConverter)Activator.CreateInstance(converterType));
@@ -80,4 +87,17 @@ namespace Reusable.Convertia
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
+
+    //public static class CompositeConverterExtensions
+    //{
+    //    public static void Add(this CompositeConverter converter, Type converterType)
+    //    {
+    //        if (!typeof(ITypeConverter).IsAssignableFrom(converterType))
+    //        {
+    //            throw new ArgumentException($"'{nameof(converterType)}' must by of type '{nameof(ITypeConverter)}'");
+    //        }
+
+    //        _converters.Add((ITypeConverter)Activator.CreateInstance(converterType));
+    //    }
+    //}
 }

@@ -4,7 +4,7 @@ namespace Reusable.Convertia.Converters
 {
     public class StringToEnumConverter : TypeConverter<String, object>
     {
-        public override bool CanConvert(Type fromType, Type toType)
+        protected override bool SupportsConversion(Type fromType, Type toType)
         {
             return fromType == typeof(string) && toType.IsEnum;
         }
@@ -17,7 +17,7 @@ namespace Reusable.Convertia.Converters
 
     public class EnumToStringConverter : TypeConverter<Enum, string>
     {
-        public override bool CanConvert(Type fromType, Type toType)
+        protected override bool SupportsConversion(Type fromType, Type toType)
         {
             return fromType.IsEnum && toType == typeof(string);
         }

@@ -1,10 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Converters;
 using Reusable.Convertia;
 using Reusable.Convertia.Converters;
+using Reusable.Convertia.Converters.Generic;
 using Reusable.Tests.Helpers;
 
-namespace Reusable.Tests.Converters
+namespace Reusable.Tests.Convertia
 {
     [TestClass]
     public class JsonTest

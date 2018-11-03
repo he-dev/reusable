@@ -40,8 +40,10 @@ namespace Reusable.Utilities.MSTest
 
         public static void IsCanonical<T>(this IEquatableAssert assert, IEquatable<T> equatable)
         {
-            Assert.IsFalse(equatable.Equals(default(T)), CreateMessage("x.Equals(null) == False"));
-            Assert.IsFalse(equatable.Equals(default(object)), CreateMessage("x.Equals(null) == False"));
+            // ReSharper disable once EqualExpressionComparison - this is ok, we want this comparison here
+            Assert.IsTrue(equatable.Equals(equatable), CreateMessage("x.Equals(x) == true"));
+            Assert.IsFalse(equatable.Equals(default), CreateMessage("x.Equals(default(T)) == false"));
+            Assert.IsFalse(equatable.Equals(default(object)), CreateMessage("x.Equals(default(object)) == false"));
 
             string CreateMessage(string requirement)
             {

@@ -7,7 +7,7 @@ namespace Reusable.Convertia.Converters.Collections.Generic
 {
     public class EnumerableToListConverter : TypeConverter<IEnumerable, object>
     {
-        public override bool CanConvert(Type fromType, Type toType)
+        protected override bool SupportsConversion(Type fromType, Type toType)
         {
             return fromType.IsEnumerableOfT(except: typeof(string)) && toType.IsList();
         }

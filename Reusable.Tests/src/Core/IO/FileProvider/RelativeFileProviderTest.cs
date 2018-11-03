@@ -13,12 +13,13 @@ namespace Reusable.Tests.IO
             var fileProvider =
                 new RelativeFileProvider(
                     new EmbeddedFileProvider(typeof(RelativeFileProviderTest).Assembly),
-                    @"reusable\tests\res");
+                    @"relative\path");
 
-            var file = fileProvider.GetFileInfo(@"textfile1.txt");
+            var file = fileProvider.GetFileInfo(@"file.ext");
 
-            Assert.IsTrue(file.Exists);
-            Assert.AreEqual("Resource1", file.ReadAllTextAsync().GetAwaiter().GetResult());
+            Assert.IsFalse(file.Exists);
+            Assert.IsTrue(SoftString.Comparer.Equals(@"Reusable\Tests\relative\path\file.ext", file.Path));
+            //Assert.AreEqual("Resource1", file.ReadAllTextAsync().GetAwaiter().GetResult());
         }
     }
 }
