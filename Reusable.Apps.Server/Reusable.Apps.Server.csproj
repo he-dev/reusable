@@ -55,7 +55,6 @@
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.AspNetCore.Http.HeaderValidator\Reusable.AspNetCore.Http.HeaderValidator.csproj" />
     <ProjectReference Include="..\Reusable.AspNetCore.Http.SemanticLogger\Reusable.AspNetCore.Http.SemanticLogger.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog.NLogRx\Reusable.OmniLog.NLogRx.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog.SemanticExtensions\Reusable.OmniLog.SemanticExtensions.csproj" />
