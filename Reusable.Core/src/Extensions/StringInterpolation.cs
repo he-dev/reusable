@@ -5,95 +5,102 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using Reusable.Reflection;
 
 namespace Reusable.Extensions
 {
-    public delegate bool TryGetValueCallback(string name, out object value);
+    public delegate bool TryGetArgCallback(string name, out object value);
 
     [PublicAPI]
     public static class StringInterpolation
     {
+        // https://regex101.com/r/sK1tS8/5
         // language=regexp
-        private const string PlaceholderPattern = "(?<!{){(?<PlaceholderName>[a-zA-Z_][a-zA-Z0-9_.-]*)(,(?<Alignment>-?\\d+))?(:(?<FormatString>.*?))?}(?!})";
+        private const string ExpressionPattern = "(?<!{){(?<Name>[a-zA-Z_][a-zA-Z0-9_.-]*)(,(?<Alignment>-?\\d+))?(:(?<FormatString>.*?))?}(?!})";
 
-        private static class GroupName
+        private static class Groups
         {
-            public const string PlaceholderName = nameof(PlaceholderName);
+            public const string Name = nameof(Name);
             public const string Alignment = nameof(Alignment);
             public const string FormatString = nameof(FormatString);
         }
 
         [Pure]
         [CanBeNull]
-        [ContractAnnotation("text: null => null; text: notnull => notnull; tryGetValue: null => stop")]
-        public static string Format(this string text, TryGetValueCallback tryGetValue, IFormatProvider formatProvider = null)
+        [ContractAnnotation("text: null => null; text: notnull => notnull; tryGetArg: null => stop")]
+        public static string Format(this string text, TryGetArgCallback tryGetArg, IFormatProvider formatProvider)
         {
             if (string.IsNullOrEmpty(text)) { return text; }
-            if (tryGetValue == null) { throw new ArgumentNullException(nameof(tryGetValue)); }
+            if (tryGetArg == null) { throw new ArgumentNullException(nameof(tryGetArg)); }
+            if (formatProvider == null) { throw new ArgumentNullException(nameof(formatProvider)); }
 
-            formatProvider = formatProvider ?? CultureInfo.InvariantCulture;
-
-            // https://regex101.com/r/sK1tS8/5
-            var result = Regex.Replace(text, PlaceholderPattern, match =>
+            var result = Regex.Replace(text, ExpressionPattern, match =>
             {
-                var name = match.Groups[GroupName.PlaceholderName].Value;
-                var alignment = match.Groups[GroupName.Alignment].Success ? "," + match.Groups[GroupName.Alignment].Value : string.Empty;
-                var formatString = match.Groups[GroupName.FormatString].Success ? ":" + match.Groups[GroupName.FormatString].Value : string.Empty;
+                var name = match.Group(Groups.Name);
+                var alignment = match.Group(Groups.Alignment, x => $",{x}");
+                var formatString = match.Group(Groups.FormatString, x => $":{x}");
 
                 return
-                    tryGetValue(name, out var value)
-                        // Apply formatting.
-                        ? string.Format(formatProvider, $"{{0{alignment}{formatString}}}", value)
-                        // Reconstruct the format string.
-                        : $"{{{name}{alignment}{formatString}}}";
+                    tryGetArg(name, out var value)
+                        // Recursively apply formatting.
+                        ? string.Format(formatProvider, CreateCompositeFormatString(), value).Format(tryGetArg, formatProvider)
+                        // Reconstruct the composite format string.
+                        : CreateCompositeFormatString(name);
+
+                string CreateCompositeFormatString(string nameOrDefault = default) => $"{{{nameOrDefault ?? "0"}{alignment}{formatString}}}";
             });
 
             // https://regex101.com/r/zG6tF7/3
-            result = Regex.Replace(result, "{{(?<contents>.+?)}}", match => $"{{{match.Groups["contents"].Value}}}");
-
-            return result;
+            // Format escaped expressions, e.g. "{{over}}" -> "{over}"
+            return Regex.Replace(result, "{{(?<contents>.+?)}}", match => $"{{{match.Groups["contents"].Value}}}");
         }
 
         [Pure]
         [CanBeNull]
-        [ContractAnnotation("text: null => null; data: null => stop")]
-        public static string Format(this string text, IDictionary<string, object> data, IFormatProvider formatProvider = null)
+        public static string Format(this string text, TryGetArgCallback tryGetArg)
         {
-            if (string.IsNullOrEmpty(text)) { return text; }
-            if (data == null) { throw new ArgumentNullException(nameof(data)); }
-
-            return Format(text, data.TryGetValue, formatProvider);
+            return text.Format(tryGetArg, CultureInfo.InvariantCulture);
         }
 
         [Pure]
         [CanBeNull]
-        [ContractAnnotation("text: null => null; data: null => stop")]
-        public static string Format(this string text, IDictionary<SoftString, object> data, IFormatProvider formatProvider = null)
+        [ContractAnnotation("text: null => null; args: null => stop")]
+        ///<param name="args">A dictionary that contains zero or more objects to format.</param>
+        public static string Format(this string text, IDictionary<string, object> args, IFormatProvider formatProvider)
         {
-            if (string.IsNullOrEmpty(text)) { return text; }
-            if (data == null) { throw new ArgumentNullException(nameof(data)); }
+            if (args == null) { throw new ArgumentNullException(nameof(args)); }
 
-            bool TryGetValue(string name, out object value)
-            {
-                return data.TryGetValue(name, out value);
-            }
+            return Format(text, args.ValidateNames().TryGetValue, formatProvider);
+        }
 
-            return Format(text, TryGetValue, formatProvider);
+        [Pure]
+        [CanBeNull]
+        ///<param name="args">A dictionary that contains zero or more objects to format.</param>
+        public static string Format(this string text, IDictionary<string, object> args)
+        {
+            return Format(text, args.ValidateNames().TryGetValue);
         }
 
         [Pure]
         [CanBeNull, ContractAnnotation("text: null => null; data: null => stop")]
-        public static string Format(this string text, object data, IFormatProvider formatProvider = null)
+        public static string Format(this string text, [NotNull] object args, [NotNull] IEqualityComparer<string> comparer, [NotNull] IFormatProvider formatProvider)
         {
-            if (string.IsNullOrEmpty(text)) { return text; }
-            if (data == null) { throw new ArgumentNullException(nameof(data)); }
+            if (string.IsNullOrWhiteSpace(text)) { return text; }
+            if (args == null) { throw new ArgumentNullException(nameof(args)); }
+            if (comparer == null) throw new ArgumentNullException(nameof(comparer));
+            if (formatProvider == null) throw new ArgumentNullException(nameof(formatProvider));
 
-            var properties = data.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance).ToDictionary(p => p.Name, p => p);
+            var properties = 
+                args
+                    .GetType()
+                    .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                    .ToDictionary(p => p.Name, p => p, comparer);
+
             return Format(text, (string name, out object value) =>
             {
-                if (properties.TryGetValue(name, out PropertyInfo property))
+                if (properties.TryGetValue(name, out var property))
                 {
-                    value = property.GetValue(data);
+                    value = property.GetValue(args);
                     return true;
                 }
                 else
@@ -104,47 +111,47 @@ namespace Reusable.Extensions
             }, formatProvider);
         }
 
-        [Pure]
-        [CanBeNull, ContractAnnotation("text: null => null; data: null => stop")]
-        public static string FormatAll(this string text, IDictionary<string, object> data, IFormatProvider formatProvider = null)
+        public static string Format(this string text, object args)
         {
-            if (string.IsNullOrEmpty(text)) { return text; }
-            if (data == null) { throw new ArgumentNullException(nameof(data)); }
-
-            formatProvider = formatProvider ?? CultureInfo.InvariantCulture;
-
-            var dependencies = data.ToDictionary(x => x.Key, x => GetNames(string.Format(formatProvider, "{0}", x.Value)));
-            DependencyValidator.ValidateDependencies(dependencies);
-
-            while (text.ToString() != (text = text.Format(data, formatProvider))) ;
-            return text;
+            return text.Format(args, StringComparer.OrdinalIgnoreCase, CultureInfo.InvariantCulture);
         }
 
         [Pure]
-        [CanBeNull, ContractAnnotation("text: null => null; data: null => stop")]
-        public static string FormatAll(this string text, IDictionary<SoftString, object> data, IFormatProvider formatProvider = null)
-        {
-            if (string.IsNullOrEmpty(text)) { return text; }
-            if (data == null) { throw new ArgumentNullException(nameof(data)); }
-
-            formatProvider = formatProvider ?? CultureInfo.InvariantCulture;
-
-            var dependencies = data.ToDictionary(x => x.Key, x => GetNames(string.Format(formatProvider, "{0}", x.Value)).Select(SoftString.Create));
-            DependencyValidator.ValidateDependencies(dependencies);
-
-            while (text.ToString() != (text = text.Format(data, formatProvider))) ;
-            return text;
-        }
-
-        [Pure]
-        [NotNull]
-        [ItemNotNull]
+        [NotNull, ItemNotNull]
         public static IEnumerable<string> GetNames(string text)
         {
             return
                 string.IsNullOrEmpty(text)
                     ? Enumerable.Empty<string>()
-                    : Regex.Matches(text, PlaceholderPattern).Cast<Match>().Select(m => m.Groups[GroupName.PlaceholderName].Value);
+                    : Regex.Matches(text, ExpressionPattern).Cast<Match>().Select(m => m.Groups[Groups.Name].Value);
+        }
+
+        private static IDictionary<string, object> ValidateNames(this IDictionary<string, object> replacements)
+        {
+            var placeholders =
+                replacements
+                    .Where(x => x.Value is string)
+                    .ToDictionary
+                    (
+                        x => x.Key,
+                        x => GetNames((string)x.Value),
+                        StringComparer.OrdinalIgnoreCase
+                    );
+
+            // ReSharper disable once ReturnValueOfPureMethodIsNotUsed - TopologicalSort will throw if the graph has a cycle.
+            var sorted =
+                placeholders
+                    .ToDirectedGraph()
+                    .TopologicalSort(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+            var missingPlaceholders = sorted.Where(node => !placeholders.ContainsKey(node)).ToList();
+            if (missingPlaceholders.Any())
+            {
+                throw DynamicException.Create("MissingPlaceholder", $"One or more placeholders are missing: [{string.Join(", ", missingPlaceholders)}]");
+            }
+
+            return replacements;
         }
 
         //public static string ToJson<TException>(

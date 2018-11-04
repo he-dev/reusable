@@ -53,6 +53,7 @@ namespace Reusable
         //    }
         //}
 
+        [Obsolete]
         public static void ValidateDependencies<TKey>(Dictionary<TKey, IEnumerable<TKey>> dependencies)
         {
             // Convert dictionary into directed graph.

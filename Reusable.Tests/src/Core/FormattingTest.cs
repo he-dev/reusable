@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Extensions;
 using Reusable.FormatProviders;
@@ -48,7 +49,7 @@ namespace Reusable.Tests
                 a = "bar",
                 b = "baz",
                 c = "qux"
-            }, formatProvider);
+            }, StringComparer.OrdinalIgnoreCase, formatProvider);
 
             Assert.AreEqual("foo \"bar\" [baz] QUX", text);
         }

@@ -1,153 +1,160 @@
 using System;
-using System.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Extensions;
+using Reusable.Reflection;
+using Reusable.Utilities.MSTest;
 
 namespace Reusable.Tests
 {
+    using static Assert;
+
     [TestClass]
     public class StringInterpolationTest
     {
-       
+        [TestMethod]
+        public void CanFormatNestedExpressions()
+        {
+            var sentence = "The quick {color} fox {verb} {{over}} {who}.";//.Format(new { Color = "brown", Verb = "jumps" }),
+
+            var values = new Dictionary<string, object>
+            {
+                ["color"] = "brown",
+                ["verb"] = "jumps",
+                ["who"] = "the lazy {animal}",
+                ["animal"] = "{firstName} {lastName}",
+                ["firstName"] = "dog",
+                ["lastName"] = "Sam"
+            };
+
+            AreEqual("The quick brown fox jumps {over} the lazy dog Sam.", sentence.Format(values));
+        }
 
         [TestMethod]
-        public void Format_ReplacesName()
+        public void CanDetectRecursiveExpressions()
         {
-            Assert.AreEqual(
+            var sentence = "The quick {color} fox {verb} {{over}} {who}.";//.Format(new { Color = "brown", Verb = "jumps" }),
+
+            var values = new Dictionary<string, object>
+            {
+                ["color"] = "brown",
+                ["verb"] = "jumps",
+                ["who"] = "the lazy {animal}",
+                // The next two lines are recursive.
+                ["animal"] = "{firstName} {lastName}",
+                ["firstName"] = "{animal}",
+                ["lastName"] = "Sam"
+            };
+
+            That.Throws<DynamicException>(() => sentence.Format(values));
+        }
+
+        [TestMethod]
+        public void CanFormatFromAnonymousObject()
+        {
+            AreEqual(
                 "The quick brown fox jumps over the lazy dog.",
                 "The quick {Color} fox {Verb} over the lazy dog.".Format(new { Color = "brown", Verb = "jumps" }),
                 "Couldn't replace all letter names.");
 
-            Assert.AreEqual(
+            AreEqual(
                 "The quick brown fox jumps over the lazy dog.",
                 "The quick {C} fox {V} over the lazy dog.".Format(new { C = "brown", V = "jumps" }),
                 "Couldn't replace single letter names");
 
-            Assert.AreEqual(
+            AreEqual(
                 "The quick brown fox jumps over the lazy dog.",
                 "The quick {C1b} fox {V_9o} over the lazy dog.".Format(new { C1b = "brown", V_9o = "jumps" }),
                 "Couldn't replace names with underscore and digits.");
 
-            Assert.AreEqual(
+            AreEqual(
                 "The quick brown fox jumps over the lazy dog.",
                 "The quick {_C1b} fox {V_9o} over the lazy dog.".Format(new { _C1b = "brown", V_9o = "jumps" }),
                 "Couldn't replace names beginning with an underscore.");
         }
 
         [TestMethod]
-        public void Format_NameWithAlignmentNotFound_UnchangedNameWithAlignment()
+        public void IgnoresExpressionWithAlignmentWhenNotFound()
         {
-            Assert.AreEqual(
+            AreEqual(
                 "The quick {brown,4} fox jumps over the lazy dog.",
                 "The quick {brown,4} fox jumps over the lazy dog.".Format(new { fox = "dummy" }));
         }
 
         [TestMethod]
-        public void Format_NameWithAlignmentAndFormatNotFound_UnchangedNameWithAlignmentAndFormat()
+        public void IgnoresNameWithAlignmentAndFormatWhenNotFound()
         {
-            Assert.AreEqual(
+            AreEqual(
                 "The quick {brown,4:abc} fox jumps over the lazy dog.",
                 "The quick {brown,4:abc} fox jumps over the lazy dog.".Format(new { fox = "dummy" }));
         }
 
         [TestMethod]
-        public void Format_EscapedName_UnescapesName()
+        public void CanRecognizeEscapedExpression()
         {
-            Assert.AreEqual(
+            AreEqual(
                 "The quick {brown} fox jumps over the lazy dog.",
                 "The quick {{brown}} fox jumps over the lazy dog.".Format(new { fox = "dummy" }));
         }
 
         [TestMethod]
-        public void Format_EscapedNameWithAlignment_UnescapesNameWithAlignment()
+        public void CanRecognizeEscapedExpressionWithAlignment()
         {
-            Assert.AreEqual(
+            AreEqual(
                 "The quick {brown,4} fox jumps over the lazy dog.",
                 "The quick {{brown,4}} fox jumps over the lazy dog.".Format(new { fox = "dummy" }));
         }
 
         [TestMethod]
-        public void Format_IgnoresInvalidBracePair()
+        public void IgnoresUnbalancedBracePair()
         {
-            Assert.AreEqual(
+            AreEqual(
                 "The quick {brown}} fox jumps over {{the} lazy dog.",
                 "The quick {brown}} fox jumps over {{the} lazy dog.".Format(new { }));
         }
 
         [TestMethod]
-        public void Format_NullValue_EmptyString()
+        public void DoesNotCrashOnNullValue()
         {
-            Assert.AreEqual(
+            AreEqual(
                 "The quick {brown}} fox  over {{the} lazy dog.",
                 "The quick {brown}} fox {Verb} over {{the} lazy dog.".Format(new { Verb = (string)null }));
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void Format_IgnoresNullObject()
+        public void DoesNotAllowNullArgs()
         {
-            Assert.AreEqual(
+            AreEqual(
                 "The quick {brown}} fox {Verb} over {{the} lazy dog.",
                 "The quick {brown}} fox {Verb} over {{the} lazy dog.".Format((object)null));
         }
 
         [TestMethod]
-        public void Format_IgnoresNullString()
+        public void IgnoresNullString()
         {
-            Assert.IsNull(((string)null).Format((object)null));
+            IsNull(((string)null).Format((object)null));
         }
 
         [TestMethod]
-        public void Format_NameWithDot_FormattedString()
+        public void CanUseExpressionWithDot()
         {
-            Assert.AreEqual("foo waldo qux", "foo {bar.baz} qux".Format(new Dictionary<string, object> { ["bar.baz"] = "waldo" }));
+            AreEqual("foo waldo qux", "foo {bar.baz} qux".Format(new Dictionary<string, object> { ["bar.baz"] = "waldo" }));
         }
 
         [TestMethod]
-        public void GetNames_NoNames_Empty()
+        public void ReturnsEmptyCollectionWhenNoNames()
         {
             var result = StringInterpolation.GetNames("foo bar baz").ToList();
             CollectionAssert.AreEqual(new string[] { }, result);
         }
 
         [TestMethod]
-        public void GetNames_TextWithNames_Names()
+        public void ReturnNames()
         {
             var result = StringInterpolation.GetNames("foo {bar} baz {qux} waldo").ToList();
             CollectionAssert.AreEqual(new[] { "bar", "qux" }, result);
-        }
-
-        [TestMethod]
-        public void FormatAll_Templates_Formats()
-        {
-            var constants = new Dictionary<string, object>
-            {
-                { "x", "foo {y} baz" },
-                { "y", "bar {z} qux" },
-                { "z", "waldo" },
-            };
-
-            Assert.AreEqual("foo bar waldo qux baz", "{x}".FormatAll(constants));
-        }
-
-    }
-
-    [TestClass]
-    public class ToJson_Exception
-    {
-        [TestMethod]
-        public void CreateJsonString()
-        {
-            //try
-            //{
-            //    throw new FileNotFoundException("Bang!", @"C:\foo.txt");
-            //}
-            //catch (Exception ex)
-            //{
-            //    //var json = ex.ToJson();
-            //}
-        }
+        }            
     }
 }
