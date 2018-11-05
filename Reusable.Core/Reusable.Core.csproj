@@ -22,6 +22,7 @@
   <ItemGroup>
     <Compile Remove="src\Collections\PainlessDictionary.cs" />
     <Compile Remove="src\Collections\PainlessDictionaryFactory.cs" />
+    <Compile Remove="src\ComparerFactory.bak.cs" />
     <Compile Remove="src\DependencyValidator.cs" />
     <Compile Remove="src\Extensions\DictionaryHelper.cs" />
     <Compile Remove="src\FormatProviders\QuoteFormatter.cs" />

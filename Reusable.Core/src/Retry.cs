@@ -10,7 +10,7 @@ namespace Reusable
 {
     public interface IRetry : IObservable<Exception>
     {
-        Task<T> ExecuteAsync<T>([NotNull] Func<CancellationToken, Task<T>> action, CancellationToken cancellationToken);
+        Task<T> ExecuteAsync<T>([NotNull] Func<CancellationToken, Task<T>> action, CancellationToken cancellationToken = default);
     }
 
     public class Retry : IRetry
@@ -59,7 +59,10 @@ namespace Reusable
                 {
                     exceptions.Add(ex);
 
-                    foreach (var observer in _observers) { observer.OnNext(ex); }
+                    foreach (var observer in _observers)
+                    {
+                        observer.OnNext(ex);
+                    }
 
                     // Don't delay if cancelled but return immediately.
                     ThrowIfCancellationRequested(cancellationToken);
@@ -71,14 +74,14 @@ namespace Reusable
             throw new AggregateException($"Action failed after {exceptions.Count} attempt(s).", exceptions);
         }
 
-        /// <summary>
-        /// Utility method that creates a Retry and calls the ExecuteAsync method.
-        /// </summary>
-        /// <returns></returns>
-        public async Task<T> ExecuteAsync<T>(IEnumerable<TimeSpan> delays, Func<CancellationToken, Task<T>> action, CancellationToken cancellationToken)
-        {
-            return await new Retry(delays).ExecuteAsync(action, cancellationToken);
-        }
+        ///// <summary>
+        ///// Utility method that creates a Retry and calls the ExecuteAsync method.
+        ///// </summary>
+        ///// <returns></returns>
+        //public async Task<T> ExecuteAsync<T>(IEnumerable<TimeSpan> delays, Func<CancellationToken, Task<T>> action, CancellationToken cancellationToken)
+        //{
+        //    return await new Retry(delays).ExecuteAsync(action, cancellationToken);
+        //}
 
         private void ThrowIfCancellationRequested(CancellationToken cancellationToken)
         {
