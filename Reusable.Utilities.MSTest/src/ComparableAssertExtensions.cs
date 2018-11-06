@@ -5,8 +5,22 @@ using Reusable.Extensions;
 
 namespace Reusable.Utilities.MSTest
 {
+    public interface IComparerAssert { }
     public interface IComparableAssert { }
     public interface IComparableCompareToAssert { }
+
+    public static class ComparerAssertExtensions
+    {
+        public static void IsCanonical<T>(this IComparerAssert assert, T value, T less, T equal, T greater, IComparer<T> comparer)
+        {
+            var typeName = typeof(IComparer<T>).ToPrettyString();
+
+            Assert.IsTrue(comparer.Compare(value, value) == 0, $"{typeName} violates the expression: value == value.");
+            Assert.IsTrue(comparer.Compare(value, equal) == 0, $"{typeName} violates the expression: value == equal.");
+            Assert.IsTrue(comparer.Compare(less, value) < 0, $"{typeName} violates the expression: less < value.");
+            Assert.IsTrue(comparer.Compare(greater, value) > 0, $"{typeName} violates the expression: greater > value.");
+        }
+    }
 
     public static class ComparableAssertExtensions
     {

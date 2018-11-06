@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.Utilities.MSTest;
 
 namespace Reusable.Tests
 {
@@ -27,6 +28,16 @@ namespace Reusable.Tests
                 new Product {Name = "Table", Price = 3 },
                 new Product {Name = "Orange", Price = 1 },
             };
+
+
+            Assert.That.Comparer().IsCanonical
+            (
+                new Product { Price = 3 },
+                new Product { Price = 2 },
+                new Product { Price = 3 },
+                new Product { Price = 4 },
+                comparer
+            );
 
             var sorted = products.OrderByDescending(p => p, comparer).ToList();
 

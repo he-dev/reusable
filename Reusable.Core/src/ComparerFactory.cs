@@ -119,7 +119,7 @@ namespace Reusable
 
         protected override Expression VisitBinary(BinaryExpression node)
         {
-            if (node.NodeType == ExpressionType.Equal) return base.VisitBinary(node);
+            //if (node.NodeType == ExpressionType.Equal) return base.VisitBinary(node);
 
             // Rewrite
             // () => ClosureT1.x < ClosureT2.y

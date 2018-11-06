@@ -9,8 +9,8 @@ namespace Reusable.Tests.Diagnostics
         [TestMethod]
         public void Create_TypeAndObject_String()
         {
-            var debuggerString = DebuggerString.Create<Person>(new { FirstName = "foo", Age = 19 });
-            Assert.AreEqual("Person: FirstName = 'foo' Age = '19'", debuggerString);
+            var debuggerString = new Person { FirstName = "foo", Age = 19 }.ToDebuggerDisplayString(builder => builder.Property(x => x.FirstName).Property(x => x.Age));
+            Assert.AreEqual("FirstName = 'foo', Age = 19", debuggerString);
         }
 
         private class Person

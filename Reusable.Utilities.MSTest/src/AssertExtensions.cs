@@ -24,15 +24,17 @@ namespace Reusable.Utilities.MSTest
 
         #region Specialized asserts
 
-        public static IEquatableAssert Equatable(this Assert assert) => default(IEquatableAssert);
+        public static IEquatableAssert Equatable(this Assert assert) => default;
 
-        public static IComparableAssert Comparable(this Assert assert) => default(IComparableAssert);
+        public static IComparerAssert Comparer(this Assert assert) => default;
 
-        public static IBinaryOperatorAssert BinaryOperator(this Assert assert) => default(IBinaryOperatorAssert);
+        public static IComparableAssert Comparable(this Assert assert) => default;
 
-        public static IUnaryOperatorAssert UnaryOperator(this Assert assert) => default(IUnaryOperatorAssert);
+        public static IBinaryOperatorAssert BinaryOperator(this Assert assert) => default;
 
-        public static ILookupAssert Lookup(this Assert assert) => default(ILookupAssert);
+        public static IUnaryOperatorAssert UnaryOperator(this Assert assert) => default;
+
+        public static ILookupAssert Lookup(this Assert assert) => default;
 
         public static ITypeAssert Type<T>(this Assert assert) => new TypeAssert(typeof(T));
 
