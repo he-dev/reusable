@@ -4,7 +4,6 @@ using System.Linq;
 using System.Linq.Custom;
 using JetBrains.Annotations;
 using Reusable.Collections;
-using Reusable.OmniLog.Collections;
 
 namespace Reusable.OmniLog.Attachements
 {

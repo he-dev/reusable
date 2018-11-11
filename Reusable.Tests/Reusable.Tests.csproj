@@ -62,8 +62,12 @@
     <None Remove="res\MarkupBuilder\ToString_005.html" />
     <None Remove="res\MarkupBuilder\ToString_006.html" />
     <None Remove="res\MarkupBuilder\ToString_007.html" />
+    <None Remove="res\OmniLog\OmniLog.json" />
     <None Remove="res\TextFile1.txt" />
     <None Remove="res\TextFile2.txt" />
+    <None Remove="res\Utilities\JsonNet\PrettyTypeReaderT0.json" />
+    <None Remove="res\Utilities\JsonNet\PrettyTypeReaderT1.json" />
+    <None Remove="res\Utilities\JsonNet\PrettyTypeReaderT2.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -77,8 +81,12 @@
     <EmbeddedResource Include="res\MarkupBuilder\ToString_005.html" />
     <EmbeddedResource Include="res\MarkupBuilder\ToString_006.html" />
     <EmbeddedResource Include="res\MarkupBuilder\ToString_007.html" />
+    <EmbeddedResource Include="res\OmniLog\OmniLog.json" />
     <EmbeddedResource Include="res\TextFile1.txt" />
     <EmbeddedResource Include="res\TextFile2.txt" />
+    <EmbeddedResource Include="res\Utilities\JsonNet\PrettyTypeReaderT2.json" />
+    <EmbeddedResource Include="res\Utilities\JsonNet\PrettyTypeReaderT1.json" />
+    <EmbeddedResource Include="res\Utilities\JsonNet\PrettyTypeReaderT0.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -106,6 +114,7 @@
     <ProjectReference Include="..\Reusable.Csv.Utilities\Reusable.Csv.Utilities.csproj" />
     <ProjectReference Include="..\Reusable.Csv\Reusable.Csv.csproj" />
     <ProjectReference Include="..\Reusable.Deception\Reusable.Deception.csproj" />
+    <ProjectReference Include="..\Reusable.Flexo\Reusable.Flexo.csproj" />
     <ProjectReference Include="..\Reusable.MarkupBuilder\Reusable.MarkupBuilder.csproj" />
     <ProjectReference Include="..\Reusable.Net.Http.RestClient\Reusable.Net.Http.RestClient.csproj" />
     <ProjectReference Include="..\Reusable.Net.Mail\Reusable.Net.Mail.csproj" />

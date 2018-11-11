@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
@@ -35,7 +36,7 @@ namespace Reusable.OmniLog.SemanticExtensions
             return new LoggerFactory
             {
                 Observers = rxs.ToList(),
-                Configuration = new LoggerConfiguration
+                Configuration = new LoggerFactoryConfiguration
                 {
                     Attachements =
                     {
@@ -122,6 +123,12 @@ namespace Reusable.OmniLog.SemanticExtensions
             return this;
         }
 
+        public LoggerFactoryBuilder With<TRx>() where TRx : ILogRx, new()
+        {
+            _rxes.Add(new TRx());
+            return this;
+        }
+
         public LoggerFactoryBuilder WithRxes([NotNull] IEnumerable<ILogRx> rxes)
         {
             _rxes.AddRange(rxes ?? throw new ArgumentNullException(nameof(rxes)));
@@ -152,6 +159,12 @@ namespace Reusable.OmniLog.SemanticExtensions
             return this;
         }
 
+        public LoggerFactoryBuilder Configuration(LoggerFactoryConfiguration configuration)
+        {
+
+            return this;
+        }
+
         public ILoggerFactory Build()
         {
             SelfBouncer.Validate(this);
@@ -159,7 +172,7 @@ namespace Reusable.OmniLog.SemanticExtensions
             return new LoggerFactory
             {
                 Observers = _rxes,
-                Configuration = new LoggerConfiguration
+                Configuration = new LoggerFactoryConfiguration
                 {
                     Attachements =
                     {

@@ -1,22 +1,43 @@
-﻿using System;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Reactive;
-using Reusable.OmniLog.Collections;
 
-// ReSharper disable once CheckNamespace
 namespace Reusable.OmniLog
 {
-    public class MemoryRx : LogRx
+    public class MemoryRx : LogRx, IEnumerable<Log>
     {
-        private readonly List<Log> _logs = new List<Log>();
+        public const int DefaultCapacity = 1_000;
 
-        public IReadOnlyList<Log> Logs => _logs;
+        private readonly LinkedList<Log> _logs = new LinkedList<Log>();
 
-        protected override IObserver<Log> Initialize()
+        public MemoryRx(int capacity = DefaultCapacity)
         {
-            return Observer.Create<Log>(log => _logs.Add(log));
+            Capacity = capacity;
         }
 
-        public static MemoryRx Create() => new MemoryRx();
+        public int Capacity { get; }
+
+        protected override void Log(Log log)
+        {
+            lock (_logs)
+            {
+                _logs.AddLast(log);
+                if (_logs.Count > Capacity)
+                {
+                    _logs.RemoveFirst();
+                }
+            }
+        }
+
+        public static MemoryRx Create(int capacity = DefaultCapacity) => new MemoryRx(capacity);
+
+        public IEnumerator<Log> GetEnumerator()
+        {
+            lock (_logs)
+            {
+                return _logs.GetEnumerator();
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

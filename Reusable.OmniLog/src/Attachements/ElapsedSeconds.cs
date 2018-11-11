@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using Reusable.OmniLog.Collections;
 
 namespace Reusable.OmniLog.Attachements
 {

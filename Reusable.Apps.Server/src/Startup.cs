@@ -68,16 +68,12 @@ namespace Reusable.Apps.Server
             //{
             //    setupAction.ApiVersionReader = new HeaderApiVersionReader(HeaderFieldName.ApiVersion);
             //});;
-            
+
             services.AddSingleton<IConfiguration>(_configuration);
             services.AddSingleton<ILoggerFactory>(
-                new LoggerFactoryBuilder()
-                    .Environment(_hostingEnvironment.EnvironmentName)
-                    .Product("Reusable.Apps.Server")
-                    .WithRx(NLogRx.Create())
-                    .ScopeSerializer(serializer => serializer.Formatting = Formatting.None)
-                    .SnapshotSerializer(serializer => serializer.Formatting = Formatting.None)
-                    .Build()
+                new LoggerFactory()
+                    .UseSemanticExtensions(_hostingEnvironment.EnvironmentName, "Reusable.Apps.Server")
+                    .AddObserver<NLogRx>()
             );
 
             //services.AddScoped(serviceProvider => new ClientInfo(HeaderPrefix, serviceProvider.GetService<IMultipartName>()));

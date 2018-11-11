@@ -2,7 +2,6 @@
 using System.Reactive;
 using JetBrains.Annotations;
 using Reusable.Extensions;
-using Reusable.OmniLog.Collections;
 
 namespace Reusable.OmniLog
 {
@@ -27,16 +26,13 @@ namespace Reusable.OmniLog
             return new ColoredConsoleRx(renderer);
         }
 
-        protected override IObserver<Log> Initialize()
+        protected override void Log(Log log)
         {
-            return Observer.Create<Log>(log =>
+            var template = log.Property<string>(null, TemplatePropertyName);
+            if (template.IsNotNullOrEmpty())
             {
-                var template = log.Property<string>(null, TemplatePropertyName);
-                if (template.IsNotNullOrEmpty())
-                {
-                    _renderer.Render(template);
-                }
-            });
+                _renderer.Render(template);
+            }
         }
     }
 }

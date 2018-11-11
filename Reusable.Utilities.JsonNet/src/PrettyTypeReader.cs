@@ -1,10 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Linq.Custom;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
@@ -21,19 +19,21 @@ namespace Reusable.Utilities.JsonNet
 
         private bool _isPrettyType;
 
-        public PrettyTypeReader(TextReader reader, [NotNull] string typePropertyName, [NotNull] Func<string, Type> typeResolver)
+        public PrettyTypeReader(TextReader reader, [NotNull] string typePropertyName, [NotNull] Func<string, Type> resolvePrettyType)
             : base(reader)
         {
             _typePropertyName = typePropertyName ?? throw new ArgumentNullException(nameof(typePropertyName));
-            _prettyTypeExpander = new PrettyTypeExpander(typeResolver ?? throw new ArgumentNullException(nameof(typeResolver)));
+            _prettyTypeExpander = new PrettyTypeExpander(resolvePrettyType ?? throw new ArgumentNullException(nameof(resolvePrettyType)));
         }
 
-        public PrettyTypeReader(TextReader reader, params Type[] assemblyProviders)
-            : this(reader, "$t", PrettyTypeResolver.Create(assemblyProviders))
-        {
-        }
+        //public PrettyTypeReader(TextReader reader, params Type[] assemblyProviders)
+        //    : this(reader, AbbreviatedTypePropertyName, PrettyTypeResolver.Create(assemblyProviders))
+        //{
+        //}
 
         private const string DefaultTypePropertyName = "$type";
+
+        public const string AbbreviatedTypePropertyName = "$t";
 
         public override bool Read()
         {
@@ -93,12 +93,12 @@ namespace Reusable.Utilities.JsonNet
         // language=regexp
         private const string PrettyTypePattern = @"(?<type>(?i)[a-z0-9_.]+)(?:\<(?<genericArguments>(?i)[a-z0-9_., ]+)\>)?";
 
-        public PrettyTypeExpander([NotNull] Func<string, Type> typeResolver)
-        {
-            TypeResolver = typeResolver;
-        }
+        private readonly Func<string, Type> _resolveType;
 
-        private Func<string, Type> TypeResolver { get; }
+        public PrettyTypeExpander([NotNull] Func<string, Type> resolveType)
+        {
+            _resolveType = resolveType;
+        }
 
         public string Expand(string prettyType)
         {
@@ -146,26 +146,9 @@ namespace Reusable.Utilities.JsonNet
         private Type ResolveType(string typeName)
         {
             return
-                TypeResolver(typeName) ??
+                _resolveType(typeName) ??
                 Type.GetType(typeName, ignoreCase: true, throwOnError: false) ??
                 throw DynamicException.Create("TypeNotFound", $"Could not resolve '{typeName}'.");
-        }
-    }
-
-    public static class PrettyTypeResolver
-    {
-        public static Func<string, Type> Create(params Type[] assemblyProviders)
-        {
-            var types =
-            (
-                from assemblyProvider in assemblyProviders.Distinct()
-                from type in assemblyProvider.Assembly.GetTypes()
-                let prettyName = type.ToPrettyString()
-                where !prettyName.StartsWith("<>f__AnonymousType") && !prettyName.StartsWith("<>c__DisplayClass")
-                select (type, prettyName)
-            ).ToList();
-
-            return prettyName => types.SingleOrDefault(t => SoftString.Comparer.Equals(t.prettyName, prettyName)).type;
         }
     }
 }

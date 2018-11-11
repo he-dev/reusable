@@ -71,6 +71,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.OmniLog.Utilities"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Deception", "Reusable.Deception\Reusable.Deception.csproj", "{8C6AEC88-BB70-4D46-A0A8-39C38E4FB0DB}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Flexo", "Reusable.Flexo\Reusable.Flexo.csproj", "{5EA18FC2-C680-4094-AC2A-34122EDA1CC2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -202,6 +204,10 @@ Global
 		{8C6AEC88-BB70-4D46-A0A8-39C38E4FB0DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C6AEC88-BB70-4D46-A0A8-39C38E4FB0DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C6AEC88-BB70-4D46-A0A8-39C38E4FB0DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5EA18FC2-C680-4094-AC2A-34122EDA1CC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5EA18FC2-C680-4094-AC2A-34122EDA1CC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5EA18FC2-C680-4094-AC2A-34122EDA1CC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5EA18FC2-C680-4094-AC2A-34122EDA1CC2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -237,6 +243,7 @@ Global
 		{B1A4F56D-56B2-4244-8E54-12E49FC6F19D} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 		{A9AE541C-F84E-4C0E-9D56-BD1D11E941AD} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 		{8C6AEC88-BB70-4D46-A0A8-39C38E4FB0DB} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
+		{5EA18FC2-C680-4094-AC2A-34122EDA1CC2} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2FA54731-890C-4550-BACA-E19B564CE1E3}

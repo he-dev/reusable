@@ -1,6 +1,5 @@
 ﻿using System;
 using JetBrains.Annotations;
-using Reusable.OmniLog.Collections;
 
 namespace Reusable.OmniLog.Attachements
 {

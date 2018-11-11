@@ -2,7 +2,6 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Diagnostics;
-using Reusable.Utilities.MSTest.Mocks;
 
 namespace Reusable.Tests
 {

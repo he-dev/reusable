@@ -1,5 +1,4 @@
 ﻿using System;
-using Reusable.OmniLog.Collections;
 
 namespace Reusable.OmniLog.SemanticExtensions.Attachements
 {

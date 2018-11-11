@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net47</TargetFramework>
+    <RootNamespace>Reusable.OmniLog</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

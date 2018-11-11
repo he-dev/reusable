@@ -1,0 +1,18 @@
+{
+    "LogFilter": {
+        "$t": "Any",
+        "Expressions": [
+            {
+                "$t": "GreaterThanOrEqual",
+                "Expression1": {
+                    "$t": "GetLogLevel"
+                },
+                "Expression2": {
+                    "$t": "Constant<LogLevel>",
+                    "Name": "LogLevel",
+                    "Value": "Debug"
+                }
+            }
+        ]
+    }
+}

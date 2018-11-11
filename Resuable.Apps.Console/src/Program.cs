@@ -33,14 +33,14 @@ namespace Reusable.Apps
             Demo.ConsoleColorizer();
             //Demo.SemanticExtensions();
 
-            var rxFilter = new AppConfigRxFilter(NLogRx.Create());
+            //var rxFilter = new AppConfigRxFilter(NLogRx.Create());
 
-            var loggerFactory =
-                new LoggerFactoryBuilder()
-                    .Environment("development")
-                    .Product("Reusable.Apps.Console")
-                    .WithRxes(rxFilter)
-                    .Build();
+            //var loggerFactory =
+            //    new LoggerFactory()
+            //        .Environment("development")
+            //        .Product("Reusable.Apps.Console")
+            //        .WithRxes(rxFilter)
+            //        .Build();
 
             Demo.DebuggerDisplay();
 

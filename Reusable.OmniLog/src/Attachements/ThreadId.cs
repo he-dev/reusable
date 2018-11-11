@@ -1,5 +1,4 @@
 ﻿using System.Threading;
-using Reusable.OmniLog.Collections;
 
 namespace Reusable.OmniLog.Attachements
 {

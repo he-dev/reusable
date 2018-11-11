@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Reactive;
 using System.Reactive.Disposables;
-using Reusable.OmniLog.Collections;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.OmniLog
@@ -19,19 +18,16 @@ namespace Reusable.OmniLog
             [LogLevel.Fatal] = ConsoleColor.Red,
         };
 
-        protected override IObserver<Log> Initialize()
+        protected override void Log(Log log)
         {
-            return Observer.Create<Log>(log =>
+            using (Disposable.Create(Console.ResetColor))
             {
-                using (Disposable.Create(Console.ResetColor))
+                if (Colorful && DefaultColors.TryGetValue(log.Level(), out var consoleColor))
                 {
-                    if (Colorful && DefaultColors.TryGetValue(log.Level(), out var consoleColor))
-                    {
-                        Console.ForegroundColor = consoleColor;
-                    }
-                    Console.WriteLine(log);
+                    Console.ForegroundColor = consoleColor;
                 }
-            });
+                Console.WriteLine(log);
+            }
         }
 
         public bool Colorful { get; set; }

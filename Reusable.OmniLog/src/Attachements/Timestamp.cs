@@ -1,21 +1,34 @@
-﻿using Reusable.OmniLog.Collections;
+﻿using System;
+using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace Reusable.OmniLog.Attachements
 {
-    public class Timestamp<T> : LogAttachement where T : IDateTime, new()
+    public class Timestamp : LogAttachement, IDisposable
     {
-        private readonly IDateTime _dateTime;
+        private int _timestampCount;
+
+        private readonly IEnumerator<DateTime> _timestamps;
 
         // There is no pretty way to get the name without `1
 
-        public Timestamp() : base("Timestamp")
+        public Timestamp([NotNull] IEnumerable<DateTime> timestamps) : base("Timestamp")
         {
-            _dateTime = new T();
+            if (timestamps == null) throw new ArgumentNullException(nameof(timestamps));
+            _timestamps = timestamps.GetEnumerator();
         }
 
         public override object Compute(ILog log)
         {
-            return _dateTime.Now();
+            if (_timestamps.MoveNext())
+            {
+                _timestampCount++;
+                return _timestamps.Current;
+            }
+
+            throw new InvalidOperationException($"You provided only {_timestampCount} timestamps but more were required.");
         }
+
+        public void Dispose() => _timestamps.Dispose();
     }
 }

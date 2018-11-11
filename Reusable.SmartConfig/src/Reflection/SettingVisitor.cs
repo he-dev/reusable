@@ -58,13 +58,13 @@ namespace Reusable.SmartConfig.Reflection
 
             switch (node.Member)
             {
-                // (() => Type.Member)
+                // (() => Type.Member) - static usage 
                 case FieldInfo field when field.IsStatic:
                 case PropertyInfo property when property.GetGetMethod(_nonPublic).IsStatic:
                     _type = node.Member.DeclaringType;
                     break;
 
-                // (() => instance.Member) (also this)
+                // (() => instance.Member) - via instance (also this)
                 case FieldInfo field:
                 case PropertyInfo property:
                     _closureMemberName = node.Member.Name;

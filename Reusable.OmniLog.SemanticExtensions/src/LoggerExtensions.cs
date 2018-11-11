@@ -5,7 +5,6 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Reusable.Extensions;
-using Reusable.OmniLog.Collections;
 using Reusable.OmniLog.SemanticExtensions.Attachements;
 // ReSharper disable ExplicitCallerInfoArgument - yes, we want to explicity set it via overloads.
 

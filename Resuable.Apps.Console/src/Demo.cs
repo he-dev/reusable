@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Reusable.Convertia;
 using Reusable.Convertia.Converters;
 using Reusable.Diagnostics;
+using Reusable.IO;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.SemanticExtensions;
@@ -26,7 +27,7 @@ namespace Reusable.Apps
                 {
                     new ColoredConsoleRx(),
                 },
-                Configuration = new LoggerConfiguration
+                Configuration = new LoggerFactoryConfiguration
                 {
                     Attachements = new HashSet<ILogAttachement>
                     {
@@ -54,14 +55,13 @@ namespace Reusable.Apps
         {
             SmartPropertiesLayoutRenderer.Register();
 
+            var fileProvider = new RelativeFileProvider(new PhysicalFileProvider(), typeof(Demo).Assembly.Location);
+
             var loggerFactory =
-                new LoggerFactoryBuilder()
-                    .Environment("development")
-                    .Product("Reusable.Apps.Console")
-                    .WithRx(NLogRx.Create())
-                    .ScopeSerializer(serializer => { serializer.Formatting = Formatting.None; })
-                    .SnapshotSerializer(serializer => { serializer.Formatting = Formatting.None; })
-                    .Build();
+                new LoggerFactory()
+                    .UseSemanticExtensions("development", "Reusable.Apps.Console")
+                    .AddObserver<NLogRx>();
+                    //.UseConfiguration(LoggerFactoryConfiguration.Load(fileProvider.GetFileInfo(@"cfg\omnilog.json").CreateReadStream()));
 
             var logger = loggerFactory.CreateLogger("Demo");
 

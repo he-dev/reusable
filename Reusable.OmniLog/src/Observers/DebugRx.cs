@@ -2,9 +2,6 @@
 using System.Diagnostics;
 using System.Reactive;
 
-
-using Reusable.OmniLog.Collections;
-
 // ReSharper disable once CheckNamespace
 namespace Reusable.OmniLog
 {
@@ -12,12 +9,9 @@ namespace Reusable.OmniLog
     {
         private DebugRx() { }
 
-        protected override IObserver<Log> Initialize()
+        protected override void Log(Log log)
         {
-            return Observer.Create<Log>(log =>
-            {
-                Debug.WriteLine(log);
-            });
+            Debug.WriteLine(log);
         }
 
         public static ILogRx Create()

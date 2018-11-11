@@ -4,7 +4,6 @@ using System.Linq.Custom;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Reusable.OmniLog;
-using Reusable.OmniLog.Collections;
 using Reusable.OmniLog.SemanticExtensions;
 
 namespace Reusable.AspNetCore.Http

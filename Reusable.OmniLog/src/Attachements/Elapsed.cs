@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Linq;
 using Reusable.Extensions;
-using Reusable.OmniLog.Collections;
 
 namespace Reusable.OmniLog.Attachements
 {

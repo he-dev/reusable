@@ -13,16 +13,33 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="src\Collections\**" />
+    <EmbeddedResource Remove="src\Collections\**" />
+    <None Remove="src\Collections\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="src\LoggerFactoryBuilder.cs" />
+    <Compile Remove="src\_logger\LoggerFilter.cs" />
+    <Compile Remove="src\_log\LogFilter.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" />
     <PackageReference Include="System.Reactive" Version="4.1.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
+    <ProjectReference Include="..\Reusable.Flexo\Reusable.Flexo.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="System.Configuration" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="src\Diagnostics\" />
   </ItemGroup>
 
 </Project>
