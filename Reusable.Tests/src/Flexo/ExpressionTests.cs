@@ -175,8 +175,8 @@ namespace Reusable.Tests.Flexo
         {
             Assert.That.ExpressionsEqual(nameof(Equals), true, new Equals
             {
-                Expression1 = Constant.Create(nameof(Equals), "foo"),
-                Expression2 = Constant.Create(nameof(Equals), "foo"),
+                Expression = Constant.Create(nameof(Equals), "foo"),
+                Patterns = new[] { "foo" },
             });
         }
 
@@ -185,8 +185,8 @@ namespace Reusable.Tests.Flexo
         {
             Assert.That.ExpressionsEqual(nameof(Equals), false, new Equals
             {
-                Expression1 = Constant.Create(nameof(Equals), "foo"),
-                Expression2 = Constant.Create(nameof(Equals), "bar"),
+                Expression = Constant.Create(nameof(Equals), "foo"),
+                Patterns = new[] { "bar" },                
             });
         }
     }

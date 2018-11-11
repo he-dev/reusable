@@ -96,14 +96,14 @@ namespace Reusable.Flexo.Abstractions
 
         public IExpression Expression { get; set; }
 
-        public IExpression[] Expressions { get; set; }
+        public IEnumerable<string> Patterns { get; set; }
 
         protected override bool Calculate(IExpressionContext context)
         {
             var x = Expression.SafeInvoke(context).ValueOrDefault<string>();
-            var y = Expressions.SafeInvoke(context).Select(e => e.ValueOrDefault<string>()).Where(Conditional.IsNotNullOrEmpty);
+            //var y = Expressions.SafeInvoke(context).Select(e => e.ValueOrDefault<string>()).Where(Conditional.IsNotNullOrEmpty);
 
-            return !(x is null) && y.Any(other => _predicate(x, other));
+            return !(x is null) && Patterns.Any(other => _predicate(x, other));
         }
     }
 
@@ -145,20 +145,20 @@ namespace Reusable.Flexo.Abstractions
         }
     }
 
-    public abstract class RegularExpression : Expression
-    {
-        protected RegularExpression(string name) : base(name) { }
+    //public abstract class RegularExpression : Expression
+    //{
+    //    protected RegularExpression(string name) : base(name) { }
 
-        public IImmutableList<string> Patterns { get; set; }
+    //    public IImmutableList<string> Patterns { get; set; }
 
-        public override IExpression Invoke(IExpressionContext context)
-        {
-            var values = GetValues(context);
-            return Constant.Create(GetType().Name, Patterns.Any(pattern => values.Any(value => Regex.IsMatch(pattern, value))));
-        }
+    //    public override IExpression Invoke(IExpressionContext context)
+    //    {
+    //        var values = GetValues(context);
+    //        return Constant.Create(GetType().Name, Patterns.Any(pattern => values.Any(value => Regex.IsMatch(pattern, value))));
+    //    }
 
-        protected abstract IImmutableList<string> GetValues(IExpressionContext context);
-    }
+    //    protected abstract IImmutableList<string> GetValues(IExpressionContext context);
+    //}
 
     public interface IParameterAttribute
     {
