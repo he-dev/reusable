@@ -10,8 +10,6 @@ using Reusable.Diagnostics;
 using Reusable.Extensions;
 using Reusable.OmniLog;
 
-[assembly: DebuggerDisplay("{DebuggerDisplay(),nq}", Target = typeof(LogAttachement))]
-
 namespace Reusable.OmniLog
 {
     public interface ILogAttachement : IEquatable<ILogAttachement>

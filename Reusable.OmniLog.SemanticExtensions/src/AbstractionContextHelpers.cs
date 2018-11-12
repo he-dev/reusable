@@ -65,8 +65,8 @@ namespace Reusable.OmniLog.SemanticExtensions
         public static IDictionary<SoftString, LogLevel> LogLevels = new Dictionary<SoftString, LogLevel>
         {
             [nameof(AbstractionExtensions.Business)] = LogLevel.Information,
+            [nameof(AbstractionExtensions.Monitoring)] = LogLevel.Information,
             [nameof(AbstractionExtensions.Infrastructure)] = LogLevel.Debug,
-            [nameof(AbstractionExtensions.Core)] = LogLevel.Debug,
             [nameof(AbstractionExtensions.Presentation)] = LogLevel.Trace,
             [nameof(AbstractionExtensions.IO)] = LogLevel.Trace,
             [nameof(AbstractionExtensions.Database)] = LogLevel.Trace,
@@ -118,8 +118,8 @@ namespace Reusable.OmniLog.SemanticExtensions
     public static class AbstractionExtensions
     {
         public static IAbstractionLayer Business(this IAbstraction abstraction) => new AbstractionLayer();
+        public static IAbstractionLayer Monitoring(this IAbstraction abstraction) => new AbstractionLayer();
         public static IAbstractionLayer Infrastructure(this IAbstraction abstraction) => new AbstractionLayer();
-        public static IAbstractionLayer Core(this IAbstraction abstraction) => new AbstractionLayer();
         public static IAbstractionLayer Presentation(this IAbstraction abstraction) => new AbstractionLayer();
         public static IAbstractionLayer IO(this IAbstraction abstraction) => new AbstractionLayer();
         public static IAbstractionLayer Database(this IAbstraction abstraction) => new AbstractionLayer();
