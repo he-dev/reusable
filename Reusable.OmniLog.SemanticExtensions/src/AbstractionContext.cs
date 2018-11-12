@@ -20,6 +20,17 @@ namespace Reusable.OmniLog.SemanticExtensions
 
     public class AbstractionContext : IAbstractionContext
     {
+        public static IDictionary<SoftString, LogLevel> LogLevels = new Dictionary<SoftString, LogLevel>
+        {
+            [nameof(AbstractionLayerExtensions.Meta)] = LogLevel.Information,
+            [nameof(AbstractionExtensions.Monitoring)] = LogLevel.Information,
+            [nameof(AbstractionExtensions.Infrastructure)] = LogLevel.Debug,
+            [nameof(AbstractionExtensions.Presentation)] = LogLevel.Trace,
+            [nameof(AbstractionExtensions.IO)] = LogLevel.Trace,
+            [nameof(AbstractionExtensions.Database)] = LogLevel.Trace,
+            [nameof(AbstractionExtensions.Network)] = LogLevel.Trace,
+        };
+
         public AbstractionContext(IAbstractionLayer layer, object dump, [CallerMemberName] string category = null)
         {
             (Layer, LogLevel) = layer;

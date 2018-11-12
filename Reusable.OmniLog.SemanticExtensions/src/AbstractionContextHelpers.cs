@@ -115,7 +115,7 @@ namespace Reusable.OmniLog.SemanticExtensions
 
     #region Layers
 
-    public static class AbstractionExtensions
+    public static class AbstractionExtensions // Layers
     {
         public static IAbstractionLayer Business(this IAbstraction abstraction) => new AbstractionLayer();
         public static IAbstractionLayer Monitoring(this IAbstraction abstraction) => new AbstractionLayer();
@@ -130,7 +130,7 @@ namespace Reusable.OmniLog.SemanticExtensions
 
     #region Categories
 
-    public static class AbstractionLayerExtensions
+    public static class AbstractionLayerExtensions // Categories
     {
         /// <summary>
         /// Logs variables. The dump must be an anonymous type with at least one property: new { foo[, bar] }
