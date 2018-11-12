@@ -37,6 +37,12 @@ namespace Reusable.OmniLog
             return loggerFactory;
         }
 
+        public static LoggerFactory AttachObject(this LoggerFactory loggerFactory, string name, object value)
+        {
+            loggerFactory.Configuration.Attachements.Add(new OmniLog.Attachements.Lambda(name, _ => value));
+            return loggerFactory;
+        }
+
         public static LoggerFactory AddObserver(this LoggerFactory loggerFactory, [NotNull] ILogRx rx)
         {
             loggerFactory.Observers.Add(rx ?? throw new ArgumentNullException(nameof(rx)));

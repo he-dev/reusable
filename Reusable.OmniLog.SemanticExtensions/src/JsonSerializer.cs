@@ -1,6 +1,7 @@
 ﻿using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Reusable.Utilities.JsonNet;
 
 namespace Reusable.OmniLog.SemanticExtensions
 {
@@ -12,7 +13,12 @@ namespace Reusable.OmniLog.SemanticExtensions
             {
                 NullValueHandling = NullValueHandling.Include,
                 Formatting = Formatting.None,
-                Converters = { new StringEnumConverter() }
+                Converters =
+                {
+                    new StringEnumConverter(),
+                    new SoftStringConverter(),
+                    new KeyValuePairConverter<SoftString, object>()
+                }
             };
         }
 

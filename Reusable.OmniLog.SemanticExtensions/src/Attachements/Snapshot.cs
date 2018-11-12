@@ -4,6 +4,8 @@ namespace Reusable.OmniLog.SemanticExtensions.Attachements
 {
     public class Snapshot : LogAttachement
     {
+        public static readonly string BagKey = $"{nameof(Snapshot)}Bag";
+
         private readonly ISerializer _serializer;
 
         /// <summary>
@@ -17,7 +19,7 @@ namespace Reusable.OmniLog.SemanticExtensions.Attachements
         public override object Compute(ILog log)
         {
             return
-                log.TryGetValue(Name + nameof(Object), out var snapshot) 
+                log.TryGetValue(BagKey, out var snapshot) 
                     ? _serializer.Serialize(snapshot) 
                     : null;
         }

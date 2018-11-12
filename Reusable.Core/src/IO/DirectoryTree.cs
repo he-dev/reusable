@@ -20,6 +20,8 @@ namespace Reusable.IO
 
     public class DirectoryTree : IDirectoryTree
     {
+        public static Action<Exception> IgnoreExceptions { get; } = _ => { };
+
         public IEnumerable<IDirectoryTreeNode> Walk(string path, Action<Exception> onException)
         {
             if (path == null) throw new ArgumentNullException(nameof(path));
@@ -95,14 +97,14 @@ namespace Reusable.IO
 
     public static class DirectoryTreeExtensions
     {
-        [NotNull, ItemNotNull]
-        public static IEnumerable<IDirectoryTreeNode> WalkSilently([NotNull] this IDirectoryTree directoryTree, [NotNull] string path)
-        {
-            if (directoryTree == null) throw new ArgumentNullException(nameof(directoryTree));
-            if (path == null) throw new ArgumentNullException(nameof(path));
+        //[NotNull, ItemNotNull]
+        //public static IEnumerable<IDirectoryTreeNode> WalkSilently([NotNull] this IDirectoryTree directoryTree, [NotNull] string path)
+        //{
+        //    if (directoryTree == null) throw new ArgumentNullException(nameof(directoryTree));
+        //    if (path == null) throw new ArgumentNullException(nameof(path));
 
-            return directoryTree.Walk(path, _ => { });
-        }
+        //    return directoryTree.Walk(path, _ => { });
+        //}
 
         [NotNull, ItemNotNull]
         public static IEnumerable<IDirectoryTreeNode> SkipDirectories([NotNull] this IEnumerable<IDirectoryTreeNode> nodes, [NotNull][RegexPattern] string directoryNamePattern)

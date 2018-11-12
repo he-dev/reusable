@@ -8,11 +8,6 @@ namespace Reusable.Extensions
     {
         public static IEnumerable<KeyValuePair<string, object>> EnumerateProperties<T>(this T obj)
         {
-            if (obj == null)
-            {
-                yield break;
-            }
-
             if (obj is IDictionary<string, object> dictionary)
             {
                 foreach (var item in dictionary)

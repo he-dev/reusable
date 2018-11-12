@@ -8,6 +8,7 @@ using Reusable.Diagnostics;
 using Reusable.IO;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
+using Reusable.OmniLog.Attachements;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.Utilities.NLog.LayoutRenderers;
 
@@ -59,13 +60,19 @@ namespace Reusable.Apps
 
             var loggerFactory =
                 new LoggerFactory()
-                    .UseSemanticExtensions("development", "Reusable.Apps.Console")
+                    .AttachObject("Environment", "Demo")
+                    .AttachObject("Product", "Reusable.Apps.Console")
+                    .AttachScope()
+                    .AttachSnapshot()
+                    .Attach<Timestamp<DateTimeUtc>>()
+                    .AttachElapsedMilliseconds()
                     .AddObserver<NLogRx>();
-                    //.UseConfiguration(LoggerFactoryConfiguration.Load(fileProvider.GetFileInfo(@"cfg\omnilog.json").CreateReadStream()));
+            //.UseConfiguration(LoggerFactoryConfiguration.Load(fileProvider.GetFileInfo(@"cfg\omnilog.json").CreateReadStream()));
 
             var logger = loggerFactory.CreateLogger("Demo");
 
             logger.Log(Abstraction.Layer.Infrastructure().Routine("SemLogTest").Running());
+            logger.Log(Abstraction.Layer.Infrastructure().Meta(new { Null = (string)null }));
 
             // Opening outer-transaction.
             using (logger.BeginScope().WithCorrelationId().WithCorrelationContext(new { Name = "OuterScope", CustomerId = 123 }).AttachElapsed())

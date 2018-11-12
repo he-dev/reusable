@@ -31,7 +31,7 @@ namespace Reusable.Apps
             var bar = foo.Append(2);
 
             Demo.ConsoleColorizer();
-            //Demo.SemanticExtensions();
+            Demo.SemanticExtensions();
 
             //var rxFilter = new AppConfigRxFilter(NLogRx.Create());
 

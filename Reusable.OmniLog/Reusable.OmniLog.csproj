@@ -14,8 +14,11 @@
 
   <ItemGroup>
     <Compile Remove="src\Collections\**" />
+    <Compile Remove="src\Diagnostics\**" />
     <EmbeddedResource Remove="src\Collections\**" />
+    <EmbeddedResource Remove="src\Diagnostics\**" />
     <None Remove="src\Collections\**" />
+    <None Remove="src\Diagnostics\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,10 +39,6 @@
 
   <ItemGroup>
     <Reference Include="System.Configuration" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="src\Diagnostics\" />
   </ItemGroup>
 
 </Project>

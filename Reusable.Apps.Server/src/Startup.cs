@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using Reusable.Apps.Server.Json;
 using Reusable.AspNetCore.Http;
 using Reusable.OmniLog;
+using Reusable.OmniLog.Attachements;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.Utilities.AspNetCore;
 using Reusable.Utilities.AspNetCore.Hosting;
@@ -72,7 +73,12 @@ namespace Reusable.Apps.Server
             services.AddSingleton<IConfiguration>(_configuration);
             services.AddSingleton<ILoggerFactory>(
                 new LoggerFactory()
-                    .UseSemanticExtensions(_hostingEnvironment.EnvironmentName, "Reusable.Apps.Server")
+                    .AttachObject("Environment", _hostingEnvironment.EnvironmentName)
+                    .AttachObject("Product", "Reusable.Apps.Server")
+                    .AttachScope()
+                    .AttachSnapshot()
+                    .Attach<Timestamp<DateTimeUtc>>()
+                    .AttachElapsedMilliseconds()
                     .AddObserver<NLogRx>()
             );
 

@@ -7,35 +7,29 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.OmniLog.Attachements;
 using Reusable.OmniLog.SemanticExtensions.Attachements;
+using Reusable.Utilities.JsonNet;
 
 namespace Reusable.OmniLog.SemanticExtensions
 {
     public static class LoggerFactoryExtensions
     {
-        [NotNull]
-        public static LoggerFactory UseSemanticExtensions
-        (
-            this LoggerFactory loggerFactory,
-            string environment,
-            string product,
-            Action<JsonSerializerSettings> configureScope = null,
-            Action<JsonSerializerSettings> configureSnapshot = null
-        )
+        public static LoggerFactory AttachScope(this LoggerFactory loggerFactory, Action<JsonSerializerSettings> configureScope = null)
         {
             var scopeSerializer = new JsonSerializer();
-            var snapshotSerializer = new JsonSerializer();
-
             configureScope?.Invoke(scopeSerializer.Settings);
-            configureSnapshot?.Invoke(snapshotSerializer.Settings);
+            return loggerFactory.Attach(new Scope(scopeSerializer));
+        }
 
-            return
-                loggerFactory
-                    .Attach("Environment", _ => environment)
-                    .Attach("Product", _ => product)
-                    .Attach<Timestamp<DateTimeUtc>>()
-                    .Attach(new Scope(scopeSerializer))
-                    .Attach(new ElapsedMilliseconds("Elapsed"))
-                    .Attach(new Snapshot(snapshotSerializer));
+        public static LoggerFactory AttachSnapshot(this LoggerFactory loggerFactory, Action<JsonSerializerSettings> configureSnapshot = null)
+        {
+            var snapshotSerializer = new JsonSerializer();
+            configureSnapshot?.Invoke(snapshotSerializer.Settings);
+            return loggerFactory.Attach(new Snapshot(snapshotSerializer));
+        }
+
+        public static LoggerFactory AttachElapsedMilliseconds(this LoggerFactory loggerFactory, string name = "Elapsed")
+        {
+            return loggerFactory.Attach(new ElapsedMilliseconds(name));
         }
     }
 }
