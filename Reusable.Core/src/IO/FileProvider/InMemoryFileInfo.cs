@@ -40,7 +40,7 @@ namespace Reusable.IO
 
         public bool Exists { get; }
 
-        public long Length => IsDirectory ? throw new InvalidOperationException("Directories have not length.") : _data?.Length ?? -1;
+        public long Length => IsDirectory ? throw new InvalidOperationException("Directories have no length.") : _data?.Length ?? -1;
 
         public string Path { get; }
 
@@ -60,17 +60,6 @@ namespace Reusable.IO
                         ? new MemoryStream(_data)
                         : throw new InvalidOperationException("Cannot create a read-stream for a file that does not exist.");
         }
-
-        //public IEnumerator<IFileInfo> GetEnumerator()
-        //{
-        //    return
-        //        IsDirectory
-        //            // ReSharper disable once PossibleNullReferenceException - this is never null because it's protected by IsDirectory.
-        //            ? _files.GetEnumerator()
-        //            : throw new InvalidOperationException("Files cannot be enumerated.");
-        //}
-
-        //IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion
 

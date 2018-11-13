@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 namespace Reusable.IO
 {
     [PublicAPI]
-    public interface IFileInfo : IEquatable<IFileInfo>, IEquatable<string> // IEnumerable<IFileInfo>,
+    public interface IFileInfo : IEquatable<IFileInfo>, IEquatable<string>
     {
         [NotNull]
         string Path { get; }

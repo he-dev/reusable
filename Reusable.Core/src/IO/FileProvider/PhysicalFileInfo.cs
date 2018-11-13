@@ -36,16 +36,6 @@ namespace Reusable.IO
                         : throw new InvalidOperationException("Cannot open '{Path}' for reading because the file does not exist.");
         }
 
-        //public IEnumerator<IFileInfo> GetEnumerator()
-        //{
-        //    return
-        //        IsDirectory
-        //            ? (Exists ? Directory.GetFileSystemEntries(Path).Select(path => new PhysicalFileInfo(path)) : Enumerable.Empty<IFileInfo>()).GetEnumerator()
-        //            : throw new InvalidOperationException($"Cannot enumerate '{Path}' becuase it's a file.");
-        //}
-
-        //IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
         #endregion
 
         #region IEquatable<IFileInfo>

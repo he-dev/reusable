@@ -24,9 +24,9 @@ namespace Reusable.Commander
 {
     public interface ICommandLineExecutor
     {
-        Task ExecuteAsync([NotNull, ItemNotNull] IEnumerable<ICommandLine> commandLines, CancellationToken cancellationToken = default);
-
         Task ExecuteAsync([CanBeNull] string commandLineString, CancellationToken cancellationToken = default);
+
+        Task ExecuteAsync([NotNull, ItemNotNull] IEnumerable<ICommandLine> commandLines, CancellationToken cancellationToken = default);
 
         Task ExecuteAsync<TBag>([NotNull] Identifier identifier, [CanBeNull] TBag parameter = default, CancellationToken cancellationToken = default) where TBag : ICommandBag, new();
     }
@@ -137,20 +137,20 @@ namespace Reusable.Commander
 
                     if (!executable.Bag.Async)
                     {
-                        cancellationTokenSource.Cancel();                        
+                        cancellationTokenSource.Cancel();
                     }
 
                     _executeExceptionCallback(taskEx);
-//#if DEBUG
-//                    else
-//                    {
-//                        // In debug mode (e.g. unit-testing) this should always throw. Otherwise we might hide some bugs.
-//                        throw DynamicException.Create(
-//                            $"Unexpected",
-//                            $"An unexpected exception occured while executing the '{executable.Command.Id.Default.ToString()}' command."
-//                        );
-//                    }
-//#endif
+                    //#if DEBUG
+                    //                    else
+                    //                    {
+                    //                        // In debug mode (e.g. unit-testing) this should always throw. Otherwise we might hide some bugs.
+                    //                        throw DynamicException.Create(
+                    //                            $"Unexpected",
+                    //                            $"An unexpected exception occured while executing the '{executable.Command.Id.Default.ToString()}' command."
+                    //                        );
+                    //                    }
+                    //#endif
                 }
             }
         }

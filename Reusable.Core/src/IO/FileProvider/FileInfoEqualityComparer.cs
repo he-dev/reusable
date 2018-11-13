@@ -12,28 +12,12 @@ namespace Reusable.IO
         [NotNull]
         public static FileInfoEqualityComparer Default { get; } = new FileInfoEqualityComparer();
 
-        public bool Equals(IFileInfo x, IFileInfo y)
-        {
-            return Equals(x?.Path, y?.Path);
-        }
+        public bool Equals(IFileInfo x, IFileInfo y) => Equals(x?.Path, y?.Path);
 
-        public int GetHashCode(IFileInfo obj)
-        {
-            return GetHashCode(obj.Path);
-        }
+        public int GetHashCode(IFileInfo obj) => GetHashCode(obj.Path);
 
-        public bool Equals(string x, string y)
-        {
-            if (ReferenceEquals(x, y)) return true;
-            if (ReferenceEquals(x, null)) return false;
-            if (ReferenceEquals(y, null)) return false;
+        public bool Equals(string x, string y) => PathComparer.Equals(x, y);
 
-            return PathComparer.Equals(x, y);
-        }
-
-        public int GetHashCode(string obj)
-        {
-            return PathComparer.GetHashCode(obj);
-        }
+        public int GetHashCode(string obj) => PathComparer.GetHashCode(obj);
     }
 }

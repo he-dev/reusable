@@ -8,7 +8,7 @@ namespace Reusable.Tests.IO
     public class RelativeFileProviderTest
     {
         [TestMethod]
-        public void GetFileInfo_Test_txt_Text()
+        public void GetFileInfo_CanGetEmbeddedFile()
         {
             var fileProvider =
                 new RelativeFileProvider(

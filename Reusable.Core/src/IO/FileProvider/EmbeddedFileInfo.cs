@@ -30,16 +30,6 @@ namespace Reusable.IO
         // No protection necessary because there are no embedded directories.
         public Stream CreateReadStream() => _getManifestResourceStream();
 
-        //public IEnumerator<IFileInfo> GetEnumerator()
-        //{
-        //    throw new NotSupportedException($"{nameof(EmbeddedFileInfo)} does not support enumerator.");
-        //}
-
-        //IEnumerator IEnumerable.GetEnumerator()
-        //{
-        //    return GetEnumerator();
-        //}
-
         #region IEquatable<IFileInfo>
 
         public override bool Equals(object obj) => obj is IFileInfo file && Equals(file);

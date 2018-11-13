@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
@@ -23,6 +24,6 @@ namespace Reusable.IO
         Task<IFileInfo> CreateFileAsync([NotNull] string path, [NotNull] Stream data);
 
         [NotNull]
-        IFileInfo DeleteFile([NotNull] string path);                
+        IFileInfo DeleteFile([NotNull] string path);
     }
 }
