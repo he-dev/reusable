@@ -1,5 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using JetBrains.Annotations;
+using Reusable.Reflection;
 
 namespace Reusable.OmniLog
 {
@@ -15,6 +18,9 @@ namespace Reusable.OmniLog
         }
 
         public int Capacity { get; }
+
+        [NotNull]
+        public Log this[int index] => this.ElementAtOrDefault(index) ?? throw DynamicException.Create("LogIndexOutOfRange", $"There is no log at {index}.");
 
         protected override void Log(Log log)
         {
