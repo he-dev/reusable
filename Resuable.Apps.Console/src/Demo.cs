@@ -70,7 +70,7 @@ namespace Reusable.Apps
             //.UseConfiguration(LoggerFactoryConfiguration.Load(fileProvider.GetFileInfo(@"cfg\omnilog.json").CreateReadStream()));
 
             var logger = loggerFactory.CreateLogger("Demo");
-            
+
             logger.Log(Abstraction.Layer.Infrastructure().Routine("SemLogTest").Running());
             logger.Log(Abstraction.Layer.Infrastructure().Meta(new { Null = (string)null }));
 
@@ -79,6 +79,7 @@ namespace Reusable.Apps
             {
                 // Logging some single business variable and a message.
                 logger.Log(Abstraction.Layer.Business().Variable(new { foo = "bar" }), log => log.Message("Hallo variable!"));
+                logger.Log(Abstraction.Layer.Database().Counter(new { RowCount = 7 }));
 
                 // Opening innter-transaction.
                 using (logger.BeginScope().WithCorrelationId().WithCorrelationContext(new { Name = "InnerScope", ItemId = 456 }).AttachElapsed())

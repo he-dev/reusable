@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,6 +31,7 @@ namespace Reusable.OmniLog.SemanticExtensions
             public const string Category = nameof(Category);
             public const string Identifier = nameof(Identifier);
             public const string Snapshot = nameof(Snapshot);
+            public const string LogLevel = nameof(LogLevel);
         }
 
         public static IDictionary<string, LogLevel> LayerLogLevel = new Dictionary<string, LogLevel>
@@ -51,22 +53,36 @@ namespace Reusable.OmniLog.SemanticExtensions
             [nameof(AbstractionLayerExtensions.Argument)] = LogLevel.Trace,
         };
 
-        public AbstractionContext(IImmutableDictionary<string, object> values, string property, [CallerMemberName] string name = null)
-        {
-            Values = values.Add(property, name);
-        }
-
-        public AbstractionContext(string property, [CallerMemberName] string name = null)
-            : this(ImmutableDictionary<string, object>.Empty, property, name)
-        {
-        }
-
         public AbstractionContext(IImmutableDictionary<string, object> values)
         {
             Values = values;
         }
 
+        public AbstractionContext(IImmutableDictionary<string, object> values, string property, [CallerMemberName] string name = null)
+            : this(values.Add(property, name))
+        { }
+
+        public AbstractionContext(string property, [CallerMemberName] string name = null)
+            : this(ImmutableDictionary<string, object>.Empty.Add(property, name))
+        { }
+
+
         public IImmutableDictionary<string, object> Values { get; }
+
+        private LogLevel LogLevel
+        {
+            get
+            {
+                if (Values.TryGetValue(PropertyNames.LogLevel, out var logLevel)) return (LogLevel)logLevel;
+                if (CategoryLogLevel.TryGetValue((string)Values[PropertyNames.Category], out var logLevelByCategory)) return logLevelByCategory;
+                if (LayerLogLevel.TryGetValue((string)Values[PropertyNames.Layer], out var logLevelByLayer)) return logLevelByLayer;
+                throw DynamicException.Create
+                (
+                    "LogLevelNotFound",
+                    $"Neither category '{Values[PropertyNames.Category]}' nor layer '{Values[PropertyNames.Layer]}' map to a valid log-level."
+                );
+            }
+        }
 
         public void Log(ILogger logger, Action<Log> configureLog)
         {
@@ -78,18 +94,11 @@ namespace Reusable.OmniLog.SemanticExtensions
                         : snapshot.EnumerateProperties()
                     : Enumerable.Empty<KeyValuePair<string, object>>();
 
-            var mappedLogLevel =
-                CategoryLogLevel.TryGetValue((string)Values[PropertyNames.Category], out var logLevel)
-                    ? logLevel
-                    : LayerLogLevel.TryGetValue((string)Values[PropertyNames.Layer], out logLevel)
-                        ? logLevel
-                        : throw DynamicException.Create("LogLevelNotFound", $"Neither category '{Values[PropertyNames.Category]}' nor layer '{Values[PropertyNames.Layer]}' map to a valid log-level.");
-
             var values = Values;
 
             foreach (var dump in properties)
             {
-                logger.Log(mappedLogLevel, log =>
+                logger.Log(LogLevel, log =>
                 {
                     // todo - this could be a loop over 'values'
                     log.With(PropertyNames.Identifier, dump.Key);
@@ -99,6 +108,31 @@ namespace Reusable.OmniLog.SemanticExtensions
                     configureLog?.Invoke(log);
                 });
             }
+        }
+    }
+
+    public static class ObjectExtensions
+    {
+        public static IEnumerable<KeyValuePair<string, object>> EnumerateProperties<T>(this T obj)
+        {
+            return
+                obj is IDictionary<string, object> dictionary
+                    ? dictionary
+                    : obj
+                        .GetType()
+                        .ValidateIsAnonymous()
+                        .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                        .Select(property => new KeyValuePair<string, object>(property.Name, property.GetValue(obj)));
+        }
+
+        public static Type ValidateIsAnonymous(this Type type)
+        {
+            var isAnonymous = type.Name.StartsWith("<>f__AnonymousType");
+
+            return
+                isAnonymous
+                    ? type
+                    : throw DynamicException.Create("Snapshot", "Snapshot must be either an anonymous type of a dictionary");
         }
     }
 }
