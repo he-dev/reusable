@@ -70,7 +70,7 @@ namespace Reusable.Apps
             //.UseConfiguration(LoggerFactoryConfiguration.Load(fileProvider.GetFileInfo(@"cfg\omnilog.json").CreateReadStream()));
 
             var logger = loggerFactory.CreateLogger("Demo");
-
+            
             logger.Log(Abstraction.Layer.Infrastructure().Routine("SemLogTest").Running());
             logger.Log(Abstraction.Layer.Infrastructure().Meta(new { Null = (string)null }));
 
