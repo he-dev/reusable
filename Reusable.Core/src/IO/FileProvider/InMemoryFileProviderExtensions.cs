@@ -26,7 +26,7 @@ namespace Reusable.IO
         /// </summary>
         public static void Add(this InMemoryFileProvider fileProvider, string path)
         {
-            fileProvider.CreateDirectory(path);
+            fileProvider.CreateDirectoryAsync(path).GetAwaiter().GetResult();
         }
     }
 }

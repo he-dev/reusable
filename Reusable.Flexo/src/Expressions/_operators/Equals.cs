@@ -9,7 +9,7 @@ namespace Reusable.Flexo.Expressions
 {
     public class Equals : PredicateExpression
     {
-        protected Equals(string name) : base(name) { }
+        public Equals() : base(nameof(Equals)) { }
 
         [DefaultValue(true)]
         public bool IgnoreCase { get; set; } = true;
@@ -20,8 +20,8 @@ namespace Reusable.Flexo.Expressions
 
         protected override bool Calculate(IExpressionContext context)
         {
-            var x = Expression1.InvokeWithValidation(context).Value<object>();
-            var y = Expression2.InvokeWithValidation(context).Value<object>();
+            var x = Expression1.InvokeWithValidation(context).ValueOrDefault();
+            var y = Expression2.InvokeWithValidation(context).ValueOrDefault();
 
             if (x is string str1 && y is string str2 && IgnoreCase)
             {
@@ -46,7 +46,6 @@ namespace Reusable.Flexo.Expressions
         protected override bool Calculate(IExpressionContext context)
         {
             var x = Expression.InvokeWithValidation(context).Value<string>();
-            //var y = Expression2.InvokeWithValidation(context).Value<string>();
 
             return !(x is null) && Regex.IsMatch(x, Pattern, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None);
         }

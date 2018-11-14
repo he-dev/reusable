@@ -22,7 +22,7 @@ namespace Reusable.Utilities.SqlClient.SqlSchemas
         static SqlSchemaReader()
         {
             var fileProvider = new EmbeddedFileProvider(typeof(SqlSchemaReader).Assembly);
-            GetIdentityColumnSchemasQuery  = fileProvider.GetFileInfo($"sql\\{nameof(GetIdentityColumnSchemas)}.sql").ReadAllText();
+            GetIdentityColumnSchemasQuery  = fileProvider.GetFileInfoAsync($"sql\\{nameof(GetIdentityColumnSchemas)}.sql").Result.ReadAllText();
         }
 
         public static IList<SqlTableSchema> GetTableSchemas(this SqlConnection sqlConnection, SqlTableSchema schemaRestriction)

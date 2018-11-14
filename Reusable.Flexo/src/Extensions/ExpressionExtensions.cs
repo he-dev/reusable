@@ -113,6 +113,14 @@ namespace Reusable.Flexo.Extensions
                     : default;
         }
 
+        public static object ValueOrDefault(this IExpression expression)
+        {
+            return
+                expression is IConstant constant
+                    ? constant.Value
+                    : default;
+        }
+
         public static TExpression Log<TExpression>(this TExpression expression) where TExpression : IExpression
         {
             return (TExpression)(ExpressionContextScope.Current.Result = expression);

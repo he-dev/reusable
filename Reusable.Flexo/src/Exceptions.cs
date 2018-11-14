@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Reusable.Extensions;
 using Reusable.Flexo.Expressions;
 
 namespace Reusable.Flexo
@@ -8,7 +9,7 @@ namespace Reusable.Flexo
     public class InvalidExpressionException : Exception
     {
         public InvalidExpressionException(Type expectedExpressionType, Type actualExpressionType)
-            : base($"Invalid expression type. Expected: {expectedExpressionType.Name}; Actual: {actualExpressionType.Name}.")
+            : base($"Invalid expression type. Expected: {expectedExpressionType.ToPrettyString()}; Actual: {actualExpressionType.ToPrettyString()}.")
         { }
     }
 

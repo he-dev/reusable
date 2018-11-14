@@ -9,9 +9,9 @@ namespace Reusable.IO
         { }
     }
 
-    public class CreateFileException : Exception
+    public class SaveFileException : Exception
     {
-        public CreateFileException(string path, Exception innerException)
+        public SaveFileException(string path, Exception innerException)
             : base($"Could not create file: {path}", innerException)
         { }
     }

@@ -55,7 +55,7 @@ namespace Reusable.OmniLog.Tests
         public void CanFilterLogByLevel()
         {
             var resources = new EmbeddedFileProvider(typeof(FeatureTest).Assembly);
-            var omniLogJson = resources.GetFileInfo(@"res\OmniLog\OmniLog.json");
+            var omniLogJson = resources.GetFileInfoAsync(@"res\OmniLog\OmniLog.json").Result;
             using (var jsonStream = omniLogJson.CreateReadStream())
             {
                 var memory = new MemoryRx();

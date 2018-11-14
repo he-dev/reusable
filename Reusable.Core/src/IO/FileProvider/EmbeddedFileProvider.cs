@@ -51,7 +51,7 @@ namespace Reusable.IO
             throw new NotSupportedException($"{nameof(EmbeddedFileProvider)} does not support directory deletion.");
         }
 
-        public Task<IFileInfo> CreateFileAsync(string path, Stream data)
+        public Task<IFileInfo> SaveFileAsync(string path, Stream data)
         {
             throw new NotSupportedException($"{nameof(EmbeddedFileProvider)} does not support file creation.");
         }

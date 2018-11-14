@@ -22,7 +22,7 @@ namespace Reusable.IO
 
         public long Length => Exists && !IsDirectory ? new FileInfo(Path).Length : -1;
 
-        public DateTime ModifiedOn => !string.IsNullOrEmpty(Path) ? File.GetLastWriteTime(Path) : default;
+        public DateTime ModifiedOn => !string.IsNullOrWhiteSpace(Path) ? File.GetLastWriteTime(Path) : default;
 
         public bool IsDirectory => Directory.Exists(Path);
 

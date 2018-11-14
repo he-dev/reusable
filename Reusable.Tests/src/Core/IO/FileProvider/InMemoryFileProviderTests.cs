@@ -34,13 +34,13 @@ namespace Reusable.Tests.IO
             //Assert.AreEqual(5, fileProvider.GetFileInfo(@"C:\temp").Count());
             //Assert.AreEqual(2, fileProvider.GetFileInfo(@"C:\temp\sub").Count());
 
-            var foo = fileProvider.GetFileInfo(@"C:\temp\foo.txt");
+            var foo = fileProvider.GetFileInfoAsync(@"C:\temp\foo.txt").Result;
 
             Assert.IsTrue(foo.Exists);
             Assert.IsFalse(foo.IsDirectory);
             Assert.AreEqual("foo", foo.ReadAllTextAsync().GetAwaiter().GetResult());
 
-            var sub = fileProvider.GetFileInfo(@"C:\temp\sub");
+            var sub = fileProvider.GetFileInfoAsync(@"C:\temp\sub").Result;
 
             Assert.IsTrue(sub.Exists);
             Assert.IsTrue(sub.IsDirectory);

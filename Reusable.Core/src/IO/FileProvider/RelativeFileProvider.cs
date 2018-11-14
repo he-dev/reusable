@@ -5,6 +5,8 @@ using JetBrains.Annotations;
 
 namespace Reusable.IO
 {
+    using static FileProviderCapabilities;
+
     public class RelativeFileProvider : IFileProvider
     {
         private readonly IFileProvider _fileProvider;
@@ -17,15 +19,17 @@ namespace Reusable.IO
             _basePath = basePath ?? throw new ArgumentNullException(nameof(basePath));
         }
 
-        public IFileInfo GetFileInfo(string path) => _fileProvider.GetFileInfo(CreateFullPath(path));
+        public FileProviderCapabilities Capabilities => _fileProvider.Capabilities;
 
-        public IFileInfo CreateDirectory(string path) => _fileProvider.CreateDirectory(CreateFullPath(path));
+        public async Task<IFileInfo> GetFileInfoAsync(string path) => await _fileProvider.GetFileInfoAsync(CreateFullPath(path));
 
-        public IFileInfo DeleteDirectory(string path, bool recursive) => _fileProvider.DeleteDirectory(CreateFullPath(path), recursive);
+        public async Task<IFileInfo> CreateDirectoryAsync(string path) => await _fileProvider.CreateDirectoryAsync(CreateFullPath(path));
 
-        public Task<IFileInfo> CreateFileAsync(string path, Stream data) => _fileProvider.CreateFileAsync(CreateFullPath(path), data);
+        public async Task<IFileInfo> DeleteDirectoryAsync(string path, bool recursive) => await _fileProvider.DeleteDirectoryAsync(CreateFullPath(path), recursive);
 
-        public IFileInfo DeleteFile(string path) => _fileProvider.DeleteFile(CreateFullPath(path));
+        public async Task<IFileInfo> SaveFileAsync(string path, Stream data) => await _fileProvider.SaveFileAsync(CreateFullPath(path), data);
+
+        public async Task<IFileInfo> DeleteFileAsync(string path) => await _fileProvider.DeleteFileAsync(CreateFullPath(path));
 
         private string CreateFullPath(string path) => Path.Combine(_basePath, path ?? throw new ArgumentNullException(nameof(path)));
     }

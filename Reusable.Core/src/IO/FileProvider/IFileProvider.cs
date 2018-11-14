@@ -20,7 +20,7 @@ namespace Reusable.IO
 
         Task<IFileInfo> DeleteDirectoryAsync([NotNull] string path, bool recursive);
 
-        Task<IFileInfo> CreateFileAsync([NotNull] string path, [NotNull] Stream data);
+        Task<IFileInfo> SaveFileAsync([NotNull] string path, [NotNull] Stream data);
 
         Task<IFileInfo> DeleteFileAsync([NotNull] string path);
     }

@@ -13,7 +13,7 @@ namespace Reusable.IO.Extensions
         {
             using (var memoryStream = new MemoryStream((encoding ?? Encoding.UTF8).GetBytes(data)))
             {
-                return await fileProvider.CreateFileAsync(path, memoryStream);
+                return await fileProvider.SaveFileAsync(path, memoryStream);
             }
         }
 

@@ -25,7 +25,7 @@ namespace Reusable.IO
 
         public Task<IFileInfo> CreateDirectoryAsync(string path)
         {
-            path = path.TrimEnd('\\');
+            path = path.TrimEnd(Path.DirectorySeparatorChar);
             var newDirectory = new InMemoryFileInfo(path, _files.Where(f => f.Path.StartsWith(path)));
             _files.Add(newDirectory);
             return Task.FromResult<IFileInfo>(newDirectory);
@@ -36,7 +36,7 @@ namespace Reusable.IO
             return DeleteFileAsync(path);
         }
 
-        public Task<IFileInfo> CreateFileAsync(string path, Stream data)
+        public Task<IFileInfo> SaveFileAsync(string path, Stream data)
         {
             var file = new InMemoryFileInfo(path, GetByteArray(data));
             _files.Remove(file);

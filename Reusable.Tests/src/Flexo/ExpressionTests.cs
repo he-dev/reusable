@@ -172,8 +172,8 @@ namespace Reusable.Tests.Flexo
         {
             Assert.That.ExpressionsEqual(nameof(Equals), true, new Equals
             {
-                Expression = Constant.Create(nameof(Equals), "foo"),
-                Patterns = new[] { "foo" },
+                Expression1 = Constant.Create("x", "foo"),
+                Expression2 = Constant.Create("y", "foo"),
             });
         }
 
@@ -182,8 +182,8 @@ namespace Reusable.Tests.Flexo
         {
             Assert.That.ExpressionsEqual(nameof(Equals), false, new Equals
             {
-                Expression = Constant.Create(nameof(Equals), "foo"),
-                Patterns = new[] { "bar" },                
+                Expression1 = Constant.Create("x", "foo"),
+                Expression2 = Constant.Create("x", "bar"),
             });
         }
     }
@@ -355,7 +355,7 @@ namespace Reusable.Tests.Flexo
         public void Deserialize_IIf_True()
         {
             var serializer = new ExpressionSerializer(); //new DefaultContractResolver());
-            var iif = serializer.Deserialize<IIf>(Resources.GetFileInfo(@"IIf.json").CreateReadStream());
+            var iif = serializer.Deserialize<IIf>(Resources.GetFileInfoAsync(@"IIf.json").Result.CreateReadStream());
             var result = iif.Invoke(Helpers.CreateContext());
 
             Assert.AreEqual(Constant.Create("True", "foo"), result);
@@ -365,7 +365,7 @@ namespace Reusable.Tests.Flexo
         public void Deserialize_Full_True()
         {
             var serializer = new ExpressionSerializer(); //new DefaultContractResolver());
-            var expressions = serializer.Deserialize<IExpression[]>(Resources.GetFileInfo(@"Full.json").CreateReadStream());
+            var expressions = serializer.Deserialize<IExpression[]>(Resources.GetFileInfoAsync(@"Full.json").Result.CreateReadStream());
             var results = expressions.InvokeWithValidation(Helpers.CreateContext()).ToList();
 
             Assert.AreEqual(2, results.Count);

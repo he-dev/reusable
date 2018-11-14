@@ -31,7 +31,7 @@ namespace Reusable.OmniLog
         public static LoggerFactoryConfiguration Load(string fileName)
         {
             var provider = Path.IsPathRooted(fileName) ? AbsoluteProvider : CurrentDirectoryProvider;
-            using (var jsonStream = provider.GetFileInfo(fileName).CreateReadStream())
+            using (var jsonStream = provider.GetFileInfoAsync(fileName).Result.CreateReadStream())
             {
                 return Load(jsonStream);
             }

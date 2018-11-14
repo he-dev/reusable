@@ -23,13 +23,14 @@ namespace Reusable.IO
         {
             if (path == null) throw new ArgumentNullException(nameof(path));
 
-            if (Directory.Exists(path))
-            {
-                return Task.FromResult<IFileInfo>(new PhysicalFileInfo(path));
-            }
 
             try
             {
+                if (Directory.Exists(path))
+                {
+                    return Task.FromResult<IFileInfo>(new PhysicalFileInfo(path));
+                }
+
                 var newDirectory = Directory.CreateDirectory(path);
                 return Task.FromResult<IFileInfo>(new PhysicalFileInfo(newDirectory.FullName));
             }
@@ -39,7 +40,7 @@ namespace Reusable.IO
             }
         }
 
-        public async Task<IFileInfo> CreateFileAsync(string path, Stream data)
+        public async Task<IFileInfo> SaveFileAsync(string path, Stream data)
         {
             try
             {
@@ -52,7 +53,7 @@ namespace Reusable.IO
             }
             catch (Exception ex)
             {
-                throw new CreateFileException(path, ex);
+                throw new SaveFileException(path, ex);
             }
         }
 
