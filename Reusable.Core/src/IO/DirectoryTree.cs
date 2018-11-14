@@ -15,14 +15,21 @@ namespace Reusable.IO
     public interface IDirectoryTree
     {
         [NotNull, ItemNotNull]
-        IEnumerable<IDirectoryTreeNode> Walk([NotNull] string path, [NotNull] Action<Exception> onException);
+        IEnumerable<IDirectoryTreeNode> Walk([NotNull] string path, Func<IDirectoryTreeNode, bool> predicate, [NotNull] Action<Exception> onException);
     }
 
     public class DirectoryTree : IDirectoryTree
     {
         public static Action<Exception> IgnoreExceptions { get; } = _ => { };
 
-        public IEnumerable<IDirectoryTreeNode> Walk(string path, Action<Exception> onException)
+        public static Func<IDirectoryTreeNode, bool> Unfiltered { get; } = _ => true;
+
+        /// <summary>
+        /// Specifies the max depth of the directory tree. The upper limit is exclusive.
+        /// </summary>
+        public static Func<IDirectoryTreeNode, bool> MaxDepth(int maxDepth) => node => node.Depth < maxDepth;
+
+        public IEnumerable<IDirectoryTreeNode> Walk(string path, Func<IDirectoryTreeNode, bool> predicate, Action<Exception> onException)
         {
             if (path == null) throw new ArgumentNullException(nameof(path));
             if (onException == null) throw new ArgumentNullException(nameof(onException));
@@ -32,16 +39,15 @@ namespace Reusable.IO
                 new DirectoryTreeNode(path)
             };
 
-            while (nodes.Any())
+            while (nodes.Any() && nodes.Dequeue() is var current && predicate(current))
             {
-                var current = nodes.Dequeue();
                 yield return current;
 
                 try
                 {
                     foreach (var directory in current.DirectoryNames)
                     {
-                        nodes.Enqueue(new DirectoryTreeNode(Path.Combine(current.DirectoryName, directory)));
+                        nodes.Enqueue(new DirectoryTreeNode(Path.Combine(current.DirectoryName, directory), current.Depth + 1));
                     }
                 }
                 catch (Exception inner)
@@ -58,6 +64,8 @@ namespace Reusable.IO
         [NotNull]
         string DirectoryName { get; }
 
+        int Depth { get; }
+
         [NotNull, ItemNotNull]
         IEnumerable<string> DirectoryNames { get; }
 
@@ -67,12 +75,15 @@ namespace Reusable.IO
 
     internal class DirectoryTreeNode : IDirectoryTreeNode
     {
-        internal DirectoryTreeNode(string path)
+        internal DirectoryTreeNode(string path, int depth = 0)
         {
             DirectoryName = path;
+            Depth = depth;
         }
 
         public string DirectoryName { get; }
+
+        public int Depth { get; }
 
         public IEnumerable<string> DirectoryNames => Directory.EnumerateDirectories(DirectoryName).Select(Path.GetFileName);
 
@@ -81,12 +92,15 @@ namespace Reusable.IO
 
     internal class DirectoryTreeNodeFilter : IDirectoryTreeNode
     {
-        internal DirectoryTreeNodeFilter(string path, IEnumerable<string> directoryNames, IEnumerable<string> fileNames)
+        internal DirectoryTreeNodeFilter(string path, int depth, IEnumerable<string> directoryNames, IEnumerable<string> fileNames)
         {
             DirectoryName = path;
+            Depth = depth;
             DirectoryNames = directoryNames;
             FileNames = fileNames;
         }
+
+        public int Depth { get; }
 
         public string DirectoryName { get; }
 
@@ -97,15 +111,6 @@ namespace Reusable.IO
 
     public static class DirectoryTreeExtensions
     {
-        //[NotNull, ItemNotNull]
-        //public static IEnumerable<IDirectoryTreeNode> WalkSilently([NotNull] this IDirectoryTree directoryTree, [NotNull] string path)
-        //{
-        //    if (directoryTree == null) throw new ArgumentNullException(nameof(directoryTree));
-        //    if (path == null) throw new ArgumentNullException(nameof(path));
-
-        //    return directoryTree.Walk(path, _ => { });
-        //}
-
         [NotNull, ItemNotNull]
         public static IEnumerable<IDirectoryTreeNode> SkipDirectories([NotNull] this IEnumerable<IDirectoryTreeNode> nodes, [NotNull][RegexPattern] string directoryNamePattern)
         {
@@ -118,6 +123,7 @@ namespace Reusable.IO
                 select new DirectoryTreeNodeFilter
                 (
                     node.DirectoryName,
+                    node.Depth,
                     from dirname in node.DirectoryNames where !dirname.Matches(directoryNamePattern) select dirname,
                     node.FileNames
                 );
@@ -134,6 +140,7 @@ namespace Reusable.IO
                 select new DirectoryTreeNodeFilter
                 (
                     node.DirectoryName,
+                    node.Depth,
                     node.DirectoryNames,
                     from fileName in node.FileNames where !fileName.Matches(fileNamePattern) select fileName
                 );
@@ -151,6 +158,7 @@ namespace Reusable.IO
                 select new DirectoryTreeNodeFilter
                 (
                     node.DirectoryName,
+                    node.Depth,
                     from dirname in node.DirectoryNames where dirname.Matches(directoryNamePattern) select dirname,
                     node.FileNames
                 );
@@ -167,6 +175,7 @@ namespace Reusable.IO
                 select new DirectoryTreeNodeFilter
                 (
                     node.DirectoryName,
+                    node.Depth,
                     node.DirectoryNames,
                     from fileName in node.FileNames
                     where fileName.Matches(fileNamePattern)
