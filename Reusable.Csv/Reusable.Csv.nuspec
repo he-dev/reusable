@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Csv</id>
-    <version>7.0.26</version>
+    <version>7.1.0</version>
     <title>Reusable.Csv</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -16,8 +16,8 @@
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2018.2.1" />
-      <dependency id="Reusable.Converters" version="7.0.26" />
-      <dependency id="Reusable.Core" version="7.0.26" />
+      <dependency id="Reusable.Convertia" version="7.1.0" />
+      <dependency id="Reusable.Core" version="7.1.0" />
     </dependencies>
   </metadata>
   <files>
