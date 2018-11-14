@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Reusable.Flexo.Abstractions;
 using Reusable.Flexo.Annotations;
 using Reusable.Flexo.Diagnostics;
 using Reusable.Flexo.Expressions;
@@ -65,7 +64,7 @@ namespace Reusable.Flexo.Extensions
         //    return expressions.Where(x => x.Enabled);
         //}
 
-        public static IExpression SafeInvoke(this IExpression expression, IExpressionContext context)
+        public static IExpression InvokeWithValidation(this IExpression expression, IExpressionContext context)
         {
             return
                 expression.Enabled
@@ -76,7 +75,7 @@ namespace Reusable.Flexo.Extensions
                     : Expression.Empty;
         }
 
-        public static IEnumerable<IExpression> SafeInvoke(this IEnumerable<IExpression> expressions, IExpressionContext context)
+        public static IEnumerable<IExpression> InvokeWithValidation(this IEnumerable<IExpression> expressions, IExpressionContext context)
         {
             return
                 from expression in expressions

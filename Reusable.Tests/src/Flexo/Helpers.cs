@@ -1,7 +1,6 @@
 ﻿using System;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Flexo.Abstractions;
 using Reusable.Flexo.Expressions;
 
 namespace Reusable.Tests.Flexo

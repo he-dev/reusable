@@ -2,7 +2,6 @@
 using System.IO;
 using JetBrains.Annotations;
 using Reusable.Extensions;
-using Reusable.Flexo.Abstractions;
 using Reusable.Flexo.Extensions;
 
 namespace Reusable.OmniLog

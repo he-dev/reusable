@@ -5,8 +5,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Flexo.Expressions;
-using Reusable.Flexo.Expressions.Operators;
-using Reusable.Flexo.Expressions.Operators.Binary;
 using Reusable.Utilities.JsonNet;
 
 namespace Reusable.Flexo

@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Threading;
 using Reusable.Diagnostics;
-using Reusable.Flexo.Abstractions;
 using Reusable.Flexo.Expressions;
 
 namespace Reusable.Flexo.Diagnostics

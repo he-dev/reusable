@@ -1,6 +1,4 @@
-﻿using Reusable.Flexo.Abstractions;
-
-namespace Reusable.Flexo.Expressions.Operators.Binary
+﻿namespace Reusable.Flexo.Expressions
 {
     public class GreaterThan : ComparerExpression
     {

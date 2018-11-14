@@ -2,10 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Serialization;
 using Reusable.Flexo;
-using Reusable.Flexo.Abstractions;
 using Reusable.Flexo.Expressions;
-using Reusable.Flexo.Expressions.Operators;
-using Reusable.Flexo.Expressions.Operators.Binary;
 using Reusable.Flexo.Extensions;
 using Reusable.IO;
 
@@ -369,7 +366,7 @@ namespace Reusable.Tests.Flexo
         {
             var serializer = new ExpressionSerializer(); //new DefaultContractResolver());
             var expressions = serializer.Deserialize<IExpression[]>(Resources.GetFileInfo(@"Full.json").CreateReadStream());
-            var results = expressions.SafeInvoke(Helpers.CreateContext()).ToList();
+            var results = expressions.InvokeWithValidation(Helpers.CreateContext()).ToList();
 
             Assert.AreEqual(2, results.Count);
 

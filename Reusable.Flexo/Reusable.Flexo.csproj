@@ -18,7 +18,7 @@
     <None Remove="src\Utilities\**" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="src\Abstractions\ICommand.cs" />
+    <Compile Remove="src\Expressions\_abstractions\ICommand.cs" />
     <Compile Remove="src\Call.cs" />
     <Compile Remove="src\Expressions\Block.cs" />
   </ItemGroup>

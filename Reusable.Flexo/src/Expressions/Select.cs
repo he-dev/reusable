@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Reusable.Flexo.Abstractions;
 using Reusable.Flexo.Extensions;
 
 namespace Reusable.Flexo.Expressions
@@ -15,7 +14,7 @@ namespace Reusable.Flexo.Expressions
 
         public override IExpression Invoke(IExpressionContext context)
         {
-            return Constant.Create(nameof(Select), Expressions.SafeInvoke(context).ToList());
+            return Constant.Create(nameof(Select), Expressions.InvokeWithValidation(context).ToList());
         }
     }
 }

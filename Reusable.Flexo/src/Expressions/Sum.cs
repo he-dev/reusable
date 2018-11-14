@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using Reusable.Flexo.Abstractions;
 
 namespace Reusable.Flexo.Expressions
 {

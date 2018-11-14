@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Reusable.Flexo.Abstractions;
 using Reusable.Flexo.Extensions;
 
 namespace Reusable.Flexo.Expressions
@@ -15,7 +14,7 @@ namespace Reusable.Flexo.Expressions
         {
             return 
                 Expressions
-                    .SafeInvoke(context)
+                    .InvokeWithValidation(context)
                     .Values<bool>()
                     .All(x => x);
         }

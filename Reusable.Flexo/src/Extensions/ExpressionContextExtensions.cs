@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using Reusable.Flexo.Abstractions;
 using Reusable.Flexo.Diagnostics;
+using Reusable.Flexo.Expressions;
 
 namespace Reusable.Flexo.Extensions
 {

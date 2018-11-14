@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Linq;
-using Reusable.Flexo.Abstractions;
 using Reusable.Flexo.Extensions;
 using Reusable.Reflection;
 
@@ -19,7 +18,7 @@ namespace Reusable.Flexo.Expressions
 
         public override IExpression Invoke(IExpressionContext context)
         {
-            var result = Expression.SafeInvoke(context);
+            var result = Expression.InvokeWithValidation(context);
             if (result is Constant<TFrom> constant)
             {
                 var match = 

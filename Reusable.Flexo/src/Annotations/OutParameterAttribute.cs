@@ -1,5 +1,5 @@
 using System;
-using Reusable.Flexo.Abstractions;
+using Reusable.Flexo.Expressions;
 
 namespace Reusable.Flexo.Annotations
 {

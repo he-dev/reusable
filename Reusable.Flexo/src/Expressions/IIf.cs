@@ -1,5 +1,4 @@
 ﻿using System;
-using Reusable.Flexo.Abstractions;
 using Reusable.Flexo.Extensions;
 
 namespace Reusable.Flexo.Expressions
@@ -20,10 +19,10 @@ namespace Reusable.Flexo.Expressions
             using (context.Scope(this))
             {
                 var expression =
-                    (Predicate.SafeInvoke(context).Log().Value<bool>() ? True : False)
+                    (Predicate.InvokeWithValidation(context).Log().Value<bool>() ? True : False)
                         ?? throw new InvalidOperationException($"{nameof(True)} or {nameof(False)} expression is not defined."); ;
 
-                return expression.SafeInvoke(context).Log();
+                return expression.InvokeWithValidation(context).Log();
             }
         }
     }
