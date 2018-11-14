@@ -5,29 +5,33 @@ using JetBrains.Annotations;
 
 namespace Reusable.IO
 {
+    using static FileProviderCapabilities;
+
     [PublicAPI]
     public class PhysicalFileProvider : IFileProvider
     {
-        public IFileInfo GetFileInfo(string path)
+        public FileProviderCapabilities Capabilities => CanCreateDirectory | CanDeleteDirectory | CanCreateFile | CanDeleteFile | CanReadFile;
+
+        public Task<IFileInfo> GetFileInfoAsync(string path)
         {
             if (path == null) throw new ArgumentNullException(nameof(path));
 
-            return new PhysicalFileInfo(path);
+            return Task.FromResult<IFileInfo>(new PhysicalFileInfo(path));
         }
 
-        public IFileInfo CreateDirectory(string path)
+        public Task<IFileInfo> CreateDirectoryAsync(string path)
         {
             if (path == null) throw new ArgumentNullException(nameof(path));
 
             if (Directory.Exists(path))
             {
-                return new PhysicalFileInfo(path);
+                return Task.FromResult<IFileInfo>(new PhysicalFileInfo(path));
             }
 
             try
             {
                 var newDirectory = Directory.CreateDirectory(path);
-                return new PhysicalFileInfo(newDirectory.FullName);
+                return Task.FromResult<IFileInfo>(new PhysicalFileInfo(newDirectory.FullName));
             }
             catch (Exception ex)
             {
@@ -52,14 +56,14 @@ namespace Reusable.IO
             }
         }
 
-        public IFileInfo DeleteFile(string path)
+        public Task<IFileInfo> DeleteFileAsync(string path)
         {
             if (path == null) throw new ArgumentNullException(nameof(path));
 
             try
             {
                 File.Delete(path);
-                return new PhysicalFileInfo(path);
+                return Task.FromResult<IFileInfo>(new PhysicalFileInfo(path));
             }
             catch (Exception ex)
             {
@@ -67,12 +71,12 @@ namespace Reusable.IO
             }
         }
 
-        public IFileInfo DeleteDirectory(string path, bool recursive)
+        public Task<IFileInfo> DeleteDirectoryAsync(string path, bool recursive)
         {
             try
             {
                 Directory.Delete(path, recursive);
-                return new PhysicalFileInfo(path);
+                return Task.FromResult<IFileInfo>(new PhysicalFileInfo(path));
             }
             catch (Exception ex)
             {

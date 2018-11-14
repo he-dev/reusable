@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -8,22 +9,31 @@ namespace Reusable.IO
     [PublicAPI]
     public interface IFileProvider
     {
+        FileProviderCapabilities Capabilities { get; }
+
         /// <summary>
         /// Gets file or directory info.
         /// </summary>
-        [NotNull]
-        IFileInfo GetFileInfo([NotNull] string path);
+        Task<IFileInfo> GetFileInfoAsync([NotNull] string path);
 
-        [NotNull]
-        IFileInfo CreateDirectory([NotNull] string path);
+        Task<IFileInfo> CreateDirectoryAsync([NotNull] string path);
 
-        [NotNull]
-        IFileInfo DeleteDirectory([NotNull] string path, bool recursive);
+        Task<IFileInfo> DeleteDirectoryAsync([NotNull] string path, bool recursive);
 
-        [NotNull]
         Task<IFileInfo> CreateFileAsync([NotNull] string path, [NotNull] Stream data);
 
-        [NotNull]
-        IFileInfo DeleteFile([NotNull] string path);
+        Task<IFileInfo> DeleteFileAsync([NotNull] string path);
+    }
+
+    [Flags]
+    public enum FileProviderCapabilities
+    {
+        None = 0,
+
+        CanCreateDirectory = 1 << 0,
+        CanDeleteDirectory = 1 << 1,
+        CanCreateFile = 1 << 2,
+        CanDeleteFile = 1 << 3,
+        CanReadFile = 1 << 4
     }
 }

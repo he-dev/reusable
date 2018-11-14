@@ -7,31 +7,35 @@ using System.Threading.Tasks;
 
 namespace Reusable.IO
 {
+    using static FileProviderCapabilities;
+
     public class InMemoryFileProvider : Dictionary<string, byte[]>, IFileProvider
     {
         private readonly ISet<IFileInfo> _files = new HashSet<IFileInfo>();
 
         #region IFileProvider
 
-        public IFileInfo GetFileInfo(string path)
+        public FileProviderCapabilities Capabilities => CanCreateDirectory | CanDeleteDirectory | CanCreateFile | CanDeleteFile | CanReadFile;
+
+        public Task<IFileInfo> GetFileInfoAsync(string path)
         {
             var file = _files.SingleOrDefault(f => FileInfoEqualityComparer.Default.Equals(f.Path, path));
-            return file ?? new InMemoryFileInfo(path, default(byte[]));
+            return Task.FromResult<IFileInfo>(file ?? new InMemoryFileInfo(path, default(byte[])));
         }
 
-        public IFileInfo CreateDirectory(string path)
+        public Task<IFileInfo> CreateDirectoryAsync(string path)
         {
             path = path.TrimEnd('\\');
             var newDirectory = new InMemoryFileInfo(path, _files.Where(f => f.Path.StartsWith(path)));
             _files.Add(newDirectory);
-            return newDirectory;
+            return Task.FromResult<IFileInfo>(newDirectory);
         }
 
-        public IFileInfo DeleteDirectory(string path, bool recursive)
+        public Task<IFileInfo> DeleteDirectoryAsync(string path, bool recursive)
         {
-            return DeleteFile(path);
-
+            return DeleteFileAsync(path);
         }
+
         public Task<IFileInfo> CreateFileAsync(string path, Stream data)
         {
             var file = new InMemoryFileInfo(path, GetByteArray(data));
@@ -49,11 +53,11 @@ namespace Reusable.IO
             }
         }
 
-        public IFileInfo DeleteFile(string path)
+        public Task<IFileInfo> DeleteFileAsync(string path)
         {
             var fileToDelete = new InMemoryFileInfo(path, default(byte[]));
             _files.Remove(fileToDelete);
-            return fileToDelete;
+            return Task.FromResult<IFileInfo>(fileToDelete);
         }
 
         #endregion

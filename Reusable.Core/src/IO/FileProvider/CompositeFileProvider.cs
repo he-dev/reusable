@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 
 namespace Reusable.IO
 {
+    using static FileProviderCapabilities;
+
     public class CompositeFileProvider : IFileProvider
     {
         private readonly IEnumerable<IFileProvider> _fileProviders;
@@ -14,11 +16,13 @@ namespace Reusable.IO
             _fileProviders = fileProviders;
         }
 
-        public IFileInfo GetFileInfo(string path)
+        public FileProviderCapabilities Capabilities => CanReadFile;
+
+        public async Task<IFileInfo> GetFileInfoAsync(string path)
         {
             foreach (var fileProvider in _fileProviders)
             {
-                var fileInfo = fileProvider.GetFileInfo(path);
+                var fileInfo = await fileProvider.GetFileInfoAsync(path);
                 if (fileInfo.Exists)
                 {
                     return fileInfo;
@@ -28,12 +32,12 @@ namespace Reusable.IO
             return new InMemoryFileInfo(path, new byte[0]);
         }
 
-        public IFileInfo CreateDirectory(string path)
+        public Task<IFileInfo> CreateDirectoryAsync(string path)
         {
             throw new NotSupportedException($"{nameof(CompositeFileProvider)} does not support directory creation.");
         }
 
-        public IFileInfo DeleteDirectory(string path, bool recursive)
+        public Task<IFileInfo> DeleteDirectoryAsync(string path, bool recursive)
         {
             throw new NotSupportedException($"{nameof(CompositeFileProvider)} does not support directory deletion.");
         }
@@ -43,7 +47,7 @@ namespace Reusable.IO
             throw new NotSupportedException($"{nameof(CompositeFileProvider)} does not support file creation.");
         }
 
-        public IFileInfo DeleteFile(string path)
+        public Task<IFileInfo> DeleteFileAsync(string path)
         {
             throw new NotSupportedException($"{nameof(CompositeFileProvider)} does not support file deletion.");
         }
