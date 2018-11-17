@@ -30,18 +30,18 @@ namespace Reusable.Apps.Demos
         }
     }
 
-    public interface ITests { }
+    //public interface ITests { }
 
-    public static class TestsClient
-    {
-        public static IResource<ITests> Tests(this IRestClient client, string name) => client.Resource<ITests>(name);
-    }
+    //public static class TestsClient
+    //{
+    //    public static IResource<ITests> Tests(this IRestClient client, string name) => client.Resource<ITests>(name);
+    //}
 
-    public static class TestClientExtensions
-    {
-        public static Task MessageAsync(this IResource<ITests> resource)
-        {
-            return resource.GetAsync<string>(CancellationToken.None);
-        }
-    }
+    //public static class TestClientExtensions
+    //{
+    //    public static Task MessageAsync(this IResource<ITests> resource)
+    //    {
+    //        return resource.GetAsync<string>(CancellationToken.None);
+    //    }
+    //}
 }
