@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
+using Reusable.Mailr;
 using Reusable.Net;
 using Reusable.Net.Http;
 using Reusable.Net.Http.Formatting;
@@ -27,6 +30,28 @@ namespace Reusable.Apps.Demos
             var result = client.InvokeAsync<string>(context).GetAwaiter().GetResult();
 
             //var client = new RestClient("http://localhost:54245/api/", configureDefaultRequestHeaders);
+        }
+
+        public static async Task Mailr()
+        {
+            try
+            {
+                var mailr = MailrClient.Create(baseUri: ConfigurationManager.AppSettings["mailr:BaseUri"], headers =>
+                {
+                    headers.AcceptJson();
+                    headers.UserAgent(productName: "MailrNET", productVersion: "3.0.0");
+                });
+
+                var body =
+                    await
+                        mailr
+                            .Resource("mailr", "messages", "test")
+                            .SendAsync(Email.CreateHtml("...@gmail.com", "Testmail", new { Greeting = "Hallo Mailr!" }, email => email.CanSend = false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex);
+            }
         }
     }
 

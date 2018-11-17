@@ -47,7 +47,8 @@ namespace Reusable.Apps
 
             //Demo.DebuggerDisplay();
 
-            Demos.RestClientDemo.Start();
+            //Demos.RestClientDemo.Start();
+            Demos.RestClientDemo.Mailr().GetAwaiter().GetResult();
 
             
             System.Console.ReadKey();
