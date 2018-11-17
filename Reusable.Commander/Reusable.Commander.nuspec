@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Commander</id>
-    <version>7.6.4</version>
+    <version>7.7.0</version>
     <title>Reusable.Commander</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -17,12 +17,12 @@
     <dependencies>
       <dependency id="Autofac" version="4.8.1" />
       <dependency id="JetBrains.Annotations" version="2018.2.1" />
-      <dependency id="Reusable.Convertia" version="7.6.4" />
-      <dependency id="Reusable.Core" version="7.6.4" />
-      <dependency id="Reusable.MarkupBuilder" version="7.6.4" />
-      <dependency id="Reusable.OmniLog.ColoredConsoleRx" version="7.6.4" />
-      <dependency id="Reusable.OmniLog.SemanticExtensions" version="7.6.4" />
-      <dependency id="Reusable.OmniLog" version="7.6.4" />
+      <dependency id="Reusable.Convertia" version="7.7.0" />
+      <dependency id="Reusable.Core" version="7.7.0" />
+      <dependency id="Reusable.MarkupBuilder" version="7.7.0" />
+      <dependency id="Reusable.OmniLog.ColoredConsoleRx" version="7.7.0" />
+      <dependency id="Reusable.OmniLog.SemanticExtensions" version="7.7.0" />
+      <dependency id="Reusable.OmniLog" version="7.7.0" />
     </dependencies>
   </metadata>
   <files>
