@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Custom;
+using System.Threading;
 using Reusable.Collections;
 using Reusable.Extensions;
 
@@ -12,11 +13,15 @@ namespace Reusable.OmniLog
         {
             // Recreate the log with all properties and compute them.
 
-            var properties =
-                log
-                    .Concat(attachements.Select(attachement => new KeyValuePair<SoftString, object>(attachement.Name, attachement)));
-                    //.Append(new KeyValuePair<SoftString, object>("Scopes", LogScope.Current.Flatten().Select(scope => scope).ToList()));
-                    //.Concat(LogScope.Current.Flatten().Select(scope => (Key: scope.Name, Value: (object)scope)));
+            // Get get last added attachement. This allows us to override them within a scope.
+            attachements =
+                attachements
+                    .Concat(LogScope.Attachements())
+                    .GroupBy(a => a.Name)
+                    .Select(g => g.Last());
+
+            var attachementProperties = attachements.Select(attachement => new KeyValuePair<SoftString, object>(attachement.Name, attachement));
+            var properties = log.Concat(attachementProperties);
 
             log = new Log().AddRangeSafely(properties);
             return log.Compute(log);
@@ -39,10 +44,11 @@ namespace Reusable.OmniLog
                         log[LogProperties.Message] = messageFunc();
                         break;
 
-                    case ILogAttachement computable:
-                        log[item.Key] = computable.Compute(rawLog);
+                    // It is allowed to set the value before the attachement is computed.
+                    case ILogAttachement attachement:
+                        log[item.Key] = attachement.Compute(rawLog);
                         break;
-                    
+
                     default:
                         log[item.Key] = item.Value;
                         break;

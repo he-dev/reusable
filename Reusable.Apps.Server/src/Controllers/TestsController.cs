@@ -1,4 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Reusable.OmniLog;
+using Reusable.OmniLog.SemanticExtensions;
+using Abstraction = Reusable.OmniLog.SemanticExtensions.Abstraction;
+
 
 namespace Reusable.Apps.Server.Controllers
 {
@@ -6,9 +10,17 @@ namespace Reusable.Apps.Server.Controllers
     [Route("/api/[controller]")]
     public class TestsController : Controller
     {
+        private readonly ILogger<TestsController> _logger;
+
+        public TestsController(ILogger<TestsController> logger)
+        {
+            _logger = logger;
+        }
+
         [HttpGet]
         public IActionResult Get(string message)
         {
+            _logger.Log(Abstraction.Layer.Infrastructure().Meta(new { TestMeta = 123 }));
             return Ok("Hallo GET!");
         }
 

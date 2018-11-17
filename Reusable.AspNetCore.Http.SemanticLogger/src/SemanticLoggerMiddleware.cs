@@ -1,13 +1,18 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Linq.Custom;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Reusable.OmniLog;
+using Reusable.OmniLog.Attachements;
 using Reusable.OmniLog.SemanticExtensions;
 
 namespace Reusable.AspNetCore.Http
 {
+    [UsedImplicitly]
+    [PublicAPI]
     public class SemanticLoggerMiddleware
     {
         private readonly ILogger _logger;
@@ -27,23 +32,9 @@ namespace Reusable.AspNetCore.Http
 
         public async Task Invoke(HttpContext context)
         {
-            /*
-             The default Logger property is used to redirect logs into product table.
-             The ProductLogger property overrides the Logger property by providing a value 
-             that is logged into the Logger column instead of the table name.
-             */
-
-            //var product = _configuration.GetProduct(context);
-            var correlationContext = _configuration.GetCorrelationContext(context);
-            var correlationId = _configuration.GetCorrelationId(context);
-            //var logger = _loggerFactory.CreateLogger(_configuration.MapProduct(product));
-
-            using (var scope = _logger.BeginScope().WithCorrelationId(correlationId).AttachElapsed())
+            using (var scope = _logger.BeginScope().AttachElapsed())
             {
-                if (!(correlationContext is null))
-                {
-                    scope.WithCorrelationContext(correlationContext);
-                }
+                _configuration?.ConfigureScope(scope, context);                
 
                 _logger.Log(Abstraction.Layer.Network().Argument(new
                 {
@@ -60,10 +51,7 @@ namespace Reusable.AspNetCore.Http
                         context.Request.Protocol,
                         context.Request.QueryString,
                     }
-                }), log =>
-                {
-                    //log.WithDisplayLogger(product);
-                });
+                }));
 
                 try
                 {
@@ -107,7 +95,6 @@ namespace Reusable.AspNetCore.Http
                     }), log =>
                     {
                         log.Level(MapStatusCode(context.Response.StatusCode));
-                        //log.WithDisplayLogger(product);
                         if (context.ResponseBodyLoggingEnabled())
                         {
                             log.Message(body);
@@ -119,7 +106,6 @@ namespace Reusable.AspNetCore.Http
                     _logger.Log(Abstraction.Layer.Network().Routine("next").Faulted(), log =>
                     {
                         log.Exception(ex);
-                        //log.WithDisplayLogger(product);
                     });
                     throw;
                 }
@@ -144,14 +130,6 @@ namespace Reusable.AspNetCore.Http
             }
 
             return LogLevel.Information;
-        }
-    }
-
-    internal static class LogExtensions
-    {
-        public static ILog WithDisplayLogger(this ILog log, string logger)
-        {
-            return log.With("DisplayLogger", logger);
         }
     }
 

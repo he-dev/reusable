@@ -24,8 +24,7 @@ namespace Reusable.OmniLog.Attachements
             var scopes =
                 LogScope
                     .Current
-                    .Flatten()
-                    //.Cast<ILogScope>()
+                    .Flatten()                    
                     .Select(IgnoreAttachements)
                     .ToList();
 

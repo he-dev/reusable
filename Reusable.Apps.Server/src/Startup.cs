@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Linq.Custom;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Builder;
@@ -78,9 +79,11 @@ namespace Reusable.Apps.Server
                     .AttachScope()
                     .AttachSnapshot()
                     .Attach<Timestamp<DateTimeUtc>>()
-                    .AttachElapsedMilliseconds()
+                    //.AttachElapsedMilliseconds()
                     .AddObserver<NLogRx>()
             );
+
+            services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
 
             //services.AddScoped(serviceProvider => new ClientInfo(HeaderPrefix, serviceProvider.GetService<IMultipartName>()));
         }
@@ -94,11 +97,9 @@ namespace Reusable.Apps.Server
             //loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             //loggerFactory.AddDebug();      
 
-
-
             app.UseSemanticLogger(config =>
             {
-                config.MapProduct = _ => "Master_SemLog3";
+                config.ConfigureScope = (scope, context) => scope.AttachClientCorrelationId(context).AttachClientInfo(context);
             });
 
             //app.UseWhen(
@@ -139,6 +140,38 @@ namespace Reusable.Apps.Server
                     });
                 });
             }
+        }
+    }
+
+    internal static class HttpContextExtensions
+    {
+        public static T AttachClientInfo<T>(this T scope, HttpContext context) where T : ILogScope
+        {
+            var product = context.Request.Headers["X-Product"].ElementAtOrDefault(0);
+            var environment = context.Request.Headers["X-Environment"].ElementAtOrDefault(0);
+
+            if (!string.IsNullOrWhiteSpace(product))
+            {
+                scope.With(new Lambda("Product", _ => product));
+            }
+
+            if (!string.IsNullOrWhiteSpace(environment))
+            {
+                scope.With(new Lambda("Environment", _ => environment));
+            }
+
+            return scope;
+        }
+
+        public static T AttachClientCorrelationId<T>(this T scope, HttpContext context) where T : ILogScope
+        {
+            var correlationId = context.Request.Headers["X-Correlation-ID"].SingleOrDefault() ?? context.TraceIdentifier;
+
+            if (!string.IsNullOrWhiteSpace(correlationId))
+            {
+                scope.WithCorrelationId(correlationId);
+            }
+            return scope;
         }
     }
 }

@@ -21,8 +21,8 @@
 	var connectionString = "data source=(local);initial catalog=TestDb;Integrated Security=true;";
 	//var database = "testingdb";
 	var schema = "dbo";
-	var tablePattern = "Master_SemLog3$";
-	var fallbackLogPattern = "Master_SemLog3$";
+	var tablePattern = "Test_SemLog3$";
+	var fallbackLogPattern = "Test_SemLog3$";
 	var internalLogFile = @"c:\temp\Reusable.Apps.Server.N.log";
 	
 #>

@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.SmartConfig.AppConfig</id>
-    <version>7.2.2</version>
+    <version>7.5.0</version>
     <title>Reusable.SmartConfig.AppConfig</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -17,8 +17,8 @@
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2018.2.1" />
       <dependency id="System.ValueTuple" version="4.5.0" />
-      <dependency id="Reusable.Core" version="7.2.2" />
-      <dependency id="Reusable.SmartConfig" version="7.2.2" />
+      <dependency id="Reusable.Core" version="7.5.0" />
+      <dependency id="Reusable.SmartConfig" version="7.5.0" />
     </dependencies>
   </metadata>
   <files>

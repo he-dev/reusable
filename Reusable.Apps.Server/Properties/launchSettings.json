@@ -18,8 +18,8 @@
     },
     "Kestrel.Development": {
       "commandName": "Project",
-      "launchBrowser": true,
-      "launchUrl": "home",
+      "launchBrowser": false,
+      "launchUrl": "test",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

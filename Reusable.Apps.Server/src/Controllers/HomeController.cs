@@ -10,7 +10,7 @@ namespace Reusable.Apps.Server.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok("Welcome to Vault!");
+            return Ok("Welcome to my test server!");
         }
     }
 }

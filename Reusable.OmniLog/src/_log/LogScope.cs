@@ -45,6 +45,15 @@ namespace Reusable.OmniLog
             private set => _current.Value = value;
         }
 
+        public static IEnumerable<ILogAttachement> Attachements()
+        {
+            return 
+                Current
+                    .Flatten()
+                    .SelectMany(scope => scope.Values)
+                    .OfType<ILogAttachement>();
+        }
+
         #region ILogScope
 
         //public object CorrelationId
