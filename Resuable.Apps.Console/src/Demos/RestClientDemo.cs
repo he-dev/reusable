@@ -1,8 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using Reusable.Net;
 using Reusable.Net.Http;
+using Reusable.Net.Http.Formatting;
 
 namespace Reusable.Apps.Demos
 {
@@ -10,20 +13,20 @@ namespace Reusable.Apps.Demos
     {
         public static void Start()
         {
-            var configureDefaultRequestHeaders =
-                new HttpRequestHeadersConfiguration()
-                    .Clear()
-                    .AcceptJson()
-                    .AddRange(new Dictionary<string, IEnumerable<string>>
-                    {
-                        ["X-Reusable-Environment"] = new[] { "development" },
-                        ["X-Reusable-Product"] = new[] { "Reusable" },
-                        ["X-Reusable-ProductVersion"] = new[] { "4.0.0" }
-                    });
+            var client = new RestClient("http://localhost:49471/api/", headers =>
+            {
+                headers.AcceptJson();
+                headers.UserAgent(productName: "Reusable", productVersion: "7.0");
+            });
 
-            var client = new RestClient("http://localhost:54245/api/", configureDefaultRequestHeaders);
+            var context = new HttpMethodContext(HttpMethod.Get, "mailr", "messages", "test")
+            {
+                ResponseFormatters = { new TextMediaTypeFormatter() }
+            };
+            context.RequestHeadersActions.Add(headers => headers.AcceptHtml());
+            var result = client.InvokeAsync<string>(context).GetAwaiter().GetResult();
 
-
+            //var client = new RestClient("http://localhost:54245/api/", configureDefaultRequestHeaders);
         }
     }
 
@@ -31,17 +34,14 @@ namespace Reusable.Apps.Demos
 
     public static class TestsClient
     {
-        public static IResourceContext<ITests> Tests(this IRestClient client)
-        {
-            return client.ToResource<ITests>();
-        }
+        public static IResource<ITests> Tests(this IRestClient client, string name) => client.Resource<ITests>(name);
     }
 
     public static class TestClientExtensions
     {
-        public static Task MessageAsync(this IResourceContext<ITests> resourceContext)
+        public static Task MessageAsync(this IResource<ITests> resource)
         {
-            return resourceContext.Client.GetAsync<string>(resourceContext.UriDynamicPart, resourceContext.MethodContext, CancellationToken.None);
+            return resource.GetAsync<string>(CancellationToken.None);
         }
     }
 }

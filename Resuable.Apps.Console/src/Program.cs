@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Custom;
+using System.Net.Http;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.ServiceModel.Dispatcher;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows.Forms.VisualStyles;
+using Reusable.Net.Http;
 using Reusable.OmniLog;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.OmniLog.Utilities;
@@ -30,8 +33,8 @@ namespace Reusable.Apps
             var foo = new int[0];
             var bar = foo.Append(2);
 
-            Demo.ConsoleColorizer();
-            Demo.SemanticExtensions();
+            //Demo.ConsoleColorizer();
+            //Demo.SemanticExtensions();
 
             //var rxFilter = new AppConfigRxFilter(NLogRx.Create());
 
@@ -42,17 +45,25 @@ namespace Reusable.Apps
             //        .WithRxes(rxFilter)
             //        .Build();
 
-            Demo.DebuggerDisplay();
+            //Demo.DebuggerDisplay();
 
+            Demos.RestClientDemo.Start();
+
+            
             System.Console.ReadKey();
         }
+    }
+
+    public class TestBody
+    {
+        public string Greeting { get; set; }
     }
 
     internal class Commands
     {
         public static void Test()
         {
-            
+
         }
     }
 

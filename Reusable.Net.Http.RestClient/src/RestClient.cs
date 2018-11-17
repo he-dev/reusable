@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -12,69 +13,76 @@ namespace Reusable.Net.Http
     {
         string BaseUri { get; }
 
-        Task<T> InvokeAsync<T>(HttpMethod httpMethod, UriDynamicPart uriDynamicPart, HttpMethodContext context, CancellationToken cancellationToken);
+        Task<T> InvokeAsync<T>([NotNull] HttpMethodContext context, CancellationToken cancellationToken);
     }
 
     [PublicAPI]
     public class RestClient : IRestClient
     {
-        private readonly HttpRequestHeadersConfiguration _defaultHttpRequestHeadersConfiguration;
+        private readonly Action<HttpRequestHeaders> _configureDefaultRequestHeaders;
 
         private readonly HttpClient _client;
 
-        public RestClient(string baseUri, HttpRequestHeadersConfiguration defaultHttpRequestHeadersConfiguration)
+        public RestClient(string baseUri, Action<HttpRequestHeaders> configureDefaultRequestHeaders)
         {
             _client = new HttpClient
             {
                 BaseAddress = new Uri(baseUri)
             };
             _client.DefaultRequestHeaders.Accept.Clear();
-            _defaultHttpRequestHeadersConfiguration = defaultHttpRequestHeadersConfiguration;
+            _configureDefaultRequestHeaders = configureDefaultRequestHeaders;
         }
 
         private string DebuggerDisplay() => this.ToDebuggerDisplayString(builder => { builder.Property(x => x.BaseUri); });
 
         public string BaseUri => _client.BaseAddress.ToString();
 
-        public async Task<T> InvokeAsync<T>(HttpMethod httpMethod, UriDynamicPart uriDynamicPart, HttpMethodContext context, CancellationToken cancellationToken)
+        public async Task<T> InvokeAsync<T>(HttpMethodContext context, CancellationToken cancellationToken = default)
         {
-            var response = await SendRequestAsync(httpMethod, uriDynamicPart, context, cancellationToken);
+            var response = await SendRequestAsync(context, cancellationToken);
 
             var hasContent = response.Content.Headers.ContentLength > 0 && !(typeof(T) == typeof(object));
             if (hasContent)
             {
-                return await response.Content
-                    .ReadAsAsync<T>(new[] { context.ResponseFormatter }, cancellationToken)
-                    .ContinueWith(t =>
-                    {
-                        response.Dispose();
-                        return t.Result;
-                    }, cancellationToken)
-                    .ConfigureAwait(false);
+                return
+                    await
+                        response
+                            .Content
+                            .ReadAsAsync<T>(context.ResponseFormatters, cancellationToken)
+                            .ContinueWith(t =>
+                            {
+                                response.Dispose();
+                                return t.Result;
+                            }, cancellationToken).ConfigureAwait(false);
             }
             else
             {
-                return await Task
-                    .FromResult(default(T))
-                    .ContinueWith(t =>
-                    {
-                        response.Dispose();
-                        return default(T);
-                    }, cancellationToken);
+                return
+                    await
+                        Task
+                            .FromResult(default(T))
+                            .ContinueWith(t =>
+                            {
+                                response.Dispose();
+                                return default(T);
+                            }, cancellationToken);
             }
         }
 
-        private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, UriDynamicPart uriDynamicPart, HttpMethodContext context, CancellationToken cancellationToken)
+        private async Task<HttpResponseMessage> SendRequestAsync(HttpMethodContext context, CancellationToken cancellationToken)
         {
-            using (var request = new HttpRequestMessage(method, CreateAbsoluteUri(uriDynamicPart)))
+            using (var request = new HttpRequestMessage(context.Method, context.PartialUriBuilder.ToUri(_client.BaseAddress)))
             {
                 if (!(context.Body is null))
                 {
                     request.Content = new ObjectContent(context.Body.GetType(), context.Body, context.RequestFormatter);
                 }
 
-                _defaultHttpRequestHeadersConfiguration.Apply(request.Headers);
-                context.HttpRequestHeadersConfiguration.Apply(request.Headers);
+                _configureDefaultRequestHeaders(request.Headers);
+                foreach (var configureRequestHeaders in context.RequestHeadersActions)
+                {
+                    configureRequestHeaders(request.Headers);
+                }
 
                 var response = await _client.SendAsync(request, cancellationToken);
                 if (context.EnsureSuccessStatusCode)
@@ -84,11 +92,6 @@ namespace Reusable.Net.Http
 
                 return response;
             }
-        }
-
-        private Uri CreateAbsoluteUri(string uriDynamicPart)
-        {
-            return new Uri(_client.BaseAddress, uriDynamicPart);
         }
     }
 }
