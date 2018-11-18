@@ -115,10 +115,10 @@
     <ProjectReference Include="..\Reusable.Csv\Reusable.Csv.csproj" />
     <ProjectReference Include="..\Reusable.Deception\Reusable.Deception.csproj" />
     <ProjectReference Include="..\Reusable.Flexo\Reusable.Flexo.csproj" />
-    <ProjectReference Include="..\Reusable.Mailr\Reusable.Mailr.csproj" />
+    <ProjectReference Include="..\Reusable.sdk.Http\Reusable.sdk.Http.csproj" />
+    <ProjectReference Include="..\Reusable.sdk.Mail\Reusable.sdk.Mail.csproj" />
+    <ProjectReference Include="..\Reusable.sdk.Mailr\Reusable.sdk.Mailr.csproj" />
     <ProjectReference Include="..\Reusable.MarkupBuilder\Reusable.MarkupBuilder.csproj" />
-    <ProjectReference Include="..\Reusable.Net.Http.RestClient\Reusable.Net.Http.RestClient.csproj" />
-    <ProjectReference Include="..\Reusable.Net.Mail\Reusable.Net.Mail.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog.ColoredConsoleRx\Reusable.OmniLog.ColoredConsoleRx.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog.NLogRx\Reusable.OmniLog.NLogRx.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog.SemanticExtensions\Reusable.OmniLog.SemanticExtensions.csproj" />

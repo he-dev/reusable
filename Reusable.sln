@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2035
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Net.Mail", "Reusable.Net.Mail\Reusable.Net.Mail.csproj", "{7AA40E93-F55D-46F4-B943-B227C3E11416}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.sdk.Mail", "Reusable.sdk.Mail\Reusable.sdk.Mail.csproj", "{7AA40E93-F55D-46F4-B943-B227C3E11416}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Net.Mail.SmtpClient", "Reusable.Net.Mail.SmtpClient\Reusable.Net.Mail.SmtpClient.csproj", "{B385675F-6353-4CCD-98CC-1A53CAA2EDC9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.sdk.Smtp", "Reusable.sdk.Smtp\Reusable.sdk.Smtp.csproj", "{B385675F-6353-4CCD-98CC-1A53CAA2EDC9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Net.Mail.OutlookClient", "Reusable.Net.Mail.OutlookClient\Reusable.Net.Mail.OutlookClient.csproj", "{6C7E2B58-7451-4176-9CBB-C145F66E362C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.sdk.Outlook", "Reusable.sdk.Outlook\Reusable.sdk.Outlook.csproj", "{6C7E2B58-7451-4176-9CBB-C145F66E362C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.OmniLog", "Reusable.OmniLog\Reusable.OmniLog.csproj", "{6C0AB70F-1BCB-488C-B905-6681A3BF152F}"
 EndProject
@@ -33,15 +33,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.MarkupBuilder", "R
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.SemanticVersion", "Reusable.SemanticVersion\Reusable.SemanticVersion.csproj", "{E7F840D2-A33D-4940-B68C-363323EE97EA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Apps.Console", "Resuable.Apps.Console\Reusable.Apps.Console.csproj", "{BA4F622C-AB9B-4C1C-9CBE-02490532D037}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.app.Console", "Resuable.app.Console\Reusable.app.Console.csproj", "{BA4F622C-AB9B-4C1C-9CBE-02490532D037}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Apps.Server", "Reusable.Apps.Server\Reusable.Apps.Server.csproj", "{1CA8ADE8-04FE-45C4-9D78-A74CF6E111EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.app.Server", "Reusable.app.Server\Reusable.app.Server.csproj", "{1CA8ADE8-04FE-45C4-9D78-A74CF6E111EC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.AspNetCore.Http.SemanticLogger", "Reusable.AspNetCore.Http.SemanticLogger\Reusable.AspNetCore.Http.SemanticLogger.csproj", "{645BDDA4-873B-4B20-9696-B442E85BD270}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.OmniLog.SemanticMiddleware", "Reusable.OmniLog.SemanticMiddleware\Reusable.OmniLog.SemanticMiddleware.csproj", "{645BDDA4-873B-4B20-9696-B442E85BD270}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Utilities.AspNetCore", "Reusable.Utilities.AspNetCore\Reusable.Utilities.AspNetCore.csproj", "{37A5FD78-1DCF-4B31-AC03-81DC493BD0BB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Net.Http.RestClient", "Reusable.Net.Http.RestClient\Reusable.Net.Http.RestClient.csproj", "{44C6B2A3-C097-4AA1-9906-84C1FDFA9AA5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.sdk.Http", "Reusable.sdk.Http\Reusable.sdk.Http.csproj", "{44C6B2A3-C097-4AA1-9906-84C1FDFA9AA5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.OmniLog.ColoredConsoleRx", "Reusable.OmniLog.ColoredConsoleRx\Reusable.OmniLog.ColoredConsoleRx.csproj", "{7107C3DF-8649-4318-91C0-FDA167A83F49}"
 EndProject
@@ -63,17 +63,22 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.SmartConfig.SqlSer
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Tests", "Reusable.Tests\Reusable.Tests.csproj", "{45CB60D7-2BBE-4928-AB8A-BAE7901BD79F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Apps", "Apps", "{80CC1CE4-FFE0-4559-A2EC-71DD8B68122C}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "app", "app", "{80CC1CE4-FFE0-4559-A2EC-71DD8B68122C}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{E50273AB-3639-4A78-8DE1-D46E402EA3EF}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.OmniLog.Utilities", "Reusable.OmniLog.Utilities\Reusable.OmniLog.Utilities.csproj", "{208AEC1D-32FC-43D8-BA76-8BD673645BAE}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{E50273AB-3639-4A78-8DE1-D46E402EA3EF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Deception", "Reusable.Deception\Reusable.Deception.csproj", "{8C6AEC88-BB70-4D46-A0A8-39C38E4FB0DB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Flexo", "Reusable.Flexo\Reusable.Flexo.csproj", "{5EA18FC2-C680-4094-AC2A-34122EDA1CC2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Mailr", "Reusable.Mailr\Reusable.Mailr.csproj", "{8B72AB74-C38E-450D-86D4-D6AC33AC9961}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.sdk.Mailr", "Reusable.sdk.Mailr\Reusable.sdk.Mailr.csproj", "{8B72AB74-C38E-450D-86D4-D6AC33AC9961}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sdk", "sdk", "{7E932BF6-9E84-46FF-8092-8147EA1E25D5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{167E65EE-1F13-437D-9BDD-72B00874BA67}"
+	ProjectSection(SolutionItems) = preProject
+		tests.runsettings = tests.runsettings
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -198,10 +203,6 @@ Global
 		{45CB60D7-2BBE-4928-AB8A-BAE7901BD79F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{45CB60D7-2BBE-4928-AB8A-BAE7901BD79F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{45CB60D7-2BBE-4928-AB8A-BAE7901BD79F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{208AEC1D-32FC-43D8-BA76-8BD673645BAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{208AEC1D-32FC-43D8-BA76-8BD673645BAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{208AEC1D-32FC-43D8-BA76-8BD673645BAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{208AEC1D-32FC-43D8-BA76-8BD673645BAE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8C6AEC88-BB70-4D46-A0A8-39C38E4FB0DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8C6AEC88-BB70-4D46-A0A8-39C38E4FB0DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C6AEC88-BB70-4D46-A0A8-39C38E4FB0DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -219,9 +220,9 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{7AA40E93-F55D-46F4-B943-B227C3E11416} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
-		{B385675F-6353-4CCD-98CC-1A53CAA2EDC9} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
-		{6C7E2B58-7451-4176-9CBB-C145F66E362C} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
+		{7AA40E93-F55D-46F4-B943-B227C3E11416} = {7E932BF6-9E84-46FF-8092-8147EA1E25D5}
+		{B385675F-6353-4CCD-98CC-1A53CAA2EDC9} = {7E932BF6-9E84-46FF-8092-8147EA1E25D5}
+		{6C7E2B58-7451-4176-9CBB-C145F66E362C} = {7E932BF6-9E84-46FF-8092-8147EA1E25D5}
 		{6C0AB70F-1BCB-488C-B905-6681A3BF152F} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 		{896E8BDB-3A33-4D64-B785-7C6FFFF8EB2A} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 		{2E315F60-6572-4E5E-866D-475D6A990CD5} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
@@ -238,7 +239,7 @@ Global
 		{1CA8ADE8-04FE-45C4-9D78-A74CF6E111EC} = {80CC1CE4-FFE0-4559-A2EC-71DD8B68122C}
 		{645BDDA4-873B-4B20-9696-B442E85BD270} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 		{37A5FD78-1DCF-4B31-AC03-81DC493BD0BB} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
-		{44C6B2A3-C097-4AA1-9906-84C1FDFA9AA5} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
+		{44C6B2A3-C097-4AA1-9906-84C1FDFA9AA5} = {7E932BF6-9E84-46FF-8092-8147EA1E25D5}
 		{7107C3DF-8649-4318-91C0-FDA167A83F49} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 		{26F67C2C-88AC-4F6D-ABC8-4386586963B2} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 		{B9863090-E450-45C6-91D8-28AFFBF46EA8} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
@@ -250,7 +251,7 @@ Global
 		{A9AE541C-F84E-4C0E-9D56-BD1D11E941AD} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 		{8C6AEC88-BB70-4D46-A0A8-39C38E4FB0DB} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 		{5EA18FC2-C680-4094-AC2A-34122EDA1CC2} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
-		{8B72AB74-C38E-450D-86D4-D6AC33AC9961} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
+		{8B72AB74-C38E-450D-86D4-D6AC33AC9961} = {7E932BF6-9E84-46FF-8092-8147EA1E25D5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2FA54731-890C-4550-BACA-E19B564CE1E3}

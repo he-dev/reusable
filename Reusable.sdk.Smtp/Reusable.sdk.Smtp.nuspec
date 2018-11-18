@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>Reusable.sdk.Smtp</id>
+    <version>7.8.0</version>
+    <title>Reusable.sdk.Smtp</title>
+    <authors>He-Dev</authors>
+    <owners>He-Dev</owners>
+    <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/he-dev/Reusable</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/he-dev/Reusable/master/_nuget/recycling.png</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>Provides smtp email client.</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2019 He-Dev</copyright>
+    <tags>Utility Extension</tags>
+    <dependencies>
+      <dependency id="JetBrains.Annotations" version="2018.2.1" />
+      <dependency id="Reusable.Core" version="7.8.0" />
+      <dependency id="Reusable.sdk.Mail" version="7.8.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\Release\net47\Reusable.sdk.Smtp.dll" target="lib\net47" />
+    <file src="bin\Release\net47\Reusable.sdk.Smtp.pdb" target="lib\net47" />
+  </files>
+</package>

@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>Reusable.sdk.Mail</id>
+    <version>7.8.0</version>
+    <title>Reusable.sdk.Mail</title>
+    <authors>He-Dev</authors>
+    <owners>He-Dev</owners>
+    <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/he-dev/Reusable</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/he-dev/Reusable/master/_nuget/recycling.png</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>Provides email models.</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2016 He-Dev</copyright>
+    <tags>Utility Extension</tags>
+    <dependencies>
+      <dependency id="JetBrains.Annotations" version="2018.2.1" />
+      <dependency id="Reusable.Core" version="7.8.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\Release\net47\Reusable.sdk.Mail.dll" target="lib\net47" />
+    <file src="bin\Release\net47\Reusable.sdk.Mail.pdb" target="lib\net47" />
+  </files>
+</package>

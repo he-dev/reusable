@@ -1,0 +1,68 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net47</TargetFramework>
+    <RootNamespace>Reusable.Apps</RootNamespace>
+    <LangVersion>7.2</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <LangVersion>latest</LangVersion>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Reusable.Commander\Reusable.Commander.csproj" />
+    <ProjectReference Include="..\Reusable.Convertia\Reusable.Convertia.csproj" />
+    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
+    <ProjectReference Include="..\Reusable.Cryptography\Reusable.Cryptography.csproj" />
+    <ProjectReference Include="..\Reusable.Csv.Utilities\Reusable.Csv.Utilities.csproj" />
+    <ProjectReference Include="..\Reusable.Csv\Reusable.Csv.csproj" />
+    <ProjectReference Include="..\Reusable.sdk.Http\Reusable.sdk.Http.csproj" />
+    <ProjectReference Include="..\Reusable.sdk.Outlook\Reusable.sdk.Outlook.csproj" />
+    <ProjectReference Include="..\Reusable.sdk.Smtp\Reusable.sdk.Smtp.csproj" />
+    <ProjectReference Include="..\Reusable.sdk.Mail\Reusable.sdk.Mail.csproj" />
+    <ProjectReference Include="..\Reusable.sdk.Mailr\Reusable.sdk.Mailr.csproj" />
+    <ProjectReference Include="..\Reusable.MarkupBuilder\Reusable.MarkupBuilder.csproj" />
+    <ProjectReference Include="..\Reusable.OmniLog.ColoredConsoleRx\Reusable.OmniLog.ColoredConsoleRx.csproj" />
+    <ProjectReference Include="..\Reusable.OmniLog.NLogRx\Reusable.OmniLog.NLogRx.csproj" />
+    <ProjectReference Include="..\Reusable.OmniLog.SemanticExtensions\Reusable.OmniLog.SemanticExtensions.csproj" />
+    <ProjectReference Include="..\Reusable.OmniLog.Utilities\Reusable.OmniLog.Utilities.csproj" />
+    <ProjectReference Include="..\Reusable.OmniLog\Reusable.OmniLog.csproj" />
+    <ProjectReference Include="..\Reusable.SemanticVersion\Reusable.SemanticVersion.csproj" />
+    <ProjectReference Include="..\Reusable.SmartConfig.AppConfig\Reusable.SmartConfig.AppConfig.csproj" />
+    <ProjectReference Include="..\Reusable.SmartConfig.InMemory\Reusable.SmartConfig.InMemory.csproj" />
+    <ProjectReference Include="..\Reusable.SmartConfig.JsonConverter\Reusable.SmartConfig.JsonConverter.csproj" />
+    <ProjectReference Include="..\Reusable.SmartConfig\Reusable.SmartConfig.csproj" />
+    <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
+    <ProjectReference Include="..\Reusable.Utilities.NLog\Reusable.Utilities.NLog.csproj" />
+    <ProjectReference Include="..\Reusable.Utilities.SqlClient\Reusable.Utilities.SqlClient.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="NLog.config">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>NLog.tt</DependentUpon>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="NLog.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>NLog.config</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+</Project>

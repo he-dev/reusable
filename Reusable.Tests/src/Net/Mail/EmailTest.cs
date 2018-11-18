@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Net.Mail;
 using Reusable.Reflection;
+using Reusable.sdk.Mail;
+using Reusable.sdk.Mail.Models;
 using Reusable.Utilities.MSTest;
 
 namespace Reusable.Tests.Net.Mail
