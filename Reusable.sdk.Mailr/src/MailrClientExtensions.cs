@@ -5,7 +5,7 @@ using Reusable.sdk.Http.Formatting;
 
 namespace Reusable.sdk.Mailr
 {
-    public static class EmailsClient
+    public static class MailrClientExtensions
     {
         public static IResource<IMailrClient> Resource(this IMailrClient client, params string[] path) => client.Resource<IMailrClient>(path);
 
