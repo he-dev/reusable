@@ -1,23 +1,24 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Reusable.Flexo.Extensions;
+using Newtonsoft.Json;
 
-namespace Reusable.Flexo.Expressions
+namespace Reusable.Flexo
 {
-    public class Any : PredicateExpression
+    public class All : PredicateExpression
     {
-        public Any() : base(nameof(Any)) { }
+        public All() : base(nameof(All)) { }
 
+        [JsonRequired]
         public IEnumerable<IExpression> Expressions { get; set; }
 
         protected override bool Calculate(IExpressionContext context)
         {
             return 
                 Expressions
+                    .Enabled()
                     .InvokeWithValidation(context)
                     .Values<bool>()
-                    .Any(x => x);
-
+                    .All(x => x);
         }
     }
 }

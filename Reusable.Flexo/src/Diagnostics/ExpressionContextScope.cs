@@ -1,25 +1,23 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using Reusable.Diagnostics;
-using Reusable.Flexo.Expressions;
 
 namespace Reusable.Flexo.Diagnostics
 {
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class ExpressionContextScope : IDisposable
     {
-        private readonly IExpression _expression;
-        private readonly IExpressionContext _context;
-
         // ReSharper disable once InconsistentNaming - This cannot be renamed because it'd confilict with the property that has the same name.
         private static readonly AsyncLocal<ExpressionContextScope> _current = new AsyncLocal<ExpressionContextScope>();
 
         private ExpressionContextScope(IExpression expression, IExpressionContext context, int depth)
         {
-            _expression = expression;
-            _context = context;
-            Metadata.Path = Metadata.Path.Add(expression.Name);
+            Expression = expression;
+            Context = context;
             Depth = depth;
         }
 
@@ -36,11 +34,11 @@ namespace Reusable.Flexo.Diagnostics
             private set => _current.Value = value;
         }
 
+        public IExpression Expression { get; }
+
+        public IExpressionContext Context { get; }
+
         public int Depth { get; }
-
-        public IExpression Result { get; set; }
-
-        private ExpressionContextMetadata Metadata => _context.Metadata;
 
         public static ExpressionContextScope Push(IExpression expression, IExpressionContext context)
         {
@@ -51,19 +49,41 @@ namespace Reusable.Flexo.Diagnostics
             return scope;
         }
 
-        public void Dispose()
+        public void Dispose() => Current = Current.Parent;
+    }
+
+    public static class ExpressionContextScopeExtensions
+    {
+        private const int IndentWidth = 4;
+
+        public static string ToDebugView(this ExpressionContextScope scope)
         {
-            Current = Current.Parent;
+            var scopes = new Stack<ExpressionContextScope>(scope.Flatten());
 
-            const int indentWitdh = 4;
-            var indentString = new string(' ', indentWitdh * _context.Metadata.Path.Count);
+            var debugView = new StringBuilder();
 
-            var expressionTypeName = _expression.GetType().Name;
-            var resultExpressionName = Result.Name;
-            var isSelf = expressionTypeName == resultExpressionName;
-            var result = Result is IConstant constant ? constant.Value : Result;
-            Metadata.Log = Metadata.Log.Insert(0, $"{indentString}{expressionTypeName}{(isSelf ? string.Empty : $"[{resultExpressionName}]")}: \"{result}");// ({string.Join("/", Metadata.Path)})");
-            Metadata.Path = Metadata.Path.RemoveAt(Metadata.Path.Count - 1);
+            foreach (var inner in scopes)
+            {
+                debugView
+                    .Append(IndentString(inner.Depth))
+                    .Append(inner.Expression.Name)
+                    .Append(inner.Expression is IConstant constant ? $": {constant.Value}"  : default)
+                    .AppendLine();
+            }
+
+            return debugView.ToString();
+        }
+
+        private static string IndentString(int depth) => new string(' ', IndentWidth * depth);
+
+        public static IEnumerable<ExpressionContextScope> Flatten(this ExpressionContextScope scope)
+        {
+            var current = scope;
+            while (current != null)
+            {
+                yield return current;
+                current = current.Parent;
+            }
         }
     }
 }

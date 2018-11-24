@@ -1,4 +1,4 @@
-﻿namespace Reusable.Flexo.Expressions
+﻿namespace Reusable.Flexo
 {
     public class LessThan : ComparerExpression
     {

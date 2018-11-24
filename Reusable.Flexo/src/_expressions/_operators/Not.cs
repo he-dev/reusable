@@ -1,6 +1,4 @@
-﻿using Reusable.Flexo.Extensions;
-
-namespace Reusable.Flexo.Expressions
+﻿namespace Reusable.Flexo
 {
     public class Not : PredicateExpression
     {

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Linq;
-using Reusable.Flexo.Extensions;
+using Newtonsoft.Json;
 using Reusable.Reflection;
 
-namespace Reusable.Flexo.Expressions
+namespace Reusable.Flexo
 {
     public abstract class Map<TFrom, TTo> : Expression 
     {
@@ -14,6 +14,7 @@ namespace Reusable.Flexo.Expressions
 
         public IImmutableList<Mapping<TFrom, TTo>> Mappings { get; set; }
 
+        [JsonRequired]
         public IExpression Expression { get; set; }
 
         public override IExpression Invoke(IExpressionContext context)

@@ -10,7 +10,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Reusable.Apps.Server.Json;
-using Reusable.AspNetCore.Http;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Attachements;
 using Reusable.OmniLog.SemanticExtensions;

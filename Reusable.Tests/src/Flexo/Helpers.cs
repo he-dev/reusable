@@ -1,19 +1,16 @@
 ﻿using System;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Flexo.Expressions;
+using Reusable.Flexo;
 
 namespace Reusable.Tests.Flexo
 {
     internal static class Helpers
     {
-        [NotNull]
-        public static IExpressionContext CreateContext() => new ExpressionContext();
-
-        public static void ExpressionsEqual<TValue>(this Assert _, string name, TValue expectedValue, IExpression expression, IExpressionContext context = null)
+        public static void ExpressionsEqual<TValue, TExpression>(this Assert _, TValue expectedValue, TExpression expression, IExpressionContext context = null) where TExpression : IExpression
         {
             context = context ?? new ExpressionContext();
-            var expected = Constant.Create(name, expectedValue);
+            var expected = Constant.Create(expression.Name, expectedValue);
             var actual = expression.Invoke(context);
 
             if (!expected.Equals(actual))

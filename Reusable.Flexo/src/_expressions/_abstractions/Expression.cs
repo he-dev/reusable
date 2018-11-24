@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Linq;
 using JetBrains.Annotations;
-using Reusable.Flexo.Extensions;
+using Newtonsoft.Json;
 
-namespace Reusable.Flexo.Expressions
+namespace Reusable.Flexo
 {    
     public interface ISwitchable
     {
@@ -28,7 +27,7 @@ namespace Reusable.Flexo.Expressions
     {
         protected Expression(string name) => Name = name;
 
-        public static IExpression Empty { get; } = new Empty();
+        //public static IExpression Self { get; } = new Self();
 
         public virtual string Name { get; }
 
@@ -45,7 +44,7 @@ namespace Reusable.Flexo.Expressions
         {
             using (context.Scope(this))
             {
-                return Constant.Create(Name, Calculate(context)).Log();
+                return Constant.Create(Name, Calculate(context));
             }
         }
 
@@ -58,6 +57,7 @@ namespace Reusable.Flexo.Expressions
 
         protected AggregateExpression(string name, [NotNull] Func<IEnumerable<double>, double> aggregate) : base(name) => _aggregate = aggregate;
 
+        [JsonRequired]
         public IEnumerable<IExpression> Expressions { get; set; }
 
         public override IExpression Invoke(IExpressionContext context) => Constant.Create(Name, _aggregate(Expressions.InvokeWithValidation(context).Values<double>().ToList()));
@@ -69,14 +69,16 @@ namespace Reusable.Flexo.Expressions
 
         protected ComparerExpression(string name, [NotNull] Func<int, bool> predicate) : base(name) => _predicate = predicate;
 
-        public IExpression Expression1 { get; set; }
+        [JsonRequired]
+        public IExpression Left { get; set; }
 
-        public IExpression Expression2 { get; set; }
+        [JsonRequired]
+        public IExpression Right { get; set; }
 
         public override IExpression Invoke(IExpressionContext context)
         {
-            var result1 = Expression1.InvokeWithValidation(context);
-            var result2 = Expression2.InvokeWithValidation(context);
+            var result1 = Left.InvokeWithValidation(context);
+            var result2 = Right.InvokeWithValidation(context);
 
             // optimizations
 
@@ -84,8 +86,8 @@ namespace Reusable.Flexo.Expressions
             if (result1 is Constant<int> i1 && result2 is Constant<int> i2) return Constant.Create(Name, _predicate(i1.Value.CompareTo(i2.Value)));
 
             // fallback to weak comparer
-            var x = (result1 as IConstant)?.Value as IComparable ?? throw new InvalidOperationException($"{nameof(Expression1)} must return an {nameof(IConstant)} expression with an {nameof(IComparable)} value.");
-            var y = (result2 as IConstant)?.Value as IComparable ?? throw new InvalidOperationException($"{nameof(Expression2)} must return an {nameof(IConstant)} expression with an {nameof(IComparable)} value."); ;
+            var x = (result1 as IConstant)?.Value as IComparable ?? throw new InvalidOperationException($"{nameof(Left)} must return an {nameof(IConstant)} expression with an {nameof(IComparable)} value.");
+            var y = (result2 as IConstant)?.Value as IComparable ?? throw new InvalidOperationException($"{nameof(Right)} must return an {nameof(IConstant)} expression with an {nameof(IComparable)} value."); ;
             return Constant.Create(Name, _predicate(x.CompareTo(y)));
         }
     }    

@@ -52,6 +52,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="res\Flexo\Expressions.json" />
     <None Remove="res\MarkupBuilder\CssInliner_Inline_TableStyles.html" />
     <None Remove="res\MarkupBuilder\FormattingTemplate.html" />
     <None Remove="res\MarkupBuilder\styles.css" />
@@ -71,6 +72,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="res\Flexo\Expressions.json" />
     <EmbeddedResource Include="res\MarkupBuilder\CssInliner_Inline_TableStyles.html" />
     <EmbeddedResource Include="res\MarkupBuilder\FormattingTemplate.html" />
     <EmbeddedResource Include="res\MarkupBuilder\styles.css" />

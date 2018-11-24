@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using Reusable.Net;
 using Reusable.sdk.Http;
 using Reusable.sdk.Http.Formatting;
 using Reusable.sdk.Mailr;

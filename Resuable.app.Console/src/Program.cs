@@ -13,7 +13,6 @@ using System.Threading;
 using System.Windows.Forms.VisualStyles;
 using Reusable.OmniLog;
 using Reusable.OmniLog.SemanticExtensions;
-using Reusable.OmniLog.Utilities;
 
 // Unreachable code detected - this is for testing so we don't care about it.
 #pragma warning disable CS0162 

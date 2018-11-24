@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Text.RegularExpressions;
-using Reusable.Flexo.Extensions;
 
-namespace Reusable.Flexo.Expressions
+namespace Reusable.Flexo
 {
     public class Equals : PredicateExpression
     {
@@ -14,14 +11,14 @@ namespace Reusable.Flexo.Expressions
         [DefaultValue(true)]
         public bool IgnoreCase { get; set; } = true;
 
-        public IExpression Expression1 { get; set; }
+        public IExpression Left { get; set; }
 
-        public IExpression Expression2 { get; set; }
+        public IExpression Right { get; set; }
 
         protected override bool Calculate(IExpressionContext context)
         {
-            var x = Expression1.InvokeWithValidation(context).ValueOrDefault();
-            var y = Expression2.InvokeWithValidation(context).ValueOrDefault();
+            var x = Left.InvokeWithValidation(context).ValueOrDefault();
+            var y = Right.InvokeWithValidation(context).ValueOrDefault();
 
             if (x is string str1 && y is string str2 && IgnoreCase)
             {

@@ -6,8 +6,6 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Extensions;
 using Reusable.Flexo;
-using Reusable.Flexo.Expressions;
-using Reusable.Flexo.Extensions;
 
 namespace Reusable.OmniLog.Expressions
 {

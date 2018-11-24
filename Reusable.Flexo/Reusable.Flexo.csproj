@@ -10,17 +10,17 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="src\Expressions\Async\**" />
+    <Compile Remove="src\_expressions\Async\**" />
     <Compile Remove="src\Utilities\**" />
-    <EmbeddedResource Remove="src\Expressions\Async\**" />
+    <EmbeddedResource Remove="src\_expressions\Async\**" />
     <EmbeddedResource Remove="src\Utilities\**" />
-    <None Remove="src\Expressions\Async\**" />
+    <None Remove="src\_expressions\Async\**" />
     <None Remove="src\Utilities\**" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="src\Expressions\_abstractions\ICommand.cs" />
+    <Compile Remove="src\_expressions\_abstractions\ICommand.cs" />
     <Compile Remove="src\Call.cs" />
-    <Compile Remove="src\Expressions\Block.cs" />
+    <Compile Remove="src\_expressions\Block.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.8.1" />

@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace Reusable.Flexo.Expressions
+namespace Reusable.Flexo
 {
     public class Sum : AggregateExpression
     {

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Reusable.Flexo.Extensions;
+using Newtonsoft.Json;
 
-namespace Reusable.Flexo.Expressions
+namespace Reusable.Flexo
 {
     public class Select : Expression
     {
@@ -10,6 +10,7 @@ namespace Reusable.Flexo.Expressions
             : base(nameof(Select))
         { }
 
+        [JsonRequired]
         public IList<IExpression> Expressions { get; set; }
 
         public override IExpression Invoke(IExpressionContext context)

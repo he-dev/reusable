@@ -4,9 +4,9 @@ using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Collections;
-using Reusable.Flexo.Extensions;
+using Reusable.Extensions;
 
-namespace Reusable.Flexo.Expressions
+namespace Reusable.Flexo
 {
     public interface IConstant
     {
@@ -23,19 +23,17 @@ namespace Reusable.Flexo.Expressions
         public Constant(string name, TValue value) : this(name) => Value = value;
 
         [AutoEqualityProperty]
-        public override string Name => base.Name;
-
-        [AutoEqualityProperty]
         [CanBeNull]
         public TValue Value { get; }
 
+        [CanBeNull]
         object IConstant.Value => Value;
 
         public override IExpression Invoke(IExpressionContext context)
         {
             using (context.Scope(this))
             {
-                return this.Log();
+                return this;
             }
         }
 
@@ -87,8 +85,14 @@ namespace Reusable.Flexo.Expressions
     /// </summary>
     public class Constant
     {
+        private static volatile int _counter;
+
         public static Constant<TValue> Create<TValue>(string name, TValue value) => new Constant<TValue>(name, value);
 
+        public static Constant<TValue> Create<TValue>(TValue value) => new Constant<TValue>($"{typeof(Constant<TValue>).ToPrettyString()}{_counter++}", value);
+
         public static IList<Constant<TValue>> CreateMany<TValue>(string name, params TValue[] values) => values.Select(value => Create(name, value)).ToList();
+
+        public static IList<Constant<TValue>> CreateMany<TValue>(params TValue[] values) => values.Select(Create).ToList();
     }
 }

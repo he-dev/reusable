@@ -1,13 +1,14 @@
 ﻿using System;
-using Reusable.Flexo.Extensions;
+using Newtonsoft.Json;
 
-namespace Reusable.Flexo.Expressions
+namespace Reusable.Flexo
 {
     // ReSharper disable once InconsistentNaming - we want this name!
     public class IIf : Expression
     {
         public IIf() : base(nameof(IIf)) { }
 
+        [JsonRequired]
         public IExpression Predicate { get; set; }
 
         public IExpression True { get; set; }
@@ -19,10 +20,10 @@ namespace Reusable.Flexo.Expressions
             using (context.Scope(this))
             {
                 var expression =
-                    (Predicate.InvokeWithValidation(context).Log().Value<bool>() ? True : False)
+                    (Predicate.InvokeWithValidation(context).Value<bool>() ? True : False)
                         ?? throw new InvalidOperationException($"{nameof(True)} or {nameof(False)} expression is not defined."); ;
 
-                return expression.InvokeWithValidation(context).Log();
+                return expression.InvokeWithValidation(context);
             }
         }
     }

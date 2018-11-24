@@ -1,377 +1,160 @@
-﻿using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Serialization;
 using Reusable.Flexo;
-using Reusable.Flexo.Expressions;
-using Reusable.Flexo.Extensions;
-using Reusable.IO;
 
 namespace Reusable.Tests.Flexo
 {
     [TestClass]
-    public class AllTest
+    public class ExpressionTest
     {
         [TestMethod]
-        public void All_All_True()
-        {
-            Assert.That.ExpressionsEqual(nameof(All), true, new All
-            {
-                Expressions = Constant.CreateMany(nameof(All), true, true, true)
-            });
-        }
+        public void All_ReturnsTrueWhenAllTrue() => Assert.That.ExpressionsEqual(true, new All { Expressions = Constant.CreateMany(true, true, true) });
 
         [TestMethod]
-        public void All_Some_False()
-        {
-            var expression = new All
-            {
-                Expressions = Constant.CreateMany(nameof(All), true, false, true)
-            };
-
-            Assert.AreEqual(Constant.Create(nameof(All), false), expression.Invoke(Helpers.CreateContext()));
-        }
+        public void All_ReturnsFalseWhenSomeFalse() => Assert.That.ExpressionsEqual(false, new All { Expressions = Constant.CreateMany(true, false, true) });
 
         [TestMethod]
-        public void All_None_False()
-        {
-            var expression = new All
-            {
-                Expressions = Constant.CreateMany(nameof(All), false, false, false)
-            };
-
-            Assert.AreEqual(Constant.Create(nameof(All), false), expression.Invoke(Helpers.CreateContext()));
-        }
-    }
-
-    [TestClass]
-    public class AnyTest
-    {
-        [TestMethod]
-        public void Any_Any_True()
-        {
-            var expression = new Any
-            {
-                Expressions = Constant.CreateMany(nameof(Any), false, false, true)
-            };
-
-            Assert.AreEqual(Constant.Create(nameof(Any), true), expression.Invoke(Helpers.CreateContext()));
-        }
+        public void All_ReturnsFalseWhenAllFalse() => Assert.That.ExpressionsEqual(false, new All { Expressions = Constant.CreateMany(false, false, false) });
 
         [TestMethod]
-        public void Any_None_False()
-        {
-            var expression = new Any
-            {
-                Expressions = Constant.CreateMany(nameof(Any), false, false, false)
-            };
-
-            Assert.AreEqual(Constant.Create(nameof(Any), false), expression.Invoke(Helpers.CreateContext()));
-        }
-    }
-
-    [TestClass]
-    public class IIfTest
-    {
-        [TestMethod]
-        public void Invoke_True_True()
-        {
-            var expression = new IIf
-            {
-                Predicate = Constant.Create(nameof(IIf), true),
-                True = Constant.Create(nameof(IIf), "foo"),
-                False = Constant.Create(nameof(IIf), "bar")
-            };
-
-            Assert.That.ExpressionsEqual(nameof(IIf), "foo", expression);
-        }
+        public void Any_ReturnsTrueWhenSomeTrue() => Assert.That.ExpressionsEqual(true, new Any { Expressions = Constant.CreateMany(false, false, true) });
 
         [TestMethod]
-        public void Invoke_False_False()
-        {
-            var expression = new IIf
-            {
-                Predicate = Constant.Create(nameof(IIf), false),
-                True = Constant.Create(nameof(IIf), "foo"),
-                False = Constant.Create(nameof(IIf), "bar")
-            };
-
-            Assert.That.ExpressionsEqual(nameof(IIf), "bar", expression);
-        }
-    }
-
-    [TestClass]
-    public class MapBooleanToDoubleTest
-    {
-        [TestMethod]
-        public void Invoke_True_1()
-        {
-            var expression = new ToDouble
-            {
-                Expression = Constant.Create(nameof(ToDouble), true)
-            };
-
-            Assert.That.ExpressionsEqual(nameof(ToDouble), 1.0, expression);
-        }
+        public void Any_ReturnsFalseWhenAllFalse() => Assert.That.ExpressionsEqual(false, new Any { Expressions = Constant.CreateMany(false, false, false) });
 
         [TestMethod]
-        public void Invoke_False_0()
+        public void IIf_ReturnsTrueWhenTrue() => Assert.That.ExpressionsEqual("foo", new IIf
         {
-            var expression = new ToDouble
-            {
-                Expression = Constant.Create(nameof(ToDouble), false)
-            };
-
-            Assert.That.ExpressionsEqual(nameof(ToDouble), 0.0, expression);
-        }
-    }
-
-    [TestClass]
-    public class MaxTest
-    {
-        [TestMethod]
-        public void Invoke_Numbers_Max()
-        {
-            Assert.That.ExpressionsEqual(nameof(Max), 3.0, new Max
-            {
-                Expressions = Constant.CreateMany(nameof(Max), 2.0, 3.0, 1.0)
-            });
-        }
-    }
-
-    [TestClass]
-    public class MinTest
-    {
-        [TestMethod]
-        public void Invoke_Numbers_Min()
-        {
-            Assert.That.ExpressionsEqual(nameof(Min), 1.0, new Min
-            {
-                Expressions = Constant.CreateMany(nameof(Min), 2.0, 3.0, 1.0)
-            });
-        }
-    }
-
-    [TestClass]
-    public class SumTest
-    {
-        [TestMethod]
-        public void Invoke_Numbers_Sum()
-        {
-            Assert.That.ExpressionsEqual(nameof(Sum), 6.0, new Sum
-            {
-                Expressions = Constant.CreateMany(nameof(Sum), 2.0, 3.0, 1.0)
-            });
-        }
-    }
-
-    [TestClass]
-    public class EqualsTest
-    {
-        [TestMethod]
-        public void Invoke_EqualStrings_True()
-        {
-            Assert.That.ExpressionsEqual(nameof(Equals), true, new Equals
-            {
-                Expression1 = Constant.Create("x", "foo"),
-                Expression2 = Constant.Create("y", "foo"),
-            });
-        }
+            Predicate = Constant.Create(true),
+            True = Constant.Create("foo"),
+            False = Constant.Create("bar")
+        });
 
         [TestMethod]
-        public void Invoke_NotEqualStrings_False()
+        public void IIf_ReturnsFalseWhenFalse() => Assert.That.ExpressionsEqual("bar", new IIf
         {
-            Assert.That.ExpressionsEqual(nameof(Equals), false, new Equals
-            {
-                Expression1 = Constant.Create("x", "foo"),
-                Expression2 = Constant.Create("x", "bar"),
-            });
-        }
-    }
-
-    [TestClass]
-    public class GreaterThanTest
-    {
-        [TestMethod]
-        public void Invoke_3_2_True()
-        {
-            Assert.That.ExpressionsEqual(nameof(GreaterThan), true, new GreaterThan
-            {
-                Expression1 = Constant.Create(nameof(GreaterThan), 3.0),
-                Expression2 = Constant.Create(nameof(GreaterThan), 2.0),
-            });
-        }
+            Predicate = Constant.Create(false),
+            True = Constant.Create("foo"),
+            False = Constant.Create("bar")
+        });
 
         [TestMethod]
-        public void Invoke_2_3_False()
-        {
-            Assert.That.ExpressionsEqual(nameof(GreaterThan), false, new GreaterThan
-            {
-                Expression1 = Constant.Create(nameof(GreaterThan), 2.0),
-                Expression2 = Constant.Create(nameof(GreaterThan), 3.0),
-            });
-        }
+        public void Max_ReturnsMax() => Assert.That.ExpressionsEqual(3.0, new Max { Expressions = Constant.CreateMany(2.0, 3.0, 1.0) });
 
         [TestMethod]
-        public void Invoke_2_2_False()
-        {
-            Assert.That.ExpressionsEqual(nameof(GreaterThan), false, new GreaterThan
-            {
-                Expression1 = Constant.Create(nameof(GreaterThan), 2.0),
-                Expression2 = Constant.Create(nameof(GreaterThan), 2.0),
-            });
-        }
-    }
-
-    [TestClass]
-    public class GreaterThanOrEqualTest
-    {
-        [TestMethod]
-        public void Invoke_3_2_True()
-        {
-            Assert.That.ExpressionsEqual(nameof(GreaterThanOrEqual), true, new GreaterThanOrEqual
-            {
-                Expression1 = Constant.Create(nameof(GreaterThanOrEqual), 3.0),
-                Expression2 = Constant.Create(nameof(GreaterThanOrEqual), 2.0),
-            });
-        }
+        public void Min_ReturnsMin() => Assert.That.ExpressionsEqual(1.0, new Min { Expressions = Constant.CreateMany(2.0, 3.0, 1.0) });
 
         [TestMethod]
-        public void Invoke_2_3_False()
-        {
-            Assert.That.ExpressionsEqual(nameof(GreaterThanOrEqual), false, new GreaterThanOrEqual
-            {
-                Expression1 = Constant.Create(nameof(GreaterThanOrEqual), 2.0),
-                Expression2 = Constant.Create(nameof(GreaterThanOrEqual), 3.0),
-            });
-        }
+        public void Sum_ReturnsSum() => Assert.That.ExpressionsEqual(6.0, new Sum { Expressions = Constant.CreateMany(2.0, 3.0, 1.0) });
 
         [TestMethod]
-        public void Invoke_2_2_False()
+        public void Equals_ReturnsTrueWhenEqual() => Assert.That.ExpressionsEqual(true, new Equals
         {
-            Assert.That.ExpressionsEqual(nameof(GreaterThanOrEqual), true, new GreaterThanOrEqual
-            {
-                Expression1 = Constant.Create(nameof(GreaterThanOrEqual), 2.0),
-                Expression2 = Constant.Create(nameof(GreaterThanOrEqual), 2.0),
-            });
-        }
-    }
-
-    [TestClass]
-    public class LessThanTest
-    {
-        [TestMethod]
-        public void Invoke_2_3_True()
-        {
-            Assert.That.ExpressionsEqual(nameof(LessThan), true, new LessThan
-            {
-                Expression1 = Constant.Create(nameof(LessThan), 2.0),
-                Expression2 = Constant.Create(nameof(LessThan), 3.0),
-            });
-        }
+            Left = Constant.Create("foo"),
+            Right = Constant.Create("foo"),
+        });
 
         [TestMethod]
-        public void Invoke_3_2_False()
+        public void Equals_ReturnsFalseWhenNotEqual() => Assert.That.ExpressionsEqual(false, new Equals
         {
-            Assert.That.ExpressionsEqual(nameof(LessThan), false, new LessThan
-            {
-                Expression1 = Constant.Create(nameof(LessThan), 3.0),
-                Expression2 = Constant.Create(nameof(LessThan), 2.0),
-            });
-        }
+            Left = Constant.Create("foo"),
+            Right = Constant.Create("bar"),
+        });
 
         [TestMethod]
-        public void Invoke_2_2_False()
+        public void GreaterThan_ReturnsTrueWhenLeftGreaterThanRight() => Assert.That.ExpressionsEqual(true, new GreaterThan
         {
-            Assert.That.ExpressionsEqual(nameof(LessThan), false, new LessThan
-            {
-                Expression1 = Constant.Create(nameof(LessThan), 2.0),
-                Expression2 = Constant.Create(nameof(LessThan), 2.0),
-            });
-        }
-    }
-
-    [TestClass]
-    public class LessThanOrEqualTest
-    {
-        [TestMethod]
-        public void Invoke_2_3_True()
-        {
-            Assert.That.ExpressionsEqual(nameof(LessThanOrEqual), true, new LessThanOrEqual
-            {
-                Expression1 = Constant.Create(nameof(LessThanOrEqual), 2.0),
-                Expression2 = Constant.Create(nameof(LessThanOrEqual), 3.0),
-            });
-        }
+            Left = Constant.Create(3.0),
+            Right = Constant.Create(2.0),
+        });
 
         [TestMethod]
-        public void Invoke_3_2_False()
+        public void GreaterThan_ReturnsFalseWhenLeftLessThanRight() => Assert.That.ExpressionsEqual(false, new GreaterThan
         {
-            Assert.That.ExpressionsEqual(nameof(LessThanOrEqual), false, new LessThanOrEqual
-            {
-                Expression1 = Constant.Create(nameof(LessThanOrEqual), 3.0),
-                Expression2 = Constant.Create(nameof(LessThanOrEqual), 2.0),
-            });
-        }
+            Left = Constant.Create(2.0),
+            Right = Constant.Create(3.0),
+        });
 
         [TestMethod]
-        public void Invoke_2_2_False()
+        public void GreaterThan_ReturnsFalseWhenLeftEqualsRight() => Assert.That.ExpressionsEqual(false, new GreaterThan
         {
-            Assert.That.ExpressionsEqual(nameof(LessThanOrEqual), true, new LessThanOrEqual
-            {
-                Expression1 = Constant.Create(nameof(LessThanOrEqual), 2.0),
-                Expression2 = Constant.Create(nameof(LessThanOrEqual), 2.0),
-            });
-        }
-    }
-
-    [TestClass]
-    public class NotTest
-    {
-        [TestMethod]
-        public void Invoke_True_False()
-        {
-            Assert.That.ExpressionsEqual(nameof(Not), false, new Not
-            {
-                Expression = Constant.Create(nameof(Not), true)
-            });
-        }
+            Left = Constant.Create(2.0),
+            Right = Constant.Create(2.0),
+        });
 
         [TestMethod]
-        public void Invoke_False_True()
+        public void GreaterThanOrEqual_ReturnsTrueWhenLeftGreaterThanRight() => Assert.That.ExpressionsEqual(true, new GreaterThanOrEqual
         {
-            Assert.That.ExpressionsEqual(nameof(Not), true, new Not
-            {
-                Expression = Constant.Create(nameof(Not), false)
-            });
-        }
-    }
-
-    [TestClass]
-    public class ExpresionSerializerTest
-    {
-        private static IFileProvider Resources { get; } = new RelativeFileProvider(new EmbeddedFileProvider(typeof(ExpresionSerializerTest).Assembly), @"Gems\Tests\res\Flexo");
+            Left = Constant.Create(3.0),
+            Right = Constant.Create(2.0),
+        });
 
         [TestMethod]
-        public void Deserialize_IIf_True()
+        public void GreaterThanOrEqual_ReturnsTrueWhenLeftEqualsRight() => Assert.That.ExpressionsEqual(true, new GreaterThanOrEqual
         {
-            var serializer = new ExpressionSerializer(); //new DefaultContractResolver());
-            var iif = serializer.Deserialize<IIf>(Resources.GetFileInfoAsync(@"IIf.json").Result.CreateReadStream());
-            var result = iif.Invoke(Helpers.CreateContext());
-
-            Assert.AreEqual(Constant.Create("True", "foo"), result);
-        }
+            Left = Constant.Create(3.0),
+            Right = Constant.Create(3.0),
+        });
 
         [TestMethod]
-        public void Deserialize_Full_True()
+        public void GreaterThanOrEqual_ReturnsFalseWhenLeftLessThanRight() => Assert.That.ExpressionsEqual(false, new GreaterThanOrEqual
         {
-            var serializer = new ExpressionSerializer(); //new DefaultContractResolver());
-            var expressions = serializer.Deserialize<IExpression[]>(Resources.GetFileInfoAsync(@"Full.json").Result.CreateReadStream());
-            var results = expressions.InvokeWithValidation(Helpers.CreateContext()).ToList();
+            Left = Constant.Create(2.0),
+            Right = Constant.Create(3.0),
+        });
 
-            Assert.AreEqual(2, results.Count);
+        [TestMethod]
+        public void LessThan_ReturnsTrueWhenLeftLessThanRight() => Assert.That.ExpressionsEqual(true, new LessThan
+        {
+            Left = Constant.Create(2.0),
+            Right = Constant.Create(3.0),
+        });
 
-            Assert.AreEqual(Constant.Create("True", "foo"), results[0]);
-            Assert.AreEqual(Constant.Create("ToDouble", 1.0), results[1]);
-        }
+        [TestMethod]
+        public void LessThan_ReturnsFalseWhenLeftEqualsRight() => Assert.That.ExpressionsEqual(false, new LessThan
+        {
+            Left = Constant.Create(3.0),
+            Right = Constant.Create(3.0),
+        });
+
+        [TestMethod]
+        public void LessThan_ReturnsFalseWhenLeftGreaterThanRight() => Assert.That.ExpressionsEqual(false, new LessThan
+        {
+            Left = Constant.Create(3.0),
+            Right = Constant.Create(2.0),
+        });
+
+        [TestMethod]
+        public void LessThanOrEqual_ReturnsTrueWhenLeftLessThanRight() => Assert.That.ExpressionsEqual(true, new LessThanOrEqual
+        {
+            Left = Constant.Create(2.0),
+            Right = Constant.Create(3.0),
+        });
+
+        [TestMethod]
+        public void LessThanOrEqual_ReturnsTrueWhenLeftEqualsRight() => Assert.That.ExpressionsEqual(true, new LessThanOrEqual
+        {
+            Left = Constant.Create(3.0),
+            Right = Constant.Create(3.0),
+        });
+
+        [TestMethod]
+        public void LessThanOrEqual_ReturnsFalseWhenLeftGreaterThanRight() => Assert.That.ExpressionsEqual(false, new LessThanOrEqual
+        {
+            Left = Constant.Create(3.0),
+            Right = Constant.Create(2.0),
+        });
+
+        [TestMethod]
+        public void Not_ReturnsTrueWhenFalse() => Assert.That.ExpressionsEqual(false, new Not { Expression = Constant.Create(true) });
+
+        [TestMethod]
+        public void Not_ReturnsFalseWhenTrue() => Assert.That.ExpressionsEqual(false, new Not { Expression = Constant.Create(true) });
+    
+        [TestMethod]
+        public void ToDouble_MapsTrueToOne() => Assert.That.ExpressionsEqual(1.0, new ToDouble { Expression = Constant.Create(true) });
+
+        [TestMethod]
+        public void ToDouble_MapsFalseToZero() => Assert.That.ExpressionsEqual(0.0, new ToDouble { Expression = Constant.Create(false) });        
     }
 }
