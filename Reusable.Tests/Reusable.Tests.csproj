@@ -30,6 +30,7 @@
     <None Remove="src\Core\Windows\**" />
     <None Remove="src\MQLite\**" />
     <Compile Remove="src\Commander\CommandLineExecutorTest.cs" />
+    <Compile Remove="src\Core\ComparerTest.cs" />
     <Compile Remove="src\Core\DependencyValidatorTest.cs" />
     <Compile Remove="src\SmartConfig\Utilities\ConfigurationExtensionsTest.cs" />
     <Compile Remove="src\SmartConfig\AppSettingsTest.cs" />
