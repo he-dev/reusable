@@ -73,7 +73,7 @@ namespace Reusable.sdk.Mailr.Models
             Type = typeof(T)
         };
 
-        internal static IList<HtmlTableColumn> Create(params (string Name, Type Type)[] columns)
+        public static IList<HtmlTableColumn> Create(params (string Name, Type Type)[] columns)
         {
             return columns.Select(x => new HtmlTableColumn
             {

@@ -65,6 +65,7 @@
     <None Remove="res\MarkupBuilder\ToString_006.html" />
     <None Remove="res\MarkupBuilder\ToString_007.html" />
     <None Remove="res\OmniLog\OmniLog.json" />
+    <None Remove="res\sdk\Mailr\Models\HtmlTable.json" />
     <None Remove="res\TextFile1.txt" />
     <None Remove="res\TextFile2.txt" />
     <None Remove="res\Utilities\JsonNet\PrettyTypeReaderT0.json" />
@@ -85,6 +86,7 @@
     <EmbeddedResource Include="res\MarkupBuilder\ToString_006.html" />
     <EmbeddedResource Include="res\MarkupBuilder\ToString_007.html" />
     <EmbeddedResource Include="res\OmniLog\OmniLog.json" />
+    <EmbeddedResource Include="res\sdk\Mailr\Models\HtmlTable.json" />
     <EmbeddedResource Include="res\TextFile1.txt" />
     <EmbeddedResource Include="res\TextFile2.txt" />
     <EmbeddedResource Include="res\Utilities\JsonNet\PrettyTypeReaderT2.json" />
