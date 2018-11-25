@@ -35,7 +35,9 @@ namespace Reusable.sdk.Mailr.Models
         #region JsonNet extensions
 
         public bool ShouldSerializeHead() => Head.Any();
+
         public bool ShouldSerializeBody() => Body.Any();
+
         public bool ShouldSerializeFoot() => Foot.Any();
 
         #endregion
