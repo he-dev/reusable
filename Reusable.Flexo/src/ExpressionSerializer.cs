@@ -27,11 +27,16 @@ namespace Reusable.Flexo
             typeof(All),
             typeof(Any),
             typeof(Constant<>),
+            typeof(True),
+            typeof(False),
+            typeof(Zero),
+            typeof(One),
+            typeof(String),
             typeof(IIf),
             typeof(Min),
             typeof(Max),
             typeof(Select),
-            typeof(Sum)
+            typeof(Sum),
         };
 
         private readonly JsonSerializer _jsonSerializer;

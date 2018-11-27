@@ -90,6 +90,24 @@ namespace Reusable.IO
         public IEnumerable<string> FileNames => Directory.EnumerateFiles(DirectoryName).Select(Path.GetFileName);
     }
 
+    public class RelativeDirectoryTree : IDirectoryTree
+    {
+        private readonly IDirectoryTree _directoryTree;
+
+        private readonly string _basePath;
+
+        public RelativeDirectoryTree([NotNull] IDirectoryTree directoryTree, [NotNull] string basePath)
+        {
+            _directoryTree = directoryTree ?? throw new ArgumentNullException(nameof(directoryTree));
+            _basePath = basePath ?? throw new ArgumentNullException(nameof(basePath));
+        }
+
+        public IEnumerable<IDirectoryTreeNode> Walk(string path, Func<IDirectoryTreeNode, bool> predicate, Action<Exception> onException)
+        {
+            return _directoryTree.Walk(Path.Combine(_basePath, path), predicate, onException);
+        }
+    }
+
     internal class DirectoryTreeNodeFilter : IDirectoryTreeNode
     {
         internal DirectoryTreeNodeFilter(string path, int depth, IEnumerable<string> directoryNames, IEnumerable<string> fileNames)

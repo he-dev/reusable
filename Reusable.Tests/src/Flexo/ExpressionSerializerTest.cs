@@ -23,7 +23,23 @@ namespace Reusable.Tests.Flexo
 
             AreEqual(Constant.Create(true), expressions[0].Invoke(new ExpressionContext()));
             AreEqual(Constant.Create(false), expressions[1].Invoke(new ExpressionContext()));
-            AreEqual(Constant.Create(3.0), expressions[2].Invoke(new ExpressionContext()));            
-        }        
+            AreEqual(Constant.Create(3.0), expressions[2].Invoke(new ExpressionContext()));
+        }
+
+        [TestMethod]
+        public void CanDeserializeSingleExpression()
+        {
+            var serializer = new ExpressionSerializer();
+            var expression = serializer.Deserialize<MyTest>(Resources.GetFileInfoAsync(@"Single-expression.json").Result.CreateReadStream());
+
+            IsNotNull(expression);
+
+            
+        }
+    }
+
+    internal class MyTest
+    {
+        public IExpression MyExpression { get; set; }
     }
 }
