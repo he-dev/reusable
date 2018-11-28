@@ -6,6 +6,7 @@ using System.Linq.Custom;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Reusable.Extensions;
 using Reusable.Reflection;
 
