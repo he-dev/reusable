@@ -7,7 +7,7 @@ using Reusable.Reflection;
 
 namespace Reusable.Utilities.JsonNet
 {
-    public static class PrettyTypeResolver
+    public static class PrettyTypeResolverCallback
     {
         public static Func<string, Type> Create(IEnumerable<Assembly> assemblies)
         {

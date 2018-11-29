@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Reusable.Utilities.JsonNet;
 
 namespace Reusable.Flexo
@@ -16,7 +17,7 @@ namespace Reusable.Flexo
 
     public class ExpressionSerializer : IExpressionSerializer
     {
-        private static readonly IEnumerable<Type> OwnTypes = new[]
+        private static readonly Type[] InternalTypes =
         {
             typeof(Equals),
             typeof(GreaterThan),
@@ -39,11 +40,11 @@ namespace Reusable.Flexo
             typeof(Sum),
         };
 
-        private readonly JsonSerializer _jsonSerializer;
+        private readonly VisitJsonCallback Transform;
 
-        private readonly IEnumerable<Type> _jsonTypes;
+        private readonly JsonSerializer _jsonSerializer;       
 
-        public ExpressionSerializer(IEnumerable<Type> otherTypes = null, Action<JsonSerializer> configureSerializer = null)
+        public ExpressionSerializer(IEnumerable<Type> customTypes = null, Action<JsonSerializer> configureSerializer = null)
         {
             _jsonSerializer = new JsonSerializer
             {
@@ -51,7 +52,13 @@ namespace Reusable.Flexo
                 TypeNameHandling = TypeNameHandling.Auto,
                 //ContractResolver = contractResolver,
             };
-            _jsonTypes = OwnTypes.Concat(otherTypes ?? Enumerable.Empty<Type>()).ToList();
+
+            Transform = JsonVisitor.Create
+            (
+                new PropertyNameTrimmer(),
+                new PrettyTypeResolver(InternalTypes.Concat(customTypes ?? Enumerable.Empty<Type>()))
+            );
+
             configureSerializer?.Invoke(_jsonSerializer);
         }
 
@@ -61,9 +68,10 @@ namespace Reusable.Flexo
             if (jsonStream == null) throw new ArgumentNullException(nameof(jsonStream));
 
             using (var streamReader = new StreamReader(jsonStream))
-            using (var jsonTextReader = new PrettyTypeReader(streamReader, PrettyTypeReader.AbbreviatedTypePropertyName, PrettyTypeResolver.Create(_jsonTypes)))
             {
-                return _jsonSerializer.Deserialize<T>(jsonTextReader);
+                var json = streamReader.ReadToEnd();
+                var token = JToken.Parse(json);
+                return Transform(token).ToObject<T>(_jsonSerializer);
             }
         }
     }

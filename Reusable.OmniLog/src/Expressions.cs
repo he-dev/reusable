@@ -46,7 +46,7 @@ namespace Reusable.OmniLog.Expressions
 
             return new ExpressionSerializer
             (
-                otherTypes: ownTypes.Concat(otherTypes ?? Enumerable.Empty<Type>()),
+                customTypes: ownTypes.Concat(otherTypes ?? Enumerable.Empty<Type>()),
                 configureSerializer: serializer =>
                 {
                     serializer.Converters.Add(new LogLevelConverter());
