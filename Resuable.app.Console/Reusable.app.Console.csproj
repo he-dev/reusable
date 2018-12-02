@@ -17,7 +17,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="src\ExceptionControl.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Include="src\ExceptionControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <ItemGroup>
@@ -48,6 +58,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Microsoft.VisualStudio.DebuggerVisualizers">
+      <HintPath>..\..\..\..\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.DebuggerVisualizers.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="NLog.config">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -62,6 +82,12 @@
 
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="src\ExceptionControl.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
 
 </Project>

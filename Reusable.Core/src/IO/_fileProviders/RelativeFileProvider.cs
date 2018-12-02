@@ -7,7 +7,7 @@ namespace Reusable.IO
 {
     using static FileProviderCapabilities;
 
-    public class RelativeFileProvider : IFileProvider
+    public partial class RelativeFileProvider : IFileProvider
     {
         private readonly IFileProvider _fileProvider;
 

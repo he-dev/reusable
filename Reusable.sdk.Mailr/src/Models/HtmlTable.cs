@@ -16,7 +16,7 @@ namespace Reusable.sdk.Mailr.Models
             var row = Head.NewRow();
             foreach (var column in columns)
             {
-                row[column.Name].Data = column.Name.ToString();
+                row[column.Name].Value = column.Name.ToString();
             }
 
             Body = new HtmlTableSection(columns);
@@ -121,7 +121,7 @@ namespace Reusable.sdk.Mailr.Models
 
         public IList<string> Styles { get; } = new List<string>();
 
-        public object Data { get; set; }
+        public object Value { get; set; }
 
         #region JsonNet extensions
 
@@ -145,7 +145,7 @@ namespace Reusable.sdk.Mailr.Models
             var newRow = table.NewRow();
             foreach (var (column, value) in table.Columns.Zip(values, (column, value) => (column, value)))
             {
-                newRow[column.Name].Data = value;
+                newRow[column.Name].Value = value;
             }
         }
 
@@ -154,8 +154,10 @@ namespace Reusable.sdk.Mailr.Models
 
     public static class HtmlTableRowExtensions
     {
-        public static T Value<T>(this HtmlTableRow row, SoftString name) => row[name] is T value ? value : default;
+        [CanBeNull]
+        public static T ValueOrDefault<T>(this HtmlTableRow row, SoftString name) => row[name] is T value ? value : default;
 
-        public static T Value<T>(this HtmlTableRow row, int ordinal) => row[ordinal] is T value ? value : default;
+        [CanBeNull]
+        public static T ValueOrDefault<T>(this HtmlTableRow row, int ordinal) => row[ordinal] is T value ? value : default;
     }
 }

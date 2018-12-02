@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.OmniLog.SemanticExtensions</id>
-    <version>7.9.0</version>
+    <version>7.10.0</version>
     <title>Reusable.OmniLog.SemanticExtensions</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -16,8 +16,8 @@
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2018.2.1" />
-      <dependency id="Reusable.OmniLog" version="7.9.0" />
-      <dependency id="Reusable.Utilities.JsonNet" version="7.9.0" />
+      <dependency id="Reusable.OmniLog" version="7.10.0" />
+      <dependency id="Reusable.Utilities.JsonNet" version="7.10.0" />
     </dependencies>
   </metadata>
   <files>

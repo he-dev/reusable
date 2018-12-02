@@ -40,7 +40,7 @@ namespace Reusable.Flexo
             typeof(Sum),
         };
 
-        private readonly VisitJsonCallback Transform;
+        private readonly JsonVisitor _transform;
 
         private readonly JsonSerializer _jsonSerializer;       
 
@@ -53,7 +53,7 @@ namespace Reusable.Flexo
                 //ContractResolver = contractResolver,
             };
 
-            Transform = JsonVisitor.Create
+            _transform = JsonVisitor.CreateComposite
             (
                 new PropertyNameTrimmer(),
                 new PrettyTypeResolver(InternalTypes.Concat(customTypes ?? Enumerable.Empty<Type>()))
@@ -70,8 +70,7 @@ namespace Reusable.Flexo
             using (var streamReader = new StreamReader(jsonStream))
             {
                 var json = streamReader.ReadToEnd();
-                var token = JToken.Parse(json);
-                return Transform(token).ToObject<T>(_jsonSerializer);
+                return _transform.Visit(json).ToObject<T>(_jsonSerializer);
             }
         }
     }

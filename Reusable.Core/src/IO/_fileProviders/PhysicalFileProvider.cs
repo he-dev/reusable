@@ -23,7 +23,6 @@ namespace Reusable.IO
         {
             if (path == null) throw new ArgumentNullException(nameof(path));
 
-
             try
             {
                 if (Directory.Exists(path))

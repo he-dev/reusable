@@ -50,6 +50,7 @@
     <Compile Remove="src\Core\FormatProviders\DefaultFormatterTest.cs" />
     <Compile Remove="src\SmartConfig\Utilities\Reflection\ClassFinderTest.cs" />
     <Compile Remove="src\SmartConfig\Utilities\Reflection\SettingExpressionExtensionsTest.cs" />
+    <Compile Remove="src\Utilities\JsonNet\PrettyTypeReaderTest.cs" />
   </ItemGroup>
 
   <ItemGroup>
