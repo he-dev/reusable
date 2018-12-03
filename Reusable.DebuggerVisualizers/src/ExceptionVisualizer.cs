@@ -60,9 +60,9 @@ namespace Reusable.DebuggerVisualizers
                 Title = "Exception Visualizer",
                 Width = SystemParameters.WorkArea.Width * 0.4,
                 Height = SystemParameters.WorkArea.Height * 0.6,
-                Content = new DebuggerVisualizers.ExceptionControl
+                Content = new ExceptionVisualizerControl
                 {
-                    DataContext = new ExceptionControlModel
+                    DataContext = new ExceptionVisualizerControlModel
                     {
                         Exceptions = data
                     },
@@ -105,11 +105,11 @@ namespace Reusable.DebuggerVisualizers
         }
     }
 
-    public class ExceptionControlModel
+    public class ExceptionVisualizerControlModel
     {
         public static readonly ICommand CloseCommand = CommandFactory<Window>.Create(p => p.Close());
 
-        public static readonly ICommand CopyCommand = CommandFactory<ExceptionControlModel>.Create(p => p.CopyToClipboard());
+        public static readonly ICommand CopyCommand = CommandFactory<ExceptionVisualizerControlModel>.Create(p => p.CopyToClipboard());
 
         public IEnumerable<ExceptionInfo> Exceptions { get; set; } = new[]
         {

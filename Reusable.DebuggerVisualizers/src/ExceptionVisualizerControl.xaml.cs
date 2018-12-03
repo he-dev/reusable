@@ -5,9 +5,9 @@ namespace Reusable.DebuggerVisualizers
     /// <summary>
     /// Interaction logic for ExceptionControl.xaml
     /// </summary>
-    public partial class ExceptionControl : UserControl
+    public partial class ExceptionVisualizerControl : UserControl
     {
-        public ExceptionControl()
+        public ExceptionVisualizerControl()
         {
             InitializeComponent();
         }

@@ -18,13 +18,13 @@
     <Compile Remove="src\Call.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="src\ExceptionControl.xaml" />
+    <None Remove="src\ExceptionVisualizerControl.xaml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="src\ExceptionControl.xaml">
+    <Page Include="src\ExceptionVisualizerControl.xaml">
       <Generator></Generator>
     </Page>
   </ItemGroup>
@@ -41,7 +41,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="src\ExceptionControl.xaml.cs">
+    <Compile Update="src\ExceptionVisualizerControl.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
