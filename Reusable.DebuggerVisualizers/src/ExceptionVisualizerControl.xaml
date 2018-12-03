@@ -8,7 +8,7 @@
              d:DesignHeight="450" d:DesignWidth="800" Background="#FF404040"
              >
     <UserControl.Resources>
-        <local:ExceptionControlModel x:Key="DesignViewModel" />
+        <local:ExceptionVisualizerControlModel x:Key="DesignViewModel" />
         <Style TargetType="TextBlock" x:Key="NameStyle">
             <Setter Property="FontSize" Value="20"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -64,7 +64,7 @@
             </DockPanel.Resources>
             <Button
                 Content="Copy"
-                Command="{x:Static local:ExceptionControlModel.CopyCommand}"
+                Command="{x:Static local:ExceptionVisualizerControlModel.CopyCommand}"
                 CommandParameter="{Binding}">
                 <Button.Triggers>
                     <EventTrigger RoutedEvent="Button.Click">
@@ -87,7 +87,7 @@
             </Button>
             <Button 
                 Content="Close"
-                Command="{x:Static local:ExceptionControlModel.CloseCommand}"
+                Command="{x:Static local:ExceptionVisualizerControlModel.CloseCommand}"
                 CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" />
         </DockPanel>
     </Grid>
