@@ -40,7 +40,7 @@ namespace Reusable.DebuggerVisualizers
                 Regex
                     .Matches(exceptionString, @"(?<exception>(^|\w+)?Exception):\s(?<message>(.|\n)+?)(?=( --->|$))", RegexOptions.ExplicitCapture)
                     .Cast<Match>()
-                    .Select(m => new ExceptionInfo { Name = m.Groups["exception"].Value, Message = m.Groups["message"].Value });
+                    .Select(m => new ExceptionInfo { Name = m.Groups["exception"].Value, Message = m.Groups["message"].Value.Trim() });
         }
     }
 
