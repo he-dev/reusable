@@ -17,17 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="src\ExceptionControl.xaml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Page Include="src\ExceptionControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
 
   <ItemGroup>
@@ -37,6 +27,7 @@
     <ProjectReference Include="..\Reusable.Cryptography\Reusable.Cryptography.csproj" />
     <ProjectReference Include="..\Reusable.Csv.Utilities\Reusable.Csv.Utilities.csproj" />
     <ProjectReference Include="..\Reusable.Csv\Reusable.Csv.csproj" />
+    <ProjectReference Include="..\Reusable.DebuggerVisualizers\Reusable.DebuggerVisualizers.csproj" />
     <ProjectReference Include="..\Reusable.sdk.Http\Reusable.sdk.Http.csproj" />
     <ProjectReference Include="..\Reusable.sdk.Outlook\Reusable.sdk.Outlook.csproj" />
     <ProjectReference Include="..\Reusable.sdk.Smtp\Reusable.sdk.Smtp.csproj" />
@@ -59,7 +50,7 @@
 
   <ItemGroup>
     <Reference Include="Microsoft.VisualStudio.DebuggerVisualizers">
-      <HintPath>..\..\..\..\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.DebuggerVisualizers.dll</HintPath>
+      <HintPath>..\..\..\..\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\ReferenceAssemblies\v2.0\Microsoft.VisualStudio.DebuggerVisualizers.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -82,12 +73,6 @@
 
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="src\ExceptionControl.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
   </ItemGroup>
 
 </Project>
