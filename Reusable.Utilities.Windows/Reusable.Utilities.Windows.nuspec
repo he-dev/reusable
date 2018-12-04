@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>Reusable.Utilities.Windows</id>
+    <version>7.10.0</version>
+    <title>Reusable.Utilities.Windows</title>
+    <authors>He-Dev</authors>
+    <owners>He-Dev</owners>
+    <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/he-dev/Reusable</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/he-dev/Reusable/master/_nuget/recycling.png</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>JsonNet utilities.</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2016 He-Dev</copyright>
+    <tags>Utility Extension</tags>
+    <dependencies>
+      <dependency id="Autofac" version="4.8.1" />
+      <dependency id="JetBrains.Annotations" version="2018.2.1" />
+      <dependency id="Newtonsoft.Json" version="11.0.2" />
+      <dependency id="Reusable.Core" version="7.10.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\Release\net47\Reusable.Utilities.Windows.dll" target="lib\net47" />
+    <file src="bin\Release\net47\Reusable.Utilities.Windows.pdb" target="lib\net47" />
+  </files>
+</package>

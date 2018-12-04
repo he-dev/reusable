@@ -11,15 +11,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Autofac;
 using JetBrains.Annotations;
-using Microsoft.VisualStudio.DebuggerVisualizers;
 using Reusable.Apps;
 using Reusable.DebuggerVisualizers;
-
-//[assembly: DebuggerVisualizer(
-//    visualizer: typeof(ExceptionVisualizer),
-//    visualizerObjectSource: typeof(ExceptionDto),
-//    Target = typeof(Exception),
-//    Description = "Exception Visualizer")]
 
 namespace Reusable.Apps
 {
@@ -48,7 +41,7 @@ namespace Reusable.Apps
                 var exceptionString = ex.ToString();
                 exceptionString = ExceptionParser.RemoveStackStrace(exceptionString);
                 var exceptions = ExceptionParser.ParseExceptions(exceptionString);
-                ExceptionVisualizer.TestShowVisualizer(EnumerableExtensions.Reverse(exceptions).ToArray());
+                ExceptionVisualizer.TestShowVisualizer(exceptions.Reverse().ToArray());
             }
         }
 
