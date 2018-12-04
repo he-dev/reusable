@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
@@ -34,6 +35,11 @@ namespace Reusable.Flexo
         public bool Enabled { get; set; } = true;
 
         public abstract IExpression Invoke(IExpressionContext context);
+
+        public static IExpression Parse(Stream json, ExpressionSerializer serializer)
+        {            
+            return serializer.Deserialize<IExpression>(json);
+        }
     }
 
     public abstract class PredicateExpression : Expression

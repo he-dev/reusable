@@ -29,12 +29,11 @@ namespace Reusable.Tests.Flexo
         [TestMethod]
         public void CanDeserializeSingleExpression()
         {
-            var serializer = new ExpressionSerializer();
-            var expression = serializer.Deserialize<MyTest>(Resources.GetFileInfoAsync(@"Single-expression.json").Result.CreateReadStream());
-
-            IsNotNull(expression);
-
-            
+            using (var json = Resources.GetFileInfoAsync(@"Single-expression.json").Result.CreateReadStream())
+            {
+                var expression = Expression.Parse(json, new ExpressionSerializer());
+                IsNotNull(expression);
+            }
         }
     }
 
