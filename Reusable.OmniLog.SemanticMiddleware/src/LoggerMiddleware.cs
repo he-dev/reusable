@@ -31,7 +31,7 @@ namespace Reusable.OmniLog
         {
             using (var scope = _logger.BeginScope().AttachElapsed())
             {
-                _configuration?.ConfigureScope(scope, context);                
+                _configuration?.ConfigureScope(scope, context);
 
                 _logger.Log(Abstraction.Layer.Network().Argument(new
                 {
@@ -98,12 +98,9 @@ namespace Reusable.OmniLog
                         }
                     });
                 }
-                catch (Exception ex)
+                catch (Exception inner)
                 {
-                    _logger.Log(Abstraction.Layer.Network().Routine("next").Faulted(), log =>
-                    {
-                        log.Exception(ex);
-                    });
+                    _logger.Log(Abstraction.Layer.Network().Routine("next").Faulted(), inner);
                     throw;
                 }
             }

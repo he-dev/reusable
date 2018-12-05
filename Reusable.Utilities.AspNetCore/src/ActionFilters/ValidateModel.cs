@@ -21,17 +21,12 @@ namespace Reusable.Utilities.AspNetCore.ActionFilters
             {
                 return;
             }
-
-            _logger.Log(
-                Abstraction.Layer.Network().Argument(new
-                {
-                    context = new
-                    {
-                        ModelState = context.ModelState.Values.Select(value => value.Errors.Select(error => error.Exception.Message))
-                    }
-                }),
-                log => log.Level(LogLevel.Error)
-            );
+            
+            _logger.Log(Abstraction.Layer.Network().Meta(new
+            {
+                ModelErrors = context.ModelState.Values.Select(value => value.Errors.Select(error => error.Exception.Message))
+            })
+            .Error());
 
             context.Result = new BadRequestObjectResult(context.ModelState);
         }
