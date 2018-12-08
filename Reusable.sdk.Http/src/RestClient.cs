@@ -41,6 +41,11 @@ namespace Reusable.sdk.Http
         {
             var response = await SendRequestAsync(context, cancellationToken);
 
+            if (context.EnsureSuccessStatusCode)
+            {
+                response.EnsureSuccessStatusCode();
+            }
+
             var hasContent = response.Content.Headers.ContentLength > 0 && !(typeof(T) == typeof(object));
             if (hasContent)
             {
@@ -84,13 +89,7 @@ namespace Reusable.sdk.Http
                     configureRequestHeaders(request.Headers);
                 }
 
-                var response = await _client.SendAsync(request, cancellationToken);
-                if (context.EnsureSuccessStatusCode)
-                {
-                    response.EnsureSuccessStatusCode();
-                }
-
-                return response;
+                return await _client.SendAsync(request, cancellationToken);                
             }
         }
     }

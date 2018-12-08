@@ -10,6 +10,7 @@ using System.ServiceModel.Dispatcher;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
 using Reusable.OmniLog;
@@ -23,7 +24,7 @@ namespace Reusable.Apps
     internal static class Program
     {
         [STAThread]
-        private static void Main(string[] args)
+        private static async Task Main(string[] args)
         {
             //Input.Listen().Subscribe(Autocomplete.Create(new[] { "foo", "bar", "baz", "baaz" }));
 
@@ -49,9 +50,10 @@ namespace Reusable.Apps
 
             //Demos.RestClientDemo.Start();
             //Demos.RestClientDemo.Mailr().GetAwaiter().GetResult();
-            ExceptionVisualizerExperiment.Run();
+            //ExceptionVisualizerExperiment.Run();
+            await Reusable.Utilities.Http.Program.Run();
 
-            
+
             //System.Console.ReadKey();
         }
     }

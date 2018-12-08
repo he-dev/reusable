@@ -84,6 +84,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.DebuggerVisualizer
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Utilities.Windows", "Reusable.Utilities.Windows\Reusable.Utilities.Windows.csproj", "{30B455D7-7024-4A4B-AF85-CBB5C80759B7}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Tests2", "Reusable.Tests2\Reusable.Tests2.csproj", "{3FA08226-408C-4347-BBD8-7D505C8D48DE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -227,6 +229,10 @@ Global
 		{30B455D7-7024-4A4B-AF85-CBB5C80759B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{30B455D7-7024-4A4B-AF85-CBB5C80759B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{30B455D7-7024-4A4B-AF85-CBB5C80759B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3FA08226-408C-4347-BBD8-7D505C8D48DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FA08226-408C-4347-BBD8-7D505C8D48DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FA08226-408C-4347-BBD8-7D505C8D48DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FA08226-408C-4347-BBD8-7D505C8D48DE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
