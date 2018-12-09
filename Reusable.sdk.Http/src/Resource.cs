@@ -6,21 +6,10 @@ using JetBrains.Annotations;
 
 namespace Reusable.sdk.Http
 {
-    public static class RestClientExtensions
+    public interface IResource<out TMarker>
     {
         [NotNull]
-        public static IResource<TClient> Resource<TClient>([NotNull] this TClient client, params string[] path) where TClient : IRestClient
-        {
-            if (client == null) throw new ArgumentNullException(nameof(client));
-
-            return new Resource<TClient>(client, path);
-        }
-    }
-
-    public interface IResource<out T>
-    {
-        [NotNull]
-        IResource<T> Configure([NotNull] Action<HttpMethodContext> configureContext);
+        IResource<TMarker> Configure([NotNull] Action<HttpMethodContext> configureContext);
 
         Task<TResult> GetAsync<TResult>(CancellationToken cancellationToken = default);
 
@@ -32,23 +21,23 @@ namespace Reusable.sdk.Http
     }
 
     [PublicAPI]
-    public class Resource<T> : IResource<T>
+    internal class Resource<TMarker> : IResource<TMarker>
     {
         private Func<HttpMethodContext, HttpMethodContext> _configure;
 
-        public Resource([NotNull] IRestClient client, params string[] path)
+        public Resource([NotNull] IRestClient<TMarker> client, params string[] path)
         {
             Client = client ?? throw new ArgumentNullException(nameof(client));
             PartialUriBuilder = new PartialUriBuilder(path);
         }
 
         [NotNull]
-        private IRestClient Client { get; }
+        private IRestClient<TMarker> Client { get; }
 
         [NotNull]
         public PartialUriBuilder PartialUriBuilder { get; }
 
-        public IResource<T> Configure(Action<HttpMethodContext> configureContext)
+        public IResource<TMarker> Configure(Action<HttpMethodContext> configureContext)
         {
             if (configureContext == null) throw new ArgumentNullException(nameof(configureContext));
 

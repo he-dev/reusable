@@ -16,6 +16,9 @@ namespace Reusable.sdk.Http
         Task<T> InvokeAsync<T>([NotNull] HttpMethodContext context, CancellationToken cancellationToken);
     }
 
+    // ReSharper disable once UnusedTypeParameter - This is a marker interface and it needs to stay.
+    public interface IRestClient<TMarker> : IRestClient { }
+
     [PublicAPI]
     public class RestClient : IRestClient
     {
@@ -89,8 +92,31 @@ namespace Reusable.sdk.Http
                     configureRequestHeaders(request.Headers);
                 }
 
-                return await _client.SendAsync(request, cancellationToken);                
+                return await _client.SendAsync(request, cancellationToken);
             }
+        }
+
+        public static IRestClient<TMarker> Create<TMarker>(string baseUri, Action<HttpRequestHeaders> configureDefaultRequestHeaders)
+        {
+            return new RestClient<TMarker>(baseUri, configureDefaultRequestHeaders);
+        }
+    }
+
+    internal class RestClient<TMarker> : RestClient, IRestClient<TMarker>
+    {
+        public RestClient(string baseUri, Action<HttpRequestHeaders> configureDefaultRequestHeaders)
+            : base(baseUri, configureDefaultRequestHeaders)
+        { }
+    }
+
+    public static class RestClientExtensions
+    {
+        [NotNull]
+        public static IResource<TMarker> Resource<TMarker>([NotNull] this IRestClient<TMarker> client, params string[] path)
+        {
+            if (client == null) throw new ArgumentNullException(nameof(client));
+
+            return new Resource<TMarker>(client, path);
         }
     }
 }

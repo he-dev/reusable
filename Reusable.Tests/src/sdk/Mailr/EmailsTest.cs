@@ -12,7 +12,7 @@ namespace Reusable.Tests.Mailr
         [TestMethod]
         public async Task SendAsync_ToSelf_GotEmail()
         {
-            var mailr = MailrClient.Create(ConfigurationManager.AppSettings["mailr:BaseUri"], headers =>
+            var mailr = RestClient.Create<IMailrClient>(ConfigurationManager.AppSettings["mailr:BaseUri"], headers =>
             {
                 headers.AcceptJson();
                 headers.UserAgent(productName: "MailrNET.Tests", productVersion: "3.0.0");

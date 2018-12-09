@@ -35,7 +35,7 @@ namespace Reusable.Apps.Demos
         {
             try
             {
-                var mailr = MailrClient.Create(baseUri: ConfigurationManager.AppSettings["mailr:BaseUri"], headers =>
+                var mailr = RestClient.Create<IMailrClient>(baseUri: ConfigurationManager.AppSettings["mailr:BaseUri"], headers =>
                 {
                     headers.AcceptJson();
                     headers.UserAgent(productName: "MailrNET", productVersion: "3.0.0");

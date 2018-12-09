@@ -1,21 +1,27 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Reusable.sdk.Http;
+using Reusable.Teapot;
+using Reusable.Utilities.XUnit;
+using Reusable.Utilities.XUnit.Fixtures;
 using Xunit;
 
 namespace Reusable.Tests2
 {
-    public class RequestExperiment : IClassFixture<RequestLoggerFixture>
+    public class TeapotExperiment : IClassFixture<TeapotFactoryFixture>
     {
-        private readonly RequestLogger _server;
+        private const string Url = "http://localhost:12000";
 
-        public RequestExperiment(RequestLoggerFixture requestLogger)
+        private readonly TeapotServer _teapot;
+
+        public TeapotExperiment(TeapotFactoryFixture teapotFactory)
         {
-            _server = requestLogger.Server;
+            _teapot = teapotFactory.CreateTeapotServer(Url);
         }
 
         [Fact]
@@ -23,7 +29,7 @@ namespace Reusable.Tests2
         {
             #region Request made by the applicaation somewhere deep down the hole
 
-            var client = TestClient.Create("http://localhost:12000/api", headers => { headers.AcceptJson(); });
+            var client = RestClient.Create<ITestClient>("http://localhost:12000/api", headers => { headers.AcceptJson(); });
 
             try
             {
@@ -41,7 +47,7 @@ namespace Reusable.Tests2
 
             #endregion
 
-            var request = _server["/test?param=true"].First();
+            var request = _teapot["/test?param=true"].First();
 
             request.HasApiVersion("1.0");
             request.HasProperty("$.Greeting");
@@ -49,17 +55,16 @@ namespace Reusable.Tests2
         }
     }
 
-
-    public static class RequestLogExtensions
+    public static class RequestInfoExtensions
     {
         public static void HasProperty(this RequestInfo request, string jsonPath)
         {
-            Assert.False(request.ToJson().SelectToken(jsonPath) == null, $"Property '{jsonPath}' not found.");
+            Assert.False(request.ToJToken().SelectToken(jsonPath) == null, $"Property '{jsonPath}' not found.");
         }
 
         public static void PropertyEqual(this RequestInfo request, string jsonPath, object expected)
         {
-            if (request.ToJson().SelectToken(jsonPath) is JValue actual)
+            if (request.ToJToken().SelectToken(jsonPath) is JValue actual)
             {
                 Assert.True(actual.Equals(actual), $"Property '{jsonPath}' value '{actual.Value}' does not equal '{expected}'.");
             }
@@ -78,45 +83,5 @@ namespace Reusable.Tests2
         }
     }
 
-
-    public class RequestLoggerFixture : IDisposable
-    {
-        public RequestLoggerFixture()
-        {
-            Server = new RequestLogger("http://localhost:12000");
-        }
-
-        public RequestLogger Server { get; }
-
-        public void Dispose() => Server.Dispose();
-    }
-
-
-
-
-
-    public interface ITestClient : IRestClient { }
-
-    public class TestClient : ITestClient
-    {
-        private readonly IRestClient _restClient;
-
-        private TestClient(IRestClient restClient)
-        {
-            _restClient = restClient;
-        }
-
-        public string BaseUri => _restClient.BaseUri;
-
-        public static ITestClient Create(string baseUri, Action<HttpRequestHeaders> configureDefaultRequestHeaders)
-        {
-            var restClient = new RestClient(baseUri, configureDefaultRequestHeaders);
-            return new TestClient(restClient);
-        }
-
-        public Task<T> InvokeAsync<T>(HttpMethodContext context, CancellationToken cancellationToken)
-        {
-            return _restClient.InvokeAsync<T>(context, cancellationToken);
-        }
-    }
+    public interface ITestClient { }
 }

@@ -27,7 +27,7 @@ namespace Reusable.Utilities.Http
         {
             var server = new RequestLogger("http://localhost:12000");
 
-            var client = TestClient.Create("http://localhost:12000/api", headers => { headers.AcceptJson(); });
+            var client = RestClient.Create<ITestClient>("http://localhost:12000/api", headers => { headers.AcceptJson(); });
 
             var response = await client.Resource("test").Configure(context =>
             {
@@ -78,30 +78,7 @@ namespace Reusable.Utilities.Http
         //public static void Assert(this JToken token)
     }
 
-    public interface ITestClient : IRestClient { }
-
-    public class TestClient : ITestClient
-    {
-        private readonly IRestClient _restClient;
-
-        private TestClient(IRestClient restClient)
-        {
-            _restClient = restClient;
-        }
-
-        public string BaseUri => _restClient.BaseUri;
-
-        public static ITestClient Create(string baseUri, Action<HttpRequestHeaders> configureDefaultRequestHeaders)
-        {
-            var restClient = new RestClient(baseUri, configureDefaultRequestHeaders);
-            return new TestClient(restClient);
-        }
-
-        public Task<T> InvokeAsync<T>(HttpMethodContext context, CancellationToken cancellationToken)
-        {
-            return _restClient.InvokeAsync<T>(context, cancellationToken);
-        }
-    }
+    public interface ITestClient { }    
 
     // -- Assertions
 
