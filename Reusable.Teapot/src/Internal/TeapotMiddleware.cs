@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,13 +9,15 @@ using Microsoft.AspNetCore.Http;
 
 namespace Reusable.Teapot.Internal
 {
+    internal class RequestLog : ConcurrentDictionary<PathString, IImmutableList<RequestInfo>> { }
+
     internal class TeapotMiddleware
     {
         private readonly RequestDelegate _next;
 
-        private readonly ConcurrentDictionary<PathString, List<RequestInfo>> _requests;
+        private readonly RequestLog _requests;
 
-        public TeapotMiddleware(RequestDelegate next, ConcurrentDictionary<PathString, List<RequestInfo>> requests)
+        public TeapotMiddleware(RequestDelegate next, RequestLog requests)
         {
             _next = next;
             _requests = requests;
@@ -41,13 +44,9 @@ namespace Reusable.Teapot.Internal
 
                     _requests.AddOrUpdate
                     (
-                        context.Request.Path, 
-                        path => new List<RequestInfo> { request }, 
-                        (path, requests) =>
-                        {
-                            requests.Add(request);
-                            return requests;
-                        });
+                        context.Request.Path,
+                        path => ImmutableList.Create(request),
+                        (path, log) => log.Add(request));
 
                     await _next(context);
                     context.Response.StatusCode = StatusCodes.Status418ImATeapot;

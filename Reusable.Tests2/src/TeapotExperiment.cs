@@ -35,9 +35,13 @@ namespace Reusable.Tests2
             {
                 await client.Resource("test?param=true").Configure(context =>
                 {
-                    context.RequestHeadersActions.Add(headers => headers.Add("Api-Version", "1.0"));
+                    context.RequestHeadersActions.Add(headers =>
+                    {
+                        headers.Add("Api-Version", "1.0");
+                        headers.UserAgent("Reusable", "1.0");
+                    });
                     context.Body = new { Greeting = "Hallo" };
-            })
+                })
                 .PostAsync<object>();
             }
             catch (Exception)
@@ -47,11 +51,22 @@ namespace Reusable.Tests2
 
             #endregion
 
-            var request = _teapot["/test?param=true"].First();
+            _teapot
+               .ClientRequested("/test?param=true")
+               .AsUserAgent("Reusable", "1.0")
+               .Times(1)
+               .AcceptsJson()
+               .WithApiVersion("1.0")
+               .WithContentTypeJson(content =>
+               {
+                   content.HasProperty("$.Greeting");
+               });
 
-            request.HasApiVersion("1.0");
-            request.HasProperty("$.Greeting");
-            request.PropertyEqual("$.Greeting", "Hallo");
+            //var request = _teapot["/test?param=true"].First();
+
+            //request.HasApiVersion("1.0");
+            //request.HasProperty("$.Greeting");
+            //request.PropertyEqual("$.Greeting", "Hallo");
         }
     }
 

@@ -8,7 +8,7 @@ namespace Reusable.Teapot.Internal
 {
     internal static class WebHostBuilderExtensions
     {
-        public static IWebHostBuilder UseRequests(this IWebHostBuilder hostBuilder, ConcurrentDictionary<PathString, List<RequestInfo>> requests)
+        public static IWebHostBuilder UseRequests(this IWebHostBuilder hostBuilder, RequestLog requests)
         {
             return
                 hostBuilder
