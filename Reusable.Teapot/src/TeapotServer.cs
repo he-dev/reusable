@@ -13,7 +13,6 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json.Linq;
 using Reusable.Reflection;
 using Reusable.Teapot.Internal;
@@ -24,7 +23,7 @@ namespace Reusable.Teapot
     {
         private readonly IWebHost _host;
 
-        private readonly ISet<IObserver<RequestInfo>> _observers = new HashSet<IObserver<RequestInfo>>();
+        private TeacupScope _teacup;
 
         public TeapotServer(string url)
         {
@@ -32,10 +31,10 @@ namespace Reusable.Teapot
                 WebHost
                     .CreateDefaultBuilder()
                     .UseUrls(url)
-                    //.UseRequests(_requests)
                     .ConfigureServices(services =>
                     {
-                        services.AddSingleton((ObserversDelegate)(() => _observers));
+                        services.AddSingleton((LogDelegate)Log);
+                        services.AddSingleton((ResponseDelegate)NextResponse);
                     })
                     .UseStartup<TeapotStartup>()
                     .Build();
@@ -45,63 +44,75 @@ namespace Reusable.Teapot
 
         public Task Task { get; set; }
 
-        public TeacupScope BeginScope()
-        {
-            var teacup = default(TeacupScope);
-            var unsubscribe = Disposable.Create(() => _observers.Remove(teacup));
-            teacup = new TeacupScope(unsubscribe);
-            _observers.Add(teacup);
-            return teacup;
-        }
+        public ITeacupScope BeginScope() => (_teacup = new TeacupScope());
+
+        private void Log(PathString path, SoftString method, RequestInfo request) => _teacup.Log(path, method, request);
+
+        private Func<ResponseInfo> NextResponse(PathString path, SoftString method) => _teacup.NextResponse(path, method);
 
         public void Dispose()
         {
             _host.Dispose();
+            _teacup?.Dispose();
         }
     }
 
-    public class TeacupScope : IObserver<RequestInfo>, IDisposable
+    public interface ITeacupScope : IDisposable
+    {
+        IRequestAssert Requested(PathString path, SoftString method);
+
+        void Responses(PathString path, string method, Action<ResponseQueueBuilder> responseQueueBuilder);
+    }
+
+    public class TeacupScope : ITeacupScope
     {
         private readonly RequestLog _requests = new RequestLog();
 
-        private readonly IDisposable _unsubscribe;
+        private readonly ResponseQueue _responses = new ResponseQueue();
 
-        private readonly IObserver<RequestInfo> _observer;
-
-        public TeacupScope(IDisposable unsubscribe)
+        public IRequestAssert Requested(PathString path, SoftString method)
         {
-            _unsubscribe = unsubscribe;
-            _observer = Observer.Create<RequestInfo>
+            return new RequestAssert
             (
-                onNext: request =>
-                {
-                    _requests.AddOrUpdate
-                    (
-                        request.Path,
-                        path => ImmutableList.Create(request),
-                        (path, log) => log.Add(request)
-                    );
-                },
-                onError: inner => { /* not sure what to do */}
+                path: path,
+                requests: _requests.TryGetValue((path, method), out var requests) && requests.Any()
+                    ? requests
+                    : throw DynamicException.Create("RequestNotFound", $"There was no '{method.ToString().ToUpper()}' requests to '{path.Value}'.")
             );
         }
 
-        [NotNull, ItemNotNull]
-        public IImmutableList<RequestInfo> this[PathString path] => _requests.TryGetValue(path, out var request) ? request : ImmutableList<RequestInfo>.Empty;
+        public void Responses(PathString path, string method, Action<ResponseQueueBuilder> responseQueueBuilder)
+        {
+            var builder = new ResponseQueueBuilder();
+            responseQueueBuilder(builder);
+            _responses.AddOrUpdate((path, method), builder.Build(), (k, q) => q);
+        }
 
-        #region IObserver<RequestInfo>
+        public void Log(PathString path, SoftString method, RequestInfo request)
+        {
+            _requests.AddOrUpdate
+            (
+                (path, method),
+                key => ImmutableList.Create(request),
+                (key, log) => log.Add(request)
+            );
+        }
 
-        public void OnNext(RequestInfo value) => _observer.OnNext(value);
+        public Func<ResponseInfo> NextResponse(PathString path, SoftString method)
+        {
+            if (_responses.TryGetValue((path, method), out var queue))
+            {
+                return
+                    queue.Any()
+                        ? queue.Dequeue()
+                        : () => ResponseInfo.Empty;
+            }
 
-        public void OnError(Exception error) => _observer.OnError(error);
-
-        public void OnCompleted() => _observer.OnCompleted();
-
-        #endregion
+            return () => ResponseInfo.Empty;
+        }
 
         public void Dispose()
         {
-            _unsubscribe.Dispose();
             foreach (var request in _requests.SelectMany(r => r.Value))
             {
                 request.BodyStreamCopy?.Dispose();
@@ -111,35 +122,56 @@ namespace Reusable.Teapot
 
     public static class TeacupScopeExtensions
     {
-        public static IRequestAssert ClientRequested(this TeacupScope teacup, PathString path)
-        {
-            return new RequestAssert
-            (
-                path: path,
-                requests: teacup[path] is var requests && requests.Any()
-                    ? requests
-                    : throw DynamicException.Create("RequestNotFound", $"There is no such request as '{path.Value}'")
-            );
-        }
-
-        public static void WhenRequested(this TeacupScope teacup, PathString path, string method)
-        {
-
-        }
+        //public static IRequestAssert ClientRequested(this ITeacupScope teacup, PathString path, SoftString method)
+        //{
+        //    return new RequestAssert
+        //    (
+        //        path: path,
+        //        requests: teacup.Requests(path, method) is var requests && requests.Any()
+        //            ? requests
+        //            : throw DynamicException.Create("RequestNotFound", $"There was no '{method.ToString().ToUpper()}' requests to '{path.Value}'.")
+        //    );
+        //}
     }
 
-    public class ResponseConfiguration
+    public class ResponseQueueBuilder
     {
-        public PathString Path { get; set; }
+        private readonly Queue<Func<ResponseInfo>> _responses = new Queue<Func<ResponseInfo>>();
 
-        public string Method { get; set; }
+        public ResponseQueueBuilder Once(int statusCode, object content) => Exactly(statusCode, content, 1);
 
-        public IList<(string StatusCode, object Content)> Responses { get; set; }
-
-        public ResponseConfiguration Add(string statusCode, object content)
+        public ResponseQueueBuilder Always(int statusCode, object content)
         {
+            _responses.Enqueue(() => new ResponseInfo(statusCode, content));
             return this;
         }
+
+        public ResponseQueueBuilder Exactly(int statusCode, object content, int count)
+        {
+            var counter = 0;
+            _responses.Enqueue(() => counter++ < count ? new ResponseInfo(statusCode, content) : default);
+            return this;
+        }
+
+
+        public Queue<Func<ResponseInfo>> Build() => _responses;
+    }
+
+    public readonly struct ResponseInfo
+    {
+        public ResponseInfo(int statusCode, object content)
+        {
+            StatusCode = statusCode;
+            Content = content;
+        }
+
+        public static ResponseInfo Empty { get; } = default;
+
+        public bool IsEmpty => StatusCode == 0 && Content == null;
+
+        public int StatusCode { get; }
+
+        public object Content { get; }
     }
 
     public interface IRequestAssert

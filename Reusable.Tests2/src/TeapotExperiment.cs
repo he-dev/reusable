@@ -31,20 +31,29 @@ namespace Reusable.Tests2
             var client = RestClient.Create<ITestClient>("http://localhost:12000/api", headers => { headers.AcceptJson(); });
 
             var teacup = _teapot.BeginScope();
+
+            teacup
+                .Responses("/test?param=true", "POST", builder =>
+                {
+                    builder.Once(200, new { Message = "OK" });
+                });
+
             try
             {
                 #region Request made by the applicaation somewhere deep down the rabbit hole
-                
-                await client.Resource("test?param=true").Configure(context =>
-                {
-                    context.RequestHeadersActions.Add(headers =>
-                    {
-                        headers.Add("Api-Version", "1.0");
-                        headers.UserAgent("Reusable", "1.0");
-                    });
-                    context.Body = new { Greeting = "Hallo" };
-                })
-                .PostAsync<object>();
+
+                var response = await client.Resource("test?param=true").Configure(context =>
+                 {
+                     context.RequestHeadersActions.Add(headers =>
+                     {
+                         headers.Add("Api-Version", "1.0");
+                         headers.UserAgent("Reusable", "1.0");
+                         headers.AcceptJson();
+                     });
+                     context.Body = new { Greeting = "Hallo" };
+                 })
+                //.PostAsync(new { Message = string.Empty });
+                .PostAsync<R>();
 
                 #endregion
             }
@@ -55,7 +64,7 @@ namespace Reusable.Tests2
             finally
             {
                 teacup
-                   .ClientRequested("/test?param=true")
+                   .Requested("/test?param=true", "POST")
                    .AsUserAgent("Reusable", "1.0")
                    .Times(1)
                    .AcceptsJson()
@@ -71,4 +80,9 @@ namespace Reusable.Tests2
     }
 
     public interface ITestClient { }
+
+    public class R
+    {
+        public string Message { get; set; }
+    }
 }

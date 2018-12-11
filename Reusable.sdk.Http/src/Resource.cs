@@ -70,4 +70,12 @@ namespace Reusable.sdk.Http
             return Client.InvokeAsync<TResult>(_configure(new HttpMethodContext(HttpMethod.Delete, PartialUriBuilder)), cancellationToken);
         }
     }
+
+    public static class ResourceExtensions
+    {
+        public static Task<TResult> PostAsync<TMarker, TResult>(this IResource<TMarker> resource, TResult obj, CancellationToken cancellationToken = default)
+        {
+            return resource.PostAsync<TResult>(cancellationToken);
+        }
+    }
 }

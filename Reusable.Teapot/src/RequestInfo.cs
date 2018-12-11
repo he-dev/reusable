@@ -7,7 +7,7 @@ namespace Reusable.Teapot
     {
         public long? ContentLength { get; set; }
 
-        public PathString Path { get; set; }
+        //public PathString Path { get; set; }
 
         public IHeaderDictionary Headers { get; set; }
 
