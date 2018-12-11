@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
@@ -11,16 +13,17 @@ namespace Reusable.Teapot.Internal
 {
     internal class RequestLog : ConcurrentDictionary<PathString, IImmutableList<RequestInfo>> { }
 
+    internal delegate IEnumerable<IObserver<RequestInfo>> ObserversDelegate();
+
     internal class TeapotMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly ObserversDelegate _getObservers;
 
-        private readonly RequestLog _requests;
-
-        public TeapotMiddleware(RequestDelegate next, RequestLog requests)
+        public TeapotMiddleware(RequestDelegate next, ObserversDelegate getObservers)
         {
             _next = next;
-            _requests = requests;
+            _getObservers = getObservers;
         }
 
         public async Task Invoke(HttpContext context)
@@ -33,20 +36,20 @@ namespace Reusable.Teapot.Internal
                     // It needs to be copied because otherwise it'll get disposed.
                     await context.Request.Body.CopyToAsync(memory);
 
-                    var request = new RequestInfo
+                    // Each observer gets it's own request copy.
+                    foreach (var observer in _getObservers())
                     {
-                        Path = context.Request.Path,
-                        ContentLength = context.Request.ContentLength,
-                        // There is no copy-constructor.
-                        Headers = new HeaderDictionary(context.Request.Headers.ToDictionary(x => x.Key, x => x.Value)),
-                        BodyStreamCopy = memory
-                    };
+                        var request = new RequestInfo
+                        {
+                            Path = context.Request.Path,
+                            ContentLength = context.Request.ContentLength,
+                            // There is no copy-constructor.
+                            Headers = new HeaderDictionary(context.Request.Headers.ToDictionary(x => x.Key, x => x.Value)),
+                            BodyStreamCopy = memory
+                        };
 
-                    _requests.AddOrUpdate
-                    (
-                        context.Request.Path,
-                        path => ImmutableList.Create(request),
-                        (path, log) => log.Add(request));
+                        observer.OnNext(request);
+                    }
 
                     await _next(context);
                     context.Response.StatusCode = StatusCodes.Status418ImATeapot;
@@ -55,10 +58,15 @@ namespace Reusable.Teapot.Internal
             }
             catch (Exception inner)
             {
+                foreach (var observer in _getObservers())
+                {
+                    observer.OnError(inner);
+                }
                 // Not sure what to do... throw or not?
                 context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                 //throw;
             }
         }
+
     }
 }

@@ -4,12 +4,15 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Custom;
+using System.Reactive;
+using System.Reactive.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json.Linq;
 using Reusable.Reflection;
@@ -19,43 +22,86 @@ namespace Reusable.Teapot
 {
     public class TeapotServer : IDisposable
     {
-        private readonly RequestLog _requests;
-
         private readonly IWebHost _host;
+
+        private readonly ISet<IObserver<RequestInfo>> _observers = new HashSet<IObserver<RequestInfo>>();
 
         public TeapotServer(string url)
         {
-            _requests = new RequestLog();
-
             _host =
                 WebHost
                     .CreateDefaultBuilder()
                     .UseUrls(url)
-                    .UseRequests(_requests)
+                    //.UseRequests(_requests)
+                    .ConfigureServices(services =>
+                    {
+                        services.AddSingleton((ObserversDelegate)(() => _observers));
+                    })
                     .UseStartup<TeapotStartup>()
                     .Build();
 
-            Task = _host.RunAsync(); ;
+            Task = _host.RunAsync();
         }
 
         public Task Task { get; set; }
 
-        [NotNull, ItemNotNull]
-        public IImmutableList<RequestInfo> this[PathString path]
+        public TeacupScope BeginScope()
         {
-            get
-            {
-                // ReSharper disable once ArrangeAccessorOwnerBody - I like it that way.
-                return
-                    _requests.TryGetValue(path, out var request)
-                        ? request
-                        : ImmutableList<RequestInfo>.Empty;
-            }
+            var teacup = default(TeacupScope);
+            var unsubscribe = Disposable.Create(() => _observers.Remove(teacup));
+            teacup = new TeacupScope(unsubscribe);
+            _observers.Add(teacup);
+            return teacup;
         }
 
         public void Dispose()
         {
             _host.Dispose();
+        }
+    }
+
+    public class TeacupScope : IObserver<RequestInfo>, IDisposable
+    {
+        private readonly RequestLog _requests = new RequestLog();
+
+        private readonly IDisposable _unsubscribe;
+
+        private readonly IObserver<RequestInfo> _observer;
+
+        public TeacupScope(IDisposable unsubscribe)
+        {
+            _unsubscribe = unsubscribe;
+            _observer = Observer.Create<RequestInfo>
+            (
+                onNext: request =>
+                {
+                    _requests.AddOrUpdate
+                    (
+                        request.Path,
+                        path => ImmutableList.Create(request),
+                        (path, log) => log.Add(request)
+                    );
+                },
+                onError: inner => { /* not sure what to do */}
+            );
+        }
+
+        [NotNull, ItemNotNull]
+        public IImmutableList<RequestInfo> this[PathString path] => _requests.TryGetValue(path, out var request) ? request : ImmutableList<RequestInfo>.Empty;
+
+        #region IObserver<RequestInfo>
+
+        public void OnNext(RequestInfo value) => _observer.OnNext(value);
+
+        public void OnError(Exception error) => _observer.OnError(error);
+
+        public void OnCompleted() => _observer.OnCompleted();
+
+        #endregion
+
+        public void Dispose()
+        {
+            _unsubscribe.Dispose();
             foreach (var request in _requests.SelectMany(r => r.Value))
             {
                 request.BodyStreamCopy?.Dispose();
@@ -63,17 +109,36 @@ namespace Reusable.Teapot
         }
     }
 
-    public static class TeapotExtensions
+    public static class TeacupScopeExtensions
     {
-        public static IRequestAssert ClientRequested(this TeapotServer teapot, PathString path)
+        public static IRequestAssert ClientRequested(this TeacupScope teacup, PathString path)
         {
             return new RequestAssert
             (
                 path: path,
-                requests: teapot[path] is var requests && requests.Any()
+                requests: teacup[path] is var requests && requests.Any()
                     ? requests
                     : throw DynamicException.Create("RequestNotFound", $"There is no such request as '{path.Value}'")
             );
+        }
+
+        public static void WhenRequested(this TeacupScope teacup, PathString path, string method)
+        {
+
+        }
+    }
+
+    public class ResponseConfiguration
+    {
+        public PathString Path { get; set; }
+
+        public string Method { get; set; }
+
+        public IList<(string StatusCode, object Content)> Responses { get; set; }
+
+        public ResponseConfiguration Add(string statusCode, object content)
+        {
+            return this;
         }
     }
 

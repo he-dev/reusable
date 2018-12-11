@@ -45,13 +45,13 @@ namespace Reusable.Tests2.sdk.Mailr
                 TeapotAssert.ImATeapot(ex);
             }
 
-            var request = _server["/mailr/messages/test"].Single();
+            //var request = _server["/mailr/messages/test"].Single();
 
-            request.Body(email =>
-            {
-                email.HasProperty("$.Body.Greeting");
-                //email.HasProperty("$.Body.Greetingg");
-            });
+            //request.Body(email =>
+            //{
+            //    email.HasProperty("$.Body.Greeting");
+            //    //email.HasProperty("$.Body.Greetingg");
+            //});
 
             //request.HasProperty("$.Body.Greetingg");
         }
