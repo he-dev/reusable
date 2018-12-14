@@ -4,6 +4,7 @@ using System.Globalization;
 using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Diagnostics;
+using Reusable.Exceptionizer;
 using Reusable.Extensions;
 using Reusable.Reflection;
 

@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using System.Linq;
 using Newtonsoft.Json;
+using Reusable.Exceptionizer;
 using Reusable.Reflection;
 
 namespace Reusable.Flexo

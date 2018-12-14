@@ -5,6 +5,7 @@ using System.Data;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Data;
+using Reusable.Exceptionizer;
 using Reusable.Reflection;
 using Reusable.SmartConfig;
 using Reusable.SmartConfig.Annotations;

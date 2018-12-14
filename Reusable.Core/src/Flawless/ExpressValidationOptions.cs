@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace Reusable.Validation
+namespace Reusable.Flawless
 {
     [Flags]
-    public enum BouncerPolicyOptions
+    public enum ExpressValidationOptions
     {
         None = 0,
         

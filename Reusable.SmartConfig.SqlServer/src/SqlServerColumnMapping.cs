@@ -1,14 +1,14 @@
 ﻿using JetBrains.Annotations;
-using Reusable.Validation;
+using Reusable.Flawless;
 
 namespace Reusable.SmartConfig
 {
     public class SqlServerColumnMapping
     {
-        private static readonly IBouncer<string> ColumnBouncer = Bouncer.For<string>(builder =>
+        private static readonly IExpressValidator<string> ColumnValidator = ExpressValidator.For<string>(builder =>
         {
             builder.BlockNull();
-            builder.Block(c => string.IsNullOrEmpty(c));
+            builder.IsNotValidWhen(c => string.IsNullOrEmpty(c));
         });
 
         private string _name;
@@ -24,14 +24,14 @@ namespace Reusable.SmartConfig
         public string Name
         {
             get => _name;
-            set => _name = value.ValidateWith(ColumnBouncer).ThrowIfInvalid();
+            set => _name = value.ValidateWith(ColumnValidator).ThrowIfInvalid();
         }
 
         [NotNull]
         public string Value
         {
             get => _value;
-            set => _value = value.ValidateWith(ColumnBouncer).ThrowIfInvalid();
+            set => _value = value.ValidateWith(ColumnValidator).ThrowIfInvalid();
         }
 
         public static implicit operator SqlServerColumnMapping((string name, string value) mapping)

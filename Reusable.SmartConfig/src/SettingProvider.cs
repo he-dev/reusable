@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Custom;
 using JetBrains.Annotations;
 using Reusable.Collections;
+using Reusable.Exceptionizer;
 using Reusable.Extensions;
 using Reusable.Reflection;
 using Reusable.SmartConfig.Annotations;

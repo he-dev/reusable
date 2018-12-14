@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Commander;
+using Reusable.Exceptionizer;
 using Reusable.Reflection;
 using Reusable.Utilities.MSTest;
 

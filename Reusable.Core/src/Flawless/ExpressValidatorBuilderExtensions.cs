@@ -1,23 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq.Custom;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 
-namespace Reusable.Validation
+namespace Reusable.Flawless
 {
     [PublicAPI]
-    public static class BouncerExtensions
+    public static class ExpressValidatorBuilderExtensions
     {
         #region Ensure overloads
 
-        public static BouncerPolicyBuilder<T> Ensure<T>(this BouncerBuilder<T> builder, Expression<Func<T, bool>> expression)
+        public static ExpressValidationRuleBuilder<T> Ensure<T>(this ExpressValidatorBuilder<T> builder, Expression<Func<T, bool>> expression)
         {
             return builder.Policy(expression);
         }
 
-        public static BouncerPolicyBuilder<T> EnsureNull<T>(this BouncerBuilder<T> builder)
+        public static ExpressValidationRuleBuilder<T> EnsureNull<T>(this ExpressValidatorBuilder<T> builder)
         {
             return
                 builder
@@ -30,17 +28,17 @@ namespace Reusable.Validation
 
         #region Block overloads
 
-        public static BouncerPolicyBuilder<T> Block<T>(this BouncerBuilder<T> builder, Expression<Func<T, bool>> expression)
+        public static ExpressValidationRuleBuilder<T> IsNotValidWhen<T>(this ExpressValidatorBuilder<T> builder, Expression<Func<T, bool>> expression)
         {
             var notExpression = Expression.Lambda<Func<T, bool>>(Expression.Not(expression.Body), expression.Parameters[0]);
             return builder.Ensure(notExpression);
         }
 
-        public static BouncerPolicyBuilder<T> BlockNull<T>(this BouncerBuilder<T> builder)
+        public static ExpressValidationRuleBuilder<T> BlockNull<T>(this ExpressValidatorBuilder<T> builder)
         {
             return
                 builder
-                    .Block(IsNullExpression.Create<T>())
+                    .IsNotValidWhen(IsNullExpression.Create<T>())
                     .WithMessage($"{typeof(T).ToPrettyString()} must not be null.")
                     .BreakOnFailure();
         }

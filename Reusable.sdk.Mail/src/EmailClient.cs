@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Reusable.Exceptionizer;
+using Reusable.Flawless;
 using Reusable.Reflection;
 using Reusable.sdk.Mail.Models;
-using Reusable.Validation;
 
 namespace Reusable.sdk.Mail
 {
@@ -15,11 +16,11 @@ namespace Reusable.sdk.Mail
 
     public abstract class EmailClient : IEmailClient
     {
-        private static readonly IBouncer<IEmail<IEmailSubject, IEmailBody>> EmailBouncer = Bouncer.For<IEmail<IEmailSubject, IEmailBody>>(builder =>
+        private static readonly IExpressValidator<IEmail<IEmailSubject, IEmailBody>> EmailValidator = ExpressValidator.For<IEmail<IEmailSubject, IEmailBody>>(builder =>
         {
-            builder.Block(e => e.To == null);
-            builder.Block(e => e.Subject == null);
-            builder.Block(e => e.Body == null);
+            builder.IsNotValidWhen(e => e.To == null);
+            builder.IsNotValidWhen(e => e.Subject == null);
+            builder.IsNotValidWhen(e => e.Body == null);
         });
 
         public async Task SendAsync<TSubject, TBody>(IEmail<TSubject, TBody> email)
@@ -28,8 +29,8 @@ namespace Reusable.sdk.Mail
         {
             if (email == null) throw new ArgumentNullException(nameof(email));
 
-            EmailBouncer
-                .Validate((IEmail<IEmailSubject, IEmailBody>)email)
+            EmailValidator
+                .IsThreat((IEmail<IEmailSubject, IEmailBody>)email)
                 .ThrowIfInvalid();
 
             try

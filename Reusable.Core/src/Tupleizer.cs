@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Reusable.Exceptionizer;
 using Reusable.Extensions;
 using Reusable.Reflection;
 

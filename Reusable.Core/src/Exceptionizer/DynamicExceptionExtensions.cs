@@ -2,7 +2,7 @@ using System;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 
-namespace Reusable.Reflection
+namespace Reusable.Exceptionizer
 {
     public static class DynamicExceptionExtensions
     {

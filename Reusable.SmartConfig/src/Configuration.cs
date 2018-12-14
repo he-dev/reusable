@@ -5,11 +5,12 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Custom;
 using JetBrains.Annotations;
+using Reusable.Exceptionizer;
 using Reusable.Extensions;
+using Reusable.Flawless;
 using Reusable.Reflection;
 using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Data;
-using Reusable.Validation;
 
 namespace Reusable.SmartConfig
 {
@@ -30,7 +31,7 @@ namespace Reusable.SmartConfig
 
         private readonly IDictionary<SettingName, SoftString> _settingProviderNames = new Dictionary<SettingName, SoftString>();
 
-        private static readonly IBouncer<IEnumerable<ISettingProvider>> SettingProviderBouncer = Bouncer.For<IEnumerable<ISettingProvider>>(
+        private static readonly IExpressValidator<IEnumerable<ISettingProvider>> SettingProviderValidator = ExpressValidator.For<IEnumerable<ISettingProvider>>(
             builder =>
             {
                 builder.BlockNull();
@@ -42,7 +43,7 @@ namespace Reusable.SmartConfig
         {
             if (settingProviders == null) throw new ArgumentNullException(nameof(settingProviders));
 
-            _providers = settingProviders.ToList().ValidateWith(SettingProviderBouncer).ThrowIfInvalid();
+            _providers = settingProviders.ToList().ValidateWith(SettingProviderValidator).ThrowIfInvalid();
             _settingFinder = settingFinder ?? throw new ArgumentNullException(nameof(settingFinder));
         }
 

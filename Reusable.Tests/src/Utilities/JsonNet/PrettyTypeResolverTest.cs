@@ -5,6 +5,7 @@ using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Reusable.Exceptionizer;
 using Reusable.Extensions;
 using Reusable.IO;
 using Reusable.Reflection;

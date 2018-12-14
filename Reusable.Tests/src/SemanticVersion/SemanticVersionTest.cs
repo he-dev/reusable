@@ -3,6 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable;
+using Reusable.Exceptionizer;
 using Reusable.Reflection;
 using Reusable.Utilities.MSTest;
 

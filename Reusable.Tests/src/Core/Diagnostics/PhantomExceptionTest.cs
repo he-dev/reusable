@@ -3,6 +3,7 @@ using Reusable.Collections.Generators;
 using Reusable.Diagnostics;
 using Reusable.Diagnostics.Abstractions;
 using Reusable.Diagnostics.Triggers;
+using Reusable.Exceptionizer;
 using Reusable.Reflection;
 
 namespace Reusable.Tests.Diagnostics

@@ -4,66 +4,65 @@ using System.Linq;
 using System.Linq.Custom;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Reusable.Reflection;
 
-namespace Reusable.Validation
+namespace Reusable.Flawless
 {
-    public class BouncerBuilder<T>
+    public class ExpressValidatorBuilder<T>
     {
-        private readonly IList<BouncerPolicyBuilder<T>> _policyBuilders = new List<BouncerPolicyBuilder<T>>();
+        private readonly IList<ExpressValidationRuleBuilder<T>> _policyBuilders = new List<ExpressValidationRuleBuilder<T>>();
         
         [NotNull]
-        public BouncerPolicyBuilder<T> Policy([NotNull] Expression<Func<T, bool>> expression)
+        public ExpressValidationRuleBuilder<T> Policy([NotNull] Expression<Func<T, bool>> expression)
         {
-            var policyBuilder = new BouncerPolicyBuilder<T>(expression);
+            var policyBuilder = new ExpressValidationRuleBuilder<T>(expression);
             _policyBuilders.Add(policyBuilder);
             return policyBuilder;
         }
 
         [NotNull, ItemNotNull]
-        internal IList<IBouncerPolicy<T>> Build()
+        internal IList<IExpressValidationRule<T>> Build()
         {
             if (_policyBuilders.Empty()) throw new InvalidOperationException("You need to define at least one validation rule.");
             return _policyBuilders.Select(rb => rb.Build()).ToList();
         }
     }
 
-    public class BouncerPolicyBuilder<T>
+    public class ExpressValidationRuleBuilder<T>
     {
         private readonly Expression<Func<T, bool>> _expression;
         private Func<T, string> _createMessage = _ => "N/A";
-        private BouncerPolicyOptions _options;
+        private ExpressValidationOptions _options;
 
-        public BouncerPolicyBuilder([NotNull] Expression<Func<T, bool>> expression)
+        public ExpressValidationRuleBuilder([NotNull] Expression<Func<T, bool>> expression)
         {
             _expression = expression ?? throw new ArgumentNullException(nameof(expression));
         }
 
         [NotNull]
-        public BouncerPolicyBuilder<T> WithMessage(string message)
+        public ExpressValidationRuleBuilder<T> WithMessage(string message)
         {
             _createMessage = _ => message;
             return this;
         }
         
         [NotNull]
-        public BouncerPolicyBuilder<T> WithMessage(Func<T, string> createMessage)
+        public ExpressValidationRuleBuilder<T> WithMessage(Func<T, string> createMessage)
         {
             _createMessage = createMessage;
             return this;
         }
         
         [NotNull]
-        public BouncerPolicyBuilder<T> BreakOnFailure()
+        public ExpressValidationRuleBuilder<T> BreakOnFailure()
         {
-            _options |= BouncerPolicyOptions.BreakOnFailure;
+            _options |= ExpressValidationOptions.BreakOnFailure;
             return this;
         }
         
         [NotNull]
-        public IBouncerPolicy<T> Build()
+        public IExpressValidationRule<T> Build()
         {
-            return new BouncerPolicy<T>(_expression, _createMessage, _options);
+            return new ExpressValidationRule<T>(_expression, _createMessage, _options);
         }
     }
 }

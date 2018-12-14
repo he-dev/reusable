@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.Exceptionizer;
 using Reusable.Reflection;
 using Reusable.sdk.Mail;
 using Reusable.sdk.Mail.Models;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Collections;
+using Reusable.Exceptionizer;
 using Reusable.Reflection;
 
 namespace Reusable.Commander

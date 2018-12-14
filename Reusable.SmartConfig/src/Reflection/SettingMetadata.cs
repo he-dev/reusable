@@ -6,18 +6,19 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Reusable.Exceptionizer;
 using Reusable.Extensions;
+using Reusable.Flawless;
 using Reusable.Reflection;
 using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Data;
-using Reusable.Validation;
 
 namespace Reusable.SmartConfig.Reflection
 {
     [PublicAPI]
     public class SettingMetadata
     {
-        private static readonly IBouncer<LambdaExpression> SettingExpressionBouncer = Bouncer.For<LambdaExpression>(builder =>
+        private static readonly IExpressValidator<LambdaExpression> SettingExpressionValidator = ExpressValidator.For<LambdaExpression>(builder =>
         {
             builder.BlockNull();
             builder.Ensure(e => e.Body is MemberExpression);
@@ -99,7 +100,7 @@ namespace Reusable.SmartConfig.Reflection
         [NotNull]
         public static SettingMetadata FromExpression(LambdaExpression expression, bool nonPublic = false)
         {
-            expression.ValidateWith(SettingExpressionBouncer).ThrowIfInvalid();
+            expression.ValidateWith(SettingExpressionValidator).ThrowIfInvalid();
 
             var (type, instance, member) = SettingVisitor.GetSettingInfo(expression, nonPublic);
             return new SettingMetadata(type, instance, member);

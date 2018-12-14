@@ -8,9 +8,10 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Collections;
+using Reusable.Exceptionizer;
 using Reusable.Extensions;
+using Reusable.Flawless;
 using Reusable.Reflection;
-using Reusable.Validation;
 
 namespace Reusable
 {
@@ -19,7 +20,7 @@ namespace Reusable
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class SemanticVersion : IEquatable<SemanticVersion>, IComparable<SemanticVersion>, IComparer<SemanticVersion>
     {
-        private static readonly IBouncer<SemanticVersion> VersionBouncer = Bouncer.For<SemanticVersion>(builder =>
+        private static readonly IExpressValidator<SemanticVersion> VersionValidator = ExpressValidator.For<SemanticVersion>(builder =>
         {
             builder.Ensure(x => x.Major >= 0);
             builder.Ensure(x => x.Minor >= 0);
@@ -43,7 +44,7 @@ namespace Reusable
             Minor = minor;
             Patch = patch;
             Labels = labels.ToImmutableList();
-            this.ValidateWith(VersionBouncer).ThrowIfInvalid();
+            this.ValidateWith(VersionValidator).ThrowIfInvalid();
         }
 
         public SemanticVersion(int major, int minor, int patch)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Linq;
+using Reusable.Exceptionizer;
 using Reusable.Reflection;
 
 namespace Reusable.Convertia.Converters.Collections

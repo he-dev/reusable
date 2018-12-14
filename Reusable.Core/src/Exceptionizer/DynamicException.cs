@@ -1,8 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
-using Reusable.Reflection;
 
-namespace Reusable.Reflection
+namespace Reusable.Exceptionizer
 {
     public abstract class DynamicException : Exception
     {

@@ -3,18 +3,18 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 
-namespace Reusable.Validation
+namespace Reusable.Flawless
 {
     // We don't want to show the exact same expression as the condition
     // because there are variables and closures that don't look pretty.
     // We replace them with more friendly names.
-    internal class BouncerPolicyExpressionPrettifier : ExpressionVisitor
+    internal class ExpressValidationRulePrettifier : ExpressionVisitor
     {
         private readonly ParameterExpression _originalParameter;
 
         private readonly ParameterExpression _replacementParameter;
 
-        private BouncerPolicyExpressionPrettifier(ParameterExpression originalParameter, ParameterExpression replacementParameter)
+        private ExpressValidationRulePrettifier(ParameterExpression originalParameter, ParameterExpression replacementParameter)
         {
             _originalParameter = originalParameter;
             _replacementParameter = replacementParameter;
@@ -52,7 +52,7 @@ namespace Reusable.Validation
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
             var replacementParameter = Expression.Parameter(typeof(T), $"<{typeof(T).ToPrettyString()}>");
-            return new BouncerPolicyExpressionPrettifier(expression.Parameters[0], replacementParameter).Visit(expression.Body);
+            return new ExpressValidationRulePrettifier(expression.Parameters[0], replacementParameter).Visit(expression.Body);
         }
     }
 }

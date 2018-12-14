@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using Reusable.Exceptionizer;
 using Reusable.Extensions;
 using Reusable.OmniLog.SemanticExtensions.Attachements;
 using Reusable.Reflection;

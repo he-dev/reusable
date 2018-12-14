@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.Exceptionizer;
 using Reusable.Reflection;
 using Reusable.SmartConfig.Data;
 using Reusable.Utilities.MSTest;

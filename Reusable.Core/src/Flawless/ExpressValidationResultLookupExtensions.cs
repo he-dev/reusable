@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Custom;
-using System.Text;
 using JetBrains.Annotations;
+using Reusable.Exceptionizer;
 using Reusable.Extensions;
-using Reusable.Reflection;
 
-namespace Reusable.Validation
+namespace Reusable.Flawless
 {
-    public static class BouncerPolicyCheckLookupExtensions
+    public static class ExpressValidationResultLookupExtensions
     {
         [CanBeNull]
-        public static T ThrowIfInvalid<T>([NotNull] this BouncerPolicyCheckLookup<T> checkLookup)
+        public static T ThrowIfInvalid<T>([NotNull] this ExpressValidationResultLookup<T> checkLookup)
         {
             if (checkLookup == null) throw new ArgumentNullException(nameof(checkLookup));
 

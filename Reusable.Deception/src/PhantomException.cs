@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Reusable.Diagnostics.Abstractions;
 using Reusable.Diagnostics.Triggers;
+using Reusable.Exceptionizer;
 using Reusable.Reflection;
 
 namespace Reusable.Diagnostics
