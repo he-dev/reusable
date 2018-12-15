@@ -33,15 +33,14 @@ namespace Reusable.SmartConfig.Reflection
 
             //var asdf1 = member.GetCustomAttributes<SettingMemberAttribute>(inherit: true);
             //var asdf2 = member.GetCustomAttributes<SettingMemberAttribute>(inherit: false);
-            
-            var attributes =
-                new SettingAttribute[]
-                    {
-                        member.GetCustomAttributes<SettingMemberAttribute>(inherit: true).FirstOrDefault(),
-                        type.GetCustomAttribute<SettingTypeAttribute>(),
-                    }
-                    .Where(Conditional.IsNotNull)
-                    .ToList();
+
+            var attributes = new SettingAttribute[]
+            {
+                member.GetCustomAttributes<SettingMemberAttribute>(inherit: true).FirstOrDefault(),
+                type.GetCustomAttribute<SettingTypeAttribute>(),
+            }
+            .Where(Conditional.IsNotNull)
+            .ToList();
 
             SettingNameStrength = attributes.FirstOrDefault(x => x.Strength != SettingNameStrength.Inherit)?.Strength ?? SettingNameStrength.Inherit;
             Prefix = attributes.Select(x => x.Prefix).FirstOrDefault(Conditional.IsNotNullOrEmpty);
@@ -65,7 +64,7 @@ namespace Reusable.SmartConfig.Reflection
 
         [NotNull]
         public MemberInfo Member { get; }
-        
+
         [NotNull]
         public Type MemberType { get; }
 
@@ -89,7 +88,7 @@ namespace Reusable.SmartConfig.Reflection
 
         [CanBeNull]
         public string ProviderName { get; }
-        
+
         [CanBeNull]
         public Type ProviderType { get; }
 
@@ -105,7 +104,19 @@ namespace Reusable.SmartConfig.Reflection
             var (type, instance, member) = SettingVisitor.GetSettingInfo(expression, nonPublic);
             return new SettingMetadata(type, instance, member);
         }
-        
+
+        public SettingName CreateSettingName(string instanceName = null)
+        {
+            return new SettingName
+            (
+                prefix: Prefix,
+                schema: Namespace,
+                type: TypeName,
+                member: MemberName,
+                instance: instanceName
+            );
+        }
+
         [NotNull]
         private Type GetMemberType(MemberInfo member)
         {
@@ -143,30 +154,30 @@ namespace Reusable.SmartConfig.Reflection
             switch (Member)
             {
                 case PropertyInfo property:
-                {
-                    if (property.CanWrite)
                     {
-                        property.SetValue(Instance, value);
-                    }
-                    // This is a readonly property. We try to write directly to the backing-field.
-                    else
-                    {
-                        var bindingFlags = BindingFlags.NonPublic | (Instance == null ? BindingFlags.Static : BindingFlags.Instance);
-                        var backingField = Type.GetField($"<{property.Name}>k__BackingField", bindingFlags);
-                        if (backingField is null)
+                        if (property.CanWrite)
                         {
-                            throw ("BackingFieldNotFound", $"Property {property.Name.QuoteWith("'")} does not have a default backing field.").ToDynamicException();
+                            property.SetValue(Instance, value);
                         }
+                        // This is a readonly property. We try to write directly to the backing-field.
+                        else
+                        {
+                            var bindingFlags = BindingFlags.NonPublic | (Instance == null ? BindingFlags.Static : BindingFlags.Instance);
+                            var backingField = Type.GetField($"<{property.Name}>k__BackingField", bindingFlags);
+                            if (backingField is null)
+                            {
+                                throw ("BackingFieldNotFound", $"Property {property.Name.QuoteWith("'")} does not have a default backing field.").ToDynamicException();
+                            }
 
-                        backingField.SetValue(Instance, value);
+                            backingField.SetValue(Instance, value);
+                        }
                     }
-                }
                     break;
 
                 case FieldInfo field:
-                {
-                    field.SetValue(Instance, value);
-                }
+                    {
+                        field.SetValue(Instance, value);
+                    }
                     break;
 
                 default:

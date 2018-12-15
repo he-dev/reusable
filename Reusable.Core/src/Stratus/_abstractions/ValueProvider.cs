@@ -93,7 +93,7 @@ namespace Reusable.Stratus
 
     public static class ValueProviderMetadataKeyNames
     {
-        public static string Name { get; } = nameof(Name);
+        public static string ProviderName { get; } = nameof(ProviderName);
 
         public static string CanSerialize { get; } = nameof(CanSerialize);
 

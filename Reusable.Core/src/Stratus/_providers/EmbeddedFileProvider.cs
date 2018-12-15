@@ -15,8 +15,11 @@ namespace Reusable.Stratus
     {
         private readonly Assembly _assembly;
 
-        public EmbeddedFileProvider([NotNull] Assembly assembly)
-            : base(ValueProviderMetadata.Empty.Add(CanDeserialize, true))
+        public EmbeddedFileProvider([NotNull] Assembly assembly, ValueProviderMetadata metadata = null)
+            : base(
+                (metadata ?? ValueProviderMetadata.Empty)
+                    .Add(CanDeserialize, true)
+            )
         {
             _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
             BasePath = _assembly.GetName().Name.Replace('.', Path.DirectorySeparatorChar);

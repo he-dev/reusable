@@ -14,13 +14,13 @@ namespace Reusable.SmartConfig
 {
     using static FormattableStringHelper;
 
-    public abstract class ConvertedValueProvider : ValueProvider
+    public abstract class ConvertedValueProvider : Stratus.ValueProvider
     {
-        protected readonly IValueProvider ValueProvider;
+        protected readonly Stratus.IValueProvider ValueProvider;
 
         protected readonly IImmutableSet<Type> SupportedTypes;
 
-        protected ConvertedValueProvider(IValueProvider valueProvider, params Type[] supportedTypes) 
+        protected ConvertedValueProvider(Stratus.IValueProvider valueProvider, params Type[] supportedTypes) 
             : base(ValueProviderMetadata.Empty)
         {
             ValueProvider = valueProvider;

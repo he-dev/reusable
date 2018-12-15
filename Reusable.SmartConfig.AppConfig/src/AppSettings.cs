@@ -14,7 +14,7 @@ namespace Reusable.SmartConfig
 {
     using static ValueProviderMetadataKeyNames;
 
-    public class AppSettingProvider : ValueProvider
+    public class AppSettingProvider : Stratus.ValueProvider
     {
         public AppSettingProvider()
             : base(

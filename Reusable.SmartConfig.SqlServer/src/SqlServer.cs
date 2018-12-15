@@ -17,7 +17,7 @@ namespace Reusable.SmartConfig
     using Internal;
     using static ValueProviderMetadataKeyNames;
 
-    public class SqlServerProvider : ValueProvider
+    public class SqlServerProvider : Stratus.ValueProvider
     {
         public const string DefaultSchema = "dbo";
 

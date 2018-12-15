@@ -35,7 +35,7 @@ namespace Reusable.SmartConfig
 
         [NotNull] private IImmutableSet<Type> _stringTypes;
 
-        public JsonValueProvider(IValueProvider valueProvider) : base(valueProvider, typeof(string))
+        public JsonValueProvider(Stratus.IValueProvider valueProvider) : base(valueProvider, typeof(string))
         {
             _converter = TypeConverter.Empty;
             _settings = new JsonSerializerSettings();
@@ -79,7 +79,7 @@ namespace Reusable.SmartConfig
             set => _stringTypes = value ?? throw new ArgumentNullException(nameof(StringTypes));
         }
 
-        public static Func<IValueProvider, IValueProvider> Factory() => dercorable => new JsonValueProvider(dercorable);
+        public static Func<Stratus.IValueProvider, Stratus.IValueProvider> Factory() => dercorable => new JsonValueProvider(dercorable);
 
         public override async Task<IValueInfo> GetValueInfoAsync(string name, ValueProviderMetadata metadata = null)
         {

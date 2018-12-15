@@ -47,12 +47,12 @@ namespace Reusable.SmartConfig
         High = 2,
     }
 
-    public enum SettingNamePrefix
-    {
-        //Inherit = -1,
-        None = 0,
-        AssemblyName = 1
-    }
+    //public enum SettingNamePrefix
+    //{
+    //    //Inherit = -1,
+    //    None = 0,
+    //    AssemblyName = 1
+    //}
 
     public interface ISettingNameFactory
     {
@@ -67,25 +67,28 @@ namespace Reusable.SmartConfig
             new[] { Token.Member },
             new[] { Token.Type, Token.Member },
             new[] { Token.Namespace, Token.Type, Token.Member },
-        };        
-        
+        };
+
         public SettingName CreateProviderSettingName(SettingName settingName, SettingProviderNaming providerNaming)
         {
             if (settingName == null) throw new ArgumentNullException(nameof(settingName));
 
             var tokens = TokenCombinations[(int)providerNaming.Strength].ToDictionary(t => t, t => settingName[t]);
-            
+
             if (!settingName[Token.Instance].IsEmpty)
             {
-                tokens.Add(Token.Instance, settingName[SettingNameToken.Instance]);
+                tokens.Add(Token.Instance, settingName[Token.Instance]);
             }
 
             if (providerNaming.PrefixHandling == PrefixHandling.Enable && providerNaming.Prefix.IsNotNullOrEmpty())
             {
-                tokens.Add(SettingNameToken.Prefix, providerNaming.Prefix.AsMemory());
-            } 
+                tokens.Add(Token.Prefix, providerNaming.Prefix.AsMemory());
+            }
 
             return new SettingName(tokens);
-        }        
+        }
+
     }
+
+    
 }

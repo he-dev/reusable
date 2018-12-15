@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Reusable.SmartConfig;
+using Reusable.SmartConfig.Annotations;
 using Reusable.Stratus;
 using Xunit;
 
@@ -26,11 +27,14 @@ namespace Reusable.Tests2
 
             var jsonProvider = sqlServer.DecorateWith(JsonValueProvider.Factory());
 
-            var carInfo = await jsonProvider.GetValueInfoAsync("Car");
+            var car = new Car();
+            car.Name = await jsonProvider.GetAsync(() => car.Name);
 
-            Assert.True(carInfo.Exists);
+            //var carInfo = await jsonProvider.GetValueInfoAsync("Car");
 
-            var car = await carInfo.DeserializeAsync<Car>();
+            //Assert.True(carInfo.Exists);
+
+            //var car = await carInfo.DeserializeAsync<Car>();
 
             Assert.Equal("VW", car.Name);
 
@@ -38,6 +42,7 @@ namespace Reusable.Tests2
 
         private class Car
         {
+            [SettingMember(Strength = SettingNameStrength.Medium)]
             public string Name { get; set; }
         }
     }

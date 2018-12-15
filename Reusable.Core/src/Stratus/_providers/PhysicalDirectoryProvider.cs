@@ -11,9 +11,9 @@ namespace Reusable.Stratus
     [PublicAPI]
     public class PhysicalDirectoryProvider : ValueProvider
     {
-        public PhysicalDirectoryProvider()
+        public PhysicalDirectoryProvider(ValueProviderMetadata metadata = null)
             : base(
-                ValueProviderMetadata.Empty
+                (metadata ?? ValueProviderMetadata.Empty)
                     .Add(CanDeserialize, true)
                     .Add(CanSerialize, true)
                     .Add(CanDelete, true)

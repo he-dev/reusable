@@ -42,6 +42,8 @@ namespace Reusable.SmartConfig.Annotations
         [CanBeNull]
         public Type AssemblyType { get; set; }
 
+        //public Type FormatterType { get; set; }
+
         [CanBeNull]
         public string Prefix
         {

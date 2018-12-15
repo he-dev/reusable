@@ -9,6 +9,7 @@ using Reusable.Extensions;
 using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Data;
 using Reusable.SmartConfig.Reflection;
+using Reusable.Stratus;
 
 namespace Reusable.SmartConfig
 {
@@ -54,14 +55,14 @@ namespace Reusable.SmartConfig
             return config.GetValue<T>((LambdaExpression)expression, instanceName);
         }
 
-//        [CanBeNull]
-//        public static T GetValueFor<T>([NotNull] this IConfiguration config, [NotNull] SoftString settingName)
-//        {
-//            if (config == null) throw new ArgumentNullException(nameof(config));
-//            if (settingName == null) throw new ArgumentNullException(nameof(settingName));
-//
-//            return (T)config.GetValue(settingName, typeof(T), null);
-//        }
+        //        [CanBeNull]
+        //        public static T GetValueFor<T>([NotNull] this IConfiguration config, [NotNull] SoftString settingName)
+        //        {
+        //            if (config == null) throw new ArgumentNullException(nameof(config));
+        //            if (settingName == null) throw new ArgumentNullException(nameof(settingName));
+        //
+        //            return (T)config.GetValue(settingName, typeof(T), null);
+        //        }
 
         //[NotNull]
         //public static Lazy<T> GetValueLazy<T>([NotNull] this IConfiguration config, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instance = null)

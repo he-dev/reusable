@@ -23,31 +23,31 @@ namespace Reusable.Stratus
                 metadata
                     .Add(CanDeserialize, valueProviders.Any(x => x.Metadata.ContainsKey(CanDeserialize)))
                     .Add(CanSerialize, valueProviders.Any(x => x.Metadata.ContainsKey(CanSerialize)))
-                )
+                    .Add(CanDelete, valueProviders.Any(x => x.Metadata.ContainsKey(CanDelete)))
+            )
         {
             _valueProviders = valueProviders;
         }
 
-        public override async Task<IValueInfo> GetValueInfoAsync(string path, ValueProviderMetadata metadata = null)
+        public override async Task<IValueInfo> GetValueInfoAsync(string name, ValueProviderMetadata metadata = null)
         {
             foreach (var fileProvider in _valueProviders)
             {
-                var fileInfo = await fileProvider.GetValueInfoAsync(path);
-                if (fileInfo.Exists)
+                var info = await fileProvider.GetValueInfoAsync(name);
+                if (info.Exists)
                 {
-                    return fileInfo;
+                    return info;
                 }
             }
 
-            return new InMemoryValueInfo(path, new byte[0]);
+            return new InMemoryValueInfo(name, new byte[0]);
         }
 
-        public override Task<IValueInfo> SerializeAsync(string path, Stream data, ValueProviderMetadata metadata = null)
+        public override Task<IValueInfo> SerializeAsync(string name, Stream data, ValueProviderMetadata metadata = null)
         {
-            //_fileProviders.Where(p => p.Metadata.TryGetValue(CanSerialize, out var flag) && flag is bool canSerialize && canSerialize))
-            {
+            var serializers = _valueProviders.Where(p => p.Metadata.TryGetValue(CanSerialize, out var flag) && flag is bool canSerialize && canSerialize);
+            
 
-            }
             throw new NotSupportedException($"{nameof(CompositeValueProvider)} does not support file creation.");
         }
 
@@ -64,15 +64,5 @@ namespace Reusable.Stratus
         public IEnumerator<IValueProvider> GetEnumerator() => _valueProviders.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_valueProviders).GetEnumerator();
-
-    }
-
-    public static class CompositeValueProviderMetadata
-    {
-        public static string Name { get; } = nameof(Name);
-
-        public static string CanSerialize { get; } = nameof(CanSerialize);
-
-        public static string CanDerialize { get; } = nameof(CanDerialize);
     }
 }
