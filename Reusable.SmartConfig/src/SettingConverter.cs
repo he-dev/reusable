@@ -1,14 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Exceptionizer;
 using Reusable.FormatProviders;
 using Reusable.Reflection;
+using Reusable.Stratus;
 
 namespace Reusable.SmartConfig
 {
     using static FormattableStringHelper;
+
+    public abstract class ConvertedValueProvider : ValueProvider
+    {
+        protected readonly IValueProvider ValueProvider;
+
+        protected readonly IImmutableSet<Type> SupportedTypes;
+
+        protected ConvertedValueProvider(IValueProvider valueProvider, params Type[] supportedTypes) 
+            : base(ValueProviderMetadata.Empty)
+        {
+            ValueProvider = valueProvider;
+            SupportedTypes = supportedTypes?.ToImmutableHashSet() ?? throw new ArgumentNullException(nameof(supportedTypes));
+        }
+    }
 
     public interface ISettingConverter
     {
@@ -18,7 +36,7 @@ namespace Reusable.SmartConfig
         [NotNull]
         object Serialize([NotNull] object value);
     }
-    
+
     public abstract class SettingConverter : ISettingConverter
     {
         private readonly ISet<Type> _supportedTypes;

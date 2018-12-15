@@ -34,6 +34,8 @@
     <Compile Remove="src\IO\FileSystem.cs" />
     <Compile Remove="src\Reflection\ResourceReader.cs" />
     <Compile Remove="src\Reflection\ResourceReaderExtensions.cs" />
+    <Compile Remove="src\Stratus\ConnectionString.cs" />
+    <Compile Remove="src\Stratus\_providers\ConnectionStringProvider.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -9,6 +9,7 @@ using Reusable.Exceptionizer;
 using Reusable.Extensions;
 using Reusable.IO;
 using Reusable.Reflection;
+using Reusable.Stratus;
 using Reusable.Utilities.JsonNet;
 using Reusable.Utilities.MSTest;
 
@@ -17,7 +18,7 @@ namespace Reusable.Tests.Utilities.JsonNet
     [TestClass]
     public class PrettyTypeResolverTest
     {
-        private static readonly IFileProvider Resources = new RelativeFileProvider(EmbeddedFileProvider<PrettyTypeResolverTest>.Default, @"res\Utilities\JsonNet");
+        private static readonly IFileProvider Resources = new RelativeFileProvider(Reusable.IO.EmbeddedFileProvider<PrettyTypeResolverTest>.Default, @"res\Utilities\JsonNet");
 
         [TestMethod]
         public void AllowsTypesWithoutGenericArguments()
