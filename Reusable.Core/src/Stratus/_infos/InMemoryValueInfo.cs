@@ -14,13 +14,13 @@ namespace Reusable.Stratus
         [CanBeNull]
         private readonly IEnumerable<IValueInfo> _files;
 
-        private InMemoryValueInfo([NotNull] string name) : base(name)
+        public InMemoryValueInfo([NotNull] string name) : this(name, new byte[0])
         {
             ModifiedOn = DateTime.UtcNow;
         }
 
         public InMemoryValueInfo([NotNull] string name, byte[] data)
-            : this(name)
+            : base(name)
         {
             _data = data;
             Exists = !(data is null);

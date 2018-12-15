@@ -19,16 +19,16 @@ namespace Reusable.SmartConfig
         #region GetValue overloads
 
         [ItemNotNull]
-        public static async Task<T> GetAsync<T>([NotNull] this IValueProvider valueProvider, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instanceName = null)
+        public static async Task<T> GetSettingAsync<T>([NotNull] this IValueProvider valueProvider, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instanceName = null)
         {
             if (valueProvider == null) throw new ArgumentNullException(nameof(valueProvider));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
-            return (T)await valueProvider.GetAsync((LambdaExpression)expression, instanceName);
+            return (T)await valueProvider.GetSettingAsync((LambdaExpression)expression, instanceName);
         }
 
         [ItemNotNull]
-        private static async Task<object> GetAsync([NotNull] this IValueProvider valueProvider, [NotNull] LambdaExpression expression, [CanBeNull] string instanceName = null)
+        private static async Task<object> GetSettingAsync([NotNull] this IValueProvider valueProvider, [NotNull] LambdaExpression expression, [CanBeNull] string instanceName = null)
         {
             if (valueProvider == null) throw new ArgumentNullException(nameof(valueProvider));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
@@ -71,7 +71,7 @@ namespace Reusable.SmartConfig
         #region SetValue overloads
 
         [ItemNotNull]
-        public static async Task<IValueProvider> SetAsync<T>([NotNull] this IValueProvider valueProvider, [NotNull] Expression<Func<T>> expression, [CanBeNull] T newValue, [CanBeNull] string instanceName = null)
+        public static async Task<IValueProvider> SetSettingAsync<T>([NotNull] this IValueProvider valueProvider, [NotNull] Expression<Func<T>> expression, [CanBeNull] T newValue, [CanBeNull] string instanceName = null)
         {
             if (valueProvider == null) throw new ArgumentNullException(nameof(valueProvider));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
@@ -122,7 +122,7 @@ namespace Reusable.SmartConfig
         /// Assigns the same setting value to the specified member.
         /// </summary>
         [ItemNotNull]
-        public static async Task<IValueProvider> BindAsync<T>([NotNull] this IValueProvider valueProvider, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instanceName = null)
+        public static async Task<IValueProvider> BindSettingAsync<T>([NotNull] this IValueProvider valueProvider, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instanceName = null)
         {
             if (valueProvider == null) throw new ArgumentNullException(nameof(valueProvider));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
@@ -138,7 +138,7 @@ namespace Reusable.SmartConfig
                         settingMetadata.PrefixHandling
                     );
 
-            var value = await valueProvider.GetAsync(expression, instanceName);
+            var value = await valueProvider.GetSettingAsync(expression, instanceName);
 
             settingMetadata
                 .Validations
@@ -153,7 +153,7 @@ namespace Reusable.SmartConfig
         /// Assigns setting values to all members decorated with the the SmartSettingAttribute.
         /// </summary>
         [ItemNotNull]
-        public static async Task<IValueProvider> BindAsync<T>([NotNull] this IValueProvider valueProvider, [NotNull] T obj, [CanBeNull] string instanceName = null)
+        public static async Task<IValueProvider> BindSettingsAsync<T>([NotNull] this IValueProvider valueProvider, [NotNull] T obj, [CanBeNull] string instanceName = null)
         {
             if (valueProvider == null) throw new ArgumentNullException(nameof(valueProvider));
             if (obj == null) throw new ArgumentNullException(nameof(obj));
@@ -173,7 +173,7 @@ namespace Reusable.SmartConfig
                     )
                 );
 
-                var value = await valueProvider.GetAsync(expression, instanceName);
+                var value = await valueProvider.GetSettingAsync(expression, instanceName);
                 var settingMetadata = SettingMetadata.FromExpression(expression, false);
                 var settingName =
                     settingMetadata

@@ -48,7 +48,7 @@ namespace Reusable.Stratus
         protected static Exception CreateException(IValueProvider provider, string name, ValueProviderMetadata metadata, Exception inner, [CallerMemberName] string memberName = null)
         {
             return new Exception();
-        }        
+        }
     }
 
     //[Flags]
@@ -60,7 +60,7 @@ namespace Reusable.Stratus
     //    CanWriteValue = 1 << 2,
     //}
 
-    public class ValueProviderMetadata 
+    public class ValueProviderMetadata
     {
         private readonly IImmutableDictionary<SoftString, object> _metadata;
 
@@ -89,6 +89,23 @@ namespace Reusable.Stratus
 
         //public IEnumerator<KeyValuePair<SoftString, object>> GetEnumerator() => _metadata.GetEnumerator();
         //IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_metadata).GetEnumerator();
+    }
+
+    public static class ValueProviderMetadataExtensions
+    {
+        public static bool TryGetValue<T>(this ValueProviderMetadata metadata, SoftString key, out T value)
+        {
+            if (metadata.TryGetValue(key, out var x) && x is T result)
+            {
+                value = result;
+                return true;
+            }
+            else
+            {
+                value = default;
+                return false;
+            }
+        }
     }
 
     public static class ValueProviderMetadataKeyNames

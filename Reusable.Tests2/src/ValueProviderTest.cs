@@ -28,7 +28,7 @@ namespace Reusable.Tests2
             var jsonProvider = sqlServer.DecorateWith(JsonValueProvider.Factory());
 
             var car = new Car();
-            car.Name = await jsonProvider.GetAsync(() => car.Name);
+            car.Name = await jsonProvider.GetSettingAsync(() => car.Name);
 
             //var carInfo = await jsonProvider.GetValueInfoAsync("Car");
 
