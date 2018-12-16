@@ -30,8 +30,8 @@ namespace Reusable.sdk.Mail
             if (email == null) throw new ArgumentNullException(nameof(email));
 
             EmailValidator
-                .IsThreat((IEmail<IEmailSubject, IEmailBody>)email)
-                .ThrowIfInvalid();
+                .Validate((IEmail<IEmailSubject, IEmailBody>)email)
+                .ThrowIWhenInvalid();
 
             try
             {

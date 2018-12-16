@@ -99,7 +99,7 @@ namespace Reusable.SmartConfig.Reflection
         [NotNull]
         public static SettingMetadata FromExpression(LambdaExpression expression, bool nonPublic = false)
         {
-            expression.ValidateWith(SettingExpressionValidator).ThrowIfInvalid();
+            expression.ValidateWith(SettingExpressionValidator).ThrowIWhenInvalid();
 
             var (type, instance, member) = SettingVisitor.GetSettingInfo(expression, nonPublic);
             return new SettingMetadata(type, instance, member);

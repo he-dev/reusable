@@ -15,7 +15,7 @@ using Reusable.Convertia.Converters.Generic;
 using Reusable.Exceptionizer;
 using Reusable.Extensions;
 using Reusable.FormatProviders;
-using Reusable.Stratus;
+using Reusable.IOnymous;
 
 namespace Reusable.SmartConfig
 {
@@ -27,7 +27,7 @@ namespace Reusable.SmartConfig
      */
 
     [PublicAPI]
-    public class JsonValueProvider : ConvertedValueProvider
+    public class JsonResourceProvider : ConvertedResourceProvider
     {
         [NotNull] private ITypeConverter _converter;
 
@@ -35,7 +35,7 @@ namespace Reusable.SmartConfig
 
         [NotNull] private IImmutableSet<Type> _stringTypes;
 
-        public JsonValueProvider(Stratus.IValueProvider valueProvider) : base(valueProvider, typeof(string))
+        public JsonResourceProvider(IResourceProvider resourceProvider) : base(resourceProvider, typeof(string))
         {
             _converter = TypeConverter.Empty;
             _settings = new JsonSerializerSettings();
@@ -79,17 +79,17 @@ namespace Reusable.SmartConfig
             set => _stringTypes = value ?? throw new ArgumentNullException(nameof(StringTypes));
         }
 
-        public static Func<Stratus.IValueProvider, Stratus.IValueProvider> Factory() => dercorable => new JsonValueProvider(dercorable);
+        public static Func<IResourceProvider, IResourceProvider> Factory() => dercorable => new JsonResourceProvider(dercorable);
 
-        public override async Task<IValueInfo> GetValueInfoAsync(string name, ValueProviderMetadata metadata = null)
+        public override async Task<IResourceInfo> GetAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
         {
-            var info = await ValueProvider.GetValueInfoAsync(name);
+            var info = await ResourceProvider.GetAsync(uri);
             if (info.Exists)
             {
                 var value = await info.DeserializeAsync(typeof(string));
-                return new JsonValueInfo
+                return new JsonResourceInfo
                 (
-                    name,
+                    uri,
                     value,
                     targetType =>
                         _converter.CanConvert(typeof(string), targetType)
@@ -103,7 +103,7 @@ namespace Reusable.SmartConfig
             }
         }
 
-        public override async Task<IValueInfo> SerializeAsync(string name, object value, ValueProviderMetadata metadata = null)
+        public override async Task<IResourceInfo> PutAsync(SimpleUri uri, object value, ResourceProviderMetadata metadata = null)
         {
             if (value == null) throw new ArgumentNullException(nameof(value));
 
@@ -112,21 +112,21 @@ namespace Reusable.SmartConfig
                 var fromType = value.GetType();
                 var serialized = (string)GetOrAddSerializer(fromType).Convert(value, typeof(string));
 
-                return await ValueProvider.SerializeAsync(name, serialized);
+                return await ResourceProvider.PutAsync(uri, serialized);
             }
 
             throw new Exception();
         }
 
-        public override async Task<IValueInfo> SerializeAsync(string name, Stream value, ValueProviderMetadata metadata = null)
+        public override async Task<IResourceInfo> PutAsync(SimpleUri uri, Stream value, ResourceProviderMetadata metadata = null)
         {
             using (var valueReader = new StreamReader(value))
             {
-                return await SerializeAsync(name, await valueReader.ReadToEndAsync());
+                return await PutAsync(uri, await valueReader.ReadToEndAsync());
             }
         }
 
-        public override Task<IValueInfo> DeleteAsync(string name, ValueProviderMetadata metadata = null)
+        public override Task<IResourceInfo> DeleteAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
         {
             throw new NotImplementedException();
         }
@@ -164,20 +164,20 @@ namespace Reusable.SmartConfig
         #endregion
     }
 
-    internal class JsonValueInfo : ValueInfo
+    internal class JsonResourceInfo : ResourceInfo
     {
         [CanBeNull]
         private readonly object _value;
 
         private readonly Func<Type, ITypeConverter> _getOrAddConverter;
 
-        internal JsonValueInfo
+        internal JsonResourceInfo
         (
-            [NotNull] string name,
+            [NotNull] SimpleUri uri,
             [CanBeNull] object value,
             Func<Type, ITypeConverter> getOrAddConverter
         )
-            : base(name)
+            : base(uri)
         {
             _value = value;
             _getOrAddConverter = getOrAddConverter;

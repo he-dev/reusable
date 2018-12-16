@@ -9,7 +9,7 @@ namespace Reusable.Flawless
     public interface IExpressValidator<T> : IEnumerable<IExpressValidationRule<T>>
     {
         [NotNull, ItemNotNull]
-        ExpressValidationResultLookup<T> IsThreat([CanBeNull] T value);
+        ExpressValidationResultLookup<T> Validate([CanBeNull] T value);
     }
 
     [PublicAPI]
@@ -24,7 +24,7 @@ namespace Reusable.Flawless
             _agents = rules.Build();
         }
 
-        public ExpressValidationResultLookup<T> IsThreat(T value) => new ExpressValidationResultLookup<T>(value, Evaluate(value).ToLookup(t => t.IsFollowed));
+        public ExpressValidationResultLookup<T> Validate(T value) => new ExpressValidationResultLookup<T>(value, Evaluate(value).ToLookup(t => t.IsFollowed));
 
         private IEnumerable<ExpressValidationResult<T>> Evaluate(T value)
         {

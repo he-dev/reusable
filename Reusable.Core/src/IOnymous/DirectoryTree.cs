@@ -8,7 +8,7 @@ using Reusable.Extensions;
 
 // todo - do not split yet - it's still being reviewed
 
-namespace Reusable.Stratus
+namespace Reusable.IOnymous
 {
     public interface IDirectoryTree
     {

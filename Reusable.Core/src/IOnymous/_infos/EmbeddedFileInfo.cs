@@ -2,13 +2,13 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Reusable.Stratus
+namespace Reusable.IOnymous
 {
-    internal class EmbeddedFileInfo : ValueInfo
+    internal class EmbeddedFileInfo : ResourceInfo
     {
         private readonly Func<Stream> _getManifestResourceStream;
 
-        public EmbeddedFileInfo(string name, Func<Stream> getManifestResourceStream) : base(name)
+        public EmbeddedFileInfo(string uri, Func<Stream> getManifestResourceStream) : base(uri)
         {
             _getManifestResourceStream = getManifestResourceStream;
         }

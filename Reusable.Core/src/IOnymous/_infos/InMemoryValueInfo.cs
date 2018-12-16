@@ -4,23 +4,23 @@ using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-namespace Reusable.Stratus
+namespace Reusable.IOnymous
 {
-    internal class InMemoryValueInfo : ValueInfo
+    internal class InMemoryResourceInfo : ResourceInfo
     {
         [CanBeNull]
         private readonly byte[] _data;
 
         [CanBeNull]
-        private readonly IEnumerable<IValueInfo> _files;
+        private readonly IEnumerable<IResourceInfo> _files;
 
-        public InMemoryValueInfo([NotNull] string name) : this(name, new byte[0])
+        public InMemoryResourceInfo([NotNull] SimpleUri uri) : this(uri, new byte[0])
         {
             ModifiedOn = DateTime.UtcNow;
         }
 
-        public InMemoryValueInfo([NotNull] string name, byte[] data)
-            : base(name)
+        public InMemoryResourceInfo([NotNull] SimpleUri uri, byte[] data)
+            : base(uri)
         {
             _data = data;
             Exists = !(data is null);

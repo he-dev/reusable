@@ -9,7 +9,6 @@ using Reusable.Extensions;
 using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Data;
 using Reusable.SmartConfig.Reflection;
-using Reusable.Stratus;
 
 namespace Reusable.SmartConfig
 {

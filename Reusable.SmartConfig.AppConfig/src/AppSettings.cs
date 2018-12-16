@@ -7,48 +7,48 @@ using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Extensions;
+using Reusable.IOnymous;
 using Reusable.SmartConfig.Data;
-using Reusable.Stratus;
 
 namespace Reusable.SmartConfig
 {
     using static ValueProviderMetadataKeyNames;
 
-    public class AppSettingProvider : Stratus.ValueProvider
+    public class AppSettingProvider : ResourceProvider
     {
         public AppSettingProvider()
             : base(
-                ValueProviderMetadata.Empty
-                    .Add(CanDeserialize, true)
-                    .Add(CanSerialize, true)
+                ResourceProviderMetadata.Empty
+                    .Add(CanGet, true)
+                    .Add(CanPut, true)
             )
         { }
 
-        public override Task<IValueInfo> GetValueInfoAsync(string name, ValueProviderMetadata metadata = null)
+        public override Task<IResourceInfo> GetAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
         {
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            var actualKey = FindActualKey(exeConfig, name) ?? name;
+            var actualKey = FindActualKey(exeConfig, uri) ?? uri.Path;
             var element = exeConfig.AppSettings.Settings[actualKey];
-            return Task.FromResult<IValueInfo>(new AppSettingValueInfo(element is null ? name : actualKey, element?.Value));
+            return Task.FromResult<IResourceInfo>(new AppSettingResourceInfo(element is null ? (string)uri.Path : actualKey, element?.Value));
         }
 
-        public override async Task<IValueInfo> SerializeAsync(string name, Stream value, ValueProviderMetadata metadata = null)
+        public override async Task<IResourceInfo> PutAsync(SimpleUri uri, Stream value, ResourceProviderMetadata metadata = null)
         {
             using (var valueReader = new StreamReader(value))
             {
-                return await SerializeAsync(name, await valueReader.ReadToEndAsync());
+                return await PutAsync(uri, await valueReader.ReadToEndAsync());
             }
         }
 
-        public override Task<IValueInfo> SerializeAsync(string name, object value, ValueProviderMetadata metadata = null)
+        public override Task<IResourceInfo> PutAsync(SimpleUri uri, object value, ResourceProviderMetadata metadata = null)
         {
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            var actualKey = FindActualKey(exeConfig, name) ?? name;
+            var actualKey = FindActualKey(exeConfig, uri) ?? uri.Path;
             var element = exeConfig.AppSettings.Settings[actualKey];
 
             if (element is null)
             {
-                exeConfig.AppSettings.Settings.Add(name, (string)value);
+                exeConfig.AppSettings.Settings.Add(uri.Path, (string)value);
             }
             else
             {
@@ -57,32 +57,32 @@ namespace Reusable.SmartConfig
 
             exeConfig.Save(ConfigurationSaveMode.Minimal);
 
-            return GetValueInfoAsync(actualKey);
+            return this.GetAsync(actualKey);
         }
 
-        public override Task<IValueInfo> DeleteAsync(string name, ValueProviderMetadata metadata = null)
+        public override Task<IResourceInfo> DeleteAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
         {
             throw new NotImplementedException();
         }
 
         [CanBeNull]
-        private static string FindActualKey(System.Configuration.Configuration exeConfig, string key)
+        private static string FindActualKey(System.Configuration.Configuration exeConfig, SimpleUri uri)
         {
             return
                 exeConfig
                     .AppSettings
                     .Settings
                     .AllKeys
-                    .FirstOrDefault(k => SoftString.Comparer.Equals(k, key));
+                    .FirstOrDefault(k => SoftString.Comparer.Equals(k, (string)uri.Path));
         }
     }
 
-    internal class AppSettingValueInfo : ValueInfo
+    internal class AppSettingResourceInfo : ResourceInfo
     {
         [CanBeNull]
         private readonly string _value;
 
-        internal AppSettingValueInfo([NotNull] string name, [CanBeNull] string value) : base(name)
+        internal AppSettingResourceInfo([NotNull] SimpleUri uri, [CanBeNull] string value) : base(uri)
         {
             _value = value;
         }

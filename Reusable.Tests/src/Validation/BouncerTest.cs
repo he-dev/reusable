@@ -21,7 +21,7 @@ namespace Reusable.Tests.Validation
             });
 
             var person = new Person { FirstName = "John", LastName = "Doe" };
-            Assert.IsTrue(validator.IsThreat(person).Success);
+            Assert.IsTrue(validator.Validate(person).Success);
         }        
 
         [TestMethod]
@@ -34,7 +34,7 @@ namespace Reusable.Tests.Validation
             });
 
             var person = new Person();
-            var weelidationResult = validator.IsThreat(person);
+            var weelidationResult = validator.Validate(person);
             Assert.AreEqual(1, weelidationResult.Count);
             Assert.AreEqual(2, weelidationResult.False.Count());
             Assert.IsFalse(weelidationResult.Success);
@@ -46,7 +46,7 @@ namespace Reusable.Tests.Validation
         {
             var validator = ExpressValidator.For<Person>(model => model.EnsureNull());
             var person = default(Person);
-            Assert.IsTrue(validator.IsThreat(person).Success);
+            Assert.IsTrue(validator.Validate(person).Success);
         }
 
         [TestMethod]
@@ -54,7 +54,7 @@ namespace Reusable.Tests.Validation
         {
             var validator = ExpressValidator.For<Person>(model => model.EnsureNull());
             var person = new Person();
-            Assert.IsFalse(validator.IsThreat(person).Success);
+            Assert.IsFalse(validator.Validate(person).Success);
         }
 
         [TestMethod]
@@ -62,7 +62,7 @@ namespace Reusable.Tests.Validation
         {
             var validator = ExpressValidator.For<Person>(model => model.BlockNull());
             var person = new Person();
-            Assert.IsTrue(validator.IsThreat(person).Success);
+            Assert.IsTrue(validator.Validate(person).Success);
         }
 
         [TestMethod]
@@ -70,7 +70,7 @@ namespace Reusable.Tests.Validation
         {
             var validator = ExpressValidator.For<Person>(model => model.BlockNull());
             var person = default(Person);
-            Assert.IsFalse(validator.IsThreat(person).Success);
+            Assert.IsFalse(validator.Validate(person).Success);
         }
 
         //[TestMethod]
@@ -94,7 +94,7 @@ namespace Reusable.Tests.Validation
             var validator = ExpressValidator.For<Person>(model => model.IsNotValidWhen(p => p.FirstName == null));
             var person = new Person();
 
-            Assert.That.Throws<DynamicException>(() => validator.IsThreat(person).ThrowIfInvalid(), filter => filter.When(name: "PersonValidationException"));
+            Assert.That.Throws<DynamicException>(() => validator.Validate(person).ThrowIWhenInvalid(), filter => filter.When(name: "PersonValidationException"));
         }
 
         public class Person

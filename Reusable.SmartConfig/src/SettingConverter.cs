@@ -7,23 +7,23 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Exceptionizer;
 using Reusable.FormatProviders;
+using Reusable.IOnymous;
 using Reusable.Reflection;
-using Reusable.Stratus;
 
 namespace Reusable.SmartConfig
 {
     using static FormattableStringHelper;
 
-    public abstract class ConvertedValueProvider : Stratus.ValueProvider
+    public abstract class ConvertedResourceProvider : ResourceProvider
     {
-        protected readonly Stratus.IValueProvider ValueProvider;
+        protected readonly IResourceProvider ResourceProvider;
 
         protected readonly IImmutableSet<Type> SupportedTypes;
 
-        protected ConvertedValueProvider(Stratus.IValueProvider valueProvider, params Type[] supportedTypes) 
-            : base(ValueProviderMetadata.Empty)
+        protected ConvertedResourceProvider(IResourceProvider resourceProvider, params Type[] supportedTypes) 
+            : base(ResourceProviderMetadata.Empty)
         {
-            ValueProvider = valueProvider;
+            ResourceProvider = resourceProvider;
             SupportedTypes = supportedTypes?.ToImmutableHashSet() ?? throw new ArgumentNullException(nameof(supportedTypes));
         }
     }

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Reusable.IOnymous;
 using Reusable.SmartConfig;
 using Reusable.SmartConfig.Annotations;
-using Reusable.Stratus;
 using Xunit;
 
 namespace Reusable.Tests2
@@ -16,16 +16,16 @@ namespace Reusable.Tests2
         public async Task MyTestMethod()
         {
             var appSettings = new AppSettingProvider();
-            var salute = await appSettings.GetValueInfoAsync("abc:Salute");
+            var salute = await appSettings.GetAsync("abc:Salute");
 
             Assert.True(salute.Exists);
 
-            var sqlServer = new SqlServerProvider("name=TestDb", ValueProviderMetadata.Empty);
-            var greeting = await sqlServer.GetValueInfoAsync("Greeting");
+            var sqlServer = new SqlServerProvider("name=TestDb", ResourceProviderMetadata.Empty);
+            var greeting = await sqlServer.GetAsync("Greeting");
 
             Assert.True(greeting.Exists);
 
-            var jsonProvider = sqlServer.DecorateWith(JsonValueProvider.Factory());
+            var jsonProvider = sqlServer.DecorateWith(JsonResourceProvider.Factory());
 
             var car = new Car();
             car.Name = await jsonProvider.GetSettingAsync(() => car.Name);
@@ -44,6 +44,18 @@ namespace Reusable.Tests2
         {
             [SettingMember(Strength = SettingNameStrength.Medium)]
             public string Name { get; set; }
+        }
+    }
+
+    public class SimpleUriTest
+    {
+        [Fact]
+        public void Test1()
+        {
+            var a = new SimpleUri("file:c:/temp");
+            var r = new SimpleUri("/logs/test.log");
+            var u = a + r;
+            Assert.Equal(new SimpleUri("file:c:/temp/logs/test.log"), u);
         }
     }
 }

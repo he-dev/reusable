@@ -9,7 +9,6 @@ using Reusable.Exceptionizer;
 using Reusable.Extensions;
 using Reusable.IO;
 using Reusable.Reflection;
-using Reusable.Stratus;
 using Reusable.Utilities.JsonNet;
 using Reusable.Utilities.MSTest;
 

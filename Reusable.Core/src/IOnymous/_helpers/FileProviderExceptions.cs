@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Reusable.Stratus
+namespace Reusable.IOnymous
 {
     public class CreateDirectoryException : Exception
     {

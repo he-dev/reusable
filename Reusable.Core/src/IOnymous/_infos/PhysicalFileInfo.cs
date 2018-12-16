@@ -3,26 +3,26 @@ using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-namespace Reusable.Stratus
+namespace Reusable.IOnymous
 {
     [PublicAPI]
-    internal class PhysicalFileInfo : ValueInfo
+    internal class PhysicalFileInfo : ResourceInfo
     {
-        public PhysicalFileInfo([NotNull] string name) : base(name) { }
+        public PhysicalFileInfo([NotNull] SimpleUri uri) : base(uri) { }
 
-        public override bool Exists => File.Exists(Name);
+        public override bool Exists => File.Exists(Uri.Path);
 
-        public override long? Length => new FileInfo(Name).Length;
+        public override long? Length => new FileInfo(Uri.Path).Length;
 
-        public override DateTime? CreatedOn { get; }
+        public override DateTime? CreatedOn => Exists ? File.GetCreationTimeUtc(Uri.Path) : default;
 
-        public override DateTime? ModifiedOn => Exists ? File.GetLastWriteTimeUtc(Name) : default;
+        public override DateTime? ModifiedOn => Exists ? File.GetLastWriteTimeUtc(Uri.Path) : default;
 
         public override async Task CopyToAsync(Stream stream)
         {
             if (Exists)
             {
-                using (var fileStream = File.OpenRead(Name))
+                using (var fileStream = File.OpenRead(Uri.Path))
                 {
                     await fileStream.CopyToAsync(stream);
                 }
@@ -37,7 +37,7 @@ namespace Reusable.Stratus
         {
             if (Exists)
             {
-                using (var fileStream = File.OpenRead(Name))
+                using (var fileStream = File.OpenRead(Uri.Path))
                 using (var streamReader = new StreamReader(fileStream))
                 {
                     return await streamReader.ReadToEndAsync();

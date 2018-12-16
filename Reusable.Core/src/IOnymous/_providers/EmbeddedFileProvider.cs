@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -7,53 +6,53 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-namespace Reusable.Stratus
+namespace Reusable.IOnymous
 {
-    using static ValueProviderMetadataKeyNames;
-
-    public class EmbeddedFileProvider : ValueProvider
+    public class EmbeddedFileProvider : ResourceProvider
     {
         private readonly Assembly _assembly;
 
-        public EmbeddedFileProvider([NotNull] Assembly assembly, ValueProviderMetadata metadata = null)
+        public EmbeddedFileProvider([NotNull] Assembly assembly, ResourceProviderMetadata metadata = null)
             : base(
-                (metadata ?? ValueProviderMetadata.Empty)
-                    .Add(CanDeserialize, true)
+                (metadata ?? ResourceProviderMetadata.Empty)
+                    .Add(ValueProviderMetadataKeyNames.CanGet, true)
             )
         {
             _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
-            BasePath = _assembly.GetName().Name.Replace('.', Path.DirectorySeparatorChar);
+            //BaseUri = new Uri(_assembly.GetName().Name.Replace('.', Path.DirectorySeparatorChar));
+            BaseUri = new Uri(_assembly.GetName().Name.Replace('.', '/'));
         }
 
-        public string BasePath { get; }
+        public Uri BaseUri { get; }
 
         #region IFileProvider
 
-        public override Task<IValueInfo> GetValueInfoAsync(string path, ValueProviderMetadata metadata = null)
+        public override Task<IResourceInfo> GetAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
         {
-            if (path == null) throw new ArgumentNullException(nameof(path));
+            if (uri == null) throw new ArgumentNullException(nameof(uri));
 
             // Embedded resouce names are separated by '.' so replace the windows separator.
-            var fullName = Path.Combine(BasePath, path).Replace(Path.DirectorySeparatorChar, '.');
+            //var fullName = new Uri(BaseUri, uri).LocalPath.Replace(Path.DirectorySeparatorChar, '.');
+            var fullName = new Uri(BaseUri, uri).LocalPath.Replace('/', '.');
 
             // Embedded resource names are case sensitive so find the actual name of the resource.
             var actualName = _assembly.GetManifestResourceNames().FirstOrDefault(name => SoftString.Comparer.Equals(name, fullName));
             var getManifestResourceStream = actualName is null ? default(Func<Stream>) : () => _assembly.GetManifestResourceStream(actualName);
 
-            return Task.FromResult<IValueInfo>(new EmbeddedFileInfo(UndoConvertPath(fullName), getManifestResourceStream));
+            return Task.FromResult<IResourceInfo>(new EmbeddedFileInfo(UndoConvertPath(fullName), getManifestResourceStream));
         }
 
-        public override Task<IValueInfo> SerializeAsync(string path, Stream data, ValueProviderMetadata metadata = null)
+        public override Task<IResourceInfo> PutAsync(SimpleUri uri, Stream data, ResourceProviderMetadata metadata = null)
         {
             throw new NotSupportedException($"{nameof(EmbeddedFileProvider)} does not support value serialization.");
         }
 
-        public override Task<IValueInfo> SerializeAsync(string name, object value, ValueProviderMetadata metadata = null)
+        public override Task<IResourceInfo> PutAsync(SimpleUri uri, object value, ResourceProviderMetadata metadata = null)
         {
             throw new NotSupportedException($"{nameof(EmbeddedFileProvider)} does not support value serialization.");
         }
 
-        public override Task<IValueInfo> DeleteAsync(string name, ValueProviderMetadata metadata = null)
+        public override Task<IResourceInfo> DeleteAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
         {
             throw new NotSupportedException($"{nameof(EmbeddedFileProvider)} does not support value deletion.");
         }
@@ -66,6 +65,6 @@ namespace Reusable.Stratus
 
     public static class EmbeddedFileProvider<T>
     {
-        public static IValueProvider Default { get; } = new EmbeddedFileProvider(typeof(T).Assembly);
+        public static IResourceProvider Default { get; } = new EmbeddedFileProvider(typeof(T).Assembly);
     }
 }

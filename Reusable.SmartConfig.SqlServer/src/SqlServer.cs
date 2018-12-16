@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data.Repositories;
 using Reusable.Extensions;
+using Reusable.IOnymous;
 using Reusable.SmartConfig.Data;
-using Reusable.Stratus;
 using Reusable.Utilities.SqlClient;
 
 namespace Reusable.SmartConfig
@@ -17,7 +17,7 @@ namespace Reusable.SmartConfig
     using Internal;
     using static ValueProviderMetadataKeyNames;
 
-    public class SqlServerProvider : Stratus.ValueProvider
+    public class SqlServerProvider : ResourceProvider
     {
         public const string DefaultSchema = "dbo";
 
@@ -32,12 +32,12 @@ namespace Reusable.SmartConfig
         public SqlServerProvider
         (
             string nameOrConnectionString,
-            ValueProviderMetadata metadata
+            ResourceProviderMetadata metadata
         )
             : base(
                 metadata
-                    .Add(CanDeserialize, true)
-                    .Add(CanSerialize, true)
+                    .Add(CanGet, true)
+                    .Add(CanPut, true)
                 )
         {
             ConnectionString = ConnectionStringRepository.Default.GetConnectionString(nameOrConnectionString);
@@ -69,54 +69,54 @@ namespace Reusable.SmartConfig
             set => _where = value ?? throw new ArgumentNullException(nameof(Where));
         }
 
-        public override async Task<IValueInfo> GetValueInfoAsync(string name, ValueProviderMetadata metadata = null)
+        public override async Task<IResourceInfo> GetAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
         {
             return await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
             {
-                using (var command = connection.CreateSelectCommand(TableName, Where, ColumnMapping, name))
+                using (var command = connection.CreateSelectCommand(TableName, Where, ColumnMapping, uri.Path))
                 using (var settingReader = command.ExecuteReader())
                 {
                     return
                         await settingReader.ReadAsync(token)
-                            ? new SqlServerValueInfo(name, (string)settingReader[ColumnMapping.Value])
-                            : new SqlServerValueInfo(name, default);
+                            ? new SqlServerResourceInfo((string)uri.Path, (string)settingReader[ColumnMapping.Value])
+                            : new SqlServerResourceInfo((string)uri.Path, default);
                 }
             }, CancellationToken.None);
         }
 
-        public override async Task<IValueInfo> SerializeAsync(string name, Stream value, ValueProviderMetadata metadata = null)
+        public override async Task<IResourceInfo> PutAsync(SimpleUri uri, Stream value, ResourceProviderMetadata metadata = null)
         {
             using (var valueReader = new StreamReader(value))
             {
-                return await SerializeAsync(name, await valueReader.ReadToEndAsync());
+                return await PutAsync(uri, await valueReader.ReadToEndAsync());
             }
         }
 
-        public override async Task<IValueInfo> SerializeAsync(string name, object value, ValueProviderMetadata metadata = null)
+        public override async Task<IResourceInfo> PutAsync(SimpleUri uri, object value, ResourceProviderMetadata metadata = null)
         {
             await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
             {
-                using (var cmd = connection.CreateUpdateCommand(TableName, Where, ColumnMapping, name, value))
+                using (var cmd = connection.CreateUpdateCommand(TableName, Where, ColumnMapping, uri.Path, value))
                 {
                     await cmd.ExecuteNonQueryAsync(token);
                 }
             }, CancellationToken.None);
 
-            return await GetValueInfoAsync(name);
+            return await GetAsync(uri);
         }
 
-        public override Task<IValueInfo> DeleteAsync(string name, ValueProviderMetadata metadata = null)
+        public override Task<IResourceInfo> DeleteAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
         {
             throw new NotImplementedException();
         }
     }
 
-    internal class SqlServerValueInfo : ValueInfo
+    internal class SqlServerResourceInfo : ResourceInfo
     {
         [CanBeNull]
         private readonly string _value;
 
-        internal SqlServerValueInfo([NotNull] string name, [CanBeNull] string value) : base(name)
+        internal SqlServerResourceInfo([NotNull] SimpleUri uri, [CanBeNull] string value) : base(uri)
         {
             _value = value;
         }

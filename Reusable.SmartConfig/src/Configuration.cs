@@ -43,7 +43,7 @@ namespace Reusable.SmartConfig
         {
             if (settingProviders == null) throw new ArgumentNullException(nameof(settingProviders));
 
-            _providers = settingProviders.ToList().ValidateWith(SettingProviderValidator).ThrowIfInvalid();
+            _providers = settingProviders.ToList().ValidateWith(SettingProviderValidator).ThrowIWhenInvalid();
             _settingFinder = settingFinder ?? throw new ArgumentNullException(nameof(settingFinder));
         }
 

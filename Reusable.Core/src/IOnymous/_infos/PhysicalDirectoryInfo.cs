@@ -3,22 +3,22 @@ using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-namespace Reusable.Stratus
+namespace Reusable.IOnymous
 {
     [PublicAPI]
-    internal class PhysicalDirectoryInfo : ValueInfo
+    internal class PhysicalDirectoryInfo : ResourceInfo
     {
-        public PhysicalDirectoryInfo([NotNull] string name) : base(name) { }
+        public PhysicalDirectoryInfo([NotNull] SimpleUri uri) : base(uri) { }
 
-        public override string Name { get; }
+        public override SimpleUri Uri { get; }
 
-        public override bool Exists => Directory.Exists(Name);
+        public override bool Exists => Directory.Exists(Uri.Path);
 
         public override long? Length { get; }
 
         public override DateTime? CreatedOn { get; }
 
-        public override DateTime? ModifiedOn => Exists ? Directory.GetLastWriteTimeUtc(Name) : default;
+        public override DateTime? ModifiedOn => Exists ? Directory.GetLastWriteTimeUtc(Uri.Path) : default;
 
         public override Task CopyToAsync(Stream stream) => throw new NotSupportedException();
 

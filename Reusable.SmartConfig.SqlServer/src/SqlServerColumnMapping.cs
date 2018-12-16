@@ -24,14 +24,14 @@ namespace Reusable.SmartConfig
         public string Name
         {
             get => _name;
-            set => _name = value.ValidateWith(ColumnValidator).ThrowIfInvalid();
+            set => _name = value.ValidateWith(ColumnValidator).ThrowIWhenInvalid();
         }
 
         [NotNull]
         public string Value
         {
             get => _value;
-            set => _value = value.ValidateWith(ColumnValidator).ThrowIfInvalid();
+            set => _value = value.ValidateWith(ColumnValidator).ThrowIWhenInvalid();
         }
 
         public static implicit operator SqlServerColumnMapping((string name, string value) mapping)

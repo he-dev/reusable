@@ -1,26 +1,26 @@
 ﻿using System;
 
-namespace Reusable.Stratus
+namespace Reusable.IOnymous
 {
     public static class DecoratorExtensions
     {
-        public static IValueProvider DecorateWith(this IValueProvider decorable, Func<IValueProvider, IValueProvider> createDecorator)
+        public static IResourceProvider DecorateWith(this IResourceProvider decorable, Func<IResourceProvider, IResourceProvider> createDecorator)
         {
             return createDecorator(decorable);
         }
     }
 
-    public partial class RelativeValueProvider
+    public partial class RelativeResourceProvider
     {
-        public static Func<IValueProvider, RelativeValueProvider> Create(string basePath)
+        public static Func<IResourceProvider, RelativeResourceProvider> Create(SimpleUri baseUri)
         {
-            return decorable => new RelativeValueProvider(decorable, basePath);
+            return decorable => new RelativeResourceProvider(decorable, baseUri);
         }
     }
 
     public partial class EnvironmentVariableProvider
     {
-        public static Func<IValueProvider, EnvironmentVariableProvider> Create()
+        public static Func<IResourceProvider, EnvironmentVariableProvider> Create()
         {
             return decorable => new EnvironmentVariableProvider(decorable);
         }

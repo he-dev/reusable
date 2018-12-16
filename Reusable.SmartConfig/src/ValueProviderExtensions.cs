@@ -7,10 +7,10 @@ using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Extensions;
+using Reusable.IOnymous;
 using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Data;
 using Reusable.SmartConfig.Reflection;
-using Reusable.Stratus;
 
 namespace Reusable.SmartConfig
 {
@@ -19,18 +19,18 @@ namespace Reusable.SmartConfig
         #region GetValue overloads
 
         [ItemNotNull]
-        public static async Task<T> GetSettingAsync<T>([NotNull] this IValueProvider valueProvider, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instanceName = null)
+        public static async Task<T> GetSettingAsync<T>([NotNull] this IResourceProvider resourceProvider, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instanceName = null)
         {
-            if (valueProvider == null) throw new ArgumentNullException(nameof(valueProvider));
+            if (resourceProvider == null) throw new ArgumentNullException(nameof(resourceProvider));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
-            return (T)await valueProvider.GetSettingAsync((LambdaExpression)expression, instanceName);
+            return (T)await resourceProvider.GetSettingAsync((LambdaExpression)expression, instanceName);
         }
 
         [ItemNotNull]
-        private static async Task<object> GetSettingAsync([NotNull] this IValueProvider valueProvider, [NotNull] LambdaExpression expression, [CanBeNull] string instanceName = null)
+        private static async Task<object> GetSettingAsync([NotNull] this IResourceProvider resourceProvider, [NotNull] LambdaExpression expression, [CanBeNull] string instanceName = null)
         {
-            if (valueProvider == null) throw new ArgumentNullException(nameof(valueProvider));
+            if (resourceProvider == null) throw new ArgumentNullException(nameof(resourceProvider));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
             var settingMetadata = SettingMetadata.FromExpression(expression, false);
@@ -46,11 +46,11 @@ namespace Reusable.SmartConfig
 
             var settingInfo =
                 await
-                    valueProvider
-                        .GetValueInfoAsync
+                    resourceProvider
+                        .GetAsync
                         (
-                            settingName,
-                            ValueProviderMetadata.Empty
+                            (string)settingName,
+                            ResourceProviderMetadata.Empty
                                 .Add(ValueProviderMetadataKeyNames.ProviderName, settingMetadata.ProviderName)
                         );
 
@@ -71,9 +71,9 @@ namespace Reusable.SmartConfig
         #region SetValue overloads
 
         [ItemNotNull]
-        public static async Task<IValueProvider> SetSettingAsync<T>([NotNull] this IValueProvider valueProvider, [NotNull] Expression<Func<T>> expression, [CanBeNull] T newValue, [CanBeNull] string instanceName = null)
+        public static async Task<IResourceProvider> SetSettingAsync<T>([NotNull] this IResourceProvider resourceProvider, [NotNull] Expression<Func<T>> expression, [CanBeNull] T newValue, [CanBeNull] string instanceName = null)
         {
-            if (valueProvider == null) throw new ArgumentNullException(nameof(valueProvider));
+            if (resourceProvider == null) throw new ArgumentNullException(nameof(resourceProvider));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
             var settingMetadata = SettingMetadata.FromExpression(expression, false);
@@ -90,11 +90,11 @@ namespace Reusable.SmartConfig
 
             var settingInfo =
                 await
-                    valueProvider
-                        .GetValueInfoAsync
+                    resourceProvider
+                        .GetAsync
                         (
-                            settingName,
-                            ValueProviderMetadata.Empty
+                            (string)settingName,
+                            ResourceProviderMetadata.Empty
                                 .Add(ValueProviderMetadataKeyNames.ProviderName, settingMetadata.ProviderName)
                         );
 
@@ -108,10 +108,10 @@ namespace Reusable.SmartConfig
                         newValue
                     );
 
-                await valueProvider.SerializeAsync(settingName, newValue);
+                await resourceProvider.PutAsync((string)settingName, newValue);
             }
 
-            return valueProvider;
+            return resourceProvider;
         }
 
         #endregion
@@ -122,9 +122,9 @@ namespace Reusable.SmartConfig
         /// Assigns the same setting value to the specified member.
         /// </summary>
         [ItemNotNull]
-        public static async Task<IValueProvider> BindSettingAsync<T>([NotNull] this IValueProvider valueProvider, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instanceName = null)
+        public static async Task<IResourceProvider> BindSettingAsync<T>([NotNull] this IResourceProvider resourceProvider, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instanceName = null)
         {
-            if (valueProvider == null) throw new ArgumentNullException(nameof(valueProvider));
+            if (resourceProvider == null) throw new ArgumentNullException(nameof(resourceProvider));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
             var settingMetadata = SettingMetadata.FromExpression(expression, false);
@@ -138,7 +138,7 @@ namespace Reusable.SmartConfig
                         settingMetadata.PrefixHandling
                     );
 
-            var value = await valueProvider.GetSettingAsync(expression, instanceName);
+            var value = await resourceProvider.GetSettingAsync(expression, instanceName);
 
             settingMetadata
                 .Validations
@@ -146,16 +146,16 @@ namespace Reusable.SmartConfig
 
             settingMetadata.SetValue(value);
 
-            return valueProvider;
+            return resourceProvider;
         }
 
         /// <summary>
         /// Assigns setting values to all members decorated with the the SmartSettingAttribute.
         /// </summary>
         [ItemNotNull]
-        public static async Task<IValueProvider> BindSettingsAsync<T>([NotNull] this IValueProvider valueProvider, [NotNull] T obj, [CanBeNull] string instanceName = null)
+        public static async Task<IResourceProvider> BindSettingsAsync<T>([NotNull] this IResourceProvider resourceProvider, [NotNull] T obj, [CanBeNull] string instanceName = null)
         {
-            if (valueProvider == null) throw new ArgumentNullException(nameof(valueProvider));
+            if (resourceProvider == null) throw new ArgumentNullException(nameof(resourceProvider));
             if (obj == null) throw new ArgumentNullException(nameof(obj));
 
             var settingProperties =
@@ -173,7 +173,7 @@ namespace Reusable.SmartConfig
                     )
                 );
 
-                var value = await valueProvider.GetSettingAsync(expression, instanceName);
+                var value = await resourceProvider.GetSettingAsync(expression, instanceName);
                 var settingMetadata = SettingMetadata.FromExpression(expression, false);
                 var settingName =
                     settingMetadata
@@ -191,7 +191,7 @@ namespace Reusable.SmartConfig
 
             }
 
-            return valueProvider;
+            return resourceProvider;
         }
 
         #endregion
