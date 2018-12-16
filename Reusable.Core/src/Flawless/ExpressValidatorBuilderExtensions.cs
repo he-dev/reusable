@@ -10,16 +10,16 @@ namespace Reusable.Flawless
     {
         #region Ensure overloads
 
-        public static ExpressValidationRuleBuilder<T> Ensure<T>(this ExpressValidatorBuilder<T> builder, Expression<Func<T, bool>> expression)
+        public static ExpressValidationRuleBuilder<T> True<T>(this ExpressValidatorBuilder<T> builder, Expression<Func<T, bool>> expression)
         {
-            return builder.Policy(expression);
+            return builder.Rule(expression);
         }
 
-        public static ExpressValidationRuleBuilder<T> EnsureNull<T>(this ExpressValidatorBuilder<T> builder)
+        public static ExpressValidationRuleBuilder<T> Null<T>(this ExpressValidatorBuilder<T> builder)
         {
             return
                 builder
-                    .Ensure(IsNullExpression.Create<T>())
+                    .True(IsNullExpression.Create<T>())
                     .WithMessage($"{typeof(T).ToPrettyString()} must be null.")
                     .BreakOnFailure();
         }
@@ -28,17 +28,17 @@ namespace Reusable.Flawless
 
         #region Block overloads
 
-        public static ExpressValidationRuleBuilder<T> IsNotValidWhen<T>(this ExpressValidatorBuilder<T> builder, Expression<Func<T, bool>> expression)
+        public static ExpressValidationRuleBuilder<T> False<T>(this ExpressValidatorBuilder<T> builder, Expression<Func<T, bool>> expression)
         {
             var notExpression = Expression.Lambda<Func<T, bool>>(Expression.Not(expression.Body), expression.Parameters[0]);
-            return builder.Ensure(notExpression);
+            return builder.True(notExpression);
         }
 
-        public static ExpressValidationRuleBuilder<T> BlockNull<T>(this ExpressValidatorBuilder<T> builder)
+        public static ExpressValidationRuleBuilder<T> ObjectNotNull<T>(this ExpressValidatorBuilder<T> builder)
         {
             return
                 builder
-                    .IsNotValidWhen(IsNullExpression.Create<T>())
+                    .False(IsNullExpression.Create<T>())
                     .WithMessage($"{typeof(T).ToPrettyString()} must not be null.")
                     .BreakOnFailure();
         }

@@ -10,7 +10,7 @@ namespace Reusable.Flawless
     public static class ExpressValidationResultLookupExtensions
     {
         [CanBeNull]
-        public static T ThrowIWhenInvalid<T>([NotNull] this ExpressValidationResultLookup<T> checkLookup)
+        public static T Assert<T>([NotNull] this ExpressValidationResultLookup<T> checkLookup)
         {
             if (checkLookup == null) throw new ArgumentNullException(nameof(checkLookup));
 

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data.Repositories;
 using Reusable.Extensions;
+using Reusable.Flawless;
 using Reusable.IOnymous;
 using Reusable.SmartConfig.Data;
 using Reusable.Utilities.SqlClient;
@@ -17,7 +18,7 @@ namespace Reusable.SmartConfig
     using Internal;
     using static ValueProviderMetadataKeyNames;
 
-    public class SqlServerProvider : ResourceProvider
+    public class SqlServerProvider : SettingProvider2
     {
         public const string DefaultSchema = "dbo";
 
@@ -71,21 +72,27 @@ namespace Reusable.SmartConfig
 
         public override async Task<IResourceInfo> GetAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
         {
+            Assert(uri);
+
+            var settingName = new SettingName(uri);
+
             return await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
             {
-                using (var command = connection.CreateSelectCommand(TableName, Where, ColumnMapping, uri.Path))
+                using (var command = connection.CreateSelectCommand(TableName, Where, ColumnMapping, settingName))
                 using (var settingReader = command.ExecuteReader())
                 {
                     return
                         await settingReader.ReadAsync(token)
-                            ? new SqlServerResourceInfo((string)uri.Path, (string)settingReader[ColumnMapping.Value])
-                            : new SqlServerResourceInfo((string)uri.Path, default);
+                            ? new SqlServerResourceInfo(uri, (string)settingReader[ColumnMapping.Value])
+                            : new SqlServerResourceInfo(uri, default);
                 }
             }, CancellationToken.None);
         }
 
         public override async Task<IResourceInfo> PutAsync(SimpleUri uri, Stream value, ResourceProviderMetadata metadata = null)
         {
+            Assert(uri);
+
             using (var valueReader = new StreamReader(value))
             {
                 return await PutAsync(uri, await valueReader.ReadToEndAsync());
@@ -94,9 +101,13 @@ namespace Reusable.SmartConfig
 
         public override async Task<IResourceInfo> PutAsync(SimpleUri uri, object value, ResourceProviderMetadata metadata = null)
         {
+            Assert(uri);
+
+            var settingName = new SettingName(uri);
+
             await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
             {
-                using (var cmd = connection.CreateUpdateCommand(TableName, Where, ColumnMapping, uri.Path, value))
+                using (var cmd = connection.CreateUpdateCommand(TableName, Where, ColumnMapping, settingName, value))
                 {
                     await cmd.ExecuteNonQueryAsync(token);
                 }

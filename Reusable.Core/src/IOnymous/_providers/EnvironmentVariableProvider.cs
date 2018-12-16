@@ -11,8 +11,8 @@ namespace Reusable.IOnymous
     {
         private static readonly IExpressValidator<SimpleUri> UriValidator = ExpressValidator.For<SimpleUri>(builder =>
         {
-            builder.BlockNull();
-            builder.Ensure(x => SoftString.Comparer.Equals((string)x.Scheme, "file"));
+            builder.ObjectNotNull();
+            builder.True(x => SoftString.Comparer.Equals((string)x.Scheme, "file"));
         });
 
         private readonly IResourceProvider _resourceProvider;
@@ -25,25 +25,25 @@ namespace Reusable.IOnymous
 
         public override Task<IResourceInfo> GetAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
         {
-            UriValidator.Validate(uri).ThrowIWhenInvalid();
+            UriValidator.Validate(uri).Assert();
             return _resourceProvider.GetAsync(Environment.ExpandEnvironmentVariables(uri.Path), metadata);
         }
 
         public override Task<IResourceInfo> PutAsync(SimpleUri uri, Stream value, ResourceProviderMetadata metadata = null)
         {
-            UriValidator.Validate(uri).ThrowIWhenInvalid();
+            UriValidator.Validate(uri).Assert();
             return _resourceProvider.PutAsync(Environment.ExpandEnvironmentVariables(uri.Path), value, metadata);
         }
 
         public override Task<IResourceInfo> PutAsync(SimpleUri uri, object value, ResourceProviderMetadata metadata = null)
         {
-            UriValidator.Validate(uri).ThrowIWhenInvalid();
+            UriValidator.Validate(uri).Assert();
             return _resourceProvider.PutAsync(Environment.ExpandEnvironmentVariables(uri.Path), value, metadata);
         }
 
         public override Task<IResourceInfo> DeleteAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
         {
-            UriValidator.Validate(uri).ThrowIWhenInvalid();
+            UriValidator.Validate(uri).Assert();
             return _resourceProvider.DeleteAsync(Environment.ExpandEnvironmentVariables(uri.Path), metadata);
         }
     }

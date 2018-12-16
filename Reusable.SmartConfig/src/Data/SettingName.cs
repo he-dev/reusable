@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Linq.Custom;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -10,6 +11,7 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Extensions;
+using Reusable.IOnymous;
 using Reusable.Reflection;
 using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Reflection;
@@ -51,6 +53,23 @@ namespace Reusable.SmartConfig.Data
             _tokens = tokens ?? throw new ArgumentNullException(nameof(tokens));
         }
 
+        public SettingName(SimpleUri uri)
+        {
+            if (uri.IsRelative) throw new ArgumentException();
+            if (uri.Scheme != "setting") throw new ArgumentException();
+
+            var names = uri.Path.Value.Split('.');
+
+            _tokens = new Dictionary<SettingNameToken, ReadOnlyMemory<char>>
+            {
+                [Token.Prefix] = uri.Query.TryGetValue("prefix", out var prefix) ? new ReadOnlyMemory<char>(prefix.Value.ToCharArray()) : ReadOnlyMemory<char>.Empty,
+                [Token.Namespace] = names.Length == 3 ? new ReadOnlyMemory<char>(names[names.Length - 3].ToCharArray()) : ReadOnlyMemory<char>.Empty,
+                [Token.Type] = names.Length >= 2 ? new ReadOnlyMemory<char>(names[names.Length - 2].ToCharArray()) : ReadOnlyMemory<char>.Empty,
+                [Token.Member] = names.Length >= 1 ? new ReadOnlyMemory<char>(names[names.Length - 1].ToCharArray()) : ReadOnlyMemory<char>.Empty,
+                [Token.Instance] = uri.Query.TryGetValue("instance", out var instance) ? new ReadOnlyMemory<char>(instance.Value.ToCharArray()) : ReadOnlyMemory<char>.Empty,
+            };
+        }
+
         public ReadOnlyMemory<char> this[Token token] => _tokens.TryGetValue(token, out var t) ? t : default;
 
         [CanBeNull]
@@ -90,13 +109,14 @@ namespace Reusable.SmartConfig.Data
 
         public override string ToString()
         {
-            return new StringBuilder()
-                .Append(this[Token.Prefix].IsEmpty ? default : $"{Prefix}{Separator.Prefix}")
-                .Append(this[Token.Namespace].IsEmpty ? default : $"{Namespace}{Separator.Namespace}")
-                .Append(this[Token.Type].IsEmpty ? default : $"{Type}{Separator.Type}")
-                .Append(this[Token.Member])
-                .Append(this[Token.Instance].IsEmpty ? default : $"{Separator.Member}{Instance}")
-                .ToString();
+            return 
+                new StringBuilder()
+                    .Append(this[Token.Prefix].IsEmpty ? default : $"{Prefix}{Separator.Prefix}")
+                    .Append(this[Token.Namespace].IsEmpty ? default : $"{Namespace}{Separator.Namespace}")
+                    .Append(this[Token.Type].IsEmpty ? default : $"{Type}{Separator.Type}")
+                    .Append(this[Token.Member])
+                    .Append(this[Token.Instance].IsEmpty ? default : $"{Separator.Member}{Instance}")
+                    .ToString();
         }
 
         //public static implicit operator SettingName(string settingName) => Parse(settingName);
@@ -104,6 +124,17 @@ namespace Reusable.SmartConfig.Data
         public static implicit operator string(SettingName settingName) => settingName?.ToString();
 
         public static implicit operator SoftString(SettingName settingName) => settingName?.ToString();
+
+        public static implicit operator SimpleUri(SettingName settingName)
+        {
+            var path = new[]
+            {
+                settingName.Namespace?.Replace('.', '-'),
+                settingName.Type,
+                settingName.Member,
+            };
+            return $"setting:{path.Where(Conditional.IsNotNullOrEmpty).Join(".")}?prefix={settingName.Prefix}&instance={settingName.Instance}";
+        }
 
         public static bool operator ==(SettingName x, SettingName y) => AutoEquality<SettingName>.Comparer.Equals(x, y);
 
@@ -120,5 +151,5 @@ namespace Reusable.SmartConfig.Data
         #endregion
     }
 
-    
+
 }

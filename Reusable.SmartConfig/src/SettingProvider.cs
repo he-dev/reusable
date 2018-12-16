@@ -9,12 +9,31 @@ using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Exceptionizer;
 using Reusable.Extensions;
+using Reusable.Flawless;
+using Reusable.IOnymous;
 using Reusable.Reflection;
 using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Data;
 
 namespace Reusable.SmartConfig
 {
+    [PublicAPI]
+    public abstract class SettingProvider2 : ResourceProvider
+    {
+        protected static readonly IExpressValidator<SimpleUri> UriValidator = ExpressValidator.For<SimpleUri>(assert =>
+        {
+            assert.ObjectNotNull();
+            assert.True(x => x.IsAbsolute);
+            assert.True(x => x.Scheme == "setting");
+        });
+
+        protected SettingProvider2(ResourceProviderMetadata metadata) : base(metadata)
+        {
+        }
+
+        protected SimpleUri Assert(SimpleUri uri) => UriValidator.Validate(uri).Assert();
+    }
+
     public interface ISettingProvider : IEquatable<ISettingProvider>
     {
         [NotNull]

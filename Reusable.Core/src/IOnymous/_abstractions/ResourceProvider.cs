@@ -24,6 +24,9 @@ namespace Reusable.IOnymous
         Task<IResourceInfo> PostAsync([NotNull] SimpleUri uri, [NotNull] Stream value, ResourceProviderMetadata metadata = null);
 
         [ItemNotNull]
+        Task<IResourceInfo> PostAsync([NotNull] SimpleUri uri, [NotNull] object value, ResourceProviderMetadata metadata = null);
+
+        [ItemNotNull]
         Task<IResourceInfo> PutAsync([NotNull] SimpleUri uri, [NotNull] Stream value, ResourceProviderMetadata metadata = null);
 
         [ItemNotNull]
@@ -44,8 +47,9 @@ namespace Reusable.IOnymous
 
         public abstract Task<IResourceInfo> GetAsync(SimpleUri uri, ResourceProviderMetadata metadata = null);
 
-        // todo - not supported yet
-        public virtual Task<IResourceInfo> PostAsync(SimpleUri name, Stream value, ResourceProviderMetadata metadata = null) { throw new NotSupportedException(); }
+        public virtual Task<IResourceInfo> PostAsync(SimpleUri name, Stream value, ResourceProviderMetadata metadata = null) { throw new NotImplementedException(); }
+
+        public virtual Task<IResourceInfo> PostAsync(SimpleUri name, object value, ResourceProviderMetadata metadata = null) { throw new NotImplementedException(); }
 
         public abstract Task<IResourceInfo> PutAsync(SimpleUri uri, Stream value, ResourceProviderMetadata metadata = null);
 
@@ -61,40 +65,8 @@ namespace Reusable.IOnymous
 
     public static class ResourceProviderExtensions
     {
-        //public static Task<IResourceInfo> GetAsync(this IResourceProvider resource, string name, ResourceProviderMetadata metadata = null)
-        //{
-        //    return resource.GetAsync(new Uri(name, UriKind.RelativeOrAbsolute), metadata);
-        //}
 
-        //public static Task<IResourceInfo> PostAsync(this IResourceProvider resource, string name, Stream value, ResourceProviderMetadata metadata = null)
-        //{
-        //    return resource.PostAsync(new Uri(name, UriKind.RelativeOrAbsolute), value, metadata);
-        //}
-
-        //public static Task<IResourceInfo> PutAsync(this IResourceProvider resource, string name, Stream value, ResourceProviderMetadata metadata = null)
-        //{
-        //    return resource.PutAsync(new Uri(name, UriKind.RelativeOrAbsolute), value, metadata);
-        //}
-
-        //public static Task<IResourceInfo> PutAsync(this IResourceProvider resource, string name, object value, ResourceProviderMetadata metadata = null)
-        //{
-        //    return resource.PutAsync(new Uri(name, UriKind.RelativeOrAbsolute), value, metadata);
-        //}
-
-        //public static Task<IResourceInfo> DeleteAsync(this IResourceProvider resource, string name, ResourceProviderMetadata metadata = null)
-        //{
-        //    return resource.DeleteAsync(new Uri(name, UriKind.RelativeOrAbsolute), metadata);
-        //}
     }
-
-    //[Flags]
-    //public enum ValueProviderCapabilities
-    //{
-    //    None = 0,
-
-    //    CanReadValue = 1 << 1,
-    //    CanWriteValue = 1 << 2,
-    //}
 
     public class ResourceProviderMetadata
     {
@@ -168,7 +140,7 @@ namespace Reusable.IOnymous
         {
             /* language=regexp */ @"^(?:(?<scheme>\w+):)?",
             /* language=regexp */ @"(?:\/\/(?<authority>\w+))?",
-            /* language=regexp */ @"(?<path>[a-z0-9\/:]+)",
+            /* language=regexp */ @"(?<path>[a-z0-9\/:\.-]+)",
             /* language=regexp */ @"(?:\?(?<query>[a-z0-9=&]+))?",
             /* language=regexp */ @"(?:#(?<fragment>[a-z0-9]+))?"
         });
@@ -239,7 +211,9 @@ namespace Reusable.IOnymous
 
         public ImplicitString Fragment { get; }
 
-        public bool IsRelative => !Scheme;
+        public bool IsAbsolute => Scheme;
+
+        public bool IsRelative => !IsAbsolute;
 
         public override string ToString() => string.Join(string.Empty, GetComponents());
 
@@ -295,10 +269,11 @@ namespace Reusable.IOnymous
         #endregion
     }
 
-    public class ImplicitString
+    public class ImplicitString : IEquatable<ImplicitString>
     {
         public ImplicitString(string value) => Value = value;
 
+        [AutoEqualityProperty]
         public string Value { get; }
 
         public override string ToString() => Value;
@@ -310,5 +285,15 @@ namespace Reusable.IOnymous
         public static implicit operator string(ImplicitString value) => value.ToString();
 
         public static implicit operator bool(ImplicitString value) => !string.IsNullOrWhiteSpace(value);
+
+        #region IEquatable
+
+        public bool Equals(ImplicitString other) => AutoEquality<ImplicitString>.Comparer.Equals(this, other);
+
+        public override bool Equals(object obj) => obj is ImplicitString str && Equals(str);
+
+        public override int GetHashCode() => AutoEquality<ImplicitString>.Comparer.GetHashCode(this);
+        
+        #endregion
     }
 }

@@ -9,21 +9,21 @@ namespace Reusable.Flawless
 {
     public class ExpressValidatorBuilder<T>
     {
-        private readonly IList<ExpressValidationRuleBuilder<T>> _policyBuilders = new List<ExpressValidationRuleBuilder<T>>();
+        private readonly IList<ExpressValidationRuleBuilder<T>> _ruleBuilders = new List<ExpressValidationRuleBuilder<T>>();
         
         [NotNull]
-        public ExpressValidationRuleBuilder<T> Policy([NotNull] Expression<Func<T, bool>> expression)
+        public ExpressValidationRuleBuilder<T> Rule([NotNull] Expression<Func<T, bool>> expression)
         {
             var policyBuilder = new ExpressValidationRuleBuilder<T>(expression);
-            _policyBuilders.Add(policyBuilder);
+            _ruleBuilders.Add(policyBuilder);
             return policyBuilder;
         }
 
         [NotNull, ItemNotNull]
         internal IList<IExpressValidationRule<T>> Build()
         {
-            if (_policyBuilders.Empty()) throw new InvalidOperationException("You need to define at least one validation rule.");
-            return _policyBuilders.Select(rb => rb.Build()).ToList();
+            if (_ruleBuilders.Empty()) throw new InvalidOperationException("You need to define at least one validation rule.");
+            return _ruleBuilders.Select(rb => rb.Build()).ToList();
         }
     }
 

@@ -49,7 +49,7 @@ namespace Reusable.SmartConfig
                     resourceProvider
                         .GetAsync
                         (
-                            (string)settingName,
+                            settingName,
                             ResourceProviderMetadata.Empty
                                 .Add(ValueProviderMetadataKeyNames.ProviderName, settingMetadata.ProviderName)
                         );
@@ -93,7 +93,7 @@ namespace Reusable.SmartConfig
                     resourceProvider
                         .GetAsync
                         (
-                            (string)settingName,
+                            settingName,
                             ResourceProviderMetadata.Empty
                                 .Add(ValueProviderMetadataKeyNames.ProviderName, settingMetadata.ProviderName)
                         );

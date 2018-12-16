@@ -16,14 +16,15 @@ namespace Reusable.Tests2
         public async Task MyTestMethod()
         {
             var appSettings = new AppSettingProvider();
-            var salute = await appSettings.GetAsync("abc:Salute");
+            //var salute = await appSettings.GetAsync("abc:Salute");
+            var salute = await appSettings.GetAsync("setting:salute?prefix=abc");
 
             Assert.True(salute.Exists);
 
             var sqlServer = new SqlServerProvider("name=TestDb", ResourceProviderMetadata.Empty);
-            var greeting = await sqlServer.GetAsync("Greeting");
+            //var greeting = await sqlServer.GetAsync("Greeting");
 
-            Assert.True(greeting.Exists);
+            //Assert.True(greeting.Exists);
 
             var jsonProvider = sqlServer.DecorateWith(JsonResourceProvider.Factory());
 

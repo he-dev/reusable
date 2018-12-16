@@ -16,8 +16,8 @@ namespace Reusable.Tests.Validation
         {
             var validator = ExpressValidator.For<Person>(builder =>
             {
-                builder.Ensure(p => p.FirstName != null);
-                builder.Ensure(p => p.LastName != null);
+                builder.True(p => p.FirstName != null);
+                builder.True(p => p.LastName != null);
             });
 
             var person = new Person { FirstName = "John", LastName = "Doe" };
@@ -29,8 +29,8 @@ namespace Reusable.Tests.Validation
         {
             var validator = ExpressValidator.For<Person>(builder =>
             {
-                builder.IsNotValidWhen(p => p.FirstName == null);
-                builder.IsNotValidWhen(p => p.LastName == null);
+                builder.False(p => p.FirstName == null);
+                builder.False(p => p.LastName == null);
             });
 
             var person = new Person();
@@ -44,7 +44,7 @@ namespace Reusable.Tests.Validation
         [TestMethod]
         public void IsValidWhenNull_Null_True()
         {
-            var validator = ExpressValidator.For<Person>(model => model.EnsureNull());
+            var validator = ExpressValidator.For<Person>(model => model.Null());
             var person = default(Person);
             Assert.IsTrue(validator.Validate(person).Success);
         }
@@ -52,7 +52,7 @@ namespace Reusable.Tests.Validation
         [TestMethod]
         public void IsValidWhenNull_NotNull_False()
         {
-            var validator = ExpressValidator.For<Person>(model => model.EnsureNull());
+            var validator = ExpressValidator.For<Person>(model => model.Null());
             var person = new Person();
             Assert.IsFalse(validator.Validate(person).Success);
         }
@@ -60,7 +60,7 @@ namespace Reusable.Tests.Validation
         [TestMethod]
         public void IsNotValidWhenNull_NotNull_True()
         {
-            var validator = ExpressValidator.For<Person>(model => model.BlockNull());
+            var validator = ExpressValidator.For<Person>(model => model.ObjectNotNull());
             var person = new Person();
             Assert.IsTrue(validator.Validate(person).Success);
         }
@@ -68,7 +68,7 @@ namespace Reusable.Tests.Validation
         [TestMethod]
         public void IsNotValidWhenNull_Null_False()
         {
-            var validator = ExpressValidator.For<Person>(model => model.BlockNull());
+            var validator = ExpressValidator.For<Person>(model => model.ObjectNotNull());
             var person = default(Person);
             Assert.IsFalse(validator.Validate(person).Success);
         }
@@ -91,10 +91,10 @@ namespace Reusable.Tests.Validation
         [TestMethod]
         public void ThrowOrDefault_InvalidPerson_PersonValidationException()
         {
-            var validator = ExpressValidator.For<Person>(model => model.IsNotValidWhen(p => p.FirstName == null));
+            var validator = ExpressValidator.For<Person>(model => model.False(p => p.FirstName == null));
             var person = new Person();
 
-            Assert.That.Throws<DynamicException>(() => validator.Validate(person).ThrowIWhenInvalid(), filter => filter.When(name: "PersonValidationException"));
+            Assert.That.Throws<DynamicException>(() => validator.Validate(person).Assert(), filter => filter.When(name: "PersonValidationException"));
         }
 
         public class Person

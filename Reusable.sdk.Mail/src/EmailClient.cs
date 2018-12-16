@@ -18,9 +18,9 @@ namespace Reusable.sdk.Mail
     {
         private static readonly IExpressValidator<IEmail<IEmailSubject, IEmailBody>> EmailValidator = ExpressValidator.For<IEmail<IEmailSubject, IEmailBody>>(builder =>
         {
-            builder.IsNotValidWhen(e => e.To == null);
-            builder.IsNotValidWhen(e => e.Subject == null);
-            builder.IsNotValidWhen(e => e.Body == null);
+            builder.False(e => e.To == null);
+            builder.False(e => e.Subject == null);
+            builder.False(e => e.Body == null);
         });
 
         public async Task SendAsync<TSubject, TBody>(IEmail<TSubject, TBody> email)
@@ -31,7 +31,7 @@ namespace Reusable.sdk.Mail
 
             EmailValidator
                 .Validate((IEmail<IEmailSubject, IEmailBody>)email)
-                .ThrowIWhenInvalid();
+                .Assert();
 
             try
             {

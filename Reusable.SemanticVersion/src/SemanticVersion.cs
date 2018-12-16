@@ -22,9 +22,9 @@ namespace Reusable
     {
         private static readonly IExpressValidator<SemanticVersion> VersionValidator = ExpressValidator.For<SemanticVersion>(builder =>
         {
-            builder.Ensure(x => x.Major >= 0);
-            builder.Ensure(x => x.Minor >= 0);
-            builder.Ensure(x => x.Patch >= 0);
+            builder.True(x => x.Major >= 0);
+            builder.True(x => x.Minor >= 0);
+            builder.True(x => x.Patch >= 0);
         });
 
         private static readonly Lazy<string> Pattern;
@@ -44,7 +44,7 @@ namespace Reusable
             Minor = minor;
             Patch = patch;
             Labels = labels.ToImmutableList();
-            this.ValidateWith(VersionValidator).ThrowIWhenInvalid();
+            this.ValidateWith(VersionValidator).Assert();
         }
 
         public SemanticVersion(int major, int minor, int patch)

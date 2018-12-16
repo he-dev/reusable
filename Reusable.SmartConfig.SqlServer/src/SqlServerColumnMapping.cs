@@ -7,8 +7,8 @@ namespace Reusable.SmartConfig
     {
         private static readonly IExpressValidator<string> ColumnValidator = ExpressValidator.For<string>(builder =>
         {
-            builder.BlockNull();
-            builder.IsNotValidWhen(c => string.IsNullOrEmpty(c));
+            builder.ObjectNotNull();
+            builder.False(c => string.IsNullOrEmpty(c));
         });
 
         private string _name;
@@ -24,14 +24,14 @@ namespace Reusable.SmartConfig
         public string Name
         {
             get => _name;
-            set => _name = value.ValidateWith(ColumnValidator).ThrowIWhenInvalid();
+            set => _name = value.ValidateWith(ColumnValidator).Assert();
         }
 
         [NotNull]
         public string Value
         {
             get => _value;
-            set => _value = value.ValidateWith(ColumnValidator).ThrowIWhenInvalid();
+            set => _value = value.ValidateWith(ColumnValidator).Assert();
         }
 
         public static implicit operator SqlServerColumnMapping((string name, string value) mapping)

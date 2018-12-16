@@ -20,8 +20,8 @@ namespace Reusable.SmartConfig.Reflection
     {
         private static readonly IExpressValidator<LambdaExpression> SettingExpressionValidator = ExpressValidator.For<LambdaExpression>(builder =>
         {
-            builder.BlockNull();
-            builder.Ensure(e => e.Body is MemberExpression);
+            builder.ObjectNotNull();
+            builder.True(e => e.Body is MemberExpression);
         });
 
         private SettingMetadata(Type type, object instance, MemberInfo member)
@@ -99,7 +99,7 @@ namespace Reusable.SmartConfig.Reflection
         [NotNull]
         public static SettingMetadata FromExpression(LambdaExpression expression, bool nonPublic = false)
         {
-            expression.ValidateWith(SettingExpressionValidator).ThrowIWhenInvalid();
+            expression.ValidateWith(SettingExpressionValidator).Assert();
 
             var (type, instance, member) = SettingVisitor.GetSettingInfo(expression, nonPublic);
             return new SettingMetadata(type, instance, member);
