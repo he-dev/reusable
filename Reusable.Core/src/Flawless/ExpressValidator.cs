@@ -15,24 +15,24 @@ namespace Reusable.Flawless
     [PublicAPI]
     internal class ExpressValidator<T> : IExpressValidator<T>
     {
-        private readonly IList<IExpressValidationRule<T>> _agents;
+        private readonly IList<IExpressValidationRule<T>> _rules;
 
-        public ExpressValidator([NotNull] Action<ExpressValidatorBuilder<T>> builder)
+        public ExpressValidator([NotNull] Action<ExpressValidationBuilder<T>> builder)
         {
-            var rules = new ExpressValidatorBuilder<T>();
+            var rules = new ExpressValidationBuilder<T>();
             builder(rules);
-            _agents = rules.Build();
+            _rules = rules.Build();
         }
 
-        public ExpressValidationResultLookup<T> Validate(T value) => new ExpressValidationResultLookup<T>(value, Evaluate(value).ToLookup(t => t.IsFollowed));
+        public ExpressValidationResultLookup<T> Validate(T value) => new ExpressValidationResultLookup<T>(value, Evaluate(value).ToLookup(t => t.Success));
 
         private IEnumerable<ExpressValidationResult<T>> Evaluate(T value)
         {
-            foreach (var agent in _agents)
+            foreach (var rule in _rules)
             {
-                var policyCheck = agent.Evaluate(value);
-                yield return policyCheck;
-                if (!policyCheck.IsFollowed && agent.Options.HasFlag(ExpressValidationOptions.BreakOnFailure))
+                var result = rule.Evaluate(value);
+                yield return result;
+                if (!result.Success && rule.Options.HasFlag(ExpressValidationOptions.BreakOnFailure))
                 {
                     yield break;
                 }
@@ -41,7 +41,7 @@ namespace Reusable.Flawless
 
         #region IEnumerable
 
-        public IEnumerator<IExpressValidationRule<T>> GetEnumerator() => _agents.GetEnumerator();
+        public IEnumerator<IExpressValidationRule<T>> GetEnumerator() => _rules.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -50,6 +50,6 @@ namespace Reusable.Flawless
 
     public static class ExpressValidator
     {
-        public static IExpressValidator<T> For<T>([NotNull] Action<ExpressValidatorBuilder<T>> builder) => new ExpressValidator<T>(builder);
+        public static IExpressValidator<T> For<T>([NotNull] Action<ExpressValidationBuilder<T>> builder) => new ExpressValidator<T>(builder);
     }
 }

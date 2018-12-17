@@ -34,7 +34,7 @@ namespace Reusable.SmartConfig
         private static readonly IExpressValidator<IEnumerable<ISettingProvider>> SettingProviderValidator = ExpressValidator.For<IEnumerable<ISettingProvider>>(
             builder =>
             {
-                builder.ObjectNotNull();
+                builder.NotNull();
                 builder.True(providers => providers.Any()).WithMessage("You need to specify at least one setting-provider.");
             }
         );

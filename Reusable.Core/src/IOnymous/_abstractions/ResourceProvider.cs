@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -23,14 +24,14 @@ namespace Reusable.IOnymous
         [ItemNotNull]
         Task<IResourceInfo> PostAsync([NotNull] SimpleUri uri, [NotNull] Stream value, ResourceProviderMetadata metadata = null);
 
-        [ItemNotNull]
-        Task<IResourceInfo> PostAsync([NotNull] SimpleUri uri, [NotNull] object value, ResourceProviderMetadata metadata = null);
+        //[ItemNotNull]
+        //Task<IResourceInfo> PostAsync([NotNull] SimpleUri uri, [NotNull] object value, ResourceProviderMetadata metadata = null);
 
         [ItemNotNull]
         Task<IResourceInfo> PutAsync([NotNull] SimpleUri uri, [NotNull] Stream value, ResourceProviderMetadata metadata = null);
 
-        [ItemNotNull]
-        Task<IResourceInfo> PutAsync([NotNull] SimpleUri uri, [NotNull] object value, ResourceProviderMetadata metadata = null);
+        //[ItemNotNull]
+        //Task<IResourceInfo> PutAsync([NotNull] SimpleUri uri, [NotNull] object value, ResourceProviderMetadata metadata = null);
 
         [ItemNotNull]
         Task<IResourceInfo> DeleteAsync([NotNull] SimpleUri uri, ResourceProviderMetadata metadata = null);
@@ -38,6 +39,8 @@ namespace Reusable.IOnymous
 
     public abstract class ResourceProvider : IResourceProvider
     {
+        public static readonly string Scheme = "ionymous";
+
         protected ResourceProvider(ResourceProviderMetadata metadata)
         {
             Metadata = metadata;
@@ -49,11 +52,11 @@ namespace Reusable.IOnymous
 
         public virtual Task<IResourceInfo> PostAsync(SimpleUri name, Stream value, ResourceProviderMetadata metadata = null) { throw new NotImplementedException(); }
 
-        public virtual Task<IResourceInfo> PostAsync(SimpleUri name, object value, ResourceProviderMetadata metadata = null) { throw new NotImplementedException(); }
+        //public virtual Task<IResourceInfo> PostAsync(SimpleUri name, object value, ResourceProviderMetadata metadata = null) { throw new NotImplementedException(); }
 
         public abstract Task<IResourceInfo> PutAsync(SimpleUri uri, Stream value, ResourceProviderMetadata metadata = null);
 
-        public abstract Task<IResourceInfo> PutAsync(SimpleUri uri, object value, ResourceProviderMetadata metadata = null);
+        //public abstract Task<IResourceInfo> PutAsync(SimpleUri uri, object value, ResourceProviderMetadata metadata = null);
 
         public abstract Task<IResourceInfo> DeleteAsync(SimpleUri uri, ResourceProviderMetadata metadata = null);
 
@@ -65,7 +68,15 @@ namespace Reusable.IOnymous
 
     public static class ResourceProviderExtensions
     {
-
+        public static async Task<IResourceInfo> PutAsync(this IResourceProvider resourceProvider, SimpleUri uri, object value, ResourceProviderMetadata metadata = null)
+        {
+            var binaryFormatter = new BinaryFormatter();
+            using (var memoryStream = new MemoryStream())
+            {
+                binaryFormatter.Serialize(memoryStream, value);
+                return await resourceProvider.PutAsync(uri, memoryStream, (metadata ?? ResourceProviderMetadata.Empty).Add("StreamType", "Object"));
+            }
+        }
     }
 
     public class ResourceProviderMetadata
@@ -99,11 +110,11 @@ namespace Reusable.IOnymous
         //IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_metadata).GetEnumerator();
     }
 
-    public static class ValueProviderMetadataExtensions
+    public static class ResourceProviderMetadataExtensions
     {
         public static bool TryGetValue<T>(this ResourceProviderMetadata metadata, SoftString key, out T value)
         {
-            if (metadata.TryGetValue(key, out var x) && x is T result)
+            if (!(metadata is null) && metadata.TryGetValue(key, out var x) && x is T result)
             {
                 value = result;
                 return true;
@@ -116,7 +127,7 @@ namespace Reusable.IOnymous
         }
     }
 
-    public static class ValueProviderMetadataKeyNames
+    public static class ResourceProviderMetadataKeyNames
     {
         public static string ProviderName { get; } = nameof(ProviderName);
 
@@ -145,11 +156,16 @@ namespace Reusable.IOnymous
             /* language=regexp */ @"(?:#(?<fragment>[a-z0-9]+))?"
         });
 
+        private static readonly IEqualityComparer<string> InternalComparer = StringComparer.OrdinalIgnoreCase;
+
         public static readonly IEqualityComparer<SimpleUri> Comparer = EqualityComparerFactory<SimpleUri>.Create
         (
-            equals: (x, y) => StringComparer.OrdinalIgnoreCase.Equals(x, y),
-            getHashCode: (obj) => StringComparer.OrdinalIgnoreCase.GetHashCode(obj)
-        );
+            equals: (x, y) =>
+            {
+                var ignoreScheme = x.IsIOnymous() || y.IsIOnymous();
+                return InternalComparer.Equals(ignoreScheme ? x.ToString(string.Empty) : x.ToString(), ignoreScheme ? y.ToString(string.Empty) : y.ToString());
+            },
+            getHashCode: (obj) => InternalComparer.GetHashCode(obj.IsIOnymous() ? obj.ToString(string.Empty) : obj.ToString()));
 
         public SimpleUri([NotNull] string uri)
         {
@@ -215,13 +231,18 @@ namespace Reusable.IOnymous
 
         public bool IsRelative => !IsAbsolute;
 
-        public override string ToString() => string.Join(string.Empty, GetComponents());
+        public override string ToString() => ToString(Scheme);
 
-        private IEnumerable<string> GetComponents()
+        public string ToString(ImplicitString scheme)
         {
-            if (Scheme)
+            return string.Join(string.Empty, GetComponents(scheme));
+        }
+
+        private IEnumerable<string> GetComponents(ImplicitString scheme)
+        {
+            if (scheme)
             {
-                yield return $"{Scheme}:";
+                yield return $"{scheme}:";
             }
 
             if (Authority)
@@ -293,7 +314,7 @@ namespace Reusable.IOnymous
         public override bool Equals(object obj) => obj is ImplicitString str && Equals(str);
 
         public override int GetHashCode() => AutoEquality<ImplicitString>.Comparer.GetHashCode(this);
-        
+
         #endregion
     }
 }

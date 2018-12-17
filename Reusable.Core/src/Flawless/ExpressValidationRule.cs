@@ -16,22 +16,22 @@ namespace Reusable.Flawless
     internal class ExpressValidationRule<T> : IExpressValidationRule<T>
     {
         private readonly Lazy<string> _expressionString;
-        private readonly Lazy<Func<T, bool>> _policy;
+        private readonly Lazy<Func<T, bool>> _predicate;
         private readonly Func<T, string> _createMessage;
 
-        public ExpressValidationRule([NotNull] Expression<Func<T, bool>> policy, [NotNull] Func<T, string> createMessage, ExpressValidationOptions options)
+        public ExpressValidationRule([NotNull] Expression<Func<T, bool>> predicate, [NotNull] Func<T, string> createMessage, ExpressValidationOptions options)
         {
-            if (policy == null) throw new ArgumentNullException(nameof(policy));
+            if (predicate == null) throw new ArgumentNullException(nameof(predicate));
 
-            _policy = Lazy.Create(policy.Compile);
-            _expressionString = Lazy.Create(ExpressValidationRulePrettifier.Prettify(policy).ToString);
+            _predicate = Lazy.Create(predicate.Compile);
+            _expressionString = Lazy.Create(ExpressValidationRulePrettifier.Prettify(predicate).ToString);
             _createMessage = createMessage ?? throw new ArgumentNullException(nameof(createMessage));
             Options = options;
         }
 
         public ExpressValidationOptions Options { get; }
 
-        public ExpressValidationResult<T> Evaluate(T obj) => new ExpressValidationResult<T>(ToString(), _policy.Value(obj), _createMessage(obj));
+        public ExpressValidationResult<T> Evaluate(T obj) => new ExpressValidationResult<T>(ToString(), _predicate.Value(obj), _createMessage(obj));
         
         public string GetMessage(T obj) => _createMessage(obj);
 

@@ -103,27 +103,32 @@ namespace Reusable.SmartConfig
             }
         }
 
-        public override async Task<IResourceInfo> PutAsync(SimpleUri uri, object value, ResourceProviderMetadata metadata = null)
+        public override async Task<IResourceInfo> PutAsync(SimpleUri uri, Stream stream, ResourceProviderMetadata metadata = null)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (metadata.TryGetValue("StreamType", out string type) && type != "Object")
+            {
+                throw new ArgumentException(paramName: nameof(stream), message: "Can post only stream of object type.");
+            }
+
+            if (stream.CanSeek)
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+            }
+            var binaryFormatter = new BinaryFormatter();
+            var value = binaryFormatter.Deserialize(stream);
 
             if (SupportedTypes.Contains(value.GetType()))
             {
-                var fromType = value.GetType();
+                var fromType = stream.GetType();
                 var serialized = (string)GetOrAddSerializer(fromType).Convert(value, typeof(string));
 
-                return await ResourceProvider.PutAsync(uri, serialized);
+                using (var streamReader = serialized.ToStreamReader())
+                {
+                    return await ResourceProvider.PutAsync(uri, streamReader.BaseStream);
+                }
             }
 
-            throw new Exception();
-        }
-
-        public override async Task<IResourceInfo> PutAsync(SimpleUri uri, Stream value, ResourceProviderMetadata metadata = null)
-        {
-            using (var valueReader = new StreamReader(value))
-            {
-                return await PutAsync(uri, await valueReader.ReadToEndAsync());
-            }
+            throw new Exception("Blub");
         }
 
         public override Task<IResourceInfo> DeleteAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)

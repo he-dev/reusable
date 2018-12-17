@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
+using System.Linq.Custom;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Reusable.Extensions;
+using Reusable.IOnymous;
 
 namespace Reusable.SmartConfig.Annotations
 {
@@ -13,31 +16,40 @@ namespace Reusable.SmartConfig.Annotations
     public class SettingProviderAttribute : Attribute
     {
         private string _prefix;
-        private SettingNameStrength _settingNameStrength;
-        private readonly ISet<Type> _providerTypes;
-        private readonly ISet<SoftString> _providerNames;
+        private SettingNameStrength _strength;
+        private readonly IImmutableSet<Type> _providerTypes;
+        private readonly IImmutableSet<SoftString> _providerNames;
 
-        private SettingProviderAttribute(ISet<Type> providerTypes, ISet<SoftString> providerNames)
+        private SettingProviderAttribute
+        (
+            SettingNameStrength strength,
+            IEnumerable<Type> providerTypes,
+            IEnumerable<SoftString> providerNames
+        )
         {
-            _providerTypes = providerTypes;
-            _providerNames = providerNames;
-            _settingNameStrength = SettingNameStrength.Medium;
+            _providerTypes = providerTypes.ToImmutableHashSet();
+            _providerNames = providerNames.ToImmutableHashSet();
+            _strength = strength;
         }
 
-        public SettingProviderAttribute(params Type[] providerTypes)
-            : this(new HashSet<Type>(providerTypes), new HashSet<SoftString>())
-        {
-        }
+        public SettingProviderAttribute(SettingNameStrength strength, params Type[] providerTypes)
+            : this(strength, providerTypes, Enumerable.Empty<SoftString>())
+        { }
 
-        public SettingProviderAttribute(params string[] providerNames)
-            : this(new HashSet<Type>(), new HashSet<SoftString>(providerNames.Select(SoftString.Create)))
-        {
-        }
+        public SettingProviderAttribute(SettingNameStrength strength, params string[] providerNames)
+            : this(strength, Enumerable.Empty<Type>(), providerNames.Select(SoftString.Create))
+        { }
 
-        public static readonly SettingProviderAttribute Default = new SettingProviderAttribute(new HashSet<Type>(), new HashSet<SoftString>())
-        {
-            SettingNameStrength = SettingNameStrength.Medium,
-        };
+        public SettingProviderAttribute(SettingNameStrength strength)
+            : this(strength, Enumerable.Empty<Type>(), Enumerable.Empty<SoftString>())
+        { }
+
+        public static readonly SettingProviderAttribute Default = new SettingProviderAttribute
+        (
+            SettingNameStrength.Medium,
+            Enumerable.Empty<Type>(),
+            Enumerable.Empty<SoftString>()
+        );
 
         [CanBeNull]
         public Type AssemblyType { get; set; }
@@ -52,13 +64,24 @@ namespace Reusable.SmartConfig.Annotations
         }
 
         // todo - disallow .Inherit
-        public SettingNameStrength SettingNameStrength
+        public SettingNameStrength Strength
         {
-            get => _settingNameStrength;
-            set => _settingNameStrength = value;
+            get => _strength;
+            //set => _settingNameStrength = value;
         }
 
-        public bool Contains<T>(T provider) where T : ISettingProvider => _providerTypes.Contains(provider.GetType()) || _providerNames.Contains(provider.Name);
+        public bool Matches<T>(T provider) where T : IResourceProvider
+        {
+            var matchesAny = provider == null || (_providerNames.Empty() && _providerTypes.Empty());
+
+            return
+                matchesAny ||
+                _providerTypes.Contains(provider.GetType()) ||
+                (
+                    provider.Metadata.TryGetValue(ResourceProviderMetadataKeyNames.ProviderName, out var name) &&
+                    _providerNames.Contains(name)
+                );
+        }
     }
 
     [UsedImplicitly]
@@ -129,16 +152,16 @@ namespace Reusable.SmartConfig.Annotations
         Enable = 1,
     }
 
-    public enum ProviderSearch
-    {
-        /// <summary>
-        /// Uses the specified provider, otherwise picks the first setting.
-        /// </summary>
-        Auto,
+    //public enum ProviderSearch
+    //{
+    //    /// <summary>
+    //    /// Uses the specified provider, otherwise picks the first setting.
+    //    /// </summary>
+    //    Auto,
 
-        /// <summary>
-        /// Ignores any provider name and picks the first setting.
-        /// </summary>
-        FirstMatch,
-    }
+    //    /// <summary>
+    //    /// Ignores any provider name and picks the first setting.
+    //    /// </summary>
+    //    FirstMatch,
+    //}
 }

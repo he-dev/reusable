@@ -21,7 +21,7 @@ namespace Reusable.SmartConfig
         protected readonly IImmutableSet<Type> SupportedTypes;
 
         protected ConvertedResourceProvider(IResourceProvider resourceProvider, params Type[] supportedTypes) 
-            : base(ResourceProviderMetadata.Empty)
+            : base(resourceProvider.Metadata)
         {
             ResourceProvider = resourceProvider;
             SupportedTypes = supportedTypes?.ToImmutableHashSet() ?? throw new ArgumentNullException(nameof(supportedTypes));

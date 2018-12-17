@@ -7,16 +7,16 @@ using JetBrains.Annotations;
 
 namespace Reusable.Flawless
 {
-    public class ExpressValidatorBuilder<T>
+    public class ExpressValidationBuilder<T>
     {
         private readonly IList<ExpressValidationRuleBuilder<T>> _ruleBuilders = new List<ExpressValidationRuleBuilder<T>>();
         
         [NotNull]
         public ExpressValidationRuleBuilder<T> Rule([NotNull] Expression<Func<T, bool>> expression)
         {
-            var policyBuilder = new ExpressValidationRuleBuilder<T>(expression);
-            _ruleBuilders.Add(policyBuilder);
-            return policyBuilder;
+            var ruleBuilder = new ExpressValidationRuleBuilder<T>(expression);
+            _ruleBuilders.Add(ruleBuilder);
+            return ruleBuilder;
         }
 
         [NotNull, ItemNotNull]

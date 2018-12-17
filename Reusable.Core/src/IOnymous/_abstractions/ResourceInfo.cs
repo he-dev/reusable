@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Diagnostics;
 
 namespace Reusable.IOnymous
 {
@@ -27,11 +29,23 @@ namespace Reusable.IOnymous
     }
 
     [PublicAPI]
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract class ResourceInfo : IResourceInfo
     {
         protected const int OutOfRange = -1;
 
-        protected ResourceInfo([NotNull] SimpleUri uri) => Uri = uri ?? throw new ArgumentNullException(nameof(uri));
+        protected ResourceInfo([NotNull] SimpleUri uri)
+        {
+            if (uri == null) throw new ArgumentNullException(nameof(uri));
+
+            Uri = uri.IsRelative ? new SimpleUri($"{ResourceProvider.Scheme}:{uri}") : uri;
+        }
+
+        private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
+        {
+            builder.Property(x => x.Uri);
+            builder.Property(x => x.Exists);
+        });
 
         #region IValueInfo
 
@@ -67,6 +81,14 @@ namespace Reusable.IOnymous
     public static class ResourceInfoExtensions
     {
         public static async Task<T> DeserializeAsync<T>(this IResourceInfo resourceInfo) => (T)(await resourceInfo.DeserializeAsync(typeof(T)));
+
+        public static bool IsIOnymous(this IResourceInfo resourceInfo) => SoftString.Comparer.Equals((string)resourceInfo.Uri.Scheme, ResourceProvider.Scheme);
+    }
+
+    public static class SimpleUriExtensions
+    {
+
+        public static bool IsIOnymous(this SimpleUri uri) => SoftString.Comparer.Equals((string)uri.Scheme, ResourceProvider.Scheme);
     }
 
     public class ResourceInfoEqualityComparer : IEqualityComparer<IResourceInfo>, IEqualityComparer<Uri>, IEqualityComparer<string>

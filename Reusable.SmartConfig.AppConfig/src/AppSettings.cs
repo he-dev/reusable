@@ -13,9 +13,9 @@ using Reusable.SmartConfig.Data;
 
 namespace Reusable.SmartConfig
 {
-    using static ValueProviderMetadataKeyNames;
+    using static ResourceProviderMetadataKeyNames;
 
-    public class AppSettingProvider : SettingProvider2
+    public class AppSettingProvider : ResourceProvider
     {
         public AppSettingProvider()
             : base(
@@ -27,8 +27,6 @@ namespace Reusable.SmartConfig
 
         public override Task<IResourceInfo> GetAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
         {
-            Assert(uri);
-
             var settingName = new SettingName(uri);
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             var actualKey = FindActualKey(exeConfig, settingName) ?? settingName;
@@ -36,35 +34,30 @@ namespace Reusable.SmartConfig
             return Task.FromResult<IResourceInfo>(new AppSettingResourceInfo(uri, element?.Value));
         }
 
-        public override async Task<IResourceInfo> PutAsync(SimpleUri uri, Stream value, ResourceProviderMetadata metadata = null)
+        public override async Task<IResourceInfo> PutAsync(SimpleUri uri, Stream stream, ResourceProviderMetadata metadata = null)
         {
-            using (var valueReader = new StreamReader(value))
+            using (var valueReader = new StreamReader(stream))
             {
-                return await PutAsync(uri, await valueReader.ReadToEndAsync());
+                var value = await valueReader.ReadToEndAsync();
+
+                var settingName = new SettingName(uri);
+                var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                var actualKey = FindActualKey(exeConfig, settingName) ?? settingName;
+                var element = exeConfig.AppSettings.Settings[actualKey];
+
+                if (element is null)
+                {
+                    exeConfig.AppSettings.Settings.Add(settingName, (string)value);
+                }
+                else
+                {
+                    exeConfig.AppSettings.Settings[actualKey].Value = (string)value;
+                }
+
+                exeConfig.Save(ConfigurationSaveMode.Minimal);
+
+                return await GetAsync(uri);
             }
-        }
-
-        public override Task<IResourceInfo> PutAsync(SimpleUri uri, object value, ResourceProviderMetadata metadata = null)
-        {
-            Assert(uri);
-
-            var settingName = new SettingName(uri);
-            var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            var actualKey = FindActualKey(exeConfig, settingName) ?? settingName;
-            var element = exeConfig.AppSettings.Settings[actualKey];
-
-            if (element is null)
-            {
-                exeConfig.AppSettings.Settings.Add(settingName, (string)value);
-            }
-            else
-            {
-                exeConfig.AppSettings.Settings[actualKey].Value = (string)value;
-            }
-
-            exeConfig.Save(ConfigurationSaveMode.Minimal);
-
-            return GetAsync(actualKey);
         }
 
         public override Task<IResourceInfo> DeleteAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)

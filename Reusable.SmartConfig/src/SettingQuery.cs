@@ -65,7 +65,7 @@ namespace Reusable.SmartConfig
             return new SelectQuery(settingName, settingMetadata.MemberType)
             {
                 ProviderName = settingMetadata.ProviderName,
-                Strength = settingMetadata.SettingNameStrength,
+                Strength = settingMetadata.Strength,
                 PrefixHandling = settingMetadata.PrefixHandling,
                 ProviderType = settingMetadata.ProviderType
             };
@@ -85,7 +85,7 @@ namespace Reusable.SmartConfig
             return new UpdateQuery(settingName, value)
             {
                 ProviderName = settingMetadata.ProviderName,
-                Strength = settingMetadata.SettingNameStrength,
+                Strength = settingMetadata.Strength,
                 PrefixHandling = settingMetadata.PrefixHandling,
                 ProviderType = settingMetadata.ProviderType
             };

@@ -1,14 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Linq.Custom;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Reusable.Exceptionizer;
 using Reusable.Extensions;
 using Reusable.Flawless;
+using Reusable.IOnymous;
 using Reusable.Reflection;
 using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Data;
@@ -18,9 +21,17 @@ namespace Reusable.SmartConfig.Reflection
     [PublicAPI]
     public class SettingMetadata
     {
+        public static readonly IImmutableList<SettingProviderAttribute> AssemblyAttributes =
+            AppDomain
+                .CurrentDomain
+                .GetAssemblies()
+                .SelectMany(x => x.GetCustomAttributes<SettingProviderAttribute>())
+                .Append(SettingProviderAttribute.Default) // In case there are not assembly-level attributes.
+                .ToImmutableList();
+
         private static readonly IExpressValidator<LambdaExpression> SettingExpressionValidator = ExpressValidator.For<LambdaExpression>(builder =>
         {
-            builder.ObjectNotNull();
+            builder.NotNull();
             builder.True(e => e.Body is MemberExpression);
         });
 
@@ -31,9 +42,6 @@ namespace Reusable.SmartConfig.Reflection
             Member = member;
             MemberType = GetMemberType(member);
 
-            //var asdf1 = member.GetCustomAttributes<SettingMemberAttribute>(inherit: true);
-            //var asdf2 = member.GetCustomAttributes<SettingMemberAttribute>(inherit: false);
-
             var attributes = new SettingAttribute[]
             {
                 member.GetCustomAttributes<SettingMemberAttribute>(inherit: true).FirstOrDefault(),
@@ -42,7 +50,14 @@ namespace Reusable.SmartConfig.Reflection
             .Where(Conditional.IsNotNull)
             .ToList();
 
-            SettingNameStrength = attributes.FirstOrDefault(x => x.Strength != SettingNameStrength.Inherit)?.Strength ?? SettingNameStrength.Inherit;
+            var anyProviderAttribute = AssemblyAttributes.First(x => x.Matches(default(IResourceProvider)));
+
+            var strenghts =
+                attributes
+                    .Select(x => x.Strength)
+                    .Append(anyProviderAttribute.Strength);
+
+            Strength = strenghts.First(x => x != SettingNameStrength.Inherit);
             Prefix = attributes.Select(x => x.Prefix).FirstOrDefault(Conditional.IsNotNullOrEmpty);
             PrefixHandling = attributes.FirstOrDefault(x => x.PrefixHandling != PrefixHandling.Inherit)?.PrefixHandling ?? PrefixHandling.Inherit;
 
@@ -92,7 +107,7 @@ namespace Reusable.SmartConfig.Reflection
         [CanBeNull]
         public Type ProviderType { get; }
 
-        public SettingNameStrength SettingNameStrength { get; }
+        public SettingNameStrength Strength { get; }
 
         public PrefixHandling PrefixHandling { get; }
 
@@ -115,6 +130,22 @@ namespace Reusable.SmartConfig.Reflection
                 member: MemberName,
                 instance: instanceName
             );
+        }
+
+        public SimpleUri ToUri(string instanceName = null)
+        {
+            var query = (ImplicitString)new (ImplicitString Key, ImplicitString Value)[]
+            {
+                ("prefix", PrefixHandling == PrefixHandling.Enable ? (ImplicitString)Prefix : (ImplicitString)string.Empty),
+                ("prefixHandling", PrefixHandling.ToString()),
+                ("instance", instanceName),
+                ("strength", Strength.ToString())
+            }
+            .Where(x => x.Value)
+            .Select(x => $"{x.Key}={x.Value}")
+            .Join("&");
+
+            return $"setting:{Namespace.Replace('.', '-')}.{TypeName}.{MemberName}{(query ? $"?{query}" : string.Empty)}";
         }
 
         [NotNull]

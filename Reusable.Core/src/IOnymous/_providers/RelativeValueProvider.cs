@@ -28,11 +28,6 @@ namespace Reusable.IOnymous
             return _resourceProvider.PutAsync(CreateAbsoluteUri(uri), value, metadata);
         }
 
-        public override Task<IResourceInfo> PutAsync(SimpleUri uri, object value, ResourceProviderMetadata metadata = null)
-        {
-            return _resourceProvider.PutAsync(CreateAbsoluteUri(uri), value, metadata);
-        }
-
         public override Task<IResourceInfo> DeleteAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
         {
             return _resourceProvider.DeleteAsync(uri, metadata);

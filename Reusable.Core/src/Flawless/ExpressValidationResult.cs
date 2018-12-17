@@ -24,21 +24,21 @@ namespace Reusable.Flawless
             [false] = "Failed"
         };
 
-        public ExpressValidationResult([NotNull] string expression, bool isFollowed, [NotNull] string message)
+        public ExpressValidationResult([NotNull] string expression, bool success, [NotNull] string message)
         {
             Expression = expression;
-            IsFollowed = isFollowed;
+            Success = success;
             Message = message;
         }
 
         public string Expression { get; }
 
-        public bool IsFollowed { get; }
+        public bool Success { get; }
 
         public string Message { get; }        
 
-        public override string ToString() => $"{Expression} | {ResultStrings[IsFollowed]} ({Message ?? "N/A"})";
+        public override string ToString() => $"{Expression} | {ResultStrings[Success]} ({Message ?? "N/A"})";
 
-        public static implicit operator bool(ExpressValidationResult<T> policyCheck) => policyCheck.IsFollowed;
+        public static implicit operator bool(ExpressValidationResult<T> result) => result.Success;
     }    
 }

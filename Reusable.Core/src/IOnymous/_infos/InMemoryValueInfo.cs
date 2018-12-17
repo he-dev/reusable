@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
@@ -46,12 +47,20 @@ namespace Reusable.IOnymous
             }
         }
 
-        public override async Task<object> DeserializeAsync(Type targetType)
+        public override Task<object> DeserializeAsync(Type targetType)
         {
-            using (var memoryStream = new MemoryStream(_data))
-            using (var streamReader = new StreamReader(memoryStream))
+            if (!Exists)
             {
-                return await streamReader.ReadToEndAsync();
+                throw new InvalidOperationException($"Cannot deserialize '{Uri}' because it doesn't exist.");
+            }
+
+            var binaryFormatter = new BinaryFormatter();
+            
+            using (var memoryStream = new MemoryStream(_data))
+            //using (var streamReader = new StreamReader(memoryStream))
+            {
+                return Task.FromResult(binaryFormatter.Deserialize(memoryStream));
+                //return await streamReader.ReadToEndAsync();
             }
         }
     }

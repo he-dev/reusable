@@ -16,9 +16,9 @@ using Reusable.Utilities.SqlClient;
 namespace Reusable.SmartConfig
 {
     using Internal;
-    using static ValueProviderMetadataKeyNames;
+    using static ResourceProviderMetadataKeyNames;
 
-    public class SqlServerProvider : SettingProvider2
+    public class SqlServerProvider : ResourceProvider
     {
         public const string DefaultSchema = "dbo";
 
@@ -72,8 +72,6 @@ namespace Reusable.SmartConfig
 
         public override async Task<IResourceInfo> GetAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
         {
-            Assert(uri);
-
             var settingName = new SettingName(uri);
 
             return await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
@@ -89,31 +87,23 @@ namespace Reusable.SmartConfig
             }, CancellationToken.None);
         }
 
-        public override async Task<IResourceInfo> PutAsync(SimpleUri uri, Stream value, ResourceProviderMetadata metadata = null)
+        public override async Task<IResourceInfo> PutAsync(SimpleUri uri, Stream stream, ResourceProviderMetadata metadata = null)
         {
-            Assert(uri);
-
-            using (var valueReader = new StreamReader(value))
+            using (var valueReader = new StreamReader(stream))
             {
-                return await PutAsync(uri, await valueReader.ReadToEndAsync());
-            }
-        }
+                var value = await valueReader.ReadToEndAsync();
+                var settingName = new SettingName(uri);
 
-        public override async Task<IResourceInfo> PutAsync(SimpleUri uri, object value, ResourceProviderMetadata metadata = null)
-        {
-            Assert(uri);
-
-            var settingName = new SettingName(uri);
-
-            await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
-            {
-                using (var cmd = connection.CreateUpdateCommand(TableName, Where, ColumnMapping, settingName, value))
+                await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
                 {
-                    await cmd.ExecuteNonQueryAsync(token);
-                }
-            }, CancellationToken.None);
+                    using (var cmd = connection.CreateUpdateCommand(TableName, Where, ColumnMapping, settingName, value))
+                    {
+                        await cmd.ExecuteNonQueryAsync(token);
+                    }
+                }, CancellationToken.None);
 
-            return await GetAsync(uri);
+                return await GetAsync(uri);
+            }
         }
 
         public override Task<IResourceInfo> DeleteAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)

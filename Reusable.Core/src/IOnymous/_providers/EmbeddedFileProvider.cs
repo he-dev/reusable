@@ -15,7 +15,7 @@ namespace Reusable.IOnymous
         public EmbeddedFileProvider([NotNull] Assembly assembly, ResourceProviderMetadata metadata = null)
             : base(
                 (metadata ?? ResourceProviderMetadata.Empty)
-                    .Add(ValueProviderMetadataKeyNames.CanGet, true)
+                    .Add(ResourceProviderMetadataKeyNames.CanGet, true)
             )
         {
             _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
@@ -43,11 +43,6 @@ namespace Reusable.IOnymous
         }
 
         public override Task<IResourceInfo> PutAsync(SimpleUri uri, Stream data, ResourceProviderMetadata metadata = null)
-        {
-            throw new NotSupportedException($"{nameof(EmbeddedFileProvider)} does not support value serialization.");
-        }
-
-        public override Task<IResourceInfo> PutAsync(SimpleUri uri, object value, ResourceProviderMetadata metadata = null)
         {
             throw new NotSupportedException($"{nameof(EmbeddedFileProvider)} does not support value serialization.");
         }

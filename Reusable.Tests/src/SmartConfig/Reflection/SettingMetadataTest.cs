@@ -97,7 +97,7 @@ namespace Reusable.Tests.SmartConfig.Reflection
                 IsTrue(actual.Validations.Empty());
                 IsNull(actual.DefaultValue);
                 IsNull(actual.ProviderName);
-                AreEqual(SettingNameStrength.Inherit, actual.SettingNameStrength);
+                AreEqual(SettingNameStrength.Inherit, actual.Strength);
                 AreEqual(PrefixHandling.Inherit, actual.PrefixHandling);
             }
         }
@@ -182,7 +182,7 @@ namespace Reusable.Tests.SmartConfig.Reflection
                 IsTrue(actual.Validations.Empty());
                 IsNull(actual.DefaultValue);
                 IsNull(actual.ProviderName);
-                AreEqual(SettingNameStrength.Inherit, actual.SettingNameStrength);
+                AreEqual(SettingNameStrength.Inherit, actual.Strength);
                 AreEqual(PrefixHandling.Inherit, actual.PrefixHandling);
             }
         }
@@ -227,7 +227,7 @@ namespace Reusable.Tests.SmartConfig.Reflection
                 AreEqual("Prefix2", actual.Prefix);
                 AreEqual("BaseClass2", actual.TypeName);
                 AreEqual("Provider2", actual.ProviderName);
-                AreEqual(SettingNameStrength.High, actual.SettingNameStrength);
+                AreEqual(SettingNameStrength.High, actual.Strength);
                 AreEqual(PrefixHandling.Enable, actual.PrefixHandling);
             }
 
@@ -255,7 +255,7 @@ namespace Reusable.Tests.SmartConfig.Reflection
                 AreEqual("Prefix1", actual.Prefix);
                 AreEqual("BaseClass2", actual.TypeName);
                 AreEqual("Provider1", actual.ProviderName);
-                AreEqual(SettingNameStrength.Low, actual.SettingNameStrength);
+                AreEqual(SettingNameStrength.Low, actual.Strength);
                 AreEqual(PrefixHandling.Enable, actual.PrefixHandling);
             }
         }
@@ -283,7 +283,7 @@ namespace Reusable.Tests.SmartConfig.Reflection
                 AreEqual("Prefix1", actual.Prefix);
                 AreEqual("CustomizedType2", actual.TypeName);
                 AreEqual("Provider1", actual.ProviderName);
-                AreEqual(SettingNameStrength.Low, actual.SettingNameStrength);
+                AreEqual(SettingNameStrength.Low, actual.Strength);
                 AreEqual(PrefixHandling.Enable, actual.PrefixHandling);
             }
         }

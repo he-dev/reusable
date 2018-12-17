@@ -109,7 +109,7 @@ namespace Reusable.SmartConfig.Data
 
         public override string ToString()
         {
-            return 
+            return
                 new StringBuilder()
                     .Append(this[Token.Prefix].IsEmpty ? default : $"{Prefix}{Separator.Prefix}")
                     .Append(this[Token.Namespace].IsEmpty ? default : $"{Namespace}{Separator.Namespace}")
@@ -133,7 +133,17 @@ namespace Reusable.SmartConfig.Data
                 settingName.Type,
                 settingName.Member,
             };
-            return $"setting:{path.Where(Conditional.IsNotNullOrEmpty).Join(".")}?prefix={settingName.Prefix}&instance={settingName.Instance}";
+
+            var query = (ImplicitString)new (ImplicitString Key, ImplicitString Value)[]
+            {
+                ("prefix", settingName.Prefix),
+                ("instance", settingName.Instance)
+            }
+            .Where(x => x.Value)
+            .Select(x => $"{x.Key}={x.Value}")
+            .Join("&");
+
+            return $"setting:{path.Where(Conditional.IsNotNullOrEmpty).Join(".")}{(query ? $"?{query}" : string.Empty)}";
         }
 
         public static bool operator ==(SettingName x, SettingName y) => AutoEquality<SettingName>.Comparer.Equals(x, y);

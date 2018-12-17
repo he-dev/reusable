@@ -7,7 +7,7 @@ namespace Reusable.SmartConfig
     {
         private static readonly IExpressValidator<string> ColumnValidator = ExpressValidator.For<string>(builder =>
         {
-            builder.ObjectNotNull();
+            builder.NotNull();
             builder.False(c => string.IsNullOrEmpty(c));
         });
 

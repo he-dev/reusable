@@ -14,7 +14,7 @@ using Reusable.SmartConfig.Reflection;
 
 namespace Reusable.SmartConfig
 {
-    public static class ValueProviderExtensions
+    public static class ResourceProviderExtensions
     {
         #region GetValue overloads
 
@@ -28,39 +28,51 @@ namespace Reusable.SmartConfig
         }
 
         [ItemNotNull]
+        public static T GetSetting<T>([NotNull] this IResourceProvider resourceProvider, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instanceName = null)
+        {
+            if (resourceProvider == null) throw new ArgumentNullException(nameof(resourceProvider));
+            if (expression == null) throw new ArgumentNullException(nameof(expression));
+
+            return (T)resourceProvider.GetSettingAsync((LambdaExpression)expression, instanceName).GetAwaiter().GetResult();
+        }
+
+        [ItemNotNull]
         private static async Task<object> GetSettingAsync([NotNull] this IResourceProvider resourceProvider, [NotNull] LambdaExpression expression, [CanBeNull] string instanceName = null)
         {
             if (resourceProvider == null) throw new ArgumentNullException(nameof(resourceProvider));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
             var settingMetadata = SettingMetadata.FromExpression(expression, false);
-            var settingName =
-                settingMetadata
-                    .CreateSettingName(instanceName)
-                    .ModifySettingName
-                    (
-                        settingMetadata.SettingNameStrength,
-                        settingMetadata.Prefix,
-                        settingMetadata.PrefixHandling
-                    );
+            //var settingName =
+            //    settingMetadata
+            //        .ToUri()
+            //        .CreateSettingName(instanceName)
+            //        .ModifySettingName
+            //        (
+            //            settingMetadata.Strength,
+            //            settingMetadata.Prefix,
+            //            settingMetadata.PrefixHandling
+            //        );
 
             var settingInfo =
                 await
                     resourceProvider
                         .GetAsync
                         (
-                            settingName,
-                            ResourceProviderMetadata.Empty
-                                .Add(ValueProviderMetadataKeyNames.ProviderName, settingMetadata.ProviderName)
+                            settingMetadata.ToUri(instanceName),
+                            ResourceProviderMetadata
+                                .Empty
+                                .Add(ResourceProviderMetadataKeyNames.ProviderName, settingMetadata.ProviderName)
+                        //.Add(ResourceProviderMetadataKeyNames.ProviderType, settingMetadata.ProviderType)
                         );
 
             if (settingInfo.Exists)
             {
                 var value = (await settingInfo.DeserializeAsync(settingMetadata.MemberType)) ?? settingMetadata.DefaultValue;
-                return
-                    settingMetadata
-                        .Validations
-                        .Validate(settingName, value);
+                return value;
+                //settingMetadata
+                //    .Validations
+                //    .Validate(settingName, value);
             }
 
             return default;
@@ -78,40 +90,43 @@ namespace Reusable.SmartConfig
 
             var settingMetadata = SettingMetadata.FromExpression(expression, false);
 
-            var settingName =
-                settingMetadata
-                    .CreateSettingName(instanceName)
-                    .ModifySettingName
-                    (
-                        settingMetadata.SettingNameStrength,
-                        settingMetadata.Prefix,
-                        settingMetadata.PrefixHandling
-                    );
+            //var settingName =
+            //    settingMetadata
+            //        .CreateSettingName(instanceName)
+            //        .ModifySettingName
+            //        (
+            //            settingMetadata.Strength,
+            //            settingMetadata.Prefix,
+            //            settingMetadata.PrefixHandling
+            //        );
 
             var settingInfo =
                 await
                     resourceProvider
                         .GetAsync
                         (
-                            settingName,
-                            ResourceProviderMetadata.Empty
-                                .Add(ValueProviderMetadataKeyNames.ProviderName, settingMetadata.ProviderName)
+                            settingMetadata.ToUri(instanceName),
+                            ResourceProviderMetadata
+                                .Empty
+                                .Add(ResourceProviderMetadataKeyNames.ProviderName, settingMetadata.ProviderName)
                         );
 
             if (settingInfo.Exists)
             {
-                settingMetadata
-                    .Validations
-                    .Validate
-                    (
-                        settingName,
-                        newValue
-                    );
+                //settingMetadata
+                //    .Validations
+                //    .Validate(settingName, newValue);
 
-                await resourceProvider.PutAsync((string)settingName, newValue);
+                await resourceProvider.PutAsync(settingMetadata.ToUri(instanceName), newValue);
             }
 
             return resourceProvider;
+        }
+
+        [ItemNotNull]
+        public static IResourceProvider SetSetting<T>([NotNull] this IResourceProvider resourceProvider, [NotNull] Expression<Func<T>> expression, [CanBeNull] T newValue, [CanBeNull] string instanceName = null)
+        {
+            return resourceProvider.SetSettingAsync(expression, newValue, instanceName).GetAwaiter().GetResult();
         }
 
         #endregion
@@ -128,21 +143,21 @@ namespace Reusable.SmartConfig
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
             var settingMetadata = SettingMetadata.FromExpression(expression, false);
-            var settingName =
-                settingMetadata
-                    .CreateSettingName(instanceName)
-                    .ModifySettingName
-                    (
-                        settingMetadata.SettingNameStrength,
-                        settingMetadata.Prefix,
-                        settingMetadata.PrefixHandling
-                    );
+            //var settingName =
+            //    settingMetadata
+            //        .CreateSettingName(instanceName)
+            //        .ModifySettingName
+            //        (
+            //            settingMetadata.Strength,
+            //            settingMetadata.Prefix,
+            //            settingMetadata.PrefixHandling
+            //        );
 
             var value = await resourceProvider.GetSettingAsync(expression, instanceName);
 
-            settingMetadata
-                .Validations
-                .Validate(settingName, value);
+            //settingMetadata
+            //    .Validations
+            //    .Validate(settingName, value);
 
             settingMetadata.SetValue(value);
 
@@ -175,18 +190,18 @@ namespace Reusable.SmartConfig
 
                 var value = await resourceProvider.GetSettingAsync(expression, instanceName);
                 var settingMetadata = SettingMetadata.FromExpression(expression, false);
-                var settingName =
-                    settingMetadata
-                        .CreateSettingName(instanceName)
-                        .ModifySettingName
-                        (
-                            settingMetadata.SettingNameStrength,
-                            settingMetadata.Prefix,
-                            settingMetadata.PrefixHandling
-                        );
-                settingMetadata
-                    .Validations
-                    .Validate(settingName, value);
+                //var settingName =
+                //    settingMetadata
+                //        .CreateSettingName(instanceName)
+                //        .ModifySettingName
+                //        (
+                //            settingMetadata.Strength,
+                //            settingMetadata.Prefix,
+                //            settingMetadata.PrefixHandling
+                //        );
+                //settingMetadata
+                //    .Validations
+                //    .Validate(settingName, value);
                 settingMetadata.SetValue(value);
 
             }

@@ -15,16 +15,22 @@ namespace Reusable.IOnymous
         public InMemoryResourceProvider(ResourceProviderMetadata metadata)
             : base(
                 (metadata ?? ResourceProviderMetadata.Empty)
-                    .Add(ValueProviderMetadataKeyNames.CanGet, true)
-                    .Add(ValueProviderMetadataKeyNames.CanPut, true)
-                    .Add(ValueProviderMetadataKeyNames.CanDelete, true)
+                    .Add(ResourceProviderMetadataKeyNames.CanGet, true)
+                    .Add(ResourceProviderMetadataKeyNames.CanPut, true)
+                    .Add(ResourceProviderMetadataKeyNames.CanDelete, true)
             )
         { }
 
         public override Task<IResourceInfo> GetAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
         {
-            var file = _items.SingleOrDefault(f => ResourceInfoEqualityComparer.Default.Equals(f.Uri, uri));
-            return Task.FromResult<IResourceInfo>(file ?? new InMemoryResourceInfo(uri, default(byte[])));
+            if (uri.IsRelative)
+            {
+                uri = uri.IsRelative ? (SimpleUri) $"{Scheme}:{uri}" : uri;
+            }
+
+            var match = _items.FirstOrDefault(item => item.Uri.Equals(uri));
+            
+            return Task.FromResult(match ?? new InMemoryResourceInfo(uri, default(byte[])));
         }
 
         public override Task<IResourceInfo> PutAsync(SimpleUri uri, Stream value, ResourceProviderMetadata metadata = null)
@@ -44,16 +50,6 @@ namespace Reusable.IOnymous
             }
         }
 
-        public override async Task<IResourceInfo> PutAsync(SimpleUri uri, object value, ResourceProviderMetadata metadata = null)
-        {
-            var binaryFormatter = new BinaryFormatter();
-            using (var memoryStream = new MemoryStream())
-            {
-                binaryFormatter.Serialize(memoryStream, value);
-                return await PutAsync(uri, memoryStream, metadata);
-            }
-        }
-
         public override async Task<IResourceInfo> DeleteAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
         {
             var valueToDelete = await GetAsync(uri, metadata);
@@ -62,6 +58,17 @@ namespace Reusable.IOnymous
         }
 
         public void Add(IResourceInfo item) => _items.Add(item);
+
+        public void Add(string uri, object value)
+        {
+            var binaryFormatter = new BinaryFormatter();
+            using (var memoryStream = new MemoryStream())
+            {
+                binaryFormatter.Serialize(memoryStream, value);
+                //memoryStream.Seek(0, SeekOrigin.Begin);
+                _items.Add(new InMemoryResourceInfo(uri, memoryStream.ToArray()));
+            }
+        }
 
         public IEnumerator<IResourceInfo> GetEnumerator() => _items.GetEnumerator();
 

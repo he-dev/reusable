@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Custom;
+using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Collections;
@@ -14,24 +15,79 @@ using Reusable.IOnymous;
 using Reusable.Reflection;
 using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Data;
+using Reusable.SmartConfig.Reflection;
 
 namespace Reusable.SmartConfig
 {
     [PublicAPI]
-    public abstract class SettingProvider2 : ResourceProvider
+    public class SettingProvider2 : ResourceProvider
     {
+        private readonly IResourceProvider _resourceProvider;
+
         protected static readonly IExpressValidator<SimpleUri> UriValidator = ExpressValidator.For<SimpleUri>(assert =>
         {
-            assert.ObjectNotNull();
+            assert.NotNull();
             assert.True(x => x.IsAbsolute);
             assert.True(x => x.Scheme == "setting");
         });
 
-        protected SettingProvider2(ResourceProviderMetadata metadata) : base(metadata)
+        public SettingProvider2(IResourceProvider resourceProvider)
+            : base(resourceProvider.Metadata)
         {
+            _resourceProvider = resourceProvider;
         }
 
-        protected SimpleUri Assert(SimpleUri uri) => UriValidator.Validate(uri).Assert();
+        public static Func<IResourceProvider, IResourceProvider> Factory() => decorable => new SettingProvider2(decorable);
+
+        public override Task<IResourceInfo> GetAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
+        {
+            return _resourceProvider.GetAsync(Translate(uri), metadata);
+        }
+
+        public override Task<IResourceInfo> PutAsync(SimpleUri uri, Stream value, ResourceProviderMetadata metadata = null)
+        {
+            return _resourceProvider.PutAsync(Translate(uri), value, metadata);
+        }
+
+        public override Task<IResourceInfo> DeleteAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
+        {
+            return _resourceProvider.DeleteAsync(Translate(uri), metadata);
+        }
+
+        protected SimpleUri Validate(SimpleUri uri) => UriValidator.Validate(uri).Assert();
+        
+        // uri=
+        // setting:name-space.type.member?instance=name&prefix=name&strength=name&prefixhandling=name
+        protected SimpleUri Translate(SimpleUri uri)
+        {
+            Validate(uri);
+
+            var providerConvention =
+                SettingMetadata
+                    .AssemblyAttributes
+                    .Where(x => x.Matches(this))
+                    .Take(1)
+                    .Append(SettingProviderAttribute.Default)
+                    .ToList();
+
+            var memberStrength = (SettingNameStrength)Enum.Parse(typeof(SettingNameStrength), uri.Query["strength"], ignoreCase: true);
+            var strength = providerConvention.Select(x => x.Strength).Prepend(memberStrength).First(x => x > SettingNameStrength.Inherit);
+            var path = uri.Path.Value.Split('.').Skip(2 - (int)strength).Join(".");
+
+            var memberPrefixHandling = (PrefixHandling)Enum.Parse(typeof(PrefixHandling), uri.Query["prefixHandling"], ignoreCase: true);
+            var prefixHandling = new[] { memberPrefixHandling, PrefixHandling.Disable }.First(x => x > PrefixHandling.Inherit);
+
+            var query = (ImplicitString)new (ImplicitString Key, ImplicitString Value)[]
+            {
+                ("prefix", prefixHandling == PrefixHandling.Enable ? uri.Query["prefix"] : (ImplicitString)string.Empty),
+                ("instance", uri.Query.TryGetValue("instance", out var instance) ? instance :  (ImplicitString)string.Empty)
+            }
+            .Where(x => x.Value)
+            .Select(x => $"{x.Key}={x.Value}")
+            .Join("&");
+
+            return $"setting:{path}{(query ? $"?{query}" : string.Empty)}";
+        }
     }
 
     public interface ISettingProvider : IEquatable<ISettingProvider>

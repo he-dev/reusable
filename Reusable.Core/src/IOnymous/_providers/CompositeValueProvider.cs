@@ -19,22 +19,24 @@ namespace Reusable.IOnymous
 
         private readonly SemaphoreSlim _valueProviderCacheLock = new SemaphoreSlim(1, 1);
 
-        private readonly IImmutableList<IResourceProvider> _valueProviders;
+        private readonly IImmutableList<IResourceProvider> _resourceProviders;
 
         public CompositeResourceProvider
         (
-            IImmutableList<IResourceProvider> valueProviders,
-            ResourceProviderMetadata metadata
+            [NotNull] IList<IResourceProvider> resourceProviders,
+            [NotNull] ResourceProviderMetadata metadata
         )
             : base(
                 metadata
-                    .Add(ValueProviderMetadataKeyNames.CanGet, valueProviders.Any(x => x.Metadata.ContainsKey(ValueProviderMetadataKeyNames.CanGet)))
-                    .Add(ValueProviderMetadataKeyNames.CanPut, valueProviders.Any(x => x.Metadata.ContainsKey(ValueProviderMetadataKeyNames.CanPut)))
-                    .Add(ValueProviderMetadataKeyNames.CanDelete, valueProviders.Any(x => x.Metadata.ContainsKey(ValueProviderMetadataKeyNames.CanDelete)))
+                    .Add(ResourceProviderMetadataKeyNames.CanGet, resourceProviders.Any(x => x.Metadata.ContainsKey(ResourceProviderMetadataKeyNames.CanGet)))
+                    .Add(ResourceProviderMetadataKeyNames.CanPut, resourceProviders.Any(x => x.Metadata.ContainsKey(ResourceProviderMetadataKeyNames.CanPut)))
+                    .Add(ResourceProviderMetadataKeyNames.CanDelete, resourceProviders.Any(x => x.Metadata.ContainsKey(ResourceProviderMetadataKeyNames.CanDelete)))
             )
         {
+            if (resourceProviders == null) throw new ArgumentNullException(nameof(resourceProviders));
+            if (metadata == null) throw new ArgumentNullException(nameof(metadata));
             _valueProviderCache = new Dictionary<SimpleUri, IResourceProvider>();
-            _valueProviders = valueProviders;
+            _resourceProviders = resourceProviders.ToImmutableList();
         }
 
         public override async Task<IResourceInfo> GetAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
@@ -43,12 +45,12 @@ namespace Reusable.IOnymous
             try
             {
                 // In provider-name specified then try to get the value from this provider without using caching.
-                if (metadata.TryGetValue(ValueProviderMetadataKeyNames.ProviderName, out string providerNameToFind))
+                if (metadata.TryGetValue(ResourceProviderMetadataKeyNames.ProviderName, out string providerNameToFind))
                 {
                     var valueProvider =
-                        _valueProviders
+                        _resourceProviders
                             .SingleOrDefault(p =>
-                                p.Metadata.TryGetValue(ValueProviderMetadataKeyNames.ProviderName, out string providerName)
+                                p.Metadata.TryGetValue(ResourceProviderMetadataKeyNames.ProviderName, out string providerName)
                                 && providerName == providerNameToFind
                             );
 
@@ -67,7 +69,7 @@ namespace Reusable.IOnymous
                     }
                     else
                     {
-                        foreach (var valueProvider in _valueProviders)
+                        foreach (var valueProvider in _resourceProviders)
                         {
                             var value = await valueProvider.GetAsync(uri, metadata);
                             if (value.Exists)
@@ -91,7 +93,7 @@ namespace Reusable.IOnymous
         {
             var valueProvider = await GetValueProviderAsync(uri, metadata);
 
-            if (!valueProvider.Metadata.TryGetValue(ValueProviderMetadataKeyNames.CanPut, out bool _))
+            if (!valueProvider.Metadata.TryGetValue(ResourceProviderMetadataKeyNames.CanPut, out bool _))
             {
                 throw DynamicException.Create("SerializeNotSupported", $"Value-provider '{valueProvider.GetType().ToPrettyString()}' doesn't support '{nameof(PutAsync)}'.");
             }
@@ -100,21 +102,11 @@ namespace Reusable.IOnymous
 
         }
 
-        public override async Task<IResourceInfo> PutAsync(SimpleUri uri, object value, ResourceProviderMetadata metadata = null)
-        {
-            var binaryFormatter = new BinaryFormatter();
-            using (var memoryStream = new MemoryStream())
-            {
-                binaryFormatter.Serialize(memoryStream, value);
-                return await PutAsync(uri, memoryStream, metadata);
-            }
-        }
-
         public override async Task<IResourceInfo> DeleteAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
         {
             var valueProvider = await GetValueProviderAsync(uri, metadata);
 
-            if (!valueProvider.Metadata.TryGetValue(ValueProviderMetadataKeyNames.CanDelete, out bool _))
+            if (!valueProvider.Metadata.TryGetValue(ResourceProviderMetadataKeyNames.CanDelete, out bool _))
             {
                 throw DynamicException.Create("DeleteNotSupported", $"Value-provider '{valueProvider.GetType().ToPrettyString()}' doesn't support '{nameof(DeleteAsync)}'.");
             }
@@ -128,12 +120,12 @@ namespace Reusable.IOnymous
             await _valueProviderCacheLock.WaitAsync();
             try
             {
-                if (metadata.TryGetValue(ValueProviderMetadataKeyNames.ProviderName, out string providerNameToFind))
+                if (metadata.TryGetValue(ResourceProviderMetadataKeyNames.ProviderName, out string providerNameToFind))
                 {
                     return
-                        _valueProviders
+                        _resourceProviders
                             .SingleOrDefault(p =>
-                                p.Metadata.TryGetValue(ValueProviderMetadataKeyNames.ProviderName, out string providerName)
+                                p.Metadata.TryGetValue(ResourceProviderMetadataKeyNames.ProviderName, out string providerName)
                                 && providerName == providerNameToFind
                             );
                 }
@@ -156,8 +148,8 @@ namespace Reusable.IOnymous
             }
         }
 
-        public IEnumerator<IResourceProvider> GetEnumerator() => _valueProviders.GetEnumerator();
+        public IEnumerator<IResourceProvider> GetEnumerator() => _resourceProviders.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_valueProviders).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_resourceProviders).GetEnumerator();
     }
 }

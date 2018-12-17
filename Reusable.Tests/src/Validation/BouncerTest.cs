@@ -60,7 +60,7 @@ namespace Reusable.Tests.Validation
         [TestMethod]
         public void IsNotValidWhenNull_NotNull_True()
         {
-            var validator = ExpressValidator.For<Person>(model => model.ObjectNotNull());
+            var validator = ExpressValidator.For<Person>(model => model.NotNull());
             var person = new Person();
             Assert.IsTrue(validator.Validate(person).Success);
         }
@@ -68,7 +68,7 @@ namespace Reusable.Tests.Validation
         [TestMethod]
         public void IsNotValidWhenNull_Null_False()
         {
-            var validator = ExpressValidator.For<Person>(model => model.ObjectNotNull());
+            var validator = ExpressValidator.For<Person>(model => model.NotNull());
             var person = default(Person);
             Assert.IsFalse(validator.Validate(person).Success);
         }

@@ -11,7 +11,7 @@ namespace Reusable.IOnymous
     {
         private static readonly IExpressValidator<SimpleUri> UriValidator = ExpressValidator.For<SimpleUri>(builder =>
         {
-            builder.ObjectNotNull();
+            builder.NotNull();
             builder.True(x => SoftString.Comparer.Equals((string)x.Scheme, "file"));
         });
 
@@ -30,12 +30,6 @@ namespace Reusable.IOnymous
         }
 
         public override Task<IResourceInfo> PutAsync(SimpleUri uri, Stream value, ResourceProviderMetadata metadata = null)
-        {
-            UriValidator.Validate(uri).Assert();
-            return _resourceProvider.PutAsync(Environment.ExpandEnvironmentVariables(uri.Path), value, metadata);
-        }
-
-        public override Task<IResourceInfo> PutAsync(SimpleUri uri, object value, ResourceProviderMetadata metadata = null)
         {
             UriValidator.Validate(uri).Assert();
             return _resourceProvider.PutAsync(Environment.ExpandEnvironmentVariables(uri.Path), value, metadata);

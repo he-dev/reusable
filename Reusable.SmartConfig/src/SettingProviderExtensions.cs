@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
 using Reusable.Extensions;
+using Reusable.IOnymous;
 using Reusable.SmartConfig.Annotations;
 
 namespace Reusable.SmartConfig
@@ -19,11 +20,12 @@ namespace Reusable.SmartConfig
                     .SelectMany(x => x.GetCustomAttributes<SettingProviderAttribute>())
                     .ToList();
 
-            var current = attributes.Where(x => x.Contains(settingProvider)).ToList();
+            // todo - this cas ist invalid - it's there so the prject compiles
+            var current = attributes.Where(x => x.Matches((IResourceProvider)settingProvider)).ToList();
 
             var settingNameComplexity =
                 current
-                    .Select(x => x.SettingNameStrength)
+                    .Select(x => x.Strength)
                     .Prepend(query.Strength)
                     .Append(SettingNameStrength.Medium)
                     .First(x => x != SettingNameStrength.Inherit);

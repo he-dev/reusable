@@ -12,9 +12,9 @@ namespace Reusable.IOnymous
         public PhysicalDirectoryProvider(ResourceProviderMetadata metadata = null)
             : base(
                 (metadata ?? ResourceProviderMetadata.Empty)
-                    .Add(ValueProviderMetadataKeyNames.CanGet, true)
-                    .Add(ValueProviderMetadataKeyNames.CanPut, true)
-                    .Add(ValueProviderMetadataKeyNames.CanDelete, true)
+                    .Add(ResourceProviderMetadataKeyNames.CanGet, true)
+                    .Add(ResourceProviderMetadataKeyNames.CanPut, true)
+                    .Add(ResourceProviderMetadataKeyNames.CanDelete, true)
             )
         { }
 
@@ -41,16 +41,6 @@ namespace Reusable.IOnymous
                 {
                     throw CreateException(this, fullName, metadata, inner);
                 }
-            }
-        }
-
-        public override async Task<IResourceInfo> PutAsync(SimpleUri uri, object value, ResourceProviderMetadata metadata = null)
-        {
-            var binaryFormatter = new BinaryFormatter();
-            using (var memoryStream = new MemoryStream())
-            {
-                binaryFormatter.Serialize(memoryStream, value);
-                return await PutAsync(uri, memoryStream, metadata);
             }
         }
 
