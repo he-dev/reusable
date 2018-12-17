@@ -9,9 +9,12 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Collections;
+using Reusable.Extensions;
 
 namespace Reusable.IOnymous
 {
+    using static ResourceProviderMetadataKeyNames;
+
     [PublicAPI]
     public interface IResourceProvider
     {
@@ -43,6 +46,12 @@ namespace Reusable.IOnymous
 
         protected ResourceProvider(ResourceProviderMetadata metadata)
         {
+            // If this is a decorator then the decorated resource-provider already has set this.
+            if (!metadata.ContainsKey(ProviderDefaultName))
+            {
+                metadata = metadata.Add(ProviderDefaultName, GetType().ToPrettyString());
+            }
+
             Metadata = metadata;
         }
 
@@ -125,18 +134,33 @@ namespace Reusable.IOnymous
                 return false;
             }
         }
+
+        public static string ProviderDefaultName(this ResourceProviderMetadata metadata)
+        {
+            return
+                metadata
+                    .TryGetValue(nameof(ProviderDefaultName), out string name)
+                        ? name
+                        : string.Empty;
+        }
+
+        public static string ProviderCustomName(this ResourceProviderMetadata metadata)
+        {
+            return
+                metadata
+                    .TryGetValue(nameof(ProviderCustomName), out string name)
+                        ? name
+                        : string.Empty;
+        }
     }
 
     public static class ResourceProviderMetadataKeyNames
     {
-        public static string ProviderName { get; } = nameof(ProviderName);
-
+        public static string ProviderDefaultName { get; } = nameof(ProviderDefaultName);
+        public static string ProviderCustomName { get; } = nameof(ProviderCustomName);
         public static string CanGet { get; } = nameof(CanGet);
-
         public static string CanPost { get; } = nameof(CanPost);
-
         public static string CanPut { get; } = nameof(CanPut);
-
         public static string CanDelete { get; } = nameof(CanDelete);
 
         //public static string CanDeserialize { get; } = nameof(CanDeserialize);

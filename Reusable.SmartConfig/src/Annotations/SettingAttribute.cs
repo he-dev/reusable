@@ -17,38 +17,38 @@ namespace Reusable.SmartConfig.Annotations
     {
         private string _prefix;
         private SettingNameStrength _strength;
-        private readonly IImmutableSet<Type> _providerTypes;
+        //private readonly IImmutableSet<Type> _providerTypes;
         private readonly IImmutableSet<SoftString> _providerNames;
 
         private SettingProviderAttribute
         (
             SettingNameStrength strength,
             IEnumerable<Type> providerTypes,
-            IEnumerable<SoftString> providerNames
+            IEnumerable<string> providerNames
         )
         {
-            _providerTypes = providerTypes.ToImmutableHashSet();
-            _providerNames = providerNames.ToImmutableHashSet();
+            //_providerTypes = providerTypes.ToImmutableHashSet();
+            _providerNames = providerNames.Concat(providerTypes.Select(t => t.ToPrettyString())).Select(SoftString.Create).ToImmutableHashSet();
             _strength = strength;
         }
 
         public SettingProviderAttribute(SettingNameStrength strength, params Type[] providerTypes)
-            : this(strength, providerTypes, Enumerable.Empty<SoftString>())
+            : this(strength, providerTypes, Enumerable.Empty<string>())
         { }
 
         public SettingProviderAttribute(SettingNameStrength strength, params string[] providerNames)
-            : this(strength, Enumerable.Empty<Type>(), providerNames.Select(SoftString.Create))
+            : this(strength, Enumerable.Empty<Type>(), providerNames)
         { }
 
         public SettingProviderAttribute(SettingNameStrength strength)
-            : this(strength, Enumerable.Empty<Type>(), Enumerable.Empty<SoftString>())
+            : this(strength, Enumerable.Empty<Type>(), Enumerable.Empty<string>())
         { }
 
         public static readonly SettingProviderAttribute Default = new SettingProviderAttribute
         (
             SettingNameStrength.Medium,
             Enumerable.Empty<Type>(),
-            Enumerable.Empty<SoftString>()
+            Enumerable.Empty<string>()
         );
 
         [CanBeNull]
@@ -63,6 +63,8 @@ namespace Reusable.SmartConfig.Annotations
             set => _prefix = value;
         }
 
+        public PrefixHandling PrefixHandling => string.IsNullOrWhiteSpace(Prefix) ? PrefixHandling.Disable : PrefixHandling.Enable;
+
         // todo - disallow .Inherit
         public SettingNameStrength Strength
         {
@@ -70,17 +72,13 @@ namespace Reusable.SmartConfig.Annotations
             //set => _settingNameStrength = value;
         }
 
+        public int ProviderNameCount => _providerNames.Count;
+
         public bool Matches<T>(T provider) where T : IResourceProvider
         {
-            var matchesAny = provider == null || (_providerNames.Empty() && _providerTypes.Empty());
+            //var matchesAny = provider == null || _providerNames.Empty();
 
-            return
-                matchesAny ||
-                _providerTypes.Contains(provider.GetType()) ||
-                (
-                    provider.Metadata.TryGetValue(ResourceProviderMetadataKeyNames.ProviderName, out var name) &&
-                    _providerNames.Contains(name)
-                );
+            return _providerNames.Contains(provider.Metadata.ProviderCustomName()) || _providerNames.Contains(provider.Metadata.ProviderDefaultName());
         }
     }
 

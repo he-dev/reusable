@@ -26,7 +26,9 @@ namespace Reusable.SmartConfig.Reflection
                 .CurrentDomain
                 .GetAssemblies()
                 .SelectMany(x => x.GetCustomAttributes<SettingProviderAttribute>())
-                .Append(SettingProviderAttribute.Default) // In case there are not assembly-level attributes.
+                // Attributes with provider names have a higher specificity and should be matched first.
+                .OrderByDescending(x => x.ProviderNameCount)
+                //.Append(SettingProviderAttribute.Default) // In case there are not assembly-level attributes.
                 .ToImmutableList();
 
         private static readonly IExpressValidator<LambdaExpression> SettingExpressionValidator = ExpressValidator.For<LambdaExpression>(builder =>
@@ -50,14 +52,18 @@ namespace Reusable.SmartConfig.Reflection
             .Where(Conditional.IsNotNull)
             .ToList();
 
-            var anyProviderAttribute = AssemblyAttributes.First(x => x.Matches(default(IResourceProvider)));
+            //var anyProviderAttribute = 
+            //    AssemblyAttributes
+            //        .First(x => x.Matches(default(IResourceProvider)));
 
             var strenghts =
                 attributes
                     .Select(x => x.Strength)
-                    .Append(anyProviderAttribute.Strength);
+                    .Append(SettingNameStrength.Inherit)
+                    .Where(x => x > SettingNameStrength.Inherit)
+                    .ToList();
 
-            Strength = strenghts.First(x => x != SettingNameStrength.Inherit);
+            Strength = strenghts.Any() ? strenghts.First() : SettingNameStrength.Inherit;
             Prefix = attributes.Select(x => x.Prefix).FirstOrDefault(Conditional.IsNotNullOrEmpty);
             PrefixHandling = attributes.FirstOrDefault(x => x.PrefixHandling != PrefixHandling.Inherit)?.PrefixHandling ?? PrefixHandling.Inherit;
 
@@ -139,7 +145,9 @@ namespace Reusable.SmartConfig.Reflection
                 ("prefix", PrefixHandling == PrefixHandling.Enable ? (ImplicitString)Prefix : (ImplicitString)string.Empty),
                 ("prefixHandling", PrefixHandling.ToString()),
                 ("instance", instanceName),
-                ("strength", Strength.ToString())
+                ("strength", Strength.ToString()),
+                ("providerCustomName", ProviderName),
+                ("providerDefaultName", ProviderType?.ToPrettyString())
             }
             .Where(x => x.Value)
             .Select(x => $"{x.Key}={x.Value}")

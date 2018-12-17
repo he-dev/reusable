@@ -44,39 +44,36 @@ namespace Reusable.IOnymous
             await _valueProviderCacheLock.WaitAsync();
             try
             {
-                // In provider-name specified then try to get the value from this provider without using caching.
-                if (metadata.TryGetValue(ResourceProviderMetadataKeyNames.ProviderName, out string providerNameToFind))
-                {
-                    var valueProvider =
-                        _resourceProviders
-                            .SingleOrDefault(p =>
-                                p.Metadata.TryGetValue(ResourceProviderMetadataKeyNames.ProviderName, out string providerName)
-                                && providerName == providerNameToFind
-                            );
+                // Use either the cached value-provider of find a new one.
 
-                    if (!(valueProvider is null))
-                    {
-                        return await valueProvider.GetAsync(uri, metadata);
-                    }
+                if (_valueProviderCache.TryGetValue(uri, out var cachedValueProvider))
+                {
+                    return await cachedValueProvider.GetAsync(uri, metadata);
                 }
                 else
                 {
-                    // Use either the cached value-provider of find a new one.
+                    var resouceProviders = _resourceProviders.AsEnumerable();
 
-                    if (_valueProviderCache.TryGetValue(uri, out var cachedValueProvider))
+                    // In provider-name specified then try to get the value from this provider without using caching.
+                    var providerCustomName = (ImplicitString)metadata.ProviderCustomName();
+                    var providerDefaultName = (ImplicitString)metadata.ProviderDefaultName();
+                    if (providerCustomName || providerDefaultName) 
                     {
-                        return await cachedValueProvider.GetAsync(uri, metadata);
+                        resouceProviders =
+                            _resourceProviders
+                                .Where(p =>
+                                    (providerCustomName && SoftString.Comparer.Equals(p.Metadata.ProviderCustomName(), (string)providerCustomName)) ||
+                                    (providerDefaultName && SoftString.Comparer.Equals(p.Metadata.ProviderDefaultName(), (string)providerDefaultName))
+                                );                      
                     }
-                    else
+
+                    foreach (var valueProvider in resouceProviders)
                     {
-                        foreach (var valueProvider in _resourceProviders)
+                        var value = await valueProvider.GetAsync(uri, metadata);
+                        if (value.Exists)
                         {
-                            var value = await valueProvider.GetAsync(uri, metadata);
-                            if (value.Exists)
-                            {
-                                _valueProviderCache[uri] = valueProvider;
-                                return value;
-                            }
+                            _valueProviderCache[uri] = valueProvider;
+                            return value;
                         }
                     }
                 }
@@ -120,12 +117,12 @@ namespace Reusable.IOnymous
             await _valueProviderCacheLock.WaitAsync();
             try
             {
-                if (metadata.TryGetValue(ResourceProviderMetadataKeyNames.ProviderName, out string providerNameToFind))
+                if (metadata.TryGetValue(ResourceProviderMetadataKeyNames.ProviderCustomName, out string providerNameToFind))
                 {
                     return
                         _resourceProviders
                             .SingleOrDefault(p =>
-                                p.Metadata.TryGetValue(ResourceProviderMetadataKeyNames.ProviderName, out string providerName)
+                                p.Metadata.TryGetValue(ResourceProviderMetadataKeyNames.ProviderCustomName, out string providerName)
                                 && providerName == providerNameToFind
                             );
                 }

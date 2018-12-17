@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Configuration;
 using System.Data;
 using System.Diagnostics;
+using System.Linq;
 using Reusable.Data;
 using Reusable.Exceptionizer;
 using Reusable.IOnymous;
@@ -12,8 +13,9 @@ using Reusable.SmartConfig.Annotations;
 using Reusable.Utilities.SqlClient;
 using Xunit;
 
-[assembly: SettingProvider(SettingNameStrength.Medium, Prefix = "TestPrefix")]
-[assembly: SettingProvider(SettingNameStrength.Low, typeof(AppSettings), Prefix = "abc")]
+//[assembly: SettingProvider(SettingNameStrength.Medium, Prefix = "TestPrefix")]
+[assembly: SettingProvider(SettingNameStrength.Low, typeof(AppSettingProvider), Prefix = "abc")]
+//[assembly: SettingProvider(SettingNameStrength.Low, nameof(AppSettingProvider), Prefix = "abc")]
 
 namespace Reusable.Tests2.SmartConfig.Integration
 {
@@ -25,7 +27,7 @@ namespace Reusable.Tests2.SmartConfig.Integration
 
         private static readonly IResourceProvider SettingProvider = new CompositeResourceProvider(new IResourceProvider[]
         {
-            new InMemoryResourceProvider(ResourceProviderMetadata.Empty.Add(ProviderName, "Test"))
+            new InMemoryResourceProvider(ResourceProviderMetadata.Empty.Add(ProviderCustomName, "Test"))
             {
                 { "Test6.Member1?prefix=TestPrefix", "Value1" },
                 { "Member2", "Value2" },
@@ -39,7 +41,7 @@ namespace Reusable.Tests2.SmartConfig.Integration
                 { "Test5.Member?prefix=Prefix", "Value5" },
                 { "Test7.Member", "InvalidValue2" },
             },
-            new InMemoryResourceProvider(ResourceProviderMetadata.Empty.Add(ProviderName, "Test7"))
+            new InMemoryResourceProvider(ResourceProviderMetadata.Empty.Add(ProviderCustomName, "Test7"))
             {
                 { "Test7.Member", "Value7" },
             },
@@ -50,7 +52,7 @@ namespace Reusable.Tests2.SmartConfig.Integration
                 ColumnMapping = ("_name", "_value"),
                 Where = ImmutableDictionary<string, object>.Empty.Add("_other", nameof(FeatureTest))
             }.DecorateWith(JsonResourceProvider.Factory()),
-        }, ResourceProviderMetadata.Empty).DecorateWith(SettingProvider2.Factory());
+        }.Select(p => p.DecorateWith(SettingProvider2.Factory())).ToArray(), ResourceProviderMetadata.Empty);
 
         public FeatureTest()
         {
@@ -234,7 +236,7 @@ namespace Reusable.Tests2.SmartConfig.Integration
     // tests app-config and sql-server
     internal class Test9 : Test0
     {
-        [SettingMember(ProviderType = typeof(AppSettings))]
+        [SettingMember(ProviderType = typeof(AppSettingProvider))]
         public string Salute => Configuration.GetSetting(() => Salute);
 
         [SettingMember(ProviderType = typeof(SqlServer))]

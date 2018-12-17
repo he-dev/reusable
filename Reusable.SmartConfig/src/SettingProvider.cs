@@ -41,21 +41,21 @@ namespace Reusable.SmartConfig
 
         public override Task<IResourceInfo> GetAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
         {
-            return _resourceProvider.GetAsync(Translate(uri), metadata);
+            return _resourceProvider.GetAsync(Translate(uri), Translate(uri, metadata));
         }
 
         public override Task<IResourceInfo> PutAsync(SimpleUri uri, Stream value, ResourceProviderMetadata metadata = null)
         {
-            return _resourceProvider.PutAsync(Translate(uri), value, metadata);
+            return _resourceProvider.PutAsync(Translate(uri), value, Translate(uri, metadata));
         }
 
         public override Task<IResourceInfo> DeleteAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
         {
-            return _resourceProvider.DeleteAsync(Translate(uri), metadata);
+            return _resourceProvider.DeleteAsync(Translate(uri), Translate(uri, metadata));
         }
 
         protected SimpleUri Validate(SimpleUri uri) => UriValidator.Validate(uri).Assert();
-        
+
         // uri=
         // setting:name-space.type.member?instance=name&prefix=name&strength=name&prefixhandling=name
         protected SimpleUri Translate(SimpleUri uri)
@@ -65,21 +65,18 @@ namespace Reusable.SmartConfig
             var providerConvention =
                 SettingMetadata
                     .AssemblyAttributes
-                    .Where(x => x.Matches(this))
-                    .Take(1)
-                    .Append(SettingProviderAttribute.Default)
-                    .ToList();
+                    .FirstOrDefault(x => x.Matches(this)) ?? SettingProviderAttribute.Default; // In case there are not assembly-level attributes.;
 
             var memberStrength = (SettingNameStrength)Enum.Parse(typeof(SettingNameStrength), uri.Query["strength"], ignoreCase: true);
-            var strength = providerConvention.Select(x => x.Strength).Prepend(memberStrength).First(x => x > SettingNameStrength.Inherit);
+            var strength = new[] { memberStrength, providerConvention.Strength }.First(x => x > SettingNameStrength.Inherit);
             var path = uri.Path.Value.Split('.').Skip(2 - (int)strength).Join(".");
 
             var memberPrefixHandling = (PrefixHandling)Enum.Parse(typeof(PrefixHandling), uri.Query["prefixHandling"], ignoreCase: true);
-            var prefixHandling = new[] { memberPrefixHandling, PrefixHandling.Disable }.First(x => x > PrefixHandling.Inherit);
+            var prefixHandling = new[] { memberPrefixHandling, providerConvention.PrefixHandling }.First(x => x > PrefixHandling.Inherit);
 
             var query = (ImplicitString)new (ImplicitString Key, ImplicitString Value)[]
             {
-                ("prefix", prefixHandling == PrefixHandling.Enable ? uri.Query["prefix"] : (ImplicitString)string.Empty),
+                ("prefix", prefixHandling == PrefixHandling.Enable ? new [] { (uri.Query.TryGetValue("prefix", out var p) ? p : (ImplicitString)string.Empty), (ImplicitString)providerConvention.Prefix }.First(prefix => prefix) : (ImplicitString)string.Empty),
                 ("instance", uri.Query.TryGetValue("instance", out var instance) ? instance :  (ImplicitString)string.Empty)
             }
             .Where(x => x.Value)
@@ -88,7 +85,25 @@ namespace Reusable.SmartConfig
 
             return $"setting:{path}{(query ? $"?{query}" : string.Empty)}";
         }
+
+        protected ResourceProviderMetadata Translate(SimpleUri uri, ResourceProviderMetadata metadata)
+        {
+            metadata = metadata ?? ResourceProviderMetadata.Empty;
+
+            if (uri.Query.TryGetValue("providerCustomName", out var providerCustomName))
+            {
+                metadata = metadata.Add("providerCustomName", (string)providerCustomName);
+            }
+
+            if (uri.Query.TryGetValue("providerDefaultName", out var providerDefaultName))
+            {
+                metadata = metadata.Add("providerDefaultName", (string)providerDefaultName);
+            }
+
+            return metadata;
+        }
     }
+
 
     public interface ISettingProvider : IEquatable<ISettingProvider>
     {

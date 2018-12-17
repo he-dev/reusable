@@ -57,14 +57,7 @@ namespace Reusable.SmartConfig
             var settingInfo =
                 await
                     resourceProvider
-                        .GetAsync
-                        (
-                            settingMetadata.ToUri(instanceName),
-                            ResourceProviderMetadata
-                                .Empty
-                                .Add(ResourceProviderMetadataKeyNames.ProviderName, settingMetadata.ProviderName)
-                        //.Add(ResourceProviderMetadataKeyNames.ProviderType, settingMetadata.ProviderType)
-                        );
+                        .GetAsync(settingMetadata.ToUri(instanceName));
 
             if (settingInfo.Exists)
             {
@@ -103,13 +96,7 @@ namespace Reusable.SmartConfig
             var settingInfo =
                 await
                     resourceProvider
-                        .GetAsync
-                        (
-                            settingMetadata.ToUri(instanceName),
-                            ResourceProviderMetadata
-                                .Empty
-                                .Add(ResourceProviderMetadataKeyNames.ProviderName, settingMetadata.ProviderName)
-                        );
+                        .GetAsync(settingMetadata.ToUri(instanceName));
 
             if (settingInfo.Exists)
             {
