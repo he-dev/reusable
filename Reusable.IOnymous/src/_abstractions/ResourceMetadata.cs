@@ -1,8 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 
 namespace Reusable.IOnymous
 {
+    using static ResourceMetadataKeys;
+    
     public class ResourceMetadata
     {
         private readonly IImmutableDictionary<SoftString, object> _metadata;
@@ -66,6 +69,24 @@ namespace Reusable.IOnymous
                     .TryGetValue(nameof(ProviderCustomName), out string name)
                     ? name
                     : string.Empty;
+        }
+
+        public static IEnumerable<string> ProviderNames(this ResourceMetadata metadata)
+        {
+            if(metadata.TryGetValue(ResourceMetadataKeys.ProviderCustomName, out string customName))
+            {
+                yield return customName;
+            }
+            
+            if(metadata.TryGetValue(ResourceMetadataKeys.ProviderDefaultName, out string defaultName))
+            {
+                yield return defaultName;
+            }
+        }
+
+        private static ResourceMetadata SetValue(this ResourceMetadata metadata, object value, [CallerMemberName] string memberName = null)
+        {
+            return metadata.Add(memberName, value);
         }
     }
 

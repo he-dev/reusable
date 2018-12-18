@@ -28,7 +28,8 @@ namespace Reusable.SmartConfig.Data
 
         public static readonly string Format = "[Prefix:][Name.space+][Type.]Member[,Instance]";
 
-        public SettingName(
+        public SettingName
+        (
             [CanBeNull] string prefix,
             [CanBeNull] string schema,
             [CanBeNull] string type,
@@ -193,5 +194,12 @@ namespace Reusable.SmartConfig.Data
         /// Namespace+Type.Member
         /// </summary>
         High = 2,
+    }
+    
+    public enum PrefixHandling
+    {
+        Inherit = -1,
+        Disable = 0,
+        Enable = 1,
     }
 }

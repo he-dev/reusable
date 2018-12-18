@@ -18,7 +18,6 @@ namespace Reusable.SmartConfig.Annotations
     {
         private string _prefix;
         private SettingNameStrength _strength;
-        //private readonly IImmutableSet<Type> _providerTypes;
         private readonly IImmutableSet<SoftString> _providerNames;
 
         private SettingProviderAttribute
@@ -28,7 +27,6 @@ namespace Reusable.SmartConfig.Annotations
             IEnumerable<string> providerNames
         )
         {
-            //_providerTypes = providerTypes.ToImmutableHashSet();
             _providerNames = providerNames.Concat(providerTypes.Select(t => t.ToPrettyString())).Select(SoftString.Create).ToImmutableHashSet();
             _strength = strength;
         }
@@ -50,17 +48,12 @@ namespace Reusable.SmartConfig.Annotations
             SettingNameStrength.Medium,
             Enumerable.Empty<Type>(),
             Enumerable.Empty<string>()
-        );
-
-        [CanBeNull]
-        public Type AssemblyType { get; set; }
-
-        //public Type FormatterType { get; set; }
+        );        
 
         [CanBeNull]
         public string Prefix
         {
-            get => _prefix ?? (AssemblyType is null ? default : Assembly.GetAssembly(AssemblyType).GetName().Name);
+            get => _prefix; // ?? (AssemblyType is null ? default : Assembly.GetAssembly(AssemblyType).GetName().Name);
             set => _prefix = value;
         }
 
@@ -77,9 +70,10 @@ namespace Reusable.SmartConfig.Annotations
 
         public bool Matches<T>(T provider) where T : IResourceProvider
         {
-            //var matchesAny = provider == null || _providerNames.Empty();
-
-            return _providerNames.Contains(provider.Metadata.ProviderCustomName()) || _providerNames.Contains(provider.Metadata.ProviderDefaultName());
+            return 
+                _providerNames
+                    .Intersect(provider.Metadata.ProviderNames().Select(SoftString.Create))
+                    .Any();
         }
     }
 
@@ -144,23 +138,5 @@ namespace Reusable.SmartConfig.Annotations
     {
     }
 
-    public enum PrefixHandling
-    {
-        Inherit = -1,
-        Disable = 0,
-        Enable = 1,
-    }
 
-    //public enum ProviderSearch
-    //{
-    //    /// <summary>
-    //    /// Uses the specified provider, otherwise picks the first setting.
-    //    /// </summary>
-    //    Auto,
-
-    //    /// <summary>
-    //    /// Ignores any provider name and picks the first setting.
-    //    /// </summary>
-    //    FirstMatch,
-    //}
 }

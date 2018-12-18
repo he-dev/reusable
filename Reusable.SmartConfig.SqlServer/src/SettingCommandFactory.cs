@@ -4,10 +4,9 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
-using Reusable.SmartConfig.Data;
 using Reusable.Utilities.SqlClient;
 
-namespace Reusable.SmartConfig.Internal
+namespace Reusable.SmartConfig
 {
     internal static class SettingCommandFactory
     {
@@ -36,8 +35,7 @@ namespace Reusable.SmartConfig.Internal
 
             // --- add parameters & values
 
-            command
-                .AddParameters(where.Add(columnMapping.Name, name));
+            command.AddParameters(where.Add(columnMapping.Name, name));
 
             return command;
         }

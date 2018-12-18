@@ -15,7 +15,6 @@ using Reusable.Utilities.SqlClient;
 
 namespace Reusable.SmartConfig
 {
-    using Internal;
     using static ResourceMetadataKeys;
 
     public class SqlServerProvider : ResourceProvider

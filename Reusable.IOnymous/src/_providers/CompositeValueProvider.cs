@@ -35,6 +35,7 @@ namespace Reusable.IOnymous
         {
             if (resourceProviders == null) throw new ArgumentNullException(nameof(resourceProviders));
             if (metadata == null) throw new ArgumentNullException(nameof(metadata));
+            
             _valueProviderCache = new Dictionary<UriString, IResourceProvider>();
             _resourceProviders = resourceProviders.ToImmutableList();
         }
@@ -52,14 +53,14 @@ namespace Reusable.IOnymous
                 }
                 else
                 {
-                    var resouceProviders = _resourceProviders.AsEnumerable();
+                    var resourceProviders = _resourceProviders.AsEnumerable();
 
                     // In provider-name specified then try to get the value from this provider without using caching.
                     var providerCustomName = (ImplicitString)metadata.ProviderCustomName();
                     var providerDefaultName = (ImplicitString)metadata.ProviderDefaultName();
                     if (providerCustomName || providerDefaultName) 
                     {
-                        resouceProviders =
+                        resourceProviders =
                             _resourceProviders
                                 .Where(p =>
                                     (providerCustomName && SoftString.Comparer.Equals(p.Metadata.ProviderCustomName(), (string)providerCustomName)) ||
@@ -67,7 +68,7 @@ namespace Reusable.IOnymous
                                 );                      
                     }
 
-                    foreach (var valueProvider in resouceProviders)
+                    foreach (var valueProvider in resourceProviders)
                     {
                         var value = await valueProvider.GetAsync(uri, metadata);
                         if (value.Exists)
