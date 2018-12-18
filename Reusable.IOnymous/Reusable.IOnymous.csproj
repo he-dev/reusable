@@ -1,0 +1,60 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net47</TargetFramework>
+    <RootNamespace>Reusable.IOnymous</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="src\IO\Filters\**" />
+    <EmbeddedResource Remove="src\IO\Filters\**" />
+    <None Remove="src\IO\Filters\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="src\Collections\PainlessDictionary.cs" />
+    <Compile Remove="src\Collections\PainlessDictionaryFactory.cs" />
+    <Compile Remove="src\ComparerFactory.bak.cs" />
+    <Compile Remove="src\ComparerFactory.cs" />
+    <Compile Remove="src\DependencyValidator.cs" />
+    <Compile Remove="src\Extensions\DictionaryHelper.cs" />
+    <Compile Remove="src\FormatProviders\QuoteFormatter.cs" />
+    <Compile Remove="src\IO\DirectoryTreeExtensions.cs" />
+    <Compile Remove="src\IO\DirectoryTreeNode.cs" />
+    <Compile Remove="src\IO\DirectoryTreeNodeExtensions.cs" />
+    <Compile Remove="src\IO\DirectoryTreeNodeFilter.cs" />
+    <Compile Remove="src\IO\FileSystem.cs" />
+    <Compile Remove="src\Reflection\ResourceReader.cs" />
+    <Compile Remove="src\Reflection\ResourceReaderExtensions.cs" />
+    <Compile Remove="src\IOnymous\ConnectionString.cs" />
+    <Compile Remove="src\IOnymous\_providers\ConnectionStringProvider.cs" />
+    <Compile Remove="src\_providers\ConnectionStringProvider.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="System.Collections.Immutable" Version="1.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
+    <ProjectReference Include="..\Reusable.OneTo1\Reusable.OneTo1.csproj" />
+    <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Runtime.Extensions" />
+  </ItemGroup>
+
+</Project>

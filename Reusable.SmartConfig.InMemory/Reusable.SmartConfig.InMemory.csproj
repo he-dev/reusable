@@ -18,6 +18,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="src\InMemory.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="src\" />
   </ItemGroup>
 

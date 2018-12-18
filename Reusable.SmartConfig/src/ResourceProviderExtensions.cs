@@ -85,7 +85,9 @@ namespace Reusable.SmartConfig
                 //    .Validations
                 //    .Validate(settingName, newValue);
 
-                await resourceProvider.PutAsync(uri, newValue.Validate(settingMetadata.Validations, uri), PopulateProviderInfo(settingMetadata));
+                newValue.Validate(settingMetadata.Validations, uri);
+                var resource = ResourceHelper.CreateStream(newValue);
+                await resourceProvider.PutAsync(uri, resource.Stream, PopulateProviderInfo(settingMetadata, resource.Metadata));
             }
 
             return resourceProvider;
@@ -164,11 +166,10 @@ namespace Reusable.SmartConfig
             return value;
         }
 
-        private static ResourceMetadata PopulateProviderInfo(SettingMetadata settingMetadata)
+        private static ResourceMetadata PopulateProviderInfo(SettingMetadata settingMetadata, ResourceMetadata metadata = null)
         {
             return
-                ResourceMetadata
-                    .Empty
+                (metadata ?? ResourceMetadata.Empty)
                     .Add(ResourceMetadataKeys.ProviderCustomName, settingMetadata.ProviderName)
                     .Add(ResourceMetadataKeys.ProviderDefaultName, settingMetadata.ProviderType?.ToPrettyString());
         }

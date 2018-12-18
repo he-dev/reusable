@@ -19,15 +19,8 @@ using Reusable.IOnymous;
 
 namespace Reusable.SmartConfig
 {
-    /*
-     *
-     * This converter is build on top of the Reusable.Converters.
-     * It initializes each json-converter on demand.
-     * 
-     */
-
     [PublicAPI]
-    public class JsonResourceProvider : ConvertedResourceProvider
+    public class JsonResourceProvider : ResourceConverter
     {
         [NotNull] private ITypeConverter _converter;
 
@@ -38,14 +31,7 @@ namespace Reusable.SmartConfig
         public JsonResourceProvider(IResourceProvider resourceProvider) : base(resourceProvider, typeof(string))
         {
             _converter = TypeConverter.Empty;
-            _settings = new JsonSerializerSettings();
-            _stringTypes = ImmutableHashSet<Type>.Empty;
-        }
-
-        [NotNull]
-        public static readonly JsonSettingConverter Default = new JsonSettingConverter
-        {
-            Settings = new JsonSerializerSettings
+            _settings = new JsonSerializerSettings
             {
                 Formatting = Formatting.Indented,
                 TypeNameHandling = TypeNameHandling.Auto,
@@ -54,16 +40,17 @@ namespace Reusable.SmartConfig
                     new StringEnumConverter(),
                     new Reusable.Utilities.JsonNet.ColorConverter()
                 }
-            },
-            StringTypes = new HashSet<Type>
+            };
+            _stringTypes = new []
             {
                 typeof(string),
                 typeof(Enum),
                 typeof(TimeSpan),
                 typeof(DateTime),
                 typeof(Color)
-            },
-        };
+            }
+            .ToImmutableHashSet();
+        }
 
         [NotNull]
         public JsonSerializerSettings Settings
@@ -105,45 +92,17 @@ namespace Reusable.SmartConfig
 
         public override async Task<IResourceInfo> PutAsync(UriString uri, Stream stream, ResourceMetadata metadata = null)
         {
-            if (metadata.TryGetValue("StreamType", out string type) && type != "Object")
+            var value = ResourceHelper.CreateObject(stream, metadata);
+
+            if (SupportedTypes.Contains(value.GetType()))
             {
-                throw new ArgumentException(paramName: nameof(stream), message: "Can post only stream of object type.");
-            }
+                var fromType = stream.GetType();
+                var serialized = (string)GetOrAddSerializer(fromType).Convert(value, typeof(string));
 
-            if (metadata.TryGetValue(ResourceMetadataKeys.Serializer, out string serializerName))
-            {
-                var value = default(object);
-
-                if (serializerName == nameof(BinaryFormatter))
+                using (var streamReader = serialized.ToStreamReader())
                 {
-                    var binaryFormatter = new BinaryFormatter();
-                    using (var memoryStream = new MemoryStream())
-                    {
-                         value = binaryFormatter.Deserialize(memoryStream);
-                    }
+                    return await ResourceProvider.PutAsync(uri, streamReader.BaseStream);
                 }
-
-                if (serializerName == nameof(StreamReader))
-                {
-                    //stream.Seek(0, SeekOrigin.Begin);
-                    using (var streamReader = new StreamReader(stream))
-                    {
-                        value = await streamReader.ReadToEndAsync();
-                    }
-                }
-
-                if (SupportedTypes.Contains(value.GetType()))
-                {
-                    var fromType = stream.GetType();
-                    var serialized = (string)GetOrAddSerializer(fromType).Convert(value, typeof(string));
-
-                    using (var streamReader = serialized.ToStreamReader())
-                    {
-                        return await ResourceProvider.PutAsync(uri, streamReader.BaseStream);
-                    }
-                }
-
-                throw DynamicException.Create("UnsupportedSerializer", $"Cannot deserialize '{uri}' because the serializer '{serializerName}' is not supported.");
             }
 
             throw new Exception("Blub");
@@ -248,98 +207,98 @@ namespace Reusable.SmartConfig
 
 
 
-    [PublicAPI]
-    public class JsonSettingConverter : SettingConverter
-    {
-        [NotNull] private ITypeConverter _converter;
+    //[PublicAPI]
+    //public class JsonSettingConverter : SettingConverter
+    //{
+    //    [NotNull] private ITypeConverter _converter;
 
-        [NotNull] private JsonSerializerSettings _settings;
+    //    [NotNull] private JsonSerializerSettings _settings;
 
-        [NotNull] private ISet<Type> _stringTypes;
+    //    [NotNull] private ISet<Type> _stringTypes;
 
-        public JsonSettingConverter() : base(new Type[0], typeof(string))
-        {
-            _converter = TypeConverter.Empty;
-            _settings = new JsonSerializerSettings();
-            _stringTypes = new HashSet<Type>();
-        }
+    //    public JsonSettingConverter() : base(new Type[0], typeof(string))
+    //    {
+    //        _converter = TypeConverter.Empty;
+    //        _settings = new JsonSerializerSettings();
+    //        _stringTypes = new HashSet<Type>();
+    //    }
 
-        [NotNull]
-        public static readonly JsonSettingConverter Default = new JsonSettingConverter
-        {
-            Settings = new JsonSerializerSettings
-            {
-                Formatting = Formatting.Indented,
-                TypeNameHandling = TypeNameHandling.Auto,
-                Converters =
-                {
-                    new StringEnumConverter(),
-                    new Reusable.Utilities.JsonNet.ColorConverter()
-                }
-            },
-            StringTypes = new HashSet<Type>
-            {
-                typeof(string),
-                typeof(Enum),
-                typeof(TimeSpan),
-                typeof(DateTime),
-                typeof(Color)
-            },
-        };
+    //    [NotNull]
+    //    public static readonly JsonSettingConverter Default = new JsonSettingConverter
+    //    {
+    //        Settings = new JsonSerializerSettings
+    //        {
+    //            Formatting = Formatting.Indented,
+    //            TypeNameHandling = TypeNameHandling.Auto,
+    //            Converters =
+    //            {
+    //                new StringEnumConverter(),
+    //                new Reusable.Utilities.JsonNet.ColorConverter()
+    //            }
+    //        },
+    //        StringTypes = new HashSet<Type>
+    //        {
+    //            typeof(string),
+    //            typeof(Enum),
+    //            typeof(TimeSpan),
+    //            typeof(DateTime),
+    //            typeof(Color)
+    //        },
+    //    };
 
-        [NotNull]
-        public JsonSerializerSettings Settings
-        {
-            get => _settings;
-            set => _settings = value ?? throw new ArgumentNullException(nameof(Settings));
-        }
+    //    [NotNull]
+    //    public JsonSerializerSettings Settings
+    //    {
+    //        get => _settings;
+    //        set => _settings = value ?? throw new ArgumentNullException(nameof(Settings));
+    //    }
 
-        [NotNull, ItemNotNull]
-        public ISet<Type> StringTypes
-        {
-            get => _stringTypes;
-            set => _stringTypes = value ?? throw new ArgumentNullException(nameof(StringTypes));
-        }
+    //    [NotNull, ItemNotNull]
+    //    public ISet<Type> StringTypes
+    //    {
+    //        get => _stringTypes;
+    //        set => _stringTypes = value ?? throw new ArgumentNullException(nameof(StringTypes));
+    //    }
 
-        protected override object DeserializeCore(object value, Type targetType)
-        {
-            if (!(value is string)) throw new ArgumentException($"Unsupported type '{targetType.ToPrettyString()}'. Only {typeof(string).ToPrettyString()} is allowed.");
+    //    protected override object DeserializeCore(object value, Type targetType)
+    //    {
+    //        if (!(value is string)) throw new ArgumentException($"Unsupported type '{targetType.ToPrettyString()}'. Only {typeof(string).ToPrettyString()} is allowed.");
 
-            return GetOrAddDeserializer(targetType).Convert(value, targetType);
-        }
+    //        return GetOrAddDeserializer(targetType).Convert(value, targetType);
+    //    }
 
-        protected override object SerializeCore(object value, Type targetType)
-        {
-            var fromType = value.GetType();
-            return (string)GetOrAddSerializer(fromType).Convert(value, targetType);
-        }
+    //    protected override object SerializeCore(object value, Type targetType)
+    //    {
+    //        var fromType = value.GetType();
+    //        return (string)GetOrAddSerializer(fromType).Convert(value, targetType);
+    //    }
 
-        private ITypeConverter GetOrAddDeserializer(Type toType)
-        {
-            if (_converter.CanConvert(typeof(string), toType))
-            {
-                return _converter;
-            }
+    //    private ITypeConverter GetOrAddDeserializer(Type toType)
+    //    {
+    //        if (_converter.CanConvert(typeof(string), toType))
+    //        {
+    //            return _converter;
+    //        }
 
-            var converter = CreateJsonConverter(typeof(JsonToObjectConverter<>), toType);
-            return (_converter = _converter.Add(converter));
-        }
+    //        var converter = CreateJsonConverter(typeof(JsonToObjectConverter<>), toType);
+    //        return (_converter = _converter.Add(converter));
+    //    }
 
-        private ITypeConverter GetOrAddSerializer(Type fromType)
-        {
-            if (_converter.CanConvert(fromType, typeof(string)))
-            {
-                return _converter;
-            }
+    //    private ITypeConverter GetOrAddSerializer(Type fromType)
+    //    {
+    //        if (_converter.CanConvert(fromType, typeof(string)))
+    //        {
+    //            return _converter;
+    //        }
 
-            var converter = CreateJsonConverter(typeof(ObjectToJsonConverter<>), fromType);
-            return (_converter = _converter.Add(converter));
-        }
+    //        var converter = CreateJsonConverter(typeof(ObjectToJsonConverter<>), fromType);
+    //        return (_converter = _converter.Add(converter));
+    //    }
 
-        private ITypeConverter CreateJsonConverter(Type converterType, Type valueType)
-        {
-            var converterGenericType = converterType.MakeGenericType(valueType);
-            return (ITypeConverter)Activator.CreateInstance(converterGenericType, _settings, StringTypes);
-        }
-    }
+    //    private ITypeConverter CreateJsonConverter(Type converterType, Type valueType)
+    //    {
+    //        var converterGenericType = converterType.MakeGenericType(valueType);
+    //        return (ITypeConverter)Activator.CreateInstance(converterGenericType, _settings, StringTypes);
+    //    }
+    //}
 }

@@ -32,6 +32,11 @@
     <Compile Remove="src\Commander\CommandLineExecutorTest.cs" />
     <Compile Remove="src\Core\ComparerTest.cs" />
     <Compile Remove="src\Core\DependencyValidatorTest.cs" />
+    <Compile Remove="src\SmartConfig\FirstSettingFinderTest.cs" />
+    <Compile Remove="src\SmartConfig\Integration\FeatureTest.cs" />
+    <Compile Remove="src\SmartConfig\SettingConverterTest.cs" />
+    <Compile Remove="src\SmartConfig\SettingNameFactoryTest.cs" />
+    <Compile Remove="src\SmartConfig\SettingProviderTest.cs" />
     <Compile Remove="src\SmartConfig\Utilities\ConfigurationExtensionsTest.cs" />
     <Compile Remove="src\SmartConfig\AppSettingsTest.cs" />
     <Compile Remove="src\SmartConfig\ConfigurationTest.cs" />
@@ -116,7 +121,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Commander\Reusable.Commander.csproj" />
-    <ProjectReference Include="..\Reusable.Convertia\Reusable.Convertia.csproj" />
+    <ProjectReference Include="..\Reusable.OneTo1\Reusable.OneTo1.csproj" />
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
     <ProjectReference Include="..\Reusable.Cryptography\Reusable.Cryptography.csproj" />
     <ProjectReference Include="..\Reusable.Csv.Utilities\Reusable.Csv.Utilities.csproj" />
@@ -132,9 +137,6 @@
     <ProjectReference Include="..\Reusable.OmniLog.SemanticExtensions\Reusable.OmniLog.SemanticExtensions.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog\Reusable.OmniLog.csproj" />
     <ProjectReference Include="..\Reusable.SemanticVersion\Reusable.SemanticVersion.csproj" />
-    <ProjectReference Include="..\Reusable.SmartConfig.AppConfig\Reusable.SmartConfig.AppConfig.csproj" />
-    <ProjectReference Include="..\Reusable.SmartConfig.InMemory\Reusable.SmartConfig.InMemory.csproj" />
-    <ProjectReference Include="..\Reusable.SmartConfig.JsonConverter\Reusable.SmartConfig.JsonConverter.csproj" />
     <ProjectReference Include="..\Reusable.SmartConfig.SqlServer\Reusable.SmartConfig.SqlServer.csproj" />
     <ProjectReference Include="..\Reusable.SmartConfig\Reusable.SmartConfig.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
@@ -148,6 +150,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="src\SmartConfig\Integration\" />
     <Folder Include="src\SmartConfig\Utilities" />
   </ItemGroup>
 

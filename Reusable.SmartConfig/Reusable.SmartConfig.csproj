@@ -24,6 +24,9 @@
   <ItemGroup>
     <Compile Remove="src\Configuration.cs" />
     <Compile Remove="src\ConfigurationExtensions.cs" />
+    <Compile Remove="src\Data\Setting.cs" />
+    <Compile Remove="src\SettingFinder.cs" />
+    <Compile Remove="src\SettingNameExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" />
@@ -32,8 +35,10 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
+    <ProjectReference Include="..\Reusable.IOnymous\Reusable.IOnymous.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
   </ItemGroup>
 </Project>

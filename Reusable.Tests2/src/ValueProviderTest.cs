@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Reusable.IOnymous;
 using Reusable.SmartConfig;
 using Reusable.SmartConfig.Annotations;
+using Reusable.SmartConfig.Data;
 using Xunit;
 
 namespace Reusable.Tests2

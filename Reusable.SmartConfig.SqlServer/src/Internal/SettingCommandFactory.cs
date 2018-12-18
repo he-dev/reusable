@@ -11,31 +11,6 @@ namespace Reusable.SmartConfig.Internal
 {
     internal static class SettingCommandFactory
     {
-        public static SqlCommand CreateSelectCommand(this SqlConnection connection, SqlServer sqlServer, IEnumerable<SoftString> names)
-        {
-            var sql = new StringBuilder();
-
-            var table = sqlServer.SettingTableName.Render(connection);
-
-            sql.Append($"SELECT *").AppendLine();
-            sql.Append($"FROM {table}").AppendLine();
-            sql.Append(sqlServer.Where.Aggregate(
-                $"WHERE [{sqlServer.ColumnMapping.Name}] IN ({names.CreateParameterNames(sqlServer.ColumnMapping.Name)})",
-                (current, next) => $"{current} AND {connection.CreateIdentifier(next.Key)} = @{next.Key}")
-            );
-
-            var command = connection.CreateCommand();
-            command.CommandText = sql.ToString();
-
-            // --- add parameters & values
-
-            command
-                .AddParameters(names, sqlServer.ColumnMapping.Name)
-                .AddParameters(sqlServer.Where);
-
-            return command;
-        }
-
         public static SqlCommand CreateSelectCommand
         (
             this SqlConnection connection, 
@@ -105,62 +80,6 @@ namespace Reusable.SmartConfig.Internal
 
         ////    return command;
         ////}
-
-        public static SqlCommand CreateUpdateCommand(this SqlConnection connection, SqlServer sqlServer, ISetting setting)
-        {
-            /*
-             
-            UPDATE [Setting]
-	            SET [Value] = 'Hallo update!'
-	            WHERE [Name]='baz' AND [Environment] = 'boz'
-            IF @@ROWCOUNT = 0 
-	            INSERT INTO [Setting]([Name], [Value], [Environment])
-	            VALUES ('baz', 'Hallo insert!', 'boz')
-            
-            */
-
-            var sql = new StringBuilder();
-
-            var table = sqlServer.SettingTableName.Render(connection);
-
-            sql.Append($"UPDATE {table}").AppendLine();
-            sql.Append($"SET [{sqlServer.ColumnMapping.Value}] = @{sqlServer.ColumnMapping.Value}").AppendLine();
-
-            sql.Append(sqlServer.Where.Aggregate(
-                $"WHERE [{sqlServer.ColumnMapping.Name}] = @{sqlServer.ColumnMapping.Name}",
-                (result, next) => $"{result} AND {connection.CreateIdentifier(next.Key)} = @{next.Key} ")
-            ).AppendLine();
-
-            sql.Append($"IF @@ROWCOUNT = 0").AppendLine();
-
-            var columns = sqlServer.Where.Keys.Select(key => connection.CreateIdentifier(key)).Aggregate(
-                $"[{sqlServer.ColumnMapping.Name}], [{sqlServer.ColumnMapping.Value}]",
-                (result, next) => $"{result}, {next}"
-            );
-
-            sql.Append($"INSERT INTO {table}({columns})").AppendLine();
-
-            var parameterNames = sqlServer.Where.Keys.Aggregate(
-                $"@{sqlServer.ColumnMapping.Name}, @{sqlServer.ColumnMapping.Value}",
-                (result, next) => $"{result}, @{next}"
-            );
-
-            sql.Append($"VALUES ({parameterNames})");
-
-            var command = connection.CreateCommand();
-            command.CommandType = CommandType.Text;
-            command.CommandText = sql.ToString();
-
-            // --- add parameters
-
-            command.Parameters.AddWithValue($"@{sqlServer.ColumnMapping.Name}", setting.Name.ToString());
-            command.Parameters.AddWithValue($"@{sqlServer.ColumnMapping.Value}", setting.Value);
-            //command.Parameters.Add($"@{sqlServer.ColumnMapping.Value}", SqlDbType.NVarChar, 200).Value = setting.Value;
-
-            command.AddParameters(sqlServer.Where);
-
-            return command;
-        }
 
         public static SqlCommand CreateUpdateCommand
         (

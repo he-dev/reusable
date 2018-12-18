@@ -161,5 +161,37 @@ namespace Reusable.SmartConfig.Data
         #endregion
     }
 
+    /*
 
+    Setting names are ordered by the usage frequency.
+
+    Type.Property,Instance
+    Property,Instance
+    Namespace+Type.Property,Instance
+
+    Type.Property
+    Property
+    Namespace+Type.Property
+
+     */
+
+    public enum SettingNameStrength
+    {
+        Inherit = -1,
+
+        /// <summary>
+        /// Member
+        /// </summary>
+        Low = 0,
+
+        /// <summary>
+        /// Type.Member
+        /// </summary>
+        Medium = 1,
+
+        /// <summary>
+        /// Namespace+Type.Member
+        /// </summary>
+        High = 2,
+    }
 }

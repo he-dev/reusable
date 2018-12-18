@@ -10,6 +10,7 @@ using Reusable.IOnymous;
 using Reusable.Reflection;
 using Reusable.SmartConfig;
 using Reusable.SmartConfig.Annotations;
+using Reusable.SmartConfig.Data;
 using Reusable.Utilities.SqlClient;
 using Xunit;
 
