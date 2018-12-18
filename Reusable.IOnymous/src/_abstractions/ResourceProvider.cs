@@ -33,12 +33,7 @@ namespace Reusable.IOnymous
 
     public abstract class ResourceProvider : IResourceProvider
     {
-        //protected static readonly IExpressValidator<UriString> SchemeValidator = ExpressValidator.For<UriString>(assert =>
-        //{
-        //    assert.True()
-        //};
-
-        public static readonly string Scheme = "ionymous";
+        public static readonly string DefaultScheme = "ionymous";
 
         protected ResourceProvider(ResourceMetadata metadata)
         {

@@ -8,26 +8,28 @@ namespace Reusable.IOnymous
     [PublicAPI]
     public class PhysicalFileProvider : ResourceProvider
     {
+        public static readonly string Scheme = "file";
+        
         public PhysicalFileProvider(ResourceMetadata metadata = null)
             : base(
                 (metadata ?? ResourceMetadata.Empty)
                     .Add(ResourceMetadataKeys.CanGet, true)
                     .Add(ResourceMetadataKeys.CanPut, true)
                     .Add(ResourceMetadataKeys.CanDelete, true)
-                    .Add(Scheme, "file")
+                    .Add(ResourceMetadataKeys.Scheme, Scheme)
             )
         { }
 
         public override Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
         {
-            ValidateScheme(uri, "file");
+            ValidateScheme(uri, Scheme);
 
             return Task.FromResult<IResourceInfo>(new PhysicalFileInfo(uri));
         }
 
         public override async Task<IResourceInfo> PutAsync(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
-            ValidateScheme(uri, "file");
+            ValidateScheme(uri, Scheme);
 
             try
             {
@@ -47,7 +49,7 @@ namespace Reusable.IOnymous
 
         public override async Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = null)
         {
-            ValidateScheme(uri, "file");
+            ValidateScheme(uri, Scheme);
             
             try
             {
@@ -61,7 +63,7 @@ namespace Reusable.IOnymous
         }
     }
 
-    public static class ResouceProviderExtensions
+    public static class ResourceProviderExtensions
     {
         public static Task<IResourceInfo> GetFileInfoAsync(this IResourceProvider resourceProvider, string path, ResourceMetadata metadata = null)
         {

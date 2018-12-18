@@ -38,7 +38,7 @@ namespace Reusable.IOnymous
         {
             if (uri == null) throw new ArgumentNullException(nameof(uri));
 
-            Uri = uri.IsRelative ? new UriString($"{ResourceProvider.Scheme}:{uri}") : uri;
+            Uri = uri.IsRelative ? new UriString($"{ResourceProvider.DefaultScheme}:{uri}") : uri;
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
@@ -82,13 +82,13 @@ namespace Reusable.IOnymous
     {
         public static async Task<T> DeserializeAsync<T>(this IResourceInfo resourceInfo) => (T)(await resourceInfo.DeserializeAsync(typeof(T)));
 
-        public static bool IsIOnymous(this IResourceInfo resourceInfo) => SoftString.Comparer.Equals((string)resourceInfo.Uri.Scheme, ResourceProvider.Scheme);
+        public static bool IsIOnymous(this IResourceInfo resourceInfo) => SoftString.Comparer.Equals((string)resourceInfo.Uri.Scheme, ResourceProvider.DefaultScheme);
     }
 
     public static class SimpleUriExtensions
     {
 
-        public static bool IsIOnymous(this UriString uri) => SoftString.Comparer.Equals((string)uri.Scheme, ResourceProvider.Scheme);
+        public static bool IsIOnymous(this UriString uri) => SoftString.Comparer.Equals((string)uri.Scheme, ResourceProvider.DefaultScheme);
     }
 
     public class ResourceInfoEqualityComparer : IEqualityComparer<IResourceInfo>, IEqualityComparer<Uri>, IEqualityComparer<string>
