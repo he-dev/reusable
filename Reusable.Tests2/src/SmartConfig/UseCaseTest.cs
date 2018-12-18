@@ -1,13 +1,10 @@
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Configuration;
 using System.Data;
-using System.Diagnostics;
 using System.Linq;
 using Reusable.Data;
 using Reusable.Exceptionizer;
 using Reusable.IOnymous;
-using Reusable.Reflection;
 using Reusable.SmartConfig;
 using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Data;
@@ -18,17 +15,15 @@ using Xunit;
 [assembly: SettingProvider(SettingNameStrength.Low, typeof(AppSettingProvider), Prefix = "abc")]
 //[assembly: SettingProvider(SettingNameStrength.Low, nameof(AppSettingProvider), Prefix = "abc")]
 
-namespace Reusable.Tests2.SmartConfig.Integration
+namespace Reusable.Tests2.SmartConfig
 {
-    using static ResourceMetadataKeys;
-
     public class FeatureTest
     {
         private static readonly SqlFourPartName SettingTableName = ("reusable", "SmartConfig");
 
         private static readonly IResourceProvider SettingProvider = new CompositeResourceProvider(new IResourceProvider[]
         {
-            new InMemoryResourceProvider(ResourceMetadata.Empty.Add(ProviderCustomName, "Test"))
+            new InMemoryResourceProvider(ResourceMetadata.Empty.Add(ResourceMetadataKeys.ProviderCustomName, "Test"))
             {
                 { "Test6.Member1?prefix=TestPrefix", "Value1" },
                 { "Member2", "Value2" },
@@ -42,7 +37,7 @@ namespace Reusable.Tests2.SmartConfig.Integration
                 { "Test5.Member?prefix=Prefix", "Value5" },
                 { "Test7.Member", "InvalidValue2" },
             },
-            new InMemoryResourceProvider(ResourceMetadata.Empty.Add(ProviderCustomName, "Test7"))
+            new InMemoryResourceProvider(ResourceMetadata.Empty.Add(ResourceMetadataKeys.ProviderCustomName, "Test7"))
             {
                 { "Test7.Member", "Value7" },
             },

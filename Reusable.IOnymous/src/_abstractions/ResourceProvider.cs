@@ -66,12 +66,24 @@ namespace Reusable.IOnymous
             return new Exception();
         }
 
-        protected UriString ValidateScheme(UriString uri)
+        protected UriString ValidateScheme([NotNull] UriString uri, string scheme)
         {
+            if (uri == null) throw new ArgumentNullException(nameof(uri));
+            
             return
-                Metadata.TryGetValue(Scheme, out string scheme) && uri.Scheme == scheme
+                SoftString.Comparer.Equals(uri.Scheme, scheme)
                     ? uri
-                    : throw DynamicException.Create("InvalidScheme", $"This resource-provider '{GetType().ToPrettyString()}' supports only '{scheme}' uri.");
+                    : throw DynamicException.Create("InvalidScheme", $"This resource-provider '{GetType().ToPrettyString()}' requires scheme '{scheme}'.");
+        }
+
+        protected UriString ValidateSchemeNotEmpty([NotNull] UriString uri)
+        {
+            if (uri == null) throw new ArgumentNullException(nameof(uri));
+            
+            return
+                uri.Scheme
+                    ? uri
+                    : throw DynamicException.Create("SchemeNotFound", $"Uri '{uri}' does not contain scheme.");
         }
     }
 

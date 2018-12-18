@@ -8,6 +8,7 @@ using Reusable.Collections;
 
 namespace Reusable.IOnymous
 {
+    [PublicAPI]
     public class UriString : IEquatable<UriString>, IEquatable<string>
     {
         // https://regex101.com/r/sd288W/1
@@ -15,8 +16,8 @@ namespace Reusable.IOnymous
         private static readonly string UriPattern = string.Join(string.Empty, new[]
         {
             /* language=regexp */ @"^(?:(?<scheme>\w+):)?",
-            /* language=regexp */ @"(?:\/\/(?<authority>\w+))?",
-            /* language=regexp */ @"(?<path>[a-z0-9\/:\.-]+)",
+            /* language=regexp */ @"(?:\/\/(?<authority>[a-z0-9\.\-_]+))?",
+            /* language=regexp */ @"(?:\/?(?<path>[a-z0-9\/:\.-]+))",
             /* language=regexp */ @"(?:\?(?<query>[a-z0-9=&]+))?",
             /* language=regexp */ @"(?:#(?<fragment>[a-z0-9]+))?"
         });
@@ -72,8 +73,8 @@ namespace Reusable.IOnymous
 
         public UriString(UriString absoluteUri, UriString relativeUri)
         {
-            if (absoluteUri.IsRelative) throw new ArgumentException($"{nameof(absoluteUri)} must be an absolute Uri.");
-            if (relativeUri.IsAbsolute) throw new ArgumentException($"{nameof(relativeUri)} must be a relative Uri.");
+            if (absoluteUri.IsRelative) throw new ArgumentException($"{nameof(absoluteUri)} must being with a scheme.");
+            if (relativeUri.IsAbsolute) throw new ArgumentException($"{nameof(relativeUri)} must not begin with a scheme.");
 
             Scheme = absoluteUri.Scheme;
             Authority = absoluteUri.Authority;
@@ -98,10 +99,7 @@ namespace Reusable.IOnymous
 
         public override string ToString() => ToString(Scheme);
 
-        public string ToString(ImplicitString scheme)
-        {
-            return string.Join(string.Empty, GetComponents(scheme));
-        }
+        public string ToString(ImplicitString scheme) => string.Join(string.Empty, GetComponents(scheme));
 
         private IEnumerable<string> GetComponents(ImplicitString scheme)
         {
@@ -112,7 +110,7 @@ namespace Reusable.IOnymous
 
             if (Authority)
             {
-                yield return $"//{Authority}";
+                yield return $"//{Authority}/";
             }
 
             yield return Path;
@@ -151,6 +149,10 @@ namespace Reusable.IOnymous
         public static implicit operator string(UriString uri) => uri.ToString();
 
         public static UriString operator +(UriString absoluteUri, UriString relativeUri) => new UriString(absoluteUri, relativeUri);
+
+        public static bool operator ==(UriString left, UriString right) => Comparer.Equals(left, right);
+
+        public static bool operator !=(UriString left, UriString right) => !(left == right);
 
         #endregion
     }

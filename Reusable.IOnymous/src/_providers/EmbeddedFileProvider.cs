@@ -20,22 +20,22 @@ namespace Reusable.IOnymous
         {
             _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
             //BaseUri = new Uri(_assembly.GetName().Name.Replace('.', Path.DirectorySeparatorChar));
-            BaseUri = new Uri(_assembly.GetName().Name.Replace('.', '/'));
+            var assemblyName = _assembly.GetName().Name.Replace('.', '/');
+            BaseUri = new UriString($"file:{assemblyName}");
         }
 
-        public Uri BaseUri { get; }
+        public UriString BaseUri { get; }
 
-        #region IFileProvider
+        #region ResourceProvider
 
         public override Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
         {
-            if (uri == null) throw new ArgumentNullException(nameof(uri));
+            ValidateSchemeNotEmpty(uri);
 
-            ValidateScheme(uri);
+            // Embedded resource names are separated by '.' so replace the windows separator.
 
-            // Embedded resouce names are separated by '.' so replace the windows separator.
-            //var fullName = new Uri(BaseUri, uri).LocalPath.Replace(Path.DirectorySeparatorChar, '.');
-            var fullName = new Uri(BaseUri, uri).LocalPath.Replace('/', '.');
+            var fullUri = new UriString(BaseUri, uri.Path.Value);
+            var fullName = fullUri.Path.Value.Replace('/', '.');
 
             // Embedded resource names are case sensitive so find the actual name of the resource.
             var actualName = _assembly.GetManifestResourceNames().FirstOrDefault(name => SoftString.Comparer.Equals(name, fullName));

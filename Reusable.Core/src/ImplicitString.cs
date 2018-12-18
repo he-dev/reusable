@@ -18,6 +18,8 @@ namespace Reusable
         public static implicit operator ImplicitString(Group group) => group.Value;
 
         public static implicit operator string(ImplicitString value) => value.ToString();
+        
+        public static implicit operator SoftString(ImplicitString value) => value.ToString();
 
         public static implicit operator bool(ImplicitString value) => !string.IsNullOrWhiteSpace(value);
 

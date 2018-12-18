@@ -15,26 +15,25 @@ namespace Reusable.IOnymous
         public InMemoryResourceProvider(ResourceMetadata metadata)
             : base(
                 (metadata ?? ResourceMetadata.Empty)
-                    .Add(ResourceMetadataKeys.CanGet, true)
-                    .Add(ResourceMetadataKeys.CanPut, true)
-                    .Add(ResourceMetadataKeys.CanDelete, true)
+                .Add(ResourceMetadataKeys.CanGet, true)
+                .Add(ResourceMetadataKeys.CanPut, true)
+                .Add(ResourceMetadataKeys.CanDelete, true)
             )
-        { }
+        {
+        }
 
         public override Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
         {
-            if (uri.IsRelative)
-            {
-                uri = uri.IsRelative ? (UriString)$"{Scheme}:{uri}" : uri;
-            }
+            ValidateSchemeNotEmpty(uri);
 
-            var match = _items.FirstOrDefault(item => item.Uri.Equals(uri));
-
-            return Task.FromResult(match ?? new InMemoryResourceInfo(uri, new byte[0], metadata));
+            var firstMatch = _items.FirstOrDefault(item => item.Uri == uri);
+            return Task.FromResult(firstMatch ?? new InMemoryResourceInfo(uri, metadata));
         }
 
         public override Task<IResourceInfo> PutAsync(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
+            ValidateSchemeNotEmpty(uri);
+
             var file = new InMemoryResourceInfo(uri, GetByteArray(value), metadata);
             _items.Remove(file);
             _items.Add(file);
@@ -52,18 +51,24 @@ namespace Reusable.IOnymous
 
         public override async Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = null)
         {
-            var valueToDelete = await GetAsync(uri, metadata);
-            _items.Remove(valueToDelete);
+            ValidateSchemeNotEmpty(uri);
+
+            var resourceToDelete = await GetAsync(uri, metadata);
+            _items.Remove(resourceToDelete);
             return await GetAsync(uri, metadata);
         }
+
+        #region Collection initilizer
 
         public void Add(IResourceInfo item) => _items.Add(item);
 
         public void Add(string uri, object value)
         {
-            var resource = ResourceHelper.CreateStream(value);
-            PutAsync(uri, resource.Stream, resource.Metadata).GetAwaiter().GetResult();            
+            var (stream, metadata) = ResourceHelper.CreateStream(value);
+            PutAsync(uri, stream, metadata).GetAwaiter().GetResult();
         }
+
+        #endregion
 
         public IEnumerator<IResourceInfo> GetEnumerator() => _items.GetEnumerator();
 

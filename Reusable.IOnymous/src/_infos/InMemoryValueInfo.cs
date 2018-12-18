@@ -8,27 +8,32 @@ using Reusable.Exceptionizer;
 
 namespace Reusable.IOnymous
 {
-    internal class InMemoryResourceInfo : ResourceInfo
+    public class InMemoryResourceInfo : ResourceInfo
     {
-        [CanBeNull]
-        private readonly byte[] _data;
+        [CanBeNull] private readonly byte[] _data;
 
         private readonly ResourceMetadata _metadata;
 
-        [CanBeNull]
-        private readonly IEnumerable<IResourceInfo> _files;
+        [CanBeNull] private readonly IEnumerable<IResourceInfo> _files;
 
-        public InMemoryResourceInfo([NotNull] UriString uri) : this(uri, new byte[0], ResourceMetadata.Empty)
+        public InMemoryResourceInfo([NotNull] UriString uri, [NotNull] byte[] data, [CanBeNull] ResourceMetadata metadata = null)
+            : base(uri)
+        {
+            _data = data ?? throw new ArgumentNullException(nameof(data));
+            _metadata = metadata;
+        }
+
+        public InMemoryResourceInfo([NotNull] UriString uri)
+            : this(uri, new byte[0], ResourceMetadata.Empty)
         {
             ModifiedOn = DateTime.UtcNow;
         }
 
-        public InMemoryResourceInfo([NotNull] UriString uri, byte[] data, ResourceMetadata metadata)
-            : base(uri)
+        public InMemoryResourceInfo([NotNull] UriString uri, ResourceMetadata metadata)
+            : this(uri, new byte[0], metadata)
         {
-            _data = data;
-            _metadata = metadata;
         }
+
 
         public override bool Exists => _data?.Length > 0;
 

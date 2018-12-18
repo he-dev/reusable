@@ -20,17 +20,14 @@ namespace Reusable.IOnymous
 
         public override Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
         {
-            if (uri == null) throw new ArgumentNullException(nameof(uri));
-            ValidateScheme(uri);
+            ValidateScheme(uri, "file");
 
             return Task.FromResult<IResourceInfo>(new PhysicalFileInfo(uri));
         }
 
         public override async Task<IResourceInfo> PutAsync(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
-            if (uri == null) throw new ArgumentNullException(nameof(uri));
-
-            ValidateScheme(uri);
+            ValidateScheme(uri, "file");
 
             using (var streamReader = new StreamReader(value))
             {
@@ -49,7 +46,7 @@ namespace Reusable.IOnymous
 
         public override async Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = null)
         {
-            ValidateScheme(uri);
+            ValidateScheme(uri, "file");
 
             try
             {
