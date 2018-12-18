@@ -12,10 +12,10 @@ namespace Reusable.IOnymous
     {
         private readonly Assembly _assembly;
 
-        public EmbeddedFileProvider([NotNull] Assembly assembly, ResourceProviderMetadata metadata = null)
+        public EmbeddedFileProvider([NotNull] Assembly assembly, ResourceMetadata metadata = null)
             : base(
-                (metadata ?? ResourceProviderMetadata.Empty)
-                    .Add(ResourceProviderMetadataKeyNames.CanGet, true)
+                (metadata ?? ResourceMetadata.Empty)
+                    .Add(ResourceMetadataKeys.CanGet, true)
             )
         {
             _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
@@ -27,7 +27,7 @@ namespace Reusable.IOnymous
 
         #region IFileProvider
 
-        public override Task<IResourceInfo> GetAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
+        public override Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
         {
             if (uri == null) throw new ArgumentNullException(nameof(uri));
 
@@ -42,12 +42,12 @@ namespace Reusable.IOnymous
             return Task.FromResult<IResourceInfo>(new EmbeddedFileInfo(UndoConvertPath(fullName), getManifestResourceStream));
         }
 
-        public override Task<IResourceInfo> PutAsync(SimpleUri uri, Stream data, ResourceProviderMetadata metadata = null)
+        public override Task<IResourceInfo> PutAsync(UriString uri, Stream data, ResourceMetadata metadata = null)
         {
             throw new NotSupportedException($"{nameof(EmbeddedFileProvider)} does not support value serialization.");
         }
 
-        public override Task<IResourceInfo> DeleteAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
+        public override Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = null)
         {
             throw new NotSupportedException($"{nameof(EmbeddedFileProvider)} does not support value deletion.");
         }

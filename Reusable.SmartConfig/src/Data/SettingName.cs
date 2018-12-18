@@ -53,7 +53,7 @@ namespace Reusable.SmartConfig.Data
             _tokens = tokens ?? throw new ArgumentNullException(nameof(tokens));
         }
 
-        public SettingName(SimpleUri uri)
+        public SettingName(UriString uri)
         {
             if (uri.IsRelative) throw new ArgumentException();
             if (uri.Scheme != "setting") throw new ArgumentException();
@@ -125,7 +125,7 @@ namespace Reusable.SmartConfig.Data
 
         public static implicit operator SoftString(SettingName settingName) => settingName?.ToString();
 
-        public static implicit operator SimpleUri(SettingName settingName)
+        public static implicit operator UriString(SettingName settingName)
         {
             var path = new[]
             {

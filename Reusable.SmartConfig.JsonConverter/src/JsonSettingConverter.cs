@@ -81,7 +81,7 @@ namespace Reusable.SmartConfig
 
         public static Func<IResourceProvider, IResourceProvider> Factory() => dercorable => new JsonResourceProvider(dercorable);
 
-        public override async Task<IResourceInfo> GetAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
+        public override async Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
         {
             var info = await ResourceProvider.GetAsync(uri);
             if (info.Exists)
@@ -103,35 +103,53 @@ namespace Reusable.SmartConfig
             }
         }
 
-        public override async Task<IResourceInfo> PutAsync(SimpleUri uri, Stream stream, ResourceProviderMetadata metadata = null)
+        public override async Task<IResourceInfo> PutAsync(UriString uri, Stream stream, ResourceMetadata metadata = null)
         {
             if (metadata.TryGetValue("StreamType", out string type) && type != "Object")
             {
                 throw new ArgumentException(paramName: nameof(stream), message: "Can post only stream of object type.");
             }
 
-            if (stream.CanSeek)
+            if (metadata.TryGetValue(ResourceMetadataKeys.Serializer, out string serializerName))
             {
-                stream.Seek(0, SeekOrigin.Begin);
-            }
-            var binaryFormatter = new BinaryFormatter();
-            var value = binaryFormatter.Deserialize(stream);
+                var value = default(object);
 
-            if (SupportedTypes.Contains(value.GetType()))
-            {
-                var fromType = stream.GetType();
-                var serialized = (string)GetOrAddSerializer(fromType).Convert(value, typeof(string));
-
-                using (var streamReader = serialized.ToStreamReader())
+                if (serializerName == nameof(BinaryFormatter))
                 {
-                    return await ResourceProvider.PutAsync(uri, streamReader.BaseStream);
+                    var binaryFormatter = new BinaryFormatter();
+                    using (var memoryStream = new MemoryStream())
+                    {
+                         value = binaryFormatter.Deserialize(memoryStream);
+                    }
                 }
+
+                if (serializerName == nameof(StreamReader))
+                {
+                    //stream.Seek(0, SeekOrigin.Begin);
+                    using (var streamReader = new StreamReader(stream))
+                    {
+                        value = await streamReader.ReadToEndAsync();
+                    }
+                }
+
+                if (SupportedTypes.Contains(value.GetType()))
+                {
+                    var fromType = stream.GetType();
+                    var serialized = (string)GetOrAddSerializer(fromType).Convert(value, typeof(string));
+
+                    using (var streamReader = serialized.ToStreamReader())
+                    {
+                        return await ResourceProvider.PutAsync(uri, streamReader.BaseStream);
+                    }
+                }
+
+                throw DynamicException.Create("UnsupportedSerializer", $"Cannot deserialize '{uri}' because the serializer '{serializerName}' is not supported.");
             }
 
             throw new Exception("Blub");
         }
 
-        public override Task<IResourceInfo> DeleteAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
+        public override Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = null)
         {
             throw new NotImplementedException();
         }
@@ -178,7 +196,7 @@ namespace Reusable.SmartConfig
 
         internal JsonResourceInfo
         (
-            [NotNull] SimpleUri uri,
+            [NotNull] UriString uri,
             [CanBeNull] object value,
             Func<Type, ITypeConverter> getOrAddConverter
         )

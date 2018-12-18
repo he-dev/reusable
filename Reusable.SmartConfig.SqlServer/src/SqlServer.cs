@@ -16,7 +16,7 @@ using Reusable.Utilities.SqlClient;
 namespace Reusable.SmartConfig
 {
     using Internal;
-    using static ResourceProviderMetadataKeyNames;
+    using static ResourceMetadataKeys;
 
     public class SqlServerProvider : ResourceProvider
     {
@@ -33,7 +33,7 @@ namespace Reusable.SmartConfig
         public SqlServerProvider
         (
             string nameOrConnectionString,
-            ResourceProviderMetadata metadata
+            ResourceMetadata metadata
         )
             : base(
                 metadata
@@ -70,7 +70,7 @@ namespace Reusable.SmartConfig
             set => _where = value ?? throw new ArgumentNullException(nameof(Where));
         }
 
-        public override async Task<IResourceInfo> GetAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
+        public override async Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
         {
             var settingName = new SettingName(uri);
 
@@ -87,7 +87,7 @@ namespace Reusable.SmartConfig
             }, CancellationToken.None);
         }
 
-        public override async Task<IResourceInfo> PutAsync(SimpleUri uri, Stream stream, ResourceProviderMetadata metadata = null)
+        public override async Task<IResourceInfo> PutAsync(UriString uri, Stream stream, ResourceMetadata metadata = null)
         {
             using (var valueReader = new StreamReader(stream))
             {
@@ -106,7 +106,7 @@ namespace Reusable.SmartConfig
             }
         }
 
-        public override Task<IResourceInfo> DeleteAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
+        public override Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = null)
         {
             throw new NotImplementedException();
         }
@@ -117,7 +117,7 @@ namespace Reusable.SmartConfig
         [CanBeNull]
         private readonly string _value;
 
-        internal SqlServerResourceInfo([NotNull] SimpleUri uri, [CanBeNull] string value) : base(uri)
+        internal SqlServerResourceInfo([NotNull] UriString uri, [CanBeNull] string value) : base(uri)
         {
             _value = value;
         }

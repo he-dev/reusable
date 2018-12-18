@@ -12,45 +12,45 @@ namespace Reusable.IOnymous
     {
         private readonly ISet<IResourceInfo> _items = new HashSet<IResourceInfo>();
 
-        public InMemoryResourceProvider(ResourceProviderMetadata metadata)
+        public InMemoryResourceProvider(ResourceMetadata metadata)
             : base(
-                (metadata ?? ResourceProviderMetadata.Empty)
-                    .Add(ResourceProviderMetadataKeyNames.CanGet, true)
-                    .Add(ResourceProviderMetadataKeyNames.CanPut, true)
-                    .Add(ResourceProviderMetadataKeyNames.CanDelete, true)
+                (metadata ?? ResourceMetadata.Empty)
+                    .Add(ResourceMetadataKeys.CanGet, true)
+                    .Add(ResourceMetadataKeys.CanPut, true)
+                    .Add(ResourceMetadataKeys.CanDelete, true)
             )
         { }
 
-        public override Task<IResourceInfo> GetAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
+        public override Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
         {
             if (uri.IsRelative)
             {
-                uri = uri.IsRelative ? (SimpleUri) $"{Scheme}:{uri}" : uri;
+                uri = uri.IsRelative ? (UriString)$"{Scheme}:{uri}" : uri;
             }
 
             var match = _items.FirstOrDefault(item => item.Uri.Equals(uri));
-            
-            return Task.FromResult(match ?? new InMemoryResourceInfo(uri, default(byte[])));
+
+            return Task.FromResult(match ?? new InMemoryResourceInfo(uri, new byte[0], metadata));
         }
 
-        public override Task<IResourceInfo> PutAsync(SimpleUri uri, Stream value, ResourceProviderMetadata metadata = null)
+        public override Task<IResourceInfo> PutAsync(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
-            var file = new InMemoryResourceInfo(uri, GetByteArray(value));
+            var file = new InMemoryResourceInfo(uri, GetByteArray(value), metadata);
             _items.Remove(file);
             _items.Add(file);
             return Task.FromResult<IResourceInfo>(file);
+        }
 
-            byte[] GetByteArray(Stream stream)
+        private byte[] GetByteArray(Stream stream)
+        {
+            using (var memoryStream = new MemoryStream())
             {
-                using (var memoryStream = new MemoryStream())
-                {
-                    stream.CopyTo(memoryStream);
-                    return memoryStream.ToArray();
-                }
+                stream.CopyTo(memoryStream);
+                return memoryStream.ToArray();
             }
         }
 
-        public override async Task<IResourceInfo> DeleteAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
+        public override async Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = null)
         {
             var valueToDelete = await GetAsync(uri, metadata);
             _items.Remove(valueToDelete);
@@ -61,13 +61,7 @@ namespace Reusable.IOnymous
 
         public void Add(string uri, object value)
         {
-            var binaryFormatter = new BinaryFormatter();
-            using (var memoryStream = new MemoryStream())
-            {
-                binaryFormatter.Serialize(memoryStream, value);
-                //memoryStream.Seek(0, SeekOrigin.Begin);
-                _items.Add(new InMemoryResourceInfo(uri, memoryStream.ToArray()));
-            }
+            this.PutAsync(uri, value).GetAwaiter().GetResult();            
         }
 
         public IEnumerator<IResourceInfo> GetEnumerator() => _items.GetEnumerator();

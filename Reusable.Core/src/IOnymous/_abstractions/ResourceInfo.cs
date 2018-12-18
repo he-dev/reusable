@@ -13,7 +13,7 @@ namespace Reusable.IOnymous
     public interface IResourceInfo : IEquatable<IResourceInfo>, IEquatable<string>
     {
         [NotNull]
-        SimpleUri Uri { get; }
+        UriString Uri { get; }
 
         bool Exists { get; }
 
@@ -34,11 +34,11 @@ namespace Reusable.IOnymous
     {
         protected const int OutOfRange = -1;
 
-        protected ResourceInfo([NotNull] SimpleUri uri)
+        protected ResourceInfo([NotNull] UriString uri)
         {
             if (uri == null) throw new ArgumentNullException(nameof(uri));
 
-            Uri = uri.IsRelative ? new SimpleUri($"{ResourceProvider.Scheme}:{uri}") : uri;
+            Uri = uri.IsRelative ? new UriString($"{ResourceProvider.Scheme}:{uri}") : uri;
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
@@ -49,7 +49,7 @@ namespace Reusable.IOnymous
 
         #region IValueInfo
 
-        public virtual SimpleUri Uri { get; }
+        public virtual UriString Uri { get; }
 
         public abstract bool Exists { get; }
 
@@ -88,7 +88,7 @@ namespace Reusable.IOnymous
     public static class SimpleUriExtensions
     {
 
-        public static bool IsIOnymous(this SimpleUri uri) => SoftString.Comparer.Equals((string)uri.Scheme, ResourceProvider.Scheme);
+        public static bool IsIOnymous(this UriString uri) => SoftString.Comparer.Equals((string)uri.Scheme, ResourceProvider.Scheme);
     }
 
     public class ResourceInfoEqualityComparer : IEqualityComparer<IResourceInfo>, IEqualityComparer<Uri>, IEqualityComparer<string>

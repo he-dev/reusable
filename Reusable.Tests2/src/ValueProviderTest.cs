@@ -21,7 +21,7 @@ namespace Reusable.Tests2
 
             Assert.True(salute.Exists);
 
-            var sqlServer = new SqlServerProvider("name=TestDb", ResourceProviderMetadata.Empty);
+            var sqlServer = new SqlServerProvider("name=TestDb", ResourceMetadata.Empty);
             //var greeting = await sqlServer.GetAsync("Greeting");
 
             //Assert.True(greeting.Exists);
@@ -53,10 +53,10 @@ namespace Reusable.Tests2
         [Fact]
         public void Test1()
         {
-            var a = new SimpleUri("file:c:/temp");
-            var r = new SimpleUri("/logs/test.log");
+            var a = new UriString("file:c:/temp");
+            var r = new UriString("/logs/test.log");
             var u = a + r;
-            Assert.Equal(new SimpleUri("file:c:/temp/logs/test.log"), u);
+            Assert.Equal(new UriString("file:c:/temp/logs/test.log"), u);
         }
     }
 }

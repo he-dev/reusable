@@ -13,19 +13,19 @@ using Reusable.SmartConfig.Data;
 
 namespace Reusable.SmartConfig
 {
-    using static ResourceProviderMetadataKeyNames;
+    using static ResourceMetadataKeys;
 
     public class AppSettingProvider : ResourceProvider
     {
         public AppSettingProvider()
             : base(
-                ResourceProviderMetadata.Empty
+                ResourceMetadata.Empty
                     .Add(CanGet, true)
                     .Add(CanPut, true)
             )
         { }
 
-        public override Task<IResourceInfo> GetAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
+        public override Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
         {
             var settingName = new SettingName(uri);
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
@@ -34,7 +34,7 @@ namespace Reusable.SmartConfig
             return Task.FromResult<IResourceInfo>(new AppSettingResourceInfo(uri, element?.Value));
         }
 
-        public override async Task<IResourceInfo> PutAsync(SimpleUri uri, Stream stream, ResourceProviderMetadata metadata = null)
+        public override async Task<IResourceInfo> PutAsync(UriString uri, Stream stream, ResourceMetadata metadata = null)
         {
             using (var valueReader = new StreamReader(stream))
             {
@@ -60,7 +60,7 @@ namespace Reusable.SmartConfig
             }
         }
 
-        public override Task<IResourceInfo> DeleteAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
+        public override Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = null)
         {
             throw new NotImplementedException();
         }
@@ -82,7 +82,7 @@ namespace Reusable.SmartConfig
         [CanBeNull]
         private readonly string _value;
 
-        internal AppSettingResourceInfo([NotNull] SimpleUri uri, [CanBeNull] string value) : base(uri)
+        internal AppSettingResourceInfo([NotNull] UriString uri, [CanBeNull] string value) : base(uri)
         {
             _value = value;
         }

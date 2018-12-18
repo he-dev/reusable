@@ -9,23 +9,23 @@ namespace Reusable.IOnymous
     [PublicAPI]
     public class PhysicalDirectoryProvider : ResourceProvider
     {
-        public PhysicalDirectoryProvider(ResourceProviderMetadata metadata = null)
+        public PhysicalDirectoryProvider(ResourceMetadata metadata = null)
             : base(
-                (metadata ?? ResourceProviderMetadata.Empty)
-                    .Add(ResourceProviderMetadataKeyNames.CanGet, true)
-                    .Add(ResourceProviderMetadataKeyNames.CanPut, true)
-                    .Add(ResourceProviderMetadataKeyNames.CanDelete, true)
+                (metadata ?? ResourceMetadata.Empty)
+                    .Add(ResourceMetadataKeys.CanGet, true)
+                    .Add(ResourceMetadataKeys.CanPut, true)
+                    .Add(ResourceMetadataKeys.CanDelete, true)
             )
         { }
 
-        public override Task<IResourceInfo> GetAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
+        public override Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
         {
             if (uri == null) throw new ArgumentNullException(nameof(uri));
 
             return Task.FromResult<IResourceInfo>(new PhysicalFileInfo(uri));
         }
 
-        public override async Task<IResourceInfo> PutAsync(SimpleUri uri, Stream value, ResourceProviderMetadata metadata = null)
+        public override async Task<IResourceInfo> PutAsync(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
             if (uri == null) throw new ArgumentNullException(nameof(uri));
 
@@ -44,7 +44,7 @@ namespace Reusable.IOnymous
             }
         }
 
-        public override async Task<IResourceInfo> DeleteAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
+        public override async Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = null)
         {
             try
             {

@@ -8,9 +8,9 @@ namespace Reusable.IOnymous
     [PublicAPI]
     internal class PhysicalDirectoryInfo : ResourceInfo
     {
-        public PhysicalDirectoryInfo([NotNull] SimpleUri uri) : base(uri) { }
+        public PhysicalDirectoryInfo([NotNull] UriString uri) : base(uri) { }
 
-        public override SimpleUri Uri { get; }
+        public override UriString Uri { get; }
 
         public override bool Exists => Directory.Exists(Uri.Path);
 

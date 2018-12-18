@@ -8,7 +8,7 @@ namespace Reusable.IOnymous
     [PublicAPI]
     internal class PhysicalFileInfo : ResourceInfo
     {
-        public PhysicalFileInfo([NotNull] SimpleUri uri) : base(uri) { }
+        public PhysicalFileInfo([NotNull] UriString uri) : base(uri) { }
 
         public override bool Exists => File.Exists(Uri.Path);
 

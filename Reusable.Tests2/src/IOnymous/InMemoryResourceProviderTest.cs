@@ -13,7 +13,7 @@ namespace Reusable.Tests2.IOnymous
         [Fact]
         public async Task Blub()
         {
-            var inMemory = new InMemoryResourceProvider(ResourceProviderMetadata.Empty)
+            var inMemory = new InMemoryResourceProvider(ResourceMetadata.Empty)
             {
                 { "foo/bar", "baz" },
                 { "scheme:foo/bar", "qux" },

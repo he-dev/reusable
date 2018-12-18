@@ -138,7 +138,7 @@ namespace Reusable.SmartConfig.Reflection
             );
         }
 
-        public SimpleUri ToUri(string instanceName = null)
+        public UriString CreateUri(string instanceName = null)
         {
             var query = (ImplicitString)new (ImplicitString Key, ImplicitString Value)[]
             {
@@ -146,8 +146,8 @@ namespace Reusable.SmartConfig.Reflection
                 ("prefixHandling", PrefixHandling.ToString()),
                 ("instance", instanceName),
                 ("strength", Strength.ToString()),
-                ("providerCustomName", ProviderName),
-                ("providerDefaultName", ProviderType?.ToPrettyString())
+                //("providerCustomName", ProviderName),
+                //("providerDefaultName", ProviderType?.ToPrettyString())
             }
             .Where(x => x.Value)
             .Select(x => $"{x.Key}={x.Value}")

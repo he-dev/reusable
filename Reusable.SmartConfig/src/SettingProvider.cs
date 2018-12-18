@@ -24,7 +24,7 @@ namespace Reusable.SmartConfig
     {
         private readonly IResourceProvider _resourceProvider;
 
-        protected static readonly IExpressValidator<SimpleUri> UriValidator = ExpressValidator.For<SimpleUri>(assert =>
+        protected static readonly IExpressValidator<UriString> UriValidator = ExpressValidator.For<UriString>(assert =>
         {
             assert.NotNull();
             assert.True(x => x.IsAbsolute);
@@ -39,26 +39,26 @@ namespace Reusable.SmartConfig
 
         public static Func<IResourceProvider, IResourceProvider> Factory() => decorable => new SettingProvider2(decorable);
 
-        public override Task<IResourceInfo> GetAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
+        public override Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
         {
             return _resourceProvider.GetAsync(Translate(uri), Translate(uri, metadata));
         }
 
-        public override Task<IResourceInfo> PutAsync(SimpleUri uri, Stream value, ResourceProviderMetadata metadata = null)
+        public override Task<IResourceInfo> PutAsync(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
             return _resourceProvider.PutAsync(Translate(uri), value, Translate(uri, metadata));
         }
 
-        public override Task<IResourceInfo> DeleteAsync(SimpleUri uri, ResourceProviderMetadata metadata = null)
+        public override Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = null)
         {
             return _resourceProvider.DeleteAsync(Translate(uri), Translate(uri, metadata));
         }
 
-        protected SimpleUri Validate(SimpleUri uri) => UriValidator.Validate(uri).Assert();
+        protected UriString Validate(UriString uri) => UriValidator.Validate(uri).Assert();
 
         // uri=
         // setting:name-space.type.member?instance=name&prefix=name&strength=name&prefixhandling=name
-        protected SimpleUri Translate(SimpleUri uri)
+        protected UriString Translate(UriString uri)
         {
             Validate(uri);
 
@@ -86,9 +86,9 @@ namespace Reusable.SmartConfig
             return $"setting:{path}{(query ? $"?{query}" : string.Empty)}";
         }
 
-        protected ResourceProviderMetadata Translate(SimpleUri uri, ResourceProviderMetadata metadata)
+        protected ResourceMetadata Translate(UriString uri, ResourceMetadata metadata)
         {
-            metadata = metadata ?? ResourceProviderMetadata.Empty;
+            metadata = metadata ?? ResourceMetadata.Empty;
 
             if (uri.Query.TryGetValue("providerCustomName", out var providerCustomName))
             {
