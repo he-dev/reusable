@@ -119,19 +119,16 @@ namespace Reusable.SmartConfig
 
         public override DateTime? ModifiedOn { get; }
 
-        public override async Task CopyToAsync(Stream stream)
+        protected override async Task CopyToAsyncInternal(Stream stream)
         {
-            if (Exists)
+            // ReSharper disable once AssignNullToNotNullAttribute - this isn't null here
+            using (var valueStream = _value.ToStreamReader())
             {
-                // ReSharper disable once AssignNullToNotNullAttribute - this isn't null here
-                using (var valueStream = _value.ToStreamReader())
-                {
-                    await valueStream.BaseStream.CopyToAsync(stream);
-                }
+                await valueStream.BaseStream.CopyToAsync(stream);
             }
         }
 
-        public override Task<object> DeserializeAsync(Type targetType)
+        protected override Task<object> DeserializeAsyncInternal(Type targetType)
         {
             return Task.FromResult<object>(_value);
         }
@@ -146,6 +143,8 @@ namespace Reusable.SmartConfig
         public static readonly SqlServerColumn Name = new SqlServerColumn(nameof(Name));
 
         public static readonly SqlServerColumn Value = new SqlServerColumn(nameof(Value));
+        
+        // todo - for future use
         //public static readonly SqlServerColumn ModifiedOn = new SqlServerColumn(nameof(ModifiedOn));
         //public static readonly SqlServerColumn CreatedOn = new SqlServerColumn(nameof(CreatedOn));
 

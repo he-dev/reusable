@@ -59,9 +59,57 @@ namespace Reusable.IOnymous
 
         public abstract DateTime? ModifiedOn { get; }
 
-        public abstract Task CopyToAsync(Stream stream);
+        #endregion
 
-        public abstract Task<object> DeserializeAsync(Type targetType);
+        #region Wrappers
+        
+        // These wrappers are to provide helpful exceptions.
+
+        public async Task CopyToAsync(Stream stream)
+        {
+            AssertExists();
+
+            try
+            {
+                await CopyToAsyncInternal(stream);
+            }
+            catch (Exception inner)
+            {
+                throw DynamicException.Create
+                (
+                    $"{nameof(CopyToAsync)}",
+                    $"Affected resource '{Uri}'.",
+                    inner
+                );
+            }
+        }
+
+        public async Task<object> DeserializeAsync(Type targetType)
+        {
+            AssertExists();
+
+            try
+            {
+                return await DeserializeAsyncInternal(targetType);
+            }
+            catch (Exception inner)
+            {
+                throw DynamicException.Create
+                (
+                    $"{nameof(CopyToAsync)}",
+                    $"Affected resource '{Uri}'.",
+                    inner
+                );
+            }
+        }
+
+        #endregion
+
+        #region Internal
+
+        protected abstract Task CopyToAsyncInternal(Stream stream);
+
+        protected abstract Task<object> DeserializeAsyncInternal(Type targetType);
 
         #endregion
 

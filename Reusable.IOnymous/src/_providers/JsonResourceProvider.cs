@@ -43,15 +43,15 @@ namespace Reusable.IOnymous
                     new Reusable.Utilities.JsonNet.ColorConverter()
                 }
             };
-            _stringTypes = new []
-            {
-                typeof(string),
-                typeof(Enum),
-                typeof(TimeSpan),
-                typeof(DateTime),
-                typeof(Color)
-            }
-            .ToImmutableHashSet();
+            _stringTypes = new[]
+                {
+                    typeof(string),
+                    typeof(Enum),
+                    typeof(TimeSpan),
+                    typeof(DateTime),
+                    typeof(Color)
+                }
+                .ToImmutableHashSet();
         }
 
         [NotNull]
@@ -145,8 +145,7 @@ namespace Reusable.IOnymous
 
     internal class JsonResourceInfo : ResourceInfo
     {
-        [CanBeNull]
-        private readonly object _value;
+        [CanBeNull] private readonly object _value;
 
         private readonly Func<Type, ITypeConverter> _getOrAddConverter;
 
@@ -170,132 +169,17 @@ namespace Reusable.IOnymous
 
         public override DateTime? ModifiedOn { get; }
 
-        public override Task CopyToAsync(Stream stream)
+        protected override Task CopyToAsyncInternal(Stream stream)
         {
-            if (Exists)
-            {
-                // ReSharper disable once AssignNullToNotNullAttribute - this isn't null here
-                new BinaryFormatter().Serialize(stream, _value);
-            }
-
+            // ReSharper disable once AssignNullToNotNullAttribute - this isn't null here
+            new BinaryFormatter().Serialize(stream, _value);
             return Task.CompletedTask;
         }
 
-        public override Task<object> DeserializeAsync(Type targetType)
+        protected override Task<object> DeserializeAsyncInternal(Type targetType)
         {
             var converter = _getOrAddConverter(targetType);
             return Task.FromResult(converter.Convert(_value, targetType));
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //[PublicAPI]
-    //public class JsonSettingConverter : SettingConverter
-    //{
-    //    [NotNull] private ITypeConverter _converter;
-
-    //    [NotNull] private JsonSerializerSettings _settings;
-
-    //    [NotNull] private ISet<Type> _stringTypes;
-
-    //    public JsonSettingConverter() : base(new Type[0], typeof(string))
-    //    {
-    //        _converter = TypeConverter.Empty;
-    //        _settings = new JsonSerializerSettings();
-    //        _stringTypes = new HashSet<Type>();
-    //    }
-
-    //    [NotNull]
-    //    public static readonly JsonSettingConverter Default = new JsonSettingConverter
-    //    {
-    //        Settings = new JsonSerializerSettings
-    //        {
-    //            Formatting = Formatting.Indented,
-    //            TypeNameHandling = TypeNameHandling.Auto,
-    //            Converters =
-    //            {
-    //                new StringEnumConverter(),
-    //                new Reusable.Utilities.JsonNet.ColorConverter()
-    //            }
-    //        },
-    //        StringTypes = new HashSet<Type>
-    //        {
-    //            typeof(string),
-    //            typeof(Enum),
-    //            typeof(TimeSpan),
-    //            typeof(DateTime),
-    //            typeof(Color)
-    //        },
-    //    };
-
-    //    [NotNull]
-    //    public JsonSerializerSettings Settings
-    //    {
-    //        get => _settings;
-    //        set => _settings = value ?? throw new ArgumentNullException(nameof(Settings));
-    //    }
-
-    //    [NotNull, ItemNotNull]
-    //    public ISet<Type> StringTypes
-    //    {
-    //        get => _stringTypes;
-    //        set => _stringTypes = value ?? throw new ArgumentNullException(nameof(StringTypes));
-    //    }
-
-    //    protected override object DeserializeCore(object value, Type targetType)
-    //    {
-    //        if (!(value is string)) throw new ArgumentException($"Unsupported type '{targetType.ToPrettyString()}'. Only {typeof(string).ToPrettyString()} is allowed.");
-
-    //        return GetOrAddDeserializer(targetType).Convert(value, targetType);
-    //    }
-
-    //    protected override object SerializeCore(object value, Type targetType)
-    //    {
-    //        var fromType = value.GetType();
-    //        return (string)GetOrAddSerializer(fromType).Convert(value, targetType);
-    //    }
-
-    //    private ITypeConverter GetOrAddDeserializer(Type toType)
-    //    {
-    //        if (_converter.CanConvert(typeof(string), toType))
-    //        {
-    //            return _converter;
-    //        }
-
-    //        var converter = CreateJsonConverter(typeof(JsonToObjectConverter<>), toType);
-    //        return (_converter = _converter.Add(converter));
-    //    }
-
-    //    private ITypeConverter GetOrAddSerializer(Type fromType)
-    //    {
-    //        if (_converter.CanConvert(fromType, typeof(string)))
-    //        {
-    //            return _converter;
-    //        }
-
-    //        var converter = CreateJsonConverter(typeof(ObjectToJsonConverter<>), fromType);
-    //        return (_converter = _converter.Add(converter));
-    //    }
-
-    //    private ITypeConverter CreateJsonConverter(Type converterType, Type valueType)
-    //    {
-    //        var converterGenericType = converterType.MakeGenericType(valueType);
-    //        return (ITypeConverter)Activator.CreateInstance(converterGenericType, _settings, StringTypes);
-    //    }
-    //}
 }

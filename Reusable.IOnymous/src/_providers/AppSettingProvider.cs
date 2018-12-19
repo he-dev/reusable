@@ -89,10 +89,8 @@ namespace Reusable.IOnymous
 
         public override DateTime? ModifiedOn { get; }
 
-        public override async Task CopyToAsync(Stream stream)
-        {
-            AssertExists();
-
+        protected override async Task CopyToAsyncInternal(Stream stream)
+        {        
             // ReSharper disable once AssignNullToNotNullAttribute - this isn't null here
             using (var valueStream = _value.ToStreamReader())
             {
@@ -100,10 +98,8 @@ namespace Reusable.IOnymous
             }
         }
 
-        public override Task<object> DeserializeAsync(Type targetType)
-        {
-            AssertExists();
-
+        protected override Task<object> DeserializeAsyncInternal(Type targetType)
+        {         
             return Task.FromResult<object>(_value);
         }
     }

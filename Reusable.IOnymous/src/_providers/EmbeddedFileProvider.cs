@@ -30,8 +30,6 @@ namespace Reusable.IOnymous
 
         protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
-            ValidateSchemeNotEmpty(uri);
-
             // Embedded resource names are separated by '.' so replace the windows separator.
 
             var fullUri = BaseUri + uri.Path.Value;
@@ -82,20 +80,16 @@ namespace Reusable.IOnymous
         public override DateTime? ModifiedOn { get; }
 
 
-        public override async Task CopyToAsync(Stream stream)
+        protected override async Task CopyToAsyncInternal(Stream stream)
         {
-            AssertExists();
-
             using (var resourceStream = _getManifestResourceStream())
             {
                 await resourceStream.CopyToAsync(stream);
             }
         }
 
-        public override async Task<object> DeserializeAsync(Type targetType)
+        protected override async Task<object> DeserializeAsyncInternal(Type targetType)
         {
-            AssertExists();
-
             using (var resourceStream = _getManifestResourceStream())
             using (var streamReader = new StreamReader(resourceStream))
             {

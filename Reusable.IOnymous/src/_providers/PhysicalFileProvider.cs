@@ -78,20 +78,16 @@ namespace Reusable.IOnymous
 
         public override DateTime? ModifiedOn => Exists ? File.GetLastWriteTimeUtc(Uri.Path) : default;
 
-        public override async Task CopyToAsync(Stream stream)
+        protected override async Task CopyToAsyncInternal(Stream stream)
         {
-            AssertExists();
-
             using (var fileStream = File.OpenRead(Uri.Path))
             {
                 await fileStream.CopyToAsync(stream);
             }
         }
 
-        public override async Task<object> DeserializeAsync(Type targetType)
+        protected override async Task<object> DeserializeAsyncInternal(Type targetType)
         {
-            AssertExists();
-
             using (var fileStream = File.OpenRead(Uri.Path))
             using (var streamReader = new StreamReader(fileStream))
             {

@@ -106,17 +106,13 @@ namespace Reusable.IOnymous
 
         public override DateTime? ModifiedOn { get; }
 
-        public override async Task CopyToAsync(Stream stream)
+        protected override async Task CopyToAsyncInternal(Stream stream)
         {
-            AssertExists();
-
             await stream.WriteAsync(_data, 0, _data.Length);
         }
 
-        public override Task<object> DeserializeAsync(Type targetType)
+        protected override Task<object> DeserializeAsyncInternal(Type targetType)
         {
-            AssertExists();
-
             using (var memoryStream = new MemoryStream(_data))
             {
                 return Task.FromResult(ResourceHelper.CreateObject(memoryStream, _metadata));

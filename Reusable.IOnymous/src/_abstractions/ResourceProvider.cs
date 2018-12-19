@@ -52,11 +52,15 @@ namespace Reusable.IOnymous
 
         public virtual SoftString Scheme => (SoftString)(string)Metadata[ResourceMetadataKeys.Scheme];
 
+        #region Wrappers
+        
+        // These wrappers are to provide helpful exceptions.
+
         public async Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
         {
+            ValidateCanMethod();
             ValidateSchemeNotEmpty(uri);
             ValidateSchemeMatches(uri);
-            ValidateCanMethod();
 
             try
             {
@@ -70,9 +74,9 @@ namespace Reusable.IOnymous
 
         public async Task<IResourceInfo> PostAsync(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
+            ValidateCanMethod();
             ValidateSchemeNotEmpty(uri);
             ValidateSchemeMatches(uri);
-            ValidateCanMethod();
 
             try
             {
@@ -86,9 +90,9 @@ namespace Reusable.IOnymous
 
         public async Task<IResourceInfo> PutAsync(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
+            ValidateCanMethod();
             ValidateSchemeNotEmpty(uri);
             ValidateSchemeMatches(uri);
-            ValidateCanMethod();
 
             try
             {
@@ -102,9 +106,9 @@ namespace Reusable.IOnymous
 
         public async Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = null)
         {
+            ValidateCanMethod();
             ValidateSchemeNotEmpty(uri);
             ValidateSchemeMatches(uri);
-            ValidateCanMethod();
 
             try
             {
@@ -115,6 +119,8 @@ namespace Reusable.IOnymous
                 throw CreateException(uri, metadata, inner);
             }
         }
+
+        #endregion
 
         #region Internal
 
@@ -158,7 +164,7 @@ namespace Reusable.IOnymous
             {
                 return;
             }
-            
+
             if (!SoftString.Comparer.Equals(uri.Scheme, Scheme))
             {
                 throw DynamicException.Create
@@ -190,7 +196,7 @@ namespace Reusable.IOnymous
             {
                 return;
             }
-            
+
             if (!uri.Scheme)
             {
                 throw DynamicException.Create("SchemeNotFound", $"Uri '{uri}' does not contain scheme.");
