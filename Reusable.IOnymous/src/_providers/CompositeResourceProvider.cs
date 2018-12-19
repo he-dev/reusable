@@ -15,9 +15,9 @@ namespace Reusable.IOnymous
 {
     public class CompositeResourceProvider : ResourceProvider, IEnumerable<IResourceProvider>
     {
-        private readonly Dictionary<UriString, IResourceProvider> _valueProviderCache;
+        private readonly Dictionary<UriString, IResourceProvider> _resourceProviderCache;
 
-        private readonly SemaphoreSlim _valueProviderCacheLock = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim _resourceProviderCacheLock = new SemaphoreSlim(1, 1);
 
         private readonly IImmutableList<IResourceProvider> _resourceProviders;
 
@@ -36,69 +36,69 @@ namespace Reusable.IOnymous
         {
             if (resourceProviders == null) throw new ArgumentNullException(nameof(resourceProviders));
             if (metadata == null) throw new ArgumentNullException(nameof(metadata));
-            
-            _valueProviderCache = new Dictionary<UriString, IResourceProvider>();
+
+            _resourceProviderCache = new Dictionary<UriString, IResourceProvider>();
             _resourceProviders = resourceProviders.ToImmutableList();
         }
 
         public override async Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
         {
-            await _valueProviderCacheLock.WaitAsync();
+            await _resourceProviderCacheLock.WaitAsync();
             try
             {
-                // Use either the cached value-provider of find a new one.
+                // Use either the cached resource-provider or find a new one.
 
-                if (_valueProviderCache.TryGetValue(uri, out var cachedValueProvider))
+                if (_resourceProviderCache.TryGetValue(uri, out var cachedResourceProvider))
                 {
-                    return await cachedValueProvider.GetAsync(uri, metadata);
+                    return await cachedResourceProvider.GetAsync(uri, metadata);
                 }
                 else
                 {
                     var resourceProviders = _resourceProviders.AsEnumerable();
 
-                    // In provider-name specified then try to get the value from this provider without using caching.
+                    // If provider-name is specified then search only providers that mach it.
                     var providerCustomName = (ImplicitString)metadata.ProviderCustomName();
                     var providerDefaultName = (ImplicitString)metadata.ProviderDefaultName();
-                    if (providerCustomName || providerDefaultName) 
+                    if (providerCustomName || providerDefaultName)
                     {
                         resourceProviders =
                             _resourceProviders
                                 .Where(p =>
                                     (providerCustomName && SoftString.Comparer.Equals(p.Metadata.ProviderCustomName(), (string)providerCustomName)) ||
                                     (providerDefaultName && SoftString.Comparer.Equals(p.Metadata.ProviderDefaultName(), (string)providerDefaultName))
-                                );                      
+                                );
                     }
 
-                    foreach (var valueProvider in resourceProviders)
+                    foreach (var resourceProvider in resourceProviders)
                     {
-                        var value = await valueProvider.GetAsync(uri, metadata);
-                        if (value.Exists)
+                        var resource = await resourceProvider.GetAsync(uri, metadata);
+                        if (resource.Exists)
                         {
-                            _valueProviderCache[uri] = valueProvider;
-                            return value;
+                            _resourceProviderCache[uri] = resourceProvider;
+                            return resource;
                         }
                     }
                 }
             }
             finally
             {
-                _valueProviderCacheLock.Release();
+                _resourceProviderCacheLock.Release();
             }
 
+            // Apparently we didn't find the resource.
             return new InMemoryResourceInfo(uri);
         }
 
         public override async Task<IResourceInfo> PutAsync(UriString uri, Stream data, ResourceMetadata metadata = null)
         {
-            var valueProvider = await GetValueProviderAsync(uri, metadata);
+            var resourceProvider = await GetValueProviderAsync(uri, metadata);
 
-            if (!valueProvider.Metadata.TryGetValue(ResourceMetadataKeys.CanPut, out bool _))
+            if (!resourceProvider.Metadata.CanPut())
             {
-                throw DynamicException.Create("SerializeNotSupported", $"Value-provider '{valueProvider.GetType().ToPrettyString()}' doesn't support '{nameof(PutAsync)}'.");
+                throw DynamicException.Create("SerializeNotSupported", $"Value-provider '{resourceProvider.GetType().ToPrettyString()}' doesn't support '{nameof(PutAsync)}'.");
             }
 
-            return await valueProvider.PutAsync(uri, data, metadata);
-
+            return await resourceProvider.PutAsync(uri, data, metadata);
         }
 
         public override async Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = null)
@@ -116,7 +116,7 @@ namespace Reusable.IOnymous
         [ItemNotNull]
         private async Task<IResourceProvider> GetValueProviderAsync(UriString uri, ResourceMetadata metadata = null)
         {
-            await _valueProviderCacheLock.WaitAsync();
+            await _resourceProviderCacheLock.WaitAsync();
             try
             {
                 if (metadata.TryGetValue(ResourceMetadataKeys.ProviderCustomName, out string providerNameToFind))
@@ -129,21 +129,21 @@ namespace Reusable.IOnymous
                             );
                 }
 
-                if (_valueProviderCache.TryGetValue(uri, out var cachedValueProvider))
+                if (_resourceProviderCache.TryGetValue(uri, out var cachedValueProvider))
                 {
                     return cachedValueProvider;
                 }
 
                 throw DynamicException.Create
                 (
-                    "UnknownValueProvider",
+                    $"Unknown{nameof(ResourceProvider)}",
                     $"Could not serialize '{uri}' because serializing requires a well-known-value-provider and it could be determined. " +
                     $"This means that it needs to be either specified via '{nameof(metadata)}' or be already determined by calling '{nameof(GetAsync)}'."
                 );
             }
             finally
             {
-                _valueProviderCacheLock.Release();
+                _resourceProviderCacheLock.Release();
             }
         }
 

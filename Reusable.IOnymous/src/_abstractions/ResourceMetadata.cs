@@ -8,15 +8,11 @@ namespace Reusable.IOnymous
 
     public class ResourceMetadata
     {
-        private readonly IImmutableDictionary<SoftString, object> _metadata;
-
-        public ResourceMetadata() : this(ImmutableDictionary<SoftString, object>.Empty)
-        {
-        }
+        private readonly IImmutableDictionary<SoftString, object> _metadata;        
 
         private ResourceMetadata(IImmutableDictionary<SoftString, object> metadata) => _metadata = metadata;
 
-        public static ResourceMetadata Empty => new ResourceMetadata();
+        public static ResourceMetadata Empty => new ResourceMetadata(ImmutableDictionary<SoftString, object>.Empty);
 
         public object this[SoftString key] => _metadata[key];
         public int Count => _metadata.Count;
@@ -87,6 +83,11 @@ namespace Reusable.IOnymous
                 yield return defaultName;
             }
         }
+
+        public static bool CanGet(this ResourceMetadata metadata) => metadata.TryGetValue(ResourceMetadataKeys.CanGet, out bool value) && value;
+        public static bool CanPost(this ResourceMetadata metadata) => metadata.TryGetValue(ResourceMetadataKeys.CanPost, out bool value) && value;
+        public static bool CanPut(this ResourceMetadata metadata) => metadata.TryGetValue(ResourceMetadataKeys.CanPut, out bool value) && value;
+        public static bool CanDelete(this ResourceMetadata metadata) => metadata.TryGetValue(ResourceMetadataKeys.CanDelete, out bool value) && value;
 
         private static ResourceMetadata SetValue(this ResourceMetadata metadata, object value, [CallerMemberName] string memberName = null)
         {

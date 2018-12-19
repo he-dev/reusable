@@ -7,7 +7,6 @@ using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Extensions;
 using Reusable.SmartConfig;
-using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Reflection;
 
 namespace Reusable.Tests.SmartConfig.Reflection

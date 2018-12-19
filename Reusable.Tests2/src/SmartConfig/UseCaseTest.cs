@@ -6,7 +6,6 @@ using Reusable.Data;
 using Reusable.Exceptionizer;
 using Reusable.IOnymous;
 using Reusable.SmartConfig;
-using Reusable.SmartConfig.Annotations;
 using Reusable.Utilities.SqlClient;
 using Xunit;
 
@@ -41,10 +40,14 @@ namespace Reusable.Tests2.SmartConfig
                 { "setting:Test7.Member", "Value7" },
             },
             new AppSettingProvider(new UriStringToSettingIdentifierConverter()).DecorateWith(JsonResourceProvider.Factory()),
-            new SqlServerProvider("name=TestDb", new UriStringToSettingIdentifierConverter()) // new JsonSettingConverter() { StringTypes = new[] { typeof(string) }.ToImmutableHashSet() })
+            new SqlServerProvider("name=TestDb", new UriStringToSettingIdentifierConverter())
             {
                 TableName = SettingTableName,
-                ColumnMapping = ("_name", "_value"),
+                ColumnMappings = 
+                    ImmutableDictionary<SqlServerColumn, ImplicitString>
+                        .Empty
+                        .Add(SqlServerColumn.Name, "_name")
+                        .Add(SqlServerColumn.Value, "_value"),
                 Where = ImmutableDictionary<string, object>.Empty.Add("_other", nameof(FeatureTest))
             }.DecorateWith(JsonResourceProvider.Factory()),
         }.Select(p => p.DecorateWith(Reusable.SmartConfig.SettingProvider.Factory())).ToArray(), ResourceMetadata.Empty);

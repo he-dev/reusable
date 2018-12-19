@@ -11,11 +11,13 @@ using Reusable.Extensions;
 using Reusable.Flawless;
 using Reusable.IOnymous;
 using Reusable.OneTo1;
+using Reusable.SmartConfig.Internal;
 using Reusable.Utilities.SqlClient;
 
 namespace Reusable.SmartConfig
 {
     using static ResourceMetadataKeys;
+    using static SqlServerColumn;
 
     public class SqlServerProvider : ResourceProvider
     {
@@ -23,13 +25,10 @@ namespace Reusable.SmartConfig
 
         public const string DefaultTable = "Setting";
 
+        [CanBeNull] 
         private readonly ITypeConverter _uriStringToSettingIdentifierConverter;
 
-        private IImmutableDictionary<string, object> _where = ImmutableDictionary<string, object>.Empty;
-
         private SqlFourPartName _tableName;
-
-        private SqlServerColumnMapping _columnMapping;
 
         public SqlServerProvider
         (
@@ -48,7 +47,6 @@ namespace Reusable.SmartConfig
             ConnectionString = ConnectionStringRepository.Default.GetConnectionString(nameOrConnectionString);
 
             TableName = (DefaultSchema, DefaultTable);
-            ColumnMapping = new SqlServerColumnMapping();
         }
 
         [NotNull]
@@ -61,18 +59,11 @@ namespace Reusable.SmartConfig
             set => _tableName = value ?? throw new ArgumentNullException(nameof(TableName));
         }
 
-        [NotNull]
-        public SqlServerColumnMapping ColumnMapping
-        {
-            get => _columnMapping;
-            set => _columnMapping = value ?? throw new ArgumentNullException(nameof(ColumnMapping));
-        }
+        [CanBeNull]
+        public IImmutableDictionary<SqlServerColumn, ImplicitString> ColumnMappings { get; set; }
 
-        public IImmutableDictionary<string, object> Where
-        {
-            get => _where;
-            set => _where = value ?? throw new ArgumentNullException(nameof(Where));
-        }
+        [CanBeNull]
+        public IImmutableDictionary<string, object> Where { get; set; }
 
         public override async Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
         {
@@ -80,12 +71,12 @@ namespace Reusable.SmartConfig
 
             return await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
             {
-                using (var command = connection.CreateSelectCommand(TableName, Where, ColumnMapping, settingIdentifier))
+                using (var command = connection.CreateSelectCommand(TableName, settingIdentifier, ColumnMappings, Where))
                 using (var settingReader = command.ExecuteReader())
                 {
                     return
                         await settingReader.ReadAsync(token)
-                            ? new SqlServerResourceInfo(uri, (string)settingReader[ColumnMapping.Value])
+                            ? new SqlServerResourceInfo(uri, (string)settingReader[ColumnMappings.MapOrDefault(Value)])
                             : new SqlServerResourceInfo(uri, default);
                 }
             }, CancellationToken.None);
@@ -94,14 +85,14 @@ namespace Reusable.SmartConfig
         public override async Task<IResourceInfo> PutAsync(UriString uri, Stream stream, ResourceMetadata metadata = null)
         {
             var settingIdentifier = (string)_uriStringToSettingIdentifierConverter?.Convert(uri, typeof(string)) ?? uri;
-            
+
             using (var valueReader = new StreamReader(stream))
             {
                 var value = await valueReader.ReadToEndAsync();
 
                 await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
                 {
-                    using (var cmd = connection.CreateUpdateCommand(TableName, Where, ColumnMapping, settingIdentifier, value))
+                    using (var cmd = connection.CreateUpdateCommand(TableName, settingIdentifier, ColumnMappings, Where, value))
                     {
                         await cmd.ExecuteNonQueryAsync(token);
                     }
@@ -149,6 +140,34 @@ namespace Reusable.SmartConfig
         public override Task<object> DeserializeAsync(Type targetType)
         {
             return Task.FromResult<object>(_value);
+        }
+    }
+
+    public class SqlServerColumn
+    {
+        private readonly string _name;
+
+        private SqlServerColumn(string name) => _name = name;
+
+        public static readonly SqlServerColumn Name = new SqlServerColumn(nameof(Name));
+        public static readonly SqlServerColumn Value = new SqlServerColumn(nameof(Value));
+        //public static readonly SqlServerColumn ModifiedOn = new SqlServerColumn(nameof(ModifiedOn));
+        //public static readonly SqlServerColumn CreatedOn = new SqlServerColumn(nameof(CreatedOn));
+
+        public static implicit operator string(SqlServerColumn column) => column._name;
+    }
+
+    public static class SqlServerColumnMappingExtensions
+    {
+        [NotNull]
+        public static string MapOrDefault(this IImmutableDictionary<SqlServerColumn, ImplicitString> mappings, SqlServerColumn column)
+        {
+            return
+                mappings is null
+                    ? column
+                    : mappings.TryGetValue(column, out var mapping) && mapping
+                        ? (string)mapping
+                        : (string)column;
         }
     }
 }

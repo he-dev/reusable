@@ -4,21 +4,25 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using JetBrains.Annotations;
 using Reusable.Utilities.SqlClient;
 
-namespace Reusable.SmartConfig
+namespace Reusable.SmartConfig.Internal
 {
+    using static SqlServerColumn;
+    
     internal static class SettingCommandFactory
     {
         public static SqlCommand CreateSelectCommand
         (
-            this SqlConnection connection, 
-            SqlFourPartName tableName, 
-            IImmutableDictionary<string, object> where,
-            SqlServerColumnMapping columnMapping,
-            string name
-        )
+            [NotNull] this SqlConnection connection,
+            [NotNull] SqlFourPartName tableName,
+            [NotNull] string name,
+            [CanBeNull] IImmutableDictionary<SqlServerColumn, ImplicitString> columnMappings,
+            [CanBeNull] IImmutableDictionary<string, object> @where)
         {
+            where = where ?? ImmutableDictionary<string, object>.Empty;
+            
             var sql = new StringBuilder();
 
             var table = tableName.Render(connection);
@@ -26,7 +30,7 @@ namespace Reusable.SmartConfig
             sql.Append($"SELECT *").AppendLine();
             sql.Append($"FROM {table}").AppendLine();
             sql.Append(where.Aggregate(
-                $"WHERE [{columnMapping.Name}] = @{columnMapping.Name}",
+                $"WHERE [{columnMappings.MapOrDefault(Name)}] = @{columnMappings.MapOrDefault(Name)}",
                 (current, next) => $"{current} AND {connection.CreateIdentifier(next.Key)} = @{next.Key}")
             );
 
@@ -35,7 +39,7 @@ namespace Reusable.SmartConfig
 
             // --- add parameters & values
 
-            command.AddParameters(where.Add(columnMapping.Name, name));
+            command.AddParameters(where.Add(columnMappings.MapOrDefault(Name), name));
 
             return command;
         }
@@ -81,14 +85,15 @@ namespace Reusable.SmartConfig
 
         public static SqlCommand CreateUpdateCommand
         (
-            this SqlConnection connection,
-            SqlFourPartName tableName,
-            IImmutableDictionary<string, object> where,
-            SqlServerColumnMapping columnMapping,
-            string name,
-            object value
-        )
+            [NotNull] this SqlConnection connection,
+            [NotNull] SqlFourPartName tableName,
+            [NotNull] string name,
+            [CanBeNull] IImmutableDictionary<SqlServerColumn, ImplicitString> columnMappings,
+            [CanBeNull] IImmutableDictionary<string, object> @where,
+            [CanBeNull] object value)
         {
+            where = where ?? ImmutableDictionary<string, object>.Empty;
+            
             /*
              
             UPDATE [Setting]
@@ -105,24 +110,24 @@ namespace Reusable.SmartConfig
             var table = tableName.Render(connection);
 
             sql.Append($"UPDATE {table}").AppendLine();
-            sql.Append($"SET [{columnMapping.Value}] = @{columnMapping.Value}").AppendLine();
+            sql.Append($"SET [{columnMappings.MapOrDefault(Value)}] = @{columnMappings.MapOrDefault(Value)}").AppendLine();
 
             sql.Append(where.Aggregate(
-                $"WHERE [{columnMapping.Name}] = @{columnMapping.Name}",
+                $"WHERE [{columnMappings.MapOrDefault(Name)}] = @{columnMappings.MapOrDefault(Name)}",
                 (result, next) => $"{result} AND {connection.CreateIdentifier(next.Key)} = @{next.Key} ")
             ).AppendLine();
 
             sql.Append($"IF @@ROWCOUNT = 0").AppendLine();
 
             var columns = where.Keys.Select(key => connection.CreateIdentifier(key)).Aggregate(
-                $"[{columnMapping.Name}], [{columnMapping.Value}]",
+                $"[{columnMappings.MapOrDefault(Name)}], [{columnMappings.MapOrDefault(Value)}]",
                 (result, next) => $"{result}, {next}"
             );
 
             sql.Append($"INSERT INTO {table}({columns})").AppendLine();
 
             var parameterNames = where.Keys.Aggregate(
-                $"@{columnMapping.Name}, @{columnMapping.Value}",
+                $"@{columnMappings.MapOrDefault(Name)}, @{columnMappings.MapOrDefault(Value)}",
                 (result, next) => $"{result}, @{next}"
             );
 
@@ -134,8 +139,8 @@ namespace Reusable.SmartConfig
 
             // --- add parameters
 
-            command.Parameters.AddWithValue($"@{columnMapping.Name}", name);
-            command.Parameters.AddWithValue($"@{columnMapping.Value}", value);
+            command.Parameters.AddWithValue($"@{columnMappings.MapOrDefault(Name)}", name);
+            command.Parameters.AddWithValue($"@{columnMappings.MapOrDefault(Value)}", value);
             //command.Parameters.Add($"@{sqlServer.ColumnMapping.Value}", SqlDbType.NVarChar, 200).Value = setting.Value;
 
             command.AddParameters(where);
@@ -162,9 +167,9 @@ namespace Reusable.SmartConfig
 
         public static SqlCommand AddParameters(this SqlCommand cmd, IEnumerable<SoftString> values, string name)
         {
-            foreach (var t in values.Select((x, i) => (Value: x, Index: i)))
+            foreach (var (value, index) in values.Select((x, i) => (x, i)))
             {
-                cmd.Parameters.AddWithValue($"@{name.ToString()}_{t.Index}", t.Value.ToString());
+                cmd.Parameters.AddWithValue($"@{name.ToString()}_{index}", value.ToString());
             }
             return cmd;
         }

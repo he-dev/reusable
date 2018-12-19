@@ -13,7 +13,6 @@ using Reusable.Extensions;
 using Reusable.Flawless;
 using Reusable.IOnymous;
 using Reusable.Reflection;
-using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Reflection;
 
 namespace Reusable.SmartConfig
@@ -73,14 +72,17 @@ namespace Reusable.SmartConfig
             var memberPrefixHandling = (PrefixHandling)Enum.Parse(typeof(PrefixHandling), uri.Query["prefixHandling"], ignoreCase: true);
             var prefixHandling = new[] { memberPrefixHandling, providerConvention.PrefixHandling }.First(x => x > PrefixHandling.Inherit);
 
+            var memberPrefix = uri.Query.TryGetValue("prefix", out var p) ? p : (ImplicitString)string.Empty;
+            var prefixes = new[] { memberPrefix, (ImplicitString)providerConvention.Prefix };
+
             var query = (ImplicitString)new (ImplicitString Key, ImplicitString Value)[]
-            {
-                ("prefix", prefixHandling == PrefixHandling.Enable ? new [] { (uri.Query.TryGetValue("prefix", out var p) ? p : (ImplicitString)string.Empty), (ImplicitString)providerConvention.Prefix }.First(prefix => prefix) : (ImplicitString)string.Empty),
-                ("instance", uri.Query.TryGetValue("instance", out var instance) ? instance :  (ImplicitString)string.Empty)
-            }
-            .Where(x => x.Value)
-            .Select(x => $"{x.Key}={x.Value}")
-            .Join("&");
+                {
+                    ("prefix", prefixHandling == PrefixHandling.Enable ? prefixes.First(x => x) : (ImplicitString)string.Empty),
+                    ("instance", uri.Query.TryGetValue("instance", out var instance) ? instance : (ImplicitString)string.Empty)
+                }
+                .Where(x => x.Value)
+                .Select(x => $"{x.Key}={x.Value}")
+                .Join("&");
 
             return $"setting:{path}{(query ? $"?{query}" : string.Empty)}";
         }
@@ -91,12 +93,12 @@ namespace Reusable.SmartConfig
 
             if (uri.Query.TryGetValue("providerCustomName", out var providerCustomName))
             {
-                metadata = metadata.Add("providerCustomName", (string)providerCustomName);
+                metadata = metadata.Add(ResourceMetadataKeys.ProviderCustomName, (string)providerCustomName);
             }
 
             if (uri.Query.TryGetValue("providerDefaultName", out var providerDefaultName))
             {
-                metadata = metadata.Add("providerDefaultName", (string)providerDefaultName);
+                metadata = metadata.Add(ResourceMetadataKeys.ProviderDefaultName, (string)providerDefaultName);
             }
 
             return metadata;

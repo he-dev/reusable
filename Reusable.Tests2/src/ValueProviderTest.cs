@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Reusable.IOnymous;
 using Reusable.SmartConfig;
-using Reusable.SmartConfig.Annotations;
 using Xunit;
 
 namespace Reusable.Tests2

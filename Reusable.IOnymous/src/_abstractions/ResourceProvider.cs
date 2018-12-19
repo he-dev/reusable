@@ -84,6 +84,8 @@ namespace Reusable.IOnymous
                     ? uri
                     : throw DynamicException.Create("SchemeNotFound", $"Uri '{uri}' does not contain scheme.");
         }
+        
+        //protected void Validate
     }
 
     public static class ResourceHelper

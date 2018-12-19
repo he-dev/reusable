@@ -1,90 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Reusable.Extensions;
-using Reusable.IOnymous;
 
-namespace Reusable.SmartConfig.Annotations
+namespace Reusable.SmartConfig
 {
     [UsedImplicitly]
-    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
-    public class SettingProviderAttribute : Attribute
-    {
-        private string _prefix;
-        private SettingNameStrength _strength;
-        private readonly IImmutableSet<SoftString> _providerNames;
-
-        private SettingProviderAttribute
-        (
-            SettingNameStrength strength,
-            IEnumerable<Type> providerTypes,
-            IEnumerable<string> providerNames
-        )
-        {
-            _providerNames = providerNames.Concat(providerTypes.Select(t => t.ToPrettyString())).Select(SoftString.Create).ToImmutableHashSet();
-            _strength = strength;
-        }
-
-        public SettingProviderAttribute(SettingNameStrength strength, params Type[] providerTypes)
-            : this(strength, providerTypes, Enumerable.Empty<string>())
-        { }
-
-        public SettingProviderAttribute(SettingNameStrength strength, params string[] providerNames)
-            : this(strength, Enumerable.Empty<Type>(), providerNames)
-        { }
-
-        public SettingProviderAttribute(SettingNameStrength strength)
-            : this(strength, Enumerable.Empty<Type>(), Enumerable.Empty<string>())
-        { }
-
-        public static readonly SettingProviderAttribute Default = new SettingProviderAttribute
-        (
-            SettingNameStrength.Medium,
-            Enumerable.Empty<Type>(),
-            Enumerable.Empty<string>()
-        );        
-
-        [CanBeNull]
-        public string Prefix
-        {
-            get => _prefix; // ?? (AssemblyType is null ? default : Assembly.GetAssembly(AssemblyType).GetName().Name);
-            set => _prefix = value;
-        }
-
-        public PrefixHandling PrefixHandling => string.IsNullOrWhiteSpace(Prefix) ? PrefixHandling.Disable : PrefixHandling.Enable;
-
-        // todo - disallow .Inherit
-        public SettingNameStrength Strength
-        {
-            get => _strength;
-            //set => _settingNameStrength = value;
-        }
-
-        public int ProviderNameCount => _providerNames.Count;
-
-        public bool Matches<T>(T provider) where T : IResourceProvider
-        {
-            return 
-                _providerNames
-                    .Intersect(provider.Metadata.ProviderNames().Select(SoftString.Create))
-                    .Any();
-        }
-    }
-
-    [UsedImplicitly]
-    public class SettingAttribute : Attribute
+    public abstract class SettingAttribute : Attribute
     {
         [CanBeNull] private string _prefix;
         private PrefixHandling _prefixHandling = PrefixHandling.Inherit;
-
-        internal SettingAttribute()
-        {
-        }
 
         [CanBeNull]
         public string Prefix
@@ -121,7 +48,7 @@ namespace Reusable.SmartConfig.Annotations
             }
         }
 
-        // todo for future use
+        // todo - for future use
         //public bool Cache { get; set; } = true;
     }
 
@@ -136,6 +63,4 @@ namespace Reusable.SmartConfig.Annotations
     public class SettingMemberAttribute : SettingAttribute
     {
     }
-
-
 }
