@@ -22,7 +22,7 @@ namespace Reusable.IOnymous
         {
             ValidateScheme(uri, "file");
 
-            return Task.FromResult<IResourceInfo>(new PhysicalFileInfo(uri));
+            return Task.FromResult<IResourceInfo>(new PhysicalDirectoryInfo(uri));
         }
 
         public override async Task<IResourceInfo> PutAsync(UriString uri, Stream value, ResourceMetadata metadata = null)
@@ -58,5 +58,25 @@ namespace Reusable.IOnymous
                 throw CreateException(this, uri.Path, metadata, inner);
             }
         }
+    }
+    
+    [PublicAPI]
+    internal class PhysicalDirectoryInfo : ResourceInfo
+    {
+        public PhysicalDirectoryInfo([NotNull] UriString uri) : base(uri) { }
+
+        public override UriString Uri { get; }
+
+        public override bool Exists => Directory.Exists(Uri.Path);
+
+        public override long? Length { get; }
+
+        public override DateTime? CreatedOn { get; }
+
+        public override DateTime? ModifiedOn => Exists ? Directory.GetLastWriteTimeUtc(Uri.Path) : default;
+
+        public override Task CopyToAsync(Stream stream) => throw new NotSupportedException();
+
+        public override Task<object> DeserializeAsync(Type targetType) => throw new NotSupportedException();
     }
 }

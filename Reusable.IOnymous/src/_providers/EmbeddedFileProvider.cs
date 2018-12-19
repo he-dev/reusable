@@ -34,7 +34,7 @@ namespace Reusable.IOnymous
 
             // Embedded resource names are separated by '.' so replace the windows separator.
 
-            var fullUri = new UriString(BaseUri, uri.Path.Value);
+            var fullUri = BaseUri + uri.Path.Value;
             var fullName = fullUri.Path.Value.Replace('/', '.');
 
             // Embedded resource names are case sensitive so find the actual name of the resource.
@@ -63,5 +63,54 @@ namespace Reusable.IOnymous
     public static class EmbeddedFileProvider<T>
     {
         public static IResourceProvider Default { get; } = new EmbeddedFileProvider(typeof(T).Assembly);
+    }
+    
+    internal class EmbeddedFileInfo : ResourceInfo
+    {
+        private readonly Func<Stream> _getManifestResourceStream;
+
+        public EmbeddedFileInfo(string uri, Func<Stream> getManifestResourceStream) : base(uri)
+        {
+            _getManifestResourceStream = getManifestResourceStream;
+        }
+
+        public override bool Exists => !(_getManifestResourceStream is null);
+
+        public override long? Length
+        {
+            get
+            {
+                using (var stream = _getManifestResourceStream?.Invoke())
+                {
+                    return stream?.Length;
+                }
+            }
+        }
+
+        public override DateTime? CreatedOn { get; }
+
+        public override DateTime? ModifiedOn { get; }
+
+
+        public override async Task CopyToAsync(Stream stream)
+        {
+            AssertExists();
+
+            using (var resourceStream = _getManifestResourceStream())
+            {
+                await resourceStream.CopyToAsync(stream);
+            }
+        }
+
+        public override async Task<object> DeserializeAsync(Type targetType)
+        {
+            AssertExists();
+
+            using (var resourceStream = _getManifestResourceStream())
+            using (var streamReader = new StreamReader(resourceStream))
+            {
+                return await streamReader.ReadToEndAsync();
+            }
+        }
     }
 }

@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Diagnostics;
+using Reusable.Exceptionizer;
 
 namespace Reusable.IOnymous
 {
@@ -76,56 +76,18 @@ namespace Reusable.IOnymous
         public override int GetHashCode() => ResourceInfoEqualityComparer.Default.GetHashCode(this);
 
         #endregion
+
+        #region Helpers
+
+        protected void AssertExists([CallerMemberName] string memberName = null)
+        {
+            if (!Exists)
+            {
+                // ReSharper disable once AssignNullToNotNullAttribute
+                throw DynamicException.Create(memberName, $"Resource '{Uri}' does not exist.");
+            }
+        }
+
+        #endregion
     }
-
-    public static class ResourceInfoExtensions
-    {
-        public static async Task<T> DeserializeAsync<T>(this IResourceInfo resourceInfo) => (T)(await resourceInfo.DeserializeAsync(typeof(T)));
-    }
-
-    public static class SimpleUriExtensions
-    {
-
-        public static bool IsIOnymous(this UriString uri) => SoftString.Comparer.Equals(uri.Scheme, ResourceProvider.DefaultScheme);
-    }
-
-    public class ResourceInfoEqualityComparer : IEqualityComparer<IResourceInfo>, IEqualityComparer<UriString>, IEqualityComparer<string>
-    {
-        private static readonly IEqualityComparer ResourceUriComparer = StringComparer.OrdinalIgnoreCase;
-
-        [NotNull]
-        public static ResourceInfoEqualityComparer Default { get; } = new ResourceInfoEqualityComparer();
-
-        public bool Equals(IResourceInfo x, IResourceInfo y) => Equals(x?.Uri, y?.Uri);
-
-        public int GetHashCode(IResourceInfo obj) => GetHashCode(obj.Uri);
-
-        public bool Equals(UriString x, UriString y) => ResourceUriComparer.Equals(x, y);
-
-        public int GetHashCode(UriString obj) => ResourceUriComparer.GetHashCode(obj);
-
-        public bool Equals(string x, string y) => !string.IsNullOrWhiteSpace(x) && !string.IsNullOrWhiteSpace(y) && Equals(new UriString(x), new UriString(y));
-
-        public int GetHashCode(string obj) => GetHashCode(new UriString(obj));
-    }
-
-    //public readonly struct ValueInfoType : IEquatable<ValueInfoType>
-    //{
-    //    private ValueInfoType([NotNull] string name) => Name = name ?? throw new ArgumentNullException(nameof(name));
-
-    //    [AutoEqualityProperty]
-    //    public string Name { get; }
-
-    //    public static ValueInfoType Create(string name) => new ValueInfoType(name);
-
-    //    public override bool Equals(object obj) => obj is ValueInfoType type && Equals(type);
-
-    //    public bool Equals(ValueInfoType other) => AutoEquality<ValueInfoType>.Comparer.Equals(this, other);
-
-    //    public override int GetHashCode() => AutoEquality<ValueInfoType>.Comparer.GetHashCode(this);
-
-    //    public static implicit operator ValueInfoType(string name) => new ValueInfoType(name);
-
-    //    public static implicit operator string(ValueInfoType type) => type.Name;
-    //}
 }

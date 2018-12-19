@@ -71,6 +71,11 @@ namespace Reusable.IOnymous
             Fragment = uriMatch.Groups["fragment"];
         }
 
+        public UriString(string scheme, string path) 
+            : this($"{scheme}:{path.Replace('\\', '/')}")
+        {
+        }
+
         public UriString(UriString absoluteUri, UriString relativeUri)
         {
             if (absoluteUri.IsRelative) throw new ArgumentException($"{nameof(absoluteUri)} must being with a scheme.");
@@ -95,7 +100,7 @@ namespace Reusable.IOnymous
 
         public bool IsAbsolute => Scheme;
 
-        public bool IsRelative => !IsAbsolute;
+        public bool IsRelative => !IsAbsolute;       
 
         public override string ToString() => ToString(Scheme);
 
@@ -145,6 +150,8 @@ namespace Reusable.IOnymous
         #region operators
 
         public static implicit operator UriString(string uri) => new UriString(uri);
+        
+        public static implicit operator UriString((string scheme, string path) uri) => new UriString(uri.scheme, uri.path);
 
         public static implicit operator string(UriString uri) => uri.ToString();
 

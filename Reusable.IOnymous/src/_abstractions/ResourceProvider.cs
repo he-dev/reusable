@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Exceptionizer;
@@ -37,8 +36,8 @@ namespace Reusable.IOnymous
 
         protected ResourceProvider(ResourceMetadata metadata)
         {
-            if(!metadata.ContainsKey(ResourceMetadataKeys.Scheme)) throw new ArgumentException(paramName: nameof(metadata), message: $"Resource provider metadata must specify the scheme.");
-            
+            if (!metadata.ContainsKey(ResourceMetadataKeys.Scheme)) throw new ArgumentException(paramName: nameof(metadata), message: $"Resource provider metadata must specify the scheme.");
+
             // If this is a decorator then the decorated resource-provider already has set this.
             if (!metadata.ContainsKey(ProviderDefaultName))
             {
@@ -54,7 +53,10 @@ namespace Reusable.IOnymous
 
         public abstract Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null);
 
-        public virtual Task<IResourceInfo> PostAsync(UriString name, Stream value, ResourceMetadata metadata = null) { throw new NotImplementedException(); }
+        public virtual Task<IResourceInfo> PostAsync(UriString name, Stream value, ResourceMetadata metadata = null)
+        {
+            throw new NotImplementedException();
+        }
 
         public abstract Task<IResourceInfo> PutAsync(UriString uri, Stream value, ResourceMetadata metadata = null);
 
@@ -68,7 +70,7 @@ namespace Reusable.IOnymous
         protected UriString ValidateScheme([NotNull] UriString uri, string scheme)
         {
             if (uri == null) throw new ArgumentNullException(nameof(uri));
-            
+
             return
                 SoftString.Comparer.Equals(uri.Scheme, scheme)
                     ? uri
@@ -78,57 +80,11 @@ namespace Reusable.IOnymous
         protected UriString ValidateSchemeNotEmpty([NotNull] UriString uri)
         {
             if (uri == null) throw new ArgumentNullException(nameof(uri));
-            
+
             return
                 uri.Scheme
                     ? uri
                     : throw DynamicException.Create("SchemeNotFound", $"Uri '{uri}' does not contain scheme.");
-        }
-        
-        //protected void Validate
-    }
-
-    public static class ResourceHelper
-    {
-        public static (Stream Stream, ResourceMetadata Metadata) CreateStream(object value)
-        {
-            // Don't dispose streams. The caller takes care of that.
-
-            switch (value)
-            {
-                case string s:
-                    var streamReader = s.ToStreamReader();
-                    return (streamReader.BaseStream, ResourceMetadata.Empty.Add(Serializer, nameof(StreamReader)));
-                default:
-                    var binaryFormatter = new BinaryFormatter();
-                    var memoryStream = new MemoryStream();
-                    binaryFormatter.Serialize(memoryStream, value);
-                    return (memoryStream, ResourceMetadata.Empty.Add(Serializer, nameof(BinaryFormatter)));
-            }
-        }
-
-        public static object CreateObject(Stream stream, ResourceMetadata metadata)
-        {
-            if (metadata.TryGetValue(Serializer, out string serializerName))
-            {
-                if (serializerName == nameof(BinaryFormatter))
-                {
-                    var binaryFormatter = new BinaryFormatter();
-                    return binaryFormatter.Deserialize(stream);
-                }
-
-                if (serializerName == nameof(StreamReader))
-                {
-                    using (var streamReader = new StreamReader(stream))
-                    {
-                        return streamReader.ReadToEnd();
-                    }
-                }
-
-                throw DynamicException.Create("UnsupportedSerializer", $"Cannot deserialize stream because the serializer '{serializerName}' is not supported.");
-            }
-
-            throw DynamicException.Create("SerializerNotFound", $"Serializer wasn't specified.");
         }
     }
 }

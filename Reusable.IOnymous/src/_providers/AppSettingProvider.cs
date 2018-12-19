@@ -78,7 +78,7 @@ namespace Reusable.IOnymous
 
     internal class AppSettingInfo : ResourceInfo
     {
-        [CanBeNull]
+        [CanBeNull] 
         private readonly string _value;
 
         internal AppSettingInfo([NotNull] UriString uri, [CanBeNull] string value) : base(uri)
@@ -96,18 +96,19 @@ namespace Reusable.IOnymous
 
         public override async Task CopyToAsync(Stream stream)
         {
-            if (Exists)
+            AssertExists();
+
+            // ReSharper disable once AssignNullToNotNullAttribute - this isn't null here
+            using (var valueStream = _value.ToStreamReader())
             {
-                // ReSharper disable once AssignNullToNotNullAttribute - this isn't null here
-                using (var valueStream = _value.ToStreamReader())
-                {
-                    await valueStream.BaseStream.CopyToAsync(stream);
-                }
+                await valueStream.BaseStream.CopyToAsync(stream);
             }
         }
 
         public override Task<object> DeserializeAsync(Type targetType)
         {
+            AssertExists();
+
             return Task.FromResult<object>(_value);
         }
     }

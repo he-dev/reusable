@@ -17,6 +17,7 @@
     <Compile Remove="src\IO\Filters\**" />
     <EmbeddedResource Remove="src\IO\Filters\**" />
     <None Remove="src\IO\Filters\**" />
+    <Compile Remove="src\Extensions\InMemoryFileProviderExtensions.cs" />
   </ItemGroup>
 
   <ItemGroup>

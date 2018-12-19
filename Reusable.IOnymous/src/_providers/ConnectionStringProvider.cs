@@ -28,7 +28,7 @@ namespace Reusable.IOnymous
         {
             var settingIdentifier = (string)_uriStringToSettingIdentifierConverter?.Convert(uri, typeof(string)) ?? uri;
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            var settings = FindConnectionStringSettings(exeConfig, settingIdentifier);            
+            var settings = FindConnectionStringSettings(exeConfig, settingIdentifier);
             return Task.FromResult<IResourceInfo>(new ConnectionStringInfo(uri, settings?.ConnectionString));
         }
 
@@ -76,8 +76,7 @@ namespace Reusable.IOnymous
 
     internal class ConnectionStringInfo : ResourceInfo
     {
-        [CanBeNull]
-        private readonly string _value;
+        [CanBeNull] private readonly string _value;
 
         internal ConnectionStringInfo([NotNull] UriString uri, [CanBeNull] string value) : base(uri)
         {
@@ -94,18 +93,19 @@ namespace Reusable.IOnymous
 
         public override async Task CopyToAsync(Stream stream)
         {
-            if (Exists)
+            AssertExists();
+
+            // ReSharper disable once AssignNullToNotNullAttribute - this isn't null here
+            using (var valueStream = _value.ToStreamReader())
             {
-                // ReSharper disable once AssignNullToNotNullAttribute - this isn't null here
-                using (var valueStream = _value.ToStreamReader())
-                {
-                    await valueStream.BaseStream.CopyToAsync(stream);
-                }
+                await valueStream.BaseStream.CopyToAsync(stream);
             }
         }
 
         public override Task<object> DeserializeAsync(Type targetType)
         {
+            AssertExists();
+
             return Task.FromResult<object>(_value);
         }
     }
