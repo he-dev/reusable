@@ -31,8 +31,8 @@ namespace Reusable.OmniLog
 
         private string DebuggerDisplay() => this.ToDebuggerDisplayString(builder =>
         {
-            builder.Property(x => x._cache.Count);
-            builder.Property(x => x.Configuration.Attachements.Count);
+            builder.DisplayMember(x => x._cache.Count);
+            builder.DisplayMember(x => x.Configuration.Attachements.Count);
         });
 
         [NotNull]

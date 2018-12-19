@@ -36,7 +36,7 @@ namespace Reusable.sdk.Http
             _configureDefaultRequestHeaders = configureDefaultRequestHeaders;
         }
 
-        private string DebuggerDisplay() => this.ToDebuggerDisplayString(builder => { builder.Property(x => x.BaseUri); });
+        private string DebuggerDisplay() => this.ToDebuggerDisplayString(builder => { builder.DisplayMember(x => x.BaseUri); });
 
         public string BaseUri => _client.BaseAddress.ToString();
 

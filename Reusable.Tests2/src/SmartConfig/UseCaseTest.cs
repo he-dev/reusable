@@ -15,19 +15,19 @@ using Xunit;
 
 namespace Reusable.Tests2.SmartConfig
 {
-    public class FeatureTest
+    public class UseCaseTest
     {
         private static readonly SqlFourPartName SettingTableName = ("reusable", "SmartConfig");
 
         private static readonly IResourceProvider SettingProvider = new CompositeResourceProvider(new IResourceProvider[]
         {
-            new InMemoryResourceProvider(ResourceMetadata.Empty.Add(ResourceMetadataKeys.ProviderCustomName, "Test"))
+            new InMemoryResourceProvider(ResourceMetadata.Empty.Add(ResourceMetadataKeys.ProviderCustomName, "Memory1"))
             {
                 { "setting:Test6.Member1?prefix=TestPrefix", "Value1" },
                 { "setting:Member2", "Value2" },
                 { "setting:Test7.Member", "InvalidValue1" },
             },
-            new InMemoryResourceProvider(ResourceMetadata.Empty)
+            new InMemoryResourceProvider(ResourceMetadata.Empty.Add(ResourceMetadataKeys.ProviderCustomName, "Memory2"))
             {
                 { "setting:Test1.Member", "Value1" },
                 { "setting:Test2.Property", "Value2" },
@@ -35,7 +35,7 @@ namespace Reusable.Tests2.SmartConfig
                 { "setting:Test5.Member?prefix=Prefix", "Value5" },
                 { "setting:Test7.Member", "InvalidValue2" },
             },
-            new InMemoryResourceProvider(ResourceMetadata.Empty.Add(ResourceMetadataKeys.ProviderCustomName, "Test7"))
+            new InMemoryResourceProvider(ResourceMetadata.Empty.Add(ResourceMetadataKeys.ProviderCustomName, "Memory3"))
             {
                 { "setting:Test7.Member", "Value7" },
             },
@@ -43,16 +43,16 @@ namespace Reusable.Tests2.SmartConfig
             new SqlServerProvider("name=TestDb", new UriStringToSettingIdentifierConverter())
             {
                 TableName = SettingTableName,
-                ColumnMappings = 
+                ColumnMappings =
                     ImmutableDictionary<SqlServerColumn, ImplicitString>
                         .Empty
                         .Add(SqlServerColumn.Name, "_name")
                         .Add(SqlServerColumn.Value, "_value"),
-                Where = ImmutableDictionary<string, object>.Empty.Add("_other", nameof(FeatureTest))
+                Where = ImmutableDictionary<string, object>.Empty.Add("_other", nameof(UseCaseTest))
             }.DecorateWith(JsonResourceProvider.Factory()),
         }.Select(p => p.DecorateWith(Reusable.SmartConfig.SettingProvider.Factory())).ToArray(), ResourceMetadata.Empty);
 
-        public FeatureTest()
+        public UseCaseTest()
         {
             SeedAppSettings();
             SeedSqlServer();
@@ -81,44 +81,27 @@ namespace Reusable.Tests2.SmartConfig
         private static void SeedSqlServer()
         {
             var data =
-                    new DataTable()
-                        .AddColumn("_name", typeof(string))
-                        .AddColumn("_value", typeof(string))
-                        .AddColumn("_other", typeof(string))
-                        .AddRow("Test9.Greeting", "Hallo!", nameof(FeatureTest))
-                //                        .AddRow("MockClass2.Bar", "text", "integration")
-                //                        .AddRow("TestClass3.Baz", "1.23", "integration")
-                //                        // Used for exception testing.
-                //                        .AddRow("TestClass3.Qux", "quux", "integration")
-                //                        .AddRow($"{Namespace}+TestClass3.Qux", "quux", "integration")
-                ;
+                new DataTable()
+                    .AddColumn("_name", typeof(string))
+                    .AddColumn("_value", typeof(string))
+                    .AddColumn("_other", typeof(string))
+                    .AddRow("Test9.Greeting", "Hallo!", nameof(UseCaseTest));
 
-            SqlHelper.Execute("name=TestDb", connection => { connection.Seed(SettingTableName, data); });
+            using (data)
+            {
+                SqlHelper.Execute("name=TestDb", connection => { connection.Seed(SettingTableName, data); });
+            }
         }
 
         [Fact]
-        public void GetValue_CanGetValueByVariousNames()
-        {
-            var test1 = new Test1();
-            var test2 = new Test2();
-            var test3 = new Test3();
-            var test5 = new Test5();
-
-            Assert.Equal("Value1", SettingProvider.GetSetting(() => test1.Member));
-            Assert.Equal("Value2", SettingProvider.GetSetting(() => test2.Member));
-            Assert.Equal("Value4", SettingProvider.GetSetting(() => test3.Member));
-            Assert.Equal("Value5", SettingProvider.GetSetting(() => test5.Member));
-        }
-
-        [Fact]
-        public void CanGetValueWithDefaultSetup()
+        public void Can_get_settings_by_default_convention()
         {
             var test1 = new Test1();
             Assert.Equal("Value1", SettingProvider.GetSetting(() => test1.Member));
         }
 
         [Fact]
-        public void GetValue_CanGetValueWithTypeOrMemberAnnotations()
+        public void Can_get_settings_with_type_or_member_annotations()
         {
             var test2 = new Test2();
             var test3 = new Test3();
@@ -130,7 +113,7 @@ namespace Reusable.Tests2.SmartConfig
         }
 
         [Fact]
-        public void GetValue_CanGetValueWithAssemblyAnnotations()
+        public void Can_get_settings_with_assembly_annotations()
         {
             var test6 = new Test6();
 
@@ -139,7 +122,7 @@ namespace Reusable.Tests2.SmartConfig
         }
 
         [Fact]
-        public void GetValue_CanGetValueFromSpecificProvider()
+        public void Can_get_settings_from_specific_provider()
         {
             var test7 = new Test7();
 
@@ -147,15 +130,15 @@ namespace Reusable.Tests2.SmartConfig
         }
 
         [Fact]
-        public void GetValue_ThrowsWhenProviderDoesNotExist()
+        public void Throws_when_setting_does_not_exist()
         {
             var test8 = new Test8();
 
-            Assert.Throws<DynamicException>(() => SettingProvider.GetSetting(() => test8.Member));//, filter => filter.When(name: "GetValue"));
+            Assert.ThrowsAny<DynamicException>(() => SettingProvider.GetSetting(() => test8.Member));
         }
 
         [Fact]
-        public void GetValue_CanReadAndWriteWithSqlServer()
+        public void Can_get_and_put_settings_with_SqlServerProvider()
         {
             var test = new Test9 { Configuration = SettingProvider };
 
@@ -167,7 +150,7 @@ namespace Reusable.Tests2.SmartConfig
         }
 
         [Fact]
-        public void GetValue_CanReadFromAppConfig()
+        public void Can_get_and_put_settings_with_AppConfigProvider()
         {
             var test = new Test9 { Configuration = SettingProvider };
 
@@ -220,7 +203,7 @@ namespace Reusable.Tests2.SmartConfig
     // changes provider resolution behavior
     internal class Test7 : Test0
     {
-        [SettingMember(ProviderName = "Test7")]
+        [SettingMember(ProviderName = "Memory3")]
         public string Member { get; set; }
     }
 

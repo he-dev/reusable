@@ -9,7 +9,7 @@ namespace Reusable.Tests.Diagnostics
         [TestMethod]
         public void Create_TypeAndObject_String()
         {
-            var debuggerString = new Person { FirstName = "foo", Age = 19 }.ToDebuggerDisplayString(builder => builder.Property(x => x.FirstName).Property(x => x.Age));
+            var debuggerString = new Person { FirstName = "foo", Age = 19 }.ToDebuggerDisplayString(builder => builder.DisplayMember(x => x.FirstName).DisplayMember(x => x.Age));
             Assert.AreEqual("FirstName = 'foo', Age = 19", debuggerString);
         }
 

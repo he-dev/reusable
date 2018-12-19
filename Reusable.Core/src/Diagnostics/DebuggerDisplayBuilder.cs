@@ -19,35 +19,40 @@ namespace Reusable.Diagnostics
             _members = new List<(string MemberName, Func<T, object> GetValue)>();
         }
 
-        public DebuggerDisplayBuilder<T> Property<TProperty>(
-            [NotNull] Expression<Func<T, TProperty>> propertySelector, 
-            [NotNull] string format)
+        public DebuggerDisplayBuilder<T> Property<TProperty>
+        (
+            [NotNull] Expression<Func<T, TProperty>> memberSelector, 
+            [NotNull] string format
+        )
         {
-            if (propertySelector == null) throw new ArgumentNullException(nameof(propertySelector));
+            if (memberSelector == null) throw new ArgumentNullException(nameof(memberSelector));
             if (format == null) throw new ArgumentNullException(nameof(format));
 
-            var memberExpressions = DebuggerDisplayVisitor.EnumerateMembers(propertySelector);
-            var getProperty = propertySelector.Compile();
+            var memberExpressions = DebuggerDisplayVisitor.EnumerateMembers(memberSelector);
+            var getProperty = memberSelector.Compile();
 
-            return Add(
+            return Add
+            (
                 memberName: memberExpressions.FormatMemberName(),
                 getValue: obj => obj == null ? null : getProperty(obj).FormatValue(format)
             );
         }
 
-        public DebuggerDisplayBuilder<T> Collection<TProperty, TValue>(
-            [NotNull] Expression<Func<T, IEnumerable<TProperty>>> propertySelector,
-            [NotNull] Expression<Func<TProperty, TValue>> valueSelector,
+        public DebuggerDisplayBuilder<T> Collection<TProperty, TValue>
+        (
+            [NotNull] Expression<Func<T, IEnumerable<TProperty>>> memberSelector,
+            [NotNull] Expression<Func<TProperty, TValue>> itemSelector,
             [NotNull] string format,
-            int max)
+            int max
+        )
         {
-            if (propertySelector == null) throw new ArgumentNullException(nameof(propertySelector));
-            if (valueSelector == null) throw new ArgumentNullException(nameof(valueSelector));
+            if (memberSelector == null) throw new ArgumentNullException(nameof(memberSelector));
+            if (itemSelector == null) throw new ArgumentNullException(nameof(itemSelector));
             if (format == null) throw new ArgumentNullException(nameof(format));
 
-            var memberExpressions = DebuggerDisplayVisitor.EnumerateMembers(propertySelector);
-            var getProperty = propertySelector.Compile();
-            var getValue = valueSelector.Compile();
+            var memberExpressions = DebuggerDisplayVisitor.EnumerateMembers(memberSelector);
+            var getProperty = memberSelector.Compile();
+            var getValue = itemSelector.Compile();
 
             return Add(
                 memberName: memberExpressions.FormatMemberName(),
@@ -69,28 +74,34 @@ namespace Reusable.Diagnostics
 
     public static class DebuggerDisplayBuilder
     {
-        public static DebuggerDisplayBuilder<T> Property<T, TProperty>(
+        public static DebuggerDisplayBuilder<T> DisplayMember<T, TProperty>
+        (
             this DebuggerDisplayBuilder<T> builder,
-            Expression<Func<T, TProperty>> propertySelector)
+            Expression<Func<T, TProperty>> memberSelector
+        )
         {
-            return builder.Property(propertySelector, DebuggerDisplayFormatter.DefaultValueFormat);
+            return builder.Property(memberSelector, DebuggerDisplayFormatter.DefaultValueFormat);
         }
 
-        public static DebuggerDisplayBuilder<T> Collection<T, TProperty, TValue>(
+        public static DebuggerDisplayBuilder<T> DisplayCollection<T, TProperty, TValue>
+        (
             this DebuggerDisplayBuilder<T> builder,
-            Expression<Func<T, IEnumerable<TProperty>>> propertySelector,
-            Expression<Func<TProperty, TValue>> valueSelector,
+            Expression<Func<T, IEnumerable<TProperty>>> memberSelector,
+            Expression<Func<TProperty, TValue>> itemSelector,
             string format,
-            int max = DebuggerDisplayFormatter.DefaultCollectionLength)
+            int max = DebuggerDisplayFormatter.DefaultCollectionLength
+        )
         {
-            return builder.Collection(propertySelector, valueSelector, DebuggerDisplayFormatter.DefaultValueFormat, max);
+            return builder.Collection(memberSelector, itemSelector, DebuggerDisplayFormatter.DefaultValueFormat, max);
         }
 
-        public static DebuggerDisplayBuilder<T> Collection<T, TProperty>(
+        public static DebuggerDisplayBuilder<T> DisplayCollection<T, TProperty>
+        (
             this DebuggerDisplayBuilder<T> builder,
-            Expression<Func<T, IEnumerable<TProperty>>> propertySelector)
+            Expression<Func<T, IEnumerable<TProperty>>> memberSelector
+        )
         {
-            return builder.Collection(propertySelector, x => x, DebuggerDisplayFormatter.DefaultValueFormat, DebuggerDisplayFormatter.DefaultCollectionLength);
+            return builder.Collection(memberSelector, x => x, DebuggerDisplayFormatter.DefaultValueFormat, DebuggerDisplayFormatter.DefaultCollectionLength);
         }
     }
 }

@@ -22,13 +22,6 @@ namespace Reusable.SmartConfig
     {
         private readonly IResourceProvider _resourceProvider;
 
-        protected static readonly IExpressValidator<UriString> UriValidator = ExpressValidator.For<UriString>(assert =>
-        {
-            assert.NotNull();
-            assert.True(x => x.IsAbsolute);
-            assert.True(x => x.Scheme == "setting");
-        });
-
         public SettingProvider(IResourceProvider resourceProvider)
             : base(resourceProvider.Metadata.SetItem(ResourceMetadataKeys.Scheme, "setting"))
         {
@@ -52,14 +45,10 @@ namespace Reusable.SmartConfig
             return _resourceProvider.DeleteAsync(Translate(uri), Translate(uri, metadata));
         }
 
-        protected UriString Validate(UriString uri) => UriValidator.Validate(uri).Assert();
-
         // uri=
         // setting:name-space.type.member?instance=name&prefix=name&strength=name&prefixhandling=name
         protected UriString Translate(UriString uri)
         {
-            Validate(uri);
-
             var providerConvention =
                 SettingMetadata
                     .AssemblyAttributes

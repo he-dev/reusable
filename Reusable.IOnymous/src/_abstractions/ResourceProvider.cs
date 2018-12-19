@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Diagnostics;
 using Reusable.Exceptionizer;
 using Reusable.Extensions;
 using Reusable.Flawless;
@@ -31,6 +33,7 @@ namespace Reusable.IOnymous
         Task<IResourceInfo> DeleteAsync([NotNull] UriString uri, ResourceMetadata metadata = null);
     }
 
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract class ResourceProvider : IResourceProvider
     {
         public static readonly string DefaultScheme = "ionymous";
@@ -47,6 +50,12 @@ namespace Reusable.IOnymous
 
             Metadata = metadata;
         }
+
+        private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
+        {            
+            builder.DisplayCollection(x => x.Metadata.ProviderNames());
+            builder.DisplayMember(x => x.Scheme);
+        });
 
         public virtual ResourceMetadata Metadata { get; }
 

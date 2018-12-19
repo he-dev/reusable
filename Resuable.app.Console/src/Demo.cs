@@ -129,14 +129,14 @@ namespace Reusable.Apps
             var toString = person.ToDebuggerDisplayString(builder =>
             {
                 builder.Property(x => x.FirstName, "{0,8}");
-                builder.Property(x => x.LastName);
-                builder.Property(x => x.DBNullTest);
-                builder.Property(x => x.GraduationYears.Sum());
+                builder.DisplayMember(x => x.LastName);
+                builder.DisplayMember(x => x.DBNullTest);
+                builder.DisplayMember(x => x.GraduationYears.Sum());
                 builder.Property(x => x.Age, "{0:F2}");
-                builder.Property(x => x.GraduationYears.Count);
-                builder.Collection(x => x.GraduationYears);
-                builder.Collection(x => x.GraduationYears, x => x, "{0:X2}");
-                builder.Collection(x => x.Nicknames);
+                builder.DisplayMember(x => x.GraduationYears.Count);
+                builder.DisplayCollection(x => x.GraduationYears);
+                builder.DisplayCollection(x => x.GraduationYears, x => x, "{0:X2}");
+                builder.DisplayCollection(x => x.Nicknames);
             });
         }
     }
@@ -159,16 +159,16 @@ namespace Reusable.Apps
 
         private string DebuggerDisplay() => this.ToDebuggerDisplayString(builder =>
         {
-            builder.Property(x => x.FirstName);
-            builder.Property(x => x.LastName);
-            builder.Property(x => x._testField);
-            builder.Property(x => x.DBNullTest);
-            builder.Property(x => x.Age.ToString("F2"));
+            builder.DisplayMember(x => x.FirstName);
+            builder.DisplayMember(x => x.LastName);
+            builder.DisplayMember(x => x._testField);
+            builder.DisplayMember(x => x.DBNullTest);
+            builder.DisplayMember(x => x.Age.ToString("F2"));
             builder.Property(x => x.Age, "{0:F2}");
-            builder.Property(x => x.GraduationYears.Count);
-            builder.Collection(x => x.GraduationYears);
-            builder.Collection(x => x.GraduationYears, x => x, "{0:X2}");
-            builder.Collection(x => x.Nicknames);
+            builder.DisplayMember(x => x.GraduationYears.Count);
+            builder.DisplayCollection(x => x.GraduationYears);
+            builder.DisplayCollection(x => x.GraduationYears, x => x, "{0:X2}");
+            builder.DisplayCollection(x => x.Nicknames);
         });
     }
 }

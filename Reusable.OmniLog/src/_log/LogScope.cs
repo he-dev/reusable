@@ -31,7 +31,7 @@ namespace Reusable.OmniLog
         {
             //builder.Property(x => x.CorrelationId);
             //builder.Property(x => x.CorrelationContext);
-            builder.Property(x => x.Depth);
+            builder.DisplayMember(x => x.Depth);
         });
 
         public LogScope Parent { get; private set; }

@@ -32,8 +32,6 @@ namespace Reusable.IOnymous
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract class ResourceInfo : IResourceInfo
     {
-        protected const int OutOfRange = -1;
-
         protected ResourceInfo([NotNull] UriString uri)
         {
             if (uri == null) throw new ArgumentNullException(nameof(uri));
@@ -43,8 +41,8 @@ namespace Reusable.IOnymous
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
         {
-            builder.Property(x => x.Uri);
-            builder.Property(x => x.Exists);
+            builder.DisplayMember(x => x.Uri);
+            builder.DisplayMember(x => x.Exists);
         });
 
         #region IResourceInfo
@@ -96,7 +94,7 @@ namespace Reusable.IOnymous
             {
                 throw DynamicException.Create
                 (
-                    $"{nameof(CopyToAsync)}",
+                    $"{nameof(DeserializeAsync)}",
                     $"Affected resource '{Uri}'.",
                     inner
                 );

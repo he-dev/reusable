@@ -23,7 +23,7 @@ namespace Reusable.Flexo.Diagnostics
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
         {
-            builder.Property(x => x.Depth);
+            builder.DisplayMember(x => x.Depth);
         });
 
         public ExpressionContextScope Parent { get; private set; }

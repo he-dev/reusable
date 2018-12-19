@@ -15,8 +15,8 @@ namespace Reusable.Diagnostics.Triggers
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(b =>
         {
-            b.Property(x => x._counter);
-            b.Property(x => x.Current);
+            b.DisplayMember(x => x._counter);
+            b.DisplayMember(x => x.Current);
         });
 
         protected override bool CanThrow()

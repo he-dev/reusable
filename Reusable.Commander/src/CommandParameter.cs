@@ -21,9 +21,9 @@ namespace Reusable.Commander
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(b =>
         {
-            b.Property(x => x.Id.Default.ToString());
-            b.Property(x => x.Type.ToPrettyString(false));
-            b.Property(x => x.Position);
+            b.DisplayMember(x => x.Id.Default.ToString());
+            b.DisplayMember(x => x.Type.ToPrettyString(false));
+            b.DisplayMember(x => x.Position);
         });
 
         [NotNull]

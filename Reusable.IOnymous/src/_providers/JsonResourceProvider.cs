@@ -75,7 +75,7 @@ namespace Reusable.IOnymous
             var info = await ResourceProvider.GetAsync(uri);
             if (info.Exists)
             {
-                var value = await info.DeserializeAsync(typeof(string));
+                var value = await info.DeserializeAsync<string>();
                 return new JsonResourceInfo
                 (
                     uri,
@@ -145,14 +145,14 @@ namespace Reusable.IOnymous
 
     internal class JsonResourceInfo : ResourceInfo
     {
-        [CanBeNull] private readonly object _value;
+        [CanBeNull] private readonly string _value;
 
         private readonly Func<Type, ITypeConverter> _getOrAddConverter;
 
         internal JsonResourceInfo
         (
             [NotNull] UriString uri,
-            [CanBeNull] object value,
+            [CanBeNull] string value,
             Func<Type, ITypeConverter> getOrAddConverter
         )
             : base(uri)
@@ -169,11 +169,13 @@ namespace Reusable.IOnymous
 
         public override DateTime? ModifiedOn { get; }
 
-        protected override Task CopyToAsyncInternal(Stream stream)
+        protected override async Task CopyToAsyncInternal(Stream stream)
         {
             // ReSharper disable once AssignNullToNotNullAttribute - this isn't null here
-            new BinaryFormatter().Serialize(stream, _value);
-            return Task.CompletedTask;
+            using (var streamReader = _value.ToStreamReader())
+            {
+                await streamReader.BaseStream.CopyToAsync(stream);
+            }
         }
 
         protected override Task<object> DeserializeAsyncInternal(Type targetType)
