@@ -7,7 +7,6 @@ using Reusable.Exceptionizer;
 using Reusable.IOnymous;
 using Reusable.SmartConfig;
 using Reusable.SmartConfig.Annotations;
-using Reusable.SmartConfig.Data;
 using Reusable.Utilities.SqlClient;
 using Xunit;
 
@@ -25,30 +24,30 @@ namespace Reusable.Tests2.SmartConfig
         {
             new InMemoryResourceProvider(ResourceMetadata.Empty.Add(ResourceMetadataKeys.ProviderCustomName, "Test"))
             {
-                { "Test6.Member1?prefix=TestPrefix", "Value1" },
-                { "Member2", "Value2" },
-                { "Test7.Member", "InvalidValue1" },
+                { "setting:Test6.Member1?prefix=TestPrefix", "Value1" },
+                { "setting:Member2", "Value2" },
+                { "setting:Test7.Member", "InvalidValue1" },
             },
             new InMemoryResourceProvider(ResourceMetadata.Empty)
             {
-                { "Test1.Member", "Value1" },
-                { "Test2.Property", "Value2" },
-                { "Test4.Property", "Value4" },
-                { "Test5.Member?prefix=Prefix", "Value5" },
-                { "Test7.Member", "InvalidValue2" },
+                { "setting:Test1.Member", "Value1" },
+                { "setting:Test2.Property", "Value2" },
+                { "setting:Test4.Property", "Value4" },
+                { "setting:Test5.Member?prefix=Prefix", "Value5" },
+                { "setting:Test7.Member", "InvalidValue2" },
             },
             new InMemoryResourceProvider(ResourceMetadata.Empty.Add(ResourceMetadataKeys.ProviderCustomName, "Test7"))
             {
-                { "Test7.Member", "Value7" },
+                { "setting:Test7.Member", "Value7" },
             },
-            new AppSettingProvider().DecorateWith(JsonResourceProvider.Factory()),
-            new SqlServerProvider("name=TestDb", ResourceMetadata.Empty) // new JsonSettingConverter() { StringTypes = new[] { typeof(string) }.ToImmutableHashSet() })
+            new AppSettingProvider(new UriStringToSettingIdentifierConverter()).DecorateWith(JsonResourceProvider.Factory()),
+            new SqlServerProvider("name=TestDb", new UriStringToSettingIdentifierConverter()) // new JsonSettingConverter() { StringTypes = new[] { typeof(string) }.ToImmutableHashSet() })
             {
                 TableName = SettingTableName,
                 ColumnMapping = ("_name", "_value"),
                 Where = ImmutableDictionary<string, object>.Empty.Add("_other", nameof(FeatureTest))
             }.DecorateWith(JsonResourceProvider.Factory()),
-        }.Select(p => p.DecorateWith(SettingProvider2.Factory())).ToArray(), ResourceMetadata.Empty);
+        }.Select(p => p.DecorateWith(Reusable.SmartConfig.SettingProvider.Factory())).ToArray(), ResourceMetadata.Empty);
 
         public FeatureTest()
         {

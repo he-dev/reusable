@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Exceptionizer;
 using Reusable.Reflection;
-using Reusable.SmartConfig.Data;
+using Reusable.SmartConfig;
 using Reusable.Utilities.MSTest;
 
 namespace Reusable.Tests.SmartConfig.Data
@@ -14,7 +14,7 @@ namespace Reusable.Tests.SmartConfig.Data
         [TestMethod]
         public void ctor_CanInstantiateFromMember()
         {
-            var sn = SettingName.Parse("foo");
+            var sn = SettingIdentifier.Parse("foo");
             Assert.That.IsNullOrEmpty(sn.Namespace);
             Assert.That.IsNullOrEmpty(sn.Type);
             Assert.AreEqual("foo", sn.Member);
@@ -39,13 +39,13 @@ namespace Reusable.Tests.SmartConfig.Data
         [TestMethod]
         public void Parse_DisallowsInvalidFormat()
         {
-            Assert.That.Throws<DynamicException>(() => SettingName.Parse("foo+bar+baz"), filter => filter.When(name: "^SettingNameFormat"));
+            Assert.That.Throws<DynamicException>(() => SettingIdentifier.Parse("foo+bar+baz"), filter => filter.When(name: "^SettingNameFormat"));
         }
 
         [TestMethod]
         public void Parse_CanReadMember()
         {
-            var settingName = SettingName.Parse("qux");
+            var settingName = SettingIdentifier.Parse("qux");
 
             Assert.That.IsNullOrEmpty(settingName.Prefix);
             Assert.That.IsNullOrEmpty(settingName.Namespace);
@@ -58,7 +58,7 @@ namespace Reusable.Tests.SmartConfig.Data
         [TestMethod]
         public void Parse_CanReadTypeAndMember()
         {
-            var settingName = SettingName.Parse("baz.qux");
+            var settingName = SettingIdentifier.Parse("baz.qux");
 
             Assert.That.IsNullOrEmpty(settingName.Namespace);
             Assert.AreEqual("baz", settingName.Type);
@@ -70,7 +70,7 @@ namespace Reusable.Tests.SmartConfig.Data
         [TestMethod]
         public void Parse_CanReadNamespaceTypeAndMember()
         {
-            var settingName = SettingName.Parse("foo.bar+baz.qux");
+            var settingName = SettingIdentifier.Parse("foo.bar+baz.qux");
 
             Assert.AreEqual("foo.bar", settingName.Namespace);
             Assert.AreEqual("baz", settingName.Type);
@@ -82,7 +82,7 @@ namespace Reusable.Tests.SmartConfig.Data
         [TestMethod]
         public void Parse_CanReadNamespaceTypeMemberAndInstance()
         {
-            var settingName = SettingName.Parse("foo.bar+baz.qux,quux");
+            var settingName = SettingIdentifier.Parse("foo.bar+baz.qux,quux");
 
             Assert.AreEqual("foo.bar", settingName.Namespace);
             Assert.AreEqual("baz", settingName.Type);
@@ -94,7 +94,7 @@ namespace Reusable.Tests.SmartConfig.Data
         [TestMethod]
         public void Parse_CanReadAssemblyNamespaceTypeMemberAndInstance()
         {
-            var settingName = SettingName.Parse("Assem.bly:Name.space+Type.Member,Instance");
+            var settingName = SettingIdentifier.Parse("Assem.bly:Name.space+Type.Member,Instance");
 
             Assert.AreEqual("Assem.bly", settingName.Prefix);
             Assert.AreEqual("Name.space", settingName.Namespace);
@@ -108,32 +108,32 @@ namespace Reusable.Tests.SmartConfig.Data
         public void Equals_CanCompareSimilarObjects()
         {
             Assert.AreEqual(
-                SettingName.Parse("foo.bar+baz.qux,quux"), 
-                SettingName.Parse("foo.bar+baz.qux,quux"));
+                SettingIdentifier.Parse("foo.bar+baz.qux,quux"), 
+                SettingIdentifier.Parse("foo.bar+baz.qux,quux"));
 
             Assert.AreEqual(
-                SettingName.Parse("baz.qux,quux"),
-                SettingName.Parse("baz.qux,quux"));
+                SettingIdentifier.Parse("baz.qux,quux"),
+                SettingIdentifier.Parse("baz.qux,quux"));
 
             Assert.AreEqual(
-                SettingName.Parse("qux,quux"),
-                SettingName.Parse("qux,quux"));
+                SettingIdentifier.Parse("qux,quux"),
+                SettingIdentifier.Parse("qux,quux"));
 
             Assert.AreEqual(
-                SettingName.Parse("foo.bar+baz.qux"),
-                SettingName.Parse("foo.bar+baz.qux"));
+                SettingIdentifier.Parse("foo.bar+baz.qux"),
+                SettingIdentifier.Parse("foo.bar+baz.qux"));
 
             Assert.AreEqual(
-                SettingName.Parse("qux"),
-                SettingName.Parse("qux"));
+                SettingIdentifier.Parse("qux"),
+                SettingIdentifier.Parse("qux"));
         }
 
         [TestMethod]
         public void Equals_CanCompareDifferentObjects()
         {
             Assert.AreNotEqual(
-                SettingName.Parse("foo.bar+baz.qux,quux"),
-                SettingName.Parse("foo.bar+baz.qux"));            
+                SettingIdentifier.Parse("foo.bar+baz.qux,quux"),
+                SettingIdentifier.Parse("foo.bar+baz.qux"));            
         }
     }
 }

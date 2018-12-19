@@ -47,7 +47,7 @@ namespace Reusable.IOnymous
             builder.Property(x => x.Exists);
         });
 
-        #region IValueInfo
+        #region IResourceInfo
 
         public virtual UriString Uri { get; }
 
@@ -65,13 +65,13 @@ namespace Reusable.IOnymous
 
         #endregion
 
-        #region IEquatable<IFileInfo>
+        #region IEquatable<IResourceInfo>
 
-        public override bool Equals(object obj) => obj is IResourceInfo file && Equals(file);
+        public override bool Equals(object obj) => obj is IResourceInfo resource && Equals(resource);
 
         public bool Equals(IResourceInfo other) => ResourceInfoEqualityComparer.Default.Equals(other, this);
 
-        public bool Equals(string other) => !string.IsNullOrWhiteSpace(other) && ResourceInfoEqualityComparer.Default.Equals(other, Uri);
+        public bool Equals(string other) => !string.IsNullOrWhiteSpace(other) && ResourceInfoEqualityComparer.Default.Equals((UriString)other, Uri);
 
         public override int GetHashCode() => ResourceInfoEqualityComparer.Default.GetHashCode(this);
 
@@ -81,17 +81,15 @@ namespace Reusable.IOnymous
     public static class ResourceInfoExtensions
     {
         public static async Task<T> DeserializeAsync<T>(this IResourceInfo resourceInfo) => (T)(await resourceInfo.DeserializeAsync(typeof(T)));
-
-        public static bool IsIOnymous(this IResourceInfo resourceInfo) => SoftString.Comparer.Equals((string)resourceInfo.Uri.Scheme, ResourceProvider.DefaultScheme);
     }
 
     public static class SimpleUriExtensions
     {
 
-        public static bool IsIOnymous(this UriString uri) => SoftString.Comparer.Equals((string)uri.Scheme, ResourceProvider.DefaultScheme);
+        public static bool IsIOnymous(this UriString uri) => SoftString.Comparer.Equals(uri.Scheme, ResourceProvider.DefaultScheme);
     }
 
-    public class ResourceInfoEqualityComparer : IEqualityComparer<IResourceInfo>, IEqualityComparer<Uri>, IEqualityComparer<string>
+    public class ResourceInfoEqualityComparer : IEqualityComparer<IResourceInfo>, IEqualityComparer<UriString>, IEqualityComparer<string>
     {
         private static readonly IEqualityComparer ResourceUriComparer = StringComparer.OrdinalIgnoreCase;
 
@@ -102,13 +100,13 @@ namespace Reusable.IOnymous
 
         public int GetHashCode(IResourceInfo obj) => GetHashCode(obj.Uri);
 
-        public bool Equals(Uri x, Uri y) => ResourceUriComparer.Equals(x, y);
+        public bool Equals(UriString x, UriString y) => ResourceUriComparer.Equals(x, y);
 
-        public int GetHashCode(Uri obj) => ResourceUriComparer.GetHashCode(obj);
+        public int GetHashCode(UriString obj) => ResourceUriComparer.GetHashCode(obj);
 
-        public bool Equals(string x, string y) => !string.IsNullOrWhiteSpace(x) && !string.IsNullOrWhiteSpace(y) && Equals(new Uri(x), new Uri(y));
+        public bool Equals(string x, string y) => !string.IsNullOrWhiteSpace(x) && !string.IsNullOrWhiteSpace(y) && Equals(new UriString(x), new UriString(y));
 
-        public int GetHashCode(string obj) => GetHashCode(new Uri(obj));
+        public int GetHashCode(string obj) => GetHashCode(new UriString(obj));
     }
 
     //public readonly struct ValueInfoType : IEquatable<ValueInfoType>

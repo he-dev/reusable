@@ -37,17 +37,6 @@ namespace Reusable.SmartConfig.Reflection
             return (visitor._type, visitor._instance, visitor._member);
         }
 
-//        public override Expression Visit(Expression node)
-//        {
-//            return base.Visit(node);
-//            // Skip other expressions if we already found the class-type.
-//            return
-//                asdf()
-//                    ? base.Visit(node)
-//                    : node;
-//            bool asdf() => _type is null || _instance is null;
-//        }
-
         protected override Expression VisitMember(MemberExpression node)
         {
             // Supports:

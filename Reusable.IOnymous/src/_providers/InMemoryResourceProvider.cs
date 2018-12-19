@@ -18,6 +18,7 @@ namespace Reusable.IOnymous
                 .Add(ResourceMetadataKeys.CanGet, true)
                 .Add(ResourceMetadataKeys.CanPut, true)
                 .Add(ResourceMetadataKeys.CanDelete, true)
+                .Add(ResourceMetadataKeys.Scheme, DefaultScheme)
             )
         {
         }

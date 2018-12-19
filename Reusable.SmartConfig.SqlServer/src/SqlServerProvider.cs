@@ -10,7 +10,7 @@ using Reusable.Data.Repositories;
 using Reusable.Extensions;
 using Reusable.Flawless;
 using Reusable.IOnymous;
-using Reusable.SmartConfig.Data;
+using Reusable.OneTo1;
 using Reusable.Utilities.SqlClient;
 
 namespace Reusable.SmartConfig
@@ -23,6 +23,8 @@ namespace Reusable.SmartConfig
 
         public const string DefaultTable = "Setting";
 
+        private readonly ITypeConverter _uriStringToSettingIdentifierConverter;
+
         private IImmutableDictionary<string, object> _where = ImmutableDictionary<string, object>.Empty;
 
         private SqlFourPartName _tableName;
@@ -32,14 +34,17 @@ namespace Reusable.SmartConfig
         public SqlServerProvider
         (
             string nameOrConnectionString,
-            ResourceMetadata metadata
+            ITypeConverter uriStringToSettingIdentifierConverter = null
         )
             : base(
-                metadata
+                ResourceMetadata
+                    .Empty
                     .Add(CanGet, true)
                     .Add(CanPut, true)
-                )
+                    .Add(ResourceMetadataKeys.Scheme, "setting")
+            )
         {
+            _uriStringToSettingIdentifierConverter = uriStringToSettingIdentifierConverter;
             ConnectionString = ConnectionStringRepository.Default.GetConnectionString(nameOrConnectionString);
 
             TableName = (DefaultSchema, DefaultTable);
@@ -71,11 +76,11 @@ namespace Reusable.SmartConfig
 
         public override async Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
         {
-            var settingName = new SettingName(uri);
+            var settingIdentifier = (string)_uriStringToSettingIdentifierConverter?.Convert(uri, typeof(string)) ?? uri;
 
             return await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
             {
-                using (var command = connection.CreateSelectCommand(TableName, Where, ColumnMapping, settingName))
+                using (var command = connection.CreateSelectCommand(TableName, Where, ColumnMapping, settingIdentifier))
                 using (var settingReader = command.ExecuteReader())
                 {
                     return
@@ -88,14 +93,15 @@ namespace Reusable.SmartConfig
 
         public override async Task<IResourceInfo> PutAsync(UriString uri, Stream stream, ResourceMetadata metadata = null)
         {
+            var settingIdentifier = (string)_uriStringToSettingIdentifierConverter?.Convert(uri, typeof(string)) ?? uri;
+            
             using (var valueReader = new StreamReader(stream))
             {
                 var value = await valueReader.ReadToEndAsync();
-                var settingName = new SettingName(uri);
 
                 await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
                 {
-                    using (var cmd = connection.CreateUpdateCommand(TableName, Where, ColumnMapping, settingName, value))
+                    using (var cmd = connection.CreateUpdateCommand(TableName, Where, ColumnMapping, settingIdentifier, value))
                     {
                         await cmd.ExecuteNonQueryAsync(token);
                     }
@@ -113,8 +119,7 @@ namespace Reusable.SmartConfig
 
     internal class SqlServerResourceInfo : ResourceInfo
     {
-        [CanBeNull]
-        private readonly string _value;
+        [CanBeNull] private readonly string _value;
 
         internal SqlServerResourceInfo([NotNull] UriString uri, [CanBeNull] string value) : base(uri)
         {
@@ -145,5 +150,5 @@ namespace Reusable.SmartConfig
         {
             return Task.FromResult<object>(_value);
         }
-    }    
+    }
 }

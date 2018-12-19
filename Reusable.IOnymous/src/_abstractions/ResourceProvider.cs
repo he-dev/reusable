@@ -37,6 +37,8 @@ namespace Reusable.IOnymous
 
         protected ResourceProvider(ResourceMetadata metadata)
         {
+            if(!metadata.ContainsKey(ResourceMetadataKeys.Scheme)) throw new ArgumentException(paramName: nameof(metadata), message: $"Resource provider metadata must specify the scheme.");
+            
             // If this is a decorator then the decorated resource-provider already has set this.
             if (!metadata.ContainsKey(ProviderDefaultName))
             {
@@ -47,6 +49,8 @@ namespace Reusable.IOnymous
         }
 
         public virtual ResourceMetadata Metadata { get; }
+
+        public virtual SoftString Scheme => (SoftString)Metadata[ResourceMetadataKeys.Scheme];
 
         public abstract Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null);
 

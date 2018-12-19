@@ -31,6 +31,7 @@ namespace Reusable.IOnymous
                     .Add(ResourceMetadataKeys.CanGet, resourceProviders.Any(x => x.Metadata.ContainsKey(ResourceMetadataKeys.CanGet)))
                     .Add(ResourceMetadataKeys.CanPut, resourceProviders.Any(x => x.Metadata.ContainsKey(ResourceMetadataKeys.CanPut)))
                     .Add(ResourceMetadataKeys.CanDelete, resourceProviders.Any(x => x.Metadata.ContainsKey(ResourceMetadataKeys.CanDelete)))
+                    .Add(ResourceMetadataKeys.Scheme, DefaultScheme)
             )
         {
             if (resourceProviders == null) throw new ArgumentNullException(nameof(resourceProviders));

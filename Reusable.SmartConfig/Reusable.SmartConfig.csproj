@@ -20,6 +20,9 @@
     <EmbeddedResource Remove="src\Converters\**" />
     <None Remove="src\Collections\**" />
     <None Remove="src\Converters\**" />
+    <Compile Remove="src\Providers\**" />
+    <EmbeddedResource Remove="src\Providers\**" />
+    <None Remove="src\Providers\**" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="src\Configuration.cs" />

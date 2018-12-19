@@ -14,13 +14,12 @@ using Reusable.Flawless;
 using Reusable.IOnymous;
 using Reusable.Reflection;
 using Reusable.SmartConfig.Annotations;
-using Reusable.SmartConfig.Data;
 using Reusable.SmartConfig.Reflection;
 
 namespace Reusable.SmartConfig
 {
     [PublicAPI]
-    public class SettingProvider2 : ResourceProvider
+    public class SettingProvider : ResourceProvider
     {
         private readonly IResourceProvider _resourceProvider;
 
@@ -31,13 +30,13 @@ namespace Reusable.SmartConfig
             assert.True(x => x.Scheme == "setting");
         });
 
-        public SettingProvider2(IResourceProvider resourceProvider)
-            : base(resourceProvider.Metadata)
+        public SettingProvider(IResourceProvider resourceProvider)
+            : base(resourceProvider.Metadata.SetItem(ResourceMetadataKeys.Scheme, "setting"))
         {
             _resourceProvider = resourceProvider;
         }
 
-        public static Func<IResourceProvider, IResourceProvider> Factory() => decorable => new SettingProvider2(decorable);
+        public static Func<IResourceProvider, IResourceProvider> Factory() => decorable => new SettingProvider(decorable);
 
         public override Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
         {

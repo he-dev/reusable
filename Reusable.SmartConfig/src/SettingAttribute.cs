@@ -8,7 +8,6 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.IOnymous;
-using Reusable.SmartConfig.Data;
 
 namespace Reusable.SmartConfig.Annotations
 {

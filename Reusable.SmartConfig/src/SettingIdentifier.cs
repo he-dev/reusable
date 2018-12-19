@@ -1,34 +1,26 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Custom;
-using System.Linq.Expressions;
-using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Extensions;
 using Reusable.IOnymous;
-using Reusable.Reflection;
-using Reusable.SmartConfig.Annotations;
 using Reusable.SmartConfig.Reflection;
 
-namespace Reusable.SmartConfig.Data
+namespace Reusable.SmartConfig
 {
-    using static SettingNameParser;
     using Token = SettingNameToken;
 
     [PublicAPI]
-    public class SettingName
+    public class SettingIdentifier
     {
         private readonly IDictionary<SettingNameToken, ReadOnlyMemory<char>> _tokens;
 
         public static readonly string Format = "[Prefix:][Name.space+][Type.]Member[,Instance]";
 
-        public SettingName
+        public SettingIdentifier
         (
             [CanBeNull] string prefix,
             [CanBeNull] string schema,
@@ -49,12 +41,12 @@ namespace Reusable.SmartConfig.Data
             };
         }
 
-        public SettingName([NotNull] IDictionary<SettingNameToken, ReadOnlyMemory<char>> tokens)
+        public SettingIdentifier([NotNull] IDictionary<SettingNameToken, ReadOnlyMemory<char>> tokens)
         {
             _tokens = tokens ?? throw new ArgumentNullException(nameof(tokens));
         }
 
-        public SettingName(UriString uri)
+        public SettingIdentifier(UriString uri)
         {
             if (uri.IsRelative) throw new ArgumentException();
             if (uri.Scheme != "setting") throw new ArgumentException();
@@ -94,11 +86,11 @@ namespace Reusable.SmartConfig.Data
         public string Instance => this[Token.Instance].ToString();
 
         [NotNull]
-        public static SettingName Parse([NotNull] string text) => new SettingName(Tokenize(text));
+        public static SettingIdentifier Parse([NotNull] string text) => new SettingIdentifier(SettingNameParser.Tokenize(text));
 
-        public static SettingName FromMetadata(SettingMetadata settingMetadata, string instance)
+        public static SettingIdentifier FromMetadata(SettingMetadata settingMetadata, string instance)
         {
-            return new SettingName
+            return new SettingIdentifier
             (
                 prefix: settingMetadata.Prefix,
                 schema: settingMetadata.Namespace,
@@ -112,33 +104,33 @@ namespace Reusable.SmartConfig.Data
         {
             return
                 new StringBuilder()
-                    .Append(this[Token.Prefix].IsEmpty ? default : $"{Prefix}{Separator.Prefix}")
-                    .Append(this[Token.Namespace].IsEmpty ? default : $"{Namespace}{Separator.Namespace}")
-                    .Append(this[Token.Type].IsEmpty ? default : $"{Type}{Separator.Type}")
+                    .Append(this[Token.Prefix].IsEmpty ? default : $"{Prefix}{SettingNameParser.Separator.Prefix}")
+                    .Append(this[Token.Namespace].IsEmpty ? default : $"{Namespace}{SettingNameParser.Separator.Namespace}")
+                    .Append(this[Token.Type].IsEmpty ? default : $"{Type}{SettingNameParser.Separator.Type}")
                     .Append(this[Token.Member])
-                    .Append(this[Token.Instance].IsEmpty ? default : $"{Separator.Member}{Instance}")
+                    .Append(this[Token.Instance].IsEmpty ? default : $"{SettingNameParser.Separator.Member}{Instance}")
                     .ToString();
         }
 
         //public static implicit operator SettingName(string settingName) => Parse(settingName);
 
-        public static implicit operator string(SettingName settingName) => settingName?.ToString();
+        public static implicit operator string(SettingIdentifier settingIdentifier) => settingIdentifier?.ToString();
 
-        public static implicit operator SoftString(SettingName settingName) => settingName?.ToString();
+        public static implicit operator SoftString(SettingIdentifier settingIdentifier) => settingIdentifier?.ToString();
 
-        public static implicit operator UriString(SettingName settingName)
+        public static implicit operator UriString(SettingIdentifier settingIdentifier)
         {
             var path = new[]
             {
-                settingName.Namespace?.Replace('.', '-'),
-                settingName.Type,
-                settingName.Member,
+                settingIdentifier.Namespace?.Replace('.', '-'),
+                settingIdentifier.Type,
+                settingIdentifier.Member,
             };
 
             var query = (ImplicitString)new (ImplicitString Key, ImplicitString Value)[]
             {
-                ("prefix", settingName.Prefix),
-                ("instance", settingName.Instance)
+                ("prefix", settingIdentifier.Prefix),
+                ("instance", settingIdentifier.Instance)
             }
             .Where(x => x.Value)
             .Select(x => $"{x.Key}={x.Value}")
@@ -147,17 +139,17 @@ namespace Reusable.SmartConfig.Data
             return $"setting:{path.Where(Conditional.IsNotNullOrEmpty).Join(".")}{(query ? $"?{query}" : string.Empty)}";
         }
 
-        public static bool operator ==(SettingName x, SettingName y) => AutoEquality<SettingName>.Comparer.Equals(x, y);
+        public static bool operator ==(SettingIdentifier x, SettingIdentifier y) => AutoEquality<SettingIdentifier>.Comparer.Equals(x, y);
 
-        public static bool operator !=(SettingName x, SettingName y) => !(x == y);
+        public static bool operator !=(SettingIdentifier x, SettingIdentifier y) => !(x == y);
 
         #region IEquatable<SettingName>
 
-        public bool Equals(SettingName other) => AutoEquality<SettingName>.Comparer.Equals(this, other);
+        public bool Equals(SettingIdentifier other) => AutoEquality<SettingIdentifier>.Comparer.Equals(this, other);
 
-        public override bool Equals(object obj) => obj is SettingName settingName && Equals(settingName);
+        public override bool Equals(object obj) => obj is SettingIdentifier settingName && Equals(settingName);
 
-        public override int GetHashCode() => AutoEquality<SettingName>.Comparer.GetHashCode(this);
+        public override int GetHashCode() => AutoEquality<SettingIdentifier>.Comparer.GetHashCode(this);
 
         #endregion
     }

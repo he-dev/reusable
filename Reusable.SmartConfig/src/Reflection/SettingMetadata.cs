@@ -14,7 +14,6 @@ using Reusable.Flawless;
 using Reusable.IOnymous;
 using Reusable.Reflection;
 using Reusable.SmartConfig.Annotations;
-using Reusable.SmartConfig.Data;
 
 namespace Reusable.SmartConfig.Reflection
 {
@@ -52,18 +51,14 @@ namespace Reusable.SmartConfig.Reflection
             .Where(Conditional.IsNotNull)
             .ToList();
 
-            //var anyProviderAttribute = 
-            //    AssemblyAttributes
-            //        .First(x => x.Matches(default(IResourceProvider)));
-
-            var strenghts =
+            var strengths =
                 attributes
                     .Select(x => x.Strength)
                     .Append(SettingNameStrength.Inherit)
                     .Where(x => x > SettingNameStrength.Inherit)
                     .ToList();
 
-            Strength = strenghts.Any() ? strenghts.First() : SettingNameStrength.Inherit;
+            Strength = strengths.Any() ? strengths.First() : SettingNameStrength.Inherit;
             Prefix = attributes.Select(x => x.Prefix).FirstOrDefault(Conditional.IsNotNullOrEmpty);
             PrefixHandling = attributes.FirstOrDefault(x => x.PrefixHandling != PrefixHandling.Inherit)?.PrefixHandling ?? PrefixHandling.Inherit;
 
@@ -124,18 +119,6 @@ namespace Reusable.SmartConfig.Reflection
 
             var (type, instance, member) = SettingVisitor.GetSettingInfo(expression, nonPublic);
             return new SettingMetadata(type, instance, member);
-        }
-
-        public SettingName CreateSettingName(string instanceName = null)
-        {
-            return new SettingName
-            (
-                prefix: Prefix,
-                schema: Namespace,
-                type: TypeName,
-                member: MemberName,
-                instance: instanceName
-            );
         }
 
         public UriString CreateUri(string instanceName = null)

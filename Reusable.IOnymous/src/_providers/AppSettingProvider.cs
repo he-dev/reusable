@@ -1,36 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.Configuration;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Newtonsoft.Json.Serialization;
 using Reusable.Extensions;
-using Reusable.IOnymous;
-using Reusable.SmartConfig.Data;
+using Reusable.OneTo1;
 
-namespace Reusable.SmartConfig
+namespace Reusable.IOnymous
 {
-    using static ResourceMetadataKeys;
-
-    public class ConnectionStringProvider : ResourceProvider
+    public class AppSettingProvider : ResourceProvider
     {
-        public ConnectionStringProvider()
+        private readonly ITypeConverter _uriStringToSettingIdentifierConverter;
+
+        public AppSettingProvider(ITypeConverter uriStringToSettingIdentifierConverter = null)
             : base(
                 ResourceMetadata.Empty
-                    .Add(CanGet, true)
-                    .Add(CanPut, true)
+                    .Add(ResourceMetadataKeys.CanGet, true)
+                    .Add(ResourceMetadataKeys.CanPut, true)
+                    .Add(ResourceMetadataKeys.Scheme, "setting")
             )
-        { }
+        {
+            _uriStringToSettingIdentifierConverter = uriStringToSettingIdentifierConverter;
+        }
 
         public override Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
         {
-            var settingName = new SettingName(uri);
+            var settingIdentifier = (string)_uriStringToSettingIdentifierConverter?.Convert(uri, typeof(string)) ?? uri;
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            var settings = FindConnectionStringSettings(exeConfig, settingName);            
-            return Task.FromResult<IResourceInfo>(new ConnectionStringInfo(uri, settings?.ConnectionString));
+            var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
+            var element = exeConfig.AppSettings.Settings[actualKey];
+            return Task.FromResult<IResourceInfo>(new AppSettingInfo(uri, element?.Value));
         }
 
         public override async Task<IResourceInfo> PutAsync(UriString uri, Stream stream, ResourceMetadata metadata = null)
@@ -39,17 +39,18 @@ namespace Reusable.SmartConfig
             {
                 var value = await valueReader.ReadToEndAsync();
 
-                var settingName = new SettingName(uri);
+                var settingIdentifier = (string)_uriStringToSettingIdentifierConverter?.Convert(uri, typeof(string)) ?? uri;
                 var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-                var settings = FindConnectionStringSettings(exeConfig, settingName);
+                var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
+                var element = exeConfig.AppSettings.Settings[actualKey];
 
-                if (settings is null)
+                if (element is null)
                 {
-                    exeConfig.ConnectionStrings.ConnectionStrings.Add(new ConnectionStringSettings(settingName, value));
+                    exeConfig.AppSettings.Settings.Add(settingIdentifier, (string)value);
                 }
                 else
                 {
-                    settings.ConnectionString = value;
+                    exeConfig.AppSettings.Settings[actualKey].Value = (string)value;
                 }
 
                 exeConfig.Save(ConfigurationSaveMode.Minimal);
@@ -64,23 +65,23 @@ namespace Reusable.SmartConfig
         }
 
         [CanBeNull]
-        private static ConnectionStringSettings FindConnectionStringSettings(Configuration exeConfig, string key)
+        private static string FindActualKey(Configuration exeConfig, string key)
         {
             return
                 exeConfig
-                    .ConnectionStrings
-                    .ConnectionStrings
-                    .Cast<ConnectionStringSettings>()
-                    .SingleOrDefault(x => SoftString.Comparer.Equals(x.Name, key));
+                    .AppSettings
+                    .Settings
+                    .AllKeys
+                    .FirstOrDefault(k => SoftString.Comparer.Equals(k, key));
         }
     }
 
-    internal class ConnectionStringInfo : ResourceInfo
+    internal class AppSettingInfo : ResourceInfo
     {
         [CanBeNull]
         private readonly string _value;
 
-        internal ConnectionStringInfo([NotNull] UriString uri, [CanBeNull] string value) : base(uri)
+        internal AppSettingInfo([NotNull] UriString uri, [CanBeNull] string value) : base(uri)
         {
             _value = value;
         }

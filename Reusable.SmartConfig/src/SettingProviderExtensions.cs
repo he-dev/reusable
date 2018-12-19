@@ -10,12 +10,11 @@ using Reusable.Exceptionizer;
 using Reusable.Extensions;
 using Reusable.IOnymous;
 using Reusable.SmartConfig.Annotations;
-using Reusable.SmartConfig.Data;
 using Reusable.SmartConfig.Reflection;
 
 namespace Reusable.SmartConfig
 {
-    public static class ResourceProviderExtensions
+    public static class SettingProviderExtensions
     {
         #region GetValue overloads
 

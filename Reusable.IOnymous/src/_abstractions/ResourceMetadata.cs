@@ -5,12 +5,14 @@ using System.Runtime.CompilerServices;
 namespace Reusable.IOnymous
 {
     using static ResourceMetadataKeys;
-    
+
     public class ResourceMetadata
     {
         private readonly IImmutableDictionary<SoftString, object> _metadata;
 
-        public ResourceMetadata() : this(ImmutableDictionary<SoftString, object>.Empty) { }
+        public ResourceMetadata() : this(ImmutableDictionary<SoftString, object>.Empty)
+        {
+        }
 
         private ResourceMetadata(IImmutableDictionary<SoftString, object> metadata) => _metadata = metadata;
 
@@ -26,10 +28,12 @@ namespace Reusable.IOnymous
         public bool TryGetValue(SoftString key, out object value) => _metadata.TryGetValue(key, out value);
 
         public ResourceMetadata Add(SoftString key, object value) => new ResourceMetadata(_metadata.Add(key, value));
+
+
         //public IImmutableDictionary<SoftString, object> Clear() => new ResourceProviderMetadata(_metadata.Clear());
         //public IImmutableDictionary<SoftString, object> AddRange(IEnumerable<KeyValuePair<SoftString, object>> pairs) => new ResourceProviderMetadata(_metadata.AddRange(pairs));
-        //public IImmutableDictionary<SoftString, object> SetItem(SoftString key, object value) => new ResourceProviderMetadata(_metadata.SetItem(key, value));
-        //public IImmutableDictionary<SoftString, object> SetItems(IEnumerable<KeyValuePair<SoftString, object>> items) => new ResourceProviderMetadata(_metadata.SetItems(items));
+        public ResourceMetadata SetItem(SoftString key, object value) => new ResourceMetadata(_metadata.SetItem(key, value));
+        //public ResourceMetadata SetItems(IEnumerable<KeyValuePair<SoftString, object>> items) => new ResourceProviderMetadata(_metadata.SetItems(items));
         //public IImmutableDictionary<SoftString, object> RemoveRange(IEnumerable<SoftString> keys) => new ResourceProviderMetadata(_metadata.RemoveRange(keys));
         //public IImmutableDictionary<SoftString, object> Remove(SoftString key) => new ResourceProviderMetadata(_metadata.Remove(key));
 
@@ -73,12 +77,12 @@ namespace Reusable.IOnymous
 
         public static IEnumerable<string> ProviderNames(this ResourceMetadata metadata)
         {
-            if(metadata.TryGetValue(ResourceMetadataKeys.ProviderCustomName, out string customName))
+            if (metadata.TryGetValue(ResourceMetadataKeys.ProviderCustomName, out string customName))
             {
                 yield return customName;
             }
-            
-            if(metadata.TryGetValue(ResourceMetadataKeys.ProviderDefaultName, out string defaultName))
+
+            if (metadata.TryGetValue(ResourceMetadataKeys.ProviderDefaultName, out string defaultName))
             {
                 yield return defaultName;
             }
