@@ -9,8 +9,8 @@ namespace Reusable
         public int Compare(SemanticVersion left, SemanticVersion right)
         {
             if (ReferenceEquals(left, right)) return ComparisonResult.Equal;
-            if (ReferenceEquals(left, null)) return ComparisonResult.LessThen;
-            if (ReferenceEquals(right, null)) return ComparisonResult.GreaterThen;
+            if (ReferenceEquals(left, null)) return ComparisonResult.LessThan;
+            if (ReferenceEquals(right, null)) return ComparisonResult.GreaterThan;
 
             // Precedence MUST be calculated by separating the version into:
             // major, minor, patch and pre-release identifiers in that order.
@@ -30,8 +30,8 @@ namespace Reusable
             // a pre-release version has lower precedence than a normal version. 
             // Example: 1.0.0-alpha < 1.0.0.
 
-            if (left.IsPrerelease && !right.IsPrerelease) return ComparisonResult.LessThen;
-            if (!left.IsPrerelease && right.IsPrerelease) return ComparisonResult.GreaterThen;
+            if (left.IsPrerelease && !right.IsPrerelease) return ComparisonResult.LessThan;
+            if (!left.IsPrerelease && right.IsPrerelease) return ComparisonResult.GreaterThan;
 
             // Precedence for two pre-release versions with the same major, minor, and patch version 
             // MUST be determined by comparing each dot separated identifier from left to right 

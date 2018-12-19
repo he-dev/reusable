@@ -12,8 +12,8 @@ namespace Reusable
         public int Compare(string left, string right)
         {
             if (ReferenceEquals(left, right)) return ComparisonResult.Equal;
-            if (ReferenceEquals(left, null)) return ComparisonResult.LessThen;
-            if (ReferenceEquals(right, null)) return ComparisonResult.GreaterThen;
+            if (ReferenceEquals(left, null)) return ComparisonResult.LessThan;
+            if (ReferenceEquals(right, null)) return ComparisonResult.GreaterThan;
 
             var leftIsInteger = int.TryParse(left, out var x);
             var rightIsInteger = int.TryParse(right, out var y);
@@ -25,7 +25,7 @@ namespace Reusable
             if (!leftIsInteger && !rightIsInteger) return string.Compare(left, right, StringComparison.Ordinal);
 
             // Numeric identifiers always have lower precedence than non-numeric identifiers.
-            return leftIsInteger ? ComparisonResult.LessThen : ComparisonResult.GreaterThen;
+            return leftIsInteger ? ComparisonResult.LessThan : ComparisonResult.GreaterThan;
         }
     }
 }

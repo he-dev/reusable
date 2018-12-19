@@ -15,19 +15,19 @@ namespace Reusable.Tests
     public class SemanticVersionTest
     {
         [TestMethod]
-        public void ctor_MajorVersionLessThenZero_VersionOutOfRangeException()
+        public void ctor_MajorVersionLessThanZero_VersionOutOfRangeException()
         {
             Assert.That.Throws<DynamicException>(() => new SemanticVersion(-1, 1, 1));
         }
 
         [TestMethod]
-        public void ctor_MinorVersionLessThenZero_VersionOutOfRangeException()
+        public void ctor_MinorVersionLessThanZero_VersionOutOfRangeException()
         {
             Assert.That.Throws<DynamicException>(() => new SemanticVersion(1, -1, 1));
         }
 
         [TestMethod]
-        public void ctor_PatchVersionLessThenZero_VersionOutOfRangeException()
+        public void ctor_PatchVersionLessThanZero_VersionOutOfRangeException()
         {
             Assert.That.Throws<DynamicException>(() => new SemanticVersion(1, 1, -1));
         }
@@ -80,7 +80,7 @@ namespace Reusable.Tests
         }
 
         [TestMethod]
-        public void CompareTo_LessThen()
+        public void CompareTo_LessThan()
         {
             Assert.IsTrue(SemanticVersion.Parse("1.0.0") < SemanticVersion.Parse("2.0.0"));
             Assert.IsTrue(SemanticVersion.Parse("1.1.0") < SemanticVersion.Parse("1.22.0"));
@@ -96,7 +96,7 @@ namespace Reusable.Tests
         }
 
         [TestMethod]
-        public void CompareTo_GreaterThen()
+        public void CompareTo_GreaterThan()
         {
             Assert.IsTrue(SemanticVersion.Parse("2.0.0") > SemanticVersion.Parse("1.0.0"));
             Assert.IsTrue(SemanticVersion.Parse("2.2.0") > SemanticVersion.Parse("2.1.0"));
@@ -104,14 +104,14 @@ namespace Reusable.Tests
         }
 
         [TestMethod]
-        public void CompareTo_LessThenOrEqual()
+        public void CompareTo_LessThanOrEqual()
         {
             Assert.IsTrue(SemanticVersion.Parse("1.0.0") <= SemanticVersion.Parse("2.0.0"));
             Assert.IsTrue(SemanticVersion.Parse("1.12.123") <= SemanticVersion.Parse("1.12.123"));
         }
 
         [TestMethod]
-        public void CompareTo_GreaterThenOrEqual()
+        public void CompareTo_GreaterThanOrEqual()
         {
             Assert.IsTrue(SemanticVersion.Parse("2.0.1") >= SemanticVersion.Parse("2.0.0"));
             Assert.IsTrue(SemanticVersion.Parse("2.23.234") >= SemanticVersion.Parse("2.23.234"));

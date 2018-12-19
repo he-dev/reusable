@@ -101,9 +101,9 @@ namespace Reusable.Tests
         [TestMethod]
         public void MyTestMethod()
         {
-            Assert.That.Comparable().CompareTo().IsLessThen(SoftString.Create("fao"), "foz", "foz ", " foz", " foz ");
+            Assert.That.Comparable().CompareTo().IsLessThan(SoftString.Create("fao"), "foz", "foz ", " foz", " foz ");
             Assert.That.Comparable().CompareTo().IsEqualTo(SoftString.Create("foo"), "foo", "fOo", "fOo ", " fOo", " Foo ");
-            Assert.That.Comparable().CompareTo().IsGreaterThen(SoftString.Create("foo"), "foa", "foa ", " foa", " foa ");
+            Assert.That.Comparable().CompareTo().IsGreaterThan(SoftString.Create("foo"), "foa", "foa ", " foa", " foa ");
         }
     }    
 }

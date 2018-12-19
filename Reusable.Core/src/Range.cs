@@ -11,7 +11,7 @@ namespace Reusable
     {
         public Range(T min, T max)
         {
-            ValidateMinLessThenOrEqualMax(min, max);
+            ValidateMinLessThanOrEqualMax(min, max);
 
             Min = min;
             Max = max;
@@ -23,7 +23,7 @@ namespace Reusable
         [AutoEqualityProperty]
         public T Max { get; }
 
-        private void ValidateMinLessThenOrEqualMax(T min, T max)
+        private void ValidateMinLessThanOrEqualMax(T min, T max)
         {
             if (BinaryOperation<T>.LessThanOrEqual(min, max))
             {

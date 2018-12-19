@@ -47,14 +47,14 @@ namespace Reusable.OmniLog.Tests
         }
 
         [TestMethod]
-        public void Comparable_LessThenValues_Zero()
+        public void Comparable_LessThanValues_Zero()
         {
-            Assert.That.Comparable().CompareTo().IsLessThen(LogLevel.Debug, LogLevel.Information);
-            Assert.That.Comparable().CompareTo().IsLessThen(LogLevel.Information, LogLevel.Fatal);
+            Assert.That.Comparable().CompareTo().IsLessThan(LogLevel.Debug, LogLevel.Information);
+            Assert.That.Comparable().CompareTo().IsLessThan(LogLevel.Information, LogLevel.Fatal);
         }
 
         [TestMethod]
-        public void Operator_LessThenOrEqualValues_True()
+        public void Operator_LessThanOrEqualValues_True()
         {
             //Assert.That.BinaryOperator()..Comparable().CompareTo().IsLessThen(LogLevel.Debug, LogLevel.Information, LogLevel.Debug);
             //Assert.That.Comparable().CompareTo().IsLessThen(LogLevel.Information, LogLevel.Fatal, LogLevel.Information);

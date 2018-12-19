@@ -41,7 +41,7 @@ namespace Reusable.Utilities.MSTest
 
     public static class ComparableCompareToAssertExtensions
     {
-        public static void IsGreaterThen<T>(this IComparableCompareToAssert assert, IComparable<T> comparable, params T[] others)
+        public static void IsGreaterThan<T>(this IComparableCompareToAssert assert, IComparable<T> comparable, params T[] others)
         {
             Check(comparable, others, result => result > 0);
         }
@@ -51,7 +51,7 @@ namespace Reusable.Utilities.MSTest
             Check(comparable, others, result => result == 0);
         }
 
-        public static void IsLessThen<T>(this IComparableCompareToAssert assert, IComparable<T> comparable, params T[] others)
+        public static void IsLessThan<T>(this IComparableCompareToAssert assert, IComparable<T> comparable, params T[] others)
         {
             Check(comparable, others, result => result < 0);
         }
