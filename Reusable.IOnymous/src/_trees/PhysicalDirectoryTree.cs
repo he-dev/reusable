@@ -10,7 +10,7 @@ using Reusable.Extensions;
 
 // todo - do not split yet - it's still being reviewed
 
-namespace Reusable.IO
+namespace Reusable.IOnymous
 {
     public interface IDirectoryTree
     {
@@ -18,7 +18,7 @@ namespace Reusable.IO
         IEnumerable<IDirectoryTreeNode> Walk([NotNull] string path, Func<IDirectoryTreeNode, bool> predicate, [NotNull] Action<Exception> onException);
     }
 
-    public class DirectoryTree : IDirectoryTree
+    public class PhysicalDirectoryTree : IDirectoryTree
     {
         public static Action<Exception> IgnoreExceptions { get; } = _ => { };
 
@@ -33,7 +33,9 @@ namespace Reusable.IO
         {
             if (path == null) throw new ArgumentNullException(nameof(path));
             if (onException == null) throw new ArgumentNullException(nameof(onException));
-            
+
+            path = Environment.ExpandEnvironmentVariables(path);
+
             var nodes = new Queue<DirectoryTreeNode>
             {
                 new DirectoryTreeNode(path)
@@ -209,19 +211,23 @@ namespace Reusable.IO
 
     public static class DirectoryTreeNodeExtensions
     {
-        public static void Deconstruct(
+        public static void Deconstruct
+        (
             [CanBeNull] this IDirectoryTreeNode directoryTreeNode,
             [CanBeNull] out string directoryName,
             [CanBeNull] out IEnumerable<string> directoryNames,
-            [CanBeNull] out IEnumerable<string> fileNames)
+            [CanBeNull] out IEnumerable<string> fileNames
+        )
         {
             directoryName = directoryTreeNode?.DirectoryName;
             directoryNames = directoryTreeNode?.DirectoryNames;
             fileNames = directoryTreeNode?.FileNames;
         }
 
-        public static bool Exists(
-            [CanBeNull] this IDirectoryTreeNode directoryTreeNode)
+        public static bool Exists
+        (
+            [CanBeNull] this IDirectoryTreeNode directoryTreeNode
+        )
         {
             // Empty string does not exist and it'll return false.
             return Directory.Exists(directoryTreeNode?.DirectoryName ?? string.Empty);

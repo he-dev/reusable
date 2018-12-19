@@ -23,19 +23,19 @@ namespace Reusable.IOnymous
             _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
         }
 
-        public override Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
+        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
             UriValidator.Validate(uri).Assert();
             return _resourceProvider.GetAsync(Environment.ExpandEnvironmentVariables(uri.Path), metadata);
         }
 
-        public override Task<IResourceInfo> PutAsync(UriString uri, Stream value, ResourceMetadata metadata = null)
+        protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
             UriValidator.Validate(uri).Assert();
             return _resourceProvider.PutAsync(Environment.ExpandEnvironmentVariables(uri.Path), value, metadata);
         }
 
-        public override Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = null)
+        protected override Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
             UriValidator.Validate(uri).Assert();
             return _resourceProvider.DeleteAsync(Environment.ExpandEnvironmentVariables(uri.Path), metadata);

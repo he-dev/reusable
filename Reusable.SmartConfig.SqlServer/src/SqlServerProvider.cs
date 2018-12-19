@@ -25,8 +25,7 @@ namespace Reusable.SmartConfig
 
         public const string DefaultTable = "Setting";
 
-        [CanBeNull] 
-        private readonly ITypeConverter _uriStringToSettingIdentifierConverter;
+        [CanBeNull] private readonly ITypeConverter _uriStringToSettingIdentifierConverter;
 
         private SqlFourPartName _tableName;
 
@@ -65,7 +64,7 @@ namespace Reusable.SmartConfig
         [CanBeNull]
         public IImmutableDictionary<string, object> Where { get; set; }
 
-        public override async Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
+        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
             var settingIdentifier = (string)_uriStringToSettingIdentifierConverter?.Convert(uri, typeof(string)) ?? uri;
 
@@ -82,7 +81,7 @@ namespace Reusable.SmartConfig
             }, CancellationToken.None);
         }
 
-        public override async Task<IResourceInfo> PutAsync(UriString uri, Stream stream, ResourceMetadata metadata = null)
+        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream stream, ResourceMetadata metadata = null)
         {
             var settingIdentifier = (string)_uriStringToSettingIdentifierConverter?.Convert(uri, typeof(string)) ?? uri;
 
@@ -100,11 +99,6 @@ namespace Reusable.SmartConfig
 
                 return await GetAsync(uri);
             }
-        }
-
-        public override Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = null)
-        {
-            throw new NotImplementedException();
         }
     }
 
@@ -150,6 +144,7 @@ namespace Reusable.SmartConfig
         private SqlServerColumn(string name) => _name = name;
 
         public static readonly SqlServerColumn Name = new SqlServerColumn(nameof(Name));
+
         public static readonly SqlServerColumn Value = new SqlServerColumn(nameof(Value));
         //public static readonly SqlServerColumn ModifiedOn = new SqlServerColumn(nameof(ModifiedOn));
         //public static readonly SqlServerColumn CreatedOn = new SqlServerColumn(nameof(CreatedOn));

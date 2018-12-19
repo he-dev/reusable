@@ -37,17 +37,17 @@ namespace Reusable.SmartConfig
 
         public static Func<IResourceProvider, IResourceProvider> Factory() => decorable => new SettingProvider(decorable);
 
-        public override Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
+        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
             return _resourceProvider.GetAsync(Translate(uri), Translate(uri, metadata));
         }
 
-        public override Task<IResourceInfo> PutAsync(UriString uri, Stream value, ResourceMetadata metadata = null)
+        protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
             return _resourceProvider.PutAsync(Translate(uri), value, Translate(uri, metadata));
         }
 
-        public override Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = null)
+        protected override Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
             return _resourceProvider.DeleteAsync(Translate(uri), Translate(uri, metadata));
         }

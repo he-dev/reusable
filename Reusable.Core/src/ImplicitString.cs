@@ -19,7 +19,7 @@ namespace Reusable
 
         public static implicit operator string(ImplicitString value) => value.ToString();
         
-        public static implicit operator SoftString(ImplicitString value) => value.ToString();
+        public static implicit operator SoftString(ImplicitString value) => SoftString.Create(value);
 
         public static implicit operator bool(ImplicitString value) => !string.IsNullOrWhiteSpace(value);
 

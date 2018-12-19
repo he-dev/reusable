@@ -41,7 +41,7 @@ namespace Reusable.IOnymous
             _resourceProviders = resourceProviders.ToImmutableList();
         }
 
-        public override async Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
+        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
             await _resourceProviderCacheLock.WaitAsync();
             try
@@ -89,9 +89,9 @@ namespace Reusable.IOnymous
             return new InMemoryResourceInfo(uri);
         }
 
-        public override async Task<IResourceInfo> PutAsync(UriString uri, Stream data, ResourceMetadata metadata = null)
+        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream data, ResourceMetadata metadata = null)
         {
-            var resourceProvider = await GetValueProviderAsync(uri, metadata);
+            var resourceProvider = await GetResourceProviderAsync(uri, metadata);
 
             if (!resourceProvider.Metadata.CanPut())
             {
@@ -101,20 +101,14 @@ namespace Reusable.IOnymous
             return await resourceProvider.PutAsync(uri, data, metadata);
         }
 
-        public override async Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = null)
+        protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
-            var valueProvider = await GetValueProviderAsync(uri, metadata);
-
-            if (!valueProvider.Metadata.TryGetValue(ResourceMetadataKeys.CanDelete, out bool _))
-            {
-                throw DynamicException.Create("DeleteNotSupported", $"Value-provider '{valueProvider.GetType().ToPrettyString()}' doesn't support '{nameof(DeleteAsync)}'.");
-            }
-
-            return await valueProvider.DeleteAsync(uri, metadata);
+            var resourceProvider = await GetResourceProviderAsync(uri, metadata);            
+            return await resourceProvider.DeleteAsync(uri, metadata);
         }
 
         [ItemNotNull]
-        private async Task<IResourceProvider> GetValueProviderAsync(UriString uri, ResourceMetadata metadata = null)
+        private async Task<IResourceProvider> GetResourceProviderAsync(UriString uri, ResourceMetadata metadata = null)
         {
             await _resourceProviderCacheLock.WaitAsync();
             try

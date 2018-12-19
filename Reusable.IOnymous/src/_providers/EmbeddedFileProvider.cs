@@ -28,7 +28,7 @@ namespace Reusable.IOnymous
 
         #region ResourceProvider
 
-        public override Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
+        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
             ValidateSchemeNotEmpty(uri);
 
@@ -42,16 +42,6 @@ namespace Reusable.IOnymous
             var getManifestResourceStream = actualName is null ? default(Func<Stream>) : () => _assembly.GetManifestResourceStream(actualName);
 
             return Task.FromResult<IResourceInfo>(new EmbeddedFileInfo(UndoConvertPath(fullName), getManifestResourceStream));
-        }
-
-        public override Task<IResourceInfo> PutAsync(UriString uri, Stream data, ResourceMetadata metadata = null)
-        {
-            throw new NotSupportedException($"{nameof(EmbeddedFileProvider)} does not support value serialization.");
-        }
-
-        public override Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = null)
-        {
-            throw new NotSupportedException($"{nameof(EmbeddedFileProvider)} does not support value deletion.");
         }
 
         #endregion

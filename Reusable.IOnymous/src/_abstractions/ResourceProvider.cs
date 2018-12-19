@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Exceptionizer;
@@ -49,42 +50,153 @@ namespace Reusable.IOnymous
 
         public virtual ResourceMetadata Metadata { get; }
 
-        public virtual SoftString Scheme => (SoftString)Metadata[ResourceMetadataKeys.Scheme];
+        public virtual SoftString Scheme => (SoftString)(string)Metadata[ResourceMetadataKeys.Scheme];
 
-        public abstract Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null);
-
-        public virtual Task<IResourceInfo> PostAsync(UriString name, Stream value, ResourceMetadata metadata = null)
+        public async Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
         {
-            throw new NotImplementedException();
+            ValidateSchemeNotEmpty(uri);
+            ValidateSchemeMatches(uri);
+            ValidateCanMethod();
+
+            try
+            {
+                return await GetAsyncInternal(uri, metadata);
+            }
+            catch (Exception inner)
+            {
+                throw CreateException(uri, metadata, inner);
+            }
         }
 
-        public abstract Task<IResourceInfo> PutAsync(UriString uri, Stream value, ResourceMetadata metadata = null);
-
-        public abstract Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = null);
-
-        protected static Exception CreateException(IResourceProvider provider, string name, ResourceMetadata metadata, Exception inner, [CallerMemberName] string memberName = null)
+        public async Task<IResourceInfo> PostAsync(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
-            return new Exception();
+            ValidateSchemeNotEmpty(uri);
+            ValidateSchemeMatches(uri);
+            ValidateCanMethod();
+
+            try
+            {
+                return await PostAsyncInternal(uri, value, metadata);
+            }
+            catch (Exception inner)
+            {
+                throw CreateException(uri, metadata, inner);
+            }
         }
 
-        protected UriString ValidateScheme([NotNull] UriString uri, string scheme)
+        public async Task<IResourceInfo> PutAsync(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
-            if (uri == null) throw new ArgumentNullException(nameof(uri));
+            ValidateSchemeNotEmpty(uri);
+            ValidateSchemeMatches(uri);
+            ValidateCanMethod();
 
-            return
-                SoftString.Comparer.Equals(uri.Scheme, scheme)
-                    ? uri
-                    : throw DynamicException.Create("InvalidScheme", $"This resource-provider '{GetType().ToPrettyString()}' requires scheme '{scheme}'.");
+            try
+            {
+                return await PutAsyncInternal(uri, value, metadata);
+            }
+            catch (Exception inner)
+            {
+                throw CreateException(uri, metadata, inner);
+            }
         }
 
-        protected UriString ValidateSchemeNotEmpty([NotNull] UriString uri)
+        public async Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = null)
         {
-            if (uri == null) throw new ArgumentNullException(nameof(uri));
+            ValidateSchemeNotEmpty(uri);
+            ValidateSchemeMatches(uri);
+            ValidateCanMethod();
 
-            return
-                uri.Scheme
-                    ? uri
-                    : throw DynamicException.Create("SchemeNotFound", $"Uri '{uri}' does not contain scheme.");
+            try
+            {
+                return await DeleteAsyncInternal(uri, metadata);
+            }
+            catch (Exception inner)
+            {
+                throw CreateException(uri, metadata, inner);
+            }
         }
+
+        #region Internal
+
+        protected virtual Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null) => throw new NotSupportedException();
+
+        protected virtual Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null) => throw new NotSupportedException();
+
+        protected virtual Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null) => throw new NotSupportedException();
+
+        protected virtual Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata = null) => throw new NotSupportedException();
+
+        #endregion
+
+        #region Helpers
+
+        protected Exception CreateException(UriString uri, ResourceMetadata metadata, Exception inner, [CallerMemberName] string memberName = null)
+        {
+            // ReSharper disable once AssignNullToNotNullAttribute
+            var method = Regex.Replace(memberName, "Async$", string.Empty).ToUpper();
+
+            throw DynamicException.Create
+            (
+                memberName,
+                $"{GetType().ToPrettyString()} was unable to perform {method} for the given resource '{uri}'.",
+                inner
+            );
+        }
+
+        #endregion
+
+        #region Validations
+
+        protected void ValidateSchemeMatches([NotNull] UriString uri)
+        {
+            if (Metadata.TryGetValue(AllowRelativeUri, out bool allow) && allow)
+            {
+                return;
+            }
+
+            if (SoftString.Comparer.Equals(Scheme, DefaultScheme))
+            {
+                return;
+            }
+            
+            if (!SoftString.Comparer.Equals(uri.Scheme, Scheme))
+            {
+                throw DynamicException.Create
+                (
+                    "InvalidScheme",
+                    $"{GetType().ToPrettyString()} requires scheme '{Scheme}'."
+                );
+            }
+        }
+
+        protected void ValidateCanMethod([CallerMemberName] string memberName = null)
+        {
+            // ReSharper disable once AssignNullToNotNullAttribute
+            var method = Regex.Replace(memberName, "Async$", string.Empty);
+
+            if (!Metadata.TryGetValue($"Can{method}", out bool can) || !can)
+            {
+                throw DynamicException.Create
+                (
+                    $"{method}NotSupported",
+                    $"{GetType().ToPrettyString()} doesn't support '{method.ToUpper()}'."
+                );
+            }
+        }
+
+        protected void ValidateSchemeNotEmpty([NotNull] UriString uri)
+        {
+            if (Metadata.TryGetValue(AllowRelativeUri, out bool allow) && allow)
+            {
+                return;
+            }
+            
+            if (!uri.Scheme)
+            {
+                throw DynamicException.Create("SchemeNotFound", $"Uri '{uri}' does not contain scheme.");
+            }
+        }
+
+        #endregion
     }
 }

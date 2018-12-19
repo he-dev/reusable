@@ -10,5 +10,7 @@ namespace Reusable.IOnymous
         public static string CanDelete { get; } = nameof(CanDelete);
         public static string Scheme { get; } = nameof(Scheme);
         public static string Serializer { get; } = nameof(Serializer);
+        public static string AllowRelativeUri { get; } = nameof(AllowRelativeUri);
+        
     }
 }

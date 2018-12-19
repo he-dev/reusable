@@ -78,8 +78,8 @@ namespace Reusable.IOnymous
 
         public UriString(UriString absoluteUri, UriString relativeUri)
         {
-            if (absoluteUri.IsRelative) throw new ArgumentException($"{nameof(absoluteUri)} must being with a scheme.");
-            if (relativeUri.IsAbsolute) throw new ArgumentException($"{nameof(relativeUri)} must not begin with a scheme.");
+            if (absoluteUri.IsRelative) throw new ArgumentException($"{nameof(absoluteUri)} must contain scheme.");
+            if (relativeUri.IsAbsolute) throw new ArgumentException($"{nameof(relativeUri)} must not contain scheme.");
 
             Scheme = absoluteUri.Scheme;
             Authority = absoluteUri.Authority;

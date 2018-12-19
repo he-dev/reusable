@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Reusable.Exceptionizer;
 using Reusable.Extensions;
 using Reusable.OneTo1;
 using Reusable.OneTo1.Converters.Generic;
@@ -69,7 +70,7 @@ namespace Reusable.IOnymous
 
         public static Func<IResourceProvider, IResourceProvider> Factory() => dercorable => new JsonResourceProvider(dercorable);
 
-        public override async Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
+        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
             var info = await ResourceProvider.GetAsync(uri);
             if (info.Exists)
@@ -91,7 +92,7 @@ namespace Reusable.IOnymous
             }
         }
 
-        public override async Task<IResourceInfo> PutAsync(UriString uri, Stream stream, ResourceMetadata metadata = null)
+        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream stream, ResourceMetadata metadata = null)
         {
             var value = ResourceHelper.CreateObject(stream, metadata);
 
@@ -106,12 +107,7 @@ namespace Reusable.IOnymous
                 }
             }
 
-            throw new Exception("Blub");
-        }
-
-        public override Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = null)
-        {
-            throw new NotImplementedException();
+            throw DynamicException.Create("UnsupportedType", $"{GetType().ToPrettyString()} does not support '{value.GetType().ToPrettyString()}'.");
         }
 
         #region Helpers

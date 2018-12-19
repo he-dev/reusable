@@ -12,58 +12,41 @@ namespace Reusable.IOnymous
         public PhysicalDirectoryProvider(ResourceMetadata metadata = null)
             : base(
                 (metadata ?? ResourceMetadata.Empty)
-                    .Add(ResourceMetadataKeys.CanGet, true)
-                    .Add(ResourceMetadataKeys.CanPut, true)
-                    .Add(ResourceMetadataKeys.CanDelete, true)
+                .Add(ResourceMetadataKeys.CanGet, true)
+                .Add(ResourceMetadataKeys.CanPut, true)
+                .Add(ResourceMetadataKeys.CanDelete, true)
             )
-        { }
-
-        public override Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
         {
-            ValidateScheme(uri, "file");
+        }
 
+        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
+        {
             return Task.FromResult<IResourceInfo>(new PhysicalDirectoryInfo(uri));
         }
 
-        public override async Task<IResourceInfo> PutAsync(UriString uri, Stream value, ResourceMetadata metadata = null)
+        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
-            ValidateScheme(uri, "file");
-
             using (var streamReader = new StreamReader(value))
             {
                 var fullName = Path.Combine(uri.Path, await streamReader.ReadToEndAsync());
-                try
-                {
-                    Directory.CreateDirectory(fullName);
-                    return await this.GetAsync(fullName, metadata);
-                }
-                catch (Exception inner)
-                {
-                    throw CreateException(this, fullName, metadata, inner);
-                }
+                Directory.CreateDirectory(fullName);
+                return await GetAsync(fullName, metadata);
             }
         }
 
-        public override async Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = null)
+        protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
-            ValidateScheme(uri, "file");
-
-            try
-            {
-                Directory.Delete(uri.Path, true);
-                return await GetAsync(uri, metadata);
-            }
-            catch (Exception inner)
-            {
-                throw CreateException(this, uri.Path, metadata, inner);
-            }
+            Directory.Delete(uri.Path, true);
+            return await GetAsync(uri, metadata);
         }
     }
-    
+
     [PublicAPI]
     internal class PhysicalDirectoryInfo : ResourceInfo
     {
-        public PhysicalDirectoryInfo([NotNull] UriString uri) : base(uri) { }
+        public PhysicalDirectoryInfo([NotNull] UriString uri) : base(uri)
+        {
+        }
 
         public override UriString Uri { get; }
 

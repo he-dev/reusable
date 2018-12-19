@@ -24,18 +24,14 @@ namespace Reusable.IOnymous
         {
         }
 
-        public override Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
+        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
-            ValidateSchemeNotEmpty(uri);
-
             var firstMatch = _items.FirstOrDefault(item => item.Uri == uri);
             return Task.FromResult(firstMatch ?? new InMemoryResourceInfo(uri, metadata));
         }
 
-        public override Task<IResourceInfo> PutAsync(UriString uri, Stream value, ResourceMetadata metadata = null)
+        protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
-            ValidateSchemeNotEmpty(uri);
-
             var file = new InMemoryResourceInfo(uri, GetByteArray(value), metadata);
             _items.Remove(file);
             _items.Add(file);
@@ -51,10 +47,8 @@ namespace Reusable.IOnymous
             }
         }
 
-        public override async Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = null)
+        protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
-            ValidateSchemeNotEmpty(uri);
-
             var resourceToDelete = await GetAsync(uri, metadata);
             _items.Remove(resourceToDelete);
             return await GetAsync(uri, metadata);
@@ -76,7 +70,7 @@ namespace Reusable.IOnymous
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_items).GetEnumerator();
     }
-    
+
     public class InMemoryResourceInfo : ResourceInfo
     {
         [CanBeNull] private readonly byte[] _data;

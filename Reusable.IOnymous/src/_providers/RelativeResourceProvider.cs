@@ -12,27 +12,27 @@ namespace Reusable.IOnymous
         private readonly UriString _baseUri;
 
         public RelativeResourceProvider([NotNull] IResourceProvider resourceProvider, [NotNull] UriString baseUri)
-            : base(resourceProvider.Metadata)
+            : base(resourceProvider.Metadata.Add(ResourceMetadataKeys.AllowRelativeUri, true))
         {
             _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
             _baseUri = baseUri ?? throw new ArgumentNullException(nameof(baseUri));
         }
 
-        public override async Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
+        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
             return await _resourceProvider.GetAsync(CreateAbsoluteUri(uri));
         }
 
-        public override Task<IResourceInfo> PutAsync(UriString uri, Stream value, ResourceMetadata metadata = null)
+        protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
             return _resourceProvider.PutAsync(CreateAbsoluteUri(uri), value, metadata);
         }
 
-        public override Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = null)
+        protected override Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
             return _resourceProvider.DeleteAsync(uri, metadata);
         }
 
-        private UriString CreateAbsoluteUri(UriString uri) => uri.IsRelative ? (UriString)(_baseUri.Path + "/" + uri.Path) : uri;
+        private UriString CreateAbsoluteUri(UriString uri) => uri.IsRelative ? (UriString)(_baseUri + uri.Path) : uri;
     }
 }
