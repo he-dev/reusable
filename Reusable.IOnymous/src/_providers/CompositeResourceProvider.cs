@@ -130,8 +130,8 @@ namespace Reusable.IOnymous
                 throw DynamicException.Create
                 (
                     $"Unknown{nameof(ResourceProvider)}",
-                    $"Could not serialize '{uri}' because serializing requires a well-known-value-provider and it could be determined. " +
-                    $"This means that it needs to be either specified via '{nameof(metadata)}' or be already determined by calling '{nameof(GetAsync)}'."
+                    $"Could not serialize '{uri}' because serializing requires a well-known resource-provider and it could not be determined. " +
+                    $"This means that you either need to specify its name via '{nameof(metadata)}' or call '{nameof(GetAsync)}' first."
                 );
             }
             finally

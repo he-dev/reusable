@@ -32,10 +32,10 @@ namespace Reusable.IOnymous
 
         protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
-            var file = new InMemoryResourceInfo(uri, GetByteArray(value), metadata);
-            _items.Remove(file);
-            _items.Add(file);
-            return Task.FromResult<IResourceInfo>(file);
+            var resource = new InMemoryResourceInfo(uri, GetByteArray(value), metadata);
+            _items.Remove(resource);
+            _items.Add(resource);
+            return Task.FromResult<IResourceInfo>(resource);
         }
 
         private byte[] GetByteArray(Stream stream)
