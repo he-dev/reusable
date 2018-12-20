@@ -29,7 +29,7 @@ namespace Reusable.IOnymous
 
         protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
-            using (var fileStream = new FileStream(uri.Path, FileMode.CreateNew, FileAccess.Write))
+            using (var fileStream = new FileStream(uri.Path.Decoded, FileMode.CreateNew, FileAccess.Write))
             {
                 await value.CopyToAsync(fileStream);
                 await fileStream.FlushAsync();
@@ -40,7 +40,7 @@ namespace Reusable.IOnymous
 
         protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
-            File.Delete(uri.Path);
+            File.Delete(uri.Path.Decoded);
             return await GetAsync(uri, metadata);
         }
     }
@@ -70,17 +70,17 @@ namespace Reusable.IOnymous
         {
         }
 
-        public override bool Exists => File.Exists(Uri.Path);
+        public override bool Exists => File.Exists(Uri.Path.Decoded);
 
-        public override long? Length => new FileInfo(Uri.Path).Length;
+        public override long? Length => new FileInfo(Uri.Path.Decoded).Length;
 
-        public override DateTime? CreatedOn => Exists ? File.GetCreationTimeUtc(Uri.Path) : default;
+        public override DateTime? CreatedOn => Exists ? File.GetCreationTimeUtc(Uri.Path.Decoded) : default;
 
-        public override DateTime? ModifiedOn => Exists ? File.GetLastWriteTimeUtc(Uri.Path) : default;
+        public override DateTime? ModifiedOn => Exists ? File.GetLastWriteTimeUtc(Uri.Path.Decoded) : default;
 
         protected override async Task CopyToAsyncInternal(Stream stream)
         {
-            using (var fileStream = File.OpenRead(Uri.Path))
+            using (var fileStream = File.OpenRead(Uri.Path.Decoded))
             {
                 await fileStream.CopyToAsync(stream);
             }
@@ -88,7 +88,7 @@ namespace Reusable.IOnymous
 
         protected override async Task<object> DeserializeAsyncInternal(Type targetType)
         {
-            using (var fileStream = File.OpenRead(Uri.Path))
+            using (var fileStream = File.OpenRead(Uri.Path.Decoded))
             using (var streamReader = new StreamReader(fileStream))
             {
                 return await streamReader.ReadToEndAsync();

@@ -28,7 +28,7 @@ namespace Reusable.IOnymous
         {
             using (var streamReader = new StreamReader(value))
             {
-                var fullName = Path.Combine(uri.Path, await streamReader.ReadToEndAsync());
+                var fullName = Path.Combine(uri.Path.Decoded, await streamReader.ReadToEndAsync());
                 Directory.CreateDirectory(fullName);
                 return await GetAsync(fullName, metadata);
             }
@@ -36,7 +36,7 @@ namespace Reusable.IOnymous
 
         protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
-            Directory.Delete(uri.Path, true);
+            Directory.Delete(uri.Path.Decoded, true);
             return await GetAsync(uri, metadata);
         }
     }
@@ -50,13 +50,13 @@ namespace Reusable.IOnymous
 
         public override UriString Uri { get; }
 
-        public override bool Exists => Directory.Exists(Uri.Path);
+        public override bool Exists => Directory.Exists(Uri.Path.Decoded);
 
         public override long? Length { get; }
 
         public override DateTime? CreatedOn { get; }
 
-        public override DateTime? ModifiedOn => Exists ? Directory.GetLastWriteTimeUtc(Uri.Path) : default;
+        public override DateTime? ModifiedOn => Exists ? Directory.GetLastWriteTimeUtc(Uri.Path.Decoded) : default;
 
         protected override Task CopyToAsyncInternal(Stream stream) => throw new NotSupportedException();
 

@@ -1,17 +1,11 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 using Reusable.sdk.Http;
 using Reusable.Teapot;
-using Reusable.Utilities.XUnit;
 using Reusable.Utilities.XUnit.Fixtures;
 using Xunit;
 
-namespace Reusable.Tests2
+namespace Reusable.Tests.XUnit
 {
     public class TeapotExperiment : IClassFixture<TeapotFactoryFixture>
     {

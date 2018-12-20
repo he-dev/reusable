@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Reusable.Exceptionizer;
 using Reusable.IOnymous;
 using Xunit;
 
-namespace Reusable.Tests2.IOnymous
+namespace Reusable.Tests.XUnit.IOnymous
 {
     public class InMemoryResourceProviderTest
     {

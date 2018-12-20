@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Reusable.IOnymous;
 using Reusable.SmartConfig;
 using Xunit;
 
-namespace Reusable.Tests2
+namespace Reusable.Tests.XUnit
 {
     public class ValueProviderTest
     {

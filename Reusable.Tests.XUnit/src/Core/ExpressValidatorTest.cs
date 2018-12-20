@@ -1,7 +1,7 @@
 ﻿using Reusable.Flawless;
 using Xunit;
 
-namespace Reusable.Tests2
+namespace Reusable.Tests.XUnit
 {
     public class ExpressValidatorTest
     {

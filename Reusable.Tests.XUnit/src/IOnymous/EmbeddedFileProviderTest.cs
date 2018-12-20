@@ -3,7 +3,7 @@ using Reusable.Exceptionizer;
 using Reusable.IOnymous;
 using Xunit;
 
-namespace Reusable.Tests2.IOnymous
+namespace Reusable.Tests.XUnit.IOnymous
 {
     public class EmbeddedFileProviderTest
     {

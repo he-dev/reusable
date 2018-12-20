@@ -20,7 +20,7 @@ namespace Reusable.IOnymous
 
     public partial class EnvironmentVariableProvider
     {
-        public static Func<IResourceProvider, EnvironmentVariableProvider> Create()
+        public static Func<IResourceProvider, EnvironmentVariableProvider> Factory()
         {
             return decorable => new EnvironmentVariableProvider(decorable);
         }

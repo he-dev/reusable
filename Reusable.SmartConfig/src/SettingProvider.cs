@@ -56,7 +56,7 @@ namespace Reusable.SmartConfig
 
             var memberStrength = (SettingNameStrength)Enum.Parse(typeof(SettingNameStrength), uri.Query["strength"], ignoreCase: true);
             var strength = new[] { memberStrength, providerConvention.Strength }.First(x => x > SettingNameStrength.Inherit);
-            var path = uri.Path.Value.Split('.').Skip(2 - (int)strength).Join(".");
+            var path = uri.Path.Decoded.Value.Split('.').Skip(2 - (int)strength).Join(".");
 
             var memberPrefixHandling = (PrefixHandling)Enum.Parse(typeof(PrefixHandling), uri.Query["prefixHandling"], ignoreCase: true);
             var prefixHandling = new[] { memberPrefixHandling, providerConvention.PrefixHandling }.First(x => x > PrefixHandling.Inherit);

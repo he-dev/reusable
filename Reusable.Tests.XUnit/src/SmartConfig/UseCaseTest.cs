@@ -13,7 +13,7 @@ using Xunit;
 [assembly: SettingProvider(SettingNameStrength.Low, typeof(AppSettingProvider), Prefix = "abc")]
 //[assembly: SettingProvider(SettingNameStrength.Low, nameof(AppSettingProvider), Prefix = "abc")]
 
-namespace Reusable.Tests2.SmartConfig
+namespace Reusable.Tests.XUnit.SmartConfig
 {
     public class UseCaseTest
     {

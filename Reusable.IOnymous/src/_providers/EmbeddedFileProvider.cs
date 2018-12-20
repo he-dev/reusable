@@ -32,8 +32,8 @@ namespace Reusable.IOnymous
         {
             // Embedded resource names are separated by '.' so replace the windows separator.
 
-            var fullUri = BaseUri + uri.Path.Value;
-            var fullName = fullUri.Path.Value.Replace('/', '.');
+            var fullUri = BaseUri + uri.Path.Original.Value;
+            var fullName = fullUri.Path.Decoded.Value.Replace('/', '.');
 
             // Embedded resource names are case sensitive so find the actual name of the resource.
             var actualName = _assembly.GetManifestResourceNames().FirstOrDefault(name => SoftString.Comparer.Equals(name, fullName));

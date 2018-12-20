@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
+using System.Linq.Custom;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Collections;
@@ -17,21 +19,25 @@ namespace Reusable.IOnymous
         {
             /* language=regexp */ @"^(?:(?<scheme>\w+):)?",
             /* language=regexp */ @"(?:\/\/(?<authority>[a-z0-9\.\-_]+))?",
-            /* language=regexp */ @"(?:\/?(?<path>[a-z0-9\/:\.-]+))",
+            /* language=regexp */ @"(?:\/?(?<path>[a-z0-9\/:\.\-\%]+))",
             /* language=regexp */ @"(?:\?(?<query>[a-z0-9=&]+))?",
             /* language=regexp */ @"(?:#(?<fragment>[a-z0-9]+))?"
         });
 
-        private static readonly IEqualityComparer<string> InternalComparer = StringComparer.OrdinalIgnoreCase;
-
         public static readonly IEqualityComparer<UriString> Comparer = EqualityComparerFactory<UriString>.Create
         (
-            @equals: (x, y) =>
+            equals: (x, y) =>
             {
                 var ignoreScheme = x.IsIOnymous() || y.IsIOnymous();
-                return InternalComparer.Equals(ignoreScheme ? x.ToString(string.Empty) : x.ToString(), ignoreScheme ? y.ToString(string.Empty) : y.ToString());
+                var xUri = ignoreScheme ? x.ToString(string.Empty) : x.ToString();
+                var yUri = ignoreScheme ? y.ToString(string.Empty) : y.ToString();
+                return SoftString.Comparer.Equals(xUri, yUri);
             },
-            getHashCode: (obj) => InternalComparer.GetHashCode(obj.IsIOnymous() ? obj.ToString(string.Empty) : obj.ToString()));
+            getHashCode: (obj) =>
+            {
+                var ignoreScheme = obj.IsIOnymous();
+                return SoftString.Comparer.GetHashCode(ignoreScheme ? obj.ToString(string.Empty) : obj.ToString());
+            });
 
         public UriString([NotNull] string uri)
         {
@@ -51,7 +57,7 @@ namespace Reusable.IOnymous
 
             Scheme = uriMatch.Groups["scheme"];
             Authority = uriMatch.Groups["authority"];
-            Path = uriMatch.Groups["path"];
+            Path = new UriStringComponent(UriStringHelper.Encode(uriMatch.Groups["path"].Value));
             Query =
                 uriMatch.Groups["query"].Success
                     ? Regex
@@ -71,7 +77,7 @@ namespace Reusable.IOnymous
             Fragment = uriMatch.Groups["fragment"];
         }
 
-        public UriString(string scheme, string path) 
+        public UriString(string scheme, string path)
             : this($"{scheme}:{path.Replace('\\', '/')}")
         {
         }
@@ -83,7 +89,7 @@ namespace Reusable.IOnymous
 
             Scheme = absoluteUri.Scheme;
             Authority = absoluteUri.Authority;
-            Path = absoluteUri.Path.Value.TrimEnd('/') + "/" + relativeUri.Path.Value.TrimStart('/');
+            Path = absoluteUri.Path.Original.Value.TrimEnd('/') + "/" + relativeUri.Path.Original.Value.TrimStart('/');
             Query = absoluteUri.Query;
             Fragment = absoluteUri.Fragment;
         }
@@ -92,7 +98,7 @@ namespace Reusable.IOnymous
 
         public ImplicitString Authority { get; }
 
-        public ImplicitString Path { get; }
+        public UriStringComponent Path { get; }
 
         public IImmutableDictionary<ImplicitString, ImplicitString> Query { get; }
 
@@ -100,7 +106,7 @@ namespace Reusable.IOnymous
 
         public bool IsAbsolute => Scheme;
 
-        public bool IsRelative => !IsAbsolute;       
+        public bool IsRelative => !IsAbsolute;
 
         public override string ToString() => ToString(Scheme);
 
@@ -118,7 +124,7 @@ namespace Reusable.IOnymous
                 yield return $"//{Authority}/";
             }
 
-            yield return Path;
+            yield return Path.Original;
 
             if (Query.Any())
             {
@@ -147,10 +153,14 @@ namespace Reusable.IOnymous
 
         #endregion
 
+        #region Helpers
+
+        #endregion
+
         #region operators
 
         public static implicit operator UriString(string uri) => new UriString(uri);
-        
+
         public static implicit operator UriString((string scheme, string path) uri) => new UriString(uri.scheme, uri.path);
 
         public static implicit operator string(UriString uri) => uri.ToString();
@@ -162,5 +172,63 @@ namespace Reusable.IOnymous
         public static bool operator !=(UriString left, UriString right) => !(left == right);
 
         #endregion
+    }
+
+    public class UriStringComponent
+    {
+        public UriStringComponent([NotNull] ImplicitString value) => Original = value ?? throw new ArgumentNullException(nameof(value));
+
+        [NotNull]
+        public ImplicitString Original { get; }
+
+        [NotNull]
+        public ImplicitString Decoded => UriStringHelper.Decode(Original);
+        
+        public static implicit operator UriStringComponent(string value) => new UriStringComponent(value);
+    }
+
+    public static class UriStringHelper
+    {
+        private static readonly string ReservedCharacters = "!#$&'()*+,/:;=?@[]";
+        
+        private static readonly string DecodePattern = $"%(?<hex>{ReservedCharacters.Append('%').Select(c => $"{(int)c:X2}").Join("|")})";
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="reservedCharacters">If not specified then only '%' gets encoded.</param>
+        /// <returns></returns>
+        public static string Encode(string value, string reservedCharacters = null)
+        {
+            reservedCharacters = reservedCharacters ?? string.Empty;
+
+            if (reservedCharacters.Contains('%'))
+            {
+                throw new ArgumentOutOfRangeException
+                (
+                    paramName:nameof(reservedCharacters), 
+                    message: "You cannot encode '%' because it's always encoded automatically."
+                );
+            }
+            
+            var escaped = 
+                reservedCharacters
+                    .Select(c => Regex.Escape(c.ToString()))
+                    // %25 = % - is a special case that's automatically encoded and only if it's actually not encoded yet.
+                    .Append("%(?!25)");
+        
+            var encodePattern = $"(?<reserved>{escaped.Join("|")})";
+            return Regex.Replace(value, encodePattern, m => EncodeCharacter(m.Groups["reserved"].Value[0]));
+
+            string EncodeCharacter(char c) => $"%{(int)c:X2}";
+        }
+
+        public static string Decode(string value)
+        {
+            return Regex.Replace(value, DecodePattern, m => DecodeCharacter(m.Groups["hex"].Value));
+
+            string DecodeCharacter(string hex) => ((char)int.Parse(hex, NumberStyles.HexNumber)).ToString();
+        }
     }
 }

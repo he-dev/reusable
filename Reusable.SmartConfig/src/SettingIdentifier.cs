@@ -51,7 +51,7 @@ namespace Reusable.SmartConfig
             if (uri.IsRelative) throw new ArgumentException();
             if (uri.Scheme != "setting") throw new ArgumentException();
 
-            var names = uri.Path.Value.Split('.');
+            var names = uri.Path.Decoded.Value.Split('.');
 
             _tokens = new Dictionary<SettingNameToken, ReadOnlyMemory<char>>
             {

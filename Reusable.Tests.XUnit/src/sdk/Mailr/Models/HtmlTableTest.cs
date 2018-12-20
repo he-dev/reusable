@@ -4,7 +4,7 @@ using Reusable.IO.Extensions;
 using Reusable.sdk.Mailr.Models;
 using Xunit;
 
-namespace Reusable.Tests2.sdk.Mailr.Models
+namespace Reusable.Tests.XUnit.sdk.Mailr.Models
 {
     public class HtmlTableTest
     {

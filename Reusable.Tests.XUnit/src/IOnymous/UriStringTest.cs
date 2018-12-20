@@ -1,8 +1,7 @@
-using System.IO.Packaging;
 using Reusable.IOnymous;
 using Xunit;
 
-namespace Reusable.Tests2.IOnymous
+namespace Reusable.Tests.XUnit.IOnymous
 {
     public class UriStringTest
     {
@@ -13,7 +12,7 @@ namespace Reusable.Tests2.IOnymous
             
             Assert.Equal("scheme", uri.Scheme);
             Assert.Equal("autho.rity", uri.Authority);
-            Assert.Equal("p/a/t/h", uri.Path);
+            Assert.Equal("p/a/t/h", uri.Path.Original);
             Assert.Equal("string", uri.Query["query"]);
             Assert.Equal("fragment", uri.Fragment);
             
@@ -44,6 +43,14 @@ namespace Reusable.Tests2.IOnymous
             var uri3 = new UriString("scheme://autho.rity/p/a/t/h/s?query=string#fragment");
             
             Assert.False(uri1 == uri3);
+        }
+
+        [Fact]
+        public void Can_automatically_encode_percent_character()
+        {
+            var uri = new UriString("scheme:%temp%");
+            
+            Assert.Equal("%25temp%25", uri.Path.Original);
         }
     }
 }

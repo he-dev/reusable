@@ -1,7 +1,6 @@
 using System;
 using System.Configuration;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Reusable.sdk.Http;
@@ -10,7 +9,7 @@ using Reusable.Teapot;
 using Reusable.Utilities.XUnit.Fixtures;
 using Xunit;
 
-namespace Reusable.Tests2.sdk.Mailr
+namespace Reusable.Tests.XUnit.sdk.Mailr
 {
     public class EmailsTest : IClassFixture<TeapotFactoryFixture>
     {
