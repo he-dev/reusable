@@ -12,24 +12,31 @@ namespace Reusable.IOnymous
         private readonly IResourceProvider _resourceProvider;
 
         public EnvironmentVariableProvider([NotNull] IResourceProvider resourceProvider) 
-            : base(resourceProvider.Metadata.SetItem(ResourceMetadataKeys.Scheme, "file"))
+            : base(resourceProvider.Metadata)
         {
             _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
         }
 
         protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
-            return _resourceProvider.GetAsync(Environment.ExpandEnvironmentVariables(uri.Path.Decoded), metadata);
+            return _resourceProvider.GetAsync(UpdatePath(uri), metadata);
         }
 
         protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
-            return _resourceProvider.PutAsync(Environment.ExpandEnvironmentVariables(uri.Path.Decoded), value, metadata);
+            return _resourceProvider.PutAsync(UpdatePath(uri), value, metadata);
         }
 
         protected override Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
-            return _resourceProvider.DeleteAsync(Environment.ExpandEnvironmentVariables(uri.Path.Decoded), metadata);
+            return _resourceProvider.DeleteAsync(UpdatePath(uri), metadata);
+        }
+
+        private UriString UpdatePath(UriString uri)
+        {
+            var expandedPath = Environment.ExpandEnvironmentVariables(uri.Path.Decoded);
+            var normalizedPath = UriStringHelper.Normalize(expandedPath);
+            return uri.With(x => x.Path, new UriStringComponent(normalizedPath));
         }
     }
 }

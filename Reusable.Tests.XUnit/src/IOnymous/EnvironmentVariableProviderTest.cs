@@ -13,10 +13,10 @@ namespace Reusable.Tests.XUnit.IOnymous
             Environment.SetEnvironmentVariable("test-variable-1", @"c:\temp");
 
             var provider = new PhysicalFileProvider().DecorateWith(EnvironmentVariableProvider.Factory());
-            var file = await provider.GetFileInfoAsync("%test-variable-1%/test.txt");
+            var file = await provider.GetFileInfoAsync(@"%test-variable-1%\test.txt");
             
             Assert.False(file.Exists);
-            Assert.Equal("c:/temp/test.txt", file.Uri.Path);
+            Assert.Equal("c:/temp/test.txt", file.Uri.Path.Decoded);
         }
     }
 }

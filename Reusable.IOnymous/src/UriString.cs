@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Globalization;
 using System.Linq;
-using System.Linq.Custom;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Collections;
@@ -43,6 +41,8 @@ namespace Reusable.IOnymous
         {
             if (uri == null) throw new ArgumentNullException(nameof(uri));
 
+            uri = UriStringHelper.Normalize(uri);
+            
             var uriMatch = Regex.Match
             (
                 uri,
@@ -80,7 +80,7 @@ namespace Reusable.IOnymous
         public UriString(string scheme, string path)
             : this($"{scheme}:{path.Replace('\\', '/')}")
         {
-        }
+        }               
 
         public UriString(UriString absoluteUri, UriString relativeUri)
         {
@@ -92,6 +92,11 @@ namespace Reusable.IOnymous
             Path = absoluteUri.Path.Original.Value.TrimEnd('/') + "/" + relativeUri.Path.Original.Value.TrimStart('/');
             Query = absoluteUri.Query;
             Fragment = absoluteUri.Fragment;
+        }
+
+        public UriString([NotNull] ImmutableUpdate update)
+        {
+            update.Bind(this);
         }
 
         public ImplicitString Scheme { get; }
@@ -185,50 +190,5 @@ namespace Reusable.IOnymous
         public ImplicitString Decoded => UriStringHelper.Decode(Original);
         
         public static implicit operator UriStringComponent(string value) => new UriStringComponent(value);
-    }
-
-    public static class UriStringHelper
-    {
-        private static readonly string ReservedCharacters = "!#$&'()*+,/:;=?@[]";
-        
-        private static readonly string DecodePattern = $"%(?<hex>{ReservedCharacters.Append('%').Select(c => $"{(int)c:X2}").Join("|")})";
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="reservedCharacters">If not specified then only '%' gets encoded.</param>
-        /// <returns></returns>
-        public static string Encode(string value, string reservedCharacters = null)
-        {
-            reservedCharacters = reservedCharacters ?? string.Empty;
-
-            if (reservedCharacters.Contains('%'))
-            {
-                throw new ArgumentOutOfRangeException
-                (
-                    paramName:nameof(reservedCharacters), 
-                    message: "You cannot encode '%' because it's always encoded automatically."
-                );
-            }
-            
-            var escaped = 
-                reservedCharacters
-                    .Select(c => Regex.Escape(c.ToString()))
-                    // %25 = % - is a special case that's automatically encoded and only if it's actually not encoded yet.
-                    .Append("%(?!25)");
-        
-            var encodePattern = $"(?<reserved>{escaped.Join("|")})";
-            return Regex.Replace(value, encodePattern, m => EncodeCharacter(m.Groups["reserved"].Value[0]));
-
-            string EncodeCharacter(char c) => $"%{(int)c:X2}";
-        }
-
-        public static string Decode(string value)
-        {
-            return Regex.Replace(value, DecodePattern, m => DecodeCharacter(m.Groups["hex"].Value));
-
-            string DecodeCharacter(string hex) => ((char)int.Parse(hex, NumberStyles.HexNumber)).ToString();
-        }
     }
 }
