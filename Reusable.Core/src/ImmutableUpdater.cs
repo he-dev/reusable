@@ -32,7 +32,7 @@ namespace Reusable
             if (GetBackingField<T>(selectedProperty.Name) == null)
             {
                 throw new ArgumentException($"You must select a pure readonly property (not a computed one). Affected expression '{memberSelector}'.");
-            }            
+            }
 
             var updates =
                 from property in obj.ImmutableProperties()
@@ -43,7 +43,7 @@ namespace Reusable
                     getsUpdated ? newValue : property.GetValue(obj)
                 );
 
-            return (T)Activator.CreateInstance(typeof(T), new ImmutableUpdate(updates));
+            return (T)ImmutableUpdateConstructor(typeof(T)).Invoke(new object[] { new ImmutableUpdate(updates) });
         }
 
         public static void Bind<T>(this ImmutableUpdate update, T obj)
@@ -73,7 +73,12 @@ namespace Reusable
             return
                 typeof(T)
                     .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                    .Where(p => p.GetSetMethod() is null);
+                    .Where(p => p.IsReadonly());
+        }
+
+        private static bool IsReadonly(this PropertyInfo propertyInfo)
+        {
+            return propertyInfo.GetSetMethod() is null;
         }
 
         private static ConstructorInfo ImmutableUpdateConstructor(Type type)
@@ -94,5 +99,5 @@ namespace Reusable
         public IEnumerator<(PropertyInfo Property, object Value)> GetEnumerator() => _updates.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => _updates.GetEnumerator();
-    }
+    }   
 }

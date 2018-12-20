@@ -24,10 +24,10 @@ namespace Reusable.IOnymous
         public CompositeResourceProvider
         (
             [NotNull] IList<IResourceProvider> resourceProviders,
-            [NotNull] ResourceMetadata metadata
+            [CanBeNull] ResourceMetadata metadata = null
         )
             : base(
-                metadata
+                (metadata ?? ResourceMetadata.Empty)
                     .Add(ResourceMetadataKeys.CanGet, resourceProviders.Any(x => x.Metadata.ContainsKey(ResourceMetadataKeys.CanGet)))
                     .Add(ResourceMetadataKeys.CanPut, resourceProviders.Any(x => x.Metadata.ContainsKey(ResourceMetadataKeys.CanPut)))
                     .Add(ResourceMetadataKeys.CanDelete, resourceProviders.Any(x => x.Metadata.ContainsKey(ResourceMetadataKeys.CanDelete)))
@@ -35,7 +35,6 @@ namespace Reusable.IOnymous
             )
         {
             if (resourceProviders == null) throw new ArgumentNullException(nameof(resourceProviders));
-            if (metadata == null) throw new ArgumentNullException(nameof(metadata));
 
             _resourceProviderCache = new Dictionary<UriString, IResourceProvider>();
             _resourceProviders = resourceProviders.ToImmutableList();

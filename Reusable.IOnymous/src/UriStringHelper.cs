@@ -15,23 +15,15 @@ namespace Reusable.IOnymous
         /// <summary>
         /// Encodes the specified value by replacing reserved characters with their byte codes. '%' is always handled.
         /// </summary>
-        /// <param name="value"></param>
-        /// <param name="reservedCharacters">If not specified then only '%' gets encoded.</param>
         public static string Encode(string value, string reservedCharacters = null)
         {
             reservedCharacters = reservedCharacters ?? string.Empty;
-
-            if (reservedCharacters.Contains('%'))
-            {
-                throw new ArgumentOutOfRangeException
-                (
-                    paramName:nameof(reservedCharacters), 
-                    message: "You cannot encode '%' because it's always encoded automatically."
-                );
-            }
             
-            var escaped = 
+            var escaped =
+                // Ignore '%' and reappend it with a different regex.
                 reservedCharacters
+                    .Replace("%", string.Empty)
+                    .Distinct()
                     .Select(c => Regex.Escape(c.ToString()))
                     // %25 = % - is a special case that's automatically encoded and only if it's actually not encoded yet.
                     .Append("%(?!25)");

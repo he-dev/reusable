@@ -46,11 +46,11 @@ namespace Reusable.IOnymous
 
                 if (element is null)
                 {
-                    exeConfig.AppSettings.Settings.Add(settingIdentifier, (string)value);
+                    exeConfig.AppSettings.Settings.Add(settingIdentifier, value);
                 }
                 else
                 {
-                    exeConfig.AppSettings.Settings[actualKey].Value = (string)value;
+                    exeConfig.AppSettings.Settings[actualKey].Value = value;
                 }
 
                 exeConfig.Save(ConfigurationSaveMode.Minimal);

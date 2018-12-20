@@ -13,7 +13,7 @@ namespace Reusable.IOnymous
     {
         private readonly ISet<IResourceInfo> _items = new HashSet<IResourceInfo>();
 
-        public InMemoryResourceProvider(ResourceMetadata metadata)
+        public InMemoryResourceProvider(ResourceMetadata metadata = null)
             : base(
                 (metadata ?? ResourceMetadata.Empty)
                 .Add(ResourceMetadataKeys.CanGet, true)
