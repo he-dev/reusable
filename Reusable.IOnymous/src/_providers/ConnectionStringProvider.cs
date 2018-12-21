@@ -16,9 +16,7 @@ namespace Reusable.IOnymous
         public ConnectionStringProvider(ITypeConverter uriStringToSettingIdentifierConverter = null)
             : base(
                 ResourceMetadata.Empty
-                    .Add(ResourceMetadataKeys.CanGet, true)
-                    .Add(ResourceMetadataKeys.CanPut, true)
-                    .Add(ResourceMetadataKeys.Scheme, "setting")
+                    .AddScheme("setting")
             )
         {
             _uriStringToSettingIdentifierConverter = uriStringToSettingIdentifierConverter;

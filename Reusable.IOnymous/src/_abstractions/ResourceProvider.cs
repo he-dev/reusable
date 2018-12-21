@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -19,6 +21,11 @@ namespace Reusable.IOnymous
     {
         [NotNull]
         ResourceMetadata Metadata { get; }
+        
+        bool CanGet { get; }
+        bool CanPost { get; }
+        bool CanPut { get; }
+        bool CanDelete { get; }
 
         [ItemNotNull]
         Task<IResourceInfo> GetAsync([NotNull] UriString uri, ResourceMetadata metadata = null);
@@ -36,11 +43,13 @@ namespace Reusable.IOnymous
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract class ResourceProvider : IResourceProvider
     {
-        public static readonly string DefaultScheme = "ionymous";
+        public static readonly ImplicitString DefaultScheme = "ionymous";
 
-        protected ResourceProvider(ResourceMetadata metadata)
+        protected ResourceProvider([NotNull] ResourceMetadata metadata)
         {
-            if (!metadata.ContainsKey(ResourceMetadataKeys.Scheme)) throw new ArgumentException(paramName: nameof(metadata), message: $"Resource provider metadata must specify the scheme.");
+            if (metadata == null) throw new ArgumentNullException(nameof(metadata));
+
+            if (!metadata.ContainsKey(ResourceMetadataKeys.SchemeSet)) throw new ArgumentException(paramName: nameof(metadata), message: $"Resource provider metadata must specify the scheme.");
 
             // If this is a decorator then the decorated resource-provider already has set this.
             if (!metadata.ContainsKey(ProviderDefaultName))
@@ -52,22 +61,32 @@ namespace Reusable.IOnymous
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
-        {            
+        {
             builder.DisplayCollection(x => x.Metadata.ProviderNames());
-            builder.DisplayMember(x => x.Scheme);
+            builder.DisplayMember(x => x.SchemeSet);
         });
+
+        public bool CanGet => Implements(nameof(GetAsyncInternal));
+        public bool CanPost => Implements(nameof(PostAsyncInternal));
+        public bool CanPut => Implements(nameof(PutAsyncInternal));
+        public bool CanDelete => Implements(nameof(DeleteAsyncInternal));
+
+        private bool Implements(string methodName)
+        {
+            // ReSharper disable once PossibleNullReferenceException - nope, not true in this case
+            return GetType().GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance).DeclaringType == GetType();
+        }
 
         public virtual ResourceMetadata Metadata { get; }
 
-        public virtual SoftString Scheme => (SoftString)(string)Metadata[ResourceMetadataKeys.Scheme];
+        public virtual IImmutableSet<SoftString> SchemeSet => (IImmutableSet<SoftString>)Metadata[ResourceMetadataKeys.SchemeSet];
 
         #region Wrappers
-        
+
         // These wrappers are to provide helpful exceptions.
 
         public async Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
         {
-            ValidateCanMethod();
             ValidateSchemeNotEmpty(uri);
             ValidateSchemeMatches(uri);
 
@@ -83,7 +102,6 @@ namespace Reusable.IOnymous
 
         public async Task<IResourceInfo> PostAsync(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
-            ValidateCanMethod();
             ValidateSchemeNotEmpty(uri);
             ValidateSchemeMatches(uri);
 
@@ -99,7 +117,6 @@ namespace Reusable.IOnymous
 
         public async Task<IResourceInfo> PutAsync(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
-            ValidateCanMethod();
             ValidateSchemeNotEmpty(uri);
             ValidateSchemeMatches(uri);
 
@@ -115,7 +132,6 @@ namespace Reusable.IOnymous
 
         public async Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = null)
         {
-            ValidateCanMethod();
             ValidateSchemeNotEmpty(uri);
             ValidateSchemeMatches(uri);
 
@@ -133,13 +149,13 @@ namespace Reusable.IOnymous
 
         #region Internal
 
-        protected virtual Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null) => throw new NotSupportedException();
+        protected virtual Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null) => throw MethodNotSupportedException(uri);
 
-        protected virtual Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null) => throw new NotSupportedException();
+        protected virtual Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null) => throw MethodNotSupportedException(uri);
 
-        protected virtual Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null) => throw new NotSupportedException();
+        protected virtual Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null) => throw MethodNotSupportedException(uri);
 
-        protected virtual Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata = null) => throw new NotSupportedException();
+        protected virtual Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata = null) => throw MethodNotSupportedException(uri);
 
         #endregion
 
@@ -169,34 +185,31 @@ namespace Reusable.IOnymous
                 return;
             }
 
-            if (SoftString.Comparer.Equals(Scheme, DefaultScheme))
+            if (SchemeSet.Contains(DefaultScheme))
             {
                 return;
             }
 
-            if (!SoftString.Comparer.Equals(uri.Scheme, Scheme))
+            if (!SchemeSet.Contains(uri.Scheme))
             {
                 throw DynamicException.Create
                 (
                     "InvalidScheme",
-                    $"{GetType().ToPrettyString()} requires scheme '{Scheme}'."
+                    $"{GetType().ToPrettyString()} requires scheme '{SchemeSet}'."
                 );
             }
         }
 
-        protected void ValidateCanMethod([CallerMemberName] string memberName = null)
+        protected Exception MethodNotSupportedException(UriString uri, [CallerMemberName] string memberName = null)
         {
             // ReSharper disable once AssignNullToNotNullAttribute
-            var method = Regex.Replace(memberName, "Async$", string.Empty);
+            var method = Regex.Match(memberName, "^(?<method>)Async").Groups["method"].Value;
 
-            if (!Metadata.TryGetValue($"Can{method}", out bool can) || !can)
-            {
-                throw DynamicException.Create
-                (
-                    $"{method}NotSupported",
-                    $"{GetType().ToPrettyString()} doesn't support '{method.ToUpper()}'."
-                );
-            }
+            return DynamicException.Create
+            (
+                $"{method}NotSupported",
+                $"Cannot '{method.ToUpper()}' at '{uri}' because '{GetType().ToPrettyString()}' doesn't support it."
+            );
         }
 
         protected void ValidateSchemeNotEmpty([NotNull] UriString uri)

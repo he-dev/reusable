@@ -12,12 +12,14 @@ using Reusable.Extensions;
 
 namespace Reusable.IO
 {
+    [Obsolete("Use IOnymous")]
     public interface IDirectoryTree
     {
         [NotNull, ItemNotNull]
         IEnumerable<IDirectoryTreeNode> Walk([NotNull] string path, Func<IDirectoryTreeNode, bool> predicate, [NotNull] Action<Exception> onException);
     }
 
+    [Obsolete("Use IOnymous")]
     public class DirectoryTree : IDirectoryTree
     {
         public static Action<Exception> IgnoreExceptions { get; } = _ => { };

@@ -23,6 +23,7 @@ namespace Reusable.IOnymous
         public bool TryGetValue(SoftString key, out object value) => _metadata.TryGetValue(key, out value);
 
         public ResourceMetadata Add(SoftString key, object value) => new ResourceMetadata(_metadata.Add(key, value));
+        public ResourceMetadata TryAdd(SoftString key, object value) => _metadata.ContainsKey(key) ? this : new ResourceMetadata(_metadata.Add(key, value));
 
 
         //public IImmutableDictionary<SoftString, object> Clear() => new ResourceProviderMetadata(_metadata.Clear());

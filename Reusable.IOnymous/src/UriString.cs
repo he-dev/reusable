@@ -78,7 +78,7 @@ namespace Reusable.IOnymous
         }
 
         public UriString(string scheme, string path)
-            : this($"{scheme}:{path.Replace('\\', '/')}")
+            : this($"{scheme}:{UriStringHelper.Normalize(path)}")
         {
         }               
 
@@ -166,7 +166,7 @@ namespace Reusable.IOnymous
 
         public static implicit operator UriString(string uri) => new UriString(uri);
 
-        public static implicit operator UriString((string scheme, string path) uri) => new UriString(uri.scheme, uri.path);
+        //public static implicit operator UriString((string scheme, string path) uri) => new UriString(uri.scheme, uri.path);
 
         public static implicit operator string(UriString uri) => uri.ToString();
 
@@ -190,5 +190,9 @@ namespace Reusable.IOnymous
         public ImplicitString Decoded => UriStringHelper.Decode(Original);
         
         public static implicit operator UriStringComponent(string value) => new UriStringComponent(value);
+
+        public static implicit operator string(UriStringComponent component) => component.Original;
+    
+        public static implicit operator UriString(UriStringComponent component) => new UriString(component.Original);
     }
 }

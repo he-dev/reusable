@@ -16,10 +16,7 @@ namespace Reusable.IOnymous
         public InMemoryResourceProvider(ResourceMetadata metadata = null)
             : base(
                 (metadata ?? ResourceMetadata.Empty)
-                .Add(ResourceMetadataKeys.CanGet, true)
-                .Add(ResourceMetadataKeys.CanPut, true)
-                .Add(ResourceMetadataKeys.CanDelete, true)
-                .Add(ResourceMetadataKeys.Scheme, DefaultScheme)
+                .AddScheme(DefaultScheme)
             )
         {
         }

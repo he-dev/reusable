@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 
 namespace Reusable.IO
 {
+    [Obsolete("Use IOnymous")]
     [PublicAPI]
     public interface IFileProvider
     {

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
@@ -63,10 +64,24 @@ namespace Reusable.IOnymous
             }
         }
 
-        public static bool CanGet(this ResourceMetadata metadata) => metadata.TryGetValue(ResourceMetadataKeys.CanGet, out bool value) && value;
-        public static bool CanPost(this ResourceMetadata metadata) => metadata.TryGetValue(ResourceMetadataKeys.CanPost, out bool value) && value;
-        public static bool CanPut(this ResourceMetadata metadata) => metadata.TryGetValue(ResourceMetadataKeys.CanPut, out bool value) && value;
-        public static bool CanDelete(this ResourceMetadata metadata) => metadata.TryGetValue(ResourceMetadataKeys.CanDelete, out bool value) && value;
+        public static IImmutableSet<SoftString> SchemeSet(this ResourceMetadata metadata) => metadata.GetValueOrDefault<IImmutableSet<SoftString>>(ResourceMetadataKeys.SchemeSet);
+
+        public static ResourceMetadata AddScheme(this ResourceMetadata metadata, string scheme)
+        {
+            if (metadata.TryGetValue<IImmutableSet<SoftString>>(ResourceMetadataKeys.SchemeSet, out var schemeSet))
+            {
+                return metadata.SetItem(ResourceMetadataKeys.SchemeSet, schemeSet.Add(scheme));
+            }
+            else
+            {
+                return metadata.SetItem(ResourceMetadataKeys.SchemeSet, ImmutableHashSet.Create<SoftString>().Add(scheme));
+            }
+        }
+
+        //public static bool CanGet(this ResourceMetadata metadata) => metadata.TryGetValue(ResourceMetadataKeys.CanGet, out bool value) && value;
+        //public static bool CanPost(this ResourceMetadata metadata) => metadata.TryGetValue(ResourceMetadataKeys.CanPost, out bool value) && value;
+        //public static bool CanPut(this ResourceMetadata metadata) => metadata.TryGetValue(ResourceMetadataKeys.CanPut, out bool value) && value;
+        //public static bool CanDelete(this ResourceMetadata metadata) => metadata.TryGetValue(ResourceMetadataKeys.CanDelete, out bool value) && value;
 
         private static ResourceMetadata SetValue(this ResourceMetadata metadata, object value, [CallerMemberName] string memberName = null)
         {

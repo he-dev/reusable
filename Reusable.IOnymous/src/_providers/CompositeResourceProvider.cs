@@ -23,22 +23,18 @@ namespace Reusable.IOnymous
 
         public CompositeResourceProvider
         (
-            [NotNull] IList<IResourceProvider> resourceProviders,
+            [NotNull] IEnumerable<IResourceProvider> resourceProviders,
             [CanBeNull] ResourceMetadata metadata = null
         )
-            : base(
-                (metadata ?? ResourceMetadata.Empty)
-                    .Add(ResourceMetadataKeys.CanGet, resourceProviders.Any(x => x.Metadata.ContainsKey(ResourceMetadataKeys.CanGet)))
-                    .Add(ResourceMetadataKeys.CanPut, resourceProviders.Any(x => x.Metadata.ContainsKey(ResourceMetadataKeys.CanPut)))
-                    .Add(ResourceMetadataKeys.CanDelete, resourceProviders.Any(x => x.Metadata.ContainsKey(ResourceMetadataKeys.CanDelete)))
-                    .Add(ResourceMetadataKeys.Scheme, DefaultScheme)
-            )
+            : base((metadata ?? ResourceMetadata.Empty).AddScheme(DefaultScheme))
         {
             if (resourceProviders == null) throw new ArgumentNullException(nameof(resourceProviders));
 
             _resourceProviderCache = new Dictionary<UriString, IResourceProvider>();
             _resourceProviders = resourceProviders.ToImmutableList();
         }
+
+        //public override ResourceMetadata Metadata { get; }
 
         protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
@@ -53,19 +49,23 @@ namespace Reusable.IOnymous
                 }
                 else
                 {
-                    var resourceProviders = _resourceProviders.AsEnumerable();
+                    // Prefilter resource-providers by scheme if necessary. 
+                    var allowAnyScheme = SoftString.Comparer.Equals(uri.Scheme, DefaultScheme);
+                    var resourceProviders = _resourceProviders.Where(p => allowAnyScheme || p.Metadata.SchemeSet().Contains(uri.Scheme));
 
                     // If provider-name is specified then search only providers that mach it.
                     var providerCustomName = (ImplicitString)metadata.ProviderCustomName();
-                    var providerDefaultName = (ImplicitString)metadata.ProviderDefaultName();
-                    if (providerCustomName || providerDefaultName)
+                    if (providerCustomName)
                     {
-                        resourceProviders =
-                            _resourceProviders
-                                .Where(p =>
-                                    (providerCustomName && SoftString.Comparer.Equals(p.Metadata.ProviderCustomName(), (string)providerCustomName)) ||
-                                    (providerDefaultName && SoftString.Comparer.Equals(p.Metadata.ProviderDefaultName(), (string)providerDefaultName))
-                                );
+                        resourceProviders = _resourceProviders.Where(p => SoftString.Comparer.Equals(p.Metadata.ProviderCustomName(), (string)providerCustomName));
+                    }
+                    else
+                    {
+                        var providerDefaultName = (ImplicitString)metadata.ProviderDefaultName();
+                        if (providerDefaultName)
+                        {
+                            resourceProviders = _resourceProviders.Where(p => SoftString.Comparer.Equals(p.Metadata.ProviderDefaultName(), (string)providerDefaultName));
+                        }
                     }
 
                     foreach (var resourceProvider in resourceProviders)
@@ -90,19 +90,13 @@ namespace Reusable.IOnymous
 
         protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream data, ResourceMetadata metadata = null)
         {
-            var resourceProvider = await GetResourceProviderAsync(uri, metadata);
-
-            if (!resourceProvider.Metadata.CanPut())
-            {
-                throw DynamicException.Create("SerializeNotSupported", $"Value-provider '{resourceProvider.GetType().ToPrettyString()}' doesn't support '{nameof(PutAsync)}'.");
-            }
-
+            var resourceProvider = await GetResourceProviderAsync(uri, metadata);            
             return await resourceProvider.PutAsync(uri, data, metadata);
         }
 
         protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
-            var resourceProvider = await GetResourceProviderAsync(uri, metadata);            
+            var resourceProvider = await GetResourceProviderAsync(uri, metadata);
             return await resourceProvider.DeleteAsync(uri, metadata);
         }
 
@@ -140,8 +134,12 @@ namespace Reusable.IOnymous
             }
         }
 
+        #region IEnumerable
+
         public IEnumerator<IResourceProvider> GetEnumerator() => _resourceProviders.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_resourceProviders).GetEnumerator();
+
+        #endregion
     }
 }

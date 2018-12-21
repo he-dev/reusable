@@ -52,5 +52,15 @@ namespace Reusable.Tests.XUnit.IOnymous
             
             Assert.Equal("%25temp%25", uri.Path.Original);
         }
+
+        [Fact]
+        public void Can_add_absolute_and_relative_paths()
+        {
+            var absolute = new UriString("blub:c:/temp");
+            var relative = new UriString("more-temp/file.txt");
+            var newAbsolute = absolute + relative.Path;
+            
+            Assert.Equal("blub:c:/temp/more-temp/file.txt", (string)newAbsolute);
+        }
     }
 }

@@ -37,9 +37,7 @@ namespace Reusable.SmartConfig
             : base(
                 ResourceMetadata
                     .Empty
-                    .Add(CanGet, true)
-                    .Add(CanPut, true)
-                    .Add(ResourceMetadataKeys.Scheme, "setting")
+                    .AddScheme("setting")
             )
         {
             _uriStringToSettingIdentifierConverter = uriStringToSettingIdentifierConverter;

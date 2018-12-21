@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
@@ -9,15 +8,12 @@ namespace Reusable.IOnymous
     [PublicAPI]
     public class PhysicalFileProvider : ResourceProvider
     {
-        public new static readonly string Scheme = "file";
+        public static readonly string Scheme = "file";
 
         public PhysicalFileProvider(ResourceMetadata metadata = null)
             : base(
                 (metadata ?? ResourceMetadata.Empty)
-                .Add(ResourceMetadataKeys.CanGet, true)
-                .Add(ResourceMetadataKeys.CanPut, true)
-                .Add(ResourceMetadataKeys.CanDelete, true)
-                .Add(ResourceMetadataKeys.Scheme, Scheme)
+                .AddScheme(Scheme)
             )
         {
         }
@@ -42,23 +38,6 @@ namespace Reusable.IOnymous
         {
             File.Delete(uri.Path.Decoded);
             return await GetAsync(uri, metadata);
-        }
-    }
-
-    public static class ResourceProviderExtensions
-    {
-        public static Task<IResourceInfo> GetFileInfoAsync(this IResourceProvider resourceProvider, string path, ResourceMetadata metadata = null)
-        {
-            return resourceProvider.GetAsync((PhysicalFileProvider.Scheme, path), metadata);
-        }
-
-        public static async Task<IResourceInfo> SaveFileAsync(this IResourceProvider resourceProvider, string path, string value, ResourceMetadata metadata = null)
-        {
-            var (stream, resourceMetadata) = ResourceHelper.CreateStream(value, metadata.GetValueOrDefault<Encoding>(nameof(Encoding)));
-            using (stream)
-            {
-                return await resourceProvider.PutAsync((PhysicalFileProvider.Scheme, path), stream);
-            }
         }
     }
 

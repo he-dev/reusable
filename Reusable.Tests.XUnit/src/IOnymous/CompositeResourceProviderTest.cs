@@ -25,7 +25,7 @@ namespace Reusable.Tests.XUnit.IOnymous
                 },
             });
 
-            var resource = await composite.GetAsync("blub:123");
+            var resource = await composite.GetAnyAsync("123");
 
             Assert.True(resource.Exists);
             Assert.Equal("blub1", await resource.DeserializeAsync<string>());
@@ -92,6 +92,28 @@ namespace Reusable.Tests.XUnit.IOnymous
             });
 
             await Assert.ThrowsAnyAsync<DynamicException>(async () => await composite.PutAsync("blub:123", Stream.Null));
+        }
+        
+        [Fact]
+        public async Task Can_get_resource_by_scheme()
+        {
+            var composite = new CompositeResourceProvider(new IResourceProvider[]
+            {
+                new InMemoryResourceProvider(ResourceMetadata.Empty.AddScheme("bluba"))
+                {
+                    { "bluba:123", "blub1" }
+                },
+                new InMemoryResourceProvider(ResourceMetadata.Empty.AddScheme("blub"))
+                {
+                    { "blub:123", "blub2" },
+                    { "blub:125", "blub3" }
+                },
+            });
+
+            var resource = await composite.GetAsync("blub:123");
+
+            Assert.True(resource.Exists);
+            Assert.Equal("blub2", await resource.DeserializeAsync<string>());
         }
     }
 }

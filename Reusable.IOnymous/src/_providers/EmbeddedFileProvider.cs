@@ -15,7 +15,6 @@ namespace Reusable.IOnymous
         public EmbeddedFileProvider([NotNull] Assembly assembly, ResourceMetadata metadata = null)
             : base(
                 (metadata ?? ResourceMetadata.Empty)
-                    .Add(ResourceMetadataKeys.CanGet, true)
             )
         {
             _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));

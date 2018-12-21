@@ -12,9 +12,6 @@ namespace Reusable.IOnymous
         public PhysicalDirectoryProvider(ResourceMetadata metadata = null)
             : base(
                 (metadata ?? ResourceMetadata.Empty)
-                .Add(ResourceMetadataKeys.CanGet, true)
-                .Add(ResourceMetadataKeys.CanPut, true)
-                .Add(ResourceMetadataKeys.CanDelete, true)
             )
         {
         }

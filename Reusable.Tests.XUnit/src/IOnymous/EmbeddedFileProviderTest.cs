@@ -12,7 +12,7 @@ namespace Reusable.Tests.XUnit.IOnymous
         {
             var provider = new EmbeddedFileProvider(typeof(EmbeddedFileProviderTest).Assembly);
 
-            var file = await provider.GetFileInfoAsync("res/ionymous/test.txt");
+            var file = await provider.GetFileAsync("res/ionymous/test.txt");
 
             Assert.True(file.Exists);
             Assert.Equal("Hallo!", await file.DeserializeAsync(default));

@@ -12,7 +12,7 @@ namespace Reusable.IOnymous
 
     public partial class RelativeResourceProvider
     {
-        public static Func<IResourceProvider, RelativeResourceProvider> Create(UriString baseUri)
+        public static Func<IResourceProvider, RelativeResourceProvider> Factory(UriString baseUri)
         {
             return decorable => new RelativeResourceProvider(decorable, baseUri);
         }

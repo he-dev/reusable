@@ -23,7 +23,7 @@ namespace Reusable.SmartConfig
         private readonly IResourceProvider _resourceProvider;
 
         public SettingProvider(IResourceProvider resourceProvider)
-            : base(resourceProvider.Metadata.SetItem(ResourceMetadataKeys.Scheme, "setting"))
+            : base(resourceProvider.Metadata.AddScheme("setting"))
         {
             _resourceProvider = resourceProvider;
         }
