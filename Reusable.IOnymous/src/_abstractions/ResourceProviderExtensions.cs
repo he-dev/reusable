@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace Reusable.IOnymous
 {
@@ -44,6 +45,26 @@ namespace Reusable.IOnymous
         {
             var uri = new UriString("http", path);
             return resourceProvider.GetAsync(uri, metadata);
+        }
+        
+        public static async Task<IResourceInfo> PostJsonAsync<T>(this IResourceProvider resourceProvider, UriString uri, T obj, ResourceMetadata metadata = null)
+        {
+            var memoryStream = new MemoryStream();
+            var textWriter = new StreamWriter(memoryStream);
+            var jsonWriter = new JsonTextWriter(textWriter);            
+            metadata.JsonSerializer().Serialize(jsonWriter, obj);
+            jsonWriter.Flush();
+            
+            var post = resourceProvider.PostAsync(uri, memoryStream, metadata);
+
+            await post.ContinueWith(_ =>
+            {
+                (jsonWriter as IDisposable).Dispose();
+                textWriter.Dispose();
+                memoryStream.Dispose();
+            });
+                
+            return await post;
         }
     }
 }

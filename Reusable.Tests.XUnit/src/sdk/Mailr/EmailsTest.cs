@@ -135,8 +135,8 @@ namespace Reusable.Tests.XUnit.sdk.Mailr
             using (var memory = new MemoryStream())
             {
                 // It needs to be copied because otherwise it'll get disposed.
-                info.BodyStreamCopy.Seek(0, SeekOrigin.Begin);
-                info.BodyStreamCopy.CopyTo(memory);
+                info.ContentCopy.Seek(0, SeekOrigin.Begin);
+                info.ContentCopy.CopyTo(memory);
 
                 // Rewind to read from the beginning.
                 memory.Seek(0, SeekOrigin.Begin);

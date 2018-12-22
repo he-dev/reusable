@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Linq.Custom;
 using System.Reactive;
@@ -48,9 +49,9 @@ namespace Reusable.Teapot
 
         public ITeacupScope BeginScope() => (_teacup = new TeacupScope());
 
-        private void Log(PathString path, SoftString method, RequestInfo request) => _teacup.Log(path, method, request);
+        private void Log(string path, SoftString method, RequestInfo request) => _teacup.Log(path, method, request);
 
-        private Func<ResponseInfo> NextResponse(string path, SoftString method) => _teacup.NextResponse(path, method);
+        private Func<HttpRequest, ResponseInfo> NextResponse(string path, SoftString method) => _teacup.NextResponse(path, method);
 
         public void Dispose()
         {
@@ -95,29 +96,29 @@ namespace Reusable.Teapot
             _requests.AddOrUpdate
             (
                 (path, method),
-                key => ImmutableList.Create(request),
+                (key) => ImmutableList.Create(request),
                 (key, log) => log.Add(request)
             );
         }
 
-        public Func<ResponseInfo> NextResponse(string path, SoftString method)
+        public Func<HttpRequest, ResponseInfo> NextResponse(string path, SoftString method)
         {
             if (_responses.TryGetValue((path, method), out var queue))
             {
                 return
                     queue.Any()
                         ? queue.Dequeue()
-                        : () => ResponseInfo.Empty;
+                        : _ => ResponseInfo.Empty;
             }
 
-            return () => ResponseInfo.Empty;
+            return _ => ResponseInfo.Empty;
         }
 
         public void Dispose()
         {
             foreach (var request in _requests.SelectMany(r => r.Value))
             {
-                request.BodyStreamCopy?.Dispose();
+                request.Dispose();
             }
         }
     }
@@ -138,28 +139,40 @@ namespace Reusable.Teapot
 
     public class ResponseQueueBuilder
     {
-        private readonly Queue<Func<ResponseInfo>> _responses = new Queue<Func<ResponseInfo>>();
+        private readonly Queue<Func<HttpRequest, ResponseInfo>> _responses = new Queue<Func<HttpRequest, ResponseInfo>>();
 
         public ResponseQueueBuilder Once(int statusCode, object content) => Exactly(statusCode, content, 1);
 
         public ResponseQueueBuilder Always(int statusCode, object content)
         {
-            _responses.Enqueue(() => new ResponseInfo(statusCode, content));
+            _responses.Enqueue(request => new ResponseInfo(statusCode, content));
             return this;
         }
 
         public ResponseQueueBuilder Exactly(int statusCode, object content, int count)
         {
             var counter = 0;
-            _responses.Enqueue(() => counter++ < count ? new ResponseInfo(statusCode, content) : default);
+            _responses.Enqueue(request => counter++ < count ? new ResponseInfo(statusCode, content) : default);
+            return this;
+        }
+
+        public ResponseQueueBuilder Echo()
+        {
+            _responses.Enqueue(request =>
+            {
+                var requestCopy = new MemoryStream();
+                request.Body.Seek(0, SeekOrigin.Begin);
+                request.Body.CopyTo(requestCopy);
+                return new ResponseInfo(200, requestCopy);
+            });
             return this;
         }
 
 
-        public Queue<Func<ResponseInfo>> Build() => _responses;
+        public Queue<Func<HttpRequest, ResponseInfo>> Build() => _responses;
     }
 
-    public readonly struct ResponseInfo
+    public readonly struct ResponseInfo : IDisposable
     {
         public ResponseInfo(int statusCode, object content)
         {
@@ -174,6 +187,11 @@ namespace Reusable.Teapot
         public int StatusCode { get; }
 
         public object Content { get; }
+
+        public void Dispose()
+        {
+            (Content as IDisposable)?.Dispose();
+        }
     }
 
     public interface IRequestAssert
@@ -259,7 +277,7 @@ namespace Reusable.Teapot
 
         public static IRequestAssert WithContentTypeJson(this IRequestAssert assert, Action<IContentAssert<JToken>> contentAssert)
         {
-            assert.WithHeader("Content-Type", "application/json; charset=utf-8");
+            //assert.WithHeader("Content-Type", "application/json; charset=utf-8");
 
             foreach (var request in assert.Requests)
             {

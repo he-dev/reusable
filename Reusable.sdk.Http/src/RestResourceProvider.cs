@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 using Reusable.IOnymous;
 
 namespace Reusable.sdk.Http
@@ -44,7 +45,7 @@ namespace Reusable.sdk.Http
         protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
             uri = BaseUri + uri;
-            var response = await InvokeAsync(uri, HttpMethod.Post, metadata);
+            var response = await InvokeAsync(uri, HttpMethod.Post, (metadata ?? ResourceMetadata.Empty).Content(value));
             return new RestResourceInfo(uri, response);
         }
 
@@ -55,10 +56,16 @@ namespace Reusable.sdk.Http
             using (var request = new HttpRequestMessage(method, uri))
             {
                 var content = metadata.Content();
-                request.Content = content is null ? default : new StreamContent(content);
+                if (content != null)
+                {
+                    content.Seek(0, SeekOrigin.Begin);
+                    request.Content = new StreamContent(content);
+                    request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                }
+
                 Metadata.ConfigureRequestHeaders()(request.Headers);
                 metadata.ConfigureRequestHeaders()(request.Headers);
-                using (var response = await _client.SendAsync(request, metadata.CancellationToken()))
+                using (var response = await _client.SendAsync(request, HttpCompletionOption.ResponseContentRead, metadata.CancellationToken()))
                 {
                     if (metadata.EnsureSuccessStatusCode())
                     {
@@ -78,6 +85,16 @@ namespace Reusable.sdk.Http
         }
 
         #endregion
+
+        public override void Dispose()
+        {
+            _client.Dispose();
+        }
+    }
+
+    public static class ResourceProviderExtensions
+    {
+        
     }
 
     internal class RestResourceInfo : ResourceInfo

@@ -20,19 +20,19 @@ namespace Reusable.IOnymous
     using static ResourceMetadataKeys;
 
     [PublicAPI]
-    public interface IResourceProvider
+    public interface IResourceProvider : IDisposable
     {
         [NotNull]
         ResourceMetadata Metadata { get; }
-        
+
         IImmutableSet<SoftString> Schemes { get; }
 
         bool CanGet { get; }
-        
+
         bool CanPost { get; }
-        
+
         bool CanPut { get; }
-        
+
         bool CanDelete { get; }
 
         [ItemNotNull]
@@ -66,9 +66,9 @@ namespace Reusable.IOnymous
             }
 
             Schemes = schemes.ToImmutableHashSet();
-            
+
             if (Schemes.Empty()) throw new ArgumentException(paramName: nameof(metadata), message: $"{nameof(schemes)} must not be empty.");
-            
+
             Metadata = metadata;
         }
 
@@ -246,5 +246,9 @@ namespace Reusable.IOnymous
         }
 
         #endregion
+
+        public virtual void Dispose()
+        {
+        }
     }
 }

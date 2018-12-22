@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 
 namespace Reusable.IOnymous
 {
@@ -64,26 +65,7 @@ namespace Reusable.IOnymous
                 yield return defaultName;
             }
         }
-
-        //public static IImmutableSet<SoftString> SchemeSet(this ResourceMetadata metadata) => metadata.GetValueOrDefault<IImmutableSet<SoftString>>(ResourceMetadataKeys.SchemeSet);
-
-//        public static ResourceMetadata AddScheme(this ResourceMetadata metadata, string scheme)
-//        {
-//            if (metadata.TryGetValue<IImmutableSet<SoftString>>(ResourceMetadataKeys.SchemeSet, out var schemeSet))
-//            {
-//                return metadata.SetItem(ResourceMetadataKeys.SchemeSet, schemeSet.Add(scheme));
-//            }
-//            else
-//            {
-//                return metadata.SetItem(ResourceMetadataKeys.SchemeSet, ImmutableHashSet.Create<SoftString>().Add(scheme));
-//            }
-//        }
-
-        //public static bool CanGet(this ResourceMetadata metadata) => metadata.TryGetValue(ResourceMetadataKeys.CanGet, out bool value) && value;
-        //public static bool CanPost(this ResourceMetadata metadata) => metadata.TryGetValue(ResourceMetadataKeys.CanPost, out bool value) && value;
-        //public static bool CanPut(this ResourceMetadata metadata) => metadata.TryGetValue(ResourceMetadataKeys.CanPut, out bool value) && value;
-        //public static bool CanDelete(this ResourceMetadata metadata) => metadata.TryGetValue(ResourceMetadataKeys.CanDelete, out bool value) && value;
-
+        
         private static ResourceMetadata SetValue(this ResourceMetadata metadata, object value, [CallerMemberName] string memberName = null)
         {
             return metadata.Add(memberName, value);
@@ -112,6 +94,18 @@ namespace Reusable.IOnymous
         public static ResourceMetadata RelativeUriScheme(this ResourceMetadata metadata, string relativeUriScheme)
         {
             return metadata.SetItem(nameof(RelativeUriScheme), relativeUriScheme);
+        }
+        
+        // ---
+        
+        public static JsonSerializer JsonSerializer(this ResourceMetadata metadata)
+        {
+            return metadata.GetValueOrDefault(nameof(JsonSerializer), new JsonSerializer());
+        }
+
+        public static ResourceMetadata JsonSerializer(this ResourceMetadata metadata, JsonSerializer jsonSerializer)
+        {
+            return metadata.SetItem(nameof(JsonSerializer), jsonSerializer);
         }
     }
 }

@@ -1,9 +1,10 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Microsoft.AspNetCore.Http;
 
 namespace Reusable.Teapot
 {
-    public class RequestInfo
+    public class RequestInfo : IDisposable
     {
         public long? ContentLength { get; set; }
 
@@ -11,6 +12,11 @@ namespace Reusable.Teapot
 
         public IHeaderDictionary Headers { get; set; }
 
-        public MemoryStream BodyStreamCopy { get; set; }
+        public MemoryStream ContentCopy { get; set; }
+        
+        public void Dispose()
+        {
+            ContentCopy?.Dispose();
+        }
     }
 }

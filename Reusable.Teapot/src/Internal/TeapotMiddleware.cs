@@ -7,24 +7,29 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Reusable.Extensions;
 
 namespace Reusable.Teapot.Internal
 {
-    public class RequestLog : ConcurrentDictionary<(PathString, SoftString), IImmutableList<RequestInfo>> { }
+    public class RequestLog : ConcurrentDictionary<(PathString, SoftString), IImmutableList<RequestInfo>>
+    {
+    }
 
-    public class ResponseQueue : ConcurrentDictionary<(string, SoftString), Queue<Func<ResponseInfo>>> { }
+    public class ResponseQueue : ConcurrentDictionary<(string, SoftString), Queue<Func<HttpRequest, ResponseInfo>>>
+    {
+    }
 
 
     //internal delegate IEnumerable<IObserver<RequestInfo>> ObserversDelegate();
 
-    public delegate void LogDelegate(PathString path, SoftString method, RequestInfo request);
+    public delegate void LogDelegate(string path, SoftString method, RequestInfo request);
 
-    public delegate Func<ResponseInfo> ResponseDelegate(string path, SoftString method);
+    public delegate Func<HttpRequest, ResponseInfo> ResponseDelegate(string path, SoftString method);
 
-
+    [UsedImplicitly]
     internal class TeapotMiddleware
     {
         private readonly RequestDelegate _next;
@@ -42,7 +47,7 @@ namespace Reusable.Teapot.Internal
         {
             try
             {
-                // We'll need this later restore body so don't dispose.
+                // We'll need this later to restore the body so don't dispose.
                 var bodyBackup = new MemoryStream();
 
                 // It needs to be copied because the original stream does not support seeking.
@@ -53,39 +58,49 @@ namespace Reusable.Teapot.Internal
                 var bodyCopy = new MemoryStream();
                 await bodyBackup.CopyToAsync(bodyCopy);
 
+                var fullUri = context.Request.Path + context.Request.QueryString;
+
                 var request = new RequestInfo
                 {
-                    //Path = context.Request.Path,
                     ContentLength = context.Request.ContentLength,
                     // There is no copy-constructor.
                     Headers = new HeaderDictionary(context.Request.Headers.ToDictionary(x => x.Key, x => x.Value)),
-                    BodyStreamCopy = bodyCopy
+                    ContentCopy = bodyCopy
                 };
 
-                _log(context.Request.Path + context.Request.QueryString, context.Request.Method, request);
+                _log(fullUri, context.Request.Method, request);
 
                 // Restore body.
                 context.Request.Body = bodyBackup;
 
                 await _next(context);
 
-                var response = _nextResponse(context.Request.Path + context.Request.QueryString, context.Request.Method)();
-
-                // todo - configure response here
-                context.Response.StatusCode = response.IsEmpty ? StatusCodes.Status404NotFound : response.StatusCode;
-
-                switch (response.Content)
+                using (var response = _nextResponse(fullUri, context.Request.Method)(context.Request))
                 {
-                    case string str:
-                        await context.Response.WriteAsync(str);
-                        break;
+                    context.Response.StatusCode =
+                        response.IsEmpty
+                            ? StatusCodes.Status404NotFound
+                            : response.StatusCode;
 
-                    case object obj:
-                        context.Response.ContentType = "application/json; charset=utf-8";
-                        await context.Response.WriteAsync(JsonConvert.SerializeObject(obj));
-                        break;
+                    switch (response.Content)
+                    {
+                        case string str:
+                            //context.Response.ContentType = "application/json; charset=utf-8";
+                            await context.Response.WriteAsync(str);
+                            break;
+
+                        case MemoryStream stream:
+                            context.Response.ContentType = "application/json; charset=utf-8";
+                            stream.Seek(0, SeekOrigin.Begin);
+                            await stream.CopyToAsync(context.Response.Body);
+                            break;
+
+                        default:
+                            context.Response.ContentType = "application/json; charset=utf-8";
+                            await context.Response.WriteAsync(JsonConvert.SerializeObject(response.Content));
+                            break;
+                    }
                 }
-
             }
             catch (Exception inner)
             {
@@ -94,6 +109,5 @@ namespace Reusable.Teapot.Internal
                 //throw;
             }
         }
-
     }
 }
