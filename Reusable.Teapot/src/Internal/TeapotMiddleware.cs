@@ -15,14 +15,14 @@ namespace Reusable.Teapot.Internal
 {
     public class RequestLog : ConcurrentDictionary<(PathString, SoftString), IImmutableList<RequestInfo>> { }
 
-    public class ResponseQueue : ConcurrentDictionary<(PathString, SoftString), Queue<Func<ResponseInfo>>> { }
+    public class ResponseQueue : ConcurrentDictionary<(string, SoftString), Queue<Func<ResponseInfo>>> { }
 
 
     //internal delegate IEnumerable<IObserver<RequestInfo>> ObserversDelegate();
 
     public delegate void LogDelegate(PathString path, SoftString method, RequestInfo request);
 
-    public delegate Func<ResponseInfo> ResponseDelegate(PathString path, SoftString method);
+    public delegate Func<ResponseInfo> ResponseDelegate(string path, SoftString method);
 
 
     internal class TeapotMiddleware
@@ -62,14 +62,14 @@ namespace Reusable.Teapot.Internal
                     BodyStreamCopy = bodyCopy
                 };
 
-                _log(context.Request.Path, context.Request.Method, request);
+                _log(context.Request.Path + context.Request.QueryString, context.Request.Method, request);
 
                 // Restore body.
                 context.Request.Body = bodyBackup;
 
                 await _next(context);
 
-                var response = _nextResponse(context.Request.Path, context.Request.Method)();
+                var response = _nextResponse(context.Request.Path + context.Request.QueryString, context.Request.Method)();
 
                 // todo - configure response here
                 context.Response.StatusCode = response.IsEmpty ? StatusCodes.Status404NotFound : response.StatusCode;

@@ -38,5 +38,12 @@ namespace Reusable.IOnymous
             var file = resourceProvider.GetFileAsync(path, metadata).GetAwaiter().GetResult();
             return file.DeserializeAsync<T>().GetAwaiter().GetResult();
         }
+        
+        
+        public static Task<IResourceInfo> GetHttpAsync(this IResourceProvider resourceProvider, string path, ResourceMetadata metadata = null)
+        {
+            var uri = new UriString("http", path);
+            return resourceProvider.GetAsync(uri, metadata);
+        }
     }
 }

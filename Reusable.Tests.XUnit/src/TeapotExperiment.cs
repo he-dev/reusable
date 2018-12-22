@@ -1,5 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Reusable.IOnymous;
 using Reusable.sdk.Http;
 using Reusable.Teapot;
 using Reusable.Utilities.XUnit.Fixtures;
@@ -21,59 +24,52 @@ namespace Reusable.Tests.XUnit
         [Fact]
         public async Task PostsGreeting()
         {
+            //var client = RestClient.Create<ITestClient>("http://localhost:12000/api", headers => { headers.AcceptJson(); });
+            var client = new RestResourceProvider("http://localhost:12000/api", ResourceMetadata.Empty);
 
-            var client = RestClient.Create<ITestClient>("http://localhost:12000/api", headers => { headers.AcceptJson(); });
-
-            var teacup = _teapot.BeginScope();
-
-            teacup
-                .Responses("/test?param=true", "POST", builder =>
-                {
-                    builder.Once(200, new { Message = "OK" });
-                });
-
-            try
-            {
-                #region Request made by the applicaation somewhere deep down the rabbit hole
-
-                var response = await client.Resource("test?param=true").Configure(context =>
-                 {
-                     context.RequestHeadersActions.Add(headers =>
-                     {
-                         headers.Add("Api-Version", "1.0");
-                         headers.UserAgent("Reusable", "1.0");
-                         headers.AcceptJson();
-                     });
-                     context.Body = new { Greeting = "Hallo" };
-                 })
-                //.PostAsync(new { Message = string.Empty });
-                .PostAsync<R>();
-
-                #endregion
-            }
-            catch (Exception)
-            {
-                // client will throw because of the 418 status code
-            }
-            finally
+            using (var teacup = _teapot.BeginScope())
             {
                 teacup
-                   .Requested("/test?param=true", "POST")
-                   .AsUserAgent("Reusable", "1.0")
-                   .Times(1)
-                   .AcceptsJson()
-                   .WithApiVersion("1.0")
-                   .WithContentTypeJson(content =>
-                   {
-                       content.HasProperty("$.Greeting");
-                   });
+                    .Responses("/api/test?param=true", "POST", builder => { builder.Once(200, new { Message = "OK" }); });
 
-                teacup.Dispose();
+                try
+                {
+                    #region Request made by the applicaation somewhere deep down the rabbit hole
+
+                    var memoryStream = new MemoryStream();
+                    var textWriter = new StreamWriter(memoryStream);
+                    var jsonWriter = new JsonTextWriter(textWriter);
+                    new JsonSerializer().Serialize(jsonWriter, new { Greeting = "Hallo" });
+                    var response = await client.PostAsync("test?param=true", memoryStream, ResourceMetadata.Empty.ConfigureRequestHeaders(headers =>
+                    {
+                        headers.Add("Api-Version", "1.0");
+                        headers.UserAgent("Reusable", "1.0");
+                        headers.AcceptJson();
+                    }));
+
+                    Assert.True(response.Exists);
+
+                    teacup
+                        .Requested("/api/test?param=true", "POST")
+                        .AsUserAgent("Reusable", "1.0")
+                        .Times(1)
+                        .AcceptsJson()
+                        .WithApiVersion("1.0")
+                        .WithContentTypeJson(content => { content.HasProperty("$.Greeting"); });
+
+                    #endregion
+                }
+                catch (Exception)
+                {
+                    // client will throw because of the 418 status code
+                }
             }
         }
     }
 
-    public interface ITestClient { }
+    public interface ITestClient
+    {
+    }
 
     public class R
     {

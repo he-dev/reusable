@@ -10,7 +10,7 @@ using Reusable.Exceptionizer;
 namespace Reusable.IOnymous
 {
     [PublicAPI]
-    public interface IResourceInfo : IEquatable<IResourceInfo>, IEquatable<string>
+    public interface IResourceInfo : IDisposable, IEquatable<IResourceInfo>, IEquatable<string>
     {
         [NotNull]
         UriString Uri { get; }
@@ -60,7 +60,7 @@ namespace Reusable.IOnymous
         #endregion
 
         #region Wrappers
-        
+
         // These wrappers are to provide helpful exceptions.
 
         public async Task CopyToAsync(Stream stream)
@@ -135,5 +135,9 @@ namespace Reusable.IOnymous
         }
 
         #endregion
+
+        public virtual void Dispose()
+        {
+        }
     }
 }

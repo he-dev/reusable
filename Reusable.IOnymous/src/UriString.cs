@@ -42,7 +42,7 @@ namespace Reusable.IOnymous
             if (uri == null) throw new ArgumentNullException(nameof(uri));
 
             uri = UriStringHelper.Normalize(uri);
-            
+
             var uriMatch = Regex.Match
             (
                 uri,
@@ -57,7 +57,7 @@ namespace Reusable.IOnymous
 
             Scheme = uriMatch.Groups["scheme"];
             Authority = uriMatch.Groups["authority"];
-            Path = new UriStringComponent(UriStringHelper.Encode(uriMatch.Groups["path"].Value));
+            Path = new UriStringComponent(UriStringHelper.Encode(uriMatch.Groups["path"].Value.Trim('/')));
             Query =
                 uriMatch.Groups["query"].Success
                     ? Regex
@@ -80,18 +80,18 @@ namespace Reusable.IOnymous
         public UriString(string scheme, string path)
             : this($"{scheme}:{UriStringHelper.Normalize(path)}")
         {
-        }               
+        }
 
-        public UriString(UriString first, UriString second)
+        public UriString([NotNull] UriString first, [NotNull] UriString second)
         {
-            //if (absoluteUri.IsRelative) throw new ArgumentException($"{nameof(absoluteUri)} must contain scheme.");
-            //if (relativeUri.IsAbsolute) throw new ArgumentException($"{nameof(relativeUri)} must not contain scheme.");
+            if (first == null) throw new ArgumentNullException(nameof(first));
+            if (second == null) throw new ArgumentNullException(nameof(second));
 
             Scheme = first.Scheme;
             Authority = first.Authority;
-            Path = first.Path.Original.Value.TrimEnd('/') + "/" + second.Path.Original.Value.TrimStart('/');
-            Query = first.Query;
-            Fragment = first.Fragment;
+            Path = first.Path.Original ? first.Path.Original.Value.Trim('/') + "/" + second.Path.Original.Value.Trim('/') : second.Path.Original.Value.Trim('/');
+            Query = second.Query;
+            Fragment = second.Fragment;
         }
 
         public UriString([NotNull] ImmutableUpdate update)
@@ -126,7 +126,7 @@ namespace Reusable.IOnymous
 
             if (Authority)
             {
-                yield return $"//{Authority}/";
+                yield return $"//{Authority}{(Path.Original ? "/" : string.Empty)}";
             }
 
             yield return Path.Original;
@@ -188,11 +188,11 @@ namespace Reusable.IOnymous
 
         [NotNull]
         public ImplicitString Decoded => UriStringHelper.Decode(Original);
-        
+
         public static implicit operator UriStringComponent(string value) => new UriStringComponent(value);
 
         public static implicit operator string(UriStringComponent component) => component.Original;
-    
+
         public static implicit operator UriString(UriStringComponent component) => new UriString(component.Original);
     }
 }

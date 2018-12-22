@@ -1,10 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
+using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web.UI;
 using JetBrains.Annotations;
 using Reusable.Diagnostics;
+using Reusable.IOnymous;
 
 namespace Reusable.sdk.Http
 {
@@ -17,7 +22,9 @@ namespace Reusable.sdk.Http
     }
 
     // ReSharper disable once UnusedTypeParameter - This is a marker interface and it needs to stay.
-    public interface IRestClient<TMarker> : IRestClient { }
+    public interface IRestClient<TMarker> : IRestClient
+    {
+    }
 
     [PublicAPI]
     public class RestClient : IRestClient
@@ -106,7 +113,8 @@ namespace Reusable.sdk.Http
     {
         public RestClient(string baseUri, Action<HttpRequestHeaders> configureDefaultRequestHeaders)
             : base(baseUri, configureDefaultRequestHeaders)
-        { }
+        {
+        }
     }
 
     public static class RestClientExtensions
@@ -119,4 +127,7 @@ namespace Reusable.sdk.Http
             return new Resource<TMarker>(client, path);
         }
     }
+
+
+   
 }

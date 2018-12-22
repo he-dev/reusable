@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net47</TargetFramework>
@@ -31,6 +31,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
+    <ProjectReference Include="..\Reusable.IOnymous\Reusable.IOnymous.csproj" />
   </ItemGroup>
 
   <ItemGroup>

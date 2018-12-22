@@ -9,6 +9,10 @@ namespace Reusable.IOnymous
     {
         private readonly IImmutableDictionary<SoftString, object> _metadata;
 
+        protected ResourceMetadata()
+        {
+        }
+
         private ResourceMetadata(IImmutableDictionary<SoftString, object> metadata) => _metadata = metadata;
 
         public static ResourceMetadata Empty => new ResourceMetadata(ImmutableDictionary<SoftString, object>.Empty);

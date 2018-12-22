@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using JetBrains.Annotations;
 
 namespace Reusable.IOnymous
@@ -25,12 +26,12 @@ namespace Reusable.IOnymous
             return false;
         }
 
-        public static T GetValueOrDefault<T>([CanBeNull] this ResourceMetadata metadata, [NotNull] SoftString key)
+        public static T GetValueOrDefault<T>([CanBeNull] this ResourceMetadata metadata, [NotNull] SoftString key, T defaultValue = default)
         {
             return 
                 metadata.TryGetValue(key, out T value) 
                     ? value 
-                    : default;
+                    : defaultValue;
         }
 
         public static string ProviderDefaultName(this ResourceMetadata metadata)
@@ -86,6 +87,31 @@ namespace Reusable.IOnymous
         private static ResourceMetadata SetValue(this ResourceMetadata metadata, object value, [CallerMemberName] string memberName = null)
         {
             return metadata.Add(memberName, value);
+        }
+        
+        // ---
+        
+        
+        public static CancellationToken CancellationToken(this ResourceMetadata metadata)
+        {
+            return metadata.GetValueOrDefault(nameof(CancellationToken), System.Threading.CancellationToken.None);
+        }
+
+        public static ResourceMetadata CancellationToken(this ResourceMetadata metadata, CancellationToken cancellationToken)
+        {
+            return metadata.SetItem(nameof(CancellationToken), cancellationToken);
+        }
+        
+        // ---
+        
+        public static string RelativeUriScheme(this ResourceMetadata metadata)
+        {
+            return metadata.GetValueOrDefault<string>(nameof(RelativeUriScheme));
+        }
+
+        public static ResourceMetadata RelativeUriScheme(this ResourceMetadata metadata, string relativeUriScheme)
+        {
+            return metadata.SetItem(nameof(RelativeUriScheme), relativeUriScheme);
         }
     }
 }

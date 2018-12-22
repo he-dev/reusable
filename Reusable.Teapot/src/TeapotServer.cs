@@ -20,6 +20,7 @@ using Reusable.Teapot.Internal;
 
 namespace Reusable.Teapot
 {
+    [PublicAPI]
     public class TeapotServer : IDisposable
     {
         private readonly IWebHost _host;
@@ -49,7 +50,7 @@ namespace Reusable.Teapot
 
         private void Log(PathString path, SoftString method, RequestInfo request) => _teacup.Log(path, method, request);
 
-        private Func<ResponseInfo> NextResponse(PathString path, SoftString method) => _teacup.NextResponse(path, method);
+        private Func<ResponseInfo> NextResponse(string path, SoftString method) => _teacup.NextResponse(path, method);
 
         public void Dispose()
         {
@@ -60,9 +61,9 @@ namespace Reusable.Teapot
 
     public interface ITeacupScope : IDisposable
     {
-        IRequestAssert Requested(PathString path, SoftString method);
+        IRequestAssert Requested(string path, SoftString method);
 
-        void Responses(PathString path, string method, Action<ResponseQueueBuilder> responseQueueBuilder);
+        void Responses(string path, string method, Action<ResponseQueueBuilder> responseQueueBuilder);
     }
 
     public class TeacupScope : ITeacupScope
@@ -71,25 +72,25 @@ namespace Reusable.Teapot
 
         private readonly ResponseQueue _responses = new ResponseQueue();
 
-        public IRequestAssert Requested(PathString path, SoftString method)
+        public IRequestAssert Requested(string path, SoftString method)
         {
             return new RequestAssert
             (
                 path: path,
                 requests: _requests.TryGetValue((path, method), out var requests) && requests.Any()
                     ? requests
-                    : throw DynamicException.Create("RequestNotFound", $"There was no '{method.ToString().ToUpper()}' requests to '{path.Value}'.")
+                    : throw DynamicException.Create("RequestNotFound", $"There was no '{method.ToString().ToUpper()}' requests to '{path}'.")
             );
         }
 
-        public void Responses(PathString path, string method, Action<ResponseQueueBuilder> responseQueueBuilder)
+        public void Responses(string path, string method, Action<ResponseQueueBuilder> responseQueueBuilder)
         {
             var builder = new ResponseQueueBuilder();
             responseQueueBuilder(builder);
             _responses.AddOrUpdate((path, method), builder.Build(), (k, q) => q);
         }
 
-        public void Log(PathString path, SoftString method, RequestInfo request)
+        public void Log(string path, SoftString method, RequestInfo request)
         {
             _requests.AddOrUpdate
             (
@@ -99,7 +100,7 @@ namespace Reusable.Teapot
             );
         }
 
-        public Func<ResponseInfo> NextResponse(PathString path, SoftString method)
+        public Func<ResponseInfo> NextResponse(string path, SoftString method)
         {
             if (_responses.TryGetValue((path, method), out var queue))
             {
