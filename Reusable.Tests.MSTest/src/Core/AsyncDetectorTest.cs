@@ -8,7 +8,7 @@ namespace Reusable.Tests
     [TestClass]
     public class AsyncDetectorTest
     {
-        [TestMethod]
+        //[TestMethod]
         public void TestMethod1()
         {
             var debugStopwatch = new StopwatchMock(new []

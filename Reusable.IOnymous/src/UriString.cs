@@ -16,8 +16,8 @@ namespace Reusable.IOnymous
         private static readonly string UriPattern = string.Join(string.Empty, new[]
         {
             /* language=regexp */ @"^(?:(?<scheme>\w+):)?",
-            /* language=regexp */ @"(?:\/\/(?<authority>[a-z0-9\.\-_]+))?",
-            /* language=regexp */ @"(?:\/?(?<path>[a-z0-9\/:\.\-\%]+))",
+            /* language=regexp */ @"(?:\/\/(?<authority>[a-z0-9\.\-_:]+))?",
+            /* language=regexp */ @"(?:\/?(?<path>[a-z0-9\/:\.\-\%_]+))",
             /* language=regexp */ @"(?:\?(?<query>[a-z0-9=&]+))?",
             /* language=regexp */ @"(?:#(?<fragment>[a-z0-9]+))?"
         });
@@ -82,16 +82,16 @@ namespace Reusable.IOnymous
         {
         }               
 
-        public UriString(UriString absoluteUri, UriString relativeUri)
+        public UriString(UriString first, UriString second)
         {
-            if (absoluteUri.IsRelative) throw new ArgumentException($"{nameof(absoluteUri)} must contain scheme.");
-            if (relativeUri.IsAbsolute) throw new ArgumentException($"{nameof(relativeUri)} must not contain scheme.");
+            //if (absoluteUri.IsRelative) throw new ArgumentException($"{nameof(absoluteUri)} must contain scheme.");
+            //if (relativeUri.IsAbsolute) throw new ArgumentException($"{nameof(relativeUri)} must not contain scheme.");
 
-            Scheme = absoluteUri.Scheme;
-            Authority = absoluteUri.Authority;
-            Path = absoluteUri.Path.Original.Value.TrimEnd('/') + "/" + relativeUri.Path.Original.Value.TrimStart('/');
-            Query = absoluteUri.Query;
-            Fragment = absoluteUri.Fragment;
+            Scheme = first.Scheme;
+            Authority = first.Authority;
+            Path = first.Path.Original.Value.TrimEnd('/') + "/" + second.Path.Original.Value.TrimStart('/');
+            Query = first.Query;
+            Fragment = first.Fragment;
         }
 
         public UriString([NotNull] ImmutableUpdate update)
@@ -170,7 +170,7 @@ namespace Reusable.IOnymous
 
         public static implicit operator string(UriString uri) => uri.ToString();
 
-        public static UriString operator +(UriString absoluteUri, UriString relativeUri) => new UriString(absoluteUri, relativeUri);
+        public static UriString operator +(UriString left, UriString right) => new UriString(left, right);
 
         public static bool operator ==(UriString left, UriString right) => Comparer.Equals(left, right);
 

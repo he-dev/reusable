@@ -17,6 +17,9 @@
     <Compile Remove="src\IO\Filters\**" />
     <EmbeddedResource Remove="src\IO\Filters\**" />
     <None Remove="src\IO\Filters\**" />
+    <Compile Remove="src\IO\**" />
+    <EmbeddedResource Remove="src\IO\**" />
+    <None Remove="src\IO\**" />
   </ItemGroup>
 
   <ItemGroup>

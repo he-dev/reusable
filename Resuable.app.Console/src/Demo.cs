@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using Reusable.Diagnostics;
-using Reusable.IO;
+using Reusable.IOnymous;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Attachements;
@@ -56,7 +56,7 @@ namespace Reusable.Apps
         {
             SmartPropertiesLayoutRenderer.Register();
 
-            var fileProvider = new RelativeFileProvider(new PhysicalFileProvider(), typeof(Demo).Assembly.Location);
+            //var fileProvider = new RelativeResourceProvider(new PhysicalFileProvider(), typeof(Demo).Assembly.Location);
 
             var loggerFactory =
                 new LoggerFactory()

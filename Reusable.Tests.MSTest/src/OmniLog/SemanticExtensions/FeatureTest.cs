@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reactive.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Collections;
-using Reusable.IO;
 using Reusable.OmniLog.Attachements;
 using Reusable.Utilities.MSTest;
 

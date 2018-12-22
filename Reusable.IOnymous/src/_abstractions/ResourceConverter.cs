@@ -10,7 +10,7 @@ namespace Reusable.IOnymous
         protected readonly IImmutableSet<Type> SupportedTypes;
 
         protected ResourceConverter(IResourceProvider resourceProvider, params Type[] supportedTypes) 
-            : base(resourceProvider.Metadata)
+            : base(resourceProvider.Schemes, resourceProvider.Metadata)
         {
             ResourceProvider = resourceProvider;
             SupportedTypes = supportedTypes?.ToImmutableHashSet() ?? throw new ArgumentNullException(nameof(supportedTypes));

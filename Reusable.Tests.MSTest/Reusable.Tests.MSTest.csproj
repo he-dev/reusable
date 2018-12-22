@@ -1,13 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net47</TargetFramework>
 
     <IsPackable>false</IsPackable>
-
-    <AssemblyName>Reusable.Tests</AssemblyName>
-
-    <RootNamespace>Reusable.Tests</RootNamespace>
 
     <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
@@ -47,6 +43,9 @@
     <Compile Remove="src\SmartConfig\Integration\AppSettingsTest.cs" />
     <Compile Remove="src\SmartConfig\Integration\SqlServerTest.cs" />
     <Compile Remove="src\SmartConfig\Integration\ConfigurationTest2.cs" />
+    <Compile Remove="src\Core\IO\**" />
+    <EmbeddedResource Remove="src\Core\IO\**" />
+    <None Remove="src\Core\IO\**" />
   </ItemGroup>
 
   <ItemGroup>

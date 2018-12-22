@@ -8,8 +8,11 @@ namespace Reusable.Utilities.SqlClient.Tests.SqlSchemas
     [TestClass]
     public class SqlSchemaReaderTest
     {
+     
         private static readonly string ConnectionString = ConfigurationManager.ConnectionStrings["TestDb"].ConnectionString;
-
+        
+        // todo - table is missing
+        
         [TestMethod]
         public void GetSqlTableSchemas_TestingDb_OneTable()
         {

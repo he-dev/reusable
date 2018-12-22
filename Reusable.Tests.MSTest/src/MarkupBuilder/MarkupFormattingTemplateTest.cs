@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.IO.Extensions;
+using Reusable.IOnymous;
 using Reusable.MarkupBuilder;
 using Reusable.Reflection;
 
@@ -13,7 +13,7 @@ namespace Reusable.Tests.MarkupBuilder
         [TestMethod]
         public void Parse_FormattingTemplate_Options()
         {
-            var template = ResourceProvider.GetFileInfoAsync("FormattingTemplate.html").Result.ReadAllText();
+            var template = ResourceProvider.GetFile<string>("FormattingTemplate.html");
 
             Assert.IsNotNull(template);
 

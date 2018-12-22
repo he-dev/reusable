@@ -18,12 +18,12 @@ namespace Reusable.Tests.XUnit.IOnymous
             Assert.Equal("Hallo!", await file.DeserializeAsync(default));
         }
 
-        [Fact]
-        public async Task Throws_when_scheme_not_file()
-        {
-            var provider = new EmbeddedFileProvider(typeof(EmbeddedFileProviderTest).Assembly);
-
-            await Assert.ThrowsAnyAsync<DynamicException>(async () => await provider.GetAsync("res/ionymous/test.txt"));
-        }
+//        [Fact]
+//        public async Task Throws_when_scheme_not_file()
+//        {
+//            var provider = new EmbeddedFileProvider(typeof(EmbeddedFileProviderTest).Assembly);
+//
+//            await Assert.ThrowsAnyAsync<DynamicException>(async () => await provider.GetAsync("res/ionymous/test.txt"));
+//        }
     }
 }

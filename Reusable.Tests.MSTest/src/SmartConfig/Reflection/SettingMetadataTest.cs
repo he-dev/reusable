@@ -5,14 +5,11 @@ using System.Linq.Custom;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Extensions;
 using Reusable.SmartConfig;
 using Reusable.SmartConfig.Reflection;
 
-namespace Reusable.Tests.SmartConfig.Reflection
+namespace Reusable.Tests.MSTest.SmartConfig.Reflection
 {
-    using static Assert;
-
     [TestClass]
     public class SettingMetadataTest
     {
@@ -35,9 +32,9 @@ namespace Reusable.Tests.SmartConfig.Reflection
 
                 var actual = SettingMetadata.FromExpression(instancePropertyExpressions.Last());
 
-                AreSame(instance2, actual.Instance);
-                AreEqual(baseInstanceProperty, actual.Member);
-                AreEqual(nameof(BasicType.InstanceProperty), actual.MemberName);
+                Assert.AreSame(instance2, actual.Instance);
+                Assert.AreEqual(baseInstanceProperty, actual.Member);
+                Assert.AreEqual(nameof(BasicType.InstanceProperty), actual.MemberName);
 
                 AssertDefault(actual);
             }
@@ -49,9 +46,9 @@ namespace Reusable.Tests.SmartConfig.Reflection
 
                 var actual = SettingMetadata.FromExpression(staticPropertyExpressions.Last());
 
-                IsNull(actual.Instance);
-                AreEqual(baseStaticProperty, actual.Member);
-                AreEqual(nameof(BasicType.StaticProperty), actual.MemberName);
+                Assert.IsNull(actual.Instance);
+                Assert.AreEqual(baseStaticProperty, actual.Member);
+                Assert.AreEqual(nameof(BasicType.StaticProperty), actual.MemberName);
 
                 AssertDefault(actual);
             }
@@ -63,9 +60,9 @@ namespace Reusable.Tests.SmartConfig.Reflection
 
                 var actual = SettingMetadata.FromExpression(instanceFieldExpressions.Last(), nonPublic: true);
 
-                AreSame(instance2, actual.Instance);
-                AreEqual(baseInstanceField, actual.Member);
-                AreEqual("_instanceField", actual.MemberName);
+                Assert.AreSame(instance2, actual.Instance);
+                Assert.AreEqual(baseInstanceField, actual.Member);
+                Assert.AreEqual("_instanceField", actual.MemberName);
 
                 AssertDefault(actual);
             }
@@ -77,9 +74,9 @@ namespace Reusable.Tests.SmartConfig.Reflection
 
                 var actual = SettingMetadata.FromExpression(staticFieldExpressions.Last(), nonPublic: true);
 
-                IsNull(actual.Instance);
-                AreEqual(baseStaticField, actual.Member);
-                AreEqual("_staticField", actual.MemberName);
+                Assert.IsNull(actual.Instance);
+                Assert.AreEqual(baseStaticField, actual.Member);
+                Assert.AreEqual("_staticField", actual.MemberName);
 
                 AssertDefault(actual);
             }
@@ -89,15 +86,15 @@ namespace Reusable.Tests.SmartConfig.Reflection
             {
                 // These cases are common to all tests.
 
-                AreEqual(baseType, actual.Type);
-                IsNull(actual.Prefix);
-                AreEqual(Namespace, actual.Namespace);
-                AreEqual(baseType.Name, actual.TypeName);
-                IsTrue(actual.Validations.Empty());
-                IsNull(actual.DefaultValue);
-                IsNull(actual.ProviderName);
-                AreEqual(SettingNameStrength.Inherit, actual.Strength);
-                AreEqual(PrefixHandling.Inherit, actual.PrefixHandling);
+                Assert.AreEqual(baseType, actual.Type);
+                Assert.IsNull(actual.Prefix);
+                Assert.AreEqual(Namespace, actual.Namespace);
+                Assert.AreEqual(baseType.Name, actual.TypeName);
+                Assert.IsTrue(actual.Validations.Empty());
+                Assert.IsNull(actual.DefaultValue);
+                Assert.IsNull(actual.ProviderName);
+                Assert.AreEqual(SettingNameStrength.Inherit, actual.Strength);
+                Assert.AreEqual(PrefixHandling.Inherit, actual.PrefixHandling);
             }
         }
 
@@ -117,11 +114,11 @@ namespace Reusable.Tests.SmartConfig.Reflection
 
                 var actual = SettingMetadata.FromExpression(instancePropertyExpressions.Last());
 
-                AreEqual(derivedType, actual.Type);
-                AreSame(instance2, actual.Instance);
-                AreEqual(derivedType.Name, actual.TypeName);
-                AreEqual(baseInstanceProperty, actual.Member);
-                AreEqual(nameof(BasicType.InstanceProperty), actual.MemberName);
+                Assert.AreEqual(derivedType, actual.Type);
+                Assert.AreSame(instance2, actual.Instance);
+                Assert.AreEqual(derivedType.Name, actual.TypeName);
+                Assert.AreEqual(baseInstanceProperty, actual.Member);
+                Assert.AreEqual(nameof(BasicType.InstanceProperty), actual.MemberName);
 
                 AssertDefault(actual);
             }
@@ -133,11 +130,11 @@ namespace Reusable.Tests.SmartConfig.Reflection
 
                 var actual = SettingMetadata.FromExpression(staticPropertyExpressions.Last());
 
-                AreEqual(baseType, actual.Type);
-                IsNull(actual.Instance);
-                AreEqual(baseType.Name, actual.TypeName);
-                AreEqual(baseStaticProperty, actual.Member);
-                AreEqual(nameof(BasicType.StaticProperty), actual.MemberName);
+                Assert.AreEqual(baseType, actual.Type);
+                Assert.IsNull(actual.Instance);
+                Assert.AreEqual(baseType.Name, actual.TypeName);
+                Assert.AreEqual(baseStaticProperty, actual.Member);
+                Assert.AreEqual(nameof(BasicType.StaticProperty), actual.MemberName);
 
                 AssertDefault(actual);
             }
@@ -149,9 +146,9 @@ namespace Reusable.Tests.SmartConfig.Reflection
 
                 var actual = SettingMetadata.FromExpression(instanceFieldExpressions.Last(), nonPublic: true);
 
-                AreSame(instance2, actual.Instance);
-                AreEqual(baseInstanceField, actual.Member);
-                AreEqual("_instanceField", actual.MemberName);
+                Assert.AreSame(instance2, actual.Instance);
+                Assert.AreEqual(baseInstanceField, actual.Member);
+                Assert.AreEqual("_instanceField", actual.MemberName);
 
                 AssertDefault(actual);
             }
@@ -163,9 +160,9 @@ namespace Reusable.Tests.SmartConfig.Reflection
 
                 var actual = SettingMetadata.FromExpression(staticFieldExpressions.Last(), nonPublic: true);
 
-                IsNull(actual.Instance);
-                AreEqual(baseStaticField, actual.Member);
-                AreEqual("_staticField", actual.MemberName);
+                Assert.IsNull(actual.Instance);
+                Assert.AreEqual(baseStaticField, actual.Member);
+                Assert.AreEqual("_staticField", actual.MemberName);
 
                 AssertDefault(actual);
             }
@@ -175,14 +172,14 @@ namespace Reusable.Tests.SmartConfig.Reflection
             {
                 // These cases are common to all tests.
 
-                IsNull(actual.Prefix);
-                AreEqual(Namespace, actual.Namespace);
+                Assert.IsNull(actual.Prefix);
+                Assert.AreEqual(Namespace, actual.Namespace);
 
-                IsTrue(actual.Validations.Empty());
-                IsNull(actual.DefaultValue);
-                IsNull(actual.ProviderName);
-                AreEqual(SettingNameStrength.Inherit, actual.Strength);
-                AreEqual(PrefixHandling.Inherit, actual.PrefixHandling);
+                Assert.IsTrue(actual.Validations.Empty());
+                Assert.IsNull(actual.DefaultValue);
+                Assert.IsNull(actual.ProviderName);
+                Assert.AreEqual(SettingNameStrength.Inherit, actual.Strength);
+                Assert.AreEqual(PrefixHandling.Inherit, actual.PrefixHandling);
             }
         }
 
@@ -201,10 +198,10 @@ namespace Reusable.Tests.SmartConfig.Reflection
 
                 var actual = SettingMetadata.FromExpression(instancePropertyExpressions.Last());
 
-                AreEqual(baseType, actual.Type);
-                AreSame(instance2, actual.Instance);
-                AreEqual(baseInstanceProperty, actual.Member);
-                AreEqual("InstanceProperty1x", actual.MemberName);
+                Assert.AreEqual(baseType, actual.Type);
+                Assert.AreSame(instance2, actual.Instance);
+                Assert.AreEqual(baseInstanceProperty, actual.Member);
+                Assert.AreEqual("InstanceProperty1x", actual.MemberName);
 
                 AssertDefault(actual);
             }
@@ -216,18 +213,18 @@ namespace Reusable.Tests.SmartConfig.Reflection
 
                 var actual = SettingMetadata.FromExpression(instancePropertyExpressions.Last());
 
-                AreEqual(baseType, actual.Type);
-                AreSame(instance2, actual.Instance);
-                AreEqual(baseInstanceProperty, actual.Member);
-                AreEqual("InstanceProperty2x", actual.MemberName);
+                Assert.AreEqual(baseType, actual.Type);
+                Assert.AreSame(instance2, actual.Instance);
+                Assert.AreEqual(baseInstanceProperty, actual.Member);
+                Assert.AreEqual("InstanceProperty2x", actual.MemberName);
 
                 //AssertDefault(actual);
 
-                AreEqual("Prefix2", actual.Prefix);
-                AreEqual("BaseClass2", actual.TypeName);
-                AreEqual("Provider2", actual.ProviderName);
-                AreEqual(SettingNameStrength.High, actual.Strength);
-                AreEqual(PrefixHandling.Enable, actual.PrefixHandling);
+                Assert.AreEqual("Prefix2", actual.Prefix);
+                Assert.AreEqual("CustomizedType2", actual.TypeName);
+                Assert.AreEqual("Provider2", actual.ProviderName);
+                Assert.AreEqual(SettingNameStrength.High, actual.Strength);
+                Assert.AreEqual(PrefixHandling.Enable, actual.PrefixHandling);
             }
 
             // static property inherits type customization
@@ -237,9 +234,9 @@ namespace Reusable.Tests.SmartConfig.Reflection
 
                 var actual = SettingMetadata.FromExpression(staticPropertyExpressions.Last());
 
-                IsNull(actual.Instance);
-                AreEqual(baseStaticProperty, actual.Member);
-                AreEqual("StaticProperty1x", actual.MemberName);
+                Assert.IsNull(actual.Instance);
+                Assert.AreEqual(baseStaticProperty, actual.Member);
+                Assert.AreEqual("StaticProperty1x", actual.MemberName);
 
                 AssertDefault(actual);
             }
@@ -248,14 +245,15 @@ namespace Reusable.Tests.SmartConfig.Reflection
             {
                 // These cases are common to all tests.
 
-                AreEqual(Namespace, actual.Namespace);
-                IsTrue(actual.Validations.Empty());
-                IsNull(actual.DefaultValue);
-                AreEqual("Prefix1", actual.Prefix);
-                AreEqual("BaseClass2", actual.TypeName);
-                AreEqual("Provider1", actual.ProviderName);
-                AreEqual(SettingNameStrength.Low, actual.Strength);
-                AreEqual(PrefixHandling.Enable, actual.PrefixHandling);
+                Assert.AreEqual(Namespace, actual.Namespace);
+                Assert.IsTrue(actual.Validations.Empty());
+                Assert.IsNull(actual.DefaultValue);
+                Assert.AreEqual("Prefix1", actual.Prefix);
+                // moved to test
+                //Assert.AreEqual("BaseClass2", actual.TypeName);
+                Assert.AreEqual("Provider1", actual.ProviderName);
+                Assert.AreEqual(SettingNameStrength.Low, actual.Strength);
+                Assert.AreEqual(PrefixHandling.Enable, actual.PrefixHandling);
             }
         }
 
@@ -274,16 +272,16 @@ namespace Reusable.Tests.SmartConfig.Reflection
 
                 var actual = SettingMetadata.FromExpression(instancePropertyExpressions.Last());
 
-                AreEqual(baseType, actual.Type);
-                AreSame(instance2, actual.Instance);
+                Assert.AreEqual(baseType, actual.Type);
+                Assert.AreSame(instance2, actual.Instance);
                 //AreEqual(baseInstanceProperty, actual.Member);
-                AreEqual("InstanceProperty1xx", actual.MemberName);
+                Assert.AreEqual("InstanceProperty1xx", actual.MemberName);
 
-                AreEqual("Prefix1", actual.Prefix);
-                AreEqual("CustomizedType2", actual.TypeName);
-                AreEqual("Provider1", actual.ProviderName);
-                AreEqual(SettingNameStrength.Low, actual.Strength);
-                AreEqual(PrefixHandling.Enable, actual.PrefixHandling);
+                Assert.AreEqual("Prefix1", actual.Prefix);
+                Assert.AreEqual("CustomizedType2", actual.TypeName);
+                Assert.AreEqual("Provider1", actual.ProviderName);
+                Assert.AreEqual(SettingNameStrength.Low, actual.Strength);
+                Assert.AreEqual(PrefixHandling.Enable, actual.PrefixHandling);
             }
         }
 

@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
-using Reusable.IO;
-using Reusable.IO.Extensions;
+using Reusable.IOnymous;
 using Reusable.sdk.Mailr.Models;
 using Xunit;
 
@@ -11,7 +10,7 @@ namespace Reusable.Tests.XUnit.sdk.Mailr.Models
         [Fact]
         public void CanBeSerializedToJson()
         {
-            var expected = EmbeddedFileProvider<HtmlTableTest>.Default.GetFileInfoAsync(@"res\sdk\mailr\models\htmltable.json").GetAwaiter().GetResult().ReadAllText();
+            var expected = EmbeddedFileProvider<HtmlTableTest>.Default.GetFile<string>(@"res\sdk\mailr\models\htmltable.json");
 
             var table = new HtmlTable(HtmlTableColumn.Create(("Name", typeof(string)), ("Age", typeof(int))));
             var row = table.Body.NewRow();

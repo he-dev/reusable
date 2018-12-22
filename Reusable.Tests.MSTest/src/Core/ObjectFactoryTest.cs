@@ -7,7 +7,7 @@ namespace Reusable.Tests
     [TestClass]
     public class ObjectFactoryTest
     {
-        [TestMethod]
+        //[TestMethod]
         public void TestMethod1()
         {
             var person = ObjectFactory.CreateInstance<IPerson>();

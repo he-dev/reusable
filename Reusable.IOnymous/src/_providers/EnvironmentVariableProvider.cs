@@ -7,14 +7,19 @@ using Reusable.Flawless;
 
 namespace Reusable.IOnymous
 {
-    public partial class EnvironmentVariableProvider : ResourceProvider
+    public class EnvironmentVariableProvider : ResourceProvider
     {
         private readonly IResourceProvider _resourceProvider;
 
         public EnvironmentVariableProvider([NotNull] IResourceProvider resourceProvider) 
-            : base(resourceProvider.Metadata)
+            : base(resourceProvider.Schemes, resourceProvider.Metadata.Add(ResourceMetadataKeys.AllowRelativeUri, true))
         {
             _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
+        }
+        
+        public static Func<IResourceProvider, EnvironmentVariableProvider> Factory()
+        {
+            return decorable => new EnvironmentVariableProvider(decorable);
         }
 
         protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
@@ -36,7 +41,13 @@ namespace Reusable.IOnymous
         {
             var expandedPath = Environment.ExpandEnvironmentVariables(uri.Path.Decoded);
             var normalizedPath = UriStringHelper.Normalize(expandedPath);
-            return uri.With(x => x.Path, new UriStringComponent(normalizedPath));
+            uri = uri.With(x => x.Path, new UriStringComponent(normalizedPath));
+            if (!uri.Scheme && Path.IsPathRooted(uri.Path.Decoded))
+            {
+                uri = uri.With(x => x.Scheme, (ImplicitString)"file");
+            }
+
+            return uri;
         }
     }
 }

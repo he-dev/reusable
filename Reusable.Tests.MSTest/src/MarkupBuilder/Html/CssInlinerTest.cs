@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.IO.Extensions;
+using Reusable.IOnymous;
 using Reusable.MarkupBuilder;
 using Reusable.MarkupBuilder.Html;
 using Reusable.Reflection;
@@ -11,7 +11,7 @@ namespace Reusable.Tests.MarkupBuilder.Html
     {
         private static readonly HtmlElement Html = HtmlElement.Builder;
 
-        private static readonly HtmlFormatting Formatting = HtmlFormatting.Parse(Helper.ResourceProvider.GetFileInfoAsync("FormattingTemplate.html").Result.ReadAllText());
+        private static readonly HtmlFormatting Formatting = HtmlFormatting.Parse(Helper.ResourceProvider.GetFile<string>("FormattingTemplate.html"));
 
         [TestMethod]
         public void Inline_SpanStyles_Inlined()
@@ -57,7 +57,7 @@ namespace Reusable.Tests.MarkupBuilder.Html
 
             var result = table.ToHtml(Formatting);
 
-            Assert.AreEqual(Helper.ResourceProvider.GetFileInfoAsync("CssInliner_Inline_TableStyles.html").Result.ReadAllText().Trim(), result.Trim());
+            Assert.AreEqual(Helper.ResourceProvider.GetFile<string>("CssInliner_Inline_TableStyles.html").Trim(), result.Trim());
         }
     }
 }

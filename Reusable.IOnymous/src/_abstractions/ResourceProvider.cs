@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Linq.Custom;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -22,9 +25,14 @@ namespace Reusable.IOnymous
         [NotNull]
         ResourceMetadata Metadata { get; }
         
+        IImmutableSet<SoftString> Schemes { get; }
+
         bool CanGet { get; }
+        
         bool CanPost { get; }
+        
         bool CanPut { get; }
+        
         bool CanDelete { get; }
 
         [ItemNotNull]
@@ -45,11 +53,11 @@ namespace Reusable.IOnymous
     {
         public static readonly ImplicitString DefaultScheme = "ionymous";
 
-        protected ResourceProvider([NotNull] ResourceMetadata metadata)
+        protected ResourceProvider([NotNull] IEnumerable<SoftString> schemes, [NotNull] ResourceMetadata metadata)
         {
+            if (schemes == null) throw new ArgumentNullException(nameof(schemes));
             if (metadata == null) throw new ArgumentNullException(nameof(metadata));
 
-            if (!metadata.ContainsKey(ResourceMetadataKeys.SchemeSet)) throw new ArgumentException(paramName: nameof(metadata), message: $"Resource provider metadata must specify the scheme.");
 
             // If this is a decorator then the decorated resource-provider already has set this.
             if (!metadata.ContainsKey(ProviderDefaultName))
@@ -57,13 +65,17 @@ namespace Reusable.IOnymous
                 metadata = metadata.Add(ProviderDefaultName, GetType().ToPrettyString());
             }
 
+            Schemes = schemes.ToImmutableHashSet();
+            
+            if (Schemes.Empty()) throw new ArgumentException(paramName: nameof(metadata), message: $"{nameof(schemes)} must not be empty.");
+            
             Metadata = metadata;
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
         {
             builder.DisplayCollection(x => x.Metadata.ProviderNames());
-            builder.DisplayMember(x => x.SchemeSet);
+            builder.DisplayMember(x => x.Schemes);
         });
 
         public bool CanGet => Implements(nameof(GetAsyncInternal));
@@ -79,11 +91,11 @@ namespace Reusable.IOnymous
 
         public virtual ResourceMetadata Metadata { get; }
 
-        public virtual IImmutableSet<SoftString> SchemeSet => (IImmutableSet<SoftString>)Metadata[ResourceMetadataKeys.SchemeSet];
+        public virtual IImmutableSet<SoftString> Schemes { get; }
 
         #region Wrappers
 
-        // These wrappers are to provide helpful exceptions.
+        // These wrappers are to provide helpful exceptions.        
 
         public async Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
         {
@@ -96,7 +108,7 @@ namespace Reusable.IOnymous
             }
             catch (Exception inner)
             {
-                throw CreateException(uri, metadata, inner);
+                throw WrapException(uri, metadata, inner);
             }
         }
 
@@ -111,7 +123,7 @@ namespace Reusable.IOnymous
             }
             catch (Exception inner)
             {
-                throw CreateException(uri, metadata, inner);
+                throw WrapException(uri, metadata, inner);
             }
         }
 
@@ -126,7 +138,7 @@ namespace Reusable.IOnymous
             }
             catch (Exception inner)
             {
-                throw CreateException(uri, metadata, inner);
+                throw WrapException(uri, metadata, inner);
             }
         }
 
@@ -141,7 +153,7 @@ namespace Reusable.IOnymous
             }
             catch (Exception inner)
             {
-                throw CreateException(uri, metadata, inner);
+                throw WrapException(uri, metadata, inner);
             }
         }
 
@@ -159,60 +171,31 @@ namespace Reusable.IOnymous
 
         #endregion
 
-        #region Helpers
-
-        protected Exception CreateException(UriString uri, ResourceMetadata metadata, Exception inner, [CallerMemberName] string memberName = null)
-        {
-            // ReSharper disable once AssignNullToNotNullAttribute
-            var method = Regex.Replace(memberName, "Async$", string.Empty).ToUpper();
-
-            throw DynamicException.Create
-            (
-                memberName,
-                $"{GetType().ToPrettyString()} was unable to perform {method} for the given resource '{uri}'.",
-                inner
-            );
-        }
-
-        #endregion
-
         #region Validations
 
-        protected void ValidateSchemeMatches([NotNull] UriString uri)
+        protected void ValidateSchemeMatches([NotNull] UriString uri, [CallerMemberName] string memberName = null)
         {
             if (Metadata.TryGetValue(AllowRelativeUri, out bool allow) && allow)
             {
                 return;
             }
 
-            if (SchemeSet.Contains(DefaultScheme))
+            if (Schemes.Contains(DefaultScheme))
             {
                 return;
             }
 
-            if (!SchemeSet.Contains(uri.Scheme))
+            if (!Schemes.Contains(uri.Scheme))
             {
                 throw DynamicException.Create
                 (
                     "InvalidScheme",
-                    $"{GetType().ToPrettyString()} requires scheme '{SchemeSet}'."
+                    Because(memberName, uri, $"it requires uri to specify scheme [{Schemes.Join(",")}].")
                 );
             }
         }
 
-        protected Exception MethodNotSupportedException(UriString uri, [CallerMemberName] string memberName = null)
-        {
-            // ReSharper disable once AssignNullToNotNullAttribute
-            var method = Regex.Match(memberName, "^(?<method>)Async").Groups["method"].Value;
-
-            return DynamicException.Create
-            (
-                $"{method}NotSupported",
-                $"Cannot '{method.ToUpper()}' at '{uri}' because '{GetType().ToPrettyString()}' doesn't support it."
-            );
-        }
-
-        protected void ValidateSchemeNotEmpty([NotNull] UriString uri)
+        protected void ValidateSchemeNotEmpty([NotNull] UriString uri, [CallerMemberName] string memberName = null)
         {
             if (Metadata.TryGetValue(AllowRelativeUri, out bool allow) && allow)
             {
@@ -221,8 +204,45 @@ namespace Reusable.IOnymous
 
             if (!uri.Scheme)
             {
-                throw DynamicException.Create("SchemeNotFound", $"Uri '{uri}' does not contain scheme.");
+                throw DynamicException.Create
+                (
+                    "MissingScheme",
+                    Because(memberName, uri, "uri it must contain scheme.")
+                );
             }
+        }
+
+        protected Exception MethodNotSupportedException(UriString uri, [CallerMemberName] string memberName = null)
+        {
+            return DynamicException.Create
+            (
+                $"{ExtractMethodName(memberName)}NotSupported",
+                Because(memberName, uri, "it doesn't support it.")
+            );
+        }
+
+        #endregion
+
+        #region Helpers
+
+        protected Exception WrapException(UriString uri, ResourceMetadata metadata, Exception inner, [CallerMemberName] string memberName = null)
+        {
+            throw DynamicException.Create
+            (
+                ExtractMethodName(memberName),
+                Because(memberName, uri, "of an error. See inner exception for details."),
+                inner
+            );
+        }
+
+        private string ExtractMethodName(string memberName)
+        {
+            return Regex.Match(memberName, @"^(?<method>\w+)Async").Groups["method"].Value;
+        }
+
+        private string Because(string memberName, UriString uri, string reason)
+        {
+            return $"{GetType().ToPrettyString()} cannot {ExtractMethodName(memberName).ToUpper()} '{uri}' because {reason}.";
         }
 
         #endregion

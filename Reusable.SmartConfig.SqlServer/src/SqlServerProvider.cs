@@ -34,11 +34,7 @@ namespace Reusable.SmartConfig
             string nameOrConnectionString,
             ITypeConverter uriStringToSettingIdentifierConverter = null
         )
-            : base(
-                ResourceMetadata
-                    .Empty
-                    .AddScheme("setting")
-            )
+            : base(new SoftString[] { "setting" }, ResourceMetadata.Empty)
         {
             _uriStringToSettingIdentifierConverter = uriStringToSettingIdentifierConverter;
             ConnectionString = ConnectionStringRepository.Default.GetConnectionString(nameOrConnectionString);
@@ -141,7 +137,7 @@ namespace Reusable.SmartConfig
         public static readonly SqlServerColumn Name = new SqlServerColumn(nameof(Name));
 
         public static readonly SqlServerColumn Value = new SqlServerColumn(nameof(Value));
-        
+
         // todo - for future use
         //public static readonly SqlServerColumn ModifiedOn = new SqlServerColumn(nameof(ModifiedOn));
         //public static readonly SqlServerColumn CreatedOn = new SqlServerColumn(nameof(CreatedOn));

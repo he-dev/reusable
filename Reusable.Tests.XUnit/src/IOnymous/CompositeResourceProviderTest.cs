@@ -93,17 +93,17 @@ namespace Reusable.Tests.XUnit.IOnymous
 
             await Assert.ThrowsAnyAsync<DynamicException>(async () => await composite.PutAsync("blub:123", Stream.Null));
         }
-        
+
         [Fact]
         public async Task Can_get_resource_by_scheme()
         {
             var composite = new CompositeResourceProvider(new IResourceProvider[]
             {
-                new InMemoryResourceProvider(ResourceMetadata.Empty.AddScheme("bluba"))
+                new InMemoryResourceProvider(new SoftString[] { "bluba" })
                 {
                     { "bluba:123", "blub1" }
                 },
-                new InMemoryResourceProvider(ResourceMetadata.Empty.AddScheme("blub"))
+                new InMemoryResourceProvider(new SoftString[] { "blub" })
                 {
                     { "blub:123", "blub2" },
                     { "blub:125", "blub3" }

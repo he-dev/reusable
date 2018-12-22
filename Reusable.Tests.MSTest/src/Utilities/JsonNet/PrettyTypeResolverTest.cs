@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reusable.Exceptionizer;
 using Reusable.Extensions;
-using Reusable.IO;
+using Reusable.IOnymous;
 using Reusable.Reflection;
 using Reusable.Utilities.JsonNet;
 using Reusable.Utilities.MSTest;
@@ -17,7 +17,7 @@ namespace Reusable.Tests.Utilities.JsonNet
     [TestClass]
     public class PrettyTypeResolverTest
     {
-        private static readonly IFileProvider Resources = new RelativeFileProvider(Reusable.IO.EmbeddedFileProvider<PrettyTypeResolverTest>.Default, @"res\Utilities\JsonNet");
+        private static readonly IResourceProvider Resources = new RelativeResourceProvider(EmbeddedFileProvider<PrettyTypeResolverTest>.Default, @"res\Utilities\JsonNet");
 
         [TestMethod]
         public void AllowsTypesWithoutGenericArguments()
@@ -34,7 +34,7 @@ namespace Reusable.Tests.Utilities.JsonNet
         [TestMethod]
         public void Deserialize_CanNonGenericType()
         {
-            using (var jsonStream = Resources.GetFileInfoAsync("PrettyTypeReaderT0.json").Result.CreateReadStream())
+            using (var jsonStream = Resources.GetFile<string>("PrettyTypeReaderT0.json").ToStreamReader().BaseStream)
             using (var streamReader = new StreamReader(jsonStream))
             {
                 var json = streamReader.ReadToEnd();
@@ -53,7 +53,7 @@ namespace Reusable.Tests.Utilities.JsonNet
         [TestMethod]
         public void Deserialize_CanGenericType1()
         {
-            using (var jsonStream = Resources.GetFileInfoAsync("PrettyTypeReaderT1.json").Result.CreateReadStream())
+            using (var jsonStream = Resources.GetFile<string>("PrettyTypeReaderT1.json").ToStreamReader().BaseStream)
             using (var streamReader = new StreamReader(jsonStream))
             //using (var jsonTextReader = new PrettyTypeReader(streamReader, "$t", PrettyTypeResolver.Create(new[] { typeof(JsonTestClass0), typeof(JsonTestClass1<>) })))
             {
@@ -73,7 +73,7 @@ namespace Reusable.Tests.Utilities.JsonNet
         [TestMethod]
         public void Deserialize_CanGenericType2()
         {
-            using (var jsonStream = Resources.GetFileInfoAsync("PrettyTypeReaderT2.json").Result.CreateReadStream())
+            using (var jsonStream = Resources.GetFile<string>("PrettyTypeReaderT2.json").ToStreamReader().BaseStream)
             using (var streamReader = new StreamReader(jsonStream))
             //using (var jsonTextReader = new PrettyTypeReader(streamReader, "$t", PrettyTypeResolver.Create(new[] { typeof(JsonTestClass0) })))
             {

@@ -29,7 +29,7 @@ namespace Reusable.Tests
             }));
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void Format_AllFormats_Formatted()
         {
             var formatProvider = new CompositeFormatProvider

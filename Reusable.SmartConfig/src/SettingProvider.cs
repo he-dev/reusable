@@ -23,8 +23,12 @@ namespace Reusable.SmartConfig
         private readonly IResourceProvider _resourceProvider;
 
         public SettingProvider(IResourceProvider resourceProvider)
-            : base(resourceProvider.Metadata.AddScheme("setting"))
+            : base(resourceProvider.Schemes.Add("setting"), resourceProvider.Metadata)
         {
+            if (!resourceProvider.Schemes.Intersect(new SoftString[] { "setting", DefaultScheme }).Any())
+            {
+                throw new ArgumentException($"{resourceProvider.GetType().ToPrettyString()} must support scheme 'setting' or '{DefaultScheme}'.");
+            }
             _resourceProvider = resourceProvider;
         }
 

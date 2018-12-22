@@ -62,5 +62,15 @@ namespace Reusable.Tests.XUnit.IOnymous
             
             Assert.Equal("blub:c:/temp/more-temp/file.txt", (string)newAbsolute);
         }
+
+        [Fact]
+        public void Can_parse_authority_host_and_port()
+        {
+            var uri = new UriString("http://localhost:1234/resource");
+            
+            Assert.Equal("http", uri.Scheme);
+            Assert.Equal("localhost:1234", uri.Authority);
+            Assert.Equal("resource", uri.Path.Decoded.Value);
+        }
     }
 }

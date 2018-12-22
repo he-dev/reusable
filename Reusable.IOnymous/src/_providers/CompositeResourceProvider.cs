@@ -26,15 +26,13 @@ namespace Reusable.IOnymous
             [NotNull] IEnumerable<IResourceProvider> resourceProviders,
             [CanBeNull] ResourceMetadata metadata = null
         )
-            : base((metadata ?? ResourceMetadata.Empty).AddScheme(DefaultScheme))
+            : base(new SoftString[] { DefaultScheme }, (metadata ?? ResourceMetadata.Empty))
         {
             if (resourceProviders == null) throw new ArgumentNullException(nameof(resourceProviders));
 
             _resourceProviderCache = new Dictionary<UriString, IResourceProvider>();
             _resourceProviders = resourceProviders.ToImmutableList();
         }
-
-        //public override ResourceMetadata Metadata { get; }
 
         protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
@@ -51,7 +49,7 @@ namespace Reusable.IOnymous
                 {
                     // Prefilter resource-providers by scheme if necessary. 
                     var allowAnyScheme = SoftString.Comparer.Equals(uri.Scheme, DefaultScheme);
-                    var resourceProviders = _resourceProviders.Where(p => allowAnyScheme || p.Metadata.SchemeSet().Contains(uri.Scheme));
+                    var resourceProviders = _resourceProviders.Where(p => allowAnyScheme || p.Schemes.Contains(uri.Scheme));
 
                     // If provider-name is specified then search only providers that mach it.
                     var providerCustomName = (ImplicitString)metadata.ProviderCustomName();
@@ -90,7 +88,7 @@ namespace Reusable.IOnymous
 
         protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream data, ResourceMetadata metadata = null)
         {
-            var resourceProvider = await GetResourceProviderAsync(uri, metadata);            
+            var resourceProvider = await GetResourceProviderAsync(uri, metadata);
             return await resourceProvider.PutAsync(uri, data, metadata);
         }
 

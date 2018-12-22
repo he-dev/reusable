@@ -2,9 +2,8 @@
 using Reusable.OneTo1;
 using Reusable.OneTo1.Converters;
 using Reusable.OneTo1.Converters.Generic;
-using Reusable.Tests.Helpers;
 
-namespace Reusable.Tests.OneTo1
+namespace Reusable.Tests.MSTest.OneTo1
 {
     [TestClass]
     public class JsonTest

@@ -5,8 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Extensions;
-using Reusable.IO;
-using Reusable.IO.Extensions;
+using Reusable.IOnymous;
 using Reusable.Reflection;
 
 namespace Reusable.Utilities.SqlClient.SqlSchemas
@@ -22,7 +21,7 @@ namespace Reusable.Utilities.SqlClient.SqlSchemas
         static SqlSchemaReader()
         {
             var fileProvider = new EmbeddedFileProvider(typeof(SqlSchemaReader).Assembly);
-            GetIdentityColumnSchemasQuery  = fileProvider.GetFileInfoAsync($"sql\\{nameof(GetIdentityColumnSchemas)}.sql").Result.ReadAllText();
+            GetIdentityColumnSchemasQuery  = fileProvider.GetFile<string>($"sql\\{nameof(GetIdentityColumnSchemas)}.sql");
         }
 
         public static IList<SqlTableSchema> GetTableSchemas(this SqlConnection sqlConnection, SqlTableSchema schemaRestriction)

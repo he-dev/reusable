@@ -2,7 +2,7 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Data;
-using Reusable.IO.Extensions;
+using Reusable.IOnymous;
 using Reusable.MarkupBuilder;
 using Reusable.MarkupBuilder.Html;
 using Reusable.Reflection;
@@ -16,20 +16,20 @@ namespace Reusable.Tests.MarkupBuilder
     {
         private static readonly HtmlElement HtmlBuilder = HtmlElement.Builder;
 
-        private static readonly HtmlFormatting Formatting = HtmlFormatting.Parse(Helper.ResourceProvider.GetFileInfoAsync("FormattingTemplate.html").Result.ReadAllText());
+        private static readonly HtmlFormatting Formatting = HtmlFormatting.Parse(Helper.ResourceProvider.GetFile<string>("FormattingTemplate.html"));
 
         [TestMethod]
         public void ToString_001()
         {
             var html = HtmlBuilder.Element("h1").ToHtml(Formatting);
-            Assert.AreEqual(ResourceProvider.GetFileInfoAsync(nameof(ToString_001) + ".html").Result.ReadAllText(), html);
+            Assert.AreEqual(ResourceProvider.GetFile<string>(nameof(ToString_001) + ".html"), html);
         }
 
         [TestMethod]
         public void ToString_002()
         {
             var html = HtmlBuilder.Element("h1", h1 => h1.Element("span")).ToHtml(Formatting);
-            Assert.AreEqual(ResourceProvider.GetFileInfoAsync(nameof(ToString_002) + ".html").Result.ReadAllText(), html);
+            Assert.AreEqual(ResourceProvider.GetFile<string>(nameof(ToString_002) + ".html"), html);
         }
 
         [TestMethod]
@@ -48,7 +48,7 @@ namespace Reusable.Tests.MarkupBuilder
                         .Element("span", "qux")
                         .Append(" baz")))
                 .ToHtml(Formatting);
-            Assert.AreEqual(ResourceProvider.GetFileInfoAsync(nameof(ToString_003) + ".html").Result.ReadAllText(), html);
+            Assert.AreEqual(ResourceProvider.GetFile<string>(nameof(ToString_003) + ".html"), html);
         }
 
         [TestMethod]
@@ -73,7 +73,7 @@ namespace Reusable.Tests.MarkupBuilder
                             .Elements("td", new[] { "foo", "bar", "baz" }, (td, x) => td.Append(x)))))
                 .ToHtml(Formatting);
             Assert.AreEqual(
-                ResourceProvider.GetFileInfoAsync(nameof(ToString_004) + ".html").Result.ReadAllText().Trim(), 
+                ResourceProvider.GetFile<string>(nameof(ToString_004) + ".html").Trim(), 
                 html.Trim());
         }
 
@@ -84,7 +84,7 @@ namespace Reusable.Tests.MarkupBuilder
                 .Element("ul", ul => ul.Elements("li", new object[] { "foo", "bar", "baz" }, (li, x) => li.Append(x))
             ).ToHtml(Formatting);
             Assert.AreEqual(
-                ResourceProvider.GetFileInfoAsync(nameof(ToString_005) + ".html").Result.ReadAllText().Trim(), 
+                ResourceProvider.GetFile<string>(nameof(ToString_005) + ".html").Trim(), 
                 html.Trim());
         }
 
@@ -99,7 +99,7 @@ namespace Reusable.Tests.MarkupBuilder
                         .Elements("li", dataTable.AsEnumerable().Take(3).Select(x => x.Field<string>("value")), (li, x) => li.Append(x)))
                 .ToHtml(Formatting);
             Assert.AreEqual(
-                ResourceProvider.GetFileInfoAsync(nameof(ToString_006) + ".html").Result.ReadAllText().Trim(), 
+                ResourceProvider.GetFile<string>(nameof(ToString_006) + ".html").Trim(), 
                 html.Trim());
         }
 
@@ -119,7 +119,7 @@ namespace Reusable.Tests.MarkupBuilder
                             .Elements("td", row, (td, x) => td.Append(x)))));
             //.ToHtml();
             Assert.AreEqual(
-                ResourceProvider.GetFileInfoAsync(nameof(ToString_007) + ".html").Result.ReadAllText().Trim(), 
+                ResourceProvider.GetFile<string>(nameof(ToString_007) + ".html").Trim(), 
                 html.ToHtml(Formatting).Trim());
         }
     }

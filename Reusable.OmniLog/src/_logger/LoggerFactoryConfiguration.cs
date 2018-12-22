@@ -5,16 +5,16 @@ using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Flexo;
-using Reusable.IO;
+using Reusable.IOnymous;
 using Reusable.OmniLog.Expressions;
 
 namespace Reusable.OmniLog
 {
     public class LoggerFactoryConfiguration
     {
-        private static readonly IFileProvider CurrentDirectoryProvider = new RelativeFileProvider(new PhysicalFileProvider(), Path.GetDirectoryName(typeof(LoggerFactoryConfiguration).Assembly.Location));
+        private static readonly IResourceProvider CurrentDirectoryProvider = new RelativeResourceProvider(new PhysicalFileProvider(), Path.GetDirectoryName(typeof(LoggerFactoryConfiguration).Assembly.Location));
 
-        private static readonly IFileProvider AbsoluteProvider = new PhysicalFileProvider();
+        private static readonly IResourceProvider AbsoluteProvider = new PhysicalFileProvider();
 
         [JsonIgnore]
         [NotNull]
@@ -29,10 +29,11 @@ namespace Reusable.OmniLog
         public static LoggerFactoryConfiguration Load(string fileName)
         {
             var provider = Path.IsPathRooted(fileName) ? AbsoluteProvider : CurrentDirectoryProvider;
-            using (var jsonStream = provider.GetFileInfoAsync(fileName).Result.CreateReadStream())
-            {
-                return Load(jsonStream);
-            }
+//            using (var jsonStream = provider.GetFileInfoAsync(fileName).Result.CreateReadStream())
+//            {
+//                return Load(jsonStream);
+//            }
+            return default;
         }
 
         public static LoggerFactoryConfiguration Load(Stream jsonStream, IExpressionSerializer serializer = null)

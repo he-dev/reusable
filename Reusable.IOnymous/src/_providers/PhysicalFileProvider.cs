@@ -11,10 +11,7 @@ namespace Reusable.IOnymous
         public static readonly string Scheme = "file";
 
         public PhysicalFileProvider(ResourceMetadata metadata = null)
-            : base(
-                (metadata ?? ResourceMetadata.Empty)
-                .AddScheme(Scheme)
-            )
+            : base(new SoftString[] { "file" }, (metadata ?? ResourceMetadata.Empty))
         {
         }
 

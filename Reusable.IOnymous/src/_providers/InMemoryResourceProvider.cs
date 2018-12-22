@@ -13,11 +13,13 @@ namespace Reusable.IOnymous
     {
         private readonly ISet<IResourceInfo> _items = new HashSet<IResourceInfo>();
 
+        public InMemoryResourceProvider(IEnumerable<SoftString> schemes, ResourceMetadata metadata = null)
+            : base(schemes, (metadata ?? ResourceMetadata.Empty))
+        {
+        }
+
         public InMemoryResourceProvider(ResourceMetadata metadata = null)
-            : base(
-                (metadata ?? ResourceMetadata.Empty)
-                .AddScheme(DefaultScheme)
-            )
+            : base(new SoftString[] { DefaultScheme }, (metadata ?? ResourceMetadata.Empty))
         {
         }
 

@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Reusable.Tests.Helpers
+﻿namespace Reusable.Tests.MSTest
 {
     public static class AssemblyInfo
     {
-        public static string Namespace = "Reusable.Tests";
+        public static readonly string Namespace = typeof(AssemblyInfo).Namespace;
     }
 }

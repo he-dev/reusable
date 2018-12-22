@@ -10,9 +10,7 @@ namespace Reusable.IOnymous
     public class PhysicalDirectoryProvider : ResourceProvider
     {
         public PhysicalDirectoryProvider(ResourceMetadata metadata = null)
-            : base(
-                (metadata ?? ResourceMetadata.Empty)
-            )
+            : base(new SoftString[] { "directory" }, (metadata ?? ResourceMetadata.Empty))
         {
         }
 

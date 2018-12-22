@@ -64,19 +64,19 @@ namespace Reusable.IOnymous
             }
         }
 
-        public static IImmutableSet<SoftString> SchemeSet(this ResourceMetadata metadata) => metadata.GetValueOrDefault<IImmutableSet<SoftString>>(ResourceMetadataKeys.SchemeSet);
+        //public static IImmutableSet<SoftString> SchemeSet(this ResourceMetadata metadata) => metadata.GetValueOrDefault<IImmutableSet<SoftString>>(ResourceMetadataKeys.SchemeSet);
 
-        public static ResourceMetadata AddScheme(this ResourceMetadata metadata, string scheme)
-        {
-            if (metadata.TryGetValue<IImmutableSet<SoftString>>(ResourceMetadataKeys.SchemeSet, out var schemeSet))
-            {
-                return metadata.SetItem(ResourceMetadataKeys.SchemeSet, schemeSet.Add(scheme));
-            }
-            else
-            {
-                return metadata.SetItem(ResourceMetadataKeys.SchemeSet, ImmutableHashSet.Create<SoftString>().Add(scheme));
-            }
-        }
+//        public static ResourceMetadata AddScheme(this ResourceMetadata metadata, string scheme)
+//        {
+//            if (metadata.TryGetValue<IImmutableSet<SoftString>>(ResourceMetadataKeys.SchemeSet, out var schemeSet))
+//            {
+//                return metadata.SetItem(ResourceMetadataKeys.SchemeSet, schemeSet.Add(scheme));
+//            }
+//            else
+//            {
+//                return metadata.SetItem(ResourceMetadataKeys.SchemeSet, ImmutableHashSet.Create<SoftString>().Add(scheme));
+//            }
+//        }
 
         //public static bool CanGet(this ResourceMetadata metadata) => metadata.TryGetValue(ResourceMetadataKeys.CanGet, out bool value) && value;
         //public static bool CanPost(this ResourceMetadata metadata) => metadata.TryGetValue(ResourceMetadataKeys.CanPost, out bool value) && value;

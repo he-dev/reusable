@@ -14,10 +14,7 @@ namespace Reusable.IOnymous
         private readonly ITypeConverter _uriStringToSettingIdentifierConverter;
 
         public ConnectionStringProvider(ITypeConverter uriStringToSettingIdentifierConverter = null)
-            : base(
-                ResourceMetadata.Empty
-                    .AddScheme("setting")
-            )
+            : base(new SoftString[] { "setting" }, ResourceMetadata.Empty)
         {
             _uriStringToSettingIdentifierConverter = uriStringToSettingIdentifierConverter;
         }

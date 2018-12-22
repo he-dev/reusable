@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.Extensions;
 using Reusable.Flexo;
-using Reusable.IO;
+using Reusable.IOnymous;
 
 namespace Reusable.Tests.Flexo
 {
@@ -11,13 +12,13 @@ namespace Reusable.Tests.Flexo
     [TestClass]
     public class ExpressionSerializerTest
     {
-        private static IFileProvider Resources { get; } = new RelativeFileProvider(new EmbeddedFileProvider(typeof(ExpressionSerializerTest).Assembly), @"res\Flexo");
+        private static IResourceProvider Resources { get; } = new RelativeResourceProvider(new EmbeddedFileProvider(typeof(ExpressionSerializerTest).Assembly), @"res\Flexo");
 
         [TestMethod]
         public void CanDeserializeAllExpressions()
         {
             var serializer = new ExpressionSerializer();
-            var expressions = serializer.Deserialize<IList<IExpression>>(Resources.GetFileInfoAsync(@"Expressions.json").Result.CreateReadStream());
+            var expressions = serializer.Deserialize<IList<IExpression>>(Resources.GetFile<string>(@"Expressions.json").ToStreamReader().BaseStream);
 
             AreEqual(3, expressions.Count);
 
@@ -29,9 +30,9 @@ namespace Reusable.Tests.Flexo
         [TestMethod]
         public void CanDeserializeSingleExpression()
         {
-            using (var json = Resources.GetFileInfoAsync(@"Single-expression.json").Result.CreateReadStream())
+            using (var json = Resources.GetFile<string>(@"Single-expression.json").ToStreamReader())
             {
-                var expression = Expression.Parse(json, new ExpressionSerializer());
+                var expression = Expression.Parse(json.BaseStream, new ExpressionSerializer());
                 IsNotNull(expression);
             }
         }

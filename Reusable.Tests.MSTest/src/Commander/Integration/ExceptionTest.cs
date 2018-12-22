@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Commander;
 using Reusable.Exceptionizer;
 using Reusable.Reflection;
@@ -137,21 +138,18 @@ namespace Reusable.Tests.Commander.Integration
         }
 
         [TestMethod]
-        public void DisallowCommandLineWithMissingParameter()
+        public void Throws_when_required_parameter_not_specified()
         {
-            Assert.That.Throws<DynamicException>(
-                () =>
-                {
-                    using (var context = CreateContext(
-                        commands => commands
-                            .Add("c", ExecuteNoop<BagWithRequiredValue>())
-                    ))
-                    {
-                        context.Executor.ExecuteAsync("c").GetAwaiter().GetResult();
-                    }
-                },
-                filter => filter.When(name: "^ParameterMapping")
-            );
+            var exception = default(Exception);
+            
+            using (var context = CreateContext(
+                commands => commands
+                    .Add("c", ExecuteNoop<BagWithRequiredValue>()), inner => { exception = inner; }
+            ))
+            {
+                context.Executor.ExecuteAsync("c").GetAwaiter().GetResult();
+                Assert.IsNotNull(exception);
+            }
         }
 
         [TestMethod]

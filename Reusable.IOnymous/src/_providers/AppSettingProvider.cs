@@ -14,10 +14,7 @@ namespace Reusable.IOnymous
         private readonly ITypeConverter _uriStringToSettingIdentifierConverter;
 
         public AppSettingProvider(ITypeConverter uriStringToSettingIdentifierConverter = null)
-            : base(
-                ResourceMetadata.Empty
-                    .AddScheme("setting")
-            )
+            : base(new SoftString[] { "setting" }, ResourceMetadata.Empty)
         {
             _uriStringToSettingIdentifierConverter = uriStringToSettingIdentifierConverter;
         }
@@ -71,8 +68,7 @@ namespace Reusable.IOnymous
 
     internal class AppSettingInfo : ResourceInfo
     {
-        [CanBeNull] 
-        private readonly string _value;
+        [CanBeNull] private readonly string _value;
 
         internal AppSettingInfo([NotNull] UriString uri, [CanBeNull] string value) : base(uri)
         {
@@ -88,7 +84,7 @@ namespace Reusable.IOnymous
         public override DateTime? ModifiedOn { get; }
 
         protected override async Task CopyToAsyncInternal(Stream stream)
-        {        
+        {
             // ReSharper disable once AssignNullToNotNullAttribute - this isn't null here
             using (var valueStream = _value.ToStreamReader())
             {
@@ -97,7 +93,7 @@ namespace Reusable.IOnymous
         }
 
         protected override Task<object> DeserializeAsyncInternal(Type targetType)
-        {         
+        {
             return Task.FromResult<object>(_value);
         }
     }

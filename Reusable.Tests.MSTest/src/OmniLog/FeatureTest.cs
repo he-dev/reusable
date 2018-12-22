@@ -4,7 +4,8 @@ using System.Linq;
 using System.Reactive.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Collections;
-using Reusable.IO;
+using Reusable.Extensions;
+using Reusable.IOnymous;
 using Reusable.OmniLog.Attachements;
 using Reusable.Utilities.MSTest;
 
@@ -45,24 +46,24 @@ namespace Reusable.OmniLog.Tests
 
             var log = MemoryRx.Single();
 
-            Assert.AreEqual("MockLogger", log.Name());
+            Assert.AreEqual(nameof(FeatureTest), log.Name());
             Assert.AreEqual(LogLevel.Information, log.Level());
             Assert.AreEqual("Hallo OmniLog!", log.Message());
             //Assert.AreEqual(timestamp, log.Timestamp());
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void CanFilterLogByLevel()
         {
             var resources = new EmbeddedFileProvider(typeof(FeatureTest).Assembly);
-            var omniLogJson = resources.GetFileInfoAsync(@"res\OmniLog\OmniLog.json").Result;
-            using (var jsonStream = omniLogJson.CreateReadStream())
+            var omniLogJson = resources.GetFile<string>(@"res\OmniLog\OmniLog.json");
+            using (var jsonStream = omniLogJson.ToStreamReader())
             {
                 var memory = new MemoryRx();
 
                 var loggerFactory = 
                     new LoggerFactory()
-                        .UseConfiguration(jsonStream)
+                        .UseConfiguration(jsonStream.BaseStream)
                         .AddObserver(memory);
 
                 var logger = loggerFactory.CreateLogger<FeatureTest>();

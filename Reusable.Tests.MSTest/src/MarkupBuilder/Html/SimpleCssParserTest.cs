@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.IO.Extensions;
+using Reusable.IOnymous;
 using Reusable.MarkupBuilder.Html;
 using Reusable.Reflection;
 
@@ -15,7 +15,7 @@ namespace Reusable.Tests.MarkupBuilder.Html
         [TestMethod]
         public void Parse_Styles_Styles()
         {
-            var css = new CssParser().Parse(ResourceProvider.GetFileInfoAsync("styles.css").Result.ReadAllText());
+            var css = new CssParser().Parse(ResourceProvider.GetFile<string>("styles.css"));
             Assert.AreEqual(6, css.Count());            
         }
     }
