@@ -18,7 +18,7 @@ namespace Reusable.Tests.Flexo
         public void CanDeserializeAllExpressions()
         {
             var serializer = new ExpressionSerializer();
-            var expressions = serializer.Deserialize<IList<IExpression>>(Resources.GetFile<string>(@"Expressions.json").ToStreamReader().BaseStream);
+            var expressions = serializer.Deserialize<IList<IExpression>>(Resources.ReadTextFile(@"Expressions.json").ToStreamReader().BaseStream);
 
             AreEqual(3, expressions.Count);
 
@@ -30,7 +30,7 @@ namespace Reusable.Tests.Flexo
         [TestMethod]
         public void CanDeserializeSingleExpression()
         {
-            using (var json = Resources.GetFile<string>(@"Single-expression.json").ToStreamReader())
+            using (var json = Resources.ReadTextFile(@"Single-expression.json").ToStreamReader())
             {
                 var expression = Expression.Parse(json.BaseStream, new ExpressionSerializer());
                 IsNotNull(expression);

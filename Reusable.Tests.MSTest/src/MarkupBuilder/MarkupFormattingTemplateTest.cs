@@ -13,7 +13,7 @@ namespace Reusable.Tests.MarkupBuilder
         [TestMethod]
         public void Parse_FormattingTemplate_Options()
         {
-            var template = ResourceProvider.GetFile<string>("FormattingTemplate.html");
+            var template = ResourceProvider.ReadTextFile("FormattingTemplate.html");
 
             Assert.IsNotNull(template);
 

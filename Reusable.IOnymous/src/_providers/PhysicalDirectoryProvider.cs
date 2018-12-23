@@ -39,7 +39,7 @@ namespace Reusable.IOnymous
     [PublicAPI]
     internal class PhysicalDirectoryInfo : ResourceInfo
     {
-        public PhysicalDirectoryInfo([NotNull] UriString uri) : base(uri)
+        public PhysicalDirectoryInfo([NotNull] UriString uri) : base(uri, ResourceFormat.Null)
         {
         }
 
@@ -54,7 +54,5 @@ namespace Reusable.IOnymous
         public override DateTime? ModifiedOn => Exists ? Directory.GetLastWriteTimeUtc(Uri.Path.Decoded) : default;
 
         protected override Task CopyToAsyncInternal(Stream stream) => throw new NotSupportedException();
-
-        protected override Task<object> DeserializeAsyncInternal(Type targetType) => throw new NotSupportedException();
     }
 }

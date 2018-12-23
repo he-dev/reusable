@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Collections;
 using Reusable.Diagnostics;
 using Reusable.Exceptionizer;
 
@@ -23,20 +24,23 @@ namespace Reusable.IOnymous
 
         DateTime? ModifiedOn { get; }
 
+        ResourceFormat Format { get; }
+
         Task CopyToAsync(Stream stream);
 
-        Task<object> DeserializeAsync(Type targetType);
+        //Task<object> DeserializeAsync(Type targetType);
     }
 
     [PublicAPI]
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract class ResourceInfo : IResourceInfo
     {
-        protected ResourceInfo([NotNull] UriString uri)
+        protected ResourceInfo([NotNull] UriString uri, ResourceFormat format)
         {
             if (uri == null) throw new ArgumentNullException(nameof(uri));
 
             Uri = uri.IsRelative ? new UriString($"{ResourceProvider.DefaultScheme}:{uri}") : uri;
+            Format = format;
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
@@ -56,6 +60,8 @@ namespace Reusable.IOnymous
         public abstract DateTime? CreatedOn { get; }
 
         public abstract DateTime? ModifiedOn { get; }
+
+        public virtual ResourceFormat Format { get; }
 
         #endregion
 
@@ -82,32 +88,13 @@ namespace Reusable.IOnymous
             }
         }
 
-        public async Task<object> DeserializeAsync(Type targetType)
-        {
-            AssertExists();
-
-            try
-            {
-                return await DeserializeAsyncInternal(targetType);
-            }
-            catch (Exception inner)
-            {
-                throw DynamicException.Create
-                (
-                    $"{nameof(DeserializeAsync)}",
-                    $"Affected resource '{Uri}'.",
-                    inner
-                );
-            }
-        }
-
         #endregion
 
         #region Internal
 
         protected abstract Task CopyToAsyncInternal(Stream stream);
 
-        protected abstract Task<object> DeserializeAsyncInternal(Type targetType);
+        //protected abstract Task<object> DeserializeAsyncInternal(Type targetType);
 
         #endregion
 
@@ -139,5 +126,27 @@ namespace Reusable.IOnymous
         public virtual void Dispose()
         {
         }
+    }
+
+    public readonly struct ResourceFormat : IEquatable<ResourceFormat>
+    {
+        public ResourceFormat(string name)
+        {
+            Name = name;
+        }
+
+        [AutoEqualityProperty]
+        public SoftString Name { get; }
+
+        public static readonly ResourceFormat Null = new ResourceFormat(nameof(Null));
+        public static readonly ResourceFormat String = new ResourceFormat(nameof(String));
+        public static readonly ResourceFormat Json = new ResourceFormat(nameof(Json));
+        public static readonly ResourceFormat Binary = new ResourceFormat(nameof(Binary));
+
+        public override bool Equals(object obj) => obj is ResourceFormat format && Equals(format);
+
+        public bool Equals(ResourceFormat other) => AutoEquality<ResourceFormat>.Comparer.Equals(this, other);
+
+        public override int GetHashCode() => AutoEquality<ResourceFormat>.Comparer.GetHashCode(this);
     }
 }

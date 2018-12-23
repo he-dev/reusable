@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -20,49 +19,52 @@ using Reusable.SmartConfig.Reflection;
 
 namespace Reusable.SmartConfig
 {
-    public static class SettingProviderExtensions
+    //[UsedImplicitly]
+    public interface IConfiguration
     {
-        #region GetValue overloads
+        T GetSetting<T>([NotNull] Expression<Func<T>> expression, [CanBeNull] string instanceName = null);
+        
+        void SaveSetting<T>([NotNull] Expression<Func<T>> expression, [CanBeNull] T newValue, [CanBeNull] string instanceName = null);
+        
+        void BindSetting<T>([NotNull] Expression<Func<T>> expression, [CanBeNull] string instanceName = null);
 
-        [ItemNotNull]
-        public static async Task<T> GetSettingAsync<T>([NotNull] this IResourceProvider resourceProvider, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instanceName = null)
+        void BindSettings<T>([NotNull] T obj, [CanBeNull] string instanceName = null);
+    }
+
+    public class Configuration : IConfiguration
+    {
+        private readonly IResourceProvider _settingProvider;
+
+        public Configuration(IEnumerable<IResourceProvider> settingProviders)
         {
-            if (resourceProvider == null) throw new ArgumentNullException(nameof(resourceProvider));
-            if (expression == null) throw new ArgumentNullException(nameof(expression));
-
-            return (T)await resourceProvider.GetSettingAsync((LambdaExpression)expression, instanceName);
+            _settingProvider = new CompositeResourceProvider(settingProviders.Where(x => x.Schemes.Contains("setting")));
         }
 
-        [NotNull]
-        public static T GetSetting<T>([NotNull] this IResourceProvider resourceProvider, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instanceName = null)
+        public T GetSetting<T>([NotNull] Expression<Func<T>> expression, [CanBeNull] string instanceName = null)
         {
-            if (resourceProvider == null) throw new ArgumentNullException(nameof(resourceProvider));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
-            return (T)resourceProvider.GetSettingAsync((LambdaExpression)expression, instanceName).GetAwaiter().GetResult();
+            return (T)GetSetting((LambdaExpression)expression, instanceName);
         }
 
-        [ItemNotNull]
-        private static async Task<object> GetSettingAsync([NotNull] this IResourceProvider resourceProvider, [NotNull] LambdaExpression expression, [CanBeNull] string instanceName = null)
+        private object GetSetting([NotNull] LambdaExpression expression, [CanBeNull] string instanceName = null)
         {
-            if (resourceProvider == null) throw new ArgumentNullException(nameof(resourceProvider));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
             var settingMetadata = SettingMetadata.FromExpression(expression, false);
             var uri = settingMetadata.CreateUri(instanceName);
             var settingInfo =
-                await
-                    resourceProvider
-                        .GetAsync(uri, PopulateProviderInfo(settingMetadata));
+                _settingProvider
+                    .GetAsync(uri, PopulateProviderInfo(settingMetadata)).GetAwaiter().GetResult();
 
             if (settingInfo.Exists)
             {
                 using (var memoryStream = new MemoryStream())
                 using (var streamReader = new StreamReader(memoryStream))
                 {
-                    await settingInfo.CopyToAsync(memoryStream);
+                    settingInfo.CopyToAsync(memoryStream).GetAwaiter().GetResult();
                     memoryStream.TryRewind();
-                    var json = await streamReader.ReadToEndAsync();
+                    var json = streamReader.ReadToEnd();
                     var converter = GetOrAddDeserializer(settingMetadata.MemberType);
                     return converter.Convert(json, settingMetadata.MemberType);
                 }
@@ -73,14 +75,8 @@ namespace Reusable.SmartConfig
             }
         }
 
-        #endregion
-
-        #region SetValue overloads
-
-        [ItemNotNull]
-        public static async Task<IResourceProvider> SetSettingAsync<T>([NotNull] this IResourceProvider resourceProvider, [NotNull] Expression<Func<T>> expression, [CanBeNull] T newValue, [CanBeNull] string instanceName = null)
+        public void SaveSetting<T>([NotNull] Expression<Func<T>> expression, [CanBeNull] T newValue, [CanBeNull] string instanceName = null)
         {
-            if (resourceProvider == null) throw new ArgumentNullException(nameof(resourceProvider));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
             var settingMetadata = SettingMetadata.FromExpression(expression, false);
@@ -97,50 +93,32 @@ namespace Reusable.SmartConfig
                 //    .Validations
                 //    .Validate(settingName, newValue);
 
-                newValue.Validate(settingMetadata.Validations, uri);
+                Validate(newValue, settingMetadata.Validations, uri);
                 var resource = ResourceHelper.CreateStream(newValue);
 
                 // todo - fix put-async
-                await resourceProvider.PutAsync(uri, resource.Stream, PopulateProviderInfo(settingMetadata, ResourceMetadata.Empty.Format(resource.Format)));
+                _settingProvider.PutAsync(uri, resource.Stream, PopulateProviderInfo(settingMetadata, ResourceMetadata.Empty.Format(resource.Format))).GetAwaiter().GetResult();
             }
-
-            return resourceProvider;
         }
-
-        [NotNull]
-        public static IResourceProvider SetSetting<T>([NotNull] this IResourceProvider resourceProvider, [NotNull] Expression<Func<T>> expression, [CanBeNull] T newValue, [CanBeNull] string instanceName = null)
-        {
-            return resourceProvider.SetSettingAsync(expression, newValue, instanceName).GetAwaiter().GetResult();
-        }
-
-        #endregion
-
-        #region AssignValue overloads
 
         /// <summary>
         /// Assigns the same setting value to the specified member.
         /// </summary>
-        [ItemNotNull]
-        public static async Task<IResourceProvider> BindSettingAsync<T>([NotNull] this IResourceProvider resourceProvider, [NotNull] Expression<Func<T>> expression, [CanBeNull] string instanceName = null)
+        public void BindSetting<T>([NotNull] Expression<Func<T>> expression, [CanBeNull] string instanceName = null)
         {
-            if (resourceProvider == null) throw new ArgumentNullException(nameof(resourceProvider));
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
             var settingMetadata = SettingMetadata.FromExpression(expression, false);
             var uri = settingMetadata.CreateUri(instanceName);
-            var value = await resourceProvider.GetSettingAsync(expression, instanceName);
-            settingMetadata.SetValue(value.Validate(settingMetadata.Validations, uri));
-
-            return resourceProvider;
+            var value = GetSetting(expression, instanceName);
+            settingMetadata.SetValue(Validate(value, settingMetadata.Validations, uri));
         }
 
         /// <summary>
         /// Assigns setting values to all members decorated with the the SmartSettingAttribute.
-        /// </summary>
-        [ItemNotNull]
-        public static async Task<IResourceProvider> BindSettingsAsync<T>([NotNull] this IResourceProvider resourceProvider, [NotNull] T obj, [CanBeNull] string instanceName = null)
+        /// </summary>        
+        public void BindSettings<T>([NotNull] T obj, [CanBeNull] string instanceName = null)
         {
-            if (resourceProvider == null) throw new ArgumentNullException(nameof(resourceProvider));
             if (obj == null) throw new ArgumentNullException(nameof(obj));
 
             var settingProperties =
@@ -158,18 +136,16 @@ namespace Reusable.SmartConfig
                     )
                 );
 
-                var value = await resourceProvider.GetSettingAsync(expression, instanceName);
+                var value = GetSetting(expression, instanceName);
                 var settingMetadata = SettingMetadata.FromExpression(expression, false);
                 var uri = settingMetadata.CreateUri(instanceName);
-                settingMetadata.SetValue(value.Validate(settingMetadata.Validations, uri));
+                settingMetadata.SetValue(Validate(value, settingMetadata.Validations, uri));
             }
-
-            return resourceProvider;
         }
 
-        #endregion
+        #region Helpers
 
-        private static object Validate(this object value, IEnumerable<ValidationAttribute> validations, UriString uri)
+        private static object Validate(object value, IEnumerable<ValidationAttribute> validations, UriString uri)
         {
             foreach (var validation in validations)
             {
@@ -187,13 +163,11 @@ namespace Reusable.SmartConfig
                 .Add(ResourceMetadataKeys.ProviderDefaultName, settingMetadata.ProviderType?.ToPrettyString());
         }
 
-        #region Helpers
+        // --------
 
-        // todo - put everything in here into a resource-serializer
+        private ITypeConverter _converter = TypeConverter.Empty;
 
-        private static ITypeConverter _converter = TypeConverter.Empty;
-
-        private static JsonSerializerSettings _settings = new JsonSerializerSettings
+        private JsonSerializerSettings _settings = new JsonSerializerSettings
         {
             Formatting = Formatting.Indented,
             TypeNameHandling = TypeNameHandling.Auto,
@@ -204,7 +178,7 @@ namespace Reusable.SmartConfig
             }
         };
 
-        private static IImmutableSet<Type> _stringTypes = new[]
+        private IImmutableSet<Type> _stringTypes = new[]
             {
                 typeof(string),
                 typeof(Enum),
@@ -214,7 +188,7 @@ namespace Reusable.SmartConfig
             }
             .ToImmutableHashSet();
 
-        private static ITypeConverter GetOrAddDeserializer(Type toType)
+        private ITypeConverter GetOrAddDeserializer(Type toType)
         {
             if (_converter.CanConvert(typeof(string), toType))
             {
@@ -225,7 +199,7 @@ namespace Reusable.SmartConfig
             return (_converter = _converter.Add(converter));
         }
 
-        private static ITypeConverter GetOrAddSerializer(Type fromType)
+        private ITypeConverter GetOrAddSerializer(Type fromType)
         {
             if (_converter.CanConvert(fromType, typeof(string)))
             {
@@ -236,7 +210,7 @@ namespace Reusable.SmartConfig
             return (_converter = _converter.Add(converter));
         }
 
-        private static ITypeConverter CreateJsonConverter(Type converterType, Type valueType)
+        private ITypeConverter CreateJsonConverter(Type converterType, Type valueType)
         {
             var converterGenericType = converterType.MakeGenericType(valueType);
             return (ITypeConverter)Activator.CreateInstance(converterGenericType, _settings, _stringTypes);

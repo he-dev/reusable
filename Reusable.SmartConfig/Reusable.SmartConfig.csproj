@@ -23,9 +23,9 @@
     <Compile Remove="src\Providers\**" />
     <EmbeddedResource Remove="src\Providers\**" />
     <None Remove="src\Providers\**" />
+    <Compile Remove="src\SettingProviderExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="src\Configuration.cs" />
     <Compile Remove="src\ConfigurationExtensions.cs" />
     <Compile Remove="src\Data\Setting.cs" />
     <Compile Remove="src\SettingFinder.cs" />

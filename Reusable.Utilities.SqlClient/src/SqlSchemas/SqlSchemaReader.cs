@@ -21,7 +21,7 @@ namespace Reusable.Utilities.SqlClient.SqlSchemas
         static SqlSchemaReader()
         {
             var fileProvider = new EmbeddedFileProvider(typeof(SqlSchemaReader).Assembly);
-            GetIdentityColumnSchemasQuery  = fileProvider.GetFile<string>($"sql\\{nameof(GetIdentityColumnSchemas)}.sql");
+            GetIdentityColumnSchemasQuery  = fileProvider.ReadTextFile($"sql\\{nameof(GetIdentityColumnSchemas)}.sql");
         }
 
         public static IList<SqlTableSchema> GetTableSchemas(this SqlConnection sqlConnection, SqlTableSchema schemaRestriction)

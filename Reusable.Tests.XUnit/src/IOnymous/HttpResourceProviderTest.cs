@@ -23,7 +23,7 @@ namespace Reusable.Tests.XUnit.IOnymous
                 //.ResponseType(typeof(string))
             );
 
-            var content = await response.DeserializeAsync<string>();
+            var content = await response.DeserializeStringAsync();
         }
     }
 }

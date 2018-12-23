@@ -10,7 +10,7 @@ namespace Reusable.Tests.XUnit.sdk.Mailr.Models
         [Fact]
         public void CanBeSerializedToJson()
         {
-            var expected = EmbeddedFileProvider<HtmlTableTest>.Default.GetFile<string>(@"res\sdk\mailr\models\htmltable.json");
+            var expected = EmbeddedFileProvider<HtmlTableTest>.Default.ReadTextFile(@"res\sdk\mailr\models\htmltable.json");
 
             var table = new HtmlTable(HtmlTableColumn.Create(("Name", typeof(string)), ("Age", typeof(int))));
             var row = table.Body.NewRow();

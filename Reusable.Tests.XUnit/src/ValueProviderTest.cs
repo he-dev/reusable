@@ -7,34 +7,34 @@ namespace Reusable.Tests.XUnit
 {
     public class ValueProviderTest
     {
-        [Fact]
-        public async Task MyTestMethod()
-        {
-            var appSettings = new AppSettingProvider();
-            //var salute = await appSettings.GetAsync("abc:Salute");
-            var salute = await appSettings.GetAsync("setting:salute?prefix=abc");
-
-            Assert.True(salute.Exists);
-
-            var sqlServer = new SqlServerProvider("name=TestDb");
-            //var greeting = await sqlServer.GetAsync("Greeting");
-
-            //Assert.True(greeting.Exists);
-
-            var jsonProvider = sqlServer.DecorateWith(JsonResourceProvider.Factory());
-
-            var car = new Car();
-            car.Name = await jsonProvider.GetSettingAsync(() => car.Name);
-
-            //var carInfo = await jsonProvider.GetValueInfoAsync("Car");
-
-            //Assert.True(carInfo.Exists);
-
-            //var car = await carInfo.DeserializeAsync<Car>();
-
-            Assert.Equal("VW", car.Name);
-
-        }
+//        [Fact]
+//        public async Task MyTestMethod()
+//        {
+//            var appSettings = new AppSettingProvider();
+//            //var salute = await appSettings.GetAsync("abc:Salute");
+//            var salute = await appSettings.GetAsync("setting:salute?prefix=abc");
+//
+//            Assert.True(salute.Exists);
+//
+//            var sqlServer = new SqlServerProvider("name=TestDb");
+//            //var greeting = await sqlServer.GetAsync("Greeting");
+//
+//            //Assert.True(greeting.Exists);
+//
+//            var jsonProvider = sqlServer.DecorateWith(JsonResourceProvider.Factory());
+//
+//            var car = new Car();
+//            car.Name = await jsonProvider.GetSettingAsync(() => car.Name);
+//
+//            //var carInfo = await jsonProvider.GetValueInfoAsync("Car");
+//
+//            //Assert.True(carInfo.Exists);
+//
+//            //var car = await carInfo.DeserializeAsync<Car>();
+//
+//            Assert.Equal("VW", car.Name);
+//
+//        }
 
         private class Car
         {

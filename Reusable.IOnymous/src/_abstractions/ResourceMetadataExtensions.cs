@@ -107,5 +107,17 @@ namespace Reusable.IOnymous
         {
             return metadata.SetItem(nameof(JsonSerializer), jsonSerializer);
         }
+        
+        // ---
+        
+        public static ResourceFormat Format(this ResourceMetadata metadata)
+        {
+            return metadata.GetValueOrDefault(nameof(Format), ResourceFormat.Null);
+        }
+
+        public static ResourceMetadata Format(this ResourceMetadata metadata, ResourceFormat format)
+        {
+            return metadata.SetItem(nameof(Format), format);
+        }
     }
 }

@@ -26,24 +26,15 @@ namespace Reusable.IOnymous
         protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
             var firstMatch = _items.FirstOrDefault(item => item.Uri == uri);
-            return Task.FromResult(firstMatch ?? new InMemoryResourceInfo(uri, metadata));
+            return Task.FromResult(firstMatch ?? new InMemoryResourceInfo(uri));
         }
 
         protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
-            var resource = new InMemoryResourceInfo(uri, GetByteArray(value), metadata);
+            var resource = new InMemoryResourceInfo(uri, metadata.Format(), value);
             _items.Remove(resource);
             _items.Add(resource);
             return Task.FromResult<IResourceInfo>(resource);
-        }
-
-        private byte[] GetByteArray(Stream stream)
-        {
-            using (var memoryStream = new MemoryStream())
-            {
-                stream.CopyTo(memoryStream);
-                return memoryStream.ToArray();
-            }
         }
 
         protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata = null)
@@ -59,8 +50,8 @@ namespace Reusable.IOnymous
 
         public void Add(string uri, object value)
         {
-            var (stream, metadata) = ResourceHelper.CreateStream(value);
-            PutAsync(uri, stream, metadata).GetAwaiter().GetResult();
+            var (stream, format) = ResourceHelper.CreateStream(value);
+            PutAsync(uri, stream, ResourceMetadata.Empty.Format(format)).GetAwaiter().GetResult();
         }
 
         #endregion
@@ -72,30 +63,19 @@ namespace Reusable.IOnymous
 
     public class InMemoryResourceInfo : ResourceInfo
     {
-        [CanBeNull] private readonly byte[] _data;
+        [CanBeNull] private readonly Stream _data;
 
-        private readonly ResourceMetadata _metadata;
-
-        [CanBeNull] private readonly IEnumerable<IResourceInfo> _files;
-
-        public InMemoryResourceInfo([NotNull] UriString uri, [NotNull] byte[] data, [CanBeNull] ResourceMetadata metadata = null)
-            : base(uri)
+        public InMemoryResourceInfo(UriString uri, ResourceFormat format, Stream data)
+            : base(uri, format)
         {
             _data = data ?? throw new ArgumentNullException(nameof(data));
-            _metadata = metadata;
         }
 
-        public InMemoryResourceInfo([NotNull] UriString uri)
-            : this(uri, new byte[0], ResourceMetadata.Empty)
+        public InMemoryResourceInfo(UriString uri)
+            : this(uri, ResourceFormat.Null, Stream.Null)
         {
             ModifiedOn = DateTime.UtcNow;
         }
-
-        public InMemoryResourceInfo([NotNull] UriString uri, ResourceMetadata metadata)
-            : this(uri, new byte[0], metadata)
-        {
-        }
-
 
         public override bool Exists => _data?.Length > 0;
 
@@ -107,15 +87,8 @@ namespace Reusable.IOnymous
 
         protected override async Task CopyToAsyncInternal(Stream stream)
         {
-            await stream.WriteAsync(_data, 0, _data.Length);
-        }
-
-        protected override Task<object> DeserializeAsyncInternal(Type targetType)
-        {
-            using (var memoryStream = new MemoryStream(_data))
-            {
-                return Task.FromResult(ResourceHelper.CreateObject(memoryStream, _metadata));
-            }
+            _data.Seek(0, SeekOrigin.Begin);
+            await _data.CopyToAsync(stream);
         }
     }
 }

@@ -46,8 +46,8 @@ namespace Reusable.Tests.XUnit.IOnymous
             Assert.True(value1.Exists);
             Assert.True(value2.Exists);
 
-            Assert.Equal("quxx", await value1.DeserializeAsync<string>());
-            Assert.Equal("quxy", await value2.DeserializeAsync<string>());
+            Assert.Equal("quxx", await value1.DeserializeStringAsync());
+            Assert.Equal("quxy", await value2.DeserializeStringAsync());
         }
         
         [Fact]
@@ -63,7 +63,7 @@ namespace Reusable.Tests.XUnit.IOnymous
 
             Assert.True(value1.Exists);
 
-            Assert.Equal("quxx", await value1.DeserializeAsync<string>());
+            Assert.Equal("quxx", await value1.DeserializeStringAsync());
         }
     }
 }

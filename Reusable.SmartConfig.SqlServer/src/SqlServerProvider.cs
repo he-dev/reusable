@@ -100,7 +100,8 @@ namespace Reusable.SmartConfig
     {
         [CanBeNull] private readonly string _value;
 
-        internal SqlServerResourceInfo([NotNull] UriString uri, [CanBeNull] string value) : base(uri)
+        internal SqlServerResourceInfo([NotNull] UriString uri, [CanBeNull] string value) 
+            : base(uri, ResourceFormat.String)
         {
             _value = value;
         }
@@ -120,11 +121,6 @@ namespace Reusable.SmartConfig
             {
                 await valueStream.BaseStream.CopyToAsync(stream);
             }
-        }
-
-        protected override Task<object> DeserializeAsyncInternal(Type targetType)
-        {
-            return Task.FromResult<object>(_value);
         }
     }
 

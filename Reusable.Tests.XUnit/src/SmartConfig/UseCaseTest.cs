@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Configuration;
 using System.Data;
@@ -19,7 +20,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
     {
         private static readonly SqlFourPartName SettingTableName = ("reusable", "SmartConfig");
 
-        private static readonly IResourceProvider SettingProvider = new CompositeResourceProvider(new IResourceProvider[]
+        private static readonly IEnumerable<IResourceProvider> SettingProvider = new IResourceProvider[]
         {
             new InMemoryResourceProvider(ResourceMetadata.Empty.Add(ResourceMetadataKeys.ProviderCustomName, "Memory1"))
             {
@@ -39,7 +40,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
             {
                 { "setting:Test7.Member", "Value7" },
             },
-            new AppSettingProvider(new UriStringToSettingIdentifierConverter()).DecorateWith(JsonResourceProvider.Factory()),
+            new AppSettingProvider(new UriStringToSettingIdentifierConverter()),
             new SqlServerProvider("name=TestDb", new UriStringToSettingIdentifierConverter())
             {
                 TableName = SettingTableName,
@@ -49,9 +50,12 @@ namespace Reusable.Tests.XUnit.SmartConfig
                         .Add(SqlServerColumn.Name, "_name")
                         .Add(SqlServerColumn.Value, "_value"),
                 Where = ImmutableDictionary<string, object>.Empty.Add("_other", nameof(UseCaseTest))
-            }.DecorateWith(JsonResourceProvider.Factory()),
-        }.Select(p => p.DecorateWith(Reusable.SmartConfig.SettingProvider.Factory())).ToArray(), ResourceMetadata.Empty);
+            },
+        }.Select(p => p.DecorateWith(Reusable.SmartConfig.SettingProvider.Factory())).ToArray();
 
+        
+        private static readonly IConfiguration Configuration = new Reusable.SmartConfig.Configuration(SettingProvider);
+        
         public UseCaseTest()
         {
             SeedAppSettings();
@@ -97,7 +101,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
         public void Can_get_settings_by_default_convention()
         {
             var test1 = new Test1();
-            Assert.Equal("Value1", SettingProvider.GetSetting(() => test1.Member));
+            Assert.Equal("Value1", Configuration.GetSetting(() => test1.Member));
         }
 
         [Fact]
@@ -107,9 +111,9 @@ namespace Reusable.Tests.XUnit.SmartConfig
             var test3 = new Test3();
             var test5 = new Test5();
 
-            Assert.Equal("Value2", SettingProvider.GetSetting(() => test2.Member));
-            Assert.Equal("Value4", SettingProvider.GetSetting(() => test3.Member));
-            Assert.Equal("Value5", SettingProvider.GetSetting(() => test5.Member));
+            Assert.Equal("Value2", Configuration.GetSetting(() => test2.Member));
+            Assert.Equal("Value4", Configuration.GetSetting(() => test3.Member));
+            Assert.Equal("Value5", Configuration.GetSetting(() => test5.Member));
         }
 
         [Fact]
@@ -118,7 +122,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
             var test6 = new Test6();
 
             //Assert.Equal("Value1", SettingProvider.GetSetting(() => test6.Member1));
-            Assert.Equal("Value2", SettingProvider.GetSetting(() => test6.Member2));
+            Assert.Equal("Value2", Configuration.GetSetting(() => test6.Member2));
         }
 
         [Fact]
@@ -126,7 +130,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
         {
             var test7 = new Test7();
 
-            Assert.Equal("Value7", SettingProvider.GetSetting(() => test7.Member));
+            Assert.Equal("Value7", Configuration.GetSetting(() => test7.Member));
         }
 
         [Fact]
@@ -134,13 +138,13 @@ namespace Reusable.Tests.XUnit.SmartConfig
         {
             var test8 = new Test8();
 
-            Assert.ThrowsAny<DynamicException>(() => SettingProvider.GetSetting(() => test8.Member));
+            Assert.ThrowsAny<DynamicException>(() => Configuration.GetSetting(() => test8.Member));
         }
 
         [Fact]
         public void Can_get_and_put_settings_with_SqlServerProvider()
         {
-            var test = new Test9 { Configuration = SettingProvider };
+            var test = new Test9 { Configuration = Configuration };
 
             Assert.Equal("Hallo!", test.Greeting);
 
@@ -152,7 +156,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
         [Fact]
         public void Can_get_and_put_settings_with_AppConfigProvider()
         {
-            var test = new Test9 { Configuration = SettingProvider };
+            var test = new Test9 { Configuration = Configuration };
 
             Assert.Equal("Hi!", test.Salute);
         }
@@ -160,7 +164,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
 
     internal class Test0
     {
-        public IResourceProvider Configuration { get; set; }
+        public IConfiguration Configuration { get; set; }
     }
 
     // tests defaults
@@ -224,7 +228,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
         public string Greeting
         {
             get => Configuration.GetSetting(() => Greeting);
-            set => Configuration.SetSetting(() => Greeting, value);
+            set => Configuration.SaveSetting(() => Greeting, value);
         }
     }
 }

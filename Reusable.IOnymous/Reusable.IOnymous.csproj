@@ -18,6 +18,7 @@
     <EmbeddedResource Remove="src\IO\Filters\**" />
     <None Remove="src\IO\Filters\**" />
     <Compile Remove="src\Extensions\InMemoryFileProviderExtensions.cs" />
+    <Compile Remove="src\_providers\JsonResourceProvider.cs" />
   </ItemGroup>
 
   <ItemGroup>

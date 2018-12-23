@@ -41,8 +41,9 @@ namespace Reusable.IOnymous
     [PublicAPI]
     internal class PhysicalFileInfo : ResourceInfo
     {
+        // todo - add support for other file types
         public PhysicalFileInfo([NotNull] UriString uri)
-            : base(uri)
+            : base(uri, ResourceFormat.String)
         {
         }
 
@@ -59,15 +60,6 @@ namespace Reusable.IOnymous
             using (var fileStream = File.OpenRead(Uri.Path.Decoded))
             {
                 await fileStream.CopyToAsync(stream);
-            }
-        }
-
-        protected override async Task<object> DeserializeAsyncInternal(Type targetType)
-        {
-            using (var fileStream = File.OpenRead(Uri.Path.Decoded))
-            using (var streamReader = new StreamReader(fileStream))
-            {
-                return await streamReader.ReadToEndAsync();
             }
         }
     }

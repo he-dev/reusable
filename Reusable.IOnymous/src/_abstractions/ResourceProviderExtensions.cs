@@ -34,10 +34,10 @@ namespace Reusable.IOnymous
             return resourceProvider.GetAsync(uri.With(x => x.Scheme, ResourceProvider.DefaultScheme), metadata);
         }
 
-        public static T GetFile<T>(this IResourceProvider resourceProvider, string path, ResourceMetadata metadata = null)
+        public static string ReadTextFile(this IResourceProvider resourceProvider, string path, ResourceMetadata metadata = null)
         {
             var file = resourceProvider.GetFileAsync(path, metadata).GetAwaiter().GetResult();
-            return file.DeserializeAsync<T>().GetAwaiter().GetResult();
+            return file.DeserializeStringAsync().GetAwaiter().GetResult();
         }
         
         
@@ -66,5 +66,9 @@ namespace Reusable.IOnymous
                 
             return await post;
         }
+
+        #region Serialization
+
+        #endregion
     }
 }

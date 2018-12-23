@@ -15,7 +15,7 @@ namespace Reusable.Tests.XUnit.IOnymous
             var file = await provider.GetFileAsync("res/ionymous/test.txt");
 
             Assert.True(file.Exists);
-            Assert.Equal("Hallo!", await file.DeserializeAsync(default));
+            Assert.Equal("Hallo!", await file.DeserializeStringAsync());
         }
 
 //        [Fact]

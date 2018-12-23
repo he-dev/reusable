@@ -102,7 +102,7 @@ namespace Reusable.sdk.Http
         private readonly Stream _response;
 
         public RestResourceInfo([NotNull] UriString uri, Stream response)
-            : base(uri)
+            : base(uri, ResourceFormat.Json)
         {
             _response = response;
         }
@@ -121,14 +121,14 @@ namespace Reusable.sdk.Http
             await _response.CopyToAsync(stream);
         }
 
-        protected override async Task<object> DeserializeAsyncInternal(Type targetType)
-        {
-            _response.Seek(0, SeekOrigin.Begin);
-            using (var streamReader = new StreamReader(_response))
-            {
-                return await streamReader.ReadToEndAsync();
-            }
-        }
+//        protected override async Task<object> DeserializeAsyncInternal(Type targetType)
+//        {
+//            _response.Seek(0, SeekOrigin.Begin);
+//            using (var streamReader = new StreamReader(_response))
+//            {
+//                return await streamReader.ReadToEndAsync();
+//            }
+//        }
 
         public override void Dispose()
         {

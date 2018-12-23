@@ -151,8 +151,8 @@ namespace Reusable.IOnymous
 
         internal JsonResourceInfo
         (
-            [NotNull] UriString uri,
-            [CanBeNull] string value,
+            UriString uri,
+            string value,
             Func<Type, ITypeConverter> getOrAddConverter
         )
             : base(uri)

@@ -11,7 +11,7 @@ namespace Reusable.IOnymous
     public class EmbeddedFileProvider : ResourceProvider
     {
         public static readonly string Scheme = "file";
-        
+
         private readonly Assembly _assembly;
 
         public EmbeddedFileProvider([NotNull] Assembly assembly, ResourceMetadata metadata = null)
@@ -37,7 +37,8 @@ namespace Reusable.IOnymous
             var actualName = _assembly.GetManifestResourceNames().FirstOrDefault(name => SoftString.Comparer.Equals(name, fullName));
             var getManifestResourceStream = actualName is null ? default(Func<Stream>) : () => _assembly.GetManifestResourceStream(actualName);
 
-            return Task.FromResult<IResourceInfo>(new EmbeddedFileInfo(fullUri, getManifestResourceStream));
+            // todo - add other file formats
+            return Task.FromResult<IResourceInfo>(new EmbeddedFileInfo(fullUri, ResourceFormat.String, getManifestResourceStream));
         }
 
         #endregion
@@ -52,7 +53,8 @@ namespace Reusable.IOnymous
     {
         private readonly Func<Stream> _getManifestResourceStream;
 
-        public EmbeddedFileInfo(string uri, Func<Stream> getManifestResourceStream) : base(uri)
+        public EmbeddedFileInfo(string uri, ResourceFormat format, Func<Stream> getManifestResourceStream)
+            : base(uri, format)
         {
             _getManifestResourceStream = getManifestResourceStream;
         }
@@ -80,15 +82,6 @@ namespace Reusable.IOnymous
             using (var resourceStream = _getManifestResourceStream())
             {
                 await resourceStream.CopyToAsync(stream);
-            }
-        }
-
-        protected override async Task<object> DeserializeAsyncInternal(Type targetType)
-        {
-            using (var resourceStream = _getManifestResourceStream())
-            using (var streamReader = new StreamReader(resourceStream))
-            {
-                return await streamReader.ReadToEndAsync();
             }
         }
     }
