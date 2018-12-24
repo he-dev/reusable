@@ -23,9 +23,9 @@ namespace Reusable.SmartConfig
     public interface IConfiguration
     {
         T GetSetting<T>([NotNull] Expression<Func<T>> expression, [CanBeNull] string instanceName = null);
-        
+
         void SaveSetting<T>([NotNull] Expression<Func<T>> expression, [CanBeNull] T newValue, [CanBeNull] string instanceName = null);
-        
+
         void BindSetting<T>([NotNull] Expression<Func<T>> expression, [CanBeNull] string instanceName = null);
 
         void BindSettings<T>([NotNull] T obj, [CanBeNull] string instanceName = null);
@@ -33,14 +33,17 @@ namespace Reusable.SmartConfig
 
     public class Configuration : IConfiguration
     {
+        private static readonly IImmutableSet<MimeType> SupportedTypes = ImmutableHashSet<MimeType>.Empty.Add(MimeType.Text).Add(MimeType.Json);
+
         private readonly IResourceProvider _settingProvider;
 
         public Configuration(IEnumerable<IResourceProvider> settingProviders)
         {
-            _settingProvider = new CompositeResourceProvider(settingProviders.Where(x => x.Schemes.Contains("setting")));
+            settingProviders = settingProviders.Where(x => x.Schemes.Contains("setting"));
+            _settingProvider = new CompositeResourceProvider(settingProviders);
         }
 
-        public T GetSetting<T>([NotNull] Expression<Func<T>> expression, [CanBeNull] string instanceName = null)
+        public T GetSetting<T>(Expression<Func<T>> expression, string instanceName = null)
         {
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
@@ -55,7 +58,14 @@ namespace Reusable.SmartConfig
             var uri = settingMetadata.CreateUri(instanceName);
             var settingInfo =
                 _settingProvider
-                    .GetAsync(uri, PopulateProviderInfo(settingMetadata)).GetAwaiter().GetResult();
+                    .GetAsync(uri, PopulateProviderInfo(settingMetadata))
+                    .GetAwaiter()
+                    .GetResult();
+
+            if (!SupportedTypes.Contains(settingInfo.Format))
+            {
+                throw DynamicException.Create("UnsupportedSettingFormat", $"'{settingInfo.Format}' is not supported.");
+            }
 
             if (settingInfo.Exists)
             {
@@ -63,7 +73,7 @@ namespace Reusable.SmartConfig
                 using (var streamReader = new StreamReader(memoryStream))
                 {
                     settingInfo.CopyToAsync(memoryStream).GetAwaiter().GetResult();
-                    memoryStream.TryRewind();
+                    memoryStream.Rewind();
                     var json = streamReader.ReadToEnd();
                     var converter = GetOrAddDeserializer(settingMetadata.MemberType);
                     return converter.Convert(json, settingMetadata.MemberType);
@@ -75,7 +85,7 @@ namespace Reusable.SmartConfig
             }
         }
 
-        public void SaveSetting<T>([NotNull] Expression<Func<T>> expression, [CanBeNull] T newValue, [CanBeNull] string instanceName = null)
+        public void SaveSetting<T>(Expression<Func<T>> expression, T newValue, string instanceName = null)
         {
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
@@ -94,17 +104,18 @@ namespace Reusable.SmartConfig
                 //    .Validate(settingName, newValue);
 
                 Validate(newValue, settingMetadata.Validations, uri);
-                var resource = ResourceHelper.CreateStream(newValue);
-
-                // todo - fix put-async
-                _settingProvider.PutAsync(uri, resource.Stream, PopulateProviderInfo(settingMetadata, ResourceMetadata.Empty.Format(resource.Format))).GetAwaiter().GetResult();
+                var json = (string)GetOrAddSerializer(typeof(T)).Convert(newValue, typeof(string));
+                using (var stream = ResourceHelper.SerializeAsTextAsync(json).GetAwaiter().GetResult())
+                {
+                    _settingProvider.PutAsync(uri, stream, PopulateProviderInfo(settingMetadata, ResourceMetadata.Empty.Format(MimeType.Text))).GetAwaiter().GetResult();
+                }
             }
         }
 
         /// <summary>
         /// Assigns the same setting value to the specified member.
         /// </summary>
-        public void BindSetting<T>([NotNull] Expression<Func<T>> expression, [CanBeNull] string instanceName = null)
+        public void BindSetting<T>(Expression<Func<T>> expression, string instanceName = null)
         {
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
@@ -117,7 +128,7 @@ namespace Reusable.SmartConfig
         /// <summary>
         /// Assigns setting values to all members decorated with the the SmartSettingAttribute.
         /// </summary>        
-        public void BindSettings<T>([NotNull] T obj, [CanBeNull] string instanceName = null)
+        public void BindSettings<T>(T obj, string instanceName = null)
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
 

@@ -110,12 +110,12 @@ namespace Reusable.IOnymous
         
         // ---
         
-        public static ResourceFormat Format(this ResourceMetadata metadata)
+        public static MimeType Format(this ResourceMetadata metadata)
         {
-            return metadata.GetValueOrDefault(nameof(Format), ResourceFormat.Null);
+            return metadata.GetValueOrDefault(nameof(Format), MimeType.Null);
         }
 
-        public static ResourceMetadata Format(this ResourceMetadata metadata, ResourceFormat format)
+        public static ResourceMetadata Format(this ResourceMetadata metadata, MimeType format)
         {
             return metadata.SetItem(nameof(Format), format);
         }

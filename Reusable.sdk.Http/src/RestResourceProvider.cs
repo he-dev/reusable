@@ -102,7 +102,7 @@ namespace Reusable.sdk.Http
         private readonly Stream _response;
 
         public RestResourceInfo([NotNull] UriString uri, Stream response)
-            : base(uri, ResourceFormat.Json)
+            : base(uri, MimeType.Json)
         {
             _response = response;
         }

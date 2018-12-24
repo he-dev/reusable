@@ -28,7 +28,7 @@ namespace Reusable.Tests.XUnit.IOnymous
             var resource = await composite.GetAnyAsync("123");
 
             Assert.True(resource.Exists);
-            Assert.Equal("blub1", await resource.DeserializeStringAsync());
+            Assert.Equal("blub1", await resource.DeserializeTextAsync());
         }
 
         [Fact]
@@ -50,7 +50,7 @@ namespace Reusable.Tests.XUnit.IOnymous
             var resource = await composite.GetAsync("blub:123", ResourceMetadata.Empty.Add(ResourceMetadataKeys.ProviderDefaultName, nameof(InMemoryResourceProvider)));
 
             Assert.True(resource.Exists);
-            Assert.Equal("blub1", await resource.DeserializeStringAsync());
+            Assert.Equal("blub1", await resource.DeserializeTextAsync());
         }
 
         [Fact]
@@ -72,7 +72,7 @@ namespace Reusable.Tests.XUnit.IOnymous
             var resource = await composite.GetAsync("blub:123", ResourceMetadata.Empty.Add(ResourceMetadataKeys.ProviderCustomName, "blub"));
 
             Assert.True(resource.Exists);
-            Assert.Equal("blub3", await resource.DeserializeStringAsync());
+            Assert.Equal("blub3", await resource.DeserializeTextAsync());
         }
 
         [Fact]
@@ -113,7 +113,7 @@ namespace Reusable.Tests.XUnit.IOnymous
             var resource = await composite.GetAsync("blub:123");
 
             Assert.True(resource.Exists);
-            Assert.Equal("blub2", await resource.DeserializeStringAsync());
+            Assert.Equal("blub2", await resource.DeserializeTextAsync());
         }
     }
 }

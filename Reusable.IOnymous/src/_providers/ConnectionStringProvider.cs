@@ -69,7 +69,7 @@ namespace Reusable.IOnymous
         [CanBeNull] private readonly string _value;
 
         internal ConnectionStringInfo([NotNull] UriString uri, [CanBeNull] string value) 
-            : base(uri, ResourceFormat.String)
+            : base(uri, MimeType.Text)
         {
             _value = value;
         }

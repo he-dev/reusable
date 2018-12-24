@@ -2,30 +2,34 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace Reusable.IOnymous
 {
     public static class ResourceProviderExtensions
     {
-        public static IResourceProvider DecorateWith(this IResourceProvider decorable, Func<IResourceProvider, IResourceProvider> createDecorator)
+        [Pure]
+        [NotNull]
+        public static IResourceProvider DecorateWith(this IResourceProvider decorable, Func<IResourceProvider, IResourceProvider> decoratorFactory)
         {
-            return createDecorator(decorable);
+            return decoratorFactory(decorable);
         }
         
-        public static Task<IResourceInfo> GetFileAsync(this IResourceProvider resourceProvider, string path, ResourceMetadata metadata = null)
+        // ---
+        
+        public static async Task<IResourceInfo> GetFileAsync(this IResourceProvider resourceProvider, string path, MimeType format, ResourceMetadata metadata = null)
         {
             var uri = Path.IsPathRooted(path) ? new UriString(PhysicalFileProvider.Scheme, path) : new UriString(path);
-            return resourceProvider.GetAsync(uri, metadata);
+            return await resourceProvider.GetAsync(uri, (metadata ?? ResourceMetadata.Empty).Format(format));
         }
 
-        public static async Task<IResourceInfo> SaveFileAsync(this IResourceProvider resourceProvider, string path, string value, ResourceMetadata metadata = null)
+        public static async Task<IResourceInfo> WriteTextFileAsync(this IResourceProvider resourceProvider, string path, string value, ResourceMetadata metadata = null)
         {
-            var (stream, resourceMetadata) = ResourceHelper.CreateStream(value, metadata.GetValueOrDefault<Encoding>(nameof(Encoding)));
-            using (stream)
+            using (var stream = await ResourceHelper.SerializeAsTextAsync(value, metadata.GetValueOrDefault<Encoding>(nameof(Encoding))))
             {
                 var uri = Path.IsPathRooted(path) ? new UriString(PhysicalFileProvider.Scheme, path) : new UriString(path);
-                return await resourceProvider.PutAsync(uri, stream);
+                return await resourceProvider.PutAsync(uri, stream, (metadata ?? ResourceMetadata.Empty).Format(MimeType.Text));
             }
         }
 
@@ -34,10 +38,16 @@ namespace Reusable.IOnymous
             return resourceProvider.GetAsync(uri.With(x => x.Scheme, ResourceProvider.DefaultScheme), metadata);
         }
 
+        public static async Task<string> ReadTextFileAsync(this IResourceProvider resourceProvider, string path, ResourceMetadata metadata = null)
+        {
+            var file = await resourceProvider.GetFileAsync(path, MimeType.Text, metadata);
+            return await file.DeserializeTextAsync();
+        }
+        
         public static string ReadTextFile(this IResourceProvider resourceProvider, string path, ResourceMetadata metadata = null)
         {
-            var file = resourceProvider.GetFileAsync(path, metadata).GetAwaiter().GetResult();
-            return file.DeserializeStringAsync().GetAwaiter().GetResult();
+            var file = resourceProvider.GetFileAsync(path, MimeType.Text, metadata).GetAwaiter().GetResult();
+            return file.DeserializeTextAsync().GetAwaiter().GetResult();
         }
         
         

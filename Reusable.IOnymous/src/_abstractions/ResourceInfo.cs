@@ -24,18 +24,16 @@ namespace Reusable.IOnymous
 
         DateTime? ModifiedOn { get; }
 
-        ResourceFormat Format { get; }
+        MimeType Format { get; }
 
         Task CopyToAsync(Stream stream);
-
-        //Task<object> DeserializeAsync(Type targetType);
     }
 
     [PublicAPI]
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract class ResourceInfo : IResourceInfo
     {
-        protected ResourceInfo([NotNull] UriString uri, ResourceFormat format)
+        protected ResourceInfo([NotNull] UriString uri, MimeType format)
         {
             if (uri == null) throw new ArgumentNullException(nameof(uri));
 
@@ -47,6 +45,7 @@ namespace Reusable.IOnymous
         {
             builder.DisplayMember(x => x.Uri);
             builder.DisplayMember(x => x.Exists);
+            builder.DisplayMember(x => x.Format);
         });
 
         #region IResourceInfo
@@ -61,7 +60,7 @@ namespace Reusable.IOnymous
 
         public abstract DateTime? ModifiedOn { get; }
 
-        public virtual ResourceFormat Format { get; }
+        public virtual MimeType Format { get; }
 
         #endregion
 
@@ -71,7 +70,12 @@ namespace Reusable.IOnymous
 
         public async Task CopyToAsync(Stream stream)
         {
-            AssertExists();
+            var method = ResourceHelper.ExtractMethodName(nameof(CopyToAsync));
+
+            if (!Exists)
+            {
+                throw DynamicException.Create(method, $"Resource '{Uri}' does not exist.");
+            }
 
             try
             {
@@ -81,8 +85,8 @@ namespace Reusable.IOnymous
             {
                 throw DynamicException.Create
                 (
-                    $"{nameof(CopyToAsync)}",
-                    $"Affected resource '{Uri}'.",
+                    method,
+                    $"An error occured while invoking '{method}' for '{Uri}'. See inner exception for details.",
                     inner
                 );
             }
@@ -93,8 +97,6 @@ namespace Reusable.IOnymous
         #region Internal
 
         protected abstract Task CopyToAsyncInternal(Stream stream);
-
-        //protected abstract Task<object> DeserializeAsyncInternal(Type targetType);
 
         #endregion
 
@@ -112,15 +114,6 @@ namespace Reusable.IOnymous
 
         #region Helpers
 
-        protected void AssertExists([CallerMemberName] string memberName = null)
-        {
-            if (!Exists)
-            {
-                // ReSharper disable once AssignNullToNotNullAttribute
-                throw DynamicException.Create(memberName, $"Resource '{Uri}' does not exist.");
-            }
-        }
-
         #endregion
 
         public virtual void Dispose()
@@ -128,25 +121,69 @@ namespace Reusable.IOnymous
         }
     }
 
-    public readonly struct ResourceFormat : IEquatable<ResourceFormat>
+    [PublicAPI]
+    public readonly struct MimeType : IEquatable<MimeType>
     {
-        public ResourceFormat(string name)
-        {
-            Name = name;
-        }
+        public MimeType(string name) => Name = name;
 
         [AutoEqualityProperty]
         public SoftString Name { get; }
 
-        public static readonly ResourceFormat Null = new ResourceFormat(nameof(Null));
-        public static readonly ResourceFormat String = new ResourceFormat(nameof(String));
-        public static readonly ResourceFormat Json = new ResourceFormat(nameof(Json));
-        public static readonly ResourceFormat Binary = new ResourceFormat(nameof(Binary));
+        public static readonly MimeType Null = new MimeType(string.Empty);
 
-        public override bool Equals(object obj) => obj is ResourceFormat format && Equals(format);
+        /// <summary>
+        /// Any document that contains text and is theoretically human readable
+        /// </summary>
+        public static readonly MimeType Text = new MimeType("text/plain");
 
-        public bool Equals(ResourceFormat other) => AutoEquality<ResourceFormat>.Comparer.Equals(this, other);
 
-        public override int GetHashCode() => AutoEquality<ResourceFormat>.Comparer.GetHashCode(this);
+        public static readonly MimeType Json = new MimeType("application/json");
+
+        /// <summary>
+        /// Any kind of binary data, especially data that will be executed or interpreted somehow.
+        /// </summary>
+        public static readonly MimeType Binary = new MimeType("application/octet-stream");
+
+        public override bool Equals(object obj) => obj is MimeType format && Equals(format);
+
+        public bool Equals(MimeType other) => AutoEquality<MimeType>.Comparer.Equals(this, other);
+
+        public override int GetHashCode() => AutoEquality<MimeType>.Comparer.GetHashCode(this);
+
+        public override string ToString() => Name.ToString();
+
+        public static bool operator ==(MimeType left, MimeType right) => left.Equals(right);
+
+        public static bool operator !=(MimeType left, MimeType right) => !(left == right);
     }
+
+//    [PublicAPI]
+//    public class Identifier : IEquatable<Identifier>
+//    {
+//        protected Identifier(string name) => Name = name;
+//
+//        [AutoEqualityProperty]
+//        public SoftString Name { get; }
+//
+//        public static readonly Identifier Null = new Identifier(string.Empty);
+//
+//        public override bool Equals(object obj) => obj is MimeType format && Equals(format);
+//
+//        public bool Equals(Identifier other) => AutoEquality<Identifier>.Comparer.Equals(this, other);
+//
+//        public override int GetHashCode() => AutoEquality<Identifier>.Comparer.GetHashCode(this);
+//
+//        public override string ToString() => Name.ToString();
+//
+//        public static bool operator ==(Identifier left, Identifier right) => left?.Equals(right) == true;
+//
+//        public static bool operator !=(Identifier left, Identifier right) => !(left == right);
+//    }
+//
+//    public class ResourceProviderName : Identifier
+//    {
+//        public ResourceProviderName(string name) : base(name)
+//        {
+//        }
+//    }
 }

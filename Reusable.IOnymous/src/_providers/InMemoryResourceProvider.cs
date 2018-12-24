@@ -50,8 +50,23 @@ namespace Reusable.IOnymous
 
         public void Add(string uri, object value)
         {
-            var (stream, format) = ResourceHelper.CreateStream(value);
-            PutAsync(uri, stream, ResourceMetadata.Empty.Format(format)).GetAwaiter().GetResult();
+            switch (value)
+            {
+                case string str:
+                {
+                    var stream = ResourceHelper.SerializeAsTextAsync(str).GetAwaiter().GetResult();
+                    PutAsync(uri, stream, ResourceMetadata.Empty.Format(MimeType.Text)).GetAwaiter().GetResult();
+                }
+
+                    break;
+                default:
+                {
+                    var stream = ResourceHelper.SerializeAsBinaryAsync(value).GetAwaiter().GetResult();
+                    PutAsync(uri, stream, ResourceMetadata.Empty.Format(MimeType.Binary)).GetAwaiter().GetResult();
+                }
+
+                    break;
+            }
         }
 
         #endregion
@@ -65,14 +80,14 @@ namespace Reusable.IOnymous
     {
         [CanBeNull] private readonly Stream _data;
 
-        public InMemoryResourceInfo(UriString uri, ResourceFormat format, Stream data)
+        public InMemoryResourceInfo(UriString uri, MimeType format, Stream data)
             : base(uri, format)
         {
             _data = data ?? throw new ArgumentNullException(nameof(data));
         }
 
         public InMemoryResourceInfo(UriString uri)
-            : this(uri, ResourceFormat.Null, Stream.Null)
+            : this(uri, MimeType.Null, Stream.Null)
         {
             ModifiedOn = DateTime.UtcNow;
         }
@@ -87,8 +102,7 @@ namespace Reusable.IOnymous
 
         protected override async Task CopyToAsyncInternal(Stream stream)
         {
-            _data.Seek(0, SeekOrigin.Begin);
-            await _data.CopyToAsync(stream);
+            await _data.Rewind().CopyToAsync(stream);
         }
     }
 }

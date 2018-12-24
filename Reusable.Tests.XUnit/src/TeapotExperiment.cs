@@ -44,7 +44,7 @@ namespace Reusable.Tests.XUnit
                     }));
 
                     Assert.True(response.Exists);
-                    var obj = await response.DeserializeStringAsync();
+                    var obj = await response.DeserializeTextAsync();
                 }
 
                 teacup

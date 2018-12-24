@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
@@ -17,11 +18,29 @@ namespace Reusable.IOnymous
 
         protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
-            return Task.FromResult<IResourceInfo>(new PhysicalFileInfo(uri));
+            if (metadata.Format() == MimeType.Null)
+            {
+                throw new ArgumentException
+                (
+                    paramName: nameof(metadata), 
+                    message: ResourceHelper.Because<PhysicalFileProvider>(nameof(GetAsyncInternal), uri, $"you need to specify file format via {nameof(metadata)}.")
+                );
+            }
+
+            return Task.FromResult<IResourceInfo>(new PhysicalFileInfo(uri, metadata.Format()));
         }
 
         protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
+            if (metadata.Format() == MimeType.Null)
+            {
+                throw new ArgumentException
+                (
+                    paramName: nameof(metadata), 
+                    message: ResourceHelper.Because<PhysicalFileProvider>(nameof(PutAsyncInternal), uri, $"you need to specify file format via {nameof(metadata)}.")
+                );
+            }
+            
             using (var fileStream = new FileStream(uri.Path.Decoded, FileMode.CreateNew, FileAccess.Write))
             {
                 await value.CopyToAsync(fileStream);
@@ -31,10 +50,10 @@ namespace Reusable.IOnymous
             return await GetAsync(uri, metadata);
         }
 
-        protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata = null)
-        {
+        protected override Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata = null)
+        {            
             File.Delete(uri.Path.Decoded);
-            return await GetAsync(uri, metadata);
+            return Task.FromResult<IResourceInfo>(new PhysicalFileInfo(uri, MimeType.Null));
         }
     }
 
@@ -42,8 +61,8 @@ namespace Reusable.IOnymous
     internal class PhysicalFileInfo : ResourceInfo
     {
         // todo - add support for other file types
-        public PhysicalFileInfo([NotNull] UriString uri)
-            : base(uri, ResourceFormat.String)
+        public PhysicalFileInfo([NotNull] UriString uri, MimeType format)
+            : base(uri, format)
         {
         }
 

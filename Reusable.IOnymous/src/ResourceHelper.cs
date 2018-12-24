@@ -1,6 +1,8 @@
+using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Reusable.Exceptionizer;
@@ -10,60 +12,47 @@ namespace Reusable.IOnymous
 {
     public static class ResourceHelper
     {
-        public static (Stream Stream, ResourceFormat Format) CreateStream(object value, Encoding encoding = null)
+        internal static string ExtractMethodName(string memberName)
         {
-            // Don't dispose streams. The caller takes care of that.
-
-            switch (value)
-            {
-                case string str:
-                {
-                    var memoryStream = new MemoryStream((encoding ?? Encoding.UTF8).GetBytes(str));
-                    return (memoryStream, ResourceFormat.String);
-                }
-                default:
-                {
-                    var binaryFormatter = new BinaryFormatter();
-                    var memoryStream = new MemoryStream();
-                    binaryFormatter.Serialize(memoryStream, value);
-                    return (memoryStream, ResourceFormat.Binary);
-                }
-            }
+            return Regex.Match(memberName, @"^(?<method>\w+)Async").Groups["method"].Value;
         }
 
-        public static object CreateObject(Stream stream, ResourceMetadata metadata)
+        internal static string Because<T>(string memberName, UriString uri, string reason)
         {
-            if (metadata.TryGetValue(ResourceMetadataKeys.Serializer, out string serializerName))
-            {
-                if (serializerName == nameof(BinaryFormatter))
-                {
-                    var binaryFormatter = new BinaryFormatter();
-                    return binaryFormatter.Deserialize(stream);
-                }
-
-                if (serializerName == nameof(StreamReader))
-                {
-                    using (var streamReader = new StreamReader(stream))
-                    {
-                        return streamReader.ReadToEnd();
-                    }
-                }
-
-                throw DynamicException.Create("UnsupportedSerializer", $"Cannot deserialize stream because the serializer '{serializerName}' is not supported.");
-            }
-
-            throw DynamicException.Create("SerializerNotFound", $"Serializer wasn't specified.");
+            return $"{typeof(T).ToPrettyString()} cannot {ExtractMethodName(memberName).ToUpper()} '{uri}' because {reason}.";
         }
+
+//        [Obsolete("Use SerializeX")]
+//        public static (Stream Stream, MimeType Format) CreateStream(object value, Encoding encoding = null)
+//        {
+//            // Don't dispose streams. The caller takes care of that.
+//
+//            switch (value)
+//            {
+//                case string str:
+//                {
+//                    var memoryStream = new MemoryStream((encoding ?? Encoding.UTF8).GetBytes(str));
+//                    return (memoryStream, MimeType.Text);
+//                }
+//                default:
+//                {
+//                    var binaryFormatter = new BinaryFormatter();
+//                    var memoryStream = new MemoryStream();
+//                    binaryFormatter.Serialize(memoryStream, value);
+//                    return (memoryStream, MimeType.Binary);
+//                }
+//            }
+//        }        
 
         // --------
 
-        public static Task<Stream> SerializeStringAsync(string value, Encoding encoding = null)
+        public static Task<Stream> SerializeAsTextAsync(string value, Encoding encoding = null)
         {
             encoding = encoding ?? Encoding.UTF8;
             return Task.FromResult<Stream>(new MemoryStream(encoding.GetBytes(value)));
         }
 
-        public static Task<Stream> SerializeObjectAsBinaryAsync(object value)
+        public static Task<Stream> SerializeAsBinaryAsync(object value)
         {
             var binaryFormatter = new BinaryFormatter();
             var memoryStream = new MemoryStream();
@@ -71,7 +60,7 @@ namespace Reusable.IOnymous
             return Task.FromResult<Stream>(memoryStream);
         }
 
-        public static Task<Stream> SerializeObjectAsJsonAsync(object value, JsonSerializer jsonSerializer = null)
+        public static Task<Stream> SerializeAsJsonAsync(object value, JsonSerializer jsonSerializer = null)
         {
             jsonSerializer = jsonSerializer ?? new JsonSerializer();
 

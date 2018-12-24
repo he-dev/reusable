@@ -39,7 +39,7 @@ namespace Reusable.IOnymous
     [PublicAPI]
     internal class PhysicalDirectoryInfo : ResourceInfo
     {
-        public PhysicalDirectoryInfo([NotNull] UriString uri) : base(uri, ResourceFormat.Null)
+        public PhysicalDirectoryInfo([NotNull] UriString uri) : base(uri, MimeType.Null)
         {
         }
 

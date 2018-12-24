@@ -28,6 +28,15 @@ namespace Reusable.IOnymous
 
         protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
+            if (metadata.Format() == MimeType.Null)
+            {
+                throw new ArgumentException
+                (
+                    paramName: nameof(metadata), 
+                    message: ResourceHelper.Because<PhysicalFileProvider>(nameof(GetAsyncInternal), uri, $"you need to specify file format via {nameof(metadata)}.")
+                );
+            }
+            
             // Embedded resource names are separated by '.' so replace the windows separator.
 
             var fullUri = BaseUri + uri;
@@ -37,8 +46,7 @@ namespace Reusable.IOnymous
             var actualName = _assembly.GetManifestResourceNames().FirstOrDefault(name => SoftString.Comparer.Equals(name, fullName));
             var getManifestResourceStream = actualName is null ? default(Func<Stream>) : () => _assembly.GetManifestResourceStream(actualName);
 
-            // todo - add other file formats
-            return Task.FromResult<IResourceInfo>(new EmbeddedFileInfo(fullUri, ResourceFormat.String, getManifestResourceStream));
+            return Task.FromResult<IResourceInfo>(new EmbeddedFileInfo(fullUri, metadata.Format(), getManifestResourceStream));
         }
 
         #endregion
@@ -53,7 +61,7 @@ namespace Reusable.IOnymous
     {
         private readonly Func<Stream> _getManifestResourceStream;
 
-        public EmbeddedFileInfo(string uri, ResourceFormat format, Func<Stream> getManifestResourceStream)
+        public EmbeddedFileInfo(string uri, MimeType format, Func<Stream> getManifestResourceStream)
             : base(uri, format)
         {
             _getManifestResourceStream = getManifestResourceStream;

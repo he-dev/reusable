@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
@@ -9,38 +10,55 @@ namespace Reusable.IOnymous
     {
         #region Async
 
-        public static async Task<string> DeserializeStringAsync(this IResourceInfo resourceInfo)
+        public static async Task<string> DeserializeTextAsync(this IResourceInfo resourceInfo)
         {
+            if (resourceInfo.Format != MimeType.Text)
+            {
+                throw new ArgumentException($"Resource must be '{MimeType.Text}' but is '{resourceInfo.Format}'.");
+            }
+
             using (var memoryStream = new MemoryStream())
-            using (var streamReader = new StreamReader(memoryStream))
             {
                 await resourceInfo.CopyToAsync(memoryStream);
-                memoryStream.TryRewind();
-                return await streamReader.ReadToEndAsync();
+                using (var streamReader = new StreamReader(memoryStream.Rewind()))
+                {
+                    return await streamReader.ReadToEndAsync();
+                }
             }
         }
 
-        public static async Task<T> DeserializeObjectAsync<T>(this IResourceInfo resourceInfo)
+        public static async Task<T> DeserializeBinaryAsync<T>(this IResourceInfo resourceInfo)
         {
+            if (resourceInfo.Format != MimeType.Binary)
+            {
+                throw new ArgumentException($"Resource must be '{MimeType.Binary}' but is '{resourceInfo.Format}'.");
+            }
+
             var binaryFormatter = new BinaryFormatter();
             using (var memoryStream = new MemoryStream())
             {
                 await resourceInfo.CopyToAsync(memoryStream);
-                //memoryStream.TryRewind();
+                memoryStream.Rewind();
                 return (T)binaryFormatter.Deserialize(memoryStream);
             }
         }
 
         public static async Task<T> DeserializeJsonAsync<T>(this IResourceInfo resourceInfo, JsonSerializer jsonSerializer = null)
         {
+            if (resourceInfo.Format != MimeType.Json)
+            {
+                throw new ArgumentException($"Resource must be '{MimeType.Json}' but is '{resourceInfo.Format}'.");
+            }
+
             jsonSerializer = jsonSerializer ?? new JsonSerializer();
             using (var memoryStream = new MemoryStream())
-            using (var streamReader = new StreamReader(memoryStream))
-            using (var jsonTextReader = new JsonTextReader(streamReader))
             {
                 await resourceInfo.CopyToAsync(memoryStream);
-                //memoryStream.TryRewind();
-                return jsonSerializer.Deserialize<T>(jsonTextReader);
+                using (var streamReader = new StreamReader(memoryStream.Rewind()))
+                using (var jsonTextReader = new JsonTextReader(streamReader))
+                {
+                    return jsonSerializer.Deserialize<T>(jsonTextReader);
+                }
             }
         }
 
@@ -49,7 +67,7 @@ namespace Reusable.IOnymous
 
     public static class StreamExtensions
     {
-        public static T TryRewind<T>(this T stream) where T : Stream
+        public static T Rewind<T>(this T stream) where T : Stream
         {
             if (stream.CanSeek)
             {
