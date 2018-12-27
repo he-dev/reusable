@@ -42,7 +42,6 @@ namespace Reusable.Tests.XUnit
                             response
                                 .Once(200, new { Message = "OK" })
                                 .Echo();
-                            // todo - add automatic throw if no more responses
                         });
 
                 using (var client = new RestResourceProvider("http://localhost:12000/api", ResourceMetadata.Empty))

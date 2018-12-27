@@ -11,6 +11,7 @@ namespace Reusable.Teapot
 {
     public delegate void RequestAssertDelegate(RequestInfo request);
 
+    [CanBeNull]
     public delegate Func<HttpRequest, ResponseInfo> ResponseDelegate(UriString path, SoftString method);
 
     [UsedImplicitly]
@@ -61,27 +62,35 @@ namespace Reusable.Teapot
 
                 await _next(context);
 
-                using (var response = _nextResponse(uri, context.Request.Method)(context.Request))
+                var responseFactory = _nextResponse(uri, context.Request.Method);
+                if (responseFactory is null)
                 {
-                    context.Response.StatusCode = response?.StatusCode ?? StatusCodes.Status404NotFound;
-
-                    switch (response?.Content)
+                    context.Response.StatusCode = StatusCodes.Status404NotFound;
+                }
+                else
+                {
+                    using (var response = responseFactory(context.Request))
                     {
-                        case string str:
-                            //context.Response.ContentType = "application/json; charset=utf-8";
-                            await context.Response.WriteAsync(str);
-                            break;
+                        context.Response.StatusCode = response.StatusCode;
 
-                        case MemoryStream stream:
-                            context.Response.ContentType = "application/json; charset=utf-8";
-                            stream.Seek(0, SeekOrigin.Begin);
-                            await stream.CopyToAsync(context.Response.Body);
-                            break;
+                        switch (response?.Content)
+                        {
+                            case string str:
+                                //context.Response.ContentType = "application/json; charset=utf-8";
+                                await context.Response.WriteAsync(str);
+                                break;
 
-                        default:
-                            context.Response.ContentType = "application/json; charset=utf-8";
-                            await context.Response.WriteAsync(JsonConvert.SerializeObject(response?.Content));
-                            break;
+                            case MemoryStream stream:
+                                context.Response.ContentType = "application/json; charset=utf-8";
+                                stream.Seek(0, SeekOrigin.Begin);
+                                await stream.CopyToAsync(context.Response.Body);
+                                break;
+
+                            default:
+                                context.Response.ContentType = "application/json; charset=utf-8";
+                                await context.Response.WriteAsync(JsonConvert.SerializeObject(response?.Content));
+                                break;
+                        }
                     }
                 }
             }
