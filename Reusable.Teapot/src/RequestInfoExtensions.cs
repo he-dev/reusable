@@ -5,7 +5,7 @@ namespace Reusable.Teapot
 {
     public static class RequestInfoExtensions
     {
-        public static JToken ToJToken(this RequestInfo info)
+        public static JToken DeserializeAsJToken(this RequestInfo info)
         {
             if (info.ContentLength == 0)
             {

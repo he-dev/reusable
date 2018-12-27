@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Linq.Custom;
-using System.Reactive;
-using System.Reactive.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -16,8 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using Reusable.Exceptionizer;
-using Reusable.Reflection;
-using Reusable.Teapot.Internal;
+using Reusable.IOnymous;
 
 namespace Reusable.Teapot
 {
@@ -26,6 +21,7 @@ namespace Reusable.Teapot
     {
         private readonly IWebHost _host;
 
+        [CanBeNull]
         private TeacupScope _teacup;
 
         public TeapotServer(string url)
@@ -36,7 +32,7 @@ namespace Reusable.Teapot
                     .UseUrls(url)
                     .ConfigureServices(services =>
                     {
-                        services.AddSingleton((LogDelegate)Log);
+                        services.AddSingleton((RequestAssertDelegate)Assert);
                         services.AddSingleton((ResponseDelegate)NextResponse);
                     })
                     .UseStartup<TeapotStartup>()
@@ -49,9 +45,19 @@ namespace Reusable.Teapot
 
         public ITeacupScope BeginScope() => (_teacup = new TeacupScope());
 
-        private void Log(string path, SoftString method, RequestInfo request) => _teacup.Log(path, method, request);
+        private void Assert(RequestInfo request)
+        {
+            if (_teacup is null) throw new InvalidOperationException($"Cannot get response without scope. Call '{nameof(BeginScope)}' first.");
+            
+            _teacup.Assert(request);
+        }
 
-        private Func<HttpRequest, ResponseInfo> NextResponse(string path, SoftString method) => _teacup.NextResponse(path, method);
+        private Func<HttpRequest, ResponseInfo> NextResponse(UriString path, SoftString method)
+        {
+            if (_teacup is null) throw new InvalidOperationException($"Cannot get response without scope. Call '{nameof(BeginScope)}' first.");
+            
+            return _teacup.NextResponse(path, method);
+        }
 
         public void Dispose()
         {
@@ -62,117 +68,148 @@ namespace Reusable.Teapot
 
     public interface ITeacupScope : IDisposable
     {
-        IRequestAssert Requested(string path, SoftString method);
-
-        void Responses(string path, string method, Action<ResponseQueueBuilder> responseQueueBuilder);
+        RequestMock Mock(string uri);
     }
 
     public class TeacupScope : ITeacupScope
     {
-        private readonly RequestLog _requests = new RequestLog();
+        private readonly IList<RequestMock> _mocks = new List<RequestMock>();
 
-        private readonly ResponseQueue _responses = new ResponseQueue();
-
-        public IRequestAssert Requested(string path, SoftString method)
+        public RequestMock Mock(string uri)
         {
-            return new RequestAssert
-            (
-                path: path,
-                requests: _requests.TryGetValue((path, method), out var requests) && requests.Any()
-                    ? requests
-                    : throw DynamicException.Create("RequestNotFound", $"There was no '{method.ToString().ToUpper()}' requests to '{path}'.")
-            );
+            var mock = new RequestMock(uri);
+            _mocks.Add(mock);
+            return mock;
         }
 
-        public void Responses(string path, string method, Action<ResponseQueueBuilder> responseQueueBuilder)
+        public void Assert(RequestInfo request)
         {
-            var builder = new ResponseQueueBuilder();
-            responseQueueBuilder(builder);
-            _responses.AddOrUpdate((path, method), builder.Build(), (k, q) => q);
-        }
-
-        public void Log(string path, SoftString method, RequestInfo request)
-        {
-            _requests.AddOrUpdate
-            (
-                (path, method),
-                (key) => ImmutableList.Create(request),
-                (key, log) => log.Add(request)
-            );
-        }
-
-        public Func<HttpRequest, ResponseInfo> NextResponse(string path, SoftString method)
-        {
-            if (_responses.TryGetValue((path, method), out var queue))
+            foreach (var mock in _mocks.Where(m => m.Uri == request.Uri))
             {
-                return
-                    queue.Any()
-                        ? queue.Dequeue()
-                        : _ => ResponseInfo.Empty;
+                mock.Assert(request);
             }
+        }
 
-            return _ => ResponseInfo.Empty;
+        public Func<HttpRequest, ResponseInfo> NextResponse(UriString uri, SoftString method)
+        {
+            var mock = _mocks.FirstOrDefault(m => m.Uri == uri);
+            return mock?.NextResponse(method);
         }
 
         public void Dispose()
         {
-            foreach (var request in _requests.SelectMany(r => r.Value))
+            foreach (var mock in _mocks)
             {
-                request.Dispose();
+                mock.Dispose();
             }
         }
     }
 
-    public static class TeacupScopeExtensions
+    public class RequestMock : IDisposable
     {
-        //public static IRequestAssert ClientRequested(this ITeacupScope teacup, PathString path, SoftString method)
-        //{
-        //    return new RequestAssert
-        //    (
-        //        path: path,
-        //        requests: teacup.Requests(path, method) is var requests && requests.Any()
-        //            ? requests
-        //            : throw DynamicException.Create("RequestNotFound", $"There was no '{method.ToString().ToUpper()}' requests to '{path.Value}'.")
-        //    );
-        //}
+        public static readonly string AnyMethod = string.Empty;
+        
+        private readonly IList<(IRequestBuilder Request, IResponseBuilder Response)> _methods = new List<(IRequestBuilder Request, IResponseBuilder Response)>();
+
+        public RequestMock(UriString uri) => Uri = uri;
+
+        public UriString Uri { get; }
+
+        public RequestMock Arrange(string method, Action<IRequestBuilder, IResponseBuilder> configure)
+        {
+            if (_methods.Any(m => m.Request.Method == method)) throw new ArgumentException($"Method {method.ToUpper()} has already been added.");
+
+            var request = new RequestBuilder(Uri, method);
+            var response = new ResponseBuilder(Uri, method);
+            configure(request, response);
+            _methods.Add((request, response));
+            return this;
+        }
+
+        public void Assert(RequestInfo request)
+        {
+            foreach (var method in _methods.Where(m => m.Request.Method.In(AnyMethod, request.Method)))
+            {
+                method.Request.Assert(request);
+            }
+        }
+
+        public void Assert()
+        {
+            foreach (var method in _methods)
+            {
+                method.Request.Assert(default);
+            }
+        }
+
+        public Func<HttpRequest, ResponseInfo> NextResponse(SoftString method)
+        {
+            var response = _methods.SingleOrDefault(m => m.Response.Method == method).Response;
+            return request => response?.Next(request);
+        }
+
+        public void Dispose()
+        {
+        }
     }
 
-    public class ResponseQueueBuilder
+    public interface IResponseBuilder
+    {
+        [NotNull]
+        UriString Uri { get; }
+
+        [NotNull]
+        SoftString Method { get; }
+
+        [NotNull]
+        ResponseBuilder Enqueue(Func<HttpRequest, ResponseInfo> next);
+
+        [NotNull]
+        ResponseInfo Next(HttpRequest request);
+    }
+
+    public class ResponseBuilder : IResponseBuilder
     {
         private readonly Queue<Func<HttpRequest, ResponseInfo>> _responses = new Queue<Func<HttpRequest, ResponseInfo>>();
 
-        public ResponseQueueBuilder Once(int statusCode, object content) => Exactly(statusCode, content, 1);
-
-        public ResponseQueueBuilder Always(int statusCode, object content)
+        public ResponseBuilder(UriString uri, SoftString method)
         {
-            _responses.Enqueue(request => new ResponseInfo(statusCode, content));
+            Uri = uri;
+            Method = method;
+        }
+
+        public UriString Uri { get; }
+
+        public SoftString Method { get; }
+
+        public ResponseBuilder Enqueue(Func<HttpRequest, ResponseInfo> next)
+        {
+            _responses.Enqueue(next);
             return this;
         }
 
-        public ResponseQueueBuilder Exactly(int statusCode, object content, int count)
+        public ResponseInfo Next(HttpRequest request)
         {
-            var counter = 0;
-            _responses.Enqueue(request => counter++ < count ? new ResponseInfo(statusCode, content) : default);
-            return this;
-        }
-
-        public ResponseQueueBuilder Echo()
-        {
-            _responses.Enqueue(request =>
+            while (_responses.Any())
             {
-                var requestCopy = new MemoryStream();
-                request.Body.Seek(0, SeekOrigin.Begin);
-                request.Body.CopyTo(requestCopy);
-                return new ResponseInfo(200, requestCopy);
-            });
-            return this;
+                var next = _responses.Peek();
+                var response = next(request);
+                if (response is null)
+                {
+                    _responses.Dequeue();
+                }
+                else
+                {
+                    return response;
+                }
+            }
+
+            throw DynamicException.Create("OutOfResponses", "There are not more responses");
         }
-
-
-        public Queue<Func<HttpRequest, ResponseInfo>> Build() => _responses;
     }
 
-    public readonly struct ResponseInfo : IDisposable
+
+    public class ResponseInfo : IDisposable
     {
         public ResponseInfo(int statusCode, object content)
         {
@@ -180,12 +217,9 @@ namespace Reusable.Teapot
             Content = content;
         }
 
-        public static ResponseInfo Empty { get; } = default;
-
-        public bool IsEmpty => StatusCode == 0 && Content == null;
-
         public int StatusCode { get; }
 
+        [CanBeNull]
         public object Content { get; }
 
         public void Dispose()
@@ -194,115 +228,215 @@ namespace Reusable.Teapot
         }
     }
 
-    public interface IRequestAssert
+    public interface IRequestBuilder
     {
-        PathString Path { get; }
+        [NotNull]
+        UriString Uri { get; }
 
-        IImmutableList<RequestInfo> Requests { get; }
+        [NotNull]
+        SoftString Method { get; }
+
+        [NotNull]
+        IRequestBuilder Add(Action<RequestInfo> assert, bool allowRequestNull);
+
+        void Assert(RequestInfo request);
+    }
+
+    internal class RequestBuilder : IRequestBuilder
+    {
+        private readonly IList<(Action<RequestInfo> Assert, bool AllowRequestNull)> _asserts = new List<(Action<RequestInfo>, bool)>();
+
+        public RequestBuilder(UriString uri, SoftString method)
+        {
+            Uri = uri;
+            Method = method;
+        }
+
+        public UriString Uri { get; }
+
+        public SoftString Method { get; }
+
+        public IRequestBuilder Add(Action<RequestInfo> assert, bool allowRequestNull)
+        {
+            _asserts.Add((assert, allowRequestNull));
+            return this;
+        }
+
+        public void Assert(RequestInfo request)
+        {
+            foreach (var (assert, allowRequestNull) in _asserts)
+            {
+                if (request is null && !allowRequestNull)
+                {
+                    continue;
+                }
+
+                assert(request);
+            }
+        }
     }
 
     public interface IContentAssert<out TContent>
     {
+        [CanBeNull]
         TContent Value { get; }
-    }
-
-    internal class RequestAssert : IRequestAssert
-    {
-        public RequestAssert(IImmutableList<RequestInfo> requests, PathString path)
-        {
-            Requests = requests;
-            Path = path;
-        }
-
-        public PathString Path { get; }
-
-        public IImmutableList<RequestInfo> Requests { get; }
     }
 
     internal class ContentAssert<TContent> : IContentAssert<TContent>
     {
-        public ContentAssert(TContent value)
-        {
-            Value = value;
-        }
+        public ContentAssert(TContent value) => Value = value;
 
         public TContent Value { get; }
     }
 
-    public static class RequestAssertExtensions
+    [PublicAPI]
+    public static class RequestBuilderExtensions
     {
-        public static IRequestAssert Times(this IRequestAssert assert, int times)
+        public static IRequestBuilder Occurs(this IRequestBuilder builder, int exactly)
         {
-            return
-                assert.Requests.Count == times
-                    ? assert
-                    : throw DynamicException.Create(nameof(Times), $"Resource {assert.Path.Value} was requested {assert.Requests.Count} time(s) but expected {times}.");
+            var counter = 0;
+            return builder.Add(request =>
+            {
+                if (request is null)
+                {
+                    if (counter != exactly)
+                    {
+                        throw DynamicException.Create(nameof(Occurs), $"Resource {builder.Uri} was requested {counter} time(s) but expected {exactly}.");
+                    }
+                }
+                else
+                {
+                    if (++counter > exactly)
+                    {
+                        throw DynamicException.Create(nameof(Occurs), $"Resource {builder.Uri} was requested {counter} time(s) but expected {exactly}.");
+                    }
+                }
+            }, true);
         }
 
-        public static IRequestAssert WithHeader(this IRequestAssert assert, string header, params string[] expectedValue)
+        public static IRequestBuilder WithHeader(this IRequestBuilder builder, string header, params string[] expectedValue)
         {
-            var expectedHeaderValues = expectedValue.Join(", ");
-            var requestsWithHeader = assert.Requests.Where(request => request.Headers.ContainsKey(header)).ToList();
+            //var expectedHeader = Regex.Replace(header, @"\-", string.Empty);
 
-            if (requestsWithHeader.Count < assert.Requests.Count)
+            return builder.Add(request =>
             {
-                throw DynamicException.Create
-                (
-                    Regex.Replace(header, @"\-", string.Empty),
-                    $"{requestsWithHeader.Count} of {assert.Requests.Count} request(s) to '{assert.Path.Value}' did not specify the '{header}' header."
-                );
-            }
-
-            if (expectedValue.Any())
-            {
-                // Some requests to ... specified other values [] than the expected [].
-                var expected = requestsWithHeader.ToLookup(request => request.Headers[header].Equals(expectedValue));
-                if (expected[false].Any())
+                if (request.Headers.TryGetValue(header, out var values))
                 {
-                    var invalidValues = expected[false].Select(request => request.Headers[header]).Join(", ");
+                    if (values.Intersect(expectedValue).Count() != expectedValue.Count())
+                    {
+                        throw DynamicException.Create
+                        (
+                            "DifferentHeaderValue",
+                            $"Header '{header}' has different values."
+                        );
+                    }
+                }
+                else
+                {
                     throw DynamicException.Create
                     (
-                        Regex.Replace(header, @"\-", string.Empty),
-                        $"{expected[false].Count()} of {assert.Requests.Count} request(s) to '{assert.Path.Value}' specified the '{header}' header as [{invalidValues}] instead of '{expectedHeaderValues}'."
+                        "HeaderNotFound",
+                        $"Header '{header}' is missing."
                     );
                 }
-            }
-
-            return assert;
+            }, false);
         }
 
-        public static IRequestAssert WithApiVersion(this IRequestAssert assert, string version) => assert.WithHeader("Api-Version", version);
+        public static IRequestBuilder WithApiVersion(this IRequestBuilder builder, string version) => builder.WithHeader("Api-Version", version);
 
-        public static IRequestAssert WithContentType(this IRequestAssert assert, string mediaType) => assert.WithHeader("Content-Type", mediaType);
+        public static IRequestBuilder WithContentType(this IRequestBuilder builder, string mediaType) => builder.WithHeader("Content-Type", mediaType);
 
-        public static IRequestAssert WithContentTypeJson(this IRequestAssert assert, Action<IContentAssert<JToken>> contentAssert)
+        public static IRequestBuilder WithContentTypeJson(this IRequestBuilder builder, Action<IContentAssert<JToken>> contentAssert)
         {
             //assert.WithHeader("Content-Type", "application/json; charset=utf-8");
 
-            foreach (var request in assert.Requests)
+            return builder.Add(request =>
             {
-                var content = request.ToJToken();
+                var content = request.DeserializeAsJToken();
                 contentAssert(new ContentAssert<JToken>(content));
-            }
-
-            return assert;
+            }, false);
         }
 
-        public static IRequestAssert AsUserAgent(this IRequestAssert assert, string product, string version) => assert.WithHeader("User-Agent", $"{product}/{version}");
+        public static IRequestBuilder AsUserAgent(this IRequestBuilder builder, string product, string version) => builder.WithHeader("User-Agent", $"{product}/{version}");
 
-        public static IRequestAssert Accepts(this IRequestAssert assert, string mediaType) => assert.WithHeader("Accept", mediaType);
+        public static IRequestBuilder Accepts(this IRequestBuilder builder, string mediaType) => builder.WithHeader("Accept", mediaType);
 
-        public static IRequestAssert AcceptsJson(this IRequestAssert assert) => assert.Accepts("application/json");
+        public static IRequestBuilder AcceptsJson(this IRequestBuilder builder) => builder.Accepts("application/json");
     }
+
 
     public static class RequestBodyAssertExtensions
     {
         public static IContentAssert<JToken> HasProperty(this IContentAssert<JToken> content, string jsonPath)
         {
+            if (content.Value is null)
+            {
+                throw DynamicException.Create("ContentNull", "There is no content.");
+            }
+
             return
-                content.Value.SelectToken(jsonPath) != null
-                    ? content
-                    : throw DynamicException.Create("ContentPropertyNotFound", $"There is no such property as '{jsonPath}'");
+                content.Value.SelectToken(jsonPath) is null
+                    ? throw DynamicException.Create("ContentPropertyNotFound", $"There is no such property as '{jsonPath}'")
+                    : content;
+        }
+    }
+
+    public static class RequestMockExtensions
+    {
+        public static RequestMock ArrangeGet(this RequestMock requestMock, Action<IRequestBuilder, IResponseBuilder> configure)
+        {
+            return requestMock.Arrange("GET", configure);
+        }
+
+        public static RequestMock ArrangePost(this RequestMock requestMock, Action<IRequestBuilder, IResponseBuilder> configure)
+        {
+            return requestMock.Arrange("POST", configure);
+        }
+
+        public static RequestMock ArrangePut(this RequestMock requestMock, Action<IRequestBuilder, IResponseBuilder> configure)
+        {
+            return requestMock.Arrange("PUT", configure);
+        }
+
+        public static RequestMock ArrangeDelete(this RequestMock requestMock, Action<IRequestBuilder, IResponseBuilder> configure)
+        {
+            return requestMock.Arrange("DELETE", configure);
+        }
+
+        public static RequestMock ArrangeAny(this RequestMock requestMock, Action<IRequestBuilder, IResponseBuilder> configure)
+        {
+            return requestMock.Arrange(RequestMock.AnyMethod, configure);
+        }
+    }
+
+    [PublicAPI]
+    public static class ResponseBuilderExtensions
+    {
+        public static IResponseBuilder Once(this IResponseBuilder response, int statusCode, object content)
+        {
+            return response.Exactly(statusCode, content, 1);
+        }
+
+        public static IResponseBuilder Always(this IResponseBuilder response, int statusCode, object content)
+        {
+            return response.Enqueue(request => new ResponseInfo(statusCode, content));
+        }
+
+        public static IResponseBuilder Exactly(this IResponseBuilder response, int statusCode, object content, int count)
+        {
+            var counter = 0;
+            return response.Enqueue(request => counter++ < count ? new ResponseInfo(statusCode, content) : default);
+        }
+
+        public static IResponseBuilder Echo(this IResponseBuilder response)
+        {
+            return response.Enqueue(request =>
+            {
+                var requestCopy = new MemoryStream();
+                request.Body.Seek(0, SeekOrigin.Begin);
+                request.Body.CopyTo(requestCopy);
+                return new ResponseInfo(200, requestCopy);
+            });
         }
     }
 }

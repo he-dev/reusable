@@ -6,6 +6,7 @@ using Reusable.IOnymous;
 using Reusable.sdk.Http;
 using Reusable.Teapot;
 using Reusable.Utilities.XUnit.Fixtures;
+using Telerik.JustMock.Helpers;
 using Xunit;
 
 namespace Reusable.Tests.XUnit
@@ -26,17 +27,28 @@ namespace Reusable.Tests.XUnit
         {
             using (var teacup = _teapot.BeginScope())
             {
-                teacup
-                    .Responses("/api/test?param=true", "POST", builder =>
-                    {
-                        //builder.Once(200, new { Message = "OK" });
-                        builder.Echo();
-                    });
+                var test =
+                    teacup
+                        .Mock("/api/test?param=true")
+                        .ArrangePost((request, response) =>
+                        {
+                            request
+                                .AsUserAgent("Reusable", "1.0")
+                                .Occurs(1)
+                                .AcceptsJson()
+                                .WithApiVersion("1.0")
+                                .WithContentTypeJson(content => { content.HasProperty("$.Greeting"); });
+                            
+                            response
+                                .Once(200, new { Message = "OK" })
+                                .Echo();
+                            // todo - add automatic throw if no more responses
+                        });
 
                 using (var client = new RestResourceProvider("http://localhost:12000/api", ResourceMetadata.Empty))
                 {
                     // Request made by the application somewhere deep down the rabbit hole
-                    var response = await client.PostJsonAsync("test?param=true", new { Greeting = "Hallo" }, ResourceMetadata.Empty.ConfigureRequestHeaders(headers =>
+                    var response = await client.PostAsync("test?param=true", new { Greeting = "Hallo" }, obj => ResourceHelper.SerializeAsJsonAsync(obj), ResourceMetadata.Empty.ConfigureRequestHeaders(headers =>
                     {
                         headers.Add("Api-Version", "1.0");
                         headers.UserAgent("Reusable", "1.0");
@@ -44,16 +56,10 @@ namespace Reusable.Tests.XUnit
                     }));
 
                     Assert.True(response.Exists);
-                    var obj = await response.DeserializeTextAsync();
+                    var original = await response.DeserializeJsonAsync<object>();
                 }
-
-                teacup
-                    .Requested("/api/test?param=true", "POST")
-                    .AsUserAgent("Reusable", "1.0")
-                    .Times(1)
-                    .AcceptsJson()
-                    .WithApiVersion("1.0")
-                    .WithContentTypeJson(content => { content.HasProperty("$.Greeting"); });
+                
+                test.Assert();
             }
         }
     }

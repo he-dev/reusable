@@ -1,45 +1,29 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
-using Reusable.Extensions;
+using Reusable.IOnymous;
 
-namespace Reusable.Teapot.Internal
+namespace Reusable.Teapot
 {
-    public class RequestLog : ConcurrentDictionary<(PathString, SoftString), IImmutableList<RequestInfo>>
-    {
-    }
+    public delegate void RequestAssertDelegate(RequestInfo request);
 
-    public class ResponseQueue : ConcurrentDictionary<(string, SoftString), Queue<Func<HttpRequest, ResponseInfo>>>
-    {
-    }
-
-
-    //internal delegate IEnumerable<IObserver<RequestInfo>> ObserversDelegate();
-
-    public delegate void LogDelegate(string path, SoftString method, RequestInfo request);
-
-    public delegate Func<HttpRequest, ResponseInfo> ResponseDelegate(string path, SoftString method);
+    public delegate Func<HttpRequest, ResponseInfo> ResponseDelegate(UriString path, SoftString method);
 
     [UsedImplicitly]
     internal class TeapotMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly LogDelegate _log;
+        private readonly RequestAssertDelegate _requestAssert;
         private readonly ResponseDelegate _nextResponse;
 
-        public TeapotMiddleware(RequestDelegate next, LogDelegate log, ResponseDelegate nextResponse)
+        public TeapotMiddleware(RequestDelegate next, RequestAssertDelegate requestAssert, ResponseDelegate nextResponse)
         {
             _next = next;
-            _log = log;
+            _requestAssert = requestAssert;
             _nextResponse = nextResponse;
         }
 
@@ -58,31 +42,30 @@ namespace Reusable.Teapot.Internal
                 var bodyCopy = new MemoryStream();
                 await bodyBackup.CopyToAsync(bodyCopy);
 
-                var fullUri = context.Request.Path + context.Request.QueryString;
+                var uri = context.Request.Path + context.Request.QueryString;
 
                 var request = new RequestInfo
                 {
-                    ContentLength = context.Request.ContentLength,
+                    Uri = uri,
+                    Method = context.Request.Method,
                     // There is no copy-constructor.
                     Headers = new HeaderDictionary(context.Request.Headers.ToDictionary(x => x.Key, x => x.Value)),
+                    ContentLength = context.Request.ContentLength,
                     ContentCopy = bodyCopy
                 };
 
-                _log(fullUri, context.Request.Method, request);
+                _requestAssert(request);
 
                 // Restore body.
                 context.Request.Body = bodyBackup;
 
                 await _next(context);
 
-                using (var response = _nextResponse(fullUri, context.Request.Method)(context.Request))
+                using (var response = _nextResponse(uri, context.Request.Method)(context.Request))
                 {
-                    context.Response.StatusCode =
-                        response.IsEmpty
-                            ? StatusCodes.Status404NotFound
-                            : response.StatusCode;
+                    context.Response.StatusCode = response?.StatusCode ?? StatusCodes.Status404NotFound;
 
-                    switch (response.Content)
+                    switch (response?.Content)
                     {
                         case string str:
                             //context.Response.ContentType = "application/json; charset=utf-8";
@@ -97,7 +80,7 @@ namespace Reusable.Teapot.Internal
 
                         default:
                             context.Response.ContentType = "application/json; charset=utf-8";
-                            await context.Response.WriteAsync(JsonConvert.SerializeObject(response.Content));
+                            await context.Response.WriteAsync(JsonConvert.SerializeObject(response?.Content));
                             break;
                     }
                 }

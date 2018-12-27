@@ -60,18 +60,21 @@ namespace Reusable.IOnymous
             return Task.FromResult<Stream>(memoryStream);
         }
 
-        public static Task<Stream> SerializeAsJsonAsync(object value, JsonSerializer jsonSerializer = null)
+        public static async Task<Stream> SerializeAsJsonAsync(object value, JsonSerializer jsonSerializer = null)
         {
             jsonSerializer = jsonSerializer ?? new JsonSerializer();
 
-            var memoryStream = new MemoryStream();
+            using (var memoryStream = new MemoryStream())
             using (var textWriter = new StreamWriter(memoryStream))
             using (var jsonWriter = new JsonTextWriter(textWriter))
             {
                 jsonSerializer.Serialize(jsonWriter, value);
                 jsonWriter.Flush();
 
-                return Task.FromResult<Stream>(memoryStream);
+                var copy = new MemoryStream();
+                await memoryStream.Rewind().CopyToAsync(copy);
+
+                return copy;
             }
         }
     }

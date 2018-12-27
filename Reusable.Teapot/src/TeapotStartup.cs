@@ -1,8 +1,6 @@
-﻿using System;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Builder;
 
-namespace Reusable.Teapot.Internal
+namespace Reusable.Teapot
 {
     internal class TeapotStartup
     {
