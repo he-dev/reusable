@@ -169,9 +169,9 @@ namespace Reusable.SmartConfig
         private static ResourceMetadata PopulateProviderInfo(SettingMetadata settingMetadata, ResourceMetadata metadata = null)
         {
             return
-                (metadata ?? ResourceMetadata.Empty)
-                .Add(ResourceMetadataKeys.ProviderCustomName, settingMetadata.ProviderName)
-                .Add(ResourceMetadataKeys.ProviderDefaultName, settingMetadata.ProviderType?.ToPrettyString());
+                metadata
+                    .ProviderCustomName(settingMetadata.ProviderName)
+                    .ProviderDefaultName(settingMetadata.ProviderType?.ToPrettyString());
         }
 
         // --------

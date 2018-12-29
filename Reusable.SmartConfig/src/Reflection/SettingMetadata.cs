@@ -121,9 +121,9 @@ namespace Reusable.SmartConfig.Reflection
 
         public UriString CreateUri(string instanceName = null)
         {
-            var query = (ImplicitString)new (ImplicitString Key, ImplicitString Value)[]
+            var query = (SoftString)new (SoftString Key, SoftString Value)[]
             {
-                ("prefix", PrefixHandling == PrefixHandling.Enable ? (ImplicitString)Prefix : (ImplicitString)string.Empty),
+                ("prefix", PrefixHandling == PrefixHandling.Enable ? (SoftString)Prefix : (SoftString)string.Empty),
                 ("prefixHandling", PrefixHandling.ToString()),
                 ("instance", instanceName),
                 ("strength", Strength.ToString()),
@@ -131,10 +131,10 @@ namespace Reusable.SmartConfig.Reflection
                 //("providerDefaultName", ProviderType?.ToPrettyString())
             }
             .Where(x => x.Value)
-            .Select(x => $"{x.Key}={x.Value}")
+            .Select(x => $"{x.Key.ToString()}={x.Value.ToString()}")
             .Join("&");
 
-            return $"setting:{Namespace.Replace('.', '-')}.{TypeName}.{MemberName}{(query ? $"?{query}" : string.Empty)}";
+            return $"setting:{Namespace.Replace('.', '-')}.{TypeName}.{MemberName}{(query ? $"?{query.ToString()}" : string.Empty)}";
         }
 
         [NotNull]

@@ -6,5 +6,6 @@ using Reusable.sdk.Http;
 
 namespace Reusable.sdk.Mailr
 {
+    [Obsolete("Use RestResourceProvider")]
     public interface IMailrClient { }
 }

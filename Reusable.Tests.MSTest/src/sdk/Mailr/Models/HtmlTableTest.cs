@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using Reusable.IOnymous;
 using Reusable.sdk.Mailr.Models;
 
-namespace Reusable.Tests.sdk.Mailr.Models
+namespace Reusable.Tests.MSTest.sdk.Mailr.Models
 {
     [TestClass]
     public class HtmlTableTest

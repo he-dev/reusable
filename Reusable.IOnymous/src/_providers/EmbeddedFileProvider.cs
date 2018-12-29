@@ -15,7 +15,7 @@ namespace Reusable.IOnymous
         private readonly Assembly _assembly;
 
         public EmbeddedFileProvider([NotNull] Assembly assembly, ResourceMetadata metadata = null)
-            : base(new SoftString[] { Scheme }, (metadata ?? ResourceMetadata.Empty).Add(ResourceMetadataKeys.AllowRelativeUri, true))
+            : base(new SoftString[] { Scheme }, metadata.AllowRelativeUri(true))
         {
             _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
             var assemblyName = _assembly.GetName().Name.Replace('.', '/');
@@ -40,7 +40,7 @@ namespace Reusable.IOnymous
             // Embedded resource names are separated by '.' so replace the windows separator.
 
             var fullUri = BaseUri + uri;
-            var fullName = fullUri.Path.Decoded.Value.Replace('/', '.');
+            var fullName = fullUri.Path.Decoded.ToString().Replace('/', '.');
 
             // Embedded resource names are case sensitive so find the actual name of the resource.
             var actualName = _assembly.GetManifestResourceNames().FirstOrDefault(name => SoftString.Comparer.Equals(name, fullName));

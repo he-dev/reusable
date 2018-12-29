@@ -55,8 +55,8 @@ namespace Reusable.IOnymous
                 throw new ArgumentException(paramName: nameof(uri), message: $"'{uri}' is not a valid Uri.");
             }
 
-            Scheme = uriMatch.Groups["scheme"];
-            Authority = uriMatch.Groups["authority"];
+            Scheme = uriMatch.Groups["scheme"].Value;
+            Authority = uriMatch.Groups["authority"].Value;
             Path = new UriStringComponent(UriStringHelper.Encode(uriMatch.Groups["path"].Value.Trim('/')));
             Query =
                 uriMatch.Groups["query"].Success
@@ -70,11 +70,11 @@ namespace Reusable.IOnymous
                         .Cast<Match>()
                         .ToImmutableDictionary
                         (
-                            m => (ImplicitString)m.Groups["key"],
-                            m => (ImplicitString)m.Groups["value"]
+                            m => (SoftString)m.Groups["key"].Value,
+                            m => (SoftString)m.Groups["value"].Value
                         )
-                    : ImmutableDictionary<ImplicitString, ImplicitString>.Empty;
-            Fragment = uriMatch.Groups["fragment"];
+                    : ImmutableDictionary<SoftString, SoftString>.Empty;
+            Fragment = uriMatch.Groups["fragment"].Value;
         }
 
         public UriString(string scheme, string path)
@@ -89,7 +89,10 @@ namespace Reusable.IOnymous
 
             Scheme = first.Scheme;
             Authority = first.Authority;
-            Path = first.Path.Original ? first.Path.Original.Value.Trim('/') + "/" + second.Path.Original.Value.Trim('/') : second.Path.Original.Value.Trim('/');
+            Path = 
+                first.Path.Original 
+                    ? first.Path.Original.ToString().Trim('/') + "/" + second.Path.Original.ToString().Trim('/') 
+                    : second.Path.Original.ToString().Trim('/');
             Query = second.Query;
             Fragment = second.Fragment;
         }
@@ -99,34 +102,34 @@ namespace Reusable.IOnymous
             update.Bind(this);
         }
 
-        public ImplicitString Scheme { get; }
+        public SoftString Scheme { get; }
 
-        public ImplicitString Authority { get; }
+        public SoftString Authority { get; }
 
         public UriStringComponent Path { get; }
 
-        public IImmutableDictionary<ImplicitString, ImplicitString> Query { get; }
+        public IImmutableDictionary<SoftString, SoftString> Query { get; }
 
-        public ImplicitString Fragment { get; }
+        public SoftString Fragment { get; }
 
         public bool IsAbsolute => Scheme;
 
         public bool IsRelative => !IsAbsolute;
 
-        public override string ToString() => ToString(Scheme);
+        public override string ToString() => ToString(Scheme.ToString());
 
-        public string ToString(ImplicitString scheme) => string.Join(string.Empty, GetComponents(scheme));
+        public string ToString(SoftString scheme) => string.Join(string.Empty, GetComponents(scheme));
 
-        private IEnumerable<string> GetComponents(ImplicitString scheme)
+        private IEnumerable<SoftString> GetComponents(SoftString scheme)
         {
             if (scheme)
             {
-                yield return $"{scheme}:";
+                yield return $"{scheme.ToString()}:";
             }
 
             if (Authority)
             {
-                yield return $"//{Authority}{(Path.Original ? "/" : string.Empty)}";
+                yield return $"//{Authority.ToString()}{(Path.Original ? "/" : string.Empty)}";
             }
 
             yield return Path.Original;
@@ -135,14 +138,14 @@ namespace Reusable.IOnymous
             {
                 var queryPairs =
                     Query
-                        .OrderBy(x => (string)x.Key, StringComparer.OrdinalIgnoreCase)
-                        .Select(x => $"{x.Key}{(x.Value ? "=" : string.Empty)}{x.Value}");
+                        .OrderBy(x => x.Key)
+                        .Select(x => $"{x.Key.ToString()}{(x.Value ? "=" : string.Empty)}{x.Value.ToString()}");
                 yield return $"?{string.Join("&", queryPairs)}";
             }
 
             if (Fragment)
             {
-                yield return $"#{Fragment}";
+                yield return $"#{Fragment.ToString()}";
             }
         }
 
@@ -181,18 +184,18 @@ namespace Reusable.IOnymous
 
     public class UriStringComponent
     {
-        public UriStringComponent([NotNull] ImplicitString value) => Original = value ?? throw new ArgumentNullException(nameof(value));
+        public UriStringComponent([NotNull] SoftString value) => Original = value ?? throw new ArgumentNullException(nameof(value));
 
         [NotNull]
-        public ImplicitString Original { get; }
+        public SoftString Original { get; }
 
         [NotNull]
-        public ImplicitString Decoded => UriStringHelper.Decode(Original);
+        public SoftString Decoded => UriStringHelper.Decode(Original.ToString());
 
         public static implicit operator UriStringComponent(string value) => new UriStringComponent(value);
 
-        public static implicit operator string(UriStringComponent component) => component.Original;
+        public static implicit operator string(UriStringComponent component) => component.Original.ToString();
 
-        public static implicit operator UriString(UriStringComponent component) => new UriString(component.Original);
+        public static implicit operator UriString(UriStringComponent component) => new UriString(component.Original.ToString());
     }
 }

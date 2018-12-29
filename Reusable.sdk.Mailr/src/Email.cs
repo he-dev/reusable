@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 
 namespace Reusable.sdk.Mailr
 {
+    [PublicAPI]
     public class Email<TBody>
     {
         public string To { get; set; }
@@ -18,7 +19,8 @@ namespace Reusable.sdk.Mailr
         public bool CanSend { get; set; } = true;
     }
 
-    public class Email
+    [PublicAPI]
+    public static class Email
     {
         public static Email<TBody> CreateHtml<TBody>(string to, string subject, TBody body, [CanBeNull] Action<Email<TBody>> configureEmail = null)
         {

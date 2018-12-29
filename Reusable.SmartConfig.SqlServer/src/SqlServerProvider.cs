@@ -16,7 +16,6 @@ using Reusable.Utilities.SqlClient;
 
 namespace Reusable.SmartConfig
 {
-    using static ResourceMetadataKeys;
     using static SqlServerColumn;
 
     public class SqlServerProvider : ResourceProvider
@@ -53,7 +52,7 @@ namespace Reusable.SmartConfig
         }
 
         [CanBeNull]
-        public IImmutableDictionary<SqlServerColumn, ImplicitString> ColumnMappings { get; set; }
+        public IImmutableDictionary<SqlServerColumn, SoftString> ColumnMappings { get; set; }
 
         [CanBeNull]
         public IImmutableDictionary<string, object> Where { get; set; }
@@ -144,7 +143,7 @@ namespace Reusable.SmartConfig
     public static class SqlServerColumnMappingExtensions
     {
         [NotNull]
-        public static string MapOrDefault(this IImmutableDictionary<SqlServerColumn, ImplicitString> mappings, SqlServerColumn column)
+        public static string MapOrDefault(this IImmutableDictionary<SqlServerColumn, SoftString> mappings, SqlServerColumn column)
         {
             return
                 mappings is null

@@ -53,7 +53,7 @@ namespace Reusable.IOnymous
 
         public static async Task<IResourceInfo> WriteTextFileAsync(this IResourceProvider resourceProvider, string path, string value, ResourceMetadata metadata = null)
         {
-            using (var stream = await ResourceHelper.SerializeAsTextAsync(value, metadata.GetValueOrDefault<Encoding>(nameof(Encoding))))
+            using (var stream = await ResourceHelper.SerializeAsTextAsync(value, metadata.Encoding()))
             {
                 var uri = Path.IsPathRooted(path) ? new UriString(PhysicalFileProvider.Scheme, path) : new UriString(path);
                 return await resourceProvider.PutAsync(uri, stream, (metadata ?? ResourceMetadata.Empty).Format(MimeType.Text));
@@ -62,36 +62,26 @@ namespace Reusable.IOnymous
 
         #endregion
 
-        #region POST helpers
+        #region POST helpers        
 
-        public static async Task<IResourceInfo> PostJsonAsync<T>(this IResourceProvider resourceProvider, UriString uri, T obj, ResourceMetadata metadata = null)
+        public static async Task<IResourceInfo> PostAsync
+        (
+            this IResourceProvider resourceProvider,
+            UriString uri,
+            Func<Task<Stream>> serializeAsync,
+            ResourceMetadata metadata = null
+        )
         {
-            var memoryStream = new MemoryStream();
-            var textWriter = new StreamWriter(memoryStream);
-            var jsonWriter = new JsonTextWriter(textWriter);
-            metadata.JsonSerializer().Serialize(jsonWriter, obj);
-            jsonWriter.Flush();
-
-            var post = resourceProvider.PostAsync(uri, memoryStream, metadata);
-
-            await post.ContinueWith(_ =>
-            {
-                (jsonWriter as IDisposable).Dispose();
-                textWriter.Dispose();
-                memoryStream.Dispose();
-            });
-
-            return await post;
-        }
-
-        public static async Task<IResourceInfo> PostAsync<T>(this IResourceProvider resourceProvider, UriString uri, T obj, Func<T, Task<Stream>> serializeAsync, ResourceMetadata metadata = null)
-        {
-            var stream = await serializeAsync(obj);
+            var stream = await serializeAsync();
             var post = resourceProvider.PostAsync(uri, stream, metadata);
             await post.ContinueWith(_ => stream?.Dispose());
 
             return await post;
         }
+
+        #endregion
+
+        #region DELETE helpers
 
         #endregion
     }

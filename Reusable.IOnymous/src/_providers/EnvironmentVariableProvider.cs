@@ -11,12 +11,12 @@ namespace Reusable.IOnymous
     {
         private readonly IResourceProvider _resourceProvider;
 
-        public EnvironmentVariableProvider([NotNull] IResourceProvider resourceProvider) 
-            : base(resourceProvider.Schemes, resourceProvider.Metadata.Add(ResourceMetadataKeys.AllowRelativeUri, true))
+        public EnvironmentVariableProvider([NotNull] IResourceProvider resourceProvider)
+            : base(resourceProvider.Schemes, resourceProvider.Metadata.AllowRelativeUri(true))
         {
             _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
         }
-        
+
         public static Func<IResourceProvider, EnvironmentVariableProvider> Factory()
         {
             return decorable => new EnvironmentVariableProvider(decorable);
@@ -39,12 +39,12 @@ namespace Reusable.IOnymous
 
         private UriString UpdatePath(UriString uri)
         {
-            var expandedPath = Environment.ExpandEnvironmentVariables(uri.Path.Decoded);
+            var expandedPath = Environment.ExpandEnvironmentVariables(uri.Path.Decoded.ToString());
             var normalizedPath = UriStringHelper.Normalize(expandedPath);
             uri = uri.With(x => x.Path, new UriStringComponent(normalizedPath));
-            if (!uri.Scheme && Path.IsPathRooted(uri.Path.Decoded))
+            if (!uri.Scheme && Path.IsPathRooted(uri.Path.Decoded.ToString()))
             {
-                uri = uri.With(x => x.Scheme, (ImplicitString)"file");
+                uri = uri.With(x => x.Scheme, "file");
             }
 
             return uri;

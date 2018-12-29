@@ -18,7 +18,7 @@ namespace Reusable.SmartConfig.Internal
             [NotNull] this SqlConnection connection,
             [NotNull] SqlFourPartName tableName,
             [NotNull] string name,
-            [CanBeNull] IImmutableDictionary<SqlServerColumn, ImplicitString> columnMappings,
+            [CanBeNull] IImmutableDictionary<SqlServerColumn, SoftString> columnMappings,
             [CanBeNull] IImmutableDictionary<string, object> @where)
         {
             where = where ?? ImmutableDictionary<string, object>.Empty;
@@ -88,7 +88,7 @@ namespace Reusable.SmartConfig.Internal
             [NotNull] this SqlConnection connection,
             [NotNull] SqlFourPartName tableName,
             [NotNull] string name,
-            [CanBeNull] IImmutableDictionary<SqlServerColumn, ImplicitString> columnMappings,
+            [CanBeNull] IImmutableDictionary<SqlServerColumn, SoftString> columnMappings,
             [CanBeNull] IImmutableDictionary<string, object> @where,
             [CanBeNull] object value)
         {

@@ -3,7 +3,6 @@ using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Reusable.IOnymous;
-using Reusable.sdk.Http;
 using Reusable.Teapot;
 using Reusable.Utilities.XUnit.Fixtures;
 using Telerik.JustMock.Helpers;
@@ -47,7 +46,7 @@ namespace Reusable.Tests.XUnit
                 using (var client = new RestResourceProvider("http://localhost:12000/api", ResourceMetadata.Empty))
                 {
                     // Request made by the application somewhere deep down the rabbit hole
-                    var response = await client.PostAsync("test?param=true", new { Greeting = "Hallo" }, obj => ResourceHelper.SerializeAsJsonAsync(obj), ResourceMetadata.Empty.ConfigureRequestHeaders(headers =>
+                    var response = await client.PostAsync("test?param=true", () => ResourceHelper.SerializeAsJsonAsync(new { Greeting = "Hallo" }), ResourceMetadata.Empty.ConfigureRequestHeaders(headers =>
                     {
                         headers.Add("Api-Version", "1.0");
                         headers.UserAgent("Reusable", "1.0");

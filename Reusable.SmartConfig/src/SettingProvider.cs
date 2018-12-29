@@ -58,26 +58,26 @@ namespace Reusable.SmartConfig
                     .AssemblyAttributes
                     .FirstOrDefault(x => x.Matches(this)) ?? SettingProviderAttribute.Default; // In case there are not assembly-level attributes.;
 
-            var memberStrength = (SettingNameStrength)Enum.Parse(typeof(SettingNameStrength), uri.Query["strength"], ignoreCase: true);
+            var memberStrength = (SettingNameStrength)Enum.Parse(typeof(SettingNameStrength), uri.Query["strength"].ToString(), ignoreCase: true);
             var strength = new[] { memberStrength, providerConvention.Strength }.First(x => x > SettingNameStrength.Inherit);
-            var path = uri.Path.Decoded.Value.Split('.').Skip(2 - (int)strength).Join(".");
+            var path = uri.Path.Decoded.ToString().Split('.').Skip(2 - (int)strength).Join(".");
 
-            var memberPrefixHandling = (PrefixHandling)Enum.Parse(typeof(PrefixHandling), uri.Query["prefixHandling"], ignoreCase: true);
+            var memberPrefixHandling = (PrefixHandling)Enum.Parse(typeof(PrefixHandling), uri.Query["prefixHandling"].ToString(), ignoreCase: true);
             var prefixHandling = new[] { memberPrefixHandling, providerConvention.PrefixHandling }.First(x => x > PrefixHandling.Inherit);
 
-            var memberPrefix = uri.Query.TryGetValue("prefix", out var p) ? p : (ImplicitString)string.Empty;
-            var prefixes = new[] { memberPrefix, (ImplicitString)providerConvention.Prefix };
+            var memberPrefix = uri.Query.TryGetValue("prefix", out var p) ? p : (SoftString)string.Empty;
+            var prefixes = new[] { memberPrefix, (SoftString)providerConvention.Prefix };
 
-            var query = (ImplicitString)new (ImplicitString Key, ImplicitString Value)[]
+            var query = (SoftString)new (SoftString Key, SoftString Value)[]
                 {
-                    ("prefix", prefixHandling == PrefixHandling.Enable ? prefixes.First(x => x) : (ImplicitString)string.Empty),
-                    ("instance", uri.Query.TryGetValue("instance", out var instance) ? instance : (ImplicitString)string.Empty)
+                    ("prefix", prefixHandling == PrefixHandling.Enable ? prefixes.First(x => x) : (SoftString)string.Empty),
+                    ("instance", uri.Query.TryGetValue("instance", out var instance) ? instance : (SoftString)string.Empty)
                 }
                 .Where(x => x.Value)
                 .Select(x => $"{x.Key}={x.Value}")
                 .Join("&");
 
-            return $"setting:{path}{(query ? $"?{query}" : string.Empty)}";
+            return $"setting:{path}{(query ? $"?{query.ToString()}" : string.Empty)}";
         }
 
         protected ResourceMetadata Translate(UriString uri, ResourceMetadata metadata)
@@ -86,12 +86,12 @@ namespace Reusable.SmartConfig
 
             if (uri.Query.TryGetValue("providerCustomName", out var providerCustomName))
             {
-                metadata = metadata.Add(ResourceMetadataKeys.ProviderCustomName, (string)providerCustomName);
+                metadata = metadata.ProviderCustomName(providerCustomName);
             }
 
             if (uri.Query.TryGetValue("providerDefaultName", out var providerDefaultName))
             {
-                metadata = metadata.Add(ResourceMetadataKeys.ProviderDefaultName, (string)providerDefaultName);
+                metadata = metadata.ProviderDefaultName(providerDefaultName);
             }
 
             return metadata;

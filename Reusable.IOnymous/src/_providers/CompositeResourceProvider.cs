@@ -4,20 +4,25 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Linq.Custom;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Exceptionizer;
-using Reusable.Extensions;
 
 namespace Reusable.IOnymous
 {
     public class CompositeResourceProvider : ResourceProvider, IEnumerable<IResourceProvider>
     {
-        private readonly Dictionary<UriString, IResourceProvider> _resourceProviderCache;
+        /// <summary>
+        /// Resource provider cache.
+        /// </summary>
+        private readonly Dictionary<UriString, IResourceProvider> _cache;
 
-        private readonly SemaphoreSlim _resourceProviderCacheLock = new SemaphoreSlim(1, 1);
+        /// <summary>
+        /// Resource provider cache lock.
+        /// </summary>
+        private readonly SemaphoreSlim _cacheLock = new SemaphoreSlim(1, 1);
 
         private readonly IImmutableList<IResourceProvider> _resourceProviders;
 
@@ -30,105 +35,126 @@ namespace Reusable.IOnymous
         {
             if (resourceProviders == null) throw new ArgumentNullException(nameof(resourceProviders));
 
-            _resourceProviderCache = new Dictionary<UriString, IResourceProvider>();
+            _cache = new Dictionary<UriString, IResourceProvider>();
             _resourceProviders = resourceProviders.ToImmutableList();
         }
 
         protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
-            await _resourceProviderCacheLock.WaitAsync();
-            try
+            return await HandleMethodAsync(uri, metadata, true, async resourceProvider =>
             {
-                // Use either the cached resource-provider or find a new one.
-
-                if (_resourceProviderCache.TryGetValue(uri, out var cachedResourceProvider))
-                {
-                    return await cachedResourceProvider.GetAsync(uri, metadata);
-                }
-                else
-                {
-                    // Prefilter resource-providers by scheme if necessary. 
-                    var allowAnyScheme = SoftString.Comparer.Equals(uri.Scheme, DefaultScheme);
-                    var resourceProviders = _resourceProviders.Where(p => allowAnyScheme || p.Schemes.Contains(uri.Scheme));
-
-                    // If provider-name is specified then search only providers that mach it.
-                    var providerCustomName = (ImplicitString)metadata.ProviderCustomName();
-                    if (providerCustomName)
-                    {
-                        resourceProviders = _resourceProviders.Where(p => SoftString.Comparer.Equals(p.Metadata.ProviderCustomName(), (string)providerCustomName));
-                    }
-                    else
-                    {
-                        var providerDefaultName = (ImplicitString)metadata.ProviderDefaultName();
-                        if (providerDefaultName)
-                        {
-                            resourceProviders = _resourceProviders.Where(p => SoftString.Comparer.Equals(p.Metadata.ProviderDefaultName(), (string)providerDefaultName));
-                        }
-                    }
-
-                    foreach (var resourceProvider in resourceProviders)
-                    {
-                        var resource = await resourceProvider.GetAsync(uri, metadata);
-                        if (resource.Exists)
-                        {
-                            _resourceProviderCache[uri] = resourceProvider;
-                            return resource;
-                        }
-                    }
-                }
-            }
-            finally
-            {
-                _resourceProviderCacheLock.Release();
-            }
-
-            // Apparently we didn't find the resource.
-            return new InMemoryResourceInfo(uri);
+                var resource = await resourceProvider.GetAsync(uri, metadata);
+                return (resource, resource.Exists);
+            });
         }
 
-        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream data, ResourceMetadata metadata = null)
+        protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
-            var resourceProvider = await GetResourceProviderAsync(uri, metadata);
-            return await resourceProvider.PutAsync(uri, data, metadata);
+            return await HandleMethodAsync(uri, metadata, false, async resourceProvider => (await resourceProvider.PostAsync(uri, value, metadata), true));
+        }
+
+        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
+        {
+            return await HandleMethodAsync(uri, metadata, false, async resourceProvider => (await resourceProvider.PutAsync(uri, value, metadata), true));
         }
 
         protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
-            var resourceProvider = await GetResourceProviderAsync(uri, metadata);
-            return await resourceProvider.DeleteAsync(uri, metadata);
+            return await HandleMethodAsync(uri, metadata, false, async resourceProvider => (await resourceProvider.DeleteAsync(uri, metadata), true));
         }
 
         [ItemNotNull]
-        private async Task<IResourceProvider> GetResourceProviderAsync(UriString uri, ResourceMetadata metadata = null)
+        private async Task<IResourceInfo> HandleMethodAsync(UriString uri, ResourceMetadata metadata, bool allowMultiple, Func<IResourceProvider, Task<(IResourceInfo Resource, bool Handled)>> handleAsync)
         {
-            await _resourceProviderCacheLock.WaitAsync();
+            await _cacheLock.WaitAsync();
             try
             {
-                if (metadata.TryGetValue(ResourceMetadataKeys.ProviderCustomName, out string providerNameToFind))
+                if (_cache.TryGetValue(uri, out var cached))
                 {
-                    return
-                        _resourceProviders
-                            .SingleOrDefault(p =>
-                                p.Metadata.TryGetValue(ResourceMetadataKeys.ProviderCustomName, out string providerName)
-                                && providerName == providerNameToFind
-                            );
+                    var (resource, _) = await handleAsync(cached);
+                    return resource;
                 }
 
-                if (_resourceProviderCache.TryGetValue(uri, out var cachedValueProvider))
+                var resourceProviders = _resourceProviders.AsEnumerable();
+
+                // There can be only one provider with that name.                
+                if (metadata.ProviderCustomName())
                 {
-                    return cachedValueProvider;
+                    var match = resourceProviders.SingleOrDefault(p => metadata.ProviderCustomName().Equals(p.Metadata.ProviderCustomName()));
+                    if (match is null)
+                    {
+                        throw DynamicException.Create
+                        (
+                            "ProviderNotFound",
+                            $"Could not find any provider that would match the name '{metadata.ProviderCustomName().ToString()}'."
+                        );
+                    }
+
+                    var (resource, handled) = await handleAsync(match);
+                    if (handled)
+                    {
+                        _cache[uri] = match;
+                    }
+
+                    return resource;
                 }
 
-                throw DynamicException.Create
-                (
-                    $"Unknown{nameof(ResourceProvider)}",
-                    $"Could not serialize '{uri}' because serializing requires a well-known resource-provider and it could not be determined. " +
-                    $"This means that you either need to specify its name via '{nameof(metadata)}' or call '{nameof(GetAsync)}' first."
-                );
+                if (metadata.ProviderDefaultName())
+                {
+                    resourceProviders = resourceProviders.Where(p => p.Metadata.ProviderDefaultName().Equals(metadata.ProviderDefaultName()));
+                    if (resourceProviders.Empty())
+                    {
+                        throw DynamicException.Create
+                        (
+                            "ProviderNotFound",
+                            $"Could not find any provider that would match the name '{metadata.ProviderDefaultName().ToString()}'."
+                        );
+                    }
+                }
+
+                if (uri.IsAbsolute)
+                {
+                    var ignoreScheme = uri.Scheme == DefaultScheme;
+                    resourceProviders = resourceProviders.Where(p => ignoreScheme || p.Schemes.Contains(uri.Scheme));
+                    if (resourceProviders.Empty())
+                    {
+                        throw DynamicException.Create
+                        (
+                            "ProviderNotFound",
+                            $"Could not find any provider that would match any of the schemes [{(metadata.Schemes().Select(x => x.ToString()).Join(","))}]."
+                        );
+                    }
+                }
+
+                if (allowMultiple)
+                {
+                    foreach (var resourceProvider in resourceProviders)
+                    {
+                        var (resource, handled) = await handleAsync(resourceProvider);
+                        if (handled)
+                        {
+                            _cache[uri] = resourceProvider;
+                            return resource;
+                        }
+                    }
+
+                    return new InMemoryResourceInfo(uri);
+                }
+                else
+                {
+                    var match = resourceProviders.Single();
+                    var (resource, handled) = await handleAsync(match);
+                    if (handled)
+                    {
+                        _cache[uri] = match;
+                    }
+
+                    return resource;
+                }
             }
             finally
             {
-                _resourceProviderCacheLock.Release();
+                _cacheLock.Release();
             }
         }
 

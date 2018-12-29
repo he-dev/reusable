@@ -20,6 +20,7 @@
     <Compile Remove="src\IO\**" />
     <EmbeddedResource Remove="src\IO\**" />
     <None Remove="src\IO\**" />
+    <Compile Remove="src\ImplicitString.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -51,15 +51,15 @@ namespace Reusable.SmartConfig
             if (uri.IsRelative) throw new ArgumentException();
             if (uri.Scheme != "setting") throw new ArgumentException();
 
-            var names = uri.Path.Decoded.Value.Split('.');
+            var names = uri.Path.Decoded.ToString().Split('.');
 
             _tokens = new Dictionary<SettingNameToken, ReadOnlyMemory<char>>
             {
-                [Token.Prefix] = uri.Query.TryGetValue("prefix", out var prefix) ? new ReadOnlyMemory<char>(prefix.Value.ToCharArray()) : ReadOnlyMemory<char>.Empty,
+                [Token.Prefix] = uri.Query.TryGetValue("prefix", out var prefix) ? new ReadOnlyMemory<char>(prefix.ToString().ToCharArray()) : ReadOnlyMemory<char>.Empty,
                 [Token.Namespace] = names.Length == 3 ? new ReadOnlyMemory<char>(names[names.Length - 3].ToCharArray()) : ReadOnlyMemory<char>.Empty,
                 [Token.Type] = names.Length >= 2 ? new ReadOnlyMemory<char>(names[names.Length - 2].ToCharArray()) : ReadOnlyMemory<char>.Empty,
                 [Token.Member] = names.Length >= 1 ? new ReadOnlyMemory<char>(names[names.Length - 1].ToCharArray()) : ReadOnlyMemory<char>.Empty,
-                [Token.Instance] = uri.Query.TryGetValue("instance", out var instance) ? new ReadOnlyMemory<char>(instance.Value.ToCharArray()) : ReadOnlyMemory<char>.Empty,
+                [Token.Instance] = uri.Query.TryGetValue("instance", out var instance) ? new ReadOnlyMemory<char>(instance.ToString().ToCharArray()) : ReadOnlyMemory<char>.Empty,
             };
         }
 
@@ -127,16 +127,16 @@ namespace Reusable.SmartConfig
                 settingIdentifier.Member,
             };
 
-            var query = (ImplicitString)new (ImplicitString Key, ImplicitString Value)[]
+            var query = (SoftString)new (SoftString Key, SoftString Value)[]
             {
                 ("prefix", settingIdentifier.Prefix),
                 ("instance", settingIdentifier.Instance)
             }
             .Where(x => x.Value)
-            .Select(x => $"{x.Key}={x.Value}")
+            .Select(x => $"{x.Key.ToString()}={x.Value.ToString()}")
             .Join("&");
 
-            return $"setting:{path.Where(Conditional.IsNotNullOrEmpty).Join(".")}{(query ? $"?{query}" : string.Empty)}";
+            return $"setting:{path.Where(Conditional.IsNotNullOrEmpty).Join(".")}{(query ? $"?{query.ToString()}" : string.Empty)}";
         }
 
         public static bool operator ==(SettingIdentifier x, SettingIdentifier y) => AutoEquality<SettingIdentifier>.Comparer.Equals(x, y);

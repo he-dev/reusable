@@ -47,7 +47,7 @@ namespace Reusable.Tests.XUnit.IOnymous
                 },
             });
 
-            var resource = await composite.GetAsync("blub:123", ResourceMetadata.Empty.Add(ResourceMetadataKeys.ProviderDefaultName, nameof(InMemoryResourceProvider)));
+            var resource = await composite.GetAsync("blub:123", ResourceMetadata.Empty.ProviderDefaultName(nameof(InMemoryResourceProvider)));
 
             Assert.True(resource.Exists);
             Assert.Equal("blub1", await resource.DeserializeTextAsync());
@@ -62,14 +62,14 @@ namespace Reusable.Tests.XUnit.IOnymous
                 {
                     { "blub:123", "blub1" }
                 },
-                new InMemoryResourceProvider(ResourceMetadata.Empty.Add(ResourceMetadataKeys.ProviderCustomName, "blub"))
+                new InMemoryResourceProvider(ResourceMetadata.Empty.ProviderCustomName("blub"))
                 {
                     { "blub:123", "blub2" },
                     { "blub:123", "blub3" }
                 },
             });
 
-            var resource = await composite.GetAsync("blub:123", ResourceMetadata.Empty.Add(ResourceMetadataKeys.ProviderCustomName, "blub"));
+            var resource = await composite.GetAsync("blub:123", ResourceMetadata.Empty.ProviderCustomName("blub"));
 
             Assert.True(resource.Exists);
             Assert.Equal("blub3", await resource.DeserializeTextAsync());
@@ -84,7 +84,7 @@ namespace Reusable.Tests.XUnit.IOnymous
                 {
                     { "blub:123", "blub1" }
                 },
-                new InMemoryResourceProvider(ResourceMetadata.Empty.Add(ResourceMetadataKeys.ProviderCustomName, "blub"))
+                new InMemoryResourceProvider(ResourceMetadata.Empty.ProviderCustomName("blub"))
                 {
                     { "blub:123", "blub2" },
                     { "blub:123", "blub3" }

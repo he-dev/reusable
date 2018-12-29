@@ -17,8 +17,6 @@ using Reusable.Flawless;
 
 namespace Reusable.IOnymous
 {
-    using static ResourceMetadataKeys;
-
     [PublicAPI]
     public interface IResourceProvider : IDisposable
     {
@@ -51,7 +49,7 @@ namespace Reusable.IOnymous
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract class ResourceProvider : IResourceProvider
     {
-        public static readonly ImplicitString DefaultScheme = "ionymous";
+        public static readonly SoftString DefaultScheme = "ionymous";
 
         protected ResourceProvider([NotNull] IEnumerable<SoftString> schemes, [NotNull] ResourceMetadata metadata)
         {
@@ -60,9 +58,9 @@ namespace Reusable.IOnymous
 
 
             // If this is a decorator then the decorated resource-provider already has set this.
-            if (!metadata.ContainsKey(ProviderDefaultName))
+            if (!metadata.ProviderDefaultName())
             {
-                metadata = metadata.Add(ProviderDefaultName, GetType().ToPrettyString());
+                metadata = metadata.ProviderDefaultName(GetType().ToPrettyString());
             }
 
             Schemes = schemes.ToImmutableHashSet();
@@ -175,7 +173,7 @@ namespace Reusable.IOnymous
 
         protected void ValidateSchemeMatches([NotNull] UriString uri, [CallerMemberName] string memberName = null)
         {
-            if (Metadata.TryGetValue(AllowRelativeUri, out bool allow) && allow)
+            if (Metadata.AllowRelativeUri())
             {
                 return;
             }
@@ -197,7 +195,7 @@ namespace Reusable.IOnymous
 
         protected void ValidateSchemeNotEmpty([NotNull] UriString uri, [CallerMemberName] string memberName = null)
         {
-            if (Metadata.TryGetValue(AllowRelativeUri, out bool allow) && allow)
+            if (Metadata.AllowRelativeUri())
             {
                 return;
             }
@@ -249,6 +247,7 @@ namespace Reusable.IOnymous
 
         public virtual void Dispose()
         {
+            // Can be overriden when derived.
         }
     }
    

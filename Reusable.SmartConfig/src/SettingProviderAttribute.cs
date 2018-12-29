@@ -57,7 +57,7 @@ namespace Reusable.SmartConfig
         {
             return
                 _providerNames
-                    .Intersect(provider.Metadata.ProviderNames().Select(SoftString.Create))
+                    .Intersect(provider.Metadata.ProviderNames().Where(name => !name.IsNullOrEmpty()))
                     .Any();
         }
     }

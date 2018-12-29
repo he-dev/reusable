@@ -3,8 +3,6 @@ using System.Collections.Immutable;
 
 namespace Reusable.IOnymous
 {
-    using static ResourceMetadataKeys;
-
     public class ResourceMetadata
     {
         private readonly IImmutableDictionary<SoftString, object> _metadata;

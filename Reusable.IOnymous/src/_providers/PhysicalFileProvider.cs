@@ -41,7 +41,7 @@ namespace Reusable.IOnymous
                 );
             }
             
-            using (var fileStream = new FileStream(uri.Path.Decoded, FileMode.CreateNew, FileAccess.Write))
+            using (var fileStream = new FileStream(uri.Path.Decoded.ToString(), FileMode.CreateNew, FileAccess.Write))
             {
                 await value.CopyToAsync(fileStream);
                 await fileStream.FlushAsync();
@@ -52,7 +52,7 @@ namespace Reusable.IOnymous
 
         protected override Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {            
-            File.Delete(uri.Path.Decoded);
+            File.Delete(uri.Path.Decoded.ToString());
             return Task.FromResult<IResourceInfo>(new PhysicalFileInfo(uri, MimeType.Null));
         }
     }
@@ -66,17 +66,17 @@ namespace Reusable.IOnymous
         {
         }
 
-        public override bool Exists => File.Exists(Uri.Path.Decoded);
+        public override bool Exists => File.Exists(Uri.Path.Decoded.ToString());
 
-        public override long? Length => new FileInfo(Uri.Path.Decoded).Length;
+        public override long? Length => new FileInfo(Uri.Path.Decoded.ToString()).Length;
 
-        public override DateTime? CreatedOn => Exists ? File.GetCreationTimeUtc(Uri.Path.Decoded) : default;
+        public override DateTime? CreatedOn => Exists ? File.GetCreationTimeUtc(Uri.Path.Decoded.ToString()) : default;
 
-        public override DateTime? ModifiedOn => Exists ? File.GetLastWriteTimeUtc(Uri.Path.Decoded) : default;
+        public override DateTime? ModifiedOn => Exists ? File.GetLastWriteTimeUtc(Uri.Path.Decoded.ToString()) : default;
 
         protected override async Task CopyToAsyncInternal(Stream stream)
         {
-            using (var fileStream = File.OpenRead(Uri.Path.Decoded))
+            using (var fileStream = File.OpenRead(Uri.Path.Decoded.ToString()))
             {
                 await fileStream.CopyToAsync(stream);
             }

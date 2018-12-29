@@ -24,11 +24,15 @@ namespace Reusable
             _value = value.Trim();
         }
 
-        public SoftString() : this(string.Empty) { }
+        public SoftString() : this(string.Empty)
+        {
+        }
 
         [DebuggerStepThrough]
         public SoftString(char value)
-            : this(value.ToString()) { }
+            : this(value.ToString())
+        {
+        }
 
         [NotNull]
         public static SoftString Empty { get; } = new SoftString();
@@ -53,16 +57,16 @@ namespace Reusable
 
         public override string ToString() => _value;
 
-    #region IEnumerable
+        #region IEnumerable
 
         public IEnumerator<char> GetEnumerator() => ToString().GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    #endregion
+        #endregion
 
         public static bool IsNullOrEmpty([CanBeNull] SoftString value) => string.IsNullOrEmpty(value?._value);
 
         public static bool IsNullOrWhiteSpace([CanBeNull] SoftString value) => string.IsNullOrWhiteSpace(value?._value);
-    }    
+    }
 }

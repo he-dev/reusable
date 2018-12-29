@@ -13,6 +13,7 @@ using Reusable.IOnymous;
 
 namespace Reusable.sdk.Http
 {
+    [Obsolete("Use RestResourceProvider")]
     [PublicAPI]
     public interface IRestClient
     {
@@ -21,6 +22,7 @@ namespace Reusable.sdk.Http
         Task<T> InvokeAsync<T>([NotNull] HttpMethodContext context, CancellationToken cancellationToken);
     }
 
+    [Obsolete("Use RestResourceProvider")]
     // ReSharper disable once UnusedTypeParameter - This is a marker interface and it needs to stay.
     public interface IRestClient<TMarker> : IRestClient
     {

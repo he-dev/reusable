@@ -46,6 +46,7 @@
     <Compile Remove="src\Core\IO\**" />
     <EmbeddedResource Remove="src\Core\IO\**" />
     <None Remove="src\Core\IO\**" />
+    <Compile Remove="src\sdk\Mailr\EmailsTest.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -127,7 +128,6 @@
     <ProjectReference Include="..\Reusable.Csv\Reusable.Csv.csproj" />
     <ProjectReference Include="..\Reusable.Deception\Reusable.Deception.csproj" />
     <ProjectReference Include="..\Reusable.Flexo\Reusable.Flexo.csproj" />
-    <ProjectReference Include="..\Reusable.sdk.Http\Reusable.sdk.Http.csproj" />
     <ProjectReference Include="..\Reusable.sdk.Mail\Reusable.sdk.Mail.csproj" />
     <ProjectReference Include="..\Reusable.sdk.Mailr\Reusable.sdk.Mailr.csproj" />
     <ProjectReference Include="..\Reusable.MarkupBuilder\Reusable.MarkupBuilder.csproj" />

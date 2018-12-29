@@ -70,7 +70,7 @@ namespace Reusable.Tests.XUnit.IOnymous
             
             Assert.Equal("http", uri.Scheme);
             Assert.Equal("localhost:1234", uri.Authority);
-            Assert.Equal("resource", uri.Path.Decoded.Value);
+            Assert.Equal("resource", uri.Path.Decoded.ToString());
         }
     }
 }

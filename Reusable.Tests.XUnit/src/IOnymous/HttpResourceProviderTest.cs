@@ -1,7 +1,5 @@
 using System.Threading.Tasks;
 using Reusable.IOnymous;
-using Reusable.sdk.Http;
-using Reusable.sdk.Http.Formatting;
 using Xunit;
 
 namespace Reusable.Tests.XUnit.IOnymous

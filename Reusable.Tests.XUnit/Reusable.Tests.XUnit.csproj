@@ -29,7 +29,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
-    <ProjectReference Include="..\Reusable.sdk.Http\Reusable.sdk.Http.csproj" />
+    <ProjectReference Include="..\Reusable.IOnymous.Http\Reusable.IOnymous.Http.csproj" />
     <ProjectReference Include="..\Reusable.sdk.Mailr\Reusable.sdk.Mailr.csproj" />
     <ProjectReference Include="..\Reusable.SmartConfig.SqlServer\Reusable.SmartConfig.SqlServer.csproj" />
     <ProjectReference Include="..\Reusable.SmartConfig\Reusable.SmartConfig.csproj" />

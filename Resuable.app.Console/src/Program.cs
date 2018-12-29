@@ -51,7 +51,7 @@ namespace Reusable.Apps
             //Demos.RestClientDemo.Start();
             //Demos.RestClientDemo.Mailr().GetAwaiter().GetResult();
             //ExceptionVisualizerExperiment.Run();
-            await Reusable.Utilities.Http.Program.Run();
+            //await Reusable.Utilities.Http.Program.Run();
 
 
             //System.Console.ReadKey();
