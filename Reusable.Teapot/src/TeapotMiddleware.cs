@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using Reusable.Exceptionizer;
 using Reusable.IOnymous;
 
 namespace Reusable.Teapot
@@ -39,9 +40,8 @@ namespace Reusable.Teapot
                 await context.Request.Body.CopyToAsync(bodyBackup);
 
                 // Each log gets it's own request copy. It's easier to dispose them later.
-                bodyBackup.Seek(0, SeekOrigin.Begin);
                 var bodyCopy = new MemoryStream();
-                await bodyBackup.CopyToAsync(bodyCopy);
+                await bodyBackup.Rewind().CopyToAsync(bodyCopy);
 
                 var uri = context.Request.Path + context.Request.QueryString;
 
@@ -76,14 +76,13 @@ namespace Reusable.Teapot
                         switch (response?.Content)
                         {
                             case string str:
-                                //context.Response.ContentType = "application/json; charset=utf-8";
+                                context.Response.ContentType = "text/plain; charset=utf-8";
                                 await context.Response.WriteAsync(str);
                                 break;
 
                             case MemoryStream stream:
-                                context.Response.ContentType = "application/json; charset=utf-8";
-                                stream.Seek(0, SeekOrigin.Begin);
-                                await stream.CopyToAsync(context.Response.Body);
+                                context.Response.ContentType = "application/octet-stream";
+                                await stream.Rewind().CopyToAsync(context.Response.Body);
                                 break;
 
                             default:
@@ -94,11 +93,17 @@ namespace Reusable.Teapot
                     }
                 }
             }
-            catch (Exception inner)
+            catch (DynamicException clientEx)
             {
-                // Not sure what to do... throw or not?
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                context.Response.ContentType = "text/plain; charset=utf-8";
+                await context.Response.WriteAsync(clientEx.ToString());
+            }
+            catch (Exception serverEx)
+            {
                 context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                //throw;
+                context.Response.ContentType = "text/plain; charset=utf-8";
+                await context.Response.WriteAsync(serverEx.ToString());
             }
         }
     }

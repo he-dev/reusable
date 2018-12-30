@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Reusable.IOnymous;
 using Reusable.Teapot;
-using Reusable.Utilities.XUnit.Fixtures;
+using Reusable.Tests.XUnit.Fixtures;
 using Telerik.JustMock.Helpers;
 using Xunit;
 
@@ -43,7 +43,7 @@ namespace Reusable.Tests.XUnit
                                 .Echo();
                         });
 
-                using (var client = new RestResourceProvider("http://localhost:12000/api", ResourceMetadata.Empty))
+                using (var client = new HttpResourceProvider("http://localhost:12000/api", ResourceMetadata.Empty))
                 {
                     // Request made by the application somewhere deep down the rabbit hole
                     var response = await client.PostAsync("test?param=true", () => ResourceHelper.SerializeAsJsonAsync(new { Greeting = "Hallo" }), ResourceMetadata.Empty.ConfigureRequestHeaders(headers =>

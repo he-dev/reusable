@@ -35,7 +35,6 @@
     <ProjectReference Include="..\Reusable.SmartConfig\Reusable.SmartConfig.csproj" />
     <ProjectReference Include="..\Reusable.Teapot\Reusable.Teapot.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
-    <ProjectReference Include="..\Reusable.Utilities.XUnit\Reusable.Utilities.XUnit.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Configuration" />

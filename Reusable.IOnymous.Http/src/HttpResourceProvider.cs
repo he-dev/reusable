@@ -4,14 +4,15 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Exceptionizer;
 
 namespace Reusable.IOnymous
 {
-    public class RestResourceProvider : ResourceProvider
+    public class HttpResourceProvider : ResourceProvider
     {
         private readonly HttpClient _client;
 
-        public RestResourceProvider(string baseUri, ResourceMetadata metadata = null)
+        public HttpResourceProvider(string baseUri, ResourceMetadata metadata = null)
             : base(new SoftString[] { "http", "https" }, metadata.AllowRelativeUri(true))
         {
             _client = new HttpClient
@@ -26,48 +27,64 @@ namespace Reusable.IOnymous
         protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
             uri = BaseUri + uri;
-            var response = await InvokeAsync(uri, HttpMethod.Get, metadata);
-            return new RestResourceInfo(uri, response);
+            var (response, mediaType) = await InvokeAsync(uri, HttpMethod.Get, metadata);
+            return new HttpResourceInfo(uri, response, new MimeType(mediaType));
         }
 
         protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
             uri = BaseUri + uri;
-            var response = await InvokeAsync(uri, HttpMethod.Post, (metadata ?? ResourceMetadata.Empty).Content(value));
-            return new RestResourceInfo(uri, response);
+            var (response, mediaType) = await InvokeAsync(uri, HttpMethod.Post, (metadata ?? ResourceMetadata.Empty).Content(value));
+            return new HttpResourceInfo(uri, response, new MimeType(mediaType));
         }
 
         #region Helpers
 
-        private async Task<Stream> InvokeAsync(UriString uri, HttpMethod method, ResourceMetadata metadata)
+        private async Task<(Stream Content, string MimeType)> InvokeAsync(UriString uri, HttpMethod method, ResourceMetadata metadata)
         {
             using (var request = new HttpRequestMessage(method, uri))
             {
                 var content = metadata.Content();
                 if (content != null)
                 {
-                    content.Seek(0, SeekOrigin.Begin);
-                    request.Content = new StreamContent(content);
-                    request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                    request.Content = new StreamContent(content.Rewind());
+                    request.Content.Headers.ContentType = new MediaTypeHeaderValue(metadata.ContentType());
                 }
 
                 Metadata.ConfigureRequestHeaders()(request.Headers);
                 metadata.ConfigureRequestHeaders()(request.Headers);
                 using (var response = await _client.SendAsync(request, HttpCompletionOption.ResponseContentRead, metadata.CancellationToken()))
                 {
-                    if (metadata.EnsureSuccessStatusCode())
-                    {
-                        response.EnsureSuccessStatusCode();
-                    }
+                    var responseContentCopy = new MemoryStream();
 
                     if (response.Content.Headers.ContentLength > 0)
                     {
-                        var responseContentCopy = new MemoryStream();
                         await response.Content.CopyToAsync(responseContentCopy);
-                        return responseContentCopy;
                     }
 
-                    return null;
+                    var clientErrorClass = new Range<int>(400, 499);
+                    var serverErrorClass = new Range<int>(500, 599);
+
+                    var classOfStatusCode =
+                        clientErrorClass.ContainsInclusive((int)response.StatusCode)
+                            ? "Client"
+                            : serverErrorClass.ContainsInclusive((int)response.StatusCode)
+                                ? "Server"
+                                : null;
+
+                    if (classOfStatusCode is null)
+                    {
+                        return (responseContentCopy, response.Content.Headers.ContentType.MediaType);
+                    }
+
+                    using (var responseReader = new StreamReader(responseContentCopy.Rewind()))
+                    {
+                        throw DynamicException.Create
+                        (
+                            classOfStatusCode,
+                            $"StatusCode: {(int)response.StatusCode} ({response.StatusCode}){Environment.NewLine}{await responseReader.ReadToEndAsync()}"
+                        );
+                    }
                 }
             }
         }
@@ -80,12 +97,12 @@ namespace Reusable.IOnymous
         }
     }
 
-    internal class RestResourceInfo : ResourceInfo
+    internal class HttpResourceInfo : ResourceInfo
     {
         private readonly Stream _response;
 
-        public RestResourceInfo([NotNull] UriString uri, Stream response)
-            : base(uri, MimeType.Json)
+        public HttpResourceInfo([NotNull] UriString uri, Stream response, MimeType format)
+            : base(uri, format)
         {
             _response = response;
         }
@@ -102,7 +119,7 @@ namespace Reusable.IOnymous
         {
             await _response.Rewind().CopyToAsync(stream);
         }
-        
+
         public override void Dispose()
         {
             _response.Dispose();

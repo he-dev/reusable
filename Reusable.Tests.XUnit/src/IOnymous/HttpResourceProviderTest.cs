@@ -9,7 +9,7 @@ namespace Reusable.Tests.XUnit.IOnymous
         //[Fact]
         public async Task Blub()
         {
-            var client = new RestResourceProvider("https://jsonplaceholder.typicode.com", ResourceMetadata.Empty);
+            var client = new HttpResourceProvider("https://jsonplaceholder.typicode.com", ResourceMetadata.Empty);
 
             var response = await client.GetAsync
             (

@@ -1,5 +1,6 @@
 using System.IO;
 using JetBrains.Annotations;
+using Reusable.IOnymous;
 
 namespace Reusable.Teapot
 {
@@ -27,8 +28,7 @@ namespace Reusable.Teapot
             return response.Enqueue(request =>
             {
                 var requestCopy = new MemoryStream();
-                request.Body.Seek(0, SeekOrigin.Begin);
-                request.Body.CopyTo(requestCopy);
+                request.Body.Rewind().CopyTo(requestCopy);
                 return new ResponseInfo(200, requestCopy);
             });
         }

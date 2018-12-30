@@ -13,14 +13,22 @@ namespace Reusable.sdk.Mailr
             this IResourceProvider resourceProvider,
             UriString uri,
             Email<TBody> email,
+            string productName,
+            string productVersion,
             JsonSerializer jsonSerializer = null,
             ResourceMetadata metadata = null
         )
         {
             metadata =
                 metadata
-                .ConfigureRequestHeaders(headers => { headers.AcceptHtml(); })
-                .ResponseFormatters(new TextMediaTypeFormatter())
+                .ConfigureRequestHeaders(headers =>
+                {
+                    headers
+                        .UserAgent(productName, productVersion)
+                        .AcceptHtml();
+                })
+                .ResponseFormatters(new TextMediaTypeFormatter())                
+                .ContentType("application/json")
                 .Schemes("http", "https");
 
             var response = await resourceProvider.PostAsync(uri, () => ResourceHelper.SerializeAsJsonAsync(email, jsonSerializer), metadata);

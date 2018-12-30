@@ -79,6 +79,8 @@ namespace Reusable.Teapot
         public static IRequestBuilder Accepts(this IRequestBuilder builder, string mediaType) => builder.WithHeader("Accept", mediaType);
 
         public static IRequestBuilder AcceptsJson(this IRequestBuilder builder) => builder.Accepts("application/json");
+        
+        public static IRequestBuilder AcceptsHtml(this IRequestBuilder builder) => builder.Accepts("text/html");
     }
 
     public interface IContentAssert<out TContent>

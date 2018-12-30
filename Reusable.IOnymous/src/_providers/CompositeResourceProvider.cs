@@ -31,7 +31,7 @@ namespace Reusable.IOnymous
             [NotNull] IEnumerable<IResourceProvider> resourceProviders,
             [CanBeNull] ResourceMetadata metadata = null
         )
-            : base(new SoftString[] { DefaultScheme }, (metadata ?? ResourceMetadata.Empty))
+            : base(new [] { DefaultScheme }, (metadata ?? ResourceMetadata.Empty))
         {
             if (resourceProviders == null) throw new ArgumentNullException(nameof(resourceProviders));
 
@@ -64,7 +64,7 @@ namespace Reusable.IOnymous
         }
 
         [ItemNotNull]
-        private async Task<IResourceInfo> HandleMethodAsync(UriString uri, ResourceMetadata metadata, bool allowMultiple, Func<IResourceProvider, Task<(IResourceInfo Resource, bool Handled)>> handleAsync)
+        private async Task<IResourceInfo> HandleMethodAsync(UriString uri, ResourceMetadata metadata, bool allowMultipleProviders, Func<IResourceProvider, Task<(IResourceInfo Resource, bool Handled)>> handleAsync)
         {
             await _cacheLock.WaitAsync();
             try
@@ -99,6 +99,7 @@ namespace Reusable.IOnymous
                     return resource;
                 }
 
+                // Multiple providers can have the same default name.
                 if (metadata.ProviderDefaultName())
                 {
                     resourceProviders = resourceProviders.Where(p => p.Metadata.ProviderDefaultName().Equals(metadata.ProviderDefaultName()));
@@ -126,7 +127,7 @@ namespace Reusable.IOnymous
                     }
                 }
 
-                if (allowMultiple)
+                if (allowMultipleProviders)
                 {
                     foreach (var resourceProvider in resourceProviders)
                     {

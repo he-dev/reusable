@@ -19,7 +19,7 @@ namespace Reusable.IOnymous
         }
 
         public InMemoryResourceProvider(ResourceMetadata metadata = null)
-            : base(new SoftString[] { DefaultScheme }, (metadata ?? ResourceMetadata.Empty))
+            : base(new[] { DefaultScheme }, (metadata ?? ResourceMetadata.Empty))
         {
         }
 
@@ -44,36 +44,41 @@ namespace Reusable.IOnymous
             return await GetAsync(uri, metadata);
         }
 
-        #region Collection initilizer
+        public IEnumerator<IResourceInfo> GetEnumerator() => _items.GetEnumerator();
 
-        public void Add(IResourceInfo item) => _items.Add(item);
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_items).GetEnumerator();
+    }
 
-        public void Add(string uri, object value)
+    public static class InMemoryResourceProviderExtensions
+    {
+        #region Collection initilizers
+
+        //public void Add(IResourceInfo item) => _items.Add(item);
+
+        public static InMemoryResourceProvider Add(this InMemoryResourceProvider inMemory, string uri, object value)
         {
             switch (value)
             {
                 case string str:
                 {
                     var stream = ResourceHelper.SerializeAsTextAsync(str).GetAwaiter().GetResult();
-                    PutAsync(uri, stream, ResourceMetadata.Empty.Format(MimeType.Text)).GetAwaiter().GetResult();
+                    inMemory.PutAsync(uri, stream, ResourceMetadata.Empty.Format(MimeType.Text)).GetAwaiter().GetResult();
                 }
 
                     break;
                 default:
                 {
                     var stream = ResourceHelper.SerializeAsBinaryAsync(value).GetAwaiter().GetResult();
-                    PutAsync(uri, stream, ResourceMetadata.Empty.Format(MimeType.Binary)).GetAwaiter().GetResult();
+                    inMemory.PutAsync(uri, stream, ResourceMetadata.Empty.Format(MimeType.Binary)).GetAwaiter().GetResult();
                 }
 
                     break;
             }
+
+            return inMemory;
         }
 
         #endregion
-
-        public IEnumerator<IResourceInfo> GetEnumerator() => _items.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_items).GetEnumerator();
     }
 
     public class InMemoryResourceInfo : ResourceInfo

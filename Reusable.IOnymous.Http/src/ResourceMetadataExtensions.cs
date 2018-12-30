@@ -74,5 +74,29 @@ namespace Reusable.IOnymous
         {
             return metadata.SetItemSafe(responseType);
         }
+
+        // ---
+
+        public static string ContentType(this ResourceMetadata metadata)
+        {
+            return metadata.GetValueOrDefault("application/json");
+        }
+
+        public static ResourceMetadata ContentType(this ResourceMetadata metadata, string contentType)
+        {
+            return metadata.SetItemSafe(contentType);
+        }
+
+        // ---
+
+//        public static Action<(int StatusCode, string Content)> OnClientError(this ResourceMetadata metadata)
+//        {
+//            return metadata.GetValueOrDefault((Action<(int, string)>)(_ => { }));
+//        }
+//
+//        public static ResourceMetadata OnClientError(this ResourceMetadata metadata, Action<(int StatusCode, string Content)> onClientError)
+//        {
+//            return metadata.SetItemSafe(onClientError);
+//        }
     }
 }
