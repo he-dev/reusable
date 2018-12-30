@@ -24,35 +24,37 @@ namespace Reusable.Tests.XUnit.sdk.Mailr
         }
 
         [Fact]
-        public async Task SendAsync_CanRequestMessagesResource()
+        public async Task Can_post_email_and_receive_html()
         {
             using (var teacup = _server.BeginScope())
             {
-                teacup
-                    .Mock("/api/mailr/messages/test")
-                    .ArrangePost((request, response) =>
-                    {
-                        request
-                            .AcceptsHtml()
-                            .AsUserAgent("IOnymous", "1.0")
-                            //.WithApiVersion("1.0")
-                            .WithContentTypeJson(json =>
-                            {
-                                json
-                                    .HasProperty("$.To")
-                                    .HasProperty("$.Subject")
-                                    //.HasProperty("$.From") // Boom! This property does not exist.
-                                    .HasProperty("$.Body.Greeting");
-                            });
+                var mailrMessagesTestMock =
+                    teacup
+                        .Mock("/api/mailr/messages/test")
+                        .ArrangePost((request, response) =>
+                        {
+                            request
+                                .AcceptsHtml()
+                                .AsUserAgent("IOnymous", "1.0")
+                                //.WithApiVersion("1.0")
+                                .WithContentTypeJson(json =>
+                                {
+                                    json
+                                        .HasProperty("$.To")
+                                        .HasProperty("$.Subject")
+                                        //.HasProperty("$.From") // Boom! This property does not exist.
+                                        .HasProperty("$.Body.Greeting");
+                                });
 
-                        response
-                            .Once(200, "OK!");
-                    });
+                            response
+                                .Once(200, "OK!");
+                        });
 
                 var email = Email.CreateHtml("myemail@mail.com", "Testmail", new { Greeting = "Hallo Mailr!" });
                 var html = await _http.SendAsync("mailr/messages/test", email, "IOnymous", "1.0");
 
                 Assert.Equal("OK!", html);
+                mailrMessagesTestMock.Assert();
             }
         }
 

@@ -1,28 +1,24 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using System.Threading.Tasks;
 using Reusable.IOnymous;
 using Reusable.Teapot;
 using Reusable.Tests.XUnit.Fixtures;
-using Telerik.JustMock.Helpers;
 using Xunit;
 
-namespace Reusable.Tests.XUnit
+namespace Reusable.Tests.XUnit.Teapot
 {
-    public class TeapotExperiment : IClassFixture<TeapotFactoryFixture>
+    public class UseCaseTest : IClassFixture<TeapotFactoryFixture>
     {
         private const string Url = "http://localhost:12000";
 
         private readonly TeapotServer _teapot;
 
-        public TeapotExperiment(TeapotFactoryFixture teapotFactory)
+        public UseCaseTest(TeapotFactoryFixture teapotFactory)
         {
             _teapot = teapotFactory.CreateTeapotServer(Url);
         }
 
         [Fact]
-        public async Task PostsGreeting()
+        public async Task Can_post_json()
         {
             using (var teacup = _teapot.BeginScope())
             {
@@ -32,7 +28,7 @@ namespace Reusable.Tests.XUnit
                         .ArrangePost((request, response) =>
                         {
                             request
-                                .AsUserAgent("Reusable", "1.0")
+                                .AsUserAgent("Teapot", "1.0")
                                 .Occurs(1)
                                 .AcceptsJson()
                                 .WithApiVersion("1.0")
@@ -48,8 +44,8 @@ namespace Reusable.Tests.XUnit
                     // Request made by the application somewhere deep down the rabbit hole
                     var response = await client.PostAsync("test?param=true", () => ResourceHelper.SerializeAsJsonAsync(new { Greeting = "Hallo" }), ResourceMetadata.Empty.ConfigureRequestHeaders(headers =>
                     {
-                        headers.Add("Api-Version", "1.0");
-                        headers.UserAgent("Reusable", "1.0");
+                        headers.ApiVersion("1.0");
+                        headers.UserAgent("Teapot", "1.0");
                         headers.AcceptJson();
                     }));
 

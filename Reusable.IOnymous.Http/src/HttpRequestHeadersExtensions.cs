@@ -20,6 +20,12 @@ namespace Reusable.IOnymous
         {
             headers.UserAgent.Add(new ProductInfoHeaderValue(productName, productVersion));
             return headers;
-        }        
+        }
+        
+        public static HttpRequestHeaders ApiVersion(this HttpRequestHeaders headers, string apiVersion)
+        {
+            headers.Add("Api-Version", apiVersion);
+            return headers;
+        }   
     }
 }
