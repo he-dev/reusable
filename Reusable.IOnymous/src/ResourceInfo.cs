@@ -136,7 +136,6 @@ namespace Reusable.IOnymous
         /// </summary>
         public static readonly MimeType Text = new MimeType("text/plain");
 
-
         public static readonly MimeType Json = new MimeType("application/json");
 
         /// <summary>

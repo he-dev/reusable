@@ -12,7 +12,8 @@ namespace Reusable.IOnymous
 
         public static async Task<string> DeserializeTextAsync(this IResourceInfo resourceInfo)
         {
-            if (resourceInfo.Format != MimeType.Text)
+            // todo - find a cleaner solution; maybe a new comparer for MimeType?
+            if (!resourceInfo.Format.Name.StartsWith("text/"))
             {
                 throw new ArgumentException($"Resource must be '{MimeType.Text}' but is '{resourceInfo.Format}'.");
             }

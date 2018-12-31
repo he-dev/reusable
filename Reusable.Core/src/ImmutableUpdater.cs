@@ -48,12 +48,12 @@ namespace Reusable
 
         public static void Bind<T>(this ImmutableUpdate update, T obj)
         {
-            // todo - this could be cached
-            var isCalledByImmutableUpdateCtor = new StackFrame(1).GetMethod() == ImmutableUpdateConstructor(typeof(T));
-            if (!isCalledByImmutableUpdateCtor)
-            {
-                throw new InvalidOperationException($"You can call '{nameof(Bind)}' only from within an ImmutableUpdate constructor.");
-            }
+            // todo - fix invalid stack-frame when optimized
+            // var isCalledByImmutableUpdateCtor = new StackFrame(1).GetMethod() == ImmutableUpdateConstructor(typeof(T));
+            // if (!isCalledByImmutableUpdateCtor)
+            // {
+            //     throw new InvalidOperationException($"You can call '{nameof(Bind)}' only from within an ImmutableUpdate constructor.");
+            // }
 
             foreach (var (property, value) in update)
             {

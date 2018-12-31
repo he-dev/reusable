@@ -27,6 +27,11 @@ namespace Reusable.IOnymous
             return _resourceProvider.GetAsync(UpdatePath(uri), metadata);
         }
 
+        protected override Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
+        {
+            return _resourceProvider.PostAsync(UpdatePath(uri), value, metadata);
+        }
+        
         protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
             return _resourceProvider.PutAsync(UpdatePath(uri), value, metadata);

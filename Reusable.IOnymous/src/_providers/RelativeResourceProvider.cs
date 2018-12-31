@@ -26,9 +26,14 @@ namespace Reusable.IOnymous
 
         protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
-            return await _resourceProvider.GetAsync(Combine(uri));
+            return await _resourceProvider.GetAsync(Combine(uri), metadata);
         }
 
+        protected override Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
+        {
+            return _resourceProvider.PostAsync(Combine(uri), value, metadata);
+        }
+        
         protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
             return _resourceProvider.PutAsync(Combine(uri), value, metadata);
@@ -36,7 +41,7 @@ namespace Reusable.IOnymous
 
         protected override Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
-            return _resourceProvider.DeleteAsync(uri, metadata);
+            return _resourceProvider.DeleteAsync(Combine(uri), metadata);
         }
 
         private UriString Combine(UriString uri)

@@ -32,18 +32,18 @@ namespace Reusable.IOnymous
 
         protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
-            if (metadata.Format() == MimeType.Null)
-            {
-                throw new ArgumentException
-                (
-                    paramName: nameof(metadata), 
-                    message: ResourceHelper.Because<PhysicalFileProvider>(nameof(PutAsyncInternal), uri, $"you need to specify file format via {nameof(metadata)}.")
-                );
-            }
+            // if (metadata.Format() == MimeType.Null)
+            // {
+            //     throw new ArgumentException
+            //     (
+            //         paramName: nameof(metadata), 
+            //         message: ResourceHelper.Because<PhysicalFileProvider>(nameof(PutAsyncInternal), uri, $"you need to specify file format via {nameof(metadata)}.")
+            //     );
+            // }
             
             using (var fileStream = new FileStream(uri.Path.Decoded.ToString(), FileMode.CreateNew, FileAccess.Write))
             {
-                await value.CopyToAsync(fileStream);
+                await value.Rewind().CopyToAsync(fileStream);
                 await fileStream.FlushAsync();
             }
 

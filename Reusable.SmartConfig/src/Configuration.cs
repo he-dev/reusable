@@ -56,23 +56,23 @@ namespace Reusable.SmartConfig
 
             var settingMetadata = SettingMetadata.FromExpression(expression, false);
             var uri = settingMetadata.CreateUri(instanceName);
-            var settingInfo =
+            var setting =
                 _settingProvider
                     .GetAsync(uri, PopulateProviderInfo(settingMetadata))
                     .GetAwaiter()
                     .GetResult();
 
-            if (!SupportedTypes.Contains(settingInfo.Format))
+            if (setting.Exists)
             {
-                throw DynamicException.Create("UnsupportedSettingFormat", $"'{settingInfo.Format}' is not supported.");
-            }
+                if (!SupportedTypes.Contains(setting.Format))
+                {
+                    throw DynamicException.Create("UnsupportedSettingFormat", $"'{setting.Format}' is not supported.");
+                }
 
-            if (settingInfo.Exists)
-            {
                 using (var memoryStream = new MemoryStream())
                 using (var streamReader = new StreamReader(memoryStream))
                 {
-                    settingInfo.CopyToAsync(memoryStream).GetAwaiter().GetResult();
+                    setting.CopyToAsync(memoryStream).GetAwaiter().GetResult();
                     memoryStream.Rewind();
                     var json = streamReader.ReadToEnd();
                     var converter = GetOrAddDeserializer(settingMetadata.MemberType);
@@ -154,7 +154,7 @@ namespace Reusable.SmartConfig
             }
         }
 
-        #region Helpers
+    #region Helpers
 
         private static object Validate(object value, IEnumerable<ValidationAttribute> validations, UriString uri)
         {
@@ -227,6 +227,6 @@ namespace Reusable.SmartConfig
             return (ITypeConverter)Activator.CreateInstance(converterGenericType, _settings, _stringTypes);
         }
 
-        #endregion
+    #endregion
     }
 }

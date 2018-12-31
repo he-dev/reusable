@@ -33,7 +33,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.MarkupBuilder", "R
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.SemanticVersion", "Reusable.SemanticVersion\Reusable.SemanticVersion.csproj", "{E7F840D2-A33D-4940-B68C-363323EE97EA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.app.Console", "Resuable.app.Console\Reusable.app.Console.csproj", "{BA4F622C-AB9B-4C1C-9CBE-02490532D037}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.app.Console", "Reusable.app.Console\Reusable.app.Console.csproj", "{BA4F622C-AB9B-4C1C-9CBE-02490532D037}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.app.Server", "Reusable.app.Server\Reusable.app.Server.csproj", "{1CA8ADE8-04FE-45C4-9D78-A74CF6E111EC}"
 EndProject
@@ -71,8 +71,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		tests.runsettings = tests.runsettings
 	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.DebuggerVisualizers", "Reusable.DebuggerVisualizers\Reusable.DebuggerVisualizers.csproj", "{BFBCF1CF-FD75-45C7-AAEC-53B4F384A69D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Utilities.Windows", "Reusable.Utilities.Windows\Reusable.Utilities.Windows.csproj", "{30B455D7-7024-4A4B-AF85-CBB5C80759B7}"
 EndProject
@@ -203,9 +201,6 @@ Global
 		{8B72AB74-C38E-450D-86D4-D6AC33AC9961}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B72AB74-C38E-450D-86D4-D6AC33AC9961}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8B72AB74-C38E-450D-86D4-D6AC33AC9961}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BFBCF1CF-FD75-45C7-AAEC-53B4F384A69D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BFBCF1CF-FD75-45C7-AAEC-53B4F384A69D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BFBCF1CF-FD75-45C7-AAEC-53B4F384A69D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{30B455D7-7024-4A4B-AF85-CBB5C80759B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{30B455D7-7024-4A4B-AF85-CBB5C80759B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{30B455D7-7024-4A4B-AF85-CBB5C80759B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -213,7 +208,6 @@ Global
 		{3FA08226-408C-4347-BBD8-7D505C8D48DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3FA08226-408C-4347-BBD8-7D505C8D48DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3FA08226-408C-4347-BBD8-7D505C8D48DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3FA08226-408C-4347-BBD8-7D505C8D48DE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AA718846-0C3E-4B92-9E68-2052DCFBFD12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AA718846-0C3E-4B92-9E68-2052DCFBFD12}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA718846-0C3E-4B92-9E68-2052DCFBFD12}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -259,7 +253,6 @@ Global
 		{8C6AEC88-BB70-4D46-A0A8-39C38E4FB0DB} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 		{5EA18FC2-C680-4094-AC2A-34122EDA1CC2} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 		{8B72AB74-C38E-450D-86D4-D6AC33AC9961} = {7E932BF6-9E84-46FF-8092-8147EA1E25D5}
-		{BFBCF1CF-FD75-45C7-AAEC-53B4F384A69D} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 		{30B455D7-7024-4A4B-AF85-CBB5C80759B7} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 		{AA718846-0C3E-4B92-9E68-2052DCFBFD12} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 		{E1597E81-6298-4DF8-BF83-01D4477F7D35} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}

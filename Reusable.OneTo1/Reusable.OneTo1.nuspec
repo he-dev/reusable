@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.One21</id>
-    <version>7.10.1</version>
-    <title>Reusable.One21</title>
+    <id>Reusable.OneTo1</id>
+    <version>8.0.7</version>
+    <title>Reusable.OneTo1</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
@@ -16,11 +16,11 @@
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2018.2.1" />
-      <dependency id="Reusable.Core" version="7.10.1" />
+      <dependency id="Reusable.Core" version="8.0.7" />
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\net47\Reusable.One21.dll" target="lib\net47" />
-    <file src="bin\Release\net47\Reusable.One21.pdb" target="lib\net47" />
+    <file src="bin\Release\net47\Reusable.OneTo1.dll" target="lib\net47" />
+    <file src="bin\Release\net47\Reusable.OneTo1.pdb" target="lib\net47" />
   </files>
 </package>

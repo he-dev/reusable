@@ -16,7 +16,7 @@ namespace Reusable.IOnymous
             return decoratorFactory(decorable);
         }
 
-        #region GET helpers
+    #region GET helpers
 
         public static async Task<IResourceInfo> GetFileAsync(this IResourceProvider resourceProvider, string path, MimeType format, ResourceMetadata metadata = null)
         {
@@ -47,9 +47,9 @@ namespace Reusable.IOnymous
             return file.DeserializeTextAsync().GetAwaiter().GetResult();
         }
 
-        #endregion
+    #endregion
 
-        #region PUT helpers
+    #region PUT helpers
 
         public static async Task<IResourceInfo> WriteTextFileAsync(this IResourceProvider resourceProvider, string path, string value, ResourceMetadata metadata = null)
         {
@@ -59,10 +59,16 @@ namespace Reusable.IOnymous
                 return await resourceProvider.PutAsync(uri, stream, (metadata ?? ResourceMetadata.Empty).Format(MimeType.Text));
             }
         }
+        
+        public static async Task<IResourceInfo> SaveFileAsync(this IResourceProvider resourceProvider, string path, Stream stream, ResourceMetadata metadata = null)
+        {
+            var uri = Path.IsPathRooted(path) ? new UriString(PhysicalFileProvider.Scheme, path) : new UriString(path);
+            return await resourceProvider.PutAsync(uri, stream, metadata);
+        }
 
-        #endregion
+    #endregion
 
-        #region POST helpers        
+    #region POST helpers        
 
         public static async Task<IResourceInfo> PostAsync
         (
@@ -79,10 +85,16 @@ namespace Reusable.IOnymous
             return await post;
         }
 
-        #endregion
+    #endregion
 
-        #region DELETE helpers
+    #region DELETE helpers
 
-        #endregion
+        public static async Task<IResourceInfo> DeleteFileAsync(this IResourceProvider resourceProvider, string path, ResourceMetadata metadata = null)
+        {
+            var uri = Path.IsPathRooted(path) ? new UriString(PhysicalFileProvider.Scheme, path) : new UriString(path);
+            return await resourceProvider.DeleteAsync(uri, (metadata ?? ResourceMetadata.Empty).Format(MimeType.Text));
+        }
+
+    #endregion
     }
 }
