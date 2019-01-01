@@ -33,5 +33,5 @@ namespace Reusable.IOnymous
 
         //public IEnumerator<KeyValuePair<SoftString, object>> GetEnumerator() => _metadata.GetEnumerator();
         //IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_metadata).GetEnumerator();
-    }
+    }       
 }

@@ -89,14 +89,14 @@ namespace Reusable.IOnymous
 
         // ---
 
-//        public static Action<(int StatusCode, string Content)> OnClientError(this ResourceMetadata metadata)
-//        {
-//            return metadata.GetValueOrDefault((Action<(int, string)>)(_ => { }));
-//        }
-//
-//        public static ResourceMetadata OnClientError(this ResourceMetadata metadata, Action<(int StatusCode, string Content)> onClientError)
-//        {
-//            return metadata.SetItemSafe(onClientError);
-//        }
+        public static Stream Content(this ResourceMetadataScope<HttpProvider> scope)
+        {
+            return scope.Metadata.GetValueOrDefault(Stream.Null);
+        }
+
+        public static ResourceMetadataScope<HttpProvider> Content(this ResourceMetadataScope<HttpProvider> scope, Stream content)
+        {
+            return scope.Metadata.SetItemSafe(content);
+        }
     }
 }

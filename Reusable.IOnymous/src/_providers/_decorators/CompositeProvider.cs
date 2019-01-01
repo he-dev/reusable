@@ -31,7 +31,7 @@ namespace Reusable.IOnymous
             [NotNull] IEnumerable<IResourceProvider> resourceProviders,
             [CanBeNull] ResourceMetadata metadata = null
         )
-            : base(new [] { DefaultScheme }, (metadata ?? ResourceMetadata.Empty))
+            : base(new[] { DefaultScheme }, metadata)
         {
             if (resourceProviders == null) throw new ArgumentNullException(nameof(resourceProviders));
 
@@ -75,7 +75,7 @@ namespace Reusable.IOnymous
                     return resource;
                 }
 
-                var resourceProviders = _resourceProviders.AsEnumerable();
+                var resourceProviders = _resourceProviders.ToList();
 
                 // There can be only one provider with that name.                
                 if (metadata.ProviderCustomName())
@@ -86,7 +86,7 @@ namespace Reusable.IOnymous
                         throw DynamicException.Create
                         (
                             "ProviderNotFound",
-                            $"Could not find any provider that would match the name '{metadata.ProviderCustomName().ToString()}'."
+                            $"Could not find any provider that would match the name '{(string)metadata.ProviderCustomName()}'."
                         );
                     }
 
@@ -102,13 +102,13 @@ namespace Reusable.IOnymous
                 // Multiple providers can have the same default name.
                 if (metadata.ProviderDefaultName())
                 {
-                    resourceProviders = resourceProviders.Where(p => p.Metadata.ProviderDefaultName().Equals(metadata.ProviderDefaultName()));
+                    resourceProviders = resourceProviders.Where(p => p.Metadata.ProviderDefaultName().Equals(metadata.ProviderDefaultName())).ToList();
                     if (resourceProviders.Empty())
                     {
                         throw DynamicException.Create
                         (
                             "ProviderNotFound",
-                            $"Could not find any provider that would match the name '{metadata.ProviderDefaultName().ToString()}'."
+                            $"Could not find any provider that would match the name '{(string)metadata.ProviderDefaultName()}'."
                         );
                     }
                 }
@@ -116,13 +116,13 @@ namespace Reusable.IOnymous
                 if (uri.IsAbsolute)
                 {
                     var ignoreScheme = uri.Scheme == DefaultScheme;
-                    resourceProviders = resourceProviders.Where(p => ignoreScheme || p.Schemes.Contains(DefaultScheme) || p.Schemes.Contains(uri.Scheme));
+                    resourceProviders = resourceProviders.Where(p => ignoreScheme || p.Schemes.Contains(DefaultScheme) || p.Schemes.Contains(uri.Scheme)).ToList();
                     if (resourceProviders.Empty())
                     {
                         throw DynamicException.Create
                         (
                             "ProviderNotFound",
-                            $"Could not find any provider that would match any of the schemes [{(metadata.Schemes().Select(x => x.ToString()).Join(","))}]."
+                            $"Could not find any provider that would match any of the schemes [{metadata.Schemes().Select(x => (string)x).Join(",")}]."
                         );
                     }
                 }
@@ -143,6 +143,15 @@ namespace Reusable.IOnymous
                 }
                 else
                 {
+                    if (resourceProviders.Count() != 1)
+                    {
+                        throw DynamicException.Create
+                        (
+                            "ProviderNotFound",
+                            $"There is more then one provider: [{_resourceProviders.Select(x => (string)x.Metadata.ProviderDefaultName()).Join(",")}]."
+                        );
+                    }
+
                     var match = resourceProviders.Single();
                     var (resource, handled) = await handleAsync(match);
                     if (handled)

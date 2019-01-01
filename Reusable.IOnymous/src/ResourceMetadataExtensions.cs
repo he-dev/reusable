@@ -6,11 +6,14 @@ using System.Text;
 using System.Threading;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using Reusable.Extensions;
 
 namespace Reusable.IOnymous
 {
     public static class ResourceMetadataExtensions
     {
+        #region Helpers
+
         /// <summary>
         /// Sets the specified item and uses an empty instance of ResourceMetadata if null.
         /// </summary>
@@ -48,6 +51,26 @@ namespace Reusable.IOnymous
                     : defaultValue;
         }
 
+        public static ResourceMetadata Scope<T>(this ResourceMetadata metadata)
+        {
+            var scope = metadata.GetValueOrDefault(ResourceMetadata.Empty, CreateScopeKey<T>());
+            return scope;
+        }
+
+        public static ResourceMetadata Scope<T>(this ResourceMetadata metadata, Func<ResourceMetadataScope<T>, ResourceMetadataScope<T>> configureScope)
+        {
+            var scope = configureScope(new ResourceMetadataScope<T>(ResourceMetadata.Empty));
+            return metadata.SetItemSafe(scope.Metadata, CreateScopeKey<T>());
+        }                
+
+        private static string CreateScopeKey<TScope>()
+        {
+            return $"Scope:{typeof(TScope).ToPrettyString()}";
+        }
+
+        #endregion
+
+        #region Properties
 
         [NotNull, ItemCanBeNull]
         public static IEnumerable<SoftString> ProviderNames(this ResourceMetadata metadata)
@@ -56,13 +79,11 @@ namespace Reusable.IOnymous
             yield return metadata.ProviderCustomName();
         }
 
-        #region Properties
-
         public static SoftString ProviderDefaultName(this ResourceMetadata metadata)
         {
             return metadata.GetValueOrDefault(SoftString.Empty);
         }
-        
+
         public static ResourceMetadata ProviderDefaultName(this ResourceMetadata metadata, SoftString name)
         {
             return metadata.SetItemSafe(name);
@@ -72,7 +93,7 @@ namespace Reusable.IOnymous
         {
             return metadata.GetValueOrDefault(SoftString.Empty);
         }
-        
+
         public static ResourceMetadata ProviderCustomName(this ResourceMetadata metadata, SoftString name)
         {
             return metadata.SetItemSafe(name);
@@ -109,7 +130,7 @@ namespace Reusable.IOnymous
         {
             return metadata.SetItemSafe(format);
         }
-        
+
         // ---
 
         public static Encoding Encoding(this ResourceMetadata metadata)
@@ -121,7 +142,7 @@ namespace Reusable.IOnymous
         {
             return metadata.SetItemSafe(encoding);
         }
-        
+
         // ---
 
         public static IImmutableSet<SoftString> Schemes(this ResourceMetadata metadata)
@@ -135,5 +156,16 @@ namespace Reusable.IOnymous
         }
 
         #endregion
+    }
+
+    public readonly struct ResourceMetadataScope<T>
+    {
+        public ResourceMetadataScope(ResourceMetadata metadata) => Metadata = metadata;
+
+        public ResourceMetadata Metadata { get; }
+
+        public static implicit operator ResourceMetadataScope<T>(ResourceMetadata metadata) => new ResourceMetadataScope<T>(metadata);
+
+        public static implicit operator ResourceMetadata(ResourceMetadataScope<T> scope) => scope.Metadata;
     }
 }

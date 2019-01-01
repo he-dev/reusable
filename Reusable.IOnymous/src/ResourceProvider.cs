@@ -52,11 +52,11 @@ namespace Reusable.IOnymous
     {
         public static readonly SoftString DefaultScheme = "ionymous";
 
-        protected ResourceProvider([NotNull] IEnumerable<SoftString> schemes, [NotNull] ResourceMetadata metadata)
+        protected ResourceProvider([NotNull] IEnumerable<SoftString> schemes, [CanBeNull] ResourceMetadata metadata)
         {
             if (schemes == null) throw new ArgumentNullException(nameof(schemes));
-            if (metadata == null) throw new ArgumentNullException(nameof(metadata));
 
+            metadata = metadata ?? ResourceMetadata.Empty;
 
             // If this is a decorator then the decorated resource-provider already has set this.
             if (!metadata.ProviderDefaultName())

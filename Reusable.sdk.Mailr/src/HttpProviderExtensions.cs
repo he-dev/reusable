@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Reusable.IOnymous;
@@ -6,7 +7,7 @@ using Reusable.Net.Http.Formatting;
 
 namespace Reusable.sdk.Mailr
 {
-    public static class ResourceProviderExtensions
+    public static class HttpProviderExtensions
     {
         public static async Task<string> SendAsync<TBody>
         (
@@ -21,15 +22,16 @@ namespace Reusable.sdk.Mailr
         {
             metadata =
                 metadata
-                .ConfigureRequestHeaders(headers =>
-                {
-                    headers
-                        .UserAgent(productName, productVersion)
-                        .AcceptHtml();
-                })
-                .ResponseFormatters(new TextMediaTypeFormatter())                
-                .ContentType("application/json")
-                .Schemes("http", "https");
+                    //.Scope<HttpProvider>(scope => scope.Content(Stream.Null))
+                    .ConfigureRequestHeaders(headers =>
+                    {
+                        headers
+                            .UserAgent(productName, productVersion)
+                            .AcceptHtml();
+                    })
+                    .ResponseFormatters(new TextMediaTypeFormatter())
+                    .ContentType("application/json")
+                    .Schemes("http", "https");
 
             var response = await resourceProvider.PostAsync(uri, () => ResourceHelper.SerializeAsJsonAsync(email, jsonSerializer), metadata);
             return await response.DeserializeTextAsync();
