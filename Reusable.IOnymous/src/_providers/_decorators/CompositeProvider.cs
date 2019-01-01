@@ -12,7 +12,7 @@ using Reusable.Exceptionizer;
 
 namespace Reusable.IOnymous
 {
-    public class CompositeResourceProvider : ResourceProvider, IEnumerable<IResourceProvider>
+    public class CompositeProvider : ResourceProvider, IEnumerable<IResourceProvider>
     {
         /// <summary>
         /// Resource provider cache.
@@ -26,7 +26,7 @@ namespace Reusable.IOnymous
 
         private readonly IImmutableList<IResourceProvider> _resourceProviders;
 
-        public CompositeResourceProvider
+        public CompositeProvider
         (
             [NotNull] IEnumerable<IResourceProvider> resourceProviders,
             [CanBeNull] ResourceMetadata metadata = null
@@ -116,7 +116,7 @@ namespace Reusable.IOnymous
                 if (uri.IsAbsolute)
                 {
                     var ignoreScheme = uri.Scheme == DefaultScheme;
-                    resourceProviders = resourceProviders.Where(p => ignoreScheme || p.Schemes.Contains(uri.Scheme));
+                    resourceProviders = resourceProviders.Where(p => ignoreScheme || p.Schemes.Contains(DefaultScheme) || p.Schemes.Contains(uri.Scheme));
                     if (resourceProviders.Empty())
                     {
                         throw DynamicException.Create

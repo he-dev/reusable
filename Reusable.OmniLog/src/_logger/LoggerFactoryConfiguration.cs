@@ -12,7 +12,7 @@ namespace Reusable.OmniLog
 {
     public class LoggerFactoryConfiguration
     {
-        private static readonly IResourceProvider CurrentDirectoryProvider = new RelativeResourceProvider(new PhysicalFileProvider(), Path.GetDirectoryName(typeof(LoggerFactoryConfiguration).Assembly.Location));
+        private static readonly IResourceProvider CurrentDirectoryProvider = new RelativeProvider(new PhysicalFileProvider(), Path.GetDirectoryName(typeof(LoggerFactoryConfiguration).Assembly.Location));
 
         private static readonly IResourceProvider AbsoluteProvider = new PhysicalFileProvider();
 

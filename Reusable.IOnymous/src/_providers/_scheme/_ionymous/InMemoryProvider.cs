@@ -9,16 +9,16 @@ using JetBrains.Annotations;
 
 namespace Reusable.IOnymous
 {
-    public class InMemoryResourceProvider : ResourceProvider, IEnumerable<IResourceInfo>
+    public class InMemoryProvider : ResourceProvider, IEnumerable<IResourceInfo>
     {
         private readonly ISet<IResourceInfo> _items = new HashSet<IResourceInfo>();
 
-        public InMemoryResourceProvider(IEnumerable<SoftString> schemes, ResourceMetadata metadata = null)
+        public InMemoryProvider(IEnumerable<SoftString> schemes, ResourceMetadata metadata = null)
             : base(schemes, (metadata ?? ResourceMetadata.Empty))
         {
         }
 
-        public InMemoryResourceProvider(ResourceMetadata metadata = null)
+        public InMemoryProvider(ResourceMetadata metadata = null)
             : base(new[] { DefaultScheme }, (metadata ?? ResourceMetadata.Empty))
         {
         }
@@ -29,8 +29,20 @@ namespace Reusable.IOnymous
             return Task.FromResult(firstMatch ?? new InMemoryResourceInfo(uri));
         }
 
+        protected override Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
+        {
+            ValidateFormatNotNull(this, uri, metadata);
+            
+            var resource = new InMemoryResourceInfo(uri, metadata.Format(), value);
+            _items.Remove(resource);
+            _items.Add(resource);
+            return Task.FromResult<IResourceInfo>(resource);
+        }
+        
         protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
+            ValidateFormatNotNull(this, uri, metadata);
+            
             var resource = new InMemoryResourceInfo(uri, metadata.Format(), value);
             _items.Remove(resource);
             _items.Add(resource);
@@ -49,13 +61,13 @@ namespace Reusable.IOnymous
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_items).GetEnumerator();
     }
 
-    public static class InMemoryResourceProviderExtensions
+    public static class InMemoryProviderExtensions
     {
         #region Collection initilizers
 
         //public void Add(IResourceInfo item) => _items.Add(item);
 
-        public static InMemoryResourceProvider Add(this InMemoryResourceProvider inMemory, string uri, object value)
+        public static InMemoryProvider Add(this InMemoryProvider inMemory, string uri, object value)
         {
             switch (value)
             {

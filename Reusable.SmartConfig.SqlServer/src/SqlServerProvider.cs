@@ -18,7 +18,7 @@ namespace Reusable.SmartConfig
 {
     using static SqlServerColumn;
 
-    public class SqlServerProvider : ResourceProvider
+    public class SqlServerProvider : Reusable.IOnymous.SettingProvider
     {
         public const string DefaultSchema = "dbo";
 
@@ -33,7 +33,7 @@ namespace Reusable.SmartConfig
             string nameOrConnectionString,
             ITypeConverter uriStringToSettingIdentifierConverter = null
         )
-            : base(new SoftString[] { "setting" }, ResourceMetadata.Empty)
+            : base(ResourceMetadata.Empty)
         {
             _uriStringToSettingIdentifierConverter = uriStringToSettingIdentifierConverter;
             ConnectionString = ConnectionStringRepository.Default.GetConnectionString(nameOrConnectionString);

@@ -39,7 +39,7 @@ namespace Reusable.Tests.XUnit.Teapot
                                 .Echo();
                         });
 
-                using (var client = new HttpResourceProvider("http://localhost:12000/api", ResourceMetadata.Empty))
+                using (var client = new HttpProvider("http://localhost:12000/api", ResourceMetadata.Empty))
                 {
                     // Request made by the application somewhere deep down the rabbit hole
                     var response = await client.PostAsync("test?param=true", () => ResourceHelper.SerializeAsJsonAsync(new { Greeting = "Hallo" }), ResourceMetadata.Empty.ConfigureRequestHeaders(headers =>

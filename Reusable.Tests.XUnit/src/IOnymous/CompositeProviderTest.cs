@@ -7,18 +7,18 @@ using Xunit;
 
 namespace Reusable.Tests.XUnit.IOnymous
 {
-    public class CompositeResourceProviderTest
+    public class CompositeProviderTest
     {
         [Fact]
         public async Task Gets_first_matching_resource_by_default()
         {
-            var composite = new CompositeResourceProvider(new IResourceProvider[]
+            var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryResourceProvider
+                new InMemoryProvider
                 {
                     { "blub:123", "blub1" }
                 },
-                new InMemoryResourceProvider
+                new InMemoryProvider
                 {
                     { "blub:123", "blub2" },
                     { "blub:123", "blub3" }
@@ -34,20 +34,20 @@ namespace Reusable.Tests.XUnit.IOnymous
         [Fact]
         public async Task Can_get_resource_by_default_name()
         {
-            var composite = new CompositeResourceProvider(new IResourceProvider[]
+            var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryResourceProvider
+                new InMemoryProvider
                 {
                     { "blub:123", "blub1" }
                 },
-                new InMemoryResourceProvider
+                new InMemoryProvider
                 {
                     { "blub:123", "blub2" },
                     { "blub:123", "blub3" }
                 },
             });
 
-            var resource = await composite.GetAsync("blub:123", ResourceMetadata.Empty.ProviderDefaultName(nameof(InMemoryResourceProvider)));
+            var resource = await composite.GetAsync("blub:123", ResourceMetadata.Empty.ProviderDefaultName(nameof(InMemoryProvider)));
 
             Assert.True(resource.Exists);
             Assert.Equal("blub1", await resource.DeserializeTextAsync());
@@ -56,13 +56,13 @@ namespace Reusable.Tests.XUnit.IOnymous
         [Fact]
         public async Task Can_get_resource_by_custom_name()
         {
-            var composite = new CompositeResourceProvider(new IResourceProvider[]
+            var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryResourceProvider
+                new InMemoryProvider
                 {
                     { "blub:123", "blub1" }
                 },
-                new InMemoryResourceProvider(ResourceMetadata.Empty.ProviderCustomName("blub"))
+                new InMemoryProvider(ResourceMetadata.Empty.ProviderCustomName("blub"))
                 {
                     { "blub:123", "blub2" },
                     { "blub:123", "blub3" }
@@ -78,13 +78,13 @@ namespace Reusable.Tests.XUnit.IOnymous
         [Fact]
         public async Task Throws_when_PUT_without_known_resource_provider()
         {
-            var composite = new CompositeResourceProvider(new IResourceProvider[]
+            var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryResourceProvider
+                new InMemoryProvider
                 {
                     { "blub:123", "blub1" }
                 },
-                new InMemoryResourceProvider(ResourceMetadata.Empty.ProviderCustomName("blub"))
+                new InMemoryProvider(ResourceMetadata.Empty.ProviderCustomName("blub"))
                 {
                     { "blub:123", "blub2" },
                     { "blub:123", "blub3" }
@@ -97,13 +97,13 @@ namespace Reusable.Tests.XUnit.IOnymous
         [Fact]
         public async Task Can_get_resource_by_scheme()
         {
-            var composite = new CompositeResourceProvider(new IResourceProvider[]
+            var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryResourceProvider(new SoftString[] { "bluba" })
+                new InMemoryProvider(new SoftString[] { "bluba" })
                 {
                     { "bluba:123", "blub1" }
                 },
-                new InMemoryResourceProvider(new SoftString[] { "blub" })
+                new InMemoryProvider(new SoftString[] { "blub" })
                 {
                     { "blub:123", "blub2" },
                     { "blub:125", "blub3" }

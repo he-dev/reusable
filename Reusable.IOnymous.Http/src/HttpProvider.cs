@@ -8,13 +8,17 @@ using Reusable.Exceptionizer;
 
 namespace Reusable.IOnymous
 {
-    public class HttpResourceProvider : ResourceProvider
+    public class HttpProvider : ResourceProvider
     {
+        public new static readonly string DefaultScheme = "http";
+        
         private readonly HttpClient _client;
 
-        public HttpResourceProvider(string baseUri, ResourceMetadata metadata = null)
+        public HttpProvider([NotNull] string baseUri, ResourceMetadata metadata = null)
             : base(new SoftString[] { "http", "https" }, metadata.AllowRelativeUri(true))
         {
+            if (baseUri == null) throw new ArgumentNullException(nameof(baseUri));
+            
             _client = new HttpClient
             {
                 BaseAddress = new Uri(baseUri)

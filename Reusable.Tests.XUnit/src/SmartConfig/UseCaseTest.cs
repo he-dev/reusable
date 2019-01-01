@@ -22,13 +22,13 @@ namespace Reusable.Tests.XUnit.SmartConfig
 
         private static readonly IEnumerable<IResourceProvider> SettingProvider = new IResourceProvider[]
         {
-            new InMemoryResourceProvider(ResourceMetadata.Empty.ProviderCustomName("Memory1"))
+            new InMemoryProvider(ResourceMetadata.Empty.ProviderCustomName("Memory1"))
             {
                 { "setting:Test6.Member1?prefix=TestPrefix", "Value1" },
                 { "setting:Member2", "Value2" },
                 { "setting:Test7.Member", "InvalidValue1" },
             },
-            new InMemoryResourceProvider(ResourceMetadata.Empty.ProviderCustomName("Memory2"))
+            new InMemoryProvider(ResourceMetadata.Empty.ProviderCustomName("Memory2"))
             {
                 { "setting:Test1.Member", "Value1" },
                 { "setting:Test2.Property", "Value2" },
@@ -36,7 +36,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
                 { "setting:Test5.Member?prefix=Prefix", "Value5" },
                 { "setting:Test7.Member", "InvalidValue2" },
             },
-            new InMemoryResourceProvider(ResourceMetadata.Empty.ProviderCustomName("Memory3"))
+            new InMemoryProvider(ResourceMetadata.Empty.ProviderCustomName("Memory3"))
             {
                 { "setting:Test7.Member", "Value7" },
             },
@@ -51,7 +51,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
                         .Add(SqlServerColumn.Value, "_value"),
                 Where = ImmutableDictionary<string, object>.Empty.Add("_other", nameof(UseCaseTest))
             },
-        }.Select(p => p.DecorateWith(Reusable.SmartConfig.SettingProvider.Factory())).ToArray();
+        }.Select(p => p.DecorateWith(Reusable.SmartConfig.SettingNameProvider.Factory())).ToArray();
 
         
         private static readonly IConfiguration Configuration = new Reusable.SmartConfig.Configuration(SettingProvider);

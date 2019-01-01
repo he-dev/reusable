@@ -8,18 +8,16 @@ using JetBrains.Annotations;
 
 namespace Reusable.IOnymous
 {
-    public class EmbeddedFileProvider : ResourceProvider
+    public class EmbeddedFileProvider : FileProvider
     {
-        public static readonly string Scheme = "file";
-
         private readonly Assembly _assembly;
 
         public EmbeddedFileProvider([NotNull] Assembly assembly, ResourceMetadata metadata = null)
-            : base(new SoftString[] { Scheme }, metadata.AllowRelativeUri(true))
+            : base(metadata.AllowRelativeUri(true))
         {
             _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
             var assemblyName = _assembly.GetName().Name.Replace('.', '/');
-            BaseUri = new UriString($"{Scheme}:{assemblyName}");
+            BaseUri = new UriString($"{DefaultScheme}:{assemblyName}");
         }
 
         public UriString BaseUri { get; }
@@ -28,14 +26,7 @@ namespace Reusable.IOnymous
 
         protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
-            if (metadata.Format() == MimeType.Null)
-            {
-                throw new ArgumentException
-                (
-                    paramName: nameof(metadata), 
-                    message: ResourceHelper.Because<PhysicalFileProvider>(nameof(GetAsyncInternal), uri, $"you need to specify file format via {nameof(metadata)}.")
-                );
-            }
+            ValidateFormatNotNull(this, uri, metadata);
             
             // Embedded resource names are separated by '.' so replace the windows separator.
 

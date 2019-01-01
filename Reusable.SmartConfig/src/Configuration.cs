@@ -40,7 +40,7 @@ namespace Reusable.SmartConfig
         public Configuration(IEnumerable<IResourceProvider> settingProviders)
         {
             settingProviders = settingProviders.Where(x => x.Schemes.Contains("setting"));
-            _settingProvider = new CompositeResourceProvider(settingProviders);
+            _settingProvider = new CompositeProvider(settingProviders);
         }
 
         public T GetSetting<T>(Expression<Func<T>> expression, string instanceName = null)

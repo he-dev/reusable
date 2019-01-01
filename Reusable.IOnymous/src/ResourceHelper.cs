@@ -17,7 +17,15 @@ namespace Reusable.IOnymous
             return Regex.Match(memberName, @"^(?<method>\w+)Async").Groups["method"].Value;
         }
 
-        internal static string Because<T>(string memberName, UriString uri, string reason)
+        /// <summary>
+        /// Formats exception message: {ResourceProvider} cannot {METHOD} '{uri}' because {reason}.
+        /// </summary>
+        /// <param name="memberName"></param>
+        /// <param name="uri"></param>
+        /// <param name="reason"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        internal static string FormatMessage<T>(string memberName, UriString uri, string reason)
         {
             return $"{typeof(T).ToPrettyString()} cannot {ExtractMethodName(memberName).ToUpper()} '{uri}' because {reason}.";
         }

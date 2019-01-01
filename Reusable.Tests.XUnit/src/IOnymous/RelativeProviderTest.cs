@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Reusable.Tests.XUnit.IOnymous
 {
-    public class RelativeResourceProviderTest
+    public class RelativeProviderTest
     {
 //        [Fact]
 //        public void Throws_when_base_uri_not_absolute()
@@ -34,7 +34,7 @@ namespace Reusable.Tests.XUnit.IOnymous
                 .Returns<UriString, ResourceMetadata>((uri, metadata) => Task.FromResult<IResourceInfo>(new InMemoryResourceInfo(uri)));
 
 
-            var relativeProvider = mockProvider.DecorateWith(RelativeResourceProvider.Factory("blub:base"));
+            var relativeProvider = mockProvider.DecorateWith(RelativeProvider.Factory("blub:base"));
             var resource = await relativeProvider.GetAsync("relative");
 
             Assert.False(resource.Exists);

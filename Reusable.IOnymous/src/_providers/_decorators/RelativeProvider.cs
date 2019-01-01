@@ -5,13 +5,13 @@ using JetBrains.Annotations;
 
 namespace Reusable.IOnymous
 {
-    public class RelativeResourceProvider : ResourceProvider
+    public class RelativeProvider : ResourceProvider
     {
         private readonly IResourceProvider _resourceProvider;
 
         private readonly UriString _baseUri;
 
-        public RelativeResourceProvider([NotNull] IResourceProvider resourceProvider, [NotNull] UriString baseUri)
+        public RelativeProvider([NotNull] IResourceProvider resourceProvider, [NotNull] UriString baseUri)
             : base(resourceProvider.Schemes, resourceProvider.Metadata.AllowRelativeUri(true))
         {
             _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
@@ -19,9 +19,9 @@ namespace Reusable.IOnymous
             _baseUri = baseUri ?? throw new ArgumentNullException(nameof(baseUri));
         }
         
-        public static Func<IResourceProvider, RelativeResourceProvider> Factory(UriString baseUri)
+        public static Func<IResourceProvider, RelativeProvider> Factory(UriString baseUri)
         {
-            return decorable => new RelativeResourceProvider(decorable, baseUri);
+            return decorable => new RelativeProvider(decorable, baseUri);
         }
 
         protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)

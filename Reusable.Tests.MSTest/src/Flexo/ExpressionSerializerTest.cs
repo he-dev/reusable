@@ -12,7 +12,7 @@ namespace Reusable.Tests.Flexo
     [TestClass]
     public class ExpressionSerializerTest
     {
-        private static IResourceProvider Resources { get; } = new RelativeResourceProvider(new EmbeddedFileProvider(typeof(ExpressionSerializerTest).Assembly), @"res\Flexo");
+        private static IResourceProvider Resources { get; } = new RelativeProvider(new EmbeddedFileProvider(typeof(ExpressionSerializerTest).Assembly), @"res\Flexo");
 
         [TestMethod]
         public void CanDeserializeAllExpressions()

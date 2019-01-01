@@ -4,12 +4,12 @@ using Xunit;
 
 namespace Reusable.Tests.XUnit.IOnymous
 {
-    public class HttpResourceProviderTest
+    public class HttpProviderTest
     {
         //[Fact]
         public async Task Blub()
         {
-            var client = new HttpResourceProvider("https://jsonplaceholder.typicode.com", ResourceMetadata.Empty);
+            var client = new HttpProvider("https://jsonplaceholder.typicode.com", ResourceMetadata.Empty);
 
             var response = await client.GetAsync
             (

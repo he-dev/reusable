@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
@@ -9,12 +10,12 @@ using Reusable.OneTo1;
 
 namespace Reusable.IOnymous
 {
-    public class AppSettingProvider : ResourceProvider
+    public class AppSettingProvider : SettingProvider
     {
         private readonly ITypeConverter _uriStringToSettingIdentifierConverter;
 
         public AppSettingProvider(ITypeConverter uriStringToSettingIdentifierConverter = null)
-            : base(new SoftString[] { "setting" }, ResourceMetadata.Empty)
+            : base(ResourceMetadata.Empty)
         {
             _uriStringToSettingIdentifierConverter = uriStringToSettingIdentifierConverter;
         }
@@ -70,7 +71,7 @@ namespace Reusable.IOnymous
     {
         [CanBeNull] private readonly string _value;
 
-        internal AppSettingInfo([NotNull] UriString uri, [CanBeNull] string value) 
+        internal AppSettingInfo([NotNull] UriString uri, [CanBeNull] string value)
             : base(uri, MimeType.Text)
         {
             _value = value;

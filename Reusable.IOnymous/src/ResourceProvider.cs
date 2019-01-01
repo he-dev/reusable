@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Linq.Custom;
@@ -210,6 +211,18 @@ namespace Reusable.IOnymous
             }
         }
 
+        protected void ValidateFormatNotNull<T>(T fileProvider, UriString uri, ResourceMetadata metadata, [CallerMemberName] string memberName = null) where T : IResourceProvider
+        {
+            if (metadata.Format().IsNull)
+            {
+                throw new ArgumentException
+                (
+                    paramName: nameof(metadata),
+                    message: ResourceHelper.FormatMessage<T>(memberName, uri, $"you need to specify file format via {nameof(metadata)}.")
+                );
+            }
+        }
+
         protected Exception MethodNotSupportedException(UriString uri, [CallerMemberName] string memberName = null)
         {
             return DynamicException.Create
@@ -249,6 +262,19 @@ namespace Reusable.IOnymous
         {
             // Can be overriden when derived.
         }
+
+        #region operators
+
+        //public static ResourceProvider operator +(ResourceProvider decorable, Func<ResourceProvider, ResourceProvider> decorator) => decorator(decorable);
+
+        #endregion
     }
-   
+
+//    [SuppressMessage("ReSharper", "InconsistentNaming")]
+//    public static class SchemeNames
+//    {
+//        public static readonly string ionymous = nameof(ionymous);
+//        public static readonly string file = nameof(file);
+//        public static readonly string setting = nameof(setting);
+//    }
 }

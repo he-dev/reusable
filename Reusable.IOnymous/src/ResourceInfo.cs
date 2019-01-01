@@ -129,6 +129,8 @@ namespace Reusable.IOnymous
         [AutoEqualityProperty]
         public SoftString Name { get; }
 
+        public bool IsNull => this == Null;
+
         public static readonly MimeType Null = new MimeType(string.Empty);
 
         /// <summary>

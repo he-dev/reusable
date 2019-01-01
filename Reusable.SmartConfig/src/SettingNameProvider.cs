@@ -18,21 +18,22 @@ using Reusable.SmartConfig.Reflection;
 namespace Reusable.SmartConfig
 {
     [PublicAPI]
-    public class SettingProvider : ResourceProvider
+    public class SettingNameProvider : ResourceProvider
     {
         private readonly IResourceProvider _resourceProvider;
 
-        public SettingProvider(IResourceProvider resourceProvider)
+        public SettingNameProvider(IResourceProvider resourceProvider)
             : base(resourceProvider.Schemes.Add("setting"), resourceProvider.Metadata)
         {
-            if (!resourceProvider.Schemes.Intersect(new SoftString[] { "setting", DefaultScheme }).Any())
+            if (!resourceProvider.Schemes.Intersect(new[] { "setting", DefaultScheme }).Any())
             {
                 throw new ArgumentException($"{resourceProvider.GetType().ToPrettyString()} must support scheme 'setting' or '{DefaultScheme}'.");
             }
+
             _resourceProvider = resourceProvider;
         }
 
-        public static Func<IResourceProvider, IResourceProvider> Factory() => decorable => new SettingProvider(decorable);
+        public static Func<IResourceProvider, IResourceProvider> Factory() => decorable => new SettingNameProvider(decorable);
 
         protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
         {
@@ -77,7 +78,7 @@ namespace Reusable.SmartConfig
                 .Select(x => $"{x.Key}={x.Value}")
                 .Join("&");
 
-            return $"setting:{path}{(query ? $"?{query.ToString()}" : string.Empty)}";
+            return $"setting:{path}{(query ? $"?{(string)query}" : string.Empty)}";
         }
 
         protected ResourceMetadata Translate(UriString uri, ResourceMetadata metadata)

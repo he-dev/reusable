@@ -9,12 +9,12 @@ using Reusable.OneTo1;
 
 namespace Reusable.IOnymous
 {
-    public class ConnectionStringProvider : ResourceProvider
+    public class ConnectionStringProvider : SettingProvider
     {
         private readonly ITypeConverter _uriStringToSettingIdentifierConverter;
 
         public ConnectionStringProvider(ITypeConverter uriStringToSettingIdentifierConverter = null)
-            : base(new SoftString[] { "setting" }, ResourceMetadata.Empty)
+            : base(ResourceMetadata.Empty)
         {
             _uriStringToSettingIdentifierConverter = uriStringToSettingIdentifierConverter;
         }

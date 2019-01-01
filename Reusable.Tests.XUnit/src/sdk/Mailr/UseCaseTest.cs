@@ -19,8 +19,8 @@ namespace Reusable.Tests.XUnit.sdk.Mailr
 
         public UseCaseTest(TeapotFactoryFixture teapotFactory)
         {
-            _server = teapotFactory.CreateTeapotServer(ConfigurationManager.AppSettings["teapot:Url"]);
-            _http = new HttpResourceProvider(ConfigurationManager.AppSettings["mailr:BaseUri"]);
+            _server = teapotFactory.CreateTeapotServer(ConfigurationManager.AppSettings["teapot:BaseUri"]);
+            _http = new HttpProvider(ConfigurationManager.AppSettings["mailr:BaseUri"]);
         }
 
         [Fact]

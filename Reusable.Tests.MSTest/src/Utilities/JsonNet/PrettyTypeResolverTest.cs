@@ -17,7 +17,7 @@ namespace Reusable.Tests.Utilities.JsonNet
     [TestClass]
     public class PrettyTypeResolverTest
     {
-        private static readonly IResourceProvider Resources = new RelativeResourceProvider(EmbeddedFileProvider<PrettyTypeResolverTest>.Default, @"res\Utilities\JsonNet");
+        private static readonly IResourceProvider Resources = new RelativeProvider(EmbeddedFileProvider<PrettyTypeResolverTest>.Default, @"res\Utilities\JsonNet");
 
         [TestMethod]
         public void AllowsTypesWithoutGenericArguments()
