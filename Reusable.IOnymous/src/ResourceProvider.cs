@@ -76,8 +76,11 @@ namespace Reusable.IOnymous
         });
 
         public bool CanGet => Implements(nameof(GetAsyncInternal));
+
         public bool CanPost => Implements(nameof(PostAsyncInternal));
+
         public bool CanPut => Implements(nameof(PutAsyncInternal));
+
         public bool CanDelete => Implements(nameof(DeleteAsyncInternal));
 
         private bool Implements(string methodName)

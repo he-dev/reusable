@@ -80,15 +80,22 @@ namespace Reusable.IOnymous
                 // There can be only one provider with that name.                
                 if (metadata.ProviderCustomName())
                 {
-                    var match = resourceProviders.SingleOrDefault(p => metadata.ProviderCustomName().Equals(p.Metadata.ProviderCustomName()));
-                    if (match is null)
-                    {
-                        throw DynamicException.Create
-                        (
-                            "ProviderNotFound",
-                            $"Could not find any provider that would match the name '{(string)metadata.ProviderCustomName()}'."
-                        );
-                    }
+                    var match =
+                        resourceProviders
+                            .Where(p => metadata.ProviderCustomName().Equals(p.Metadata.ProviderCustomName()))
+                            .SingleOrThrow
+                            (
+                                onEmpty: () => DynamicException.Create
+                                (
+                                    "ProviderNotFound",
+                                    $"Could not find any provider that would match the name '{(string)metadata.ProviderCustomName()}'."
+                                ),
+                                onMultiple: () => DynamicException.Create
+                                (
+                                    "MultipleProvidersFound",
+                                    $"There is more than one provider that matches the name '{(string)metadata.ProviderCustomName()}'."
+                                )
+                            );
 
                     var (resource, handled) = await handleAsync(match);
                     if (handled)

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Data;
+using Reusable.Exceptionizer;
 using Reusable.Extensions;
 
 // ReSharper disable once CheckNamespace
@@ -26,10 +27,12 @@ namespace System.Linq.Custom
         /// <param name="second">The second input sequence.</param>
         /// <param name="resultSelector">A function that specifies how to combine the corresponding elements of the two sequences.</param>
         /// <returns>An IEnumerable<T> that contains elements of the two input sequences, combined by resultSelector.</returns>
-        public static IEnumerable<TResult> ZipAll<TFirst, TSecond, TResult>(
+        public static IEnumerable<TResult> ZipAll<TFirst, TSecond, TResult>
+        (
             this IEnumerable<TFirst> first,
             IEnumerable<TSecond> second,
-            Func<TFirst, TSecond, TResult> resultSelector)
+            Func<TFirst, TSecond, TResult> resultSelector
+        )
         {
             if (first == null)
             {
@@ -236,6 +239,29 @@ namespace System.Linq.Custom
             }
         }
 
+        [CanBeNull]
+        public static T SingleOrThrow<T>([NotNull] this IEnumerable<T> source, Func<Exception> onEmpty = null, Func<Exception> onMultiple = null)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+
+            using (var enumerator = source.GetEnumerator())
+            {
+                if (enumerator.MoveNext() == false)
+                {
+                    throw onEmpty?.Invoke() ?? DynamicException.Create("CollectionEmpty", $"Collection '{source.GetType().ToPrettyString()}' does not contain any elements.");
+                }
+                
+                var single = enumerator.Current;
+                
+                if (enumerator.MoveNext())
+                {
+                    throw onMultiple?.Invoke() ?? DynamicException.Create("MoreThanOneElement", $"Collection '{source.GetType().ToPrettyString()}' contains more then one element.");
+                }
+                
+                return single;
+            }
+        }
+
         public static int CalcHashCode<T>([NotNull, ItemCanBeNull] this IEnumerable<T> values)
         {
             if (values == null) throw new ArgumentNullException(nameof(values));
@@ -270,7 +296,7 @@ namespace System.Linq.Custom
         {
             return value.In((IEnumerable<T>)others);
         }
-        
+
         public static bool NotIn<T>([CanBeNull] this T value, params T[] others)
         {
             return !value.In((IEnumerable<T>)others);
@@ -317,7 +343,6 @@ namespace System.Linq.Custom
             // there is one item remaining that was not returned - we return it now
             yield return copy[0];
         }
-
     }
 
     public class EmptySequenceException : Exception
