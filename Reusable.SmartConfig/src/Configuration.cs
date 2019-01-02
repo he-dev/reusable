@@ -166,7 +166,7 @@ namespace Reusable.SmartConfig
             return value;
         }
 
-        private static ResourceMetadata PopulateProviderInfo(SettingMetadata settingMetadata, ResourceMetadata metadata = null)
+        private static ResourceMetadata PopulateProviderInfo(SettingMetadata settingMetadata, ResourceMetadata metadata = default)
         {
             return
                 metadata

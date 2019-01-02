@@ -10,19 +10,19 @@ namespace Reusable.IOnymous
     [PublicAPI]
     public class PhysicalFileProvider : FileProvider
     {
-        public PhysicalFileProvider(ResourceMetadata metadata = null)
-            : base((metadata ?? ResourceMetadata.Empty))
+        public PhysicalFileProvider(ResourceMetadata metadata = default)
+            : base(metadata)
         {
         }
 
-        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
+        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
         {
             ValidateFormatNotNull(this, uri, metadata);
 
             return Task.FromResult<IResourceInfo>(new PhysicalFileInfo(uri, metadata.Format()));
         }
 
-        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
+        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
         {
             ValidateFormatNotNull(this, uri, metadata);
             
@@ -35,7 +35,7 @@ namespace Reusable.IOnymous
             return await GetAsync(uri, metadata);
         }
 
-        protected override Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata = null)
+        protected override Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata)
         {
             File.Delete((string)uri.Path.Decoded);
             return Task.FromResult<IResourceInfo>(new PhysicalFileInfo(uri));

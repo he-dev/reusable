@@ -15,38 +15,33 @@ namespace Reusable.IOnymous
         #region Helpers
 
         /// <summary>
-        /// Sets the specified item and uses an empty instance of ResourceMetadata if null.
+        /// Sets the specified item and uses the caller name as a key.
         /// </summary>
-        [NotNull]
-        public static ResourceMetadata SetItemSafe([CanBeNull] this ResourceMetadata metadata, object value, [CallerMemberName] string key = null)
+        public static ResourceMetadata SetItemAuto(this ResourceMetadata metadata, object value, [CallerMemberName] string key = null)
         {
-            return (metadata ?? ResourceMetadata.Empty).SetItem(key, value);
+            return metadata.SetItem(key, value);
         }
 
         // --
-        public static bool TryGetValue<T>([CanBeNull] this ResourceMetadata metadata, [NotNull] SoftString key, [CanBeNull] out T value)
+        private static bool TryGetValue<T>(this ResourceMetadata metadata, [NotNull] SoftString key, [CanBeNull] out T value)
         {
-            value = default;
-
-            if (metadata is null)
-            {
-                return false;
-            }
-
             if (metadata.TryGetValue(key, out var x) && x is T result)
             {
                 value = result;
                 return true;
             }
-
-            return false;
+            else
+            {
+                value = default;
+                return false;
+            }
         }
 
-        public static T GetValueOrDefault<T>([CanBeNull] this ResourceMetadata metadata, T defaultValue = default, [CallerMemberName] string key = null)
+        public static T GetValueOrDefault<T>(this ResourceMetadata metadata, T defaultValue = default, [CallerMemberName] string key = null)
         {
             return
                 // ReSharper disable once AssignNullToNotNullAttribute - 'key' isn't null
-                (metadata ?? ResourceMetadata.Empty).TryGetValue(key, out T value)
+                metadata.TryGetValue(key, out T value)
                     ? value
                     : defaultValue;
         }
@@ -64,7 +59,7 @@ namespace Reusable.IOnymous
         {
             // There might already be a cope defined so get the current one first. 
             var scope = configureScope(metadata.Scope<T>().Metadata);
-            return metadata.SetItemSafe(scope.Metadata, CreateScopeKey<T>());
+            return metadata.SetItemAuto(scope.Metadata, CreateScopeKey<T>());
         }
 
         private static string CreateScopeKey<TScope>()
@@ -90,7 +85,7 @@ namespace Reusable.IOnymous
 
         public static ResourceMetadata ProviderDefaultName(this ResourceMetadata metadata, SoftString name)
         {
-            return metadata.SetItemSafe(name);
+            return metadata.SetItemAuto(name);
         }
 
         public static SoftString ProviderCustomName(this ResourceMetadata metadata)
@@ -100,7 +95,7 @@ namespace Reusable.IOnymous
 
         public static ResourceMetadata ProviderCustomName(this ResourceMetadata metadata, SoftString name)
         {
-            return metadata.SetItemSafe(name);
+            return metadata.SetItemAuto(name);
         }
 
         public static bool AllowRelativeUri(this ResourceMetadata metadata)
@@ -110,7 +105,7 @@ namespace Reusable.IOnymous
 
         public static ResourceMetadata AllowRelativeUri(this ResourceMetadata metadata, bool value)
         {
-            return metadata.SetItemSafe(value);
+            return metadata.SetItemAuto(value);
         }
 
         public static CancellationToken CancellationToken(this ResourceMetadata metadata)
@@ -120,7 +115,7 @@ namespace Reusable.IOnymous
 
         public static ResourceMetadata CancellationToken(this ResourceMetadata metadata, CancellationToken cancellationToken)
         {
-            return metadata.SetItemSafe(cancellationToken);
+            return metadata.SetItemAuto(cancellationToken);
         }
 
         // ---
@@ -132,7 +127,7 @@ namespace Reusable.IOnymous
 
         public static ResourceMetadata Format(this ResourceMetadata metadata, MimeType format)
         {
-            return metadata.SetItemSafe(format);
+            return metadata.SetItemAuto(format);
         }
 
         // ---
@@ -144,7 +139,7 @@ namespace Reusable.IOnymous
 
         public static ResourceMetadata Encoding(this ResourceMetadata metadata, Encoding encoding)
         {
-            return metadata.SetItemSafe(encoding);
+            return metadata.SetItemAuto(encoding);
         }
 
         // ---
@@ -156,7 +151,7 @@ namespace Reusable.IOnymous
 
         public static ResourceMetadata Schemes(this ResourceMetadata metadata, params SoftString[] schemes)
         {
-            return metadata.SetItemSafe((IImmutableSet<SoftString>)schemes.ToImmutableHashSet());
+            return metadata.SetItemAuto((IImmutableSet<SoftString>)schemes.ToImmutableHashSet());
         }
 
         #endregion

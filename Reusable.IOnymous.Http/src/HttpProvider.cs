@@ -14,7 +14,7 @@ namespace Reusable.IOnymous
         
         private readonly HttpClient _client;
 
-        public HttpProvider([NotNull] string baseUri, ResourceMetadata metadata = null)
+        public HttpProvider([NotNull] string baseUri, ResourceMetadata metadata = default)
             : base(new SoftString[] { "http", "https" }, metadata.AllowRelativeUri(true))
         {
             if (baseUri == null) throw new ArgumentNullException(nameof(baseUri));
@@ -28,14 +28,14 @@ namespace Reusable.IOnymous
 
         public string BaseUri => _client.BaseAddress.ToString();
 
-        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
+        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
         {
             uri = BaseUri + uri;
             var (response, mediaType) = await InvokeAsync(uri, HttpMethod.Get, metadata);
             return new HttpResourceInfo(uri, response, new MimeType(mediaType));
         }
 
-        protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
+        protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
         {
             uri = BaseUri + uri;
             var (response, mediaType) = await InvokeAsync(uri, HttpMethod.Post, metadata.Scope<HttpProvider>(scope => scope.Content(value)));

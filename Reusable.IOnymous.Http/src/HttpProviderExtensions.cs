@@ -11,7 +11,7 @@ namespace Reusable.IOnymous
     {
         #region GET helpers
 
-        public static Task<IResourceInfo> GetHttpAsync(this IResourceProvider resourceProvider, string path, ResourceMetadata metadata = null)
+        public static Task<IResourceInfo> GetHttpAsync(this IResourceProvider resourceProvider, string path, ResourceMetadata metadata = default)
         {
             var uri = new UriString(path);
             return resourceProvider.GetAsync

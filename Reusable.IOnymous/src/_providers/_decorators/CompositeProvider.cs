@@ -29,7 +29,7 @@ namespace Reusable.IOnymous
         public CompositeProvider
         (
             [NotNull] IEnumerable<IResourceProvider> resourceProviders,
-            [CanBeNull] ResourceMetadata metadata = null
+            ResourceMetadata metadata = default
         )
             : base(new[] { DefaultScheme }, metadata)
         {
@@ -39,7 +39,7 @@ namespace Reusable.IOnymous
             _resourceProviders = resourceProviders.ToImmutableList();
         }
 
-        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
+        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
         {
             return await HandleMethodAsync(uri, metadata, true, async resourceProvider =>
             {
@@ -48,17 +48,17 @@ namespace Reusable.IOnymous
             });
         }
 
-        protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
+        protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
         {
             return await HandleMethodAsync(uri, metadata, false, async resourceProvider => (await resourceProvider.PostAsync(uri, value, metadata), true));
         }
 
-        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
+        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
         {
             return await HandleMethodAsync(uri, metadata, false, async resourceProvider => (await resourceProvider.PutAsync(uri, value, metadata), true));
         }
 
-        protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata = null)
+        protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata)
         {
             return await HandleMethodAsync(uri, metadata, false, async resourceProvider => (await resourceProvider.DeleteAsync(uri, metadata), true));
         }

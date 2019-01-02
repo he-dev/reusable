@@ -2,9 +2,10 @@ using JetBrains.Annotations;
 
 namespace Reusable.IOnymous
 {
+    [PublicAPI]
     public readonly struct ResourceMetadataScope<T>
     {
-        public ResourceMetadataScope([CanBeNull] ResourceMetadata metadata) => Metadata = metadata ?? ResourceMetadata.Empty;
+        public ResourceMetadataScope(ResourceMetadata metadata) => Metadata = metadata;
 
         public ResourceMetadata Metadata { get; }
 

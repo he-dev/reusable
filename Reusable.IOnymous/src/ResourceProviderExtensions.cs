@@ -20,7 +20,7 @@ namespace Reusable.IOnymous
 
         #region GET helpers
 
-        public static Task<IResourceInfo> GetAnyAsync(this IResourceProvider resourceProvider, UriString uri, ResourceMetadata metadata = null)
+        public static Task<IResourceInfo> GetAnyAsync(this IResourceProvider resourceProvider, UriString uri, ResourceMetadata metadata = default)
         {
             return resourceProvider.GetAsync(uri.With(x => x.Scheme, ResourceProvider.DefaultScheme), metadata);
         }
@@ -38,7 +38,7 @@ namespace Reusable.IOnymous
             this IResourceProvider resourceProvider,
             UriString uri,
             Func<Task<Stream>> serializeAsync,
-            ResourceMetadata metadata = null
+            ResourceMetadata metadata = default
         )
         {
             return await ExecuteAsync(resourceProvider.PostAsync, uri, serializeAsync, metadata);
@@ -49,7 +49,7 @@ namespace Reusable.IOnymous
             this IResourceProvider resourceProvider,
             UriString uri,
             Func<Task<Stream>> serializeAsync,
-            ResourceMetadata metadata = null
+            ResourceMetadata metadata = default
         )
         {
             return await ExecuteAsync(resourceProvider.PutAsync, uri, serializeAsync, metadata);
@@ -60,7 +60,7 @@ namespace Reusable.IOnymous
             Func<UriString, Stream, ResourceMetadata, Task<IResourceInfo>> executeAsync,
             UriString uri,
             Func<Task<Stream>> serializeAsync,
-            ResourceMetadata metadata = null
+            ResourceMetadata metadata
         )
         {
             var stream = await serializeAsync();

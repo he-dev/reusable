@@ -35,16 +35,16 @@ namespace Reusable.IOnymous
         bool CanDelete { get; }
 
         [ItemNotNull]
-        Task<IResourceInfo> GetAsync([NotNull] UriString uri, ResourceMetadata metadata = null);
+        Task<IResourceInfo> GetAsync([NotNull] UriString uri, ResourceMetadata metadata = default);
 
         [ItemNotNull]
-        Task<IResourceInfo> PostAsync([NotNull] UriString uri, [NotNull] Stream value, ResourceMetadata metadata = null);
+        Task<IResourceInfo> PostAsync([NotNull] UriString uri, [NotNull] Stream value, ResourceMetadata metadata = default);
 
         [ItemNotNull]
-        Task<IResourceInfo> PutAsync([NotNull] UriString uri, [NotNull] Stream value, ResourceMetadata metadata = null);
+        Task<IResourceInfo> PutAsync([NotNull] UriString uri, [NotNull] Stream value, ResourceMetadata metadata = default);
 
         [ItemNotNull]
-        Task<IResourceInfo> DeleteAsync([NotNull] UriString uri, ResourceMetadata metadata = null);
+        Task<IResourceInfo> DeleteAsync([NotNull] UriString uri, ResourceMetadata metadata = default);
     }
 
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
@@ -52,11 +52,9 @@ namespace Reusable.IOnymous
     {
         public static readonly SoftString DefaultScheme = "ionymous";
 
-        protected ResourceProvider([NotNull] IEnumerable<SoftString> schemes, [CanBeNull] ResourceMetadata metadata)
+        protected ResourceProvider([NotNull] IEnumerable<SoftString> schemes, ResourceMetadata metadata)
         {
             if (schemes == null) throw new ArgumentNullException(nameof(schemes));
-
-            metadata = metadata ?? ResourceMetadata.Empty;
 
             // If this is a decorator then the decorated resource-provider already has set this.
             if (!metadata.ProviderDefaultName())
@@ -96,7 +94,7 @@ namespace Reusable.IOnymous
 
         // These wrappers are to provide helpful exceptions.        
 
-        public async Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = null)
+        public async Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = default)
         {
             ValidateSchemeNotEmpty(uri);
             ValidateSchemeMatches(uri);
@@ -111,7 +109,7 @@ namespace Reusable.IOnymous
             }
         }
 
-        public async Task<IResourceInfo> PostAsync(UriString uri, Stream value, ResourceMetadata metadata = null)
+        public async Task<IResourceInfo> PostAsync(UriString uri, Stream value, ResourceMetadata metadata = default)
         {
             ValidateSchemeNotEmpty(uri);
             ValidateSchemeMatches(uri);
@@ -126,7 +124,7 @@ namespace Reusable.IOnymous
             }
         }
 
-        public async Task<IResourceInfo> PutAsync(UriString uri, Stream value, ResourceMetadata metadata = null)
+        public async Task<IResourceInfo> PutAsync(UriString uri, Stream value, ResourceMetadata metadata = default)
         {
             ValidateSchemeNotEmpty(uri);
             ValidateSchemeMatches(uri);
@@ -141,7 +139,7 @@ namespace Reusable.IOnymous
             }
         }
 
-        public async Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = null)
+        public async Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = default)
         {
             ValidateSchemeNotEmpty(uri);
             ValidateSchemeMatches(uri);
@@ -160,13 +158,13 @@ namespace Reusable.IOnymous
 
         #region Internal
 
-        protected virtual Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null) => throw MethodNotSupportedException(uri);
+        protected virtual Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata) => throw MethodNotSupportedException(uri);
 
-        protected virtual Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null) => throw MethodNotSupportedException(uri);
+        protected virtual Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata) => throw MethodNotSupportedException(uri);
 
-        protected virtual Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null) => throw MethodNotSupportedException(uri);
+        protected virtual Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata) => throw MethodNotSupportedException(uri);
 
-        protected virtual Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata = null) => throw MethodNotSupportedException(uri);
+        protected virtual Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata) => throw MethodNotSupportedException(uri);
 
         #endregion
 
@@ -269,12 +267,4 @@ namespace Reusable.IOnymous
 
         #endregion
     }
-
-//    [SuppressMessage("ReSharper", "InconsistentNaming")]
-//    public static class SchemeNames
-//    {
-//        public static readonly string ionymous = nameof(ionymous);
-//        public static readonly string file = nameof(file);
-//        public static readonly string setting = nameof(setting);
-//    }
 }

@@ -13,23 +13,23 @@ namespace Reusable.IOnymous
     {
         private readonly ISet<IResourceInfo> _items = new HashSet<IResourceInfo>();
 
-        public InMemoryProvider(IEnumerable<SoftString> schemes, ResourceMetadata metadata = null)
-            : base(schemes, (metadata ?? ResourceMetadata.Empty))
+        public InMemoryProvider(IEnumerable<SoftString> schemes, ResourceMetadata metadata = default)
+            : base(schemes, metadata)
         {
         }
 
-        public InMemoryProvider(ResourceMetadata metadata = null)
-            : base(new[] { DefaultScheme }, (metadata ?? ResourceMetadata.Empty))
+        public InMemoryProvider(ResourceMetadata metadata = default)
+            : base(new[] { DefaultScheme }, metadata)
         {
         }
 
-        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
+        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
         {
             var firstMatch = _items.FirstOrDefault(item => item.Uri == uri);
             return Task.FromResult(firstMatch ?? new InMemoryResourceInfo(uri));
         }
 
-        protected override Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
+        protected override Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
         {
             ValidateFormatNotNull(this, uri, metadata);
             
@@ -39,7 +39,7 @@ namespace Reusable.IOnymous
             return Task.FromResult<IResourceInfo>(resource);
         }
         
-        protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
+        protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
         {
             ValidateFormatNotNull(this, uri, metadata);
             
@@ -49,7 +49,7 @@ namespace Reusable.IOnymous
             return Task.FromResult<IResourceInfo>(resource);
         }
 
-        protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata = null)
+        protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata)
         {
             var resourceToDelete = await GetAsync(uri, metadata);
             _items.Remove(resourceToDelete);

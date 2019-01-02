@@ -35,17 +35,17 @@ namespace Reusable.SmartConfig
 
         public static Func<IResourceProvider, IResourceProvider> Factory() => decorable => new SettingNameProvider(decorable);
 
-        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
+        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
         {
             return _resourceProvider.GetAsync(Translate(uri), Translate(uri, metadata));
         }
 
-        protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
+        protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
         {
             return _resourceProvider.PutAsync(Translate(uri), value, Translate(uri, metadata));
         }
 
-        protected override Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata = null)
+        protected override Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata)
         {
             return _resourceProvider.DeleteAsync(Translate(uri), Translate(uri, metadata));
         }
@@ -83,8 +83,6 @@ namespace Reusable.SmartConfig
 
         protected ResourceMetadata Translate(UriString uri, ResourceMetadata metadata)
         {
-            metadata = metadata ?? ResourceMetadata.Empty;
-
             if (uri.Query.TryGetValue("providerCustomName", out var providerCustomName))
             {
                 metadata = metadata.ProviderCustomName(providerCustomName);

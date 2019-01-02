@@ -22,7 +22,7 @@ namespace Reusable.Tests.XUnit.IOnymous
         
         public static ResourceMetadataScope<ResourceMetadataExtensionsTest> Greeting(this ResourceMetadataScope<ResourceMetadataExtensionsTest> scope, string greeting)
         {
-            return scope.Metadata.SetItemSafe(greeting);
+            return scope.Metadata.SetItemAuto(greeting);
         }
     }
 }

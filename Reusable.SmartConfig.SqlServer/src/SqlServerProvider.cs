@@ -57,7 +57,7 @@ namespace Reusable.SmartConfig
         [CanBeNull]
         public IImmutableDictionary<string, object> Where { get; set; }
 
-        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
+        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
         {
             var settingIdentifier = (string)_uriStringToSettingIdentifierConverter?.Convert(uri, typeof(string)) ?? uri;
 
@@ -74,7 +74,7 @@ namespace Reusable.SmartConfig
             }, CancellationToken.None);
         }
 
-        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream stream, ResourceMetadata metadata = null)
+        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream stream, ResourceMetadata metadata)
         {
             var settingIdentifier = (string)_uriStringToSettingIdentifierConverter?.Convert(uri, typeof(string)) ?? uri;
 

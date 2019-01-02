@@ -12,7 +12,7 @@ namespace Reusable.IOnymous
     {
         private readonly Assembly _assembly;
 
-        public EmbeddedFileProvider([NotNull] Assembly assembly, ResourceMetadata metadata = null)
+        public EmbeddedFileProvider([NotNull] Assembly assembly, ResourceMetadata metadata = default)
             : base(metadata.AllowRelativeUri(true))
         {
             _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
@@ -24,7 +24,7 @@ namespace Reusable.IOnymous
 
         #region ResourceProvider
 
-        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
+        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
         {
             ValidateFormatNotNull(this, uri, metadata);
             

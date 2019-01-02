@@ -11,19 +11,19 @@ namespace Reusable.IOnymous
     {
         #region GET helpers
 
-        public static async Task<IResourceInfo> GetFileAsync(this IResourceProvider resourceProvider, string path, MimeType format, ResourceMetadata metadata = null)
+        public static async Task<IResourceInfo> GetFileAsync(this IResourceProvider resourceProvider, string path, MimeType format, ResourceMetadata metadata = default)
         {
             var uri = Path.IsPathRooted(path) ? new UriString(FileProvider.DefaultScheme, path) : new UriString(path);
-            return await resourceProvider.GetAsync(uri, (metadata ?? ResourceMetadata.Empty).Format(format));
+            return await resourceProvider.GetAsync(uri, metadata.Format(format));
         }
 
-        public static async Task<string> ReadTextFileAsync(this IResourceProvider resourceProvider, string path, ResourceMetadata metadata = null)
+        public static async Task<string> ReadTextFileAsync(this IResourceProvider resourceProvider, string path, ResourceMetadata metadata = default)
         {
             var file = await resourceProvider.GetFileAsync(path, MimeType.Text, metadata);
             return await file.DeserializeTextAsync();
         }
 
-        public static string ReadTextFile(this IResourceProvider resourceProvider, string path, ResourceMetadata metadata = null)
+        public static string ReadTextFile(this IResourceProvider resourceProvider, string path, ResourceMetadata metadata = default)
         {
             var file = resourceProvider.GetFileAsync(path, MimeType.Text, metadata).GetAwaiter().GetResult();
             return file.DeserializeTextAsync().GetAwaiter().GetResult();
@@ -33,16 +33,16 @@ namespace Reusable.IOnymous
 
         #region PUT helpers
 
-        public static async Task<IResourceInfo> WriteTextFileAsync(this IResourceProvider resourceProvider, string path, string value, ResourceMetadata metadata = null)
+        public static async Task<IResourceInfo> WriteTextFileAsync(this IResourceProvider resourceProvider, string path, string value, ResourceMetadata metadata = default)
         {
             using (var stream = await ResourceHelper.SerializeAsTextAsync(value, metadata.Encoding()))
             {
                 var uri = Path.IsPathRooted(path) ? new UriString(FileProvider.DefaultScheme, path) : new UriString(path);
-                return await resourceProvider.PutAsync(uri, stream, (metadata ?? ResourceMetadata.Empty).Format(MimeType.Text));
+                return await resourceProvider.PutAsync(uri, stream, metadata.Format(MimeType.Text));
             }
         }
 
-        public static async Task<IResourceInfo> SaveFileAsync(this IResourceProvider resourceProvider, string path, Stream stream, ResourceMetadata metadata = null)
+        public static async Task<IResourceInfo> SaveFileAsync(this IResourceProvider resourceProvider, string path, Stream stream, ResourceMetadata metadata = default)
         {
             var uri = Path.IsPathRooted(path) ? new UriString(FileProvider.DefaultScheme, path) : new UriString(path);
             return await resourceProvider.PutAsync(uri, stream, metadata);
@@ -56,10 +56,10 @@ namespace Reusable.IOnymous
 
         #region DELETE helpers
 
-        public static async Task<IResourceInfo> DeleteFileAsync(this IResourceProvider resourceProvider, string path, ResourceMetadata metadata = null)
+        public static async Task<IResourceInfo> DeleteFileAsync(this IResourceProvider resourceProvider, string path, ResourceMetadata metadata = default)
         {
             var uri = Path.IsPathRooted(path) ? new UriString(FileProvider.DefaultScheme, path) : new UriString(path);
-            return await resourceProvider.DeleteAsync(uri, (metadata ?? ResourceMetadata.Empty).Format(MimeType.Text));
+            return await resourceProvider.DeleteAsync(uri, metadata.Format(MimeType.Text));
         }
 
         #endregion

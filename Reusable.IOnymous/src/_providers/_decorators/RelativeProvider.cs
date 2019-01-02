@@ -24,22 +24,22 @@ namespace Reusable.IOnymous
             return decorable => new RelativeProvider(decorable, baseUri);
         }
 
-        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
+        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
         {
             return await _resourceProvider.GetAsync(Combine(uri), metadata);
         }
 
-        protected override Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
+        protected override Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
         {
             return _resourceProvider.PostAsync(Combine(uri), value, metadata);
         }
         
-        protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
+        protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
         {
             return _resourceProvider.PutAsync(Combine(uri), value, metadata);
         }
 
-        protected override Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata = null)
+        protected override Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata)
         {
             return _resourceProvider.DeleteAsync(Combine(uri), metadata);
         }

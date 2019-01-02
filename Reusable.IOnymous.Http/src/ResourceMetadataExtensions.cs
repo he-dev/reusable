@@ -17,7 +17,7 @@ namespace Reusable.IOnymous
 
         public static ResourceMetadataScope<HttpProvider> Content(this ResourceMetadataScope<HttpProvider> scope, Stream content)
         {
-            return scope.Metadata.SetItemSafe(content);
+            return scope.Metadata.SetItemAuto(content);
         }
 
         public static Action<HttpRequestHeaders> ConfigureRequestHeaders(this ResourceMetadataScope<HttpProvider> scope)
@@ -28,7 +28,7 @@ namespace Reusable.IOnymous
         public static ResourceMetadataScope<HttpProvider> ConfigureRequestHeaders(this ResourceMetadataScope<HttpProvider> scope, Action<HttpRequestHeaders> configureRequestHeaders)
         {
             var current = scope.ConfigureRequestHeaders();
-            return scope.Metadata.SetItemSafe((Action<HttpRequestHeaders>)(headers =>
+            return scope.Metadata.SetItemAuto((Action<HttpRequestHeaders>)(headers =>
             {
                 current(headers);
                 configureRequestHeaders(headers);
@@ -42,7 +42,7 @@ namespace Reusable.IOnymous
 
         public static ResourceMetadataScope<HttpProvider> RequestFormatter(this ResourceMetadataScope<HttpProvider> scope, MediaTypeFormatter requestFormatter)
         {
-            return scope.Metadata.SetItemSafe(requestFormatter);
+            return scope.Metadata.SetItemAuto(requestFormatter);
         }
 
         // public static bool EnsureSuccessStatusCode(this ResourceMetadata metadata)
@@ -62,7 +62,7 @@ namespace Reusable.IOnymous
 
         public static ResourceMetadataScope<HttpProvider> ResponseFormatters(this ResourceMetadataScope<HttpProvider> scope, params MediaTypeFormatter[] responseFormatters)
         {
-            return scope.Metadata.SetItemSafe((IEnumerable<MediaTypeFormatter>)responseFormatters);
+            return scope.Metadata.SetItemAuto((IEnumerable<MediaTypeFormatter>)responseFormatters);
         }
 
         public static Type ResponseType(this ResourceMetadataScope<HttpProvider> scope)
@@ -72,7 +72,7 @@ namespace Reusable.IOnymous
 
         public static ResourceMetadataScope<HttpProvider> ResponseType(this ResourceMetadataScope<HttpProvider> scope, Type responseType)
         {
-            return scope.Metadata.SetItemSafe(responseType);
+            return scope.Metadata.SetItemAuto(responseType);
         }
 
         // ---
@@ -84,7 +84,7 @@ namespace Reusable.IOnymous
 
         public static ResourceMetadataScope<HttpProvider> ContentType(this ResourceMetadataScope<HttpProvider> scope, string contentType)
         {
-            return scope.Metadata.SetItemSafe(contentType);
+            return scope.Metadata.SetItemAuto(contentType);
         }        
     }
 }

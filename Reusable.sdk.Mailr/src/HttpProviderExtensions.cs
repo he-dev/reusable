@@ -17,7 +17,7 @@ namespace Reusable.sdk.Mailr
             string productName,
             string productVersion,
             JsonSerializer jsonSerializer = null,
-            ResourceMetadata metadata = null
+            ResourceMetadata metadata = default
         )
         {
             metadata =

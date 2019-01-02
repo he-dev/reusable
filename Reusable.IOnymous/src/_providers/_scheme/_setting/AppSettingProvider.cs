@@ -20,7 +20,7 @@ namespace Reusable.IOnymous
             _uriStringToSettingIdentifierConverter = uriStringToSettingIdentifierConverter;
         }
 
-        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata = null)
+        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
         {
             var settingIdentifier = (string)_uriStringToSettingIdentifierConverter?.Convert(uri, typeof(string)) ?? uri;
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
@@ -29,7 +29,7 @@ namespace Reusable.IOnymous
             return Task.FromResult<IResourceInfo>(new AppSettingInfo(uri, element?.Value));
         }
 
-        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream stream, ResourceMetadata metadata = null)
+        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream stream, ResourceMetadata metadata)
         {
             using (var valueReader = new StreamReader(stream))
             {
