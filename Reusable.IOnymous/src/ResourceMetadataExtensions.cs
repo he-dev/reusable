@@ -51,17 +51,20 @@ namespace Reusable.IOnymous
                     : defaultValue;
         }
 
-        public static ResourceMetadata Scope<T>(this ResourceMetadata metadata)
+        #endregion
+
+        #region Scope
+
+        public static ResourceMetadataScope<T> Scope<T>(this ResourceMetadata metadata)
         {
-            var scope = metadata.GetValueOrDefault(ResourceMetadata.Empty, CreateScopeKey<T>());
-            return scope;
+            return metadata.GetValueOrDefault(ResourceMetadata.Empty, CreateScopeKey<T>());
         }
 
         public static ResourceMetadata Scope<T>(this ResourceMetadata metadata, Func<ResourceMetadataScope<T>, ResourceMetadataScope<T>> configureScope)
         {
-            var scope = configureScope(new ResourceMetadataScope<T>(ResourceMetadata.Empty));
+            var scope = configureScope(metadata.Scope<T>().Metadata);
             return metadata.SetItemSafe(scope.Metadata, CreateScopeKey<T>());
-        }                
+        }
 
         private static string CreateScopeKey<TScope>()
         {
@@ -156,16 +159,5 @@ namespace Reusable.IOnymous
         }
 
         #endregion
-    }
-
-    public readonly struct ResourceMetadataScope<T>
-    {
-        public ResourceMetadataScope(ResourceMetadata metadata) => Metadata = metadata;
-
-        public ResourceMetadata Metadata { get; }
-
-        public static implicit operator ResourceMetadataScope<T>(ResourceMetadata metadata) => new ResourceMetadataScope<T>(metadata);
-
-        public static implicit operator ResourceMetadata(ResourceMetadataScope<T> scope) => scope.Metadata;
     }
 }

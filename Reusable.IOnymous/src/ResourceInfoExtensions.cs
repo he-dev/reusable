@@ -39,8 +39,7 @@ namespace Reusable.IOnymous
             using (var memoryStream = new MemoryStream())
             {
                 await resourceInfo.CopyToAsync(memoryStream);
-                memoryStream.Rewind();
-                return (T)binaryFormatter.Deserialize(memoryStream);
+                return (T)binaryFormatter.Deserialize(memoryStream.Rewind());
             }
         }
 

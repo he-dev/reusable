@@ -33,7 +33,7 @@ namespace Reusable.Tests.XUnit.Teapot
                                 .AcceptsJson()
                                 .WithApiVersion("1.0")
                                 .WithContentTypeJson(content => { content.HasProperty("$.Greeting"); });
-                            
+
                             response
                                 .Once(200, new { Message = "OK" })
                                 .Echo();
@@ -42,17 +42,22 @@ namespace Reusable.Tests.XUnit.Teapot
                 using (var client = new HttpProvider("http://localhost:12000/api", ResourceMetadata.Empty))
                 {
                     // Request made by the application somewhere deep down the rabbit hole
-                    var response = await client.PostAsync("test?param=true", () => ResourceHelper.SerializeAsJsonAsync(new { Greeting = "Hallo" }), ResourceMetadata.Empty.ConfigureRequestHeaders(headers =>
-                    {
-                        headers.ApiVersion("1.0");
-                        headers.UserAgent("Teapot", "1.0");
-                        headers.AcceptJson();
-                    }));
+                    var response = await client.PostAsync
+                    (
+                        "test?param=true",
+                        () => ResourceHelper.SerializeAsJsonAsync(new { Greeting = "Hallo" }),
+                        ResourceMetadata.Empty.Scope<HttpProvider>(scope => scope.ConfigureRequestHeaders(headers =>
+                        {
+                            headers.ApiVersion("1.0");
+                            headers.UserAgent("Teapot", "1.0");
+                            headers.AcceptJson();
+                        }))
+                    );
 
                     Assert.True(response.Exists);
                     var original = await response.DeserializeJsonAsync<object>();
                 }
-                
+
                 test.Assert();
             }
         }

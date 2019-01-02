@@ -22,15 +22,17 @@ namespace Reusable.sdk.Mailr
         {
             metadata =
                 metadata
-                    //.Scope<HttpProvider>(scope => scope.Content(Stream.Null))
-                    .ConfigureRequestHeaders(headers =>
-                    {
-                        headers
-                            .UserAgent(productName, productVersion)
-                            .AcceptHtml();
-                    })
-                    .ResponseFormatters(new TextMediaTypeFormatter())
-                    .ContentType("application/json")
+                    .Scope<HttpProvider>(scope =>
+                        scope
+                            .ConfigureRequestHeaders(headers =>
+                            {
+                                headers
+                                    .UserAgent(productName, productVersion)
+                                    .AcceptHtml();
+                            })
+                            .ResponseFormatters(new TextMediaTypeFormatter())
+                            .ContentType("application/json")
+                    )
                     .Schemes("http", "https");
 
             var response = await resourceProvider.PostAsync(uri, () => ResourceHelper.SerializeAsJsonAsync(email, jsonSerializer), metadata);

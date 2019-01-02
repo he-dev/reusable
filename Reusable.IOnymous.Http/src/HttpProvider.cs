@@ -38,7 +38,7 @@ namespace Reusable.IOnymous
         protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata = null)
         {
             uri = BaseUri + uri;
-            var (response, mediaType) = await InvokeAsync(uri, HttpMethod.Post, (metadata ?? ResourceMetadata.Empty).Content(value));
+            var (response, mediaType) = await InvokeAsync(uri, HttpMethod.Post, metadata.Scope<HttpProvider>(scope => scope.Content(value)));
             return new HttpResourceInfo(uri, response, new MimeType(mediaType));
         }
 
@@ -48,15 +48,15 @@ namespace Reusable.IOnymous
         {
             using (var request = new HttpRequestMessage(method, uri))
             {
-                var content = metadata.Content();
+                var content = metadata.Scope<HttpProvider>().Content();
                 if (content != null)
                 {
                     request.Content = new StreamContent(content.Rewind());
-                    request.Content.Headers.ContentType = new MediaTypeHeaderValue(metadata.ContentType());
+                    request.Content.Headers.ContentType = new MediaTypeHeaderValue(metadata.Scope<HttpProvider>().ContentType());
                 }
 
-                Metadata.ConfigureRequestHeaders()(request.Headers);
-                metadata.ConfigureRequestHeaders()(request.Headers);
+                Metadata.Scope<HttpProvider>().ConfigureRequestHeaders()(request.Headers);
+                metadata.Scope<HttpProvider>().ConfigureRequestHeaders()(request.Headers);
                 using (var response = await _client.SendAsync(request, HttpCompletionOption.ResponseContentRead, metadata.CancellationToken()))
                 {
                     var responseContentCopy = new MemoryStream();
