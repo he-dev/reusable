@@ -62,6 +62,7 @@ namespace Reusable.IOnymous
 
         public static ResourceMetadata Scope<T>(this ResourceMetadata metadata, Func<ResourceMetadataScope<T>, ResourceMetadataScope<T>> configureScope)
         {
+            // There might already be a cope defined so get the current one first. 
             var scope = configureScope(metadata.Scope<T>().Metadata);
             return metadata.SetItemSafe(scope.Metadata, CreateScopeKey<T>());
         }
