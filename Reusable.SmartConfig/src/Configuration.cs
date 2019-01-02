@@ -70,13 +70,14 @@ namespace Reusable.SmartConfig
                 }
 
                 using (var memoryStream = new MemoryStream())
-                using (var streamReader = new StreamReader(memoryStream))
                 {
                     setting.CopyToAsync(memoryStream).GetAwaiter().GetResult();
-                    memoryStream.Rewind();
-                    var json = streamReader.ReadToEnd();
-                    var converter = GetOrAddDeserializer(settingMetadata.MemberType);
-                    return converter.Convert(json, settingMetadata.MemberType);
+                    using (var streamReader = new StreamReader(memoryStream.Rewind()))
+                    {
+                        var json = streamReader.ReadToEnd();
+                        var converter = GetOrAddDeserializer(settingMetadata.MemberType);
+                        return converter.Convert(json, settingMetadata.MemberType);
+                    }
                 }
             }
             else
@@ -154,7 +155,7 @@ namespace Reusable.SmartConfig
             }
         }
 
-    #region Helpers
+        #region Helpers
 
         private static object Validate(object value, IEnumerable<ValidationAttribute> validations, UriString uri)
         {
@@ -227,6 +228,6 @@ namespace Reusable.SmartConfig
             return (ITypeConverter)Activator.CreateInstance(converterGenericType, _settings, _stringTypes);
         }
 
-    #endregion
+        #endregion
     }
 }
