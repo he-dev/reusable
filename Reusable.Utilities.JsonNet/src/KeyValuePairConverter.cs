@@ -4,6 +4,8 @@ using Newtonsoft.Json;
 
 namespace Reusable.Utilities.JsonNet
 {
+    // Json.net will serialize 'IEnumerable<KeyValuePair<TKey, TValue>>' by default as { 'Key': 'key', 'Value': 'value' }
+    // This converter uses the actual key/value pairs as property/value rather then serializing the container object: { 'key': 'value' }
     public class KeyValuePairConverter<TKey, TValue> : JsonConverter
     {
         public override bool CanConvert(Type objectType)

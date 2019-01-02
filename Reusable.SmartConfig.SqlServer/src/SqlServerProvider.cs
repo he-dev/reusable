@@ -18,7 +18,7 @@ namespace Reusable.SmartConfig
 {
     using static SqlServerColumn;
 
-    public class SqlServerProvider : Reusable.IOnymous.SettingProvider
+    public class SqlServerProvider : SettingProvider
     {
         public const string DefaultSchema = "dbo";
 

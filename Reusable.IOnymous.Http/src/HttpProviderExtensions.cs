@@ -18,8 +18,7 @@ namespace Reusable.IOnymous
             (
                 uri.IsAbsolute
                     ? uri
-                    : new UriString(HttpProvider.DefaultScheme,
-                        (string)uri.Path.Original),
+                    : new UriString(HttpProvider.DefaultScheme, (string)uri.Path.Original),
                 metadata
             );
         }

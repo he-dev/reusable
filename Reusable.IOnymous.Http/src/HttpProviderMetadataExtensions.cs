@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 namespace Reusable.IOnymous
 {
     [PublicAPI]
-    public static class ResourceMetadataExtensions
+    public static class HttpProviderMetadataExtensions
     {
         public static Stream Content(this ResourceMetadataScope<HttpProvider> scope)
         {

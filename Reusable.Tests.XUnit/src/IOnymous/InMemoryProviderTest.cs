@@ -16,7 +16,7 @@ namespace Reusable.Tests.XUnit.IOnymous
                 { "foo:bar/baz", "qux" },
             };
             
-            Assert.Equal(1, inMemory.Count());
+            Assert.Equal(1, (int)inMemory.Count());
         }
 
         [Fact]
