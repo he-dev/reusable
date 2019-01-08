@@ -207,7 +207,7 @@ namespace Reusable.IOnymous
                 throw DynamicException.Create
                 (
                     "MissingScheme",
-                    Because(memberName, uri, "uri it must contain scheme.")
+                    Because(memberName, uri, "it must contain scheme.")
                 );
             }
         }

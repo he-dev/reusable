@@ -31,6 +31,17 @@ namespace Reusable.Tests.XUnit.IOnymous
             Assert.False(file.Exists);
         }
         
+        [Fact]
+        public async Task Can_read_and_write_text_file_from_share()
+        {
+            var tempFileName = "//auth/name";
+            
+            var provider = new PhysicalFileProvider();
+            var file = await provider.GetFileAsync(tempFileName, MimeType.Text);
+            
+            Assert.False(file.Exists);            
+        }
+        
         private static string GetTempFileName() => Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".tmp");
     }
 }
