@@ -13,20 +13,20 @@ namespace Reusable.Tests.XUnit.sdk.Mailr
 {
     public class UseCaseTest : IDisposable, IClassFixture<TeapotFactoryFixture>
     {
-        private readonly TeapotServer _server;
+        private readonly TeapotServer _teapot;
 
         private readonly IResourceProvider _http;
 
         public UseCaseTest(TeapotFactoryFixture teapotFactory)
         {
-            _server = teapotFactory.CreateTeapotServer(ConfigurationManager.AppSettings["teapot:BaseUri"]);
+            _teapot = teapotFactory.CreateTeapotServer(ConfigurationManager.AppSettings["teapot:BaseUri"]);
             _http = new HttpProvider(ConfigurationManager.AppSettings["mailr:BaseUri"]);
         }
 
         [Fact]
         public async Task Can_post_email_and_receive_html()
         {
-            using (var teacup = _server.BeginScope())
+            using (var teacup = _teapot.BeginScope())
             {
                 var mailrMessagesTestMock =
                     teacup
@@ -73,7 +73,7 @@ namespace Reusable.Tests.XUnit.sdk.Mailr
         public void Dispose()
         {
             _http.Dispose();
-            _server.Dispose();
+            _teapot.Dispose();
         }
     }
 

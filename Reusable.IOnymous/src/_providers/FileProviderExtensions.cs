@@ -13,10 +13,7 @@ namespace Reusable.IOnymous
 
         public static async Task<IResourceInfo> GetFileAsync(this IResourceProvider resourceProvider, string path, MimeType format, ResourceMetadata metadata = default)
         {
-            var uri = Path.IsPathRooted(path) || IsUnc(path) ? new UriString(FileProvider.DefaultScheme, path) : new UriString(path);
-            return await resourceProvider.GetAsync(uri, metadata.Format(format));
-
-            bool IsUnc(string value) => value.StartsWith("//");
+            return await resourceProvider.GetAsync(CreateUri(path), metadata.Format(format));
         }
 
         public static async Task<string> ReadTextFileAsync(this IResourceProvider resourceProvider, string path, ResourceMetadata metadata = default)
@@ -39,15 +36,13 @@ namespace Reusable.IOnymous
         {
             using (var stream = await ResourceHelper.SerializeAsTextAsync(value, metadata.Encoding()))
             {
-                var uri = Path.IsPathRooted(path) ? new UriString(FileProvider.DefaultScheme, path) : new UriString(path);
-                return await resourceProvider.PutAsync(uri, stream, metadata.Format(MimeType.Text));
+                return await resourceProvider.PutAsync(CreateUri(path), stream, metadata.Format(MimeType.Text));
             }
         }
 
-        public static async Task<IResourceInfo> SaveFileAsync(this IResourceProvider resourceProvider, string path, Stream stream, ResourceMetadata metadata = default)
+        public static async Task<IResourceInfo> WriteFileAsync(this IResourceProvider resourceProvider, string path, Stream stream, ResourceMetadata metadata = default)
         {
-            var uri = Path.IsPathRooted(path) ? new UriString(FileProvider.DefaultScheme, path) : new UriString(path);
-            return await resourceProvider.PutAsync(uri, stream, metadata);
+            return await resourceProvider.PutAsync(CreateUri(path), stream, metadata);
         }
 
         #endregion
@@ -60,10 +55,20 @@ namespace Reusable.IOnymous
 
         public static async Task<IResourceInfo> DeleteFileAsync(this IResourceProvider resourceProvider, string path, ResourceMetadata metadata = default)
         {
-            var uri = Path.IsPathRooted(path) ? new UriString(FileProvider.DefaultScheme, path) : new UriString(path);
-            return await resourceProvider.DeleteAsync(uri, metadata.Format(MimeType.Text));
+            return await resourceProvider.DeleteAsync(CreateUri(path), metadata.Format(MimeType.Text));
         }
 
         #endregion
+
+        private static UriString CreateUri(string path)
+        {
+            return
+                Path.IsPathRooted(path) || IsUnc(path)
+                    ? new UriString(FileProvider.DefaultScheme, path)
+                    : new UriString(path);
+        }
+
+        // https://www.pcmag.com/encyclopedia/term/53398/unc
+        private static bool IsUnc(string value) => value.StartsWith("//");
     }
 }
