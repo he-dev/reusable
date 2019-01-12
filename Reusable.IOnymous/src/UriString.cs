@@ -17,7 +17,7 @@ namespace Reusable.IOnymous
         {
             /* language=regexp */ @"^(?:(?<scheme>\w+):)?",
             /* language=regexp */ @"(?:\/\/(?<authority>[a-z0-9\.\-_:]+))?",
-            /* language=regexp */ @"(?:\/?(?<path>[a-z0-9\/:\.\-\%_]+))",
+            /* language=regexp */ @"(?:\/?(?<path>[a-z0-9\/:\.\-\%_@]+))",
             /* language=regexp */ @"(?:\?(?<query>[a-z0-9=&]+))?",
             /* language=regexp */ @"(?:#(?<fragment>[a-z0-9]+))?"
         });

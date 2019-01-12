@@ -17,6 +17,7 @@ namespace Reusable
 {
     // http://semver.org
 
+    [PublicAPI]
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class SemanticVersion : IEquatable<SemanticVersion>, IComparable<SemanticVersion>, IComparer<SemanticVersion>
     {
@@ -31,6 +32,7 @@ namespace Reusable
 
         static SemanticVersion()
         {
+            // todo - why is this lazy? 
             Pattern = new Lazy<string>(() =>
             {
                 var versionPatterns = new[] { "major", "minor", "patch" }.Select(x => $"(?<{x}>(?!0)[0-9]+|0)");

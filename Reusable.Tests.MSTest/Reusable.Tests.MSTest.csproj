@@ -44,6 +44,9 @@
     <EmbeddedResource Remove="src\Core\IO\**" />
     <None Remove="src\Core\IO\**" />
     <Compile Remove="src\sdk\Mailr\EmailsTest.cs" />
+    <Compile Remove="src\Net\**" />
+    <EmbeddedResource Remove="src\Net\**" />
+    <None Remove="src\Net\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -103,21 +106,22 @@
     <PackageReference Include="Autofac" Version="4.8.1" />
     <PackageReference Include="Dapper" Version="1.50.5" />
     <PackageReference Include="JustMock" Version="2018.3.912.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.1.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.1.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="1.3.2" />
-    <PackageReference Include="MSTest.TestFramework" Version="1.3.2" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="NLog" Version="4.5.10" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="NLog" Version="4.5.11" />
     <PackageReference Include="System.Collections.Immutable" Version="1.5.0" />
-    <PackageReference Include="System.Memory" Version="4.5.1" />
+    <PackageReference Include="System.Memory" Version="4.5.2" />
     <PackageReference Include="System.Reactive" Version="4.1.2" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Commander\Reusable.Commander.csproj" />
+    <ProjectReference Include="..\Reusable.IOnymous.Http.Mailr\Reusable.IOnymous.Http.Mailr.csproj" />
     <ProjectReference Include="..\Reusable.OneTo1\Reusable.OneTo1.csproj" />
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
     <ProjectReference Include="..\Reusable.Cryptography\Reusable.Cryptography.csproj" />
@@ -125,8 +129,6 @@
     <ProjectReference Include="..\Reusable.Csv\Reusable.Csv.csproj" />
     <ProjectReference Include="..\Reusable.Deception\Reusable.Deception.csproj" />
     <ProjectReference Include="..\Reusable.Flexo\Reusable.Flexo.csproj" />
-    <ProjectReference Include="..\Reusable.sdk.Mail\Reusable.sdk.Mail.csproj" />
-    <ProjectReference Include="..\Reusable.sdk.Mailr\Reusable.sdk.Mailr.csproj" />
     <ProjectReference Include="..\Reusable.MarkupBuilder\Reusable.MarkupBuilder.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog.ColoredConsoleRx\Reusable.OmniLog.ColoredConsoleRx.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog.NLogRx\Reusable.OmniLog.NLogRx.csproj" />
