@@ -2,11 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 
-namespace Reusable.sdk.Mailr.Models
+namespace Reusable.IOnymous.Models
 {
     public class HtmlTable
     {

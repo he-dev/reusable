@@ -1,11 +1,14 @@
+using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Reusable.sdk.Mailr
+namespace Reusable.IOnymous
 {
     [PublicAPI]
     public class Email<TBody>
     {
-        public string To { get; set; }
+        public IEnumerable<string> To { get; set; }
+
+        public IEnumerable<string> CC { get; set; }
 
         public string Subject { get; set; }
 

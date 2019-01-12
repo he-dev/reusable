@@ -2,7 +2,6 @@ using System;
 using System.Configuration;
 using System.Threading.Tasks;
 using Reusable.IOnymous;
-using Reusable.sdk.Mailr;
 using Reusable.Teapot;
 using Reusable.Tests.XUnit.Fixtures;
 using Xunit;
@@ -48,7 +47,7 @@ namespace Reusable.Tests.XUnit.IOnymous.Http.Mailr
                                 .Once(200, "OK!");
                         });
 
-                var email = Email.CreateHtml("myemail@mail.com", "Testmail", new { Greeting = "Hallo Mailr!" });
+                var email = Email.CreateHtml(new[] { "myemail@mail.com" }, "Testmail", new { Greeting = "Hallo Mailr!" });
                 var html = await _http.SendAsync("mailr/messages/test", email, "IOnymous", "1.0");
 
                 Assert.Equal("OK!", html);

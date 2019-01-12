@@ -1,11 +1,8 @@
-﻿using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Reusable.IOnymous;
 using Reusable.Net.Http.Formatting;
 
-namespace Reusable.sdk.Mailr
+namespace Reusable.IOnymous
 {
     public static class HttpProviderExtensions
     {
@@ -33,7 +30,8 @@ namespace Reusable.sdk.Mailr
                             .ResponseFormatters(new TextMediaTypeFormatter())
                             .ContentType("application/json")
                     )
-                    .Schemes("http", "https");
+                    .Schemes("http", "https")
+                    .ProviderDefaultName(nameof(HttpProvider));
 
             var response = await resourceProvider.PostAsync(uri, () => ResourceHelper.SerializeAsJsonAsync(email, jsonSerializer), metadata);
             return await response.DeserializeTextAsync();

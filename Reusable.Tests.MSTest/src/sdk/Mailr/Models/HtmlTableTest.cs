@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Reusable.IOnymous;
-using Reusable.sdk.Mailr.Models;
+using Reusable.IOnymous.Models;
 
 namespace Reusable.Tests.MSTest.sdk.Mailr.Models
 {

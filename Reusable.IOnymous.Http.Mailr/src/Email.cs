@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Reusable.sdk.Mailr
+namespace Reusable.IOnymous
 {
     [PublicAPI]
     public static class Email
     {
-        public static Email<TBody> CreateHtml<TBody>(string to, string subject, TBody body, [CanBeNull] Action<Email<TBody>> configureEmail = null)
+        public static Email<TBody> CreateHtml<TBody>(IEnumerable<string> to, string subject, TBody body, [CanBeNull] Action<Email<TBody>> configureEmail = null)
         {
             return Create(to, subject, body, email =>
             {
@@ -15,7 +16,7 @@ namespace Reusable.sdk.Mailr
             });
         }
 
-        public static Email<TBody> CreatePlain<TBody>(string to, string subject, TBody body, [CanBeNull] Action<Email<TBody>> configureEmail = null)
+        public static Email<TBody> CreatePlain<TBody>(IEnumerable<string> to, string subject, TBody body, [CanBeNull] Action<Email<TBody>> configureEmail = null)
         {
             return Create(to, subject, body, email =>
             {
@@ -24,7 +25,7 @@ namespace Reusable.sdk.Mailr
             });
         }
 
-        internal static Email<TBody> Create<TBody>([NotNull] string to, [NotNull] string subject, [NotNull] TBody body, [NotNull] Action<Email<TBody>> configureEmail)
+        internal static Email<TBody> Create<TBody>(IEnumerable<string> to, [NotNull] string subject, [NotNull] TBody body, [NotNull] Action<Email<TBody>> configureEmail)
         {
             if (to == null) throw new ArgumentNullException(nameof(to));
             if (subject == null) throw new ArgumentNullException(nameof(subject));
