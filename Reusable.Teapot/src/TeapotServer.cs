@@ -38,7 +38,7 @@ namespace Reusable.Teapot
 
         public Task Task { get; set; }
 
-        public ITeacupScope BeginScope() => (_teacup = new TeacupScope());
+        public ITeacupScope BeginScope() => (_teacup = new TeacupScope(Disposable.Create(() => _teacup = null)));
 
         private void Assert(RequestInfo request)
         {

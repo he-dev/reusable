@@ -13,7 +13,14 @@ namespace Reusable.Teapot
     
     internal class TeacupScope : ITeacupScope
     {
+        private readonly IDisposable _disposable;
+
         private readonly IList<RequestMock> _mocks = new List<RequestMock>();
+
+        public TeacupScope(IDisposable disposable)
+        {
+            _disposable = disposable;
+        }
 
         public RequestMock Mock(UriString uri)
         {
@@ -37,6 +44,8 @@ namespace Reusable.Teapot
 
         public void Dispose()
         {
+            _disposable.Dispose();
+
             foreach (var mock in _mocks)
             {
                 //mock.Dispose();

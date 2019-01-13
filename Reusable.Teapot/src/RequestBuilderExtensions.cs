@@ -79,7 +79,7 @@ namespace Reusable.Teapot
         public static IRequestBuilder Accepts(this IRequestBuilder builder, string mediaType) => builder.WithHeader("Accept", mediaType);
 
         public static IRequestBuilder AcceptsJson(this IRequestBuilder builder) => builder.Accepts("application/json");
-        
+
         public static IRequestBuilder AcceptsHtml(this IRequestBuilder builder) => builder.Accepts("text/html");
     }
 
@@ -110,6 +110,26 @@ namespace Reusable.Teapot
                 content.Value.SelectToken(jsonPath) is null
                     ? throw DynamicException.Create("ContentPropertyNotFound", $"There is no such property as '{jsonPath}'")
                     : content;
+        }
+
+        public static IContentAssert<JToken> PropertyEquals(this IContentAssert<JToken> content, string jsonPath, object expected)
+        {
+            if (content.Value is null)
+            {
+                throw DynamicException.Create("ContentNull", "There is no content.");
+            }
+
+            if (content.Value.SelectToken(jsonPath) is JValue actual)
+            {
+                return
+                    actual.Equals(new JValue(expected))
+                        ? content
+                        : throw DynamicException.Create("ValueNotEqual", $"Selected property has a different value. Expected: '{expected}', Actual: {actual.Value}.");
+            }
+            else
+            {
+                throw DynamicException.Create("PathNotProperty", $"There is no such property as '{jsonPath}'");
+            }
         }
     }
 }
