@@ -3,14 +3,14 @@ using Reusable.IOnymous;
 using Reusable.IOnymous.Models;
 using Xunit;
 
-namespace Reusable.Tests.XUnit.sdk.Mailr.Models
+namespace Reusable.Tests.XUnit.IOnymous.Http.Mailr.Models
 {
     public class HtmlTableTest
     {
         [Fact]
         public void CanBeSerializedToJson()
         {
-            var expected = EmbeddedFileProvider<HtmlTableTest>.Default.ReadTextFile(@"res\sdk\mailr\models\htmltable.json");
+            var expected = EmbeddedFileProvider<HtmlTableTest>.Default.ReadTextFile(@"res\IOnymous\Http\Mailr\HtmlTable.json");
 
             var table = new HtmlTable(HtmlTableColumn.Create(("Name", typeof(string)), ("Age", typeof(int))));
             var row = table.Body.NewRow();

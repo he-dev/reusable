@@ -94,7 +94,6 @@
     <EmbeddedResource Include="res\MarkupBuilder\ToString_006.html" />
     <EmbeddedResource Include="res\MarkupBuilder\ToString_007.html" />
     <EmbeddedResource Include="res\OmniLog\OmniLog.json" />
-    <EmbeddedResource Include="res\sdk\Mailr\Models\HtmlTable.json" />
     <EmbeddedResource Include="res\TextFile1.txt" />
     <EmbeddedResource Include="res\TextFile2.txt" />
     <EmbeddedResource Include="res\Utilities\JsonNet\PrettyTypeReaderT2.json" />
@@ -148,6 +147,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="res\sdk\Mailr\Models" />
     <Folder Include="src\SmartConfig\Integration\" />
     <Folder Include="src\SmartConfig\Utilities" />
   </ItemGroup>

@@ -31,6 +31,7 @@ namespace Reusable.IOnymous
                             .ContentType("application/json")
                     )
                     .Schemes("http", "https")
+                    // Use to pick the correct provider from a composite one.
                     .ProviderDefaultName(nameof(HttpProvider));
 
             var response = await resourceProvider.PostAsync(uri, () => ResourceHelper.SerializeAsJsonAsync(email, jsonSerializer), metadata);

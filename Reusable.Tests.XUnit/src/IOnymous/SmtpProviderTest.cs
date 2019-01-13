@@ -6,16 +6,14 @@ namespace Reusable.Tests.XUnit.IOnymous
 {
     public class SmtpProviderTest
     {
-        [Fact]
+        //[Fact]
         public async Task Can_send_email()
         {
             var smtp = new SmtpProvider();
             await smtp.SendEmailAsync(new Email<IEmailSubject, IEmailBody>
             {
-                To = new[]
-                {
-                    "stringbuilder.append@gmail.com"
-                },
+                To = new[] { "you@example.com" },
+                From = "me@example.com",
                 Subject = new EmailSubject
                 {
                     Value = "Test"

@@ -14,6 +14,7 @@
     <EmbeddedResource Remove="src\Utilities\**" />
     <None Remove="src\Utilities\**" />
     <None Remove="res\IOnymous\test.txt" />
+    <EmbeddedResource Include="res\IOnymous\Http\Mailr\HtmlTable.json" />
     <EmbeddedResource Include="res\IOnymous\test.txt" />
   </ItemGroup>
   <ItemGroup>

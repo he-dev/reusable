@@ -37,52 +37,59 @@ namespace Reusable.IOnymous
 
             _cache = new Dictionary<UriString, IResourceProvider>();
             _resourceProviders = resourceProviders.ToImmutableList();
+            var duplicateProviderNames =
+                _resourceProviders
+                    .Where(x => x.Metadata.ProviderCustomName())
+                    .GroupBy(x => x.Metadata.ProviderCustomName())
+                    .Where(g => g.Count() > 1)
+                    .Select(g => g.First())
+                    .ToList();
+
+            if (duplicateProviderNames.Any())
+            {
+                throw new ArgumentException($"Providers must use unique custom names but there are some duplicates: [{duplicateProviderNames.Select(x => (string)x.Metadata.ProviderCustomName()).Join(", ")}].");
+            }
         }
 
         protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
         {
-            return await HandleMethodAsync(uri, metadata, true, async resourceProvider =>
-            {
-                var resource = await resourceProvider.GetAsync(uri, metadata);
-                return (resource, resource.Exists);
-            });
+            return await HandleMethodAsync(uri, metadata, true, async resourceProvider => await resourceProvider.GetAsync(uri, metadata));
         }
 
         protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
         {
-            return await HandleMethodAsync(uri, metadata, false, async resourceProvider => (await resourceProvider.PostAsync(uri, value, metadata), true));
+            return await HandleMethodAsync(uri, metadata, false, async resourceProvider => (await resourceProvider.PostAsync(uri, value, metadata)));
         }
 
         protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
         {
-            return await HandleMethodAsync(uri, metadata, false, async resourceProvider => (await resourceProvider.PutAsync(uri, value, metadata), true));
+            return await HandleMethodAsync(uri, metadata, false, async resourceProvider => (await resourceProvider.PutAsync(uri, value, metadata)));
         }
 
         protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata)
         {
-            return await HandleMethodAsync(uri, metadata, false, async resourceProvider => (await resourceProvider.DeleteAsync(uri, metadata), true));
+            return await HandleMethodAsync(uri, metadata, false, async resourceProvider => (await resourceProvider.DeleteAsync(uri, metadata)));
         }
 
         [ItemNotNull]
-        private async Task<IResourceInfo> HandleMethodAsync(UriString uri, ResourceMetadata metadata, bool allowMultipleProviders, Func<IResourceProvider, Task<(IResourceInfo Resource, bool Handled)>> handleAsync)
+        private async Task<IResourceInfo> HandleMethodAsync(UriString uri, ResourceMetadata metadata, bool isGet, Func<IResourceProvider, Task<IResourceInfo>> handleAsync)
         {
             await _cacheLock.WaitAsync();
             try
             {
                 if (_cache.TryGetValue(uri, out var cached))
                 {
-                    var (resource, _) = await handleAsync(cached);
-                    return resource;
+                    return await handleAsync(cached);
                 }
 
                 var resourceProviders = _resourceProviders.ToList();
 
-                // There can be only one provider with that name.                
                 if (metadata.ProviderCustomName())
                 {
                     var match =
                         resourceProviders
                             .Where(p => metadata.ProviderCustomName().Equals(p.Metadata.ProviderCustomName()))
+                            // There must be exactly one provider with that name.                
                             .SingleOrThrow
                             (
                                 onEmpty: () => DynamicException.Create
@@ -93,29 +100,28 @@ namespace Reusable.IOnymous
                                 onMultiple: () => DynamicException.Create
                                 (
                                     "MultipleProvidersFound",
-                                    $"There is more than one provider that matches the name '{(string)metadata.ProviderCustomName()}'."
+                                    $"There is more than one provider that matches the custom name '{(string)metadata.ProviderCustomName()}'."
                                 )
                             );
 
-                    var (resource, handled) = await handleAsync(match);
-                    if (handled)
-                    {
-                        _cache[uri] = match;
-                    }
-
-                    return resource;
+                    _cache[uri] = match;
+                    return await handleAsync(match);
                 }
 
                 // Multiple providers can have the same default name.
                 if (metadata.ProviderDefaultName())
                 {
-                    resourceProviders = resourceProviders.Where(p => p.Metadata.ProviderDefaultName().Equals(metadata.ProviderDefaultName())).ToList();
+                    resourceProviders =
+                        resourceProviders
+                            .Where(p => p.Metadata.ProviderDefaultName().Equals(metadata.ProviderDefaultName()))
+                            .ToList();
+
                     if (resourceProviders.Empty())
                     {
                         throw DynamicException.Create
                         (
                             "ProviderNotFound",
-                            $"Could not find any provider that would match the name '{(string)metadata.ProviderDefaultName()}'."
+                            $"Could not find any provider that would match the name default name '{(string)metadata.ProviderDefaultName()}'."
                         );
                     }
                 }
@@ -123,7 +129,11 @@ namespace Reusable.IOnymous
                 if (uri.IsAbsolute)
                 {
                     var ignoreScheme = uri.Scheme == DefaultScheme;
-                    resourceProviders = resourceProviders.Where(p => ignoreScheme || p.Schemes.Contains(DefaultScheme) || p.Schemes.Contains(uri.Scheme)).ToList();
+                    resourceProviders =
+                        resourceProviders
+                            .Where(p => ignoreScheme || p.Schemes.Contains(DefaultScheme) || p.Schemes.Contains(uri.Scheme))
+                            .ToList();
+
                     if (resourceProviders.Empty())
                     {
                         throw DynamicException.Create
@@ -134,12 +144,13 @@ namespace Reusable.IOnymous
                     }
                 }
 
-                if (allowMultipleProviders)
+                // GET can search multiple providers.
+                if (isGet)
                 {
                     foreach (var resourceProvider in resourceProviders)
                     {
-                        var (resource, handled) = await handleAsync(resourceProvider);
-                        if (handled)
+                        var resource = await handleAsync(resourceProvider);
+                        if (resource.Exists)
                         {
                             _cache[uri] = resourceProvider;
                             return resource;
@@ -148,25 +159,11 @@ namespace Reusable.IOnymous
 
                     return new InMemoryResourceInfo(uri);
                 }
+                // Other methods are allowed to use only a single provider.
                 else
                 {
-                    if (resourceProviders.Count() != 1)
-                    {
-                        throw DynamicException.Create
-                        (
-                            "ProviderNotFound",
-                            $"There is more then one provider: [{_resourceProviders.Select(x => (string)x.Metadata.ProviderDefaultName()).Join(",")}]."
-                        );
-                    }
-
-                    var match = resourceProviders.Single();
-                    var (resource, handled) = await handleAsync(match);
-                    if (handled)
-                    {
-                        _cache[uri] = match;
-                    }
-
-                    return resource;
+                    var match = _cache[uri] = resourceProviders.Single();
+                    return await handleAsync(match);
                 }
             }
             finally
