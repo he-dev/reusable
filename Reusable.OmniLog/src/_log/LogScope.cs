@@ -6,21 +6,22 @@ using System.Threading;
 using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Diagnostics;
+using Reusable.Exceptionizer;
 
 namespace Reusable.OmniLog
 {
     public interface ILogScope : ILog, IDisposable
     {
-        //object CorrelationId { get; }
-        //object CorrelationContext { get; }
         int Depth { get; }
     }
 
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class LogScope : Log, ILogScope
     {
-        // ReSharper disable once InconsistentNaming - This cannot be renamed because it'd confilict with the property that has the same name.
+        // ReSharper disable once InconsistentNaming - This cannot be renamed because it'd conflict with the property that has the same name.
         private static readonly AsyncLocal<LogScope> _current = new AsyncLocal<LogScope>();
+        
+        private static Func<object> _nextCorrelationId = () => Guid.NewGuid().ToString("N");
 
         private LogScope(int depth)
         {
@@ -39,34 +40,34 @@ namespace Reusable.OmniLog
         /// <summary>
         /// Gets the current log-scope which is the deepest one.
         /// </summary>
+        [CanBeNull]
         public static LogScope Current
         {
             get => _current.Value;
             private set => _current.Value = value;
         }
 
-        public static IEnumerable<ILogAttachement> Attachements()
+        /// <summary>
+        /// Gets or sets the Func generating the correlation-id.
+        /// </summary>
+        [NotNull]
+        public static Func<object> NewCorrelationId
+        {
+            // Wraps the correlation-id factory in another func so what we can easily check the inner one for null.
+            get => () => _nextCorrelationId() ?? throw DynamicException.Create("CorrelationIdNull", "CorrelationId must not be null but the factory returned one.");
+            set => _nextCorrelationId = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
+        public static IEnumerable<ILogAttachment> Attachments()
         {
             return 
                 Current
                     .Flatten()
                     .SelectMany(scope => scope.Values)
-                    .OfType<ILogAttachement>();
+                    .OfType<ILogAttachment>();
         }
 
         #region ILogScope
-
-        //public object CorrelationId
-        //{
-        //    get => this.Property<object>();
-        //    //private set => this.Property<object>(value);
-        //}
-
-        //public object CorrelationContext
-        //{
-        //    get => this.Property<object>();
-        //    //private set => this.Property<object>(value);
-        //}
 
         public int Depth
         {
@@ -75,15 +76,6 @@ namespace Reusable.OmniLog
         }
 
         #endregion
-
-        //public static LogScope Push([CanBeNull] object correlationId, [CanBeNull] object correlationContext)
-        //{
-        //    var scope = Current = new LogScope(correlationId, correlationContext, Current?.Depth + 1 ?? 0)
-        //    {
-        //        Parent = Current
-        //    };
-        //    return scope;
-        //}
 
         public static LogScope Push()
         {
@@ -96,7 +88,7 @@ namespace Reusable.OmniLog
 
         public void Dispose()
         {
-            Current = Current.Parent;
+            Current = Current?.Parent;
         }
     }
 }

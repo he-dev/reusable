@@ -32,7 +32,7 @@ namespace Reusable.OmniLog
         private string DebuggerDisplay() => this.ToDebuggerDisplayString(builder =>
         {
             builder.DisplayMember(x => x._cache.Count);
-            builder.DisplayMember(x => x.Configuration.Attachements.Count);
+            builder.DisplayMember(x => x.Configuration.Attachments.Count);
         });
 
         [NotNull]
@@ -62,7 +62,7 @@ namespace Reusable.OmniLog
 
             var logger = new Logger(name, Configuration.LogPredicate, UnsubscribeLogger)
             {
-                Attachements = Configuration.Attachements
+                Attachments = Configuration.Attachments
             };
 
             var subscriptions = Observers.Select(logger.Subscribe).ToList();
@@ -86,7 +86,7 @@ namespace Reusable.OmniLog
             }
             _cache.Clear();
 
-            foreach (var attachement in Configuration.Attachements)
+            foreach (var attachement in Configuration.Attachments)
             {
                 if (attachement is IDisposable disposable)
                 {

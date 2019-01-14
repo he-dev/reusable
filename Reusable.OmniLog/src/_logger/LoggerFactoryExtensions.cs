@@ -2,6 +2,7 @@
 using System.IO;
 using JetBrains.Annotations;
 using Reusable.Extensions;
+using Reusable.OmniLog.Attachments;
 
 namespace Reusable.OmniLog
 {
@@ -19,25 +20,25 @@ namespace Reusable.OmniLog
 
         public static LoggerFactory Attach(this LoggerFactory loggerFactory, string name, Func<ILog, object> action)
         {
-            loggerFactory.Configuration.Attachements.Add(new OmniLog.Attachements.Lambda(name, action));
+            loggerFactory.Configuration.Attachments.Add(new Lambda(name, action));
             return loggerFactory;
         }
 
-        public static LoggerFactory Attach<T>(this LoggerFactory loggerFactory) where T : ILogAttachement, new()
+        public static LoggerFactory Attach<T>(this LoggerFactory loggerFactory) where T : ILogAttachment, new()
         {
-            loggerFactory.Configuration.Attachements.Add(new T());
+            loggerFactory.Configuration.Attachments.Add(new T());
             return loggerFactory;
         }
 
-        public static LoggerFactory Attach<T>(this LoggerFactory loggerFactory, T attachment) where T : ILogAttachement
+        public static LoggerFactory Attach<T>(this LoggerFactory loggerFactory, T attachment) where T : ILogAttachment
         {
-            loggerFactory.Configuration.Attachements.Add(attachment);
+            loggerFactory.Configuration.Attachments.Add(attachment);
             return loggerFactory;
         }
 
         public static LoggerFactory AttachObject(this LoggerFactory loggerFactory, string name, object value)
         {
-            loggerFactory.Configuration.Attachements.Add(new OmniLog.Attachements.Lambda(name, _ => value));
+            loggerFactory.Configuration.Attachments.Add(new Lambda(name, _ => value));
             return loggerFactory;
         }
 

@@ -1,8 +1,8 @@
 ﻿using System.Threading;
 
-namespace Reusable.OmniLog.Attachements
+namespace Reusable.OmniLog.Attachments
 {
-    public class ThreadId : LogAttachement
+    public class ThreadId : LogAttachment
     {
         public override object Compute(ILog log)
         {

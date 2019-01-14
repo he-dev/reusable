@@ -5,8 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
-using Reusable.OmniLog.Attachements;
-using Reusable.OmniLog.SemanticExtensions.Attachements;
+using Reusable.OmniLog.Attachments;
+using Reusable.OmniLog.SemanticExtensions.Attachments;
 using Reusable.Utilities.JsonNet;
 
 namespace Reusable.OmniLog.SemanticExtensions

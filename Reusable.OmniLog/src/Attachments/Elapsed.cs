@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Linq;
 using Reusable.Extensions;
 
-namespace Reusable.OmniLog.Attachements
+namespace Reusable.OmniLog.Attachments
 {
-    public class Elapsed : LogAttachement
+    public class Elapsed : LogAttachment
     {
         private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
 

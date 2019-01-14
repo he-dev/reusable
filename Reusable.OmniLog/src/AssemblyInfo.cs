@@ -6,4 +6,4 @@ using System.Text;
 using System.Threading.Tasks;
 using Reusable.OmniLog;
 
-[assembly: DebuggerDisplay("{DebuggerDisplay(),nq}", Target = typeof(LogAttachement))]
+[assembly: DebuggerDisplay("{DebuggerDisplay(),nq}", Target = typeof(LogAttachment))]

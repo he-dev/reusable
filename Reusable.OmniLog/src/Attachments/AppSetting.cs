@@ -2,9 +2,9 @@
 using System.Configuration;
 using System.Linq;
 
-namespace Reusable.OmniLog.Attachements
+namespace Reusable.OmniLog.Attachments
 {
-    public class AppSetting : LogAttachement
+    public class AppSetting : LogAttachment
     {
         private readonly string _key;
 

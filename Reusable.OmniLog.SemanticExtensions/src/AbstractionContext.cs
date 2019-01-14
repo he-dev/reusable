@@ -7,9 +7,10 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Reusable.Exceptionizer;
 using Reusable.Extensions;
-using Reusable.OmniLog.SemanticExtensions.Attachements;
+using Reusable.OmniLog.SemanticExtensions.Attachments;
 using Reusable.Reflection;
 
 namespace Reusable.OmniLog.SemanticExtensions
@@ -24,6 +25,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         void Log(ILogger logger, Action<Log> configureLog);
     }
 
+    [PublicAPI]
     public readonly struct AbstractionContext : IAbstractionLayer, IAbstractionCategory, IAbstractionContext
     {
         public static class PropertyNames

@@ -1,15 +1,13 @@
-﻿using System;
-
-namespace Reusable.OmniLog.SemanticExtensions.Attachements
+﻿namespace Reusable.OmniLog.SemanticExtensions.Attachments
 {
-    public class Snapshot : LogAttachement
+    public class Snapshot : LogAttachment
     {
         public static readonly string BagKey = $"{nameof(Snapshot)}Bag";
 
         private readonly ISerializer _serializer;
 
         /// <summary>
-        /// Creates a new Snapshot attachement. Uses JsonStateSerializer by default.
+        /// Creates a new Snapshot attachment. Uses JsonStateSerializer by default.
         /// </summary>
         public Snapshot(ISerializer serializer = null) : base(nameof(Snapshot))
         {

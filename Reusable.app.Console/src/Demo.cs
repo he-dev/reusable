@@ -6,7 +6,7 @@ using Reusable.Diagnostics;
 using Reusable.IOnymous;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
-using Reusable.OmniLog.Attachements;
+using Reusable.OmniLog.Attachments;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.OneTo1;
 using Reusable.OneTo1.Converters;
@@ -30,9 +30,9 @@ namespace Reusable.Apps
                 },
                 Configuration = new LoggerFactoryConfiguration
                 {
-                    Attachements = new HashSet<ILogAttachement>
+                    Attachments = new HashSet<ILogAttachment>
                     {
-                        new OmniLog.Attachements.Timestamp<DateTimeUtc>(),
+                        new Timestamp<DateTimeUtc>(),
                     }
                 }
             };
@@ -74,16 +74,20 @@ namespace Reusable.Apps
             logger.Log(Abstraction.Layer.Infrastructure().Routine("SemLogTest").Running());
             logger.Log(Abstraction.Layer.Infrastructure().Meta(new { Null = (string)null }));
 
+            
+                
             // Opening outer-transaction.
-            using (logger.BeginScope().WithCorrelationId().WithCorrelationContext(new { Name = "OuterScope", CustomerId = 123 }).AttachElapsed())
+            using (logger.BeginScope().WithCorrelationContext(new { Name = "OuterScope", CustomerId = 123 }).AttachElapsed())
             {
                 // Logging some single business variable and a message.
                 logger.Log(Abstraction.Layer.Business().Variable(new { foo = "bar" }), log => log.Message("Hallo variable!"));
                 logger.Log(Abstraction.Layer.Database().Counter(new { RowCount = 7 }));
 
-                // Opening innter-transaction.
-                using (logger.BeginScope().WithCorrelationId().WithCorrelationContext(new { Name = "InnerScope", ItemId = 456 }).AttachElapsed())
+                // Opening inner-transaction.
+                using (logger.BeginScope().WithCorrelationContext(new { Name = "InnerScope", ItemId = 456 }).AttachElapsed())
                 {
+                    var correlationIds = logger.Scopes().CorrelationIds<string>().ToList();
+                    
                     // Logging an entire object in a single line.
                     var customer = new { FirstName = "John", LastName = "Doe" };
                     logger.Log(Abstraction.Layer.Business().Variable(new { customer }));

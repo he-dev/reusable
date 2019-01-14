@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Extensions;
@@ -13,44 +14,21 @@ namespace Reusable.OmniLog
     {
         #region Log properties
 
-        public static SoftString Name(this ILog log, object value = null) => log.Property<SoftString>(value);
+        public static SoftString Name(this ILog log, object value = default) => log.Property<SoftString>(value);
 
-        public static DateTime Timestamp(this ILog log, object value = null) => log.Property<DateTime>(value);
+        public static DateTime Timestamp(this ILog log, object value = default) => log.Property<DateTime>(value);
 
-        public static TimeSpan Elapsed(this ILog log, object value = null) => log.Property<TimeSpan>(value);
+        public static TimeSpan Elapsed(this ILog log, object value = default) => log.Property<TimeSpan>(value);
 
-        public static LogLevel Level(this ILog log, object value = null) => log.Property<LogLevel>(value);
+        public static LogLevel Level(this ILog log, object value = default) => log.Property<LogLevel>(value);
 
-        public static string Message(this ILog log, object value = null) => log.Property<string>(value);
+        public static string Message(this ILog log, object value = default) => log.Property<string>(value);
 
-        public static MessageFunc MessageFunc(this ILog log, object value = null) => log.Property<MessageFunc>(value);
+        public static MessageFunc MessageFunc(this ILog log, object value = default) => log.Property<MessageFunc>(value);
 
-        public static Exception Exception(this ILog log, object value = null) => log.Property<Exception>(value);
-
-        //public static SoftString Scope(this ILog log, object value = null) => log.Property<SoftString>(value);
-
-        public static IEnumerable<ILogScope> Scopes(this ILog log)
-        {
-            return
-                LogScope
-                    .Current
-                    .Flatten();
-
-            //foreach (var logValue in log.Values)
-            //{
-            //    if (logValue is ILog nestedLog)
-            //    {
-            //        var scope = nestedLog.Scope();
-            //        if (scope.IsNotNull())
-            //        {
-            //            yield return scope;
-            //        }
-            //    }
-            //}
-        }
-
-        // 'propertyName' is never null because it is set  by the compiler.
-        //[SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
+        public static Exception Exception(this ILog log, object value = default) => log.Property<Exception>(value);
+        
+        [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")] // 'propertyName' is never null because it is set by the compiler.
         public static T Property<T>(this ILog log, object value = null, [CallerMemberName] string propertyName = null)
         {
             var isGetterMode = value == null;
@@ -78,7 +56,8 @@ namespace Reusable.OmniLog
 
         #region With
 
-        public static ILog WithCallerInfo(
+        public static ILog WithCallerInfo
+        (
             this ILog log,
             [CallerMemberName] string callerMemberName = null,
             [CallerLineNumber] int callerLineNumber = 0,
@@ -94,45 +73,34 @@ namespace Reusable.OmniLog
 
         public static ILog With<T>(this ILog log, (SoftString Name, T Value) item)
         {
-            log[item.Name] = item.Value;
-            return log;
+            return log.With(item.Name, item.Value);
         }
-
-        //public static ILog With<T>(this ILog log, SoftString name, T value)
-        //{
-        //    log[name] = value;
-        //    return log;
-        //}
 
         public static TLog With<TLog, T>(this TLog log, SoftString name, T value) where TLog : ILog
         {
+            name = Regex.Replace((string)name, "^With", string.Empty);
             log[name] = value;
             return log;
         }
 
-        public static TLog With<TAttachement, TLog>(this TLog log, TAttachement attachement)
-            where TAttachement : ILogAttachement
+        public static TLog With<TAttachment, TLog>(this TLog log, TAttachment attachment)
+            where TAttachment : ILogAttachment
             where TLog : ILog
         {
-            log[attachement.Name] = attachement;
+            log[attachment.Name] = attachment;
             return log;
         }
-
-        //public static Log With(this Log log, [CanBeNull] Func<Log, Log> logFunc)
-        //{
-        //    return (logFunc ?? (_ => _))(log);
-        //}
 
         #endregion
 
         // Flattens log by picking the first item from each group. Groups are built on the key.
-        public static Log Flatten(this ILog log) //, IDictionary<SoftString, ILogScopeMerge> scopeMerges)
+        public static Log Flatten(this ILog log)
         {
             var items = log.SelectMany(l =>
             {
                 switch (l.Value)
                 {
-                    case ILog sublog: return sublog;
+                    case ILog innerLog: return innerLog;
                     default: return new Log { [l.Key] = l.Value };
                 }
             });

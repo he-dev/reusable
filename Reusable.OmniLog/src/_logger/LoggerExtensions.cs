@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
@@ -40,7 +41,8 @@ namespace Reusable.OmniLog
             return logger.Log(LogLevel.Fatal, message, exception, logAction);
         }
 
-        private static ILogger Log(
+        private static ILogger Log
+        (
             [NotNull] this ILogger logger,
             [NotNull] LogLevel logLevel,
             [CanBeNull] string message,
@@ -104,7 +106,8 @@ namespace Reusable.OmniLog
             return obj;
         }
 
-        private static ILogger Log(
+        private static ILogger Log
+        (
             [NotNull] this ILogger logger,
             [NotNull] LogLevel logLevel,
             [NotNull] MessageFunc messageFunc,
@@ -132,10 +135,28 @@ namespace Reusable.OmniLog
 
         #region BeginScope	
 
-        public static ILogScope BeginScope(this ILogger logger)
+        public static ILogScope BeginScope(this ILogger logger, bool withCorrelationId = true)
         {
-            return LogScope.Push().WithCorrelationId();
-        }      
+            var scope = LogScope.Push();
+            if (withCorrelationId)
+            {
+                scope.WithCorrelationId();
+            }
+
+            return scope;
+        }
+
+        /// <summary>
+        /// Gets log scopes ordered by depths ascending.
+        /// </summary>
+        [NotNull, ItemNotNull]
+        public static IEnumerable<ILogScope> Scopes(this ILogger logger)
+        {
+            return
+                LogScope
+                    .Current
+                    .Flatten();
+        }
 
         #endregion
     }

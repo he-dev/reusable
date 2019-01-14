@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Custom;
 using JetBrains.Annotations;
-using Reusable.Collections;
 
-namespace Reusable.OmniLog.Attachements
+namespace Reusable.OmniLog.Attachments
 {
     /// <summary>
-    /// Serliazes log-scope where the innermost scope is first, then other sopes follow in the reversed order.
+    /// Serializes log-scope where the innermost scope is first, then other scopes follow in the reversed order.
     /// </summary>
-    public class Scope : LogAttachement
+    public class Scope : LogAttachment
     {
         private readonly ISerializer _serializer;
 
@@ -25,7 +23,7 @@ namespace Reusable.OmniLog.Attachements
                 LogScope
                     .Current
                     .Flatten()                    
-                    .Select(IgnoreAttachements)
+                    .Select(IgnoreAttachments)
                     .ToList();
 
             return
@@ -34,11 +32,11 @@ namespace Reusable.OmniLog.Attachements
                     : default;
         }
 
-        private static IEnumerable<KeyValuePair<SoftString, object>> IgnoreAttachements(ILog scope)
+        private static IEnumerable<KeyValuePair<SoftString, object>> IgnoreAttachments(ILog scope)
         {
             return
                 from x in scope
-                where !(x.Value is ILogAttachement)
+                where !(x.Value is ILogAttachment)
                 orderby x.Key
                 select x;
         }
