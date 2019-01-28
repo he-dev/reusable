@@ -3,7 +3,7 @@ using System.Configuration;
 using System.Threading.Tasks;
 using Reusable.IOnymous;
 using Reusable.Teapot;
-using Reusable.Tests.XUnit.Fixtures;
+using Reusable.Utilities.XUnit.Fixtures;
 using Xunit;
 
 namespace Reusable.Tests.XUnit.IOnymous.Http.Mailr

@@ -1,20 +1,25 @@
 ﻿using System.Threading.Tasks;
 using Reusable.IOnymous;
 using Reusable.Teapot;
-using Reusable.Tests.XUnit.Fixtures;
+using Reusable.Utilities.XUnit.Fixtures;
 using Xunit;
 
 namespace Reusable.Tests.XUnit.Teapot
 {
     public class UseCaseTest : IClassFixture<TeapotFactoryFixture>
     {
-        private const string Url = "http://localhost:12000";
+        private const string BaseUri = "http://localhost:501234";
+
+        private const string ApiUri = BaseUri + "/api";
 
         private readonly TeapotServer _teapot;
 
+        private readonly IResourceProvider _http;
+
         public UseCaseTest(TeapotFactoryFixture teapotFactory)
         {
-            _teapot = teapotFactory.CreateTeapotServer(Url);
+            _teapot = teapotFactory.CreateTeapotServer(BaseUri);
+            _http = new HttpProvider(ApiUri, ResourceMetadata.Empty);
         }
 
         [Fact]
@@ -39,10 +44,10 @@ namespace Reusable.Tests.XUnit.Teapot
                                 .Echo();
                         });
 
-                using (var client = new HttpProvider("http://localhost:12000/api", ResourceMetadata.Empty))
+                // conflicting 'response' variables
                 {
                     // Request made by the application somewhere deep down the rabbit hole
-                    var response = await client.PostAsync
+                    var response = await _http.PostAsync
                     (
                         "test?param=true",
                         () => ResourceHelper.SerializeAsJsonAsync(new { Greeting = "Hallo" }),
@@ -57,7 +62,7 @@ namespace Reusable.Tests.XUnit.Teapot
                     Assert.True(response.Exists);
                     var original = await response.DeserializeJsonAsync<object>();
                 }
-
+                
                 test.Assert();
             }
         }

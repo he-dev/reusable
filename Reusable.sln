@@ -80,6 +80,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.IOnymous.Mail.Smtp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.IOnymous.Mail.Outlook", "Reusable.IOnymous.Mail.Outlook\Reusable.IOnymous.Mail.Outlook.csproj", "{F06338A8-AB2E-4008-9127-D1C3B9C4D83D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Utilities.XUnit", "Reusable.Utilities.XUnit\Reusable.Utilities.XUnit.csproj", "{66646136-6C60-4804-AD16-144A7DEAAC0A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -218,6 +220,10 @@ Global
 		{8B72AB74-C38E-450D-86D4-D6AC33AC9961}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B72AB74-C38E-450D-86D4-D6AC33AC9961}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8B72AB74-C38E-450D-86D4-D6AC33AC9961}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66646136-6C60-4804-AD16-144A7DEAAC0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66646136-6C60-4804-AD16-144A7DEAAC0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66646136-6C60-4804-AD16-144A7DEAAC0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66646136-6C60-4804-AD16-144A7DEAAC0A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -255,6 +261,7 @@ Global
 		{B8CA809E-6FAB-44F7-A5A2-336836BA9DED} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 		{F06338A8-AB2E-4008-9127-D1C3B9C4D83D} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 		{8B72AB74-C38E-450D-86D4-D6AC33AC9961} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
+		{66646136-6C60-4804-AD16-144A7DEAAC0A} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2FA54731-890C-4550-BACA-E19B564CE1E3}

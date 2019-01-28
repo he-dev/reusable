@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using JetBrains.Annotations;
 using Reusable.Teapot;
 
-namespace Reusable.Tests.XUnit.Fixtures
+namespace Reusable.Utilities.XUnit.Fixtures
 {
     [UsedImplicitly]
     public class TeapotFactoryFixture : IDisposable

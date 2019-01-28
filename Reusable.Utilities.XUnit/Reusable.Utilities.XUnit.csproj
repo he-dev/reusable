@@ -14,8 +14,6 @@
     <EmbeddedResource Remove="src\Utilities\**" />
     <None Remove="src\Utilities\**" />
     <None Remove="res\IOnymous\test.txt" />
-    <EmbeddedResource Include="res\IOnymous\Http\Mailr\HtmlTable.json" />
-    <EmbeddedResource Include="res\IOnymous\test.txt" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="src\Call.cs" />
@@ -38,7 +36,6 @@
     <ProjectReference Include="..\Reusable.SmartConfig\Reusable.SmartConfig.csproj" />
     <ProjectReference Include="..\Reusable.Teapot\Reusable.Teapot.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
-    <ProjectReference Include="..\Reusable.Utilities.XUnit\Reusable.Utilities.XUnit.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Configuration" />
