@@ -1,9 +1,9 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Reusable.OmniLog.Attachements
+namespace Reusable.OmniLog.Attachments
 {
-    public class Lambda : LogAttachement
+    public class Lambda : LogAttachment
     {
         private readonly Func<ILog, object> _compute;
 

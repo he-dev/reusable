@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Reusable.OmniLog.Attachements
+namespace Reusable.OmniLog.Attachments
 {
-    public class Timestamp : LogAttachement, IDisposable
+    public class Timestamp : LogAttachment, IDisposable
     {
         private int _timestampCount;
 

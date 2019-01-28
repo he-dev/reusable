@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Collections;
 using Reusable.Extensions;
 using Reusable.IOnymous;
-using Reusable.OmniLog.Attachements;
+using Reusable.OmniLog.Attachments;
 using Reusable.Utilities.MSTest;
 
 // ReSharper disable once CheckNamespace
@@ -29,7 +29,7 @@ namespace Reusable.OmniLog.Tests
                 Observers = { MemoryRx.Create() },
                 Configuration = new LoggerFactoryConfiguration
                 {
-                    Attachements =
+                    Attachments =
                     {
                         new Timestamp(Sequence.Custom(new DateTime(2017, 5, 1), previous => previous.AddSeconds(1)))
                     }

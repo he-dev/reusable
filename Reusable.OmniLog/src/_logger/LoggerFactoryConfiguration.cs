@@ -18,7 +18,7 @@ namespace Reusable.OmniLog
 
         [JsonIgnore]
         [NotNull]
-        public HashSet<ILogAttachement> Attachements { get; set; } = new HashSet<ILogAttachement>();
+        public HashSet<ILogAttachment> Attachments { get; set; } = new HashSet<ILogAttachment>();
 
         [JsonProperty("LogFilter")]
         public IExpression LogPredicateExpression { get; set; }

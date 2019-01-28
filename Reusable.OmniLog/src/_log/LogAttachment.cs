@@ -12,7 +12,7 @@ using Reusable.OmniLog;
 
 namespace Reusable.OmniLog
 {
-    public interface ILogAttachement : IEquatable<ILogAttachement>
+    public interface ILogAttachment : IEquatable<ILogAttachment>
     {
         [AutoEqualityProperty]
         SoftString Name { get; }
@@ -21,14 +21,14 @@ namespace Reusable.OmniLog
         object Compute([NotNull] ILog log);
     }
    
-    public abstract class LogAttachement : ILogAttachement
+    public abstract class LogAttachment : ILogAttachment
     {
-        protected LogAttachement([NotNull] string name)
+        protected LogAttachment([NotNull] string name)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
         }
 
-        protected LogAttachement()
+        protected LogAttachment()
         {
             Name = GetType().Name;
         }
@@ -41,11 +41,11 @@ namespace Reusable.OmniLog
 
         #region IEquatable
 
-        public bool Equals(ILogAttachement other) => AutoEquality<ILogAttachement>.Comparer.Equals(this, other);
+        public bool Equals(ILogAttachment other) => AutoEquality<ILogAttachment>.Comparer.Equals(this, other);
 
-        public override bool Equals(object obj) => Equals(obj as ILogAttachement);
+        public override bool Equals(object obj) => Equals(obj as ILogAttachment);
 
-        public override int GetHashCode() => AutoEquality<ILogAttachement>.Comparer.GetHashCode(this);
+        public override int GetHashCode() => AutoEquality<ILogAttachment>.Comparer.GetHashCode(this);
 
         #endregion
     }

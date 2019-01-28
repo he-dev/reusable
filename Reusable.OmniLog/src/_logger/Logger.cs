@@ -61,10 +61,10 @@ namespace Reusable.OmniLog
         private string DebuggerDisplay() => this.ToDebuggerDisplayString(builder =>
         {
             builder.DisplayMember(x => _name);
-            builder.DisplayMember(x => Attachements.Count);
+            builder.DisplayMember(x => Attachments.Count);
         });
 
-        internal HashSet<ILogAttachement> Attachements { get; set; } = new HashSet<ILogAttachement>();
+        internal HashSet<ILogAttachment> Attachments { get; set; } = new HashSet<ILogAttachment>();
 
         #region ILogger
 
@@ -85,7 +85,7 @@ namespace Reusable.OmniLog
 
             if (_logPredicate(log))
             {
-                var rendered = log.Render(Attachements);
+                var rendered = log.Render(Attachments);
                 foreach (var observer in _observers)
                 {
                     observer.OnNext(rendered);

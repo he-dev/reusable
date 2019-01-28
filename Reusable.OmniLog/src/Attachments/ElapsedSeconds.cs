@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace Reusable.OmniLog.Attachements
+namespace Reusable.OmniLog.Attachments
 {
     public class ElapsedSeconds : Elapsed
     {

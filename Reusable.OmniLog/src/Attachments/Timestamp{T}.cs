@@ -1,8 +1,6 @@
-﻿using System.Linq;
-
-namespace Reusable.OmniLog.Attachements
+﻿namespace Reusable.OmniLog.Attachments
 {
-    public class Timestamp<T> : LogAttachement where T : IDateTime, new()
+    public class Timestamp<T> : LogAttachment where T : IDateTime, new()
     {
         private readonly IDateTime _dateTime;
 

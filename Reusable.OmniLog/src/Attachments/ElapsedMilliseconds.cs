@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Linq;
-using Reusable.Extensions;
 
-namespace Reusable.OmniLog.Attachements
+namespace Reusable.OmniLog.Attachments
 {
     public class ElapsedMilliseconds : Elapsed
     {
