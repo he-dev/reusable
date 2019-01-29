@@ -77,7 +77,7 @@ namespace Reusable.Apps
             
                 
             // Opening outer-transaction.
-            using (logger.BeginScope().WithCorrelationContext(new { Name = "OuterScope", CustomerId = 123 }).AttachElapsed())
+            using (logger.BeginScope().WithCorrelationHandle("Blub").WithCorrelationContext(new { Name = "OuterScope", CustomerId = 123 }).AttachElapsed())
             {
                 // Logging some single business variable and a message.
                 logger.Log(Abstraction.Layer.Business().Variable(new { foo = "bar" }), log => log.Message("Hallo variable!"));

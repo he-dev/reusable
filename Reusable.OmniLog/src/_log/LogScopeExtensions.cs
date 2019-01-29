@@ -33,10 +33,10 @@ namespace Reusable.OmniLog
             return scope.With(nameof(WithCorrelationId), correlationId);
         }
 
-        public static ILogScope WithCorrelationId(this ILogScope scope)
-        {
-            return scope.WithCorrelationId(LogScope.NewCorrelationId());
-        }
+        // public static ILogScope WithCorrelationId(this ILogScope scope)
+        // {
+        //     return scope.WithCorrelationId(LogScope.NewCorrelationId());
+        // }
 
         public static ILogScope WithCorrelationId(this ILogScope scope, out object correlationId)
         {
@@ -53,11 +53,21 @@ namespace Reusable.OmniLog
             return scope.Property<T>();
         }
 
+        [NotNull]
+        [ItemNotNull]
         public static IEnumerable<T> CorrelationIds<T>(this IEnumerable<ILogScope> scopes)
         {
             return
                 from scope in scopes
                 select scope.CorrelationId<T>();
+        }
+        
+        [NotNull]
+        public static ILogScope WithCorrelationHandle(this ILogScope scope, [NotNull] object correlationHandle)
+        {
+            if (correlationHandle == null) throw new ArgumentNullException(nameof(correlationHandle));
+            
+            return scope.With(nameof(WithCorrelationHandle), correlationHandle);
         }
     }
 }

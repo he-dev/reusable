@@ -7,6 +7,7 @@ namespace Reusable.OmniLog
 {
     public delegate string MessageFunc();
 
+    [PublicAPI]
     public static class LoggerExtensions
     {
         #region LogLevels
@@ -135,21 +136,24 @@ namespace Reusable.OmniLog
 
         #region BeginScope	
 
-        public static ILogScope BeginScope(this ILogger logger, bool withCorrelationId = true)
+        public static ILogScope BeginScope(this ILogger logger, out object correlationId)
         {
-            var scope = LogScope.Push();
-            if (withCorrelationId)
-            {
-                scope.WithCorrelationId();
-            }
+            return 
+                LogScope
+                    .Push()
+                    .WithCorrelationId(out correlationId);
+        }
 
-            return scope;
+        public static ILogScope BeginScope(this ILogger logger)
+        {
+            return logger.BeginScope(out _);
         }
 
         /// <summary>
         /// Gets log scopes ordered by depths ascending.
         /// </summary>
-        [NotNull, ItemNotNull]
+        [NotNull]
+        [ItemNotNull]
         public static IEnumerable<ILogScope> Scopes(this ILogger logger)
         {
             return
