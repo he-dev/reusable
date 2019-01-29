@@ -138,10 +138,9 @@ namespace Reusable.OmniLog
 
         public static ILogScope BeginScope(this ILogger logger, out object correlationId)
         {
-            return 
-                LogScope
-                    .Push()
-                    .WithCorrelationId(out correlationId);
+            var scope = LogScope.Push();
+            scope.WithCorrelationId(out correlationId);
+            return scope;
         }
 
         public static ILogScope BeginScope(this ILogger logger)

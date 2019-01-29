@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+
 // ReSharper disable ExplicitCallerInfoArgument - yes, we want to explicity set it via overloads.
 
 namespace Reusable.OmniLog.SemanticExtensions
@@ -13,7 +14,8 @@ namespace Reusable.OmniLog.SemanticExtensions
     {
         // We use context as the name and not abstractionContext because it otherwise interfers with intellisense.
         // The name abstractionContext appears first on the list and you need to scroll to get the Abstraction.
-        public static void Log<TContext>(
+        public static void Log<TContext>
+        (
             this ILogger logger,
             TContext context,
             Action<Log> configureLog = null,
@@ -28,10 +30,11 @@ namespace Reusable.OmniLog.SemanticExtensions
                 log.Add(LogProperties.CallerLineNumber, callerLineNumber);
                 log.Add(LogProperties.CallerFilePath, Path.GetFileName(callerFilePath));
                 configureLog?.Invoke(log);
-            });            
+            });
         }
 
-        public static void Log(
+        public static void Log
+        (
             this ILogger logger,
             IAbstractionContext context,
             string message,
@@ -46,14 +49,15 @@ namespace Reusable.OmniLog.SemanticExtensions
                 {
                     log.Message(message);
                     log.Exception(exception);
-                }, 
-                callerMemberName, 
-                callerLineNumber, 
+                },
+                callerMemberName,
+                callerLineNumber,
                 callerFilePath
             );
         }
 
-        public static void Log(
+        public static void Log
+        (
             this ILogger logger,
             IAbstractionContext context,
             string message,
@@ -62,18 +66,16 @@ namespace Reusable.OmniLog.SemanticExtensions
             [CallerFilePath] string callerFilePath = null)
         {
             logger.Log(
-                context, 
-                log =>
-                {
-                    log.Message(message);
-                }, 
-                callerMemberName, 
+                context,
+                log => { log.Message(message); },
+                callerMemberName,
                 callerLineNumber,
                 callerFilePath
             );
         }
 
-        public static void Log(
+        public static void Log
+        (
             this ILogger logger,
             IAbstractionContext context,
             Exception exception,
@@ -82,13 +84,10 @@ namespace Reusable.OmniLog.SemanticExtensions
             [CallerFilePath] string callerFilePath = null)
         {
             logger.Log(
-                context, 
-                log =>
-                {
-                    log.Exception(exception);
-                }, 
-                callerMemberName, 
-                callerLineNumber, 
+                context,
+                log => { log.Exception(exception); },
+                callerMemberName,
+                callerLineNumber,
                 callerFilePath
             );
         }

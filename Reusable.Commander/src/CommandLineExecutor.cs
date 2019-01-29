@@ -8,6 +8,7 @@ using System.Linq.Custom;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 using Autofac;
 using Autofac.Core;
 using Autofac.Features.AttributeFilters;
@@ -23,6 +24,8 @@ using Reusable.Reflection;
 
 namespace Reusable.Commander
 {
+    using static ExecutionType;
+
     public interface ICommandLineExecutor
     {
         Task ExecuteAsync([CanBeNull] string commandLineString, CancellationToken cancellationToken = default);
@@ -61,28 +64,25 @@ namespace Reusable.Commander
 
         public async Task ExecuteAsync(IEnumerable<ICommandLine> commandLines, CancellationToken cancellationToken)
         {
-            const bool sequential = false;
-            const bool async = true;
-
             var executables =
                 GetCommands(commandLines)
                     .Select(t => (t.Command, t.CommandLine, Bag: _mapper.Map<SimpleBag>(t.CommandLine)))
-                    .ToLookup(x => x.Bag.Async);
+                    .ToLookup(x => x.Bag.ExecutionType);
 
             _logger.Log(Abstraction.Layer.Infrastructure().Meta(new
             {
                 CommandCount = new
                 {
                     Executable = executables.Count,
-                    Sequential = executables[sequential].Count(),
-                    Async = executables[async].Count(),
+                    Sequential = executables[Sequential].Count(),
+                    Async = executables[Asynchronous].Count(),
                 }
             }));
 
             using (var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
             {
                 // Execute sequential commands first.
-                foreach (var executable in executables[sequential])
+                foreach (var executable in executables[Sequential])
                 {
                     if (cancellationToken.IsCancellationRequested)
                     {
@@ -91,10 +91,29 @@ namespace Reusable.Commander
 
                     await ExecuteAsync(executable, cts);
                 }
+                
+                // Now execute async commands.
+                var actionBlock = new ActionBlock<(IConsoleCommand, ICommandLine, ICommandBag)>
+                (
+                    async executable => await ExecuteAsync(executable, cts),
+                    new ExecutionDataflowBlockOptions
+                    {
+                        CancellationToken = cts.Token,
+                        MaxDegreeOfParallelism = Environment.ProcessorCount
+                    }
+                );
+
+                foreach (var executable in executables[Asynchronous])
+                {
+                    actionBlock.Post(executable);
+                }
+
+                actionBlock.Complete();
+                await actionBlock.Completion;
 
                 // Now execute the async commands.
-                var tasks = executables[async].Select(async executable => await ExecuteAsync(executable, cts));
-                await Task.WhenAll(tasks).ConfigureAwait(false);
+                //var tasks = executables[Asynchronous].Select(async executable => await ExecuteAsync(executable, cts));
+                //await Task.WhenAll(tasks).ConfigureAwait(false);
             }
         }
 

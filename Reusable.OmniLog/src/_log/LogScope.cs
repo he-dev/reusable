@@ -21,7 +21,12 @@ namespace Reusable.OmniLog
         // ReSharper disable once InconsistentNaming - This cannot be renamed because it'd conflict with the property that has the same name.
         private static readonly AsyncLocal<LogScope> _current = new AsyncLocal<LogScope>();
         
-        private static Func<object> _nextCorrelationId = () => Guid.NewGuid().ToString("N");
+        private static Func<object> _nextCorrelationId;
+
+        static LogScope()
+        {
+            NewCorrelationId = DefaultCorrelationId.New;
+        }
 
         private LogScope(int depth)
         {
@@ -90,5 +95,10 @@ namespace Reusable.OmniLog
         {
             Current = Current?.Parent;
         }
+    }
+
+    public static class DefaultCorrelationId
+    {
+        public static object New() => Guid.NewGuid().ToString("N");
     }
 }
