@@ -70,6 +70,17 @@ namespace Reusable.Deception
             }
         }
     }
+    
+    /// <summary>
+    /// This implementation does nothing and support the null-object-pattern.
+    /// </summary>
+    public class NullPhantomException : IPhantomException
+    {
+        public void Throw(string id = null, Func<bool> test = null, string callerFilePath = null, string callerMemberName = null, int callerLineNumber = 0)
+        {
+            // Does nothing.
+        }
+    }
 
     public class StackFrameInfo : IEnumerable<string>
     {
