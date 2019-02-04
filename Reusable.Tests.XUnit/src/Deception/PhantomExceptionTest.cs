@@ -1,15 +1,12 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Collections.Generators;
 using Reusable.Deception;
 using Reusable.Deception.Abstractions;
 using Reusable.Deception.Triggers;
-using Reusable.Diagnostics;
 using Reusable.Exceptionizer;
-using Reusable.Reflection;
+using Xunit;
 
-namespace Reusable.Tests.Diagnostics
+namespace Reusable.Tests.XUnit.Deception
 {
-    [TestClass]
     public class PhantomExceptionTest
     {
         private static readonly IPhantomException PhantomException = new PhantomException(new IPhantomExceptionTrigger[]
@@ -20,12 +17,12 @@ namespace Reusable.Tests.Diagnostics
             },
             new CountedTrigger(new ConstantSequence<int>(3))
             {
-                Filter = (default, default, nameof(CanThrowByMember), default)
+                Filter = (default, default, nameof(Can_throw_by_member), default)
             }
         });
 
-        [TestMethod]
-        public void CanThrowByTypeAndId()
+        [Fact]
+        public void Can_throw_by_type_and_id()
         {
             var exceptionCount = 0;
             for (var i = 1; i < 10; i++)
@@ -36,16 +33,16 @@ namespace Reusable.Tests.Diagnostics
                 }
                 catch (DynamicException ex) when (ex.NameMatches("^Phantom"))
                 {
-                    Assert.IsTrue(i % 2 == 0);
+                    Assert.True(i % 2 == 0);
                     exceptionCount++;
                 }
             }
 
-            Assert.AreEqual(4, exceptionCount);
+            Assert.Equal(4, exceptionCount);
         }
 
-        [TestMethod]
-        public void CanThrowByMember()
+        [Fact]
+        public void Can_throw_by_member()
         {
             var exceptionCount = 0;
             for (var i = 1; i < 10; i++)
@@ -56,12 +53,12 @@ namespace Reusable.Tests.Diagnostics
                 }
                 catch (DynamicException ex) when (ex.NameMatches("^Phantom"))
                 {
-                    Assert.IsTrue(i % 3 == 0);
+                    Assert.True(i % 3 == 0);
                     exceptionCount++;
                 }
             }
 
-            Assert.AreEqual(3, exceptionCount);
+            Assert.Equal(3, exceptionCount);
         }
     }
 

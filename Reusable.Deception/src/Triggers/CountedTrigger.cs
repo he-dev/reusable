@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Reusable.Diagnostics.Abstractions;
+using Reusable.Deception.Abstractions;
+using Reusable.Diagnostics;
 
-namespace Reusable.Diagnostics.Triggers
+namespace Reusable.Deception.Triggers
 {
     [UsedImplicitly]
     public class CountedTrigger : PhantomExceptionTrigger

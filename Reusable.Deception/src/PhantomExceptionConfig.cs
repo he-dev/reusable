@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
-using Reusable.Diagnostics.Abstractions;
+using Reusable.Deception.Abstractions;
 using Reusable.Utilities.JsonNet.Extensions;
 
-namespace Reusable.Diagnostics
+namespace Reusable.Deception
 {
     public class PhantomExceptionConfig
     {

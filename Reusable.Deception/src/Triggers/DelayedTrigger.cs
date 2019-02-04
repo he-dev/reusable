@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
-using Reusable.Diagnostics.Abstractions;
+using Reusable.Deception.Abstractions;
 
-namespace Reusable.Diagnostics.Triggers
+namespace Reusable.Deception.Triggers
 {
     [UsedImplicitly]
     public class DelayedTrigger : PhantomExceptionTrigger

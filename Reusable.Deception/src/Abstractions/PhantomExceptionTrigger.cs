@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 
-namespace Reusable.Diagnostics.Abstractions
+namespace Reusable.Deception.Abstractions
 {
     public interface IPhantomExceptionTrigger
     {
@@ -16,7 +15,7 @@ namespace Reusable.Diagnostics.Abstractions
         [CanBeNull]
         string Message { get; }
 
-        bool CanThrow(IEnumerable<string> names);
+        bool CanThrow(IEnumerable<StackFrameInfo> names);
     }
 
     [PublicAPI]
@@ -49,9 +48,9 @@ namespace Reusable.Diagnostics.Abstractions
         [JsonRequired]
         public PhantomExceptionFilter Filter { get; set; }
 
-        public bool CanThrow(IEnumerable<string> names)
+        public bool CanThrow(IEnumerable<StackFrameInfo> stackFrames)
         {
-            if (Enabled && Filter.Matches(names) && _hasElements && CanThrow())
+            if (Enabled && Filter.Matches(stackFrames) && _hasElements && CanThrow())
             {
                 _hasElements = _sequence.MoveNext();
                 return true;
