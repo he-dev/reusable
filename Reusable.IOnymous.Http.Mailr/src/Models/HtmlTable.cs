@@ -74,12 +74,14 @@ namespace Reusable.IOnymous.Models
 
         public static IList<HtmlTableColumn> Create(params (string Name, Type Type)[] columns)
         {
-            return columns.Select(x => new HtmlTableColumn
-            {
-                Name = x.Name,
-                Type = x.Type
-            })
-            .ToList();
+            return
+                columns
+                    .Select(x => new HtmlTableColumn
+                    {
+                        Name = x.Name,
+                        Type = x.Type
+                    })
+                    .ToList();
         }
 
         public override string ToString() => $"{Name}[{Ordinal}]";
@@ -158,5 +160,16 @@ namespace Reusable.IOnymous.Models
 
         [CanBeNull]
         public static T ValueOrDefault<T>(this HtmlTableRow row, int ordinal) => row[ordinal] is T value ? value : default;
+
+        [NotNull]
+        public static HtmlTableRow Update(this HtmlTableRow row, string column, object value, params string[] styles)
+        {
+            row[column].Value = value;
+            foreach (var style in styles)
+            {
+                row[column].Styles.Add(style);
+            }
+            return row;
+        }
     }
 }
