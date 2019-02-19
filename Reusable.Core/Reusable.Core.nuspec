@@ -2,11 +2,11 @@
 <package>
   <metadata>
     <id>Reusable.Core</id>
-    <version>8.2.2</version>
+    <version>8.3.0</version>
     <title>Reusable.Core</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
-    <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
+    <license type="expression">MIT</license>
     <projectUrl>https://github.com/he-dev/Reusable</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/he-dev/Reusable/master/_nuget/recycling.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>

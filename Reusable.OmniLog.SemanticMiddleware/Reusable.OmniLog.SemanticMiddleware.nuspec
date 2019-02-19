@@ -2,11 +2,11 @@
 <package>
   <metadata>
     <id>Reusable.OmniLog.SemanticMiddleware</id>
-    <version>8.2.2</version>
+    <version>8.3.0</version>
     <title>Reusable.OmniLog.SemanticMiddleware</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
-    <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
+    <license type="expression">MIT</license>
     <projectUrl>https://github.com/he-dev/Reusable</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/he-dev/Reusable/master/_nuget/recycling.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
@@ -23,8 +23,8 @@
       <dependency id="Microsoft.Tpl.Dataflow" version="4.5.24" />
       <dependency id="System.ValueTuple" version="4.5.0" />
       <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.2.0" />
-      <dependency id="Reusable.OmniLog.SemanticExtensions" version="8.2.2" />
-      <dependency id="Reusable.OmniLog" version="8.2.2" />
+      <dependency id="Reusable.OmniLog.SemanticExtensions" version="8.3.0" />
+      <dependency id="Reusable.OmniLog" version="8.3.0" />
     </dependencies>
   </metadata>
   <files>

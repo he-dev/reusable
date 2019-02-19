@@ -2,11 +2,11 @@
 <package>
   <metadata>
     <id>Reusable.OmniLog.ColoredConsoleRx</id>
-    <version>8.2.2</version>
+    <version>8.3.0</version>
     <title>Reusable.OmniLog.ColoredConsoleRx</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
-    <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
+    <license type="expression">MIT</license>
     <projectUrl>https://github.com/he-dev/Reusable</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/he-dev/Reusable/master/_nuget/recycling.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
@@ -17,9 +17,9 @@
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2018.2.1" />
       <dependency id="System.Reactive" version="4.1.2" />
-      <dependency id="Reusable.Core" version="8.2.2" />
-      <dependency id="Reusable.MarkupBuilder" version="8.2.2" />
-      <dependency id="Reusable.OmniLog" version="8.2.2" />
+      <dependency id="Reusable.Core" version="8.3.0" />
+      <dependency id="Reusable.MarkupBuilder" version="8.3.0" />
+      <dependency id="Reusable.OmniLog" version="8.3.0" />
     </dependencies>
   </metadata>
   <files>

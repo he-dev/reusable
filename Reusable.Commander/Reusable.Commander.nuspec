@@ -2,11 +2,11 @@
 <package>
   <metadata>
     <id>Reusable.Commander</id>
-    <version>8.2.2</version>
+    <version>8.3.0</version>
     <title>Reusable.Commander</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
-    <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
+    <license type="expression">MIT</license>
     <projectUrl>https://github.com/he-dev/Reusable</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/he-dev/Reusable/master/_nuget/recycling.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
@@ -18,12 +18,12 @@
       <dependency id="Autofac" version="4.8.1" />
       <dependency id="JetBrains.Annotations" version="2018.2.1" />
       <dependency id="System.Threading.Tasks.Dataflow" version="4.9.0" />
-      <dependency id="Reusable.OneTo1" version="8.2.2" />
-      <dependency id="Reusable.Core" version="8.2.2" />
-      <dependency id="Reusable.MarkupBuilder" version="8.2.2" />
-      <dependency id="Reusable.OmniLog.ColoredConsoleRx" version="8.2.2" />
-      <dependency id="Reusable.OmniLog.SemanticExtensions" version="8.2.2" />
-      <dependency id="Reusable.OmniLog" version="8.2.2" />
+      <dependency id="Reusable.OneTo1" version="8.3.0" />
+      <dependency id="Reusable.Core" version="8.3.0" />
+      <dependency id="Reusable.MarkupBuilder" version="8.3.0" />
+      <dependency id="Reusable.OmniLog.ColoredConsoleRx" version="8.3.0" />
+      <dependency id="Reusable.OmniLog.SemanticExtensions" version="8.3.0" />
+      <dependency id="Reusable.OmniLog" version="8.3.0" />
     </dependencies>
   </metadata>
   <files>

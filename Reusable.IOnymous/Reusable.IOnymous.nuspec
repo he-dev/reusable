@@ -2,11 +2,11 @@
 <package>
   <metadata>
     <id>Reusable.IOnymous</id>
-    <version>8.2.2</version>
+    <version>8.3.0</version>
     <title>Reusable.IOnymous</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
-    <licenseUrl>https://github.com/he-dev/Reusable/blob/master/LICENSE</licenseUrl>
+    <license type="expression">MIT</license>
     <projectUrl>https://github.com/he-dev/Reusable</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/he-dev/Reusable/master/_nuget/recycling.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
@@ -18,9 +18,9 @@
       <dependency id="JetBrains.Annotations" version="2018.2.1" />
       <dependency id="Newtonsoft.Json" version="12.0.1" />
       <dependency id="System.Collections.Immutable" version="1.5.0" />
-      <dependency id="Reusable.Core" version="8.2.2" />
-      <dependency id="Reusable.OneTo1" version="8.2.2" />
-      <dependency id="Reusable.Utilities.JsonNet" version="8.2.2" />
+      <dependency id="Reusable.Core" version="8.3.0" />
+      <dependency id="Reusable.OneTo1" version="8.3.0" />
+      <dependency id="Reusable.Utilities.JsonNet" version="8.3.0" />
     </dependencies>
   </metadata>
   <files>

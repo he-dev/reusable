@@ -9,6 +9,9 @@ namespace Reusable.Flawless
 {
     public static class ExpressValidationResultLookupExtensions
     {
+        /// <summary>
+        /// Throws validation-exception when validation failed.
+        /// </summary>
         [CanBeNull]
         public static T Assert<T>([NotNull] this ExpressValidationResultLookup<T> checkLookup)
         {
