@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Configuration;
@@ -20,44 +21,45 @@ namespace Reusable.Tests.XUnit.SmartConfig
     {
         private static readonly SqlFourPartName SettingTableName = ("reusable", "SmartConfig");
 
-        private static readonly IEnumerable<IResourceProvider> SettingProvider = new IResourceProvider[]
-        {
-            new InMemoryProvider(ResourceMetadata.Empty.ProviderCustomName("Memory1"))
-            {
-                { "setting:Test6.Member1?prefix=TestPrefix", "Value1" },
-                { "setting:Member2", "Value2" },
-                { "setting:Test7.Member", "InvalidValue1" },
-            },
-            new InMemoryProvider(ResourceMetadata.Empty.ProviderCustomName("Memory2"))
-            {
-                { "setting:Test1.Member", "Value1" },
-                { "setting:Test2.Property", "Value2" },
-                { "setting:Test4.Property", "Value4" },
-                { "setting:Test5.Member?prefix=Prefix", "Value5" },
-                { "setting:Test7.Member", "InvalidValue2" },
-            },
-            new InMemoryProvider(ResourceMetadata.Empty.ProviderCustomName("Memory3"))
-            {
-                { "setting:Test7.Member", "Value7" },
-            },
-            new AppSettingProvider(new UriStringToSettingIdentifierConverter()),
-            new SqlServerProvider("name=TestDb", new UriStringToSettingIdentifierConverter())
-            {
-                TableName = SettingTableName,
-                ColumnMappings =
-                    ImmutableDictionary<SqlServerColumn, SoftString>
-                        .Empty
-                        .Add(SqlServerColumn.Name, "_name")
-                        .Add(SqlServerColumn.Value, "_value"),
-                Where = ImmutableDictionary<string, object>.Empty.Add("_other", nameof(UseCaseTest))
-            },
-        }.Select(p => p.DecorateWith(Reusable.SmartConfig.SettingNameProvider.Factory())).ToArray();
+        private readonly IConfiguration _configuration;
 
-        
-        private static readonly IConfiguration Configuration = new Reusable.SmartConfig.Configuration(SettingProvider);
-        
         public UseCaseTest()
         {
+            _configuration =
+                new Reusable.SmartConfig.Configuration(
+                    new CompositeProvider(new IResourceProvider[]
+                    {
+                        new InMemoryProvider(ResourceMetadata.Empty.ProviderCustomName("Memory1"))
+                        {
+                            { "setting:Test6.Member1?prefix=TestPrefix", "Value1" },
+                            { "setting:Member2", "Value2" },
+                            { "setting:Test7.Member", "InvalidValue1" },
+                        },
+                        new InMemoryProvider(ResourceMetadata.Empty.ProviderCustomName("Memory2"))
+                        {
+                            { "setting:Test1.Member", "Value1" },
+                            { "setting:Test2.Property", "Value2" },
+                            { "setting:Test4.Property", "Value4" },
+                            { "setting:Test5.Member?prefix=Prefix", "Value5" },
+                            { "setting:Test7.Member", "InvalidValue2" },
+                        },
+                        new InMemoryProvider(ResourceMetadata.Empty.ProviderCustomName("Memory3"))
+                        {
+                            { "setting:Test7.Member", "Value7" },
+                        },
+                        new AppSettingProvider(new UriStringToSettingIdentifierConverter()),
+                        new SqlServerProvider("name=TestDb", new UriStringToSettingIdentifierConverter())
+                        {
+                            TableName = SettingTableName,
+                            ColumnMappings =
+                                ImmutableDictionary<SqlServerColumn, SoftString>
+                                    .Empty
+                                    .Add(SqlServerColumn.Name, "_name")
+                                    .Add(SqlServerColumn.Value, "_value"),
+                            Where = ImmutableDictionary<string, object>.Empty.Add("_other", nameof(UseCaseTest))
+                        },
+                    }.Select(p => p.DecorateWith(Reusable.SmartConfig.SettingNameProvider.Factory())))
+                );
             SeedAppSettings();
             SeedSqlServer();
         }
@@ -101,7 +103,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
         public void Can_get_settings_by_default_convention()
         {
             var test1 = new Test1();
-            Assert.Equal("Value1", Configuration.GetSetting(() => test1.Member));
+            Assert.Equal("Value1", _configuration.GetSetting(() => test1.Member));
         }
 
         [Fact]
@@ -111,9 +113,9 @@ namespace Reusable.Tests.XUnit.SmartConfig
             var test3 = new Test3();
             var test5 = new Test5();
 
-            Assert.Equal("Value2", Configuration.GetSetting(() => test2.Member));
-            Assert.Equal("Value4", Configuration.GetSetting(() => test3.Member));
-            Assert.Equal("Value5", Configuration.GetSetting(() => test5.Member));
+            Assert.Equal("Value2", _configuration.GetSetting(() => test2.Member));
+            Assert.Equal("Value4", _configuration.GetSetting(() => test3.Member));
+            Assert.Equal("Value5", _configuration.GetSetting(() => test5.Member));
         }
 
         [Fact]
@@ -122,7 +124,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
             var test6 = new Test6();
 
             //Assert.Equal("Value1", SettingProvider.GetSetting(() => test6.Member1));
-            Assert.Equal("Value2", Configuration.GetSetting(() => test6.Member2));
+            Assert.Equal("Value2", _configuration.GetSetting(() => test6.Member2));
         }
 
         [Fact]
@@ -130,7 +132,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
         {
             var test7 = new Test7();
 
-            Assert.Equal("Value7", Configuration.GetSetting(() => test7.Member));
+            Assert.Equal("Value7", _configuration.GetSetting(() => test7.Member));
         }
 
         [Fact]
@@ -138,13 +140,13 @@ namespace Reusable.Tests.XUnit.SmartConfig
         {
             var test8 = new Test8();
 
-            Assert.ThrowsAny<DynamicException>(() => Configuration.GetSetting(() => test8.Member));
+            Assert.ThrowsAny<DynamicException>(() => _configuration.GetSetting(() => test8.Member));
         }
 
         [Fact]
         public void Can_get_and_put_settings_with_SqlServerProvider()
         {
-            var test = new Test9 { Configuration = Configuration };
+            var test = new Test9 { Configuration = _configuration };
 
             Assert.Equal("Hallo!", test.Greeting);
 
@@ -156,9 +158,26 @@ namespace Reusable.Tests.XUnit.SmartConfig
         [Fact]
         public void Can_get_and_put_settings_with_AppConfigProvider()
         {
-            var test = new Test9 { Configuration = Configuration };
+            var test = new Test9 { Configuration = _configuration };
 
             Assert.Equal("Hi!", test.Salute);
+        }
+
+        [Fact]
+        public void Can_deserialize_TimeSpan()
+        {
+            var settingProviders = new IResourceProvider[]
+                {
+                    new InMemoryProvider(ResourceMetadata.Empty.ProviderCustomName("Memory1"))
+                    {
+                        { $"setting:{nameof(CustomTypes)}.{nameof(CustomTypes.TimeSpan)}", "\"00:20:00\"" },
+                    }
+                }
+                .Select(p => p.DecorateWith(Reusable.SmartConfig.SettingNameProvider.Factory()));
+
+            var configuration = new Reusable.SmartConfig.Configuration(new CompositeProvider(settingProviders));
+            var customTypes = new CustomTypes { Configuration = configuration };
+            Assert.Equal(customTypes.TimeSpan, TimeSpan.FromMinutes(20));
         }
     }
 
@@ -230,5 +249,10 @@ namespace Reusable.Tests.XUnit.SmartConfig
             get => Configuration.GetSetting(() => Greeting);
             set => Configuration.SaveSetting(() => Greeting, value);
         }
+    }
+
+    internal class CustomTypes : Test0
+    {
+        public TimeSpan TimeSpan => Configuration.GetSetting(() => TimeSpan);
     }
 }

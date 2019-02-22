@@ -172,6 +172,15 @@ namespace Reusable.IOnymous
             }
         }
 
+        #region Collection initializers
+
+        public void Add([NotNull] IResourceProvider resourceProvider)
+        {
+            _resourceProviders.Add(resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider)));
+        }
+
+        #endregion
+
         #region IEnumerable
 
         public IEnumerator<IResourceProvider> GetEnumerator() => _resourceProviders.GetEnumerator();

@@ -37,10 +37,24 @@ namespace Reusable.SmartConfig
 
         private readonly IResourceProvider _settingProvider;
 
-        public Configuration(IEnumerable<IResourceProvider> settingProviders)
+        private ITypeConverter _converter;
+
+        public Configuration([NotNull] IResourceProvider settingProvider)
         {
-            settingProviders = settingProviders.Where(x => x.Schemes.Contains("setting"));
-            _settingProvider = new CompositeProvider(settingProviders);
+            _settingProvider = settingProvider ?? throw new ArgumentNullException(nameof(settingProvider));
+            _converter = new JsonSettingConverter();
+        }               
+
+        [NotNull]
+        public ITypeConverter Converter
+        {
+            get => _converter;
+            set => _converter = value ?? throw new ArgumentNullException(nameof(Converter));
+        }
+
+        public static IConfiguration Create(params IResourceProvider[] resourceProviders)
+        {
+            return new Configuration(new CompositeProvider(resourceProviders));
         }
 
         public T GetSetting<T>(Expression<Func<T>> expression, string instanceName = null)
@@ -75,8 +89,8 @@ namespace Reusable.SmartConfig
                     using (var streamReader = new StreamReader(memoryStream.Rewind()))
                     {
                         var json = streamReader.ReadToEnd();
-                        var converter = GetOrAddDeserializer(settingMetadata.MemberType);
-                        return converter.Convert(json, settingMetadata.MemberType);
+                        //var converter = GetOrAddDeserializer(settingMetadata.MemberType);
+                        return _converter.Convert(json, settingMetadata.MemberType);
                     }
                 }
             }
@@ -105,7 +119,7 @@ namespace Reusable.SmartConfig
                 //    .Validate(settingName, newValue);
 
                 Validate(newValue, settingMetadata.Validations, uri);
-                var json = (string)GetOrAddSerializer(typeof(T)).Convert(newValue, typeof(string));
+                var json = (string)_converter.Convert(newValue, typeof(string));
                 using (var stream = ResourceHelper.SerializeAsTextAsync(json).GetAwaiter().GetResult())
                 {
                     _settingProvider.PutAsync(uri, stream, PopulateProviderInfo(settingMetadata, ResourceMetadata.Empty.Format(MimeType.Text))).GetAwaiter().GetResult();
@@ -175,59 +189,106 @@ namespace Reusable.SmartConfig
                     .ProviderDefaultName(settingMetadata.ProviderType?.ToPrettyString());
         }
 
-        // --------
-
-        private ITypeConverter _converter = TypeConverter.Empty;
-
-        private JsonSerializerSettings _settings = new JsonSerializerSettings
-        {
-            Formatting = Formatting.Indented,
-            TypeNameHandling = TypeNameHandling.Auto,
-            Converters =
-            {
-                new StringEnumConverter(),
-                new Reusable.Utilities.JsonNet.ColorConverter()
-            }
-        };
-
-        private IImmutableSet<Type> _stringTypes = new[]
-            {
-                typeof(string),
-                typeof(Enum),
-                typeof(TimeSpan),
-                typeof(DateTime),
-                typeof(Color)
-            }
-            .ToImmutableHashSet();
-
-        private ITypeConverter GetOrAddDeserializer(Type toType)
-        {
-            if (_converter.CanConvert(typeof(string), toType))
-            {
-                return _converter;
-            }
-
-            var converter = CreateJsonConverter(typeof(JsonToObjectConverter<>), toType);
-            return (_converter = _converter.Add(converter));
-        }
-
-        private ITypeConverter GetOrAddSerializer(Type fromType)
-        {
-            if (_converter.CanConvert(fromType, typeof(string)))
-            {
-                return _converter;
-            }
-
-            var converter = CreateJsonConverter(typeof(ObjectToJsonConverter<>), fromType);
-            return (_converter = _converter.Add(converter));
-        }
-
-        private ITypeConverter CreateJsonConverter(Type converterType, Type valueType)
-        {
-            var converterGenericType = converterType.MakeGenericType(valueType);
-            return (ITypeConverter)Activator.CreateInstance(converterGenericType, _settings, _stringTypes);
-        }
-
         #endregion
+    }
+
+    [PublicAPI]
+    public class JsonSettingConverter : ITypeConverter
+    {
+        private readonly JsonSerializerSettings _settings;
+
+        private readonly IImmutableSet<Type> _stringTypes;
+
+        private ITypeConverter _internalConverter;
+
+        public JsonSettingConverter(JsonSerializerSettings settings, IEnumerable<Type> stringTypes)
+        {
+            _settings = settings;
+            _stringTypes = stringTypes.ToImmutableHashSet();
+            _internalConverter = TypeConverter.Empty;
+        }
+
+        public JsonSettingConverter()
+            : this
+            (
+                new JsonSerializerSettings
+                {
+                    Formatting = Formatting.Indented,
+                    TypeNameHandling = TypeNameHandling.Auto,
+                    Converters =
+                    {
+                        new StringEnumConverter(),
+                        new Reusable.Utilities.JsonNet.ColorConverter()
+                    }
+                }, new[]
+                {
+                    typeof(string),
+                    typeof(Enum),
+                    typeof(TimeSpan),
+                    typeof(DateTime),
+                    typeof(Color)
+                }
+            ) { }
+
+        public Type FromType => throw new NotSupportedException();
+
+        public Type ToType => throw new NotSupportedException();
+
+        public bool CanConvert(Type fromType, Type toType)
+        {
+            return _internalConverter.CanConvert(fromType, toType);
+        }
+
+        public object Convert(IConversionContext<object> context)
+        {
+            if (context.FromType == typeof(string) && context.ToType == typeof(string))
+            {
+                return context.Value;
+            }
+
+            if (CanConvert(context.FromType, context.ToType))
+            {
+                return _internalConverter.Convert(context);
+            }
+            else
+            {
+                var newConverterType = GetJsonConverterType(context);
+                var newConverter = (ITypeConverter)Activator.CreateInstance(newConverterType, _settings, _stringTypes);
+                _internalConverter = _internalConverter.Add(newConverter);
+                return Convert(context);
+            }
+        }
+
+        public bool Equals(ITypeConverter other) => throw new NotSupportedException();
+
+        private Type GetJsonConverterType(IConversionContext<object> context)
+        {
+            if (context.FromType == typeof(string))
+            {
+                return typeof(JsonToObjectConverter<>).MakeGenericType(context.ToType);
+            }
+
+            if (context.ToType == typeof(string))
+            {
+                return typeof(ObjectToJsonConverter<>).MakeGenericType(context.FromType);
+            }
+
+            throw new ArgumentOutOfRangeException();
+        }
+    }
+
+    public static class ConfigurationExtensions
+    {
+//        public static T GetSetting<T>(this IConfiguration configuration, string name, string instance = default)
+//        {
+//            var expression =
+//                Expression.Lambda<Func<T>>(
+//                    Expression.Property(
+//                        Expression.Constant(default(T), typeof(T)),
+//                        name
+//                    )
+//                );
+//            return configuration.GetSetting(expression, instance);
+//        }
     }
 }

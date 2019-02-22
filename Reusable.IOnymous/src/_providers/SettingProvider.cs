@@ -4,7 +4,7 @@ namespace Reusable.IOnymous
 {
     public abstract class SettingProvider : ResourceProvider
     {
-        protected SettingProvider([NotNull] ResourceMetadata metadata)
+        protected SettingProvider(ResourceMetadata metadata)
             : base(new SoftString[] { "setting" }, metadata)
         {
         }

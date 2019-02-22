@@ -74,12 +74,22 @@ namespace Reusable.Extensions
             return Format(text, args.ValidateNames().TryGetValue, formatProvider);
         }
 
+        /// <param name="text"></param>
+        /// <param name="args">A dictionary that contains zero or more objects to format.</param>
         [Pure]
         [CanBeNull]
-        ///<param name="args">A dictionary that contains zero or more objects to format.</param>
         public static string Format(this string text, IDictionary<string, object> args)
         {
             return Format(text, args.ValidateNames().TryGetValue);
+        }
+        
+        /// <param name="text"></param>
+        /// <param name="args">A dictionary that contains zero or more objects to format.</param>
+        [Pure]
+        [CanBeNull]
+        public static string Format(this string text, IDictionary<SoftString, object> args)
+        {
+            return Format(text, (string name, out object value) => args.TryGetValue(name, out value));
         }
 
         [Pure]
