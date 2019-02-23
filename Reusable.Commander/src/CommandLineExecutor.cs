@@ -28,9 +28,9 @@ namespace Reusable.Commander
 
     public interface ICommandLineExecutor
     {
-        Task ExecuteAsync([CanBeNull] string commandLineString, CancellationToken cancellationToken = default);
+        Task ExecuteAsync<TContext>([CanBeNull] string commandLineString, TContext context, CancellationToken cancellationToken = default);
 
-        Task ExecuteAsync([NotNull, ItemNotNull] IEnumerable<ICommandLine> commandLines, CancellationToken cancellationToken = default);
+        Task ExecuteAsync<TContext>([NotNull, ItemNotNull] IEnumerable<ICommandLine> commandLines, TContext context, CancellationToken cancellationToken = default);
 
         Task ExecuteAsync<TBag>([NotNull] Identifier identifier, [CanBeNull] TBag parameter = default, CancellationToken cancellationToken = default) where TBag : ICommandBag, new();
     }
@@ -62,7 +62,7 @@ namespace Reusable.Commander
             _executeExceptionCallback = executeExceptionCallback;
         }
 
-        public async Task ExecuteAsync(IEnumerable<ICommandLine> commandLines, CancellationToken cancellationToken)
+        public async Task ExecuteAsync<TContext>(IEnumerable<ICommandLine> commandLines, TContext context, CancellationToken cancellationToken)
         {
             var executables =
                 GetCommands(commandLines)
@@ -89,13 +89,13 @@ namespace Reusable.Commander
                         break;
                     }
 
-                    await ExecuteAsync(executable, cts);
+                    await ExecuteAsync(executable, context, cts);
                 }
-                
+
                 // Now execute async commands.
                 var actionBlock = new ActionBlock<(IConsoleCommand, ICommandLine, ICommandBag)>
                 (
-                    async executable => await ExecuteAsync(executable, cts),
+                    async executable => await ExecuteAsync(executable, context, cts),
                     new ExecutionDataflowBlockOptions
                     {
                         CancellationToken = cts.Token,
@@ -117,7 +117,7 @@ namespace Reusable.Commander
             }
         }
 
-        public async Task ExecuteAsync(string commandLineString, CancellationToken cancellationToken)
+        public async Task ExecuteAsync<TContext>(string commandLineString, TContext context, CancellationToken cancellationToken)
         {
             if (commandLineString.IsNullOrEmpty())
             {
@@ -128,29 +128,46 @@ namespace Reusable.Commander
             }
 
             var commandLines = _commandLineParser.Parse(commandLineString);
-            await ExecuteAsync(commandLines, cancellationToken);
+            await ExecuteAsync(commandLines, context, cancellationToken);
         }
 
         public async Task ExecuteAsync<TBag>(Identifier identifier, TBag parameter, CancellationToken cancellationToken = default) where TBag : ICommandBag, new()
         {
             if (identifier == null) throw new ArgumentNullException(nameof(identifier));
 
-            await GetCommand(identifier).ExecuteAsync(parameter, cancellationToken);
+            await GetCommand(identifier).ExecuteAsync(new PrimitiveBag
+            {
+                Parameter = parameter
+            }, cancellationToken);
         }
 
-        private async Task ExecuteAsync((IConsoleCommand Command, ICommandLine CommandLine, ICommandBag Bag) executable, CancellationTokenSource cancellationTokenSource)
+        private async Task ExecuteAsync<TContext>
+        (
+            (IConsoleCommand Command, ICommandLine CommandLine, ICommandBag Bag) executable,
+            TContext context,
+            CancellationTokenSource cancellationTokenSource
+        )
         {
-            using (_logger.BeginScope().WithCorrelationContext(new { Command = executable.Command.Id.Default.ToString() }).AttachElapsed())
+            using (_logger.BeginScope().WithCorrelationHandle("Command").WithCorrelationContext(new { Command = executable.Command.Id.Default.ToString() }).AttachElapsed())
             {
+                _logger.Log(Abstraction.Layer.Infrastructure().Meta(new { CommandName = executable.Command.Id.Default.ToString() }));
                 try
                 {
-                    await executable.Command.ExecuteAsync(executable.CommandLine, cancellationTokenSource.Token);
+                    await executable.Command.ExecuteAsync(new PrimitiveBag
+                    {
+                        Parameter = executable.CommandLine,
+                        Context = context
+                    }, cancellationTokenSource.Token);
                     _logger.Log(Abstraction.Layer.Infrastructure().Routine(nameof(IConsoleCommand.ExecuteAsync)).Completed());
                 }
                 //catch (DynamicException ex) when (ex.NameMatches("^ParameterMapping"))
                 //{
                 //    throw;
                 //}
+                catch (OperationCanceledException)
+                {
+                    _logger.Log(Abstraction.Layer.Infrastructure().Routine(nameof(IConsoleCommand.ExecuteAsync)).Canceled(), "User cancelled.");
+                }
                 catch (Exception taskEx)
                 {
                     _logger.Log(Abstraction.Layer.Infrastructure().Routine(nameof(IConsoleCommand.ExecuteAsync)).Faulted(), taskEx);

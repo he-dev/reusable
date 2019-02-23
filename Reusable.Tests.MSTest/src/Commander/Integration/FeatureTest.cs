@@ -20,8 +20,8 @@ namespace Reusable.Tests.Commander.Integration
                     .Add(Identifier.Create("a", "b"), Execute<SimpleBag>((name, bag, ct) => { executeCount++; }))
             ))
             {
-                await context.Executor.ExecuteAsync("a");
-                await context.Executor.ExecuteAsync("b");
+                await context.Executor.ExecuteAsync<object>("a", default);
+                await context.Executor.ExecuteAsync<object>("b", default);
 
                 Assert.AreEqual(2, executeCount);
             }
@@ -38,7 +38,7 @@ namespace Reusable.Tests.Commander.Integration
                     .Add(Identifier.Create("b"), Execute<SimpleBag>((i, b, c) => executeCount++))
                 ))
             {
-                await context.Executor.ExecuteAsync("a|b");
+                await context.Executor.ExecuteAsync<object>("a|b", default);
 
                 Assert.AreEqual(2, executeCount);
             }
@@ -53,7 +53,7 @@ namespace Reusable.Tests.Commander.Integration
                     .Add("c", Track<BagWithoutAliases>(tracker))
             ))
             {
-                await context.Executor.ExecuteAsync("c -StringWithoutAlias=abc");
+                await context.Executor.ExecuteAsync<object>("c -StringWithoutAlias=abc", default);
                 tracker.Assert<BagWithoutAliases>(
                     "c",
                     bag =>
@@ -75,7 +75,7 @@ namespace Reusable.Tests.Commander.Integration
                 (ExecuteExceptionCallback)(ex => throw ex)
             ))
             {
-                await context.Executor.ExecuteAsync("c 3 kmh -ismetric");
+                await context.Executor.ExecuteAsync<object>("c 3 kmh -ismetric", default);
                 tracker.Assert<BagWithPositionalValues>("c", bag =>
                 {
                     Assert.AreEqual(3, bag.Speed);
@@ -94,7 +94,7 @@ namespace Reusable.Tests.Commander.Integration
                     .Add("c", Track<BagWithAliases>(tracker))
             ))
             {
-                await context.Executor.ExecuteAsync("c -swa=abc");
+                await context.Executor.ExecuteAsync<object>("c -swa=abc", default);
                 tracker.Assert<BagWithAliases>(
                     "c",
                     bag =>
@@ -116,7 +116,7 @@ namespace Reusable.Tests.Commander.Integration
                     .Add("c", Track<BagWithDefaultValues>(tracker))
             ))
             {
-                await context.Executor.ExecuteAsync("c");
+                await context.Executor.ExecuteAsync<object>("c", default);
                 tracker.Assert<BagWithDefaultValues>(
                     "c",
                     bag =>
@@ -149,7 +149,7 @@ namespace Reusable.Tests.Commander.Integration
                     .Add("c", Track<SimpleBag>(tracker))
             ))
             {
-                await context.Executor.ExecuteAsync("c -async -canthrow=true");
+                await context.Executor.ExecuteAsync<object>("c -async -canthrow=true", default);
                 tracker.Assert<SimpleBag>(
                     "c",
                     bag =>
@@ -170,7 +170,7 @@ namespace Reusable.Tests.Commander.Integration
                     .Add("c", Track<BagWithMappedValues>(tracker))
             ))
             {
-                await context.Executor.ExecuteAsync("c");
+                await context.Executor.ExecuteAsync<object>("c", default);
                 tracker.Assert<BagWithMappedValues>(
                     "c",
                     bag => { }

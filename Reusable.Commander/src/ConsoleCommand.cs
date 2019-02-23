@@ -16,11 +16,11 @@ namespace Reusable.Commander
         [NotNull]
         Identifier Id { get; }
 
-        Task ExecuteAsync([CanBeNull] object parameter, CancellationToken cancellationToken = default);
+        Task ExecuteAsync([CanBeNull] PrimitiveBag parameter, CancellationToken cancellationToken = default);
     }
 
     [PublicAPI]
-    public abstract class ConsoleCommand<TBag> : IConsoleCommand where TBag : ICommandBag, new()
+    public abstract class ConsoleCommand<TBag, TContext> : IConsoleCommand where TBag : ICommandBag, new()
     {
         private readonly ICommandServiceProvider _serviceProvider;
 
@@ -35,26 +35,26 @@ namespace Reusable.Commander
 
         [NotNull]
         protected ICommandLineMapper Mapper => _serviceProvider.Mapper;
-        
+
         [NotNull]
         protected ICommandLineExecutor Executor => _serviceProvider.Executor;
 
-        public Identifier Id { get; }
+        public Identifier Id { get; }        
 
-        public async Task ExecuteAsync(object parameter, CancellationToken cancellationToken)
+        async Task IConsoleCommand.ExecuteAsync(PrimitiveBag parameter, CancellationToken cancellationToken)
         {
-            switch (parameter)
+            switch (parameter?.Parameter)
             {
                 case null:
-                    await ExecuteAsync(default, cancellationToken);
+                    await ExecuteAsync(default, (TContext)parameter?.Context, cancellationToken);
                     break;
 
                 case ICommandLine commandLine:
-                    await ExecuteAsync(Mapper.Map<TBag>(commandLine), cancellationToken);
+                    await ExecuteAsync(Mapper.Map<TBag>(commandLine), (TContext)parameter?.Context, cancellationToken);
                     break;
 
                 case TBag bag:
-                    await ExecuteAsync(bag, cancellationToken);
+                    await ExecuteAsync(bag, (TContext)parameter?.Context, cancellationToken);
                     break;
 
                 default:
@@ -65,14 +65,13 @@ namespace Reusable.Commander
             }
         }
 
-        protected abstract Task ExecuteAsync(TBag parameter, CancellationToken cancellationToken);
+        protected abstract Task ExecuteAsync(TBag parameter, TContext context, CancellationToken cancellationToken);
     }
 
-    public abstract class SimpleCommand : ConsoleCommand<SimpleBag>
+    public abstract class SimpleCommand : ConsoleCommand<SimpleBag, object>
     {
         protected SimpleCommand([NotNull] ICommandServiceProvider serviceProvider, Identifier id)
-            : base(serviceProvider, id)
-        {
-        }
+            : base(serviceProvider, id) { }
+        
     }
 }

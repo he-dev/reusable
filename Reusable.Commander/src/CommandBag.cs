@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Reusable.Commander
 {
@@ -24,6 +25,13 @@ namespace Reusable.Commander
         public bool Async { get; set; }
 
         internal ExecutionType ExecutionType => Async ? ExecutionType.Asynchronous : ExecutionType.Sequential;
+    }
+
+    public class PrimitiveBag
+    {
+        public object Parameter { get; set; }
+
+        public object Context { get; set; }
     }
 
     public enum ExecutionType

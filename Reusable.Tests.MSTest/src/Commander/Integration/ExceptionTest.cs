@@ -111,7 +111,7 @@ namespace Reusable.Tests.Commander.Integration
                             .Add("c", Track<SimpleBag>(bags))
                     ))
                     {
-                        context.Executor.ExecuteAsync("-a").GetAwaiter().GetResult();
+                        context.Executor.ExecuteAsync<object>("-a", default).GetAwaiter().GetResult();
                     }
                 },
                 filter => filter.When(name: "^InvalidCommandLine")
@@ -130,7 +130,7 @@ namespace Reusable.Tests.Commander.Integration
                             .Add("c", Track<SimpleBag>(bags))
                     ))
                     {
-                        context.Executor.ExecuteAsync("b").GetAwaiter().GetResult();
+                        context.Executor.ExecuteAsync<object>("b", default).GetAwaiter().GetResult();
                     }
                 },
                 filter => filter.When(name: "^InvalidCommandLine")
@@ -147,7 +147,7 @@ namespace Reusable.Tests.Commander.Integration
                     .Add("c", ExecuteNoop<BagWithRequiredValue>()), inner => { exception = inner; }
             ))
             {
-                context.Executor.ExecuteAsync("c").GetAwaiter().GetResult();
+                context.Executor.ExecuteAsync<object>("c", default).GetAwaiter().GetResult();
                 Assert.IsNotNull(exception);
             }
         }
@@ -163,7 +163,7 @@ namespace Reusable.Tests.Commander.Integration
                         (ExecuteExceptionCallback)(ex => throw ex)
                     ))
                     {
-                        context.Executor.ExecuteAsync("c 3").GetAwaiter().GetResult();
+                        context.Executor.ExecuteAsync<object>("c 3", default).GetAwaiter().GetResult();
                     }
                 }
                 //filter => filter.When(name: "^ParameterMapping")

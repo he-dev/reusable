@@ -47,7 +47,7 @@ namespace Reusable.Commander.Commands
     [PublicAPI]
     [Alias("h", "?")]
     [Description("Display help.")]
-    public class Help : ConsoleCommand<HelpBag>
+    public class Help : ConsoleCommand<HelpBag, object>
     {
         private readonly IList<Type> _commands;
 
@@ -57,7 +57,7 @@ namespace Reusable.Commander.Commands
             _commands = commands;
         }
 
-        protected override Task ExecuteAsync(HelpBag parameter, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(HelpBag parameter, object context, CancellationToken cancellationToken)
         {
             if (!parameter.HasCommand)
             {

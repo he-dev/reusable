@@ -38,6 +38,7 @@ namespace Reusable.OmniLog
             return scope.WithCorrelationId(correlationId = LogScope.NewCorrelationId());
         }
 
+        [Obsolete("Use WithCorrelationHandle and log this as Meta.")]
         public static ILogScope WithCorrelationContext(this ILogScope scope, object correlationContext)
         {
             return scope.With(nameof(WithCorrelationContext), correlationContext);
