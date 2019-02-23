@@ -93,7 +93,7 @@ namespace Reusable.Extensions
         }
 
         [Pure]
-        [CanBeNull, ContractAnnotation("text: null => null; data: null => stop")]
+        [CanBeNull, ContractAnnotation("text: null => null; args: null => stop")]
         public static string Format(this string text, [NotNull] object args, [NotNull] IEqualityComparer<string> comparer, [NotNull] IFormatProvider formatProvider)
         {
             if (string.IsNullOrWhiteSpace(text)) { return text; }

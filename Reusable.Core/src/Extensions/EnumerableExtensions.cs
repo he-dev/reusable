@@ -38,10 +38,12 @@ namespace System.Linq.Custom
             {
                 throw new ArgumentNullException(nameof(first));
             }
+
             if (second == null)
             {
                 throw new ArgumentNullException(nameof(second));
             }
+
             if (resultSelector == null)
             {
                 throw new ArgumentNullException(nameof(resultSelector));
@@ -90,6 +92,7 @@ namespace System.Linq.Custom
             {
                 throw new ArgumentNullException(nameof(first));
             }
+
             if (second == null) throw new ArgumentNullException(nameof(second));
             if (projection == null) throw new ArgumentNullException(nameof(projection));
             if (ReferenceEquals(first, projection))
@@ -113,8 +116,15 @@ namespace System.Linq.Custom
         [NotNull, ItemCanBeNull, ContractAnnotation("values: null => halt")]
         public static IEnumerable<T> Loop<T>(this IEnumerable<T> values, int startAt = 0)
         {
-            if (values == null) { throw new ArgumentNullException(nameof(values)); }
-            if (startAt < 0) { throw new ArgumentOutOfRangeException(paramName: nameof(startAt), message: $"{nameof(startAt)} must be >= 0"); }
+            if (values == null)
+            {
+                throw new ArgumentNullException(nameof(values));
+            }
+
+            if (startAt < 0)
+            {
+                throw new ArgumentOutOfRangeException(paramName: nameof(startAt), message: $"{nameof(startAt)} must be >= 0");
+            }
 
             var moves = 0;
 
@@ -183,8 +193,10 @@ namespace System.Linq.Custom
                 {
                     if (!(e1.MoveNext() && comparer.Equals(e1.Current, e2.Current))) return false;
                 }
+
                 if (e2.MoveNext()) return false;
             }
+
             return true;
         }
 
@@ -230,11 +242,13 @@ namespace System.Linq.Custom
                 {
                     throw new EmptySequenceException();
                 }
+
                 var single = enumerator.Current;
                 if (enumerator.MoveNext())
                 {
                     throw new MoreThanOneElementException();
                 }
+
                 return single;
             }
         }
@@ -250,16 +264,48 @@ namespace System.Linq.Custom
                 {
                     throw onEmpty?.Invoke() ?? DynamicException.Create("CollectionEmpty", $"Collection '{source.GetType().ToPrettyString()}' does not contain any elements.");
                 }
-                
+
                 var single = enumerator.Current;
-                
+
                 if (enumerator.MoveNext())
                 {
                     throw onMultiple?.Invoke() ?? DynamicException.Create("MoreThanOneElement", $"Collection '{source.GetType().ToPrettyString()}' contains more then one element.");
                 }
-                
+
                 return single;
             }
+        }
+
+        [CanBeNull]
+        public static T SingleOrThrow<T>([NotNull] this IEnumerable<T> source, Func<T, bool> predicate, Func<Exception> onEmpty = null, Func<Exception> onMultiple = null)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+
+            var result = default(T);
+            var count = 0;
+
+            using (var enumerator = source.GetEnumerator())
+            {
+                while (enumerator.MoveNext())
+                {
+                    if (predicate(enumerator.Current))
+                    {
+                        if (++count > 1)
+                        {
+                            throw onMultiple?.Invoke() ?? DynamicException.Create("MoreThanOneElement", $"Collection '{source.GetType().ToPrettyString()}' contains more then one element that matches the specified predicate.");
+                        }
+
+                        result = enumerator.Current;
+                    }
+                }
+            }
+
+            if (count == 0)
+            {
+                throw onEmpty?.Invoke() ?? DynamicException.Create("CollectionEmpty", $"Collection '{source.GetType().ToPrettyString()}' does not contain any elements that match the specified predicate.");
+            }
+
+            return result;
         }
 
         public static int CalcHashCode<T>([NotNull, ItemCanBeNull] this IEnumerable<T> values)
@@ -279,6 +325,7 @@ namespace System.Linq.Custom
             {
                 yield return item;
             }
+
             // ReSharper disable once IteratorNeverReturns - Since it's 'Always' this is by design.
         }
 
