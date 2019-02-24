@@ -57,16 +57,14 @@ namespace Reusable.Extensions
         }
 
         [Pure]
-        [CanBeNull]
+        [ContractAnnotation("text: notnull => notnull; text: null => null; tryGetArg: null => halt")]
         public static string Format(this string text, TryGetArgCallback tryGetArg)
         {
             return text.Format(tryGetArg, CultureInfo.InvariantCulture);
         }
 
         [Pure]
-        [CanBeNull]
-        [ContractAnnotation("text: null => null; args: null => stop")]
-        ///<param name="args">A dictionary that contains zero or more objects to format.</param>
+        [ContractAnnotation("text: notnull => notnull; text: null => null; args: null => halt")]
         public static string Format(this string text, IDictionary<string, object> args, IFormatProvider formatProvider)
         {
             if (args == null) { throw new ArgumentNullException(nameof(args)); }
@@ -77,7 +75,7 @@ namespace Reusable.Extensions
         /// <param name="text"></param>
         /// <param name="args">A dictionary that contains zero or more objects to format.</param>
         [Pure]
-        [CanBeNull]
+        [ContractAnnotation("text: notnull => notnull; text: null => null; args: null => halt")]
         public static string Format(this string text, IDictionary<string, object> args)
         {
             return Format(text, args.ValidateNames().TryGetValue);
@@ -86,9 +84,10 @@ namespace Reusable.Extensions
         /// <param name="text"></param>
         /// <param name="args">A dictionary that contains zero or more objects to format.</param>
         [Pure]
-        [CanBeNull]
-        public static string Format(this string text, IDictionary<SoftString, object> args)
+        [ContractAnnotation("text: notnull => notnull; text: null => null; args: null => halt")]
+        public static string Format(this string text, [NotNull] IDictionary<SoftString, object> args)
         {
+            if (args == null) throw new ArgumentNullException(nameof(args));
             return Format(text, (string name, out object value) => args.TryGetValue(name, out value));
         }
 
@@ -122,6 +121,7 @@ namespace Reusable.Extensions
             }, formatProvider);
         }
 
+        [CanBeNull, ContractAnnotation("text: null => null; args: null => stop")]
         public static string Format(this string text, object args)
         {
             return text.Format(args, StringComparer.OrdinalIgnoreCase, CultureInfo.InvariantCulture);
