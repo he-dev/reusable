@@ -165,10 +165,11 @@ namespace Reusable.IOnymous.Models
         public static HtmlTableRow Update(this HtmlTableRow row, string column, object value, params string[] styles)
         {
             row[column].Value = value;
-            foreach (var style in styles)
+            foreach (var style in styles ?? Enumerable.Empty<string>())
             {
                 row[column].Styles.Add(style);
             }
+
             return row;
         }
     }
