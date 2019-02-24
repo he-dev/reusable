@@ -16,7 +16,7 @@ namespace Reusable.Commander
         [NotNull]
         Identifier Id { get; }
 
-        Task ExecuteAsync([CanBeNull] PrimitiveBag parameter, CancellationToken cancellationToken = default);
+        Task ExecuteAsync([CanBeNull] object parameter, [CanBeNull] object context, CancellationToken cancellationToken = default);
     }
 
     [PublicAPI]
@@ -41,24 +41,25 @@ namespace Reusable.Commander
 
         public Identifier Id { get; }        
 
-        async Task IConsoleCommand.ExecuteAsync(PrimitiveBag parameter, CancellationToken cancellationToken)
+        async Task IConsoleCommand.ExecuteAsync(object parameter, object context, CancellationToken cancellationToken)
         {
-            switch (parameter?.Parameter)
+            switch (parameter)
             {
                 case null:
-                    await ExecuteAsync(default, (TContext)parameter?.Context, cancellationToken);
+                    await ExecuteAsync(default, (TContext)context, cancellationToken);
                     break;
 
                 case ICommandLine commandLine:
-                    await ExecuteAsync(Mapper.Map<TBag>(commandLine), (TContext)parameter?.Context, cancellationToken);
+                    await ExecuteAsync(Mapper.Map<TBag>(commandLine), (TContext)context, cancellationToken);
                     break;
 
                 case TBag bag:
-                    await ExecuteAsync(bag, (TContext)parameter?.Context, cancellationToken);
+                    await ExecuteAsync(bag, (TContext)context, cancellationToken);
                     break;
 
                 default:
-                    throw new ArgumentOutOfRangeException(
+                    throw new ArgumentOutOfRangeException
+                    (
                         paramName: nameof(parameter),
                         message: $"{nameof(parameter)} must be either a {typeof(ICommandLine).Name} or {typeof(TBag).Name}."
                     );

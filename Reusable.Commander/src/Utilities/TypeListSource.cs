@@ -29,13 +29,13 @@ namespace Reusable.Commander.Utilities
                                     .Select(activator => activator.LimitType);
                             return new TypeList<T>(types);
                         }),
-                        services: new[] {service},
+                        services: new[] { service },
                         lifetime: new CurrentScopeLifetime(),
                         sharing: InstanceSharing.None,
                         ownership: InstanceOwnership.OwnedByLifetimeScope,
                         metadata: new Dictionary<string, object>()
                     );
-                return new IComponentRegistration[] {registration};
+                return new IComponentRegistration[] { registration };
             }
             // It's not a request for the base handler type, so skip it.
             else
@@ -49,8 +49,6 @@ namespace Reusable.Commander.Utilities
 
     public class TypeList<T> : List<Type>
     {
-        internal TypeList(IEnumerable<Type> types) : base(types)
-        {
-        }
+        internal TypeList(IEnumerable<Type> types) : base(types) { }
     }
 }

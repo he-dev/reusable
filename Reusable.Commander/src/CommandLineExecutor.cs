@@ -24,7 +24,7 @@ using Reusable.Reflection;
 
 namespace Reusable.Commander
 {
-    using static ExecutionType;
+    using static CommandExecutionType;
 
     public interface ICommandLineExecutor
     {
@@ -66,18 +66,21 @@ namespace Reusable.Commander
         {
             var executables =
                 GetCommands(commandLines)
-                    .Select(t => (t.Command, t.CommandLine, Bag: _mapper.Map<SimpleBag>(t.CommandLine)))
-                    .ToLookup(x => x.Bag.ExecutionType);
+                    .Select(t => new Executable
+                    {
+                        Command = t.Command,
+                        CommandLine = t.CommandLine,
+                        Bag = _mapper.Map<SimpleBag>(t.CommandLine)
+                    })
+                    .ToLookup(x => x.Bag.ExecutionType());
 
-            _logger.Log(Abstraction.Layer.Infrastructure().Meta(new
+            _logger.Log(Abstraction.Layer.Infrastructure().Counter(new
             {
-                CommandCount = new
-                {
-                    Executable = executables.Count,
-                    Sequential = executables[Sequential].Count(),
-                    Async = executables[Asynchronous].Count(),
-                }
+                CommandCount = executables.Count,
+                SequentialCommandCount = executables[Sequential].Count(),
+                AsyncCommandCount = executables[Asynchronous].Count()
             }));
+
 
             using (var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
             {
@@ -93,7 +96,7 @@ namespace Reusable.Commander
                 }
 
                 // Now execute async commands.
-                var actionBlock = new ActionBlock<(IConsoleCommand, ICommandLine, ICommandBag)>
+                var actionBlock = new ActionBlock<Executable>
                 (
                     async executable => await ExecuteAsync(executable, context, cts),
                     new ExecutionDataflowBlockOptions
@@ -110,10 +113,6 @@ namespace Reusable.Commander
 
                 actionBlock.Complete();
                 await actionBlock.Completion;
-
-                // Now execute the async commands.
-                //var tasks = executables[Asynchronous].Select(async executable => await ExecuteAsync(executable, cts));
-                //await Task.WhenAll(tasks).ConfigureAwait(false);
             }
         }
 
@@ -121,10 +120,7 @@ namespace Reusable.Commander
         {
             if (commandLineString.IsNullOrEmpty())
             {
-                throw DynamicException.Create(
-                    $"CommandStringNullOrEmpty",
-                    $"You need to specify at least one command."
-                );
+                throw DynamicException.Create($"CommandLineStringNullOrEmpty", $"You need to specify at least one command.");
             }
 
             var commandLines = _commandLineParser.Parse(commandLineString);
@@ -135,38 +131,22 @@ namespace Reusable.Commander
         {
             if (identifier == null) throw new ArgumentNullException(nameof(identifier));
 
-            await GetCommand(identifier).ExecuteAsync(new PrimitiveBag
-            {
-                Parameter = parameter
-            }, cancellationToken);
+            await GetCommand(identifier).ExecuteAsync(parameter, default, cancellationToken);
         }
 
-        private async Task ExecuteAsync<TContext>
-        (
-            (IConsoleCommand Command, ICommandLine CommandLine, ICommandBag Bag) executable,
-            TContext context,
-            CancellationTokenSource cancellationTokenSource
-        )
+        private async Task ExecuteAsync<TContext>(Executable executable, TContext context, CancellationTokenSource cancellationTokenSource)
         {
-            using (_logger.BeginScope().WithCorrelationHandle("Command").WithCorrelationContext(new { Command = executable.Command.Id.Default.ToString() }).AttachElapsed())
+            using (_logger.BeginScope().WithCorrelationHandle("Command").AttachElapsed())
             {
                 _logger.Log(Abstraction.Layer.Infrastructure().Meta(new { CommandName = executable.Command.Id.Default.ToString() }));
                 try
                 {
-                    await executable.Command.ExecuteAsync(new PrimitiveBag
-                    {
-                        Parameter = executable.CommandLine,
-                        Context = context
-                    }, cancellationTokenSource.Token);
+                    await executable.Command.ExecuteAsync(executable.CommandLine, context, cancellationTokenSource.Token);
                     _logger.Log(Abstraction.Layer.Infrastructure().Routine(nameof(IConsoleCommand.ExecuteAsync)).Completed());
                 }
-                //catch (DynamicException ex) when (ex.NameMatches("^ParameterMapping"))
-                //{
-                //    throw;
-                //}
                 catch (OperationCanceledException)
                 {
-                    _logger.Log(Abstraction.Layer.Infrastructure().Routine(nameof(IConsoleCommand.ExecuteAsync)).Canceled(), "User cancelled.");
+                    _logger.Log(Abstraction.Layer.Infrastructure().Routine(nameof(IConsoleCommand.ExecuteAsync)).Canceled(), "Cancelled by user.");
                 }
                 catch (Exception taskEx)
                 {
@@ -178,16 +158,6 @@ namespace Reusable.Commander
                     }
 
                     _executeExceptionCallback(taskEx);
-                    //#if DEBUG
-                    //                    else
-                    //                    {
-                    //                        // In debug mode (e.g. unit-testing) this should always throw. Otherwise we might hide some bugs.
-                    //                        throw DynamicException.Create(
-                    //                            $"Unexpected",
-                    //                            $"An unexpected exception occured while executing the '{executable.Command.Id.Default.ToString()}' command."
-                    //                        );
-                    //                    }
-                    //#endif
                 }
             }
         }
@@ -196,24 +166,23 @@ namespace Reusable.Commander
 
         private IEnumerable<(IConsoleCommand Command, ICommandLine CommandLine)> GetCommands(IEnumerable<ICommandLine> commandLines)
         {
-            return commandLines.Select(
-                (commandLine, i) =>
+            return commandLines.Select((commandLine, i) =>
+            {
+                try
                 {
-                    try
-                    {
-                        var commandName = commandLine.CommandId();
-                        return (GetCommand(commandName), commandLine);
-                    }
-                    catch (DynamicException ex)
-                    {
-                        throw DynamicException.Factory.CreateDynamicException(
-                            $"InvalidCommandLine{nameof(Exception)}",
-                            $"Command line at {i} is invalid. See the inner-exception for details.",
-                            ex
-                        );
-                    }
+                    var commandName = commandLine.CommandId();
+                    return (GetCommand(commandName), commandLine);
                 }
-            );
+                catch (DynamicException inner)
+                {
+                    throw DynamicException.Create
+                    (
+                        $"InvalidCommandLine",
+                        $"Command line at {i} is invalid. See the inner-exception for details.",
+                        inner
+                    );
+                }
+            });
         }
 
         [NotNull]
@@ -222,12 +191,20 @@ namespace Reusable.Commander
             return
                 _commands.TryGetValue(id, out var command)
                     ? command
-                    : throw DynamicException.Factory.CreateDynamicException(
-                        $"CommandNotFound{nameof(Exception)}",
+                    : throw DynamicException.Create
+                    (
+                        $"CommandNotFound",
                         $"Could not find command '{id.Default.ToString()}'."
                     );
         }
 
         #endregion
+
+        private class Executable
+        {
+            public IConsoleCommand Command { get; set; }
+            public ICommandLine CommandLine { get; set; }
+            public ICommandBag Bag { get; set; }
+        }
     }
 }
