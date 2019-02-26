@@ -12,6 +12,8 @@ namespace Reusable.IOnymous
 
         public static async Task<string> DeserializeTextAsync(this IResourceInfo resourceInfo)
         {
+            if (!resourceInfo.Exists) throw new InvalidOperationException($"Cannot deserialize a resource that does not exist: '{resourceInfo.Uri.ToString()}'");
+
             // todo - find a cleaner solution; maybe a new comparer for MimeType?
             if (!resourceInfo.Format.Name.StartsWith("text/"))
             {
