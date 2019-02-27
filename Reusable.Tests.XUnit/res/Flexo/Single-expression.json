@@ -1,0 +1,8 @@
+{
+    "$t": "IIf",
+    "Predicate": {
+        "$t": "False"
+    },
+    "True": { "$t": "False" },
+    "False": { "$t": "True" }  
+}

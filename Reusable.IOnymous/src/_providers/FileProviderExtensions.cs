@@ -14,7 +14,7 @@ namespace Reusable.IOnymous
         public static async Task<IResourceInfo> GetFileAsync(this IResourceProvider resourceProvider, string path, MimeType format, ResourceMetadata metadata = default)
         {
             return await resourceProvider.GetAsync(CreateUri(path), metadata.Format(format));
-        }
+        }               
 
         public static async Task<string> ReadTextFileAsync(this IResourceProvider resourceProvider, string path, ResourceMetadata metadata = default)
         {

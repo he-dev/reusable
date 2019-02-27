@@ -4,10 +4,10 @@ using Newtonsoft.Json;
 
 namespace Reusable.Flexo
 {
-    public class Select : Expression
+    public class ToList : Expression
     {
-        public Select()
-            : base(nameof(Select))
+        public ToList()
+            : base(nameof(ToList))
         { }
 
         [JsonRequired]
@@ -15,7 +15,7 @@ namespace Reusable.Flexo
 
         public override IExpression Invoke(IExpressionContext context)
         {
-            return Constant.Create(nameof(Select), Expressions.InvokeWithValidation(context).ToList());
+            return Constant.Create(nameof(ToList), Expressions.InvokeWithValidation(context).ToList());
         }
     }
 }

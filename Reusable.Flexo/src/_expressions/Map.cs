@@ -7,7 +7,7 @@ using Reusable.Reflection;
 
 namespace Reusable.Flexo
 {
-    public abstract class Map<TFrom, TTo> : Expression 
+    public abstract class Map<TFrom, TTo> : Expression
     {
         protected Map() : base(nameof(Map<TFrom, TTo>)) { }
 
@@ -23,10 +23,9 @@ namespace Reusable.Flexo
             var result = Expression.InvokeWithValidation(context);
             if (result is Constant<TFrom> constant)
             {
-                var match = 
-                    Mappings.
-                        FirstOrDefault(mapping => mapping.FromValue.Equals(constant.Value))
-                        ?? throw DynamicException.Factory.CreateDynamicException($"MappingNotFound{nameof(Exception)}", $"Could not find mapping for '{constant.Value}'.");
+                var match =
+                    Mappings.FirstOrDefault(mapping => mapping.FromValue.Equals(constant.Value))
+                    ?? throw DynamicException.Factory.CreateDynamicException($"MappingNotFound{nameof(Exception)}", $"Could not find mapping for '{constant.Value}'.");
 
                 return Constant.Create(Name, match.ToValue);
             }
@@ -35,7 +34,7 @@ namespace Reusable.Flexo
         }
     }
 
-    public class Mapping<TFrom, TTo> 
+    public class Mapping<TFrom, TTo>
     {
         public TFrom FromValue { get; set; }
 
@@ -45,9 +44,9 @@ namespace Reusable.Flexo
     /// <summary>
     /// Provides a mapping expression from bool to double.
     /// </summary>
-    public class ToDouble : Map<bool, double>
+    public class BooleanToDouble : Map<bool, double>
     {
-        public ToDouble() : base(nameof(ToDouble))
+        public BooleanToDouble() : base(nameof(BooleanToDouble))
         {
             Mappings = ImmutableList.Create
             (

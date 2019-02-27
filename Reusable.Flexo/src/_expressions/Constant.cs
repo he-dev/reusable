@@ -54,14 +54,14 @@ namespace Reusable.Flexo
         #endregion
     }
 
-    public class One : Constant<double>
-    {
-        public One(string name) : base(name, 1.0) { }
-    }
-
     public class Zero : Constant<double>
     {
         public Zero(string name) : base(name, 0.0) { }
+    }
+
+    public class One : Constant<double>
+    {
+        public One(string name) : base(name, 1.0) { }
     }
 
     public class True : Constant<bool>
@@ -80,6 +80,12 @@ namespace Reusable.Flexo
         public String(string name, string value) : base(name, value) { }
     }
 
+    public class Double : Constant<double>
+    {
+        [JsonConstructor]
+        public Double(string name, double value) : base(name, value) { }
+    }
+
     /// <summary>
     /// This class provides factory methods.
     /// </summary>
@@ -87,12 +93,38 @@ namespace Reusable.Flexo
     {
         private static volatile int _counter;
 
+        [NotNull]
         public static Constant<TValue> Create<TValue>(string name, TValue value) => new Constant<TValue>(name, value);
 
+        [NotNull]
         public static Constant<TValue> Create<TValue>(TValue value) => new Constant<TValue>($"{typeof(Constant<TValue>).ToPrettyString()}{_counter++}", value);
 
+        [NotNull, ItemNotNull]
         public static IList<Constant<TValue>> CreateMany<TValue>(string name, params TValue[] values) => values.Select(value => Create(name, value)).ToList();
 
+        [NotNull, ItemNotNull]
         public static IList<Constant<TValue>> CreateMany<TValue>(params TValue[] values) => values.Select(Create).ToList();
+
+        #region Predefined
+
+        [NotNull]
+        public static readonly IExpression Zero = new Zero(nameof(Zero));
+
+        [NotNull]
+        public static readonly IExpression One = new One(nameof(One));
+
+        [NotNull]        
+        public static readonly IExpression True = new True(nameof(True));
+
+        [NotNull]
+        public static readonly IExpression False = new False(nameof(False));
+
+        [NotNull]
+        public static readonly IExpression EmptyString = Create(nameof(EmptyString), string.Empty);
+
+        [NotNull]
+        public static readonly IExpression Null = Create(nameof(Null), default(object));
+
+        #endregion
     }
 }

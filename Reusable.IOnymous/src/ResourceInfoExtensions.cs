@@ -10,6 +10,15 @@ namespace Reusable.IOnymous
     {
         #region Async
 
+        public static async Task<MemoryStream> CopyToMemoryStreamAsync(this IResourceInfo resource)
+        {
+            if (!resource.Exists) throw new InvalidOperationException($"Cannot deserialize a resource that does not exist: '{resource.Uri.ToString()}'");
+            
+            var memoryStream = new MemoryStream();
+            await resource.CopyToAsync(memoryStream);
+            return memoryStream;
+        }
+
         public static async Task<string> DeserializeTextAsync(this IResourceInfo resourceInfo)
         {
             if (!resourceInfo.Exists) throw new InvalidOperationException($"Cannot deserialize a resource that does not exist: '{resourceInfo.Uri.ToString()}'");

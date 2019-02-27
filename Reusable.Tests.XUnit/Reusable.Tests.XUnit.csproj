@@ -14,6 +14,8 @@
     <EmbeddedResource Remove="src\Utilities\**" />
     <None Remove="src\Utilities\**" />
     <None Remove="res\IOnymous\test.txt" />
+    <EmbeddedResource Include="res\Flexo\Array-of-expressions.json" />
+    <EmbeddedResource Include="res\Flexo\Single-expression.json" />
     <EmbeddedResource Include="res\IOnymous\Http\Mailr\HtmlTable.json" />
     <EmbeddedResource Include="res\IOnymous\test.txt" />
   </ItemGroup>

@@ -17,13 +17,17 @@ namespace Reusable.Flexo
 
         public override IExpression Invoke(IExpressionContext context)
         {
+            if (True is null && False is null) throw new InvalidOperationException($"You need to specify at least one result ({nameof(True)}/{nameof(False)}).");
+
             using (context.Scope(this))
             {
-                var expression =
-                    (Predicate.InvokeWithValidation(context).Value<bool>() ? True : False)
-                        ?? throw new InvalidOperationException($"{nameof(True)} or {nameof(False)} expression is not defined."); ;
+                var result =
+                    Predicate.InvokeWithValidation(context).Value<bool>()
+                        ? (True ?? Constant.Null)
+                        : (False ?? Constant.Null);
 
-                return expression.InvokeWithValidation(context);
+
+                return result.InvokeWithValidation(context);
             }
         }
     }

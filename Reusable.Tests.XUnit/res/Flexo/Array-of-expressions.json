@@ -1,0 +1,33 @@
+[
+    {
+        "$t": "Any",
+        "Expressions": [
+            {
+                "$t": "Constant<bool>",
+                "Value": "true"
+            }
+        ]
+    },
+    {
+        "$t": "All",
+        "Expressions": [
+            {
+                "$t": "Constant<bool>",
+                "Value": "false"
+            }
+        ]
+    },
+    {
+        "$t": "Sum",
+        "Expressions": [
+            {
+                "$t": "Constant<double>",
+                "Value": 1
+            },
+            {
+                "$t": "Constant<double>",
+                "Value": 2
+            }
+        ]
+    }
+]

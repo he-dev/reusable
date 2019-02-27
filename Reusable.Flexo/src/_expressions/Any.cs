@@ -9,12 +9,12 @@ namespace Reusable.Flexo
         public Any() : base(nameof(Any)) { }
 
         [JsonRequired]
-        public IEnumerable<IExpression> Expressions { get; set; }
+        public IEnumerable<IExpression> Predicates { get; set; }
 
         protected override bool Calculate(IExpressionContext context)
         {
             return
-                Expressions
+                Predicates
                     .Enabled()
                     .InvokeWithValidation(context)
                     .Values<bool>()
