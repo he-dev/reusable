@@ -1,19 +1,17 @@
 [
     {
         "$t": "Any",
-        "Expressions": [
+        "Predicates": [
             {
-                "$t": "Constant<bool>",
-                "Value": "true"
+                "$t": "True",
             }
         ]
     },
     {
         "$t": "All",
-        "Expressions": [
+        "Predicates": [
             {
-                "$t": "Constant<bool>",
-                "Value": "false"
+                "$t": "False",
             }
         ]
     },

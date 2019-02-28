@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.OmniLog.SemanticMiddleware</id>
-    <version>8.3.0</version>
+    <version>8.4.0</version>
     <title>Reusable.OmniLog.SemanticMiddleware</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -15,7 +15,7 @@
     <copyright>Copyright 2019 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
-      <dependency id="JetBrains.Annotations" version="2018.2.1" />
+      <dependency id="JetBrains.Annotations" version="2018.3.0" />
       <dependency id="Microsoft.AspNetCore.Mvc" version="2.2.0" />
       <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="2.2.0" />
       <dependency id="Microsoft.Extensions.Configuration.Binder" version="2.2.0" />
@@ -23,8 +23,8 @@
       <dependency id="Microsoft.Tpl.Dataflow" version="4.5.24" />
       <dependency id="System.ValueTuple" version="4.5.0" />
       <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.2.0" />
-      <dependency id="Reusable.OmniLog.SemanticExtensions" version="8.3.0" />
-      <dependency id="Reusable.OmniLog" version="8.3.0" />
+      <dependency id="Reusable.OmniLog.SemanticExtensions" version="8.4.0" />
+      <dependency id="Reusable.OmniLog" version="8.4.0" />
     </dependencies>
   </metadata>
   <files>
