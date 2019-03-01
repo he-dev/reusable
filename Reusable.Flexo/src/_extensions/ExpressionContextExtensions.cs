@@ -10,14 +10,14 @@ namespace Reusable.Flexo
         [CanBeNull]
         public static TParameter Item<TParameter>(this IExpressionContext context, [CallerMemberName] string itemName = null)
         {
-            return (TParameter)context.Items[itemName];
+            return (TParameter)context[itemName];
         }
-
+        
         [NotNull]
         public static TExpressionContext Item<TParameter, TExpressionContext>(this TExpressionContext context, TParameter value, [CallerMemberName] string itemName = null) 
             where TExpressionContext : IExpressionContext
         {
-            context.Items[itemName] = value;
+            context.SetItem(itemName, value);
             return context;
         }
 

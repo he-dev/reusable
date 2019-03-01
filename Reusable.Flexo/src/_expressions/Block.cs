@@ -1,28 +1,49 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Gems.Flexo.Abstractions;
-using Gems.Flexo.Extensions;
 
-namespace Gems.Flexo.Expressions
+namespace Reusable.Flexo
 {
-    public class Block : Expression, IQuantifier
+    /// <summary>
+    /// Wraps expression-context.
+    /// </summary>
+    public class Block : Expression
     {
-        public IEnumerable<IAsyncExpression> Expressions { get; set; }
+        public Block(string name) : base(name)
+        { }
 
-        public override async Task<IAsyncExpression> InvokeAsync(IExpressionContext context, CancellationToken cancellationToken)
+        public Block() : this(nameof(Item))
+        { }
+
+        public IEnumerable<IExpression> Expressions { get; set; }
+
+        public override IExpression Invoke(IExpressionContext context)
         {
-            var results = new List<IAsyncExpression>();
+            //return new Scope(Expression.Name, context, Expression.Invoke(context));
 
-            foreach (var expression in Expressions.Enabled())
+            var results = new List<IExpression>();
+            foreach (var expression in Expressions)
             {
-                results.Add(
-                    await expression
-                        .ValidateInParameters(context)
-                        .InvokeAsync(context, cancellationToken));                
+                results.Add(expression.Invoke(results.LastOrDefault()?.Context ?? context));
             }
 
-            return new Constant(nameof(Block), results);
+            return Constant.Create(nameof(Block), InvokeResult.From(results, results.LastOrDefault()?.Context ?? context));
         }
+
+        // private class Scope : Expression
+        // {
+        //     private readonly IExpression _expression;
+        //
+        //     public Scope(string name, IExpressionContext context, IExpression expression) : base(name, context)
+        //     {
+        //         _expression = expression;
+        //     }
+        //
+        //     public override IExpression Invoke(IExpressionContext context)
+        //     {
+        //         return _expression;
+        //     }
+        // }
     }
 }

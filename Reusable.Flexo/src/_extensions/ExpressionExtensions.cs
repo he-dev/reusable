@@ -13,7 +13,7 @@ namespace Reusable.Flexo
             var missingInParameters =
                 typeof(TExpression)
                     .GetCustomAttributes<OutAttribute>()
-                    .Where(parameter => parameter.Required && !context.Items.ContainsKey(parameter.Name))
+                    .Where(parameter => parameter.Required && !context.ContainsKey(parameter.Name))
                     .ToList();
 
             return
@@ -42,7 +42,7 @@ namespace Reusable.Flexo
             var missingItems =
                 typeof(TExpression)
                     .GetCustomAttributes<TParameterAttribute>()
-                    .Where(item => item.Required && !context.Items.ContainsKey(item.Name))
+                    .Where(item => item.Required && !context.ContainsKey(item.Name))
                     .ToList();
 
             if (missingItems.Any())

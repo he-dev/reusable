@@ -20,6 +20,8 @@ namespace Reusable.Flexo
         [NotNull]
         string Name { get; }
 
+        IExpressionContext Context { get; }
+
         [NotNull]
         IExpression Invoke([NotNull] IExpressionContext context);
     }
@@ -28,7 +30,15 @@ namespace Reusable.Flexo
     {
         protected Expression(string name) => Name = name;
 
+        protected Expression(string name, IExpressionContext context)
+        {
+            Name = name;
+            Context = context;
+        }
+
         public virtual string Name { get; }
+
+        public IExpressionContext Context { get; }
 
         public bool Enabled { get; set; } = true;
 
@@ -47,7 +57,7 @@ namespace Reusable.Flexo
             }
         }
 
-        protected abstract bool Calculate(IExpressionContext context);
+        protected abstract InvokeResult<bool> Calculate(IExpressionContext context);
     }
 
     public abstract class AggregateExpression : Expression
@@ -59,7 +69,10 @@ namespace Reusable.Flexo
         [JsonRequired]
         public IEnumerable<IExpression> Expressions { get; set; }
 
-        public override IExpression Invoke(IExpressionContext context) => Constant.Create(Name, _aggregate(Expressions.InvokeWithValidation(context).Values<double>().ToList()));
+        public override IExpression Invoke(IExpressionContext context)
+        {
+            return Constant.Create(Name, _aggregate(Expressions.InvokeWithValidation(context).Values<double>()));
+        }
     }
 
     public abstract class ComparerExpression : Expression
@@ -90,7 +103,7 @@ namespace Reusable.Flexo
                 return Constant.Create(Name, _predicate(d1.Value.CompareTo(d2.Value)));
             }
 
-            if 
+            if
             (
                 result1 is Constant<int> i1 &&
                 result2 is Constant<int> i2
@@ -102,7 +115,7 @@ namespace Reusable.Flexo
             // fallback to weak comparer
             var x = (result1 as IConstant)?.Value as IComparable ?? throw new InvalidOperationException($"{nameof(Left)} must return an {nameof(IConstant)} expression with an {nameof(IComparable)} value.");
             var y = (result2 as IConstant)?.Value as IComparable ?? throw new InvalidOperationException($"{nameof(Right)} must return an {nameof(IConstant)} expression with an {nameof(IComparable)} value.");
-            
+
             return Constant.Create(Name, _predicate(x.CompareTo(y)));
         }
     }
@@ -112,5 +125,26 @@ namespace Reusable.Flexo
         string Name { get; }
 
         bool Required { get; }
+    }
+
+    public readonly struct InvokeResult<T>
+    {
+        public InvokeResult(T value, IExpressionContext context)
+        {
+            Value = value;
+            Context = context;
+        }
+
+        public T Value { get; }
+
+        public IExpressionContext Context { get; }
+    }
+
+    public static class InvokeResult
+    {
+        public static InvokeResult<TValue> From<TValue>(TValue value, IExpressionContext context)
+        {
+            return new InvokeResult<TValue>(value, context);
+        }
     }
 }

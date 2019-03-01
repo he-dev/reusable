@@ -22,6 +22,8 @@ namespace Reusable.Flexo
         [JsonConstructor]
         public Constant(string name, TValue value) : this(name) => Value = value;
 
+        public Constant(string name, TValue value, IExpressionContext context) : base(name, context) => Value = value;
+
         [AutoEqualityProperty]
         [CanBeNull]
         public TValue Value { get; }
@@ -96,6 +98,11 @@ namespace Reusable.Flexo
         [NotNull]
         public static Constant<TValue> Create<TValue>(string name, TValue value) => new Constant<TValue>(name, value);
 
+        public static Constant<TValue> Create<TValue>(string name, InvokeResult<TValue> result)
+        {
+            return new Constant<TValue>(name, result.Value, result.Context);
+        }
+
         [NotNull]
         public static Constant<TValue> Create<TValue>(TValue value) => new Constant<TValue>($"{typeof(Constant<TValue>).ToPrettyString()}{_counter++}", value);
 
@@ -113,7 +120,7 @@ namespace Reusable.Flexo
         [NotNull]
         public static readonly IExpression One = new One(nameof(One));
 
-        [NotNull]        
+        [NotNull]
         public static readonly IExpression True = new True(nameof(True));
 
         [NotNull]

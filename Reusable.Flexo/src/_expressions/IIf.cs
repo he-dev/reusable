@@ -19,16 +19,23 @@ namespace Reusable.Flexo
         {
             if (True is null && False is null) throw new InvalidOperationException($"You need to specify at least one result ({nameof(True)}/{nameof(False)}).");
 
-            using (context.Scope(this))
-            {
-                var result =
-                    Predicate.InvokeWithValidation(context).Value<bool>()
-                        ? (True ?? Constant.Null)
-                        : (False ?? Constant.Null);
+            var result = Predicate.Invoke(context);
 
+            return
+                result.Value<bool>()
+                    ? (True ?? Constant.Null).Invoke(result.Context)
+                    : (False ?? Constant.Null).Invoke(context);
 
-                return result.InvokeWithValidation(context);
-            }
+            // using (context.Scope(this))
+            // {
+            //     var result =
+            //         Predicate.InvokeWithValidation(context).Value<bool>()
+            //             ? (True ?? Constant.Null)
+            //             : (False ?? Constant.Null);
+            //
+            //
+            //     return result.InvokeWithValidation(context);
+            // }
         }
     }
 }

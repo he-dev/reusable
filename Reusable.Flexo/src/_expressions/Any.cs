@@ -11,15 +11,19 @@ namespace Reusable.Flexo
         [JsonRequired]
         public IEnumerable<IExpression> Predicates { get; set; }
 
-        protected override bool Calculate(IExpressionContext context)
+        protected override InvokeResult<bool> Calculate(IExpressionContext context)
         {
-            return
-                Predicates
-                    .Enabled()
-                    .InvokeWithValidation(context)
-                    .Values<bool>()
-                    .Any(x => x);
+            var last = default(IExpression);
+            foreach (var predicate in Predicates.Enabled())
+            {
+                last = predicate.Invoke(last?.Context ?? context);
+                if (last.Value<bool>())
+                {
+                    return InvokeResult.From(true, last.Context);
+                }
+            }
 
+            return InvokeResult.From(false, context);
         }
     }
 }

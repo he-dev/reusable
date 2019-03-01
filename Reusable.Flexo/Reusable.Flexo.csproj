@@ -20,7 +20,6 @@
   <ItemGroup>
     <Compile Remove="src\_expressions\_abstractions\ICommand.cs" />
     <Compile Remove="src\Call.cs" />
-    <Compile Remove="src\_expressions\Block.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.9.1" />
@@ -29,5 +28,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
 </Project>

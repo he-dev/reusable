@@ -15,17 +15,17 @@ namespace Reusable.Flexo
 
         public IExpression Right { get; set; }
 
-        protected override bool Calculate(IExpressionContext context)
+        protected override InvokeResult<bool> Calculate(IExpressionContext context)
         {
             var x = Left.InvokeWithValidation(context).ValueOrDefault();
             var y = Right.InvokeWithValidation(context).ValueOrDefault();
 
             if (x is string str1 && y is string str2 && IgnoreCase)
             {
-                return StringComparer.OrdinalIgnoreCase.Equals(str1, str2);
+                return InvokeResult.From(StringComparer.OrdinalIgnoreCase.Equals(str1, str2), context);
             }
 
-            return x.Equals(y);
+            return InvokeResult.From(x.Equals(y), context);
         }
     }
 
@@ -40,11 +40,12 @@ namespace Reusable.Flexo
 
         public string Pattern { get; set; }
 
-        protected override bool Calculate(IExpressionContext context)
+        protected override InvokeResult<bool> Calculate(IExpressionContext context)
         {
             var x = Expression.InvokeWithValidation(context).Value<string>();
 
-            return !(x is null) && Regex.IsMatch(x, Pattern, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None);
+            var result = !(x is null) && Regex.IsMatch(x, Pattern, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None);
+            return InvokeResult.From(result, context);
         }
     }
 }

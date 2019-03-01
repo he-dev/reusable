@@ -6,6 +6,9 @@
 
         public IExpression Expression { get; set; }
 
-        protected override bool Calculate(IExpressionContext context) => !Expression.InvokeWithValidation(context).Value<bool>();
+        protected override InvokeResult<bool> Calculate(IExpressionContext context)
+        {
+            return InvokeResult.From(!Expression.InvokeWithValidation(context).Value<bool>(), context);
+        }
     }
 }
