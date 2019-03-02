@@ -30,9 +30,9 @@ namespace Reusable.Commander
     {
         Task ExecuteAsync<TContext>([CanBeNull] string commandLineString, TContext context, CancellationToken cancellationToken = default);
 
-        Task ExecuteAsync<TContext>([NotNull, ItemNotNull] IEnumerable<ICommandLine> commandLines, TContext context, CancellationToken cancellationToken = default);
+        //Task ExecuteAsync<TContext>([NotNull, ItemNotNull] IEnumerable<ICommandLine> commandLines, TContext context, CancellationToken cancellationToken = default);
 
-        Task ExecuteAsync<TBag>([NotNull] Identifier identifier, [CanBeNull] TBag parameter = default, CancellationToken cancellationToken = default) where TBag : ICommandBag, new();
+        //Task ExecuteAsync<TBag>([NotNull] Identifier identifier, [CanBeNull] TBag parameter = default, CancellationToken cancellationToken = default) where TBag : ICommandBag, new();
     }
 
     public delegate void ExecuteExceptionCallback(Exception exception);
@@ -62,7 +62,7 @@ namespace Reusable.Commander
             _executeExceptionCallback = executeExceptionCallback;
         }
 
-        public async Task ExecuteAsync<TContext>(IEnumerable<ICommandLine> commandLines, TContext context, CancellationToken cancellationToken)
+        private async Task ExecuteAsync<TContext>(IEnumerable<ICommandLine> commandLines, TContext context, CancellationToken cancellationToken)
         {
             var executables =
                 GetCommands(commandLines)
@@ -127,12 +127,12 @@ namespace Reusable.Commander
             await ExecuteAsync(commandLines, context, cancellationToken);
         }
 
-        public async Task ExecuteAsync<TBag>(Identifier identifier, TBag parameter, CancellationToken cancellationToken = default) where TBag : ICommandBag, new()
-        {
-            if (identifier == null) throw new ArgumentNullException(nameof(identifier));
-
-            await GetCommand(identifier).ExecuteAsync(parameter, default, cancellationToken);
-        }
+//        public async Task ExecuteAsync<TBag>(Identifier identifier, TBag parameter, CancellationToken cancellationToken = default) where TBag : ICommandBag, new()
+//        {
+//            if (identifier == null) throw new ArgumentNullException(nameof(identifier));
+//
+//            await GetCommand(identifier).ExecuteAsync(parameter, default, cancellationToken);
+//        }
 
         private async Task ExecuteAsync<TContext>(Executable executable, TContext context, CancellationTokenSource cancellationTokenSource)
         {

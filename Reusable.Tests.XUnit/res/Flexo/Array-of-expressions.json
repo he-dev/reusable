@@ -1,31 +1,37 @@
 [
-    {
-        "$t": "Any",
-        "Predicates": [
-            {
-                "$t": "True",
-            }
-        ]
-    },
-    {
-        "$t": "All",
-        "Predicates": [
-            {
-                "$t": "False",
-            }
-        ]
-    },
-    {
-        "$t": "Sum",
-        "Expressions": [
-            {
-                "$t": "Constant<double>",
-                "Value": 1
-            },
-            {
-                "$t": "Constant<double>",
-                "Value": 2
-            }
-        ]
+  {
+    "$t": "Any",
+    "Predicates": [
+      {
+        "$t": "True"
+      }
+    ]
+  },
+  {
+    "$t": "All",
+    "Predicates": [
+      {
+        "$t": "False"
+      }
+    ]
+  },
+  {
+    "$t": "Sum",
+    "Expressions": [
+      {
+        "$t": "Constant<double>",
+        "Value": 1
+      },
+      {
+        "$t": "Constant<double>",
+        "Value": 2
+      }
+    ]
+  },
+  {
+    "$t": "BooleanToDouble",
+    "Expression": {
+      "$t": "True"
     }
+  }
 ]

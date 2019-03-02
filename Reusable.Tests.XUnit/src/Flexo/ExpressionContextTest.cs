@@ -15,7 +15,7 @@ namespace Reusable.Tests.Flexo
 
             var context = ExpressionContext.Empty.Set(Item.For<MyExpression>(), e => e.Greeting, "Hallo!");
             
-            Helpers.Equal(Constant.Create("Expected", "Hallo!"), expression, context);
+            ExpressionAssert.Equal(Constant.Create("Expected", "Hallo!"), expression, context);
         }
         
         [Fact]

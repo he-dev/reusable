@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace Reusable.Flexo
 {
@@ -10,11 +12,9 @@ namespace Reusable.Flexo
     /// </summary>
     public class Block : Expression
     {
-        public Block(string name) : base(name)
-        { }
+        public Block(string name) : base(name) { }
 
-        public Block() : this(nameof(Item))
-        { }
+        public Block() : this(nameof(Item)) { }
 
         public IEnumerable<IExpression> Expressions { get; set; }
 
@@ -46,4 +46,38 @@ namespace Reusable.Flexo
         //     }
         // }
     }
+
+//    public class FirstOrDefault : Expression
+//    {
+//        [JsonConstructor]
+//        public FirstOrDefault() : base(nameof(FirstOrDefault)) { }
+//
+//        public FirstOrDefault(string name, IExpressionContext context) : base(name, context) { }
+//
+//        public IExpression Predicate { get; set; }
+//
+//        public IEnumerable<IDictionary<string, IExpression>> Lookup { get; set; }
+//
+//        public override IExpression Invoke(IExpressionContext context)
+//        {
+//            foreach (var item in Lookup)
+//            {
+//                //if(Predicate)
+//            }
+//
+//            return Constant.Null;
+//        }
+//    }
+//
+//    public class Ref : Expression
+//    {
+//        public Ref(string name) : base(name) { }
+//
+//        public Ref(string name, IExpressionContext context) : base(name, context) { }
+//        
+//        public override IExpression Invoke(IExpressionContext context)
+//        {
+//            throw new NotImplementedException();
+//        }
+//    }
 }

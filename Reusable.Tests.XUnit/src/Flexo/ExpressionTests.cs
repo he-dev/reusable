@@ -6,7 +6,7 @@ using Xunit;
 // ReSharper disable once CheckNamespace
 namespace Reusable.Tests.Flexo
 {
-    using static Helpers;
+    using static ExpressionAssert;
 
     public class ExpressionTest
     {

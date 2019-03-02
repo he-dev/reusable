@@ -6,7 +6,7 @@ using Reusable.Flexo;
 // ReSharper disable once CheckNamespace
 namespace Reusable.Tests.Flexo
 {
-    internal static class Helpers
+    internal static class ExpressionAssert
     {
         public static void Equal<TValue, TExpression>(TValue expectedValue, TExpression expression, IExpressionContext context = null) where TExpression : IExpression
         {

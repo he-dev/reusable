@@ -26,10 +26,12 @@ namespace Reusable.Tests.Flexo
             {
                 var expressions = await Serializer.DeserializeExpressionsAsync(memoryStream.Rewind());
 
-                Equal(3, expressions.Count);
-                Equal(Constant.Create(true), expressions[0].Invoke(new ExpressionContext()));
-                Equal(Constant.Create(false), expressions[1].Invoke(new ExpressionContext()));
-                Equal(Constant.Create(3.0), expressions[2].Invoke(new ExpressionContext()));
+                Equal(4, expressions.Count);
+                
+                ExpressionAssert.Equal(Constant.True, expressions.OfType<Any>().Single());
+                ExpressionAssert.Equal(Constant.False, expressions.OfType<All>().Single());
+                ExpressionAssert.Equal(Constant.Create(3.0), expressions.OfType<Sum>().Single());
+                ExpressionAssert.Equal(Constant.One, expressions.OfType<BooleanToDouble>().Single());
             }
         }
 
@@ -42,7 +44,7 @@ namespace Reusable.Tests.Flexo
                 var expression = await Serializer.DeserializeExpressionAsync(jsonStream.Rewind());
                 NotNull(expression);
             }
-        }
+        }                
     }
 
     internal class MyTest

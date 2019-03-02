@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Newtonsoft.Json;
@@ -13,7 +14,7 @@ namespace Reusable.Flexo
 
         protected Map(string name) : base(name) { }
 
-        public IImmutableList<Mapping<TFrom, TTo>> Mappings { get; set; }
+        public IEnumerable<Mapping<TFrom, TTo>> Mappings { get; set; }
 
         [JsonRequired]
         public IExpression Expression { get; set; }
@@ -24,10 +25,10 @@ namespace Reusable.Flexo
             if (result is Constant<TFrom> constant)
             {
                 var match =
-                    Mappings.FirstOrDefault(mapping => mapping.FromValue.Equals(constant.Value))
+                    Mappings.FirstOrDefault(mapping => mapping.From.Equals(constant.Value))
                     ?? throw DynamicException.Factory.CreateDynamicException($"MappingNotFound{nameof(Exception)}", $"Could not find mapping for '{constant.Value}'.");
 
-                return Constant.Create(Name, match.ToValue);
+                return Constant.Create(Name, match.To);
             }
 
             throw new InvalidExpressionException(typeof(Constant), result.GetType());
@@ -36,9 +37,9 @@ namespace Reusable.Flexo
 
     public class Mapping<TFrom, TTo>
     {
-        public TFrom FromValue { get; set; }
+        public TFrom From { get; set; }
 
-        public TTo ToValue { get; set; }
+        public TTo To { get; set; }
     }
 
     /// <summary>
@@ -50,8 +51,8 @@ namespace Reusable.Flexo
         {
             Mappings = ImmutableList.Create
             (
-                new Mapping<bool, double> { FromValue = true, ToValue = 1.0 },
-                new Mapping<bool, double> { FromValue = false, ToValue = 0.0 }
+                new Mapping<bool, double> { From = true, To = 1.0 },
+                new Mapping<bool, double> { From = false, To = 0.0 }
             );
         }
     }
