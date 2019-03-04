@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using Reusable.Collections;
 
 namespace Reusable.Flexo
 {
@@ -45,6 +47,7 @@ namespace Reusable.Flexo
         public abstract IExpression Invoke(IExpressionContext context);
     }
 
+    [PublicAPI]
     public abstract class PredicateExpression : Expression
     {
         protected PredicateExpression(string name) : base(name) { }
@@ -60,6 +63,7 @@ namespace Reusable.Flexo
         protected abstract InvokeResult<bool> Calculate(IExpressionContext context);
     }
 
+    [PublicAPI]
     public abstract class AggregateExpression : Expression
     {
         private readonly Func<IEnumerable<double>, double> _aggregate;
@@ -75,6 +79,7 @@ namespace Reusable.Flexo
         }
     }
 
+    [PublicAPI]
     public abstract class ComparerExpression : Expression
     {
         private readonly Func<int, bool> _predicate;
@@ -89,34 +94,41 @@ namespace Reusable.Flexo
 
         public override IExpression Invoke(IExpressionContext context)
         {
-            var result1 = Left.InvokeWithValidation(context);
-            var result2 = Right.InvokeWithValidation(context);
+            var x = Left.Invoke(context);
+            var y = Right.Invoke(context);
 
-            // optimizations
+            var result = default(int);
 
-            if
-            (
-                result1 is Constant<double> d1 &&
-                result2 is Constant<double> d2
-            )
+            var compared =
+                TryCompare<int>(x, y, out result) ||
+                TryCompare<float>(x, y, out result) ||
+                TryCompare<double>(x, y, out result) ||
+                TryCompare<string>(x, y, out result) ||
+                TryCompare<decimal>(x, y, out result) ||
+                TryCompare<DateTime>(x, y, out result) ||
+                TryCompare<TimeSpan>(x, y, out result) ||
+                TryCompare<object>(x, y, out result);
+            
+            if (compared)
             {
-                return Constant.Create(Name, _predicate(d1.Value.CompareTo(d2.Value)));
+                return Constant.Create(Name, _predicate(result));
             }
 
-            if
-            (
-                result1 is Constant<int> i1 &&
-                result2 is Constant<int> i2
-            )
+            throw new InvalidOperationException($"Expressions '{x.Name}' & '{y.Name}' are not comparable.");
+        }
+
+        private static bool TryCompare<T>(IExpression x, IExpression y, out int result)
+        {
+            if (x is Constant<T> && y is Constant<T>)
             {
-                return Constant.Create(Name, _predicate(i1.Value.CompareTo(i2.Value)));
+                result = ComparerFactory<IExpression>.Create(c => c.ValueOrDefault<T>()).Compare(x, y);
+                return true;
             }
-
-            // fallback to weak comparer
-            var x = (result1 as IConstant)?.Value as IComparable ?? throw new InvalidOperationException($"{nameof(Left)} must return an {nameof(IConstant)} expression with an {nameof(IComparable)} value.");
-            var y = (result2 as IConstant)?.Value as IComparable ?? throw new InvalidOperationException($"{nameof(Right)} must return an {nameof(IConstant)} expression with an {nameof(IComparable)} value.");
-
-            return Constant.Create(Name, _predicate(x.CompareTo(y)));
+            else
+            {
+                result = default;
+                return false;
+            }
         }
     }
 

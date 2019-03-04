@@ -11,11 +11,11 @@ namespace Reusable.OmniLog.Expressions
 {
     public static class ExpressionContextExtensions
     {
-        public static Log Log(this IExpressionContext context) => context.Item<Log>();
+        public static Log Log(this IExpressionContext context) => context.GetByCallerName<Log>();
 
         public static TExpressionContext Log<TExpressionContext>(this TExpressionContext context, Log log) where TExpressionContext : IExpressionContext
         {
-            return context.Item(log);
+            return context.SetByCallerName(log);
         }
     }
 

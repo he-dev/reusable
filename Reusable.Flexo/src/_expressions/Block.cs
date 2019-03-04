@@ -3,19 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace Reusable.Flexo
 {
     /// <summary>
-    /// Wraps expression-context.
+    /// Invokes each expression and flows the context from one to the other.
     /// </summary>
+    [UsedImplicitly]
+    [PublicAPI]
     public class Block : Expression
     {
         public Block(string name) : base(name) { }
 
         public Block() : this(nameof(Item)) { }
 
+        [JsonRequired]
         public IEnumerable<IExpression> Expressions { get; set; }
 
         public override IExpression Invoke(IExpressionContext context)

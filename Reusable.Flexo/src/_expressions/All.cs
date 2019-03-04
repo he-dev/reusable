@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace Reusable.Flexo
 {
+    [PublicAPI]
     public class All : PredicateExpression
     {
         public All() : base(nameof(All)) { }
