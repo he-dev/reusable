@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Newtonsoft.Json.Serialization;
 using Reusable.Flexo;
 using Xunit;
@@ -20,10 +21,44 @@ namespace Reusable.Tests.Flexo
         public void All_ReturnsFalseWhenAllFalse() => Equal(false, new All { Predicates = Constant.CreateMany(false, false, false) });
 
         [Fact]
+        public void All_flows_all_contexts()
+        {
+            var actual = new All
+            {
+                Predicates = new[]
+                {
+                    LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"] + 1))),
+                    LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"] + 1))),
+                    LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"] + 1)))
+                }
+            }.Invoke(ExpressionContext.Empty.SetItem("x", 1));
+
+            Equal(true, actual, ExpressionContext.Empty);
+            Assert.Equal(4, actual.Context["x"]);
+        }
+
+        [Fact]
         public void Any_ReturnsTrueWhenSomeTrue() => Equal(true, new Any { Predicates = Constant.CreateMany(false, false, true) });
 
         [Fact]
         public void Any_ReturnsFalseWhenAllFalse() => Equal(false, new Any { Predicates = Constant.CreateMany(false, false, false) });
+
+        [Fact]
+        public void Any_flows_True_context()
+        {
+            var actual = new Any
+            {
+                Predicates = new[]
+                {
+                    LambdaExpression.Predicate(context => (false, context.SetItem("x", (int)context["x"] + 2))),
+                    LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"] + 3))),
+                    LambdaExpression.Predicate(context => (false, context.SetItem("x", (int)context["x"] + 4)))
+                }
+            }.Invoke(ExpressionContext.Empty.SetItem("x", 1));
+
+            Equal(true, actual, ExpressionContext.Empty);
+            Assert.Equal(4, actual.Context["x"]);
+        }
 
         [Fact]
         public void IIf_ReturnsTrueWhenTrue() => Equal("foo", new IIf
@@ -46,20 +81,48 @@ namespace Reusable.Tests.Flexo
         {
             Assert.Throws<InvalidOperationException>(() => new IIf { Predicate = Constant.Create(false) }.Invoke(ExpressionContext.Empty));
         }
-        
+
         [Fact]
         public void IIf_returns_null_constant_when_True_not_specified() => Equal(Constant.Null, new IIf
         {
             Predicate = Constant.True,
             False = Constant.Zero
         });
-        
+
         [Fact]
         public void IIf_returns_null_constant_when_False_not_specified() => Equal(Constant.Null, new IIf
         {
             Predicate = Constant.False,
             True = Constant.One,
         });
+        
+        [Fact]
+        public void IIf_flows_context_to_True_when_Predicate_True()
+        {
+            var actual = new IIf
+            {
+                Predicate = Constant.True,
+                True = LambdaExpression.Double(context => (1.0, context.SetItem("x", (int)context["x"] + 1))),
+                False = LambdaExpression.Double(context => (2.0, context.SetItem("x", (int)context["x"] + 2))),                
+            }.Invoke(ExpressionContext.Empty.SetItem("x", 1));
+
+            Equal(1.0, actual, ExpressionContext.Empty);
+            Assert.Equal(2, actual.Context["x"]);
+        }
+        
+        [Fact]
+        public void IIf_does_not_flow_context_to_False_when_Predicate_False()
+        {
+            var actual = new IIf
+            {
+                Predicate = Constant.False,
+                True = LambdaExpression.Double(context => (1.0, context.SetItem("x", (int)context["x"] + 1))),
+                False = LambdaExpression.Double(context => (2.0, context.SetItem("x", (int)context["x"] + 2))),                
+            }.Invoke(ExpressionContext.Empty.SetItem("x", 1));
+
+            Equal(2.0, actual, ExpressionContext.Empty);
+            Assert.Equal(3, actual.Context["x"]);
+        }
 
         [Fact]
         public void Max_ReturnsMax() => Equal(3.0, new Max { Expressions = Constant.CreateMany(2.0, 3.0, 1.0) });
@@ -179,5 +242,14 @@ namespace Reusable.Tests.Flexo
 
         [Fact]
         public void ToDouble_MapsFalseToZero() => Equal(0.0, new BooleanToDouble { Expression = Constant.Create(false) });
+
+        [Fact]
+        public void Constant_flows_context()
+        {
+            var c = Constant.True;
+            var actual = c.Invoke(ExpressionContext.Empty.SetItem("x", 1));
+            Assert.NotNull(actual.Context);
+            Assert.True(actual.Context.ContainsKey("x"));
+        }
     }
 }

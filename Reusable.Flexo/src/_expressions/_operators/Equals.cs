@@ -22,10 +22,10 @@ namespace Reusable.Flexo
 
             if (x is string str1 && y is string str2 && IgnoreCase)
             {
-                return InvokeResult.From(StringComparer.OrdinalIgnoreCase.Equals(str1, str2), context);
+                return (StringComparer.OrdinalIgnoreCase.Equals(str1, str2), context);
             }
 
-            return InvokeResult.From(x.Equals(y), context);
+            return (x.Equals(y), context);
         }
     }
 
@@ -57,7 +57,7 @@ namespace Reusable.Flexo
             var x = Invoke(Left, context);
             var y = Invoke(Right, context);
 
-            return InvokeResult.From(x?.Equals(y) == true, context);
+            return (x?.Equals(y) == true, context);
         }
     }
 
@@ -85,7 +85,7 @@ namespace Reusable.Flexo
                 y = y?.Trim(Trim);
             }
 
-            return InvokeResult.From(comparer.Equals(x, y), context);
+            return (comparer.Equals(x, y), context);
         }
     }
 }

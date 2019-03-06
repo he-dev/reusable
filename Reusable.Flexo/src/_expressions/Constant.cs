@@ -36,7 +36,7 @@ namespace Reusable.Flexo
         {
             using (context.Scope(this))
             {
-                return this;
+                return Constant.FromResult<TValue>(Name, (Value, context));
             }
         }
 
@@ -65,21 +65,33 @@ namespace Reusable.Flexo
         private static volatile int _counter;
 
         [NotNull]
-        public static Constant<TValue> Create<TValue>(string name, TValue value) => new Constant<TValue>(name, value);
+        public static Constant<TValue> FromValue<TValue>(string name, TValue value)
+        {
+            return new Constant<TValue>(name, value);
+        }
 
-        public static Constant<TValue> Create<TValue>(string name, InvokeResult<TValue> result)
+        public static Constant<TValue> FromResult<TValue>(string name, InvokeResult<TValue> result)
         {
             return new Constant<TValue>(name, result.Value, result.Context);
         }
 
         [NotNull]
-        public static Constant<TValue> Create<TValue>(TValue value) => new Constant<TValue>($"{typeof(Constant<TValue>).ToPrettyString()}{_counter++}", value);
+        public static Constant<TValue> Create<TValue>(TValue value)
+        {
+            return new Constant<TValue>($"{typeof(Constant<TValue>).ToPrettyString()}{_counter++}", value);
+        }
 
         [NotNull, ItemNotNull]
-        public static IList<Constant<TValue>> CreateMany<TValue>(string name, params TValue[] values) => values.Select(value => Create(name, value)).ToList();
+        public static IList<Constant<TValue>> CreateMany<TValue>(string name, params TValue[] values)
+        {
+            return values.Select(value => FromValue(name, value)).ToList();
+        }
 
         [NotNull, ItemNotNull]
-        public static IEnumerable<Constant<TValue>> CreateMany<TValue>(params TValue[] values) => values.Select(Create);
+        public static IEnumerable<Constant<TValue>> CreateMany<TValue>(params TValue[] values)
+        {
+            return values.Select(Create);
+        }
 
         #region Predefined
 
@@ -91,9 +103,9 @@ namespace Reusable.Flexo
 
         [NotNull] public static readonly IExpression False = new False(nameof(False));
 
-        [NotNull] public static readonly IExpression EmptyString = Create(nameof(EmptyString), string.Empty);
+        [NotNull] public static readonly IExpression EmptyString = FromValue(nameof(EmptyString), string.Empty);
 
-        [NotNull] public static readonly IExpression Null = Create(nameof(Null), default(object));
+        [NotNull] public static readonly IExpression Null = FromValue(nameof(Null), default(object));
 
         #endregion
     }

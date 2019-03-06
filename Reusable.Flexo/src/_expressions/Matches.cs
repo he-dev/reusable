@@ -22,7 +22,7 @@ namespace Reusable.Flexo
             var x = Expression.InvokeWithValidation(context).Value<string>();            
             var options = IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None;
             var result = !(x is null) && Regex.IsMatch(x, Pattern, options);
-            return InvokeResult.From(result, context);
+            return (result, context);
         }
     }
 }

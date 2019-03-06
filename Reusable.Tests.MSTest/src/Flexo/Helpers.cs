@@ -10,7 +10,7 @@ namespace Reusable.Tests.Flexo
         public static void ExpressionsEqual<TValue, TExpression>(this Assert _, TValue expectedValue, TExpression expression, IExpressionContext context = null) where TExpression : IExpression
         {
             context = context ?? new ExpressionContext();
-            var expected = Constant.Create(expression.Name, expectedValue);
+            var expected = Constant.FromValue(expression.Name, expectedValue);
             var actual = expression.Invoke(context);
 
             if (!expected.Equals(actual))

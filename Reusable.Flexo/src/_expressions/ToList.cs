@@ -15,7 +15,7 @@ namespace Reusable.Flexo
 
         public override IExpression Invoke(IExpressionContext context)
         {
-            return Constant.Create(nameof(ToList), Expressions.InvokeWithValidation(context).ToList());
+            return Constant.FromValue(nameof(ToList), Expressions.InvokeWithValidation(context).ToList());
         }
     }
 }

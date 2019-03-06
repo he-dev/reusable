@@ -22,11 +22,11 @@ namespace Reusable.Flexo
                 last = predicate.Invoke(last?.Context ?? context);
                 if (!last.Value<bool>())
                 {
-                    return InvokeResult.From(false, context);
+                    return (false, context);
                 }
             }
 
-            return InvokeResult.From(true, last?.Context ?? context);
+            return (true, last?.Context ?? context);
         }
     }
 }

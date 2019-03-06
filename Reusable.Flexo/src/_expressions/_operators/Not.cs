@@ -8,7 +8,7 @@
 
         protected override InvokeResult<bool> Calculate(IExpressionContext context)
         {
-            return InvokeResult.From(!Expression.InvokeWithValidation(context).Value<bool>(), context);
+            return (!Expression.InvokeWithValidation(context).Value<bool>(), context);
         }
     }
 }

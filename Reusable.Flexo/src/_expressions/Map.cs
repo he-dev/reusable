@@ -28,7 +28,7 @@ namespace Reusable.Flexo
                     Mappings.FirstOrDefault(mapping => mapping.From.Equals(constant.Value))
                     ?? throw DynamicException.Factory.CreateDynamicException($"MappingNotFound{nameof(Exception)}", $"Could not find mapping for '{constant.Value}'.");
 
-                return Constant.Create(Name, match.To);
+                return Constant.FromValue(Name, match.To);
             }
 
             throw new InvalidExpressionException(typeof(Constant), result.GetType());

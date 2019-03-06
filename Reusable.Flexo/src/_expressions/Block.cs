@@ -32,7 +32,7 @@ namespace Reusable.Flexo
                 results.Add(expression.Invoke(results.LastOrDefault()?.Context ?? context));
             }
 
-            return Constant.Create(nameof(Block), InvokeResult.From(results, results.LastOrDefault()?.Context ?? context));
+            return Constant.FromValue(nameof(Block), (results, results.LastOrDefault()?.Context ?? context));
         }
 
         // private class Scope : Expression

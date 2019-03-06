@@ -15,7 +15,7 @@ namespace Reusable.Tests.Flexo
 
             var context = ExpressionContext.Empty.Set(Item.For<MyExpression>(), e => e.Greeting, "Hallo!");
             
-            ExpressionAssert.Equal(Constant.Create("Expected", "Hallo!"), expression, context);
+            ExpressionAssert.Equal(Constant.FromValue("Expected", "Hallo!"), expression, context);
         }
         
         [Fact]
@@ -37,7 +37,7 @@ namespace Reusable.Tests.Flexo
             public override IExpression Invoke(IExpressionContext context)
             {
                 var name = context.Get(Item.For<MyExpression>(), e => e.Greeting);
-                return Constant.Create("Actual", name);
+                return Constant.FromValue("Actual", name);
             }
         }
     }

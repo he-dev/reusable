@@ -13,17 +13,16 @@ namespace Reusable.Flexo
 
         protected override InvokeResult<bool> Calculate(IExpressionContext context)
         {
-            var last = default(IExpression);
             foreach (var predicate in Predicates.Enabled())
             {
-                last = predicate.Invoke(last?.Context ?? context);
-                if (last.Value<bool>())
+                var result = predicate.Invoke(context);
+                if (result.Value<bool>())
                 {
-                    return InvokeResult.From(true, last.Context);
+                    return (true, result.Context);
                 }
             }
 
-            return InvokeResult.From(false, context);
+            return (false, context);
         }
     }
 }

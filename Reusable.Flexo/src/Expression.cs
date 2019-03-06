@@ -56,7 +56,7 @@ namespace Reusable.Flexo
         {
             using (context.Scope(this))
             {
-                return Constant.Create(Name, Calculate(context));
+                return Constant.FromResult(Name, Calculate(context));
             }
         }
 
@@ -75,7 +75,7 @@ namespace Reusable.Flexo
 
         public override IExpression Invoke(IExpressionContext context)
         {
-            return Constant.Create(Name, _aggregate(Expressions.InvokeWithValidation(context).Values<double>()));
+            return Constant.FromValue(Name, _aggregate(Expressions.InvokeWithValidation(context).Values<double>()));
         }
     }
 
@@ -111,7 +111,7 @@ namespace Reusable.Flexo
             
             if (compared)
             {
-                return Constant.Create(Name, _predicate(result));
+                return Constant.FromValue(Name, _predicate(result));
             }
 
             throw new InvalidOperationException($"Expressions '{x.Name}' & '{y.Name}' are not comparable.");
@@ -129,6 +129,31 @@ namespace Reusable.Flexo
                 result = default;
                 return false;
             }
+        }
+    }
+    
+    public class LambdaExpression : Expression
+    {
+        private readonly Func<IExpressionContext, IExpression> _invoke;
+        
+        public LambdaExpression(string name, Func<IExpressionContext, IExpression> invoke) : base(name)
+        {
+            _invoke = invoke;
+        }       
+        
+        public override IExpression Invoke(IExpressionContext context)
+        {
+            return _invoke(context);
+        }
+
+        public static LambdaExpression Predicate(Func<IExpressionContext, InvokeResult<bool>> predicate)
+        {
+            return new LambdaExpression(nameof(Predicate), context => Constant.FromResult(nameof(Predicate), predicate(context)));
+        }
+        
+        public static LambdaExpression Double(Func<IExpressionContext, InvokeResult<double>> calculate)
+        {
+            return new LambdaExpression(nameof(Double), context => Constant.FromResult(nameof(Double), calculate(context)));
         }
     }
 
@@ -150,10 +175,12 @@ namespace Reusable.Flexo
         public T Value { get; }
 
         public IExpressionContext Context { get; }
+        
+        public static implicit operator InvokeResult<T>((T Value, IExpressionContext Context) t) => new InvokeResult<T>(t.Value, t.Context);
     }
 
     public static class InvokeResult
-    {
+    {        
         public static InvokeResult<TValue> From<TValue>(TValue value, IExpressionContext context)
         {
             return new InvokeResult<TValue>(value, context);
