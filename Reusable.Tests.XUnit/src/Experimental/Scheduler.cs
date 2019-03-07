@@ -65,16 +65,13 @@ namespace Reusable.Tests.XUnit.Experimental
             //
             //	}, maxDegreeOfParallelism: Scheduler.UnlimitedJobParallelism);
 
-            var j3 = scheduler.Schedule(new Job
+            var j3 = scheduler.Schedule(new Job("Single-job", new CronTrigger("0/3 * * * * * *"), async token =>
             {
-                Name = "Single-job",
-                Trigger = new CronTrigger { Schedule = "0/3 * * * * * *" },
-                ExecuteAsync = async token =>
-                {
-                    //Log(3, DateTime.Now);
-                    await Task.Delay(4000);
-                    Console.WriteLine("Job-3: Finished!");
-                },
+                //Log(3, DateTime.Now);
+                await Task.Delay(4000);
+                Console.WriteLine("Job-3: Finished!");
+            })
+            {
                 MaxDegreeOfParallelism = 1
             });
 
@@ -129,8 +126,10 @@ namespace Reusable.Tests.XUnit.Experimental
         {
             _scheduler =
                 generator
+                #if DEBUG
                     .Do(timestamp => Console.WriteLine($" Tick: {timestamp:yyyy-MM-dd HH:mm:ss.fff}"))
                     .Finally(() => Console.WriteLine("Disconnected!"))
+                #endif
                     .Publish();
             //.RefCount(); // Not using this because of missing handling of restarts.
             _disconnect = _scheduler.Connect();
@@ -176,10 +175,8 @@ namespace Reusable.Tests.XUnit.Experimental
     {
         public static IDisposable Schedule(this Scheduler scheduler, string cronExpression, Func<CancellationToken, Task> execute, int maxDegreeOfParallelism = 1, CancellationToken cancellationToken = default)
         {
-            return scheduler.Schedule(new Job
+            return scheduler.Schedule(new Job("Job", new CronTrigger(cronExpression), execute)
             {
-                Trigger = new CronTrigger { Schedule = cronExpression },
-                ExecuteAsync = execute,
                 MaxDegreeOfParallelism = maxDegreeOfParallelism
             }, cancellationToken);
         }
@@ -193,7 +190,7 @@ namespace Reusable.Tests.XUnit.Experimental
     public class CronTrigger : Trigger
     {
         private readonly CronExpression _cronExpression;
-        
+
         public CronTrigger(string cronExpression)
         {
             _cronExpression = CronExpression.Parse(cronExpression);
@@ -208,12 +205,12 @@ namespace Reusable.Tests.XUnit.Experimental
     }
 
     public class CountTrigger : Trigger
-    {        
+    {
         public CountTrigger(IInfiniteCounter counter)
         {
             Counter = counter;
         }
-        
+
         public IInfiniteCounter Counter { get; }
 
         public override bool Matches(DateTime tick)
@@ -307,11 +304,21 @@ namespace Reusable.Tests.XUnit.Experimental
 
         public const int UnlimitedParallelism = -1;
 
-        public string Name { get; set; }
+        public Job()
+        { }
 
-        public Trigger Trigger { get; set; }
+        public Job(string name, Trigger trigger, Func<CancellationToken, Task> executeAsync)
+        {
+            Name = name;
+            Trigger = trigger;
+            ExecuteAsync = executeAsync;
+        }
 
-        public Func<CancellationToken, Task> ExecuteAsync { get; set; }
+        public string Name { get; }
+
+        public Trigger Trigger { get; }
+
+        public Func<CancellationToken, Task> ExecuteAsync { get; }
 
         //public Action<Job> Misfire { get; set; }
 
