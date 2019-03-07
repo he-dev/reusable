@@ -201,6 +201,21 @@ namespace Reusable.Reflection
 
             return !(valueType is null);
         }
+        
+        /// <summary>
+        /// Gets properties from all types in the hierarchy (also interfaces) so they might occur multiple times.
+        /// </summary>
+        /// <exception cref="ArgumentNullException"></exception>
+        [NotNull, ItemNotNull]
+        public static IEnumerable<PropertyInfo> GetPropertiesMany([NotNull] this Type type, BindingFlags bindingFlags)
+        {
+            if (type == null) throw new ArgumentNullException(nameof(type));
+            
+            return
+                from t in type.GetInterfaces().Prepend(type)
+                from p in t.GetProperties(bindingFlags)
+                select p;
+        }
     }
 
     public static class Reflector<T>

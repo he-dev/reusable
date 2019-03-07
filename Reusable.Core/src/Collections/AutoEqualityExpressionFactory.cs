@@ -158,16 +158,16 @@ namespace Reusable.Collections
         private static Expression CreateIfThenExpression<TProperty, TResult>(AutoEqualityPropertyContext context, LabelTarget labelTarget, Func<TProperty, TProperty, bool> referenceEquals, TResult result)
         {
             // Let the compiler create this expression for us.
-            var referenceEquasExpression = (Expression<Func<TProperty, TProperty, bool>>)((left, right) => referenceEquals(left, right));
+            var referenceEqualsExpression = (Expression<Func<TProperty, TProperty, bool>>)((left, right) => referenceEquals(left, right));
 
-            var referenceEquasInvokeExpression = Expression.Invoke(
-                referenceEquasExpression,
+            var referenceEqualsInvokeExpression = Expression.Invoke(
+                referenceEqualsExpression,
                 Expression.Property(context.LeftParameter, context.Property),
                 Expression.Property(context.RightParameter, context.Property)
             );
 
             return Expression.IfThen(
-                referenceEquasInvokeExpression,
+                referenceEqualsInvokeExpression,
                 Expression.Return(labelTarget, Expression.Constant(result))
             );
         }
@@ -175,16 +175,16 @@ namespace Reusable.Collections
         private static Expression CreateIfThenExpression<TProperty, TResult>(LabelTarget labelTarget, Func<TProperty, TProperty, bool> referenceEquals, Expression objA, Expression objB, TResult result)
         {
             // Let the compiler create this expression for us.
-            var referenceEquasExpression = (Expression<Func<TProperty, TProperty, bool>>)((left, right) => referenceEquals(left, right));
+            var referenceEqualsExpression = (Expression<Func<TProperty, TProperty, bool>>)((left, right) => referenceEquals(left, right));
 
-            var referenceEquasInvokeExpression = Expression.Invoke(
-                referenceEquasExpression,
+            var referenceEqualsInvokeExpression = Expression.Invoke(
+                referenceEqualsExpression,
                 objA,
                 objB
             );
 
             return Expression.IfThen(
-                referenceEquasInvokeExpression,
+                referenceEqualsInvokeExpression,
                 Expression.Return(labelTarget, Expression.Constant(result))
             );
         }

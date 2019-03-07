@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Custom;
 using System.Linq.Expressions;
 using System.Reflection;
+using Reusable.Exceptionizer;
+using Reusable.Extensions;
+using Reusable.Reflection;
 
 namespace Reusable.Collections
 {
     /// <summary>
-    /// This class generates the two methos of the 'IEquatable' interface. 
+    /// This class generates the two methods of the 'IEquatable' interface. 
     /// It uses the 'EqualityPropertyAttribute' to find the properties that are used to generate both methods.
     /// </summary>
     /// <typeparam name="T"></typeparam>
@@ -34,10 +38,17 @@ namespace Reusable.Collections
         private static IEqualityComparer<T> Create()
         {
             var equalityProperties =
-                from property in typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            (
+                from property in typeof(T).GetPropertiesMany(BindingFlags.Public | BindingFlags.Instance)
                 where property.IsDefined(typeof(AutoEqualityPropertyAttribute))
                 let attribute = property.GetCustomAttribute<AutoEqualityPropertyAttribute>()
-                select (property, attribute);
+                select (property, attribute)
+            ).ToList();
+
+            if (equalityProperties.Empty())
+            {
+                throw DynamicException.Create("AutoEqualityPropertyNotFound", $"Could not find any '{nameof(AutoEqualityPropertyAttribute)}' on '{typeof(T).ToPrettyString()}'");
+            }
 
             return Create(equalityProperties);
         }
@@ -97,6 +108,6 @@ namespace Reusable.Collections
         public int GetHashCode(T obj)
         {
             return _getHashCode(obj);
-        }
+        }               
     }
 }
