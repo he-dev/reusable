@@ -4,11 +4,11 @@
     {
         public Not() : base(nameof(Not)) { }
 
-        public IExpression Expression { get; set; }
+        public IExpression Predicate { get; set; }
 
         protected override InvokeResult<bool> Calculate(IExpressionContext context)
         {
-            return (!Expression.InvokeWithValidation(context).Value<bool>(), context);
+            return (!Predicate.InvokeWithValidation(context).Value<bool>(), context);
         }
     }
 }

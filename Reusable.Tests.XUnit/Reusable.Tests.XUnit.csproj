@@ -46,6 +46,7 @@
     <ProjectReference Include="..\Reusable.Utilities.XUnit\Reusable.Utilities.XUnit.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Configuration" />
   </ItemGroup>
 </Project>
