@@ -173,7 +173,14 @@ namespace Reusable.Tests.XUnit.Experimental
 
     public static class SchedulerExtensions
     {
-        public static IDisposable Schedule(this Scheduler scheduler, string cronExpression, Func<CancellationToken, Task> execute, int maxDegreeOfParallelism = 1, CancellationToken cancellationToken = default)
+        public static IDisposable Schedule
+        (
+            this Scheduler scheduler,
+            string cronExpression,
+            Func<CancellationToken, Task> execute,
+            int maxDegreeOfParallelism = 1,
+            CancellationToken cancellationToken = default
+        )
         {
             return scheduler.Schedule(new Job("Job", new CronTrigger(cronExpression), execute)
             {
