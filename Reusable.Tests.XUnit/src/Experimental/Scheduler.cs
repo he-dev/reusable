@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Custom;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text.RegularExpressions;
@@ -122,8 +123,10 @@ namespace Reusable.Tests.XUnit.Experimental
             var unschedule =
                 _scheduler
                     // .ToList the results so that all triggers have the chance to evaluate the tick.
-                    .Where(tick => job.Triggers.Select(t => t.Matches(tick)).ToList().Any(x => x))
-                    .Subscribe(timestamp => job.Execute(cancellationToken));
+                    .Select(tick => job.Triggers.Where(t => t.Matches(tick)).ToList())
+                    //.Where(tick => job.Triggers.Where(t => t.Matches(tick)).ToList().Any())
+                    .Where(triggers => triggers.Any())
+                    .Subscribe(_ => job.Execute(cancellationToken));
 
             return Disposable.Create(() =>
             {
@@ -141,11 +144,34 @@ namespace Reusable.Tests.XUnit.Experimental
 
     public static class SchedulerFactory
     {
-        public static Scheduler CreateUtc()
+        [NotNull]
+        public static Scheduler CreateScheduler([NotNull] IDateTime dateTime)
         {
-            var dateTime = new DateTimeUtc();
-            var generator = Tick.EverySecond(dateTime).FixMissingSeconds();
-            return new Scheduler(generator);
+            if (dateTime == null) throw new ArgumentNullException(nameof(dateTime));
+
+            var ticks = Tick.EverySecond(dateTime).TruncateMilliseconds().FixMissingSeconds();
+            return new Scheduler(ticks);
+        }
+    }
+
+    public static class SchedulerExtensions
+    {
+        public static IDisposable Schedule
+        (
+            this Scheduler scheduler,
+            string name,
+            Func<CancellationToken, Task> action,
+            Trigger trigger,
+            Action<Job> configureJob = default,
+            CancellationToken cancellationToken = default
+        )
+        {
+            var job = new Job(name, new[] { trigger }, action)
+            {
+                MaxDegreeOfParallelism = 1
+            };
+            configureJob?.Invoke(job);
+            return scheduler.Schedule(job, cancellationToken);
         }
     }
 
@@ -169,23 +195,6 @@ namespace Reusable.Tests.XUnit.Experimental
         }
     }
 
-    public static class SchedulerExtensions
-    {
-        public static IDisposable Schedule
-        (
-            this Scheduler scheduler,
-            Trigger trigger,
-            Func<CancellationToken, Task> action,
-            DegreeOfParallelism maxDegreeOfParallelism,
-            CancellationToken cancellationToken = default
-        )
-        {
-            return scheduler.Schedule(new Job("Job", new[] { trigger }, action)
-            {
-                MaxDegreeOfParallelism = maxDegreeOfParallelism
-            }, cancellationToken);
-        }
-    }
 
     // Let it be a class because it'll get more properties later.
     public abstract class Trigger
@@ -193,6 +202,8 @@ namespace Reusable.Tests.XUnit.Experimental
         public static IEnumerable<Trigger> Empty => Enumerable.Empty<Trigger>();
 
         public abstract bool Matches(DateTime tick);
+        
+        //public bool 
     }
 
     public class CronTrigger : Trigger
@@ -214,17 +225,43 @@ namespace Reusable.Tests.XUnit.Experimental
 
     public class CountTrigger : Trigger
     {
+        private readonly int _count;
+        
+        private int _counter;
+
         public CountTrigger(int count)
         {
-            Counter = new InfiniteCounter(count);
+            _count = count;
         }
-
-        public IInfiniteCounter Counter { get; }
 
         public override bool Matches(DateTime tick)
         {
-            Counter.MoveNext();
-            return Counter.Position == InfiniteCounterPosition.Last;
+            if (_counter < _count)
+            {
+                _counter++;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+    
+    public class EveryTrigger : Trigger
+    {
+        private readonly ICounter _counter;
+
+        public EveryTrigger(int count)
+        {
+            _counter = new InfiniteCounter(count);
+        }
+
+        public int Every => _counter.Length;
+
+        public override bool Matches(DateTime tick)
+        {
+            return _counter.MoveNext() && _counter.Position == CounterPosition.Last;
         }
     }
 
@@ -279,17 +316,19 @@ namespace Reusable.Tests.XUnit.Experimental
 
         public int Count => _tasks.Count;
 
-        public void Execute(CancellationToken cancellationToken)
+        public bool Execute(CancellationToken cancellationToken)
         {
             if (CanExecute())
             {
                 var jobTask = Action(cancellationToken);
                 _tasks.Add(jobTask);
                 jobTask.ContinueWith(_ => _tasks.Remove(jobTask), cancellationToken);
+                return true;
             }
             else
             {
                 OnMisfire?.Invoke(this);
+                return false;
             }
         }
 
@@ -297,7 +336,7 @@ namespace Reusable.Tests.XUnit.Experimental
         {
             return
                 MaxDegreeOfParallelism.Equals(DegreeOfParallelism.Unlimited) ||
-                Count < MaxDegreeOfParallelism.Value;
+                Count < MaxDegreeOfParallelism;
         }
     }
 
@@ -369,7 +408,7 @@ namespace Reusable.Tests.XUnit.Experimental
             var subject = new Subject<DateTime>();
             var scheduler = new Scheduler(subject);
 
-            var unschedule1 = scheduler.Schedule(new Job("test-1", new[] { new CountTrigger(2) }, async token =>
+            var unschedule1 = scheduler.Schedule(new Job("test-1", new[] { new EveryTrigger(2),  }, async token =>
             {
                 Interlocked.Increment(ref job1ExecuteCount);
                 await Task.Delay(TimeSpan.FromSeconds(3), token);
@@ -380,7 +419,7 @@ namespace Reusable.Tests.XUnit.Experimental
                 UnscheduleTimeout = TimeSpan.FromSeconds(4)
             });
 
-            var unschedule2 = scheduler.Schedule(new Job("test-2", new[] { new CountTrigger(3) }, async token =>
+            var unschedule2 = scheduler.Schedule(new Job("test-2", new[] { new EveryTrigger(3) }, async token =>
             {
                 Interlocked.Increment(ref job2ExecuteCount);
                 await Task.Delay(TimeSpan.FromSeconds(3), token);

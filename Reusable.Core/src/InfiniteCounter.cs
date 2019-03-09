@@ -1,15 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
+using Reusable.Data;
 
 namespace Reusable
 {
-    public interface IInfiniteCounter : IEnumerator<IInfiniteCounter>
+    public interface ICounter : IEnumerator<ICounter>
     {
         /// <summary>
         /// Gets the range of the counter.
         /// </summary>
         Range<int> Range { get; }
-        
+
         /// <summary>
         /// Gets the total length of the counter.
         /// </summary>
@@ -23,20 +24,20 @@ namespace Reusable
         /// <summary>
         /// Gets the relative position of the counter between min and max.
         /// </summary>
-        InfiniteCounterPosition Position { get; }
+        CounterPosition Position { get; }
     }
 
-    public class InfiniteCounter : IInfiniteCounter
+    public class Counter : ICounter
     {
         private int _value;
 
-        public InfiniteCounter(Range<int> range)
+        public Counter(Range<int> range)
         {
             Range = range;
             Reset();
         }
 
-        public InfiniteCounter(int max) : this(new Range<int>(0, max)) { }
+        public Counter(int max) : this(new Range<int>(0, max)) { }
 
         public Range<int> Range { get; }
 
@@ -44,22 +45,22 @@ namespace Reusable
 
         public int Value => _value + Range.Min;
 
-        IInfiniteCounter IEnumerator<IInfiniteCounter>.Current => this;
+        ICounter IEnumerator<ICounter>.Current => this;
 
         object IEnumerator.Current => this;
 
-        public InfiniteCounterPosition Position =>
+        public CounterPosition Position =>
             _value == 0
-                ? InfiniteCounterPosition.First
+                ? CounterPosition.First
                 : _value == Length - 1
-                    ? InfiniteCounterPosition.Last
-                    : InfiniteCounterPosition.Intermediate;
+                    ? CounterPosition.Last
+                    : CounterPosition.Intermediate;
 
-        public bool MoveNext()
+        public virtual bool MoveNext()
         {
-            if (Position == InfiniteCounterPosition.Last)
+            if (Position == CounterPosition.Last)
             {
-                Reset();
+                return false;
             }
 
             _value++;
@@ -78,6 +79,25 @@ namespace Reusable
         }
     }
 
+    public class InfiniteCounter : Counter
+    {
+        public InfiniteCounter(Range<int> range) : base(range) { }
+
+        public InfiniteCounter(int max) : this(new Range<int>(0, max)) { }
+
+
+        public override bool MoveNext()
+        {
+            if (!base.MoveNext())
+            {
+                Reset();
+                base.MoveNext();
+            }
+
+            return true;
+        }
+    }
+
     public static class IndexMath
     {
         public static int Flip(this int value, int min, int max)
@@ -86,9 +106,9 @@ namespace Reusable
         }
     }
 
-    public static class InfiniteCounterExtensions
+    public static class CounterExtensions
     {
-        public static IEnumerable<IInfiniteCounter> AsEnumerable(this IEnumerator<IInfiniteCounter> counter)
+        public static IEnumerable<ICounter> AsEnumerable(this IEnumerator<ICounter> counter)
         {
             while (counter.MoveNext())
             {
@@ -96,13 +116,26 @@ namespace Reusable
             }
         }
 
-        public static int ValueAsCountdown(this IInfiniteCounter counter)
+        public static int ValueBackwards(this ICounter counter)
         {
             return counter.Value.Flip(counter.Range.Min, counter.Range.Max);
         }
+
+        public static IEnumerator<ICounter> Infinite(this ICounter counter)
+        {
+            while (true)
+            {
+                foreach (var item in counter.AsEnumerable())
+                {
+                    yield return item.Current;
+                }
+
+                counter.Reset();
+            }
+        }
     }
 
-    public enum InfiniteCounterPosition
+    public enum CounterPosition
     {
         First,
         Intermediate,
