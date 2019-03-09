@@ -100,22 +100,27 @@ namespace Reusable.Tests.XUnit.Experimental
 
     public static class ObservableExtensions
     {
-        public static IObservable<DateTime> FixMissingSeconds(this IObservable<DateTime> tick, IDateTime dateTime)
+        public static IObservable<DateTime> FixMissingSeconds(this IObservable<DateTime> ticks)
         {
-            var last = dateTime.Now().TruncateMilliseconds();
+            var last = DateTime.MinValue;
 
-            return tick.SelectMany(_ =>
+            return ticks.SelectMany(tick =>
             {
-                var now = dateTime.Now().TruncateMilliseconds();
-                var gap = (now - last).Ticks / TimeSpan.TicksPerSecond;
+                tick = tick.TruncateMilliseconds();
+
+                // We have to start somewhere so let it be one second before tick if we are currently nowhere.
+                last = last == DateTime.MinValue ? tick.AddSeconds(-1) : last;
+
+                // Calculates the gap between tick and last. In normal case it's 1.
+                var gap = (int)((tick - last).Ticks / TimeSpan.TicksPerSecond);
 
                 // If we missed one second due to time inaccuracy, 
                 // this makes sure to publish the missing second too
                 // so that all jobs at that second can also be triggered.
                 return
                     Enumerable
-                        .Range(0, (int)gap)
-                        .Select(second => last = last.AddSeconds(1));
+                        .Range(0, gap)
+                        .Select(_ => last = last.AddSeconds(1));
             });
         }
     }
@@ -166,7 +171,7 @@ namespace Reusable.Tests.XUnit.Experimental
         public static Scheduler CreateUtc()
         {
             var dateTime = new DateTimeUtc();
-            var generator = Tick.EverySecond(dateTime).FixMissingSeconds(dateTime);
+            var generator = Tick.EverySecond(dateTime).FixMissingSeconds();
             return new Scheduler(generator);
         }
     }
@@ -439,7 +444,7 @@ namespace Reusable.Tests.XUnit.Experimental
             var misfireCount = 0;
             var subject = new Subject<DateTime>();
             var scheduler = new Scheduler(subject);
-            
+
             var unschedule1 = scheduler.Schedule(new Job("test-1", new[] { new CountTrigger(2) }, async token =>
             {
                 Interlocked.Increment(ref job1ExecuteCount);
@@ -450,7 +455,7 @@ namespace Reusable.Tests.XUnit.Experimental
                 OnMisfire = _ => Interlocked.Increment(ref misfireCount),
                 UnscheduleTimeout = TimeSpan.FromSeconds(4)
             });
-            
+
             var unschedule2 = scheduler.Schedule(new Job("test-2", new[] { new CountTrigger(3) }, async token =>
             {
                 Interlocked.Increment(ref job2ExecuteCount);
@@ -483,12 +488,30 @@ namespace Reusable.Tests.XUnit.Experimental
 
             // Tick once again. Nothing should be executed anymore.
             subject.OnNext(DateTime.Now);
-            
+
             // ...this should have matched the two triggers.
             Assert.Equal(1, job1ExecuteCount);
             Assert.Equal(1, job2ExecuteCount);
 
             Assert.Equal(0, misfireCount);
+        }
+    }
+
+    public class ObservableExtensionsTest
+    {
+        [Fact]
+        public void Returns_ticks_unchanged_when_no_gap()
+        {
+            var ticks = new[] { 0, 1, 2 }.Select(s => DateTime.Parse($"2019-01-01 10:00:0{s}")).ToList();
+            Assert.Equal(ticks, ticks.ToObservable().FixMissingSeconds().ToEnumerable().ToList());
+        }
+
+        [Fact]
+        public void Fixes_tick_gap()
+        {
+            var expected = new[] { 0, 1, 2 }.Select(s => DateTime.Parse($"2019-01-01 10:00:0{s}")).ToList();
+            var missing = new[] { 0, 2 }.Select(s => DateTime.Parse($"2019-01-01 10:00:0{s}")).ToList();
+            Assert.Equal(expected.ToList(), missing.ToObservable().FixMissingSeconds().ToEnumerable().ToList());
         }
     }
 }
