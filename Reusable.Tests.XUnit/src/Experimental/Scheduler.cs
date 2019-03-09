@@ -100,19 +100,24 @@ namespace Reusable.Tests.XUnit.Experimental
 
     public static class ObservableExtensions
     {
+        public static IObservable<DateTime> TruncateMilliseconds(this IObservable<DateTime> ticks)
+        {
+            return ticks.Select(DateTimeExtensions.TruncateMilliseconds);
+        }
+
         public static IObservable<DateTime> FixMissingSeconds(this IObservable<DateTime> ticks)
         {
             var last = DateTime.MinValue;
 
             return ticks.SelectMany(tick =>
             {
-                tick = tick.TruncateMilliseconds();
+                if (tick.Millisecond > 0) throw new InvalidOperationException($"{nameof(FixMissingSeconds)} requires ticks without the millisecond part.");
 
                 // We have to start somewhere so let it be one second before tick if we are currently nowhere.
                 last = last == DateTime.MinValue ? tick.AddSeconds(-1) : last;
 
                 // Calculates the gap between tick and last. In normal case it's 1.
-                var gap = (int)((tick - last).Ticks / TimeSpan.TicksPerSecond);
+                var gap = tick.DiffInSeconds(last);
 
                 // If we missed one second due to time inaccuracy, 
                 // this makes sure to publish the missing second too
@@ -182,6 +187,18 @@ namespace Reusable.Tests.XUnit.Experimental
         {
             return new DateTime(dateTime.Ticks - (dateTime.Ticks % TimeSpan.TicksPerSecond), dateTime.Kind);
         }
+
+        public static int Diff(this DateTime later, DateTime earlier, long ticksPerX)
+        {
+            if (later < earlier) throw new ArgumentException($"'{nameof(later)}' must be greater or equal '{nameof(earlier)}'.");
+            
+            return (int)((later - earlier).Ticks / ticksPerX);
+        }
+
+        public static int DiffInSeconds(this DateTime later, DateTime earlier)
+        {
+            return later.Diff(earlier, TimeSpan.TicksPerSecond);
+        }
     }
 
     public static class SchedulerExtensions
@@ -191,7 +208,7 @@ namespace Reusable.Tests.XUnit.Experimental
             this Scheduler scheduler,
             Trigger trigger,
             Func<CancellationToken, Task> action,
-            int maxDegreeOfParallelism = 1,
+            DegreeOfParallelism maxDegreeOfParallelism,
             CancellationToken cancellationToken = default
         )
         {
@@ -503,7 +520,7 @@ namespace Reusable.Tests.XUnit.Experimental
         public void Returns_ticks_unchanged_when_no_gap()
         {
             var ticks = new[] { 0, 1, 2 }.Select(s => DateTime.Parse($"2019-01-01 10:00:0{s}")).ToList();
-            Assert.Equal(ticks, ticks.ToObservable().FixMissingSeconds().ToEnumerable().ToList());
+            Assert.Equal(ticks, ticks.ToObservable().TruncateMilliseconds().FixMissingSeconds().ToEnumerable().ToList());
         }
 
         [Fact]
@@ -511,7 +528,7 @@ namespace Reusable.Tests.XUnit.Experimental
         {
             var expected = new[] { 0, 1, 2 }.Select(s => DateTime.Parse($"2019-01-01 10:00:0{s}")).ToList();
             var missing = new[] { 0, 2 }.Select(s => DateTime.Parse($"2019-01-01 10:00:0{s}")).ToList();
-            Assert.Equal(expected.ToList(), missing.ToObservable().FixMissingSeconds().ToEnumerable().ToList());
+            Assert.Equal(expected.ToList(), missing.ToObservable().TruncateMilliseconds().FixMissingSeconds().ToEnumerable().ToList());
         }
     }
 }
