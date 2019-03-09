@@ -3,12 +3,10 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Dynamic;
 using System.Linq;
 using System.Linq.Custom;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,10 +19,10 @@ using Xunit;
 
 namespace Reusable.Tests.XUnit.Experimental
 {
-    public class SchedulerTest_console
+    public class CronExpressionTest
     {
         [Fact]
-        public async Task Go()
+        public void Can_parse_simple_fields()
         {
             //var cronString = "5,10/5,15-30,45-50/2 * * 1-22 JAN,MAR-SEP MON-WED,4,FRI 2017";
 
@@ -51,41 +49,9 @@ namespace Reusable.Tests.XUnit.Experimental
             //var startedOn = DateTime.UtcNow;
 
             //Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
-
-            var scheduler = SchedulerFactory.CreateUtc();
-
-            //Thread.Sleep(3300);
-
-            //	scheduler.Schedule("0/1 * * * * * *", async schedule =>
-            //	{
-            //		Log(1, schedule);
-            //		await Task.Delay(1100);
-            //	}, maxDegreeOfParallelism: Scheduler.UnlimitedJobParallelism);
-            //
-            //	scheduler.Schedule("0/2 * * * * * *", async schedule =>
-            //	{
-            //		Log(2, schedule);
-            //		await Task.Delay(1500);
-            //
-            //	}, maxDegreeOfParallelism: Scheduler.UnlimitedJobParallelism);
-
-            var j3 = scheduler.Schedule(new Job("Single-job", new[] { new CronTrigger("0/3 * * * * * *") }, async token =>
-            {
-                //Log(3, DateTime.Now);
-                await Task.Delay(4000);
-                Console.WriteLine("Job-3: Finished!");
-            })
-            {
-                MaxDegreeOfParallelism = 1
-            });
-
-            Console.WriteLine("Press ENTER to disconnect...");
-            Console.ReadLine();
-            j3.Dispose();
-            scheduler.Dispose();
-            //await scheduler.Continuation;
         }
     }
+
 
     public static class Tick
     {
@@ -100,6 +66,8 @@ namespace Reusable.Tests.XUnit.Experimental
 
     public static class ObservableExtensions
     {
+        private static readonly DateTime Nowhere = DateTime.MinValue;
+
         public static IObservable<DateTime> TruncateMilliseconds(this IObservable<DateTime> ticks)
         {
             return ticks.Select(DateTimeExtensions.TruncateMilliseconds);
@@ -107,14 +75,14 @@ namespace Reusable.Tests.XUnit.Experimental
 
         public static IObservable<DateTime> FixMissingSeconds(this IObservable<DateTime> ticks)
         {
-            var last = DateTime.MinValue;
+            var last = Nowhere;
 
             return ticks.SelectMany(tick =>
             {
                 if (tick.Millisecond > 0) throw new InvalidOperationException($"{nameof(FixMissingSeconds)} requires ticks without the millisecond part.");
 
                 // We have to start somewhere so let it be one second before tick if we are currently nowhere.
-                last = last == DateTime.MinValue ? tick.AddSeconds(-1) : last;
+                last = last == Nowhere ? tick.AddSeconds(-1) : last;
 
                 // Calculates the gap between tick and last. In normal case it's 1.
                 var gap = tick.DiffInSeconds(last);
@@ -191,7 +159,7 @@ namespace Reusable.Tests.XUnit.Experimental
         public static int Diff(this DateTime later, DateTime earlier, long ticksPerX)
         {
             if (later < earlier) throw new ArgumentException($"'{nameof(later)}' must be greater or equal '{nameof(earlier)}'.");
-            
+
             return (int)((later - earlier).Ticks / ticksPerX);
         }
 
@@ -333,67 +301,6 @@ namespace Reusable.Tests.XUnit.Experimental
         }
     }
 
-
-    // -----------------------
-
-    public class DuckObject<T> : DynamicObject
-    {
-        private static readonly DuckObject<T> Duck = new DuckObject<T>();
-
-        public static TValue Quack<TValue>(Func<dynamic, dynamic> quack)
-        {
-            return (TValue)quack(Duck);
-        }
-
-        public override bool TryGetIndex(GetIndexBinder binder, object[] indexes, out object result)
-        {
-            throw new InvalidOperationException($"Cannot use an indexer on '{typeof(T)}' because static types do not have them.");
-        }
-
-        public override bool TryGetMember(GetMemberBinder binder, out object result)
-        {
-            var member = typeof(T).GetMember(binder.Name).SingleOrDefault();
-            switch (member?.MemberType)
-            {
-                case MemberTypes.Field:
-                    result = typeof(T).InvokeMember(binder.Name, BindingFlags.GetField, null, null, null);
-                    break;
-                case MemberTypes.Property:
-                    result = typeof(T).InvokeMember(binder.Name, BindingFlags.GetProperty, null, null, null);
-                    break;
-                default:
-                    throw new StaticMemberNotFoundException<T>(binder.Name);
-            }
-
-            return true;
-        }
-
-        public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
-        {
-            var member = typeof(T).GetMember(binder.Name).SingleOrDefault();
-            switch (member?.MemberType)
-            {
-                case MemberTypes.Method:
-                    result = typeof(T).InvokeMember(binder.Name, BindingFlags.InvokeMethod, null, null, args);
-                    break;
-                default:
-                    throw new StaticMemberNotFoundException<T>(binder.Name);
-            }
-
-            return true;
-        }
-    }
-
-    public class DuckObject
-    {
-        private static readonly ConcurrentDictionary<Type, dynamic> Cache = new ConcurrentDictionary<Type, dynamic>();
-
-        public static TValue Quack<TValue>(Type type, Func<dynamic, dynamic> quack)
-        {
-            var duck = Cache.GetOrAdd(type, t => Activator.CreateInstance(typeof(DuckObject<>).MakeGenericType(type)));
-            return (TValue)quack(duck);
-        }
-    }
 
     public class StaticMemberNotFoundException<T> : Exception
     {

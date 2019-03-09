@@ -66,6 +66,17 @@ namespace Reusable.Tests.XUnit.Experimental
 
         private static readonly ConcurrentDictionary<Type, string> FieldPatternCache = new ConcurrentDictionary<Type, string>();
 
+        private static IDictionary<Type, IReadOnlyDictionary<string, int>> ValueMaps = new Dictionary<Type, IReadOnlyDictionary<string, int>>
+        {
+            [typeof(CronSecond)] = CronSecond.ValueMap,
+            [typeof(CronMinute)] = CronMinute.ValueMap,
+            [typeof(CronHour)] = CronHour.ValueMap,
+            [typeof(CronYear)] = CronYear.ValueMap,
+            [typeof(CronMonth)] = CronMonth.ValueMap,
+            [typeof(CronDayOfMonth)] = CronDayOfMonth.ValueMap,
+            [typeof(CronDayOfWeek)] = CronDayOfWeek.ValueMap,
+        };
+        
         internal static bool TryParse<T>(string input, out CronField cronField) where T : CronField
         {
             if (input == Any)
@@ -74,7 +85,7 @@ namespace Reusable.Tests.XUnit.Experimental
                 return true;
             }
 
-            var fieldValues = DuckObject<T>.Quack<IReadOnlyDictionary<string, int>>(duck => duck.ValueMap);
+            var fieldValues = ValueMaps[typeof(T)];//  DuckObject<T>.Quack<IReadOnlyDictionary<string, int>>(duck => duck.ValueMap);
             var fieldPattern = FieldPatternCache.GetOrAdd(typeof(T), t => fieldValues.Select(x => Regex.Escape(x.Key)).OrderByDescending(x => x).Join("|"));
 
             var match = Regex.Match(input, Pattern.Format(new { fieldPattern }), RegexOptions.IgnoreCase);
@@ -162,7 +173,7 @@ namespace Reusable.Tests.XUnit.Experimental
     public static class CronExpressionExtensions
     {
         // Replaces multiple whitespaces by a single one, trims the string and makes it uppercase.
-        public static string NormalizeCronExpression(this string input)
+        public static string NormalizeWhiteSpace(this string input)
         {
             return Regex.Replace(input, @"\s+", " ").Trim().ToUpper();
         }
@@ -349,7 +360,7 @@ namespace Reusable.Tests.XUnit.Experimental
         {
             var cronFields =
                 input
-                    .NormalizeCronExpression()
+                    .NormalizeWhiteSpace()
                     .Split(' ')
                     .Select(x => x.Split(','))
                     .Zip(
