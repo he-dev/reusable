@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
+using Autofac.Features.AttributeFilters;
 using JetBrains.Annotations;
 using Reusable.Commander.Utilities;
 using Reusable.OmniLog;
@@ -64,6 +65,7 @@ namespace Reusable.Commander
                     builder
                         .RegisterType(command.Type)
                         .Keyed<IConsoleCommand>(command.Id)
+                        .WithAttributeFiltering()
                         .As<IConsoleCommand>();
 
                 // Lambda command ctor has some extra properties that we need to set.
