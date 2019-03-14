@@ -2,12 +2,14 @@
 using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Schema;
 using JetBrains.Annotations;
 using Reusable.OmniLog;
 using Reusable.Reflection;
+using Reusable.OmniLog.SemanticExtensions;
 
 namespace Reusable.Commander
 {
@@ -16,7 +18,7 @@ namespace Reusable.Commander
         [NotNull]
         Identifier Id { get; }
 
-        Task<bool> CanExecuteAsync([CanBeNull] object context, CancellationToken cancellationToken = default);
+        //Task<bool> CanExecuteAsync([CanBeNull] object parameter, [CanBeNull] object context, CancellationToken cancellationToken = default);
 
         Task ExecuteAsync([CanBeNull] object parameter, [CanBeNull] object context, CancellationToken cancellationToken = default);
     }
@@ -24,56 +26,79 @@ namespace Reusable.Commander
     [PublicAPI]
     public abstract class ConsoleCommand<TBag, TContext> : IConsoleCommand where TBag : ICommandBag, new()
     {
-        private readonly ICommandServiceProvider _serviceProvider;
 
         protected ConsoleCommand([NotNull] ICommandServiceProvider serviceProvider, [CanBeNull] Identifier id = default)
         {
-            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-            Id = id ?? serviceProvider.DefaultId;
+            Services = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+            Id = id ?? serviceProvider.Id;
         }
 
         [NotNull]
-        protected ILogger Logger => _serviceProvider.Logger;
+        protected ICommandServiceProvider Services { get; }
 
         [NotNull]
-        protected ICommandLineMapper Mapper => _serviceProvider.Mapper;
-
-        [NotNull]
-        protected ICommandLineExecutor Executor => _serviceProvider.Executor;
+        protected ILogger Logger => Services.Logger;
 
         public Identifier Id { get; }
-
-        public virtual Task<bool> CanExecuteAsync(object context, CancellationToken cancellationToken = default)
-        {
-            return CanExecuteAsync((TContext)context, cancellationToken);
-        }
 
         public virtual async Task ExecuteAsync(object parameter, object context, CancellationToken cancellationToken)
         {
             switch (parameter)
             {
-                case null when await CanExecuteAsync((TContext)context, cancellationToken):
-                    await ExecuteAsync(default, (TContext)context, cancellationToken);
+                case null:
+                {
+                    if (await CanExecuteAsync(default, (TContext)context, cancellationToken))
+                    {
+                        await ExecuteAsync(default, (TContext)context, cancellationToken);
+                    }
+                    else
+                    {
+                        LogCanceled();
+                    }
+                }
                     break;
 
-                case ICommandLine commandLine when await CanExecuteAsync((TContext)context, cancellationToken):
-                    await ExecuteAsync(Mapper.Map<TBag>(commandLine), (TContext)context, cancellationToken);
+                case ICommandLine commandLine:
+                {
+                    var bag = Services.Mapper.Map<TBag>(commandLine);
+                    if (await CanExecuteAsync(bag, (TContext)context, cancellationToken))
+                    {
+                        await ExecuteAsync(bag, (TContext)context, cancellationToken);
+                    }
+                    else
+                    {
+                        LogCanceled();
+                    }
+                }
                     break;
 
                 case TBag bag:
-                    await ExecuteAsync(bag, (TContext)context, cancellationToken);
+                {
+                    if (await CanExecuteAsync(bag, (TContext)context, cancellationToken))
+                    {
+                        await ExecuteAsync(bag, (TContext)context, cancellationToken);
+                    }
+                    else
+                    {
+                        LogCanceled();
+                    }
+                }
                     break;
 
                 default:
+                {
                     throw new ArgumentOutOfRangeException
                     (
                         paramName: nameof(parameter),
                         message: $"{nameof(parameter)} must be either a {typeof(ICommandLine).Name} or {typeof(TBag).Name}."
                     );
+                }
             }
+
+            void LogCanceled() => Logger.Log(Abstraction.Layer.Infrastructure().Routine(nameof(ExecuteAsync)).Canceled(), $"{Id.ToString()} is disabled.");
         }
 
-        protected virtual Task<bool> CanExecuteAsync(TContext context, CancellationToken cancellationToken = default)
+        protected virtual Task<bool> CanExecuteAsync(TBag parameter, TContext context, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(true);
         }

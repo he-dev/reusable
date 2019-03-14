@@ -18,6 +18,7 @@
     <EmbeddedResource Include="res\Flexo\Single-expression.json" />
     <EmbeddedResource Include="res\IOnymous\Http\Mailr\HtmlTable.json" />
     <EmbeddedResource Include="res\IOnymous\test.txt" />
+    <Compile Remove="src\Commander\Integration\ExceptionTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="src\Call.cs" />
@@ -31,6 +32,7 @@
     <PackageReference Include="xunit" Version="2.4.1" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Reusable.Commander\Reusable.Commander.csproj" />
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
     <ProjectReference Include="..\Reusable.Cryptography\Reusable.Cryptography.csproj" />
     <ProjectReference Include="..\Reusable.Deception\Reusable.Deception.csproj" />

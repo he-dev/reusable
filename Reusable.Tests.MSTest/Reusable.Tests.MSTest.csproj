@@ -47,6 +47,9 @@
     <Compile Remove="src\Net\**" />
     <EmbeddedResource Remove="src\Net\**" />
     <None Remove="src\Net\**" />
+    <Compile Remove="src\Commander\**" />
+    <EmbeddedResource Remove="src\Commander\**" />
+    <None Remove="src\Commander\**" />
   </ItemGroup>
 
   <ItemGroup>
