@@ -1,11 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Dynamic;
 using Autofac;
 using Autofac.Builder;
 using JetBrains.Annotations;
 using Reusable.Commander.Commands;
 using Reusable.Exceptionizer;
+using Reusable.Extensions;
 using Reusable.OneTo1;
 using Reusable.Reflection;
 
@@ -14,92 +16,102 @@ namespace Reusable.Commander
     /// <summary>
     /// This class allows to easily register and validate commands.
     /// </summary>
-    public class CommandRegistrationBuilder : IEnumerable<CommandRegistrationBuilderItem>
+    public class CommandRegistrationBuilder : Autofac.Module
     {
         private readonly ITypeConverter _parameterConverter;
-        private readonly IList<CommandRegistrationBuilderItem> _commands;
-        private readonly CommandValidator _validator;
+        private readonly IList<CommandRegistration> _commands;
 
-        internal CommandRegistrationBuilder([NotNull] ITypeConverter parameterConverter)
+        internal CommandRegistrationBuilder(ITypeConverter parameterConverter)
         {
             _parameterConverter = parameterConverter;
-            _commands = new List<CommandRegistrationBuilderItem>();
-            _validator = new CommandValidator();
+            _commands = new List<CommandRegistration>();
         }
 
         [NotNull]
-        public CommandRegistrationBuilder Add<TCommand>(CustomizeCommandRegistrationCallback customize = default) where TCommand : IConsoleCommand
+        public CommandRegistrationBuilder Add<TCommand>(Action<CommandRegistration> customize = default) where TCommand : IConsoleCommand
         {
-            return Add((typeof(TCommand), CommandHelper.GetCommandId(typeof(TCommand)), default, customize));
-        }
-
-        [NotNull]
-        public CommandRegistrationBuilder Add<TCommand>([NotNull] Identifier id, CustomizeCommandRegistrationCallback customize = default) where TCommand : IConsoleCommand
-        {
-            return Add((typeof(TCommand), id ?? throw new ArgumentNullException(nameof(id)), default, customize));
+            try
+            {
+                var registration = new CommandRegistration(_parameterConverter, typeof(TCommand), CommandHelper.GetCommandId(typeof(TCommand)));
+                customize?.Invoke(registration);
+                _commands.Add(registration);
+                return this;
+            }
+            catch (Exception inner)
+            {
+                throw DynamicException.Create
+                (
+                    $"RegisterCommand",
+                    $"An error occured while trying to register '{typeof(TCommand).ToPrettyString()}'. See the inner-exception for details.",
+                    inner
+                );
+            }
         }
 
         [NotNull]
         public CommandRegistrationBuilder Add<TBag>([NotNull] Identifier id, [NotNull] ExecuteCallback<TBag> execute) where TBag : ICommandBag, new()
         {
-            return Add
-            ((
-                typeof(Lambda<TBag>),
-                id ?? throw new ArgumentNullException(nameof(id)),
-                new NamedParameter("execute", execute ?? throw new ArgumentNullException(nameof(execute))),
-                default
-            ));
+            return Add<Lambda<TBag>>(r =>
+            {
+                r.Id = id;
+                r.Execute = execute;
+            });
         }
 
-        [NotNull]
-        private CommandRegistrationBuilder Add((Type Type, Identifier Id, NamedParameter execute, CustomizeCommandRegistrationCallback Customize) command)
+        protected override void Load(ContainerBuilder builder)
         {
-            try
+            foreach (var command in _commands)
             {
-                _validator.ValidateCommand((command.Type, command.Id), _parameterConverter);
-                _commands.Add(new CommandRegistrationBuilderItem(command));
-                return this;
-            }
-            catch (Exception innerException)
-            {
-                throw DynamicException.Create(
-                    $"RegisterCommand",
-                    $"An error occured while trying to register the '{command.Id.Default.ToString()}' command. See the inner-exception for details.",
-                    innerException
-                );
+                command.RegisterWith(builder);                
             }
         }
-
-        #region IEnumerable
-
-        public IEnumerator<CommandRegistrationBuilderItem> GetEnumerator() => _commands.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        #endregion
     }
 
     public delegate void CustomizeCommandRegistrationCallback(IRegistrationBuilder<object, ConcreteReflectionActivatorData, SingleRegistrationStyle> customize);
 
-    public class CommandRegistrationBuilderItem
+    [UsedImplicitly]
+    [PublicAPI]
+    public class CommandRegistration
     {
-        internal CommandRegistrationBuilderItem((Type Type, Identifier Id, NamedParameter Execute, CustomizeCommandRegistrationCallback Customize) command)
+        internal CommandRegistration(ITypeConverter parameterConverter, Type type, Identifier id)
         {
-            (Type, Id, Execute, Customize) = (command.Type, command.Id, command.Execute, command.Customize ?? (b => { }));
+            new CommandValidator().ValidateCommand((type, id), parameterConverter);
+            Type = type;
+            Id = id;
         }
 
         [NotNull]
         public Type Type { get; }
 
         [NotNull]
-        public Identifier Id { get; }
+        public Identifier Id { get; set; }
 
         [CanBeNull]
-        public NamedParameter Execute { get; }
+        public object Execute { get; set; }
 
-        [NotNull]
-        public CustomizeCommandRegistrationCallback Customize { get; }
+        [CanBeNull]
+        public CustomizeCommandRegistrationCallback Customize { get; set; }
 
-        public bool IsLambda => !(Execute is null);
+        internal void RegisterWith([NotNull] ContainerBuilder builder)
+        {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+            if (Id is null) throw new InvalidOperationException($"{nameof(Id)} must not be null.");
+
+            var registration =
+                builder
+                    .RegisterType(Type)
+                    .Keyed<IConsoleCommand>(Id)
+                    .As<IConsoleCommand>();
+
+            // Lambda command ctor has some extra properties that we need to set.
+            if (!(Execute is null))
+            {
+                registration
+                    .WithParameter(new NamedParameter("id", Id))
+                    .WithParameter(new NamedParameter("execute", Execute));
+            }
+
+            Customize?.Invoke(registration);
+        }
     }
 }

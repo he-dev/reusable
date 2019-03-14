@@ -20,18 +20,19 @@ namespace Reusable.Commander
     {
         [NotNull] private readonly ITypeConverter _parameterConverter;
 
-        [NotNull] private readonly CommandRegistrationBuilder _commands;
+        [NotNull] private readonly CommandRegistrationBuilder _registrations;
 
-        public CommanderModule([NotNull] Action<CommandRegistrationBuilder> commands, [NotNull] ITypeConverter parameterConverter)
+        public CommanderModule([NotNull] Action<CommandRegistrationBuilder> register, [NotNull] ITypeConverter parameterConverter)
         {
+            if (register is null) throw new ArgumentNullException(nameof(register));
+            
             _parameterConverter = parameterConverter ?? throw new ArgumentNullException(nameof(parameterConverter));
-            _commands = new CommandRegistrationBuilder(parameterConverter);
-            if (commands is null) throw new ArgumentNullException(nameof(commands));
-            commands(_commands);
+            _registrations = new CommandRegistrationBuilder(parameterConverter);
+            register(_registrations);
         }
 
-        public CommanderModule([NotNull] Action<CommandRegistrationBuilder> commands)
-            : this(commands, CommandLineMapper.DefaultConverter) { }
+        public CommanderModule([NotNull] Action<CommandRegistrationBuilder> register)
+            : this(register, CommandLineMapper.DefaultConverter) { }
 
         protected override void Load(ContainerBuilder builder)
         {
@@ -58,23 +59,9 @@ namespace Reusable.Commander
             builder
                 .RegisterGeneric(typeof(CommandServiceProvider<>));
 
-            foreach (var command in _commands)
-            {
-                var registration =
-                    builder
-                        .RegisterType(command.Type)
-                        .Keyed<IConsoleCommand>(command.Id)
-                        .As<IConsoleCommand>();
 
-                // Lambda command ctor has some extra properties that we need to set.
-                if (command.IsLambda)
-                {
-                    registration.WithParameter(new NamedParameter("id", command.Id));
-                    registration.WithParameter(command.Execute);
-                }
-
-                command.Customize(registration);
-            }
+            builder
+                .RegisterModule(_registrations);
 
             builder
                 .RegisterSource(new TypeListSource<IConsoleCommand>());

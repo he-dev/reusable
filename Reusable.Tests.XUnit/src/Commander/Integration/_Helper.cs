@@ -19,41 +19,12 @@ namespace Reusable.Tests.Commander.Integration
             var container = InitializeContainer(commands, executeExceptionCallback);
             var scope = container.BeginLifetimeScope();
 
-            var executor = scope.Resolve<ICommandLineExecutor>();
-
-            return new TestContext(
-                Disposable.Create(() =>
-                {
-                    scope.Dispose();
-                    container.Dispose();
-                }),
-                executor
-            );
-        }
-
-        internal static ExecuteCallback<TBag> Track<TBag>(BagTracker bags) where TBag : ICommandBag, new()
-        {
-            return (name, bag, cancellationToken) =>
+            return new TestContext(scope.Resolve<ICommandLineExecutor>(), Disposable.Create(() =>
             {
-                bags.Add(name, bag);
-                return Task.CompletedTask;
-            };
+                scope.Dispose();
+                container.Dispose();
+            }));
         }
-
-        internal static ExecuteCallback<TBag> Execute<TBag>(Action<Identifier, TBag, CancellationToken> execute) where TBag : ICommandBag, new()
-        {
-            return (name, bag, cancellationToken) =>
-            {
-                execute(name, bag, cancellationToken);
-                return Task.CompletedTask;
-            };
-        }
-
-        internal static ExecuteCallback<TBag> ExecuteNoop<TBag>() where TBag : ICommandBag, new()
-        {
-            return (name, bag, cancellationToken) => Task.CompletedTask;
-        }
-
 
         private static IContainer InitializeContainer(Action<CommandRegistrationBuilder> commands, ExecuteExceptionCallback executeExceptionCallback = null)
         {
@@ -86,11 +57,38 @@ namespace Reusable.Tests.Commander.Integration
         }
     }
 
+    internal static class ExecuteHelper
+    {
+        internal static ExecuteCallback<TBag> Track<TBag>(BagTracker bags) where TBag : ICommandBag, new()
+        {
+            return (name, bag, cancellationToken) =>
+            {
+                bags.Add(name, bag);
+                return Task.CompletedTask;
+            };
+        }
+
+        internal static ExecuteCallback<TBag> Count<TBag>(IDictionary<Identifier, int> counters) where TBag : ICommandBag, new()
+        {
+            return (name, bag, cancellationToken) =>
+            {
+                counters[name] = counters.TryGetValue(name, out var count) ? count + 1 : 1;
+                return Task.CompletedTask;
+            };
+        }
+        
+        internal static ExecuteCallback<TBag> Noop<TBag>() where TBag : ICommandBag, new()
+        {
+            return (name, bag, cancellationToken) => Task.CompletedTask;
+        }
+
+    }
+
     internal class TestContext : IDisposable
     {
         private readonly IDisposable _disposer;
 
-        public TestContext(IDisposable disposer, ICommandLineExecutor executor)
+        public TestContext(ICommandLineExecutor executor, IDisposable disposer)
         {
             _disposer = disposer;
             Executor = executor;

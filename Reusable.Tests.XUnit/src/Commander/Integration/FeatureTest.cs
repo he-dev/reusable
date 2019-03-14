@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -15,34 +16,35 @@ namespace Reusable.Tests.Commander.Integration
         [Fact]
         public async Task CanExecuteCommandByAnyName()
         {
-            var executeCount = 0;
+            var counters = new Dictionary<Identifier, int>();
 
             using (var context = CreateContext(
                 commands => commands
-                    .Add(Identifier.Create("a", "b"), Execute<SimpleBag>((name, bag, ct) => { executeCount++; }))
+                    .Add(Identifier.Create("a", "b"), ExecuteHelper.Count<SimpleBag>(counters))
             ))
             {
                 await context.Executor.ExecuteAsync<object>("a", default);
                 await context.Executor.ExecuteAsync<object>("b", default);
 
-                Assert.Equal(2, executeCount);
+                Assert.Equal(2, counters["a"]);
             }
         }
 
         [Fact]
         public async Task CanExecuteMultipleCommands()
         {
-            var executeCount = 0;
+            var counters = new Dictionary<Identifier, int>();
 
             using (var context = CreateContext(
                 commands => commands
-                    .Add(Identifier.Create("a"), Execute<SimpleBag>((i, b, c) => executeCount++))
-                    .Add(Identifier.Create("b"), Execute<SimpleBag>((i, b, c) => executeCount++))
+                    .Add(Identifier.Create("a"), ExecuteHelper.Count<SimpleBag>(counters))
+                    .Add(Identifier.Create("b"), ExecuteHelper.Count<SimpleBag>(counters))
             ))
             {
                 await context.Executor.ExecuteAsync<object>("a|b", default);
 
-                Assert.Equal(2, executeCount);
+                Assert.Equal(1, counters["a"]);
+                Assert.Equal(1, counters["b"]);
             }
         }
 
@@ -52,7 +54,7 @@ namespace Reusable.Tests.Commander.Integration
             var tracker = new BagTracker();
             using (var context = CreateContext(
                 commands => commands
-                    .Add("c", Track<BagWithoutAliases>(tracker))
+                    .Add("c", ExecuteHelper.Track<BagWithoutAliases>(tracker))
             ))
             {
                 await context.Executor.ExecuteAsync<object>("c -StringWithoutAlias=abc", default);
@@ -73,7 +75,7 @@ namespace Reusable.Tests.Commander.Integration
         {
             var tracker = new BagTracker();
             using (var context = CreateContext(
-                commands => commands.Add("c", Track<BagWithPositionalValues>(tracker)),
+                commands => commands.Add("c", ExecuteHelper.Track<BagWithPositionalValues>(tracker)),
                 (ExecuteExceptionCallback)(ex => throw ex)
             ))
             {
@@ -93,7 +95,7 @@ namespace Reusable.Tests.Commander.Integration
             var tracker = new BagTracker();
             using (var context = CreateContext(
                 commands => commands
-                    .Add("c", Track<BagWithAliases>(tracker))
+                    .Add("c", ExecuteHelper.Track<BagWithAliases>(tracker))
             ))
             {
                 await context.Executor.ExecuteAsync<object>("c -swa=abc", default);
@@ -115,7 +117,7 @@ namespace Reusable.Tests.Commander.Integration
             var tracker = new BagTracker();
             using (var context = CreateContext(
                 commands => commands
-                    .Add("c", Track<BagWithDefaultValues>(tracker))
+                    .Add("c", ExecuteHelper.Track<BagWithDefaultValues>(tracker))
             ))
             {
                 await context.Executor.ExecuteAsync<object>("c", default);
@@ -148,7 +150,7 @@ namespace Reusable.Tests.Commander.Integration
             var tracker = new BagTracker();
             using (var context = CreateContext(
                 commands => commands
-                    .Add("c", Track<SimpleBag>(tracker))
+                    .Add("c", ExecuteHelper.Track<SimpleBag>(tracker))
             ))
             {
                 await context.Executor.ExecuteAsync<object>("c -async -canthrow=true", default);
@@ -169,7 +171,7 @@ namespace Reusable.Tests.Commander.Integration
             var tracker = new BagTracker();
             using (var context = CreateContext(
                 commands => commands
-                    .Add("c", Track<BagWithMappedValues>(tracker))
+                    .Add("c", ExecuteHelper.Track<BagWithMappedValues>(tracker))
             ))
             {
                 await context.Executor.ExecuteAsync<object>("c", default);
