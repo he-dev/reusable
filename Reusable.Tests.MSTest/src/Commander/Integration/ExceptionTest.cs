@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Commander;
 using Reusable.Exceptionizer;
@@ -147,7 +148,7 @@ namespace Reusable.Tests.Commander.Integration
                     .Add("c", ExecuteNoop<BagWithRequiredValue>()), inner => { exception = inner; }
             ))
             {
-                context.Executor.ExecuteAsync<object>("c", default).GetAwaiter().GetResult();
+                Assert.ThrowsException<TaskCanceledException>(() => context.Executor.ExecuteAsync<object>("c", default).GetAwaiter().GetResult());
                 Assert.IsNotNull(exception);
             }
         }

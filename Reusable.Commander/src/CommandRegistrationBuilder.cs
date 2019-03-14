@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Autofac;
+using Autofac.Builder;
 using JetBrains.Annotations;
 using Reusable.Commander.Commands;
 using Reusable.Exceptionizer;
@@ -27,31 +28,31 @@ namespace Reusable.Commander
         }
 
         [NotNull]
-        public CommandRegistrationBuilder Add<T>() where T : IConsoleCommand
+        public CommandRegistrationBuilder Add<TCommand>(CustomizeCommandRegistrationCallback customize = default) where TCommand : IConsoleCommand
         {
-            return Add((typeof(T), CommandHelper.GetCommandId(typeof(T)), default));
+            return Add((typeof(TCommand), CommandHelper.GetCommandId(typeof(TCommand)), default, customize));
         }
 
         [NotNull]
-        public CommandRegistrationBuilder Add<T>([NotNull] Identifier id) where T : IConsoleCommand
+        public CommandRegistrationBuilder Add<TCommand>([NotNull] Identifier id, CustomizeCommandRegistrationCallback customize = default) where TCommand : IConsoleCommand
         {
-            return Add((typeof(T), id ?? throw new ArgumentNullException(nameof(id)), default));
+            return Add((typeof(TCommand), id ?? throw new ArgumentNullException(nameof(id)), default, customize));
         }
 
         [NotNull]
-        public CommandRegistrationBuilder Add<T>([NotNull] Identifier id, [NotNull] ExecuteCallback<T> execute) where T : ICommandBag, new()
+        public CommandRegistrationBuilder Add<TBag>([NotNull] Identifier id, [NotNull] ExecuteCallback<TBag> execute) where TBag : ICommandBag, new()
         {
-            return Add(
-                (
-                    typeof(Lambda<T>),
-                    id ?? throw new ArgumentNullException(nameof(id)),
-                    new NamedParameter("execute", execute ?? throw new ArgumentNullException(nameof(execute)))
-                )
-            );
+            return Add
+            ((
+                typeof(Lambda<TBag>),
+                id ?? throw new ArgumentNullException(nameof(id)),
+                new NamedParameter("execute", execute ?? throw new ArgumentNullException(nameof(execute))),
+                default
+            ));
         }
 
         [NotNull]
-        private CommandRegistrationBuilder Add((Type Type, Identifier Id, NamedParameter execute) command)
+        private CommandRegistrationBuilder Add((Type Type, Identifier Id, NamedParameter execute, CustomizeCommandRegistrationCallback Customize) command)
         {
             try
             {
@@ -77,19 +78,27 @@ namespace Reusable.Commander
 
         #endregion
     }
-    
+
+    public delegate void CustomizeCommandRegistrationCallback(IRegistrationBuilder<object, ConcreteReflectionActivatorData, SingleRegistrationStyle> customize);
+
     public class CommandRegistrationBuilderItem
     {
-        internal CommandRegistrationBuilderItem((Type Type, Identifier Id, NamedParameter Execute) command)
+        internal CommandRegistrationBuilderItem((Type Type, Identifier Id, NamedParameter Execute, CustomizeCommandRegistrationCallback Customize) command)
         {
-            (Type, Id, Execute) = command;
+            (Type, Id, Execute, Customize) = (command.Type, command.Id, command.Execute, command.Customize ?? (b => { }));
         }
 
+        [NotNull]
         public Type Type { get; }
 
+        [NotNull]
         public Identifier Id { get; }
 
+        [CanBeNull]
         public NamedParameter Execute { get; }
+
+        [NotNull]
+        public CustomizeCommandRegistrationCallback Customize { get; }
 
         public bool IsLambda => !(Execute is null);
     }

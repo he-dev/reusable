@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
+using Autofac.Builder;
 using Autofac.Features.AttributeFilters;
 using JetBrains.Annotations;
 using Reusable.Commander.Utilities;
@@ -30,9 +31,7 @@ namespace Reusable.Commander
         }
 
         public CommanderModule([NotNull] Action<CommandRegistrationBuilder> commands)
-            : this(commands, CommandLineMapper.DefaultConverter)
-        {
-        }
+            : this(commands, CommandLineMapper.DefaultConverter) { }
 
         protected override void Load(ContainerBuilder builder)
         {
@@ -50,7 +49,7 @@ namespace Reusable.Commander
                 .As<ICommandLineMapper>();
 
             builder
-                .RegisterInstance((ExecuteExceptionCallback) (_ => { }));
+                .RegisterInstance((ExecuteExceptionCallback)(_ => { }));
 
             builder
                 .RegisterType<CommandLineExecutor>()
@@ -65,7 +64,6 @@ namespace Reusable.Commander
                     builder
                         .RegisterType(command.Type)
                         .Keyed<IConsoleCommand>(command.Id)
-                        .WithAttributeFiltering()
                         .As<IConsoleCommand>();
 
                 // Lambda command ctor has some extra properties that we need to set.
@@ -74,10 +72,23 @@ namespace Reusable.Commander
                     registration.WithParameter(new NamedParameter("id", command.Id));
                     registration.WithParameter(command.Execute);
                 }
+
+                registration.Customize();
             }
 
             builder
                 .RegisterSource(new TypeListSource<IConsoleCommand>());
+        }
+    }
+
+    internal static class RegistrationBuilderExtensions
+    {
+        public static IRegistrationBuilder<object, ConcreteReflectionActivatorData, SingleRegistrationStyle> Customize
+        (
+            this IRegistrationBuilder<object, ConcreteReflectionActivatorData, SingleRegistrationStyle> builder
+        )
+        {
+            return builder;
         }
     }
 }

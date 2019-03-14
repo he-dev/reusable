@@ -16,6 +16,8 @@ namespace Reusable.Commander
         [NotNull]
         Identifier Id { get; }
 
+        Task<bool> CanExecuteAsync([CanBeNull] object context, CancellationToken cancellationToken = default);
+
         Task ExecuteAsync([CanBeNull] object parameter, [CanBeNull] object context, CancellationToken cancellationToken = default);
     }
 
@@ -39,17 +41,22 @@ namespace Reusable.Commander
         [NotNull]
         protected ICommandLineExecutor Executor => _serviceProvider.Executor;
 
-        public Identifier Id { get; }        
+        public Identifier Id { get; }
 
-        async Task IConsoleCommand.ExecuteAsync(object parameter, object context, CancellationToken cancellationToken)
+        public virtual Task<bool> CanExecuteAsync(object context, CancellationToken cancellationToken = default)
+        {
+            return CanExecuteAsync((TContext)context, cancellationToken);
+        }
+
+        public virtual async Task ExecuteAsync(object parameter, object context, CancellationToken cancellationToken)
         {
             switch (parameter)
             {
-                case null:
+                case null when await CanExecuteAsync((TContext)context, cancellationToken):
                     await ExecuteAsync(default, (TContext)context, cancellationToken);
                     break;
 
-                case ICommandLine commandLine:
+                case ICommandLine commandLine when await CanExecuteAsync((TContext)context, cancellationToken):
                     await ExecuteAsync(Mapper.Map<TBag>(commandLine), (TContext)context, cancellationToken);
                     break;
 
@@ -66,6 +73,11 @@ namespace Reusable.Commander
             }
         }
 
+        protected virtual Task<bool> CanExecuteAsync(TContext context, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(true);
+        }
+
         protected abstract Task ExecuteAsync(TBag parameter, TContext context, CancellationToken cancellationToken);
     }
 
@@ -73,6 +85,5 @@ namespace Reusable.Commander
     {
         protected SimpleCommand([NotNull] ICommandServiceProvider serviceProvider, Identifier id)
             : base(serviceProvider, id) { }
-        
     }
 }
