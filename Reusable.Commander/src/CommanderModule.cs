@@ -73,22 +73,11 @@ namespace Reusable.Commander
                     registration.WithParameter(command.Execute);
                 }
 
-                registration.Customize();
+                command.Customize(registration);
             }
 
             builder
                 .RegisterSource(new TypeListSource<IConsoleCommand>());
-        }
-    }
-
-    internal static class RegistrationBuilderExtensions
-    {
-        public static IRegistrationBuilder<object, ConcreteReflectionActivatorData, SingleRegistrationStyle> Customize
-        (
-            this IRegistrationBuilder<object, ConcreteReflectionActivatorData, SingleRegistrationStyle> builder
-        )
-        {
-            return builder;
         }
     }
 }

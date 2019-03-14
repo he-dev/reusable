@@ -18,15 +18,12 @@ namespace Reusable.Commander
         [NotNull]
         Identifier Id { get; }
 
-        //Task<bool> CanExecuteAsync([CanBeNull] object parameter, [CanBeNull] object context, CancellationToken cancellationToken = default);
-
         Task ExecuteAsync([CanBeNull] object parameter, [CanBeNull] object context, CancellationToken cancellationToken = default);
     }
 
     [PublicAPI]
     public abstract class ConsoleCommand<TBag, TContext> : IConsoleCommand where TBag : ICommandBag, new()
     {
-
         protected ConsoleCommand([NotNull] ICommandServiceProvider serviceProvider, [CanBeNull] Identifier id = default)
         {
             Services = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
@@ -46,58 +43,41 @@ namespace Reusable.Commander
             switch (parameter)
             {
                 case null:
-                {
-                    if (await CanExecuteAsync(default, (TContext)context, cancellationToken))
-                    {
-                        await ExecuteAsync(default, (TContext)context, cancellationToken);
-                    }
-                    else
-                    {
-                        LogCanceled();
-                    }
-                }
+                    await ExecuteWhenEnabledAsync(default, (TContext)context, cancellationToken);
                     break;
 
                 case ICommandLine commandLine:
-                {
-                    var bag = Services.Mapper.Map<TBag>(commandLine);
-                    if (await CanExecuteAsync(bag, (TContext)context, cancellationToken))
-                    {
-                        await ExecuteAsync(bag, (TContext)context, cancellationToken);
-                    }
-                    else
-                    {
-                        LogCanceled();
-                    }
-                }
+                    await ExecuteWhenEnabledAsync(Services.Mapper.Map<TBag>(commandLine), (TContext)context, cancellationToken);
                     break;
 
                 case TBag bag:
-                {
-                    if (await CanExecuteAsync(bag, (TContext)context, cancellationToken))
-                    {
-                        await ExecuteAsync(bag, (TContext)context, cancellationToken);
-                    }
-                    else
-                    {
-                        LogCanceled();
-                    }
-                }
+                    await ExecuteWhenEnabledAsync(bag, (TContext)context, cancellationToken);
                     break;
 
                 default:
-                {
                     throw new ArgumentOutOfRangeException
                     (
                         paramName: nameof(parameter),
                         message: $"{nameof(parameter)} must be either a {typeof(ICommandLine).Name} or {typeof(TBag).Name}."
                     );
-                }
             }
-
-            void LogCanceled() => Logger.Log(Abstraction.Layer.Infrastructure().Routine(nameof(ExecuteAsync)).Canceled(), $"{Id.ToString()} is disabled.");
         }
 
+        private async Task ExecuteWhenEnabledAsync(TBag parameter, TContext context, CancellationToken cancellationToken)
+        {
+            if (await CanExecuteAsync(parameter, context, cancellationToken))
+            {
+                await ExecuteAsync(parameter, context, cancellationToken);
+            }
+            else
+            {
+                Logger.Log(Abstraction.Layer.Infrastructure().Routine(nameof(ExecuteAsync)).Canceled(), $"'{Id}' is disabled.");
+            }
+        }
+
+        /// <summary>
+        /// When overriden by a derived class indicates whether a command can be executed. The default implementation always returns 'true'.
+        /// </summary>
         protected virtual Task<bool> CanExecuteAsync(TBag parameter, TContext context, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(true);
@@ -106,9 +86,12 @@ namespace Reusable.Commander
         protected abstract Task ExecuteAsync(TBag parameter, TContext context, CancellationToken cancellationToken);
     }
 
-    public abstract class SimpleCommand : ConsoleCommand<SimpleBag, object>
+    public abstract class SimpleCommand : ConsoleCommand<SimpleBag, NullContext>
     {
         protected SimpleCommand([NotNull] ICommandServiceProvider serviceProvider, Identifier id)
             : base(serviceProvider, id) { }
     }
+
+    [UsedImplicitly]
+    public class NullContext { }
 }

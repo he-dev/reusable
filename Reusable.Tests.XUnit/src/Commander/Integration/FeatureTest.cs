@@ -192,20 +192,18 @@ namespace Reusable.Tests.Commander.Integration
             }
         }
 
-        private class DisabledCommandContext { }
-
         [Alias("dc")]
-        private class DisabledCommand : ConsoleCommand<SimpleBag, DisabledCommandContext>
+        private class DisabledCommand : ConsoleCommand<SimpleBag, NullContext>
         {
             public DisabledCommand([NotNull] CommandServiceProvider<DisabledCommand> serviceProvider, [CanBeNull] Identifier id = default)
                 : base(serviceProvider, id) { }
 
-            protected override Task ExecuteAsync(SimpleBag parameter, DisabledCommandContext context, CancellationToken cancellationToken)
+            protected override Task ExecuteAsync(SimpleBag parameter, NullContext context, CancellationToken cancellationToken)
             {
                 throw new InvalidOperationException("This command must not execute.");
             }
 
-            protected override Task<bool> CanExecuteAsync(SimpleBag parameter, DisabledCommandContext context, CancellationToken cancellationToken = default)
+            protected override Task<bool> CanExecuteAsync(SimpleBag parameter, NullContext context, CancellationToken cancellationToken = default)
             {
                 return Task.FromResult(false);
             }
