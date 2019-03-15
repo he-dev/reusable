@@ -42,18 +42,16 @@ namespace Reusable.Flexo
         public TTo To { get; set; }
     }
 
-    /// <summary>
-    /// Provides a mapping expression from bool to double.
-    /// </summary>
-    public class BooleanToDouble : Map<bool, double>
-    {
-        public BooleanToDouble() : base(nameof(BooleanToDouble))
-        {
-            Mappings = ImmutableList.Create
-            (
-                new Mapping<bool, double> { From = true, To = 1.0 },
-                new Mapping<bool, double> { From = false, To = 0.0 }
-            );
-        }
-    }
+
+//    public class BooleanToDouble : Map<bool, double>
+//    {
+//        public BooleanToDouble() : base(nameof(BooleanToDouble))
+//        {
+//            Mappings = ImmutableList.Create
+//            (
+//                new Mapping<bool, double> { From = true, To = Double.One },
+//                new Mapping<bool, double> { From = false, To = Double.Zero }
+//            );
+//        }
+//    }
 }

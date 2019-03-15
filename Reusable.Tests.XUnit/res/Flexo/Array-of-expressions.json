@@ -17,7 +17,7 @@
   },
   {
     "$t": "Sum",
-    "Expressions": [
+    "Values": [
       {
         "$t": "Constant<double>",
         "Value": 1
@@ -29,8 +29,8 @@
     ]
   },
   {
-    "$t": "BooleanToDouble",
-    "Expression": {
+    "$t": "SwitchBooleanToDouble",
+    "Value": {
       "$t": "True"
     }
   }

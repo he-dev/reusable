@@ -50,6 +50,9 @@
     <Compile Remove="src\Commander\**" />
     <EmbeddedResource Remove="src\Commander\**" />
     <None Remove="src\Commander\**" />
+    <Compile Remove="src\Flexo\**" />
+    <EmbeddedResource Remove="src\Flexo\**" />
+    <None Remove="src\Flexo\**" />
   </ItemGroup>
 
   <ItemGroup>

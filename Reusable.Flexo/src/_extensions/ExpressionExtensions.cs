@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Reusable.Flexo.Diagnostics;
 
 namespace Reusable.Flexo
@@ -51,6 +52,7 @@ namespace Reusable.Flexo
                 if (typeof(TParameterAttribute) == typeof(OutAttribute)) throw new MissingInParameterException(missingItems);
                 throw new ArgumentException($"Inalid parameter attribute: {typeof(TParameterAttribute).FullName}");
             }
+
             return expression;
         }
 
@@ -90,14 +92,32 @@ namespace Reusable.Flexo
         }
 
         /// <summary>
-        /// Gets the value of a Constant expression and tries to cast it to T.
+        /// Gets the value of a Constant expression or throws an exception if not a Constant.
+        /// </summary>
+        public static object Value(this IExpression expression)
+        {
+            return
+                expression is IConstant constant
+                    ? constant.Value
+                    : throw new InvalidExpressionException(typeof(IConstant), expression.GetType());
+        }
+
+        /// <summary>
+        /// Gets the value of a Constant expression if it's of the specified type T or throws an exception.
         /// </summary>
         public static T Value<T>(this IExpression expression)
         {
-            return
-                expression is Constant<T> constant
-                    ? constant.Value
-                    : throw new InvalidExpressionException(typeof(Constant<T>), expression.GetType());
+            if (typeof(T) == typeof(object))
+            {
+                return (T)expression.Value();
+            }
+            else
+            {
+                return
+                    expression is Constant<T> constant
+                        ? constant.Value
+                        : throw new InvalidExpressionException(typeof(Constant<T>), expression.GetType());
+            }
         }
 
         public static T ValueOrDefault<T>(this IExpression expression)

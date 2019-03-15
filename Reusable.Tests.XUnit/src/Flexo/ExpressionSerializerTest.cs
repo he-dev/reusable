@@ -31,7 +31,7 @@ namespace Reusable.Tests.Flexo
                 ExpressionAssert.Equal(Constant.True, expressions.OfType<Any>().Single());
                 ExpressionAssert.Equal(Constant.False, expressions.OfType<All>().Single());
                 ExpressionAssert.Equal(Constant.Create(3.0), expressions.OfType<Sum>().Single());
-                ExpressionAssert.Equal(Constant.One, expressions.OfType<BooleanToDouble>().Single());
+                ExpressionAssert.Equal(Double.One, expressions.OfType<SwitchBooleanToDouble>().Single());
             }
         }
 

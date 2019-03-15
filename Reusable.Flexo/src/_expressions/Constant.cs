@@ -5,32 +5,30 @@ using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Collections;
+using Reusable.Data;
 using Reusable.Extensions;
 
 namespace Reusable.Flexo
 {
-    public interface IConstant
+    public interface IConstant : IExpression, IEquatable<IConstant>
     {
-        [NotNull]
-        string Name { get; }
-
+        [AutoEqualityProperty]
         [CanBeNull]
         object Value { get; }
     }
 
-    public class Constant<TValue> : Expression, IEquatable<Constant<TValue>>, IConstant
+    public class Constant<TValue> : Expression, IConstant, IEquatable<Constant<TValue>>
     {
         public Constant(string name, TValue value, IExpressionContext context) : base(name, context) => Value = value;
 
         [JsonConstructor]
         public Constant(string name, TValue value) : this(name, value, ExpressionContext.Empty) => Value = value;
 
+        object IConstant.Value => Value;
 
         [AutoEqualityProperty]
         [CanBeNull]
         public TValue Value { get; }
-
-        object IConstant.Value => Value;
 
         public override IExpression Invoke(IExpressionContext context)
         {
@@ -50,9 +48,19 @@ namespace Reusable.Flexo
 
         public override int GetHashCode() => AutoEquality<Constant<TValue>>.Comparer.GetHashCode(this);
 
-        public override bool Equals(object obj) => obj is Constant<TValue> constant && Equals(constant);
+        public override bool Equals(object obj)
+        {
+            switch (obj)
+            {
+                case Constant<TValue> constant: return Equals(constant);
+                case IConstant constant: return Equals(constant);
+                default: return false;
+            }
+        }
 
         public bool Equals(Constant<TValue> other) => AutoEquality<Constant<TValue>>.Comparer.Equals(this, other);
+
+        public bool Equals(IConstant other) => AutoEquality<IConstant>.Comparer.Equals(this, other);
 
         #endregion
     }
@@ -95,9 +103,9 @@ namespace Reusable.Flexo
 
         #region Predefined
 
-        [NotNull] public static readonly IExpression Zero = new Zero(nameof(Zero));
+        //[NotNull] public static readonly IExpression Zero = new Zero(nameof(Zero));
 
-        [NotNull] public static readonly IExpression One = new One(nameof(One));
+        //[NotNull] public static readonly IExpression One = new One(nameof(One));
 
         [NotNull] public static readonly IExpression True = new True(nameof(True));
 

@@ -152,9 +152,9 @@ namespace Reusable.Tests.Flexo
         public void Not_ReturnsFalseWhenTrue() => Assert.That.ExpressionsEqual(false, new Not { Predicate = Constant.Create(true) });
 
         [TestMethod]
-        public void ToDouble_MapsTrueToOne() => Assert.That.ExpressionsEqual(1.0, new BooleanToDouble { Expression = Constant.Create(true) });
+        public void ToDouble_MapsTrueToOne() => Assert.That.ExpressionsEqual(1.0, new SwitchBooleanToDouble { Expression = Constant.Create(true) });
 
         [TestMethod]
-        public void ToDouble_MapsFalseToZero() => Assert.That.ExpressionsEqual(0.0, new BooleanToDouble { Expression = Constant.Create(false) });
+        public void ToDouble_MapsFalseToZero() => Assert.That.ExpressionsEqual(0.0, new SwitchBooleanToDouble { Expression = Constant.Create(false) });
     }
 }

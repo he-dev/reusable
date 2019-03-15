@@ -89,10 +89,6 @@ namespace Reusable.Utilities.JsonNet
         public override JToken Visit(JToken token) => _visit(token);
     }
 
-    public static class JsonVisitorExtensions
-    {
-    }
-
     public class PropertyNameTrimmer : JsonVisitor
     {
         protected override JProperty VisitProperty(JProperty property)

@@ -30,6 +30,8 @@ namespace Reusable.Flexo
         bool TryGetValue(SoftString key, out object value);
     }
 
+    
+
     public class ExpressionMetadata
     {
         public string DebugView => ExpressionContextScope.Current.ToDebugView();

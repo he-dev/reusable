@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Exceptionizer;
 using Reusable.Extensions;
@@ -87,7 +88,14 @@ namespace Reusable.Flexo
                 throw new ArgumentException($"'{nameof(propertySelector)}' must be member-expression.");
             }
 
-            return $"{typeof(T).ToPrettyString()}.{memberExpression.Member.Name}";
+            var prefix = Regex.Replace(typeof(T).Name, "Context$", string.Empty);
+
+            if (typeof(T).IsInterface)
+            {
+                prefix = Regex.Replace(prefix, "^I", string.Empty);
+            }
+
+            return $"{prefix}.{memberExpression.Member.Name}";
         }
 
         #endregion

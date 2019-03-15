@@ -48,7 +48,7 @@ namespace Reusable.Utilities.JsonNet
                     ? throw DynamicException.Create
                     (
                         "GenericTypeArguments",
-                        "You must not specify generic type arguments excplicitly. Leave them empty, e.g. 'List<>' or 'Dictionary<,>'"
+                        "You must not specify generic type arguments explicitly. Leave them empty, e.g. 'List<>' or 'Dictionary<,>'"
                     )
                     : type;
         }

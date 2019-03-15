@@ -16,6 +16,7 @@
     <EmbeddedResource Remove="src\Utilities\**" />
     <None Remove="src\_expressions\Async\**" />
     <None Remove="src\Utilities\**" />
+    <Compile Remove="src\_expressions\Map.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="src\_expressions\_abstractions\ICommand.cs" />

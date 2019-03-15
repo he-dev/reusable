@@ -71,11 +71,11 @@ namespace Reusable.Flexo
         protected AggregateExpression(string name, [NotNull] Func<IEnumerable<double>, double> aggregate) : base(name) => _aggregate = aggregate;
 
         [JsonRequired]
-        public IEnumerable<IExpression> Expressions { get; set; }
+        public IEnumerable<IExpression> Values { get; set; }
 
         public override IExpression Invoke(IExpressionContext context)
         {
-            return Constant.FromValue(Name, _aggregate(Expressions.InvokeWithValidation(context).Values<double>()));
+            return Constant.FromValue(Name, _aggregate(Values.InvokeWithValidation(context).Values<double>()));
         }
     }
 
