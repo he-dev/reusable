@@ -19,7 +19,7 @@ namespace Reusable.Flexo
     [PublicAPI]
     public class ExpressionSerializer : IExpressionSerializer
     {
-        private readonly JsonVisitor _transform;
+        private readonly IJsonVisitor _transform;
 
         private readonly JsonSerializer _jsonSerializer;
 
@@ -38,11 +38,11 @@ namespace Reusable.Flexo
                     .AddRange(TypeDictionary.From(Expression.Types))
                     .AddRange(TypeDictionary.From(customTypes ?? Enumerable.Empty<Type>()));
 
-            _transform = JsonVisitor.CreateComposite
-            (
-                new TrimPropertyNameVisitor(),
-                new RewritePrettyTypeVisitor(types)
-            );
+            _transform =
+                CompositeJsonVisitor
+                    .Empty
+                    .Add(new TrimPropertyNameVisitor())
+                    .Add(new RewritePrettyTypeVisitor(types));
 
             configureSerializer?.Invoke(_jsonSerializer);
         }

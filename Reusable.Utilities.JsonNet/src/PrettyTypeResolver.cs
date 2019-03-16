@@ -12,7 +12,8 @@ namespace Reusable.Utilities.JsonNet
 {
     public interface ITypeResolver
     {
-        string Resolve(string name);
+        [NotNull]
+        string Resolve([NotNull] string name);
     }
     
     public class PrettyTypeResolver : ITypeResolver
@@ -32,25 +33,27 @@ namespace Reusable.Utilities.JsonNet
 
         public string Resolve(string prettyType)
         {
+            if (prettyType == null) throw new ArgumentNullException(nameof(prettyType));
+            
             var match =
                 Regex
                    .Match(prettyType, PrettyTypePattern, RegexOptions.ExplicitCapture)
                    .OnFailure(_ => new ArgumentException($"Invalid type alias: '{prettyType}'."));
 
-            var genericArguments = CreateGenericArguments(match.Groups["genericArguments"]);
-            var type = ResolveType($"{match.Groups["type"].Value}{genericArguments.Signature}");
-            return $"{type.FullName}{genericArguments.FullName}, {type.Assembly.GetName().Name}";
+            var generic = GetGenericsInfo(match.Groups["genericArguments"]);
+            var type = ResolveType($"{match.Groups["type"].Value}{generic.Placeholder}");
+            return $"{type.FullName}{generic.Signature}, {type.Assembly.GetName().Name}";
         }
 
-        // Signature: "<, >"
-        // FullName: "[[T1],[T2]]" - the "`2" prefix is provided by type-full-name later 
-        private (string Signature, string FullName) CreateGenericArguments(Group genericArguments)
+        // Placeholder: "<, >"
+        // Signature: "[[T1],[T2]]" - the generic type count prefix, e.g. "`2" is added by Type.FullName later. 
+        private (string Placeholder, string Signature) GetGenericsInfo(Group genericArguments)
         {
             if (genericArguments.Success)
             {
                 // "<, >"
                 var commas = string.Join(string.Empty, genericArguments.Value.Where(c => c == ',').Select(c => $"{c} "));
-                var signature = $"<{commas}>";
+                var placeholder = $"<{commas}>";
 
                 var genericArgumentNames = genericArguments.Value.Split(',').Select(x => x.Trim()).ToList();
                 var genericArgumentFullNames =
@@ -60,10 +63,10 @@ namespace Reusable.Utilities.JsonNet
                     select $"[{genericType.FullName}, {genericType.Assembly.GetName().Name}]"
                 );
 
-                // Creates: "[[Namespace.T1, ...],[Namespace.T2, ...]]"
-                var fullName = $"[{string.Join(",", genericArgumentFullNames)}]";
+                // "[[Namespace.T1, ...],[Namespace.T2, ...]]"
+                var signature = $"[{string.Join(",", genericArgumentFullNames)}]";
 
-                return (signature, fullName);
+                return (placeholder, signature);
             }
             else
             {
@@ -71,6 +74,7 @@ namespace Reusable.Utilities.JsonNet
             }
         }
 
+        [NotNull]
         private Type ResolveType(string typeName)
         {
             return

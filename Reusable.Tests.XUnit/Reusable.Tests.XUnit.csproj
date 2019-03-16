@@ -1,54 +1,53 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net47</TargetFramework>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DefineConstants>TRACE;RELEASE;NET47;JETBRAINS_ANNOTATIONS</DefineConstants>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="res\Utilities\JsonNet\PrettyTypeReaderT0.json" />
-    <EmbeddedResource Include="res\Utilities\JsonNet\PrettyTypeReaderT1.json" />
-    <EmbeddedResource Include="res\Utilities\JsonNet\PrettyTypeReaderT2.json" />
-    <None Remove="res\IOnymous\test.txt" />
-    <EmbeddedResource Include="res\Flexo\Array-of-expressions.json" />
-    <EmbeddedResource Include="res\Flexo\Single-expression.json" />
-    <EmbeddedResource Include="res\IOnymous\Http\Mailr\HtmlTable.json" />
-    <EmbeddedResource Include="res\IOnymous\test.txt" />
-    <Compile Remove="src\Commander\Integration\ExceptionTest.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="src\Call.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Autofac" Version="4.9.1" />
-    <PackageReference Include="JetBrains.Annotations" Version="2018.3.0" />
-    <PackageReference Include="JustMock" Version="2019.1.207.1" />
-    <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
-    <PackageReference Include="xunit" Version="2.4.1" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Reusable.Commander\Reusable.Commander.csproj" />
-    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
-    <ProjectReference Include="..\Reusable.Cryptography\Reusable.Cryptography.csproj" />
-    <ProjectReference Include="..\Reusable.Deception\Reusable.Deception.csproj" />
-    <ProjectReference Include="..\Reusable.IOnymous.Http.Mailr\Reusable.IOnymous.Http.Mailr.csproj" />
-    <ProjectReference Include="..\Reusable.IOnymous.Http\Reusable.IOnymous.Http.csproj" />
-    <ProjectReference Include="..\Reusable.IOnymous.Mail.Smtp\Reusable.IOnymous.Mail.Smtp.csproj" />
-    <ProjectReference Include="..\Reusable.IOnymous.Mail\Reusable.IOnymous.Mail.csproj" />
-    <ProjectReference Include="..\Reusable.OmniLog\Reusable.OmniLog.csproj" />
-    <ProjectReference Include="..\Reusable.SmartConfig.SqlServer\Reusable.SmartConfig.SqlServer.csproj" />
-    <ProjectReference Include="..\Reusable.SmartConfig\Reusable.SmartConfig.csproj" />
-    <ProjectReference Include="..\Reusable.Teapot\Reusable.Teapot.csproj" />
-    <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
-    <ProjectReference Include="..\Reusable.Utilities.XUnit\Reusable.Utilities.XUnit.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Configuration" />
-  </ItemGroup>
+    <PropertyGroup>
+        <TargetFramework>net47</TargetFramework>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <DefineConstants>TRACE;RELEASE;NET47;JETBRAINS_ANNOTATIONS</DefineConstants>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="res\Utilities\JsonNet\PrettyType0.json" />
+        <EmbeddedResource Include="res\Utilities\JsonNet\PrettyType1.json" />
+        <EmbeddedResource Include="res\Utilities\JsonNet\PrettyType2.json" />
+        <None Remove="res\IOnymous\test.txt" />
+        <EmbeddedResource Include="res\Flexo\Array-of-expressions.json" />
+        <EmbeddedResource Include="res\Flexo\Single-expression.json" />
+        <EmbeddedResource Include="res\IOnymous\Http\Mailr\HtmlTable.json" />
+        <EmbeddedResource Include="res\IOnymous\test.txt" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Autofac" Version="4.9.1" />
+        <PackageReference Include="JetBrains.Annotations" Version="2018.3.0" />
+        <PackageReference Include="JustMock" Version="2019.1.207.1" />
+        <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
+        <PackageReference Include="xunit" Version="2.4.1" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Reusable.Commander\Reusable.Commander.csproj" />
+        <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
+        <ProjectReference Include="..\Reusable.Cryptography\Reusable.Cryptography.csproj" />
+        <ProjectReference Include="..\Reusable.Deception\Reusable.Deception.csproj" />
+        <ProjectReference Include="..\Reusable.IOnymous.Http.Mailr\Reusable.IOnymous.Http.Mailr.csproj" />
+        <ProjectReference Include="..\Reusable.IOnymous.Http\Reusable.IOnymous.Http.csproj" />
+        <ProjectReference Include="..\Reusable.IOnymous.Mail.Smtp\Reusable.IOnymous.Mail.Smtp.csproj" />
+        <ProjectReference Include="..\Reusable.IOnymous.Mail\Reusable.IOnymous.Mail.csproj" />
+        <ProjectReference Include="..\Reusable.OmniLog\Reusable.OmniLog.csproj" />
+        <ProjectReference Include="..\Reusable.SmartConfig.SqlServer\Reusable.SmartConfig.SqlServer.csproj" />
+        <ProjectReference Include="..\Reusable.SmartConfig\Reusable.SmartConfig.csproj" />
+        <ProjectReference Include="..\Reusable.Teapot\Reusable.Teapot.csproj" />
+        <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
+        <ProjectReference Include="..\Reusable.Utilities.XUnit\Reusable.Utilities.XUnit.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <Reference Include="Microsoft.CSharp" />
+        <Reference Include="System.Configuration" />
+    </ItemGroup>
+    <ItemGroup>
+      <Compile Remove="src\Commander\Integration\ExceptionTest.cs" />
+    </ItemGroup>
 </Project>

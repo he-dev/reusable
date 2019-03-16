@@ -12,18 +12,20 @@ namespace Reusable.Tests.Utilities.JsonNet.Extensions
 {
     public class JsonSerializerExtensionsTest
     {
+        private static readonly JsonSerializer JsonSerializer = new JsonSerializer();
+        
         [Fact]
-        public void SerializeToBytes_string_bytes()
+        public void Serialize_can_serialize_object_to_specified_stream()
         {
-            using (var memoryStream = new MemoryStream())
+            using (var serialized = new MemoryStream())
             {
-                new JsonSerializer().Serialize(memoryStream, "foo");
-                var bytes = memoryStream.ToArray();
+                JsonSerializer.Serialize(serialized, "foo");
+                var bytes = serialized.ToArray();
                 Assert.Equal(5, bytes.Length);
 
                 using (var ms2 = new MemoryStream(bytes))
                 {
-                    var foo = new JsonSerializer().Deserialize<string>(ms2);
+                    var foo = JsonSerializer.Deserialize<string>(ms2);
                     Assert.Equal("foo", foo);
                 }
             }

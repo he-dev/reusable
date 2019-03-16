@@ -16,7 +16,18 @@ namespace Reusable.Utilities.JsonNet
     {
         [NotNull]
         JToken Visit([NotNull] JToken token);
+
+        // Without this API a string is casted into JValue and doesn't work.
+        // Extension does not work either and the JToken overload is picked. 
+        [NotNull]
+        JToken Visit([NotNull] string json);
     }
+
+//    public static class JsonVisitorExtensions
+//    {
+//        [NotNull]
+//        public static JToken Visit(this IJsonVisitor visitor, [NotNull] string json) => visitor.Visit(JToken.Parse(json));
+//    }
 
     public abstract class JsonVisitor : IJsonVisitor
     {
@@ -78,16 +89,24 @@ namespace Reusable.Utilities.JsonNet
         }
     }
 
-    internal class CompositeJsonVisitor : JsonVisitor
+    public class CompositeJsonVisitor : JsonVisitor
     {
-        private readonly Func<JToken, JToken> _visit;
+        //private readonly Func<JToken, JToken> _visit;
 
-        public CompositeJsonVisitor(params JsonVisitor[] visitors)
-        {
-            _visit = token => visitors.Aggregate(token, (current, visitor) => visitor.Visit(current));
-        }
+        private readonly IImmutableList<IJsonVisitor> _visitors;
 
-        public override JToken Visit(JToken token) => _visit(token);
+//        public CompositeJsonVisitor(params JsonVisitor[] visitors)
+//        {
+//            _visit = token => visitors.Aggregate(token, (current, visitor) => visitor.Visit(current));
+//        }
+
+        public CompositeJsonVisitor(IEnumerable<IJsonVisitor> visitors) => _visitors = visitors.ToImmutableList();
+        
+        public static CompositeJsonVisitor Empty => new CompositeJsonVisitor(ImmutableList<IJsonVisitor>.Empty);
+
+        public CompositeJsonVisitor Add(IJsonVisitor visitor) => new CompositeJsonVisitor(_visitors.Add(visitor));
+
+        public override JToken Visit(JToken token) => _visitors.Aggregate(token, (current, visitor) => visitor.Visit(current));
     }
 
     public class TrimPropertyNameVisitor : JsonVisitor
