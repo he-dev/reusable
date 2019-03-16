@@ -25,5 +25,9 @@
   <ItemGroup>
     <Folder Include="src\Visitors" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <Compile Remove="src\PrettyTypeReader.cs" />
+  </ItemGroup>
 
 </Project>

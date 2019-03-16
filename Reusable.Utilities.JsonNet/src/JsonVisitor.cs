@@ -89,16 +89,12 @@ namespace Reusable.Utilities.JsonNet
         }
     }
 
+    /// <summary>
+    /// This is an immutable visitor that executes specified visitor in the order they were added.
+    /// </summary>
     public class CompositeJsonVisitor : JsonVisitor
     {
-        //private readonly Func<JToken, JToken> _visit;
-
         private readonly IImmutableList<IJsonVisitor> _visitors;
-
-//        public CompositeJsonVisitor(params JsonVisitor[] visitors)
-//        {
-//            _visit = token => visitors.Aggregate(token, (current, visitor) => visitor.Visit(current));
-//        }
 
         public CompositeJsonVisitor(IEnumerable<IJsonVisitor> visitors) => _visitors = visitors.ToImmutableList();
         

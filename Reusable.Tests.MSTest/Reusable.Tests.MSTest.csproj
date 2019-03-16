@@ -105,9 +105,6 @@
     <EmbeddedResource Include="res\OmniLog\OmniLog.json" />
     <EmbeddedResource Include="res\TextFile1.txt" />
     <EmbeddedResource Include="res\TextFile2.txt" />
-    <EmbeddedResource Include="res\Utilities\JsonNet\PrettyTypeReaderT2.json" />
-    <EmbeddedResource Include="res\Utilities\JsonNet\PrettyTypeReaderT1.json" />
-    <EmbeddedResource Include="res\Utilities\JsonNet\PrettyTypeReaderT0.json" />
   </ItemGroup>
 
   <ItemGroup>
