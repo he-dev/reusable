@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,6 +7,7 @@ using Reusable.Extensions;
 using Reusable.Flexo;
 using Reusable.IOnymous;
 using Xunit;
+using Double = Reusable.Flexo.Double;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.Tests.Flexo
@@ -14,7 +16,7 @@ namespace Reusable.Tests.Flexo
 
     public class ExpressionSerializerTest
     {
-        private static readonly ExpressionSerializer Serializer = new ExpressionSerializer();
+        private static readonly ExpressionSerializer Serializer = new ExpressionSerializer(Enumerable.Empty<Type>());
 
         private static readonly IResourceProvider Flexo = EmbeddedFileProvider<ExpressionSerializerTest>.Default.DecorateWith(RelativeProvider.Factory(@"res\Flexo"));
 
