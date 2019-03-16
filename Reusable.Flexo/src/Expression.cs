@@ -7,6 +7,8 @@ using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Collections;
+using Reusable.Utilities.JsonNet;
+using Reusable.Utilities.JsonNet.Annotations;
 
 namespace Reusable.Flexo
 {
@@ -22,15 +24,51 @@ namespace Reusable.Flexo
         [NotNull]
         string Name { get; }
 
+        [NotNull]
         IExpressionContext Context { get; }
 
         [NotNull]
         IExpression Invoke([NotNull] IExpressionContext context);
     }
 
+    [Namespace("Flexo")]
     public abstract class Expression : IExpression
     {
-        protected Expression(string name) => Name = name;
+        // ReSharper disable RedundantNameQualifier - Use full namespace to avoid conflicts with other types.
+        public static readonly Type[] Types =
+        {
+            typeof(Reusable.Flexo.ObjectEqual),
+            typeof(Reusable.Flexo.StringEqual),
+            typeof(Reusable.Flexo.GreaterThan),
+            typeof(Reusable.Flexo.GreaterThanOrEqual),
+            typeof(Reusable.Flexo.LessThan),
+            typeof(Reusable.Flexo.LessThanOrEqual),
+            typeof(Reusable.Flexo.Not),
+            typeof(Reusable.Flexo.All),
+            typeof(Reusable.Flexo.Any),
+            typeof(Reusable.Flexo.String),
+            typeof(Reusable.Flexo.IIf),
+            typeof(Reusable.Flexo.Switch),
+            typeof(Reusable.Flexo.SwitchBooleanToDouble),
+            typeof(Reusable.Flexo.GetContextItem),
+            typeof(Reusable.Flexo.Contains),
+            typeof(Reusable.Flexo.Matches),
+            typeof(Reusable.Flexo.Min),
+            typeof(Reusable.Flexo.Max),
+            typeof(Reusable.Flexo.Sum),
+            typeof(Reusable.Flexo.ToList),
+            typeof(Reusable.Flexo.Constant<>),
+            typeof(Reusable.Flexo.Double),
+            typeof(Reusable.Flexo.Integer),
+            typeof(Reusable.Flexo.Decimal),
+            typeof(Reusable.Flexo.Instant),
+            typeof(Reusable.Flexo.Interval),
+            typeof(Reusable.Flexo.True),
+            typeof(Reusable.Flexo.False),
+        };
+        // ReSharper restore RedundantNameQualifier
+
+        protected Expression(string name) : this(name, ExpressionContext.Empty) { }
 
         protected Expression(string name, IExpressionContext context)
         {
@@ -41,7 +79,7 @@ namespace Reusable.Flexo
         public virtual string Name { get; }
 
         public IExpressionContext Context { get; }
-
+        
         public bool Enabled { get; set; } = true;
 
         public abstract IExpression Invoke(IExpressionContext context);
@@ -54,7 +92,7 @@ namespace Reusable.Flexo
 
         public override IExpression Invoke(IExpressionContext context)
         {
-            using (context.Scope(this))
+            //using (context.Scope(this))
             {
                 return Constant.FromResult(Name, Calculate(context));
             }
@@ -71,11 +109,11 @@ namespace Reusable.Flexo
         protected AggregateExpression(string name, [NotNull] Func<IEnumerable<double>, double> aggregate) : base(name) => _aggregate = aggregate;
 
         [JsonRequired]
-        public IEnumerable<IExpression> Values { get; set; }
+        public List<IExpression> Values { get; set; } = new List<IExpression>();
 
         public override IExpression Invoke(IExpressionContext context)
         {
-            return Constant.FromValue(Name, _aggregate(Values.InvokeWithValidation(context).Values<double>()));
+            return Constant.FromValue(Name, _aggregate(Values.Enabled().Select(e => e.Invoke(context)).Values<double>()));
         }
     }
 
@@ -155,13 +193,6 @@ namespace Reusable.Flexo
         {
             return new LambdaExpression(nameof(Double), context => Constant.FromResult(nameof(Double), calculate(context)));
         }
-    }
-
-    public interface IParameterAttribute
-    {
-        string Name { get; }
-
-        bool Required { get; }
     }
 
     public readonly struct InvokeResult<T>

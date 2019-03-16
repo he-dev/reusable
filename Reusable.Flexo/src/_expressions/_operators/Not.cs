@@ -1,5 +1,8 @@
-﻿namespace Reusable.Flexo
+﻿using Reusable.Utilities.JsonNet.Annotations;
+
+namespace Reusable.Flexo
 {
+    [Alias("!")]
     public class Not : PredicateExpression
     {
         public Not() : base(nameof(Not)) { }
@@ -8,7 +11,7 @@
 
         protected override InvokeResult<bool> Calculate(IExpressionContext context)
         {
-            return (!Predicate.InvokeWithValidation(context).Value<bool>(), context);
+            return (!Predicate.Invoke(context).Value<bool>(), context);
         }
     }
 }

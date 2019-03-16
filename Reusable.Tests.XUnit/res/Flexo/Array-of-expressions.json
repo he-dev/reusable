@@ -1,37 +1,48 @@
 [
   {
-    "$t": "Any",
+    "$t": "Flexo.Any",
     "Predicates": [
       {
-        "$t": "True"
+        "$t": "Flexo.True"
       }
     ]
   },
   {
-    "$t": "All",
+    "$t": "Flexo.All",
     "Predicates": [
       {
-        "$t": "False"
+        "$t": "Flexo.False"
       }
     ]
   },
   {
-    "$t": "Sum",
+    "$t": "Flexo.Sum",
     "Values": [
       {
-        "$t": "Constant<double>",
+        "$t": "Flexo.Constant<double>",
         "Value": 1
       },
       {
-        "$t": "Constant<double>",
+        "$t": "Flexo.Constant<double>",
         "Value": 2
       }
     ]
   },
   {
-    "$t": "SwitchBooleanToDouble",
+    "$t": "Flexo.SwitchBooleanToDouble",
     "Value": {
-      "$t": "True"
+      "$t": "Flexo.True"
     }
   }
+//  {
+//    "$t": "==",
+//    "Left": {
+//      "$t": "Flexo.Double",
+//      "Value": 1.0
+//    },
+//    "Right": {
+//      "$t": "Flexo.Double",
+//      "Value": 1.0
+//    }
+//  }
 ]

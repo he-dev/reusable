@@ -1,12 +1,12 @@
 {
-  "$t": "IIf",
+  "$t": "Flexo.IIf",
   "Predicate": {
-    "$t": "False"
+    "$t": "Flexo.False"
   },
   "True": {
-    "$t": "False"
+    "$t": "Flexo.False"
   },
   "False": {
-    "$t": "True"
+    "$t": "Flexo.True"
   }
 }

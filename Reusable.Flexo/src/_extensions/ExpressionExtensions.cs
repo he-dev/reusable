@@ -3,78 +3,77 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Reusable.Flexo.Diagnostics;
 
 namespace Reusable.Flexo
 {
     public static class ExpressionExtensions
     {
-        public static TExpression ValidateInItems<TExpression>(this TExpression expression, IExpressionContext context) where TExpression : IExpression
-        {
-            var missingInParameters =
-                typeof(TExpression)
-                    .GetCustomAttributes<OutAttribute>()
-                    .Where(parameter => parameter.Required && !context.ContainsKey(parameter.Name))
-                    .ToList();
+//        public static TExpression ValidateInItems<TExpression>(this TExpression expression, IExpressionContext context) where TExpression : IExpression
+//        {
+//            var missingInParameters =
+//                typeof(TExpression)
+//                    .GetCustomAttributes<OutAttribute>()
+//                    .Where(parameter => parameter.Required && !context.ContainsKey(parameter.Name))
+//                    .ToList();
+//
+//            return
+//                missingInParameters.Any()
+//                    ? throw new MissingInParameterException(missingInParameters)
+//                    : expression;
+//        }
+//
+//        public static IEnumerable<TExpression> ValidateInItems<TExpression>(this IEnumerable<TExpression> expressions, IExpressionContext context) where TExpression : IExpression
+//        {
+//            return expressions.Select(expression => expression.ValidateItems<TExpression, OutAttribute>(context));
+//        }
+//
+//        public static TExpression ValidateOutItems<TExpression>(this TExpression expression, IExpressionContext context) where TExpression : IExpression
+//        {
+//            return expression.ValidateItems<TExpression, InAttribute>(context);
+//        }
+//
+//        public static IEnumerable<TExpression> ValidateOutItems<TExpression>(this IEnumerable<TExpression> expressions, IExpressionContext context) where TExpression : IExpression
+//        {
+//            return expressions.Select(expression => expression.ValidateItems<TExpression, InAttribute>(context));
+//        }
+//
+//        public static TExpression ValidateItems<TExpression, TParameterAttribute>(this TExpression expression, IExpressionContext context) where TExpression : IExpression where TParameterAttribute : Attribute, IParameterAttribute
+//        {
+//            var missingItems =
+//                typeof(TExpression)
+//                    .GetCustomAttributes<TParameterAttribute>()
+//                    .Where(item => item.Required && !context.ContainsKey(item.Name))
+//                    .ToList();
+//
+//            if (missingItems.Any())
+//            {
+//                if (typeof(TParameterAttribute) == typeof(InAttribute)) throw new MissingOutParameterException(missingItems);
+//                if (typeof(TParameterAttribute) == typeof(OutAttribute)) throw new MissingInParameterException(missingItems);
+//                throw new ArgumentException($"Inalid parameter attribute: {typeof(TParameterAttribute).FullName}");
+//            }
+//
+//            return expression;
+//        }
 
-            return
-                missingInParameters.Any()
-                    ? throw new MissingInParameterException(missingInParameters)
-                    : expression;
-        }
-
-        public static IEnumerable<TExpression> ValidateInItems<TExpression>(this IEnumerable<TExpression> expressions, IExpressionContext context) where TExpression : IExpression
-        {
-            return expressions.Select(expression => expression.ValidateItems<TExpression, OutAttribute>(context));
-        }
-
-        public static TExpression ValidateOutItems<TExpression>(this TExpression expression, IExpressionContext context) where TExpression : IExpression
-        {
-            return expression.ValidateItems<TExpression, InAttribute>(context);
-        }
-
-        public static IEnumerable<TExpression> ValidateOutItems<TExpression>(this IEnumerable<TExpression> expressions, IExpressionContext context) where TExpression : IExpression
-        {
-            return expressions.Select(expression => expression.ValidateItems<TExpression, InAttribute>(context));
-        }
-
-        public static TExpression ValidateItems<TExpression, TParameterAttribute>(this TExpression expression, IExpressionContext context) where TExpression : IExpression where TParameterAttribute : Attribute, IParameterAttribute
-        {
-            var missingItems =
-                typeof(TExpression)
-                    .GetCustomAttributes<TParameterAttribute>()
-                    .Where(item => item.Required && !context.ContainsKey(item.Name))
-                    .ToList();
-
-            if (missingItems.Any())
-            {
-                if (typeof(TParameterAttribute) == typeof(InAttribute)) throw new MissingOutParameterException(missingItems);
-                if (typeof(TParameterAttribute) == typeof(OutAttribute)) throw new MissingInParameterException(missingItems);
-                throw new ArgumentException($"Inalid parameter attribute: {typeof(TParameterAttribute).FullName}");
-            }
-
-            return expression;
-        }
-
-        public static IExpression InvokeWithValidation(this IExpression expression, IExpressionContext context)
-        {
-            return
-                expression
-                    .ValidateInItems(context)
-                    .Invoke(context)
-                    .ValidateOutItems(context);
-        }
-
-        public static IEnumerable<IExpression> InvokeWithValidation(this IEnumerable<IExpression> expressions, IExpressionContext context)
-        {
-            return
-                from expression in expressions
-                select
-                    expression
-                        .ValidateInItems(context)
-                        .Invoke(context)
-                        .ValidateOutItems(context);
-        }
+//        public static IExpression InvokeWithValidation(this IExpression expression, IExpressionContext context)
+//        {
+//            return
+//                expression
+//                    .ValidateInItems(context)
+//                    .Invoke(context)
+//                    .ValidateOutItems(context);
+//        }
+//
+//        public static IEnumerable<IExpression> InvokeWithValidation(this IEnumerable<IExpression> expressions, IExpressionContext context)
+//        {
+//            return
+//                from expression in expressions
+//                select
+//                    expression
+//                        .ValidateInItems(context)
+//                        .Invoke(context)
+//                        .ValidateOutItems(context);
+//        }
 
         public static IEnumerable<IExpression> Enabled(this IEnumerable<IExpression> expressions)
         {

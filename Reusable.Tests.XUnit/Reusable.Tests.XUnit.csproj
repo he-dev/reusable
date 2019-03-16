@@ -10,9 +10,9 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="src\Utilities\**" />
-    <EmbeddedResource Remove="src\Utilities\**" />
-    <None Remove="src\Utilities\**" />
+    <EmbeddedResource Include="res\Utilities\JsonNet\PrettyTypeReaderT0.json" />
+    <EmbeddedResource Include="res\Utilities\JsonNet\PrettyTypeReaderT1.json" />
+    <EmbeddedResource Include="res\Utilities\JsonNet\PrettyTypeReaderT2.json" />
     <None Remove="res\IOnymous\test.txt" />
     <EmbeddedResource Include="res\Flexo\Array-of-expressions.json" />
     <EmbeddedResource Include="res\Flexo\Single-expression.json" />

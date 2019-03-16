@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
+using Reusable.Utilities.JsonNet.Annotations;
 
 namespace Reusable.Flexo
 {
@@ -15,6 +16,7 @@ namespace Reusable.Flexo
         protected abstract override InvokeResult<bool> Calculate(IExpressionContext context);        
     }
 
+    [Alias("==")]
     public class ObjectEqual : Equal<object>
     {
         public ObjectEqual() : base(nameof(ObjectEqual)) { }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq.Custom;
 using JetBrains.Annotations;
@@ -12,21 +13,16 @@ namespace Reusable.Utilities.JsonNet
     public class PrettyTypeReader : JsonTextReader
     {
         private readonly string _typePropertyName;
-        private readonly PrettyTypeExpander _prettyTypeExpander;
+        private readonly PrettyTypeResolver _prettyTypeResolver;
 
         private bool _isPrettyType;
 
-        public PrettyTypeReader(TextReader reader, [NotNull] string typePropertyName, [NotNull] Func<string, Type> resolvePrettyType)
+        public PrettyTypeReader(TextReader reader, [NotNull] string typePropertyName, [NotNull] IImmutableDictionary<SoftString, Type> types)
             : base(reader)
         {
             _typePropertyName = typePropertyName ?? throw new ArgumentNullException(nameof(typePropertyName));
-            _prettyTypeExpander = new PrettyTypeExpander(resolvePrettyType ?? throw new ArgumentNullException(nameof(resolvePrettyType)));
+            _prettyTypeResolver = new PrettyTypeResolver(types ?? throw new ArgumentNullException(nameof(types)));
         }
-
-        //public PrettyTypeReader(TextReader reader, params Type[] assemblyProviders)
-        //    : this(reader, AbbreviatedTypePropertyName, PrettyTypeResolver.Create(assemblyProviders))
-        //{
-        //}
 
         private const string DefaultTypePropertyName = "$type";
 
@@ -46,7 +42,7 @@ namespace Reusable.Utilities.JsonNet
 
                     // Expand type name definition, e.g. "MyType" -> "Namespace.MyType, Assembly"
                     case JsonToken.String when _isPrettyType && Value is string typeName:
-                        SetToken(JsonToken.String, _prettyTypeExpander.Expand(typeName));
+                        SetToken(JsonToken.String, _prettyTypeResolver.Resolve(typeName));
                         break;
 
                     default:

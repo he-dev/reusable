@@ -12,17 +12,17 @@ namespace Reusable.Flexo
         { }
     }
 
-    public class MissingInParameterException : Exception
-    {
-        public MissingInParameterException(IEnumerable<IParameterAttribute> parameters)
-            : base($"One or more in parameters are missing: [{string.Join(", ", parameters.Select(x => x.Name))}]")
-        { }
-    }
-
-    public class MissingOutParameterException : Exception
-    {
-        public MissingOutParameterException(IEnumerable<IParameterAttribute> parameters)
-            : base($"One or more out parameters are missing: [{string.Join(", ", parameters.Select(x => x.Name))}]")
-        { }
-    }
+//    public class MissingInParameterException : Exception
+//    {
+//        public MissingInParameterException(IEnumerable<IParameterAttribute> parameters)
+//            : base($"One or more in parameters are missing: [{string.Join(", ", parameters.Select(x => x.Name))}]")
+//        { }
+//    }
+//
+//    public class MissingOutParameterException : Exception
+//    {
+//        public MissingOutParameterException(IEnumerable<IParameterAttribute> parameters)
+//            : base($"One or more out parameters are missing: [{string.Join(", ", parameters.Select(x => x.Name))}]")
+//        { }
+//    }
 }

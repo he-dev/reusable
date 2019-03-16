@@ -1,5 +1,8 @@
-﻿namespace Reusable.Flexo
+﻿using Reusable.Utilities.JsonNet.Annotations;
+
+namespace Reusable.Flexo
 {
+    [Alias(">")]
     public class GreaterThan : ComparerExpression
     {
         public GreaterThan()
@@ -7,6 +10,7 @@
         { }
     }
 
+    [Alias(">=")]
     public class GreaterThanOrEqual : ComparerExpression
     {
         public GreaterThanOrEqual()

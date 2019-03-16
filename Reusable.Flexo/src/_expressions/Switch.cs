@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 
@@ -25,8 +27,8 @@ namespace Reusable.Flexo
                 context
                     .Set(Item.For<ISwitchContext>(), x => x.Value, Value);
 
-            foreach (var switchCase in Cases)
-            {                
+            foreach (var switchCase in Cases.Where(c => c.Enabled))
+            {
                 var when =
                     switchCase.When is IConstant constant
                         ? new ObjectEqual
@@ -52,11 +54,14 @@ namespace Reusable.Flexo
 
     public class SwitchCase
     {
+        [DefaultValue(true)]
+        public bool Enabled { get; set; } = true;
+
         [JsonRequired]
         public IExpression When { get; set; }
 
         [JsonRequired]
-        public IExpression Body { get; set; }        
+        public IExpression Body { get; set; }
     }
 
     public interface ISwitchContext

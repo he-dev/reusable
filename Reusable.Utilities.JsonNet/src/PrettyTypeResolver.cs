@@ -10,40 +10,27 @@ using Reusable.Reflection;
 
 namespace Reusable.Utilities.JsonNet
 {
-    public class PrettyTypeExpander
+    public interface ITypeResolver
     {
-        private static readonly IImmutableDictionary<string, Type> BuiltInTypes =
-            ImmutableDictionary
-               .Create<string, Type>(StringComparer.OrdinalIgnoreCase)
-               .Add("bool", typeof(Boolean))
-               .Add("byte", typeof(Byte))
-               .Add("sbyte", typeof(SByte))
-               .Add("char", typeof(Char))
-               .Add("decimal", typeof(Decimal))
-               .Add("double", typeof(Double))
-               .Add("float", typeof(Single))
-               .Add("int", typeof(Int32))
-               .Add("uint", typeof(UInt32))
-               .Add("long", typeof(Int64))
-               .Add("ulong", typeof(UInt64))
-               .Add("object", typeof(Object))
-               .Add("short", typeof(Int16))
-               .Add("ushort", typeof(UInt16))
-               .Add("string", typeof(String));
-
+        string Resolve(string name);
+    }
+    
+    public class PrettyTypeResolver : ITypeResolver
+    {
         // Used to specify user-friendly type names like: "List<int>" instead of "List`1[System.Int32...]" etc.
         // https://regex101.com/r/QZ5T5I/1/
         // language=regexp
         private const string PrettyTypePattern = @"(?<type>(?i)[a-z0-9_.]+)(?:\<(?<genericArguments>(?i)[a-z0-9_., ]+)\>)?";
 
-        private readonly Func<string, Type> _resolveCustomType;
-
-        public PrettyTypeExpander([NotNull] Func<string, Type> resolveCustomType)
+        private readonly Func<string, Type> _resolveType;
+        
+        public PrettyTypeResolver([NotNull] IImmutableDictionary<SoftString, Type> types)
         {
-            _resolveCustomType = resolveCustomType;
+            if (types == null) throw new ArgumentNullException(nameof(types));
+            _resolveType = prettyName => types.TryGetValue(prettyName, out var type) ? type : default;
         }
 
-        public string Expand(string prettyType)
+        public string Resolve(string prettyType)
         {
             var match =
                 Regex
@@ -51,7 +38,7 @@ namespace Reusable.Utilities.JsonNet
                    .OnFailure(_ => new ArgumentException($"Invalid type alias: '{prettyType}'."));
 
             var genericArguments = CreateGenericArguments(match.Groups["genericArguments"]);
-            var type = ResolveCustomType($"{match.Groups["type"].Value}{genericArguments.Signature}");
+            var type = ResolveType($"{match.Groups["type"].Value}{genericArguments.Signature}");
             return $"{type.FullName}{genericArguments.FullName}, {type.Assembly.GetName().Name}";
         }
 
@@ -69,7 +56,7 @@ namespace Reusable.Utilities.JsonNet
                 var genericArgumentFullNames =
                 (
                     from name in genericArgumentNames
-                    let genericType = ResolveBuiltInType(name) ?? ResolveCustomType(name)
+                    let genericType = ResolveType(name)
                     select $"[{genericType.FullName}, {genericType.Assembly.GetName().Name}]"
                 );
 
@@ -84,13 +71,10 @@ namespace Reusable.Utilities.JsonNet
             }
         }
 
-        [CanBeNull]
-        private static Type ResolveBuiltInType(string name) => BuiltInTypes.TryGetValue(name, out var t) ? t : default;
-
-        private Type ResolveCustomType(string typeName)
+        private Type ResolveType(string typeName)
         {
             return
-                _resolveCustomType(typeName) ??
+                _resolveType(typeName) ??
                 Type.GetType(typeName, ignoreCase: true, throwOnError: false) ??
                 throw DynamicException.Create("TypeNotFound", $"Could not resolve '{typeName}'.");
         }

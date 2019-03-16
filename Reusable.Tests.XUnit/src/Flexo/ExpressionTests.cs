@@ -126,13 +126,13 @@ namespace Reusable.Tests.Flexo
         }
 
         [Fact]
-        public void Max_ReturnsMax() => Equal(3.0, new Max { Values = Constant.CreateMany(2.0, 3.0, 1.0) });
+        public void Max_ReturnsMax() => Equal(3.0, new Max { Values = Constant.CreateMany(2.0, 3.0, 1.0).ToList() });
 
         [Fact]
-        public void Min_ReturnsMin() => Equal(1.0, new Min { Values = Constant.CreateMany(2.0, 3.0, 1.0) });
+        public void Min_ReturnsMin() => Equal(1.0, new Min { Values = Constant.CreateMany(2.0, 3.0, 1.0).ToList() });
 
         [Fact]
-        public void Sum_ReturnsSum() => Equal(6.0, new Sum { Values = Constant.CreateMany(2.0, 3.0, 1.0) });
+        public void Sum_ReturnsSum() => Equal(6.0, new Sum { Values = Constant.CreateMany(2.0, 3.0, 1.0).ToList() });
 
 //        [Fact]
 //        public void Equals_ReturnsTrueWhenEqual() => Equal(true, new Equals

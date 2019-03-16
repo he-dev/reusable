@@ -53,6 +53,9 @@
     <Compile Remove="src\Flexo\**" />
     <EmbeddedResource Remove="src\Flexo\**" />
     <None Remove="src\Flexo\**" />
+    <Compile Remove="src\Utilities\JsonNet\**" />
+    <EmbeddedResource Remove="src\Utilities\JsonNet\**" />
+    <None Remove="src\Utilities\JsonNet\**" />
   </ItemGroup>
 
   <ItemGroup>

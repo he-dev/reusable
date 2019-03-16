@@ -53,6 +53,7 @@ namespace Reusable.Utilities.JsonNet
                         break;
                 }
             }
+
             return result;
         }
 
@@ -89,7 +90,7 @@ namespace Reusable.Utilities.JsonNet
         public override JToken Visit(JToken token) => _visit(token);
     }
 
-    public class PropertyNameTrimmer : JsonVisitor
+    public class TrimPropertyNameVisitor : JsonVisitor
     {
         protected override JProperty VisitProperty(JProperty property)
         {
@@ -97,39 +98,46 @@ namespace Reusable.Utilities.JsonNet
         }
     }
 
-    public class TypeResolver : JsonVisitor
+    [PublicAPI]
+    public class RewriteTypeVisitor : JsonVisitor
     {
         private readonly string _typePropertyName;
 
-        private readonly Func<string, string> _resolveType;
+        [NotNull] private readonly ITypeResolver _typeResolver;
 
         public const string DefaultTypePropertyName = "$type";
 
-        public TypeResolver([NotNull] string typePropertyName, [NotNull] Func<string, string> resolveType)
+        public const string ShortTypePropertyName = "$t";
+
+        public RewriteTypeVisitor([NotNull] string typePropertyName, [NotNull] ITypeResolver typeResolver)
         {
             _typePropertyName = typePropertyName ?? throw new ArgumentNullException(nameof(typePropertyName));
-            _resolveType = resolveType ?? throw new ArgumentNullException(nameof(resolveType));
+            _typeResolver = typeResolver;
         }
 
         protected override JProperty VisitProperty(JProperty property)
         {
             return
-                property.Name.Equals(_typePropertyName, StringComparison.OrdinalIgnoreCase)
-                    ? new JProperty(DefaultTypePropertyName, _resolveType(property.Value.Value<string>()))
+                SoftString.Comparer.Equals(property.Name, _typePropertyName)
+                    ? new JProperty(DefaultTypePropertyName, _typeResolver.Resolve(property.Value.Value<string>()))
                     : base.VisitProperty(property);
         }
     }
 
-    public class PrettyTypeResolver : TypeResolver
+    [PublicAPI]
+    public class RewritePrettyTypeVisitor : RewriteTypeVisitor
     {
-        public PrettyTypeResolver(IEnumerable<Type> types)
-            : base("$t", new PrettyTypeExpander(PrettyTypeResolverCallback.Create(types)).Expand)
-        { }
+        public RewritePrettyTypeVisitor(IImmutableDictionary<SoftString, Type> types)
+            : this(ShortTypePropertyName, types) { }
+
+        public RewritePrettyTypeVisitor(string typePropertyName, IImmutableDictionary<SoftString, Type> types)
+            : base(typePropertyName, new PrettyTypeResolver(types)) { }
     }
 
     public class PropertyNameValidator : JsonVisitor
     {
         private readonly IImmutableSet<string> _propertyNames;
+
         public PropertyNameValidator(IEnumerable<string> propertyNames)
         {
             _propertyNames = propertyNames.ToImmutableHashSet();

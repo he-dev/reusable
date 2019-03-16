@@ -15,11 +15,5 @@
   - Context - `Value`, `Item`
 
 - `Matches`
-  - `IgnoreCase` - indicates whether `Regex` should ignore case. Default is `true`.
   - `Value` - an expression returning a `Constant<string>`
   - `Pattern` - `string` or an expression returning a `Constant<string>`
-
-- `SwitchBooleanToDouble` - maps `1.0` to `true` and `0.0` to `false`.
-
-- `GetContextItem` - gets an item from the expression-context.
-  - `Key` - the key of the item to get. _Use `ExpressionContext.CreateKey` to create a key when testing._

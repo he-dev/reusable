@@ -18,6 +18,12 @@
     <None Remove="src\Utilities\**" />
     <Compile Remove="src\_expressions\Map.cs" />
     <Compile Remove="src\_expressions\Self.cs" />
+    <Compile Remove="src\_annotations\**" />
+    <EmbeddedResource Remove="src\_annotations\**" />
+    <None Remove="src\_annotations\**" />
+    <Compile Remove="src\Diagnostics\**" />
+    <EmbeddedResource Remove="src\Diagnostics\**" />
+    <None Remove="src\Diagnostics\**" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="src\_expressions\_abstractions\ICommand.cs" />

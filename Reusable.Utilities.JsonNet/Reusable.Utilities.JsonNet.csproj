@@ -21,5 +21,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="src\Visitors" />
+  </ItemGroup>
 
 </Project>

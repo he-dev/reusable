@@ -10,7 +10,6 @@ using JetBrains.Annotations;
 using Reusable.Diagnostics;
 using Reusable.Exceptionizer;
 using Reusable.Extensions;
-using Reusable.Flexo.Diagnostics;
 
 namespace Reusable.Flexo
 {
@@ -32,10 +31,10 @@ namespace Reusable.Flexo
     }
 
 
-    public class ExpressionMetadata
-    {
-        public string DebugView => ExpressionContextScope.Current.ToDebugView();
-    }
+//    public class ExpressionMetadata
+//    {
+//        public string DebugView => ExpressionContextScope.Current.ToDebugView();
+//    }
 
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     [PublicAPI]
@@ -76,15 +75,7 @@ namespace Reusable.Flexo
 
         public ExpressionContext TryAdd(SoftString key, object value) => _data.ContainsKey(key) ? this : new ExpressionContext(_data.Add(key, value));
 
-        //public IImmutableDictionary<SoftString, object> Clear() => new ResourceProviderMetadata(_metadata.Clear());
-        //public IImmutableDictionary<SoftString, object> AddRange(IEnumerable<KeyValuePair<SoftString, object>> pairs) => new ResourceProviderMetadata(_metadata.AddRange(pairs));
         public IExpressionContext SetItem(SoftString key, object value) => new ExpressionContext(_data.SetItem(key, value));
-        //public ResourceMetadata SetItems(IEnumerable<KeyValuePair<SoftString, object>> items) => new ResourceProviderMetadata(_metadata.SetItems(items));
-        //public IImmutableDictionary<SoftString, object> RemoveRange(IEnumerable<SoftString> keys) => new ResourceProviderMetadata(_metadata.RemoveRange(keys));
-        //public IImmutableDictionary<SoftString, object> Remove(SoftString key) => new ResourceProviderMetadata(_metadata.Remove(key));
-
-        //public IEnumerator<KeyValuePair<SoftString, object>> GetEnumerator() => _metadata.GetEnumerator();
-        //IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_metadata).GetEnumerator();
 
         #region Helpers
 

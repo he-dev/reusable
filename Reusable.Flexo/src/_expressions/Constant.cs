@@ -32,7 +32,7 @@ namespace Reusable.Flexo
 
         public override IExpression Invoke(IExpressionContext context)
         {
-            using (context.Scope(this))
+            //using (context.Scope(this))
             {
                 return Constant.FromResult<TValue>(Name, (Value, context));
             }
@@ -90,13 +90,13 @@ namespace Reusable.Flexo
         }
 
         [NotNull, ItemNotNull]
-        public static IList<Constant<TValue>> CreateMany<TValue>(string name, params TValue[] values)
+        public static IEnumerable<IExpression> CreateMany<TValue>(string name, params TValue[] values)
         {
-            return values.Select(value => FromValue(name, value)).ToList();
+            return values.Select(value => FromValue(name, value));
         }
 
         [NotNull, ItemNotNull]
-        public static IEnumerable<Constant<TValue>> CreateMany<TValue>(params TValue[] values)
+        public static IEnumerable<IExpression> CreateMany<TValue>(params TValue[] values)
         {
             return values.Select(Create);
         }
