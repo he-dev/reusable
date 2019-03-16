@@ -22,7 +22,7 @@ namespace Reusable.Flexo
         [JsonRequired]
         public IEnumerable<IExpression> Expressions { get; set; }
 
-        public override IExpression Invoke(IExpressionContext context)
+        protected override IExpression InvokeCore(IExpressionContext context)
         {
             //return new Scope(Expression.Name, context, Expression.Invoke(context));
 

@@ -19,13 +19,17 @@ namespace Reusable.Flexo
     }
 
     [UsedImplicitly]
+    [PublicAPI]
     public interface IExpression : ISwitchable
     {
         [NotNull]
-        string Name { get; }
+        SoftString Name { get; }
 
         [NotNull]
         IExpressionContext Context { get; }
+
+        [CanBeNull]
+        IExpression Then { get; }
 
         [NotNull]
         IExpression Invoke([NotNull] IExpressionContext context);
@@ -68,21 +72,34 @@ namespace Reusable.Flexo
         };
         // ReSharper restore RedundantNameQualifier
 
-        protected Expression(string name) : this(name, ExpressionContext.Empty) { }
+        protected Expression(SoftString name) : this(name, ExpressionContext.Empty) { }
 
-        protected Expression(string name, IExpressionContext context)
+        protected Expression(SoftString name, IExpressionContext context)
         {
             Name = name;
             Context = context;
         }
 
-        public virtual string Name { get; }
+        public virtual SoftString Name { get; }
 
         public IExpressionContext Context { get; }
-        
+
         public bool Enabled { get; set; } = true;
 
-        public abstract IExpression Invoke(IExpressionContext context);
+        public IExpression Then { get; set; }
+
+        public IExpression Invoke(IExpressionContext context)
+        {
+            var result = InvokeCore(context);
+            return Then?.Invoke(result.Context.Set(Item.For<IExtensionContext>(), x => x.Input, result)) ?? result;
+        }
+
+        protected abstract IExpression InvokeCore(IExpressionContext context);
+    }
+
+    public interface IExtensionContext
+    {
+        IExpression Input { get; }
     }
 
     [PublicAPI]
@@ -90,7 +107,7 @@ namespace Reusable.Flexo
     {
         protected PredicateExpression(string name) : base(name) { }
 
-        public override IExpression Invoke(IExpressionContext context)
+        protected override IExpression InvokeCore(IExpressionContext context)
         {
             //using (context.Scope(this))
             {
@@ -111,7 +128,7 @@ namespace Reusable.Flexo
         [JsonRequired]
         public List<IExpression> Values { get; set; } = new List<IExpression>();
 
-        public override IExpression Invoke(IExpressionContext context)
+        protected override IExpression InvokeCore(IExpressionContext context)
         {
             return Constant.FromValue(Name, _aggregate(Values.Enabled().Select(e => e.Invoke(context)).Values<double>()));
         }
@@ -130,7 +147,7 @@ namespace Reusable.Flexo
         [JsonRequired]
         public IExpression Right { get; set; }
 
-        public override IExpression Invoke(IExpressionContext context)
+        protected override IExpression InvokeCore(IExpressionContext context)
         {
             var x = Left.Invoke(context);
             var y = Right.Invoke(context);
@@ -179,7 +196,7 @@ namespace Reusable.Flexo
             _invoke = invoke;
         }
 
-        public override IExpression Invoke(IExpressionContext context)
+        protected override IExpression InvokeCore(IExpressionContext context)
         {
             return _invoke(context);
         }

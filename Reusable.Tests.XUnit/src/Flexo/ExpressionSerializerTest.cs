@@ -11,14 +11,15 @@ using Double = Reusable.Flexo.Double;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.Tests.Flexo
-{
-    using static Assert;
-
+{    
     public class ExpressionSerializerTest
     {
         private static readonly ExpressionSerializer Serializer = new ExpressionSerializer(Enumerable.Empty<Type>());
 
-        private static readonly IResourceProvider Flexo = EmbeddedFileProvider<ExpressionSerializerTest>.Default.DecorateWith(RelativeProvider.Factory(@"res\Flexo"));
+        private static readonly IResourceProvider Flexo = 
+            EmbeddedFileProvider<ExpressionSerializerTest>
+                .Default
+                .DecorateWith(RelativeProvider.Factory(@"res\Flexo"));
 
         [Fact]
         public async Task Can_deserialize_array_of_expressions()
@@ -28,12 +29,13 @@ namespace Reusable.Tests.Flexo
             {
                 var expressions = await Serializer.DeserializeExpressionsAsync(memoryStream.Rewind());
 
-                Equal(4, expressions.Count);
+                Assert.Equal(5, expressions.Count);
                 
                 ExpressionAssert.Equal(Constant.True, expressions.OfType<Any>().Single());
                 ExpressionAssert.Equal(Constant.False, expressions.OfType<All>().Single());
                 ExpressionAssert.Equal(Constant.Create(3.0), expressions.OfType<Sum>().Single());
                 ExpressionAssert.Equal(Double.One, expressions.OfType<SwitchBooleanToDouble>().Single());
+                ExpressionAssert.Equal(Constant.False, expressions.Get("Negation"));
             }
         }
 
@@ -44,13 +46,16 @@ namespace Reusable.Tests.Flexo
             using (var jsonStream = await jsonFile.CopyToMemoryStreamAsync())
             {
                 var expression = await Serializer.DeserializeExpressionAsync(jsonStream.Rewind());
-                NotNull(expression);
+                Assert.NotNull(expression);
             }
         }                
     }
 
-    internal class MyTest
+    internal static class EnumerableExtensions
     {
-        public IExpression MyExpression { get; set; }
+        public static IExpression Get(this IEnumerable<IExpression> expressions, SoftString name)
+        {
+            return expressions.Single(e => e.Name == name);
+        }
     }
 }

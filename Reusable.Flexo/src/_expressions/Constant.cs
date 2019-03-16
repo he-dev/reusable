@@ -19,10 +19,10 @@ namespace Reusable.Flexo
 
     public class Constant<TValue> : Expression, IConstant, IEquatable<Constant<TValue>>
     {
-        public Constant(string name, TValue value, IExpressionContext context) : base(name, context) => Value = value;
+        public Constant(SoftString name, TValue value, IExpressionContext context) : base(name, context) => Value = value;
 
         [JsonConstructor]
-        public Constant(string name, TValue value) : this(name, value, ExpressionContext.Empty) => Value = value;
+        public Constant(SoftString name, TValue value) : this(name, value, ExpressionContext.Empty) => Value = value;
 
         object IConstant.Value => Value;
 
@@ -30,7 +30,7 @@ namespace Reusable.Flexo
         [CanBeNull]
         public TValue Value { get; }
 
-        public override IExpression Invoke(IExpressionContext context)
+        protected override IExpression InvokeCore(IExpressionContext context)
         {
             //using (context.Scope(this))
             {
@@ -38,7 +38,7 @@ namespace Reusable.Flexo
             }
         }
 
-        public override string ToString() => $"{Name}: '{Value}'";
+        public override string ToString() => $"{Name.ToString()}: '{Value}'";
 
         public static implicit operator Constant<TValue>((string name, TValue value) t) => new Constant<TValue>(t.name, t.value);
 
@@ -73,12 +73,12 @@ namespace Reusable.Flexo
         private static volatile int _counter;
 
         [NotNull]
-        public static Constant<TValue> FromValue<TValue>(string name, TValue value)
+        public static Constant<TValue> FromValue<TValue>(SoftString name, TValue value)
         {
             return new Constant<TValue>(name, value);
         }
 
-        public static Constant<TValue> FromResult<TValue>(string name, InvokeResult<TValue> result)
+        public static Constant<TValue> FromResult<TValue>(SoftString name, InvokeResult<TValue> result)
         {
             return new Constant<TValue>(name, result.Value, result.Context);
         }

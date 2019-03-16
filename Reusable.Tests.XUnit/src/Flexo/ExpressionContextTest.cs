@@ -19,7 +19,7 @@ namespace Reusable.Tests.Flexo
         }
         
         [Fact]
-        public void Throws_when_requried_value_not_found()
+        public void Throws_when_required_value_not_found()
         {
             var expression = new MyExpression();
 
@@ -34,7 +34,7 @@ namespace Reusable.Tests.Flexo
             [Required]
             public string Greeting { get; set; }
 
-            public override IExpression Invoke(IExpressionContext context)
+            protected override IExpression InvokeCore(IExpressionContext context)
             {
                 var name = context.Get(Item.For<MyExpression>(), e => e.Greeting);
                 return Constant.FromValue("Actual", name);

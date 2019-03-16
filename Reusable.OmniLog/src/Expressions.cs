@@ -23,14 +23,14 @@ namespace Reusable.OmniLog.Expressions
     {
         public GetLogLevel() : base(nameof(GetLogLevel)) { }
 
-        public override IExpression Invoke(IExpressionContext context) => Constant.FromValue(nameof(OmniLog.LogLevel), context.Log().Level());
+        protected override IExpression InvokeCore(IExpressionContext context) => Constant.FromValue(nameof(OmniLog.LogLevel), context.Log().Level());
     }
 
     public class GetLoggerName : Expression
     {
         public GetLoggerName() : base(nameof(GetLoggerName)) { }
 
-        public override IExpression Invoke(IExpressionContext context) => Constant.FromValue(nameof(OmniLog.LogLevel), context.Log().Name());
+        protected override IExpression InvokeCore(IExpressionContext context) => Constant.FromValue(nameof(OmniLog.LogLevel), context.Log().Name());
     }
 
     public static class ExpressionSerializerFactory

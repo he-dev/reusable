@@ -7,13 +7,13 @@ namespace Reusable.Flexo
     [PublicAPI]
     public class Error : Expression
     {
-        public Error(string name) : base(name) { }
+        public Error(SoftString name) : base(name) { }
 
         public string Message { get; set; }
 
-        public override IExpression Invoke(IExpressionContext context)
+        protected override IExpression InvokeCore(IExpressionContext context)
         {
-            throw DynamicException.Create(Name, Message);
+            throw DynamicException.Create(Name.ToString(), Message);
         }
     }
 }

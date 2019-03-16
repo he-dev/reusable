@@ -13,7 +13,7 @@ namespace Reusable.Flexo
         [JsonRequired]
         public string Key { get; set; }
 
-        public override IExpression Invoke(IExpressionContext context)
+        protected override IExpression InvokeCore(IExpressionContext context)
         {
             return
                 context.TryGetValue(Key, out var value)

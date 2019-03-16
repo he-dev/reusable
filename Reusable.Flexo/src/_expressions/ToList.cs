@@ -16,7 +16,7 @@ namespace Reusable.Flexo
         [JsonRequired]
         public List<IExpression> Expressions { get; set; } = new List<IExpression>();
 
-        public override IExpression Invoke(IExpressionContext context)
+        protected override IExpression InvokeCore(IExpressionContext context)
         {
             return Constant.FromValue(nameof(ToList), Expressions.Enabled().Select(e => e.Invoke(context)).ToList());
         }

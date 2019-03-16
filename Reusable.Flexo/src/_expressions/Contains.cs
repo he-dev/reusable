@@ -17,7 +17,7 @@ namespace Reusable.Flexo
 
         public IExpression Comparer { get; set; }
 
-        public override IExpression Invoke(IExpressionContext context)
+        protected override IExpression InvokeCore(IExpressionContext context)
         {
             var value = Value.Invoke(context).Value<object>();
 

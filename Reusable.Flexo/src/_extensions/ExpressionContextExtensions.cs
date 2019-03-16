@@ -30,7 +30,8 @@ namespace Reusable.Flexo
         //public static IDisposable Scope(this IExpressionContext context, IExpression expression) => ExpressionContextScope.Push(expression, context);
 
         #region Getters & Setters
-
+        
+        [CanBeNull]
         public static TProperty Get<TExpression, TProperty>
         (
             this IExpressionContext context,
