@@ -17,6 +17,7 @@
     <None Remove="src\_expressions\Async\**" />
     <None Remove="src\Utilities\**" />
     <Compile Remove="src\_expressions\Map.cs" />
+    <Compile Remove="src\_expressions\Self.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="src\_expressions\_abstractions\ICommand.cs" />

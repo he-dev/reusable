@@ -108,7 +108,7 @@ namespace Reusable.Flexo
                 TryCompare<DateTime>(x, y, out result) ||
                 TryCompare<TimeSpan>(x, y, out result) ||
                 TryCompare<object>(x, y, out result);
-            
+
             if (compared)
             {
                 return Constant.FromValue(Name, _predicate(result));
@@ -131,16 +131,16 @@ namespace Reusable.Flexo
             }
         }
     }
-    
+
     public class LambdaExpression : Expression
     {
         private readonly Func<IExpressionContext, IExpression> _invoke;
-        
+
         public LambdaExpression(string name, Func<IExpressionContext, IExpression> invoke) : base(name)
         {
             _invoke = invoke;
-        }       
-        
+        }
+
         public override IExpression Invoke(IExpressionContext context)
         {
             return _invoke(context);
@@ -150,7 +150,7 @@ namespace Reusable.Flexo
         {
             return new LambdaExpression(nameof(Predicate), context => Constant.FromResult(nameof(Predicate), predicate(context)));
         }
-        
+
         public static LambdaExpression Double(Func<IExpressionContext, InvokeResult<double>> calculate)
         {
             return new LambdaExpression(nameof(Double), context => Constant.FromResult(nameof(Double), calculate(context)));
@@ -175,12 +175,12 @@ namespace Reusable.Flexo
         public T Value { get; }
 
         public IExpressionContext Context { get; }
-        
+
         public static implicit operator InvokeResult<T>((T Value, IExpressionContext Context) t) => new InvokeResult<T>(t.Value, t.Context);
     }
 
     public static class InvokeResult
-    {        
+    {
         public static InvokeResult<TValue> From<TValue>(TValue value, IExpressionContext context)
         {
             return new InvokeResult<TValue>(value, context);

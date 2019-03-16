@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Diagnostics;
 using Reusable.Exceptionizer;
@@ -30,7 +31,6 @@ namespace Reusable.Flexo
         bool TryGetValue(SoftString key, out object value);
     }
 
-    
 
     public class ExpressionMetadata
     {
@@ -85,5 +85,29 @@ namespace Reusable.Flexo
 
         //public IEnumerator<KeyValuePair<SoftString, object>> GetEnumerator() => _metadata.GetEnumerator();
         //IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_metadata).GetEnumerator();
+
+        #region Helpers
+
+        public static string CreateKey<T, TProperty>([NotNull] Item<T> item, [NotNull] Expression<Func<T, TProperty>> propertySelector)
+        {
+            if (item == null) throw new ArgumentNullException(nameof(item));
+            if (propertySelector == null) throw new ArgumentNullException(nameof(propertySelector));
+            
+            if (!(propertySelector.Body is MemberExpression memberExpression))
+            {
+                throw new ArgumentException($"'{nameof(propertySelector)}' must be member-expression.");
+            }
+
+            var prefix = Regex.Replace(typeof(T).Name, "Context$", string.Empty);
+
+            if (typeof(T).IsInterface)
+            {
+                prefix = Regex.Replace(prefix, "^I", string.Empty);
+            }
+
+            return $"{prefix}.{memberExpression.Member.Name}";
+        }
+
+        #endregion
     }
 }

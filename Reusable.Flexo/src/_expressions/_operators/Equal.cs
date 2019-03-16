@@ -1,34 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Text.RegularExpressions;
 
 namespace Reusable.Flexo
 {
-//    [Obsolete("Use Equal and other derived types.")]
-//    public class Equals : PredicateExpression
-//    {
-//        public Equals() : base(nameof(Equals)) { }
-//
-//        [DefaultValue(true)]
-//        public bool IgnoreCase { get; set; } = true;
-//
-//        public IExpression Left { get; set; }
-//
-//        public IExpression Right { get; set; }
-//
-//        protected override InvokeResult<bool> Calculate(IExpressionContext context)
-//        {
-//            var x = Left.InvokeWithValidation(context).ValueOrDefault();
-//            var y = Right.InvokeWithValidation(context).ValueOrDefault();
-//
-//            if (x is string str1 && y is string str2 && IgnoreCase)
-//            {
-//                return (StringComparer.OrdinalIgnoreCase.Equals(str1, str2), context);
-//            }
-//
-//            return (x.Equals(y), context);
-//        }
-//    }
-
     public abstract class Equal<T> : PredicateExpression
     {
         protected Equal(string name) : base(name) { }
@@ -36,11 +11,6 @@ namespace Reusable.Flexo
         public IExpression Left { get; set; }
 
         public IExpression Right { get; set; }
-
-        protected IExpression GetInput(IExpression input, IExpressionContext context)
-        {
-            return (input ?? context.Get(Item.For<IEqualityContext>(), c => c.Left)).Invoke(context);
-        }
 
         protected abstract override InvokeResult<bool> Calculate(IExpressionContext context);        
     }
@@ -51,8 +21,8 @@ namespace Reusable.Flexo
 
         protected override InvokeResult<bool> Calculate(IExpressionContext context)
         {
-            var x = GetInput(Left, context).Invoke(context).ValueOrDefault();
-            var y = GetInput(Right, context).Invoke(context).ValueOrDefault();
+            var x = Left.Invoke(context).ValueOrDefault();
+            var y = Right.Invoke(context).ValueOrDefault();
 
             return (x?.Equals(y) == true, context);
         }
@@ -68,8 +38,8 @@ namespace Reusable.Flexo
 
         protected override InvokeResult<bool> Calculate(IExpressionContext context)
         {
-            var x = GetInput(Left, context).Invoke(context).ValueOrDefault<string>();
-            var y = GetInput(Right, context).Invoke(context).ValueOrDefault<string>();
+            var x = Left.Invoke(context).ValueOrDefault<string>();
+            var y = Right.Invoke(context).ValueOrDefault<string>();
 
             var comparer =
                 IgnoreCase
@@ -84,5 +54,5 @@ namespace Reusable.Flexo
 
             return (comparer.Equals(x, y), context);
         }
-    }
+    }       
 }

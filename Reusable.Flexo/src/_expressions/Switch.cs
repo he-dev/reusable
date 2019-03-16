@@ -21,21 +21,26 @@ namespace Reusable.Flexo
 
         public override IExpression Invoke(IExpressionContext context)
         {
-            var value = Value.Invoke(context);
+            var switchContext =
+                context
+                    .Set(Item.For<ISwitchContext>(), x => x.Value, Value);
 
             foreach (var switchCase in Cases)
-            {
+            {                
                 var when =
                     switchCase.When is IConstant constant
                         ? new ObjectEqual
                         {
-                            Left = value,
+                            Left = new GetContextItem
+                            {
+                                Key = ExpressionContext.CreateKey(Item.For<ISwitchContext>(), x => x.Value)
+                            },
                             Right = constant
                         }
                         : switchCase.When;
 
 
-                if (when.Invoke(context.Set(Item.For<ISwitchContext>(), x => x.Value, value.Value())).Value<bool>())
+                if (when.Invoke(switchContext).Value<bool>())
                 {
                     return switchCase.Body.Invoke(context);
                 }
@@ -51,9 +56,9 @@ namespace Reusable.Flexo
         public IExpression When { get; set; }
 
         [JsonRequired]
-        public IExpression Body { get; set; }
+        public IExpression Body { get; set; }        
     }
-    
+
     public interface ISwitchContext
     {
         object Value { get; }

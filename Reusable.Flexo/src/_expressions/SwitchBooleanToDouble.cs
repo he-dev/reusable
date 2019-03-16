@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 
-namespace Reusable.Flexo {
+namespace Reusable.Flexo
+{
     /// <summary>
     /// Provides a mapping expression from bool to double.
     /// </summary>
@@ -19,7 +20,16 @@ namespace Reusable.Flexo {
                 {
                     When = Constant.False,
                     Body = Double.Zero
+                },
+                new SwitchCase
+                {
+                    When = Constant.Null,
+                    Body = Double.Zero
                 }
+            };
+            Default = new Error("ValueOutOfRange")
+            {
+                Message = "Value must be either 'true', 'false' or 'null'."
             };
         }
     }

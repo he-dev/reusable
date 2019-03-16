@@ -39,7 +39,7 @@ namespace Reusable.Flexo
             Expression<Func<TExpression, TProperty>> propertySelector
         )
         {
-            if (context.TryGetValue(CreateKey(item, propertySelector), out var value))
+            if (context.TryGetValue(ExpressionContext.CreateKey(item, propertySelector), out var value))
             {
                 if (value is TProperty result)
                 {
@@ -49,7 +49,7 @@ namespace Reusable.Flexo
                 {
                     throw new ArgumentException
                     (
-                        $"There is a value for '{CreateKey(item, propertySelector)}' " +
+                        $"There is a value for '{ExpressionContext.CreateKey(item, propertySelector)}' " +
                         $"but its type '{value.GetType().ToPrettyString()}' " +
                         $"is different from '{typeof(TProperty).ToPrettyString()}'"
                     );
@@ -59,7 +59,7 @@ namespace Reusable.Flexo
             {
                 if (((MemberExpression)propertySelector.Body).Member.IsDefined(typeof(RequiredAttribute)))
                 {
-                    throw DynamicException.Create("RequiredValueMissing", $"{CreateKey(item, propertySelector)} is required.");
+                    throw DynamicException.Create("RequiredValueMissing", $"{ExpressionContext.CreateKey(item, propertySelector)} is required.");
                 }
 
                 return default;
@@ -74,32 +74,11 @@ namespace Reusable.Flexo
             TProperty value
         )
         {
-            return context.SetItem(CreateKey(item, selectProperty), value);
+            return context.SetItem(ExpressionContext.CreateKey(item, selectProperty), value);
         }
-
-        private static string CreateKey<T, TProperty>
-        (
-            Item<T> item,
-            Expression<Func<T, TProperty>> propertySelector
-        )
-        {
-            if (!(propertySelector.Body is MemberExpression memberExpression))
-            {
-                throw new ArgumentException($"'{nameof(propertySelector)}' must be member-expression.");
-            }
-
-            var prefix = Regex.Replace(typeof(T).Name, "Context$", string.Empty);
-
-            if (typeof(T).IsInterface)
-            {
-                prefix = Regex.Replace(prefix, "^I", string.Empty);
-            }
-
-            return $"{prefix}.{memberExpression.Member.Name}";
-        }
-
+        
         #endregion
-    }
+    }    
     
     public class Item<T>
     { }

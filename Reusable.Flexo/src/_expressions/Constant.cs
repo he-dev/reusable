@@ -68,7 +68,7 @@ namespace Reusable.Flexo
     /// <summary>
     /// This class provides factory methods.
     /// </summary>
-    public class Constant
+    public static class Constant
     {
         private static volatile int _counter;
 

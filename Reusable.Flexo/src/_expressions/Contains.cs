@@ -21,16 +21,26 @@ namespace Reusable.Flexo
         {
             var value = Value.Invoke(context).Value<object>();
 
-            var comparer = Comparer ?? new ObjectEqual();
+            var comparer = Comparer ?? new ObjectEqual
+            {
+                Left = new GetContextItem
+                {
+                    Key = ExpressionContext.CreateKey(Item.For<IContainsContext>(), x => x.Value)
+                },
+                Right = new GetContextItem
+                {
+                    Key = ExpressionContext.CreateKey(Item.For<IContainsContext>(), x => x.Item)
+                }
+            };
 
             foreach (var item in Collection)
             {
-                var ctx =
+                var itemContext =
                     context
-                        .Set(Item.For<IEqualityContext>(), x => x.Left, Constant.FromValue("Left", item))
-                        .Set(Item.For<IEqualityContext>(), x => x.Right, value);
-
-                if (comparer.Invoke(ctx).Value<bool>())
+                        .Set(Item.For<IContainsContext>(), x => x.Value, value)
+                        .Set(Item.For<IContainsContext>(), x => x.Item, Constant.FromValue("CollectionItem", item));
+                
+                if (comparer.Invoke(itemContext).Value<bool>())
                 {
                     return Constant.FromValue(Name, true);
                 }
@@ -40,12 +50,10 @@ namespace Reusable.Flexo
         }
     }
 
-    public interface IEqualityContext
+    public interface IContainsContext
     {
-        IExpression Left { get; }
+        object Item { get; }
 
-        IExpression Right { get; }
+        object Value { get; }
     }
-
-    //public abstract class Equality : Expression
 }

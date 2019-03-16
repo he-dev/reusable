@@ -340,11 +340,28 @@ namespace Reusable.Tests.Flexo
                 true,
                 new Contains
                 {
-                    Collection = { "foo", "BAR" }, 
-                    Value = Constant.FromValue("blub", "bar"), 
-                    Comparer = new StringEqual { IgnoreCase = true }
+                    Collection = { "foo", "BAR" },
+                    Value = Constant.FromValue("blub", "bar"),
+                    Comparer = new StringEqual
+                    {
+                        IgnoreCase = true,
+                        Left = new GetContextItem
+                        {
+                            Key = ExpressionContext.CreateKey(Item.For<IContainsContext>(), x => x.Value)
+                        },
+                        Right = new GetContextItem
+                        {
+                            Key = ExpressionContext.CreateKey(Item.For<IContainsContext>(), x => x.Item)
+                        }
+                    }
                 }
             );
+        }
+
+        [Fact]
+        public void Matches_return_True_when_Pattern_matches()
+        {
+            Equal(true, new Matches { IgnoreCase = true, Value = Constant.FromValue("Value", "Hallo"), Pattern = "hallo" });
         }
 
         [Fact]
