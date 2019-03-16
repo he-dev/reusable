@@ -5,10 +5,12 @@ namespace Reusable.Flexo
 {
     [UsedImplicitly]
     [PublicAPI]
-    public class Error : Expression
+    public class Throw : Expression
     {
-        public Error(SoftString name) : base(name) { }
+        public Throw(SoftString name) : base(name) { }
 
+        //public string Exception { get; set; }
+        
         public string Message { get; set; }
 
         protected override IExpression InvokeCore(IExpressionContext context)

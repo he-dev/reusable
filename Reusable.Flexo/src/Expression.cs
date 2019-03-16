@@ -53,7 +53,7 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.String),
             typeof(Reusable.Flexo.IIf),
             typeof(Reusable.Flexo.Switch),
-            typeof(Reusable.Flexo.SwitchBooleanToDouble),
+            typeof(Reusable.Flexo.SwitchToDouble),
             typeof(Reusable.Flexo.GetContextItem),
             typeof(Reusable.Flexo.Contains),
             typeof(Reusable.Flexo.Matches),

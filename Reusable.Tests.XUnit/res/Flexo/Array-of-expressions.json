@@ -29,7 +29,7 @@
     ]
   },
   {
-    "$t": "Flexo.SwitchBooleanToDouble",
+    "$t": "Flexo.SwitchToDouble",
     "Value": {
       "$t": "Flexo.True"
     }
@@ -39,6 +39,21 @@
     "Name": "Negation",
     "Then": {
       "$t": "Flexo.Not"
+    }
+  },
+  {
+    "$t": "Flexo.True",
+    "Name": "SwitchToDouble",
+    "Then": {
+      "$t": "Flexo.SwitchToDouble"
+    }
+  },
+  {
+    "$t": "Flexo.Double",
+    "Value": 1.0,
+    "Name": "SwitchToDoubleInvalid",
+    "Then": {
+      "$t": "Flexo.SwitchToDouble"
     }
   }
 ]

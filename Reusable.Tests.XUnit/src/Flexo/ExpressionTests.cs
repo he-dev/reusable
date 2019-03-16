@@ -239,10 +239,10 @@ namespace Reusable.Tests.Flexo
         public void Not_ReturnsFalseWhenTrue() => Equal(false, new Not { Predicate = Constant.True });
 
         [Fact]
-        public void ToDouble_MapsTrueToOne() => Equal(1.0, new SwitchBooleanToDouble { Value = Constant.True });
+        public void ToDouble_MapsTrueToOne() => Equal(1.0, new SwitchToDouble { Value = Constant.True });
 
         [Fact]
-        public void ToDouble_MapsFalseToZero() => Equal(0.0, new SwitchBooleanToDouble { Value = Constant.False });
+        public void ToDouble_MapsFalseToZero() => Equal(0.0, new SwitchToDouble { Value = Constant.False });
 
         [Fact]
         public void Constant_flows_context()

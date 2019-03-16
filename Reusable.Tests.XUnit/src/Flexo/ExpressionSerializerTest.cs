@@ -29,13 +29,15 @@ namespace Reusable.Tests.Flexo
             {
                 var expressions = await Serializer.DeserializeExpressionsAsync(memoryStream.Rewind());
 
-                Assert.Equal(5, expressions.Count);
+                Assert.Equal(7, expressions.Count);
                 
                 ExpressionAssert.Equal(Constant.True, expressions.OfType<Any>().Single());
                 ExpressionAssert.Equal(Constant.False, expressions.OfType<All>().Single());
                 ExpressionAssert.Equal(Constant.Create(3.0), expressions.OfType<Sum>().Single());
-                ExpressionAssert.Equal(Double.One, expressions.OfType<SwitchBooleanToDouble>().Single());
+                ExpressionAssert.Equal(Double.One, expressions.OfType<SwitchToDouble>().Single());
                 ExpressionAssert.Equal(Constant.False, expressions.Get("Negation"));
+                ExpressionAssert.Equal(Double.One, expressions.Get("SwitchToDouble"));
+                //ExpressionAssert.Equal(Double.One, expressions.Get("SwitchToDoubleInvalid"));
             }
         }
 
