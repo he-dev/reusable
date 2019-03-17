@@ -41,6 +41,7 @@ namespace Reusable.Tests.Flexo
                 ExpressionAssert.Equal(3.0, expressions.Get("SumExtension"));
                 ExpressionAssert.Equal(4.0, expressions.Get("MaxExtension"));
                 ExpressionAssert.Equal(Constant.True, expressions.Get("ContainsExtension"));
+                ExpressionAssert.Equal(Constant.True, expressions.Get("Matches"));
             }
         }
 

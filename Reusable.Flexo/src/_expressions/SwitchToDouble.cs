@@ -7,7 +7,7 @@ namespace Reusable.Flexo
     /// </summary>
     public class SwitchToDouble : Switch
     {
-        public SwitchToDouble()
+        public SwitchToDouble(string name) : base(name)
         {
             Cases = new List<SwitchCase>
             {
@@ -27,11 +27,13 @@ namespace Reusable.Flexo
                     Body = Double.Zero
                 }
             };
-            Default = new Throw("ValueOutOfRange")
+            Default = new Throw("SwitchValueOutOfRange")
             {
                 //Exception = $"ValueOutOfRange",
                 Message = $"{nameof(SwitchToDouble)} value must be either 'true', 'false' or 'null'."
             };
         }
+
+        public SwitchToDouble() : this(nameof(SwitchToDouble)) { }
     }
 }

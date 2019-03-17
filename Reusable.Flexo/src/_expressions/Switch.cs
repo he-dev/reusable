@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using Reusable.Exceptionizer;
 
 namespace Reusable.Flexo
 {
@@ -10,14 +11,14 @@ namespace Reusable.Flexo
     [PublicAPI]
     public class Switch : Expression, IExtension<IExpression>
     {
-        public Switch() : base(nameof(Switch)) { }
+        public Switch(string name) : base(name) { }
+
+        public Switch() : this(nameof(Switch)) { }
 
         public IExpression Value { get; set; }
 
-        //[JsonRequired]
         public List<SwitchCase> Cases { get; set; } = new List<SwitchCase>();
 
-        //[JsonRequired]
         public IExpression Default { get; set; }
 
         protected override IExpression InvokeCore(IExpressionContext context)
@@ -25,28 +26,15 @@ namespace Reusable.Flexo
             var value = context.Input() ?? Value;
             var switchContext = context.Set(Item.For<ISwitchContext>(), x => x.Value, value);
 
-            foreach (var switchCase in Cases.Where(c => c.Enabled))
+            foreach (var switchCase in (Cases ?? Enumerable.Empty<SwitchCase>()).Where(c => c.Enabled))
             {
-                var when =
-                    switchCase.When is IConstant constant
-                        ? new ObjectEqual
-                        {
-                            Left = new GetContextItem
-                            {
-                                Key = ExpressionContext.CreateKey(Item.For<ISwitchContext>(), x => x.Value)
-                            },
-                            Right = constant
-                        }
-                        : switchCase.When;
-
-
-                if (when.Invoke(switchContext).Value<bool>())
+                if (switchCase.WhenOrDefault().Invoke(switchContext).Value<bool>())
                 {
-                    return switchCase.Body.Invoke(context);
+                    return switchCase.Body.Invoke(switchContext);
                 }
             }
 
-            return Default.Invoke(context);
+            return (Default ?? new Throw("SwitchValueOutOfRange") { Message = "Default value not specified." }).Invoke(context);
         }
     }
 
@@ -60,6 +48,24 @@ namespace Reusable.Flexo
 
         [JsonRequired]
         public IExpression Body { get; set; }
+    }
+
+    public static class SwitchCaseExtensions
+    {
+        public static IExpression WhenOrDefault(this SwitchCase switchCase)
+        {
+            return
+                switchCase.When is IConstant constant
+                    ? new ObjectEqual
+                    {
+                        Left = new GetContextItem
+                        {
+                            Key = ExpressionContext.CreateKey(Item.For<ISwitchContext>(), x => x.Value)
+                        },
+                        Right = constant
+                    }
+                    : switchCase.When;
+        }
     }
 
     public interface ISwitchContext

@@ -6,22 +6,21 @@ using Reusable.Extensions;
 
 namespace Reusable.Flexo
 {
-    public class Matches : PredicateExpression
+    public class Matches : PredicateExpression, IExtension<string>
     {
         public Matches() : base(nameof(Matches)) { }
 
-        [DefaultValue(true)]
-        public bool IgnoreCase { get; set; }
+        //[DefaultValue(true)]
+        public bool IgnoreCase { get; set; } = true;
 
-        [JsonRequired]
-        public IExpression Value { get; set; }
+        public object Value { get; set; }
 
         [JsonRequired]
         public object Pattern { get; set; }
 
         protected override InvokeResult<bool> Calculate(IExpressionContext context)
         {
-            var value = Value.Invoke(context).ValueOrDefault<string>();
+            var value = (string)Constant.FromValueOrDefault(Name)(Value).Invoke(context).ValueOrDefault();
             if (value is null)
             {
                 return (false, context);

@@ -66,14 +66,15 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.Matches),
             typeof(Reusable.Flexo.Min),
             typeof(Reusable.Flexo.Max),
+            typeof(Reusable.Flexo.Count),
             typeof(Reusable.Flexo.Sum),
             typeof(Reusable.Flexo.ToList),
             typeof(Reusable.Flexo.Constant<>),
             typeof(Reusable.Flexo.Double),
             typeof(Reusable.Flexo.Integer),
             typeof(Reusable.Flexo.Decimal),
-            typeof(Reusable.Flexo.Instant),
-            typeof(Reusable.Flexo.Interval),
+            typeof(Reusable.Flexo.DateTime),
+            typeof(Reusable.Flexo.TimeSpan),
             typeof(Reusable.Flexo.True),
             typeof(Reusable.Flexo.False),
             typeof(Reusable.Flexo.Collection),
@@ -177,8 +178,8 @@ namespace Reusable.Flexo
                 TryCompare<double>(x, y, out result) ||
                 TryCompare<string>(x, y, out result) ||
                 TryCompare<decimal>(x, y, out result) ||
-                TryCompare<DateTime>(x, y, out result) ||
-                TryCompare<TimeSpan>(x, y, out result) ||
+                TryCompare<System.DateTime>(x, y, out result) ||
+                TryCompare<System.TimeSpan>(x, y, out result) ||
                 TryCompare<object>(x, y, out result);
 
             if (compared)

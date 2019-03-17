@@ -72,6 +72,12 @@ namespace Reusable.Flexo
     {
         private static volatile int _counter;
 
+        public static Func<object, IExpression> FromValueOrDefault(SoftString name)
+        {
+            return obj => obj is IExpression e ? e : FromValue(name, obj);
+
+        }
+
         [NotNull]
         public static Constant<TValue> FromValue<TValue>(SoftString name, TValue value)
         {

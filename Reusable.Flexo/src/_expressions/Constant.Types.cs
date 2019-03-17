@@ -56,27 +56,27 @@ namespace Reusable.Flexo
         public String(string name, string value) : base(name, value) { }
     }
 
-    public class Instant : Constant<DateTime>
+    public class DateTime : Constant<System.DateTime>
     {
-        public Instant(string name, string value, [CanBeNull] string format)
+        public DateTime(string name, string value, [CanBeNull] string format)
             : base
             (
                 name,
                 format is null
-                    ? DateTime.Parse(value)
-                    : DateTime.ParseExact(value, format, CultureInfo.InvariantCulture)
+                    ? System.DateTime.Parse(value)
+                    : System.DateTime.ParseExact(value, format, CultureInfo.InvariantCulture)
             ) { }
     }
 
-    public class Interval : Constant<TimeSpan>
+    public class TimeSpan : Constant<System.TimeSpan>
     {
-        public Interval(string name, string value, [CanBeNull] string format)
+        public TimeSpan(string name, string value, [CanBeNull] string format)
             : base
             (
                 name,
                 format is null
-                    ? TimeSpan.Parse(value)
-                    : TimeSpan.ParseExact(value, format, CultureInfo.InvariantCulture)
+                    ? System.TimeSpan.Parse(value)
+                    : System.TimeSpan.ParseExact(value, format, CultureInfo.InvariantCulture)
             ) { }
     }
 }

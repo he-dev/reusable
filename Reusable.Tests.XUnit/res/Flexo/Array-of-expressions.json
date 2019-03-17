@@ -106,5 +106,11 @@
         "Value": 2.0
       }
     ]
+  },
+  {
+    "$t": "Flexo.Matches",
+    "Name": "Matches",
+    "Value": "FOO",
+    "Pattern": "foo"
   }
 ]

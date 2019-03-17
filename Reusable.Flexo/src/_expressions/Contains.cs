@@ -12,14 +12,13 @@ namespace Reusable.Flexo
 
         public List<object> Collection { get; set; } = new List<object>();
 
-        [JsonRequired]
         public object Value { get; set; }
 
         public IExpression Comparer { get; set; }
 
         protected override IExpression InvokeCore(IExpressionContext context)
         {
-            var value = Value is IExpression expression ? expression : Constant.FromValue("Value", Value);
+            var value = Constant.FromValueOrDefault("Value")(Value).Invoke(context);
 
             var comparer = Comparer ?? new ObjectEqual
             {
@@ -33,24 +32,16 @@ namespace Reusable.Flexo
                 }
             };
 
-            var collection = 
-                context.Input().ValueOrDefault<List<IExpression>>() 
-                ?? Collection.Select(x => Constant.FromValue("CollectionItem", x)).Cast<IExpression>();
-            
-            foreach (var item in collection)
-            {
-                var itemContext =
-                    context
-                        .Set(Item.For<IContainsContext>(), x => x.Value, value)
-                        .Set(Item.For<IContainsContext>(), x => x.Item, item);
-                
-                if (comparer.Invoke(itemContext).Value<bool>())
-                {
-                    return Constant.FromValue(Name, true);
-                }
-            }
+            var collection = context.Input().ValueOrDefault<List<IExpression>>() ?? Collection.Select(Constant.FromValueOrDefault("CollectionItem"));
 
-            return Constant.FromValue(Name, false);
+            var itemContexts =
+                from item in collection
+                select context
+                    .Set(Item.For<IContainsContext>(), x => x.Value, value)
+                    .Set(Item.For<IContainsContext>(), x => x.Item, item);
+
+            var contains = itemContexts.Any(itemContext => comparer.Invoke(itemContext).Value<bool>());
+            return Constant.FromValue(Name, contains);
         }
     }
 
