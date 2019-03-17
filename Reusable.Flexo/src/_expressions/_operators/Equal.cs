@@ -40,8 +40,8 @@ namespace Reusable.Flexo
 
         protected override InvokeResult<bool> Calculate(IExpressionContext context)
         {
-            var x = Left.Invoke(context).ValueOrDefault<string>();
-            var y = Right.Invoke(context).ValueOrDefault<string>();
+            var x = (string)Left.Invoke(context).ValueOrDefault();
+            var y = (string)Right.Invoke(context).ValueOrDefault();
 
             var comparer =
                 IgnoreCase

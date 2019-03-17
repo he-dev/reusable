@@ -17,7 +17,7 @@ namespace Reusable.Flexo
         {
             return
                 context.TryGetValue(Key, out var value)
-                    ? (value is IExpression expression ? expression : Constant.FromValue(Key, value))
+                    ? (value is IExpression expression ? expression.Invoke(context) : Constant.FromValue(Key, value))
                     : throw DynamicException.Create("KeyNotFound", $"Context does not contain an item with the key '{Key}'.");
         }
     }

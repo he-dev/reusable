@@ -12,7 +12,7 @@ namespace Reusable.Flexo
         public All() : base(nameof(All)) { }
 
         [JsonRequired]
-        public List<IExpression> Predicates { get; set; }
+        public List<IExpression> Predicates { get; set; } = new List<IExpression>();
 
         protected override InvokeResult<bool> Calculate(IExpressionContext context)
         {

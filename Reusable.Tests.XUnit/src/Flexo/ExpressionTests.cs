@@ -13,20 +13,20 @@ namespace Reusable.Tests.Flexo
     public class ExpressionTest
     {
         [Fact]
-        public void All_ReturnsTrueWhenAllTrue() => Equal(true, new All { Predicates = Constant.CreateMany(true, true, true) });
+        public void All_ReturnsTrueWhenAllTrue() => Equal(true, new All { Predicates = Constant.CreateMany(true, true, true).ToList() });
 
         [Fact]
-        public void All_ReturnsFalseWhenSomeFalse() => Equal(false, new All { Predicates = Constant.CreateMany(true, false, true) });
+        public void All_ReturnsFalseWhenSomeFalse() => Equal(false, new All { Predicates = Constant.CreateMany(true, false, true).ToList() });
 
         [Fact]
-        public void All_ReturnsFalseWhenAllFalse() => Equal(false, new All { Predicates = Constant.CreateMany(false, false, false) });
+        public void All_ReturnsFalseWhenAllFalse() => Equal(false, new All { Predicates = Constant.CreateMany(false, false, false).ToList() });
 
         [Fact]
         public void All_flows_all_contexts()
         {
             var actual = new All
             {
-                Predicates = new[]
+                Predicates =
                 {
                     LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"] + 1))),
                     LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"] + 1))),
@@ -39,17 +39,17 @@ namespace Reusable.Tests.Flexo
         }
 
         [Fact]
-        public void Any_ReturnsTrueWhenSomeTrue() => Equal(true, new Any { Predicates = Constant.CreateMany(false, false, true) });
+        public void Any_ReturnsTrueWhenSomeTrue() => Equal(true, new Any { Predicates = Constant.CreateMany(false, false, true).ToList() });
 
         [Fact]
-        public void Any_ReturnsFalseWhenAllFalse() => Equal(false, new Any { Predicates = Constant.CreateMany(false, false, false) });
+        public void Any_ReturnsFalseWhenAllFalse() => Equal(false, new Any { Predicates = Constant.CreateMany(false, false, false).ToList() });
 
         [Fact]
         public void Any_flows_True_context()
         {
             var actual = new Any
             {
-                Predicates = new[]
+                Predicates =
                 {
                     LambdaExpression.Predicate(context => (false, context.SetItem("x", (int)context["x"] + 2))),
                     LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"] + 3))),
@@ -287,7 +287,14 @@ namespace Reusable.Tests.Flexo
                 {
                     new SwitchCase
                     {
-                        When = new Contains { Collection = { "foo", "bar" }, Value = new GetContextItem { Key = "Switch.Value" } },
+                        When = new Contains
+                        {
+                            Collection = { "foo", "bar" }, 
+                            Value = new GetContextItem
+                            {
+                                Key = "Switch.Value"
+                            }
+                        },
                         Body = Constant.True
                     },
                     new SwitchCase
@@ -341,7 +348,7 @@ namespace Reusable.Tests.Flexo
                 new Contains
                 {
                     Collection = { "foo", "BAR" },
-                    Value = Constant.FromValue("blub", "bar"),
+                    Value = Constant.FromValue("Value", "bar"),
                     Comparer = new StringEqual
                     {
                         IgnoreCase = true,
