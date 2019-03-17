@@ -4,6 +4,9 @@ using Reusable.Exceptionizer;
 
 namespace Reusable.Flexo
 {
+    /// <summary>
+    /// Gets an item from the context. Calls Invoke if it's an expression, otherwise it's wrapped in a Constant.
+    /// </summary>
     [UsedImplicitly]
     [PublicAPI]
     public class GetContextItem : Expression
