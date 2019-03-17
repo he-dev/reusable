@@ -9,7 +9,7 @@ namespace Reusable.Flexo
         public Any() : base(nameof(Any)) { }
 
         [JsonRequired]
-        public IEnumerable<IExpression> Predicates { get; set; }
+        public List<IExpression> Predicates { get; set; }
 
         protected override InvokeResult<bool> Calculate(IExpressionContext context)
         {

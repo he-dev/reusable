@@ -36,24 +36,75 @@
   },
   {
     "$t": "Flexo.True",
-    "Name": "Negation",
-    "Then": {
-      "$t": "Flexo.Not"
-    }
+    "Name": "NotExtension",
+    "This": [
+      {
+        "$t": "Flexo.Not"
+      }
+    ]
   },
   {
     "$t": "Flexo.True",
-    "Name": "SwitchToDouble",
-    "Then": {
-      "$t": "Flexo.SwitchToDouble"
-    }
+    "Name": "SwitchToDoubleExtension",
+    "This": [
+      {
+        "$t": "Flexo.SwitchToDouble"
+      }
+    ]
   },
   {
     "$t": "Flexo.Double",
     "Value": 1.0,
     "Name": "SwitchToDoubleInvalid",
-    "Then": {
-      "$t": "Flexo.SwitchToDouble"
-    }
+    "This": [
+      {
+        "$t": "Flexo.SwitchToDouble"
+      }
+    ]
+  },
+  {
+    "$t": "Flexo.Collection",
+    "Name": "SumExtension",
+    "Values": [
+      1.0,
+      2.0
+    ],
+    "This": [
+      {
+        "$t": "Flexo.Sum"
+      }
+    ]
+  },
+  {
+    "$t": "Flexo.Collection",
+    "Name": "MaxExtension",
+    "Values": [
+      {
+        "$t": "Flexo.Double",
+        "Value": 1.0
+      },
+      4.0,
+      2.0
+    ],
+    "This": [
+      {
+        "$t": "Flexo.Max"
+      }
+    ]
+  },
+  {
+    "$t": "Flexo.Collection",
+    "Name": "ContainsExtension",
+    "Values": [
+      1.0,
+      4.0,
+      2.0
+    ],
+    "This": [
+      {
+        "$t": "Flexo.Contains",
+        "Value": 2.0
+      }
+    ]
   }
 ]

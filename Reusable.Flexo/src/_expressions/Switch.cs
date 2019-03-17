@@ -8,7 +8,7 @@ namespace Reusable.Flexo
 {
     [UsedImplicitly]
     [PublicAPI]
-    public class Switch : Expression
+    public class Switch : Expression, IExtension<IExpression>
     {
         public Switch() : base(nameof(Switch)) { }
 
@@ -22,7 +22,7 @@ namespace Reusable.Flexo
 
         protected override IExpression InvokeCore(IExpressionContext context)
         {
-            var value = context.Get(Item.For<IExtensionContext>(), x => x.Input) ?? Value;
+            var value = context.Input() ?? Value;
             var switchContext = context.Set(Item.For<ISwitchContext>(), x => x.Value, value);
 
             foreach (var switchCase in Cases.Where(c => c.Enabled))

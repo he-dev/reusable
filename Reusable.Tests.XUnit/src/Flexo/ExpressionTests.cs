@@ -233,10 +233,10 @@ namespace Reusable.Tests.Flexo
         });
 
         [Fact]
-        public void Not_ReturnsTrueWhenFalse() => Equal(false, new Not { Predicate = Constant.True });
+        public void Not_ReturnsTrueWhenFalse() => Equal(false, new Not { Value = Constant.True });
 
         [Fact]
-        public void Not_ReturnsFalseWhenTrue() => Equal(false, new Not { Predicate = Constant.True });
+        public void Not_ReturnsFalseWhenTrue() => Equal(false, new Not { Value = Constant.True });
 
         [Fact]
         public void ToDouble_MapsTrueToOne() => Equal(1.0, new SwitchToDouble { Value = Constant.True });

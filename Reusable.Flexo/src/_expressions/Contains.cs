@@ -1,25 +1,25 @@
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace Reusable.Flexo
 {
     [PublicAPI]
-    public class Contains : Expression
+    public class Contains : Expression, IExtension<List<object>>
     {
         public Contains() : base(nameof(Contains)) { }
 
-        [JsonRequired]
         public List<object> Collection { get; set; } = new List<object>();
 
         [JsonRequired]
-        public IExpression Value { get; set; }
+        public object Value { get; set; }
 
         public IExpression Comparer { get; set; }
 
         protected override IExpression InvokeCore(IExpressionContext context)
         {
-            var value = Value.Invoke(context).Value<object>();
+            var value = Value is IExpression expression ? expression : Constant.FromValue("Value", Value);
 
             var comparer = Comparer ?? new ObjectEqual
             {
@@ -33,12 +33,16 @@ namespace Reusable.Flexo
                 }
             };
 
-            foreach (var item in Collection)
+            var collection = 
+                context.Input().ValueOrDefault<List<IExpression>>() 
+                ?? Collection.Select(x => Constant.FromValue("CollectionItem", x)).Cast<IExpression>();
+            
+            foreach (var item in collection)
             {
                 var itemContext =
                     context
                         .Set(Item.For<IContainsContext>(), x => x.Value, value)
-                        .Set(Item.For<IContainsContext>(), x => x.Item, Constant.FromValue("CollectionItem", item));
+                        .Set(Item.For<IContainsContext>(), x => x.Item, item);
                 
                 if (comparer.Invoke(itemContext).Value<bool>())
                 {

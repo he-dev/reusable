@@ -18,9 +18,14 @@ namespace Reusable.Flexo
         bool Enabled { get; }
     }
 
+    public interface IExtendable
+    {
+        List<IExpression> This { get; }
+    }
+
     [UsedImplicitly]
     [PublicAPI]
-    public interface IExpression : ISwitchable
+    public interface IExpression : ISwitchable, IExtendable
     {
         [NotNull]
         SoftString Name { get; }
@@ -28,11 +33,13 @@ namespace Reusable.Flexo
         [NotNull]
         IExpressionContext Context { get; }
 
-        [CanBeNull]
-        IExpression Then { get; }
-
         [NotNull]
         IExpression Invoke([NotNull] IExpressionContext context);
+    }
+
+    public interface IExtension<T>
+    {
+        //IExpression This { get; }
     }
 
     [Namespace("Flexo")]
@@ -69,6 +76,7 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.Interval),
             typeof(Reusable.Flexo.True),
             typeof(Reusable.Flexo.False),
+            typeof(Reusable.Flexo.Collection),
         };
         // ReSharper restore RedundantNameQualifier
 
@@ -86,12 +94,20 @@ namespace Reusable.Flexo
 
         public bool Enabled { get; set; } = true;
 
-        public IExpression Then { get; set; }
+        public List<IExpression> This { get; set; } = new List<IExpression>();
 
-        public IExpression Invoke(IExpressionContext context)
+        public virtual IExpression Invoke(IExpressionContext context)
         {
+            var extensions = This ?? Enumerable.Empty<IExpression>();
             var result = InvokeCore(context);
-            return Then?.Invoke(result.Context.Set(Item.For<IExtensionContext>(), x => x.Input, result)) ?? result;
+            return
+                extensions
+                    .Enabled()
+                    .Aggregate
+                    (
+                        result,
+                        (current, next) => next.Invoke(context.Set(Item.For<IExtensionContext>(), x => x.Input, current))
+                    );
         }
 
         protected abstract IExpression InvokeCore(IExpressionContext context);
@@ -119,18 +135,19 @@ namespace Reusable.Flexo
     }
 
     [PublicAPI]
-    public abstract class AggregateExpression : Expression
+    public abstract class AggregateExpression : Expression, IExtension<List<IExpression>>
     {
         private readonly Func<IEnumerable<double>, double> _aggregate;
 
         protected AggregateExpression(string name, [NotNull] Func<IEnumerable<double>, double> aggregate) : base(name) => _aggregate = aggregate;
 
-        [JsonRequired]
-        public List<IExpression> Values { get; set; } = new List<IExpression>();
+        public List<IExpression> Values { get; set; }
 
         protected override IExpression InvokeCore(IExpressionContext context)
         {
-            return Constant.FromValue(Name, _aggregate(Values.Enabled().Select(e => e.Invoke(context)).Values<double>()));
+            var value = context.Input().ValueOrDefault<List<IExpression>>() ?? Values;
+            var result = _aggregate(value.Enabled().Select(e => e.Invoke(context)).Values<object>().Select(v => (double)v));
+            return Constant.FromValue(Name, result);
         }
     }
 

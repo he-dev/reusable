@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace Reusable.Flexo
 {
@@ -139,5 +140,13 @@ namespace Reusable.Flexo
         //{
         //    return (TExpression)(ExpressionContextScope.Current.Result = expression);
         //}
+
+        [CanBeNull]
+        public static IExpression Input([NotNull] this IExpressionContext context)
+        {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+            
+            return context.Get(Item.For<IExtensionContext>(), x => x.Input);
+        }
     }
 }

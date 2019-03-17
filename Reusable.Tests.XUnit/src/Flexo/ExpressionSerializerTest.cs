@@ -29,15 +29,18 @@ namespace Reusable.Tests.Flexo
             {
                 var expressions = await Serializer.DeserializeExpressionsAsync(memoryStream.Rewind());
 
-                Assert.Equal(7, expressions.Count);
+                //Assert.Equal(8, expressions.Count);
                 
-                ExpressionAssert.Equal(Constant.True, expressions.OfType<Any>().Single());
-                ExpressionAssert.Equal(Constant.False, expressions.OfType<All>().Single());
-                ExpressionAssert.Equal(Constant.Create(3.0), expressions.OfType<Sum>().Single());
-                ExpressionAssert.Equal(Double.One, expressions.OfType<SwitchToDouble>().Single());
-                ExpressionAssert.Equal(Constant.False, expressions.Get("Negation"));
-                ExpressionAssert.Equal(Double.One, expressions.Get("SwitchToDouble"));
+                //ExpressionAssert.Equal(Constant.True, expressions.OfType<Any>().Single());
+                //ExpressionAssert.Equal(Constant.False, expressions.OfType<All>().Single());
+                //ExpressionAssert.Equal(Constant.Create(3.0), expressions.OfType<Sum>().Single());
+                //ExpressionAssert.Equal(Double.One, expressions.OfType<SwitchToDouble>().Single());
+                ExpressionAssert.Equal(Constant.False, expressions.Get("NotExtension"));
+                ExpressionAssert.Equal(Double.One, expressions.Get("SwitchToDoubleExtension"));
                 //ExpressionAssert.Equal(Double.One, expressions.Get("SwitchToDoubleInvalid"));
+                ExpressionAssert.Equal(3.0, expressions.Get("SumExtension"));
+                ExpressionAssert.Equal(4.0, expressions.Get("MaxExtension"));
+                ExpressionAssert.Equal(Constant.True, expressions.Get("ContainsExtension"));
             }
         }
 

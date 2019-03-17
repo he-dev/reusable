@@ -3,17 +3,17 @@
 namespace Reusable.Flexo
 {
     [Alias("!")]
-    public class Not : PredicateExpression
+    public class Not : PredicateExpression, IExtension<bool>
     {
         public Not(string name) : base(name) { }
 
         public Not() : this(nameof(Not)) { }
 
-        public IExpression Predicate { get; set; }
+        public IExpression Value { get; set; }
 
         protected override InvokeResult<bool> Calculate(IExpressionContext context)
         {
-            var predicate = context.Get(Item.For<IExtensionContext>(), x => x.Input) ?? Predicate;
+            var predicate = context.Input() ?? Value;
             return (!predicate.Invoke(context).Value<bool>(), context);
         }
     }
