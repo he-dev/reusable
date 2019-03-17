@@ -5,7 +5,7 @@ using System.Linq.Custom;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Reusable.Collections;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.Reflection;
 

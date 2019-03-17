@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 
 namespace Reusable.Flexo

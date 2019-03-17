@@ -6,7 +6,7 @@ using System.Threading;
 using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Diagnostics;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 
 namespace Reusable.OmniLog
 {

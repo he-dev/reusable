@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 using Newtonsoft.Json;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 
 namespace Reusable.Flexo
 {

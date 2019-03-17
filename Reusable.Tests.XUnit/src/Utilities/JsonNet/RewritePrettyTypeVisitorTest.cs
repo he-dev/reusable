@@ -5,7 +5,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.IOnymous;
 using Reusable.Reflection;

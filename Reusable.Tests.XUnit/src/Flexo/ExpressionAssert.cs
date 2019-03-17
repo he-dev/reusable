@@ -1,6 +1,6 @@
 ﻿using System;
 using JetBrains.Annotations;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 using Reusable.Flexo;
 
 // ReSharper disable once CheckNamespace

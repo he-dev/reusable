@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 using Reusable.Flexo;
 using Xunit;
 

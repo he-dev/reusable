@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 
 namespace Reusable.Flexo

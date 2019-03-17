@@ -8,7 +8,6 @@ using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Collections;
-using Reusable.Exceptionizer;
 using Reusable.Extensions;
 using Reusable.Flawless;
 using Reusable.IOnymous;

@@ -8,7 +8,6 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Diagnostics;
-using Reusable.Exceptionizer;
 using Reusable.Extensions;
 
 namespace Reusable.Flexo

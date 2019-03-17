@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using Reusable.Exceptionizer;
 using Reusable.IOnymous;
 using Xunit;
 

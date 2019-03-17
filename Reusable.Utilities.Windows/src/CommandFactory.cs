@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Windows.Input;
 using JetBrains.Annotations;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.Reflection;
 

@@ -4,7 +4,7 @@ using System.Globalization;
 using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Diagnostics;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 
 //namespace Reusable.OneTo1

@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog.SemanticExtensions.Attachments;
 using Reusable.Reflection;

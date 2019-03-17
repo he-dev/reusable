@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 using Reusable.Reflection;
 
 namespace Reusable.SmartConfig.Reflection

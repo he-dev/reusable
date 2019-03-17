@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 using Reusable.IOnymous;
 
 namespace Reusable.Teapot

@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Commander.Annotations;
 using Reusable.Commander.Utilities;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Data;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 
 // ReSharper disable once CheckNamespace

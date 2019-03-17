@@ -7,7 +7,6 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Office.Interop.Outlook;
-using Reusable.Exceptionizer;
 using Reusable.Extensions;
 
 namespace Reusable.IOnymous

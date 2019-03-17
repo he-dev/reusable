@@ -5,7 +5,7 @@ using System.Configuration;
 using System.Data;
 using System.Linq;
 using Reusable.Data;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 using Reusable.IOnymous;
 using Reusable.SmartConfig;
 using Reusable.Utilities.SqlClient;

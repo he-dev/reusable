@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using Reusable.Cryptography;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 using Xunit;
 
 namespace Reusable.Tests.XUnit.Cryptography

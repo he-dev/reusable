@@ -6,7 +6,7 @@ using Autofac;
 using Autofac.Builder;
 using JetBrains.Annotations;
 using Reusable.Commander.Commands;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OneTo1;
 using Reusable.Reflection;

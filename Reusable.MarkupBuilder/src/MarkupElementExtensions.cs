@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.Reflection;
 

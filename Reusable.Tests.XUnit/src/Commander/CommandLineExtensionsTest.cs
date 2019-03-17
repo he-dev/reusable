@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using Reusable.Commander;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 using Reusable.Reflection;
 using Xunit;
 

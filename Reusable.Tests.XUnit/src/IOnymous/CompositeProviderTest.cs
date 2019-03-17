@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 using Reusable.IOnymous;
 using Xunit;
 

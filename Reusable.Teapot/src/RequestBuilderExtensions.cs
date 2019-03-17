@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 
 namespace Reusable.Teapot
 {

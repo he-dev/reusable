@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using System.Linq;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 using Reusable.Reflection;
 
 namespace Reusable.OneTo1.Converters.Collections

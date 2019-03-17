@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Linq.Custom;
 using JetBrains.Annotations;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 
 namespace Reusable.Flawless

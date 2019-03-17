@@ -8,7 +8,7 @@ using System.Linq.Custom;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Reusable.Deception.Abstractions;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 
 namespace Reusable.Deception
 {

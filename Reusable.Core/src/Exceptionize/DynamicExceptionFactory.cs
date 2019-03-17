@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 
-namespace Reusable.Exceptionizer
+namespace Reusable.Exceptionize
 {
     public interface IDynamicExceptionFactory
     {

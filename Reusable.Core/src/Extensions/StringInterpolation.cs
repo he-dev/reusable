@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 using Reusable.Reflection;
 
 namespace Reusable.Extensions

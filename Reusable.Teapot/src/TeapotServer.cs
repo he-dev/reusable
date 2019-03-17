@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
-using Reusable.Exceptionizer;
 using Reusable.IOnymous;
 
 namespace Reusable.Teapot

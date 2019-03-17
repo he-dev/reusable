@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 using Reusable.IOnymous;
 
 namespace Reusable.Teapot

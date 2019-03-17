@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
-using Reusable.Exceptionizer;
 
 namespace Reusable.Flexo
 {

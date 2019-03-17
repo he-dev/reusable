@@ -8,7 +8,7 @@ using System.Linq.Custom;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 
 namespace Reusable.IOnymous
 {

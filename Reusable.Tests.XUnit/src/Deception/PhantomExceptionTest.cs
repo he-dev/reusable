@@ -2,7 +2,7 @@ using Reusable.Collections.Generators;
 using Reusable.Deception;
 using Reusable.Deception.Abstractions;
 using Reusable.Deception.Triggers;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 using Xunit;
 
 namespace Reusable.Tests.XUnit.Deception

@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Collections;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.Flawless;
 using Reusable.Reflection;

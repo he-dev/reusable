@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using Reusable.Exceptionizer;
+using Reusable.Exceptionize;
 using Reusable.Reflection;
 
 namespace Reusable.Collections

@@ -2,7 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
-namespace Reusable.Exceptionizer
+namespace Reusable.Exceptionize
 {
     public static class DynamicExceptionFactoryExtensions
     {
