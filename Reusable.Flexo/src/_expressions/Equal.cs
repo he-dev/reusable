@@ -5,7 +5,14 @@ using Reusable.Utilities.JsonNet.Annotations;
 
 namespace Reusable.Flexo
 {
-    public abstract class Equal<T> : PredicateExpression
+    public interface IExpressionEqualityComparer
+    {
+        IExpression Left { get; set; }
+
+        IExpression Right { get; set; }
+    }
+
+    public abstract class Equal<T> : PredicateExpression, IExpressionEqualityComparer
     {
         protected Equal(string name) : base(name) { }
 
@@ -13,7 +20,7 @@ namespace Reusable.Flexo
 
         public IExpression Right { get; set; }
 
-        protected abstract override InvokeResult<bool> Calculate(IExpressionContext context);        
+        protected abstract override InvokeResult<bool> Calculate(IExpressionContext context);
     }
 
     [Alias("==")]
@@ -56,5 +63,5 @@ namespace Reusable.Flexo
 
             return (comparer.Equals(x, y), context);
         }
-    }       
+    }
 }

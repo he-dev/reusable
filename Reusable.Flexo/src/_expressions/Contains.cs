@@ -20,17 +20,29 @@ namespace Reusable.Flexo
         {
             var value = Constant.FromValueOrDefault("Value")(Value).Invoke(context);
 
-            var comparer = Comparer ?? new ObjectEqual
+            // For convenience ObjectEqual is the default comparer.
+            var comparer = Comparer ?? new ObjectEqual();
+
+            if (comparer is IExpressionEqualityComparer equalityComparer)
             {
-                Left = new GetContextItem
+                // When comparer does not specify otherwise assume Left is Value and Right is Item.
+                
+                if (equalityComparer.Left is null)
                 {
-                    Key = ExpressionContext.CreateKey(Item.For<IContainsContext>(), x => x.Value)
-                },
-                Right = new GetContextItem
-                {
-                    Key = ExpressionContext.CreateKey(Item.For<IContainsContext>(), x => x.Item)
+                    equalityComparer.Left = new GetContextItem
+                    {
+                        Key = ExpressionContext.CreateKey(Item.For<IContainsContext>(), x => x.Value)
+                    };
                 }
-            };
+
+                if (equalityComparer.Right is null)
+                {
+                    equalityComparer.Right = new GetContextItem
+                    {
+                        Key = ExpressionContext.CreateKey(Item.For<IContainsContext>(), x => x.Item)
+                    };
+                }
+            }
 
             var collection = context.Input().ValueOrDefault<List<IExpression>>() ?? Collection.Select(Constant.FromValueOrDefault("CollectionItem"));
 

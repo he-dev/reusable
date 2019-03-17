@@ -94,6 +94,50 @@
   },
   {
     "$t": "Flexo.Collection",
+    "Name": "CollectionWithContainsMatchesFull",
+    "Values": [
+      "foo",
+      "bar",
+      "baz"
+    ],
+    "This": [
+      {
+        "$t": "Flexo.Contains",
+        "Value": "^ba",
+        "Comparer": {
+          "$t": "Flexo.Matches",
+          "Value": {
+            "$t": "Flexo.GetContextItem",
+            "Key": "Contains.Item"
+          },
+          "Pattern": {
+            "$t": "Flexo.GetContextItem",
+            "Key": "Contains.Value"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "$t": "Flexo.Collection",
+    "Name": "CollectionWithContainsMatches",
+    "Values": [
+      "foo",
+      "bar",
+      "baz"
+    ],
+    "This": [
+      {
+        "$t": "Flexo.Contains",
+        "Value": "^ba",
+        "Comparer": {
+          "$t": "Flexo.Matches"
+        }
+      }
+    ]
+  },
+  {
+    "$t": "Flexo.Collection",
     "Name": "ContainsExtension",
     "Values": [
       1.0,
