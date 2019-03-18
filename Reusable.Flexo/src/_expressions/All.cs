@@ -11,13 +11,12 @@ namespace Reusable.Flexo
     {
         public All() : base(nameof(All)) { }
 
-        [JsonRequired]
-        public List<IExpression> Predicates { get; set; } = new List<IExpression>();
+        public List<IExpression> Values { get; set; } = new List<IExpression>();
 
         protected override InvokeResult<bool> Calculate(IExpressionContext context)
         {
             var last = default(IExpression);
-            foreach (var predicate in Predicates.Enabled())
+            foreach (var predicate in Values.Enabled())
             {
                 last = predicate.Invoke(last?.Context ?? context);
                 if (!last.Value<bool>())

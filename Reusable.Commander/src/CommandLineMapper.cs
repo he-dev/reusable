@@ -105,7 +105,8 @@ namespace Reusable.Commander
                 {
                     if (values.Count > 1)
                     {
-                        throw DynamicException.Create(
+                        throw DynamicException.Create
+                        (
                             "TooManyValues",
                             "Simple parameter must have exactly one value."
                         );

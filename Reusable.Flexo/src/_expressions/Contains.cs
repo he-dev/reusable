@@ -10,7 +10,7 @@ namespace Reusable.Flexo
     {
         public Contains() : base(nameof(Contains)) { }
 
-        public List<object> Collection { get; set; } = new List<object>();
+        public List<object> Values { get; set; } = new List<object>();
 
         public object Value { get; set; }
 
@@ -44,7 +44,7 @@ namespace Reusable.Flexo
                 }
             }
 
-            var collection = context.Input().ValueOrDefault<List<IExpression>>() ?? Collection.Select(Constant.FromValueOrDefault("CollectionItem"));
+            var collection = context.Input().ValueOrDefault<List<IExpression>>() ?? Values.Select(Constant.FromValueOrDefault("CollectionItem"));
 
             var itemContexts =
                 from item in collection

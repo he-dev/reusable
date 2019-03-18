@@ -1,7 +1,7 @@
 [
   {
     "$t": "Flexo.Any",
-    "Predicates": [
+    "Values": [
       {
         "$t": "Flexo.True"
       }
@@ -9,7 +9,7 @@
   },
   {
     "$t": "Flexo.All",
-    "Predicates": [
+    "Values": [
       {
         "$t": "Flexo.False"
       }

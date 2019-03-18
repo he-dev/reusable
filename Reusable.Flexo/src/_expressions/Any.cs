@@ -8,12 +8,11 @@ namespace Reusable.Flexo
     {
         public Any() : base(nameof(Any)) { }
 
-        [JsonRequired]
-        public List<IExpression> Predicates { get; set; } = new List<IExpression>();
+        public List<IExpression> Values { get; set; } = new List<IExpression>();
 
         protected override InvokeResult<bool> Calculate(IExpressionContext context)
         {
-            foreach (var predicate in Predicates.Enabled())
+            foreach (var predicate in Values.Enabled())
             {
                 var result = predicate.Invoke(context);
                 if (result.Value<bool>())
