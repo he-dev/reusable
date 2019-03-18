@@ -6,11 +6,11 @@ namespace Reusable.Flexo
 {
     public class Any : PredicateExpression
     {
-        public Any() : base(nameof(Any)) { }
+        public Any() : base(nameof(Any), ExpressionContext.Empty) { }
 
         public List<IExpression> Values { get; set; } = new List<IExpression>();
 
-        protected override InvokeResult<bool> Calculate(IExpressionContext context)
+        protected override CalculateResult<bool> Calculate(IExpressionContext context)
         {
             foreach (var predicate in Values.Enabled())
             {

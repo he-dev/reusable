@@ -79,12 +79,10 @@ namespace Reusable.Flexo
         };
         // ReSharper restore RedundantNameQualifier
 
-        protected Expression(SoftString name) : this(name, ExpressionContext.Empty) { }
-
-        protected Expression(SoftString name, IExpressionContext context)
+        protected Expression([NotNull] SoftString name, [NotNull] IExpressionContext context)
         {
-            Name = name;
-            Context = context;
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            Context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public virtual SoftString Name { get; }
@@ -98,18 +96,30 @@ namespace Reusable.Flexo
         public virtual IExpression Invoke(IExpressionContext context)
         {
             var extensions = This ?? Enumerable.Empty<IExpression>();
-            var result = InvokeCore(context);
             return
                 extensions
                     .Enabled()
                     .Aggregate
                     (
-                        result,
-                        (current, next) => next.Invoke(context.Set(Item.For<IExtensionContext>(), x => x.Input, current))
+                        InvokeCore(context),
+                        (previous, next) => next.Invoke(previous.Context.Set(Item.For<IExtensionContext>(), x => x.Input, previous))
                     );
         }
 
         protected abstract IExpression InvokeCore(IExpressionContext context);
+    }
+    
+    [PublicAPI]
+    public abstract class Expression<T> : Expression
+    {
+        protected Expression(string name, IExpressionContext context) : base(name, context) { }
+
+        protected override IExpression InvokeCore(IExpressionContext context)
+        {
+            return Constant.FromResult(Name, Calculate(context));
+        }
+
+        protected abstract CalculateResult<T> Calculate(IExpressionContext context);
     }
 
     public interface IExtensionContext
@@ -117,9 +127,9 @@ namespace Reusable.Flexo
         IExpression Input { get; }
     }
 
-    public readonly struct InvokeResult<T>
+    public readonly struct CalculateResult<T>
     {
-        public InvokeResult(T value, IExpressionContext context)
+        private CalculateResult(T value, IExpressionContext context)
         {
             Value = value;
             Context = context;
@@ -129,14 +139,12 @@ namespace Reusable.Flexo
 
         public IExpressionContext Context { get; }
 
-        public static implicit operator InvokeResult<T>((T Value, IExpressionContext Context) t) => new InvokeResult<T>(t.Value, t.Context);
-    }
-
-    public static class InvokeResult
-    {
-        public static InvokeResult<TValue> From<TValue>(TValue value, IExpressionContext context)
+        public void Deconstruct(out T value, out IExpressionContext context)
         {
-            return new InvokeResult<TValue>(value, context);
+            value = Value;
+            context = Context;
         }
-    }
+
+        public static implicit operator CalculateResult<T>((T Value, IExpressionContext Context) t) => new CalculateResult<T>(t.Value, t.Context);
+    }    
 }

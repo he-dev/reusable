@@ -10,7 +10,7 @@ namespace Reusable.Flexo
     public class ToList : Expression
     {
         public ToList()
-            : base(nameof(ToList))
+            : base(nameof(ToList), ExpressionContext.Empty)
         { }
 
         [JsonRequired]

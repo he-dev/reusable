@@ -7,5 +7,3 @@ using System.Threading.Tasks;
 
 [assembly:InternalsVisibleTo("Reusable.Tests.MSTest")]
 [assembly:InternalsVisibleTo("Reusable.Tests.XUnit")]
-
-// todo - rename project to Commandant

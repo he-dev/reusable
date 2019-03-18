@@ -8,7 +8,7 @@ namespace Reusable.Flexo
 {
     public class Matches : PredicateExpression, IExtension<string>, IExpressionEqualityComparer
     {
-        public Matches() : base(nameof(Matches)) { }
+        public Matches() : base(nameof(Matches), ExpressionContext.Empty) { }
 
         public bool IgnoreCase { get; set; } = true;
 
@@ -34,7 +34,7 @@ namespace Reusable.Flexo
 
         #endregion
 
-        protected override InvokeResult<bool> Calculate(IExpressionContext context)
+        protected override CalculateResult<bool> Calculate(IExpressionContext context)
         {
             var value = (string)Constant.FromValueOrDefault(Name, Value).Invoke(context).ValueOrDefault();
             if (value is null)

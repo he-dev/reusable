@@ -10,7 +10,8 @@ namespace Reusable.Flexo
     {
         private readonly Func<IEnumerable<double>, double> _aggregate;
 
-        protected AggregateExpression(string name, [NotNull] Func<IEnumerable<double>, double> aggregate) : base(name) => _aggregate = aggregate;
+        protected AggregateExpression(string name, IExpressionContext context, [NotNull] Func<IEnumerable<double>, double> aggregate)
+            : base(name, context) => _aggregate = aggregate;
 
         public List<IExpression> Values { get; set; }
 

@@ -19,10 +19,10 @@ namespace Reusable.Flexo
 
     public class Constant<TValue> : Expression, IConstant, IEquatable<Constant<TValue>>
     {
-        public Constant(SoftString name, TValue value, IExpressionContext context) : base(name, context) => Value = value;
+        public Constant(SoftString name, TValue value, IExpressionContext context) : base(name ?? value.GetType().ToPrettyString(), context) => Value = value;
 
         [JsonConstructor]
-        public Constant(SoftString name, TValue value) : this(name, value, ExpressionContext.Empty) => Value = value;
+        public Constant(SoftString name, TValue value) : this(name ?? value.GetType().ToPrettyString(), value, ExpressionContext.Empty) => Value = value;
 
         object IConstant.Value => Value;
 
@@ -34,13 +34,24 @@ namespace Reusable.Flexo
         {
             //using (context.Scope(this))
             {
-                return Constant.FromResult<TValue>(Name, (Value, context));
+                return new Constant<TValue>(Name, Value, context);
             }
+        }
+
+        public void Deconstruct(out SoftString name, out TValue value, out IExpressionContext context)
+        {
+            name = Name;
+            value = Value;
+            context = Context;
         }
 
         public override string ToString() => $"{Name.ToString()}: '{Value}'";
 
-        public static implicit operator Constant<TValue>((string name, TValue value) t) => new Constant<TValue>(t.name, t.value);
+        public static implicit operator Constant<TValue>((string Name, TValue Value) t) => (t.Name, t.Value, ExpressionContext.Empty);
+        
+        public static implicit operator Constant<TValue>((string Name, TValue Value, IExpressionContext Context) t) => new Constant<TValue>(t.Name, t.Value, t.Context);
+        
+        public static implicit operator Constant<TValue>((string Name, CalculateResult<TValue> Result) t) => new Constant<TValue>(t.Name, t.Result.Value, t.Result.Context);
 
         public static implicit operator TValue(Constant<TValue> constant) => constant.Value;
 
@@ -101,7 +112,7 @@ namespace Reusable.Flexo
             return new Constant<TValue>(name, value);
         }
 
-        public static Constant<TValue> FromResult<TValue>(SoftString name, InvokeResult<TValue> result)
+        public static Constant<TValue> FromResult<TValue>(SoftString name, CalculateResult<TValue> result)
         {
             return new Constant<TValue>(name, result.Value, result.Context);
         }

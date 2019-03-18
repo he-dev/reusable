@@ -6,11 +6,12 @@ using Reusable.Collections;
 namespace Reusable.Flexo
 {
     [PublicAPI]
-    public abstract class ComparerExpression : Expression
+    public abstract class ComparerExpression : Expression<bool>
     {
         private readonly Func<int, bool> _predicate;
 
-        protected ComparerExpression(string name, [NotNull] Func<int, bool> predicate) : base(name) => _predicate = predicate;
+        protected ComparerExpression(string name, IExpressionContext context, [NotNull] Func<int, bool> predicate)
+            : base(name, context) => _predicate = predicate;
 
         [JsonRequired]
         public IExpression Left { get; set; }
@@ -18,7 +19,7 @@ namespace Reusable.Flexo
         [JsonRequired]
         public IExpression Right { get; set; }
 
-        protected override IExpression InvokeCore(IExpressionContext context)
+        protected override CalculateResult<bool> Calculate(IExpressionContext context)
         {
             var x = Left.Invoke(context);
             var y = Right.Invoke(context);
@@ -37,7 +38,7 @@ namespace Reusable.Flexo
 
             if (compared)
             {
-                return Constant.FromValue(Name, _predicate(result));
+                return (_predicate(result), context);
             }
 
             throw new InvalidOperationException($"Expressions '{x.Name}' & '{y.Name}' are not comparable.");

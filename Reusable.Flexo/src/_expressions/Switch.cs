@@ -10,7 +10,7 @@ namespace Reusable.Flexo
     [PublicAPI]
     public class Switch : Expression, IExtension<IExpression>
     {
-        public Switch(string name) : base(name) { }
+        public Switch(string name) : base(name, ExpressionContext.Empty) { }
 
         public Switch() : this(nameof(Switch)) { }
 

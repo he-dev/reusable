@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
+using linq = System.Linq.Expressions;
 
 namespace Reusable.Flexo
 {
@@ -36,7 +37,7 @@ namespace Reusable.Flexo
         (
             this IExpressionContext context,
             Item<TExpression> item,
-            Expression<Func<TExpression, TProperty>> propertySelector
+            linq.Expression<Func<TExpression, TProperty>> propertySelector
         )
         {
             if (context.TryGetValue(ExpressionContext.CreateKey(item, propertySelector), out var value))
@@ -70,7 +71,7 @@ namespace Reusable.Flexo
         (
             this IExpressionContext context,
             Item<TExpression> item,
-            Expression<Func<TExpression, TProperty>> selectProperty,
+            linq.Expression<Func<TExpression, TProperty>> selectProperty,
             TProperty value
         )
         {

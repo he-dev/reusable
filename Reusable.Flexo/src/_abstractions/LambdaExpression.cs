@@ -6,7 +6,7 @@ namespace Reusable.Flexo
     {
         private readonly Func<IExpressionContext, IExpression> _invoke;
 
-        public LambdaExpression(string name, Func<IExpressionContext, IExpression> invoke) : base(name)
+        public LambdaExpression(string name, IExpressionContext context, Func<IExpressionContext, IExpression> invoke) : base(name, context)
         {
             _invoke = invoke;
         }
@@ -16,14 +16,14 @@ namespace Reusable.Flexo
             return _invoke(context);
         }
 
-        public static LambdaExpression Predicate(Func<IExpressionContext, InvokeResult<bool>> predicate)
+        public static LambdaExpression Predicate(Func<IExpressionContext, CalculateResult<bool>> predicate)
         {
-            return new LambdaExpression(nameof(Predicate), context => Constant.FromResult(nameof(Predicate), predicate(context)));
+            return new LambdaExpression(nameof(Predicate), ExpressionContext.Empty, context => Constant.FromResult(nameof(Predicate), predicate(context)));
         }
 
-        public static LambdaExpression Double(Func<IExpressionContext, InvokeResult<double>> calculate)
+        public static LambdaExpression Double(Func<IExpressionContext, CalculateResult<double>> calculate)
         {
-            return new LambdaExpression(nameof(Double), context => Constant.FromResult(nameof(Double), calculate(context)));
+            return new LambdaExpression(nameof(Double), ExpressionContext.Empty, context => Constant.FromResult(nameof(Double), calculate(context)));
         }
     }
 }

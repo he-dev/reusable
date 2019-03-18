@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Diagnostics;
 using Reusable.Extensions;
+using linq = System.Linq.Expressions;
 
 namespace Reusable.Flexo
 {
@@ -78,7 +79,7 @@ namespace Reusable.Flexo
 
         #region Helpers
 
-        public static string CreateKey<T, TProperty>([NotNull] Item<T> item, [NotNull] Expression<Func<T, TProperty>> propertySelector)
+        public static string CreateKey<T, TProperty>([NotNull] Item<T> item, [NotNull] linq.Expression<Func<T, TProperty>> propertySelector)
         {
             if (item == null) throw new ArgumentNullException(nameof(item));
             if (propertySelector == null) throw new ArgumentNullException(nameof(propertySelector));

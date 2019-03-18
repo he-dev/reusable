@@ -28,7 +28,7 @@ namespace Reusable.Tests.Flexo
 
         private class MyExpression : Expression
         {
-            public MyExpression() : base(nameof(MyExpression))
+            public MyExpression() : base(nameof(MyExpression), ExpressionContext.Empty)
             { }
 
             [Required]

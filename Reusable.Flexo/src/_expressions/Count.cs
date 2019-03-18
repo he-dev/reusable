@@ -5,6 +5,6 @@ namespace Reusable.Flexo
     public class Count : AggregateExpression
     {
         public Count()
-            : base(nameof(Count), items => items.Count()) { }
+            : base(nameof(Count), ExpressionContext.Empty, items => items.Count()) { }
     }
 }

@@ -7,7 +7,7 @@ namespace Reusable.Flexo
     [PublicAPI]
     public class Throw : Expression
     {
-        public Throw(SoftString name) : base(name) { }
+        public Throw(SoftString name) : base(name, ExpressionContext.Empty) { }
 
         //public string Exception { get; set; }
         

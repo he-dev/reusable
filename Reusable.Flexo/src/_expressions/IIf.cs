@@ -6,7 +6,7 @@ namespace Reusable.Flexo
     // ReSharper disable once InconsistentNaming - we want this name!
     public class IIf : Expression
     {
-        public IIf() : base(nameof(IIf)) { }
+        public IIf() : base(nameof(IIf), ExpressionContext.Empty) { }
 
         [JsonRequired]
         public IExpression Predicate { get; set; }

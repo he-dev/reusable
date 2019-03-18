@@ -6,15 +6,13 @@ namespace Reusable.Flexo
     public class GreaterThan : ComparerExpression
     {
         public GreaterThan()
-            : base(nameof(GreaterThan), x => x > 0)
-        { }
+            : base(nameof(GreaterThan), ExpressionContext.Empty, x => x > 0) { }
     }
 
     [Alias(">=")]
     public class GreaterThanOrEqual : ComparerExpression
     {
         public GreaterThanOrEqual()
-            : base(nameof(GreaterThanOrEqual), x => x >= 0)
-        { }
+            : base(nameof(GreaterThanOrEqual), ExpressionContext.Empty, x => x >= 0) { }
     }
 }

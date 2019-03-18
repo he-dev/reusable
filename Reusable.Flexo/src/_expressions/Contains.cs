@@ -6,9 +6,9 @@ using Newtonsoft.Json;
 namespace Reusable.Flexo
 {
     [PublicAPI]
-    public class Contains : Expression, IExtension<List<object>>
+    public class Contains : Expression<bool>, IExtension<List<object>>
     {
-        public Contains() : base(nameof(Contains)) { }
+        public Contains() : base(nameof(Contains), ExpressionContext.Empty) { }
 
         public List<object> Values { get; set; } = new List<object>();
 
@@ -16,7 +16,7 @@ namespace Reusable.Flexo
 
         public IExpression Comparer { get; set; }
 
-        protected override IExpression InvokeCore(IExpressionContext context)
+        protected override CalculateResult<bool> Calculate(IExpressionContext context)
         {
             var value = Constant.FromValueOrDefault("Value")(Value).Invoke(context);
 
@@ -53,7 +53,7 @@ namespace Reusable.Flexo
                     .Set(Item.For<IContainsContext>(), x => x.Item, item);
 
             var contains = itemContexts.Any(itemContext => comparer.Invoke(itemContext).Value<bool>());
-            return Constant.FromValue(Name, contains);
+            return (contains, context);
         }
     }
 

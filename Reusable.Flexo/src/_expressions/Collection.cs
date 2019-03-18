@@ -7,7 +7,7 @@ namespace Reusable.Flexo
     public class Collection : Expression
     {
         [JsonConstructor]
-        public Collection(SoftString name) : base(name) { }
+        public Collection(SoftString name) : base(name, ExpressionContext.Empty) { }
 
         public List<object> Values { get; set; }
 

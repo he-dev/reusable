@@ -6,7 +6,7 @@ namespace Reusable.Flexo
 {
     public class Double : Constant<double>
     {
-        public Double(string name, double value) : base(name, value) { }           
+        public Double(string name, double value) : base(name ?? nameof(Double), value) { }           
         
         public static readonly Double Zero = new Double(nameof(Zero), 0.0);
         
@@ -15,7 +15,7 @@ namespace Reusable.Flexo
     
     public class Integer : Constant<int>
     {
-        public Integer(string name, int value) : base(name, value) { }
+        public Integer(string name, int value) : base(name ?? nameof(Integer), value) { }
         
         public static readonly Integer Zero = new Integer(nameof(Zero), 0);
         
@@ -24,7 +24,7 @@ namespace Reusable.Flexo
     
     public class Decimal : Constant<decimal>
     {
-        public Decimal(string name, decimal value) : base(name, value) { }
+        public Decimal(string name, decimal value) : base(name ?? nameof(Decimal), value) { }
         
         public static readonly Decimal Zero = new Decimal(nameof(Zero), 0m);
         
@@ -43,17 +43,17 @@ namespace Reusable.Flexo
 
     public class True : Constant<bool>
     {
-        public True(string name) : base(name, true) { }
+        public True(string name) : base(name ?? nameof(True), true) { }
     }
 
     public class False : Constant<bool>
     {
-        public False(string name) : base(name, false) { }
+        public False(string name) : base(name ?? nameof(False), false) { }
     }
 
     public class String : Constant<string>
     {
-        public String(string name, string value) : base(name, value) { }
+        public String(string name, string value) : base(name ?? nameof(String), value) { }
     }
 
     public class DateTime : Constant<System.DateTime>
@@ -61,7 +61,7 @@ namespace Reusable.Flexo
         public DateTime(string name, string value, [CanBeNull] string format)
             : base
             (
-                name,
+                name ?? nameof(DateTime),
                 format is null
                     ? System.DateTime.Parse(value)
                     : System.DateTime.ParseExact(value, format, CultureInfo.InvariantCulture)
@@ -73,7 +73,7 @@ namespace Reusable.Flexo
         public TimeSpan(string name, string value, [CanBeNull] string format)
             : base
             (
-                name,
+                name ?? nameof(TimeSpan),
                 format is null
                     ? System.TimeSpan.Parse(value)
                     : System.TimeSpan.ParseExact(value, format, CultureInfo.InvariantCulture)

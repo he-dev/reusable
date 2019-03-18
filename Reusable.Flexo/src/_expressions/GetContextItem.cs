@@ -11,7 +11,7 @@ namespace Reusable.Flexo
     [PublicAPI]
     public class GetContextItem : Expression
     {
-        public GetContextItem() : base(nameof(GetContextItem)) { }
+        public GetContextItem() : base(nameof(GetContextItem), ExpressionContext.Empty) { }
 
         [JsonRequired]
         public string Key { get; set; }

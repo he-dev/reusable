@@ -6,7 +6,7 @@ namespace Reusable.Flexo
     public class LessThan : ComparerExpression
     {
         public LessThan()
-            : base(nameof(LessThan), x => x < 0)
+            : base(nameof(LessThan), ExpressionContext.Empty, x => x < 0)
         { }
     }
 
@@ -14,7 +14,7 @@ namespace Reusable.Flexo
     public class LessThanOrEqual : ComparerExpression
     {
         public LessThanOrEqual()
-            : base(nameof(LessThanOrEqual), x => x <= 0)
+            : base(nameof(LessThanOrEqual), ExpressionContext.Empty, x => x <= 0)
         { }
     }
 }

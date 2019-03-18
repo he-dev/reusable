@@ -9,6 +9,7 @@
   },
   {
     "$t": "Flexo.All",
+    "Name": "AllFalse",
     "Values": [
       {
         "$t": "Flexo.False"
@@ -156,5 +157,19 @@
     "Name": "Matches",
     "Value": "FOO",
     "Pattern": "foo"
+  },
+  {
+    "$t": "Flexo.Collection",
+    "Name": "CollectionWithAll",
+    "Values": [
+      true,
+      true,
+      true
+    ],
+    "This": [
+      {
+        "$t": "Flexo.All"
+      }
+    ]
   }
 ]
