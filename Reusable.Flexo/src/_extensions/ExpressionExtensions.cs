@@ -47,8 +47,8 @@ namespace Reusable.Flexo
             else
             {
                 return
-                    expression is Constant<T> constant
-                        ? constant.Value
+                    expression is IConstant constant && constant.Value is T value
+                        ? value
                         : throw new InvalidExpressionException(typeof(Constant<T>), expression.GetType());
             }
         }
@@ -56,8 +56,8 @@ namespace Reusable.Flexo
         public static T ValueOrDefault<T>(this IExpression expression)
         {
             return
-                expression is Constant<T> constant
-                    ? constant.Value
+                expression is IConstant constant && constant.Value is T value
+                    ? value
                     : default;
         }
 

@@ -42,7 +42,7 @@ namespace Reusable.Tests.Flexo
                 ExpressionAssert.Equal(4.0, expressions.Get("MaxExtension"));
                 ExpressionAssert.Equal(Constant.True, expressions.Get("ContainsExtension"));
                 ExpressionAssert.Equal(Constant.True, expressions.Get("Matches"));
-                ExpressionAssert.Equal(Constant.True, expressions.Get("CollectionWithContainsMatches"));
+                ExpressionAssert.Equal(Constant.True, expressions.Get("CollectionWithRegexComparer"));
                 ExpressionAssert.Equal(Constant.True, expressions.Get("CollectionWithAll"));
                 ExpressionAssert.Equal(Constant.True, expressions.Get("CollectionWithOverlaps"));
             }

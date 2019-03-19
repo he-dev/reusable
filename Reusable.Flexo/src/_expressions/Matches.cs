@@ -36,7 +36,7 @@ namespace Reusable.Flexo
 
         protected override CalculateResult<bool> Calculate(IExpressionContext context)
         {
-            var value = (string)Constant.FromValueOrDefault(Name, Value).Invoke(context).ValueOrDefault();
+            var value = Constant.FromValueOrDefault(Name, Value)?.Invoke(context).ValueOrDefault<string>();
             if (value is null)
             {
                 return (false, context);
@@ -53,7 +53,7 @@ namespace Reusable.Flexo
             switch (Pattern)
             {
                 case string pattern: return pattern;
-                case IExpression expression: return (string)expression.Invoke(context).Value();
+                case IExpression expression: return expression.Invoke(context).Value<string>();
                 default:
                     throw DynamicException.Create
                     (
