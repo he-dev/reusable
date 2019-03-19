@@ -26,7 +26,7 @@ namespace Reusable.Flexo
             if (comparer is IExpressionEqualityComparer equalityComparer)
             {
                 // When comparer does not specify otherwise assume Left is Value and Right is Item.
-                
+
                 if (equalityComparer.Left is null)
                 {
                     equalityComparer.Left = new GetContextItem
@@ -44,18 +44,19 @@ namespace Reusable.Flexo
                 }
             }
 
-            var collection = context.Input().ValueOrDefault<List<IExpression>>() ?? Values.Select(Constant.FromValueOrDefault("CollectionItem"));
+            var collection = ExtensionInputOrDefault(ref context, Values);
 
             var itemContexts =
                 from item in collection
-                select context
-                    .Set(Item.For<IContainsContext>(), x => x.Value, value)
-                    .Set(Item.For<IContainsContext>(), x => x.Item, item);
+                select
+                    context
+                        .Set(Item.For<IContainsContext>(), x => x.Value, value)
+                        .Set(Item.For<IContainsContext>(), x => x.Item, item);
 
             var contains = itemContexts.Any(itemContext => comparer.Invoke(itemContext).Value<bool>());
             return (contains, context);
         }
-    }
+    }        
 
     public interface IContainsContext
     {

@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Collections;
 using Reusable.Utilities.JsonNet;
 using Reusable.Utilities.JsonNet.Annotations;
 
@@ -57,9 +59,11 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.Any),
             typeof(Reusable.Flexo.IIf),
             typeof(Reusable.Flexo.Switch),
-            typeof(Reusable.Flexo.SwitchToDouble),
+            typeof(Reusable.Flexo.ToDouble),
+            typeof(Reusable.Flexo.ToString),            
             typeof(Reusable.Flexo.GetContextItem),
             typeof(Reusable.Flexo.Contains),
+            typeof(Reusable.Flexo.Overlaps),
             typeof(Reusable.Flexo.Matches),
             typeof(Reusable.Flexo.Min),
             typeof(Reusable.Flexo.Max),
@@ -76,6 +80,7 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.True),
             typeof(Reusable.Flexo.False),
             typeof(Reusable.Flexo.Collection),
+            typeof(Reusable.Flexo.SoftStringComparer),
         };
         // ReSharper restore RedundantNameQualifier
 
@@ -107,6 +112,39 @@ namespace Reusable.Flexo
         }
 
         protected abstract IExpression InvokeCore(IExpressionContext context);
+
+        /// <summary>
+        /// Determines whether the expression is invoked as an extension and removes the Input from the context.
+        /// </summary>
+        private bool IsExtension(ref IExpressionContext context, out IExpression input)
+        {
+            var inputKey = ExpressionContext.CreateKey(Item.For<IExtensionContext>(), x => x.Input);
+            if (context.TryGetValue(inputKey, out var value))
+            {
+                input = (IExpression)value;
+                // The Input must be removed so that subsequent expression don't 'think' they are called as extensions when they aren't.
+                context = context.Remove(inputKey);
+                return true;
+            }
+            else
+            {
+                input = default;
+                return false;
+            }
+        }
+
+        protected IExpression ExtensionInputOrDefault(ref IExpressionContext context, object value)
+        {
+            return ExtensionInputOrDefault(ref context, new[] { value }).Single();                
+        }
+        
+        protected IEnumerable<IExpression> ExtensionInputOrDefault(ref IExpressionContext context, IEnumerable<object> values)
+        {
+            return
+                IsExtension(ref context, out var input)
+                    ? input.Value<IEnumerable<IExpression>>()
+                    : values.Select(Constant.FromValueOrDefault("Value"));
+        }
     }
     
     [PublicAPI]

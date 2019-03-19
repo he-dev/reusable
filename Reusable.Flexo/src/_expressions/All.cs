@@ -14,11 +14,11 @@ namespace Reusable.Flexo
 
         public All() : this(nameof(All)) { }
 
-        public List<IExpression> Values { get; set; } = new List<IExpression>();
+        public List<object> Values { get; set; } = new List<object>();
 
         protected override CalculateResult<bool> Calculate(IExpressionContext context)
         {
-            var values = context.Input().ValueOrDefault<List<IExpression>>() ?? Values;
+            var values = ExtensionInputOrDefault(ref context, Values);            
             var last = default(IExpression);
             foreach (var predicate in values.Enabled())
             {

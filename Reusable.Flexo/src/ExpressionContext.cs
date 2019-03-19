@@ -28,6 +28,8 @@ namespace Reusable.Flexo
         IExpressionContext SetItem(SoftString key, object value);
 
         bool TryGetValue(SoftString key, out object value);
+
+        IExpressionContext Remove(SoftString key);
     }
 
 
@@ -70,6 +72,8 @@ namespace Reusable.Flexo
         public bool TryGetKey(SoftString equalKey, out SoftString actualKey) => _data.TryGetKey(equalKey, out actualKey);
 
         public bool TryGetValue(SoftString key, out object value) => _data.TryGetValue(key, out value);
+        
+        public IExpressionContext Remove(SoftString key) => new ExpressionContext(_data.Remove(key));
 
         public ExpressionContext Add(SoftString key, object value) => new ExpressionContext(_data.Add(key, value));
 

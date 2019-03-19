@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Newtonsoft.Json;
 
 namespace Reusable.Flexo
@@ -8,11 +7,13 @@ namespace Reusable.Flexo
     {
         public Any() : base(nameof(Any), ExpressionContext.Empty) { }
 
-        public List<IExpression> Values { get; set; } = new List<IExpression>();
+        public List<object> Values { get; set; } = new List<object>();
 
         protected override CalculateResult<bool> Calculate(IExpressionContext context)
         {
-            foreach (var predicate in Values.Enabled())
+            var values = ExtensionInputOrDefault(ref context, Values);
+
+            foreach (var predicate in values.Enabled())
             {
                 var result = predicate.Invoke(context);
                 if (result.Value<bool>())

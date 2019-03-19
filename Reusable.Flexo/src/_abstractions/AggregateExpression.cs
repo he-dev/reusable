@@ -13,12 +13,17 @@ namespace Reusable.Flexo
         protected AggregateExpression(string name, IExpressionContext context, [NotNull] Func<IEnumerable<double>, double> aggregate)
             : base(name, context) => _aggregate = aggregate;
 
-        public List<IExpression> Values { get; set; }
+        public List<object> Values { get; set; } = new List<object>();
 
         protected override IExpression InvokeCore(IExpressionContext context)
         {
-            var value = context.Input().ValueOrDefault<List<IExpression>>() ?? Values;
-            var result = _aggregate(value.Enabled().Select(e => e.Invoke(context)).Values<object>().Select(v => (double)v));
+            var values = 
+                ExtensionInputOrDefault(ref context, Values)
+                    .Enabled()
+                    .Select(e => e.Invoke(context))
+                    .Values<object>()
+                    .Select(v => (double)v);
+            var result = _aggregate(values);
             return Constant.FromValue(Name, result);
         }
     }

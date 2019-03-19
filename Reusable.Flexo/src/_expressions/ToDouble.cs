@@ -5,9 +5,9 @@ namespace Reusable.Flexo
     /// <summary>
     /// Provides a mapping expression from bool to double.
     /// </summary>
-    public class SwitchToDouble : Switch
+    public class ToDouble : Switch
     {
-        public SwitchToDouble(string name) : base(name)
+        public ToDouble(string name) : base(name)
         {
             Cases = new List<SwitchCase>
             {
@@ -30,10 +30,10 @@ namespace Reusable.Flexo
             Default = new Throw("SwitchValueOutOfRange")
             {
                 //Exception = $"ValueOutOfRange",
-                Message = $"{nameof(SwitchToDouble)} value must be either 'true', 'false' or 'null'."
+                Message = $"{nameof(ToDouble)} value must be either 'true', 'false' or 'null'."
             };
         }
 
-        public SwitchToDouble() : this(nameof(SwitchToDouble)) { }
+        public ToDouble() : this(nameof(ToDouble)) { }
     }
 }

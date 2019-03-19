@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Reusable
 {
-    public class SoftStringComparer : IEqualityComparer<SoftString>, IComparer<SoftString>
+    public class SoftStringComparer : IEqualityComparer<SoftString>, IEqualityComparer<string>, IComparer<SoftString>
     {
         private static readonly StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
 
@@ -15,10 +15,14 @@ namespace Reusable
             return Comparer.Equals(x.ToString(), y.ToString());
         }
 
+        public bool Equals(string x, string y) => Equals((SoftString)x, (SoftString)y);
+
         public int GetHashCode(SoftString obj)
         {
             return Comparer.GetHashCode(obj.ToString());
         }
+
+        public int GetHashCode(string obj) => GetHashCode((SoftString)obj);
 
         public int Compare(SoftString x, SoftString y)
         {

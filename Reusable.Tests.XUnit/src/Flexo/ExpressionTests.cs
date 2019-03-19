@@ -13,13 +13,13 @@ namespace Reusable.Tests.Flexo
     public class ExpressionTest
     {
         [Fact]
-        public void All_ReturnsTrueWhenAllTrue() => Equal(true, new All { Values = Constant.CreateMany(true, true, true).ToList() });
+        public void All_ReturnsTrueWhenAllTrue() => Equal(true, new All { Values = Constant.CreateMany(true, true, true).ToList<object>() });
 
         [Fact]
-        public void All_ReturnsFalseWhenSomeFalse() => Equal(false, new All { Values = Constant.CreateMany(true, false, true).ToList() });
+        public void All_ReturnsFalseWhenSomeFalse() => Equal(false, new All { Values = Constant.CreateMany(true, false, true).ToList<object>() });
 
         [Fact]
-        public void All_ReturnsFalseWhenAllFalse() => Equal(false, new All { Values = Constant.CreateMany(false, false, false).ToList() });
+        public void All_ReturnsFalseWhenAllFalse() => Equal(false, new All { Values = Constant.CreateMany(false, false, false).ToList<object>() });
 
         [Fact]
         public void All_flows_all_contexts()
@@ -39,10 +39,10 @@ namespace Reusable.Tests.Flexo
         }
 
         [Fact]
-        public void Any_ReturnsTrueWhenSomeTrue() => Equal(true, new Any { Values = Constant.CreateMany(false, false, true).ToList() });
+        public void Any_ReturnsTrueWhenSomeTrue() => Equal(true, new Any { Values = Constant.CreateMany(false, false, true).ToList<object>() });
 
         [Fact]
-        public void Any_ReturnsFalseWhenAllFalse() => Equal(false, new Any { Values = Constant.CreateMany(false, false, false).ToList() });
+        public void Any_ReturnsFalseWhenAllFalse() => Equal(false, new Any { Values = Constant.CreateMany(false, false, false).ToList<object>() });
 
         [Fact]
         public void Any_flows_True_context()
@@ -126,13 +126,13 @@ namespace Reusable.Tests.Flexo
         }
 
         [Fact]
-        public void Max_ReturnsMax() => Equal(3.0, new Max { Values = Constant.CreateMany(2.0, 3.0, 1.0).ToList() });
+        public void Max_ReturnsMax() => Equal(3.0, new Max { Values = Constant.CreateMany(2.0, 3.0, 1.0).ToList<object>() });
 
         [Fact]
-        public void Min_ReturnsMin() => Equal(1.0, new Min { Values = Constant.CreateMany(2.0, 3.0, 1.0).ToList() });
+        public void Min_ReturnsMin() => Equal(1.0, new Min { Values = Constant.CreateMany(2.0, 3.0, 1.0).ToList<object>() });
 
         [Fact]
-        public void Sum_ReturnsSum() => Equal(6.0, new Sum { Values = Constant.CreateMany(2.0, 3.0, 1.0).ToList() });
+        public void Sum_ReturnsSum() => Equal(6.0, new Sum { Values = Constant.CreateMany(2.0, 3.0, 1.0).ToList<object>() });
 
 //        [Fact]
 //        public void Equals_ReturnsTrueWhenEqual() => Equal(true, new Equals
@@ -239,10 +239,10 @@ namespace Reusable.Tests.Flexo
         public void Not_ReturnsFalseWhenTrue() => Equal(false, new Not { Value = Constant.True });
 
         [Fact]
-        public void ToDouble_MapsTrueToOne() => Equal(1.0, new SwitchToDouble { Value = Constant.True });
+        public void ToDouble_MapsTrueToOne() => Equal(1.0, new ToDouble { Value = Constant.True });
 
         [Fact]
-        public void ToDouble_MapsFalseToZero() => Equal(0.0, new SwitchToDouble { Value = Constant.False });
+        public void ToDouble_MapsFalseToZero() => Equal(0.0, new ToDouble { Value = Constant.False });
 
         [Fact]
         public void Constant_flows_context()

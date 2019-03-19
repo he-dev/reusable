@@ -30,7 +30,7 @@
     ]
   },
   {
-    "$t": "Flexo.SwitchToDouble",
+    "$t": "Flexo.ToDouble",
     "Value": {
       "$t": "Flexo.True"
     }
@@ -46,20 +46,20 @@
   },
   {
     "$t": "Flexo.True",
-    "Name": "SwitchToDoubleExtension",
+    "Name": "ToDoubleExtension",
     "This": [
       {
-        "$t": "Flexo.SwitchToDouble"
+        "$t": "Flexo.ToDouble"
       }
     ]
   },
   {
     "$t": "Flexo.Double",
     "Value": 1.0,
-    "Name": "SwitchToDoubleInvalid",
+    "Name": "ToDoubleInvalid",
     "This": [
       {
-        "$t": "Flexo.SwitchToDouble"
+        "$t": "Flexo.ToDouble"
       }
     ]
   },
@@ -169,6 +169,27 @@
     "This": [
       {
         "$t": "Flexo.All"
+      }
+    ]
+  },
+  {
+    "$t": "Flexo.Collection",
+    "Name": "CollectionWithOverlaps",
+    "Values": [
+      "foo",
+      "bar",
+      "baz"
+    ],
+    "This": [
+      {
+        "$t": "Flexo.Overlaps",
+        "With": [
+          "qux",
+          "BAR"
+        ],
+        "Comparer": {
+          "$t": "Flexo.SoftStringComparer"
+        }
       }
     ]
   }

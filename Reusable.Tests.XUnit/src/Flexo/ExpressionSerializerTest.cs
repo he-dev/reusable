@@ -36,7 +36,7 @@ namespace Reusable.Tests.Flexo
                 //ExpressionAssert.Equal(Constant.Create(3.0), expressions.OfType<Sum>().Single());
                 //ExpressionAssert.Equal(Double.One, expressions.OfType<SwitchToDouble>().Single());
                 ExpressionAssert.Equal(Constant.False, expressions.Get("NotExtension"));
-                ExpressionAssert.Equal(Double.One, expressions.Get("SwitchToDoubleExtension"));
+                ExpressionAssert.Equal(Double.One, expressions.Get("ToDoubleExtension"));
                 //ExpressionAssert.Equal(Double.One, expressions.Get("SwitchToDoubleInvalid"));
                 ExpressionAssert.Equal(3.0, expressions.Get("SumExtension"));
                 ExpressionAssert.Equal(4.0, expressions.Get("MaxExtension"));
@@ -44,6 +44,7 @@ namespace Reusable.Tests.Flexo
                 ExpressionAssert.Equal(Constant.True, expressions.Get("Matches"));
                 ExpressionAssert.Equal(Constant.True, expressions.Get("CollectionWithContainsMatches"));
                 ExpressionAssert.Equal(Constant.True, expressions.Get("CollectionWithAll"));
+                ExpressionAssert.Equal(Constant.True, expressions.Get("CollectionWithOverlaps"));
             }
         }
 
