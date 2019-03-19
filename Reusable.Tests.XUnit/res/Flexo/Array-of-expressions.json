@@ -140,6 +140,24 @@
   },
   {
     "$t": "Flexo.Collection",
+    "Name": "CollectionWithAnyMatches",
+    "Values": [
+      "foo",
+      "bar",
+      "baz"
+    ],
+    "This": [
+      {
+        "$t": "Flexo.Any",
+        "Predicate": {
+          "$t": "Flexo.Matches",
+          "Pattern": "^ba"
+        }
+      }
+    ]
+  },
+  {
+    "$t": "Flexo.Collection",
     "Name": "ContainsExtension",
     "Values": [
       1.0,

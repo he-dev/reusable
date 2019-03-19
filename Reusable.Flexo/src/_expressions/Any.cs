@@ -8,20 +8,31 @@ namespace Reusable.Flexo
         public Any() : base(nameof(Any), ExpressionContext.Empty) { }
 
         public List<object> Values { get; set; } = new List<object>();
-        
+
         public object Predicate { get; set; } = true;
 
         protected override CalculateResult<bool> Calculate(IExpressionContext context)
         {
             var values = ExtensionInputOrDefault(ref context, Values);
-            var predicate = Constant.FromValueOrDefault(nameof(Predicate), Predicate).Value<bool>();
+            var predicate = Constant.FromValueOrDefault(nameof(Predicate), Predicate);
 
             foreach (var item in values.Enabled())
             {
                 var result = item.Invoke(context);
-                if (EqualityComparer<bool>.Default.Equals(result.Value<bool>(), predicate))
+                if (predicate is IConstant)
                 {
-                    return (true, result.Context);
+                    if (EqualityComparer<bool>.Default.Equals(result.Value<bool>(), predicate.Value<bool>()))
+                    {
+                        return (true, result.Context);
+                    }
+                }
+                else
+                {
+                    var predicateResult = predicate.Invoke(context.Set(Item.For<IExtensionContext>(), x => x.Input, result));
+                    if (EqualityComparer<bool>.Default.Equals(predicateResult.Value<bool>(), true))
+                    {
+                        return (true, result.Context);
+                    }
                 }
             }
 

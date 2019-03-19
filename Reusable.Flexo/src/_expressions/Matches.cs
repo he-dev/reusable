@@ -36,7 +36,9 @@ namespace Reusable.Flexo
 
         protected override CalculateResult<bool> Calculate(IExpressionContext context)
         {
-            var value = Constant.FromValueOrDefault(Name, Value)?.Invoke(context).ValueOrDefault<string>();
+            var value = ExtensionInputOrDefault(ref context, Value).Value<string>(); 
+            var pattern = GetPattern(context);
+            
             if (value is null)
             {
                 return (false, context);
@@ -44,7 +46,7 @@ namespace Reusable.Flexo
             else
             {
                 var options = IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None;
-                return (Regex.IsMatch(value, GetPattern(context), options), context);
+                return (Regex.IsMatch(value, pattern, options), context);
             }
         }
 
