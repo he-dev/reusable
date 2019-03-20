@@ -5,7 +5,8 @@
       {
         "$t": "Flexo.True"
       }
-    ]
+    ],
+    "Predicate": true
   },
   {
     "$t": "Flexo.All",
@@ -121,7 +122,7 @@
   },
   {
     "$t": "Flexo.Collection",
-    "Name": "CollectionWithContainsMatches",
+    "Name": "CollectionWithRegexComparer",
     "Values": [
       "foo",
       "bar",
@@ -132,7 +133,25 @@
         "$t": "Flexo.Contains",
         "Value": "^ba",
         "Comparer": {
-          "$t": "Flexo.Matches"
+          "$t": "Flexo.RegexComparer"
+        }
+      }
+    ]
+  },
+  {
+    "$t": "Flexo.Collection",
+    "Name": "CollectionWithAnyMatches",
+    "Values": [
+      "foo",
+      "bar",
+      "baz"
+    ],
+    "This": [
+      {
+        "$t": "Flexo.Any",
+        "Predicate": {
+          "$t": "Flexo.Matches",
+          "Pattern": "^ba"
         }
       }
     ]

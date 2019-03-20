@@ -60,7 +60,7 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.IIf),
             typeof(Reusable.Flexo.Switch),
             typeof(Reusable.Flexo.ToDouble),
-            typeof(Reusable.Flexo.ToString),            
+            typeof(Reusable.Flexo.ToString),
             typeof(Reusable.Flexo.GetContextItem),
             typeof(Reusable.Flexo.Contains),
             typeof(Reusable.Flexo.Overlaps),
@@ -82,6 +82,7 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.Collection),
             typeof(Reusable.Flexo.SoftStringComparer),
             typeof(Reusable.Flexo.IsEqual),
+            typeof(Reusable.Flexo.RegexComparer),
         };
         // ReSharper restore RedundantNameQualifier
 
@@ -136,9 +137,14 @@ namespace Reusable.Flexo
 
         protected IExpression ExtensionInputOrDefault(ref IExpressionContext context, object value)
         {
-            return ExtensionInputOrDefault(ref context, new[] { value }).Single();                
+            //return ExtensionInputOrDefault(ref context, new[] { Constant.FromValueOrDefault("Value", value) }).Single();
+
+            return
+                IsExtension(ref context, out var input)
+                    ? input
+                    : Constant.FromValueOrDefault("Value", value);
         }
-        
+
         protected IEnumerable<IExpression> ExtensionInputOrDefault(ref IExpressionContext context, IEnumerable<object> values)
         {
             return
@@ -147,7 +153,7 @@ namespace Reusable.Flexo
                     : values.Select(Constant.FromValueOrDefault("Value"));
         }
     }
-    
+
     [PublicAPI]
     public abstract class Expression<T> : Expression
     {
@@ -185,5 +191,5 @@ namespace Reusable.Flexo
         }
 
         public static implicit operator CalculateResult<T>((T Value, IExpressionContext Context) t) => new CalculateResult<T>(t.Value, t.Context);
-    }    
+    }
 }

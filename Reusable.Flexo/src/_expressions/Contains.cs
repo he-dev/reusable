@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 namespace Reusable.Flexo
 {
     [PublicAPI]
-    public class Contains : Expression<bool>, IExtension<List<object>>
+    public class Contains : PredicateExpression, IExtension<List<object>>
     {
         public Contains() : base(nameof(Contains), ExpressionContext.Empty) { }
 
@@ -18,50 +18,10 @@ namespace Reusable.Flexo
 
         protected override CalculateResult<bool> Calculate(IExpressionContext context)
         {
-            var value = Constant.FromValueOrDefault("Value")(Value).Invoke(context);
-
-            // For convenience ObjectEqual is the default comparer.
-            var comparer = Comparer ?? new ObjectEqual();
-
-            if (comparer is IExpressionEqualityComparer equalityComparer)
-            {
-                // When comparer does not specify otherwise assume Left is Value and Right is Item.
-
-                if (equalityComparer.Left is null)
-                {
-                    equalityComparer.Left = new GetContextItem
-                    {
-                        Key = ExpressionContext.CreateKey(Item.For<IContainsContext>(), x => x.Value)
-                    };
-                }
-
-                if (equalityComparer.Right is null)
-                {
-                    equalityComparer.Right = new GetContextItem
-                    {
-                        Key = ExpressionContext.CreateKey(Item.For<IContainsContext>(), x => x.Item)
-                    };
-                }
-            }
-
-            var collection = ExtensionInputOrDefault(ref context, Values);
-
-            var itemContexts =
-                from item in collection
-                select
-                    context
-                        .Set(Item.For<IContainsContext>(), x => x.Value, value)
-                        .Set(Item.For<IContainsContext>(), x => x.Item, item);
-
-            var contains = itemContexts.Any(itemContext => comparer.Invoke(itemContext).Value<bool>());
-            return (contains, context);
+            var value = Constant.FromValueOrDefault("Value")(Value).Invoke(context).Value<object>();
+            var comparer = Comparer?.Invoke(context).ValueOrDefault<IEqualityComparer<object>>() ?? EqualityComparer<object>.Default;
+            var values = ExtensionInputOrDefault(ref context, Values).Values<object>();
+            return (values.Any(x => comparer.Equals(value, x)), context);
         }
     }        
-
-    public interface IContainsContext
-    {
-        object Item { get; }
-
-        object Value { get; }
-    }
 }

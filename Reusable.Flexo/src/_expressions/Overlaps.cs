@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace Reusable.Flexo
 {
-    public class Overlaps : PredicateExpression
+    public class Overlaps : PredicateExpression, IExtension<List<object>>
     {
         public Overlaps(string name, IExpressionContext context) : base(name, context)
         { }
@@ -29,5 +29,5 @@ namespace Reusable.Flexo
 
             return (values.Intersect(with, comparer).Any(), context);
         }
-    }
+    }    
 }

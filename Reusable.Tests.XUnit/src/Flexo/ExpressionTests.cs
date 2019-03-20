@@ -349,18 +349,19 @@ namespace Reusable.Tests.Flexo
                 {
                     Values = { "foo", "BAR" },
                     Value = Constant.FromValue("Value", "bar"),
-                    Comparer = new StringEqual
-                    {
-                        IgnoreCase = true,
-                        Left = new GetContextItem
-                        {
-                            Key = ExpressionContext.CreateKey(Item.For<IContainsContext>(), x => x.Value)
-                        },
-                        Right = new GetContextItem
-                        {
-                            Key = ExpressionContext.CreateKey(Item.For<IContainsContext>(), x => x.Item)
-                        }
-                    }
+                    Comparer = new Reusable.Flexo.SoftStringComparer(nameof(Reusable.Flexo.SoftStringComparer))
+//                    new StringEqual
+//                    {
+//                        IgnoreCase = true,
+//                        Left = new GetContextItem
+//                        {
+//                            Key = ExpressionContext.CreateKey(Item.For<IContainsContext>(), x => x.Value)
+//                        },
+//                        Right = new GetContextItem
+//                        {
+//                            Key = ExpressionContext.CreateKey(Item.For<IContainsContext>(), x => x.Item)
+//                        }
+//                    }
                 }
             );
         }
