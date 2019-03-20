@@ -22,7 +22,7 @@ namespace Reusable.Flexo
 
         protected override IExpression InvokeCore(IExpressionContext context)
         {
-            var value = context.Input() ?? Value;
+            var value = ExtensionInputOrDefault(ref context, Value);
             var switchContext = context.Set(Item.For<ISwitchContext>(), x => x.Value, value);
 
             foreach (var switchCase in (Cases ?? Enumerable.Empty<SwitchCase>()).Where(c => c.Enabled))
@@ -33,7 +33,7 @@ namespace Reusable.Flexo
                 }
             }
 
-            return (Default ?? new Throw("SwitchValueOutOfRange") { Message = "Default value not specified." }).Invoke(context);
+            return (Default ?? new Throw("SwitchValueOutOfRange") { Message = Constant.FromValue("Message", "Default value not specified.") }).Invoke(context);
         }
     }
 

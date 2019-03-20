@@ -1,4 +1,5 @@
 using Newtonsoft.Json.Serialization;
+using Reusable.Utilities.JsonNet.Annotations;
 
 namespace Reusable.Flexo
 {
@@ -13,6 +14,22 @@ namespace Reusable.Flexo
             var other = ExtensionInputOrDefault(ref context, Constant.Null).Value<object>();
             return (Value.Invoke(context).Value<object>().Equals(other), context);
         }
+    }
+    
+    
+    
+    [Alias(">")]
+    public class IsGreaterThan : ComparerExpression
+    {
+        public IsGreaterThan()
+            : base(nameof(IsGreaterThan), ExpressionContext.Empty, x => x > 0) { }
+    }
+
+    [Alias(">=")]
+    public class IsGreaterThanOrEqual : ComparerExpression
+    {
+        public IsGreaterThanOrEqual()
+            : base(nameof(IsGreaterThanOrEqual), ExpressionContext.Empty, x => x >= 0) { }
     }
 
     // public class ExpressionConverter : JsonConverter<IExpression>

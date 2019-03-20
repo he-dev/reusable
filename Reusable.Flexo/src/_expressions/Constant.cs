@@ -83,28 +83,28 @@ namespace Reusable.Flexo
     {
         private static volatile int _counter;
 
-        /// <summary>
-        /// Creates Constant with the specified object as value or does nothing if it's already an Expression. 
-        /// </summary>
-        public static Func<object, IExpression> FromValueOrDefault(SoftString name)
-        {
-            return obj => FromValueOrDefault(name, obj);
-        }
-
-        /// <summary>
-        /// Creates Constant with the specified object as value or does nothing if it's already an Expression. 
-        /// </summary>
-        [ContractAnnotation("obj: null => null")]
-        [CanBeNull]
-        public static IExpression FromValueOrDefault(SoftString name, object obj)
-        {
-            switch (obj)
-            {
-                case null: return default;
-                case IExpression expression: return expression;
-                default: return FromValue(name, obj);
-            }
-        }
+//        /// <summary>
+//        /// Creates Constant with the specified object as value or does nothing if it's already an Expression. 
+//        /// </summary>
+//        public static Func<object, IExpression> FromValueOrDefault(SoftString name)
+//        {
+//            return obj => FromValueOrDefault(name, obj);
+//        }
+//
+//        /// <summary>
+//        /// Creates Constant with the specified object as value or does nothing if it's already an Expression. 
+//        /// </summary>
+//        [ContractAnnotation("obj: null => null")]
+//        [CanBeNull]
+//        public static IExpression FromValueOrDefault(SoftString name, object obj)
+//        {
+//            switch (obj)
+//            {
+//                case null: return default;
+//                case IExpression expression: return expression;
+//                default: return FromValue(name, obj);
+//            }
+//        }
 
         [NotNull]
         public static Constant<TValue> FromValue<TValue>(SoftString name, TValue value)

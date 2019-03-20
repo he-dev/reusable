@@ -127,13 +127,13 @@ namespace Reusable.Tests.Flexo
         }
 
         [Fact]
-        public void Max_ReturnsMax() => Equal(3.0, new Max { Values = Constant.CreateMany(2.0, 3.0, 1.0).ToList<object>() });
+        public void Max_ReturnsMax() => Equal(3.0, new Max { Values = Constant.CreateMany(2.0, 3.0, 1.0).ToList() });
 
         [Fact]
-        public void Min_ReturnsMin() => Equal(1.0, new Min { Values = Constant.CreateMany(2.0, 3.0, 1.0).ToList<object>() });
+        public void Min_ReturnsMin() => Equal(1.0, new Min { Values = Constant.CreateMany(2.0, 3.0, 1.0).ToList() });
 
         [Fact]
-        public void Sum_ReturnsSum() => Equal(6.0, new Sum { Values = Constant.CreateMany(2.0, 3.0, 1.0).ToList<object>() });
+        public void Sum_ReturnsSum() => Equal(6.0, new Sum { Values = Constant.CreateMany(2.0, 3.0, 1.0).ToList() });
 
         //        [Fact]
         //        public void Equals_ReturnsTrueWhenEqual() => Equal(true, new Equals
@@ -374,7 +374,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void Matches_return_True_when_Pattern_matches()
         {
-            Equal(true, new Matches { IgnoreCase = true, Value = Constant.FromValue("Value", "Hallo"), Pattern = "hallo" });
+            Equal(true, new Matches { IgnoreCase = true, Value = Constant.FromValue("Value", "Hallo"), Pattern = Constant.FromValue("Pattern", "hallo") });
         }
 
         [Fact]

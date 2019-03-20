@@ -8,7 +8,7 @@ namespace Reusable.Flexo
         public ToString(string name, IExpressionContext context) : base(name, context)
         { }
 
-        public List<object> Values { get; set; } = new List<object>();
+        public List<IExpression> Values { get; set; } = new List<IExpression>();
 
         protected override CalculateResult<List<string>> Calculate(IExpressionContext context)
         {

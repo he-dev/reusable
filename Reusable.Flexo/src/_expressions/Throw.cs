@@ -11,11 +11,11 @@ namespace Reusable.Flexo
 
         //public string Exception { get; set; }
         
-        public string Message { get; set; }
+        public IExpression Message { get; set; }
 
         protected override IExpression InvokeCore(IExpressionContext context)
         {
-            throw DynamicException.Create(Name.ToString(), Message);
+            throw DynamicException.Create(Name.ToString(), Message.Value<string>());
         }
     }
 }

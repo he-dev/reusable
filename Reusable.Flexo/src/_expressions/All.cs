@@ -20,11 +20,11 @@ namespace Reusable.Flexo
 
         protected override CalculateResult<bool> Calculate(IExpressionContext context)
         {
-            var values = ExtensionInputOrDefault(ref context, Values);
-            var predicate = Constant.FromValueOrDefault(nameof(Predicate), Predicate).Value<bool>();
+            var values = ExtensionInputOrDefault(ref context, Values).Enabled();
+            var predicate = Predicate.Value<bool>();
 
             var last = default(IExpression);
-            foreach (var item in values.Enabled())
+            foreach (var item in values)
             {
                 last = item.Invoke(last?.Context ?? context);
                 if (EqualityComparer<bool>.Default.Equals(last.Value<bool>(), predicate))

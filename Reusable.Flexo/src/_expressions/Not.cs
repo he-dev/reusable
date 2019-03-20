@@ -13,7 +13,7 @@ namespace Reusable.Flexo
 
         protected override CalculateResult<bool> Calculate(IExpressionContext context)
         {
-            var predicate = context.Input() ?? Value;
+            var predicate = ExtensionInputOrDefault(ref context, Value);
             return (!predicate.Invoke(context).Value<bool>(), context);
         }
     }

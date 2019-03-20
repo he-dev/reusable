@@ -18,7 +18,7 @@ namespace Reusable.Flexo
 
         protected override CalculateResult<bool> Calculate(IExpressionContext context)
         {
-            var value = Constant.FromValueOrDefault("Value")(Value).Invoke(context).Value<object>();
+            var value = Value.Invoke(context).Value<object>();
             var comparer = Comparer?.Invoke(context).ValueOrDefault<IEqualityComparer<object>>() ?? EqualityComparer<object>.Default;
             var values = ExtensionInputOrDefault(ref context, Values).Values<object>();
             return (values.Any(x => comparer.Equals(value, x)), context);

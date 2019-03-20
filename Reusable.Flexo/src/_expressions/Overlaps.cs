@@ -14,16 +14,16 @@ namespace Reusable.Flexo
         public Overlaps(string name) : base(name ?? nameof(Overlaps), ExpressionContext.Empty)
         { }
 
-        public List<object> Values { get; set; } = new List<object>();
+        public List<IExpression> Values { get; set; } = new List<IExpression>();
 
-        public List<object> With { get; set; } = new List<object>();
+        public List<IExpression> With { get; set; } = new List<IExpression>();
 
         public IExpression Comparer { get; set; }
 
         protected override CalculateResult<bool> Calculate(IExpressionContext context)
         {
             var values = ExtensionInputOrDefault(ref context, Values).Values<object>();
-            var with = With.Select(Constant.FromValueOrDefault("Left")).Values<object>();
+            var with = With.Values<object>();
 
             var comparer = Comparer?.Invoke(context).ValueOrDefault<IEqualityComparer<object>>() ?? EqualityComparer<object>.Default;
 

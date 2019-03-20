@@ -135,22 +135,28 @@ namespace Reusable.Flexo
             }
         }
 
-        protected IExpression ExtensionInputOrDefault(ref IExpressionContext context, object value)
+//        protected IExpression ExtensionInputOrDefault(ref IExpressionContext context, IExpression value)
+//        {
+//            return
+//                IsExtension(ref context, out var input)
+//                    ? input
+//                    : value;
+//        }
+//
+//        protected IEnumerable<IExpression> ExtensionInputOrDefault(ref IExpressionContext context, IEnumerable<IExpression> values)
+//        {
+//            return
+//                IsExtension(ref context, out var input)
+//                    ? input.Value<IEnumerable<IExpression>>()
+//                    : values;
+//        }
+        
+        protected T ExtensionInputOrDefault<T>(ref IExpressionContext context, T defaultInput)
         {
-            //return ExtensionInputOrDefault(ref context, new[] { Constant.FromValueOrDefault("Value", value) }).Single();
-
             return
                 IsExtension(ref context, out var input)
-                    ? input
-                    : Constant.FromValueOrDefault("Value", value);
-        }
-
-        protected IEnumerable<IExpression> ExtensionInputOrDefault(ref IExpressionContext context, IEnumerable<object> values)
-        {
-            return
-                IsExtension(ref context, out var input)
-                    ? input.Value<IEnumerable<IExpression>>()
-                    : values.Select(Constant.FromValueOrDefault("Value"));
+                    ? defaultInput is IEnumerable<IExpression> ? input.Value<T>() : (T)input
+                    : defaultInput;
         }
     }
 
@@ -169,7 +175,7 @@ namespace Reusable.Flexo
 
     public interface IExtensionContext
     {
-        IExpression Input { get; }
+        IConstant Input { get; }
     }
 
     public readonly struct CalculateResult<T>

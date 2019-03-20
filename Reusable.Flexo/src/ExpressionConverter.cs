@@ -28,8 +28,20 @@ namespace Reusable.Flexo
             }
             else
             {
-                return Constant.FromValue("Value", reader.Value);
+                var name = GetParentName(((JTokenReader)reader).CurrentToken.Parent);
+                return Constant.FromValue(name, reader.Value);
             }
+        }
+
+        private string GetParentName(JContainer jContainer)
+        {
+            switch (jContainer)
+            {
+                case JProperty jProperty: return jProperty.Name;
+                case JArray jArray: return GetParentName(jArray.Parent);
+            }
+
+            return "Value";
         }
     }
 }
