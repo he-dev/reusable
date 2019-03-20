@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Serialization;
 using Reusable.Flexo;
@@ -13,13 +14,13 @@ namespace Reusable.Tests.Flexo
     public class ExpressionTest
     {
         [Fact]
-        public void All_ReturnsTrueWhenAllTrue() => Equal(true, new All { Values = Constant.CreateMany(true, true, true).ToList<object>() });
+        public void All_ReturnsTrueWhenAllTrue() => Equal(true, new All { Values = Constant.CreateMany(true, true, true).ToList() });
 
         [Fact]
-        public void All_ReturnsFalseWhenSomeFalse() => Equal(false, new All { Values = Constant.CreateMany(true, false, true).ToList<object>() });
+        public void All_ReturnsFalseWhenSomeFalse() => Equal(false, new All { Values = Constant.CreateMany(true, false, true).ToList() });
 
         [Fact]
-        public void All_ReturnsFalseWhenAllFalse() => Equal(false, new All { Values = Constant.CreateMany(false, false, false).ToList<object>() });
+        public void All_ReturnsFalseWhenAllFalse() => Equal(false, new All { Values = Constant.CreateMany(false, false, false).ToList() });
 
         [Fact]
         public void All_flows_all_contexts()
@@ -39,10 +40,10 @@ namespace Reusable.Tests.Flexo
         }
 
         [Fact]
-        public void Any_ReturnsTrueWhenSomeTrue() => Equal(true, new Any { Values = Constant.CreateMany(false, false, true).ToList<object>() });
+        public void Any_ReturnsTrueWhenSomeTrue() => Equal(true, new Any { Values = Constant.CreateMany(false, false, true).ToList() });
 
         [Fact]
-        public void Any_ReturnsFalseWhenAllFalse() => Equal(false, new Any { Values = Constant.CreateMany(false, false, false).ToList<object>() });
+        public void Any_ReturnsFalseWhenAllFalse() => Equal(false, new Any { Values = Constant.CreateMany(false, false, false).ToList() });
 
         [Fact]
         public void Any_flows_True_context()
@@ -134,19 +135,19 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void Sum_ReturnsSum() => Equal(6.0, new Sum { Values = Constant.CreateMany(2.0, 3.0, 1.0).ToList<object>() });
 
-//        [Fact]
-//        public void Equals_ReturnsTrueWhenEqual() => Equal(true, new Equals
-//        {
-//            Left = Constant.Create("foo"),
-//            Right = Constant.Create("foo"),
-//        });
-//
-//        [Fact]
-//        public void Equals_ReturnsFalseWhenNotEqual() => Equal(false, new Equals
-//        {
-//            Left = Constant.Create("foo"),
-//            Right = Constant.Create("bar"),
-//        });
+        //        [Fact]
+        //        public void Equals_ReturnsTrueWhenEqual() => Equal(true, new Equals
+        //        {
+        //            Left = Constant.Create("foo"),
+        //            Right = Constant.Create("foo"),
+        //        });
+        //
+        //        [Fact]
+        //        public void Equals_ReturnsFalseWhenNotEqual() => Equal(false, new Equals
+        //        {
+        //            Left = Constant.Create("foo"),
+        //            Right = Constant.Create("bar"),
+        //        });
 
         [Fact]
         public void GreaterThan_ReturnsTrueWhenLeftGreaterThanRight() => Equal(true, new GreaterThan
@@ -289,7 +290,7 @@ namespace Reusable.Tests.Flexo
                     {
                         When = new Contains
                         {
-                            Values = { "foo", "bar" }, 
+                            Values = Constant.CreateMany("foo", "bar").ToList(),
                             Value = new GetContextItem
                             {
                                 Key = "Switch.Value"
@@ -336,7 +337,11 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void Contains_returns_True_when_contains_value()
         {
-            Equal(true, new Contains { Values = { "foo", "bar" }, Value = Constant.FromValue("blub", "bar") });
+            Equal(true, new Contains
+            {
+                Values = Constant.CreateMany("foo", "bar").ToList(),
+                Value = Constant.FromValue("blub", "bar")
+            });
         }
 
         [Fact]
@@ -347,21 +352,21 @@ namespace Reusable.Tests.Flexo
                 true,
                 new Contains
                 {
-                    Values = { "foo", "BAR" },
+                    Values = Constant.CreateMany("foo", "BAR").ToList(),
                     Value = Constant.FromValue("Value", "bar"),
                     Comparer = new Reusable.Flexo.SoftStringComparer(nameof(Reusable.Flexo.SoftStringComparer))
-//                    new StringEqual
-//                    {
-//                        IgnoreCase = true,
-//                        Left = new GetContextItem
-//                        {
-//                            Key = ExpressionContext.CreateKey(Item.For<IContainsContext>(), x => x.Value)
-//                        },
-//                        Right = new GetContextItem
-//                        {
-//                            Key = ExpressionContext.CreateKey(Item.For<IContainsContext>(), x => x.Item)
-//                        }
-//                    }
+                    //                    new StringEqual
+                    //                    {
+                    //                        IgnoreCase = true,
+                    //                        Left = new GetContextItem
+                    //                        {
+                    //                            Key = ExpressionContext.CreateKey(Item.For<IContainsContext>(), x => x.Value)
+                    //                        },
+                    //                        Right = new GetContextItem
+                    //                        {
+                    //                            Key = ExpressionContext.CreateKey(Item.For<IContainsContext>(), x => x.Item)
+                    //                        }
+                    //                    }
                 }
             );
         }

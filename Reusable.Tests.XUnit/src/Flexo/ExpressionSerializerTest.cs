@@ -47,6 +47,10 @@ namespace Reusable.Tests.Flexo
                 ExpressionAssert.Equal(Constant.True, expressions.Get("CollectionWithAll"));
                 ExpressionAssert.Equal(Constant.True, expressions.Get("CollectionWithOverlaps"));
                 ExpressionAssert.Equal(Constant.True, expressions.Get("DoubleWithIsEqual"));
+                var collectionOfDouble = (Reusable.Flexo.Collection)expressions.Get("CollectionOfDouble");
+                Assert.Equal(2, collectionOfDouble.Values.Count);
+                ExpressionAssert.Equal(1.0, collectionOfDouble.Values[0]);
+                ExpressionAssert.Equal(2.0, collectionOfDouble.Values[1]);
             }
         }
 

@@ -7,14 +7,14 @@ namespace Reusable.Flexo
     public class Collection : Expression
     {
         [JsonConstructor]
-        public Collection(SoftString name) : base(name, ExpressionContext.Empty) { }
+        public Collection(SoftString name) : base(name ?? nameof(Collection), ExpressionContext.Empty) { }
 
-        public List<object> Values { get; set; }
+        public List<IExpression> Values { get; set; }
 
         protected override IExpression InvokeCore(IExpressionContext context)
         {
-            var values = Values.Select(Constant.FromValueOrDefault("Item"));
-            return Constant.FromValue(Name, values);
+            //var values = Values.Select(Constant.FromValueOrDefault("Item"));
+            return Constant.FromValue(Name, Values);
         }
     }
 

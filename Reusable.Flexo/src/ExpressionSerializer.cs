@@ -45,8 +45,13 @@ namespace Reusable.Flexo
             {
                 NullValueHandling = NullValueHandling.Ignore,
                 TypeNameHandling = TypeNameHandling.Auto,
-                //DefaultValueHandling = DefaultValueHandling.Populate
+                //DefaultValueHandling = DefaultValueHandling.Ignore,
                 //ContractResolver = contractResolver,
+                Converters =
+                {
+                    //new ExpressionConverter(),
+                    new ExpressionConverter()
+                }
             };
 
             configureSerializer?.Invoke(_jsonSerializer);

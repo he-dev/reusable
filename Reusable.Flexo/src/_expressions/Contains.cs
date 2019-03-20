@@ -10,9 +10,9 @@ namespace Reusable.Flexo
     {
         public Contains() : base(nameof(Contains), ExpressionContext.Empty) { }
 
-        public List<object> Values { get; set; } = new List<object>();
+        public List<IExpression> Values { get; set; } = new List<IExpression>();
 
-        public object Value { get; set; }
+        public IExpression Value { get; set; }
 
         public IExpression Comparer { get; set; }
 

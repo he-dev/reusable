@@ -7,14 +7,14 @@ namespace Reusable.Flexo
     {
         public Any() : base(nameof(Any), ExpressionContext.Empty) { }
 
-        public List<object> Values { get; set; } = new List<object>();
+        public List<IExpression> Values { get; set; } = new List<IExpression>();
 
-        public object Predicate { get; set; } = true;
+        public IExpression Predicate { get; set; } //= (IExpression)Constant.True;
 
         protected override CalculateResult<bool> Calculate(IExpressionContext context)
         {
             var values = ExtensionInputOrDefault(ref context, Values);
-            var predicate = Constant.FromValueOrDefault(nameof(Predicate), Predicate);
+            var predicate = Predicate ?? Constant.True;
 
             foreach (var item in values.Enabled())
             {

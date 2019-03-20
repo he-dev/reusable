@@ -222,5 +222,16 @@
         "Value": 1.0
       }
     ]
+  },
+  {
+    "$t": "Flexo.Collection",
+    "Name": "CollectionOfDouble",
+    "Values": [
+      1.0,
+      {
+        "$t": "Flexo.Double",
+        "Value": 2.0
+      }
+    ]
   }
 ]

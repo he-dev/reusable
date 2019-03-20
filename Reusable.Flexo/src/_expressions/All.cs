@@ -12,11 +12,11 @@ namespace Reusable.Flexo
         [JsonConstructor]
         public All(string name) : base(name ?? nameof(All), ExpressionContext.Empty) { }
 
-        public All() : this(nameof(All)) { }
+        internal All() : this(nameof(All)) { }
 
-        public List<object> Values { get; set; } = new List<object>();
+        public List<IExpression> Values { get; set; } = new List<IExpression>();
 
-        public object Predicate { get; set; } = true;
+        public IExpression Predicate { get; set; } = Constant.True;
 
         protected override CalculateResult<bool> Calculate(IExpressionContext context)
         {
