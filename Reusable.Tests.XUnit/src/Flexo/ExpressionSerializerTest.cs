@@ -45,6 +45,7 @@ namespace Reusable.Tests.Flexo
                 ExpressionAssert.Equal(Constant.True, expressions.Get("CollectionWithContainsMatches"));
                 ExpressionAssert.Equal(Constant.True, expressions.Get("CollectionWithAll"));
                 ExpressionAssert.Equal(Constant.True, expressions.Get("CollectionWithOverlaps"));
+                ExpressionAssert.Equal(Constant.True, expressions.Get("DoubleWithIsEqual"));
             }
         }
 

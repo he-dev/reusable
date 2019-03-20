@@ -64,4 +64,17 @@ namespace Reusable.Flexo
             return (comparer.Equals(x, y), context);
         }
     }
+
+    public class IsEqual : PredicateExpression
+    {
+        public IsEqual(string name) : base(name ?? nameof(IsEqual), ExpressionContext.Empty) { }
+
+        public object Value { get; set; }
+
+        protected override CalculateResult<bool> Calculate(IExpressionContext context)
+        {
+            var other = ExtensionInputOrDefault(ref context, Constant.Null).Value<object>();
+            return (Constant.FromValueOrDefault(nameof(Value), Value).Invoke(context).Value<object>().Equals(other), context);
+        }
+    }
 }

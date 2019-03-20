@@ -192,5 +192,16 @@
         }
       }
     ]
+  },
+  {
+    "$t": "Flexo.Double",
+    "Name": "DoubleWithIsEqual",
+    "Value": 1.0,
+    "This": [
+      {
+        "$t": "Flexo.IsEqual",
+        "Value": 1.0
+      }
+    ]
   }
 ]
