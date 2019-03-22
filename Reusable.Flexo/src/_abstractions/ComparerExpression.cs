@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Collections;
@@ -6,7 +7,7 @@ using Reusable.Collections;
 namespace Reusable.Flexo
 {
     [PublicAPI]
-    public abstract class ComparerExpression : Expression<bool>
+    public abstract class ComparerExpression : PredicateExpression, IExtension<object>
     {
         private readonly Func<int, bool> _predicate;
 
@@ -14,48 +15,27 @@ namespace Reusable.Flexo
             : base(name, context) => _predicate = predicate;
 
         [JsonRequired]
-        public IExpression Left { get; set; }
+        public IExpression Value { get; set; }
 
-        [JsonRequired]
-        public IExpression Right { get; set; }
-
-        protected override CalculateResult<bool> Calculate(IExpressionContext context)
+        protected override ExpressionResult<bool> InvokeCore(IExpressionContext context)
         {
-            var x = Left.Invoke(context);
-            var y = Right.Invoke(context);
-
-            var result = default(int);
-
-            var compared =
-                TryCompare<int>(x, y, out result) ||
-                TryCompare<float>(x, y, out result) ||
-                TryCompare<double>(x, y, out result) ||
-                TryCompare<string>(x, y, out result) ||
-                TryCompare<decimal>(x, y, out result) ||
-                TryCompare<System.DateTime>(x, y, out result) ||
-                TryCompare<System.TimeSpan>(x, y, out result) ||
-                TryCompare<object>(x, y, out result);
-
-            if (compared)
-            {
-                return (_predicate(result), context);
-            }
-
-            throw new InvalidOperationException($"Expressions '{x.Name}' & '{y.Name}' are not comparable.");
+            var left = ExtensionInput<IExpression>(ref context);
+            var result = Comparer<object>.Default.Compare(left.Invoke(context).Value<object>(), Value.Invoke(context).Value<object>());
+            return (_predicate(result), context);
         }
 
-        private static bool TryCompare<T>(IExpression x, IExpression y, out int result)
-        {
-            if (x is Constant<T> && y is Constant<T>)
-            {
-                result = ComparerFactory<IExpression>.Create(c => c.ValueOrDefault<T>()).Compare(x, y);
-                return true;
-            }
-            else
-            {
-                result = default;
-                return false;
-            }
-        }
+//        private static bool TryCompare<T>(IExpression x, IExpression y, out int result)
+//        {
+//            if (x is Constant<T> && y is Constant<T>)
+//            {
+//                result = ComparerFactory<IExpression>.Create(c => c.ValueOrDefault<T>()).Compare(x, y);
+//                return true;
+//            }
+//            else
+//            {
+//                result = default;
+//                return false;
+//            }
+//        }
     }
 }

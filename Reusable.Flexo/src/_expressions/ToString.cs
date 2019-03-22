@@ -10,7 +10,7 @@ namespace Reusable.Flexo
 
         public List<IExpression> Values { get; set; } = new List<IExpression>();
 
-        protected override CalculateResult<List<string>> Calculate(IExpressionContext context)
+        protected override ExpressionResult<List<string>> InvokeCore(IExpressionContext context)
         {
             var strings =
                 from value in ExtensionInputOrDefault(ref context, Values)

@@ -17,7 +17,7 @@ namespace Reusable.Flexo
         object Value { get; }
     }
 
-    public class Constant<TValue> : Expression, IConstant, IEquatable<Constant<TValue>>
+    public class Constant<TValue> : Expression<TValue>, IConstant, IEquatable<Constant<TValue>>
     {
         public Constant(SoftString name, TValue value, IExpressionContext context) : base(name ?? value.GetType().ToPrettyString(), context) => Value = value;
 
@@ -30,11 +30,11 @@ namespace Reusable.Flexo
         [CanBeNull]
         public TValue Value { get; }
 
-        protected override IExpression InvokeCore(IExpressionContext context)
+        protected override ExpressionResult<TValue> InvokeCore(IExpressionContext context)
         {
             //using (context.Scope(this))
             {
-                return new Constant<TValue>(Name, Value, context);
+                return (Value, context);
             }
         }
 
@@ -51,7 +51,7 @@ namespace Reusable.Flexo
         
         public static implicit operator Constant<TValue>((string Name, TValue Value, IExpressionContext Context) t) => new Constant<TValue>(t.Name, t.Value, t.Context);
         
-        public static implicit operator Constant<TValue>((string Name, CalculateResult<TValue> Result) t) => new Constant<TValue>(t.Name, t.Result.Value, t.Result.Context);
+        public static implicit operator Constant<TValue>((string Name, ExpressionResult<TValue> Result) t) => new Constant<TValue>(t.Name, t.Result.Value, t.Result.Context);
 
         public static implicit operator TValue(Constant<TValue> constant) => constant.Value;
 
@@ -83,36 +83,13 @@ namespace Reusable.Flexo
     {
         private static volatile int _counter;
 
-//        /// <summary>
-//        /// Creates Constant with the specified object as value or does nothing if it's already an Expression. 
-//        /// </summary>
-//        public static Func<object, IExpression> FromValueOrDefault(SoftString name)
-//        {
-//            return obj => FromValueOrDefault(name, obj);
-//        }
-//
-//        /// <summary>
-//        /// Creates Constant with the specified object as value or does nothing if it's already an Expression. 
-//        /// </summary>
-//        [ContractAnnotation("obj: null => null")]
-//        [CanBeNull]
-//        public static IExpression FromValueOrDefault(SoftString name, object obj)
-//        {
-//            switch (obj)
-//            {
-//                case null: return default;
-//                case IExpression expression: return expression;
-//                default: return FromValue(name, obj);
-//            }
-//        }
-
         [NotNull]
         public static Constant<TValue> FromValue<TValue>(SoftString name, TValue value)
         {
             return new Constant<TValue>(name, value);
         }
 
-        public static Constant<TValue> FromResult<TValue>(SoftString name, CalculateResult<TValue> result)
+        public static Constant<TValue> FromResult<TValue>(SoftString name, ExpressionResult<TValue> result)
         {
             return new Constant<TValue>(name, result.Value, result.Context);
         }

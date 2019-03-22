@@ -6,13 +6,9 @@ using Newtonsoft.Json;
 
 namespace Reusable.Flexo
 {
-    [UsedImplicitly]
-    [PublicAPI]
-    public class Switch : Expression, IExtension<IExpression>
+    public abstract class Switch<TResult> : Expression<IExpression>, IExtension<TResult>
     {
-        public Switch(string name) : base(name, ExpressionContext.Empty) { }
-
-        public Switch() : this(nameof(Switch)) { }
+        protected Switch([NotNull] SoftString name, [NotNull] IExpressionContext context) : base(name, context) { }
 
         public IExpression Value { get; set; }
 
@@ -20,7 +16,7 @@ namespace Reusable.Flexo
 
         public IExpression Default { get; set; }
 
-        protected override IExpression InvokeCore(IExpressionContext context)
+        protected override ExpressionResult<IExpression> InvokeCore(IExpressionContext context)
         {
             var value = ExtensionInputOrDefault(ref context, Value);
             var switchContext = context.Set(Item.For<ISwitchContext>(), x => x.Value, value);
@@ -29,12 +25,21 @@ namespace Reusable.Flexo
             {
                 if (switchCase.WhenOrDefault().Invoke(switchContext).Value<bool>())
                 {
-                    return switchCase.Body.Invoke(switchContext);
+                    return (switchCase.Body.Invoke(switchContext), context);
                 }
             }
 
-            return (Default ?? new Throw("SwitchValueOutOfRange") { Message = Constant.FromValue("Message", "Default value not specified.") }).Invoke(context);
+            return ((Default ?? new Throw("SwitchValueOutOfRange") { Message = Constant.FromValue("Message", "Default value not specified.") }).Invoke(context), context);
         }
+    }
+
+    [UsedImplicitly]
+    [PublicAPI]
+    public class Switch : Switch<IExpression> // Expression<IExpression>, IExtension<IExpression>
+    {
+        public Switch(string name) : base(name, ExpressionContext.Empty) { }
+
+        public Switch() : this(nameof(Switch)) { }
     }
 
     public class SwitchCase

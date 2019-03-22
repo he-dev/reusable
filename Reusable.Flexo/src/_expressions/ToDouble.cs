@@ -5,9 +5,9 @@ namespace Reusable.Flexo
     /// <summary>
     /// Provides a mapping expression from bool to double.
     /// </summary>
-    public class ToDouble : Switch
+    public class ToDouble : Switch<bool> //, IExtension<bool>
     {
-        public ToDouble(string name) : base(name)
+        public ToDouble(string name) : base(name, ExpressionContext.Empty)
         {
             Cases = new List<SwitchCase>
             {

@@ -4,17 +4,16 @@ using Newtonsoft.Json;
 
 namespace Reusable.Flexo
 {
-    public class Collection : Expression
+    public class Collection : Expression<List<IExpression>>
     {
         [JsonConstructor]
         public Collection(SoftString name) : base(name ?? nameof(Collection), ExpressionContext.Empty) { }
 
         public List<IExpression> Values { get; set; }
 
-        protected override IExpression InvokeCore(IExpressionContext context)
+        protected override ExpressionResult<List<IExpression>> InvokeCore(IExpressionContext context)
         {
-            //var values = Values.Select(Constant.FromValueOrDefault("Item"));
-            return Constant.FromValue(Name, Values);
+            return (Values, context);
         }
     }
 

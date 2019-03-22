@@ -25,6 +25,9 @@
     <EmbeddedResource Remove="src\Diagnostics\**" />
     <None Remove="src\Diagnostics\**" />
     <Compile Remove="src\_expressions\Block.cs" />
+    <Compile Remove="src\_expressions\GreaterThan.cs" />
+    <Compile Remove="src\_expressions\LessThan.cs" />
+    <Compile Remove="src\_expressions\ToList.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="src\_expressions\_abstractions\ICommand.cs" />

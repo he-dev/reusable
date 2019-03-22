@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 namespace Reusable.Flexo
 {
     [PublicAPI]
-    public abstract class AggregateExpression : Expression, IExtension<List<IExpression>>
+    public abstract class AggregateExpression : Expression<double>, IExtension<List<IExpression>>
     {
         private readonly Func<IEnumerable<double>, double> _aggregate;
 
@@ -15,7 +15,7 @@ namespace Reusable.Flexo
 
         public IEnumerable<IExpression> Values { get; set; } = new List<IExpression>();
 
-        protected override IExpression InvokeCore(IExpressionContext context)
+        protected override ExpressionResult<double> InvokeCore(IExpressionContext context)
         {
             var values = 
                 ExtensionInputOrDefault(ref context, Values)
@@ -24,7 +24,7 @@ namespace Reusable.Flexo
                     .Values<object>()
                     .Select(v => (double)v);
             var result = _aggregate(values);
-            return Constant.FromValue(Name, result);
+            return (result, context);
         }
     }
 }

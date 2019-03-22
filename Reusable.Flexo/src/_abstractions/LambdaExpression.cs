@@ -2,28 +2,32 @@ using System;
 
 namespace Reusable.Flexo
 {
-    public class LambdaExpression : Expression
+    public class LambdaExpression<TResult> : Expression<TResult>
     {
-        private readonly Func<IExpressionContext, IExpression> _invoke;
+        private readonly Func<IExpressionContext, ExpressionResult<TResult>> _invoke;
 
-        public LambdaExpression(string name, IExpressionContext context, Func<IExpressionContext, IExpression> invoke) : base(name, context)
+        public LambdaExpression(string name, IExpressionContext context, Func<IExpressionContext, ExpressionResult<TResult>> invoke) : base(name, context)
         {
             _invoke = invoke;
         }
 
-        protected override IExpression InvokeCore(IExpressionContext context)
+        protected override ExpressionResult<TResult> InvokeCore(IExpressionContext context)
         {
             return _invoke(context);
+        }        
+    }
+    
+    public static class LambdaExpression
+    {
+
+        public static LambdaExpression<bool> Predicate(Func<IExpressionContext, ExpressionResult<bool>> predicate)
+        {
+            return new LambdaExpression<bool>(nameof(Predicate), ExpressionContext.Empty, predicate);
         }
 
-        public static LambdaExpression Predicate(Func<IExpressionContext, CalculateResult<bool>> predicate)
+        public static LambdaExpression<double> Double(Func<IExpressionContext, ExpressionResult<double>> calculate)
         {
-            return new LambdaExpression(nameof(Predicate), ExpressionContext.Empty, context => Constant.FromResult(nameof(Predicate), predicate(context)));
-        }
-
-        public static LambdaExpression Double(Func<IExpressionContext, CalculateResult<double>> calculate)
-        {
-            return new LambdaExpression(nameof(Double), ExpressionContext.Empty, context => Constant.FromResult(nameof(Double), calculate(context)));
+            return new LambdaExpression<double>(nameof(Double), ExpressionContext.Empty, calculate);
         }
     }
 }

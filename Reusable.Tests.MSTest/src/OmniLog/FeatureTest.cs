@@ -53,27 +53,27 @@ namespace Reusable.OmniLog.Tests
         }
 
         //[TestMethod]
-        public void CanFilterLogByLevel()
-        {
-            var resources = new EmbeddedFileProvider(typeof(FeatureTest).Assembly);
-            var omniLogJson = resources.ReadTextFile(@"res\OmniLog\OmniLog.json");
-            using (var jsonStream = omniLogJson.ToStreamReader())
-            {
-                var memory = new MemoryRx();
-
-                var loggerFactory = 
-                    new LoggerFactory()
-                        .UseConfiguration(jsonStream.BaseStream)
-                        .AddObserver(memory);
-
-                var logger = loggerFactory.CreateLogger<FeatureTest>();
-                logger.Log(LogLevel.Trace, log => log.Message("Test1"));
-                logger.Log(LogLevel.Debug, log => log.Message("Test2"));
-
-                Assert.AreEqual(1, memory.Count());
-
-            }
-        }
+//        public void CanFilterLogByLevel()
+//        {
+//            var resources = new EmbeddedFileProvider(typeof(FeatureTest).Assembly);
+//            var omniLogJson = resources.ReadTextFile(@"res\OmniLog\OmniLog.json");
+//            using (var jsonStream = omniLogJson.ToStreamReader())
+//            {
+//                var memory = new MemoryRx();
+//
+//                var loggerFactory = 
+//                    new LoggerFactory()
+//                        .UseConfiguration(jsonStream.BaseStream)
+//                        .AddObserver(memory);
+//
+//                var logger = loggerFactory.CreateLogger<FeatureTest>();
+//                logger.Log(LogLevel.Trace, log => log.Message("Test1"));
+//                logger.Log(LogLevel.Debug, log => log.Message("Test2"));
+//
+//                Assert.AreEqual(1, memory.Count());
+//
+//            }
+//        }
 
         //[TestMethod]
         //public void Log_LogFilterGreaterThenOrEqual_Logged()

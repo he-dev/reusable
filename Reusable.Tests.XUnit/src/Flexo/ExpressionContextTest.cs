@@ -26,7 +26,7 @@ namespace Reusable.Tests.Flexo
             Assert.ThrowsAny<DynamicException>(() => expression.Invoke(ExpressionContext.Empty));
         }
 
-        private class MyExpression : Expression
+        private class MyExpression : Expression<string>
         {
             public MyExpression() : base(nameof(MyExpression), ExpressionContext.Empty)
             { }
@@ -34,10 +34,10 @@ namespace Reusable.Tests.Flexo
             [Required]
             public string Greeting { get; set; }
 
-            protected override IExpression InvokeCore(IExpressionContext context)
+            protected override ExpressionResult<string> InvokeCore(IExpressionContext context)
             {
                 var name = context.Get(Item.For<MyExpression>(), e => e.Greeting);
-                return Constant.FromValue("Actual", name);
+                return (name, context);
             }
         }
     }

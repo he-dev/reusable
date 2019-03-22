@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace Reusable.Flexo
 {
     // ReSharper disable once InconsistentNaming - we want this name!
-    public class IIf : Expression
+    public class IIf : Expression<IExpression>
     {
         public IIf() : base(nameof(IIf), ExpressionContext.Empty) { }
 
@@ -15,16 +15,19 @@ namespace Reusable.Flexo
 
         public IExpression False { get; set; }
 
-        protected override IExpression InvokeCore(IExpressionContext context)
+        protected override ExpressionResult<IExpression> InvokeCore(IExpressionContext context)
         {
             if (True is null && False is null) throw new InvalidOperationException($"You need to specify at least one result ({nameof(True)}/{nameof(False)}).");
 
             var result = Predicate.Invoke(context);
 
             return
+            (
                 result.Value<bool>()
                     ? (True ?? Constant.Null).Invoke(result.Context)
-                    : (False ?? Constant.Null).Invoke(context);
+                    : (False ?? Constant.Null).Invoke(context),
+                context
+            );
 
             // using (context.Scope(this))
             // {

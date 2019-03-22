@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Flexo;
 using Reusable.IOnymous;
-using Reusable.OmniLog.Expressions;
+
 
 namespace Reusable.OmniLog
 {
@@ -23,8 +23,8 @@ namespace Reusable.OmniLog
         [JsonProperty("LogFilter")]
         public IExpression LogPredicateExpression { get; set; }
 
-        [JsonIgnore]
-        public LogPredicate LogPredicate => log => LogPredicateExpression?.Invoke(new ExpressionContext().Log(log)).Value<bool>() ?? true;
+        //[JsonIgnore]
+        //public LogPredicate LogPredicate => log => LogPredicateExpression?.Invoke(new ExpressionContext().Log(log)).Value<bool>() ?? true;
 
         public static LoggerFactoryConfiguration Load(string fileName)
         {
@@ -36,9 +36,9 @@ namespace Reusable.OmniLog
             return default;
         }
 
-        public static LoggerFactoryConfiguration Load(Stream jsonStream, IExpressionSerializer serializer = null)
-        {
-            return (serializer ?? ExpressionSerializerFactory.CreateSerializer()).Deserialize<LoggerFactoryConfiguration>(jsonStream);
-        }
+//        public static LoggerFactoryConfiguration Load(Stream jsonStream, IExpressionSerializer serializer = null)
+//        {
+//            return (serializer ?? ExpressionSerializerFactory.CreateSerializer()).Deserialize<LoggerFactoryConfiguration>(jsonStream);
+//        }
     }
 }

@@ -60,7 +60,8 @@ namespace Reusable.OmniLog
                 }
             }
 
-            var logger = new Logger(name, Configuration.LogPredicate, UnsubscribeLogger)
+            //var logger = new Logger(name, Configuration.LogPredicate, UnsubscribeLogger)
+            var logger = new Logger(name, _ => true, UnsubscribeLogger)
             {
                 Attachments = Configuration.Attachments
             };

@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace Reusable.Flexo
 {
-    public class Overlaps : PredicateExpression, IExtension<List<object>>
+    public class Overlaps : PredicateExpression, IExtension<List<IExpression>>
     {
         public Overlaps(string name, IExpressionContext context) : base(name, context)
         { }
@@ -20,7 +20,7 @@ namespace Reusable.Flexo
 
         public IExpression Comparer { get; set; }
 
-        protected override CalculateResult<bool> Calculate(IExpressionContext context)
+        protected override ExpressionResult<bool> InvokeCore(IExpressionContext context)
         {
             var values = ExtensionInputOrDefault(ref context, Values).Values<object>();
             var with = With.Values<object>();

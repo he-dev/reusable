@@ -9,18 +9,18 @@ namespace Reusable.Flexo
     /// </summary>
     [UsedImplicitly]
     [PublicAPI]
-    public class GetContextItem : Expression
+    public class GetContextItem : Expression<IExpression>
     {
         public GetContextItem() : base(nameof(GetContextItem), ExpressionContext.Empty) { }
 
         [JsonRequired]
         public string Key { get; set; }
 
-        protected override IExpression InvokeCore(IExpressionContext context)
+        protected override ExpressionResult<IExpression> InvokeCore(IExpressionContext context)
         {
             return
                 context.TryGetValue(Key, out var value)
-                    ? (value is IExpression expression ? expression.Invoke(context) : Constant.FromValue(Key, value))
+                    ? (value is IExpression expression ? expression.Invoke(context) : Constant.FromValue(Key, value), context)
                     : throw DynamicException.Create("KeyNotFound", $"Context does not contain an item with the key '{Key}'.");
         }
     }

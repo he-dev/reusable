@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 namespace Reusable.Flexo
 {
     [PublicAPI]
-    public class Contains : PredicateExpression, IExtension<List<object>>
+    public class Contains : PredicateExpression, IExtension<IEnumerable<IExpression>>
     {
         public Contains() : base(nameof(Contains), ExpressionContext.Empty) { }
 
@@ -16,7 +16,7 @@ namespace Reusable.Flexo
 
         public IExpression Comparer { get; set; }
 
-        protected override CalculateResult<bool> Calculate(IExpressionContext context)
+        protected override ExpressionResult<bool> InvokeCore(IExpressionContext context)
         {
             var value = Value.Invoke(context).Value<object>();
             var comparer = Comparer?.Invoke(context).ValueOrDefault<IEqualityComparer<object>>() ?? EqualityComparer<object>.Default;

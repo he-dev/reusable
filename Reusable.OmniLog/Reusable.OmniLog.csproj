@@ -19,6 +19,7 @@
     <EmbeddedResource Remove="src\Diagnostics\**" />
     <None Remove="src\Collections\**" />
     <None Remove="src\Diagnostics\**" />
+    <Compile Remove="src\Expressions.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -150,88 +150,76 @@ namespace Reusable.Tests.Flexo
         //        });
 
         [Fact]
-        public void GreaterThan_ReturnsTrueWhenLeftGreaterThanRight() => Equal(true, new GreaterThan
+        public void GreaterThan_ReturnsTrueWhenLeftGreaterThanRight() => Equal(true, new IsGreaterThan
         {
-            Left = Constant.Create(3.0),
-            Right = Constant.Create(2.0),
-        });
+            Value = Constant.Create(2.0),
+        }, ExpressionContext.Empty.ExtensionInput(Constant.Create(3.0)));
 
         [Fact]
-        public void GreaterThan_ReturnsFalseWhenLeftLessThanRight() => Equal(false, new GreaterThan
+        public void GreaterThan_ReturnsFalseWhenLeftLessThanRight() => Equal(false, new IsGreaterThan
         {
-            Left = Constant.Create(2.0),
-            Right = Constant.Create(3.0),
-        });
+            Value = Constant.Create(3.0),
+        }, ExpressionContext.Empty.ExtensionInput(Constant.Create(2.0)));
 
         [Fact]
-        public void GreaterThan_ReturnsFalseWhenLeftEqualsRight() => Equal(false, new GreaterThan
+        public void GreaterThan_ReturnsFalseWhenLeftEqualsRight() => Equal(false, new IsGreaterThan
         {
-            Left = Constant.Create(2.0),
-            Right = Constant.Create(2.0),
-        });
+            Value = Constant.Create(2.0),
+        }, ExpressionContext.Empty.ExtensionInput(Constant.Create(2.0)));
 
         [Fact]
-        public void GreaterThanOrEqual_ReturnsTrueWhenLeftGreaterThanRight() => Equal(true, new GreaterThanOrEqual
+        public void GreaterThanOrEqual_ReturnsTrueWhenLeftGreaterThanRight() => Equal(true, new IsGreaterThanOrEqual
         {
-            Left = Constant.Create(3.0),
-            Right = Constant.Create(2.0),
-        });
+            Value = Constant.Create(2.0),
+        }, ExpressionContext.Empty.ExtensionInput(Constant.Create(3.0)));
 
         [Fact]
-        public void GreaterThanOrEqual_ReturnsTrueWhenLeftEqualsRight() => Equal(true, new GreaterThanOrEqual
+        public void GreaterThanOrEqual_ReturnsTrueWhenLeftEqualsRight() => Equal(true, new IsGreaterThanOrEqual
         {
-            Left = Constant.Create(3.0),
-            Right = Constant.Create(3.0),
-        });
+            Value = Constant.Create(3.0),
+        }, ExpressionContext.Empty.ExtensionInput(Constant.Create(3.0)));
 
         [Fact]
-        public void GreaterThanOrEqual_ReturnsFalseWhenLeftLessThanRight() => Equal(false, new GreaterThanOrEqual
+        public void GreaterThanOrEqual_ReturnsFalseWhenLeftLessThanRight() => Equal(false, new IsGreaterThanOrEqual
         {
-            Left = Constant.Create(2.0),
-            Right = Constant.Create(3.0),
-        });
+            Value = Constant.Create(3.0),
+        }, ExpressionContext.Empty.ExtensionInput(Constant.Create(2.0)));
 
         [Fact]
-        public void LessThan_ReturnsTrueWhenLeftLessThanRight() => Equal(true, new LessThan
+        public void LessThan_ReturnsTrueWhenLeftLessThanRight() => Equal(true, new IsLessThan
         {
-            Left = Constant.Create(2.0),
-            Right = Constant.Create(3.0),
-        });
+            Value = Constant.Create(3.0),
+        }, ExpressionContext.Empty.ExtensionInput(Constant.Create(2.0)));
 
         [Fact]
-        public void LessThan_ReturnsFalseWhenLeftEqualsRight() => Equal(false, new LessThan
+        public void LessThan_ReturnsFalseWhenLeftEqualsRight() => Equal(false, new IsLessThan
         {
-            Left = Constant.Create(3.0),
-            Right = Constant.Create(3.0),
-        });
+            Value = Constant.Create(3.0),
+        }, ExpressionContext.Empty.ExtensionInput(Constant.Create(3.0)));
 
         [Fact]
-        public void LessThan_ReturnsFalseWhenLeftGreaterThanRight() => Equal(false, new LessThan
+        public void LessThan_ReturnsFalseWhenLeftGreaterThanRight() => Equal(false, new IsLessThan
         {
-            Left = Constant.Create(3.0),
-            Right = Constant.Create(2.0),
-        });
+            Value = Constant.Create(2.0),
+        }, ExpressionContext.Empty.ExtensionInput(Constant.Create(3.0)));
 
         [Fact]
-        public void LessThanOrEqual_ReturnsTrueWhenLeftLessThanRight() => Equal(true, new LessThanOrEqual
+        public void LessThanOrEqual_ReturnsTrueWhenLeftLessThanRight() => Equal(true, new IsLessThanOrEqual
         {
-            Left = Constant.Create(2.0),
-            Right = Constant.Create(3.0),
-        });
+            Value = Constant.Create(3.0),
+        }, ExpressionContext.Empty.ExtensionInput(Constant.Create(2.0)));
 
         [Fact]
-        public void LessThanOrEqual_ReturnsTrueWhenLeftEqualsRight() => Equal(true, new LessThanOrEqual
+        public void LessThanOrEqual_ReturnsTrueWhenLeftEqualsRight() => Equal(true, new IsLessThanOrEqual
         {
-            Left = Constant.Create(3.0),
-            Right = Constant.Create(3.0),
-        });
+            Value = Constant.Create(3.0),
+        }, ExpressionContext.Empty.ExtensionInput(Constant.Create(3.0)));
 
         [Fact]
-        public void LessThanOrEqual_ReturnsFalseWhenLeftGreaterThanRight() => Equal(false, new LessThanOrEqual
+        public void LessThanOrEqual_ReturnsFalseWhenLeftGreaterThanRight() => Equal(false, new IsLessThanOrEqual
         {
-            Left = Constant.Create(3.0),
-            Right = Constant.Create(2.0),
-        });
+            Value = Constant.Create(2.0),
+        }, ExpressionContext.Empty.ExtensionInput(Constant.Create(3.0)));
 
         [Fact]
         public void Not_ReturnsTrueWhenFalse() => Equal(false, new Not { Value = Constant.True });

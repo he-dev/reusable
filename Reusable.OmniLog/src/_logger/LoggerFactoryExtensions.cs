@@ -65,10 +65,10 @@ namespace Reusable.OmniLog
             return loggerFactory.UseConfiguration(LoggerFactoryConfiguration.Load(fileName));
         }
 
-        public static LoggerFactory UseConfiguration(this LoggerFactory loggerFactory, Stream jsonStream)
-        {
-            return loggerFactory.UseConfiguration(LoggerFactoryConfiguration.Load(jsonStream));
-        }
+//        public static LoggerFactory UseConfiguration(this LoggerFactory loggerFactory, Stream jsonStream)
+//        {
+//            return loggerFactory.UseConfiguration(LoggerFactoryConfiguration.Load(jsonStream));
+//        }
 
         #endregion
     }

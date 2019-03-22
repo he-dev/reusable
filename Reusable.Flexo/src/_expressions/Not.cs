@@ -11,7 +11,7 @@ namespace Reusable.Flexo
 
         public IExpression Value { get; set; }
 
-        protected override CalculateResult<bool> Calculate(IExpressionContext context)
+        protected override ExpressionResult<bool> InvokeCore(IExpressionContext context)
         {
             var predicate = ExtensionInputOrDefault(ref context, Value);
             return (!predicate.Invoke(context).Value<bool>(), context);

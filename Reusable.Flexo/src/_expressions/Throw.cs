@@ -5,7 +5,7 @@ namespace Reusable.Flexo
 {
     [UsedImplicitly]
     [PublicAPI]
-    public class Throw : Expression
+    public class Throw : Expression<IExpression>
     {
         public Throw(SoftString name) : base(name, ExpressionContext.Empty) { }
 
@@ -13,7 +13,7 @@ namespace Reusable.Flexo
         
         public IExpression Message { get; set; }
 
-        protected override IExpression InvokeCore(IExpressionContext context)
+        protected override ExpressionResult<IExpression> InvokeCore(IExpressionContext context)
         {
             throw DynamicException.Create(Name.ToString(), Message.Value<string>());
         }

@@ -16,7 +16,7 @@ namespace Reusable.Flexo
 
         public IExpression Pattern { get; set; }        
                 
-        protected override CalculateResult<bool> Calculate(IExpressionContext context)
+        protected override ExpressionResult<bool> InvokeCore(IExpressionContext context)
         {
             var value = ExtensionInputOrDefault(ref context, Value).Value<string>();
             var pattern = Pattern.Invoke(context).Value<string>();

@@ -20,7 +20,7 @@ namespace Reusable.Flexo
 
         public IExpression Right { get; set; }
 
-        protected abstract override CalculateResult<bool> Calculate(IExpressionContext context);
+        protected abstract override ExpressionResult<bool> InvokeCore(IExpressionContext context);
     }
 
     [Alias("==")]
@@ -28,7 +28,7 @@ namespace Reusable.Flexo
     {
         public ObjectEqual() : base(nameof(ObjectEqual)) { }
 
-        protected override CalculateResult<bool> Calculate(IExpressionContext context)
+        protected override ExpressionResult<bool> InvokeCore(IExpressionContext context)
         {
             var x = Left.Invoke(context).ValueOrDefault();
             var y = Right.Invoke(context).ValueOrDefault();
@@ -45,7 +45,7 @@ namespace Reusable.Flexo
 
         public char Trim { get; set; }
 
-        protected override CalculateResult<bool> Calculate(IExpressionContext context)
+        protected override ExpressionResult<bool> InvokeCore(IExpressionContext context)
         {
             var x = (string)Left.Invoke(context).ValueOrDefault();
             var y = (string)Right.Invoke(context).ValueOrDefault();

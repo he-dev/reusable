@@ -79,6 +79,15 @@ namespace Reusable.Flexo
         }
         
         #endregion
+
+        #region Helpers
+
+        public static IExpressionContext ExtensionInput(this IExpressionContext context, IExpression value)
+        {
+            return context.Set(Item.For<IExtensionContext>(), x => x.Input, value);
+        }
+
+        #endregion
     }    
     
     public class Item<T>

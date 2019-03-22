@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace Reusable.Flexo
 {
-    public class Any : PredicateExpression
+    public class Any : PredicateExpression, IExtension<List<IExpression>>
     {
         public Any() : base(nameof(Any), ExpressionContext.Empty) { }
 
@@ -12,7 +12,7 @@ namespace Reusable.Flexo
 
         public IExpression Predicate { get; set; } //= (IExpression)Constant.True;
 
-        protected override CalculateResult<bool> Calculate(IExpressionContext context)
+        protected override ExpressionResult<bool> InvokeCore(IExpressionContext context)
         {
             var values = ExtensionInputOrDefault(ref context, Values);
             var predicate = Predicate ?? Constant.True;

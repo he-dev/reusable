@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 namespace Reusable.Flexo
 {
     [PublicAPI]
-    public class All : PredicateExpression
+    public class All : PredicateExpression, IExtension<IEnumerable<IExpression>>
     {
         [JsonConstructor]
         public All(string name) : base(name ?? nameof(All), ExpressionContext.Empty) { }
@@ -18,7 +18,7 @@ namespace Reusable.Flexo
 
         public IExpression Predicate { get; set; } = Constant.True;
 
-        protected override CalculateResult<bool> Calculate(IExpressionContext context)
+        protected override ExpressionResult<bool> InvokeCore(IExpressionContext context)
         {
             var values = ExtensionInputOrDefault(ref context, Values).Enabled();
             var predicate = Predicate.Value<bool>();

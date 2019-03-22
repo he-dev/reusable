@@ -8,7 +8,7 @@ namespace Reusable.Flexo
     {
         public SoftStringComparer(string name) : base(name ?? nameof(SoftStringComparer), ExpressionContext.Empty) { }
 
-        protected override CalculateResult<IEqualityComparer<object>> Calculate(IExpressionContext context)
+        protected override ExpressionResult<IEqualityComparer<object>> InvokeCore(IExpressionContext context)
         {
             var comparer = EqualityComparerFactory<object>.Create
             (
@@ -25,7 +25,7 @@ namespace Reusable.Flexo
 
         public bool IgnoreCase { get; set; }
 
-        protected override CalculateResult<IEqualityComparer<object>> Calculate(IExpressionContext context)
+        protected override ExpressionResult<IEqualityComparer<object>> InvokeCore(IExpressionContext context)
         {
             var options = IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None;
 
