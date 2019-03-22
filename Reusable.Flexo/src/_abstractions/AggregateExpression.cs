@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 namespace Reusable.Flexo
 {
     [PublicAPI]
-    public abstract class AggregateExpression : Expression<double>, IExtension<List<IExpression>>
+    public abstract class AggregateExpression : Expression<double>, IExtension<IEnumerable<IExpression>>
     {
         private readonly Func<IEnumerable<double>, double> _aggregate;
 

@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace Reusable.Flexo
 {
     // ReSharper disable once InconsistentNaming - we want this name!
-    public class IIf : Expression<IExpression>
+    public class IIf : Expression<IExpression>, IExtension<bool>
     {
         public IIf() : base(nameof(IIf), ExpressionContext.Empty) { }
 
@@ -19,13 +19,13 @@ namespace Reusable.Flexo
         {
             if (True is null && False is null) throw new InvalidOperationException($"You need to specify at least one result ({nameof(True)}/{nameof(False)}).");
 
-            var result = Predicate.Invoke(context);
+            var result = ExtensionInputOrDefault(ref context, Predicate).Invoke(context);
 
             return
             (
                 result.Value<bool>()
-                    ? (True ?? Constant.Null).Invoke(result.Context)
-                    : (False ?? Constant.Null).Invoke(context),
+                    ? (True?.Invoke(result.Context) ?? Constant.Null)
+                    : (False?.Invoke(context) ?? Constant.Null),
                 context
             );
 
