@@ -46,8 +46,6 @@ namespace Reusable.Flexo
     {
         [JsonConstructor]
         public True(string name) : base(name ?? nameof(True), true) { }
-
-        //public True() : this(nameof(True)) { }
     }
 
     public class False : Constant<bool>

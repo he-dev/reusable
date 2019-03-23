@@ -32,12 +32,6 @@ namespace Reusable.Flexo
         IExpressionContext Remove(SoftString key);
     }
 
-
-//    public class ExpressionMetadata
-//    {
-//        public string DebugView => ExpressionContextScope.Current.ToDebugView();
-//    }
-
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     [PublicAPI]
     public readonly struct ExpressionContext : IExpressionContext

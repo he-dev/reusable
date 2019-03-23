@@ -18,8 +18,8 @@ namespace Reusable.Flexo
 
         protected override Constant<bool> InvokeCore(IExpressionContext context)
         {
-            var with = With.Values<object>();
-            var comparer = (IEqualityComparer<object>)Comparer?.Invoke(context).Value ?? EqualityComparer<object>.Default;
+            var with = With.Invoke(context).Values<object>();
+            var comparer = Comparer?.Invoke(context).Value<IEqualityComparer<object>>() ?? EqualityComparer<object>.Default;
 
             if (context.TryPopExtensionInput(out IEnumerable<object> input))
             {
@@ -27,7 +27,7 @@ namespace Reusable.Flexo
             }
             else
             {
-                var values = Values.Enabled().Select(x => x.Invoke(context)).Values<object>();
+                var values = Values.Invoke(context).Values<object>();
                 return (Name, values.Intersect(with, comparer).Any(), context);
             }
         }

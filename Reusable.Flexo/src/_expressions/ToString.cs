@@ -1,23 +1,34 @@
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace Reusable.Flexo
 {
+    /// <summary>
+    /// Converts Input to string. Uses InvariantCulture by default.
+    /// </summary>
     public class ToString : Expression<string>, IExtension<object>
     {
-        public ToString(string name) : base(name) { }
+        public ToString(string name) : base(name ?? nameof(ToString)) { }
+
+        internal ToString() : this(nameof(ToString)) { }
 
         public IExpression Value { get; set; }
 
+        public IExpression Format { get; set; }
+
         protected override Constant<string> InvokeCore(IExpressionContext context)
         {
+            var format = Format?.Invoke(context).ValueOrDefault<string>() ?? "{0}";
+
             if (context.TryPopExtensionInput(out object input))
             {
-                return (Name, input.ToString(), context);
+                return (Name, string.Format(CultureInfo.InvariantCulture, format, input), context);
             }
             else
             {
-                return (Name, Value.Value<object>().ToString(), context);
+                var value = Value.Invoke(context).Value<object>();
+                return (Name, string.Format(CultureInfo.InvariantCulture, format, value), context);
             }
         }
     }

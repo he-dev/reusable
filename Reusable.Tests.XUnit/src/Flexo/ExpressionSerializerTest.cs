@@ -11,12 +11,12 @@ using Double = Reusable.Flexo.Double;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.Tests.Flexo
-{    
+{
     public class ExpressionSerializerTest
     {
         private static readonly ExpressionSerializer Serializer = new ExpressionSerializer(Enumerable.Empty<Type>());
 
-        private static readonly IResourceProvider Flexo = 
+        private static readonly IResourceProvider Flexo =
             EmbeddedFileProvider<ExpressionSerializerTest>
                 .Default
                 .DecorateWith(RelativeProvider.Factory(@"res\Flexo"));
@@ -24,34 +24,35 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public async Task Can_deserialize_array_of_expressions()
         {
-            var jsonFile = await Flexo.GetFileAsync("Array-of-expressions.json", MimeType.Json);
-            using (var memoryStream = await jsonFile.CopyToMemoryStreamAsync())
-            {
-                var expressions = await Serializer.DeserializeExpressionsAsync(memoryStream.Rewind());
+            var flexoFile = await Flexo.ReadTextFileAsync("Array-of-expressions.json");
+            var expressions = Serializer.Deserialize<List<IExpression>>(flexoFile);
 
-                //Assert.Equal(8, expressions.Count);
-                
-                //ExpressionAssert.Equal(Constant.True, expressions.OfType<Any>().Single());
-                ExpressionAssert.Equal(Constant.False, expressions.Get("AllFalse"));
-                //ExpressionAssert.Equal(Constant.Create(3.0), expressions.OfType<Sum>().Single());
-                //ExpressionAssert.Equal(Double.One, expressions.OfType<SwitchToDouble>().Single());
-                ExpressionAssert.Equal(Constant.False, expressions.Get("NotExtension"));
-                ExpressionAssert.Equal(Double.One, expressions.Get("ToDoubleExtension"));
-                //ExpressionAssert.Equal(Double.One, expressions.Get("SwitchToDoubleInvalid"));
-                ExpressionAssert.Equal(3.0, expressions.Get("SumExtension"));
-                ExpressionAssert.Equal(4.0, expressions.Get("MaxExtension"));
-                ExpressionAssert.Equal(Constant.True, expressions.Get("ContainsExtension"));
-                ExpressionAssert.Equal(Constant.True, expressions.Get("Matches"));
-                ExpressionAssert.Equal(Constant.True, expressions.Get("CollectionWithRegexComparer"));
-                ExpressionAssert.Equal(Constant.True, expressions.Get("CollectionWithAnyMatches"));
-                ExpressionAssert.Equal(Constant.True, expressions.Get("CollectionWithAll"));
-                ExpressionAssert.Equal(Constant.True, expressions.Get("CollectionWithOverlaps"));
-                ExpressionAssert.Equal(Constant.True, expressions.Get("DoubleWithIsEqual"));
-                var collectionOfDouble = (Reusable.Flexo.Collection)expressions.Get("CollectionOfDouble");
-                Assert.Equal(2, collectionOfDouble.Values.Count);
-                ExpressionAssert.Equal(1.0, collectionOfDouble.Values[0]);
-                ExpressionAssert.Equal(2.0, collectionOfDouble.Values[1]);
-            }
+            //ExpressionAssert.Equal(Constant.True, expressions.OfType<Any>().Single());
+            //ExpressionAssert.Equal(new double[] { 1, 2, 3 }, expressions.Get("CollectionMixed"));
+            ExpressionAssert.Equal(Constant.True, expressions.Get("AnyWithPredicate"));
+            ExpressionAssert.Equal(Constant.True, expressions.Get("AnyWithoutPredicate"));
+            ExpressionAssert.Equal(Constant.True, expressions.Get("AllWithPredicate"));
+            //ExpressionAssert.Equal(Constant.Create(3.0), expressions.OfType<Sum>().Single());
+            //ExpressionAssert.Equal(Double.One, expressions.OfType<SwitchToDouble>().Single());
+            ExpressionAssert.Equal(Constant.False, expressions.Get("NotExtension"));
+            ExpressionAssert.Equal(Double.One, expressions.Get("ToDoubleExtension"));
+            //ExpressionAssert.Equal(Double.One, expressions.Get("SwitchToDoubleInvalid"));
+            ExpressionAssert.Equal(3.0, expressions.Get("SumExtension"));
+            ExpressionAssert.Equal(4.0, expressions.Get("MaxExtension"));
+            ExpressionAssert.Equal(Constant.True, expressions.Get("ContainsExtension"));
+            ExpressionAssert.Equal(Constant.True, expressions.Get("Matches"));
+            ExpressionAssert.Equal(Constant.True, expressions.Get("CollectionWithRegexComparer"));
+            ExpressionAssert.Equal(Constant.True, expressions.Get("CollectionWithAnyMatches"));
+            ExpressionAssert.Equal(Constant.True, expressions.Get("CollectionWithAll"));
+            ExpressionAssert.Equal(Constant.True, expressions.Get("CollectionWithOverlaps"));
+            ExpressionAssert.Equal(Constant.True, expressions.Get("DoubleWithIsEqual"));
+            var collectionOfDouble = (Reusable.Flexo.Collection)expressions.Get("CollectionOfDouble");
+            Assert.Equal(2, collectionOfDouble.Values.Count);
+            ExpressionAssert.Equal(1.0, collectionOfDouble.Values[0]);
+            ExpressionAssert.Equal(2.0, collectionOfDouble.Values[1]);
+
+            var collectionWithSelect = expressions.Get("CollectionWithSelect").Invoke(ExpressionContext.Empty).Value<List<object>>();
+            Assert.Equal(new[] { "1", "True" }, collectionWithSelect);
         }
 
         [Fact]
@@ -63,7 +64,7 @@ namespace Reusable.Tests.Flexo
                 var expression = await Serializer.DeserializeExpressionAsync(jsonStream.Rewind());
                 Assert.NotNull(expression);
             }
-        }                
+        }
     }
 
     internal static class EnumerableExtensions

@@ -14,45 +14,32 @@ namespace Reusable.Flexo
     /// </summary>
     [UsedImplicitly]
     [PublicAPI]
-    public class Select : Expression<List<IExpression>>, IExtension<IEnumerable<IExpression>>
+    public class Select : Expression<List<object>>, IExtension<IEnumerable<object>>
     {
-        public Select(string name) : base(name, ExpressionContext.Empty) { }
+        public Select(string name) : base(name ?? nameof(Select)) { }
 
-        public Select() : this(nameof(Item)) { }
+        internal Select() : this(nameof(Select)) { }
 
         public IEnumerable<IExpression> Values { get; set; }
 
         [JsonRequired]
         public IExpression Selector { get; set; }
 
-        protected override ExpressionResult<List<IExpression>> InvokeCore(IExpressionContext context)
+        protected override Constant<List<object>> InvokeCore(IExpressionContext context)
         {
-            var select =
-                ExtensionInputOrDefault(ref context, Values)
-                    .Aggregate((Previous: default(IExpressionResult), Expressions: Enumerable.Empty<IExpression>()), (acc, next) =>
-                    {
-                        var result = next.Invoke(acc.Previous?.Context ?? context);
-                        return (result, acc.Expressions.Append(result));
-                    });
-
-            return default;
+            if (context.TryPopExtensionInput(out IEnumerable<object> input))
+            {
+                var values = input.Select(x => Selector.Invoke(context.PushExtensionInput(x))).Values<object>().ToList();
+                return (Name, values, context);
+            }
+            else
+            {
+                var values = Values.Invoke(context).Values<object>().ToList();
+                return (Name, values, context);
+            }
         }
-
-        // private class Scope : Expression
-        // {
-        //     private readonly IExpression _expression;
-        //
-        //     public Scope(string name, IExpressionContext context, IExpression expression) : base(name, context)
-        //     {
-        //         _expression = expression;
-        //     }
-        //
-        //     public override IExpression Invoke(IExpressionContext context)
-        //     {
-        //         return _expression;
-        //     }
-        // }
     }
+
 
 //    public class FirstOrDefault : Expression
 //    {
@@ -73,18 +60,6 @@ namespace Reusable.Flexo
 //            }
 //
 //            return Constant.Null;
-//        }
-//    }
-//
-//    public class Ref : Expression
-//    {
-//        public Ref(string name) : base(name) { }
-//
-//        public Ref(string name, IExpressionContext context) : base(name, context) { }
-//        
-//        public override IExpression Invoke(IExpressionContext context)
-//        {
-//            throw new NotImplementedException();
 //        }
 //    }
 }

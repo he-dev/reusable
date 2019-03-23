@@ -5,7 +5,7 @@ namespace Reusable.Flexo
     /// <summary>
     /// Provides a mapping expression from bool to double.
     /// </summary>
-    public class ToDouble : Switch<bool> //, IExtension<bool>
+    public class ToDouble : Switch<bool>
     {
         public ToDouble(string name) : base(name)
         {
@@ -27,9 +27,9 @@ namespace Reusable.Flexo
                     Body = Double.Zero
                 }
             };
+
             Default = new Throw("SwitchValueOutOfRange")
             {
-                //Exception = $"ValueOutOfRange",
                 Message = Constant.FromValue("Message", $"{nameof(ToDouble)} value must be either 'true', 'false' or 'null'.")
             };
         }

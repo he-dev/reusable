@@ -44,8 +44,7 @@ namespace Reusable.Flexo
         // ReSharper disable RedundantNameQualifier - Use full namespace to avoid conflicts with other types.
         public static readonly Type[] Types =
         {
-            //typeof(Reusable.Flexo.ObjectEqual),
-            //typeof(Reusable.Flexo.StringEqual),
+            typeof(Reusable.Flexo.IsEqual),
             typeof(Reusable.Flexo.IsGreaterThan),
             typeof(Reusable.Flexo.IsGreaterThanOrEqual),
             typeof(Reusable.Flexo.IsLessThan),
@@ -65,7 +64,6 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.Max),
             typeof(Reusable.Flexo.Count),
             typeof(Reusable.Flexo.Sum),
-            //typeof(Reusable.Flexo.ToList),
             typeof(Reusable.Flexo.Constant<>),
             typeof(Reusable.Flexo.Double),
             typeof(Reusable.Flexo.Integer),
@@ -76,9 +74,10 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.True),
             typeof(Reusable.Flexo.False),
             typeof(Reusable.Flexo.Collection),
+            typeof(Reusable.Flexo.Select),
             typeof(Reusable.Flexo.SoftStringComparer),
-            typeof(Reusable.Flexo.IsEqual),
             typeof(Reusable.Flexo.RegexComparer),
+            typeof(Reusable.Flexo.Throw),
         };
         // ReSharper restore RedundantNameQualifier
     }
@@ -99,29 +98,28 @@ namespace Reusable.Flexo
 
         public virtual IConstant Invoke(IExpressionContext context)
         {
-            var extensions = This ?? Enumerable.Empty<IExpression>();
             var result = (IConstant)InvokeCore(context);
             return
-                extensions
-                    .Enabled()
-                    .Aggregate(result, (previous, next) =>
-                    {
-                        var extensionType = next.GetType().GetInterface(typeof(IExtension<>).Name)?.GetGenericArguments().Single();
-                        var thisType = previous.Value is IExpression expression ? expression.GetType().GetGenericArguments().Single() : previous.Value.GetType();
+                (This ?? Enumerable.Empty<IExpression>())
+                .Enabled()
+                .Aggregate(result, (previous, next) =>
+                {
+                    var extensionType = next.GetType().GetInterface(typeof(IExtension<>).Name)?.GetGenericArguments().Single();
+                    var thisType = previous.Value is IExpression expression ? expression.GetType().GetGenericArguments().Single() : previous.Value?.GetType();
 
-                        if (extensionType?.IsAssignableFrom(thisType) == true)
-                        {
-                            return next.Invoke(previous.Context.PushExtensionInput(previous.Value));
-                        }
-                        else
-                        {
-                            throw DynamicException.Create
-                            (
-                                "ExtensionTypeMismatch",
-                                $"Extension '{next.GetType().ToPrettyString()}' does not match the expression it is extending which is '{previous.GetType().ToPrettyString()}'."
-                            );
-                        }
-                    });
+                    if (extensionType?.IsAssignableFrom(thisType) == true)
+                    {
+                        return next.Invoke(previous.Context.PushExtensionInput(previous.Value));
+                    }
+                    else
+                    {
+                        throw DynamicException.Create
+                        (
+                            "ExtensionTypeMismatch",
+                            $"Extension '{next.GetType().ToPrettyString()}' does not match the expression it is extending which is '{previous.GetType().ToPrettyString()}'."
+                        );
+                    }
+                });
         }
 
         protected abstract Constant<TResult> InvokeCore(IExpressionContext context);

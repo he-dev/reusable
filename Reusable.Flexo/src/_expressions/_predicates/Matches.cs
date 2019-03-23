@@ -31,20 +31,5 @@ namespace Reusable.Flexo
                 return (Name, Regex.IsMatch(value, pattern, options), context);
             }
         }
-
-//        private string GetPattern(IExpressionContext context)
-//        {
-//            switch (Pattern)
-//            {
-//                case string pattern: return pattern;
-//                case IExpression expression: return expression.Invoke(context).Value<string>();
-//                default:
-//                    throw DynamicException.Create
-//                    (
-//                        "UnsupportedPattern",
-//                        $"{Pattern.GetType().ToPrettyString()} is not supported. Expected '{nameof(String)}' or '{nameof(IExpression)}'."
-//                    );
-//            }
-//        }
     }
 }

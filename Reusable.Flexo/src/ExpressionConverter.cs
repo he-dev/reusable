@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Reusable.Flexo
 {
+    // Converts a value into Constant when it's not an Expression.
     public class ExpressionConverter : JsonConverter
     {
         public override bool CanConvert(Type objectType)
@@ -33,7 +34,7 @@ namespace Reusable.Flexo
             }
         }
 
-        private string GetParentName(JContainer jContainer)
+        private static string GetParentName(JContainer jContainer)
         {
             switch (jContainer)
             {

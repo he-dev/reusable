@@ -19,17 +19,33 @@ namespace Reusable.Flexo
         {
             if (True is null && False is null) throw new InvalidOperationException($"You need to specify at least one result ({nameof(True)}/{nameof(False)}).");
 
-            var result = Predicate.Invoke(context);
-
-            if ((bool)result.Value)
+            if (context.TryPopExtensionInput(out bool input))
             {
-                var trueResult = True?.Invoke(result.Context);
-                return (Name, trueResult?.Value, trueResult?.Context);
+                if (input)
+                {
+                    var trueResult = True?.Invoke(context);
+                    return (Name, trueResult?.Value, trueResult?.Context);
+                }
+                else
+                {
+                    var falseResult = False?.Invoke(context);
+                    return (Name, falseResult?.Value, falseResult?.Context);
+                }
             }
             else
             {
-                var falseResult = False?.Invoke(result.Context);
-                return (Name, falseResult?.Value, falseResult?.Context);
+                var result = Predicate.Invoke(context);
+
+                if (result.Value<bool>())
+                {
+                    var trueResult = True?.Invoke(result.Context);
+                    return (Name, trueResult?.Value, trueResult?.Context);
+                }
+                else
+                {
+                    var falseResult = False?.Invoke(result.Context);
+                    return (Name, falseResult?.Value, falseResult?.Context);
+                }
             }
         }
     }

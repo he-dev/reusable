@@ -27,7 +27,7 @@ namespace Reusable.Flexo
             }
             else
             {
-                var values = Values.Enabled().Select(x => x.Invoke(context)).Values<object>();
+                var values = Values.Enabled().Select(x => x.Invoke(context).Value);
                 return (Name, values.Any(x => comparer.Equals(value, x)), context);
             }
         }

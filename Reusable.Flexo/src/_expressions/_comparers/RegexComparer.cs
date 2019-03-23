@@ -2,8 +2,9 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Reusable.Collections;
 
-namespace Reusable.Flexo {
-    public class RegexComparer : EqualityComparerProvider
+namespace Reusable.Flexo
+{
+    public class RegexComparer : ProviderExpression<IEqualityComparer<object>>
     {
         public RegexComparer(string name) : base(name ?? nameof(RegexComparer)) { }
 

@@ -101,16 +101,13 @@ namespace Reusable.Flexo
             return context;
         }
 
+        // The Input must be removed so that subsequent expression doesn't 'think' it's called as extension when it isn't.
         public static bool TryPopExtensionInput<T>(this IExpressionContext context, out T input)
         {
-            var inputKey = ExpressionContext.CreateKey(Item.For<IExtensionContext>(), x => x.Inputs);
             var inputs = context.Get(Item.For<IExtensionContext>(), x => x.Inputs);
-            if (inputs.Any()) // context.TryGetValue(inputKey, out var value))
+            if (inputs.Any())
             {
                 input = (T)inputs.Pop();
-                //context.Get(Item.For<IExtensionContext>(), x => x.Inputs).Pop();
-                // The Input must be removed so that subsequent expression doesn't 'think' it's called as extension when it isn't.
-                //context = context.Remove(inputKey);
                 return true;
             }
             else
@@ -119,11 +116,6 @@ namespace Reusable.Flexo
                 return false;
             }
         }
-
-//        public static IExpressionContext ExtensionInput(this IExpressionContext context, object result)
-//        {
-//            return context.Set(Item.For<IExtensionContext>(), x => x.Input, (ExpressionResult<object>)(result, ExpressionContext.Empty));
-//        }
 
         #endregion
     }

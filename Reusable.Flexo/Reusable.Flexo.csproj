@@ -28,7 +28,6 @@
     <Compile Remove="src\_expressions\LessThan.cs" />
     <Compile Remove="src\_expressions\ToList.cs" />
     <Compile Remove="src\_expressions\Equal.cs" />
-    <Compile Remove="src\_expressions\Select.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="src\_expressions\_abstractions\ICommand.cs" />

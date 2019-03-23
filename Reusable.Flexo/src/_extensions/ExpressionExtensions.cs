@@ -4,11 +4,16 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Exceptionize;
+using Reusable.Extensions;
 
 namespace Reusable.Flexo
 {
     public static class ExpressionExtensions
     {
+        /// <summary>
+        /// Gets only enabled expressions.
+        /// </summary>
         public static IEnumerable<IExpression> Enabled(this IEnumerable<IExpression> expressions)
         {
             return
@@ -17,43 +22,43 @@ namespace Reusable.Flexo
                 select expression;
         }
 
-        public static IEnumerable<T> Values<T>(this IEnumerable<IExpression> expressions)
+        public static IEnumerable<IConstant> Invoke(this IEnumerable<IExpression> expressions, IExpressionContext context)
         {
             return
-                from expression in expressions
-                select expression.Value<T>();
+                from expression in expressions.Enabled()
+                select expression.Invoke(context);
         }
 
-        /// <summary>
-        /// Gets the value of a Constant expression or throws an exception if not a Constant.
-        /// </summary>
-        public static object Value(this IExpression expression)
+        public static IEnumerable<T> Values<T>(this IEnumerable<IConstant> constants)
         {
             return
-                expression is IConstant constant
-                    ? constant.Value
-                    : throw new InvalidExpressionException(typeof(IConstant), expression.GetType());
+                from constant in constants
+                select constant.Value<T>();
         }
 
         /// <summary>
         /// Gets the value of a Constant expression if it's of the specified type T or throws an exception.
         /// </summary>
-        public static T Value<T>(this IExpression expression)
+        public static T Value<T>(this IConstant constant)
         {
             if (typeof(T) == typeof(object))
             {
-                return (T)expression.Value();
+                return (T)constant.Value;
             }
             else
             {
                 return
-                    expression is IConstant constant && constant.Value is T value
+                    constant.Value is T value
                         ? value
-                        : throw new InvalidExpressionException(typeof(Constant<T>), expression.GetType());
+                        : throw DynamicException.Create
+                        (
+                            "ValueType",
+                            $"Expected {typeof(Constant<T>).ToPrettyString()} but found {constant.GetType().ToPrettyString()}."
+                        );
             }
         }
 
-        public static T ValueOrDefault<T>(this IExpression expression)
+        public static T ValueOrDefault<T>(this IConstant expression)
         {
             return
                 expression is IConstant constant && constant.Value is T value
@@ -61,20 +66,12 @@ namespace Reusable.Flexo
                     : default;
         }
 
-        public static object ValueOrDefault(this IExpression expression)
+        public static object ValueOrDefault(this IConstant expression)
         {
             return
                 expression is IConstant constant
                     ? constant.Value
                     : default;
         }
-
-//        [CanBeNull]
-//        public static IExpressionResult Input([NotNull] this IExpressionContext context)
-//        {
-//            if (context == null) throw new ArgumentNullException(nameof(context));
-//
-//            return context.Get(Item.For<IExtensionContext>(), x => x.Input);
-//        }
     }
 }

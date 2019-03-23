@@ -14,13 +14,13 @@ namespace Reusable.Tests.Flexo
     public class ExpressionTest
     {
         [Fact]
-        public void All_ReturnsTrueWhenAllTrue() => Equal(true, new All { Values = Constant.CreateMany(true, true, true).ToList() });
+        public void All_returns_True_when_all_True() => Equal(true, new All { Values = Constant.CreateMany(true, true, true).ToList() });
 
         [Fact]
-        public void All_ReturnsFalseWhenSomeFalse() => Equal(false, new All { Values = Constant.CreateMany(true, false, true).ToList() });
+        public void All_returns_False_when_some_False() => Equal(false, new All { Values = Constant.CreateMany(true, false, true).ToList() });
 
         [Fact]
-        public void All_ReturnsFalseWhenAllFalse() => Equal(false, new All { Values = Constant.CreateMany(false, false, false).ToList() });
+        public void All_returns_False_when_all_False() => Equal(false, new All { Values = Constant.CreateMany(false, false, false).ToList() });
 
         [Fact]
         public void All_flows_all_contexts()
@@ -40,10 +40,10 @@ namespace Reusable.Tests.Flexo
         }
 
         [Fact]
-        public void Any_ReturnsTrueWhenSomeTrue() => Equal(true, new Any { Values = Constant.CreateMany(false, false, true).ToList() });
+        public void Any_returns_True_when_some_True() => Equal(true, new Any { Values = Constant.CreateMany(false, false, true).ToList() });
 
         [Fact]
-        public void Any_ReturnsFalseWhenAllFalse() => Equal(false, new Any { Values = Constant.CreateMany(false, false, false).ToList() });
+        public void Any_returns_False_when_all_False() => Equal(false, new Any { Values = Constant.CreateMany(false, false, false).ToList() });
 
         [Fact]
         public void Any_flows_True_context()
@@ -63,7 +63,7 @@ namespace Reusable.Tests.Flexo
         }
 
         [Fact]
-        public void IIf_ReturnsTrueWhenTrue() => Equal("foo", new IIf
+        public void IIf_invokes_True_when_True() => Equal("foo", new IIf
         {
             Predicate = Constant.Create(true),
             True = Constant.Create("foo"),
@@ -71,7 +71,7 @@ namespace Reusable.Tests.Flexo
         });
 
         [Fact]
-        public void IIf_ReturnsFalseWhenFalse() => Equal("bar", new IIf
+        public void IIf_invokes_False_when_False() => Equal("bar", new IIf
         {
             Predicate = Constant.Create(false),
             True = Constant.Create("foo"),
@@ -127,36 +127,34 @@ namespace Reusable.Tests.Flexo
         }
 
         [Fact]
-        public void Max_ReturnsMax() => Equal(3.0, new Max { Values = Constant.CreateMany(2.0, 3.0, 1.0).ToList() });
+        public void Max_returns_Max() => Equal(3.0, new Max { Values = Constant.CreateMany(2.0, 3.0, 1.0).ToList() });
 
         [Fact]
-        public void Min_ReturnsMin() => Equal(1.0, new Min { Values = Constant.CreateMany(2.0, 3.0, 1.0).ToList() });
+        public void Min_returns_Min() => Equal(1.0, new Min { Values = Constant.CreateMany(2.0, 3.0, 1.0).ToList() });
 
         [Fact]
-        public void Sum_ReturnsSum() => Equal(6.0, new Sum { Values = Constant.CreateMany(2.0, 3.0, 1.0).ToList() });
-
-        //        [Fact]
-        //        public void Equals_ReturnsTrueWhenEqual() => Equal(true, new Equals
-        //        {
-        //            Left = Constant.Create("foo"),
-        //            Right = Constant.Create("foo"),
-        //        });
-        //
-        //        [Fact]
-        //        public void Equals_ReturnsFalseWhenNotEqual() => Equal(false, new Equals
-        //        {
-        //            Left = Constant.Create("foo"),
-        //            Right = Constant.Create("bar"),
-        //        });
+        public void Sum_returns_Sum() => Equal(6.0, new Sum { Values = Constant.CreateMany(2.0, 3.0, 1.0).ToList() });
 
         [Fact]
-        public void GreaterThan_ReturnsTrueWhenLeftGreaterThanRight() => Equal(true, new IsGreaterThan
+        public void IsEqual_returns_True_when_Input_equal_Value() => Equal(true, new IsEqual
+        {
+            Value = Constant.Create("foo"),
+        }, ExpressionContext.Empty.PushExtensionInput("foo"));
+        
+        [Fact]
+        public void IsEqual_returns_False_when_Input_not_equal_Value() => Equal(false, new IsEqual
+        {
+            Value = Constant.Create("foo"),
+        }, ExpressionContext.Empty.PushExtensionInput("bar"));
+
+        [Fact]
+        public void IsGreaterThan_returns_True_when_Input_GreaterThan_Value() => Equal(true, new IsGreaterThan
         {
             Value = Constant.Create(2.0),
         }, ExpressionContext.Empty.PushExtensionInput(3.0));
 
         [Fact]
-        public void GreaterThan_ReturnsFalseWhenLeftLessThanRight() => Equal(false, new IsGreaterThan
+        public void IsGreaterThan_returns_False_when_Input_LessThan_Value() => Equal(false, new IsGreaterThan
         {
             Value = Constant.Create(3.0),
         }, ExpressionContext.Empty.PushExtensionInput(2.0));
@@ -222,16 +220,25 @@ namespace Reusable.Tests.Flexo
         }, ExpressionContext.Empty.PushExtensionInput(3.0));
 
         [Fact]
-        public void Not_ReturnsTrueWhenFalse() => Equal(false, new Not { Value = Constant.True });
+        public void Not_returns_True_when_False() => Equal(false, new Not { Value = Constant.True });
 
         [Fact]
-        public void Not_ReturnsFalseWhenTrue() => Equal(false, new Not { Value = Constant.True });
+        public void Not_returns_False_when_True() => Equal(false, new Not { Value = Constant.True });
 
         [Fact]
-        public void ToDouble_MapsTrueToOne() => Equal(1.0, new ToDouble { Value = Constant.True });
+        public void ToDouble_maps_True_to_One() => Equal(1.0, new ToDouble { Value = Constant.True });
 
         [Fact]
-        public void ToDouble_MapsFalseToZero() => Equal(0.0, new ToDouble { Value = Constant.False });
+        public void ToDouble_maps_False_to_Zero() => Equal(0.0, new ToDouble { Value = Constant.False });
+
+        [Fact]
+        public void ToString_converts_Input_to_string() => Equal("1", new ToString(), ExpressionContext.Empty.PushExtensionInput(1.0));
+        
+        [Fact]
+        public void ToString_converts_Input_to_string_with_custom_format() => Equal("1.00", new ToString
+        {
+            Format = Constant.Create("{0:F2}")
+        }, ExpressionContext.Empty.PushExtensionInput(1.0));
 
         [Fact]
         public void Constant_flows_context()
@@ -342,19 +349,7 @@ namespace Reusable.Tests.Flexo
                 {
                     Values = Constant.CreateMany("foo", "BAR").ToList(),
                     Value = Constant.FromValue("Value", "bar"),
-                    Comparer = new Reusable.Flexo.SoftStringComparer(nameof(Reusable.Flexo.SoftStringComparer))
-                    //                    new StringEqual
-                    //                    {
-                    //                        IgnoreCase = true,
-                    //                        Left = new GetContextItem
-                    //                        {
-                    //                            Key = ExpressionContext.CreateKey(Item.For<IContainsContext>(), x => x.Value)
-                    //                        },
-                    //                        Right = new GetContextItem
-                    //                        {
-                    //                            Key = ExpressionContext.CreateKey(Item.For<IContainsContext>(), x => x.Item)
-                    //                        }
-                    //                    }
+                    Comparer = new Reusable.Flexo.SoftStringComparer()
                 }
             );
         }

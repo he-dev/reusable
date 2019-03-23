@@ -1,21 +1,45 @@
 [
   {
-    "$t": "Flexo.Any",
+    "$t": "Flexo.Collection",
+    "Name": "CollectionMixed",
     "Values": [
+      1.0,
       {
-        "$t": "Flexo.True"
-      }
+        "$t": "Flexo.Double",
+        "Value": 2.0
+      },
+      3.0
+    ]
+  },
+  {
+    "$t": "Flexo.Any",
+    "Name": "AnyWithPredicate",
+    "Values": [
+      false,
+      true,
+      false
     ],
     "Predicate": true
   },
   {
+    "$t": "Flexo.Any",
+    "Name": "AnyWithoutPredicate",
+    "Values": [
+      false,
+      true,
+      false
+    ]
+  },
+  {
     "$t": "Flexo.All",
-    "Name": "AllFalse",
+    "Name": "AllWithPredicate",
     "Values": [
       {
         "$t": "Flexo.False"
-      }
-    ]
+      },
+      false
+    ],
+    "Predicate": false
   },
   {
     "$t": "Flexo.Sum",
@@ -231,6 +255,22 @@
       {
         "$t": "Flexo.Double",
         "Value": 2.0
+      }
+    ]
+  },
+  {
+    "$t": "Flexo.Collection",
+    "Name": "CollectionWithSelect",
+    "Values": [
+      1.0,
+      true
+    ],
+    "This": [
+      {
+        "$t": "Flexo.Select",
+        "Selector": {
+          "$t": "Flexo.ToString"
+        }
       }
     ]
   }

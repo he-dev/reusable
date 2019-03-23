@@ -18,11 +18,7 @@ namespace Reusable.Flexo
 
         protected override Constant<object> InvokeCore(IExpressionContext context)
         {
-            var value =
-                context.TryPopExtensionInput(out object input)
-                    ? input
-                    : Value.Invoke(context).Value;
-            
+            var value = context.TryPopExtensionInput(out object input) ? input : Value.Invoke(context).Value;
             var switchContext = context.Set(Item.For<ISwitchContext>(), x => x.Value, value);
 
             foreach (var switchCase in (Cases ?? Enumerable.Empty<SwitchCase>()).Where(c => c.Enabled))
@@ -35,28 +31,29 @@ namespace Reusable.Flexo
                             var bodyResult = switchCase.Body.Invoke(context);
                             return (Name, bodyResult.Value, bodyResult.Context);
                         }
+
                         break;
-                        
+
                     case IExpression expression:
-                        //var switchCaseContext = switchContext.Set(Item.For<ISwitchContext>(), x => x.Case, switchCase..Value);
-                        var whenResult = expression.Invoke(switchContext);
-                        if ((bool)whenResult.Value)
+                        if (expression.Invoke(switchContext) is var whenResult && whenResult.Value<bool>())
                         {
                             var bodyResult = switchCase.Body.Invoke(context);
                             return (Name, bodyResult.Value, bodyResult.Context);
                         }
+
                         break;
-                }                
+                }
             }
+            
+            
 
             return (Name, (Default ?? new Throw("SwitchValueOutOfRange") { Message = Constant.FromValue("Message", "Default value not specified.") }).Invoke(context), context);
-            
         }
     }
 
     [UsedImplicitly]
     [PublicAPI]
-    public class Switch : Switch<IExpression> // Expression<IExpression>, IExtension<IExpression>
+    public class Switch : Switch<IExpression> 
     {
         public Switch(string name) : base(name) { }
 
@@ -75,28 +72,8 @@ namespace Reusable.Flexo
         public IExpression Body { get; set; }
     }
 
-    public static class SwitchCaseExtensions
-    {
-        public static IExpression WhenOrDefault(this SwitchCase switchCase)
-        {
-            return switchCase.When;
-//                switchCase.When is IConstant constant
-//                    ? new ObjectEqual
-//                    {
-//                        Left = new GetContextItem
-//                        {
-//                            Key = ExpressionContext.CreateKey(Item.For<ISwitchContext>(), x => x.Value)
-//                        },
-//                        Right = constant
-//                    }
-//                    : switchCase.When;
-        }
-    }
-
     public interface ISwitchContext
     {
         object Value { get; }
-        
-        object Case { get; }
     }
 }

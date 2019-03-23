@@ -7,11 +7,13 @@ namespace Reusable.Flexo
 {
     public class Any : PredicateExpression, IExtension<List<object>>
     {
-        public Any() : base(nameof(Any)) { }
+        public Any(string name) : base(name ?? nameof(Any)) { }
+
+        internal Any() : this(nameof(Any)) { }
 
         public List<IExpression> Values { get; set; } = new List<IExpression>();
 
-        public IExpression Predicate { get; set; } //= (IExpression)Constant.True;
+        public IExpression Predicate { get; set; }
 
         protected override Constant<bool> InvokeCore(IExpressionContext context)
         {
