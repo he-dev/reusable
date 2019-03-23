@@ -29,7 +29,7 @@ namespace Reusable.Flexo
         {
             var select =
                 ExtensionInputOrDefault(ref context, Values)
-                    .Aggregate((Previous: default(IExpression), Expressions: Enumerable.Empty<IExpression>()), (acc, next) =>
+                    .Aggregate((Previous: default(IExpressionResult), Expressions: Enumerable.Empty<IExpression>()), (acc, next) =>
                     {
                         var result = next.Invoke(acc.Previous?.Context ?? context);
                         return (result, acc.Expressions.Append(result));

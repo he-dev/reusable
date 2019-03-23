@@ -7,12 +7,8 @@ namespace Reusable.Flexo
 {
     public class Overlaps : PredicateExpression, IExtension<List<IExpression>>
     {
-        public Overlaps(string name, IExpressionContext context) : base(name, context)
-        { }
-
         [JsonConstructor]
-        public Overlaps(string name) : base(name ?? nameof(Overlaps), ExpressionContext.Empty)
-        { }
+        public Overlaps(string name) : base(name ?? nameof(Overlaps)) { }
 
         public List<IExpression> Values { get; set; } = new List<IExpression>();
 
@@ -20,14 +16,14 @@ namespace Reusable.Flexo
 
         public IExpression Comparer { get; set; }
 
-        protected override ExpressionResult<bool> InvokeCore(IExpressionContext context)
+        protected override Constant<bool> InvokeCore(IExpressionContext context)
         {
             var values = ExtensionInputOrDefault(ref context, Values).Values<object>();
             var with = With.Values<object>();
 
-            var comparer = Comparer?.Invoke(context).ValueOrDefault<IEqualityComparer<object>>() ?? EqualityComparer<object>.Default;
+            var comparer = (IEqualityComparer<object>)Comparer?.Invoke(context).Value ?? EqualityComparer<object>.Default;
 
-            return (values.Intersect(with, comparer).Any(), context);
+            return (Name, values.Intersect(with, comparer).Any(), context);
         }
-    }    
+    }
 }

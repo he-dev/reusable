@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Xml;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Collections;
@@ -15,43 +16,54 @@ namespace Reusable.Flexo
         [AutoEqualityProperty]
         [CanBeNull]
         object Value { get; }
+        
+        [NotNull]
+        IExpressionContext Context { get; }
     }
 
-    public class Constant<TValue> : Expression<TValue>, IConstant, IEquatable<Constant<TValue>>
+    public interface IConstant<out TValue> : IExpression
     {
-        public Constant(SoftString name, TValue value, IExpressionContext context) : base(name ?? value.GetType().ToPrettyString(), context) => Value = value;
+        [CanBeNull]
+        TValue Value { get; }
+    }
 
-        [JsonConstructor]
-        public Constant(SoftString name, TValue value) : this(name ?? value.GetType().ToPrettyString(), value, ExpressionContext.Empty) => Value = value;
+    public class Constant<TValue> : Expression<TValue>, IConstant, IConstant<TValue>, IEquatable<Constant<TValue>>
+    {
+        public Constant(SoftString name, TValue value, IExpressionContext context = default) : base(name ?? value.GetType().ToPrettyString())
+        {
+            Value = value;
+            Context = context ?? ExpressionContext.Empty;
+        }
 
         object IConstant.Value => Value;
 
         [AutoEqualityProperty]
         [CanBeNull]
         public TValue Value { get; }
+        
+        public IExpressionContext Context { get; }
 
-        protected override ExpressionResult<TValue> InvokeCore(IExpressionContext context)
+        protected override Constant<TValue> InvokeCore(IExpressionContext context)
         {
             //using (context.Scope(this))
             {
-                return (Value, context);
+                return (Name, Value, context);
             }
         }
 
-        public void Deconstruct(out SoftString name, out TValue value, out IExpressionContext context)
+        public void Deconstruct(out SoftString name, out TValue value)
         {
             name = Name;
             value = Value;
-            context = Context;
         }
 
         public override string ToString() => $"{Name.ToString()}: '{Value}'";
 
-        public static implicit operator Constant<TValue>((string Name, TValue Value) t) => (t.Name, t.Value, ExpressionContext.Empty);
+        public static implicit operator Constant<TValue>((SoftString Name, TValue Value) t) => new Constant<TValue>(t.Name, t.Value, ExpressionContext.Empty);
         
-        public static implicit operator Constant<TValue>((string Name, TValue Value, IExpressionContext Context) t) => new Constant<TValue>(t.Name, t.Value, t.Context);
+        public static implicit operator Constant<TValue>((SoftString Name, TValue Value, IExpressionContext Context) t) => new Constant<TValue>(t.Name, t.Value, t.Context);
         
-        public static implicit operator Constant<TValue>((string Name, ExpressionResult<TValue> Result) t) => new Constant<TValue>(t.Name, t.Result.Value, t.Result.Context);
+        //public static implicit operator Constant<ExpressionResult<TValue>>((string Name, ExpressionResult<TValue> Result) t) => new Constant<ExpressionResult<TValue>>(t.Name, t.Result);
 
         public static implicit operator TValue(Constant<TValue> constant) => constant.Value;
 
@@ -84,20 +96,15 @@ namespace Reusable.Flexo
         private static volatile int _counter;
 
         [NotNull]
-        public static Constant<TValue> FromValue<TValue>(SoftString name, TValue value)
+        public static Constant<TValue> FromValue<TValue>(SoftString name, TValue value, IExpressionContext context = default)
         {
-            return new Constant<TValue>(name, value);
-        }
-
-        public static Constant<TValue> FromResult<TValue>(SoftString name, ExpressionResult<TValue> result)
-        {
-            return new Constant<TValue>(name, result.Value, result.Context);
-        }
+            return new Constant<TValue>(name, value, context ?? ExpressionContext.Empty);
+        }        
 
         [NotNull]
         public static Constant<TValue> Create<TValue>(TValue value)
         {
-            return new Constant<TValue>($"{typeof(Constant<TValue>).ToPrettyString()}{_counter++}", value);
+            return FromValue($"{typeof(Constant<TValue>).ToPrettyString()}{_counter++}", value);
         }
 
         [NotNull, ItemNotNull]

@@ -69,12 +69,12 @@ namespace Reusable.Flexo
                     : default;
         }
 
-        [CanBeNull]
-        public static IExpression Input([NotNull] this IExpressionContext context)
-        {
-            if (context == null) throw new ArgumentNullException(nameof(context));
-
-            return context.Get(Item.For<IExtensionContext>(), x => x.Input);
-        }
+//        [CanBeNull]
+//        public static IExpressionResult Input([NotNull] this IExpressionContext context)
+//        {
+//            if (context == null) throw new ArgumentNullException(nameof(context));
+//
+//            return context.Get(Item.For<IExtensionContext>(), x => x.Input);
+//        }
     }
 }

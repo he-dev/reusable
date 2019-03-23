@@ -11,17 +11,17 @@ namespace Reusable.Flexo
     {
         private readonly Func<int, bool> _predicate;
 
-        protected ComparerExpression(string name, IExpressionContext context, [NotNull] Func<int, bool> predicate)
-            : base(name, context) => _predicate = predicate;
+        protected ComparerExpression(string name, [NotNull] Func<int, bool> predicate)
+            : base(name) => _predicate = predicate;
 
         [JsonRequired]
         public IExpression Value { get; set; }
 
-        protected override ExpressionResult<bool> InvokeCore(IExpressionContext context)
+        protected override Constant<bool> InvokeCore(IExpressionContext context)
         {
-            var left = ExtensionInput<IExpression>(ref context);
-            var result = Comparer<object>.Default.Compare(left.Invoke(context).Value<object>(), Value.Invoke(context).Value<object>());
-            return (_predicate(result), context);
+            var left = ExtensionInputOrDefault(ref context, 0.0);
+            var result = Comparer<object>.Default.Compare(left, Value.Invoke(context).Value);
+            return (Name, _predicate(result), context);
         }
 
 //        private static bool TryCompare<T>(IExpression x, IExpression y, out int result)

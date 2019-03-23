@@ -4,29 +4,30 @@ namespace Reusable.Flexo
 {
     public class LambdaExpression<TResult> : Expression<TResult>
     {
-        private readonly Func<IExpressionContext, ExpressionResult<TResult>> _invoke;
+        private readonly Func<IExpressionContext, (TResult Value, IExpressionContext Context)> _invoke;
 
-        public LambdaExpression(string name, IExpressionContext context, Func<IExpressionContext, ExpressionResult<TResult>> invoke) : base(name, context)
+        public LambdaExpression(string name, Func<IExpressionContext, (TResult Value, IExpressionContext Context)> invoke) : base(name)
         {
             _invoke = invoke;
         }
 
-        protected override ExpressionResult<TResult> InvokeCore(IExpressionContext context)
+        protected override Constant<TResult> InvokeCore(IExpressionContext context)
         {
-            return _invoke(context);
+            var result = _invoke(context);
+            return (Name, result.Value, result.Context);
         }
     }
 
     public static class LambdaExpression
     {
-        public static LambdaExpression<bool> Predicate(Func<IExpressionContext, ExpressionResult<bool>> predicate)
+        public static LambdaExpression<bool> Predicate(Func<IExpressionContext, (bool Value, IExpressionContext Context)> predicate)
         {
-            return new LambdaExpression<bool>(nameof(Predicate), ExpressionContext.Empty, predicate);
+            return new LambdaExpression<bool>(nameof(Predicate), predicate);
         }
 
-        public static LambdaExpression<double> Double(Func<IExpressionContext, ExpressionResult<double>> calculate)
+        public static LambdaExpression<double> Double(Func<IExpressionContext, (double Value, IExpressionContext Context)> calculate)
         {
-            return new LambdaExpression<double>(nameof(Double), ExpressionContext.Empty, calculate);
+            return new LambdaExpression<double>(nameof(Double), calculate);
         }
     }
 }

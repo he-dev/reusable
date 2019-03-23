@@ -4,6 +4,6 @@ namespace Reusable.Flexo
 {
     public abstract class EqualityComparerProvider : Expression<IEqualityComparer<object>>
     {
-        protected EqualityComparerProvider(string name, IExpressionContext context) : base(name, context) { }
+        protected EqualityComparerProvider(string name) : base(name) { }
     }
 }

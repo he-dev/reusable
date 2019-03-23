@@ -10,7 +10,7 @@ namespace Reusable.Flexo
     public class All : PredicateExpression, IExtension<IEnumerable<IExpression>>
     {
         [JsonConstructor]
-        public All(string name) : base(name ?? nameof(All), ExpressionContext.Empty) { }
+        public All(string name) : base(name ?? nameof(All)) { }
 
         internal All() : this(nameof(All)) { }
 
@@ -18,26 +18,26 @@ namespace Reusable.Flexo
 
         public IExpression Predicate { get; set; } = Constant.True;
 
-        protected override ExpressionResult<bool> InvokeCore(IExpressionContext context)
+        protected override Constant<bool> InvokeCore(IExpressionContext context)
         {
             var values = ExtensionInputOrDefault(ref context, Values).Enabled();
             var predicate = Predicate.Value<bool>();
 
-            var last = default(IExpression);
+            var last = default(IConstant);
             foreach (var item in values)
             {
                 last = item.Invoke(last?.Context ?? context);
-                if (EqualityComparer<bool>.Default.Equals(last.Value<bool>(), predicate))
+                if (EqualityComparer<bool>.Default.Equals((bool)last.Value, predicate))
                 {
                     continue;
                 }
                 else
                 {
-                    return (false, context);
+                    return (Name, false, context);
                 }
             }
 
-            return (true, last?.Context ?? context);
+            return (Name, true, last?.Context ?? context);
         }
     }
 }

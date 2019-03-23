@@ -6,9 +6,9 @@ using Newtonsoft.Json;
 
 namespace Reusable.Flexo
 {
-    public abstract class Switch<TResult> : Expression<IExpression>, IExtension<TResult>
+    public abstract class Switch<TResult> : Expression<object>, IExtension<TResult>
     {
-        protected Switch([NotNull] SoftString name, [NotNull] IExpressionContext context) : base(name, context) { }
+        protected Switch([NotNull] SoftString name) : base(name) { }
 
         public IExpression Value { get; set; }
 
@@ -16,20 +16,37 @@ namespace Reusable.Flexo
 
         public IExpression Default { get; set; }
 
-        protected override ExpressionResult<IExpression> InvokeCore(IExpressionContext context)
+        protected override Constant<object> InvokeCore(IExpressionContext context)
         {
-            var value = ExtensionInputOrDefault(ref context, Value);
+            var value = ExtensionInputOrDefault(ref context, Value).Invoke(context).Value;
             var switchContext = context.Set(Item.For<ISwitchContext>(), x => x.Value, value);
 
             foreach (var switchCase in (Cases ?? Enumerable.Empty<SwitchCase>()).Where(c => c.Enabled))
             {
-                if (switchCase.WhenOrDefault().Invoke(switchContext).Value<bool>())
+                switch (switchCase.When)
                 {
-                    return (switchCase.Body.Invoke(switchContext), context);
-                }
+                    case IConstant constant:
+                        if (EqualityComparer<object>.Default.Equals(value, constant.Value))
+                        {
+                            var bodyResult = switchCase.Body.Invoke(context);
+                            return (Name, bodyResult.Value, bodyResult.Context);
+                        }
+                        break;
+                        
+                    case IExpression expression:
+                        //var switchCaseContext = switchContext.Set(Item.For<ISwitchContext>(), x => x.Case, switchCase..Value);
+                        var whenResult = expression.Invoke(switchContext);
+                        if ((bool)whenResult.Value)
+                        {
+                            var bodyResult = switchCase.Body.Invoke(context);
+                            return (Name, bodyResult.Value, bodyResult.Context);
+                        }
+                        break;
+                }                
             }
 
-            return ((Default ?? new Throw("SwitchValueOutOfRange") { Message = Constant.FromValue("Message", "Default value not specified.") }).Invoke(context), context);
+            return (Name, (Default ?? new Throw("SwitchValueOutOfRange") { Message = Constant.FromValue("Message", "Default value not specified.") }).Invoke(context), context);
+            
         }
     }
 
@@ -37,7 +54,7 @@ namespace Reusable.Flexo
     [PublicAPI]
     public class Switch : Switch<IExpression> // Expression<IExpression>, IExtension<IExpression>
     {
-        public Switch(string name) : base(name, ExpressionContext.Empty) { }
+        public Switch(string name) : base(name) { }
 
         public Switch() : this(nameof(Switch)) { }
     }
@@ -58,22 +75,24 @@ namespace Reusable.Flexo
     {
         public static IExpression WhenOrDefault(this SwitchCase switchCase)
         {
-            return
-                switchCase.When is IConstant constant
-                    ? new ObjectEqual
-                    {
-                        Left = new GetContextItem
-                        {
-                            Key = ExpressionContext.CreateKey(Item.For<ISwitchContext>(), x => x.Value)
-                        },
-                        Right = constant
-                    }
-                    : switchCase.When;
+            return switchCase.When;
+//                switchCase.When is IConstant constant
+//                    ? new ObjectEqual
+//                    {
+//                        Left = new GetContextItem
+//                        {
+//                            Key = ExpressionContext.CreateKey(Item.For<ISwitchContext>(), x => x.Value)
+//                        },
+//                        Right = constant
+//                    }
+//                    : switchCase.When;
         }
     }
 
     public interface ISwitchContext
     {
         object Value { get; }
+        
+        object Case { get; }
     }
 }

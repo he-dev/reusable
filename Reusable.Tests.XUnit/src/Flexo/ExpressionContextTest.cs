@@ -13,7 +13,7 @@ namespace Reusable.Tests.Flexo
         {
             var expression = new MyExpression();
 
-            var context = ExpressionContext.Empty.Set(Item.For<MyExpression>(), e => e.Greeting, "Hallo!");
+            var context = ExpressionContext.Empty.Set(Item.For<MyExpression>(), e => e.Greeting, Constant.FromValue("Greeting", "Hallo!"));
             
             ExpressionAssert.Equal(Constant.FromValue("Expected", "Hallo!"), expression, context);
         }
@@ -28,16 +28,16 @@ namespace Reusable.Tests.Flexo
 
         private class MyExpression : Expression<string>
         {
-            public MyExpression() : base(nameof(MyExpression), ExpressionContext.Empty)
+            public MyExpression() : base(nameof(MyExpression))
             { }
 
             [Required]
-            public string Greeting { get; set; }
+            public IExpression Greeting { get; set; }
 
-            protected override ExpressionResult<string> InvokeCore(IExpressionContext context)
+            protected override Constant<string> InvokeCore(IExpressionContext context)
             {
-                var name = context.Get(Item.For<MyExpression>(), e => e.Greeting);
-                return (name, context);
+                var item = context.Get(Item.For<MyExpression>(), e => e.Greeting).Invoke(context);
+                return (Name, (string)item.Value, item.Context);
             }
         }
     }

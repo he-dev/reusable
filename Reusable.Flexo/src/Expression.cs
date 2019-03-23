@@ -34,10 +34,7 @@ namespace Reusable.Flexo
         SoftString Name { get; }
 
         [NotNull]
-        IExpressionContext Context { get; }
-
-        [NotNull]
-        IExpression Invoke([NotNull] IExpressionContext context);
+        IConstant Invoke([NotNull] IExpressionContext context);
     }
 
     public interface IExtension<T> { }
@@ -47,8 +44,8 @@ namespace Reusable.Flexo
         // ReSharper disable RedundantNameQualifier - Use full namespace to avoid conflicts with other types.
         public static readonly Type[] Types =
         {
-            typeof(Reusable.Flexo.ObjectEqual),
-            typeof(Reusable.Flexo.StringEqual),
+            //typeof(Reusable.Flexo.ObjectEqual),
+            //typeof(Reusable.Flexo.StringEqual),
             typeof(Reusable.Flexo.IsGreaterThan),
             typeof(Reusable.Flexo.IsGreaterThanOrEqual),
             typeof(Reusable.Flexo.IsLessThan),
@@ -89,31 +86,28 @@ namespace Reusable.Flexo
     [Namespace("Flexo")]
     public abstract class Expression<TResult> : IExpression
     {
-        protected Expression([NotNull] SoftString name, [NotNull] IExpressionContext context)
+        protected Expression([NotNull] SoftString name)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
-            Context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public virtual SoftString Name { get; }
-
-        public IExpressionContext Context { get; }
 
         public bool Enabled { get; set; } = true;
 
         public List<IExpression> This { get; set; } = new List<IExpression>();
 
-        public virtual IExpression Invoke(IExpressionContext context)
+        public virtual IConstant Invoke(IExpressionContext context)
         {
             var extensions = This ?? Enumerable.Empty<IExpression>();
-            var result = InvokeCore(context).ToExpression(Name);
+            var result = (IConstant)InvokeCore(context);
             return
                 extensions
                     .Enabled()
                     .Aggregate(result, (previous, next) =>
                     {
                         var extensionType = next.GetType().GetInterface(typeof(IExtension<>).Name)?.GetGenericArguments().Single();
-                        var thisType = previous is IConstant constant ? constant.Value.GetType() : previous.GetType().GetGenericArguments().Single();
+                        var thisType = previous.Value is IExpression expression ? expression.GetType().GetGenericArguments().Single() : previous.Value.GetType();
 
                         if (extensionType?.IsAssignableFrom(thisType) == true)
                         {
@@ -130,17 +124,17 @@ namespace Reusable.Flexo
                     });
         }
 
-        protected abstract ExpressionResult<TResult> InvokeCore(IExpressionContext context);
+        protected abstract Constant<TResult> InvokeCore(IExpressionContext context);
 
         /// <summary>
         /// Determines whether the expression is invoked as an extension and removes the Input from the context.
         /// </summary>
-        private bool IsExtension(ref IExpressionContext context, out IExpression input)
+        private bool IsExtension(ref IExpressionContext context, out IConstant input)
         {
             var inputKey = ExpressionContext.CreateKey(Item.For<IExtensionContext>(), x => x.Input);
             if (context.TryGetValue(inputKey, out var value))
             {
-                input = (IExpression)value;
+                input = value;
                 // The Input must be removed so that subsequent expression doesn't 'think' it's called as extension when it isn't.
                 context = context.Remove(inputKey);
                 return true;
@@ -152,57 +146,18 @@ namespace Reusable.Flexo
             }
         }
 
+        [NotNull]
         protected TInput ExtensionInputOrDefault<TInput>(ref IExpressionContext context, TInput defaultInput)
         {
             return
                 IsExtension(ref context, out var input)
-                    //? defaultInput is IEnumerable<IExpression> ? input.Value<T>() : (T)input
-                    ? typeof(IEnumerable<IExpression>).IsAssignableFrom(typeof(TInput)) ? input.Value<TInput>() : (TInput)input
+                    ? typeof(IExpression).IsAssignableFrom(typeof(TInput)) ? (TInput)input : (TInput)(input.Value ?? throw new ArgumentNullException("Input", "Input must not be null."))
                     : defaultInput;
-        }
-
-        protected TInput ExtensionInput<TInput>(ref IExpressionContext context)
-        {
-            return
-                IsExtension(ref context, out var input)
-                    //? defaultInput is IEnumerable<IExpression> ? input.Value<T>() : (T)input
-                    ? typeof(IEnumerable<IExpression>).IsAssignableFrom(typeof(TInput)) ? input.Value<TInput>() : (TInput)input
-                    : throw new InvalidOperationException("Extension input not specified.");
         }
     }
 
     public interface IExtensionContext
     {
-        IExpression Input { get; }
-    }
-
-    public readonly struct ExpressionResult<T>
-    {
-        private ExpressionResult(T value, IExpressionContext context)
-        {
-            Value = value;
-            Context = context;
-        }
-
-        public T Value { get; }
-
-        public IExpressionContext Context { get; }
-
-        public void Deconstruct(out T value, out IExpressionContext context)
-        {
-            value = Value;
-            context = Context;
-        }
-
-        public static implicit operator ExpressionResult<T>((T Value, IExpressionContext Context) t) => new ExpressionResult<T>(t.Value, t.Context);
-    }
-
-    public static class ExpressionResultExtensions
-    {
-        [NotNull]
-        public static IExpression ToExpression<TResult>(this ExpressionResult<TResult> result, SoftString name)
-        {
-            return result.Value is IExpression expression ? expression : Constant.FromResult(name, result);
-        }
+        IConstant Input { get; }
     }
 }

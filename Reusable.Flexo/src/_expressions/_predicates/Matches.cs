@@ -8,7 +8,7 @@ namespace Reusable.Flexo
 {
     public class Matches : PredicateExpression, IExtension<string>
     {
-        public Matches() : base(nameof(Matches), ExpressionContext.Empty) { }
+        public Matches() : base(nameof(Matches)) { }
 
         public bool IgnoreCase { get; set; } = true;
 
@@ -16,19 +16,19 @@ namespace Reusable.Flexo
 
         public IExpression Pattern { get; set; }        
                 
-        protected override ExpressionResult<bool> InvokeCore(IExpressionContext context)
+        protected override Constant<bool> InvokeCore(IExpressionContext context)
         {
-            var value = ExtensionInputOrDefault(ref context, Value).Value<string>();
-            var pattern = Pattern.Invoke(context).Value<string>();
+            var value = (string)ExtensionInputOrDefault(ref context, Value).Invoke(context).Value;
+            var pattern = (string)Pattern.Invoke(context).Value;
             
             if (value is null)
             {
-                return (false, context);
+                return (Name, false, context);
             }
             else
             {
                 var options = IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None;
-                return (Regex.IsMatch(value, pattern, options), context);
+                return (Name, Regex.IsMatch(value, pattern, options), context);
             }
         }
 

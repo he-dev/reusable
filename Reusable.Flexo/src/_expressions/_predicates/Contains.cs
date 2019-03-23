@@ -8,7 +8,7 @@ namespace Reusable.Flexo
     [PublicAPI]
     public class Contains : PredicateExpression, IExtension<IEnumerable<IExpression>>
     {
-        public Contains() : base(nameof(Contains), ExpressionContext.Empty) { }
+        public Contains() : base(nameof(Contains)) { }
 
         public List<IExpression> Values { get; set; } = new List<IExpression>();
 
@@ -16,12 +16,12 @@ namespace Reusable.Flexo
 
         public IExpression Comparer { get; set; }
 
-        protected override ExpressionResult<bool> InvokeCore(IExpressionContext context)
+        protected override Constant<bool> InvokeCore(IExpressionContext context)
         {
-            var value = Value.Invoke(context).Value<object>();
-            var comparer = Comparer?.Invoke(context).ValueOrDefault<IEqualityComparer<object>>() ?? EqualityComparer<object>.Default;
+            var value = Value.Invoke(context).Value;
+            var comparer = (IEqualityComparer<object>)Comparer?.Invoke(context).Value ?? EqualityComparer<object>.Default;
             var values = ExtensionInputOrDefault(ref context, Values).Values<object>();
-            return (values.Any(x => comparer.Equals(value, x)), context);
+            return (Name, values.Any(x => comparer.Equals(value, x)), context);
         }
     }        
 }

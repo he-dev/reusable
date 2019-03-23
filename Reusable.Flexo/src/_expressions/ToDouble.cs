@@ -7,7 +7,7 @@ namespace Reusable.Flexo
     /// </summary>
     public class ToDouble : Switch<bool> //, IExtension<bool>
     {
-        public ToDouble(string name) : base(name, ExpressionContext.Empty)
+        public ToDouble(string name) : base(name)
         {
             Cases = new List<SwitchCase>
             {

@@ -6,15 +6,15 @@ namespace Reusable.Flexo
 {
     public class IsEqual : PredicateExpression, IExtension<object>
     {
-        public IsEqual(string name) : base(name ?? nameof(IsEqual), ExpressionContext.Empty) { }
+        public IsEqual(string name) : base(name ?? nameof(IsEqual)) { }
 
         [JsonRequired]
         public IExpression Value { get; set; }
 
-        protected override ExpressionResult<bool> InvokeCore(IExpressionContext context)
+        protected override Constant<bool> InvokeCore(IExpressionContext context)
         {
             var other = ExtensionInputOrDefault(ref context, Constant.Null).Value<object>();
-            return (Value.Invoke(context).Value<object>().Equals(other), context);
+            return (Name, Value.Invoke(context).Value.Equals(other), context);
         }
     }
 
@@ -22,25 +22,25 @@ namespace Reusable.Flexo
     [Alias(">")]
     public class IsGreaterThan : ComparerExpression
     {
-        public IsGreaterThan() : base(nameof(IsGreaterThan), ExpressionContext.Empty, x => x > 0) { }
+        public IsGreaterThan() : base(nameof(IsGreaterThan), x => x > 0) { }
     }
 
     [Alias(">=")]
     public class IsGreaterThanOrEqual : ComparerExpression
     {
-        public IsGreaterThanOrEqual() : base(nameof(IsGreaterThanOrEqual), ExpressionContext.Empty, x => x >= 0) { }
+        public IsGreaterThanOrEqual() : base(nameof(IsGreaterThanOrEqual), x => x >= 0) { }
     }
 
     [Alias("<")]
     public class IsLessThan : ComparerExpression
     {
-        public IsLessThan() : base(nameof(IsLessThan), ExpressionContext.Empty, x => x < 0) { }
+        public IsLessThan() : base(nameof(IsLessThan), x => x < 0) { }
     }
 
     [Alias("<=")]
     public class IsLessThanOrEqual : ComparerExpression
     {
-        public IsLessThanOrEqual() : base(nameof(IsLessThanOrEqual), ExpressionContext.Empty, x => x <= 0) { }
+        public IsLessThanOrEqual() : base(nameof(IsLessThanOrEqual), x => x <= 0) { }
     }
 
 

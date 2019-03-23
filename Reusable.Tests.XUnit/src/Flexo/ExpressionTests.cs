@@ -29,14 +29,14 @@ namespace Reusable.Tests.Flexo
             {
                 Values =
                 {
-                    LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"] + 1))),
-                    LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"] + 1))),
-                    LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"] + 1)))
+                    LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"].Value + 1))),
+                    LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"].Value + 1))),
+                    LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"].Value + 1)))
                 }
-            }.Invoke(ExpressionContext.Empty.SetItem("x", 1));
+            };
 
-            Equal(true, actual, ExpressionContext.Empty);
-            Assert.Equal(4, actual.Context["x"]);
+            var result = Equal(true, actual, ExpressionContext.Empty.SetItem("x", 1));
+            Assert.Equal(4, result.Context["x"].Value);
         }
 
         [Fact]
@@ -52,14 +52,14 @@ namespace Reusable.Tests.Flexo
             {
                 Values =
                 {
-                    LambdaExpression.Predicate(context => (false, context.SetItem("x", (int)context["x"] + 2))),
-                    LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"] + 3))),
-                    LambdaExpression.Predicate(context => (false, context.SetItem("x", (int)context["x"] + 4)))
+                    LambdaExpression.Predicate(context => (false, context.SetItem("x", (int)context["x"].Value + 2))),
+                    LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"].Value + 3))),
+                    LambdaExpression.Predicate(context => (false, context.SetItem("x", (int)context["x"].Value + 4)))
                 }
-            }.Invoke(ExpressionContext.Empty.SetItem("x", 1));
+            };
 
-            Equal(true, actual, ExpressionContext.Empty);
-            Assert.Equal(4, actual.Context["x"]);
+            var result = Equal(true, actual, ExpressionContext.Empty.SetItem("x", 1));
+            Assert.Equal(4, result.Context["x"].Value);
         }
 
         [Fact]
@@ -104,12 +104,12 @@ namespace Reusable.Tests.Flexo
             var actual = new IIf
             {
                 Predicate = Constant.True,
-                True = LambdaExpression.Double(context => (1.0, context.SetItem("x", (int)context["x"] + 1))),
-                False = LambdaExpression.Double(context => (2.0, context.SetItem("x", (int)context["x"] + 2))),
-            }.Invoke(ExpressionContext.Empty.SetItem("x", 1));
+                True = LambdaExpression.Double(context => (1.0, context.SetItem("x", (int)context["x"].Value + 1))),
+                False = LambdaExpression.Double(context => (2.0, context.SetItem("x", (int)context["x"].Value + 2))),
+            };
 
-            Equal(1.0, actual, ExpressionContext.Empty);
-            Assert.Equal(2, actual.Context["x"]);
+            var result = Equal(1.0, actual, ExpressionContext.Empty.SetItem("x", 1));
+            Assert.Equal(2, result.Context["x"].Value);
         }
 
         [Fact]
@@ -118,12 +118,12 @@ namespace Reusable.Tests.Flexo
             var actual = new IIf
             {
                 Predicate = Constant.False,
-                True = LambdaExpression.Double(context => (1.0, context.SetItem("x", (int)context["x"] + 1))),
-                False = LambdaExpression.Double(context => (2.0, context.SetItem("x", (int)context["x"] + 2))),
-            }.Invoke(ExpressionContext.Empty.SetItem("x", 1));
+                True = LambdaExpression.Double(context => (1.0, context.SetItem("x", (int)context["x"].Value + 1))),
+                False = LambdaExpression.Double(context => (2.0, context.SetItem("x", (int)context["x"].Value + 2))),
+            };
 
-            Equal(2.0, actual, ExpressionContext.Empty);
-            Assert.Equal(3, actual.Context["x"]);
+            var result = Equal(2.0, actual, ExpressionContext.Empty.SetItem("x", 1));
+            Assert.Equal(3, result.Context["x"].Value);
         }
 
         [Fact]

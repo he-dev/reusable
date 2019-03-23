@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using Newtonsoft.Json.Schema;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using linq = System.Linq.Expressions;
@@ -13,19 +14,19 @@ namespace Reusable.Flexo
 {
     public static class ExpressionContextExtensions
     {
-        [CanBeNull]
-        public static TParameter GetByCallerName<TParameter>(this IExpressionContext context, [CallerMemberName] string itemName = null)
-        {
-            return (TParameter)context[itemName];
-        }
-
-        [NotNull]
-        public static TExpressionContext SetByCallerName<TParameter, TExpressionContext>(this TExpressionContext context, TParameter value, [CallerMemberName] string itemName = null)
-            where TExpressionContext : IExpressionContext
-        {
-            context.SetItem(itemName, value);
-            return context;
-        }
+//        [CanBeNull]
+//        public static TParameter GetByCallerName<TParameter>(this IExpressionContext context, [CallerMemberName] string itemName = null)
+//        {
+//            return (TParameter)context[itemName];
+//        }
+//
+//        [NotNull]
+//        public static TExpressionContext SetByCallerName<TParameter, TExpressionContext>(this TExpressionContext context, TParameter value, [CallerMemberName] string itemName = null)
+//            where TExpressionContext : IExpressionContext
+//        {
+//            context.SetItem(itemName, value);
+//            return context;
+//        }
 
         //[NotNull]
         //public static IDisposable Scope(this IExpressionContext context, IExpression expression) => ExpressionContextScope.Push(expression, context);
@@ -75,17 +76,33 @@ namespace Reusable.Flexo
             TProperty value
         )
         {
-            return context.SetItem(ExpressionContext.CreateKey(item, selectProperty), value);
+            var key = ExpressionContext.CreateKey(item, selectProperty);
+            return context.SetItem(key, value is IConstant constant ? constant : Constant.FromValue(key, value));
+        }
+        
+        public static IExpressionContext SetItem
+        (
+            this IExpressionContext context,
+            string key,
+            object value
+        )
+        {
+            return context.SetItem(key, value is IConstant constant ? constant : Constant.FromValue(key, value));
         }
         
         #endregion
 
         #region Helpers
 
-        public static IExpressionContext ExtensionInput(this IExpressionContext context, IExpression value)
+        public static IExpressionContext ExtensionInput(this IExpressionContext context, IConstant result)
         {
-            return context.Set(Item.For<IExtensionContext>(), x => x.Input, value);
+            return context.Set(Item.For<IExtensionContext>(), x => x.Input, result);
         }
+        
+//        public static IExpressionContext ExtensionInput(this IExpressionContext context, object result)
+//        {
+//            return context.Set(Item.For<IExtensionContext>(), x => x.Input, (ExpressionResult<object>)(result, ExpressionContext.Empty));
+//        }
 
         #endregion
     }    
