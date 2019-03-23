@@ -111,7 +111,7 @@ namespace Reusable.Flexo
 
                         if (extensionType?.IsAssignableFrom(thisType) == true)
                         {
-                            return next.Invoke(previous.Context.ExtensionInput(previous));
+                            return next.Invoke(previous.Context.PushExtensionInput(previous.Value));
                         }
                         else
                         {
@@ -125,39 +125,10 @@ namespace Reusable.Flexo
         }
 
         protected abstract Constant<TResult> InvokeCore(IExpressionContext context);
-
-        /// <summary>
-        /// Determines whether the expression is invoked as an extension and removes the Input from the context.
-        /// </summary>
-        private bool IsExtension(ref IExpressionContext context, out IConstant input)
-        {
-            var inputKey = ExpressionContext.CreateKey(Item.For<IExtensionContext>(), x => x.Input);
-            if (context.TryGetValue(inputKey, out var value))
-            {
-                input = value;
-                // The Input must be removed so that subsequent expression doesn't 'think' it's called as extension when it isn't.
-                context = context.Remove(inputKey);
-                return true;
-            }
-            else
-            {
-                input = default;
-                return false;
-            }
-        }
-
-        [NotNull]
-        protected TInput ExtensionInputOrDefault<TInput>(ref IExpressionContext context, TInput defaultInput)
-        {
-            return
-                IsExtension(ref context, out var input)
-                    ? typeof(IExpression).IsAssignableFrom(typeof(TInput)) ? (TInput)input : (TInput)(input.Value ?? throw new ArgumentNullException("Input", "Input must not be null."))
-                    : defaultInput;
-        }
     }
 
     public interface IExtensionContext
     {
-        IConstant Input { get; }
+        Stack<object> Inputs { get; }
     }
 }

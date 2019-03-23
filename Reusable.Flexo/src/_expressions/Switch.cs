@@ -18,7 +18,11 @@ namespace Reusable.Flexo
 
         protected override Constant<object> InvokeCore(IExpressionContext context)
         {
-            var value = ExtensionInputOrDefault(ref context, Value).Invoke(context).Value;
+            var value =
+                context.TryPopExtensionInput(out object input)
+                    ? input
+                    : Value.Invoke(context).Value;
+            
             var switchContext = context.Set(Item.For<ISwitchContext>(), x => x.Value, value);
 
             foreach (var switchCase in (Cases ?? Enumerable.Empty<SwitchCase>()).Where(c => c.Enabled))

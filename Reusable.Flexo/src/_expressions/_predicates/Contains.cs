@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 namespace Reusable.Flexo
 {
     [PublicAPI]
-    public class Contains : PredicateExpression, IExtension<IEnumerable<IExpression>>
+    public class Contains : PredicateExpression, IExtension<IEnumerable<object>>
     {
         public Contains() : base(nameof(Contains)) { }
 
@@ -20,8 +20,16 @@ namespace Reusable.Flexo
         {
             var value = Value.Invoke(context).Value;
             var comparer = (IEqualityComparer<object>)Comparer?.Invoke(context).Value ?? EqualityComparer<object>.Default;
-            var values = ExtensionInputOrDefault(ref context, Values).Values<object>();
-            return (Name, values.Any(x => comparer.Equals(value, x)), context);
+
+            if (context.TryPopExtensionInput(out IEnumerable<object> input))
+            {
+                return (Name, input.Any(x => comparer.Equals(value, x)), context);
+            }
+            else
+            {
+                var values = Values.Enabled().Select(x => x.Invoke(context)).Values<object>();
+                return (Name, values.Any(x => comparer.Equals(value, x)), context);
+            }
         }
-    }        
+    }
 }

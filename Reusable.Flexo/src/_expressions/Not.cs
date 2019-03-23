@@ -13,8 +13,14 @@ namespace Reusable.Flexo
 
         protected override Constant<bool> InvokeCore(IExpressionContext context)
         {
-            var predicate = ExtensionInputOrDefault(ref context, Value);
-            return (Name, !(bool)predicate.Invoke(context).Value, context);
+            if (context.TryPopExtensionInput(out bool input))
+            {
+                return (Name, !input, context);
+            }
+            else
+            {
+                return (Name, !Value.Invoke(context).Value<bool>(), context);
+            }
         }
     }
 }

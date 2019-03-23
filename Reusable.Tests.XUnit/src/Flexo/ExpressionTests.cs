@@ -29,14 +29,14 @@ namespace Reusable.Tests.Flexo
             {
                 Values =
                 {
-                    LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"].Value + 1))),
-                    LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"].Value + 1))),
-                    LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"].Value + 1)))
+                    LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"] + 1))),
+                    LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"] + 1))),
+                    LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"] + 1)))
                 }
             };
 
             var result = Equal(true, actual, ExpressionContext.Empty.SetItem("x", 1));
-            Assert.Equal(4, result.Context["x"].Value);
+            Assert.Equal(4, result.Context["x"]);
         }
 
         [Fact]
@@ -52,14 +52,14 @@ namespace Reusable.Tests.Flexo
             {
                 Values =
                 {
-                    LambdaExpression.Predicate(context => (false, context.SetItem("x", (int)context["x"].Value + 2))),
-                    LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"].Value + 3))),
-                    LambdaExpression.Predicate(context => (false, context.SetItem("x", (int)context["x"].Value + 4)))
+                    LambdaExpression.Predicate(context => (false, context.SetItem("x", (int)context["x"] + 2))),
+                    LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"] + 3))),
+                    LambdaExpression.Predicate(context => (false, context.SetItem("x", (int)context["x"] + 4)))
                 }
             };
 
             var result = Equal(true, actual, ExpressionContext.Empty.SetItem("x", 1));
-            Assert.Equal(4, result.Context["x"].Value);
+            Assert.Equal(4, result.Context["x"]);
         }
 
         [Fact]
@@ -104,12 +104,12 @@ namespace Reusable.Tests.Flexo
             var actual = new IIf
             {
                 Predicate = Constant.True,
-                True = LambdaExpression.Double(context => (1.0, context.SetItem("x", (int)context["x"].Value + 1))),
-                False = LambdaExpression.Double(context => (2.0, context.SetItem("x", (int)context["x"].Value + 2))),
+                True = LambdaExpression.Double(context => (1.0, context.SetItem("x", (int)context["x"] + 1))),
+                False = LambdaExpression.Double(context => (2.0, context.SetItem("x", (int)context["x"] + 2))),
             };
 
             var result = Equal(1.0, actual, ExpressionContext.Empty.SetItem("x", 1));
-            Assert.Equal(2, result.Context["x"].Value);
+            Assert.Equal(2, result.Context["x"]);
         }
 
         [Fact]
@@ -118,12 +118,12 @@ namespace Reusable.Tests.Flexo
             var actual = new IIf
             {
                 Predicate = Constant.False,
-                True = LambdaExpression.Double(context => (1.0, context.SetItem("x", (int)context["x"].Value + 1))),
-                False = LambdaExpression.Double(context => (2.0, context.SetItem("x", (int)context["x"].Value + 2))),
+                True = LambdaExpression.Double(context => (1.0, context.SetItem("x", (int)context["x"] + 1))),
+                False = LambdaExpression.Double(context => (2.0, context.SetItem("x", (int)context["x"] + 2))),
             };
 
             var result = Equal(2.0, actual, ExpressionContext.Empty.SetItem("x", 1));
-            Assert.Equal(3, result.Context["x"].Value);
+            Assert.Equal(3, result.Context["x"]);
         }
 
         [Fact]
@@ -153,73 +153,73 @@ namespace Reusable.Tests.Flexo
         public void GreaterThan_ReturnsTrueWhenLeftGreaterThanRight() => Equal(true, new IsGreaterThan
         {
             Value = Constant.Create(2.0),
-        }, ExpressionContext.Empty.ExtensionInput(Constant.Create(3.0)));
+        }, ExpressionContext.Empty.PushExtensionInput(3.0));
 
         [Fact]
         public void GreaterThan_ReturnsFalseWhenLeftLessThanRight() => Equal(false, new IsGreaterThan
         {
             Value = Constant.Create(3.0),
-        }, ExpressionContext.Empty.ExtensionInput(Constant.Create(2.0)));
+        }, ExpressionContext.Empty.PushExtensionInput(2.0));
 
         [Fact]
         public void GreaterThan_ReturnsFalseWhenLeftEqualsRight() => Equal(false, new IsGreaterThan
         {
             Value = Constant.Create(2.0),
-        }, ExpressionContext.Empty.ExtensionInput(Constant.Create(2.0)));
+        }, ExpressionContext.Empty.PushExtensionInput(2.0));
 
         [Fact]
         public void GreaterThanOrEqual_ReturnsTrueWhenLeftGreaterThanRight() => Equal(true, new IsGreaterThanOrEqual
         {
             Value = Constant.Create(2.0),
-        }, ExpressionContext.Empty.ExtensionInput(Constant.Create(3.0)));
+        }, ExpressionContext.Empty.PushExtensionInput(3.0));
 
         [Fact]
         public void GreaterThanOrEqual_ReturnsTrueWhenLeftEqualsRight() => Equal(true, new IsGreaterThanOrEqual
         {
             Value = Constant.Create(3.0),
-        }, ExpressionContext.Empty.ExtensionInput(Constant.Create(3.0)));
+        }, ExpressionContext.Empty.PushExtensionInput(3.0));
 
         [Fact]
         public void GreaterThanOrEqual_ReturnsFalseWhenLeftLessThanRight() => Equal(false, new IsGreaterThanOrEqual
         {
             Value = Constant.Create(3.0),
-        }, ExpressionContext.Empty.ExtensionInput(Constant.Create(2.0)));
+        }, ExpressionContext.Empty.PushExtensionInput(2.0));
 
         [Fact]
         public void LessThan_ReturnsTrueWhenLeftLessThanRight() => Equal(true, new IsLessThan
         {
             Value = Constant.Create(3.0),
-        }, ExpressionContext.Empty.ExtensionInput(Constant.Create(2.0)));
+        }, ExpressionContext.Empty.PushExtensionInput(2.0));
 
         [Fact]
         public void LessThan_ReturnsFalseWhenLeftEqualsRight() => Equal(false, new IsLessThan
         {
             Value = Constant.Create(3.0),
-        }, ExpressionContext.Empty.ExtensionInput(Constant.Create(3.0)));
+        }, ExpressionContext.Empty.PushExtensionInput(3.0));
 
         [Fact]
         public void LessThan_ReturnsFalseWhenLeftGreaterThanRight() => Equal(false, new IsLessThan
         {
             Value = Constant.Create(2.0),
-        }, ExpressionContext.Empty.ExtensionInput(Constant.Create(3.0)));
+        }, ExpressionContext.Empty.PushExtensionInput(3.0));
 
         [Fact]
         public void LessThanOrEqual_ReturnsTrueWhenLeftLessThanRight() => Equal(true, new IsLessThanOrEqual
         {
             Value = Constant.Create(3.0),
-        }, ExpressionContext.Empty.ExtensionInput(Constant.Create(2.0)));
+        }, ExpressionContext.Empty.PushExtensionInput(2.0));
 
         [Fact]
         public void LessThanOrEqual_ReturnsTrueWhenLeftEqualsRight() => Equal(true, new IsLessThanOrEqual
         {
             Value = Constant.Create(3.0),
-        }, ExpressionContext.Empty.ExtensionInput(Constant.Create(3.0)));
+        }, ExpressionContext.Empty.PushExtensionInput(3.0));
 
         [Fact]
         public void LessThanOrEqual_ReturnsFalseWhenLeftGreaterThanRight() => Equal(false, new IsLessThanOrEqual
         {
             Value = Constant.Create(2.0),
-        }, ExpressionContext.Empty.ExtensionInput(Constant.Create(3.0)));
+        }, ExpressionContext.Empty.PushExtensionInput(3.0));
 
         [Fact]
         public void Not_ReturnsTrueWhenFalse() => Equal(false, new Not { Value = Constant.True });

@@ -15,19 +15,19 @@ namespace Reusable.Flexo
 {
     public interface IExpressionContext
     {
-        IConstant this[SoftString key] { get; }
+        object this[SoftString key] { get; }
 
         int Count { get; }
 
         IEnumerable<SoftString> Keys { get; }
 
-        IEnumerable<IConstant> Values { get; }
+        IEnumerable<object> Values { get; }
 
         bool ContainsKey(SoftString key);
 
-        IExpressionContext SetItem(SoftString key, IConstant value);
+        IExpressionContext SetItem(SoftString key, object value);
 
-        bool TryGetValue(SoftString key, out IConstant value);
+        bool TryGetValue(SoftString key, out object value);
 
         IExpressionContext Remove(SoftString key);
     }
@@ -42,14 +42,16 @@ namespace Reusable.Flexo
     [PublicAPI]
     public readonly struct ExpressionContext : IExpressionContext
     {
-        [NotNull] private readonly IImmutableDictionary<SoftString, IConstant> _data;
+        [NotNull] private readonly IImmutableDictionary<SoftString, object> _data;
 
-        public ExpressionContext([NotNull] IImmutableDictionary<SoftString, IConstant> data)
+        public ExpressionContext([NotNull] IImmutableDictionary<SoftString, object> data)
         {
-            _data = data ?? throw new ArgumentNullException(nameof(data));
+            if (data == null) throw new ArgumentNullException(nameof(data));
+
+            _data = data.SetItem(CreateKey(Item.For<IExtensionContext>(), x => x.Inputs), new Stack<object>());
         }
 
-        public static IExpressionContext Empty => new ExpressionContext(ImmutableDictionary<SoftString, IConstant>.Empty);
+        public static IExpressionContext Empty => new ExpressionContext(ImmutableDictionary<SoftString, object>.Empty);
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
         {
@@ -57,29 +59,29 @@ namespace Reusable.Flexo
             builder.DisplayCollection(x => x.Keys);
         });
 
-        public IConstant this[SoftString key] => _data[key];
+        public object this[SoftString key] => _data[key];
 
         public int Count => _data.Count;
 
         public IEnumerable<SoftString> Keys => _data.Keys;
 
-        public IEnumerable<IConstant> Values => _data.Values;
+        public IEnumerable<object> Values => _data.Values;
 
         public bool ContainsKey(SoftString key) => _data.ContainsKey(key);
 
-        public bool Contains(KeyValuePair<SoftString, IConstant> pair) => _data.Contains(pair);
+        public bool Contains(KeyValuePair<SoftString, object> pair) => _data.Contains(pair);
 
         public bool TryGetKey(SoftString equalKey, out SoftString actualKey) => _data.TryGetKey(equalKey, out actualKey);
 
-        public bool TryGetValue(SoftString key, out IConstant value) => _data.TryGetValue(key, out value);
-        
+        public bool TryGetValue(SoftString key, out object value) => _data.TryGetValue(key, out value);
+
         public IExpressionContext Remove(SoftString key) => new ExpressionContext(_data.Remove(key));
 
-        public ExpressionContext Add(SoftString key, IConstant value) => new ExpressionContext(_data.Add(key, value));
+        public ExpressionContext Add(SoftString key, object value) => new ExpressionContext(_data.Add(key, value));
 
-        public ExpressionContext TryAdd(SoftString key, IConstant value) => _data.ContainsKey(key) ? this : new ExpressionContext(_data.Add(key, value));
+        public ExpressionContext TryAdd(SoftString key, object value) => _data.ContainsKey(key) ? this : new ExpressionContext(_data.Add(key, value));
 
-        public IExpressionContext SetItem(SoftString key, IConstant value) => new ExpressionContext(_data.SetItem(key, value));
+        public IExpressionContext SetItem(SoftString key, object value) => new ExpressionContext(_data.SetItem(key, value));
 
         #region Helpers
 
@@ -87,7 +89,7 @@ namespace Reusable.Flexo
         {
             if (item == null) throw new ArgumentNullException(nameof(item));
             if (propertySelector == null) throw new ArgumentNullException(nameof(propertySelector));
-            
+
             if (!(propertySelector.Body is MemberExpression memberExpression))
             {
                 throw new ArgumentException($"'{nameof(propertySelector)}' must be member-expression.");

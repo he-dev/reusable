@@ -19,9 +19,15 @@ namespace Reusable.Flexo
 
         protected override Constant<bool> InvokeCore(IExpressionContext context)
         {
-            var left = ExtensionInputOrDefault(ref context, 0.0);
-            var result = Comparer<object>.Default.Compare(left, Value.Invoke(context).Value);
-            return (Name, _predicate(result), context);
+            if (context.TryPopExtensionInput(out object input))
+            {
+                var result = Comparer<object>.Default.Compare(input, Value.Invoke(context).Value);
+                return (Name, _predicate(result), context);
+            }
+            else
+            {
+                throw new InvalidOperationException($"{Name.ToString()} can be used only as an extension.");
+            }
         }
 
 //        private static bool TryCompare<T>(IExpression x, IExpression y, out int result)

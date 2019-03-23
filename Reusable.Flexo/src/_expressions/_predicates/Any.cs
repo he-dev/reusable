@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System.CodeDom;
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 
 namespace Reusable.Flexo
 {
-    public class Any : PredicateExpression, IExtension<List<IExpression>>
+    public class Any : PredicateExpression, IExtension<List<object>>
     {
         public Any() : base(nameof(Any)) { }
 
@@ -14,25 +15,27 @@ namespace Reusable.Flexo
 
         protected override Constant<bool> InvokeCore(IExpressionContext context)
         {
-            var values = ExtensionInputOrDefault(ref context, Values);
-            var predicate = Predicate ?? Constant.True;
-
-            foreach (var item in values.Enabled())
+            if (context.TryPopExtensionInput(out IEnumerable<object> input))
             {
-                var itemResult = item.Invoke(context);
-                if (predicate is IConstant)
+                foreach (var item in input)
                 {
-                    if (EqualityComparer<bool>.Default.Equals((bool)itemResult.Value, predicate.Value<bool>()))
+                    context.Get(Item.For<IExtensionContext>(), x => x.Inputs).Push(item);
+                    var predicateResult = Predicate.Invoke(context).Value<bool>();
+                    if (EqualityComparer<bool>.Default.Equals(predicateResult, true))
                     {
-                        return (Name, true, itemResult.Context);
+                        return (Name, true, context);
                     }
                 }
-                else
+            }
+            else
+            {
+                var last = default(IConstant);
+                foreach (var item in Values)
                 {
-                    var predicateResult = (Constant<bool>)predicate.Invoke(context.Set(Item.For<IExtensionContext>(), x => x.Input, itemResult));
-                    if (EqualityComparer<bool>.Default.Equals(predicateResult.Value, true))
+                    last = item.Invoke(context);
+                    if (EqualityComparer<bool>.Default.Equals(last.Value<bool>(), true))
                     {
-                        return (Name, true, itemResult.Context);
+                        return (Name, true, last?.Context ?? context);
                     }
                 }
             }

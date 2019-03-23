@@ -20,7 +20,7 @@ namespace Reusable.Flexo
         {
             return
                 context.TryGetValue(Key, out var value)
-                    ? (value.Name, value.Value, context) // (value is IExpression expression ? expression : Constant.FromValue(Key, value), context)
+                    ? (Key, value, context) // (value is IExpression expression ? expression : Constant.FromValue(Key, value), context)
                     : throw DynamicException.Create("KeyNotFound", $"Context does not contain an item with the key '{Key}'.");
         }
     }

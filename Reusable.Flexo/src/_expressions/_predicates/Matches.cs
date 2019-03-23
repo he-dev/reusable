@@ -14,20 +14,20 @@ namespace Reusable.Flexo
 
         public IExpression Value { get; set; }
 
-        public IExpression Pattern { get; set; }        
-                
+        public IExpression Pattern { get; set; }
+
         protected override Constant<bool> InvokeCore(IExpressionContext context)
         {
-            var value = (string)ExtensionInputOrDefault(ref context, Value).Invoke(context).Value;
-            var pattern = (string)Pattern.Invoke(context).Value;
-            
-            if (value is null)
+            var pattern = Pattern.Invoke(context).Value<string>();
+            var options = IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None;
+
+            if (context.TryPopExtensionInput(out string input))
             {
-                return (Name, false, context);
+                return (Name, Regex.IsMatch(input, pattern, options), context);
             }
             else
             {
-                var options = IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None;
+                var value = Value.Invoke(context).Value<string>();
                 return (Name, Regex.IsMatch(value, pattern, options), context);
             }
         }

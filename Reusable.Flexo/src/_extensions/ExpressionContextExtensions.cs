@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -32,8 +33,8 @@ namespace Reusable.Flexo
         //public static IDisposable Scope(this IExpressionContext context, IExpression expression) => ExpressionContextScope.Push(expression, context);
 
         #region Getters & Setters
-        
-        [CanBeNull]
+
+        [NotNull]
         public static TProperty Get<TExpression, TProperty>
         (
             this IExpressionContext context,
@@ -59,12 +60,12 @@ namespace Reusable.Flexo
             }
             else
             {
-                if (((MemberExpression)propertySelector.Body).Member.IsDefined(typeof(RequiredAttribute)))
+                //if (((MemberExpression)propertySelector.Body).Member.IsDefined(typeof(RequiredAttribute)))
                 {
                     throw DynamicException.Create("RequiredValueMissing", $"{ExpressionContext.CreateKey(item, propertySelector)} is required.");
                 }
 
-                return default;
+                //throw DynamicException.Create("");
             }
         }
 
@@ -77,38 +78,57 @@ namespace Reusable.Flexo
         )
         {
             var key = ExpressionContext.CreateKey(item, selectProperty);
-            return context.SetItem(key, value is IConstant constant ? constant : Constant.FromValue(key, value));
+            return context.SetItem(key, value); // is IConstant constant ? constant : Constant.FromValue(key, value));
         }
-        
-        public static IExpressionContext SetItem
-        (
-            this IExpressionContext context,
-            string key,
-            object value
-        )
-        {
-            return context.SetItem(key, value is IConstant constant ? constant : Constant.FromValue(key, value));
-        }
-        
+
+//        public static IExpressionContext SetItem
+//        (
+//            this IExpressionContext context,
+//            string key,
+//            object value
+//        )
+//        {
+//            return context.SetItem(key, value is IConstant constant ? constant : Constant.FromValue(key, value));
+//        }
+
         #endregion
 
         #region Helpers
 
-        public static IExpressionContext ExtensionInput(this IExpressionContext context, IConstant result)
+        public static IExpressionContext PushExtensionInput(this IExpressionContext context, object value)
         {
-            return context.Set(Item.For<IExtensionContext>(), x => x.Input, result);
+            context.Get(Item.For<IExtensionContext>(), x => x.Inputs).Push(value);
+            return context;
         }
-        
+
+        public static bool TryPopExtensionInput<T>(this IExpressionContext context, out T input)
+        {
+            var inputKey = ExpressionContext.CreateKey(Item.For<IExtensionContext>(), x => x.Inputs);
+            var inputs = context.Get(Item.For<IExtensionContext>(), x => x.Inputs);
+            if (inputs.Any()) // context.TryGetValue(inputKey, out var value))
+            {
+                input = (T)inputs.Pop();
+                //context.Get(Item.For<IExtensionContext>(), x => x.Inputs).Pop();
+                // The Input must be removed so that subsequent expression doesn't 'think' it's called as extension when it isn't.
+                //context = context.Remove(inputKey);
+                return true;
+            }
+            else
+            {
+                input = default;
+                return false;
+            }
+        }
+
 //        public static IExpressionContext ExtensionInput(this IExpressionContext context, object result)
 //        {
 //            return context.Set(Item.For<IExtensionContext>(), x => x.Input, (ExpressionResult<object>)(result, ExpressionContext.Empty));
 //        }
 
         #endregion
-    }    
-    
-    public class Item<T>
-    { }
+    }
+
+    public class Item<T> { }
 
     public static class Item
     {

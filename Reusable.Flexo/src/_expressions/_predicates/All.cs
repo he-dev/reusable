@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 namespace Reusable.Flexo
 {
     [PublicAPI]
-    public class All : PredicateExpression, IExtension<IEnumerable<IExpression>>
+    public class All : PredicateExpression, IExtension<IEnumerable<object>>
     {
         [JsonConstructor]
         public All(string name) : base(name ?? nameof(All)) { }
@@ -20,24 +20,30 @@ namespace Reusable.Flexo
 
         protected override Constant<bool> InvokeCore(IExpressionContext context)
         {
-            var values = ExtensionInputOrDefault(ref context, Values).Enabled();
-            var predicate = Predicate.Value<bool>();
-
-            var last = default(IConstant);
-            foreach (var item in values)
+            if (context.TryPopExtensionInput(out IEnumerable<object> input))
             {
-                last = item.Invoke(last?.Context ?? context);
-                if (EqualityComparer<bool>.Default.Equals((bool)last.Value, predicate))
-                {
-                    continue;
-                }
-                else
-                {
-                    return (Name, false, context);
-                }
+                var predicate = Predicate.Invoke(context).Value<bool>();
+                return (Name, input.Cast<bool>().All(x => x == predicate), context);
             }
+            else
+            {
+                var predicate = Predicate.Invoke(context).Value<bool>();
+                var last = default(IConstant);
+                foreach (var item in Values)
+                {
+                    last = item.Invoke(last?.Context ?? context);
+                    if (EqualityComparer<bool>.Default.Equals(last.Value<bool>(), predicate))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        return (Name, false, context);
+                    }
+                }
 
-            return (Name, true, last?.Context ?? context);
+                return (Name, true, last?.Context ?? context);
+            }
         }
     }
 }
