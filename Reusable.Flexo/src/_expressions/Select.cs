@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Custom;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -13,26 +14,28 @@ namespace Reusable.Flexo
     /// </summary>
     [UsedImplicitly]
     [PublicAPI]
-    public class Block : Expression
+    public class Select : Expression<List<IExpression>>, IExtension<IEnumerable<IExpression>>
     {
-        public Block(string name) : base(name) { }
+        public Select(string name) : base(name, ExpressionContext.Empty) { }
 
-        public Block() : this(nameof(Item)) { }
+        public Select() : this(nameof(Item)) { }
+
+        public IEnumerable<IExpression> Values { get; set; }
 
         [JsonRequired]
-        public IEnumerable<IExpression> Expressions { get; set; }
+        public IExpression Selector { get; set; }
 
-        protected override IExpression InvokeCore(IExpressionContext context)
+        protected override ExpressionResult<List<IExpression>> InvokeCore(IExpressionContext context)
         {
-            //return new Scope(Expression.Name, context, Expression.Invoke(context));
+            var select =
+                ExtensionInputOrDefault(ref context, Values)
+                    .Aggregate((Previous: default(IExpression), Expressions: Enumerable.Empty<IExpression>()), (acc, next) =>
+                    {
+                        var result = next.Invoke(acc.Previous?.Context ?? context);
+                        return (result, acc.Expressions.Append(result));
+                    });
 
-            var results = new List<IExpression>();
-            foreach (var expression in Expressions)
-            {
-                results.Add(expression.Invoke(results.LastOrDefault()?.Context ?? context));
-            }
-
-            return Constant.FromValue(nameof(Block), (results, results.LastOrDefault()?.Context ?? context));
+            return default;
         }
 
         // private class Scope : Expression
