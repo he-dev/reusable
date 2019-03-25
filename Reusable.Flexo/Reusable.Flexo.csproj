@@ -28,6 +28,9 @@
     <Compile Remove="src\_expressions\LessThan.cs" />
     <Compile Remove="src\_expressions\ToList.cs" />
     <Compile Remove="src\_expressions\Equal.cs" />
+    <Compile Remove="src\_expressions\_comparers\**" />
+    <EmbeddedResource Remove="src\_expressions\_comparers\**" />
+    <None Remove="src\_expressions\_comparers\**" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="src\_expressions\_abstractions\ICommand.cs" />

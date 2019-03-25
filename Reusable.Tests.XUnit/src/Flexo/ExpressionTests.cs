@@ -349,7 +349,7 @@ namespace Reusable.Tests.Flexo
                 {
                     Values = Constant.CreateMany("foo", "BAR").ToList(),
                     Value = Constant.FromValue("Value", "bar"),
-                    Comparer = new Reusable.Flexo.SoftStringComparer()
+                    Comparer = "SoftString"
                 }
             );
         }

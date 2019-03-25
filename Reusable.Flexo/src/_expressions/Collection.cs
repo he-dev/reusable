@@ -16,9 +16,4 @@ namespace Reusable.Flexo
             return (Name, Values.Enabled().Select(e => e.Invoke(context).Value).ToList(), context);
         }
     }
-
-    public interface ICollectionContext
-    {
-        object Item { get; }
-    }
 }

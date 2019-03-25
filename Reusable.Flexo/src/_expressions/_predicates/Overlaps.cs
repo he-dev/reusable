@@ -14,12 +14,12 @@ namespace Reusable.Flexo
 
         public List<IExpression> With { get; set; } = new List<IExpression>();
 
-        public IExpression Comparer { get; set; }
+        public string Comparer { get; set; }
 
         protected override Constant<bool> InvokeCore(IExpressionContext context)
         {
             var with = With.Invoke(context).Values<object>();
-            var comparer = Comparer?.Invoke(context).Value<IEqualityComparer<object>>() ?? EqualityComparer<object>.Default;
+            var comparer = context.GetComparerOrDefault(Comparer);
 
             if (context.TryPopExtensionInput(out IEnumerable<object> input))
             {

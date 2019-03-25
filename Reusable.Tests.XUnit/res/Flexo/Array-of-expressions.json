@@ -130,17 +130,7 @@
       {
         "$t": "Flexo.Contains",
         "Value": "^ba",
-        "Comparer": {
-          "$t": "Flexo.Matches",
-          "Value": {
-            "$t": "Flexo.GetContextItem",
-            "Key": "Contains.Item"
-          },
-          "Pattern": {
-            "$t": "Flexo.GetContextItem",
-            "Key": "Contains.Value"
-          }
-        }
+        "Comparer": "Regex"
       }
     ]
   },
@@ -156,9 +146,7 @@
       {
         "$t": "Flexo.Contains",
         "Value": "^ba",
-        "Comparer": {
-          "$t": "Flexo.RegexComparer"
-        }
+        "Comparer": "Regex"
       }
     ]
   },
@@ -230,9 +218,7 @@
           "qux",
           "BAR"
         ],
-        "Comparer": {
-          "$t": "Flexo.SoftStringComparer"
-        }
+        "Comparer": "SoftString"
       }
     ]
   },

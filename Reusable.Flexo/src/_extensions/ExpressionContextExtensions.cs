@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
@@ -93,7 +94,7 @@ namespace Reusable.Flexo
 
         #endregion
 
-        #region Helpers
+        #region Extension-Input helpers
 
         public static IExpressionContext PushExtensionInput(this IExpressionContext context, object value)
         {
@@ -118,6 +119,22 @@ namespace Reusable.Flexo
         }
 
         #endregion
+
+        public static IEqualityComparer<object> GetComparerOrDefault(this IExpressionContext context, string name)
+        {
+            var comparers = context.Get(Item.For<ICollectionContext>(), x => x.Comparers);
+            if (name is null)
+            {
+                return comparers["Default"];
+            }
+
+            if (comparers.TryGetValue(name, out var comparer))
+            {
+                return comparer;
+            }
+
+            throw DynamicException.Create("ComparerNotFound", $"There is no comparer with the name '{name}'.");
+        }
     }
 
     public class Item<T> { }

@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using Reusable.Collections;
 using Reusable.Diagnostics;
 using Reusable.Extensions;
 using linq = System.Linq.Expressions;
@@ -42,7 +43,23 @@ namespace Reusable.Flexo
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
 
-            _data = data.SetItem(CreateKey(Item.For<IExtensionContext>(), x => x.Inputs), new Stack<object>());
+            _data =
+                data
+                    .SetItem(CreateKey(Item.For<IExtensionContext>(), x => x.Inputs), new Stack<object>())
+                    .SetItem(CreateKey(Item.For<ICollectionContext>(), x => x.Comparers), new Dictionary<SoftString, IEqualityComparer<object>>
+                    {
+                        ["Default"] = EqualityComparer<object>.Default,
+                        ["SoftString"] = EqualityComparerFactory<object>.Create
+                        (
+                            equals: (left, right) => SoftString.Comparer.Equals((string)left, (string)right),
+                            getHashCode: (obj) => SoftString.Comparer.GetHashCode((string)obj)
+                        ),
+                        ["Regex"] = EqualityComparerFactory<object>.Create
+                        (
+                            equals: (left, right) => Regex.IsMatch((string)right, (string)left, RegexOptions.None),
+                            getHashCode: (obj) => 0
+                        )
+                    });
         }
 
         public static IExpressionContext Empty => new ExpressionContext(ImmutableDictionary<SoftString, object>.Empty);
@@ -101,4 +118,18 @@ namespace Reusable.Flexo
 
         #endregion
     }
+    
+    public interface IExtensionContext
+    {
+        Stack<object> Inputs { get; }
+        
+    }
+
+    public interface ICollectionContext
+    {
+        //object Item { get; }
+        
+        IDictionary<SoftString, IEqualityComparer<object>> Comparers { get; }        
+    }
+    
 }
