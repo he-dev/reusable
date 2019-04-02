@@ -43,7 +43,8 @@ namespace Reusable.OmniLog.SemanticExtensions
             [CallerLineNumber] int callerLineNumber = 0,
             [CallerFilePath] string callerFilePath = null)
         {
-            logger.Log(
+            logger.Log
+            (
                 context,
                 log =>
                 {
@@ -65,7 +66,8 @@ namespace Reusable.OmniLog.SemanticExtensions
             [CallerLineNumber] int callerLineNumber = 0,
             [CallerFilePath] string callerFilePath = null)
         {
-            logger.Log(
+            logger.Log
+            (
                 context,
                 log => { log.Message(message); },
                 callerMemberName,
@@ -83,7 +85,8 @@ namespace Reusable.OmniLog.SemanticExtensions
             [CallerLineNumber] int callerLineNumber = 0,
             [CallerFilePath] string callerFilePath = null)
         {
-            logger.Log(
+            logger.Log
+            (
                 context,
                 log => { log.Exception(exception); },
                 callerMemberName,

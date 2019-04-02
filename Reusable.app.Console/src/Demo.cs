@@ -82,6 +82,7 @@ namespace Reusable.Apps
                 // Logging some single business variable and a message.
                 logger.Log(Abstraction.Layer.Business().Variable(new { foo = "bar" }), log => log.Message("Hallo variable!"));
                 logger.Log(Abstraction.Layer.Database().Counter(new { RowCount = 7 }));
+                logger.Log(Abstraction.Layer.Database().Decision("blub").Because("bluby"));                
 
                 // Opening inner-transaction.
                 using (logger.BeginScope().WithCorrelationContext(new { Name = "InnerScope", ItemId = 456 }).AttachElapsed())
@@ -100,7 +101,7 @@ namespace Reusable.Apps
 
                     // Logging action results.
                     logger.Log(Abstraction.Layer.Infrastructure().Routine("DoSomething").Running());
-                    logger.Log(Abstraction.Layer.Infrastructure().Routine("DoSomething").Canceled(), "No connection.");
+                    logger.Log(Abstraction.Layer.Infrastructure().Routine("DoSomething").Canceled().Because("No connection."));
                     logger.Log(Abstraction.Layer.Infrastructure().Routine("DoSomething").Faulted(), new DivideByZeroException("Cannot divide."));
                 }
             }

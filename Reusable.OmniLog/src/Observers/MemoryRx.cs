@@ -27,7 +27,25 @@ namespace Reusable.OmniLog
         {
             lock (_logs)
             {
-                _logs.AddLast(log);
+                log = log.Flatten();
+                var entry = new Log
+                {
+                    ["Level"] = log.Level(),
+                    ["Logger"] = log.Name().ToString(),
+                    ["Message"] = log.Message(),
+                    ["Exception"] = log.Exception(),
+                    ["TimeStamp"] = log.Timestamp()
+                };
+
+                foreach (var item in log)
+                {
+                    if (!entry.ContainsKey(item.Key.ToString()))
+                    {
+                        entry[item.Key.ToString()] = item.Value;
+                    }
+                }
+                
+                _logs.AddLast(entry);
                 if (_logs.Count > Capacity)
                 {
                     _logs.RemoveFirst();

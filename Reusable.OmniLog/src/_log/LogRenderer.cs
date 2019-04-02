@@ -9,19 +9,19 @@ namespace Reusable.OmniLog
 {
     public static class LogRenderer
     {
-        internal static Log Render(this Log log, IEnumerable<ILogAttachment> attachements)
+        internal static Log Render(this Log log, IEnumerable<ILogAttachment> attachments)
         {
             // Recreate the log with all properties and compute them.
 
-            // Get get last added attachement. This allows us to override them within a scope.
-            attachements =
-                attachements
+            // Get get last added attachment. This allows us to override them within a scope.
+            attachments =
+                attachments
                     .Concat(LogScope.Attachments())
                     .GroupBy(a => a.Name)
                     .Select(g => g.Last());
 
-            var attachementProperties = attachements.Select(attachement => new KeyValuePair<SoftString, object>(attachement.Name, attachement));
-            var properties = log.Concat(attachementProperties);
+            var attachmentProperties = attachments.Select(attachment => new KeyValuePair<SoftString, object>(attachment.Name, attachment));
+            var properties = log.Concat(attachmentProperties);
 
             log = new Log().AddRangeSafely(properties);
             return log.Compute(log);
@@ -44,9 +44,9 @@ namespace Reusable.OmniLog
                         log[LogProperties.Message] = messageFunc();
                         break;
 
-                    // It is allowed to set the value before the attachement is computed.
-                    case ILogAttachment attachement:
-                        log[item.Key] = attachement.Compute(rawLog);
+                    // It is allowed to set the value before the attachment is computed.
+                    case ILogAttachment attachment:
+                        log[attachment.Name] = attachment.Compute(rawLog);
                         break;
 
                     default:
