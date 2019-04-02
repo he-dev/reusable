@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Reusable.OmniLog.Attachments;
 
@@ -63,6 +64,16 @@ namespace Reusable.OmniLog
             if (correlationHandle == null) throw new ArgumentNullException(nameof(correlationHandle));
 
             return scope.With(nameof(WithCorrelationHandle), correlationHandle);
+        }
+        
+        public static ILogScope WithRoutine(this ILogScope scope, string identifier)
+        {
+            return scope.With(nameof(WithRoutine), identifier);
+        }
+        
+        public static ILogScope WithCurrentRoutine(this ILogScope scope, [CallerMemberName] string identifier = null)
+        {
+            return scope.WithRoutine(identifier);
         }
     }
 }

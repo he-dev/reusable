@@ -12,7 +12,7 @@ namespace Reusable.OmniLog.SemanticExtensions
     [PublicAPI]
     public static class LoggerExtensions
     {
-        // We use context as the name and not abstractionContext because it otherwise interfers with intellisense.
+        // We use context as the name and not abstractionContext because it otherwise interferes with intellisense.
         // The name abstractionContext appears first on the list and you need to scroll to get the Abstraction.
         public static void Log<TContext>
         (
