@@ -77,16 +77,19 @@ namespace Reusable.Apps
             
                 
             // Opening outer-transaction.
-            using (logger.BeginScope().WithCorrelationHandle("Blub").WithCorrelationContext(new { Name = "OuterScope", CustomerId = 123 }).AttachElapsed())
+            using (logger.BeginScope().WithCorrelationHandle("Blub").WithRoutine("MyRoutine").WithCorrelationContext(new { Name = "OuterScope", CustomerId = 123 }).AttachElapsed())
             {
                 // Logging some single business variable and a message.
                 logger.Log(Abstraction.Layer.Business().Variable(new { foo = "bar" }), log => log.Message("Hallo variable!"));
                 logger.Log(Abstraction.Layer.Database().Counter(new { RowCount = 7 }));
-                logger.Log(Abstraction.Layer.Database().Decision("blub").Because("bluby"));                
+                logger.Log(Abstraction.Layer.Database().Decision("blub").Because("bluby"));
 
                 // Opening inner-transaction.
                 using (logger.BeginScope().WithCorrelationContext(new { Name = "InnerScope", ItemId = 456 }).AttachElapsed())
                 {
+                
+                    logger.Log(Abstraction.Layer.Infrastructure().RoutineFromScope().Running());
+                    
                     var correlationIds = logger.Scopes().CorrelationIds<string>().ToList();
                     
                     // Logging an entire object in a single line.

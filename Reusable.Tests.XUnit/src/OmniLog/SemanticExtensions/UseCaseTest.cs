@@ -6,17 +6,17 @@ using Reusable.OmniLog.Attachments;
 using Xunit;
 using Reusable.OmniLog.SemanticExtensions;
 
-namespace Reusable.Tests.XUnit.OmniLog.SemanticExtensions
+namespace Reusable.Tests.OmniLog.SemanticExtensions
 {
-    public class UseCaseTest : IDisposable
+    public class UseCaseTest2 : IDisposable
     {
         private readonly ILoggerFactory _loggerFactory;
-        
+
         private readonly ILogger _logger;
 
         private readonly MemoryRx _memoryLog;
 
-        public UseCaseTest()
+        public UseCaseTest2()
         {
             _loggerFactory =
                 new LoggerFactory()
@@ -28,7 +28,7 @@ namespace Reusable.Tests.XUnit.OmniLog.SemanticExtensions
                     .AttachElapsedMilliseconds()
                     .AddObserver(_memoryLog = new MemoryRx());
 
-            _logger = _loggerFactory.CreateLogger<UseCaseTest>();
+            _logger = _loggerFactory.CreateLogger<UseCaseTest2>();
 
             LogScope.NewCorrelationId = DefaultCorrelationId.New;
         }
@@ -39,13 +39,17 @@ namespace Reusable.Tests.XUnit.OmniLog.SemanticExtensions
             using (_logger.BeginScope().WithRoutine("TestRoutine"))
             {
                 _logger.Log(Abstraction.Layer.Infrastructure().Decision("Say hallo!").Because("Seen friend."));
-                _logger.Log(Abstraction.Layer.Infrastructure().RoutineFromScope().Running());
+
+                using (_logger.BeginScope())
+                {
+                    _logger.Log(Abstraction.Layer.Infrastructure().RoutineFromScope().Running());
+                }
 
                 var decisionLog = _memoryLog.Single(l => l["Category"].Equals("Flow") && l["Identifier"].Equals("Decision"));
-                //var routineLog = _memoryLog.Single(l => l["Category"].Equals("Routine") && l["Identifier"].Equals("TestRoutine"));
-                
+                var routineLog = _memoryLog.Single(l => l["Category"].Equals("Routine") && l["Identifier"].Equals("TestRoutine"));
+
                 Assert.Equal("\"Say hallo!\"", decisionLog["Snapshot"]);
-                //Assert.Equal("\"Running\"", routineLog["Snapshot"]);
+                Assert.Equal("\"Running\"", routineLog["Snapshot"]);
             }
         }
 

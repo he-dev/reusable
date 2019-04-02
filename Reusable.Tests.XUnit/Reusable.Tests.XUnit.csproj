@@ -49,5 +49,6 @@
     </ItemGroup>
     <ItemGroup>
       <Compile Remove="src\Commander\Integration\ExceptionTest.cs" />
+      <Compile Remove="src\OmniLog\UseCaseTest.cs" />
     </ItemGroup>
 </Project>

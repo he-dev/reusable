@@ -162,18 +162,18 @@ namespace Reusable.OmniLog.SemanticExtensions
             if (LogScope.Current is null)
             {
                 return layer.Routine($"#'{nameof(RoutineFromScope)}' used outside of a scope.");
-            }
+            }                        
 
             // Try to find routine-identifier in the scope hierarchy.
             var scope =
                 LogScope
                     .Current
                     .Flatten()
-                    .FirstOrDefault(s => s.ContainsKey(nameof(LogScopeExtensions.WithRoutine)));
+                    .FirstOrDefault(s => s.ContainsKey(nameof(Routine)));
             return
                 scope is null
                     ? layer.Routine("#Scope does not contain routine identifier.")
-                    : layer.Routine((string)scope[nameof(LogScopeExtensions.WithRoutine)]);
+                    : layer.Routine((string)scope[nameof(Routine)]);
         }
 
         public static IAbstractionContext Decision(this IAbstractionLayer layer, object description)
