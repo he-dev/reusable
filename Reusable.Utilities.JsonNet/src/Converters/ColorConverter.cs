@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Globalization;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reusable.Drawing;
-using Reusable.Extensions;
 using Reusable.FormatProviders;
 
-namespace Reusable.Utilities.JsonNet
+namespace Reusable.Utilities.JsonNet.Converters
 {
     [PublicAPI]
     public class ColorConverter : JsonConverter

@@ -27,6 +27,17 @@ namespace Reusable.OmniLog.SemanticExtensions
             return loggerFactory.Attach(new Snapshot(snapshotSerializer));
         }
 
+        public static LoggerFactory AttachSnapshot(this LoggerFactory loggerFactory, params JsonConverter[] converters)
+        {
+            return loggerFactory.AttachSnapshot(serializer =>
+            {
+                foreach (var converter in converters)
+                {
+                    serializer.Converters.Add(converter);
+                }
+            });
+        }
+
         public static LoggerFactory AttachElapsedMilliseconds(this LoggerFactory loggerFactory, string name = "Elapsed")
         {
             return loggerFactory.Attach(new ElapsedMilliseconds(name));

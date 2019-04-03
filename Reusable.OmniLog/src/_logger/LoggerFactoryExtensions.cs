@@ -3,6 +3,7 @@ using System.IO;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.OmniLog.Attachments;
+using Reusable.Utilities.JsonNet.Converters;
 
 namespace Reusable.OmniLog
 {
@@ -69,6 +70,12 @@ namespace Reusable.OmniLog
 //        {
 //            return loggerFactory.UseConfiguration(LoggerFactoryConfiguration.Load(jsonStream));
 //        }
+
+        public static LoggerFactory UseConverter<T>(this LoggerFactory loggerFactory, WriteJsonCallback<T> convert)
+        {
+            var converter = new LambdaConverter<T>(convert);
+            return loggerFactory;
+        }
 
         #endregion
     }

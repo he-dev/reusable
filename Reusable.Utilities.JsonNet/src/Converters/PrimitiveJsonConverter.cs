@@ -4,7 +4,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 
-namespace Reusable.Utilities.JsonNet
+namespace Reusable.Utilities.JsonNet.Converters
 {
     [UsedImplicitly]
     public class PrimitiveJsonConverter : JsonConverter

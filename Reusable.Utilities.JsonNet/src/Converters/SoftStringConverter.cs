@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Reusable.Utilities.JsonNet
+namespace Reusable.Utilities.JsonNet.Converters
 {
     [PublicAPI]
     public class SoftStringConverter : JsonConverter

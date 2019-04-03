@@ -16,6 +16,7 @@ using Reusable.IOnymous;
 using Reusable.OneTo1;
 using Reusable.OneTo1.Converters.Generic;
 using Reusable.SmartConfig.Reflection;
+using ColorConverter = Reusable.Utilities.JsonNet.Converters.ColorConverter;
 
 namespace Reusable.SmartConfig
 {
@@ -218,7 +219,7 @@ namespace Reusable.SmartConfig
                     Converters =
                     {
                         new StringEnumConverter(),
-                        new Reusable.Utilities.JsonNet.ColorConverter()
+                        new ColorConverter()
                     }
                 }, new[]
                 {

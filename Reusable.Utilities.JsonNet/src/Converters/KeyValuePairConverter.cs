@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace Reusable.Utilities.JsonNet
+namespace Reusable.Utilities.JsonNet.Converters
 {
     // Json.net will serialize 'IEnumerable<KeyValuePair<TKey, TValue>>' by default as { 'Key': 'key', 'Value': 'value' }
     // This converter uses the actual key/value pairs as property/value rather then serializing the container object: { 'key': 'value' }

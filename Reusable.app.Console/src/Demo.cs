@@ -10,6 +10,7 @@ using Reusable.OmniLog.Attachments;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.OneTo1;
 using Reusable.OneTo1.Converters;
+using Reusable.Utilities.JsonNet.Converters;
 using Reusable.Utilities.NLog.LayoutRenderers;
 
 //[assembly: DebuggerDisplay("{DebuggerDisplay(),nq}", Target = typeof(Person))]
@@ -63,10 +64,11 @@ namespace Reusable.Apps
                     .AttachObject("Environment", "Demo")
                     .AttachObject("Product", "Reusable.Apps.Console")
                     .AttachScope()
-                    .AttachSnapshot()
+                    .AttachSnapshot(LambdaConverter<Person>.Create(x => new { x.FirstName, x.LastName }))
                     .Attach<Timestamp<DateTimeUtc>>()
                     .AttachElapsedMilliseconds()
                     .AddObserver<NLogRx>();
+            // UseConverter<Something>(x => x.ToString());
             //.UseConfiguration(LoggerFactoryConfiguration.Load(fileProvider.GetFileInfo(@"cfg\omnilog.json").CreateReadStream()));
 
             var logger = loggerFactory.CreateLogger("Demo");
@@ -74,8 +76,7 @@ namespace Reusable.Apps
             logger.Log(Abstraction.Layer.Infrastructure().Routine("SemLogTest").Running());
             logger.Log(Abstraction.Layer.Infrastructure().Meta(new { Null = (string)null }));
 
-            
-                
+
             // Opening outer-transaction.
             using (logger.BeginScope().WithCorrelationHandle("Blub").WithRoutine("MyRoutine").WithCorrelationContext(new { Name = "OuterScope", CustomerId = 123 }).AttachElapsed())
             {
@@ -87,13 +88,21 @@ namespace Reusable.Apps
                 // Opening inner-transaction.
                 using (logger.BeginScope().WithCorrelationContext(new { Name = "InnerScope", ItemId = 456 }).AttachElapsed())
                 {
-                
                     logger.Log(Abstraction.Layer.Infrastructure().RoutineFromScope().Running());
-                    
+
                     var correlationIds = logger.Scopes().CorrelationIds<string>().ToList();
-                    
+
                     // Logging an entire object in a single line.
-                    var customer = new { FirstName = "John", LastName = "Doe" };
+                    //var customer = new { FirstName = "John", LastName = "Doe" };
+                    var customer = new Person
+                    {
+                        FirstName = "John",
+                        LastName = null,
+                        Age = 123.456,
+                        DBNullTest = DBNull.Value,
+                        GraduationYears = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 },
+                        Nicknames = { "Johny", "Doe" }
+                    };
                     logger.Log(Abstraction.Layer.Business().Variable(new { customer }));
 
                     // Logging multiple variables in a single line.
