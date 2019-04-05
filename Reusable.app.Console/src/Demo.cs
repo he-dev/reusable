@@ -64,7 +64,7 @@ namespace Reusable.Apps
                     .AttachObject("Environment", "Demo")
                     .AttachObject("Product", "Reusable.Apps.Console")
                     .AttachScope()
-                    .AttachSnapshot(LambdaConverter<Person>.Create(x => new { x.FirstName, x.LastName }))
+                    .AttachSnapshot(SimpleJsonConverter<Person>.Create(x => new { x.FirstName, x.LastName }))
                     .Attach<Timestamp<DateTimeUtc>>()
                     .AttachElapsedMilliseconds()
                     .AddObserver<NLogRx>();

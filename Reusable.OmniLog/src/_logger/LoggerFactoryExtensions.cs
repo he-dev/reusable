@@ -73,7 +73,7 @@ namespace Reusable.OmniLog
 
         public static LoggerFactory UseConverter<T>(this LoggerFactory loggerFactory, WriteJsonCallback<T> convert)
         {
-            var converter = new LambdaConverter<T>(convert);
+            var converter = new SimpleJsonConverter<T>(convert);
             return loggerFactory;
         }
 
