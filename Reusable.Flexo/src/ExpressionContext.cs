@@ -37,7 +37,8 @@ namespace Reusable.Flexo
     [PublicAPI]
     public readonly struct ExpressionContext : IExpressionContext
     {
-        [NotNull] private readonly IImmutableDictionary<SoftString, object> _data;
+        [NotNull]
+        private readonly IImmutableDictionary<SoftString, object> _data;
 
         public ExpressionContext([NotNull] IImmutableDictionary<SoftString, object> data)
         {
@@ -48,17 +49,7 @@ namespace Reusable.Flexo
                     .SetItem(CreateKey(Item.For<IExtensionContext>(), x => x.Inputs), new Stack<object>())
                     .SetItem(CreateKey(Item.For<ICollectionContext>(), x => x.Comparers), new Dictionary<SoftString, IEqualityComparer<object>>
                     {
-                        ["Default"] = EqualityComparer<object>.Default,
-                        ["SoftString"] = EqualityComparerFactory<object>.Create
-                        (
-                            equals: (left, right) => SoftString.Comparer.Equals((string)left, (string)right),
-                            getHashCode: (obj) => SoftString.Comparer.GetHashCode((string)obj)
-                        ),
-                        ["Regex"] = EqualityComparerFactory<object>.Create
-                        (
-                            equals: (left, right) => Regex.IsMatch((string)right, (string)left, RegexOptions.None),
-                            getHashCode: (obj) => 0
-                        )
+                        ["Default"] = EqualityComparer<object>.Default
                     });
         }
 
@@ -118,18 +109,16 @@ namespace Reusable.Flexo
 
         #endregion
     }
-    
+
     public interface IExtensionContext
     {
         Stack<object> Inputs { get; }
-        
     }
 
     public interface ICollectionContext
     {
         //object Item { get; }
-        
-        IDictionary<SoftString, IEqualityComparer<object>> Comparers { get; }        
+
+        IDictionary<SoftString, IEqualityComparer<object>> Comparers { get; }
     }
-    
 }

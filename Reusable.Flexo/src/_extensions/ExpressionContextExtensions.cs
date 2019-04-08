@@ -8,27 +8,29 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Newtonsoft.Json.Schema;
+using Reusable.Collections;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using linq = System.Linq.Expressions;
 
 namespace Reusable.Flexo
 {
+    [PublicAPI]
     public static class ExpressionContextExtensions
     {
-//        [CanBeNull]
-//        public static TParameter GetByCallerName<TParameter>(this IExpressionContext context, [CallerMemberName] string itemName = null)
-//        {
-//            return (TParameter)context[itemName];
-//        }
-//
-//        [NotNull]
-//        public static TExpressionContext SetByCallerName<TParameter, TExpressionContext>(this TExpressionContext context, TParameter value, [CallerMemberName] string itemName = null)
-//            where TExpressionContext : IExpressionContext
-//        {
-//            context.SetItem(itemName, value);
-//            return context;
-//        }
+        //        [CanBeNull]
+        //        public static TParameter GetByCallerName<TParameter>(this IExpressionContext context, [CallerMemberName] string itemName = null)
+        //        {
+        //            return (TParameter)context[itemName];
+        //        }
+        //
+        //        [NotNull]
+        //        public static TExpressionContext SetByCallerName<TParameter, TExpressionContext>(this TExpressionContext context, TParameter value, [CallerMemberName] string itemName = null)
+        //            where TExpressionContext : IExpressionContext
+        //        {
+        //            context.SetItem(itemName, value);
+        //            return context;
+        //        }
 
         //[NotNull]
         //public static IDisposable Scope(this IExpressionContext context, IExpression expression) => ExpressionContextScope.Push(expression, context);
@@ -82,15 +84,15 @@ namespace Reusable.Flexo
             return context.SetItem(key, value); // is IConstant constant ? constant : Constant.FromValue(key, value));
         }
 
-//        public static IExpressionContext SetItem
-//        (
-//            this IExpressionContext context,
-//            string key,
-//            object value
-//        )
-//        {
-//            return context.SetItem(key, value is IConstant constant ? constant : Constant.FromValue(key, value));
-//        }
+        //        public static IExpressionContext SetItem
+        //        (
+        //            this IExpressionContext context,
+        //            string key,
+        //            object value
+        //        )
+        //        {
+        //            return context.SetItem(key, value is IConstant constant ? constant : Constant.FromValue(key, value));
+        //        }
 
         #endregion
 
@@ -120,6 +122,30 @@ namespace Reusable.Flexo
 
         #endregion
 
+        public static IExpressionContext WithComparer(this IExpressionContext context, string name, IEqualityComparer<object> comparer)
+        {
+            context.Get(Item.For<ICollectionContext>(), x => x.Comparers).AddSafely(name, comparer);
+            return context;
+        }
+
+        public static IExpressionContext WithSoftStringComparer(this IExpressionContext context, string name, IEqualityComparer<object> comparer)
+        {
+            return context.WithComparer("SoftString", EqualityComparerFactory<object>.Create
+            (
+                equals: (left, right) => SoftString.Comparer.Equals((string)left, (string)right),
+                getHashCode: (obj) => SoftString.Comparer.GetHashCode((string)obj)
+            ));
+        }
+
+        public static IExpressionContext WithRegexComparer(this IExpressionContext context, string name, IEqualityComparer<object> comparer)
+        {
+            return context.WithComparer("Regex", EqualityComparerFactory<object>.Create
+            (
+                equals: (left, right) => Regex.IsMatch((string)right, (string)left, RegexOptions.None),
+                getHashCode: (obj) => 0
+            ));
+        }
+
         public static IEqualityComparer<object> GetComparerOrDefault(this IExpressionContext context, string name)
         {
             var comparers = context.Get(Item.For<ICollectionContext>(), x => x.Comparers);
@@ -137,7 +163,8 @@ namespace Reusable.Flexo
         }
     }
 
-    public class Item<T> { }
+    public class Item<T>
+    { }
 
     public static class Item
     {
