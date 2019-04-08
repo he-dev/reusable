@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Flexo</id>
-    <version>8.11.0</version>
+    <version>8.11.1</version>
     <title>Reusable.Flexo</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -17,8 +17,8 @@
     <dependencies>
       <dependency id="Autofac" version="4.9.1" />
       <dependency id="JetBrains.Annotations" version="2018.3.0" />
-      <dependency id="Reusable.Core" version="8.11.0" />
-      <dependency id="Reusable.Utilities.JsonNet" version="8.11.0" />
+      <dependency id="Reusable.Core" version="8.11.1" />
+      <dependency id="Reusable.Utilities.JsonNet" version="8.11.1" />
     </dependencies>
   </metadata>
   <files>

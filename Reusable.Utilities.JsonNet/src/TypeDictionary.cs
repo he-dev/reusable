@@ -46,7 +46,8 @@ namespace Reusable.Utilities.JsonNet
             return
             (
                 from type in types.Select(ValidateHasNoGenericArguments)
-                let prefix = type.GetCustomAttribute<NamespaceAttribute>()?.ToString()
+                // Pick the nearest namespace-attribute or one derived from it. 
+                let prefix = type.GetCustomAttributes<NamespaceAttribute>().FirstOrDefault()?.ToString()
                 let prettyName = type.ToPrettyString()
                 where !prettyName.IsDynamicType()
                 //from name in new[] { prettyName, type.GetCustomAttribute<AliasAttribute>()?.ToString() }
