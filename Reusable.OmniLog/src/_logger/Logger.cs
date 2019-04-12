@@ -128,7 +128,7 @@ namespace Reusable.OmniLog
             _logger = loggerFactory.CreateLogger<T>();
         }
 
-        public static ILogger<T> Null => new _Null();
+        public static ILogger<T> Null => new Noop();
 
         public SoftString Name => _logger.Name;
 
@@ -136,9 +136,9 @@ namespace Reusable.OmniLog
 
         public void Dispose() => _logger.Dispose();
 
-        private class _Null : ILogger<T>
+        private class Noop : ILogger<T>
         {
-            public _Null() => Name = "Null";
+            public Noop() => Name = "Null";
 
             public ILogger Log(ILogLevel logLevel, Action<ILog> logAction) => this;
 

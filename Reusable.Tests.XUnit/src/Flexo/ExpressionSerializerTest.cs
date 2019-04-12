@@ -7,9 +7,11 @@ using Autofac;
 using Newtonsoft.Json.Serialization;
 using Reusable.Extensions;
 using Reusable.Flexo;
+using Reusable.Flexo.DependencyInjection;
 using Reusable.IOnymous;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.DependencyInjection;
 using Reusable.Utilities.JsonNet.DependencyInjection;
 using Xunit;
 using Double = Reusable.Flexo.Double;
@@ -34,23 +36,9 @@ namespace Reusable.Tests.Flexo
         {
             var builder = new ContainerBuilder();
 
-            builder
-                .RegisterInstance(new LoggerFactory())
-                .ExternallyOwned()
-                .As<ILoggerFactory>();
-
-            builder
-                .RegisterGeneric(typeof(Logger<>))
-                .As(typeof(ILogger<>));
-
-            foreach (var type in Expression.Types)
-            {
-                builder
-                    .RegisterType(type);
-            }
-
-            builder
-                .RegisterJsonContractResolver();
+            builder.RegisterLogger(new LoggerFactory());           
+            builder.RegisterExpressions();
+            builder.RegisterJsonContractResolver();
 
             var container = builder.Build();
             var scope = container.BeginLifetimeScope();

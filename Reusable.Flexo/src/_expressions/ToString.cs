@@ -9,9 +9,7 @@ namespace Reusable.Flexo
     /// </summary>
     public class ToString : Expression<string>, IExtension<object>
     {
-        public ToString(string name) : base(name ?? nameof(ToString)) { }
-
-        internal ToString() : this(nameof(ToString)) { }
+        public ToString() : base(nameof(ToString)) { }
 
         public IExpression Value { get; set; }
 

@@ -7,7 +7,7 @@ namespace Reusable.Flexo
     /// </summary>
     public class ToDouble : Switch<bool>
     {
-        public ToDouble(string name) : base(name)
+        public ToDouble() : base(nameof(ToDouble))
         {
             Cases = new List<SwitchCase>
             {
@@ -28,12 +28,11 @@ namespace Reusable.Flexo
                 }
             };
 
-            Default = new Throw("SwitchValueOutOfRange")
+            Default = new Throw
             {
+                Name = "SwitchValueOutOfRange",
                 Message = Constant.FromValue("Message", $"{nameof(ToDouble)} value must be either 'true', 'false' or 'null'.")
             };
         }
-
-        public ToDouble() : this(nameof(ToDouble)) { }
     }
 }

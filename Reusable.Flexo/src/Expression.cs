@@ -76,8 +76,6 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.False),
             typeof(Reusable.Flexo.Collection),
             typeof(Reusable.Flexo.Select),
-            //typeof(Reusable.Flexo.SoftStringComparer),
-            //typeof(Reusable.Flexo.RegexComparer),
             typeof(Reusable.Flexo.Throw),
         };
         // ReSharper restore RedundantNameQualifier

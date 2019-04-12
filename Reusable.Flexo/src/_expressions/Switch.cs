@@ -49,7 +49,17 @@ namespace Reusable.Flexo
             }
 
 
-            return (Name, (Default ?? new Throw("SwitchValueOutOfRange") { Message = Constant.FromValue("Message", "Default value not specified.") }).Invoke(context), context);
+            return
+            (
+                Name,
+                (Default ?? new Throw
+                    {
+                        Name = "SwitchValueOutOfRange",
+                        Message = Constant.FromValue("Message", "Default value not specified.")
+                    }
+                ).Invoke(context),
+                context
+            );
         }
     }
 
