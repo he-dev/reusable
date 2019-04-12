@@ -3,29 +3,71 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Autofac;
+using Newtonsoft.Json.Serialization;
 using Reusable.Extensions;
 using Reusable.Flexo;
 using Reusable.IOnymous;
+using Reusable.OmniLog;
+using Reusable.OmniLog.Abstractions;
+using Reusable.Utilities.JsonNet.DependencyInjection;
 using Xunit;
 using Double = Reusable.Flexo.Double;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.Tests.Flexo
 {
-    public class ExpressionSerializerTest
+    public class ExpressionSerializerTest : IDisposable
     {
-        private static readonly ExpressionSerializer Serializer = new ExpressionSerializer(Enumerable.Empty<Type>());
+        //private static readonly ExpressionSerializer Serializer = new ExpressionSerializer(Enumerable.Empty<Type>(), new DefaultContractResolver());
 
         private static readonly IResourceProvider Flexo =
             EmbeddedFileProvider<ExpressionSerializerTest>
                 .Default
                 .DecorateWith(RelativeProvider.Factory(@"res\Flexo"));
 
+        private readonly IExpressionSerializer _serializer;
+
+        private readonly IDisposable _container;
+
+        public ExpressionSerializerTest()
+        {
+            var builder = new ContainerBuilder();
+
+            builder
+                .RegisterInstance(new LoggerFactory())
+                .ExternallyOwned()
+                .As<ILoggerFactory>();
+
+            builder
+                .RegisterGeneric(typeof(Logger<>))
+                .As(typeof(ILogger<>));
+
+            foreach (var type in Expression.Types)
+            {
+                builder
+                    .RegisterType(type);
+            }
+
+            builder
+                .RegisterJsonContractResolver();
+
+            var container = builder.Build();
+            var scope = container.BeginLifetimeScope();
+
+            _serializer = new ExpressionSerializer(Enumerable.Empty<Type>(), scope.Resolve<IContractResolver>());
+            _container = Disposable.Create(() =>
+            {
+                scope.Dispose();
+                container.Dispose();
+            });
+        }
+
         [Fact]
         public async Task Can_deserialize_array_of_expressions()
         {
             var flexoFile = await Flexo.ReadTextFileAsync("Array-of-expressions.json");
-            var expressions = Serializer.Deserialize<List<IExpression>>(flexoFile);
+            var expressions = _serializer.Deserialize<List<IExpression>>(flexoFile);
 
             //ExpressionAssert.Equal(Constant.True, expressions.OfType<Any>().Single());
             //ExpressionAssert.Equal(new double[] { 1, 2, 3 }, expressions.Get("CollectionMixed"));
@@ -61,9 +103,14 @@ namespace Reusable.Tests.Flexo
             var jsonFile = await Flexo.GetFileAsync(@"Single-expression.json", MimeType.Json);
             using (var jsonStream = await jsonFile.CopyToMemoryStreamAsync())
             {
-                var expression = await Serializer.DeserializeExpressionAsync(jsonStream.Rewind());
+                var expression = await _serializer.DeserializeExpressionAsync(jsonStream.Rewind());
                 Assert.NotNull(expression);
             }
+        }
+
+        public void Dispose()
+        {
+            _container.Dispose();
         }
     }
 

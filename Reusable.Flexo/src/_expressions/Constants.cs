@@ -7,11 +7,11 @@ namespace Reusable.Flexo
 {
     public class Double : Constant<double>
     {
-        public Double(string name, double value) : base(name ?? nameof(Double), value) { }
+        public Double() : base(nameof(Double), default) { }
 
-        public static readonly Double Zero = new Double(nameof(Zero), 0.0);
+        public static readonly Constant<double> Zero = new Double { Name = nameof(Zero), Value = 0.0 };
 
-        public static readonly Double One = new Double(nameof(One), 1.0);
+        public static readonly Constant<double> One = new Double { Name = nameof(One), Value = 1.0 };
     }
 
     public class Integer : Constant<int>
@@ -44,13 +44,12 @@ namespace Reusable.Flexo
 
     public class True : Constant<bool>
     {
-        [JsonConstructor]
-        public True(string name) : base(name ?? nameof(True), true) { }
+        public True() : base(nameof(True), true) { }
     }
 
     public class False : Constant<bool>
     {
-        public False(string name) : base(name ?? nameof(False), false) { }
+        public False() : base(nameof(False), false) { }
     }
 
     public class String : Constant<string>
@@ -67,8 +66,7 @@ namespace Reusable.Flexo
                 format is null
                     ? System.DateTime.Parse(value)
                     : System.DateTime.ParseExact(value, format, CultureInfo.InvariantCulture)
-            )
-        { }
+            ) { }
     }
 
     public class TimeSpan : Constant<System.TimeSpan>
@@ -80,7 +78,6 @@ namespace Reusable.Flexo
                 format is null
                     ? System.TimeSpan.Parse(value)
                     : System.TimeSpan.ParseExact(value, format, CultureInfo.InvariantCulture)
-            )
-        { }
+            ) { }
     }
 }

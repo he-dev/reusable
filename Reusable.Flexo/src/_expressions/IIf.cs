@@ -1,12 +1,15 @@
 ﻿using System;
 using Newtonsoft.Json;
+using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
     // ReSharper disable once InconsistentNaming - we want this name!
     public class IIf : Expression<object>, IExtension<bool>
     {
-        public IIf() : base(nameof(IIf)) { }
+        public IIf(ILogger<IIf> logger) : base(logger, nameof(IIf)) { }        
+        
+        //public IIf() : base(nameof(IIf)) { }
 
         [JsonRequired]
         public IExpression Predicate { get; set; }

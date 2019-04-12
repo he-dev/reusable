@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Xml.Schema;
 using JetBrains.Annotations;
 using Reusable.OmniLog;
+using Reusable.OmniLog.Abstractions;
 using Reusable.Reflection;
 using Reusable.OmniLog.SemanticExtensions;
 

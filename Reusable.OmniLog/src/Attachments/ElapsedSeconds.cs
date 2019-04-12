@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.Attachments
 {

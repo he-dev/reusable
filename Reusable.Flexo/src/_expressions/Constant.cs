@@ -16,7 +16,7 @@ namespace Reusable.Flexo
         [AutoEqualityProperty]
         [CanBeNull]
         object Value { get; }
-        
+
         [NotNull]
         IExpressionContext Context { get; }
     }
@@ -38,9 +38,8 @@ namespace Reusable.Flexo
         object IConstant.Value => Value;
 
         [AutoEqualityProperty]
-        [CanBeNull]
-        public TValue Value { get; }
-        
+        public TValue Value { get; set; }
+
         public IExpressionContext Context { get; }
 
         protected override Constant<TValue> InvokeCore(IExpressionContext context)
@@ -60,9 +59,9 @@ namespace Reusable.Flexo
         public override string ToString() => $"{Name.ToString()}: '{Value}'";
 
         public static implicit operator Constant<TValue>((SoftString Name, TValue Value) t) => new Constant<TValue>(t.Name, t.Value, ExpressionContext.Empty);
-        
+
         public static implicit operator Constant<TValue>((SoftString Name, TValue Value, IExpressionContext Context) t) => new Constant<TValue>(t.Name, t.Value, t.Context);
-        
+
         //public static implicit operator Constant<ExpressionResult<TValue>>((string Name, ExpressionResult<TValue> Result) t) => new Constant<ExpressionResult<TValue>>(t.Name, t.Result);
 
         public static implicit operator TValue(Constant<TValue> constant) => constant.Value;
@@ -99,7 +98,7 @@ namespace Reusable.Flexo
         public static Constant<TValue> FromValue<TValue>(SoftString name, TValue value, IExpressionContext context = default)
         {
             return new Constant<TValue>(name, value, context ?? ExpressionContext.Empty);
-        }        
+        }
 
         [NotNull]
         public static Constant<TValue> Create<TValue>(TValue value)
@@ -125,9 +124,9 @@ namespace Reusable.Flexo
 
         //[NotNull] public static readonly IExpression One = new One(nameof(One));
 
-        [NotNull] public static readonly IExpression True = new True(nameof(True));
+        [NotNull] public static readonly IExpression True = FromValue(nameof(True), true);
 
-        [NotNull] public static readonly IExpression False = new False(nameof(False));
+        [NotNull] public static readonly IExpression False = FromValue(nameof(False), false);
 
         [NotNull] public static readonly IExpression EmptyString = FromValue(nameof(EmptyString), string.Empty);
 

@@ -5,36 +5,23 @@ using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Diagnostics;
 using Reusable.OmniLog;
+using Reusable.OmniLog.Abstractions;
 
-[assembly: DebuggerDisplay("{DebuggerDisplay(),nq}", Target = typeof(Logger))]
+[assembly: DebuggerDisplay("{DebuggerDisplay(),nq}", Target = typeof(ILogger))]
 
 namespace Reusable.OmniLog
 {
-    public delegate bool LogPredicate(Log log);
+    public delegate bool LogPredicate(ILog log);
 
-    /// <inheritdoc />
-    /// <summary>
-    /// The base interface for all loggers. The disposable interface can be used to unsubscribe any observers from the logger. It doesn't use any resources so dispose is optional.
-    /// </summary>
-    public interface ILogger : IDisposable
+    public class Logger : ILogger, IObservable<ILog>, IEquatable<ILogger>
     {
-        [AutoEqualityProperty]
-        SoftString Name { get; }
-
-        [NotNull]
-        ILogger Log([NotNull] LogLevel logLevel, [NotNull] Action<Log> logAction);
-    }
-
-
-    public class Logger : ILogger, IObservable<Log>, IEquatable<ILogger>
-    {
-        public static readonly IEnumerable<LogLevel> LogLevels;
+        public static readonly IEnumerable<ILogLevel> LogLevels;
 
         private bool _disposed;
         private readonly SoftString _name;
         private readonly LogPredicate _logPredicate;
         private readonly Action _dispose;
-        private readonly ISet<IObserver<Log>> _observers;
+        private readonly ISet<IObserver<ILog>> _observers;
 
         static Logger()
         {
@@ -55,7 +42,7 @@ namespace Reusable.OmniLog
             _logPredicate = logPredicate;
             _dispose = dispose;
 
-            _observers = new HashSet<IObserver<Log>>();
+            _observers = new HashSet<IObserver<ILog>>();
         }
 
         private string DebuggerDisplay() => this.ToDebuggerDisplayString(builder =>
@@ -70,7 +57,7 @@ namespace Reusable.OmniLog
 
         public SoftString Name => _name;
 
-        public ILogger Log(LogLevel logLevel, Action<Log> logAction)
+        public ILogger Log(ILogLevel logLevel, Action<ILog> logAction)
         {
             if (logLevel == null) throw new ArgumentNullException(nameof(logLevel));
             if (logAction == null) throw new ArgumentNullException(nameof(logAction));
@@ -109,7 +96,7 @@ namespace Reusable.OmniLog
 
         #region IObservable<Log>
 
-        public IDisposable Subscribe(IObserver<Log> observer)
+        public IDisposable Subscribe(IObserver<ILog> observer)
         {
             return
                 _observers.Add(observer)
@@ -132,9 +119,6 @@ namespace Reusable.OmniLog
         }
     }
 
-    // ReSharper disable once UnusedTypeParameter - it is used by Autofac
-    public interface ILogger<T> : ILogger { }
-
     public class Logger<T> : ILogger<T>
     {
         private readonly ILogger _logger;
@@ -144,10 +128,23 @@ namespace Reusable.OmniLog
             _logger = loggerFactory.CreateLogger<T>();
         }
 
+        public static ILogger<T> Null => new _Null();
+
         public SoftString Name => _logger.Name;
 
-        public ILogger Log(LogLevel logLevel, Action<Log> logAction) => _logger.Log(logLevel, logAction);
+        public ILogger Log(ILogLevel logLevel, Action<ILog> logAction) => _logger.Log(logLevel, logAction);
 
         public void Dispose() => _logger.Dispose();
+
+        private class _Null : ILogger<T>
+        {
+            public _Null() => Name = "Null";
+
+            public ILogger Log(ILogLevel logLevel, Action<ILog> logAction) => this;
+
+            public SoftString Name { get; }
+
+            public void Dispose() { }
+        }
     }
 }

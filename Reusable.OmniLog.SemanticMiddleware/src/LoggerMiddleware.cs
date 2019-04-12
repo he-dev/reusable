@@ -4,6 +4,7 @@ using System.Linq.Custom;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
+using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.SemanticExtensions;
 
 namespace Reusable.OmniLog

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Reusable.OmniLog;
+using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Attachments;
 using Xunit;
 using Reusable.OmniLog.SemanticExtensions;

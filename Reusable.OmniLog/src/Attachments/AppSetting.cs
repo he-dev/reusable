@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.Attachments
 {

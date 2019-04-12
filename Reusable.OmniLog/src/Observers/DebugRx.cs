@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reactive;
+using Reusable.OmniLog.Abstractions;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.OmniLog
@@ -9,7 +10,7 @@ namespace Reusable.OmniLog
     {
         private DebugRx() { }
 
-        protected override void Log(Log log)
+        protected override void Log(ILog log)
         {
             Debug.WriteLine(log);
         }

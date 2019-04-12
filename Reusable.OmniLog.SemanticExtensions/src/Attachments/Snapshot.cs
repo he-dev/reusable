@@ -1,4 +1,6 @@
-﻿namespace Reusable.OmniLog.SemanticExtensions.Attachments
+﻿using Reusable.OmniLog.Abstractions;
+
+namespace Reusable.OmniLog.SemanticExtensions.Attachments
 {
     public class Snapshot : LogAttachment
     {

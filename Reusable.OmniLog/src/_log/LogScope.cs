@@ -7,20 +7,16 @@ using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Diagnostics;
 using Reusable.Exceptionize;
+using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog
 {
-    public interface ILogScope : ILog, IDisposable
-    {
-        int Depth { get; }
-    }
-
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class LogScope : Log, ILogScope
     {
         // ReSharper disable once InconsistentNaming - This cannot be renamed because it'd conflict with the property that has the same name.
         private static readonly AsyncLocal<LogScope> _current = new AsyncLocal<LogScope>();
-        
+
         private static Func<object> _nextCorrelationId;
 
         static LogScope()
@@ -65,7 +61,7 @@ namespace Reusable.OmniLog
 
         public static IEnumerable<ILogAttachment> Attachments()
         {
-            return 
+            return
                 Current
                     .Flatten()
                     .SelectMany(scope => scope.Values)

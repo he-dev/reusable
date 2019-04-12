@@ -19,6 +19,7 @@ using Reusable.Commander.Commands;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog;
+using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.Reflection;
 

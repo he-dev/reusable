@@ -128,7 +128,7 @@ namespace Reusable.Flexo
             return context;
         }
 
-        public static IExpressionContext WithSoftStringComparer(this IExpressionContext context, string name, IEqualityComparer<object> comparer)
+        public static IExpressionContext WithSoftStringComparer(this IExpressionContext context)
         {
             return context.WithComparer("SoftString", EqualityComparerFactory<object>.Create
             (
@@ -137,7 +137,7 @@ namespace Reusable.Flexo
             ));
         }
 
-        public static IExpressionContext WithRegexComparer(this IExpressionContext context, string name, IEqualityComparer<object> comparer)
+        public static IExpressionContext WithRegexComparer(this IExpressionContext context)
         {
             return context.WithComparer("Regex", EqualityComparerFactory<object>.Create
             (

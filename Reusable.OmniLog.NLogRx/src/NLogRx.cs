@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reactive;
 using Reusable.Collections;
 using Reusable.Extensions;
+using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog
 {
@@ -22,12 +23,12 @@ namespace Reusable.OmniLog
             [LogLevel.Fatal] = NLog.LogLevel.Fatal,
         };
 
-        protected override void Log(Log log)
+        protected override void Log(ILog log)
         {
             GetLogger(log.Name()).Log(CreateLogEventInfo(log));
         }
 
-        private static NLog.LogEventInfo CreateLogEventInfo(Log log)
+        private static NLog.LogEventInfo CreateLogEventInfo(ILog log)
         {
             log = log.Flatten();
             var logEventInfo = new NLog.LogEventInfo

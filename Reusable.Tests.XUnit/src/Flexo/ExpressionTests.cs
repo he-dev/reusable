@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Serialization;
 using Reusable.Flexo;
+using Reusable.OmniLog;
 using Xunit;
 using Double = Reusable.Flexo.Double;
 
@@ -14,18 +15,18 @@ namespace Reusable.Tests.Flexo
     public class ExpressionTest
     {
         [Fact]
-        public void All_returns_True_when_all_True() => Equal(true, new All { Values = Constant.CreateMany(true, true, true).ToList() });
+        public void All_returns_True_when_all_True() => Equal(true, new All(Logger<All>.Null) { Values = Constant.CreateMany(true, true, true).ToList() });
 
         [Fact]
-        public void All_returns_False_when_some_False() => Equal(false, new All { Values = Constant.CreateMany(true, false, true).ToList() });
+        public void All_returns_False_when_some_False() => Equal(false, new All(Logger<All>.Null) { Values = Constant.CreateMany(true, false, true).ToList() });
 
         [Fact]
-        public void All_returns_False_when_all_False() => Equal(false, new All { Values = Constant.CreateMany(false, false, false).ToList() });
+        public void All_returns_False_when_all_False() => Equal(false, new All(Logger<All>.Null) { Values = Constant.CreateMany(false, false, false).ToList() });
 
         [Fact]
         public void All_flows_all_contexts()
         {
-            var actual = new All
+            var actual = new All(Logger<All>.Null)
             {
                 Values =
                 {
@@ -40,15 +41,15 @@ namespace Reusable.Tests.Flexo
         }
 
         [Fact]
-        public void Any_returns_True_when_some_True() => Equal(true, new Any { Values = Constant.CreateMany(false, false, true).ToList() });
+        public void Any_returns_True_when_some_True() => Equal(true, new Any(Logger<Any>.Null) { Values = Constant.CreateMany(false, false, true).ToList() });
 
         [Fact]
-        public void Any_returns_False_when_all_False() => Equal(false, new Any { Values = Constant.CreateMany(false, false, false).ToList() });
+        public void Any_returns_False_when_all_False() => Equal(false, new Any(Logger<Any>.Null) { Values = Constant.CreateMany(false, false, false).ToList() });
 
         [Fact]
         public void Any_flows_True_context()
         {
-            var actual = new Any
+            var actual = new Any(Logger<Any>.Null)
             {
                 Values =
                 {
@@ -63,7 +64,7 @@ namespace Reusable.Tests.Flexo
         }
 
         [Fact]
-        public void IIf_invokes_True_when_True() => Equal("foo", new IIf
+        public void IIf_invokes_True_when_True() => Equal("foo", new IIf(Logger<IIf>.Null)
         {
             Predicate = Constant.Create(true),
             True = Constant.Create("foo"),
@@ -71,7 +72,7 @@ namespace Reusable.Tests.Flexo
         });
 
         [Fact]
-        public void IIf_invokes_False_when_False() => Equal("bar", new IIf
+        public void IIf_invokes_False_when_False() => Equal("bar", new IIf(Logger<IIf>.Null)
         {
             Predicate = Constant.Create(false),
             True = Constant.Create("foo"),
@@ -81,18 +82,18 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void IIf_throws_when_no_result_specified()
         {
-            Assert.Throws<InvalidOperationException>(() => new IIf { Predicate = Constant.Create(false) }.Invoke(ExpressionContext.Empty));
+            Assert.Throws<InvalidOperationException>(() => new IIf(Logger<IIf>.Null) { Predicate = Constant.Create(false) }.Invoke(ExpressionContext.Empty));
         }
 
         [Fact]
-        public void IIf_returns_null_constant_when_True_not_specified() => Equal(Constant.Null, new IIf
+        public void IIf_returns_null_constant_when_True_not_specified() => Equal(Constant.Null, new IIf(Logger<IIf>.Null)
         {
             Predicate = Constant.True,
             False = Double.Zero
         });
 
         [Fact]
-        public void IIf_returns_null_constant_when_False_not_specified() => Equal(Constant.Null, new IIf
+        public void IIf_returns_null_constant_when_False_not_specified() => Equal(Constant.Null, new IIf(Logger<IIf>.Null)
         {
             Predicate = Constant.False,
             True = Double.One,
@@ -101,7 +102,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void IIf_flows_context_to_True_when_Predicate_True()
         {
-            var actual = new IIf
+            var actual = new IIf(Logger<IIf>.Null)
             {
                 Predicate = Constant.True,
                 True = LambdaExpression.Double(context => (1.0, context.SetItem("x", (int)context["x"] + 1))),
@@ -115,7 +116,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void IIf_does_not_flow_context_to_False_when_Predicate_False()
         {
-            var actual = new IIf
+            var actual = new IIf(Logger<IIf>.Null)
             {
                 Predicate = Constant.False,
                 True = LambdaExpression.Double(context => (1.0, context.SetItem("x", (int)context["x"] + 1))),
@@ -136,94 +137,94 @@ namespace Reusable.Tests.Flexo
         public void Sum_returns_Sum() => Equal(6.0, new Sum { Values = Constant.CreateMany(2.0, 3.0, 1.0).ToList() });
 
         [Fact]
-        public void IsEqual_returns_True_when_Input_equal_Value() => Equal(true, new IsEqual
+        public void IsEqual_returns_True_when_Input_equal_Value() => Equal(true, new IsEqual(Logger<IsEqual>.Null)
         {
             Value = Constant.Create("foo"),
         }, ExpressionContext.Empty.PushExtensionInput("foo"));
         
         [Fact]
-        public void IsEqual_returns_False_when_Input_not_equal_Value() => Equal(false, new IsEqual
+        public void IsEqual_returns_False_when_Input_not_equal_Value() => Equal(false, new IsEqual(Logger<IsEqual>.Null)
         {
             Value = Constant.Create("foo"),
         }, ExpressionContext.Empty.PushExtensionInput("bar"));
 
         [Fact]
-        public void IsGreaterThan_returns_True_when_Input_GreaterThan_Value() => Equal(true, new IsGreaterThan
+        public void IsGreaterThan_returns_True_when_Input_GreaterThan_Value() => Equal(true, new IsGreaterThan(Logger<IsGreaterThan>.Null)
         {
             Value = Constant.Create(2.0),
         }, ExpressionContext.Empty.PushExtensionInput(3.0));
 
         [Fact]
-        public void IsGreaterThan_returns_False_when_Input_LessThan_Value() => Equal(false, new IsGreaterThan
+        public void IsGreaterThan_returns_False_when_Input_LessThan_Value() => Equal(false, new IsGreaterThan(Logger<IsGreaterThan>.Null)
         {
             Value = Constant.Create(3.0),
         }, ExpressionContext.Empty.PushExtensionInput(2.0));
 
         [Fact]
-        public void GreaterThan_ReturnsFalseWhenLeftEqualsRight() => Equal(false, new IsGreaterThan
+        public void GreaterThan_ReturnsFalseWhenLeftEqualsRight() => Equal(false, new IsGreaterThan(Logger<IsGreaterThan>.Null)
         {
             Value = Constant.Create(2.0),
         }, ExpressionContext.Empty.PushExtensionInput(2.0));
 
         [Fact]
-        public void GreaterThanOrEqual_ReturnsTrueWhenLeftGreaterThanRight() => Equal(true, new IsGreaterThanOrEqual
+        public void GreaterThanOrEqual_ReturnsTrueWhenLeftGreaterThanRight() => Equal(true, new IsGreaterThanOrEqual(Logger<IsGreaterThanOrEqual>.Null)
         {
             Value = Constant.Create(2.0),
         }, ExpressionContext.Empty.PushExtensionInput(3.0));
 
         [Fact]
-        public void GreaterThanOrEqual_ReturnsTrueWhenLeftEqualsRight() => Equal(true, new IsGreaterThanOrEqual
+        public void GreaterThanOrEqual_ReturnsTrueWhenLeftEqualsRight() => Equal(true, new IsGreaterThanOrEqual(Logger<IsGreaterThanOrEqual>.Null)
         {
             Value = Constant.Create(3.0),
         }, ExpressionContext.Empty.PushExtensionInput(3.0));
 
         [Fact]
-        public void GreaterThanOrEqual_ReturnsFalseWhenLeftLessThanRight() => Equal(false, new IsGreaterThanOrEqual
+        public void GreaterThanOrEqual_ReturnsFalseWhenLeftLessThanRight() => Equal(false, new IsGreaterThanOrEqual(Logger<IsGreaterThanOrEqual>.Null)
         {
             Value = Constant.Create(3.0),
         }, ExpressionContext.Empty.PushExtensionInput(2.0));
 
         [Fact]
-        public void LessThan_ReturnsTrueWhenLeftLessThanRight() => Equal(true, new IsLessThan
+        public void LessThan_ReturnsTrueWhenLeftLessThanRight() => Equal(true, new IsLessThan(Logger<IsLessThan>.Null)
         {
             Value = Constant.Create(3.0),
         }, ExpressionContext.Empty.PushExtensionInput(2.0));
 
         [Fact]
-        public void LessThan_ReturnsFalseWhenLeftEqualsRight() => Equal(false, new IsLessThan
+        public void LessThan_ReturnsFalseWhenLeftEqualsRight() => Equal(false, new IsLessThan(Logger<IsLessThan>.Null)
         {
             Value = Constant.Create(3.0),
         }, ExpressionContext.Empty.PushExtensionInput(3.0));
 
         [Fact]
-        public void LessThan_ReturnsFalseWhenLeftGreaterThanRight() => Equal(false, new IsLessThan
+        public void LessThan_ReturnsFalseWhenLeftGreaterThanRight() => Equal(false, new IsLessThan(Logger<IsLessThan>.Null)
         {
             Value = Constant.Create(2.0),
         }, ExpressionContext.Empty.PushExtensionInput(3.0));
 
         [Fact]
-        public void LessThanOrEqual_ReturnsTrueWhenLeftLessThanRight() => Equal(true, new IsLessThanOrEqual
+        public void LessThanOrEqual_ReturnsTrueWhenLeftLessThanRight() => Equal(true, new IsLessThanOrEqual(Logger<IsLessThanOrEqual>.Null)
         {
             Value = Constant.Create(3.0),
         }, ExpressionContext.Empty.PushExtensionInput(2.0));
 
         [Fact]
-        public void LessThanOrEqual_ReturnsTrueWhenLeftEqualsRight() => Equal(true, new IsLessThanOrEqual
+        public void LessThanOrEqual_ReturnsTrueWhenLeftEqualsRight() => Equal(true, new IsLessThanOrEqual(Logger<IsLessThanOrEqual>.Null)
         {
             Value = Constant.Create(3.0),
         }, ExpressionContext.Empty.PushExtensionInput(3.0));
 
         [Fact]
-        public void LessThanOrEqual_ReturnsFalseWhenLeftGreaterThanRight() => Equal(false, new IsLessThanOrEqual
+        public void LessThanOrEqual_ReturnsFalseWhenLeftGreaterThanRight() => Equal(false, new IsLessThanOrEqual(Logger<IsLessThanOrEqual>.Null)
         {
             Value = Constant.Create(2.0),
         }, ExpressionContext.Empty.PushExtensionInput(3.0));
 
         [Fact]
-        public void Not_returns_True_when_False() => Equal(false, new Not { Value = Constant.True });
+        public void Not_returns_True_when_False() => Equal(false, new Not(Logger<Not>.Null) { Value = Constant.True });
 
         [Fact]
-        public void Not_returns_False_when_True() => Equal(false, new Not { Value = Constant.True });
+        public void Not_returns_False_when_True() => Equal(false, new Not(Logger<Not>.Null) { Value = Constant.True });
 
         [Fact]
         public void ToDouble_maps_True_to_One() => Equal(1.0, new ToDouble { Value = Constant.True });
@@ -283,7 +284,7 @@ namespace Reusable.Tests.Flexo
                 {
                     new SwitchCase
                     {
-                        When = new Contains
+                        When = new Contains(Logger<Contains>.Null)
                         {
                             Values = Constant.CreateMany("foo", "bar").ToList(),
                             Value = new GetContextItem
@@ -323,7 +324,7 @@ namespace Reusable.Tests.Flexo
                         Body = Constant.False
                     }
                 },
-                Default = new Double("Actual", 2.0)
+                Default = new Constant<double>("Actual", 2.0)
             };
 
             Equal(2.0, s);
@@ -332,7 +333,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void Contains_returns_True_when_contains_value()
         {
-            Equal(true, new Contains
+            Equal(true, new Contains(Logger<Contains>.Null)
             {
                 Values = Constant.CreateMany("foo", "bar").ToList(),
                 Value = Constant.FromValue("blub", "bar")
@@ -345,7 +346,7 @@ namespace Reusable.Tests.Flexo
             Equal
             (
                 true,
-                new Contains
+                new Contains(Logger<Contains>.Null)
                 {
                     Values = Constant.CreateMany("foo", "BAR").ToList(),
                     Value = Constant.FromValue("Value", "bar"),
@@ -357,7 +358,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void Matches_return_True_when_Pattern_matches()
         {
-            Equal(true, new Matches { IgnoreCase = true, Value = Constant.FromValue("Value", "Hallo"), Pattern = Constant.FromValue("Pattern", "hallo") });
+            Equal(true, new Matches(Logger<Matches>.Null) { IgnoreCase = true, Value = Constant.FromValue("Value", "Hallo"), Pattern = Constant.FromValue("Pattern", "hallo") });
         }
 
         [Fact]

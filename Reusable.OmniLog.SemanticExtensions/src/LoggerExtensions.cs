@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using Reusable.OmniLog.Abstractions;
 
 // ReSharper disable ExplicitCallerInfoArgument - yes, we want to explicity set it via overloads.
 
@@ -18,7 +19,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         (
             this ILogger logger,
             TContext context,
-            Action<Log> configureLog = null,
+            Action<ILog> configureLog = null,
             [CallerMemberName] string callerMemberName = null,
             [CallerLineNumber] int callerLineNumber = 0,
             [CallerFilePath] string callerFilePath = null

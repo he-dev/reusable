@@ -1,6 +1,7 @@
 ﻿using System;
 using Reusable.MarkupBuilder;
 using Reusable.MarkupBuilder.Html;
+using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog
 {

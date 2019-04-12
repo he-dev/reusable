@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reactive;
 using System.Reactive.Disposables;
+using Reusable.OmniLog.Abstractions;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.OmniLog
@@ -18,7 +19,7 @@ namespace Reusable.OmniLog
             [LogLevel.Fatal] = ConsoleColor.Red,
         };
 
-        protected override void Log(Log log)
+        protected override void Log(ILog log)
         {
             using (Disposable.Create(Console.ResetColor))
             {

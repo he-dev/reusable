@@ -8,27 +8,43 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Extensions;
+using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog
 {
+    [PublicAPI]
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    public sealed class LogLevel : IEquatable<LogLevel>, IComparable<LogLevel>, IComparable
+    public sealed class LogLevel : IEquatable<LogLevel>, IComparable<LogLevel>, IComparable, ILogLevel
     {
         private static readonly LogLevelComparer Comparer = new LogLevelComparer();
 
         // These two need to be lazy or otherwise we cannot initialize LogLevels from Logger - it'll lock.
 
-        private static readonly Lazy<IDictionary<SoftString, LogLevel>> NameMap;
+        private static readonly Lazy<IDictionary<SoftString, ILogLevel>> NameMap;
 
-        private static readonly Lazy<IDictionary<int, LogLevel>> FlagMap;
+        private static readonly Lazy<IDictionary<int, ILogLevel>> FlagMap;
 
         static LogLevel()
         {
             // Since the field LogLevels is defined on the Logger we cannot use field initializers for the maps here
             // because they are initialized in the wrong order and an type initialization exception is thrown.
 
-            NameMap = new Lazy<IDictionary<SoftString, LogLevel>>(() => Logger.LogLevels.Select(ll => (Key: ll.Name, Value: ll)).ToDictionary(x => x.Key, x => x.Value));
-            FlagMap = new Lazy<IDictionary<int, LogLevel>>(() => Logger.LogLevels.Select(ll => (Key: ll.Flag, Value: ll)).ToDictionary(x => x.Key, x => x.Value));
+            NameMap = new Lazy<IDictionary<SoftString, ILogLevel>>
+            (
+                () =>
+                    Logger
+                        .LogLevels
+                        .Select(ll => (Key: ll.Name, Value: ll))
+                        .ToDictionary(x => x.Key, x => x.Value)
+            );
+            FlagMap = new Lazy<IDictionary<int, ILogLevel>>
+            (
+                () =>
+                    Logger
+                        .LogLevels
+                        .Select(ll => (Key: ll.Flag, Value: ll))
+                        .ToDictionary(x => x.Key, x => x.Value)
+            );
         }
 
         private LogLevel(SoftString name, int flag)
@@ -65,8 +81,8 @@ namespace Reusable.OmniLog
                     .Cast<Match>()
                     .Select(m => m.Value)
                     // We can safely read the values form the dictionary 
-                    // because the regex already took care of the names so only have valid ones.
-                    .Aggregate(None, (logLevel, name) => logLevel | NameMap.Value[name]);
+                    // because the regex already took care of the names so we only have valid ones.
+                    .Aggregate(None, (logLevel, name) => logLevel | (LogLevel)NameMap.Value[name]);
         }
 
         public static LogLevel FromFlags(int value)
@@ -75,10 +91,10 @@ namespace Reusable.OmniLog
                 Logger
                     .LogLevels
                     .Where(logLevel => logLevel.Contains(value))
-                    .Aggregate(None, (logLevel, next) => logLevel | next);
+                    .Aggregate(None, (logLevel, next) => logLevel | (LogLevel)next);
         }
 
-        public bool Contains(LogLevel other) => (Flag & other.Flag) == other.Flag;
+        public bool Contains(ILogLevel other) => (Flag & other.Flag) == other.Flag;
 
         public bool Contains(int flags) => (Flag & flags) == flags;
 

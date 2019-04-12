@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Attachments;
 
 namespace Reusable.OmniLog

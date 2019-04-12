@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
+using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.SemanticExtensions.Attachments;
 using Reusable.Reflection;
 
@@ -20,7 +21,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// <summary>
         /// Logs this context. This method supports the Framework infrastructure and is not intended to be used directly in your code.
         /// </summary>
-        void Log(ILogger logger, Action<Log> configureLog);
+        void Log(ILogger logger, Action<ILog> configureLog);
     }
 
     public static class AbstractionProperties
@@ -40,6 +41,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             [nameof(AbstractionExtensions.Business)] = LogLevel.Information,
             [nameof(AbstractionExtensions.Infrastructure)] = LogLevel.Debug,
+            [nameof(AbstractionExtensions.Service)] = LogLevel.Debug,
             [nameof(AbstractionExtensions.Presentation)] = LogLevel.Trace,
             [nameof(AbstractionExtensions.IO)] = LogLevel.Trace,
             [nameof(AbstractionExtensions.Database)] = LogLevel.Trace,
@@ -92,7 +94,7 @@ namespace Reusable.OmniLog.SemanticExtensions
             return new AbstractionContext((_values ?? ImmutableDictionary<string, object>.Empty).Add(name, value));
         }
 
-        public void Log(ILogger logger, Action<Log> configureLog)
+        public void Log(ILogger logger, Action<ILog> configureLog)
         {
             // In some cases Snapshot can already have an Identifier. If this is the case then use this one instead of enumerating its properties.
             var snapshotProperties =

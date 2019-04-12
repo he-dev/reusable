@@ -6,6 +6,7 @@ using Autofac;
 using Reusable.Commander;
 using Reusable.Commander.Commands;
 using Reusable.OmniLog;
+using Reusable.OmniLog.Abstractions;
 using IContainer = Autofac.IContainer;
 
 namespace Reusable.Tests.Commander.Integration

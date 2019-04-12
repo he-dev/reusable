@@ -3,12 +3,13 @@ using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
+using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
     public class Matches : PredicateExpression, IExtension<string>
     {
-        public Matches() : base(nameof(Matches)) { }
+        public Matches(ILogger<Matches> logger) : base(logger, nameof(Matches)) { }
 
         public bool IgnoreCase { get; set; } = true;
 

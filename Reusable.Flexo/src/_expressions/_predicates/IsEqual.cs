@@ -1,15 +1,14 @@
 using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Reusable.OmniLog.Abstractions;
 using Reusable.Utilities.JsonNet.Annotations;
 
 namespace Reusable.Flexo
 {
     public class IsEqual : PredicateExpression, IExtension<object>
     {
-        public IsEqual(string name) : base(name ?? nameof(IsEqual)) { }
-
-        internal IsEqual() : this(nameof(IsEqual)) { }
+        public IsEqual(ILogger<IsEqual> logger) : base(logger, nameof(IsEqual)) { }
 
         [JsonRequired]
         public IExpression Value { get; set; }

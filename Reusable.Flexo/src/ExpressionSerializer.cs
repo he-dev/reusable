@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 using Reusable.Utilities.JsonNet;
 
 namespace Reusable.Flexo
@@ -26,7 +27,14 @@ namespace Reusable.Flexo
 
         private readonly JsonSerializer _jsonSerializer;
 
-        public ExpressionSerializer([NotNull] IEnumerable<Type> customTypes, [CanBeNull] Action<JsonSerializer> configureSerializer = null)
+        public delegate IExpressionSerializer Factory([NotNull] IEnumerable<Type> customTypes, [CanBeNull] Action<JsonSerializer> configureSerializer = null);
+
+        public ExpressionSerializer
+        (
+            [NotNull] IEnumerable<Type> customTypes,
+            [NotNull] IContractResolver contractResolver,
+            [CanBeNull] Action<JsonSerializer> configureSerializer = null
+        )
         {
             if (customTypes == null) throw new ArgumentNullException(nameof(customTypes));
             var types =
@@ -46,7 +54,7 @@ namespace Reusable.Flexo
                 NullValueHandling = NullValueHandling.Ignore,
                 TypeNameHandling = TypeNameHandling.Auto,
                 //DefaultValueHandling = DefaultValueHandling.Ignore,
-                //ContractResolver = contractResolver,
+                ContractResolver = contractResolver,
                 Converters =
                 {
                     //new ExpressionConverter(),
@@ -56,6 +64,37 @@ namespace Reusable.Flexo
 
             configureSerializer?.Invoke(_jsonSerializer);
         }
+
+//        public ExpressionSerializer([NotNull] IEnumerable<Type> customTypes, [CanBeNull] Action<JsonSerializer> configureSerializer = null)       
+//        {
+//            if (customTypes == null) throw new ArgumentNullException(nameof(customTypes));
+//            var types =
+//                TypeDictionary
+//                    .BuiltInTypes
+//                    .AddRange(TypeDictionary.From(Expression.Types))
+//                    .AddRange(TypeDictionary.From(customTypes));
+//
+//            _transform =
+//                CompositeJsonVisitor
+//                    .Empty
+//                    .Add(new TrimPropertyNameVisitor())
+//                    .Add(new RewritePrettyTypeVisitor(types));
+//
+//            _jsonSerializer = new JsonSerializer
+//            {
+//                NullValueHandling = NullValueHandling.Ignore,
+//                TypeNameHandling = TypeNameHandling.Auto,
+//                //DefaultValueHandling = DefaultValueHandling.Ignore,
+//                //ContractResolver = contractResolver,
+//                Converters =
+//                {
+//                    //new ExpressionConverter(),
+//                    new ExpressionConverter()
+//                }
+//            };
+//
+//            configureSerializer?.Invoke(_jsonSerializer);
+//        }
 
         [ContractAnnotation("jsonStream: null => halt")]
         public async Task<T> DeserializeAsync<T>(Stream jsonStream)

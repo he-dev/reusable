@@ -2,13 +2,14 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
     [PublicAPI]
     public class Contains : PredicateExpression, IExtension<IEnumerable<object>>
     {
-        public Contains() : base(nameof(Contains)) { }
+        public Contains(ILogger<Contains> logger) : base(logger, nameof(Contains)) { }
 
         public List<IExpression> Values { get; set; } = new List<IExpression>();
 

@@ -3,12 +3,15 @@ using System.ComponentModel;
 using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
     public abstract class Switch<TResult> : Expression<object>, IExtension<TResult>
     {
         protected Switch([NotNull] SoftString name) : base(name) { }
+
+        protected Switch(ILogger logger, SoftString name) : base(logger, name) { }
 
         public IExpression Value { get; set; }
 
@@ -44,8 +47,7 @@ namespace Reusable.Flexo
                         break;
                 }
             }
-            
-            
+
 
             return (Name, (Default ?? new Throw("SwitchValueOutOfRange") { Message = Constant.FromValue("Message", "Default value not specified.") }).Invoke(context), context);
         }
@@ -53,9 +55,11 @@ namespace Reusable.Flexo
 
     [UsedImplicitly]
     [PublicAPI]
-    public class Switch : Switch<IExpression> 
+    public class Switch : Switch<IExpression>
     {
         public Switch(string name) : base(name) { }
+
+        public Switch(ILogger<Switch> logger) : base(logger, nameof(Switch)) { }
 
         public Switch() : this(nameof(Switch)) { }
     }

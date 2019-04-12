@@ -1,4 +1,6 @@
-﻿namespace Reusable.OmniLog.Attachments
+﻿using Reusable.OmniLog.Abstractions;
+
+namespace Reusable.OmniLog.Attachments
 {
     public class Timestamp<T> : LogAttachment where T : IDateTime, new()
     {

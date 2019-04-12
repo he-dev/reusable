@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Collections;
 using Reusable.Extensions;
 using Reusable.IOnymous;
+using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Attachments;
 using Reusable.Utilities.MSTest;
 

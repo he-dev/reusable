@@ -53,7 +53,10 @@ namespace Reusable.OmniLog.SemanticExtensions
     {
         public static IAbstractionLayer Business(this IAbstraction abstraction) => AbstractionFactory.CreateWithCallerName();
 
+        [Obsolete("Use Service instead.")]
         public static IAbstractionLayer Infrastructure(this IAbstraction abstraction) => AbstractionFactory.CreateWithCallerName();
+
+        public static IAbstractionLayer Service(this IAbstraction abstraction) => AbstractionFactory.CreateWithCallerName();
 
         public static IAbstractionLayer Presentation(this IAbstraction abstraction) => AbstractionFactory.CreateWithCallerName();
 
@@ -162,7 +165,7 @@ namespace Reusable.OmniLog.SemanticExtensions
             if (LogScope.Current is null)
             {
                 return layer.Routine($"#'{nameof(RoutineFromScope)}' used outside of a scope.");
-            }                        
+            }
 
             // Try to find routine-identifier in the scope hierarchy.
             var scope =

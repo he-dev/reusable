@@ -1,8 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Collections;
+using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
@@ -11,8 +13,8 @@ namespace Reusable.Flexo
     {
         private readonly Func<int, bool> _predicate;
 
-        protected ComparerExpression(string name, [NotNull] Func<int, bool> predicate)
-            : base(name) => _predicate = predicate;
+        protected ComparerExpression(ILogger logger, string name, [NotNull] Func<int, bool> predicate)
+            : base(logger, name) => _predicate = predicate;
 
         [JsonRequired]
         public IExpression Value { get; set; }

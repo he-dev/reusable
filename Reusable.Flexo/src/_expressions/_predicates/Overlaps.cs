@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
     public class Overlaps : PredicateExpression, IExtension<List<object>>
     {
-        [JsonConstructor]
-        public Overlaps(string name) : base(name ?? nameof(Overlaps)) { }
+        public Overlaps(ILogger<Overlaps> logger) : base(logger, nameof(Overlaps)) { }
 
         public List<IExpression> Values { get; set; } = new List<IExpression>();
 

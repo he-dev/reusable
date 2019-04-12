@@ -3,31 +3,29 @@ using System.Linq;
 using System.Xml.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
     [PublicAPI]
     public class All : PredicateExpression, IExtension<IEnumerable<object>>
     {
-        [JsonConstructor]
-        public All(string name) : base(name ?? nameof(All)) { }
-
-        internal All() : this(nameof(All)) { }
+        public All(ILogger<All> logger) : base(logger, nameof(All)) { }
 
         public List<IExpression> Values { get; set; } = new List<IExpression>();
 
-        public IExpression Predicate { get; set; } = Constant.True;
+        public IExpression Predicate { get; set; } //= Constant.True;
 
         protected override Constant<bool> InvokeCore(IExpressionContext context)
         {
             if (context.TryPopExtensionInput(out IEnumerable<object> input))
             {
-                var predicate = Predicate.Invoke(context).Value<bool>();
+                var predicate = (Predicate ?? Constant.True).Invoke(context).Value<bool>();
                 return (Name, input.Cast<bool>().All(x => x == predicate), context);
             }
             else
             {
-                var predicate = Predicate.Invoke(context).Value<bool>();
+                var predicate = (Predicate ?? Constant.True).Invoke(context).Value<bool>();
                 var last = default(IConstant);
                 foreach (var item in Values)
                 {

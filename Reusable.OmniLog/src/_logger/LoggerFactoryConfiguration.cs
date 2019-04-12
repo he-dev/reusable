@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Flexo;
 using Reusable.IOnymous;
+using Reusable.OmniLog.Abstractions;
 
 
 namespace Reusable.OmniLog

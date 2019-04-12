@@ -10,6 +10,7 @@ using Reusable.Collections;
 using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
+using Reusable.OmniLog.Abstractions;
 using Reusable.Utilities.JsonNet;
 using Reusable.Utilities.JsonNet.Annotations;
 
@@ -85,12 +86,28 @@ namespace Reusable.Flexo
     [Namespace("Flexo")]
     public abstract class Expression<TResult> : IExpression
     {
+        private SoftString _name;
+
+        [Obsolete("Use the other overload with a logger.")]
         protected Expression([NotNull] SoftString name)
         {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
+            _name = name ?? throw new ArgumentNullException(nameof(name));
         }
 
-        public virtual SoftString Name { get; }
+        protected Expression([NotNull] ILogger logger, SoftString name)
+        {
+            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _name = name ?? throw new ArgumentNullException(nameof(name));
+        }
+
+        [NotNull]
+        protected ILogger Logger { get; }
+
+        public virtual SoftString Name
+        {
+            get => _name;
+            set => _name = value ?? throw new ArgumentNullException(nameof(Name));
+        }
 
         public bool Enabled { get; set; } = true;
 
@@ -124,6 +141,4 @@ namespace Reusable.Flexo
 
         protected abstract Constant<TResult> InvokeCore(IExpressionContext context);
     }
-
-    
 }

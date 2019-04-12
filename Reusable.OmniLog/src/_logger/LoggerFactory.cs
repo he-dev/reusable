@@ -6,16 +6,12 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Diagnostics;
 using Reusable.OmniLog;
+using Reusable.OmniLog.Abstractions;
 
 [assembly: DebuggerDisplay("{DebuggerDisplay(),nq}", Target = typeof(LoggerFactory))]
 
 namespace Reusable.OmniLog
-{
-    public interface ILoggerFactory : IDisposable
-    {
-        ILogger CreateLogger(SoftString name);
-    }
-
+{    
     [PublicAPI]
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class LoggerFactory : ILoggerFactory

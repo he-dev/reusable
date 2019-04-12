@@ -37,6 +37,7 @@
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
     <ProjectReference Include="..\Reusable.Flexo\Reusable.Flexo.csproj" />
     <ProjectReference Include="..\Reusable.IOnymous\Reusable.IOnymous.csproj" />
+    <ProjectReference Include="..\Reusable.OmniLog.Abstractions\Reusable.OmniLog.Abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>

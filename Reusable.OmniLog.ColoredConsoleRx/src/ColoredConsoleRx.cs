@@ -2,6 +2,7 @@
 using System.Reactive;
 using JetBrains.Annotations;
 using Reusable.Extensions;
+using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog
 {
@@ -26,7 +27,7 @@ namespace Reusable.OmniLog
             return new ColoredConsoleRx(renderer);
         }
 
-        protected override void Log(Log log)
+        protected override void Log(ILog log)
         {
             var template = log.Property<string>(null, TemplatePropertyName);
             if (template.IsNotNullOrEmpty())

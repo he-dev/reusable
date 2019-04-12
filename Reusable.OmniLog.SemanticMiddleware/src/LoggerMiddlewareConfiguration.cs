@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http;
+using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog
 {

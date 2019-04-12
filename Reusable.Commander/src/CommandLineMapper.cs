@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog;
+using Reusable.OmniLog.Abstractions;
 using Reusable.OneTo1;
 using Reusable.OneTo1.Converters;
 using Reusable.OneTo1.Converters.Collections.Generic;

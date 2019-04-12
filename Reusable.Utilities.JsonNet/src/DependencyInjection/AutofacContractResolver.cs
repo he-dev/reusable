@@ -26,4 +26,19 @@ namespace Reusable.Utilities.JsonNet.DependencyInjection
             return contract;
         }
     }
+
+    public static class ContainerBuilderExtensions
+    {
+        public static void RegisterJsonContractResolver(this ContainerBuilder builder)
+        {
+            builder
+                .Register(c =>
+                {
+                    var context = c.Resolve<IComponentContext>();
+                    return new AutofacContractResolver(context);
+                })
+                .SingleInstance()
+                .As<IContractResolver>();
+        }
+    }
 }

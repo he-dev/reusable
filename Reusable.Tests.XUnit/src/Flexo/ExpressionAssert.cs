@@ -11,7 +11,7 @@ namespace Reusable.Tests.Flexo
         public static IConstant Equal<TValue, TExpression>(TValue expectedValue, TExpression expression, IExpressionContext context = null) where TExpression : IExpression
         {
             var expected = expectedValue is IConstant constant ? constant.Value : expectedValue; // Constant.FromValue("Expected", expectedValue);
-            var actual = expression.Invoke(context ?? ExpressionContext.Empty);
+            var actual = expression.Invoke(context ?? ExpressionContext.Empty.WithRegexComparer().WithSoftStringComparer());
 
             return
                 object.Equals(expected, actual.Value is IConstant c ? c.Value : actual.Value)

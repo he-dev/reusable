@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net47</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="src\Collections\**" />
+    <Compile Remove="src\Diagnostics\**" />
+    <EmbeddedResource Remove="src\Collections\**" />
+    <EmbeddedResource Remove="src\Diagnostics\**" />
+    <None Remove="src\Collections\**" />
+    <None Remove="src\Diagnostics\**" />
+    <Compile Remove="src\Expressions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="src\LoggerFactoryBuilder.cs" />
+    <Compile Remove="src\_logger\LoggerFilter.cs" />
+    <Compile Remove="src\_log\LogFilter.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="2018.3.0" />
+    <PackageReference Include="System.Reactive" Version="4.1.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
+    <ProjectReference Include="..\Reusable.IOnymous\Reusable.IOnymous.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Configuration" />
+  </ItemGroup>
+
+</Project>

@@ -6,6 +6,7 @@ using Reusable.Diagnostics;
 using Reusable.IOnymous;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
+using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Attachments;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.OneTo1;
@@ -115,6 +116,8 @@ namespace Reusable.Apps
                     logger.Log(Abstraction.Layer.Infrastructure().Routine("DoSomething").Running());
                     logger.Log(Abstraction.Layer.Infrastructure().Routine("DoSomething").Canceled().Because("No connection."));
                     logger.Log(Abstraction.Layer.Infrastructure().Routine("DoSomething").Faulted(), new DivideByZeroException("Cannot divide."));
+                    logger.Log(Abstraction.Layer.Service().Decision("Don't do this.").Because("Disabled."));
+
                 }
             }
         }

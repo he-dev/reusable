@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reusable.OmniLog.Abstractions;
 using Reusable.Utilities.MSTest;
 
 // ReSharper disable once CheckNamespace
@@ -19,11 +20,11 @@ namespace Reusable.OmniLog.Tests
         public void Parse_MultipleLogLevels_LogLevel()
         {
             var logLevel = LogLevel.Parse("debug,trace,error");
-            Assert.IsTrue(logLevel.Contains(LogLevel.Debug));
-            Assert.IsTrue(logLevel.Contains(LogLevel.Trace));
-            Assert.IsTrue(logLevel.Contains(LogLevel.Error));
-            Assert.IsFalse(logLevel.Contains(LogLevel.Fatal));
-            Assert.IsFalse(logLevel.Contains(LogLevel.Information));
+            Assert.IsTrue(logLevel.Contains((ILogLevel)LogLevel.Debug));
+            Assert.IsTrue(logLevel.Contains((ILogLevel)LogLevel.Trace));
+            Assert.IsTrue(logLevel.Contains((ILogLevel)LogLevel.Error));
+            Assert.IsFalse(logLevel.Contains((ILogLevel)LogLevel.Fatal));
+            Assert.IsFalse(logLevel.Contains((ILogLevel)LogLevel.Information));
         }
 
         [TestMethod]

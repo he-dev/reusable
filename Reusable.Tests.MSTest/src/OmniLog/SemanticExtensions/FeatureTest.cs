@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Collections;
+using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Attachments;
 using Reusable.Utilities.MSTest;
 
@@ -58,18 +59,18 @@ namespace Reusable.OmniLog.SemanticExtensions.Tests
 
     internal static class LogExtensions
     {
-        public static object Logger(this Log log) => log.Property<object>();
-        public static object Scope(this Log log) => log.Property<object>();
-        public static object Layer(this Log log) => log.Property<object>();
-        public static object Level(this Log log) => log.Property<object>();
-        public static object Category(this Log log) => log.Property<object>();
-        public static object Identifier(this Log log) => log.Property<object>();
-        public static object Snapshot(this Log log) => log.Property<object>();
-        public static object Elapsed(this Log log) => log.Property<object>();
-        public static object Message(this Log log) => log.Property<object>();
-        public static object Exception(this Log log) => log.Property<object>();
-        public static object CallerMemberName(this Log log) => log.Property<object>();
-        public static object CallerLineNumber(this Log log) => log.Property<object>();
-        public static object CallerFilePath(this Log log) => log.Property<object>();
+        public static object Logger(this ILog log) => log.Property<object>();
+        public static object Scope(this ILog log) => log.Property<object>();
+        public static object Layer(this ILog log) => log.Property<object>();
+        public static object Level(this ILog log) => log.Property<object>();
+        public static object Category(this ILog log) => log.Property<object>();
+        public static object Identifier(this ILog log) => log.Property<object>();
+        public static object Snapshot(this ILog log) => log.Property<object>();
+        public static object Elapsed(this ILog log) => log.Property<object>();
+        public static object Message(this ILog log) => log.Property<object>();
+        public static object Exception(this ILog log) => log.Property<object>();
+        public static object CallerMemberName(this ILog log) => log.Property<object>();
+        public static object CallerLineNumber(this ILog log) => log.Property<object>();
+        public static object CallerFilePath(this ILog log) => log.Property<object>();
     }
 }

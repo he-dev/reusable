@@ -1,13 +1,12 @@
-﻿using Reusable.Utilities.JsonNet.Annotations;
+﻿using Reusable.OmniLog.Abstractions;
+using Reusable.Utilities.JsonNet.Annotations;
 
 namespace Reusable.Flexo
 {
     [Alias("!")]
     public class Not : PredicateExpression, IExtension<bool>
     {
-        public Not(string name) : base(name) { }
-
-        public Not() : this(nameof(Not)) { }
+        public Not(ILogger<Not> logger) : base(logger, nameof(Not)) { }
 
         public IExpression Value { get; set; }
 
