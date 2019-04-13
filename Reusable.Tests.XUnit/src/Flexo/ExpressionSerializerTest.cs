@@ -7,22 +7,20 @@ using Autofac;
 using Newtonsoft.Json.Serialization;
 using Reusable.Extensions;
 using Reusable.Flexo;
-using Reusable.Flexo.DependencyInjection;
 using Reusable.IOnymous;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.DependencyInjection;
+using Reusable.Utilities.JsonNet;
 using Reusable.Utilities.JsonNet.DependencyInjection;
 using Xunit;
 using Double = Reusable.Flexo.Double;
+using ExpressionSerializer = Reusable.Flexo.ExpressionSerializer;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.Tests.Flexo
 {
     public class ExpressionSerializerTest : IDisposable
     {
-        //private static readonly ExpressionSerializer Serializer = new ExpressionSerializer(Enumerable.Empty<Type>(), new DefaultContractResolver());
-
         private static readonly IResourceProvider Flexo =
             EmbeddedFileProvider<ExpressionSerializerTest>
                 .Default
@@ -35,15 +33,15 @@ namespace Reusable.Tests.Flexo
         public ExpressionSerializerTest()
         {
             var builder = new ContainerBuilder();
-
-            builder.RegisterLogger(new LoggerFactory());           
-            builder.RegisterExpressions();
-            builder.RegisterJsonContractResolver();
+            
+            builder.RegisterModule<JsonContractResolverModule>();
+            builder.RegisterModule(new LoggerModule(new LoggerFactory()));           
+            builder.RegisterModule(new ExpressionSerializerModule(Expression.Types));
 
             var container = builder.Build();
             var scope = container.BeginLifetimeScope();
 
-            _serializer = new ExpressionSerializer(Enumerable.Empty<Type>(), scope.Resolve<IContractResolver>());
+            _serializer = scope.Resolve<ExpressionSerializer.Factory>()(TypeDictionary.From(Expression.Types));
             _container = Disposable.Create(() =>
             {
                 scope.Dispose();

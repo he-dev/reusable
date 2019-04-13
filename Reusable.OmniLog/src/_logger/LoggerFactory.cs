@@ -25,6 +25,8 @@ namespace Reusable.OmniLog
             _cache = new ConcurrentDictionary<SoftString, (ILogger Logger, IDisposable Subscriptions)>();
         }
 
+        public static LoggerFactory Empty => new LoggerFactory();
+        
         private string DebuggerDisplay() => this.ToDebuggerDisplayString(builder =>
         {
             builder.DisplayMember(x => x._cache.Count);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,21 +28,21 @@ namespace Reusable.Flexo
 
         private readonly JsonSerializer _jsonSerializer;
 
-        public delegate IExpressionSerializer Factory([NotNull] IEnumerable<Type> customTypes, [CanBeNull] Action<JsonSerializer> configureSerializer = null);
+        public delegate IExpressionSerializer Factory
+        (
+            [NotNull] IImmutableDictionary<SoftString, Type> expressionTypes,
+            [CanBeNull] Action<JsonSerializer> configureSerializer = null
+        );
 
         public ExpressionSerializer
         (
-            [NotNull] IEnumerable<Type> customTypes,
+            [NotNull] IImmutableDictionary<SoftString, Type> expressionTypes,
             [NotNull] IContractResolver contractResolver,
             [CanBeNull] Action<JsonSerializer> configureSerializer = null
         )
         {
-            if (customTypes == null) throw new ArgumentNullException(nameof(customTypes));
-            var types =
-                TypeDictionary
-                    .BuiltInTypes
-                    .AddRange(TypeDictionary.From(Expression.Types))
-                    .AddRange(TypeDictionary.From(customTypes));
+            if (expressionTypes == null) throw new ArgumentNullException(nameof(expressionTypes));
+            var types = TypeDictionary.BuiltInTypes.AddRange(expressionTypes);
 
             _transform =
                 CompositeJsonVisitor

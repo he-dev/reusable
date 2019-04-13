@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
 using Reusable.Exceptionize;
@@ -87,6 +88,8 @@ namespace Reusable.Teapot
     {
         [CanBeNull]
         TContent Value { get; }
+
+        string Path { get; }
     }
 
     internal class ContentAssert<TContent> : IContentAssert<TContent>
@@ -94,12 +97,17 @@ namespace Reusable.Teapot
         public ContentAssert(TContent value) => Value = value;
 
         public TContent Value { get; }
+
+        public string Path { get; set; }
     }
 
 
     public static class ContentAssertExtensions
     {
-        public static IContentAssert<JToken> HasProperty(this IContentAssert<JToken> content, string jsonPath)
+        #region JToken 
+
+        [NotNull]
+        public static IContentAssert<JValue> Value(this IContentAssert<JToken> content, string jsonPath)
         {
             if (content.Value is null)
             {
@@ -107,29 +115,42 @@ namespace Reusable.Teapot
             }
 
             return
-                content.Value.SelectToken(jsonPath) is null
-                    ? throw DynamicException.Create("ContentPropertyNotFound", $"There is no such property as '{jsonPath}'")
+                content.Value.SelectToken(jsonPath) is JValue value
+                    ? new ContentAssert<JValue>(value) { Path = jsonPath }
+                    : throw DynamicException.Create("ContentPropertyNotFound", $"There is no such property as '{jsonPath}'");
+        }
+
+        #endregion
+
+        #region JValue
+
+        [NotNull]
+        public static IContentAssert<JValue> IsNotNull(this IContentAssert<JValue> content)
+        {
+            return
+                content.Value is null
+                    ? throw DynamicException.Create("ValueNull", $"Selected property value at '{content.Path}' is null.")
                     : content;
         }
 
-        public static IContentAssert<JToken> PropertyEquals(this IContentAssert<JToken> content, string jsonPath, object expected)
+        [NotNull]
+        public static IContentAssert<JValue> IsEqual(this IContentAssert<JValue> content, object expected)
         {
-            if (content.Value is null)
-            {
-                throw DynamicException.Create("ContentNull", "There is no content.");
-            }
-
-            if (content.Value.SelectToken(jsonPath) is JValue actual)
-            {
-                return
-                    actual.Equals(new JValue(expected))
-                        ? content
-                        : throw DynamicException.Create("ValueNotEqual", $"Selected property has a different value. Expected: '{expected}', Actual: {actual.Value}.");
-            }
-            else
-            {
-                throw DynamicException.Create("PathNotProperty", $"There is no such property as '{jsonPath}'");
-            }
+            return
+                content.Value?.Equals(new JValue(expected)) == true
+                    ? content
+                    : throw DynamicException.Create("ValueNotEqual", $"Selected property value at '{content.Path}' is '{content.Value}' but should be '{expected}'.");
         }
+
+        [NotNull]
+        public static IContentAssert<JValue> IsLike(this IContentAssert<JValue> content, [RegexPattern] string pattern, RegexOptions options = RegexOptions.IgnoreCase)
+        {
+            return
+                Regex.IsMatch(content.Value?.Value<string>() ?? string.Empty, pattern, options)
+                    ? content
+                    : throw DynamicException.Create("ValueNotLike", $"Selected property value at '{content.Path}' is '{content.Value}' but should be like '{pattern}'.");
+        }
+
+        #endregion        
     }
 }

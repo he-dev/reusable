@@ -85,7 +85,7 @@ namespace Reusable.OmniLog
                     .Aggregate(None, (logLevel, name) => logLevel | (LogLevel)NameMap.Value[name]);
         }
 
-        public static LogLevel FromFlags(int value)
+        public static LogLevel FromValue(int value)
         {
             return
                 Logger
@@ -120,7 +120,7 @@ namespace Reusable.OmniLog
 
         public static implicit operator LogLevel(string value) => Parse(value);
 
-        public static implicit operator LogLevel(int value) => FromFlags(value);
+        public static implicit operator LogLevel(int value) => FromValue(value);
 
         #region Operators
 
@@ -137,9 +137,9 @@ namespace Reusable.OmniLog
 
         #endregion
 
-        private class LogLevelComparer : IComparer<LogLevel>, IComparer
+        private class LogLevelComparer : IComparer<ILogLevel>, IComparer
         {
-            public int Compare(LogLevel left, LogLevel right)
+            public int Compare(ILogLevel left, ILogLevel right)
             {
                 if (ReferenceEquals(left, right)) return 0;
                 if (ReferenceEquals(left, null)) return 1;
@@ -147,7 +147,7 @@ namespace Reusable.OmniLog
                 return left.Flag - right.Flag;
             }
 
-            public int Compare(object left, object right) => Compare(left as LogLevel, right as LogLevel);
+            public int Compare(object left, object right) => Compare(left as ILogLevel, right as ILogLevel);
         }
     }
 }

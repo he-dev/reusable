@@ -20,6 +20,9 @@
     <None Remove="src\Collections\**" />
     <None Remove="src\Diagnostics\**" />
     <Compile Remove="src\Expressions.cs" />
+    <Compile Remove="src\Utilities\**" />
+    <EmbeddedResource Remove="src\Utilities\**" />
+    <None Remove="src\Utilities\**" />
   </ItemGroup>
 
   <ItemGroup>
