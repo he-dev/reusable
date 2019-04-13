@@ -31,6 +31,11 @@ namespace Reusable.Utilities.JsonNet.Converters
             var jToken = JToken.Load(reader);
             var value = jToken.Value<string>();
 
+            if (value is null)
+            {
+                return default;
+            }
+
             if (objectType.GetConstructor(new[] { typeof(string) }) is var constructor && !(constructor is null))
             {
                 return constructor.Invoke(new object[] { value });
