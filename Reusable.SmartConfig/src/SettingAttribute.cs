@@ -50,10 +50,12 @@ namespace Reusable.SmartConfig
 
         // todo - for future use
         //public bool Cache { get; set; } = true;
+
+        public string Schema { get; set; }
     }
 
     [UsedImplicitly]
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
     public class SettingTypeAttribute : SettingAttribute
     {
     }

@@ -50,7 +50,7 @@ namespace Reusable.SmartConfig
         }
 
         // uri=
-        // setting:name-space.type.member?instance=name&prefix=name&strength=name&prefixhandling=name
+        // setting:name-space.type.member?instance=name&prefix=name&strength=name&prefixHandling=name
         protected UriString Translate(UriString uri)
         {
             var providerConvention =

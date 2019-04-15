@@ -1,109 +1,137 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
+using System.Linq.Custom;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
+using JetBrains.Annotations;
+using Reusable.Commander;
 using Reusable.Exceptionize;
+using Reusable.IOnymous;
+using Reusable.SmartConfig;
+using Reusable.Extensions;
+using Reusable.Flawless;
+using Reusable.SmartConfig.Reflection;
+using Xunit;
 
 namespace Reusable.Tests.XUnit.Experimental
 {
+    /*
+    public class UriSchemaAttribute:Attribute{}
+    
+    ResourcePrefix("test") // override
+    ResourcePrefix(null) // disable
+    // inherit by default
+    ResourceScheme("setting")
+    ResourceName("alias", Convention = TypeMember)
+    ResourceProvider("alias")
+     
+      
+     */
+
+    
+
     public class MemberVisitorTools
     {
-        
+        [Fact]
+        public async Task Blub()
+        {
+            var commandLine = new CommandLine
+            {
+                { "files", "first.txt" },
+                { "files", "second.txt" },
+                { "build", "debug" },
+            };
+            var configuration = new Configuration<ITestConfig>(new CommandLineProvider(commandLine));
+            var name = await configuration.GetItemAsync(x => x.Name);
+        }
+
+        [SettingType(Strength = SettingNameStrength.Low, Schema = CommandLineProvider.DefaultSchema)]
+        internal interface ICommandLineSchema { }
+
+        //[Schema(CommandLineProvider.DefaultSchema)]
+        //[NameLength(SettingNameStrength.Low)]
+        internal interface ITestConfig
+        {
+            string Name { get; }
+        }
     }
 
-    internal class MemberMetadata
+    internal class CommandLineProvider : ResourceProvider
     {
-        public object Instance { get; set; }
+        public const string DefaultSchema = "cmd";
 
-        public Type Type { get; set; }
+        private readonly ICommandLine _commandLine;
 
-        public MemberInfo Member { get; set; }
+        public CommandLineProvider(ICommandLine commandLine) : base(new SoftString[] { DefaultSchema }, ResourceMetadata.Empty)
+        {
+            _commandLine = commandLine;
+        }
+
+        // cmd://foo
+        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
+        {
+            var id = uri.Path.Decoded;
+            return
+                _commandLine.Contains(id)
+                    ? Task.FromResult<IResourceInfo>(new CommandLineInfo(uri, _commandLine[id]))
+                    : Task.FromResult<IResourceInfo>(new CommandLineInfo(uri, default));
+        }
     }
-    
-    // Finds the type of the class a setting belongs to.
-    internal class MemberExpressionVisitor : ExpressionVisitor
+
+    internal class CommandLineInfo : ResourceInfo
     {
-        private readonly bool _nonPublic;
-        private Type _type;
-        private object _instance;
-        private MemberInfo _member;
-        private string _closureMemberName;
+        private readonly IEnumerable<string> _values;
 
-        private MemberExpressionVisitor(bool nonPublic) => _nonPublic = nonPublic;
-
-        public static (Type Type, object Instance, MemberInfo Member) GetSettingInfo(LambdaExpression expression, bool nonPublic = false)
+        public CommandLineInfo([NotNull] UriString uri, IEnumerable<string> values) : base(uri, MimeType.Binary)
         {
-            var visitor = new MemberExpressionVisitor(nonPublic);
-            visitor.Visit(expression);
-
-            if (visitor._type is null)
-            {
-                throw ("UnsupportedSettingExpression", "Member's declaring type could not be determined.").ToDynamicException();
-            }
-
-            // This fixes the visitor not resolving the overriden member correctly.
-            if (visitor._member.DeclaringType != visitor._type)
-            {
-                visitor._member = visitor._type.GetMember(visitor._member.Name).Single();
-            }
-
-            return (visitor._type, visitor._instance, visitor._member);
+            _values = values;
         }
 
-        protected override Expression VisitMember(MemberExpression node)
+        public override bool Exists => !(_values is null);
+
+        public override long? Length => _values?.Count();
+
+        public override DateTime? CreatedOn { get; }
+
+        public override DateTime? ModifiedOn { get; }
+
+        protected override async Task CopyToAsyncInternal(Stream stream)
         {
-            // Supports:
-            // - static fields and properties
-            // - instance fields and properties
-
-            // The first member is the setting.
-            _member = _member ?? node.Member;
-
-            switch (node.Member)
+            using (var data = await ResourceHelper.SerializeAsBinaryAsync(_values))
             {
-                // (() => Type.Member) - static usage 
-                case FieldInfo field when field.IsStatic:
-                case PropertyInfo property when property.GetGetMethod(_nonPublic).IsStatic:
-                    _type = node.Member.DeclaringType;
-                    break;
-
-                // (() => instance.Member) - via instance (also this)
-                case FieldInfo field:
-                case PropertyInfo property:
-                    _closureMemberName = node.Member.Name;
-                    break;
+                await data.CopyToAsync(stream);
             }
-
-            return base.VisitMember(node);
-        }
-
-        protected override Expression VisitConstant(ConstantExpression node)
-        {
-            // Supports:
-            // - Member (closures)
-            // - instance.Member
-
-            if (node.Type.Name.StartsWith("<>c__DisplayClass"))
-            {
-                var closureType = node.Type.GetField(_closureMemberName);
-                _type = closureType.FieldType;
-                _instance = closureType.GetValue(node.Value);
-            }
-            else
-            {
-                _type = node.Value.GetType();
-                _instance = node.Value;
-            }
-
-            return base.VisitConstant(node);
-        }
-
-        protected override Expression VisitParameter(ParameterExpression node)
-        {
-            // Supports:
-            // - types passed via generics like .From<T>().Select(x => x.Y);
-            _type = node.Type;
-            return base.VisitParameter(node);
         }
     }
+
+    public static class ext
+    {
+        public static IEnumerable<T> FindCustomAttributes<T>(this Type type) where T : Attribute
+        {
+            var queue = new Queue<Type>()
+            {
+                type
+            };
+
+            while (queue.Any())
+            {
+                type = queue.Dequeue();
+                foreach (var a in type.GetCustomAttributes<T>())
+                {
+                    yield return a;
+                }
+
+                foreach (var i in type.GetInterfaces())
+                {
+                    queue.Enqueue(i);
+                }
+            }
+        }
+    }    
 }

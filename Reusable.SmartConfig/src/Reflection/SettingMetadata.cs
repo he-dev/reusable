@@ -42,12 +42,12 @@ namespace Reusable.SmartConfig.Reflection
             MemberType = GetMemberType(member);
 
             var attributes = new SettingAttribute[]
-            {
-                member.GetCustomAttributes<SettingMemberAttribute>(inherit: true).FirstOrDefault(),
-                type.GetCustomAttribute<SettingTypeAttribute>(),
-            }
-            .Where(Conditional.IsNotNull)
-            .ToList();
+                {
+                    member.GetCustomAttributes<SettingMemberAttribute>(inherit: true).FirstOrDefault(),
+                    type.GetCustomAttribute<SettingTypeAttribute>(),
+                }
+                .Where(Conditional.IsNotNull)
+                .ToList();
 
             var strengths =
                 attributes
@@ -68,6 +68,8 @@ namespace Reusable.SmartConfig.Reflection
             ProviderType = attributes.Select(x => x.ProviderType).FirstOrDefault(Conditional.IsNotNull);
             DefaultValue = member.GetCustomAttribute<DefaultValueAttribute>()?.Value;
             Validations = member.GetCustomAttributes<ValidationAttribute>();
+
+            Schema = attributes.Select(x => x.Schema).FirstOrDefault(Conditional.IsNotNullOrEmpty) ?? "setting";
         }
 
         [NotNull]
@@ -111,6 +113,9 @@ namespace Reusable.SmartConfig.Reflection
         public PrefixHandling PrefixHandling { get; }
 
         [NotNull]
+        public string Schema { get; }
+
+        [NotNull]
         public static SettingMetadata FromExpression(LambdaExpression expression, bool nonPublic = false)
         {
             expression.ValidateWith(SettingExpressionValidator).Assert();
@@ -122,17 +127,17 @@ namespace Reusable.SmartConfig.Reflection
         public UriString CreateUri(string instanceName = null)
         {
             var query = (SoftString)new (SoftString Key, SoftString Value)[]
-            {
-                ("prefix", PrefixHandling == PrefixHandling.Enable ? (SoftString)Prefix : (SoftString)string.Empty),
-                ("prefixHandling", PrefixHandling.ToString()),
-                ("instance", instanceName),
-                ("strength", Strength.ToString()),
-                //("providerCustomName", ProviderName),
-                //("providerDefaultName", ProviderType?.ToPrettyString())
-            }
-            .Where(x => x.Value)
-            .Select(x => $"{x.Key.ToString()}={x.Value.ToString()}")
-            .Join("&");
+                {
+                    ("prefix", PrefixHandling == PrefixHandling.Enable ? (SoftString)Prefix : (SoftString)string.Empty),
+                    ("prefixHandling", PrefixHandling.ToString()),
+                    ("instance", instanceName),
+                    ("strength", Strength.ToString()),
+                    //("providerCustomName", ProviderName),
+                    //("providerDefaultName", ProviderType?.ToPrettyString())
+                }
+                .Where(x => x.Value)
+                .Select(x => $"{x.Key.ToString()}={x.Value.ToString()}")
+                .Join("&");
 
             return $"setting:{Namespace.Replace('.', '-')}.{TypeName}.{MemberName}{(query ? $"?{query.ToString()}" : string.Empty)}";
         }
@@ -174,30 +179,30 @@ namespace Reusable.SmartConfig.Reflection
             switch (Member)
             {
                 case PropertyInfo property:
+                {
+                    if (property.CanWrite)
                     {
-                        if (property.CanWrite)
-                        {
-                            property.SetValue(Instance, value);
-                        }
-                        // This is a readonly property. We try to write directly to the backing-field.
-                        else
-                        {
-                            var bindingFlags = BindingFlags.NonPublic | (Instance == null ? BindingFlags.Static : BindingFlags.Instance);
-                            var backingField = Type.GetField($"<{property.Name}>k__BackingField", bindingFlags);
-                            if (backingField is null)
-                            {
-                                throw ("BackingFieldNotFound", $"Property {property.Name.QuoteWith("'")} does not have a default backing field.").ToDynamicException();
-                            }
-
-                            backingField.SetValue(Instance, value);
-                        }
+                        property.SetValue(Instance, value);
                     }
+                    // This is a readonly property. We try to write directly to the backing-field.
+                    else
+                    {
+                        var bindingFlags = BindingFlags.NonPublic | (Instance == null ? BindingFlags.Static : BindingFlags.Instance);
+                        var backingField = Type.GetField($"<{property.Name}>k__BackingField", bindingFlags);
+                        if (backingField is null)
+                        {
+                            throw ("BackingFieldNotFound", $"Property {property.Name.QuoteWith("'")} does not have a default backing field.").ToDynamicException();
+                        }
+
+                        backingField.SetValue(Instance, value);
+                    }
+                }
                     break;
 
                 case FieldInfo field:
-                    {
-                        field.SetValue(Instance, value);
-                    }
+                {
+                    field.SetValue(Instance, value);
+                }
                     break;
 
                 default:

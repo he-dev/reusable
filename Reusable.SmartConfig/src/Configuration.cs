@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -44,7 +45,7 @@ namespace Reusable.SmartConfig
         {
             _settingProvider = settingProvider ?? throw new ArgumentNullException(nameof(settingProvider));
             _converter = new JsonSettingConverter();
-        }               
+        }
 
         [NotNull]
         public ITypeConverter Converter
@@ -292,4 +293,6 @@ namespace Reusable.SmartConfig
 //            return configuration.GetSetting(expression, instance);
 //        }
     }
+
+    
 }
