@@ -4,6 +4,7 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Diagnostics;
+using Reusable.Extensions;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 
@@ -125,7 +126,7 @@ namespace Reusable.OmniLog
 
         public Logger(ILoggerFactory loggerFactory)
         {
-            _logger = loggerFactory.CreateLogger<T>();
+            _logger = loggerFactory.CreateLogger(typeof(T).ToPrettyString(includeNamespace: false));
         }
 
         public static ILogger<T> Null => new Noop();

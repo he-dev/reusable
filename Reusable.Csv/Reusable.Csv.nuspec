@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Csv</id>
-    <version>8.12.0</version>
+    <version>8.12.2</version>
     <title>Reusable.Csv</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -16,8 +16,8 @@
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2018.3.0" />
-      <dependency id="Reusable.OneTo1" version="8.12.0" />
-      <dependency id="Reusable.Core" version="8.12.0" />
+      <dependency id="Reusable.OneTo1" version="8.12.2" />
+      <dependency id="Reusable.Core" version="8.12.2" />
     </dependencies>
   </metadata>
   <files>

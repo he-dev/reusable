@@ -119,6 +119,20 @@ namespace Reusable.Teapot
                     ? new ContentAssert<JValue>(value) { Path = jsonPath }
                     : throw DynamicException.Create("ContentPropertyNotFound", $"There is no such property as '{jsonPath}'");
         }
+        
+        [NotNull]
+        public static IContentAssert<JToken> HasProperty(this IContentAssert<JToken> content, string jsonPath)
+        {
+            if (content.Value is null)
+            {
+                throw DynamicException.Create("ContentNull", "There is no content.");
+            }
+
+            return
+                content.Value.SelectToken(jsonPath) != null
+                    ? content
+                    : throw DynamicException.Create("ContentPropertyNotFound", $"There is no such property as '{jsonPath}'");
+        }
 
         #endregion
 

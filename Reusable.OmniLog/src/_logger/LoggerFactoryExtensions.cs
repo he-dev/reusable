@@ -11,11 +11,11 @@ namespace Reusable.OmniLog
     public static class LoggerFactoryExtensions
     {
         [NotNull]
-        public static ILogger CreateLogger<T>([NotNull] this ILoggerFactory loggerFactory, bool includeNamespace = false)
+        public static ILogger<T> CreateLogger<T>([NotNull] this ILoggerFactory loggerFactory, bool includeNamespace = false)
         {
             if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
 
-            return loggerFactory.CreateLogger(typeof(T).ToPrettyString(includeNamespace));
+            return new Logger<T>(loggerFactory);
         }
 
         #region Builder extensions
