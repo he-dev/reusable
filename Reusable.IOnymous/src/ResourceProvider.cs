@@ -57,9 +57,9 @@ namespace Reusable.IOnymous
             if (schemes == null) throw new ArgumentNullException(nameof(schemes));
 
             // If this is a decorator then the decorated resource-provider already has set this.
-            if (!metadata.ProviderDefaultName())
+            if (!this.DefaultName())
             {
-                metadata = metadata.ProviderDefaultName(GetType().ToPrettyString());
+                metadata = this.DefaultName(GetType().ToPrettyString());
             }
 
             Schemes = schemes.ToImmutableHashSet();
@@ -71,7 +71,9 @@ namespace Reusable.IOnymous
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
         {
-            builder.DisplayCollection(x => x.Metadata.ProviderNames());
+            //builder.DisplayCollection(p => p.ProviderNames());
+            builder.DisplayMember(p => p.DefaultName());
+            builder.DisplayMember(p => p.CustomName());
             builder.DisplayMember(x => x.Schemes);
         });
 
@@ -269,5 +271,11 @@ namespace Reusable.IOnymous
         //public static ResourceProvider operator +(ResourceProvider decorable, Func<ResourceProvider, ResourceProvider> decorator) => decorator(decorable);
 
         #endregion
+    }
+    
+    public static class ResourceQueryStringKeys
+    {
+        public const string ProviderName = nameof(ProviderName);
+        public const string ProviderType = nameof(ProviderType);
     }
 }

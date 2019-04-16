@@ -27,9 +27,11 @@
     <PackageReference Include="Autofac" Version="4.9.1" />
     <PackageReference Include="JetBrains.Annotations" Version="2018.3.0" />
     <PackageReference Include="System.Threading.Tasks.Dataflow" Version="4.9.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="1.5.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Reusable.IOnymous\Reusable.IOnymous.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog.Abstractions\Reusable.OmniLog.Abstractions.csproj" />
     <ProjectReference Include="..\Reusable.OneTo1\Reusable.OneTo1.csproj" />
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
@@ -37,10 +39,12 @@
     <ProjectReference Include="..\Reusable.OmniLog.ColoredConsoleRx\Reusable.OmniLog.ColoredConsoleRx.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog.SemanticExtensions\Reusable.OmniLog.SemanticExtensions.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog\Reusable.OmniLog.csproj" />
+    <ProjectReference Include="..\Reusable.SmartConfig\Reusable.SmartConfig.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Linq" />
   </ItemGroup>
 
 </Project>

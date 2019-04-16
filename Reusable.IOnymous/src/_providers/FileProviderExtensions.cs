@@ -39,7 +39,7 @@ namespace Reusable.IOnymous
 
         public static async Task<IResourceInfo> WriteTextFileAsync(this IResourceProvider resourceProvider, string path, string value, ResourceMetadata metadata = default)
         {
-            using (var stream = await ResourceHelper.SerializeAsTextAsync(value, metadata.Encoding()))
+            using (var stream = await ResourceHelper.SerializeTextAsync(value, metadata.Encoding()))
             {
                 return await resourceProvider.PutAsync(CreateUri(path), stream, metadata.Format(MimeType.Text));
             }

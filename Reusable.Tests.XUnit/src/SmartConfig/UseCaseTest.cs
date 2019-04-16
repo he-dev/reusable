@@ -47,8 +47,8 @@ namespace Reusable.Tests.XUnit.SmartConfig
                         {
                             { "setting:Test7.Member", "Value7" },
                         },
-                        new AppSettingProvider(new UriStringToSettingIdentifierConverter()),
-                        new SqlServerProvider("name=TestDb", new UriStringToSettingIdentifierConverter())
+                        new AppSettingProvider(new UriStringToSettingNameStringConverter()),
+                        new SqlServerProvider("name=TestDb", new UriStringToSettingNameStringConverter())
                         {
                             TableName = SettingTableName,
                             ColumnMappings =

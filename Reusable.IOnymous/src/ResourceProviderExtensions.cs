@@ -75,5 +75,26 @@ namespace Reusable.IOnymous
         #region DELETE helpers
 
         #endregion
+
+        public static SoftString DefaultName(this IResourceProvider resourceProvider)
+        {
+            return resourceProvider.Metadata.GetValueOrDefault(SoftString.Empty);
+        }
+
+        public static ResourceMetadata DefaultName(this IResourceProvider resourceProvider, SoftString name)
+        {
+            return resourceProvider.Metadata.SetItemAuto(name);
+        }
+
+
+        public static SoftString CustomName(this IResourceProvider resourceProvider)
+        {
+            return resourceProvider.Metadata.GetValueOrDefault(SoftString.Empty);
+        }
+
+        public static ResourceMetadata CustomName(this IResourceProvider resourceProvider, SoftString name)
+        {
+            return resourceProvider.Metadata.SetItemAuto(name);
+        }
     }
 }

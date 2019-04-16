@@ -51,7 +51,7 @@ namespace Reusable.IOnymous
             return await resourceProvider.PostAsync
             (
                 $"{MailProvider.DefaultScheme}:ionymous@mailprovider.com",
-                () => ResourceHelper.SerializeAsTextAsync(email.Body.Value, email.Body.Encoding),
+                () => ResourceHelper.SerializeTextAsync(email.Body.Value, email.Body.Encoding),
                 metadata
             );
         }

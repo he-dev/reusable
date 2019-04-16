@@ -20,5 +20,10 @@ namespace Reusable.OneTo1
         {
             return converter.Convert(new ConversionContext<object>(value, toType, converter));
         }
+
+        public static T Convert<T>(this ITypeConverter converter, object value)
+        {
+            return (T)converter.Convert(value, typeof(T));
+        }
     }
 }

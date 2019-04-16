@@ -12,10 +12,10 @@ namespace Reusable.SmartConfig
     public enum SettingNameToken
     {
         Prefix,
-        Namespace,
+        Scope,
         Type,
         Member,
-        Instance
+        Handle
     }
     
     internal static class SettingNameParser
@@ -23,7 +23,7 @@ namespace Reusable.SmartConfig
         public static class Separator
         {
             public const char Prefix = ':';
-            public const char Namespace = '+';
+            public const char Scope = '+';
             public const char Type = '.';
             public const char Member = ',';
         }
@@ -47,10 +47,10 @@ namespace Reusable.SmartConfig
                         min = max;
                         break;
 
-                    case Separator.Namespace:
+                    case Separator.Scope:
                         min = tokens.TryGetValue(Token.Prefix, out var assembly) ? assembly.Length + 1 : 0;
                         tokens.Remove(Token.Type);
-                        Add(Token.Namespace, name.Slice(min, max - min));
+                        Add(Token.Scope, name.Slice(min, max - min));
                         min = max;
                         break;
 
@@ -79,7 +79,7 @@ namespace Reusable.SmartConfig
 
             if (min < max)
             {
-                var token = tokens.ContainsKey(Token.Member) ? Token.Instance : Token.Member;
+                var token = tokens.ContainsKey(Token.Member) ? Token.Handle : Token.Member;
                 Add(
                     token,
                     tokens.Any()
@@ -93,7 +93,7 @@ namespace Reusable.SmartConfig
                 throw ("MemberMissing", $"Setting name must at least contains member.").ToDynamicException();
             }
 
-            if (tokens.ContainsKey(Token.Namespace) && !tokens.ContainsKey(Token.Type))
+            if (tokens.ContainsKey(Token.Scope) && !tokens.ContainsKey(Token.Type))
             {
                 throw ("TypeMissing", $"Namespace must not exist without type.").ToDynamicException();
             }

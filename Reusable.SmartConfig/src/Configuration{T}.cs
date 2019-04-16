@@ -20,14 +20,14 @@ using Reusable.SmartConfig.Reflection;
 
 namespace Reusable.SmartConfig
 {
-    internal interface IConfiguration<T>
+    public interface IConfiguration<T>
     {
         Task<TValue> GetItemAsync<TValue>(Expression<Func<T, TValue>> getItem, string handle = default);
 
         Task SetItemAsync<TValue>(Expression<Func<T, TValue>> setItem, TValue newValue, string handle = default);
     }
 
-    internal class Configuration<T> : IConfiguration<T>
+    public class Configuration<T> : IConfiguration<T>
     {
         //private static readonly IImmutableSet<MimeType> SupportedTypes = ImmutableHashSet<MimeType>.Empty.Add(MimeType.Text).Add(MimeType.Json);
 
@@ -69,7 +69,7 @@ namespace Reusable.SmartConfig
 
                     if (setting.Format == MimeType.Binary)
                     {
-                        var data = await ResourceHelper.DerializeBinaryAsync<IList<string>>(memoryStream.Rewind());
+                        var data = await ResourceHelper.DeserializeBinaryAsync<IList<string>>(memoryStream.Rewind());
                         return (TValue)_converter.Convert(data, settingMetadata.MemberType);
                     }
 
@@ -92,8 +92,8 @@ namespace Reusable.SmartConfig
             var uri = SettingUriFactory.CreateSettingUri(settingMetadata, handle);
 
             Validate(newValue, settingMetadata.Validations, uri);
-            var data = (string)_converter.Convert(newValue, typeof(string));
-            using (var stream = await ResourceHelper.SerializeAsTextAsync(data))
+            var data = _converter.Convert<string>(newValue);
+            using (var stream = await ResourceHelper.SerializeTextAsync(data))
             {
                 await _settingProvider.PutAsync(uri, stream, PopulateProviderInfo(settingMetadata, ResourceMetadata.Empty.Format(MimeType.Text)));
             }
@@ -131,6 +131,10 @@ namespace Reusable.SmartConfig
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Property)]
     public class ResourceSchemeAttribute : Attribute
     {
+        public ResourceSchemeAttribute(string name)
+        {
+            Name = name;
+        }
         public string Name { get; }
     }
 
@@ -267,10 +271,11 @@ namespace Reusable.SmartConfig
         private static T GetCustomAttribute<T>(Type type, MemberInfo member) where T : Attribute
         {
             return new[]
-            {
-                member?.GetCustomAttributes<T>(inherit: true).FirstOrDefault(),
-                type?.GetCustomAttribute<T>(),
-            }.FirstOrDefault(Conditional.IsNotNull);
+                {
+                    member?.GetCustomAttributes<T>(inherit: true).FirstOrDefault(),
+                    type?.GetCustomAttribute<T>(),
+                }
+                .FirstOrDefault(Conditional.IsNotNull);
         }
     }
 
@@ -280,12 +285,12 @@ namespace Reusable.SmartConfig
         {
             var queryParameters = new (SoftString Key, SoftString Value)[]
             {
-                ("prefix", setting.ResourcePrefix),
-                ("handle", handle),
-                ("level", setting.Level.ToString()),
-                ("providerName", setting.ResourceProviderName),
-                ("providerType", setting.ResourceProviderType?.ToPrettyString()),
-                ("isCollection", typeof(IList<string>).IsAssignableFrom(setting.MemberType).ToString())
+                (ResourceQueryStringKeys.ProviderName, setting.ResourceProviderName),
+                (ResourceQueryStringKeys.ProviderType, setting.ResourceProviderType?.ToPrettyString()),
+                (SettingQueryStringKeys.Prefix, setting.ResourcePrefix),
+                (SettingQueryStringKeys.Handle, handle),
+                (SettingQueryStringKeys.Level, setting.Level.ToString()),
+                (SettingQueryStringKeys.IsCollection, typeof(IList<string>).IsAssignableFrom(setting.MemberType).ToString()),
             };
 
             var query =
@@ -298,10 +303,22 @@ namespace Reusable.SmartConfig
         }
     }
 
+    public static class SettingQueryStringKeys
+    {
+        public const string Prefix = nameof(Prefix);
+        public const string Handle = nameof(Handle);
+        public const string Level = nameof(Level);
+        public const string IsCollection = nameof(IsCollection);
+    }
+
+    
+
     public enum ResourceNameLevel
     {
         NamespaceTypeMember,
         TypeMember,
         Member,
     }
+    
+    
 }

@@ -122,7 +122,7 @@ namespace Reusable.SmartConfig
 
                 Validate(newValue, settingMetadata.Validations, uri);
                 var json = (string)_converter.Convert(newValue, typeof(string));
-                using (var stream = ResourceHelper.SerializeAsTextAsync(json).GetAwaiter().GetResult())
+                using (var stream = ResourceHelper.SerializeTextAsync(json).GetAwaiter().GetResult())
                 {
                     _settingProvider.PutAsync(uri, stream, PopulateProviderInfo(settingMetadata, ResourceMetadata.Empty.Format(MimeType.Text))).GetAwaiter().GetResult();
                 }
@@ -181,15 +181,7 @@ namespace Reusable.SmartConfig
             }
 
             return value;
-        }
-
-        private static ResourceMetadata PopulateProviderInfo(SettingMetadata settingMetadata, ResourceMetadata metadata = default)
-        {
-            return
-                metadata
-                    .ProviderCustomName(settingMetadata.ProviderName)
-                    .ProviderDefaultName(settingMetadata.ProviderType?.ToPrettyString());
-        }
+        }        
 
         #endregion
     }

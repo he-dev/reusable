@@ -13,12 +13,15 @@ namespace Reusable.SmartConfig
 {
     using Token = SettingNameToken;
 
+    /// <summary>
+    /// Represents a setting name with the format: [Prefix:][Sco.pe+][Type.]Member[,Handle]
+    /// </summary>
     [PublicAPI]
     public class SettingIdentifier
     {
-        private readonly IDictionary<SettingNameToken, ReadOnlyMemory<char>> _tokens;
+        private readonly IDictionary<Token, ReadOnlyMemory<char>> _tokens;
 
-        public static readonly string Format = "[Prefix:][Name.space+][Type.]Member[,Instance]";
+        //public static readonly string Format = "[Prefix:][Name.space+][Type.]Member[,Instance]";
 
         public SettingIdentifier
         (
@@ -31,21 +34,22 @@ namespace Reusable.SmartConfig
         {
             if (member == null) throw new ArgumentNullException(nameof(member));
 
-            _tokens = new Dictionary<SettingNameToken, ReadOnlyMemory<char>>
+            _tokens = new Dictionary<Token, ReadOnlyMemory<char>>
             {
                 [Token.Prefix] = prefix is null ? ReadOnlyMemory<char>.Empty : new ReadOnlyMemory<char>(prefix.ToCharArray()),
-                [Token.Namespace] = scope is null ? ReadOnlyMemory<char>.Empty : new ReadOnlyMemory<char>(scope.ToCharArray()),
+                [Token.Scope] = scope is null ? ReadOnlyMemory<char>.Empty : new ReadOnlyMemory<char>(scope.ToCharArray()),
                 [Token.Type] = type is null ? ReadOnlyMemory<char>.Empty : new ReadOnlyMemory<char>(type.ToCharArray()),
                 [Token.Member] = new ReadOnlyMemory<char>(member.ToCharArray()),
-                [Token.Instance] = handle is null ? ReadOnlyMemory<char>.Empty : new ReadOnlyMemory<char>(handle.ToCharArray()),
+                [Token.Handle] = handle is null ? ReadOnlyMemory<char>.Empty : new ReadOnlyMemory<char>(handle.ToCharArray()),
             };
         }
 
-        public SettingIdentifier([NotNull] IDictionary<SettingNameToken, ReadOnlyMemory<char>> tokens)
+        public SettingIdentifier([NotNull] IDictionary<Token, ReadOnlyMemory<char>> tokens)
         {
             _tokens = tokens ?? throw new ArgumentNullException(nameof(tokens));
         }
 
+        [Obsolete]
         public SettingIdentifier(UriString uri)
         {
             if (uri.IsRelative) throw new ArgumentException();
@@ -53,13 +57,13 @@ namespace Reusable.SmartConfig
 
             var names = uri.Path.Decoded.ToString().Split('.');
 
-            _tokens = new Dictionary<SettingNameToken, ReadOnlyMemory<char>>
+            _tokens = new Dictionary<Token, ReadOnlyMemory<char>>
             {
                 [Token.Prefix] = uri.Query.TryGetValue("prefix", out var prefix) ? new ReadOnlyMemory<char>(prefix.ToString().ToCharArray()) : ReadOnlyMemory<char>.Empty,
-                [Token.Namespace] = names.Length == 3 ? new ReadOnlyMemory<char>(names[names.Length - 3].ToCharArray()) : ReadOnlyMemory<char>.Empty,
+                [Token.Scope] = names.Length == 3 ? new ReadOnlyMemory<char>(names[names.Length - 3].ToCharArray()) : ReadOnlyMemory<char>.Empty,
                 [Token.Type] = names.Length >= 2 ? new ReadOnlyMemory<char>(names[names.Length - 2].ToCharArray()) : ReadOnlyMemory<char>.Empty,
                 [Token.Member] = names.Length >= 1 ? new ReadOnlyMemory<char>(names[names.Length - 1].ToCharArray()) : ReadOnlyMemory<char>.Empty,
-                [Token.Instance] = uri.Query.TryGetValue("instance", out var instance) ? new ReadOnlyMemory<char>(instance.ToString().ToCharArray()) : ReadOnlyMemory<char>.Empty,
+                [Token.Handle] = uri.Query.TryGetValue("instance", out var instance) ? new ReadOnlyMemory<char>(instance.ToString().ToCharArray()) : ReadOnlyMemory<char>.Empty,
             };
         }
 
@@ -71,7 +75,7 @@ namespace Reusable.SmartConfig
 
         [CanBeNull]
         [AutoEqualityProperty]
-        public string Namespace => this[Token.Namespace].ToString();
+        public string Scope => this[Token.Scope].ToString();
 
         [CanBeNull]
         [AutoEqualityProperty]
@@ -83,12 +87,12 @@ namespace Reusable.SmartConfig
 
         [CanBeNull]
         [AutoEqualityProperty]
-        public string Instance => this[Token.Instance].ToString();
+        public string Handle => this[Token.Handle].ToString();
 
         [NotNull]
         public static SettingIdentifier Parse([NotNull] string text) => new SettingIdentifier(SettingNameParser.Tokenize(text));
 
-        public static SettingIdentifier FromMetadata(SettingMetadata settingMetadata, string instance)
+        public static SettingIdentifier FromMetadata(SettingMetadata settingMetadata, string handle)
         {
             return new SettingIdentifier
             (
@@ -96,7 +100,7 @@ namespace Reusable.SmartConfig
                 scope: settingMetadata.Namespace,
                 type: settingMetadata.TypeName,
                 member: settingMetadata.MemberName,
-                handle: instance
+                handle: handle
             );
         }
 
@@ -105,10 +109,10 @@ namespace Reusable.SmartConfig
             return
                 new StringBuilder()
                     .Append(this[Token.Prefix].IsEmpty ? default : $"{Prefix}{SettingNameParser.Separator.Prefix}")
-                    .Append(this[Token.Namespace].IsEmpty ? default : $"{Namespace}{SettingNameParser.Separator.Namespace}")
+                    .Append(this[Token.Scope].IsEmpty ? default : $"{Scope}{SettingNameParser.Separator.Scope}")
                     .Append(this[Token.Type].IsEmpty ? default : $"{Type}{SettingNameParser.Separator.Type}")
                     .Append(this[Token.Member])
-                    .Append(this[Token.Instance].IsEmpty ? default : $"{SettingNameParser.Separator.Member}{Instance}")
+                    .Append(this[Token.Handle].IsEmpty ? default : $"{SettingNameParser.Separator.Member}{Handle}")
                     .ToString();
         }
 
@@ -118,26 +122,26 @@ namespace Reusable.SmartConfig
 
         public static implicit operator SoftString(SettingIdentifier settingIdentifier) => settingIdentifier?.ToString();
 
-        public static implicit operator UriString(SettingIdentifier settingIdentifier)
-        {
-            var path = new[]
-            {
-                settingIdentifier.Namespace?.Replace('.', '-'),
-                settingIdentifier.Type,
-                settingIdentifier.Member,
-            };
-
-            var query = (SoftString)new (SoftString Key, SoftString Value)[]
-            {
-                ("prefix", settingIdentifier.Prefix),
-                ("instance", settingIdentifier.Instance)
-            }
-            .Where(x => x.Value)
-            .Select(x => $"{x.Key.ToString()}={x.Value.ToString()}")
-            .Join("&");
-
-            return $"setting:{path.Where(Conditional.IsNotNullOrEmpty).Join(".")}{(query ? $"?{query.ToString()}" : string.Empty)}";
-        }
+//        public static implicit operator UriString(SettingIdentifier settingIdentifier)
+//        {
+//            var path = new[]
+//            {
+//                settingIdentifier.Namespace?.Replace('.', '-'),
+//                settingIdentifier.Type,
+//                settingIdentifier.Member,
+//            };
+//
+//            var query = (SoftString)new (SoftString Key, SoftString Value)[]
+//            {
+//                ("prefix", settingIdentifier.Prefix),
+//                ("instance", settingIdentifier.Instance)
+//            }
+//            .Where(x => x.Value)
+//            .Select(x => $"{x.Key.ToString()}={x.Value.ToString()}")
+//            .Join("&");
+//
+//            return $"setting:{path.Where(Conditional.IsNotNullOrEmpty).Join(".")}{(query ? $"?{query.ToString()}" : string.Empty)}";
+//        }
 
         public static bool operator ==(SettingIdentifier x, SettingIdentifier y) => AutoEquality<SettingIdentifier>.Comparer.Equals(x, y);
 

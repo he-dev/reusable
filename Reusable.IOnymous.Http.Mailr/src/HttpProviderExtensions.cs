@@ -30,9 +30,9 @@ namespace Reusable.IOnymous
                             .ResponseFormatters(new TextMediaTypeFormatter())
                             .ContentType("application/json")
                     )
-                    .Schemes("http", "https")
+                    .Schemes("http", "https");
                     // Use to pick the correct provider from a composite one.
-                    .ProviderDefaultName(nameof(HttpProvider));
+                    //.ProviderDefaultName(nameof(HttpProvider));
 
             var response = await resourceProvider.PostAsync(uri, () => ResourceHelper.SerializeAsJsonAsync(email, jsonSerializer), metadata);
             return await response.DeserializeTextAsync();

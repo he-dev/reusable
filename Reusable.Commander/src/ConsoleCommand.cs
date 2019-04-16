@@ -11,6 +11,7 @@ using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.Reflection;
 using Reusable.OmniLog.SemanticExtensions;
+using Reusable.SmartConfig;
 
 namespace Reusable.Commander
 {
@@ -23,7 +24,7 @@ namespace Reusable.Commander
     }
 
     [PublicAPI]
-    public abstract class ConsoleCommand<TBag, TContext> : IConsoleCommand where TBag : ICommandBag, new()
+    public abstract class ConsoleCommand<TConfiguration, TContext> : IConsoleCommand where TConfiguration : ICommandConfiguration, new()
     {
         protected ConsoleCommand([NotNull] ICommandServiceProvider serviceProvider, [CanBeNull] Identifier id = default)
         {
@@ -43,53 +44,82 @@ namespace Reusable.Commander
         {
             switch (parameter)
             {
-                case null:
-                    await ExecuteWhenEnabledAsync(default, (TContext)context, cancellationToken);
-                    break;
+//                case null:
+//                    await ExecuteWhenEnabledAsync(default, (TContext)context, cancellationToken);
+//                    break;
 
                 case ICommandLine commandLine:
-                    await ExecuteWhenEnabledAsync(Services.Mapper.Map<TBag>(commandLine), (TContext)context, cancellationToken);
+                    await CheckAndExecuteAsync(Services.Mapper.Map<TConfiguration>(commandLine), (TContext)context, cancellationToken);
+                    await CheckAndExecuteAsync
+                    (
+                        new Configuration<TConfiguration>(new CommandLineArgumentProvider(commandLine)),
+                        (TContext)context,
+                        cancellationToken
+                    );
                     break;
 
-                case TBag bag:
-                    await ExecuteWhenEnabledAsync(bag, (TContext)context, cancellationToken);
-                    break;
+//                case TBag bag:
+//                    await ExecuteWhenEnabledAsync(bag, (TContext)context, cancellationToken);
+//                    break;
 
                 default:
                     throw new ArgumentOutOfRangeException
                     (
                         paramName: nameof(parameter),
-                        message: $"{nameof(parameter)} must be either a {typeof(ICommandLine).Name} or {typeof(TBag).Name}."
+                        message: $"{nameof(parameter)} must be either a {typeof(ICommandLine).Name} or {typeof(TConfiguration).Name}."
                     );
             }
         }
 
-        private async Task ExecuteWhenEnabledAsync(TBag parameter, TContext context, CancellationToken cancellationToken)
+        private async Task CheckAndExecuteAsync(TConfiguration parameter, TContext context, CancellationToken cancellationToken)
         {
             if (await CanExecuteAsync(parameter, context, cancellationToken))
             {
+                Logger.Log(Abstraction.Layer.Service().Decision("Execute command.").Because("Can execute."));
                 await ExecuteAsync(parameter, context, cancellationToken);
             }
             else
             {
-                Logger.Log(Abstraction.Layer.Service().Routine(nameof(ExecuteAsync)).Canceled(), $"'{Id}' is disabled.");
+                Logger.Log(Abstraction.Layer.Service().Decision("Don't execute command.").Because("Cannot execute."));
             }
-        }                
+        }
 
         /// <summary>
         /// When overriden by a derived class indicates whether a command can be executed. The default implementation always returns 'true'.
         /// </summary>
-        protected virtual Task<bool> CanExecuteAsync(TBag parameter, TContext context, CancellationToken cancellationToken = default)
+        protected virtual Task<bool> CanExecuteAsync(TConfiguration parameter, TContext context, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(true);
         }
 
-        protected abstract Task ExecuteAsync(TBag parameter, TContext context, CancellationToken cancellationToken);
-        
+        protected abstract Task ExecuteAsync(TConfiguration parameter, TContext context, CancellationToken cancellationToken);
+
         // todo - new signature
-        protected virtual Task ExecuteAsync(CommandLine parameter, TContext context, CancellationToken cancellationToken)
+
+        /// <summary>
+        /// When overriden by a derived class indicates whether a command can be executed. The default implementation always returns 'true'.
+        /// </summary>
+        protected virtual Task<bool> CanExecuteAsync(IConfiguration<TConfiguration> configuration, TContext context, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(true);
+        }
+
+        protected virtual Task ExecuteAsync(IConfiguration<TConfiguration> configuration, TContext context, CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
+        }
+
+        private async Task CheckAndExecuteAsync(IConfiguration<TConfiguration> configuration, TContext context, CancellationToken cancellationToken)
+        {
+            if (await CanExecuteAsync(configuration, context, cancellationToken))
+            {
+                Logger.Log(Abstraction.Layer.Service().Decision("Execute command.").Because("Can execute."));
+                await ExecuteAsync(configuration, context, cancellationToken);
+            }
+            else
+            {
+                Logger.Log(Abstraction.Layer.Service().Decision("Don't execute command.").Because("Cannot execute."));
+            }
         }
     }
 

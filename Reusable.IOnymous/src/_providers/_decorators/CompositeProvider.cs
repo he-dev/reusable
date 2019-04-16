@@ -39,15 +39,15 @@ namespace Reusable.IOnymous
             _resourceProviders = resourceProviders.ToImmutableList();
             var duplicateProviderNames =
                 _resourceProviders
-                    .Where(x => x.Metadata.ProviderCustomName())
-                    .GroupBy(x => x.Metadata.ProviderCustomName())
+                    .Where(p => p.CustomName())
+                    .GroupBy(p => p.CustomName())
                     .Where(g => g.Count() > 1)
                     .Select(g => g.First())
                     .ToList();
 
             if (duplicateProviderNames.Any())
             {
-                throw new ArgumentException($"Providers must use unique custom names but there are some duplicates: [{duplicateProviderNames.Select(x => (string)x.Metadata.ProviderCustomName()).Join(", ")}].");
+                throw new ArgumentException($"Providers must use unique custom names but there are some duplicates: [{duplicateProviderNames.Select(p => (string)p.CustomName()).Join(", ")}].");
             }
         }
 
@@ -74,6 +74,7 @@ namespace Reusable.IOnymous
         [ItemNotNull]
         private async Task<IResourceInfo> HandleMethodAsync(UriString uri, ResourceMetadata metadata, bool isGet, Func<IResourceProvider, Task<IResourceInfo>> handleAsync)
         {
+            
             await _cacheLock.WaitAsync();
             try
             {
@@ -84,23 +85,24 @@ namespace Reusable.IOnymous
 
                 var resourceProviders = _resourceProviders.ToList();
 
-                if (metadata.ProviderCustomName())
+                //if (metadata.ProviderCustomName())
+                if (uri.Query.TryGetValue(ResourceQueryStringKeys.ProviderName, out var providerName))
                 {
                     var match =
                         resourceProviders
-                            .Where(p => metadata.ProviderCustomName().Equals(p.Metadata.ProviderCustomName()))
+                            .Where(p => p.CustomName().Equals(providerName))
                             // There must be exactly one provider with that name.                
                             .SingleOrThrow
                             (
                                 onEmpty: () => DynamicException.Create
                                 (
                                     "ProviderNotFound",
-                                    $"Could not find any provider that would match the name '{(string)metadata.ProviderCustomName()}'."
+                                    $"Could not find any provider that would match the name '{(string)providerName}'."
                                 ),
                                 onMultiple: () => DynamicException.Create
                                 (
                                     "MultipleProvidersFound",
-                                    $"There is more than one provider that matches the custom name '{(string)metadata.ProviderCustomName()}'."
+                                    $"There is more than one provider that matches the custom name '{(string)providerName}'."
                                 )
                             );
 
@@ -109,11 +111,12 @@ namespace Reusable.IOnymous
                 }
 
                 // Multiple providers can have the same default name.
-                if (metadata.ProviderDefaultName())
+                //if (metadata.ProviderDefaultName())
+                if (uri.Query.TryGetValue(ResourceQueryStringKeys.ProviderType, out var providerType))
                 {
                     resourceProviders =
                         resourceProviders
-                            .Where(p => p.Metadata.ProviderDefaultName().Equals(metadata.ProviderDefaultName()))
+                            .Where(p => p.DefaultName().Equals(providerType))
                             .ToList();
 
                     if (resourceProviders.Empty())
@@ -121,7 +124,7 @@ namespace Reusable.IOnymous
                         throw DynamicException.Create
                         (
                             "ProviderNotFound",
-                            $"Could not find any provider that would match the name default name '{(string)metadata.ProviderDefaultName()}'."
+                            $"Could not find any provider that would match the name default name '{(string)providerType}'."
                         );
                     }
                 }

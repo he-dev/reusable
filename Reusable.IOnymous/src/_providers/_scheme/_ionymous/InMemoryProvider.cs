@@ -73,14 +73,14 @@ namespace Reusable.IOnymous
             {
                 case string str:
                 {
-                    var stream = ResourceHelper.SerializeAsTextAsync(str).GetAwaiter().GetResult();
+                    var stream = ResourceHelper.SerializeTextAsync(str).GetAwaiter().GetResult();
                     inMemory.PutAsync(uri, stream, ResourceMetadata.Empty.Format(MimeType.Text)).GetAwaiter().GetResult();
                 }
 
                     break;
                 default:
                 {
-                    var stream = ResourceHelper.SerializeAsBinaryAsync(value).GetAwaiter().GetResult();
+                    var stream = ResourceHelper.SerializeBinaryAsync(value).GetAwaiter().GetResult();
                     inMemory.PutAsync(uri, stream, ResourceMetadata.Empty.Format(MimeType.Binary)).GetAwaiter().GetResult();
                 }
 

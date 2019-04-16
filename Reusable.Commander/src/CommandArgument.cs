@@ -20,9 +20,7 @@ namespace Reusable.Commander
 
         internal CommandArgument(Identifier key) => Key = key;
 
-        internal CommandArgument() : this(Identifier.Empty)
-        {
-        }
+        internal CommandArgument() : this(Identifier.Empty) { }
 
         private string DebuggerDisplay => ToString();
 

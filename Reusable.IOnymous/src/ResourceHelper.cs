@@ -53,13 +53,13 @@ namespace Reusable.IOnymous
 
         // --------
 
-        public static Task<Stream> SerializeAsTextAsync(string value, Encoding encoding = null)
+        public static Task<Stream> SerializeTextAsync(string value, Encoding encoding = null)
         {
             encoding = encoding ?? Encoding.UTF8;
             return Task.FromResult<Stream>(new MemoryStream(encoding.GetBytes(value)));
         }
 
-        public static Task<Stream> SerializeAsBinaryAsync(object value)
+        public static Task<Stream> SerializeBinaryAsync(object value)
         {
             var binaryFormatter = new BinaryFormatter();
             var memoryStream = new MemoryStream();
@@ -67,7 +67,7 @@ namespace Reusable.IOnymous
             return Task.FromResult<Stream>(memoryStream);
         }
         
-        public static Task<T> DerializeBinaryAsync<T>(Stream stream)
+        public static Task<T> DeserializeBinaryAsync<T>(Stream stream)
         {
             var binaryFormatter = new BinaryFormatter();            
             return Task.FromResult((T)binaryFormatter.Deserialize(stream.Rewind()));

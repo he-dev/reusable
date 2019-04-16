@@ -30,15 +30,15 @@ namespace Reusable.Commander
 
         public bool Contains(Identifier id) => _arguments.ContainsKey(id);
 
-        #endregion 
-        
+        #endregion
+
         #region IEnumerable
 
         public IEnumerator<IGrouping<Identifier, string>> GetEnumerator() => _arguments.Values.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        #endregion        
+        #endregion
 
         [ContractAnnotation("id: null => halt")]
         public void Add([NotNull] Identifier id)
@@ -64,7 +64,7 @@ namespace Reusable.Commander
             }
         }
 
-        [ContractAnnotation("key: null => halt")]
+        [ContractAnnotation("id: null => halt")]
         public void Add([NotNull] SoftString id)
         {
             if (id == null) throw new ArgumentNullException(nameof(id));
@@ -72,7 +72,7 @@ namespace Reusable.Commander
             Add((Identifier)id);
         }
 
-        [ContractAnnotation("key: null => halt; value: null => halt")]
+        [ContractAnnotation("id: null => halt; value: null => halt")]
         public void Add([NotNull] SoftString id, [NotNull] string value)
         {
             if (id == null) throw new ArgumentNullException(nameof(id));

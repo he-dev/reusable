@@ -103,7 +103,7 @@ namespace Reusable.Commander
                 commandType
                     .BaseType
                     .GetGenericArguments()
-                    .Single(t => typeof(ICommandBag).IsAssignableFrom(t));
+                    .Single(t => typeof(ICommandConfiguration).IsAssignableFrom(t));
         }        
     }
 }
