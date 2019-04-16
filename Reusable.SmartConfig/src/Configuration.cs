@@ -230,11 +230,14 @@ namespace Reusable.SmartConfig
                     typeof(DateTime),
                     typeof(Color)
                 }
-            ) { }
+            )
+        { }
 
         public Type FromType => throw new NotSupportedException();
 
         public Type ToType => throw new NotSupportedException();
+
+        public bool TrimDoubleQuotes { get; set; }
 
         public bool CanConvert(Type fromType, Type toType)
         {
@@ -245,7 +248,7 @@ namespace Reusable.SmartConfig
         {
             if (context.FromType == typeof(string) && context.ToType == typeof(string))
             {
-                return context.Value;
+                return TrimDoubleQuotes ? ((string)context.Value).Trim('"') : context.Value;
             }
 
             if (CanConvert(context.FromType, context.ToType))
@@ -281,18 +284,16 @@ namespace Reusable.SmartConfig
 
     public static class ConfigurationExtensions
     {
-//        public static T GetSetting<T>(this IConfiguration configuration, string name, string instance = default)
-//        {
-//            var expression =
-//                Expression.Lambda<Func<T>>(
-//                    Expression.Property(
-//                        Expression.Constant(default(T), typeof(T)),
-//                        name
-//                    )
-//                );
-//            return configuration.GetSetting(expression, instance);
-//        }
+        //        public static T GetSetting<T>(this IConfiguration configuration, string name, string instance = default)
+        //        {
+        //            var expression =
+        //                Expression.Lambda<Func<T>>(
+        //                    Expression.Property(
+        //                        Expression.Constant(default(T), typeof(T)),
+        //                        name
+        //                    )
+        //                );
+        //            return configuration.GetSetting(expression, instance);
+        //        }
     }
-
-    
 }

@@ -72,9 +72,9 @@ namespace Reusable.Commander
             }
             else
             {
-                Logger.Log(Abstraction.Layer.Infrastructure().Routine(nameof(ExecuteAsync)).Canceled(), $"'{Id}' is disabled.");
+                Logger.Log(Abstraction.Layer.Service().Routine(nameof(ExecuteAsync)).Canceled(), $"'{Id}' is disabled.");
             }
-        }
+        }                
 
         /// <summary>
         /// When overriden by a derived class indicates whether a command can be executed. The default implementation always returns 'true'.
@@ -85,6 +85,12 @@ namespace Reusable.Commander
         }
 
         protected abstract Task ExecuteAsync(TBag parameter, TContext context, CancellationToken cancellationToken);
+        
+        // todo - new signature
+        protected virtual Task ExecuteAsync(CommandLine parameter, TContext context, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
     }
 
     public abstract class SimpleCommand : ConsoleCommand<SimpleBag, NullContext>

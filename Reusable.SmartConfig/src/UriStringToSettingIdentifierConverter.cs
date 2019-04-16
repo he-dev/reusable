@@ -9,7 +9,6 @@ using Reusable.Extensions;
 namespace Reusable.SmartConfig
 {
     using Token = SettingNameToken;
-    using Level = SettingNameLevel;
 
     public class UriStringToSettingIdentifierConverter : TypeConverter<UriString, string>
     {
@@ -36,13 +35,13 @@ namespace Reusable.SmartConfig
             
             var query = uri.Query;
             
-            var level = Enum.TryParse<SettingNameLevel>(query["level"].ToString(), ignoreCase: true, out var l) ? l : SettingNameLevel.TypeMember;
+            var level = Enum.TryParse<ResourceNameLevel>(query["level"].ToString(), ignoreCase: true, out var l) ? l : ResourceNameLevel.TypeMember;
 
             return new SettingIdentifier
             (
                 prefix: query.TryGetValue("prefix", out var prefix) ? prefix.ToString() : default,
-                scope: level.In(Level.NamespaceTypeMember) ? scope : default,
-                type: level.In(Level.NamespaceTypeMember, SettingNameLevel.TypeMember) ? type : default,
+                scope: level.In(ResourceNameLevel.NamespaceTypeMember) ? scope : default,
+                type: level.In(ResourceNameLevel.NamespaceTypeMember, ResourceNameLevel.TypeMember) ? type : default,
                 member: names.Last(),
                 handle: query.TryGetValue("handle", out var instance) ? instance.ToString() : default
             );

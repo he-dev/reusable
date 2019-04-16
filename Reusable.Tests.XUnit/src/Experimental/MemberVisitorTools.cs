@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 using Reusable.Commander;
 using Reusable.Exceptionize;
 using Reusable.IOnymous;
@@ -35,8 +36,6 @@ namespace Reusable.Tests.XUnit.Experimental
       
      */
 
-    
-
     public class MemberVisitorTools
     {
         [Fact]
@@ -49,18 +48,27 @@ namespace Reusable.Tests.XUnit.Experimental
                 { "build", "debug" },
             };
             var configuration = new Configuration<ITestConfig>(new CommandLineProvider(new UriStringToSettingIdentifierConverter2(), commandLine));
-            var name = await configuration.GetItemAsync(x => x.Files);
+            //var actualFiles = await configuration.GetItemAsync(x => x.Files);
+            var actualBuild = await configuration.GetItemAsync(x => x.Build);
+            
+            //Assert.Equal(new[] { "first.txt", "second.txt" }, actualFiles);
+            Assert.Equal("debug", actualBuild);
         }
-
-        [SettingType(Strength = SettingNameStrength.Low, Schema = CommandLineProvider.DefaultSchema)]
-        internal interface ICommandLineSchema { }
 
         //[Schema(CommandLineProvider.DefaultSchema)]
         //[NameLength(SettingNameStrength.Low)]
-        [ResourceName(Level = SettingNameLevel.Member)]
+        [ResourceName(Level = ResourceNameLevel.Member)]
         internal interface ITestConfig
         {
-            List<SoftString> Files { get; }
+            List<string> Files { get; }
+            
+            string Build { get; }
+        }
+
+        internal virtual async Task ExecuteAsync(IConfiguration<ITestConfig> parameter)
+        {
+            var files = await parameter.GetItemAsync(x => x.Files);
+            //return Task.CompletedTask;
         }
     }
 
@@ -75,32 +83,35 @@ namespace Reusable.Tests.XUnit.Experimental
         {
             _uriToIdentifierConverter = uriToIdentifierConverter;
             _commandLine = commandLine;
+            // todo - validate required parameters
         }
 
         // cmd://foo
         protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
         {
             var identifier = (Identifier)(SoftString)(SettingIdentifier)_uriToIdentifierConverter.Convert(uri, typeof(SettingIdentifier));
+            var values = _commandLine[identifier];
+            var data = uri.Query.TryGetValue("isCollection", out var ic) && bool.TryParse(ic.ToString(), out var icb) && icb ? (object)values : values.SingleOrDefault();
 
             return
                 _commandLine.Contains(identifier)
-                    ? Task.FromResult<IResourceInfo>(new CommandLineInfo(uri, _commandLine[identifier]))
+                    ? Task.FromResult<IResourceInfo>(new CommandLineInfo(uri, data))
                     : Task.FromResult<IResourceInfo>(new CommandLineInfo(uri, default));
         }
     }
 
     internal class CommandLineInfo : ResourceInfo
     {
-        private readonly IList<string> _values;
+        private readonly object _value;
 
-        public CommandLineInfo([NotNull] UriString uri, IEnumerable<string> values) : base(uri, MimeType.Binary)
+        public CommandLineInfo([NotNull] UriString uri, object value) : base(uri, MimeType.Json)
         {
-            _values = values.ToList();
+            _value = value;
         }
 
-        public override bool Exists => !(_values is null);
+        public override bool Exists => !(_value is null);
 
-        public override long? Length => _values?.Count();
+        public override long? Length => null; //?.Length;
 
         public override DateTime? CreatedOn { get; }
 
@@ -108,7 +119,7 @@ namespace Reusable.Tests.XUnit.Experimental
 
         protected override async Task CopyToAsyncInternal(Stream stream)
         {
-            using (var data = await ResourceHelper.SerializeAsBinaryAsync(_values))
+            using (var data = await ResourceHelper.SerializeAsJsonAsync(_value))
             {
                 await data.Rewind().CopyToAsync(stream);
             }
@@ -138,5 +149,5 @@ namespace Reusable.Tests.XUnit.Experimental
                 }
             }
         }
-    }    
+    }
 }

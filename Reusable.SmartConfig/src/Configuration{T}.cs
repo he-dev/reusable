@@ -40,7 +40,7 @@ namespace Reusable.SmartConfig
         public Configuration([NotNull] IResourceProvider settingProvider)
         {
             _settingProvider = settingProvider ?? throw new ArgumentNullException(nameof(settingProvider));
-            _converter = new JsonSettingConverter();
+            _converter = new JsonSettingConverter { TrimDoubleQuotes = true };
         }
 
         [NotNull]
@@ -63,18 +63,13 @@ namespace Reusable.SmartConfig
 
             if (setting.Exists)
             {
-                //if (!SupportedTypes.Contains(setting.Format))
-                {
-                    //throw DynamicException.Create("UnsupportedSettingFormat", $"'{setting.Format}' is not supported.");
-                }
-
                 using (var memoryStream = new MemoryStream())
                 {
                     await setting.CopyToAsync(memoryStream);
-                    
+
                     if (setting.Format == MimeType.Binary)
                     {
-                        var data = await ResourceHelper.DerializeBinaryAsync<IList<string>>(memoryStream);
+                        var data = await ResourceHelper.DerializeBinaryAsync<IList<string>>(memoryStream.Rewind());
                         return (TValue)_converter.Convert(data, settingMetadata.MemberType);
                     }
 
@@ -145,7 +140,7 @@ namespace Reusable.SmartConfig
         [CanBeNull]
         public string Name { get; set; }
 
-        public SettingNameLevel Level { get; set; } = SettingNameLevel.TypeMember;
+        public ResourceNameLevel Level { get; set; } = ResourceNameLevel.TypeMember;
     }
 
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Property)]
@@ -199,7 +194,7 @@ namespace Reusable.SmartConfig
 
             DefaultValue = member.GetCustomAttribute<DefaultValueAttribute>()?.Value;
 
-            Level = GetCustomAttribute<ResourceNameAttribute>(type, member)?.Level ?? SettingNameLevel.TypeMember;
+            Level = GetCustomAttribute<ResourceNameAttribute>(type, member)?.Level ?? ResourceNameLevel.TypeMember;
         }
 
         [NotNull]
@@ -241,7 +236,7 @@ namespace Reusable.SmartConfig
         [CanBeNull]
         public object DefaultValue { get; }
 
-        public SettingNameLevel Level { get; }
+        public ResourceNameLevel Level { get; }
 
         [NotNull]
         public static SettingNameMetadata FromExpression(LambdaExpression expression, bool nonPublic = false)
@@ -289,7 +284,8 @@ namespace Reusable.SmartConfig
                 ("handle", handle),
                 ("level", setting.Level.ToString()),
                 ("providerName", setting.ResourceProviderName),
-                ("providerType", setting.ResourceProviderType?.ToPrettyString())
+                ("providerType", setting.ResourceProviderType?.ToPrettyString()),
+                ("isCollection", typeof(IList<string>).IsAssignableFrom(setting.MemberType).ToString())
             };
 
             var query =
@@ -302,7 +298,7 @@ namespace Reusable.SmartConfig
         }
     }
 
-    public enum SettingNameLevel
+    public enum ResourceNameLevel
     {
         NamespaceTypeMember,
         TypeMember,
