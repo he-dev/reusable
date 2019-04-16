@@ -16,6 +16,7 @@ using Reusable.IOnymous;
 using Reusable.SmartConfig;
 using Reusable.Extensions;
 using Reusable.Flawless;
+using Reusable.OneTo1;
 using Reusable.SmartConfig.Reflection;
 using Xunit;
 
@@ -47,8 +48,8 @@ namespace Reusable.Tests.XUnit.Experimental
                 { "files", "second.txt" },
                 { "build", "debug" },
             };
-            var configuration = new Configuration<ITestConfig>(new CommandLineProvider(commandLine));
-            var name = await configuration.GetItemAsync(x => x.Name);
+            var configuration = new Configuration<ITestConfig>(new CommandLineProvider(new UriStringToSettingIdentifierConverter2(), commandLine));
+            var name = await configuration.GetItemAsync(x => x.Files);
         }
 
         [SettingType(Strength = SettingNameStrength.Low, Schema = CommandLineProvider.DefaultSchema)]
@@ -56,41 +57,45 @@ namespace Reusable.Tests.XUnit.Experimental
 
         //[Schema(CommandLineProvider.DefaultSchema)]
         //[NameLength(SettingNameStrength.Low)]
+        [ResourceName(Level = SettingNameLevel.Member)]
         internal interface ITestConfig
         {
-            string Name { get; }
+            List<SoftString> Files { get; }
         }
     }
 
     internal class CommandLineProvider : ResourceProvider
     {
-        public const string DefaultSchema = "cmd";
+        public const string DefaultSchema = "setting";
 
+        private readonly ITypeConverter _uriToIdentifierConverter;
         private readonly ICommandLine _commandLine;
 
-        public CommandLineProvider(ICommandLine commandLine) : base(new SoftString[] { DefaultSchema }, ResourceMetadata.Empty)
+        public CommandLineProvider(ITypeConverter uriToIdentifierConverter, ICommandLine commandLine) : base(new SoftString[] { DefaultSchema }, ResourceMetadata.Empty)
         {
+            _uriToIdentifierConverter = uriToIdentifierConverter;
             _commandLine = commandLine;
         }
 
         // cmd://foo
         protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
         {
-            var id = uri.Path.Decoded;
+            var identifier = (Identifier)(SoftString)(SettingIdentifier)_uriToIdentifierConverter.Convert(uri, typeof(SettingIdentifier));
+
             return
-                _commandLine.Contains(id)
-                    ? Task.FromResult<IResourceInfo>(new CommandLineInfo(uri, _commandLine[id]))
+                _commandLine.Contains(identifier)
+                    ? Task.FromResult<IResourceInfo>(new CommandLineInfo(uri, _commandLine[identifier]))
                     : Task.FromResult<IResourceInfo>(new CommandLineInfo(uri, default));
         }
     }
 
     internal class CommandLineInfo : ResourceInfo
     {
-        private readonly IEnumerable<string> _values;
+        private readonly IList<string> _values;
 
         public CommandLineInfo([NotNull] UriString uri, IEnumerable<string> values) : base(uri, MimeType.Binary)
         {
-            _values = values;
+            _values = values.ToList();
         }
 
         public override bool Exists => !(_values is null);
@@ -105,7 +110,7 @@ namespace Reusable.Tests.XUnit.Experimental
         {
             using (var data = await ResourceHelper.SerializeAsBinaryAsync(_values))
             {
-                await data.CopyToAsync(stream);
+                await data.Rewind().CopyToAsync(stream);
             }
         }
     }

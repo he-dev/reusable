@@ -22,9 +22,9 @@ namespace Reusable.SmartConfig
 {
     internal interface IConfiguration<T>
     {
-        Task<TValue> GetItemAsync<TValue>(Expression<Func<T, TValue>> getItem, string key = default);
+        Task<TValue> GetItemAsync<TValue>(Expression<Func<T, TValue>> getItem, string handle = default);
 
-        Task SetItemAsync<TValue>(Expression<Func<T, TValue>> setItem, TValue newValue, string key = default);
+        Task SetItemAsync<TValue>(Expression<Func<T, TValue>> setItem, TValue newValue, string handle = default);
     }
 
     internal class Configuration<T> : IConfiguration<T>
@@ -55,10 +55,10 @@ namespace Reusable.SmartConfig
             return new Configuration(new CompositeProvider(resourceProviders));
         }
 
-        public async Task<TValue> GetItemAsync<TValue>(Expression<Func<T, TValue>> getItem, string key = default)
+        public async Task<TValue> GetItemAsync<TValue>(Expression<Func<T, TValue>> getItem, string handle = default)
         {
-            var settingMetadata = MemberMetadata.FromExpression(getItem, false);
-            var uri = settingMetadata.CreateUri(key);
+            var settingMetadata = SettingNameMetadata.FromExpression(getItem, false);
+            var uri = SettingUriFactory.CreateSettingUri(settingMetadata, handle);
             var setting = await _settingProvider.GetAsync(uri, PopulateProviderInfo(settingMetadata));
 
             if (setting.Exists)
@@ -71,6 +71,13 @@ namespace Reusable.SmartConfig
                 using (var memoryStream = new MemoryStream())
                 {
                     await setting.CopyToAsync(memoryStream);
+                    
+                    if (setting.Format == MimeType.Binary)
+                    {
+                        var data = await ResourceHelper.DerializeBinaryAsync<IList<string>>(memoryStream);
+                        return (TValue)_converter.Convert(data, settingMetadata.MemberType);
+                    }
+
                     using (var streamReader = new StreamReader(memoryStream.Rewind()))
                     {
                         var data = await streamReader.ReadToEndAsync();
@@ -84,10 +91,10 @@ namespace Reusable.SmartConfig
             }
         }
 
-        public async Task SetItemAsync<TValue>(Expression<Func<T, TValue>> setItem, TValue newValue, string key = default)
+        public async Task SetItemAsync<TValue>(Expression<Func<T, TValue>> setItem, TValue newValue, string handle = default)
         {
-            var settingMetadata = MemberMetadata.FromExpression(setItem, false);
-            var uri = settingMetadata.CreateUri(key);
+            var settingMetadata = SettingNameMetadata.FromExpression(setItem, false);
+            var uri = SettingUriFactory.CreateSettingUri(settingMetadata, handle);
 
             Validate(newValue, settingMetadata.Validations, uri);
             var data = (string)_converter.Convert(newValue, typeof(string));
@@ -109,7 +116,7 @@ namespace Reusable.SmartConfig
             return value;
         }
 
-        private static ResourceMetadata PopulateProviderInfo(MemberMetadata settingMetadata, ResourceMetadata metadata = default)
+        private static ResourceMetadata PopulateProviderInfo(SettingNameMetadata settingMetadata, ResourceMetadata metadata = default)
         {
             return
                 metadata
@@ -135,20 +142,22 @@ namespace Reusable.SmartConfig
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Property)]
     public class ResourceNameAttribute : Attribute
     {
-        public string Name { get; }
+        [CanBeNull]
+        public string Name { get; set; }
 
-        public SettingNameConvention? Convention { get; }
+        public SettingNameLevel Level { get; set; } = SettingNameLevel.TypeMember;
     }
 
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Property)]
     public class ResourceProviderAttribute : Attribute
     {
         public string Name { get; }
+
         public Type Type { get; }
     }
 
     [PublicAPI]
-    public class MemberMetadata
+    public class SettingNameMetadata
     {
         public static readonly IImmutableList<SettingProviderAttribute> AssemblyAttributes =
             AppDomain
@@ -166,9 +175,9 @@ namespace Reusable.SmartConfig
             builder.True(e => e.Body is MemberExpression);
         });
 
-        private MemberMetadata(Type type, object typeInstance, MemberInfo member)
+        private SettingNameMetadata(Type type, object typeInstance, MemberInfo member)
         {
-            Namespace = type.Namespace;
+            Scope = type.Namespace;
             Type = type;
             TypeName =
                 GetCustomAttribute<ResourceNameAttribute>(type, default)?.Name ??
@@ -187,14 +196,14 @@ namespace Reusable.SmartConfig
             ResourceProviderType = GetCustomAttribute<ResourceProviderAttribute>(type, member)?.Type;
             ResourceProviderName = GetCustomAttribute<ResourceProviderAttribute>(type, member)?.Name;
             Validations = member.GetCustomAttributes<ValidationAttribute>();
-            ;
+
             DefaultValue = member.GetCustomAttribute<DefaultValueAttribute>()?.Value;
-            ;
-            Convention = GetCustomAttribute<ResourceNameAttribute>(type, member)?.Convention ?? SettingNameConvention.TypeMember;
+
+            Level = GetCustomAttribute<ResourceNameAttribute>(type, member)?.Level ?? SettingNameLevel.TypeMember;
         }
 
         [NotNull]
-        public string Namespace { get; }
+        public string Scope { get; }
 
         [NotNull]
         public Type Type { get; }
@@ -232,32 +241,15 @@ namespace Reusable.SmartConfig
         [CanBeNull]
         public object DefaultValue { get; }
 
-        public SettingNameConvention Convention { get; }
+        public SettingNameLevel Level { get; }
 
         [NotNull]
-        public static MemberMetadata FromExpression(LambdaExpression expression, bool nonPublic = false)
+        public static SettingNameMetadata FromExpression(LambdaExpression expression, bool nonPublic = false)
         {
             expression.ValidateWith(SettingExpressionValidator).Assert();
 
             var (type, instance, member) = SettingVisitor.GetSettingInfo(expression, nonPublic);
-            return new MemberMetadata(type, instance, member);
-        }
-
-        public UriString CreateUri(string instanceName = null)
-        {
-            var query = (SoftString)new (SoftString Key, SoftString Value)[]
-                {
-                    ("prefix", ResourcePrefix),
-                    ("instanceName", instanceName),
-                    ("convention", Convention.ToString()),
-                    //("providerCustomName", ProviderName),
-                    //("providerDefaultName", ProviderType?.ToPrettyString())
-                }
-                .Where(x => x.Value)
-                .Select(x => $"{x.Key.ToString()}={x.Value.ToString()}")
-                .Join("&");
-
-            return $"{ResourceScheme}:///{Namespace.Replace('.', '/')}/{TypeName}/{MemberName}{(query ? $"?{query.ToString()}" : string.Empty)}";
+            return new SettingNameMetadata(type, instance, member);
         }
 
         [NotNull]
@@ -287,23 +279,33 @@ namespace Reusable.SmartConfig
         }
     }
 
-    public enum SettingNameConvention
+    public static class SettingUriFactory
     {
-        Inherit = -1,
+        public static UriString CreateSettingUri(SettingNameMetadata setting, string handle = null)
+        {
+            var queryParameters = new (SoftString Key, SoftString Value)[]
+            {
+                ("prefix", setting.ResourcePrefix),
+                ("handle", handle),
+                ("level", setting.Level.ToString()),
+                ("providerName", setting.ResourceProviderName),
+                ("providerType", setting.ResourceProviderType?.ToPrettyString())
+            };
 
-        /// <summary>
-        /// Member
-        /// </summary>
-        Member = 0,
+            var query =
+                queryParameters
+                    .Where(x => x.Value)
+                    .Select(x => $"{x.Key.ToString()}={x.Value.ToString()}")
+                    .Join("&");
 
-        /// <summary>
-        /// Type.Member
-        /// </summary>
-        TypeMember = 1,
+            return $"{setting.ResourceScheme}:///{setting.Scope.Replace('.', '/')}/{setting.TypeName}/{setting.MemberName}{((SoftString)query ? $"?{query}" : string.Empty)}";
+        }
+    }
 
-        /// <summary>
-        /// Namespace+Type.Member
-        /// </summary>
-        NamespaceTypeMember = 2,
+    public enum SettingNameLevel
+    {
+        NamespaceTypeMember,
+        TypeMember,
+        Member,
     }
 }

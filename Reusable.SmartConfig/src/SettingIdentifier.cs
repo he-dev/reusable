@@ -23,10 +23,10 @@ namespace Reusable.SmartConfig
         public SettingIdentifier
         (
             [CanBeNull] string prefix,
-            [CanBeNull] string schema,
+            [CanBeNull] string scope,
             [CanBeNull] string type,
             [NotNull] string member,
-            [CanBeNull] string instance
+            [CanBeNull] string handle
         )
         {
             if (member == null) throw new ArgumentNullException(nameof(member));
@@ -34,10 +34,10 @@ namespace Reusable.SmartConfig
             _tokens = new Dictionary<SettingNameToken, ReadOnlyMemory<char>>
             {
                 [Token.Prefix] = prefix is null ? ReadOnlyMemory<char>.Empty : new ReadOnlyMemory<char>(prefix.ToCharArray()),
-                [Token.Namespace] = schema is null ? ReadOnlyMemory<char>.Empty : new ReadOnlyMemory<char>(schema.ToCharArray()),
+                [Token.Namespace] = scope is null ? ReadOnlyMemory<char>.Empty : new ReadOnlyMemory<char>(scope.ToCharArray()),
                 [Token.Type] = type is null ? ReadOnlyMemory<char>.Empty : new ReadOnlyMemory<char>(type.ToCharArray()),
                 [Token.Member] = new ReadOnlyMemory<char>(member.ToCharArray()),
-                [Token.Instance] = instance is null ? ReadOnlyMemory<char>.Empty : new ReadOnlyMemory<char>(instance.ToCharArray()),
+                [Token.Instance] = handle is null ? ReadOnlyMemory<char>.Empty : new ReadOnlyMemory<char>(handle.ToCharArray()),
             };
         }
 
@@ -93,10 +93,10 @@ namespace Reusable.SmartConfig
             return new SettingIdentifier
             (
                 prefix: settingMetadata.Prefix,
-                schema: settingMetadata.Namespace,
+                scope: settingMetadata.Namespace,
                 type: settingMetadata.TypeName,
                 member: settingMetadata.MemberName,
-                instance: instance
+                handle: instance
             );
         }
 

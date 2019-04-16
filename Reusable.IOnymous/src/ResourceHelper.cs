@@ -66,6 +66,12 @@ namespace Reusable.IOnymous
             binaryFormatter.Serialize(memoryStream, value);
             return Task.FromResult<Stream>(memoryStream);
         }
+        
+        public static Task<T> DerializeBinaryAsync<T>(Stream stream)
+        {
+            var binaryFormatter = new BinaryFormatter();            
+            return Task.FromResult((T)binaryFormatter.Deserialize(stream.Rewind()));
+        }
 
         public static async Task<Stream> SerializeAsJsonAsync(object value, JsonSerializer jsonSerializer = null)
         {

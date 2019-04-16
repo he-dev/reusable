@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.IOnymous</id>
-    <version>8.12.2</version>
+    <version>8.12.3</version>
     <title>Reusable.IOnymous</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -18,9 +18,9 @@
       <dependency id="JetBrains.Annotations" version="2018.3.0" />
       <dependency id="Newtonsoft.Json" version="12.0.1" />
       <dependency id="System.Collections.Immutable" version="1.5.0" />
-      <dependency id="Reusable.Core" version="8.12.2" />
-      <dependency id="Reusable.OneTo1" version="8.12.2" />
-      <dependency id="Reusable.Utilities.JsonNet" version="8.12.2" />
+      <dependency id="Reusable.Core" version="8.12.3" />
+      <dependency id="Reusable.OneTo1" version="8.12.3" />
+      <dependency id="Reusable.Utilities.JsonNet" version="8.12.3" />
     </dependencies>
   </metadata>
   <files>

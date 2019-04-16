@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Commander</id>
-    <version>8.12.2</version>
+    <version>8.12.3</version>
     <title>Reusable.Commander</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -18,13 +18,13 @@
       <dependency id="Autofac" version="4.9.1" />
       <dependency id="JetBrains.Annotations" version="2018.3.0" />
       <dependency id="System.Threading.Tasks.Dataflow" version="4.9.0" />
-      <dependency id="Reusable.OmniLog.Abstractions" version="8.12.2" />
-      <dependency id="Reusable.OneTo1" version="8.12.2" />
-      <dependency id="Reusable.Core" version="8.12.2" />
-      <dependency id="Reusable.MarkupBuilder" version="8.12.2" />
-      <dependency id="Reusable.OmniLog.ColoredConsoleRx" version="8.12.2" />
-      <dependency id="Reusable.OmniLog.SemanticExtensions" version="8.12.2" />
-      <dependency id="Reusable.OmniLog" version="8.12.2" />
+      <dependency id="Reusable.OmniLog.Abstractions" version="8.12.3" />
+      <dependency id="Reusable.OneTo1" version="8.12.3" />
+      <dependency id="Reusable.Core" version="8.12.3" />
+      <dependency id="Reusable.MarkupBuilder" version="8.12.3" />
+      <dependency id="Reusable.OmniLog.ColoredConsoleRx" version="8.12.3" />
+      <dependency id="Reusable.OmniLog.SemanticExtensions" version="8.12.3" />
+      <dependency id="Reusable.OmniLog" version="8.12.3" />
     </dependencies>
   </metadata>
   <files>
