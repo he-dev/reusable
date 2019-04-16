@@ -16,7 +16,7 @@ using Reusable.IOnymous;
 namespace Reusable.SmartConfig.Reflection
 {
     [PublicAPI]
-    public class SettingMetadata
+    public class SettingMetadata__
     {
         public static readonly IImmutableList<SettingProviderAttribute> AssemblyAttributes =
             AppDomain
@@ -124,23 +124,23 @@ namespace Reusable.SmartConfig.Reflection
             return new SettingMetadata(type, instance, member);
         }
 
-        public UriString CreateUri(string instanceName = null)
-        {
-            var query = (SoftString)new (SoftString Key, SoftString Value)[]
-                {
-                    ("prefix", PrefixHandling == PrefixHandling.Enable ? (SoftString)Prefix : (SoftString)string.Empty),
-                    ("prefixHandling", PrefixHandling.ToString()),
-                    ("instance", instanceName),
-                    ("strength", Strength.ToString()),
-                    //("providerCustomName", ProviderName),
-                    //("providerDefaultName", ProviderType?.ToPrettyString())
-                }
-                .Where(x => x.Value)
-                .Select(x => $"{x.Key.ToString()}={x.Value.ToString()}")
-                .Join("&");
-
-            return $"setting:{Namespace.Replace('.', '-')}.{TypeName}.{MemberName}{(query ? $"?{query.ToString()}" : string.Empty)}";
-        }
+//        public UriString CreateUri(string instanceName = null)
+//        {
+//            var query = (SoftString)new (SoftString Key, SoftString Value)[]
+//                {
+//                    ("prefix", PrefixHandling == PrefixHandling.Enable ? (SoftString)Prefix : (SoftString)string.Empty),
+//                    ("prefixHandling", PrefixHandling.ToString()),
+//                    ("instance", instanceName),
+//                    ("strength", Strength.ToString()),
+//                    //("providerCustomName", ProviderName),
+//                    //("providerDefaultName", ProviderType?.ToPrettyString())
+//                }
+//                .Where(x => x.Value)
+//                .Select(x => $"{x.Key.ToString()}={x.Value.ToString()}")
+//                .Join("&");
+//
+//            return $"setting:{Namespace.Replace('.', '-')}.{TypeName}.{MemberName}{(query ? $"?{query.ToString()}" : string.Empty)}";
+//        }
 
         [NotNull]
         private Type GetMemberType(MemberInfo member)

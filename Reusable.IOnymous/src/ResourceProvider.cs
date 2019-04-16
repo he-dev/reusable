@@ -57,9 +57,9 @@ namespace Reusable.IOnymous
             if (schemes == null) throw new ArgumentNullException(nameof(schemes));
 
             // If this is a decorator then the decorated resource-provider already has set this.
-            if (!this.DefaultName())
+            if (!metadata.DefaultName())
             {
-                metadata = this.DefaultName(GetType().ToPrettyString());
+                metadata = metadata.DefaultName(GetType().ToPrettyString());
             }
 
             Schemes = schemes.ToImmutableHashSet();
@@ -72,8 +72,8 @@ namespace Reusable.IOnymous
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
         {
             //builder.DisplayCollection(p => p.ProviderNames());
-            builder.DisplayMember(p => p.DefaultName());
-            builder.DisplayMember(p => p.CustomName());
+            builder.DisplayMember(p => p.Metadata.DefaultName());
+            builder.DisplayMember(p => p.Metadata.CustomName());
             builder.DisplayMember(x => x.Schemes);
         });
 

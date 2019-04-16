@@ -78,25 +78,25 @@ namespace Reusable.IOnymous
 //            yield return metadata.ProviderCustomName();
 //        }
 
-//        public static SoftString ProviderDefaultName(this ResourceMetadata metadata)
-//        {
-//            return metadata.GetValueOrDefault(SoftString.Empty);
-//        }
+        public static SoftString DefaultName(this ResourceMetadata metadata)
+        {
+            return metadata.GetValueOrDefault(SoftString.Empty);
+        }
 
-//        public static ResourceMetadata ProviderDefaultName(this ResourceMetadata metadata, SoftString name)
-//        {
-//            return metadata.SetItemAuto(name);
-//        }
+        public static ResourceMetadata DefaultName(this ResourceMetadata metadata, SoftString name)
+        {
+            return metadata.SetItemAuto(name);
+        }
 
-//        public static SoftString ProviderCustomName(this ResourceMetadata metadata)
-//        {
-//            return metadata.GetValueOrDefault(SoftString.Empty);
-//        }
-//
-//        public static ResourceMetadata ProviderCustomName(this ResourceMetadata metadata, SoftString name)
-//        {
-//            return metadata.SetItemAuto(name);
-//        }
+        public static SoftString CustomName(this ResourceMetadata metadata)
+        {
+            return metadata.GetValueOrDefault(SoftString.Empty);
+        }
+
+        public static ResourceMetadata CustomName(this ResourceMetadata metadata, SoftString name)
+        {
+            return metadata.SetItemAuto(name);
+        }
 
         public static bool AllowRelativeUri(this ResourceMetadata metadata)
         {

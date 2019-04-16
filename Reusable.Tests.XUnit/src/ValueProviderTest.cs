@@ -38,7 +38,7 @@ namespace Reusable.Tests.XUnit
 
         private class Car
         {
-            [SettingMember(Strength = SettingNameStrength.Medium)]
+            //[SettingMember(Strength = SettingNameStrength.Medium)]
             public string Name { get; set; }
         }
     }

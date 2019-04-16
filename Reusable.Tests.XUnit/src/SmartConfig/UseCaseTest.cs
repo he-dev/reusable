@@ -12,7 +12,7 @@ using Reusable.Utilities.SqlClient;
 using Xunit;
 
 //[assembly: SettingProvider(SettingNameStrength.Medium, Prefix = "TestPrefix")]
-[assembly: SettingProvider(SettingNameStrength.Low, typeof(AppSettingProvider), Prefix = "abc")]
+//[assembly: SettingProvider(SettingNameStrength.Low, typeof(AppSettingProvider), Prefix = "abc")]
 //[assembly: SettingProvider(SettingNameStrength.Low, nameof(AppSettingProvider), Prefix = "abc")]
 
 namespace Reusable.Tests.XUnit.SmartConfig
@@ -29,13 +29,13 @@ namespace Reusable.Tests.XUnit.SmartConfig
                 new Reusable.SmartConfig.Configuration(
                     new CompositeProvider(new IResourceProvider[]
                     {
-                        new InMemoryProvider(ResourceMetadata.Empty.ProviderCustomName("Memory1"))
+                        new InMemoryProvider(ResourceMetadata.Empty.CustomName("Memory1"))
                         {
                             { "setting:Test6.Member1?prefix=TestPrefix", "Value1" },
                             { "setting:Member2", "Value2" },
                             { "setting:Test7.Member", "InvalidValue1" },
                         },
-                        new InMemoryProvider(ResourceMetadata.Empty.ProviderCustomName("Memory2"))
+                        new InMemoryProvider(ResourceMetadata.Empty.CustomName("Memory2"))
                         {
                             { "setting:Test1.Member", "Value1" },
                             { "setting:Test2.Property", "Value2" },
@@ -43,12 +43,12 @@ namespace Reusable.Tests.XUnit.SmartConfig
                             { "setting:Test5.Member?prefix=Prefix", "Value5" },
                             { "setting:Test7.Member", "InvalidValue2" },
                         },
-                        new InMemoryProvider(ResourceMetadata.Empty.ProviderCustomName("Memory3"))
+                        new InMemoryProvider(ResourceMetadata.Empty.CustomName("Memory3"))
                         {
                             { "setting:Test7.Member", "Value7" },
                         },
-                        new AppSettingProvider(new UriStringToSettingNameStringConverter()),
-                        new SqlServerProvider("name=TestDb", new UriStringToSettingNameStringConverter())
+                        new AppSettingProvider(new UriStringToSettingIdentifierConverter()),
+                        new SqlServerProvider("name=TestDb", new UriStringToSettingIdentifierConverter())
                         {
                             TableName = SettingTableName,
                             ColumnMappings =
@@ -58,7 +58,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
                                     .Add(SqlServerColumn.Value, "_value"),
                             Where = ImmutableDictionary<string, object>.Empty.Add("_other", nameof(UseCaseTest))
                         },
-                    }.Select(p => p.DecorateWith(Reusable.SmartConfig.SettingNameProvider.Factory())))
+                    })//.Select(p => p.DecorateWith(Reusable.SmartConfig.SettingNameProvider.Factory())))
                 );
             SeedAppSettings();
             SeedSqlServer();
@@ -168,12 +168,12 @@ namespace Reusable.Tests.XUnit.SmartConfig
         {
             var settingProviders = new IResourceProvider[]
                 {
-                    new InMemoryProvider(ResourceMetadata.Empty.ProviderCustomName("Memory1"))
+                    new InMemoryProvider(ResourceMetadata.Empty.CustomName("Memory1"))
                     {
                         { $"setting:{nameof(CustomTypes)}.{nameof(CustomTypes.TimeSpan)}", "\"00:20:00\"" },
                     }
-                }
-                .Select(p => p.DecorateWith(Reusable.SmartConfig.SettingNameProvider.Factory()));
+                };
+                //.Select(p => p.DecorateWith(Reusable.SmartConfig.SettingNameProvider.Factory()));
 
             var configuration = new Reusable.SmartConfig.Configuration(new CompositeProvider(settingProviders));
             var customTypes = new CustomTypes { Configuration = configuration };
@@ -195,20 +195,20 @@ namespace Reusable.Tests.XUnit.SmartConfig
     // tests annotations
     internal class Test2 : Test0
     {
-        [SettingMember(Name = "Property")]
+        //[SettingMember(Name = "Property")]
         public string Member { get; set; }
     }
 
     // tests annotations
-    [SettingType(Name = "Test4")]
+    //[SettingType(Name = "Test4")]
     internal class Test3 : Test0
     {
-        [SettingMember(Name = "Property")]
+        //[SettingMember(Name = "Property")]
         public string Member { get; set; }
     }
 
     // tests annotations
-    [SettingType(Prefix = "Prefix")]
+    //[SettingType(Prefix = "Prefix")]
     internal class Test5 : Test0
     {
         public string Member { get; set; }
@@ -219,31 +219,31 @@ namespace Reusable.Tests.XUnit.SmartConfig
     {
         public string Member1 { get; set; }
 
-        [SettingMember(Strength = SettingNameStrength.Low, PrefixHandling = PrefixHandling.Disable)]
+        //[SettingMember(Strength = SettingNameStrength.Low, PrefixHandling = PrefixHandling.Disable)]
         public string Member2 { get; set; }
     }
 
     // changes provider resolution behavior
     internal class Test7 : Test0
     {
-        [SettingMember(ProviderName = "Memory3")]
+        //[SettingMember(ProviderName = "Memory3")]
         public string Member { get; set; }
     }
 
     // provider does not exist
     internal class Test8 : Test0
     {
-        [SettingMember(ProviderName = "Test8")]
+        //[SettingMember(ProviderName = "Test8")]
         public string Member { get; set; }
     }
 
     // tests app-config and sql-server
     internal class Test9 : Test0
     {
-        [SettingMember(ProviderType = typeof(AppSettingProvider))]
+        //[SettingMember(ProviderType = typeof(AppSettingProvider))]
         public string Salute => Configuration.GetSetting(() => Salute);
 
-        [SettingMember(ProviderType = typeof(SqlServerProvider))]
+        //[SettingMember(ProviderType = typeof(SqlServerProvider))]
         public string Greeting
         {
             get => Configuration.GetSetting(() => Greeting);

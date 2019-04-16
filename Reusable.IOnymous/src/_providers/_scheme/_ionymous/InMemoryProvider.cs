@@ -25,7 +25,7 @@ namespace Reusable.IOnymous
 
         protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
         {
-            var firstMatch = _items.FirstOrDefault(item => item.Uri == uri);
+            var firstMatch = _items.FirstOrDefault(item => item.Uri.Path.Decoded == uri.Path.Decoded);
             return Task.FromResult(firstMatch ?? new InMemoryResourceInfo(uri));
         }
 

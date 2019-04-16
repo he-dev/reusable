@@ -39,15 +39,15 @@ namespace Reusable.IOnymous
             _resourceProviders = resourceProviders.ToImmutableList();
             var duplicateProviderNames =
                 _resourceProviders
-                    .Where(p => p.CustomName())
-                    .GroupBy(p => p.CustomName())
+                    .Where(p => p.Metadata.CustomName())
+                    .GroupBy(p => p.Metadata.CustomName())
                     .Where(g => g.Count() > 1)
                     .Select(g => g.First())
                     .ToList();
 
             if (duplicateProviderNames.Any())
             {
-                throw new ArgumentException($"Providers must use unique custom names but there are some duplicates: [{duplicateProviderNames.Select(p => (string)p.CustomName()).Join(", ")}].");
+                throw new ArgumentException($"Providers must use unique custom names but there are some duplicates: [{duplicateProviderNames.Select(p => (string)p.Metadata.CustomName()).Join(", ")}].");
             }
         }
 
@@ -90,7 +90,7 @@ namespace Reusable.IOnymous
                 {
                     var match =
                         resourceProviders
-                            .Where(p => p.CustomName().Equals(providerName))
+                            .Where(p => p.Metadata.CustomName().Equals(providerName))
                             // There must be exactly one provider with that name.                
                             .SingleOrThrow
                             (
@@ -116,7 +116,7 @@ namespace Reusable.IOnymous
                 {
                     resourceProviders =
                         resourceProviders
-                            .Where(p => p.DefaultName().Equals(providerType))
+                            .Where(p => p.Metadata.DefaultName().Equals(providerType))
                             .ToList();
 
                     if (resourceProviders.Empty())

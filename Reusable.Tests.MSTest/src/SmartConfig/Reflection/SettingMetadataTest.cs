@@ -20,21 +20,21 @@ namespace Reusable.Tests.MSTest.SmartConfig.Reflection
         [TestMethod]
         public void FromExpression_CanGetMetadataFromBasicType()
         {
-            var instance1 = new BasicType();
-            var instance2 = new BasicType();
+            var instance1 = new BaseType();
+            var instance2 = new BaseType();
 
-            var baseType = typeof(BasicType);
+            var baseType = typeof(BaseType);
 
             // instance property as is
             {
                 var instancePropertyExpressions = instance2.InstancePropertyExpressions().ToList();
-                var baseInstanceProperty = typeof(BasicType).GetProperty(nameof(BasicType.InstanceProperty), BindingFlags.Instance | BindingFlags.Public);
+                var baseInstanceProperty = typeof(BaseType).GetProperty(nameof(BaseType.InstanceProperty), BindingFlags.Instance | BindingFlags.Public);
 
                 var actual = SettingMetadata.FromExpression(instancePropertyExpressions.Last());
 
-                Assert.AreSame(instance2, actual.Instance);
+                Assert.AreSame(instance2, actual.TypeInstance);
                 Assert.AreEqual(baseInstanceProperty, actual.Member);
-                Assert.AreEqual(nameof(BasicType.InstanceProperty), actual.MemberName);
+                Assert.AreEqual(nameof(BaseType.InstanceProperty), actual.MemberName);
 
                 AssertDefault(actual);
             }
@@ -42,13 +42,13 @@ namespace Reusable.Tests.MSTest.SmartConfig.Reflection
             // static property as is
             {
                 var staticPropertyExpressions = instance2.StaticPropertyExpressions().ToList();
-                var baseStaticProperty = typeof(BasicType).GetProperty(nameof(BasicType.StaticProperty), BindingFlags.Static | BindingFlags.Public);
+                var baseStaticProperty = typeof(BaseType).GetProperty(nameof(BaseType.StaticProperty), BindingFlags.Static | BindingFlags.Public);
 
                 var actual = SettingMetadata.FromExpression(staticPropertyExpressions.Last());
 
-                Assert.IsNull(actual.Instance);
+                Assert.IsNull(actual.TypeInstance);
                 Assert.AreEqual(baseStaticProperty, actual.Member);
-                Assert.AreEqual(nameof(BasicType.StaticProperty), actual.MemberName);
+                Assert.AreEqual(nameof(BaseType.StaticProperty), actual.MemberName);
 
                 AssertDefault(actual);
             }
@@ -56,11 +56,11 @@ namespace Reusable.Tests.MSTest.SmartConfig.Reflection
             // instance field as is
             {
                 var instanceFieldExpressions = instance2.InstanceFieldExpressions().ToList();
-                var baseInstanceField = typeof(BasicType).GetField("_instanceField", BindingFlags.Instance | BindingFlags.NonPublic);
+                var baseInstanceField = typeof(BaseType).GetField("_instanceField", BindingFlags.Instance | BindingFlags.NonPublic);
 
                 var actual = SettingMetadata.FromExpression(instanceFieldExpressions.Last(), nonPublic: true);
 
-                Assert.AreSame(instance2, actual.Instance);
+                Assert.AreSame(instance2, actual.TypeInstance);
                 Assert.AreEqual(baseInstanceField, actual.Member);
                 Assert.AreEqual("_instanceField", actual.MemberName);
 
@@ -70,11 +70,11 @@ namespace Reusable.Tests.MSTest.SmartConfig.Reflection
             // static field as is
             {
                 var staticFieldExpressions = instance2.StaticFieldExpressions().ToList();
-                var baseStaticField = typeof(BasicType).GetField("_staticField", BindingFlags.Static | BindingFlags.NonPublic);
+                var baseStaticField = typeof(BaseType).GetField("_staticField", BindingFlags.Static | BindingFlags.NonPublic);
 
                 var actual = SettingMetadata.FromExpression(staticFieldExpressions.Last(), nonPublic: true);
 
-                Assert.IsNull(actual.Instance);
+                Assert.IsNull(actual.TypeInstance);
                 Assert.AreEqual(baseStaticField, actual.Member);
                 Assert.AreEqual("_staticField", actual.MemberName);
 
@@ -87,80 +87,80 @@ namespace Reusable.Tests.MSTest.SmartConfig.Reflection
                 // These cases are common to all tests.
 
                 Assert.AreEqual(baseType, actual.Type);
-                Assert.IsNull(actual.Prefix);
-                Assert.AreEqual(Namespace, actual.Namespace);
+                Assert.IsNull(actual.ResourcePrefix);
+                Assert.AreEqual(Namespace, actual.Scope);
                 Assert.AreEqual(baseType.Name, actual.TypeName);
                 Assert.IsTrue(actual.Validations.Empty());
                 Assert.IsNull(actual.DefaultValue);
-                Assert.IsNull(actual.ProviderName);
-                Assert.AreEqual(SettingNameStrength.Inherit, actual.Strength);
-                Assert.AreEqual(PrefixHandling.Inherit, actual.PrefixHandling);
+                Assert.IsNull(actual.ResourceProviderName);
+                //Assert.AreEqual(SettingNameStrength.Inherit, actual.Strength);
+                //Assert.AreEqual(PrefixHandling.Inherit, actual.PrefixHandling);
             }
         }
 
         [TestMethod]
         public void FromExpression_CanGetMetadataFromBasicSubtype()
         {
-            var instance1 = new BasicSubtype();
-            var instance2 = new BasicSubtype();
+            var subInstance1 = new SubType();
+            var subInstance2 = new SubType();
 
-            var baseType = typeof(BasicType);
-            var derivedType = typeof(BasicSubtype);
+            var baseType = typeof(BaseType);
+            var subType = typeof(SubType);
 
             // instance property of the subtype as is
             {
-                var instancePropertyExpressions = instance2.InstancePropertyExpressions().ToList();
-                var baseInstanceProperty = baseType.GetProperty(nameof(BasicType.InstanceProperty), BindingFlags.Instance | BindingFlags.Public);
+                var instancePropertyExpressions = subInstance2.InstancePropertyExpressions().ToList();
+                var baseInstanceProperty = baseType.GetProperty(nameof(BaseType.InstanceProperty), BindingFlags.Instance | BindingFlags.Public);
 
                 var actual = SettingMetadata.FromExpression(instancePropertyExpressions.Last());
 
-                Assert.AreEqual(derivedType, actual.Type);
-                Assert.AreSame(instance2, actual.Instance);
-                Assert.AreEqual(derivedType.Name, actual.TypeName);
-                Assert.AreEqual(baseInstanceProperty, actual.Member);
-                Assert.AreEqual(nameof(BasicType.InstanceProperty), actual.MemberName);
+                Assert.AreEqual(subType, actual.Type);
+                Assert.AreSame(subInstance2, actual.TypeInstance);
+                Assert.AreEqual(subType.Name, actual.TypeName);
+                Assert.AreEqual(baseInstanceProperty.ToString(), actual.Member.ToString());
+                Assert.AreEqual(nameof(BaseType.InstanceProperty), actual.MemberName);
 
                 AssertDefault(actual);
             }
 
             // static property of the subtype as is
             {
-                var staticPropertyExpressions = instance2.StaticPropertyExpressions().ToList();
-                var baseStaticProperty = typeof(BasicType).GetProperty(nameof(BasicType.StaticProperty), BindingFlags.Static | BindingFlags.Public);
+                var staticPropertyExpressions = subInstance2.StaticPropertyExpressions().ToList();
+                var baseStaticProperty = typeof(BaseType).GetProperty(nameof(BaseType.StaticProperty), BindingFlags.Static | BindingFlags.Public);
 
                 var actual = SettingMetadata.FromExpression(staticPropertyExpressions.Last());
 
                 Assert.AreEqual(baseType, actual.Type);
-                Assert.IsNull(actual.Instance);
+                Assert.IsNull(actual.TypeInstance);
                 Assert.AreEqual(baseType.Name, actual.TypeName);
                 Assert.AreEqual(baseStaticProperty, actual.Member);
-                Assert.AreEqual(nameof(BasicType.StaticProperty), actual.MemberName);
+                Assert.AreEqual(nameof(BaseType.StaticProperty), actual.MemberName);
 
                 AssertDefault(actual);
             }
 
-            // instance field of the subtype as is
-            {
-                var instanceFieldExpressions = instance2.InstanceFieldExpressions().ToList();
-                var baseInstanceField = typeof(BasicType).GetField("_instanceField", BindingFlags.Instance | BindingFlags.NonPublic);
-
-                var actual = SettingMetadata.FromExpression(instanceFieldExpressions.Last(), nonPublic: true);
-
-                Assert.AreSame(instance2, actual.Instance);
-                Assert.AreEqual(baseInstanceField, actual.Member);
-                Assert.AreEqual("_instanceField", actual.MemberName);
-
-                AssertDefault(actual);
-            }
+            // non-public instance field of the subtype as is
+//            {
+//                var instanceFieldExpressions = subInstance2.InstanceFieldExpressions().ToList();
+//                var baseInstanceField = typeof(BaseType).GetField("_instanceField", BindingFlags.Instance | BindingFlags.NonPublic);
+//
+//                var actual = SettingMetadata.FromExpression(instanceFieldExpressions.Last(), nonPublic: true);
+//
+//                Assert.AreSame(subInstance2, actual.TypeInstance);
+//                Assert.AreEqual(baseInstanceField, actual.Member);
+//                Assert.AreEqual("_instanceField", actual.MemberName);
+//
+//                AssertDefault(actual);
+//            }
 
             // static field of the subtype as is
             {
-                var staticFieldExpressions = instance2.StaticFieldExpressions().ToList();
-                var baseStaticField = typeof(BasicType).GetField("_staticField", BindingFlags.Static | BindingFlags.NonPublic);
+                var staticFieldExpressions = subInstance2.StaticFieldExpressions().ToList();
+                var baseStaticField = typeof(BaseType).GetField("_staticField", BindingFlags.Static | BindingFlags.NonPublic);
 
                 var actual = SettingMetadata.FromExpression(staticFieldExpressions.Last(), nonPublic: true);
 
-                Assert.IsNull(actual.Instance);
+                Assert.IsNull(actual.TypeInstance);
                 Assert.AreEqual(baseStaticField, actual.Member);
                 Assert.AreEqual("_staticField", actual.MemberName);
 
@@ -172,14 +172,14 @@ namespace Reusable.Tests.MSTest.SmartConfig.Reflection
             {
                 // These cases are common to all tests.
 
-                Assert.IsNull(actual.Prefix);
-                Assert.AreEqual(Namespace, actual.Namespace);
+                Assert.IsNull(actual.ResourcePrefix);
+                Assert.AreEqual(Namespace, actual.Scope);
 
                 Assert.IsTrue(actual.Validations.Empty());
                 Assert.IsNull(actual.DefaultValue);
-                Assert.IsNull(actual.ProviderName);
-                Assert.AreEqual(SettingNameStrength.Inherit, actual.Strength);
-                Assert.AreEqual(PrefixHandling.Inherit, actual.PrefixHandling);
+                Assert.IsNull(actual.ResourceProviderName);
+                //Assert.AreEqual(SettingNameStrength.Inherit, actual.Strength);
+                //Assert.AreEqual(PrefixHandling.Inherit, actual.PrefixHandling);
             }
         }
 
@@ -199,7 +199,7 @@ namespace Reusable.Tests.MSTest.SmartConfig.Reflection
                 var actual = SettingMetadata.FromExpression(instancePropertyExpressions.Last());
 
                 Assert.AreEqual(baseType, actual.Type);
-                Assert.AreSame(instance2, actual.Instance);
+                Assert.AreSame(instance2, actual.TypeInstance);
                 Assert.AreEqual(baseInstanceProperty, actual.Member);
                 Assert.AreEqual("InstanceProperty1x", actual.MemberName);
 
@@ -214,17 +214,17 @@ namespace Reusable.Tests.MSTest.SmartConfig.Reflection
                 var actual = SettingMetadata.FromExpression(instancePropertyExpressions.Last());
 
                 Assert.AreEqual(baseType, actual.Type);
-                Assert.AreSame(instance2, actual.Instance);
+                Assert.AreSame(instance2, actual.TypeInstance);
                 Assert.AreEqual(baseInstanceProperty, actual.Member);
                 Assert.AreEqual("InstanceProperty2x", actual.MemberName);
 
                 //AssertDefault(actual);
 
-                Assert.AreEqual("Prefix2", actual.Prefix);
+                Assert.AreEqual("Prefix2", actual.ResourcePrefix);
                 Assert.AreEqual("CustomizedType2", actual.TypeName);
-                Assert.AreEqual("Provider2", actual.ProviderName);
-                Assert.AreEqual(SettingNameStrength.High, actual.Strength);
-                Assert.AreEqual(PrefixHandling.Enable, actual.PrefixHandling);
+                Assert.AreEqual("Provider2", actual.ResourceProviderName);
+                //Assert.AreEqual(SettingNameStrength.High, actual.Strength);
+                //Assert.AreEqual(PrefixHandling.Enable, actual.PrefixHandling);
             }
 
             // static property inherits type customization
@@ -234,7 +234,7 @@ namespace Reusable.Tests.MSTest.SmartConfig.Reflection
 
                 var actual = SettingMetadata.FromExpression(staticPropertyExpressions.Last());
 
-                Assert.IsNull(actual.Instance);
+                Assert.IsNull(actual.TypeInstance);
                 Assert.AreEqual(baseStaticProperty, actual.Member);
                 Assert.AreEqual("StaticProperty1x", actual.MemberName);
 
@@ -245,15 +245,15 @@ namespace Reusable.Tests.MSTest.SmartConfig.Reflection
             {
                 // These cases are common to all tests.
 
-                Assert.AreEqual(Namespace, actual.Namespace);
+                Assert.AreEqual(Namespace, actual.Scope);
                 Assert.IsTrue(actual.Validations.Empty());
                 Assert.IsNull(actual.DefaultValue);
-                Assert.AreEqual("Prefix1", actual.Prefix);
+                Assert.AreEqual("Prefix1", actual.ResourcePrefix);
                 // moved to test
                 //Assert.AreEqual("BaseClass2", actual.TypeName);
-                Assert.AreEqual("Provider1", actual.ProviderName);
-                Assert.AreEqual(SettingNameStrength.Low, actual.Strength);
-                Assert.AreEqual(PrefixHandling.Enable, actual.PrefixHandling);
+                Assert.AreEqual("Provider1", actual.ResourceProviderName);
+                //Assert.AreEqual(SettingNameStrength.Low, actual.Strength);
+                //Assert.AreEqual(PrefixHandling.Enable, actual.PrefixHandling);
             }
         }
 
@@ -273,15 +273,15 @@ namespace Reusable.Tests.MSTest.SmartConfig.Reflection
                 var actual = SettingMetadata.FromExpression(instancePropertyExpressions.Last());
 
                 Assert.AreEqual(baseType, actual.Type);
-                Assert.AreSame(instance2, actual.Instance);
+                Assert.AreSame(instance2, actual.TypeInstance);
                 //AreEqual(baseInstanceProperty, actual.Member);
                 Assert.AreEqual("InstanceProperty1xx", actual.MemberName);
 
-                Assert.AreEqual("Prefix1", actual.Prefix);
+                Assert.AreEqual("Prefix1", actual.ResourcePrefix);
                 Assert.AreEqual("CustomizedType2", actual.TypeName);
-                Assert.AreEqual("Provider1", actual.ProviderName);
-                Assert.AreEqual(SettingNameStrength.Low, actual.Strength);
-                Assert.AreEqual(PrefixHandling.Enable, actual.PrefixHandling);
+                Assert.AreEqual("Provider1", actual.ResourceProviderName);
+                //Assert.AreEqual(SettingNameStrength.Low, actual.Strength);
+                //Assert.AreEqual(PrefixHandling.Enable, actual.PrefixHandling);
             }
         }
 
@@ -292,7 +292,7 @@ namespace Reusable.Tests.MSTest.SmartConfig.Reflection
         /// <summary>
         /// Without annotations.
         /// </summary>
-        public class BasicType
+        public class BaseType
         {
             private readonly string _instanceField;
 
@@ -327,32 +327,32 @@ namespace Reusable.Tests.MSTest.SmartConfig.Reflection
             }
         }
 
-        public class BasicSubtype : BasicType
+        public class SubType : BaseType
         {
         }
 
-        [SettingType(
-            Name = "CustomizedType2",
-            Strength = SettingNameStrength.Low,
-            PrefixHandling = PrefixHandling.Enable,
-            ProviderName = "Provider1",
-            Prefix = "Prefix1"
-        )]
+//        [SettingType(
+//            Name = "CustomizedType2",
+//            //Strength = SettingNameStrength.Low,
+//            //PrefixHandling = PrefixHandling.Enable,
+//            ProviderName = "Provider1",
+//            Prefix = "Prefix1"
+//        )]
         public class CustomizedType
         {
-            [SettingMember(Name = "InstanceProperty1x")]
+            //[SettingMember(Name = "InstanceProperty1x")]
             public virtual string InstanceProperty1 { get; set; }
 
-            [SettingMember(
-                Name = "InstanceProperty2x",
-                Strength = SettingNameStrength.High,
-                PrefixHandling = PrefixHandling.Disable,
-                ProviderName = "Provider2",
-                Prefix = "Prefix2"
-            )]
+//            [SettingMember(
+//                Name = "InstanceProperty2x",
+//                //Strength = SettingNameStrength.High,
+//                //PrefixHandling = PrefixHandling.Disable,
+//                ProviderName = "Provider2",
+//                Prefix = "Prefix2"
+//            )]
             public virtual string InstanceProperty2 { get; set; }
 
-            [SettingMember(Name = "StaticProperty1x")]
+            //[SettingMember(Name = "StaticProperty1x")]
             public static string StaticProperty1 { get; set; }
 
             public virtual IEnumerable<LambdaExpression> InstanceProperty1Expressions()
@@ -376,10 +376,11 @@ namespace Reusable.Tests.MSTest.SmartConfig.Reflection
 
         public class CustomizedSubtype : CustomizedType
         {
-            [SettingMember(Name = "InstanceProperty1xx")]
+            [ResourceName("InstanceProperty1xx")]
             public override string InstanceProperty1 { get; set; }
 
-            [SettingMember(Name = "InstanceProperty2xx", Strength = SettingNameStrength.High, PrefixHandling = PrefixHandling.Disable)]
+            [ResourceName("InstanceProperty2xx", Level = ResourceNameLevel.NamespaceTypeMember)]
+            [ResourcePrefix(null)]// th.High, PrefixHandling = PrefixHandling.Disable)]
             public override string InstanceProperty2 { get; set; }
 
             public override IEnumerable<LambdaExpression> InstanceProperty1Expressions()

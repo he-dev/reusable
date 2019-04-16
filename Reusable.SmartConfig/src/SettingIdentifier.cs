@@ -47,25 +47,7 @@ namespace Reusable.SmartConfig
         public SettingIdentifier([NotNull] IDictionary<Token, ReadOnlyMemory<char>> tokens)
         {
             _tokens = tokens ?? throw new ArgumentNullException(nameof(tokens));
-        }
-
-        [Obsolete]
-        public SettingIdentifier(UriString uri)
-        {
-            if (uri.IsRelative) throw new ArgumentException();
-            if (uri.Scheme != "setting") throw new ArgumentException();
-
-            var names = uri.Path.Decoded.ToString().Split('.');
-
-            _tokens = new Dictionary<Token, ReadOnlyMemory<char>>
-            {
-                [Token.Prefix] = uri.Query.TryGetValue("prefix", out var prefix) ? new ReadOnlyMemory<char>(prefix.ToString().ToCharArray()) : ReadOnlyMemory<char>.Empty,
-                [Token.Scope] = names.Length == 3 ? new ReadOnlyMemory<char>(names[names.Length - 3].ToCharArray()) : ReadOnlyMemory<char>.Empty,
-                [Token.Type] = names.Length >= 2 ? new ReadOnlyMemory<char>(names[names.Length - 2].ToCharArray()) : ReadOnlyMemory<char>.Empty,
-                [Token.Member] = names.Length >= 1 ? new ReadOnlyMemory<char>(names[names.Length - 1].ToCharArray()) : ReadOnlyMemory<char>.Empty,
-                [Token.Handle] = uri.Query.TryGetValue("instance", out var instance) ? new ReadOnlyMemory<char>(instance.ToString().ToCharArray()) : ReadOnlyMemory<char>.Empty,
-            };
-        }
+        }        
 
         public ReadOnlyMemory<char> this[Token token] => _tokens.TryGetValue(token, out var t) ? t : default;
 
@@ -90,19 +72,7 @@ namespace Reusable.SmartConfig
         public string Handle => this[Token.Handle].ToString();
 
         [NotNull]
-        public static SettingIdentifier Parse([NotNull] string text) => new SettingIdentifier(SettingNameParser.Tokenize(text));
-
-        public static SettingIdentifier FromMetadata(SettingMetadata settingMetadata, string handle)
-        {
-            return new SettingIdentifier
-            (
-                prefix: settingMetadata.Prefix,
-                scope: settingMetadata.Namespace,
-                type: settingMetadata.TypeName,
-                member: settingMetadata.MemberName,
-                handle: handle
-            );
-        }
+        public static SettingIdentifier Parse([NotNull] string text) => new SettingIdentifier(SettingNameParser.Tokenize(text));        
 
         public override string ToString()
         {
@@ -172,30 +142,30 @@ namespace Reusable.SmartConfig
 
      */
 
-    public enum SettingNameStrength
-    {
-        Inherit = -1,
-
-        /// <summary>
-        /// Member
-        /// </summary>
-        Low = 0,
-
-        /// <summary>
-        /// Type.Member
-        /// </summary>
-        Medium = 1,
-
-        /// <summary>
-        /// Namespace+Type.Member
-        /// </summary>
-        High = 2,
-    }
-    
-    public enum PrefixHandling
-    {
-        Inherit = -1,
-        Disable = 0,
-        Enable = 1,
-    }
+//    public enum SettingNameStrength
+//    {
+//        Inherit = -1,
+//
+//        /// <summary>
+//        /// Member
+//        /// </summary>
+//        Low = 0,
+//
+//        /// <summary>
+//        /// Type.Member
+//        /// </summary>
+//        Medium = 1,
+//
+//        /// <summary>
+//        /// Namespace+Type.Member
+//        /// </summary>
+//        High = 2,
+//    }
+//    
+//    public enum PrefixHandling
+//    {
+//        Inherit = -1,
+//        Disable = 0,
+//        Enable = 1,
+//    }
 }

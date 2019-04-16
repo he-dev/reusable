@@ -24,13 +24,13 @@ namespace Reusable.SmartConfig
     //[UsedImplicitly]
     public interface IConfiguration
     {
-        T GetSetting<T>([NotNull] Expression<Func<T>> expression, [CanBeNull] string instanceName = null);
+        T GetSetting<T>([NotNull] Expression<Func<T>> expression, [CanBeNull] string handle = null);
 
         void SaveSetting<T>([NotNull] Expression<Func<T>> expression, [CanBeNull] T newValue, [CanBeNull] string instanceName = null);
 
-        void BindSetting<T>([NotNull] Expression<Func<T>> expression, [CanBeNull] string instanceName = null);
+        //void BindSetting<T>([NotNull] Expression<Func<T>> expression, [CanBeNull] string instanceName = null);
 
-        void BindSettings<T>([NotNull] T obj, [CanBeNull] string instanceName = null);
+        //void BindSettings<T>([NotNull] T obj, [CanBeNull] string instanceName = null);
     }
 
     public class Configuration : IConfiguration
@@ -59,22 +59,22 @@ namespace Reusable.SmartConfig
             return new Configuration(new CompositeProvider(resourceProviders));
         }
 
-        public T GetSetting<T>(Expression<Func<T>> expression, string instanceName = null)
+        public T GetSetting<T>(Expression<Func<T>> expression, string handle = null)
         {
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
-            return (T)GetSetting((LambdaExpression)expression, instanceName);
+            return (T)GetSetting((LambdaExpression)expression, handle);
         }
 
-        private object GetSetting([NotNull] LambdaExpression expression, [CanBeNull] string instanceName = null)
+        private object GetSetting([NotNull] LambdaExpression expression, [CanBeNull] string handle = null)
         {
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
             var settingMetadata = SettingMetadata.FromExpression(expression, false);
-            var uri = settingMetadata.CreateUri(instanceName);
+            var uri = SettingUriFactory.CreateSettingUri(settingMetadata, handle);
             var setting =
                 _settingProvider
-                    .GetAsync(uri, PopulateProviderInfo(settingMetadata))
+                    .GetAsync(uri)
                     .GetAwaiter()
                     .GetResult();
 
@@ -102,12 +102,12 @@ namespace Reusable.SmartConfig
             }
         }
 
-        public void SaveSetting<T>(Expression<Func<T>> expression, T newValue, string instanceName = null)
+        public void SaveSetting<T>(Expression<Func<T>> expression, T newValue, string handle = null)
         {
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
             var settingMetadata = SettingMetadata.FromExpression(expression, false);
-            var uri = settingMetadata.CreateUri(instanceName);
+            var uri = SettingUriFactory.CreateSettingUri(settingMetadata, handle);
 
             //var settingInfo =
             //    await
@@ -124,52 +124,52 @@ namespace Reusable.SmartConfig
                 var json = (string)_converter.Convert(newValue, typeof(string));
                 using (var stream = ResourceHelper.SerializeTextAsync(json).GetAwaiter().GetResult())
                 {
-                    _settingProvider.PutAsync(uri, stream, PopulateProviderInfo(settingMetadata, ResourceMetadata.Empty.Format(MimeType.Text))).GetAwaiter().GetResult();
+                    _settingProvider.PutAsync(uri, stream).GetAwaiter().GetResult();
                 }
             }
         }
 
-        /// <summary>
-        /// Assigns the same setting value to the specified member.
-        /// </summary>
-        public void BindSetting<T>(Expression<Func<T>> expression, string instanceName = null)
-        {
-            if (expression == null) throw new ArgumentNullException(nameof(expression));
-
-            var settingMetadata = SettingMetadata.FromExpression(expression, false);
-            var uri = settingMetadata.CreateUri(instanceName);
-            var value = GetSetting(expression, instanceName);
-            settingMetadata.SetValue(Validate(value, settingMetadata.Validations, uri));
-        }
-
-        /// <summary>
-        /// Assigns setting values to all members decorated with the the SmartSettingAttribute.
-        /// </summary>        
-        public void BindSettings<T>(T obj, string instanceName = null)
-        {
-            if (obj == null) throw new ArgumentNullException(nameof(obj));
-
-            var settingProperties =
-                typeof(T)
-                    .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                    .Where(p => p.IsDefined(typeof(SettingMemberAttribute)));
-
-            foreach (var property in settingProperties)
-            {
-                // This expression allows to reuse GeAsync.
-                var expression = Expression.Lambda(
-                    Expression.Property(
-                        Expression.Constant(obj),
-                        property.Name
-                    )
-                );
-
-                var value = GetSetting(expression, instanceName);
-                var settingMetadata = SettingMetadata.FromExpression(expression, false);
-                var uri = settingMetadata.CreateUri(instanceName);
-                settingMetadata.SetValue(Validate(value, settingMetadata.Validations, uri));
-            }
-        }
+//        /// <summary>
+//        /// Assigns the same setting value to the specified member.
+//        /// </summary>
+//        public void BindSetting<T>(Expression<Func<T>> expression, string instanceName = null)
+//        {
+//            if (expression == null) throw new ArgumentNullException(nameof(expression));
+//
+//            var settingMetadata = SettingMetadata.FromExpression(expression, false);
+//            var uri = settingMetadata.CreateUri(instanceName);
+//            var value = GetSetting(expression, instanceName);
+//            settingMetadata.SetValue(Validate(value, settingMetadata.Validations, uri));
+//        }
+//
+//        /// <summary>
+//        /// Assigns setting values to all members decorated with the the SmartSettingAttribute.
+//        /// </summary>        
+//        public void BindSettings<T>(T obj, string instanceName = null)
+//        {
+//            if (obj == null) throw new ArgumentNullException(nameof(obj));
+//
+//            var settingProperties =
+//                typeof(T)
+//                    .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+//                    .Where(p => p.IsDefined(typeof(SettingMemberAttribute)));
+//
+//            foreach (var property in settingProperties)
+//            {
+//                // This expression allows to reuse GeAsync.
+//                var expression = Expression.Lambda(
+//                    Expression.Property(
+//                        Expression.Constant(obj),
+//                        property.Name
+//                    )
+//                );
+//
+//                var value = GetSetting(expression, instanceName);
+//                var settingMetadata = SettingMetadata.FromExpression(expression, false);
+//                var uri = settingMetadata.CreateUri(instanceName);
+//                settingMetadata.SetValue(Validate(value, settingMetadata.Validations, uri));
+//            }
+//        }
 
         #region Helpers
 

@@ -24,6 +24,11 @@
     <EmbeddedResource Remove="src\Providers\**" />
     <None Remove="src\Providers\**" />
     <Compile Remove="src\SettingProviderExtensions.cs" />
+    <Compile Remove="src\SettingNameProvider.cs" />
+    <Compile Remove="src\SettingProviderAttribute.cs" />
+    <Compile Remove="src\Reflection\SettingMetadata.cs" />
+    <Compile Remove="src\SettingAttribute.cs" />
+    <Compile Remove="src\Reflection\SettingMetadata___.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="src\ConfigurationExtensions.cs" />
