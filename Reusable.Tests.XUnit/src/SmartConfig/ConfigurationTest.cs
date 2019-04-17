@@ -36,45 +36,19 @@ namespace Reusable.Tests.XUnit.SmartConfig
     {
         private static readonly SqlFourPartName SettingTableName = ("reusable", "SmartConfig");
 
-        private readonly IConfiguration _configuration;
-
         public ConfigurationTest()
         {
-            _configuration = new Reusable.SmartConfig.Configuration
-            (
-                new CompositeProvider(new IResourceProvider[]
-                {
-                    new InMemoryProvider(ResourceMetadata.Empty.CustomName("Memory1"))
-                    {
-                        { "setting:///Test6/Member1?prefix=TestPrefix", "Value1" },
-                        { "setting:///Member2", "Value2" },
-                        { "setting:///Test7/Member", "InvalidValue1" },
-                    },
-                    new InMemoryProvider(ResourceMetadata.Empty.CustomName("Memory2"))
-                    {
-                        { "setting:///Test1/Member", "Value1" },
-                        { "setting:///Test2/Property", "Value2" },
-                        { "setting:///Test4/Property", "Value4" },
-                        { "setting:///Test5/Member?prefix=Prefix", "Value5" },
-                        { "setting:///Test7/Member", "InvalidValue2" },
-                    },
-                    new InMemoryProvider(ResourceMetadata.Empty.CustomName("Memory3"))
-                    {
-                        { "setting:///Test7.Member", "Value7" },
-                    },
-                    new AppSettingProvider(new UriStringToSettingIdentifierConverter()),
-                    new SqlServerProvider("name=TestDb", new UriStringToSettingIdentifierConverter())
-                    {
-                        TableName = SettingTableName,
-                        ColumnMappings =
-                            ImmutableDictionary<SqlServerColumn, SoftString>
-                                .Empty
-                                .Add(SqlServerColumn.Name, "_name")
-                                .Add(SqlServerColumn.Value, "_value"),
-                        Where = ImmutableDictionary<string, object>.Empty.Add("_other", nameof(ConfigurationTest))
-                    },
-                }) //.Select(p => p.DecorateWith(Reusable.SmartConfig.SettingNameProvider.Factory())))
-            );
+            // new AppSettingProvider(new UriStringToSettingIdentifierConverter()),
+            // new SqlServerProvider("name=TestDb", new UriStringToSettingIdentifierConverter())
+            // {
+            //     TableName = SettingTableName,
+            //     ColumnMappings =
+            //         ImmutableDictionary<SqlServerColumn, SoftString>
+            //             .Empty
+            //             .Add(SqlServerColumn.Name, "_name")
+            //             .Add(SqlServerColumn.Value, "_value"),
+            //     Where = ImmutableDictionary<string, object>.Empty.Add("_other", nameof(ConfigurationTest))
+            // },
             SeedAppSettings();
             SeedSqlServer();
         }
@@ -254,7 +228,28 @@ namespace Reusable.Tests.XUnit.SmartConfig
 
         [Fact]
         public void Can_find_setting_on_base_type()
-        { }
+        {
+            var u = new Admin
+            {
+                Configuration = new cfg(new CompositeProvider(new IResourceProvider[]
+                {
+                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                    {
+                        { "User.Name", "Joe" }
+                    },
+                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                    {
+                        { "Admin.Enabled", "true" }
+                    },
+                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                    {
+                        { "Admin.Skill", "Tom" }
+                    },
+                }))
+            };
+            Assert.Equal(true, u.Enabled);
+            Assert.Equal("Tom", u.Skill);
+        }
 
         [Fact]
         public void Can_deserialize_TimeSpan()
@@ -277,6 +272,8 @@ namespace Reusable.Tests.XUnit.SmartConfig
     internal class Nothing
     {
         public IConfiguration Configuration { get; set; }
+
+        public bool Enabled => Configuration.GetSetting(() => Enabled);
     }
 
     // tests defaults
@@ -285,12 +282,9 @@ namespace Reusable.Tests.XUnit.SmartConfig
         public string Name => Configuration.GetSetting(() => Name);
     }
 
-    // tests annotations
     internal class Admin : Nothing
     {
-        //[SettingMember(Name = "Property")]
-        [ResourceName("Expertise")]
-        public string Skill { get; set; }
+        public string Skill => Configuration.GetSetting(() => Skill);
     }
 
     [ResourceName("Amazon")]
@@ -300,8 +294,6 @@ namespace Reusable.Tests.XUnit.SmartConfig
         public string Tree => Configuration.GetSetting(() => Tree);
     }
 
-    // tests annotations
-    //[SettingType(Prefix = "Prefix")]
     [ResourcePrefix("day")]
     internal class Greeting : Nothing
     {
@@ -323,12 +315,11 @@ namespace Reusable.Tests.XUnit.SmartConfig
         public string City => Configuration.GetSetting(() => City);
     }
 
-    // provider does not exist
     [ResourceName(Level = ResourceNameLevel.NamespaceTypeMember)]
     internal class Key : Nothing
     {
         public string Location => Configuration.GetSetting(() => Location);
-        
+
         [ResourceName(Level = ResourceNameLevel.Member)]
         public string Door => Configuration.GetSetting(() => Door);
     }
