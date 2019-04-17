@@ -102,7 +102,10 @@ namespace Reusable.OneTo1
         #endregion
     }
 
-    public abstract class TypeConverter<TValue, TResult> : TypeConverter
+    public interface ITypeConverter<TValue, TResult> : ITypeConverter
+    { }
+
+    public abstract class TypeConverter<TValue, TResult> : TypeConverter, ITypeConverter<TValue, TResult>
     {
         public override Type FromType => typeof(TValue);
 

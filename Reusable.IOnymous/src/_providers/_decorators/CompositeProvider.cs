@@ -12,7 +12,7 @@ using Reusable.Exceptionize;
 
 namespace Reusable.IOnymous
 {
-    public class CompositeProvider : ResourceProvider, IEnumerable<IResourceProvider>
+    public class CompositeProvider : ResourceProvider//, IEnumerable<IResourceProvider>
     {
         /// <summary>
         /// Resource provider cache.
@@ -74,7 +74,6 @@ namespace Reusable.IOnymous
         [ItemNotNull]
         private async Task<IResourceInfo> HandleMethodAsync(UriString uri, ResourceMetadata metadata, bool isGet, Func<IResourceProvider, Task<IResourceInfo>> handleAsync)
         {
-            
             await _cacheLock.WaitAsync();
             try
             {
@@ -177,18 +176,23 @@ namespace Reusable.IOnymous
 
         #region Collection initializers
 
-        public void Add([NotNull] IResourceProvider resourceProvider)
+        public CompositeProvider Add([NotNull] IResourceProvider resourceProvider)
         {
-            _resourceProviders.Add(resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider)));
+            var resourceProviders = _resourceProviders.Add(resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider)));
+            return new CompositeProvider
+            (
+                resourceProviders,
+                Metadata
+            );
         }
 
         #endregion
 
         #region IEnumerable
 
-        public IEnumerator<IResourceProvider> GetEnumerator() => _resourceProviders.GetEnumerator();
+        //public IEnumerator<IResourceProvider> GetEnumerator() => _resourceProviders.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_resourceProviders).GetEnumerator();
+        //IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_resourceProviders).GetEnumerator();
 
         #endregion
     }

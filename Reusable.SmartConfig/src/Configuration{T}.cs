@@ -147,7 +147,17 @@ namespace Reusable.SmartConfig
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Property)]
     public class ResourceProviderAttribute : Attribute
     {
-        public string Name { get; }
+        public ResourceProviderAttribute(string name)
+        {
+            Name = name;
+        }
+        
+        public ResourceProviderAttribute(Type type)
+        {
+            Type = type;
+        }
+
+        public string Name { get;}
 
         public Type Type { get; }
     }

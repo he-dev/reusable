@@ -39,7 +39,7 @@ namespace Reusable.SmartConfig
             MemberType = GetMemberType(member);
 
             ResourceScheme = GetCustomAttribute<ResourceSchemeAttribute>(type, member)?.Name ?? "setting";
-            ResourcePrefix = GetCustomAttribute<ResourceNameAttribute>(type, member)?.Name;
+            ResourcePrefix = GetCustomAttribute<ResourcePrefixAttribute>(type, member)?.Name;
             ResourceProviderType = GetCustomAttribute<ResourceProviderAttribute>(type, member)?.Type;
             ResourceProviderName = GetCustomAttribute<ResourceProviderAttribute>(type, member)?.Name;
             Validations = member.GetCustomAttributes<ValidationAttribute>();

@@ -9,9 +9,9 @@ namespace Reusable.SmartConfig
     using Token = SettingNameToken;
     using Level = ResourceNameLevel;
     
-    public class UriStringToSettingIdentifierConverter : TypeConverter<UriString, SettingIdentifier>
+    public class UriStringToSettingIdentifierConverter : TypeConverter<UriString, string>
     {
-        protected override SettingIdentifier ConvertCore(IConversionContext<UriString> context)
+        protected override string ConvertCore(IConversionContext<UriString> context)
         {
             var uri = context.Value;
 

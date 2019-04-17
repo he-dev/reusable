@@ -6,57 +6,78 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.OneTo1;
 
 namespace Reusable.IOnymous
 {
-    public class InMemoryProvider : ResourceProvider, IEnumerable<IResourceInfo>
+    public class InMemoryProvider : ResourceProvider, IEnumerable<KeyValuePair<SoftString, object>>
     {
-        private readonly ISet<IResourceInfo> _items = new HashSet<IResourceInfo>();
+        private readonly ITypeConverter<UriString, string> _uriConverter;
+        private readonly IDictionary<SoftString, object> _items = new Dictionary<SoftString, object>();
 
         public InMemoryProvider(IEnumerable<SoftString> schemes, ResourceMetadata metadata = default)
             : base(schemes, metadata)
-        {
-        }
+        { }
 
         public InMemoryProvider(ResourceMetadata metadata = default)
             : base(new[] { DefaultScheme }, metadata)
+        { }
+
+        public InMemoryProvider(ITypeConverter<UriString, string> uriConverter, IEnumerable<SoftString> schemes, ResourceMetadata metadata = default)
+            : this(schemes, metadata)
         {
+            _uriConverter = uriConverter;
         }
 
-        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
+        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
         {
-            var firstMatch = _items.FirstOrDefault(item => item.Uri.Path.Decoded == uri.Path.Decoded);
-            return Task.FromResult(firstMatch ?? new InMemoryResourceInfo(uri));
+            var name = _uriConverter.Convert<string>(uri);
+            return
+                _items.TryGetValue(name, out var o)
+                    // todo - hardcoded string format
+                    ? new InMemoryResourceInfo(uri, MimeType.Text, await ResourceHelper.SerializeTextAsync((string)o))
+                    : new InMemoryResourceInfo(uri);
         }
 
-        protected override Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
+        // protected override Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
+        // {
+        //     ValidateFormatNotNull(this, uri, metadata);
+        //
+        //     //var resource = new InMemoryResourceInfo(uri, metadata.Format(), value);
+        //     //_items.Remove(resource);
+        //     //_items.Add(resource);
+        //     //return Task.FromResult<IResourceInfo>(resource);
+        // }
+
+        // protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
+        // {
+        //     ValidateFormatNotNull(this, uri, metadata);
+        //
+        //     var resource = new InMemoryResourceInfo(uri, metadata.Format(), value);
+        //     _items.Remove(resource);
+        //     _items.Add(resource);
+        //     return Task.FromResult<IResourceInfo>(resource);
+        // }
+
+        // protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata)
+        // {
+        //     var resourceToDelete = await GetAsync(uri, metadata);
+        //     _items.Remove(resourceToDelete);
+        //     return await GetAsync(uri, metadata);
+        // }
+
+        #region Collection initilizers
+
+        //public void Add(IResourceInfo item) => _items.Add(item);
+
+        public void Add(string name, object value)
         {
-            ValidateFormatNotNull(this, uri, metadata);
-            
-            var resource = new InMemoryResourceInfo(uri, metadata.Format(), value);
-            _items.Remove(resource);
-            _items.Add(resource);
-            return Task.FromResult<IResourceInfo>(resource);
-        }
-        
-        protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
-        {
-            ValidateFormatNotNull(this, uri, metadata);
-            
-            var resource = new InMemoryResourceInfo(uri, metadata.Format(), value);
-            _items.Remove(resource);
-            _items.Add(resource);
-            return Task.FromResult<IResourceInfo>(resource);
+            _items[name] = value;
         }
 
-        protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata)
-        {
-            var resourceToDelete = await GetAsync(uri, metadata);
-            _items.Remove(resourceToDelete);
-            return await GetAsync(uri, metadata);
-        }
+        #endregion
 
-        public IEnumerator<IResourceInfo> GetEnumerator() => _items.GetEnumerator();
+        public IEnumerator<KeyValuePair<SoftString, object>> GetEnumerator() => _items.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_items).GetEnumerator();
     }
@@ -95,7 +116,8 @@ namespace Reusable.IOnymous
 
     public class InMemoryResourceInfo : ResourceInfo
     {
-        [CanBeNull] private readonly Stream _data;
+        [CanBeNull]
+        private readonly Stream _data;
 
         public InMemoryResourceInfo(UriString uri, MimeType format, Stream data)
             : base(uri, format)

@@ -21,7 +21,7 @@ namespace Reusable.Commander
         private readonly ITypeConverter _uriToIdentifierConverter;
         private readonly ICommandLine _commandLine;
 
-        public CommandLineArgumentProvider(TypeConverter<UriString, SettingIdentifier> uriToIdentifierConverter, ICommandLine commandLine)
+        public CommandLineArgumentProvider(ITypeConverter<UriString, string> uriToIdentifierConverter, ICommandLine commandLine)
             : base(new SoftString[] { DefaultScheme }, ResourceMetadata.Empty)
         {
             _uriToIdentifierConverter = uriToIdentifierConverter;
