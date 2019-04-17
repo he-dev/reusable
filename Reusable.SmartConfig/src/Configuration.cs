@@ -21,22 +21,19 @@ using ColorConverter = Reusable.Utilities.JsonNet.Converters.ColorConverter;
 
 namespace Reusable.SmartConfig
 {
-    //[UsedImplicitly]
     public interface IConfiguration
     {
-        Task<TValue> GetItemAsync<TValue>(Expression<Func<TValue>> getItem, string handle = default);
+        Task<object> GetItemAsync(LambdaExpression getItem, string handle = default);
 
-        Task SetItemAsync<TValue>(Expression<Func<TValue>> setItem, TValue newValue, string handle = default);
-
-        //T GetSetting<T>([NotNull] Expression<Func<T>> expression, [CanBeNull] string handle = null);
-
-        //void SaveSetting<T>([NotNull] Expression<Func<T>> expression, [CanBeNull] T newValue, [CanBeNull] string instanceName = null);
+        Task SetItemAsync(LambdaExpression setItem, object newValue, string handle = default);
 
         //void BindSetting<T>([NotNull] Expression<Func<T>> expression, [CanBeNull] string instanceName = null);
 
         //void BindSettings<T>([NotNull] T obj, [CanBeNull] string instanceName = null);
     }
 
+    [PublicAPI]
+    [UsedImplicitly]
     public class Configuration : IConfiguration
     {
         private static readonly IImmutableSet<MimeType> SupportedTypes = ImmutableHashSet<MimeType>.Empty.Add(MimeType.Text).Add(MimeType.Json);
@@ -63,18 +60,11 @@ namespace Reusable.SmartConfig
             return new Configuration(new CompositeProvider(resourceProviders));
         }
 
-        public async Task<T> GetItemAsync<T>(Expression<Func<T>> expression, string handle = null)
+        public async Task<object> GetItemAsync(LambdaExpression getItem, string handle = null)
         {
-            if (expression == null) throw new ArgumentNullException(nameof(expression));
+            if (getItem == null) throw new ArgumentNullException(nameof(getItem));
 
-            return (T)await GetSettingAsync((LambdaExpression)expression, handle);
-        }
-
-        private async Task<object> GetSettingAsync([NotNull] LambdaExpression expression, [CanBeNull] string handle = null)
-        {
-            if (expression == null) throw new ArgumentNullException(nameof(expression));
-
-            var settingMetadata = SettingMetadata.FromExpression(expression, false);
+            var settingMetadata = SettingMetadata.FromExpression(getItem, false);
             var uri = SettingUriFactory.CreateSettingUri(settingMetadata, handle);
             var setting = await _settingProvider.GetAsync(uri);
 
@@ -88,11 +78,17 @@ namespace Reusable.SmartConfig
                 using (var memoryStream = new MemoryStream())
                 {
                     await setting.CopyToAsync(memoryStream);
+
+                    //             {
+                    //                 var data = await ResourceHelper.DeserializeBinaryAsync<IList<string>>(memoryStream.Rewind());
+                    //                 return (TValue)_converter.Convert(data, settingMetadata.MemberType);
+                    //             }
+
                     using (var streamReader = new StreamReader(memoryStream.Rewind()))
                     {
                         var json = streamReader.ReadToEnd();
                         //var converter = GetOrAddDeserializer(settingMetadata.MemberType);
-                        return _converter.Convert(json, settingMetadata.MemberType);
+                        return Converter.Convert(json, settingMetadata.MemberType);
                     }
                 }
             }
@@ -102,11 +98,11 @@ namespace Reusable.SmartConfig
             }
         }
 
-        public async Task SetItemAsync<T>(Expression<Func<T>> expression, T newValue, string handle = null)
+        public async Task SetItemAsync(LambdaExpression setItem, object newValue, string handle = null)
         {
-            if (expression == null) throw new ArgumentNullException(nameof(expression));
+            if (setItem == null) throw new ArgumentNullException(nameof(setItem));
 
-            var settingMetadata = SettingMetadata.FromExpression(expression, false);
+            var settingMetadata = SettingMetadata.FromExpression(setItem, false);
             var uri = SettingUriFactory.CreateSettingUri(settingMetadata, handle);
 
             //var settingInfo =
@@ -121,7 +117,7 @@ namespace Reusable.SmartConfig
                 //    .Validate(settingName, newValue);
 
                 Validate(newValue, settingMetadata.Validations, uri);
-                var json = (string)_converter.Convert(newValue, typeof(string));
+                var json = Converter.Convert<string>(newValue);
                 using (var stream = await ResourceHelper.SerializeTextAsync(json))
                 {
                     await _settingProvider.PutAsync(uri, stream);
@@ -184,6 +180,15 @@ namespace Reusable.SmartConfig
         }
 
         #endregion
+    }
+    
+    public interface IConfiguration<T> : IConfiguration
+    { }
+
+    public class Configuration<T> : Configuration, IConfiguration<T>
+    {
+        public Configuration([NotNull] IResourceProvider settingProvider) : base(settingProvider)
+        { }
     }
 
     [PublicAPI]
@@ -276,10 +281,20 @@ namespace Reusable.SmartConfig
 
     public static class ConfigurationExtensions
     {
+        public static async Task<TValue> GetItemAsync<TValue>(this IConfiguration configuration, Expression<Func<TValue>> getItem, string handle = default)
+        {
+            return (TValue)await configuration.GetItemAsync(getItem, handle);
+        }
+
+        public static async Task SetItemAsync<TValue>(this IConfiguration configuration, Expression<Func<TValue>> setItem, TValue newValue, string handle = default)
+        {
+            await configuration.SetItemAsync(setItem, newValue, handle);
+        }
+
         [Obsolete("Use GetItem")]
         public static T GetSetting<T>(this IConfiguration configuration, [NotNull] Expression<Func<T>> expression, [CanBeNull] string handle = null)
         {
-            return configuration.GetItemAsync(expression, handle).GetAwaiter().GetResult();
+            return (T)configuration.GetItemAsync(expression, handle).GetAwaiter().GetResult();
         }
 
         [Obsolete("Use SetItem")]
@@ -290,12 +305,22 @@ namespace Reusable.SmartConfig
 
         public static T GetItem<T>(this IConfiguration configuration, [NotNull] Expression<Func<T>> expression, [CanBeNull] string handle = null)
         {
-            return configuration.GetItemAsync(expression, handle).GetAwaiter().GetResult();
+            return (T)configuration.GetItemAsync(expression, handle).GetAwaiter().GetResult();
         }
 
         public static void SetItem<T>(this IConfiguration configuration, [NotNull] Expression<Func<T>> expression, [CanBeNull] T newValue, [CanBeNull] string handle = null)
         {
             configuration.SetItemAsync(expression, newValue, handle).GetAwaiter().GetResult();
+        }
+
+        public static async Task<TValue> GetItemAsync<T, TValue>(this IConfiguration<T> configuration, Expression<Func<T, TValue>> getItem, string handle = default)
+        {
+            return (TValue)await configuration.GetItemAsync(getItem, handle);
+        }
+
+        public static async Task SetItemAsync<T, TValue>(this IConfiguration<T> configuration, Expression<Func<T, TValue>> setItem, TValue newValue, string handle = default)
+        {
+            await configuration.SetItemAsync(setItem, newValue, handle);
         }
 
         //        public static T GetSetting<T>(this IConfiguration configuration, string name, string instance = default)
