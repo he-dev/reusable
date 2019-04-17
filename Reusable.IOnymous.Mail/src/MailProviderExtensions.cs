@@ -40,6 +40,7 @@ namespace Reusable.IOnymous
                     .Scope<MailProvider>
                     (
                         scope => scope
+                            .From(email.From)
                             .To(email.To)
                             .CC(email.CC)
                             .Subject(email.Subject.Value)
