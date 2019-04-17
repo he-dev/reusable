@@ -26,10 +26,6 @@ namespace Reusable.SmartConfig
         Task<object> GetItemAsync(LambdaExpression getItem, string handle = default);
 
         Task SetItemAsync(LambdaExpression setItem, object newValue, string handle = default);
-
-        //void BindSetting<T>([NotNull] Expression<Func<T>> expression, [CanBeNull] string instanceName = null);
-
-        //void BindSettings<T>([NotNull] T obj, [CanBeNull] string instanceName = null);
     }
 
     [PublicAPI]
@@ -55,6 +51,9 @@ namespace Reusable.SmartConfig
             set => _converter = value ?? throw new ArgumentNullException(nameof(Converter));
         }
 
+        [NotNull]
+        public Func<Type, string> GetMemberName { get; set; } = SettingMetadata.GetMemberName;
+
         public static IConfiguration Create(params IResourceProvider[] resourceProviders)
         {
             return new Configuration(new CompositeProvider(resourceProviders));
@@ -64,8 +63,10 @@ namespace Reusable.SmartConfig
         {
             if (getItem == null) throw new ArgumentNullException(nameof(getItem));
 
-            var settingMetadata = SettingMetadata.FromExpression(getItem, false);
+            var settingInfo = SettingVisitor.GetSettingInfo(getItem);
+            var settingMetadata = new SettingMetadata(settingInfo, GetMemberName);
             var uri = SettingUriFactory.CreateSettingUri(settingMetadata, handle);
+
             var setting = await _settingProvider.GetAsync(uri);
 
             if (setting.Exists)
@@ -102,7 +103,8 @@ namespace Reusable.SmartConfig
         {
             if (setItem == null) throw new ArgumentNullException(nameof(setItem));
 
-            var settingMetadata = SettingMetadata.FromExpression(setItem, false);
+            var settingInfo = SettingVisitor.GetSettingInfo(setItem);
+            var settingMetadata = new SettingMetadata(settingInfo, GetMemberName);
             var uri = SettingUriFactory.CreateSettingUri(settingMetadata, handle);
 
             //var settingInfo =
@@ -123,6 +125,17 @@ namespace Reusable.SmartConfig
                     await _settingProvider.PutAsync(uri, stream);
                 }
             }
+        }
+
+        private (UriString Uri, Type MemberType) CreateSettingUri(LambdaExpression xItem, string handle)
+        {
+            var settingInfo = SettingVisitor.GetSettingInfo(xItem);
+            var settingMetadata = new SettingMetadata(settingInfo, GetMemberName);
+            return 
+            (
+                SettingUriFactory.CreateSettingUri(settingMetadata, handle),
+                settingMetadata.MemberType
+            );
         }
 
         //        /// <summary>
@@ -181,14 +194,12 @@ namespace Reusable.SmartConfig
 
         #endregion
     }
-    
-    public interface IConfiguration<T> : IConfiguration
-    { }
+
+    public interface IConfiguration<T> : IConfiguration { }
 
     public class Configuration<T> : Configuration, IConfiguration<T>
     {
-        public Configuration([NotNull] IResourceProvider settingProvider) : base(settingProvider)
-        { }
+        public Configuration([NotNull] IResourceProvider settingProvider) : base(settingProvider) { }
     }
 
     [PublicAPI]
@@ -227,8 +238,7 @@ namespace Reusable.SmartConfig
                     typeof(DateTime),
                     typeof(Color)
                 }
-            )
-        { }
+            ) { }
 
         public Type FromType => throw new NotSupportedException();
 

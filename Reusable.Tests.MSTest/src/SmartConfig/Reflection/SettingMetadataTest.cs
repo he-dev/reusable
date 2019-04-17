@@ -58,7 +58,7 @@ namespace Reusable.Tests.MSTest.SmartConfig.Reflection
                 var instanceFieldExpressions = instance2.InstanceFieldExpressions().ToList();
                 var baseInstanceField = typeof(BaseType).GetField("_instanceField", BindingFlags.Instance | BindingFlags.NonPublic);
 
-                var actual = SettingMetadata.FromExpression(instanceFieldExpressions.Last(), nonPublic: true);
+                var actual = SettingMetadata.FromExpression(instanceFieldExpressions.Last());
 
                 Assert.AreSame(instance2, actual.TypeInstance);
                 Assert.AreEqual(baseInstanceField, actual.Member);
@@ -72,7 +72,7 @@ namespace Reusable.Tests.MSTest.SmartConfig.Reflection
                 var staticFieldExpressions = instance2.StaticFieldExpressions().ToList();
                 var baseStaticField = typeof(BaseType).GetField("_staticField", BindingFlags.Static | BindingFlags.NonPublic);
 
-                var actual = SettingMetadata.FromExpression(staticFieldExpressions.Last(), nonPublic: true);
+                var actual = SettingMetadata.FromExpression(staticFieldExpressions.Last());
 
                 Assert.IsNull(actual.TypeInstance);
                 Assert.AreEqual(baseStaticField, actual.Member);
@@ -158,7 +158,7 @@ namespace Reusable.Tests.MSTest.SmartConfig.Reflection
                 var staticFieldExpressions = subInstance2.StaticFieldExpressions().ToList();
                 var baseStaticField = typeof(BaseType).GetField("_staticField", BindingFlags.Static | BindingFlags.NonPublic);
 
-                var actual = SettingMetadata.FromExpression(staticFieldExpressions.Last(), nonPublic: true);
+                var actual = SettingMetadata.FromExpression(staticFieldExpressions.Last());
 
                 Assert.IsNull(actual.TypeInstance);
                 Assert.AreEqual(baseStaticField, actual.Member);

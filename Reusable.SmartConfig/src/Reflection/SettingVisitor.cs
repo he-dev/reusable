@@ -1,9 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Custom;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Reflection;
+using Reusable.Extensions;
 
 namespace Reusable.SmartConfig.Reflection
 {
@@ -31,7 +35,10 @@ namespace Reusable.SmartConfig.Reflection
             // This fixes the visitor not resolving the overriden member correctly.
             if (visitor._member.DeclaringType != visitor._type)
             {
-                visitor._member = visitor._type.GetMember(visitor._member.Name).Single();
+                visitor._member = 
+                    visitor._type.IsInterface 
+                        ? visitor._type.FindProperty(visitor._member.Name) 
+                        : visitor._type.GetMember(visitor._member.Name).Single();
             }
 
             return (visitor._type, visitor._instance, visitor._member);
@@ -91,6 +98,38 @@ namespace Reusable.SmartConfig.Reflection
             // - types passed via generics like .From<T>().Select(x => x.Y);
             _type = node.Type;
             return base.VisitParameter(node);
+        }
+    }
+
+    internal static class Utilities
+    {
+        public static MemberInfo FindProperty([NotNull] this Type type, [NotNull] string name)
+        {
+            if (type == null) throw new ArgumentNullException(nameof(type));
+            if (name == null) throw new ArgumentNullException(nameof(name));
+
+            if (!type.IsInterface) throw new ArgumentException(paramName: nameof(type), message: $"'{nameof(type)}' must be an interface.");
+
+            var queue = new Queue<Type>()
+            {
+                type
+            };
+
+            while (queue.Any())
+            {
+                type = queue.Dequeue();
+                if (type.GetProperty(name) is var p && !(p is null))
+                {
+                    return p;
+                }
+
+                foreach (var i in type.GetInterfaces())
+                {
+                    queue.Enqueue(i);
+                }
+            }
+
+            return default;
         }
     }
 }

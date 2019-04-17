@@ -22,17 +22,13 @@ namespace Reusable.SmartConfig
             builder.True(e => e.Body is MemberExpression);
         });
 
-        private SettingMetadata(Type type, object typeInstance, MemberInfo member)
+        public SettingMetadata((Type Type, object TypeInstance, MemberInfo Member) info, Func<Type, string> getMemberName)
         {
+            var (type, typeInstance, member) = info;
+
             Scope = type.Namespace;
             Type = type;
-            TypeName =
-                GetCustomAttribute<ResourceNameAttribute>(type, default)?.Name ??
-                (
-                    type.IsInterface
-                        ? Regex.Match(type.Name, @"^I(?<name>\w+)(?:Config(uration)?)", RegexOptions.IgnoreCase).Group("name")
-                        : type.Name
-                );
+            TypeName = GetCustomAttribute<ResourceNameAttribute>(type, default)?.Name ?? getMemberName(type);
             TypeInstance = typeInstance;
             Member = member;
             MemberName = GetCustomAttribute<ResourceNameAttribute>(default, member)?.Name ?? member.Name;
@@ -91,12 +87,12 @@ namespace Reusable.SmartConfig
         public ResourceNameLevel Level { get; }
 
         [NotNull]
-        public static SettingMetadata FromExpression(LambdaExpression expression, bool nonPublic = false)
+        internal static SettingMetadata FromExpression(LambdaExpression expression)
         {
             expression.ValidateWith(SettingExpressionValidator).Assert();
 
-            var (type, instance, member) = SettingVisitor.GetSettingInfo(expression, nonPublic);
-            return new SettingMetadata(type, instance, member);
+            var settingInfo = SettingVisitor.GetSettingInfo(expression);
+            return new SettingMetadata(settingInfo, GetMemberName);
         }
 
         [NotNull]
@@ -124,6 +120,14 @@ namespace Reusable.SmartConfig
                     type?.GetCustomAttribute<T>(),
                 }
                 .FirstOrDefault(Conditional.IsNotNull);
+        }
+
+        public static string GetMemberName(Type type)
+        {
+            return
+                type.IsInterface
+                    ? Regex.Match(type.Name, @"^I(?<name>[a-z0-9_]+)(?:Config(uration)?)", RegexOptions.IgnoreCase).Group("name")
+                    : type.Name;
         }
     }
 }

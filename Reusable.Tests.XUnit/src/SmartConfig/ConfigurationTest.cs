@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Configuration;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.IOnymous;
@@ -269,6 +270,8 @@ namespace Reusable.Tests.XUnit.SmartConfig
         }
     }
 
+    
+
     internal class Nothing
     {
         public IConfiguration Configuration { get; set; }
@@ -341,5 +344,41 @@ namespace Reusable.Tests.XUnit.SmartConfig
     internal class CustomTypes : Nothing
     {
         public TimeSpan TimeSpan => Configuration.GetSetting(() => TimeSpan);
+    }
+    
+    public class ConfigurationTestGeneric
+    {
+        [Fact]
+        public async Task Can_find_setting_on_base_type()
+        {
+            var c = new Reusable.SmartConfig.Configuration<ISubConfig>(new CompositeProvider(new IResourceProvider[]
+            {
+                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                {
+                    { "User.Name", "Joe" }
+                },
+                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                {
+                    { "Sub.Enabled", "true" }
+                },
+                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                {
+                    { "Sub.Name", "Tom" }
+                },
+            }));
+            
+            Assert.Equal(true, await c.GetItemAsync(x => x.Enabled));
+            Assert.Equal("Tom", await c.GetItemAsync(x => x.Name));
+        }
+    }
+
+    public interface IBaseConfig
+    {
+        bool Enabled { get; }
+    }
+
+    public interface ISubConfig : IBaseConfig
+    {
+        string Name { get; }
     }
 }

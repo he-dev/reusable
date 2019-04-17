@@ -12,8 +12,6 @@ using Reusable.OneTo1;
 
 namespace Reusable.SmartConfig
 {
-    
-
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Property)]
     public class ResourcePrefixAttribute : Attribute
     {
