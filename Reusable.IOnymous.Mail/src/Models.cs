@@ -20,6 +20,8 @@ namespace Reusable.IOnymous
 
         TSubject Subject { get; }
 
+        Dictionary<string, byte[]> Attachments { get; }
+
         TBody Body { get; }
 
         bool IsHtml { get; }
@@ -36,6 +38,8 @@ namespace Reusable.IOnymous
         public IEnumerable<string> CC { get; set; } = Enumerable.Empty<string>();
 
         public TSubject Subject { get; set; }
+
+        public Dictionary<string, byte[]> Attachments { get; set; }
 
         public TBody Body { get; set; }
 

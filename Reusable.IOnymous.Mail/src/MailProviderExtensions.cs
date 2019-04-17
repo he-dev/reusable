@@ -43,6 +43,7 @@ namespace Reusable.IOnymous
                             .To(email.To)
                             .CC(email.CC)
                             .Subject(email.Subject.Value)
+                            .Attachments(email.Attachments)
                             .From(email.From)
                             .IsHtml(email.IsHtml)
                             .IsHighPriority(email.IsHighPriority)

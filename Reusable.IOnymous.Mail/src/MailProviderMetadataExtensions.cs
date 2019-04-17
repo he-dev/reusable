@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Configuration;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Text;
 using JetBrains.Annotations;
 
@@ -23,9 +24,9 @@ namespace Reusable.IOnymous
         {
             return scope.Metadata.SetItemAuto(to);
         }
-        
+
         // --- 
-        
+
         public static IEnumerable<string> CC(this ResourceMetadataScope<MailProvider> scope)
         {
             return scope.Metadata.GetValueOrDefault(Enumerable.Empty<string>());
@@ -65,10 +66,10 @@ namespace Reusable.IOnymous
         }
 
         // ---
-        
+
         public static string Subject(this ResourceMetadataScope<MailProvider> scope)
         {
-            return scope.Metadata.GetValueOrDefault(string.Empty);            
+            return scope.Metadata.GetValueOrDefault(string.Empty);
         }
 
         public static ResourceMetadataScope<MailProvider> Subject(this ResourceMetadataScope<MailProvider> scope, string subject)
@@ -77,10 +78,10 @@ namespace Reusable.IOnymous
         }
 
         // ---
-        
+
         public static Encoding SubjectEncoding(this ResourceMetadataScope<MailProvider> scope)
         {
-            return scope.Metadata.GetValueOrDefault(Encoding.UTF8);            
+            return scope.Metadata.GetValueOrDefault(Encoding.UTF8);
         }
 
         public static ResourceMetadataScope<MailProvider> SubjectEncoding(this ResourceMetadataScope<MailProvider> scope, string subjectEncoding)
@@ -88,23 +89,35 @@ namespace Reusable.IOnymous
             return scope.Metadata.SetItemAuto(subjectEncoding);
         }
 
-        // ---
-        
-//        public static string Body(this ResourceMetadataScope<MailProvider> scope)
-//        {
-//            return scope.Metadata.GetValueOrDefault(string.Empty);            
-//        }
-//
-//        public static ResourceMetadataScope<MailProvider> Body(this ResourceMetadataScope<MailProvider> scope, string body)
-//        {
-//            return scope.Metadata.SetItemAuto(body);
-//        }
+        // todo - get/set Attachments Dictionary<string, byte[]>
+
+        public static Dictionary<string, byte[]> Attachments(this ResourceMetadataScope<MailProvider> scope)
+        {
+            return scope.Metadata.GetValueOrDefault(default(Dictionary<string, byte[]>));
+        }
+
+        public static ResourceMetadataScope<MailProvider> Attachments(this ResourceMetadataScope<MailProvider> scope, Dictionary<string, byte[]> attachments)
+        {
+            return scope.Metadata.SetItemAuto(attachments);
+        }
 
         // ---
-        
+
+        //        public static string Body(this ResourceMetadataScope<MailProvider> scope)
+        //        {
+        //            return scope.Metadata.GetValueOrDefault(string.Empty);            
+        //        }
+        //
+        //        public static ResourceMetadataScope<MailProvider> Body(this ResourceMetadataScope<MailProvider> scope, string body)
+        //        {
+        //            return scope.Metadata.SetItemAuto(body);
+        //        }
+
+        // ---
+
         public static Encoding BodyEncoding(this ResourceMetadataScope<MailProvider> scope)
         {
-            return scope.Metadata.GetValueOrDefault(Encoding.UTF8);            
+            return scope.Metadata.GetValueOrDefault(Encoding.UTF8);
         }
 
         public static ResourceMetadataScope<MailProvider> BodyEncoding(this ResourceMetadataScope<MailProvider> scope, string bodyEncoding)
@@ -113,10 +126,10 @@ namespace Reusable.IOnymous
         }
 
         // ---
-        
+
         public static bool IsHtml(this ResourceMetadataScope<MailProvider> scope)
         {
-            return scope.Metadata.GetValueOrDefault(true);            
+            return scope.Metadata.GetValueOrDefault(true);
         }
 
         public static ResourceMetadataScope<MailProvider> IsHtml(this ResourceMetadataScope<MailProvider> scope, bool isBodyHtml)
@@ -125,10 +138,10 @@ namespace Reusable.IOnymous
         }
 
         // ---
-        
+
         public static bool IsHighPriority(this ResourceMetadataScope<MailProvider> scope)
         {
-            return scope.Metadata.GetValueOrDefault(false);            
+            return scope.Metadata.GetValueOrDefault(false);
         }
 
         public static ResourceMetadataScope<MailProvider> IsHighPriority(this ResourceMetadataScope<MailProvider> scope, bool isHighPriority)
