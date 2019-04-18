@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
@@ -32,8 +33,6 @@ namespace Reusable.SmartConfig
     [UsedImplicitly]
     public class Configuration : IConfiguration
     {
-        private static readonly IImmutableSet<MimeType> SupportedTypes = ImmutableHashSet<MimeType>.Empty.Add(MimeType.Text).Add(MimeType.Json);
-
         private readonly IResourceProvider _settingProvider;
 
         private ITypeConverter _converter;
@@ -42,13 +41,6 @@ namespace Reusable.SmartConfig
         {
             _settingProvider = settingProvider ?? throw new ArgumentNullException(nameof(settingProvider));
             _converter = new JsonSettingConverter();
-        }
-
-        [NotNull]
-        public ITypeConverter Converter
-        {
-            get => _converter;
-            set => _converter = value ?? throw new ArgumentNullException(nameof(Converter));
         }
 
         [NotNull]
@@ -67,30 +59,32 @@ namespace Reusable.SmartConfig
             var settingMetadata = new SettingMetadata(settingInfo, GetMemberName);
             var uri = SettingUriFactory.CreateSettingUri(settingMetadata, handle);
 
-            var setting = await _settingProvider.GetAsync(uri);
+            var setting = await _settingProvider.GetAsync(uri, ResourceMetadata.Empty.Type(settingMetadata.MemberType));
 
             if (setting.Exists)
             {
-                if (!SupportedTypes.Contains(setting.Format))
-                {
-                    throw DynamicException.Create("UnsupportedSettingFormat", $"'{setting.Format}' is not supported.");
-                }
-
                 using (var memoryStream = new MemoryStream())
                 {
                     await setting.CopyToAsync(memoryStream);
 
-                    //             {
-                    //                 var data = await ResourceHelper.DeserializeBinaryAsync<IList<string>>(memoryStream.Rewind());
-                    //                 return (TValue)_converter.Convert(data, settingMetadata.MemberType);
-                    //             }
-
-                    using (var streamReader = new StreamReader(memoryStream.Rewind()))
+                    if (setting.Format == MimeType.Text)
                     {
-                        var json = streamReader.ReadToEnd();
-                        //var converter = GetOrAddDeserializer(settingMetadata.MemberType);
-                        return Converter.Convert(json, settingMetadata.MemberType);
+                        using (var streamReader = new StreamReader(memoryStream.Rewind()))
+                        {
+                            return await streamReader.ReadToEndAsync();
+                        }
                     }
+
+                    if (setting.Format == MimeType.Binary)
+                    {
+                        return await ResourceHelper.DeserializeBinaryAsync<object>(memoryStream.Rewind());
+                    }
+
+                    throw DynamicException.Create
+                    (
+                        "SettingFormat",
+                        $"Setting's '{uri}' format is '{setting.Format}' but only '{MimeType.Binary}' and '{MimeType.Text}' are supported."
+                    );
                 }
             }
             else
@@ -119,10 +113,22 @@ namespace Reusable.SmartConfig
                 //    .Validate(settingName, newValue);
 
                 Validate(newValue, settingMetadata.Validations, uri);
-                var json = Converter.Convert<string>(newValue);
-                using (var stream = await ResourceHelper.SerializeTextAsync(json))
+
+                var resourceMetadata = ResourceMetadata.Empty.Type(settingMetadata.MemberType);
+
+                if (settingMetadata.MemberType == typeof(string))
                 {
-                    await _settingProvider.PutAsync(uri, stream);
+                    using (var stream = await ResourceHelper.SerializeTextAsync((string)newValue))
+                    {
+                        await _settingProvider.PutAsync(uri, stream, resourceMetadata.Format(MimeType.Text));
+                    }
+                }
+                else
+                {
+                    using (var stream = await ResourceHelper.SerializeBinaryAsync(newValue))
+                    {
+                        await _settingProvider.PutAsync(uri, stream, resourceMetadata.Format(MimeType.Binary));
+                    }
                 }
             }
         }
@@ -131,54 +137,12 @@ namespace Reusable.SmartConfig
         {
             var settingInfo = SettingVisitor.GetSettingInfo(xItem);
             var settingMetadata = new SettingMetadata(settingInfo, GetMemberName);
-            return 
+            return
             (
                 SettingUriFactory.CreateSettingUri(settingMetadata, handle),
                 settingMetadata.MemberType
             );
-        }
-
-        //        /// <summary>
-        //        /// Assigns the same setting value to the specified member.
-        //        /// </summary>
-        //        public void BindSetting<T>(Expression<Func<T>> expression, string instanceName = null)
-        //        {
-        //            if (expression == null) throw new ArgumentNullException(nameof(expression));
-        //
-        //            var settingMetadata = SettingMetadata.FromExpression(expression, false);
-        //            var uri = settingMetadata.CreateUri(instanceName);
-        //            var value = GetSetting(expression, instanceName);
-        //            settingMetadata.SetValue(Validate(value, settingMetadata.Validations, uri));
-        //        }
-        //
-        //        /// <summary>
-        //        /// Assigns setting values to all members decorated with the the SmartSettingAttribute.
-        //        /// </summary>        
-        //        public void BindSettings<T>(T obj, string instanceName = null)
-        //        {
-        //            if (obj == null) throw new ArgumentNullException(nameof(obj));
-        //
-        //            var settingProperties =
-        //                typeof(T)
-        //                    .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-        //                    .Where(p => p.IsDefined(typeof(SettingMemberAttribute)));
-        //
-        //            foreach (var property in settingProperties)
-        //            {
-        //                // This expression allows to reuse GeAsync.
-        //                var expression = Expression.Lambda(
-        //                    Expression.Property(
-        //                        Expression.Constant(obj),
-        //                        property.Name
-        //                    )
-        //                );
-        //
-        //                var value = GetSetting(expression, instanceName);
-        //                var settingMetadata = SettingMetadata.FromExpression(expression, false);
-        //                var uri = settingMetadata.CreateUri(instanceName);
-        //                settingMetadata.SetValue(Validate(value, settingMetadata.Validations, uri));
-        //            }
-        //        }
+        }        
 
         #region Helpers
 
@@ -193,13 +157,6 @@ namespace Reusable.SmartConfig
         }
 
         #endregion
-    }
-
-    public interface IConfiguration<T> : IConfiguration { }
-
-    public class Configuration<T> : Configuration, IConfiguration<T>
-    {
-        public Configuration([NotNull] IResourceProvider settingProvider) : base(settingProvider) { }
     }
 
     [PublicAPI]
@@ -287,62 +244,5 @@ namespace Reusable.SmartConfig
 
             throw new ArgumentOutOfRangeException();
         }
-    }
-
-    public static class ConfigurationExtensions
-    {
-        public static async Task<TValue> GetItemAsync<TValue>(this IConfiguration configuration, Expression<Func<TValue>> getItem, string handle = default)
-        {
-            return (TValue)await configuration.GetItemAsync(getItem, handle);
-        }
-
-        public static async Task SetItemAsync<TValue>(this IConfiguration configuration, Expression<Func<TValue>> setItem, TValue newValue, string handle = default)
-        {
-            await configuration.SetItemAsync(setItem, newValue, handle);
-        }
-
-        [Obsolete("Use GetItem")]
-        public static T GetSetting<T>(this IConfiguration configuration, [NotNull] Expression<Func<T>> expression, [CanBeNull] string handle = null)
-        {
-            return (T)configuration.GetItemAsync(expression, handle).GetAwaiter().GetResult();
-        }
-
-        [Obsolete("Use SetItem")]
-        public static void SaveSetting<T>(this IConfiguration configuration, [NotNull] Expression<Func<T>> expression, [CanBeNull] T newValue, [CanBeNull] string handle = null)
-        {
-            configuration.SetItemAsync(expression, newValue, handle).GetAwaiter().GetResult();
-        }
-
-        public static T GetItem<T>(this IConfiguration configuration, [NotNull] Expression<Func<T>> expression, [CanBeNull] string handle = null)
-        {
-            return (T)configuration.GetItemAsync(expression, handle).GetAwaiter().GetResult();
-        }
-
-        public static void SetItem<T>(this IConfiguration configuration, [NotNull] Expression<Func<T>> expression, [CanBeNull] T newValue, [CanBeNull] string handle = null)
-        {
-            configuration.SetItemAsync(expression, newValue, handle).GetAwaiter().GetResult();
-        }
-
-        public static async Task<TValue> GetItemAsync<T, TValue>(this IConfiguration<T> configuration, Expression<Func<T, TValue>> getItem, string handle = default)
-        {
-            return (TValue)await configuration.GetItemAsync(getItem, handle);
-        }
-
-        public static async Task SetItemAsync<T, TValue>(this IConfiguration<T> configuration, Expression<Func<T, TValue>> setItem, TValue newValue, string handle = default)
-        {
-            await configuration.SetItemAsync(setItem, newValue, handle);
-        }
-
-        //        public static T GetSetting<T>(this IConfiguration configuration, string name, string instance = default)
-        //        {
-        //            var expression =
-        //                Expression.Lambda<Func<T>>(
-        //                    Expression.Property(
-        //                        Expression.Constant(default(T), typeof(T)),
-        //                        name
-        //                    )
-        //                );
-        //            return configuration.GetSetting(expression, instance);
-        //        }
     }
 }

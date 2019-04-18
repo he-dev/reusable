@@ -7,6 +7,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.OneTo1;
+using Reusable.OneTo1.Converters;
 
 namespace Reusable.IOnymous
 {
@@ -16,12 +17,10 @@ namespace Reusable.IOnymous
         private readonly IDictionary<SoftString, object> _items = new Dictionary<SoftString, object>();
 
         public InMemoryProvider(IEnumerable<SoftString> schemes, ResourceMetadata metadata = default)
-            : base(schemes, metadata)
-        { }
+            : base(schemes, metadata) { }
 
         public InMemoryProvider(ResourceMetadata metadata = default)
-            : base(new[] { DefaultScheme }, metadata)
-        { }
+            : base(new[] { DefaultScheme }, metadata) { }
 
         public InMemoryProvider(ITypeConverter<UriString, string> uriConverter, IEnumerable<SoftString> schemes, ResourceMetadata metadata = default)
             : this(schemes, metadata)
@@ -29,13 +28,19 @@ namespace Reusable.IOnymous
             _uriConverter = uriConverter;
         }
 
+        /// <summary>
+        /// Gets or sets value converter.
+        /// </summary>
+        public ITypeConverter Converter { get; set; } = new NullConverter();
+        
         protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
         {
             var name = _uriConverter.Convert<string>(uri);
             return
                 _items.TryGetValue(name, out var o)
-                    // todo - hardcoded string format
-                    ? new InMemoryResourceInfo(uri, MimeType.Text, await ResourceHelper.SerializeTextAsync((string)o))
+                    ? o is string s
+                        ? new InMemoryResourceInfo(uri, MimeType.Text, await ResourceHelper.SerializeTextAsync(s))
+                        : new InMemoryResourceInfo(uri, MimeType.Binary, await ResourceHelper.SerializeBinaryAsync(o))
                     : new InMemoryResourceInfo(uri);
         }
 
@@ -49,15 +54,23 @@ namespace Reusable.IOnymous
         //     //return Task.FromResult<IResourceInfo>(resource);
         // }
 
-        // protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
-        // {
-        //     ValidateFormatNotNull(this, uri, metadata);
-        //
-        //     var resource = new InMemoryResourceInfo(uri, metadata.Format(), value);
-        //     _items.Remove(resource);
-        //     _items.Add(resource);
-        //     return Task.FromResult<IResourceInfo>(resource);
-        // }
+        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
+        {
+            ValidateFormatNotNull(this, uri, metadata);
+
+            var name = _uriConverter.Convert<string>(uri);
+
+            if (metadata.Format() == MimeType.Text)
+            {
+                _items[name] = await ResourceHelper.DeserializeTextAsync(value);
+            }
+            else
+            {
+                _items[name] = await ResourceHelper.DeserializeBinaryAsync<object>(value);
+            }
+            
+            return new InMemoryResourceInfo(uri, metadata.Format(), value);
+        }
 
         // protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata)
         // {
@@ -116,8 +129,7 @@ namespace Reusable.IOnymous
 
     public class InMemoryResourceInfo : ResourceInfo
     {
-        [CanBeNull]
-        private readonly Stream _data;
+        [CanBeNull] private readonly Stream _data;
 
         public InMemoryResourceInfo(UriString uri, MimeType format, Stream data)
             : base(uri, format)

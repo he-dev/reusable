@@ -31,7 +31,6 @@
     <Compile Remove="src\Reflection\SettingMetadata___.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="src\ConfigurationExtensions.cs" />
     <Compile Remove="src\Data\Setting.cs" />
     <Compile Remove="src\SettingFinder.cs" />
     <Compile Remove="src\SettingNameExtensions.cs" />

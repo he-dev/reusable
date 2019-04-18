@@ -52,7 +52,7 @@ namespace Reusable.OneTo1
             return converter != null;
         }
 
-        protected override bool SupportsConversion(Type fromType, Type toType) => TryGetConverter(fromType, toType, out _);
+        protected override bool CanConvertCore(Type fromType, Type toType) => TryGetConverter(fromType, toType, out _);
 
         protected override object ConvertCore(IConversionContext<object> context)
         {

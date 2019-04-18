@@ -66,10 +66,19 @@ namespace Reusable.IOnymous
             binaryFormatter.Serialize(memoryStream, value);
             return Task.FromResult<Stream>(memoryStream);
         }
-        
+
+        public static async Task<string> DeserializeTextAsync(Stream stream, Encoding encoding = null)
+        {
+            encoding = encoding ?? Encoding.UTF8;
+            using (var reader = new StreamReader(stream.Rewind(), encoding))
+            {
+                return await reader.ReadToEndAsync();
+            }
+        }
+
         public static Task<T> DeserializeBinaryAsync<T>(Stream stream)
         {
-            var binaryFormatter = new BinaryFormatter();            
+            var binaryFormatter = new BinaryFormatter();
             return Task.FromResult((T)binaryFormatter.Deserialize(stream.Rewind()));
         }
 

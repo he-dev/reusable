@@ -153,6 +153,18 @@ namespace Reusable.IOnymous
         {
             return metadata.SetItemAuto((IImmutableSet<SoftString>)schemes.ToImmutableHashSet());
         }
+        
+        // ---
+
+        public static Type Type(this ResourceMetadata metadata)
+        {
+            return metadata.GetValueOrDefault(System.Type.Missing.GetType());
+        }
+
+        public static ResourceMetadata Type(this ResourceMetadata metadata, Type type)
+        {
+            return metadata.SetItemAuto(type);
+        }
 
         #endregion
     }

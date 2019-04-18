@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.OneTo1;
+using Reusable.OneTo1.Converters;
 
 namespace Reusable.IOnymous
 {
@@ -18,6 +19,8 @@ namespace Reusable.IOnymous
         {
             _uriStringToSettingIdentifierConverter = uriStringToSettingIdentifierConverter;
         }
+        
+        public ITypeConverter Converter { get; set; } = new NullConverter();
 
         protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
         {

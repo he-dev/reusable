@@ -11,6 +11,7 @@ using Reusable.Extensions;
 using Reusable.Flawless;
 using Reusable.IOnymous;
 using Reusable.OneTo1;
+using Reusable.OneTo1.Converters;
 using Reusable.SmartConfig.Internal;
 using Reusable.Utilities.SqlClient;
 
@@ -56,6 +57,8 @@ namespace Reusable.SmartConfig
 
         [CanBeNull]
         public IImmutableDictionary<string, object> Where { get; set; }
+        
+        public ITypeConverter Converter { get; set; } = new NullConverter();
 
         protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
         {

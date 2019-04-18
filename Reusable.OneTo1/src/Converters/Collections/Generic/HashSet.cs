@@ -7,7 +7,7 @@ namespace Reusable.OneTo1.Converters.Collections.Generic
 {
     public class EnumerableToHashSetConverter : TypeConverter<IEnumerable, object>
     {
-        protected override bool SupportsConversion(Type fromType, Type toType)
+        protected override bool CanConvertCore(Type fromType, Type toType)
         {
             return fromType.IsEnumerableOfT(except: typeof(string)) && toType.IsHashSet();
         }

@@ -9,7 +9,7 @@ namespace Reusable.OneTo1.Converters.Collections.Generic
 {
     public class DictionaryToDictionaryConverter : TypeConverter<IDictionary, IDictionary>
     {
-        protected override bool SupportsConversion(Type fromType, Type toType) => fromType.IsDictionary() && toType.IsDictionary();
+        protected override bool CanConvertCore(Type fromType, Type toType) => fromType.IsDictionary() && toType.IsDictionary();
 
         protected override IDictionary ConvertCore(IConversionContext<IDictionary> context)
         {

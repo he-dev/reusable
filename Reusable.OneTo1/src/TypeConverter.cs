@@ -50,7 +50,7 @@ namespace Reusable.OneTo1
             if (fromType == null) throw new ArgumentNullException(nameof(fromType));
             if (toType == null) throw new ArgumentNullException(nameof(toType));
 
-            return IsConverted(fromType, toType) || SupportsConversion(fromType, toType);
+            return IsConverted(fromType, toType) || CanConvertCore(fromType, toType);
         }
 
         public object Convert(IConversionContext<object> context)
@@ -83,11 +83,12 @@ namespace Reusable.OneTo1
                 );
             }
         }
+        
+        protected virtual bool CanConvertCore(Type fromType, Type toType) => fromType == FromType && toType.IsAssignableFrom(ToType);
 
         [NotNull]
         protected abstract object ConvertCore([NotNull] IConversionContext<object> context);
 
-        protected virtual bool SupportsConversion(Type fromType, Type toType) => fromType == FromType && toType.IsAssignableFrom(ToType);
 
         private static bool IsConverted(Type fromType, Type toType) => toType.IsAssignableFrom(fromType);
 
@@ -122,19 +123,5 @@ namespace Reusable.OneTo1
 
         [NotNull]
         protected abstract TResult ConvertCore(IConversionContext<TValue> context);
-    }
-
-    /// <summary>
-    /// Passes the value to be converted through without doing anything.
-    /// </summary>
-    public class RelayConverter : TypeConverter
-    {
-        public override Type FromType => typeof(object);
-
-        public override Type ToType => typeof(object);
-
-        protected override bool SupportsConversion(Type fromType, Type toType) => true;
-
-        protected override object ConvertCore(IConversionContext<object> context) => context.Value;
     }
 }

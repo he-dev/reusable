@@ -8,7 +8,7 @@ namespace Reusable.OneTo1.Converters.Collections
 {
     public class EnumerableToArrayConverter : TypeConverter<IEnumerable, object>
     {
-        protected override bool SupportsConversion(Type fromType, Type toType)
+        protected override bool CanConvertCore(Type fromType, Type toType)
         {
             return fromType.IsEnumerableOfT(except: typeof(string)) && toType.IsArray;
         }

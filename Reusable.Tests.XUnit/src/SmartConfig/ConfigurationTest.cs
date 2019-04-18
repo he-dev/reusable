@@ -240,7 +240,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
                     },
                     new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
                     {
-                        { "Admin.Enabled", "true" }
+                        { "Admin.Enabled", true }
                     },
                     new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
                     {
@@ -276,31 +276,31 @@ namespace Reusable.Tests.XUnit.SmartConfig
     {
         public IConfiguration Configuration { get; set; }
 
-        public bool Enabled => Configuration.GetSetting(() => Enabled);
+        public bool Enabled => Configuration.GetItem(() => Enabled);
     }
 
     // tests defaults
     internal class User : Nothing
     {
-        public string Name => Configuration.GetSetting(() => Name);
+        public string Name => Configuration.GetItem(() => Name);
     }
 
     internal class Admin : Nothing
     {
-        public string Skill => Configuration.GetSetting(() => Skill);
+        public string Skill => Configuration.GetItem(() => Skill);
     }
 
     [ResourceName("Amazon")]
     internal class Forest : Nothing
     {
         [ResourceName("Timber")]
-        public string Tree => Configuration.GetSetting(() => Tree);
+        public string Tree => Configuration.GetItem(() => Tree);
     }
 
     [ResourcePrefix("day")]
     internal class Greeting : Nothing
     {
-        public string Morning => Configuration.GetSetting(() => Morning);
+        public string Morning => Configuration.GetItem(() => Morning);
     }
 
     // tests assembly annotations -- they are no longer supported
@@ -315,35 +315,21 @@ namespace Reusable.Tests.XUnit.SmartConfig
     [ResourceProvider("ThisOne")]
     internal class Map : Nothing
     {
-        public string City => Configuration.GetSetting(() => City);
+        public string City => Configuration.GetItem(() => City);
     }
 
     [ResourceName(Level = ResourceNameLevel.NamespaceTypeMember)]
     internal class Key : Nothing
     {
-        public string Location => Configuration.GetSetting(() => Location);
+        public string Location => Configuration.GetItem(() => Location);
 
         [ResourceName(Level = ResourceNameLevel.Member)]
-        public string Door => Configuration.GetSetting(() => Door);
-    }
-
-    // tests app-config and sql-server
-    internal class Test9 : Nothing
-    {
-        //[SettingMember(ProviderType = typeof(AppSettingProvider))]
-        public string Salute => Configuration.GetSetting(() => Salute);
-
-        //[SettingMember(ProviderType = typeof(SqlServerProvider))]
-        public string Greeting
-        {
-            get => Configuration.GetSetting(() => Greeting);
-            set => Configuration.SaveSetting(() => Greeting, value);
-        }
-    }
+        public string Door => Configuration.GetItem(() => Door);
+    }    
 
     internal class CustomTypes : Nothing
     {
-        public TimeSpan TimeSpan => Configuration.GetSetting(() => TimeSpan);
+        public TimeSpan TimeSpan => Configuration.GetItem(() => TimeSpan);
     }
     
     public class ConfigurationTestGeneric
@@ -359,7 +345,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
                 },
                 new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
                 {
-                    { "Sub.Enabled", "true" }
+                    { "Sub.Enabled", true }
                 },
                 new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
                 {
