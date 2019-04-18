@@ -33,13 +33,13 @@ namespace Reusable.SmartConfig
     [UsedImplicitly]
     public class Configuration : IConfiguration
     {
-        private readonly IResourceProvider _settingProvider;
+        private readonly IResourceProvider _settings;
 
         private ITypeConverter _converter;
 
         public Configuration([NotNull] IResourceProvider settingProvider)
         {
-            _settingProvider = settingProvider ?? throw new ArgumentNullException(nameof(settingProvider));
+            _settings = settingProvider ?? throw new ArgumentNullException(nameof(settingProvider));
             _converter = new JsonSettingConverter();
         }
 
@@ -58,39 +58,7 @@ namespace Reusable.SmartConfig
             var settingInfo = SettingVisitor.GetSettingInfo(getItem);
             var settingMetadata = new SettingMetadata(settingInfo, GetMemberName);
             var uri = SettingUriFactory.CreateSettingUri(settingMetadata, handle);
-
-            var setting = await _settingProvider.GetAsync(uri, ResourceMetadata.Empty.Type(settingMetadata.MemberType));
-
-            if (setting.Exists)
-            {
-                using (var memoryStream = new MemoryStream())
-                {
-                    await setting.CopyToAsync(memoryStream);
-
-                    if (setting.Format == MimeType.Text)
-                    {
-                        using (var streamReader = new StreamReader(memoryStream.Rewind()))
-                        {
-                            return await streamReader.ReadToEndAsync();
-                        }
-                    }
-
-                    if (setting.Format == MimeType.Binary)
-                    {
-                        return await ResourceHelper.DeserializeBinaryAsync<object>(memoryStream.Rewind());
-                    }
-
-                    throw DynamicException.Create
-                    (
-                        "SettingFormat",
-                        $"Setting's '{uri}' format is '{setting.Format}' but only '{MimeType.Binary}' and '{MimeType.Text}' are supported."
-                    );
-                }
-            }
-            else
-            {
-                throw DynamicException.Create("SettingNotFound", $"Could not find '{uri}'.");
-            }
+            return await _settings.GetItemAsync<object>(uri, ResourceMetadata.Empty.Type(settingMetadata.MemberType));
         }
 
         public async Task SetItemAsync(LambdaExpression setItem, object newValue, string handle = null)
@@ -100,37 +68,8 @@ namespace Reusable.SmartConfig
             var settingInfo = SettingVisitor.GetSettingInfo(setItem);
             var settingMetadata = new SettingMetadata(settingInfo, GetMemberName);
             var uri = SettingUriFactory.CreateSettingUri(settingMetadata, handle);
-
-            //var settingInfo =
-            //    await
-            //        resourceProvider
-            //            .GetAsync(uri, PopulateProviderInfo(settingMetadata));
-
-            //if (settingInfo.Exists)
-            {
-                //settingMetadata
-                //    .Validations
-                //    .Validate(settingName, newValue);
-
-                Validate(newValue, settingMetadata.Validations, uri);
-
-                var resourceMetadata = ResourceMetadata.Empty.Type(settingMetadata.MemberType);
-
-                if (settingMetadata.MemberType == typeof(string))
-                {
-                    using (var stream = await ResourceHelper.SerializeTextAsync((string)newValue))
-                    {
-                        await _settingProvider.PutAsync(uri, stream, resourceMetadata.Format(MimeType.Text));
-                    }
-                }
-                else
-                {
-                    using (var stream = await ResourceHelper.SerializeBinaryAsync(newValue))
-                    {
-                        await _settingProvider.PutAsync(uri, stream, resourceMetadata.Format(MimeType.Binary));
-                    }
-                }
-            }
+            Validate(newValue, settingMetadata.Validations, uri);
+            await _settings.SetItemAsync(uri, newValue, ResourceMetadata.Empty.Type(settingMetadata.MemberType));            
         }
 
         private (UriString Uri, Type MemberType) CreateSettingUri(LambdaExpression xItem, string handle)
@@ -142,7 +81,7 @@ namespace Reusable.SmartConfig
                 SettingUriFactory.CreateSettingUri(settingMetadata, handle),
                 settingMetadata.MemberType
             );
-        }        
+        }
 
         #region Helpers
 

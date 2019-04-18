@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using Reusable.Exceptionize;
 
 namespace Reusable.IOnymous
 {
@@ -20,6 +21,42 @@ namespace Reusable.IOnymous
 
         #region GET helpers
 
+        public static async Task<T> GetItemAsync<T>(this IResourceProvider resources, UriString uri, ResourceMetadata metadata = default)
+        {
+            var item = await resources.GetAsync(uri, metadata);
+
+            if (item.Exists)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await item.CopyToAsync(memoryStream);
+
+                    if (item.Format == MimeType.Text)
+                    {
+                        using (var streamReader = new StreamReader(memoryStream.Rewind()))
+                        {
+                            return (T)(object)await streamReader.ReadToEndAsync();
+                        }
+                    }
+
+                    if (item.Format == MimeType.Binary)
+                    {
+                        return (T)await ResourceHelper.DeserializeBinaryAsync<object>(memoryStream.Rewind());
+                    }
+
+                    throw DynamicException.Create
+                    (
+                        "SettingFormat",
+                        $"Setting's '{uri}' format is '{item.Format}' but only '{MimeType.Binary}' and '{MimeType.Text}' are supported."
+                    );
+                }
+            }
+            else
+            {
+                throw DynamicException.Create("SettingNotFound", $"Could not find '{uri}'.");
+            }
+        }
+
         public static Task<IResourceInfo> GetAnyAsync(this IResourceProvider resourceProvider, UriString uri, ResourceMetadata metadata = default)
         {
             return resourceProvider.GetAsync(uri.With(x => x.Scheme, ResourceProvider.DefaultScheme), metadata);
@@ -28,6 +65,24 @@ namespace Reusable.IOnymous
         #endregion
 
         #region PUT helpers
+
+        public static async Task SetItemAsync(this IResourceProvider resources, UriString uri, object value, ResourceMetadata metadata = default)
+        {
+            if (metadata.Type() == typeof(string))
+            {
+                using (var stream = await ResourceHelper.SerializeTextAsync((string)value))
+                {
+                    await resources.PutAsync(uri, stream, metadata.Format(MimeType.Text));
+                }
+            }
+            else
+            {
+                using (var stream = await ResourceHelper.SerializeBinaryAsync(value))
+                {
+                    await resources.PutAsync(uri, stream, metadata.Format(MimeType.Binary));
+                }
+            }
+        }
 
         #endregion
 
@@ -75,26 +130,5 @@ namespace Reusable.IOnymous
         #region DELETE helpers
 
         #endregion
-
-//        public static SoftString DefaultName(this IResourceProvider resourceProvider)
-//        {
-//            return resourceProvider.Metadata.GetValueOrDefault(SoftString.Empty);
-//        }
-//
-//        public static ResourceMetadata DefaultName(this IResourceProvider resourceProvider, SoftString name)
-//        {
-//            return resourceProvider.Metadata.SetItemAuto(name);
-//        }
-//
-//
-//        public static SoftString CustomName(this IResourceProvider resourceProvider)
-//        {
-//            return resourceProvider.Metadata.GetValueOrDefault(SoftString.Empty);
-//        }
-//
-//        public static ResourceMetadata CustomName(this IResourceProvider resourceProvider, SoftString name)
-//        {
-//            return resourceProvider.Metadata.SetItemAuto(name);
-//        }
     }
 }
