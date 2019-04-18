@@ -16,7 +16,7 @@ namespace Reusable.Tests.XUnit.IOnymous
                 "posts/1",
                 Metadata
                     .Empty
-                    .For<HttpProvider>(scope => scope.ConfigureRequestHeaders(headers => headers.AcceptJson()))
+                    .Http(m => m.ConfigureRequestHeaders(headers => headers.AcceptJson()))
                 //.ResponseFormatters(ne())
                 //.ResponseType(typeof(string))
             );

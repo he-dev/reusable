@@ -12,36 +12,47 @@ using JetBrains.Annotations;
 
 namespace Reusable.IOnymous
 {
+    
     [PublicAPI]
     public static class MailProviderMetadataExtensions
     {
+        public static MetadataScope<MailProvider> Mail(this Metadata metadata)
+        {
+            return metadata.For<MailProvider>();
+        }
+
+        public static Metadata Mail(this Metadata metadata, ConfigureMetadataScopeCallback<MailProvider> scope)
+        {
+            return metadata.For(scope);
+        }
+
         public static IEnumerable<string> To(this MetadataScope<MailProvider> scope)
         {
-            return scope.Metadata.GetValueOrDefault(Enumerable.Empty<string>());
+            return scope.Metadata.GetValueByCallerName(Enumerable.Empty<string>());
         }
 
         public static MetadataScope<MailProvider> To(this MetadataScope<MailProvider> scope, IEnumerable<string> to)
         {
-            return scope.Metadata.SetItemAuto(to);
+            return scope.Metadata.SetItemWithCallerName(to);
         }
 
         // --- 
 
         public static IEnumerable<string> CC(this MetadataScope<MailProvider> scope)
         {
-            return scope.Metadata.GetValueOrDefault(Enumerable.Empty<string>());
+            return scope.Metadata.GetValueByCallerName(Enumerable.Empty<string>());
         }
 
         public static MetadataScope<MailProvider> CC(this MetadataScope<MailProvider> scope, IEnumerable<string> cc)
         {
-            return scope.Metadata.SetItemAuto(cc);
+            return scope.Metadata.SetItemWithCallerName(cc);
         }
 
         // ---
 
         public static string From(this MetadataScope<MailProvider> scope)
         {
-            return scope.Metadata.GetValueOrDefault(Default());
+            return scope.Metadata.GetValueByCallerName(Default());
 
             string Default()
             {
@@ -62,43 +73,43 @@ namespace Reusable.IOnymous
 
         public static MetadataScope<MailProvider> From(this MetadataScope<MailProvider> scope, string from)
         {
-            return scope.Metadata.SetItemAuto(from);
+            return scope.Metadata.SetItemWithCallerName(from);
         }
 
         // ---
 
         public static string Subject(this MetadataScope<MailProvider> scope)
         {
-            return scope.Metadata.GetValueOrDefault(string.Empty);
+            return scope.Metadata.GetValueByCallerName(string.Empty);
         }
 
         public static MetadataScope<MailProvider> Subject(this MetadataScope<MailProvider> scope, string subject)
         {
-            return scope.Metadata.SetItemAuto(subject);
+            return scope.Metadata.SetItemWithCallerName(subject);
         }
 
         // ---
 
         public static Encoding SubjectEncoding(this MetadataScope<MailProvider> scope)
         {
-            return scope.Metadata.GetValueOrDefault(Encoding.UTF8);
+            return scope.Metadata.GetValueByCallerName(Encoding.UTF8);
         }
 
         public static MetadataScope<MailProvider> SubjectEncoding(this MetadataScope<MailProvider> scope, string subjectEncoding)
         {
-            return scope.Metadata.SetItemAuto(subjectEncoding);
+            return scope.Metadata.SetItemWithCallerName(subjectEncoding);
         }
 
         // todo - get/set Attachments Dictionary<string, byte[]>
 
-        public static Dictionary<string, byte[]> Attachments(this ResourceMetadataScope<MailProvider> scope)
+        public static Dictionary<string, byte[]> Attachments(this MetadataScope<MailProvider> scope)
         {
-            return scope.Metadata.GetValueOrDefault(default(Dictionary<string, byte[]>));
+            return scope.Metadata.GetValueByCallerName(default(Dictionary<string, byte[]>));
         }
 
-        public static ResourceMetadataScope<MailProvider> Attachments(this ResourceMetadataScope<MailProvider> scope, Dictionary<string, byte[]> attachments)
+        public static MetadataScope<MailProvider> Attachments(this MetadataScope<MailProvider> scope, Dictionary<string, byte[]> attachments)
         {
-            return scope.Metadata.SetItemAuto(attachments);
+            return scope.Metadata.SetItemWithCallerName(attachments);
         }
 
         // ---
@@ -117,36 +128,36 @@ namespace Reusable.IOnymous
 
         public static Encoding BodyEncoding(this MetadataScope<MailProvider> scope)
         {
-            return scope.Metadata.GetValueOrDefault(Encoding.UTF8);
+            return scope.Metadata.GetValueByCallerName(Encoding.UTF8);
         }
 
         public static MetadataScope<MailProvider> BodyEncoding(this MetadataScope<MailProvider> scope, string bodyEncoding)
         {
-            return scope.Metadata.SetItemAuto(bodyEncoding);
+            return scope.Metadata.SetItemWithCallerName(bodyEncoding);
         }
 
         // ---
 
         public static bool IsHtml(this MetadataScope<MailProvider> scope)
         {
-            return scope.Metadata.GetValueOrDefault(true);
+            return scope.Metadata.GetValueByCallerName(true);
         }
 
         public static MetadataScope<MailProvider> IsHtml(this MetadataScope<MailProvider> scope, bool isBodyHtml)
         {
-            return scope.Metadata.SetItemAuto(isBodyHtml);
+            return scope.Metadata.SetItemWithCallerName(isBodyHtml);
         }
 
         // ---
 
         public static bool IsHighPriority(this MetadataScope<MailProvider> scope)
         {
-            return scope.Metadata.GetValueOrDefault(false);
+            return scope.Metadata.GetValueByCallerName(false);
         }
 
         public static MetadataScope<MailProvider> IsHighPriority(this MetadataScope<MailProvider> scope, bool isHighPriority)
         {
-            return scope.Metadata.SetItemAuto(isHighPriority);
+            return scope.Metadata.SetItemWithCallerName(isHighPriority);
         }
 
         // ---

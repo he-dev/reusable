@@ -12,7 +12,7 @@ using Reusable.Exceptionize;
 
 namespace Reusable.IOnymous
 {
-    public class CompositeProvider : ResourceProvider//, IEnumerable<IResourceProvider>
+    public class CompositeProvider : ResourceProvider //, IEnumerable<IResourceProvider>
     {
         /// <summary>
         /// Resource provider cache.
@@ -39,15 +39,19 @@ namespace Reusable.IOnymous
             _resourceProviders = resourceProviders.ToImmutableList();
             var duplicateProviderNames =
                 _resourceProviders
-                    .Where(p => p.Metadata.CustomName())
-                    .GroupBy(p => p.Metadata.CustomName())
+                    .Where(p => p.Metadata.Provider().CustomName())
+                    .GroupBy(p => p.Metadata.Provider().CustomName())
                     .Where(g => g.Count() > 1)
                     .Select(g => g.First())
                     .ToList();
 
             if (duplicateProviderNames.Any())
             {
-                throw new ArgumentException($"Providers must use unique custom names but there are some duplicates: [{duplicateProviderNames.Select(p => (string)p.Metadata.CustomName()).Join(", ")}].");
+                throw new ArgumentException
+                (
+                    $"Providers must use unique custom names but there are some duplicates: " +
+                    $"[{duplicateProviderNames.Select(p => (string)p.Metadata.Provider().CustomName()).Join(", ")}]."
+                );
             }
         }
 
@@ -89,7 +93,7 @@ namespace Reusable.IOnymous
                 {
                     var match =
                         resourceProviders
-                            .Where(p => p.Metadata.CustomName().Equals(providerName))
+                            .Where(p => p.Metadata.Provider().CustomName().Equals(providerName))
                             // There must be exactly one provider with that name.                
                             .SingleOrThrow
                             (
@@ -115,7 +119,7 @@ namespace Reusable.IOnymous
                 {
                     resourceProviders =
                         resourceProviders
-                            .Where(p => p.Metadata.DefaultName().Equals(providerType))
+                            .Where(p => p.Metadata.Provider().DefaultName().Equals(providerType))
                             .ToList();
 
                     if (resourceProviders.Empty())

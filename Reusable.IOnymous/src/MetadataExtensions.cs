@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Linq.Custom;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
@@ -11,6 +12,8 @@ using Reusable.Extensions;
 
 namespace Reusable.IOnymous
 {
+    public delegate MetadataScope<T> ConfigureMetadataScopeCallback<T>(MetadataScope<T> scope);
+
     public static class MetadataExtensions
     {
         #region Helpers
@@ -18,7 +21,7 @@ namespace Reusable.IOnymous
         /// <summary>
         /// Sets the specified item and uses the caller name as a key.
         /// </summary>
-        public static Metadata SetItemAuto(this Metadata metadata, object value, [CallerMemberName] string key = null)
+        public static Metadata SetItemWithCallerName(this Metadata metadata, object value, [CallerMemberName] string key = null)
         {
             return metadata.SetItem(key, value);
         }
@@ -38,7 +41,7 @@ namespace Reusable.IOnymous
             }
         }
 
-        public static T GetValueOrDefault<T>(this Metadata metadata, T defaultValue = default, [CallerMemberName] string key = null)
+        public static T GetValueByCallerName<T>(this Metadata metadata, T defaultValue = default, [CallerMemberName] string key = null)
         {
             return
                 // ReSharper disable once AssignNullToNotNullAttribute - 'key' isn't null
@@ -49,153 +52,188 @@ namespace Reusable.IOnymous
 
         public static Metadata Union(this Metadata metadata, Metadata other)
         {
-            return other.Aggregate(metadata, (current, i) => current.SetItem(i.Key, i.Value));
+            //return other.Aggregate(metadata, (current, i) => current.SetItem(i.Key, i.Value));
+
+            var result = metadata;
+
+            foreach (var item in other)
+            {
+                if (item.Value is Metadata otherScope)
+                {
+                    // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
+                    if (result.TryGetValue(item.Key, out Metadata currentScope))
+                    {
+                        result = result.SetItem(item.Key, currentScope.Aggregate(otherScope, (current, i) => current.SetItem(i.Key, i.Value)));
+                    }
+                    else
+                    {
+                        result = result.SetItem(item.Key, otherScope);
+                    }
+                }
+                else
+                {
+                    result = result.SetItem(item.Key, item.Value);
+                }
+            }
+
+            return result;
         }
 
-        public static Metadata Union<T>(this MetadataScope<T> scope, Metadata other)
-        {
-            return scope.Metadata.Union(other);
-        }
+//        public static MetadataScope<T> Union<T>(this MetadataScope<T> scope, Metadata other)
+//        {
+//            return scope.Metadata.Union(other);
+//        }
 
         #endregion
 
         #region Scope
 
-        public static MetadataScope<T> For<T>(this Metadata metadata) //where T : IMetadataScope
+        public static MetadataScope<T> For<T>(this Metadata metadata)
         {
-            return metadata.GetValueOrDefault(metadata, CreateScopeKey<T>());
+            var scopeKey = CreateMetadataScopeKey<T>();
+            return metadata.GetValueByCallerName(metadata, scopeKey);
         }
 
-        public static Metadata For<T>(this Metadata metadata, Func<MetadataScope<T>, MetadataScope<T>> configureScope)
+        public static Metadata For<T>(this Metadata metadata, ConfigureMetadataScopeCallback<T> configureScope)
         {
             // There might already be a cope defined so get the current one first. 
             var scope = configureScope(metadata.For<T>().Metadata);
-            return metadata.SetItemAuto(scope.Metadata, CreateScopeKey<T>());
+            return metadata.SetItemWithCallerName(scope.Metadata, CreateMetadataScopeKey<T>());
         }
 
-        private static string CreateScopeKey<TScope>()
+        private static string CreateMetadataScopeKey<TScope>()
         {
             return $"Scope:{typeof(TScope).ToPrettyString()}";
         }
 
         #endregion
 
-        public static MetadataScope<IResourceInfo> Resource(this Metadata metadata)
-        {
-            return metadata.For<IResourceInfo>();
-        }
-
-        #region Properties
-
-//        [NotNull, ItemCanBeNull]
-//        public static IEnumerable<SoftString> ProviderNames(this ResourceMetadata metadata)
-//        {
-//            yield return metadata.ProviderDefaultName();
-//            yield return metadata.ProviderCustomName();
-//        }
-
-        public static SoftString DefaultName(this Metadata metadata)
-        {
-            return metadata.GetValueOrDefault(SoftString.Empty);
-        }
-
-        public static Metadata DefaultName(this Metadata metadata, SoftString name)
-        {
-            return metadata.SetItemAuto(name);
-        }
-
-        public static SoftString CustomName(this Metadata metadata)
-        {
-            return metadata.GetValueOrDefault(SoftString.Empty);
-        }
-
-        public static Metadata CustomName(this Metadata metadata, SoftString name)
-        {
-            return metadata.SetItemAuto(name);
-        }
+        #region General properties
 
         public static bool AllowRelativeUri(this Metadata metadata)
         {
-            return metadata.GetValueOrDefault(false);
+            return metadata.GetValueByCallerName(false);
         }
 
         public static Metadata AllowRelativeUri(this Metadata metadata, bool value)
         {
-            return metadata.SetItemAuto(value);
+            return metadata.SetItemWithCallerName(value);
         }
 
         public static CancellationToken CancellationToken(this Metadata metadata)
         {
-            return metadata.GetValueOrDefault(default(CancellationToken));
+            return metadata.GetValueByCallerName(default(CancellationToken));
         }
 
         public static Metadata CancellationToken(this Metadata metadata, CancellationToken cancellationToken)
         {
-            return metadata.SetItemAuto(cancellationToken);
-        }
-
-        // ---
-
-        public static MimeType Format(this MetadataScope<IResourceInfo> scope)
-        {
-            return scope.Metadata.GetValueOrDefault(MimeType.Null);
-        }
-
-        public static Metadata Format(this MetadataScope<IResourceInfo> scope, MimeType format)
-        {
-            return scope.Metadata.SetItemAuto(format);
+            return metadata.SetItemWithCallerName(cancellationToken);
         }
 
         // ---
 
         public static Encoding Encoding(this Metadata metadata)
         {
-            return metadata.GetValueOrDefault(System.Text.Encoding.UTF8);
+            return metadata.GetValueByCallerName(System.Text.Encoding.UTF8);
         }
 
         public static Metadata Encoding(this Metadata metadata, Encoding encoding)
         {
-            return metadata.SetItemAuto(encoding);
+            return metadata.SetItemWithCallerName(encoding);
         }
 
         // ---
 
         public static IImmutableSet<SoftString> Schemes(this Metadata metadata)
         {
-            return metadata.GetValueOrDefault((IImmutableSet<SoftString>)ImmutableHashSet<SoftString>.Empty);
+            return metadata.GetValueByCallerName((IImmutableSet<SoftString>)ImmutableHashSet<SoftString>.Empty);
         }
 
         public static Metadata Schemes(this Metadata metadata, params SoftString[] schemes)
         {
-            return metadata.SetItemAuto((IImmutableSet<SoftString>)schemes.ToImmutableHashSet());
+            return metadata.SetItemWithCallerName((IImmutableSet<SoftString>)schemes.ToImmutableHashSet());
         }
 
-        // ---
+        // ---        
 
-        public static Type Type(this Metadata metadata)
+        #endregion
+
+        #region Provider properties
+
+        public static MetadataScope<IResourceProvider> Provider(this Metadata metadata)
         {
-            return metadata.GetValueOrDefault(System.Type.Missing.GetType());
+            return metadata.For<IResourceProvider>();
         }
 
-        public static Metadata Type(this Metadata metadata, Type type)
+        public static Metadata Provider(this Metadata metadata, ConfigureMetadataScopeCallback<IResourceProvider> scope)
         {
-            return metadata.SetItemAuto(type);
+            return metadata.For(scope);
         }
 
-        // ---
+        public static SoftString DefaultName(this MetadataScope<IResourceProvider> scope)
+        {
+            return scope.Metadata.GetValueByCallerName(SoftString.Empty);
+        }
+
+        public static Metadata DefaultName(this MetadataScope<IResourceProvider> scope, SoftString name)
+        {
+            return scope.Metadata.SetItemWithCallerName(name);
+        }
+
+        public static SoftString CustomName(this MetadataScope<IResourceProvider> scope)
+        {
+            return scope.Metadata.GetValueByCallerName(SoftString.Empty);
+        }
+
+        public static Metadata CustomName(this MetadataScope<IResourceProvider> scope, SoftString name)
+        {
+            return scope.Metadata.SetItemWithCallerName(name);
+        }
+
+        #endregion
+
+        #region Resource properties
+
+        public static MetadataScope<IResourceInfo> Resource(this Metadata metadata)
+        {
+            return metadata.For<IResourceInfo>();
+        }
+
+        public static Metadata Resource(this Metadata metadata, ConfigureMetadataScopeCallback<IResourceInfo> scope)
+        {
+            return metadata.For(scope);
+        }
+
+        public static MimeType Format(this MetadataScope<IResourceInfo> scope)
+        {
+            return scope.Metadata.GetValueByCallerName(MimeType.Null);
+        }
+
+        public static Metadata Format(this MetadataScope<IResourceInfo> scope, MimeType format)
+        {
+            return scope.Metadata.SetItemWithCallerName(format);
+        }
 
         public static string InternalName(this MetadataScope<IResourceInfo> scope)
         {
-            return scope.Metadata.GetValueOrDefault(default(string));
+            return scope.Metadata.GetValueByCallerName(default(string));
         }
 
         public static MetadataScope<IResourceInfo> InternalName(this MetadataScope<IResourceInfo> scope, string name)
         {
-            return scope.Metadata.SetItemAuto(name);
+            return scope.Metadata.SetItemWithCallerName(name);
+        }
+
+        public static Type Type(this MetadataScope<IResourceInfo> scope)
+        {
+            return scope.Metadata.GetValueByCallerName(System.Type.Missing.GetType());
+        }
+
+        public static Metadata Type(this MetadataScope<IResourceInfo> scope, Type type)
+        {
+            return scope.Metadata.SetItemWithCallerName(type);
         }
 
         #endregion
     }
-
-    public interface IMetadataScope { }
 }

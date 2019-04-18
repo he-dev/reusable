@@ -59,9 +59,9 @@ namespace Reusable.IOnymous
             //var metadata = Metadata.Empty;
 
             // If this is a decorator then the decorated resource-provider already has set this.
-            if (!metadata.DefaultName())
+            if (!metadata.Provider().DefaultName())
             {
-                metadata = metadata.DefaultName(GetType().ToPrettyString());
+                metadata = metadata.Provider(s => s.DefaultName(GetType().ToPrettyString()));
             }
 
             if ((Schemes = schemes.ToImmutableHashSet()).Empty())
@@ -75,8 +75,8 @@ namespace Reusable.IOnymous
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
         {
             //builder.DisplayCollection(p => p.ProviderNames());
-            builder.DisplayMember(p => p.Metadata.DefaultName());
-            builder.DisplayMember(p => p.Metadata.CustomName());
+            builder.DisplayMember(p => p.Metadata.Provider().DefaultName());
+            builder.DisplayMember(p => p.Metadata.Provider().CustomName());
             builder.DisplayMember(x => x.Schemes);
         });
 
@@ -219,7 +219,7 @@ namespace Reusable.IOnymous
 
         protected void ValidateFormatNotNull<T>(T fileProvider, UriString uri, Metadata metadata, [CallerMemberName] string memberName = null) where T : IResourceProvider
         {
-            if (metadata.For<IResourceInfo>().Format().IsNull)
+            if (metadata.Resource().Format().IsNull)
             {
                 throw new ArgumentException
                 (

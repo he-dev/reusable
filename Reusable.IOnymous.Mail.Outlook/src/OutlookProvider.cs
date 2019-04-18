@@ -17,7 +17,7 @@ namespace Reusable.IOnymous
 
         protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, Metadata metadata)
         {
-            var mail = metadata.For<MailProvider>();
+            var mail = metadata.Mail();
 
             var app = new Application();
             var mailItem = (dynamic)app.CreateItem(OlItemType.olMailItem);

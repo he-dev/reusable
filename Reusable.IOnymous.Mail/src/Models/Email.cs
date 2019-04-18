@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using JetBrains.Annotations;
 
 namespace Reusable.IOnymous
@@ -12,9 +11,10 @@ namespace Reusable.IOnymous
     {
         string From { get; }
 
-        IEnumerable<string> To { get; }
+        List<string> To { get; }
 
-        IEnumerable<string> CC { get; }
+        // ReSharper disable once InconsistentNaming - This is by convention and should stay this way.
+        List<string> CC { get; }
 
         bool IsHighPriority { get; }
 
@@ -33,9 +33,9 @@ namespace Reusable.IOnymous
     {
         public string From { get; set; }
 
-        public IEnumerable<string> To { get; set; } = Enumerable.Empty<string>();
+        public List<string> To { get; set; } = new List<string>();
 
-        public IEnumerable<string> CC { get; set; } = Enumerable.Empty<string>();
+        public List<string> CC { get; set; } = new List<string>();
 
         public TSubject Subject { get; set; }
 
@@ -46,35 +46,5 @@ namespace Reusable.IOnymous
         public bool IsHtml { get; set; }
 
         public bool IsHighPriority { get; set; }
-    }
-
-    [PublicAPI]
-    public interface IEmailSubject
-    {
-        string Value { get; }
-
-        Encoding Encoding { get; }
-    }
-
-    public class EmailSubject : IEmailSubject
-    {
-        public string Value { get; set; }
-
-        public Encoding Encoding { get; set; } = Encoding.UTF8;
-    }
-
-    [PublicAPI]
-    public interface IEmailBody
-    {
-        string Value { get; }
-
-        Encoding Encoding { get; }
-    }
-
-    public class EmailBody : IEmailBody
-    {
-        public string Value { get; set; }
-
-        public Encoding Encoding { get; set; } = Encoding.UTF8;
     }
 }

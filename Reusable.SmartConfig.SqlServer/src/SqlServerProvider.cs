@@ -58,7 +58,7 @@ namespace Reusable.SmartConfig
         protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata)
         {
             var settingIdentifier = UriConverter?.Convert<string>(uri) ?? uri;
-            metadata = metadata.Union(Metadata.Empty.Resource().InternalName(settingIdentifier));
+            metadata = metadata.Union(Metadata.Empty.Resource(s => s.InternalName(settingIdentifier)));
 
             return await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
             {
@@ -68,7 +68,7 @@ namespace Reusable.SmartConfig
                     if (await settingReader.ReadAsync(token))
                     {
                         var value = settingReader[ColumnMappings.MapOrDefault(Value)];
-                        value = ValueConverter.Convert(value, metadata.Type());
+                        value = ValueConverter.Convert(value, metadata.Resource().Type());
                         return new SqlServerResourceInfo(uri, value, metadata);
                     }
                     else

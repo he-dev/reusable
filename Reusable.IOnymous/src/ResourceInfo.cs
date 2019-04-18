@@ -33,11 +33,11 @@ namespace Reusable.IOnymous
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract class ResourceInfo : IResourceInfo
     {
-        protected ResourceInfo([NotNull] UriString uri, Func<MetadataScope<IResourceInfo>, MetadataScope<IResourceInfo>> configureMetadata) // , Metadata metadata = default)
+        protected ResourceInfo([NotNull] UriString uri, ConfigureMetadataScopeCallback<IResourceInfo> configureMetadata) // , Metadata metadata = default)
         {
             if (uri == null) throw new ArgumentNullException(nameof(uri));
             Uri = uri.IsRelative ? new UriString($"{ResourceProvider.DefaultScheme}:{uri}") : uri;
-            Metadata = configureMetadata(Metadata.Empty);
+            Metadata = Metadata.Empty.Resource(configureMetadata);
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>

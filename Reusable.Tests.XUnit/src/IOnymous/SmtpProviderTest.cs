@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Reusable.IOnymous;
 using Xunit;
@@ -12,8 +13,9 @@ namespace Reusable.Tests.XUnit.IOnymous
             var smtp = new SmtpProvider();
             await smtp.SendEmailAsync(new Email<IEmailSubject, IEmailBody>
             {
-                To = new[] { "you@example.com" },
-                From = "me@example.com",
+                From = "from@email.com",
+                To = new List<string> { "to@email.com" },
+                CC = new List<string> { "cc@email.com" },
                 Subject = new EmailSubject
                 {
                     Value = "Test"

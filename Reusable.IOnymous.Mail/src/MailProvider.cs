@@ -13,14 +13,11 @@ namespace Reusable.IOnymous
     {
         public new static readonly string DefaultScheme = "mailto";
 
-        protected MailProvider(Metadata metadata)
-            : base(new SoftString[] { DefaultScheme }, metadata)
-        {
-        }
+        protected MailProvider(Metadata metadata) : base(new SoftString[] { DefaultScheme }, metadata) { }
 
         protected async Task<string> ReadBodyAsync(Stream value, Metadata metadata)
         {
-            using (var bodyReader = new StreamReader(value, metadata.For<MailProvider>().BodyEncoding()))
+            using (var bodyReader = new StreamReader(value, metadata.Mail().BodyEncoding()))
             {
                 return await bodyReader.ReadToEndAsync();
             }
@@ -54,5 +51,5 @@ namespace Reusable.IOnymous
         {
             _response.Dispose();
         }
-    }    
+    }
 }

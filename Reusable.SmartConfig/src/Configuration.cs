@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -10,15 +8,11 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.IOnymous;
 using Reusable.OneTo1;
-using Reusable.OneTo1.Converters.Generic;
 using Reusable.SmartConfig.Reflection;
-using ColorConverter = Reusable.Utilities.JsonNet.Converters.ColorConverter;
 
 namespace Reusable.SmartConfig
 {
@@ -43,6 +37,9 @@ namespace Reusable.SmartConfig
             _converter = new JsonSettingConverter();
         }
 
+        /// <summary>
+        /// Gets or sets the Func that extracts the member like ignoring the "I" in interface names etc.
+        /// </summary>
         [NotNull]
         public Func<Type, string> GetMemberName { get; set; } = SettingMetadata.GetMemberName;
 
@@ -58,7 +55,7 @@ namespace Reusable.SmartConfig
             var settingInfo = SettingVisitor.GetSettingInfo(getItem);
             var settingMetadata = new SettingMetadata(settingInfo, GetMemberName);
             var uri = SettingUriFactory.CreateSettingUri(settingMetadata, handle);
-            return await _settings.GetItemAsync<object>(uri, Metadata.Empty.Type(settingMetadata.MemberType));
+            return await _settings.GetItemAsync<object>(uri, Metadata.Empty.Resource(s => s.Type(settingMetadata.MemberType)));
         }
 
         public async Task SetItemAsync(LambdaExpression setItem, object newValue, string handle = null)
@@ -69,7 +66,7 @@ namespace Reusable.SmartConfig
             var settingMetadata = new SettingMetadata(settingInfo, GetMemberName);
             var uri = SettingUriFactory.CreateSettingUri(settingMetadata, handle);
             Validate(newValue, settingMetadata.Validations, uri);
-            await _settings.SetItemAsync(uri, newValue, Metadata.Empty.Type(settingMetadata.MemberType));            
+            await _settings.SetItemAsync(uri, newValue, Metadata.Empty.Resource(s => s.Type(settingMetadata.MemberType)));            
         }
 
         private (UriString Uri, Type MemberType) CreateSettingUri(LambdaExpression xItem, string handle)
@@ -96,92 +93,5 @@ namespace Reusable.SmartConfig
         }
 
         #endregion
-    }
-
-    [PublicAPI]
-    public class JsonSettingConverter : ITypeConverter
-    {
-        private readonly JsonSerializerSettings _settings;
-
-        private readonly IImmutableSet<Type> _stringTypes;
-
-        private ITypeConverter _internalConverter;
-
-        public JsonSettingConverter(JsonSerializerSettings settings, IEnumerable<Type> stringTypes)
-        {
-            _settings = settings;
-            _stringTypes = stringTypes.ToImmutableHashSet();
-            _internalConverter = TypeConverter.Empty;
-        }
-
-        public JsonSettingConverter()
-            : this
-            (
-                new JsonSerializerSettings
-                {
-                    Formatting = Formatting.Indented,
-                    TypeNameHandling = TypeNameHandling.Auto,
-                    Converters =
-                    {
-                        new StringEnumConverter(),
-                        new ColorConverter()
-                    }
-                }, new[]
-                {
-                    typeof(string),
-                    typeof(Enum),
-                    typeof(TimeSpan),
-                    typeof(DateTime),
-                    typeof(Color)
-                }
-            ) { }
-
-        public Type FromType => throw new NotSupportedException();
-
-        public Type ToType => throw new NotSupportedException();
-
-        public bool TrimDoubleQuotes { get; set; }
-
-        public bool CanConvert(Type fromType, Type toType)
-        {
-            return _internalConverter.CanConvert(fromType, toType);
-        }
-
-        public object Convert(IConversionContext<object> context)
-        {
-            if (context.FromType == typeof(string) && context.ToType == typeof(string))
-            {
-                return TrimDoubleQuotes ? ((string)context.Value).Trim('"') : context.Value;
-            }
-
-            if (CanConvert(context.FromType, context.ToType))
-            {
-                return _internalConverter.Convert(context);
-            }
-            else
-            {
-                var newConverterType = GetJsonConverterType(context);
-                var newConverter = (ITypeConverter)Activator.CreateInstance(newConverterType, _settings, _stringTypes);
-                _internalConverter = _internalConverter.Add(newConverter);
-                return Convert(context);
-            }
-        }
-
-        public bool Equals(ITypeConverter other) => throw new NotSupportedException();
-
-        private Type GetJsonConverterType(IConversionContext<object> context)
-        {
-            if (context.FromType == typeof(string))
-            {
-                return typeof(JsonToObjectConverter<>).MakeGenericType(context.ToType);
-            }
-
-            if (context.ToType == typeof(string))
-            {
-                return typeof(ObjectToJsonConverter<>).MakeGenericType(context.FromType);
-            }
-
-            throw new ArgumentOutOfRangeException();
-        }
     }
 }

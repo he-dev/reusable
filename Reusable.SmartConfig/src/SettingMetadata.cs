@@ -123,7 +123,7 @@ namespace Reusable.SmartConfig
         {
             return
                 type.IsInterface
-                    ? Regex.Match(type.Name, @"^I(?<name>[a-z0-9_]+)(?:Config(uration)?)", RegexOptions.IgnoreCase).Group("name")
+                    ? Regex.Match(type.Name, @"^I(?<name>[a-z0-9_]+)(?=Config(uration)?)", RegexOptions.IgnoreCase).Group("name")
                     : type.Name;
         }
     }

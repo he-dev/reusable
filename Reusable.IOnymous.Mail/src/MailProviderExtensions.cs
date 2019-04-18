@@ -37,7 +37,7 @@ namespace Reusable.IOnymous
             var metadata =
                 Metadata
                     .Empty
-                    .For<MailProvider>
+                    .Mail
                     (
                         scope => scope
                             .From(email.From)

@@ -72,18 +72,18 @@ namespace Reusable.IOnymous
 
         public static async Task SetItemAsync(this IResourceProvider resources, UriString uri, object value, Metadata metadata = default)
         {
-            if (metadata.Type() == typeof(string))
+            if (metadata.Resource().Type() == typeof(string))
             {
                 using (var stream = await ResourceHelper.SerializeTextAsync((string)value))
                 {
-                    await resources.PutAsync(uri, stream, metadata.Resource().Format(MimeType.Text));
+                    await resources.PutAsync(uri, stream, metadata.Resource(s => s.Format(MimeType.Text)));
                 }
             }
             else
             {
                 using (var stream = await ResourceHelper.SerializeBinaryAsync(value))
                 {
-                    await resources.PutAsync(uri, stream, metadata.Resource().Format(MimeType.Binary));
+                    await resources.PutAsync(uri, stream, metadata.Resource(s => s.Format(MimeType.Binary)));
                 }
             }
         }
