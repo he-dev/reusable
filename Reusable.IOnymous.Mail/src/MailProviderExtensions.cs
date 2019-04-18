@@ -40,9 +40,11 @@ namespace Reusable.IOnymous
                     .For<MailProvider>
                     (
                         scope => scope
+                            .From(email.From)
                             .To(email.To)
                             .CC(email.CC)
                             .Subject(email.Subject.Value)
+                            .Attachments(email.Attachments)
                             .From(email.From)
                             .IsHtml(email.IsHtml)
                             .IsHighPriority(email.IsHighPriority)

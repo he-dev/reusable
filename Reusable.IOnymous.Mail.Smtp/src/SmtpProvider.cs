@@ -31,7 +31,11 @@ namespace Reusable.IOnymous
                 mailMessage.Priority = mail.IsHighPriority() ? MailPriority.High : MailPriority.Normal;
                 mailMessage.From = new MailAddress(mail.From());
 
-                //mailMessage.Attachments.Add(new Attachment(contentStream: default(Stream), name: "fileName", "application/octet-stream"));
+                foreach (var attachmentRaw in mail.Attachments())
+                {
+                    var stream = new MemoryStream(attachmentRaw.Value).Rewind();
+                    mailMessage.Attachments.Add(new Attachment(stream,attachmentRaw.Key));
+                }
 
                 foreach (var to in mail.To().Where(Conditional.IsNotNullOrEmpty))
                 {

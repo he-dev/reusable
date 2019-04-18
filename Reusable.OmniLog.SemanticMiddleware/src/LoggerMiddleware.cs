@@ -4,6 +4,7 @@ using System.Linq.Custom;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
+using Reusable.IOnymous;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.SemanticExtensions;
 
@@ -62,7 +63,7 @@ namespace Reusable.OmniLog
 
                         await _next(context);
 
-                        memory.Seek(0, SeekOrigin.Begin);
+                        memory.Rewind();
                         using (var reader = new StreamReader(memory))
                         {
                             if (context.ResponseBodyLoggingEnabled())
@@ -71,7 +72,7 @@ namespace Reusable.OmniLog
                             }
 
                             // Restore Response.Body
-                            memory.Seek(0, SeekOrigin.Begin);
+                            memory.Rewind();
                             if (!context.Response.StatusCode.In(304))
                             {
                                 await memory.CopyToAsync(bodyBackup);
