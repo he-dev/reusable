@@ -149,9 +149,10 @@ namespace Reusable.IOnymous
                 // GET can search multiple providers.
                 if (isGet)
                 {
+                    var resource = default(IResourceInfo);
                     foreach (var resourceProvider in resourceProviders)
                     {
-                        var resource = await handleAsync(resourceProvider);
+                        resource = await handleAsync(resourceProvider);
                         if (resource.Exists)
                         {
                             _cache[uri] = resourceProvider;
@@ -159,7 +160,7 @@ namespace Reusable.IOnymous
                         }
                     }
 
-                    return new InMemoryResourceInfo(uri);
+                    return new InMemoryResourceInfo(uri, resource?.Metadata ?? Metadata.Empty);
                 }
                 // Other methods are allowed to use only a single provider.
                 else

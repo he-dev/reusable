@@ -41,7 +41,7 @@ namespace Reusable.IOnymous
                     ? o is string s
                         ? new InMemoryResourceInfo(uri, MimeType.Text, await ResourceHelper.SerializeTextAsync(s))
                         : new InMemoryResourceInfo(uri, MimeType.Binary, await ResourceHelper.SerializeBinaryAsync(o))
-                    : new InMemoryResourceInfo(uri);
+                    : new InMemoryResourceInfo(uri, Metadata.Empty);
         }
 
         // protected override Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
@@ -131,14 +131,14 @@ namespace Reusable.IOnymous
     {
         [CanBeNull] private readonly Stream _data;
 
-        public InMemoryResourceInfo(UriString uri, MimeType format, Stream data)
-            : base(uri, m => m.Format(format))
+        public InMemoryResourceInfo(UriString uri, MimeType format, Stream data, Metadata metadata = default)
+            : base(uri, m => m.Format(format).Union(metadata))
         {
             _data = data ?? throw new ArgumentNullException(nameof(data));
         }
 
-        public InMemoryResourceInfo(UriString uri)
-            : this(uri, MimeType.Null, Stream.Null)
+        public InMemoryResourceInfo(UriString uri, Metadata metadata)
+            : this(uri, MimeType.Null, Stream.Null, metadata)
         {
             ModifiedOn = DateTime.UtcNow;
         }

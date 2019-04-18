@@ -19,19 +19,19 @@ namespace Reusable.IOnymous
             return memoryStream;
         }
 
-        public static async Task<string> DeserializeTextAsync(this IResourceInfo resourceInfo)
+        public static async Task<string> DeserializeTextAsync(this IResourceInfo resource)
         {
-            if (!resourceInfo.Exists) throw new InvalidOperationException($"Cannot deserialize a resource that does not exist: '{resourceInfo.Uri.ToString()}'");
+            if (!resource.Exists) throw new InvalidOperationException($"Cannot deserialize a resource that does not exist: '{resource.Uri.ToString()}'");
 
             // todo - find a cleaner solution; maybe a new comparer for MimeType?
-            if (!resourceInfo.Format.Name.StartsWith("text/"))
+            if (!resource.Metadata.For<IResourceInfo>().Format().Name.StartsWith("text/"))
             {
-                throw new ArgumentException($"Resource must be '{MimeType.Text}' but is '{resourceInfo.Format}'.");
+                throw new ArgumentException($"Resource must be '{MimeType.Text}' but is '{resource.Metadata.For<IResourceInfo>().Format()}'.");
             }
 
             using (var memoryStream = new MemoryStream())
             {
-                await resourceInfo.CopyToAsync(memoryStream);
+                await resource.CopyToAsync(memoryStream);
                 using (var streamReader = new StreamReader(memoryStream.Rewind()))
                 {
                     return await streamReader.ReadToEndAsync();
@@ -39,32 +39,32 @@ namespace Reusable.IOnymous
             }
         }
 
-        public static async Task<T> DeserializeBinaryAsync<T>(this IResourceInfo resourceInfo)
+        public static async Task<T> DeserializeBinaryAsync<T>(this IResourceInfo resource)
         {
-            if (resourceInfo.Format != MimeType.Binary)
+            if (resource.Metadata.For<IResourceInfo>().Format() != MimeType.Binary)
             {
-                throw new ArgumentException($"Resource must be '{MimeType.Binary}' but is '{resourceInfo.Format}'.");
+                throw new ArgumentException($"Resource must be '{MimeType.Binary}' but is '{resource.Metadata.For<IResourceInfo>().Format()}'.");
             }
 
             var binaryFormatter = new BinaryFormatter();
             using (var memoryStream = new MemoryStream())
             {
-                await resourceInfo.CopyToAsync(memoryStream);
+                await resource.CopyToAsync(memoryStream);
                 return (T)binaryFormatter.Deserialize(memoryStream.Rewind());
             }
         }
 
-        public static async Task<T> DeserializeJsonAsync<T>(this IResourceInfo resourceInfo, JsonSerializer jsonSerializer = null)
+        public static async Task<T> DeserializeJsonAsync<T>(this IResourceInfo resource, JsonSerializer jsonSerializer = null)
         {
-            if (resourceInfo.Format != MimeType.Json)
+            if (resource.Metadata.For<IResourceInfo>().Format() != MimeType.Json)
             {
-                throw new ArgumentException($"Resource must be '{MimeType.Json}' but is '{resourceInfo.Format}'.");
+                throw new ArgumentException($"Resource must be '{MimeType.Json}' but is '{resource.Metadata.For<IResourceInfo>().Format()}'.");
             }
 
             jsonSerializer = jsonSerializer ?? new JsonSerializer();
             using (var memoryStream = new MemoryStream())
             {
-                await resourceInfo.CopyToAsync(memoryStream);
+                await resource.CopyToAsync(memoryStream);
                 using (var streamReader = new StreamReader(memoryStream.Rewind()))
                 using (var jsonTextReader = new JsonTextReader(streamReader))
                 {

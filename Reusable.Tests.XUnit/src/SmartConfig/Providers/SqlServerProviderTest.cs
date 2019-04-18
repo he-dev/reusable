@@ -1,51 +1,88 @@
+using System.Collections.Immutable;
+using System.Data;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
+using Dapper;
+using Reusable.Data;
+using Reusable.Data.Repositories;
 using Reusable.IOnymous;
 using Reusable.SmartConfig;
+using Reusable.Utilities.SqlClient;
 using Xunit;
 
 namespace Reusable.Tests.XUnit.SmartConfig.Providers
 {
-    public class SqlServerProviderTest
+    public class SqlServerProviderTest : IAsyncLifetime
     {
-        public SqlServerProviderTest()
-        {
-            SeedAppSettings();
-        }
+        private static readonly IResourceProvider Sql = 
+            EmbeddedFileProvider<SqlServerProviderTest>
+                .Default
+                .DecorateWith(RelativeProvider.Factory(@"sql\SmartConfig"));
         
-        private static void SeedAppSettings()
+        public async Task InitializeAsync()
         {
-            var exeConfiguration = System.Configuration.ConfigurationManager.OpenExeConfiguration(System.Configuration.ConfigurationUserLevel.None);
-
-            exeConfiguration.AppSettings.Settings.Clear();
-            //exeConfiguration.ConnectionStrings.ConnectionStrings.Clear();
-            
-            var data = new (string Key, string Value)[]
+            var connectionString = ConnectionStringRepository.Default.GetConnectionString("name=TestDb");
+            using (var conn = new SqlConnection(connectionString))
             {
-                ("app:Environment", "test"),
-            };
-
-            foreach (var (key, value) in data)
-            {
-                exeConfiguration.AppSettings.Settings.Add(key, value);
+                await conn.ExecuteAsync(Sql.ReadTextFile("seed-test-data.sql"));
             }
-
-            exeConfiguration.Save(System.Configuration.ConfigurationSaveMode.Minimal);
-        }
+        }        
 
         [Fact]
         public async Task Can_get_setting()
         {
-            var c = new Configuration<IProgramConfig>(new AppSettingProvider(new UriStringToSettingIdentifierConverter()));
-            var env = await c.GetItemAsync(x => x.Environment);
+            var c = new Configuration<IUserConfig>(new CompositeProvider(new []
+            {
+                new SqlServerProvider("name=TestDb")
+                {
+                    TableName = ("reusable", "SmartConfig"),
+                    ValueConverter = new JsonSettingConverter(),
+                    ColumnMappings = 
+                        ImmutableDictionary<SqlServerColumn, SoftString>
+                            .Empty
+                            .Add(SqlServerColumn.Name, "_name")
+                            .Add(SqlServerColumn.Value, "_value")
+                }
+            }));
+            var name = await c.GetItemAsync(x => x.Name);
+            var isCool = await c.GetItemAsync(x => x.IsCool);
             
-            Assert.Equal("test", env);
+            Assert.Equal("Bob", name);
+            Assert.True(isCool);
         }
         
-        [ResourcePrefix("app")]
-        [ResourceName(Level = ResourceNameLevel.Member)]
-        internal interface IProgramConfig
+        [Fact]
+        public async Task Can_get_setting_with_additional_criteria()
         {
-            string Environment { get; }
+            var c = new Configuration<IUserConfig>(new CompositeProvider(new []
+            {
+                new SqlServerProvider("name=TestDb")
+                {
+                    TableName = ("reusable", "SmartConfig"),
+                    ValueConverter = new JsonSettingConverter(),
+                    ColumnMappings = 
+                        ImmutableDictionary<SqlServerColumn, SoftString>
+                            .Empty
+                            .Add(SqlServerColumn.Name, "_name")
+                            .Add(SqlServerColumn.Value, "_value"),
+                    Where = ImmutableDictionary<string, object>.Empty.Add("_other", "Someone-else")
+                },
+            }));
+            var name = await c.GetItemAsync(x => x.Name);
+            
+            Assert.Equal("Tom", name);
         }
+        
+        public Task DisposeAsync()
+        {
+            return Task.CompletedTask;
+        }
+
+        private interface IUserConfig
+        {
+            string Name { get; }
+            
+            bool IsCool { get; }
+        }               
     }
 }

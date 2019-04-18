@@ -23,8 +23,6 @@ namespace Reusable.IOnymous
         DateTime? CreatedOn { get; }
 
         DateTime? ModifiedOn { get; }
-
-        MimeType Format { get; }
         
         Metadata Metadata { get; }
 

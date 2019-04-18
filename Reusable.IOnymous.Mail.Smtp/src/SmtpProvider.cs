@@ -52,7 +52,7 @@ namespace Reusable.IOnymous
                 }
             }
 
-            return new InMemoryResourceInfo(uri);
+            return new InMemoryResourceInfo(uri, Metadata.Empty);
         }
     }
 }

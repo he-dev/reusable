@@ -43,7 +43,7 @@ namespace Reusable.IOnymous
             //mailItem.Display(false);
             mailItem.Send();
 
-            return new InMemoryResourceInfo(uri);
+            return new InMemoryResourceInfo(uri, Metadata.Empty);
         }
     }
 }

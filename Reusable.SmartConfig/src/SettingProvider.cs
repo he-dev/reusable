@@ -1,6 +1,6 @@
-using JetBrains.Annotations;
+using Reusable.IOnymous;
 
-namespace Reusable.IOnymous
+namespace Reusable.SmartConfig
 {
     public abstract class SettingProvider : ResourceProvider
     {

@@ -31,7 +31,7 @@ namespace Reusable.Tests.XUnit.IOnymous
 
             mockProvider
                 .Arrange(x => x.GetAsync(Arg.Matches<UriString>(uri => uri == new UriString("blub:base/relative")), Arg.IsAny<Metadata>()))
-                .Returns<UriString, Metadata>((uri, metadata) => Task.FromResult<IResourceInfo>(new InMemoryResourceInfo(uri)));
+                .Returns<UriString, Metadata>((uri, metadata) => Task.FromResult<IResourceInfo>(new InMemoryResourceInfo(uri, Metadata.Empty)));
 
 
             var relativeProvider = mockProvider.DecorateWith(RelativeProvider.Factory("blub:base"));

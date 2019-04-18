@@ -18,6 +18,8 @@
         <EmbeddedResource Include="res\Flexo\Single-expression.json" />
         <EmbeddedResource Include="res\IOnymous\Http\Mailr\HtmlTable.json" />
         <EmbeddedResource Include="res\IOnymous\test.txt" />
+        <None Remove="sql\SmartConfig\seed-test-data.sql" />
+        <EmbeddedResource Include="sql\SmartConfig\seed-test-data.sql" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Autofac" Version="4.9.1" />
@@ -26,6 +28,7 @@
         <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
         <PackageReference Include="xunit" Version="2.4.1" />
+        <PackageReference Include="Dapper" Version="1.50.7" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Reusable.Commander\Reusable.Commander.csproj" />
@@ -50,5 +53,8 @@
     <ItemGroup>
       <Compile Remove="src\Commander\Integration\ExceptionTest.cs" />
       <Compile Remove="src\OmniLog\UseCaseTest.cs" />
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="sql\SmartConfig" />
     </ItemGroup>
 </Project>

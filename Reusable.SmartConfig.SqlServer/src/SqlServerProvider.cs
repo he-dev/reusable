@@ -25,22 +25,18 @@ namespace Reusable.SmartConfig
 
         public const string DefaultTable = "Setting";
 
-        [CanBeNull] private readonly ITypeConverter _uriStringToSettingIdentifierConverter;
-
         private SqlFourPartName _tableName;
 
-        public SqlServerProvider
-        (
-            string nameOrConnectionString,
-            ITypeConverter uriStringToSettingIdentifierConverter = null
-        )
-            : base(Metadata.Empty)
+        public SqlServerProvider(string nameOrConnectionString) : base(Metadata.Empty)
         {
-            _uriStringToSettingIdentifierConverter = uriStringToSettingIdentifierConverter;
             ConnectionString = ConnectionStringRepository.Default.GetConnectionString(nameOrConnectionString);
-
             TableName = (DefaultSchema, DefaultTable);
         }
+
+        [CanBeNull]
+        public ITypeConverter UriConverter { get; set; } = new UriStringToSettingIdentifierConverter();
+
+        public ITypeConverter ValueConverter { get; set; } = new JsonSettingConverter();
 
         [NotNull]
         public string ConnectionString { get; }
@@ -53,33 +49,39 @@ namespace Reusable.SmartConfig
         }
 
         [CanBeNull]
+
         public IImmutableDictionary<SqlServerColumn, SoftString> ColumnMappings { get; set; }
 
         [CanBeNull]
         public IImmutableDictionary<string, object> Where { get; set; }
-        
-        public ITypeConverter Converter { get; set; } = new NullConverter();
 
         protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata)
         {
-            var settingIdentifier = (string)_uriStringToSettingIdentifierConverter?.Convert(uri, typeof(string)) ?? uri;
+            var settingIdentifier = UriConverter?.Convert<string>(uri) ?? uri;
+            metadata = metadata.Union(Metadata.Empty.For<IResourceInfo>().InternalName(settingIdentifier));
 
             return await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
             {
                 using (var command = connection.CreateSelectCommand(TableName, settingIdentifier, ColumnMappings, Where))
                 using (var settingReader = command.ExecuteReader())
                 {
-                    return
-                        await settingReader.ReadAsync(token)
-                            ? new SqlServerResourceInfo(uri, (string)settingReader[ColumnMappings.MapOrDefault(Value)])
-                            : new SqlServerResourceInfo(uri, default);
+                    if (await settingReader.ReadAsync(token))
+                    {
+                        var value = settingReader[ColumnMappings.MapOrDefault(Value)];
+                        value = ValueConverter.Convert(value, metadata.Type());
+                        return new SqlServerResourceInfo(uri, value, metadata);
+                    }
+                    else
+                    {
+                        return new SqlServerResourceInfo(uri, default, metadata);
+                    }
                 }
             }, CancellationToken.None);
         }
 
         protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream stream, Metadata metadata)
         {
-            var settingIdentifier = (string)_uriStringToSettingIdentifierConverter?.Convert(uri, typeof(string)) ?? uri;
+            var settingIdentifier = UriConverter?.Convert<string>(uri) ?? uri;
 
             using (var valueReader = new StreamReader(stream))
             {
@@ -100,17 +102,17 @@ namespace Reusable.SmartConfig
 
     internal class SqlServerResourceInfo : ResourceInfo
     {
-        [CanBeNull] private readonly string _value;
+        [CanBeNull] private readonly object _value;
 
-        internal SqlServerResourceInfo([NotNull] UriString uri, [CanBeNull] string value) 
-            : base(uri, m => m.Format(MimeType.Text))
+        internal SqlServerResourceInfo([NotNull] UriString uri, [CanBeNull] object value, Metadata metadata)
+            : base(uri, m => m.Format(value is string ? MimeType.Text : MimeType.Binary).Union(metadata))
         {
             _value = value;
         }
 
         public override bool Exists => !(_value is null);
 
-        public override long? Length => _value?.Length;
+        public override long? Length { get; }
 
         public override DateTime? CreatedOn { get; }
 
@@ -118,42 +120,21 @@ namespace Reusable.SmartConfig
 
         protected override async Task CopyToAsyncInternal(Stream stream)
         {
-            // ReSharper disable once AssignNullToNotNullAttribute - this isn't null here
-            using (var valueStream = _value.ToStreamReader())
+            if (Metadata.For<IResourceInfo>().Format() == MimeType.Text)
             {
-                await valueStream.BaseStream.CopyToAsync(stream);
+                using (var s = await ResourceHelper.SerializeTextAsync((string)_value))
+                {
+                    await s.Rewind().CopyToAsync(stream);
+                }
             }
-        }
-    }
 
-    public class SqlServerColumn
-    {
-        private readonly string _name;
-
-        private SqlServerColumn(string name) => _name = name;
-
-        public static readonly SqlServerColumn Name = new SqlServerColumn(nameof(Name));
-
-        public static readonly SqlServerColumn Value = new SqlServerColumn(nameof(Value));
-
-        // todo - for future use
-        //public static readonly SqlServerColumn ModifiedOn = new SqlServerColumn(nameof(ModifiedOn));
-        //public static readonly SqlServerColumn CreatedOn = new SqlServerColumn(nameof(CreatedOn));
-
-        public static implicit operator string(SqlServerColumn column) => column._name;
-    }
-
-    public static class SqlServerColumnMappingExtensions
-    {
-        [NotNull]
-        public static string MapOrDefault(this IImmutableDictionary<SqlServerColumn, SoftString> mappings, SqlServerColumn column)
-        {
-            return
-                mappings is null
-                    ? column
-                    : mappings.TryGetValue(column, out var mapping) && mapping
-                        ? (string)mapping
-                        : (string)column;
+            if (Metadata.For<IResourceInfo>().Format() == MimeType.Binary)
+            {
+                using (var s = await ResourceHelper.SerializeBinaryAsync(_value))
+                {
+                    await s.Rewind().CopyToAsync(stream);
+                }
+            }
         }
     }
 }

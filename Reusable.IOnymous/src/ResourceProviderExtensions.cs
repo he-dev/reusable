@@ -31,7 +31,7 @@ namespace Reusable.IOnymous
                 {
                     await item.CopyToAsync(memoryStream);
 
-                    if (item.Format == MimeType.Text)
+                    if (item.Metadata.For<IResourceInfo>().Format() == MimeType.Text)
                     {
                         using (var streamReader = new StreamReader(memoryStream.Rewind()))
                         {
@@ -39,17 +39,17 @@ namespace Reusable.IOnymous
                         }
                     }
 
-                    if (item.Format == MimeType.Binary)
+                    if (item.Metadata.For<IResourceInfo>().Format() == MimeType.Binary)
                     {
                         return (T)await ResourceHelper.DeserializeBinaryAsync<object>(memoryStream.Rewind());
                     }
-
-                    throw DynamicException.Create
-                    (
-                        "ItemFormat",
-                        $"Item's '{uri}' format is '{item.Format}' but only '{MimeType.Binary}' and '{MimeType.Text}' are supported."
-                    );
                 }
+
+                throw DynamicException.Create
+                (
+                    $"ItemFormat",
+                    $"Item's '{uri}' format is '{item.Metadata.For<IResourceInfo>().Format()}' but only '{MimeType.Binary}' and '{MimeType.Text}' are supported."
+                );
             }
             else
             {

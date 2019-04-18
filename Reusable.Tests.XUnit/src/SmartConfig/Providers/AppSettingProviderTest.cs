@@ -35,7 +35,7 @@ namespace Reusable.Tests.XUnit.SmartConfig.Providers
         [Fact]
         public async Task Can_get_setting()
         {
-            var c = new Configuration<IProgramConfig>(new AppSettingProvider(new UriStringToSettingIdentifierConverter()));
+            var c = new Configuration<IProgramConfig>(new AppSettingProvider());
             var env = await c.GetItemAsync(x => x.Environment);
             
             Assert.Equal("test", env);
