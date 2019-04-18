@@ -17,7 +17,7 @@ namespace Reusable.IOnymous
         {
             ValidateFormatNotNull(this, uri, metadata);
 
-            return Task.FromResult<IResourceInfo>(new PhysicalFileInfo(uri, metadata.For<IResourceInfo>().Format()));
+            return Task.FromResult<IResourceInfo>(new PhysicalFileInfo(uri, metadata.Resource().Format()));
         }
 
         protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, Metadata metadata)

@@ -26,7 +26,7 @@ namespace Reusable.SmartConfig
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
             var element = exeConfig.AppSettings.Settings[actualKey];
-            return Task.FromResult<IResourceInfo>(new AppSettingInfo(uri, element?.Value, Metadata.Empty.For<IResourceInfo>().InternalName(settingIdentifier)));
+            return Task.FromResult<IResourceInfo>(new AppSettingInfo(uri, element?.Value, Metadata.Empty.Resource().InternalName(settingIdentifier)));
         }
 
         protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream stream, Metadata metadata)

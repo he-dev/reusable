@@ -60,7 +60,7 @@ namespace Reusable.IOnymous
 
             var name = _uriConverter.Convert<string>(uri);
 
-            if (metadata.For<IResourceInfo>().Format() == MimeType.Text)
+            if (metadata.Resource().Format() == MimeType.Text)
             {
                 _items[name] = await ResourceHelper.DeserializeTextAsync(value);
             }
@@ -69,7 +69,7 @@ namespace Reusable.IOnymous
                 _items[name] = await ResourceHelper.DeserializeBinaryAsync<object>(value);
             }
             
-            return new InMemoryResourceInfo(uri, metadata.For<IResourceInfo>().Format(), value);
+            return new InMemoryResourceInfo(uri, metadata.Resource().Format(), value);
         }
 
         // protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata)
@@ -108,14 +108,14 @@ namespace Reusable.IOnymous
                 case string str:
                 {
                     var stream = ResourceHelper.SerializeTextAsync(str).GetAwaiter().GetResult();
-                    inMemory.PutAsync(uri, stream, Metadata.Empty.For<IResourceInfo>().Format(MimeType.Text)).GetAwaiter().GetResult();
+                    inMemory.PutAsync(uri, stream, Metadata.Empty.Resource().Format(MimeType.Text)).GetAwaiter().GetResult();
                 }
 
                     break;
                 default:
                 {
                     var stream = ResourceHelper.SerializeBinaryAsync(value).GetAwaiter().GetResult();
-                    inMemory.PutAsync(uri, stream, Metadata.Empty.For<IResourceInfo>().Format(MimeType.Binary)).GetAwaiter().GetResult();
+                    inMemory.PutAsync(uri, stream, Metadata.Empty.Resource().Format(MimeType.Binary)).GetAwaiter().GetResult();
                 }
 
                     break;

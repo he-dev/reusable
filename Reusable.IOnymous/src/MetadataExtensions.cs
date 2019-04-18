@@ -51,7 +51,7 @@ namespace Reusable.IOnymous
         {
             return other.Aggregate(metadata, (current, i) => current.SetItem(i.Key, i.Value));
         }
-        
+
         public static Metadata Union<T>(this MetadataScope<T> scope, Metadata other)
         {
             return scope.Metadata.Union(other);
@@ -61,7 +61,7 @@ namespace Reusable.IOnymous
 
         #region Scope
 
-        public static MetadataScope<T> For<T>(this Metadata metadata)
+        public static MetadataScope<T> For<T>(this Metadata metadata) //where T : IMetadataScope
         {
             return metadata.GetValueOrDefault(metadata, CreateScopeKey<T>());
         }
@@ -79,6 +79,11 @@ namespace Reusable.IOnymous
         }
 
         #endregion
+
+        public static MetadataScope<IResourceInfo> Resource(this Metadata metadata)
+        {
+            return metadata.For<IResourceInfo>();
+        }
 
         #region Properties
 
@@ -164,7 +169,7 @@ namespace Reusable.IOnymous
         {
             return metadata.SetItemAuto((IImmutableSet<SoftString>)schemes.ToImmutableHashSet());
         }
-        
+
         // ---
 
         public static Type Type(this Metadata metadata)
@@ -176,7 +181,7 @@ namespace Reusable.IOnymous
         {
             return metadata.SetItemAuto(type);
         }
-        
+
         // ---
 
         public static string InternalName(this MetadataScope<IResourceInfo> scope)
@@ -191,4 +196,6 @@ namespace Reusable.IOnymous
 
         #endregion
     }
+
+    public interface IMetadataScope { }
 }

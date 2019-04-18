@@ -58,7 +58,7 @@ namespace Reusable.SmartConfig
         protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata)
         {
             var settingIdentifier = UriConverter?.Convert<string>(uri) ?? uri;
-            metadata = metadata.Union(Metadata.Empty.For<IResourceInfo>().InternalName(settingIdentifier));
+            metadata = metadata.Union(Metadata.Empty.Resource().InternalName(settingIdentifier));
 
             return await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
             {
@@ -120,7 +120,7 @@ namespace Reusable.SmartConfig
 
         protected override async Task CopyToAsyncInternal(Stream stream)
         {
-            if (Metadata.For<IResourceInfo>().Format() == MimeType.Text)
+            if (Metadata.Resource().Format() == MimeType.Text)
             {
                 using (var s = await ResourceHelper.SerializeTextAsync((string)_value))
                 {
@@ -128,7 +128,7 @@ namespace Reusable.SmartConfig
                 }
             }
 
-            if (Metadata.For<IResourceInfo>().Format() == MimeType.Binary)
+            if (Metadata.Resource().Format() == MimeType.Binary)
             {
                 using (var s = await ResourceHelper.SerializeBinaryAsync(_value))
                 {

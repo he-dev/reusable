@@ -13,7 +13,7 @@ namespace Reusable.IOnymous
 
         public static async Task<IResourceInfo> GetFileAsync(this IResourceProvider resourceProvider, string path, MimeType format, Metadata metadata = default)
         {
-            return await resourceProvider.GetAsync(CreateUri(path), metadata.For<IResourceInfo>().Format(format));
+            return await resourceProvider.GetAsync(CreateUri(path), metadata.Resource().Format(format));
         }               
 
         public static IResourceInfo GetTextFile(this IResourceProvider resourceProvider, string path, Metadata metadata = default)
@@ -41,7 +41,7 @@ namespace Reusable.IOnymous
         {
             using (var stream = await ResourceHelper.SerializeTextAsync(value, metadata.Encoding()))
             {
-                return await resourceProvider.PutAsync(CreateUri(path), stream, metadata.For<IResourceInfo>().Format(MimeType.Text));
+                return await resourceProvider.PutAsync(CreateUri(path), stream, metadata.Resource().Format(MimeType.Text));
             }
         }
 
@@ -60,7 +60,7 @@ namespace Reusable.IOnymous
 
         public static async Task<IResourceInfo> DeleteFileAsync(this IResourceProvider resourceProvider, string path, Metadata metadata = default)
         {
-            return await resourceProvider.DeleteAsync(CreateUri(path), metadata.For<IResourceInfo>().Format(MimeType.Text));
+            return await resourceProvider.DeleteAsync(CreateUri(path), metadata.Resource().Format(MimeType.Text));
         }
 
         #endregion

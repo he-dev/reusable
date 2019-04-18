@@ -13,10 +13,7 @@ namespace Reusable.IOnymous
 {
     public class SmtpProvider : MailProvider
     {
-        public SmtpProvider(Metadata metadata = default)
-            : base(metadata)
-        {
-        }
+        public SmtpProvider(Metadata metadata = default) : base(metadata) { }
 
         protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, Metadata metadata)
         {
@@ -33,7 +30,7 @@ namespace Reusable.IOnymous
 
                 mailMessage.Priority = mail.IsHighPriority() ? MailPriority.High : MailPriority.Normal;
                 mailMessage.From = new MailAddress(mail.From());
-                
+
                 //mailMessage.Attachments.Add(new Attachment(contentStream: default(Stream), name: "fileName", "application/octet-stream"));
 
                 foreach (var to in mail.To().Where(Conditional.IsNotNullOrEmpty))

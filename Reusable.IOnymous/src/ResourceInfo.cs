@@ -59,7 +59,7 @@ namespace Reusable.IOnymous
 
         public abstract DateTime? ModifiedOn { get; }
 
-        public virtual MimeType Format => Metadata.For<IResourceInfo>().Format();
+        public virtual MimeType Format => Metadata.Resource().Format();
         
         public virtual Metadata Metadata { get; }
 

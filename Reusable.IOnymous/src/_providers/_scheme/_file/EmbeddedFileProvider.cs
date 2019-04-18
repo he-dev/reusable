@@ -37,7 +37,7 @@ namespace Reusable.IOnymous
             var actualName = _assembly.GetManifestResourceNames().FirstOrDefault(name => SoftString.Comparer.Equals(name, fullName));
             var getManifestResourceStream = actualName is null ? default(Func<Stream>) : () => _assembly.GetManifestResourceStream(actualName);
 
-            return Task.FromResult<IResourceInfo>(new EmbeddedFileInfo(fullUri, metadata.For<IResourceInfo>().Format(), getManifestResourceStream));
+            return Task.FromResult<IResourceInfo>(new EmbeddedFileInfo(fullUri, metadata.Resource().Format(), getManifestResourceStream));
         }
 
         #endregion
