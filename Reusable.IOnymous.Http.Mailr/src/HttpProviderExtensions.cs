@@ -19,7 +19,7 @@ namespace Reusable.IOnymous
         {
             metadata =
                 metadata
-                    .Scope<HttpProvider>(scope =>
+                    .For<HttpProvider>(scope =>
                         scope
                             .ConfigureRequestHeaders(headers =>
                             {

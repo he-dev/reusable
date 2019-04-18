@@ -20,7 +20,7 @@ namespace Reusable.IOnymous
 
         protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, Metadata metadata)
         {
-            var mail = metadata.Scope<MailProvider>();
+            var mail = metadata.For<MailProvider>();
 
             using (var mailMessage = new MailMessage())
             {

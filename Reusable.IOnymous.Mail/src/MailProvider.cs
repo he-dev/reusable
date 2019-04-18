@@ -20,7 +20,7 @@ namespace Reusable.IOnymous
 
         protected async Task<string> ReadBodyAsync(Stream value, Metadata metadata)
         {
-            using (var bodyReader = new StreamReader(value, metadata.Scope<MailProvider>().BodyEncoding()))
+            using (var bodyReader = new StreamReader(value, metadata.For<MailProvider>().BodyEncoding()))
             {
                 return await bodyReader.ReadToEndAsync();
             }
@@ -32,7 +32,7 @@ namespace Reusable.IOnymous
         private readonly Stream _response;
 
         public MailResourceInfo([NotNull] UriString uri, Stream response, MimeType format)
-            : base(uri, Metadata.Empty.Format(format))
+            : base(uri, m => m.Format(format))
         {
             _response = response;
         }

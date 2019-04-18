@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using JetBrains.Annotations;
@@ -9,12 +11,12 @@ namespace Reusable.IOnymous
     // With a 'struct' we don't need any null-checks.
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     [PublicAPI]
-    public readonly struct Metadata
+    public readonly struct Metadata : IEnumerable<KeyValuePair<SoftString, object>>
     {
-        [CanBeNull]
+        [NotNull]
         private readonly IImmutableDictionary<SoftString, object> _metadata;
 
-        public Metadata(IImmutableDictionary<SoftString, object> metadata) => _metadata = metadata;
+        public Metadata([NotNull] IImmutableDictionary<SoftString, object> metadata) => _metadata = metadata ?? throw new ArgumentNullException(nameof(metadata));
 
         public static Metadata Empty => new Metadata(ImmutableDictionary<SoftString, object>.Empty);
 
@@ -55,5 +57,10 @@ namespace Reusable.IOnymous
 
         //public IEnumerator<KeyValuePair<SoftString, object>> GetEnumerator() => _metadata.GetEnumerator();
         //IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_metadata).GetEnumerator();
+
+
+        public IEnumerator<KeyValuePair<SoftString, object>> GetEnumerator() => _metadata.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_metadata).GetEnumerator();
     }
 }

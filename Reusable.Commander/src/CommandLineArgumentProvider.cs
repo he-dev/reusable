@@ -54,7 +54,7 @@ namespace Reusable.Commander
     {
         private readonly object _value;
 
-        public CommandLineArgumentInfo([NotNull] UriString uri, object value) : base(uri, Metadata.Empty.Format(MimeType.Json))
+        public CommandLineArgumentInfo([NotNull] UriString uri, object value) : base(uri, m => m.Format(MimeType.Json))
         {
             _value = value;
         }

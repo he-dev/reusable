@@ -55,6 +55,8 @@ namespace Reusable.IOnymous
         protected ResourceProvider([NotNull] IEnumerable<SoftString> schemes, Metadata metadata)
         {
             if (schemes == null) throw new ArgumentNullException(nameof(schemes));
+            
+            //var metadata = Metadata.Empty;
 
             // If this is a decorator then the decorated resource-provider already has set this.
             if (!metadata.DefaultName())
@@ -62,9 +64,10 @@ namespace Reusable.IOnymous
                 metadata = metadata.DefaultName(GetType().ToPrettyString());
             }
 
-            Schemes = schemes.ToImmutableHashSet();
-
-            if (Schemes.Empty()) throw new ArgumentException(paramName: nameof(metadata), message: $"{nameof(schemes)} must not be empty.");
+            if ((Schemes = schemes.ToImmutableHashSet()).Empty())
+            {
+                throw new ArgumentException(paramName: nameof(metadata), message: $"{nameof(schemes)} must not be empty.");
+            }
 
             Metadata = metadata;
         }
@@ -216,7 +219,7 @@ namespace Reusable.IOnymous
 
         protected void ValidateFormatNotNull<T>(T fileProvider, UriString uri, Metadata metadata, [CallerMemberName] string memberName = null) where T : IResourceProvider
         {
-            if (metadata.Format().IsNull)
+            if (metadata.For<IResourceInfo>().Format().IsNull)
             {
                 throw new ArgumentException
                 (

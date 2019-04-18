@@ -51,7 +51,7 @@ namespace Reusable.Tests.XUnit.Teapot
                     (
                         "test?param=true",
                         () => ResourceHelper.SerializeAsJsonAsync(new { Greeting = "Hallo" }),
-                        Metadata.Empty.Scope<HttpProvider>(scope => scope.ConfigureRequestHeaders(headers =>
+                        Metadata.Empty.For<HttpProvider>(scope => scope.ConfigureRequestHeaders(headers =>
                         {
                             headers.ApiVersion("1.0");
                             headers.UserAgent("Teapot", "1.0");

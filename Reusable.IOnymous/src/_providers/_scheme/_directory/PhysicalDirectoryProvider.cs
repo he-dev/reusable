@@ -10,9 +10,7 @@ namespace Reusable.IOnymous
     public class PhysicalDirectoryProvider : ResourceProvider
     {
         public PhysicalDirectoryProvider(Metadata metadata = default)
-            : base(new SoftString[] { "directory" }, metadata)
-        {
-        }
+            : base(new SoftString[] { "directory" }, metadata) { }
 
         protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata)
         {
@@ -39,9 +37,7 @@ namespace Reusable.IOnymous
     [PublicAPI]
     internal class PhysicalDirectoryInfo : ResourceInfo
     {
-        public PhysicalDirectoryInfo([NotNull] UriString uri) : base(uri, Metadata.Empty.Format(MimeType.Null))
-        {
-        }
+        public PhysicalDirectoryInfo([NotNull] UriString uri) : base(uri, m => m.Format(MimeType.Null)) { }
 
         public override UriString Uri { get; }
 

@@ -38,7 +38,7 @@ namespace Reusable.IOnymous
         protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, Metadata metadata)
         {
             uri = BaseUri + uri;
-            var (response, mediaType) = await InvokeAsync(uri, HttpMethod.Post, metadata.Scope<HttpProvider>(scope => scope.Content(value)));
+            var (response, mediaType) = await InvokeAsync(uri, HttpMethod.Post, metadata.For<HttpProvider>(scope => scope.Content(value)));
             return new HttpResourceInfo(uri, response, new MimeType(mediaType));
         }
 
@@ -48,15 +48,15 @@ namespace Reusable.IOnymous
         {
             using (var request = new HttpRequestMessage(method, uri))
             {
-                var content = metadata.Scope<HttpProvider>().Content();
+                var content = metadata.For<HttpProvider>().Content();
                 if (content != null)
                 {
                     request.Content = new StreamContent(content.Rewind());
-                    request.Content.Headers.ContentType = new MediaTypeHeaderValue(metadata.Scope<HttpProvider>().ContentType());
+                    request.Content.Headers.ContentType = new MediaTypeHeaderValue(metadata.For<HttpProvider>().ContentType());
                 }
 
-                Metadata.Scope<HttpProvider>().ConfigureRequestHeaders()(request.Headers);
-                metadata.Scope<HttpProvider>().ConfigureRequestHeaders()(request.Headers);
+                Metadata.For<HttpProvider>().ConfigureRequestHeaders()(request.Headers);
+                metadata.For<HttpProvider>().ConfigureRequestHeaders()(request.Headers);
                 using (var response = await _client.SendAsync(request, HttpCompletionOption.ResponseContentRead, metadata.CancellationToken()))
                 {
                     var responseContentCopy = new MemoryStream();
@@ -106,7 +106,7 @@ namespace Reusable.IOnymous
         private readonly Stream _response;
 
         public HttpResourceInfo([NotNull] UriString uri, Stream response, MimeType format)
-            : base(uri, Metadata.Empty.Format(format))
+            : base(uri, m => m.Format(format))
         {
             _response = response;
         }

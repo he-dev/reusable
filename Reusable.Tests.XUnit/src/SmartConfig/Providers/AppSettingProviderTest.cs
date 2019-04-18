@@ -21,7 +21,7 @@ namespace Reusable.Tests.XUnit.SmartConfig.Providers
             
             var data = new (string Key, string Value)[]
             {
-                ("app:Environments", "test"),
+                ("app:Environment", "test"),
             };
 
             foreach (var (key, value) in data)

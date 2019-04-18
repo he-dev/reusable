@@ -8,8 +8,8 @@ namespace Reusable.Tests.XUnit.IOnymous
         [Fact]
         public void Can_set_scope()
         {
-            var metadata = Metadata.Empty.Scope<ResourceMetadataExtensionsTest>(scope => scope.Greeting("Hi!"));
-            Assert.Equal("Hi!", metadata.Scope<ResourceMetadataExtensionsTest>().Greeting());
+            var metadata = Metadata.Empty.For<ResourceMetadataExtensionsTest>(scope => scope.Greeting("Hi!"));
+            Assert.Equal("Hi!", metadata.For<ResourceMetadataExtensionsTest>().Greeting());
         }
     }
 

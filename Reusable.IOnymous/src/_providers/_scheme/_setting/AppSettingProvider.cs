@@ -29,7 +29,7 @@ namespace Reusable.IOnymous
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
             var element = exeConfig.AppSettings.Settings[actualKey];
-            return Task.FromResult<IResourceInfo>(new AppSettingInfo(uri, element?.Value, Metadata.Empty.Scope<IResourceInfo>().InternalName(settingIdentifier)));
+            return Task.FromResult<IResourceInfo>(new AppSettingInfo(uri, element?.Value, Metadata.Empty.For<IResourceInfo>().InternalName(settingIdentifier)));
         }
 
         protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream stream, Metadata metadata)
@@ -75,7 +75,7 @@ namespace Reusable.IOnymous
         [CanBeNull] private readonly string _value;
 
         internal AppSettingInfo([NotNull] UriString uri, [CanBeNull] string value, Metadata metadata)
-            : base(uri, metadata.Format(MimeType.Text))
+            : base(uri, m => m.Format(MimeType.Text).Union(metadata))
         {
             _value = value;
         }

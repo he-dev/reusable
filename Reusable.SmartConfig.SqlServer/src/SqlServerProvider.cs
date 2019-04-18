@@ -103,7 +103,7 @@ namespace Reusable.SmartConfig
         [CanBeNull] private readonly string _value;
 
         internal SqlServerResourceInfo([NotNull] UriString uri, [CanBeNull] string value) 
-            : base(uri, Metadata.Empty.Format(MimeType.Text))
+            : base(uri, m => m.Format(MimeType.Text))
         {
             _value = value;
         }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
@@ -46,19 +47,29 @@ namespace Reusable.IOnymous
                     : defaultValue;
         }
 
+        public static Metadata Union(this Metadata metadata, Metadata other)
+        {
+            return other.Aggregate(metadata, (current, i) => current.SetItem(i.Key, i.Value));
+        }
+        
+        public static Metadata Union<T>(this MetadataScope<T> scope, Metadata other)
+        {
+            return scope.Metadata.Union(other);
+        }
+
         #endregion
 
         #region Scope
 
-        public static MetadataScope<T> Scope<T>(this Metadata metadata)
+        public static MetadataScope<T> For<T>(this Metadata metadata)
         {
             return metadata.GetValueOrDefault(metadata, CreateScopeKey<T>());
         }
 
-        public static Metadata Scope<T>(this Metadata metadata, Func<MetadataScope<T>, MetadataScope<T>> configureScope)
+        public static Metadata For<T>(this Metadata metadata, Func<MetadataScope<T>, MetadataScope<T>> configureScope)
         {
             // There might already be a cope defined so get the current one first. 
-            var scope = configureScope(metadata.Scope<T>().Metadata);
+            var scope = configureScope(metadata.For<T>().Metadata);
             return metadata.SetItemAuto(scope.Metadata, CreateScopeKey<T>());
         }
 
@@ -120,14 +131,14 @@ namespace Reusable.IOnymous
 
         // ---
 
-        public static MimeType Format(this Metadata metadata)
+        public static MimeType Format(this MetadataScope<IResourceInfo> scope)
         {
-            return metadata.GetValueOrDefault(MimeType.Null);
+            return scope.Metadata.GetValueOrDefault(MimeType.Null);
         }
 
-        public static Metadata Format(this Metadata metadata, MimeType format)
+        public static Metadata Format(this MetadataScope<IResourceInfo> scope, MimeType format)
         {
-            return metadata.SetItemAuto(format);
+            return scope.Metadata.SetItemAuto(format);
         }
 
         // ---

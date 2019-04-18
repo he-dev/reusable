@@ -56,7 +56,7 @@ namespace Reusable.IOnymous
                 throw DynamicException.Create
                 (
                     $"ItemNotFound",
-                    $"Could not find '{uri}' that maps to '{item.Metadata.Scope<IResourceInfo>().InternalName() ?? "N/A"}'."
+                    $"Could not find '{uri}' that maps to '{item.Metadata.For<IResourceInfo>().InternalName() ?? "N/A"}'."
                 );
             }
         }
@@ -76,14 +76,14 @@ namespace Reusable.IOnymous
             {
                 using (var stream = await ResourceHelper.SerializeTextAsync((string)value))
                 {
-                    await resources.PutAsync(uri, stream, metadata.Format(MimeType.Text));
+                    await resources.PutAsync(uri, stream, metadata.For<IResourceInfo>().Format(MimeType.Text));
                 }
             }
             else
             {
                 using (var stream = await ResourceHelper.SerializeBinaryAsync(value))
                 {
-                    await resources.PutAsync(uri, stream, metadata.Format(MimeType.Binary));
+                    await resources.PutAsync(uri, stream, metadata.For<IResourceInfo>().Format(MimeType.Binary));
                 }
             }
         }
