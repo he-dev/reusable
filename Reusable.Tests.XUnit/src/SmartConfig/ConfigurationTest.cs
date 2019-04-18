@@ -345,7 +345,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
                 },
                 new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
                 {
-                    { "Sub.Enabled", true }
+                    { "root:Sub.Enabled", true }
                 },
                 new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
                 {
@@ -358,6 +358,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
         }
     }
 
+    [ResourcePrefix("root")]
     public interface IBaseConfig
     {
         bool Enabled { get; }
@@ -365,6 +366,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
 
     public interface ISubConfig : IBaseConfig
     {
+        [ResourcePrefix("")]
         string Name { get; }
     }
 }

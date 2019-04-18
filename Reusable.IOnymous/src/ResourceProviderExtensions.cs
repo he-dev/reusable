@@ -46,14 +46,14 @@ namespace Reusable.IOnymous
 
                     throw DynamicException.Create
                     (
-                        "SettingFormat",
-                        $"Setting's '{uri}' format is '{item.Format}' but only '{MimeType.Binary}' and '{MimeType.Text}' are supported."
+                        "ItemFormat",
+                        $"Item's '{uri}' format is '{item.Format}' but only '{MimeType.Binary}' and '{MimeType.Text}' are supported."
                     );
                 }
             }
             else
             {
-                throw DynamicException.Create("SettingNotFound", $"Could not find '{uri}'.");
+                throw DynamicException.Create("ItemNotFound", $"Could not find '{uri}'.");
             }
         }
 

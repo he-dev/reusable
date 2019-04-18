@@ -131,5 +131,38 @@ namespace Reusable.SmartConfig.Reflection
 
             return default;
         }
+        
+        public static IEnumerable<T> FindCustomAttributes<T>([NotNull] this MemberInfo info) where T : Attribute
+        {
+            if (info == null) throw new ArgumentNullException(nameof(info));
+
+            var queue = new Queue<MemberInfo>()
+            {
+                info
+            };
+
+            while (queue.Any())
+            {
+                info = queue.Dequeue();
+                
+                foreach (var a in info.GetCustomAttributes<T>())
+                {
+                    yield return a;
+                }
+
+                if (info is Type type)
+                {
+                    if (type.IsClass && !(type.BaseType == null))
+                    {
+                        queue.Enqueue(type.BaseType);
+                    }
+                    
+                    foreach (var i in type.GetInterfaces())
+                    {
+                        queue.Enqueue(i);
+                    }
+                }                
+            }
+        }
     }
 }

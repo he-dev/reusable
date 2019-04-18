@@ -112,14 +112,11 @@ namespace Reusable.SmartConfig
         }
 
         [CanBeNull]
-        private static T GetCustomAttribute<T>(Type type, MemberInfo member) where T : Attribute
+        private static T GetCustomAttribute<T>(MemberInfo type, MemberInfo member) where T : Attribute
         {
-            return new[]
-                {
-                    member?.GetCustomAttributes<T>(inherit: true).FirstOrDefault(),
-                    type?.GetCustomAttribute<T>(),
-                }
-                .FirstOrDefault(Conditional.IsNotNull);
+            return
+                member?.FindCustomAttributes<T>().FirstOrDefault() ?? 
+                type?.FindCustomAttributes<T>().FirstOrDefault();                        
         }
 
         public static string GetMemberName(Type type)
