@@ -68,7 +68,10 @@ from
 	(101, 'Type.Bool', 'true', 't'),
 	(103, 'Type.Int', '3', 't'),
 	(104, 'Type.Double', '1.25', 't'),
-	(105, 'Type.DateTime', '2019-01-02', 't')
+	(105, 'Type.DateTime', '2019-01-02', 't'),
+	(106, 'Type.ListOfInt', '[3, 4, 5]', 't'),
+  (107, 'Type.TimeSpan', '00:20:00', 't'),
+  (108, 'Type.Edit', '7', 't')
 ) v ([_id], [_name], [_value], [_other]);
 
 COMMIT;

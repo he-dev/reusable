@@ -6,14 +6,14 @@ using Reusable.IOnymous;
 
 namespace Reusable.SmartConfig
 {
-    public static class SettingUriFactory
+    public static class SettingRequestFactory
     {
-        public static UriString CreateSettingUri(SettingMetadata setting, string handle = null)
+        public static (UriString Uri, Metadata Metadata) CreateSettingRequest(SettingMetadata setting, string handle = null)
         {
             var queryParameters = new (SoftString Key, SoftString Value)[]
             {
-                (ResourceQueryStringKeys.ProviderName, setting.ResourceProviderName),
-                (ResourceQueryStringKeys.ProviderType, setting.ResourceProviderType?.ToPrettyString()),
+                //(ResourceQueryStringKeys.ProviderName, setting.ResourceProviderName),
+                //(ResourceQueryStringKeys.ProviderType, setting.ResourceProviderType?.ToPrettyString()),
                 (SettingQueryStringKeys.Prefix, setting.ResourcePrefix),
                 (SettingQueryStringKeys.Handle, handle),
                 (SettingQueryStringKeys.Level, setting.Level.ToString()),
@@ -26,7 +26,11 @@ namespace Reusable.SmartConfig
                     .Select(x => $"{x.Key.ToString()}={x.Value.ToString()}")
                     .Join("&");
 
-            return $"{setting.ResourceScheme}:///{setting.Scope.Replace('.', '/')}/{setting.TypeName}/{setting.MemberName}{((SoftString)query ? $"?{query}" : string.Empty)}";
+            return
+            (
+                $"{setting.ResourceScheme}:///{setting.Scope.Replace('.', '/')}/{setting.TypeName}/{setting.MemberName}{((SoftString)query ? $"?{query}" : string.Empty)}",
+                Metadata.Empty.Provider(s => s.CustomName(setting.ResourceProviderName).DefaultName(setting.ResourceProviderType?.ToPrettyString()))
+            );
         }
     }
 }

@@ -16,8 +16,12 @@ namespace Reusable.Tests.XUnit.IOnymous
         [Fact]
         public void Union_can_merge_two_metadata()
         {
+            // Makes sure that nested metadata is updated properly.
+            
             var m = Metadata.Empty.Resource(s => s.InternalName("Bob"));
             var c = new ConfigureMetadataScopeCallback<IResourceInfo>(s => s.Format(MimeType.Text).Union(m));
+            
+            // Tests the pattern used by the ResourceInfo to merge outer metadata.
             m = m.Resource(s => c(s));
             
             Assert.Equal(1, m.Keys.Count());

@@ -100,11 +100,9 @@ namespace Reusable.IOnymous
             return scope.Metadata.SetItemWithCallerName(subjectEncoding);
         }
 
-        // todo - get/set Attachments Dictionary<string, byte[]>
-
         public static Dictionary<string, byte[]> Attachments(this MetadataScope<MailProvider> scope)
         {
-            return scope.Metadata.GetValueByCallerName(default(Dictionary<string, byte[]>));
+            return scope.Metadata.GetValueByCallerName(new Dictionary<string, byte[]>());
         }
 
         public static MetadataScope<MailProvider> Attachments(this MetadataScope<MailProvider> scope, Dictionary<string, byte[]> attachments)

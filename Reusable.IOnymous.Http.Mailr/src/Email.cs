@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 
 namespace Reusable.IOnymous
@@ -34,7 +35,7 @@ namespace Reusable.IOnymous
 
             var email = new Email<TBody>
             {
-                To = to,
+                To = to.ToList(),
                 Subject = subject,
                 Body = body,
             };

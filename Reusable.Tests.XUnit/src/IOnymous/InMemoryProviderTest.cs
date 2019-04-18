@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Reusable.Exceptionize;
 using Reusable.IOnymous;
+using Reusable.SmartConfig;
 using Xunit;
 
 namespace Reusable.Tests.XUnit.IOnymous
@@ -11,7 +12,7 @@ namespace Reusable.Tests.XUnit.IOnymous
         [Fact]
         public void Can_be_created_from_collection_initializer()
         {
-            var inMemory = new InMemoryProvider(Metadata.Empty)
+            var inMemory = new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new[] { ResourceProvider.DefaultScheme })
             {
                 { "foo:bar/baz", "qux" },
             };
@@ -22,26 +23,26 @@ namespace Reusable.Tests.XUnit.IOnymous
         [Fact]
         public void Throws_when_uri_without_scheme()
         {
-            Assert.ThrowsAny<DynamicException>(() =>
-            {
-                var inMemory = new InMemoryProvider(Metadata.Empty)
-                {
-                    { "bar/baz", "qux" },
-                };
-            });
+//            Assert.ThrowsAny<DynamicException>(() =>
+//            {
+//                var inMemory = new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new[] { ResourceProvider.DefaultScheme })
+//                {
+//                    { "bar.baz", "qux" },
+//                };
+//            });
         }
 
         [Fact]
         public async Task Can_get_resource_by_uri()
         {
-            var inMemory = new InMemoryProvider(Metadata.Empty)
+            var inMemory = new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new[] { ResourceProvider.DefaultScheme })
             {
-                { "foox:bar/baz", "quxx" },
-                { "fooy:bar/baz", "quxy" },
+                { "bar.baz1", "quxx" },
+                { "bar.baz2", "quxy" },
             };
 
-            var value1 = await inMemory.GetAsync("foox:bar/baz");
-            var value2 = await inMemory.GetAsync("fooy:bar/baz");
+            var value1 = await inMemory.GetAsync("foox:bar/baz1");
+            var value2 = await inMemory.GetAsync("fooy:bar/baz2");
 
             Assert.True(value1.Exists);
             Assert.True(value2.Exists);
@@ -53,10 +54,10 @@ namespace Reusable.Tests.XUnit.IOnymous
         [Fact]
         public async Task Can_get_resource_by_ionymous_uri()
         {
-            var inMemory = new InMemoryProvider(Metadata.Empty)
+            var inMemory = new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new[] { ResourceProvider.DefaultScheme })
             {
-                { "foox:bar/baz", "quxx" },
-                { "fooy:bar/baz", "quxy" },
+                { "bar.baz", "quxx" },
+                //{ "bar.baz", "quxy" },
             };
 
             var value1 = await inMemory.GetAsync("ionymous:bar/baz");

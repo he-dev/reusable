@@ -83,20 +83,18 @@ namespace Reusable.SmartConfig
         {
             var settingIdentifier = UriConverter?.Convert<string>(uri) ?? uri;
 
-            using (var valueReader = new StreamReader(stream))
+            var value = await ResourceHelper.Deserialize<object>(stream, metadata);
+            value = ValueConverter.Convert(value, typeof(string));
+
+            await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
             {
-                var value = await valueReader.ReadToEndAsync();
-
-                await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
+                using (var cmd = connection.CreateUpdateCommand(TableName, settingIdentifier, ColumnMappings, Where, value))
                 {
-                    using (var cmd = connection.CreateUpdateCommand(TableName, settingIdentifier, ColumnMappings, Where, value))
-                    {
-                        await cmd.ExecuteNonQueryAsync(token);
-                    }
-                }, CancellationToken.None);
+                    await cmd.ExecuteNonQueryAsync(token);
+                }
+            }, metadata.CancellationToken());
 
-                return await GetAsync(uri);
-            }
+            return await GetAsync(uri, metadata);
         }
     }
 

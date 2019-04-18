@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 
 namespace Reusable.IOnymous
@@ -98,6 +99,21 @@ namespace Reusable.IOnymous
 
                 return copy;
             }
+        }
+        
+        public static async Task<T> Deserialize<T>(Stream value, Metadata metadata)
+        {
+            if (metadata.Resource().Format() == MimeType.Text)
+            {
+                return (T)(object)await DeserializeTextAsync(value);
+            }
+            
+            if (metadata.Resource().Format() == MimeType.Binary)
+            {
+                return (T)await DeserializeBinaryAsync<object>(value);
+            }
+            
+            throw DynamicException.Create("Format", $"Unsupported value format: '{metadata.Resource().Format()}'.");
         }
     }
 }

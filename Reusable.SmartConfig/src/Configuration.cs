@@ -54,8 +54,8 @@ namespace Reusable.SmartConfig
 
             var settingInfo = SettingVisitor.GetSettingInfo(getItem);
             var settingMetadata = new SettingMetadata(settingInfo, GetMemberName);
-            var uri = SettingUriFactory.CreateSettingUri(settingMetadata, handle);
-            return await _settings.GetItemAsync<object>(uri, Metadata.Empty.Resource(s => s.Type(settingMetadata.MemberType)));
+            var (uri, metadata) = SettingRequestFactory.CreateSettingRequest(settingMetadata, handle);
+            return await _settings.GetItemAsync<object>(uri, Metadata.Empty.Resource(s => s.Type(settingMetadata.MemberType)).Union(metadata));
         }
 
         public async Task SetItemAsync(LambdaExpression setItem, object newValue, string handle = null)
@@ -64,21 +64,21 @@ namespace Reusable.SmartConfig
 
             var settingInfo = SettingVisitor.GetSettingInfo(setItem);
             var settingMetadata = new SettingMetadata(settingInfo, GetMemberName);
-            var uri = SettingUriFactory.CreateSettingUri(settingMetadata, handle);
+            var (uri, metadata) = SettingRequestFactory.CreateSettingRequest(settingMetadata, handle);
             Validate(newValue, settingMetadata.Validations, uri);
-            await _settings.SetItemAsync(uri, newValue, Metadata.Empty.Resource(s => s.Type(settingMetadata.MemberType)));            
+            await _settings.SetItemAsync(uri, newValue, Metadata.Empty.Resource(s => s.Type(settingMetadata.MemberType)).Union(metadata));            
         }
 
-        private (UriString Uri, Type MemberType) CreateSettingUri(LambdaExpression xItem, string handle)
-        {
-            var settingInfo = SettingVisitor.GetSettingInfo(xItem);
-            var settingMetadata = new SettingMetadata(settingInfo, GetMemberName);
-            return
-            (
-                SettingUriFactory.CreateSettingUri(settingMetadata, handle),
-                settingMetadata.MemberType
-            );
-        }
+//        private (UriString Uri, Type MemberType) CreateSettingUri(LambdaExpression xItem, string handle)
+//        {
+//            var settingInfo = SettingVisitor.GetSettingInfo(xItem);
+//            var settingMetadata = new SettingMetadata(settingInfo, GetMemberName);
+//            return
+//            (
+//                SettingRequestFactory.CreateSettingRequest(settingMetadata, handle),
+//                settingMetadata.MemberType
+//            );
+//        }
 
         #region Helpers
 

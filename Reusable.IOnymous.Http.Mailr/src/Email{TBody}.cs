@@ -6,9 +6,9 @@ namespace Reusable.IOnymous
     [PublicAPI]
     public class Email<TBody>
     {
-        public IEnumerable<string> To { get; set; }
+        public List<string> To { get; set; }
 
-        public IEnumerable<string> CC { get; set; }
+        public List<string> CC { get; set; }
 
         public string Subject { get; set; }
 

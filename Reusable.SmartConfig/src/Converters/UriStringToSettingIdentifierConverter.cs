@@ -23,7 +23,8 @@ namespace Reusable.SmartConfig
 
             var query = uri.Query;
 
-            var level = Enum.TryParse<Level>(query[SettingQueryStringKeys.Level].ToString(), ignoreCase: true, out var l) ? l : Level.TypeMember;
+            var levelString = query.TryGetValue(SettingQueryStringKeys.Level, out var ls) ? ls.ToString() : default;
+            var level = Enum.TryParse<Level>(levelString, ignoreCase: true, out var l) ? l : Level.TypeMember;
 
             return new SettingIdentifier
             (

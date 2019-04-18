@@ -18,7 +18,7 @@ namespace Reusable.SmartConfig
         [CanBeNull]
         public ITypeConverter UriConverter { get; set; } = new UriStringToSettingIdentifierConverter();
 
-        public ITypeConverter Converter { get; set; } = new NullConverter();
+        public ITypeConverter ValueConverter { get; set; } = new NullConverter();
 
         protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata)
         {
@@ -31,28 +31,26 @@ namespace Reusable.SmartConfig
 
         protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream stream, Metadata metadata)
         {
-            using (var valueReader = new StreamReader(stream))
-            {
-                var value = await valueReader.ReadToEndAsync();
-
                 var settingIdentifier = UriConverter?.Convert<string>(uri) ?? uri;
                 var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
                 var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
                 var element = exeConfig.AppSettings.Settings[actualKey];
 
+                var value = await ResourceHelper.Deserialize<object>(stream, metadata);
+                value = ValueConverter.Convert(value, typeof(string));
+                
                 if (element is null)
                 {
-                    exeConfig.AppSettings.Settings.Add(settingIdentifier, value);
+                    exeConfig.AppSettings.Settings.Add(settingIdentifier, (string)value);
                 }
                 else
                 {
-                    exeConfig.AppSettings.Settings[actualKey].Value = value;
+                    exeConfig.AppSettings.Settings[actualKey].Value = (string)value;
                 }
 
                 exeConfig.Save(ConfigurationSaveMode.Minimal);
 
                 return await GetAsync(uri);
-            }
         }
 
         [CanBeNull]

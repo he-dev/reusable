@@ -43,10 +43,20 @@ namespace Reusable.SmartConfig
         {
             return (TValue)await configuration.GetItemAsync(getItem, handle);
         }
+        
+        public static TValue GetItem<T, TValue>(this IConfiguration<T> configuration, Expression<Func<T, TValue>> getItem, string handle = default)
+        {
+            return (TValue)configuration.GetItemAsync(getItem, handle).GetAwaiter().GetResult();
+        }
 
         public static async Task SetItemAsync<T, TValue>(this IConfiguration<T> configuration, Expression<Func<T, TValue>> setItem, TValue newValue, string handle = default)
         {
             await configuration.SetItemAsync(setItem, newValue, handle);
+        }
+        
+        public static void SetItem<T, TValue>(this IConfiguration<T> configuration, Expression<Func<T, TValue>> setItem, TValue newValue, string handle = default)
+        {
+            configuration.SetItemAsync(setItem, newValue, handle).GetAwaiter().GetResult();
         }
 
         //        public static T GetSetting<T>(this IConfiguration configuration, string name, string instance = default)

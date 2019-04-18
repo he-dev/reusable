@@ -175,7 +175,7 @@ namespace Reusable.IOnymous
             return scope.Metadata.GetValueByCallerName(SoftString.Empty);
         }
 
-        public static Metadata DefaultName(this MetadataScope<IResourceProvider> scope, SoftString name)
+        public static MetadataScope<IResourceProvider> DefaultName(this MetadataScope<IResourceProvider> scope, SoftString name)
         {
             return scope.Metadata.SetItemWithCallerName(name);
         }
@@ -185,7 +185,7 @@ namespace Reusable.IOnymous
             return scope.Metadata.GetValueByCallerName(SoftString.Empty);
         }
 
-        public static Metadata CustomName(this MetadataScope<IResourceProvider> scope, SoftString name)
+        public static MetadataScope<IResourceProvider> CustomName(this MetadataScope<IResourceProvider> scope, SoftString name)
         {
             return scope.Metadata.SetItemWithCallerName(name);
         }

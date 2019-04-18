@@ -86,32 +86,9 @@ namespace Reusable.SmartConfig
                     .ToString();
         }
 
-        //public static implicit operator SettingName(string settingName) => Parse(settingName);
-
         public static implicit operator string(SettingIdentifier settingIdentifier) => settingIdentifier?.ToString();
 
         public static implicit operator SoftString(SettingIdentifier settingIdentifier) => settingIdentifier?.ToString();
-
-//        public static implicit operator UriString(SettingIdentifier settingIdentifier)
-//        {
-//            var path = new[]
-//            {
-//                settingIdentifier.Namespace?.Replace('.', '-'),
-//                settingIdentifier.Type,
-//                settingIdentifier.Member,
-//            };
-//
-//            var query = (SoftString)new (SoftString Key, SoftString Value)[]
-//            {
-//                ("prefix", settingIdentifier.Prefix),
-//                ("instance", settingIdentifier.Instance)
-//            }
-//            .Where(x => x.Value)
-//            .Select(x => $"{x.Key.ToString()}={x.Value.ToString()}")
-//            .Join("&");
-//
-//            return $"setting:{path.Where(Conditional.IsNotNullOrEmpty).Join(".")}{(query ? $"?{query.ToString()}" : string.Empty)}";
-//        }
 
         public static bool operator ==(SettingIdentifier x, SettingIdentifier y) => AutoEquality<SettingIdentifier>.Comparer.Equals(x, y);
 
@@ -126,46 +103,5 @@ namespace Reusable.SmartConfig
         public override int GetHashCode() => AutoEquality<SettingIdentifier>.Comparer.GetHashCode(this);
 
         #endregion
-    }
-
-    /*
-
-    Setting names are ordered by the usage frequency.
-
-    Type.Property,Instance
-    Property,Instance
-    Namespace+Type.Property,Instance
-
-    Type.Property
-    Property
-    Namespace+Type.Property
-
-     */
-
-//    public enum SettingNameStrength
-//    {
-//        Inherit = -1,
-//
-//        /// <summary>
-//        /// Member
-//        /// </summary>
-//        Low = 0,
-//
-//        /// <summary>
-//        /// Type.Member
-//        /// </summary>
-//        Medium = 1,
-//
-//        /// <summary>
-//        /// Namespace+Type.Member
-//        /// </summary>
-//        High = 2,
-//    }
-//    
-//    public enum PrefixHandling
-//    {
-//        Inherit = -1,
-//        Disable = 0,
-//        Enable = 1,
-//    }
+    }    
 }

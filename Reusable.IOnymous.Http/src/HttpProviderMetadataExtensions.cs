@@ -10,8 +10,11 @@ namespace Reusable.IOnymous
     [PublicAPI]
     public static class HttpProviderMetadataExtensions
     {
-        public static MetadataScope<HttpProvider> Http(this Metadata metadata) => metadata;
-        
+        public static MetadataScope<HttpProvider> Http(this Metadata metadata)
+        {
+            return metadata.For<HttpProvider>();
+        }
+
         public static Metadata Http(this Metadata metadata, ConfigureMetadataScopeCallback<HttpProvider> scope)
         {
             return metadata.For(scope);

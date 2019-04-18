@@ -55,7 +55,7 @@ namespace Reusable.IOnymous
         protected ResourceProvider([NotNull] IEnumerable<SoftString> schemes, Metadata metadata)
         {
             if (schemes == null) throw new ArgumentNullException(nameof(schemes));
-            
+
             //var metadata = Metadata.Empty;
 
             // If this is a decorator then the decorated resource-provider already has set this.
@@ -274,11 +274,5 @@ namespace Reusable.IOnymous
         //public static ResourceProvider operator +(ResourceProvider decorable, Func<ResourceProvider, ResourceProvider> decorator) => decorator(decorable);
 
         #endregion
-    }
-    
-    public static class ResourceQueryStringKeys
-    {
-        public const string ProviderName = nameof(ProviderName);
-        public const string ProviderType = nameof(ProviderType);
     }
 }

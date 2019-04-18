@@ -16,23 +16,21 @@ namespace Reusable.IOnymous
         private readonly ITypeConverter<UriString, string> _uriConverter;
         private readonly IDictionary<SoftString, object> _items = new Dictionary<SoftString, object>();
 
-        public InMemoryProvider(IEnumerable<SoftString> schemes, Metadata metadata = default)
-            : base(schemes, metadata) { }
+        //public InMemoryProvider(IEnumerable<SoftString> schemes, Metadata metadata = default) : base(schemes, metadata) { }
 
-        public InMemoryProvider(Metadata metadata = default)
-            : base(new[] { DefaultScheme }, metadata) { }
+        //public InMemoryProvider(Metadata metadata = default) : base(new[] { DefaultScheme }, metadata) { }
 
-        public InMemoryProvider(ITypeConverter<UriString, string> uriConverter, IEnumerable<SoftString> schemes, Metadata metadata = default)
-            : this(schemes, metadata)
+        public InMemoryProvider([NotNull] ITypeConverter<UriString, string> uriConverter, IEnumerable<SoftString> schemes, Metadata metadata = default)
+            : base(schemes, metadata)
         {
-            _uriConverter = uriConverter;
+            _uriConverter = uriConverter ?? throw new ArgumentNullException(nameof(uriConverter));
         }
 
         /// <summary>
         /// Gets or sets value converter.
         /// </summary>
         public ITypeConverter Converter { get; set; } = new NullConverter();
-        
+
         protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata)
         {
             var name = _uriConverter.Convert<string>(uri);
@@ -59,16 +57,7 @@ namespace Reusable.IOnymous
             ValidateFormatNotNull(this, uri, metadata);
 
             var name = _uriConverter.Convert<string>(uri);
-
-            if (metadata.Resource().Format() == MimeType.Text)
-            {
-                _items[name] = await ResourceHelper.DeserializeTextAsync(value);
-            }
-            else
-            {
-                _items[name] = await ResourceHelper.DeserializeBinaryAsync<object>(value);
-            }
-            
+            _items[name] = await ResourceHelper.Deserialize<object>(value, metadata);
             return new InMemoryResourceInfo(uri, metadata.Resource().Format(), value);
         }
 

@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Reusable.Exceptionize;
 using Reusable.IOnymous;
+using Reusable.SmartConfig;
 using Xunit;
 
 namespace Reusable.Tests.XUnit.IOnymous
@@ -14,18 +15,18 @@ namespace Reusable.Tests.XUnit.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider
+                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new[] { ResourceProvider.DefaultScheme })
                 {
-                    { "blub:123", "blub1" }
+                    { "x.123", "blub1" }
                 },
-                new InMemoryProvider
+                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new[] { ResourceProvider.DefaultScheme })
                 {
-                    { "blub:123", "blub2" },
-                    { "blub:123", "blub3" }
+                    { "x.123", "blub2" },
+                    { "x.123", "blub3" }
                 },
             });
 
-            var resource = await composite.GetAnyAsync("123");
+            var resource = await composite.GetAnyAsync("blub:x/123");
 
             Assert.True(resource.Exists);
             Assert.Equal("blub1", await resource.DeserializeTextAsync());
@@ -36,18 +37,18 @@ namespace Reusable.Tests.XUnit.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider//(ResourceMetadata.Empty.CustomName("blub"))
+                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new[] { ResourceProvider.DefaultScheme })
                 {
-                    { "blub:123", "blub1" }
+                    { "x.123", "blub1" }
                 },
-                new InMemoryProvider
+                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new[] { ResourceProvider.DefaultScheme })
                 {
-                    { "blub:123", "blub2" },
-                    { "blub:123", "blub3" }
+                    //{ "x.123", "blub2" },
+                    { "x.123", "blub3" }
                 },
             });
 
-            var resource = await composite.GetAsync("blub:123?providerType=InMemoryProvider");
+            var resource = await composite.GetAsync("blub:x/123", Metadata.Empty.Provider(s => s.DefaultName("InMemoryProvider")));
 
             Assert.True(resource.Exists);
             Assert.Equal("blub1", await resource.DeserializeTextAsync());
@@ -58,18 +59,18 @@ namespace Reusable.Tests.XUnit.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider
+                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new[] { ResourceProvider.DefaultScheme })
                 {
-                    { "blub:123", "blub1" }
+                    { "x.123", "blub1" }
                 },
-                new InMemoryProvider(Metadata.Empty.Provider(s => s.CustomName("blub")))
+                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new[] { ResourceProvider.DefaultScheme }, Metadata.Empty.Provider(s => s.CustomName("blub")))
                 {
-                    { "blub:123?providerName=blub", "blub2" },
-                    { "blub:123?providerName=blub", "blub3" }
+                    //{ "x.123", "blub2" },
+                    { "x.123", "blub3" }
                 },
             });
 
-            var resource = await composite.GetAsync("blub:123?providerName=blub");
+            var resource = await composite.GetAsync("blub:x/123", Metadata.Empty.Provider(s => s.CustomName("blub")));
 
             Assert.True(resource.Exists);
             Assert.Equal("blub3", await resource.DeserializeTextAsync());
@@ -80,11 +81,11 @@ namespace Reusable.Tests.XUnit.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider
+                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new[] { ResourceProvider.DefaultScheme })
                 {
                     { "blub:123", "blub1" }
                 },
-                new InMemoryProvider()
+                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new[] { ResourceProvider.DefaultScheme })
                 {
                     { "blub:123?providerName=blub", "blub2" },
                     { "blub:123?providerName=blub", "blub3" }
@@ -99,18 +100,18 @@ namespace Reusable.Tests.XUnit.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider(new SoftString[] { "bluba" })
+                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "bluba" })
                 {
-                    { "bluba:123", "blub1" }
+                    { "x.123", "blub1" }
                 },
-                new InMemoryProvider(new SoftString[] { "blub" })
+                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "blub" })
                 {
-                    { "blub:123", "blub2" },
-                    { "blub:125", "blub3" }
+                    { "x.123", "blub2" },
+                    { "x.125", "blub3" }
                 },
             });
 
-            var resource = await composite.GetAsync("blub:123");
+            var resource = await composite.GetAsync("blub:x/123");
 
             Assert.True(resource.Exists);
             Assert.Equal("blub2", await resource.DeserializeTextAsync());
