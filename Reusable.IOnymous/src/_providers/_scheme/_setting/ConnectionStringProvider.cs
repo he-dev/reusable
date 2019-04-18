@@ -15,14 +15,14 @@ namespace Reusable.IOnymous
         private readonly ITypeConverter _uriStringToSettingIdentifierConverter;
 
         public ConnectionStringProvider(ITypeConverter uriStringToSettingIdentifierConverter = null)
-            : base(ResourceMetadata.Empty)
+            : base(Metadata.Empty)
         {
             _uriStringToSettingIdentifierConverter = uriStringToSettingIdentifierConverter;
         }
         
         public ITypeConverter Converter { get; set; } = new NullConverter();
 
-        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
+        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata)
         {
             var settingIdentifier = (string)_uriStringToSettingIdentifierConverter?.Convert(uri, typeof(string)) ?? uri;
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
@@ -30,7 +30,7 @@ namespace Reusable.IOnymous
             return Task.FromResult<IResourceInfo>(new ConnectionStringInfo(uri, settings?.ConnectionString));
         }
 
-        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream stream, ResourceMetadata metadata)
+        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream stream, Metadata metadata)
         {
             using (var valueReader = new StreamReader(stream))
             {
@@ -72,7 +72,7 @@ namespace Reusable.IOnymous
         [CanBeNull] private readonly string _value;
 
         internal ConnectionStringInfo([NotNull] UriString uri, [CanBeNull] string value) 
-            : base(uri, MimeType.Text)
+            : base(uri, Metadata.Empty.Format(MimeType.Text))
         {
             _value = value;
         }

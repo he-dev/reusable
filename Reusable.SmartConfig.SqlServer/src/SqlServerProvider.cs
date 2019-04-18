@@ -34,7 +34,7 @@ namespace Reusable.SmartConfig
             string nameOrConnectionString,
             ITypeConverter uriStringToSettingIdentifierConverter = null
         )
-            : base(ResourceMetadata.Empty)
+            : base(Metadata.Empty)
         {
             _uriStringToSettingIdentifierConverter = uriStringToSettingIdentifierConverter;
             ConnectionString = ConnectionStringRepository.Default.GetConnectionString(nameOrConnectionString);
@@ -60,7 +60,7 @@ namespace Reusable.SmartConfig
         
         public ITypeConverter Converter { get; set; } = new NullConverter();
 
-        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
+        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata)
         {
             var settingIdentifier = (string)_uriStringToSettingIdentifierConverter?.Convert(uri, typeof(string)) ?? uri;
 
@@ -77,7 +77,7 @@ namespace Reusable.SmartConfig
             }, CancellationToken.None);
         }
 
-        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream stream, ResourceMetadata metadata)
+        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream stream, Metadata metadata)
         {
             var settingIdentifier = (string)_uriStringToSettingIdentifierConverter?.Convert(uri, typeof(string)) ?? uri;
 
@@ -103,7 +103,7 @@ namespace Reusable.SmartConfig
         [CanBeNull] private readonly string _value;
 
         internal SqlServerResourceInfo([NotNull] UriString uri, [CanBeNull] string value) 
-            : base(uri, MimeType.Text)
+            : base(uri, Metadata.Empty.Format(MimeType.Text))
         {
             _value = value;
         }

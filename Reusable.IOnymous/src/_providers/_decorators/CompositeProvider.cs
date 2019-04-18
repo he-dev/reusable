@@ -29,7 +29,7 @@ namespace Reusable.IOnymous
         public CompositeProvider
         (
             [NotNull] IEnumerable<IResourceProvider> resourceProviders,
-            ResourceMetadata metadata = default
+            Metadata metadata = default
         )
             : base(new[] { DefaultScheme }, metadata)
         {
@@ -51,28 +51,28 @@ namespace Reusable.IOnymous
             }
         }
 
-        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
+        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata)
         {
             return await HandleMethodAsync(uri, metadata, true, async resourceProvider => await resourceProvider.GetAsync(uri, metadata));
         }
 
-        protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
+        protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, Metadata metadata)
         {
             return await HandleMethodAsync(uri, metadata, false, async resourceProvider => (await resourceProvider.PostAsync(uri, value, metadata)));
         }
 
-        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
+        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, Metadata metadata)
         {
             return await HandleMethodAsync(uri, metadata, false, async resourceProvider => (await resourceProvider.PutAsync(uri, value, metadata)));
         }
 
-        protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata)
+        protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, Metadata metadata)
         {
             return await HandleMethodAsync(uri, metadata, false, async resourceProvider => (await resourceProvider.DeleteAsync(uri, metadata)));
         }
 
         [ItemNotNull]
-        private async Task<IResourceInfo> HandleMethodAsync(UriString uri, ResourceMetadata metadata, bool isGet, Func<IResourceProvider, Task<IResourceInfo>> handleAsync)
+        private async Task<IResourceInfo> HandleMethodAsync(UriString uri, Metadata metadata, bool isGet, Func<IResourceProvider, Task<IResourceInfo>> handleAsync)
         {
             await _cacheLock.WaitAsync();
             try

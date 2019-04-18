@@ -58,7 +58,7 @@ namespace Reusable.SmartConfig
             var settingInfo = SettingVisitor.GetSettingInfo(getItem);
             var settingMetadata = new SettingMetadata(settingInfo, GetMemberName);
             var uri = SettingUriFactory.CreateSettingUri(settingMetadata, handle);
-            return await _settings.GetItemAsync<object>(uri, ResourceMetadata.Empty.Type(settingMetadata.MemberType));
+            return await _settings.GetItemAsync<object>(uri, Metadata.Empty.Type(settingMetadata.MemberType));
         }
 
         public async Task SetItemAsync(LambdaExpression setItem, object newValue, string handle = null)
@@ -69,7 +69,7 @@ namespace Reusable.SmartConfig
             var settingMetadata = new SettingMetadata(settingInfo, GetMemberName);
             var uri = SettingUriFactory.CreateSettingUri(settingMetadata, handle);
             Validate(newValue, settingMetadata.Validations, uri);
-            await _settings.SetItemAsync(uri, newValue, ResourceMetadata.Empty.Type(settingMetadata.MemberType));            
+            await _settings.SetItemAsync(uri, newValue, Metadata.Empty.Type(settingMetadata.MemberType));            
         }
 
         private (UriString Uri, Type MemberType) CreateSettingUri(LambdaExpression xItem, string handle)

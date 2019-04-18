@@ -22,7 +22,7 @@ namespace Reusable.Commander
         private readonly ICommandLine _commandLine;
 
         public CommandLineArgumentProvider(ITypeConverter<UriString, string> uriToIdentifierConverter, ICommandLine commandLine)
-            : base(new SoftString[] { DefaultScheme }, ResourceMetadata.Empty)
+            : base(new SoftString[] { DefaultScheme }, IOnymous.Metadata.Empty)
         {
             _uriToIdentifierConverter = uriToIdentifierConverter;
             _commandLine = commandLine;
@@ -33,7 +33,7 @@ namespace Reusable.Commander
             : this(new UriStringToSettingIdentifierConverter(), commandLine) { }
 
         // cmd:///foo
-        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
+        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata)
         {
             var identifier = (Identifier)(SoftString)_uriToIdentifierConverter.Convert<SettingIdentifier>(uri);
 
@@ -54,7 +54,7 @@ namespace Reusable.Commander
     {
         private readonly object _value;
 
-        public CommandLineArgumentInfo([NotNull] UriString uri, object value) : base(uri, MimeType.Json)
+        public CommandLineArgumentInfo([NotNull] UriString uri, object value) : base(uri, Metadata.Empty.Format(MimeType.Json))
         {
             _value = value;
         }

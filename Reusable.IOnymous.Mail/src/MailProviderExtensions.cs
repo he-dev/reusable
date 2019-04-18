@@ -12,7 +12,7 @@ namespace Reusable.IOnymous
     {
         #region GET helpers
 
-        public static Task<IResourceInfo> GetHttpAsync(this IResourceProvider resourceProvider, string path, ResourceMetadata metadata = default)
+        public static Task<IResourceInfo> GetHttpAsync(this IResourceProvider resourceProvider, string path, Metadata metadata = default)
         {
             var uri = new UriString(path);
             return resourceProvider.GetAsync
@@ -35,7 +35,7 @@ namespace Reusable.IOnymous
         public static async Task<IResourceInfo> SendEmailAsync(this IResourceProvider resourceProvider, IEmail<IEmailSubject, IEmailBody> email)
         {
             var metadata =
-                ResourceMetadata
+                Metadata
                     .Empty
                     .Scope<MailProvider>
                     (

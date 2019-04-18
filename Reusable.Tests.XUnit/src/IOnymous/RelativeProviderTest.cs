@@ -23,15 +23,15 @@ namespace Reusable.Tests.XUnit.IOnymous
 
             mockProvider
                 .Arrange(x => x.Metadata)
-                .Returns(ResourceMetadata.Empty);
+                .Returns(Metadata.Empty);
             
             mockProvider
                 .Arrange(x => x.Schemes)
                 .Returns(new SoftString[] { "blub" }.ToImmutableHashSet());
 
             mockProvider
-                .Arrange(x => x.GetAsync(Arg.Matches<UriString>(uri => uri == new UriString("blub:base/relative")), Arg.IsAny<ResourceMetadata>()))
-                .Returns<UriString, ResourceMetadata>((uri, metadata) => Task.FromResult<IResourceInfo>(new InMemoryResourceInfo(uri)));
+                .Arrange(x => x.GetAsync(Arg.Matches<UriString>(uri => uri == new UriString("blub:base/relative")), Arg.IsAny<Metadata>()))
+                .Returns<UriString, Metadata>((uri, metadata) => Task.FromResult<IResourceInfo>(new InMemoryResourceInfo(uri)));
 
 
             var relativeProvider = mockProvider.DecorateWith(RelativeProvider.Factory("blub:base"));

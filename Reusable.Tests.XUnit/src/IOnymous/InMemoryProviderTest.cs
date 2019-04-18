@@ -11,7 +11,7 @@ namespace Reusable.Tests.XUnit.IOnymous
         [Fact]
         public void Can_be_created_from_collection_initializer()
         {
-            var inMemory = new InMemoryProvider(ResourceMetadata.Empty)
+            var inMemory = new InMemoryProvider(Metadata.Empty)
             {
                 { "foo:bar/baz", "qux" },
             };
@@ -24,7 +24,7 @@ namespace Reusable.Tests.XUnit.IOnymous
         {
             Assert.ThrowsAny<DynamicException>(() =>
             {
-                var inMemory = new InMemoryProvider(ResourceMetadata.Empty)
+                var inMemory = new InMemoryProvider(Metadata.Empty)
                 {
                     { "bar/baz", "qux" },
                 };
@@ -34,7 +34,7 @@ namespace Reusable.Tests.XUnit.IOnymous
         [Fact]
         public async Task Can_get_resource_by_uri()
         {
-            var inMemory = new InMemoryProvider(ResourceMetadata.Empty)
+            var inMemory = new InMemoryProvider(Metadata.Empty)
             {
                 { "foox:bar/baz", "quxx" },
                 { "fooy:bar/baz", "quxy" },
@@ -53,7 +53,7 @@ namespace Reusable.Tests.XUnit.IOnymous
         [Fact]
         public async Task Can_get_resource_by_ionymous_uri()
         {
-            var inMemory = new InMemoryProvider(ResourceMetadata.Empty)
+            var inMemory = new InMemoryProvider(Metadata.Empty)
             {
                 { "foox:bar/baz", "quxx" },
                 { "fooy:bar/baz", "quxy" },

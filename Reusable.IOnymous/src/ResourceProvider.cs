@@ -22,7 +22,7 @@ namespace Reusable.IOnymous
     public interface IResourceProvider : IDisposable
     {
         [NotNull]
-        ResourceMetadata Metadata { get; }
+        Metadata Metadata { get; }
 
         IImmutableSet<SoftString> Schemes { get; }
 
@@ -35,16 +35,16 @@ namespace Reusable.IOnymous
         bool CanDelete { get; }
 
         [ItemNotNull]
-        Task<IResourceInfo> GetAsync([NotNull] UriString uri, ResourceMetadata metadata = default);
+        Task<IResourceInfo> GetAsync([NotNull] UriString uri, Metadata metadata = default);
 
         [ItemNotNull]
-        Task<IResourceInfo> PostAsync([NotNull] UriString uri, [NotNull] Stream value, ResourceMetadata metadata = default);
+        Task<IResourceInfo> PostAsync([NotNull] UriString uri, [NotNull] Stream value, Metadata metadata = default);
 
         [ItemNotNull]
-        Task<IResourceInfo> PutAsync([NotNull] UriString uri, [NotNull] Stream value, ResourceMetadata metadata = default);
+        Task<IResourceInfo> PutAsync([NotNull] UriString uri, [NotNull] Stream value, Metadata metadata = default);
 
         [ItemNotNull]
-        Task<IResourceInfo> DeleteAsync([NotNull] UriString uri, ResourceMetadata metadata = default);
+        Task<IResourceInfo> DeleteAsync([NotNull] UriString uri, Metadata metadata = default);
     }
 
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
@@ -52,7 +52,7 @@ namespace Reusable.IOnymous
     {
         public static readonly SoftString DefaultScheme = "ionymous";
 
-        protected ResourceProvider([NotNull] IEnumerable<SoftString> schemes, ResourceMetadata metadata)
+        protected ResourceProvider([NotNull] IEnumerable<SoftString> schemes, Metadata metadata)
         {
             if (schemes == null) throw new ArgumentNullException(nameof(schemes));
 
@@ -91,7 +91,7 @@ namespace Reusable.IOnymous
             return GetType().GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance).DeclaringType == GetType();
         }
 
-        public virtual ResourceMetadata Metadata { get; }
+        public virtual Metadata Metadata { get; }
 
         public virtual IImmutableSet<SoftString> Schemes { get; }
 
@@ -99,7 +99,7 @@ namespace Reusable.IOnymous
 
         // These wrappers are to provide helpful exceptions.        
 
-        public async Task<IResourceInfo> GetAsync(UriString uri, ResourceMetadata metadata = default)
+        public async Task<IResourceInfo> GetAsync(UriString uri, Metadata metadata = default)
         {
             ValidateSchemeNotEmpty(uri);
             ValidateSchemeMatches(uri);
@@ -114,7 +114,7 @@ namespace Reusable.IOnymous
             }
         }
 
-        public async Task<IResourceInfo> PostAsync(UriString uri, Stream value, ResourceMetadata metadata = default)
+        public async Task<IResourceInfo> PostAsync(UriString uri, Stream value, Metadata metadata = default)
         {
             ValidateSchemeNotEmpty(uri);
             ValidateSchemeMatches(uri);
@@ -129,7 +129,7 @@ namespace Reusable.IOnymous
             }
         }
 
-        public async Task<IResourceInfo> PutAsync(UriString uri, Stream value, ResourceMetadata metadata = default)
+        public async Task<IResourceInfo> PutAsync(UriString uri, Stream value, Metadata metadata = default)
         {
             ValidateSchemeNotEmpty(uri);
             ValidateSchemeMatches(uri);
@@ -144,7 +144,7 @@ namespace Reusable.IOnymous
             }
         }
 
-        public async Task<IResourceInfo> DeleteAsync(UriString uri, ResourceMetadata metadata = default)
+        public async Task<IResourceInfo> DeleteAsync(UriString uri, Metadata metadata = default)
         {
             ValidateSchemeNotEmpty(uri);
             ValidateSchemeMatches(uri);
@@ -163,13 +163,13 @@ namespace Reusable.IOnymous
 
         #region Internal
 
-        protected virtual Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata) => throw MethodNotSupportedException(uri);
+        protected virtual Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata) => throw MethodNotSupportedException(uri);
 
-        protected virtual Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata) => throw MethodNotSupportedException(uri);
+        protected virtual Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, Metadata metadata) => throw MethodNotSupportedException(uri);
 
-        protected virtual Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata) => throw MethodNotSupportedException(uri);
+        protected virtual Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, Metadata metadata) => throw MethodNotSupportedException(uri);
 
-        protected virtual Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata) => throw MethodNotSupportedException(uri);
+        protected virtual Task<IResourceInfo> DeleteAsyncInternal(UriString uri, Metadata metadata) => throw MethodNotSupportedException(uri);
 
         #endregion
 
@@ -214,7 +214,7 @@ namespace Reusable.IOnymous
             }
         }
 
-        protected void ValidateFormatNotNull<T>(T fileProvider, UriString uri, ResourceMetadata metadata, [CallerMemberName] string memberName = null) where T : IResourceProvider
+        protected void ValidateFormatNotNull<T>(T fileProvider, UriString uri, Metadata metadata, [CallerMemberName] string memberName = null) where T : IResourceProvider
         {
             if (metadata.Format().IsNull)
             {
@@ -239,7 +239,7 @@ namespace Reusable.IOnymous
 
         #region Helpers
 
-        protected Exception WrapException(UriString uri, ResourceMetadata metadata, Exception inner, [CallerMemberName] string memberName = null)
+        protected Exception WrapException(UriString uri, Metadata metadata, Exception inner, [CallerMemberName] string memberName = null)
         {
             throw DynamicException.Create
             (

@@ -14,7 +14,7 @@ namespace Reusable.IOnymous
         
         private readonly HttpClient _client;
 
-        public HttpProvider([NotNull] string baseUri, ResourceMetadata metadata = default)
+        public HttpProvider([NotNull] string baseUri, Metadata metadata = default)
             : base(new SoftString[] { "http", "https" }, metadata.AllowRelativeUri(true))
         {
             if (baseUri == null) throw new ArgumentNullException(nameof(baseUri));
@@ -28,14 +28,14 @@ namespace Reusable.IOnymous
 
         public string BaseUri => _client.BaseAddress.ToString();
 
-        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
+        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata)
         {
             uri = BaseUri + uri;
             var (response, mediaType) = await InvokeAsync(uri, HttpMethod.Get, metadata);
             return new HttpResourceInfo(uri, response, new MimeType(mediaType));
         }
 
-        protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
+        protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, Metadata metadata)
         {
             uri = BaseUri + uri;
             var (response, mediaType) = await InvokeAsync(uri, HttpMethod.Post, metadata.Scope<HttpProvider>(scope => scope.Content(value)));
@@ -44,7 +44,7 @@ namespace Reusable.IOnymous
 
         #region Helpers
 
-        private async Task<(Stream Content, string MimeType)> InvokeAsync(UriString uri, HttpMethod method, ResourceMetadata metadata)
+        private async Task<(Stream Content, string MimeType)> InvokeAsync(UriString uri, HttpMethod method, Metadata metadata)
         {
             using (var request = new HttpRequestMessage(method, uri))
             {
@@ -106,7 +106,7 @@ namespace Reusable.IOnymous
         private readonly Stream _response;
 
         public HttpResourceInfo([NotNull] UriString uri, Stream response, MimeType format)
-            : base(uri, format)
+            : base(uri, Metadata.Empty.Format(format))
         {
             _response = response;
         }

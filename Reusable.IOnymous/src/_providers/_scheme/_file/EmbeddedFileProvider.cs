@@ -12,7 +12,7 @@ namespace Reusable.IOnymous
     {
         private readonly Assembly _assembly;
 
-        public EmbeddedFileProvider([NotNull] Assembly assembly, ResourceMetadata metadata = default)
+        public EmbeddedFileProvider([NotNull] Assembly assembly, Metadata metadata = default)
             : base(metadata.AllowRelativeUri(true))
         {
             _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
@@ -24,7 +24,7 @@ namespace Reusable.IOnymous
 
         #region ResourceProvider
 
-        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
+        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata)
         {
             ValidateFormatNotNull(this, uri, metadata);
             
@@ -53,7 +53,7 @@ namespace Reusable.IOnymous
         private readonly Func<Stream> _getManifestResourceStream;
 
         public EmbeddedFileInfo(string uri, MimeType format, Func<Stream> getManifestResourceStream)
-            : base(uri, format)
+            : base(uri, Metadata.Empty.Format(format))
         {
             _getManifestResourceStream = getManifestResourceStream;
         }

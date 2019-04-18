@@ -10,22 +10,22 @@ namespace Reusable.IOnymous
     [PublicAPI]
     public static class HttpProviderMetadataExtensions
     {
-        public static Stream Content(this ResourceMetadataScope<HttpProvider> scope)
+        public static Stream Content(this MetadataScope<HttpProvider> scope)
         {
             return scope.Metadata.GetValueOrDefault(Stream.Null);
         }
 
-        public static ResourceMetadataScope<HttpProvider> Content(this ResourceMetadataScope<HttpProvider> scope, Stream content)
+        public static MetadataScope<HttpProvider> Content(this MetadataScope<HttpProvider> scope, Stream content)
         {
             return scope.Metadata.SetItemAuto(content);
         }
 
-        public static Action<HttpRequestHeaders> ConfigureRequestHeaders(this ResourceMetadataScope<HttpProvider> scope)
+        public static Action<HttpRequestHeaders> ConfigureRequestHeaders(this MetadataScope<HttpProvider> scope)
         {
             return scope.Metadata.GetValueOrDefault<Action<HttpRequestHeaders>>(_ => { });
         }
 
-        public static ResourceMetadataScope<HttpProvider> ConfigureRequestHeaders(this ResourceMetadataScope<HttpProvider> scope, Action<HttpRequestHeaders> configureRequestHeaders)
+        public static MetadataScope<HttpProvider> ConfigureRequestHeaders(this MetadataScope<HttpProvider> scope, Action<HttpRequestHeaders> configureRequestHeaders)
         {
             var current = scope.ConfigureRequestHeaders();
             return scope.Metadata.SetItemAuto((Action<HttpRequestHeaders>)(headers =>
@@ -35,12 +35,12 @@ namespace Reusable.IOnymous
             }));
         }
 
-        public static MediaTypeFormatter RequestFormatter(this ResourceMetadataScope<HttpProvider> scope)
+        public static MediaTypeFormatter RequestFormatter(this MetadataScope<HttpProvider> scope)
         {
             return scope.Metadata.GetValueOrDefault<MediaTypeFormatter>(new JsonMediaTypeFormatter());
         }
 
-        public static ResourceMetadataScope<HttpProvider> RequestFormatter(this ResourceMetadataScope<HttpProvider> scope, MediaTypeFormatter requestFormatter)
+        public static MetadataScope<HttpProvider> RequestFormatter(this MetadataScope<HttpProvider> scope, MediaTypeFormatter requestFormatter)
         {
             return scope.Metadata.SetItemAuto(requestFormatter);
         }
@@ -55,34 +55,34 @@ namespace Reusable.IOnymous
         //     return metadata.SetItemSafe(ensureSuccessStatusCode);
         // }
 
-        public static IEnumerable<MediaTypeFormatter> ResponseFormatters(this ResourceMetadataScope<HttpProvider> scope)
+        public static IEnumerable<MediaTypeFormatter> ResponseFormatters(this MetadataScope<HttpProvider> scope)
         {
             return scope.Metadata.GetValueOrDefault(new MediaTypeFormatter[] { new JsonMediaTypeFormatter() });
         }
 
-        public static ResourceMetadataScope<HttpProvider> ResponseFormatters(this ResourceMetadataScope<HttpProvider> scope, params MediaTypeFormatter[] responseFormatters)
+        public static MetadataScope<HttpProvider> ResponseFormatters(this MetadataScope<HttpProvider> scope, params MediaTypeFormatter[] responseFormatters)
         {
             return scope.Metadata.SetItemAuto((IEnumerable<MediaTypeFormatter>)responseFormatters);
         }
 
-        public static Type ResponseType(this ResourceMetadataScope<HttpProvider> scope)
+        public static Type ResponseType(this MetadataScope<HttpProvider> scope)
         {
             return scope.Metadata.GetValueOrDefault(typeof(object));
         }
 
-        public static ResourceMetadataScope<HttpProvider> ResponseType(this ResourceMetadataScope<HttpProvider> scope, Type responseType)
+        public static MetadataScope<HttpProvider> ResponseType(this MetadataScope<HttpProvider> scope, Type responseType)
         {
             return scope.Metadata.SetItemAuto(responseType);
         }
 
         // ---
 
-        public static string ContentType(this ResourceMetadataScope<HttpProvider> scope)
+        public static string ContentType(this MetadataScope<HttpProvider> scope)
         {
             return scope.Metadata.GetValueOrDefault("application/json");
         }
 
-        public static ResourceMetadataScope<HttpProvider> ContentType(this ResourceMetadataScope<HttpProvider> scope, string contentType)
+        public static MetadataScope<HttpProvider> ContentType(this MetadataScope<HttpProvider> scope, string contentType)
         {
             return scope.Metadata.SetItemAuto(contentType);
         }        

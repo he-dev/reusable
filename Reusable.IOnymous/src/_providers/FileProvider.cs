@@ -8,7 +8,7 @@ namespace Reusable.IOnymous
     {
         public new static readonly string DefaultScheme = "file";
 
-        protected FileProvider([NotNull] ResourceMetadata metadata)
+        protected FileProvider([NotNull] Metadata metadata)
             : base(new SoftString[] { DefaultScheme }, metadata)
         {
         }

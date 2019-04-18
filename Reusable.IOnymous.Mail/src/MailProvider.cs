@@ -13,12 +13,12 @@ namespace Reusable.IOnymous
     {
         public new static readonly string DefaultScheme = "mailto";
 
-        protected MailProvider(ResourceMetadata metadata)
+        protected MailProvider(Metadata metadata)
             : base(new SoftString[] { DefaultScheme }, metadata)
         {
         }
 
-        protected async Task<string> ReadBodyAsync(Stream value, ResourceMetadata metadata)
+        protected async Task<string> ReadBodyAsync(Stream value, Metadata metadata)
         {
             using (var bodyReader = new StreamReader(value, metadata.Scope<MailProvider>().BodyEncoding()))
             {
@@ -32,7 +32,7 @@ namespace Reusable.IOnymous
         private readonly Stream _response;
 
         public MailResourceInfo([NotNull] UriString uri, Stream response, MimeType format)
-            : base(uri, format)
+            : base(uri, Metadata.Empty.Format(format))
         {
             _response = response;
         }

@@ -15,24 +15,24 @@ namespace Reusable.IOnymous
     {
         private readonly ITypeConverter _uriStringToSettingIdentifierConverter;
 
-        public AppSettingProvider(ITypeConverter uriStringToSettingIdentifierConverter = null)
-            : base(ResourceMetadata.Empty)
+        public AppSettingProvider(ITypeConverter uriStringToSettingIdentifierConverter)
+            : base(Metadata.Empty)
         {
             _uriStringToSettingIdentifierConverter = uriStringToSettingIdentifierConverter;
         }
         
         public ITypeConverter Converter { get; set; } = new NullConverter();
 
-        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
+        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata)
         {
-            var settingIdentifier = (string)_uriStringToSettingIdentifierConverter?.Convert(uri, typeof(string)) ?? uri;
+            var settingIdentifier = _uriStringToSettingIdentifierConverter?.Convert<string>(uri) ?? uri;
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
             var element = exeConfig.AppSettings.Settings[actualKey];
-            return Task.FromResult<IResourceInfo>(new AppSettingInfo(uri, element?.Value));
+            return Task.FromResult<IResourceInfo>(new AppSettingInfo(uri, element?.Value, Metadata.Empty.Scope<IResourceInfo>().InternalName(settingIdentifier)));
         }
 
-        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream stream, ResourceMetadata metadata)
+        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream stream, Metadata metadata)
         {
             using (var valueReader = new StreamReader(stream))
             {
@@ -74,8 +74,8 @@ namespace Reusable.IOnymous
     {
         [CanBeNull] private readonly string _value;
 
-        internal AppSettingInfo([NotNull] UriString uri, [CanBeNull] string value)
-            : base(uri, MimeType.Text)
+        internal AppSettingInfo([NotNull] UriString uri, [CanBeNull] string value, Metadata metadata)
+            : base(uri, metadata.Format(MimeType.Text))
         {
             _value = value;
         }

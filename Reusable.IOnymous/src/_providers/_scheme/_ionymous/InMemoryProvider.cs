@@ -16,13 +16,13 @@ namespace Reusable.IOnymous
         private readonly ITypeConverter<UriString, string> _uriConverter;
         private readonly IDictionary<SoftString, object> _items = new Dictionary<SoftString, object>();
 
-        public InMemoryProvider(IEnumerable<SoftString> schemes, ResourceMetadata metadata = default)
+        public InMemoryProvider(IEnumerable<SoftString> schemes, Metadata metadata = default)
             : base(schemes, metadata) { }
 
-        public InMemoryProvider(ResourceMetadata metadata = default)
+        public InMemoryProvider(Metadata metadata = default)
             : base(new[] { DefaultScheme }, metadata) { }
 
-        public InMemoryProvider(ITypeConverter<UriString, string> uriConverter, IEnumerable<SoftString> schemes, ResourceMetadata metadata = default)
+        public InMemoryProvider(ITypeConverter<UriString, string> uriConverter, IEnumerable<SoftString> schemes, Metadata metadata = default)
             : this(schemes, metadata)
         {
             _uriConverter = uriConverter;
@@ -33,7 +33,7 @@ namespace Reusable.IOnymous
         /// </summary>
         public ITypeConverter Converter { get; set; } = new NullConverter();
         
-        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
+        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata)
         {
             var name = _uriConverter.Convert<string>(uri);
             return
@@ -54,7 +54,7 @@ namespace Reusable.IOnymous
         //     //return Task.FromResult<IResourceInfo>(resource);
         // }
 
-        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
+        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, Metadata metadata)
         {
             ValidateFormatNotNull(this, uri, metadata);
 
@@ -108,14 +108,14 @@ namespace Reusable.IOnymous
                 case string str:
                 {
                     var stream = ResourceHelper.SerializeTextAsync(str).GetAwaiter().GetResult();
-                    inMemory.PutAsync(uri, stream, ResourceMetadata.Empty.Format(MimeType.Text)).GetAwaiter().GetResult();
+                    inMemory.PutAsync(uri, stream, Metadata.Empty.Format(MimeType.Text)).GetAwaiter().GetResult();
                 }
 
                     break;
                 default:
                 {
                     var stream = ResourceHelper.SerializeBinaryAsync(value).GetAwaiter().GetResult();
-                    inMemory.PutAsync(uri, stream, ResourceMetadata.Empty.Format(MimeType.Binary)).GetAwaiter().GetResult();
+                    inMemory.PutAsync(uri, stream, Metadata.Empty.Format(MimeType.Binary)).GetAwaiter().GetResult();
                 }
 
                     break;
@@ -132,7 +132,7 @@ namespace Reusable.IOnymous
         [CanBeNull] private readonly Stream _data;
 
         public InMemoryResourceInfo(UriString uri, MimeType format, Stream data)
-            : base(uri, format)
+            : base(uri, Metadata.Empty.Format(format))
         {
             _data = data ?? throw new ArgumentNullException(nameof(data));
         }

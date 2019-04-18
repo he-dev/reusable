@@ -22,22 +22,22 @@ namespace Reusable.IOnymous
             return decorable => new EnvironmentVariableProvider(decorable);
         }
 
-        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, ResourceMetadata metadata)
+        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata)
         {
             return _resourceProvider.GetAsync(UpdatePath(uri), metadata);
         }
 
-        protected override Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
+        protected override Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, Metadata metadata)
         {
             return _resourceProvider.PostAsync(UpdatePath(uri), value, metadata);
         }
         
-        protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
+        protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, Metadata metadata)
         {
             return _resourceProvider.PutAsync(UpdatePath(uri), value, metadata);
         }
 
-        protected override Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata)
+        protected override Task<IResourceInfo> DeleteAsyncInternal(UriString uri, Metadata metadata)
         {
             return _resourceProvider.DeleteAsync(UpdatePath(uri), metadata);
         }

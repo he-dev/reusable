@@ -133,7 +133,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
             {
                 Configuration = new cfg(new CompositeProvider(new IResourceProvider[]
                 {
-                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" }, ResourceMetadata.Empty.CustomName("OtherOne"))
+                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" }, Metadata.Empty.CustomName("OtherOne"))
                     {
                         { "Map.City", "Joe" }
                     },
@@ -141,7 +141,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
                     {
                         { "Map.City", "Tom" }
                     },
-                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" }, ResourceMetadata.Empty.CustomName("ThisOne"))
+                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" }, Metadata.Empty.CustomName("ThisOne"))
                     {
                         { "Map.City", "Bob" }
                     },
@@ -257,7 +257,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
         {
             var settingProviders = new IResourceProvider[]
             {
-                new InMemoryProvider(ResourceMetadata.Empty.CustomName("Memory1"))
+                new InMemoryProvider(Metadata.Empty.CustomName("Memory1"))
                 {
                     { $"setting:{nameof(CustomTypes)}.{nameof(CustomTypes.TimeSpan)}", "\"00:20:00\"" },
                 }

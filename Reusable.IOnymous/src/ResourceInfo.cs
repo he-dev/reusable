@@ -25,6 +25,8 @@ namespace Reusable.IOnymous
         DateTime? ModifiedOn { get; }
 
         MimeType Format { get; }
+        
+        Metadata Metadata { get; }
 
         Task CopyToAsync(Stream stream);
     }
@@ -33,12 +35,11 @@ namespace Reusable.IOnymous
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract class ResourceInfo : IResourceInfo
     {
-        protected ResourceInfo([NotNull] UriString uri, MimeType format)
+        protected ResourceInfo([NotNull] UriString uri, Metadata metadata = default)
         {
             if (uri == null) throw new ArgumentNullException(nameof(uri));
-
             Uri = uri.IsRelative ? new UriString($"{ResourceProvider.DefaultScheme}:{uri}") : uri;
-            Format = format;
+            Metadata = metadata;
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
@@ -60,7 +61,9 @@ namespace Reusable.IOnymous
 
         public abstract DateTime? ModifiedOn { get; }
 
-        public virtual MimeType Format { get; }
+        public virtual MimeType Format => Metadata.Format();
+        
+        public virtual Metadata Metadata { get; }
 
         #endregion
 

@@ -62,7 +62,7 @@ namespace Reusable.Tests.XUnit.IOnymous
                 {
                     { "blub:123", "blub1" }
                 },
-                new InMemoryProvider(ResourceMetadata.Empty.CustomName("blub"))
+                new InMemoryProvider(Metadata.Empty.CustomName("blub"))
                 {
                     { "blub:123?providerName=blub", "blub2" },
                     { "blub:123?providerName=blub", "blub3" }

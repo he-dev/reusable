@@ -10,20 +10,20 @@ using Reusable.Extensions;
 
 namespace Reusable.IOnymous
 {
-    public static class ResourceMetadataExtensions
+    public static class MetadataExtensions
     {
         #region Helpers
 
         /// <summary>
         /// Sets the specified item and uses the caller name as a key.
         /// </summary>
-        public static ResourceMetadata SetItemAuto(this ResourceMetadata metadata, object value, [CallerMemberName] string key = null)
+        public static Metadata SetItemAuto(this Metadata metadata, object value, [CallerMemberName] string key = null)
         {
             return metadata.SetItem(key, value);
         }
 
         // --
-        private static bool TryGetValue<T>(this ResourceMetadata metadata, [NotNull] SoftString key, [CanBeNull] out T value)
+        private static bool TryGetValue<T>(this Metadata metadata, [NotNull] SoftString key, [CanBeNull] out T value)
         {
             if (metadata.TryGetValue(key, out var x) && x is T result)
             {
@@ -37,7 +37,7 @@ namespace Reusable.IOnymous
             }
         }
 
-        public static T GetValueOrDefault<T>(this ResourceMetadata metadata, T defaultValue = default, [CallerMemberName] string key = null)
+        public static T GetValueOrDefault<T>(this Metadata metadata, T defaultValue = default, [CallerMemberName] string key = null)
         {
             return
                 // ReSharper disable once AssignNullToNotNullAttribute - 'key' isn't null
@@ -50,12 +50,12 @@ namespace Reusable.IOnymous
 
         #region Scope
 
-        public static ResourceMetadataScope<T> Scope<T>(this ResourceMetadata metadata)
+        public static MetadataScope<T> Scope<T>(this Metadata metadata)
         {
-            return metadata.GetValueOrDefault(ResourceMetadata.Empty, CreateScopeKey<T>());
+            return metadata.GetValueOrDefault(metadata, CreateScopeKey<T>());
         }
 
-        public static ResourceMetadata Scope<T>(this ResourceMetadata metadata, Func<ResourceMetadataScope<T>, ResourceMetadataScope<T>> configureScope)
+        public static Metadata Scope<T>(this Metadata metadata, Func<MetadataScope<T>, MetadataScope<T>> configureScope)
         {
             // There might already be a cope defined so get the current one first. 
             var scope = configureScope(metadata.Scope<T>().Metadata);
@@ -78,92 +78,104 @@ namespace Reusable.IOnymous
 //            yield return metadata.ProviderCustomName();
 //        }
 
-        public static SoftString DefaultName(this ResourceMetadata metadata)
+        public static SoftString DefaultName(this Metadata metadata)
         {
             return metadata.GetValueOrDefault(SoftString.Empty);
         }
 
-        public static ResourceMetadata DefaultName(this ResourceMetadata metadata, SoftString name)
+        public static Metadata DefaultName(this Metadata metadata, SoftString name)
         {
             return metadata.SetItemAuto(name);
         }
 
-        public static SoftString CustomName(this ResourceMetadata metadata)
+        public static SoftString CustomName(this Metadata metadata)
         {
             return metadata.GetValueOrDefault(SoftString.Empty);
         }
 
-        public static ResourceMetadata CustomName(this ResourceMetadata metadata, SoftString name)
+        public static Metadata CustomName(this Metadata metadata, SoftString name)
         {
             return metadata.SetItemAuto(name);
         }
 
-        public static bool AllowRelativeUri(this ResourceMetadata metadata)
+        public static bool AllowRelativeUri(this Metadata metadata)
         {
             return metadata.GetValueOrDefault(false);
         }
 
-        public static ResourceMetadata AllowRelativeUri(this ResourceMetadata metadata, bool value)
+        public static Metadata AllowRelativeUri(this Metadata metadata, bool value)
         {
             return metadata.SetItemAuto(value);
         }
 
-        public static CancellationToken CancellationToken(this ResourceMetadata metadata)
+        public static CancellationToken CancellationToken(this Metadata metadata)
         {
             return metadata.GetValueOrDefault(default(CancellationToken));
         }
 
-        public static ResourceMetadata CancellationToken(this ResourceMetadata metadata, CancellationToken cancellationToken)
+        public static Metadata CancellationToken(this Metadata metadata, CancellationToken cancellationToken)
         {
             return metadata.SetItemAuto(cancellationToken);
         }
 
         // ---
 
-        public static MimeType Format(this ResourceMetadata metadata)
+        public static MimeType Format(this Metadata metadata)
         {
             return metadata.GetValueOrDefault(MimeType.Null);
         }
 
-        public static ResourceMetadata Format(this ResourceMetadata metadata, MimeType format)
+        public static Metadata Format(this Metadata metadata, MimeType format)
         {
             return metadata.SetItemAuto(format);
         }
 
         // ---
 
-        public static Encoding Encoding(this ResourceMetadata metadata)
+        public static Encoding Encoding(this Metadata metadata)
         {
             return metadata.GetValueOrDefault(System.Text.Encoding.UTF8);
         }
 
-        public static ResourceMetadata Encoding(this ResourceMetadata metadata, Encoding encoding)
+        public static Metadata Encoding(this Metadata metadata, Encoding encoding)
         {
             return metadata.SetItemAuto(encoding);
         }
 
         // ---
 
-        public static IImmutableSet<SoftString> Schemes(this ResourceMetadata metadata)
+        public static IImmutableSet<SoftString> Schemes(this Metadata metadata)
         {
             return metadata.GetValueOrDefault((IImmutableSet<SoftString>)ImmutableHashSet<SoftString>.Empty);
         }
 
-        public static ResourceMetadata Schemes(this ResourceMetadata metadata, params SoftString[] schemes)
+        public static Metadata Schemes(this Metadata metadata, params SoftString[] schemes)
         {
             return metadata.SetItemAuto((IImmutableSet<SoftString>)schemes.ToImmutableHashSet());
         }
         
         // ---
 
-        public static Type Type(this ResourceMetadata metadata)
+        public static Type Type(this Metadata metadata)
         {
             return metadata.GetValueOrDefault(System.Type.Missing.GetType());
         }
 
-        public static ResourceMetadata Type(this ResourceMetadata metadata, Type type)
+        public static Metadata Type(this Metadata metadata, Type type)
         {
             return metadata.SetItemAuto(type);
+        }
+        
+        // ---
+
+        public static string InternalName(this MetadataScope<IResourceInfo> scope)
+        {
+            return scope.Metadata.GetValueOrDefault(default(string));
+        }
+
+        public static MetadataScope<IResourceInfo> InternalName(this MetadataScope<IResourceInfo> scope, string name)
+        {
+            return scope.Metadata.SetItemAuto(name);
         }
 
         #endregion

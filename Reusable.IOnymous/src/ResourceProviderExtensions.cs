@@ -21,7 +21,7 @@ namespace Reusable.IOnymous
 
         #region GET helpers
 
-        public static async Task<T> GetItemAsync<T>(this IResourceProvider resources, UriString uri, ResourceMetadata metadata = default)
+        public static async Task<T> GetItemAsync<T>(this IResourceProvider resources, UriString uri, Metadata metadata = default)
         {
             var item = await resources.GetAsync(uri, metadata);
 
@@ -53,11 +53,15 @@ namespace Reusable.IOnymous
             }
             else
             {
-                throw DynamicException.Create("ItemNotFound", $"Could not find '{uri}'.");
+                throw DynamicException.Create
+                (
+                    $"ItemNotFound",
+                    $"Could not find '{uri}' that maps to '{item.Metadata.Scope<IResourceInfo>().InternalName() ?? "N/A"}'."
+                );
             }
         }
 
-        public static Task<IResourceInfo> GetAnyAsync(this IResourceProvider resourceProvider, UriString uri, ResourceMetadata metadata = default)
+        public static Task<IResourceInfo> GetAnyAsync(this IResourceProvider resourceProvider, UriString uri, Metadata metadata = default)
         {
             return resourceProvider.GetAsync(uri.With(x => x.Scheme, ResourceProvider.DefaultScheme), metadata);
         }
@@ -66,7 +70,7 @@ namespace Reusable.IOnymous
 
         #region PUT helpers
 
-        public static async Task SetItemAsync(this IResourceProvider resources, UriString uri, object value, ResourceMetadata metadata = default)
+        public static async Task SetItemAsync(this IResourceProvider resources, UriString uri, object value, Metadata metadata = default)
         {
             if (metadata.Type() == typeof(string))
             {
@@ -93,7 +97,7 @@ namespace Reusable.IOnymous
             this IResourceProvider resourceProvider,
             UriString uri,
             Func<Task<Stream>> serializeAsync,
-            ResourceMetadata metadata = default
+            Metadata metadata = default
         )
         {
             return await ExecuteAsync(resourceProvider.PostAsync, uri, serializeAsync, metadata);
@@ -104,7 +108,7 @@ namespace Reusable.IOnymous
             this IResourceProvider resourceProvider,
             UriString uri,
             Func<Task<Stream>> serializeAsync,
-            ResourceMetadata metadata = default
+            Metadata metadata = default
         )
         {
             return await ExecuteAsync(resourceProvider.PutAsync, uri, serializeAsync, metadata);
@@ -112,10 +116,10 @@ namespace Reusable.IOnymous
 
         private static async Task<IResourceInfo> ExecuteAsync
         (
-            Func<UriString, Stream, ResourceMetadata, Task<IResourceInfo>> executeAsync,
+            Func<UriString, Stream, Metadata, Task<IResourceInfo>> executeAsync,
             UriString uri,
             Func<Task<Stream>> serializeAsync,
-            ResourceMetadata metadata
+            Metadata metadata
         )
         {
             var stream = await serializeAsync();

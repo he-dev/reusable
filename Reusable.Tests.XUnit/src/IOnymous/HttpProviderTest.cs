@@ -9,12 +9,12 @@ namespace Reusable.Tests.XUnit.IOnymous
         //[Fact]
         public async Task Blub()
         {
-            var client = new HttpProvider("https://jsonplaceholder.typicode.com", ResourceMetadata.Empty);
+            var client = new HttpProvider("https://jsonplaceholder.typicode.com", Metadata.Empty);
 
             var response = await client.GetAsync
             (
                 "posts/1",
-                ResourceMetadata
+                Metadata
                     .Empty
                     .Scope<HttpProvider>(scope => scope.ConfigureRequestHeaders(headers => headers.AcceptJson()))
                 //.ResponseFormatters(ne())

@@ -14,7 +14,7 @@ namespace Reusable.IOnymous
             string productName,
             string productVersion,
             JsonSerializer jsonSerializer = null,
-            ResourceMetadata metadata = default
+            Metadata metadata = default
         )
         {
             metadata =

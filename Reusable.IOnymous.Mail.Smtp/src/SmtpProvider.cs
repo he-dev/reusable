@@ -13,12 +13,12 @@ namespace Reusable.IOnymous
 {
     public class SmtpProvider : MailProvider
     {
-        public SmtpProvider(ResourceMetadata metadata = default)
+        public SmtpProvider(Metadata metadata = default)
             : base(metadata)
         {
         }
 
-        protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
+        protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, Metadata metadata)
         {
             var mail = metadata.Scope<MailProvider>();
 
