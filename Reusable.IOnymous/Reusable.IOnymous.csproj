@@ -20,6 +20,7 @@
     <Compile Remove="src\Extensions\InMemoryFileProviderExtensions.cs" />
     <Compile Remove="src\_providers\JsonResourceProvider.cs" />
     <Compile Remove="src\ResourceMetadataKeys.cs" />
+    <Compile Remove="src\ResourceConverter.cs" />
   </ItemGroup>
 
   <ItemGroup>

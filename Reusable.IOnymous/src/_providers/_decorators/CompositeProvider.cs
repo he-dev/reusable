@@ -17,7 +17,7 @@ namespace Reusable.IOnymous
         /// <summary>
         /// Resource provider cache.
         /// </summary>
-        private readonly Dictionary<UriString, IResourceProvider> _cache;
+        private readonly Dictionary<SoftString, IResourceProvider> _cache;
 
         /// <summary>
         /// Resource provider cache lock.
@@ -35,7 +35,7 @@ namespace Reusable.IOnymous
         {
             if (resourceProviders == null) throw new ArgumentNullException(nameof(resourceProviders));
 
-            _cache = new Dictionary<UriString, IResourceProvider>();
+            _cache = new Dictionary<SoftString, IResourceProvider>();
             _resourceProviders = resourceProviders.ToImmutableList();
             var duplicateProviderNames =
                 _resourceProviders
@@ -78,18 +78,21 @@ namespace Reusable.IOnymous
         [ItemNotNull]
         private async Task<IResourceInfo> HandleMethodAsync(UriString uri, Metadata metadata, bool isGet, Func<IResourceProvider, Task<IResourceInfo>> handleAsync)
         {
+            var cacheKey = uri.Path.Decoded;
+
             await _cacheLock.WaitAsync();
             try
             {
-                if (_cache.TryGetValue(uri, out var cached))
+                // Used cached provider if already resolved.
+                if (_cache.TryGetValue(cacheKey, out var cached))
                 {
                     return await handleAsync(cached);
                 }
 
                 var resourceProviders = _resourceProviders.ToList();
 
+                // Use custom-provider-name if available which has the highest priority.
                 if (metadata.Provider().CustomName() is var customName && customName)
-                //if (uri.Query.TryGetValue(ResourceQueryStringKeys.ProviderName, out var providerName))
                 {
                     var match =
                         resourceProviders
@@ -109,13 +112,12 @@ namespace Reusable.IOnymous
                                 )
                             );
 
-                    _cache[uri] = match;
+                    _cache[cacheKey] = match;
                     return await handleAsync(match);
                 }
 
                 // Multiple providers can have the same default name.
                 if (metadata.Provider().DefaultName() is var defaultName && defaultName)
-                //if (uri.Query.TryGetValue(ResourceQueryStringKeys.ProviderType, out var providerType))
                 {
                     resourceProviders =
                         resourceProviders
@@ -132,13 +134,14 @@ namespace Reusable.IOnymous
                     }
                 }
 
+                // Check if there is a provider that matches the scheme of the absolute uri.
                 if (uri.IsAbsolute)
                 {
                     var ignoreScheme = uri.Scheme == DefaultScheme;
                     resourceProviders =
-                        resourceProviders
-                            .Where(p => ignoreScheme || p.Schemes.Contains(DefaultScheme) || p.Schemes.Contains(uri.Scheme))
-                            .ToList();
+                        ignoreScheme
+                            ? resourceProviders
+                            : resourceProviders.Where(p => p.Schemes.Contains(DefaultScheme) || p.Schemes.Contains(uri.Scheme)).ToList();
 
                     if (resourceProviders.Empty())
                     {
@@ -159,7 +162,7 @@ namespace Reusable.IOnymous
                         resource = await handleAsync(resourceProvider);
                         if (resource.Exists)
                         {
-                            _cache[uri] = resourceProvider;
+                            _cache[cacheKey] = resourceProvider;
                             return resource;
                         }
                     }
@@ -169,7 +172,7 @@ namespace Reusable.IOnymous
                 // Other methods are allowed to use only a single provider.
                 else
                 {
-                    var match = _cache[uri] = resourceProviders.Single();
+                    var match = _cache[uri.Path.Decoded] = resourceProviders.Single();
                     return await handleAsync(match);
                 }
             }

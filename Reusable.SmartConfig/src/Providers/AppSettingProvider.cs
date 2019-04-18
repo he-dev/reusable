@@ -31,26 +31,26 @@ namespace Reusable.SmartConfig
 
         protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream stream, Metadata metadata)
         {
-                var settingIdentifier = UriConverter?.Convert<string>(uri) ?? uri;
-                var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-                var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
-                var element = exeConfig.AppSettings.Settings[actualKey];
+            var settingIdentifier = UriConverter?.Convert<string>(uri) ?? uri;
+            var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
+            var element = exeConfig.AppSettings.Settings[actualKey];
 
-                var value = await ResourceHelper.Deserialize<object>(stream, metadata);
-                value = ValueConverter.Convert(value, typeof(string));
-                
-                if (element is null)
-                {
-                    exeConfig.AppSettings.Settings.Add(settingIdentifier, (string)value);
-                }
-                else
-                {
-                    exeConfig.AppSettings.Settings[actualKey].Value = (string)value;
-                }
+            var value = await ResourceHelper.Deserialize<object>(stream, metadata);
+            value = ValueConverter.Convert(value, typeof(string));
 
-                exeConfig.Save(ConfigurationSaveMode.Minimal);
+            if (element is null)
+            {
+                exeConfig.AppSettings.Settings.Add(settingIdentifier, (string)value);
+            }
+            else
+            {
+                exeConfig.AppSettings.Settings[actualKey].Value = (string)value;
+            }
 
-                return await GetAsync(uri);
+            exeConfig.Save(ConfigurationSaveMode.Minimal);
+
+            return await GetAsync(uri);
         }
 
         [CanBeNull]

@@ -10,6 +10,9 @@ using Reusable.Extensions;
 
 namespace Reusable.IOnymous
 {
+    /// <summary>
+    /// This class provides methods that make it easier to work with resource streams.
+    /// </summary>
     public static class ResourceHelper
     {
         internal static string ExtractMethodName(string memberName)

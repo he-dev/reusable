@@ -4,7 +4,6 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Reusable.Collections;
 using Reusable.Diagnostics;
 using Reusable.Exceptionize;
 
@@ -23,7 +22,7 @@ namespace Reusable.IOnymous
         DateTime? CreatedOn { get; }
 
         DateTime? ModifiedOn { get; }
-        
+
         Metadata Metadata { get; }
 
         Task CopyToAsync(Stream stream);
@@ -60,7 +59,7 @@ namespace Reusable.IOnymous
         public abstract DateTime? ModifiedOn { get; }
 
         public virtual MimeType Format => Metadata.Resource().Format();
-        
+
         public virtual Metadata Metadata { get; }
 
         #endregion
@@ -117,75 +116,6 @@ namespace Reusable.IOnymous
 
         #endregion
 
-        public virtual void Dispose()
-        {
-        }
+        public virtual void Dispose() { }
     }
-
-    [PublicAPI]
-    public readonly struct MimeType : IEquatable<MimeType>
-    {
-        public MimeType(string name) => Name = name;
-
-        [AutoEqualityProperty]
-        public SoftString Name { get; }
-
-        public bool IsNull => this == Null;
-
-        public static readonly MimeType Null = new MimeType(string.Empty);
-
-        /// <summary>
-        /// Any document that contains text and is theoretically human readable
-        /// </summary>
-        public static readonly MimeType Text = new MimeType("text/plain");
-
-        public static readonly MimeType Json = new MimeType("application/json");
-
-        /// <summary>
-        /// Any kind of binary data, especially data that will be executed or interpreted somehow.
-        /// </summary>
-        public static readonly MimeType Binary = new MimeType("application/octet-stream");
-
-        public override bool Equals(object obj) => obj is MimeType format && Equals(format);
-
-        public bool Equals(MimeType other) => AutoEquality<MimeType>.Comparer.Equals(this, other);
-
-        public override int GetHashCode() => AutoEquality<MimeType>.Comparer.GetHashCode(this);
-
-        public override string ToString() => Name.ToString();
-
-        public static bool operator ==(MimeType left, MimeType right) => left.Equals(right);
-
-        public static bool operator !=(MimeType left, MimeType right) => !(left == right);
-    }
-
-//    [PublicAPI]
-//    public class Identifier : IEquatable<Identifier>
-//    {
-//        protected Identifier(string name) => Name = name;
-//
-//        [AutoEqualityProperty]
-//        public SoftString Name { get; }
-//
-//        public static readonly Identifier Null = new Identifier(string.Empty);
-//
-//        public override bool Equals(object obj) => obj is MimeType format && Equals(format);
-//
-//        public bool Equals(Identifier other) => AutoEquality<Identifier>.Comparer.Equals(this, other);
-//
-//        public override int GetHashCode() => AutoEquality<Identifier>.Comparer.GetHashCode(this);
-//
-//        public override string ToString() => Name.ToString();
-//
-//        public static bool operator ==(Identifier left, Identifier right) => left?.Equals(right) == true;
-//
-//        public static bool operator !=(Identifier left, Identifier right) => !(left == right);
-//    }
-//
-//    public class ResourceProviderName : Identifier
-//    {
-//        public ResourceProviderName(string name) : base(name)
-//        {
-//        }
-//    }
 }

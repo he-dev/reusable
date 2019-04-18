@@ -29,12 +29,9 @@ namespace Reusable.SmartConfig
     {
         private readonly IResourceProvider _settings;
 
-        private ITypeConverter _converter;
-
         public Configuration([NotNull] IResourceProvider settingProvider)
         {
             _settings = settingProvider ?? throw new ArgumentNullException(nameof(settingProvider));
-            _converter = new JsonSettingConverter();
         }
 
         /// <summary>
@@ -42,11 +39,6 @@ namespace Reusable.SmartConfig
         /// </summary>
         [NotNull]
         public Func<Type, string> GetMemberName { get; set; } = SettingMetadata.GetMemberName;
-
-        public static IConfiguration Create(params IResourceProvider[] resourceProviders)
-        {
-            return new Configuration(new CompositeProvider(resourceProviders));
-        }
 
         public async Task<object> GetItemAsync(LambdaExpression getItem, string handle = null)
         {
@@ -68,17 +60,6 @@ namespace Reusable.SmartConfig
             Validate(newValue, settingMetadata.Validations, uri);
             await _settings.SetItemAsync(uri, newValue, Metadata.Empty.Resource(s => s.Type(settingMetadata.MemberType)).Union(metadata));            
         }
-
-//        private (UriString Uri, Type MemberType) CreateSettingUri(LambdaExpression xItem, string handle)
-//        {
-//            var settingInfo = SettingVisitor.GetSettingInfo(xItem);
-//            var settingMetadata = new SettingMetadata(settingInfo, GetMemberName);
-//            return
-//            (
-//                SettingRequestFactory.CreateSettingRequest(settingMetadata, handle),
-//                settingMetadata.MemberType
-//            );
-//        }
 
         #region Helpers
 

@@ -19,19 +19,18 @@ namespace Reusable.IOnymous
         {
             metadata =
                 metadata
-                    .Http(scope =>
-                        scope
-                            .ConfigureRequestHeaders(headers =>
-                            {
-                                headers
-                                    .UserAgent(productName, productVersion)
-                                    .AcceptHtml();
-                            })
-                            .ResponseFormatters(new TextMediaTypeFormatter())
-                            .ContentType("application/json")
+                    .Http(s => s
+                        .ConfigureRequestHeaders(headers =>
+                        {
+                            headers
+                                .UserAgent(productName, productVersion)
+                                .AcceptHtml();
+                        })
+                        .ResponseFormatters(new TextMediaTypeFormatter())
+                        .ContentType("application/json")
                     )
                     .Schemes("http", "https")
-                    // Use to pick the correct provider from a composite one.
+                    // Bind this request to the http-provider.
                     .Provider(s => s.DefaultName(nameof(HttpProvider)));
 
             var response = await resourceProvider.PostAsync(uri, () => ResourceHelper.SerializeAsJsonAsync(email, jsonSerializer), metadata);

@@ -12,13 +12,18 @@ namespace Reusable.SmartConfig
         {
             var queryParameters = new (SoftString Key, SoftString Value)[]
             {
-                //(ResourceQueryStringKeys.ProviderName, setting.ResourceProviderName),
-                //(ResourceQueryStringKeys.ProviderType, setting.ResourceProviderType?.ToPrettyString()),
                 (SettingQueryStringKeys.Prefix, setting.ResourcePrefix),
                 (SettingQueryStringKeys.Handle, handle),
                 (SettingQueryStringKeys.Level, setting.Level.ToString()),
                 (SettingQueryStringKeys.IsCollection, typeof(IList<string>).IsAssignableFrom(setting.MemberType).ToString()),
             };
+
+            var path = new[]
+            {
+                setting.Scope.Replace('.', '/'),
+                setting.TypeName,
+                setting.MemberName
+            }.Join("/");
 
             var query =
                 queryParameters
@@ -26,10 +31,14 @@ namespace Reusable.SmartConfig
                     .Select(x => $"{x.Key.ToString()}={x.Value.ToString()}")
                     .Join("&");
 
+            query = (SoftString)query ? $"?{query}" : string.Empty;
+
             return
             (
-                $"{setting.ResourceScheme}:///{setting.Scope.Replace('.', '/')}/{setting.TypeName}/{setting.MemberName}{((SoftString)query ? $"?{query}" : string.Empty)}",
-                Metadata.Empty.Provider(s => s.CustomName(setting.ResourceProviderName).DefaultName(setting.ResourceProviderType?.ToPrettyString()))
+                $"{setting.ResourceScheme}:///{path}{query}",
+                Metadata.Empty.Provider(s => s
+                    .CustomName(setting.ResourceProviderName)
+                    .DefaultName(setting.ResourceProviderType?.ToPrettyString()))
             );
         }
     }

@@ -7,11 +7,9 @@ using System.Text;
 using JetBrains.Annotations;
 using Reusable.Utilities.SqlClient;
 
-namespace Reusable.SmartConfig.Internal
+namespace Reusable.SmartConfig
 {
-    using static SqlServerColumn;
-    
-    internal static class SettingCommandFactory
+    internal static class SqlCommandFactory
     {
         public static SqlCommand CreateSelectCommand
         (
@@ -30,7 +28,7 @@ namespace Reusable.SmartConfig.Internal
             sql.Append($"SELECT *").AppendLine();
             sql.Append($"FROM {table}").AppendLine();
             sql.Append(where.Aggregate(
-                $"WHERE [{columnMappings.MapOrDefault(Name)}] = @{columnMappings.MapOrDefault(Name)}",
+                $"WHERE [{columnMappings.MapOrDefault(SqlServerColumn.Name)}] = @{columnMappings.MapOrDefault(SqlServerColumn.Name)}",
                 (current, next) => $"{current} AND {connection.CreateIdentifier(next.Key)} = @{next.Key}")
             );
 
@@ -39,7 +37,7 @@ namespace Reusable.SmartConfig.Internal
 
             // --- add parameters & values
 
-            command.AddParameters(where.Add(columnMappings.MapOrDefault(Name), name));
+            command.AddParameters(where.Add(columnMappings.MapOrDefault(SqlServerColumn.Name), name));
 
             return command;
         }
@@ -110,24 +108,24 @@ namespace Reusable.SmartConfig.Internal
             var table = tableName.Render(connection);
 
             sql.Append($"UPDATE {table}").AppendLine();
-            sql.Append($"SET [{columnMappings.MapOrDefault(Value)}] = @{columnMappings.MapOrDefault(Value)}").AppendLine();
+            sql.Append($"SET [{columnMappings.MapOrDefault(SqlServerColumn.Value)}] = @{columnMappings.MapOrDefault(SqlServerColumn.Value)}").AppendLine();
 
             sql.Append(where.Aggregate(
-                $"WHERE [{columnMappings.MapOrDefault(Name)}] = @{columnMappings.MapOrDefault(Name)}",
+                $"WHERE [{columnMappings.MapOrDefault(SqlServerColumn.Name)}] = @{columnMappings.MapOrDefault(SqlServerColumn.Name)}",
                 (result, next) => $"{result} AND {connection.CreateIdentifier(next.Key)} = @{next.Key} ")
             ).AppendLine();
 
             sql.Append($"IF @@ROWCOUNT = 0").AppendLine();
 
             var columns = where.Keys.Select(key => connection.CreateIdentifier(key)).Aggregate(
-                $"[{columnMappings.MapOrDefault(Name)}], [{columnMappings.MapOrDefault(Value)}]",
+                $"[{columnMappings.MapOrDefault(SqlServerColumn.Name)}], [{columnMappings.MapOrDefault(SqlServerColumn.Value)}]",
                 (result, next) => $"{result}, {next}"
             );
 
             sql.Append($"INSERT INTO {table}({columns})").AppendLine();
 
             var parameterNames = where.Keys.Aggregate(
-                $"@{columnMappings.MapOrDefault(Name)}, @{columnMappings.MapOrDefault(Value)}",
+                $"@{columnMappings.MapOrDefault(SqlServerColumn.Name)}, @{columnMappings.MapOrDefault(SqlServerColumn.Value)}",
                 (result, next) => $"{result}, @{next}"
             );
 
@@ -139,8 +137,8 @@ namespace Reusable.SmartConfig.Internal
 
             // --- add parameters
 
-            command.Parameters.AddWithValue($"@{columnMappings.MapOrDefault(Name)}", name);
-            command.Parameters.AddWithValue($"@{columnMappings.MapOrDefault(Value)}", value);
+            command.Parameters.AddWithValue($"@{columnMappings.MapOrDefault(SqlServerColumn.Name)}", name);
+            command.Parameters.AddWithValue($"@{columnMappings.MapOrDefault(SqlServerColumn.Value)}", value);
             //command.Parameters.Add($"@{sqlServer.ColumnMapping.Value}", SqlDbType.NVarChar, 200).Value = setting.Value;
 
             command.AddParameters(where);

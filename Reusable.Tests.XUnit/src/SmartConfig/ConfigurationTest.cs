@@ -173,6 +173,27 @@ namespace Reusable.Tests.XUnit.SmartConfig
         }
 
         [Fact]
+        public async Task Can_use_setting_with_handle()
+        {
+            var c = new Configuration<User>(new CompositeProvider(new IResourceProvider[]
+            {
+                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                {
+                    { "User.Name", "Joe" }
+                },
+                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                {
+                    { "User.Name,this", "Bob" }
+                },
+                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                {
+                    { "Greeting.Morning", "Tom" }
+                },
+            }));
+            Assert.Equal("Bob", await c.GetItemAsync(x => x.Name, "this"));
+        }
+
+        [Fact]
         public void Can_find_setting_on_base_type()
         {
             var u = new Admin
@@ -208,13 +229,13 @@ namespace Reusable.Tests.XUnit.SmartConfig
                     { "Admin.Enabled", true }
                 }
             }));
-            
+
             Assert.Equal("Joe", await c.GetItemAsync(x => x.Name));
             Assert.Equal(true, await c.GetItemAsync(x => x.Enabled));
 
             await c.SetItemAsync(x => x.Name, "Tom");
             await c.SetItemAsync(x => x.Enabled, false);
-            
+
             Assert.Equal("Tom", await c.GetItemAsync(x => x.Name));
             Assert.Equal(false, await c.GetItemAsync(x => x.Enabled));
         }
@@ -304,7 +325,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
 
             Assert.Equal(true, await c.GetItemAsync(x => x.Enabled));
             Assert.Equal("Tom", await c.GetItemAsync(x => x.Name));
-        }        
+        }
     }
 
     [ResourcePrefix("root")]
@@ -328,7 +349,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
         DateTime DateTime { get; }
         TimeSpan TimeSpan { get; }
         List<int> ListOfInt { get; }
-        
+
         int Edit { get; }
     }
 }

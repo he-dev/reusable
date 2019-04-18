@@ -31,7 +31,7 @@ namespace Reusable.Commander.Commands
         public int IndentWidth { get; set; } = 4;
 
         [NotMapped]
-        public int[] ColumnWidths { get; set; } = {27, 50};
+        public int[] ColumnWidths { get; set; } = { 27, 50 };
 
         [CanBeNull]
         //[DefaultValue(false)]
@@ -74,7 +74,7 @@ namespace Reusable.Commander.Commands
         protected virtual void RenderCommandList(HelpBag parameter)
         {
             // Headers
-            var captions = new[] {"NAME", "ABOUT"}.Pad(parameter.ColumnWidths);
+            var captions = new[] { "NAME", "ABOUT" }.Pad(parameter.ColumnWidths);
             Logger.WriteLine(p => p.text(string.Join(string.Empty, captions)));
 
             // Separators
@@ -93,7 +93,7 @@ namespace Reusable.Commander.Commands
                 var defaultId = CommandHelper.GetCommandId(commandType).Default.ToString();
                 var aliases = string.Join("|", CommandHelper.GetCommandId(commandType).Aliases.Select(x => x.ToString()));
                 var description = commandType.GetCustomAttribute<DescriptionAttribute>()?.Description ?? "N/A";
-                var row = new[] {$"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description}.Pad(parameter.ColumnWidths);
+                var row = new[] { $"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description }.Pad(parameter.ColumnWidths);
                 Logger.WriteLine(p => p.text(string.Join(string.Empty, row)));
             }
         }
@@ -111,7 +111,7 @@ namespace Reusable.Commander.Commands
             }
 
             // Headers
-            var captions = new[] {"NAME", "ABOUT"}.Pad(parameter.ColumnWidths);
+            var captions = new[] { "NAME", "ABOUT" }.Pad(parameter.ColumnWidths);
             Logger.WriteLine(p => p.text(string.Join(string.Empty, captions)));
 
             // Separators
@@ -123,13 +123,13 @@ namespace Reusable.Commander.Commands
                 from commandParameter in bagType.GetParameters()
                 orderby commandParameter.Id.Default.ToString()
                 select commandParameter;
-            
+
             foreach (var commandParameter in parameters)
             {
                 var defaultId = commandParameter.Id.Default.ToString();
                 var aliases = string.Join("|", commandParameter.Id.Aliases.Select(x => x.ToString()));
                 var description = commandParameter.Description ?? "N/A";
-                var row = new[] {$"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description}.Pad(parameter.ColumnWidths);
+                var row = new[] { $"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description }.Pad(parameter.ColumnWidths);
                 Logger.WriteLine(p => p.text(string.Join(string.Empty, row)));
             }
         }
