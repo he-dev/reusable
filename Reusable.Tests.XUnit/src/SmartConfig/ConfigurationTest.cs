@@ -35,60 +35,6 @@ namespace Reusable.Tests.XUnit.SmartConfig
 {
     public class ConfigurationTest
     {
-        private static readonly SqlFourPartName SettingTableName = ("reusable", "SmartConfig");
-
-        public ConfigurationTest()
-        {
-            // new AppSettingProvider(new UriStringToSettingIdentifierConverter()),
-            // new SqlServerProvider("name=TestDb", new UriStringToSettingIdentifierConverter())
-            // {
-            //     TableName = SettingTableName,
-            //     ColumnMappings =
-            //         ImmutableDictionary<SqlServerColumn, SoftString>
-            //             .Empty
-            //             .Add(SqlServerColumn.Name, "_name")
-            //             .Add(SqlServerColumn.Value, "_value"),
-            //     Where = ImmutableDictionary<string, object>.Empty.Add("_other", nameof(ConfigurationTest))
-            // },
-            SeedAppSettings();
-            SeedSqlServer();
-        }
-
-        private static void SeedAppSettings()
-        {
-            var data = new (string Key, string Value)[]
-            {
-                ("abc:Salute", "Hi!"),
-            };
-
-            var exeConfiguration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-
-            exeConfiguration.AppSettings.Settings.Clear();
-            //exeConfiguration.ConnectionStrings.ConnectionStrings.Clear();
-
-            foreach (var (key, value) in data)
-            {
-                exeConfiguration.AppSettings.Settings.Add(key, value);
-            }
-
-            exeConfiguration.Save(ConfigurationSaveMode.Minimal);
-        }
-
-        private static void SeedSqlServer()
-        {
-            var data =
-                new DataTable()
-                    .AddColumn("_name", typeof(string))
-                    .AddColumn("_value", typeof(string))
-                    .AddColumn("_other", typeof(string))
-                    .AddRow("Test9.Greeting", "Hallo!", nameof(ConfigurationTest));
-
-            using (data)
-            {
-                SqlHelper.Execute("name=TestDb", connection => { connection.Seed(SettingTableName, data); });
-            }
-        }
-
         [Fact]
         public void Can_get_setting_by_name()
         {
@@ -151,8 +97,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
         }
 
         [Fact]
-        public void Can_find_setting_by_provider_type()
-        { }
+        public void Can_find_setting_by_provider_type() { }
 
         [Fact]
         public void Can_override_type_and_member_names()
@@ -270,7 +215,6 @@ namespace Reusable.Tests.XUnit.SmartConfig
         }
     }
 
-    
 
     internal class Nothing
     {
@@ -325,13 +269,13 @@ namespace Reusable.Tests.XUnit.SmartConfig
 
         [ResourceName(Level = ResourceNameLevel.Member)]
         public string Door => Configuration.GetItem(() => Door);
-    }    
+    }
 
     internal class CustomTypes : Nothing
     {
         public TimeSpan TimeSpan => Configuration.GetItem(() => TimeSpan);
     }
-    
+
     public class ConfigurationTestGeneric
     {
         [Fact]
@@ -352,10 +296,10 @@ namespace Reusable.Tests.XUnit.SmartConfig
                     { "Sub.Name", "Tom" }
                 },
             }));
-            
+
             Assert.Equal(true, await c.GetItemAsync(x => x.Enabled));
             Assert.Equal("Tom", await c.GetItemAsync(x => x.Name));
-        }
+        }        
     }
 
     [ResourcePrefix("root")]
@@ -368,5 +312,16 @@ namespace Reusable.Tests.XUnit.SmartConfig
     {
         [ResourcePrefix("")]
         string Name { get; }
+    }
+
+    public interface ITypeConfig
+    {
+        string String { get; }
+        bool Bool { get; }
+        int Int { get; }
+        double Double { get; }
+        DateTime DateTime { get; }
+        TimeSpan TimeSpan { get; }
+        List<int> ListOfInt { get; }
     }
 }

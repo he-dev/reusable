@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using System.Data;
 using System.Data.SqlClient;
@@ -71,6 +72,31 @@ namespace Reusable.Tests.XUnit.SmartConfig.Providers
             var name = await c.GetItemAsync(x => x.Name);
             
             Assert.Equal("Tom", name);
+        }
+        
+        [Fact]
+        public async Task Can_deserialize_various_types()
+        {
+            var c = new Configuration<ITypeConfig>(new CompositeProvider(new []
+            {
+                new SqlServerProvider("name=TestDb")
+                {
+                    TableName = ("reusable", "SmartConfig"),
+                    ValueConverter = new JsonSettingConverter(),
+                    ColumnMappings = 
+                        ImmutableDictionary<SqlServerColumn, SoftString>
+                            .Empty
+                            .Add(SqlServerColumn.Name, "_name")
+                            .Add(SqlServerColumn.Value, "_value"),
+                    Where = ImmutableDictionary<string, object>.Empty.Add("_other", "t")
+                },
+            }));
+            
+            Assert.Equal("str", await c.GetItemAsync(x => x.String));            
+            Assert.Equal(true, await c.GetItemAsync(x => x.Bool));
+            Assert.Equal(3, await c.GetItemAsync(x => x.Int));
+            Assert.Equal(1.25, await c.GetItemAsync(x => x.Double));
+            Assert.Equal(new DateTime(2019, 1, 2), await c.GetItemAsync(x => x.DateTime));
         }
         
         public Task DisposeAsync()

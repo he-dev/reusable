@@ -59,6 +59,18 @@ set
 	[_other] = 'Someone-else'
 WHERE [_id] = 3;
 
+
+insert into [reusable].[SmartConfig]([_id], [_name], [_value], [_other])
+select [_id], [_name], [_value], [_other]
+from 
+(values 
+  (100, 'Type.String', 'str', 't'),
+	(101, 'Type.Bool', 'true', 't'),
+	(103, 'Type.Int', '3', 't'),
+	(104, 'Type.Double', '1.25', 't'),
+	(105, 'Type.DateTime', '2019-01-02', 't')
+) v ([_id], [_name], [_value], [_other]);
+
 COMMIT;
 
 -- display current data
