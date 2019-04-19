@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 
 namespace Reusable
 {
+#if NET47
     [PublicAPI]
     public sealed class Isolated<T> : IDisposable where T : MarshalByRefObject, new()
     {
@@ -26,4 +27,5 @@ namespace Reusable
             AppDomain.Unload(_domain);
         }
     }
+#endif
 }

@@ -58,7 +58,12 @@ namespace Reusable.Exceptionize
             var baseConstructor = baseType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, baseConstructorParameterTypes, null);
 
             var assemblyName = new AssemblyName($"DynamicAssembly_{Guid.NewGuid():N}");
+#if NET47
             var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+#endif
+#if NETCOREAPP2_2
+            var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+#endif
             var moduleBuilder = assemblyBuilder.DefineDynamicModule("DynamicModule");
             var typeBuilder = moduleBuilder.DefineType(name, TypeAttributes.Public);
             typeBuilder.SetParent(typeof(DynamicException));
@@ -69,15 +74,15 @@ namespace Reusable.Exceptionize
             var ilGenerator = constructor.GetILGenerator();
 
             // Generate constructor code
-            ilGenerator.Emit(OpCodes.Ldarg_0);                // push 'this' onto stack.
-            ilGenerator.Emit(OpCodes.Ldarg_1);                // push 'message' onto stack.
-            ilGenerator.Emit(OpCodes.Ldarg_2);                // push 'innerException' onto stack.
-            ilGenerator.Emit(OpCodes.Call, baseConstructor);  // call base constructor
+            ilGenerator.Emit(OpCodes.Ldarg_0); // push 'this' onto stack.
+            ilGenerator.Emit(OpCodes.Ldarg_1); // push 'message' onto stack.
+            ilGenerator.Emit(OpCodes.Ldarg_2); // push 'innerException' onto stack.
+            ilGenerator.Emit(OpCodes.Call, baseConstructor); // call base constructor
 
-            ilGenerator.Emit(OpCodes.Nop);                    // C# compiler add 2 NOPS, so
-            ilGenerator.Emit(OpCodes.Nop);                    // we'll add them, too.
+            ilGenerator.Emit(OpCodes.Nop); // C# compiler add 2 NOPS, so
+            ilGenerator.Emit(OpCodes.Nop); // we'll add them, too.
 
-            ilGenerator.Emit(OpCodes.Ret);                    // Return
+            ilGenerator.Emit(OpCodes.Ret); // Return
 
             return typeBuilder.CreateType();
         }
@@ -90,11 +95,11 @@ namespace Reusable.Exceptionize
         private ExceptionName([NotNull] string name)
         {
             if (name.IsNullOrEmpty()) throw new ArgumentNullException(nameof(name));
-            
+
             _name =
                 Regex.IsMatch(name, $"{nameof(Exception)}$", RegexOptions.IgnoreCase)
                     ? name
-                    : $"{name}{nameof(Exception)}";            
+                    : $"{name}{nameof(Exception)}";
         }
 
         public override string ToString() => _name;

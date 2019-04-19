@@ -17,7 +17,7 @@ namespace Reusable.Commander
     }
 
     [PublicAPI]
-    public abstract class ConsoleCommand<TParameter, TContext> : IConsoleCommand where TParameter : ICommandParameter//, new()
+    public abstract class ConsoleCommand<TParameter, TContext> : IConsoleCommand where TParameter : ICommandParameter //, new()
     {
         protected ConsoleCommand([NotNull] ICommandServiceProvider serviceProvider, [CanBeNull] Identifier id = default)
         {
@@ -100,7 +100,7 @@ namespace Reusable.Commander
         }
 
         // todo - new signature -------------------------------------------------------------------------
-        
+
         private async Task CheckAndExecuteAsync(ICommandLineReader<TParameter> parameter, TContext context, CancellationToken cancellationToken)
         {
             if (await CanExecuteAsync(parameter, context, cancellationToken))
@@ -126,15 +126,22 @@ namespace Reusable.Commander
         {
             return Task.CompletedTask;
         }
-
     }
 
-    public abstract class SimpleCommand : ConsoleCommand<SimpleBag, NullContext>
+    public abstract class ConsoleCommand<TParameter> : ConsoleCommand<TParameter, NullContext> where TParameter : ICommandParameter
     {
-        protected SimpleCommand([NotNull] ICommandServiceProvider serviceProvider, Identifier id)
+        protected ConsoleCommand([NotNull] ICommandServiceProvider serviceProvider, [CanBeNull] Identifier id = default) : base(serviceProvider, id) { }
+    }
+
+    public abstract class ConsoleCommand : ConsoleCommand<ICommandParameter, NullContext>
+    {
+        protected ConsoleCommand([NotNull] ICommandServiceProvider serviceProvider, Identifier id)
             : base(serviceProvider, id) { }
     }
 
     [UsedImplicitly]
-    public class NullContext { }
+    public class NullContext
+    {
+        public static readonly NullContext Default = new NullContext();
+    }
 }

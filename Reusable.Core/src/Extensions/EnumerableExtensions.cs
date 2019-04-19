@@ -62,19 +62,23 @@ namespace System.Linq.Custom
             }
         }
 
+#if NET47
         [NotNull]
         public static IEnumerable<T> Append<T>(this IEnumerable<T> enumerable, T item)
         {
             if (enumerable == null) throw new ArgumentNullException(nameof(enumerable));
             return enumerable.Concat(new[] { item });
         }
+#endif
 
+#if NET47
         [NotNull]
         public static IEnumerable<T> Prepend<T>([NotNull] this IEnumerable<T> source, T item)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             return new[] { item }.Concat(source);
         }
+#endif
 
         public static string Join<T>([NotNull] this IEnumerable<T> values, string separator)
         {

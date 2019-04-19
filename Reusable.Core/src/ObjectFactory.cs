@@ -24,7 +24,12 @@ namespace Reusable
         private static Type BuildType(Type interfaceType)
         {
             var assemblyName = new AssemblyName($"DynamicAssembly_{Guid.NewGuid():N}");
+#if NET47
             var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+#endif
+#if NETCOREAPP2_2
+            var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+#endif
             var moduleBuilder = assemblyBuilder.DefineDynamicModule("DynamicModule");
             var typeName = $"{RemoveInterfacePrefix(interfaceType.Name)}_{Guid.NewGuid():N}";
             var typeBuilder = moduleBuilder.DefineType(typeName, TypeAttributes.Public);
@@ -92,6 +97,7 @@ namespace Reusable
 
                 ilGenerator.MarkLabel(isFieldNull);
             }
+
             ilGenerator.Emit(OpCodes.Ret);
 
             return getterBuilder;
@@ -122,6 +128,7 @@ namespace Reusable
 
                 ilGenerator.MarkLabel(isValueNull);
             }
+
             ilGenerator.Emit(OpCodes.Stfld, fieldBuilder);
             ilGenerator.Emit(OpCodes.Ret);
 

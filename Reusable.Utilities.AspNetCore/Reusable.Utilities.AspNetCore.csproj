@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net47</TargetFramework>
+    <!--<TargetFramework>net47</TargetFramework>-->
+    <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>
     <AssemblyName>Reusable.Utilities.AspNetCore</AssemblyName>
     <RootNamespace>Reusable.Utilities.AspNetCore</RootNamespace>
     <Platforms>AnyCPU</Platforms>

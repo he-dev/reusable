@@ -1,7 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net47</TargetFramework>
+    <!--<TargetFramework>net47</TargetFramework>-->
+    <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>
+    <!--<TargetFramework>netcoreapp2.2</TargetFramework>-->
     <RootNamespace>Reusable</RootNamespace>
   </PropertyGroup>
 
@@ -38,12 +40,17 @@
     <Compile Remove="src\IO\FileSystem.cs" />
     <Compile Remove="src\Reflection\ResourceReader.cs" />
     <Compile Remove="src\Reflection\ResourceReaderExtensions.cs" />
+    <Compile Remove="src\AppDomainPaths.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2018.3.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="System.CodeDom" Version="4.5.0" />
     <PackageReference Include="System.Collections.Immutable" Version="1.5.0" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="4.5.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
+    <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>

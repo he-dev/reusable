@@ -95,8 +95,13 @@ namespace Reusable.Commander
         {
             CommandValidator.ValidateCommandType(commandType);
 
+            if (commandType.BaseType == typeof(ConsoleCommand))
+            {
+                return typeof(ICommandParameter);
+            }
+
             // ReSharper disable once PossibleNullReferenceException
-            // The validation makes sure that this is never null.
+            // The validation makes sure that this is never null.                        
             return
                 commandType
                     .BaseType

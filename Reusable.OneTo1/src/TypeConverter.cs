@@ -39,11 +39,13 @@ namespace Reusable.OneTo1
 
         public abstract Type ToType { get; }
 
-        private string DebuggerDisplay => this is CompositeConverter ? nameof(CompositeConverter) : this.ToDebuggerDisplayString(builder =>
-        {
-            builder.DisplayMember(x => x.FromType);
-            builder.DisplayMember(x => x.ToType);
-        });
+        private string DebuggerDisplay => this is CompositeConverter
+            ? nameof(CompositeConverter)
+            : this.ToDebuggerDisplayString(builder =>
+            {
+                builder.DisplayMember(x => x.FromType);
+                builder.DisplayMember(x => x.ToType);
+            });
 
         public bool CanConvert(Type fromType, Type toType)
         {
@@ -83,7 +85,7 @@ namespace Reusable.OneTo1
                 );
             }
         }
-        
+
         protected virtual bool CanConvertCore(Type fromType, Type toType) => fromType == FromType && toType.IsAssignableFrom(ToType);
 
         [NotNull]
@@ -103,8 +105,7 @@ namespace Reusable.OneTo1
         #endregion
     }
 
-    public interface ITypeConverter<TValue, TResult> : ITypeConverter
-    { }
+    public interface ITypeConverter<TValue, TResult> : ITypeConverter { }
 
     public abstract class TypeConverter<TValue, TResult> : TypeConverter, ITypeConverter<TValue, TResult>
     {

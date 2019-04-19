@@ -2,13 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
-using System.Net.Configuration;
 using System.Text;
 using JetBrains.Annotations;
 
+#if NET47
+using System.Net.Configuration;
+#endif
+
 namespace Reusable.IOnymous
 {
-    
     [PublicAPI]
     public static class MailProviderMetadataExtensions
     {
@@ -48,6 +50,10 @@ namespace Reusable.IOnymous
 
         public static string From(this MetadataScope<MailProvider> scope)
         {
+#if NETCOREAPP2_2
+            return scope.Metadata.GetValueByCallerName(string.Empty);
+#endif
+#if NET47
             return scope.Metadata.GetValueByCallerName(Default());
 
             string Default()
@@ -65,6 +71,7 @@ namespace Reusable.IOnymous
 
                 return mailSettingsSectionGroup.Smtp.From;
             }
+#endif
         }
 
         public static MetadataScope<MailProvider> From(this MetadataScope<MailProvider> scope, string from)
