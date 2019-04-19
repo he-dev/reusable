@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using JetBrains.Annotations;
-using Reusable.Collections;
 
 namespace Reusable.MarkupBuilder
 {

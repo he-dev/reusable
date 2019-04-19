@@ -1,6 +1,4 @@
-﻿using System;
-using System.Reactive;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 

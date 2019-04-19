@@ -1,12 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.IO;
 using System.Linq;
 using System.Net.Configuration;
-using System.Net.Http.Formatting;
-using System.Net.Http.Headers;
-using System.Runtime.CompilerServices;
 using System.Text;
 using JetBrains.Annotations;
 

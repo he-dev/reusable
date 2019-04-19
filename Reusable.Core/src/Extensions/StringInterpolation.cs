@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
-using Reusable.Reflection;
 
 namespace Reusable.Extensions
 {

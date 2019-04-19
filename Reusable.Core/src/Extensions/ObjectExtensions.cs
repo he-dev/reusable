@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
-using Reusable.Reflection;
-
-namespace Reusable.Extensions
+﻿namespace Reusable.Extensions
 {
     //public static class ObjectExtensions
     //{

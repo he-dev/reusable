@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json.Serialization;
 using Reusable.Flexo;
 using Reusable.OmniLog;
 using Xunit;

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 
 namespace Reusable.FormatProviders
 {
@@ -17,11 +16,11 @@ namespace Reusable.FormatProviders
                 ["square"] = "[]",
                 ["curly"] = "{}",
                 ["angle"] = "<>",
-                ["guillemet"] = "«»",
+                ["guillemet"] = "Â«Â»",
                 ["double"] = "\"\"",
                 ["single"] = "''",
                 ["backtick"] = "``",
-                ["citation"] = "“ ”"
+                ["citation"] = "â€œ â€"
             };
 
             private const int Opening = 0;

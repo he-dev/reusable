@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Reactive;
 using System.Text.RegularExpressions;
 using Reusable.OmniLog.Abstractions;

@@ -7,7 +7,6 @@ using System.Linq.Custom;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Collections;
-using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog

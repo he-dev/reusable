@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using Reusable.IOnymous;
 using Reusable.SmartConfig;
 using Xunit;
 

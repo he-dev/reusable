@@ -1,4 +1,3 @@
-using System;
 using Reusable.Collections;
 
 namespace Reusable.OmniLog.Abstractions

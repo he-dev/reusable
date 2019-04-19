@@ -3,18 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Custom;
-using System.Net.Http;
 using System.Reactive;
 using System.Reactive.Linq;
-using System.ServiceModel.Dispatcher;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
-using Reusable.OmniLog;
-using Reusable.OmniLog.SemanticExtensions;
 
 // Unreachable code detected - this is for testing so we don't care about it.
 #pragma warning disable CS0162 

@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using Reusable.Exceptionize;
 using Reusable.IOnymous;
 using Reusable.SmartConfig;
 using Xunit;

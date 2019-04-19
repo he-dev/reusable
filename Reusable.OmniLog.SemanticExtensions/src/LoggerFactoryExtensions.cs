@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.OmniLog.Attachments;
 using Reusable.OmniLog.SemanticExtensions.Attachments;
-using Reusable.Utilities.JsonNet;
 
 namespace Reusable.OmniLog.SemanticExtensions
 {

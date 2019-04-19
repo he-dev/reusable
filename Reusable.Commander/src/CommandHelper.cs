@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -10,7 +9,6 @@ using System.Text.RegularExpressions;
 using System.Windows.Input;
 using JetBrains.Annotations;
 using Reusable.Commander.Annotations;
-using Reusable.Extensions;
 
 namespace Reusable.Commander
 {

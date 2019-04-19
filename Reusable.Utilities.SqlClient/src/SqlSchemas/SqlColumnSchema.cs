@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Diagnostics;
 using JetBrains.Annotations;
-using Reusable.Collections;
 
 namespace Reusable.Utilities.SqlClient.SqlSchemas
 {

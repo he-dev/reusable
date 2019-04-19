@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Dynamic;
 using Autofac;
 using Autofac.Builder;
 using JetBrains.Annotations;
@@ -9,7 +7,6 @@ using Reusable.Commander.Commands;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OneTo1;
-using Reusable.Reflection;
 
 namespace Reusable.Commander
 {

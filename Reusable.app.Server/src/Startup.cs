@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Linq.Custom;
+﻿using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -8,7 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using Reusable.Apps.Server.Json;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;

@@ -1,7 +1,5 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Exceptionize;
-using Reusable.Reflection;
 using Reusable.Utilities.MSTest;
 
 namespace Reusable.Tests.Reflection

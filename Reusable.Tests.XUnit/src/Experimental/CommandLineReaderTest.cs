@@ -7,23 +7,10 @@ using Xunit;
 
 namespace Reusable.Tests.XUnit.Experimental
 {
-    /*
-    public class UriSchemaAttribute:Attribute{}
-    
-    ResourcePrefix("test") // override
-    ResourcePrefix(null) // disable
-    // inherit by default
-    ResourceScheme("setting")
-    ResourceName("alias", Convention = TypeMember)
-    ResourceProvider("alias")
-     
-      
-     */
-
-    public class CommandArgumentProviderTest
+    public class CommandLineReaderTest
     {
         [Fact]
-        public void Blub()
+        public void Can_read_various_parameters()
         {
             var commandLine = new CommandLine
             {
@@ -34,7 +21,7 @@ namespace Reusable.Tests.XUnit.Experimental
                 { "canBuild" },
             };
 
-            var cmdln = new CommandLineReader<ITestParameter>(new CommandArgumentProvider(commandLine));
+            var cmdln = new CommandLineReader<ITestParameter>(commandLine);
 
             var actualFiles = cmdln.GetItem(x => x.Files);
             var actualBuild = cmdln.GetItem(x => x.Build);

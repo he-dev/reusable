@@ -1,21 +1,11 @@
 using System;
-using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Linq.Custom;
-using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Newtonsoft.Json;
-using Reusable.Collections;
-using Reusable.Extensions;
-using Reusable.IOnymous;
 using Xunit;
 
 namespace Reusable.Tests.XUnit.Experimental

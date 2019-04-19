@@ -3,15 +3,11 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
-using System.Linq.Custom;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
-using Reusable.Collections;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.Flawless;
-using Reusable.Reflection;
 
 namespace Reusable
 {

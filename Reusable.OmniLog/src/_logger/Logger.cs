@@ -5,7 +5,6 @@ using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Diagnostics;
 using Reusable.Extensions;
-using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 
 [assembly: DebuggerDisplay("{DebuggerDisplay(),nq}", Target = typeof(ILogger))]

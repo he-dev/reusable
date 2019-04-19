@@ -1,7 +1,5 @@
 ﻿using System;
-using System.IO;
 using JetBrains.Annotations;
-using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Attachments;
 using Reusable.Utilities.JsonNet.Converters;

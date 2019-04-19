@@ -1,9 +1,7 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.IOnymous;
 using Reusable.MarkupBuilder.Html;
-using Reusable.Reflection;
 
 namespace Reusable.Tests.MarkupBuilder.Html
 {

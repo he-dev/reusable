@@ -4,7 +4,6 @@ using System.Windows.Input;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
-using Reusable.Reflection;
 
 namespace Reusable.Utilities.Windows
 {

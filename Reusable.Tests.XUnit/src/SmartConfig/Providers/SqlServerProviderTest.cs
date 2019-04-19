@@ -1,14 +1,11 @@
 using System;
 using System.Collections.Immutable;
-using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Dapper;
-using Reusable.Data;
 using Reusable.Data.Repositories;
 using Reusable.IOnymous;
 using Reusable.SmartConfig;
-using Reusable.Utilities.SqlClient;
 using Xunit;
 
 namespace Reusable.Tests.XUnit.SmartConfig.Providers

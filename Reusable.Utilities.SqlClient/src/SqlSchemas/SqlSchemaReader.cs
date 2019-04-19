@@ -6,7 +6,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.IOnymous;
-using Reusable.Reflection;
 
 namespace Reusable.Utilities.SqlClient.SqlSchemas
 {

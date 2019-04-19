@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Reactive;
+﻿using System.Diagnostics;
 using Reusable.OmniLog.Abstractions;
 
 // ReSharper disable once CheckNamespace

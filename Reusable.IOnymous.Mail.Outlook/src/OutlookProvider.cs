@@ -1,11 +1,7 @@
-using System;
 using System.IO;
 using System.Linq;
 using System.Linq.Custom;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.Office.Interop.Outlook;
 using Reusable.Extensions;
 

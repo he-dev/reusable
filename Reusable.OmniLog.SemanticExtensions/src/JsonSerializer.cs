@@ -1,7 +1,6 @@
 ﻿using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using Reusable.Utilities.JsonNet;
 using Reusable.Utilities.JsonNet.Converters;
 
 namespace Reusable.OmniLog.SemanticExtensions

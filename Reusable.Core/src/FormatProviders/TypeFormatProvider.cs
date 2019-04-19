@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using JetBrains.Annotations;
 using Reusable.Extensions;
 
 namespace Reusable.FormatProviders

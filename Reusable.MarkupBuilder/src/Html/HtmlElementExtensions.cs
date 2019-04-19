@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Custom;
-using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.MarkupBuilder.Formatters;

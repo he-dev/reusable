@@ -1,7 +1,3 @@
-using System;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
-
 namespace Reusable.IOnymous
 {
     public abstract class FileProvider : ResourceProvider

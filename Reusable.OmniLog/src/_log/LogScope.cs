@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using JetBrains.Annotations;
-using Reusable.Collections;
 using Reusable.Diagnostics;
 using Reusable.Exceptionize;
 using Reusable.OmniLog.Abstractions;

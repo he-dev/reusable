@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
-using Reusable.Collections;
 using Reusable.Extensions;
 
 namespace Reusable.MarkupBuilder

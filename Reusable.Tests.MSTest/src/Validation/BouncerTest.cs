@@ -3,7 +3,6 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Exceptionize;
 using Reusable.Flawless;
-using Reusable.Reflection;
 using Reusable.Utilities.MSTest;
 
 namespace Reusable.Tests.Validation

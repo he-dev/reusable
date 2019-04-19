@@ -119,7 +119,7 @@ namespace Reusable.Collections
 
                 // Call the instance 'GetHashCode' method by default.
 
-                var labelTarget = Expression.Label(typeof(int));
+                //var labelTarget = Expression.Label(typeof(int));
 
                 //var getHashCodeNullGuardExpression = CreateGetHashCodeNullGuardExpression<TProperty>(context, labelTarget);
                 //var getHashCodeMethod = context.Property.PropertyType.GetMethod(nameof(GetHashCode));
@@ -146,12 +146,12 @@ namespace Reusable.Collections
             //});
         }
 
-        private static Expression CreateGetHashCodeNullGuardExpression<TProperty>(AutoEqualityPropertyContext context, LabelTarget labelTarget)
-        {
-            var propertyIsNullExpression = CreateIfThenExpression<TProperty, int>(labelTarget, (left, right) => ReferenceEquals(left, right), context.LeftParameter, Expression.Constant(null, typeof(TProperty)), 0);
-
-            return Expression.Block(propertyIsNullExpression);
-        }
+//        private static Expression CreateGetHashCodeNullGuardExpression<TProperty>(AutoEqualityPropertyContext context, LabelTarget labelTarget)
+//        {
+//            var propertyIsNullExpression = CreateIfThenExpression<TProperty, int>(labelTarget, (left, right) => ReferenceEquals(left, right), context.LeftParameter, Expression.Constant(null, typeof(TProperty)), 0);
+//
+//            return Expression.Block(propertyIsNullExpression);
+//        }
 
         #endregion
 
@@ -172,22 +172,22 @@ namespace Reusable.Collections
             );
         }
 
-        private static Expression CreateIfThenExpression<TProperty, TResult>(LabelTarget labelTarget, Func<TProperty, TProperty, bool> referenceEquals, Expression objA, Expression objB, TResult result)
-        {
-            // Let the compiler create this expression for us.
-            var referenceEqualsExpression = (Expression<Func<TProperty, TProperty, bool>>)((left, right) => referenceEquals(left, right));
-
-            var referenceEqualsInvokeExpression = Expression.Invoke(
-                referenceEqualsExpression,
-                objA,
-                objB
-            );
-
-            return Expression.IfThen(
-                referenceEqualsInvokeExpression,
-                Expression.Return(labelTarget, Expression.Constant(result))
-            );
-        }
+//        private static Expression CreateIfThenExpression<TProperty, TResult>(LabelTarget labelTarget, Func<TProperty, TProperty, bool> referenceEquals, Expression objA, Expression objB, TResult result)
+//        {
+//            // Let the compiler create this expression for us.
+//            var referenceEqualsExpression = (Expression<Func<TProperty, TProperty, bool>>)((left, right) => referenceEquals(left, right));
+//
+//            var referenceEqualsInvokeExpression = Expression.Invoke(
+//                referenceEqualsExpression,
+//                objA,
+//                objB
+//            );
+//
+//            return Expression.IfThen(
+//                referenceEqualsInvokeExpression,
+//                Expression.Return(labelTarget, Expression.Constant(result))
+//            );
+//        }
 
         private static bool HasDefaultComparer(Type type)
         {

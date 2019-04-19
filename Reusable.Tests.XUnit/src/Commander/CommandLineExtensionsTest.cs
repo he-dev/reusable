@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using Reusable.Commander;
 using Reusable.Exceptionize;
-using Reusable.Reflection;
 using Xunit;
 
 namespace Reusable.Tests.Commander

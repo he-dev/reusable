@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Linq.Custom;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Extensions;

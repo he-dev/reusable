@@ -1,5 +1,4 @@
 ﻿using JetBrains.Annotations;
-using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Commander

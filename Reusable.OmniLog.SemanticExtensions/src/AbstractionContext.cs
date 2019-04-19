@@ -1,18 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
-using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.SemanticExtensions.Attachments;
-using Reusable.Reflection;
 
 namespace Reusable.OmniLog.SemanticExtensions
 {

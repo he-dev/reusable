@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
-using Reusable.Reflection;
 using Reusable.Utilities.JsonNet.Annotations;
 
 namespace Reusable.Utilities.JsonNet

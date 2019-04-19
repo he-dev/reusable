@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Linq.Custom;
 using System.Text;
 using JetBrains.Annotations;
-using Reusable.Extensions;
 
 namespace Reusable.Tests
 {

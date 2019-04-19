@@ -4,7 +4,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.OmniLog.Abstractions;
-using Reusable.Reflection;
 
 namespace Reusable.OmniLog
 {

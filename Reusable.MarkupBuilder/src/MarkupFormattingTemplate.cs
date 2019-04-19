@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Extensions;
-using Reusable.MarkupBuilder.Html;
 
 namespace Reusable.MarkupBuilder
 {

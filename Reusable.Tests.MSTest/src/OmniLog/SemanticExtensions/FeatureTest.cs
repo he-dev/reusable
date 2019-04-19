@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Linq;
+﻿using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Collections;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Attachments;
-using Reusable.Utilities.MSTest;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.OmniLog.SemanticExtensions.Tests

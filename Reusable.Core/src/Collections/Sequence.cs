@@ -32,6 +32,7 @@ namespace Reusable.Collections
             {
                 yield return previous = next(previous);
             }
+            // ReSharper disable once IteratorNeverReturns - by design
         }
     }
 }

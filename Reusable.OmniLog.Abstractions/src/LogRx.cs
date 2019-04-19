@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Reactive;
-using System.Text.RegularExpressions;
 
 namespace Reusable.OmniLog.Abstractions
 {
