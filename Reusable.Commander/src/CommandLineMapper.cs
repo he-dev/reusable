@@ -20,7 +20,7 @@ namespace Reusable.Commander
     public interface ICommandLineMapper
     {
         [NotNull]
-        TBag Map<TBag>([NotNull] ICommandLine commandLine) where TBag : ICommandConfiguration, new();
+        TBag Map<TBag>([NotNull] ICommandLine commandLine) where TBag : ICommandParameter; //, new();
     }
 
     public class CommandLineMapper : ICommandLineMapper
@@ -47,7 +47,7 @@ namespace Reusable.Commander
 
         private readonly ILogger _logger;
         private readonly ITypeConverter _converter;
-        private readonly ConcurrentDictionary<Type, IEnumerable<CommandParameter>> _cache = new ConcurrentDictionary<Type, IEnumerable<CommandParameter>>();
+        private readonly ConcurrentDictionary<Type, IEnumerable<CommandParameterProperty>> _cache = new ConcurrentDictionary<Type, IEnumerable<CommandParameterProperty>>();
 
         public CommandLineMapper
         (
@@ -59,12 +59,12 @@ namespace Reusable.Commander
             _converter = converter ?? throw new ArgumentNullException(nameof(converter));
         }
 
-        public TBag Map<TBag>(ICommandLine commandLine) where TBag : ICommandConfiguration, new()
+        public TBag Map<TBag>(ICommandLine commandLine) where TBag : ICommandParameter//, new()
         {
             if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
 
             var parameters = _cache.GetOrAdd(typeof(TBag), bagType => bagType.GetParameters().ToList());
-            var bag = new TBag();
+            var bag = Activator.CreateInstance<TBag>();
 
             foreach (var parameter in parameters)
             {
@@ -85,11 +85,11 @@ namespace Reusable.Commander
             return bag;
         }
 
-        private void Map<TBag>(TBag bag, ICommandLine commandLine, CommandParameter parameter) where TBag : ICommandConfiguration, new()
+        private void Map<TBag>(TBag bag, ICommandLine commandLine, CommandParameterProperty parameterProperty) where TBag : ICommandParameter//, new()
         {            
-            if (commandLine.TryGetArgumentValues(parameter.Id, parameter.Position, out var values))
+            if (commandLine.TryGetArgumentValues(parameterProperty.Id, parameterProperty.Position, out var values))
             {
-                if (parameter.Type.IsEnumerableOfT(except: typeof(string)))
+                if (parameterProperty.Type.IsEnumerableOfT(except: typeof(string)))
                 {
                     if (!values.Any())
                     {
@@ -99,8 +99,8 @@ namespace Reusable.Commander
                         );
                     }
 
-                    var value = _converter.Convert(values, parameter.Type);
-                    parameter.SetValue(bag, value);
+                    var value = _converter.Convert(values, parameterProperty.Type);
+                    parameterProperty.SetValue(bag, value);
                 }
                 else
                 {
@@ -113,36 +113,36 @@ namespace Reusable.Commander
                         );
                     }
 
-                    if (parameter.Type == typeof(bool))
+                    if (parameterProperty.Type == typeof(bool))
                     {
                         if (values.Any())
                         {
                             var value = _converter.Convert(values.Single(), typeof(bool));
-                            parameter.SetValue(bag, value);
+                            parameterProperty.SetValue(bag, value);
                         }
                         else
                         {
-                            if (parameter.DefaultValue is bool defaultValue)
+                            if (parameterProperty.DefaultValue is bool defaultValue)
                             {
-                                parameter.SetValue(bag, !defaultValue);
+                                parameterProperty.SetValue(bag, !defaultValue);
                             }
                             else
                             {
                                 // Without a DefaultValue assume false but using the parameter negates it so use true.
-                                parameter.SetValue(bag, true);
+                                parameterProperty.SetValue(bag, true);
                             }
                         }
                     }
                     else
                     {
-                        var value = _converter.Convert(values.Single(), parameter.Type);
-                        parameter.SetValue(bag, value);
+                        var value = _converter.Convert(values.Single(), parameterProperty.Type);
+                        parameterProperty.SetValue(bag, value);
                     }
                 }
             }
             else
             {
-                if (parameter.IsRequired)
+                if (parameterProperty.Required)
                 {
                     throw DynamicException.Factory.CreateDynamicException(
                         "MissingValue",
@@ -150,14 +150,14 @@ namespace Reusable.Commander
                     );
                 }
 
-                if (parameter.DefaultValue.IsNotNull())
+                if (parameterProperty.DefaultValue.IsNotNull())
                 {
                     var value =
-                        parameter.DefaultValue is string
-                            ? _converter.Convert(parameter.DefaultValue, parameter.Type)
-                            : parameter.DefaultValue;
+                        parameterProperty.DefaultValue is string
+                            ? _converter.Convert(parameterProperty.DefaultValue, parameterProperty.Type)
+                            : parameterProperty.DefaultValue;
 
-                    parameter.SetValue(bag, value);
+                    parameterProperty.SetValue(bag, value);
                 }
             }
         }

@@ -49,7 +49,7 @@ namespace Reusable.Commander
         }
 
         [NotNull]
-        public CommandRegistrationBuilder Add<TBag>([NotNull] Identifier id, [NotNull] ExecuteCallback<TBag> execute) where TBag : ICommandConfiguration, new()
+        public CommandRegistrationBuilder Add<TBag>([NotNull] Identifier id, [NotNull] ExecuteCallback<TBag> execute) where TBag : ICommandParameter, new()
         {
             return Add<Lambda<TBag>>(r =>
             {

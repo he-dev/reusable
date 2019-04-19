@@ -8,13 +8,13 @@ using Reusable.OmniLog;
 
 namespace Reusable.Commander.Commands
 {
-    public delegate Task ExecuteCallback<in T>(Identifier commandId, T bag, CancellationToken cancellationToken = default) where T : ICommandConfiguration, new();
+    public delegate Task ExecuteCallback<in T>(Identifier commandId, T bag, CancellationToken cancellationToken = default) where T : ICommandParameter, new();
 
-    public class Lambda<TBag> : ConsoleCommand<TBag, object> where TBag : ICommandConfiguration, new()
+    public class Lambda<TBag> : ConsoleCommand<TBag, object> where TBag : ICommandParameter, new()
     {
         private readonly ExecuteCallback<TBag> _execute;
 
-        public delegate Lambda<T> Factory<T>([NotNull] Identifier id, [NotNull] ExecuteCallback<TBag> execute) where T : ICommandConfiguration, new();
+        public delegate Lambda<T> Factory<T>([NotNull] Identifier id, [NotNull] ExecuteCallback<TBag> execute) where T : ICommandParameter, new();
 
         public Lambda(CommandServiceProvider<Lambda<TBag>> serviceProvider, [NotNull] Identifier id, [NotNull] ExecuteCallback<TBag> execute)
             : base(serviceProvider, id)

@@ -7,7 +7,6 @@ using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Extensions;
 using Reusable.IOnymous;
-using Reusable.SmartConfig.Reflection;
 
 namespace Reusable.SmartConfig
 {

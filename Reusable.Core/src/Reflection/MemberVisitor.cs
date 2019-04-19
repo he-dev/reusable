@@ -1,18 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Custom;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Reusable.Exceptionize;
-using Reusable.Reflection;
-using Reusable.Extensions;
 
-namespace Reusable.SmartConfig.Reflection
+namespace Reusable.Reflection
 {
-    // Finds the type of the class a setting belongs to.
-    internal class SettingVisitor : ExpressionVisitor
+    public class MemberVisitor : ExpressionVisitor
     {
         private readonly bool _nonPublic;
         private Type _type;
@@ -20,11 +14,11 @@ namespace Reusable.SmartConfig.Reflection
         private MemberInfo _member;
         private string _closureMemberName;
 
-        private SettingVisitor(bool nonPublic) => _nonPublic = nonPublic;
+        private MemberVisitor(bool nonPublic) => _nonPublic = nonPublic;
 
-        public static (Type Type, object Instance, MemberInfo Member) GetSettingInfo(LambdaExpression expression, bool nonPublic = false)
+        public static (Type Type, object Instance, MemberInfo Member) GetMemberInfo(LambdaExpression expression, bool nonPublic = false)
         {
-            var visitor = new SettingVisitor(nonPublic);
+            var visitor = new MemberVisitor(nonPublic);
             visitor.Visit(expression);
 
             if (visitor._type is null)
@@ -98,71 +92,6 @@ namespace Reusable.SmartConfig.Reflection
             // - types passed via generics like .From<T>().Select(x => x.Y);
             _type = node.Type;
             return base.VisitParameter(node);
-        }
-    }
-
-    internal static class Utilities
-    {
-        public static MemberInfo FindProperty([NotNull] this Type type, [NotNull] string name)
-        {
-            if (type == null) throw new ArgumentNullException(nameof(type));
-            if (name == null) throw new ArgumentNullException(nameof(name));
-
-            if (!type.IsInterface) throw new ArgumentException(paramName: nameof(type), message: $"'{nameof(type)}' must be an interface.");
-
-            var queue = new Queue<Type>()
-            {
-                type
-            };
-
-            while (queue.Any())
-            {
-                type = queue.Dequeue();
-                if (type.GetProperty(name) is var p && !(p is null))
-                {
-                    return p;
-                }
-
-                foreach (var i in type.GetInterfaces())
-                {
-                    queue.Enqueue(i);
-                }
-            }
-
-            return default;
-        }
-        
-        public static IEnumerable<T> FindCustomAttributes<T>([NotNull] this MemberInfo info) where T : Attribute
-        {
-            if (info == null) throw new ArgumentNullException(nameof(info));
-
-            var queue = new Queue<MemberInfo>()
-            {
-                info
-            };
-
-            while (queue.Any())
-            {
-                info = queue.Dequeue();
-                
-                foreach (var a in info.GetCustomAttributes<T>())
-                {
-                    yield return a;
-                }
-
-                if (info is Type type)
-                {
-                    if (type.IsClass && !(type.BaseType == null))
-                    {
-                        queue.Enqueue(type.BaseType);
-                    }
-                    
-                    foreach (var i in type.GetInterfaces())
-                    {
-                        queue.Enqueue(i);
-                    }
-                }                
-            }
         }
     }
 }

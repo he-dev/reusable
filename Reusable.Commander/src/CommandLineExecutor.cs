@@ -205,7 +205,7 @@ namespace Reusable.Commander
         {
             public IConsoleCommand Command { get; set; }
             public ICommandLine CommandLine { get; set; }
-            public ICommandConfiguration Bag { get; set; }
+            public ICommandParameter Bag { get; set; }
         }
     }
 }

@@ -11,7 +11,7 @@ using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.Reflection;
 using Reusable.OmniLog.SemanticExtensions;
-using Reusable.SmartConfig;
+using Reusable.Commander.Services;
 
 namespace Reusable.Commander
 {
@@ -24,7 +24,7 @@ namespace Reusable.Commander
     }
 
     [PublicAPI]
-    public abstract class ConsoleCommand<TConfiguration, TContext> : IConsoleCommand where TConfiguration : ICommandConfiguration, new()
+    public abstract class ConsoleCommand<TParameter, TContext> : IConsoleCommand where TParameter : ICommandParameter//, new()
     {
         protected ConsoleCommand([NotNull] ICommandServiceProvider serviceProvider, [CanBeNull] Identifier id = default)
         {
@@ -44,15 +44,21 @@ namespace Reusable.Commander
         {
             switch (parameter)
             {
-//                case null:
-//                    await ExecuteWhenEnabledAsync(default, (TContext)context, cancellationToken);
-//                    break;
+                case null:
+                    await CheckAndExecuteAsync(default(TParameter), (TContext)context, cancellationToken);
+                    await CheckAndExecuteAsync(default(ICommandLineReader<TParameter>), (TContext)context, cancellationToken);
+                    break;
 
                 case ICommandLine commandLine:
-                    await CheckAndExecuteAsync(Services.Mapper.Map<TConfiguration>(commandLine), (TContext)context, cancellationToken);
+                    // todo - for backward compatibility
+                    if (typeof(TParameter).IsClass)
+                    {
+                        await CheckAndExecuteAsync(Services.Mapper.Map<TParameter>(commandLine), (TContext)context, cancellationToken);
+                    }
+
                     await CheckAndExecuteAsync
                     (
-                        new Configuration<TConfiguration>(new CommandLineArgumentProvider(commandLine)),
+                        new CommandLineReader<TParameter>(commandLine),
                         (TContext)context,
                         cancellationToken
                     );
@@ -66,12 +72,13 @@ namespace Reusable.Commander
                     throw new ArgumentOutOfRangeException
                     (
                         paramName: nameof(parameter),
-                        message: $"{nameof(parameter)} must be either a {typeof(ICommandLine).Name} or {typeof(TConfiguration).Name}."
+                        message: $"{nameof(parameter)} must be either a {typeof(ICommandLine).Name} or {typeof(TParameter).Name}."
                     );
             }
         }
 
-        private async Task CheckAndExecuteAsync(TConfiguration parameter, TContext context, CancellationToken cancellationToken)
+        [Obsolete("Use the new overload with ICommandLineReader")]
+        private async Task CheckAndExecuteAsync(TParameter parameter, TContext context, CancellationToken cancellationToken)
         {
             if (await CanExecuteAsync(parameter, context, cancellationToken))
             {
@@ -87,40 +94,46 @@ namespace Reusable.Commander
         /// <summary>
         /// When overriden by a derived class indicates whether a command can be executed. The default implementation always returns 'true'.
         /// </summary>
-        protected virtual Task<bool> CanExecuteAsync(TConfiguration parameter, TContext context, CancellationToken cancellationToken = default)
+        [Obsolete("Use the new overload with ICommandLineReader")]
+        protected virtual Task<bool> CanExecuteAsync(TParameter parameter, TContext context, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(true);
         }
 
-        protected abstract Task ExecuteAsync(TConfiguration parameter, TContext context, CancellationToken cancellationToken);
-
-        // todo - new signature
-
-        /// <summary>
-        /// When overriden by a derived class indicates whether a command can be executed. The default implementation always returns 'true'.
-        /// </summary>
-        protected virtual Task<bool> CanExecuteAsync(IConfiguration<TConfiguration> configuration, TContext context, CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(true);
-        }
-
-        protected virtual Task ExecuteAsync(IConfiguration<TConfiguration> configuration, TContext context, CancellationToken cancellationToken)
+        [Obsolete("Use the new overload with ICommandLineReader")]
+        protected virtual Task ExecuteAsync(TParameter parameter, TContext context, CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
         }
 
-        private async Task CheckAndExecuteAsync(IConfiguration<TConfiguration> configuration, TContext context, CancellationToken cancellationToken)
+        // todo - new signature -------------------------------------------------------------------------
+        
+        private async Task CheckAndExecuteAsync(ICommandLineReader<TParameter> parameter, TContext context, CancellationToken cancellationToken)
         {
-            if (await CanExecuteAsync(configuration, context, cancellationToken))
+            if (await CanExecuteAsync(parameter, context, cancellationToken))
             {
                 Logger.Log(Abstraction.Layer.Service().Decision("Execute command.").Because("Can execute."));
-                await ExecuteAsync(configuration, context, cancellationToken);
+                await ExecuteAsync(parameter, context, cancellationToken);
             }
             else
             {
                 Logger.Log(Abstraction.Layer.Service().Decision("Don't execute command.").Because("Cannot execute."));
             }
         }
+
+        /// <summary>
+        /// When overriden by a derived class indicates whether a command can be executed. The default implementation always returns 'true'.
+        /// </summary>
+        protected virtual Task<bool> CanExecuteAsync(ICommandLineReader<TParameter> parameter, TContext context, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(true);
+        }
+
+        protected virtual Task ExecuteAsync(ICommandLineReader<TParameter> parameter, TContext context, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+
     }
 
     public abstract class SimpleCommand : ConsoleCommand<SimpleBag, NullContext>

@@ -60,7 +60,7 @@ namespace Reusable.Tests.Commander.Integration
 
     internal static class ExecuteHelper
     {
-        internal static ExecuteCallback<TBag> Track<TBag>(BagTracker bags) where TBag : ICommandConfiguration, new()
+        internal static ExecuteCallback<TBag> Track<TBag>(BagTracker bags) where TBag : ICommandParameter, new()
         {
             return (name, bag, cancellationToken) =>
             {
@@ -69,7 +69,7 @@ namespace Reusable.Tests.Commander.Integration
             };
         }
 
-        internal static ExecuteCallback<TBag> Count<TBag>(IDictionary<Identifier, int> counters) where TBag : ICommandConfiguration, new()
+        internal static ExecuteCallback<TBag> Count<TBag>(IDictionary<Identifier, int> counters) where TBag : ICommandParameter, new()
         {
             return (name, bag, cancellationToken) =>
             {
@@ -78,7 +78,7 @@ namespace Reusable.Tests.Commander.Integration
             };
         }
         
-        internal static ExecuteCallback<TBag> Noop<TBag>() where TBag : ICommandConfiguration, new()
+        internal static ExecuteCallback<TBag> Noop<TBag>() where TBag : ICommandParameter, new()
         {
             return (name, bag, cancellationToken) => Task.CompletedTask;
         }
@@ -102,11 +102,11 @@ namespace Reusable.Tests.Commander.Integration
 
     internal class BagTracker
     {
-        private readonly IDictionary<Identifier, ICommandConfiguration> _bags = new Dictionary<Identifier, ICommandConfiguration>();
+        private readonly IDictionary<Identifier, ICommandParameter> _bags = new Dictionary<Identifier, ICommandParameter>();
 
-        public void Add(Identifier commandId, ICommandConfiguration bag) => _bags.Add(commandId, bag);
+        public void Add(Identifier commandId, ICommandParameter bag) => _bags.Add(commandId, bag);
 
-        public void Assert<T>(Identifier commandId, Action<T> assert) where T : ICommandConfiguration, new()
+        public void Assert<T>(Identifier commandId, Action<T> assert) where T : ICommandParameter, new()
         {
             if (_bags.TryGetValue(commandId, out var bag))
             {

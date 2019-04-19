@@ -12,7 +12,7 @@ using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.IOnymous;
 using Reusable.OneTo1;
-using Reusable.SmartConfig.Reflection;
+using Reusable.Reflection;
 
 namespace Reusable.SmartConfig
 {
@@ -44,7 +44,7 @@ namespace Reusable.SmartConfig
         {
             if (getItem == null) throw new ArgumentNullException(nameof(getItem));
 
-            var settingInfo = SettingVisitor.GetSettingInfo(getItem);
+            var settingInfo = MemberVisitor.GetMemberInfo(getItem);
             var settingMetadata = new SettingMetadata(settingInfo, GetMemberName);
             var (uri, metadata) = SettingRequestFactory.CreateSettingRequest(settingMetadata, handle);
             return await _settings.GetItemAsync<object>(uri, Metadata.Empty.Resource(s => s.Type(settingMetadata.MemberType)).Union(metadata));
@@ -54,7 +54,7 @@ namespace Reusable.SmartConfig
         {
             if (setItem == null) throw new ArgumentNullException(nameof(setItem));
 
-            var settingInfo = SettingVisitor.GetSettingInfo(setItem);
+            var settingInfo = MemberVisitor.GetMemberInfo(setItem);
             var settingMetadata = new SettingMetadata(settingInfo, GetMemberName);
             var (uri, metadata) = SettingRequestFactory.CreateSettingRequest(settingMetadata, handle);
             Validate(newValue, settingMetadata.Validations, uri);

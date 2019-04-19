@@ -72,7 +72,7 @@ namespace Reusable.Commander
             });
         }
 
-        private static IEnumerable<SoftString> GetParameterNames(PropertyInfo property)
+        public static IEnumerable<SoftString> GetParameterNames(MemberInfo property)
         {
             // Always use the property name as default.
             yield return property.Name;
@@ -84,13 +84,13 @@ namespace Reusable.Commander
             }
         }
 
-        public static IEnumerable<CommandParameter> GetParameters(this Type bagType)
+        public static IEnumerable<CommandParameterProperty> GetParameters(this Type bagType)
         {
             return
                 bagType
                     .GetProperties(BindingFlags.Instance | BindingFlags.Public)
                     .Where(p => !p.IsDefined(typeof(NotMappedAttribute)))
-                    .Select(CommandParameter.Create);
+                    .Select(CommandParameterProperty.Create);
         }
 
         public static Type GetBagType(this Type commandType)
@@ -103,7 +103,7 @@ namespace Reusable.Commander
                 commandType
                     .BaseType
                     .GetGenericArguments()
-                    .Single(t => typeof(ICommandConfiguration).IsAssignableFrom(t));
+                    .Single(t => typeof(ICommandParameter).IsAssignableFrom(t));
         }        
     }
 }

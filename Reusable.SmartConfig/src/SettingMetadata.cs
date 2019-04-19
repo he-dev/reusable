@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.Flawless;
-using Reusable.SmartConfig.Reflection;
+using Reusable.Reflection;
 
 namespace Reusable.SmartConfig
 {
@@ -91,7 +91,7 @@ namespace Reusable.SmartConfig
         {
             expression.ValidateWith(SettingExpressionValidator).Assert();
 
-            var settingInfo = SettingVisitor.GetSettingInfo(expression);
+            var settingInfo = MemberVisitor.GetMemberInfo(expression);
             return new SettingMetadata(settingInfo, GetMemberName);
         }
 

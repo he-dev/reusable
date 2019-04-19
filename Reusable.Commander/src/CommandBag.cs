@@ -3,15 +3,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Reusable.Commander
 {
-    public interface ICommandConfiguration
+    public interface ICommandParameter
     {
         /// <summary>
         /// Specifies whether a command can be executed asynchronously.
         /// </summary>
-        bool Async { get; set; }
+        bool Async { get; set;  }
     }
 
-    public class SimpleBag : ICommandConfiguration
+    public class SimpleBag : ICommandParameter
     {
         //[DefaultValue(false)]
         //public bool CanThrow { get; set; }
@@ -28,7 +28,7 @@ namespace Reusable.Commander
 
     public static class CommandBagExtensions
     {
-        internal static CommandExecutionType ExecutionType(this ICommandConfiguration bag)
+        internal static CommandExecutionType ExecutionType(this ICommandParameter bag)
         {
             return
                 bag.Async

@@ -3,7 +3,6 @@ using System.Linq.Expressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.OneTo1;
 using Reusable.SmartConfig;
-using Reusable.SmartConfig.Reflection;
 
 namespace Reusable.Tests.SmartConfig.Reflection
 {

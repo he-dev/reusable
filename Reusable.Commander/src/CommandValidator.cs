@@ -59,7 +59,7 @@ namespace Reusable.Commander
             ValidateParameterTypes(parameters, converter);
         }
 
-        private static void ValidateParameterNames(IEnumerable<CommandParameter> parameters)
+        private static void ValidateParameterNames(IEnumerable<CommandParameterProperty> parameters)
         {
             var duplicateNames =
                 parameters
@@ -78,7 +78,7 @@ namespace Reusable.Commander
             }
         }
 
-        private static void ValidateParameterPositions(IEnumerable<CommandParameter> parameters)
+        private static void ValidateParameterPositions(IEnumerable<CommandParameterProperty> parameters)
         {
             var positions =
                 parameters
@@ -100,7 +100,7 @@ namespace Reusable.Commander
             }
         }
 
-        private static void ValidateParameterTypes(IEnumerable<CommandParameter> parameters, ITypeConverter converter)
+        private static void ValidateParameterTypes(IEnumerable<CommandParameterProperty> parameters, ITypeConverter converter)
         {            
             var unsupportedParameters =
                 parameters

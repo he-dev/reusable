@@ -6,7 +6,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.SmartConfig;
-using Reusable.SmartConfig.Reflection;
 
 namespace Reusable.Tests.MSTest.SmartConfig.Reflection
 {

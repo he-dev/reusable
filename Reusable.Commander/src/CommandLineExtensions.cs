@@ -29,7 +29,8 @@ namespace Reusable.Commander
         //            : commandLine[id];
         //}
 
-        public static bool TryGetArgumentValues([NotNull] this ICommandLine commandLine, Identifier id, int? position, [NotNull, ItemNotNull] out IList<string> values)
+        //[ContractAnnotation("values: notnull")]
+        public static bool TryGetArgumentValues([NotNull] this ICommandLine commandLine, Identifier id, int? position, [CanBeNull, ItemNotNull] out IList<string> values)
         {
             if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
 
