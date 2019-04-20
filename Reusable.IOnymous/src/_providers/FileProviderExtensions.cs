@@ -19,14 +19,18 @@ namespace Reusable.IOnymous
 
         public static async Task<string> ReadTextFileAsync(this IResourceProvider resourceProvider, string path, Metadata metadata = default)
         {
-            var file = await resourceProvider.GetFileAsync(path, MimeType.Text, metadata);
-            return await file.DeserializeTextAsync();
+            using (var file = await resourceProvider.GetFileAsync(path, MimeType.Text, metadata))
+            {
+                return await file.DeserializeTextAsync();
+            }
         }
 
         public static string ReadTextFile(this IResourceProvider resourceProvider, string path, Metadata metadata = default)
         {
-            var file = resourceProvider.GetFileAsync(path, MimeType.Text, metadata).GetAwaiter().GetResult();
-            return file.DeserializeTextAsync().GetAwaiter().GetResult();
+            using (var file = resourceProvider.GetFileAsync(path, MimeType.Text, metadata).GetAwaiter().GetResult())
+            {
+                return file.DeserializeTextAsync().GetAwaiter().GetResult();
+            }
         }
 
         #endregion

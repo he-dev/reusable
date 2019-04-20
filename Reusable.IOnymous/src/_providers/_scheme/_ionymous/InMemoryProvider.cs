@@ -94,17 +94,15 @@ namespace Reusable.IOnymous
             {
                 case string str:
                 {
-                    var stream = ResourceHelper.SerializeTextAsync(str).GetAwaiter().GetResult();
-                    inMemory.PutAsync(uri, stream, Metadata.Empty.Resource().Format(MimeType.Text)).GetAwaiter().GetResult();
+                    using (var stream = ResourceHelper.SerializeTextAsync(str).GetAwaiter().GetResult())
+                    using (inMemory.PutAsync(uri, stream, Metadata.Empty.Resource().Format(MimeType.Text)).GetAwaiter().GetResult()) { }
                 }
-
                     break;
                 default:
                 {
-                    var stream = ResourceHelper.SerializeBinaryAsync(value).GetAwaiter().GetResult();
-                    inMemory.PutAsync(uri, stream, Metadata.Empty.Resource().Format(MimeType.Binary)).GetAwaiter().GetResult();
+                    using (var stream = ResourceHelper.SerializeBinaryAsync(value).GetAwaiter().GetResult())
+                    using (inMemory.PutAsync(uri, stream, Metadata.Empty.Resource().Format(MimeType.Binary)).GetAwaiter().GetResult()) { }
                 }
-
                     break;
             }
 

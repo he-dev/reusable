@@ -21,41 +21,42 @@ namespace Reusable.IOnymous
 
         public static async Task<T> GetItemAsync<T>(this IResourceProvider resources, UriString uri, Metadata metadata = default)
         {
-            var item = await resources.GetAsync(uri, metadata);
-
-            if (item.Exists)
+            using (var item = await resources.GetAsync(uri, metadata))
             {
-                using (var memoryStream = new MemoryStream())
+                if (item.Exists)
                 {
-                    await item.CopyToAsync(memoryStream);
-
-                    if (item.Metadata.Resource().Format() == MimeType.Text)
+                    using (var memoryStream = new MemoryStream())
                     {
-                        using (var streamReader = new StreamReader(memoryStream.Rewind()))
+                        await item.CopyToAsync(memoryStream);
+
+                        if (item.Metadata.Resource().Format() == MimeType.Text)
                         {
-                            return (T)(object)await streamReader.ReadToEndAsync();
+                            using (var streamReader = new StreamReader(memoryStream.Rewind()))
+                            {
+                                return (T)(object)await streamReader.ReadToEndAsync();
+                            }
+                        }
+
+                        if (item.Metadata.Resource().Format() == MimeType.Binary)
+                        {
+                            return (T)await ResourceHelper.DeserializeBinaryAsync<object>(memoryStream.Rewind());
                         }
                     }
 
-                    if (item.Metadata.Resource().Format() == MimeType.Binary)
-                    {
-                        return (T)await ResourceHelper.DeserializeBinaryAsync<object>(memoryStream.Rewind());
-                    }
+                    throw DynamicException.Create
+                    (
+                        $"ItemFormat",
+                        $"Item's '{uri}' format is '{item.Metadata.Resource().Format()}' but only '{MimeType.Binary}' and '{MimeType.Text}' are supported."
+                    );
                 }
-
-                throw DynamicException.Create
-                (
-                    $"ItemFormat",
-                    $"Item's '{uri}' format is '{item.Metadata.Resource().Format()}' but only '{MimeType.Binary}' and '{MimeType.Text}' are supported."
-                );
-            }
-            else
-            {
-                throw DynamicException.Create
-                (
-                    $"ItemNotFound",
-                    $"Could not find '{uri}' that maps to '{item.Metadata.Resource().InternalName() ?? "N/A"}'."
-                );
+                else
+                {
+                    throw DynamicException.Create
+                    (
+                        $"ItemNotFound",
+                        $"Could not find '{uri}' that maps to '{item.Metadata.Resource().InternalName() ?? "N/A"}'."
+                    );
+                }
             }
         }
 
@@ -73,16 +74,12 @@ namespace Reusable.IOnymous
             if (metadata.Resource().Type() == typeof(string))
             {
                 using (var stream = await ResourceHelper.SerializeTextAsync((string)value))
-                {
-                    await resources.PutAsync(uri, stream, metadata.Resource(s => s.Format(MimeType.Text)));
-                }
+                using (await resources.PutAsync(uri, stream, metadata.Resource(s => s.Format(MimeType.Text)))) { }
             }
             else
             {
                 using (var stream = await ResourceHelper.SerializeBinaryAsync(value))
-                {
-                    await resources.PutAsync(uri, stream, metadata.Resource(s => s.Format(MimeType.Binary)));
-                }
+                using (await resources.PutAsync(uri, stream, metadata.Resource(s => s.Format(MimeType.Binary)))) { }
             }
         }
 

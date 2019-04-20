@@ -33,8 +33,10 @@ namespace Reusable.IOnymous
                     // Bind this request to the http-provider.
                     .Provider(s => s.DefaultName(nameof(HttpProvider)));
 
-            var response = await resourceProvider.PostAsync(uri, () => ResourceHelper.SerializeAsJsonAsync(email, jsonSerializer), metadata);
-            return await response.DeserializeTextAsync();
+            using (var response = await resourceProvider.PostAsync(uri, () => ResourceHelper.SerializeAsJsonAsync(email, jsonSerializer), metadata))
+            {
+                return await response.DeserializeTextAsync();
+            }
         }
     }
 }

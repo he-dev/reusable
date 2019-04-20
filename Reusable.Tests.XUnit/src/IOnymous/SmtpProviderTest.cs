@@ -10,7 +10,8 @@ namespace Reusable.Tests.XUnit.IOnymous
         public async Task Can_send_email()
         {
             var smtp = new SmtpProvider();
-            await smtp.SendEmailAsync(new Email<IEmailSubject, IEmailBody>
+
+            var email = new Email<IEmailSubject, IEmailBody>
             {
                 From = "from@email.com",
                 To = new List<string> { "to@email.com" },
@@ -23,7 +24,11 @@ namespace Reusable.Tests.XUnit.IOnymous
                 {
                     Value = "Hi!"
                 }
-            });
+            };
+            using (var response = await smtp.SendEmailAsync(email))
+            {
+                
+            }
         }
     }
 }
