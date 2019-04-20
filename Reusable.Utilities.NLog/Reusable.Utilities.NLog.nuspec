@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Utilities.NLog</id>
-    <version>8.12.3</version>
+    <version>9.0.3</version>
     <title>Reusable.Utilities.NLog</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -22,5 +22,7 @@
   <files>
     <file src="bin\Release\net47\Reusable.Utilities.NLog.dll" target="lib\net47" />
     <file src="bin\Release\net47\Reusable.Utilities.NLog.pdb" target="lib\net47" />
+    <file src="bin\Release\netcoreapp2.2\Reusable.Utilities.NLog.dll" target="lib\netcoreapp2.2" />
+    <file src="bin\Release\netcoreapp2.2\Reusable.Utilities.NLog.pdb" target="lib\netcoreapp2.2" />
   </files>
 </package>

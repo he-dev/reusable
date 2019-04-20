@@ -18,7 +18,7 @@ namespace Reusable
     [UsedImplicitly, PublicAPI]
     public class ProcessExecutor : MarshalByRefObject, IProcessExecutor
     {
-        public Task<ProcessResult> NoWindowExecuteAsync([NotNull] string fileName, [NotNull] string arguments)
+        public Task<ProcessResult> NoWindowExecuteAsync(string fileName, string arguments)
         {
             if (fileName == null) throw new ArgumentNullException(nameof(fileName));
             if (arguments == null) throw new ArgumentNullException(nameof(arguments));
@@ -80,7 +80,7 @@ namespace Reusable
             return tcs.Task;
         }
 
-        public int ShellExecute([NotNull] string fileName, [NotNull] string arguments)
+        public int ShellExecute(string fileName, string arguments)
         {
             if (fileName == null) throw new ArgumentNullException(nameof(fileName));
             if (arguments == null) throw new ArgumentNullException(nameof(arguments));
