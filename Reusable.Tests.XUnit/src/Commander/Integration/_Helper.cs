@@ -19,7 +19,7 @@ namespace Reusable.Tests.Commander.Integration
             var container = InitializeContainer(commands, executeExceptionCallback);
             var scope = container.BeginLifetimeScope();
 
-            return new TestContext(scope.Resolve<ICommandLineExecutor>(), Disposable.Create(() =>
+            return new TestContext(scope.Resolve<ICommandExecutor>(), Disposable.Create(() =>
             {
                 scope.Dispose();
                 container.Dispose();
@@ -88,13 +88,13 @@ namespace Reusable.Tests.Commander.Integration
     {
         private readonly IDisposable _disposer;
 
-        public TestContext(ICommandLineExecutor executor, IDisposable disposer)
+        public TestContext(ICommandExecutor executor, IDisposable disposer)
         {
             _disposer = disposer;
             Executor = executor;
         }
 
-        public ICommandLineExecutor Executor { get; }
+        public ICommandExecutor Executor { get; }
 
         public void Dispose() => _disposer.Dispose();
     }

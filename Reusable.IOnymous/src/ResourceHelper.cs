@@ -22,37 +22,10 @@ namespace Reusable.IOnymous
         /// <summary>
         /// Formats exception message: {ResourceProvider} cannot {METHOD} '{uri}' because {reason}.
         /// </summary>
-        /// <param name="memberName"></param>
-        /// <param name="uri"></param>
-        /// <param name="reason"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
         internal static string FormatMessage<T>(string memberName, UriString uri, string reason)
         {
             return $"{typeof(T).ToPrettyString()} cannot {ExtractMethodName(memberName).ToUpper()} '{uri}' because {reason}.";
-        }
-
-//        [Obsolete("Use SerializeX")]
-//        public static (Stream Stream, MimeType Format) CreateStream(object value, Encoding encoding = null)
-//        {
-//            // Don't dispose streams. The caller takes care of that.
-//
-//            switch (value)
-//            {
-//                case string str:
-//                {
-//                    var memoryStream = new MemoryStream((encoding ?? Encoding.UTF8).GetBytes(str));
-//                    return (memoryStream, MimeType.Text);
-//                }
-//                default:
-//                {
-//                    var binaryFormatter = new BinaryFormatter();
-//                    var memoryStream = new MemoryStream();
-//                    binaryFormatter.Serialize(memoryStream, value);
-//                    return (memoryStream, MimeType.Binary);
-//                }
-//            }
-//        }        
+        }     
 
         // --------
 

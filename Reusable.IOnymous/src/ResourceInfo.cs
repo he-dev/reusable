@@ -31,7 +31,7 @@ namespace Reusable.IOnymous
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract class ResourceInfo : IResourceInfo
     {
-        protected ResourceInfo([NotNull] UriString uri, ConfigureMetadataScopeCallback<IResourceInfo> configureMetadata) // , Metadata metadata = default)
+        protected ResourceInfo([NotNull] UriString uri, ConfigureMetadataScopeCallback<IResourceInfo> configureMetadata)
         {
             if (uri == null) throw new ArgumentNullException(nameof(uri));
             Uri = uri.IsRelative ? new UriString($"{ResourceProvider.DefaultScheme}:{uri}") : uri;
@@ -69,11 +69,9 @@ namespace Reusable.IOnymous
 
         public async Task CopyToAsync(Stream stream)
         {
-            var method = ResourceHelper.ExtractMethodName(nameof(CopyToAsync));
-
             if (!Exists)
             {
-                throw DynamicException.Create(method, $"Resource '{Uri}' does not exist.");
+                throw new InvalidOperationException($"Resource '{Uri}' does not exist.");
             }
 
             try
@@ -84,8 +82,8 @@ namespace Reusable.IOnymous
             {
                 throw DynamicException.Create
                 (
-                    method,
-                    $"An error occured while invoking '{method}' for '{Uri}'. See inner exception for details.",
+                    "Resource",
+                    $"An error occured while trying to copy the '{Uri}'. See the inner exception for details.",
                     inner
                 );
             }

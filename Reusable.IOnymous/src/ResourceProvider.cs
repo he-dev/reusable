@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml;
 using JetBrains.Annotations;
 using Reusable.Diagnostics;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
+using Reusable.Flawless;
 
 namespace Reusable.IOnymous
 {
@@ -48,6 +51,42 @@ namespace Reusable.IOnymous
     public abstract class ResourceProvider : IResourceProvider
     {
         public static readonly SoftString DefaultScheme = "ionymous";
+
+        // Because: $"{GetType().ToPrettyString()} cannot {ExtractMethodName(memberName).ToUpper()} '{uri}' because {reason}.";
+        private static readonly IExpressValidator<Request> RequestValidator = ExpressValidator.For<Request>(builder =>
+        {
+            builder.True
+            (x =>
+                x.Metadata.AllowRelativeUri() ||
+                x.Provider.Schemes.Contains(DefaultScheme) ||
+                x.Provider.Schemes.Contains(x.Uri.Scheme)
+            ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it supports only such schemes as [{x.Provider.Schemes.Join(", ")}].");
+
+            builder.True
+            (x =>
+                x.Metadata.AllowRelativeUri() ||
+                x.Uri.Scheme
+            ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it supports only absolute URIs.");
+
+            builder.True
+            (x =>
+                x.Metadata.Resource().Format().IsNotNull()
+            ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it requires resource format specified by the metadata.");
+
+            builder.True
+            (x =>
+                x.Metadata.Resource().Format().IsNotNull()
+            ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it requires resource format specified by the metadata.");
+
+            string ProviderInfo(IResourceProvider provider)
+            {
+                return new[]
+                {
+                    provider.Metadata.Provider().DefaultName().ToString(),
+                    provider.Metadata.Provider().CustomName().ToString(),
+                }.Where(Conditional.IsNotNullOrEmpty).Join("/");
+            }
+        });
 
         protected ResourceProvider([NotNull] IEnumerable<SoftString> schemes, Metadata metadata)
         {
@@ -101,6 +140,15 @@ namespace Reusable.IOnymous
 
         public async Task<IResourceInfo> GetAsync(UriString uri, Metadata metadata = default)
         {
+            RequestValidator.Validate(new Request
+            {
+                Method = ExtractMethodName(nameof(GetAsync)),
+                Provider = this,
+                Uri = uri,
+                Metadata = metadata,
+                Stream = default
+            }).Assert();
+
             ValidateSchemeNotEmpty(uri);
             ValidateSchemeMatches(uri);
 
@@ -271,5 +319,18 @@ namespace Reusable.IOnymous
         //public static ResourceProvider operator +(ResourceProvider decorable, Func<ResourceProvider, ResourceProvider> decorator) => decorator(decorable);
 
         #endregion
+
+        private class Request
+        {
+            public string Method { get; set; }
+
+            public IResourceProvider Provider { get; set; }
+
+            public UriString Uri { get; set; }
+
+            public Metadata Metadata { get; set; }
+
+            public Stream Stream { get; set; }
+        }
     }
 }
