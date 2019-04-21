@@ -44,8 +44,8 @@ namespace Reusable.Commander
                 .RegisterInstance((ExecuteExceptionCallback)(_ => { }));
 
             builder
-                .RegisterType<CommandLineExecutor>()
-                .As<ICommandLineExecutor>();
+                .RegisterType<CommandExecutor>()
+                .As<ICommandExecutor>();
 
             builder
                 .RegisterGeneric(typeof(CommandServiceProvider<>));
@@ -55,7 +55,7 @@ namespace Reusable.Commander
                 .RegisterModule(_registrations);
 
             builder
-                .RegisterSource(new TypeListSource<IConsoleCommand>());
+                .RegisterSource(new TypeListSource());
         }
     }
 }

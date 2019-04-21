@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Commander.Annotations;
+using Reusable.Commander.Services;
 using Reusable.Commander.Utilities;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
@@ -17,66 +18,61 @@ using Reusable.OmniLog;
 namespace Reusable.Commander.Commands
 {
     [PublicAPI]
-    [UsedImplicitly]
-    public class HelpBag : SimpleBag
+    public interface IHelpParameter : ICommandParameter
     {
-        [NotMapped]
-        public int IndentWidth { get; set; } = 4;
-
-        [NotMapped]
-        public int[] ColumnWidths { get; set; } = { 27, 50 };
-
         [CanBeNull]
-        //[DefaultValue(false)]
         [Description("Display command usage.")]
         //[Position(1)]
         [Alias("cmd")]
         //[Position(1)]
-        public string Command { get; set; }
-
-        internal bool HasCommand => Command.IsNotNullOrEmpty();
+        string Command { get; set; }
     }
 
     [PublicAPI]
     [Alias("h", "?")]
     [Description("Display help.")]
-    public class Help : ConsoleCommand<HelpBag, object>
+    public class Help : ConsoleCommand<IHelpParameter>
     {
-        private readonly IList<Type> _commands;
+        private static readonly int IndentWidth = 4;
+
+        private static readonly int[] ColumnWidths = { 27, 50 };
+
+        private readonly IList<Type> _commandTypes;
 
         public Help(CommandServiceProvider<Help> serviceProvider, TypeList<IConsoleCommand> commands)
             : base(serviceProvider)
         {
-            _commands = commands;
-        }
+            _commandTypes = commands;
+        }        
 
-        protected override Task ExecuteAsync(HelpBag parameter, object context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(ICommandLineReader<IHelpParameter> parameter, NullContext context, CancellationToken cancellationToken)
         {
-            if (!parameter.HasCommand)
+            var commandSelected = parameter.GetItem(x => x.Command).IsNotNullOrEmpty();
+            if (commandSelected)
             {
-                RenderCommandList(parameter);
+                RenderParameterList(parameter);
             }
             else
             {
-                RenderParameterList(parameter);
+                RenderCommandList(parameter);
             }
 
             return Task.CompletedTask;
         }
 
-        protected virtual void RenderCommandList(HelpBag parameter)
+        protected virtual void RenderCommandList(ICommandLineReader<IHelpParameter> parameter)
         {
             // Headers
-            var captions = new[] { "NAME", "ABOUT" }.Pad(parameter.ColumnWidths);
+            var captions = new[] { "NAME", "ABOUT" }.Pad(ColumnWidths);
             Logger.WriteLine(p => p.text(string.Join(string.Empty, captions)));
 
             // Separators
-            var separators = captions.Select(c => new string('-', c.Trim().Length)).Pad(parameter.ColumnWidths);
+            var separators = captions.Select(c => new string('-', c.Trim().Length)).Pad(ColumnWidths);
             Logger.WriteLine(p => p.text(string.Join(string.Empty, separators)));
 
             // Commands
             var userExecutableCommands =
-                from commandType in _commands
+                from commandType in _commandTypes
                 where !commandType.IsDefined(typeof(InternalAttribute))
                 orderby CommandHelper.GetCommandId(commandType).Default
                 select commandType;
@@ -86,29 +82,30 @@ namespace Reusable.Commander.Commands
                 var defaultId = CommandHelper.GetCommandId(commandType).Default.ToString();
                 var aliases = string.Join("|", CommandHelper.GetCommandId(commandType).Aliases.Select(x => x.ToString()));
                 var description = commandType.GetCustomAttribute<DescriptionAttribute>()?.Description ?? "N/A";
-                var row = new[] { $"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description }.Pad(parameter.ColumnWidths);
+                var row = new[] { $"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description }.Pad(ColumnWidths);
                 Logger.WriteLine(p => p.text(string.Join(string.Empty, row)));
             }
         }
 
-        protected virtual void RenderParameterList(HelpBag parameter)
+        protected virtual void RenderParameterList(ICommandLineReader<IHelpParameter> parameter)
         {
-            var commandId = new Identifier(parameter.Command);
-            var commandType = _commands.SingleOrDefault(t => CommandHelper.GetCommandId(t) == commandId);
+            var commandId = new Identifier(parameter.GetItem(x => x.Command));
+            var commandType = _commandTypes.SingleOrDefault(t => CommandHelper.GetCommandId(t) == commandId);
             if (commandType is null)
             {
-                throw DynamicException.Create(
+                throw DynamicException.Create
+                (
                     $"CommandNotFound",
-                    $"Could not find a command with the name '{parameter.Command}'"
+                    $"Could not find a command with the name '{parameter.GetItem(x => x.Command)}'"
                 );
             }
 
             // Headers
-            var captions = new[] { "NAME", "ABOUT" }.Pad(parameter.ColumnWidths);
+            var captions = new[] { "NAME", "ABOUT" }.Pad(ColumnWidths);
             Logger.WriteLine(p => p.text(string.Join(string.Empty, captions)));
 
             // Separators
-            var separators = captions.Select(c => new string('-', c.Trim().Length)).Pad(parameter.ColumnWidths);
+            var separators = captions.Select(c => new string('-', c.Trim().Length)).Pad(ColumnWidths);
             Logger.WriteLine(p => p.text(string.Join(string.Empty, separators)));
 
             var bagType = commandType.GetBagType();
@@ -122,24 +119,8 @@ namespace Reusable.Commander.Commands
                 var defaultId = commandParameter.Id.Default.ToString();
                 var aliases = string.Join("|", commandParameter.Id.Aliases.Select(x => x.ToString()));
                 var description = commandParameter.Description ?? "N/A";
-                var row = new[] { $"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description }.Pad(parameter.ColumnWidths);
+                var row = new[] { $"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description }.Pad(ColumnWidths);
                 Logger.WriteLine(p => p.text(string.Join(string.Empty, row)));
-            }
-        }
-
-        protected static IEnumerable<string> RenderRow(IEnumerable<string> values, IEnumerable<int> columnWidths)
-        {
-            foreach (var tuple in values.Zip(columnWidths, (x, w) => (Value: x, Width: w)))
-            {
-                yield return Pad(tuple.Value, tuple.Width);
-            }
-
-            string Pad(string value, int width)
-            {
-                return
-                    width < 0
-                        ? value.PadLeft(-width, ' ')
-                        : value.PadRight(width, ' ');
             }
         }
     }
@@ -148,9 +129,9 @@ namespace Reusable.Commander.Commands
     {
         public static IEnumerable<string> Pad(this IEnumerable<string> values, IEnumerable<int> columnWidths)
         {
-            foreach (var tuple in values.Zip(columnWidths, (x, w) => (Value: x, Width: w)))
+            foreach (var (value, width) in values.Zip(columnWidths, (x, w) => (Value: x, Width: w)))
             {
-                yield return Pad(tuple.Value, tuple.Width);
+                yield return Pad(value, width);
             }
 
             string Pad(string value, int width)

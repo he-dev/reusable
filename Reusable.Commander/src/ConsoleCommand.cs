@@ -22,7 +22,7 @@ namespace Reusable.Commander
         protected ConsoleCommand([NotNull] ICommandServiceProvider serviceProvider, [CanBeNull] Identifier id = default)
         {
             Services = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-            Id = id ?? serviceProvider.Id;
+            Id = id ?? serviceProvider.CommandId;
         }
 
         [NotNull]

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Autofac.Features.Indexed;
 using JetBrains.Annotations;
+using Reusable.Commander.Services;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog;
@@ -16,7 +17,7 @@ namespace Reusable.Commander
 {
     using static CommandExecutionType;
 
-    public interface ICommandLineExecutor
+    public interface ICommandExecutor
     {
         Task ExecuteAsync<TContext>([CanBeNull] string commandLineString, TContext context, CancellationToken cancellationToken = default);
 
@@ -28,26 +29,23 @@ namespace Reusable.Commander
     public delegate void ExecuteExceptionCallback(Exception exception);
 
     [UsedImplicitly]
-    public class CommandLineExecutor : ICommandLineExecutor
+    public class CommandExecutor : ICommandExecutor
     {
         private readonly ILogger _logger;
         private readonly ICommandLineParser _commandLineParser;
-        private readonly ICommandLineMapper _mapper;
         private readonly IIndex<Identifier, IConsoleCommand> _commands;
         private readonly ExecuteExceptionCallback _executeExceptionCallback;
 
-        public CommandLineExecutor
+        public CommandExecutor
         (
-            [NotNull] ILogger<CommandLineExecutor> logger,
+            [NotNull] ILogger<CommandExecutor> logger,
             [NotNull] ICommandLineParser commandLineParser,
-            [NotNull] ICommandLineMapper mapper,
             [NotNull] IIndex<Identifier, IConsoleCommand> commands,
             [NotNull] ExecuteExceptionCallback executeExceptionCallback
         )
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _commandLineParser = commandLineParser ?? throw new ArgumentNullException(nameof(commandLineParser));
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _commands = commands ?? throw new ArgumentNullException(nameof(commands));
             _executeExceptionCallback = executeExceptionCallback;
         }
@@ -56,15 +54,19 @@ namespace Reusable.Commander
         {
             var executables =
                 GetCommands(commandLines)
-                    .Select(t => new Executable
+                    .Select(t =>
                     {
-                        Command = t.Command,
-                        CommandLine = t.CommandLine,
-                        Bag = _mapper.Map<SimpleBag>(t.CommandLine)
+                        var commandLineReader = new CommandLineReader<ICommandParameter>(t.CommandLine);
+                        return new Executable
+                        {
+                            Command = t.Command,
+                            CommandLine = t.CommandLine,
+                            Async = commandLineReader.GetItem(x => x.Async)
+                        };
                     })
-                    .ToLookup(x => x.Bag.ExecutionType());
+                    .ToLookup(e => e.ExecutionType());
 
-            _logger.Log(Abstraction.Layer.Infrastructure().Counter(new
+            _logger.Log(Abstraction.Layer.Service().Counter(new
             {
                 CommandCount = executables.Count,
                 SequentialCommandCount = executables[Sequential].Count(),
@@ -128,21 +130,21 @@ namespace Reusable.Commander
         {
             using (_logger.BeginScope().WithCorrelationHandle("Command").AttachElapsed())
             {
-                _logger.Log(Abstraction.Layer.Infrastructure().Meta(new { CommandName = executable.Command.Id.Default.ToString() }));
+                _logger.Log(Abstraction.Layer.Service().Meta(new { CommandName = executable.Command.Id.Default.ToString() }));
                 try
                 {
                     await executable.Command.ExecuteAsync(executable.CommandLine, context, cancellationTokenSource.Token);
-                    _logger.Log(Abstraction.Layer.Infrastructure().Routine(nameof(IConsoleCommand.ExecuteAsync)).Completed());
+                    _logger.Log(Abstraction.Layer.Service().Routine(nameof(IConsoleCommand.ExecuteAsync)).Completed());
                 }
                 catch (OperationCanceledException)
                 {
-                    _logger.Log(Abstraction.Layer.Infrastructure().Routine(nameof(IConsoleCommand.ExecuteAsync)).Canceled(), "Cancelled by user.");
+                    _logger.Log(Abstraction.Layer.Service().Routine(nameof(IConsoleCommand.ExecuteAsync)).Canceled(), "Cancelled by user.");
                 }
                 catch (Exception taskEx)
                 {
-                    _logger.Log(Abstraction.Layer.Infrastructure().Routine(nameof(IConsoleCommand.ExecuteAsync)).Faulted(), taskEx);
+                    _logger.Log(Abstraction.Layer.Service().Routine(nameof(IConsoleCommand.ExecuteAsync)).Faulted(), taskEx);
 
-                    if (!executable.Bag.Async)
+                    if (!executable.Async)
                     {
                         cancellationTokenSource.Cancel();
                     }
@@ -167,7 +169,7 @@ namespace Reusable.Commander
                 {
                     throw DynamicException.Create
                     (
-                        $"InvalidCommandLine",
+                        $"CommandLine",
                         $"Command line at {i} is invalid. See the inner-exception for details.",
                         inner
                     );
@@ -189,12 +191,14 @@ namespace Reusable.Commander
         }
 
         #endregion
+    }
 
-        private class Executable
-        {
-            public IConsoleCommand Command { get; set; }
-            public ICommandLine CommandLine { get; set; }
-            public ICommandParameter Bag { get; set; }
-        }
+    internal class Executable
+    {
+        public ICommandLine CommandLine { get; set; }
+
+        public IConsoleCommand Command { get; set; }
+
+        public bool Async { get; set; }
     }
 }

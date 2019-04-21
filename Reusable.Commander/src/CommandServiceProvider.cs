@@ -12,28 +12,28 @@ namespace Reusable.Commander
         ICommandLineMapper Mapper { get; }
 
         [NotNull]
-        ICommandLineExecutor Executor { get; }
+        ICommandExecutor Executor { get; }
 
         [NotNull]
-        Identifier Id { get; }
+        Identifier CommandId { get; }
     }
 
     public class CommandServiceProvider<T> : ICommandServiceProvider where T : IConsoleCommand
     {
-        public CommandServiceProvider(ILogger<T> logger, ICommandLineExecutor executor, ICommandLineMapper mapper)
+        public CommandServiceProvider(ILogger<T> logger, ICommandExecutor executor, ICommandLineMapper mapper)
         {
             Logger = logger;
             Executor = executor;
             Mapper = mapper;
-            Id = CommandHelper.GetCommandId(typeof(T));
+            CommandId = CommandHelper.GetCommandId(typeof(T));
         }
 
         public ILogger Logger { get; }
 
         public ICommandLineMapper Mapper { get; }
 
-        public ICommandLineExecutor Executor { get; }
+        public ICommandExecutor Executor { get; }
 
-        public Identifier Id { get; }
+        public Identifier CommandId { get; }
     }
 }

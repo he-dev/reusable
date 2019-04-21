@@ -27,10 +27,10 @@ namespace Reusable.Commander
 
     public static class CommandBagExtensions
     {
-        internal static CommandExecutionType ExecutionType(this ICommandParameter bag)
+        internal static CommandExecutionType ExecutionType(this Executable executable)
         {
             return
-                bag.Async
+                executable.Async
                     ? CommandExecutionType.Asynchronous
                     : CommandExecutionType.Sequential;
         }

@@ -10,6 +10,12 @@ using Reusable.Reflection;
 
 namespace Reusable.Commander.Services
 {
+    internal interface ICommandLineReader
+    {
+        [CanBeNull]
+        TValue GetItem<TValue>(LambdaExpression getItem);
+    }
+    
     public interface ICommandLineReader<TParameter> where TParameter : ICommandParameter
     {
         [CanBeNull]
@@ -82,6 +88,14 @@ namespace Reusable.Commander.Services
             }
 
             return default;
+        }
+    }
+
+    internal static class CommandLineReaderExtensions
+    {
+        public static TValue GetItem<TParameter, TValue>(this ICommandLineReader reader, ISelector<TParameter> selector, Expression<Func<TParameter, TValue>> getItem)
+        {
+            return reader.GetItem<TValue>(getItem);
         }
     }
 }
