@@ -20,10 +20,21 @@ namespace Reusable.Tests.XUnit.IOnymous
         [Fact]
         public async Task Throws_when_unsupported_method_requested()
         {
+            Assert.False(EmptyProvider.Default.CanGet);
+            Assert.False(EmptyProvider.Default.CanPut);
+            Assert.False(EmptyProvider.Default.CanPost);
+            Assert.False(EmptyProvider.Default.CanDelete);
             await Assert.ThrowsAnyAsync<DynamicException>(async () => await EmptyProvider.Default.GetAsync("noop"));            
             await Assert.ThrowsAnyAsync<DynamicException>(async () => await EmptyProvider.Default.PutAsync("noop", Stream.Null));            
             await Assert.ThrowsAnyAsync<DynamicException>(async () => await EmptyProvider.Default.PostAsync("noop", Stream.Null));            
             await Assert.ThrowsAnyAsync<DynamicException>(async () => await EmptyProvider.Default.DeleteAsync("noop"));            
+        }
+
+        [Fact]
+        public async Task Throws_when_resource_format_not_specified()
+        {
+            Assert.True(SimpleProvider.Default.CanGet);
+            await SimpleProvider.Default.GetAsync("test:///noop");
         }
 
         private class EmptyProvider : ResourceProvider
@@ -41,22 +52,21 @@ namespace Reusable.Tests.XUnit.IOnymous
 
             protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata)
             {
-                return base.GetAsyncInternal(uri, metadata);
+                return Task.FromResult(default(IResourceInfo));
             }
 
             protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, Metadata metadata)
             {
-                return base.PutAsyncInternal(uri, value, metadata);
+                return Task.FromResult(default(IResourceInfo));
             }
 
             protected override Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, Metadata metadata)
             {
-                return base.PostAsyncInternal(uri, value, metadata);
-            }
+                return Task.FromResult(default(IResourceInfo));            }
 
             protected override Task<IResourceInfo> DeleteAsyncInternal(UriString uri, Metadata metadata)
             {
-                return base.DeleteAsyncInternal(uri, metadata);
+                return Task.FromResult(default(IResourceInfo));
             }
         }
     }

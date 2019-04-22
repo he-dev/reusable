@@ -25,7 +25,7 @@ namespace Reusable.IOnymous
 
         protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata)
         {
-            ValidateFormatNotNull(this, uri, metadata);
+            //ValidateFormatNotNull(this, uri, metadata);
             
             // Embedded resource names are separated by '.' so replace the windows separator.
 

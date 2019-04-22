@@ -52,7 +52,7 @@ namespace Reusable.IOnymous
 
         protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, Metadata metadata)
         {
-            ValidateFormatNotNull(this, uri, metadata);
+            //ValidateFormatNotNull(this, uri, metadata);
 
             var name = _uriConverter.Convert<string>(uri);
             _items[name] = await ResourceHelper.Deserialize<object>(value, metadata);

@@ -1,26 +1,38 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Linq.Custom;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Extensions;
+using Reusable.Flawless;
 
 namespace Reusable.IOnymous
 {
     [PublicAPI]
     public class PhysicalFileProvider : FileProvider
     {
+        private static readonly IExpressValidator<Request> RequestValidator = ExpressValidator.For<Request>(builder =>
+        {
+            builder.False
+            (x =>
+                x.Metadata.Resource().Format().IsNull()
+            ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it requires resource format specified by the metadata.");
+        });
+        
         public PhysicalFileProvider(Metadata metadata = default)
             : base(metadata) { }
 
         protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata)
         {
-            ValidateFormatNotNull(this, uri, metadata);
+            ValidateRequest(ExtractMethodName(nameof(GetAsync)), uri, metadata, Stream.Null, RequestValidator);
 
             return Task.FromResult<IResourceInfo>(new PhysicalFileInfo(uri, metadata.Resource().Format()));
         }
 
         protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, Metadata metadata)
         {
-            ValidateFormatNotNull(this, uri, metadata);
+            ValidateRequest(ExtractMethodName(nameof(PutAsync)), uri, metadata, Stream.Null, RequestValidator);
 
             using (var fileStream = new FileStream(uri.ToUnc(), FileMode.CreateNew, FileAccess.Write))
             {

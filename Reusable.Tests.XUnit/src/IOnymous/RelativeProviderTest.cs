@@ -34,7 +34,7 @@ namespace Reusable.Tests.XUnit.IOnymous
 
 
             var relativeProvider = mockProvider.DecorateWith(RelativeProvider.Factory("blub:base"));
-            var resource = await relativeProvider.GetAsync("relative");
+            var resource = await relativeProvider.GetAsync("relative", Metadata.Empty.AllowRelativeUri(true));
 
             Assert.False(resource.Exists);
             Assert.Equal("blub:base/relative", resource.Uri);

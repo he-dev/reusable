@@ -57,36 +57,18 @@ namespace Reusable.IOnymous
         {
             builder.True
             (x =>
-                x.Metadata.AllowRelativeUri() ||
+                x.Provider.Metadata.AllowRelativeUri() ||
                 x.Provider.Schemes.Contains(DefaultScheme) ||
                 x.Provider.Schemes.Contains(x.Uri.Scheme)
             ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it supports only such schemes as [{x.Provider.Schemes.Join(", ")}].");
 
             builder.True
             (x =>
-                x.Metadata.AllowRelativeUri() ||
+                x.Provider.Metadata.AllowRelativeUri() ||
                 x.Uri.Scheme
             ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it supports only absolute URIs.");
-
-            builder.True
-            (x =>
-                x.Metadata.Resource().Format().IsNotNull()
-            ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it requires resource format specified by the metadata.");
-
-            builder.True
-            (x =>
-                x.Metadata.Resource().Format().IsNotNull()
-            ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it requires resource format specified by the metadata.");
-
-            string ProviderInfo(IResourceProvider provider)
-            {
-                return new[]
-                {
-                    provider.Metadata.Provider().DefaultName().ToString(),
-                    provider.Metadata.Provider().CustomName().ToString(),
-                }.Where(Conditional.IsNotNullOrEmpty).Join("/");
-            }
         });
+
 
         protected ResourceProvider([NotNull] IEnumerable<SoftString> schemes, Metadata metadata)
         {
@@ -140,17 +122,7 @@ namespace Reusable.IOnymous
 
         public async Task<IResourceInfo> GetAsync(UriString uri, Metadata metadata = default)
         {
-            RequestValidator.Validate(new Request
-            {
-                Method = ExtractMethodName(nameof(GetAsync)),
-                Provider = this,
-                Uri = uri,
-                Metadata = metadata,
-                Stream = default
-            }).Assert();
-
-            ValidateSchemeNotEmpty(uri);
-            ValidateSchemeMatches(uri);
+            ValidateRequest(ExtractMethodName(nameof(GetAsync)), uri, metadata, Stream.Null, RequestValidator);
 
             try
             {
@@ -164,8 +136,7 @@ namespace Reusable.IOnymous
 
         public async Task<IResourceInfo> PostAsync(UriString uri, Stream value, Metadata metadata = default)
         {
-            ValidateSchemeNotEmpty(uri);
-            ValidateSchemeMatches(uri);
+            ValidateRequest(ExtractMethodName(nameof(PostAsync)), uri, metadata, value, RequestValidator);
 
             try
             {
@@ -179,8 +150,7 @@ namespace Reusable.IOnymous
 
         public async Task<IResourceInfo> PutAsync(UriString uri, Stream value, Metadata metadata = default)
         {
-            ValidateSchemeNotEmpty(uri);
-            ValidateSchemeMatches(uri);
+            ValidateRequest(ExtractMethodName(nameof(PutAsync)), uri, metadata, value, RequestValidator);
 
             try
             {
@@ -194,8 +164,7 @@ namespace Reusable.IOnymous
 
         public async Task<IResourceInfo> DeleteAsync(UriString uri, Metadata metadata = default)
         {
-            ValidateSchemeNotEmpty(uri);
-            ValidateSchemeMatches(uri);
+            ValidateRequest(ExtractMethodName(nameof(GetAsync)), uri, metadata, Stream.Null, RequestValidator);
 
             try
             {
@@ -221,60 +190,26 @@ namespace Reusable.IOnymous
 
         #endregion
 
-        #region Validations
+        #region Helpers
 
-        protected void ValidateSchemeMatches([NotNull] UriString uri, [CallerMemberName] string memberName = null)
+        protected void ValidateRequest(string method, UriString uri, Metadata metadata, Stream stream, params IExpressValidator<Request>[] validators)
         {
-            if (Metadata.AllowRelativeUri())
+            var request = new Request
             {
-                return;
-            }
+                Method = method,
+                Provider = this,
+                Uri = uri,
+                Metadata = metadata,
+                Stream = default
+            };
 
-            if (Schemes.Contains(DefaultScheme))
+            foreach (var validator in validators)
             {
-                return;
-            }
-
-            if (!Schemes.Contains(uri.Scheme))
-            {
-                throw DynamicException.Create
-                (
-                    "InvalidScheme",
-                    Because(memberName, uri, $"it requires uri to specify scheme [{Schemes.Join(",")}].")
-                );
+                validator.Validate(request).Assert();
             }
         }
 
-        protected void ValidateSchemeNotEmpty([NotNull] UriString uri, [CallerMemberName] string memberName = null)
-        {
-            if (Metadata.AllowRelativeUri())
-            {
-                return;
-            }
-
-            if (!uri.Scheme)
-            {
-                throw DynamicException.Create
-                (
-                    "MissingScheme",
-                    Because(memberName, uri, "it must contain scheme.")
-                );
-            }
-        }
-
-        protected void ValidateFormatNotNull<T>(T fileProvider, UriString uri, Metadata metadata, [CallerMemberName] string memberName = null) where T : IResourceProvider
-        {
-            if (metadata.Resource().Format().IsNull)
-            {
-                throw new ArgumentException
-                (
-                    paramName: nameof(metadata),
-                    message: ResourceHelper.FormatMessage<T>(memberName, uri, $"you need to specify file format via {nameof(metadata)}.")
-                );
-            }
-        }
-
-        protected Exception MethodNotSupportedException(UriString uri, [CallerMemberName] string memberName = null)
+        private Exception MethodNotSupportedException(UriString uri, [CallerMemberName] string memberName = null)
         {
             return DynamicException.Create
             (
@@ -283,11 +218,7 @@ namespace Reusable.IOnymous
             );
         }
 
-        #endregion
-
-        #region Helpers
-
-        protected Exception WrapException(UriString uri, Metadata metadata, Exception inner, [CallerMemberName] string memberName = null)
+        private Exception WrapException(UriString uri, Metadata metadata, Exception inner, [CallerMemberName] string memberName = null)
         {
             throw DynamicException.Create
             (
@@ -297,7 +228,7 @@ namespace Reusable.IOnymous
             );
         }
 
-        private string ExtractMethodName(string memberName)
+        protected static string ExtractMethodName(string memberName)
         {
             return Regex.Match(memberName, @"^(?<method>\w+)Async").Groups["method"].Value;
         }
@@ -305,6 +236,15 @@ namespace Reusable.IOnymous
         private string Because(string memberName, UriString uri, string reason)
         {
             return $"{GetType().ToPrettyString()} cannot {ExtractMethodName(memberName).ToUpper()} '{uri}' because {reason}.";
+        }
+
+        protected static string ProviderInfo(IResourceProvider provider)
+        {
+            return new[]
+            {
+                provider.Metadata.Provider().DefaultName().ToString(),
+                provider.Metadata.Provider().CustomName().ToString(),
+            }.Where(Conditional.IsNotNullOrEmpty).Join("/");
         }
 
         #endregion
@@ -320,7 +260,7 @@ namespace Reusable.IOnymous
 
         #endregion
 
-        private class Request
+        protected class Request
         {
             public string Method { get; set; }
 
