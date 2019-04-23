@@ -27,14 +27,14 @@ namespace Reusable.Flexo
             }
             else
             {
-                var predicate = (Predicate ?? Constant.True).Invoke(context).Value<bool>();
+                var predicate = (Predicate ?? Constant.True).Invoke(context);
                 var last = default(IConstant);
                 foreach (var item in Values)
                 {
-                    last = item.Invoke(context);
-                    if (EqualityComparer<bool>.Default.Equals(last.Value<bool>(), predicate))
+                    last = item.Invoke(predicate.Context);
+                    if (EqualityComparer<bool>.Default.Equals(last.Value<bool>(), predicate.Value<bool>()))
                     {
-                        return (Name, true, last?.Context ?? context);
+                        return (Name, true, last.Context);
                     }
                 }
             }

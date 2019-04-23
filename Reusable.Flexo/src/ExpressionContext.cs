@@ -117,4 +117,11 @@ namespace Reusable.Flexo
 
         IDictionary<SoftString, IEqualityComparer<object>> Comparers { get; }
     }
+
+    public interface IDebugContext
+    {
+        TreeNode DebugView { get; }
+        
+        ExpressionInvokeConvention InvokeConvention { get; }
+    }
 }

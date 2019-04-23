@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
@@ -28,11 +30,14 @@ namespace Reusable.Flexo
         [NotNull]
         SoftString Name { get; }
 
+        string Description { get; }
+
         [NotNull]
         IConstant Invoke([NotNull] IExpressionContext context);
     }
 
-    public interface IExtension<T> { }
+    public interface IExtension<T>
+    { }
 
     public static class Expression
     {
@@ -101,24 +106,50 @@ namespace Reusable.Flexo
             set => _name = value ?? throw new ArgumentNullException(nameof(Name));
         }
 
+        public string Description { get; set; }
+
         public bool Enabled { get; set; } = true;
 
         public List<IExpression> This { get; set; } = new List<IExpression>();
 
         public virtual IConstant Invoke(IExpressionContext context)
         {
-            var result = (IConstant)InvokeCore(context);
+            var parentNode = context.Get(Item.For<IDebugContext>(), x => x.DebugView);
+            var thisView = new ExpressionDebugView
+            {
+                Name = Name.ToString(),
+                Description = Description,
+            };
+            var thisNode = new TreeNode(thisView);
+            parentNode.Add(thisNode);
+            var result = (IConstant)InvokeCore
+            (
+                context
+                    .Set(Item.For<IDebugContext>(), x => x.DebugView, thisNode)
+                    //.Set(Item.For<IDebugContext>(), x => x.InvokeConvention, ExpressionInvokeConvention.Normal)
+            );
+
+            thisView.Result = result.Value;
+            //thisView.InvokeConvention = result.Context.Get(Item.For<IDebugContext>(), x => x.InvokeConvention);
+
+            var seed = (IConstant)Constant.FromValue(result.Name, result.Value, result.Context.Set(Item.For<IDebugContext>(), x => x.DebugView, thisNode));
             return
                 (This ?? Enumerable.Empty<IExpression>())
                 .Enabled()
-                .Aggregate(result, (previous, next) =>
+                .Aggregate(seed, (previous, next) =>
                 {
                     var extensionType = next.GetType().GetInterface(typeof(IExtension<>).Name)?.GetGenericArguments().Single();
                     var thisType = previous.Value is IExpression expression ? expression.GetType().GetGenericArguments().Single() : previous.Value?.GetType();
 
                     if (extensionType?.IsAssignableFrom(thisType) == true)
                     {
-                        return next.Invoke(previous.Context.PushExtensionInput(previous.Value));
+                        var innerContext =
+                            previous
+                                .Context
+                                .PushExtensionInput(previous.Value);
+                                //.Set(Item.For<IDebugContext>(), x => x.InvokeConvention, ExpressionInvokeConvention.Extension)
+                                
+                        return next.Invoke(innerContext);
                     }
                     else
                     {
@@ -132,5 +163,57 @@ namespace Reusable.Flexo
         }
 
         protected abstract Constant<TResult> InvokeCore(IExpressionContext context);
+    }
+
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
+    public class TreeNode : IEnumerable<TreeNode>
+    {
+        private readonly List<TreeNode> _children = new List<TreeNode>();
+
+        public TreeNode() : this(new object()) { }
+
+        public TreeNode(object obj) => Value = obj;
+
+        public static TreeNode Empty => new TreeNode();
+
+        public object Value { get; }
+
+        private string DebuggerDisplay => ToString();
+
+        public TreeNode Add(object obj)
+        {
+            var childNode = obj is TreeNode tn ? tn : new TreeNode(obj);
+            _children.Add(childNode);
+            return childNode;
+        }
+
+        public override string ToString() => Value.ToString();
+
+        public IEnumerator<TreeNode> GetEnumerator() => _children.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    public class ExpressionDebugView
+    {
+        public string Name { get; set; }
+
+        public string Description { get; set; }
+
+        public object Result { get; set; }
+
+        //public ExpressionInvokeConvention InvokeConvention { get; set; }
+
+        public override string ToString()
+        {
+            //return $"{Name} | {Description} | {Result} | {InvokeConvention}";
+            return $"Name = {Name} | Description = {Description} | Result = {Result}";
+        }
+    }
+
+    public enum ExpressionInvokeConvention
+    {
+        Normal,
+        Extension
     }
 }
