@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 
 namespace Reusable
 {
+    [Serializable]
     public partial class SoftString : IEnumerable<char>
     {
         public static readonly SoftStringComparer Comparer = new SoftStringComparer();

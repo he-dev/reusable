@@ -4,6 +4,7 @@ using Reusable.Collections;
 
 namespace Reusable
 {
+    [Serializable]
     public partial class Range<T>
     {
         public Range(T min, T max)
