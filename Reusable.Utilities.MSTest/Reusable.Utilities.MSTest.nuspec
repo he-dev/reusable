@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Utilities.MSTest</id>
-    <version>9.0.3</version>
+    <version>9.1.0</version>
     <title>Reusable.Utilities.MSTest</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -19,15 +19,15 @@
       <dependency id="Microsoft.NET.Test.Sdk" version="15.9.0" />
       <dependency id="MSTest.TestAdapter" version="1.4.0" />
       <dependency id="MSTest.TestFramework" version="1.4.0" />
-      <dependency id="Reusable.Core" version="9.0.3" />
-      <dependency id="Reusable.OmniLog" version="9.0.3" />
-      <dependency id="Reusable.SmartConfig" version="9.0.3" />
+      <dependency id="Reusable.Core" version="9.1.0" />
+      <dependency id="Reusable.OmniLog" version="9.1.0" />
+      <dependency id="Reusable.SmartConfig" version="9.1.0" />
     </dependencies>
   </metadata>
   <files>
     <file src="bin\Release\net47\Reusable.Utilities.MSTest.dll" target="lib\net47" />
     <file src="bin\Release\net47\Reusable.Utilities.MSTest.pdb" target="lib\net47" />
-    <file src="bin\Release\netcoreapp2.2\Reusable.Utilities.MSTest.dll" target="lib\netcoreapp2.2" />
-    <file src="bin\Release\netcoreapp2.2\Reusable.Utilities.MSTest.pdb" target="lib\netcoreapp2.2" />
+    <!--<file src="bin\Release\netcoreapp2.2\Reusable.Utilities.MSTest.dll" target="lib\netcoreapp2.2" />-->
+    <!--<file src="bin\Release\netcoreapp2.2\Reusable.Utilities.MSTest.pdb" target="lib\netcoreapp2.2" />-->
   </files>
 </package>
