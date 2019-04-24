@@ -112,7 +112,7 @@ namespace Reusable.Commander
         {
             if (commandLineString.IsNullOrEmpty())
             {
-                throw DynamicException.Create($"CommandLineStringNullOrEmpty", $"You need to specify at least one command.");
+                throw DynamicException.Create("CommandLineNullOrEmpty", "You need to specify at least one command.");
             }
 
             var commandLines = _commandLineParser.Parse(commandLineString);
