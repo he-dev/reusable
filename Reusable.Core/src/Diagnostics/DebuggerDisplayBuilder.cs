@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
@@ -17,7 +18,7 @@ namespace Reusable.Diagnostics
 
         public DebuggerDisplayBuilder<T> Property<TProperty>
         (
-            [NotNull] Expression<Func<T, TProperty>> memberSelector, 
+            [NotNull] Expression<Func<T, TProperty>> memberSelector,
             [NotNull] string format
         )
         {
@@ -70,7 +71,7 @@ namespace Reusable.Diagnostics
 
     public static class DebuggerDisplayBuilder
     {
-        public static DebuggerDisplayBuilder<T> DisplayMember<T, TProperty>
+        public static DebuggerDisplayBuilder<T> DisplayValue<T, TProperty>
         (
             this DebuggerDisplayBuilder<T> builder,
             Expression<Func<T, TProperty>> memberSelector
@@ -79,7 +80,7 @@ namespace Reusable.Diagnostics
             return builder.Property(memberSelector, DebuggerDisplayFormatter.DefaultValueFormat);
         }
 
-        public static DebuggerDisplayBuilder<T> DisplayCollection<T, TProperty, TValue>
+        public static DebuggerDisplayBuilder<T> DisplayValues<T, TProperty, TValue>
         (
             this DebuggerDisplayBuilder<T> builder,
             Expression<Func<T, IEnumerable<TProperty>>> memberSelector,
@@ -91,7 +92,7 @@ namespace Reusable.Diagnostics
             return builder.Collection(memberSelector, itemSelector, DebuggerDisplayFormatter.DefaultValueFormat, max);
         }
 
-        public static DebuggerDisplayBuilder<T> DisplayCollection<T, TProperty>
+        public static DebuggerDisplayBuilder<T> DisplayValues<T, TProperty>
         (
             this DebuggerDisplayBuilder<T> builder,
             Expression<Func<T, IEnumerable<TProperty>>> memberSelector
@@ -99,5 +100,10 @@ namespace Reusable.Diagnostics
         {
             return builder.Collection(memberSelector, x => x, DebuggerDisplayFormatter.DefaultValueFormat, DebuggerDisplayFormatter.DefaultCollectionLength);
         }
+    }
+
+    public static class DebuggerDisplayString
+    {
+        public const string DefaultNoQuotes = "{DebuggerDisplay,nq}";
     }
 }

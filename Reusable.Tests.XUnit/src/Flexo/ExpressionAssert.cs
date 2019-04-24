@@ -1,4 +1,5 @@
 ﻿using System;
+using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Flexo;
 
@@ -10,13 +11,13 @@ namespace Reusable.Tests.Flexo
         public static IConstant Equal<TValue, TExpression>(TValue expectedValue, TExpression expression, IExpressionContext context = null) where TExpression : IExpression
         {
             var expected = expectedValue is IConstant constant ? constant.Value : expectedValue; // Constant.FromValue("Expected", expectedValue);
-            var debugView = new TreeNode(new ExpressionDebugView
+            var debugView = TreeNode.Create(new ExpressionDebugView
             {
                 Name = "Root"
             });
             context = (context ?? ExpressionContext.Empty).WithRegexComparer().WithSoftStringComparer().Set(Item.For<IDebugContext>(), x => x.DebugView, debugView);
             var actual = expression.Invoke(context);
-            
+
             return
                 object.Equals(expected, actual.Value is IConstant c ? c.Value : actual.Value)
                     ? actual

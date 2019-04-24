@@ -93,9 +93,9 @@ namespace Reusable.IOnymous
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
         {
             //builder.DisplayCollection(p => p.ProviderNames());
-            builder.DisplayMember(p => p.Metadata.Provider().DefaultName());
-            builder.DisplayMember(p => p.Metadata.Provider().CustomName());
-            builder.DisplayMember(x => x.Schemes);
+            builder.DisplayValue(p => p.Metadata.Provider().DefaultName());
+            builder.DisplayValue(p => p.Metadata.Provider().CustomName());
+            builder.DisplayValue(x => x.Schemes);
         });
 
         public bool CanGet => Implements(nameof(GetAsyncInternal));

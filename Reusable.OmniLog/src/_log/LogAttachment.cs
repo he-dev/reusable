@@ -18,7 +18,7 @@ namespace Reusable.OmniLog
             Name = GetType().Name;
         }
 
-        private string DebuggerDisplay() => this.ToDebuggerDisplayString(builder => { builder.DisplayMember(x => x.Name); });
+        private string DebuggerDisplay() => this.ToDebuggerDisplayString(builder => { builder.DisplayValue(x => x.Name); });
 
         public SoftString Name { get; }
 

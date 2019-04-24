@@ -5,6 +5,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
+using Reusable.Data;
+using Reusable.Diagnostics;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
@@ -36,8 +38,7 @@ namespace Reusable.Flexo
         IConstant Invoke([NotNull] IExpressionContext context);
     }
 
-    public interface IExtension<T>
-    { }
+    public interface IExtension<T> { }
 
     public static class Expression
     {
@@ -120,13 +121,13 @@ namespace Reusable.Flexo
                 Name = Name.ToString(),
                 Description = Description,
             };
-            var thisNode = new TreeNode(thisView);
+            var thisNode = TreeNode.Create(thisView);
             parentNode.Add(thisNode);
             var result = (IConstant)InvokeCore
             (
                 context
                     .Set(Item.For<IDebugContext>(), x => x.DebugView, thisNode)
-                    //.Set(Item.For<IDebugContext>(), x => x.InvokeConvention, ExpressionInvokeConvention.Normal)
+                //.Set(Item.For<IDebugContext>(), x => x.InvokeConvention, ExpressionInvokeConvention.Normal)
             );
 
             thisView.Result = result.Value;
@@ -147,8 +148,8 @@ namespace Reusable.Flexo
                             previous
                                 .Context
                                 .PushExtensionInput(previous.Value);
-                                //.Set(Item.For<IDebugContext>(), x => x.InvokeConvention, ExpressionInvokeConvention.Extension)
-                                
+                        //.Set(Item.For<IDebugContext>(), x => x.InvokeConvention, ExpressionInvokeConvention.Extension)
+
                         return next.Invoke(innerContext);
                     }
                     else
@@ -165,50 +166,27 @@ namespace Reusable.Flexo
         protected abstract Constant<TResult> InvokeCore(IExpressionContext context);
     }
 
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class TreeNode : IEnumerable<TreeNode>
-    {
-        private readonly List<TreeNode> _children = new List<TreeNode>();
+    
 
-        public TreeNode() : this(new object()) { }
+    
 
-        public TreeNode(object obj) => Value = obj;
-
-        public static TreeNode Empty => new TreeNode();
-
-        public object Value { get; }
-
-        private string DebuggerDisplay => ToString();
-
-        public TreeNode Add(object obj)
-        {
-            var childNode = obj is TreeNode tn ? tn : new TreeNode(obj);
-            _children.Add(childNode);
-            return childNode;
-        }
-
-        public override string ToString() => Value.ToString();
-
-        public IEnumerator<TreeNode> GetEnumerator() => _children.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
-
+    [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public class ExpressionDebugView
     {
+        private string DebuggerDisplay => this.ToDebuggerDisplayString(b =>
+        {
+            b.DisplayValue(x => x.Name);
+            b.DisplayValue(x => x.Result);
+            b.DisplayValue(x => x.Description);
+        });
+
         public string Name { get; set; }
 
         public string Description { get; set; }
 
         public object Result { get; set; }
 
-        //public ExpressionInvokeConvention InvokeConvention { get; set; }
-
-        public override string ToString()
-        {
-            //return $"{Name} | {Description} | {Result} | {InvokeConvention}";
-            return $"Name = {Name} | Description = {Description} | Result = {Result}";
-        }
+        //public ExpressionInvokeConvention InvokeConvention { get; set; }        
     }
 
     public enum ExpressionInvokeConvention

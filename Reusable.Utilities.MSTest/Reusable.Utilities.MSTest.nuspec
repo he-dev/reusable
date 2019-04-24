@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Utilities.MSTest</id>
-    <version>9.1.2</version>
+    <version>9.2.0</version>
     <title>Reusable.Utilities.MSTest</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -19,9 +19,9 @@
       <dependency id="Microsoft.NET.Test.Sdk" version="15.9.0" />
       <dependency id="MSTest.TestAdapter" version="1.4.0" />
       <dependency id="MSTest.TestFramework" version="1.4.0" />
-      <dependency id="Reusable.Core" version="9.1.2" />
-      <dependency id="Reusable.OmniLog" version="9.1.2" />
-      <dependency id="Reusable.SmartConfig" version="9.1.2" />
+      <dependency id="Reusable.Core" version="9.2.0" />
+      <dependency id="Reusable.OmniLog" version="9.2.0" />
+      <dependency id="Reusable.SmartConfig" version="9.2.0" />
     </dependencies>
   </metadata>
   <files>

@@ -47,8 +47,8 @@ namespace Reusable.OmniLog
 
         private string DebuggerDisplay() => this.ToDebuggerDisplayString(builder =>
         {
-            builder.DisplayMember(x => _name);
-            builder.DisplayMember(x => Attachments.Count);
+            builder.DisplayValue(x => _name);
+            builder.DisplayValue(x => Attachments.Count);
         });
 
         internal HashSet<ILogAttachment> Attachments { get; set; } = new HashSet<ILogAttachment>();

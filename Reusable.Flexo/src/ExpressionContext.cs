@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using Reusable.Data;
 using Reusable.Diagnostics;
 using linq = System.Linq.Expressions;
 
@@ -53,8 +54,8 @@ namespace Reusable.Flexo
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
         {
-            builder.DisplayMember(x => x.Count);
-            builder.DisplayCollection(x => x.Keys);
+            builder.DisplayValue(x => x.Count);
+            builder.DisplayValues(x => x.Keys);
         });
 
         public object this[SoftString key] => _data[key];
@@ -120,7 +121,7 @@ namespace Reusable.Flexo
 
     public interface IDebugContext
     {
-        TreeNode DebugView { get; }
+        TreeNode<ExpressionDebugView> DebugView { get; }
         
         ExpressionInvokeConvention InvokeConvention { get; }
     }

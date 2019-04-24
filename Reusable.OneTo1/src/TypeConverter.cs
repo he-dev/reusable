@@ -43,8 +43,8 @@ namespace Reusable.OneTo1
             ? nameof(CompositeConverter)
             : this.ToDebuggerDisplayString(builder =>
             {
-                builder.DisplayMember(x => x.FromType);
-                builder.DisplayMember(x => x.ToType);
+                builder.DisplayValue(x => x.FromType);
+                builder.DisplayValue(x => x.ToType);
             });
 
         public bool CanConvert(Type fromType, Type toType)

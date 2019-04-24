@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Collections;
+using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using linq = System.Linq.Expressions;
@@ -155,6 +156,16 @@ namespace Reusable.Flexo
             }
 
             throw DynamicException.Create("ComparerNotFound", $"There is no comparer with the name '{name}'.");
+        }
+
+        public static TreeNode<ExpressionDebugView> DebugView(this IExpressionContext context)
+        {
+            return context.Get(Item.For<IDebugContext>(), x => x.DebugView);
+        }
+        
+        public static IExpressionContext DebugView(this IExpressionContext context, TreeNode<ExpressionDebugView> debugView)
+        {
+            return context.Set(Item.For<IDebugContext>(), x => x.DebugView, debugView);
         }
     }
 

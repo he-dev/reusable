@@ -22,8 +22,8 @@ namespace Reusable.IOnymous
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
         {
-            builder.DisplayMember(x => x.Count);
-            builder.DisplayCollection(x => x.Keys);
+            builder.DisplayValue(x => x.Count);
+            builder.DisplayValues(x => x.Keys);
         });
         
         // A struct cannot be initialized so the field remains null when using 'default'.

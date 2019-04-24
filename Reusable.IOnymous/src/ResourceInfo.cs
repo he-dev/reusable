@@ -40,9 +40,9 @@ namespace Reusable.IOnymous
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
         {
-            builder.DisplayMember(x => x.Uri);
-            builder.DisplayMember(x => x.Exists);
-            builder.DisplayMember(x => x.Format);
+            builder.DisplayValue(x => x.Uri);
+            builder.DisplayValue(x => x.Exists);
+            builder.DisplayValue(x => x.Format);
         });
 
         #region IResourceInfo

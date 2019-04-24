@@ -16,8 +16,8 @@ namespace Reusable.Deception.Triggers
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(b =>
         {
-            b.DisplayMember(x => x._counter);
-            b.DisplayMember(x => x.Current);
+            b.DisplayValue(x => x._counter);
+            b.DisplayValue(x => x.Current);
         });
 
         protected override bool CanThrow()
