@@ -119,7 +119,14 @@ namespace Reusable.IOnymous
         {
             var stream = await serializeAsync();
             var post = executeAsync(uri, stream, metadata);
-            await post.ContinueWith(_ => stream.Dispose());
+            await post.ContinueWith(t =>
+            {
+                stream.Dispose();
+                if (t.IsFaulted && t.Exception != null)
+                {
+                    throw t.Exception;
+                }
+            });
 
             return await post;
         }

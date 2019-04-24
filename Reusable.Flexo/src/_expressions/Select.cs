@@ -30,7 +30,7 @@ namespace Reusable.Flexo
             }
             else
             {
-                var values = Values.Invoke(context).Values<object>().ToList();
+                var values = Values.Enabled().Invoke(context).Values<object>().ToList();
                 return (Name, values, context);
             }
         }
