@@ -33,5 +33,26 @@ namespace Reusable.Extensions
             var value = getValue();
             return canAppend(value) ? stringBuilder.Next(sb => append(sb, value)) : stringBuilder;
         }
+        
+        [NotNull]
+        public static StringBuilder TrimEnd([NotNull] this StringBuilder stringBuilder, [NotNull] string value)
+        {
+            if (stringBuilder == null) throw new ArgumentNullException(nameof(stringBuilder));
+            if (value == null) throw new ArgumentNullException(nameof(value));
+
+            var startIndex = stringBuilder.Length - value.Length;
+            for (int i = startIndex, j = 0; j < value.Length; i++, j++)
+            {
+                if (!stringBuilder[i].Equals(value[j]))
+                {
+                    return stringBuilder;
+                }
+            }
+
+            return 
+                stringBuilder
+                    .Remove(startIndex, value.Length)
+                    .TrimEnd(value);
+        }
     }
 }

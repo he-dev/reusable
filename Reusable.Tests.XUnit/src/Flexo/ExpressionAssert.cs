@@ -8,15 +8,16 @@ namespace Reusable.Tests.Flexo
 {
     internal static class ExpressionAssert
     {
+        private static readonly ITreeNodeRenderer<string> DebugViewRenderer = new StringTreeNodeRenderer();
+        
         public static IConstant Equal<TValue, TExpression>(TValue expectedValue, TExpression expression, IExpressionContext context = null) where TExpression : IExpression
         {
-            var expected = expectedValue is IConstant constant ? constant.Value : expectedValue; // Constant.FromValue("Expected", expectedValue);
-            var debugView = TreeNode.Create(new ExpressionDebugView
-            {
-                Name = "Root"
-            });
-            context = (context ?? ExpressionContext.Empty).WithRegexComparer().WithSoftStringComparer().DebugView(debugView);
+            var expected = expectedValue is IConstant constant ? constant.Value : expectedValue;
+            
+            context = (context ?? ExpressionContext.Empty).WithRegexComparer().WithSoftStringComparer();           
             var actual = expression.Invoke(context);
+
+            var debugViewString = DebugViewRenderer.Render(context.DebugView(), ExpressionDebugView.DefaultRender);
 
             return
                 object.Equals(expected, actual.Value is IConstant c ? c.Value : actual.Value)

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -60,6 +61,46 @@ namespace Reusable.Data
             var child = new TreeNode<T>(value);
             parent.Add(child);
             return (parent, child);
+        }
+    }
+
+    public delegate string RenderValueCallback<in T>(T value, int depth);
+
+    [PublicAPI]
+    public interface ITreeNodeRenderer<out TResult>
+    {
+        TResult Render<TValue>(TreeNode<TValue> root, RenderValueCallback<TValue> renderValue);
+    }
+
+    public abstract class TreeNodeRenderer<TResult> : ITreeNodeRenderer<TResult>
+    {
+        public abstract TResult Render<TValue>(TreeNode<TValue> root, RenderValueCallback<TValue> renderValue);
+    }
+
+    public class StringTreeNodeRenderer : ITreeNodeRenderer<string>
+    {
+        public int IndentWidth { get; set; } = 3;
+
+        public string Render<TValue>(TreeNode<TValue> root, RenderValueCallback<TValue> renderValue)
+        {
+            var nodeViews = Render(root, 0, renderValue);
+            var indentedNodeViews = nodeViews.Select(nv => nv.Value.IndentLines(IndentWidth * nv.Depth));
+            return string.Join(Environment.NewLine, indentedNodeViews);
+        }
+
+        private static IEnumerable<(string Value, int Depth)> Render<T>(TreeNode<T> root, int depth, RenderValueCallback<T> renderValue)
+        {
+            yield return (renderValue(root, depth), depth);
+
+            var views =
+                from node in root
+                from view in Render(node, depth + 1, renderValue)
+                select view;
+
+            foreach (var view in views)
+            {
+                yield return view;
+            }
         }
     }
 }

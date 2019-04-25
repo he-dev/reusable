@@ -23,12 +23,12 @@ namespace Reusable.Flexo
             }
             else
             {
-                var predicate = (Predicate ?? Constant.True).Invoke(context).Value<bool>();
+                var predicate = (Predicate ?? Constant.True).Invoke(context);
                 var last = default(IConstant);
                 foreach (var item in Values.Enabled())
                 {
-                    last = item.Invoke(last?.Context ?? context);
-                    if (EqualityComparer<bool>.Default.Equals(last.Value<bool>(), predicate))
+                    last = item.Invoke(predicate.Context);
+                    if (EqualityComparer<bool>.Default.Equals(last.Value<bool>(), predicate.Value<bool>()))
                     {
                         continue;
                     }

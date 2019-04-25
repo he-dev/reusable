@@ -115,61 +115,57 @@ namespace Reusable.Flexo
 
         public virtual IConstant Invoke(IExpressionContext context)
         {
-            var parentNode = context.Get(Item.For<IDebugContext>(), x => x.DebugView);
+            var parentNode = context.DebugView();
             var thisView = new ExpressionDebugView
             {
+                Type = GetType().ToPrettyString(),
                 Name = Name.ToString(),
                 Description = Description,
             };
             var thisNode = TreeNode.Create(thisView);
             parentNode.Add(thisNode);
-            var result = (IConstant)InvokeCore
+            var thisResult = (IConstant)InvokeCore(context.DebugView(thisNode));
+            thisView.Result = thisResult.Value;
+
+            var seed = (IConstant)Constant.FromValue
             (
-                context
-                    .Set(Item.For<IDebugContext>(), x => x.DebugView, thisNode)
-                //.Set(Item.For<IDebugContext>(), x => x.InvokeConvention, ExpressionInvokeConvention.Normal)
+                thisResult.Name,
+                thisResult.Value,
+                thisResult.Context.DebugView(thisNode)
             );
 
-            thisView.Result = result.Value;
-            //thisView.InvokeConvention = result.Context.Get(Item.For<IDebugContext>(), x => x.InvokeConvention);
+            var enabledExtensions = (This ?? Enumerable.Empty<IExpression>()).Enabled();
+            var extensionsResult = enabledExtensions.Aggregate(seed, (previous, next) =>
+            {
+                var extensionType = next.GetType().GetInterface(typeof(IExtension<>).Name)?.GetGenericArguments().Single();
+                var thisType = previous.Value is IExpression expression ? expression.GetType().GetGenericArguments().Single() : previous.Value?.GetType();
 
-            var seed = (IConstant)Constant.FromValue(result.Name, result.Value, result.Context.Set(Item.For<IDebugContext>(), x => x.DebugView, thisNode));
-            return
-                (This ?? Enumerable.Empty<IExpression>())
-                .Enabled()
-                .Aggregate(seed, (previous, next) =>
+                if (extensionType?.IsAssignableFrom(thisType) == true)
                 {
-                    var extensionType = next.GetType().GetInterface(typeof(IExtension<>).Name)?.GetGenericArguments().Single();
-                    var thisType = previous.Value is IExpression expression ? expression.GetType().GetGenericArguments().Single() : previous.Value?.GetType();
+                    var innerContext =
+                        previous
+                            .Context
+                            .PushExtensionInput(previous.Value);
 
-                    if (extensionType?.IsAssignableFrom(thisType) == true)
-                    {
-                        var innerContext =
-                            previous
-                                .Context
-                                .PushExtensionInput(previous.Value);
-                        //.Set(Item.For<IDebugContext>(), x => x.InvokeConvention, ExpressionInvokeConvention.Extension)
+                    return next.Invoke(innerContext);
+                }
+                else
+                {
+                    throw DynamicException.Create
+                    (
+                        $"ExtensionTypeMismatch",
+                        $"Extension '{next.GetType().ToPrettyString()}' does not match the expression it is extending which is '{previous.GetType().ToPrettyString()}'."
+                    );
+                }
+            });
 
-                        return next.Invoke(innerContext);
-                    }
-                    else
-                    {
-                        throw DynamicException.Create
-                        (
-                            "ExtensionTypeMismatch",
-                            $"Extension '{next.GetType().ToPrettyString()}' does not match the expression it is extending which is '{previous.GetType().ToPrettyString()}'."
-                        );
-                    }
-                });
+            return extensionsResult;
         }
 
         protected abstract Constant<TResult> InvokeCore(IExpressionContext context);
     }
 
-    
-
-    
-
+    [PublicAPI]
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public class ExpressionDebugView
     {
@@ -180,11 +176,24 @@ namespace Reusable.Flexo
             b.DisplayValue(x => x.Description);
         });
 
-        public string Name { get; set; }
+        public static ExpressionDebugView Root => new ExpressionDebugView
+        {
+            Name = "Root",
+            Description = "This is the root node of the expression debug-view."
+        };
 
-        public string Description { get; set; }
+        public static RenderValueCallback<ExpressionDebugView> DefaultRender
+        {
+            get { return (dv, d) => $"[{dv.Type}] as [{dv.Name}]: '{dv.Result}' ({dv.Description})"; }
+        }
 
-        public object Result { get; set; }
+        public string Type { get; set; } = $"<{nameof(Type)}>";
+
+        public string Name { get; set; } = $"<{nameof(Name)}>";
+
+        public string Description { get; set; } = $"<{nameof(Description)}>";
+
+        public object Result { get; set; } = $"<{nameof(Result)}>";
 
         //public ExpressionInvokeConvention InvokeConvention { get; set; }        
     }

@@ -52,7 +52,7 @@ namespace Reusable.Flexo
             var debugViewKey = CreateKey(Item.For<IDebugContext>(), x => x.DebugView);
             if (!_data.ContainsKey(debugViewKey))
             {
-                _data = _data.SetItem(debugViewKey, Reusable.Data.TreeNode<ExpressionDebugView>.Empty);
+                _data = _data.SetItem(debugViewKey, TreeNode.Create(ExpressionDebugView.Root));
             }
         }
 
