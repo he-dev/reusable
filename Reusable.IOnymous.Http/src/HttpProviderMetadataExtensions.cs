@@ -22,23 +22,23 @@ namespace Reusable.IOnymous
 
         public static Stream Content(this MetadataScope<HttpProvider> scope)
         {
-            return scope.Metadata.GetValueByCallerName(Stream.Null);
+            return scope.Metadata.GetItemByCallerName(Stream.Null);
         }
 
         public static MetadataScope<HttpProvider> Content(this MetadataScope<HttpProvider> scope, Stream content)
         {
-            return scope.Metadata.SetItemWithCallerName(content);
+            return scope.Metadata.SetItemByCallerName(content);
         }
 
         public static Action<HttpRequestHeaders> ConfigureRequestHeaders(this MetadataScope<HttpProvider> scope)
         {
-            return scope.Metadata.GetValueByCallerName<Action<HttpRequestHeaders>>(_ => { });
+            return scope.Metadata.GetItemByCallerName<Action<HttpRequestHeaders>>(_ => { });
         }
 
         public static MetadataScope<HttpProvider> ConfigureRequestHeaders(this MetadataScope<HttpProvider> scope, Action<HttpRequestHeaders> configureRequestHeaders)
         {
             var current = scope.ConfigureRequestHeaders();
-            return scope.Metadata.SetItemWithCallerName((Action<HttpRequestHeaders>)(headers =>
+            return scope.Metadata.SetItemByCallerName((Action<HttpRequestHeaders>)(headers =>
             {
                 current(headers);
                 configureRequestHeaders(headers);
@@ -47,12 +47,12 @@ namespace Reusable.IOnymous
 
         public static MediaTypeFormatter RequestFormatter(this MetadataScope<HttpProvider> scope)
         {
-            return scope.Metadata.GetValueByCallerName<MediaTypeFormatter>(new JsonMediaTypeFormatter());
+            return scope.Metadata.GetItemByCallerName<MediaTypeFormatter>(new JsonMediaTypeFormatter());
         }
 
         public static MetadataScope<HttpProvider> RequestFormatter(this MetadataScope<HttpProvider> scope, MediaTypeFormatter requestFormatter)
         {
-            return scope.Metadata.SetItemWithCallerName(requestFormatter);
+            return scope.Metadata.SetItemByCallerName(requestFormatter);
         }
 
         // public static bool EnsureSuccessStatusCode(this ResourceMetadata metadata)
@@ -67,34 +67,34 @@ namespace Reusable.IOnymous
 
         public static IEnumerable<MediaTypeFormatter> ResponseFormatters(this MetadataScope<HttpProvider> scope)
         {
-            return scope.Metadata.GetValueByCallerName(new MediaTypeFormatter[] { new JsonMediaTypeFormatter() });
+            return scope.Metadata.GetItemByCallerName(new MediaTypeFormatter[] { new JsonMediaTypeFormatter() });
         }
 
         public static MetadataScope<HttpProvider> ResponseFormatters(this MetadataScope<HttpProvider> scope, params MediaTypeFormatter[] responseFormatters)
         {
-            return scope.Metadata.SetItemWithCallerName((IEnumerable<MediaTypeFormatter>)responseFormatters);
+            return scope.Metadata.SetItemByCallerName((IEnumerable<MediaTypeFormatter>)responseFormatters);
         }
 
         public static Type ResponseType(this MetadataScope<HttpProvider> scope)
         {
-            return scope.Metadata.GetValueByCallerName(typeof(object));
+            return scope.Metadata.GetItemByCallerName(typeof(object));
         }
 
         public static MetadataScope<HttpProvider> ResponseType(this MetadataScope<HttpProvider> scope, Type responseType)
         {
-            return scope.Metadata.SetItemWithCallerName(responseType);
+            return scope.Metadata.SetItemByCallerName(responseType);
         }
 
         // ---
 
         public static string ContentType(this MetadataScope<HttpProvider> scope)
         {
-            return scope.Metadata.GetValueByCallerName("application/json");
+            return scope.Metadata.GetItemByCallerName("application/json");
         }
 
         public static MetadataScope<HttpProvider> ContentType(this MetadataScope<HttpProvider> scope, string contentType)
         {
-            return scope.Metadata.SetItemWithCallerName(contentType);
+            return scope.Metadata.SetItemByCallerName(contentType);
         }        
     }
 }

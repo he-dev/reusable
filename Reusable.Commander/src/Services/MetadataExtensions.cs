@@ -17,12 +17,12 @@ namespace Reusable.Commander.Services
 // ---
         public static object DefaultValue(this MetadataScope<ICommandLine> scope)
         {
-            return scope.Metadata.GetValueByCallerName(SoftString.Empty);
+            return scope.Metadata.GetItemByCallerName(SoftString.Empty);
         }
 
         public static MetadataScope<ICommandLine> DefaultValue(this MetadataScope<ICommandLine> scope, object name)
         {
-            return scope.Metadata.SetItemWithCallerName(name);
+            return scope.Metadata.SetItemByCallerName(name);
         }
     }
 }

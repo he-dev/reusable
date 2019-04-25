@@ -38,12 +38,12 @@ namespace Reusable.Tests.XUnit.IOnymous
     {
         public static string Greeting(this MetadataScope<MetadataExtensionsTest> scope)
         {
-            return scope.Metadata.GetValueByCallerName("Hallo!");
+            return scope.Metadata.GetItemByCallerName("Hallo!");
         }
         
         public static MetadataScope<MetadataExtensionsTest> Greeting(this MetadataScope<MetadataExtensionsTest> scope, string greeting)
         {
-            return scope.Metadata.SetItemWithCallerName(greeting);
+            return scope.Metadata.SetItemByCallerName(greeting);
         }
     }
 }

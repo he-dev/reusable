@@ -67,17 +67,17 @@ namespace Reusable.Data
     public delegate string RenderValueCallback<in T>(T value, int depth);
 
     [PublicAPI]
-    public interface ITreeNodeRenderer<out TResult>
+    public interface ITreeRenderer<out TResult>
     {
         TResult Render<TValue>(TreeNode<TValue> root, RenderValueCallback<TValue> renderValue);
     }
 
-    public abstract class TreeNodeRenderer<TResult> : ITreeNodeRenderer<TResult>
+    public abstract class TreeRenderer<TResult> : ITreeRenderer<TResult>
     {
         public abstract TResult Render<TValue>(TreeNode<TValue> root, RenderValueCallback<TValue> renderValue);
     }
 
-    public class StringTreeNodeRenderer : ITreeNodeRenderer<string>
+    public class PlainTextTreeRenderer : ITreeRenderer<string>
     {
         public int IndentWidth { get; set; } = 3;
 

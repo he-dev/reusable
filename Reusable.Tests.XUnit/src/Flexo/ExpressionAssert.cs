@@ -8,7 +8,7 @@ namespace Reusable.Tests.Flexo
 {
     internal static class ExpressionAssert
     {
-        private static readonly ITreeNodeRenderer<string> DebugViewRenderer = new StringTreeNodeRenderer();
+        private static readonly ITreeRenderer<string> DebugViewRenderer = new PlainTextTreeRenderer();
         
         public static IConstant Equal<TValue, TExpression>(TValue expectedValue, TExpression expression, IExpressionContext context = null) where TExpression : IExpression
         {
