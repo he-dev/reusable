@@ -48,6 +48,12 @@ namespace Reusable.Flexo
                     {
                         ["Default"] = EqualityComparer<object>.Default
                     });
+
+            var debugViewKey = CreateKey(Item.For<IDebugContext>(), x => x.DebugView);
+            if (!_data.ContainsKey(debugViewKey))
+            {
+                _data = _data.SetItem(debugViewKey, Reusable.Data.TreeNode<ExpressionDebugView>.Empty);
+            }
         }
 
         public static IExpressionContext Empty => new ExpressionContext(ImmutableDictionary<SoftString, object>.Empty);

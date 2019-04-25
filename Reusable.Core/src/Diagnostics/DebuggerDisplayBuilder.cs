@@ -101,9 +101,4 @@ namespace Reusable.Diagnostics
             return builder.Collection(memberSelector, x => x, DebuggerDisplayFormatter.DefaultValueFormat, DebuggerDisplayFormatter.DefaultCollectionLength);
         }
     }
-
-    public static class DebuggerDisplayString
-    {
-        public const string DefaultNoQuotes = "{DebuggerDisplay,nq}";
-    }
 }

@@ -15,7 +15,7 @@ namespace Reusable.Tests.Flexo
             {
                 Name = "Root"
             });
-            context = (context ?? ExpressionContext.Empty).WithRegexComparer().WithSoftStringComparer().Set(Item.For<IDebugContext>(), x => x.DebugView, debugView);
+            context = (context ?? ExpressionContext.Empty).WithRegexComparer().WithSoftStringComparer().DebugView(debugView);
             var actual = expression.Invoke(context);
 
             return
