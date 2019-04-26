@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
@@ -13,11 +15,31 @@ namespace Reusable.IOnymous
 
         protected async Task<string> ReadBodyAsync(Stream value, Metadata metadata)
         {
-            using (var bodyReader = new StreamReader(value, metadata.Mail().BodyEncoding()))
+            using (var bodyReader = new StreamReader(value, metadata.Scope<IMailMetadata>().Get(x => x.BodyEncoding)))
             {
                 return await bodyReader.ReadToEndAsync();
             }
         }
+    }
+
+    public interface IMailMetadata : IMetadataScope
+    {
+        string From { get; }
+
+        IList<string> To { get; }
+
+        // ReSharper disable once InconsistentNaming - We want to keep this particular name as is.
+        IList<string> CC { get; }
+
+        string Subject { get; }
+
+        IDictionary<string, byte[]> Attachments { get; }
+
+        Encoding BodyEncoding { get; }
+
+        bool IsHtml { get; }
+
+        bool IsHighPriority { get; }
     }
 
     internal class MailResourceInfo : ResourceInfo

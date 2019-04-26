@@ -4,25 +4,25 @@ namespace Reusable.Commander.Services
 {
     internal static class MetadataExtensions
     {
-        public static MetadataScope<ICommandLine> CommandLine(this Metadata metadata)
+        public static Metadata<ICommandLine> CommandLine(this Metadata metadata)
         {
-            return metadata.For<ICommandLine>();
+            return metadata.Scope<ICommandLine>();
         }
 
         public static Metadata CommandLine(this Metadata metadata, ConfigureMetadataScopeCallback<ICommandLine> scope)
         {
-            return metadata.For(scope);
+            return metadata.Scope(scope);
         }
 
 // ---
-        public static object DefaultValue(this MetadataScope<ICommandLine> scope)
+        public static object DefaultValue(this Metadata<ICommandLine> scope)
         {
-            return scope.Metadata.GetItemByCallerName(SoftString.Empty);
+            return scope.Value.GetItemByCallerName(SoftString.Empty);
         }
 
-        public static MetadataScope<ICommandLine> DefaultValue(this MetadataScope<ICommandLine> scope, object name)
+        public static Metadata<ICommandLine> DefaultValue(this Metadata<ICommandLine> scope, object name)
         {
-            return scope.Metadata.SetItemByCallerName(name);
+            return scope.Value.SetItemByCallerName(name);
         }
     }
 }

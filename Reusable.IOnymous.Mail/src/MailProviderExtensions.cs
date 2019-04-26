@@ -31,17 +31,15 @@ namespace Reusable.IOnymous
             var metadata =
                 Metadata
                     .Empty
-                    .Mail
-                    (
-                        scope => scope
-                            .From(email.From)
-                            .To(email.To)
-                            .CC(email.CC)
-                            .Subject(email.Subject.Value)
-                            .Attachments(email.Attachments)
-                            .From(email.From)
-                            .IsHtml(email.IsHtml)
-                            .IsHighPriority(email.IsHighPriority)
+                    .Scope<IMailMetadata>(m => m
+                        .Set(x => x.From, email.From)
+                        .Set(x => x.To, email.To)
+                        .Set(x => x.CC, email.CC)
+                        .Set(x => x.Subject, email.Subject.Value)
+                        .Set(x => x.Attachments, email.Attachments)
+                        .Set(x => x.From, email.From)
+                        .Set(x => x.IsHtml, email.IsHtml)
+                        .Set(x => x.IsHighPriority, email.IsHighPriority)
                     );
 
             return await resourceProvider.PostAsync

@@ -10,49 +10,49 @@ namespace Reusable.IOnymous
     [PublicAPI]
     public static class HttpProviderMetadataExtensions
     {
-        public static MetadataScope<HttpProvider> Http(this Metadata metadata)
+        public static Metadata<HttpProvider> Http(this Metadata metadata)
         {
-            return metadata.For<HttpProvider>();
+            return metadata.Scope<HttpProvider>();
         }
 
         public static Metadata Http(this Metadata metadata, ConfigureMetadataScopeCallback<HttpProvider> scope)
         {
-            return metadata.For(scope);
+            return metadata.Scope(scope);
         }
 
-        public static Stream Content(this MetadataScope<HttpProvider> scope)
+        public static Stream Content(this Metadata<HttpProvider> scope)
         {
-            return scope.Metadata.GetItemByCallerName(Stream.Null);
+            return scope.Value.GetItemByCallerName(Stream.Null);
         }
 
-        public static MetadataScope<HttpProvider> Content(this MetadataScope<HttpProvider> scope, Stream content)
+        public static Metadata<HttpProvider> Content(this Metadata<HttpProvider> scope, Stream content)
         {
-            return scope.Metadata.SetItemByCallerName(content);
+            return scope.Value.SetItemByCallerName(content);
         }
 
-        public static Action<HttpRequestHeaders> ConfigureRequestHeaders(this MetadataScope<HttpProvider> scope)
+        public static Action<HttpRequestHeaders> ConfigureRequestHeaders(this Metadata<HttpProvider> scope)
         {
-            return scope.Metadata.GetItemByCallerName<Action<HttpRequestHeaders>>(_ => { });
+            return scope.Value.GetItemByCallerName<Action<HttpRequestHeaders>>(_ => { });
         }
 
-        public static MetadataScope<HttpProvider> ConfigureRequestHeaders(this MetadataScope<HttpProvider> scope, Action<HttpRequestHeaders> configureRequestHeaders)
+        public static Metadata<HttpProvider> ConfigureRequestHeaders(this Metadata<HttpProvider> scope, Action<HttpRequestHeaders> configureRequestHeaders)
         {
             var current = scope.ConfigureRequestHeaders();
-            return scope.Metadata.SetItemByCallerName((Action<HttpRequestHeaders>)(headers =>
+            return scope.Value.SetItemByCallerName((Action<HttpRequestHeaders>)(headers =>
             {
                 current(headers);
                 configureRequestHeaders(headers);
             }));
         }
 
-        public static MediaTypeFormatter RequestFormatter(this MetadataScope<HttpProvider> scope)
+        public static MediaTypeFormatter RequestFormatter(this Metadata<HttpProvider> scope)
         {
-            return scope.Metadata.GetItemByCallerName<MediaTypeFormatter>(new JsonMediaTypeFormatter());
+            return scope.Value.GetItemByCallerName<MediaTypeFormatter>(new JsonMediaTypeFormatter());
         }
 
-        public static MetadataScope<HttpProvider> RequestFormatter(this MetadataScope<HttpProvider> scope, MediaTypeFormatter requestFormatter)
+        public static Metadata<HttpProvider> RequestFormatter(this Metadata<HttpProvider> scope, MediaTypeFormatter requestFormatter)
         {
-            return scope.Metadata.SetItemByCallerName(requestFormatter);
+            return scope.Value.SetItemByCallerName(requestFormatter);
         }
 
         // public static bool EnsureSuccessStatusCode(this ResourceMetadata metadata)
@@ -65,36 +65,36 @@ namespace Reusable.IOnymous
         //     return metadata.SetItemSafe(ensureSuccessStatusCode);
         // }
 
-        public static IEnumerable<MediaTypeFormatter> ResponseFormatters(this MetadataScope<HttpProvider> scope)
+        public static IEnumerable<MediaTypeFormatter> ResponseFormatters(this Metadata<HttpProvider> scope)
         {
-            return scope.Metadata.GetItemByCallerName(new MediaTypeFormatter[] { new JsonMediaTypeFormatter() });
+            return scope.Value.GetItemByCallerName(new MediaTypeFormatter[] { new JsonMediaTypeFormatter() });
         }
 
-        public static MetadataScope<HttpProvider> ResponseFormatters(this MetadataScope<HttpProvider> scope, params MediaTypeFormatter[] responseFormatters)
+        public static Metadata<HttpProvider> ResponseFormatters(this Metadata<HttpProvider> scope, params MediaTypeFormatter[] responseFormatters)
         {
-            return scope.Metadata.SetItemByCallerName((IEnumerable<MediaTypeFormatter>)responseFormatters);
+            return scope.Value.SetItemByCallerName((IEnumerable<MediaTypeFormatter>)responseFormatters);
         }
 
-        public static Type ResponseType(this MetadataScope<HttpProvider> scope)
+        public static Type ResponseType(this Metadata<HttpProvider> scope)
         {
-            return scope.Metadata.GetItemByCallerName(typeof(object));
+            return scope.Value.GetItemByCallerName(typeof(object));
         }
 
-        public static MetadataScope<HttpProvider> ResponseType(this MetadataScope<HttpProvider> scope, Type responseType)
+        public static Metadata<HttpProvider> ResponseType(this Metadata<HttpProvider> scope, Type responseType)
         {
-            return scope.Metadata.SetItemByCallerName(responseType);
+            return scope.Value.SetItemByCallerName(responseType);
         }
 
         // ---
 
-        public static string ContentType(this MetadataScope<HttpProvider> scope)
+        public static string ContentType(this Metadata<HttpProvider> scope)
         {
-            return scope.Metadata.GetItemByCallerName("application/json");
+            return scope.Value.GetItemByCallerName("application/json");
         }
 
-        public static MetadataScope<HttpProvider> ContentType(this MetadataScope<HttpProvider> scope, string contentType)
+        public static Metadata<HttpProvider> ContentType(this Metadata<HttpProvider> scope, string contentType)
         {
-            return scope.Metadata.SetItemByCallerName(contentType);
+            return scope.Value.SetItemByCallerName(contentType);
         }        
     }
 }

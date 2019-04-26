@@ -9,8 +9,8 @@ namespace Reusable.Tests.XUnit.IOnymous
         [Fact]
         public void Can_set_scope()
         {
-            var metadata = Metadata.Empty.For<MetadataExtensionsTest>(scope => scope.Greeting("Hi!"));
-            Assert.Equal("Hi!", metadata.For<MetadataExtensionsTest>().Greeting());
+            var metadata = Metadata.Empty.Scope<MetadataExtensionsTest>(scope => scope.Greeting("Hi!"));
+            Assert.Equal("Hi!", metadata.Scope<MetadataExtensionsTest>().Greeting());
         }
 
         [Fact]
@@ -36,14 +36,14 @@ namespace Reusable.Tests.XUnit.IOnymous
 
     internal static class TestExtensions
     {
-        public static string Greeting(this MetadataScope<MetadataExtensionsTest> scope)
+        public static string Greeting(this Metadata<MetadataExtensionsTest> scope)
         {
-            return scope.Metadata.GetItemByCallerName("Hallo!");
+            return scope.Value.GetItemByCallerName("Hallo!");
         }
         
-        public static MetadataScope<MetadataExtensionsTest> Greeting(this MetadataScope<MetadataExtensionsTest> scope, string greeting)
+        public static Metadata<MetadataExtensionsTest> Greeting(this Metadata<MetadataExtensionsTest> scope, string greeting)
         {
-            return scope.Metadata.SetItemByCallerName(greeting);
+            return scope.Value.SetItemByCallerName(greeting);
         }
     }
 }

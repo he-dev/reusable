@@ -13,15 +13,15 @@ namespace Reusable.IOnymous
 
         protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, Metadata metadata)
         {
-            var mail = metadata.Mail();
+            var mail = metadata.Scope<IMailMetadata>();
 
             var app = new Application();
             var mailItem = (dynamic)app.CreateItem(OlItemType.olMailItem);
 
-            mailItem.Subject = mail.Subject();
-            mailItem.To = mail.To().Where(Conditional.IsNotNullOrEmpty).Join(";");
+            mailItem.Subject = mail.Get(x => x.Subject);
+            mailItem.To = mail.Get(x => x.To).Where(Conditional.IsNotNullOrEmpty).Join(";");
 
-            if (mail.IsHtml())
+            if (mail.Get(x => x.IsHtml))
             {
                 mailItem.BodyFormat = OlBodyFormat.olFormatHTML;
                 mailItem.HTMLBody = await ReadBodyAsync(value, metadata);
@@ -32,7 +32,7 @@ namespace Reusable.IOnymous
                 mailItem.Body = await ReadBodyAsync(value, metadata);
             }
 
-            mailItem.Importance = mail.IsHighPriority() ? OlImportance.olImportanceHigh : OlImportance.olImportanceNormal;
+            mailItem.Importance = mail.Get(x => x.IsHighPriority) ? OlImportance.olImportanceHigh : OlImportance.olImportanceNormal;
             //mailItem.Display(false);
             mailItem.Send();
 
