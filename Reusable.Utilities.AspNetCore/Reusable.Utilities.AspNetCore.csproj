@@ -5,7 +5,8 @@
     <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>
     <AssemblyName>Reusable.Utilities.AspNetCore</AssemblyName>
     <RootNamespace>Reusable.Utilities.AspNetCore</RootNamespace>
-    <Platforms>AnyCPU</Platforms>
+    <Platforms>AnyCPU;x64</Platforms>
+    <Configurations>Debug;Release;Debug.csproj</Configurations>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

@@ -4,6 +4,8 @@
     <!--<TargetFramework>net47</TargetFramework>-->
     <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>
     <RootNamespace>Reusable.SmartConfig</RootNamespace>
+    <Configurations>Debug;Release;Debug.csproj</Configurations>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

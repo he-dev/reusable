@@ -285,7 +285,7 @@ namespace Reusable.Tests.Flexo
                         When = new Contains(Logger<Contains>.Null)
                         {
                             Values = Constant.CreateMany("foo", "bar").ToList(),
-                            Value = new GetContextItem
+                            Value = new GetValue(Logger<GetValue>.Null)
                             {
                                 Key = "Switch.Value"
                             }
@@ -362,7 +362,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void GetContextItem_can_get_item_by_key()
         {
-            Equal(1, new GetContextItem { Key = "Switch.Value" }, ExpressionContext.Empty.Set(Item.For<ISwitchContext>(), x => x.Value, 1));
+            Equal(1, new GetValue(Logger<GetValue>.Null) { Key = "Switch.Value" }, ExpressionContext.Empty.Set(Item.For<ISwitchContext>(), x => x.Value, 1));
         }
     }
 }

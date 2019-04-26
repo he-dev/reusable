@@ -17,8 +17,7 @@ namespace Reusable.IOnymous
     [PublicAPI]
     public readonly struct Metadata : IEnumerable<KeyValuePair<SoftString, object>>
     {
-        [CanBeNull]
-        private readonly IImmutableDictionary<SoftString, object> _data;
+        [CanBeNull] private readonly IImmutableDictionary<SoftString, object> _data;
 
         public Metadata([NotNull] IImmutableDictionary<SoftString, object> metadata) => _data = metadata ?? throw new ArgumentNullException(nameof(metadata));
 
@@ -127,54 +126,31 @@ namespace Reusable.IOnymous
                     ? me.Member.Name
                     : throw DynamicException.Create
                     (
-                        "NotMemberExpression",
+                        $"NotMemberExpression",
                         $"Cannot use expression '{xItem}' because Get/Set expression must be member-expressions."
                     );
         }
 
-        public bool AssignValueWhenExists<TValue, TInstance>(Expression<Func<TScope, TValue>> setItem, TInstance obj)
+        public bool AssignValueWhenExists<TValue, TInstance>(Expression<Func<TScope, TValue>> getter, TInstance obj)
         {
-            var memberName = GetMemberName(setItem);
+            // obj.Property;
+            var setter = Expression.Property(Expression.Constant(obj), ((MemberExpression)getter.Body).Member.Name);
+            return AssignValueWhenExists(getter, Expression.Lambda<Func<TValue>>(setter));
+        }
+
+        public bool AssignValueWhenExists<TValue>(Expression<Func<TScope, TValue>> getter, Expression<Func<TValue>> setter)
+        {
+            var memberName = GetMemberName(getter);
             if (Value.TryGetValue(memberName, out TValue value))
             {
-                var property = typeof(TScope).GetProperty(memberName, BindingFlags.Public | BindingFlags.Instance);
-                if (property is null)
-                {
-                    throw DynamicException.Create
-                    (
-                        $"PropertyNotFound",
-                        $"Object of type '{typeof(TScope).ToPrettyString()}' does not have a property '{memberName}'."
-                    );
-                }
-                property.SetValue(obj, value);
+                // obj.Property = value;
+                var assign = Expression.Assign(setter.Body, Expression.Constant(value));
+                ((Func<string>)Expression.Lambda(assign).Compile())();
                 return true;
             }
+
             return false;
         }
-        
-        //public bool AssignValueWhenExists<TValue, TInstance>(Expression<Func<TScope, TValue>> getItem, Expression<Func<TValue>> setItem)
-        // {
-        //     var memberName = GetMemberName(getItem);
-        //     if (Value.TryGetValue(memberName, out TValue value))
-        //     {
-        //         if (setItem.Body is MemberExpression setMember)
-        //         {
-        //             ((PropertyInfo)setMember.Member);
-        //         }
-        //         var property = typeof(TScope).GetProperty(memberName, BindingFlags.Public | BindingFlags.Instance);
-        //         if (property is null)
-        //         {
-        //             throw DynamicException.Create
-        //             (
-        //                 $"PropertyNotFound",
-        //                 $"Object of type '{typeof(TScope).ToPrettyString()}' does not have a property '{memberName}'."
-        //             );
-        //         }
-        //         //property.SetValue(obj, value);
-        //         return true;
-        //     }
-        //     return false;
-        // }
 
         public static implicit operator Metadata<TScope>(Metadata metadata) => new Metadata<TScope>(metadata);
 
