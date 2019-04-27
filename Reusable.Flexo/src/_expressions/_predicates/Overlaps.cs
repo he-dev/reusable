@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Reusable.Data;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
@@ -14,7 +15,7 @@ namespace Reusable.Flexo
 
         public string Comparer { get; set; }
 
-        protected override Constant<bool> InvokeCore(IExpressionContext context)
+        protected override Constant<bool> InvokeCore(IImmutableSession context)
         {
             var with = With.Invoke(context).Values<object>();
             var comparer = context.GetComparerOrDefault(Comparer);

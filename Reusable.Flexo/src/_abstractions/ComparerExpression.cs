@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using Reusable.Data;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
@@ -17,7 +18,7 @@ namespace Reusable.Flexo
         [JsonRequired]
         public IExpression Value { get; set; }
 
-        protected override Constant<bool> InvokeCore(IExpressionContext context)
+        protected override Constant<bool> InvokeCore(IImmutableSession context)
         {
             if (context.TryPopExtensionInput(out object input))
             {

@@ -13,7 +13,7 @@ namespace Reusable.IOnymous
         private readonly Assembly _assembly;
 
         public EmbeddedFileProvider([NotNull] Assembly assembly, IImmutableSession metadata = default)
-            : base((metadata ?? ImmutableSession.Empty).Scope<IProviderSession>(s => s.Set(x => x.AllowRelativeUri, true)))
+            : base((metadata ?? ImmutableSession.Empty).Set(Use<IProviderSession>.Scope, x => x.AllowRelativeUri, true))
         {
             _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
             var assemblyName = _assembly.GetName().Name.Replace('.', '/');
@@ -27,7 +27,7 @@ namespace Reusable.IOnymous
         protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             //ValidateFormatNotNull(this, uri, metadata);
-            
+
             // Embedded resource names are separated by '.' so replace the windows separator.
 
             var fullUri = BaseUri + uri;
@@ -37,7 +37,7 @@ namespace Reusable.IOnymous
             var actualName = _assembly.GetManifestResourceNames().FirstOrDefault(name => SoftString.Comparer.Equals(name, fullName));
             var getManifestResourceStream = actualName is null ? default(Func<Stream>) : () => _assembly.GetManifestResourceStream(actualName);
 
-            return Task.FromResult<IResourceInfo>(new EmbeddedFileInfo(fullUri, metadata.Scope<IResourceSession>().Get(y => y.Format), getManifestResourceStream));
+            return Task.FromResult<IResourceInfo>(new EmbeddedFileInfo(fullUri, metadata.Get(Use<IResourceSession>.Scope, y => y.Format), getManifestResourceStream));
         }
 
         #endregion
@@ -53,7 +53,7 @@ namespace Reusable.IOnymous
         private readonly Func<Stream> _getManifestResourceStream;
 
         public EmbeddedFileInfo(string uri, MimeType format, Func<Stream> getManifestResourceStream)
-            : base(uri, ImmutableSession.Empty, s => s.Set(x => x.Format, format))
+            : base(uri, ImmutableSession.Empty.Set(Use<IResourceSession>.Scope, x => x.Format, format))
         {
             _getManifestResourceStream = getManifestResourceStream;
         }

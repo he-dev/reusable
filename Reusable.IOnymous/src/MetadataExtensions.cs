@@ -9,7 +9,7 @@ using Reusable.Extensions;
 
 namespace Reusable.IOnymous
 {
-    public interface IAnySession : ISessionScope
+    public interface IAnySession : ISession
     {
         Encoding Encoding { get; }
 
@@ -18,7 +18,7 @@ namespace Reusable.IOnymous
         CancellationToken CancellationToken { get; }
     }
 
-    public interface IProviderSession : ISessionScope
+    public interface IProviderSession : ISession
     {
         bool AllowRelativeUri { get; }
 
@@ -27,7 +27,7 @@ namespace Reusable.IOnymous
         SoftString CustomName { get; }
     }
 
-    public interface IResourceSession : ISessionScope
+    public interface IResourceSession : ISession
     {
         MimeType Format { get; }
 

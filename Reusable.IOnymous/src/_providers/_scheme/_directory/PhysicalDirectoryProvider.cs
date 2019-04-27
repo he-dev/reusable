@@ -37,7 +37,8 @@ namespace Reusable.IOnymous
     [PublicAPI]
     internal class PhysicalDirectoryInfo : ResourceInfo
     {
-        public PhysicalDirectoryInfo([NotNull] UriString uri) : base(uri, ImmutableSession.Empty, s => s.Set(x => x.Format, MimeType.Null)) { }
+        public PhysicalDirectoryInfo([NotNull] UriString uri)
+            : base(uri, ImmutableSession.Empty.Set(Use<IResourceSession>.Scope, x => x.Format, MimeType.Null)) { }
 
         public override UriString Uri { get; }
 

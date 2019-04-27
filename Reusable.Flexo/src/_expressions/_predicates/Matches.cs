@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Reusable.Data;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
@@ -13,7 +14,7 @@ namespace Reusable.Flexo
 
         public IExpression Pattern { get; set; }
 
-        protected override Constant<bool> InvokeCore(IExpressionContext context)
+        protected override Constant<bool> InvokeCore(IImmutableSession context)
         {
             var pattern = Pattern.Invoke(context).Value<string>();
             var options = IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None;

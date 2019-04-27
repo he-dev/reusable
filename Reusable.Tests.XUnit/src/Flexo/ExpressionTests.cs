@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Reusable.Data;
 using Reusable.Flexo;
 using Reusable.OmniLog;
 using Xunit;
@@ -34,7 +35,7 @@ namespace Reusable.Tests.Flexo
                 }
             };
 
-            var result = Equal(true, actual, ExpressionContext.Empty.SetItem("x", 1));
+            var result = Equal(true, actual, Expression.DefaultSession.SetItem("x", 1));
             Assert.Equal(4, result.Context["x"]);
         }
 
@@ -57,7 +58,7 @@ namespace Reusable.Tests.Flexo
                 }
             };
 
-            var result = Equal(true, actual, ExpressionContext.Empty.SetItem("x", 1));
+            var result = Equal(true, actual, Expression.DefaultSession.SetItem("x", 1));
             Assert.Equal(4, result.Context["x"]);
         }
 
@@ -80,7 +81,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void IIf_throws_when_no_result_specified()
         {
-            Assert.Throws<InvalidOperationException>(() => new IIf(Logger<IIf>.Null) { Predicate = Constant.Create(false) }.Invoke(ExpressionContext.Empty));
+            Assert.Throws<InvalidOperationException>(() => new IIf(Logger<IIf>.Null) { Predicate = Constant.Create(false) }.Invoke(Expression.DefaultSession));
         }
 
         [Fact]
@@ -107,7 +108,7 @@ namespace Reusable.Tests.Flexo
                 False = LambdaExpression.Double(context => (2.0, context.SetItem("x", (int)context["x"] + 2))),
             };
 
-            var result = Equal(1.0, actual, ExpressionContext.Empty.SetItem("x", 1));
+            var result = Equal(1.0, actual, Expression.DefaultSession.SetItem("x", 1));
             Assert.Equal(2, result.Context["x"]);
         }
 
@@ -121,7 +122,7 @@ namespace Reusable.Tests.Flexo
                 False = LambdaExpression.Double(context => (2.0, context.SetItem("x", (int)context["x"] + 2))),
             };
 
-            var result = Equal(2.0, actual, ExpressionContext.Empty.SetItem("x", 1));
+            var result = Equal(2.0, actual, Expression.DefaultSession.SetItem("x", 1));
             Assert.Equal(3, result.Context["x"]);
         }
 
@@ -138,85 +139,85 @@ namespace Reusable.Tests.Flexo
         public void IsEqual_returns_True_when_Input_equal_Value() => Equal(true, new IsEqual(Logger<IsEqual>.Null)
         {
             Value = Constant.Create("foo"),
-        }, ExpressionContext.Empty.PushExtensionInput("foo"));
-        
+        }, Expression.DefaultSession.PushExtensionInput("foo"));
+
         [Fact]
         public void IsEqual_returns_False_when_Input_not_equal_Value() => Equal(false, new IsEqual(Logger<IsEqual>.Null)
         {
             Value = Constant.Create("foo"),
-        }, ExpressionContext.Empty.PushExtensionInput("bar"));
+        }, Expression.DefaultSession.PushExtensionInput("bar"));
 
         [Fact]
         public void IsGreaterThan_returns_True_when_Input_GreaterThan_Value() => Equal(true, new IsGreaterThan(Logger<IsGreaterThan>.Null)
         {
             Value = Constant.Create(2.0),
-        }, ExpressionContext.Empty.PushExtensionInput(3.0));
+        }, Expression.DefaultSession.PushExtensionInput(3.0));
 
         [Fact]
         public void IsGreaterThan_returns_False_when_Input_LessThan_Value() => Equal(false, new IsGreaterThan(Logger<IsGreaterThan>.Null)
         {
             Value = Constant.Create(3.0),
-        }, ExpressionContext.Empty.PushExtensionInput(2.0));
+        }, Expression.DefaultSession.PushExtensionInput(2.0));
 
         [Fact]
         public void GreaterThan_ReturnsFalseWhenLeftEqualsRight() => Equal(false, new IsGreaterThan(Logger<IsGreaterThan>.Null)
         {
             Value = Constant.Create(2.0),
-        }, ExpressionContext.Empty.PushExtensionInput(2.0));
+        }, Expression.DefaultSession.PushExtensionInput(2.0));
 
         [Fact]
         public void GreaterThanOrEqual_ReturnsTrueWhenLeftGreaterThanRight() => Equal(true, new IsGreaterThanOrEqual(Logger<IsGreaterThanOrEqual>.Null)
         {
             Value = Constant.Create(2.0),
-        }, ExpressionContext.Empty.PushExtensionInput(3.0));
+        }, Expression.DefaultSession.PushExtensionInput(3.0));
 
         [Fact]
         public void GreaterThanOrEqual_ReturnsTrueWhenLeftEqualsRight() => Equal(true, new IsGreaterThanOrEqual(Logger<IsGreaterThanOrEqual>.Null)
         {
             Value = Constant.Create(3.0),
-        }, ExpressionContext.Empty.PushExtensionInput(3.0));
+        }, Expression.DefaultSession.PushExtensionInput(3.0));
 
         [Fact]
         public void GreaterThanOrEqual_ReturnsFalseWhenLeftLessThanRight() => Equal(false, new IsGreaterThanOrEqual(Logger<IsGreaterThanOrEqual>.Null)
         {
             Value = Constant.Create(3.0),
-        }, ExpressionContext.Empty.PushExtensionInput(2.0));
+        }, Expression.DefaultSession.PushExtensionInput(2.0));
 
         [Fact]
         public void LessThan_ReturnsTrueWhenLeftLessThanRight() => Equal(true, new IsLessThan(Logger<IsLessThan>.Null)
         {
             Value = Constant.Create(3.0),
-        }, ExpressionContext.Empty.PushExtensionInput(2.0));
+        }, Expression.DefaultSession.PushExtensionInput(2.0));
 
         [Fact]
         public void LessThan_ReturnsFalseWhenLeftEqualsRight() => Equal(false, new IsLessThan(Logger<IsLessThan>.Null)
         {
             Value = Constant.Create(3.0),
-        }, ExpressionContext.Empty.PushExtensionInput(3.0));
+        }, Expression.DefaultSession.PushExtensionInput(3.0));
 
         [Fact]
         public void LessThan_ReturnsFalseWhenLeftGreaterThanRight() => Equal(false, new IsLessThan(Logger<IsLessThan>.Null)
         {
             Value = Constant.Create(2.0),
-        }, ExpressionContext.Empty.PushExtensionInput(3.0));
+        }, Expression.DefaultSession.PushExtensionInput(3.0));
 
         [Fact]
         public void LessThanOrEqual_ReturnsTrueWhenLeftLessThanRight() => Equal(true, new IsLessThanOrEqual(Logger<IsLessThanOrEqual>.Null)
         {
             Value = Constant.Create(3.0),
-        }, ExpressionContext.Empty.PushExtensionInput(2.0));
+        }, Expression.DefaultSession.PushExtensionInput(2.0));
 
         [Fact]
         public void LessThanOrEqual_ReturnsTrueWhenLeftEqualsRight() => Equal(true, new IsLessThanOrEqual(Logger<IsLessThanOrEqual>.Null)
         {
             Value = Constant.Create(3.0),
-        }, ExpressionContext.Empty.PushExtensionInput(3.0));
+        }, Expression.DefaultSession.PushExtensionInput(3.0));
 
         [Fact]
         public void LessThanOrEqual_ReturnsFalseWhenLeftGreaterThanRight() => Equal(false, new IsLessThanOrEqual(Logger<IsLessThanOrEqual>.Null)
         {
             Value = Constant.Create(2.0),
-        }, ExpressionContext.Empty.PushExtensionInput(3.0));
+        }, Expression.DefaultSession.PushExtensionInput(3.0));
 
         [Fact]
         public void Not_returns_True_when_False() => Equal(false, new Not(Logger<Not>.Null) { Value = Constant.True });
@@ -231,19 +232,19 @@ namespace Reusable.Tests.Flexo
         public void ToDouble_maps_False_to_Zero() => Equal(0.0, new ToDouble { Value = Constant.False });
 
         [Fact]
-        public void ToString_converts_Input_to_string() => Equal("1", new ToString(), ExpressionContext.Empty.PushExtensionInput(1.0));
-        
+        public void ToString_converts_Input_to_string() => Equal("1", new ToString(), Expression.DefaultSession.PushExtensionInput(1.0));
+
         [Fact]
         public void ToString_converts_Input_to_string_with_custom_format() => Equal("1.00", new ToString
         {
             Format = Constant.Create("{0:F2}")
-        }, ExpressionContext.Empty.PushExtensionInput(1.0));
+        }, Expression.DefaultSession.PushExtensionInput(1.0));
 
         [Fact]
         public void Constant_flows_context()
         {
             var c = Constant.True;
-            var actual = c.Invoke(ExpressionContext.Empty.SetItem("x", 1));
+            var actual = c.Invoke(Expression.DefaultSession.SetItem("x", 1));
             Assert.NotNull(actual.Context);
             Assert.True(actual.Context.ContainsKey("x"));
         }
@@ -287,7 +288,7 @@ namespace Reusable.Tests.Flexo
                             Values = Constant.CreateMany("foo", "bar").ToList(),
                             Value = new GetValue(Logger<GetValue>.Null)
                             {
-                                Key = "Switch.Value"
+                                Key = "SwitchSession.Value"
                             }
                         },
                         Body = Constant.True
@@ -362,7 +363,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void GetContextItem_can_get_item_by_key()
         {
-            Equal(1, new GetValue(Logger<GetValue>.Null) { Key = "Switch.Value" }, ExpressionContext.Empty.Set(Item.For<ISwitchContext>(), x => x.Value, 1));
+            Equal(1, new GetValue(Logger<GetValue>.Null) { Key = "SwitchSession.Value" }, Expression.DefaultSession.Set(Use<ISwitchSession>.Scope, x => x.Value, 1));
         }
     }
 }

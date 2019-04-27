@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+using Reusable.Data;
 
 namespace Reusable.Flexo
 {
@@ -11,7 +12,7 @@ namespace Reusable.Flexo
 
         public List<IExpression> Values { get; set; }
 
-        protected override Constant<List<object>> InvokeCore(IExpressionContext context)
+        protected override Constant<List<object>> InvokeCore(IImmutableSession context)
         {
             return (Name, Values.Enabled().Select(e => e.Invoke(context).Value).ToList(), context);
         }

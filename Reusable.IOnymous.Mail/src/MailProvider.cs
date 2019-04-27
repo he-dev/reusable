@@ -16,14 +16,14 @@ namespace Reusable.IOnymous
 
         protected async Task<string> ReadBodyAsync(Stream value, IImmutableSession metadata)
         {
-            using (var bodyReader = new StreamReader(value, metadata.Scope<IMailSession>().Get(x => x.BodyEncoding, Encoding.UTF8)))
+            using (var bodyReader = new StreamReader(value, metadata.Get(Use<IMailSession>.Scope, x => x.BodyEncoding, Encoding.UTF8)))
             {
                 return await bodyReader.ReadToEndAsync();
             }
         }
     }
 
-    public interface IMailSession : ISessionScope
+    public interface IMailSession : ISession
     {
         string From { get; }
 
@@ -50,7 +50,7 @@ namespace Reusable.IOnymous
         private readonly Stream _response;
 
         public MailResourceInfo([NotNull] UriString uri, Stream response, MimeType format)
-            : base(uri, ImmutableSession.Empty, s => s.Set(x => x.Format, format))
+            : base(uri, ImmutableSession.Empty.Set(Use<IResourceSession>.Scope, x => x.Format, format))
         {
             _response = response;
         }

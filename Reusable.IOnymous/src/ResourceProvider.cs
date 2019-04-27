@@ -26,10 +26,10 @@ namespace Reusable.IOnymous
         IImmutableSession Metadata { get; }
 
         IImmutableSet<SoftString> Schemes { get; }
-        
+
         [NotNull]
         SoftString DefaultName { get; }
-        
+
         [CanBeNull]
         SoftString CustomName { get; }
 
@@ -64,14 +64,14 @@ namespace Reusable.IOnymous
         {
             builder.True
             (x =>
-                x.Provider.Metadata.Scope<IProviderSession>().Get(m => m.AllowRelativeUri, false) ||
+                x.Provider.Metadata.Get(Use<IProviderSession>.Scope, m => m.AllowRelativeUri, false) ||
                 x.Provider.Schemes.Contains(DefaultScheme) ||
                 x.Provider.Schemes.Contains(x.Uri.Scheme)
             ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it supports only such schemes as [{x.Provider.Schemes.Join(", ")}].");
 
             builder.True
             (x =>
-                x.Provider.Metadata.Scope<IProviderSession>().Get(m => m.AllowRelativeUri, false) ||
+                x.Provider.Metadata.Get(Use<IProviderSession>.Scope, m => m.AllowRelativeUri, false) ||
                 x.Uri.Scheme
             ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it supports only absolute URIs.");
         });
@@ -84,9 +84,9 @@ namespace Reusable.IOnymous
             //var metadata = Metadata.Empty;
 
             // If this is a decorator then the decorated resource-provider already has set this.
-            if (metadata.Scope<IProviderSession>().Get(x => x.DefaultName) is var df && !df)
+            if (metadata.Get(Use<IProviderSession>.Scope, x => x.DefaultName) is var df && !df)
             {
-                metadata = metadata.Scope<IProviderSession>(s => s.Set(x => x.DefaultName, GetType().ToPrettyString()));
+                metadata = metadata.Set(Use<IProviderSession>.Scope, x => x.DefaultName, GetType().ToPrettyString());
             }
 
             if ((Schemes = schemes.ToImmutableHashSet()).Empty())
@@ -105,9 +105,9 @@ namespace Reusable.IOnymous
             builder.DisplayValue(x => x.Schemes);
         });
 
-        public SoftString DefaultName => Metadata.Scope<IProviderSession>().Get(m => m.DefaultName);
-        
-        public SoftString CustomName => Metadata.Scope<IProviderSession>().Get(m => m.CustomName);
+        public SoftString DefaultName => Metadata.Get(Use<IProviderSession>.Scope,m => m.DefaultName);
+
+        public SoftString CustomName => Metadata.Get(Use<IProviderSession>.Scope,m => m.CustomName);
 
         public bool CanGet => Implements(nameof(GetAsyncInternal));
 

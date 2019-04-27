@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Reusable.Data;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
@@ -14,7 +15,7 @@ namespace Reusable.Flexo
 
         public IExpression Predicate { get; set; } //= Constant.True;
 
-        protected override Constant<bool> InvokeCore(IExpressionContext context)
+        protected override Constant<bool> InvokeCore(IImmutableSession context)
         {
             if (context.TryPopExtensionInput(out IEnumerable<object> input))
             {

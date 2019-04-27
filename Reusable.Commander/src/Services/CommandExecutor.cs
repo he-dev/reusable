@@ -6,17 +6,14 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Autofac.Features.Indexed;
 using JetBrains.Annotations;
-using Reusable.Commander.Services;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.SemanticExtensions;
 
-namespace Reusable.Commander
+namespace Reusable.Commander.Services
 {
-    using static CommandExecutionType;
-
     public interface ICommandExecutor
     {
         Task ExecuteAsync<TContext>([CanBeNull] string commandLineString, TContext context, CancellationToken cancellationToken = default);
@@ -69,15 +66,15 @@ namespace Reusable.Commander
             _logger.Log(Abstraction.Layer.Service().Counter(new
             {
                 CommandCount = executables.Count,
-                SequentialCommandCount = executables[Sequential].Count(),
-                AsyncCommandCount = executables[Asynchronous].Count()
+                SequentialCommandCount = executables[CommandExecutionType.Sequential].Count(),
+                AsyncCommandCount = executables[CommandExecutionType.Asynchronous].Count()
             }));
 
 
             using (var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
             {
                 // Execute sequential commands first.
-                foreach (var executable in executables[Sequential])
+                foreach (var executable in executables[CommandExecutionType.Sequential])
                 {
                     if (cancellationToken.IsCancellationRequested)
                     {
@@ -98,7 +95,7 @@ namespace Reusable.Commander
                     }
                 );
 
-                foreach (var executable in executables[Asynchronous])
+                foreach (var executable in executables[CommandExecutionType.Asynchronous])
                 {
                     actionBlock.Post(executable);
                 }

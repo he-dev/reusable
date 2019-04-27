@@ -17,18 +17,18 @@ namespace Reusable.IOnymous
         {
             builder.False
             (x =>
-                x.Metadata.Scope<IResourceSession>().Get(y => y.Format, MimeType.Null).IsNull()
+                x.Metadata.Get(Use<IResourceSession>.Scope, y => y.Format, MimeType.Null).IsNull()
             ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it requires resource format specified by the metadata.");
         });
-        
-        public PhysicalFileProvider(ImmutableSession metadata = default)
-            : base(metadata) { }
+
+        public PhysicalFileProvider(IImmutableSession metadata = default)
+            : base(metadata.ThisOrEmpty()) { }
 
         protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             ValidateRequest(ExtractMethodName(nameof(GetAsync)), uri, metadata, Stream.Null, RequestValidator);
 
-            return Task.FromResult<IResourceInfo>(new PhysicalFileInfo(uri, metadata.Scope<IResourceSession>().Get(y => y.Format)));
+            return Task.FromResult<IResourceInfo>(new PhysicalFileInfo(uri, metadata.Get(Use<IResourceSession>.Scope, y => y.Format)));
         }
 
         protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
@@ -48,14 +48,14 @@ namespace Reusable.IOnymous
         {
             File.Delete(uri.ToUnc());
             return Task.FromResult<IResourceInfo>(new PhysicalFileInfo(uri));
-        }        
+        }
     }
 
     [PublicAPI]
     internal class PhysicalFileInfo : ResourceInfo
     {
         public PhysicalFileInfo([NotNull] UriString uri, MimeType format)
-            : base(uri, ImmutableSession.Empty, s => s.Set(x => x.Format, format)) { }
+            : base(uri, ImmutableSession.Empty.Set(Use<IResourceSession>.Scope, x => x.Format, format)) { }
 
         public PhysicalFileInfo([NotNull] UriString uri)
             : this(uri, MimeType.Null) { }

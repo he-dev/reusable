@@ -10,11 +10,11 @@ namespace Reusable.Tests.Flexo
     {
         private static readonly ITreeRenderer<string> DebugViewRenderer = new PlainTextTreeRenderer();
         
-        public static IConstant Equal<TValue, TExpression>(TValue expectedValue, TExpression expression, IExpressionContext context = null) where TExpression : IExpression
+        public static IConstant Equal<TValue, TExpression>(TValue expectedValue, TExpression expression, IImmutableSession context = null) where TExpression : IExpression
         {
             var expected = expectedValue is IConstant constant ? constant.Value : expectedValue;
             
-            context = (context ?? ExpressionContext.Empty).WithRegexComparer().WithSoftStringComparer();           
+            context = (context ?? Expression.DefaultSession).WithRegexComparer().WithSoftStringComparer();           
             var actual = expression.Invoke(context);
 
             var debugViewString = DebugViewRenderer.Render(context.DebugView(), ExpressionDebugView.DefaultRender);

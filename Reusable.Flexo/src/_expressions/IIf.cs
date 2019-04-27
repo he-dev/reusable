@@ -1,5 +1,6 @@
 ﻿using System;
 using Newtonsoft.Json;
+using Reusable.Data;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
@@ -18,7 +19,7 @@ namespace Reusable.Flexo
 
         public IExpression False { get; set; }
 
-        protected override Constant<object> InvokeCore(IExpressionContext context)
+        protected override Constant<object> InvokeCore(IImmutableSession context)
         {
             if (True is null && False is null) throw new InvalidOperationException($"You need to specify at least one result ({nameof(True)}/{nameof(False)}).");
 

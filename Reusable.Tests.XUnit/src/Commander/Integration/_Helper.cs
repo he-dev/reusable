@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Autofac;
 using Reusable.Commander;
 using Reusable.Commander.Commands;
+using Reusable.Commander.Services;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using IContainer = Autofac.IContainer;

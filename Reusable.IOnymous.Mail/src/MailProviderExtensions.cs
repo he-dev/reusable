@@ -35,17 +35,15 @@ namespace Reusable.IOnymous
         )
         {
             metadata =
-                metadata
-                    .Scope<IMailSession>(m => m
-                        .Set(x => x.From, email.From)
-                        .Set(x => x.To, email.To)
-                        .Set(x => x.CC, email.CC)
-                        .Set(x => x.Subject, email.Subject.Value)
-                        .Set(x => x.Attachments, email.Attachments)
-                        .Set(x => x.From, email.From)
-                        .Set(x => x.IsHtml, email.IsHtml)
-                        .Set(x => x.IsHighPriority, email.IsHighPriority)
-                    );
+                (metadata ?? ImmutableSession.Empty)
+                .Set(Use<IMailSession>.Scope, x => x.From, email.From)
+                .Set(Use<IMailSession>.Scope, x => x.To, email.To)
+                .Set(Use<IMailSession>.Scope, x => x.CC, email.CC)
+                .Set(Use<IMailSession>.Scope, x => x.Subject, email.Subject.Value)
+                .Set(Use<IMailSession>.Scope, x => x.Attachments, email.Attachments)
+                .Set(Use<IMailSession>.Scope, x => x.From, email.From)
+                .Set(Use<IMailSession>.Scope, x => x.IsHtml, email.IsHtml)
+                .Set(Use<IMailSession>.Scope, x => x.IsHighPriority, email.IsHighPriority);
 
             return await resourceProvider.PostAsync
             (

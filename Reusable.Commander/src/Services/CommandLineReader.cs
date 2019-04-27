@@ -91,11 +91,11 @@ namespace Reusable.Commander.Services
         }
     }
 
-    internal static class CommandLineReaderExtensions
-    {
-        public static TValue GetItem<TParameter, TValue>(this ICommandLineReader reader, ISelector<TParameter> selector, Expression<Func<TParameter, TValue>> getItem)
-        {
-            return reader.GetItem<TValue>(getItem);
-        }
-    }
+//    internal static class CommandLineReaderExtensions
+//    {
+//        public static TValue GetItem<TParameter, TValue>(this ICommandLineReader reader, ISelector<TParameter> selector, Expression<Func<TParameter, TValue>> getItem)
+//        {
+//            return reader.GetItem<TValue>(getItem);
+//        }
+//    }
 }

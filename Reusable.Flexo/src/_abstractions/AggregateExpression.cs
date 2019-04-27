@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Reusable.Data;
 
 namespace Reusable.Flexo
 {
@@ -15,7 +16,7 @@ namespace Reusable.Flexo
 
         public IEnumerable<IExpression> Values { get; set; } = new List<IExpression>();
 
-        protected override Constant<double> InvokeCore(IExpressionContext context)
+        protected override Constant<double> InvokeCore(IImmutableSession context)
         {
             if (context.TryPopExtensionInput(out IEnumerable<object> input))
             {

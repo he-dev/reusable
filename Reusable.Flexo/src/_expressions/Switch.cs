@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using Reusable.Data;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
@@ -19,10 +20,10 @@ namespace Reusable.Flexo
 
         public IExpression Default { get; set; }
 
-        protected override Constant<object> InvokeCore(IExpressionContext context)
+        protected override Constant<object> InvokeCore(IImmutableSession context)
         {
             var value = context.TryPopExtensionInput(out object input) ? input : Value.Invoke(context).Value;
-            var switchContext = context.Set(Item.For<ISwitchContext>(), x => x.Value, value);
+            var switchContext = context.Set(Use<ISwitchSession>.Scope, x => x.Value, value);
 
             foreach (var switchCase in (Cases ?? Enumerable.Empty<SwitchCase>()).Where(c => c.Enabled))
             {
@@ -86,7 +87,7 @@ namespace Reusable.Flexo
         public IExpression Body { get; set; }
     }
 
-    public interface ISwitchContext
+    public interface ISwitchSession : ISession
     {
         object Value { get; }
     }

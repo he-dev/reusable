@@ -37,9 +37,9 @@ namespace Reusable.SmartConfig
             return
             (
                 $"{setting.ResourceScheme}:///{path}{query}",
-                ImmutableSession.Empty.Scope<IProviderSession>(s => s
-                    .Set(x => x.CustomName, setting.ResourceProviderName)
-                    .Set(x => x.DefaultName, setting.ResourceProviderType?.ToPrettyString()))
+                ImmutableSession.Empty
+                    .Set(Use<IProviderSession>.Scope, x => x.CustomName, setting.ResourceProviderName)
+                    .Set(Use<IProviderSession>.Scope, x => x.DefaultName, setting.ResourceProviderType?.ToPrettyString())
             );
         }
     }

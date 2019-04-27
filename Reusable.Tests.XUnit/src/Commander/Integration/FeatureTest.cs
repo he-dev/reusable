@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Commander;
 using Reusable.Commander.Annotations;
+using Reusable.Commander.Services;
 using Xunit;
 
 namespace Reusable.Tests.Commander.Integration

@@ -71,7 +71,7 @@ namespace Reusable.SmartConfig
         [CanBeNull] private readonly string _value;
 
         internal ConnectionStringInfo([NotNull] UriString uri, [CanBeNull] string value)
-            : base(uri, ImmutableSession.Empty, s => s.Set(x => x.Format, MimeType.Text))
+            : base(uri, ImmutableSession.Empty.Set(Use<IResourceSession>.Scope, x => x.Format, MimeType.Text))
         {
             _value = value;
         }

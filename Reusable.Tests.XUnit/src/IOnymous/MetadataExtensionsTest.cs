@@ -10,14 +10,14 @@ namespace Reusable.Tests.XUnit.IOnymous
         [Fact]
         public void Can_set_scope()
         {
-            var metadata = ImmutableSession.Empty.SetItem("Global", "ABC").Scope<ITestSession>(s => s.Set(x => x.Greeting, "Hi!"));
-            
+            var metadata = ImmutableSession.Empty.SetItem("Global", "ABC").Set(Use<ITestSession>.Scope, x => x.Greeting, "Hi!");
+
             Assert.Equal(2, metadata.Count);
-            
+
             Assert.True(metadata.ContainsKey("Global"));
-            Assert.True(metadata.ContainsKey("TestSession"));
-            
-            Assert.Equal("Hi!", metadata.Scope<ITestSession>().Get(x => x.Greeting));
+            Assert.True(metadata.ContainsKey("TestSession.Greeting"));
+
+            Assert.Equal("Hi!", metadata.Get(Use<ITestSession>.Scope, x => x.Greeting));
             Assert.Equal("ABC", metadata["Global"]);
         }
 
@@ -39,7 +39,7 @@ namespace Reusable.Tests.XUnit.IOnymous
         public void Union_can_merge_two_metadata_and_scope() { }
     }
 
-    internal interface ITestSession : ISessionScope
+    internal interface ITestSession : ISession
     {
         string Greeting { get; }
     }

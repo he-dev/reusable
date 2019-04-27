@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 
@@ -18,7 +19,7 @@ namespace Reusable.Flexo
                 select expression;
         }
 
-        public static IEnumerable<IConstant> Invoke(this IEnumerable<IExpression> expressions, IExpressionContext context)
+        public static IEnumerable<IConstant> Invoke(this IEnumerable<IExpression> expressions, IImmutableSession context)
         {
             return
                 from expression in expressions.Enabled()

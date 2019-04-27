@@ -35,16 +35,14 @@ namespace Reusable.IOnymous
         protected ResourceInfo
         (
             [NotNull] UriString uri,
-            [NotNull] IImmutableSession metadata,
-            [NotNull] ConfigureMetadataScopeCallback<IResourceSession> configureMetadata
+            [NotNull] IImmutableSession metadata
         )
         {
             if (uri == null) throw new ArgumentNullException(nameof(uri));
             if (metadata == null) throw new ArgumentNullException(nameof(metadata));
-            if (configureMetadata == null) throw new ArgumentNullException(nameof(configureMetadata));
 
             Uri = uri.IsRelative ? new UriString($"{ResourceProvider.DefaultScheme}:{uri}") : uri;
-            Metadata = metadata.Scope(configureMetadata);
+            Metadata = metadata;
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
@@ -66,7 +64,7 @@ namespace Reusable.IOnymous
 
         public abstract DateTime? ModifiedOn { get; }
 
-        public virtual MimeType Format => Metadata.Scope<IResourceSession>().Get(x => x.Format);
+        public virtual MimeType Format => Metadata.Get(Use<IResourceSession>.Scope,x => x.Format);
 
         public virtual IImmutableSession Metadata { get; }
 

@@ -9,7 +9,7 @@ namespace Reusable.Tests.XUnit.Teapot
 {
     public class UseCaseTest : IClassFixture<TeapotFactoryFixture>
     {
-        private const string BaseUri = "http://localhost:501234";
+        private const string BaseUri = "http://localhost:1234";
 
         private const string ApiUri = BaseUri + "/api";
 
@@ -52,18 +52,18 @@ namespace Reusable.Tests.XUnit.Teapot
                     (
                         "test?param=true",
                         () => ResourceHelper.SerializeAsJsonAsync(new { Greeting = "Hallo" }),
-                        ImmutableSession.Empty.Scope<IHttpSession>(s => s.Set(x => x.ConfigureRequestHeaders, headers =>
+                        ImmutableSession.Empty.Set(Use<IHttpSession>.Scope, x => x.ConfigureRequestHeaders, headers =>
                         {
                             headers.ApiVersion("1.0");
                             headers.UserAgent("Teapot", "1.0");
                             headers.AcceptJson();
-                        }))
+                        })
                     );
 
                     Assert.True(response.Exists);
                     var original = await response.DeserializeJsonAsync<object>();
                 }
-                
+
                 test.Assert();
             }
         }

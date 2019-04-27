@@ -73,7 +73,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
             {
                 Configuration = new cfg(new CompositeProvider(new IResourceProvider[]
                 {
-                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" }, ImmutableSession.Empty.Scope<IProviderSession>(s => s.Set(x => x.CustomName, "OtherOne")))
+                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" }, ImmutableSession.Empty.Set(Use<IProviderSession>.Scope,x => x.CustomName, "OtherOne"))
                     {
                         { "Map.City", "Joe" }
                     },
@@ -81,7 +81,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
                     {
                         { "Map.City", "Tom" }
                     },
-                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" }, ImmutableSession.Empty.Scope<IProviderSession>(s => s.Set(x => x.CustomName, "ThisOne")))
+                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" }, ImmutableSession.Empty.Set(Use<IProviderSession>.Scope,x => x.CustomName, "ThisOne"))
                     {
                         { "Map.City", "Bob" }
                     },

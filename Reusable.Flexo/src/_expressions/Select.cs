@@ -2,6 +2,7 @@
 using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using Reusable.Data;
 
 namespace Reusable.Flexo
 {
@@ -21,7 +22,7 @@ namespace Reusable.Flexo
         [JsonRequired]
         public IExpression Selector { get; set; }
 
-        protected override Constant<List<object>> InvokeCore(IExpressionContext context)
+        protected override Constant<List<object>> InvokeCore(IImmutableSession context)
         {
             if (context.TryPopExtensionInput(out IEnumerable<object> input))
             {

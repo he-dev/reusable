@@ -57,7 +57,7 @@ namespace Reusable.IOnymous
 
             var name = _uriConverter.Convert<string>(uri);
             _items[name] = await ResourceHelper.Deserialize<object>(value, metadata);
-            return new InMemoryResourceInfo(uri, metadata.Scope<IResourceSession>().Get(y => y.Format), value);
+            return new InMemoryResourceInfo(uri, metadata.Get(Use<IResourceSession>.Scope, y => y.Format), value);
         }
 
         // protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata)
@@ -118,7 +118,7 @@ namespace Reusable.IOnymous
         [CanBeNull] private readonly Stream _data;
 
         public InMemoryResourceInfo(UriString uri, MimeType format, Stream data, IImmutableSession metadata = default)
-            : base(uri, metadata ?? ImmutableSession.Empty, s => s.Set(x => x.Format, format))
+            : base(uri, metadata ?? ImmutableSession.Empty.Set(Use<IResourceSession>.Scope, x => x.Format, format))
         {
             _data = data ?? throw new ArgumentNullException(nameof(data));
         }

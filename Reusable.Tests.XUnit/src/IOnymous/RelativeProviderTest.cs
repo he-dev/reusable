@@ -30,7 +30,7 @@ namespace Reusable.Tests.XUnit.IOnymous
                 .Returns(new SoftString[] { "blub" }.ToImmutableHashSet());
 
             mockProvider
-                .Arrange(x => x.GetAsync(Arg.Matches<UriString>(uri => uri == new UriString("blub:base/relative")), Arg.IsAny<ImmutableSession>()))
+                .Arrange(x => x.GetAsync(Telerik.JustMock.Arg.Matches<UriString>(uri => uri == new UriString("blub:base/relative")), Telerik.JustMock.Arg.IsAny<ImmutableSession>()))
                 .Returns<UriString, ImmutableSession>((uri, metadata) => Task.FromResult<IResourceInfo>(new InMemoryResourceInfo(uri, ImmutableSession.Empty)));
 
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -33,52 +34,52 @@ namespace Reusable.Flexo
 
         #region Getters & Setters
 
-        [NotNull]
-        public static TProperty Get<TExpression, TProperty>
-        (
-            this IExpressionContext context,
-            Item<TExpression> item,
-            linq.Expression<Func<TExpression, TProperty>> propertySelector
-        )
-        {
-            if (context.TryGetValue(ExpressionContext.CreateKey(item, propertySelector), out var value))
-            {
-                if (value is TProperty result)
-                {
-                    return result;
-                }
-                else
-                {
-                    throw new ArgumentException
-                    (
-                        $"There is a value for '{ExpressionContext.CreateKey(item, propertySelector)}' " +
-                        $"but its type '{value.GetType().ToPrettyString()}' " +
-                        $"is different from '{typeof(TProperty).ToPrettyString()}'"
-                    );
-                }
-            }
-            else
-            {
-                //if (((MemberExpression)propertySelector.Body).Member.IsDefined(typeof(RequiredAttribute)))
-                {
-                    throw DynamicException.Create("RequiredValueMissing", $"{ExpressionContext.CreateKey(item, propertySelector)} is required.");
-                }
-
-                //throw DynamicException.Create("");
-            }
-        }
-
-        public static IExpressionContext Set<TExpression, TProperty>
-        (
-            this IExpressionContext context,
-            Item<TExpression> item,
-            linq.Expression<Func<TExpression, TProperty>> selectProperty,
-            TProperty value
-        )
-        {
-            var key = ExpressionContext.CreateKey(item, selectProperty);
-            return context.SetItem(key, value); // is IConstant constant ? constant : Constant.FromValue(key, value));
-        }
+//        [NotNull]
+//        public static TProperty Get<TExpression, TProperty>
+//        (
+//            this IImmutableSession context,
+//            Item<TExpression> item,
+//            linq.Expression<Func<TExpression, TProperty>> propertySelector
+//        )
+//        {
+//            if (context.TryGetValue(ExpressionContext.CreateKey(item, propertySelector), out var value))
+//            {
+//                if (value is TProperty result)
+//                {
+//                    return result;
+//                }
+//                else
+//                {
+//                    throw new ArgumentException
+//                    (
+//                        $"There is a value for '{ExpressionContext.CreateKey(item, propertySelector)}' " +
+//                        $"but its type '{value.GetType().ToPrettyString()}' " +
+//                        $"is different from '{typeof(TProperty).ToPrettyString()}'"
+//                    );
+//                }
+//            }
+//            else
+//            {
+//                //if (((MemberExpression)propertySelector.Body).Member.IsDefined(typeof(RequiredAttribute)))
+//                {
+//                    throw DynamicException.Create("RequiredValueMissing", $"{ExpressionContext.CreateKey(item, propertySelector)} is required.");
+//                }
+//
+//                //throw DynamicException.Create("");
+//            }
+//        }
+//
+//        public static IExpressionSession Set<TExpression, TProperty>
+//        (
+//            this IImmutableSession context,
+//            Item<TExpression> item,
+//            linq.Expression<Func<TExpression, TProperty>> selectProperty,
+//            TProperty value
+//        )
+//        {
+//            var key = ExpressionContext.CreateKey(item, selectProperty);
+//            return context.SetItem(key, value); // is IConstant constant ? constant : Constant.FromValue(key, value));
+//        }
 
         //        public static IExpressionContext SetItem
         //        (
@@ -94,16 +95,16 @@ namespace Reusable.Flexo
 
         #region Extension-Input helpers
 
-        public static IExpressionContext PushExtensionInput(this IExpressionContext context, object value)
+        public static IImmutableSession PushExtensionInput(this IImmutableSession context, object value)
         {
-            context.Get(Item.For<IExtensionContext>(), x => x.Inputs).Push(value);
+            context.Get(Use<IExpressionSession>.Scope, x => x.ExtensionInputs).Push(value);
             return context;
         }
 
         // The Input must be removed so that subsequent expression doesn't 'think' it's called as extension when it isn't.
-        public static bool TryPopExtensionInput<T>(this IExpressionContext context, out T input)
+        public static bool TryPopExtensionInput<T>(this IImmutableSession context, out T input)
         {
-            var inputs = context.Get(Item.For<IExtensionContext>(), x => x.Inputs);
+            var inputs = context.Get(Use<IExpressionSession>.Scope, x => x.ExtensionInputs);
             if (inputs.Any())
             {
                 input = (T)inputs.Pop();
@@ -118,13 +119,13 @@ namespace Reusable.Flexo
 
         #endregion
 
-        public static IExpressionContext WithComparer(this IExpressionContext context, string name, IEqualityComparer<object> comparer)
+        public static IImmutableSession WithComparer(this IImmutableSession context, string name, IEqualityComparer<object> comparer)
         {
-            context.Get(Item.For<ICollectionContext>(), x => x.Comparers).AddSafely(name, comparer);
+            context.Get(Use<IExpressionSession>.Scope, x => x.Comparers).AddSafely(name, comparer);
             return context;
         }
 
-        public static IExpressionContext WithSoftStringComparer(this IExpressionContext context)
+        public static IImmutableSession WithSoftStringComparer(this IImmutableSession context)
         {
             return context.WithComparer("SoftString", EqualityComparerFactory<object>.Create
             (
@@ -133,18 +134,18 @@ namespace Reusable.Flexo
             ));
         }
 
-        public static IExpressionContext WithRegexComparer(this IExpressionContext context)
+        public static IImmutableSession WithRegexComparer(this IImmutableSession context)
         {
             return context.WithComparer("Regex", EqualityComparerFactory<object>.Create
             (
                 equals: (left, right) => Regex.IsMatch((string)right, (string)left, RegexOptions.None),
                 getHashCode: (obj) => 0
             ));
-        }
+        }        
 
-        public static IEqualityComparer<object> GetComparerOrDefault(this IExpressionContext context, string name)
+        public static IEqualityComparer<object> GetComparerOrDefault(this IImmutableSession context, string name)
         {
-            var comparers = context.Get(Item.For<ICollectionContext>(), x => x.Comparers);
+            var comparers = context.Get(Use<IExpressionSession>.Scope, x => x.Comparers);
             if (name is null)
             {
                 return comparers["Default"];
@@ -158,22 +159,22 @@ namespace Reusable.Flexo
             throw DynamicException.Create("ComparerNotFound", $"There is no comparer with the name '{name}'.");
         }
 
-        public static TreeNode<ExpressionDebugView> DebugView(this IExpressionContext context)
+        public static TreeNode<ExpressionDebugView> DebugView(this IImmutableSession context)
         {
-            return context.Get(Item.For<IDebugContext>(), x => x.DebugView);
+            return context.Get(Use<IExpressionSession>.Scope, x => x.DebugView);
         }
         
-        public static IExpressionContext DebugView(this IExpressionContext context, TreeNode<ExpressionDebugView> debugView)
+        public static IImmutableSession DebugView(this IImmutableSession context, TreeNode<ExpressionDebugView> debugView)
         {
-            return context.Set(Item.For<IDebugContext>(), x => x.DebugView, debugView);
+            return context.Set(Use<IExpressionSession>.Scope, x => x.DebugView, debugView);
         }
     }
 
-    public class Item<T>
-    { }
-
-    public static class Item
-    {
-        public static Item<T> For<T>() => new Item<T>();
-    }
+//    public class Item<T>
+//    { }
+//
+//    public static class Item
+//    {
+//        public static Item<T> For<T>() => new Item<T>();
+//    }
 }

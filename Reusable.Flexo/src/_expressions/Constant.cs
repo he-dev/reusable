@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Collections;
+using Reusable.Data;
 using Reusable.Extensions;
 
 namespace Reusable.Flexo
@@ -14,7 +15,7 @@ namespace Reusable.Flexo
         object Value { get; }
 
         [NotNull]
-        IExpressionContext Context { get; }
+        IImmutableSession Context { get; }
     }
 
     public interface IConstant<out TValue> : IExpression
@@ -25,10 +26,10 @@ namespace Reusable.Flexo
 
     public class Constant<TValue> : Expression<TValue>, IConstant, IConstant<TValue>, IEquatable<Constant<TValue>>
     {
-        public Constant(SoftString name, TValue value, IExpressionContext context = default) : base(name ?? value.GetType().ToPrettyString())
+        public Constant(SoftString name, TValue value, IImmutableSession context = default) : base(name ?? value.GetType().ToPrettyString())
         {
             Value = value;
-            Context = context ?? ExpressionContext.Empty;
+            Context = context ?? ImmutableSession.Empty;
         }
 
         object IConstant.Value => Value;
@@ -36,9 +37,9 @@ namespace Reusable.Flexo
         [AutoEqualityProperty]
         public TValue Value { get; set; }
 
-        public IExpressionContext Context { get; }
+        public IImmutableSession Context { get; }
 
-        protected override Constant<TValue> InvokeCore(IExpressionContext context)
+        protected override Constant<TValue> InvokeCore(IImmutableSession context)
         {
             //using (context.Scope(this))
             {
@@ -54,9 +55,9 @@ namespace Reusable.Flexo
 
         public override string ToString() => $"{Name.ToString()}: '{Value}'";
 
-        public static implicit operator Constant<TValue>((SoftString Name, TValue Value) t) => new Constant<TValue>(t.Name, t.Value, ExpressionContext.Empty);
+        public static implicit operator Constant<TValue>((SoftString Name, TValue Value) t) => new Constant<TValue>(t.Name, t.Value, ImmutableSession.Empty);
 
-        public static implicit operator Constant<TValue>((SoftString Name, TValue Value, IExpressionContext Context) t) => new Constant<TValue>(t.Name, t.Value, t.Context);
+        public static implicit operator Constant<TValue>((SoftString Name, TValue Value, IImmutableSession Context) t) => new Constant<TValue>(t.Name, t.Value, t.Context);
 
         //public static implicit operator Constant<ExpressionResult<TValue>>((string Name, ExpressionResult<TValue> Result) t) => new Constant<ExpressionResult<TValue>>(t.Name, t.Result);
 
@@ -91,9 +92,9 @@ namespace Reusable.Flexo
         private static volatile int _counter;
 
         [NotNull]
-        public static Constant<TValue> FromValue<TValue>(SoftString name, TValue value, IExpressionContext context = default)
+        public static Constant<TValue> FromValue<TValue>(SoftString name, TValue value, IImmutableSession context = default)
         {
-            return new Constant<TValue>(name, value, context ?? ExpressionContext.Empty);
+            return new Constant<TValue>(name, value, context ?? ImmutableSession.Empty);
         }
 
         [NotNull]

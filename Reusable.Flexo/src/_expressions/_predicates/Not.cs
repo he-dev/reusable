@@ -1,4 +1,5 @@
-﻿using Reusable.OmniLog.Abstractions;
+﻿using Reusable.Data;
+using Reusable.OmniLog.Abstractions;
 using Reusable.Utilities.JsonNet.Annotations;
 
 namespace Reusable.Flexo
@@ -10,7 +11,7 @@ namespace Reusable.Flexo
 
         public IExpression Value { get; set; }
 
-        protected override Constant<bool> InvokeCore(IExpressionContext context)
+        protected override Constant<bool> InvokeCore(IImmutableSession context)
         {
             if (context.TryPopExtensionInput(out bool input))
             {

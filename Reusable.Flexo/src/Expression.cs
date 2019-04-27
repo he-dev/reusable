@@ -35,7 +35,7 @@ namespace Reusable.Flexo
         string Description { get; }
 
         [NotNull]
-        IConstant Invoke([NotNull] IExpressionContext context);
+        IConstant Invoke([NotNull] IImmutableSession context);
     }
 
     public interface IExtension<T> { }
@@ -80,6 +80,13 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.Throw),
         };
         // ReSharper restore RedundantNameQualifier
+
+        public static IImmutableSession DefaultSession =>
+            ImmutableSession
+                .Empty
+                .Set(Use<IExpressionSession>.Scope, x => x.ExtensionInputs, new Stack<object>())
+                .Set(Use<IExpressionSession>.Scope, x => x.Comparers, new Dictionary<SoftString, IEqualityComparer<object>> { ["Default"] = EqualityComparer<object>.Default })
+                .Set(Use<IExpressionSession>.Scope, x => x.DebugView, TreeNode.Create(ExpressionDebugView.Root));
     }
 
     [Namespace("Flexo")]
@@ -114,9 +121,9 @@ namespace Reusable.Flexo
 
         public List<IExpression> This { get; set; } = new List<IExpression>();
 
-        public virtual IConstant Invoke(IExpressionContext context)
+        public virtual IConstant Invoke(IImmutableSession context)
         {
-            var parentNode = context.DebugView();
+            var parentNode = context.Get(Use<IExpressionSession>.Scope, x => x.DebugView);
             var thisView = new ExpressionDebugView
             {
                 Type = GetType().ToPrettyString(),
@@ -125,14 +132,14 @@ namespace Reusable.Flexo
             };
             var thisNode = TreeNode.Create(thisView);
             parentNode.Add(thisNode);
-            var thisResult = (IConstant)InvokeCore(context.DebugView(thisNode));
+            var thisResult = (IConstant)InvokeCore(context.Set(Use<IExpressionSession>.Scope, x => x.DebugView, thisNode));
             thisView.Result = thisResult.Value;
 
             var seed = (IConstant)Constant.FromValue
             (
                 thisResult.Name,
                 thisResult.Value,
-                thisResult.Context.DebugView(thisNode)
+                thisResult.Context.Set(Use<IExpressionSession>.Scope, x => x.DebugView, thisNode)
             );
 
             var enabledExtensions = (This ?? Enumerable.Empty<IExpression>()).Enabled();
@@ -163,7 +170,7 @@ namespace Reusable.Flexo
             return extensionsResult;
         }
 
-        protected abstract Constant<TResult> InvokeCore(IExpressionContext context);
+        protected abstract Constant<TResult> InvokeCore(IImmutableSession context);
     }
 
     [PublicAPI]
@@ -203,5 +210,14 @@ namespace Reusable.Flexo
     {
         Normal,
         Extension
+    }
+
+    public interface IExpressionSession : ISession
+    {
+        Stack<object> ExtensionInputs { get; }
+
+        IDictionary<SoftString, IEqualityComparer<object>> Comparers { get; }
+
+        TreeNode<ExpressionDebugView> DebugView { get; }
     }
 }

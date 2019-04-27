@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Reusable.Data;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
@@ -11,13 +12,13 @@ namespace Reusable.Flexo
 
         public IExpression Predicate { get; set; }
 
-        protected override Constant<bool> InvokeCore(IExpressionContext context)
+        protected override Constant<bool> InvokeCore(IImmutableSession context)
         {
             if (context.TryPopExtensionInput(out IEnumerable<object> input))
             {
                 foreach (var item in input)
                 {
-                    context.Get(Item.For<IExtensionContext>(), x => x.Inputs).Push(item);
+                    context.PushExtensionInput(item);
                     var predicateResult = (Predicate ?? Constant.True).Invoke(context).Value<bool>();
                     if (EqualityComparer<bool>.Default.Equals(predicateResult, true))
                     {

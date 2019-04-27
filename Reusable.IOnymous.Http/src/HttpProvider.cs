@@ -17,8 +17,8 @@ namespace Reusable.IOnymous
 
         private readonly HttpClient _client;
 
-        public HttpProvider([NotNull] string baseUri, ImmutableSession metadata = default)
-            : base(new SoftString[] { "http", "https" }, metadata.Scope<IProviderSession>(s => s.Set(x => x.AllowRelativeUri, true)))
+        public HttpProvider([NotNull] string baseUri, IImmutableSession metadata = default)
+            : base(new SoftString[] { "http", "https" }, (metadata ?? ImmutableSession.Empty).Set(Use<IProviderSession>.Scope, x => x.AllowRelativeUri, true))
         {
             if (baseUri == null) throw new ArgumentNullException(nameof(baseUri));
 
@@ -41,7 +41,7 @@ namespace Reusable.IOnymous
         protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
         {
             uri = BaseUri + uri;
-            var (response, mediaType) = await InvokeAsync(uri, HttpMethod.Post, metadata.Scope<IHttpSession>(s => s.Set(x => x.Content, value)));
+            var (response, mediaType) = await InvokeAsync(uri, HttpMethod.Post, metadata.Set(Use<IHttpSession>.Scope, x => x.Content, value));
             return new HttpResourceInfo(uri, response, new MimeType(mediaType));
         }
 
@@ -49,20 +49,18 @@ namespace Reusable.IOnymous
 
         private async Task<(Stream Content, string MimeType)> InvokeAsync(UriString uri, HttpMethod method, IImmutableSession metadata)
         {
-            var httpMetadata = metadata.Scope<IHttpSession>();
-            
             using (var request = new HttpRequestMessage(method, uri))
             {
-                var content = httpMetadata.Get(x => x.Content);
+                var content = metadata.Get(Use<IHttpSession>.Scope, x => x.Content);
                 if (content != null)
                 {
                     request.Content = new StreamContent(content.Rewind());
-                    request.Content.Headers.ContentType = new MediaTypeHeaderValue(httpMetadata.Get(x => x.ContentType));
+                    request.Content.Headers.ContentType = new MediaTypeHeaderValue(metadata.Get(Use<IHttpSession>.Scope, x => x.ContentType));
                 }
 
-                Metadata.Scope<IHttpSession>().Get(x => x.ConfigureRequestHeaders, _ => {})(request.Headers);
-                metadata.Scope<IHttpSession>().Get(x => x.ConfigureRequestHeaders)(request.Headers);
-                using (var response = await _client.SendAsync(request, HttpCompletionOption.ResponseContentRead, metadata.Scope<IAnySession>().Get(x => x.CancellationToken)))
+                Metadata.Get(Use<IHttpSession>.Scope, x => x.ConfigureRequestHeaders, _ => { })(request.Headers);
+                metadata.Get(Use<IHttpSession>.Scope, x => x.ConfigureRequestHeaders)(request.Headers);
+                using (var response = await _client.SendAsync(request, HttpCompletionOption.ResponseContentRead, metadata.Get(Use<IAnySession>.Scope, x => x.CancellationToken)))
                 {
                     var responseContentCopy = new MemoryStream();
 
@@ -111,7 +109,7 @@ namespace Reusable.IOnymous
         private readonly Stream _response;
 
         public HttpResourceInfo([NotNull] UriString uri, Stream response, MimeType format)
-            : base(uri, ImmutableSession.Empty, s => s.Set(x => x.Format, format))
+            : base(uri, ImmutableSession.Empty.Set(Use<IResourceSession>.Scope, x => x.Format, format))
         {
             _response = response;
         }
@@ -135,7 +133,7 @@ namespace Reusable.IOnymous
         }
     }
 
-    public interface IHttpSession : ISessionScope
+    public interface IHttpSession : ISession
     {
         Stream Content { get; }
 

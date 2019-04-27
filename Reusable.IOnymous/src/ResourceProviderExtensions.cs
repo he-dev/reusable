@@ -24,8 +24,8 @@ namespace Reusable.IOnymous
         {
             using (var item = await resources.GetAsync(uri, metadata))
             {
-                var itemFormat = item.Metadata.Scope<IResourceSession>().Get(x => x.Format);
-                
+                var itemFormat = item.Metadata.Get(Use<IResourceSession>.Scope, x => x.Format);
+
                 if (item.Exists)
                 {
                     using (var memoryStream = new MemoryStream())
@@ -57,7 +57,7 @@ namespace Reusable.IOnymous
                     throw DynamicException.Create
                     (
                         $"ItemNotFound",
-                        $"Could not find '{uri}' that maps to '{item.Metadata.Scope<IResourceSession>().Get(x => x.ActualName) ?? "N/A"}'."
+                        $"Could not find '{uri}' that maps to '{item.Metadata.Get(Use<IResourceSession>.Scope, x => x.ActualName) ?? "N/A"}'."
                     );
                 }
             }
@@ -72,17 +72,17 @@ namespace Reusable.IOnymous
 
         #region PUT helpers
 
-        public static async Task SetItemAsync(this IResourceProvider resources, UriString uri, object value, IImmutableSession metadata = default)
+        public static async Task SetItemAsync(this IResourceProvider resources, UriString uri, object value, IImmutableSession metadata)
         {
-            if (metadata.Scope<IResourceSession>().Get(x => x.Type) == typeof(string))
+            if (metadata.Get(Use<IResourceSession>.Scope, x => x.Type) == typeof(string))
             {
                 using (var stream = await ResourceHelper.SerializeTextAsync((string)value))
-                using (await resources.PutAsync(uri, stream, metadata.Scope<IResourceSession>(s => s.Set(x => x.Format, MimeType.Text)))) { }
+                using (await resources.PutAsync(uri, stream, metadata.Set(Use<IResourceSession>.Scope, x => x.Format, MimeType.Text))) { }
             }
             else
             {
                 using (var stream = await ResourceHelper.SerializeBinaryAsync(value))
-                using (await resources.PutAsync(uri, stream, metadata.Scope<IResourceSession>(s => s.Set(x => x.Format, MimeType.Binary)))) { }
+                using (await resources.PutAsync(uri, stream, metadata.Set(Use<IResourceSession>.Scope, x => x.Format, MimeType.Binary))) { }
             }
         }
 

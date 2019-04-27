@@ -1,6 +1,7 @@
 using System;
 using Autofac;
 using JetBrains.Annotations;
+using Reusable.Commander.Services;
 using Reusable.Commander.Utilities;
 using Reusable.OneTo1;
 

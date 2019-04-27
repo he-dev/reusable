@@ -13,33 +13,6 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="src\_expressions\Async\**" />
-    <Compile Remove="src\Utilities\**" />
-    <EmbeddedResource Remove="src\_expressions\Async\**" />
-    <EmbeddedResource Remove="src\Utilities\**" />
-    <None Remove="src\_expressions\Async\**" />
-    <None Remove="src\Utilities\**" />
-    <Compile Remove="src\_expressions\Map.cs" />
-    <Compile Remove="src\_expressions\Self.cs" />
-    <Compile Remove="src\_annotations\**" />
-    <EmbeddedResource Remove="src\_annotations\**" />
-    <None Remove="src\_annotations\**" />
-    <Compile Remove="src\Diagnostics\**" />
-    <EmbeddedResource Remove="src\Diagnostics\**" />
-    <None Remove="src\Diagnostics\**" />
-    <Compile Remove="src\_expressions\GreaterThan.cs" />
-    <Compile Remove="src\_expressions\LessThan.cs" />
-    <Compile Remove="src\_expressions\ToList.cs" />
-    <Compile Remove="src\_expressions\Equal.cs" />
-    <Compile Remove="src\_expressions\_comparers\**" />
-    <EmbeddedResource Remove="src\_expressions\_comparers\**" />
-    <None Remove="src\_expressions\_comparers\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="src\_expressions\_abstractions\ICommand.cs" />
-    <Compile Remove="src\Call.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Autofac" Version="4.9.1" />
     <PackageReference Include="JetBrains.Annotations" Version="2018.3.0" />
   </ItemGroup>

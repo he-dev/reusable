@@ -53,6 +53,7 @@
     <ItemGroup>
       <Compile Remove="src\Commander\Integration\ExceptionTest.cs" />
       <Compile Remove="src\OmniLog\UseCaseTest.cs" />
+      <Compile Remove="src\Flexo\ExpressionContextTest.cs" />
     </ItemGroup>
     <ItemGroup>
       <Folder Include="sql\SmartConfig" />

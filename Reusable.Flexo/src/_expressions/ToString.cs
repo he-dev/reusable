@@ -1,4 +1,5 @@
 using System.Globalization;
+using Reusable.Data;
 
 namespace Reusable.Flexo
 {
@@ -13,7 +14,7 @@ namespace Reusable.Flexo
 
         public IExpression Format { get; set; }
 
-        protected override Constant<string> InvokeCore(IExpressionContext context)
+        protected override Constant<string> InvokeCore(IImmutableSession context)
         {
             var format = Format?.Invoke(context).ValueOrDefault<string>() ?? "{0}";
 

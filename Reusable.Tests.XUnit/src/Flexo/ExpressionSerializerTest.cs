@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
+using Reusable.Data;
 using Reusable.Flexo;
 using Reusable.IOnymous;
 using Reusable.OmniLog;
@@ -78,7 +79,7 @@ namespace Reusable.Tests.Flexo
             ExpressionAssert.Equal(1.0, collectionOfDouble.Values[0]);
             ExpressionAssert.Equal(2.0, collectionOfDouble.Values[1]);
 
-            var collectionWithSelect = expressions.Get("CollectionWithSelect").Invoke(ExpressionContext.Empty).Value<List<object>>();
+            var collectionWithSelect = expressions.Get("CollectionWithSelect").Invoke(Reusable.Flexo.Expression.DefaultSession).Value<List<object>>();
             Assert.Equal(new[] { "1", "True" }, collectionWithSelect);
         }
 

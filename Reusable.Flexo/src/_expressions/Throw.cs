@@ -1,4 +1,5 @@
 using JetBrains.Annotations;
+using Reusable.Data;
 using Reusable.Exceptionize;
 
 namespace Reusable.Flexo
@@ -13,7 +14,7 @@ namespace Reusable.Flexo
         
         public IExpression Message { get; set; }
 
-        protected override Constant<IExpression> InvokeCore(IExpressionContext context)
+        protected override Constant<IExpression> InvokeCore(IImmutableSession context)
         {
             throw DynamicException.Create(Name.ToString(), Message.Invoke(context).Value<string>());
         }
