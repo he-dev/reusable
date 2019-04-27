@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.IOnymous;
 using Xunit;
@@ -39,32 +40,32 @@ namespace Reusable.Tests.XUnit.IOnymous
 
         private class EmptyProvider : ResourceProvider
         {
-            public EmptyProvider() : base(new SoftString[] { "test" }, Metadata.Empty) { }
+            public EmptyProvider() : base(new SoftString[] { "test" }, ImmutableSession.Empty) { }
             
             public static EmptyProvider Default => new EmptyProvider();
         }
 
         private class SimpleProvider : ResourceProvider
         {
-            public SimpleProvider() : base(new SoftString[] { "test" }, Metadata.Empty) { }
+            public SimpleProvider() : base(new SoftString[] { "test" }, ImmutableSession.Empty) { }
             
             public static SimpleProvider Default => new SimpleProvider();
 
-            protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata)
+            protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
             {
                 return Task.FromResult(default(IResourceInfo));
             }
 
-            protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, Metadata metadata)
+            protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
             {
                 return Task.FromResult(default(IResourceInfo));
             }
 
-            protected override Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, Metadata metadata)
+            protected override Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
             {
                 return Task.FromResult(default(IResourceInfo));            }
 
-            protected override Task<IResourceInfo> DeleteAsyncInternal(UriString uri, Metadata metadata)
+            protected override Task<IResourceInfo> DeleteAsyncInternal(UriString uri, IImmutableSession metadata)
             {
                 return Task.FromResult(default(IResourceInfo));
             }

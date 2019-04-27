@@ -27,12 +27,8 @@ namespace Reusable.Flexo
                 var last = default(IConstant);
                 foreach (var item in Values.Enabled())
                 {
-                    last = item.Invoke(predicate.Context);
-                    if (EqualityComparer<bool>.Default.Equals(last.Value<bool>(), predicate.Value<bool>()))
-                    {
-                        continue;
-                    }
-                    else
+                    last = item.Invoke(last?.Context ?? context);
+                    if (!EqualityComparer<bool>.Default.Equals(last.Value<bool>(), predicate.Value<bool>()))
                     {
                         return (Name, false, context);
                     }

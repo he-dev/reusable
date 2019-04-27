@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.IOnymous;
+using Reusable.Data;
 using Reusable.Reflection;
 
 namespace Reusable.SmartConfig
@@ -40,7 +41,7 @@ namespace Reusable.SmartConfig
             var settingInfo = MemberVisitor.GetMemberInfo(getItem);
             var settingMetadata = new SettingMetadata(settingInfo, GetMemberName);
             var (uri, metadata) = SettingRequestFactory.CreateSettingRequest(settingMetadata, handle);
-            return await _settings.GetItemAsync<object>(uri, Metadata.Empty.Resource(s => s.Type(settingMetadata.MemberType)).Union(metadata));
+            return await _settings.GetItemAsync<object>(uri, metadata.Scope<IResourceSession>(s => s.Set(x => x.Type, settingMetadata.MemberType)));
         }
 
         public async Task SetItemAsync(LambdaExpression setItem, object newValue, string handle = null)
@@ -51,7 +52,7 @@ namespace Reusable.SmartConfig
             var settingMetadata = new SettingMetadata(settingInfo, GetMemberName);
             var (uri, metadata) = SettingRequestFactory.CreateSettingRequest(settingMetadata, handle);
             Validate(newValue, settingMetadata.Validations, uri);
-            await _settings.SetItemAsync(uri, newValue, Metadata.Empty.Resource(s => s.Type(settingMetadata.MemberType)).Union(metadata));            
+            await _settings.SetItemAsync(uri, newValue, metadata.Scope<IResourceSession>(s => s.Set(x => x.Type, settingMetadata.MemberType)));         
         }
 
         #region Helpers

@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Data;
 
 namespace Reusable.IOnymous
 {
@@ -11,28 +12,30 @@ namespace Reusable.IOnymous
     {
         public new static readonly string DefaultScheme = "mailto";
 
-        protected MailProvider(Metadata metadata) : base(new SoftString[] { DefaultScheme }, metadata) { }
+        protected MailProvider(ImmutableSession metadata) : base(new SoftString[] { DefaultScheme }, metadata) { }
 
-        protected async Task<string> ReadBodyAsync(Stream value, Metadata metadata)
+        protected async Task<string> ReadBodyAsync(Stream value, IImmutableSession metadata)
         {
-            using (var bodyReader = new StreamReader(value, metadata.Scope<IMailMetadata>().Get(x => x.BodyEncoding)))
+            using (var bodyReader = new StreamReader(value, metadata.Scope<IMailSession>().Get(x => x.BodyEncoding, Encoding.UTF8)))
             {
                 return await bodyReader.ReadToEndAsync();
             }
         }
     }
 
-    public interface IMailMetadata : IMetadataScope
+    public interface IMailSession : ISessionScope
     {
         string From { get; }
 
         IList<string> To { get; }
 
+        [CanBeNull]
         // ReSharper disable once InconsistentNaming - We want to keep this particular name as is.
         IList<string> CC { get; }
 
         string Subject { get; }
 
+        [CanBeNull]
         IDictionary<string, byte[]> Attachments { get; }
 
         Encoding BodyEncoding { get; }
@@ -47,7 +50,7 @@ namespace Reusable.IOnymous
         private readonly Stream _response;
 
         public MailResourceInfo([NotNull] UriString uri, Stream response, MimeType format)
-            : base(uri, m => m.Format(format))
+            : base(uri, ImmutableSession.Empty, s => s.Set(x => x.Format, format))
         {
             _response = response;
         }

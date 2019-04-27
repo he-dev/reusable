@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Custom;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Data;
 using Reusable.Extensions;
 using Reusable.Flawless;
 
@@ -16,21 +17,21 @@ namespace Reusable.IOnymous
         {
             builder.False
             (x =>
-                x.Metadata.Resource().Format().IsNull()
+                x.Metadata.Scope<IResourceSession>().Get(y => y.Format, MimeType.Null).IsNull()
             ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it requires resource format specified by the metadata.");
         });
         
-        public PhysicalFileProvider(Metadata metadata = default)
+        public PhysicalFileProvider(ImmutableSession metadata = default)
             : base(metadata) { }
 
-        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata)
+        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             ValidateRequest(ExtractMethodName(nameof(GetAsync)), uri, metadata, Stream.Null, RequestValidator);
 
-            return Task.FromResult<IResourceInfo>(new PhysicalFileInfo(uri, metadata.Resource().Format()));
+            return Task.FromResult<IResourceInfo>(new PhysicalFileInfo(uri, metadata.Scope<IResourceSession>().Get(y => y.Format)));
         }
 
-        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, Metadata metadata)
+        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
         {
             ValidateRequest(ExtractMethodName(nameof(PutAsync)), uri, metadata, Stream.Null, RequestValidator);
 
@@ -43,7 +44,7 @@ namespace Reusable.IOnymous
             return await GetAsync(uri, metadata);
         }
 
-        protected override Task<IResourceInfo> DeleteAsyncInternal(UriString uri, Metadata metadata)
+        protected override Task<IResourceInfo> DeleteAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             File.Delete(uri.ToUnc());
             return Task.FromResult<IResourceInfo>(new PhysicalFileInfo(uri));
@@ -54,7 +55,7 @@ namespace Reusable.IOnymous
     internal class PhysicalFileInfo : ResourceInfo
     {
         public PhysicalFileInfo([NotNull] UriString uri, MimeType format)
-            : base(uri, m => m.Format(format)) { }
+            : base(uri, ImmutableSession.Empty, s => s.Set(x => x.Format, format)) { }
 
         public PhysicalFileInfo([NotNull] UriString uri)
             : this(uri, MimeType.Null) { }

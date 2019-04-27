@@ -53,11 +53,14 @@ namespace Reusable.Tests.Flexo
 
             //ExpressionAssert.Equal(Constant.True, expressions.OfType<Any>().Single());
             //ExpressionAssert.Equal(new double[] { 1, 2, 3 }, expressions.Get("CollectionMixed"));
+            
             ExpressionAssert.Equal(Constant.True, expressions.Get("AnyWithPredicate"));
             ExpressionAssert.Equal(Constant.True, expressions.Get("AnyWithoutPredicate"));
             ExpressionAssert.Equal(Constant.True, expressions.Get("AllWithPredicate"));
+            
             //ExpressionAssert.Equal(Constant.Create(3.0), expressions.OfType<Sum>().Single());
             //ExpressionAssert.Equal(Double.One, expressions.OfType<SwitchToDouble>().Single());
+            
             ExpressionAssert.Equal(Constant.False, expressions.Get("NotExtension"));
             ExpressionAssert.Equal(Double.One, expressions.Get("ToDoubleExtension"));
             //ExpressionAssert.Equal(Double.One, expressions.Get("SwitchToDoubleInvalid"));

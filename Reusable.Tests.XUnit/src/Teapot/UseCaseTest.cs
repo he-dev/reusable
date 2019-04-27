@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Reusable.Data;
 using Reusable.IOnymous;
 using Reusable.Teapot;
 using Reusable.Utilities.XUnit.Fixtures;
@@ -19,7 +20,7 @@ namespace Reusable.Tests.XUnit.Teapot
         public UseCaseTest(TeapotFactoryFixture teapotFactory)
         {
             _teapot = teapotFactory.CreateTeapotServer(BaseUri);
-            _http = new HttpProvider(ApiUri, Metadata.Empty);
+            _http = new HttpProvider(ApiUri, ImmutableSession.Empty);
         }
 
         [Fact]
@@ -51,7 +52,7 @@ namespace Reusable.Tests.XUnit.Teapot
                     (
                         "test?param=true",
                         () => ResourceHelper.SerializeAsJsonAsync(new { Greeting = "Hallo" }),
-                        Metadata.Empty.Http(scope => scope.ConfigureRequestHeaders(headers =>
+                        ImmutableSession.Empty.Scope<IHttpSession>(s => s.Set(x => x.ConfigureRequestHeaders, headers =>
                         {
                             headers.ApiVersion("1.0");
                             headers.UserAgent("Teapot", "1.0");

@@ -21,12 +21,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="src\HttpRequestHeadersConfiguration.cs" />
-    <Compile Remove="src\HttpRequestHeadersConfigurationExtensions.cs" />
-    <Compile Remove="src\RestClientExtensions.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2018.3.0" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
   </ItemGroup>

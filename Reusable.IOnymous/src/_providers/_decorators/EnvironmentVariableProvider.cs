@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Data;
 
 namespace Reusable.IOnymous
 {
@@ -10,7 +11,7 @@ namespace Reusable.IOnymous
         private readonly IResourceProvider _resourceProvider;
 
         public EnvironmentVariableProvider([NotNull] IResourceProvider resourceProvider)
-            : base(resourceProvider.Schemes, resourceProvider.Metadata.AllowRelativeUri(true))
+            : base(resourceProvider.Schemes, resourceProvider.Metadata.Scope<IProviderSession>(s => s.Set(x => x.AllowRelativeUri, true)))
         {
             _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
         }
@@ -20,22 +21,22 @@ namespace Reusable.IOnymous
             return decorable => new EnvironmentVariableProvider(decorable);
         }
 
-        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata)
+        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             return _resourceProvider.GetAsync(UpdatePath(uri), metadata);
         }
 
-        protected override Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, Metadata metadata)
+        protected override Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
         {
             return _resourceProvider.PostAsync(UpdatePath(uri), value, metadata);
         }
         
-        protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, Metadata metadata)
+        protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
         {
             return _resourceProvider.PutAsync(UpdatePath(uri), value, metadata);
         }
 
-        protected override Task<IResourceInfo> DeleteAsyncInternal(UriString uri, Metadata metadata)
+        protected override Task<IResourceInfo> DeleteAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             return _resourceProvider.DeleteAsync(UpdatePath(uri), metadata);
         }

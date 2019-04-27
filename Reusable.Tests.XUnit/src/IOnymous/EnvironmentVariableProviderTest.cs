@@ -15,7 +15,7 @@ namespace Reusable.Tests.XUnit.IOnymous
             var provider = new PhysicalFileProvider().DecorateWith(EnvironmentVariableProvider.Factory());
             //var provider = new PhysicalFileProvider() + EnvironmentVariableProvider.Factory();
             //var provider = new PhysicalFileProvider() + (left =>  new EnvironmentVariableProvider(left));
-            var file = await provider.GetFileAsync(@"%test-variable-1%\test.txt", MimeType.Text, Metadata.Empty.AllowRelativeUri(true));
+            var file = await provider.GetFileAsync(@"%test-variable-1%\test.txt", MimeType.Text);
             
             Assert.False(file.Exists);
             Assert.Equal("c:/temp/test.txt", file.Uri.Path.Decoded);

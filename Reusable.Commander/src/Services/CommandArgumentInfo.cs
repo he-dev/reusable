@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Data;
 using Reusable.IOnymous;
 
 namespace Reusable.Commander.Services {
@@ -10,7 +11,7 @@ namespace Reusable.Commander.Services {
     {
         private readonly List<string> _values;
 
-        public CommandArgumentInfo([NotNull] UriString uri, bool exists, List<string> values) : base(uri, m => m.Format(MimeType.Json))
+        public CommandArgumentInfo([NotNull] UriString uri, bool exists, List<string> values) : base(uri, ImmutableSession.Empty, s => s.Set(x => x.Format, MimeType.Json))
         {
             Exists = exists;
             _values = values;

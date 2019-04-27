@@ -27,7 +27,7 @@ namespace Reusable.Flexo
 
         bool TryGetValue(SoftString key, out object value);
 
-        IExpressionContext Remove(SoftString key);
+        //IExpressionContext Remove(SoftString key);
     }
 
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
@@ -41,15 +41,26 @@ namespace Reusable.Flexo
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
 
-            _data =
-                data
-                    .SetItem(CreateKey(Item.For<IExtensionContext>(), x => x.Inputs), new Stack<object>())
-                    .SetItem(CreateKey(Item.For<ICollectionContext>(), x => x.Comparers), new Dictionary<SoftString, IEqualityComparer<object>>
-                    {
-                        ["Default"] = EqualityComparer<object>.Default
-                    });
 
+            var inputsKey = CreateKey(Item.For<IExtensionContext>(), x => x.Inputs);
+            var comparersKey = CreateKey(Item.For<ICollectionContext>(), x => x.Comparers);
             var debugViewKey = CreateKey(Item.For<IDebugContext>(), x => x.DebugView);
+            
+            _data = data;
+
+            if (!_data.ContainsKey(inputsKey))
+            {
+                _data = _data.SetItem(inputsKey, new Stack<object>());
+            }
+            
+            if (!_data.ContainsKey(comparersKey))
+            {
+                _data = _data.SetItem(comparersKey, new Dictionary<SoftString, IEqualityComparer<object>>
+                {
+                    ["Default"] = EqualityComparer<object>.Default
+                });
+            }                        
+
             if (!_data.ContainsKey(debugViewKey))
             {
                 _data = _data.SetItem(debugViewKey, TreeNode.Create(ExpressionDebugView.Root));
@@ -74,17 +85,17 @@ namespace Reusable.Flexo
 
         public bool ContainsKey(SoftString key) => _data.ContainsKey(key);
 
-        public bool Contains(KeyValuePair<SoftString, object> pair) => _data.Contains(pair);
+        //public bool Contains(KeyValuePair<SoftString, object> pair) => _data.Contains(pair);
 
-        public bool TryGetKey(SoftString equalKey, out SoftString actualKey) => _data.TryGetKey(equalKey, out actualKey);
+        //public bool TryGetKey(SoftString equalKey, out SoftString actualKey) => _data.TryGetKey(equalKey, out actualKey);
 
         public bool TryGetValue(SoftString key, out object value) => _data.TryGetValue(key, out value);
 
-        public IExpressionContext Remove(SoftString key) => new ExpressionContext(_data.Remove(key));
+        //public IExpressionContext Remove(SoftString key) => new ExpressionContext(_data.Remove(key));
 
-        public ExpressionContext Add(SoftString key, object value) => new ExpressionContext(_data.Add(key, value));
+        //public ExpressionContext Add(SoftString key, object value) => new ExpressionContext(_data.Add(key, value));
 
-        public ExpressionContext TryAdd(SoftString key, object value) => _data.ContainsKey(key) ? this : new ExpressionContext(_data.Add(key, value));
+        //public ExpressionContext TryAdd(SoftString key, object value) => _data.ContainsKey(key) ? this : new ExpressionContext(_data.Add(key, value));
 
         public IExpressionContext SetItem(SoftString key, object value) => new ExpressionContext(_data.SetItem(key, value));
 

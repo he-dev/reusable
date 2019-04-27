@@ -1,5 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
+using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
+using Reusable.Data;
 using Reusable.Net.Http.Formatting;
 
 namespace Reusable.IOnymous
@@ -13,25 +16,25 @@ namespace Reusable.IOnymous
             Email<TBody> email,
             string productName,
             string productVersion,
-            JsonSerializer jsonSerializer = null,
-            Metadata metadata = default
+            [CanBeNull] JsonSerializer jsonSerializer = null,
+            [CanBeNull] IImmutableSession metadata = default
         )
         {
             metadata =
-                metadata
-                    .Http(s => s
-                        .ConfigureRequestHeaders(headers =>
+                (metadata ?? ImmutableSession.Empty)
+                    .Scope<IHttpSession>(s => s
+                        .Set(x => x.ConfigureRequestHeaders, headers =>
                         {
                             headers
                                 .UserAgent(productName, productVersion)
                                 .AcceptHtml();
                         })
-                        .ResponseFormatters(new TextMediaTypeFormatter())
-                        .ContentType("application/json")
+                        .Set(x => x.ResponseFormatters, new[] { new TextMediaTypeFormatter() })
+                        .Set(x => x.ContentType, "application/json")
                     )
-                    .Schemes("http", "https")
+                    .Scope<IAnySession>(s => s.Set(x => x.Schemes, ImmutableHashSet<SoftString>.Empty.Add("http").Add("https")))
                     // Bind this request to the http-provider.
-                    .Provider(s => s.DefaultName(nameof(HttpProvider)));
+                    .Scope<IProviderSession>(s => s.Set(x => x.DefaultName, nameof(HttpProvider)));
 
             using (var response = await resourceProvider.PostAsync(uri, () => ResourceHelper.SerializeAsJsonAsync(email, jsonSerializer), metadata))
             {

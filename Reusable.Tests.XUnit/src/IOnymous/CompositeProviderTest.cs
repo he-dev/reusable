@@ -1,5 +1,6 @@
 using System.IO;
 using System.Threading.Tasks;
+using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.IOnymous;
 using Reusable.SmartConfig;
@@ -47,7 +48,7 @@ namespace Reusable.Tests.XUnit.IOnymous
                 },
             });
 
-            var resource = await composite.GetAsync("blub:x/123", Metadata.Empty.Provider(s => s.DefaultName("InMemoryProvider")));
+            var resource = await composite.GetAsync("blub:x/123", ImmutableSession.Empty.Scope<IProviderSession>(s => s.Set(x => x.DefaultName, "InMemoryProvider")));
 
             Assert.True(resource.Exists);
             Assert.Equal("blub1", await resource.DeserializeTextAsync());
@@ -62,14 +63,14 @@ namespace Reusable.Tests.XUnit.IOnymous
                 {
                     { "x.123", "blub1" }
                 },
-                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new[] { ResourceProvider.DefaultScheme }, Metadata.Empty.Provider(s => s.CustomName("blub")))
+                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new[] { ResourceProvider.DefaultScheme }, ImmutableSession.Empty.Scope<IProviderSession>(s => s.Set(x => x.CustomName, "blub")))
                 {
                     //{ "x.123", "blub2" },
                     { "x.123", "blub3" }
                 },
             });
 
-            var resource = await composite.GetAsync("blub:x/123", Metadata.Empty.Provider(s => s.CustomName("blub")));
+            var resource = await composite.GetAsync("blub:x/123", ImmutableSession.Empty.Scope<IProviderSession>(s => s.Set(x => x.CustomName, "blub")));
 
             Assert.True(resource.Exists);
             Assert.Equal("blub3", await resource.DeserializeTextAsync());

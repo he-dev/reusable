@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Reusable.Data;
 using Reusable.IOnymous;
 
 namespace Reusable.Tests.XUnit.IOnymous
@@ -8,14 +9,14 @@ namespace Reusable.Tests.XUnit.IOnymous
         //[Fact]
         public async Task Blub()
         {
-            var client = new HttpProvider("https://jsonplaceholder.typicode.com", Metadata.Empty);
+            var client = new HttpProvider("https://jsonplaceholder.typicode.com", ImmutableSession.Empty);
 
             var response = await client.GetAsync
             (
                 "posts/1",
-                Metadata
+                ImmutableSession
                     .Empty
-                    .Http(m => m.ConfigureRequestHeaders(headers => headers.AcceptJson()))
+                    .Scope<IHttpSession>(s => s.Set(x => x.ConfigureRequestHeaders, headers => headers.AcceptJson()))
                 //.ResponseFormatters(ne())
                 //.ResponseType(typeof(string))
             );

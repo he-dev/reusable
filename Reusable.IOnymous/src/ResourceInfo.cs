@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Data;
 using Reusable.Diagnostics;
 using Reusable.Exceptionize;
 
@@ -22,7 +23,7 @@ namespace Reusable.IOnymous
 
         DateTime? ModifiedOn { get; }
 
-        Metadata Metadata { get; }
+        IImmutableSession Metadata { get; }
 
         Task CopyToAsync(Stream stream);
     }
@@ -31,11 +32,19 @@ namespace Reusable.IOnymous
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract class ResourceInfo : IResourceInfo
     {
-        protected ResourceInfo([NotNull] UriString uri, ConfigureMetadataScopeCallback<IResourceInfo> configureMetadata)
+        protected ResourceInfo
+        (
+            [NotNull] UriString uri,
+            [NotNull] IImmutableSession metadata,
+            [NotNull] ConfigureMetadataScopeCallback<IResourceSession> configureMetadata
+        )
         {
             if (uri == null) throw new ArgumentNullException(nameof(uri));
+            if (metadata == null) throw new ArgumentNullException(nameof(metadata));
+            if (configureMetadata == null) throw new ArgumentNullException(nameof(configureMetadata));
+
             Uri = uri.IsRelative ? new UriString($"{ResourceProvider.DefaultScheme}:{uri}") : uri;
-            Metadata = Metadata.Empty.Resource(configureMetadata);
+            Metadata = metadata.Scope(configureMetadata);
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
@@ -57,9 +66,9 @@ namespace Reusable.IOnymous
 
         public abstract DateTime? ModifiedOn { get; }
 
-        public virtual MimeType Format => Metadata.Resource().Format();
+        public virtual MimeType Format => Metadata.Scope<IResourceSession>().Get(x => x.Format);
 
-        public virtual Metadata Metadata { get; }
+        public virtual IImmutableSession Metadata { get; }
 
         #endregion
 

@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Linq.Custom;
+using Reusable.Data;
 using Reusable.IOnymous;
 
 namespace Reusable.Commander.Services
@@ -7,7 +8,7 @@ namespace Reusable.Commander.Services
     internal static class ItemRequestFactory
     {
         // arg:///file/f?&position=1
-        public static (UriString Uri, Metadata Metadata) CreateItemRequest(CommandParameterProperty item)
+        public static (UriString Uri, IImmutableSession Metadata) CreateItemRequest(CommandParameterProperty item)
         {
             var queryParameters = new (SoftString Key, SoftString Value)[]
             {
@@ -24,9 +25,9 @@ namespace Reusable.Commander.Services
             return
             (
                 $"arg:///{path}{query}",
-                Metadata
+                ImmutableSession
                     .Empty
-                    .Provider(s => s.DefaultName(nameof(CommandArgumentProvider)))
+                    .Scope<IProviderSession>(s => s.Set(x => x.DefaultName, nameof(CommandArgumentProvider)))
             );
         }
     }

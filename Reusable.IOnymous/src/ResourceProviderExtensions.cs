@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Data;
 using Reusable.Exceptionize;
 
 namespace Reusable.IOnymous
@@ -19,17 +20,19 @@ namespace Reusable.IOnymous
 
         #region GET helpers
 
-        public static async Task<T> GetItemAsync<T>(this IResourceProvider resources, UriString uri, Metadata metadata = default)
+        public static async Task<T> GetItemAsync<T>(this IResourceProvider resources, UriString uri, IImmutableSession metadata = default)
         {
             using (var item = await resources.GetAsync(uri, metadata))
             {
+                var itemFormat = item.Metadata.Scope<IResourceSession>().Get(x => x.Format);
+                
                 if (item.Exists)
                 {
                     using (var memoryStream = new MemoryStream())
                     {
                         await item.CopyToAsync(memoryStream);
 
-                        if (item.Metadata.Resource().Format() == MimeType.Text)
+                        if (itemFormat == MimeType.Text)
                         {
                             using (var streamReader = new StreamReader(memoryStream.Rewind()))
                             {
@@ -37,7 +40,7 @@ namespace Reusable.IOnymous
                             }
                         }
 
-                        if (item.Metadata.Resource().Format() == MimeType.Binary)
+                        if (itemFormat == MimeType.Binary)
                         {
                             return (T)await ResourceHelper.DeserializeBinaryAsync<object>(memoryStream.Rewind());
                         }
@@ -46,7 +49,7 @@ namespace Reusable.IOnymous
                     throw DynamicException.Create
                     (
                         $"ItemFormat",
-                        $"Item's '{uri}' format is '{item.Metadata.Resource().Format()}' but only '{MimeType.Binary}' and '{MimeType.Text}' are supported."
+                        $"Item's '{uri}' format is '{itemFormat}' but only '{MimeType.Binary}' and '{MimeType.Text}' are supported."
                     );
                 }
                 else
@@ -54,13 +57,13 @@ namespace Reusable.IOnymous
                     throw DynamicException.Create
                     (
                         $"ItemNotFound",
-                        $"Could not find '{uri}' that maps to '{item.Metadata.Resource().InternalName() ?? "N/A"}'."
+                        $"Could not find '{uri}' that maps to '{item.Metadata.Scope<IResourceSession>().Get(x => x.ActualName) ?? "N/A"}'."
                     );
                 }
             }
         }
 
-        public static Task<IResourceInfo> GetAnyAsync(this IResourceProvider resourceProvider, UriString uri, Metadata metadata = default)
+        public static Task<IResourceInfo> GetAnyAsync(this IResourceProvider resourceProvider, UriString uri, IImmutableSession metadata = default)
         {
             return resourceProvider.GetAsync(uri.With(x => x.Scheme, ResourceProvider.DefaultScheme), metadata);
         }
@@ -69,17 +72,17 @@ namespace Reusable.IOnymous
 
         #region PUT helpers
 
-        public static async Task SetItemAsync(this IResourceProvider resources, UriString uri, object value, Metadata metadata = default)
+        public static async Task SetItemAsync(this IResourceProvider resources, UriString uri, object value, IImmutableSession metadata = default)
         {
-            if (metadata.Resource().Type() == typeof(string))
+            if (metadata.Scope<IResourceSession>().Get(x => x.Type) == typeof(string))
             {
                 using (var stream = await ResourceHelper.SerializeTextAsync((string)value))
-                using (await resources.PutAsync(uri, stream, metadata.Resource(s => s.Format(MimeType.Text)))) { }
+                using (await resources.PutAsync(uri, stream, metadata.Scope<IResourceSession>(s => s.Set(x => x.Format, MimeType.Text)))) { }
             }
             else
             {
                 using (var stream = await ResourceHelper.SerializeBinaryAsync(value))
-                using (await resources.PutAsync(uri, stream, metadata.Resource(s => s.Format(MimeType.Binary)))) { }
+                using (await resources.PutAsync(uri, stream, metadata.Scope<IResourceSession>(s => s.Set(x => x.Format, MimeType.Binary)))) { }
             }
         }
 
@@ -92,7 +95,7 @@ namespace Reusable.IOnymous
             this IResourceProvider resourceProvider,
             UriString uri,
             Func<Task<Stream>> serializeAsync,
-            Metadata metadata = default
+            IImmutableSession metadata = default
         )
         {
             return await ExecuteAsync(resourceProvider.PostAsync, uri, serializeAsync, metadata);
@@ -103,7 +106,7 @@ namespace Reusable.IOnymous
             this IResourceProvider resourceProvider,
             UriString uri,
             Func<Task<Stream>> serializeAsync,
-            Metadata metadata = default
+            IImmutableSession metadata = default
         )
         {
             return await ExecuteAsync(resourceProvider.PutAsync, uri, serializeAsync, metadata);
@@ -111,10 +114,10 @@ namespace Reusable.IOnymous
 
         private static async Task<IResourceInfo> ExecuteAsync
         (
-            Func<UriString, Stream, Metadata, Task<IResourceInfo>> executeAsync,
+            Func<UriString, Stream, IImmutableSession, Task<IResourceInfo>> executeAsync,
             UriString uri,
             Func<Task<Stream>> serializeAsync,
-            Metadata metadata
+            IImmutableSession metadata
         )
         {
             var stream = await serializeAsync();

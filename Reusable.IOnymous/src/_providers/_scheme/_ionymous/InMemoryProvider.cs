@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Data;
 using Reusable.OneTo1;
 using Reusable.OneTo1.Converters;
 
@@ -18,8 +19,8 @@ namespace Reusable.IOnymous
 
         //public InMemoryProvider(Metadata metadata = default) : base(new[] { DefaultScheme }, metadata) { }
 
-        public InMemoryProvider([NotNull] ITypeConverter<UriString, string> uriConverter, IEnumerable<SoftString> schemes, Metadata metadata = default)
-            : base(schemes, metadata)
+        public InMemoryProvider([NotNull] ITypeConverter<UriString, string> uriConverter, IEnumerable<SoftString> schemes, IImmutableSession metadata = default)
+            : base(schemes, metadata ?? ImmutableSession.Empty)
         {
             _uriConverter = uriConverter ?? throw new ArgumentNullException(nameof(uriConverter));
         }
@@ -29,7 +30,7 @@ namespace Reusable.IOnymous
         /// </summary>
         public ITypeConverter Converter { get; set; } = new NullConverter();
 
-        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata)
+        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             var name = _uriConverter.Convert<string>(uri);
             return
@@ -37,7 +38,7 @@ namespace Reusable.IOnymous
                     ? o is string s
                         ? new InMemoryResourceInfo(uri, MimeType.Text, await ResourceHelper.SerializeTextAsync(s))
                         : new InMemoryResourceInfo(uri, MimeType.Binary, await ResourceHelper.SerializeBinaryAsync(o))
-                    : new InMemoryResourceInfo(uri, Metadata.Empty);
+                    : new InMemoryResourceInfo(uri, ImmutableSession.Empty);
         }
 
         // protected override Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
@@ -50,13 +51,13 @@ namespace Reusable.IOnymous
         //     //return Task.FromResult<IResourceInfo>(resource);
         // }
 
-        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, Metadata metadata)
+        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
         {
             //ValidateFormatNotNull(this, uri, metadata);
 
             var name = _uriConverter.Convert<string>(uri);
             _items[name] = await ResourceHelper.Deserialize<object>(value, metadata);
-            return new InMemoryResourceInfo(uri, metadata.Resource().Format(), value);
+            return new InMemoryResourceInfo(uri, metadata.Scope<IResourceSession>().Get(y => y.Format), value);
         }
 
         // protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata)
@@ -88,26 +89,26 @@ namespace Reusable.IOnymous
 
         //public void Add(IResourceInfo item) => _items.Add(item);
 
-        public static InMemoryProvider Add(this InMemoryProvider inMemory, string uri, object value)
-        {
-            switch (value)
-            {
-                case string str:
-                {
-                    using (var stream = ResourceHelper.SerializeTextAsync(str).GetAwaiter().GetResult())
-                    using (inMemory.PutAsync(uri, stream, Metadata.Empty.Resource().Format(MimeType.Text)).GetAwaiter().GetResult()) { }
-                }
-                    break;
-                default:
-                {
-                    using (var stream = ResourceHelper.SerializeBinaryAsync(value).GetAwaiter().GetResult())
-                    using (inMemory.PutAsync(uri, stream, Metadata.Empty.Resource().Format(MimeType.Binary)).GetAwaiter().GetResult()) { }
-                }
-                    break;
-            }
-
-            return inMemory;
-        }
+//        public static InMemoryProvider Add(this InMemoryProvider inMemory, string uri, object value)
+//        {
+//            switch (value)
+//            {
+//                case string str:
+//                {
+//                    using (var stream = ResourceHelper.SerializeTextAsync(str).GetAwaiter().GetResult())
+//                    using (inMemory.PutAsync(uri, stream, Metadata.Empty.Resource().Format(MimeType.Text)).GetAwaiter().GetResult()) { }
+//                }
+//                    break;
+//                default:
+//                {
+//                    using (var stream = ResourceHelper.SerializeBinaryAsync(value).GetAwaiter().GetResult())
+//                    using (inMemory.PutAsync(uri, stream, Metadata.Empty.Resource().Format(MimeType.Binary)).GetAwaiter().GetResult()) { }
+//                }
+//                    break;
+//            }
+//
+//            return inMemory;
+//        }
 
         #endregion
     }
@@ -116,13 +117,13 @@ namespace Reusable.IOnymous
     {
         [CanBeNull] private readonly Stream _data;
 
-        public InMemoryResourceInfo(UriString uri, MimeType format, Stream data, Metadata metadata = default)
-            : base(uri, m => m.Format(format).Union(metadata))
+        public InMemoryResourceInfo(UriString uri, MimeType format, Stream data, IImmutableSession metadata = default)
+            : base(uri, metadata ?? ImmutableSession.Empty, s => s.Set(x => x.Format, format))
         {
             _data = data ?? throw new ArgumentNullException(nameof(data));
         }
 
-        public InMemoryResourceInfo(UriString uri, Metadata metadata)
+        public InMemoryResourceInfo(UriString uri, IImmutableSession metadata)
             : this(uri, MimeType.Null, Stream.Null, metadata)
         {
             ModifiedOn = DateTime.UtcNow;

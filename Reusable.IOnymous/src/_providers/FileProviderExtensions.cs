@@ -1,5 +1,7 @@
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
+using Reusable.Data;
 
 namespace Reusable.IOnymous
 {
@@ -7,17 +9,17 @@ namespace Reusable.IOnymous
     {
         #region GET helpers
 
-        public static async Task<IResourceInfo> GetFileAsync(this IResourceProvider resourceProvider, string path, MimeType format, Metadata metadata = default)
+        public static async Task<IResourceInfo> GetFileAsync(this IResourceProvider resourceProvider, string path, MimeType format, ImmutableSession metadata = default)
         {
-            return await resourceProvider.GetAsync(CreateUri(path), metadata.Resource(s => s.Format(format)));
+            return await resourceProvider.GetAsync(CreateUri(path), metadata.Scope<IResourceSession>(s => s.Set(x => x.Format, format)));
         }
 
-        public static IResourceInfo GetTextFile(this IResourceProvider resourceProvider, string path, Metadata metadata = default)
+        public static IResourceInfo GetTextFile(this IResourceProvider resourceProvider, string path, ImmutableSession metadata = default)
         {
             return resourceProvider.GetFileAsync(path, MimeType.Text, metadata).GetAwaiter().GetResult();
         }
 
-        public static async Task<string> ReadTextFileAsync(this IResourceProvider resourceProvider, string path, Metadata metadata = default)
+        public static async Task<string> ReadTextFileAsync(this IResourceProvider resourceProvider, string path, ImmutableSession metadata = default)
         {
             using (var file = await resourceProvider.GetFileAsync(path, MimeType.Text, metadata))
             {
@@ -25,7 +27,7 @@ namespace Reusable.IOnymous
             }
         }
 
-        public static string ReadTextFile(this IResourceProvider resourceProvider, string path, Metadata metadata = default)
+        public static string ReadTextFile(this IResourceProvider resourceProvider, string path, ImmutableSession metadata = default)
         {
             using (var file = resourceProvider.GetFileAsync(path, MimeType.Text, metadata).GetAwaiter().GetResult())
             {
@@ -37,15 +39,15 @@ namespace Reusable.IOnymous
 
         #region PUT helpers
 
-        public static async Task<IResourceInfo> WriteTextFileAsync(this IResourceProvider resourceProvider, string path, string value, Metadata metadata = default)
+        public static async Task<IResourceInfo> WriteTextFileAsync(this IResourceProvider resourceProvider, string path, string value, ImmutableSession metadata = default)
         {
-            using (var stream = await ResourceHelper.SerializeTextAsync(value, metadata.Encoding()))
+            using (var stream = await ResourceHelper.SerializeTextAsync(value, metadata.Scope<IAnySession>().Get(x => x.Encoding, Encoding.UTF8)))
             {
-                return await resourceProvider.PutAsync(CreateUri(path), stream, metadata.Resource().Format(MimeType.Text));
+                return await resourceProvider.PutAsync(CreateUri(path), stream, metadata.Scope<IResourceSession>(s => s.Set(x => x.Format, MimeType.Text)));
             }
         }
 
-        public static async Task<IResourceInfo> WriteFileAsync(this IResourceProvider resourceProvider, string path, Stream stream, Metadata metadata = default)
+        public static async Task<IResourceInfo> WriteFileAsync(this IResourceProvider resourceProvider, string path, Stream stream, ImmutableSession metadata = default)
         {
             return await resourceProvider.PutAsync(CreateUri(path), stream, metadata);
         }
@@ -58,9 +60,9 @@ namespace Reusable.IOnymous
 
         #region DELETE helpers
 
-        public static async Task<IResourceInfo> DeleteFileAsync(this IResourceProvider resourceProvider, string path, Metadata metadata = default)
+        public static async Task<IResourceInfo> DeleteFileAsync(this IResourceProvider resourceProvider, string path, ImmutableSession metadata = default)
         {
-            return await resourceProvider.DeleteAsync(CreateUri(path), metadata.Resource().Format(MimeType.Text));
+            return await resourceProvider.DeleteAsync(CreateUri(path), metadata.Scope<IResourceSession>(s => s.Set(x => x.Format, MimeType.Text)));
         }
 
         #endregion

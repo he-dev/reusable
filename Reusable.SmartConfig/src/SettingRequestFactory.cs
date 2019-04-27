@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Custom;
+using Reusable.Data;
 using Reusable.Extensions;
 using Reusable.IOnymous;
 
@@ -8,7 +9,7 @@ namespace Reusable.SmartConfig
 {
     public static class SettingRequestFactory
     {
-        public static (UriString Uri, Metadata Metadata) CreateSettingRequest(SettingMetadata setting, string handle = null)
+        public static (UriString Uri, IImmutableSession Metadata) CreateSettingRequest(SettingMetadata setting, string handle = null)
         {
             var queryParameters = new (SoftString Key, SoftString Value)[]
             {
@@ -36,9 +37,9 @@ namespace Reusable.SmartConfig
             return
             (
                 $"{setting.ResourceScheme}:///{path}{query}",
-                Metadata.Empty.Provider(s => s
-                    .CustomName(setting.ResourceProviderName)
-                    .DefaultName(setting.ResourceProviderType?.ToPrettyString()))
+                ImmutableSession.Empty.Scope<IProviderSession>(s => s
+                    .Set(x => x.CustomName, setting.ResourceProviderName)
+                    .Set(x => x.DefaultName, setting.ResourceProviderType?.ToPrettyString()))
             );
         }
     }

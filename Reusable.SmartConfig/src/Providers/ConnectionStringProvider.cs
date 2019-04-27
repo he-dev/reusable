@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Data;
 using Reusable.Extensions;
 using Reusable.IOnymous;
 using Reusable.OneTo1;
@@ -13,14 +14,14 @@ namespace Reusable.SmartConfig
 {
     public class ConnectionStringProvider : SettingProvider
     {
-        public ConnectionStringProvider() : base(Metadata.Empty) { }
+        public ConnectionStringProvider() : base(ImmutableSession.Empty) { }
 
         [CanBeNull]
         public ITypeConverter UriConverter { get; set; } = new UriStringToSettingIdentifierConverter();
 
         public ITypeConverter ValueConverter { get; set; } = new NullConverter();
 
-        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata)
+        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             var settingIdentifier = UriConverter?.Convert<string>(uri) ?? uri;
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
@@ -28,7 +29,7 @@ namespace Reusable.SmartConfig
             return Task.FromResult<IResourceInfo>(new ConnectionStringInfo(uri, settings?.ConnectionString));
         }
 
-        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream stream, Metadata metadata)
+        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream stream, IImmutableSession metadata)
         {
             using (var valueReader = new StreamReader(stream))
             {
@@ -70,7 +71,7 @@ namespace Reusable.SmartConfig
         [CanBeNull] private readonly string _value;
 
         internal ConnectionStringInfo([NotNull] UriString uri, [CanBeNull] string value)
-            : base(uri, m => m.Format(MimeType.Text))
+            : base(uri, ImmutableSession.Empty, s => s.Set(x => x.Format, MimeType.Text))
         {
             _value = value;
         }

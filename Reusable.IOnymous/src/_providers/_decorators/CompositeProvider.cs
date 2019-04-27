@@ -7,6 +7,7 @@ using System.Linq.Custom;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Data;
 using Reusable.Exceptionize;
 
 namespace Reusable.IOnymous
@@ -28,9 +29,9 @@ namespace Reusable.IOnymous
         public CompositeProvider
         (
             [NotNull] IEnumerable<IResourceProvider> resourceProviders,
-            Metadata metadata = default
+            IImmutableSession metadata = default
         )
-            : base(new[] { DefaultScheme }, metadata)
+            : base(new[] { DefaultScheme }, metadata ?? ImmutableSession.Empty)
         {
             if (resourceProviders == null) throw new ArgumentNullException(nameof(resourceProviders));
 
@@ -38,8 +39,8 @@ namespace Reusable.IOnymous
             _resourceProviders = resourceProviders.ToImmutableList();
             var duplicateProviderNames =
                 _resourceProviders
-                    .Where(p => p.Metadata.Provider().CustomName())
-                    .GroupBy(p => p.Metadata.Provider().CustomName())
+                    .Where(p => p.CustomName)
+                    .GroupBy(p => p.CustomName)
                     .Where(g => g.Count() > 1)
                     .Select(g => g.First())
                     .ToList();
@@ -49,33 +50,33 @@ namespace Reusable.IOnymous
                 throw new ArgumentException
                 (
                     $"Providers must use unique custom names but there are some duplicates: " +
-                    $"[{duplicateProviderNames.Select(p => (string)p.Metadata.Provider().CustomName()).Join(", ")}]."
+                    $"[{duplicateProviderNames.Select(p => (string)p.CustomName).Join(", ")}]."
                 );
             }
         }
 
-        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata)
+        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             return await HandleMethodAsync(uri, metadata, true, async resourceProvider => await resourceProvider.GetAsync(uri, metadata));
         }
 
-        protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, Metadata metadata)
+        protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
         {
             return await HandleMethodAsync(uri, metadata, false, async resourceProvider => (await resourceProvider.PostAsync(uri, value, metadata)));
         }
 
-        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, Metadata metadata)
+        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
         {
             return await HandleMethodAsync(uri, metadata, false, async resourceProvider => (await resourceProvider.PutAsync(uri, value, metadata)));
         }
 
-        protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, Metadata metadata)
+        protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             return await HandleMethodAsync(uri, metadata, false, async resourceProvider => (await resourceProvider.DeleteAsync(uri, metadata)));
         }
 
         [ItemNotNull]
-        private async Task<IResourceInfo> HandleMethodAsync(UriString uri, Metadata metadata, bool isGet, Func<IResourceProvider, Task<IResourceInfo>> handleAsync)
+        private async Task<IResourceInfo> HandleMethodAsync(UriString uri, IImmutableSession metadata, bool isGet, Func<IResourceProvider, Task<IResourceInfo>> handleAsync)
         {
             var cacheKey = uri.Path.Decoded;
 
@@ -90,12 +91,14 @@ namespace Reusable.IOnymous
 
                 var resourceProviders = _resourceProviders.ToList();
 
+                var pmd = metadata.Scope<IProviderSession>();
+
                 // Use custom-provider-name if available which has the highest priority.
-                if (metadata.Provider().CustomName() is var customName && customName)
+                if (pmd.Get(x => x.CustomName) is var customName && customName)
                 {
                     var match =
                         resourceProviders
-                            .Where(p => p.Metadata.Provider().CustomName().Equals(customName))
+                            .Where(p => p.CustomName?.Equals(customName) == true)
                             // There must be exactly one provider with that name.                
                             .SingleOrThrow
                             (
@@ -116,11 +119,11 @@ namespace Reusable.IOnymous
                 }
 
                 // Multiple providers can have the same default name.
-                if (metadata.Provider().DefaultName() is var defaultName && defaultName)
+                if (pmd.Get(x => x.DefaultName) is var defaultName && defaultName)
                 {
                     resourceProviders =
                         resourceProviders
-                            .Where(p => p.Metadata.Provider().DefaultName().Equals(defaultName))
+                            .Where(p => p.DefaultName.Equals(defaultName))
                             .ToList();
 
                     if (resourceProviders.Empty())
@@ -146,8 +149,8 @@ namespace Reusable.IOnymous
                     {
                         throw DynamicException.Create
                         (
-                            "ProviderNotFound",
-                            $"Could not find any provider that would match any of the schemes [{metadata.Schemes().Select(x => (string)x).Join(",")}]."
+                            $"ProviderNotFound",
+                            $"Could not find any provider that would match any of the schemes [{metadata.Scope<IAnySession>().Get(x => x.Schemes).Select(x => (string)x).Join(",")}]."
                         );
                     }
                 }
@@ -166,7 +169,7 @@ namespace Reusable.IOnymous
                         }
                     }
 
-                    return new InMemoryResourceInfo(uri, resource?.Metadata ?? Metadata.Empty);
+                    return new InMemoryResourceInfo(uri, resource?.Metadata ?? ImmutableSession.Empty);
                 }
                 // Other methods are allowed to use only a single provider.
                 else

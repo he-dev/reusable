@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Data;
 using Reusable.IOnymous;
 
 namespace Reusable.Commander.Services
@@ -13,12 +14,12 @@ namespace Reusable.Commander.Services
 
         private readonly ICommandLine _commandLine;
 
-        public CommandArgumentProvider([NotNull] ICommandLine commandLine) : base(new SoftString[] { DefaultScheme }, Metadata.Empty)
+        public CommandArgumentProvider([NotNull] ICommandLine commandLine) : base(new SoftString[] { DefaultScheme }, ImmutableSession.Empty)
         {
             _commandLine = commandLine ?? throw new ArgumentNullException(nameof(commandLine));
         }
 
-        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata)
+        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             var (exists, values) = GetValues(uri);
             var isCollection = uri.Query.TryGetValue(CommandArgumentQueryStringKeys.IsCollection, out var ic) && bool.Parse(ic.ToString());

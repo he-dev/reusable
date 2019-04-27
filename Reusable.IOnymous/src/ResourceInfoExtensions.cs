@@ -3,6 +3,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Reusable.Data;
 
 namespace Reusable.IOnymous
 {
@@ -23,10 +24,12 @@ namespace Reusable.IOnymous
         {
             if (!resource.Exists) throw new InvalidOperationException($"Cannot deserialize a resource that does not exist: '{resource.Uri.ToString()}'");
 
+            var format = resource.Metadata.Scope<IResourceSession>().Get(x => x.Format);
+            
             // todo - find a cleaner solution; maybe a new comparer for MimeType?
-            if (!resource.Metadata.Resource().Format().Name.StartsWith("text/"))
+            if (!format.Name.StartsWith("text/"))
             {
-                throw new ArgumentException($"Resource must be '{MimeType.Text}' but is '{resource.Metadata.Resource().Format()}'.");
+                throw new ArgumentException($"Resource must be '{MimeType.Text}' but is '{format}'.");
             }
 
             using (var memoryStream = new MemoryStream())
@@ -41,9 +44,11 @@ namespace Reusable.IOnymous
 
         public static async Task<T> DeserializeBinaryAsync<T>(this IResourceInfo resource)
         {
-            if (resource.Metadata.Resource().Format() != MimeType.Binary)
+            var format = resource.Metadata.Scope<IResourceSession>().Get(x => x.Format);
+            
+            if (format != MimeType.Binary)
             {
-                throw new ArgumentException($"Resource must be '{MimeType.Binary}' but is '{resource.Metadata.Resource().Format()}'.");
+                throw new ArgumentException($"Resource must be '{MimeType.Binary}' but is '{format}'.");
             }
 
             var binaryFormatter = new BinaryFormatter();
@@ -56,9 +61,11 @@ namespace Reusable.IOnymous
 
         public static async Task<T> DeserializeJsonAsync<T>(this IResourceInfo resource, JsonSerializer jsonSerializer = null)
         {
-            if (resource.Metadata.Resource().Format() != MimeType.Json)
+            var format = resource.Metadata.Scope<IResourceSession>().Get(x => x.Format);
+            
+            if (format != MimeType.Json)
             {
-                throw new ArgumentException($"Resource must be '{MimeType.Json}' but is '{resource.Metadata.Resource().Format()}'.");
+                throw new ArgumentException($"Resource must be '{MimeType.Json}' but is '{format}'.");
             }
 
             jsonSerializer = jsonSerializer ?? new JsonSerializer();

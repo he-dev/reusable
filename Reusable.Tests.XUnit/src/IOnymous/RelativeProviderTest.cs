@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Threading.Tasks;
+using Reusable.Data;
 using Reusable.IOnymous;
 using Telerik.JustMock;
 using Telerik.JustMock.Helpers;
@@ -22,19 +23,19 @@ namespace Reusable.Tests.XUnit.IOnymous
 
             mockProvider
                 .Arrange(x => x.Metadata)
-                .Returns(Metadata.Empty);
+                .Returns(ImmutableSession.Empty);
             
             mockProvider
                 .Arrange(x => x.Schemes)
                 .Returns(new SoftString[] { "blub" }.ToImmutableHashSet());
 
             mockProvider
-                .Arrange(x => x.GetAsync(Arg.Matches<UriString>(uri => uri == new UriString("blub:base/relative")), Arg.IsAny<Metadata>()))
-                .Returns<UriString, Metadata>((uri, metadata) => Task.FromResult<IResourceInfo>(new InMemoryResourceInfo(uri, Metadata.Empty)));
+                .Arrange(x => x.GetAsync(Arg.Matches<UriString>(uri => uri == new UriString("blub:base/relative")), Arg.IsAny<ImmutableSession>()))
+                .Returns<UriString, ImmutableSession>((uri, metadata) => Task.FromResult<IResourceInfo>(new InMemoryResourceInfo(uri, ImmutableSession.Empty)));
 
 
             var relativeProvider = mockProvider.DecorateWith(RelativeProvider.Factory("blub:base"));
-            var resource = await relativeProvider.GetAsync("relative", Metadata.Empty.AllowRelativeUri(true));
+            var resource = await relativeProvider.GetAsync("relative");
 
             Assert.False(resource.Exists);
             Assert.Equal("blub:base/relative", resource.Uri);

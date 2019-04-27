@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Reusable.Data;
 using Reusable.IOnymous;
 using Reusable.SmartConfig;
 using Xunit;
@@ -67,12 +68,12 @@ namespace Reusable.Tests.XUnit.SmartConfig
 
         [Fact]
         public void Can_find_setting_by_provider()
-        {
+        {            
             var u = new Map
             {
                 Configuration = new cfg(new CompositeProvider(new IResourceProvider[]
                 {
-                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" }, Metadata.Empty.Provider(s => s.CustomName("OtherOne")))
+                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" }, ImmutableSession.Empty.Scope<IProviderSession>(s => s.Set(x => x.CustomName, "OtherOne")))
                     {
                         { "Map.City", "Joe" }
                     },
@@ -80,7 +81,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
                     {
                         { "Map.City", "Tom" }
                     },
-                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" }, Metadata.Empty.Provider(s => s.CustomName("ThisOne")))
+                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" }, ImmutableSession.Empty.Scope<IProviderSession>(s => s.Set(x => x.CustomName, "ThisOne")))
                     {
                         { "Map.City", "Bob" }
                     },

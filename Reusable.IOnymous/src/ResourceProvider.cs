@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 using JetBrains.Annotations;
+using Reusable.Data;
 using Reusable.Diagnostics;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
@@ -22,9 +23,15 @@ namespace Reusable.IOnymous
     public interface IResourceProvider : IDisposable
     {
         [NotNull]
-        Metadata Metadata { get; }
+        IImmutableSession Metadata { get; }
 
         IImmutableSet<SoftString> Schemes { get; }
+        
+        [NotNull]
+        SoftString DefaultName { get; }
+        
+        [CanBeNull]
+        SoftString CustomName { get; }
 
         bool CanGet { get; }
 
@@ -35,16 +42,16 @@ namespace Reusable.IOnymous
         bool CanDelete { get; }
 
         [ItemNotNull]
-        Task<IResourceInfo> GetAsync([NotNull] UriString uri, Metadata metadata = default);
+        Task<IResourceInfo> GetAsync([NotNull] UriString uri, [CanBeNull] IImmutableSession metadata = default);
 
         [ItemNotNull]
-        Task<IResourceInfo> PostAsync([NotNull] UriString uri, [NotNull] Stream value, Metadata metadata = default);
+        Task<IResourceInfo> PostAsync([NotNull] UriString uri, [NotNull] Stream value, [CanBeNull] IImmutableSession metadata = default);
 
         [ItemNotNull]
-        Task<IResourceInfo> PutAsync([NotNull] UriString uri, [NotNull] Stream value, Metadata metadata = default);
+        Task<IResourceInfo> PutAsync([NotNull] UriString uri, [NotNull] Stream value, [CanBeNull] IImmutableSession metadata = default);
 
         [ItemNotNull]
-        Task<IResourceInfo> DeleteAsync([NotNull] UriString uri, Metadata metadata = default);
+        Task<IResourceInfo> DeleteAsync([NotNull] UriString uri, [CanBeNull] IImmutableSession metadata = default);
     }
 
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
@@ -57,29 +64,29 @@ namespace Reusable.IOnymous
         {
             builder.True
             (x =>
-                x.Provider.Metadata.AllowRelativeUri() ||
+                x.Provider.Metadata.Scope<IProviderSession>().Get(m => m.AllowRelativeUri, false) ||
                 x.Provider.Schemes.Contains(DefaultScheme) ||
                 x.Provider.Schemes.Contains(x.Uri.Scheme)
             ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it supports only such schemes as [{x.Provider.Schemes.Join(", ")}].");
 
             builder.True
             (x =>
-                x.Provider.Metadata.AllowRelativeUri() ||
+                x.Provider.Metadata.Scope<IProviderSession>().Get(m => m.AllowRelativeUri, false) ||
                 x.Uri.Scheme
             ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it supports only absolute URIs.");
         });
 
 
-        protected ResourceProvider([NotNull] IEnumerable<SoftString> schemes, Metadata metadata)
+        protected ResourceProvider([NotNull] IEnumerable<SoftString> schemes, IImmutableSession metadata)
         {
             if (schemes == null) throw new ArgumentNullException(nameof(schemes));
 
             //var metadata = Metadata.Empty;
 
             // If this is a decorator then the decorated resource-provider already has set this.
-            if (!metadata.Provider().DefaultName())
+            if (metadata.Scope<IProviderSession>().Get(x => x.DefaultName) is var df && !df)
             {
-                metadata = metadata.Provider(s => s.DefaultName(GetType().ToPrettyString()));
+                metadata = metadata.Scope<IProviderSession>(s => s.Set(x => x.DefaultName, GetType().ToPrettyString()));
             }
 
             if ((Schemes = schemes.ToImmutableHashSet()).Empty())
@@ -93,10 +100,14 @@ namespace Reusable.IOnymous
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
         {
             //builder.DisplayCollection(p => p.ProviderNames());
-            builder.DisplayValue(p => p.Metadata.Provider().DefaultName());
-            builder.DisplayValue(p => p.Metadata.Provider().CustomName());
+            builder.DisplayValue(p => DefaultName);
+            builder.DisplayValue(p => CustomName);
             builder.DisplayValue(x => x.Schemes);
         });
+
+        public SoftString DefaultName => Metadata.Scope<IProviderSession>().Get(m => m.DefaultName);
+        
+        public SoftString CustomName => Metadata.Scope<IProviderSession>().Get(m => m.CustomName);
 
         public bool CanGet => Implements(nameof(GetAsyncInternal));
 
@@ -112,7 +123,7 @@ namespace Reusable.IOnymous
             return GetType().GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance).DeclaringType == GetType();
         }
 
-        public virtual Metadata Metadata { get; }
+        public virtual IImmutableSession Metadata { get; }
 
         public virtual IImmutableSet<SoftString> Schemes { get; }
 
@@ -120,13 +131,13 @@ namespace Reusable.IOnymous
 
         // These wrappers are to provide helpful exceptions.        
 
-        public async Task<IResourceInfo> GetAsync(UriString uri, Metadata metadata = default)
+        public async Task<IResourceInfo> GetAsync(UriString uri, IImmutableSession metadata = default)
         {
             ValidateRequest(ExtractMethodName(nameof(GetAsync)), uri, metadata, Stream.Null, RequestValidator);
 
             try
             {
-                return await GetAsyncInternal(uri, metadata);
+                return await GetAsyncInternal(uri, metadata ?? ImmutableSession.Empty);
             }
             catch (Exception inner)
             {
@@ -134,9 +145,9 @@ namespace Reusable.IOnymous
             }
         }
 
-        public async Task<IResourceInfo> PostAsync(UriString uri, Stream value, Metadata metadata = default)
+        public async Task<IResourceInfo> PostAsync(UriString uri, Stream value, IImmutableSession metadata = default)
         {
-            ValidateRequest(ExtractMethodName(nameof(PostAsync)), uri, metadata, value, RequestValidator);
+            ValidateRequest(ExtractMethodName(nameof(PostAsync)), uri, metadata ?? ImmutableSession.Empty, value, RequestValidator);
 
             try
             {
@@ -148,9 +159,9 @@ namespace Reusable.IOnymous
             }
         }
 
-        public async Task<IResourceInfo> PutAsync(UriString uri, Stream value, Metadata metadata = default)
+        public async Task<IResourceInfo> PutAsync(UriString uri, Stream value, IImmutableSession metadata = default)
         {
-            ValidateRequest(ExtractMethodName(nameof(PutAsync)), uri, metadata, value, RequestValidator);
+            ValidateRequest(ExtractMethodName(nameof(PutAsync)), uri, metadata ?? ImmutableSession.Empty, value, RequestValidator);
 
             try
             {
@@ -162,9 +173,9 @@ namespace Reusable.IOnymous
             }
         }
 
-        public async Task<IResourceInfo> DeleteAsync(UriString uri, Metadata metadata = default)
+        public async Task<IResourceInfo> DeleteAsync(UriString uri, IImmutableSession metadata = default)
         {
-            ValidateRequest(ExtractMethodName(nameof(GetAsync)), uri, metadata, Stream.Null, RequestValidator);
+            ValidateRequest(ExtractMethodName(nameof(GetAsync)), uri, metadata ?? ImmutableSession.Empty, Stream.Null, RequestValidator);
 
             try
             {
@@ -180,19 +191,19 @@ namespace Reusable.IOnymous
 
         #region Internal
 
-        protected virtual Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata) => throw MethodNotSupportedException(uri);
+        protected virtual Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata) => throw MethodNotSupportedException(uri);
 
-        protected virtual Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, Metadata metadata) => throw MethodNotSupportedException(uri);
+        protected virtual Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, IImmutableSession metadata) => throw MethodNotSupportedException(uri);
 
-        protected virtual Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, Metadata metadata) => throw MethodNotSupportedException(uri);
+        protected virtual Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, IImmutableSession metadata) => throw MethodNotSupportedException(uri);
 
-        protected virtual Task<IResourceInfo> DeleteAsyncInternal(UriString uri, Metadata metadata) => throw MethodNotSupportedException(uri);
+        protected virtual Task<IResourceInfo> DeleteAsyncInternal(UriString uri, IImmutableSession metadata) => throw MethodNotSupportedException(uri);
 
         #endregion
 
         #region Helpers
 
-        protected void ValidateRequest(string method, UriString uri, Metadata metadata, Stream stream, params IExpressValidator<Request>[] validators)
+        protected void ValidateRequest(string method, UriString uri, IImmutableSession metadata, Stream stream, params IExpressValidator<Request>[] validators)
         {
             var request = new Request
             {
@@ -218,7 +229,7 @@ namespace Reusable.IOnymous
             );
         }
 
-        private Exception WrapException(UriString uri, Metadata metadata, Exception inner, [CallerMemberName] string memberName = null)
+        private Exception WrapException(UriString uri, IImmutableSession metadata, Exception inner, [CallerMemberName] string memberName = null)
         {
             throw DynamicException.Create
             (
@@ -242,8 +253,8 @@ namespace Reusable.IOnymous
         {
             return new[]
             {
-                provider.Metadata.Provider().DefaultName().ToString(),
-                provider.Metadata.Provider().CustomName().ToString(),
+                provider.DefaultName.ToString(),
+                provider.CustomName?.ToString(),
             }.Where(Conditional.IsNotNullOrEmpty).Join("/");
         }
 
@@ -268,7 +279,7 @@ namespace Reusable.IOnymous
 
             public UriString Uri { get; set; }
 
-            public Metadata Metadata { get; set; }
+            public IImmutableSession Metadata { get; set; }
 
             public Stream Stream { get; set; }
         }

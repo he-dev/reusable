@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Reusable.Data;
 
 namespace Reusable.IOnymous
 {
@@ -6,7 +7,7 @@ namespace Reusable.IOnymous
     {
         #region GET helpers
 
-        public static Task<IResourceInfo> GetHttpAsync(this IResourceProvider resourceProvider, string path, Metadata metadata = default)
+        public static Task<IResourceInfo> GetHttpAsync(this IResourceProvider resourceProvider, string path, IImmutableSession metadata = default)
         {
             var uri = new UriString(path);
             return resourceProvider.GetAsync
@@ -26,12 +27,16 @@ namespace Reusable.IOnymous
 
         #region POST helpers
 
-        public static async Task<IResourceInfo> SendEmailAsync(this IResourceProvider resourceProvider, IEmail<IEmailSubject, IEmailBody> email)
+        public static async Task<IResourceInfo> SendEmailAsync
+        (
+            this IResourceProvider resourceProvider,
+            IEmail<IEmailSubject, IEmailBody> email,
+            IImmutableSession metadata = default
+        )
         {
-            var metadata =
-                Metadata
-                    .Empty
-                    .Scope<IMailMetadata>(m => m
+            metadata =
+                metadata
+                    .Scope<IMailSession>(m => m
                         .Set(x => x.From, email.From)
                         .Set(x => x.To, email.To)
                         .Set(x => x.CC, email.CC)

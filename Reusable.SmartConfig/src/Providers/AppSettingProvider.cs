@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Data;
 using Reusable.Extensions;
 using Reusable.IOnymous;
 using Reusable.OneTo1;
@@ -13,23 +14,23 @@ namespace Reusable.SmartConfig
 {
     public class AppSettingProvider : SettingProvider
     {
-        public AppSettingProvider() : base(Metadata.Empty) { }
+        public AppSettingProvider() : base(ImmutableSession.Empty) { }
 
         [CanBeNull]
         public ITypeConverter UriConverter { get; set; } = new UriStringToSettingIdentifierConverter();
 
         public ITypeConverter ValueConverter { get; set; } = new NullConverter();
 
-        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, Metadata metadata)
+        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             var settingIdentifier = UriConverter?.Convert<string>(uri) ?? uri;
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
             var element = exeConfig.AppSettings.Settings[actualKey];
-            return Task.FromResult<IResourceInfo>(new AppSettingInfo(uri, element?.Value, Metadata.Empty.Resource(s => s.InternalName(settingIdentifier))));
+            return Task.FromResult<IResourceInfo>(new AppSettingInfo(uri, element?.Value, ImmutableSession.Empty.Scope<IResourceSession>(s => s.Set(x => x.ActualName, settingIdentifier))));
         }
 
-        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream stream, Metadata metadata)
+        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream stream, IImmutableSession metadata)
         {
             var settingIdentifier = UriConverter?.Convert<string>(uri) ?? uri;
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
@@ -69,8 +70,8 @@ namespace Reusable.SmartConfig
     {
         [CanBeNull] private readonly string _value;
 
-        internal AppSettingInfo([NotNull] UriString uri, [CanBeNull] string value, Metadata metadata)
-            : base(uri, m => m.Format(MimeType.Text).Union(metadata))
+        internal AppSettingInfo([NotNull] UriString uri, [CanBeNull] string value, IImmutableSession metadata)
+            : base(uri, metadata, s => s.Set(x => x.Format, MimeType.Text))
         {
             _value = value;
         }

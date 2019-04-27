@@ -1,10 +1,11 @@
+using Reusable.Data;
 using Reusable.IOnymous;
 
 namespace Reusable.SmartConfig
 {
     public abstract class SettingProvider : ResourceProvider
     {
-        protected SettingProvider(Metadata metadata)
+        protected SettingProvider(ImmutableSession metadata)
             : base(new SoftString[] { "setting" }, metadata) { }
     }
 }
