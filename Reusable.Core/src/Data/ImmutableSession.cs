@@ -132,12 +132,12 @@ namespace Reusable.Data
             return SetItem(ImmutableSessionScope<TScope>.Key(setItem), value);
         }
 
-        IEnumerator<(SoftString Key, object Value)> IEnumerable<(SoftString Key, object Value)>.GetEnumerator()
+        public IEnumerator<(SoftString Key, object Value)> GetEnumerator()
         {
             return _data.Select(x => (x.Key, x.Value)).GetEnumerator();
         }
 
-        public IEnumerator GetEnumerator() => ((IEnumerable)_data).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_data).GetEnumerator();
     }
 
     public interface ISessionScope<out T> { }

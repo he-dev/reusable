@@ -3,7 +3,7 @@ using Reusable.Data;
 using Reusable.IOnymous;
 using Xunit;
 
-namespace Reusable.Tests.XUnit.IOnymous
+namespace Reusable.Tests.Data
 {
     public class MetadataExtensionsTest
     {

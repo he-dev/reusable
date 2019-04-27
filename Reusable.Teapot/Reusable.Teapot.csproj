@@ -11,14 +11,7 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="src\Utilities\**" />
-    <EmbeddedResource Remove="src\Utilities\**" />
-    <None Remove="src\Utilities\**" />
-    <Compile Remove="src\Internal\WebHostBuilderExtensions.cs" />
     <Compile Remove="src\WebHostBuilderExtensions.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="src\Call.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.9.1" />

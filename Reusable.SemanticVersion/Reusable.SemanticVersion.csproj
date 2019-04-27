@@ -13,11 +13,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="src\SemanticVersion_.cs" />
-  </ItemGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2018.3.0" />
   </ItemGroup>

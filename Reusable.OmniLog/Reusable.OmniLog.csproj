@@ -16,12 +16,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="src\Collections\**" />
-    <Compile Remove="src\Diagnostics\**" />
-    <EmbeddedResource Remove="src\Collections\**" />
-    <EmbeddedResource Remove="src\Diagnostics\**" />
-    <None Remove="src\Collections\**" />
-    <None Remove="src\Diagnostics\**" />
     <Compile Remove="src\Expressions.cs" />
     <Compile Remove="src\Utilities\**" />
     <EmbeddedResource Remove="src\Utilities\**" />
@@ -29,8 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="src\LoggerFactoryBuilder.cs" />
-    <Compile Remove="src\_logger\LoggerFilter.cs" />
     <Compile Remove="src\_log\LogFilter.cs" />
   </ItemGroup>
 

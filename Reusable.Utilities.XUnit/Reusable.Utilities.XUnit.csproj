@@ -11,15 +11,6 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="src\Utilities\**" />
-    <EmbeddedResource Remove="src\Utilities\**" />
-    <None Remove="src\Utilities\**" />
-    <None Remove="res\IOnymous\test.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="src\Call.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Autofac" Version="4.9.1" />
     <PackageReference Include="JetBrains.Annotations" Version="2018.3.0" />
     <PackageReference Include="JustMock" Version="2019.1.207.1" />

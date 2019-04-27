@@ -18,34 +18,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="src\IO\Filters\**" />
-    <EmbeddedResource Remove="src\IO\Filters\**" />
-    <None Remove="src\IO\Filters\**" />
-    <Compile Remove="src\IO\**" />
-    <EmbeddedResource Remove="src\IO\**" />
-    <None Remove="src\IO\**" />
-    <Compile Remove="src\ImplicitString.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="src\Collections\PainlessDictionary.cs" />
-    <Compile Remove="src\Collections\PainlessDictionaryFactory.cs" />
-    <Compile Remove="src\ComparerFactory.bak.cs" />
-    <Compile Remove="src\ComparerFactory.cs" />
-    <Compile Remove="src\DependencyValidator.cs" />
-    <Compile Remove="src\Extensions\DictionaryHelper.cs" />
-    <Compile Remove="src\FormatProviders\QuoteFormatter.cs" />
-    <Compile Remove="src\IO\DirectoryTreeExtensions.cs" />
-    <Compile Remove="src\IO\DirectoryTreeNode.cs" />
-    <Compile Remove="src\IO\DirectoryTreeNodeExtensions.cs" />
-    <Compile Remove="src\IO\DirectoryTreeNodeFilter.cs" />
-    <Compile Remove="src\IO\FileSystem.cs" />
-    <Compile Remove="src\Reflection\ResourceReader.cs" />
-    <Compile Remove="src\Reflection\ResourceReaderExtensions.cs" />
-    <Compile Remove="src\AppDomainPaths.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2018.3.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="System.CodeDom" Version="4.5.0" />
