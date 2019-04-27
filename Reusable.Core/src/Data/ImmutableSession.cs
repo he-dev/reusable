@@ -82,16 +82,12 @@ namespace Reusable.Data
 
         public T Get<TScope>(Expression<Func<TScope, T>> getItem, T defaultValue = default) where TScope : ISession
         {
-            var scopeName = ImmutableSessionHelper.GetScopeName<TScope>();
-            var memberName = ImmutableSessionHelper.GetMemberName(getItem);
-            return TryGetValue($"{scopeName}.{memberName}", out var value) ? value : defaultValue;
+            return TryGetValue(ImmutableSessionScope<TScope>.Key(getItem), out var value) ? value : defaultValue;
         }
 
         public IImmutableSession<T> Set<TScope>(Expression<Func<TScope, T>> setItem, T value) where TScope : ISession
         {
-            var scopeName = ImmutableSessionHelper.GetScopeName<TScope>();
-            var memberName = ImmutableSessionHelper.GetMemberName(setItem);
-            return SetItem($"{scopeName}.{memberName}", value);
+            return SetItem(ImmutableSessionScope<TScope>.Key(setItem), value);
         }
 
         #endregion
@@ -127,17 +123,13 @@ namespace Reusable.Data
         public IImmutableSession SetItem(SoftString key, object value) => new ImmutableSession(_data.SetItem(key, value));
 
         public T Get<TScope, T>(ISessionScope<TScope> scope, Expression<Func<TScope, T>> getItem, T defaultValue = default) where TScope : ISession
-        {
-            var scopeName = ImmutableSessionHelper.GetScopeName<TScope>();
-            var memberName = ImmutableSessionHelper.GetMemberName(getItem);
-            return TryGetValue($"{scopeName}.{memberName}", out var value) ? (T)value : defaultValue;
+        {            
+            return TryGetValue(ImmutableSessionScope<TScope>.Key(getItem), out var value) ? (T)value : defaultValue;
         }
 
         public IImmutableSession Set<TScope, T>(ISessionScope<TScope> scope, Expression<Func<TScope, T>> setItem, T value) where TScope : ISession
-        {
-            var scopeName = ImmutableSessionHelper.GetScopeName<TScope>();
-            var memberName = ImmutableSessionHelper.GetMemberName(setItem);
-            return SetItem($"{scopeName}.{memberName}", value);
+        {            
+            return SetItem(ImmutableSessionScope<TScope>.Key(setItem), value);
         }
 
         IEnumerator<(SoftString Key, object Value)> IEnumerable<(SoftString Key, object Value)>.GetEnumerator()
@@ -148,7 +140,7 @@ namespace Reusable.Data
         public IEnumerator GetEnumerator() => ((IEnumerable)_data).GetEnumerator();
     }
 
-    public interface ISessionScope<out T> { }   
+    public interface ISessionScope<out T> { }
 
     public static class Use<T>
     {

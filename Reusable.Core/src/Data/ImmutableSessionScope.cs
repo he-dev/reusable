@@ -5,11 +5,13 @@ using Reusable.Extensions;
 
 namespace Reusable.Data
 {
-    internal static class ImmutableSessionHelper
+    internal static class ImmutableSessionScope<T>
     {
-        public static string GetScopeName<TScope>() => Regex.Replace(typeof(TScope).ToPrettyString(), "^I", string.Empty);
+        public static string Key(LambdaExpression xItem) => $"{GetScopeName<T>()}.{GetMemberName(xItem)}";
 
-        public static string GetMemberName(LambdaExpression xItem)
+        private static string GetScopeName<TScope>() => Regex.Replace(typeof(TScope).ToPrettyString(), "^I", string.Empty);
+
+        private static string GetMemberName(LambdaExpression xItem)
         {
             return
                 xItem.Body is MemberExpression me
