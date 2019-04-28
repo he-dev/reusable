@@ -125,7 +125,7 @@ namespace Reusable.Flexo
 
         public bool Enabled { get; set; } = true;
 
-        public List<IExpression> This { get; set; } //= new List<IExpression>();
+        public List<IExpression> This { get; set; }
 
         public virtual IConstant Invoke(IImmutableSession context)
         {
@@ -193,9 +193,7 @@ namespace Reusable.Flexo
                     var innerContext =
                         previous
                             .Context
-                            .PushThis(previous);
-                    
-                    //.PushExtensionInput(previous);
+                            .PushThis(previous);                   
 
                     return next.Invoke(innerContext);
                 }
@@ -216,8 +214,10 @@ namespace Reusable.Flexo
 
         private static bool IsExtension(Type type)
         {
-            return type.GetInterface(typeof(IExtension<>).Name)?.GetGenericArguments().Any() == true;
+            return !(type.GetInterface(typeof(IExtension<>).Name) is null);
         }
+
+        
     }
 
     [PublicAPI]

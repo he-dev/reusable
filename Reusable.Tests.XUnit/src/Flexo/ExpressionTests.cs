@@ -28,7 +28,7 @@ namespace Reusable.Tests.Flexo
         {
             var actual = new All(Logger<All>.Null)
             {
-                Values =
+                Values = new List<IExpression>
                 {
                     LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"] + 1))),
                     LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"] + 1))),

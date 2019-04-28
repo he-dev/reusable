@@ -12,35 +12,26 @@ namespace Reusable.Flexo
         public All(ILogger<All> logger) : base(logger, nameof(All)) { }
 
         [This]
-        public List<IExpression> Values { get; set; } = new List<IExpression>();
+        public List<IExpression> Values { get; set; }
 
-        public IExpression Predicate { get; set; } //= Constant.True;
+        public IExpression Predicate { get; set; }
 
         protected override Constant<bool> InvokeCore(IImmutableSession context)
         {
-            var @this = context.PopThis().Invoke(context).Value<IEnumerable<IExpression>>();
-            
-            
-//            if (context.TryPopExtensionInput(out IEnumerable<object> input))
-//            {
-//                var predicate = (Predicate ?? Constant.True).Invoke(context).Value<bool>();
-//                return (Name, input.Cast<bool>().All(x => x == predicate), context);
-//            }
-//            else
-            {
-                var predicate = (Predicate ?? Constant.True).Invoke(context);
-                var last = default(IConstant);
-                foreach (var item in @this.Enabled())
-                {
-                    last = item.Invoke(last?.Context ?? context);
-                    if (!EqualityComparer<bool>.Default.Equals(last.Value<bool>(), predicate.Value<bool>()))
-                    {
-                        return (Name, false, context);
-                    }
-                }
+            var @this = context.PopThis<IEnumerable<IExpression>>();
 
-                return (Name, true, last?.Context ?? context);
+            var predicate = (Predicate ?? Constant.True).Invoke(context);
+            var last = default(IConstant);
+            foreach (var item in @this.Enabled())
+            {
+                last = item.Invoke(last?.Context ?? context);
+                if (!EqualityComparer<bool>.Default.Equals(last.Value<bool>(), predicate.Value<bool>()))
+                {
+                    return (Name, false, context);
+                }
             }
+
+            return (Name, true, last?.Context ?? context);
         }
     }
 }

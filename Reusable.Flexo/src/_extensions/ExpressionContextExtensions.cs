@@ -40,6 +40,12 @@ namespace Reusable.Flexo
         {
             return context.Get(Use<IExpressionSession>.Scope, x => x.This).Pop();
         }
+        
+        public static T PopThis<T>(this IImmutableSession context)
+        {
+            var @this = context.Get(Use<IExpressionSession>.Scope, x => x.This).Pop();
+            return @this.Invoke(context).Value<T>();
+        }
 
         #endregion
 
