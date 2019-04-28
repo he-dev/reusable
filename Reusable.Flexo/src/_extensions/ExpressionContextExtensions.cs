@@ -41,6 +41,11 @@ namespace Reusable.Flexo
             }
         }
 
+        public static IConstant This(this IImmutableSession context)
+        {
+            return context.Get(Use<IExpressionSession>.Scope, x => x.This);
+        }
+
         #endregion
 
         public static IImmutableSession WithComparer(this IImmutableSession context, string name, IEqualityComparer<object> comparer)
@@ -93,7 +98,7 @@ namespace Reusable.Flexo
             return context.Set(scope, x => x.Expressions, registrations);
         }
 
-        public static IEqualityComparer<object> GetComparerOrDefault(this IImmutableSession context, string name)
+        public static IEqualityComparer<object> GetComparerOrDefault(this IImmutableSession context, [CanBeNull] string name)
         {
             var comparers = context.Get(Use<IExpressionSession>.Scope, x => x.Comparers);
             if (name is null)

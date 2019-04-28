@@ -10,6 +10,7 @@ namespace Reusable.Flexo
     {
         public ToString() : base(nameof(ToString)) { }
 
+        [This]
         public IExpression Value { get; set; }
 
         public IExpression Format { get; set; }

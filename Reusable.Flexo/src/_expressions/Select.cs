@@ -17,7 +17,8 @@ namespace Reusable.Flexo
 
         internal Select() : this(nameof(Select)) { }
 
-        public IEnumerable<IExpression> Values { get; set; }
+        [This]
+        public List<IExpression> Values { get; set; }
 
         [JsonRequired]
         public IExpression Selector { get; set; }

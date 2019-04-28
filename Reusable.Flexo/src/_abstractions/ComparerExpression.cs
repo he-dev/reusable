@@ -16,6 +16,7 @@ namespace Reusable.Flexo
             : base(logger, name) => _predicate = predicate;
 
         [JsonRequired]
+        [This]
         public IExpression Value { get; set; }
 
         protected override Constant<bool> InvokeCore(IImmutableSession context)

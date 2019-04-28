@@ -11,6 +11,7 @@ namespace Reusable.Flexo
     {
         public Contains(ILogger<Contains> logger) : base(logger, nameof(Contains)) { }
 
+        [This]
         public List<IExpression> Values { get; set; } = new List<IExpression>();
 
         public IExpression Value { get; set; }
@@ -19,8 +20,12 @@ namespace Reusable.Flexo
 
         protected override Constant<bool> InvokeCore(IImmutableSession context)
         {
+            var @this = context.This().Invoke(context).Value<IEnumerable<object>>();
+            
             var value = Value.Invoke(context).Value;
             var comparer = context.GetComparerOrDefault(Comparer);
+            
+            return (Name, @this.Any(x => comparer.Equals(value, x)), context);
 
             if (context.TryPopExtensionInput(out IEnumerable<object> input))
             {

@@ -9,6 +9,7 @@ namespace Reusable.Flexo
     {
         public Overlaps(ILogger<Overlaps> logger) : base(logger, nameof(Overlaps)) { }
 
+        [This]
         public List<IExpression> Values { get; set; } = new List<IExpression>();
 
         public List<IExpression> With { get; set; } = new List<IExpression>();

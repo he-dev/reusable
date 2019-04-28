@@ -10,6 +10,7 @@ namespace Reusable.Flexo
 
         public bool IgnoreCase { get; set; } = true;
 
+        [This]
         public IExpression Value { get; set; }
 
         public IExpression Pattern { get; set; }

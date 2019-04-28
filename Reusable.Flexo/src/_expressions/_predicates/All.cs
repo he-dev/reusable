@@ -11,6 +11,7 @@ namespace Reusable.Flexo
     {
         public All(ILogger<All> logger) : base(logger, nameof(All)) { }
 
+        [This]
         public List<IExpression> Values { get; set; } = new List<IExpression>();
 
         public IExpression Predicate { get; set; } //= Constant.True;

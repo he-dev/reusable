@@ -10,6 +10,7 @@ namespace Reusable.Flexo
         public IsEqual(ILogger<IsEqual> logger) : base(logger, nameof(IsEqual)) { }
 
         [JsonRequired]
+        [This]
         public IExpression Value { get; set; }
 
         protected override Constant<bool> InvokeCore(IImmutableSession context)

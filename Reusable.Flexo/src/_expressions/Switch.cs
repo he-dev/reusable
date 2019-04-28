@@ -14,6 +14,7 @@ namespace Reusable.Flexo
 
         protected Switch(ILogger logger, SoftString name) : base(logger, name) { }
 
+        [This]
         public IExpression Value { get; set; }
 
         public List<SwitchCase> Cases { get; set; } = new List<SwitchCase>();

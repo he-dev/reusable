@@ -39,7 +39,7 @@ namespace Reusable.Flexo
         IConstant Invoke([NotNull] IImmutableSession context);
     }
 
-    public interface IExtension<T> { }
+    public interface IExtension<in T> { }
 
     public static class Expression
     {
@@ -128,7 +128,25 @@ namespace Reusable.Flexo
 
         public virtual IConstant Invoke(IImmutableSession context)
         {
-            var parentNode = context.Get(Use<IExpressionSession>.Scope, x => x.DebugView);
+            var scope = Use<IExpressionSession>.Scope;
+
+            if (IsExtension(GetType()) && context.This() is var @this && @this is null)
+            {
+                var value = GetType().GetProperties().Single(p => p.IsDefined(typeof(ThisAttribute), true)).GetValue(this);
+                switch (value)
+                {
+                    case IExpression e:
+                        @this = e.Invoke(context);
+                        break;
+                    
+                    case IEnumerable<IExpression> c:
+                        @this = Constant.FromValue("This", c.Select(e => e.Invoke(context).Value).ToList());
+                        break;
+                }
+                context = context.Set(scope, x => x.This, @this);
+            }
+
+            var parentNode = context.Get(scope, x => x.DebugView);
             var thisView = new ExpressionDebugView
             {
                 Type = GetType().ToPrettyString(),
@@ -137,19 +155,24 @@ namespace Reusable.Flexo
             };
             var thisNode = TreeNode.Create(thisView);
             parentNode.Add(thisNode);
-            var thisResult = (IConstant)InvokeCore(context.Set(Use<IExpressionSession>.Scope, x => x.DebugView, thisNode));
+            var thisResult = (IConstant)InvokeCore(context.Set(scope, x => x.DebugView, thisNode));
             thisView.Result = thisResult.Value;
 
             var seed = (IConstant)Constant.FromValue
             (
                 thisResult.Name,
                 thisResult.Value,
-                thisResult.Context.Set(Use<IExpressionSession>.Scope, x => x.DebugView, thisNode)
+                thisResult.Context.Set(scope, x => x.DebugView, thisNode)
             );
 
             var enabledExtensions = (This ?? Enumerable.Empty<IExpression>()).Enabled();
             var extensionsResult = enabledExtensions.Aggregate(seed, (previous, next) =>
             {
+                if (next is Ref @ref)
+                {
+                    next = @ref.Invoke(previous.Context).Value<IExpression>();
+                }
+
                 var extensionType = next.GetType().GetInterface(typeof(IExtension<>).Name)?.GetGenericArguments().Single();
                 var thisType = previous.Value is IExpression expression ? expression.GetType().GetGenericArguments().Single() : previous.Value?.GetType();
 
@@ -158,12 +181,8 @@ namespace Reusable.Flexo
                     var innerContext =
                         previous
                             .Context
+                            .Set(scope, x => x.This, Constant.FromValue("This", previous.Value))
                             .PushExtensionInput(previous.Value);
-
-                    if (next is Ref @ref)
-                    {
-                        next = @ref.Invoke(innerContext).Value<IExpression>();
-                    }
 
                     return next.Invoke(innerContext);
                 }
@@ -181,6 +200,11 @@ namespace Reusable.Flexo
         }
 
         protected abstract Constant<TResult> InvokeCore(IImmutableSession context);
+
+        private static bool IsExtension(Type type)
+        {
+            return type.GetInterface(typeof(IExtension<>).Name)?.GetGenericArguments().Any() == true;
+        }
     }
 
     [PublicAPI]
@@ -226,10 +250,15 @@ namespace Reusable.Flexo
     {
         Stack<object> ExtensionInputs { get; }
 
+        IConstant This { get; }
+
         IImmutableDictionary<SoftString, IEqualityComparer<object>> Comparers { get; }
 
         IImmutableDictionary<SoftString, IExpression> Expressions { get; }
 
         TreeNode<ExpressionDebugView> DebugView { get; }
     }
+
+    [AttributeUsage(AttributeTargets.Property)]
+    public class ThisAttribute : Attribute { }
 }

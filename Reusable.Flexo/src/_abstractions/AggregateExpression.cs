@@ -14,7 +14,7 @@ namespace Reusable.Flexo
         protected AggregateExpression(string name, [NotNull] Func<IEnumerable<double>, double> aggregate)
             : base(name) => _aggregate = aggregate;
 
-        public IEnumerable<IExpression> Values { get; set; } = new List<IExpression>();
+        public List<IExpression> Values { get; set; } = new List<IExpression>();
 
         protected override Constant<double> InvokeCore(IImmutableSession context)
         {

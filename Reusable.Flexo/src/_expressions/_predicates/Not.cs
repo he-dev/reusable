@@ -9,6 +9,7 @@ namespace Reusable.Flexo
     {
         public Not(ILogger<Not> logger) : base(logger, nameof(Not)) { }
 
+        [This]
         public IExpression Value { get; set; }
 
         protected override Constant<bool> InvokeCore(IImmutableSession context)

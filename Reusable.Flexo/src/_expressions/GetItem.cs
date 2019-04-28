@@ -54,7 +54,7 @@ namespace Reusable.Flexo
         }
     }
 
-    public class Ref : GetItem<IExpression>, IExtension<object>
+    public class Ref : GetItem<IExpression>//, IExtension<object>
     {
         public Ref([NotNull] ILogger<Ref> logger) : base(logger, nameof(Ref)) { }
 

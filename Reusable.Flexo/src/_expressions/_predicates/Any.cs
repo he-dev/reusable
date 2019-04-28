@@ -8,6 +8,7 @@ namespace Reusable.Flexo
     {
         public Any(ILogger<Any> logger) : base(logger, nameof(Any)) { }
 
+        [This]
         public List<IExpression> Values { get; set; } = new List<IExpression>();
 
         public IExpression Predicate { get; set; }

@@ -13,6 +13,7 @@ namespace Reusable.Flexo
         //public IIf() : base(nameof(IIf)) { }
 
         [JsonRequired]
+        [This]
         public IExpression Predicate { get; set; }
 
         public IExpression True { get; set; }
