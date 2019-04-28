@@ -23,7 +23,7 @@ namespace Reusable.Flexo
 
         protected override Constant<object> InvokeCore(IImmutableSession context)
         {
-            var @this = context.PopThis().Invoke(context).Value<bool>();
+            var @this = context.PopThis().Invoke(context).Value<object>();
             
             //var value = context.TryPopExtensionInput(out object input) ? input : Value.Invoke(context).Value;
             var switchContext = context.Set(Use<ISwitchSession>.Scope, x => x.Value,  @this);

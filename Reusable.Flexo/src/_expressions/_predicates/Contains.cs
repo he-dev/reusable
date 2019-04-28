@@ -20,7 +20,7 @@ namespace Reusable.Flexo
 
         protected override Constant<bool> InvokeCore(IImmutableSession context)
         {
-            var @this = context.PopThis().Invoke(context).Value<IEnumerable<IConstant>>();
+            var @this = context.PopThis().Invoke(context).Value<IEnumerable<IExpression>>();
             
             var value = Value.Invoke(context).Value;
             var comparer = context.GetComparerOrDefault(Comparer);

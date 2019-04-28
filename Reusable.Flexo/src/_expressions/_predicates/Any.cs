@@ -35,16 +35,29 @@ namespace Reusable.Flexo
                 //var p = Predicate ?? new IsEqual(default);
                 
                 var last = default(IConstant);
-                foreach (var item in @this.Enabled().Cast<IExpression>())
+                foreach (var item in @this.Enabled())
                 {
                     var value = item.Invoke(context);
                     context.PushThis(value);
-                    var predicate = (Predicate ?? Constant.True).Invoke(context);
-                    last = value; //.Invoke(predicate.Context);
-                    //if (EqualityComparer<bool>.Default.Equals(last.Value<bool>(), predicate.Value<bool>()))
-                    if (EqualityComparer<bool>.Default.Equals(predicate.Value<bool>(), true))
+                    var predicate = (Predicate ?? Constant.True);
+
+                    if (predicate is IConstant)
                     {
-                        return (Name, true, last.Context);
+                        last = value;
+                        if (EqualityComparer<bool>.Default.Equals(last.Value<bool>(), predicate.Invoke(context).Value<bool>()))
+                        {
+                            return (Name, true, last.Context);
+                        }   
+                    }
+                    else
+                    {
+
+                        last = value; //.Invoke(predicate.Context);
+                        if (EqualityComparer<bool>.Default.Equals(predicate.Invoke(context).Value<bool>(), true))
+                            //if (EqualityComparer<bool>.Default.Equals(predicate.Value<bool>(), true))
+                        {
+                            return (Name, true, last.Context);
+                        }
                     }
                 }
 
