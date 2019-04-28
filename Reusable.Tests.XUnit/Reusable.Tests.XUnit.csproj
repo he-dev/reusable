@@ -10,12 +10,13 @@
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
     <ItemGroup>
+        <EmbeddedResource Include="res\Flexo\ExpressionReferences.json" />
         <EmbeddedResource Include="res\Utilities\JsonNet\PrettyType0.json" />
         <EmbeddedResource Include="res\Utilities\JsonNet\PrettyType1.json" />
         <EmbeddedResource Include="res\Utilities\JsonNet\PrettyType2.json" />
         <None Remove="res\IOnymous\test.txt" />
-        <EmbeddedResource Include="res\Flexo\Array-of-expressions.json" />
-        <EmbeddedResource Include="res\Flexo\Single-expression.json" />
+        <EmbeddedResource Include="res\Flexo\ExpressionCollection.json" />
+        <EmbeddedResource Include="res\Flexo\ExpressionObject.json" />
         <EmbeddedResource Include="res\IOnymous\Http\Mailr\HtmlTable.json" />
         <EmbeddedResource Include="res\IOnymous\test.txt" />
         <None Remove="sql\SmartConfig\seed-test-data.sql" />

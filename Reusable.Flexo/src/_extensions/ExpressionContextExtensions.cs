@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Collections;
@@ -15,84 +17,6 @@ namespace Reusable.Flexo
     [PublicAPI]
     public static class ExpressionContextExtensions
     {
-        //        [CanBeNull]
-        //        public static TParameter GetByCallerName<TParameter>(this IExpressionContext context, [CallerMemberName] string itemName = null)
-        //        {
-        //            return (TParameter)context[itemName];
-        //        }
-        //
-        //        [NotNull]
-        //        public static TExpressionContext SetByCallerName<TParameter, TExpressionContext>(this TExpressionContext context, TParameter value, [CallerMemberName] string itemName = null)
-        //            where TExpressionContext : IExpressionContext
-        //        {
-        //            context.SetItem(itemName, value);
-        //            return context;
-        //        }
-
-        //[NotNull]
-        //public static IDisposable Scope(this IExpressionContext context, IExpression expression) => ExpressionContextScope.Push(expression, context);
-
-        #region Getters & Setters
-
-//        [NotNull]
-//        public static TProperty Get<TExpression, TProperty>
-//        (
-//            this IImmutableSession context,
-//            Item<TExpression> item,
-//            linq.Expression<Func<TExpression, TProperty>> propertySelector
-//        )
-//        {
-//            if (context.TryGetValue(ExpressionContext.CreateKey(item, propertySelector), out var value))
-//            {
-//                if (value is TProperty result)
-//                {
-//                    return result;
-//                }
-//                else
-//                {
-//                    throw new ArgumentException
-//                    (
-//                        $"There is a value for '{ExpressionContext.CreateKey(item, propertySelector)}' " +
-//                        $"but its type '{value.GetType().ToPrettyString()}' " +
-//                        $"is different from '{typeof(TProperty).ToPrettyString()}'"
-//                    );
-//                }
-//            }
-//            else
-//            {
-//                //if (((MemberExpression)propertySelector.Body).Member.IsDefined(typeof(RequiredAttribute)))
-//                {
-//                    throw DynamicException.Create("RequiredValueMissing", $"{ExpressionContext.CreateKey(item, propertySelector)} is required.");
-//                }
-//
-//                //throw DynamicException.Create("");
-//            }
-//        }
-//
-//        public static IExpressionSession Set<TExpression, TProperty>
-//        (
-//            this IImmutableSession context,
-//            Item<TExpression> item,
-//            linq.Expression<Func<TExpression, TProperty>> selectProperty,
-//            TProperty value
-//        )
-//        {
-//            var key = ExpressionContext.CreateKey(item, selectProperty);
-//            return context.SetItem(key, value); // is IConstant constant ? constant : Constant.FromValue(key, value));
-//        }
-
-        //        public static IExpressionContext SetItem
-        //        (
-        //            this IExpressionContext context,
-        //            string key,
-        //            object value
-        //        )
-        //        {
-        //            return context.SetItem(key, value is IConstant constant ? constant : Constant.FromValue(key, value));
-        //        }
-
-        #endregion
-
         #region Extension-Input helpers
 
         public static IImmutableSession PushExtensionInput(this IImmutableSession context, object value)
@@ -121,13 +45,23 @@ namespace Reusable.Flexo
 
         public static IImmutableSession WithComparer(this IImmutableSession context, string name, IEqualityComparer<object> comparer)
         {
-            context.Get(Use<IExpressionSession>.Scope, x => x.Comparers).AddSafely(name, comparer);
-            return context;
+            var scope = Use<IExpressionSession>.Scope;
+            var comparers = 
+                context
+                    .Get(scope, x => x.Comparers, ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
+                    .SetItem(name, comparer);
+            
+            return context.Set(scope, x => x.Comparers, comparers);            
         }
 
+        public static IImmutableSession WithDefaultComparer(this IImmutableSession context)
+        {
+            return context.WithComparer(GetComparerNameFromCaller(), EqualityComparer<object>.Default);
+        }
+        
         public static IImmutableSession WithSoftStringComparer(this IImmutableSession context)
         {
-            return context.WithComparer("SoftString", EqualityComparerFactory<object>.Create
+            return context.WithComparer(GetComparerNameFromCaller(), EqualityComparerFactory<object>.Create
             (
                 equals: (left, right) => SoftString.Comparer.Equals((string)left, (string)right),
                 getHashCode: (obj) => SoftString.Comparer.GetHashCode((string)obj)
@@ -136,12 +70,28 @@ namespace Reusable.Flexo
 
         public static IImmutableSession WithRegexComparer(this IImmutableSession context)
         {
-            return context.WithComparer("Regex", EqualityComparerFactory<object>.Create
+            return context.WithComparer(GetComparerNameFromCaller(), EqualityComparerFactory<object>.Create
             (
                 equals: (left, right) => Regex.IsMatch((string)right, (string)left, RegexOptions.None),
                 getHashCode: (obj) => 0
             ));
-        }        
+        }
+
+        public static string GetComparerNameFromCaller([CallerMemberName] string comparerName = null)
+        {
+            // ReSharper disable once AssignNullToNotNullAttribute
+            return Regex.Match(comparerName, "^With(?<comparerName>[a-z0-9_]+)Comparer", RegexOptions.IgnoreCase).Groups["comparerName"].Value;
+        }
+        
+        public static IImmutableSession WithExpressions(this IImmutableSession context, IEnumerable<IExpression> expressions)
+        {
+            var scope = Use<IExpressionSession>.Scope;
+            var registrations = 
+                context
+                    .Get(scope, x => x.Expressions, ImmutableDictionary<SoftString, IExpression>.Empty)
+                    .SetItems(expressions.Select(e => new KeyValuePair<SoftString, IExpression>($"R.{e.Name.ToString()}", e)));
+            return context.Set(scope, x => x.Expressions, registrations);
+        }
 
         public static IEqualityComparer<object> GetComparerOrDefault(this IImmutableSession context, string name)
         {
@@ -163,18 +113,10 @@ namespace Reusable.Flexo
         {
             return context.Get(Use<IExpressionSession>.Scope, x => x.DebugView);
         }
-        
+
         public static IImmutableSession DebugView(this IImmutableSession context, TreeNode<ExpressionDebugView> debugView)
         {
             return context.Set(Use<IExpressionSession>.Scope, x => x.DebugView, debugView);
         }
     }
-
-//    public class Item<T>
-//    { }
-//
-//    public static class Item
-//    {
-//        public static Item<T> For<T>() => new Item<T>();
-//    }
 }

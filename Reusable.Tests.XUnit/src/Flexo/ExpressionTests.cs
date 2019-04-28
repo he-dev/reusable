@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Reusable.Data;
 using Reusable.Flexo;
@@ -288,7 +289,7 @@ namespace Reusable.Tests.Flexo
                             Values = Constant.CreateMany("foo", "bar").ToList(),
                             Value = new GetValue(Logger<GetValue>.Null)
                             {
-                                Key = "SwitchSession.Value"
+                                Path = "SwitchSession.Value"
                             }
                         },
                         Body = Constant.True
@@ -363,7 +364,18 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void GetContextItem_can_get_item_by_key()
         {
-            Equal(1, new GetValue(Logger<GetValue>.Null) { Key = "SwitchSession.Value" }, Expression.DefaultSession.Set(Use<ISwitchSession>.Scope, x => x.Value, 1));
+            Equal(1, new GetValue(Logger<GetValue>.Null) { Path = "SwitchSession.Value" }, Expression.DefaultSession.Set(Use<ISwitchSession>.Scope, x => x.Value, 1));
+        }
+
+        [Fact]
+        public void Can_use_references()
+        {
+            var expressions = new IExpression[] { new Not(Logger<Not>.Null) { Name = "Nope" }, };
+            var expression1 = new Constant<bool>("Yes", true) { This = new List<IExpression> { new Ref(Logger<Ref>.Null) { Path = "Nope" } } };
+            var expression2 = new Constant<bool>("No", false) { This = new List<IExpression> { new Ref(Logger<Ref>.Null) { Path = "Nope" } } };
+
+            Equal(false, expression1, Expression.DefaultSession.WithExpressions(expressions));
+            Equal(true, expression2, Expression.DefaultSession.WithExpressions(expressions));
         }
     }
 }

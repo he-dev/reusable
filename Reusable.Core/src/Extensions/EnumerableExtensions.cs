@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Exceptionize;
@@ -256,24 +257,7 @@ namespace System.Linq.Custom
         [CanBeNull]
         public static T SingleOrThrow<T>([NotNull] this IEnumerable<T> source, Func<Exception> onEmpty = null, Func<Exception> onMultiple = null)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
-
-            using (var enumerator = source.GetEnumerator())
-            {
-                if (enumerator.MoveNext() == false)
-                {
-                    throw onEmpty?.Invoke() ?? DynamicException.Create("CollectionEmpty", $"Collection '{source.GetType().ToPrettyString()}' does not contain any elements.");
-                }
-
-                var single = enumerator.Current;
-
-                if (enumerator.MoveNext())
-                {
-                    throw onMultiple?.Invoke() ?? DynamicException.Create("MoreThanOneElement", $"Collection '{source.GetType().ToPrettyString()}' contains more then one element.");
-                }
-
-                return single;
-            }
+            return source.SingleOrThrow(_ => true, onEmpty, onMultiple);
         }
 
         [CanBeNull]
@@ -283,7 +267,7 @@ namespace System.Linq.Custom
 
             var result = default(T);
             var count = 0;
-
+            
             using (var enumerator = source.GetEnumerator())
             {
                 while (enumerator.MoveNext())
@@ -292,7 +276,11 @@ namespace System.Linq.Custom
                     {
                         if (++count > 1)
                         {
-                            throw onMultiple?.Invoke() ?? DynamicException.Create("MoreThanOneElement", $"Collection '{source.GetType().ToPrettyString()}' contains more then one element that matches the specified predicate.");
+                            throw onMultiple?.Invoke() ?? DynamicException.Create
+                                  (
+                                      $"{source.GetType().ToPrettyString()}ContainsMoreThanOneElement",
+                                      $"There is more than one element that matches the specified predicate."
+                                  );
                         }
 
                         result = enumerator.Current;
@@ -302,7 +290,11 @@ namespace System.Linq.Custom
 
             if (count == 0)
             {
-                throw onEmpty?.Invoke() ?? DynamicException.Create("CollectionEmpty", $"Collection '{source.GetType().ToPrettyString()}' does not contain any elements that match the specified predicate.");
+                throw onEmpty?.Invoke() ?? DynamicException.Create
+                      (
+                          $"{source.GetType().ToPrettyString()}Empty",
+                          $"There is no element that match the specified predicate."
+                      );
             }
 
             return result;

@@ -47,10 +47,12 @@ namespace Reusable.Tests.Flexo
         }
 
         [Fact]
-        public async Task Can_deserialize_array_of_expressions()
+        public async Task Can_deserialize_expression_collection()
         {
-            var flexoFile = await Flexo.ReadTextFileAsync("Array-of-expressions.json");
-            var expressions = _serializer.Deserialize<List<IExpression>>(flexoFile);
+            var expressionCollectionFile = await Flexo.ReadTextFileAsync("ExpressionCollection.json");
+            var expressionReferencesFile = await Flexo.ReadTextFileAsync("ExpressionReferences.json");
+            var expressions = _serializer.Deserialize<List<IExpression>>(expressionCollectionFile);
+            var expressionReferences = _serializer.Deserialize<List<IExpression>>(expressionReferencesFile);
 
             //ExpressionAssert.Equal(Constant.True, expressions.OfType<Any>().Single());
             //ExpressionAssert.Equal(new double[] { 1, 2, 3 }, expressions.Get("CollectionMixed"));
@@ -74,6 +76,7 @@ namespace Reusable.Tests.Flexo
             ExpressionAssert.Equal(Constant.True, expressions.Get("CollectionWithAll"));
             ExpressionAssert.Equal(Constant.True, expressions.Get("CollectionWithOverlaps"));
             ExpressionAssert.Equal(Constant.True, expressions.Get("DoubleWithIsEqual"));
+            
             var collectionOfDouble = (Reusable.Flexo.Collection)expressions.Get("CollectionOfDouble");
             Assert.Equal(2, collectionOfDouble.Values.Count);
             ExpressionAssert.Equal(1.0, collectionOfDouble.Values[0]);
@@ -81,12 +84,14 @@ namespace Reusable.Tests.Flexo
 
             var collectionWithSelect = expressions.Get("CollectionWithSelect").Invoke(Reusable.Flexo.Expression.DefaultSession).Value<List<object>>();
             Assert.Equal(new[] { "1", "True" }, collectionWithSelect);
+            
+            ExpressionAssert.Equal(Constant.True, expressions.Get("DoubleIsLessThan3"), Expression.DefaultSession.WithExpressions(expressionReferences));
         }
 
         [Fact]
         public async Task Can_deserialize_single_expression()
         {
-            var jsonFile = await Flexo.GetFileAsync(@"Single-expression.json", MimeType.Json);
+            var jsonFile = await Flexo.GetFileAsync(@"ExpressionObject.json", MimeType.Json);
             using (var jsonStream = await jsonFile.CopyToMemoryStreamAsync())
             {
                 var expression = await _serializer.DeserializeExpressionAsync(jsonStream.Rewind());

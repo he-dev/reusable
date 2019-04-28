@@ -39,8 +39,10 @@ namespace Reusable.Data
 
         IImmutableSession SetItem(SoftString key, object value);
 
+        [DebuggerStepThrough]
         T Get<TScope, T>(ISessionScope<TScope> scope, Expression<Func<TScope, T>> getItem, T defaultValue = default) where TScope : ISession;
 
+        [DebuggerStepThrough]
         IImmutableSession Set<TScope, T>(ISessionScope<TScope> scope, Expression<Func<TScope, T>> setItem, T value) where TScope : ISession;
     }
 
@@ -68,23 +70,31 @@ namespace Reusable.Data
 
         public int Count => Data.Count;
 
+        [DebuggerStepThrough]
         public bool ContainsKey(SoftString key) => Data.ContainsKey(key);
 
+        [DebuggerStepThrough]
         public bool TryGetValue(SoftString key, out T value) => Data.TryGetValue(key, out value);
 
+        [DebuggerStepThrough]
         [MustUseReturnValue]
         public IImmutableSession<T> Add(SoftString key, T value) => new ImmutableSession<T>(Data.Add(key, value));
 
+        [DebuggerStepThrough]
         [MustUseReturnValue]
         public IImmutableSession<T> SetItem(SoftString key, T value) => new ImmutableSession<T>(Data.SetItem(key, value));
 
         #region Scope
 
+        [DebuggerStepThrough]
+        [MustUseReturnValue]
         public T Get<TScope>(Expression<Func<TScope, T>> getItem, T defaultValue = default) where TScope : ISession
         {
             return TryGetValue(ImmutableSessionScope<TScope>.Key(getItem), out var value) ? value : defaultValue;
         }
 
+        [DebuggerStepThrough]
+        [MustUseReturnValue]
         public IImmutableSession<T> Set<TScope>(Expression<Func<TScope, T>> setItem, T value) where TScope : ISession
         {
             return SetItem(ImmutableSessionScope<TScope>.Key(setItem), value);
@@ -116,17 +126,25 @@ namespace Reusable.Data
 
         public int Count => _data.Count;
 
+        [DebuggerStepThrough]
         public bool ContainsKey(SoftString key) => _data.ContainsKey(key);
 
+        [DebuggerStepThrough]
         public bool TryGetValue(SoftString key, out object value) => _data.TryGetValue(key, out value);
 
+        [DebuggerStepThrough]
+        [MustUseReturnValue]
         public IImmutableSession SetItem(SoftString key, object value) => new ImmutableSession(_data.SetItem(key, value));
 
+        [DebuggerStepThrough]
+        [MustUseReturnValue]
         public T Get<TScope, T>(ISessionScope<TScope> scope, Expression<Func<TScope, T>> getItem, T defaultValue = default) where TScope : ISession
         {            
             return TryGetValue(ImmutableSessionScope<TScope>.Key(getItem), out var value) ? (T)value : defaultValue;
         }
 
+        [DebuggerStepThrough]
+        [MustUseReturnValue]
         public IImmutableSession Set<TScope, T>(ISessionScope<TScope> scope, Expression<Func<TScope, T>> setItem, T value) where TScope : ISession
         {            
             return SetItem(ImmutableSessionScope<TScope>.Key(setItem), value);
@@ -144,6 +162,7 @@ namespace Reusable.Data
 
     public static class Use<T>
     {
+        [DebuggerNonUserCode]
         public static ISessionScope<T> Scope => default;
     }
 

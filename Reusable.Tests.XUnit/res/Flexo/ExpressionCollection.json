@@ -259,5 +259,16 @@
         }
       }
     ]
+  },
+  {
+    "$t": "Flexo.Double",
+    "Value": 2.0,
+    "Name": "DoubleIsLessThan3",
+    "This": [
+      {
+        "$t": "Flexo.Ref",
+        "Path": "IsLessThan3"
+      }
+    ]
   }
 ]

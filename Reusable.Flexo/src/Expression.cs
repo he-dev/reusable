@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -59,6 +60,7 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.ToString),
             typeof(Reusable.Flexo.GetValue),
             typeof(Reusable.Flexo.GetCollection),
+            typeof(Reusable.Flexo.Ref),
             typeof(Reusable.Flexo.Contains),
             typeof(Reusable.Flexo.Overlaps),
             typeof(Reusable.Flexo.Matches),
@@ -85,8 +87,11 @@ namespace Reusable.Flexo
             ImmutableSession
                 .Empty
                 .Set(Use<IExpressionSession>.Scope, x => x.ExtensionInputs, new Stack<object>())
-                .Set(Use<IExpressionSession>.Scope, x => x.Comparers, new Dictionary<SoftString, IEqualityComparer<object>> { ["Default"] = EqualityComparer<object>.Default })
-                .Set(Use<IExpressionSession>.Scope, x => x.DebugView, TreeNode.Create(ExpressionDebugView.Root));
+                .Set(Use<IExpressionSession>.Scope, x => x.Comparers, ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
+                .Set(Use<IExpressionSession>.Scope, x => x.DebugView, TreeNode.Create(ExpressionDebugView.Root))
+                .WithDefaultComparer()
+                .WithSoftStringComparer()
+                .WithRegexComparer();
     }
 
     [Namespace("Flexo")]
@@ -155,6 +160,11 @@ namespace Reusable.Flexo
                             .Context
                             .PushExtensionInput(previous.Value);
 
+                    if (next is Ref @ref)
+                    {
+                        next = @ref.Invoke(innerContext).Value<IExpression>();
+                    }
+
                     return next.Invoke(innerContext);
                 }
                 else
@@ -216,7 +226,9 @@ namespace Reusable.Flexo
     {
         Stack<object> ExtensionInputs { get; }
 
-        IDictionary<SoftString, IEqualityComparer<object>> Comparers { get; }
+        IImmutableDictionary<SoftString, IEqualityComparer<object>> Comparers { get; }
+
+        IImmutableDictionary<SoftString, IExpression> Expressions { get; }
 
         TreeNode<ExpressionDebugView> DebugView { get; }
     }

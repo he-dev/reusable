@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using Reusable.Exceptionize;
@@ -7,6 +8,7 @@ namespace Reusable.Data
 {
     internal static class ImmutableSessionScope<T>
     {
+        [DebuggerStepThrough]
         public static string Key(LambdaExpression xItem) => $"{GetScopeName<T>()}.{GetMemberName(xItem)}";
 
         private static string GetScopeName<TScope>() => Regex.Replace(typeof(TScope).ToPrettyString(), "^I", string.Empty);

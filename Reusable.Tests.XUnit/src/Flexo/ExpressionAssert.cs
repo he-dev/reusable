@@ -14,7 +14,7 @@ namespace Reusable.Tests.Flexo
         {
             var expected = expectedValue is IConstant constant ? constant.Value : expectedValue;
             
-            context = (context ?? Expression.DefaultSession).WithRegexComparer().WithSoftStringComparer();           
+            context = (context ?? Expression.DefaultSession);           
             var actual = expression.Invoke(context);
 
             var debugViewString = DebugViewRenderer.Render(context.DebugView(), ExpressionDebugView.DefaultRender);
