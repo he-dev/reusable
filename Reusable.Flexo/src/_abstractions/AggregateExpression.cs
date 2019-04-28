@@ -15,7 +15,7 @@ namespace Reusable.Flexo
             : base(name) => _aggregate = aggregate;
 
         [This]
-        public List<IExpression> Values { get; set; } // = new List<IExpression>();
+        public List<IExpression> Values { get; set; }
 
         protected override Constant<double> InvokeCore(IImmutableSession context)
         {

@@ -25,32 +25,17 @@ namespace Reusable.Flexo
             return context;
         }
         
-        public static IImmutableSession PushThis(this IImmutableSession context, string value)
+        internal static IImmutableSession PushThis(this IImmutableSession context, string value)
         {
             return context.PushThis((IConstant)Constant.FromValue("This", value));
         }
         
-        public static IImmutableSession PushThis(this IImmutableSession context, double value)
+        internal static IImmutableSession PushThis(this IImmutableSession context, double value)
         {
             return context.PushThis((IConstant)Constant.FromValue("This", value));
         }
 
         // The Input must be removed so that subsequent expression doesn't 'think' it's called as extension when it isn't.
-        //public static bool TryPopExtensionInput<T>(this IImmutableSession context, out T input)
-//        {
-//            var inputs = context.Get(Use<IExpressionSession>.Scope, x => x.This);
-//            if (inputs.Any())
-//            {
-//                input = (T)inputs.Pop();
-//                return true;
-//            }
-//            else
-//            {
-//                input = default;
-//                return false;
-//            }
-//        }
-
         public static IConstant PopThis(this IImmutableSession context)
         {
             return context.Get(Use<IExpressionSession>.Scope, x => x.This).Pop();

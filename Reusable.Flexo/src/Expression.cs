@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Custom;
 using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Diagnostics;
@@ -124,7 +125,7 @@ namespace Reusable.Flexo
 
         public bool Enabled { get; set; } = true;
 
-        public List<IExpression> This { get; set; } = new List<IExpression>();
+        public List<IExpression> This { get; set; } //= new List<IExpression>();
 
         public virtual IConstant Invoke(IImmutableSession context)
         {
@@ -182,7 +183,10 @@ namespace Reusable.Flexo
                 }
 
                 var extensionType = next.GetType().GetInterface(typeof(IExtension<>).Name)?.GetGenericArguments().Single();
-                var thisType = previous.Value is IExpression expression ? expression.GetType().GetGenericArguments().Single() : previous.Value?.GetType();
+                var thisType = //previous.GetType().GetGenericArguments().Single(); 
+                    previous.Value is IExpression expression 
+                        ? expression.GetType().GetGenericArguments().Single() 
+                        : previous.Value?.GetType();
 
                 if (extensionType?.IsAssignableFrom(thisType) == true)
                 {
