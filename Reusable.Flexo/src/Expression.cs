@@ -130,21 +130,21 @@ namespace Reusable.Flexo
         {
             var scope = Use<IExpressionSession>.Scope;
 
-            if (IsExtension(GetType()) && context.This() is var @this && @this is null)
-            {
-                var value = GetType().GetProperties().Single(p => p.IsDefined(typeof(ThisAttribute), true)).GetValue(this);
-                switch (value)
-                {
-                    case IExpression e:
-                        @this = e.Invoke(context);
-                        break;
-                    
-                    case IEnumerable<IExpression> c:
-                        @this = Constant.FromValue("This", c.Select(e => e.Invoke(context).Value).ToList());
-                        break;
-                }
-                context = context.Set(scope, x => x.This, @this);
-            }
+//            if (IsExtension(GetType()) && context.This() is var @this && @this is null)
+//            {
+//                var value = GetType().GetProperties().Single(p => p.IsDefined(typeof(ThisAttribute), true)).GetValue(this);
+//                switch (value)
+//                {
+//                    case IExpression e:
+//                        @this = e.Invoke(context);
+//                        break;
+//                    
+//                    case IEnumerable<IExpression> c:
+//                        @this = Constant.FromValue("This", c.Select(e => e.Invoke(context).Value).ToList());
+//                        break;
+//                }
+//                context = context.Set(scope, x => x.This, @this);
+//            }
 
             var parentNode = context.Get(scope, x => x.DebugView);
             var thisView = new ExpressionDebugView
@@ -181,7 +181,7 @@ namespace Reusable.Flexo
                     var innerContext =
                         previous
                             .Context
-                            .Set(scope, x => x.This, Constant.FromValue("This", previous.Value))
+                            //.Set(scope, x => x.This, Constant.FromValue("This", previous.Value))
                             .PushExtensionInput(previous.Value);
 
                     return next.Invoke(innerContext);
@@ -250,7 +250,7 @@ namespace Reusable.Flexo
     {
         Stack<object> ExtensionInputs { get; }
 
-        IConstant This { get; }
+        //IConstant This { get; }
 
         IImmutableDictionary<SoftString, IEqualityComparer<object>> Comparers { get; }
 

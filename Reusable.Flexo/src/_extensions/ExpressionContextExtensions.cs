@@ -41,10 +41,10 @@ namespace Reusable.Flexo
             }
         }
 
-        public static IConstant This(this IImmutableSession context)
-        {
-            return context.Get(Use<IExpressionSession>.Scope, x => x.This);
-        }
+//        public static IConstant This(this IImmutableSession context)
+//        {
+//            return context.Get(Use<IExpressionSession>.Scope, x => x.This);
+//        }
 
         #endregion
 
