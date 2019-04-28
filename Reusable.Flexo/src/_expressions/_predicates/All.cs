@@ -18,16 +18,19 @@ namespace Reusable.Flexo
 
         protected override Constant<bool> InvokeCore(IImmutableSession context)
         {
-            if (context.TryPopExtensionInput(out IEnumerable<object> input))
-            {
-                var predicate = (Predicate ?? Constant.True).Invoke(context).Value<bool>();
-                return (Name, input.Cast<bool>().All(x => x == predicate), context);
-            }
-            else
+            var @this = context.PopThis().Invoke(context).Value<IEnumerable<IExpression>>();
+            
+            
+//            if (context.TryPopExtensionInput(out IEnumerable<object> input))
+//            {
+//                var predicate = (Predicate ?? Constant.True).Invoke(context).Value<bool>();
+//                return (Name, input.Cast<bool>().All(x => x == predicate), context);
+//            }
+//            else
             {
                 var predicate = (Predicate ?? Constant.True).Invoke(context);
                 var last = default(IConstant);
-                foreach (var item in Values.Enabled())
+                foreach (var item in @this.Enabled())
                 {
                     last = item.Invoke(last?.Context ?? context);
                     if (!EqualityComparer<bool>.Default.Equals(last.Value<bool>(), predicate.Value<bool>()))

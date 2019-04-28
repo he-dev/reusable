@@ -17,16 +17,18 @@ namespace Reusable.Flexo
 
         protected override Constant<string> InvokeCore(IImmutableSession context)
         {
+            var @this = context.PopThis().Invoke(context).Value<object>();
+            
             var format = Format?.Invoke(context).ValueOrDefault<string>() ?? "{0}";
 
-            if (context.TryPopExtensionInput(out object input))
+            //if (context.TryPopExtensionInput(out object input))
             {
-                return (Name, string.Format(CultureInfo.InvariantCulture, format, input), context);
+//                return (Name, string.Format(CultureInfo.InvariantCulture, format, input), context);
             }
-            else
+  //          else
             {
-                var value = Value.Invoke(context).Value<object>();
-                return (Name, string.Format(CultureInfo.InvariantCulture, format, value), context);
+                //var value = Value.Invoke(context).Value<object>();
+                return (Name, string.Format(CultureInfo.InvariantCulture, format, @this), context);
             }
         }
     }

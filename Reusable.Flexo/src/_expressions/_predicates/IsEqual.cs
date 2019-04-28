@@ -15,14 +15,16 @@ namespace Reusable.Flexo
 
         protected override Constant<bool> InvokeCore(IImmutableSession context)
         {
-            if (context.TryPopExtensionInput(out object input))
+            var @this = context.PopThis().Invoke(context).Value<object>();
+            
+            //if (context.TryPopExtensionInput(out object input))
             {
                 var value = Value.Invoke(context).Value;
-                return (Name, input.Equals(value), context);
+                return (Name, @this.Equals(value), context);
             }
-            else
+            //else
             {
-                throw new InvalidOperationException($"{Name.ToString()} can be used only as an extension.");
+              //  throw new InvalidOperationException($"{Name.ToString()} can be used only as an extension.");
             }
         }
     }

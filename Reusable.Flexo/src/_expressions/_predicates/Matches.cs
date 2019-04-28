@@ -17,17 +17,19 @@ namespace Reusable.Flexo
 
         protected override Constant<bool> InvokeCore(IImmutableSession context)
         {
+            var @this = context.PopThis().Invoke(context).Value<string>();
+            
             var pattern = Pattern.Invoke(context).Value<string>();
             var options = IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None;
 
-            if (context.TryPopExtensionInput(out string input))
+//            if (context.TryPopExtensionInput(out string input))
+//            {
+//                return (Name, Regex.IsMatch(input, pattern, options), context);
+//            }
+//            else
             {
-                return (Name, Regex.IsMatch(input, pattern, options), context);
-            }
-            else
-            {
-                var value = Value.Invoke(context).Value<string>();
-                return (Name, Regex.IsMatch(value, pattern, options), context);
+
+                return (Name, Regex.IsMatch(@this, pattern, options), context);
             }
         }
     }

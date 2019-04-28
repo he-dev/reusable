@@ -1,47 +1,55 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Reusable.Data;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
-    public class Any : PredicateExpression, IExtension<List<object>>
+    public class Any : PredicateExpression, IExtension<IEnumerable<IConstant>>
     {
         public Any(ILogger<Any> logger) : base(logger, nameof(Any)) { }
 
         [This]
-        public List<IExpression> Values { get; set; } = new List<IExpression>();
+        public List<IExpression> Values { get; set; } //= new List<IExpression>();
 
         public IExpression Predicate { get; set; }
 
         protected override Constant<bool> InvokeCore(IImmutableSession context)
         {
-            if (context.TryPopExtensionInput(out IEnumerable<object> input))
+            var @this = context.PopThis().Invoke(context).Value<IEnumerable<IExpression>>();
+
+//            if (context.TryPopExtensionInput(out IEnumerable<object> input))
+//            {
+//                foreach (var item in input)
+//                {
+//                    context.PushExtensionInput(item);
+//                    var predicateResult = (Predicate ?? Constant.True).Invoke(context).Value<bool>();
+//                    if (EqualityComparer<bool>.Default.Equals(predicateResult, true))
+//                    {
+//                        return (Name, true, context);
+//                    }
+//                }
+//            }
+//            else
             {
-                foreach (var item in input)
-                {
-                    context.PushExtensionInput(item);
-                    var predicateResult = (Predicate ?? Constant.True).Invoke(context).Value<bool>();
-                    if (EqualityComparer<bool>.Default.Equals(predicateResult, true))
-                    {
-                        return (Name, true, context);
-                    }
-                }
-            }
-            else
-            {
-                var predicate = (Predicate ?? Constant.True).Invoke(context);
+                //var p = Predicate ?? new IsEqual(default);
+                
                 var last = default(IConstant);
-                foreach (var item in Values.Enabled())
+                foreach (var item in @this.Enabled().Cast<IExpression>())
                 {
-                    last = item.Invoke(predicate.Context);
-                    if (EqualityComparer<bool>.Default.Equals(last.Value<bool>(), predicate.Value<bool>()))
+                    var value = item.Invoke(context);
+                    context.PushThis(value);
+                    var predicate = (Predicate ?? Constant.True).Invoke(context);
+                    last = value; //.Invoke(predicate.Context);
+                    //if (EqualityComparer<bool>.Default.Equals(last.Value<bool>(), predicate.Value<bool>()))
+                    if (EqualityComparer<bool>.Default.Equals(predicate.Value<bool>(), true))
                     {
                         return (Name, true, last.Context);
                     }
                 }
-            }
 
-            return (Name, false, context);
+                return (Name, false, context);
+            }
         }
     }
 }

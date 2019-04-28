@@ -23,32 +23,35 @@ namespace Reusable.Flexo
         protected override Constant<object> InvokeCore(IImmutableSession context)
         {
             if (True is null && False is null) throw new InvalidOperationException($"You need to specify at least one result ({nameof(True)}/{nameof(False)}).");
+            
+            var @this = context.PopThis().Invoke(context);
+            
 
-            if (context.TryPopExtensionInput(out bool input))
+//            if (context.TryPopExtensionInput(out bool input))
+//            {
+//                if (input)
+//                {
+//                    var trueResult = True?.Invoke(context);
+//                    return (Name, trueResult?.Value, trueResult?.Context);
+//                }
+//                else
+//                {
+//                    var falseResult = False?.Invoke(context);
+//                    return (Name, falseResult?.Value, falseResult?.Context);
+//                }
+//            }
+//            else
             {
-                if (input)
+                //var result = Predicate.Invoke(context);
+
+                if (@this.Value<bool>())
                 {
-                    var trueResult = True?.Invoke(context);
+                    var trueResult = True?.Invoke(@this.Context);
                     return (Name, trueResult?.Value, trueResult?.Context);
                 }
                 else
                 {
-                    var falseResult = False?.Invoke(context);
-                    return (Name, falseResult?.Value, falseResult?.Context);
-                }
-            }
-            else
-            {
-                var result = Predicate.Invoke(context);
-
-                if (result.Value<bool>())
-                {
-                    var trueResult = True?.Invoke(result.Context);
-                    return (Name, trueResult?.Value, trueResult?.Context);
-                }
-                else
-                {
-                    var falseResult = False?.Invoke(result.Context);
+                    var falseResult = False?.Invoke(@this.Context);
                     return (Name, falseResult?.Value, falseResult?.Context);
                 }
             }

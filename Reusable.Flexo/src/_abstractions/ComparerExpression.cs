@@ -16,19 +16,21 @@ namespace Reusable.Flexo
             : base(logger, name) => _predicate = predicate;
 
         [JsonRequired]
-        [This]
+        //[This]
         public IExpression Value { get; set; }
 
         protected override Constant<bool> InvokeCore(IImmutableSession context)
         {
-            if (context.TryPopExtensionInput(out object input))
+            var @this = context.PopThis().Invoke(context).Value<object>();
+            
+            //if (context.TryPopExtensionInput(out object input))
             {
-                var result = Comparer<object>.Default.Compare(input, Value.Invoke(context).Value);
+                var result = Comparer<object>.Default.Compare(@this, Value.Invoke(context).Value);
                 return (Name, _predicate(result), context);
             }
-            else
+            //else
             {
-                throw new InvalidOperationException($"{Name.ToString()} can be used only as an extension.");
+                //throw new InvalidOperationException($"{Name.ToString()} can be used only as an extension.");
             }
         }
 

@@ -50,8 +50,8 @@ namespace Reusable.Tests.Flexo
         public void Any_flows_True_context()
         {
             var actual = new Any(Logger<Any>.Null)
-            {
-                Values =
+            {                
+                Values = new List<IExpression>
                 {
                     LambdaExpression.Predicate(context => (false, context.SetItem("x", (int)context["x"] + 2))),
                     LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"] + 3))),
@@ -140,85 +140,85 @@ namespace Reusable.Tests.Flexo
         public void IsEqual_returns_True_when_Input_equal_Value() => Equal(true, new IsEqual(Logger<IsEqual>.Null)
         {
             Value = Constant.Create("foo"),
-        }, Expression.DefaultSession.PushExtensionInput("foo"));
+        }, Expression.DefaultSession.PushThis("foo"));
 
         [Fact]
         public void IsEqual_returns_False_when_Input_not_equal_Value() => Equal(false, new IsEqual(Logger<IsEqual>.Null)
         {
             Value = Constant.Create("foo"),
-        }, Expression.DefaultSession.PushExtensionInput("bar"));
+        }, Expression.DefaultSession.PushThis("bar"));
 
         [Fact]
         public void IsGreaterThan_returns_True_when_Input_GreaterThan_Value() => Equal(true, new IsGreaterThan(Logger<IsGreaterThan>.Null)
         {
             Value = Constant.Create(2.0),
-        }, Expression.DefaultSession.PushExtensionInput(3.0));
+        }, Expression.DefaultSession.PushThis(3.0));
 
         [Fact]
         public void IsGreaterThan_returns_False_when_Input_LessThan_Value() => Equal(false, new IsGreaterThan(Logger<IsGreaterThan>.Null)
         {
             Value = Constant.Create(3.0),
-        }, Expression.DefaultSession.PushExtensionInput(2.0));
+        }, Expression.DefaultSession.PushThis(2.0));
 
         [Fact]
         public void GreaterThan_ReturnsFalseWhenLeftEqualsRight() => Equal(false, new IsGreaterThan(Logger<IsGreaterThan>.Null)
         {
             Value = Constant.Create(2.0),
-        }, Expression.DefaultSession.PushExtensionInput(2.0));
+        }, Expression.DefaultSession.PushThis(2.0));
 
         [Fact]
         public void GreaterThanOrEqual_ReturnsTrueWhenLeftGreaterThanRight() => Equal(true, new IsGreaterThanOrEqual(Logger<IsGreaterThanOrEqual>.Null)
         {
             Value = Constant.Create(2.0),
-        }, Expression.DefaultSession.PushExtensionInput(3.0));
+        }, Expression.DefaultSession.PushThis(3.0));
 
         [Fact]
         public void GreaterThanOrEqual_ReturnsTrueWhenLeftEqualsRight() => Equal(true, new IsGreaterThanOrEqual(Logger<IsGreaterThanOrEqual>.Null)
         {
             Value = Constant.Create(3.0),
-        }, Expression.DefaultSession.PushExtensionInput(3.0));
+        }, Expression.DefaultSession.PushThis(3.0));
 
         [Fact]
         public void GreaterThanOrEqual_ReturnsFalseWhenLeftLessThanRight() => Equal(false, new IsGreaterThanOrEqual(Logger<IsGreaterThanOrEqual>.Null)
         {
             Value = Constant.Create(3.0),
-        }, Expression.DefaultSession.PushExtensionInput(2.0));
+        }, Expression.DefaultSession.PushThis(2.0));
 
         [Fact]
         public void LessThan_ReturnsTrueWhenLeftLessThanRight() => Equal(true, new IsLessThan(Logger<IsLessThan>.Null)
         {
             Value = Constant.Create(3.0),
-        }, Expression.DefaultSession.PushExtensionInput(2.0));
+        }, Expression.DefaultSession.PushThis(2.0));
 
         [Fact]
         public void LessThan_ReturnsFalseWhenLeftEqualsRight() => Equal(false, new IsLessThan(Logger<IsLessThan>.Null)
         {
             Value = Constant.Create(3.0),
-        }, Expression.DefaultSession.PushExtensionInput(3.0));
+        }, Expression.DefaultSession.PushThis(3.0));
 
         [Fact]
         public void LessThan_ReturnsFalseWhenLeftGreaterThanRight() => Equal(false, new IsLessThan(Logger<IsLessThan>.Null)
         {
             Value = Constant.Create(2.0),
-        }, Expression.DefaultSession.PushExtensionInput(3.0));
+        }, Expression.DefaultSession.PushThis(3.0));
 
         [Fact]
         public void LessThanOrEqual_ReturnsTrueWhenLeftLessThanRight() => Equal(true, new IsLessThanOrEqual(Logger<IsLessThanOrEqual>.Null)
         {
             Value = Constant.Create(3.0),
-        }, Expression.DefaultSession.PushExtensionInput(2.0));
+        }, Expression.DefaultSession.PushThis(2.0));
 
         [Fact]
         public void LessThanOrEqual_ReturnsTrueWhenLeftEqualsRight() => Equal(true, new IsLessThanOrEqual(Logger<IsLessThanOrEqual>.Null)
         {
             Value = Constant.Create(3.0),
-        }, Expression.DefaultSession.PushExtensionInput(3.0));
+        }, Expression.DefaultSession.PushThis(3.0));
 
         [Fact]
         public void LessThanOrEqual_ReturnsFalseWhenLeftGreaterThanRight() => Equal(false, new IsLessThanOrEqual(Logger<IsLessThanOrEqual>.Null)
         {
             Value = Constant.Create(2.0),
-        }, Expression.DefaultSession.PushExtensionInput(3.0));
+        }, Expression.DefaultSession.PushThis(3.0));
 
         [Fact]
         public void Not_returns_True_when_False() => Equal(false, new Not(Logger<Not>.Null) { Value = Constant.True });
@@ -233,13 +233,13 @@ namespace Reusable.Tests.Flexo
         public void ToDouble_maps_False_to_Zero() => Equal(0.0, new ToDouble { Value = Constant.False });
 
         [Fact]
-        public void ToString_converts_Input_to_string() => Equal("1", new ToString(), Expression.DefaultSession.PushExtensionInput(1.0));
+        public void ToString_converts_Input_to_string() => Equal("1", new ToString(), Expression.DefaultSession.PushThis(1.0));
 
         [Fact]
         public void ToString_converts_Input_to_string_with_custom_format() => Equal("1.00", new ToString
         {
             Format = Constant.Create("{0:F2}")
-        }, Expression.DefaultSession.PushExtensionInput(1.0));
+        }, Expression.DefaultSession.PushThis(1.0));
 
         [Fact]
         public void Constant_flows_context()

@@ -25,14 +25,17 @@ namespace Reusable.Flexo
 
         protected override Constant<List<object>> InvokeCore(IImmutableSession context)
         {
-            if (context.TryPopExtensionInput(out IEnumerable<object> input))
+            var @this = context.PopThis().Invoke(context).Value<IEnumerable<IExpression>>();
+                
+//            if (context.TryPopExtensionInput(out IEnumerable<object> input))
+//            {
+//                var values = input.Select(x => Selector.Invoke(context.PushExtensionInput(x))).Values<object>().ToList();
+//                return (Name, values, context);
+//            }
+//            else
             {
-                var values = input.Select(x => Selector.Invoke(context.PushExtensionInput(x))).Values<object>().ToList();
-                return (Name, values, context);
-            }
-            else
-            {
-                var values = Values.Enabled().Invoke(context).Values<object>().ToList();
+                //var values = @this.Enabled().Invoke(context).Values<object>().ToList();
+                var values = @this.Select(x => Selector.Invoke(context.PushThis((IConstant)x))).Values<object>().ToList();
                 return (Name, values, context);
             }
         }

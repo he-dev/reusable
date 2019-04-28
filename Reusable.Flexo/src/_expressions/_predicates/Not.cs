@@ -1,4 +1,5 @@
-﻿using Reusable.Data;
+﻿using System.Collections.Generic;
+using Reusable.Data;
 using Reusable.OmniLog.Abstractions;
 using Reusable.Utilities.JsonNet.Annotations;
 
@@ -14,14 +15,16 @@ namespace Reusable.Flexo
 
         protected override Constant<bool> InvokeCore(IImmutableSession context)
         {
-            if (context.TryPopExtensionInput(out bool input))
-            {
-                return (Name, !input, context);
-            }
-            else
-            {
-                return (Name, !Value.Invoke(context).Value<bool>(), context);
-            }
+            var @this = context.PopThis().Invoke(context).Value<bool>();
+                return (Name, !@this, context);
+            
+//            if (context.TryPopExtensionInput(out bool input))
+//            {
+//            }
+//            else
+//            {
+//                return (Name, !Value.Invoke(context).Value<bool>(), context);
+//            }
         }
     }
 }

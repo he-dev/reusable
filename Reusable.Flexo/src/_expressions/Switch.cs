@@ -23,15 +23,17 @@ namespace Reusable.Flexo
 
         protected override Constant<object> InvokeCore(IImmutableSession context)
         {
-            var value = context.TryPopExtensionInput(out object input) ? input : Value.Invoke(context).Value;
-            var switchContext = context.Set(Use<ISwitchSession>.Scope, x => x.Value, value);
+            var @this = context.PopThis().Invoke(context).Value<bool>();
+            
+            //var value = context.TryPopExtensionInput(out object input) ? input : Value.Invoke(context).Value;
+            var switchContext = context.Set(Use<ISwitchSession>.Scope, x => x.Value,  @this);
 
             foreach (var switchCase in (Cases ?? Enumerable.Empty<SwitchCase>()).Where(c => c.Enabled))
             {
                 switch (switchCase.When)
                 {
                     case IConstant constant:
-                        if (EqualityComparer<object>.Default.Equals(value, constant.Value))
+                        if (EqualityComparer<object>.Default.Equals( @this, constant.Value))
                         {
                             var bodyResult = switchCase.Body.Invoke(context);
                             return (Name, bodyResult.Value, bodyResult.Context);

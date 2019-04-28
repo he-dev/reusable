@@ -12,7 +12,7 @@ namespace Reusable.Flexo
         public Contains(ILogger<Contains> logger) : base(logger, nameof(Contains)) { }
 
         [This]
-        public List<IExpression> Values { get; set; } = new List<IExpression>();
+        public List<IExpression> Values { get; set; } //= new List<IExpression>();
 
         public IExpression Value { get; set; }
 
@@ -20,22 +20,22 @@ namespace Reusable.Flexo
 
         protected override Constant<bool> InvokeCore(IImmutableSession context)
         {
-            var @this = context.This().Invoke(context).Value<IEnumerable<object>>();
+            var @this = context.PopThis().Invoke(context).Value<IEnumerable<IConstant>>();
             
             var value = Value.Invoke(context).Value;
             var comparer = context.GetComparerOrDefault(Comparer);
             
-            return (Name, @this.Any(x => comparer.Equals(value, x)), context);
+            return (Name, @this.Enabled().Any(x => comparer.Equals(value, x.Invoke(context).Value<object>())), context);
 
-            if (context.TryPopExtensionInput(out IEnumerable<object> input))
-            {
-                return (Name, input.Any(x => comparer.Equals(value, x)), context);
-            }
-            else
-            {
-                var values = Values.Enabled().Select(x => x.Invoke(context).Value);
-                return (Name, values.Any(x => comparer.Equals(value, x)), context);
-            }
+//            if (context.TryPopExtensionInput(out IEnumerable<object> input))
+//            {
+//                return (Name, input.Any(x => comparer.Equals(value, x)), context);
+//            }
+//            else
+//            {
+//                var values = Values.Enabled().Select(x => x.Invoke(context).Value);
+//                return (Name, values.Any(x => comparer.Equals(value, x)), context);
+//            }
         }
     }
 }

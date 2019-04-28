@@ -19,31 +19,41 @@ namespace Reusable.Flexo
     {
         #region Extension-Input helpers
 
-        public static IImmutableSession PushExtensionInput(this IImmutableSession context, object value)
+        public static IImmutableSession PushThis(this IImmutableSession context, IConstant value)
         {
-            context.Get(Use<IExpressionSession>.Scope, x => x.ExtensionInputs).Push(value);
+            context.Get(Use<IExpressionSession>.Scope, x => x.This).Push(value);
             return context;
+        }
+        
+        public static IImmutableSession PushThis(this IImmutableSession context, string value)
+        {
+            return context.PushThis((IConstant)Constant.FromValue("This", value));
+        }
+        
+        public static IImmutableSession PushThis(this IImmutableSession context, double value)
+        {
+            return context.PushThis((IConstant)Constant.FromValue("This", value));
         }
 
         // The Input must be removed so that subsequent expression doesn't 'think' it's called as extension when it isn't.
-        public static bool TryPopExtensionInput<T>(this IImmutableSession context, out T input)
-        {
-            var inputs = context.Get(Use<IExpressionSession>.Scope, x => x.ExtensionInputs);
-            if (inputs.Any())
-            {
-                input = (T)inputs.Pop();
-                return true;
-            }
-            else
-            {
-                input = default;
-                return false;
-            }
-        }
+        //public static bool TryPopExtensionInput<T>(this IImmutableSession context, out T input)
+//        {
+//            var inputs = context.Get(Use<IExpressionSession>.Scope, x => x.This);
+//            if (inputs.Any())
+//            {
+//                input = (T)inputs.Pop();
+//                return true;
+//            }
+//            else
+//            {
+//                input = default;
+//                return false;
+//            }
+//        }
 
-        public static IConstant This(this IImmutableSession context)
+        public static IConstant PopThis(this IImmutableSession context)
         {
-            return context.Get(Use<IExpressionSession>.Scope, x => x.This);
+            return context.Get(Use<IExpressionSession>.Scope, x => x.This).Pop();
         }
 
         #endregion
@@ -51,19 +61,19 @@ namespace Reusable.Flexo
         public static IImmutableSession WithComparer(this IImmutableSession context, string name, IEqualityComparer<object> comparer)
         {
             var scope = Use<IExpressionSession>.Scope;
-            var comparers = 
+            var comparers =
                 context
                     .Get(scope, x => x.Comparers, ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
                     .SetItem(name, comparer);
-            
-            return context.Set(scope, x => x.Comparers, comparers);            
+
+            return context.Set(scope, x => x.Comparers, comparers);
         }
 
         public static IImmutableSession WithDefaultComparer(this IImmutableSession context)
         {
             return context.WithComparer(GetComparerNameFromCaller(), EqualityComparer<object>.Default);
         }
-        
+
         public static IImmutableSession WithSoftStringComparer(this IImmutableSession context)
         {
             return context.WithComparer(GetComparerNameFromCaller(), EqualityComparerFactory<object>.Create
@@ -87,11 +97,11 @@ namespace Reusable.Flexo
             // ReSharper disable once AssignNullToNotNullAttribute
             return Regex.Match(comparerName, "^With(?<comparerName>[a-z0-9_]+)Comparer", RegexOptions.IgnoreCase).Groups["comparerName"].Value;
         }
-        
+
         public static IImmutableSession WithExpressions(this IImmutableSession context, IEnumerable<IExpression> expressions)
         {
             var scope = Use<IExpressionSession>.Scope;
-            var registrations = 
+            var registrations =
                 context
                     .Get(scope, x => x.Expressions, ImmutableDictionary<SoftString, IExpression>.Empty)
                     .SetItems(expressions.Select(e => new KeyValuePair<SoftString, IExpression>($"R.{e.Name.ToString()}", e)));

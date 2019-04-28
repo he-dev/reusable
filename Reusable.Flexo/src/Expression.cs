@@ -86,7 +86,7 @@ namespace Reusable.Flexo
         public static IImmutableSession DefaultSession =>
             ImmutableSession
                 .Empty
-                .Set(Use<IExpressionSession>.Scope, x => x.ExtensionInputs, new Stack<object>())
+                .Set(Use<IExpressionSession>.Scope, x => x.This, new Stack<IConstant>())
                 .Set(Use<IExpressionSession>.Scope, x => x.Comparers, ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
                 .Set(Use<IExpressionSession>.Scope, x => x.DebugView, TreeNode.Create(ExpressionDebugView.Root))
                 .WithDefaultComparer()
@@ -130,20 +130,28 @@ namespace Reusable.Flexo
         {
             var scope = Use<IExpressionSession>.Scope;
 
-            if (IsExtension(GetType()) && context.This() is var @this && @this is null)
+            // Invoke the property marked with [This] when this is an extension and this expression wasn't called as one.
+            if (IsExtension(GetType())) // && context.PopThis() is var @this && @this is null)
             {
-                var value = GetType().GetProperties().Single(p => p.IsDefined(typeof(ThisAttribute), true)).GetValue(this);
-                switch (value)
+                // There are expressions that can only be used as extensions so they actually don't have a property for "This" (like LessThan etc)
+                var thisProperty = GetType().GetProperties().SingleOrDefault(p => p.IsDefined(typeof(ThisAttribute), true));
+                var value = thisProperty?.GetValue(this);
+                if (!(thisProperty is null) && !(value is null))
                 {
-                    case IExpression e:
-                        @this = e.Invoke(context);
-                        break;
-                    
-                    case IEnumerable<IExpression> c:
-                        @this = Constant.FromValue("This", c.Select(e => e.Invoke(context).Value).ToList());
-                        break;
+                    var @this = default(IConstant);
+                    switch (value)
+                    {
+                        case IConstant e:
+                            @this = e;
+                            break;
+
+                        case IEnumerable<IExpression> c:
+                            @this = Constant.FromValue("This", c);
+                            break;
+                    }
+
+                    context.PushThis(@this);
                 }
-                context = context.Set(scope, x => x.This, @this);
             }
 
             var parentNode = context.Get(scope, x => x.DebugView);
@@ -181,8 +189,9 @@ namespace Reusable.Flexo
                     var innerContext =
                         previous
                             .Context
-                            .Set(scope, x => x.This, Constant.FromValue("This", previous.Value))
-                            .PushExtensionInput(previous.Value);
+                            .PushThis(previous);
+                    
+                    //.PushExtensionInput(previous);
 
                     return next.Invoke(innerContext);
                 }
@@ -248,9 +257,9 @@ namespace Reusable.Flexo
 
     public interface IExpressionSession : ISession
     {
-        Stack<object> ExtensionInputs { get; }
+        Stack<IConstant> This { get; }
 
-        IConstant This { get; }
+        //IConstant This { get; }
 
         IImmutableDictionary<SoftString, IEqualityComparer<object>> Comparers { get; }
 
