@@ -21,7 +21,7 @@ namespace Reusable.Flexo
 
         #region Extension-Input helpers
 
-        public static IImmutableSession PushThis(this IImmutableSession context, IConstant value)
+        internal static IImmutableSession PushThis(this IImmutableSession context, IConstant value)
         {
             context.Get(Use<IExpressionSession>.Scope, x => x.This).Push(value);
             return context;
@@ -43,12 +43,12 @@ namespace Reusable.Flexo
             return context.Get(Scope, x => x.This).Pop().Invoke(context);
         }
         
-        public static IExpression PopThisConstant(this IImmutableSession context)
+        internal static IExpression PopThisConstant(this IImmutableSession context)
         {
             return context.PopThis();
         }
         
-        public static IEnumerable<IExpression> PopThisCollection(this IImmutableSession context)
+        internal static IEnumerable<IExpression> PopThisCollection(this IImmutableSession context)
         {
             return context.PopThis().Invoke(context).Value<IEnumerable<IExpression>>().Enabled();
         }

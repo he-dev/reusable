@@ -89,7 +89,8 @@ namespace Reusable.Flexo
             // Extensions require additional handling.
             if (IsExtension)
             {
-                // When "This" property is not null then use its value instead of that of the one in context.
+                // When "This" property is not null then we assume it's not used as an extension
+                // and push this on the stack instead of the value of the previous expression.
                 var thisValue = GetType().GetProperty(nameof(IExtension<object>.This)).GetValue(this);
                 if (!(thisValue is null))
                 {
