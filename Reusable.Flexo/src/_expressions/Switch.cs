@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -8,35 +9,32 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
-    public abstract class Switch<TResult> : Expression<object>, IExtension<TResult>
+    public abstract class Switch<TResult> : ValueExtension<TResult>
     {
-        protected Switch([NotNull] SoftString name) : base(name) { }
-
         protected Switch(ILogger logger, SoftString name) : base(logger, name) { }
 
-        [This]
-        public IExpression Value { get; set; }
+        [JsonProperty("Value")]
+        public override IExpression This { get; set; }
 
         public List<SwitchCase> Cases { get; set; } = new List<SwitchCase>();
 
         public IExpression Default { get; set; }
 
-        protected override Constant<object> InvokeCore(IImmutableSession context)
+        protected override Constant<TResult> InvokeCore(IImmutableSession context, IExpression @this)
         {
-            var @this = context.PopThis().Invoke(context).Value<object>();
-            
-            //var value = context.TryPopExtensionInput(out object input) ? input : Value.Invoke(context).Value;
-            var switchContext = context.Set(Use<ISwitchSession>.Scope, x => x.Value,  @this);
+            //var @this = context.PopThisConstant().Value<object>();
+            var value = @this.Invoke(context).Value;
+            var switchContext = context.Set(Use<ISwitchSession>.Scope, x => x.Value, value);
 
             foreach (var switchCase in (Cases ?? Enumerable.Empty<SwitchCase>()).Where(c => c.Enabled))
             {
                 switch (switchCase.When)
                 {
                     case IConstant constant:
-                        if (EqualityComparer<object>.Default.Equals( @this, constant.Value))
+                        if (EqualityComparer<object>.Default.Equals(value, constant.Value))
                         {
                             var bodyResult = switchCase.Body.Invoke(context);
-                            return (Name, bodyResult.Value, bodyResult.Context);
+                            return (Name, (TResult)bodyResult.Value, bodyResult.Context);
                         }
 
                         break;
@@ -45,37 +43,38 @@ namespace Reusable.Flexo
                         if (expression.Invoke(switchContext) is var whenResult && whenResult.Value<bool>())
                         {
                             var bodyResult = switchCase.Body.Invoke(context);
-                            return (Name, bodyResult.Value, bodyResult.Context);
+                            return (Name, (TResult)bodyResult.Value, bodyResult.Context);
                         }
 
                         break;
                 }
             }
 
-
+            // todo - make it dynamic-exception
             return
-            (
-                Name,
-                (Default ?? new Throw
-                    {
-                        Name = "SwitchValueOutOfRange",
-                        Message = Constant.FromValue("Message", "Default value not specified.")
-                    }
-                ).Invoke(context),
-                context
-            );
+                Default is null
+                    ? throw new ArgumentOutOfRangeException()
+                    : (Name, Default.Invoke(context).Value<TResult>(), context);
+
+            // return
+            // (
+            //     Name,
+            //     (Default ?? new Throw
+            //         {
+            //             Name = "SwitchValueOutOfRange",
+            //             Message = Constant.FromValue("Message", "Default value not specified.")
+            //         }
+            //     ).Invoke(context),
+            //     context
+            // );
         }
     }
 
     [UsedImplicitly]
     [PublicAPI]
-    public class Switch : Switch<IExpression>
+    public class Switch : Switch<object>
     {
-        public Switch(string name) : base(name) { }
-
         public Switch(ILogger<Switch> logger) : base(logger, nameof(Switch)) { }
-
-        public Switch() : this(nameof(Switch)) { }
     }
 
     public class SwitchCase

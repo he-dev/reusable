@@ -2,24 +2,25 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 using Reusable.Data;
+using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
     [PublicAPI]
-    public abstract class AggregateExpression : Expression<double>, IExtension<IEnumerable<object>>
+    public abstract class AggregateExpression : CollectionExtension<double>
     {
         private readonly Func<IEnumerable<double>, double> _aggregate;
 
-        protected AggregateExpression(string name, [NotNull] Func<IEnumerable<double>, double> aggregate)
-            : base(name) => _aggregate = aggregate;
+        protected AggregateExpression(ILogger logger, string name, [NotNull] Func<IEnumerable<double>, double> aggregate)
+            : base(logger, name) => _aggregate = aggregate;
 
-        [This]
-        public List<IExpression> Values { get; set; }
+        [JsonProperty("Values")]
+        public override IEnumerable<IExpression> This { get; set; }
 
-        protected override Constant<double> InvokeCore(IImmutableSession context)
+        protected override Constant<double> InvokeCore(IImmutableSession context, IEnumerable<IExpression> @this)
         {
-            var @this = context.PopThis().Invoke(context).Value<IEnumerable<IExpression>>();
             var values = @this.Enabled().Select(e => e.Invoke(context)).Values<object>().Cast<double>();
             var result = _aggregate(values);
             return (Name, result, context);

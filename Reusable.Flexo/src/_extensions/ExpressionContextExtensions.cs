@@ -17,6 +17,8 @@ namespace Reusable.Flexo
     [PublicAPI]
     public static class ExpressionContextExtensions
     {
+        private static readonly ISessionScope<IExpressionSession> Scope = Use<IExpressionSession>.Scope;
+
         #region Extension-Input helpers
 
         public static IImmutableSession PushThis(this IImmutableSession context, IConstant value)
@@ -24,40 +26,43 @@ namespace Reusable.Flexo
             context.Get(Use<IExpressionSession>.Scope, x => x.This).Push(value);
             return context;
         }
-        
+
         internal static IImmutableSession PushThis(this IImmutableSession context, string value)
         {
             return context.PushThis((IConstant)Constant.FromValue("This", value));
         }
-        
+
         internal static IImmutableSession PushThis(this IImmutableSession context, double value)
         {
             return context.PushThis((IConstant)Constant.FromValue("This", value));
         }
 
-        // The Input must be removed so that subsequent expression doesn't 'think' it's called as extension when it isn't.
-        public static IConstant PopThis(this IImmutableSession context)
+        // The Input must be removed so that subsequent expression doesn't 'think' it's called as extension when it isn't.        
+        internal static IExpression PopThis(this IImmutableSession context)
         {
-            return context.Get(Use<IExpressionSession>.Scope, x => x.This).Pop();
+            return context.Get(Scope, x => x.This).Pop().Invoke(context);
         }
         
-        public static T PopThis<T>(this IImmutableSession context)
+        public static IExpression PopThisConstant(this IImmutableSession context)
         {
-            var @this = context.Get(Use<IExpressionSession>.Scope, x => x.This).Pop();
-            return @this.Invoke(context).Value<T>();
+            return context.PopThis();
+        }
+        
+        public static IEnumerable<IExpression> PopThisCollection(this IImmutableSession context)
+        {
+            return context.PopThis().Invoke(context).Value<IEnumerable<IExpression>>().Enabled();
         }
 
         #endregion
 
         public static IImmutableSession WithComparer(this IImmutableSession context, string name, IEqualityComparer<object> comparer)
         {
-            var scope = Use<IExpressionSession>.Scope;
             var comparers =
                 context
-                    .Get(scope, x => x.Comparers, ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
+                    .Get(Scope, x => x.Comparers, ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
                     .SetItem(name, comparer);
 
-            return context.Set(scope, x => x.Comparers, comparers);
+            return context.Set(Scope, x => x.Comparers, comparers);
         }
 
         public static IImmutableSession WithDefaultComparer(this IImmutableSession context)
@@ -91,12 +96,11 @@ namespace Reusable.Flexo
 
         public static IImmutableSession WithExpressions(this IImmutableSession context, IEnumerable<IExpression> expressions)
         {
-            var scope = Use<IExpressionSession>.Scope;
             var registrations =
                 context
-                    .Get(scope, x => x.Expressions, ImmutableDictionary<SoftString, IExpression>.Empty)
+                    .Get(Scope, x => x.Expressions, ImmutableDictionary<SoftString, IExpression>.Empty)
                     .SetItems(expressions.Select(e => new KeyValuePair<SoftString, IExpression>($"R.{e.Name.ToString()}", e)));
-            return context.Set(scope, x => x.Expressions, registrations);
+            return context.Set(Scope, x => x.Expressions, registrations);
         }
 
         public static IEqualityComparer<object> GetComparerOrDefault(this IImmutableSession context, [CanBeNull] string name)
@@ -117,12 +121,12 @@ namespace Reusable.Flexo
 
         public static TreeNode<ExpressionDebugView> DebugView(this IImmutableSession context)
         {
-            return context.Get(Use<IExpressionSession>.Scope, x => x.DebugView);
+            return context.Get(Scope, x => x.DebugView);
         }
 
         public static IImmutableSession DebugView(this IImmutableSession context, TreeNode<ExpressionDebugView> debugView)
         {
-            return context.Set(Use<IExpressionSession>.Scope, x => x.DebugView, debugView);
+            return context.Set(Scope, x => x.DebugView, debugView);
         }
     }
 }

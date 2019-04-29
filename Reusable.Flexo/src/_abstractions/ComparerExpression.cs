@@ -8,44 +8,24 @@ using Reusable.OmniLog.Abstractions;
 namespace Reusable.Flexo
 {
     [PublicAPI]
-    public abstract class ComparerExpression : PredicateExpression, IExtension<object>
+    public abstract class ComparerExpression : ValueExtension<bool>
     {
         private readonly Func<int, bool> _predicate;
 
         protected ComparerExpression(ILogger logger, string name, [NotNull] Func<int, bool> predicate)
             : base(logger, name) => _predicate = predicate;
 
+        [JsonProperty("Left")]
+        public override IExpression This { get; set; }
+
         [JsonRequired]
-        //[This]
-        public IExpression Value { get; set; }
+        [JsonProperty("Value")]
+        public IExpression Right { get; set; }
 
-        protected override Constant<bool> InvokeCore(IImmutableSession context)
+        protected override Constant<bool> InvokeCore(IImmutableSession context, IExpression @this)
         {
-            var @this = context.PopThis().Invoke(context).Value<object>();
-            
-            //if (context.TryPopExtensionInput(out object input))
-            {
-                var result = Comparer<object>.Default.Compare(@this, Value.Invoke(context).Value);
-                return (Name, _predicate(result), context);
-            }
-            //else
-            {
-                //throw new InvalidOperationException($"{Name.ToString()} can be used only as an extension.");
-            }
+            var result = Comparer<object>.Default.Compare(@this.Invoke(context).Value, Right.Invoke(context).Value);
+            return (Name, _predicate(result), context);
         }
-
-//        private static bool TryCompare<T>(IExpression x, IExpression y, out int result)
-//        {
-//            if (x is Constant<T> && y is Constant<T>)
-//            {
-//                result = ComparerFactory<IExpression>.Create(c => c.ValueOrDefault<T>()).Compare(x, y);
-//                return true;
-//            }
-//            else
-//            {
-//                result = default;
-//                return false;
-//            }
-//        }
     }
 }

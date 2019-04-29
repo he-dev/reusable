@@ -1,13 +1,14 @@
 using System.Collections.Generic;
+using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
     /// <summary>
     /// Provides a mapping expression from bool to double.
     /// </summary>
-    public class ToDouble : Switch<bool>
+    public class ToDouble : Switch<double>
     {
-        public ToDouble() : base(nameof(ToDouble))
+        public ToDouble(ILogger<ToDouble> logger) : base(logger, nameof(ToDouble))
         {
             Cases = new List<SwitchCase>
             {

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 using Reusable.Data;
 using Reusable.OmniLog.Abstractions;
 using Reusable.Utilities.JsonNet.Annotations;
@@ -6,25 +7,16 @@ using Reusable.Utilities.JsonNet.Annotations;
 namespace Reusable.Flexo
 {
     [Alias("!")]
-    public class Not : PredicateExpression, IExtension<bool>
+    public class Not : ValueExtension<bool>
     {
         public Not(ILogger<Not> logger) : base(logger, nameof(Not)) { }
 
-        [This]
-        public IExpression Value { get; set; }
+        [JsonProperty("Value")]
+        public override IExpression This { get; set; }
 
-        protected override Constant<bool> InvokeCore(IImmutableSession context)
+        protected override Constant<bool> InvokeCore(IImmutableSession context, IExpression @this)
         {
-            var @this = context.PopThis().Invoke(context).Value<bool>();
-                return (Name, !@this, context);
-            
-//            if (context.TryPopExtensionInput(out bool input))
-//            {
-//            }
-//            else
-//            {
-//                return (Name, !Value.Invoke(context).Value<bool>(), context);
-//            }
+            return (Name, !@this.Invoke(context).Value<bool>(), context);            
         }
     }
 }

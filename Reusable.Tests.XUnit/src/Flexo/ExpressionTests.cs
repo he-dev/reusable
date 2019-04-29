@@ -15,20 +15,20 @@ namespace Reusable.Tests.Flexo
     public class ExpressionTest
     {
         [Fact]
-        public void All_returns_True_when_all_True() => Equal(true, new All(Logger<All>.Null) { Values = Constant.CreateMany(true, true, true).ToList() });
+        public void All_returns_True_when_all_True() => Equal(true, new All(Logger<All>.Null) { This = Constant.CreateMany(true, true, true).ToList() });
 
         [Fact]
-        public void All_returns_False_when_some_False() => Equal(false, new All(Logger<All>.Null) { Values = Constant.CreateMany(true, false, true).ToList() });
+        public void All_returns_False_when_some_False() => Equal(false, new All(Logger<All>.Null) { This = Constant.CreateMany(true, false, true).ToList() });
 
         [Fact]
-        public void All_returns_False_when_all_False() => Equal(false, new All(Logger<All>.Null) { Values = Constant.CreateMany(false, false, false).ToList() });
+        public void All_returns_False_when_all_False() => Equal(false, new All(Logger<All>.Null) { This = Constant.CreateMany(false, false, false).ToList() });
 
         [Fact]
         public void All_flows_all_contexts()
         {
             var actual = new All(Logger<All>.Null)
             {
-                Values = new List<IExpression>
+                This = new List<IExpression>
                 {
                     LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"] + 1))),
                     LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"] + 1))),
@@ -41,17 +41,17 @@ namespace Reusable.Tests.Flexo
         }
 
         [Fact]
-        public void Any_returns_True_when_some_True() => Equal(true, new Any(Logger<Any>.Null) { Values = Constant.CreateMany(false, false, true).ToList() });
+        public void Any_returns_True_when_some_True() => Equal(true, new Any(Logger<Any>.Null) { This = Constant.CreateMany(false, false, true).ToList() });
 
         [Fact]
-        public void Any_returns_False_when_all_False() => Equal(false, new Any(Logger<Any>.Null) { Values = Constant.CreateMany(false, false, false).ToList() });
+        public void Any_returns_False_when_all_False() => Equal(false, new Any(Logger<Any>.Null) { This = Constant.CreateMany(false, false, false).ToList() });
 
         [Fact]
         public void Any_flows_True_context()
         {
             var actual = new Any(Logger<Any>.Null)
             {                
-                Values = new List<IExpression>
+                This = new List<IExpression>
                 {
                     LambdaExpression.Predicate(context => (false, context.SetItem("x", (int)context["x"] + 2))),
                     LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"] + 3))),
@@ -66,7 +66,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void IIf_invokes_True_when_True() => Equal("foo", new IIf(Logger<IIf>.Null)
         {
-            Predicate = Constant.Create(true),
+            This = Constant.Create(true),
             True = Constant.Create("foo"),
             False = Constant.Create("bar")
         });
@@ -74,7 +74,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void IIf_invokes_False_when_False() => Equal("bar", new IIf(Logger<IIf>.Null)
         {
-            Predicate = Constant.Create(false),
+            This = Constant.Create(false),
             True = Constant.Create("foo"),
             False = Constant.Create("bar")
         });
@@ -82,20 +82,20 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void IIf_throws_when_no_result_specified()
         {
-            Assert.Throws<InvalidOperationException>(() => new IIf(Logger<IIf>.Null) { Predicate = Constant.Create(false) }.Invoke(Expression.DefaultSession));
+            Assert.Throws<InvalidOperationException>(() => new IIf(Logger<IIf>.Null) { This = Constant.Create(false) }.Invoke(Expression.DefaultSession));
         }
 
         [Fact]
         public void IIf_returns_null_constant_when_True_not_specified() => Equal(Constant.Null, new IIf(Logger<IIf>.Null)
         {
-            Predicate = Constant.True,
+            This = Constant.True,
             False = Double.Zero
         });
 
         [Fact]
         public void IIf_returns_null_constant_when_False_not_specified() => Equal(Constant.Null, new IIf(Logger<IIf>.Null)
         {
-            Predicate = Constant.False,
+            This = Constant.False,
             True = Double.One,
         });
 
@@ -104,7 +104,7 @@ namespace Reusable.Tests.Flexo
         {
             var actual = new IIf(Logger<IIf>.Null)
             {
-                Predicate = Constant.True,
+                This = Constant.True,
                 True = LambdaExpression.Double(context => (1.0, context.SetItem("x", (int)context["x"] + 1))),
                 False = LambdaExpression.Double(context => (2.0, context.SetItem("x", (int)context["x"] + 2))),
             };
@@ -118,7 +118,7 @@ namespace Reusable.Tests.Flexo
         {
             var actual = new IIf(Logger<IIf>.Null)
             {
-                Predicate = Constant.False,
+                This = Constant.False,
                 True = LambdaExpression.Double(context => (1.0, context.SetItem("x", (int)context["x"] + 1))),
                 False = LambdaExpression.Double(context => (2.0, context.SetItem("x", (int)context["x"] + 2))),
             };
@@ -128,13 +128,13 @@ namespace Reusable.Tests.Flexo
         }
 
         [Fact]
-        public void Max_returns_Max() => Equal(3.0, new Max { Values = Constant.CreateMany(2.0, 3.0, 1.0).ToList() });
+        public void Max_returns_Max() => Equal(3.0, new Max(Logger<Max>.Null) { This = Constant.CreateMany(2.0, 3.0, 1.0).ToList() });
 
         [Fact]
-        public void Min_returns_Min() => Equal(1.0, new Min { Values = Constant.CreateMany(2.0, 3.0, 1.0).ToList() });
+        public void Min_returns_Min() => Equal(1.0, new Min(Logger<Min>.Null) { This = Constant.CreateMany(2.0, 3.0, 1.0).ToList() });
 
         [Fact]
-        public void Sum_returns_Sum() => Equal(6.0, new Sum { Values = Constant.CreateMany(2.0, 3.0, 1.0).ToList() });
+        public void Sum_returns_Sum() => Equal(6.0, new Sum(Logger<Sum>.Null) { This = Constant.CreateMany(2.0, 3.0, 1.0).ToList() });
 
         [Fact]
         public void IsEqual_returns_True_when_Input_equal_Value() => Equal(true, new IsEqual(Logger<IsEqual>.Null)
@@ -151,92 +151,92 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void IsGreaterThan_returns_True_when_Input_GreaterThan_Value() => Equal(true, new IsGreaterThan(Logger<IsGreaterThan>.Null)
         {
-            Value = Constant.Create(2.0),
+            Right = Constant.Create(2.0),
         }, Expression.DefaultSession.PushThis(3.0));
 
         [Fact]
         public void IsGreaterThan_returns_False_when_Input_LessThan_Value() => Equal(false, new IsGreaterThan(Logger<IsGreaterThan>.Null)
         {
-            Value = Constant.Create(3.0),
+            Right = Constant.Create(3.0),
         }, Expression.DefaultSession.PushThis(2.0));
 
         [Fact]
         public void GreaterThan_ReturnsFalseWhenLeftEqualsRight() => Equal(false, new IsGreaterThan(Logger<IsGreaterThan>.Null)
         {
-            Value = Constant.Create(2.0),
+            Right = Constant.Create(2.0),
         }, Expression.DefaultSession.PushThis(2.0));
 
         [Fact]
         public void GreaterThanOrEqual_ReturnsTrueWhenLeftGreaterThanRight() => Equal(true, new IsGreaterThanOrEqual(Logger<IsGreaterThanOrEqual>.Null)
         {
-            Value = Constant.Create(2.0),
+            Right = Constant.Create(2.0),
         }, Expression.DefaultSession.PushThis(3.0));
 
         [Fact]
         public void GreaterThanOrEqual_ReturnsTrueWhenLeftEqualsRight() => Equal(true, new IsGreaterThanOrEqual(Logger<IsGreaterThanOrEqual>.Null)
         {
-            Value = Constant.Create(3.0),
+            Right = Constant.Create(3.0),
         }, Expression.DefaultSession.PushThis(3.0));
 
         [Fact]
         public void GreaterThanOrEqual_ReturnsFalseWhenLeftLessThanRight() => Equal(false, new IsGreaterThanOrEqual(Logger<IsGreaterThanOrEqual>.Null)
         {
-            Value = Constant.Create(3.0),
+            Right = Constant.Create(3.0),
         }, Expression.DefaultSession.PushThis(2.0));
 
         [Fact]
         public void LessThan_ReturnsTrueWhenLeftLessThanRight() => Equal(true, new IsLessThan(Logger<IsLessThan>.Null)
         {
-            Value = Constant.Create(3.0),
+            Right = Constant.Create(3.0),
         }, Expression.DefaultSession.PushThis(2.0));
 
         [Fact]
         public void LessThan_ReturnsFalseWhenLeftEqualsRight() => Equal(false, new IsLessThan(Logger<IsLessThan>.Null)
         {
-            Value = Constant.Create(3.0),
+            Right = Constant.Create(3.0),
         }, Expression.DefaultSession.PushThis(3.0));
 
         [Fact]
         public void LessThan_ReturnsFalseWhenLeftGreaterThanRight() => Equal(false, new IsLessThan(Logger<IsLessThan>.Null)
         {
-            Value = Constant.Create(2.0),
+            Right = Constant.Create(2.0),
         }, Expression.DefaultSession.PushThis(3.0));
 
         [Fact]
         public void LessThanOrEqual_ReturnsTrueWhenLeftLessThanRight() => Equal(true, new IsLessThanOrEqual(Logger<IsLessThanOrEqual>.Null)
         {
-            Value = Constant.Create(3.0),
+            Right = Constant.Create(3.0),
         }, Expression.DefaultSession.PushThis(2.0));
 
         [Fact]
         public void LessThanOrEqual_ReturnsTrueWhenLeftEqualsRight() => Equal(true, new IsLessThanOrEqual(Logger<IsLessThanOrEqual>.Null)
         {
-            Value = Constant.Create(3.0),
+            Right = Constant.Create(3.0),
         }, Expression.DefaultSession.PushThis(3.0));
 
         [Fact]
         public void LessThanOrEqual_ReturnsFalseWhenLeftGreaterThanRight() => Equal(false, new IsLessThanOrEqual(Logger<IsLessThanOrEqual>.Null)
         {
-            Value = Constant.Create(2.0),
+            Right = Constant.Create(2.0),
         }, Expression.DefaultSession.PushThis(3.0));
 
         [Fact]
-        public void Not_returns_True_when_False() => Equal(false, new Not(Logger<Not>.Null) { Value = Constant.True });
+        public void Not_returns_True_when_False() => Equal(false, new Not(Logger<Not>.Null) { This = Constant.True });
 
         [Fact]
-        public void Not_returns_False_when_True() => Equal(false, new Not(Logger<Not>.Null) { Value = Constant.True });
+        public void Not_returns_False_when_True() => Equal(false, new Not(Logger<Not>.Null) { This = Constant.True });
 
         [Fact]
-        public void ToDouble_maps_True_to_One() => Equal(1.0, new ToDouble { Value = Constant.True });
+        public void ToDouble_maps_True_to_One() => Equal(1.0, new ToDouble(Logger<ToDouble>.Null) { This = Constant.True });
 
         [Fact]
-        public void ToDouble_maps_False_to_Zero() => Equal(0.0, new ToDouble { Value = Constant.False });
+        public void ToDouble_maps_False_to_Zero() => Equal(0.0, new ToDouble(Logger<ToDouble>.Null) { This = Constant.False });
 
         [Fact]
-        public void ToString_converts_Input_to_string() => Equal("1", new ToString(), Expression.DefaultSession.PushThis(1.0));
+        public void ToString_converts_Input_to_string() => Equal("1", new ToString(Logger<ToString>.Null), Expression.DefaultSession.PushThis(1.0));
 
         [Fact]
-        public void ToString_converts_Input_to_string_with_custom_format() => Equal("1.00", new ToString
+        public void ToString_converts_Input_to_string_with_custom_format() => Equal("1.00", new ToString(Logger<ToString>.Null)
         {
             Format = Constant.Create("{0:F2}")
         }, Expression.DefaultSession.PushThis(1.0));
@@ -253,9 +253,9 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void Switch_uses_ObjectEqual_by_default()
         {
-            var s = new Switch
+            var s = new Switch(Logger<Switch>.Null)
             {
-                Value = Double.One,
+                This = Double.One,
                 Cases =
                 {
                     new SwitchCase
@@ -277,16 +277,16 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void Switch_passes_SwitchValue_to_context()
         {
-            var s = new Switch
+            var s = new Switch(Logger<Switch>.Null)
             {
-                Value = Constant.FromValue("Test", "bar"),
+                This = Constant.FromValue("Test", "bar"),
                 Cases =
                 {
                     new SwitchCase
                     {
                         When = new Contains(Logger<Contains>.Null)
                         {
-                            Values = Constant.CreateMany("foo", "bar").ToList(),
+                            This = Constant.CreateMany("foo", "bar").ToList(),
                             Value = new GetValue(Logger<GetValue>.Null)
                             {
                                 Path = "SwitchSession.Value"
@@ -308,9 +308,9 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void Switch_uses_Default_when_no_match()
         {
-            var s = new Switch
+            var s = new Switch(Logger<Switch>.Null)
             {
-                Value = Constant.FromValue("Test", "bar"),
+                This = Constant.FromValue("Test", "bar"),
                 Cases =
                 {
                     new SwitchCase
@@ -335,7 +335,7 @@ namespace Reusable.Tests.Flexo
         {
             Equal(true, new Contains(Logger<Contains>.Null)
             {
-                Values = Constant.CreateMany("foo", "bar").ToList(),
+                This = Constant.CreateMany("foo", "bar").ToList(),
                 Value = Constant.FromValue("blub", "bar")
             });
         }
@@ -348,7 +348,7 @@ namespace Reusable.Tests.Flexo
                 true,
                 new Contains(Logger<Contains>.Null)
                 {
-                    Values = Constant.CreateMany("foo", "BAR").ToList(),
+                    This = Constant.CreateMany("foo", "BAR").ToList(),
                     Value = Constant.FromValue("Value", "bar"),
                     Comparer = "SoftString"
                 }
@@ -358,7 +358,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void Matches_return_True_when_Pattern_matches()
         {
-            Equal(true, new Matches(Logger<Matches>.Null) { IgnoreCase = true, Value = Constant.FromValue("Value", "Hallo"), Pattern = Constant.FromValue("Pattern", "hallo") });
+            Equal(true, new Matches(Logger<Matches>.Null) { IgnoreCase = true, This = Constant.FromValue("Value", "Hallo"), Pattern = Constant.FromValue("Pattern", "hallo") });
         }
 
         [Fact]
@@ -371,8 +371,8 @@ namespace Reusable.Tests.Flexo
         public void Can_use_references()
         {
             var expressions = new IExpression[] { new Not(Logger<Not>.Null) { Name = "Nope" }, };
-            var expression1 = new Constant<bool>("Yes", true) { This = new List<IExpression> { new Ref(Logger<Ref>.Null) { Path = "Nope" } } };
-            var expression2 = new Constant<bool>("No", false) { This = new List<IExpression> { new Ref(Logger<Ref>.Null) { Path = "Nope" } } };
+            var expression1 = new Constant<bool>("Yes", true) { Extensions = new List<IExpression> { new Ref(Logger<Ref>.Null) { Path = "Nope" } } };
+            var expression2 = new Constant<bool>("No", false) { Extensions = new List<IExpression> { new Ref(Logger<Ref>.Null) { Path = "Nope" } } };
 
             Equal(false, expression1, Expression.DefaultSession.WithExpressions(expressions));
             Equal(true, expression2, Expression.DefaultSession.WithExpressions(expressions));
