@@ -19,7 +19,7 @@ namespace Reusable.Flexo
         protected override Constant<bool> InvokeCore(IImmutableSession context, IEnumerable<IExpression> @this)
         {
             var last = default(IConstant);
-            foreach (var item in @this.Enabled())
+            foreach (var item in @this)
             {
                 var value = item.Invoke(context);
                 context.PushThis(value);

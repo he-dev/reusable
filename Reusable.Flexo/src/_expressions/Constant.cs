@@ -41,10 +41,7 @@ namespace Reusable.Flexo
 
         protected override Constant<TValue> InvokeCore(IImmutableSession context)
         {
-            //using (context.Scope(this))
-            {
-                return (Name, Value, context);
-            }
+            return (Name, Value, context);
         }
 
         public void Deconstruct(out SoftString name, out TValue value)
@@ -121,13 +118,17 @@ namespace Reusable.Flexo
 
         //[NotNull] public static readonly IExpression One = new One(nameof(One));
 
-        [NotNull] public static readonly IExpression True = FromValue(nameof(True), true);
+        [NotNull]
+        public static readonly IExpression True = FromValue(nameof(True), true);
 
-        [NotNull] public static readonly IExpression False = FromValue(nameof(False), false);
+        [NotNull]
+        public static readonly IExpression False = FromValue(nameof(False), false);
 
-        [NotNull] public static readonly IExpression EmptyString = FromValue(nameof(EmptyString), string.Empty);
+        [NotNull]
+        public static readonly IExpression EmptyString = FromValue(nameof(EmptyString), string.Empty);
 
-        [NotNull] public static readonly IExpression Null = FromValue(nameof(Null), default(object));
+        [NotNull]
+        public static readonly IExpression Null = FromValue(nameof(Null), default(object));
 
         #endregion
     }

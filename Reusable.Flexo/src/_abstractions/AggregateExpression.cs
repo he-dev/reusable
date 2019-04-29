@@ -21,22 +21,9 @@ namespace Reusable.Flexo
 
         protected override Constant<double> InvokeCore(IImmutableSession context, IEnumerable<IExpression> @this)
         {
-            var values = @this.Enabled().Select(e => e.Invoke(context)).Values<object>().Cast<double>();
+            var values = @this.Select(e => e.Invoke(context)).Values<object>().Cast<double>();
             var result = _aggregate(values);
             return (Name, result, context);
-            
-            
-//            if (context.TryPopExtensionInput(out IEnumerable<object> input))
-//            {
-//                var result = _aggregate(input.Cast<double>());
-//                return (Name, result, context);
-//            }
-//            else
-//            {
-//                var values = Values.Enabled().Select(e => e.Invoke(context)).Values<object>().Cast<double>();
-//                var result = _aggregate(values);
-//                return (Name, result, context);
-//            }
         }
     }
 }

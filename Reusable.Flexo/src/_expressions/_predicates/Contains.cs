@@ -24,7 +24,7 @@ namespace Reusable.Flexo
             var value = Value.Invoke(context).Value;
             var comparer = context.GetComparerOrDefault(Comparer);
 
-            return (Name, @this.Enabled().Any(x => comparer.Equals(value, x.Invoke(context).Value<object>())), context);
+            return (Name, @this.Any(x => comparer.Equals(value, x.Invoke(context).Value<object>())), context);
         }
     }
 }

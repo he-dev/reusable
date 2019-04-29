@@ -80,20 +80,21 @@ namespace Reusable.Flexo
         [JsonProperty("This")]
         public List<IExpression> Extensions { get; set; }
 
+        private bool IsExtension => !(GetType().GetInterface(typeof(IExtension<>).Name) is null);
+
         public virtual IConstant Invoke(IImmutableSession context)
         {
             var scope = Use<IExpressionSession>.Scope;
 
-            // Invoke the property marked with [This] when this is an extension and this expression wasn't called as one.
-            if (IsExtension(GetType())) // && context.PopThis() is var @this && @this is null)
+            // Extensions require additional handling.
+            if (IsExtension)
             {
-                // There are expressions that can only be used as extensions so they actually don't have a property for "This" (like LessThan etc)
-                var thisProperty = GetType().GetProperty(nameof(IExtension<object>.This));
-                var value = thisProperty?.GetValue(this);
-                if (!(thisProperty is null) && !(value is null))
+                // When "This" property is not null then use its value instead of that of the one in context.
+                var thisValue = GetType().GetProperty(nameof(IExtension<object>.This)).GetValue(this);
+                if (!(thisValue is null))
                 {
                     var @this = default(IConstant);
-                    switch (value)
+                    switch (thisValue)
                     {
                         case IConstant e:
                             @this = e;
@@ -130,9 +131,20 @@ namespace Reusable.Flexo
             var enabledExtensions = (Extensions ?? Enumerable.Empty<IExpression>()).Enabled();
             var extensionsResult = enabledExtensions.Aggregate(seed, (previous, next) =>
             {
-                if (next is Ref @ref)
+                // Resolve the actual expression.
+                while (next is Ref @ref)
                 {
                     next = @ref.Invoke(previous.Context).Value<IExpression>();
+                }
+
+                var thisValue = next.GetType().GetProperty(nameof(IExtension<object>.This)).GetValue(next);
+                if (!(thisValue is null))
+                {
+                    throw DynamicException.Create
+                    (
+                        $"AmbiguousExpressionUsage",
+                        $"Expression '{next.GetType().ToPrettyString()}/{next.Name.ToString()}' is used as an extension and must not use the 'This' property explicitly."
+                    );
                 }
 
                 var extensionType = next.GetType().GetInterface(typeof(IExtension<>).Name)?.GetGenericArguments().Single();
@@ -141,23 +153,16 @@ namespace Reusable.Flexo
                         ? collection.GetType()
                         : previous.GetType();
 
-                if (extensionType?.IsAssignableFrom(thisType) == true)
-                {
-                    var innerContext =
-                        previous
-                            .Context
-                            .PushThis(previous);
-
-                    return next.Invoke(innerContext);
-                }
-                else
+                if (extensionType?.IsAssignableFrom(thisType) == false)
                 {
                     throw DynamicException.Create
                     (
                         $"ExtensionTypeMismatch",
-                        $"Extension '{next.GetType().ToPrettyString()}' does not match the expression it is extending which is '{previous.GetType().ToPrettyString()}'."
+                        $"Extension's '{next.GetType().ToPrettyString()}' type '{extensionType.ToPrettyString()}' does not match the expression it is extending which is '{previous.GetType().ToPrettyString()}'."
                     );
                 }
+
+                return next.Invoke(previous.Context.PushThis(previous));
             });
 
             return extensionsResult;
@@ -165,10 +170,7 @@ namespace Reusable.Flexo
 
         protected abstract Constant<TResult> InvokeCore(IImmutableSession context);
 
-        private static bool IsExtension(Type type)
-        {
-            return !(type.GetInterface(typeof(IExtension<>).Name) is null);
-        }
+        //private static bool IsExtension<T>(T obj) where T : IExpression => !(typeof(T).GetInterface(typeof(IExtension<>).Name) is null);
     }
 
     public abstract class ValueExtension<TResult> : Expression<TResult>, IExtension<IExpression>
@@ -185,7 +187,7 @@ namespace Reusable.Flexo
 
         protected abstract Constant<TResult> InvokeCore(IImmutableSession context, IExpression @this);
     }
-    
+
     public abstract class CollectionExtension<TResult> : Expression<TResult>, IExtension<IEnumerable<IExpression>>
     {
         protected CollectionExtension([NotNull] ILogger logger, SoftString name) : base(logger, name) { }
@@ -195,7 +197,7 @@ namespace Reusable.Flexo
 
         protected override Constant<TResult> InvokeCore(IImmutableSession context)
         {
-            return InvokeCore(context, context.PopThisCollection());
+            return InvokeCore(context, context.PopThisCollection().Enabled());
         }
 
         protected abstract Constant<TResult> InvokeCore(IImmutableSession context, IEnumerable<IExpression> @this);

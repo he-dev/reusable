@@ -21,7 +21,7 @@ namespace Reusable.Flexo
         {
             var predicate = (Predicate ?? Constant.True).Invoke(context);
             var last = default(IConstant);
-            foreach (var item in @this.Enabled())
+            foreach (var item in @this)
             {
                 last = item.Invoke(last?.Context ?? context);
                 if (!EqualityComparer<bool>.Default.Equals(last.Value<bool>(), predicate.Value<bool>()))

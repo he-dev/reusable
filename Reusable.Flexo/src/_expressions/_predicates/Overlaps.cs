@@ -21,7 +21,7 @@ namespace Reusable.Flexo
         {
             var with = With.Invoke(context).Values<object>();
             var comparer = context.GetComparerOrDefault(Comparer);
-            var values = @this.Enabled().Invoke(context).Values<object>();
+            var values = @this.Invoke(context).Values<object>();
             return (Name, values.Intersect(with, comparer).Any(), context);
         }
     }
