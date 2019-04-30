@@ -12,112 +12,133 @@ namespace Reusable.Tests.Flexo
 {
     using static ExpressionAssert;
 
-    public class ExpressionTest: IClassFixture<ExpressionFixture>
+    public class ExpressionTest : IClassFixture<ExpressionFixture> //, IDisposable
     {
         private readonly ExpressionFixture _helper;
 
-        public ExpressionTest(ExpressionFixture helper)
-        {
-            _helper = helper;
-        }
-        
+        public ExpressionTest(ExpressionFixture helper) => _helper = helper;
+
         [Fact]
         public void All_returns_True_when_all_True()
         {
-            Equal(true, _helper.GetExpression<All>(e => e.Values = Constant.CreateMany(true, true, true).ToList()));
+            Equal(true, _helper.Resolve<All>(e => e.This = Constant.CreateMany(true, true, true)));
         }
 
         [Fact]
-        public void All_returns_False_when_some_False() => Equal(false, new All(Logger<All>.Null) { This = Constant.CreateMany(true, false, true).ToList() });
+        public void All_returns_False_when_some_False()
+        {
+            Equal(false, _helper.Resolve<All>(e => e.This = Constant.CreateMany(true, false, true)));
+        }
 
         [Fact]
-        public void All_returns_False_when_all_False() => Equal(false, new All(Logger<All>.Null) { This = Constant.CreateMany(false, false, false).ToList() });
+        public void All_returns_False_when_all_False()
+        {
+            Equal(false, _helper.Resolve<All>(e => e.This = Constant.CreateMany(false, false, false)));
+        }
 
         [Fact]
         public void All_flows_all_contexts()
         {
-            var actual = new All(Logger<All>.Null)
+            var actual = _helper.Resolve<All>(e =>
             {
-                This = new List<IExpression>
+                e.This = new List<IExpression>
                 {
                     LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"] + 1))),
                     LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"] + 1))),
                     LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"] + 1)))
-                }
-            };
+                };
+            });
 
             var result = Equal(true, actual, Expression.DefaultSession.SetItem("x", 1));
             Assert.Equal(4, result.Context["x"]);
         }
 
         [Fact]
-        public void Any_returns_True_when_some_True() => Equal(true, new Any(Logger<Any>.Null) { This = Constant.CreateMany(false, false, true).ToList() });
+        public void Any_returns_True_when_some_True()
+        {
+            Equal(true, _helper.Resolve<Any>(e => e.This = Constant.CreateMany(false, false, true)));
+        }
 
         [Fact]
-        public void Any_returns_False_when_all_False() => Equal(false, new Any(Logger<Any>.Null) { This = Constant.CreateMany(false, false, false).ToList() });
+        public void Any_returns_False_when_all_False()
+        {
+            Equal(false, _helper.Resolve<Any>(e => e.This = Constant.CreateMany(false, false, false)));
+        }
 
         [Fact]
         public void Any_flows_True_context()
         {
-            var actual = new Any(Logger<Any>.Null)
-            {                
-                This = new List<IExpression>
+            var actual = _helper.Resolve<Any>(e =>
+            {
+                e.This = new List<IExpression>
                 {
                     LambdaExpression.Predicate(context => (false, context.SetItem("x", (int)context["x"] + 2))),
                     LambdaExpression.Predicate(context => (true, context.SetItem("x", (int)context["x"] + 3))),
                     LambdaExpression.Predicate(context => (false, context.SetItem("x", (int)context["x"] + 4)))
-                }
-            };
+                };
+            });
 
             var result = Equal(true, actual, Expression.DefaultSession.SetItem("x", 1));
             Assert.Equal(4, result.Context["x"]);
         }
 
         [Fact]
-        public void IIf_invokes_True_when_True() => Equal("foo", new IIf(Logger<IIf>.Null)
+        public void IIf_invokes_True_when_True()
         {
-            This = Constant.Create(true),
-            True = Constant.Create("foo"),
-            False = Constant.Create("bar")
-        });
+            Equal("foo", _helper.Resolve<IIf>(e =>
+            {
+                e.This = Constant.FromValue(true);
+                e.True = Constant.FromValue("foo");
+                e.False = Constant.FromValue("bar");
+            }));
+        }
 
         [Fact]
-        public void IIf_invokes_False_when_False() => Equal("bar", new IIf(Logger<IIf>.Null)
+        public void IIf_invokes_False_when_False()
         {
-            This = Constant.Create(false),
-            True = Constant.Create("foo"),
-            False = Constant.Create("bar")
-        });
+            Equal("bar", _helper.Resolve<IIf>(e =>
+            {
+                e.This = Constant.FromValue(false);
+                e.True = Constant.FromValue("foo");
+                e.False = Constant.FromValue("bar");
+            }));
+        }
 
         [Fact]
         public void IIf_throws_when_no_result_specified()
         {
-            Assert.Throws<InvalidOperationException>(() => new IIf(Logger<IIf>.Null) { This = Constant.Create(false) }.Invoke(Expression.DefaultSession));
+            Assert.Throws<InvalidOperationException>(() => _helper.Resolve<IIf>(e => e.This = Constant.FromValue(false)).Invoke(Expression.DefaultSession));
         }
 
         [Fact]
-        public void IIf_returns_null_constant_when_True_not_specified() => Equal(Constant.Null, new IIf(Logger<IIf>.Null)
+        public void IIf_returns_null_constant_when_True_not_specified()
         {
-            This = Constant.True,
-            False = Double.Zero
-        });
+            Equal(Constant.Null, _helper.Resolve<IIf>(e =>
+            {
+                e.This = Constant.True;
+                e.False = Double.Zero;
+            }));
+        }
 
         [Fact]
-        public void IIf_returns_null_constant_when_False_not_specified() => Equal(Constant.Null, new IIf(Logger<IIf>.Null)
+        public void IIf_returns_null_constant_when_False_not_specified()
         {
-            This = Constant.False,
-            True = Double.One,
-        });
+            Equal(Constant.Null, _helper.Resolve<IIf>(e =>
+            {
+                e.This = Constant.False;
+                e.True = Double.One;
+            }));
+        }
 
         [Fact]
         public void IIf_flows_context_to_True_when_Predicate_True()
         {
-            var actual = new IIf(Logger<IIf>.Null)
+            var actual = _helper.Resolve<IIf>(e =>
             {
-                This = Constant.True,
-                True = LambdaExpression.Double(context => (1.0, context.SetItem("x", (int)context["x"] + 1))),
-                False = LambdaExpression.Double(context => (2.0, context.SetItem("x", (int)context["x"] + 2))),
-            };
+                e.This = Constant.True;
+                e.True = LambdaExpression.Double(context => (1.0, context.SetItem("x", (int)context["x"] + 1)));
+                e.False = LambdaExpression.Double(context => (2.0, context.SetItem("x", (int)context["x"] + 2)));
+            });
 
             var result = Equal(1.0, actual, Expression.DefaultSession.SetItem("x", 1));
             Assert.Equal(2, result.Context["x"]);
@@ -126,130 +147,214 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void IIf_does_not_flow_context_to_False_when_Predicate_False()
         {
-            var actual = new IIf(Logger<IIf>.Null)
+            var actual = _helper.Resolve<IIf>(e =>
             {
-                This = Constant.False,
-                True = LambdaExpression.Double(context => (1.0, context.SetItem("x", (int)context["x"] + 1))),
-                False = LambdaExpression.Double(context => (2.0, context.SetItem("x", (int)context["x"] + 2))),
-            };
+                e.This = Constant.False;
+                e.True = LambdaExpression.Double(context => (1.0, context.SetItem("x", (int)context["x"] + 1)));
+                e.False = LambdaExpression.Double(context => (2.0, context.SetItem("x", (int)context["x"] + 2)));
+            });
 
             var result = Equal(2.0, actual, Expression.DefaultSession.SetItem("x", 1));
             Assert.Equal(3, result.Context["x"]);
         }
 
         [Fact]
-        public void Max_returns_Max() => Equal(3.0, new Max(Logger<Max>.Null) { This = Constant.CreateMany(2.0, 3.0, 1.0).ToList() });
-
-        [Fact]
-        public void Min_returns_Min() => Equal(1.0, new Min(Logger<Min>.Null) { This = Constant.CreateMany(2.0, 3.0, 1.0).ToList() });
-
-        [Fact]
-        public void Sum_returns_Sum() => Equal(6.0, new Sum(Logger<Sum>.Null) { This = Constant.CreateMany(2.0, 3.0, 1.0).ToList() });
-
-        [Fact]
-        public void IsEqual_returns_True_when_Input_equal_Value() => Equal(true, new IsEqual(Logger<IsEqual>.Null)
+        public void Max_returns_Max()
         {
-            Value = Constant.Create("foo"),
-        }, Expression.DefaultSession.PushThis("foo"));
+            Equal(3.0, _helper.Resolve<Max>(e => e.This = Constant.CreateMany(2.0, 3.0, 1.0)));
+        }
 
         [Fact]
-        public void IsEqual_returns_False_when_Input_not_equal_Value() => Equal(false, new IsEqual(Logger<IsEqual>.Null)
+        public void Min_returns_Min()
         {
-            Value = Constant.Create("foo"),
-        }, Expression.DefaultSession.PushThis("bar"));
+            Equal(1.0, _helper.Resolve<Min>(e => e.This = Constant.CreateMany(2.0, 3.0, 1.0)));
+        }
 
         [Fact]
-        public void IsGreaterThan_returns_True_when_Input_GreaterThan_Value() => Equal(true, new IsGreaterThan(Logger<IsGreaterThan>.Null)
+        public void Sum_returns_Sum()
         {
-            Right = Constant.Create(2.0),
-        }, Expression.DefaultSession.PushThis(3.0));
+            Equal(6.0, _helper.Resolve<Sum>(e => e.This = Constant.CreateMany(2.0, 3.0, 1.0)));
+        }
 
         [Fact]
-        public void IsGreaterThan_returns_False_when_Input_LessThan_Value() => Equal(false, new IsGreaterThan(Logger<IsGreaterThan>.Null)
+        public void IsEqual_returns_True_when_Input_equal_Value()
         {
-            Right = Constant.Create(3.0),
-        }, Expression.DefaultSession.PushThis(2.0));
+            Equal(true, _helper.Resolve<IsEqual>(e =>
+            {
+                e.This = Constant.FromValue("foo");
+                e.Value = Constant.FromValue("foo");
+            }));
+        }
 
         [Fact]
-        public void GreaterThan_ReturnsFalseWhenLeftEqualsRight() => Equal(false, new IsGreaterThan(Logger<IsGreaterThan>.Null)
+        public void IsEqual_returns_False_when_Input_not_equal_Value()
         {
-            Right = Constant.Create(2.0),
-        }, Expression.DefaultSession.PushThis(2.0));
+            Equal(false, _helper.Resolve<IsEqual>(e =>
+            {
+                e.This = Constant.FromValue("bar");
+                e.Value = Constant.FromValue("foo");
+            }));
+        }
 
         [Fact]
-        public void GreaterThanOrEqual_ReturnsTrueWhenLeftGreaterThanRight() => Equal(true, new IsGreaterThanOrEqual(Logger<IsGreaterThanOrEqual>.Null)
+        public void IsGreaterThan_returns_True_when_Input_GreaterThan_Value()
         {
-            Right = Constant.Create(2.0),
-        }, Expression.DefaultSession.PushThis(3.0));
+            Equal(true, _helper.Resolve<IsGreaterThan>(e =>
+            {
+                e.This = Constant.FromValue(3.0);
+                e.Right = Constant.FromValue(2.0);
+            }));
+        }
 
         [Fact]
-        public void GreaterThanOrEqual_ReturnsTrueWhenLeftEqualsRight() => Equal(true, new IsGreaterThanOrEqual(Logger<IsGreaterThanOrEqual>.Null)
+        public void IsGreaterThan_returns_False_when_Input_LessThan_Value()
         {
-            Right = Constant.Create(3.0),
-        }, Expression.DefaultSession.PushThis(3.0));
+            Equal(false, _helper.Resolve<IsGreaterThan>(e =>
+            {
+                e.This = Constant.FromValue(2.0);
+                e.Right = Constant.FromValue(3.0);
+            }));
+        }
 
         [Fact]
-        public void GreaterThanOrEqual_ReturnsFalseWhenLeftLessThanRight() => Equal(false, new IsGreaterThanOrEqual(Logger<IsGreaterThanOrEqual>.Null)
+        public void IsGreaterThan_returns_False_when_This_equal_Right()
         {
-            Right = Constant.Create(3.0),
-        }, Expression.DefaultSession.PushThis(2.0));
+            Equal(false, _helper.Resolve<IsGreaterThan>(e =>
+            {
+                e.This = Constant.FromValue(2.0);
+                e.Right = Constant.FromValue(2.0);
+            }));
+        }
 
         [Fact]
-        public void LessThan_ReturnsTrueWhenLeftLessThanRight() => Equal(true, new IsLessThan(Logger<IsLessThan>.Null)
+        public void IsGreaterThanOrEqual_returns_True_when_This_greaterThan_Right()
         {
-            Right = Constant.Create(3.0),
-        }, Expression.DefaultSession.PushThis(2.0));
+            Equal(true, _helper.Resolve<IsGreaterThanOrEqual>(e =>
+            {
+                e.This = Constant.FromValue(3.0);
+                e.Right = Constant.FromValue(2.0);
+            }));
+        }
 
         [Fact]
-        public void LessThan_ReturnsFalseWhenLeftEqualsRight() => Equal(false, new IsLessThan(Logger<IsLessThan>.Null)
+        public void IsGreaterThanOrEqual_returns_True_when_This_equal_Right()
         {
-            Right = Constant.Create(3.0),
-        }, Expression.DefaultSession.PushThis(3.0));
+            Equal(true, _helper.Resolve<IsGreaterThanOrEqual>(e =>
+            {
+                e.This = Constant.FromValue(3.0);
+                e.Right = Constant.FromValue(3.0);
+            }));
+        }
 
         [Fact]
-        public void LessThan_ReturnsFalseWhenLeftGreaterThanRight() => Equal(false, new IsLessThan(Logger<IsLessThan>.Null)
+        public void IsGreaterThanOrEqual_returns_False_when_This_lessThan_Right()
         {
-            Right = Constant.Create(2.0),
-        }, Expression.DefaultSession.PushThis(3.0));
+            Equal(false, _helper.Resolve<IsGreaterThanOrEqual>(e =>
+            {
+                e.This = Constant.FromValue(2.0);
+                e.Right = Constant.FromValue(3.0);
+            }));
+        }
 
         [Fact]
-        public void LessThanOrEqual_ReturnsTrueWhenLeftLessThanRight() => Equal(true, new IsLessThanOrEqual(Logger<IsLessThanOrEqual>.Null)
+        public void IsLessThan_returns_True_when_This_lessThan_Right()
         {
-            Right = Constant.Create(3.0),
-        }, Expression.DefaultSession.PushThis(2.0));
+            Equal(true, _helper.Resolve<IsLessThan>(e =>
+            {
+                e.This = Constant.FromValue(2.0);
+                e.Right = Constant.FromValue(3.0);
+            }));
+        }
 
         [Fact]
-        public void LessThanOrEqual_ReturnsTrueWhenLeftEqualsRight() => Equal(true, new IsLessThanOrEqual(Logger<IsLessThanOrEqual>.Null)
+        public void IsLessThan_returns_False_when_This_equal_Right()
         {
-            Right = Constant.Create(3.0),
-        }, Expression.DefaultSession.PushThis(3.0));
+            Equal(false, _helper.Resolve<IsLessThan>(e =>
+            {
+                e.This = Constant.FromValue(3.0);
+                e.Right = Constant.FromValue(3.0);
+            }));
+        }
 
         [Fact]
-        public void LessThanOrEqual_ReturnsFalseWhenLeftGreaterThanRight() => Equal(false, new IsLessThanOrEqual(Logger<IsLessThanOrEqual>.Null)
+        public void IsLessThan_returns_False_when_This_greaterThan_Right()
         {
-            Right = Constant.Create(2.0),
-        }, Expression.DefaultSession.PushThis(3.0));
+            Equal(false, _helper.Resolve<IsLessThan>(e =>
+            {
+                e.This = Constant.FromValue(3.0);
+                e.Right = Constant.FromValue(2.0);
+            }));
+        }
 
         [Fact]
-        public void Not_returns_True_when_False() => Equal(false, new Not(Logger<Not>.Null) { This = Constant.True });
-
-        [Fact]
-        public void Not_returns_False_when_True() => Equal(false, new Not(Logger<Not>.Null) { This = Constant.True });
-
-        [Fact]
-        public void ToDouble_maps_True_to_One() => Equal(1.0, new ToDouble(Logger<ToDouble>.Null) { This = Constant.True });
-
-        [Fact]
-        public void ToDouble_maps_False_to_Zero() => Equal(0.0, new ToDouble(Logger<ToDouble>.Null) { This = Constant.False });
-
-        [Fact]
-        public void ToString_converts_Input_to_string() => Equal("1", new ToString(Logger<ToString>.Null), Expression.DefaultSession.PushThis(1.0));
-
-        [Fact]
-        public void ToString_converts_Input_to_string_with_custom_format() => Equal("1.00", new ToString(Logger<ToString>.Null)
+        public void IsLessThanOrEqual_returns_True_when_This_lessThan_Right()
         {
-            Format = Constant.Create("{0:F2}")
-        }, Expression.DefaultSession.PushThis(1.0));
+            Equal(true, _helper.Resolve<IsLessThanOrEqual>(e =>
+            {
+                e.This = Constant.FromValue(2.0);
+                e.Right = Constant.FromValue(3.0);
+            }));
+        }
+
+        [Fact]
+        public void IsLessThanOrEqual_returns_True_when_This_equal_Right()
+        {
+            Equal(true, _helper.Resolve<IsLessThanOrEqual>(e =>
+            {
+                e.This = Constant.FromValue(3.0);
+                e.Right = Constant.FromValue(3.0);
+            }));
+        }
+
+        [Fact]
+        public void IsLessThanOrEqual_returns_False_when_This_greaterThan_Right()
+        {
+            Equal(false, _helper.Resolve<IsLessThanOrEqual>(e =>
+            {
+                e.This = Constant.FromValue(3.0);
+                e.Right = Constant.FromValue(2.0);
+            }));
+        }
+
+        [Fact]
+        public void Not_returns_True_when_False()
+        {
+            Equal(false, _helper.Resolve<Not>(e => e.This = Constant.True));
+        }
+
+        [Fact]
+        public void Not_returns_False_when_True()
+        {
+            Equal(false, _helper.Resolve<Not>(e => e.This = Constant.True));
+        }
+
+        [Fact]
+        public void ToDouble_maps_True_to_One()
+        {
+            Equal(1.0, _helper.Resolve<ToDouble>(e => e.This = Constant.True));
+        }
+
+        [Fact]
+        public void ToDouble_maps_False_to_Zero()
+        {
+            Equal(0.0, _helper.Resolve<ToDouble>(e => e.This = Constant.False));
+        }
+
+        [Fact]
+        public void ToString_converts_Input_to_string()
+        {
+            Equal("1", _helper.Resolve<ToString>(e => e.This = Constant.FromValue(1.0)));
+        }
+
+        [Fact]
+        public void ToString_converts_Input_to_string_with_custom_format()
+        {
+            Equal("1.00", _helper.Resolve<ToString>(e =>
+            {
+                e.This = Constant.FromValue(1.0);
+                e.Format = Constant.FromValue("{0:F2}");
+            }));
+        }
 
         [Fact]
         public void Constant_flows_context()
@@ -263,10 +368,10 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void Switch_uses_ObjectEqual_by_default()
         {
-            var s = new Switch(Logger<Switch>.Null)
+            var s = _helper.Resolve<Switch>(e =>
             {
-                This = Double.One,
-                Cases =
+                e.This = Double.One;
+                e.Cases = new List<SwitchCase>
                 {
                     new SwitchCase
                     {
@@ -278,8 +383,8 @@ namespace Reusable.Tests.Flexo
                         When = Double.Zero,
                         Body = Constant.False
                     }
-                }
-            };
+                };
+            });
 
             Equal(Constant.True, s);
         }
@@ -287,21 +392,18 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void Switch_passes_SwitchValue_to_context()
         {
-            var s = new Switch(Logger<Switch>.Null)
+            var s = _helper.Resolve<Switch>(e =>
             {
-                This = Constant.FromValue("Test", "bar"),
-                Cases =
+                e.This = Constant.FromNameAndValue("Test", "bar");
+                e.Cases = new List<SwitchCase>
                 {
                     new SwitchCase
                     {
-                        When = new Contains(Logger<Contains>.Null)
+                        When = _helper.Resolve<Contains>(ee =>
                         {
-                            This = Constant.CreateMany("foo", "bar").ToList(),
-                            Value = new GetValue(Logger<GetValue>.Null)
-                            {
-                                Path = "SwitchSession.Value"
-                            }
-                        },
+                            ee.This = Constant.CreateMany("foo", "bar").ToList();
+                            ee.Value = _helper.Resolve<GetValue>(eee => eee.Path = "SwitchSession.Value");
+                        }),
                         Body = Constant.True
                     },
                     new SwitchCase
@@ -309,8 +411,8 @@ namespace Reusable.Tests.Flexo
                         When = Double.Zero,
                         Body = Constant.False
                     }
-                }
-            };
+                };
+            });
 
             Equal(Constant.True, s);
         }
@@ -318,10 +420,10 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void Switch_uses_Default_when_no_match()
         {
-            var s = new Switch(Logger<Switch>.Null)
+            var s = _helper.Resolve<Switch>(e =>
             {
-                This = Constant.FromValue("Test", "bar"),
-                Cases =
+                e.This = Constant.FromNameAndValue("Test", "bar");
+                e.Cases = new List<SwitchCase>
                 {
                     new SwitchCase
                     {
@@ -333,9 +435,9 @@ namespace Reusable.Tests.Flexo
                         When = Double.Zero,
                         Body = Constant.False
                     }
-                },
-                Default = new Constant<double>("Actual", 2.0)
-            };
+                };
+                e.Default = new Constant<double>("Actual", 2.0);
+            });
 
             Equal(2.0, s);
         }
@@ -343,11 +445,11 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void Contains_returns_True_when_contains_value()
         {
-            Equal(true, new Contains(Logger<Contains>.Null)
+            Equal(true, _helper.Resolve<Contains>(e =>
             {
-                This = Constant.CreateMany("foo", "bar").ToList(),
-                Value = Constant.FromValue("blub", "bar")
-            });
+                e.This = Constant.CreateMany("foo", "bar").ToList();
+                e.Value = Constant.FromNameAndValue("blub", "bar");
+            }));
         }
 
         [Fact]
@@ -356,36 +458,43 @@ namespace Reusable.Tests.Flexo
             Equal
             (
                 true,
-                new Contains(Logger<Contains>.Null)
-                {
-                    This = Constant.CreateMany("foo", "BAR").ToList(),
-                    Value = Constant.FromValue("Value", "bar"),
-                    Comparer = "SoftString"
-                }
-            );
+                _helper.Resolve<Contains>(e =>
+                    {
+                        e.This = Constant.CreateMany("foo", "BAR").ToList();
+                        e.Value = Constant.FromNameAndValue("Value", "bar");
+                        e.Comparer = "SoftString";
+                    }
+                ));
         }
 
         [Fact]
         public void Matches_return_True_when_Pattern_matches()
         {
-            Equal(true, new Matches(Logger<Matches>.Null) { IgnoreCase = true, This = Constant.FromValue("Value", "Hallo"), Pattern = Constant.FromValue("Pattern", "hallo") });
+            Equal(true, _helper.Resolve<Matches>(e =>
+            {
+                e.IgnoreCase = true;
+                e.This = Constant.FromNameAndValue("Value", "Hallo");
+                e.Pattern = Constant.FromNameAndValue("Pattern", "hallo");
+            }));
         }
 
         [Fact]
         public void GetContextItem_can_get_item_by_key()
         {
-            Equal(1, new GetValue(Logger<GetValue>.Null) { Path = "SwitchSession.Value" }, Expression.DefaultSession.Set(Use<ISwitchSession>.Scope, x => x.Value, 1));
+            Equal(1, _helper.Resolve<GetValue>(e => e.Path = "SwitchSession.Value"), Expression.DefaultSession.Set(Use<ISwitchSession>.Scope, x => x.Value, 1));
         }
 
         [Fact]
         public void Can_use_references()
         {
-            var expressions = new IExpression[] { new Not(Logger<Not>.Null) { Name = "Nope" }, };
-            var expression1 = new Constant<bool>("Yes", true) { Extensions = new List<IExpression> { new Ref(Logger<Ref>.Null) { Path = "Nope" } } };
-            var expression2 = new Constant<bool>("No", false) { Extensions = new List<IExpression> { new Ref(Logger<Ref>.Null) { Path = "Nope" } } };
+            var expressions = new IExpression[] { _helper.Resolve<Not>(e => e.Name = "Nope") };
+            var expression1 = new Constant<bool>("Yes", true) { Extensions = new List<IExpression> { _helper.Resolve<Ref>(e => e.Path = "Nope") } };
+            var expression2 = new Constant<bool>("No", false) { Extensions = new List<IExpression> { _helper.Resolve<Ref>(e => e.Path = "Nope") } };
 
             Equal(false, expression1, Expression.DefaultSession.WithExpressions(expressions));
             Equal(true, expression2, Expression.DefaultSession.WithExpressions(expressions));
         }
+
+        //public void Dispose() => _helper.Dispose();
     }
 }

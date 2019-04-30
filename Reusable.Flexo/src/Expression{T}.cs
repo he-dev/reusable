@@ -102,7 +102,7 @@ namespace Reusable.Flexo
                             break;
 
                         case IEnumerable<IExpression> c:
-                            @this = Constant.FromValue("This", c);
+                            @this = Constant.FromNameAndValue("This", c);
                             break;
                     }
 
@@ -122,7 +122,7 @@ namespace Reusable.Flexo
             var thisResult = (IConstant)InvokeCore(context.Set(scope, x => x.DebugView, thisNode));
             thisView.Result = thisResult.Value;
 
-            var seed = (IConstant)Constant.FromValue
+            var seed = (IConstant)Constant.FromNameAndValue
             (
                 thisResult.Name,
                 thisResult.Value,

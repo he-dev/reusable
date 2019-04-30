@@ -16,7 +16,7 @@ namespace Reusable.Flexo
         [JsonProperty("Value")]
         public override IExpression This { get; set; }
 
-        public List<SwitchCase> Cases { get; set; } = new List<SwitchCase>();
+        public IEnumerable<SwitchCase> Cases { get; set; }
 
         public IExpression Default { get; set; }
 

@@ -17,7 +17,7 @@ namespace Reusable.Flexo
             return 
             (
                 Name,
-                Values.Enabled().Select((e, i) => Constant.FromValue($"Item-{i}", e.Invoke(context).Value)).ToList(),
+                Values.Enabled().Select((e, i) => Constant.FromNameAndValue($"Item-{i}", e.Invoke(context).Value)).ToList(),
                 context
             );
         }

@@ -45,7 +45,7 @@ namespace Reusable.Tests.Flexo
         
         public IExpressionSerializer Serializer { get; }
 
-        public T GetExpression<T>(Action<T> configure = default)
+        public T Resolve<T>(Action<T> configure = default)
         {
             var t = _scope.Resolve<T>();
             configure?.Invoke(t);

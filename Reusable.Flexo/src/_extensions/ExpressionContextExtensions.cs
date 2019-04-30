@@ -27,16 +27,6 @@ namespace Reusable.Flexo
             return context;
         }
 
-        internal static IImmutableSession PushThis(this IImmutableSession context, string value)
-        {
-            return context.PushThis((IConstant)Constant.FromValue("This", value));
-        }
-
-        internal static IImmutableSession PushThis(this IImmutableSession context, double value)
-        {
-            return context.PushThis((IConstant)Constant.FromValue("This", value));
-        }
-
         // The Input must be removed so that subsequent expression doesn't 'think' it's called as extension when it isn't.        
         internal static IExpression PopThis(this IImmutableSession context)
         {

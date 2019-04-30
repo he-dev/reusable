@@ -32,7 +32,7 @@ namespace Reusable.Flexo
             Default = new Throw
             {
                 Name = "SwitchValueOutOfRange",
-                Message = Constant.FromValue("Message", $"{nameof(ToDouble)} value must be either 'true', 'false' or 'null'.")
+                Message = Constant.FromNameAndValue("Message", $"{nameof(ToDouble)} value must be either 'true', 'false' or 'null'.")
             };
         }
     }
