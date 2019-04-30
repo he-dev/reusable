@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Reusable.Data;
 using Reusable.Flexo;
-using Reusable.OmniLog;
 using Xunit;
 using Double = Reusable.Flexo.Double;
 
@@ -49,7 +48,7 @@ namespace Reusable.Tests.Flexo
                 };
             });
 
-            var result = Equal(true, actual, Expression.DefaultSession.SetItem("x", 1));
+            var result = Equal(true, actual, ctx => ctx.SetItem("x", 1));
             Assert.Equal(4, result.Context["x"]);
         }
 
@@ -78,7 +77,7 @@ namespace Reusable.Tests.Flexo
                 };
             });
 
-            var result = Equal(true, actual, Expression.DefaultSession.SetItem("x", 1));
+            var result = Equal(true, actual, ctx => ctx.SetItem("x", 1));
             Assert.Equal(4, result.Context["x"]);
         }
 
@@ -140,7 +139,7 @@ namespace Reusable.Tests.Flexo
                 e.False = LambdaExpression.Double(context => (2.0, context.SetItem("x", (int)context["x"] + 2)));
             });
 
-            var result = Equal(1.0, actual, Expression.DefaultSession.SetItem("x", 1));
+            var result = Equal(1.0, actual, ctx => ctx.SetItem("x", 1));
             Assert.Equal(2, result.Context["x"]);
         }
 
@@ -154,7 +153,7 @@ namespace Reusable.Tests.Flexo
                 e.False = LambdaExpression.Double(context => (2.0, context.SetItem("x", (int)context["x"] + 2)));
             });
 
-            var result = Equal(2.0, actual, Expression.DefaultSession.SetItem("x", 1));
+            var result = Equal(2.0, actual, ctx => ctx.SetItem("x", 1));
             Assert.Equal(3, result.Context["x"]);
         }
 
@@ -455,16 +454,12 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void Contains_uses_custom_comparer()
         {
-            Equal
-            (
-                true,
-                _helper.Resolve<Contains>(e =>
-                    {
-                        e.This = Constant.CreateMany("foo", "BAR").ToList();
-                        e.Value = Constant.FromNameAndValue("Value", "bar");
-                        e.Comparer = "SoftString";
-                    }
-                ));
+            Equal(true, _helper.Resolve<Contains>(e =>
+            {
+                e.This = Constant.CreateMany("foo", "BAR").ToList();
+                e.Value = Constant.FromNameAndValue("Value", "bar");
+                e.Comparer = "SoftString";
+            }));
         }
 
         [Fact]
@@ -481,7 +476,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void GetContextItem_can_get_item_by_key()
         {
-            Equal(1, _helper.Resolve<GetValue>(e => e.Path = "SwitchSession.Value"), Expression.DefaultSession.Set(Use<ISwitchSession>.Scope, x => x.Value, 1));
+            Equal(1, _helper.Resolve<GetValue>(e => e.Path = "SwitchSession.Value"), ctx => ctx.Set(Use<ISwitchSession>.Scope, x => x.Value, 1));
         }
 
         [Fact]
@@ -491,8 +486,8 @@ namespace Reusable.Tests.Flexo
             var expression1 = new Constant<bool>("Yes", true) { Extensions = new List<IExpression> { _helper.Resolve<Ref>(e => e.Path = "Nope") } };
             var expression2 = new Constant<bool>("No", false) { Extensions = new List<IExpression> { _helper.Resolve<Ref>(e => e.Path = "Nope") } };
 
-            Equal(false, expression1, Expression.DefaultSession.WithExpressions(expressions));
-            Equal(true, expression2, Expression.DefaultSession.WithExpressions(expressions));
+            Equal(false, expression1, ctx => ctx.WithExpressions(expressions));
+            Equal(true, expression2, ctx => ctx.WithExpressions(expressions));
         }
 
         //public void Dispose() => _helper.Dispose();

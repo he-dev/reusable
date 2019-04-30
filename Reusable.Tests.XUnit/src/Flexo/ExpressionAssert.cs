@@ -9,12 +9,17 @@ namespace Reusable.Tests.Flexo
     internal static class ExpressionAssert
     {
         private static readonly ITreeRenderer<string> DebugViewRenderer = new PlainTextTreeRenderer();
-        
-        public static IConstant Equal<TValue, TExpression>(TValue expectedValue, TExpression expression, IImmutableSession context = null) where TExpression : IExpression
+
+        public static IConstant Equal<TValue, TExpression>
+        (
+            TValue expectedValue,
+            TExpression expression,
+            Func<IImmutableSession, IImmutableSession> configureContext = null
+        ) where TExpression : IExpression
         {
             var expected = expectedValue is IConstant constant ? constant.Value : expectedValue;
-            
-            context = (context ?? Expression.DefaultSession);           
+
+            var context = (configureContext ?? (ctx => ctx))(Expression.DefaultSession);
             var actual = expression.Invoke(context);
 
             var debugViewString = DebugViewRenderer.Render(context.DebugView(), ExpressionDebugView.DefaultRender);

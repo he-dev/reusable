@@ -127,7 +127,7 @@ namespace Reusable.Tests.Flexo
             var collectionWithSelect = expressions.Get("CollectionWithSelect").Invoke(Reusable.Flexo.Expression.DefaultSession).Value<List<object>>();
             Assert.Equal(new[] { "1", "True" }, collectionWithSelect);
 
-            ExpressionAssert.Equal(Constant.True, expressions.Get("DoubleIsLessThan3"), Expression.DefaultSession.WithExpressions(expressionReferences));
+            ExpressionAssert.Equal(Constant.True, expressions.Get("DoubleIsLessThan3"), ctx => ctx.WithExpressions(expressionReferences));
         }
 
         [Fact]
