@@ -12,10 +12,20 @@ namespace Reusable.Tests.Flexo
 {
     using static ExpressionAssert;
 
-    public class ExpressionTest
+    public class ExpressionTest: IClassFixture<ExpressionFixture>
     {
+        private readonly ExpressionFixture _helper;
+
+        public ExpressionTest(ExpressionFixture helper)
+        {
+            _helper = helper;
+        }
+        
         [Fact]
-        public void All_returns_True_when_all_True() => Equal(true, new All(Logger<All>.Null) { Values = Constant.CreateMany(true, true, true).ToList() });
+        public void All_returns_True_when_all_True()
+        {
+            Equal(true, _helper.GetExpression<All>(e => e.Values = Constant.CreateMany(true, true, true).ToList()));
+        }
 
         [Fact]
         public void All_returns_False_when_some_False() => Equal(false, new All(Logger<All>.Null) { Values = Constant.CreateMany(true, false, true).ToList() });
