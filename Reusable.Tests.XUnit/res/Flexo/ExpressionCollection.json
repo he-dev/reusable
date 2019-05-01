@@ -13,17 +13,7 @@
   },
   {
     "$t": "Flexo.Any",
-    "Name": "AnyWithPredicate",
-    "Values": [
-      false,
-      true,
-      false
-    ],
-    "Predicate": true
-  },
-  {
-    "$t": "Flexo.Any",
-    "Name": "AnyWithoutPredicate",
+    "Name": "Any",
     "Values": [
       false,
       true,
@@ -31,18 +21,29 @@
     ]
   },
   {
+    "$t": "Flexo.Any",
+    "Name": "Any{Predicate=false}",
+    "Values": [
+      false,
+      true,
+      false
+    ],
+    "Predicate": false
+  },
+  {
     "$t": "Flexo.All",
-    "Name": "AllWithPredicate",
+    "Name": "All{Predicate=true}",
     "Values": [
       {
         "$t": "Flexo.False"
       },
       false
     ],
-    "Predicate": false
+    "Predicate": true
   },
   {
     "$t": "Flexo.Sum",
+    "Name": "Sum",
     "Values": [
       {
         "$t": "Flexo.Constant<double>",
@@ -62,7 +63,7 @@
   },
   {
     "$t": "Flexo.True",
-    "Name": "NotExtension",
+    "Name": "True.Not",
     "This": [
       {
         "$t": "Flexo.Not"
@@ -71,7 +72,7 @@
   },
   {
     "$t": "Flexo.True",
-    "Name": "ToDoubleExtension",
+    "Name": "True.ToDouble",
     "This": [
       {
         "$t": "Flexo.ToDouble"
@@ -81,7 +82,7 @@
   {
     "$t": "Flexo.Double",
     "Value": 1.0,
-    "Name": "ToDoubleInvalid",
+    "Name": "Double.ToDouble",
     "This": [
       {
         "$t": "Flexo.ToDouble"
@@ -90,7 +91,7 @@
   },
   {
     "$t": "Flexo.Collection",
-    "Name": "SumExtension",
+    "Name": "Collection.Sum",
     "Values": [
       1.0,
       2.0
@@ -103,7 +104,7 @@
   },
   {
     "$t": "Flexo.Collection",
-    "Name": "MaxExtension",
+    "Name": "Collection.Max",
     "Values": [
       {
         "$t": "Flexo.Double",
@@ -120,7 +121,7 @@
   },
   {
     "$t": "Flexo.Collection",
-    "Name": "CollectionWithContainsMatchesFull",
+    "Name": "Collection.Contains{Comparer=Regex}",
     "Values": [
       "foo",
       "bar",
@@ -136,23 +137,7 @@
   },
   {
     "$t": "Flexo.Collection",
-    "Name": "CollectionWithRegexComparer",
-    "Values": [
-      "foo",
-      "bar",
-      "baz"
-    ],
-    "This": [
-      {
-        "$t": "Flexo.Contains",
-        "Value": "^ba",
-        "Comparer": "Regex"
-      }
-    ]
-  },
-  {
-    "$t": "Flexo.Collection",
-    "Name": "CollectionWithAnyMatches",
+    "Name": "Collection.Any{Predicate=Matches}",
     "Values": [
       "foo",
       "bar",
@@ -170,7 +155,7 @@
   },
   {
     "$t": "Flexo.Collection",
-    "Name": "ContainsExtension",
+    "Name": "Collection.Contains",
     "Values": [
       1.0,
       4.0,
@@ -191,7 +176,7 @@
   },
   {
     "$t": "Flexo.Collection",
-    "Name": "CollectionWithAll",
+    "Name": "Collection.All",
     "Values": [
       true,
       true,
@@ -205,7 +190,7 @@
   },
   {
     "$t": "Flexo.Collection",
-    "Name": "CollectionWithOverlaps",
+    "Name": "Collection.Overlaps{Comparer=SoftString}",
     "Values": [
       "foo",
       "bar",
@@ -224,7 +209,7 @@
   },
   {
     "$t": "Flexo.Double",
-    "Name": "DoubleWithIsEqual",
+    "Name": "Double.IsEqual",
     "Value": 1.0,
     "This": [
       {
@@ -235,7 +220,7 @@
   },
   {
     "$t": "Flexo.Collection",
-    "Name": "CollectionWithSelect",
+    "Name": "Collection.Select.ToString",
     "Values": [
       1.0,
       true
@@ -252,7 +237,7 @@
   {
     "$t": "Flexo.Double",
     "Value": 2.0,
-    "Name": "DoubleIsLessThan3",
+    "Name": "Double.IsLessThan3_ref",
     "This": [
       {
         "$t": "Flexo.Ref",

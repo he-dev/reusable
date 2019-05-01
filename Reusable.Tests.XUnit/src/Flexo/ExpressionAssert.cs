@@ -22,10 +22,18 @@ namespace Reusable.Tests.Flexo
             TValue expected,
             IExpression expression,
             Func<IImmutableSession, IImmutableSession> configureContext = null,
-            ITestOutputHelper output = default
+            ITestOutputHelper output = default,
+            bool throws = false
         )
         {
             var context = (configureContext ?? (ctx => ctx))(Expression.DefaultSession);
+
+            if (throws)
+            {
+                Assert.ThrowsAny<DynamicException>(() => expression.Invoke(context));
+                return default;
+            }
+            
             var actual = expression.Invoke(context);
 
             var debugViewString = DebugViewRenderer.Render(context.DebugView(), ExpressionDebugView.DefaultRender);

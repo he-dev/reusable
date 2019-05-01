@@ -127,10 +127,10 @@ namespace Reusable.Tests.Flexo
 
         [Theory]
         [SmartMemberData(nameof(GetData))]
-        public void Can_evaluate_supported_expressions(string useCaseName, object expected)
+        public void Can_evaluate_supported_expressions(string useCaseName, object expected, bool throws)
         {
             var useCase = _helper.GetExpressions().Get(useCaseName);
-            ExpressionAssert.Equal(expected, useCase, ctx => ctx.WithReferences(_helper.GetReferences()), _output);
+            ExpressionAssert.Equal(expected, useCase, ctx => ctx.WithReferences(_helper.GetReferences()), _output, throws);
         }
 
         [Fact]
@@ -144,26 +144,30 @@ namespace Reusable.Tests.Flexo
             }
         }
 
-        public static IEnumerable<object> GetData() => new (string UseCaseName, object Expected)[]
+        public static IEnumerable<object> GetData() => new (string UseCaseName, object Expected, bool Throws)[]
         {
-            ("CollectionOfDouble", new double[] { 1, 2, 3 }),
-            ("AnyWithPredicate", true),
-            ("AnyWithoutPredicate", true),
-            ("AllWithPredicate", true),
-            ("NotExtension", false),
-            ("ToDoubleExtension", 1.0),
-            ("SumExtension", 3.0),
-            ("MaxExtension", 4.0),
-            ("ContainsExtension", true),
-            ("Matches", true),
-            ("CollectionWithRegexComparer", true),
-            ("CollectionWithAnyMatches", true),
-            ("CollectionWithAll", true),
-            ("CollectionWithOverlaps", true),
-            ("DoubleWithIsEqual", true),
-            ("CollectionWithSelect", new[] { "1", "True" }),
-            ("DoubleIsLessThan3", true)
-        }.Select(uc => new { uc.UseCaseName, uc.Expected });
+            ("Any", true, false),
+            ("Any{Predicate=false}", true, false),
+            ("All{Predicate=true}", false, false),
+            ("Sum", 3.0, false),
+            ("ToDouble", 1.0, false),
+            ("Matches", true, false),
+            ("True.Not", false, false),
+            ("True.ToDouble", 1.0, false),
+            ("Double.ToDouble", 1.0, true),
+            ("Double.IsEqual", true, false),
+            ("Double.IsLessThan3_ref", true, false),
+            ("CollectionOfDouble", new double[] { 1, 2, 3 }, false),
+            ("Collection.Sum", 3.0, false),
+            ("Collection.Max", 4.0, false),
+            ("Collection.Contains{Comparer=Regex}", true, false),
+            ("Collection.Contains{Comparer=Regex}", true, false),
+            ("Collection.Any{Predicate=Matches}", true, false),
+            ("Collection.Contains", true, false),
+            ("Collection.All", true, false),
+            ("Collection.Overlaps{Comparer=SoftString}", true, false),
+            ("Collection.Select.ToString", new[] { "1", "True" }, false),
+        }.Select(uc => new { uc.UseCaseName, uc.Expected, uc.Throws });
 
         public void Dispose()
         {
