@@ -237,7 +237,7 @@
   {
     "$t": "Flexo.Double",
     "Value": 2.0,
-    "Name": "Double.IsLessThan3_ref",
+    "Name": "Double.ref_IsLessThan3",
     "This": [
       {
         "$t": "Flexo.Ref",

@@ -156,7 +156,7 @@ namespace Reusable.Tests.Flexo
             ("True.ToDouble", 1.0, false),
             ("Double.ToDouble", 1.0, true),
             ("Double.IsEqual", true, false),
-            ("Double.IsLessThan3_ref", true, false),
+            ("Double.ref_IsLessThan3", true, false),
             ("CollectionOfDouble", new double[] { 1, 2, 3 }, false),
             ("Collection.Sum", 3.0, false),
             ("Collection.Max", 4.0, false),
