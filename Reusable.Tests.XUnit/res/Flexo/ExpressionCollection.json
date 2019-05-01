@@ -1,7 +1,7 @@
 [
   {
     "$t": "Flexo.Collection",
-    "Name": "CollectionMixed",
+    "Name": "CollectionOfDouble",
     "Values": [
       1.0,
       {
@@ -230,17 +230,6 @@
       {
         "$t": "Flexo.IsEqual",
         "Value": 1.0
-      }
-    ]
-  },
-  {
-    "$t": "Flexo.Collection",
-    "Name": "CollectionOfDouble",
-    "Values": [
-      1.0,
-      {
-        "$t": "Flexo.Double",
-        "Value": 2.0
       }
     ]
   },

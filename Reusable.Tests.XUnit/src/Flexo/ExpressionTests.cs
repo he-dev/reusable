@@ -486,8 +486,8 @@ namespace Reusable.Tests.Flexo
             var expression1 = new Constant<bool>("Yes", true) { Extensions = new List<IExpression> { _helper.Resolve<Ref>(e => e.Path = "Nope") } };
             var expression2 = new Constant<bool>("No", false) { Extensions = new List<IExpression> { _helper.Resolve<Ref>(e => e.Path = "Nope") } };
 
-            Equal(false, expression1, ctx => ctx.WithExpressions(expressions));
-            Equal(true, expression2, ctx => ctx.WithExpressions(expressions));
+            Equal(false, expression1, ctx => ctx.WithReferences(expressions));
+            Equal(true, expression2, ctx => ctx.WithReferences(expressions));
         }
 
         //public void Dispose() => _helper.Dispose();

@@ -84,7 +84,7 @@ namespace Reusable.Flexo
             return Regex.Match(comparerName, "^With(?<comparerName>[a-z0-9_]+)Comparer", RegexOptions.IgnoreCase).Groups["comparerName"].Value;
         }
 
-        public static IImmutableSession WithExpressions(this IImmutableSession context, IEnumerable<IExpression> expressions)
+        public static IImmutableSession WithReferences(this IImmutableSession context, IEnumerable<IExpression> expressions)
         {
             var registrations =
                 context

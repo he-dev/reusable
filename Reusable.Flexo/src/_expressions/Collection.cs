@@ -14,12 +14,12 @@ namespace Reusable.Flexo
 
         protected override Constant<IEnumerable<IExpression>> InvokeCore(IImmutableSession context)
         {
-            return 
-            (
-                Name,
-                Values.Enabled().Select((e, i) => Constant.FromNameAndValue($"Item-{i}", e.Invoke(context).Value)).ToList(),
-                context
-            );
+            var result =
+                Values
+                    .Enabled()
+                    .Select((e, i) => Constant.FromNameAndValue($"Item-{i}", e.Invoke(context).Value))
+                    .ToList();
+            return (Name, result, context);
         }
     }
 }

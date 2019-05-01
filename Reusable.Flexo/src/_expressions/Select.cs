@@ -3,6 +3,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Data;
+using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
@@ -11,22 +12,23 @@ namespace Reusable.Flexo
     /// </summary>
     [UsedImplicitly]
     [PublicAPI]
-    public class Select : Expression<List<object>>, IExtension<IEnumerable<IExpression>>
+    public class Select : CollectionExtension<IEnumerable<IExpression>>
     {
-        public Select(string name) : base(name ?? nameof(Select)) { }
-
-        internal Select() : this(nameof(Select)) { }
+        public Select(ILogger<Select> logger) : base(logger, nameof(Select)) { }
 
         [JsonProperty("Values")]
-        public IEnumerable<IExpression> This { get; set; }
+        public override IEnumerable<IExpression> This { get; set; }
 
         [JsonRequired]
         public IExpression Selector { get; set; }
 
-        protected override Constant<List<object>> InvokeCore(IImmutableSession context)
+        protected override Constant<IEnumerable<IExpression>> InvokeCore(IImmutableSession context, IEnumerable<IExpression> @this)
         {
-            var @this = context.PopThisCollection();
-            var values = @this.Select(x => Selector.Invoke(context.PushThis((IConstant)x))).Values<object>().ToList();
+            var values = 
+                @this
+                    .Select(x => Selector.Invoke(context.PushThis((IConstant)x)))
+                    .Select((x, i) => Constant.FromNameAndValue($"Item-{i}", x.Value))
+                    .ToList();
             return (Name, values, context);
         }
     }

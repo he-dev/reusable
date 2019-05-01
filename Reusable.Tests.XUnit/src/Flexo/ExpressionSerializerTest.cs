@@ -1,16 +1,23 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.PeerToPeer;
+using System.Reflection;
 using System.Threading.Tasks;
 using Autofac;
 using JetBrains.Annotations;
 using Reusable.Data;
+using Reusable.Exceptionize;
+using Reusable.Extensions;
 using Reusable.Flexo;
 using Reusable.IOnymous;
 using Reusable.OmniLog;
 using Reusable.Utilities.JsonNet;
 using Reusable.Utilities.JsonNet.DependencyInjection;
 using Xunit;
+using Xunit.Abstractions;
+using Xunit.Sdk;
 using Double = Reusable.Flexo.Double;
 using ExpressionSerializer = Reusable.Flexo.ExpressionSerializer;
 
@@ -20,9 +27,15 @@ namespace Reusable.Tests.Flexo
     [UsedImplicitly]
     public class ExpressionFixture : IDisposable
     {
+        private static readonly IResourceProvider Flexo =
+            EmbeddedFileProvider<ExpressionSerializerTest>
+                .Default
+                .DecorateWith(RelativeProvider.Factory(@"res\Flexo"));
 
-        private readonly IDisposable _disposer;
         private readonly ILifetimeScope _scope;
+        private readonly IDisposable _disposer;
+        private readonly IExpressionSerializer _serializer;
+        private readonly ConcurrentDictionary<string, IList<IExpression>> _expressions = new ConcurrentDictionary<string, IList<IExpression>>();
 
         public ExpressionFixture()
         {
@@ -34,16 +47,15 @@ namespace Reusable.Tests.Flexo
 
             var container = builder.Build();
             _scope = container.BeginLifetimeScope();
-
-            Serializer = _scope.Resolve<ExpressionSerializer.Factory>()(TypeDictionary.From(Expression.Types));
             _disposer = Disposable.Create(() =>
             {
                 _scope.Dispose();
                 container.Dispose();
             });
+
+            _serializer = _scope.Resolve<ExpressionSerializer.Factory>()(TypeDictionary.From(Expression.Types));
         }
-        
-        public IExpressionSerializer Serializer { get; }
+
 
         public T Resolve<T>(Action<T> configure = default)
         {
@@ -52,14 +64,37 @@ namespace Reusable.Tests.Flexo
             return t;
         }
 
+        public IList<IExpression> GetReferences()
+        {
+            return _expressions.GetOrAdd("ExpressionReferences.json", ReadExpressionFile());
+        }
+
+
+        public IList<IExpression> GetExpressions()
+        {
+            return _expressions.GetOrAdd("ExpressionCollection.json", ReadExpressionFile());
+        }
+
+        private Func<string, IList<IExpression>> ReadExpressionFile()
+        {
+            return n =>
+            {
+                var json = Flexo.ReadTextFile(n);
+                return _serializer.Deserialize<IList<IExpression>>(json);
+            };
+        }
+
         public void Dispose()
         {
             _disposer.Dispose();
         }
     }
 
-    public class ExpressionSerializerTest : IDisposable
+    public class ExpressionSerializerTest : IDisposable, IClassFixture<ExpressionFixture>
     {
+        private readonly ExpressionFixture _helper;
+        private readonly ITestOutputHelper _output;
+
         private static readonly IResourceProvider Flexo =
             EmbeddedFileProvider<ExpressionSerializerTest>
                 .Default
@@ -69,8 +104,10 @@ namespace Reusable.Tests.Flexo
 
         private readonly IDisposable _container;
 
-        public ExpressionSerializerTest()
+        public ExpressionSerializerTest(ExpressionFixture helper, ITestOutputHelper output)
         {
+            _helper = helper;
+            _output = output;
             var builder = new ContainerBuilder();
 
             builder.RegisterModule<JsonContractResolverModule>();
@@ -88,46 +125,12 @@ namespace Reusable.Tests.Flexo
             });
         }
 
-        [Fact]
-        public async Task Can_deserialize_expression_collection()
+        [Theory]
+        [SmartMemberData(nameof(GetData))]
+        public void Can_evaluate_supported_expressions(string useCaseName, object expected)
         {
-            var expressionCollectionFile = await Flexo.ReadTextFileAsync("ExpressionCollection.json");
-            var expressionReferencesFile = await Flexo.ReadTextFileAsync("ExpressionReferences.json");
-            var expressions = _serializer.Deserialize<List<IExpression>>(expressionCollectionFile);
-            var expressionReferences = _serializer.Deserialize<List<IExpression>>(expressionReferencesFile);
-
-            //ExpressionAssert.Equal(Constant.True, expressions.OfType<Any>().Single());
-            //ExpressionAssert.Equal(new double[] { 1, 2, 3 }, expressions.Get("CollectionMixed"));
-
-            ExpressionAssert.Equal(Constant.True, expressions.Get("AnyWithPredicate"));
-            ExpressionAssert.Equal(Constant.True, expressions.Get("AnyWithoutPredicate"));
-            ExpressionAssert.Equal(Constant.True, expressions.Get("AllWithPredicate"));
-
-            //ExpressionAssert.Equal(Constant.Create(3.0), expressions.OfType<Sum>().Single());
-            //ExpressionAssert.Equal(Double.One, expressions.OfType<SwitchToDouble>().Single());
-
-            ExpressionAssert.Equal(Constant.False, expressions.Get("NotExtension"));
-            ExpressionAssert.Equal(Double.One, expressions.Get("ToDoubleExtension"));
-            //ExpressionAssert.Equal(Double.One, expressions.Get("SwitchToDoubleInvalid"));
-            ExpressionAssert.Equal(3.0, expressions.Get("SumExtension"));
-            ExpressionAssert.Equal(4.0, expressions.Get("MaxExtension"));
-            ExpressionAssert.Equal(Constant.True, expressions.Get("ContainsExtension"));
-            ExpressionAssert.Equal(Constant.True, expressions.Get("Matches"));
-            ExpressionAssert.Equal(Constant.True, expressions.Get("CollectionWithRegexComparer"));
-            ExpressionAssert.Equal(Constant.True, expressions.Get("CollectionWithAnyMatches"));
-            ExpressionAssert.Equal(Constant.True, expressions.Get("CollectionWithAll"));
-            ExpressionAssert.Equal(Constant.True, expressions.Get("CollectionWithOverlaps"));
-            ExpressionAssert.Equal(Constant.True, expressions.Get("DoubleWithIsEqual"));
-
-            var collectionOfDouble = (Reusable.Flexo.Collection)expressions.Get("CollectionOfDouble");
-            Assert.Equal(2, collectionOfDouble.Values.Count);
-            ExpressionAssert.Equal(1.0, collectionOfDouble.Values[0]);
-            ExpressionAssert.Equal(2.0, collectionOfDouble.Values[1]);
-
-            var collectionWithSelect = expressions.Get("CollectionWithSelect").Invoke(Reusable.Flexo.Expression.DefaultSession).Value<List<object>>();
-            Assert.Equal(new[] { "1", "True" }, collectionWithSelect);
-
-            ExpressionAssert.Equal(Constant.True, expressions.Get("DoubleIsLessThan3"), ctx => ctx.WithExpressions(expressionReferences));
+            var useCase = _helper.GetExpressions().Get(useCaseName);
+            ExpressionAssert.Equal(expected, useCase, ctx => ctx.WithReferences(_helper.GetReferences()), _output);
         }
 
         [Fact]
@@ -141,6 +144,27 @@ namespace Reusable.Tests.Flexo
             }
         }
 
+        public static IEnumerable<object> GetData() => new (string UseCaseName, object Expected)[]
+        {
+            ("CollectionOfDouble", new double[] { 1, 2, 3 }),
+            ("AnyWithPredicate", true),
+            ("AnyWithoutPredicate", true),
+            ("AllWithPredicate", true),
+            ("NotExtension", false),
+            ("ToDoubleExtension", 1.0),
+            ("SumExtension", 3.0),
+            ("MaxExtension", 4.0),
+            ("ContainsExtension", true),
+            ("Matches", true),
+            ("CollectionWithRegexComparer", true),
+            ("CollectionWithAnyMatches", true),
+            ("CollectionWithAll", true),
+            ("CollectionWithOverlaps", true),
+            ("DoubleWithIsEqual", true),
+            ("CollectionWithSelect", new[] { "1", "True" }),
+            ("DoubleIsLessThan3", true)
+        }.Select(uc => new { uc.UseCaseName, uc.Expected });
+
         public void Dispose()
         {
             _container.Dispose();
@@ -152,6 +176,57 @@ namespace Reusable.Tests.Flexo
         public static IExpression Get(this IEnumerable<IExpression> expressions, SoftString name)
         {
             return expressions.Single(e => e.Name == name);
+        }
+    }
+
+    [DataDiscoverer("Xunit.Sdk.MemberDataDiscoverer", "xunit.core")]
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+    public class SmartMemberDataAttribute : MemberDataAttributeBase
+    {
+        public SmartMemberDataAttribute(string memberName, params object[] parameters) : base(memberName, parameters) { }
+
+        protected override object[] ConvertDataItem(MethodInfo testMethod, object item)
+        {
+            var itemProperties = item.GetType().GetProperties().ToDictionary(p => p.Name, p => p, SoftString.Comparer);
+            var testMethodParameters = testMethod.GetParameters();
+            var dataItem = new object[testMethodParameters.Length];
+            for (var i = 0; i < testMethodParameters.Length; i++)
+            {
+                var tmp = testMethodParameters[i];
+                if (itemProperties.TryGetValue(tmp.Name, out var ip))
+                {
+                    if (!tmp.ParameterType.IsAssignableFrom(ip.PropertyType))
+                    {
+                        throw DynamicException.Create
+                        (
+                            $"DataItemParameterTypeMismatch",
+                            $"Data item for '{GetTestMethodInfo()}' " +
+                            $"cannot assign value of type '{ip.PropertyType.ToPrettyString()}' " +
+                            $"to the parameter '{tmp.Name}' of type '{tmp.ParameterType.ToPrettyString()}'."
+                        );
+                    }
+                    dataItem[i] = ip.GetValue(item);
+                }
+                else
+                {                    
+                    if (!tmp.IsOptional)
+                    {
+                        throw DynamicException.Create
+                        (
+                            $"DataItemParameterNotOptional",
+                            $"Data item for '{GetTestMethodInfo()}' does not specify the required parameter '{tmp.Name}'"
+                        );
+                    }
+                    else
+                    {
+                        dataItem[i] = tmp.DefaultValue;
+                    }
+                }
+            }
+
+            return dataItem;
+
+            string GetTestMethodInfo() => $"{testMethod.DeclaringType.ToPrettyString()}.{testMethod.Name}";
         }
     }
 }

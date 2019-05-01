@@ -1,7 +1,14 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.AspNetCore.Builder.Extensions;
 using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Flexo;
+using Xunit;
+using Xunit.Abstractions;
+using Xunit.Sdk;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.Tests.Flexo
@@ -10,33 +17,39 @@ namespace Reusable.Tests.Flexo
     {
         private static readonly ITreeRenderer<string> DebugViewRenderer = new PlainTextTreeRenderer();
 
-        public static IConstant Equal<TValue, TExpression>
+        public static IConstant Equal<TValue>
         (
-            TValue expectedValue,
-            TExpression expression,
-            Func<IImmutableSession, IImmutableSession> configureContext = null
-        ) where TExpression : IExpression
+            TValue expected,
+            IExpression expression,
+            Func<IImmutableSession, IImmutableSession> configureContext = null,
+            ITestOutputHelper output = default
+        )
         {
-            var expected = expectedValue is IConstant constant ? constant.Value : expectedValue;
-
             var context = (configureContext ?? (ctx => ctx))(Expression.DefaultSession);
             var actual = expression.Invoke(context);
 
             var debugViewString = DebugViewRenderer.Render(context.DebugView(), ExpressionDebugView.DefaultRender);
 
-            return
-                object.Equals(expected, actual.Value is IConstant c ? c.Value : actual.Value)
-                    ? actual
-                    : throw DynamicException.Create("AssertFailed", CreateAssertFailedMessage(expected, actual));
-        }
+            try
+            {
+                switch (expected)
+                {
+                    case IEnumerable collection when !(typeof(TValue) == typeof(string)):
+                        Assert.IsAssignableFrom<IEnumerable>(actual.Value);
+                        Assert.Equal(collection.Cast<object>(), actual.Value<IEnumerable<IConstant>>().Values<object>());
+                        break;
+                    default:
+                        Assert.Equal(expected, actual.Value);
+                        break;
+                }
+            }
+            catch (Exception)
+            {
+                output?.WriteLine(debugViewString);
+                throw;
+            }
 
-        private static string CreateAssertFailedMessage(object expected, object actual)
-        {
-            return
-                $"{Environment.NewLine}" +
-                $"» Expected:{Environment.NewLine}{expected}{Environment.NewLine}" +
-                $"» Actual:{Environment.NewLine}{actual}" +
-                $"{Environment.NewLine}";
+            return actual;
         }
     }
 }
