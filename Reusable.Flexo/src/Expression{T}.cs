@@ -119,7 +119,8 @@ namespace Reusable.Flexo
             };
             var thisNode = TreeNode.Create(thisView);
             parentNode.Add(thisNode);
-            var thisResult = (IConstant)InvokeCore(context.Set(scope, x => x.DebugView, thisNode));
+            // Avoid making the tree deeper when this is already a Constant.
+            var thisResult = this is IConstant ? InvokeCore(context) : InvokeCore(context.Set(scope, x => x.DebugView, thisNode));
             thisView.Result = thisResult.Value;
 
             var seed = (IConstant)Constant.FromNameAndValue
