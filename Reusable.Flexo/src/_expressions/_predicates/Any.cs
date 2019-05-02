@@ -22,7 +22,9 @@ namespace Reusable.Flexo
             {
                 var current = item.Invoke(context);
                 context = current.Context;
-                context.PushThis(current);
+                
+                Expression.This.Push(current);
+                //context.PushThis(current);
                 var predicate = (Predicate ?? Constant.True);
 
                 if (predicate is IConstant)

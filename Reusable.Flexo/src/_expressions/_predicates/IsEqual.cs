@@ -21,4 +21,6 @@ namespace Reusable.Flexo
             return (Name, @this.Invoke(context).Value<object>().Equals(value), context);
         }
     }
+    
+    // IsNull, IsNullOrEmpty,
 }

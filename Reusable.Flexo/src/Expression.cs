@@ -1,12 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Threading;
 using Reusable.Data;
 
 namespace Reusable.Flexo
 {
     public static class Expression
     {
+        private static readonly AsyncLocal<Stack<IConstant>> ThisLocal = new AsyncLocal<Stack<IConstant>>();
+        
+        public static Stack<IConstant> This => ThisLocal.Value ?? (ThisLocal.Value = new Stack<IConstant>());
+
         // ReSharper disable RedundantNameQualifier - Use full namespace to avoid conflicts with other types.
         public static readonly Type[] Types =
         {
@@ -51,7 +56,7 @@ namespace Reusable.Flexo
         public static IImmutableSession DefaultSession =>
             ImmutableSession
                 .Empty
-                .Set(Use<IExpressionSession>.Scope, x => x.This, new Stack<IConstant>())
+                //.Set(Use<IExpressionSession>.Scope, x => x.This, new Stack<IConstant>())
                 .Set(Use<IExpressionSession>.Scope, x => x.Comparers, ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
                 .Set(Use<IExpressionSession>.Scope, x => x.DebugView, TreeNode.Create(ExpressionDebugView.Root))
                 .WithDefaultComparer()

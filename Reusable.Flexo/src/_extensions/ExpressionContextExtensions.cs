@@ -21,27 +21,27 @@ namespace Reusable.Flexo
 
         #region Extension-Input helpers
 
-        internal static IImmutableSession PushThis(this IImmutableSession context, IConstant value)
-        {
-            context.Get(Use<IExpressionSession>.Scope, x => x.This).Push(value);
-            return context;
-        }
-
-        // The Input must be removed so that subsequent expression doesn't 'think' it's called as extension when it isn't.        
-        internal static IExpression PopThis(this IImmutableSession context)
-        {
-            return context.Get(Scope, x => x.This).Pop().Invoke(context);
-        }
-        
-        internal static IExpression PopThisConstant(this IImmutableSession context)
-        {
-            return context.PopThis();
-        }
-        
-        internal static IEnumerable<IExpression> PopThisCollection(this IImmutableSession context)
-        {
-            return context.PopThis().Invoke(context).Value<IEnumerable<IExpression>>().Enabled();
-        }
+//        internal static IImmutableSession PushThis(this IImmutableSession context, IConstant value)
+//        {
+//            context.Get(Use<IExpressionSession>.Scope, x => x.This).Push(value);
+//            return context;
+//        }
+//
+//        // The Input must be removed so that subsequent expression doesn't 'think' it's called as extension when it isn't.        
+//        internal static IExpression PopThis(this IImmutableSession context)
+//        {
+//            return context.Get(Scope, x => x.This).Pop().Invoke(context);
+//        }
+//        
+//        internal static IExpression PopThisConstant(this IImmutableSession context)
+//        {
+//            return context.PopThis();
+//        }
+//        
+//        internal static IEnumerable<IExpression> PopThisCollection(this IImmutableSession context)
+//        {
+//            return context.PopThis().Invoke(context).Value<IEnumerable<IExpression>>().Enabled();
+//        }
 
         #endregion
 

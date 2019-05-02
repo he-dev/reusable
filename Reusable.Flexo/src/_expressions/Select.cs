@@ -27,41 +27,63 @@ namespace Reusable.Flexo
             var result = new List<IConstant>();
             foreach (var (expression, i) in @this.Cast<IConstant>().Select((x, i) => (x, i)))
             {
-                var current = Selector.Invoke(context.PushThis(expression));
+                Expression.This.Push(expression);
+                //var current = Selector.Invoke(context.PushThis(expression));
+                var current = Selector.Invoke(context);
                 context = current.Context;
                 result.Add((Constant<object>)($"{Name.ToString()}-Item-{i}", current.Value, context));
             }
-            
-            return (Name, result, context);
-            
-            var values = 
-                @this
-                    .Select(x => Selector.Invoke(context.PushThis((IConstant)x)))
-                    .Select((x, i) => Constant.FromNameAndValue($"Item-{i}", x.Value))
-                    .ToList();
-            return (Name, values, context);
+
+            return (Name, result, context);            
         }
     }
 
-    //    public class FirstOrDefault : Expression
-    //    {
-    //        [JsonConstructor]
-    //        public FirstOrDefault() : base(nameof(FirstOrDefault)) { }
-    //
-    //        public FirstOrDefault(string name, IExpressionContext context) : base(name, context) { }
-    //
-    //        public IExpression Predicate { get; set; }
-    //
-    //        public IEnumerable<IDictionary<string, IExpression>> Lookup { get; set; }
-    //
-    //        public override IExpression Invoke(IExpressionContext context)
-    //        {
-    //            foreach (var item in Lookup)
-    //            {
-    //                //if(Predicate)
-    //            }
-    //
-    //            return Constant.Null;
-    //        }
-    //    }
+    public class Where : CollectionExtension<IEnumerable<IExpression>>
+    {
+        public Where([NotNull] ILogger logger) : base(logger, nameof(Where)) { }
+
+        [JsonProperty("Values")]
+        public override IEnumerable<IExpression> This { get; set; }
+
+        public IExpression Predicate { get; set; }
+
+        protected override Constant<IEnumerable<IExpression>> InvokeCore(IImmutableSession context, IEnumerable<IExpression> @this)
+        {
+            var result =
+                @this
+                    .Where(item =>
+                    {
+                        //Expression.This.Push(item);
+                        return Predicate.Invoke(context).Value<bool>();
+                        //return Predicate.Invoke(context.PushThis((Constant<object>)("Item", item, context))).Value<bool>();
+                    })
+                    .ToList();
+
+            return (Name, result, context);
+        }
+    }
+
+    public class ForEach : CollectionExtension<object>
+    {
+        public ForEach([NotNull] ILogger logger) : base(logger, nameof(ForEach)) { }
+
+        [JsonProperty("Values")]
+        public override IEnumerable<IExpression> This { get; set; }
+
+        public IEnumerable<IExpression> Body { get; set; }
+
+        protected override Constant<object> InvokeCore(IImmutableSession context, IEnumerable<IExpression> @this)
+        {
+            foreach (var item in @this)
+            {
+                var current = item.Invoke(context);
+                foreach (var expression in Body)
+                {
+                    //expression.Invoke(context.PushThis(current));
+                }
+            }
+
+            return (Name, default(object), context);
+        }
+    }
 }

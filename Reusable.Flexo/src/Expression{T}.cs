@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Custom;
+using System.Threading;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -50,6 +51,8 @@ namespace Reusable.Flexo
     [Namespace("Flexo")]
     public abstract class Expression<TResult> : IExpression
     {
+        
+        
         private SoftString _name;
 
         // ReSharper disable once NotNullMemberIsNotInitialized - Only Constant expression is allowed to not use a logger.
@@ -92,6 +95,7 @@ namespace Reusable.Flexo
                 // When "This" property is not null then we assume it's not used as an extension
                 // and push this on the stack instead of the value of the previous expression.
                 var thisValue = GetType().GetProperty(nameof(IExtension<object>.This)).GetValue(this);
+                //var u
                 if (!(thisValue is null))
                 {
                     var @this = default(IConstant);
@@ -106,7 +110,8 @@ namespace Reusable.Flexo
                             break;
                     }
 
-                    context.PushThis(@this);
+                    Expression.This.Push(@this);
+                    //context.PushThis(@this);
                 }
             }
 
@@ -164,7 +169,9 @@ namespace Reusable.Flexo
                     );
                 }
 
-                return next.Invoke(previous.Context.PushThis(previous));
+                Expression.This.Push(previous);
+                //return next.Invoke(previous.Context.PushThis(previous));
+                return next.Invoke(previous.Context);
             });
 
             return extensionsResult;
@@ -184,7 +191,8 @@ namespace Reusable.Flexo
 
         protected override Constant<TResult> InvokeCore(IImmutableSession context)
         {
-            return InvokeCore(context, context.PopThisConstant());
+           //return InvokeCore(context, context.PopThisConstant());
+            return InvokeCore(context, Expression.This.Pop().Invoke(context));
         }
 
         protected abstract Constant<TResult> InvokeCore(IImmutableSession context, IExpression @this);
@@ -199,7 +207,8 @@ namespace Reusable.Flexo
 
         protected override Constant<TResult> InvokeCore(IImmutableSession context)
         {
-            return InvokeCore(context, context.PopThisCollection().Enabled());
+            return InvokeCore(context, Expression.This.Pop().Invoke(context).Value<IEnumerable<IExpression>>().Enabled());
+            //return InvokeCore(context, context.PopThisCollection().Enabled());
         }
 
         protected abstract Constant<TResult> InvokeCore(IImmutableSession context, IEnumerable<IExpression> @this);
@@ -207,7 +216,7 @@ namespace Reusable.Flexo
 
     public interface IExpressionSession : ISession
     {
-        Stack<IConstant> This { get; }
+        //Stack<IConstant> This { get; }
 
         IImmutableDictionary<SoftString, IEqualityComparer<object>> Comparers { get; }
 

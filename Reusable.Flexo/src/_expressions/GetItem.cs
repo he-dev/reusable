@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
+using System.Linq.Custom;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Data;
@@ -21,16 +23,23 @@ namespace Reusable.Flexo
         [JsonRequired]
         public string Path { get; set; }
 
+        // key.Property.Property --> session[key].Property.Property
+        // this.Property.Property --> @this.Property.Property 
+
         protected Constant<TItem> FindItem<TItem>(IImmutableSession context, Func<string, string> configurePath = default)
         {
-            if (context.TryGetValue((configurePath ?? (p => p))(Path), out var item))
-            {
-                return (Key: Path, (TItem)item, context);
-            }
-            else
-            {
-                throw DynamicException.Create("ItemNotFound", $"Could not find an item with the key '{Path}'.");
-            }
+            var names = Path.Split('.');
+
+            var obj =
+                names.First() == "this"
+                    ? Expression.This.Pop() // context.PopThis()
+                    : context.TryGetValue(names.First(), out var item)
+                        ? item
+                        : throw DynamicException.Create("ItemNotFound", $"Could not find an item with the key '{Path}'.");
+
+            obj = names.Skip(1).Aggregate(obj, (current, name) => current.GetType().GetProperty(name).GetValue(current));
+
+            return (Key: Path, (TItem)obj, context);
         }
     }
 
@@ -70,6 +79,6 @@ namespace Reusable.Flexo
             {
                 throw DynamicException.Create("RefNotFound", $"Could not find a reference to '{path}'.");
             }
-        }        
+        }
     }
 }
