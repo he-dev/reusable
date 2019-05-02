@@ -1,5 +1,7 @@
 using System.Globalization;
 using JetBrains.Annotations;
+using Reusable.Data;
+using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
@@ -52,30 +54,42 @@ namespace Reusable.Flexo
 
     public class String : Constant<string>
     {
-        public String(string name, string value) : base(name ?? nameof(String), value) { }
+        public String() : base(nameof(String), default) { }
     }
 
     public class DateTime : Constant<System.DateTime>
     {
-        public DateTime(string name, string value, [CanBeNull] string format)
-            : base
-            (
-                name ?? nameof(DateTime),
-                format is null
-                    ? System.DateTime.Parse(value)
-                    : System.DateTime.ParseExact(value, format, CultureInfo.InvariantCulture)
-            ) { }
+        public DateTime() : base(nameof(DateTime), default) { }
+
+        public string Parse { get; set; }
+
+        public string Format { get; set; }
+
+        protected override Constant<System.DateTime> InvokeCore(IImmutableSession context)
+        {
+            var value =
+                Format is null
+                    ? System.DateTime.Parse(Parse)
+                    : System.DateTime.ParseExact(Parse, Format, CultureInfo.InvariantCulture);
+            return (Name, value, context);
+        }
     }
 
     public class TimeSpan : Constant<System.TimeSpan>
     {
-        public TimeSpan(string name, string value, [CanBeNull] string format)
-            : base
-            (
-                name ?? nameof(TimeSpan),
-                format is null
-                    ? System.TimeSpan.Parse(value)
-                    : System.TimeSpan.ParseExact(value, format, CultureInfo.InvariantCulture)
-            ) { }
+        public TimeSpan() : base(nameof(TimeSpan), default) { }
+        
+        public string Parse { get; set; }
+
+        public string Format { get; set; }
+        
+        protected override Constant<System.TimeSpan> InvokeCore(IImmutableSession context)
+        {
+            var value =
+                Format is null
+                    ? System.TimeSpan.Parse(Parse)
+                    : System.TimeSpan.ParseExact(Parse, Format, CultureInfo.InvariantCulture);
+            return (Name, value, context);
+        }
     }
 }

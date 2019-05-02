@@ -26,6 +26,7 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.GetCollection),
             typeof(Reusable.Flexo.Ref),
             typeof(Reusable.Flexo.Contains),
+            typeof(Reusable.Flexo.In),
             typeof(Reusable.Flexo.Overlaps),
             typeof(Reusable.Flexo.Matches),
             typeof(Reusable.Flexo.Min),

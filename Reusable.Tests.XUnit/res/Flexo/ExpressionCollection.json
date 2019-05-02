@@ -235,6 +235,17 @@
     ]
   },
   {
+    "$t": "Flexo.String",
+    "Name": "String.In",
+    "Value": "foo",
+    "This": [
+      {
+        "$t": "Flexo.In",
+        "Values": ["bar", "baz", "foo" ]
+      }
+    ]
+  },
+  {
     "$t": "Flexo.Double",
     "Value": 2.0,
     "Name": "Double.ref_IsLessThan3",

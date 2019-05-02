@@ -52,7 +52,7 @@ namespace Reusable.Flexo
     {
         private SoftString _name;
 
-        [Obsolete("Use the other overload with a logger.")]
+        // ReSharper disable once NotNullMemberIsNotInitialized - Only Constant expression is allowed to not use a logger.
         protected Expression([NotNull] SoftString name)
         {
             _name = name ?? throw new ArgumentNullException(nameof(name));

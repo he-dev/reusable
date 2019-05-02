@@ -27,4 +27,25 @@ namespace Reusable.Flexo
             return (Name, @this.Any(x => comparer.Equals(value, x.Invoke(context).Value<object>())), context);
         }
     }
+    
+    [PublicAPI]
+    public class In : ValueExtension<bool>
+    {
+        public In(ILogger<In> logger) : base(logger, nameof(In)) { }
+
+        [JsonProperty("Value")]
+        public override IExpression This { get; set; }
+
+        public IEnumerable<IExpression> Values { get; set; }
+
+        public string Comparer { get; set; }
+
+        protected override Constant<bool> InvokeCore(IImmutableSession context, IExpression @this)
+        {
+            var value = @this.Invoke(context).Value;
+            var comparer = context.GetComparerOrDefault(Comparer);
+
+            return (Name, Values.Enabled().Any(x => comparer.Equals(value, x.Invoke(context).Value)), context);
+        }
+    }
 }
