@@ -24,6 +24,16 @@ namespace Reusable.Flexo
 
         protected override Constant<IEnumerable<IExpression>> InvokeCore(IImmutableSession context, IEnumerable<IExpression> @this)
         {
+            var result = new List<IConstant>();
+            foreach (var (expression, i) in @this.Cast<IConstant>().Select((x, i) => (x, i)))
+            {
+                var current = Selector.Invoke(context.PushThis(expression));
+                context = current.Context;
+                result.Add((Constant<object>)($"{Name.ToString()}-Item-{i}", current.Value, context));
+            }
+            
+            return (Name, result, context);
+            
             var values = 
                 @this
                     .Select(x => Selector.Invoke(context.PushThis((IConstant)x)))

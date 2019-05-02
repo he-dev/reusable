@@ -17,7 +17,7 @@ namespace Reusable.Flexo
             var result =
                 Values
                     .Enabled()
-                    .Select((e, i) => Constant.FromNameAndValue($"Item-{i}", e.Invoke(context).Value))
+                    .Select((e, i) => Constant.FromNameAndValue($"{Name.ToString()}-Item-{i}", e.Invoke(context).Value))
                     .ToList();
             return (Name, result, context);
         }

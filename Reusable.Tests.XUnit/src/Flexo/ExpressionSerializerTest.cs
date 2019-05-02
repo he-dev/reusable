@@ -32,7 +32,6 @@ namespace Reusable.Tests.Flexo
                 .Default
                 .DecorateWith(RelativeProvider.Factory(@"res\Flexo"));
 
-
         public ExpressionSerializerTest(ExpressionFixture helper, ITestOutputHelper output)
         {
             _helper = helper;
@@ -58,7 +57,7 @@ namespace Reusable.Tests.Flexo
             }
         }
 
-        public static IEnumerable<object> GetData() => new (string UseCaseName, object Expected, bool Throws)[]
+        private static IEnumerable<object> GetData() => new (string UseCaseName, object Expected, bool Throws)[]
         {
             ("Any", true, false),
             ("Any{Predicate=false}", true, false),
@@ -92,41 +91,61 @@ namespace Reusable.Tests.Flexo
 
         protected override object[] ConvertDataItem(MethodInfo testMethod, object item)
         {
+            try
+            {
+                return CreateDataItem(testMethod, item);
+            }
+            catch (Exception inner)
+            {
+                throw DynamicException.Create
+                (
+                    $"DataItemConversion",
+                    $"Could not convert '{item.GetType().ToPrettyString()}' for '{GetTestMethodInfo()}'. See the inner exception for details.",
+                    inner
+                );
+            }
+
+            // Creates text: MyTest.TestMethod
+            string GetTestMethodInfo() => $"{testMethod.DeclaringType.ToPrettyString()}.{testMethod.Name}";
+        }
+
+        private static object[] CreateDataItem(MethodInfo testMethod, object item)
+        {
             var itemProperties = item.GetType().GetProperties().ToDictionary(p => p.Name, p => p, SoftString.Comparer);
             var testMethodParameters = testMethod.GetParameters();
             var dataItem = new object[testMethodParameters.Length];
-            for (var i = 0; i < testMethodParameters.Length; i++)
+
+            // We need the index to set the correct item in the result array.
+            foreach (var (testMethodParameter, i) in testMethodParameters.Select((x, i) => (x, i)))
             {
-                var tmp = testMethodParameters[i];
-                if (itemProperties.TryGetValue(tmp.Name, out var ip))
+                if (itemProperties.TryGetValue(testMethodParameter.Name, out var itemProperty))
                 {
-                    if (tmp.ParameterType.IsAssignableFrom(ip.PropertyType))
+                    if (testMethodParameter.ParameterType.IsAssignableFrom(itemProperty.PropertyType))
                     {
-                        dataItem[i] = ip.GetValue(item);
+                        dataItem[i] = itemProperty.GetValue(item);
                     }
                     else
                     {
                         throw DynamicException.Create
                         (
-                            $"DataItemParameterTypeMismatch",
-                            $"Data item for '{GetTestMethodInfo()}' " +
-                            $"cannot assign value of type '{ip.PropertyType.ToPrettyString()}' " +
-                            $"to the parameter '{tmp.Name}' of type '{tmp.ParameterType.ToPrettyString()}'."
+                            $"ParameterTypeMismatch",                            
+                            $"Cannot assign value of type '{itemProperty.PropertyType.ToPrettyString()}' " +
+                            $"to the parameter '{testMethodParameter.Name}' of type '{testMethodParameter.ParameterType.ToPrettyString()}'."
                         );
                     }
                 }
                 else
                 {
-                    if (tmp.IsOptional)
+                    if (testMethodParameter.IsOptional)
                     {
-                        dataItem[i] = tmp.DefaultValue;
+                        dataItem[i] = testMethodParameter.DefaultValue;
                     }
                     else
                     {
                         throw DynamicException.Create
                         (
-                            $"DataItemParameterNotOptional",
-                            $"Data item for '{GetTestMethodInfo()}' does not specify the required parameter '{tmp.Name}'"
+                            $"ParameterNotOptional",
+                            $"Data item does not specify the required parameter '{testMethodParameter.Name}'."
                         );
                     }
                 }
@@ -134,6 +153,7 @@ namespace Reusable.Tests.Flexo
 
             return dataItem;
 
+            // Creates text: MyTest.TestMethod
             string GetTestMethodInfo() => $"{testMethod.DeclaringType.ToPrettyString()}.{testMethod.Name}";
         }
     }

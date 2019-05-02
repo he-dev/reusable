@@ -95,19 +95,19 @@ namespace Reusable.Flexo
         }
 
         [NotNull]
-        public static Constant<TValue> FromValue<TValue>(TValue value)
+        internal static Constant<TValue> FromValue<TValue>(TValue value)
         {
             return FromNameAndValue($"{typeof(Constant<TValue>).ToPrettyString()}-{_counter++}", value);
         }
 
         [NotNull, ItemNotNull]
-        public static IEnumerable<IExpression> CreateMany<TValue>(string name, params TValue[] values)
+        internal static IEnumerable<IExpression> CreateMany<TValue>(string name, params TValue[] values)
         {
             return values.Select(value => FromNameAndValue(name, value));
         }
 
         [NotNull, ItemNotNull]
-        public static IEnumerable<IExpression> CreateMany<TValue>(params TValue[] values)
+        internal static IEnumerable<IExpression> CreateMany<TValue>(params TValue[] values)
         {
             return values.Select(FromValue);
         }

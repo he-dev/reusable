@@ -18,28 +18,25 @@ namespace Reusable.Flexo
 
         protected override Constant<bool> InvokeCore(IImmutableSession context, IEnumerable<IExpression> @this)
         {
-            var last = default(IConstant);
             foreach (var item in @this)
             {
-                var value = item.Invoke(context);
-                context.PushThis(value);
+                var current = item.Invoke(context);
+                context = current.Context;
+                context.PushThis(current);
                 var predicate = (Predicate ?? Constant.True);
 
                 if (predicate is IConstant)
                 {
-                    last = value;
-                    if (EqualityComparer<bool>.Default.Equals(last.Value<bool>(), predicate.Invoke(context).Value<bool>()))
+                    if (EqualityComparer<bool>.Default.Equals(current.Value<bool>(), predicate.Invoke(context).Value<bool>()))
                     {
-                        return (Name, true, last.Context);
+                        return (Name, true, context);
                     }
                 }
                 else
                 {
-                    last = value; //.Invoke(predicate.Context);
-                    if (EqualityComparer<bool>.Default.Equals(predicate.Invoke(context).Value<bool>(), true))
-                        //if (EqualityComparer<bool>.Default.Equals(predicate.Value<bool>(), true))
+                    if (EqualityComparer<bool>.Default.Equals(predicate.Invoke(context).Value<bool>(), true))                 
                     {
-                        return (Name, true, last.Context);
+                        return (Name, true, context);
                     }
                 }
             }
