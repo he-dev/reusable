@@ -8,10 +8,10 @@ namespace Reusable.Flexo
     [PublicAPI]
     public class Throw : Expression<IExpression>
     {
-        public Throw() : base(nameof(Throw)) { }
+        public Throw() : base(ZeroLogger.Default, nameof(Throw)) { }
 
         //public string Exception { get; set; }
-        
+
         public IExpression Message { get; set; }
 
         protected override Constant<IExpression> InvokeCore()

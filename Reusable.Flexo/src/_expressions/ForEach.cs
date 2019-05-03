@@ -20,10 +20,9 @@ namespace Reusable.Flexo
             {
                 using (BeginScope(ctx => ctx.Set(Namespace, x => x.This, item)))
                 {
-                    var itemResult = item.Invoke();
                     foreach (var expression in Body)
                     {
-                        //expression.Invoke(context.SetItem("this", itemValue));
+                        expression.Invoke();
                     }
                 }
             }

@@ -12,7 +12,7 @@ namespace Reusable.Flexo
     {
         [AutoEqualityProperty]
         [CanBeNull]
-        object Value { get; }       
+        object Value { get; }
     }
 
     public interface IConstant<out TValue> : IExpression
@@ -23,7 +23,8 @@ namespace Reusable.Flexo
 
     public class Constant<TValue> : Expression<TValue>, IConstant, IConstant<TValue>, IEquatable<Constant<TValue>>
     {
-        public Constant(SoftString name, TValue value, IImmutableSession context = default) : base(name ?? value.GetType().ToPrettyString())
+        public Constant(SoftString name, TValue value, IImmutableSession context = default)
+            : base(ZeroLogger.Default, name ?? value.GetType().ToPrettyString())
         {
             Value = value;
             Context = context ?? ImmutableSession.Empty;
@@ -115,17 +116,13 @@ namespace Reusable.Flexo
 
         //[NotNull] public static readonly IExpression One = new One(nameof(One));
 
-        [NotNull]
-        public static readonly IExpression True = Create(nameof(True), true);
+        [NotNull] public static readonly IExpression True = Create(nameof(True), true);
 
-        [NotNull]
-        public static readonly IExpression False = Create(nameof(False), false);
+        [NotNull] public static readonly IExpression False = Create(nameof(False), false);
 
-        [NotNull]
-        public static readonly IExpression EmptyString = Create(nameof(EmptyString), string.Empty);
+        [NotNull] public static readonly IExpression EmptyString = Create(nameof(EmptyString), string.Empty);
 
-        [NotNull]
-        public static readonly IExpression Null = Create(nameof(Null), default(object));
+        [NotNull] public static readonly IExpression Null = Create(nameof(Null), default(object));
 
         #endregion
     }

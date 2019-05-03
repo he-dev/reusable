@@ -22,18 +22,18 @@ namespace Reusable.Flexo
     [Namespace("Flexo")]
     public abstract class Expression<TResult> : Expression
     {
-        // ReSharper disable once NotNullMemberIsNotInitialized - Only Constant expression is allowed to not use a logger.
-        protected Expression([NotNull] SoftString name) : base(name) { }
-
         protected Expression([NotNull] ILogger logger, SoftString name) : base(logger, name) { }
 
         private bool IsExtension => !(GetType().GetInterface(typeof(IExtension<>).Name) is null);
 
         public override IConstant Invoke()
         {
-            if (this is IConstant constant)
+            var parentView = Scope.Context.Get(Namespace, x => x.DebugView);
+
+            if (this is IConstant constant && Extension is null)
             {
-                //return constant;
+                parentView.Add(CreateDebugView(this)).Value.Result = constant.Value;
+                return constant;
             }
 
             var @this = default(object);
@@ -60,11 +60,14 @@ namespace Reusable.Flexo
                 }
             }
 
-            var parentView = Scope.Context.Get(Namespace, x => x.DebugView);
-            var thisView = parentView.Add(CreateDebugView(this));
+            var thisView = SuppressOwnDebugView ? parentView : parentView.Add(CreateDebugView(this));
 
             // Avoid making the tree deeper when this is already a Constant.
-            using (@this is null ? Disposable.Empty : BeginScope(ctx => ctx.Set(Namespace, x => x.This, @this).Set(Namespace, x => x.DebugView, thisView)))
+            //using (@this is null ? Disposable.Empty : BeginScope(ctx => ctx.Set(Namespace, x => x.This, @this).Set(Namespace, x => x.DebugView, thisView)))
+            using (@this is null
+                ? BeginScope(ctx => ctx.Set(Namespace, x => x.DebugView, thisView))
+                : BeginScope(ctx => ctx.Set(Namespace, x => x.This, @this).Set(Namespace, x => x.DebugView, thisView))
+            )
             {
                 var thisResult = InvokeCore();
 
@@ -114,7 +117,7 @@ namespace Reusable.Flexo
                 using (BeginScope(ctx => ctx.Set(Namespace, x => x.This, thisResult).Set(Namespace, x => x.DebugView, extensionView)))
                 {
                     var extensionResult = extension.Invoke();
-                    extensionView.Value.Result = extensionResult;
+                    extensionView.Value.Result = extensionResult.Value;
                     return extensionResult;
                 }
             }
@@ -130,7 +133,7 @@ namespace Reusable.Flexo
             {
                 Type = expression.GetType().ToPrettyString(),
                 Name = expression.Name.ToString(),
-                Description = expression.Description,
+                Description = expression.Description ?? new ExpressionDebugView().Description,
             });
         }
     }
@@ -169,6 +172,7 @@ namespace Reusable.Flexo
             {
                 obj = constant.Value;
             }
+
             var @this =
                 obj is IEnumerable<IExpression> collection
                     ? collection

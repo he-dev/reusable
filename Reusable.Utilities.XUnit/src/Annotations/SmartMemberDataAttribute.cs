@@ -8,7 +8,7 @@ using Xunit.Sdk;
 
 namespace Reusable.Utilities.XUnit.Annotations
 {
-    [DataDiscoverer("Xunit.Sdk.MemberDataDiscoverer", "xunit.core")]
+    //[DataDiscoverer("Xunit.Sdk.MemberDataDiscoverer", "xunit.core")]
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class SmartMemberDataAttribute : MemberDataAttributeBase
     {

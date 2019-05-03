@@ -74,7 +74,7 @@ namespace Reusable.Flexo
             var path = Path.StartsWith("R.", StringComparison.OrdinalIgnoreCase) ? Path : $"R.{Path}";
             if (expressions.TryGetValue(path, out var expression))
             {
-                return (Key: Path, expression);
+                return (Path, expression);
             }
             else
             {

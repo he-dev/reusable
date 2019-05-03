@@ -10,6 +10,8 @@ namespace Reusable.Flexo
     {
         public Where([NotNull] ILogger<Where> logger) : base(logger, nameof(Where)) { }
 
+        protected override bool SuppressOwnDebugView => true;
+        
         [JsonProperty("Values")]
         public override IEnumerable<IExpression> This { get; set; }
 

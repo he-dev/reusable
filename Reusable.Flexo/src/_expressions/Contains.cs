@@ -12,6 +12,8 @@ namespace Reusable.Flexo
     {
         public Contains(ILogger<Contains> logger) : base(logger, nameof(Contains)) { }
 
+        protected override bool SuppressOwnDebugView => true;
+        
         [JsonProperty("Values")]
         public override IEnumerable<IExpression> This { get; set; }
 
@@ -32,6 +34,8 @@ namespace Reusable.Flexo
     {
         public In(ILogger<In> logger) : base(logger, nameof(In)) { }
 
+        protected override bool SuppressOwnDebugView => true;
+        
         [JsonProperty("Value")]
         public override IExpression This { get; set; }
 

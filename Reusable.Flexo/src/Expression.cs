@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Data;
 using Reusable.Diagnostics;
+using Reusable.Exceptionize;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
@@ -88,7 +89,6 @@ namespace Reusable.Flexo
         public static IImmutableSession DefaultContext =>
             ImmutableSession
                 .Empty
-                //.Set(Use<IExpressionSession>.Scope, x => x.This, new Stack<IConstant>())
                 .Set(Namespace, x => x.Comparers, ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
                 .Set(Namespace, x => x.DebugView, TreeNode.Create(ExpressionDebugView.Root))
                 .Set(Namespace, x => x.References, ImmutableDictionary<SoftString, IExpression>.Empty)
@@ -97,11 +97,6 @@ namespace Reusable.Flexo
                 .WithRegexComparer();
 
         private SoftString _name;
-
-        protected Expression(SoftString name)
-        {
-            _name = name ?? throw new ArgumentNullException(nameof(name));
-        }
 
         protected Expression([NotNull] ILogger logger, SoftString name)
         {
@@ -112,8 +107,10 @@ namespace Reusable.Flexo
         [NotNull]
         protected ILogger Logger { get; }
 
-        [CanBeNull]
-        public static ExpressionScope Scope => ExpressionScope.Current;
+        [NotNull]
+        public static ExpressionScope Scope =>
+            ExpressionScope.Current
+            ?? throw new InvalidOperationException("Expressions must be invoked within a valid scope. Use 'BeginScope' to introduce one.");
 
         public static ISessionScope<IExpressionSession> Namespace => Use<IExpressionSession>.Scope;
 
@@ -126,6 +123,8 @@ namespace Reusable.Flexo
         public string Description { get; set; }
 
         public bool Enabled { get; set; } = true;
+        
+        protected virtual bool SuppressOwnDebugView { get; }
 
         [JsonProperty("This")]
         public IExpression Extension { get; set; }
@@ -135,6 +134,19 @@ namespace Reusable.Flexo
         public static ExpressionScope BeginScope(Func<IImmutableSession, IImmutableSession> configureContext)
         {
             return ExpressionScope.Push(configureContext(ExpressionScope.Current?.Context ?? DefaultContext));
+        }
+
+        protected class ZeroLogger : ILogger
+        {
+            private ZeroLogger() { }
+
+            public static ILogger Default => new ZeroLogger();
+
+            public SoftString Name { get; } = nameof(ZeroLogger);
+
+            public ILogger Log(ILogLevel logLevel, Action<ILog> logAction) => this;
+
+            public void Dispose() { }
         }
     }
 

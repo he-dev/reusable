@@ -42,12 +42,10 @@ namespace Reusable.Flexo
         {
             switch (result)
             {
-                case double d:
-                    return d.ToString("F2", CultureInfo.InvariantCulture);
-                case string s:
-                    return s;
-                default:
-                    return result.GetType().ToPrettyString();
+                case double d: return d.ToString("F2", CultureInfo.InvariantCulture);
+                case bool b: return b.ToString();
+                case string s: return s;
+                default: return result.GetType().ToPrettyString();
             }
         }
     }
