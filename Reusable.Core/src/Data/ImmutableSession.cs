@@ -136,7 +136,7 @@ namespace Reusable.Data
 
         [DebuggerStepThrough]
         [MustUseReturnValue]
-        public IImmutableSession SetItem(SoftString key, object value) => new ImmutableSession(_data.SetItem(key, value));
+        public IImmutableSession SetItem(SoftString key, object value) => new ImmutableSession(_data.Remove(key).SetItem(key, value));
 
         [DebuggerStepThrough]
         [MustUseReturnValue]

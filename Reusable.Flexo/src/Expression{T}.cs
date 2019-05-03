@@ -36,7 +36,7 @@ namespace Reusable.Flexo
                 //return constant;
             }
 
-            var @this = default(IConstant);
+            var @this = default(object);
 
             // Extensions require additional handling.
             if (IsExtension)
@@ -48,12 +48,13 @@ namespace Reusable.Flexo
                 {
                     switch (thisValue)
                     {
-                        case IConstant e:
+                        case IExpression e:
                             @this = e;
                             break;
 
                         case IEnumerable<IExpression> c:
-                            @this = Constant.Create("This", c);
+                            //@this = Constant.Create("This", c);
+                            @this = c;
                             break;
                     }
                 }
@@ -143,8 +144,12 @@ namespace Reusable.Flexo
 
         protected override Constant<TResult> InvokeCore()
         {
-            var constant = Scope.Context.Get(Namespace, x => x.This);
-            return InvokeCore(constant);
+            var obj = Scope.Context.Get(Namespace, x => x.This);
+            var @this =
+                obj is IExpression expression
+                    ? expression
+                    : throw DynamicException.Create("InvalidThisType", "Expected expression.");
+            return InvokeCore(@this);
         }
 
         protected abstract Constant<TResult> InvokeCore(IExpression @this);
@@ -159,8 +164,16 @@ namespace Reusable.Flexo
 
         protected override Constant<TResult> InvokeCore()
         {
-            var constant = Scope.Context.Get(Namespace, x => x.This);
-            return InvokeCore((IEnumerable<IExpression>)constant.Value);
+            var obj = Scope.Context.Get(Namespace, x => x.This);
+            if (obj is IConstant constant)
+            {
+                obj = constant.Value;
+            }
+            var @this =
+                obj is IEnumerable<IExpression> collection
+                    ? collection
+                    : throw DynamicException.Create("InvalidThisType", "Expected collection.");
+            return InvokeCore(@this);
         }
 
         protected abstract Constant<TResult> InvokeCore(IEnumerable<IExpression> @this);
@@ -168,7 +181,7 @@ namespace Reusable.Flexo
 
     public interface IExpressionSession : ISession
     {
-        IConstant This { get; }
+        object This { get; }
 
         IImmutableDictionary<SoftString, IEqualityComparer<object>> Comparers { get; }
 

@@ -58,8 +58,8 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.Switch),
             typeof(Reusable.Flexo.ToDouble),
             typeof(Reusable.Flexo.ToString),
-            typeof(Reusable.Flexo.GetValue),
-            typeof(Reusable.Flexo.GetCollection),
+            typeof(Reusable.Flexo.GetSingle),
+            typeof(Reusable.Flexo.GetMany),
             typeof(Reusable.Flexo.Ref),
             typeof(Reusable.Flexo.Contains),
             typeof(Reusable.Flexo.In),
@@ -81,6 +81,7 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.Collection),
             typeof(Reusable.Flexo.Select),
             typeof(Reusable.Flexo.Throw),
+            typeof(Reusable.Flexo.Where),
         };
         // ReSharper restore RedundantNameQualifier
 

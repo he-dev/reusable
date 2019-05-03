@@ -20,88 +20,19 @@ namespace Reusable.Flexo
         [JsonProperty("Values")]
         public override IEnumerable<IExpression> This { get; set; }
 
-        [JsonRequired]
         public IExpression Selector { get; set; }
 
         protected override Constant<IEnumerable<IExpression>> InvokeCore(IEnumerable<IExpression> @this)
         {
-            //var debugView = CreateDebugView(this);
-            var result = @this.Select(e =>
+            var result = @this.Select(item =>
             {
-                using (BeginScope(ctx => ctx.Set(Namespace, x => x.This, e))) //.Set(Namespace, x => x.DebugView, debugView)))
+                using (BeginScope(ctx => ctx.Set(Namespace, x => x.This, item)))
                 {
-                    return Selector.Invoke();
+                    return (Selector ?? item).Invoke();
                 }
             }).ToList();
 
-            //debugView.Value.Result = result;
-
             return (Name, result);
-        }
-    }
-
-    public class Where : CollectionExtension<IEnumerable<IExpression>>
-    {
-        public Where([NotNull] ILogger logger) : base(logger, nameof(Where)) { }
-
-        [JsonProperty("Values")]
-        public override IEnumerable<IExpression> This { get; set; }
-
-        public IExpression Predicate { get; set; }
-
-        protected override Constant<IEnumerable<IExpression>> InvokeCore(IEnumerable<IExpression> @this)
-        {
-            var result =
-                @this
-                    .Where(item =>
-                    {
-                        //Expression.This.Push(item);
-                        return Predicate.Invoke().Value<bool>();
-                        //return Predicate.Invoke(context.PushThis((Constant<object>)("Item", item, context))).Value<bool>();
-                    })
-                    .ToList();
-
-            return (Name, result);
-        }
-    }
-
-    public class ForEach : CollectionExtension<object>
-    {
-        public ForEach([NotNull] ILogger logger) : base(logger, nameof(ForEach)) { }
-
-        [JsonProperty("Values")]
-        public override IEnumerable<IExpression> This { get; set; }
-
-        public IEnumerable<IExpression> Body { get; set; }
-
-        protected override Constant<object> InvokeCore(IEnumerable<IExpression> @this)
-        {
-            /*
-             
-             foreach (var item in @this)
-             {
-                 using(Scope.New(ctx => ctx.SetItem("this", item"))) 
-                 { 
-                    foreach (var expression in Body)
-                    {
-                        expression.Invoke();
-                    }
-                 }
-             }
-             
-             
-             */
-            foreach (var item in @this)
-            {
-                
-                var itemValue = item.Invoke().Value;
-                foreach (var expression in Body)
-                {
-                    //expression.Invoke(context.SetItem("this", itemValue));
-                }
-            }
-
-            return (Name, default(object));
         }
     }
 

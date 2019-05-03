@@ -231,5 +231,44 @@
       "$t": "Flexo.Ref",
       "Path": "IsLessThan3"
     }
+  },
+  {
+    "$t": "Flexo.Collection",
+    "Name": "Collection.Where.IsGreaterThan",
+    "Values": [
+      1.0,
+      2.0,
+      3.0,
+      4.0
+    ],
+    "This": {
+      "$t": "Flexo.Where",
+      "Predicate": {
+        "$t": "Flexo.IsGreaterThan",
+        "Value": 2.0
+      },
+      "This": {
+        "$t": "Flexo.Select"
+      }
+    }
+  },
+  {
+    "$t": "Flexo.GetSingle",
+    "Name": "GetSingle",
+    "Path": "sth.Greeting"
+  },
+  {
+    "$t": "Flexo.GetMany",
+    "Name": "GetMany",
+    "Path": "sth.Names"
+  },
+  {
+    "$t": "Flexo.GetMany",
+    "Name": "GetMany.Contains",
+    "Path": "sth.Names",
+    "This": {
+      "$t": "Flexo.Contains",
+      "Value": "Bob"
+    }
   }
 ]

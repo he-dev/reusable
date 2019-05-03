@@ -401,7 +401,7 @@ namespace Reusable.Tests.Flexo
                         When = _helper.Resolve<Contains>(ee =>
                         {
                             ee.This = Constant.CreateMany("foo", "bar").ToList();
-                            ee.Value = _helper.Resolve<GetValue>(eee => eee.Path = "SwitchSession.Value");
+                            ee.Value = _helper.Resolve<GetSingle>(eee => eee.Path = "SwitchSession.Value");
                         }),
                         Body = Constant.True
                     },
@@ -476,7 +476,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void GetContextItem_can_get_item_by_key()
         {
-            Equal(1, _helper.Resolve<GetValue>(e => e.Path = "SwitchSession.Value"), ctx => ctx.Set(Use<ISwitchSession>.Scope, x => x.Value, 1));
+            Equal(1, _helper.Resolve<GetSingle>(e => e.Path = "SwitchSession.Value"), ctx => ctx.Set(Use<ISwitchSession>.Scope, x => x.Value, 1));
         }
 //
 //        [Fact]

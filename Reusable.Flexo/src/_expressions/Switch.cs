@@ -22,31 +22,32 @@ namespace Reusable.Flexo
 
         protected override Constant<TResult> InvokeCore(IExpression @this)
         {
-            //var @this = context.PopThisConstant().Value<object>();
-            var value = @this.Invoke().Value;
-            //var switchContext = context.Set(Use<ISwitchSession>.Scope, x => x.Value, value);
+            var value = @this.Invoke();
 
             foreach (var switchCase in (Cases ?? Enumerable.Empty<SwitchCase>()).Where(c => c.Enabled))
             {
-                switch (switchCase.When)
+                using (BeginScope(ctx => ctx.Set(Namespace, x => x.This, value)))
                 {
-                    case IConstant constant:
-                        if (EqualityComparer<object>.Default.Equals(value, constant.Value))
-                        {
-                            var bodyResult = switchCase.Body.Invoke();
-                            return (Name, (TResult)bodyResult.Value);
-                        }
+                    switch (switchCase.When)
+                    {
+                        case IConstant constant:
+                            if (EqualityComparer<object>.Default.Equals(value.Value, constant.Value))
+                            {
+                                var bodyResult = switchCase.Body.Invoke();
+                                return (Name, (TResult)bodyResult.Value);
+                            }
 
-                        break;
+                            break;
 
-                    case IExpression expression:
-                        if (expression.Invoke() is var whenResult && whenResult.Value<bool>())
-                        {
-                            var bodyResult = switchCase.Body.Invoke();
-                            return (Name, (TResult)bodyResult.Value);
-                        }
+                        case IExpression expression:
+                            if (expression.Invoke() is var whenResult && whenResult.Value<bool>())
+                            {
+                                var bodyResult = switchCase.Body.Invoke();
+                                return (Name, (TResult)bodyResult.Value);
+                            }
 
-                        break;
+                            break;
+                    }
                 }
             }
 

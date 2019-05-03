@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Custom;
+using System.Xml;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Data;
@@ -26,40 +27,40 @@ namespace Reusable.Flexo
         // key.Property.Property --> session[key].Property.Property
         // this.Property.Property --> @this.Property.Property 
 
-        protected Constant<TItem> FindItem<TItem>(Func<string, string> configurePath = default)
+        protected object FindItem(Func<string, string> configurePath = default)
         {
             var names = Path.Split('.');
-
+            var key = names.First();
             var obj =
-                names.First() == "this"
-                    ? Scope.Context["this"] //Expression.This.Pop() // context.PopThis()
-                    : Scope.Context.TryGetValue(names.First(), out var item)
+                key == "this"
+                    ? Scope.Context.Get(Namespace, x => x.This)
+                    : Scope.Context.TryGetValue(key, out var item)
                         ? item
                         : throw DynamicException.Create("ItemNotFound", $"Could not find an item with the key '{Path}'.");
 
             obj = names.Skip(1).Aggregate(obj, (current, name) => current.GetType().GetProperty(name).GetValue(current));
 
-            return (Key: Path, (TItem)obj);
+            return obj;
         }
     }
 
-    public class GetValue : GetItem<object>
+    public class GetSingle : GetItem<object>
     {
-        public GetValue([NotNull] ILogger<GetValue> logger) : base(logger, nameof(GetValue)) { }
+        public GetSingle([NotNull] ILogger<GetSingle> logger) : base(logger, nameof(GetSingle)) { }
 
         protected override Constant<object> InvokeCore()
         {
-            return FindItem<object>();
+            return (Path, FindItem());
         }
     }
 
-    public class GetCollection : GetItem<IEnumerable<object>>
+    public class GetMany : GetItem<IEnumerable<IExpression>>
     {
-        public GetCollection([NotNull] ILogger<GetCollection> logger) : base(logger, nameof(GetCollection)) { }
+        public GetMany([NotNull] ILogger<GetMany> logger) : base(logger, nameof(GetMany)) { }
 
-        protected override Constant<IEnumerable<object>> InvokeCore()
+        protected override Constant<IEnumerable<IExpression>> InvokeCore()
         {
-            return FindItem<IEnumerable<object>>();
+            return (Path, ((IEnumerable<object>)FindItem()).Select((x, i) => Constant.Create($"Item[{i}]", x)).ToList());
         }
     }
 

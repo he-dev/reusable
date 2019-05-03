@@ -45,7 +45,7 @@ namespace Reusable.Tests.Flexo
             {
                 switch (expected)
                 {
-                    case IEnumerable collection when !(typeof(TValue) == typeof(string)):
+                    case IEnumerable collection when !(expected is string):
                         Assert.IsAssignableFrom<IEnumerable>(actual.Value);
                         Assert.Equal(collection.Cast<object>(), actual.Value<IEnumerable<IConstant>>().Values<object>());
                         break;

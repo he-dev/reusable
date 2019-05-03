@@ -40,7 +40,7 @@ namespace Reusable.Tests.Flexo
         public void Can_evaluate_supported_expressions(string useCaseName, object expected, bool throws)
         {
             var useCase = _helper.GetExpressions().Single(e => e.Name == useCaseName);
-            ExpressionAssert.Equal(expected, useCase, ctx => ctx.WithReferences(_helper.GetReferences()), _output, throws);
+            ExpressionAssert.Equal(expected, useCase, ctx => ctx.WithReferences(_helper.GetReferences()).SetItem("sth", new Something()), _output, throws);
         }
 
         [Fact]
@@ -77,7 +77,18 @@ namespace Reusable.Tests.Flexo
             ("Collection.All", true, false),
             ("Collection.Overlaps{Comparer=SoftString}", true, false),
             ("Collection.Select.ToString", new[] { "1", "True" }, false),
-            ("String.In", true, false)
+            ("String.In", true, false),
+            ("Collection.Where.IsGreaterThan", new[] { 3.0, 4.0 }, false),
+            ("GetSingle", "Hallo!", false),
+            ("GetMany", new[] { "Joe", "Bob" }, false),
+            ("GetMany.Contains", true, false),
         }.Select(uc => new { uc.UseCaseName, uc.Expected, uc.Throws });
+
+        private class Something
+        {
+            public string Greeting { get; set; } = "Hallo!";
+
+            public IEnumerable<string> Names { get; set; } = new[] { "Joe", "Bob" };
+        }
     }
 }
