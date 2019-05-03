@@ -88,14 +88,27 @@ namespace Reusable.Flexo
         {
             var registrations =
                 context
-                    .Get(Scope, x => x.Expressions, ImmutableDictionary<SoftString, IExpression>.Empty)
+                    .Get(Scope, x => x.References, ImmutableDictionary<SoftString, IExpression>.Empty)
                     .SetItems(expressions.Select(e => new KeyValuePair<SoftString, IExpression>($"R.{e.Name.ToString()}", e)));
-            return context.Set(Scope, x => x.Expressions, registrations);
+            return context.Set(Scope, x => x.References, registrations);
         }
 
-        public static IEqualityComparer<object> GetComparerOrDefault(this IImmutableSession context, [CanBeNull] string name)
+        public static TResult Find<TScope, TResult>(this ExpressionScope scope, ISessionScope<TScope> session, linq.Expression<Func<TScope, TResult>> getItem) where TScope : ISession
         {
-            var comparers = context.Get(Use<IExpressionSession>.Scope, x => x.Comparers);
+            foreach (var current in scope.Enumerate())
+            {
+                if (current.Context.TryGetItem(session, getItem, out var value))
+                {
+                    return value;
+                }
+            }
+
+            return default;
+        }
+
+        public static IEqualityComparer<object> GetComparerOrDefault(this ExpressionScope scope, [CanBeNull] string name) 
+        {
+            var comparers = scope.Find(Use<IExpressionSession>.Scope, x => x.Comparers);
             if (name is null)
             {
                 return comparers["Default"];

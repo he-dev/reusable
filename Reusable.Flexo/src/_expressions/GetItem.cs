@@ -26,20 +26,20 @@ namespace Reusable.Flexo
         // key.Property.Property --> session[key].Property.Property
         // this.Property.Property --> @this.Property.Property 
 
-        protected Constant<TItem> FindItem<TItem>(IImmutableSession context, Func<string, string> configurePath = default)
+        protected Constant<TItem> FindItem<TItem>(Func<string, string> configurePath = default)
         {
             var names = Path.Split('.');
 
             var obj =
                 names.First() == "this"
-                    ? Expression.This.Pop() // context.PopThis()
-                    : context.TryGetValue(names.First(), out var item)
+                    ? Scope.Context["this"] //Expression.This.Pop() // context.PopThis()
+                    : Scope.Context.TryGetValue(names.First(), out var item)
                         ? item
                         : throw DynamicException.Create("ItemNotFound", $"Could not find an item with the key '{Path}'.");
 
             obj = names.Skip(1).Aggregate(obj, (current, name) => current.GetType().GetProperty(name).GetValue(current));
 
-            return (Key: Path, (TItem)obj, context);
+            return (Key: Path, (TItem)obj);
         }
     }
 
@@ -47,9 +47,9 @@ namespace Reusable.Flexo
     {
         public GetValue([NotNull] ILogger<GetValue> logger) : base(logger, nameof(GetValue)) { }
 
-        protected override Constant<object> InvokeCore(IImmutableSession context)
+        protected override Constant<object> InvokeCore()
         {
-            return FindItem<object>(context);
+            return FindItem<object>();
         }
     }
 
@@ -57,9 +57,9 @@ namespace Reusable.Flexo
     {
         public GetCollection([NotNull] ILogger<GetCollection> logger) : base(logger, nameof(GetCollection)) { }
 
-        protected override Constant<IEnumerable<object>> InvokeCore(IImmutableSession context)
+        protected override Constant<IEnumerable<object>> InvokeCore()
         {
-            return FindItem<IEnumerable<object>>(context);
+            return FindItem<IEnumerable<object>>();
         }
     }
 
@@ -67,13 +67,13 @@ namespace Reusable.Flexo
     {
         public Ref([NotNull] ILogger<Ref> logger) : base(logger, nameof(Ref)) { }
 
-        protected override Constant<IExpression> InvokeCore(IImmutableSession context)
+        protected override Constant<IExpression> InvokeCore()
         {
-            var expressions = context.Get(Use<IExpressionSession>.Scope, x => x.Expressions, ImmutableDictionary<SoftString, IExpression>.Empty);
+            var expressions = Scope.Context.Get(Namespace, x => x.References);
             var path = Path.StartsWith("R.", StringComparison.OrdinalIgnoreCase) ? Path : $"R.{Path}";
             if (expressions.TryGetValue(path, out var expression))
             {
-                return (Key: Path, expression, context);
+                return (Key: Path, expression);
             }
             else
             {

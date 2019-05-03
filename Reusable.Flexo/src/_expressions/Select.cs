@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
@@ -22,19 +23,20 @@ namespace Reusable.Flexo
         [JsonRequired]
         public IExpression Selector { get; set; }
 
-        protected override Constant<IEnumerable<IExpression>> InvokeCore(IImmutableSession context, IEnumerable<IExpression> @this)
+        protected override Constant<IEnumerable<IExpression>> InvokeCore(IEnumerable<IExpression> @this)
         {
-            var result = new List<IConstant>();
-            foreach (var (expression, i) in @this.Cast<IConstant>().Select((x, i) => (x, i)))
+            //var debugView = CreateDebugView(this);
+            var result = @this.Select(e =>
             {
-                Expression.This.Push(expression);
-                //var current = Selector.Invoke(context.PushThis(expression));
-                var current = Selector.Invoke(context);
-                context = current.Context;
-                result.Add((Constant<object>)($"{Name.ToString()}-Item-{i}", current.Value, context));
-            }
+                using (BeginScope(ctx => ctx.Set(Namespace, x => x.This, e))) //.Set(Namespace, x => x.DebugView, debugView)))
+                {
+                    return Selector.Invoke();
+                }
+            }).ToList();
 
-            return (Name, result, context);            
+            //debugView.Value.Result = result;
+
+            return (Name, result);
         }
     }
 
@@ -47,19 +49,19 @@ namespace Reusable.Flexo
 
         public IExpression Predicate { get; set; }
 
-        protected override Constant<IEnumerable<IExpression>> InvokeCore(IImmutableSession context, IEnumerable<IExpression> @this)
+        protected override Constant<IEnumerable<IExpression>> InvokeCore(IEnumerable<IExpression> @this)
         {
             var result =
                 @this
                     .Where(item =>
                     {
                         //Expression.This.Push(item);
-                        return Predicate.Invoke(context).Value<bool>();
+                        return Predicate.Invoke().Value<bool>();
                         //return Predicate.Invoke(context.PushThis((Constant<object>)("Item", item, context))).Value<bool>();
                     })
                     .ToList();
 
-            return (Name, result, context);
+            return (Name, result);
         }
     }
 
@@ -72,18 +74,73 @@ namespace Reusable.Flexo
 
         public IEnumerable<IExpression> Body { get; set; }
 
-        protected override Constant<object> InvokeCore(IImmutableSession context, IEnumerable<IExpression> @this)
+        protected override Constant<object> InvokeCore(IEnumerable<IExpression> @this)
         {
+            /*
+             
+             foreach (var item in @this)
+             {
+                 using(Scope.New(ctx => ctx.SetItem("this", item"))) 
+                 { 
+                    foreach (var expression in Body)
+                    {
+                        expression.Invoke();
+                    }
+                 }
+             }
+             
+             
+             */
             foreach (var item in @this)
             {
-                var current = item.Invoke(context);
+                
+                var itemValue = item.Invoke().Value;
                 foreach (var expression in Body)
                 {
-                    //expression.Invoke(context.PushThis(current));
+                    //expression.Invoke(context.SetItem("this", itemValue));
                 }
             }
 
-            return (Name, default(object), context);
+            return (Name, default(object));
         }
     }
+
+    // public abstract class Update : Expression<bool>
+    // {
+    //     protected Update([NotNull] ILogger logger, SoftString name) : base(logger, name) { }
+    //
+    //     [JsonProperty("Select")]
+    //     public string Path { get; set; }
+    //     
+    //     public IEnumerable<IExpression> Values { get; set; }
+    //
+    //     protected override Constant<bool> InvokeCore(IImmutableSession context)
+    //     {
+    //         return default;
+    //         // return
+    //         //     Values is null
+    //         //         ? InvokeCore(new[] { context["this"] }, context)
+    //         //         : InvokeCore(Values.Invoke(context).Values<object>(), context);
+    //     }
+    //
+    //     protected virtual Constant<bool> InvokeCore(IExpression value, IImmutableSession context)
+    //     {
+    //         throw new NotSupportedException();
+    //     }
+    //
+    //     protected virtual Constant<bool> InvokeCore(IEnumerable<IExpression> values, IImmutableSession context)
+    //     {
+    //         throw new NotSupportedException();
+    //     }        
+    // }
+    //
+    // public class Append : Update
+    // {
+    //     public Append([NotNull] ILogger<Append> logger) : base(logger, nameof(Append)) { }
+    //
+    //     protected override Constant<bool> InvokeCore(IEnumerable<IExpression> values, IImmutableSession context)
+    //     {
+    //         throw new System.NotImplementedException();
+    //     }
+    // }
 }

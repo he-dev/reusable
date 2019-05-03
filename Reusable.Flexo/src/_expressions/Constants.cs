@@ -57,39 +57,39 @@ namespace Reusable.Flexo
         public String() : base(nameof(String), default) { }
     }
 
-    public class DateTime : Constant<System.DateTime>
-    {
-        public DateTime() : base(nameof(DateTime), default) { }
-
-        public string Parse { get; set; }
-
-        public string Format { get; set; }
-
-        protected override Constant<System.DateTime> InvokeCore(IImmutableSession context)
-        {
-            var value =
-                Format is null
-                    ? System.DateTime.Parse(Parse)
-                    : System.DateTime.ParseExact(Parse, Format, CultureInfo.InvariantCulture);
-            return (Name, value, context);
-        }
-    }
-
-    public class TimeSpan : Constant<System.TimeSpan>
-    {
-        public TimeSpan() : base(nameof(TimeSpan), default) { }
-        
-        public string Parse { get; set; }
-
-        public string Format { get; set; }
-        
-        protected override Constant<System.TimeSpan> InvokeCore(IImmutableSession context)
-        {
-            var value =
-                Format is null
-                    ? System.TimeSpan.Parse(Parse)
-                    : System.TimeSpan.ParseExact(Parse, Format, CultureInfo.InvariantCulture);
-            return (Name, value, context);
-        }
-    }
+    // public class DateTime : Constant<System.DateTime>
+    // {
+    //     public DateTime() : base(nameof(DateTime), default) { }
+    //
+    //     public string Parse { get; set; }
+    //
+    //     public string Format { get; set; }
+    //
+    //     protected override Constant<System.DateTime> InvokeCore(IImmutableSession context)
+    //     {
+    //         var value =
+    //             Format is null
+    //                 ? System.DateTime.Parse(Parse)
+    //                 : System.DateTime.ParseExact(Parse, Format, CultureInfo.InvariantCulture);
+    //         return (Name, value, context);
+    //     }
+    // }
+    //
+    // public class TimeSpan : Constant<System.TimeSpan>
+    // {
+    //     public TimeSpan() : base(nameof(TimeSpan), default) { }
+    //     
+    //     public string Parse { get; set; }
+    //
+    //     public string Format { get; set; }
+    //     
+    //     protected override Constant<System.TimeSpan> InvokeCore(IImmutableSession context)
+    //     {
+    //         var value =
+    //             Format is null
+    //                 ? System.TimeSpan.Parse(Parse)
+    //                 : System.TimeSpan.ParseExact(Parse, Format, CultureInfo.InvariantCulture);
+    //         return (Name, value, context);
+    //     }
+    // }
 }

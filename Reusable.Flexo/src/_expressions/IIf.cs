@@ -20,21 +20,21 @@ namespace Reusable.Flexo
 
         public IExpression False { get; set; }
 
-        protected override Constant<object> InvokeCore(IImmutableSession context, IExpression @this)
+        protected override Constant<object> InvokeCore(IExpression @this)
         {
             if (True is null && False is null) throw new InvalidOperationException($"You need to specify at least one result ({nameof(True)}/{nameof(False)}).");
 
-            var value = @this.Invoke(context);
+            var value = @this.Invoke();
 
             if (value.Value<bool>())
             {
-                var trueResult = True?.Invoke(value.Context);
-                return (Name, trueResult?.Value, trueResult?.Context);
+                var trueResult = True?.Invoke();
+                return (Name, trueResult?.Value);
             }
             else
             {
-                var falseResult = False?.Invoke(value.Context);
-                return (Name, falseResult?.Value, falseResult?.Context);
+                var falseResult = False?.Invoke();
+                return (Name, falseResult?.Value);
             }
         }
     }

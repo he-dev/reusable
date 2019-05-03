@@ -16,34 +16,32 @@ namespace Reusable.Flexo
 
         public IExpression Predicate { get; set; }
 
-        protected override Constant<bool> InvokeCore(IImmutableSession context, IEnumerable<IExpression> @this)
+        protected override Constant<bool> InvokeCore(IEnumerable<IExpression> @this)
         {
             foreach (var item in @this)
             {
-                var current = item.Invoke(context);
-                context = current.Context;
-                
-                Expression.This.Push(current);
-                //context.PushThis(current);
-                var predicate = (Predicate ?? Constant.True);
-
-                if (predicate is IConstant)
+                var current = item.Invoke();
+                using (BeginScope(ctx => ctx.Set(Namespace, x => x.This, current)))
                 {
-                    if (EqualityComparer<bool>.Default.Equals(current.Value<bool>(), predicate.Invoke(context).Value<bool>()))
+                    var predicate = (Predicate ?? Constant.True);
+                    if (predicate is IConstant)
                     {
-                        return (Name, true, context);
+                        if (EqualityComparer<bool>.Default.Equals(current.Value<bool>(), predicate.Invoke().Value<bool>()))
+                        {
+                            return (Name, true);
+                        }
                     }
-                }
-                else
-                {
-                    if (EqualityComparer<bool>.Default.Equals(predicate.Invoke(context).Value<bool>(), true))                 
+                    else
                     {
-                        return (Name, true, context);
+                        if (EqualityComparer<bool>.Default.Equals(predicate.Invoke().Value<bool>(), true))
+                        {
+                            return (Name, true);
+                        }
                     }
                 }
             }
 
-            return (Name, false, context);
+            return (Name, false);
         }
     }
 }

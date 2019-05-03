@@ -17,12 +17,12 @@ namespace Reusable.Flexo
 
         public string Comparer { get; set; }
 
-        protected override Constant<bool> InvokeCore(IImmutableSession context, IEnumerable<IExpression> @this)
+        protected override Constant<bool> InvokeCore(IEnumerable<IExpression> @this)
         {
-            var with = With.Invoke(context).Values<object>();
-            var comparer = context.GetComparerOrDefault(Comparer);
-            var values = @this.Invoke(context).Values<object>();
-            return (Name, values.Intersect(with, comparer).Any(), context);
+            var with = With.Invoke().Values<object>();
+            var comparer = Scope.GetComparerOrDefault(Comparer);
+            var values = @this.Invoke().Values<object>();
+            return (Name, values.Intersect(with, comparer).Any());
         }
     }
 }

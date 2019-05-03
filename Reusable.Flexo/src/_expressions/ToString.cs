@@ -18,10 +18,12 @@ namespace Reusable.Flexo
 
         public IExpression Format { get; set; }
 
-        protected override Constant<string> InvokeCore(IImmutableSession context, IExpression @this)
+        protected override Constant<string> InvokeCore(IExpression @this)
         {
-            var format = Format?.Invoke(context).ValueOrDefault<string>() ?? "{0}";
-            return (Name, string.Format(CultureInfo.InvariantCulture, format, @this.Invoke(context).Value), context);
+            // Scope.This
+            // Scope.Find("in") --> global object
+            var format = Format?.Invoke().ValueOrDefault<string>() ?? "{0}";
+            return (Name, string.Format(CultureInfo.InvariantCulture, format, @this.Invoke().Value));
         }
     }
 }

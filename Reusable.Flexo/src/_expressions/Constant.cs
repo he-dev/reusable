@@ -12,10 +12,7 @@ namespace Reusable.Flexo
     {
         [AutoEqualityProperty]
         [CanBeNull]
-        object Value { get; }
-
-        [NotNull]
-        IImmutableSession Context { get; }
+        object Value { get; }       
     }
 
     public interface IConstant<out TValue> : IExpression
@@ -39,9 +36,9 @@ namespace Reusable.Flexo
 
         public IImmutableSession Context { get; }
 
-        protected override Constant<TValue> InvokeCore(IImmutableSession context)
+        protected override Constant<TValue> InvokeCore()
         {
-            return (Name, Value, context);
+            return (Name, Value);
         }
 
         public void Deconstruct(out SoftString name, out TValue value)
@@ -89,27 +86,27 @@ namespace Reusable.Flexo
         private static volatile int _counter;
 
         [NotNull]
-        public static Constant<TValue> FromNameAndValue<TValue>(SoftString name, TValue value, IImmutableSession context = default)
+        public static Constant<TValue> Create<TValue>(SoftString name, TValue value)
         {
-            return new Constant<TValue>(name, value, context ?? ImmutableSession.Empty);
+            return new Constant<TValue>(name, value);
         }
 
         [NotNull]
-        internal static Constant<TValue> FromValue<TValue>(TValue value)
+        internal static Constant<TValue> Create<TValue>(TValue value)
         {
-            return FromNameAndValue($"{typeof(Constant<TValue>).ToPrettyString()}-{_counter++}", value);
+            return Create($"{typeof(Constant<TValue>).ToPrettyString()}-{_counter++}", value);
         }
 
         [NotNull, ItemNotNull]
         internal static IEnumerable<IExpression> CreateMany<TValue>(string name, params TValue[] values)
         {
-            return values.Select(value => FromNameAndValue(name, value));
+            return values.Select(value => Create(name, value));
         }
 
         [NotNull, ItemNotNull]
         internal static IEnumerable<IExpression> CreateMany<TValue>(params TValue[] values)
         {
-            return values.Select(FromValue);
+            return values.Select(Create);
         }
 
         #region Predefined
@@ -119,16 +116,16 @@ namespace Reusable.Flexo
         //[NotNull] public static readonly IExpression One = new One(nameof(One));
 
         [NotNull]
-        public static readonly IExpression True = FromNameAndValue(nameof(True), true);
+        public static readonly IExpression True = Create(nameof(True), true);
 
         [NotNull]
-        public static readonly IExpression False = FromNameAndValue(nameof(False), false);
+        public static readonly IExpression False = Create(nameof(False), false);
 
         [NotNull]
-        public static readonly IExpression EmptyString = FromNameAndValue(nameof(EmptyString), string.Empty);
+        public static readonly IExpression EmptyString = Create(nameof(EmptyString), string.Empty);
 
         [NotNull]
-        public static readonly IExpression Null = FromNameAndValue(nameof(Null), default(object));
+        public static readonly IExpression Null = Create(nameof(Null), default(object));
 
         #endregion
     }

@@ -19,11 +19,11 @@ namespace Reusable.Flexo
         [JsonProperty("Values")]
         public override IEnumerable<IExpression> This { get; set; }
 
-        protected override Constant<double> InvokeCore(IImmutableSession context, IEnumerable<IExpression> @this)
+        protected override Constant<double> InvokeCore(IEnumerable<IExpression> @this)
         {
-            var values = @this.Select(e => e.Invoke(context)).Values<object>().Cast<double>();
+            var values = @this.Select(e => e.Invoke()).Values<object>().Cast<double>();
             var result = _aggregate(values);
-            return (Name, result, context);
+            return (Name, result);
         }
     }
 }

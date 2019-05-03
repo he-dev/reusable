@@ -17,11 +17,11 @@ namespace Reusable.Flexo
 
         public IExpression Pattern { get; set; }
 
-        protected override Constant<bool> InvokeCore(IImmutableSession context, IExpression @this)
+        protected override Constant<bool> InvokeCore(IExpression @this)
         {
-            var pattern = Pattern.Invoke(context).Value<string>();
+            var pattern = Pattern.Invoke().Value<string>();
             var options = IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None;
-            return (Name, Regex.IsMatch(@this.Invoke(context).Value<string>(), pattern, options), context);
+            return (Name, Regex.IsMatch(@this.Invoke().Value<string>(), pattern, options));
         }
     }
 }

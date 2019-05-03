@@ -17,20 +17,19 @@ namespace Reusable.Flexo
 
         public IExpression Predicate { get; set; }
 
-        protected override Constant<bool> InvokeCore(IImmutableSession context, IEnumerable<IExpression> @this)
+        protected override Constant<bool> InvokeCore(IEnumerable<IExpression> @this)
         {
-            var predicate = (Predicate ?? Constant.True).Invoke(context);
+            var predicate = (Predicate ?? Constant.True).Invoke();
             foreach (var item in @this)
             {
-                var current = item.Invoke(context);
-                context = current.Context;
+                var current = item.Invoke();
                 if (!EqualityComparer<bool>.Default.Equals(current.Value<bool>(), predicate.Value<bool>()))
                 {
-                    return (Name, false, context);
+                    return (Name, false);
                 }
             }
 
-            return (Name, true, context);
+            return (Name, true);
         }
     }
 }

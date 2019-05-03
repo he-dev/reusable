@@ -20,11 +20,11 @@ namespace Reusable.Flexo
 
         public IExpression Default { get; set; }
 
-        protected override Constant<TResult> InvokeCore(IImmutableSession context, IExpression @this)
+        protected override Constant<TResult> InvokeCore(IExpression @this)
         {
             //var @this = context.PopThisConstant().Value<object>();
-            var value = @this.Invoke(context).Value;
-            var switchContext = context.Set(Use<ISwitchSession>.Scope, x => x.Value, value);
+            var value = @this.Invoke().Value;
+            //var switchContext = context.Set(Use<ISwitchSession>.Scope, x => x.Value, value);
 
             foreach (var switchCase in (Cases ?? Enumerable.Empty<SwitchCase>()).Where(c => c.Enabled))
             {
@@ -33,17 +33,17 @@ namespace Reusable.Flexo
                     case IConstant constant:
                         if (EqualityComparer<object>.Default.Equals(value, constant.Value))
                         {
-                            var bodyResult = switchCase.Body.Invoke(context);
-                            return (Name, (TResult)bodyResult.Value, bodyResult.Context);
+                            var bodyResult = switchCase.Body.Invoke();
+                            return (Name, (TResult)bodyResult.Value);
                         }
 
                         break;
 
                     case IExpression expression:
-                        if (expression.Invoke(switchContext) is var whenResult && whenResult.Value<bool>())
+                        if (expression.Invoke() is var whenResult && whenResult.Value<bool>())
                         {
-                            var bodyResult = switchCase.Body.Invoke(context);
-                            return (Name, (TResult)bodyResult.Value, bodyResult.Context);
+                            var bodyResult = switchCase.Body.Invoke();
+                            return (Name, (TResult)bodyResult.Value);
                         }
 
                         break;
@@ -54,7 +54,7 @@ namespace Reusable.Flexo
             return
                 Default is null
                     ? throw new ArgumentOutOfRangeException()
-                    : (Name, Default.Invoke(context).Value<TResult>(), context);
+                    : (Name, Default.Invoke().Value<TResult>());
 
             // return
             // (

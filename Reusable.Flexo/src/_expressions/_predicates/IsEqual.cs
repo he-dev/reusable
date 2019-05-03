@@ -15,10 +15,10 @@ namespace Reusable.Flexo
         [JsonRequired]
         public IExpression Value { get; set; }
 
-        protected override Constant<bool> InvokeCore(IImmutableSession context, IExpression @this)
+        protected override Constant<bool> InvokeCore(IExpression @this)
         {
-            var value = Value.Invoke(context).Value;
-            return (Name, @this.Invoke(context).Value<object>().Equals(value), context);
+            var value = Value.Invoke().Value;
+            return (Name, @this.Invoke().Value<object>().Equals(value));
         }
     }
     

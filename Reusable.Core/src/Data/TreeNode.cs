@@ -32,6 +32,12 @@ namespace Reusable.Data
         [CanBeNull]
         public T Value { get; set; }
 
+        public new TreeNode<T> Add(TreeNode<T> node)
+        {
+            base.Add(node);
+            return node;
+        }
+
         public static implicit operator T(TreeNode<T> node) => node.Value;
 
         public static implicit operator TreeNode<T>(T value) => new TreeNode<T>(value);

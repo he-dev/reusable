@@ -21,20 +21,23 @@ namespace Reusable.Tests.Flexo
         (
             TValue expected,
             IExpression expression,
-            Func<IImmutableSession, IImmutableSession> configureContext = null,
+            Func<IImmutableSession, IImmutableSession> customizeContext = null,
             ITestOutputHelper output = default,
             bool throws = false
         )
         {
-            var context = (configureContext ?? (ctx => ctx))(Expression.DefaultSession);
-
+            var expressionInvoker = new ExpressionInvoker();
+            
             if (throws)
             {
-                Assert.ThrowsAny<DynamicException>(() => expression.Invoke(context));
+                Assert.ThrowsAny<DynamicException>(() => expressionInvoker.Invoke(expression, customizeContext));
                 return default;
             }
-            
-            var actual = expression.Invoke(context);
+
+
+            var (actual, context) = expressionInvoker.Invoke(expression, customizeContext);
+
+            //var actual = expression.Invoke();
 
             var debugViewString = DebugViewRenderer.Render(context.DebugView(), ExpressionDebugView.DefaultRender);
 

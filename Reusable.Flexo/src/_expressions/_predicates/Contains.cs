@@ -19,12 +19,11 @@ namespace Reusable.Flexo
 
         public string Comparer { get; set; }
 
-        protected override Constant<bool> InvokeCore(IImmutableSession context, IEnumerable<IExpression> @this)
+        protected override Constant<bool> InvokeCore(IEnumerable<IExpression> @this)
         {
-            var value = Value.Invoke(context).Value;
-            var comparer = context.GetComparerOrDefault(Comparer);
-
-            return (Name, @this.Any(x => comparer.Equals(value, x.Invoke(context).Value<object>())), context);
+            var value = Value.Invoke().Value;
+            var comparer = Scope.GetComparerOrDefault(Comparer);
+            return (Name, @this.Any(x => comparer.Equals(value, x.Invoke().Value<object>())));
         }
     }
     
@@ -40,12 +39,12 @@ namespace Reusable.Flexo
 
         public string Comparer { get; set; }
 
-        protected override Constant<bool> InvokeCore(IImmutableSession context, IExpression @this)
+        protected override Constant<bool> InvokeCore(IExpression @this)
         {
-            var value = @this.Invoke(context).Value;
-            var comparer = context.GetComparerOrDefault(Comparer);
+            var value = @this.Invoke().Value;
+            var comparer = Scope.GetComparerOrDefault(Comparer);
 
-            return (Name, Values.Enabled().Any(x => comparer.Equals(value, x.Invoke(context).Value)), context);
+            return (Name, Values.Enabled().Any(x => comparer.Equals(value, x.Invoke().Value)));
         }
     }
 }

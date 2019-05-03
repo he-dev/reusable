@@ -19,11 +19,11 @@ namespace Reusable.Flexo
                 select expression;
         }
 
-        public static IEnumerable<IConstant> Invoke(this IEnumerable<IExpression> expressions, IImmutableSession context)
+        public static IEnumerable<IConstant> Invoke(this IEnumerable<IExpression> expressions)
         {
             return
                 from expression in expressions.Enabled()
-                select expression.Invoke(context);
+                select expression.Invoke();
         }
 
         public static IEnumerable<T> Values<T>(this IEnumerable<IConstant> constants)

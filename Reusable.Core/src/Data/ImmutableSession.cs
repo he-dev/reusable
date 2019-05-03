@@ -42,6 +42,8 @@ namespace Reusable.Data
         [DebuggerStepThrough]
         T Get<TScope, T>(ISessionScope<TScope> scope, Expression<Func<TScope, T>> getItem, T defaultValue = default) where TScope : ISession;
 
+        bool TryGetItem<TScope, T>(ISessionScope<TScope> scope, Expression<Func<TScope, T>> getItem, out T value) where TScope : ISession;
+
         [DebuggerStepThrough]
         IImmutableSession Set<TScope, T>(ISessionScope<TScope> scope, Expression<Func<TScope, T>> setItem, T value) where TScope : ISession;
     }
@@ -139,14 +141,29 @@ namespace Reusable.Data
         [DebuggerStepThrough]
         [MustUseReturnValue]
         public T Get<TScope, T>(ISessionScope<TScope> scope, Expression<Func<TScope, T>> getItem, T defaultValue = default) where TScope : ISession
-        {            
+        {
             return TryGetValue(ImmutableSessionScope<TScope>.Key(getItem), out var value) ? (T)value : defaultValue;
+        }
+
+        public bool TryGetItem<TScope, T>(ISessionScope<TScope> scope, Expression<Func<TScope, T>> getItem, out T value) where TScope : ISession
+        {
+            if (TryGetValue(ImmutableSessionScope<TScope>.Key(getItem), out var item))
+            {
+                if (item is T t)
+                {
+                    value = t;
+                    return true;
+                }
+            }
+
+            value = default;
+            return false;
         }
 
         [DebuggerStepThrough]
         [MustUseReturnValue]
         public IImmutableSession Set<TScope, T>(ISessionScope<TScope> scope, Expression<Func<TScope, T>> setItem, T value) where TScope : ISession
-        {            
+        {
             return SetItem(ImmutableSessionScope<TScope>.Key(setItem), value);
         }
 

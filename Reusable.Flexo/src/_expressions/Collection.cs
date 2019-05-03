@@ -10,16 +10,12 @@ namespace Reusable.Flexo
         [JsonConstructor]
         public Collection(SoftString name) : base(name ?? nameof(Collection)) { }
 
-        public List<IExpression> Values { get; set; }
+        [JsonRequired]
+        public IEnumerable<IExpression> Values { get; set; }
 
-        protected override Constant<IEnumerable<IExpression>> InvokeCore(IImmutableSession context)
+        protected override Constant<IEnumerable<IExpression>> InvokeCore()
         {
-            var result =
-                Values
-                    .Enabled()
-                    .Select((e, i) => Constant.FromNameAndValue($"{Name.ToString()}-Item-{i}", e.Invoke(context).Value))
-                    .ToList();
-            return (Name, result, context);
+            return (Name, Values.Enabled().Select((e, i) => Constant.Create($"Item[{i}]", e.Invoke().Value)).ToList());
         }
     }
 }

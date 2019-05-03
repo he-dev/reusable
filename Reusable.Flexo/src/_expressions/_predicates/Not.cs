@@ -14,9 +14,9 @@ namespace Reusable.Flexo
         [JsonProperty("Value")]
         public override IExpression This { get; set; }
 
-        protected override Constant<bool> InvokeCore(IImmutableSession context, IExpression @this)
+        protected override Constant<bool> InvokeCore(IExpression @this)
         {
-            return (Name, !@this.Invoke(context).Value<bool>(), context);            
+            return (Name, !@this.Invoke().Value<bool>());            
         }
     }
 }

@@ -1,7 +1,10 @@
+using System.CodeDom;
 using System.Diagnostics;
+using System.Globalization;
 using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Diagnostics;
+using Reusable.Extensions;
 
 namespace Reusable.Flexo
 {
@@ -24,7 +27,7 @@ namespace Reusable.Flexo
 
         public static RenderValueCallback<ExpressionDebugView> DefaultRender
         {
-            get { return (dv, d) => $"[{dv.Type}] as [{dv.Name}]: '{dv.Result}' ({dv.Description})"; }
+            get { return (dv, d) => $"[{dv.Type}] as [{dv.Name}]: '{FormatResult(dv.Result)}' ({dv.Description})"; }
         }
 
         public string Type { get; set; } = $"<{nameof(Type)}>";
@@ -34,5 +37,18 @@ namespace Reusable.Flexo
         public string Description { get; set; } = $"<{nameof(Description)}>";
 
         public object Result { get; set; } = $"<{nameof(Result)}>";
+
+        private static string FormatResult(object result)
+        {
+            switch (result)
+            {
+                case double d:
+                    return d.ToString("F2", CultureInfo.InvariantCulture);
+                case string s:
+                    return s;
+                default:
+                    return result.GetType().ToPrettyString();
+            }
+        }
     }
 }

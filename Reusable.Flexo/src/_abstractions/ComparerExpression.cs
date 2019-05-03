@@ -22,10 +22,10 @@ namespace Reusable.Flexo
         [JsonProperty("Value")]
         public IExpression Right { get; set; }
 
-        protected override Constant<bool> InvokeCore(IImmutableSession context, IExpression @this)
+        protected override Constant<bool> InvokeCore(IExpression @this)
         {
-            var result = Comparer<object>.Default.Compare(@this.Invoke(context).Value, Right.Invoke(context).Value);
-            return (Name, _predicate(result), context);
+            var result = Comparer<object>.Default.Compare(@this.Invoke().Value, Right.Invoke().Value);
+            return (Name, _predicate(result));
         }
     }
 }
