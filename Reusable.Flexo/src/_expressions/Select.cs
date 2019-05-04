@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Data;
@@ -38,42 +40,5 @@ namespace Reusable.Flexo
         }
     }
 
-    // public abstract class Update : Expression<bool>
-    // {
-    //     protected Update([NotNull] ILogger logger, SoftString name) : base(logger, name) { }
-    //
-    //     [JsonProperty("Select")]
-    //     public string Path { get; set; }
-    //     
-    //     public IEnumerable<IExpression> Values { get; set; }
-    //
-    //     protected override Constant<bool> InvokeCore(IImmutableSession context)
-    //     {
-    //         return default;
-    //         // return
-    //         //     Values is null
-    //         //         ? InvokeCore(new[] { context["this"] }, context)
-    //         //         : InvokeCore(Values.Invoke(context).Values<object>(), context);
-    //     }
-    //
-    //     protected virtual Constant<bool> InvokeCore(IExpression value, IImmutableSession context)
-    //     {
-    //         throw new NotSupportedException();
-    //     }
-    //
-    //     protected virtual Constant<bool> InvokeCore(IEnumerable<IExpression> values, IImmutableSession context)
-    //     {
-    //         throw new NotSupportedException();
-    //     }        
-    // }
-    //
-    // public class Append : Update
-    // {
-    //     public Append([NotNull] ILogger<Append> logger) : base(logger, nameof(Append)) { }
-    //
-    //     protected override Constant<bool> InvokeCore(IEnumerable<IExpression> values, IImmutableSession context)
-    //     {
-    //         throw new System.NotImplementedException();
-    //     }
-    // }
+    
 }

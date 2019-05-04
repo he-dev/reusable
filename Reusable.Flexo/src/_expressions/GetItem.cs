@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Custom;
@@ -41,26 +40,6 @@ namespace Reusable.Flexo
             obj = names.Skip(1).Aggregate(obj, (current, name) => current.GetType().GetProperty(name).GetValue(current));
 
             return obj;
-        }
-    }
-
-    public class GetSingle : GetItem<object>
-    {
-        public GetSingle([NotNull] ILogger<GetSingle> logger) : base(logger, nameof(GetSingle)) { }
-
-        protected override Constant<object> InvokeCore()
-        {
-            return (Path, FindItem());
-        }
-    }
-
-    public class GetMany : GetItem<IEnumerable<IExpression>>
-    {
-        public GetMany([NotNull] ILogger<GetMany> logger) : base(logger, nameof(GetMany)) { }
-
-        protected override Constant<IEnumerable<IExpression>> InvokeCore()
-        {
-            return (Path, ((IEnumerable<object>)FindItem()).Select((x, i) => Constant.Create($"Item[{i}]", x)).ToList());
         }
     }
 

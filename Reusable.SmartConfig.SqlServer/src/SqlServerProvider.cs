@@ -53,7 +53,7 @@ namespace Reusable.SmartConfig
         protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             var settingIdentifier = UriConverter?.Convert<string>(uri) ?? uri;
-            metadata = metadata.Set(Use<IResourceSession>.Scope, x => x.ActualName, settingIdentifier);
+            metadata = metadata.Set(Use<IResourceSession>.Namespace, x => x.ActualName, settingIdentifier);
 
             return await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
             {
@@ -63,7 +63,7 @@ namespace Reusable.SmartConfig
                     if (await settingReader.ReadAsync(token))
                     {
                         var value = settingReader[ColumnMappings.MapOrDefault(Value)];
-                        value = ValueConverter.Convert(value, metadata.Get(Use<IResourceSession>.Scope, x => x.Type));
+                        value = ValueConverter.Convert(value, metadata.Get(Use<IResourceSession>.Namespace, x => x.Type));
                         return new SqlServerResourceInfo(uri, value, metadata);
                     }
                     else
@@ -87,7 +87,7 @@ namespace Reusable.SmartConfig
                 {
                     await cmd.ExecuteNonQueryAsync(token);
                 }
-            }, metadata.Get(Use<IAnySession>.Scope, x => x.CancellationToken));
+            }, metadata.Get(Use<IAnySession>.Namespace, x => x.CancellationToken));
 
             return await GetAsync(uri, metadata);
         }
@@ -98,7 +98,7 @@ namespace Reusable.SmartConfig
         [CanBeNull] private readonly object _value;
 
         internal SqlServerResourceInfo([NotNull] UriString uri, [CanBeNull] object value, IImmutableSession metadata)
-            : base(uri, metadata.Set(Use<IResourceSession>.Scope, x => x.Format, value is string ? MimeType.Text : MimeType.Binary))
+            : base(uri, metadata.Set(Use<IResourceSession>.Namespace, x => x.Format, value is string ? MimeType.Text : MimeType.Binary))
         {
             _value = value;
         }
@@ -113,7 +113,7 @@ namespace Reusable.SmartConfig
 
         protected override async Task CopyToAsyncInternal(Stream stream)
         {
-            var format = Metadata.Get(Use<IResourceSession>.Scope, x => x.Format);
+            var format = Metadata.Get(Use<IResourceSession>.Namespace, x => x.Format);
             if (format == MimeType.Text)
             {
                 using (var s = await ResourceHelper.SerializeTextAsync((string)_value))

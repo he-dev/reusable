@@ -270,5 +270,57 @@
       "$t": "Flexo.Contains",
       "Value": "Bob"
     }
+  },
+  {
+    "$t": "Flexo.Concat",
+    "Name": "Concat",
+    "First": "sth.Names",
+    "Second": [
+      "Tom"
+    ]
+  },
+  {
+    "$t": "Flexo.Union",
+    "Name": "Union",
+    "First": "sth.Names",
+    "Second": [
+      "Tom",
+      "Joe"
+    ]
+  },
+  {
+    "$t": "Flexo.GetMany",
+    "Name": "GetMany.Block.Contains",
+    "Path": "sth.Names",
+    "This": {
+      "$t": "Flexo.Block",
+      "Body": [
+        {
+          "$t": "Flexo.GetMany",
+          "Name": "GetMany",
+          "Path": "sth.Names"
+        },
+        {
+          "$t": "Flexo.Contains",
+          "Value": "Bob"
+        }
+      ]
+    }
+  },
+  {
+    "$t": "Flexo.String",
+    "Name": "String.IsNullOrEmpty-false",
+    "Value": "Hallo!",
+    "This": {
+      "$t": "Flexo.IsNullOrEmpty"
+    }
+  },
+  {
+    "$t": "Flexo.String",
+    "Name": "String.IsNullOrEmpty-true",
+    "Value": null,
+    "This": {
+      "$t": "Flexo.IsNullOrEmpty"
+    }
   }
 ]

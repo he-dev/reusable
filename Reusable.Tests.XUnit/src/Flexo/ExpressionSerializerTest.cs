@@ -40,7 +40,18 @@ namespace Reusable.Tests.Flexo
         public void Can_evaluate_supported_expressions(string useCaseName, object expected, bool throws)
         {
             var useCase = _helper.GetExpressions().Single(e => e.Name == useCaseName);
-            ExpressionAssert.Equal(expected, useCase, ctx => ctx.WithReferences(_helper.GetReferences()).SetItem("sth", new Something()), _output, throws);
+            var sth = new Something();
+            ExpressionAssert.Equal(expected, useCase, ctx => ctx.WithReferences(_helper.GetReferences()).SetItem("sth", sth), _output, throws);
+
+            if (useCaseName == "Concat")
+            {
+                Assert.Equal(new[] { "Joe", "Bob", "Tom" }, sth.Names);
+            }
+            
+            if (useCaseName == "Union")
+            {
+                Assert.Equal(new[] { "Joe", "Bob", "Tom" }, sth.Names);
+            }
         }
 
         [Fact]
@@ -82,6 +93,11 @@ namespace Reusable.Tests.Flexo
             ("GetSingle", "Hallo!", false),
             ("GetMany", new[] { "Joe", "Bob" }, false),
             ("GetMany.Contains", true, false),
+            ("Concat", new[] { "Joe", "Bob", "Tom" }, false),
+            ("Union", new[] { "Joe", "Bob", "Tom" }, false),
+            ("GetMany.Block.Contains", true, false),
+            ("String.IsNullOrEmpty-false", false, false),
+            ("String.IsNullOrEmpty-true", true, false),
         }.Select(uc => new { uc.UseCaseName, uc.Expected, uc.Throws });
 
         private class Something

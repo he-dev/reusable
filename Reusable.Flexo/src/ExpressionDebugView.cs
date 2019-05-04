@@ -45,6 +45,7 @@ namespace Reusable.Flexo
                 case double d: return d.ToString("F2", CultureInfo.InvariantCulture);
                 case bool b: return b.ToString();
                 case string s: return s;
+                case null: return "null";
                 default: return result.GetType().ToPrettyString();
             }
         }

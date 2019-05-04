@@ -52,7 +52,7 @@ namespace Reusable.Tests.XUnit.Teapot
                     (
                         "test?param=true",
                         () => ResourceHelper.SerializeAsJsonAsync(new { Greeting = "Hallo" }),
-                        ImmutableSession.Empty.Set(Use<IHttpSession>.Scope, x => x.ConfigureRequestHeaders, headers =>
+                        ImmutableSession.Empty.Set(Use<IHttpSession>.Namespace, x => x.ConfigureRequestHeaders, headers =>
                         {
                             headers.ApiVersion("1.0");
                             headers.UserAgent("Teapot", "1.0");

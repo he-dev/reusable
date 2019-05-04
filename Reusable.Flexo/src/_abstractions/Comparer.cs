@@ -8,11 +8,11 @@ using Reusable.OmniLog.Abstractions;
 namespace Reusable.Flexo
 {
     [PublicAPI]
-    public abstract class ComparerExpression : ValueExtension<bool>
+    public abstract class Comparer : ValueExtension<bool>
     {
         private readonly Func<int, bool> _predicate;
 
-        protected ComparerExpression(ILogger logger, string name, [NotNull] Func<int, bool> predicate)
+        protected Comparer(ILogger logger, string name, [NotNull] Func<int, bool> predicate)
             : base(logger, name) => _predicate = predicate;
 
         [JsonProperty("Left")]

@@ -180,7 +180,7 @@ namespace Reusable.Data
     public static class Use<T>
     {
         [DebuggerNonUserCode]
-        public static ISessionScope<T> Scope => default;
+        public static ISessionScope<T> Namespace => default;
     }
 
     public interface ISession { }

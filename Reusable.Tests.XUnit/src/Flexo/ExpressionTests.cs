@@ -476,7 +476,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void GetContextItem_can_get_item_by_key()
         {
-            Equal(1, _helper.Resolve<GetSingle>(e => e.Path = "SwitchSession.Value"), ctx => ctx.Set(Use<ISwitchSession>.Scope, x => x.Value, 1));
+            Equal(1, _helper.Resolve<GetSingle>(e => e.Path = "SwitchSession.Value"), ctx => ctx.Set(Use<ISwitchSession>.Namespace, x => x.Value, 1));
         }
 //
 //        [Fact]

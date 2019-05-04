@@ -48,6 +48,8 @@ namespace Reusable.Flexo
         public static readonly Type[] Types =
         {
             typeof(Reusable.Flexo.IsEqual),
+            typeof(Reusable.Flexo.IsNull),
+            typeof(Reusable.Flexo.IsNullOrEmpty),
             typeof(Reusable.Flexo.IsGreaterThan),
             typeof(Reusable.Flexo.IsGreaterThanOrEqual),
             typeof(Reusable.Flexo.IsLessThan),
@@ -83,6 +85,9 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.Select),
             typeof(Reusable.Flexo.Throw),
             typeof(Reusable.Flexo.Where),
+            typeof(Reusable.Flexo.Concat),
+            typeof(Reusable.Flexo.Union),
+            typeof(Reusable.Flexo.Block),
         };
         // ReSharper restore RedundantNameQualifier
 
@@ -112,7 +117,7 @@ namespace Reusable.Flexo
             ExpressionScope.Current
             ?? throw new InvalidOperationException("Expressions must be invoked within a valid scope. Use 'BeginScope' to introduce one.");
 
-        public static ISessionScope<IExpressionSession> Namespace => Use<IExpressionSession>.Scope;
+        public static ISessionScope<IExpressionSession> Namespace => Use<IExpressionSession>.Namespace;
 
         public virtual SoftString Name
         {

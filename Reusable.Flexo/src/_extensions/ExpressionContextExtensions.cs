@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Linq.Custom;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
@@ -17,7 +19,7 @@ namespace Reusable.Flexo
     [PublicAPI]
     public static class ExpressionContextExtensions
     {
-        private static readonly ISessionScope<IExpressionSession> Scope = Use<IExpressionSession>.Scope;
+        private static readonly ISessionScope<IExpressionSession> Scope = Use<IExpressionSession>.Namespace;
 
         #region Extension-Input helpers
 
@@ -106,9 +108,9 @@ namespace Reusable.Flexo
             return default;
         }
 
-        public static IEqualityComparer<object> GetComparerOrDefault(this ExpressionScope scope, [CanBeNull] string name) 
+        public static IEqualityComparer<object> GetComparerOrDefault(this ExpressionScope scope, [CanBeNull] string name)
         {
-            var comparers = scope.Find(Use<IExpressionSession>.Scope, x => x.Comparers);
+            var comparers = scope.Find(Use<IExpressionSession>.Namespace, x => x.Comparers);
             if (name is null)
             {
                 return comparers["Default"];
@@ -130,6 +132,54 @@ namespace Reusable.Flexo
         public static IImmutableSession DebugView(this IImmutableSession context, TreeNode<ExpressionDebugView> debugView)
         {
             return context.Set(Scope, x => x.DebugView, debugView);
+        }
+
+        public static (object Object, PropertyInfo Property, object Value) FindItem(this IImmutableSession context, string path)
+        {
+            // Supported paths: sth.Property[index].Property
+            var names =
+                Regex
+                    .Matches(path, @"((?<name>[a-z0-9_]+)(\[(?<item>[a-z0-9_]+)\])?)", RegexOptions.IgnoreCase)
+                    .Cast<Match>()
+                    .Select(m => (Name: m.Group("name"), Item: m.Group("item")))
+                    .ToList();
+            
+            // todo - there must be at least 2 names
+
+            // Get the initial object from the context.
+            var first = names.First();
+            var obj =
+                first.Name == "this"
+                    ? context.Get(Use<IExpressionSession>.Namespace, x => x.This)
+                    : context.TryGetValue(first.Name, out var item)
+                        ? item
+                        : throw DynamicException.Create("InitialObjectNotFound", $"Could not find an item with the key '{path}'.");
+
+            // Follow the path and try to get the corresponding property for each name.
+            return names.Skip(1).Aggregate((Object: obj, Property: default(PropertyInfo), Value: default(object)), (current, next) =>
+            {
+                if (current.Object.GetType().GetProperty(next.Name) is var property && !(property is null))
+                {
+                    var value = property.GetValue(current.Object);
+
+                    if (string.IsNullOrEmpty(next.Item))
+                    {
+                        return (current.Object, property, value);
+                    }
+
+                    var index = context.Get(Use<IExpressionSession>.Namespace, x => x.This);
+                    var element = ((IEnumerable<object>)value).Single(x => x.Equals(index));                    
+                    return (element, default, default);
+                }
+                else
+                {
+                    throw DynamicException.Create
+                    (
+                        $"PropertyNotFound",
+                        $"Type '{current.GetType().ToPrettyString()}' does not have such property as '{next.Name}'."
+                    );
+                }
+            });
         }
     }
 }

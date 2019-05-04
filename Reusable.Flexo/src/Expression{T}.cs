@@ -88,29 +88,33 @@ namespace Reusable.Flexo
                     extension = @ref.Invoke().Value<IExpression>();
                 }
 
-                var thisValue = extension.GetType().GetProperty(nameof(IExtension<object>.This)).GetValue(extension);
-                if (!(thisValue is null))
+                // Validate return value and extension only for extensions. Make an exception for Block.
+                if (!(extension is Block))                
                 {
-                    throw DynamicException.Create
-                    (
-                        $"AmbiguousExpressionUsage",
-                        $"Expression '{extension.GetType().ToPrettyString()}/{extension.Name.ToString()}' is used as an extension and must not use the 'This' property explicitly."
-                    );
-                }
+                    var thisValue = extension.GetType().GetProperty(nameof(IExtension<object>.This)).GetValue(extension);
+                    if (!(thisValue is null))
+                    {
+                        throw DynamicException.Create
+                        (
+                            $"AmbiguousExpressionUsage",
+                            $"Expression '{extension.GetType().ToPrettyString()}/{extension.Name.ToString()}' is used as an extension and must not use the 'This' property explicitly."
+                        );
+                    }
 
-                var extensionType = extension.GetType().GetInterface(typeof(IExtension<>).Name)?.GetGenericArguments().Single();
-                var thisType =
-                    thisResult.Value is IEnumerable<IExpression> collection
-                        ? collection.GetType()
-                        : thisResult.GetType();
+                    var extensionType = extension.GetType().GetInterface(typeof(IExtension<>).Name)?.GetGenericArguments().Single();
+                    var thisType =
+                        thisResult.Value is IEnumerable<IExpression> collection
+                            ? collection.GetType()
+                            : thisResult.GetType();
 
-                if (extensionType?.IsAssignableFrom(thisType) == false)
-                {
-                    throw DynamicException.Create
-                    (
-                        $"ExtensionTypeMismatch",
-                        $"Extension's '{extension.GetType().ToPrettyString()}' type '{extensionType.ToPrettyString()}' does not match the expression it is extending which is '{GetType().ToPrettyString()}'."
-                    );
+                    if (extensionType?.IsAssignableFrom(thisType) == false)
+                    {
+                        throw DynamicException.Create
+                        (
+                            $"ExtensionTypeMismatch",
+                            $"Extension's '{extension.GetType().ToPrettyString()}' type '{extensionType.ToPrettyString()}' does not match the expression it is extending which is '{GetType().ToPrettyString()}'."
+                        );
+                    }
                 }
 
                 var extensionView = thisView.Add(CreateDebugView(extension));

@@ -22,17 +22,17 @@ namespace Reusable.IOnymous
         {
             metadata =
                 (metadata ?? ImmutableSession.Empty)
-                .Set(Use<IHttpSession>.Scope, x => x.ConfigureRequestHeaders, headers =>
+                .Set(Use<IHttpSession>.Namespace, x => x.ConfigureRequestHeaders, headers =>
                 {
                     headers
                         .UserAgent(productName, productVersion)
                         .AcceptHtml();
                 })
-                .Set(Use<IHttpSession>.Scope, x => x.ResponseFormatters, new[] { new TextMediaTypeFormatter() })
-                .Set(Use<IHttpSession>.Scope, x => x.ContentType, "application/json")
-                .Set(Use<IAnySession>.Scope, x => x.Schemes, ImmutableHashSet<SoftString>.Empty.Add("http").Add("https"))
+                .Set(Use<IHttpSession>.Namespace, x => x.ResponseFormatters, new[] { new TextMediaTypeFormatter() })
+                .Set(Use<IHttpSession>.Namespace, x => x.ContentType, "application/json")
+                .Set(Use<IAnySession>.Namespace, x => x.Schemes, ImmutableHashSet<SoftString>.Empty.Add("http").Add("https"))
                 // Bind this request to the http-provider.
-                .Set(Use<IProviderSession>.Scope, x => x.DefaultName, nameof(HttpProvider));
+                .Set(Use<IProviderSession>.Namespace, x => x.DefaultName, nameof(HttpProvider));
 
             using (var response = await resourceProvider.PostAsync(uri, () => ResourceHelper.SerializeAsJsonAsync(email, jsonSerializer), metadata))
             {

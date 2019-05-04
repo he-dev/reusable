@@ -9,11 +9,11 @@ using Reusable.OmniLog.Abstractions;
 namespace Reusable.Flexo
 {
     [PublicAPI]
-    public abstract class AggregateExpression : CollectionExtension<double>
+    public abstract class Aggregate : CollectionExtension<double>
     {
         private readonly Func<IEnumerable<double>, double> _aggregate;
 
-        protected AggregateExpression(ILogger logger, string name, [NotNull] Func<IEnumerable<double>, double> aggregate)
+        protected Aggregate(ILogger logger, string name, [NotNull] Func<IEnumerable<double>, double> aggregate)
             : base(logger, name) => _aggregate = aggregate;
 
         [JsonProperty("Values")]
