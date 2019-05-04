@@ -63,6 +63,8 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.ToString),
             typeof(Reusable.Flexo.GetSingle),
             typeof(Reusable.Flexo.GetMany),
+            typeof(Reusable.Flexo.SetSingle),
+            typeof(Reusable.Flexo.SetMany),
             typeof(Reusable.Flexo.Ref),
             typeof(Reusable.Flexo.Contains),
             typeof(Reusable.Flexo.In),

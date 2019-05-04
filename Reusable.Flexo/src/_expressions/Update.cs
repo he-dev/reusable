@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -19,17 +20,11 @@ namespace Reusable.Flexo
 
         protected override Constant<IEnumerable<IExpression>> InvokeCore()
         {
-            var comparers = Scope.Find(Namespace, x => x.Comparers);
-            var comparer = Comparer.IsNotNullOrEmpty() && comparers.TryGetValue(Comparer, out var c) ? c : comparers["Default"];
-
-
+            var comparer = Scope.GetComparerOrDefault(Comparer);
             var (obj, property, value) = Scope.Context.FindItem(First);
             var current = InvokeMethod(obj, property, value, comparer);
             var enumerableType = property.PropertyType.GetGenericArguments().First();
-            var toList = typeof(Enumerable).GetMethod(nameof(Enumerable.ToList)).MakeGenericMethod(enumerableType);
-            var cast = typeof(Enumerable).GetMethod(nameof(Enumerable.Cast)).MakeGenericMethod(enumerableType);
-            var casted = cast.Invoke(null, new object[] { current });
-            var list = toList.Invoke(null, new object[] { casted });
+            var list = current.ToList(enumerableType);
 
             property.SetValue(obj, list);
 
@@ -37,6 +32,8 @@ namespace Reusable.Flexo
         }
 
         protected abstract IEnumerable<object> InvokeMethod(object obj, PropertyInfo property, object value, IEqualityComparer<object> comparer);
+
+       
     }
 
     public class Concat : Update
@@ -58,4 +55,40 @@ namespace Reusable.Flexo
             return ((IEnumerable<object>)value).Union(Second.Invoke().Values<object>(), comparer);
         }
     }
+
+    public class SetSingle : Expression<object>
+    {
+        public SetSingle([NotNull] ILogger<SetSingle> logger) : base(logger, nameof(SetSingle)) { }
+
+        public string Path { get; set; }
+
+        public IExpression Value { get; set; }
+
+        protected override Constant<object> InvokeCore()
+        {
+            var (obj, property, value) = Scope.Context.FindItem(Path);
+            value = Value.Invoke().Value;
+            property.SetValue(obj, value);
+            return (Name, default);
+        }
+    }
+
+    public class SetMany : Expression<object>
+    {
+        public SetMany([NotNull] ILogger<SetMany> logger) : base(logger, nameof(SetMany)) { }
+
+        public string Path { get; set; }
+
+        public IEnumerable<IExpression> Values { get; set; }
+
+        protected override Constant<object> InvokeCore()
+        {
+            var (obj, property, value) = Scope.Context.FindItem(Path);
+            var enumerableType = property.PropertyType.GetGenericArguments().First();
+            var list = Values.Invoke().Values<object>().ToList(enumerableType);
+
+            property.SetValue(obj, list);
+            return (Name, default);
+        }
+    }    
 }

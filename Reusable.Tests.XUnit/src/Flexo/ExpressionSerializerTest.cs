@@ -43,14 +43,18 @@ namespace Reusable.Tests.Flexo
             var sth = new Something();
             ExpressionAssert.Equal(expected, useCase, ctx => ctx.WithReferences(_helper.GetReferences()).SetItem("sth", sth), _output, throws);
 
-            if (useCaseName == "Concat")
+            switch (useCaseName)
             {
-                Assert.Equal(new[] { "Joe", "Bob", "Tom" }, sth.Names);
-            }
-            
-            if (useCaseName == "Union")
-            {
-                Assert.Equal(new[] { "Joe", "Bob", "Tom" }, sth.Names);
+                case "Concat":
+                case "Union":
+                    Assert.Equal(new[] { "Joe", "Bob", "Tom" }, sth.Names);
+                    break;
+                case "SetSingle":
+                    Assert.Equal("Hi!", sth.Greeting);
+                    break;
+                case "SetMany":
+                    Assert.Equal(new[] { "Liz", "Bob" }, sth.Names);
+                    break;
             }
         }
 
@@ -98,6 +102,8 @@ namespace Reusable.Tests.Flexo
             ("GetMany.Block.Contains", true, false),
             ("String.IsNullOrEmpty-false", false, false),
             ("String.IsNullOrEmpty-true", true, false),
+            ("SetSingle", null, false),
+            ("SetMany", null, false),
         }.Select(uc => new { uc.UseCaseName, uc.Expected, uc.Throws });
 
         private class Something

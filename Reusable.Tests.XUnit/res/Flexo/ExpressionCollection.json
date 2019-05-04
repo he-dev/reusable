@@ -322,5 +322,18 @@
     "This": {
       "$t": "Flexo.IsNullOrEmpty"
     }
+  },
+  {
+    "$t": "Flexo.SetSingle",
+    "Path": "sth.Greeting",
+    "Value": "Hi!"
+  },
+  {
+    "$t": "Flexo.SetMany",
+    "Path": "sth.Names",
+    "Values": [
+      "Liz",
+      "Bob"
+    ]
   }
 ]

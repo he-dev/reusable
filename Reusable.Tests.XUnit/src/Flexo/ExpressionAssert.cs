@@ -27,7 +27,7 @@ namespace Reusable.Tests.Flexo
         )
         {
             var expressionInvoker = new ExpressionInvoker();
-            
+
             if (throws)
             {
                 Assert.ThrowsAny<DynamicException>(() => expressionInvoker.Invoke(expression, customizeContext));
@@ -45,6 +45,7 @@ namespace Reusable.Tests.Flexo
             {
                 switch (expected)
                 {
+                    case null: break;
                     case IEnumerable collection when !(expected is string):
                         Assert.IsAssignableFrom<IEnumerable>(actual.Value);
                         Assert.Equal(collection.Cast<object>(), actual.Value<IEnumerable<IConstant>>().Values<object>());
