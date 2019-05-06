@@ -92,7 +92,7 @@ namespace Reusable.IOnymous
                 var resourceProviders = _resourceProviders.ToList();
 
                 // Use custom-provider-name if available which has the highest priority.
-                if (metadata.Get(Use<IProviderSession>.Namespace, x => x.CustomName) is var customName && customName)
+                if (metadata.Get(Use<IProviderNamespace>.Namespace, x => x.CustomName) is var customName && customName)
                 {
                     var match =
                         resourceProviders
@@ -117,7 +117,7 @@ namespace Reusable.IOnymous
                 }
 
                 // Multiple providers can have the same default name.
-                if (metadata.Get(Use<IProviderSession>.Namespace, x => x.DefaultName) is var defaultName && defaultName)
+                if (metadata.Get(Use<IProviderNamespace>.Namespace, x => x.DefaultName) is var defaultName && defaultName)
                 {
                     resourceProviders =
                         resourceProviders
@@ -148,7 +148,7 @@ namespace Reusable.IOnymous
                         throw DynamicException.Create
                         (
                             $"ProviderNotFound",
-                            $"Could not find any provider that would match any of the schemes [{metadata.Get(Use<IAnySession>.Namespace, x => x.Schemes).Select(x => (string)x).Join(",")}]."
+                            $"Could not find any provider that would match any of the schemes [{metadata.Get(Use<IAnyNamespace>.Namespace, x => x.Schemes).Select(x => (string)x).Join(",")}]."
                         );
                     }
                 }

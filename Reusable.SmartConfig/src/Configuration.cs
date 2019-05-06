@@ -41,7 +41,7 @@ namespace Reusable.SmartConfig
             var settingInfo = MemberVisitor.GetMemberInfo(getItem);
             var settingMetadata = new SettingMetadata(settingInfo, GetMemberName);
             var (uri, metadata) = SettingRequestFactory.CreateSettingRequest(settingMetadata, handle);
-            return await _settings.GetItemAsync<object>(uri, metadata.Set(Use<IResourceSession>.Namespace,x => x.Type, settingMetadata.MemberType));
+            return await _settings.GetItemAsync<object>(uri, metadata.Set(Use<IResourceNamespace>.Namespace,x => x.Type, settingMetadata.MemberType));
         }
 
         public async Task SetItemAsync(LambdaExpression setItem, object newValue, string handle = null)
@@ -52,7 +52,7 @@ namespace Reusable.SmartConfig
             var settingMetadata = new SettingMetadata(settingInfo, GetMemberName);
             var (uri, metadata) = SettingRequestFactory.CreateSettingRequest(settingMetadata, handle);
             Validate(newValue, settingMetadata.Validations, uri);
-            await _settings.SetItemAsync(uri, newValue, metadata.Set(Use<IResourceSession>.Namespace,x => x.Type, settingMetadata.MemberType));         
+            await _settings.SetItemAsync(uri, newValue, metadata.Set(Use<IResourceNamespace>.Namespace,x => x.Type, settingMetadata.MemberType));         
         }
 
         #region Helpers

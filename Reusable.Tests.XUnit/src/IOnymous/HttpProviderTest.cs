@@ -16,7 +16,7 @@ namespace Reusable.Tests.XUnit.IOnymous
                 "posts/1",
                 ImmutableSession
                     .Empty
-                    .Set(Use<IHttpSession>.Namespace, x => x.ConfigureRequestHeaders, headers => headers.AcceptJson())
+                    .Set(Use<IHttpNamespace>.Namespace, x => x.ConfigureRequestHeaders, headers => headers.AcceptJson())
                 //.ResponseFormatters(ne())
                 //.ResponseType(typeof(string))
             );

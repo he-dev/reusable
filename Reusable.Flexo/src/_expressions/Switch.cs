@@ -90,7 +90,7 @@ namespace Reusable.Flexo
         public IExpression Body { get; set; }
     }
 
-    public interface ISwitchSession : ISession
+    public interface ISwitchNamespace : INamespace
     {
         object Value { get; }
     }

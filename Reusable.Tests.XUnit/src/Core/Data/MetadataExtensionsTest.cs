@@ -10,14 +10,14 @@ namespace Reusable.Tests.Data
         [Fact]
         public void Can_set_scope()
         {
-            var metadata = ImmutableSession.Empty.SetItem("Global", "ABC").Set(Use<ITestSession>.Namespace, x => x.Greeting, "Hi!");
+            var metadata = ImmutableSession.Empty.SetItem("Global", "ABC").Set(Use<ITestNamespace>.Namespace, x => x.Greeting, "Hi!");
 
             Assert.Equal(2, metadata.Count);
 
             Assert.True(metadata.ContainsKey("Global"));
             Assert.True(metadata.ContainsKey("TestSession.Greeting"));
 
-            Assert.Equal("Hi!", metadata.Get(Use<ITestSession>.Namespace, x => x.Greeting));
+            Assert.Equal("Hi!", metadata.Get(Use<ITestNamespace>.Namespace, x => x.Greeting));
             Assert.Equal("ABC", metadata["Global"]);
         }
 
@@ -39,7 +39,7 @@ namespace Reusable.Tests.Data
         public void Union_can_merge_two_metadata_and_scope() { }
     }
 
-    internal interface ITestSession : ISession
+    internal interface ITestNamespace : INamespace
     {
         string Greeting { get; }
     }

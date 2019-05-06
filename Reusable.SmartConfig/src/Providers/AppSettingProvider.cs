@@ -27,7 +27,7 @@ namespace Reusable.SmartConfig
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
             var element = exeConfig.AppSettings.Settings[actualKey];
-            return Task.FromResult<IResourceInfo>(new AppSettingInfo(uri, element?.Value, ImmutableSession.Empty.Set(Use<IResourceSession>.Namespace,x => x.ActualName, settingIdentifier)));
+            return Task.FromResult<IResourceInfo>(new AppSettingInfo(uri, element?.Value, ImmutableSession.Empty.Set(Use<IResourceNamespace>.Namespace,x => x.ActualName, settingIdentifier)));
         }
 
         protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream stream, IImmutableSession metadata)
@@ -71,7 +71,7 @@ namespace Reusable.SmartConfig
         [CanBeNull] private readonly string _value;
 
         internal AppSettingInfo([NotNull] UriString uri, [CanBeNull] string value, IImmutableSession metadata)
-            : base(uri, metadata.Set(Use<IResourceSession>.Namespace,x => x.Format, MimeType.Text))
+            : base(uri, metadata.Set(Use<IResourceNamespace>.Namespace,x => x.Format, MimeType.Text))
         {
             _value = value;
         }

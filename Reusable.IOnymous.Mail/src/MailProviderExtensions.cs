@@ -36,14 +36,14 @@ namespace Reusable.IOnymous
         {
             metadata =
                 (metadata ?? ImmutableSession.Empty)
-                .Set(Use<IMailSession>.Namespace, x => x.From, email.From)
-                .Set(Use<IMailSession>.Namespace, x => x.To, email.To)
-                .Set(Use<IMailSession>.Namespace, x => x.CC, email.CC)
-                .Set(Use<IMailSession>.Namespace, x => x.Subject, email.Subject.Value)
-                .Set(Use<IMailSession>.Namespace, x => x.Attachments, email.Attachments)
-                .Set(Use<IMailSession>.Namespace, x => x.From, email.From)
-                .Set(Use<IMailSession>.Namespace, x => x.IsHtml, email.IsHtml)
-                .Set(Use<IMailSession>.Namespace, x => x.IsHighPriority, email.IsHighPriority);
+                .Set(Use<IMailNamespace>.Namespace, x => x.From, email.From)
+                .Set(Use<IMailNamespace>.Namespace, x => x.To, email.To)
+                .Set(Use<IMailNamespace>.Namespace, x => x.CC, email.CC)
+                .Set(Use<IMailNamespace>.Namespace, x => x.Subject, email.Subject.Value)
+                .Set(Use<IMailNamespace>.Namespace, x => x.Attachments, email.Attachments)
+                .Set(Use<IMailNamespace>.Namespace, x => x.From, email.From)
+                .Set(Use<IMailNamespace>.Namespace, x => x.IsHtml, email.IsHtml)
+                .Set(Use<IMailNamespace>.Namespace, x => x.IsHighPriority, email.IsHighPriority);
 
             return await resourceProvider.PostAsync
             (

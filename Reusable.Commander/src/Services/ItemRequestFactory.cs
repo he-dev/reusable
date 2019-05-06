@@ -27,7 +27,7 @@ namespace Reusable.Commander.Services
                 $"arg:///{path}{query}",
                 ImmutableSession
                     .Empty
-                    .Set(Use<IProviderSession>.Namespace, x => x.DefaultName, nameof(CommandArgumentProvider))
+                    .Set(Use<IProviderNamespace>.Namespace, x => x.DefaultName, nameof(CommandArgumentProvider))
             );
         }
     }

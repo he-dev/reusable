@@ -60,10 +60,9 @@ namespace Reusable.Flexo
                 }
             }
 
-            var thisView = SuppressOwnDebugView ? parentView : parentView.Add(CreateDebugView(this));
+            var thisView = SuppressDebugView ? parentView : parentView.Add(CreateDebugView(this));
 
             // Avoid making the tree deeper when this is already a Constant.
-            //using (@this is null ? Disposable.Empty : BeginScope(ctx => ctx.Set(Namespace, x => x.This, @this).Set(Namespace, x => x.DebugView, thisView)))
             using (@this is null
                 ? BeginScope(ctx => ctx.Set(Namespace, x => x.DebugView, thisView))
                 : BeginScope(ctx => ctx.Set(Namespace, x => x.This, @this).Set(Namespace, x => x.DebugView, thisView))
@@ -187,14 +186,5 @@ namespace Reusable.Flexo
         protected abstract Constant<TResult> InvokeCore(IEnumerable<IExpression> @this);
     }
 
-    public interface IExpressionSession : ISession
-    {
-        object This { get; }
-
-        IImmutableDictionary<SoftString, IEqualityComparer<object>> Comparers { get; }
-
-        IImmutableDictionary<SoftString, IExpression> References { get; }
-
-        TreeNode<ExpressionDebugView> DebugView { get; }
-    }
+    
 }

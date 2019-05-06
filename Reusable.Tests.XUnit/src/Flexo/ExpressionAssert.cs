@@ -17,7 +17,7 @@ namespace Reusable.Tests.Flexo
     {
         private static readonly ITreeRenderer<string> DebugViewRenderer = new PlainTextTreeRenderer();
 
-        public static IConstant Equal<TValue>
+        public static (IConstant Result, IImmutableSession Context) Equal<TValue>
         (
             TValue expected,
             IExpression expression,
@@ -30,38 +30,37 @@ namespace Reusable.Tests.Flexo
 
             if (throws)
             {
-                Assert.ThrowsAny<DynamicException>(() => expressionInvoker.Invoke(expression, customizeContext));
-                return default;
+                var (actual, context) = expressionInvoker.Invoke(expression, customizeContext);
+                Assert.IsAssignableFrom<Exception>(actual.Value);
+                return (actual, context);
             }
-
-
-            var (actual, context) = expressionInvoker.Invoke(expression, customizeContext);
-
-            //var actual = expression.Invoke();
-
-            var debugViewString = DebugViewRenderer.Render(context.DebugView(), ExpressionDebugView.DefaultRender);
-
-            try
+            else
             {
-                switch (expected)
+                var (actual, context) = expressionInvoker.Invoke(expression, customizeContext);
+                var debugViewString = DebugViewRenderer.Render(context.DebugView(), ExpressionDebugView.DefaultRender);
+
+                try
                 {
-                    case null: break;
-                    case IEnumerable collection when !(expected is string):
-                        Assert.IsAssignableFrom<IEnumerable>(actual.Value);
-                        Assert.Equal(collection.Cast<object>(), actual.Value<IEnumerable<IConstant>>().Values<object>());
-                        break;
-                    default:
-                        Assert.Equal(expected, actual.Value);
-                        break;
+                    switch (expected)
+                    {
+                        case null: break;
+                        case IEnumerable collection when !(expected is string):
+                            Assert.IsAssignableFrom<IEnumerable>(actual.Value);
+                            Assert.Equal(collection.Cast<object>(), actual.Value<IEnumerable<IConstant>>().Values<object>());
+                            break;
+                        default:
+                            Assert.Equal(expected, actual.Value);
+                            break;
+                    }
                 }
-            }
-            catch (Exception)
-            {
-                output?.WriteLine(debugViewString);
-                throw;
-            }
+                catch (Exception)
+                {
+                    output?.WriteLine(debugViewString);
+                    throw;
+                }
 
-            return actual;
+                return (actual, context);
+            }
         }
     }
 }

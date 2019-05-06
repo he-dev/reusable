@@ -24,7 +24,7 @@ namespace Reusable.IOnymous
         {
             using (var item = await resources.GetAsync(uri, metadata))
             {
-                var itemFormat = item.Metadata.Get(Use<IResourceSession>.Namespace, x => x.Format);
+                var itemFormat = item.Metadata.Get(Use<IResourceNamespace>.Namespace, x => x.Format);
 
                 if (item.Exists)
                 {
@@ -57,7 +57,7 @@ namespace Reusable.IOnymous
                     throw DynamicException.Create
                     (
                         $"ItemNotFound",
-                        $"Could not find '{uri}' that maps to '{item.Metadata.Get(Use<IResourceSession>.Namespace, x => x.ActualName) ?? "N/A"}'."
+                        $"Could not find '{uri}' that maps to '{item.Metadata.Get(Use<IResourceNamespace>.Namespace, x => x.ActualName) ?? "N/A"}'."
                     );
                 }
             }
@@ -74,15 +74,15 @@ namespace Reusable.IOnymous
 
         public static async Task SetItemAsync(this IResourceProvider resources, UriString uri, object value, IImmutableSession metadata)
         {
-            if (metadata.Get(Use<IResourceSession>.Namespace, x => x.Type) == typeof(string))
+            if (metadata.Get(Use<IResourceNamespace>.Namespace, x => x.Type) == typeof(string))
             {
                 using (var stream = await ResourceHelper.SerializeTextAsync((string)value))
-                using (await resources.PutAsync(uri, stream, metadata.Set(Use<IResourceSession>.Namespace, x => x.Format, MimeType.Text))) { }
+                using (await resources.PutAsync(uri, stream, metadata.Set(Use<IResourceNamespace>.Namespace, x => x.Format, MimeType.Text))) { }
             }
             else
             {
                 using (var stream = await ResourceHelper.SerializeBinaryAsync(value))
-                using (await resources.PutAsync(uri, stream, metadata.Set(Use<IResourceSession>.Namespace, x => x.Format, MimeType.Binary))) { }
+                using (await resources.PutAsync(uri, stream, metadata.Set(Use<IResourceNamespace>.Namespace, x => x.Format, MimeType.Binary))) { }
             }
         }
 

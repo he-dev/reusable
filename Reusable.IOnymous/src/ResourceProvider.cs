@@ -64,14 +64,14 @@ namespace Reusable.IOnymous
         {
             builder.True
             (x =>
-                x.Provider.Metadata.Get(Use<IProviderSession>.Namespace, m => m.AllowRelativeUri, false) ||
+                x.Provider.Metadata.Get(Use<IProviderNamespace>.Namespace, m => m.AllowRelativeUri, false) ||
                 x.Provider.Schemes.Contains(DefaultScheme) ||
                 x.Provider.Schemes.Contains(x.Uri.Scheme)
             ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it supports only such schemes as [{x.Provider.Schemes.Join(", ")}].");
 
             builder.True
             (x =>
-                x.Provider.Metadata.Get(Use<IProviderSession>.Namespace, m => m.AllowRelativeUri, false) ||
+                x.Provider.Metadata.Get(Use<IProviderNamespace>.Namespace, m => m.AllowRelativeUri, false) ||
                 x.Uri.Scheme
             ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it supports only absolute URIs.");
         });
@@ -84,9 +84,9 @@ namespace Reusable.IOnymous
             //var metadata = Metadata.Empty;
 
             // If this is a decorator then the decorated resource-provider already has set this.
-            if (metadata.Get(Use<IProviderSession>.Namespace, x => x.DefaultName) is var df && !df)
+            if (metadata.Get(Use<IProviderNamespace>.Namespace, x => x.DefaultName) is var df && !df)
             {
-                metadata = metadata.Set(Use<IProviderSession>.Namespace, x => x.DefaultName, GetType().ToPrettyString());
+                metadata = metadata.Set(Use<IProviderNamespace>.Namespace, x => x.DefaultName, GetType().ToPrettyString());
             }
 
             if ((Schemes = schemes.ToImmutableHashSet()).Empty())
@@ -105,9 +105,9 @@ namespace Reusable.IOnymous
             builder.DisplayValue(x => x.Schemes);
         });
 
-        public SoftString DefaultName => Metadata.Get(Use<IProviderSession>.Namespace,m => m.DefaultName);
+        public SoftString DefaultName => Metadata.Get(Use<IProviderNamespace>.Namespace,m => m.DefaultName);
 
-        public SoftString CustomName => Metadata.Get(Use<IProviderSession>.Namespace,m => m.CustomName);
+        public SoftString CustomName => Metadata.Get(Use<IProviderNamespace>.Namespace,m => m.CustomName);
 
         public bool CanGet => Implements(nameof(GetAsyncInternal));
 

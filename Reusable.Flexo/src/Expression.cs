@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
@@ -40,6 +39,19 @@ namespace Reusable.Flexo
     public interface IExtension<out T>
     {
         T This { get; }
+    }
+
+    public static class ExpressionContext
+    {
+        public static IImmutableSession Default =>
+            ImmutableSession
+                .Empty
+                .Set(Expression.Namespace, x => x.Comparers, ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
+                .Set(Expression.Namespace, x => x.References, ImmutableDictionary<SoftString, IExpression>.Empty)
+                .Set(Expression.Namespace, x => x.DebugView, TreeNode.Create(ExpressionDebugView.Root))
+                .WithDefaultComparer()
+                .WithSoftStringComparer()
+                .WithRegexComparer();
     }
 
     public abstract class Expression : IExpression
@@ -93,16 +105,6 @@ namespace Reusable.Flexo
         };
         // ReSharper restore RedundantNameQualifier
 
-        public static IImmutableSession DefaultContext =>
-            ImmutableSession
-                .Empty
-                .Set(Namespace, x => x.Comparers, ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
-                .Set(Namespace, x => x.DebugView, TreeNode.Create(ExpressionDebugView.Root))
-                .Set(Namespace, x => x.References, ImmutableDictionary<SoftString, IExpression>.Empty)
-                .WithDefaultComparer()
-                .WithSoftStringComparer()
-                .WithRegexComparer();
-
         private SoftString _name;
 
         protected Expression([NotNull] ILogger logger, SoftString name)
@@ -119,7 +121,7 @@ namespace Reusable.Flexo
             ExpressionScope.Current
             ?? throw new InvalidOperationException("Expressions must be invoked within a valid scope. Use 'BeginScope' to introduce one.");
 
-        public static ISessionScope<IExpressionSession> Namespace => Use<IExpressionSession>.Namespace;
+        public static INamespace<IExpressionNamespace> Namespace => Use<IExpressionNamespace>.Namespace;
 
         public virtual SoftString Name
         {
@@ -130,8 +132,11 @@ namespace Reusable.Flexo
         public string Description { get; set; }
 
         public bool Enabled { get; set; } = true;
-        
-        protected virtual bool SuppressOwnDebugView { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether a separate debug-view should be created for this expression. Returns true to avoid duplicated debug-views.
+        /// </summary>
+        protected virtual bool SuppressDebugView { get; }
 
         [JsonProperty("This")]
         public IExpression Extension { get; set; }
@@ -140,7 +145,7 @@ namespace Reusable.Flexo
 
         public static ExpressionScope BeginScope(Func<IImmutableSession, IImmutableSession> configureContext)
         {
-            return ExpressionScope.Push(configureContext(ExpressionScope.Current?.Context ?? DefaultContext));
+            return ExpressionScope.Push(configureContext(ExpressionScope.Current?.Context ?? ExpressionContext.Default));
         }
 
         protected class ZeroLogger : ILogger
@@ -207,25 +212,21 @@ namespace Reusable.Flexo
         {
             Current = Current?.Parent;
         }
-    }
+    }    
 
+    public static class ExpressionInvokeHelper { }
 
-    public interface IExpressionInvoker
+    public interface IExpressionNamespace : INamespace
     {
-        (IConstant Result, IImmutableSession Context) Invoke(IExpression expression, Func<IImmutableSession, IImmutableSession> customizeContext);
-    }
+        object This { get; }
 
-    public class ExpressionInvoker : IExpressionInvoker
-    {
-        public (IConstant Result, IImmutableSession Context) Invoke(IExpression expression, Func<IImmutableSession, IImmutableSession> customizeContext = default)
-        {
-            using (Expression.BeginScope(customizeContext ?? (_ => _)))
-            {
-                return (expression.Invoke(), Expression.Scope.Enumerate().Last().Context);
-            }
-        }
-    }
+        IImmutableDictionary<SoftString, IEqualityComparer<object>> Comparers { get; }
 
+        IImmutableDictionary<SoftString, IExpression> References { get; }
+
+        TreeNode<ExpressionDebugView> DebugView { get; }
+    }
+    
     [PublicAPI]
     public static class ExpressionScopeExtensions
     {

@@ -22,9 +22,9 @@ namespace Reusable.Data
 
         bool TryGetValue(SoftString key, out T value);
 
-        T Get<TScope>(Expression<Func<TScope, T>> getItem, T defaultValue = default) where TScope : ISession;
+        T Get<TScope>(Expression<Func<TScope, T>> getItem, T defaultValue = default) where TScope : INamespace;
 
-        IImmutableSession<T> Set<TScope>(Expression<Func<TScope, T>> setItem, T value) where TScope : ISession;
+        IImmutableSession<T> Set<TScope>(Expression<Func<TScope, T>> setItem, T value) where TScope : INamespace;
     }
 
     public interface IImmutableSession : IEnumerable<(SoftString Key, object Value)>
@@ -40,12 +40,12 @@ namespace Reusable.Data
         IImmutableSession SetItem(SoftString key, object value);
 
         [DebuggerStepThrough]
-        T Get<TScope, T>(ISessionScope<TScope> scope, Expression<Func<TScope, T>> getItem, T defaultValue = default) where TScope : ISession;
+        T Get<TScope, T>(INamespace<TScope> scope, Expression<Func<TScope, T>> getItem, T defaultValue = default) where TScope : INamespace;
 
-        bool TryGetItem<TScope, T>(ISessionScope<TScope> scope, Expression<Func<TScope, T>> getItem, out T value) where TScope : ISession;
+        bool TryGetItem<TScope, T>(INamespace<TScope> scope, Expression<Func<TScope, T>> getItem, out T value) where TScope : INamespace;
 
         [DebuggerStepThrough]
-        IImmutableSession Set<TScope, T>(ISessionScope<TScope> scope, Expression<Func<TScope, T>> setItem, T value) where TScope : ISession;
+        IImmutableSession Set<TScope, T>(INamespace<TScope> scope, Expression<Func<TScope, T>> setItem, T value) where TScope : INamespace;
     }
 
     // With a 'struct' we don't need any null-checks.
@@ -90,14 +90,14 @@ namespace Reusable.Data
 
         [DebuggerStepThrough]
         [MustUseReturnValue]
-        public T Get<TScope>(Expression<Func<TScope, T>> getItem, T defaultValue = default) where TScope : ISession
+        public T Get<TScope>(Expression<Func<TScope, T>> getItem, T defaultValue = default) where TScope : INamespace
         {
             return TryGetValue(ImmutableSessionScope<TScope>.Key(getItem), out var value) ? value : defaultValue;
         }
 
         [DebuggerStepThrough]
         [MustUseReturnValue]
-        public IImmutableSession<T> Set<TScope>(Expression<Func<TScope, T>> setItem, T value) where TScope : ISession
+        public IImmutableSession<T> Set<TScope>(Expression<Func<TScope, T>> setItem, T value) where TScope : INamespace
         {
             return SetItem(ImmutableSessionScope<TScope>.Key(setItem), value);
         }
@@ -140,12 +140,12 @@ namespace Reusable.Data
 
         [DebuggerStepThrough]
         [MustUseReturnValue]
-        public T Get<TScope, T>(ISessionScope<TScope> scope, Expression<Func<TScope, T>> getItem, T defaultValue = default) where TScope : ISession
+        public T Get<TScope, T>(INamespace<TScope> scope, Expression<Func<TScope, T>> getItem, T defaultValue = default) where TScope : INamespace
         {
             return TryGetValue(ImmutableSessionScope<TScope>.Key(getItem), out var value) ? (T)value : defaultValue;
         }
 
-        public bool TryGetItem<TScope, T>(ISessionScope<TScope> scope, Expression<Func<TScope, T>> getItem, out T value) where TScope : ISession
+        public bool TryGetItem<TScope, T>(INamespace<TScope> scope, Expression<Func<TScope, T>> getItem, out T value) where TScope : INamespace
         {
             if (TryGetValue(ImmutableSessionScope<TScope>.Key(getItem), out var item))
             {
@@ -162,7 +162,7 @@ namespace Reusable.Data
 
         [DebuggerStepThrough]
         [MustUseReturnValue]
-        public IImmutableSession Set<TScope, T>(ISessionScope<TScope> scope, Expression<Func<TScope, T>> setItem, T value) where TScope : ISession
+        public IImmutableSession Set<TScope, T>(INamespace<TScope> scope, Expression<Func<TScope, T>> setItem, T value) where TScope : INamespace
         {
             return SetItem(ImmutableSessionScope<TScope>.Key(setItem), value);
         }
@@ -175,13 +175,14 @@ namespace Reusable.Data
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_data).GetEnumerator();
     }
 
-    public interface ISessionScope<out T> { }
+    // ReSharper disable once UnusedTypeParameter - 'T'  is required.
+    public interface INamespace<out T> { }
 
     public static class Use<T>
     {
         [DebuggerNonUserCode]
-        public static ISessionScope<T> Namespace => default;
+        public static INamespace<T> Namespace => default;
     }
 
-    public interface ISession { }
+    public interface INamespace { }
 }

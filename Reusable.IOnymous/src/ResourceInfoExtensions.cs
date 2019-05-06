@@ -24,7 +24,7 @@ namespace Reusable.IOnymous
         {
             if (!resource.Exists) throw new InvalidOperationException($"Cannot deserialize a resource that does not exist: '{resource.Uri.ToString()}'");
 
-            var format = resource.Metadata.Get(Use<IResourceSession>.Namespace, x => x.Format);
+            var format = resource.Metadata.Get(Use<IResourceNamespace>.Namespace, x => x.Format);
 
             // todo - find a cleaner solution; maybe a new comparer for MimeType?
             if (!format.Name.StartsWith("text/"))
@@ -44,7 +44,7 @@ namespace Reusable.IOnymous
 
         public static async Task<T> DeserializeBinaryAsync<T>(this IResourceInfo resource)
         {
-            var format = resource.Metadata.Get(Use<IResourceSession>.Namespace, x => x.Format);
+            var format = resource.Metadata.Get(Use<IResourceNamespace>.Namespace, x => x.Format);
 
             if (format != MimeType.Binary)
             {
@@ -61,7 +61,7 @@ namespace Reusable.IOnymous
 
         public static async Task<T> DeserializeJsonAsync<T>(this IResourceInfo resource, JsonSerializer jsonSerializer = null)
         {
-            var format = resource.Metadata.Get(Use<IResourceSession>.Namespace, x => x.Format);
+            var format = resource.Metadata.Get(Use<IResourceNamespace>.Namespace, x => x.Format);
 
             if (format != MimeType.Json)
             {

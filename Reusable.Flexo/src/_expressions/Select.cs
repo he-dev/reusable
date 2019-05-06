@@ -19,7 +19,7 @@ namespace Reusable.Flexo
     {
         public Select(ILogger<Select> logger) : base(logger, nameof(Select)) { }
 
-        protected override bool SuppressOwnDebugView => true;
+        protected override bool SuppressDebugView => true;
 
         [JsonProperty("Values")]
         public override IEnumerable<IExpression> This { get; set; }
