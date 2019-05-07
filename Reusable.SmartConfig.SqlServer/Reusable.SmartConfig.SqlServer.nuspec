@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.SmartConfig.SqlServer</id>
-    <version>10.0.0</version>
+    <version>10.2.0</version>
     <title>Reusable.SmartConfig.SqlServer</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -18,9 +18,9 @@
       <dependency id="JetBrains.Annotations" version="2018.3.0" />
       <dependency id="System.Data.SqlClient" version="4.6.0" />
       <dependency id="System.ValueTuple" version="4.5.0" />
-      <dependency id="Reusable.Core" version="10.0.0" />
-      <dependency id="Reusable.SmartConfig" version="10.0.0" />
-      <dependency id="Reusable.Utilities.SqlClient" version="10.0.0" />
+      <dependency id="Reusable.Core" version="10.2.0" />
+      <dependency id="Reusable.SmartConfig" version="10.2.0" />
+      <dependency id="Reusable.Utilities.SqlClient" version="10.2.0" />
     </dependencies>
   </metadata>
   <files>
