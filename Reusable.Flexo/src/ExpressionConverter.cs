@@ -21,6 +21,7 @@ namespace Reusable.Flexo
         {
             if (reader.Value is null && reader.TokenType == JsonToken.StartObject)
             {
+                // todo - add error handling for when the $type is not found
                 var jToken = JObject.Load(reader);
                 var typeName = (string)jToken.SelectToken("$.$type");
                 var actualType = Type.GetType(typeName);

@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Commander</id>
-    <version>10.2.0</version>
+    <version>10.2.1</version>
     <title>Reusable.Commander</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -19,14 +19,14 @@
       <dependency id="JetBrains.Annotations" version="2018.3.0" />
       <dependency id="System.Threading.Tasks.Dataflow" version="4.9.0" />
       <dependency id="System.Collections.Immutable" version="1.5.0" />
-      <dependency id="Reusable.IOnymous" version="10.2.0" />
-      <dependency id="Reusable.OmniLog.Abstractions" version="10.2.0" />
-      <dependency id="Reusable.OneTo1" version="10.2.0" />
-      <dependency id="Reusable.Core" version="10.2.0" />
-      <dependency id="Reusable.MarkupBuilder" version="10.2.0" />
-      <dependency id="Reusable.OmniLog.ColoredConsoleRx" version="10.2.0" />
-      <dependency id="Reusable.OmniLog.SemanticExtensions" version="10.2.0" />
-      <dependency id="Reusable.OmniLog" version="10.2.0" />
+      <dependency id="Reusable.IOnymous" version="10.2.1" />
+      <dependency id="Reusable.OmniLog.Abstractions" version="10.2.1" />
+      <dependency id="Reusable.OneTo1" version="10.2.1" />
+      <dependency id="Reusable.Core" version="10.2.1" />
+      <dependency id="Reusable.MarkupBuilder" version="10.2.1" />
+      <dependency id="Reusable.OmniLog.ColoredConsoleRx" version="10.2.1" />
+      <dependency id="Reusable.OmniLog.SemanticExtensions" version="10.2.1" />
+      <dependency id="Reusable.OmniLog" version="10.2.1" />
     </dependencies>
   </metadata>
   <files>

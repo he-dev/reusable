@@ -10,9 +10,6 @@ namespace Reusable.Flexo
     {
         public IIf(ILogger<IIf> logger) : base(logger, nameof(IIf)) { }
 
-        //public IIf() : base(nameof(IIf)) { }
-
-        [JsonRequired]
         [JsonProperty("Predicate")]
         public override IExpression This { get; set; }
 
