@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
 using Reusable.Exceptionize;
+using Reusable.Extensions;
 
 namespace Reusable.Utilities.JsonNet
 {
@@ -93,7 +95,7 @@ namespace Reusable.Utilities.JsonNet
         private readonly IImmutableList<IJsonVisitor> _visitors;
 
         public CompositeJsonVisitor(IEnumerable<IJsonVisitor> visitors) => _visitors = visitors.ToImmutableList();
-        
+
         public static CompositeJsonVisitor Empty => new CompositeJsonVisitor(ImmutableList<IJsonVisitor>.Empty);
 
         public CompositeJsonVisitor Add(IJsonVisitor visitor) => new CompositeJsonVisitor(_visitors.Add(visitor));
@@ -112,37 +114,56 @@ namespace Reusable.Utilities.JsonNet
     [PublicAPI]
     public class RewriteTypeVisitor : JsonVisitor
     {
-        private readonly string _typePropertyName;
+        [CanBeNull] private readonly string _typePropertyName;
 
         [NotNull] private readonly ITypeResolver _typeResolver;
 
-        public const string DefaultTypePropertyName = "$type";
+        public const string TypePropertyDefaultName = "$type";
 
-        public const string ShortTypePropertyName = "$t";
+        public const string TypePropertyShortName = "$t";
 
-        public RewriteTypeVisitor([NotNull] string typePropertyName, [NotNull] ITypeResolver typeResolver)
+        public RewriteTypeVisitor([NotNull] ITypeResolver typeResolver, [CanBeNull] string typePropertyName = default)
         {
-            _typePropertyName = typePropertyName ?? throw new ArgumentNullException(nameof(typePropertyName));
+            _typePropertyName = typePropertyName;
             _typeResolver = typeResolver;
         }
 
         protected override JProperty VisitProperty(JProperty property)
         {
-            return
-                SoftString.Comparer.Equals(property.Name, _typePropertyName)
-                    ? new JProperty(DefaultTypePropertyName, _typeResolver.Resolve(property.Value.Value<string>()))
-                    : base.VisitProperty(property);
+            if (_typePropertyName is null)
+            {
+                var ns = Regex.Match(property.Name.Trim(), @"^\$(?<ns>[a-z0-9_-]+)", RegexOptions.IgnoreCase);
+                if (ns.Success)
+                {
+                    var shortName = property.Value.Value<string>();
+                    var containsNamespace = shortName.Contains('.');
+                    if (!containsNamespace)
+                    {
+                        shortName = $"{ns.Groups["ns"].Value}.{shortName}";
+                    }
+
+                    return new JProperty(TypePropertyDefaultName, _typeResolver.Resolve(shortName));
+                }
+                else
+                {
+                    return base.VisitProperty(property);
+                }
+            }
+            else
+            {
+                return
+                    SoftString.Comparer.Equals(property.Name, _typePropertyName)
+                        ? new JProperty(TypePropertyDefaultName, _typeResolver.Resolve(property.Value.Value<string>()))
+                        : base.VisitProperty(property);
+            }
         }
     }
 
     [PublicAPI]
     public class RewritePrettyTypeVisitor : RewriteTypeVisitor
     {
-        public RewritePrettyTypeVisitor(IImmutableDictionary<SoftString, Type> types)
-            : this(ShortTypePropertyName, types) { }
-
-        public RewritePrettyTypeVisitor(string typePropertyName, IImmutableDictionary<SoftString, Type> types)
-            : base(typePropertyName, new PrettyTypeResolver(types)) { }
+        public RewritePrettyTypeVisitor(IImmutableDictionary<SoftString, Type> types, [CanBeNull] string typePropertyName = default)
+            : base(new PrettyTypeResolver(types), typePropertyName) { }
     }
 
     public class PropertyNameValidator : JsonVisitor

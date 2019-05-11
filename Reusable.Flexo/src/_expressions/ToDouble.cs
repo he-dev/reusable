@@ -6,7 +6,7 @@ namespace Reusable.Flexo
     /// <summary>
     /// Provides a mapping expression from bool to double.
     /// </summary>
-    public class ToDouble : Switch<double>
+    public class ToDouble : Switch
     {
         public ToDouble(ILogger<ToDouble> logger) : base(logger, nameof(ToDouble))
         {

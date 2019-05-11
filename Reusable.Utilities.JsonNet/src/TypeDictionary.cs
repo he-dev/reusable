@@ -42,17 +42,18 @@ namespace Reusable.Utilities.JsonNet
 
         public static IImmutableDictionary<SoftString, Type> From(IEnumerable<Type> types)
         {
-            return
-            (
+            var items =
                 from type in types.Select(ValidateHasNoGenericArguments)
-                // Pick the nearest namespace-attribute or one derived from it. 
-                let prefix = type.GetCustomAttributes<NamespaceAttribute>().FirstOrDefault()?.ToString()
                 let prettyName = type.ToPrettyString()
                 where !prettyName.IsDynamicType()
-                //from name in new[] { prettyName, type.GetCustomAttribute<AliasAttribute>()?.ToString() }
-                //where name.IsNotNullOrEmpty()
-                select (type, prettyName: SoftString.Create((prefix.IsNullOrEmpty() ? string.Empty : $"{prefix}.") + prettyName))
-            ).ToImmutableDictionary(t => t.prettyName, t => t.type);
+                // Pick the nearest namespace-attribute or one derived from it. 
+                let ns = type.GetCustomAttributes<NamespaceAttribute>().FirstOrDefault()
+                select
+                    ns is null
+                        ? new[] { (prettyName, type) }
+                        : ns.Select(n => (prettyName: $"{n}.{prettyName}", type));                                
+
+            return items.SelectMany(x => x).ToImmutableDictionary(t => t.prettyName.ToSoftString(), t => t.type);
         }
 
         public static IImmutableDictionary<SoftString, Type> From(params Type[] types)

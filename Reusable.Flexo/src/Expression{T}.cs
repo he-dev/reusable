@@ -19,7 +19,7 @@ using Reusable.Utilities.JsonNet.Annotations;
 
 namespace Reusable.Flexo
 {
-    [Namespace("Flexo")]
+    [Namespace("Flexo", Alias = "F")]
     public abstract class Expression<TResult> : Expression
     {
         protected Expression([NotNull] ILogger logger, SoftString name) : base(logger, name) { }

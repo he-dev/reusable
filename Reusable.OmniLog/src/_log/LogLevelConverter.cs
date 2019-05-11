@@ -8,7 +8,7 @@ namespace Reusable.OmniLog
     {
         public override void WriteJson(JsonWriter writer, LogLevel value, JsonSerializer serializer)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public override LogLevel ReadJson(JsonReader reader, Type objectType, LogLevel existingValue, bool hasExistingValue, JsonSerializer serializer)

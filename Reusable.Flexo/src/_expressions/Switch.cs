@@ -9,7 +9,9 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
-    public abstract class Switch<TResult> : ValueExtension<TResult>
+    [UsedImplicitly]
+    [PublicAPI]
+    public class Switch : ValueExtension<object>
     {
         protected Switch(ILogger logger, SoftString name) : base(logger, name) { }
 
@@ -20,7 +22,7 @@ namespace Reusable.Flexo
 
         public IExpression Default { get; set; }
 
-        protected override Constant<TResult> InvokeCore(IExpression @this)
+        protected override Constant<object> InvokeCore(IExpression @this)
         {
             var value = @this.Invoke();
 
@@ -30,52 +32,26 @@ namespace Reusable.Flexo
                 {
                     switch (switchCase.When)
                     {
-                        case IConstant constant:
-                            if (EqualityComparer<object>.Default.Equals(value.Value, constant.Value))
-                            {
-                                var bodyResult = switchCase.Body.Invoke();
-                                return (Name, (TResult)bodyResult.Value);
-                            }
-
-                            break;
-
-                        case IExpression expression:
-                            if (expression.Invoke() is var whenResult && whenResult.Value<bool>())
-                            {
-                                var bodyResult = switchCase.Body.Invoke();
-                                return (Name, (TResult)bodyResult.Value);
-                            }
-
-                            break;
+                        case IConstant constant when !EqualityComparer<object>.Default.Equals(value.Value, constant.Value): continue;
+                        case IExpression expression when expression.Invoke() is var whenResult && !whenResult.Value<bool>(): continue;
                     }
+
+                    var bodyResult = switchCase.Body.Invoke();
+                    return (Name, bodyResult.Value);
                 }
             }
 
-            // todo - make it dynamic-exception
             return
-                Default is null
-                    ? throw new ArgumentOutOfRangeException()
-                    : (Name, Default.Invoke().Value<TResult>());
-
-            // return
-            // (
-            //     Name,
-            //     (Default ?? new Throw
-            //         {
-            //             Name = "SwitchValueOutOfRange",
-            //             Message = Constant.FromValue("Message", "Default value not specified.")
-            //         }
-            //     ).Invoke(context),
-            //     context
-            // );
+            (
+                Name,
+                (Default ?? new Throw
+                    {
+                        Name = "SwitchValueOutOfRange",
+                        Message = Constant.Create("Message", "Default value not specified.")
+                    }
+                ).Invoke()
+            );
         }
-    }
-
-    [UsedImplicitly]
-    [PublicAPI]
-    public class Switch : Switch<object>
-    {
-        public Switch(ILogger<Switch> logger) : base(logger, nameof(Switch)) { }
     }
 
     public class SwitchCase

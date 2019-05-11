@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using Reusable.Diagnostics;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.Flawless;
@@ -14,7 +15,7 @@ namespace Reusable
     // http://semver.org
 
     [PublicAPI]
-    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+    [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public class SemanticVersion : IEquatable<SemanticVersion>, IComparable<SemanticVersion>, IComparer<SemanticVersion>
     {
         private static readonly IExpressValidator<SemanticVersion> VersionValidator = ExpressValidator.For<SemanticVersion>(builder =>
@@ -24,16 +25,12 @@ namespace Reusable
             builder.True(x => x.Patch >= 0);
         });
 
-        private static readonly Lazy<string> Pattern;
+        private static readonly string Pattern;
 
         static SemanticVersion()
         {
-            // todo - why is this lazy? 
-            Pattern = new Lazy<string>(() =>
-            {
-                var versionPatterns = new[] { "major", "minor", "patch" }.Select(x => $"(?<{x}>(?!0)[0-9]+|0)");
-                return $"^v?{string.Join("[\\.]", versionPatterns)}(-(?<labels>[a-z0-9\\.-]+))?$";
-            });
+            var versionPatterns = new[] { "major", "minor", "patch" }.Select(x => $"(?<{x}>(?!0)[0-9]+|0)");
+            Pattern = $"^v?{string.Join("[\\.]", versionPatterns)}(-(?<labels>[a-z0-9\\.-]+))?$";
         }
 
         public SemanticVersion(int major, int minor, int patch, IEnumerable<string> labels)
@@ -46,9 +43,7 @@ namespace Reusable
         }
 
         public SemanticVersion(int major, int minor, int patch)
-            : this(major, minor, patch, Enumerable.Empty<string>())
-        {
-        }
+            : this(major, minor, patch, Enumerable.Empty<string>()) { }
 
         public static IComparer<SemanticVersion> Comparer { get; } = new SemanticVersionComparer();
 
@@ -85,7 +80,7 @@ namespace Reusable
                 return false;
             }
 
-            var versionMatch = Regex.Match(value.Trim(), Pattern.Value);
+            var versionMatch = Regex.Match(value.Trim(), Pattern);
             result =
                 versionMatch.Success
                     ? new SemanticVersion

@@ -72,7 +72,7 @@ namespace Reusable.Utilities.JsonNet.Converters
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            throw new NotImplementedException("Not required in this scenario because it's only for reading.");
+            throw new NotSupportedException("Not required in this scenario because it's only for reading.");
         }
     }
 }

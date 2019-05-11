@@ -83,6 +83,7 @@ namespace Reusable.Tests.Flexo
             ("Double.IsEqual", true, false),
             ("Double.ref_IsLessThan3", true, false),
             ("CollectionOfDouble", new double[] { 1, 2, 3 }, false),
+            ("CollectionOfDouble-2", new double[] { 1, 2, 3 }, false),
             ("Collection.Sum", 3.0, false),
             ("Collection.Max", 4.0, false),
             ("Collection.Contains{Comparer=Regex}", true, false),

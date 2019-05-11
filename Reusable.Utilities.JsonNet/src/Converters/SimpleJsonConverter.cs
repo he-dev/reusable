@@ -23,7 +23,7 @@ namespace Reusable.Utilities.JsonNet.Converters
 
         public override T ReadJson(JsonReader reader, Type objectType, T existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
     }       
 }

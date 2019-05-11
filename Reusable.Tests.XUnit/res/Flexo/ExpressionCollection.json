@@ -12,6 +12,18 @@
     ]
   },
   {
+    "$f": "Collection",
+    "Name": "CollectionOfDouble-2",
+    "Values": [
+      1.0,
+      {
+        "$f": "Double",
+        "Value": 2.0
+      },
+      3.0
+    ]
+  },
+  {
     "$t": "Flexo.Any",
     "Name": "Any",
     "Values": [

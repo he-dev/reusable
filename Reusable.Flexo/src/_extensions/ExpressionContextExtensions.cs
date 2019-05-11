@@ -108,7 +108,10 @@ namespace Reusable.Flexo
                     .Select(m => (Name: m.Group("name"), Item: m.Group("item")))
                     .ToList();
 
-            // todo - there must be at least 2 names
+            if (names.Count < 2)
+            {
+                throw DynamicException.Create("PathTooShort", "Path needs to contain at least two names separated by '.'.");
+            }
 
             // Get the initial object from the context.
             var first = names.First();
