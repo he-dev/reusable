@@ -386,5 +386,29 @@
         false
       ]
     }
+  },
+  {
+    "$f": "GetMany",
+    "Path": "sth.Cars",
+    "This": {
+      "$f": "ForEach",
+      "Body": [
+        {
+          "$f": "GetSingle",
+          "Path": "item.Make",
+          "This": {
+            "$f": "IsEqual",
+            "Value": "Audi",
+            "This": {
+              "$f": "IIf",
+              "True": {
+                "$f": "GetItem",
+                "Path": "item.Sth"
+              }
+            }
+          }
+        }
+      ]
+    }
   }
 ]

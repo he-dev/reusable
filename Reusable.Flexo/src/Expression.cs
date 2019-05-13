@@ -219,6 +219,8 @@ namespace Reusable.Flexo
     public interface IExpressionNamespace : INamespace
     {
         object This { get; }
+        
+        object Item { get; }
 
         IImmutableDictionary<SoftString, IEqualityComparer<object>> Comparers { get; }
 

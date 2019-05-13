@@ -115,6 +115,13 @@ namespace Reusable.Tests.Flexo
             public string Greeting { get; set; } = "Hallo!";
 
             public IEnumerable<string> Names { get; set; } = new[] { "Joe", "Bob" };
+
+            public IEnumerable<Car> Cars { get; set; } = new[] { new Car { Make = "Audi" }, new Car { Make = "VW" } };
+        }
+
+        private class Car
+        {
+            public string Make { get; set; }
         }
     }
 }

@@ -91,15 +91,18 @@ namespace Reusable.Flexo
                 // Validate return value and extension only for extensions. Make an exception for Block.
                 if (!(extension is Block))
                 {
-                    var thisValue = extension.GetType().GetProperty(nameof(IExtension<object>.This)).GetValue(extension);
-                    if (!(thisValue is null))
+                    if (extension.GetType().GetProperty(nameof(IExtension<object>.This)) is var thisProperty && !(thisProperty is null))
                     {
-                        thisResultValue = thisValue;
-                        // throw DynamicException.Create
-                        // (
-                        //     $"AmbiguousExpressionUsage",
-                        //     $"Expression '{extension.GetType().ToPrettyString()}/{extension.Name.ToString()}' is used as an extension and must not use the 'This' property explicitly."
-                        // );
+                        var thisValue = thisProperty.GetValue(extension);
+                        if (!(thisValue is null))
+                        {
+                            thisResultValue = thisValue;
+                            // throw DynamicException.Create
+                            // (
+                            //     $"AmbiguousExpressionUsage",
+                            //     $"Expression '{extension.GetType().ToPrettyString()}/{extension.Name.ToString()}' is used as an extension and must not use the 'This' property explicitly."
+                            // );
+                        }
                     }
                     // Check extension types only when actually used as an extension.
                     else
