@@ -3,11 +3,13 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Xml;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Data;
 using Reusable.Exceptionize;
+using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
@@ -19,9 +21,9 @@ namespace Reusable.Flexo
     [PublicAPI]
     public abstract class GetItem<T> : Expression<T>
     {
+        //private static readonly SoftString ThisKey = ImmutableSessionKey<IExpressionNamespace>.Create(x => x.This);
         protected GetItem(ILogger logger, string name) : base(logger, name) { }
 
-        [JsonRequired]
         public string Path { get; set; }
 
         // key.Property.Property --> session[key].Property.Property
@@ -31,20 +33,53 @@ namespace Reusable.Flexo
         {
             var names = Path.Split('.');
             var key = names.First();
-            var obj =
-                key == "this"
-                    ? Scope.Context.Get(Namespace, x => x.This)
-                    : Scope.Context.TryGetValue(key, out var item)
-                        ? item
-                        : throw DynamicException.Create("ItemNotFound", $"Could not find an item with the key '{Path}'.");
+            if (Scope.Context.TryGetValue(key, out var item))
+            {
+                return
+                    names
+                        .Skip(1)
+                        .Aggregate(item, (current, name) =>
+                            current is IConstant constant
+                                ? GetValue(constant.Value?.GetType() ?? throw DynamicException.Create("ValueNull", $"Constant '{constant.Name.ToString()}' value is null."), constant.Value, name)
+                                : GetValue(current.GetType(), current, name)
+                        );
+            }
+            else
+            {
+                throw DynamicException.Create("ContextItemNotFound", $"Could not find an item with the key '{key}' from '{Path}'.");
+            }
+        }
 
-            obj = names.Skip(1).Aggregate(obj, (current, name) =>
-                current is IConstant constant
-                    ? constant.Value.GetType().GetProperty(name)?.GetValue(constant.Value) ?? constant.Value.GetType().GetField(name)?.GetValue(constant.Value)
-                    : current.GetType().GetProperty(name)?.GetValue(current) ?? current.GetType().GetField(name)?.GetValue(current)
-            );
+        object GetValue(Type type, object obj, string memberName)
+        {
+            var member =
+                type
+                    .GetMember(memberName)
+                    .SingleOrThrow
+                    (
+                        onEmpty: () => DynamicException.Create("MemberNotFound", $"Type '{type.ToPrettyString()}' does not have any members with the name '{memberName}'."),
+                        onMultiple: () => DynamicException.Create("MultipleMembersFound", $"Type '{type.ToPrettyString()}' has more than one member with the name '{memberName}'.")
+                    );
 
-            return obj;
+            switch (member)
+            {
+                case PropertyInfo property: return property.GetValue(obj);
+                case FieldInfo field: return field.GetValue(obj);
+                default: return null; // this will never occur
+            }
+        }
+    }
+
+    public class Item : GetItem<object>
+    {
+        public Item([NotNull] ILogger<Item> logger) : base(logger, nameof(Item))
+        {
+            Path = Reusable.Data.ImmutableSessionKey<IExpressionNamespace>.Create(x => x.Item);
+        }
+
+        protected override Constant<object> InvokeCore()
+        {
+            return (Path, (FindItem() is var item && item is IConstant c ? c.Value : item));
         }
     }
 

@@ -18,8 +18,7 @@ namespace Reusable.Flexo
         {
             foreach (var item in @this)
             {
-                //using (BeginScope(ctx => ctx.Set(Namespace, x => x.Item, item)))
-                using (BeginScope(ctx => ctx.SetItem("item", item)))
+                using (BeginScope(ctx => ctx.Set(Namespace, x => x.Item, item)))
                 {
                     foreach (var expression in Body)
                     {

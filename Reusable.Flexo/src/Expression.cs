@@ -102,6 +102,8 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.Concat),
             typeof(Reusable.Flexo.Union),
             typeof(Reusable.Flexo.Block),
+            typeof(Reusable.Flexo.ForEach),
+            typeof(Reusable.Flexo.Item),
         };
         // ReSharper restore RedundantNameQualifier
 
@@ -218,8 +220,10 @@ namespace Reusable.Flexo
 
     public interface IExpressionNamespace : INamespace
     {
+        [SimpleKeyFactory]
         object This { get; }
         
+        [SimpleKeyFactory]
         object Item { get; }
 
         IImmutableDictionary<SoftString, IEqualityComparer<object>> Comparers { get; }

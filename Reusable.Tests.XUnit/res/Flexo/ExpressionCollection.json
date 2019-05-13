@@ -243,7 +243,10 @@
     "This": {
       "$t": "Flexo.Select",
       "Selector": {
-        "$t": "Flexo.ToString"
+        "$t": "Flexo.ToString",
+        "Value": {
+          "$f": "Item"
+        }
       }
     }
   },
@@ -389,6 +392,7 @@
   },
   {
     "$f": "GetMany",
+    "Name": "GetMany.ForEach",
     "Path": "sth.Cars",
     "This": {
       "$f": "ForEach",
@@ -402,7 +406,7 @@
             "This": {
               "$f": "IIf",
               "True": {
-                "$f": "GetItem",
+                "$f": "GetSingle",
                 "Path": "item.Sth"
               }
             }

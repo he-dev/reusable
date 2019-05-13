@@ -5,8 +5,11 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Diagnostics;
+using Reusable.Exceptionize;
+using Reusable.Extensions;
 
 namespace Reusable.Data
 {
@@ -92,14 +95,14 @@ namespace Reusable.Data
         [MustUseReturnValue]
         public T Get<TScope>(Expression<Func<TScope, T>> getItem, T defaultValue = default) where TScope : INamespace
         {
-            return TryGetValue(ImmutableSessionScope<TScope>.Key(getItem), out var value) ? value : defaultValue;
+            return TryGetValue(ImmutableSessionKey<TScope>.Create(getItem), out var value) ? value : defaultValue;
         }
 
         [DebuggerStepThrough]
         [MustUseReturnValue]
         public IImmutableSession<T> Set<TScope>(Expression<Func<TScope, T>> setItem, T value) where TScope : INamespace
         {
-            return SetItem(ImmutableSessionScope<TScope>.Key(setItem), value);
+            return SetItem(ImmutableSessionKey<TScope>.Create(setItem), value);
         }
 
         #endregion
@@ -142,12 +145,12 @@ namespace Reusable.Data
         [MustUseReturnValue]
         public T Get<TScope, T>(INamespace<TScope> scope, Expression<Func<TScope, T>> getItem, T defaultValue = default) where TScope : INamespace
         {
-            return TryGetValue(ImmutableSessionScope<TScope>.Key(getItem), out var value) ? (T)value : defaultValue;
+            return TryGetValue(ImmutableSessionKey<TScope>.Create(getItem), out var value) ? (T)value : defaultValue;
         }
 
         public bool TryGetItem<TScope, T>(INamespace<TScope> scope, Expression<Func<TScope, T>> getItem, out T value) where TScope : INamespace
         {
-            if (TryGetValue(ImmutableSessionScope<TScope>.Key(getItem), out var item))
+            if (TryGetValue(ImmutableSessionKey<TScope>.Create(getItem), out var item))
             {
                 if (item is T t)
                 {
@@ -164,7 +167,7 @@ namespace Reusable.Data
         [MustUseReturnValue]
         public IImmutableSession Set<TScope, T>(INamespace<TScope> scope, Expression<Func<TScope, T>> setItem, T value) where TScope : INamespace
         {
-            return SetItem(ImmutableSessionScope<TScope>.Key(setItem), value);
+            return SetItem(ImmutableSessionKey<TScope>.Create(setItem), value);
         }
 
         public IEnumerator<(SoftString Key, object Value)> GetEnumerator()
@@ -174,15 +177,4 @@ namespace Reusable.Data
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_data).GetEnumerator();
     }
-
-    // ReSharper disable once UnusedTypeParameter - 'T'  is required.
-    public interface INamespace<out T> { }
-
-    public static class Use<T>
-    {
-        [DebuggerNonUserCode]
-        public static INamespace<T> Namespace => default;
-    }
-
-    public interface INamespace { }
 }

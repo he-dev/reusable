@@ -41,7 +41,7 @@ namespace Reusable.Tests.Flexo
         {
             var useCase = _helper.GetExpressions().Single(e => e.Name == useCaseName);
             var sth = new Something();
-            ExpressionAssert.Equal(expected, useCase, ctx => ctx.WithReferences(_helper.GetReferences()).SetItem("sth", sth), _output, throws);
+            ExpressionAssert.Equal(expected, useCase, ctx => ctx.WithReferences(_helper.GetReferences()).Set(Use<ITestNamespace>.Namespace, x => x.Sth, sth), _output, throws);
 
             switch (useCaseName)
             {
@@ -110,6 +110,12 @@ namespace Reusable.Tests.Flexo
             ("SetMany", null, false),
         }.Select(uc => new { uc.UseCaseName, uc.Expected, uc.Throws });
 
+        private interface ITestNamespace : INamespace
+        {
+            [SimpleKeyFactory]
+            Something Sth { get; }
+        }
+        
         private class Something
         {
             public string Greeting { get; set; } = "Hallo!";
