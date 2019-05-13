@@ -69,7 +69,6 @@ namespace Reusable.Flexo
             )
             {
                 var thisResult = InvokeCore();
-
                 thisView.Value.Result = thisResult.Value;
 
                 // Invoke extension when used.
@@ -87,17 +86,20 @@ namespace Reusable.Flexo
                     extension = @ref.Invoke().Value<IExpression>();
                 }
 
+                var thisResultValue = (object)thisResult;
+
                 // Validate return value and extension only for extensions. Make an exception for Block.
-                if (!(extension is Block))                
+                if (!(extension is Block))
                 {
                     var thisValue = extension.GetType().GetProperty(nameof(IExtension<object>.This)).GetValue(extension);
                     if (!(thisValue is null))
                     {
-                        throw DynamicException.Create
-                        (
-                            $"AmbiguousExpressionUsage",
-                            $"Expression '{extension.GetType().ToPrettyString()}/{extension.Name.ToString()}' is used as an extension and must not use the 'This' property explicitly."
-                        );
+                        thisResultValue = thisValue;
+                        // throw DynamicException.Create
+                        // (
+                        //     $"AmbiguousExpressionUsage",
+                        //     $"Expression '{extension.GetType().ToPrettyString()}/{extension.Name.ToString()}' is used as an extension and must not use the 'This' property explicitly."
+                        // );
                     }
 
                     var extensionType = extension.GetType().GetInterface(typeof(IExtension<>).Name)?.GetGenericArguments().Single();
@@ -117,7 +119,7 @@ namespace Reusable.Flexo
                 }
 
                 var extensionView = thisView.Add(CreateDebugView(extension));
-                using (BeginScope(ctx => ctx.Set(Namespace, x => x.This, thisResult).Set(Namespace, x => x.DebugView, extensionView)))
+                using (BeginScope(ctx => ctx.Set(Namespace, x => x.This, thisResultValue).Set(Namespace, x => x.DebugView, extensionView)))
                 {
                     var extensionResult = extension.Invoke();
                     extensionView.Value.Result = extensionResult.Value;
@@ -180,11 +182,9 @@ namespace Reusable.Flexo
                 obj is IEnumerable<IExpression> collection
                     ? collection
                     : throw DynamicException.Create("InvalidThisType", "Expected collection.");
-            return InvokeCore(@this);
+            return InvokeCore(@this.Enabled());
         }
 
         protected abstract Constant<TResult> InvokeCore(IEnumerable<IExpression> @this);
     }
-
-    
 }

@@ -32,12 +32,21 @@ namespace Reusable.Flexo
                 {
                     switch (switchCase.When)
                     {
-                        case IConstant constant when !EqualityComparer<object>.Default.Equals(value.Value, constant.Value): continue;
-                        case IExpression expression when expression.Invoke() is var whenResult && !whenResult.Value<bool>(): continue;
+                        case IConstant constant:
+                            if (EqualityComparer<object>.Default.Equals(value.Value, constant.Value))
+                            {
+                                var bodyResult = switchCase.Body.Invoke();
+                                return (Name, bodyResult.Value);
+                            }
+                            break;
+                        case IExpression expression:
+                            if (expression.Invoke() is var whenResult && whenResult.Value<bool>())
+                            {
+                                var bodyResult = switchCase.Body.Invoke();
+                                return (Name, bodyResult.Value);
+                            }
+                            break;
                     }
-
-                    var bodyResult = switchCase.Body.Invoke();
-                    return (Name, bodyResult.Value);
                 }
             }
 

@@ -34,6 +34,18 @@
   },
   {
     "$t": "Flexo.Any",
+    "Name": "Any.ToDouble",
+    "Values": [
+      false,
+      true,
+      false
+    ],
+    "This": {
+      "$f": "ToDouble"
+    }
+  },
+  {
+    "$t": "Flexo.Any",
     "Name": "Any{Predicate=false}",
     "Values": [
       false,
@@ -52,6 +64,19 @@
       false
     ],
     "Predicate": true
+  },
+  {
+    "$t": "Flexo.All",
+    "Name": "All.ToDouble",
+    "Values": [
+      {
+        "$t": "Flexo.False"
+      },
+      false
+    ],
+    "This": {
+      "$f": "ToDouble"
+    }
   },
   {
     "$t": "Flexo.Sum",
@@ -347,5 +372,19 @@
       "Liz",
       "Bob"
     ]
+  },
+  {
+    "$f": "Collection",
+    "Name": "Collection.All-overrides-this",
+    "Values": [
+      true,
+      true
+    ],
+    "This": {
+      "$f": "All",
+      "Values": [
+        false
+      ]
+    }
   }
 ]

@@ -72,8 +72,10 @@ namespace Reusable.Tests.Flexo
         private static IEnumerable<object> GetData() => new (string UseCaseName, object Expected, bool Throws)[]
         {
             ("Any", true, false),
+            ("Any.ToDouble", 1.0, false),
             ("Any{Predicate=false}", true, false),
             ("All{Predicate=true}", false, false),
+            ("All.ToDouble", 0.0, false),
             ("Sum", 3.0, false),
             ("ToDouble", 1.0, false),
             ("Matches", true, false),
@@ -91,6 +93,7 @@ namespace Reusable.Tests.Flexo
             ("Collection.Any{Predicate=Matches}", true, false),
             ("Collection.Contains", true, false),
             ("Collection.All", true, false),
+            ("Collection.All-overrides-this", false, false),
             ("Collection.Overlaps{Comparer=SoftString}", true, false),
             ("Collection.Select.ToString", new[] { "1", "True" }, false),
             ("String.In", true, false),
