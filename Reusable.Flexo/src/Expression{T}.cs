@@ -101,20 +101,23 @@ namespace Reusable.Flexo
                         //     $"Expression '{extension.GetType().ToPrettyString()}/{extension.Name.ToString()}' is used as an extension and must not use the 'This' property explicitly."
                         // );
                     }
-
-                    var extensionType = extension.GetType().GetInterface(typeof(IExtension<>).Name)?.GetGenericArguments().Single();
-                    var thisType =
-                        thisResult.Value is IEnumerable<IExpression> collection
-                            ? collection.GetType()
-                            : thisResult.GetType();
-
-                    if (extensionType?.IsAssignableFrom(thisType) == false)
+                    // Check extension types only when actually used as an extension.
+                    else
                     {
-                        throw DynamicException.Create
-                        (
-                            $"ExtensionTypeMismatch",
-                            $"Extension's '{extension.GetType().ToPrettyString()}' type '{extensionType.ToPrettyString()}' does not match the expression it is extending which is '{GetType().ToPrettyString()}'."
-                        );
+                        var extensionType = extension.GetType().GetInterface(typeof(IExtension<>).Name)?.GetGenericArguments().Single();
+                        var thisType =
+                            thisResult.Value is IEnumerable<IExpression> collection
+                                ? collection.GetType()
+                                : thisResult.GetType();
+
+                        if (extensionType?.IsAssignableFrom(thisType) == false)
+                        {
+                            throw DynamicException.Create
+                            (
+                                $"ExtensionTypeMismatch",
+                                $"Extension's '{extension.GetType().ToPrettyString()}' type '{extensionType.ToPrettyString()}' does not match the expression it is extending which is '{GetType().ToPrettyString()}'."
+                            );
+                        }
                     }
                 }
 

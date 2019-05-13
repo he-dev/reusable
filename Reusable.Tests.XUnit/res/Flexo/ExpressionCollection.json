@@ -374,8 +374,8 @@
     ]
   },
   {
-    "$f": "Collection",
-    "Name": "Collection.All-overrides-this",
+    "$f": "True",
+    "Name": "True.All-overrides-this",
     "Values": [
       true,
       true
