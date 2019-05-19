@@ -17,8 +17,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2018.3.0" />
-    <PackageReference Include="NLog" Version="4.5.11" />
+    <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />
+    <PackageReference Include="NLog" Version="4.6.3" />
   </ItemGroup>
 
   <ItemGroup>

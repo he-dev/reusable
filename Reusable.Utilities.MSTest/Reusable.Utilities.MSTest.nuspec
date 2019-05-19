@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Utilities.MSTest</id>
-    <version>10.3.7</version>
+    <version>10.4.2</version>
     <title>Reusable.Utilities.MSTest</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -15,13 +15,13 @@
     <copyright>Copyright 2019 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
-      <dependency id="JetBrains.Annotations" version="2018.3.0" />
-      <dependency id="Microsoft.NET.Test.Sdk" version="15.9.0" />
+      <dependency id="JetBrains.Annotations" version="2019.1.1" />
+      <dependency id="Microsoft.NET.Test.Sdk" version="16.1.0" />
       <dependency id="MSTest.TestAdapter" version="1.4.0" />
       <dependency id="MSTest.TestFramework" version="1.4.0" />
-      <dependency id="Reusable.Core" version="10.3.7" />
-      <dependency id="Reusable.OmniLog" version="10.3.7" />
-      <dependency id="Reusable.SmartConfig" version="10.3.7" />
+      <dependency id="Reusable.Core" version="10.4.2" />
+      <dependency id="Reusable.OmniLog" version="10.4.2" />
+      <dependency id="Reusable.SmartConfig" version="10.4.2" />
     </dependencies>
   </metadata>
   <files>

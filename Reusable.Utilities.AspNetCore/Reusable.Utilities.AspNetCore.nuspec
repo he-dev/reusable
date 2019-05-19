@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Utilities.AspNetCore</id>
-    <version>10.3.7</version>
+    <version>10.4.2</version>
     <title>Reusable.Utilities.AspNetCore</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -15,11 +15,11 @@
     <copyright>Copyright 2016 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
-      <dependency id="JetBrains.Annotations" version="2018.3.0" />
+      <dependency id="JetBrains.Annotations" version="2019.1.1" />
       <dependency id="Microsoft.AspNetCore.Mvc" version="2.2.0" />
-      <dependency id="Reusable.Core" version="10.3.7" />
-      <dependency id="Reusable.OmniLog.SemanticExtensions" version="10.3.7" />
-      <dependency id="Reusable.OmniLog" version="10.3.7" />
+      <dependency id="Reusable.Core" version="10.4.2" />
+      <dependency id="Reusable.OmniLog.SemanticExtensions" version="10.4.2" />
+      <dependency id="Reusable.OmniLog" version="10.4.2" />
     </dependencies>
   </metadata>
   <files>

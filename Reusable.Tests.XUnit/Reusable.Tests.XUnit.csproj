@@ -24,13 +24,13 @@
         <EmbeddedResource Include="sql\SmartConfig\seed-test-data.sql" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Autofac" Version="4.9.1" />
-        <PackageReference Include="JetBrains.Annotations" Version="2018.3.0" />
-        <PackageReference Include="JustMock" Version="2019.1.207.1" />
+        <PackageReference Include="Autofac" Version="4.9.2" />
+        <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />
+        <PackageReference Include="JustMock" Version="2019.2.508.1" />
         <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
         <PackageReference Include="xunit" Version="2.4.1" />
-        <PackageReference Include="Dapper" Version="1.50.7" />
+        <PackageReference Include="Dapper" Version="1.60.6" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Reusable.Commander\Reusable.Commander.csproj" />
