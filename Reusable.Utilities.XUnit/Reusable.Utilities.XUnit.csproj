@@ -2,6 +2,8 @@
   <PropertyGroup>
     <!--<TargetFramework>net47</TargetFramework>-->
     <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>
+    <AssemblyName>Reusable.Utilities.Xunit</AssemblyName>
+    <RootNamespace>Reusable.Utilities.Xunit</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>TRACE;RELEASE;NET47;JETBRAINS_ANNOTATIONS</DefineConstants>
@@ -16,7 +18,7 @@
     <PackageReference Include="JustMock" Version="2019.2.508.1" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
-    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.extensibility.core" Version="2.4.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
@@ -28,8 +30,17 @@
     <ProjectReference Include="..\Reusable.SmartConfig\Reusable.SmartConfig.csproj" />
     <ProjectReference Include="..\Reusable.Teapot\Reusable.Teapot.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
+    <ProjectReference Include="..\Xunit.Assert.That\Xunit.Assert.That.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Configuration" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="src\Extensions\CollectionAssertExtensions.cs" />
+    <Compile Remove="src\Extensions\EqualityComparerAssertExtensions.cs" />
+    <Compile Remove="src\Extensions\LookupAssertExtensions.cs" />
+    <Compile Remove="src\Extensions\TypeAssertExtensions.cs" />
+  </ItemGroup>
+  
 </Project>

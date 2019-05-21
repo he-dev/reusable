@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Custom;
+using JetBrains.Annotations;
 using Reusable.Collections;
 
 namespace Reusable
@@ -42,21 +44,26 @@ namespace Reusable
 
     public static class Range
     {
+        [NotNull]
         public static Range<T> Create<T>(T min, T max) => new Range<T>(min, max);
 
+        [NotNull]
         public static Range<T> Create<T>(T minMax) => new Range<T>(minMax, minMax);
 
+        [NotNull]
         public static Range<T> ToRange<T>(this (T min, T max) range) => new Range<T>(range.min, range.max);
 
+        [NotNull]
         public static Range<T> ToRange<T>(this IList<T> values)
         {
             if (values == null) throw new ArgumentNullException(nameof(values));
-            if (1 <= values.Count && values.Count <= 2) throw new ArgumentException("You need to specify either one or two values.");
 
-            return
-                values.Count == 2
-                    ? (values[0], values[1])
-                    : (values[0], values[0]);
+            switch (values.Count)
+            {
+                case 1: return (values[0], values[0]);
+                case 2: return (values[0], values[1]);
+                default: throw new ArgumentException("Range can be created only from either one or two values.");
+            }
         }
     }
 }

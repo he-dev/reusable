@@ -135,10 +135,10 @@ namespace Reusable.Flexo
 
         public bool Enabled { get; set; } = true;
 
-        /// <summary>
-        /// Gets a value indicating whether a separate debug-view should be created for this expression. Returns true to avoid duplicated debug-views.
-        /// </summary>
-        protected virtual bool SuppressDebugView { get; }
+//        /// <summary>
+//        /// Gets a value indicating whether a separate debug-view should be created for this expression. Returns true to avoid duplicated debug-views.
+//        /// </summary>
+//        //protected virtual bool SuppressDebugView { get; }
 
         [JsonProperty("This")]
         public IExpression Extension { get; set; }
@@ -215,8 +215,6 @@ namespace Reusable.Flexo
             Current = Current?.Parent;
         }
     }    
-
-    public static class ExpressionInvokeHelper { }
 
     public interface IExpressionNamespace : INamespace
     {

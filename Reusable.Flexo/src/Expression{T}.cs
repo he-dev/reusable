@@ -60,7 +60,8 @@ namespace Reusable.Flexo
                 }
             }
 
-            var thisView = SuppressDebugView ? parentView : parentView.Add(CreateDebugView(this));
+            //var thisView = SuppressDebugView ? parentView : parentView.Add(CreateDebugView(this));
+            var thisView = parentView.Add(CreateDebugView(this));
 
             // Avoid making the tree deeper when this is already a Constant.
             using (@this is null
@@ -124,12 +125,10 @@ namespace Reusable.Flexo
                     }
                 }
 
-                var extensionView = thisView.Add(CreateDebugView(extension));
-                using (BeginScope(ctx => ctx.Set(Namespace, x => x.This, thisResultValue).Set(Namespace, x => x.DebugView, extensionView)))
+                //var extensionView = thisView.Add(CreateDebugView(extension));
+                using (BeginScope(ctx => ctx.Set(Namespace, x => x.This, thisResultValue).Set(Namespace, x => x.DebugView, thisView)))
                 {
-                    var extensionResult = extension.Invoke();
-                    extensionView.Value.Result = extensionResult.Value;
-                    return extensionResult;
+                    return extension.Invoke();
                 }
             }
         }

@@ -9,7 +9,7 @@ using Double = Reusable.Flexo.Double;
 // ReSharper disable once CheckNamespace
 namespace Reusable.Tests.Flexo
 {
-    using static ExpressionAssert;
+    using static AssertExtensions;
 
     public class ExpressionTest : IClassFixture<ExpressionFixture> //, IDisposable
     {
@@ -20,19 +20,19 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void All_returns_True_when_all_True()
         {
-            Equal(true, _helper.Resolve<All>(e => e.This = Constant.CreateMany(true, true, true)));
+            Assert.That.ExpressionEqual(true, _helper.Resolve<All>(e => e.This = Constant.CreateMany(true, true, true)));
         }
 
         [Fact]
         public void All_returns_False_when_some_False()
         {
-            Equal(false, _helper.Resolve<All>(e => e.This = Constant.CreateMany(true, false, true)));
+            Assert.That.ExpressionEqual(false, _helper.Resolve<All>(e => e.This = Constant.CreateMany(true, false, true)));
         }
 
         [Fact]
         public void All_returns_False_when_all_False()
         {
-            Equal(false, _helper.Resolve<All>(e => e.This = Constant.CreateMany(false, false, false)));
+            Assert.That.ExpressionEqual(false, _helper.Resolve<All>(e => e.This = Constant.CreateMany(false, false, false)));
         }
 
 //        [Fact]
@@ -55,13 +55,13 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void Any_returns_True_when_some_True()
         {
-            Equal(true, _helper.Resolve<Any>(e => e.This = Constant.CreateMany(false, false, true)));
+            Assert.That.ExpressionEqual(true, _helper.Resolve<Any>(e => e.This = Constant.CreateMany(false, false, true)));
         }
 
         [Fact]
         public void Any_returns_False_when_all_False()
         {
-            Equal(false, _helper.Resolve<Any>(e => e.This = Constant.CreateMany(false, false, false)));
+            Assert.That.ExpressionEqual(false, _helper.Resolve<Any>(e => e.This = Constant.CreateMany(false, false, false)));
         }
 
 //        [Fact]
@@ -84,7 +84,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void IIf_invokes_True_when_True()
         {
-            Equal("foo", _helper.Resolve<IIf>(e =>
+            Assert.That.ExpressionEqual("foo", _helper.Resolve<IIf>(e =>
             {
                 e.This = Constant.Create(true);
                 e.True = Constant.Create("foo");
@@ -95,7 +95,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void IIf_invokes_False_when_False()
         {
-            Equal("bar", _helper.Resolve<IIf>(e =>
+            Assert.That.ExpressionEqual("bar", _helper.Resolve<IIf>(e =>
             {
                 e.This = Constant.Create(false);
                 e.True = Constant.Create("foo");
@@ -112,7 +112,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void IIf_returns_null_constant_when_True_not_specified()
         {
-            Equal(Constant.Null, _helper.Resolve<IIf>(e =>
+            Assert.That.ExpressionEqual(Constant.Null, _helper.Resolve<IIf>(e =>
             {
                 e.This = Constant.True;
                 e.False = Double.Zero;
@@ -122,7 +122,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void IIf_returns_null_constant_when_False_not_specified()
         {
-            Equal(Constant.Null, _helper.Resolve<IIf>(e =>
+            Assert.That.ExpressionEqual(Constant.Null, _helper.Resolve<IIf>(e =>
             {
                 e.This = Constant.False;
                 e.True = Double.One;
@@ -160,25 +160,25 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void Max_returns_Max()
         {
-            Equal(3.0, _helper.Resolve<Max>(e => e.This = Constant.CreateMany(2.0, 3.0, 1.0)));
+            Assert.That.ExpressionEqual(3.0, _helper.Resolve<Max>(e => e.This = Constant.CreateMany(2.0, 3.0, 1.0)));
         }
 
         [Fact]
         public void Min_returns_Min()
         {
-            Equal(1.0, _helper.Resolve<Min>(e => e.This = Constant.CreateMany(2.0, 3.0, 1.0)));
+            Assert.That.ExpressionEqual(1.0, _helper.Resolve<Min>(e => e.This = Constant.CreateMany(2.0, 3.0, 1.0)));
         }
 
         [Fact]
         public void Sum_returns_Sum()
         {
-            Equal(6.0, _helper.Resolve<Sum>(e => e.This = Constant.CreateMany(2.0, 3.0, 1.0)));
+            Assert.That.ExpressionEqual(6.0, _helper.Resolve<Sum>(e => e.This = Constant.CreateMany(2.0, 3.0, 1.0)));
         }
 
         [Fact]
         public void IsEqual_returns_True_when_Input_equal_Value()
         {
-            Equal(true, _helper.Resolve<IsEqual>(e =>
+            Assert.That.ExpressionEqual(true, _helper.Resolve<IsEqual>(e =>
             {
                 e.This = Constant.Create("foo");
                 e.Value = Constant.Create("foo");
@@ -188,7 +188,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void IsEqual_returns_False_when_Input_not_equal_Value()
         {
-            Equal(false, _helper.Resolve<IsEqual>(e =>
+            Assert.That.ExpressionEqual(false, _helper.Resolve<IsEqual>(e =>
             {
                 e.This = Constant.Create("bar");
                 e.Value = Constant.Create("foo");
@@ -198,7 +198,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void IsGreaterThan_returns_True_when_Input_GreaterThan_Value()
         {
-            Equal(true, _helper.Resolve<IsGreaterThan>(e =>
+            Assert.That.ExpressionEqual(true, _helper.Resolve<IsGreaterThan>(e =>
             {
                 e.This = Constant.Create(3.0);
                 e.Right = Constant.Create(2.0);
@@ -208,7 +208,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void IsGreaterThan_returns_False_when_Input_LessThan_Value()
         {
-            Equal(false, _helper.Resolve<IsGreaterThan>(e =>
+            Assert.That.ExpressionEqual(false, _helper.Resolve<IsGreaterThan>(e =>
             {
                 e.This = Constant.Create(2.0);
                 e.Right = Constant.Create(3.0);
@@ -218,7 +218,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void IsGreaterThan_returns_False_when_This_equal_Right()
         {
-            Equal(false, _helper.Resolve<IsGreaterThan>(e =>
+            Assert.That.ExpressionEqual(false, _helper.Resolve<IsGreaterThan>(e =>
             {
                 e.This = Constant.Create(2.0);
                 e.Right = Constant.Create(2.0);
@@ -228,7 +228,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void IsGreaterThanOrEqual_returns_True_when_This_greaterThan_Right()
         {
-            Equal(true, _helper.Resolve<IsGreaterThanOrEqual>(e =>
+            Assert.That.ExpressionEqual(true, _helper.Resolve<IsGreaterThanOrEqual>(e =>
             {
                 e.This = Constant.Create(3.0);
                 e.Right = Constant.Create(2.0);
@@ -238,7 +238,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void IsGreaterThanOrEqual_returns_True_when_This_equal_Right()
         {
-            Equal(true, _helper.Resolve<IsGreaterThanOrEqual>(e =>
+            Assert.That.ExpressionEqual(true, _helper.Resolve<IsGreaterThanOrEqual>(e =>
             {
                 e.This = Constant.Create(3.0);
                 e.Right = Constant.Create(3.0);
@@ -248,7 +248,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void IsGreaterThanOrEqual_returns_False_when_This_lessThan_Right()
         {
-            Equal(false, _helper.Resolve<IsGreaterThanOrEqual>(e =>
+            Assert.That.ExpressionEqual(false, _helper.Resolve<IsGreaterThanOrEqual>(e =>
             {
                 e.This = Constant.Create(2.0);
                 e.Right = Constant.Create(3.0);
@@ -258,7 +258,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void IsLessThan_returns_True_when_This_lessThan_Right()
         {
-            Equal(true, _helper.Resolve<IsLessThan>(e =>
+            Assert.That.ExpressionEqual(true, _helper.Resolve<IsLessThan>(e =>
             {
                 e.This = Constant.Create(2.0);
                 e.Right = Constant.Create(3.0);
@@ -268,7 +268,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void IsLessThan_returns_False_when_This_equal_Right()
         {
-            Equal(false, _helper.Resolve<IsLessThan>(e =>
+            Assert.That.ExpressionEqual(false, _helper.Resolve<IsLessThan>(e =>
             {
                 e.This = Constant.Create(3.0);
                 e.Right = Constant.Create(3.0);
@@ -278,7 +278,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void IsLessThan_returns_False_when_This_greaterThan_Right()
         {
-            Equal(false, _helper.Resolve<IsLessThan>(e =>
+            Assert.That.ExpressionEqual(false, _helper.Resolve<IsLessThan>(e =>
             {
                 e.This = Constant.Create(3.0);
                 e.Right = Constant.Create(2.0);
@@ -288,7 +288,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void IsLessThanOrEqual_returns_True_when_This_lessThan_Right()
         {
-            Equal(true, _helper.Resolve<IsLessThanOrEqual>(e =>
+            Assert.That.ExpressionEqual(true, _helper.Resolve<IsLessThanOrEqual>(e =>
             {
                 e.This = Constant.Create(2.0);
                 e.Right = Constant.Create(3.0);
@@ -298,7 +298,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void IsLessThanOrEqual_returns_True_when_This_equal_Right()
         {
-            Equal(true, _helper.Resolve<IsLessThanOrEqual>(e =>
+            Assert.That.ExpressionEqual(true, _helper.Resolve<IsLessThanOrEqual>(e =>
             {
                 e.This = Constant.Create(3.0);
                 e.Right = Constant.Create(3.0);
@@ -308,7 +308,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void IsLessThanOrEqual_returns_False_when_This_greaterThan_Right()
         {
-            Equal(false, _helper.Resolve<IsLessThanOrEqual>(e =>
+            Assert.That.ExpressionEqual(false, _helper.Resolve<IsLessThanOrEqual>(e =>
             {
                 e.This = Constant.Create(3.0);
                 e.Right = Constant.Create(2.0);
@@ -318,37 +318,37 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void Not_returns_True_when_False()
         {
-            Equal(false, _helper.Resolve<Not>(e => e.This = Constant.True));
+            Assert.That.ExpressionEqual(false, _helper.Resolve<Not>(e => e.This = Constant.True));
         }
 
         [Fact]
         public void Not_returns_False_when_True()
         {
-            Equal(false, _helper.Resolve<Not>(e => e.This = Constant.True));
+            Assert.That.ExpressionEqual(false, _helper.Resolve<Not>(e => e.This = Constant.True));
         }
 
         [Fact]
         public void ToDouble_maps_True_to_One()
         {
-            Equal(1.0, _helper.Resolve<ToDouble>(e => e.This = Constant.True));
+            Assert.That.ExpressionEqual(1.0, _helper.Resolve<ToDouble>(e => e.This = Constant.True));
         }
 
         [Fact]
         public void ToDouble_maps_False_to_Zero()
         {
-            Equal(0.0, _helper.Resolve<ToDouble>(e => e.This = Constant.False));
+            Assert.That.ExpressionEqual(0.0, _helper.Resolve<ToDouble>(e => e.This = Constant.False));
         }
 
         [Fact]
         public void ToString_converts_Input_to_string()
         {
-            Equal("1", _helper.Resolve<ToString>(e => e.This = Constant.Create(1.0)));
+            Assert.That.ExpressionEqual("1", _helper.Resolve<ToString>(e => e.This = Constant.Create(1.0)));
         }
 
         [Fact]
         public void ToString_converts_Input_to_string_with_custom_format()
         {
-            Equal("1.00", _helper.Resolve<ToString>(e =>
+            Assert.That.ExpressionEqual("1.00", _helper.Resolve<ToString>(e =>
             {
                 e.This = Constant.Create(1.0);
                 e.Format = Constant.Create("{0:F2}");
@@ -385,7 +385,7 @@ namespace Reusable.Tests.Flexo
                 };
             });
 
-            Equal(Constant.True, s);
+            Assert.That.ExpressionEqual(Constant.True, s);
         }
 
         [Fact]
@@ -413,7 +413,7 @@ namespace Reusable.Tests.Flexo
                 };
             });
 
-            Equal(Constant.True, s);
+            Assert.That.ExpressionEqual(Constant.True, s);
         }
 
         [Fact]
@@ -438,13 +438,13 @@ namespace Reusable.Tests.Flexo
                 e.Default = new Constant<double>("Actual", 2.0);
             });
 
-            Equal(2.0, s);
+            Assert.That.ExpressionEqual(2.0, s);
         }
 
         [Fact]
         public void Contains_returns_True_when_contains_value()
         {
-            Equal(true, _helper.Resolve<Contains>(e =>
+            Assert.That.ExpressionEqual(true, _helper.Resolve<Contains>(e =>
             {
                 e.This = Constant.CreateMany("foo", "bar").ToList();
                 e.Value = Constant.Create("blub", "bar");
@@ -454,7 +454,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void Contains_uses_custom_comparer()
         {
-            Equal(true, _helper.Resolve<Contains>(e =>
+            Assert.That.ExpressionEqual(true, _helper.Resolve<Contains>(e =>
             {
                 e.This = Constant.CreateMany("foo", "BAR").ToList();
                 e.Value = Constant.Create("Value", "bar");
@@ -465,7 +465,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void Matches_return_True_when_Pattern_matches()
         {
-            Equal(true, _helper.Resolve<Matches>(e =>
+            Assert.That.ExpressionEqual(true, _helper.Resolve<Matches>(e =>
             {
                 e.IgnoreCase = true;
                 e.This = Constant.Create("Value", "Hallo");
@@ -476,7 +476,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void GetContextItem_can_get_item_by_key()
         {
-            Equal(1, _helper.Resolve<GetSingle>(e => e.Path = "SwitchSession.Value"), ctx => ctx.Set(Use<ISwitchNamespace>.Namespace, x => x.Value, 1));
+            Assert.That.ExpressionEqual(1, _helper.Resolve<GetSingle>(e => e.Path = "SwitchSession.Value"), ctx => ctx.Set(Use<ISwitchNamespace>.Namespace, x => x.Value, 1));
         }
 //
 //        [Fact]

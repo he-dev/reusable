@@ -84,6 +84,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Cronvenient", "Reu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.OmniLog.Abstractions", "Reusable.OmniLog.Abstractions\Reusable.OmniLog.Abstractions.csproj", "{4F202E6E-64D5-47AC-B553-AC9509C204BE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xunit.Assert.That", "Xunit.Assert.That\Xunit.Assert.That.csproj", "{61B54BB6-76C0-4018-93A6-DEF9AF0E248E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -230,6 +232,10 @@ Global
 		{4F202E6E-64D5-47AC-B553-AC9509C204BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F202E6E-64D5-47AC-B553-AC9509C204BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F202E6E-64D5-47AC-B553-AC9509C204BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61B54BB6-76C0-4018-93A6-DEF9AF0E248E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61B54BB6-76C0-4018-93A6-DEF9AF0E248E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61B54BB6-76C0-4018-93A6-DEF9AF0E248E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61B54BB6-76C0-4018-93A6-DEF9AF0E248E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -269,6 +275,7 @@ Global
 		{66646136-6C60-4804-AD16-144A7DEAAC0A} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 		{4CFA28B2-781B-4DD0-AB10-6D40EDDCE665} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 		{4F202E6E-64D5-47AC-B553-AC9509C204BE} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
+		{61B54BB6-76C0-4018-93A6-DEF9AF0E248E} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2FA54731-890C-4550-BACA-E19B564CE1E3}

@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-<!--        <TargetFramework>net47</TargetFramework>-->
         <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -29,8 +28,10 @@
         <PackageReference Include="JustMock" Version="2019.2.508.1" />
         <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
-        <PackageReference Include="xunit" Version="2.4.1" />
         <PackageReference Include="Dapper" Version="1.60.6" />
+        <!--<PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />-->
+        <PackageReference Include="xunit.extensibility.execution" Version="2.4.1" />
+        <!--<PackageReference Include="xunit.assert" Version="2.4.1" />-->
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Reusable.Commander\Reusable.Commander.csproj" />
@@ -53,11 +54,11 @@
         <Reference Include="System.Configuration" />
     </ItemGroup>
     <ItemGroup>
-      <Compile Remove="src\Commander\Integration\ExceptionTest.cs" />
-      <Compile Remove="src\OmniLog\UseCaseTest.cs" />
-      <Compile Remove="src\Flexo\ExpressionContextTest.cs" />
+        <Compile Remove="src\Commander\Integration\ExceptionTest.cs" />
+        <Compile Remove="src\OmniLog\UseCaseTest.cs" />
+        <Compile Remove="src\Flexo\ExpressionContextTest.cs" />
     </ItemGroup>
     <ItemGroup>
-      <Folder Include="sql\SmartConfig" />
+        <Folder Include="sql\SmartConfig" />
     </ItemGroup>
 </Project>

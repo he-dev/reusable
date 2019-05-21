@@ -32,7 +32,8 @@ namespace Reusable
             return range.ContainsExclusive(other.Min) || range.ContainsExclusive(other.Max);
         }
 
-        private static Func<T, T, T, bool> CreateComparerFunc<T>(
+        private static Func<T, T, T, bool> CreateComparerFunc<T>
+        (
             Func<Expression, Expression, Expression> greaterThanOrEqual,
             Func<Expression, Expression, Expression> lessThanOrEqual
         )
@@ -41,7 +42,8 @@ namespace Reusable
             var min = Expression.Parameter(typeof(T), "min");
             var max = Expression.Parameter(typeof(T), "max");
 
-            var contains = Expression.AndAlso(
+            var contains = Expression.AndAlso
+            (
                 greaterThanOrEqual(x, min),
                 lessThanOrEqual(x, max)
             );

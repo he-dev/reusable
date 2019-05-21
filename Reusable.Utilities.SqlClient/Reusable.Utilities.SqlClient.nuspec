@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Utilities.SqlClient</id>
-    <version>10.4.2</version>
+    <version>10.4.3</version>
     <title>Reusable.Utilities.SqlClient</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -18,8 +18,8 @@
       <dependency id="JetBrains.Annotations" version="2019.1.1" />
       <dependency id="System.Data.DataSetExtensions" version="4.5.0" />
       <dependency id="System.Data.SqlClient" version="4.6.1" />
-      <dependency id="Reusable.Core" version="10.4.2" />
-      <dependency id="Reusable.IOnymous" version="10.4.2" />
+      <dependency id="Reusable.Core" version="10.4.3" />
+      <dependency id="Reusable.IOnymous" version="10.4.3" />
     </dependencies>
   </metadata>
   <files>

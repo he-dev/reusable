@@ -1,28 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.MarkupBuilder</id>
+    <id>Xunit.Assert.That</id>
     <version>10.4.3</version>
-    <title>Reusable.MarkupBuilder</title>
+    <title>Xunit.Assert.That</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/he-dev/Reusable</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/he-dev/Reusable/master/_nuget/recycling.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>Html and Xml markup builder.</description>
+    <description>Adds a static "That" property to the "Assert" class so that extensions can be chained.</description>
     <releaseNotes></releaseNotes>
-    <copyright>Copyright 2016 He-Dev</copyright>
+    <copyright>Copyright 2019 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2019.1.1" />
-      <dependency id="Reusable.Core" version="10.4.3" />
+      <dependency id="xunit.assert.source" version="2.4.1" />
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\net47\Reusable.MarkupBuilder.dll" target="lib\net47" />
-    <file src="bin\Release\net47\Reusable.MarkupBuilder.pdb" target="lib\net47" />
-    <file src="bin\Release\netcoreapp2.2\Reusable.MarkupBuilder.dll" target="lib\netcoreapp2.2" />
-    <file src="bin\Release\netcoreapp2.2\Reusable.MarkupBuilder.pdb" target="lib\netcoreapp2.2" />
+    <file src="bin\Release\net47\Xunit.Assert.That.dll" target="lib\net47" />
+    <file src="bin\Release\net47\Xunit.Assert.That.pdb" target="lib\net47" />
+    <file src="bin\Release\netcoreapp2.2\Xunit.Assert.That.dll" target="lib\netcoreapp2.2" />
+    <file src="bin\Release\netcoreapp2.2\Xunit.Assert.That.pdb" target="lib\netcoreapp2.2" />
   </files>
 </package>
