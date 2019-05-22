@@ -13,7 +13,8 @@ namespace Reusable.Flexo
         [JsonProperty("Values")]
         public override IEnumerable<IExpression> This { get; set; }
 
-        public List<IExpression> With { get; set; } = new List<IExpression>();
+        [JsonRequired]
+        public List<IExpression> With { get; set; }
 
         public string Comparer { get; set; }
 
