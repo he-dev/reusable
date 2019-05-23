@@ -21,37 +21,32 @@ namespace Reusable.Flexo
     [PublicAPI]
     public abstract class GetItem<T> : Expression<T>
     {
-        //private static readonly SoftString ThisKey = ImmutableSessionKey<IExpressionNamespace>.Create(x => x.This);
         protected GetItem(ILogger logger, string name) : base(logger, name) { }
 
         public string Path { get; set; }
 
         // key.Property.Property --> session[key].Property.Property
-        // this.Property.Property --> @this.Property.Property 
+        // this.Property.Property --> @this.Property.Property
 
         protected object FindItem(Func<string, string> configurePath = default)
         {
             var names = Path.Split('.');
             var key = names.First();
-            if (Scope.Context.TryGetValue(key, out var item))
-            {
-                return
-                    names
-                        .Skip(1)
-                        .Aggregate(item, (current, name) =>
-                            current is IConstant constant
-                                ? GetValue(constant.Value?.GetType() ?? throw DynamicException.Create("ValueNull", $"Constant '{constant.Name.ToString()}' value is null."), constant.Value, name)
-                                : GetValue(current.GetType(), current, name)
-                        );
-            }
-            else
-            {
-                throw DynamicException.Create("ContextItemNotFound", $"Could not find an item with the key '{key}' from '{Path}'.");
-            }
+            return
+                Scope.Context.TryGetValue(key, out var item)
+                    ? names.Skip(1).Aggregate(item, GetValue)
+                    : throw DynamicException.Create("ContextItemNotFound", $"Could not find an item with the key '{key}' from '{Path}'.");
         }
 
-        object GetValue(Type type, object obj, string memberName)
+        [NotNull]
+        private object GetValue(object obj, string memberName)
         {
+            var type = default(Type);
+            (type, obj) =
+                obj is IConstant constant
+                    ? (constant.Value?.GetType() ?? throw DynamicException.Create("ValueNull", $"Constant '{constant.Name.ToString()}' value is null."), constant.Value)
+                    : (obj.GetType(), obj);
+
             var member =
                 type
                     .GetMember(memberName)
@@ -74,7 +69,7 @@ namespace Reusable.Flexo
     {
         public Item([NotNull] ILogger<Item> logger) : base(logger, nameof(Item))
         {
-            Path = Reusable.Data.ImmutableSessionKey<IExpressionNamespace>.Create(x => x.Item);
+            Path = ImmutableSessionKey<IExpressionNamespace>.Create(x => x.Item);
         }
 
         protected override Constant<object> InvokeCore()
@@ -91,14 +86,11 @@ namespace Reusable.Flexo
         {
             var expressions = Scope.Context.Get(Namespace, x => x.References);
             var path = Path.StartsWith("R.", StringComparison.OrdinalIgnoreCase) ? Path : $"R.{Path}";
-            if (expressions.TryGetValue(path, out var expression))
-            {
-                return (Path, expression);
-            }
-            else
-            {
-                throw DynamicException.Create("RefNotFound", $"Could not find a reference to '{path}'.");
-            }
+
+            return
+                expressions.TryGetValue(path, out var expression)
+                    ? (Path, expression)
+                    : throw DynamicException.Create("RefNotFound", $"Could not find a reference to '{path}'.");
         }
     }
 }

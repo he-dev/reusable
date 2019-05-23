@@ -29,7 +29,7 @@ namespace Reusable.Data
         [NotNull]
         public static TreeNode<T> Empty => new TreeNode<T>(default);
 
-        [CanBeNull]
+        [NotNull]
         public T Value { get; set; }
 
         public new TreeNode<T> Add(TreeNode<T> node)

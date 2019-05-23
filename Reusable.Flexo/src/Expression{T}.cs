@@ -24,95 +24,53 @@ namespace Reusable.Flexo
     {
         protected Expression([NotNull] ILogger logger, SoftString name) : base(logger, name) { }
 
-        private bool IsExtension => !(GetType().GetInterface(typeof(IExtension<>).Name) is null);
-
         public override IConstant Invoke()
         {
             var parentView = Scope.Context.Get(Namespace, x => x.DebugView);
+            var thisView = parentView.Add(CreateDebugView(this));
 
+            // Take a shortcut when this is a constant without an extension. This helps to avoid another debug-view.
             if (this is IConstant constant && Extension is null)
             {
-                parentView.Add(CreateDebugView(this)).Value.Result = constant.Value;
+                thisView.Value.Result = constant.Value;
                 return constant;
             }
 
-            var @this = default(object);
+            var @this = GetThisOrDefault(this);
 
-            // Extensions require additional handling.
-            if (IsExtension)
+            var thisScope = BeginScope(ctx =>
             {
-                // When "This" property is not null then we assume it's not used as an extension
-                // and push this on the stack instead of the value of the previous expression.
-                var thisValue = GetType().GetProperty(nameof(IExtension<object>.This)).GetValue(this);
-                if (!(thisValue is null))
-                {
-                    switch (thisValue)
-                    {
-                        case IExpression e:
-                            @this = e;
-                            break;
+                ctx = ctx.Set(Namespace, x => x.DebugView, thisView);
+                return
+                    @this is null
+                        ? ctx
+                        : ctx.Set(Namespace, x => x.This, @this);
+            });
 
-                        case IEnumerable<IExpression> c:
-                            //@this = Constant.Create("This", c);
-                            @this = c;
-                            break;
-                    }
-                }
-            }
-
-            //var thisView = SuppressDebugView ? parentView : parentView.Add(CreateDebugView(this));
-            var thisView = parentView.Add(CreateDebugView(this));
-
-            // Avoid making the tree deeper when this is already a Constant.
-            using (@this is null
-                ? BeginScope(ctx => ctx.Set(Namespace, x => x.DebugView, thisView))
-                : BeginScope(ctx => ctx.Set(Namespace, x => x.This, @this).Set(Namespace, x => x.DebugView, thisView))
-            )
+            using (thisScope)
             {
                 var thisResult = InvokeCore();
                 thisView.Value.Result = thisResult.Value;
-
-                // Invoke extension when used.
+                @this = thisResult;
 
                 if (Extension is null)
                 {
                     return thisResult;
                 }
 
-                var extension = Extension;
+                var extension = GetExtension();
 
-                // Resolve the actual expression.
-                while (extension is Ref @ref)
-                {
-                    extension = @ref.Invoke().Value<IExpression>();
-                }
-
-                var thisResultValue = (object)thisResult;
-
-                // Validate return value and extension only for extensions. Make an exception for Block.
+                // Block is transparent so skip any special extension handling.
                 if (!(extension is Block))
                 {
-                    if (extension.GetType().GetProperty(nameof(IExtension<object>.This)) is var thisProperty && !(thisProperty is null))
-                    {
-                        var thisValue = thisProperty.GetValue(extension);
-                        if (!(thisValue is null))
-                        {
-                            thisResultValue = thisValue;
-                            // throw DynamicException.Create
-                            // (
-                            //     $"AmbiguousExpressionUsage",
-                            //     $"Expression '{extension.GetType().ToPrettyString()}/{extension.Name.ToString()}' is used as an extension and must not use the 'This' property explicitly."
-                            // );
-                        }
-                    }
-                    // Check extension types only when actually used as an extension.
-                    else
+                    // Validate @this only when this is used as an extension.
+                    if (GetThisOrDefault(extension) is var t && t is null)
                     {
                         var extensionType = extension.GetType().GetInterface(typeof(IExtension<>).Name)?.GetGenericArguments().Single();
                         var thisType =
                             thisResult.Value is IEnumerable<IExpression> collection
                                 ? collection.GetType()
-                                : thisResult.GetType();
+                                : @this.GetType();
 
                         if (extensionType?.IsAssignableFrom(thisType) == false)
                         {
@@ -123,21 +81,62 @@ namespace Reusable.Flexo
                             );
                         }
                     }
+                    // @this is overriden an this is not used as an extension.
+                    else
+                    {
+                        @this = t;
+                    }
                 }
 
-                //var extensionView = thisView.Add(CreateDebugView(extension));
-                using (BeginScope(ctx => ctx.Set(Namespace, x => x.This, thisResultValue).Set(Namespace, x => x.DebugView, thisView)))
+                using (BeginScope(ctx => ctx.Set(Namespace, x => x.DebugView, thisView).Set(Namespace, x => x.This, @this)))
                 {
                     return extension.Invoke();
                 }
             }
         }
 
+        [CanBeNull]
+        private static object GetThisOrDefault(IExpression expression)
+        {
+            var isExtension = !(expression.GetType().GetInterface(typeof(IExtension<>).Name) is null);
+
+            var thisValue =
+                isExtension
+                    ? expression.GetType().GetProperty(nameof(IExtension<object>.This)).GetValue(expression)
+                    : default;
+
+            switch (thisValue)
+            {
+                case null: return default;
+                case IExpression e: return e;
+                case IEnumerable<IExpression> c: return c;
+                default:
+                    throw new ArgumentOutOfRangeException
+                    (
+                        paramName: nameof(IExtension<object>.This),
+                        message: $"'This' value is of type '{thisValue.GetType().ToPrettyString()}' " +
+                                 $"but it must be either an '{typeof(IExpression).ToPrettyString()}' " +
+                                 $"or an '{typeof(IEnumerable<IExpression>).ToPrettyString()}'"
+                    );
+            }
+        }
+
+        private IExpression GetExtension()
+        {
+            var extension = Extension;
+
+            // Resolve the actual expression.
+            while (extension is Ref @ref)
+            {
+                extension = @ref.Invoke().Value<IExpression>();
+            }
+
+            return extension;
+        }
+
         protected abstract Constant<TResult> InvokeCore();
 
-        //private static bool IsExtension<T>(T obj) where T : IExpression => !(typeof(T).GetInterface(typeof(IExtension<>).Name) is null);
-
-        protected static TreeNode<ExpressionDebugView> CreateDebugView(IExpression expression)
+        private static TreeNode<ExpressionDebugView> CreateDebugView(IExpression expression)
         {
             return TreeNode.Create(new ExpressionDebugView
             {
@@ -172,7 +171,7 @@ namespace Reusable.Flexo
     {
         protected CollectionExtension([NotNull] ILogger logger, SoftString name) : base(logger, name) { }
 
-        // This property needs to be abstract because it might be renamed so the JsonPropertyAttribute is necessary.
+        // This property needs to be abstract because it might be renamed and needs to be decorated with the JsonPropertyAttribute.
         public abstract IEnumerable<IExpression> This { get; set; }
 
         protected override Constant<TResult> InvokeCore()
