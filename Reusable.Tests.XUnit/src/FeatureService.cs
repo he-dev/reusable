@@ -20,7 +20,16 @@ namespace Reusable.Tests.XUnit
 {
     using static FeatureOptions;
 
-    public class FeatureService
+
+    public interface IFeatureService
+    {
+        Task<T> ExecuteAsync<T>(string name, Func<Task<T>> body, Func<Task<T>> bodyWhenDisabled);
+
+        [NotNull]
+        IFeatureService Configure(string name, Func<FeatureOptions, FeatureOptions> configure);
+    }
+
+    public class FeatureService : IFeatureService
     {
         private readonly FeatureOptions _defaultOptions;
         private readonly ILogger _logger;
@@ -31,7 +40,6 @@ namespace Reusable.Tests.XUnit
             _logger = logger;
             _defaultOptions = defaultOptions;
         }
-
 
         public async Task<T> ExecuteAsync<T>(string name, Func<Task<T>> body, Func<Task<T>> bodyWhenDisabled)
         {
@@ -71,7 +79,7 @@ namespace Reusable.Tests.XUnit
             }
         }
 
-        public FeatureService Configure(string name, Func<FeatureOptions, FeatureOptions> configure)
+        public IFeatureService Configure(string name, Func<FeatureOptions, FeatureOptions> configure)
         {
             _options[name] =
                 _options.TryGetValue(name, out var options)
@@ -84,21 +92,51 @@ namespace Reusable.Tests.XUnit
 
     public static class FeatureServiceExtensions
     {
-        public static void Execute(this FeatureService features, string name, Action body, Action bodyWhenDisabled)
+        public static async Task ExecuteAsync(this IFeatureService features, string name, Func<Task> body, Func<Task> bodyWhenDisabled)
         {
-            features.ExecuteAsync(name, () =>
+            await features.ExecuteAsync
+            (
+                name,
+                () => ExecuteAsync(body),
+                () => ExecuteAsync(bodyWhenDisabled)
+            );
+
+            async Task<object> ExecuteAsync(Func<Task> b)
             {
-                body();
-                return Task.FromResult(default(object));
-            }, () =>
+                await b();
+                return default;
+            }
+        }
+
+        public static async Task ExecuteAsync(this IFeatureService features, string name, Func<Task> body)
+        {
+            await features.ExecuteAsync(name, body, () => Task.FromResult<object>(default));
+        }
+
+
+        public static void Execute(this IFeatureService features, string name, Action body, Action bodyWhenDisabled)
+        {
+            features.ExecuteAsync
+            (
+                name,
+                () => ExecuteAsync(body),
+                () => ExecuteAsync(bodyWhenDisabled)
+            ).GetAwaiter().GetResult();
+
+            Task<object> ExecuteAsync(Action b)
             {
-                bodyWhenDisabled();
+                b();
                 return Task.FromResult(default(object));
-            }).GetAwaiter().GetResult();
+            }
+        }
+
+        public static void Execute(this IFeatureService features, string name, Action body)
+        {
+            features.Execute(name, body, () => { });
         }
 
         [NotNull]
-        public static FeatureService Configure(this FeatureService features, IEnumerable<string> names, Func<FeatureOptions, FeatureOptions> configure)
+        public static IFeatureService Configure(this IFeatureService features, IEnumerable<string> names, Func<FeatureOptions, FeatureOptions> configure)
         {
             foreach (var name in names)
             {
@@ -125,6 +163,7 @@ namespace Reusable.Tests.XUnit
         public static IEnumerable<(Type Feature, PropertyInfo Property)> GetFeatures(this IEnumerable<Type> features, params string[] tags)
         {
             if (!tags.Any()) throw new ArgumentException("You need to specify at least one tag.");
+
             return features.GetFeatures(tags.AsEnumerable());
         }
 
@@ -143,7 +182,10 @@ namespace Reusable.Tests.XUnit
 
         private static IEnumerable<string> GetTags(this MemberInfo member)
         {
-            return member.GetCustomAttributes<TagAttribute>().SelectMany(t => t);
+            return
+                member
+                    .GetCustomAttributes<TagAttribute>()
+                    .SelectMany(t => t);
         }
 
         private static bool Matches(this IEnumerable<string> propertyTags, IEnumerable<string> otherTags)
@@ -192,6 +234,7 @@ namespace Reusable.Tests.XUnit
     public class TagAttribute : Attribute, IEnumerable<string>
     {
         private readonly string[] _names;
+        
         public TagAttribute(params string[] names) => _names = names;
 
         public IEnumerator<string> GetEnumerator() => _names.Cast<string>().GetEnumerator();
