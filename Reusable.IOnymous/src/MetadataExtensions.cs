@@ -9,7 +9,10 @@ using Reusable.Extensions;
 
 namespace Reusable.IOnymous
 {
-    public interface IAnyNamespace : INamespace
+    [TypeMemberKeyFactory]
+    [RemovePrefix("I")]
+    [RemoveSuffix("Meta")]
+    public interface IAnyMeta : INamespace
     {
         Encoding Encoding { get; }
 
@@ -18,7 +21,10 @@ namespace Reusable.IOnymous
         CancellationToken CancellationToken { get; }
     }
 
-    public interface IProviderNamespace : INamespace
+    [TypeMemberKeyFactory]
+    [RemovePrefix("I")]
+    [RemoveSuffix("Meta")]
+    public interface IProviderMeta : INamespace
     {
         bool AllowRelativeUri { get; }
 
@@ -27,7 +33,10 @@ namespace Reusable.IOnymous
         SoftString CustomName { get; }
     }
 
-    public interface IResourceNamespace : INamespace
+    [TypeMemberKeyFactory]
+    [RemovePrefix("I")]
+    [RemoveSuffix("Meta")]
+    public interface IResourceMeta : INamespace
     {
         MimeType Format { get; }
 

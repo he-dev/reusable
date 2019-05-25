@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 
 namespace Reusable.Data
@@ -71,11 +73,51 @@ namespace Reusable.Data
         public abstract string Clean(string name);
     }
 
-    public class RemoveInterfacePrefixAttribute : TypeNameCleanerAttribute
+    public class RemovePrefixAttribute : TypeNameCleanerAttribute
     {
+        private readonly string _prefixPattern;
+
+        public RemovePrefixAttribute([RegexPattern] string prefixPattern) => _prefixPattern = prefixPattern;
+
         public override string Clean(string name)
         {
-            return Regex.Replace(name, "^I", string.Empty);
+            return Regex.Replace(name, $"^{_prefixPattern}", string.Empty);
+        }
+    }
+
+    public class RemoveSuffixAttribute : TypeNameCleanerAttribute
+    {
+        private readonly string _suffixPattern;
+
+        public RemoveSuffixAttribute([RegexPattern] string suffixPattern) => _suffixPattern = suffixPattern;
+
+        public override string Clean(string name)
+        {
+            return Regex.Replace(name, $"{_suffixPattern}$", string.Empty);
+        }
+    }
+
+    public class KeyFactory : IKeyFactory
+    {
+        [NotNull] public static readonly IKeyFactory Default = new KeyFactory();
+
+        public string CreateKey(LambdaExpression selector)
+        {
+            if (selector == null) throw new ArgumentNullException(nameof(selector));
+            var member = selector.ToMemberExpression().Member;
+            return
+                GetKeyFactory(member)
+                    .FirstOrDefault(Conditional.IsNotNull)
+                    ?.CreateKey(selector)
+                ?? throw DynamicException.Create("KeyFactoryNotFound", $"Could not find key-factory on '{selector}'.");
+        }
+
+        [NotNull, ItemCanBeNull]
+        private static IEnumerable<IKeyFactory> GetKeyFactory(MemberInfo member)
+        {
+            // Member's attribute has a higher priority and can override type's default factory.
+            yield return member.GetCustomAttribute<KeyFactoryAttribute>();
+            yield return member.DeclaringType?.GetCustomAttribute<KeyFactoryAttribute>();
         }
     }
 }

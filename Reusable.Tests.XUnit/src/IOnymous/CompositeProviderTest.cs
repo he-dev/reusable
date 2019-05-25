@@ -48,7 +48,7 @@ namespace Reusable.Tests.XUnit.IOnymous
                 },
             });
 
-            var resource = await composite.GetAsync("blub:x/123", ImmutableSession.Empty.Set(Use<IProviderNamespace>.Namespace, x => x.DefaultName, "InMemoryProvider"));
+            var resource = await composite.GetAsync("blub:x/123", ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.DefaultName), "InMemoryProvider"));
 
             Assert.True(resource.Exists);
             Assert.Equal("blub1", await resource.DeserializeTextAsync());
@@ -63,14 +63,14 @@ namespace Reusable.Tests.XUnit.IOnymous
                 {
                     { "x.123", "blub1" }
                 },
-                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new[] { ResourceProvider.DefaultScheme }, ImmutableSession.Empty.Set(Use<IProviderNamespace>.Namespace, x => x.CustomName, "blub"))
+                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new[] { ResourceProvider.DefaultScheme }, ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.CustomName), "blub"))
                 {
                     //{ "x.123", "blub2" },
                     { "x.123", "blub3" }
                 },
             });
 
-            var resource = await composite.GetAsync("blub:x/123", ImmutableSession.Empty.Set(Use<IProviderNamespace>.Namespace,x => x.CustomName, "blub"));
+            var resource = await composite.GetAsync("blub:x/123", ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.CustomName), "blub"));
 
             Assert.True(resource.Exists);
             Assert.Equal("blub3", await resource.DeserializeTextAsync());

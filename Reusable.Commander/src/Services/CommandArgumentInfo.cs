@@ -13,7 +13,7 @@ namespace Reusable.Commander.Services
         private readonly List<string> _values;
 
         public CommandArgumentInfo([NotNull] UriString uri, bool exists, List<string> values)
-            : base(uri, ImmutableSession.Empty.Set(Use<IResourceNamespace>.Namespace, x => x.Format, MimeType.Json))
+            : base(uri, ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.Format), MimeType.Json))
         {
             Exists = exists;
             _values = values;

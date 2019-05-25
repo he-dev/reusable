@@ -64,7 +64,7 @@ namespace Reusable.IOnymous
 
         public abstract DateTime? ModifiedOn { get; }
 
-        public virtual MimeType Format => Metadata.Get(Use<IResourceNamespace>.Namespace,x => x.Format);
+        public virtual MimeType Format => Metadata.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Format));
 
         public virtual IImmutableSession Metadata { get; }
 

@@ -24,10 +24,6 @@ namespace Reusable.Data
         IImmutableSession<T> SetItem(SoftString key, T value);
 
         bool TryGetValue(SoftString key, out T value);
-
-        T Get<TScope>(Expression<Func<TScope, T>> getItem, T defaultValue = default) where TScope : INamespace;
-
-        IImmutableSession<T> Set<TScope>(Expression<Func<TScope, T>> setItem, T value) where TScope : INamespace;
     }
 
     public interface IImmutableSession : IEnumerable<(SoftString Key, object Value)>
@@ -40,15 +36,8 @@ namespace Reusable.Data
 
         bool TryGetValue(SoftString key, out object value);
 
-        IImmutableSession SetItem(SoftString key, object value);
-
-        [DebuggerStepThrough]
-        T Get<TScope, T>(INamespace<TScope> scope, Expression<Func<TScope, T>> getItem, T defaultValue = default) where TScope : INamespace;
-
-        bool TryGetItem<TScope, T>(INamespace<TScope> scope, Expression<Func<TScope, T>> getItem, out T value) where TScope : INamespace;
-
-        [DebuggerStepThrough]
-        IImmutableSession Set<TScope, T>(INamespace<TScope> scope, Expression<Func<TScope, T>> setItem, T value) where TScope : INamespace;
+        //IImmutableSession SetItem(SoftString key, object value);
+        IImmutableSession SetItem<T>(Key<T> key, T value);
     }
 
     // With a 'struct' we don't need any null-checks.
@@ -89,24 +78,6 @@ namespace Reusable.Data
         [MustUseReturnValue]
         public IImmutableSession<T> SetItem(SoftString key, T value) => new ImmutableSession<T>(Data.SetItem(key, value));
 
-        #region Scope
-
-        [DebuggerStepThrough]
-        [MustUseReturnValue]
-        public T Get<TScope>(Expression<Func<TScope, T>> getItem, T defaultValue = default) where TScope : INamespace
-        {
-            return TryGetValue(ImmutableSessionKey<TScope>.Create(getItem), out var value) ? value : defaultValue;
-        }
-
-        [DebuggerStepThrough]
-        [MustUseReturnValue]
-        public IImmutableSession<T> Set<TScope>(Expression<Func<TScope, T>> setItem, T value) where TScope : INamespace
-        {
-            return SetItem(ImmutableSessionKey<TScope>.Create(setItem), value);
-        }
-
-        #endregion
-
         public IEnumerator<(SoftString Key, T Value)> GetEnumerator() => Data.Select(x => (x.Key, x.Value)).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Data).GetEnumerator();
@@ -139,35 +110,10 @@ namespace Reusable.Data
 
         [DebuggerStepThrough]
         [MustUseReturnValue]
-        public IImmutableSession SetItem(SoftString key, object value) => new ImmutableSession(_data.Remove(key).SetItem(key, value));
-
-        [DebuggerStepThrough]
-        [MustUseReturnValue]
-        public T Get<TScope, T>(INamespace<TScope> scope, Expression<Func<TScope, T>> getItem, T defaultValue = default) where TScope : INamespace
+        //public IImmutableSession SetItem(SoftString key, object value) => new ImmutableSession(_data.Remove(key).SetItem(key, value));
+        public IImmutableSession SetItem<T>(Key<T> key, T value)
         {
-            return TryGetValue(ImmutableSessionKey<TScope>.Create(getItem), out var value) ? (T)value : defaultValue;
-        }
-
-        public bool TryGetItem<TScope, T>(INamespace<TScope> scope, Expression<Func<TScope, T>> getItem, out T value) where TScope : INamespace
-        {
-            if (TryGetValue(ImmutableSessionKey<TScope>.Create(getItem), out var item))
-            {
-                if (item is T t)
-                {
-                    value = t;
-                    return true;
-                }
-            }
-
-            value = default;
-            return false;
-        }
-
-        [DebuggerStepThrough]
-        [MustUseReturnValue]
-        public IImmutableSession Set<TScope, T>(INamespace<TScope> scope, Expression<Func<TScope, T>> setItem, T value) where TScope : INamespace
-        {
-            return SetItem(ImmutableSessionKey<TScope>.Create(setItem), value);
+            return new ImmutableSession(_data.Remove(key).SetItem(key, value));
         }
 
         public IEnumerator<(SoftString Key, object Value)> GetEnumerator()

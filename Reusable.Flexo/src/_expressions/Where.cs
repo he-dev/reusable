@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using Reusable.Data;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
@@ -21,7 +22,7 @@ namespace Reusable.Flexo
         {
             var result = @this.Where(item =>
             {
-                using (BeginScope(ctx => ctx.Set(Namespace, x => x.This, item)))
+                using (BeginScope(ctx => ctx.SetItem(From<IExpressionMeta>.Select(m => m.This), item)))
                 {
                     return Predicate.Invoke().Value<bool>();
                 }

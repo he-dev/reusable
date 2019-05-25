@@ -19,19 +19,19 @@ namespace Reusable.IOnymous
         protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, IImmutableSession session)
         {
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(session.Get(Use<IMailNamespace>.Namespace, x => x.From)));
-            message.To.AddRange(session.Get(Use<IMailNamespace>.Namespace, x => x.To).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
-            message.Cc.AddRange(session.Get(Use<IMailNamespace>.Namespace, x => x.CC, Enumerable.Empty<string>().ToList()).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
-            message.Subject = session.Get(Use<IMailNamespace>.Namespace, x => x.Subject);
+            message.From.Add(new MailboxAddress(session.GetItemOrDefault(From<IMailMeta>.Select(x => x.From))));
+            message.To.AddRange(session.GetItemOrDefault(From<IMailMeta>.Select(x => x.To)).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
+            message.Cc.AddRange(session.GetItemOrDefault(From<IMailMeta>.Select(x => x.CC), Enumerable.Empty<string>().ToList()).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
+            message.Subject = session.GetItemOrDefault(From<IMailMeta>.Select(x => x.Subject));
             var multipart = new Multipart("mixed")
             {
-                new TextPart(session.Get(Use<IMailNamespace>.Namespace, x => x.IsHtml) ? TextFormat.Html : TextFormat.Plain)
+                new TextPart(session.GetItemOrDefault(From<IMailMeta>.Select(x => x.IsHtml)) ? TextFormat.Html : TextFormat.Plain)
                 {
                     Text = await ReadBodyAsync(value, session)
                 }
             };
 
-            foreach (var attachment in session.Get(Use<IMailNamespace>.Namespace, x => x.Attachments, new Dictionary<string, byte[]>()).Where(i => i.Key.IsNotNullOrEmpty() && i.Value.IsNotNull()))
+            foreach (var attachment in session.GetItemOrDefault(From<IMailMeta>.Select(x => x.Attachments), new Dictionary<string, byte[]>()).Where(i => i.Key.IsNotNullOrEmpty() && i.Value.IsNotNull()))
             {
                 var attachmentPart = new MimePart(MediaTypeNames.Application.Octet)
                 {
@@ -49,9 +49,9 @@ namespace Reusable.IOnymous
             {
                 await smtpClient.ConnectAsync
                 (
-                    session.Get(Use<ISmtpNamespace>.Namespace, x => x.Host),
-                    session.Get(Use<ISmtpNamespace>.Namespace, x => x.Port),
-                    session.Get(Use<ISmtpNamespace>.Namespace, x => x.UseSsl, false)
+                    session.GetItemOrDefault(From<ISmtpMeta>.Select(x => x.Host)),
+                    session.GetItemOrDefault(From<ISmtpMeta>.Select(x => x.Port)),
+                    session.GetItemOrDefault(From<ISmtpMeta>.Select(x => x.UseSsl))
                 );
                 await smtpClient.SendAsync(message);
             }
@@ -60,7 +60,10 @@ namespace Reusable.IOnymous
         }
     }
 
-    public interface ISmtpNamespace : INamespace
+    [TypeMemberKeyFactory]
+    [RemovePrefix("I")]
+    [RemoveSuffix("Meta")]
+    public interface ISmtpMeta : INamespace
     {
         string Host { get; }
 

@@ -46,9 +46,9 @@ namespace Reusable.Flexo
         public static IImmutableSession Default =>
             ImmutableSession
                 .Empty
-                .Set(Expression.Namespace, x => x.Comparers, ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
-                .Set(Expression.Namespace, x => x.References, ImmutableDictionary<SoftString, IExpression>.Empty)
-                .Set(Expression.Namespace, x => x.DebugView, TreeNode.Create(ExpressionDebugView.Root))
+                .SetItem(From<IExpressionMeta>.Select(m => m.Comparers), ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
+                .SetItem(From<IExpressionMeta>.Select(m => m.References), ImmutableDictionary<SoftString, IExpression>.Empty)
+                .SetItem(From<IExpressionMeta>.Select(m => m.DebugView), TreeNode.Create(ExpressionDebugView.Root))
                 .WithDefaultComparer()
                 .WithSoftStringComparer()
                 .WithRegexComparer();
@@ -123,7 +123,7 @@ namespace Reusable.Flexo
             ExpressionScope.Current
             ?? throw new InvalidOperationException("Expressions must be invoked within a valid scope. Use 'BeginScope' to introduce one.");
 
-        public static INamespace<IExpressionNamespace> Namespace => Use<IExpressionNamespace>.Namespace;
+        //public static INamespace<IExpressionMeta> Namespace => Use<IExpressionMeta>.Namespace;
 
         public virtual SoftString Name
         {
@@ -209,13 +209,16 @@ namespace Reusable.Flexo
         {
             Current = Current?.Parent;
         }
-    }    
+    }
 
-    public interface IExpressionNamespace : INamespace
+    [TypeMemberKeyFactory]
+    [RemovePrefix("I")]
+    [RemoveSuffix("Meta")]
+    public interface IExpressionMeta : INamespace
     {
         [MemberKeyFactory]
         object This { get; }
-        
+
         [MemberKeyFactory]
         object Item { get; }
 
@@ -225,7 +228,7 @@ namespace Reusable.Flexo
 
         TreeNode<ExpressionDebugView> DebugView { get; }
     }
-    
+
     [PublicAPI]
     public static class ExpressionScopeExtensions
     {

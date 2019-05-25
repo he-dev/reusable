@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -7,6 +8,7 @@ using Reusable.Extensions;
 
 namespace Reusable.Data
 {
+    [Obsolete]
     public static class ImmutableSessionKey<TNamespace>
     {
         [DebuggerStepThrough]

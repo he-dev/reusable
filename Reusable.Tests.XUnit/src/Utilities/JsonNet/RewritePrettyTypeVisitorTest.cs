@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Reusable.Exceptionize;
 using Reusable.IOnymous;
 using Reusable.Utilities.JsonNet;
+using Reusable.Utilities.JsonNet.Annotations;
 using Xunit;
 
 namespace Reusable.Tests.Utilities.JsonNet
@@ -75,6 +76,7 @@ namespace Reusable.Tests.Utilities.JsonNet
 
     [UsedImplicitly]
     [PublicAPI]
+    [Namespace("test")]
     internal class JsonTestClass
     {
         public IJsonTestInterface Test0 { get; set; }
@@ -86,9 +88,12 @@ namespace Reusable.Tests.Utilities.JsonNet
 
     internal interface IJsonTestInterface { }
 
+    [Namespace("test")]
     internal class JsonTestClass0 : IJsonTestInterface { }
 
+    [Namespace("test")]
     internal class JsonTestClass1<T1> : IJsonTestInterface { }
 
+    [Namespace("test")]
     internal class JsonTestClass2<T1, T2> : IJsonTestInterface { }
 }

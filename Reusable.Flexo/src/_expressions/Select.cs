@@ -30,7 +30,7 @@ namespace Reusable.Flexo
         {
             var result = @this.Select(item =>
             {
-                using (BeginScope(ctx => ctx.Set(Namespace, x => x.Item, item)))
+                using (BeginScope(ctx => ctx.SetItem(From<IExpressionMeta>.Select(m => m.Item), item)))
                 {
                     return (Selector ?? item).Invoke();
                 }
@@ -39,6 +39,4 @@ namespace Reusable.Flexo
             return (Name, result);
         }
     }
-
-    
 }

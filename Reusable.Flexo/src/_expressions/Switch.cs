@@ -28,7 +28,7 @@ namespace Reusable.Flexo
 
             foreach (var switchCase in (Cases ?? Enumerable.Empty<SwitchCase>()).Where(c => c.Enabled))
             {
-                using (BeginScope(ctx => ctx.Set(Namespace, x => x.This, value)))
+                using (BeginScope(ctx => ctx.SetItem(From<IExpressionMeta>.Select(m => m.This), value)))
                 {
                     switch (switchCase.When)
                     {
@@ -38,6 +38,7 @@ namespace Reusable.Flexo
                                 var bodyResult = switchCase.Body.Invoke();
                                 return (Name, bodyResult.Value);
                             }
+
                             break;
                         case IExpression expression:
                             if (expression.Invoke() is var whenResult && whenResult.Value<bool>())
@@ -45,6 +46,7 @@ namespace Reusable.Flexo
                                 var bodyResult = switchCase.Body.Invoke();
                                 return (Name, bodyResult.Value);
                             }
+
                             break;
                     }
                 }
@@ -75,7 +77,10 @@ namespace Reusable.Flexo
         public IExpression Body { get; set; }
     }
 
-    public interface ISwitchNamespace : INamespace
+    [TypeMemberKeyFactory]
+    [RemovePrefix("I")]
+    [RemoveSuffix("Meta")]
+    public interface ISwitchMeta : INamespace
     {
         object Value { get; }
     }

@@ -17,7 +17,7 @@ namespace Reusable.IOnymous
         {
             builder.False
             (x =>
-                x.Metadata.Get(Use<IResourceNamespace>.Namespace, y => y.Format, MimeType.Null).IsNull()
+                x.Metadata.GetItemOrDefault(From<IResourceMeta>.Select(y => y.Format), MimeType.Null).IsNull()
             ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it requires resource format specified by the metadata.");
         });
 
@@ -28,7 +28,7 @@ namespace Reusable.IOnymous
         {
             ValidateRequest(ExtractMethodName(nameof(GetAsync)), uri, metadata, Stream.Null, RequestValidator);
 
-            return Task.FromResult<IResourceInfo>(new PhysicalFileInfo(uri, metadata.Get(Use<IResourceNamespace>.Namespace, y => y.Format)));
+            return Task.FromResult<IResourceInfo>(new PhysicalFileInfo(uri, metadata.GetItemOrDefault(From<IResourceMeta>.Select(y => y.Format))));
         }
 
         protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
@@ -55,7 +55,7 @@ namespace Reusable.IOnymous
     internal class PhysicalFileInfo : ResourceInfo
     {
         public PhysicalFileInfo([NotNull] UriString uri, MimeType format)
-            : base(uri, ImmutableSession.Empty.Set(Use<IResourceNamespace>.Namespace, x => x.Format, format)) { }
+            : base(uri, ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.Format), format)) { }
 
         public PhysicalFileInfo([NotNull] UriString uri)
             : this(uri, MimeType.Null) { }

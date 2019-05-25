@@ -79,7 +79,7 @@ namespace Reusable.IOnymous
         
         public static async Task<T> Deserialize<T>(Stream value, IImmutableSession metadata)
         {
-            var format = metadata.Get(Use<IResourceNamespace>.Namespace, x => x.Format);
+            var format = metadata.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Format));
             
             if (format == MimeType.Text)
             {

@@ -38,8 +38,8 @@ namespace Reusable.SmartConfig
             (
                 $"{setting.ResourceScheme}:///{path}{query}",
                 ImmutableSession.Empty
-                    .Set(Use<IProviderNamespace>.Namespace, x => x.CustomName, setting.ResourceProviderName)
-                    .Set(Use<IProviderNamespace>.Namespace, x => x.DefaultName, setting.ResourceProviderType?.ToPrettyString())
+                    .SetItem(From<IProviderMeta>.Select(x => x.CustomName), setting.ResourceProviderName)
+                    .SetItem(From<IProviderMeta>.Select(x => x.DefaultName), setting.ResourceProviderType?.ToPrettyString())
             );
         }
     }

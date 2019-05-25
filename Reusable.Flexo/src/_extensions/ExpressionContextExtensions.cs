@@ -23,10 +23,10 @@ namespace Reusable.Flexo
         {
             var comparers =
                 context
-                    .Get(Expression.Namespace, x => x.Comparers, ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
+                    .GetItemOrDefault(From<IExpressionMeta>.Select(m => m.Comparers), ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
                     .SetItem(name, comparer);
 
-            return context.Set(Expression.Namespace, x => x.Comparers, comparers);
+            return context.SetItem(From<IExpressionMeta>.Select(m => m.Comparers), comparers);
         }
 
         public static IImmutableSession WithDefaultComparer(this IImmutableSession context)
@@ -62,16 +62,16 @@ namespace Reusable.Flexo
         {
             var registrations =
                 context
-                    .Get(Expression.Namespace, x => x.References, ImmutableDictionary<SoftString, IExpression>.Empty)
+                    .GetItemOrDefault(From<IExpressionMeta>.Select(m => m.References), ImmutableDictionary<SoftString, IExpression>.Empty)
                     .SetItems(expressions.Select(e => new KeyValuePair<SoftString, IExpression>($"R.{e.Name.ToString()}", e)));
-            return context.Set(Expression.Namespace, x => x.References, registrations);
+            return context.SetItem(From<IExpressionMeta>.Select(m => m.References), registrations);
         }
 
-        public static TResult Find<TScope, TResult>(this ExpressionScope scope, INamespace<TScope> session, linq.Expression<Func<TScope, TResult>> getItem) where TScope : INamespace
+        public static TResult Find<TResult>(this ExpressionScope scope, Key<TResult> key)
         {
             foreach (var current in scope.Enumerate())
             {
-                if (current.Context.TryGetItem(session, getItem, out var value))
+                if (current.Context.TryGetValue(key, out var obj) && obj is TResult value)
                 {
                     return value;
                 }
@@ -83,19 +83,19 @@ namespace Reusable.Flexo
         public static IEqualityComparer<object> GetComparerOrDefault(this ExpressionScope scope, [CanBeNull] string name)
         {
             return
-                scope.Find(Expression.Namespace, x => x.Comparers).TryGetValue(name ?? "Default", out var comparer)
+                scope.Find(From<IExpressionMeta>.Select(m => m.Comparers)).TryGetValue(name ?? "Default", out var comparer)
                     ? comparer
                     : throw DynamicException.Create("ComparerNotFound", $"There is no comparer with the name '{name}'.");
         }
 
         public static TreeNode<ExpressionDebugView> DebugView(this IImmutableSession context)
         {
-            return context.Get(Expression.Namespace, x => x.DebugView);
+            return context.GetItemOrDefault(From<IExpressionMeta>.Select(m => m.DebugView));
         }
 
         public static IImmutableSession DebugView(this IImmutableSession context, TreeNode<ExpressionDebugView> debugView)
         {
-            return context.Set(Expression.Namespace, x => x.DebugView, debugView);
+            return context.SetItem(From<IExpressionMeta>.Select(m => m.DebugView), debugView);
         }
 
         public static (object Object, PropertyInfo Property, object Value) FindItem(this IImmutableSession context, string path)
@@ -117,7 +117,7 @@ namespace Reusable.Flexo
             var first = names.First();
             var obj =
                 first.Name == "this"
-                    ? context.Get(Expression.Namespace, x => x.This)
+                    ? context.GetItemOrDefault(From<IExpressionMeta>.Select(m => m.This))
                     : context.TryGetValue(first.Name, out var item)
                         ? item
                         : throw DynamicException.Create("InitialObjectNotFound", $"Could not find an item with the key '{path}'.");
@@ -134,7 +134,7 @@ namespace Reusable.Flexo
                         return (current.Object, property, value);
                     }
 
-                    var index = context.Get(Expression.Namespace, x => x.This);
+                    var index = context.GetItemOrDefault(From<IExpressionMeta>.Select(m => m.This));
                     var element = ((IEnumerable<object>)value).Single(x => x.Equals(index));
                     return (element, default, default);
                 }

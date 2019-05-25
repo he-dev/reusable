@@ -13,7 +13,7 @@ namespace Reusable.IOnymous
         private readonly Assembly _assembly;
 
         public EmbeddedFileProvider([NotNull] Assembly assembly, IImmutableSession metadata = default)
-            : base((metadata ?? ImmutableSession.Empty).Set(Use<IProviderNamespace>.Namespace, x => x.AllowRelativeUri, true))
+            : base((metadata ?? ImmutableSession.Empty).SetItem(From<IProviderMeta>.Select(x => x.AllowRelativeUri), true))
         {
             _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
             var assemblyName = _assembly.GetName().Name.Replace('.', '/');
@@ -37,7 +37,7 @@ namespace Reusable.IOnymous
             var actualName = _assembly.GetManifestResourceNames().FirstOrDefault(name => SoftString.Comparer.Equals(name, fullName));
             var getManifestResourceStream = actualName is null ? default(Func<Stream>) : () => _assembly.GetManifestResourceStream(actualName);
 
-            return Task.FromResult<IResourceInfo>(new EmbeddedFileInfo(fullUri, metadata.Get(Use<IResourceNamespace>.Namespace, y => y.Format), getManifestResourceStream));
+            return Task.FromResult<IResourceInfo>(new EmbeddedFileInfo(fullUri, metadata.GetItemOrDefault(From<IResourceMeta>.Select(y => y.Format)), getManifestResourceStream));
         }
 
         #endregion
@@ -53,7 +53,7 @@ namespace Reusable.IOnymous
         private readonly Func<Stream> _getManifestResourceStream;
 
         public EmbeddedFileInfo(string uri, MimeType format, Func<Stream> getManifestResourceStream)
-            : base(uri, ImmutableSession.Empty.Set(Use<IResourceNamespace>.Namespace, x => x.Format, format))
+            : base(uri, ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.Format), format))
         {
             _getManifestResourceStream = getManifestResourceStream;
         }

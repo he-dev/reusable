@@ -90,7 +90,7 @@ namespace Reusable.Tests.XUnit
         }
     }
 
-    public static class FeatureServiceExtensions
+    public static class FeatureServiceHelpers
     {
         public static async Task ExecuteAsync(this IFeatureService features, string name, Func<Task> body, Func<Task> bodyWhenDisabled)
         {
@@ -197,38 +197,6 @@ namespace Reusable.Tests.XUnit
         }
     }
 
-    public static class From<T> where T : INamespace
-    {
-        [NotNull]
-        public static string Select<TMember>([NotNull] Expression<Func<T, TMember>> selector)
-        {
-            return KeyFactory.Default.CreateKey(selector);
-        }
-    }
-
-    public class KeyFactory : IKeyFactory
-    {
-        [NotNull] public static readonly IKeyFactory Default = new KeyFactory();
-
-        public string CreateKey(LambdaExpression selector)
-        {
-            if (selector == null) throw new ArgumentNullException(nameof(selector));
-            var member = selector.ToMemberExpression().Member;
-            return
-                GetKeyFactory(member)
-                    .FirstOrDefault(Conditional.IsNotNull)
-                    ?.CreateKey(selector)
-                ?? throw DynamicException.Create("KeyFactoryNotFound", $"Could not find key-factory on '{selector}'.");
-        }
-
-        [NotNull, ItemCanBeNull]
-        private static IEnumerable<IKeyFactory> GetKeyFactory(MemberInfo member)
-        {
-            // Member's attribute has a higher priority and can override type's default factory.
-            yield return member.GetCustomAttribute<KeyFactoryAttribute>();
-            yield return member.DeclaringType?.GetCustomAttribute<KeyFactoryAttribute>();
-        }
-    }
 
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property)]
     public class TagAttribute : Attribute, IEnumerable<string>
@@ -332,7 +300,7 @@ namespace Reusable.Tests.XUnit
     namespace Features
     {
         [TypeMemberKeyFactory]
-        [RemoveInterfacePrefix]
+        [RemovePrefix("I")]
         public interface IDemo : INamespace
         {
             object Greeting { get; }
@@ -342,7 +310,7 @@ namespace Reusable.Tests.XUnit
         }
 
         [TypeMemberKeyFactory]
-        [RemoveInterfacePrefix]
+        [RemovePrefix("I")]
         public interface IDatabase : INamespace
         {
             [Tag("io")]

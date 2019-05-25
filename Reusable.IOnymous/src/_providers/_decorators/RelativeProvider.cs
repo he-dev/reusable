@@ -13,7 +13,7 @@ namespace Reusable.IOnymous
         private readonly UriString _baseUri;
 
         public RelativeProvider([NotNull] IResourceProvider resourceProvider, [NotNull] UriString baseUri)
-            : base(resourceProvider.Schemes, resourceProvider.Metadata.Set(Use<IProviderNamespace>.Namespace,x => x.AllowRelativeUri, true))
+            : base(resourceProvider.Schemes, resourceProvider.Metadata.SetItem(From<IProviderMeta>.Select(x => x.AllowRelativeUri), true))
         {
             _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
             //if (baseUri.IsAbsolute) throw new ArgumentException($"'{nameof(baseUri)}' must be relative.");
