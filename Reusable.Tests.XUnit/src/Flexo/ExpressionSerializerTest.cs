@@ -112,7 +112,7 @@ namespace Reusable.Tests.Flexo
 
         private interface ITestNamespace : INamespace
         {
-            [SimpleKeyFactory]
+            [MemberKeyFactory]
             Something Sth { get; }
         }
         

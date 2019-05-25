@@ -213,10 +213,10 @@ namespace Reusable.Flexo
 
     public interface IExpressionNamespace : INamespace
     {
-        [SimpleKeyFactory]
+        [MemberKeyFactory]
         object This { get; }
         
-        [SimpleKeyFactory]
+        [MemberKeyFactory]
         object Item { get; }
 
         IImmutableDictionary<SoftString, IEqualityComparer<object>> Comparers { get; }

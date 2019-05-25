@@ -42,7 +42,7 @@ namespace Reusable.Tests.Flexo
 
                 try
                 {
-                    switch (expected)
+                    switch ((object)expected)
                     {
                         case null: break;
                         case IEnumerable collection when !(expected is string):
