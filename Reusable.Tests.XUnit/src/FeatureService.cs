@@ -401,13 +401,8 @@ namespace Reusable.Tests.XUnit
             var optionsUpdated = Flags.AddOrUpdate
             (
                 typeof(T).Name,
-                t =>
-                    ImmutableSortedSet<Option>
-                        .Empty
-                        // There always should be "None"
-                        .Add(Create<T>(nameof(None), 0))
-                        // Initialize options with the very-first value.
-                        .Add(Create<T>(name, 1)),
+                // There always should be "None" and the the very-first bit is the current one.
+                t => ImmutableSortedSet<Option>.Empty.Add(Create<T>(nameof(None), 0)).Add(Create<T>(name, 1)),
                 (category, options) =>
                 {
                     if (name == nameof(None))
@@ -420,7 +415,7 @@ namespace Reusable.Tests.XUnit
                         throw DynamicException.Create("DuplicateOption", $"The option '{name}' is defined more the once.");
                     }
 
-                    var newOption = Create<T>(name, options.Last(o => o.IsBit).Flag << 1);
+                    var newOption = Create<T>(name, (options.Count(o => o.IsBit) - 1) << 1);
                     return options.Add(newOption);
                 }
             );
@@ -428,8 +423,7 @@ namespace Reusable.Tests.XUnit
             return (T)optionsUpdated.Last();
         }
 
-
-        private static T Create<T>(string name, int value)
+        private static T Create<T>(SoftString name, int value)
         {
             return (T)Activator.CreateInstance(typeof(T), name, value);
         }
@@ -437,8 +431,9 @@ namespace Reusable.Tests.XUnit
         public static T None<T>() where T : Option
         {
             return
-                Flags.TryGetValue(typeof(T).Name, out var options) && options.Any()
+                Flags.TryGetValue(typeof(T).Name, out var options)
                     ? (T)options.First()
+                    //: Create<T>(nameof(None));
                     : throw DynamicException.Create("CategoryEmpty", $"Category '{typeof(T).Name}' does not contain any flags.");
         }
 
@@ -520,7 +515,7 @@ namespace Reusable.Tests.XUnit
 
     public class FeatureOption : Option
     {
-        public FeatureOption(string name, int value) : base(nameof(FeatureOption), name, value) { }
+        public FeatureOption(SoftString name, int value) : base(nameof(FeatureOption), name, value) { }
     }
 
     [PublicAPI]
