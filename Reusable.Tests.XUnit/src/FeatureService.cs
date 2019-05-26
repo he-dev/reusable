@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Custom;
@@ -371,7 +372,7 @@ namespace Reusable.Tests.XUnit
     {
         private static readonly OptionComparer Comparer = new OptionComparer();
 
-        private static readonly ConcurrentDictionary<SoftString, int> Flags = new ConcurrentDictionary<SoftString, int>();
+        private static readonly ConcurrentDictionary<SoftString, IImmutableSet<Option>> Flags = new ConcurrentDictionary<SoftString, IImmutableSet<Option>>();
 
         public Option(SoftString category, SoftString name, int flag)
         {
@@ -391,20 +392,54 @@ namespace Reusable.Tests.XUnit
         [AutoEqualityProperty]
         public int Flag { [DebuggerStepThrough] get; }
 
-        public static Option Create(string category, string name)
-        {
-            return new Option(category, name, NextFlag(category));
-        }
+        // Or IsPowerOfTwo
+        public bool IsBit => (Flag & (Flag - 1)) == 0;
 
         [NotNull]
-        public static T Create<T>(string name) where T : Option
+        public static T Create<T>(SoftString name, Option option = default) where T : Option
         {
-            return (T)Activator.CreateInstance(typeof(T), name, NextFlag(typeof(T).Name));
+            var optionsUpdated = Flags.AddOrUpdate
+            (
+                typeof(T).Name,
+                t =>
+                    ImmutableSortedSet<Option>
+                        .Empty
+                        // There always should be "None"
+                        .Add(Create<T>(nameof(None), 0))
+                        // Initialize options with the very-first value.
+                        .Add(Create<T>(name, 1)),
+                (category, options) =>
+                {
+                    if (name == nameof(None))
+                    {
+                        return options;
+                    }
+
+                    if (options.Any(o => o.Name == name))
+                    {
+                        throw DynamicException.Create("DuplicateOption", $"The option '{name}' is defined more the once.");
+                    }
+
+                    var newOption = Create<T>(name, options.Last(o => o.IsBit).Flag << 1);
+                    return options.Add(newOption);
+                }
+            );
+
+            return (T)optionsUpdated.Last();
         }
 
-        private static int NextFlag(string category)
+
+        private static T Create<T>(string name, int value)
         {
-            return Flags.AddOrUpdate(category, t => 0, (k, flag) => flag == 0 ? 1 : flag << 1);
+            return (T)Activator.CreateInstance(typeof(T), name, value);
+        }
+
+        public static T None<T>() where T : Option
+        {
+            return
+                Flags.TryGetValue(typeof(T).Name, out var options) && options.Any()
+                    ? (T)options.First()
+                    : throw DynamicException.Create("CategoryEmpty", $"Category '{typeof(T).Name}' does not contain any flags.");
         }
 
         public static Option Parse([NotNull] string value, params Option[] options)
@@ -491,7 +526,7 @@ namespace Reusable.Tests.XUnit
     [PublicAPI]
     public static class FeatureOptionsNew
     {
-        public static readonly FeatureOption None = Option.Create<FeatureOption>(nameof(None));
+        //public static readonly FeatureOption None = Option.Create<FeatureOption>(nameof(None));
 
         /// <summary>
         /// When set a feature is enabled.
@@ -506,7 +541,9 @@ namespace Reusable.Tests.XUnit
         /// <summary>
         /// When set feature usage statistics are logged.
         /// </summary>
-        public static readonly FeatureOption Telemetry = Option.Create<FeatureOption>(nameof(Warn));
+        public static readonly FeatureOption Telemetry = Option.Create<FeatureOption>(nameof(Telemetry));
+
+        public static readonly FeatureOption Default = Option.Create<FeatureOption>(nameof(Default), Enable | Warn);
     }
 
     public class OptionTest
@@ -516,7 +553,7 @@ namespace Reusable.Tests.XUnit
         {
             Assert.Equal(new[] { 0, 1, 2, 4 }, new[]
             {
-                FeatureOptionsNew.None,
+                Option.None<FeatureOption>(),
                 FeatureOptionsNew.Enable,
                 FeatureOptionsNew.Warn,
                 FeatureOptionsNew.Telemetry
@@ -531,7 +568,7 @@ namespace Reusable.Tests.XUnit
             var oFromValue = Option.FromValue(3, FeatureOptionsNew.Enable, FeatureOptionsNew.Warn, FeatureOptionsNew.Telemetry);
             Assert.Equal(FeatureOptionsNew.Enable | FeatureOptionsNew.Warn, oFromValue);
 
-            Assert.True(FeatureOptionsNew.None < FeatureOptionsNew.Enable);
+            Assert.True(Option.None<FeatureOption>() < FeatureOptionsNew.Enable);
             Assert.True(FeatureOptionsNew.Enable < FeatureOptionsNew.Telemetry);
         }
     }
