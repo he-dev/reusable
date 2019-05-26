@@ -134,8 +134,8 @@ namespace Reusable.IOnymous
     }
 
     [TypeMemberKeyFactory]
-    [RemovePrefix("I")]
-    [RemoveSuffix("Meta")]
+    [TrimEnd("I")]
+    [TrimStart("Meta")]
     public interface IHttpMeta : INamespace
     {
         Stream Content { get; }

@@ -40,8 +40,8 @@ namespace Reusable.Tests.Data
     }
 
     [TypeMemberKeyFactory]
-    [RemovePrefix("I")]
-    [RemoveSuffix("Meta")]
+    [TrimEnd("I")]
+    [TrimStart("Meta")]
     internal interface ITestMeta : INamespace
     {
         string Greeting { get; }

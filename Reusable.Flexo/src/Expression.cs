@@ -212,8 +212,8 @@ namespace Reusable.Flexo
     }
 
     [TypeMemberKeyFactory]
-    [RemovePrefix("I")]
-    [RemoveSuffix("Meta")]
+    [TrimEnd("I")]
+    [TrimStart("Meta")]
     public interface IExpressionMeta : INamespace
     {
         [MemberKeyFactory]

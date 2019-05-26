@@ -24,8 +24,8 @@ namespace Reusable.IOnymous
     }
 
     [TypeMemberKeyFactory]
-    [RemovePrefix("I")]
-    [RemoveSuffix("Meta")]
+    [TrimEnd("I")]
+    [TrimStart("Meta")]
     public interface IMailMeta : INamespace
     {
         string From { get; }

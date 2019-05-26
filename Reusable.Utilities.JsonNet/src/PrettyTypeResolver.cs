@@ -13,7 +13,7 @@ namespace Reusable.Utilities.JsonNet
         [NotNull]
         string Resolve([NotNull] string name);
     }
-    
+
     public class PrettyTypeResolver : ITypeResolver
     {
         // Used to specify user-friendly type names like: "List<int>" instead of "List`1[System.Int32...]" etc.
@@ -22,7 +22,7 @@ namespace Reusable.Utilities.JsonNet
         private const string PrettyTypePattern = @"(?<type>(?i)[a-z0-9_.]+)(?:\<(?<genericArguments>(?i)[a-z0-9_., ]+)\>)?";
 
         private readonly Func<string, Type> _resolveType;
-        
+
         public PrettyTypeResolver([NotNull] IImmutableDictionary<SoftString, Type> types)
         {
             if (types == null) throw new ArgumentNullException(nameof(types));
@@ -32,11 +32,11 @@ namespace Reusable.Utilities.JsonNet
         public string Resolve(string prettyType)
         {
             if (prettyType == null) throw new ArgumentNullException(nameof(prettyType));
-            
+
             var match =
                 Regex
-                   .Match(prettyType, PrettyTypePattern, RegexOptions.ExplicitCapture)
-                   .OnFailure(_ => new ArgumentException($"Invalid type alias: '{prettyType}'."));
+                    .Match(prettyType, PrettyTypePattern, RegexOptions.ExplicitCapture)
+                    .OnFailure(_ => new ArgumentException($"Invalid type alias: '{prettyType}'."));
 
             var generic = GetGenericsInfo(match.Groups["genericArguments"]);
             var type = ResolveType($"{match.Groups["type"].Value}{generic.Placeholder}");
@@ -75,10 +75,14 @@ namespace Reusable.Utilities.JsonNet
         [NotNull]
         private Type ResolveType(string typeName)
         {
-            return
-                _resolveType(typeName) ??
-                Type.GetType(typeName, ignoreCase: true, throwOnError: false) ??
-                throw DynamicException.Create("TypeNotFound", $"Could not resolve '{typeName}'.");
+            try
+            {
+                return _resolveType(typeName) ?? Type.GetType(typeName, ignoreCase: true, throwOnError: false);
+            }
+            catch (Exception inner)
+            {
+                throw DynamicException.Create("TypeNotFound", $"Could not resolve '{typeName}'.", inner);
+            }
         }
     }
 }

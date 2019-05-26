@@ -5,20 +5,10 @@ using JetBrains.Annotations;
 
 namespace Reusable.Data
 {
-    // ReSharper disable once UnusedTypeParameter - 'T'  is required.
-    public interface INamespace<out T> where T : INamespace { }
-
-//    [Obsolete]
-//    public static class Use<T> where T : INamespace
-//    {
-//        [DebuggerNonUserCode]
-//        public static INamespace<T> Namespace => default;
-//    }
-
     // Protects the user form using an unsupported interface by mistake.
     public interface INamespace { }
-
-
+    
+    [PublicAPI]
     public static class From<T> where T : INamespace
     {
         public static Key<TMember> Select<TMember>([NotNull] Expression<Func<T, TMember>> selector, IKeyFactory keyFactory)
@@ -32,15 +22,18 @@ namespace Reusable.Data
         }
     }
 
+    [PublicAPI]
     public readonly struct Key<T>
     {
-        public Key(string name) => Name = name;
+        public Key([NotNull] string name) => Name = name ?? throw new ArgumentNullException(nameof(name));
 
         [NotNull]
         public string Name { get; }
 
+        [NotNull]
         public static implicit operator string(Key<T> key) => key.Name;
 
+        [NotNull]
         public static implicit operator SoftString(Key<T> key) => key.Name;
     }
 }

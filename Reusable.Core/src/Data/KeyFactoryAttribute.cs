@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Custom;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -56,7 +57,7 @@ namespace Reusable.Data
         {
             var memberExpression = keyExpression.ToMemberExpression();
             var typeName = memberExpression.Member.DeclaringType.ToPrettyString();
-            typeName = memberExpression.Member.DeclaringType.GetCustomAttributes<TypeNameCleanerAttribute>().Aggregate(typeName, (name, cleaner) => cleaner.Clean(name));
+            typeName = memberExpression.Member.DeclaringType.GetCustomAttributes<TypeNameFixAttribute>().Aggregate(typeName, (name, cleaner) => cleaner.Apply(name));
             return $"{typeName}.{memberExpression.Member.Name}";
         }
     }
@@ -64,37 +65,35 @@ namespace Reusable.Data
     public interface ITypeNameCleaner
     {
         [NotNull]
-        string Clean(string name);
+        string Apply(string name);
     }
 
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class)]
-    public abstract class TypeNameCleanerAttribute : Attribute, ITypeNameCleaner
+    public abstract class TypeNameFixAttribute : Attribute, ITypeNameCleaner
     {
-        public abstract string Clean(string name);
+        public abstract string Apply(string name);
     }
 
-    public class RemovePrefixAttribute : TypeNameCleanerAttribute
+    public class RemoveAttribute : TypeNameFixAttribute
     {
-        private readonly string _prefixPattern;
+        private readonly IEnumerable<string> _patterns;
 
-        public RemovePrefixAttribute([RegexPattern] string prefixPattern) => _prefixPattern = prefixPattern;
+        public RemoveAttribute([RegexPattern] params string[] patterns) => _patterns = patterns;
 
-        public override string Clean(string name)
+        public override string Apply(string name)
         {
-            return Regex.Replace(name, $"^{_prefixPattern}", string.Empty);
+            return Regex.Replace(name, $"({_patterns.Join("|")})", string.Empty);
         }
     }
 
-    public class RemoveSuffixAttribute : TypeNameCleanerAttribute
+    public class TrimEndAttribute : RemoveAttribute
     {
-        private readonly string _suffixPattern;
+        public TrimEndAttribute([RegexPattern] string prefixPattern) : base($"^{prefixPattern}") { }
+    }
 
-        public RemoveSuffixAttribute([RegexPattern] string suffixPattern) => _suffixPattern = suffixPattern;
-
-        public override string Clean(string name)
-        {
-            return Regex.Replace(name, $"{_suffixPattern}$", string.Empty);
-        }
+    public class TrimStartAttribute : RemoveAttribute
+    {
+        public TrimStartAttribute([RegexPattern] string suffixPattern) : base($"{suffixPattern}$") { }
     }
 
     public class KeyFactory : IKeyFactory

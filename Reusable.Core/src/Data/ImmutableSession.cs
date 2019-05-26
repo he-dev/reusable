@@ -28,6 +28,7 @@ namespace Reusable.Data
 
     public interface IImmutableSession : IEnumerable<(SoftString Key, object Value)>
     {
+        [CanBeNull]
         object this[SoftString key] { get; }
 
         int Count { get; }
@@ -37,6 +38,8 @@ namespace Reusable.Data
         bool TryGetValue(SoftString key, out object value);
 
         //IImmutableSession SetItem(SoftString key, object value);
+        
+        [NotNull]
         IImmutableSession SetItem<T>(Key<T> key, T value);
     }
 

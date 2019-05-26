@@ -112,8 +112,8 @@ namespace Reusable.Tests.Flexo
 
 
         [TypeMemberKeyFactory]
-        [RemovePrefix("I")]
-        [RemoveSuffix("Meta")]
+        [TrimEnd("I")]
+        [TrimStart("Meta")]
         private interface ITestMeta : INamespace
         {
             [MemberKeyFactory]

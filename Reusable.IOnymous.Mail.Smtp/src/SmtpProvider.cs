@@ -61,8 +61,8 @@ namespace Reusable.IOnymous
     }
 
     [TypeMemberKeyFactory]
-    [RemovePrefix("I")]
-    [RemoveSuffix("Meta")]
+    [TrimEnd("I")]
+    [TrimStart("Meta")]
     public interface ISmtpMeta : INamespace
     {
         string Host { get; }

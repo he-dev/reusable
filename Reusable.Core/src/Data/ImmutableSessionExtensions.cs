@@ -6,9 +6,6 @@ using JetBrains.Annotations;
 
 namespace Reusable.Data
 {
-    //public delegate ImmutableSessionSetter<T> ConfigureMetadataScopeCallback<T>(ImmutableSessionSetter<T> scope) where T : INestedSession;
-
-
     public static class ImmutableSessionExtensions
     {
         [NotNull]
@@ -42,22 +39,6 @@ namespace Reusable.Data
 //        {
 //            return session.SetItem(key, value);
 //        }
-
-        public static bool TryGetValue<T>([NotNull] this IImmutableSession metadata, [NotNull] SoftString key, [CanBeNull] out T value)
-        {
-            if (metadata == null) throw new ArgumentNullException(nameof(metadata));
-
-            if (metadata.TryGetValue(key, out var x) && x is T result)
-            {
-                value = result;
-                return true;
-            }
-            else
-            {
-                value = default;
-                return false;
-            }
-        }
 
 //        [MustUseReturnValue]
 //        public static Metadata Union(this Metadata metadata, Metadata other)

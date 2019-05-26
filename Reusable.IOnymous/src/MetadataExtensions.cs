@@ -10,8 +10,8 @@ using Reusable.Extensions;
 namespace Reusable.IOnymous
 {
     [TypeMemberKeyFactory]
-    [RemovePrefix("I")]
-    [RemoveSuffix("Meta")]
+    [TrimEnd("I")]
+    [TrimStart("Meta")]
     public interface IAnyMeta : INamespace
     {
         Encoding Encoding { get; }
@@ -22,8 +22,8 @@ namespace Reusable.IOnymous
     }
 
     [TypeMemberKeyFactory]
-    [RemovePrefix("I")]
-    [RemoveSuffix("Meta")]
+    [TrimEnd("I")]
+    [TrimStart("Meta")]
     public interface IProviderMeta : INamespace
     {
         bool AllowRelativeUri { get; }
@@ -34,8 +34,8 @@ namespace Reusable.IOnymous
     }
 
     [TypeMemberKeyFactory]
-    [RemovePrefix("I")]
-    [RemoveSuffix("Meta")]
+    [TrimEnd("I")]
+    [TrimStart("Meta")]
     public interface IResourceMeta : INamespace
     {
         MimeType Format { get; }
