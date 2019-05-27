@@ -367,30 +367,28 @@ namespace Reusable.Tests.XUnit
         }
     }
 
-    public interface IOption
+    public abstract class Option
     {
+        // Disallow anyone else use this class.
+        private protected Option() { }
+
         [NotNull]
-        SoftString Name { get; }
+        public abstract SoftString Name { get; }
 
-        int Flag { get; }
+        public abstract int Flag { get; }
 
-        bool IsBit { get; }
+        public abstract bool IsBit { get; }
     }
-
-    public interface IOption<T>
-        : IOption, IEquatable<IOption<T>>, IComparable<IOption<T>>, IComparable
-        // Option type must be a type of itself.
-        where T : class, IOption { }
 
     [PublicAPI]
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
-    public abstract class Option<T> : IOption<T> where T : class, IOption
+    public abstract class Option<T> : Option, IEquatable<Option<T>>, IComparable<Option<T>>, IComparable where T : Option
     {
-        protected const string CompositeName = "Composite";
+        protected const string Unknown = nameof(Unknown);
 
         private static readonly OptionComparer Comparer = new OptionComparer();
 
-        protected static readonly ConcurrentDictionary<SoftString, IImmutableSet<IOption>> Flags = new ConcurrentDictionary<SoftString, IImmutableSet<IOption>>();
+        protected static readonly ConcurrentDictionary<SoftString, IImmutableSet<Option>> Flags = new ConcurrentDictionary<SoftString, IImmutableSet<Option>>();
 
         static Option()
         {
@@ -406,32 +404,52 @@ namespace Reusable.Tests.XUnit
             Flag = flag;
         }
 
-        [DebuggerStepThrough]
-        public override string ToString() => $"{Category.ToString()}.{Name.ToString()}";
+        #region Default options
 
         [NotNull]
         public static T None { get; }
 
+        [NotNull]
+        public static T All => Create(nameof(All), Bits.Select(o => o.Flag));
+
+        [NotNull]
+        public static Option<T> Max => Flags[Category].Cast<Option<T>>().OrderByDescending(o => o.Flag).First();
+
+        #endregion
+
+        [NotNull, ItemNotNull]
+        public static IEnumerable<Option<T>> Bits => Flags[Category].Where(o => o.IsBit).Cast<Option<T>>();
+        
         private static SoftString Category { [DebuggerStepThrough] get; } = typeof(T).Name;
 
-        public SoftString Name { [DebuggerStepThrough] get; }
+        #region Option
+
+        public override SoftString Name { [DebuggerStepThrough] get; }
 
         [AutoEqualityProperty]
-        public int Flag { [DebuggerStepThrough] get; }
+        public override int Flag { [DebuggerStepThrough] get; }
 
         // Or IsPowerOfTwo
-        public bool IsBit => (Flag & (Flag - 1)) == 0;
+        public override bool IsBit => (Flag & (Flag - 1)) == 0;
+
+        #endregion
 
         #region Factories
 
         [NotNull]
-        public static T Create(SoftString name, IOption<T> option = default)
+        public static T Create(SoftString name, Option<T> option = default)
         {
+            var forbidden = new SoftString[] { nameof(None), nameof(All), nameof(Max) };
+            if (name.In(forbidden, SoftString.Comparer))
+            {
+                throw new ArgumentException(paramName: nameof(name), message: $"You must not create options with the following, reserved names [{forbidden.Select(f => f.ToString()).Join(", ")}].");
+            }
+
             var optionsUpdated = Flags.AddOrUpdate
             (
                 typeof(T).Name,
                 // There is always "None".
-                t => ImmutableSortedSet<IOption>.Empty.Add(Create(nameof(None), 0)),
+                t => ImmutableSortedSet<Option>.Empty.Add(Create(nameof(None), 0)),
                 (category, options) =>
                 {
                     if (name == nameof(None))
@@ -454,16 +472,23 @@ namespace Reusable.Tests.XUnit
         }
 
         [NotNull]
-        public static T CreateWithCallerName(IOption<T> option = default, [CallerMemberName] string name = default)
+        public static T CreateWithCallerName(Option<T> option = default, [CallerMemberName] string name = default)
         {
             return Create(name, option);
         }
 
-        protected static T Create(SoftString name, int value)
+        protected static T Create(SoftString name, IEnumerable<int> flags)
         {
-            return (T)Activator.CreateInstance(typeof(T), name, value);
+            var flag = flags.Aggregate(0, (current, next) => current | next);
+            return (T)Activator.CreateInstance(typeof(T), name, flag);
         }
 
+        protected static T Create(SoftString name, params int[] flags)
+        {
+            return Create(name, flags.AsEnumerable());
+        }
+
+        [NotNull]
         public static T FromName([NotNull] string value)
         {
             if (value == null) throw new ArgumentNullException(nameof(value));
@@ -477,44 +502,55 @@ namespace Reusable.Tests.XUnit
         [NotNull]
         public static T FromValue(int value)
         {
-            var options = Flags[Category];
-
-            if (value > options.Max(o => o.Flag))
+            if (value > Max)
             {
                 throw new ArgumentOutOfRangeException(paramName: nameof(value), $"Value {value} is greater than the highest option.");
             }
 
-            if (options.SingleOrDefault(o => o.Flag == value) is var option && !(option is null))
+            // Is this a known value?
+            if (TryGetKnownOption(value, out var knownOption))
             {
-                return (T)option;
+                return (T)knownOption;
             }
 
-            var newFlag =
-                options
-                    .Cast<IOption<T>>()
-                    .Where(o => o.IsBit && (o.Flag & value) == o.Flag)
-                    .Aggregate((current, next) => current | next);
+            var newFlags = Bits.Where(o => (o.Flag & value) == o.Flag).Select(o => o.Flag);
+            return Create(Unknown, newFlags);
+        }
 
-            return Create(CompositeName, newFlag);
+        private static bool TryGetKnownOption(int flag, out Option option)
+        {
+            if (Flags[Category].SingleOrDefault(o => o.Flag == flag) is var knownOption && !(knownOption is null))
+            {
+                option = knownOption;
+                return true;
+            }
+            else
+            {
+                option = default;
+                return false;
+            }
         }
 
         #endregion
 
-        public bool Contains(IOption<T> option) => Contains(option.Flag);
+        [DebuggerStepThrough]
+        public override string ToString() => $"{Category.ToString()}.{Name.ToString()}";
+
+        public bool Contains(Option<T> option) => Contains(option.Flag);
 
         public bool Contains(int flags) => (Flag & flags) == flags;
 
-        public int CompareTo(IOption<T> other) => Comparer.Compare(this, other);
+        public int CompareTo(Option<T> other) => Comparer.Compare(this, other);
 
         public int CompareTo(object other) => Comparer.Compare(this, other);
 
         #region IEquatable
 
-        public bool Equals(IOption<T> other) => AutoEquality<IOption<T>>.Comparer.Equals(this, other);
+        public bool Equals(Option<T> other) => AutoEquality<Option<T>>.Comparer.Equals(this, other);
 
-        public override bool Equals(object obj) => Equals(obj as IOption<T>);
+        public override bool Equals(object obj) => Equals(obj as Option<T>);
 
-        public override int GetHashCode() => AutoEquality<IOption<T>>.Comparer.GetHashCode(this);
+        public override int GetHashCode() => AutoEquality<Option<T>>.Comparer.GetHashCode(this);
 
         #endregion
 
@@ -536,7 +572,17 @@ namespace Reusable.Tests.XUnit
 
         public static bool operator >=(Option<T> left, Option<T> right) => Comparer.Compare(left, right) >= 0;
 
-        public static T operator |(Option<T> left, Option<T> right) => Create(CompositeName, left.Flag | right.Flag);
+        [NotNull]
+        public static T operator |(Option<T> left, Option<T> right)
+        {
+            var newFlag = left.Flag | right.Flag;
+            if (TryGetKnownOption(newFlag, out var knownOption))
+            {
+                return (T)knownOption;
+            }
+
+            return Create(Unknown, newFlag);
+        }
 
         #endregion
 
@@ -550,7 +596,10 @@ namespace Reusable.Tests.XUnit
                 return left.Flag - right.Flag;
             }
 
-            public int Compare(object left, object right) => Compare(left as Option<T>, right as Option<T>);
+            public int Compare(object left, object right)
+            {
+                return Compare(left as Option<T>, right as Option<T>);
+            }
         }
     }
 
