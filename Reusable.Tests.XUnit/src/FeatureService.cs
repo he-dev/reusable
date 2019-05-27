@@ -8,9 +8,11 @@ using System.Linq;
 using System.Linq.Custom;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Extensions.Options;
 using Reusable.Collections;
 using Reusable.Data;
 using Reusable.Diagnostics;
@@ -365,27 +367,52 @@ namespace Reusable.Tests.XUnit
         }
     }
 
+    public interface IOption
+    {
+        [NotNull]
+        SoftString Name { get; }
+
+        int Flag { get; }
+
+        bool IsBit { get; }
+    }
+
+    public interface IOption<T>
+        : IOption, IEquatable<IOption<T>>, IComparable<IOption<T>>, IComparable
+        // Option type must be a type of itself.
+        where T : class, IOption { }
 
     [PublicAPI]
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
-    public class Option : IEquatable<Option>, IComparable<Option>, IComparable
+    public abstract class Option<T> : IOption<T> where T : class, IOption
     {
+        protected const string CompositeName = "Composite";
+
         private static readonly OptionComparer Comparer = new OptionComparer();
 
-        private static readonly ConcurrentDictionary<SoftString, IImmutableSet<Option>> Flags = new ConcurrentDictionary<SoftString, IImmutableSet<Option>>();
+        protected static readonly ConcurrentDictionary<SoftString, IImmutableSet<IOption>> Flags = new ConcurrentDictionary<SoftString, IImmutableSet<IOption>>();
 
-        public Option(SoftString category, SoftString name, int flag)
+        static Option()
         {
-            Category = category;
+            // Always initialize "None".
+            None = CreateWithCallerName();
+        }
+
+        protected Option(SoftString name, int flag)
+        {
+            if (GetType() != typeof(T)) throw DynamicException.Create("OptionTypeMismatch", "Option must be a type of itself.");
+
             Name = name;
             Flag = flag;
         }
 
-        private string DebuggerDisplay => ToString();
+        [DebuggerStepThrough]
+        public override string ToString() => $"{Category.ToString()}.{Name.ToString()}";
 
+        [NotNull]
+        public static T None { get; }
 
-        [AutoEqualityProperty]
-        public SoftString Category { [DebuggerStepThrough] get; }
+        private static SoftString Category { [DebuggerStepThrough] get; } = typeof(T).Name;
 
         public SoftString Name { [DebuggerStepThrough] get; }
 
@@ -395,14 +422,16 @@ namespace Reusable.Tests.XUnit
         // Or IsPowerOfTwo
         public bool IsBit => (Flag & (Flag - 1)) == 0;
 
+        #region Factories
+
         [NotNull]
-        public static T Create<T>(SoftString name, Option option = default) where T : Option
+        public static T Create(SoftString name, IOption<T> option = default)
         {
             var optionsUpdated = Flags.AddOrUpdate
             (
                 typeof(T).Name,
-                // There always should be "None" and the the very-first bit is the current one.
-                t => ImmutableSortedSet<Option>.Empty.Add(Create<T>(nameof(None), 0)).Add(Create<T>(name, 1)),
+                // There is always "None".
+                t => ImmutableSortedSet<IOption>.Empty.Add(Create(nameof(None), 0)),
                 (category, options) =>
                 {
                     if (name == nameof(None))
@@ -415,7 +444,8 @@ namespace Reusable.Tests.XUnit
                         throw DynamicException.Create("DuplicateOption", $"The option '{name}' is defined more the once.");
                     }
 
-                    var newOption = Create<T>(name, (options.Count(o => o.IsBit) - 1) << 1);
+                    var bitCount = options.Count(o => o.IsBit);
+                    var newOption = Create(name, bitCount == 1 ? 1 : (bitCount - 1) << 1);
                     return options.Add(newOption);
                 }
             );
@@ -423,85 +453,96 @@ namespace Reusable.Tests.XUnit
             return (T)optionsUpdated.Last();
         }
 
-        private static T Create<T>(SoftString name, int value)
+        [NotNull]
+        public static T CreateWithCallerName(IOption<T> option = default, [CallerMemberName] string name = default)
+        {
+            return Create(name, option);
+        }
+
+        protected static T Create(SoftString name, int value)
         {
             return (T)Activator.CreateInstance(typeof(T), name, value);
         }
 
-        public static T None<T>() where T : Option
-        {
-            return
-                Flags.TryGetValue(typeof(T).Name, out var options)
-                    ? (T)options.First()
-                    //: Create<T>(nameof(None));
-                    : throw DynamicException.Create("CategoryEmpty", $"Category '{typeof(T).Name}' does not contain any flags.");
-        }
-
-        public static Option Parse([NotNull] string value, params Option[] options)
+        public static T FromName([NotNull] string value)
         {
             if (value == null) throw new ArgumentNullException(nameof(value));
-            if (options.Select(o => o.Category).Distinct().Count() > 1) throw new ArgumentException("All options must have the same category.");
-
-            return options.FirstOrDefault(o => o.Name == value) ?? throw DynamicException.Create("OptionOutOfRange", $"There is no such option as '{value}'.");
-        }
-
-        public static Option FromValue(int value, params Option[] options)
-        {
-            if (options.Select(o => o.Category).Distinct().Count() > 1) throw new ArgumentException("All options must have the same category.");
 
             return
-                options
-                    .Where(o => (o.Flag & value) == o.Flag)
-                    .Aggregate((current, next) => new Option(options.First().Category, "Custom", current.Flag | next.Flag));
+                (T)Flags[Category]
+                    .FirstOrDefault(o => o.Name == value)
+                ?? throw DynamicException.Create("OptionOutOfRange", $"There is no such option as '{value}'.");
         }
 
-        public bool Contains(params Option[] options) => Contains(options.Aggregate((current, next) => current.Flag | next.Flag).Flag);
+        [NotNull]
+        public static T FromValue(int value)
+        {
+            var options = Flags[Category];
+
+            if (value > options.Max(o => o.Flag))
+            {
+                throw new ArgumentOutOfRangeException(paramName: nameof(value), $"Value {value} is greater than the highest option.");
+            }
+
+            if (options.SingleOrDefault(o => o.Flag == value) is var option && !(option is null))
+            {
+                return (T)option;
+            }
+
+            var newFlag =
+                options
+                    .Cast<IOption<T>>()
+                    .Where(o => o.IsBit && (o.Flag & value) == o.Flag)
+                    .Aggregate((current, next) => current | next);
+
+            return Create(CompositeName, newFlag);
+        }
+
+        #endregion
+
+        public bool Contains(IOption<T> option) => Contains(option.Flag);
 
         public bool Contains(int flags) => (Flag & flags) == flags;
 
-        [DebuggerStepThrough]
-        public override string ToString() => $"{Category.ToString()}.{Name.ToString()}";
-
-        #region IEquatable
-
-        public bool Equals(Option other) => AutoEquality<Option>.Comparer.Equals(this, other);
-
-        public override bool Equals(object obj) => Equals(obj as Option);
-
-        public override int GetHashCode() => AutoEquality<Option>.Comparer.GetHashCode(this);
-
-        #endregion
-
-        public int CompareTo(Option other) => Comparer.Compare(this, other);
+        public int CompareTo(IOption<T> other) => Comparer.Compare(this, other);
 
         public int CompareTo(object other) => Comparer.Compare(this, other);
 
-        public static implicit operator string(Option option) => option?.ToString() ?? throw new ArgumentNullException(nameof(option));
+        #region IEquatable
 
-        public static implicit operator int(Option option) => option?.Flag ?? throw new ArgumentNullException(nameof(option));
+        public bool Equals(IOption<T> other) => AutoEquality<IOption<T>>.Comparer.Equals(this, other);
 
-        public static implicit operator Option(string value) => Parse(value);
+        public override bool Equals(object obj) => Equals(obj as IOption<T>);
 
-        public static implicit operator Option(int value) => FromValue(value);
-
-        #region Operators
-
-        public static bool operator ==(Option left, Option right) => Comparer.Compare(left, right) == 0;
-        public static bool operator !=(Option left, Option right) => !(left == right);
-
-        public static bool operator <(Option left, Option right) => Comparer.Compare(left, right) < 0;
-        public static bool operator <=(Option left, Option right) => Comparer.Compare(left, right) <= 0;
-
-        public static bool operator >(Option left, Option right) => Comparer.Compare(left, right) > 0;
-        public static bool operator >=(Option left, Option right) => Comparer.Compare(left, right) >= 0;
-
-        public static Option operator |(Option left, Option right) => new Option(left.Category, "Custom", left.Flag | right.Flag);
+        public override int GetHashCode() => AutoEquality<IOption<T>>.Comparer.GetHashCode(this);
 
         #endregion
 
-        private class OptionComparer : IComparer<Option>, IComparer
+        #region Operators
+
+        public static implicit operator string(Option<T> option) => option?.ToString() ?? throw new ArgumentNullException(nameof(option));
+
+        public static implicit operator int(Option<T> option) => option?.Flag ?? throw new ArgumentNullException(nameof(option));
+
+        public static bool operator ==(Option<T> left, Option<T> right) => Comparer.Compare(left, right) == 0;
+
+        public static bool operator !=(Option<T> left, Option<T> right) => !(left == right);
+
+        public static bool operator <(Option<T> left, Option<T> right) => Comparer.Compare(left, right) < 0;
+
+        public static bool operator <=(Option<T> left, Option<T> right) => Comparer.Compare(left, right) <= 0;
+
+        public static bool operator >(Option<T> left, Option<T> right) => Comparer.Compare(left, right) > 0;
+
+        public static bool operator >=(Option<T> left, Option<T> right) => Comparer.Compare(left, right) >= 0;
+
+        public static T operator |(Option<T> left, Option<T> right) => Create(CompositeName, left.Flag | right.Flag);
+
+        #endregion
+
+        private class OptionComparer : IComparer<Option<T>>, IComparer
         {
-            public int Compare(Option left, Option right)
+            public int Compare(Option<T> left, Option<T> right)
             {
                 if (ReferenceEquals(left, right)) return 0;
                 if (ReferenceEquals(left, null)) return 1;
@@ -509,36 +550,30 @@ namespace Reusable.Tests.XUnit
                 return left.Flag - right.Flag;
             }
 
-            public int Compare(object left, object right) => Compare(left as Option, right as Option);
+            public int Compare(object left, object right) => Compare(left as Option<T>, right as Option<T>);
         }
     }
 
-    public class FeatureOption : Option
+    public class FeatureOption : Option<FeatureOption>
     {
-        public FeatureOption(SoftString name, int value) : base(nameof(FeatureOption), name, value) { }
-    }
-
-    [PublicAPI]
-    public static class FeatureOptionsNew
-    {
-        //public static readonly FeatureOption None = Option.Create<FeatureOption>(nameof(None));
+        public FeatureOption(SoftString name, int value) : base(name, value) { }
 
         /// <summary>
         /// When set a feature is enabled.
         /// </summary>
-        public static readonly FeatureOption Enable = Option.Create<FeatureOption>(nameof(Enable));
+        public static readonly FeatureOption Enable = CreateWithCallerName();
 
         /// <summary>
         /// When set a warning is logged when a feature is toggled.
         /// </summary>
-        public static readonly FeatureOption Warn = Option.Create<FeatureOption>(nameof(Warn));
+        public static readonly FeatureOption Warn = CreateWithCallerName();
 
         /// <summary>
         /// When set feature usage statistics are logged.
         /// </summary>
-        public static readonly FeatureOption Telemetry = Option.Create<FeatureOption>(nameof(Telemetry));
+        public static readonly FeatureOption Telemetry = CreateWithCallerName();
 
-        public static readonly FeatureOption Default = Option.Create<FeatureOption>(nameof(Default), Enable | Warn);
+        public static readonly FeatureOption Default = CreateWithCallerName(Enable | Warn);
     }
 
     public class OptionTest
@@ -548,23 +583,25 @@ namespace Reusable.Tests.XUnit
         {
             Assert.Equal(new[] { 0, 1, 2, 4 }, new[]
             {
-                Option.None<FeatureOption>(),
-                FeatureOptionsNew.Enable,
-                FeatureOptionsNew.Warn,
-                FeatureOptionsNew.Telemetry
+                FeatureOption.None,
+                FeatureOption.Enable,
+                FeatureOption.Warn,
+                FeatureOption.Telemetry
             }.Select(o => o.Flag));
 
-            Assert.Equal(FeatureOptionsNew.Enable, FeatureOptionsNew.Enable);
-            Assert.NotEqual(FeatureOptionsNew.Enable, FeatureOptionsNew.Telemetry);
+            Assert.Equal(FeatureOption.Enable, FeatureOption.Enable);
+            Assert.NotEqual(FeatureOption.Enable, FeatureOption.Telemetry);
 
-            var oParsed = Option.Parse("Warn", FeatureOptionsNew.Enable, FeatureOptionsNew.Warn, FeatureOptionsNew.Telemetry);
-            Assert.Equal(FeatureOptionsNew.Warn, oParsed);
+            var fromName = FeatureOption.FromName("Warn");
+            Assert.Equal(FeatureOption.Warn, fromName);
 
-            var oFromValue = Option.FromValue(3, FeatureOptionsNew.Enable, FeatureOptionsNew.Warn, FeatureOptionsNew.Telemetry);
-            Assert.Equal(FeatureOptionsNew.Enable | FeatureOptionsNew.Warn, oFromValue);
+            var fromValue = FeatureOption.FromValue(3);
+            Assert.Equal(FeatureOption.Enable | FeatureOption.Warn, fromValue);
 
-            Assert.True(Option.None<FeatureOption>() < FeatureOptionsNew.Enable);
-            Assert.True(FeatureOptionsNew.Enable < FeatureOptionsNew.Telemetry);
+            Assert.True(FeatureOption.None < FeatureOption.Enable);
+            Assert.True(FeatureOption.Enable < FeatureOption.Telemetry);
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => FeatureOption.FromValue(1000));
         }
     }
 }
