@@ -369,7 +369,8 @@ namespace Reusable.Tests.XUnit
 
     public abstract class Option
     {
-        // Disallow anyone else use this class.
+        // Disallow anyone else to use this class.
+        // This way we can guarantee that it is used only by the Option<T>.
         private protected Option() { }
 
         [NotNull]
@@ -377,6 +378,9 @@ namespace Reusable.Tests.XUnit
 
         public abstract int Flag { get; }
 
+        /// <summary>
+        /// Returns True if Option is power of two.
+        /// </summary>
         public abstract bool IsBit { get; }
     }
 
@@ -388,12 +392,14 @@ namespace Reusable.Tests.XUnit
 
         private static readonly OptionComparer Comparer = new OptionComparer();
 
-        protected static readonly ConcurrentDictionary<SoftString, IImmutableSet<Option>> Flags = new ConcurrentDictionary<SoftString, IImmutableSet<Option>>();
+        private static IImmutableSet<Option> Options;
+
+        public static readonly IEnumerable<SoftString> ReservedNames = new SoftString[] { nameof(None), nameof(All), nameof(Max) };
 
         static Option()
         {
             // Always initialize "None".
-            None = CreateWithCallerName();
+            Options = ImmutableSortedSet<Option>.Empty.Add(Create(nameof(None), 0));
         }
 
         protected Option(SoftString name, int flag)
@@ -407,20 +413,18 @@ namespace Reusable.Tests.XUnit
         #region Default options
 
         [NotNull]
-        public static T None { get; }
+        public static T None => (T)Options.First();
 
         [NotNull]
-        public static T All => Create(nameof(All), Bits.Select(o => o.Flag));
+        public static IEnumerable<T> All => Options.Cast<T>();
 
         [NotNull]
-        public static Option<T> Max => Flags[Category].Cast<Option<T>>().OrderByDescending(o => o.Flag).First();
+        public static Option<T> Max => Options.Cast<Option<T>>().OrderByDescending(o => o.Flag).First();
 
         #endregion
 
         [NotNull, ItemNotNull]
-        public static IEnumerable<Option<T>> Bits => Flags[Category].Where(o => o.IsBit).Cast<Option<T>>();
-        
-        private static SoftString Category { [DebuggerStepThrough] get; } = typeof(T).Name;
+        public static IEnumerable<Option<T>> Bits => Options.Where(o => o.IsBit).Cast<Option<T>>();
 
         #region Option
 
@@ -428,8 +432,7 @@ namespace Reusable.Tests.XUnit
 
         [AutoEqualityProperty]
         public override int Flag { [DebuggerStepThrough] get; }
-
-        // Or IsPowerOfTwo
+        
         public override bool IsBit => (Flag & (Flag - 1)) == 0;
 
         #endregion
@@ -439,36 +442,16 @@ namespace Reusable.Tests.XUnit
         [NotNull]
         public static T Create(SoftString name, Option<T> option = default)
         {
-            var forbidden = new SoftString[] { nameof(None), nameof(All), nameof(Max) };
-            if (name.In(forbidden, SoftString.Comparer))
+            if (name.In(Options.Select(o => o.Name).Concat(ReservedNames)))
             {
-                throw new ArgumentException(paramName: nameof(name), message: $"You must not create options with the following, reserved names [{forbidden.Select(f => f.ToString()).Join(", ")}].");
+                throw DynamicException.Create("DuplicateOption", $"The option '{name}' is defined more the once.");
             }
 
-            var optionsUpdated = Flags.AddOrUpdate
-            (
-                typeof(T).Name,
-                // There is always "None".
-                t => ImmutableSortedSet<Option>.Empty.Add(Create(nameof(None), 0)),
-                (category, options) =>
-                {
-                    if (name == nameof(None))
-                    {
-                        return options;
-                    }
+            var bitCount = Options.Count(o => o.IsBit);
+            var newOption = Create(name, bitCount == 1 ? 1 : (bitCount - 1) << 1);
+            Options = Options.Add(newOption);
 
-                    if (options.Any(o => o.Name == name))
-                    {
-                        throw DynamicException.Create("DuplicateOption", $"The option '{name}' is defined more the once.");
-                    }
-
-                    var bitCount = options.Count(o => o.IsBit);
-                    var newOption = Create(name, bitCount == 1 ? 1 : (bitCount - 1) << 1);
-                    return options.Add(newOption);
-                }
-            );
-
-            return (T)optionsUpdated.Last();
+            return newOption;
         }
 
         [NotNull]
@@ -483,7 +466,7 @@ namespace Reusable.Tests.XUnit
             return (T)Activator.CreateInstance(typeof(T), name, flag);
         }
 
-        protected static T Create(SoftString name, params int[] flags)
+        public static T Create(SoftString name, params int[] flags)
         {
             return Create(name, flags.AsEnumerable());
         }
@@ -494,8 +477,7 @@ namespace Reusable.Tests.XUnit
             if (value == null) throw new ArgumentNullException(nameof(value));
 
             return
-                (T)Flags[Category]
-                    .FirstOrDefault(o => o.Name == value)
+                (T)Options.FirstOrDefault(o => o.Name == value)
                 ?? throw DynamicException.Create("OptionOutOfRange", $"There is no such option as '{value}'.");
         }
 
@@ -519,7 +501,7 @@ namespace Reusable.Tests.XUnit
 
         private static bool TryGetKnownOption(int flag, out Option option)
         {
-            if (Flags[Category].SingleOrDefault(o => o.Flag == flag) is var knownOption && !(knownOption is null))
+            if (Options.SingleOrDefault(o => o.Flag == flag) is var knownOption && !(knownOption is null))
             {
                 option = knownOption;
                 return true;
@@ -534,7 +516,7 @@ namespace Reusable.Tests.XUnit
         #endregion
 
         [DebuggerStepThrough]
-        public override string ToString() => $"{Category.ToString()}.{Name.ToString()}";
+        public override string ToString() => Name.ToString();
 
         public bool Contains(Option<T> option) => Contains(option.Flag);
 
@@ -651,6 +633,7 @@ namespace Reusable.Tests.XUnit
             Assert.True(FeatureOption.Enable < FeatureOption.Telemetry);
 
             Assert.Throws<ArgumentOutOfRangeException>(() => FeatureOption.FromValue(1000));
+            Assert.ThrowsAny<DynamicException>(() => FeatureOption.Create("All", 111111));
         }
     }
 }
