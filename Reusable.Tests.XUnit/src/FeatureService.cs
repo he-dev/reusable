@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Custom;
 using System.Linq.Expressions;
@@ -13,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Options;
+using Org.BouncyCastle.Bcpg.Sig;
 using Reusable.Collections;
 using Reusable.Data;
 using Reusable.Diagnostics;
@@ -26,7 +28,7 @@ using Xunit;
 
 namespace Reusable.Tests.XUnit
 {
-    using static FeatureOptions;
+    //using static FeatureOptions;
 
     [PublicAPI]
     public interface IFeatureService
@@ -34,20 +36,24 @@ namespace Reusable.Tests.XUnit
         Task<T> ExecuteAsync<T>(string name, Func<Task<T>> body, Func<Task<T>> bodyWhenDisabled);
 
         [NotNull]
-        IFeatureService Configure(string name, Func<FeatureOptions, FeatureOptions> configure);
+        IFeatureService Configure(string name, Func<FeatureOption, FeatureOption> configure);
     }
 
     public class FeatureService : IFeatureService
     {
-        private readonly FeatureOptions _defaultOptions;
+        private readonly FeatureOption _defaultOptions;
         private readonly ILogger _logger;
-        private readonly IDictionary<string, FeatureOptions> _options = new Dictionary<string, FeatureOptions>();
+        private readonly IDictionary<string, FeatureOption> _options = new Dictionary<string, FeatureOption>();
 
-        public FeatureService(ILogger<FeatureService> logger, FeatureOptions defaultOptions = Enabled | Warn | Telemetry)
+        public FeatureService(ILogger<FeatureService> logger, FeatureOption defaultOptions)
         {
             _logger = logger;
             _defaultOptions = defaultOptions;
         }
+
+        //public Func<(string Name, FeatureOption Options), Task> BeforeExecuteAsync { get; set; }
+
+        //public Func<(string Name, FeatureOption Options), Task> AfterExecuteAsync { get; set; }
 
         public async Task<T> ExecuteAsync<T>(string name, Func<Task<T>> body, Func<Task<T>> bodyWhenDisabled)
         {
@@ -61,18 +67,20 @@ namespace Reusable.Tests.XUnit
                 // Not catching exceptions because the caller should handle them.
                 try
                 {
-                    if (options.HasFlag(Enabled))
+                    if (options.Contains(FeatureOption.Enable))
                     {
-                        if (options.HasFlag(Warn) && !_defaultOptions.HasFlag(Enabled))
+                        if (options.Contains(FeatureOption.Warn) && !_defaultOptions.Contains(FeatureOption.Enable))
                         {
                             _logger.Log(Abstraction.Layer.Service().Decision($"Using feature '{name}'").Because("Enabled").Warning());
                         }
+
+                        //await (BeforeExecuteAsync?.Invoke((name, options)) ?? Task.CompletedTask);
 
                         return await body();
                     }
                     else
                     {
-                        if (options.HasFlag(Warn) && _defaultOptions.HasFlag(Enabled))
+                        if (options.Contains(FeatureOption.Warn) && _defaultOptions.Contains(FeatureOption.Enable))
                         {
                             _logger.Log(Abstraction.Layer.Service().Decision($"Not using feature '{name}'").Because("Disabled").Warning());
                         }
@@ -82,12 +90,13 @@ namespace Reusable.Tests.XUnit
                 }
                 finally
                 {
+                    //await (AfterExecuteAsync?.Invoke((name, options)) ?? Task.CompletedTask);
                     _logger.Log(Abstraction.Layer.Service().Routine(name).Completed());
                 }
             }
         }
 
-        public IFeatureService Configure(string name, Func<FeatureOptions, FeatureOptions> configure)
+        public IFeatureService Configure(string name, Func<FeatureOption, FeatureOption> configure)
         {
             _options[name] =
                 _options.TryGetValue(name, out var options)
@@ -144,7 +153,7 @@ namespace Reusable.Tests.XUnit
         }
 
         [NotNull]
-        public static IFeatureService Configure(this IFeatureService features, IEnumerable<string> names, Func<FeatureOptions, FeatureOptions> configure)
+        public static IFeatureService Configure(this IFeatureService features, IEnumerable<string> names, Func<FeatureOption, FeatureOption> configure)
         {
             foreach (var name in names)
             {
@@ -159,12 +168,13 @@ namespace Reusable.Tests.XUnit
             return
                 from t in features
                 // () => x.Member
-                let l = Expression.Lambda(
-                    Expression.Property(
-                        Expression.Constant(null, t.Category),
-                        t.Property.Name
+                let l =
+                    Expression.Lambda(
+                        Expression.Property(
+                            Expression.Constant(null, t.Category),
+                            t.Property.Name
+                        )
                     )
-                )
                 select (keyFactory ?? KeyFactory.Default).CreateKey(l);
         }
 
@@ -216,26 +226,26 @@ namespace Reusable.Tests.XUnit
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
-    [Flags]
-    public enum FeatureOptions
-    {
-        None = 0,
-
-        /// <summary>
-        /// When set a feature is enabled.
-        /// </summary>
-        Enabled = 1 << 0,
-
-        /// <summary>
-        /// When set a warning is logged when a feature is toggled.
-        /// </summary>
-        Warn = 1 << 1,
-
-        /// <summary>
-        /// When set feature usage statistics are logged.
-        /// </summary>
-        Telemetry = 1 << 2, // For future use
-    }
+    // [Flags]
+    // public enum FeatureOptions
+    // {
+    //     None = 0,
+    //
+    //     /// <summary>
+    //     /// When set a feature is enabled.
+    //     /// </summary>
+    //     Enabled = 1 << 0,
+    //
+    //     /// <summary>
+    //     /// When set a warning is logged when a feature is toggled.
+    //     /// </summary>
+    //     Warn = 1 << 1,
+    //
+    //     /// <summary>
+    //     /// When set feature usage statistics are logged.
+    //     /// </summary>
+    //     Telemetry = 1 << 2, // For future use
+    // }
 
     public static class Tags
     {
@@ -296,11 +306,15 @@ namespace Reusable.Tests.XUnit
         [Fact]
         public void Can_configure_features_by_tags()
         {
-            var features = new FeatureService(Logger<FeatureService>.Null);
+            var features = new FeatureService
+            (
+                Logger<FeatureService>.Null,
+                defaultOptions: FeatureOption.Enable | FeatureOption.Warn | FeatureOption.Telemetry
+            );
 
             var names = FeatureCollection.Empty.Add<IDemo>().Add<IDatabase>().WhereTags("io").Keys();
 
-            features.Configure(names, o => o ^ Enabled);
+            features.Configure(names, o => o ^ FeatureOption.Enable);
 
             var bodyCounter = 0;
             var otherCounter = 0;
@@ -315,15 +329,19 @@ namespace Reusable.Tests.XUnit
 
     public class FeatureServiceDemo
     {
-        private readonly FeatureService _features = new FeatureService(Logger<FeatureService>.Null);
+        private readonly FeatureService _features = new FeatureService
+        (
+            Logger<FeatureService>.Null,
+            defaultOptions: FeatureOption.Enable | FeatureOption.Warn | FeatureOption.Telemetry
+        );
 
         public async Task Start()
         {
             SayHallo();
 
-            _features.Configure(nameof(SayHallo), o => o ^ Enabled);
+            //_features.Configure(nameof(SayHallo), o => o.Reset(FeatureOption.Enable));
             //_features.Configure(Use<IDemo>.Namespace, x => x.Greeting, o => o ^ Enabled);
-            _features.Configure(From<IDemo>.Select(x => x.Greeting), o => o ^ Enabled);
+            _features.Configure(From<IDemo>.Select(x => x.Greeting), o => o.Reset(FeatureOption.Enable));
 
             SayHallo();
         }
@@ -367,8 +385,16 @@ namespace Reusable.Tests.XUnit
         }
     }
 
+    [PublicAPI]
     public abstract class Option
     {
+        public static readonly IImmutableList<SoftString> ReservedNames =
+            ImmutableList<SoftString>
+                .Empty
+                .Add(nameof(Option<Option>.None))
+                .Add(nameof(Option<Option>.All))
+                .Add(nameof(Option<Option>.Max));
+
         // Disallow anyone else to use this class.
         // This way we can guarantee that it is used only by the Option<T>.
         private protected Option() { }
@@ -386,20 +412,18 @@ namespace Reusable.Tests.XUnit
 
     [PublicAPI]
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
-    public abstract class Option<T> : Option, IEquatable<Option<T>>, IComparable<Option<T>>, IComparable where T : Option
+    public abstract class Option<T> : Option, IEquatable<Option<T>>, IComparable<Option<T>>, IComparable, IFormattable where T : Option
     {
         protected const string Unknown = nameof(Unknown);
 
         private static readonly OptionComparer Comparer = new OptionComparer();
 
-        private static IImmutableSet<Option> Options;
-
-        public static readonly IEnumerable<SoftString> ReservedNames = new SoftString[] { nameof(None), nameof(All), nameof(Max) };
+        private static IImmutableSet<T> Options;
 
         static Option()
         {
             // Always initialize "None".
-            Options = ImmutableSortedSet<Option>.Empty.Add(Create(nameof(None), 0));
+            Options = ImmutableSortedSet<T>.Empty.Add(Create(nameof(None), 0));
         }
 
         protected Option(SoftString name, int flag)
@@ -413,18 +437,18 @@ namespace Reusable.Tests.XUnit
         #region Default options
 
         [NotNull]
-        public static T None => (T)Options.First();
+        public static T None => Options.First();
 
         [NotNull]
-        public static IEnumerable<T> All => Options.Cast<T>();
+        public static T Max => Options.Last();
 
         [NotNull]
-        public static Option<T> Max => Options.Cast<Option<T>>().OrderByDescending(o => o.Flag).First();
+        public static IEnumerable<T> All => Options;
 
         #endregion
 
         [NotNull, ItemNotNull]
-        public static IEnumerable<Option<T>> Bits => Options.Where(o => o.IsBit).Cast<Option<T>>();
+        public static IEnumerable<T> Bits => Options.Where(o => o.IsBit);
 
         #region Option
 
@@ -432,15 +456,18 @@ namespace Reusable.Tests.XUnit
 
         [AutoEqualityProperty]
         public override int Flag { [DebuggerStepThrough] get; }
-        
+
         public override bool IsBit => (Flag & (Flag - 1)) == 0;
 
         #endregion
 
+        [NotNull, ItemNotNull]
+        public IEnumerable<T> Flags => Bits.Where(f => (Flag & f.Flag) > 0);
+
         #region Factories
 
         [NotNull]
-        public static T Create(SoftString name, Option<T> option = default)
+        public static T Create(SoftString name, T option = default)
         {
             if (name.In(Options.Select(o => o.Name).Concat(ReservedNames)))
             {
@@ -455,12 +482,12 @@ namespace Reusable.Tests.XUnit
         }
 
         [NotNull]
-        public static T CreateWithCallerName(Option<T> option = default, [CallerMemberName] string name = default)
+        public static T CreateWithCallerName(T option = default, [CallerMemberName] string name = default)
         {
             return Create(name, option);
         }
 
-        protected static T Create(SoftString name, IEnumerable<int> flags)
+        private static T Create(SoftString name, IEnumerable<int> flags)
         {
             var flag = flags.Aggregate(0, (current, next) => current | next);
             return (T)Activator.CreateInstance(typeof(T), name, flag);
@@ -477,14 +504,14 @@ namespace Reusable.Tests.XUnit
             if (value == null) throw new ArgumentNullException(nameof(value));
 
             return
-                (T)Options.FirstOrDefault(o => o.Name == value)
+                Options.FirstOrDefault(o => o.Name == value)
                 ?? throw DynamicException.Create("OptionOutOfRange", $"There is no such option as '{value}'.");
         }
 
         [NotNull]
         public static T FromValue(int value)
         {
-            if (value > Max)
+            if (value > Max.Flag)
             {
                 throw new ArgumentOutOfRangeException(paramName: nameof(value), $"Value {value} is greater than the highest option.");
             }
@@ -492,14 +519,14 @@ namespace Reusable.Tests.XUnit
             // Is this a known value?
             if (TryGetKnownOption(value, out var knownOption))
             {
-                return (T)knownOption;
+                return knownOption;
             }
 
             var newFlags = Bits.Where(o => (o.Flag & value) == o.Flag).Select(o => o.Flag);
             return Create(Unknown, newFlags);
         }
 
-        private static bool TryGetKnownOption(int flag, out Option option)
+        private static bool TryGetKnownOption(int flag, out T option)
         {
             if (Options.SingleOrDefault(o => o.Flag == flag) is var knownOption && !(knownOption is null))
             {
@@ -515,10 +542,40 @@ namespace Reusable.Tests.XUnit
 
         #endregion
 
-        [DebuggerStepThrough]
-        public override string ToString() => Name.ToString();
+        public T Set(Option<T> option)
+        {
+            return this | option;
+        }
 
-        public bool Contains(Option<T> option) => Contains(option.Flag);
+        public T Reset(Option<T> option)
+        {
+            return this ^ option;
+        }
+
+        [DebuggerStepThrough]
+        public string ToString(string format, IFormatProvider formatProvider)
+        {
+            if (SoftString.Comparer.Equals(format, "names"))
+            {
+                return Flags.Select(o => $"{o.Name.ToString()}").Join(", ");
+            }
+
+            if (SoftString.Comparer.Equals(format, "flags"))
+            {
+                return Flags.Select(o => $"{o.Flag}").Join(", ");
+            }
+
+            if (SoftString.Comparer.Equals(format, "names+flags"))
+            {
+                return Flags.Select(o => $"{o.Name.ToString()}[{o.Flag}]").Join(", ");
+            }
+
+            return ToString();
+        }
+
+        public override string ToString() => $"{this:names}";
+
+        public bool Contains(T option) => Contains(option.Flag);
 
         public bool Contains(int flags) => (Flag & flags) == flags;
 
@@ -555,15 +612,17 @@ namespace Reusable.Tests.XUnit
         public static bool operator >=(Option<T> left, Option<T> right) => Comparer.Compare(left, right) >= 0;
 
         [NotNull]
-        public static T operator |(Option<T> left, Option<T> right)
-        {
-            var newFlag = left.Flag | right.Flag;
-            if (TryGetKnownOption(newFlag, out var knownOption))
-            {
-                return (T)knownOption;
-            }
+        public static T operator |(Option<T> left, Option<T> right) => GetKnownOrCreate(left.Flag | right.Flag);
 
-            return Create(Unknown, newFlag);
+        [NotNull]
+        public static T operator ^(Option<T> left, Option<T> right) => GetKnownOrCreate(left.Flag ^ right.Flag);
+
+        private static T GetKnownOrCreate(int flag)
+        {
+            return
+                TryGetKnownOption(flag, out var knownOption)
+                    ? knownOption
+                    : Create(Unknown, flag);
         }
 
         #endregion
@@ -627,13 +686,63 @@ namespace Reusable.Tests.XUnit
             Assert.Equal(FeatureOption.Warn, fromName);
 
             var fromValue = FeatureOption.FromValue(3);
-            Assert.Equal(FeatureOption.Enable | FeatureOption.Warn, fromValue);
+            var enableWarn = FeatureOption.Enable | FeatureOption.Warn;
+            Assert.Equal(enableWarn, fromValue);
+
+            var names = $"{enableWarn:names}";
+            var flags = $"{enableWarn:flags}";
+            var namesAndFlags = $"{enableWarn:names+flags}";
+            var @default = $"{enableWarn}";
 
             Assert.True(FeatureOption.None < FeatureOption.Enable);
             Assert.True(FeatureOption.Enable < FeatureOption.Telemetry);
 
             Assert.Throws<ArgumentOutOfRangeException>(() => FeatureOption.FromValue(1000));
-            Assert.ThrowsAny<DynamicException>(() => FeatureOption.Create("All", 111111));
+            //Assert.ThrowsAny<DynamicException>(() => FeatureOption.Create("All", 111111));
         }
     }
+
+    // public class Switch<TValue, TResult>
+    // {
+    //     private readonly TValue _value;
+    //     private bool _break;
+    //
+    //     public Switch(TValue value) => _value = value;
+    //
+    //     public TResult Result { get; private set; }
+    //
+    //     public Switch<TValue, TResult> CaseEqual(TValue option, Func<TResult> body, IEqualityComparer<TValue> comparer = default, bool @break = true)
+    //     {
+    //         return Case(() => (comparer ?? EqualityComparer<TValue>.Default).Equals(_value, option), body, @break);
+    //     }
+    //
+    //     public Switch<TValue, TResult> CaseMatch([RegexPattern] string pattern, Func<TResult> body, bool @break = true)
+    //     {
+    //         return Case(() => Regex.IsMatch(pattern, _value as string ?? string.Empty), body, @break);
+    //     }
+    //
+    //     private Switch<TValue, TResult> Case(Func<bool> predicate, Func<TResult> body, bool @break = true)
+    //     {
+    //         switch (_break)
+    //         {
+    //             case false when predicate():
+    //                 Result = body();
+    //                 _break = @break;
+    //                 break;
+    //         }
+    //         return this;
+    //     }
+    //
+    //     public TResult Default(Func<TResult> body)
+    //     {
+    //         return body();
+    //     }
+    //
+    //     // private class _Case
+    //     // {
+    //     //     public Func<T> Body { get; set; }
+    //     //
+    //     //     public bool Break { get; set; }
+    //     // }
+    // }
 }
