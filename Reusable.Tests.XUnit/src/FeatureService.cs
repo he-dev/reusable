@@ -415,15 +415,23 @@ namespace Reusable.Tests.XUnit
     public abstract class Option<T> : Option, IEquatable<Option<T>>, IComparable<Option<T>>, IComparable, IFormattable where T : Option
     {
         protected const string Unknown = nameof(Unknown);
-
         private static readonly OptionComparer Comparer = new OptionComparer();
-
-        private static IImmutableSet<T> Options;
+        private static readonly ConstructorInfo _constructor;
+        private static IImmutableSet<T> _options;
 
         static Option()
         {
+            _constructor =
+                typeof(T).GetConstructor(new[] { typeof(SoftString), typeof(int) })
+                ?? throw DynamicException.Create
+                (
+                    "ConstructorNotFound",
+                    $"{typeof(T).ToPrettyString()} must provide a constructor with the following signature: " +
+                    $"ctor({typeof(SoftString).ToPrettyString()}, {typeof(int).ToPrettyString()})"
+                );
+
             // Always initialize "None".
-            Options = ImmutableSortedSet<T>.Empty.Add(Create(nameof(None), 0));
+            _options = ImmutableSortedSet<T>.Empty.Add(Create(nameof(None), 0));
         }
 
         protected Option(SoftString name, int flag)
@@ -437,18 +445,18 @@ namespace Reusable.Tests.XUnit
         #region Default options
 
         [NotNull]
-        public static T None => Options.First();
+        public static T None => _options.First();
 
         [NotNull]
-        public static T Max => Options.Last();
+        public static T Max => _options.Last();
 
         [NotNull]
-        public static IEnumerable<T> All => Options;
+        public static IEnumerable<T> All => _options;
 
         #endregion
 
         [NotNull, ItemNotNull]
-        public static IEnumerable<T> Bits => Options.Where(o => o.IsBit);
+        public static IEnumerable<T> Bits => _options.Where(o => o.IsBit);
 
         #region Option
 
@@ -469,14 +477,14 @@ namespace Reusable.Tests.XUnit
         [NotNull]
         public static T Create(SoftString name, T option = default)
         {
-            if (name.In(Options.Select(o => o.Name).Concat(ReservedNames)))
+            if (name.In(_options.Select(o => o.Name).Concat(ReservedNames)))
             {
                 throw DynamicException.Create("DuplicateOption", $"The option '{name}' is defined more the once.");
             }
 
-            var bitCount = Options.Count(o => o.IsBit);
+            var bitCount = _options.Count(o => o.IsBit);
             var newOption = Create(name, bitCount == 1 ? 1 : (bitCount - 1) << 1);
-            Options = Options.Add(newOption);
+            _options = _options.Add(newOption);
 
             return newOption;
         }
@@ -490,7 +498,7 @@ namespace Reusable.Tests.XUnit
         private static T Create(SoftString name, IEnumerable<int> flags)
         {
             var flag = flags.Aggregate(0, (current, next) => current | next);
-            return (T)Activator.CreateInstance(typeof(T), name, flag);
+            return (T)_constructor.Invoke(new object[] { name, flag });
         }
 
         public static T Create(SoftString name, params int[] flags)
@@ -504,7 +512,7 @@ namespace Reusable.Tests.XUnit
             if (value == null) throw new ArgumentNullException(nameof(value));
 
             return
-                Options.FirstOrDefault(o => o.Name == value)
+                _options.FirstOrDefault(o => o.Name == value)
                 ?? throw DynamicException.Create("OptionOutOfRange", $"There is no such option as '{value}'.");
         }
 
@@ -528,7 +536,7 @@ namespace Reusable.Tests.XUnit
 
         private static bool TryGetKnownOption(int flag, out T option)
         {
-            if (Options.SingleOrDefault(o => o.Flag == flag) is var knownOption && !(knownOption is null))
+            if (_options.SingleOrDefault(o => o.Flag == flag) is var knownOption && !(knownOption is null))
             {
                 option = knownOption;
                 return true;
