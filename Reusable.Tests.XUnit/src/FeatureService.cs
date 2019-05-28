@@ -388,6 +388,10 @@ namespace Reusable.Tests.XUnit
     [PublicAPI]
     public abstract class Option
     {
+        protected const string Unknown = nameof(Unknown);
+        
+        protected static readonly OptionComparer Comparer = new OptionComparer();
+        
         public static readonly IImmutableList<SoftString> ReservedNames =
             ImmutableList<SoftString>
                 .Empty
@@ -408,20 +412,36 @@ namespace Reusable.Tests.XUnit
         /// Returns True if Option is power of two.
         /// </summary>
         public abstract bool IsBit { get; }
+
+        protected class OptionComparer : IComparer<Option>, IComparer
+        {
+            public int Compare(Option left, Option right)
+            {
+                if (ReferenceEquals(left, right)) return 0;
+                if (ReferenceEquals(left, null)) return 1;
+                if (ReferenceEquals(right, null)) return -1;
+                return left.Flag - right.Flag;
+            }
+
+            public int Compare(object left, object right)
+            {
+                return Compare(left as Option, right as Option);
+            }
+        }
     }
 
     [PublicAPI]
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public abstract class Option<T> : Option, IEquatable<Option<T>>, IComparable<Option<T>>, IComparable, IFormattable where T : Option
     {
-        protected const string Unknown = nameof(Unknown);
-        private static readonly OptionComparer Comparer = new OptionComparer();
-        private static readonly ConstructorInfo _constructor;
+        // ReSharper disable once StaticMemberInGenericType - this is correct
+        private static readonly ConstructorInfo Constructor;
+        
         private static IImmutableSet<T> _options;
 
         static Option()
         {
-            _constructor =
+            Constructor =
                 typeof(T).GetConstructor(new[] { typeof(SoftString), typeof(int) })
                 ?? throw DynamicException.Create
                 (
@@ -498,7 +518,7 @@ namespace Reusable.Tests.XUnit
         private static T Create(SoftString name, IEnumerable<int> flags)
         {
             var flag = flags.Aggregate(0, (current, next) => current | next);
-            return (T)_constructor.Invoke(new object[] { name, flag });
+            return (T)Constructor.Invoke(new object[] { name, flag });
         }
 
         public static T Create(SoftString name, params int[] flags)
@@ -635,21 +655,7 @@ namespace Reusable.Tests.XUnit
 
         #endregion
 
-        private class OptionComparer : IComparer<Option<T>>, IComparer
-        {
-            public int Compare(Option<T> left, Option<T> right)
-            {
-                if (ReferenceEquals(left, right)) return 0;
-                if (ReferenceEquals(left, null)) return 1;
-                if (ReferenceEquals(right, null)) return -1;
-                return left.Flag - right.Flag;
-            }
-
-            public int Compare(object left, object right)
-            {
-                return Compare(left as Option<T>, right as Option<T>);
-            }
-        }
+        
     }
 
     public class FeatureOption : Option<FeatureOption>

@@ -7,7 +7,7 @@ namespace Reusable.Data
 {
     // Protects the user form using an unsupported interface by mistake.
     public interface INamespace { }
-    
+
     [PublicAPI]
     public static class From<T> where T : INamespace
     {
@@ -30,10 +30,20 @@ namespace Reusable.Data
         [NotNull]
         public string Name { get; }
 
+        public override string ToString() => Name;
+
         [NotNull]
         public static implicit operator string(Key<T> key) => key.Name;
 
         [NotNull]
         public static implicit operator SoftString(Key<T> key) => key.Name;
+    }
+
+    public static class KeyExtensions
+    {
+        public static Key<T> AppendIndex<T>(this Key<T> key, string item)
+        {
+            return new Key<T>($"{key}[{item}]");
+        }
     }
 }
