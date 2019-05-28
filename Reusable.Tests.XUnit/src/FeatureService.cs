@@ -570,15 +570,9 @@ namespace Reusable.Tests.XUnit
 
         #endregion
 
-        public T Set(Option<T> option)
-        {
-            return this | option;
-        }
+        public T Set(Option<T> option) => this | option;
 
-        public T Reset(Option<T> option)
-        {
-            return this ^ option;
-        }
+        public T Reset(Option<T> option) => this ^ option;
 
         [DebuggerStepThrough]
         public string ToString(string format, IFormatProvider formatProvider)
