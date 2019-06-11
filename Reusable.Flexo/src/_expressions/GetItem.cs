@@ -69,7 +69,7 @@ namespace Reusable.Flexo
     {
         public Item([NotNull] ILogger<Item> logger) : base(logger, nameof(Item))
         {
-            Path = ImmutableSessionKey<IExpressionMeta>.Create(x => x.Item);
+            Path = From<IExpressionMeta>.Select(x => x.Item);
         }
 
         protected override Constant<object> InvokeCore()

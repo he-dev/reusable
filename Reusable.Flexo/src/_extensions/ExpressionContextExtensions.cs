@@ -67,7 +67,7 @@ namespace Reusable.Flexo
             return context.SetItem(From<IExpressionMeta>.Select(m => m.References), registrations);
         }
 
-        public static TResult Find<TResult>(this ExpressionScope scope, Key<TResult> key)
+        public static TResult Find<TResult>(this ExpressionScope scope, Selector<TResult> key)
         {
             foreach (var current in scope.Enumerate())
             {

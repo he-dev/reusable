@@ -23,7 +23,8 @@ namespace Reusable.IOnymous
         }
     }
 
-    [TypeMemberKeyFactory]
+    [TypeKeyFactory]
+    [MemberKeyFactory]
     [TrimEnd("I")]
     [TrimStart("Meta")]
     public interface IMailMeta : INamespace

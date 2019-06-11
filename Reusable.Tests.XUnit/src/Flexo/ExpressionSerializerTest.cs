@@ -111,9 +111,10 @@ namespace Reusable.Tests.Flexo
         }.Select(uc => new { uc.UseCaseName, uc.Expected, uc.Throws });
 
 
-        [TypeMemberKeyFactory]
-        [TrimEnd("I")]
-        [TrimStart("Meta")]
+        //[TypeNameFactory]
+        [MemberKeyFactory]
+        [TrimStart("I")]
+        [TrimEnd("Meta")]
         private interface ITestMeta : INamespace
         {
             [MemberKeyFactory]

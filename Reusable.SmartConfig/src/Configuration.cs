@@ -69,4 +69,17 @@ namespace Reusable.SmartConfig
 
         #endregion
     }
+
+    public static class ResourceProviderExtensions
+    {
+        public static async Task<T> GetSetting<T>(this IResourceProvider resources, Selector<T> key)
+        {
+//            var settingInfo = MemberVisitor.GetMemberInfo(getItem);
+//            var settingMetadata = new SettingMetadata(settingInfo, GetMemberName);
+//            var (uri, metadata) = SettingRequestFactory.CreateSettingRequest(settingMetadata, handle);
+//            return await _settings.GetItemAsync<object>(uri, metadata.SetItem(From<IResourceMeta>.Select(x => x.Type), settingMetadata.MemberType));
+
+            return default;
+        }
+    }
 }

@@ -39,11 +39,12 @@ namespace Reusable.Tests.Data
         public void Union_can_merge_two_metadata_and_scope() { }
     }
 
-    [TypeMemberKeyFactory]
-    [TrimEnd("I")]
-    [TrimStart("Meta")]
-    internal interface ITestMeta : INamespace
-    {
-        string Greeting { get; }
-    }
+//    [TypeNameFactory]
+//    [MemberNameFactory]
+//    [TrimStart("I")]
+//    [TrimEnd("Meta")]
+//    internal interface ITestMeta : INamespace
+//    {
+//        string Greeting { get; }
+//    }
 }

@@ -1,75 +1,175 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Custom;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using Reusable.Diagnostics;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 
 namespace Reusable.Data
 {
+    // [Prefix:][Name.space+][Type.]Member[[Index]]
+
     public interface IKeyFactory
     {
         [NotNull]
-        string CreateKey(LambdaExpression keyExpression);
+        Key CreateKey(LambdaExpression selector);
     }
 
+    [PublicAPI]
+    [UsedImplicitly]
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property)]
     public abstract class KeyFactoryAttribute : Attribute, IKeyFactory
     {
-        public abstract string CreateKey(LambdaExpression keyExpression);
+        public abstract Key CreateKey(LambdaExpression selector);
+    }
+
+    public class TypeKeyFactoryAttribute : KeyFactoryAttribute
+    {
+        public string Separator { get; set; } = ".";
+
+        public override Key CreateKey(LambdaExpression selector)
+        {
+            var memberExpression = selector.ToMemberExpression();
+            var type = memberExpression.Member.DeclaringType ?? throw new InvalidOperationException($"{memberExpression} does not have a {nameof(MemberInfo.DeclaringType)}.");
+            var typeName = type.ToPrettyString();
+            typeName = type.GetCustomAttributes<TypeNameFixAttribute>().Aggregate(typeName, (name, fix) => fix.Apply(name));
+            return new TypeKey(typeName, Separator);
+        }
     }
 
     public class MemberKeyFactoryAttribute : KeyFactoryAttribute
     {
-        public override string CreateKey(LambdaExpression keyExpression)
+        public override Key CreateKey(LambdaExpression selector)
         {
-            return keyExpression.ToMemberExpression().Member.Name;
+            return new MemberKey(selector.ToMemberExpression().Member.Name);
         }
     }
 
-    [Obsolete]
-    public class TypedKeyFactoryAttribute : KeyFactoryAttribute
+    public interface IKeyEnumerator
     {
-        public override string CreateKey(LambdaExpression keyExpression)
-        {
-            var memberExpression = keyExpression.ToMemberExpression();
-            return $"{GetScopeName(memberExpression.Member.DeclaringType)}.{memberExpression.Member.Name}";
-        }
-
-        private string GetScopeName(Type type) => Regex.Replace(type.ToPrettyString(), $"^I|Namespace$", string.Empty);
+        [NotNull, ItemNotNull]
+        IEnumerable<Key> EnumerateKeys(LambdaExpression selector);
     }
 
-//    public class PrettyTypeStringAttribute : KeyFactoryAttribute
-//    {
-//        public override string CreateKey(LambdaExpression keyExpression)
-//        {
-//            throw new NotImplementedException();
-//        }
-//    }
-
-    public class TypeMemberKeyFactoryAttribute : KeyFactoryAttribute
+    [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property)]
+    public class KeyEnumeratorAttribute : Attribute, IKeyEnumerator
     {
-        public override string CreateKey(LambdaExpression keyExpression)
+        private readonly IEnumerable<Type> _keyTypes;
+
+        public KeyEnumeratorAttribute(params Type[] keyTypes)
         {
-            var memberExpression = keyExpression.ToMemberExpression();
-            var typeName = memberExpression.Member.DeclaringType.ToPrettyString();
-            typeName = memberExpression.Member.DeclaringType.GetCustomAttributes<TypeNameFixAttribute>().Aggregate(typeName, (name, cleaner) => cleaner.Apply(name));
-            return $"{typeName}.{memberExpression.Member.Name}";
+            _keyTypes = keyTypes;
+        }
+
+        public KeyEnumeratorAttribute() : this(typeof(TypeKeyFactoryAttribute), typeof(MemberKeyFactoryAttribute)) { }
+
+        public IEnumerable<Key> EnumerateKeys(LambdaExpression selector)
+        {
+            if (selector == null) throw new ArgumentNullException(nameof(selector));
+
+            var member = selector.ToMemberExpression().Member;
+
+            foreach (var keyType in _keyTypes)
+            {
+                // Member's attribute has a higher priority and can override type's default factory.
+                if (member.GetCustomAttribute(keyType) is IKeyFactory memberKeyFactory)
+                {
+                    yield return memberKeyFactory.CreateKey(selector);
+                }
+                else
+                {
+                    if (member.DeclaringType?.GetCustomAttribute(keyType) is IKeyFactory typeKeyFactory)
+                    {
+                        yield return typeKeyFactory.CreateKey(selector);
+                    }
+                }
+            }
         }
     }
 
-    public interface ITypeNameCleaner
+
+    public static class LambdaExpressionExtensions
+    {
+        [NotNull, ItemNotNull]
+        public static IEnumerable<Key> GetKeys(this LambdaExpression selector)
+        {
+            var member = selector.ToMemberExpression().Member;
+            var keyEnumerator =
+                member
+                    .DeclaringType?
+                    .GetCustomAttribute<KeyEnumeratorAttribute>()
+                ?? new KeyEnumeratorAttribute(); // throw new InvalidOperationException($"Could not get {nameof(KeyEnumeratorAttribute)} for {selector}.");
+            return keyEnumerator.EnumerateKeys(selector);
+        }
+    }
+
+    [PublicAPI]
+    public abstract class Key
+    {
+        protected Key(string value) => Value = value;
+
+        public string Value { get; }
+
+        public override string ToString() => Value;
+
+        [NotNull]
+        public static implicit operator string(Key key) => key.Value;
+
+        [NotNull]
+        public static implicit operator SoftString(Key key) => (string)key;
+    }
+
+    public class TypeKey : Key
+    {
+        public TypeKey(string value, string separator) : base(value)
+        {
+            Separator = separator;
+        }
+
+        public string Separator { get; }
+
+        public override string ToString() => Value + Separator;
+    }
+
+    public class MemberKey : Key
+    {
+        public MemberKey(string value) : base(value) { }
+    }
+
+
+    [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
+    public class IndexKey : Key
+    {
+        public IndexKey(string value) : base(value) { }
+
+        //private string DebuggerDisplay => $"{_key} Index = {this}";
+
+        public override string ToString() => $"[{Value}]";
+    }
+
+    public static class KeyExtensions
+    {
+        public static Selector<T> Index<T>(this Selector<T> selector, string index)
+        {
+            return new Selector<T>(selector.Keys.Add(new IndexKey(index)));
+        }
+    }
+
+
+    public interface ITypeNameFix
     {
         [NotNull]
         string Apply(string name);
     }
 
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class)]
-    public abstract class TypeNameFixAttribute : Attribute, ITypeNameCleaner
+    public abstract class TypeNameFixAttribute : Attribute, ITypeNameFix
     {
         public abstract string Apply(string name);
     }
@@ -88,35 +188,11 @@ namespace Reusable.Data
 
     public class TrimEndAttribute : RemoveAttribute
     {
-        public TrimEndAttribute([RegexPattern] string prefixPattern) : base($"^{prefixPattern}") { }
+        public TrimEndAttribute([RegexPattern] string suffixPattern) : base($"{suffixPattern}$") { }
     }
 
     public class TrimStartAttribute : RemoveAttribute
     {
-        public TrimStartAttribute([RegexPattern] string suffixPattern) : base($"{suffixPattern}$") { }
-    }
-
-    public class KeyFactory : IKeyFactory
-    {
-        [NotNull] public static readonly IKeyFactory Default = new KeyFactory();
-
-        public string CreateKey(LambdaExpression selector)
-        {
-            if (selector == null) throw new ArgumentNullException(nameof(selector));
-            var member = selector.ToMemberExpression().Member;
-            return
-                GetKeyFactory(member)
-                    .FirstOrDefault(Conditional.IsNotNull)
-                    ?.CreateKey(selector)
-                ?? throw DynamicException.Create("KeyFactoryNotFound", $"Could not find key-factory on '{selector}'.");
-        }
-
-        [NotNull, ItemCanBeNull]
-        private static IEnumerable<IKeyFactory> GetKeyFactory(MemberInfo member)
-        {
-            // Member's attribute has a higher priority and can override type's default factory.
-            yield return member.GetCustomAttribute<KeyFactoryAttribute>();
-            yield return member.DeclaringType?.GetCustomAttribute<KeyFactoryAttribute>();
-        }
+        public TrimStartAttribute([RegexPattern] string prefixPattern) : base($"^{prefixPattern}") { }
     }
 }

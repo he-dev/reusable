@@ -15,14 +15,14 @@ namespace Reusable.Data
 
         [DebuggerStepThrough]
         [MustUseReturnValue]
-        public static T GetItemOrDefault<T>(this IImmutableSession session, Key<T> key, T defaultValue = default)
+        public static T GetItemOrDefault<T>(this IImmutableSession session, Selector<T> key, T defaultValue = default)
         {
             return session.TryGetItem(key, out var item) ? item : defaultValue;
         }
 
-        public static bool TryGetItem<T>(this IImmutableSession session, Key<T> key, out T value)
+        public static bool TryGetItem<T>(this IImmutableSession session, Selector<T> key, out T value)
         {
-            if (session.TryGetValue(key, out var item))
+            if (session.TryGetValue(key.ToString(), out var item))
             {
                 if (item is T t)
                 {

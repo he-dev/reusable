@@ -77,7 +77,8 @@ namespace Reusable.Flexo
         public IExpression Body { get; set; }
     }
 
-    [TypeMemberKeyFactory]
+    [TypeKeyFactory]
+    [MemberKeyFactory]
     [TrimEnd("I")]
     [TrimStart("Meta")]
     public interface ISwitchMeta : INamespace

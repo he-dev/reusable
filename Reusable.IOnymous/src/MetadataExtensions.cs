@@ -9,7 +9,8 @@ using Reusable.Extensions;
 
 namespace Reusable.IOnymous
 {
-    [TypeMemberKeyFactory]
+    [TypeKeyFactory]
+    [MemberKeyFactory]
     [TrimEnd("I")]
     [TrimStart("Meta")]
     public interface IAnyMeta : INamespace
@@ -21,7 +22,8 @@ namespace Reusable.IOnymous
         CancellationToken CancellationToken { get; }
     }
 
-    [TypeMemberKeyFactory]
+    [TypeKeyFactory]
+    [MemberKeyFactory]
     [TrimEnd("I")]
     [TrimStart("Meta")]
     public interface IProviderMeta : INamespace
@@ -33,7 +35,8 @@ namespace Reusable.IOnymous
         SoftString CustomName { get; }
     }
 
-    [TypeMemberKeyFactory]
+    [TypeKeyFactory]
+    [MemberKeyFactory]
     [TrimEnd("I")]
     [TrimStart("Meta")]
     public interface IResourceMeta : INamespace

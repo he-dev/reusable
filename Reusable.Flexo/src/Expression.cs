@@ -211,15 +211,16 @@ namespace Reusable.Flexo
         }
     }
 
-    [TypeMemberKeyFactory]
-    [TrimEnd("I")]
-    [TrimStart("Meta")]
+    //[TypeNameFactory]
+    [MemberKeyFactory]
+    [TrimStart("I")]
+    [TrimEnd("Meta")]
     public interface IExpressionMeta : INamespace
     {
-        [MemberKeyFactory]
+        //[MemberNameFactory]
         object This { get; }
 
-        [MemberKeyFactory]
+        //[MemberNameFactory]
         object Item { get; }
 
         IImmutableDictionary<SoftString, IEqualityComparer<object>> Comparers { get; }

@@ -20,6 +20,7 @@ using Reusable.Data;
 using Reusable.Diagnostics;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
+using Reusable.IOnymous;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.SemanticExtensions;
@@ -163,7 +164,7 @@ namespace Reusable.Tests.XUnit
             return features;
         }
 
-        public static IEnumerable<string> Keys(this IEnumerable<FeatureInfo> features, IKeyFactory keyFactory = default)
+        public static IEnumerable<string> Keys(this IEnumerable<FeatureInfo> features)
         {
             return
                 from t in features
@@ -175,7 +176,7 @@ namespace Reusable.Tests.XUnit
                             t.Property.Name
                         )
                     )
-                select (keyFactory ?? KeyFactory.Default).CreateKey(l);
+                select l.GetKeys().Join(string.Empty);
         }
 
         public static IEnumerable<string> Tags(this FeatureInfo feature)
@@ -341,7 +342,7 @@ namespace Reusable.Tests.XUnit
 
             //_features.Configure(nameof(SayHallo), o => o.Reset(FeatureOption.Enable));
             //_features.Configure(Use<IDemo>.Namespace, x => x.Greeting, o => o ^ Enabled);
-            _features.Configure(From<IDemo>.Select(x => x.Greeting), o => o.Reset(FeatureOption.Enable));
+            _features.Configure(From<IDemo>.Select(x => x.Greeting).Index("Morning"), o => o.Reset(FeatureOption.Enable));
 
             SayHallo();
         }
@@ -366,7 +367,8 @@ namespace Reusable.Tests.XUnit
 
     namespace Features
     {
-        [TypeMemberKeyFactory]
+        [TypeKeyFactory]
+        [MemberKeyFactory]
         [TrimStart("I")]
         public interface IDemo : INamespace
         {
@@ -376,7 +378,8 @@ namespace Reusable.Tests.XUnit
             object ReadFile { get; }
         }
 
-        [TypeMemberKeyFactory]
+        [TypeKeyFactory]
+        [MemberKeyFactory]
         [TrimStart("I")]
         public interface IDatabase : INamespace
         {
@@ -389,9 +392,9 @@ namespace Reusable.Tests.XUnit
     public abstract class Option
     {
         protected const string Unknown = nameof(Unknown);
-        
+
         protected static readonly OptionComparer Comparer = new OptionComparer();
-        
+
         public static readonly IImmutableList<SoftString> ReservedNames =
             ImmutableList<SoftString>
                 .Empty
@@ -436,7 +439,7 @@ namespace Reusable.Tests.XUnit
     {
         // ReSharper disable once StaticMemberInGenericType - this is correct
         private static readonly ConstructorInfo Constructor;
-        
+
         private static IImmutableSet<T> _options;
 
         static Option()
@@ -648,8 +651,6 @@ namespace Reusable.Tests.XUnit
         }
 
         #endregion
-
-        
     }
 
     public class FeatureOption : Option<FeatureOption>
@@ -710,47 +711,8 @@ namespace Reusable.Tests.XUnit
         }
     }
 
-    // public class Switch<TValue, TResult>
-    // {
-    //     private readonly TValue _value;
-    //     private bool _break;
-    //
-    //     public Switch(TValue value) => _value = value;
-    //
-    //     public TResult Result { get; private set; }
-    //
-    //     public Switch<TValue, TResult> CaseEqual(TValue option, Func<TResult> body, IEqualityComparer<TValue> comparer = default, bool @break = true)
-    //     {
-    //         return Case(() => (comparer ?? EqualityComparer<TValue>.Default).Equals(_value, option), body, @break);
-    //     }
-    //
-    //     public Switch<TValue, TResult> CaseMatch([RegexPattern] string pattern, Func<TResult> body, bool @break = true)
-    //     {
-    //         return Case(() => Regex.IsMatch(pattern, _value as string ?? string.Empty), body, @break);
-    //     }
-    //
-    //     private Switch<TValue, TResult> Case(Func<bool> predicate, Func<TResult> body, bool @break = true)
-    //     {
-    //         switch (_break)
-    //         {
-    //             case false when predicate():
-    //                 Result = body();
-    //                 _break = @break;
-    //                 break;
-    //         }
-    //         return this;
-    //     }
-    //
-    //     public TResult Default(Func<TResult> body)
-    //     {
-    //         return body();
-    //     }
-    //
-    //     // private class _Case
-    //     // {
-    //     //     public Func<T> Body { get; set; }
-    //     //
-    //     //     public bool Break { get; set; }
-    //     // }
-    // }
+//    public class UriKey<T> : Key<T, UriString>
+//    {
+//        public override UriString Value => throw new NotImplementedException();
+//    }
 }

@@ -1,7 +1,12 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Linq;
+using System.Linq.Custom;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Reusable.Diagnostics;
 
 namespace Reusable.Data
 {
@@ -11,39 +16,30 @@ namespace Reusable.Data
     [PublicAPI]
     public static class From<T> where T : INamespace
     {
-        public static Key<TMember> Select<TMember>([NotNull] Expression<Func<T, TMember>> selector, IKeyFactory keyFactory)
+        public static Selector<TMember> Select<TMember>([NotNull] Expression<Func<T, TMember>> selector)
         {
-            return new Key<TMember>(keyFactory.CreateKey(selector));
+            return new Selector<TMember>(selector.GetKeys().ToImmutableList());
         }
 
-        public static Key<TMember> Select<TMember>([NotNull] Expression<Func<T, TMember>> selector)
-        {
-            return Select(selector, KeyFactory.Default);
-        }
+//        public static Name<TMember> Select<TMember>([NotNull] Expression<Func<T, TMember>> selector)
+//        {
+//            return Select(selector);
+//        }
     }
 
-    [PublicAPI]
-    public readonly struct Key<T>
+    public class Selector<T>
     {
-        public Key([NotNull] string name) => Name = name ?? throw new ArgumentNullException(nameof(name));
+        public Selector(IImmutableList<Key> keys) => Keys = keys;
+
+        [NotNull, ItemNotNull]
+        public IImmutableList<Key> Keys { get; }
+
+        public override string ToString() => this;
 
         [NotNull]
-        public string Name { get; }
-
-        public override string ToString() => Name;
+        public static implicit operator string(Selector<T> selector) => selector.Keys.Join(string.Empty);
 
         [NotNull]
-        public static implicit operator string(Key<T> key) => key.Name;
-
-        [NotNull]
-        public static implicit operator SoftString(Key<T> key) => key.Name;
-    }
-
-    public static class KeyExtensions
-    {
-        public static Key<T> AppendIndex<T>(this Key<T> key, string item)
-        {
-            return new Key<T>($"{key}[{item}]");
-        }
+        public static implicit operator SoftString(Selector<T> keys) => (string)keys;
     }
 }
