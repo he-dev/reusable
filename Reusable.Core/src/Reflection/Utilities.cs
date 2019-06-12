@@ -72,38 +72,66 @@ namespace Reusable.Reflection
             }
         }
 
-        public static IEnumerable<(T Attribute, IEnumerable<string> Path)> EnumerateCustomAttributes<T>([NotNull] this PropertyInfo property) where T : Attribute
-        {
-            if (property == null) throw new ArgumentNullException(nameof(property));
+        
 
-            var queue = new Queue<(MemberInfo Member, IEnumerable<string> Path)>
+        public static IEnumerable<T> EnumerateCustomAttributes<T>(this MemberInfo member) where T : Attribute
+        {
+            if (member == null) throw new ArgumentNullException(nameof(member));
+
+            var queue = new Queue<MemberInfo>
             {
-                (property, new[] { property.Name }),
-                (property.DeclaringType, new[] { property.Name, property.DeclaringType.Name }),
+                member,
             };
+
+            var seenMembers = new HashSet<MemberInfo>();
+            var seenAttributes = new HashSet<Attribute>();
 
             while (queue.Any())
             {
-                var (member, path) = queue.Dequeue();
+                var current = queue.Dequeue();
 
-                foreach (var attribute in member.GetCustomAttributes<T>())
+                foreach (var attribute in current.GetCustomAttributes<T>())
                 {
-                    yield return (attribute, path);
+                    if (seenAttributes.Add(attribute))
+                    {
+                        yield return attribute;
+                    }
                 }
 
-                if (member is Type type)
+                if (current is PropertyInfo property)
                 {
-                    var baseTypes = type.GetInterfaces().AsEnumerable();
+                    queue.Enqueue(property.DeclaringType);
+                }
 
+                if (current is Type type)
+                {
                     if (type.IsSubclass())
                     {
-                        baseTypes = baseTypes.Prepend(type.BaseType);
+                        if (type.BaseType.GetProperty(member.Name) is PropertyInfo otherProperty)
+                        {
+                            TryEnqueue(otherProperty);
+                        }
+
+                        TryEnqueue(type.BaseType);
                     }
 
-                    foreach (var i in baseTypes)
+                    foreach (var interfaceType in type.GetInterfaces())
                     {
-                        queue.Enqueue((i, path.Append(i.Name)));
-                    }
+                        if (interfaceType.GetProperty(member.Name) is PropertyInfo otherProperty)
+                        {
+                            TryEnqueue(otherProperty);
+                        }
+
+                        TryEnqueue(interfaceType);
+                    }				
+                }
+            }
+		
+            void TryEnqueue(MemberInfo m)
+            {
+                if (seenMembers.Add(m))
+                {
+                    queue.Enqueue(m);
                 }
             }
         }

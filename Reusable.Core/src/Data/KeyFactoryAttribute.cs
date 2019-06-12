@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using Reusable.Diagnostics;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
+using Reusable.Reflection;
 
 namespace Reusable.Data
 {
@@ -68,13 +69,10 @@ namespace Reusable.Data
                 .Empty
                 .Add(typeof(UseTypeAttribute))
                 .Add(typeof(UseMemberAttribute));
-        
+
         private readonly IEnumerable<Type> _keyTypes;
 
-        public KeyEnumeratorAttribute(params Type[] keyTypes)
-        {
-            _keyTypes = keyTypes;
-        }
+        public KeyEnumeratorAttribute(params Type[] keyTypes) => _keyTypes = keyTypes;
 
         public KeyEnumeratorAttribute() : this(DefaultOrder.ToArray()) { }
 
@@ -107,12 +105,13 @@ namespace Reusable.Data
         [NotNull, ItemNotNull]
         public static IEnumerable<Key> GetKeys(this LambdaExpression selector)
         {
-            var member = selector.ToMemberExpression().Member;
             var keyEnumerator =
-                member
-                    .DeclaringType?
-                    .GetCustomAttribute<KeyEnumeratorAttribute>()
-                ?? new KeyEnumeratorAttribute(); // throw new InvalidOperationException($"Could not get {nameof(KeyEnumeratorAttribute)} for {selector}.");
+                selector
+                    .ToMemberExpression()
+                    .Member
+                    .EnumerateCustomAttributes<KeyEnumeratorAttribute>()
+                    .FirstOrDefault()
+                ?? new KeyEnumeratorAttribute();
             return keyEnumerator.EnumerateKeys(selector);
         }
     }
