@@ -367,8 +367,7 @@ namespace Reusable.Tests.XUnit
 
     namespace Features
     {
-        [TypeKeyFactory]
-        [MemberKeyFactory]
+        [UseType, UseMember]
         [TrimStart("I")]
         public interface IDemo : INamespace
         {
@@ -378,8 +377,7 @@ namespace Reusable.Tests.XUnit
             object ReadFile { get; }
         }
 
-        [TypeKeyFactory]
-        [MemberKeyFactory]
+        [UseType, UseMember]
         [TrimStart("I")]
         public interface IDatabase : INamespace
         {

@@ -18,23 +18,37 @@ namespace Reusable.Data
     {
         public static Selector<TMember> Select<TMember>([NotNull] Expression<Func<T, TMember>> selector)
         {
-            return new Selector<TMember>(selector.GetKeys().ToImmutableList());
+            return new Selector<TMember>(selector);
         }
-
-//        public static Name<TMember> Select<TMember>([NotNull] Expression<Func<T, TMember>> selector)
-//        {
-//            return Select(selector);
-//        }
     }
 
     public class Selector<T>
     {
-        public Selector(IImmutableList<Key> keys) => Keys = keys;
+        private readonly LambdaExpression _selector;
+
+        public Selector(LambdaExpression selector)
+        {
+            _selector = selector;
+            Keys = _selector.GetKeys().ToImmutableList();
+        }
+
+        private Selector(Selector<T> other, IImmutableList<Key> keys)
+        {
+            _selector = other._selector;
+            Keys = keys;
+        }
 
         [NotNull, ItemNotNull]
         public IImmutableList<Key> Keys { get; }
 
-        public override string ToString() => this;
+        public override string ToString() => _selector.ToString();
+
+        public Selector<T> Index(string index)
+        {
+            if (Keys.OfType<IndexKey>().Any()) throw new InvalidOperationException("This selector already contains an index.");
+
+            return new Selector<T>(this, Keys.Add(new IndexKey(index)));
+        }
 
         [NotNull]
         public static implicit operator string(Selector<T> selector) => selector.Keys.Join(string.Empty);

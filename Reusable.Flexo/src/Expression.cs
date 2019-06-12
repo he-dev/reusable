@@ -212,7 +212,7 @@ namespace Reusable.Flexo
     }
 
     //[TypeNameFactory]
-    [MemberKeyFactory]
+    [UseMember]
     [TrimStart("I")]
     [TrimEnd("Meta")]
     public interface IExpressionMeta : INamespace

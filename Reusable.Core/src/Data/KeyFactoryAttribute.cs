@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Custom;
@@ -14,6 +15,7 @@ using Reusable.Extensions;
 namespace Reusable.Data
 {
     // [Prefix:][Name.space+][Type.]Member[[Index]]
+    // [UsePrefix("blub"), UseNamespace, UseType, UseMember, UseIndex?]
 
     public interface IKeyFactory
     {
@@ -29,7 +31,7 @@ namespace Reusable.Data
         public abstract Key CreateKey(LambdaExpression selector);
     }
 
-    public class TypeKeyFactoryAttribute : KeyFactoryAttribute
+    public class UseTypeAttribute : KeyFactoryAttribute
     {
         public string Separator { get; set; } = ".";
 
@@ -43,7 +45,7 @@ namespace Reusable.Data
         }
     }
 
-    public class MemberKeyFactoryAttribute : KeyFactoryAttribute
+    public class UseMemberAttribute : KeyFactoryAttribute
     {
         public override Key CreateKey(LambdaExpression selector)
         {
@@ -57,9 +59,16 @@ namespace Reusable.Data
         IEnumerable<Key> EnumerateKeys(LambdaExpression selector);
     }
 
+    [PublicAPI]
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property)]
     public class KeyEnumeratorAttribute : Attribute, IKeyEnumerator
     {
+        public static readonly IImmutableList<Type> DefaultOrder =
+            ImmutableList<Type>
+                .Empty
+                .Add(typeof(UseTypeAttribute))
+                .Add(typeof(UseMemberAttribute));
+        
         private readonly IEnumerable<Type> _keyTypes;
 
         public KeyEnumeratorAttribute(params Type[] keyTypes)
@@ -67,7 +76,7 @@ namespace Reusable.Data
             _keyTypes = keyTypes;
         }
 
-        public KeyEnumeratorAttribute() : this(typeof(TypeKeyFactoryAttribute), typeof(MemberKeyFactoryAttribute)) { }
+        public KeyEnumeratorAttribute() : this(DefaultOrder.ToArray()) { }
 
         public IEnumerable<Key> EnumerateKeys(LambdaExpression selector)
         {
@@ -92,7 +101,6 @@ namespace Reusable.Data
             }
         }
     }
-
 
     public static class LambdaExpressionExtensions
     {
@@ -125,6 +133,16 @@ namespace Reusable.Data
         public static implicit operator SoftString(Key key) => (string)key;
     }
 
+    public class PrefixKey : Key
+    {
+        public PrefixKey(string value) : base(value) { }
+    }
+
+    public class NamespaceKey : Key
+    {
+        public NamespaceKey(string value) : base(value) { }
+    }
+
     public class TypeKey : Key
     {
         public TypeKey(string value, string separator) : base(value)
@@ -142,7 +160,6 @@ namespace Reusable.Data
         public MemberKey(string value) : base(value) { }
     }
 
-
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public class IndexKey : Key
     {
@@ -155,12 +172,11 @@ namespace Reusable.Data
 
     public static class KeyExtensions
     {
-        public static Selector<T> Index<T>(this Selector<T> selector, string index)
-        {
-            return new Selector<T>(selector.Keys.Add(new IndexKey(index)));
-        }
+        // public static Selector<T> Index<T>(this Selector<T> selector, string index)
+        // {
+        //     return new Selector<T>(selector.Keys.Add(new IndexKey(index)));
+        // }
     }
-
 
     public interface ITypeNameFix
     {

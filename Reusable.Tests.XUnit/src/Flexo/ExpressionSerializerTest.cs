@@ -112,12 +112,12 @@ namespace Reusable.Tests.Flexo
 
 
         //[TypeNameFactory]
-        [MemberKeyFactory]
+        [UseMember]
         [TrimStart("I")]
         [TrimEnd("Meta")]
         private interface ITestMeta : INamespace
         {
-            [MemberKeyFactory]
+            [UseMember]
             Something Sth { get; }
         }
         
