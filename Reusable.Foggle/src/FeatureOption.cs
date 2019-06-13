@@ -1,4 +1,5 @@
-namespace Reusable.Foggle {
+namespace Reusable.Foggle
+{
     public class FeatureOption : Option<FeatureOption>
     {
         public FeatureOption(SoftString name, int value) : base(name, value) { }

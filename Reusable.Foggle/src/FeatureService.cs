@@ -13,7 +13,14 @@ namespace Reusable.Foggle
     [PublicAPI]
     public interface IFeatureService
     {
-        Task<T> ExecuteAsync<T>(string name, Func<Task<T>> body, Func<Task<T>> bodyWhenDisabled);
+        bool IsOn(string name);
+
+        bool IsOff(string name);
+
+        [NotNull]
+        FeatureOption Options(string name);
+
+        Task<T> ExecuteAsync<T>(string name, Func<Task<T>> bodyWhenOn, Func<Task<T>> bodyWhenOff);
 
         [NotNull]
         IFeatureService Configure(string name, Func<FeatureOption, FeatureOption> configure);
@@ -35,19 +42,28 @@ namespace Reusable.Foggle
 
         //public Func<(string Name, FeatureOption Options), Task> AfterExecuteAsync { get; set; }
 
-        public async Task<T> ExecuteAsync<T>(string name, Func<Task<T>> body, Func<Task<T>> bodyWhenDisabled)
+        public bool IsOn(string name) => Options(name).Contains(FeatureOption.Enable);
+
+        public bool IsOff(string name) => !IsOn(name);
+
+        public FeatureOption Options(string name)
         {
-            var options =
+            return
                 _options.TryGetValue(name, out var customOptions)
                     ? customOptions
                     : _defaultOptions;
+        }
+
+        public async Task<T> ExecuteAsync<T>(string name, Func<Task<T>> bodyWhenOn, Func<Task<T>> bodyWhenOff)
+        {
+            var options = Options(name);
 
             using (_logger.BeginScope().WithCorrelationHandle("Feature").AttachElapsed())
             {
                 // Not catching exceptions because the caller should handle them.
                 try
                 {
-                    if (options.Contains(FeatureOption.Enable))
+                    if (IsOn(name))
                     {
                         if (options.Contains(FeatureOption.Warn) && !_defaultOptions.Contains(FeatureOption.Enable))
                         {
@@ -56,7 +72,7 @@ namespace Reusable.Foggle
 
                         //await (BeforeExecuteAsync?.Invoke((name, options)) ?? Task.CompletedTask);
 
-                        return await body();
+                        return await bodyWhenOn();
                     }
                     else
                     {
@@ -65,12 +81,11 @@ namespace Reusable.Foggle
                             _logger.Log(Abstraction.Layer.Service().Decision($"Not using feature '{name}'").Because("Disabled").Warning());
                         }
 
-                        return await bodyWhenDisabled();
+                        return await bodyWhenOff();
                     }
                 }
                 finally
                 {
-                    //await (AfterExecuteAsync?.Invoke((name, options)) ?? Task.CompletedTask);
                     _logger.Log(Abstraction.Layer.Service().Routine(name).Completed());
                 }
             }
@@ -78,21 +93,26 @@ namespace Reusable.Foggle
 
         public IFeatureService Configure(string name, Func<FeatureOption, FeatureOption> configure)
         {
-            _options[name] =
-                _options.TryGetValue(name, out var options)
-                    ? configure(options)
-                    : configure(_defaultOptions);
+            var newOptions = configure(Options(name));
+            if (newOptions == _defaultOptions)
+            {
+                _options.Remove(name);
+            }
+            else
+            {
+                _options[name] = configure(Options(name));
+            }
 
             return this;
         }
     }
 
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property)]
-    public class TagAttribute : Attribute, IEnumerable<string>
+    public class TagsAttribute : Attribute, IEnumerable<string>
     {
         private readonly string[] _names;
 
-        public TagAttribute(params string[] names) => _names = names;
+        public TagsAttribute(params string[] names) => _names = names;
 
         public IEnumerator<string> GetEnumerator() => _names.Cast<string>().GetEnumerator();
 

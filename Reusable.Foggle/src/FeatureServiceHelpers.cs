@@ -10,13 +10,13 @@ namespace Reusable.Foggle
     {
         #region Execute
 
-        public static async Task ExecuteAsync(this IFeatureService features, string name, Func<Task> body, Func<Task> bodyWhenDisabled)
+        public static async Task ExecuteAsync(this IFeatureService features, string name, Func<Task> bodyWhenOn, Func<Task> bodyWhenOff)
         {
             await features.ExecuteAsync
             (
                 name,
-                () => ExecuteAsync(body),
-                () => ExecuteAsync(bodyWhenDisabled)
+                () => ExecuteAsync(bodyWhenOn),
+                () => ExecuteAsync(bodyWhenOff)
             );
 
             async Task<object> ExecuteAsync(Func<Task> b)
@@ -26,18 +26,18 @@ namespace Reusable.Foggle
             }
         }
 
-        public static async Task ExecuteAsync(this IFeatureService features, string name, Func<Task> body)
+        public static async Task ExecuteAsync(this IFeatureService features, string name, Func<Task> bodyWhenOn)
         {
-            await features.ExecuteAsync(name, body, () => Task.FromResult<object>(default));
+            await features.ExecuteAsync(name, bodyWhenOn, () => Task.FromResult<object>(default));
         }
 
-        public static void Execute(this IFeatureService features, string name, Action body, Action bodyWhenDisabled)
+        public static void Execute(this IFeatureService features, string name, Action bodyWhenOn, Action bodyWhenOff)
         {
             features.ExecuteAsync
             (
                 name,
-                () => ExecuteAsync(body),
-                () => ExecuteAsync(bodyWhenDisabled)
+                () => ExecuteAsync(bodyWhenOn),
+                () => ExecuteAsync(bodyWhenOff)
             ).GetAwaiter().GetResult();
 
             Task<object> ExecuteAsync(Action b)
@@ -47,9 +47,9 @@ namespace Reusable.Foggle
             }
         }
 
-        public static void Execute(this IFeatureService features, string name, Action body)
+        public static void Execute(this IFeatureService features, string name, Action bodyWhenOn)
         {
-            features.Execute(name, body, () => { });
+            features.Execute(name, bodyWhenOn, () => { });
         }
 
         #endregion

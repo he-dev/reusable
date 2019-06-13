@@ -56,7 +56,7 @@ namespace Reusable.Tests.XUnit
                     .Empty
                     .AddFrom<IDemo>()
                     .AddFrom<IDatabase>()
-                    .Where<TagAttribute>("io")
+                    .Where<TagsAttribute>("io")
                     .Select(SelectorFormatters.Plain);
 
             features.Configure(names, o => o ^ FeatureOption.Enable);
@@ -76,7 +76,7 @@ namespace Reusable.Tests.XUnit
     {
         private readonly FeatureService _features = new FeatureService
         (
-            Logger<FeatureService>.Null,
+            logger: Logger<FeatureService>.Null,
             defaultOptions: FeatureOption.Enable | FeatureOption.Warn | FeatureOption.Telemetry
         );
 
@@ -117,7 +117,7 @@ namespace Reusable.Tests.XUnit
         {
             object Greeting { get; }
 
-            [Tag("io")]
+            [Tags("io")]
             object ReadFile { get; }
         }
 
@@ -125,7 +125,7 @@ namespace Reusable.Tests.XUnit
         [TrimStart("I")]
         public interface IDatabase : INamespace
         {
-            [Tag("io")]
+            [Tags("io")]
             object Commit { get; }
         }
     }
