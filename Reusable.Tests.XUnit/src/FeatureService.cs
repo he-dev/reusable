@@ -111,6 +111,8 @@ namespace Reusable.Tests.XUnit
     [PublicAPI]
     public static class FeatureServiceHelpers
     {
+        #region Execute
+
         public static async Task ExecuteAsync(this IFeatureService features, string name, Func<Task> body, Func<Task> bodyWhenDisabled)
         {
             await features.ExecuteAsync
@@ -153,6 +155,8 @@ namespace Reusable.Tests.XUnit
             features.Execute(name, body, () => { });
         }
 
+        #endregion
+
         [NotNull]
         public static IFeatureService Configure(this IFeatureService features, IEnumerable<string> names, Func<FeatureOption, FeatureOption> configure)
         {
@@ -164,55 +168,11 @@ namespace Reusable.Tests.XUnit
             return features;
         }
 
-        public static IEnumerable<string> Keys(this IEnumerable<FeatureInfo> features)
-        {
-            return
-                from t in features
-                // () => x.Member
-                let l =
-                    Expression.Lambda(
-                        Expression.Property(
-                            Expression.Constant(null, t.Category),
-                            t.Property.Name
-                        )
-                    )
-                select l.GetKeys().Join(string.Empty);
-        }
+        
 
-        public static IEnumerable<string> Tags(this FeatureInfo feature)
-        {
-            return
-                feature
-                    .Category
-                    .Tags()
-                    .Concat(feature.Property.Tags())
-                    .Distinct(SoftString.Comparer);
-        }
+        
 
-        private static IEnumerable<string> Tags(this MemberInfo member)
-        {
-            return
-                member
-                    .GetCustomAttributes<TagAttribute>()
-                    .SelectMany(t => t);
-        }
-
-        public static bool IsSubsetOf<T>(this IEnumerable<T> first, IEnumerable<T> second, IEqualityComparer<T> comparer = default)
-        {
-            return
-                !second
-                    .Except(first, comparer ?? EqualityComparer<T>.Default)
-                    .Any();
-        }
-
-        public static IEnumerable<FeatureInfo> WhereTags(this IEnumerable<FeatureInfo> features, params string[] tags)
-        {
-            if (!tags.Any()) throw new ArgumentException("You need to specify at least one tag.");
-
-            return
-                features
-                    .Where(f => f.Tags().IsSubsetOf(tags, SoftString.Comparer));
-        }
+        
     }
 
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property)]
@@ -227,73 +187,10 @@ namespace Reusable.Tests.XUnit
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
-    // [Flags]
-    // public enum FeatureOptions
-    // {
-    //     None = 0,
-    //
-    //     /// <summary>
-    //     /// When set a feature is enabled.
-    //     /// </summary>
-    //     Enabled = 1 << 0,
-    //
-    //     /// <summary>
-    //     /// When set a warning is logged when a feature is toggled.
-    //     /// </summary>
-    //     Warn = 1 << 1,
-    //
-    //     /// <summary>
-    //     /// When set feature usage statistics are logged.
-    //     /// </summary>
-    //     Telemetry = 1 << 2, // For future use
-    // }
-
     public static class Tags
     {
         public const string Database = nameof(Database);
         public const string SaveChanges = nameof(SaveChanges);
-    }
-
-    public readonly struct FeatureInfo
-    {
-        public FeatureInfo(Type category, PropertyInfo feature)
-        {
-            Category = category;
-            Property = feature;
-        }
-
-        [NotNull]
-        public Type Category { get; }
-
-        [NotNull]
-        public PropertyInfo Property { get; }
-    }
-
-    public class FeatureCollection : IEnumerable<FeatureInfo>
-    {
-        private readonly IList<Type> _categories = new List<Type>();
-
-        [NotNull]
-        public static FeatureCollection Empty => new FeatureCollection();
-
-        [NotNull]
-        public FeatureCollection Add<T>() where T : INamespace
-        {
-            _categories.Add(typeof(T));
-            return this;
-        }
-
-        public IEnumerator<FeatureInfo> GetEnumerator()
-        {
-            return
-            (
-                from f in _categories
-                from p in f.GetProperties()
-                select new FeatureInfo(f, p)
-            ).GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
     public class FeatureServiceTest
@@ -309,11 +206,17 @@ namespace Reusable.Tests.XUnit
         {
             var features = new FeatureService
             (
-                Logger<FeatureService>.Null,
+                logger: Logger<FeatureService>.Null,
                 defaultOptions: FeatureOption.Enable | FeatureOption.Warn | FeatureOption.Telemetry
             );
 
-            var names = FeatureCollection.Empty.Add<IDemo>().Add<IDatabase>().WhereTags("io").Keys();
+            var names =
+                ImmutableList<Selector>
+                    .Empty
+                    .AddFrom<IDemo>()
+                    .AddFrom<IDatabase>()
+                    .Where<TagAttribute>("io")
+                    .Select(SelectorFormatters.Plain);
 
             features.Configure(names, o => o ^ FeatureOption.Enable);
 

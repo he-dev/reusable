@@ -71,74 +71,7 @@ namespace Reusable.Reflection
                 }
             }
         }
-
         
-
-        public static IEnumerable<T> EnumerateCustomAttributes<T>(this MemberInfo member) where T : Attribute
-        {
-            if (member == null) throw new ArgumentNullException(nameof(member));
-
-            var queue = new Queue<MemberInfo>
-            {
-                member,
-            };
-
-            var seenMembers = new HashSet<MemberInfo>();
-            var seenAttributes = new HashSet<Attribute>();
-
-            while (queue.Any())
-            {
-                var current = queue.Dequeue();
-
-                foreach (var attribute in current.GetCustomAttributes<T>())
-                {
-                    if (seenAttributes.Add(attribute))
-                    {
-                        yield return attribute;
-                    }
-                }
-
-                if (current is PropertyInfo property)
-                {
-                    queue.Enqueue(property.DeclaringType);
-                }
-
-                if (current is Type type)
-                {
-                    if (type.IsSubclass())
-                    {
-                        if (type.BaseType.GetProperty(member.Name) is PropertyInfo otherProperty)
-                        {
-                            TryEnqueue(otherProperty);
-                        }
-
-                        TryEnqueue(type.BaseType);
-                    }
-
-                    foreach (var interfaceType in type.GetInterfaces())
-                    {
-                        if (interfaceType.GetProperty(member.Name) is PropertyInfo otherProperty)
-                        {
-                            TryEnqueue(otherProperty);
-                        }
-
-                        TryEnqueue(interfaceType);
-                    }				
-                }
-            }
-		
-            void TryEnqueue(MemberInfo m)
-            {
-                if (seenMembers.Add(m))
-                {
-                    queue.Enqueue(m);
-                }
-            }
-        }
-
-        public static bool IsSubclass(this Type type)
-        {
-            return type.IsClass && type.BaseType != typeof(object);
-        }
+        
     }
 }

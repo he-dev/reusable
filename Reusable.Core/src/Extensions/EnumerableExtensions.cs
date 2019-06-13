@@ -382,6 +382,14 @@ namespace System.Linq.Custom
             // there is one item remaining that was not returned - we return it now
             yield return copy[0];
         }
+        
+        public static bool IsSubsetOf<T>(this IEnumerable<T> first, IEnumerable<T> second, IEqualityComparer<T> comparer = default)
+        {
+            return
+                !second
+                    .Except(first, comparer ?? EqualityComparer<T>.Default)
+                    .Any();
+        }
     }
 
     public class EmptySequenceException : Exception
