@@ -38,6 +38,7 @@
         <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
         <ProjectReference Include="..\Reusable.Cryptography\Reusable.Cryptography.csproj" />
         <ProjectReference Include="..\Reusable.Deception\Reusable.Deception.csproj" />
+        <ProjectReference Include="..\Reusable.Foggle\Reusable.Foggle.csproj" />
         <ProjectReference Include="..\Reusable.IOnymous.Http.Mailr\Reusable.IOnymous.Http.Mailr.csproj" />
         <ProjectReference Include="..\Reusable.IOnymous.Http\Reusable.IOnymous.Http.csproj" />
         <ProjectReference Include="..\Reusable.IOnymous.Mail.Smtp\Reusable.IOnymous.Mail.Smtp.csproj" />

@@ -38,7 +38,7 @@ namespace Reusable.Data
 
         public override Key CreateKey(Selector selector)
         {
-            var type = selector.DeclaringType;// ?? throw new InvalidOperationException($"{memberExpression} does not have a {nameof(MemberInfo.DeclaringType)}.");
+            var type = selector.DeclaringType;
             var typeName = type.ToPrettyString();
             typeName = type.GetCustomAttributes<NameFixAttribute>().Aggregate(typeName, (name, fix) => fix.Apply(name));
             return new TypeKey(typeName, Separator);
@@ -97,7 +97,7 @@ namespace Reusable.Data
                 select f.CreateKey(selector);
         }
     }
-    
+
     public static class Helpers
     {
         public static IEnumerable<MemberInfo> AncestorTypesAndSelf(this PropertyInfo property)
