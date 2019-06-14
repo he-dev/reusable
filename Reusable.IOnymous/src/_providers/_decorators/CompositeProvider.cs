@@ -37,22 +37,22 @@ namespace Reusable.IOnymous
 
             _cache = new Dictionary<SoftString, IResourceProvider>();
             _resourceProviders = resourceProviders.ToImmutableList();
-            var duplicateProviderNames =
-                _resourceProviders
-                    .Where(p => p.CustomName)
-                    .GroupBy(p => p.CustomName)
-                    .Where(g => g.Count() > 1)
-                    .Select(g => g.First())
-                    .ToList();
-
-            if (duplicateProviderNames.Any())
-            {
-                throw new ArgumentException
-                (
-                    $"Providers must use unique custom names but there are some duplicates: " +
-                    $"[{duplicateProviderNames.Select(p => (string)p.CustomName).Join(", ")}]."
-                );
-            }
+//            var duplicateProviderNames =
+//                _resourceProviders
+//                    .Where(p => p.CustomName)
+//                    .GroupBy(p => p.CustomName)
+//                    .Where(g => g.Count() > 1)
+//                    .Select(g => g.First())
+//                    .ToList();
+//
+//            if (duplicateProviderNames.Any())
+//            {
+//                throw new ArgumentException
+//                (
+//                    $"Providers must use unique custom names but there are some duplicates: " +
+//                    $"[{duplicateProviderNames.Select(p => (string)p.CustomName).Join(", ")}]."
+//                );
+//            }
         }
 
         protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
@@ -78,7 +78,7 @@ namespace Reusable.IOnymous
         [ItemNotNull]
         private async Task<IResourceInfo> HandleMethodAsync(UriString uri, IImmutableSession metadata, bool isGet, Func<IResourceProvider, Task<IResourceInfo>> handleAsync)
         {
-            var cacheKey = uri.Path.Decoded;
+            var cacheKey = uri.ToString();//.Path.Decoded;
 
             await _cacheLock.WaitAsync();
             try
@@ -89,68 +89,19 @@ namespace Reusable.IOnymous
                     return await handleAsync(cached);
                 }
 
-                var resourceProviders = _resourceProviders.ToList();
+                var resourceProviders = _resourceProviders.AsEnumerable();
 
-                // Use custom-provider-name if available which has the highest priority.
-                if (metadata.GetItemOrDefault(From<IProviderMeta>.Select(x => x.CustomName)) is var customName && customName)
+                // When provider-name is specified then filter them by name first.
+                if (metadata.GetItemOrDefault(From<IProviderMeta>.Select(x => x.ProviderName)) is var providerName && providerName)
                 {
-                    var match =
-                        resourceProviders
-                            .Where(p => p.CustomName?.Equals(customName) == true)
-                            // There must be exactly one provider with that name.                
-                            .SingleOrThrow
-                            (
-                                onEmpty: () => DynamicException.Create
-                                (
-                                    "ProviderNotFound",
-                                    $"Could not find any provider that would match the name '{(string)customName}'."
-                                ),
-                                onMultiple: () => DynamicException.Create
-                                (
-                                    "MultipleProvidersFound",
-                                    $"There is more than one provider that matches the custom name '{(string)customName}'."
-                                )
-                            );
-
-                    _cache[cacheKey] = match;
-                    return await handleAsync(match);
-                }
-
-                // Multiple providers can have the same default name.
-                if (metadata.GetItemOrDefault(From<IProviderMeta>.Select(x => x.DefaultName)) is var defaultName && defaultName)
-                {
-                    resourceProviders =
-                        resourceProviders
-                            .Where(p => p.DefaultName.Equals(defaultName))
-                            .ToList();
-
-                    if (resourceProviders.Empty())
-                    {
-                        throw DynamicException.Create
-                        (
-                            "ProviderNotFound",
-                            $"Could not find any provider that would match the name default name '{(string)defaultName}'."
-                        );
-                    }
+                    resourceProviders = resourceProviders.Where(p => p.Names.Contains(providerName));
                 }
 
                 // Check if there is a provider that matches the scheme of the absolute uri.
                 if (uri.IsAbsolute)
                 {
                     var ignoreScheme = uri.Scheme == DefaultScheme;
-                    resourceProviders =
-                        ignoreScheme
-                            ? resourceProviders
-                            : resourceProviders.Where(p => p.Schemes.Contains(DefaultScheme) || p.Schemes.Contains(uri.Scheme)).ToList();
-
-                    if (resourceProviders.Empty())
-                    {
-                        throw DynamicException.Create
-                        (
-                            $"ProviderNotFound",
-                            $"Could not find any provider that would match any of the schemes [{metadata.GetItemOrDefault(From<IAnyMeta>.Select(x => x.Schemes)).Select(x => (string)x).Join(",")}]."
-                        );
-                    }
+                    resourceProviders = resourceProviders.Where(p => ignoreScheme || p.Schemes.Contains(DefaultScheme) || p.Schemes.Contains(uri.Scheme));
                 }
 
                 // GET can search multiple providers.

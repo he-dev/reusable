@@ -15,11 +15,11 @@ namespace Reusable.Tests.XUnit.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new[] { ResourceProvider.DefaultScheme })
+                new InMemoryProvider(Configuration.DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
                 {
                     { "x.123", "blub1" }
                 },
-                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new[] { ResourceProvider.DefaultScheme })
+                new InMemoryProvider(Configuration.DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
                 {
                     { "x.123", "blub2" },
                     { "x.123", "blub3" }
@@ -37,18 +37,18 @@ namespace Reusable.Tests.XUnit.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new[] { ResourceProvider.DefaultScheme })
+                new InMemoryProvider(Configuration.DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
                 {
                     { "x.123", "blub1" }
                 },
-                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new[] { ResourceProvider.DefaultScheme })
+                new InMemoryProvider(Configuration.DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
                 {
                     //{ "x.123", "blub2" },
                     { "x.123", "blub3" }
                 },
             });
 
-            var resource = await composite.GetAsync("blub:x/123", ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.DefaultName), "InMemoryProvider"));
+            var resource = await composite.GetAsync("blub:x/123", ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), "InMemoryProvider"));
 
             Assert.True(resource.Exists);
             Assert.Equal("blub1", await resource.DeserializeTextAsync());
@@ -59,18 +59,18 @@ namespace Reusable.Tests.XUnit.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new[] { ResourceProvider.DefaultScheme })
+                new InMemoryProvider(Configuration.DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
                 {
                     { "x.123", "blub1" }
                 },
-                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new[] { ResourceProvider.DefaultScheme }, ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.CustomName), "blub"))
+                new InMemoryProvider(Configuration.DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme }, ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), "blub"))
                 {
                     //{ "x.123", "blub2" },
                     { "x.123", "blub3" }
                 },
             });
 
-            var resource = await composite.GetAsync("blub:x/123", ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.CustomName), "blub"));
+            var resource = await composite.GetAsync("blub:x/123", ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), "blub"));
 
             Assert.True(resource.Exists);
             Assert.Equal("blub3", await resource.DeserializeTextAsync());
@@ -81,11 +81,11 @@ namespace Reusable.Tests.XUnit.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new[] { ResourceProvider.DefaultScheme })
+                new InMemoryProvider(Configuration.DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
                 {
                     { "blub:123", "blub1" }
                 },
-                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new[] { ResourceProvider.DefaultScheme })
+                new InMemoryProvider(Configuration.DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
                 {
                     { "blub:123?providerName=blub", "blub2" },
                     { "blub:123?providerName=blub", "blub3" }
@@ -100,11 +100,11 @@ namespace Reusable.Tests.XUnit.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "bluba" })
+                new InMemoryProvider(Configuration.DefaultUriStringConverter, new SoftString[] { "bluba" })
                 {
                     { "x.123", "blub1" }
                 },
-                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "blub" })
+                new InMemoryProvider(Configuration.DefaultUriStringConverter, new SoftString[] { "blub" })
                 {
                     { "x.123", "blub2" },
                     { "x.125", "blub3" }

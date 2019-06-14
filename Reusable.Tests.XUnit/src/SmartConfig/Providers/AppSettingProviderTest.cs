@@ -1,8 +1,9 @@
 using System.Threading.Tasks;
+using Reusable.Data;
 using Reusable.SmartConfig;
 using Xunit;
 
-namespace Reusable.Tests.XUnit.SmartConfig.Providers
+namespace Reusable.Tests.SmartConfig.Providers
 {
     public class AppSettingProviderTest
     {
@@ -40,8 +41,9 @@ namespace Reusable.Tests.XUnit.SmartConfig.Providers
             Assert.Equal("test", env);
         }
         
-        [ResourcePrefix("app")]
-        [ResourceName(Level = ResourceNameLevel.Member)]
+        //[ResourcePrefix("app")]
+        //[ResourceName(Level = ResourceNameLevel.Member)]
+        [UseGlobal("app"), UseMember]
         internal interface IProgramConfig
         {
             string Environment { get; }

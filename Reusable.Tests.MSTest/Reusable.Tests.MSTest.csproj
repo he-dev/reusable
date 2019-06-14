@@ -56,6 +56,8 @@
     <Compile Remove="src\Utilities\JsonNet\**" />
     <EmbeddedResource Remove="src\Utilities\JsonNet\**" />
     <None Remove="src\Utilities\JsonNet\**" />
+    <Compile Remove="src\SmartConfig\Reflection\SettingExpressionExtensionsTest.cs" />
+    <Compile Remove="src\SmartConfig\Reflection\SettingMetadataTest.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -156,6 +158,7 @@
   <ItemGroup>
     <Folder Include="res\sdk\Mailr\Models" />
     <Folder Include="src\SmartConfig\Integration\" />
+    <Folder Include="src\SmartConfig\Reflection" />
     <Folder Include="src\SmartConfig\Utilities" />
   </ItemGroup>
 

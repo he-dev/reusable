@@ -27,12 +27,9 @@ namespace Reusable.IOnymous
 
         IImmutableSet<SoftString> Schemes { get; }
 
-        [NotNull]
-        SoftString DefaultName { get; }
-
-        [CanBeNull]
-        SoftString CustomName { get; }
-
+        [NotNull, ItemNotNull]
+        IEnumerable<SoftString> Names { get; }
+        
         bool CanGet { get; }
 
         bool CanPost { get; }
@@ -83,10 +80,10 @@ namespace Reusable.IOnymous
             //var metadata = Metadata.Empty;
 
             // If this is a decorator then the decorated resource-provider already has set this.
-            if (!metadata.ContainsKey(From<IProviderMeta>.Select(x => x.DefaultName)))
-            {
-                metadata = metadata.SetItem(From<IProviderMeta>.Select(x => x.DefaultName), GetType().ToPrettyString());
-            }
+//            if (!metadata.ContainsKey(From<IProviderMeta>.Select(x => x.DefaultName)))
+//            {
+//                metadata = metadata.SetItem(From<IProviderMeta>.Select(x => x.DefaultName), GetType().ToPrettyString());
+//            }
 
             if ((Schemes = schemes.ToImmutableHashSet()).Empty())
             {
@@ -99,14 +96,19 @@ namespace Reusable.IOnymous
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
         {
             //builder.DisplayCollection(p => p.ProviderNames());
-            builder.DisplayValue(p => DefaultName);
-            builder.DisplayValue(p => CustomName);
+            builder.DisplayValues(p => Names);
             builder.DisplayValue(x => x.Schemes);
         });
 
-        public SoftString DefaultName => Metadata.GetItemOrDefault(From<IProviderMeta>.Select(m => m.DefaultName));
-
-        public SoftString CustomName => Metadata.GetItemOrDefault(From<IProviderMeta>.Select(m => m.CustomName));
+        public IEnumerable<SoftString> Names
+        {
+            get
+            {
+                yield return GetType().ToPrettyString();
+                var customName = Metadata.GetItemOrDefault(From<IProviderMeta>.Select(m => m.ProviderName));
+                if (customName) yield return customName;
+            }
+        }
 
         public bool CanGet => Implements(nameof(GetAsyncInternal));
 
@@ -248,14 +250,7 @@ namespace Reusable.IOnymous
             return $"{GetType().ToPrettyString()} cannot {ExtractMethodName(memberName).ToUpper()} '{uri}' because {reason}.";
         }
 
-        protected static string ProviderInfo(IResourceProvider provider)
-        {
-            return new[]
-            {
-                provider.DefaultName.ToString(),
-                provider.CustomName?.ToString(),
-            }.Where(Conditional.IsNotNullOrEmpty).Join("/");
-        }
+        protected static string ProviderInfo(IResourceProvider provider) => provider.Names.Select(n => n.ToString()).Join("/");
 
         #endregion
 

@@ -32,7 +32,7 @@ namespace Reusable.IOnymous
                 .SetItem(From<IHttpMeta>.Select(x => x.ContentType), "application/json")
                 .SetItem(From<IAnyMeta>.Select(x => x.Schemes), ImmutableHashSet<SoftString>.Empty.Add("http").Add("https"))
                 // Bind this request to the http-provider.
-                .SetItem(From<IProviderMeta>.Select(x => x.DefaultName), nameof(HttpProvider));
+                .SetItem(From<IProviderMeta>.Select(x => x.ProviderName), nameof(HttpProvider));
 
             using (var response = await resourceProvider.PostAsync(uri, () => ResourceHelper.SerializeAsJsonAsync(email, jsonSerializer), metadata))
             {

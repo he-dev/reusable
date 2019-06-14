@@ -29,4 +29,8 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="src\SettingRequestFactory.cs" />
+    <Compile Remove="src\SettingMetadata.cs" />
+  </ItemGroup>
 </Project>

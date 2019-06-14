@@ -2,10 +2,12 @@ using System;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Custom;
+using System.Reflection;
 using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.Foggle;
 using Reusable.OmniLog;
+using Reusable.SmartConfig;
 using Reusable.Tests.Foggle.Features;
 using Xunit;
 
@@ -114,8 +116,8 @@ namespace Reusable.Tests.Foggle
             object Commit { get; }
         }
     }
-    
-    
+
+
     public class UriSelectorFormatterAttribute : SelectorFormatterAttribute
     {
         public override string Format(Selector selector)
@@ -123,11 +125,17 @@ namespace Reusable.Tests.Foggle
             var plainKey = selector.Keys.Join(string.Empty);
             var plainKeyBytes = System.Text.Encoding.UTF8.GetBytes(plainKey);
             var base64Key = Convert.ToBase64String(plainKeyBytes);
-            
+
+            var resources =
+                from m in selector.Member.AncestorTypesAndSelf()
+                where m.IsDefined(typeof(ResourceAttribute))
+                select m.GetCustomAttribute<ResourceAttribute>();
+            var resource = resources.FirstOrDefault();
+
             // setting:///settings?name=Global:Name.space+Type.Member[Index]
-            var uri = $"config:///settings?name={base64Key}";
-            
-            return default;
+            var uri = $"{resource?.Scheme?.ToString() ?? "config"}:///settings?name={base64Key}";
+
+            return uri;
         }
     }
 }

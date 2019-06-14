@@ -17,7 +17,7 @@ namespace Reusable.SmartConfig
         public AppSettingProvider() : base(ImmutableSession.Empty) { }
 
         [CanBeNull]
-        public ITypeConverter UriConverter { get; set; } = new UriStringToSettingIdentifierConverter();
+        public ITypeConverter UriConverter { get; set; } = Configuration.DefaultUriStringConverter;
 
         public ITypeConverter ValueConverter { get; set; } = new NullConverter();
 

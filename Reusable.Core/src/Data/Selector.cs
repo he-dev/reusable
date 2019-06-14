@@ -35,24 +35,38 @@ namespace Reusable.Data
         public Selector(LambdaExpression selector)
         {
             Expression = selector;
-            (DeclaringType, Instance, Property) = MemberVisitor.GetMemberInfo(selector);
+            (DeclaringType, Instance, Member) = MemberVisitor.GetMemberInfo(selector);
             Keys = this.GetKeys().ToImmutableList();
+            if (Keys.Empty()) throw new ArgumentException($"'{selector}' does not specify which keys to use.");
         }
 
         protected Selector(LambdaExpression selector, IImmutableList<Key> keys)
         {
             Expression = selector;
-            _containsIndex = true;
             Keys = keys;
+            _containsIndex = true;
         }
 
         public LambdaExpression Expression { get; }
 
         public Type DeclaringType { get; } // => Expression.ToMemberExpression().Member.DeclaringType;
-        
+
         public object Instance { get; }
 
-        public MemberInfo Property { get; } // => (PropertyInfo)Expression.ToMemberExpression().Member;
+        public MemberInfo Member { get; } // => (PropertyInfo)Expression.ToMemberExpression().Member;
+
+        public Type MemberType
+        {
+            get
+            {
+                switch (Member)
+                {
+                    case PropertyInfo property: return property.PropertyType;
+                    case FieldInfo field: return field.FieldType;
+                    default: throw new ArgumentOutOfRangeException($"Member must be either a {nameof(MemberTypes.Property)} or a {nameof(MemberTypes.Field)}.");
+                }
+            }
+        }
 
         [NotNull, ItemNotNull]
         public IImmutableList<Key> Keys { get; }
@@ -74,7 +88,7 @@ namespace Reusable.Data
         public override string ToString()
         {
             var formatters =
-                from m in Property.AncestorTypesAndSelf()
+                from m in Member.AncestorTypesAndSelf()
                 where m.IsDefined(typeof(SelectorFormatterAttribute))
                 select m.GetCustomAttribute<SelectorFormatterAttribute>();
 
@@ -110,6 +124,8 @@ namespace Reusable.Data
         //
         //            return new Selector<T>(this, Keys.Add(new IndexKey(index)));
         //        }
+        
+        public static implicit operator Selector<T>(Expression<Func<T>> selector) => new Selector<T>(selector);
     }
 
     [PublicAPI]
@@ -138,7 +154,7 @@ namespace Reusable.Data
         internal static IEnumerable<Key> GetKeys(this Selector selector)
         {
             var keyEnumerators =
-                from m in selector.Property.AncestorTypesAndSelf()
+                from m in selector.Member.AncestorTypesAndSelf()
                 where m.IsDefined(typeof(KeyEnumeratorAttribute))
                 select m.GetCustomAttribute<KeyEnumeratorAttribute>();
 
@@ -167,7 +183,7 @@ namespace Reusable.Data
         private static IEnumerable<string> Tags<T>(this Selector selector) where T : Attribute, IEnumerable<string>
         {
             var names =
-                from m in selector.Property.AncestorTypesAndSelf()
+                from m in selector.Member.AncestorTypesAndSelf()
                 from ts in m.GetCustomAttributes<T>()
                 from t in ts
                 select t;

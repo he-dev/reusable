@@ -64,7 +64,7 @@ namespace Reusable.IOnymous
                         .Matches
                         (
                             uriMatch.Groups["query"].Value,
-                            @"(?:^|&)(?<key>[a-z0-9]+)(?:=(?<value>[a-z0-9]+))?",
+                            @"(?:^|&)(?<key>[a-z0-9]+)(?:=(?<value>[a-z0-9=]+))?",
                             RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture
                         )
                         .Cast<Match>()

@@ -73,9 +73,9 @@ namespace Reusable.Data
         }
     }
 
-    public class UseNamespacAttribute : KeyFactoryAttribute
+    public class UseNamespaceAttribute : KeyFactoryAttribute
     {
-        public UseNamespacAttribute()
+        public UseNamespaceAttribute()
         {
             Suffix = "+";
         }
@@ -112,9 +112,9 @@ namespace Reusable.Data
         public override Key CreateKey(Selector selector)
         {
             var memberName =
-                selector.Property.GetCustomAttribute<RenameAttribute>()?.ToString() is string rename
+                selector.Member.GetCustomAttribute<RenameAttribute>()?.ToString() is string rename
                     ? rename
-                    : FixName(selector.Property.Name, selector.Property);
+                    : FixName(selector.Member.Name, selector.Member);
 
             return new Key(memberName);
         }
@@ -156,7 +156,7 @@ namespace Reusable.Data
             if (selector == null) throw new ArgumentNullException(nameof(selector));
 
             return
-                from m in selector.Property.AncestorTypesAndSelf()
+                from m in selector.Member.AncestorTypesAndSelf()
                 where m.IsDefined(typeof(KeyFactoryAttribute))
                 from f in m.GetCustomAttributes<KeyFactoryAttribute>()
                 orderby _keyTypes[f.GetType()]

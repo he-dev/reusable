@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.IOnymous;
 using Reusable.SmartConfig;
+using Reusable.Tests.Foggle;
 using Xunit;
 using cfg = Reusable.SmartConfig.Configuration;
 
@@ -25,7 +26,7 @@ using cfg = Reusable.SmartConfig.Configuration;
   - can find setting for base type
   
  */
-namespace Reusable.Tests.XUnit.SmartConfig
+namespace Reusable.Tests.SmartConfig
 {
     public class ConfigurationTest
     {
@@ -34,7 +35,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
         {
             var u = new User
             {
-                Configuration = new cfg(new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                Configuration = new cfg(new InMemoryProvider(Configuration.DefaultUriStringConverter, new SoftString[] { "config" })
                 {
                     { "User.Name", "Bob" }
                 })
@@ -49,15 +50,15 @@ namespace Reusable.Tests.XUnit.SmartConfig
             {
                 Configuration = new cfg(new CompositeProvider(new IResourceProvider[]
                 {
-                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                     {
                         { "Person.Name", "Joe" }
                     },
-                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                     {
                         { "User.Name", "Bob" }
                     },
-                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                     {
                         { "User.Name", "Tom" }
                     }
@@ -73,15 +74,15 @@ namespace Reusable.Tests.XUnit.SmartConfig
             {
                 Configuration = new cfg(new CompositeProvider(new IResourceProvider[]
                 {
-                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" }, ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.CustomName), "OtherOne"))
+                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes, ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), "OtherOne"))
                     {
                         { "Map.City", "Joe" }
                     },
-                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                     {
                         { "Map.City", "Tom" }
                     },
-                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" }, ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.CustomName), "ThisOne"))
+                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes, ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), "ThisOne"))
                     {
                         { "Map.City", "Bob" }
                     },
@@ -100,15 +101,15 @@ namespace Reusable.Tests.XUnit.SmartConfig
             {
                 Configuration = new cfg(new CompositeProvider(new IResourceProvider[]
                 {
-                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                     {
                         { "User.Name", "Joe" }
                     },
-                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                     {
                         { "Forest.Tree", "Tom" }
                     },
-                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                     {
                         { "Amazon.Timber", "Bob" }
                     },
@@ -124,15 +125,15 @@ namespace Reusable.Tests.XUnit.SmartConfig
             {
                 Configuration = new cfg(new CompositeProvider(new IResourceProvider[]
                 {
-                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                     {
                         { "User.Name", "Joe" }
                     },
-                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                     {
                         { "Reusable.Tests.XUnit.SmartConfig+Key.Location", "Tom" }
                     },
-                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                     {
                         { "Door", "Bob" }
                     },
@@ -149,15 +150,15 @@ namespace Reusable.Tests.XUnit.SmartConfig
             {
                 Configuration = new cfg(new CompositeProvider(new IResourceProvider[]
                 {
-                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                     {
                         { "User.Name", "Joe" }
                     },
-                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                     {
                         { "day:Greeting.Morning", "Bob" }
                     },
-                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                     {
                         { "Greeting.Morning", "Tom" }
                     },
@@ -171,20 +172,21 @@ namespace Reusable.Tests.XUnit.SmartConfig
         {
             var c = new Configuration<User>(new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                 {
                     { "User.Name", "Joe" }
                 },
-                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                 {
                     { "User.Name,this", "Bob" }
                 },
-                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                 {
                     { "Greeting.Morning", "Tom" }
                 },
             }));
-            Assert.Equal("Bob", await c.GetItemAsync(x => x.Name, "this"));
+            //Assert.Equal("Bob", await c.GetItemAsync(x => x.Name, "this"));
+            Assert.False(true); // todo - fix the selector
         }
 
         [Fact]
@@ -194,15 +196,15 @@ namespace Reusable.Tests.XUnit.SmartConfig
             {
                 Configuration = new cfg(new CompositeProvider(new IResourceProvider[]
                 {
-                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                     {
                         { "User.Name", "Joe" }
                     },
-                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                     {
                         { "Admin.Enabled", true }
                     },
-                    new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                     {
                         { "Admin.Skill", "Tom" }
                     },
@@ -217,7 +219,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
         {
             var c = new Configuration<Admin>(new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                 {
                     { "Admin.Name", "Joe" },
                     { "Admin.Enabled", true }
@@ -235,7 +237,8 @@ namespace Reusable.Tests.XUnit.SmartConfig
         }
     }
 
-
+    [UseType, UseMember]
+    [UriSelectorFormatter]
     internal class Nothing
     {
         public IConfiguration Configuration { get; set; }
@@ -243,25 +246,35 @@ namespace Reusable.Tests.XUnit.SmartConfig
         public bool Enabled => Configuration.GetItem(() => Enabled);
     }
 
+    [UseType, UseMember]
+    [UriSelectorFormatter]
     // tests defaults
     internal class User : Nothing
     {
         public string Name => Configuration.GetItem(() => Name);
     }
 
+    [UseType, UseMember]
+    [UriSelectorFormatter]
     internal class Admin : User
     {
         public string Skill => Configuration.GetItem(() => Skill);
     }
 
-    [ResourceName("Amazon")]
+    //[ResourceName("Amazon")]
+    [UseType, UseMember]
+    [Rename("Amazon")]
+    [UriSelectorFormatter]
     internal class Forest : Nothing
     {
-        [ResourceName("Timber")]
+        //[ResourceName("Timber")]
+        [Rename("Timber")]
         public string Tree => Configuration.GetItem(() => Tree);
     }
 
-    [ResourcePrefix("day")]
+    //[ResourcePrefix("day")]
+    [UseGlobal("day"), UseType, UseMember]
+    [UriSelectorFormatter]
     internal class Greeting : Nothing
     {
         public string Morning => Configuration.GetItem(() => Morning);
@@ -276,18 +289,24 @@ namespace Reusable.Tests.XUnit.SmartConfig
     //     public string Member2 { get; set; }
     // }
 
-    [ResourceProvider("ThisOne")]
+    //[ResourceProvider("ThisOne")]
+    [UseType, UseMember]
+    [Resource(Provider = "ThisOne")]
+    [UriSelectorFormatter]
     internal class Map : Nothing
     {
         public string City => Configuration.GetItem(() => City);
     }
 
-    [ResourceName(Level = ResourceNameLevel.NamespaceTypeMember)]
+    //[ResourceName(Level = ResourceNameLevel.NamespaceTypeMember)]
+    [UseNamespace, UseType, UseMember]
+    [UriSelectorFormatter]
     internal class Key : Nothing
     {
         public string Location => Configuration.GetItem(() => Location);
 
-        [ResourceName(Level = ResourceNameLevel.Member)]
+        //[ResourceName(Level = ResourceNameLevel.Member)]
+        [UseMember]
         public string Door => Configuration.GetItem(() => Door);
     }
 
@@ -303,15 +322,15 @@ namespace Reusable.Tests.XUnit.SmartConfig
         {
             var c = new Reusable.SmartConfig.Configuration<ISubConfig>(new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                 {
                     { "User.Name", "Joe" }
                 },
-                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                 {
                     { "root:Sub.Enabled", true }
                 },
-                new InMemoryProvider(new UriStringToSettingIdentifierConverter(), new SoftString[] { "setting" })
+                new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                 {
                     { "Sub.Name", "Tom" }
                 },
@@ -322,7 +341,8 @@ namespace Reusable.Tests.XUnit.SmartConfig
         }
     }
 
-    [ResourcePrefix("root")]
+    //[ResourcePrefix("root")]
+    [UseGlobal("root"), UseType, UseMember]
     public interface IBaseConfig
     {
         bool Enabled { get; }
@@ -330,7 +350,7 @@ namespace Reusable.Tests.XUnit.SmartConfig
 
     public interface ISubConfig : IBaseConfig
     {
-        [ResourcePrefix("")]
+        //[ResourcePrefix("")]
         string Name { get; }
     }
 

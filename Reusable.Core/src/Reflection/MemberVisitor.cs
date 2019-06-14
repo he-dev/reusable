@@ -80,7 +80,7 @@ namespace Reusable.Reflection
             else
             {
                 // 'Value' is null when using a 'null' interface selector
-                _type = node.Type; //.Value?.GetType();
+                _type = node.Value?.GetType() ?? node.Type;
                 _instance = node.Value;
             }
 

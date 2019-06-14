@@ -9,8 +9,8 @@ using Reusable.Extensions;
 
 namespace Reusable.IOnymous
 {
-    [UseType]
-    [UseMember]
+    [UseType, UseMember]
+    [PlainSelectorFormatter]
     [TrimEnd("I")]
     [TrimStart("Meta")]
     public interface IAnyMeta : INamespace
@@ -22,25 +22,31 @@ namespace Reusable.IOnymous
         CancellationToken CancellationToken { get; }
     }
 
-    [UseType]
-    [UseMember]
+    [UseType, UseMember]
+    [PlainSelectorFormatter]
     [TrimEnd("I")]
     [TrimStart("Meta")]
     public interface IProviderMeta : INamespace
     {
         bool AllowRelativeUri { get; }
+        
+        SoftString ProviderName { get; }
+        
+        //SoftString Scheme { get; }
 
-        SoftString DefaultName { get; }
+        //SoftString DefaultName { get; }
 
-        SoftString CustomName { get; }
+        //SoftString CustomName { get; }
     }
 
-    [UseType]
-    [UseMember]
+    [UseType, UseMember]
+    [PlainSelectorFormatter]
     [TrimEnd("I")]
     [TrimStart("Meta")]
     public interface IResourceMeta : INamespace
     {
+        SoftString Scheme { get; }
+        
         MimeType Format { get; }
 
         Type Type { get; }

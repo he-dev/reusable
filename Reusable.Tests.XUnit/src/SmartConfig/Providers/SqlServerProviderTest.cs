@@ -8,7 +8,7 @@ using Reusable.IOnymous;
 using Reusable.SmartConfig;
 using Xunit;
 
-namespace Reusable.Tests.XUnit.SmartConfig.Providers
+namespace Reusable.Tests.SmartConfig.Providers
 {
     public class SqlServerProviderTest : IAsyncLifetime
     {
