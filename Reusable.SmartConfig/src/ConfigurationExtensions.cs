@@ -8,56 +8,72 @@ namespace Reusable.SmartConfig
 {
     public static class ConfigurationExtensions
     {
-        public static async Task<TValue> GetItemAsync<TValue>(this IConfiguration configuration, Expression<Func<TValue>> selector)
-        {
-            return (TValue)await configuration.GetItemAsync(new Selector<TValue>(selector));
-        }
+        #region Getters
 
-        public static async Task SetItemAsync<TValue>(this IConfiguration configuration, Expression<Func<TValue>> selector, TValue newValue)
-        {
-            await configuration.SetItemAsync(new Selector<TValue>(selector), newValue);
-        }
-
-        [Obsolete("Use selector")]
-        public static T GetSetting<T>(this IConfiguration configuration, [NotNull] Expression<Func<T>> expression)
+        [Obsolete("Use GetItem")]
+        public static T GetSetting<T>(this IConfiguration configuration, [NotNull] Expression<Func<T>> expression, string index = default)
         {
             return (T)configuration.GetItemAsync(expression).GetAwaiter().GetResult();
         }
 
-        [Obsolete("Use SetItem")]
-        public static void SaveSetting<T>(this IConfiguration configuration, [NotNull] Expression<Func<T>> expression, [CanBeNull] T newValue)
+        public static async Task<TValue> GetItemAsync<TValue>(this IConfiguration configuration, Expression<Func<TValue>> selector, string index = default)
         {
-            configuration.SetItemAsync(expression, newValue).GetAwaiter().GetResult();
-        }
-
-        public static T GetItem<T>(this IConfiguration configuration, [NotNull] Expression<Func<T>> expression)
-        {
-            return (T)configuration.GetItemAsync(expression).GetAwaiter().GetResult();
-        }
-
-        public static void SetItem<T>(this IConfiguration configuration, [NotNull] Expression<Func<T>> expression, [CanBeNull] T newValue)
-        {
-            configuration.SetItemAsync(expression, newValue).GetAwaiter().GetResult();
+            return (TValue)await configuration.GetItemAsync(CreateSelector<TValue>(selector, index));
         }
 
         public static async Task<TValue> GetItemAsync<T, TValue>(this IConfiguration<T> configuration, Expression<Func<T, TValue>> selector, string index = default)
         {
-            return (TValue)await configuration.GetItemAsync(index is null ? new Selector<TValue>(selector) : new Selector<TValue>(selector).Index(index));
+            return (TValue)await configuration.GetItemAsync(CreateSelector<TValue>(selector, index));
         }
 
-        public static TValue GetItem<T, TValue>(this IConfiguration<T> configuration, Expression<Func<T, TValue>> selector)
+        public static T GetItem<T>(this IConfiguration configuration, [NotNull] Expression<Func<T>> selector, string index = default)
+        {
+            return (T)configuration.GetItemAsync(CreateSelector<T>(selector, index)).GetAwaiter().GetResult();
+        }
+
+        public static TValue GetItem<T, TValue>(this IConfiguration<T> configuration, Expression<Func<T, TValue>> selector, string index = default)
         {
             return (TValue)configuration.GetItemAsync(selector).GetAwaiter().GetResult();
         }
 
-        public static async Task SetItemAsync<T, TValue>(this IConfiguration<T> configuration, Expression<Func<T, TValue>> selector, TValue newValue)
+        #endregion
+
+        #region Setters
+
+        [Obsolete("Use SetItem")]
+        public static void SaveSetting<T>(this IConfiguration configuration, [NotNull] Expression<Func<T>> selector, [CanBeNull] T newValue, string index = default)
         {
-            await configuration.SetItemAsync(new Selector<TValue>(selector), newValue);
+            configuration.SetItemAsync(CreateSelector<T>(selector, index), newValue).GetAwaiter().GetResult();
         }
 
-        public static void SetItem<T, TValue>(this IConfiguration<T> configuration, Expression<Func<T, TValue>> setItem, TValue newValue)
+        public static async Task SetItemAsync<TValue>(this IConfiguration configuration, Expression<Func<TValue>> selector, TValue newValue, string index = default)
         {
-            configuration.SetItemAsync(setItem, newValue).GetAwaiter().GetResult();
+            await configuration.SetItemAsync(CreateSelector<TValue>(selector, index), newValue);
+        }
+
+        public static async Task SetItemAsync<T, TValue>(this IConfiguration<T> configuration, Expression<Func<T, TValue>> selector, TValue newValue, string index = default)
+        {
+            await configuration.SetItemAsync(CreateSelector<TValue>(selector, index), newValue);
+        }
+
+        public static void SetItem<T>(this IConfiguration configuration, [NotNull] Expression<Func<T>> selector, [CanBeNull] T newValue, string index = default)
+        {
+            configuration.SetItemAsync(CreateSelector<T>(selector, index), newValue).GetAwaiter().GetResult();
+        }
+
+        public static void SetItem<T, TValue>(this IConfiguration<T> configuration, Expression<Func<T, TValue>> selector, TValue newValue, string index = default)
+        {
+            configuration.SetItemAsync(CreateSelector<TValue>(selector, index), newValue).GetAwaiter().GetResult();
+        }
+
+        #endregion
+
+        private static Selector CreateSelector<T>(LambdaExpression selector, string index)
+        {
+            return
+                index is null
+                    ? new Selector<T>(selector)
+                    : new Selector<T>(selector).Index(index);
         }
 
         //        public static T GetSetting<T>(this IConfiguration configuration, string name, string instance = default)

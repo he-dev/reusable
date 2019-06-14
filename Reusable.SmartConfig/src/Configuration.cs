@@ -13,6 +13,7 @@ using Reusable.Data;
 using Reusable.Extensions;
 using Reusable.OneTo1;
 using Reusable.Reflection;
+using Reusable.SmartConfig.Annotations;
 
 namespace Reusable.SmartConfig
 {
@@ -29,7 +30,7 @@ namespace Reusable.SmartConfig
     {
         public static readonly ITypeConverter<UriString, string> DefaultUriStringConverter = new UriStringToStringConverter();
 
-        public static readonly IEnumerable<SoftString> DefaultSchemes = ImmutableList<SoftString>.Empty.Add("config");
+        public static readonly IImmutableList<SoftString> DefaultSchemes = ImmutableList<SoftString>.Empty.Add("config");
 
         private readonly IResourceProvider _settings;
 
@@ -37,73 +38,40 @@ namespace Reusable.SmartConfig
         {
             _settings = settingProvider ?? throw new ArgumentNullException(nameof(settingProvider));
         }
-
-        /// <summary>
-        /// Gets or sets the Func that extracts the member like ignoring the "I" in interface names etc.
-        /// </summary>
-        //[NotNull]
-        //public Func<Type, string> GetMemberName { get; set; } = SettingMetadata.GetMemberName;
-
-//        public async Task<object> GetItemAsync(LambdaExpression getItem, string handle = null)
-//        {
-//            if (getItem == null) throw new ArgumentNullException(nameof(getItem));
-//
-//            var settingInfo = MemberVisitor.GetMemberInfo(getItem);
-//            var settingMetadata = new SettingMetadata(settingInfo, GetMemberName);
-//            var (uri, metadata) = SettingRequestFactory.CreateSettingRequest(settingMetadata, handle);
-//            return await _settings.GetItemAsync<object>(uri, metadata.SetItem(From<IResourceMeta>.Select(x => x.Type), settingMetadata.MemberType));
-//        }
+        
         public async Task<object> GetItemAsync(Selector selector)
         {
-            var uri = selector.ToString();
-            var resources =
-                from t in selector.Member.AncestorTypesAndSelf()
-                where t.IsDefined(typeof(ResourceAttribute))
-                select t.GetCustomAttribute<ResourceAttribute>();
-            var resource = resources.FirstOrDefault();
-
-            var metadata =
-                ImmutableSession
-                    .Empty
-                    .SetItem(From<IResourceMeta>.Select(x => x.Type), selector.MemberType)
-                    .SetItem(From<IProviderMeta>.Select(x => x.ProviderName), resource?.Provider)
-                    .SetItem(From<IResourceMeta>.Select(x => x.ActualName), $"[{selector.Keys.Join(x => x.ToString(), ", ")}]");
-
+            var (uri, metadata) = CreateRequest(selector);
             return await _settings.GetItemAsync<object>(uri, metadata);
         }
 
-//        public async Task SetItemAsync(LambdaExpression setItem, object newValue, string handle = null)
-//        {
-//            if (setItem == null) throw new ArgumentNullException(nameof(setItem));
-//
-//            var settingInfo = MemberVisitor.GetMemberInfo(setItem);
-//            var settingMetadata = new SettingMetadata(settingInfo, GetMemberName);
-//            var (uri, metadata) = SettingRequestFactory.CreateSettingRequest(settingMetadata, handle);
-//            Validate(newValue, settingMetadata.Validations, uri);
-//            await _settings.SetItemAsync(uri, newValue, metadata.SetItem(From<IResourceMeta>.Select(x => x.Type), settingMetadata.MemberType));
-//        }
-
         public async Task SetItemAsync(Selector selector, object newValue)
         {
-            var uri = selector.ToString();
-            var resources =
-                from t in selector.Member.AncestorTypesAndSelf()
-                where t.IsDefined(typeof(ResourceAttribute))
-                select t.GetCustomAttribute<ResourceAttribute>();
-            var resource = resources.FirstOrDefault();
-
-            var metadata =
-                ImmutableSession
-                    .Empty
-                    .SetItem(From<IResourceMeta>.Select(x => x.Type), selector.MemberType)
-                    .SetItem(From<IProviderMeta>.Select(x => x.ProviderName), resource?.Provider)
-                    .SetItem(From<IResourceMeta>.Select(x => x.ActualName), $"[{selector.Keys.Join(x => x.ToString(), ", ")}]");
-
+            var (uri, metadata) = CreateRequest(selector);
             //Validate(newValue, settingMetadata.Validations, uri);
             await _settings.SetItemAsync(uri, newValue, metadata.SetItem(From<IResourceMeta>.Select(x => x.Type), selector.MemberType));
         }
 
         #region Helpers
+
+        private static (UriString Uri, IImmutableSession Metadata) CreateRequest(Selector selector)
+        {
+            var uri = selector.ToString();
+            var resources =
+                from t in selector.Member.AncestorTypesAndSelf()
+                where t.IsDefined(typeof(ResourceAttribute))
+                select t.GetCustomAttribute<ResourceAttribute>();
+            var resource = resources.FirstOrDefault();
+
+            var metadata =
+                ImmutableSession
+                    .Empty
+                    .SetItem(From<IResourceMeta>.Select(x => x.Type), selector.MemberType)
+                    .SetItem(From<IProviderMeta>.Select(x => x.ProviderName), resource?.Provider)
+                    .SetItem(From<IResourceMeta>.Select(x => x.ActualName), $"[{selector.Keys.Join(x => x.ToString(), ", ")}]");
+
+            return (uri, metadata);
+        }
 
         private static object Validate(object value, IEnumerable<ValidationAttribute> validations, UriString uri)
         {
@@ -116,18 +84,5 @@ namespace Reusable.SmartConfig
         }
 
         #endregion
-    }
-
-    public static class ResourceProviderExtensions
-    {
-        public static async Task<T> GetSetting<T>(this IResourceProvider resources, Selector<T> key)
-        {
-            //            var settingInfo = MemberVisitor.GetMemberInfo(getItem);
-            //            var settingMetadata = new SettingMetadata(settingInfo, GetMemberName);
-            //            var (uri, metadata) = SettingRequestFactory.CreateSettingRequest(settingMetadata, handle);
-            //            return await _settings.GetItemAsync<object>(uri, metadata.SetItem(From<IResourceMeta>.Select(x => x.Type), settingMetadata.MemberType));
-
-            return default;
-        }
     }
 }

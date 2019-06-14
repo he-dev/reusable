@@ -48,11 +48,11 @@ namespace Reusable.Data
 
         public LambdaExpression Expression { get; }
 
-        public Type DeclaringType { get; } // => Expression.ToMemberExpression().Member.DeclaringType;
+        public Type DeclaringType { get; }
 
         public object Instance { get; }
 
-        public MemberInfo Member { get; } // => (PropertyInfo)Expression.ToMemberExpression().Member;
+        public MemberInfo Member { get; }
 
         public Type MemberType
         {

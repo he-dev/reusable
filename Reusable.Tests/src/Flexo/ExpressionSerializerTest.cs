@@ -113,8 +113,8 @@ namespace Reusable.Tests.Flexo
 
         //[TypeNameFactory]
         [UseMember]
-        [TrimStart("I")]
-        [TrimEnd("Meta")]
+        [PlainSelectorFormatter]
+        [TrimStart("I"), TrimEnd("Meta")]
         private interface ITestMeta : INamespace
         {
             [UseMember]

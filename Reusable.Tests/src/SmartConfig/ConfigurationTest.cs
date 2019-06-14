@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.IOnymous;
 using Reusable.SmartConfig;
+using Reusable.SmartConfig.Annotations;
 using Reusable.Tests.Foggle;
 using Xunit;
 using cfg = Reusable.SmartConfig.Configuration;

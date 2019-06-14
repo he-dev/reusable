@@ -8,6 +8,7 @@ using Reusable.Data;
 using Reusable.Foggle;
 using Reusable.OmniLog;
 using Reusable.SmartConfig;
+using Reusable.SmartConfig.Annotations;
 using Reusable.Tests.Foggle.Features;
 using Xunit;
 
