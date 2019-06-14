@@ -124,7 +124,7 @@ namespace Reusable.Data
     {
         // Enumerates keys applied to a property.
         [NotNull, ItemNotNull]
-        IEnumerable<Key> EnumerateKeys(Selector selector);
+        IEnumerable<IEnumerable<Key>> EnumerateKeys(Selector selector);
     }
 
     [PublicAPI]
@@ -134,8 +134,8 @@ namespace Reusable.Data
         public static readonly IImmutableList<Type> DefaultOrder =
             ImmutableList<Type>
                 .Empty
-                //.Add(typeof(UsePrefixAttribute))
-                //.Add(typeof(UseNamespaceAttribute))
+                .Add(typeof(UseGlobalAttribute))
+                .Add(typeof(UseNamespaceAttribute))
                 .Add(typeof(UseTypeAttribute))
                 .Add(typeof(UseMemberAttribute));
 
@@ -151,16 +151,21 @@ namespace Reusable.Data
 
         public KeyEnumeratorAttribute() : this(DefaultOrder.ToArray()) { }
 
-        public IEnumerable<Key> EnumerateKeys(Selector selector)
+        public IEnumerable<IEnumerable<Key>> EnumerateKeys(Selector selector)
         {
             if (selector == null) throw new ArgumentNullException(nameof(selector));
 
             return
                 from m in selector.Member.AncestorTypesAndSelf()
                 where m.IsDefined(typeof(KeyFactoryAttribute))
-                from f in m.GetCustomAttributes<KeyFactoryAttribute>()
-                orderby _keyTypes[f.GetType()]
-                select f.CreateKey(selector);
+                let keys =
+                (
+                    from f in m.GetCustomAttributes<KeyFactoryAttribute>()
+                    orderby _keyTypes[f.GetType()]
+                    select f.CreateKey(selector)
+                ).ToImmutableList()
+                where keys.Any()
+                select keys;
         }
     }
 
@@ -189,8 +194,7 @@ namespace Reusable.Data
                 }
 
                 current = current.DeclaringType;
-            }
-            while (!(current is null));
+            } while (!(current is null));
         }
     }
 

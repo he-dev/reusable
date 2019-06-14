@@ -131,7 +131,7 @@ namespace Reusable.Tests.SmartConfig
                     },
                     new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                     {
-                        { "Reusable.Tests.XUnit.SmartConfig+Key.Location", "Tom" }
+                        { "Reusable.Tests.SmartConfig+Key.Location", "Tom" }
                     },
                     new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                     {

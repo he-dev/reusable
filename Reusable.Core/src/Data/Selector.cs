@@ -158,7 +158,7 @@ namespace Reusable.Data
                 where m.IsDefined(typeof(KeyEnumeratorAttribute))
                 select m.GetCustomAttribute<KeyEnumeratorAttribute>();
 
-            return (keyEnumerators.FirstOrDefault() ?? new KeyEnumeratorAttribute()).EnumerateKeys(selector);
+            return (keyEnumerators.FirstOrDefault() ?? new KeyEnumeratorAttribute()).EnumerateKeys(selector).First();
         }
 
         public static IImmutableList<Selector> AddFrom<T>(this IImmutableList<Selector> selectors)
