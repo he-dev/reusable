@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
@@ -21,6 +20,7 @@ namespace Reusable.Data
     [PublicAPI]
     public static class From<T> where T : INamespace
     {
+        [NotNull]
         public static Selector<TMember> Select<TMember>([NotNull] Expression<Func<T, TMember>> selector)
         {
             return new Selector<TMember>(selector);
@@ -98,7 +98,7 @@ namespace Reusable.Data
                 ?? throw DynamicException.Create("SelectorFormatterNotFound", $"'{Expression.ToPrettyString()}' must specify a {nameof(SelectorFormatterAttribute)}");
         }
 
-        public virtual Selector Index(string index, string prefix = "[", string suffix = "]")
+        public Selector Index(string index, string prefix = "[", string suffix = "]")
         {
             if (_containsIndex) throw new InvalidOperationException($"'{Expression}' already contains an index.");
             return new Selector(Expression, Keys.Add(new Key(index) { Prefix = prefix, Suffix = suffix }));
@@ -125,81 +125,5 @@ namespace Reusable.Data
         //        }
 
         public static implicit operator Selector<T>(Expression<Func<T>> selector) => new Selector<T>(selector);
-    }
-
-    [PublicAPI]
-    public interface ISelectorFormatter
-    {
-        string Format(Selector selector);
-    }
-
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Property)]
-    public abstract class SelectorFormatterAttribute : Attribute, ISelectorFormatter
-    {
-        public abstract string Format(Selector selector);
-    }
-
-    public class PlainSelectorFormatterAttribute : SelectorFormatterAttribute
-    {
-        public override string Format(Selector selector)
-        {
-            return selector.Keys.Join(string.Empty);
-        }
-    }
-
-    public static class SelectorExtensions
-    {
-        [NotNull, ItemNotNull]
-        internal static IEnumerable<Key> GetKeys(this Selector selector)
-        {
-            var keyEnumerators =
-                from m in selector.Member.AncestorTypesAndSelf()
-                where m.IsDefined(typeof(KeyEnumeratorAttribute))
-                select m.GetCustomAttribute<KeyEnumeratorAttribute>();
-
-            var keyEnumerator = (keyEnumerators.FirstOrDefault() ?? new KeyEnumeratorAttribute());
-            return
-                keyEnumerator
-                    .EnumerateKeys(selector)
-                    .FirstOrDefault()
-                ?? throw new InvalidOperationException($"'{selector}' is not decorated with any keys.");
-        }
-
-        public static IImmutableList<Selector> AddFrom<T>(this IImmutableList<Selector> selectors)
-        {
-            var newSelectors =
-                from p in typeof(T).GetProperties()
-                select Selector.FromProperty(typeof(T), p);
-
-            return selectors.AddRange(newSelectors);
-        }
-
-        public static IEnumerable<Selector> Where<T>(this IEnumerable<Selector> featureSelectors, params string[] names) where T : Attribute, IEnumerable<string>
-        {
-            if (!names.Any()) throw new ArgumentException("You need to specify at least one tag.");
-
-            return
-                from f in featureSelectors
-                where f.Tags<T>().IsSubsetOf(names, SoftString.Comparer)
-                select f;
-        }
-
-        private static IEnumerable<string> Tags<T>(this Selector selector) where T : Attribute, IEnumerable<string>
-        {
-            var names =
-                from m in selector.Member.AncestorTypesAndSelf()
-                from ts in m.GetCustomAttributes<T>()
-                from t in ts
-                select t;
-
-            return names.Distinct(SoftString.Comparer);
-        }
-
-        public static IEnumerable<string> Format(this IEnumerable<Selector> selectors)
-        {
-            return
-                from s in selectors
-                select s.ToString();
-        }
     }
 }

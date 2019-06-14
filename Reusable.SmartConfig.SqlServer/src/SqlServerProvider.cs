@@ -49,6 +49,8 @@ namespace Reusable.SmartConfig
 
         [CanBeNull]
         public IImmutableDictionary<string, object> Where { get; set; }
+        
+        public (string Name, object Value) Fallback { get; set; }
 
         protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
         {
@@ -57,7 +59,7 @@ namespace Reusable.SmartConfig
 
             return await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
             {
-                using (var command = connection.CreateSelectCommand(TableName, settingIdentifier, ColumnMappings, Where))
+                using (var command = connection.CreateSelectCommand(TableName, settingIdentifier, ColumnMappings, Where, Fallback))
                 using (var settingReader = command.ExecuteReader())
                 {
                     if (await settingReader.ReadAsync(token))

@@ -18,7 +18,7 @@ namespace Reusable.IOnymous
             /* language=regexp */ @"^(?:(?<scheme>\w+):)?",
             /* language=regexp */ @"(?:\/\/(?<authority>[a-z0-9\.\-_:]+))?",
             /* language=regexp */ @"(?:\/?(?<path>[a-z0-9\/:\.\-\%_@]+))",
-            /* language=regexp */ @"(?:\?(?<query>[a-z0-9=&]+))?",
+            /* language=regexp */ @"(?:\?(?<query>[a-z0-9=&\%\.]+))?",
             /* language=regexp */ @"(?:#(?<fragment>[a-z0-9]+))?"
         });
 
@@ -64,7 +64,7 @@ namespace Reusable.IOnymous
                         .Matches
                         (
                             uriMatch.Groups["query"].Value,
-                            @"(?:^|&)(?<key>[a-z0-9]+)(?:=(?<value>[a-z0-9=]+))?",
+                            @"(?:^|&)(?<key>[a-z0-9]+)(?:=(?<value>[a-z0-9\%\.]+))?",
                             RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture
                         )
                         .Cast<Match>()
@@ -78,9 +78,7 @@ namespace Reusable.IOnymous
         }
 
         public UriString(string scheme, string path)
-            : this($"{scheme}:{UriStringHelper.Normalize(path)}")
-        {
-        }
+            : this($"{scheme}:{UriStringHelper.Normalize(path)}") { }
 
         public UriString([NotNull] UriString first, [NotNull] UriString second)
         {
@@ -89,9 +87,9 @@ namespace Reusable.IOnymous
 
             Scheme = first.Scheme;
             Authority = first.Authority;
-            Path = 
-                first.Path.Original 
-                    ? first.Path.Original.ToString().Trim('/') + "/" + second.Path.Original.ToString().Trim('/') 
+            Path =
+                first.Path.Original
+                    ? first.Path.Original.ToString().Trim('/') + "/" + second.Path.Original.ToString().Trim('/')
                     : second.Path.Original.ToString().Trim('/');
             Query = second.Query;
             Fragment = second.Fragment;

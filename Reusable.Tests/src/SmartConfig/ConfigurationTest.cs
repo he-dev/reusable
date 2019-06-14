@@ -238,7 +238,7 @@ namespace Reusable.Tests.SmartConfig
     }
 
     [UseType, UseMember]
-    [UriSelectorFormatter]
+    [SettingSelectorFormatter]
     internal class Nothing
     {
         public IConfiguration Configuration { get; set; }
@@ -247,7 +247,7 @@ namespace Reusable.Tests.SmartConfig
     }
 
     [UseType, UseMember]
-    [UriSelectorFormatter]
+    [SettingSelectorFormatter]
     // tests defaults
     internal class User : Nothing
     {
@@ -255,7 +255,7 @@ namespace Reusable.Tests.SmartConfig
     }
 
     [UseType, UseMember]
-    [UriSelectorFormatter]
+    [SettingSelectorFormatter]
     internal class Admin : User
     {
         public string Skill => Configuration.GetItem(() => Skill);
@@ -264,17 +264,15 @@ namespace Reusable.Tests.SmartConfig
     //[ResourceName("Amazon")]
     [UseType, UseMember]
     [Rename("Amazon")]
-    [UriSelectorFormatter]
+    [SettingSelectorFormatter]
     internal class Forest : Nothing
     {
-        //[ResourceName("Timber")]
         [Rename("Timber")]
         public string Tree => Configuration.GetItem(() => Tree);
     }
 
-    //[ResourcePrefix("day")]
     [UseGlobal("day"), UseType, UseMember]
-    [UriSelectorFormatter]
+    [SettingSelectorFormatter]
     internal class Greeting : Nothing
     {
         public string Morning => Configuration.GetItem(() => Morning);
@@ -289,23 +287,20 @@ namespace Reusable.Tests.SmartConfig
     //     public string Member2 { get; set; }
     // }
 
-    //[ResourceProvider("ThisOne")]
     [UseType, UseMember]
     [Resource(Provider = "ThisOne")]
-    [UriSelectorFormatter]
+    [SettingSelectorFormatter]
     internal class Map : Nothing
     {
         public string City => Configuration.GetItem(() => City);
     }
 
-    //[ResourceName(Level = ResourceNameLevel.NamespaceTypeMember)]
     [UseNamespace, UseType, UseMember]
-    [UriSelectorFormatter]
+    [SettingSelectorFormatter]
     internal class Key : Nothing
     {
         public string Location => Configuration.GetItem(() => Location);
 
-        //[ResourceName(Level = ResourceNameLevel.Member)]
         [UseMember]
         public string Door => Configuration.GetItem(() => Door);
     }
@@ -341,26 +336,24 @@ namespace Reusable.Tests.SmartConfig
         }
     }
 
-    //[ResourcePrefix("root")]
     [UseGlobal("root"), UseType, UseMember]
-    [UriSelectorFormatter]
+    [SettingSelectorFormatter]
     public interface IBaseConfig
     {
         bool Enabled { get; }
     }
 
     [UseGlobal("root"), UseType, UseMember]
-    [UriSelectorFormatter]
+    [SettingSelectorFormatter]
     [TrimStart("I"), TrimEnd("Config")]
     public interface ISubConfig : IBaseConfig
     {
-        //[ResourcePrefix("")]
         [UseType, UseMember]
         string Name { get; }
     }
 
     [UseType, UseMember]
-    [UriSelectorFormatter]
+    [SettingSelectorFormatter]
     [TrimStart("I"), TrimEnd("Config")]
     public interface ITypeConfig
     {

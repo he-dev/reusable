@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using Reusable.IOnymous;
 using Reusable.OneTo1;
@@ -8,10 +9,8 @@ namespace Reusable.SmartConfig
     {
         protected override string ConvertCore(IConversionContext<UriString> context)
         {
-            // config:settings?name=BASE64STRING
-            var uri = context.Value;
-            var nameBytes = System.Convert.FromBase64String(uri.Query["name"].ToString());
-            return Encoding.UTF8.GetString(nameBytes);
+            // config:settings?name=ESCAPED
+            return Uri.UnescapeDataString(context.Value.Query["name"].ToString());
         }
     }
 }

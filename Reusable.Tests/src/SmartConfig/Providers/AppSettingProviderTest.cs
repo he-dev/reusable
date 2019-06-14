@@ -45,7 +45,7 @@ namespace Reusable.Tests.SmartConfig.Providers
         //[ResourcePrefix("app")]
         //[ResourceName(Level = ResourceNameLevel.Member)]
         [UseGlobal("app"), UseMember]
-        [UriSelectorFormatter]
+        [SettingSelectorFormatter]
         internal interface IProgramConfig
         {
             string Environment { get; }

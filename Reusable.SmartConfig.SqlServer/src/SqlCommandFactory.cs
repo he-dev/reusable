@@ -5,10 +5,13 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
+using Reusable.Extensions;
 using Reusable.Utilities.SqlClient;
 
 namespace Reusable.SmartConfig
 {
+    using static SqlServerColumn;
+
     internal static class SqlCommandFactory
     {
         public static SqlCommand CreateSelectCommand
@@ -17,27 +20,55 @@ namespace Reusable.SmartConfig
             [NotNull] SqlFourPartName tableName,
             [NotNull] string name,
             [CanBeNull] IImmutableDictionary<SqlServerColumn, SoftString> columnMappings,
-            [CanBeNull] IImmutableDictionary<string, object> @where)
+            [CanBeNull] IImmutableDictionary<string, object> where,
+            (string Name, object Value) fallback)
         {
             where = where ?? ImmutableDictionary<string, object>.Empty;
-            
+
             var sql = new StringBuilder();
 
             var table = tableName.Render(connection);
 
-            sql.Append($"SELECT *").AppendLine();
-            sql.Append($"FROM {table}").AppendLine();
-            sql.Append(where.Aggregate(
-                $"WHERE [{columnMappings.MapOrDefault(SqlServerColumn.Name)}] = @{columnMappings.MapOrDefault(SqlServerColumn.Name)}",
-                (current, next) => $"{current} AND {connection.CreateIdentifier(next.Key)} = @{next.Key}")
-            );
+            /*
+                select * from #test
+                where 
+                    _name = 'a' and
+                    _ver = '1' and
+                    (_env = 'd' or (_env = 'p' and not exists (select 1 from #test where _name = 'a' and _env = 'd' and _ver = '1')))
+              
+             */
+
+            var nameCondition = $"[{columnMappings.MapOrDefault(Name)}] = @{columnMappings.MapOrDefault(Name)}";
+            //var fallback = (Name: "env", Value: "prod");
+
+            sql.Append($"select *").AppendLine();
+            sql.Append($"from {table}").AppendLine();
+            sql.Append(where.Aggregate($"where {nameCondition}", (current, next) =>
+            {
+                var column = connection.CreateIdentifier(next.Key);
+                var defaultParam = next.Key;
+                var fallbackParam = next.Key + "_fallback";
+                if (next.Key == fallback.Name)
+                {
+                    var fallbackCondition = where.Aggregate($"where {nameCondition}", (c, n) => $"{c} and {connection.CreateIdentifier(n.Key)} = @{n.Key}");
+                    return $"{current} and ({column} = @{defaultParam} or ({column} = @{fallbackParam} and not exists (select 1 from {table} {fallbackCondition})))";
+                }
+                else
+                {
+                    return $"{current} and {connection.CreateIdentifier(next.Key)} = @{next.Key}";
+                }
+            }));
 
             var command = connection.CreateCommand();
             command.CommandText = sql.ToString();
 
             // --- add parameters & values
 
-            command.AddParameters(where.Add(columnMappings.MapOrDefault(SqlServerColumn.Name), name));
+            command.AddParameters(where.Add(columnMappings.MapOrDefault(Name), name));
+            if (fallback.Name.IsNotNullOrEmpty())
+            {
+                command.Parameters.AddWithValue($"@{fallback.Name}_fallback", fallback.Value);
+            }
 
             return command;
         }
@@ -91,7 +122,7 @@ namespace Reusable.SmartConfig
             [CanBeNull] object value)
         {
             where = where ?? ImmutableDictionary<string, object>.Empty;
-            
+
             /*
              
             UPDATE [Setting]
@@ -111,21 +142,21 @@ namespace Reusable.SmartConfig
             sql.Append($"SET [{columnMappings.MapOrDefault(SqlServerColumn.Value)}] = @{columnMappings.MapOrDefault(SqlServerColumn.Value)}").AppendLine();
 
             sql.Append(where.Aggregate(
-                $"WHERE [{columnMappings.MapOrDefault(SqlServerColumn.Name)}] = @{columnMappings.MapOrDefault(SqlServerColumn.Name)}",
+                $"WHERE [{columnMappings.MapOrDefault(Name)}] = @{columnMappings.MapOrDefault(Name)}",
                 (result, next) => $"{result} AND {connection.CreateIdentifier(next.Key)} = @{next.Key} ")
             ).AppendLine();
 
             sql.Append($"IF @@ROWCOUNT = 0").AppendLine();
 
             var columns = where.Keys.Select(key => connection.CreateIdentifier(key)).Aggregate(
-                $"[{columnMappings.MapOrDefault(SqlServerColumn.Name)}], [{columnMappings.MapOrDefault(SqlServerColumn.Value)}]",
+                $"[{columnMappings.MapOrDefault(Name)}], [{columnMappings.MapOrDefault(Value)}]",
                 (result, next) => $"{result}, {next}"
             );
 
             sql.Append($"INSERT INTO {table}({columns})").AppendLine();
 
             var parameterNames = where.Keys.Aggregate(
-                $"@{columnMappings.MapOrDefault(SqlServerColumn.Name)}, @{columnMappings.MapOrDefault(SqlServerColumn.Value)}",
+                $"@{columnMappings.MapOrDefault(Name)}, @{columnMappings.MapOrDefault(Value)}",
                 (result, next) => $"{result}, @{next}"
             );
 
@@ -137,8 +168,8 @@ namespace Reusable.SmartConfig
 
             // --- add parameters
 
-            command.Parameters.AddWithValue($"@{columnMappings.MapOrDefault(SqlServerColumn.Name)}", name);
-            command.Parameters.AddWithValue($"@{columnMappings.MapOrDefault(SqlServerColumn.Value)}", value);
+            command.Parameters.AddWithValue($"@{columnMappings.MapOrDefault(Name)}", name);
+            command.Parameters.AddWithValue($"@{columnMappings.MapOrDefault(Value)}", value);
             //command.Parameters.Add($"@{sqlServer.ColumnMapping.Value}", SqlDbType.NVarChar, 200).Value = setting.Value;
 
             command.AddParameters(where);
@@ -160,6 +191,7 @@ namespace Reusable.SmartConfig
             {
                 cmd.Parameters.AddWithValue($"@{parameter.Key}", parameter.Value);
             }
+
             return cmd;
         }
 
@@ -169,6 +201,7 @@ namespace Reusable.SmartConfig
             {
                 cmd.Parameters.AddWithValue($"@{name.ToString()}_{index}", value.ToString());
             }
+
             return cmd;
         }
     }

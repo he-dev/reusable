@@ -87,7 +87,11 @@ namespace Reusable.Tests.SmartConfig.Providers
                             .Empty
                             .Add(SqlServerColumn.Name, "_name")
                             .Add(SqlServerColumn.Value, "_value"),
-                    Where = ImmutableDictionary<string, object>.Empty.Add("_other", "t")
+                    Where = 
+                        ImmutableDictionary<string, object>
+                            .Empty
+                            .Add("_other", "t"),
+                    Fallback = ("_other", "something-else")
                 },
             }));
 
@@ -131,7 +135,7 @@ namespace Reusable.Tests.SmartConfig.Providers
         }
 
         [UseType, UseMember]
-        [UriSelectorFormatter]
+        [SettingSelectorFormatter]
         [TrimStart("I"), TrimEnd("Config")]
         private interface IUserConfig
         {
