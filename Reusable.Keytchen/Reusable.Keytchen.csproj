@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!--<TargetFramework>net47</TargetFramework>-->
+    <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>
+    <Configurations>Debug;Release;Debug.csproj</Configurations>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;RELEASE;NET47;JETBRAINS_ANNOTATIONS</DefineConstants>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="4.9.2" />
+    <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+  </ItemGroup>
+</Project>

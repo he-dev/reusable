@@ -4,16 +4,14 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Custom;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using Reusable.Data;
 using Reusable.Diagnostics;
-using Reusable.Exceptionize;
 using Reusable.Extensions;
-using Reusable.Reflection;
 
-namespace Reusable.Data
+namespace Reusable.Keytchen
 {
     // [Prefix:][Name.space+][Type.]Member[[Index]]
     // [UsePrefix("blub"), UseNamespace, UseType, UseMember, UseIndex?]
@@ -24,86 +22,24 @@ namespace Reusable.Data
         Key CreateKey(Selector selector);
     }
 
-    [UsedImplicitly]
-    [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property)]
-    public class RenameAttribute : Attribute
-    {
-        private readonly string _name;
-
-        public RenameAttribute(string name) => _name = name;
-
-        public override string ToString() => _name;
-    }
-
     [PublicAPI]
     [UsedImplicitly]
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property)]
     public abstract class KeyFactoryAttribute : Attribute, IKeyFactory
     {
-        public string Prefix { get; set; }
-
-        public string Suffix { get; set; }
-
         public abstract Key CreateKey(Selector selector);
-
-        protected string FixName(string name, MemberInfo member)
-        {
-            var nameFixes = member.GetCustomAttributes<NameFixAttribute>().ToList();
-
-            return
-                nameFixes.Any()
-                    ? nameFixes.Aggregate(name, (current, fix) => fix.Apply(current))
-                    : name;
-        }
-    }
-
-    public class UseGlobalAttribute : KeyFactoryAttribute
-    {
-        private readonly string _prefix;
-
-        public UseGlobalAttribute(string prefix)
-        {
-            _prefix = prefix;
-            Suffix = ":";
-        }
-
-        public override Key CreateKey(Selector selector)
-        {
-            return new Key(_prefix) { Suffix = Suffix };
-        }
-    }
-
-    public class UseNamespacAttribute : KeyFactoryAttribute
-    {
-        public UseNamespacAttribute()
-        {
-            Suffix = "+";
-        }
-
-        public override Key CreateKey(Selector selector)
-        {
-            var type = selector.DeclaringType;
-            return new Key(type.Namespace) { Suffix = Suffix };
-        }
     }
 
     public class UseTypeAttribute : KeyFactoryAttribute
     {
-        public UseTypeAttribute()
-        {
-            Suffix = ".";
-        }
+        public string Separator { get; set; } = ".";
 
         public override Key CreateKey(Selector selector)
         {
             var type = selector.DeclaringType;
-
-            var typeName =
-                type.GetCustomAttribute<RenameAttribute>()?.ToString() is string rename
-                    ? rename
-                    : FixName(type.ToPrettyString(), type);
-
-            return new Key(typeName) { Suffix = Suffix };
+            var typeName = type.ToPrettyString();
+            typeName = type.GetCustomAttributes<NameFixAttribute>().Aggregate(typeName, (name, fix) => fix.Apply(name));
+            return new TypeKey(typeName, Separator);
         }
     }
 
@@ -111,12 +47,7 @@ namespace Reusable.Data
     {
         public override Key CreateKey(Selector selector)
         {
-            var memberName =
-                selector.Property.GetCustomAttribute<RenameAttribute>()?.ToString() is string rename
-                    ? rename
-                    : FixName(selector.Property.Name, selector.Property);
-
-            return new Key(memberName);
+            return new MemberKey(selector.Property.Name);
         }
     }
 
@@ -138,6 +69,7 @@ namespace Reusable.Data
                 //.Add(typeof(UseNamespaceAttribute))
                 .Add(typeof(UseTypeAttribute))
                 .Add(typeof(UseMemberAttribute));
+
 
         private readonly IImmutableDictionary<Type, int> _keyTypes;
 
@@ -166,11 +98,11 @@ namespace Reusable.Data
 
     public static class Helpers
     {
-        public static IEnumerable<MemberInfo> AncestorTypesAndSelf(this MemberInfo member)
+        public static IEnumerable<MemberInfo> AncestorTypesAndSelf(this PropertyInfo property)
         {
-            if (member == null) throw new ArgumentNullException(nameof(member));
+            if (property == null) throw new ArgumentNullException(nameof(property));
 
-            var current = member;
+            var current = (MemberInfo)property;
             do
             {
                 yield return current;
@@ -182,33 +114,25 @@ namespace Reusable.Data
                         yield break;
                     }
 
-                    if (type.GetProperty(member.Name) is PropertyInfo otherProperty)
+                    if (type.GetProperty(property.Name) is PropertyInfo otherProperty)
                     {
                         yield return otherProperty;
                     }
                 }
 
                 current = current.DeclaringType;
-            }
-            while (!(current is null));
+            } while (!(current is null));
         }
     }
 
     [PublicAPI]
-    [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
-    public class Key
+    public abstract class Key
     {
-        public Key(string value) => Value = value;
-
-        private string DebuggerDisplay => ToString();
-
-        public string Prefix { get; set; }
+        protected Key(string value) => Value = value;
 
         public string Value { get; }
 
-        public string Suffix { get; set; }
-
-        public override string ToString() => $"{Prefix}{Value}{Suffix}";
+        public override string ToString() => Value;
 
         [NotNull]
         public static implicit operator string(Key key) => key.Value;
@@ -217,22 +141,53 @@ namespace Reusable.Data
         public static implicit operator SoftString(Key key) => (string)key;
     }
 
+    public class PrefixKey : Key
+    {
+        public PrefixKey(string value) : base(value) { }
+    }
+
+    public class NamespaceKey : Key
+    {
+        public NamespaceKey(string value) : base(value) { }
+    }
+
+    public class TypeKey : Key
+    {
+        public TypeKey(string value, string separator) : base(value)
+        {
+            Separator = separator;
+        }
+
+        public string Separator { get; }
+
+        public override string ToString() => Value + Separator;
+    }
+
+    public class MemberKey : Key
+    {
+        public MemberKey(string value) : base(value) { }
+    }
+
+    [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
+    public class IndexKey : Key
+    {
+        public IndexKey(string value) : base(value) { }
+
+        //private string DebuggerDisplay => $"{_key} Index = {this}";
+
+        public override string ToString() => $"[{Value}]";
+    }
+
     public interface INameFix
     {
         [NotNull]
         string Apply(string name);
     }
 
-    [UsedImplicitly]
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class)]
     public abstract class NameFixAttribute : Attribute, INameFix
     {
         public abstract string Apply(string name);
-    }
-
-    public class Unchanged : INameFix
-    {
-        public string Apply(string name) => name;
     }
 
     public class RemoveAttribute : NameFixAttribute

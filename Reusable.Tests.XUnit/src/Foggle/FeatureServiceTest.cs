@@ -1,32 +1,15 @@
 using System;
-using System.Collections;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Custom;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
-using Microsoft.Extensions.Options;
-using Org.BouncyCastle.Bcpg.Sig;
-using Reusable.Collections;
 using Reusable.Data;
-using Reusable.Diagnostics;
-using Reusable.Exceptionize;
-using Reusable.Extensions;
 using Reusable.Foggle;
-using Reusable.IOnymous;
 using Reusable.OmniLog;
-using Reusable.Tests.XUnit.Features;
+using Reusable.Tests.Foggle.Features;
 using Xunit;
 
-namespace Reusable.Tests.XUnit
+namespace Reusable.Tests.Foggle
 {
     public static class Tags
     {
@@ -57,7 +40,7 @@ namespace Reusable.Tests.XUnit
                     .AddFrom<IDemo>()
                     .AddFrom<IDatabase>()
                     .Where<TagsAttribute>("io")
-                    .Select(SelectorFormatters.Plain);
+                    .Format();
 
             features.Configure(names, o => o ^ FeatureOption.Enable);
 
@@ -113,6 +96,7 @@ namespace Reusable.Tests.XUnit
     {
         [UseType, UseMember]
         [TrimStart("I")]
+        [PlainSelectorFormatter]
         public interface IDemo : INamespace
         {
             object Greeting { get; }
@@ -123,16 +107,27 @@ namespace Reusable.Tests.XUnit
 
         [UseType, UseMember]
         [TrimStart("I")]
+        [PlainSelectorFormatter] // todo - comment out to trigger selector-formatter-not-found-exception
         public interface IDatabase : INamespace
         {
             [Tags("io")]
             object Commit { get; }
         }
     }
-
-
-    //    public class UriKey<T> : Key<T, UriString>
-//    {
-//        public override UriString Value => throw new NotImplementedException();
-//    }
+    
+    
+    public class UriSelectorFormatterAttribute : SelectorFormatterAttribute
+    {
+        public override string Format(Selector selector)
+        {
+            var plainKey = selector.Keys.Join(string.Empty);
+            var plainKeyBytes = System.Text.Encoding.UTF8.GetBytes(plainKey);
+            var base64Key = Convert.ToBase64String(plainKeyBytes);
+            
+            // setting:///settings?name=Global:Name.space+Type.Member[Index]
+            var uri = $"config:///settings?name={base64Key}";
+            
+            return default;
+        }
+    }
 }

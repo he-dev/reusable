@@ -1,19 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Custom;
 using System.Linq.Expressions;
-using linq = System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Reusable.Diagnostics;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
-using Reusable.Reflection;
 
-namespace Reusable.Data
+namespace Reusable.Keytchen
 {
     // Protects the user form using an unsupported interface by mistake.
     public interface INamespace { }
@@ -30,29 +26,23 @@ namespace Reusable.Data
     [PublicAPI]
     public class Selector
     {
-        private readonly bool _containsIndex;
+        private readonly LambdaExpression _selector;
 
         public Selector(LambdaExpression selector)
         {
-            Expression = selector;
-            (DeclaringType, Instance, Property) = MemberVisitor.GetMemberInfo(selector);
+            _selector = selector;
             Keys = this.GetKeys().ToImmutableList();
         }
 
         protected Selector(LambdaExpression selector, IImmutableList<Key> keys)
         {
-            Expression = selector;
-            _containsIndex = true;
+            _selector = selector;
             Keys = keys;
         }
 
-        public LambdaExpression Expression { get; }
+        public Type DeclaringType => _selector.ToMemberExpression().Member.DeclaringType;
 
-        public Type DeclaringType { get; } // => Expression.ToMemberExpression().Member.DeclaringType;
-        
-        public object Instance { get; }
-
-        public MemberInfo Property { get; } // => (PropertyInfo)Expression.ToMemberExpression().Member;
+        public PropertyInfo Property => (PropertyInfo)_selector.ToMemberExpression().Member;
 
         [NotNull, ItemNotNull]
         public IImmutableList<Key> Keys { get; }
@@ -61,9 +51,9 @@ namespace Reusable.Data
         {
             // () => x.Member
             var selector =
-                linq.Expression.Lambda(
-                    linq.Expression.Property(
-                        linq.Expression.Constant(default, declaringType),
+                Expression.Lambda(
+                    Expression.Property(
+                        Expression.Constant(null, declaringType),
                         property.Name
                     )
                 );
@@ -74,7 +64,7 @@ namespace Reusable.Data
         public override string ToString()
         {
             var formatters =
-                from m in Property.AncestorTypesAndSelf()
+                from m in Data.Helpers.AncestorTypesAndSelf(Property)
                 where m.IsDefined(typeof(SelectorFormatterAttribute))
                 select m.GetCustomAttribute<SelectorFormatterAttribute>();
 
@@ -82,13 +72,17 @@ namespace Reusable.Data
                 formatters
                     .FirstOrDefault()?
                     .Format(this)
-                ?? throw DynamicException.Create("SelectorFormatterNotFound", $"'{Expression}' must specify a {nameof(SelectorFormatterAttribute)}");
+                ?? throw DynamicException.Create("SelectorFormatterNotFound", $"'{_selector}' must specify a {nameof(SelectorFormatterAttribute)}");
         }
 
-        public virtual Selector Index(string index, string prefix = "[", string suffix = "]")
+        public virtual Selector Index(string index)
         {
-            if (_containsIndex) throw new InvalidOperationException($"'{Expression}' already contains an index.");
-            return new Selector(Expression, Keys.Add(new Key(index) { Prefix = prefix, Suffix = suffix }));
+            if (Keys.OfType<IndexKey>().Any())
+            {
+                throw new InvalidOperationException("This selector already contains an index.");
+            }
+
+            return new Selector(_selector, Keys.Add(new IndexKey(index)));
         }
 
         [NotNull]
@@ -138,7 +132,7 @@ namespace Reusable.Data
         internal static IEnumerable<Key> GetKeys(this Selector selector)
         {
             var keyEnumerators =
-                from m in selector.Property.AncestorTypesAndSelf()
+                from m in Data.Helpers.AncestorTypesAndSelf(selector.Property)
                 where m.IsDefined(typeof(KeyEnumeratorAttribute))
                 select m.GetCustomAttribute<KeyEnumeratorAttribute>();
 
@@ -167,7 +161,7 @@ namespace Reusable.Data
         private static IEnumerable<string> Tags<T>(this Selector selector) where T : Attribute, IEnumerable<string>
         {
             var names =
-                from m in selector.Property.AncestorTypesAndSelf()
+                from m in Data.Helpers.AncestorTypesAndSelf(selector.Property)
                 from ts in m.GetCustomAttributes<T>()
                 from t in ts
                 select t;
