@@ -24,19 +24,19 @@ namespace Reusable.IOnymous
         /// </summary>
         private readonly SemaphoreSlim _cacheLock = new SemaphoreSlim(1, 1);
 
-        private readonly IImmutableList<IResourceProvider> _resourceProviders;
+        private readonly IImmutableList<IResourceProvider> _providers;
 
         public CompositeProvider
         (
-            [NotNull] IEnumerable<IResourceProvider> resourceProviders,
-            IImmutableSession metadata = default
+            [NotNull] IEnumerable<IResourceProvider> providers,
+            [CanBeNull] IImmutableSession metadata = default
         )
             : base(new[] { DefaultScheme }, metadata ?? ImmutableSession.Empty)
         {
-            if (resourceProviders == null) throw new ArgumentNullException(nameof(resourceProviders));
+            if (providers == null) throw new ArgumentNullException(nameof(providers));
 
             _cache = new Dictionary<SoftString, IResourceProvider>();
-            _resourceProviders = resourceProviders.ToImmutableList();
+            _providers = providers.ToImmutableList();
 //            var duplicateProviderNames =
 //                _resourceProviders
 //                    .Where(p => p.CustomName)
@@ -78,7 +78,7 @@ namespace Reusable.IOnymous
         [ItemNotNull]
         private async Task<IResourceInfo> HandleMethodAsync(UriString uri, IImmutableSession metadata, bool isGet, Func<IResourceProvider, Task<IResourceInfo>> handleAsync)
         {
-            var cacheKey = uri.ToString();//.Path.Decoded;
+            var cacheKey = uri.ToString();
 
             await _cacheLock.WaitAsync();
             try
@@ -89,7 +89,7 @@ namespace Reusable.IOnymous
                     return await handleAsync(cached);
                 }
 
-                var resourceProviders = _resourceProviders.AsEnumerable();
+                var resourceProviders = _providers.AsEnumerable();
 
                 // When provider-name is specified then filter them by name first.
                 if (metadata.GetItemOrDefault(From<IProviderMeta>.Select(x => x.ProviderName)) is var providerName && providerName)
@@ -107,11 +107,9 @@ namespace Reusable.IOnymous
                 // GET can search multiple providers.
                 if (isGet)
                 {
-                    var resource = default(IResourceInfo);
                     foreach (var resourceProvider in resourceProviders)
                     {
-                        resource = await handleAsync(resourceProvider);
-                        if (resource.Exists)
+                        if (await handleAsync(resourceProvider) is var resource && resource.Exists)
                         {
                             _cache[cacheKey] = resourceProvider;
                             return resource;
@@ -123,7 +121,7 @@ namespace Reusable.IOnymous
                 // Other methods are allowed to use only a single provider.
                 else
                 {
-                    var match = _cache[uri.Path.Decoded] = resourceProviders.Single();
+                    var match = _cache[cacheKey] = resourceProviders.Single();
                     return await handleAsync(match);
                 }
             }
@@ -137,7 +135,7 @@ namespace Reusable.IOnymous
 
         public CompositeProvider Add([NotNull] IResourceProvider resourceProvider)
         {
-            var resourceProviders = _resourceProviders.Add(resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider)));
+            var resourceProviders = _providers.Add(resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider)));
             return new CompositeProvider
             (
                 resourceProviders,
