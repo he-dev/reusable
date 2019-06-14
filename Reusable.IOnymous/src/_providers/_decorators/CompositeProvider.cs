@@ -118,7 +118,7 @@ namespace Reusable.IOnymous
                         }
                     }
 
-                    return new InMemoryResourceInfo(uri, resource?.Metadata ?? ImmutableSession.Empty);
+                    return new InMemoryResourceInfo(uri, metadata ?? ImmutableSession.Empty);
                 }
                 // Other methods are allowed to use only a single provider.
                 else

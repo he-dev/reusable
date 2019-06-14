@@ -178,15 +178,14 @@ namespace Reusable.Tests.SmartConfig
                 },
                 new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                 {
-                    { "User.Name,this", "Bob" }
+                    { "User.Name[this]", "Bob" }
                 },
                 new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
                 {
                     { "Greeting.Morning", "Tom" }
                 },
             }));
-            //Assert.Equal("Bob", await c.GetItemAsync(x => x.Name, "this"));
-            Assert.False(true); // todo - fix the selector
+            Assert.Equal("Bob", await c.GetItemAsync(x => x.Name, "this"));
         }
 
         [Fact]
@@ -343,17 +342,25 @@ namespace Reusable.Tests.SmartConfig
 
     //[ResourcePrefix("root")]
     [UseGlobal("root"), UseType, UseMember]
+    [UriSelectorFormatter]
     public interface IBaseConfig
     {
         bool Enabled { get; }
     }
 
+    [UseGlobal("root"), UseType, UseMember]
+    [UriSelectorFormatter]
+    [TrimStart("I"), TrimEnd("Config")]
     public interface ISubConfig : IBaseConfig
     {
         //[ResourcePrefix("")]
+        [UseType, UseMember]
         string Name { get; }
     }
 
+    [UseType, UseMember]
+    [UriSelectorFormatter]
+    [TrimStart("I"), TrimEnd("Config")]
     public interface ITypeConfig
     {
         string String { get; }
@@ -363,7 +370,6 @@ namespace Reusable.Tests.SmartConfig
         DateTime DateTime { get; }
         TimeSpan TimeSpan { get; }
         List<int> ListOfInt { get; }
-
         int Edit { get; }
     }
 }

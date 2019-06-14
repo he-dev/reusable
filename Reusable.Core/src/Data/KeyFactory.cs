@@ -160,6 +160,7 @@ namespace Reusable.Data
                 where m.IsDefined(typeof(KeyFactoryAttribute))
                 let keys =
                 (
+                    // Key-factories per member must be sorted before they can be used.
                     from f in m.GetCustomAttributes<KeyFactoryAttribute>()
                     orderby _keyTypes[f.GetType()]
                     select f.CreateKey(selector)

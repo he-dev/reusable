@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Linq.Custom;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -29,7 +30,7 @@ namespace Reusable.SmartConfig
         public static readonly ITypeConverter<UriString, string> DefaultUriStringConverter = new UriStringToStringConverter();
 
         public static readonly IEnumerable<SoftString> DefaultSchemes = ImmutableList<SoftString>.Empty.Add("config");
-        
+
         private readonly IResourceProvider _settings;
 
         public Configuration([NotNull] IResourceProvider settingProvider)
@@ -52,7 +53,6 @@ namespace Reusable.SmartConfig
 //            var (uri, metadata) = SettingRequestFactory.CreateSettingRequest(settingMetadata, handle);
 //            return await _settings.GetItemAsync<object>(uri, metadata.SetItem(From<IResourceMeta>.Select(x => x.Type), settingMetadata.MemberType));
 //        }
-
         public async Task<object> GetItemAsync(Selector selector)
         {
             var uri = selector.ToString();
@@ -67,8 +67,8 @@ namespace Reusable.SmartConfig
                     .Empty
                     .SetItem(From<IResourceMeta>.Select(x => x.Type), selector.MemberType)
                     .SetItem(From<IProviderMeta>.Select(x => x.ProviderName), resource?.Provider)
-                    .SetItem(From<IResourceMeta>.Select(x => x.ActualName), uri);
-            
+                    .SetItem(From<IResourceMeta>.Select(x => x.ActualName), $"[{selector.Keys.Join(x => x.ToString(), ", ")}]");
+
             return await _settings.GetItemAsync<object>(uri, metadata);
         }
 
@@ -82,7 +82,7 @@ namespace Reusable.SmartConfig
 //            Validate(newValue, settingMetadata.Validations, uri);
 //            await _settings.SetItemAsync(uri, newValue, metadata.SetItem(From<IResourceMeta>.Select(x => x.Type), settingMetadata.MemberType));
 //        }
-        
+
         public async Task SetItemAsync(Selector selector, object newValue)
         {
             var uri = selector.ToString();
@@ -96,8 +96,9 @@ namespace Reusable.SmartConfig
                 ImmutableSession
                     .Empty
                     .SetItem(From<IResourceMeta>.Select(x => x.Type), selector.MemberType)
-                    .SetItem(From<IProviderMeta>.Select(x => x.ProviderName), resource?.Provider);
-            
+                    .SetItem(From<IProviderMeta>.Select(x => x.ProviderName), resource?.Provider)
+                    .SetItem(From<IResourceMeta>.Select(x => x.ActualName), $"[{selector.Keys.Join(x => x.ToString(), ", ")}]");
+
             //Validate(newValue, settingMetadata.Validations, uri);
             await _settings.SetItemAsync(uri, newValue, metadata.SetItem(From<IResourceMeta>.Select(x => x.Type), selector.MemberType));
         }

@@ -86,6 +86,12 @@ namespace System.Linq.Custom
             if (values == null) throw new ArgumentNullException(nameof(values));
             return string.Join(separator, values);
         }
+        
+        public static string Join<T>([NotNull] this IEnumerable<T> values, Func<T, string> selector, string separator)
+        {
+            if (values == null) throw new ArgumentNullException(nameof(values));
+            return string.Join(separator, values.Select(selector));
+        }
 
         public static IEnumerable<TArg> Except<TArg, TProjection>(this IEnumerable<TArg> first, IEnumerable<TArg> second, Func<TArg, TProjection> projection)
         {

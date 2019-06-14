@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.SmartConfig;
+using Reusable.Tests.Foggle;
 using Xunit;
 
 namespace Reusable.Tests.SmartConfig.Providers
@@ -44,6 +45,7 @@ namespace Reusable.Tests.SmartConfig.Providers
         //[ResourcePrefix("app")]
         //[ResourceName(Level = ResourceNameLevel.Member)]
         [UseGlobal("app"), UseMember]
+        [UriSelectorFormatter]
         internal interface IProgramConfig
         {
             string Environment { get; }

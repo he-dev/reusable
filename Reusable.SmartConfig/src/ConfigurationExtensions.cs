@@ -40,11 +40,11 @@ namespace Reusable.SmartConfig
             configuration.SetItemAsync(expression, newValue).GetAwaiter().GetResult();
         }
 
-        public static async Task<TValue> GetItemAsync<T, TValue>(this IConfiguration<T> configuration, Expression<Func<T, TValue>> selector)
+        public static async Task<TValue> GetItemAsync<T, TValue>(this IConfiguration<T> configuration, Expression<Func<T, TValue>> selector, string index = default)
         {
-            return (TValue)await configuration.GetItemAsync(new Selector<TValue>(selector));
+            return (TValue)await configuration.GetItemAsync(index is null ? new Selector<TValue>(selector) : new Selector<TValue>(selector).Index(index));
         }
-        
+
         public static TValue GetItem<T, TValue>(this IConfiguration<T> configuration, Expression<Func<T, TValue>> selector)
         {
             return (TValue)configuration.GetItemAsync(selector).GetAwaiter().GetResult();
@@ -54,7 +54,7 @@ namespace Reusable.SmartConfig
         {
             await configuration.SetItemAsync(new Selector<TValue>(selector), newValue);
         }
-        
+
         public static void SetItem<T, TValue>(this IConfiguration<T> configuration, Expression<Func<T, TValue>> setItem, TValue newValue)
         {
             configuration.SetItemAsync(setItem, newValue).GetAwaiter().GetResult();
@@ -71,7 +71,7 @@ namespace Reusable.SmartConfig
         //                );
         //            return configuration.GetSetting(expression, instance);
         //        }
-        
+
         //        /// <summary>
         //        /// Assigns the same setting value to the specified member.
         //        /// </summary>

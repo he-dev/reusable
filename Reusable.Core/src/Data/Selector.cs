@@ -40,9 +40,8 @@ namespace Reusable.Data
             if (Keys.Empty()) throw new ArgumentException($"'{selector}' does not specify which keys to use.");
         }
 
-        protected Selector(LambdaExpression selector, IImmutableList<Key> keys)
+        protected Selector(LambdaExpression selector, IImmutableList<Key> keys) : this(selector)
         {
-            Expression = selector;
             Keys = keys;
             _containsIndex = true;
         }
@@ -96,7 +95,7 @@ namespace Reusable.Data
                 formatters
                     .FirstOrDefault()?
                     .Format(this)
-                ?? throw DynamicException.Create("SelectorFormatterNotFound", $"'{Expression}' must specify a {nameof(SelectorFormatterAttribute)}");
+                ?? throw DynamicException.Create("SelectorFormatterNotFound", $"'{Expression.ToPrettyString()}' must specify a {nameof(SelectorFormatterAttribute)}");
         }
 
         public virtual Selector Index(string index, string prefix = "[", string suffix = "]")
@@ -124,7 +123,7 @@ namespace Reusable.Data
         //
         //            return new Selector<T>(this, Keys.Add(new IndexKey(index)));
         //        }
-        
+
         public static implicit operator Selector<T>(Expression<Func<T>> selector) => new Selector<T>(selector);
     }
 
@@ -158,7 +157,12 @@ namespace Reusable.Data
                 where m.IsDefined(typeof(KeyEnumeratorAttribute))
                 select m.GetCustomAttribute<KeyEnumeratorAttribute>();
 
-            return (keyEnumerators.FirstOrDefault() ?? new KeyEnumeratorAttribute()).EnumerateKeys(selector).First();
+            var keyEnumerator = (keyEnumerators.FirstOrDefault() ?? new KeyEnumeratorAttribute());
+            return
+                keyEnumerator
+                    .EnumerateKeys(selector)
+                    .FirstOrDefault()
+                ?? throw new InvalidOperationException($"'{selector}' is not decorated with any keys.");
         }
 
         public static IImmutableList<Selector> AddFrom<T>(this IImmutableList<Selector> selectors)

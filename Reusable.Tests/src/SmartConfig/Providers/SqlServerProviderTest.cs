@@ -3,9 +3,11 @@ using System.Collections.Immutable;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Dapper;
+using Reusable.Data;
 using Reusable.Data.Repositories;
 using Reusable.IOnymous;
 using Reusable.SmartConfig;
+using Reusable.Tests.Foggle;
 using Xunit;
 
 namespace Reusable.Tests.SmartConfig.Providers
@@ -128,6 +130,9 @@ namespace Reusable.Tests.SmartConfig.Providers
             return Task.CompletedTask;
         }
 
+        [UseType, UseMember]
+        [UriSelectorFormatter]
+        [TrimStart("I"), TrimEnd("Config")]
         private interface IUserConfig
         {
             string Name { get; }
