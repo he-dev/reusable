@@ -89,7 +89,7 @@ namespace Reusable.SmartConfig
                 {
                     await cmd.ExecuteNonQueryAsync(token);
                 }
-            }, metadata.GetItemOrDefault(From<IAnyMeta>.Select(x => x.CancellationToken)));
+            }, metadata.GetItemOrDefault(From<IRequestMeta>.Select(x => x.CancellationToken)));
 
             return await GetAsync(uri, metadata);
         }

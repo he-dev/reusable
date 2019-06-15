@@ -5,7 +5,7 @@ using Reusable.Teapot;
 using Reusable.Utilities.XUnit.Fixtures;
 using Xunit;
 
-namespace Reusable.Tests.XUnit.Teapot
+namespace Reusable.Tests.Teapot
 {
     public class UseCaseTest : IClassFixture<TeapotFactoryFixture>
     {
@@ -52,12 +52,15 @@ namespace Reusable.Tests.XUnit.Teapot
                     (
                         "test?param=true",
                         () => ResourceHelper.SerializeAsJsonAsync(new { Greeting = "Hallo" }),
-                        ImmutableSession.Empty.SetItem(From<IHttpMeta>.Select(x => x.ConfigureRequestHeaders), headers =>
-                        {
-                            headers.ApiVersion("1.0");
-                            headers.UserAgent("Teapot", "1.0");
-                            headers.AcceptJson();
-                        })
+                        ImmutableSession
+                            .Empty
+                            .SetItem(From<IHttpMeta>.Select(x => x.ConfigureRequestHeaders), headers =>
+                            {
+                                headers.ApiVersion("1.0");
+                                headers.UserAgent("Teapot", "1.0");
+                                headers.AcceptJson();
+                            })
+                            .SetItem(From<IHttpMeta>.Select(x => x.ContentType), "application/json")
                     );
 
                     Assert.True(response.Exists);

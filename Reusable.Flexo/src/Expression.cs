@@ -211,16 +211,19 @@ namespace Reusable.Flexo
         }
     }
 
-    //[TypeNameFactory]
     [UseMember]
-    [PlainSelectorFormatter]
     [TrimStart("I"), TrimEnd("Meta")]
+    [PlainSelectorFormatter]
     public interface IExpressionMeta : INamespace
     {
-        //[MemberNameFactory]
+        /// <summary>
+        /// Gets or sets extension value.
+        /// </summary>
         object This { get; }
 
-        //[MemberNameFactory]
+        /// <summary>
+        /// Gets or sets collection item.
+        /// </summary>
         object Item { get; }
 
         IImmutableDictionary<SoftString, IEqualityComparer<object>> Comparers { get; }

@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.Foggle;
 using Reusable.OmniLog;
-using Reusable.SmartConfig;
 using Reusable.Tests.Foggle.Features;
 using Xunit;
 

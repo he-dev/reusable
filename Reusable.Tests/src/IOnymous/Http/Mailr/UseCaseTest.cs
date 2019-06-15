@@ -1,11 +1,12 @@
 using System;
 using System.Threading.Tasks;
+using Reusable.Data;
 using Reusable.IOnymous;
 using Reusable.Teapot;
 using Reusable.Utilities.XUnit.Fixtures;
 using Xunit;
 
-namespace Reusable.Tests.XUnit.IOnymous.Http.Mailr
+namespace Reusable.Tests.IOnymous.Http.Mailr
 {
     public class UseCaseTest : IDisposable, IClassFixture<TeapotFactoryFixture>
     {
@@ -16,7 +17,7 @@ namespace Reusable.Tests.XUnit.IOnymous.Http.Mailr
         public UseCaseTest(TeapotFactoryFixture teapotFactory)
         {
             _teapot = teapotFactory.CreateTeapotServer("http://localhost:6000");
-            _http = new HttpProvider("http://localhost:6000/api");
+            _http = new MailrProvider("http://localhost:6000/api");
         }
 
         [Fact]

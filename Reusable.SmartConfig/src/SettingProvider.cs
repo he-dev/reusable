@@ -7,7 +7,7 @@ namespace Reusable.SmartConfig
 {
     public abstract class SettingProvider : ResourceProvider
     {
-        public static readonly ITypeConverter<UriString, string> DefaultUriStringConverter = new UriStringToStringConverter();
+        public static readonly ITypeConverter<UriString, string> DefaultUriStringConverter = new UriStringQueryNameToStringConverter();
 
         public static readonly IImmutableList<SoftString> DefaultSchemes = ImmutableList<SoftString>.Empty.Add("config");
         

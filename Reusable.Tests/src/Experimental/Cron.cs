@@ -8,7 +8,7 @@ using System.Linq.Custom;
 using System.Text.RegularExpressions;
 using Reusable.Extensions;
 
-namespace Reusable.Tests.XUnit.Experimental
+namespace Reusable.Tests.Experimental
 {
     public enum CronExtension
     {

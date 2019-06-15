@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Reusable.Data;
 using Reusable.Flexo;
+using Reusable.Tests.Flexo.Helpers;
 using Xunit;
 using Double = Reusable.Flexo.Double;
 
@@ -385,36 +386,36 @@ namespace Reusable.Tests.Flexo
                 };
             });
 
-            Assert.That.ExpressionEqual(Constant.True, s);
+            Assert.That.ExpressionEqual(true, s);
         }
 
-        [Fact]
-        public void Switch_passes_SwitchValue_to_context()
-        {
-            var s = _helper.Resolve<Switch>(e =>
-            {
-                e.This = Constant.Create("Test", "bar");
-                e.Cases = new List<SwitchCase>
-                {
-                    new SwitchCase
-                    {
-                        When = _helper.Resolve<Contains>(ee =>
-                        {
-                            ee.This = Constant.CreateMany("foo", "bar").ToList();
-                            ee.Value = _helper.Resolve<GetSingle>(eee => eee.Path = "SwitchSession.Value");
-                        }),
-                        Body = Constant.True
-                    },
-                    new SwitchCase
-                    {
-                        When = Double.Zero,
-                        Body = Constant.False
-                    }
-                };
-            });
-
-            Assert.That.ExpressionEqual(Constant.True, s);
-        }
+//        [Fact]
+//        public void Switch_passes_SwitchValue_to_context()
+//        {
+//            var s = _helper.Resolve<Switch>(e =>
+//            {
+//                e.This = Constant.Create("Test", "bar");
+//                e.Cases = new List<SwitchCase>
+//                {
+//                    new SwitchCase
+//                    {
+//                        When = _helper.Resolve<Contains>(ee =>
+//                        {
+//                            ee.This = Constant.CreateMany("foo", "bar").ToList();
+//                            ee.Value = _helper.Resolve<GetSingle>(eee => eee.Path = "SwitchSession.Value");
+//                        }),
+//                        Body = Constant.True
+//                    },
+//                    new SwitchCase
+//                    {
+//                        When = Double.Zero,
+//                        Body = Constant.False
+//                    }
+//                };
+//            });
+//
+//            Assert.That.ExpressionEqual(Constant.True, s);
+//        }
 
         [Fact]
         public void Switch_uses_Default_when_no_match()
@@ -473,11 +474,11 @@ namespace Reusable.Tests.Flexo
             }));
         }
 
-        [Fact]
-        public void GetContextItem_can_get_item_by_key()
-        {
-            Assert.That.ExpressionEqual(1, _helper.Resolve<GetSingle>(e => e.Path = "SwitchSession.Value"), ctx => ctx.SetItem(From<ISwitchMeta>.Select(x => x.Value), 1));
-        }
+//        [Fact]
+//        public void GetContextItem_can_get_item_by_key()
+//        {
+//            Assert.That.ExpressionEqual(1, _helper.Resolve<GetSingle>(e => e.Path = "SwitchSession.Value"), ctx => ctx.SetItem(From<ISwitchMeta>.Select(x => x.Value), 1));
+//        }
 //
 //        [Fact]
 //        public void Can_use_references()

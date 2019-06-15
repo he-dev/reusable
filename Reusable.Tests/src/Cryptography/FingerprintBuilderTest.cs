@@ -3,7 +3,7 @@ using Reusable.Cryptography;
 using Reusable.Exceptionize;
 using Xunit;
 
-namespace Reusable.Tests.XUnit.Cryptography
+namespace Reusable.Tests.Cryptography
 {
     public class FingerprintBuilderTest
     {

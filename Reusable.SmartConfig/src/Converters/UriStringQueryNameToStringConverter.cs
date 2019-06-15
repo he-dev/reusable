@@ -5,7 +5,7 @@ using Reusable.OneTo1;
 
 namespace Reusable.SmartConfig
 {
-    public class UriStringToStringConverter : TypeConverter<UriString, string>
+    public class UriStringQueryNameToStringConverter : TypeConverter<UriString, string>
     {
         protected override string ConvertCore(IConversionContext<UriString> context)
         {

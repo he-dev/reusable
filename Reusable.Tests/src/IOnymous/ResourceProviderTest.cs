@@ -1,14 +1,11 @@
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.IOnymous;
 using Xunit;
 
-namespace Reusable.Tests.XUnit.IOnymous
+namespace Reusable.Tests.IOnymous
 {
     public class ResourceProviderTest
     {

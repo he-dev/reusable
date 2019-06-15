@@ -3,7 +3,7 @@ using Reusable.IOnymous;
 using Reusable.IOnymous.Models;
 using Xunit;
 
-namespace Reusable.Tests.XUnit.IOnymous.Http.Mailr.Models
+namespace Reusable.Tests.IOnymous.Http.Mailr.Models
 {
     public class HtmlTableTest
     {

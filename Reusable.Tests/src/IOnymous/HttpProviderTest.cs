@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.IOnymous;
 
-namespace Reusable.Tests.XUnit.IOnymous
+namespace Reusable.Tests.IOnymous
 {
     public class HttpProviderTest
     {

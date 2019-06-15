@@ -10,43 +10,34 @@ using Reusable.Extensions;
 namespace Reusable.IOnymous
 {
     [UseType, UseMember]
+    [TrimEnd("I"), TrimStart("Meta")]
     [PlainSelectorFormatter]
-    [TrimEnd("I")]
-    [TrimStart("Meta")]
-    public interface IAnyMeta : INamespace
+    public interface IRequestMeta : INamespace
     {
         Encoding Encoding { get; }
 
-        ISet<SoftString> Schemes { get; }
+        //ISet<SoftString> Schemes { get; }
 
         CancellationToken CancellationToken { get; }
     }
 
     [UseType, UseMember]
+    [TrimEnd("I"), TrimStart("Meta")]
     [PlainSelectorFormatter]
-    [TrimEnd("I")]
-    [TrimStart("Meta")]
     public interface IProviderMeta : INamespace
     {
         bool AllowRelativeUri { get; }
-        
+
         SoftString ProviderName { get; }
-        
-        //SoftString Scheme { get; }
-
-        //SoftString DefaultName { get; }
-
-        //SoftString CustomName { get; }
     }
 
     [UseType, UseMember]
+    [TrimEnd("I"), TrimStart("Meta")]
     [PlainSelectorFormatter]
-    [TrimEnd("I")]
-    [TrimStart("Meta")]
     public interface IResourceMeta : INamespace
     {
-        SoftString Scheme { get; }
-        
+        //SoftString Scheme { get; }
+
         MimeType Format { get; }
 
         Type Type { get; }

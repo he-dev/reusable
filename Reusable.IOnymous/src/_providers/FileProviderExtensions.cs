@@ -41,7 +41,7 @@ namespace Reusable.IOnymous
 
         public static async Task<IResourceInfo> WriteTextFileAsync(this IResourceProvider resourceProvider, string path, string value, IImmutableSession metadata = default)
         {
-            using (var stream = await ResourceHelper.SerializeTextAsync(value, metadata.ThisOrEmpty().GetItemOrDefault(From<IAnyMeta>.Select(x => x.Encoding), Encoding.UTF8)))
+            using (var stream = await ResourceHelper.SerializeTextAsync(value, metadata.ThisOrEmpty().GetItemOrDefault(From<IRequestMeta>.Select(x => x.Encoding), Encoding.UTF8)))
             {
                 return await resourceProvider.PutAsync(CreateUri(path), stream, metadata.ThisOrEmpty().SetItem(From<IResourceMeta>.Select(x => x.Format), MimeType.Text));
             }

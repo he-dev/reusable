@@ -1,8 +1,7 @@
 using System.Collections.Generic;
-using System.Linq.Custom;
 using Xunit;
 
-namespace Reusable.Tests.XUnit.Extensions
+namespace Reusable.Tests.Extensions
 {
     public class EnumerableExtensionsTest
     {

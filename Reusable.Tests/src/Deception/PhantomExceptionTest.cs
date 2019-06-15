@@ -5,7 +5,7 @@ using Reusable.Deception.Triggers;
 using Reusable.Exceptionize;
 using Xunit;
 
-namespace Reusable.Tests.XUnit.Deception
+namespace Reusable.Tests.Deception
 {
     public class PhantomExceptionTest
     {

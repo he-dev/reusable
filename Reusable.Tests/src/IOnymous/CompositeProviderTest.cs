@@ -3,13 +3,10 @@ using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.IOnymous;
-using Reusable.SmartConfig;
 using Xunit;
 
 namespace Reusable.Tests.IOnymous
 {
-    using static SettingProvider;
-    
     public class CompositeProviderTest
     {
         [Fact]
@@ -17,14 +14,14 @@ namespace Reusable.Tests.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider(DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
+                new InMemoryProvider(new UriStringPathToStringConverter(), new[] { ResourceProvider.DefaultScheme })
                 {
-                    { "x.123", "blub1" }
+                    { "x/123", "blub1" }
                 },
-                new InMemoryProvider(DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
+                new InMemoryProvider(new UriStringPathToStringConverter(), new[] { ResourceProvider.DefaultScheme })
                 {
-                    { "x.123", "blub2" },
-                    { "x.123", "blub3" }
+                    { "x/123", "blub2" },
+                    { "x/123", "blub3" }
                 },
             });
 
@@ -39,14 +36,14 @@ namespace Reusable.Tests.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider(DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
+                new InMemoryProvider(new UriStringPathToStringConverter(), new[] { ResourceProvider.DefaultScheme })
                 {
-                    { "x.123", "blub1" }
+                    { "x/123", "blub1" }
                 },
-                new InMemoryProvider(DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
+                new InMemoryProvider(new UriStringPathToStringConverter(), new[] { ResourceProvider.DefaultScheme })
                 {
                     //{ "x.123", "blub2" },
-                    { "x.123", "blub3" }
+                    { "x/123", "blub3" }
                 },
             });
 
@@ -61,14 +58,14 @@ namespace Reusable.Tests.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider(DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
+                new InMemoryProvider(new UriStringPathToStringConverter(), new[] { ResourceProvider.DefaultScheme })
                 {
-                    { "x.123", "blub1" }
+                    { "x/123", "blub1" }
                 },
-                new InMemoryProvider(DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme }, ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), "blub"))
+                new InMemoryProvider(new UriStringPathToStringConverter(), new[] { ResourceProvider.DefaultScheme }, ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), "blub"))
                 {
                     //{ "x.123", "blub2" },
-                    { "x.123", "blub3" }
+                    { "x/123", "blub3" }
                 },
             });
 
@@ -83,11 +80,11 @@ namespace Reusable.Tests.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider(DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
+                new InMemoryProvider(new UriStringPathToStringConverter(), new[] { ResourceProvider.DefaultScheme })
                 {
                     { "blub:123", "blub1" }
                 },
-                new InMemoryProvider(DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
+                new InMemoryProvider(new UriStringPathToStringConverter(), new[] { ResourceProvider.DefaultScheme })
                 {
                     { "blub:123?providerName=blub", "blub2" },
                     { "blub:123?providerName=blub", "blub3" }
@@ -102,14 +99,14 @@ namespace Reusable.Tests.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider(DefaultUriStringConverter, new SoftString[] { "bluba" })
+                new InMemoryProvider(new UriStringPathToStringConverter(), new SoftString[] { "bluba" })
                 {
-                    { "x.123", "blub1" }
+                    { "x/123", "blub1" }
                 },
-                new InMemoryProvider(DefaultUriStringConverter, new SoftString[] { "blub" })
+                new InMemoryProvider(new UriStringPathToStringConverter(), new SoftString[] { "blub" })
                 {
-                    { "x.123", "blub2" },
-                    { "x.125", "blub3" }
+                    { "x/123", "blub2" },
+                    { "x/125", "blub3" }
                 },
             });
 

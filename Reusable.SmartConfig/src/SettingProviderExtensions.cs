@@ -15,7 +15,7 @@ namespace Reusable.SmartConfig
 {
     [PublicAPI]
     [UsedImplicitly]
-    public static class ResourceProviderExtensions
+    public static class SettingProviderExtensions
     {
         public static async Task<object> ReadSettingAsync(this IResourceProvider resources, Selector selector)
         {

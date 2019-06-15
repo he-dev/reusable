@@ -3,7 +3,7 @@ using System.Linq;
 using Reusable.Foggle;
 using Xunit;
 
-namespace Reusable.Tests.XUnit
+namespace Reusable.Tests
 {
     public class OptionTest
     {

@@ -1,10 +1,8 @@
 using System.Linq;
 using Xunit;
 
-namespace Reusable.Tests.XUnit.Experimental
+namespace Reusable.Tests.Experimental
 {
-    using static CounterPosition;
-
     public class InfiniteCounterTest
     {
         [Fact]
@@ -16,7 +14,7 @@ namespace Reusable.Tests.XUnit.Experimental
         [Fact]
         public void Names_each_position()
         {
-            Assert.Equal(new[] { First, Intermediate, Last, First, Intermediate, Last }, new InfiniteCounter(3).AsEnumerable().Take(6).Select(x => x.Position));
+            Assert.Equal(new[] { CounterPosition.First, CounterPosition.Intermediate, CounterPosition.Last, CounterPosition.First, CounterPosition.Intermediate, CounterPosition.Last }, new InfiniteCounter(3).AsEnumerable().Take(6).Select(x => x.Position));
         }
     }
     
@@ -31,7 +29,7 @@ namespace Reusable.Tests.XUnit.Experimental
         [Fact]
         public void Names_each_position()
         {
-            Assert.Equal(new[] { First, Intermediate, Last, First, Intermediate, Last }, new Counter(3).Infinite().AsEnumerable().Take(6).Select(x => x.Position));
+            Assert.Equal(new[] { CounterPosition.First, CounterPosition.Intermediate, CounterPosition.Last, CounterPosition.First, CounterPosition.Intermediate, CounterPosition.Last }, new Counter(3).Infinite().AsEnumerable().Take(6).Select(x => x.Position));
         }
     }
 }

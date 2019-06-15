@@ -26,12 +26,12 @@ namespace Reusable.Flexo
             if (value.Value<bool>())
             {
                 var trueResult = True?.Invoke();
-                return (Name, trueResult?.Value);
+                return (Name, trueResult?.Value ?? Constant.Null);
             }
             else
             {
                 var falseResult = False?.Invoke();
-                return (Name, falseResult?.Value);
+                return (Name, falseResult?.Value ?? Constant.Null);
             }
         }
     }

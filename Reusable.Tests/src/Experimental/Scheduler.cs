@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Xunit;
 
-namespace Reusable.Tests.XUnit.Experimental
+namespace Reusable.Tests.Experimental
 {
     public class CronExpressionTest
     {

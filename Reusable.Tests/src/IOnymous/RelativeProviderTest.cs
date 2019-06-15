@@ -6,7 +6,7 @@ using Telerik.JustMock;
 using Telerik.JustMock.Helpers;
 using Xunit;
 
-namespace Reusable.Tests.XUnit.IOnymous
+namespace Reusable.Tests.IOnymous
 {
     public class RelativeProviderTest
     {

@@ -5,7 +5,7 @@ using Reusable.Commander.Annotations;
 using Reusable.Commander.Services;
 using Xunit;
 
-namespace Reusable.Tests.XUnit.Experimental
+namespace Reusable.Tests.Experimental
 {
     public class CommandLineReaderTest
     {

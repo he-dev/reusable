@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Data;
@@ -13,6 +14,8 @@ namespace Reusable.Flexo
     [PublicAPI]
     public class Switch : ValueExtension<object>
     {
+        public Switch(ILogger<Switch> logger) : this(logger, nameof(Switch)) { }
+        
         protected Switch(ILogger logger, SoftString name) : base(logger, name) { }
 
         [JsonProperty("Value")]
@@ -52,6 +55,11 @@ namespace Reusable.Flexo
                 }
             }
 
+            if (Default is IConstant @default)
+            {
+                return ("Switch.Default", @default.Value);
+            }
+
             return
             (
                 Name,
@@ -77,12 +85,12 @@ namespace Reusable.Flexo
         public IExpression Body { get; set; }
     }
 
-    [UseType]
-    [UseMember]
-    [TrimEnd("I")]
-    [TrimStart("Meta")]
-    public interface ISwitchMeta : INamespace
-    {
-        object Value { get; }
-    }
+//    [UseType]
+//    [UseMember]
+//    [TrimEnd("I")]
+//    [TrimStart("Meta")]
+//    public interface ISwitchMeta : INamespace
+//    {
+//        object Value { get; }
+//    }
 }

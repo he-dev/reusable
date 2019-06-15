@@ -18,7 +18,7 @@ namespace Reusable.IOnymous
         private readonly HttpClient _client;
 
         public HttpProvider([NotNull] string baseUri, IImmutableSession metadata = default)
-            : base(new SoftString[] { "http", "https" }, (metadata ?? ImmutableSession.Empty).SetItem(From<IProviderMeta>.Select(x => x.AllowRelativeUri), true))
+            : base(new SoftString[] { "http", "https" }, metadata.ThisOrEmpty().SetItem(From<IProviderMeta>.Select(x => x.AllowRelativeUri), true))
         {
             if (baseUri == null) throw new ArgumentNullException(nameof(baseUri));
 
@@ -60,7 +60,7 @@ namespace Reusable.IOnymous
 
                 Metadata.GetItemOrDefault(From<IHttpMeta>.Select(m => m.ConfigureRequestHeaders), _ => { })(request.Headers);
                 metadata.GetItemOrDefault(From<IHttpMeta>.Select(m => m.ConfigureRequestHeaders))(request.Headers);
-                using (var response = await _client.SendAsync(request, HttpCompletionOption.ResponseContentRead, metadata.GetItemOrDefault(From<IAnyMeta>.Select(m => m.CancellationToken))))
+                using (var response = await _client.SendAsync(request, HttpCompletionOption.ResponseContentRead, metadata.GetItemOrDefault(From<IRequestMeta>.Select(m => m.CancellationToken))))
                 {
                     var responseContentCopy = new MemoryStream();
 
@@ -133,10 +133,9 @@ namespace Reusable.IOnymous
         }
     }
 
-    [UseType]
-    [UseMember]
-    [TrimEnd("I")]
-    [TrimStart("Meta")]
+    [UseType, UseMember]
+    [TrimEnd("I"), TrimStart("Meta")]
+    [PlainSelectorFormatter]
     public interface IHttpMeta : INamespace
     {
         Stream Content { get; }

@@ -1,7 +1,7 @@
 using Reusable.IOnymous;
 using Xunit;
 
-namespace Reusable.Tests.XUnit.IOnymous
+namespace Reusable.Tests.IOnymous
 {
     public class UriStringTest
     {

@@ -2,16 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Builder.Extensions;
 using Reusable.Data;
-using Reusable.Exceptionize;
 using Reusable.Flexo;
 using Xunit;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
 // ReSharper disable once CheckNamespace
-namespace Reusable.Tests.Flexo
+namespace Reusable.Tests.Flexo.Helpers
 {
     internal static class AssertExtensions
     {

@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Reusable.IOnymous;
+using Reusable.OneTo1;
 using Reusable.SmartConfig;
 using Xunit;
 
@@ -13,7 +14,7 @@ namespace Reusable.Tests.IOnymous
         [Fact]
         public void Can_be_created_from_collection_initializer()
         {
-            var inMemory = new InMemoryProvider(DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
+            var inMemory = new InMemoryProvider(new UriStringPathToStringConverter(), new[] { ResourceProvider.DefaultScheme })
             {
                 { "foo:bar/baz", "qux" },
             };
@@ -36,10 +37,10 @@ namespace Reusable.Tests.IOnymous
         [Fact]
         public async Task Can_get_resource_by_uri()
         {
-            var inMemory = new InMemoryProvider(DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
+            var inMemory = new InMemoryProvider(new UriStringPathToStringConverter(), new[] { ResourceProvider.DefaultScheme })
             {
-                { "bar.baz1", "quxx" },
-                { "bar.baz2", "quxy" },
+                { "bar/baz1", "quxx" },
+                { "bar/baz2", "quxy" },
             };
 
             var value1 = await inMemory.GetAsync("foox:bar/baz1");
@@ -55,9 +56,9 @@ namespace Reusable.Tests.IOnymous
         [Fact]
         public async Task Can_get_resource_by_ionymous_uri()
         {
-            var inMemory = new InMemoryProvider(DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
+            var inMemory = new InMemoryProvider(new UriStringPathToStringConverter(), new[] { ResourceProvider.DefaultScheme })
             {
-                { "bar.baz", "quxx" },
+                { "bar/baz", "quxx" },
                 //{ "bar.baz", "quxy" },
             };
 
