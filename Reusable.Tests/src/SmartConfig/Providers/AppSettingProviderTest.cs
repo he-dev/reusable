@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Reusable.Data;
+using Reusable.IOnymous;
 using Reusable.SmartConfig;
 using Reusable.Tests.Foggle;
 using Xunit;
@@ -36,8 +37,8 @@ namespace Reusable.Tests.SmartConfig.Providers
         [Fact]
         public async Task Can_get_setting()
         {
-            var c = new Configuration<IProgramConfig>(new AppSettingProvider());
-            var env = await c.GetItemAsync(x => x.Environment);
+            var c = CompositeProvider.Empty.Add(new AppSettingProvider());
+            var env = await c.ReadSettingAsync(From<IProgramConfig>.Select(x => x.Environment));
             
             Assert.Equal("test", env);
         }
@@ -46,7 +47,7 @@ namespace Reusable.Tests.SmartConfig.Providers
         //[ResourceName(Level = ResourceNameLevel.Member)]
         [UseGlobal("app"), UseMember]
         [SettingSelectorFormatter]
-        internal interface IProgramConfig
+        private interface IProgramConfig
         {
             string Environment { get; }
         }

@@ -31,21 +31,18 @@ namespace Reusable.Tests.SmartConfig.Providers
         [Fact]
         public async Task Can_get_setting()
         {
-            var c = new Configuration<IUserConfig>(new CompositeProvider(new[]
+            var c = CompositeProvider.Empty.Add(new SqlServerProvider("name=TestDb")
             {
-                new SqlServerProvider("name=TestDb")
-                {
-                    TableName = ("reusable", "SmartConfig"),
-                    ValueConverter = new JsonSettingConverter(),
-                    ColumnMappings =
-                        ImmutableDictionary<SqlServerColumn, SoftString>
-                            .Empty
-                            .Add(SqlServerColumn.Name, "_name")
-                            .Add(SqlServerColumn.Value, "_value")
-                }
-            }));
-            var name = await c.GetItemAsync(x => x.Name);
-            var isCool = await c.GetItemAsync(x => x.IsCool);
+                TableName = ("reusable", "SmartConfig"),
+                ValueConverter = new JsonSettingConverter(),
+                ColumnMappings =
+                    ImmutableDictionary<SqlServerColumn, SoftString>
+                        .Empty
+                        .Add(SqlServerColumn.Name, "_name")
+                        .Add(SqlServerColumn.Value, "_value")
+            });
+            var name = await c.ReadSettingAsync(From<IUserConfig>.Select(x => x.Name));
+            var isCool = await c.ReadSettingAsync(From<IUserConfig>.Select(x => x.IsCool));
 
             Assert.Equal("Bob", name);
             Assert.True(isCool);
@@ -54,21 +51,18 @@ namespace Reusable.Tests.SmartConfig.Providers
         [Fact]
         public async Task Can_get_setting_with_additional_criteria()
         {
-            var c = new Configuration<IUserConfig>(new CompositeProvider(new[]
+            var c = CompositeProvider.Empty.Add(new SqlServerProvider("name=TestDb")
             {
-                new SqlServerProvider("name=TestDb")
-                {
-                    TableName = ("reusable", "SmartConfig"),
-                    ValueConverter = new JsonSettingConverter(),
-                    ColumnMappings =
-                        ImmutableDictionary<SqlServerColumn, SoftString>
-                            .Empty
-                            .Add(SqlServerColumn.Name, "_name")
-                            .Add(SqlServerColumn.Value, "_value"),
-                    Where = ImmutableDictionary<string, object>.Empty.Add("_other", "Someone-else")
-                },
-            }));
-            var name = await c.GetItemAsync(x => x.Name);
+                TableName = ("reusable", "SmartConfig"),
+                ValueConverter = new JsonSettingConverter(),
+                ColumnMappings =
+                    ImmutableDictionary<SqlServerColumn, SoftString>
+                        .Empty
+                        .Add(SqlServerColumn.Name, "_name")
+                        .Add(SqlServerColumn.Value, "_value"),
+                Where = ImmutableDictionary<string, object>.Empty.Add("_other", "someone-else")
+            });
+            var name = await c.ReadSettingAsync(From<IUserConfig>.Select(x => x.Name));
 
             Assert.Equal("Tom", name);
         }
@@ -76,57 +70,53 @@ namespace Reusable.Tests.SmartConfig.Providers
         [Fact]
         public async Task Can_deserialize_various_types()
         {
-            var c = new Configuration<ITypeConfig>(new CompositeProvider(new[]
+            var c = CompositeProvider.Empty.Add(new SqlServerProvider("name=TestDb")
             {
-                new SqlServerProvider("name=TestDb")
-                {
-                    TableName = ("reusable", "SmartConfig"),
-                    ValueConverter = new JsonSettingConverter(),
-                    ColumnMappings =
-                        ImmutableDictionary<SqlServerColumn, SoftString>
-                            .Empty
-                            .Add(SqlServerColumn.Name, "_name")
-                            .Add(SqlServerColumn.Value, "_value"),
-                    Where = 
-                        ImmutableDictionary<string, object>
-                            .Empty
-                            .Add("_other", "t"),
-                    Fallback = ("_other", "something-else")
-                },
-            }));
+                TableName = ("reusable", "SmartConfig"),
+                ValueConverter = new JsonSettingConverter(),
+                ColumnMappings =
+                    ImmutableDictionary<SqlServerColumn, SoftString>
+                        .Empty
+                        .Add(SqlServerColumn.Name, "_name")
+                        .Add(SqlServerColumn.Value, "_value"),
+                Where =
+                    ImmutableDictionary<string, object>
+                        .Empty
+                        .Add("_other", "t"),
+                Fallback = ("_other", "something-else")
+            });
 
-            Assert.Equal("str", await c.GetItemAsync(x => x.String));
-            Assert.Equal(true, await c.GetItemAsync(x => x.Bool));
-            Assert.Equal(3, await c.GetItemAsync(x => x.Int));
-            Assert.Equal(1.25, await c.GetItemAsync(x => x.Double));
-            Assert.Equal(new DateTime(2019, 1, 2), await c.GetItemAsync(x => x.DateTime));
-            Assert.Equal(new[] { 3, 4, 5 }, await c.GetItemAsync(x => x.ListOfInt));
-            Assert.Equal(TimeSpan.FromMinutes(20), await c.GetItemAsync(x => x.TimeSpan));
+            var types = From<ITypeConfig>.This;
+
+            Assert.Equal("str", await c.ReadSettingAsync(types.Select(x => x.String)));
+            Assert.Equal(true, await c.ReadSettingAsync(types.Select(x => x.Bool)));
+            Assert.Equal(3, await c.ReadSettingAsync(types.Select(x => x.Int)));
+            Assert.Equal(1.25, await c.ReadSettingAsync(types.Select(x => x.Double)));
+            Assert.Equal(new DateTime(2019, 1, 2), await c.ReadSettingAsync(types.Select(x => x.DateTime)));
+            Assert.Equal(new[] { 3, 4, 5 }, await c.ReadSettingAsync(types.Select(x => x.ListOfInt)));
+            Assert.Equal(TimeSpan.FromMinutes(20), await c.ReadSettingAsync(types.Select(x => x.TimeSpan)));
         }
 
         [Fact]
         public async Task Can_save_setting()
         {
-            var c = new Configuration<ITypeConfig>(new CompositeProvider(new[]
+            var c = CompositeProvider.Empty.Add(new SqlServerProvider("name=TestDb")
             {
-                new SqlServerProvider("name=TestDb")
-                {
-                    TableName = ("reusable", "SmartConfig"),
-                    ValueConverter = new JsonSettingConverter(),
-                    ColumnMappings =
-                        ImmutableDictionary<SqlServerColumn, SoftString>
-                            .Empty
-                            .Add(SqlServerColumn.Name, "_name")
-                            .Add(SqlServerColumn.Value, "_value"),
-                    Where = ImmutableDictionary<string, object>.Empty.Add("_other", "t")
-                },
-            }));
+                TableName = ("reusable", "SmartConfig"),
+                ValueConverter = new JsonSettingConverter(),
+                ColumnMappings =
+                    ImmutableDictionary<SqlServerColumn, SoftString>
+                        .Empty
+                        .Add(SqlServerColumn.Name, "_name")
+                        .Add(SqlServerColumn.Value, "_value"),
+                Where = ImmutableDictionary<string, object>.Empty.Add("_other", "t")
+            });
 
-            Assert.Equal(7, await c.GetItemAsync(x => x.Edit));
+            Assert.Equal(7, await c.ReadSettingAsync(From<ITypeConfig>.Select(x => x.Edit)));
 
-            await c.SetItemAsync(x => x.Edit, 12);
+            await c.WriteSettingAsync(From<ITypeConfig>.Select(x => x.Edit), 12);
 
-            Assert.Equal(12, await c.GetItemAsync(x => x.Edit));
+            Assert.Equal(12, await c.ReadSettingAsync(From<ITypeConfig>.Select(x => x.Edit)));
         }
 
         public Task DisposeAsync()
@@ -137,7 +127,7 @@ namespace Reusable.Tests.SmartConfig.Providers
         [UseType, UseMember]
         [SettingSelectorFormatter]
         [TrimStart("I"), TrimEnd("Config")]
-        private interface IUserConfig
+        private interface IUserConfig : INamespace
         {
             string Name { get; }
 

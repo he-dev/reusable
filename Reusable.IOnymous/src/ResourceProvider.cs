@@ -29,7 +29,7 @@ namespace Reusable.IOnymous
 
         [NotNull, ItemNotNull]
         IEnumerable<SoftString> Names { get; }
-        
+
         bool CanGet { get; }
 
         bool CanPost { get; }
@@ -51,7 +51,7 @@ namespace Reusable.IOnymous
         Task<IResourceInfo> DeleteAsync([NotNull] UriString uri, [CanBeNull] IImmutableSession metadata = default);
     }
 
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
+    [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public abstract class ResourceProvider : IResourceProvider
     {
         public static readonly SoftString DefaultScheme = "ionymous";

@@ -7,7 +7,6 @@ using Reusable.SmartConfig;
 using Reusable.SmartConfig.Annotations;
 using Reusable.Tests.Foggle;
 using Xunit;
-using cfg = Reusable.SmartConfig.Configuration;
 
 //[assembly: SettingProvider(SettingNameStrength.Medium, Prefix = "TestPrefix")]
 //[assembly: SettingProvider(SettingNameStrength.Low, typeof(AppSettingProvider), Prefix = "abc")]
@@ -29,6 +28,8 @@ using cfg = Reusable.SmartConfig.Configuration;
  */
 namespace Reusable.Tests.SmartConfig
 {
+    using static SettingProvider;
+
     public class ConfigurationTest
     {
         [Fact]
@@ -36,10 +37,10 @@ namespace Reusable.Tests.SmartConfig
         {
             var u = new User
             {
-                Configuration = new cfg(new InMemoryProvider(Configuration.DefaultUriStringConverter, new SoftString[] { "config" })
+                Configuration = new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
                 {
                     { "User.Name", "Bob" }
-                })
+                }
             };
             Assert.Equal("Bob", u.Name);
         }
@@ -49,46 +50,48 @@ namespace Reusable.Tests.SmartConfig
         {
             var u = new User
             {
-                Configuration = new cfg(new CompositeProvider(new IResourceProvider[]
-                {
-                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
-                    {
-                        { "Person.Name", "Joe" }
-                    },
-                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
-                    {
-                        { "User.Name", "Bob" }
-                    },
-                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
-                    {
-                        { "User.Name", "Tom" }
-                    }
-                }))
+                Configuration =
+                    CompositeProvider
+                        .Empty
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
+                        {
+                            { "Person.Name", "Joe" }
+                        })
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
+                        {
+                            { "User.Name", "Bob" }
+                        })
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
+                        {
+                            { "User.Name", "Tom" }
+                        })
             };
+
             Assert.Equal("Bob", u.Name);
         }
 
         [Fact]
         public void Can_find_setting_by_provider()
-        {            
+        {
             var u = new Map
             {
-                Configuration = new cfg(new CompositeProvider(new IResourceProvider[]
-                {
-                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes, ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), "OtherOne"))
-                    {
-                        { "Map.City", "Joe" }
-                    },
-                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
-                    {
-                        { "Map.City", "Tom" }
-                    },
-                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes, ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), "ThisOne"))
-                    {
-                        { "Map.City", "Bob" }
-                    },
-                }))
+                Configuration =
+                    CompositeProvider
+                        .Empty
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes, ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), "OtherOne"))
+                        {
+                            { "Map.City", "Joe" }
+                        })
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
+                        {
+                            { "Map.City", "Tom" }
+                        })
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes, ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), "ThisOne"))
+                        {
+                            { "Map.City", "Bob" }
+                        })
             };
+
             Assert.Equal("Bob", u.City);
         }
 
@@ -100,22 +103,23 @@ namespace Reusable.Tests.SmartConfig
         {
             var u = new Forest
             {
-                Configuration = new cfg(new CompositeProvider(new IResourceProvider[]
-                {
-                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
-                    {
-                        { "User.Name", "Joe" }
-                    },
-                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
-                    {
-                        { "Forest.Tree", "Tom" }
-                    },
-                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
-                    {
-                        { "Amazon.Timber", "Bob" }
-                    },
-                }))
+                Configuration =
+                    CompositeProvider
+                        .Empty
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
+                        {
+                            { "User.Name", "Joe" }
+                        })
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
+                        {
+                            { "Forest.Tree", "Tom" }
+                        })
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
+                        {
+                            { "Amazon.Timber", "Bob" }
+                        })
             };
+
             Assert.Equal("Bob", u.Tree);
         }
 
@@ -124,22 +128,23 @@ namespace Reusable.Tests.SmartConfig
         {
             var u = new Key
             {
-                Configuration = new cfg(new CompositeProvider(new IResourceProvider[]
-                {
-                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
-                    {
-                        { "User.Name", "Joe" }
-                    },
-                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
-                    {
-                        { "Reusable.Tests.SmartConfig+Key.Location", "Tom" }
-                    },
-                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
-                    {
-                        { "Door", "Bob" }
-                    },
-                }))
+                Configuration =
+                    CompositeProvider
+                        .Empty
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
+                        {
+                            { "User.Name", "Joe" }
+                        })
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
+                        {
+                            { "Reusable.Tests.SmartConfig+Key.Location", "Tom" }
+                        })
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
+                        {
+                            { "Door", "Bob" }
+                        })
             };
+
             Assert.Equal("Tom", u.Location);
             Assert.Equal("Bob", u.Door);
         }
@@ -149,44 +154,46 @@ namespace Reusable.Tests.SmartConfig
         {
             var u = new Greeting
             {
-                Configuration = new cfg(new CompositeProvider(new IResourceProvider[]
-                {
-                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
-                    {
-                        { "User.Name", "Joe" }
-                    },
-                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
-                    {
-                        { "day:Greeting.Morning", "Bob" }
-                    },
-                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
-                    {
-                        { "Greeting.Morning", "Tom" }
-                    },
-                }))
+                Configuration =
+                    CompositeProvider
+                        .Empty
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
+                        {
+                            { "User.Name", "Joe" }
+                        })
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
+                        {
+                            { "day:Greeting.Morning", "Bob" }
+                        })
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
+                        {
+                            { "Greeting.Morning", "Tom" }
+                        })
             };
+
             Assert.Equal("Bob", u.Morning);
         }
 
         [Fact]
         public async Task Can_use_setting_with_handle()
         {
-            var c = new Configuration<User>(new CompositeProvider(new IResourceProvider[]
-            {
-                new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
-                {
-                    { "User.Name", "Joe" }
-                },
-                new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
-                {
-                    { "User.Name[this]", "Bob" }
-                },
-                new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
-                {
-                    { "Greeting.Morning", "Tom" }
-                },
-            }));
-            Assert.Equal("Bob", await c.GetItemAsync(x => x.Name, "this"));
+            var c =
+                CompositeProvider
+                    .Empty
+                    .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
+                    {
+                        { "User.Name", "Joe" }
+                    })
+                    .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
+                    {
+                        { "User.Name[this]", "Bob" }
+                    })
+                    .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
+                    {
+                        { "Greeting.Morning", "Tom" }
+                    });
+
+            Assert.Equal("Bob", await c.ReadSettingAsync(From<User>.Select(x => x.Name).Index("this")));
         }
 
         [Fact]
@@ -194,22 +201,23 @@ namespace Reusable.Tests.SmartConfig
         {
             var u = new Admin
             {
-                Configuration = new cfg(new CompositeProvider(new IResourceProvider[]
-                {
-                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
-                    {
-                        { "User.Name", "Joe" }
-                    },
-                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
-                    {
-                        { "Admin.Enabled", true }
-                    },
-                    new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
-                    {
-                        { "Admin.Skill", "Tom" }
-                    },
-                }))
+                Configuration =
+                    CompositeProvider
+                        .Empty
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
+                        {
+                            { "User.Name", "Joe" }
+                        })
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
+                        {
+                            { "Admin.Enabled", true }
+                        })
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
+                        {
+                            { "Admin.Skill", "Tom" }
+                        })
             };
+
             Assert.Equal(true, u.Enabled);
             Assert.Equal("Tom", u.Skill);
         }
@@ -217,23 +225,21 @@ namespace Reusable.Tests.SmartConfig
         [Fact]
         public async Task Can_save_setting()
         {
-            var c = new Configuration<Admin>(new CompositeProvider(new IResourceProvider[]
+            var c = CompositeProvider.Empty.Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
             {
-                new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
-                {
-                    { "Admin.Name", "Joe" },
-                    { "Admin.Enabled", true }
-                }
-            }));
+                { "Admin.Name", "Joe" },
+                { "Admin.Enabled", true }
+            });
 
-            Assert.Equal("Joe", await c.GetItemAsync(x => x.Name));
-            Assert.Equal(true, await c.GetItemAsync(x => x.Enabled));
+            var selectAdminName = From<Admin>.Select(x => x.Name);
+            var selectAdminEnabled = From<Admin>.Select(x => x.Enabled);
 
-            await c.SetItemAsync(x => x.Name, "Tom");
-            await c.SetItemAsync(x => x.Enabled, false);
-
-            Assert.Equal("Tom", await c.GetItemAsync(x => x.Name));
-            Assert.Equal(false, await c.GetItemAsync(x => x.Enabled));
+            Assert.Equal("Joe", await c.ReadSettingAsync(selectAdminName));
+            Assert.Equal(true, await c.ReadSettingAsync(selectAdminEnabled));
+            await c.WriteSettingAsync(selectAdminName, "Tom");
+            await c.WriteSettingAsync(selectAdminEnabled, false);
+            Assert.Equal("Tom", await c.ReadSettingAsync(selectAdminName));
+            Assert.Equal(false, await c.ReadSettingAsync(selectAdminEnabled));
         }
     }
 
@@ -241,73 +247,73 @@ namespace Reusable.Tests.SmartConfig
     [SettingSelectorFormatter]
     internal class Nothing
     {
-        public IConfiguration Configuration { get; set; }
+        public IResourceProvider Configuration { get; set; }
 
-        public bool Enabled => Configuration.GetItem(() => Enabled);
+        public bool Enabled => Configuration.ReadSetting(() => Enabled);
     }
 
     [UseType, UseMember]
     [SettingSelectorFormatter]
-    // tests defaults
-    internal class User : Nothing
+// tests defaults
+    internal class User : Nothing, INamespace
     {
-        public string Name => Configuration.GetItem(() => Name);
+        public string Name => Configuration.ReadSetting(() => Name);
     }
 
     [UseType, UseMember]
     [SettingSelectorFormatter]
     internal class Admin : User
     {
-        public string Skill => Configuration.GetItem(() => Skill);
+        public string Skill => Configuration.ReadSetting(() => Skill);
     }
 
-    //[ResourceName("Amazon")]
+//[ResourceName("Amazon")]
     [UseType, UseMember]
     [Rename("Amazon")]
     [SettingSelectorFormatter]
     internal class Forest : Nothing
     {
         [Rename("Timber")]
-        public string Tree => Configuration.GetItem(() => Tree);
+        public string Tree => Configuration.ReadSetting(() => Tree);
     }
 
     [UseGlobal("day"), UseType, UseMember]
     [SettingSelectorFormatter]
     internal class Greeting : Nothing
     {
-        public string Morning => Configuration.GetItem(() => Morning);
+        public string Morning => Configuration.ReadSetting(() => Morning);
     }
 
-    // tests assembly annotations -- they are no longer supported
-    // internal class Test6 : Nothing
-    // {
-    //     public string Member1 { get; set; }
-    //
-    //     //[SettingMember(Strength = SettingNameStrength.Low, PrefixHandling = PrefixHandling.Disable)]
-    //     public string Member2 { get; set; }
-    // }
+// tests assembly annotations -- they are no longer supported
+// internal class Test6 : Nothing
+// {
+//     public string Member1 { get; set; }
+//
+//     //[SettingMember(Strength = SettingNameStrength.Low, PrefixHandling = PrefixHandling.Disable)]
+//     public string Member2 { get; set; }
+// }
 
     [UseType, UseMember]
     [Resource(Provider = "ThisOne")]
     [SettingSelectorFormatter]
     internal class Map : Nothing
     {
-        public string City => Configuration.GetItem(() => City);
+        public string City => Configuration.ReadSetting(() => City);
     }
 
     [UseNamespace, UseType, UseMember]
     [SettingSelectorFormatter]
     internal class Key : Nothing
     {
-        public string Location => Configuration.GetItem(() => Location);
+        public string Location => Configuration.ReadSetting(() => Location);
 
         [UseMember]
-        public string Door => Configuration.GetItem(() => Door);
+        public string Door => Configuration.ReadSetting(() => Door);
     }
 
     internal class CustomTypes : Nothing
     {
-        public TimeSpan TimeSpan => Configuration.GetItem(() => TimeSpan);
+        public TimeSpan TimeSpan => Configuration.ReadSetting(() => TimeSpan);
     }
 
     public class ConfigurationTestGeneric
@@ -315,30 +321,31 @@ namespace Reusable.Tests.SmartConfig
         [Fact]
         public async Task Can_find_setting_on_base_type()
         {
-            var c = new Reusable.SmartConfig.Configuration<ISubConfig>(new CompositeProvider(new IResourceProvider[]
-            {
-                new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
-                {
-                    { "User.Name", "Joe" }
-                },
-                new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
-                {
-                    { "root:Sub.Enabled", true }
-                },
-                new InMemoryProvider(Configuration.DefaultUriStringConverter, Configuration.DefaultSchemes)
-                {
-                    { "Sub.Name", "Tom" }
-                },
-            }));
+            // ISubConfig
+            var c =
+                CompositeProvider
+                    .Empty
+                    .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
+                    {
+                        { "User.Name", "Joe" }
+                    })
+                    .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
+                    {
+                        { "root:Sub.Enabled", true }
+                    })
+                    .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
+                    {
+                        { "Sub.Name", "Tom" }
+                    });
 
-            Assert.Equal(true, await c.GetItemAsync(x => x.Enabled));
-            Assert.Equal("Tom", await c.GetItemAsync(x => x.Name));
+            Assert.Equal(true, await c.ReadSettingAsync(From<ISubConfig>.Select(x => x.Enabled)));
+            Assert.Equal("Tom", await c.ReadSettingAsync(From<ISubConfig>.Select(x => x.Name)));
         }
     }
 
     [UseGlobal("root"), UseType, UseMember]
     [SettingSelectorFormatter]
-    public interface IBaseConfig
+    public interface IBaseConfig : INamespace
     {
         bool Enabled { get; }
     }
@@ -355,7 +362,7 @@ namespace Reusable.Tests.SmartConfig
     [UseType, UseMember]
     [SettingSelectorFormatter]
     [TrimStart("I"), TrimEnd("Config")]
-    public interface ITypeConfig
+    public interface ITypeConfig : INamespace
     {
         string String { get; }
         bool Bool { get; }

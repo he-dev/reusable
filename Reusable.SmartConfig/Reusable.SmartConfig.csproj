@@ -35,6 +35,9 @@
     <Compile Remove="src\SettingIdentifier.cs" />
     <Compile Remove="src\SettingNameParser.cs" />
     <Compile Remove="src\Annotations.cs" />
+    <Compile Remove="src\Configuration.cs" />
+    <Compile Remove="src\Configuration{T}.cs" />
+    <Compile Remove="src\ConfigurationExtensions.cs" />
     <Compile Remove="src\Converters\UriStringToSettingIdentifierConverter.cs" />
   </ItemGroup>
 </Project>

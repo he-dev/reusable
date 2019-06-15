@@ -18,10 +18,21 @@ namespace Reusable.Data
     public interface INamespace { }
 
     [PublicAPI]
-    public static class From<T> where T : INamespace
+    public class From<T> //where T : INamespace
     {
+        public static From<T> This => default;
+        
         [NotNull]
         public static Selector<TMember> Select<TMember>([NotNull] Expression<Func<T, TMember>> selector)
+        {
+            return new Selector<TMember>(selector);
+        }
+    }
+
+    public static class FromExtensions
+    {
+        [NotNull]
+        public static Selector<TMember> Select<T, TMember>(this From<T> from, [NotNull] Expression<Func<T, TMember>> selector) //where T : INamespace
         {
             return new Selector<TMember>(selector);
         }

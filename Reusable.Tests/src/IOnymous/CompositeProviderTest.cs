@@ -6,8 +6,10 @@ using Reusable.IOnymous;
 using Reusable.SmartConfig;
 using Xunit;
 
-namespace Reusable.Tests.XUnit.IOnymous
+namespace Reusable.Tests.IOnymous
 {
+    using static SettingProvider;
+    
     public class CompositeProviderTest
     {
         [Fact]
@@ -15,11 +17,11 @@ namespace Reusable.Tests.XUnit.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider(Configuration.DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
+                new InMemoryProvider(DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
                 {
                     { "x.123", "blub1" }
                 },
-                new InMemoryProvider(Configuration.DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
+                new InMemoryProvider(DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
                 {
                     { "x.123", "blub2" },
                     { "x.123", "blub3" }
@@ -37,11 +39,11 @@ namespace Reusable.Tests.XUnit.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider(Configuration.DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
+                new InMemoryProvider(DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
                 {
                     { "x.123", "blub1" }
                 },
-                new InMemoryProvider(Configuration.DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
+                new InMemoryProvider(DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
                 {
                     //{ "x.123", "blub2" },
                     { "x.123", "blub3" }
@@ -59,11 +61,11 @@ namespace Reusable.Tests.XUnit.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider(Configuration.DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
+                new InMemoryProvider(DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
                 {
                     { "x.123", "blub1" }
                 },
-                new InMemoryProvider(Configuration.DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme }, ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), "blub"))
+                new InMemoryProvider(DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme }, ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), "blub"))
                 {
                     //{ "x.123", "blub2" },
                     { "x.123", "blub3" }
@@ -81,11 +83,11 @@ namespace Reusable.Tests.XUnit.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider(Configuration.DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
+                new InMemoryProvider(DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
                 {
                     { "blub:123", "blub1" }
                 },
-                new InMemoryProvider(Configuration.DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
+                new InMemoryProvider(DefaultUriStringConverter, new[] { ResourceProvider.DefaultScheme })
                 {
                     { "blub:123?providerName=blub", "blub2" },
                     { "blub:123?providerName=blub", "blub3" }
@@ -100,11 +102,11 @@ namespace Reusable.Tests.XUnit.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider(Configuration.DefaultUriStringConverter, new SoftString[] { "bluba" })
+                new InMemoryProvider(DefaultUriStringConverter, new SoftString[] { "bluba" })
                 {
                     { "x.123", "blub1" }
                 },
-                new InMemoryProvider(Configuration.DefaultUriStringConverter, new SoftString[] { "blub" })
+                new InMemoryProvider(DefaultUriStringConverter, new SoftString[] { "blub" })
                 {
                     { "x.123", "blub2" },
                     { "x.125", "blub3" }
