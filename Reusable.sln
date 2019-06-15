@@ -43,9 +43,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Csv", "Reusable.Cs
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Csv.Utilities", "Reusable.Csv.Utilities\Reusable.Csv.Utilities.csproj", "{786C2B5E-4DFA-4776-8C1E-DED5CF306981}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.SmartConfig", "Reusable.SmartConfig\Reusable.SmartConfig.csproj", "{295268A0-7A66-44F4-9C3B-0430091D68AE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.IOnymous.Config", "Reusable.IOnymous.Config\Reusable.IOnymous.Config.csproj", "{295268A0-7A66-44F4-9C3B-0430091D68AE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.SmartConfig.SqlServer", "Reusable.SmartConfig.SqlServer\Reusable.SmartConfig.SqlServer.csproj", "{A9AE541C-F84E-4C0E-9D56-BD1D11E941AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.IOnymous.Config.SqlServer", "Reusable.IOnymous.Config.SqlServer\Reusable.IOnymous.Config.SqlServer.csproj", "{A9AE541C-F84E-4C0E-9D56-BD1D11E941AD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Tests.MSTest", "Reusable.Tests.MSTest\Reusable.Tests.MSTest.csproj", "{45CB60D7-2BBE-4928-AB8A-BAE7901BD79F}"
 EndProject

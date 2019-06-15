@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Reusable.IOnymous;
+using Reusable.IOnymous.Config;
 using Reusable.OneTo1;
-using Reusable.SmartConfig;
 using Xunit;
 
 namespace Reusable.Tests.IOnymous
