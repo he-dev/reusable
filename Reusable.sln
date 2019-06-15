@@ -88,7 +88,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xunit.Assert.That", "Xunit.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Foggle", "Reusable.Foggle\Reusable.Foggle.csproj", "{DFCA5D89-A31B-4B74-9946-06FCDB297891}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Keynetic", "Reusable.Keynetic\Reusable.Keynetic.csproj", "{A8018E4A-E8F3-4466-8FAB-D691B169BF2F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Quickey", "Reusable.Quickey\Reusable.Quickey.csproj", "{A8018E4A-E8F3-4466-8FAB-D691B169BF2F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Data", "Reusable.Data\Reusable.Data.csproj", "{E53B8A18-230A-4CC1-B135-775E5A219E96}"
 EndProject

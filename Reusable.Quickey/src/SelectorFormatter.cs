@@ -2,7 +2,7 @@ using System;
 using System.Linq.Custom;
 using JetBrains.Annotations;
 
-namespace Reusable.Keynetic
+namespace Reusable.Quickey
 {
     [PublicAPI]
     public interface ISelectorFormatter

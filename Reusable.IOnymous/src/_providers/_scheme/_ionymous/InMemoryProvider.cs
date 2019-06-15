@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.OneTo1;
 using Reusable.OneTo1.Converters;
-using Reusable.Keynetic;
+using Reusable.Quickey;
 
 namespace Reusable.IOnymous
 {

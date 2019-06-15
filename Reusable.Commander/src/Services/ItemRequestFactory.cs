@@ -2,7 +2,7 @@ using System.Linq;
 using System.Linq.Custom;
 using Reusable.Data;
 using Reusable.IOnymous;
-using Reusable.Keynetic;
+using Reusable.Quickey;
 
 namespace Reusable.Commander.Services
 {

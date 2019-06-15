@@ -14,8 +14,8 @@ using Reusable.Data;
 using Reusable.Diagnostics;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
-using Reusable.Keynetic;
 using Reusable.OmniLog.Abstractions;
+using Reusable.Quickey;
 using Reusable.Utilities.JsonNet.Annotations;
 
 namespace Reusable.Flexo

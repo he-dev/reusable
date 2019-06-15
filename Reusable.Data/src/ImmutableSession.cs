@@ -10,7 +10,7 @@ using JetBrains.Annotations;
 using Reusable.Diagnostics;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
-using Reusable.Keynetic;
+using Reusable.Quickey;
 
 namespace Reusable.Data
 {

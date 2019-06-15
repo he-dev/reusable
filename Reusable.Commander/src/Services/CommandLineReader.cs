@@ -7,7 +7,6 @@ using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.IOnymous;
 using Reusable.Reflection;
-using Reusable.Keynetic;
 
 namespace Reusable.Commander.Services
 {

@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.IOnymous;
+using Reusable.Quickey;
 using Xunit;
-using Reusable.Keynetic;
 
 namespace Reusable.Tests.IOnymous
 {

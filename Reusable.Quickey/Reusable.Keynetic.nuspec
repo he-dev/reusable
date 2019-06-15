@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.Keynetic</id>
+    <id>Reusable.Quickey</id>
     <version>10.4.3</version>
-    <title>Reusable.Keynetic</title>
+    <title>Reusable.Quickey</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <license type="expression">MIT</license>
@@ -23,9 +23,9 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\net47\Reusable.Keynetic.dll" target="lib\net47" />
-    <file src="bin\Release\net47\Reusable.Keynetic.pdb" target="lib\net47" />
-    <file src="bin\Release\netcoreapp2.2\Reusable.Keynetic.dll" target="lib\netcoreapp2.2" />
-    <file src="bin\Release\netcoreapp2.2\Reusable.Keynetic.pdb" target="lib\netcoreapp2.2" />
+    <file src="bin\Release\net47\Reusable.Quickey.dll" target="lib\net47" />
+    <file src="bin\Release\net47\Reusable.Quickey.pdb" target="lib\net47" />
+    <file src="bin\Release\netcoreapp2.2\Reusable.Quickey.dll" target="lib\netcoreapp2.2" />
+    <file src="bin\Release\netcoreapp2.2\Reusable.Quickey.pdb" target="lib\netcoreapp2.2" />
   </files>
 </package>

@@ -9,7 +9,7 @@ using Reusable.Exceptionize;
 using Reusable.Reflection;
 using linq = System.Linq.Expressions;
 
-namespace Reusable.Keynetic
+namespace Reusable.Quickey
 {
     // Protects the user form using an unsupported interface by mistake.
     public interface INamespace { }

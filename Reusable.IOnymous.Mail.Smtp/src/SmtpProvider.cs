@@ -8,8 +8,8 @@ using MimeKit;
 using MimeKit.Text;
 using Reusable.Data;
 using Reusable.Extensions;
+using Reusable.Quickey;
 using ContentDisposition = MimeKit.ContentDisposition;
-using Reusable.Keynetic;
 
 namespace Reusable.IOnymous
 {

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Exceptionize;
-using Reusable.Keynetic;
+using Reusable.Quickey;
 
 namespace Reusable.IOnymous
 {

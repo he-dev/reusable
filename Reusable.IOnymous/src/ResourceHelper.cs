@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
-using Reusable.Keynetic;
+using Reusable.Quickey;
 
 namespace Reusable.IOnymous
 {

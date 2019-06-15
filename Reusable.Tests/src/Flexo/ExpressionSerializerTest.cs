@@ -8,6 +8,7 @@ using Reusable.Data;
 using Reusable.Flexo;
 using Reusable.IOnymous;
 using Reusable.OmniLog;
+using Reusable.Quickey;
 using Reusable.Tests.Flexo.Helpers;
 using Reusable.Utilities.JsonNet;
 using Reusable.Utilities.JsonNet.DependencyInjection;
@@ -16,7 +17,6 @@ using Xunit;
 using Xunit.Abstractions;
 using Double = Reusable.Flexo.Double;
 using ExpressionSerializer = Reusable.Flexo.ExpressionSerializer;
-using Reusable.Keynetic;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.Tests.Flexo

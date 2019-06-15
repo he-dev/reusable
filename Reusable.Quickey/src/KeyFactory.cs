@@ -10,7 +10,7 @@ using JetBrains.Annotations;
 using Reusable.Diagnostics;
 using Reusable.Extensions;
 
-namespace Reusable.Keynetic
+namespace Reusable.Quickey
 {
     // [Prefix:][Name.space+][Type.]Member[[Index]]
     // [UsePrefix("blub"), UseNamespace, UseType, UseMember, UseIndex?]

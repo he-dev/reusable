@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
-using Reusable.Keynetic;
+using Reusable.Quickey;
 
 namespace Reusable.Data
 {

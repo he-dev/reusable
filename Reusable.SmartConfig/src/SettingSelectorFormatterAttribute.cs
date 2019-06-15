@@ -3,8 +3,8 @@ using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
 using Reusable.Data;
+using Reusable.Quickey;
 using Reusable.SmartConfig.Annotations;
-using Reusable.Keynetic;
 
 namespace Reusable.SmartConfig
 {

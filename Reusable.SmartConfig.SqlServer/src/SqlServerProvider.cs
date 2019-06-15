@@ -8,8 +8,8 @@ using Reusable.Data;
 using Reusable.Data.Repositories;
 using Reusable.IOnymous;
 using Reusable.OneTo1;
+using Reusable.Quickey;
 using Reusable.Utilities.SqlClient;
-using Reusable.Keynetic;
 
 namespace Reusable.SmartConfig
 {

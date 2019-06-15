@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using Reusable.Data;
 using Reusable.Extensions;
-using Reusable.Keynetic;
+using Reusable.Quickey;
 
 namespace Reusable.IOnymous
 {

@@ -4,7 +4,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Reusable.Data;
-using Reusable.Keynetic;
+using Reusable.Quickey;
 
 namespace Reusable.IOnymous
 {

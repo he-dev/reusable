@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Extensions;
 using Reusable.Flawless;
-using Reusable.Keynetic;
+using Reusable.Quickey;
 
 namespace Reusable.IOnymous
 {

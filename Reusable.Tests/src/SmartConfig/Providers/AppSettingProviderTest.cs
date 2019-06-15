@@ -1,10 +1,10 @@
 using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.IOnymous;
+using Reusable.Quickey;
 using Reusable.SmartConfig;
 using Reusable.Tests.Foggle;
 using Xunit;
-using Reusable.Keynetic;
 
 namespace Reusable.Tests.SmartConfig.Providers
 {

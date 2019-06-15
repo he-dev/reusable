@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 using Reusable.Data;
-using Reusable.Keynetic;
+using Reusable.Quickey;
 
 namespace Reusable.IOnymous
 {

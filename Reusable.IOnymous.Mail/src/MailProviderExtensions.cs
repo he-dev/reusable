@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using Reusable.Data;
-using Reusable.Keynetic;
+using Reusable.Quickey;
 
 namespace Reusable.IOnymous
 {

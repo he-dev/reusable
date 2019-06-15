@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.Foggle;
 using Reusable.OmniLog;
+using Reusable.Quickey;
 using Reusable.Tests.Foggle.Features;
 using Xunit;
-using Reusable.Keynetic;
 
 namespace Reusable.Tests.Foggle
 {

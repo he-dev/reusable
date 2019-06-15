@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.IOnymous;
-using Reusable.Keynetic;
+using Reusable.Quickey;
 
 namespace Reusable.Tests.IOnymous
 {

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.IOnymous;
+using Reusable.Quickey;
 using Reusable.SmartConfig;
 using Reusable.SmartConfig.Annotations;
 using Reusable.Tests.Foggle;
 using Xunit;
-using Reusable.Keynetic;
 
 //[assembly: SettingProvider(SettingNameStrength.Medium, Prefix = "TestPrefix")]
 //[assembly: SettingProvider(SettingNameStrength.Low, typeof(AppSettingProvider), Prefix = "abc")]

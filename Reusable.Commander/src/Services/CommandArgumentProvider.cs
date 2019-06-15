@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.IOnymous;
-using Reusable.Keynetic;
 
 namespace Reusable.Commander.Services
 {

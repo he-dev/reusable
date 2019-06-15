@@ -11,7 +11,6 @@ using Reusable.OneTo1;
 using Reusable.OneTo1.Converters;
 using Reusable.Utilities.JsonNet.Converters;
 using Reusable.Utilities.NLog.LayoutRenderers;
-using Reusable.Keynetic;
 
 //[assembly: DebuggerDisplay("{DebuggerDisplay(),nq}", Target = typeof(Person))]
 
