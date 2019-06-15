@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using Reusable.Foggle;
+using Reusable.Beaver;
 using Xunit;
 
 namespace Reusable.Tests

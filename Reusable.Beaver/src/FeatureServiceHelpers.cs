@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-namespace Reusable.Foggle
+namespace Reusable.Beaver
 {
     [PublicAPI]
     public static class FeatureServiceHelpers
     {
         #region Execute
 
-        public static async Task ExecuteAsync(this IFeatureService features, string name, Func<Task> bodyWhenOn, Func<Task> bodyWhenOff)
+        public static async Task ExecuteAsync(this IFeatureToggle features, string name, Func<Task> bodyWhenOn, Func<Task> bodyWhenOff)
         {
             await features.ExecuteAsync
             (
@@ -26,12 +26,12 @@ namespace Reusable.Foggle
             }
         }
 
-        public static async Task ExecuteAsync(this IFeatureService features, string name, Func<Task> bodyWhenOn)
+        public static async Task ExecuteAsync(this IFeatureToggle features, string name, Func<Task> bodyWhenOn)
         {
             await features.ExecuteAsync(name, bodyWhenOn, () => Task.FromResult<object>(default));
         }
 
-        public static void Execute(this IFeatureService features, string name, Action bodyWhenOn, Action bodyWhenOff)
+        public static void Execute(this IFeatureToggle features, string name, Action bodyWhenOn, Action bodyWhenOff)
         {
             features.ExecuteAsync
             (
@@ -47,7 +47,7 @@ namespace Reusable.Foggle
             }
         }
 
-        public static void Execute(this IFeatureService features, string name, Action bodyWhenOn)
+        public static void Execute(this IFeatureToggle features, string name, Action bodyWhenOn)
         {
             features.Execute(name, bodyWhenOn, () => { });
         }
@@ -55,7 +55,7 @@ namespace Reusable.Foggle
         #endregion
 
         [NotNull]
-        public static IFeatureService Configure(this IFeatureService features, IEnumerable<string> names, Func<FeatureOption, FeatureOption> configure)
+        public static IFeatureToggle Configure(this IFeatureToggle features, IEnumerable<string> names, Func<FeatureOption, FeatureOption> configure)
         {
             foreach (var name in names)
             {

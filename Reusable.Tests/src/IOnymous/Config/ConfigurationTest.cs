@@ -28,6 +28,8 @@ using Xunit;
  */
 namespace Reusable.Tests.IOnymous.Config
 {
+    using static SettingProvider;
+
     public class ConfigurationTest
     {
         [Fact]
@@ -35,7 +37,7 @@ namespace Reusable.Tests.IOnymous.Config
         {
             var u = new User
             {
-                Configuration = new InMemoryProvider(SettingProvider.DefaultUriStringConverter, SettingProvider.DefaultSchemes)
+                Configuration = new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
                 {
                     { "User.Name", "Bob" }
                 }
@@ -51,15 +53,15 @@ namespace Reusable.Tests.IOnymous.Config
                 Configuration =
                     CompositeProvider
                         .Empty
-                        .Add(new InMemoryProvider(SettingProvider.DefaultUriStringConverter, SettingProvider.DefaultSchemes)
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
                         {
                             { "Person.Name", "Joe" }
                         })
-                        .Add(new InMemoryProvider(SettingProvider.DefaultUriStringConverter, SettingProvider.DefaultSchemes)
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
                         {
                             { "User.Name", "Bob" }
                         })
-                        .Add(new InMemoryProvider(SettingProvider.DefaultUriStringConverter, SettingProvider.DefaultSchemes)
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
                         {
                             { "User.Name", "Tom" }
                         })
@@ -76,15 +78,15 @@ namespace Reusable.Tests.IOnymous.Config
                 Configuration =
                     CompositeProvider
                         .Empty
-                        .Add(new InMemoryProvider(SettingProvider.DefaultUriStringConverter, SettingProvider.DefaultSchemes, ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), "OtherOne"))
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes, ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), "OtherOne"))
                         {
                             { "Map.City", "Joe" }
                         })
-                        .Add(new InMemoryProvider(SettingProvider.DefaultUriStringConverter, SettingProvider.DefaultSchemes)
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
                         {
                             { "Map.City", "Tom" }
                         })
-                        .Add(new InMemoryProvider(SettingProvider.DefaultUriStringConverter, SettingProvider.DefaultSchemes, ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), "ThisOne"))
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes, ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), "ThisOne"))
                         {
                             { "Map.City", "Bob" }
                         })
@@ -104,15 +106,15 @@ namespace Reusable.Tests.IOnymous.Config
                 Configuration =
                     CompositeProvider
                         .Empty
-                        .Add(new InMemoryProvider(SettingProvider.DefaultUriStringConverter, SettingProvider.DefaultSchemes)
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
                         {
                             { "User.Name", "Joe" }
                         })
-                        .Add(new InMemoryProvider(SettingProvider.DefaultUriStringConverter, SettingProvider.DefaultSchemes)
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
                         {
                             { "Forest.Tree", "Tom" }
                         })
-                        .Add(new InMemoryProvider(SettingProvider.DefaultUriStringConverter, SettingProvider.DefaultSchemes)
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
                         {
                             { "Amazon.Timber", "Bob" }
                         })
@@ -129,15 +131,15 @@ namespace Reusable.Tests.IOnymous.Config
                 Configuration =
                     CompositeProvider
                         .Empty
-                        .Add(new InMemoryProvider(SettingProvider.DefaultUriStringConverter, SettingProvider.DefaultSchemes)
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
                         {
                             { "User.Name", "Joe" }
                         })
-                        .Add(new InMemoryProvider(SettingProvider.DefaultUriStringConverter, SettingProvider.DefaultSchemes)
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
                         {
                             { "Reusable.Tests.IOnymous.Config+Key.Location", "Tom" }
                         })
-                        .Add(new InMemoryProvider(SettingProvider.DefaultUriStringConverter, SettingProvider.DefaultSchemes)
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
                         {
                             { "Door", "Bob" }
                         })
@@ -155,15 +157,15 @@ namespace Reusable.Tests.IOnymous.Config
                 Configuration =
                     CompositeProvider
                         .Empty
-                        .Add(new InMemoryProvider(SettingProvider.DefaultUriStringConverter, SettingProvider.DefaultSchemes)
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
                         {
                             { "User.Name", "Joe" }
                         })
-                        .Add(new InMemoryProvider(SettingProvider.DefaultUriStringConverter, SettingProvider.DefaultSchemes)
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
                         {
                             { "day:Greeting.Morning", "Bob" }
                         })
-                        .Add(new InMemoryProvider(SettingProvider.DefaultUriStringConverter, SettingProvider.DefaultSchemes)
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
                         {
                             { "Greeting.Morning", "Tom" }
                         })
@@ -178,15 +180,15 @@ namespace Reusable.Tests.IOnymous.Config
             var c =
                 CompositeProvider
                     .Empty
-                    .Add(new InMemoryProvider(SettingProvider.DefaultUriStringConverter, SettingProvider.DefaultSchemes)
+                    .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
                     {
                         { "User.Name", "Joe" }
                     })
-                    .Add(new InMemoryProvider(SettingProvider.DefaultUriStringConverter, SettingProvider.DefaultSchemes)
+                    .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
                     {
                         { "User.Name[this]", "Bob" }
                     })
-                    .Add(new InMemoryProvider(SettingProvider.DefaultUriStringConverter, SettingProvider.DefaultSchemes)
+                    .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
                     {
                         { "Greeting.Morning", "Tom" }
                     });
@@ -202,15 +204,15 @@ namespace Reusable.Tests.IOnymous.Config
                 Configuration =
                     CompositeProvider
                         .Empty
-                        .Add(new InMemoryProvider(SettingProvider.DefaultUriStringConverter, SettingProvider.DefaultSchemes)
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
                         {
                             { "User.Name", "Joe" }
                         })
-                        .Add(new InMemoryProvider(SettingProvider.DefaultUriStringConverter, SettingProvider.DefaultSchemes)
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
                         {
                             { "Admin.Enabled", true }
                         })
-                        .Add(new InMemoryProvider(SettingProvider.DefaultUriStringConverter, SettingProvider.DefaultSchemes)
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
                         {
                             { "Admin.Skill", "Tom" }
                         })
@@ -223,7 +225,7 @@ namespace Reusable.Tests.IOnymous.Config
         [Fact]
         public async Task Can_save_setting()
         {
-            var c = CompositeProvider.Empty.Add(new InMemoryProvider(SettingProvider.DefaultUriStringConverter, SettingProvider.DefaultSchemes)
+            var c = CompositeProvider.Empty.Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
             {
                 { "Admin.Name", "Joe" },
                 { "Admin.Enabled", true }
@@ -265,7 +267,6 @@ namespace Reusable.Tests.IOnymous.Config
         public string Skill => Configuration.ReadSetting(() => Skill);
     }
 
-//[ResourceName("Amazon")]
     [UseType, UseMember]
     [Rename("Amazon")]
     [SettingSelectorFormatter]
@@ -319,19 +320,18 @@ namespace Reusable.Tests.IOnymous.Config
         [Fact]
         public async Task Can_find_setting_on_base_type()
         {
-            // ISubConfig
             var c =
                 CompositeProvider
                     .Empty
-                    .Add(new InMemoryProvider(SettingProvider.DefaultUriStringConverter, SettingProvider.DefaultSchemes)
+                    .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
                     {
                         { "User.Name", "Joe" }
                     })
-                    .Add(new InMemoryProvider(SettingProvider.DefaultUriStringConverter, SettingProvider.DefaultSchemes)
+                    .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
                     {
                         { "root:Sub.Enabled", true }
                     })
-                    .Add(new InMemoryProvider(SettingProvider.DefaultUriStringConverter, SettingProvider.DefaultSchemes)
+                    .Add(new InMemoryProvider(DefaultUriStringConverter, DefaultSchemes)
                     {
                         { "Sub.Name", "Tom" }
                     });

@@ -8,14 +8,12 @@ using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.SemanticExtensions;
 
-namespace Reusable.Foggle
+namespace Reusable.Beaver
 {
     [PublicAPI]
-    public interface IFeatureService
+    public interface IFeatureToggle
     {
         bool IsOn(string name);
-
-        bool IsOff(string name);
 
         [NotNull]
         FeatureOption Options(string name);
@@ -23,35 +21,44 @@ namespace Reusable.Foggle
         Task<T> ExecuteAsync<T>(string name, Func<Task<T>> bodyWhenOn, Func<Task<T>> bodyWhenOff);
 
         [NotNull]
-        IFeatureService Configure(string name, Func<FeatureOption, FeatureOption> configure);
+        IFeatureToggle Configure(string name, Func<FeatureOption, FeatureOption> configure);
     }
 
-    public class FeatureService : IFeatureService
+    public class FeatureToggle : IFeatureToggle
     {
         private readonly FeatureOption _defaultOptions;
         private readonly ILogger _logger;
         private readonly IDictionary<string, FeatureOption> _options = new Dictionary<string, FeatureOption>();
 
-        public FeatureService(ILogger<FeatureService> logger, FeatureOption defaultOptions)
+        public FeatureToggle(ILogger<FeatureToggle> logger, FeatureOption defaultOptions)
         {
             _logger = logger;
             _defaultOptions = defaultOptions;
         }
 
-        //public Func<(string Name, FeatureOption Options), Task> BeforeExecuteAsync { get; set; }
+        [CanBeNull]
+        public Func<FeatureOption, bool> CanExecuteCallback { get; set; }
+        
+        [CanBeNull]
+        public Func<string, FeatureOption> GetDefaultOptionsCallback { get; set; }
 
-        //public Func<(string Name, FeatureOption Options), Task> AfterExecuteAsync { get; set; }
-
-        public bool IsOn(string name) => Options(name).Contains(FeatureOption.Enable);
-
-        public bool IsOff(string name) => !IsOn(name);
+        public bool IsOn(string name)
+        {
+            var options = Options(name);
+            return options.Contains(FeatureOption.Enable) && (CanExecuteCallback?.Invoke(options) ?? true);
+        }
 
         public FeatureOption Options(string name)
         {
             return
                 _options.TryGetValue(name, out var customOptions)
                     ? customOptions
-                    : _defaultOptions;
+                    : DefaultOptions(name);
+        }
+
+        private FeatureOption DefaultOptions(string name)
+        {
+            return GetDefaultOptionsCallback?.Invoke(name) ?? _defaultOptions;
         }
 
         public async Task<T> ExecuteAsync<T>(string name, Func<Task<T>> bodyWhenOn, Func<Task<T>> bodyWhenOff)
@@ -69,8 +76,6 @@ namespace Reusable.Foggle
                         {
                             _logger.Log(Abstraction.Layer.Service().Decision($"Using feature '{name}'").Because("Enabled").Warning());
                         }
-
-                        //await (BeforeExecuteAsync?.Invoke((name, options)) ?? Task.CompletedTask);
 
                         return await bodyWhenOn();
                     }
@@ -91,11 +96,12 @@ namespace Reusable.Foggle
             }
         }
 
-        public IFeatureService Configure(string name, Func<FeatureOption, FeatureOption> configure)
+        public IFeatureToggle Configure(string name, Func<FeatureOption, FeatureOption> configure)
         {
             var newOptions = configure(Options(name));
-            if (newOptions == _defaultOptions)
+            if (newOptions == DefaultOptions(name))
             {
+                // Don't store default options.
                 _options.Remove(name);
             }
             else

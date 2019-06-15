@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
-using Reusable.Data;
-using Reusable.Foggle;
+using Reusable.Beaver;
 using Reusable.OmniLog;
 using Reusable.Quickey;
-using Reusable.Tests.Foggle.Features;
+using Reusable.Tests.Beaver.Features;
 using Xunit;
 
-namespace Reusable.Tests.Foggle
+namespace Reusable.Tests.Beaver
 {
     public static class Tags
     {
@@ -27,9 +26,9 @@ namespace Reusable.Tests.Foggle
         [Fact]
         public void Can_configure_features_by_tags()
         {
-            var features = new FeatureService
+            var features = new FeatureToggle
             (
-                logger: Logger<FeatureService>.Null,
+                logger: Logger<FeatureToggle>.Null,
                 defaultOptions: FeatureOption.Enable | FeatureOption.Warn | FeatureOption.Telemetry
             );
 
@@ -56,9 +55,9 @@ namespace Reusable.Tests.Foggle
 
     public class FeatureServiceDemo
     {
-        private readonly FeatureService _features = new FeatureService
+        private readonly FeatureToggle _features = new FeatureToggle
         (
-            logger: Logger<FeatureService>.Null,
+            logger: Logger<FeatureToggle>.Null,
             defaultOptions: FeatureOption.Enable | FeatureOption.Warn | FeatureOption.Telemetry
         );
 

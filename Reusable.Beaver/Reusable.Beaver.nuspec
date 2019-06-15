@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.Foggle</id>
+    <id>Reusable.Beaver</id>
     <version>10.4.3</version>
-    <title>Reusable.Foggle</title>
+    <title>Reusable.Beaver</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <license type="expression">MIT</license>
@@ -23,9 +23,9 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\net47\Reusable.Foggle.dll" target="lib\net47" />
-    <file src="bin\Release\net47\Reusable.Foggle.pdb" target="lib\net47" />
-    <file src="bin\Release\netcoreapp2.2\Reusable.Foggle.dll" target="lib\netcoreapp2.2" />
-    <file src="bin\Release\netcoreapp2.2\Reusable.Foggle.pdb" target="lib\netcoreapp2.2" />
+    <file src="bin\Release\net47\Reusable.Beaver.dll" target="lib\net47" />
+    <file src="bin\Release\net47\Reusable.Beaver.pdb" target="lib\net47" />
+    <file src="bin\Release\netcoreapp2.2\Reusable.Beaver.dll" target="lib\netcoreapp2.2" />
+    <file src="bin\Release\netcoreapp2.2\Reusable.Beaver.pdb" target="lib\netcoreapp2.2" />
   </files>
 </package>

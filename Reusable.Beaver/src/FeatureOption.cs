@@ -1,4 +1,4 @@
-namespace Reusable.Foggle
+namespace Reusable.Beaver
 {
     public class FeatureOption : Option<FeatureOption>
     {

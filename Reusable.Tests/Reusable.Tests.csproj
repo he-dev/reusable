@@ -35,11 +35,11 @@
         <!--<PackageReference Include="xunit.assert" Version="2.4.1" />-->
     </ItemGroup>
     <ItemGroup>
+        <ProjectReference Include="..\Reusable.Beaver\Reusable.Beaver.csproj" />
         <ProjectReference Include="..\Reusable.Commander\Reusable.Commander.csproj" />
         <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
         <ProjectReference Include="..\Reusable.Cryptography\Reusable.Cryptography.csproj" />
         <ProjectReference Include="..\Reusable.Deception\Reusable.Deception.csproj" />
-        <ProjectReference Include="..\Reusable.Foggle\Reusable.Foggle.csproj" />
         <ProjectReference Include="..\Reusable.IOnymous.Config.SqlServer\Reusable.IOnymous.Config.SqlServer.csproj" />
         <ProjectReference Include="..\Reusable.IOnymous.Config\Reusable.IOnymous.Config.csproj" />
         <ProjectReference Include="..\Reusable.IOnymous.Http.Mailr\Reusable.IOnymous.Http.Mailr.csproj" />

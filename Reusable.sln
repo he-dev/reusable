@@ -86,7 +86,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.OmniLog.Abstractio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xunit.Assert.That", "Xunit.Assert.That\Xunit.Assert.That.csproj", "{61B54BB6-76C0-4018-93A6-DEF9AF0E248E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Foggle", "Reusable.Foggle\Reusable.Foggle.csproj", "{DFCA5D89-A31B-4B74-9946-06FCDB297891}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Beaver", "Reusable.Beaver\Reusable.Beaver.csproj", "{DFCA5D89-A31B-4B74-9946-06FCDB297891}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Quickey", "Reusable.Quickey\Reusable.Quickey.csproj", "{A8018E4A-E8F3-4466-8FAB-D691B169BF2F}"
 EndProject
