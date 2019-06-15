@@ -9,6 +9,7 @@ using Reusable.Extensions;
 using Reusable.IOnymous;
 using Reusable.OneTo1;
 using Reusable.OneTo1.Converters;
+using Reusable.Keynetic;
 
 namespace Reusable.SmartConfig
 {

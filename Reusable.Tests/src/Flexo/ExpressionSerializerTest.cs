@@ -16,6 +16,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Double = Reusable.Flexo.Double;
 using ExpressionSerializer = Reusable.Flexo.ExpressionSerializer;
+using Reusable.Keynetic;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.Tests.Flexo

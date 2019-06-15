@@ -59,6 +59,7 @@
     <Compile Remove="src\SmartConfig\Reflection\SettingExpressionExtensionsTest.cs" />
     <Compile Remove="src\SmartConfig\Reflection\SettingMetadataTest.cs" />
     <Compile Remove="src\SmartConfig\Data\SettingNameTest.cs" />
+    <Compile Remove="src\Utilities\SqlClient\SqlSeederTest.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -134,8 +135,6 @@
     <ProjectReference Include="..\Reusable.OneTo1\Reusable.OneTo1.csproj" />
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
     <ProjectReference Include="..\Reusable.Cryptography\Reusable.Cryptography.csproj" />
-    <ProjectReference Include="..\Reusable.Csv.Utilities\Reusable.Csv.Utilities.csproj" />
-    <ProjectReference Include="..\Reusable.Csv\Reusable.Csv.csproj" />
     <ProjectReference Include="..\Reusable.Deception\Reusable.Deception.csproj" />
     <ProjectReference Include="..\Reusable.Flexo\Reusable.Flexo.csproj" />
     <ProjectReference Include="..\Reusable.MarkupBuilder\Reusable.MarkupBuilder.csproj" />

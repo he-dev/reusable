@@ -35,7 +35,7 @@ namespace Reusable.OmniLog.SemanticExtensions.Tests
         [TestMethod]
         public void Log_Message_Logged()
         {
-            Logger.Log(Abstraction.Layer.Infrastructure().Meta(new { Greeting = "Hallo!" }));
+            Logger.Log(Abstraction.Layer.Service().Meta(new { Greeting = "Hallo!" }));
 
             IsTrue(MemoryRx.All(log => log["Name"].ToString() == "FeatureTest"), "Not all logs have the same logger");
             IsTrue(MemoryRx.All(log => log["Environment"].ToString() == "Test"), "Not all logs have the same environment");

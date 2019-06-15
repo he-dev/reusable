@@ -6,6 +6,7 @@ using Reusable.Foggle;
 using Reusable.OmniLog;
 using Reusable.Tests.Foggle.Features;
 using Xunit;
+using Reusable.Keynetic;
 
 namespace Reusable.Tests.Foggle
 {

@@ -12,6 +12,7 @@ using Reusable.Collections;
 using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
+using Reusable.Keynetic;
 using linq = System.Linq.Expressions;
 
 namespace Reusable.Flexo

@@ -4,6 +4,7 @@ using System.Linq.Custom;
 using System.Reflection;
 using Reusable.Data;
 using Reusable.SmartConfig.Annotations;
+using Reusable.Keynetic;
 
 namespace Reusable.SmartConfig
 {

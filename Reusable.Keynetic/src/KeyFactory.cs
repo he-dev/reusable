@@ -7,11 +7,10 @@ using System.Linq.Custom;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
-using Reusable.Data;
 using Reusable.Diagnostics;
 using Reusable.Extensions;
 
-namespace Reusable.Keytchen
+namespace Reusable.Keynetic
 {
     // [Prefix:][Name.space+][Type.]Member[[Index]]
     // [UsePrefix("blub"), UseNamespace, UseType, UseMember, UseIndex?]
@@ -22,24 +21,86 @@ namespace Reusable.Keytchen
         Key CreateKey(Selector selector);
     }
 
+    [UsedImplicitly]
+    [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property)]
+    public class RenameAttribute : Attribute
+    {
+        private readonly string _name;
+
+        public RenameAttribute(string name) => _name = name;
+
+        public override string ToString() => _name;
+    }
+
     [PublicAPI]
     [UsedImplicitly]
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property)]
     public abstract class KeyFactoryAttribute : Attribute, IKeyFactory
     {
+        public string Prefix { get; set; }
+
+        public string Suffix { get; set; }
+
         public abstract Key CreateKey(Selector selector);
+
+        protected string FixName(string name, MemberInfo member)
+        {
+            var nameFixes = member.GetCustomAttributes<NameFixAttribute>().ToList();
+
+            return
+                nameFixes.Any()
+                    ? nameFixes.Aggregate(name, (current, fix) => fix.Apply(current))
+                    : name;
+        }
     }
 
-    public class UseTypeAttribute : KeyFactoryAttribute
+    public class UseGlobalAttribute : KeyFactoryAttribute
     {
-        public string Separator { get; set; } = ".";
+        private readonly string _prefix;
+
+        public UseGlobalAttribute(string prefix)
+        {
+            _prefix = prefix;
+            Suffix = ":";
+        }
+
+        public override Key CreateKey(Selector selector)
+        {
+            return new Key(_prefix) { Suffix = Suffix };
+        }
+    }
+
+    public class UseNamespaceAttribute : KeyFactoryAttribute
+    {
+        public UseNamespaceAttribute()
+        {
+            Suffix = "+";
+        }
 
         public override Key CreateKey(Selector selector)
         {
             var type = selector.DeclaringType;
-            var typeName = type.ToPrettyString();
-            typeName = type.GetCustomAttributes<NameFixAttribute>().Aggregate(typeName, (name, fix) => fix.Apply(name));
-            return new TypeKey(typeName, Separator);
+            return new Key(type.Namespace) { Suffix = Suffix };
+        }
+    }
+
+    public class UseTypeAttribute : KeyFactoryAttribute
+    {
+        public UseTypeAttribute()
+        {
+            Suffix = ".";
+        }
+
+        public override Key CreateKey(Selector selector)
+        {
+            var type = selector.DeclaringType;
+
+            var typeName =
+                type.GetCustomAttribute<RenameAttribute>()?.ToString() is string rename
+                    ? rename
+                    : FixName(type.ToPrettyString(), type);
+
+            return new Key(typeName) { Suffix = Suffix };
         }
     }
 
@@ -47,7 +108,12 @@ namespace Reusable.Keytchen
     {
         public override Key CreateKey(Selector selector)
         {
-            return new MemberKey(selector.Property.Name);
+            var memberName =
+                selector.Member.GetCustomAttribute<RenameAttribute>()?.ToString() is string rename
+                    ? rename
+                    : FixName(selector.Member.Name, selector.Member);
+
+            return new Key(memberName);
         }
     }
 
@@ -55,7 +121,7 @@ namespace Reusable.Keytchen
     {
         // Enumerates keys applied to a property.
         [NotNull, ItemNotNull]
-        IEnumerable<Key> EnumerateKeys(Selector selector);
+        IEnumerable<IEnumerable<Key>> EnumerateKeys(Selector selector);
     }
 
     [PublicAPI]
@@ -65,11 +131,10 @@ namespace Reusable.Keytchen
         public static readonly IImmutableList<Type> DefaultOrder =
             ImmutableList<Type>
                 .Empty
-                //.Add(typeof(UsePrefixAttribute))
-                //.Add(typeof(UseNamespaceAttribute))
+                .Add(typeof(UseGlobalAttribute))
+                .Add(typeof(UseNamespaceAttribute))
                 .Add(typeof(UseTypeAttribute))
                 .Add(typeof(UseMemberAttribute));
-
 
         private readonly IImmutableDictionary<Type, int> _keyTypes;
 
@@ -83,26 +148,32 @@ namespace Reusable.Keytchen
 
         public KeyEnumeratorAttribute() : this(DefaultOrder.ToArray()) { }
 
-        public IEnumerable<Key> EnumerateKeys(Selector selector)
+        public IEnumerable<IEnumerable<Key>> EnumerateKeys(Selector selector)
         {
             if (selector == null) throw new ArgumentNullException(nameof(selector));
 
             return
-                from m in selector.Property.AncestorTypesAndSelf()
+                from m in selector.Member.AncestorTypesAndSelf()
                 where m.IsDefined(typeof(KeyFactoryAttribute))
-                from f in m.GetCustomAttributes<KeyFactoryAttribute>()
-                orderby _keyTypes[f.GetType()]
-                select f.CreateKey(selector);
+                let keys =
+                (
+                    // Key-factories per member must be sorted before they can be used.
+                    from f in m.GetCustomAttributes<KeyFactoryAttribute>()
+                    orderby _keyTypes[f.GetType()]
+                    select f.CreateKey(selector)
+                ).ToImmutableList()
+                where keys.Any()
+                select keys;
         }
     }
 
     public static class Helpers
     {
-        public static IEnumerable<MemberInfo> AncestorTypesAndSelf(this PropertyInfo property)
+        public static IEnumerable<MemberInfo> AncestorTypesAndSelf(this MemberInfo member)
         {
-            if (property == null) throw new ArgumentNullException(nameof(property));
+            if (member == null) throw new ArgumentNullException(nameof(member));
 
-            var current = (MemberInfo)property;
+            var current = member;
             do
             {
                 yield return current;
@@ -114,7 +185,7 @@ namespace Reusable.Keytchen
                         yield break;
                     }
 
-                    if (type.GetProperty(property.Name) is PropertyInfo otherProperty)
+                    if (type.GetProperty(member.Name) is PropertyInfo otherProperty)
                     {
                         yield return otherProperty;
                     }
@@ -126,13 +197,20 @@ namespace Reusable.Keytchen
     }
 
     [PublicAPI]
-    public abstract class Key
+    [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
+    public class Key
     {
-        protected Key(string value) => Value = value;
+        public Key(string value) => Value = value;
+
+        private string DebuggerDisplay => ToString();
+
+        public string Prefix { get; set; }
 
         public string Value { get; }
 
-        public override string ToString() => Value;
+        public string Suffix { get; set; }
+
+        public override string ToString() => $"{Prefix}{Value}{Suffix}";
 
         [NotNull]
         public static implicit operator string(Key key) => key.Value;
@@ -141,53 +219,22 @@ namespace Reusable.Keytchen
         public static implicit operator SoftString(Key key) => (string)key;
     }
 
-    public class PrefixKey : Key
-    {
-        public PrefixKey(string value) : base(value) { }
-    }
-
-    public class NamespaceKey : Key
-    {
-        public NamespaceKey(string value) : base(value) { }
-    }
-
-    public class TypeKey : Key
-    {
-        public TypeKey(string value, string separator) : base(value)
-        {
-            Separator = separator;
-        }
-
-        public string Separator { get; }
-
-        public override string ToString() => Value + Separator;
-    }
-
-    public class MemberKey : Key
-    {
-        public MemberKey(string value) : base(value) { }
-    }
-
-    [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
-    public class IndexKey : Key
-    {
-        public IndexKey(string value) : base(value) { }
-
-        //private string DebuggerDisplay => $"{_key} Index = {this}";
-
-        public override string ToString() => $"[{Value}]";
-    }
-
     public interface INameFix
     {
         [NotNull]
         string Apply(string name);
     }
 
+    [UsedImplicitly]
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class)]
     public abstract class NameFixAttribute : Attribute, INameFix
     {
         public abstract string Apply(string name);
+    }
+
+    public class Unchanged : INameFix
+    {
+        public string Apply(string name) => name;
     }
 
     public class RemoveAttribute : NameFixAttribute

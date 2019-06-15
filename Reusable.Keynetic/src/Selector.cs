@@ -1,18 +1,15 @@
 using System;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Custom;
 using System.Linq.Expressions;
-using linq = System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Reusable.Diagnostics;
 using Reusable.Exceptionize;
-using Reusable.Extensions;
 using Reusable.Reflection;
+using linq = System.Linq.Expressions;
 
-namespace Reusable.Data
+namespace Reusable.Keynetic
 {
     // Protects the user form using an unsupported interface by mistake.
     public interface INamespace { }

@@ -4,6 +4,7 @@ using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.IOnymous;
 using Xunit;
+using Reusable.Keynetic;
 
 namespace Reusable.Tests.IOnymous
 {

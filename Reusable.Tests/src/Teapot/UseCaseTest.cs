@@ -4,6 +4,7 @@ using Reusable.IOnymous;
 using Reusable.Teapot;
 using Reusable.Utilities.XUnit.Fixtures;
 using Xunit;
+using Reusable.Keynetic;
 
 namespace Reusable.Tests.Teapot
 {

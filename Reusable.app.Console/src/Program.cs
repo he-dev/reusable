@@ -8,6 +8,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Reusable.Keynetic;
 
 // Unreachable code detected - this is for testing so we don't care about it.
 #pragma warning disable CS0162 

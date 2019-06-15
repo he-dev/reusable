@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.IOnymous;
 using Reusable.SmartConfig.Annotations;
+using Reusable.Keynetic;
 
 namespace Reusable.SmartConfig
 {

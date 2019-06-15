@@ -5,6 +5,7 @@ using Reusable.IOnymous;
 using Telerik.JustMock;
 using Telerik.JustMock.Helpers;
 using Xunit;
+using Reusable.Keynetic;
 
 namespace Reusable.Tests.IOnymous
 {

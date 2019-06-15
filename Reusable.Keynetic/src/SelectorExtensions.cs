@@ -6,7 +6,7 @@ using System.Linq.Custom;
 using System.Reflection;
 using JetBrains.Annotations;
 
-namespace Reusable.Data
+namespace Reusable.Keynetic
 {
     public static class SelectorExtensions
     {

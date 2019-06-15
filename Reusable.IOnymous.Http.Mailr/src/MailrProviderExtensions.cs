@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Data;
 using Reusable.Net.Http.Formatting;
+using Reusable.Keynetic;
 
 namespace Reusable.IOnymous
 {
