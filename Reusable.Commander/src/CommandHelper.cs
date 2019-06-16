@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Input;
 using JetBrains.Annotations;
 using Reusable.Commander.Annotations;
+using Reusable.Data.Annotations;
 
 namespace Reusable.Commander
 {
@@ -47,7 +48,7 @@ namespace Reusable.Commander
         private static IEnumerable<SoftString> GetCommandNames(Type commandType)
         {
             yield return GetDefaultCommandName(commandType);
-            foreach (var name in commandType.GetCustomAttribute<AliasAttribute>() ?? Enumerable.Empty<SoftString>())
+            foreach (var name in commandType.GetCustomAttribute<TagsAttribute>() ?? Enumerable.Empty<string>())
             {
                 yield return name;
             }
@@ -76,7 +77,7 @@ namespace Reusable.Commander
             yield return property.Name;
 
             // Then get alias if any.
-            foreach (var alias in property.GetCustomAttribute<AliasAttribute>() ?? Enumerable.Empty<SoftString>())
+            foreach (var alias in property.GetCustomAttribute<TagsAttribute>() ?? Enumerable.Empty<string>())
             {
                 yield return alias;
             }

@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using Reusable.Commander;
 using Reusable.Commander.Annotations;
 using Reusable.Commander.Services;
+using Reusable.Data.Annotations;
 using Xunit;
 
 namespace Reusable.Tests.Commander.Integration
@@ -195,7 +196,7 @@ namespace Reusable.Tests.Commander.Integration
             }
         }
 
-        [Alias("dc")]
+        [Tags("dc")]
         private class DisabledCommand : ConsoleCommand<SimpleBag, NullContext>
         {
             public DisabledCommand([NotNull] CommandServiceProvider<DisabledCommand> serviceProvider, [CanBeNull] Identifier id = default)

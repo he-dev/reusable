@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Reusable.Commander;
 using Reusable.Commander.Annotations;
+using Reusable.Data.Annotations;
+using Reusable.Utilities.JsonNet.Annotations;
 
 namespace Reusable.Tests.Commander.Integration
 {
@@ -14,7 +16,7 @@ namespace Reusable.Tests.Commander.Integration
     
     internal class BagWithAliases : SimpleBag
     {
-        [Alias("swa")]
+        [Tags("swa")]
         public string StringWithAlias { get; set; }
     }
 
@@ -58,15 +60,15 @@ namespace Reusable.Tests.Commander.Integration
         [DefaultValue(true)]
         public bool BoolWithDefaultValue2 { get; set; }
 
-        [Alias("p03")]
+        [Tags("p03")]
         [DefaultValue(false)]
         public bool Property03 { get; set; }
 
-        [Alias("p04")]
+        [Tags("p04")]
         [DefaultValue("foo")]
         public string Property04 { get; set; }
 
-        [Alias("p05")]
+        [Tags("p05")]
         public IList<int> Property05 { get; set; }
     }
 
@@ -94,7 +96,7 @@ namespace Reusable.Tests.Commander.Integration
     {
         public string A { get; set; }
 
-        [Alias("A")]
+        [Tags("A")]
         public string B { get; set; }
     }
 

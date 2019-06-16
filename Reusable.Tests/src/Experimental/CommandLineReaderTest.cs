@@ -3,6 +3,7 @@ using System.ComponentModel;
 using Reusable.Commander;
 using Reusable.Commander.Annotations;
 using Reusable.Commander.Services;
+using Reusable.Data.Annotations;
 using Xunit;
 
 namespace Reusable.Tests.Experimental
@@ -38,7 +39,7 @@ namespace Reusable.Tests.Experimental
         
         internal interface ITestParameter : ICommandParameter
         {
-            [Alias("f")]
+            [Tags("f")]
             List<string> Files { get; }
 
             string Build { get; }

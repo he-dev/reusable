@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Reusable.Commander.Annotations;
 using Reusable.Commander.Services;
 using Reusable.Commander.Utilities;
+using Reusable.Data.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
@@ -23,13 +24,13 @@ namespace Reusable.Commander.Commands
         [CanBeNull]
         [Description("Display command usage.")]
         //[Position(1)]
-        [Alias("cmd")]
+        [Tags("cmd")]
         //[Position(1)]
         string Command { get; set; }
     }
 
     [PublicAPI]
-    [Alias("h", "?")]
+    [Tags("h", "?")]
     [Description("Display help.")]
     public class Help : ConsoleCommand<IHelpParameter>
     {

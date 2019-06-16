@@ -2,6 +2,7 @@ using System;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Reusable.Beaver;
+using Reusable.Data.Annotations;
 using Reusable.OmniLog;
 using Reusable.Quickey;
 using Reusable.Tests.Beaver.Features;
