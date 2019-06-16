@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
@@ -16,7 +17,29 @@ namespace Reusable.Tests.IOnymous.Config.Providers
         private static readonly IResourceProvider Sql =
             EmbeddedFileProvider<SqlServerProviderTest>
                 .Default
-                .DecorateWith(RelativeProvider.Factory(@"sql\SmartConfig"));
+                .DecorateWith(RelativeProvider.Factory(@"sql\IOnymous\Config"));
+
+        private readonly IResourceProvider _config;
+
+        public SqlServerProviderTest()
+        {
+            _config = new SqlServerProvider("name=TestDb")
+            {
+                TableName = ("reusable", "TestConfig"),
+                ValueConverter = new JsonSettingConverter(),
+                ColumnMappings =
+                    ImmutableDictionary<SqlServerColumn, SoftString>
+                        .Empty
+                        .Add(SqlServerColumn.Name, "_name")
+                        .Add(SqlServerColumn.Value, "_value"),
+                Where =
+                    ImmutableDictionary<string, object>
+                        .Empty
+                        .Add("_env", "test")
+                        .Add("_ver", "1"),
+                Fallback = ("_env", "else")
+            };
+        }
 
         public async Task InitializeAsync()
         {
@@ -28,109 +51,63 @@ namespace Reusable.Tests.IOnymous.Config.Providers
         }
 
         [Fact]
-        public async Task Can_get_setting()
-        {
-            var c = CompositeProvider.Empty.Add(new SqlServerProvider("name=TestDb")
-            {
-                TableName = ("reusable", "SmartConfig"),
-                ValueConverter = new JsonSettingConverter(),
-                ColumnMappings =
-                    ImmutableDictionary<SqlServerColumn, SoftString>
-                        .Empty
-                        .Add(SqlServerColumn.Name, "_name")
-                        .Add(SqlServerColumn.Value, "_value")
-            });
-            var name = await c.ReadSettingAsync(From<IUserConfig>.Select(x => x.Name));
-            var isCool = await c.ReadSettingAsync(From<IUserConfig>.Select(x => x.IsCool));
-
-            Assert.Equal("Bob", name);
-            Assert.True(isCool);
-        }
-
-        [Fact]
-        public async Task Can_get_setting_with_additional_criteria()
-        {
-            var c = CompositeProvider.Empty.Add(new SqlServerProvider("name=TestDb")
-            {
-                TableName = ("reusable", "SmartConfig"),
-                ValueConverter = new JsonSettingConverter(),
-                ColumnMappings =
-                    ImmutableDictionary<SqlServerColumn, SoftString>
-                        .Empty
-                        .Add(SqlServerColumn.Name, "_name")
-                        .Add(SqlServerColumn.Value, "_value"),
-                Where = ImmutableDictionary<string, object>.Empty.Add("_other", "someone-else")
-            });
-            var name = await c.ReadSettingAsync(From<IUserConfig>.Select(x => x.Name));
-
-            Assert.Equal("Tom", name);
-        }
-
-        [Fact]
         public async Task Can_deserialize_various_types()
         {
-            var c = CompositeProvider.Empty.Add(new SqlServerProvider("name=TestDb")
-            {
-                TableName = ("reusable", "SmartConfig"),
-                ValueConverter = new JsonSettingConverter(),
-                ColumnMappings =
-                    ImmutableDictionary<SqlServerColumn, SoftString>
-                        .Empty
-                        .Add(SqlServerColumn.Name, "_name")
-                        .Add(SqlServerColumn.Value, "_value"),
-                Where =
-                    ImmutableDictionary<string, object>
-                        .Empty
-                        .Add("_other", "t"),
-                Fallback = ("_other", "something-else")
-            });
+            var building = From<IBuildingConfig>.This;
 
-            var types = From<ITypeConfig>.This;
+            Assert.Equal("Tower Bridge", await _config.ReadSettingAsync(building.Select(x => x.Description)));
+            Assert.Equal(true, await _config.ReadSettingAsync(building.Select(x => x.IsMonument)));
+            Assert.Equal(65, await _config.ReadSettingAsync(building.Select(x => x.Height)));
+            Assert.Equal(2.25, await _config.ReadSettingAsync(building.Select(x => x.AverageVisitorCount)));
+            Assert.Equal(new DateTime(1894, 6, 30), await _config.ReadSettingAsync(building.Select(x => x.OpenedOn)));
+            Assert.Equal(new[] { 11, 12 }, await _config.ReadSettingAsync(building.Select(x => x.Showtimes)));
+            Assert.Equal(TimeSpan.Parse("01:15:00"), await _config.ReadSettingAsync(building.Select(x => x.AverageVisit)));
+        }
+        
+        [Fact]
+        public async Task Can_get_fallback_item()
+        {
+            var building = From<IBuildingConfig>.This;
 
-            Assert.Equal("str", await c.ReadSettingAsync(types.Select(x => x.String)));
-            Assert.Equal(true, await c.ReadSettingAsync(types.Select(x => x.Bool)));
-            Assert.Equal(3, await c.ReadSettingAsync(types.Select(x => x.Int)));
-            Assert.Equal(1.25, await c.ReadSettingAsync(types.Select(x => x.Double)));
-            Assert.Equal(new DateTime(2019, 1, 2), await c.ReadSettingAsync(types.Select(x => x.DateTime)));
-            Assert.Equal(new[] { 3, 4, 5 }, await c.ReadSettingAsync(types.Select(x => x.ListOfInt)));
-            Assert.Equal(TimeSpan.FromMinutes(20), await c.ReadSettingAsync(types.Select(x => x.TimeSpan)));
+            Assert.Equal("200kmh", await _config.ReadSettingAsync(From<ICarConfig>.Select(x => x.Speed)));
         }
 
         [Fact]
         public async Task Can_save_setting()
         {
-            var c = CompositeProvider.Empty.Add(new SqlServerProvider("name=TestDb")
-            {
-                TableName = ("reusable", "SmartConfig"),
-                ValueConverter = new JsonSettingConverter(),
-                ColumnMappings =
-                    ImmutableDictionary<SqlServerColumn, SoftString>
-                        .Empty
-                        .Add(SqlServerColumn.Name, "_name")
-                        .Add(SqlServerColumn.Value, "_value"),
-                Where = ImmutableDictionary<string, object>.Empty.Add("_other", "t")
-            });
+            Assert.Equal("Tower Bridge", await _config.ReadSettingAsync(From<IBuildingConfig>.Select(x => x.Description)));
 
-            Assert.Equal(7, await c.ReadSettingAsync(From<ITypeConfig>.Select(x => x.Edit)));
+            await _config.WriteSettingAsync(From<IBuildingConfig>.Select(x => x.Description), "Tower Bridge new");
 
-            await c.WriteSettingAsync(From<ITypeConfig>.Select(x => x.Edit), 12);
-
-            Assert.Equal(12, await c.ReadSettingAsync(From<ITypeConfig>.Select(x => x.Edit)));
+            Assert.Equal("Tower Bridge new", await _config.ReadSettingAsync(From<IBuildingConfig>.Select(x => x.Description)));
         }
 
         public Task DisposeAsync()
         {
             return Task.CompletedTask;
         }
+    }
 
-        [UseType, UseMember]
-        [SettingSelectorFormatter]
-        [TrimStart("I"), TrimEnd("Config")]
-        private interface IUserConfig : INamespace
-        {
-            string Name { get; }
-
-            bool IsCool { get; }
-        }
+    [UseType, UseMember]
+    [TrimStart("I"), TrimEnd("Config")]
+    [SettingSelectorFormatter]
+    public interface IBuildingConfig : INamespace
+    {
+        string Description { get; }
+        bool IsMonument { get; }
+        int Height { get; }
+        double AverageVisitorCount { get; }
+        decimal Cost { get; }
+        DateTime OpenedOn { get; }
+        TimeSpan AverageVisit { get; }
+        List<int> Showtimes { get; }
+    }
+    
+    [UseType, UseMember]
+    [TrimStart("I"), TrimEnd("Config")]
+    [SettingSelectorFormatter]
+    public interface ICarConfig : INamespace
+    {
+        string Speed { get; }
     }
 }

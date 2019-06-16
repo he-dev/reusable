@@ -357,18 +357,5 @@ namespace Reusable.Tests.IOnymous.Config
         string Name { get; }
     }
 
-    [UseType, UseMember]
-    [SettingSelectorFormatter]
-    [TrimStart("I"), TrimEnd("Config")]
-    public interface ITypeConfig : INamespace
-    {
-        string String { get; }
-        bool Bool { get; }
-        int Int { get; }
-        double Double { get; }
-        DateTime DateTime { get; }
-        TimeSpan TimeSpan { get; }
-        List<int> ListOfInt { get; }
-        int Edit { get; }
-    }
+    
 }
