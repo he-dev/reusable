@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -13,7 +12,7 @@ using Reusable.Diagnostics;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 
-namespace Reusable
+namespace Reusable.Data
 {
     [PublicAPI]
     public abstract class Option
@@ -45,7 +44,7 @@ namespace Reusable
         // Values are what matters for equality.
         private static readonly IEqualityComparer<Option<T>> Comparer = EqualityComparerFactory<Option<T>>.Create
         (
-            equals: (left, right) => left.Values.SetEquals(right.Values),
+            @equals: (left, right) => left.Values.SetEquals(right.Values),
             getHashCode: (obj) => obj.Values.GetHashCode()
         );
 

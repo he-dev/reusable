@@ -10,13 +10,13 @@ namespace Reusable.Beaver
     {
         #region Execute
 
-        public static async Task ExecuteAsync(this IFeatureToggle features, string name, Func<Task> bodyWhenOn, Func<Task> bodyWhenOff)
+        public static async Task ExecuteAsync(this IFeatureToggle features, string name, Func<Task> body, Func<Task> fallback)
         {
             await features.ExecuteAsync
             (
                 name,
-                () => ExecuteAsync(bodyWhenOn),
-                () => ExecuteAsync(bodyWhenOff)
+                () => ExecuteAsync(body),
+                () => ExecuteAsync(fallback)
             );
 
             async Task<object> ExecuteAsync(Func<Task> b)
@@ -26,18 +26,18 @@ namespace Reusable.Beaver
             }
         }
 
-        public static async Task ExecuteAsync(this IFeatureToggle features, string name, Func<Task> bodyWhenOn)
+        public static async Task ExecuteAsync(this IFeatureToggle features, string name, Func<Task> body)
         {
-            await features.ExecuteAsync(name, bodyWhenOn, () => Task.FromResult<object>(default));
+            await features.ExecuteAsync(name, body, () => Task.FromResult<object>(default));
         }
 
-        public static void Execute(this IFeatureToggle features, string name, Action bodyWhenOn, Action bodyWhenOff)
+        public static void Execute(this IFeatureToggle features, string name, Action body, Action fallback)
         {
             features.ExecuteAsync
             (
                 name,
-                () => ExecuteAsync(bodyWhenOn),
-                () => ExecuteAsync(bodyWhenOff)
+                () => ExecuteAsync(body),
+                () => ExecuteAsync(fallback)
             ).GetAwaiter().GetResult();
 
             Task<object> ExecuteAsync(Action b)
@@ -47,9 +47,9 @@ namespace Reusable.Beaver
             }
         }
 
-        public static void Execute(this IFeatureToggle features, string name, Action bodyWhenOn)
+        public static void Execute(this IFeatureToggle features, string name, Action body)
         {
-            features.Execute(name, bodyWhenOn, () => { });
+            features.Execute(name, body, () => { });
         }
 
         #endregion

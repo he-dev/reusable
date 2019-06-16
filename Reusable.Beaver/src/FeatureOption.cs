@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using Reusable.Data;
 
 namespace Reusable.Beaver
 {

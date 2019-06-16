@@ -11,12 +11,12 @@ namespace Reusable.Beaver
     [PublicAPI]
     public interface IFeatureToggle
     {
-        bool IsOn(string name);
+        bool CanExecute(string name);
 
         [NotNull]
-        FeatureOption Options(string name);
+        FeatureOption GetOptions(string name);
 
-        Task<T> ExecuteAsync<T>(string name, Func<Task<T>> bodyWhenOn, Func<Task<T>> bodyWhenOff);
+        Task<T> ExecuteAsync<T>(string name, Func<Task<T>> body, Func<Task<T>> fallback);
 
         [NotNull]
         IFeatureToggle Configure(string name, Func<FeatureOption, FeatureOption> configure);
@@ -40,51 +40,52 @@ namespace Reusable.Beaver
         [CanBeNull]
         public Func<string, FeatureOption> GetDefaultOptionsCallback { get; set; }
 
-        public bool IsOn(string name)
+        public bool CanExecute(string name)
         {
-            var options = Options(name);
+            var options = GetOptions(name);
             return options.Contains(FeatureOption.Enable) && (CanExecuteCallback?.Invoke(options) ?? true);
         }
 
-        public FeatureOption Options(string name)
+        public FeatureOption GetOptions(string name)
         {
             return
                 _options.TryGetValue(name, out var customOptions)
                     ? customOptions
-                    : DefaultOptions(name);
+                    : GetDefaultOptions(name);
         }
 
-        private FeatureOption DefaultOptions(string name)
+        private FeatureOption GetDefaultOptions(string name)
         {
             return GetDefaultOptionsCallback?.Invoke(name) ?? _defaultOptions;
         }
 
-        public async Task<T> ExecuteAsync<T>(string name, Func<Task<T>> bodyWhenOn, Func<Task<T>> bodyWhenOff)
+        public async Task<T> ExecuteAsync<T>(string name, Func<Task<T>> body, Func<Task<T>> fallback)
         {
-            var options = Options(name);
+            var options = GetOptions(name);
+            var defaultOptions = GetDefaultOptions(name);
 
-            using (_logger.BeginScope().WithCorrelationHandle("Feature").AttachElapsed())
+            using (_logger.BeginScope().WithCorrelationHandle($"Feature::{name}").AttachElapsed())
             {
                 // Not catching exceptions because the caller should handle them.
                 try
                 {
-                    if (IsOn(name))
+                    if (CanExecute(name))
                     {
-                        if (options.Contains(FeatureOption.Warn) && !_defaultOptions.Contains(FeatureOption.Enable))
+                        if (options.Contains(FeatureOption.Warn) && !defaultOptions.Contains(FeatureOption.Enable))
                         {
                             _logger.Log(Abstraction.Layer.Service().Decision($"Using feature '{name}'").Because("Enabled").Warning());
                         }
 
-                        return await bodyWhenOn();
+                        return await body();
                     }
                     else
                     {
-                        if (options.Contains(FeatureOption.Warn) && _defaultOptions.Contains(FeatureOption.Enable))
+                        if (options.Contains(FeatureOption.Warn) && defaultOptions.Contains(FeatureOption.Enable))
                         {
                             _logger.Log(Abstraction.Layer.Service().Decision($"Not using feature '{name}'").Because("Disabled").Warning());
                         }
 
-                        return await bodyWhenOff();
+                        return await fallback();
                     }
                 }
                 finally
@@ -96,8 +97,8 @@ namespace Reusable.Beaver
 
         public IFeatureToggle Configure(string name, Func<FeatureOption, FeatureOption> configure)
         {
-            var newOptions = configure(Options(name));
-            if (newOptions == DefaultOptions(name))
+            var newOptions = configure(GetOptions(name));
+            if (newOptions == GetDefaultOptions(name))
             {
                 // Don't store default options.
                 _options.Remove(name);
