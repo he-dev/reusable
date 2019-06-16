@@ -27,8 +27,7 @@ namespace Reusable.IOnymous
 
             var format = resource.Metadata.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Format));
 
-            // todo - find a cleaner solution; maybe a new comparer for MimeType?
-            if (!format.Name.StartsWith("text/"))
+            if (format != MimeType.Text)
             {
                 throw new ArgumentException($"Resource must be '{MimeType.Text}' but is '{format}'.");
             }

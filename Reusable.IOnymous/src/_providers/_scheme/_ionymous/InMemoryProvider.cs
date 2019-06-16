@@ -125,7 +125,7 @@ namespace Reusable.IOnymous
         }
 
         public InMemoryResourceInfo(UriString uri, IImmutableSession metadata)
-            : this(uri, MimeType.Null, Stream.Null, metadata)
+            : this(uri, MimeType.None, Stream.Null, metadata)
         {
             ModifiedOn = DateTime.UtcNow;
         }

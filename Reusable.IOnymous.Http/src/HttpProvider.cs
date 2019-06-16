@@ -36,19 +36,19 @@ namespace Reusable.IOnymous
         {
             uri = BaseUri + uri;
             var (response, mediaType) = await InvokeAsync(uri, HttpMethod.Get, metadata);
-            return new HttpResourceInfo(uri, response, new MimeType(mediaType));
+            return new HttpResourceInfo(uri, response, mediaType);
         }
 
         protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
         {
             uri = BaseUri + uri;
             var (response, mediaType) = await InvokeAsync(uri, HttpMethod.Post, metadata.SetItem(From<IHttpMeta>.Select(x => x.Content), value));
-            return new HttpResourceInfo(uri, response, new MimeType(mediaType));
+            return new HttpResourceInfo(uri, response, mediaType);
         }
 
         #region Helpers
 
-        private async Task<(Stream Content, string MimeType)> InvokeAsync(UriString uri, HttpMethod method, IImmutableSession metadata)
+        private async Task<(Stream Content, MimeType MimeType)> InvokeAsync(UriString uri, HttpMethod method, IImmutableSession metadata)
         {
             using (var request = new HttpRequestMessage(method, uri))
             {
@@ -82,7 +82,7 @@ namespace Reusable.IOnymous
 
                     if (classOfStatusCode is null)
                     {
-                        return (responseContentCopy, response.Content.Headers.ContentType.MediaType);
+                        return (responseContentCopy, MimeType.Create(response.Content.Headers.ContentType.MediaType, response.Content.Headers.ContentType.MediaType));
                     }
 
                     using (var responseReader = new StreamReader(responseContentCopy.Rewind()))

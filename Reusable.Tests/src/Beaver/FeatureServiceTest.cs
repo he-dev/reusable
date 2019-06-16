@@ -40,7 +40,7 @@ namespace Reusable.Tests.Beaver
                     .Where<TagsAttribute>("io")
                     .Format();
 
-            features.Configure(names, o => o ^ FeatureOption.Enable);
+            features.Configure(names, o => o.Reset(FeatureOption.Enable));
 
             var bodyCounter = 0;
             var otherCounter = 0;

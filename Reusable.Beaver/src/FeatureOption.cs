@@ -1,8 +1,10 @@
+using System.Collections.Immutable;
+
 namespace Reusable.Beaver
 {
     public class FeatureOption : Option<FeatureOption>
     {
-        public FeatureOption(SoftString name, int value) : base(name, value) { }
+        public FeatureOption(SoftString name, IImmutableSet<SoftString> values) : base(name, values) { }
 
         /// <summary>
         /// When set a feature is enabled.

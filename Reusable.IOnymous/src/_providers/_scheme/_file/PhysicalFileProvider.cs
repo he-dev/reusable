@@ -18,7 +18,7 @@ namespace Reusable.IOnymous
         {
             builder.False
             (x =>
-                x.Metadata.GetItemOrDefault(From<IResourceMeta>.Select(y => y.Format), MimeType.Null).IsNull()
+                x.Metadata.GetItemOrDefault(From<IResourceMeta>.Select(y => y.Format), MimeType.None).IsNull()
             ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it requires resource format specified by the metadata.");
         });
 
@@ -59,7 +59,7 @@ namespace Reusable.IOnymous
             : base(uri, ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.Format), format)) { }
 
         public PhysicalFileInfo([NotNull] UriString uri)
-            : this(uri, MimeType.Null) { }
+            : this(uri, MimeType.None) { }
 
         public override bool Exists => File.Exists(Uri.ToUnc());
 

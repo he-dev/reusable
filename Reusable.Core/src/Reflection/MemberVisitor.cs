@@ -27,7 +27,7 @@ namespace Reusable.Reflection
             }
 
             // This fixes the visitor not resolving the overriden member correctly.
-            if (visitor._member.DeclaringType != visitor._type)
+            if (visitor._member.ReflectedType != visitor._type)
             {
                 visitor._member = 
                     visitor._type.IsInterface 
@@ -52,7 +52,7 @@ namespace Reusable.Reflection
                 // (() => Type.Member) - static usage 
                 case FieldInfo field when field.IsStatic:
                 case PropertyInfo property when property.GetGetMethod(_nonPublic).IsStatic:
-                    _type = node.Member.DeclaringType;
+                    _type = node.Member.ReflectedType;
                     break;
 
                 // (() => instance.Member) - via instance (also this)

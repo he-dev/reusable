@@ -106,7 +106,7 @@ namespace Reusable.Beaver
             }
             else
             {
-                _options[name] = configure(Options(name));
+                _options[name] = newOptions;
             }
 
             return this;

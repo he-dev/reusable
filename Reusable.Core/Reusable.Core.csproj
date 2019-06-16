@@ -33,4 +33,8 @@
     <Reference Include="System.Runtime.Extensions" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="src\Option.cs" />
+  </ItemGroup>
+
 </Project>
