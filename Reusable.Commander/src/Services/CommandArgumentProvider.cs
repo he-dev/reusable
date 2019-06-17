@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.IOnymous;
+using Reusable.Quickey;
+using Reusable.Reflection;
 
 namespace Reusable.Commander.Services
 {
@@ -22,8 +24,9 @@ namespace Reusable.Commander.Services
         protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             var (exists, values) = GetValues(uri);
-            var isCollection = uri.Query.TryGetValue(CommandArgumentQueryStringKeys.IsCollection, out var ic) && bool.Parse(ic.ToString());
-            return Task.FromResult<IResourceInfo>(new CommandArgumentInfo(uri, exists, isCollection ? values : values.Take(1).ToList()));
+            var parameterType = metadata.GetItemOrDefault(From<ICommandParameterMeta>.Select(x => x.ParameterType));
+            //var isCollection = uri.Query.TryGetValue(CommandArgumentQueryStringKeys.IsCollection, out var ic) && bool.Parse(ic.ToString());
+            return Task.FromResult<IResourceInfo>(new CommandArgumentInfo(uri, exists, parameterType.IsList() ? values : values.Take(1).ToList()));
         }
 
         private (bool Exists, List<string> Values) GetValues(UriString uri)
@@ -56,6 +59,6 @@ namespace Reusable.Commander.Services
     public static class CommandArgumentQueryStringKeys
     {
         public const string Position = nameof(Position);
-        public const string IsCollection = nameof(IsCollection);
+        //public const string IsCollection = nameof(IsCollection);
     }
 }

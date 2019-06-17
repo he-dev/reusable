@@ -83,13 +83,13 @@ namespace Reusable.Commander
             }
         }
 
-        public static IEnumerable<CommandParameterProperty> GetParameters(this Type bagType)
+        public static IEnumerable<CommandParameterMetadata> GetParameters(this Type bagType)
         {
             return
                 bagType
                     .GetProperties(BindingFlags.Instance | BindingFlags.Public)
                     .Where(p => !p.IsDefined(typeof(NotMappedAttribute)))
-                    .Select(CommandParameterProperty.Create);
+                    .Select(CommandParameterMetadata.Create);
         }
 
         public static Type GetBagType(this Type commandType)

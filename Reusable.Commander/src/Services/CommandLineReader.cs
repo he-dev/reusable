@@ -36,14 +36,14 @@ namespace Reusable.Commander.Services
         public TValue GetItem<TValue>(Expression<Func<TParameter, TValue>> getItem)
         {
             var (_, _, itemInfo) = MemberVisitor.GetMemberInfo(getItem);
-            var itemMetadata = CommandParameterProperty.Create((PropertyInfo)itemInfo);
+            var itemMetadata = CommandParameterMetadata.Create((PropertyInfo)itemInfo);
             var (uri, metadata) = ItemRequestFactory.CreateItemRequest(itemMetadata);
 
             var item = _args.GetAsync(uri, metadata).GetAwaiter().GetResult();
 
             if (item.Exists)
             {
-                if (itemMetadata.IsCollection)
+                if (itemMetadata.Type.IsList())
                 {
                     return item.DeserializeJsonAsync<TValue>().GetAwaiter().GetResult();
                 }
