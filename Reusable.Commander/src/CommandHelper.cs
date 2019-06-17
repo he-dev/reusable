@@ -24,11 +24,11 @@ namespace Reusable.Commander
         {
             if (commandType == null) throw new ArgumentNullException(nameof(commandType));
 
-            if (!typeof(IConsoleCommand).IsAssignableFrom(commandType))
+            if (!typeof(ICommand).IsAssignableFrom(commandType))
             {
                 throw new ArgumentException(
                     paramName: nameof(commandType),
-                    message: $"'{nameof(commandType)}' needs to be derived from '{nameof(ICommand)}'");
+                    message: $"'{nameof(commandType)}' needs to be derived from '{nameof(System.Windows.Input.ICommand)}'");
             }
 
             return CommandNameCache.GetOrAdd(commandType, t =>
@@ -96,7 +96,7 @@ namespace Reusable.Commander
         {
             CommandValidator.ValidateCommandType(commandType);
 
-            if (commandType.BaseType == typeof(ConsoleCommand))
+            if (commandType.BaseType == typeof(Command))
             {
                 return typeof(ICommandParameter);
             }

@@ -197,7 +197,7 @@ namespace Reusable.Tests.Commander.Integration
         }
 
         [Tags("dc")]
-        private class DisabledCommand : ConsoleCommand<SimpleBag, NullContext>
+        private class DisabledCommand : Command<SimpleBag, NullContext>
         {
             public DisabledCommand([NotNull] CommandServiceProvider<DisabledCommand> serviceProvider, [CanBeNull] Identifier id = default)
                 : base(serviceProvider, id) { }

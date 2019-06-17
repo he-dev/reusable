@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using Reusable.Diagnostics;
 using Reusable.Extensions;
 
 namespace Reusable.Commander
@@ -11,7 +12,7 @@ namespace Reusable.Commander
     /// <summary>
     /// This class represents a single command-line argument with all its values.
     /// </summary>
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
+    [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public class CommandArgument : List<string>, IGrouping<Identifier, string>, IEquatable<Identifier>, IFormattable
     {
         public const string DefaultFormat = "-:";

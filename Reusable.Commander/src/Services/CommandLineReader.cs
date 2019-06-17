@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Custom;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.IOnymous;
+using Reusable.Quickey;
 using Reusable.Reflection;
 
 namespace Reusable.Commander.Services
@@ -22,6 +25,7 @@ namespace Reusable.Commander.Services
         TValue GetItem<TValue>(Expression<Func<TParameter, TValue>> getItem);
     }
 
+    [UsedImplicitly]
     internal class CommandLineReader<TParameter> : ICommandLineReader<TParameter> where TParameter : ICommandParameter
     {
         private readonly IResourceProvider _args;
@@ -37,7 +41,7 @@ namespace Reusable.Commander.Services
         {
             var (_, _, itemInfo) = MemberVisitor.GetMemberInfo(getItem);
             var itemMetadata = CommandParameterProperty.Create((PropertyInfo)itemInfo);
-            var (uri, metadata) = ItemRequestFactory.CreateItemRequest(itemMetadata);
+            var (uri, metadata) = CreateItemRequest(itemMetadata);
 
             var item = _args.GetAsync(uri, metadata).GetAwaiter().GetResult();
 
@@ -88,6 +92,29 @@ namespace Reusable.Commander.Services
             }
 
             return default;
+        }
+        
+        private static (UriString Uri, IImmutableSession Metadata) CreateItemRequest(CommandParameterProperty item)
+        {
+            var queryParameters = new (SoftString Key, SoftString Value)[]
+            {
+                (CommandArgumentQueryStringKeys.Position, item.Position.ToString()),
+                (CommandArgumentQueryStringKeys.IsCollection, item.IsCollection.ToString()),
+            };
+            var path = item.Id.Join("/").ToLower();
+            var query =
+                queryParameters
+                    .Where(x => x.Value)
+                    .Select(x => $"{x.Key.ToString()}={x.Value.ToString()}")
+                    .Join("&");
+            query = (SoftString)query ? $"?{query}" : string.Empty;
+            return
+            (
+                $"{CommandArgumentProvider.DefaultScheme}:///{path}{query}",
+                ImmutableSession
+                    .Empty
+                    .SetItem(From<IProviderMeta>.Select(x => x.ProviderName), nameof(CommandArgumentProvider))
+            );
         }
     }
 

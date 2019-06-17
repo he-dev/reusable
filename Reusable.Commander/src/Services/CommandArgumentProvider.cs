@@ -10,7 +10,7 @@ namespace Reusable.Commander.Services
 {
     internal class CommandArgumentProvider : ResourceProvider
     {
-        public new const string DefaultScheme = "arg";
+        public new const string DefaultScheme = "command-line";
 
         private readonly ICommandLine _commandLine;
 

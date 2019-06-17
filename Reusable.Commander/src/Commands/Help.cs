@@ -31,7 +31,7 @@ namespace Reusable.Commander.Commands
     [PublicAPI]
     [Tags("h", "?")]
     [Description("Display help.")]
-    public class Help : ConsoleCommand<IHelpParameter>
+    public class Help : Command<IHelpParameter>
     {
         private static readonly int IndentWidth = 4;
 
@@ -39,7 +39,7 @@ namespace Reusable.Commander.Commands
 
         private readonly IList<Type> _commandTypes;
 
-        public Help(CommandServiceProvider<Help> serviceProvider, TypeList<IConsoleCommand> commands)
+        public Help(CommandServiceProvider<Help> serviceProvider, TypeList<ICommand> commands)
             : base(serviceProvider)
         {
             _commandTypes = commands;

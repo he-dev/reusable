@@ -120,11 +120,11 @@ namespace Reusable.Commander
 
         public static void ValidateCommandType(Type type)
         {
-            if (!typeof(IConsoleCommand).IsAssignableFrom(type))
+            if (!typeof(ICommand).IsAssignableFrom(type))
             {
                 throw DynamicException.Factory.CreateDynamicException(
                     $"CommandType",
-                    $"{type.Name} is not derived from {typeof(IConsoleCommand).Name}."
+                    $"{type.Name} is not derived from {typeof(ICommand).Name}."
                 );
             }
         }

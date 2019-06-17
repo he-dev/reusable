@@ -8,7 +8,7 @@ using Reusable.Commander.Services;
 
 namespace Reusable.Commander
 {
-    public interface IConsoleCommand
+    public interface ICommand
     {
         [NotNull]
         Identifier Id { get; }
@@ -17,9 +17,9 @@ namespace Reusable.Commander
     }
 
     [PublicAPI]
-    public abstract class ConsoleCommand<TParameter, TContext> : IConsoleCommand where TParameter : ICommandParameter //, new()
+    public abstract class Command<TParameter, TContext> : ICommand where TParameter : ICommandParameter //, new()
     {
-        protected ConsoleCommand([NotNull] ICommandServiceProvider serviceProvider, [CanBeNull] Identifier id = default)
+        protected Command([NotNull] ICommandServiceProvider serviceProvider, [CanBeNull] Identifier id = default)
         {
             Services = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             Id = id ?? serviceProvider.CommandId;
@@ -128,14 +128,14 @@ namespace Reusable.Commander
         }
     }
 
-    public abstract class ConsoleCommand<TParameter> : ConsoleCommand<TParameter, NullContext> where TParameter : ICommandParameter
+    public abstract class Command<TParameter> : Command<TParameter, NullContext> where TParameter : ICommandParameter
     {
-        protected ConsoleCommand([NotNull] ICommandServiceProvider serviceProvider, [CanBeNull] Identifier id = default) : base(serviceProvider, id) { }
+        protected Command([NotNull] ICommandServiceProvider serviceProvider, [CanBeNull] Identifier id = default) : base(serviceProvider, id) { }
     }
 
-    public abstract class ConsoleCommand : ConsoleCommand<ICommandParameter, NullContext>
+    public abstract class Command : Command<ICommandParameter, NullContext>
     {
-        protected ConsoleCommand([NotNull] ICommandServiceProvider serviceProvider, Identifier id)
+        protected Command([NotNull] ICommandServiceProvider serviceProvider, Identifier id)
             : base(serviceProvider, id) { }
     }
 

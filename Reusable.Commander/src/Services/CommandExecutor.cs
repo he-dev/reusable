@@ -30,14 +30,14 @@ namespace Reusable.Commander.Services
     {
         private readonly ILogger _logger;
         private readonly ICommandLineParser _commandLineParser;
-        private readonly IIndex<Identifier, IConsoleCommand> _commands;
+        private readonly IIndex<Identifier, ICommand> _commands;
         private readonly ExecuteExceptionCallback _executeExceptionCallback;
 
         public CommandExecutor
         (
             [NotNull] ILogger<CommandExecutor> logger,
             [NotNull] ICommandLineParser commandLineParser,
-            [NotNull] IIndex<Identifier, IConsoleCommand> commands,
+            [NotNull] IIndex<Identifier, ICommand> commands,
             [NotNull] ExecuteExceptionCallback executeExceptionCallback
         )
         {
@@ -131,15 +131,15 @@ namespace Reusable.Commander.Services
                 try
                 {
                     await executable.Command.ExecuteAsync(executable.CommandLine, context, cancellationTokenSource.Token);
-                    _logger.Log(Abstraction.Layer.Service().Routine(nameof(IConsoleCommand.ExecuteAsync)).Completed());
+                    _logger.Log(Abstraction.Layer.Service().Routine(nameof(ICommand.ExecuteAsync)).Completed());
                 }
                 catch (OperationCanceledException)
                 {
-                    _logger.Log(Abstraction.Layer.Service().Routine(nameof(IConsoleCommand.ExecuteAsync)).Canceled(), "Cancelled by user.");
+                    _logger.Log(Abstraction.Layer.Service().Routine(nameof(ICommand.ExecuteAsync)).Canceled(), "Cancelled by user.");
                 }
                 catch (Exception taskEx)
                 {
-                    _logger.Log(Abstraction.Layer.Service().Routine(nameof(IConsoleCommand.ExecuteAsync)).Faulted(), taskEx);
+                    _logger.Log(Abstraction.Layer.Service().Routine(nameof(ICommand.ExecuteAsync)).Faulted(), taskEx);
 
                     if (!executable.Async)
                     {
@@ -153,7 +153,7 @@ namespace Reusable.Commander.Services
 
         #region Helpers
 
-        private IEnumerable<(IConsoleCommand Command, ICommandLine CommandLine)> GetCommands(IEnumerable<ICommandLine> commandLines)
+        private IEnumerable<(ICommand Command, ICommandLine CommandLine)> GetCommands(IEnumerable<ICommandLine> commandLines)
         {
             return commandLines.Select((commandLine, i) =>
             {
@@ -175,7 +175,7 @@ namespace Reusable.Commander.Services
         }
 
         [NotNull]
-        private IConsoleCommand GetCommand(Identifier id)
+        private ICommand GetCommand(Identifier id)
         {
             return
                 _commands.TryGetValue(id, out var command)
@@ -194,7 +194,7 @@ namespace Reusable.Commander.Services
     {
         public ICommandLine CommandLine { get; set; }
 
-        public IConsoleCommand Command { get; set; }
+        public ICommand Command { get; set; }
 
         public bool Async { get; set; }
     }

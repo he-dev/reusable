@@ -25,7 +25,7 @@ namespace Reusable.Commander
         }
 
         [NotNull]
-        public CommandRegistrationBuilder Add<TCommand>(Action<CommandRegistration> customize = default) where TCommand : IConsoleCommand
+        public CommandRegistrationBuilder Add<TCommand>(Action<CommandRegistration> customize = default) where TCommand : ICommand
         {
             try
             {
@@ -97,8 +97,8 @@ namespace Reusable.Commander
             var registration =
                 builder
                     .RegisterType(Type)
-                    .Keyed<IConsoleCommand>(Id)
-                    .As<IConsoleCommand>();
+                    .Keyed<ICommand>(Id)
+                    .As<ICommand>();
 
             // Lambda command ctor has some extra properties that we need to set.
             if (!(Execute is null))

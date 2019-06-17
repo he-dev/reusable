@@ -19,7 +19,7 @@ namespace Reusable.Commander
         Identifier CommandId { get; }
     }
 
-    public class CommandServiceProvider<T> : ICommandServiceProvider where T : IConsoleCommand
+    public class CommandServiceProvider<T> : ICommandServiceProvider where T : ICommand
     {
         public CommandServiceProvider(ILogger<T> logger, ICommandExecutor executor, ICommandLineMapper mapper)
         {
