@@ -49,9 +49,9 @@ namespace Reusable.Tests.Commander
             {
                 { Identifier.Empty, "baz" },
                 { Identifier.Empty, "qux" },
-                { Identifier.Create("foo"), "bar" },
+                { new Identifier(("foo", NameOption.CommandLine)), "bar" },
             };
-            Assert.Equal(Identifier.Create("baz"), commandLine.CommandId());
+            Assert.Equal(Identifier.Create(("baz", NameOption.CommandLine)), commandLine.CommandId());
         }
     }
 }

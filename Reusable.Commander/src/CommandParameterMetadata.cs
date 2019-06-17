@@ -12,16 +12,16 @@ using Reusable.Extensions;
 
 namespace Reusable.Commander
 {
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class CommandParameterProperty
+    [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
+    public class CommandParameterMetadata
     {
-        private CommandParameterProperty(PropertyInfo member)
+        private CommandParameterMetadata(PropertyInfo member)
         {
             Info = member;
 
             //Names = CommandHelper.GetParameterNames(member).ToList();
             Type = member.PropertyType;
-            IsCollection = typeof(IList<string>).IsAssignableFrom(member.PropertyType);
+            //IsCollection = typeof(IList<string>).IsAssignableFrom(member.PropertyType);
             Id = CommandHelper.GetCommandParameterId(member);
             Description = member.GetCustomAttribute<DescriptionAttribute>()?.Description;
             Position = member.GetCustomAttribute<PositionAttribute>()?.Value;
@@ -42,7 +42,7 @@ namespace Reusable.Commander
         [NotNull]
         public Type Type { get; }
         
-        public bool IsCollection { get; }
+        //public bool IsCollection { get; }
 
         [NotNull]
         public Identifier Id { get; }
@@ -60,7 +60,7 @@ namespace Reusable.Commander
         public bool Required { get; }
 
         [NotNull]
-        public static CommandParameterProperty Create([NotNull] PropertyInfo property) => new CommandParameterProperty(property ?? throw new ArgumentNullException(nameof(property)));
+        public static CommandParameterMetadata Create([NotNull] PropertyInfo property) => new CommandParameterMetadata(property ?? throw new ArgumentNullException(nameof(property)));
 
         public void SetValue(object obj, object value) => Info.SetValue(obj, value);
     }

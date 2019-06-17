@@ -33,24 +33,24 @@ namespace Reusable.Commander
 
             return CommandNameCache.GetOrAdd(commandType, t =>
             {
-                var category = t.GetCustomAttribute<CategoryAttribute>()?.Category;
+                //var category = t.GetCustomAttribute<CategoryAttribute>()?.Category;
 
-                var names = GetCommandNames(t).Distinct();
+                return new Identifier(GetCommandNames(t).Distinct());
 
-                return new Identifier(
-                    category is null
-                        ? names
-                        : names.SelectMany(name => new[] {name, SoftString.Create($"{category}.{name}")})
-                );
+                // return new Identifier(
+                //     category is null
+                //         ? names
+                //         : names.SelectMany(name => new[] {name, SoftString.Create($"{category}.{name}")})
+                // );
             });
         }
 
-        private static IEnumerable<SoftString> GetCommandNames(Type commandType)
+        private static IEnumerable<Name> GetCommandNames(Type commandType)
         {
-            yield return GetDefaultCommandName(commandType);
+            yield return new Name(GetDefaultCommandName(commandType), NameOption.Default);
             foreach (var name in commandType.GetCustomAttribute<TagsAttribute>() ?? Enumerable.Empty<string>())
             {
-                yield return name;
+                yield return new Name(name, NameOption.Alias);
             }
         }
 
@@ -71,25 +71,25 @@ namespace Reusable.Commander
             });
         }
 
-        public static IEnumerable<SoftString> GetParameterNames(MemberInfo property)
+        public static IEnumerable<Name> GetParameterNames(MemberInfo property)
         {
             // Always use the property name as default.
-            yield return property.Name;
+            yield return new Name(property.Name, NameOption.Default);
 
             // Then get alias if any.
             foreach (var alias in property.GetCustomAttribute<TagsAttribute>() ?? Enumerable.Empty<string>())
             {
-                yield return alias;
+                yield return new Name(alias, NameOption.Alias);
             }
         }
 
-        public static IEnumerable<CommandParameterProperty> GetParameters(this Type bagType)
+        public static IEnumerable<CommandParameterMetadata> GetParameters(this Type bagType)
         {
             return
                 bagType
                     .GetProperties(BindingFlags.Instance | BindingFlags.Public)
                     .Where(p => !p.IsDefined(typeof(NotMappedAttribute)))
-                    .Select(CommandParameterProperty.Create);
+                    .Select(CommandParameterMetadata.Create);
         }
 
         public static Type GetBagType(this Type commandType)
@@ -108,6 +108,6 @@ namespace Reusable.Commander
                     .BaseType
                     .GetGenericArguments()
                     .Single(t => typeof(ICommandParameter).IsAssignableFrom(t));
-        }        
+        }
     }
 }

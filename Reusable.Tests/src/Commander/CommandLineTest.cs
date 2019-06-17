@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Reusable.Commander;
 using Xunit;
 
@@ -18,7 +19,7 @@ namespace Reusable.Tests.Commander
 
             var commandArgument = commandLine.Single();
 
-            Assert.Equal(Reusable.Commander.Identifier.Create("foo"), commandArgument.Key);
+            Assert.Equal(Identifier.Create(("foo", NameOption.CommandLine)), commandArgument.Key);
             Assert.Equal(0, commandArgument.Count());
         }
 
@@ -35,7 +36,7 @@ namespace Reusable.Tests.Commander
 
             var commandArgument = commandLine.Single();
 
-            Assert.Equal(Reusable.Commander.Identifier.Create("foo"), commandArgument.Key);
+            Assert.Equal(Identifier.Create(("foo", NameOption.CommandLine)), commandArgument.Key);
             Assert.Equal(2, commandArgument.Count());
             Assert.Equal("bar", commandArgument.ElementAt(0));
             Assert.Equal("baz", commandArgument.ElementAt(1));

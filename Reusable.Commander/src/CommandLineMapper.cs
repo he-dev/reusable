@@ -43,7 +43,7 @@ namespace Reusable.Commander
 
         private readonly ILogger _logger;
         private readonly ITypeConverter _converter;
-        private readonly ConcurrentDictionary<Type, IEnumerable<CommandParameterProperty>> _cache = new ConcurrentDictionary<Type, IEnumerable<CommandParameterProperty>>();
+        private readonly ConcurrentDictionary<Type, IEnumerable<CommandParameterMetadata>> _cache = new ConcurrentDictionary<Type, IEnumerable<CommandParameterMetadata>>();
 
         public CommandLineMapper
         (
@@ -81,11 +81,11 @@ namespace Reusable.Commander
             return bag;
         }
 
-        private void Map<TBag>(TBag bag, ICommandLine commandLine, CommandParameterProperty parameterProperty) where TBag : ICommandParameter//, new()
+        private void Map<TBag>(TBag bag, ICommandLine commandLine, CommandParameterMetadata parameterMetadata) where TBag : ICommandParameter//, new()
         {            
-            if (commandLine.TryGetArgumentValues(parameterProperty.Id, parameterProperty.Position, out var values))
+            if (commandLine.TryGetArgumentValues(parameterMetadata.Id, parameterMetadata.Position, out var values))
             {
-                if (parameterProperty.Type.IsEnumerableOfT(except: typeof(string)))
+                if (parameterMetadata.Type.IsEnumerableOfT(except: typeof(string)))
                 {
                     if (!values.Any())
                     {
@@ -95,8 +95,8 @@ namespace Reusable.Commander
                         );
                     }
 
-                    var value = _converter.Convert(values, parameterProperty.Type);
-                    parameterProperty.SetValue(bag, value);
+                    var value = _converter.Convert(values, parameterMetadata.Type);
+                    parameterMetadata.SetValue(bag, value);
                 }
                 else
                 {
@@ -109,36 +109,36 @@ namespace Reusable.Commander
                         );
                     }
 
-                    if (parameterProperty.Type == typeof(bool))
+                    if (parameterMetadata.Type == typeof(bool))
                     {
                         if (values.Any())
                         {
                             var value = _converter.Convert(values.Single(), typeof(bool));
-                            parameterProperty.SetValue(bag, value);
+                            parameterMetadata.SetValue(bag, value);
                         }
                         else
                         {
-                            if (parameterProperty.DefaultValue is bool defaultValue)
+                            if (parameterMetadata.DefaultValue is bool defaultValue)
                             {
-                                parameterProperty.SetValue(bag, !defaultValue);
+                                parameterMetadata.SetValue(bag, !defaultValue);
                             }
                             else
                             {
                                 // Without a DefaultValue assume false but using the parameter negates it so use true.
-                                parameterProperty.SetValue(bag, true);
+                                parameterMetadata.SetValue(bag, true);
                             }
                         }
                     }
                     else
                     {
-                        var value = _converter.Convert(values.Single(), parameterProperty.Type);
-                        parameterProperty.SetValue(bag, value);
+                        var value = _converter.Convert(values.Single(), parameterMetadata.Type);
+                        parameterMetadata.SetValue(bag, value);
                     }
                 }
             }
             else
             {
-                if (parameterProperty.Required)
+                if (parameterMetadata.Required)
                 {
                     throw DynamicException.Factory.CreateDynamicException(
                         "MissingValue",
@@ -146,14 +146,14 @@ namespace Reusable.Commander
                     );
                 }
 
-                if (parameterProperty.DefaultValue.IsNotNull())
+                if (parameterMetadata.DefaultValue.IsNotNull())
                 {
                     var value =
-                        parameterProperty.DefaultValue is string
-                            ? _converter.Convert(parameterProperty.DefaultValue, parameterProperty.Type)
-                            : parameterProperty.DefaultValue;
+                        parameterMetadata.DefaultValue is string
+                            ? _converter.Convert(parameterMetadata.DefaultValue, parameterMetadata.Type)
+                            : parameterMetadata.DefaultValue;
 
-                    parameterProperty.SetValue(bag, value);
+                    parameterMetadata.SetValue(bag, value);
                 }
             }
         }

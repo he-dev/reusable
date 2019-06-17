@@ -47,7 +47,7 @@ namespace Reusable.Commander.Services
 
             if (item.Exists)
             {
-                if (itemMetadata.IsCollection)
+                if (itemMetadata.Type.IsList())
                 {
                     return item.DeserializeJsonAsync<TValue>().GetAwaiter().GetResult();
                 }
