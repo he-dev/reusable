@@ -89,7 +89,7 @@ namespace Reusable.Commander.Commands
 
         protected virtual void RenderParameterList(ICommandLineReader<IHelpParameter> parameter)
         {
-            var commandId = new Identifier(parameter.GetItem(x => x.Command));
+            var commandId = new Identifier(new Name(parameter.GetItem(x => x.Command)));
             var commandType = _commandTypes.SingleOrDefault(t => CommandHelper.GetCommandId(t) == commandId);
             if (commandType is null)
             {

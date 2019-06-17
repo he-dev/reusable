@@ -159,8 +159,13 @@ namespace Reusable.Data
                 ?? throw DynamicException.Create("OptionOutOfRange", $"There is no such option as '{name}'.");
         }
 
-        private static bool TryGetKnownOption(IEnumerable<SoftString> values, out T option)
+        private static bool TryGetKnownOption(IImmutableSet<SoftString> values, out T option)
         {
+            if (values.Count == 0)
+            {
+               option = None;
+               return true;
+            }
             if (Known.SingleOrDefault(o => o.Values.SetEquals(values)) is var knownOption && !(knownOption is null))
             {
                 option = knownOption;

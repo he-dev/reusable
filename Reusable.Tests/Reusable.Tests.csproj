@@ -30,7 +30,8 @@
         <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
         <PackageReference Include="Dapper" Version="1.60.6" />
-        <!--<PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />-->
+<!--        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.1.1" />-->
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
         <PackageReference Include="xunit.extensibility.execution" Version="2.4.1" />
         <!--<PackageReference Include="xunit.assert" Version="2.4.1" />-->
     </ItemGroup>

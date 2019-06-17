@@ -183,7 +183,7 @@ namespace Reusable.Commander.Services
                     : throw DynamicException.Create
                     (
                         $"CommandNotFound",
-                        $"Could not find command '{id.Default.ToString()}'."
+                        $"Could not find command '{id.Default?.ToString() ?? "Empty"}'."
                     );
         }
 

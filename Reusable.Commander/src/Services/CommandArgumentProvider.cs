@@ -44,7 +44,7 @@ namespace Reusable.Commander.Services
             else
             {
                 var names = uri.Path.Decoded.ToString().Split('/');
-                var id = new Identifier(names.Select(SoftString.Create));
+                var id = new Identifier(names.Select(n => new Name(n)));
                 return
                     _commandLine.Contains(id)
                         ? (true, _commandLine[id].ToList())

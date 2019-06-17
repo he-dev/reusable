@@ -22,7 +22,7 @@ namespace Reusable.Tests.Commander.Integration
 
             using (var context = CreateContext(
                 commands => commands
-                    .Add(Identifier.Create("a", "b"), ExecuteHelper.Count<SimpleBag>(counters))
+                    .Add(new Identifier(("a", NameOption.Default), ("b", NameOption.Alias)), ExecuteHelper.Count<SimpleBag>(counters))
             ))
             {
                 await context.Executor.ExecuteAsync<object>("a", default);
@@ -39,8 +39,8 @@ namespace Reusable.Tests.Commander.Integration
 
             using (var context = CreateContext(
                 commands => commands
-                    .Add(Identifier.Create("a"), ExecuteHelper.Count<SimpleBag>(counters))
-                    .Add(Identifier.Create("b"), ExecuteHelper.Count<SimpleBag>(counters))
+                    .Add(new Identifier(("a", NameOption.CommandLine)), ExecuteHelper.Count<SimpleBag>(counters))
+                    .Add(new Identifier(("b", NameOption.CommandLine)), ExecuteHelper.Count<SimpleBag>(counters))
             ))
             {
                 await context.Executor.ExecuteAsync<object>("a|b", default);
@@ -212,7 +212,6 @@ namespace Reusable.Tests.Commander.Integration
                 return Task.FromResult(false);
             }
         }
-
 
         // [Fact]
         // public async Task ExecuteAsync_MultipleCommands_Executed()

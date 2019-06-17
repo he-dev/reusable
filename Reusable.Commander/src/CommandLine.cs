@@ -4,17 +4,16 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
+using Reusable.Diagnostics;
 
 namespace Reusable.Commander
 {
     // foo -bar -baz qux
     public interface ICommandLine : ILookup<Identifier, string> { }
 
-    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+    [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public class CommandLine : ICommandLine
     {
-        public static readonly int CommandIndex = 0;
-
         private readonly IDictionary<Identifier, CommandArgument> _arguments = new Dictionary<Identifier, CommandArgument>();
 
         internal CommandLine() { }
