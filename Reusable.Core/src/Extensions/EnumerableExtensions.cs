@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Reusable.Collections;
@@ -86,7 +87,7 @@ namespace System.Linq.Custom
             if (values == null) throw new ArgumentNullException(nameof(values));
             return string.Join(separator, values);
         }
-        
+
         public static string Join<T>([NotNull] this IEnumerable<T> values, Func<T, string> selector, string separator)
         {
             if (values == null) throw new ArgumentNullException(nameof(values));
@@ -273,7 +274,7 @@ namespace System.Linq.Custom
 
             var result = default(T);
             var count = 0;
-            
+
             using (var enumerator = source.GetEnumerator())
             {
                 while (enumerator.MoveNext())
@@ -388,13 +389,21 @@ namespace System.Linq.Custom
             // there is one item remaining that was not returned - we return it now
             yield return copy[0];
         }
-        
+
         public static bool IsSubsetOf<T>(this IEnumerable<T> first, IEnumerable<T> second, IEqualityComparer<T> comparer = default)
         {
             return
                 !second
                     .Except(first, comparer ?? EqualityComparer<T>.Default)
                     .Any();
+        }
+
+        public static ImmutableDictionary<TKey, TValue> AddWhen<TKey, TValue>(this ImmutableDictionary<TKey, TValue> dictionary, bool condition, TKey key, TValue value)
+        {
+            return
+                condition
+                    ? dictionary.Add(key, value)
+                    : dictionary;
         }
     }
 

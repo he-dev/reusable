@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
@@ -20,7 +21,12 @@ namespace Reusable.IOnymous.Config
                 where m.IsDefined(typeof(ResourceAttribute))
                 select m.GetCustomAttribute<ResourceAttribute>();
             var resource = resources.FirstOrDefault();
-            return $"{resource?.Scheme?.ToString() ?? "config"}:///settings?name={Uri.EscapeDataString(plainKey)}";
+            return UriStringHelper.CreateQuery
+            (
+                scheme: resource?.Scheme?.ToString() ?? "config",
+                path: ImmutableList<string>.Empty.Add("settings"),
+                query: ImmutableDictionary<string, string>.Empty.Add("name", plainKey)
+            );
         }
     }
 }

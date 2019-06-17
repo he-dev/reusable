@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Custom;
 using System.Linq.Expressions;
@@ -13,16 +14,10 @@ using Reusable.Reflection;
 
 namespace Reusable.Commander.Services
 {
-    internal interface ICommandLineReader
-    {
-        [CanBeNull]
-        TValue GetItem<TValue>(LambdaExpression getItem);
-    }
-    
     public interface ICommandLineReader<TParameter> where TParameter : ICommandParameter
     {
         [CanBeNull]
-        TValue GetItem<TValue>(Expression<Func<TParameter, TValue>> getItem);
+        TValue GetItem<TValue>(Expression<Func<TParameter, TValue>> selector);
     }
 
     [UsedImplicitly]
@@ -37,11 +32,25 @@ namespace Reusable.Commander.Services
 
         public CommandLineReader(ICommandLine commandLine) : this(new CommandArgumentProvider(commandLine)) { }
 
-        public TValue GetItem<TValue>(Expression<Func<TParameter, TValue>> getItem)
+        public TValue GetItem<TValue>(Expression<Func<TParameter, TValue>> selector)
         {
-            var (_, _, itemInfo) = MemberVisitor.GetMemberInfo(getItem);
-            var itemMetadata = CommandParameterProperty.Create((PropertyInfo)itemInfo);
-            var (uri, metadata) = CreateItemRequest(itemMetadata);
+            var (_, _, itemInfo) = MemberVisitor.GetMemberInfo(selector);
+            var itemMetadata = CommandParameterMetadata.Create((PropertyInfo)itemInfo);
+
+            var uri = UriStringHelper.CreateQuery
+            (
+                scheme: CommandArgumentProvider.DefaultScheme,
+                path: ImmutableList<string>.Empty.Add("parameters"),
+                query: ImmutableDictionary<string, string>.Empty
+                    .Add("name", itemMetadata.Id.Default?.ToString())
+                    .AddWhen(itemMetadata.Position.HasValue, "position", itemMetadata.Position?.ToString())
+            );
+
+            var metadata =
+                ImmutableSession
+                    .Empty
+                    .SetItem(From<IProviderMeta>.Select(x => x.ProviderName), nameof(CommandArgumentProvider))
+                    .SetItem(From<ICommandParameterMeta>.Select(x => x.ParameterType), itemMetadata.Type);
 
             var item = _args.GetAsync(uri, metadata).GetAwaiter().GetResult();
 
@@ -93,36 +102,5 @@ namespace Reusable.Commander.Services
 
             return default;
         }
-        
-        private static (UriString Uri, IImmutableSession Metadata) CreateItemRequest(CommandParameterProperty item)
-        {
-            var queryParameters = new (SoftString Key, SoftString Value)[]
-            {
-                (CommandArgumentQueryStringKeys.Position, item.Position.ToString()),
-                (CommandArgumentQueryStringKeys.IsCollection, item.IsCollection.ToString()),
-            };
-            var path = item.Id.Join("/").ToLower();
-            var query =
-                queryParameters
-                    .Where(x => x.Value)
-                    .Select(x => $"{x.Key.ToString()}={x.Value.ToString()}")
-                    .Join("&");
-            query = (SoftString)query ? $"?{query}" : string.Empty;
-            return
-            (
-                $"{CommandArgumentProvider.DefaultScheme}:///{path}{query}",
-                ImmutableSession
-                    .Empty
-                    .SetItem(From<IProviderMeta>.Select(x => x.ProviderName), nameof(CommandArgumentProvider))
-            );
-        }
     }
-
-//    internal static class CommandLineReaderExtensions
-//    {
-//        public static TValue GetItem<TParameter, TValue>(this ICommandLineReader reader, ISelector<TParameter> selector, Expression<Func<TParameter, TValue>> getItem)
-//        {
-//            return reader.GetItem<TValue>(getItem);
-//        }
-//    }
 }

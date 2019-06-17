@@ -23,9 +23,8 @@ namespace Reusable.Commander.Services
 
         protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
         {
-            var (exists, values) = GetValues(uri);
+            var exists = TryGetValues(uri, out var values);
             var parameterType = metadata.GetItemOrDefault(From<ICommandParameterMeta>.Select(x => x.ParameterType));
-            //var isCollection = uri.Query.TryGetValue(CommandArgumentQueryStringKeys.IsCollection, out var ic) && bool.Parse(ic.ToString());
             return Task.FromResult<IResourceInfo>(new CommandArgumentInfo(uri, exists, parameterType.IsList() ? values : values.Take(1).ToList()));
         }
 
@@ -54,8 +53,40 @@ namespace Reusable.Commander.Services
                         : (false, new List<string>());
             }
         }
+
+        private bool TryGetValues(UriString uri, out List<string> values)
+        {
+            values = new List<string>();
+
+            if (uri.Query.TryGetValue(CommandArgumentQueryStringKeys.Position, out var p))
+            {
+                var position = int.Parse((string)p);
+                var elementAtOrDefault = _commandLine.AnonymousValues().ElementAtOrDefault(position);
+
+                if (elementAtOrDefault is null)
+                {
+                    return false;
+                }
+
+                values = new List<string> { elementAtOrDefault };
+                return true;
+            }
+
+            if (uri.TryGetDataString("name", out var name))
+            {
+                var id = new Identifier(new Name(name));
+
+                if (_commandLine.Contains(id))
+                {
+                    values = _commandLine[id].ToList();
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
-    
+
     public static class CommandArgumentQueryStringKeys
     {
         public const string Position = nameof(Position);

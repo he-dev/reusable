@@ -15,7 +15,7 @@ namespace Reusable.IOnymous
         // using 'new[]' for _nicer_ syntax
         private static readonly string UriPattern = string.Join(string.Empty, new[]
         {
-            /* language=regexp */ @"^(?:(?<scheme>\w+\+\.\-):)?",
+            /* language=regexp */ @"^(?:(?<scheme>[a-z0-9\+\.\-]+):)?",
             /* language=regexp */ @"(?:\/\/(?<authority>[a-z0-9\.\-_:]+))?",
             /* language=regexp */ @"(?:\/?(?<path>[a-z0-9\/:\.\-\%_@]+))",
             /* language=regexp */ @"(?:\?(?<query>[a-z0-9=&\%\.]+))?",

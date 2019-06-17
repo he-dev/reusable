@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Reusable.Commander.Annotations;
 using Reusable.Diagnostics;
 using Reusable.Extensions;
+using Reusable.Quickey;
 
 namespace Reusable.Commander
 {
@@ -42,12 +43,9 @@ namespace Reusable.Commander
         [NotNull]
         public Type Type { get; }
         
-        //public bool IsCollection { get; }
-
         [NotNull]
         public Identifier Id { get; }
-
-
+        
         [CanBeNull]
         public string Description { get; }
 
@@ -64,4 +62,13 @@ namespace Reusable.Commander
 
         public void SetValue(object obj, object value) => Info.SetValue(obj, value);
     }
+    
+    [UseType, UseMember]
+    [TrimStart("I"), TrimEnd("Meta")]
+    [PlainSelectorFormatter]
+    public interface ICommandParameterMeta
+    {
+        Type ParameterType { get; }
+    }
+
 }
