@@ -10,28 +10,30 @@ namespace Reusable.Tests.Commander
         private static readonly ICommandLineParser Parser = new CommandLineParser(new CommandLineTokenizer());
 
         [Fact]
-        public void Parse_Empty_EmptyCollection()
+        public void Can_parse_empty_command_line()
         {
             var commandLines = Parser.Parse(string.Empty).ToList();
             Assert.True(commandLines.Empty());
         }
 
         [Fact]
-        public void Parse_SingleCommand_SingleCommand()
+        public void Can_parse_single_command()
         {
             var commandLine = Parser.Parse("foo").ToList().Single();
-            Assert.Equal(Identifier.Create(("foo", NameOption.CommandLine)), commandLine.CommandId());
+            Assert.Equal("foo", commandLine[Identifier.Command]?.Single());
         }
 
         [Fact]
-        public void Parse_CommandWithArguments_CommandWithArguments()
+        public void Can_parse_command_with_mixed_parameters()
         {
             var commandLine = Parser.Parse("foo qux -bar baz").ToList().Single();
-            Assert.Equal(Identifier.Create(("foo", NameOption.CommandLine)), commandLine.CommandId());
+            Assert.Equal("foo", commandLine[Identifier.Command]?.Single());
+            Assert.Equal("qux", commandLine[Identifier.FromPosition(1)]?.Single());
+            Assert.Equal("baz", commandLine[Identifier.FromName("bar")]?.Single());
         }
 
         [Fact]
-        public void Parse_MultipleCommands_MultipleResults()
+        public void Can_parse_multiple_commands()
         {
             var commandLines = Parser.Parse("foo.bar -baz -qux quux baar | bar.baz -foo").ToList();
             Assert.Equal(2, commandLines.Count);

@@ -19,13 +19,13 @@ namespace Reusable.Commander
 
         internal CommandParameter(Identifier key) => Id = key;
 
-        internal CommandParameter() : this(Identifier.Empty) { }
+        //internal CommandParameter() : this(Identifier.Empty) { }
 
         private string DebuggerDisplay => ToString();
 
         public Identifier Id { get; }
 
-        public static CommandParameter Empty { get; } = new CommandParameter();
+        //public static CommandParameter Empty { get; } = new CommandParameter();
 
         #region IEquatable
 

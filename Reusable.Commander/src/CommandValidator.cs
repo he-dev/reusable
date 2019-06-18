@@ -103,8 +103,8 @@ namespace Reusable.Commander
                 parameters
                     .Where(parameter =>
                         {
-                            var sourceType = parameter.Type.IsEnumerableOfT(except: typeof(string)) ? typeof(IEnumerable<string>) : typeof(string);
-                            return !converter.CanConvert(sourceType, parameter.Type);
+                            var sourceType = parameter.Property.PropertyType.IsEnumerableOfT(except: typeof(string)) ? typeof(IEnumerable<string>) : typeof(string);
+                            return !converter.CanConvert(sourceType, parameter.Property.PropertyType);
                         }
                     )
                     .ToList();
@@ -113,7 +113,7 @@ namespace Reusable.Commander
             {
                 throw DynamicException.Create(
                     $"UnsupportedParameterType",
-                    $"There are one or more parameters with unsupported types: {string.Join(", ", unsupportedParameters.Select(p => p.Type.Name)).EncloseWith("[]")}."
+                    $"There are one or more parameters with unsupported types: {string.Join(", ", unsupportedParameters.Select(p => p.Property.PropertyType.Name)).EncloseWith("[]")}."
                 );
             }
         }

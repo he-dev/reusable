@@ -58,21 +58,21 @@ namespace Reusable.Commander
             }
         }
 
-        [ContractAnnotation("id: null => halt")]
-        public void Add([NotNull] SoftString id)
+        [ContractAnnotation("name: null => halt")]
+        public void Add([NotNull] string name)
         {
-            if (id == null) throw new ArgumentNullException(nameof(id));
+            if (name == null) throw new ArgumentNullException(nameof(name));
 
-            Add((Identifier)id);
+            Add(Identifier.FromName(name));
         }
 
-        [ContractAnnotation("id: null => halt; value: null => halt")]
-        public void Add([NotNull] SoftString id, [NotNull] string value)
+        [ContractAnnotation("name: null => halt; value: null => halt")]
+        public void Add([NotNull] string name, [NotNull] string value)
         {
-            if (id == null) throw new ArgumentNullException(nameof(id));
+            if (name == null) throw new ArgumentNullException(nameof(name));
             if (value == null) throw new ArgumentNullException(nameof(value));
 
-            Add((Identifier)id, value);
+            Add(Identifier.FromName(name), value);
         }
 
         public override string ToString() => string.Join(" ", this.Select(argument => argument.ToString()));

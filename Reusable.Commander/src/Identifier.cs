@@ -20,24 +20,24 @@ namespace Reusable.Commander
             if (names == null) throw new ArgumentNullException(nameof(names));
         }
 
-        public new static Identifier Empty { get; } = new Identifier();
+        public static Identifier Command { get; } = FromPosition(0);
 
-        public new static Identifier Command { get; } = new Identifier(new Name("0", NameOption.Default));
+        [NotNull]
+        public Name Default => this.Single(n => n.Option.Contains(NameOption.Default | NameOption.CommandLine));
 
-        [CanBeNull]
-        public Name Default => this.SingleOrDefault(n => n.Option.In(NameOption.Default, NameOption.CommandLine));
+        public IEnumerable<Name> Aliases => this.Where(n => n.Option.Contains(NameOption.Alias));
 
-        public IEnumerable<Name> Aliases => this.Where(n => n.Option == NameOption.Alias);
+        public static Identifier FromPosition(int position)
+        {
+            return new Identifier(new Name($"#{position}", NameOption.CommandLine | NameOption.Positional));
+        }
+
+        public static Identifier FromName(string name)
+        {
+            return new Identifier(new Name(name, NameOption.CommandLine));
+        }
 
         public override string ToString() => string.Join(", ", this.Select(x => x.ToString()));
-
-        #region operators
-
-        public static implicit operator Identifier(string name) => new Identifier(new Name(name));
-
-        public static implicit operator Identifier(SoftString name) => new Identifier(new Name(name));
-
-        #endregion
     }
 
     public class Name : IEquatable<Name>
@@ -75,5 +75,7 @@ namespace Reusable.Commander
         public static readonly NameOption Alias = CreateWithCallerName();
 
         public static readonly NameOption CommandLine = CreateWithCallerName();
+
+        public static readonly NameOption Positional = CreateWithCallerName();
     }
 }

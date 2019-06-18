@@ -45,16 +45,22 @@ namespace Reusable.Commander
                     case CommandSeparator when commandLine.Any():
                         yield return commandLine;
                         commandLine = new CommandLine();
-                        parameterId = new Identifier(new Name(position++.ToString(), NameOption.CommandLine));
+                        parameterId = Identifier.FromPosition(position++);
                         break;
 
                     case string value when IsParameterId(value):
-                        parameterId = RemoveParameterPrefix(value);
+                        parameterId = Identifier.FromName(RemoveParameterPrefix(value));
                         commandLine.Add(parameterId);
                         break;
 
                     default:
                         commandLine.Add(parameterId, token);
+                        
+                        // Use positional parameter-ids until a named one is found.
+                        if (parameterId.Default.Option.Contains(NameOption.Positional))
+                        {
+                            parameterId = Identifier.FromPosition(position++);
+                        }
                         break;
                 }
             }

@@ -18,34 +18,30 @@ namespace Reusable.Commander
     {
         private CommandParameterMetadata(PropertyInfo member)
         {
-            Info = member;
-
-            //Names = CommandHelper.GetParameterNames(member).ToList();
-            Type = member.PropertyType;
-            //IsCollection = typeof(IList<string>).IsAssignableFrom(member.PropertyType);
-            Id = CommandHelper.GetCommandParameterId(member);
-            Description = member.GetCustomAttribute<DescriptionAttribute>()?.Description;
+            Property = member;
             Position = member.GetCustomAttribute<PositionAttribute>()?.Value;
+            Id =
+                Position.HasValue
+                    ? Identifier.FromPosition(Position.Value)
+                    : CommandHelper.GetCommandParameterId(member);
+            Description = member.GetCustomAttribute<DescriptionAttribute>()?.Description;
             DefaultValue = Reflection.Utilities.FindCustomAttributes<DefaultValueAttribute>(member)?.SingleOrDefault()?.Value;
-            Required = member.IsDefined(typeof(RequiredAttribute)) || Position.HasValue;
+            Required = member.IsDefined(typeof(RequiredAttribute)) || Id.Default.Option.Contains(NameOption.Positional);
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(b =>
         {
             b.DisplayValue(x => x.Id.Default.ToString());
-            b.DisplayValue(x => x.Type.ToPrettyString(false));
+            b.DisplayValue(x => x.Property.PropertyType.ToPrettyString(false));
             b.DisplayValue(x => x.Position);
         });
 
         [NotNull]
-        private PropertyInfo Info { get; }
-        
-        [NotNull]
-        public Type Type { get; }
-        
+        public PropertyInfo Property { get; }
+
         [NotNull]
         public Identifier Id { get; }
-        
+
         [CanBeNull]
         public string Description { get; }
 
@@ -58,11 +54,14 @@ namespace Reusable.Commander
         public bool Required { get; }
 
         [NotNull]
-        public static CommandParameterMetadata Create([NotNull] PropertyInfo property) => new CommandParameterMetadata(property ?? throw new ArgumentNullException(nameof(property)));
+        public static CommandParameterMetadata Create([NotNull] PropertyInfo property)
+        {
+            return new CommandParameterMetadata(property ?? throw new ArgumentNullException(nameof(property)));
+        }
 
-        public void SetValue(object obj, object value) => Info.SetValue(obj, value);
+        //public void SetValue(object obj, object value) => Property.SetValue(obj, value);
     }
-    
+
     [UseType, UseMember]
     [TrimStart("I"), TrimEnd("Meta")]
     [PlainSelectorFormatter]
@@ -70,5 +69,4 @@ namespace Reusable.Commander
     {
         Type ParameterType { get; }
     }
-
 }
