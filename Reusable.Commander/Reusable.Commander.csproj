@@ -36,4 +36,9 @@
     <Reference Include="System.Linq" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="src\CommandLineMapper.cs" />
+    <Compile Remove="src\CommandLineExtensions.cs" />
+  </ItemGroup>
+
 </Project>

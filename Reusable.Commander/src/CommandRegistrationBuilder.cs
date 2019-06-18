@@ -15,12 +15,11 @@ namespace Reusable.Commander
     /// </summary>
     public class CommandRegistrationBuilder : Autofac.Module
     {
-        private readonly ITypeConverter _parameterConverter;
+        //private readonly ITypeConverter _parameterConverter;
         private readonly IList<CommandRegistration> _commands;
 
-        internal CommandRegistrationBuilder(ITypeConverter parameterConverter)
+        internal CommandRegistrationBuilder()
         {
-            _parameterConverter = parameterConverter;
             _commands = new List<CommandRegistration>();
         }
 
@@ -29,7 +28,7 @@ namespace Reusable.Commander
         {
             try
             {
-                var registration = new CommandRegistration(_parameterConverter, typeof(TCommand), CommandHelper.GetCommandId(typeof(TCommand)));
+                var registration = new CommandRegistration(typeof(TCommand), CommandHelper.GetCommandId(typeof(TCommand)));
                 customize?.Invoke(registration);
                 _commands.Add(registration);
                 return this;
@@ -70,9 +69,9 @@ namespace Reusable.Commander
     [PublicAPI]
     public class CommandRegistration
     {
-        internal CommandRegistration(ITypeConverter parameterConverter, Type type, Identifier id)
+        internal CommandRegistration(Type type, Identifier id)
         {
-            new CommandValidator().ValidateCommand((type, id), parameterConverter);
+            //new CommandValidator().ValidateCommand((type, id));
             Type = type;
             Id = id;
         }

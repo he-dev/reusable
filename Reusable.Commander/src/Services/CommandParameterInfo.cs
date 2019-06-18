@@ -9,11 +9,11 @@ using Reusable.Quickey;
 
 namespace Reusable.Commander.Services
 {
-    internal class CommandArgumentInfo : ResourceInfo
+    internal class CommandParameterInfo : ResourceInfo
     {
         private readonly List<string> _values;
 
-        public CommandArgumentInfo([NotNull] UriString uri, bool exists, List<string> values)
+        public CommandParameterInfo([NotNull] UriString uri, bool exists, List<string> values)
             : base(uri, ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.Format), MimeType.Json))
         {
             Exists = exists;

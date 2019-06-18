@@ -9,30 +9,26 @@ using Reusable.Diagnostics;
 namespace Reusable.Commander
 {
     // foo -bar -baz qux
-    public interface ICommandLine : ILookup<Identifier, string> { }
+    public interface ICommandLine : IEnumerable<CommandParameter>
+    {
+        [CanBeNull]
+        CommandParameter this[Identifier id] { get; }
+    }
 
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public class CommandLine : ICommandLine
     {
-        private readonly IDictionary<Identifier, CommandArgument> _arguments = new Dictionary<Identifier, CommandArgument>();
+        private readonly IDictionary<Identifier, CommandParameter> _parameters = new Dictionary<Identifier, CommandParameter>();
 
         internal CommandLine() { }
 
         private string DebuggerDisplay => ToString();
 
-        #region ILookup
-
-        public IEnumerable<string> this[Identifier id] => _arguments.TryGetValue(id, out var argument) ? argument : CommandArgument.Empty;
-
-        public int Count => _arguments.Count;
-
-        public bool Contains(Identifier id) => _arguments.ContainsKey(id);
-
-        #endregion
+        public CommandParameter this[Identifier id] => _parameters.TryGetValue(id, out var argument) ? argument : default;
 
         #region IEnumerable
 
-        public IEnumerator<IGrouping<Identifier, string>> GetEnumerator() => _arguments.Values.GetEnumerator();
+        public IEnumerator<CommandParameter> GetEnumerator() => _parameters.Values.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -43,7 +39,7 @@ namespace Reusable.Commander
         {
             if (id == null) throw new ArgumentNullException(nameof(id));
 
-            _arguments.Add(id, new CommandArgument(id));
+            _parameters.Add(id, new CommandParameter(id));
         }
 
         [ContractAnnotation("id: null => halt; value: null => halt")]
@@ -52,13 +48,13 @@ namespace Reusable.Commander
             if (id == null) throw new ArgumentNullException(nameof(id));
             if (value == null) throw new ArgumentNullException(nameof(value));
 
-            if (_arguments.TryGetValue(id, out var argument))
+            if (_parameters.TryGetValue(id, out var argument))
             {
                 argument.Add(value);
             }
             else
             {
-                _arguments.Add(id, new CommandArgument(id) { value });
+                _parameters.Add(id, new CommandParameter(id) { value });
             }
         }
 

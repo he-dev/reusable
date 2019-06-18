@@ -26,7 +26,7 @@ namespace Reusable.Commander
         }
 
         // language=regexp
-        private const string ArgumentPrefix = @"^[-/\.]";
+        private const string ParameterPrefix = @"^[-/\.]";
 
         private const string CommandSeparator = "|";
 
@@ -35,25 +35,26 @@ namespace Reusable.Commander
             if (tokens == null) throw new ArgumentNullException(nameof(tokens));
 
             var commandLine = new CommandLine();
-            var argumentName = Identifier.Empty;
+            var position = 1;
+            var parameterId = Identifier.Command; // The first parameter is always a command.
 
             foreach (var token in tokens.Where(Conditional.IsNotNullOrEmpty))
-            {                
+            {
                 switch (token)
                 {
                     case CommandSeparator when commandLine.Any():
                         yield return commandLine;
                         commandLine = new CommandLine();
-                        argumentName = Identifier.Empty;
+                        parameterId = new Identifier(new Name(position++.ToString(), NameOption.CommandLine));
                         break;
 
-                    case string value when IsArgument(value):
-                        argumentName = RemoveArgumentPrefix(token);
-                        commandLine.Add(argumentName);
+                    case string value when IsParameterId(value):
+                        parameterId = RemoveParameterPrefix(value);
+                        commandLine.Add(parameterId);
                         break;
 
                     default:
-                        commandLine.Add(argumentName, token);
+                        commandLine.Add(parameterId, token);
                         break;
                 }
             }
@@ -63,9 +64,9 @@ namespace Reusable.Commander
                 yield return commandLine;
             }
 
-            bool IsArgument(string value) => Regex.IsMatch(value, ArgumentPrefix);
+            bool IsParameterId(string value) => Regex.IsMatch(value, ParameterPrefix);
 
-            string RemoveArgumentPrefix(string value) => Regex.Replace(value, ArgumentPrefix, string.Empty);
+            string RemoveParameterPrefix(string value) => Regex.Replace(value, ParameterPrefix, string.Empty);
         }
 
         public IEnumerable<ICommandLine> Parse(string commandLine)

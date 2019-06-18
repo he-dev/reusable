@@ -30,26 +30,29 @@ namespace Reusable.Commander.Services
             _args = args;
         }
 
-        public CommandLineReader(ICommandLine commandLine) : this(new CommandArgumentProvider(commandLine)) { }
+        public CommandLineReader(ICommandLine commandLine) : this(new CommandParameterProvider(commandLine)) { }
 
         public TValue GetItem<TValue>(Expression<Func<TParameter, TValue>> selector)
         {
             var (_, _, itemInfo) = MemberVisitor.GetMemberInfo(selector);
             var itemMetadata = CommandParameterMetadata.Create((PropertyInfo)itemInfo);
 
+            var parameterId =
+                itemMetadata.Position.HasValue
+                    ? new Identifier(new Name(itemMetadata.Position.ToString(), NameOption.CommandLine))
+                    : itemMetadata.Id;
+
             var uri = UriStringHelper.CreateQuery
             (
-                scheme: CommandArgumentProvider.DefaultScheme,
+                scheme: CommandParameterProvider.DefaultScheme,
                 path: ImmutableList<string>.Empty.Add("parameters"),
-                query: ImmutableDictionary<string, string>.Empty
-                    .Add("name", itemMetadata.Id.Default?.ToString())
-                    .AddWhen(itemMetadata.Position.HasValue, "position", itemMetadata.Position?.ToString())
+                query: ImmutableDictionary<string, string>.Empty.Add("name", parameterId.Default?.ToString())
             );
 
             var metadata =
                 ImmutableSession
                     .Empty
-                    .SetItem(From<IProviderMeta>.Select(x => x.ProviderName), nameof(CommandArgumentProvider))
+                    .SetItem(From<IProviderMeta>.Select(x => x.ProviderName), nameof(CommandParameterProvider))
                     .SetItem(From<ICommandParameterMeta>.Select(x => x.ParameterType), itemMetadata.Type);
 
             var item = _args.GetAsync(uri, metadata).GetAwaiter().GetResult();

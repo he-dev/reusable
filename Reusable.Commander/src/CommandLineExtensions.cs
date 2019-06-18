@@ -8,44 +8,12 @@ namespace Reusable.Commander
 {
     public static class CommandLineExtensions
     {
-        [NotNull, ItemNotNull]
-        public static IEnumerable<string> AnonymousValues([NotNull] this ICommandLine commandLine)
+        [NotNull]
+        public static CommandParameter AnonymousParameter([NotNull] this ICommandLine commandLine)
         {
             if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
 
-            return commandLine[Identifier.Empty];
-        }
-
-        //[NotNull, ItemNotNull]
-        //public static IEnumerable<string> ArgumentValues([NotNull] this ICommandLine commandLine, int? position, Identifier id)
-        //{
-        //    if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
-
-        //    return
-        //        position.HasValue
-        //            ? commandLine.AnonymousValues().Skip(position.Value).Take(1)
-        //            : commandLine[id];
-        //}
-
-        //[ContractAnnotation("values: notnull")]
-        public static bool TryGetArgumentValues([NotNull] this ICommandLine commandLine, Identifier id, int? position, [CanBeNull, ItemNotNull] out IList<string> values)
-        {
-            if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
-
-            if (commandLine.Contains(id))
-            {
-                values = commandLine[id].ToList();
-                return true;
-            }
-
-            if (position.HasValue && position.Value <= commandLine.AnonymousValues().Count() - 1)
-            {
-                values = new[] { commandLine.AnonymousValues().ElementAtOrDefault(position.Value) };
-                return true;
-            }
-
-            values = default;
-            return false;
+            return commandLine[Identifier.Empty] ?? new CommandParameter(Identifier.Empty);
         }
 
         [NotNull]
@@ -56,12 +24,12 @@ namespace Reusable.Commander
             // Command-name is the first anonymous argument.
             return
                 commandLine
-                    .AnonymousValues()
+                    .AnonymousParameter()
                     .FirstOrDefault()
-                    ?? throw DynamicException.Factory.CreateDynamicException(
-                            $"CommandNameNotFound{nameof(Exception)}",
-                            $"Command line '{commandLine}' does not contain a command name."
-                    );
+                ?? throw DynamicException.Factory.CreateDynamicException(
+                    $"CommandNameNotFound{nameof(Exception)}",
+                    $"Command line '{commandLine}' does not contain a command name."
+                );
         }
     }
 }

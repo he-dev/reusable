@@ -83,7 +83,7 @@ namespace Reusable.Commander
 
         private void Map<TBag>(TBag bag, ICommandLine commandLine, CommandParameterMetadata parameterMetadata) where TBag : ICommandParameter//, new()
         {            
-            if (commandLine.TryGetArgumentValues(parameterMetadata.Id, parameterMetadata.Position, out var values))
+            if (commandLine.TryGetParameter(parameterMetadata.Id, parameterMetadata.Position, out var values))
             {
                 if (parameterMetadata.Type.IsEnumerableOfT(except: typeof(string)))
                 {

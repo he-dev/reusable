@@ -13,27 +13,27 @@ namespace Reusable.Commander
     /// This class represents a single command-line argument with all its values.
     /// </summary>
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
-    public class CommandArgument : List<string>, IGrouping<Identifier, string>, IEquatable<Identifier>, IFormattable
+    public class CommandParameter : List<string>, IEquatable<CommandParameter>, IFormattable
     {
         public const string DefaultFormat = "-:";
 
-        internal CommandArgument(Identifier key) => Key = key;
+        internal CommandParameter(Identifier key) => Id = key;
 
-        internal CommandArgument() : this(Identifier.Empty) { }
+        internal CommandParameter() : this(Identifier.Empty) { }
 
         private string DebuggerDisplay => ToString();
 
-        public Identifier Key { get; }
+        public Identifier Id { get; }
 
-        public static CommandArgument Empty { get; } = new CommandArgument();
+        public static CommandParameter Empty { get; } = new CommandParameter();
 
         #region IEquatable
 
-        public bool Equals(Identifier other) => Key.Equals(other);
+        public bool Equals(CommandParameter other) => Id?.Equals(other.Id) == true;
 
-        public override bool Equals(object obj) => obj is Identifier identifier && Equals(identifier);
+        public override bool Equals(object obj) => obj is CommandParameter parameter && Equals(parameter);
 
-        public override int GetHashCode() => Key.GetHashCode();
+        public override int GetHashCode() => Id.GetHashCode();
 
         #endregion
 
@@ -53,9 +53,9 @@ namespace Reusable.Commander
             var result = new StringBuilder();
 
             result.Append(
-                string.IsNullOrEmpty(Key.FirstOrDefault()?.ToString())
+                string.IsNullOrEmpty(Id.FirstOrDefault()?.ToString())
                     ? string.Empty
-                    : $"{argumentPrefix}{Key.FirstOrDefault()}");
+                    : $"{argumentPrefix}{Id.FirstOrDefault()}");
 
             result.Append(
                 result.Any() && this.Any()
@@ -71,6 +71,6 @@ namespace Reusable.Commander
 
         public override string ToString() => ToString(DefaultFormat, CultureInfo.InvariantCulture);
 
-        public static implicit operator string(CommandArgument commandArgument) => commandArgument?.ToString();
+        public static implicit operator string(CommandParameter commandParameter) => commandParameter?.ToString();
     }
 }

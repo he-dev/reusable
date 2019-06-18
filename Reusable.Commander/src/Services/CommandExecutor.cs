@@ -159,7 +159,7 @@ namespace Reusable.Commander.Services
             {
                 try
                 {
-                    var commandName = commandLine.CommandId();
+                    var commandName = commandLine[Identifier.Command].Id;
                     return (GetCommand(commandName), commandLine);
                 }
                 catch (DynamicException inner)

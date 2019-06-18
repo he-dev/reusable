@@ -8,7 +8,7 @@ namespace Reusable.Tests.Commander
         [Fact]
         public void ToString_WithKey_Formatted()
         {
-            var arguments = new CommandArgument("foo")
+            var arguments = new CommandParameter("foo")
             {
                 "bar",
                 "baz qux"
@@ -20,7 +20,7 @@ namespace Reusable.Tests.Commander
         [Fact]
         public void ToString_WithoutKey_Formatted()
         {
-            var arguments = new CommandArgument()
+            var arguments = new CommandParameter()
             {
                 "bar",
                 "baz qux"

@@ -10,13 +10,13 @@ using Reusable.Reflection;
 
 namespace Reusable.Commander.Services
 {
-    internal class CommandArgumentProvider : ResourceProvider
+    internal class CommandParameterProvider : ResourceProvider
     {
         public new const string DefaultScheme = "command-line";
 
         private readonly ICommandLine _commandLine;
 
-        public CommandArgumentProvider([NotNull] ICommandLine commandLine) : base(new SoftString[] { DefaultScheme }, ImmutableSession.Empty)
+        public CommandParameterProvider([NotNull] ICommandLine commandLine) : base(new SoftString[] { DefaultScheme }, ImmutableSession.Empty)
         {
             _commandLine = commandLine ?? throw new ArgumentNullException(nameof(commandLine));
         }
@@ -25,7 +25,7 @@ namespace Reusable.Commander.Services
         {
             var exists = TryGetValues(uri, out var values);
             var parameterType = metadata.GetItemOrDefault(From<ICommandParameterMeta>.Select(x => x.ParameterType));
-            return Task.FromResult<IResourceInfo>(new CommandArgumentInfo(uri, exists, parameterType.IsList() ? values : values.Take(1).ToList()));
+            return Task.FromResult<IResourceInfo>(new CommandParameterInfo(uri, exists, parameterType.IsList() ? values : values.Take(1).ToList()));
         }
 
         private (bool Exists, List<string> Values) GetValues(UriString uri)
@@ -33,7 +33,7 @@ namespace Reusable.Commander.Services
             if (uri.Query.TryGetValue(CommandArgumentQueryStringKeys.Position, out var p))
             {
                 var position = int.Parse((string)p);
-                var elementAtOrDefault = _commandLine.AnonymousValues().ElementAtOrDefault(position);
+                var elementAtOrDefault = _commandLine.AnonymousParameter().ElementAtOrDefault(position);
                 var exists = !(elementAtOrDefault is null);
                 return
                 (
@@ -61,7 +61,7 @@ namespace Reusable.Commander.Services
             if (uri.Query.TryGetValue(CommandArgumentQueryStringKeys.Position, out var p))
             {
                 var position = int.Parse((string)p);
-                var elementAtOrDefault = _commandLine.AnonymousValues().ElementAtOrDefault(position);
+                var elementAtOrDefault = _commandLine.AnonymousParameter().ElementAtOrDefault(position);
 
                 if (elementAtOrDefault is null)
                 {

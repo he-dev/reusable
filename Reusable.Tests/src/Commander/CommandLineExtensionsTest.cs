@@ -14,7 +14,7 @@ namespace Reusable.Tests.Commander
             {
                 { "foo", "bar" }
             };
-            Assert.False(commandLine.AnonymousValues().Any());
+            Assert.False(commandLine.AnonymousParameter().Any());
         }
 
         [Fact]
@@ -26,7 +26,7 @@ namespace Reusable.Tests.Commander
                 { Identifier.Empty, "qux" },
                 { Identifier.Empty, "bar" },
             };
-            Assert.Equal(3, commandLine.AnonymousValues().Count());
+            Assert.Equal(3, commandLine.AnonymousParameter().Count());
         }
 
         [Fact]

@@ -8,10 +8,7 @@ namespace Reusable.Commander
     {
         [NotNull]
         ILogger Logger { get; }
-
-        [NotNull]
-        ICommandLineMapper Mapper { get; }
-
+        
         [NotNull]
         ICommandExecutor Executor { get; }
 
@@ -21,17 +18,14 @@ namespace Reusable.Commander
 
     public class CommandServiceProvider<T> : ICommandServiceProvider where T : ICommand
     {
-        public CommandServiceProvider(ILogger<T> logger, ICommandExecutor executor, ICommandLineMapper mapper)
+        public CommandServiceProvider(ILogger<T> logger, ICommandExecutor executor)
         {
             Logger = logger;
             Executor = executor;
-            Mapper = mapper;
             CommandId = CommandHelper.GetCommandId(typeof(T));
         }
 
         public ILogger Logger { get; }
-
-        public ICommandLineMapper Mapper { get; }
 
         public ICommandExecutor Executor { get; }
 

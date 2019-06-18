@@ -38,28 +38,12 @@ namespace Reusable.Commander
             switch (parameter)
             {
                 case null:
-                    await CheckAndExecuteAsync(default(TParameter), (TContext)context, cancellationToken);
-                    await CheckAndExecuteAsync(default(ICommandLineReader<TParameter>), (TContext)context, cancellationToken);
+                    await CheckAndExecuteAsync(default, (TContext)context, cancellationToken);
                     break;
 
                 case ICommandLine commandLine:
-                    // todo - for backward compatibility
-                    if (typeof(TParameter).IsClass)
-                    {
-                        await CheckAndExecuteAsync(Services.Mapper.Map<TParameter>(commandLine), (TContext)context, cancellationToken);
-                    }
-
-                    await CheckAndExecuteAsync
-                    (
-                        new CommandLineReader<TParameter>(commandLine),
-                        (TContext)context,
-                        cancellationToken
-                    );
+                    await CheckAndExecuteAsync(new CommandLineReader<TParameter>(commandLine), (TContext)context, cancellationToken);
                     break;
-
-//                case TBag bag:
-//                    await ExecuteWhenEnabledAsync(bag, (TContext)context, cancellationToken);
-//                    break;
 
                 default:
                     throw new ArgumentOutOfRangeException
@@ -69,37 +53,6 @@ namespace Reusable.Commander
                     );
             }
         }
-
-        [Obsolete("Use the new overload with ICommandLineReader")]
-        private async Task CheckAndExecuteAsync(TParameter parameter, TContext context, CancellationToken cancellationToken)
-        {
-            if (await CanExecuteAsync(parameter, context, cancellationToken))
-            {
-                Logger.Log(Abstraction.Layer.Service().Decision("Execute command.").Because("Can execute."));
-                await ExecuteAsync(parameter, context, cancellationToken);
-            }
-            else
-            {
-                Logger.Log(Abstraction.Layer.Service().Decision("Don't execute command.").Because("Cannot execute."));
-            }
-        }
-
-        /// <summary>
-        /// When overriden by a derived class indicates whether a command can be executed. The default implementation always returns 'true'.
-        /// </summary>
-        [Obsolete("Use the new overload with ICommandLineReader")]
-        protected virtual Task<bool> CanExecuteAsync(TParameter parameter, TContext context, CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(true);
-        }
-
-        [Obsolete("Use the new overload with ICommandLineReader")]
-        protected virtual Task ExecuteAsync(TParameter parameter, TContext context, CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
-
-        // todo - new signature -------------------------------------------------------------------------
 
         private async Task CheckAndExecuteAsync(ICommandLineReader<TParameter> parameter, TContext context, CancellationToken cancellationToken)
         {

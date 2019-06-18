@@ -22,11 +22,13 @@ namespace Reusable.Commander
 
         public new static Identifier Empty { get; } = new Identifier();
 
+        public new static Identifier Command { get; } = new Identifier(new Name("0", NameOption.Default));
+
         [CanBeNull]
         public Name Default => this.SingleOrDefault(n => n.Option.In(NameOption.Default, NameOption.CommandLine));
 
         public IEnumerable<Name> Aliases => this.Where(n => n.Option == NameOption.Alias);
-        
+
         public override string ToString() => string.Join(", ", this.Select(x => x.ToString()));
 
         #region operators
@@ -34,7 +36,7 @@ namespace Reusable.Commander
         public static implicit operator Identifier(string name) => new Identifier(new Name(name));
 
         public static implicit operator Identifier(SoftString name) => new Identifier(new Name(name));
-        
+
         #endregion
     }
 
@@ -60,7 +62,7 @@ namespace Reusable.Commander
         public override bool Equals(object obj) => obj is Name name && Equals(name);
 
         public override int GetHashCode() => AutoEquality<Name>.Comparer.GetHashCode(this);
-        
+
         public static implicit operator Name((SoftString Name, NameOption Option) t) => new Name(t.Name, t.Option);
     }
 
@@ -71,7 +73,7 @@ namespace Reusable.Commander
         public static readonly NameOption Default = CreateWithCallerName();
 
         public static readonly NameOption Alias = CreateWithCallerName();
-        
+
         public static readonly NameOption CommandLine = CreateWithCallerName();
     }
 }

@@ -11,14 +11,14 @@ namespace Reusable.Commander
         bool Async { get; set;  }
     }
 
-    public class SimpleBag : ICommandParameter
-    {
-        //[DefaultValue(false)]
-        //public bool CanThrow { get; set; }
-
-        [DefaultValue(false)]
-        public bool Async { get; set; }
-    }
+    // public class SimpleBag : ICommandParameter
+    // {
+    //     //[DefaultValue(false)]
+    //     //public bool CanThrow { get; set; }
+    //
+    //     [DefaultValue(false)]
+    //     public bool Async { get; set; }
+    // }
 
     public enum CommandExecutionType
     {

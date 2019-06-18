@@ -10,21 +10,18 @@ namespace Reusable.Commander
     [PublicAPI]
     public class CommanderModule : Autofac.Module
     {
-        [NotNull] private readonly ITypeConverter _parameterConverter;
+        //[NotNull] private readonly ITypeConverter _parameterConverter;
 
         [NotNull] private readonly CommandRegistrationBuilder _registrations;
 
-        public CommanderModule([NotNull] Action<CommandRegistrationBuilder> register, [NotNull] ITypeConverter parameterConverter)
+        public CommanderModule([NotNull] Action<CommandRegistrationBuilder> register)
         {
             if (register is null) throw new ArgumentNullException(nameof(register));
             
-            _parameterConverter = parameterConverter ?? throw new ArgumentNullException(nameof(parameterConverter));
-            _registrations = new CommandRegistrationBuilder(parameterConverter);
+            //_parameterConverter = parameterConverter ?? throw new ArgumentNullException(nameof(parameterConverter));
+            _registrations = new CommandRegistrationBuilder();
             register(_registrations);
         }
-
-        public CommanderModule([NotNull] Action<CommandRegistrationBuilder> register)
-            : this(register, CommandLineMapper.DefaultConverter) { }
 
         protected override void Load(ContainerBuilder builder)
         {
@@ -36,10 +33,10 @@ namespace Reusable.Commander
                 .RegisterType<CommandLineParser>()
                 .As<ICommandLineParser>();
 
-            builder
-                .RegisterType<CommandLineMapper>()
-                .WithParameter(new TypedParameter(typeof(ITypeConverter), _parameterConverter))
-                .As<ICommandLineMapper>();
+            // builder
+            //     .RegisterType<CommandLineMapper>()
+            //     .WithParameter(new TypedParameter(typeof(ITypeConverter), _parameterConverter))
+            //     .As<ICommandLineMapper>();
 
             builder
                 .RegisterInstance((ExecuteExceptionCallback)(_ => { }));
