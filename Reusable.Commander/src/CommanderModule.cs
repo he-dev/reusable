@@ -13,9 +13,9 @@ namespace Reusable.Commander
     {
         //[NotNull] private readonly ITypeConverter _parameterConverter;
 
-        [NotNull] private readonly IImmutableList<CommandRegistration> _commandRegistrations;
+        [NotNull] private readonly IImmutableList<CommandModule> _commandRegistrations;
 
-        public CommanderModule([NotNull] IImmutableList<CommandRegistration> commandRegistrations)
+        public CommanderModule([NotNull] IImmutableList<CommandModule> commandRegistrations)
         {
             _commandRegistrations = commandRegistrations ?? throw new ArgumentNullException(nameof(commandRegistrations));
         }

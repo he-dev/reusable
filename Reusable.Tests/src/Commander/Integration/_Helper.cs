@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
@@ -16,7 +17,7 @@ namespace Reusable.Tests.Commander.Integration
 
     internal static class Helper
     {
-        public static TestContext CreateContext(IImmutableList<CommandRegistration> commandRegistrations, ExecuteExceptionCallback executeExceptionCallback = null)
+        public static TestContext CreateContext(IImmutableList<CommandModule> commandRegistrations, ExecuteExceptionCallback executeExceptionCallback = null)
         {
             var container = InitializeContainer(commandRegistrations, executeExceptionCallback);
             var scope = container.BeginLifetimeScope();
@@ -28,7 +29,7 @@ namespace Reusable.Tests.Commander.Integration
             }));
         }
 
-        private static IContainer InitializeContainer(IImmutableList<CommandRegistration> commandRegistrations, ExecuteExceptionCallback executeExceptionCallback = null)
+        private static IContainer InitializeContainer(IImmutableList<CommandModule> commandRegistrations, ExecuteExceptionCallback executeExceptionCallback = null)
         {
             var builder = new ContainerBuilder();
 
@@ -61,29 +62,28 @@ namespace Reusable.Tests.Commander.Integration
 
     internal static class ExecuteHelper
     {
-        internal static ExecuteCallback<TParameter> Track<TParameter>(BagTracker bags) where TParameter : ICommandParameter
+        // internal static ExecuteCallback<TParameter> Track<TParameter>(CommandParameterTracker commandParameters) where TParameter : ICommandParameter
+        // {
+        //     return (name, bag, cancellationToken) =>
+        //     {
+        //         commandParameters.Add(name, bag);
+        //         return Task.CompletedTask;
+        //     };
+        // }
+
+        internal static ExecuteCallback<TParameter> Count<TParameter>(ConcurrentDictionary<Identifier, int> counters) where TParameter : ICommandParameter
         {
-            return (name, bag, cancellationToken) =>
+            return (id, commandLine, cancellationToken) =>
             {
-                bags.Add(name, bag);
+                counters[id] = counters.AddOrUpdate(id, _ => 1, (_, count) => count + 1);
                 return Task.CompletedTask;
             };
         }
 
-        internal static ExecuteCallback<TParameter> Count<TParameter>(IDictionary<Identifier, int> counters) where TParameter : ICommandParameter
-        {
-            return (name, bag, cancellationToken) =>
-            {
-                counters[name] = counters.TryGetValue(name, out var count) ? count + 1 : 1;
-                return Task.CompletedTask;
-            };
-        }
-        
         internal static ExecuteCallback<TBag> Noop<TBag>() where TBag : ICommandParameter, new()
         {
             return (name, bag, cancellationToken) => Task.CompletedTask;
         }
-
     }
 
     internal class TestContext : IDisposable
@@ -101,7 +101,7 @@ namespace Reusable.Tests.Commander.Integration
         public void Dispose() => _disposer.Dispose();
     }
 
-    internal class BagTracker
+    internal class CommandParameterTracker
     {
         private readonly IDictionary<Identifier, ICommandParameter> _bags = new Dictionary<Identifier, ICommandParameter>();
 

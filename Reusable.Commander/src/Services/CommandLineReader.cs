@@ -10,6 +10,9 @@ using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.IOnymous;
+using Reusable.OneTo1;
+using Reusable.OneTo1.Converters;
+using Reusable.OneTo1.Converters.Collections.Generic;
 using Reusable.Quickey;
 using Reusable.Reflection;
 
@@ -24,6 +27,27 @@ namespace Reusable.Commander.Services
     [UsedImplicitly]
     internal class CommandLineReader<TParameter> : ICommandLineReader<TParameter> where TParameter : ICommandParameter
     {
+        [PublicAPI]
+        public static readonly ITypeConverter Converter =
+            TypeConverter.Empty
+                .Add<StringToSByteConverter>()
+                .Add<StringToByteConverter>()
+                .Add<StringToCharConverter>()
+                .Add<StringToInt16Converter>()
+                .Add<StringToInt32Converter>()
+                .Add<StringToInt64Converter>()
+                .Add<StringToUInt16Converter>()
+                .Add<StringToUInt32Converter>()
+                .Add<StringToUInt64Converter>()
+                .Add<StringToSingleConverter>()
+                .Add<StringToDoubleConverter>()
+                .Add<StringToDecimalConverter>()
+                .Add<StringToColorConverter>()
+                .Add<StringToBooleanConverter>()
+                .Add<StringToDateTimeConverter>()
+                .Add<StringToEnumConverter>()
+                .Add<EnumerableToListConverter>();
+
         private readonly IResourceProvider _parameters;
 
         public CommandLineReader(IResourceProvider parameters)
@@ -46,35 +70,36 @@ namespace Reusable.Commander.Services
             );
             var metadata = ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), nameof(CommandParameterProvider));
             var parameter = _parameters.GetAsync(uri, metadata).GetAwaiter().GetResult();
-            var values__ = parameter.DeserializeBinaryAsync<List<string>>().GetAwaiter().GetResult();
 
             if (parameter.Exists)
             {
+                var values = parameter.DeserializeBinaryAsync<List<string>>().GetAwaiter().GetResult();
+
                 if (parameterMetadata.Property.PropertyType.IsList())
                 {
-                    return parameter.DeserializeJsonAsync<TValue>().GetAwaiter().GetResult();
+                    // if (values.Empty()) throw new ... where are the values?
+                    //return parameter.DeserializeJsonAsync<TValue>().GetAwaiter().GetResult();
+                    return Converter.Convert<TValue>(values);
                 }
                 else
                 {
-                    var values = parameter.DeserializeJsonAsync<List<TValue>>().GetAwaiter().GetResult();
-                    if (property.PropertyType == typeof(bool))
+                    //var values = parameter.DeserializeJsonAsync<List<TValue>>().GetAwaiter().GetResult();
+                    var value = values.SingleOrDefault();
+
+                    if (value is null)
                     {
-                        return
-                            values.Any()
-                                ? values.Single()
-                                : parameterMetadata.DefaultValue is TValue defaultValue
-                                    ? defaultValue
-                                    : (TValue)(object)true;
+                        if (parameterMetadata.DefaultValue is TValue defaultValue)
+                        {
+                            return defaultValue;
+                        }
+
+                        if (property.PropertyType == typeof(bool))
+                        {
+                            return (TValue)(object)true;
+                        }
                     }
-                    else
-                    {
-                        return
-                            values.Any()
-                                ? values.Single()
-                                : parameterMetadata.DefaultValue is TValue defaultValue
-                                    ? defaultValue
-                                    : default;
-                    }
+                    
+                    return (TValue)(object)value;
                 }
             }
             else

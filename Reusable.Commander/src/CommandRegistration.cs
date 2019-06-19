@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Autofac;
 using Autofac.Builder;
 using JetBrains.Annotations;
@@ -16,15 +17,15 @@ namespace Reusable.Commander
     /// </summary>
     public static class ImmutableListExtensions
     {
-        public static IImmutableList<CommandRegistration> Add<TCommand>
+        public static IImmutableList<CommandModule> Add<TCommand>
         (
-            this IImmutableList<CommandRegistration> registrations,
-            Action<CommandRegistration> customize = default
+            this IImmutableList<CommandModule> registrations,
+            Action<CommandModule> customize = default
         ) where TCommand : ICommand
         {
             try
             {
-                var registration = new CommandRegistration(typeof(TCommand), CommandHelper.GetCommandId(typeof(TCommand)));
+                var registration = new CommandModule(typeof(TCommand), CommandHelper.GetCommandId(typeof(TCommand)));
                 customize?.Invoke(registration);
                 return registrations.Add(registration);
             }
@@ -40,28 +41,35 @@ namespace Reusable.Commander
         }
 
         [NotNull]
-        public static IImmutableList<CommandRegistration> Add<TParameter>
+        public static IImmutableList<CommandModule> Add<TParameter, TContext>
         (
-            this IImmutableList<CommandRegistration> registrations,
-            [NotNull] Identifier id,
-            [NotNull] ExecuteCallback<TParameter> execute
+            this IImmutableList<CommandModule> registrations,
+            [NotNull] IEnumerable<string> names,
+            [NotNull] ExecuteCallback<TParameter, TContext> execute
         ) where TParameter : ICommandParameter
         {
-            return registrations.Add<Lambda<TParameter>>(r =>
+            var _names = new[] { new Name(names.First(), NameOption.CommandLine), }.Concat(names.Skip(1).Select(n => new Name(n, NameOption.Alias)));
+            return registrations.Add<Lambda<TParameter, TContext>>(r =>
             {
-                r.Id = id;
+                r.Id = new Identifier(_names);
                 r.Execute = execute;
             });
         }
     }
 
-    public delegate void CustomizeCommandRegistrationCallback(IRegistrationBuilder<object, ConcreteReflectionActivatorData, SingleRegistrationStyle> customize);
+    public delegate void ConfigureRegistrationCallback(IRegistrationBuilder<object, ConcreteReflectionActivatorData, SingleRegistrationStyle> configure);
 
     [UsedImplicitly]
     [PublicAPI]
-    public class CommandRegistration
+    public class CommandModule<TParameter, TContext> : Autofac.Module where TParameter : ICommandParameter
     {
-        internal CommandRegistration(Type type, Identifier id)
+        internal CommandModule
+        (
+            Type type,
+            Identifier id,
+            ExecuteCallback<TParameter, TContext> executeCallback = default,
+            ConfigureRegistrationCallback configureRegistrationCallback = default
+        )
         {
             //new CommandValidator().ValidateCommand((type, id));
             Type = type;
@@ -69,22 +77,19 @@ namespace Reusable.Commander
         }
 
         [NotNull]
-        public Type Type { get; }
+        private Type Type { get; }
 
         [NotNull]
-        public Identifier Id { get; set; }
+        private Identifier Id { get; set; }
 
         [CanBeNull]
-        public object Execute { get; set; }
+        private ExecuteCallback<TParameter, TContext> ExecuteCallback { get; set; }
 
         [CanBeNull]
-        public CustomizeCommandRegistrationCallback Customize { get; set; }
+        private ConfigureRegistrationCallback ConfigureRegistrationCallback { get; set; }
 
-        internal void Register([NotNull] ContainerBuilder builder)
+        protected override void Load(ContainerBuilder builder)
         {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-            if (Id is null) throw new InvalidOperationException($"{nameof(Id)} must not be null.");
-
             var registration =
                 builder
                     .RegisterType(Type)
@@ -92,14 +97,14 @@ namespace Reusable.Commander
                     .As<ICommand>();
 
             // Lambda command ctor has some extra properties that we need to set.
-            if (!(Execute is null))
+            if (!(ExecuteCallback is null))
             {
                 registration
                     .WithParameter(new NamedParameter("id", Id))
-                    .WithParameter(new NamedParameter("execute", Execute));
+                    .WithParameter(new NamedParameter("execute", ExecuteCallback));
             }
 
-            Customize?.Invoke(registration);
+            ConfigureRegistrationCallback?.Invoke(registration);
         }
     }
 }

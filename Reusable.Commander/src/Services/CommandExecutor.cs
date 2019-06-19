@@ -70,7 +70,6 @@ namespace Reusable.Commander.Services
                 AsyncCommandCount = executables[CommandExecutionType.Asynchronous].Count()
             }));
 
-
             using (var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
             {
                 // Execute sequential commands first.
@@ -152,8 +151,8 @@ namespace Reusable.Commander.Services
             {
                 try
                 {
-                    var commandName = commandLine[Identifier.Command].Id;
-                    return (GetCommand(commandName), commandLine);
+                    var commandName = commandLine[Identifier.Command].Single();
+                    return (GetCommand(new Identifier((commandName, NameOption.CommandLine))), commandLine);
                 }
                 catch (DynamicException inner)
                 {

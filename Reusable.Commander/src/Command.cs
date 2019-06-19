@@ -75,10 +75,7 @@ namespace Reusable.Commander
             return Task.FromResult(true);
         }
 
-        protected virtual Task ExecuteAsync(ICommandLineReader<TParameter> parameter, TContext context, CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
+        protected abstract Task ExecuteAsync(ICommandLineReader<TParameter> parameter, TContext context, CancellationToken cancellationToken);
     }
 
     public abstract class Command<TParameter> : Command<TParameter, NullContext> where TParameter : ICommandParameter
