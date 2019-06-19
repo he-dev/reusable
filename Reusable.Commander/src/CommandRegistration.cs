@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Autofac;
 using Autofac.Builder;
 using JetBrains.Annotations;
@@ -13,25 +14,19 @@ namespace Reusable.Commander
     /// <summary>
     /// This class allows to easily register and validate commands.
     /// </summary>
-    public class CommandRegistrationBuilder : Autofac.Module
+    public static class ImmutableListExtensions
     {
-        //private readonly ITypeConverter _parameterConverter;
-        private readonly IList<CommandRegistration> _commands;
-
-        internal CommandRegistrationBuilder()
-        {
-            _commands = new List<CommandRegistration>();
-        }
-
-        [NotNull]
-        public CommandRegistrationBuilder Add<TCommand>(Action<CommandRegistration> customize = default) where TCommand : ICommand
+        public static IImmutableList<CommandRegistration> Add<TCommand>
+        (
+            this IImmutableList<CommandRegistration> registrations,
+            Action<CommandRegistration> customize = default
+        ) where TCommand : ICommand
         {
             try
             {
                 var registration = new CommandRegistration(typeof(TCommand), CommandHelper.GetCommandId(typeof(TCommand)));
                 customize?.Invoke(registration);
-                _commands.Add(registration);
-                return this;
+                return registrations.Add(registration);
             }
             catch (Exception inner)
             {
@@ -45,21 +40,18 @@ namespace Reusable.Commander
         }
 
         [NotNull]
-        public CommandRegistrationBuilder Add<TBag>([NotNull] Identifier id, [NotNull] ExecuteCallback<TBag> execute) where TBag : ICommandParameter, new()
+        public static IImmutableList<CommandRegistration> Add<TParameter>
+        (
+            this IImmutableList<CommandRegistration> registrations,
+            [NotNull] Identifier id,
+            [NotNull] ExecuteCallback<TParameter> execute
+        ) where TParameter : ICommandParameter
         {
-            return Add<Lambda<TBag>>(r =>
+            return registrations.Add<Lambda<TParameter>>(r =>
             {
                 r.Id = id;
                 r.Execute = execute;
             });
-        }
-
-        protected override void Load(ContainerBuilder builder)
-        {
-            foreach (var command in _commands)
-            {
-                command.RegisterWith(builder);                
-            }
         }
     }
 
@@ -88,7 +80,7 @@ namespace Reusable.Commander
         [CanBeNull]
         public CustomizeCommandRegistrationCallback Customize { get; set; }
 
-        internal void RegisterWith([NotNull] ContainerBuilder builder)
+        internal void Register([NotNull] ContainerBuilder builder)
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
             if (Id is null) throw new InvalidOperationException($"{nameof(Id)} must not be null.");

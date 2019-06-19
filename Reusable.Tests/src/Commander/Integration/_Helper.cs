@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Autofac;
 using Reusable.Commander;
@@ -15,9 +16,9 @@ namespace Reusable.Tests.Commander.Integration
 
     internal static class Helper
     {
-        public static TestContext CreateContext(Action<CommandRegistrationBuilder> commands, ExecuteExceptionCallback executeExceptionCallback = null)
+        public static TestContext CreateContext(IImmutableList<CommandRegistration> commandRegistrations, ExecuteExceptionCallback executeExceptionCallback = null)
         {
-            var container = InitializeContainer(commands, executeExceptionCallback);
+            var container = InitializeContainer(commandRegistrations, executeExceptionCallback);
             var scope = container.BeginLifetimeScope();
 
             return new TestContext(scope.Resolve<ICommandExecutor>(), Disposable.Create(() =>
@@ -27,7 +28,7 @@ namespace Reusable.Tests.Commander.Integration
             }));
         }
 
-        private static IContainer InitializeContainer(Action<CommandRegistrationBuilder> commands, ExecuteExceptionCallback executeExceptionCallback = null)
+        private static IContainer InitializeContainer(IImmutableList<CommandRegistration> commandRegistrations, ExecuteExceptionCallback executeExceptionCallback = null)
         {
             var builder = new ContainerBuilder();
 
@@ -40,7 +41,7 @@ namespace Reusable.Tests.Commander.Integration
                 .As(typeof(ILogger<>));
 
             builder
-                .RegisterModule(new CommanderModule(commands));
+                .RegisterModule(new CommanderModule(commandRegistrations));
 
             if (!(executeExceptionCallback is null))
             {
@@ -60,7 +61,7 @@ namespace Reusable.Tests.Commander.Integration
 
     internal static class ExecuteHelper
     {
-        internal static ExecuteCallback<TBag> Track<TBag>(BagTracker bags) where TBag : ICommandParameter, new()
+        internal static ExecuteCallback<TParameter> Track<TParameter>(BagTracker bags) where TParameter : ICommandParameter
         {
             return (name, bag, cancellationToken) =>
             {
@@ -69,7 +70,7 @@ namespace Reusable.Tests.Commander.Integration
             };
         }
 
-        internal static ExecuteCallback<TBag> Count<TBag>(IDictionary<Identifier, int> counters) where TBag : ICommandParameter, new()
+        internal static ExecuteCallback<TParameter> Count<TParameter>(IDictionary<Identifier, int> counters) where TParameter : ICommandParameter
         {
             return (name, bag, cancellationToken) =>
             {

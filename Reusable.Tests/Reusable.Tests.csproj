@@ -60,6 +60,7 @@
         <Compile Remove="src\Commander\Integration\ExceptionTest.cs" />
         <Compile Remove="src\Commander\Integration\_Bags.cs" />
         <Compile Remove="src\Commander\Integration\FeatureTest.cs" />
+<!--        <Compile Remove="src\Commander\FeatureTest.cs" />-->
         <Compile Remove="src\Commander\CommandLineExtensionsTest.cs" />
         <Compile Remove="src\Commander\CommandLineTest.cs" />
         <Compile Remove="src\OmniLog\UseCaseTest.cs" />

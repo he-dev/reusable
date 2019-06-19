@@ -64,6 +64,11 @@ namespace Reusable.IOnymous
             }
         }
 
+        public static T GetItem<T>(this IResourceProvider resources, UriString uri, IImmutableSession metadata = default)
+        {
+            return resources.GetItemAsync<T>(uri, metadata).GetAwaiter().GetResult();
+        }
+
         public static Task<IResourceInfo> GetAnyAsync(this IResourceProvider resourceProvider, UriString uri, IImmutableSession metadata = default)
         {
             return resourceProvider.GetAsync(uri.With(x => x.Scheme, ResourceProvider.DefaultScheme), metadata);

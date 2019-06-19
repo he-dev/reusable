@@ -116,13 +116,6 @@ namespace Reusable.Commander.Services
             await ExecuteAsync(commandLines, context, cancellationToken);
         }
 
-//        public async Task ExecuteAsync<TBag>(Identifier identifier, TBag parameter, CancellationToken cancellationToken = default) where TBag : ICommandBag, new()
-//        {
-//            if (identifier == null) throw new ArgumentNullException(nameof(identifier));
-//
-//            await GetCommand(identifier).ExecuteAsync(parameter, default, cancellationToken);
-//        }
-
         private async Task ExecuteAsync<TContext>(Executable executable, TContext context, CancellationTokenSource cancellationTokenSource)
         {
             using (_logger.BeginScope().WithCorrelationHandle("Command").AttachElapsed())

@@ -24,11 +24,11 @@ namespace Reusable.Commander.Services
     [UsedImplicitly]
     internal class CommandLineReader<TParameter> : ICommandLineReader<TParameter> where TParameter : ICommandParameter
     {
-        private readonly IResourceProvider _args;
+        private readonly IResourceProvider _parameters;
 
-        public CommandLineReader(IResourceProvider args)
+        public CommandLineReader(IResourceProvider parameters)
         {
-            _args = args;
+            _parameters = parameters;
         }
 
         public CommandLineReader(ICommandLine commandLine) : this(new CommandParameterProvider(commandLine)) { }
@@ -36,38 +36,33 @@ namespace Reusable.Commander.Services
         public TValue GetItem<TValue>(Expression<Func<TParameter, TValue>> selector)
         {
             var property = selector.ToMemberExpression().Member as PropertyInfo ?? throw new ArgumentException($"{nameof(selector)} must select a property.");
-            var parameter = CommandParameterMetadata.Create(property);
+            var parameterMetadata = CommandParameterMetadata.Create(property);
 
             var uri = UriStringHelper.CreateQuery
             (
                 scheme: CommandParameterProvider.DefaultScheme,
                 path: ImmutableList<string>.Empty.Add("parameters"),
-                query: ImmutableDictionary<string, string>.Empty.Add("name", parameter.Id.Default?.ToString())
+                query: ImmutableDictionary<string, string>.Empty.Add("name", parameterMetadata.Id.Default?.ToString())
             );
+            var metadata = ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), nameof(CommandParameterProvider));
+            var parameter = _parameters.GetAsync(uri, metadata).GetAwaiter().GetResult();
+            var values__ = parameter.DeserializeBinaryAsync<List<string>>().GetAwaiter().GetResult();
 
-            var metadata =
-                ImmutableSession
-                    .Empty
-                    .SetItem(From<IProviderMeta>.Select(x => x.ProviderName), nameof(CommandParameterProvider))
-                    .SetItem(From<ICommandParameterMeta>.Select(x => x.ParameterType), parameter.Property.PropertyType);
-
-            var item = _args.GetAsync(uri, metadata).GetAwaiter().GetResult();
-
-            if (item.Exists)
+            if (parameter.Exists)
             {
-                if (parameter.Property.PropertyType.IsList())
+                if (parameterMetadata.Property.PropertyType.IsList())
                 {
-                    return item.DeserializeJsonAsync<TValue>().GetAwaiter().GetResult();
+                    return parameter.DeserializeJsonAsync<TValue>().GetAwaiter().GetResult();
                 }
                 else
                 {
-                    var values = item.DeserializeJsonAsync<List<TValue>>().GetAwaiter().GetResult();
+                    var values = parameter.DeserializeJsonAsync<List<TValue>>().GetAwaiter().GetResult();
                     if (property.PropertyType == typeof(bool))
                     {
                         return
                             values.Any()
                                 ? values.Single()
-                                : parameter.DefaultValue is TValue defaultValue
+                                : parameterMetadata.DefaultValue is TValue defaultValue
                                     ? defaultValue
                                     : (TValue)(object)true;
                     }
@@ -76,7 +71,7 @@ namespace Reusable.Commander.Services
                         return
                             values.Any()
                                 ? values.Single()
-                                : parameter.DefaultValue is TValue defaultValue
+                                : parameterMetadata.DefaultValue is TValue defaultValue
                                     ? defaultValue
                                     : default;
                     }
@@ -84,16 +79,16 @@ namespace Reusable.Commander.Services
             }
             else
             {
-                if (parameter.Required)
+                if (parameterMetadata.Required)
                 {
                     throw DynamicException.Create
                     (
                         $"ParameterNotFound",
-                        $"Required parameter '{parameter.Id.First().ToString()}' not specified."
+                        $"Required parameter '{parameterMetadata.Id.First().ToString()}' not specified."
                     );
                 }
 
-                if (parameter.DefaultValue is TValue defaultValue)
+                if (parameterMetadata.DefaultValue is TValue defaultValue)
                 {
                     return defaultValue;
                 }

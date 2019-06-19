@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Immutable;
 using Autofac;
 using JetBrains.Annotations;
 using Reusable.Commander.Services;
@@ -12,15 +13,11 @@ namespace Reusable.Commander
     {
         //[NotNull] private readonly ITypeConverter _parameterConverter;
 
-        [NotNull] private readonly CommandRegistrationBuilder _registrations;
+        [NotNull] private readonly IImmutableList<CommandRegistration> _commandRegistrations;
 
-        public CommanderModule([NotNull] Action<CommandRegistrationBuilder> register)
+        public CommanderModule([NotNull] IImmutableList<CommandRegistration> commandRegistrations)
         {
-            if (register is null) throw new ArgumentNullException(nameof(register));
-            
-            //_parameterConverter = parameterConverter ?? throw new ArgumentNullException(nameof(parameterConverter));
-            _registrations = new CommandRegistrationBuilder();
-            register(_registrations);
+            _commandRegistrations = commandRegistrations ?? throw new ArgumentNullException(nameof(commandRegistrations));
         }
 
         protected override void Load(ContainerBuilder builder)
@@ -49,8 +46,13 @@ namespace Reusable.Commander
                 .RegisterGeneric(typeof(CommandServiceProvider<>));
 
 
-            builder
-                .RegisterModule(_registrations);
+            // builder
+            //     .RegisterModule(_commandRegistrations);
+            
+            foreach (var commandRegistration in _commandRegistrations)
+            {
+                commandRegistration.Register(builder);
+            }
 
             builder
                 .RegisterSource(new TypeListSource());

@@ -52,6 +52,9 @@ namespace Reusable.Commander
         public object DefaultValue { get; }
 
         public bool Required { get; }
+        
+        // todo - create converter attribute
+        public Type Converter { get; }
 
         [NotNull]
         public static CommandParameterMetadata Create([NotNull] PropertyInfo property)
@@ -60,13 +63,5 @@ namespace Reusable.Commander
         }
 
         //public void SetValue(object obj, object value) => Property.SetValue(obj, value);
-    }
-
-    [UseType, UseMember]
-    [TrimStart("I"), TrimEnd("Meta")]
-    [PlainSelectorFormatter]
-    public interface ICommandParameterMeta
-    {
-        Type ParameterType { get; }
     }
 }

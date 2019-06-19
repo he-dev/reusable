@@ -23,23 +23,18 @@ namespace Reusable.Commander.Services
 
         protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
         {
-            var parameterType = metadata.GetItemOrDefault(From<ICommandParameterMeta>.Select(x => x.ParameterType));
-
             if (uri.TryGetDataString("name", out var name))
             {
                 var id = Identifier.FromName(name);
                 var parameter = _commandLine[id];
-                if (parameter is null)
-                {
-                    return Task.FromResult<IResourceInfo>(new CommandParameterInfo(uri, false, new List<string>()));
-                }
-                else
-                {
-                    var values = parameterType.IsList() ? parameter : parameter.Take(1).ToList();
-                    return Task.FromResult<IResourceInfo>(new CommandParameterInfo(uri, true, values));
-                }
+                return Task.FromResult<IResourceInfo>
+                (
+                    parameter is null
+                        ? new CommandParameterInfo(uri, false, new List<string>())
+                        : new CommandParameterInfo(uri, true, parameter)
+                );
             }
-            
+
             throw new ArgumentException($"{nameof(uri)}'s query-string must contain the 'name' parameter.");
         }
     }
