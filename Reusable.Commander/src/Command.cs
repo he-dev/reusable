@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.SemanticExtensions;
-using Reusable.Commander.Services;
 
 namespace Reusable.Commander
 {
@@ -17,7 +16,7 @@ namespace Reusable.Commander
     }
 
     [PublicAPI]
-    public abstract class Command<TParameter, TContext> : ICommand where TParameter : ICommandParameter //, new()
+    public abstract class Command<TCommandArgumentGroup, TContext> : ICommand where TCommandArgumentGroup : ICommandArgumentGroup
     {
         protected Command([NotNull] ICommandServiceProvider serviceProvider, [CanBeNull] Identifier id = default)
         {
@@ -42,19 +41,20 @@ namespace Reusable.Commander
                     break;
 
                 case ICommandLine commandLine:
-                    await CheckAndExecuteAsync(new CommandLineReader<TParameter>(commandLine), (TContext)context, cancellationToken);
+                    // todo - add command-line validation
+                    await CheckAndExecuteAsync(new CommandLineReader<TCommandArgumentGroup>(commandLine), (TContext)context, cancellationToken);
                     break;
 
                 default:
                     throw new ArgumentOutOfRangeException
                     (
                         paramName: nameof(parameter),
-                        message: $"{nameof(parameter)} must be either a {typeof(ICommandLine).Name} or {typeof(TParameter).Name}."
+                        message: $"{nameof(parameter)} must be either a {typeof(ICommandLine).Name} or {typeof(TCommandArgumentGroup).Name}."
                     );
             }
         }
 
-        private async Task CheckAndExecuteAsync(ICommandLineReader<TParameter> parameter, TContext context, CancellationToken cancellationToken)
+        private async Task CheckAndExecuteAsync(ICommandLineReader<TCommandArgumentGroup> parameter, TContext context, CancellationToken cancellationToken)
         {
             if (await CanExecuteAsync(parameter, context, cancellationToken))
             {
@@ -70,20 +70,20 @@ namespace Reusable.Commander
         /// <summary>
         /// When overriden by a derived class indicates whether a command can be executed. The default implementation always returns 'true'.
         /// </summary>
-        protected virtual Task<bool> CanExecuteAsync(ICommandLineReader<TParameter> parameter, TContext context, CancellationToken cancellationToken = default)
+        protected virtual Task<bool> CanExecuteAsync(ICommandLineReader<TCommandArgumentGroup> parameter, TContext context, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(true);
         }
 
-        protected abstract Task ExecuteAsync(ICommandLineReader<TParameter> parameter, TContext context, CancellationToken cancellationToken);
+        protected abstract Task ExecuteAsync(ICommandLineReader<TCommandArgumentGroup> parameter, TContext context, CancellationToken cancellationToken);
     }
 
-    public abstract class Command<TParameter> : Command<TParameter, NullContext> where TParameter : ICommandParameter
+    public abstract class Command<TParameter> : Command<TParameter, NullContext> where TParameter : ICommandArgumentGroup
     {
         protected Command([NotNull] ICommandServiceProvider serviceProvider, [CanBeNull] Identifier id = default) : base(serviceProvider, id) { }
     }
 
-    public abstract class Command : Command<ICommandParameter, NullContext>
+    public abstract class Command : Command<ICommandArgumentGroup, NullContext>
     {
         protected Command([NotNull] ICommandServiceProvider serviceProvider, Identifier id)
             : base(serviceProvider, id) { }

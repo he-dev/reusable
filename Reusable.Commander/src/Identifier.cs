@@ -20,6 +20,9 @@ namespace Reusable.Commander
             if (names == null) throw new ArgumentNullException(nameof(names));
         }
 
+        public Identifier(params string[] names)
+            : this(new Identifier(names.Skip(1).Select(n => new Name(n, NameOption.Alias)).Prepend(new Name(names.First(), NameOption.Default)))) { }
+
         public static Identifier Command { get; } = FromPosition(0);
 
         [NotNull]
@@ -38,6 +41,8 @@ namespace Reusable.Commander
         }
 
         public override string ToString() => string.Join(", ", this.Select(x => x.ToString()));
+        
+        public static implicit operator Identifier(string name) => new Identifier((name, NameOption.CommandLine));
     }
 
     public class Name : IEquatable<Name>
@@ -64,6 +69,8 @@ namespace Reusable.Commander
         public override int GetHashCode() => AutoEquality<Name>.Comparer.GetHashCode(this);
 
         public static implicit operator Name((SoftString Name, NameOption Option) t) => new Name(t.Name, t.Option);
+        
+        
     }
 
     public class NameOption : Option<NameOption>

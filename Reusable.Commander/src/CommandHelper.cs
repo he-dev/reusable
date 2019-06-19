@@ -83,22 +83,22 @@ namespace Reusable.Commander
             }
         }
 
-        public static IEnumerable<CommandParameterMetadata> GetParameters(this Type bagType)
+        public static IEnumerable<CommandArgumentMetadata> GetParameters(this Type bagType)
         {
             return
                 bagType
                     .GetProperties(BindingFlags.Instance | BindingFlags.Public)
                     .Where(p => !p.IsDefined(typeof(NotMappedAttribute)))
-                    .Select(CommandParameterMetadata.Create);
+                    .Select(CommandArgumentMetadata.Create);
         }
 
         public static Type GetBagType(this Type commandType)
         {
-            CommandValidator.ValidateCommandType(commandType);
+            CommandLineValidator.ValidateCommandType(commandType);
 
             if (commandType.BaseType == typeof(Command))
             {
-                return typeof(ICommandParameter);
+                return typeof(ICommandArgumentGroup);
             }
 
             // ReSharper disable once PossibleNullReferenceException
@@ -107,7 +107,7 @@ namespace Reusable.Commander
                 commandType
                     .BaseType
                     .GetGenericArguments()
-                    .Single(t => typeof(ICommandParameter).IsAssignableFrom(t));
+                    .Single(t => typeof(ICommandArgumentGroup).IsAssignableFrom(t));
         }
     }
 }

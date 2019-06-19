@@ -12,7 +12,7 @@ using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.SemanticExtensions;
 
-namespace Reusable.Commander.Services
+namespace Reusable.Commander
 {
     public interface ICommandExecutor
     {
@@ -53,7 +53,7 @@ namespace Reusable.Commander.Services
                 GetCommands(commandLines)
                     .Select(t =>
                     {
-                        var commandLineReader = new CommandLineReader<ICommandParameter>(t.CommandLine);
+                        var commandLineReader = new CommandLineReader<ICommandArgumentGroup>(t.CommandLine);
                         return new Executable
                         {
                             Command = t.Command,

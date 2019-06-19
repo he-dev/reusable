@@ -9,26 +9,26 @@ using Reusable.Diagnostics;
 namespace Reusable.Commander
 {
     // foo -bar -baz qux
-    public interface ICommandLine : IEnumerable<CommandParameter>
+    public interface ICommandLine : IEnumerable<CommandArgument>
     {
         [CanBeNull]
-        CommandParameter this[Identifier id] { get; }
+        CommandArgument this[Identifier id] { get; }
     }
 
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public class CommandLine : ICommandLine
     {
-        private readonly IDictionary<Identifier, CommandParameter> _parameters = new Dictionary<Identifier, CommandParameter>();
+        private readonly IDictionary<Identifier, CommandArgument> _parameters = new Dictionary<Identifier, CommandArgument>();
 
         internal CommandLine() { }
 
         private string DebuggerDisplay => ToString();
 
-        public CommandParameter this[Identifier id] => _parameters.TryGetValue(id, out var argument) ? argument : default;
+        public CommandArgument this[Identifier id] => _parameters.TryGetValue(id, out var argument) ? argument : default;
 
         #region IEnumerable
 
-        public IEnumerator<CommandParameter> GetEnumerator() => _parameters.Values.GetEnumerator();
+        public IEnumerator<CommandArgument> GetEnumerator() => _parameters.Values.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -39,7 +39,7 @@ namespace Reusable.Commander
         {
             if (id == null) throw new ArgumentNullException(nameof(id));
 
-            _parameters.Add(id, new CommandParameter(id));
+            _parameters.Add(id, new CommandArgument(id));
         }
 
         [ContractAnnotation("id: null => halt; value: null => halt")]
@@ -54,7 +54,7 @@ namespace Reusable.Commander
             }
             else
             {
-                _parameters.Add(id, new CommandParameter(id) { value });
+                _parameters.Add(id, new CommandArgument(id) { value });
             }
         }
 

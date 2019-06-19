@@ -2,11 +2,12 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Commander;
-using Reusable.Commander.Services;
+using Reusable.Commander.Commands;
 using Reusable.Data.Annotations;
 using Reusable.Tests.Commander.Integration;
 using Xunit;
@@ -15,7 +16,7 @@ namespace Reusable.Tests.Commander
 {
     using static Helper;
 
-    public class FeatureIntegrationTest
+    public class FeatureTest
     {
         [Fact]
         public async Task CanExecuteCommandByAnyName()
@@ -25,7 +26,7 @@ namespace Reusable.Tests.Commander
             var commands =
                 ImmutableList<CommandModule>
                     .Empty
-                    .Add(new[] { "a", "b" }, ExecuteHelper.Count<ICommandParameter>(counters));
+                    .Add(new Identifier("a", "b"), ExecuteHelper.Count<ICommandArgumentGroup>(counters));
 
             using (var context = CreateContext(commands))
             {
@@ -44,9 +45,9 @@ namespace Reusable.Tests.Commander
             var commands =
                 ImmutableList<CommandModule>
                     .Empty
-                    .Add(new[] { "a" }, ExecuteHelper.Count<ICommandParameter>(counters))
-                    .Add(new[] { "b" }, ExecuteHelper.Count<ICommandParameter>(counters));
-            
+                    .Add(new Identifier("a"), ExecuteHelper.Count<ICommandArgumentGroup>(counters))
+                    .Add(new Identifier("b"), ExecuteHelper.Count<ICommandArgumentGroup>(counters));
+
             using (var context = CreateContext(commands))
             {
                 await context.Executor.ExecuteAsync<object>("a|b", default);
@@ -119,38 +120,61 @@ namespace Reusable.Tests.Commander
         //     }
         // }
 
-        // [Fact]
-        // public async Task CanCreateBagWithDefaultValues()
-        // {
-        //     var tracker = new CommandParameterTracker();
-        //     using (var context = CreateContext(
-        //         commands => commands
-        //             .Add("c", ExecuteHelper.Track<BagWithDefaultValues>(tracker))
-        //     ))
-        //     {
-        //         await context.Executor.ExecuteAsync<object>("c", default);
-        //         tracker.Assert<BagWithDefaultValues>(
-        //             "c",
-        //             bag =>
-        //             {
-        //                 Assert.False(bag.Async);
-        //                 //Assert.False(bag.CanThrow);
-        //                 Assert.False(bag.BoolOnly);
-        //                 Assert.False(bag.BoolWithDefaultValue1);
-        //                 Assert.True(bag.BoolWithDefaultValue2);
-        //                 Assert.Null(bag.StringOnly);
-        //                 Assert.Equal("foo", bag.StringWithDefaultValue);
-        //                 Assert.Equal(0, bag.Int32Only);
-        //                 Assert.Null(bag.NullableInt32Only);
-        //                 Assert.Equal(3, bag.Int32WithDefaultValue);
-        //                 Assert.Equal(DateTime.MinValue, bag.DateTimeOnly);
-        //                 Assert.Null(bag.NullableDateTime);
-        //                 Assert.Equal(new DateTime(2018, 1, 1), bag.DateTimeWithDefaultValue);
-        //                 Assert.Null(bag.ListOnly);
-        //             }
-        //         );
-        //     }
-        // }
+        [Fact]
+        public async Task Uses_default_values_when_specified()
+        {
+            var values = new Dictionary<Identifier, object>();
+            var commands = ImmutableList<CommandModule>.Empty.Add(new Identifier("test"), new ExecuteCallback<ITestArgumentGroup, object>((id, reader, context, token) =>
+            {
+                values[nameof(ITestArgumentGroup.Bool)] = reader.GetItem(x => x.Bool);
+                values[nameof(ITestArgumentGroup.BoolWithDefaultValue)] = reader.GetItem(x => x.BoolWithDefaultValue);
+                values[nameof(ITestArgumentGroup.String)] = reader.GetItem(x => x.String);
+                values[nameof(ITestArgumentGroup.StringWithDefaultValue)] = reader.GetItem(x => x.StringWithDefaultValue);
+                values[nameof(ITestArgumentGroup.Int32)] = reader.GetItem(x => x.Int32);
+                values[nameof(ITestArgumentGroup.Int32WithDefaultValue)] = reader.GetItem(x => x.Int32WithDefaultValue);
+                values[nameof(ITestArgumentGroup.NullableInt32)] = reader.GetItem(x => x.NullableInt32);
+                return Task.CompletedTask;
+            }));
+
+            using (var context = CreateContext(commands))
+            {
+                await context.Executor.ExecuteAsync<object>("test", default);
+
+                Assert.Equal(false, values[nameof(ITestArgumentGroup.Bool)]);
+                Assert.Equal(true, values[nameof(ITestArgumentGroup.BoolWithDefaultValue)]);
+                Assert.Equal(null, values[nameof(ITestArgumentGroup.String)]);
+                Assert.Equal("foo", values[nameof(ITestArgumentGroup.StringWithDefaultValue)]);
+                Assert.Equal(0, values[nameof(ITestArgumentGroup.Int32)]);
+                Assert.Equal(3, values[nameof(ITestArgumentGroup.Int32WithDefaultValue)]);
+                Assert.Equal(null, values[nameof(ITestArgumentGroup.NullableInt32)]);
+            }
+        }
+
+        [Fact]
+        public async Task Can_parse_supported_types()
+        {
+            var values = new Dictionary<Identifier, object>();
+            var commands = ImmutableList<CommandModule>.Empty.Add(new Identifier("test"), new ExecuteCallback<ITestArgumentGroup, object>((id, reader, context, token) =>
+            {
+                values[nameof(ITestArgumentGroup.Bool)] = reader.GetItem(x => x.Bool);
+                values[nameof(ITestArgumentGroup.String)] = reader.GetItem(x => x.String);
+                values[nameof(ITestArgumentGroup.Int32)] = reader.GetItem(x => x.Int32);
+                values[nameof(ITestArgumentGroup.DateTime)] = reader.GetItem(x => x.DateTime);
+                values[nameof(ITestArgumentGroup.ListOfInt32)] = reader.GetItem(x => x.ListOfInt32);
+                return Task.CompletedTask;
+            }));
+
+            using (var context = CreateContext(commands))
+            {
+                await context.Executor.ExecuteAsync<object>("test -bool -string bar -int32 123 -datetime \"2019-07-01\" -listofint32 1 2 3", default);
+
+                Assert.Equal(true, values[nameof(ITestArgumentGroup.Bool)]);
+                Assert.Equal("bar", values[nameof(ITestArgumentGroup.String)]);
+                Assert.Equal(123, values[nameof(ITestArgumentGroup.Int32)]);
+                Assert.Equal(new DateTime(2019, 7, 1), values[nameof(ITestArgumentGroup.DateTime)]);
+                Assert.Equal(new[] { 1, 2, 3 }, values[nameof(ITestArgumentGroup.ListOfInt32)]);
+            }
+        }
 
         // [Fact]
         // public async Task CanCreateBagWithFlagValues()
@@ -237,5 +261,34 @@ namespace Reusable.Tests.Commander
         //     
         //     ExecuteAssert<Bag2>(bag => { Assert.Equal("baz", bag.Property04); });
         // }
+
+        internal interface ITestArgumentGroup : ICommandArgumentGroup
+        {
+            bool Bool { get; set; }
+
+            [DefaultValue(true)]
+            bool BoolWithDefaultValue { get; set; }
+
+            string String { get; set; }
+
+            [DefaultValue("foo")]
+            string StringWithDefaultValue { get; set; }
+
+            int Int32 { get; set; }
+
+            int? NullableInt32 { get; set; }
+
+            [DefaultValue(3)]
+            int Int32WithDefaultValue { get; set; }
+
+            DateTime DateTime { get; set; }
+
+            DateTime? NullableDateTime { get; set; }
+
+            [DefaultValue("2018/01/01")]
+            DateTime DateTimeWithDefaultValue { get; set; }
+
+            IList<int> ListOfInt32 { get; set; }
+        }
     }
 }

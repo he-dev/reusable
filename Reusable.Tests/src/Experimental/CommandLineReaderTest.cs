@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using Reusable.Commander;
 using Reusable.Commander.Annotations;
-using Reusable.Commander.Services;
 using Reusable.Data.Annotations;
 using Xunit;
 
@@ -22,7 +21,7 @@ namespace Reusable.Tests.Experimental
                 { "canBuild" },
             };
 
-            var cmdln = new CommandLineReader<ITestParameter>(commandLine);
+            var cmdln = new CommandLineReader<ITestArgumentGroup>(commandLine);
 
             var actualFiles = cmdln.GetItem(x => x.Files);
             var actualBuild = cmdln.GetItem(x => x.Build);
@@ -37,7 +36,7 @@ namespace Reusable.Tests.Experimental
             //Assert.Equal(true, async);
         }        
         
-        internal interface ITestParameter : ICommandParameter
+        internal interface ITestArgumentGroup : ICommandArgumentGroup
         {
             [Tags("f")]
             List<string> Files { get; }

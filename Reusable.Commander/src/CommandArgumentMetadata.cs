@@ -10,13 +10,14 @@ using Reusable.Commander.Annotations;
 using Reusable.Diagnostics;
 using Reusable.Extensions;
 using Reusable.Quickey;
+using Reusable.OneTo1;
 
 namespace Reusable.Commander
 {
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
-    public class CommandParameterMetadata
+    public class CommandArgumentMetadata
     {
-        private CommandParameterMetadata(PropertyInfo member)
+        private CommandArgumentMetadata(PropertyInfo member)
         {
             Property = member;
             Position = member.GetCustomAttribute<PositionAttribute>()?.Value;
@@ -25,8 +26,9 @@ namespace Reusable.Commander
                     ? Identifier.FromPosition(Position.Value)
                     : CommandHelper.GetCommandParameterId(member);
             Description = member.GetCustomAttribute<DescriptionAttribute>()?.Description;
-            DefaultValue = Reflection.Utilities.FindCustomAttributes<DefaultValueAttribute>(member)?.SingleOrDefault()?.Value;
+            DefaultValue = member.GetCustomAttribute<DefaultValueAttribute>()?.Value;
             Required = member.IsDefined(typeof(RequiredAttribute)) || Id.Default.Option.Contains(NameOption.Positional);
+            ConverterType = member.GetCustomAttribute<Reusable.OneTo1.TypeConverterAttribute>()?.ConverterType;
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(b =>
@@ -53,13 +55,12 @@ namespace Reusable.Commander
 
         public bool Required { get; }
         
-        // todo - create converter attribute
-        public Type Converter { get; }
+        public Type ConverterType { get; }
 
         [NotNull]
-        public static CommandParameterMetadata Create([NotNull] PropertyInfo property)
+        public static CommandArgumentMetadata Create([NotNull] PropertyInfo property)
         {
-            return new CommandParameterMetadata(property ?? throw new ArgumentNullException(nameof(property)));
+            return new CommandArgumentMetadata(property ?? throw new ArgumentNullException(nameof(property)));
         }
 
         //public void SetValue(object obj, object value) => Property.SetValue(obj, value);

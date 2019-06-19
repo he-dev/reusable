@@ -8,7 +8,7 @@ namespace Reusable.Tests.Commander
         [Fact]
         public void ToString_can_format_parameter_string()
         {
-            var parameter = new CommandParameter(Identifier.FromName("foo"))
+            var parameter = new CommandArgument(Identifier.FromName("foo"))
             {
                 "bar",
                 "baz qux"

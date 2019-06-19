@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Reusable.Commander.Services;
 
 namespace Reusable.Commander.Commands
 {
@@ -12,13 +11,13 @@ namespace Reusable.Commander.Commands
         ICommandLineReader<T> parameters,
         TContext context,
         CancellationToken cancellationToken = default
-    ) where T : ICommandParameter;
+    ) where T : ICommandArgumentGroup;
 
-    public class Lambda<TParameter, TContext> : Command<TParameter, TContext> where TParameter : ICommandParameter
+    public class Lambda<TParameter, TContext> : Command<TParameter, TContext> where TParameter : ICommandArgumentGroup
     {
         private readonly ExecuteCallback<TParameter, TContext> _execute;
 
-        public delegate Lambda<T, TContext> Factory<T>([NotNull] Identifier id, [NotNull] ExecuteCallback<TParameter, TContext> execute) where T : ICommandParameter, new();
+        public delegate Lambda<T, TContext> Factory<T>([NotNull] Identifier id, [NotNull] ExecuteCallback<TParameter, TContext> execute) where T : ICommandArgumentGroup, new();
 
         public Lambda
         (

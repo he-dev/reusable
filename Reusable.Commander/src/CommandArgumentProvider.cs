@@ -5,18 +5,16 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.IOnymous;
-using Reusable.Quickey;
-using Reusable.Reflection;
 
-namespace Reusable.Commander.Services
+namespace Reusable.Commander
 {
-    internal class CommandParameterProvider : ResourceProvider
+    internal class CommandArgumentProvider : ResourceProvider
     {
         public new const string DefaultScheme = "command-line";
 
         private readonly ICommandLine _commandLine;
 
-        public CommandParameterProvider([NotNull] ICommandLine commandLine) : base(new SoftString[] { DefaultScheme }, ImmutableSession.Empty)
+        public CommandArgumentProvider([NotNull] ICommandLine commandLine) : base(new SoftString[] { DefaultScheme }, ImmutableSession.Empty)
         {
             _commandLine = commandLine ?? throw new ArgumentNullException(nameof(commandLine));
         }
@@ -30,8 +28,8 @@ namespace Reusable.Commander.Services
                 return Task.FromResult<IResourceInfo>
                 (
                     parameter is null
-                        ? new CommandParameterInfo(uri, false, new List<string>())
-                        : new CommandParameterInfo(uri, true, parameter)
+                        ? new CommandArgumentInfo(uri, false, new List<string>())
+                        : new CommandArgumentInfo(uri, true, parameter.ToList())
                 );
             }
 

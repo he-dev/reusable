@@ -2,22 +2,24 @@ using System;
 using System.Collections.Immutable;
 using Autofac;
 using JetBrains.Annotations;
-using Reusable.Commander.Services;
 using Reusable.Commander.Utilities;
 using Reusable.OneTo1;
 
 namespace Reusable.Commander
 {
+    // todo - validate command and argument names
+    // todo - validate argument types
+    
     [PublicAPI]
     public class CommanderModule : Autofac.Module
     {
         //[NotNull] private readonly ITypeConverter _parameterConverter;
 
-        [NotNull] private readonly IImmutableList<CommandModule> _commandRegistrations;
+        [NotNull] private readonly IImmutableList<CommandModule> _commandModules;
 
-        public CommanderModule([NotNull] IImmutableList<CommandModule> commandRegistrations)
+        public CommanderModule([NotNull] IImmutableList<CommandModule> commandModules)
         {
-            _commandRegistrations = commandRegistrations ?? throw new ArgumentNullException(nameof(commandRegistrations));
+            _commandModules = commandModules ?? throw new ArgumentNullException(nameof(commandModules));
         }
 
         protected override void Load(ContainerBuilder builder)
@@ -45,13 +47,9 @@ namespace Reusable.Commander
             builder
                 .RegisterGeneric(typeof(CommandServiceProvider<>));
 
-
-            // builder
-            //     .RegisterModule(_commandRegistrations);
-            
-            foreach (var commandRegistration in _commandRegistrations)
+            foreach (var commandModule in _commandModules)
             {
-                commandRegistration.Register(builder);
+               builder.RegisterModule(commandModule);
             }
 
             builder

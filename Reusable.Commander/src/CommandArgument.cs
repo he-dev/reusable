@@ -13,11 +13,11 @@ namespace Reusable.Commander
     /// This class represents a single command-line argument with all its values.
     /// </summary>
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
-    public class CommandParameter : List<string>, IEquatable<CommandParameter>, IFormattable
+    public class CommandArgument : List<string>, IEquatable<CommandArgument>, IFormattable
     {
         public const string DefaultFormat = "-:";
 
-        internal CommandParameter(Identifier key) => Id = key;
+        internal CommandArgument(Identifier key) => Id = key;
 
         //internal CommandParameter() : this(Identifier.Empty) { }
 
@@ -29,9 +29,9 @@ namespace Reusable.Commander
 
         #region IEquatable
 
-        public bool Equals(CommandParameter other) => Id?.Equals(other.Id) == true;
+        public bool Equals(CommandArgument other) => Id?.Equals(other.Id) == true;
 
-        public override bool Equals(object obj) => obj is CommandParameter parameter && Equals(parameter);
+        public override bool Equals(object obj) => obj is CommandArgument parameter && Equals(parameter);
 
         public override int GetHashCode() => Id.GetHashCode();
 
@@ -71,6 +71,6 @@ namespace Reusable.Commander
 
         public override string ToString() => ToString(DefaultFormat, CultureInfo.InvariantCulture);
 
-        public static implicit operator string(CommandParameter commandParameter) => commandParameter?.ToString();
+        public static implicit operator string(CommandArgument commandArgument) => commandArgument?.ToString();
     }
 }

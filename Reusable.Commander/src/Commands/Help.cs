@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Commander.Annotations;
-using Reusable.Commander.Services;
 using Reusable.Commander.Utilities;
 using Reusable.Data.Annotations;
 using Reusable.Exceptionize;
@@ -18,7 +17,7 @@ using Reusable.OmniLog;
 namespace Reusable.Commander.Commands
 {
     [PublicAPI]
-    public interface IHelpParameter : ICommandParameter
+    public interface IHelpArgumentGroup : ICommandArgumentGroup
     {
         [CanBeNull]
         [Description("Display command usage.")]
@@ -31,7 +30,7 @@ namespace Reusable.Commander.Commands
     [PublicAPI]
     [Tags("h", "?")]
     [Description("Display help.")]
-    public class Help : Command<IHelpParameter>
+    public class Help : Command<IHelpArgumentGroup>
     {
         private static readonly int IndentWidth = 4;
 
@@ -45,7 +44,7 @@ namespace Reusable.Commander.Commands
             _commandTypes = commands;
         }        
 
-        protected override Task ExecuteAsync(ICommandLineReader<IHelpParameter> parameter, NullContext context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(ICommandLineReader<IHelpArgumentGroup> parameter, NullContext context, CancellationToken cancellationToken)
         {
             var commandSelected = parameter.GetItem(x => x.Command).IsNotNullOrEmpty();
             if (commandSelected)
@@ -60,7 +59,7 @@ namespace Reusable.Commander.Commands
             return Task.CompletedTask;
         }
 
-        protected virtual void RenderCommandList(ICommandLineReader<IHelpParameter> parameter)
+        protected virtual void RenderCommandList(ICommandLineReader<IHelpArgumentGroup> parameter)
         {
             // Headers
             var captions = new[] { "NAME", "ABOUT" }.Pad(ColumnWidths);
@@ -87,7 +86,7 @@ namespace Reusable.Commander.Commands
             }
         }
 
-        protected virtual void RenderParameterList(ICommandLineReader<IHelpParameter> parameter)
+        protected virtual void RenderParameterList(ICommandLineReader<IHelpArgumentGroup> parameter)
         {
             var commandId = new Identifier(new Name(parameter.GetItem(x => x.Command)));
             var commandType = _commandTypes.SingleOrDefault(t => CommandHelper.GetCommandId(t) == commandId);

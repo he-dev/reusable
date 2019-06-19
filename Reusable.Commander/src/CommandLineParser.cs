@@ -45,7 +45,8 @@ namespace Reusable.Commander
                     case CommandSeparator when commandLine.Any():
                         yield return commandLine;
                         commandLine = new CommandLine();
-                        parameterId = Identifier.FromPosition(position++);
+                        position = 1;
+                        parameterId = Identifier.Command;
                         break;
 
                     case string value when IsParameterId(value):

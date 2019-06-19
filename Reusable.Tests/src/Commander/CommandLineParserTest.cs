@@ -37,6 +37,8 @@ namespace Reusable.Tests.Commander
         {
             var commandLines = Parser.Parse("foo.bar -baz -qux quux baar | bar.baz -foo").ToList();
             Assert.Equal(2, commandLines.Count);
+            Assert.Equal("foo.bar", commandLines[0][Identifier.Command].Single());
+            Assert.Equal("bar.baz", commandLines[1][Identifier.Command].Single());
         }
     }
 }

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Autofac;
 using Reusable.Commander;
 using Reusable.Commander.Commands;
-using Reusable.Commander.Services;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using IContainer = Autofac.IContainer;
@@ -71,18 +70,18 @@ namespace Reusable.Tests.Commander.Integration
         //     };
         // }
 
-        internal static ExecuteCallback<TParameter> Count<TParameter>(ConcurrentDictionary<Identifier, int> counters) where TParameter : ICommandParameter
+        internal static ExecuteCallback<TParameter, object> Count<TParameter>(ConcurrentDictionary<Identifier, int> counters) where TParameter : ICommandArgumentGroup
         {
-            return (id, commandLine, cancellationToken) =>
+            return (id, commandLine, context, cancellationToken) =>
             {
                 counters[id] = counters.AddOrUpdate(id, _ => 1, (_, count) => count + 1);
                 return Task.CompletedTask;
             };
         }
 
-        internal static ExecuteCallback<TBag> Noop<TBag>() where TBag : ICommandParameter, new()
+        internal static ExecuteCallback<TParameter, object> Noop<TParameter>() where TParameter : ICommandArgumentGroup
         {
-            return (name, bag, cancellationToken) => Task.CompletedTask;
+            return (name, commandLine, context, cancellationToken) => Task.CompletedTask;
         }
     }
 
@@ -103,11 +102,11 @@ namespace Reusable.Tests.Commander.Integration
 
     internal class CommandParameterTracker
     {
-        private readonly IDictionary<Identifier, ICommandParameter> _bags = new Dictionary<Identifier, ICommandParameter>();
+        private readonly IDictionary<Identifier, ICommandArgumentGroup> _bags = new Dictionary<Identifier, ICommandArgumentGroup>();
 
-        public void Add(Identifier commandId, ICommandParameter bag) => _bags.Add(commandId, bag);
+        public void Add(Identifier commandId, ICommandArgumentGroup bag) => _bags.Add(commandId, bag);
 
-        public void Assert<T>(Identifier commandId, Action<T> assert) where T : ICommandParameter, new()
+        public void Assert<T>(Identifier commandId, Action<T> assert) where T : ICommandArgumentGroup, new()
         {
             if (_bags.TryGetValue(commandId, out var bag))
             {

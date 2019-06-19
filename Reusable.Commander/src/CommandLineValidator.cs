@@ -10,38 +10,24 @@ using Reusable.Reflection;
 
 namespace Reusable.Commander
 {
-    internal class CommandValidator
+    internal static class CommandLineValidator
     {
-        private readonly ISet<Identifier> _commandNames = new HashSet<Identifier>();
-
-        public void ValidateCommand((Type Type, Identifier Id) command, [NotNull] ITypeConverter converter)
+        public static void Validate(ICommandLine commandLine, Type commandType, ITypeConverter argumentConverter)
         {
-            if (command.Type == null) throw new ArgumentNullException(nameof(command.Type));
-            if (converter == null) throw new ArgumentNullException(nameof(converter));
-
-            // This no longer applies because the builder does not allow other types.
-            //if (!typeof(IConsoleCommand).IsAssignableFrom(command.Type))
-            //{
-            //throw DynamicException.Factory.CreateDynamicException(
-            //$"CommandType",
-            //$"{command.Type.Name} is not derived from {typeof(IConsoleCommand).Name}."
-            //);
-            //}
-
-            ValidateCommandName(command.Id);
-            ValidateParameters(command.Type, converter);
+            //ValidateCommandName(command.Id);
+            //ValidateParameters(command.Type, converter);
         }
 
-        private void ValidateCommandName(Identifier id)
-        {
-            if (!_commandNames.Add(id))
-            {
-                throw DynamicException.Create(
-                    $"DuplicateCommandName",
-                    $"Another command with the name {id} has already been added."
-                );
-            }
-        }
+//        private void ValidateCommandName(Identifier id)
+//        {
+//            if (!_commandNames.Add(id))
+//            {
+//                throw DynamicException.Create(
+//                    $"DuplicateCommandName",
+//                    $"Another command with the name {id} has already been added."
+//                );
+//            }
+//        }
 
         private static void ValidateParameters(Type commandType, ITypeConverter converter)
         {            
@@ -56,7 +42,7 @@ namespace Reusable.Commander
             ValidateParameterTypes(parameters, converter);
         }
 
-        private static void ValidateParameterNames(IEnumerable<CommandParameterMetadata> parameters)
+        private static void ValidateParameterNames(IEnumerable<CommandArgumentMetadata> parameters)
         {
             var duplicateNames =
                 parameters
@@ -75,7 +61,7 @@ namespace Reusable.Commander
             }
         }
 
-        private static void ValidateParameterPositions(IEnumerable<CommandParameterMetadata> parameters)
+        private static void ValidateParameterPositions(IEnumerable<CommandArgumentMetadata> parameters)
         {
             var positions =
                 parameters
@@ -97,7 +83,7 @@ namespace Reusable.Commander
             }
         }
 
-        private static void ValidateParameterTypes(IEnumerable<CommandParameterMetadata> parameters, ITypeConverter converter)
+        private static void ValidateParameterTypes(IEnumerable<CommandArgumentMetadata> parameters, ITypeConverter converter)
         {            
             var unsupportedParameters =
                 parameters
