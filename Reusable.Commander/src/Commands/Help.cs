@@ -107,9 +107,9 @@ namespace Reusable.Commander.Commands
             var separators = captions.Select(c => new string('-', c.Trim().Length)).Pad(ColumnWidths);
             Logger.WriteLine(p => p.text(string.Join(string.Empty, separators)));
 
-            var bagType = commandType.GetBagType();
+            var bagType = commandType.GetCommandArgumentGroupType();
             var parameters =
-                from commandParameter in bagType.GetParameters()
+                from commandParameter in bagType.GetCommandArgumentMetadata()
                 orderby commandParameter.Id.Default.ToString()
                 select commandParameter;
 

@@ -3,7 +3,6 @@ using System.Collections.Immutable;
 using Autofac;
 using JetBrains.Annotations;
 using Reusable.Commander.Utilities;
-using Reusable.OneTo1;
 
 namespace Reusable.Commander
 {
@@ -13,8 +12,6 @@ namespace Reusable.Commander
     [PublicAPI]
     public class CommanderModule : Autofac.Module
     {
-        //[NotNull] private readonly ITypeConverter _parameterConverter;
-
         [NotNull] private readonly IImmutableList<CommandModule> _commandModules;
 
         public CommanderModule([NotNull] IImmutableList<CommandModule> commandModules)
@@ -31,11 +28,6 @@ namespace Reusable.Commander
             builder
                 .RegisterType<CommandLineParser>()
                 .As<ICommandLineParser>();
-
-            // builder
-            //     .RegisterType<CommandLineMapper>()
-            //     .WithParameter(new TypedParameter(typeof(ITypeConverter), _parameterConverter))
-            //     .As<ICommandLineMapper>();
 
             builder
                 .RegisterInstance((ExecuteExceptionCallback)(_ => { }));

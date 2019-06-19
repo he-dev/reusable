@@ -83,19 +83,17 @@ namespace Reusable.Commander
             }
         }
 
-        public static IEnumerable<CommandArgumentMetadata> GetParameters(this Type bagType)
+        public static IEnumerable<CommandArgumentMetadata> GetCommandArgumentMetadata(this Type commandArgumentGroupType)
         {
             return
-                bagType
+                commandArgumentGroupType
                     .GetProperties(BindingFlags.Instance | BindingFlags.Public)
                     .Where(p => !p.IsDefined(typeof(NotMappedAttribute)))
                     .Select(CommandArgumentMetadata.Create);
         }
 
-        public static Type GetBagType(this Type commandType)
+        public static Type GetCommandArgumentGroupType(this Type commandType)
         {
-            CommandLineValidator.ValidateCommandType(commandType);
-
             if (commandType.BaseType == typeof(Command))
             {
                 return typeof(ICommandArgumentGroup);

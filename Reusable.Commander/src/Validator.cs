@@ -10,12 +10,19 @@ using Reusable.Reflection;
 
 namespace Reusable.Commander
 {
-    internal static class CommandLineValidator
+    internal static class Validator
     {
-        public static void Validate(ICommandLine commandLine, Type commandType, ITypeConverter argumentConverter)
+        public static void ValidateCommand(Type commandType, ITypeConverter argumentConverter)
         {
-            //ValidateCommandName(command.Id);
-            //ValidateParameters(command.Type, converter);
+            var commandArguments =
+                commandType
+                    .GetCommandArgumentGroupType()
+                    .GetCommandArgumentMetadata()
+                    .ToList();
+
+            ValidateArgumentNames(commandArguments);
+            ValidateArgumentPositions(commandArguments);
+            ValidateArgumentTypes(commandArguments, argumentConverter);
         }
 
 //        private void ValidateCommandName(Identifier id)
@@ -29,20 +36,7 @@ namespace Reusable.Commander
 //            }
 //        }
 
-        private static void ValidateParameters(Type commandType, ITypeConverter converter)
-        {            
-            var parameters =
-                commandType
-                    .GetBagType()
-                    .GetParameters()
-                    .ToList();
-
-            ValidateParameterNames(parameters);
-            ValidateParameterPositions(parameters);
-            ValidateParameterTypes(parameters, converter);
-        }
-
-        private static void ValidateParameterNames(IEnumerable<CommandArgumentMetadata> parameters)
+        private static void ValidateArgumentNames(IEnumerable<CommandArgumentMetadata> parameters)
         {
             var duplicateNames =
                 parameters
@@ -61,7 +55,7 @@ namespace Reusable.Commander
             }
         }
 
-        private static void ValidateParameterPositions(IEnumerable<CommandArgumentMetadata> parameters)
+        private static void ValidateArgumentPositions(IEnumerable<CommandArgumentMetadata> parameters)
         {
             var positions =
                 parameters
@@ -83,7 +77,7 @@ namespace Reusable.Commander
             }
         }
 
-        private static void ValidateParameterTypes(IEnumerable<CommandArgumentMetadata> parameters, ITypeConverter converter)
+        private static void ValidateArgumentTypes(IEnumerable<CommandArgumentMetadata> parameters, ITypeConverter converter)
         {            
             var unsupportedParameters =
                 parameters
@@ -100,17 +94,6 @@ namespace Reusable.Commander
                 throw DynamicException.Create(
                     $"UnsupportedParameterType",
                     $"There are one or more parameters with unsupported types: {string.Join(", ", unsupportedParameters.Select(p => p.Property.PropertyType.Name)).EncloseWith("[]")}."
-                );
-            }
-        }
-
-        public static void ValidateCommandType(Type type)
-        {
-            if (!typeof(ICommand).IsAssignableFrom(type))
-            {
-                throw DynamicException.Factory.CreateDynamicException(
-                    $"CommandType",
-                    $"{type.Name} is not derived from {typeof(ICommand).Name}."
                 );
             }
         }

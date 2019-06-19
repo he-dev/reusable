@@ -74,7 +74,8 @@ namespace Reusable.Commander
             ConfigureRegistrationCallback configureRegistrationCallback = default
         )
         {
-            //new CommandValidator().ValidateCommand((type, id));
+            Validator.ValidateCommand(type, CommandArgumentConverter.Default);
+            
             Type = type;
             Id = id;
             ConfigureRegistrationCallback = configureRegistrationCallback;
