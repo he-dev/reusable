@@ -25,17 +25,6 @@ namespace Reusable.Commander
             ValidateArgumentTypes(commandArguments, argumentConverter);
         }
 
-//        private void ValidateCommandName(Identifier id)
-//        {
-//            if (!_commandNames.Add(id))
-//            {
-//                throw DynamicException.Create(
-//                    $"DuplicateCommandName",
-//                    $"Another command with the name {id} has already been added."
-//                );
-//            }
-//        }
-
         private static void ValidateArgumentNames(IEnumerable<CommandArgumentMetadata> parameters)
         {
             var duplicateNames =
@@ -48,9 +37,10 @@ namespace Reusable.Commander
 
             if (duplicateNames.Any())
             {
-                throw DynamicException.Create(
-                    $"DuplicateParameterName",
-                    $"There are one or more parameters with duplicate names: {duplicateNames.Join(", ").EncloseWith("[]")}"
+                throw DynamicException.Create
+                (
+                    $"DuplicateArgumentName",
+                    $"There is one or more arguments with duplicate names: {duplicateNames.Join(", ").EncloseWith("[]")}"
                 );
             }
         }
@@ -69,16 +59,17 @@ namespace Reusable.Commander
                 var sum = (((1 + positions.Count) * (positions.Count / 2)) + mid);
                 if (sum != positions.Sum())
                 {
-                    throw DynamicException.Create(
-                        $"ParameterPosition",
-                        $"There are one or more parameters with invalid positions. They must begin with 1 and be increasing by 1."
+                    throw DynamicException.Create
+                    (
+                        $"ArgumentPosition",
+                        $"There is one or more arguments with invalid positions. They must begin with 1 and be increasing by 1."
                     );
                 }
             }
         }
 
         private static void ValidateArgumentTypes(IEnumerable<CommandArgumentMetadata> parameters, ITypeConverter converter)
-        {            
+        {
             var unsupportedParameters =
                 parameters
                     .Where(parameter =>
@@ -86,8 +77,7 @@ namespace Reusable.Commander
                             var sourceType = parameter.Property.PropertyType.IsEnumerableOfT(except: typeof(string)) ? typeof(IEnumerable<string>) : typeof(string);
                             return !converter.CanConvert(sourceType, parameter.Property.PropertyType);
                         }
-                    )
-                    .ToList();
+                    ).ToList();
 
             if (unsupportedParameters.Any())
             {
@@ -95,6 +85,28 @@ namespace Reusable.Commander
                     $"UnsupportedParameterType",
                     $"There are one or more parameters with unsupported types: {string.Join(", ", unsupportedParameters.Select(p => p.Property.PropertyType.Name)).EncloseWith("[]")}."
                 );
+            }
+        }
+
+        public static void ValidateCommandLine(ICommandLine commandLine, Type commandType)
+        {
+            var commandArguments =
+                commandType
+                    .GetCommandArgumentGroupType()
+                    .GetCommandArgumentMetadata()
+                    .Where(m => m.Required)
+                    .ToList();
+
+            foreach (var commandArgument in commandArguments)
+            {
+                if (commandLine[commandArgument.Id] is null)
+                {
+                    throw DynamicException.Create
+                    (
+                        $"CommandArgumentNotFound",
+                        $"Argument '{commandArgument.Id.Default.ToString()}' is required but is missing."
+                    );
+                }
             }
         }
     }

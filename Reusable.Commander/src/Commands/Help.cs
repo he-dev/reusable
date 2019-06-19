@@ -44,7 +44,7 @@ namespace Reusable.Commander.Commands
             _commandTypes = commands;
         }        
 
-        protected override Task ExecuteAsync(ICommandLineReader<IHelpArgumentGroup> parameter, NullContext context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(ICommandLineReader<IHelpArgumentGroup> parameter, object context, CancellationToken cancellationToken)
         {
             var commandSelected = parameter.GetItem(x => x.Command).IsNotNullOrEmpty();
             if (commandSelected)

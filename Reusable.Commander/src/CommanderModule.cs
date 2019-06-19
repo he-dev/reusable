@@ -6,9 +6,6 @@ using Reusable.Commander.Utilities;
 
 namespace Reusable.Commander
 {
-    // todo - validate command and argument names
-    // todo - validate argument types
-    
     [PublicAPI]
     public class CommanderModule : Autofac.Module
     {

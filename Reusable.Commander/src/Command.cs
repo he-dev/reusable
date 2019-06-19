@@ -12,7 +12,7 @@ namespace Reusable.Commander
         [NotNull]
         Identifier Id { get; }
 
-        Task ExecuteAsync([CanBeNull] object parameter, [CanBeNull] object context, CancellationToken cancellationToken = default);
+        Task ExecuteAsync([CanBeNull] object argument, [CanBeNull] object context, CancellationToken cancellationToken = default);
     }
 
     [PublicAPI]
@@ -32,34 +32,17 @@ namespace Reusable.Commander
 
         public Identifier Id { get; }
 
-        public virtual async Task ExecuteAsync(object parameter, object context, CancellationToken cancellationToken)
+        public virtual async Task ExecuteAsync(object argument, object context, CancellationToken cancellationToken)
         {
-            switch (parameter)
-            {
-                case null:
-                    await CheckAndExecuteAsync(default, (TContext)context, cancellationToken);
-                    break;
+            var commandLineReader =
+                argument is ICommandLine commandLine
+                    ? new CommandLineReader<TCommandArgumentGroup>(commandLine)
+                    : default(ICommandLineReader<TCommandArgumentGroup>);
 
-                case ICommandLine commandLine:
-                    // todo - add command-line validation
-                    await CheckAndExecuteAsync(new CommandLineReader<TCommandArgumentGroup>(commandLine), (TContext)context, cancellationToken);
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException
-                    (
-                        paramName: nameof(parameter),
-                        message: $"{nameof(parameter)} must be either a {typeof(ICommandLine).Name} or {typeof(TCommandArgumentGroup).Name}."
-                    );
-            }
-        }
-
-        private async Task CheckAndExecuteAsync(ICommandLineReader<TCommandArgumentGroup> parameter, TContext context, CancellationToken cancellationToken)
-        {
-            if (await CanExecuteAsync(parameter, context, cancellationToken))
+            if (await CanExecuteAsync(commandLineReader, (TContext)context, cancellationToken))
             {
                 Logger.Log(Abstraction.Layer.Service().Decision("Execute command.").Because("Can execute."));
-                await ExecuteAsync(parameter, context, cancellationToken);
+                await ExecuteAsync(commandLineReader, (TContext)context, cancellationToken);
             }
             else
             {
@@ -78,20 +61,14 @@ namespace Reusable.Commander
         protected abstract Task ExecuteAsync(ICommandLineReader<TCommandArgumentGroup> parameter, TContext context, CancellationToken cancellationToken);
     }
 
-    public abstract class Command<TParameter> : Command<TParameter, NullContext> where TParameter : ICommandArgumentGroup
+    public abstract class Command<TParameter> : Command<TParameter, object> where TParameter : ICommandArgumentGroup
     {
         protected Command([NotNull] ICommandServiceProvider serviceProvider, [CanBeNull] Identifier id = default) : base(serviceProvider, id) { }
     }
 
-    public abstract class Command : Command<ICommandArgumentGroup, NullContext>
+    public abstract class Command : Command<ICommandArgumentGroup, object>
     {
         protected Command([NotNull] ICommandServiceProvider serviceProvider, Identifier id)
             : base(serviceProvider, id) { }
-    }
-
-    [UsedImplicitly]
-    public class NullContext
-    {
-        public static readonly NullContext Default = new NullContext();
     }
 }

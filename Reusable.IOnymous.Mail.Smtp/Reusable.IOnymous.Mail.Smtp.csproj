@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />
-    <PackageReference Include="MailKit" Version="2.1.5.1" />
+    <PackageReference Include="MailKit" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>
