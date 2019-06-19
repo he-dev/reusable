@@ -21,9 +21,8 @@ namespace Reusable.Commander.Commands
     {
         [CanBeNull]
         [Description("Display command usage.")]
-        //[Position(1)]
         [Tags("cmd")]
-        //[Position(1)]
+        [Position(1)]
         string Command { get; set; }
     }
 
@@ -73,7 +72,7 @@ namespace Reusable.Commander.Commands
             var userExecutableCommands =
                 from commandType in _commandTypes
                 where !commandType.IsDefined(typeof(InternalAttribute))
-                orderby CommandHelper.GetCommandId(commandType).Default
+                orderby CommandHelper.GetCommandId(commandType).Default.Value
                 select commandType;
 
             foreach (var commandType in userExecutableCommands)
@@ -108,16 +107,16 @@ namespace Reusable.Commander.Commands
             Logger.WriteLine(p => p.text(string.Join(string.Empty, separators)));
 
             var bagType = commandType.GetCommandArgumentGroupType();
-            var parameters =
-                from commandParameter in bagType.GetCommandArgumentMetadata()
-                orderby commandParameter.Id.Default.ToString()
-                select commandParameter;
+            var commandArguments =
+                from commandArgument in bagType.GetCommandArgumentMetadata()
+                orderby commandArgument.Id.Default.Value
+                select commandArgument;
 
-            foreach (var commandParameter in parameters)
+            foreach (var commandArgument in commandArguments)
             {
-                var defaultId = commandParameter.Id.Default.ToString();
-                var aliases = string.Join("|", commandParameter.Id.Aliases.Select(x => x.ToString()));
-                var description = commandParameter.Description ?? "N/A";
+                var defaultId = commandArgument.Id.Default.ToString();
+                var aliases = string.Join("|", commandArgument.Id.Aliases.Select(x => x.ToString()));
+                var description = commandArgument.Description ?? "N/A";
                 var row = new[] { $"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description }.Pad(ColumnWidths);
                 Logger.WriteLine(p => p.text(string.Join(string.Empty, row)));
             }
