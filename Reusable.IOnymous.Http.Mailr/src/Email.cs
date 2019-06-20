@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -6,6 +6,29 @@ using JetBrains.Annotations;
 namespace Reusable.IOnymous
 {
     [PublicAPI]
+    public class Email<TBody>
+    {
+        public string From { get; set; }
+
+        public List<string> To { get; set; } = new List<string>();
+
+        public List<string> CC { get; set; } = new List<string>();
+
+        public bool IsHighPriority { get; set; }
+
+        public string Subject { get; set; }
+
+        public Dictionary<string, byte[]> Attachments { get; set; }
+
+        public TBody Body { get; set; }
+
+        public bool IsHtml { get; set; }
+
+        public string Theme { get; set; }
+
+        public bool CanSend { get; set; } = true;
+    }
+
     public static class Email
     {
         public static Email<TBody> CreateHtml<TBody>(IEnumerable<string> to, string subject, TBody body, [CanBeNull] Action<Email<TBody>> configureEmail = null)

@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq.Custom;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -27,7 +28,7 @@ namespace Reusable.IOnymous
 
             var format = resource.Metadata.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Format));
 
-            if (format != MimeType.Text)
+            if (!format.Contains(MimeType.Text | MimeType.Html))
             {
                 throw new ArgumentException($"Resource must be '{MimeType.Text}' but is '{format}'.");
             }

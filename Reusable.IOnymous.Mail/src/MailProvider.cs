@@ -13,7 +13,7 @@ namespace Reusable.IOnymous
     {
         public new static readonly string DefaultScheme = "mailto";
 
-        protected MailProvider(ImmutableSession metadata) : base(new SoftString[] { DefaultScheme }, metadata) { }
+        protected MailProvider(IImmutableSession metadata) : base(new SoftString[] { DefaultScheme }, metadata) { }
 
         protected async Task<string> ReadBodyAsync(Stream value, IImmutableSession metadata)
         {
@@ -24,10 +24,9 @@ namespace Reusable.IOnymous
         }
     }
 
-    [UseType]
-    [UseMember]
-    [TrimEnd("I")]
-    [TrimStart("Meta")]
+    [UseType, UseMember]
+    [TrimStart("I"), TrimEnd("Meta")]
+    [PlainSelectorFormatter]
     public interface IMailMeta : INamespace
     {
         string From { get; }

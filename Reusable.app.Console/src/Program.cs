@@ -29,6 +29,8 @@ namespace Reusable.Apps
 
             //Demo.ConsoleColorizer();
             Demo.SemanticExtensions();
+            //await Demo.SendEmailAsync_Smtp();
+            await Demo.SendEmailAsync_Mailr();
 
             //var rxFilter = new AppConfigRxFilter(NLogRx.Create());
 

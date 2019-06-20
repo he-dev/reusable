@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Reusable.Data;
 using Reusable.Diagnostics;
+using Reusable.IOnymous;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
@@ -9,6 +12,7 @@ using Reusable.OmniLog.Attachments;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.OneTo1;
 using Reusable.OneTo1.Converters;
+using Reusable.Quickey;
 using Reusable.Utilities.JsonNet.Converters;
 using Reusable.Utilities.NLog.LayoutRenderers;
 
@@ -115,7 +119,6 @@ namespace Reusable.Apps
                     logger.Log(Abstraction.Layer.Infrastructure().Routine("DoSomething").Canceled().Because("No connection."));
                     logger.Log(Abstraction.Layer.Infrastructure().Routine("DoSomething").Faulted(), new DivideByZeroException("Cannot divide."));
                     logger.Log(Abstraction.Layer.Service().Decision("Don't do this.").Because("Disabled."));
-
                 }
             }
         }
@@ -156,6 +159,48 @@ namespace Reusable.Apps
                 builder.DisplayValues(x => x.GraduationYears, x => x, "{0:X2}");
                 builder.DisplayValues(x => x.Nicknames);
             });
+        }
+
+        public static async Task SendEmailAsync_Smtp()
+        {
+            var metadata =
+                ImmutableSession
+                    .Empty
+                    .SetItem(From<ISmtpMeta>.Select(x => x.Host), "localhost")
+                    .SetItem(From<ISmtpMeta>.Select(x => x.Port), 25);
+
+            var mailrProvider = new SmtpProvider();
+            await mailrProvider.SendEmailAsync(new Email<EmailSubject, EmailBody>
+            {
+                From = "console@test.com",
+                To = { "me@test.com" },
+                CC = { "you@test.com" },
+                Subject = new EmailSubject { Value = "How are you?" },
+                Body = new EmailBody { Value = "<p>I'm fine!</p>" },
+                IsHtml = true,
+                Attachments = new Dictionary<string, byte[]>()
+            }, metadata);
+        }
+
+        public static async Task SendEmailAsync_Mailr()
+        {
+            var mailrProvider = new MailrProvider("http://localhost:7000/api");
+            await mailrProvider.SendAsync
+            (
+                "v1.0/mailr/messages/plaintext",
+                new Email<string>
+                {
+                    From = "console@test.com",
+                    To = { "me@test.com" },
+                    CC = { "you@test.com" },
+                    Subject = "How are you Mailr?",
+                    Body = "<p>I'm great!</p>",
+                    IsHtml = true,
+                    Attachments = new Dictionary<string, byte[]>()
+                },
+                "Console",
+                "V11"
+            );
         }
     }
 

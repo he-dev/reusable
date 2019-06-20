@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Reusable.IOnymous.Http\Reusable.IOnymous.Http.csproj" />
+    <ProjectReference Include="..\Reusable.IOnymous.Mail\Reusable.IOnymous.Mail.csproj" />
   </ItemGroup>
 
   <ItemGroup>

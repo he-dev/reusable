@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
     <RootNamespace>Reusable.Apps</RootNamespace>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
@@ -37,6 +37,7 @@
     <ProjectReference Include="..\Reusable.IOnymous.Config\Reusable.IOnymous.Config.csproj" />
     <ProjectReference Include="..\Reusable.IOnymous.Http.Mailr\Reusable.IOnymous.Http.Mailr.csproj" />
     <ProjectReference Include="..\Reusable.IOnymous.Http\Reusable.IOnymous.Http.csproj" />
+    <ProjectReference Include="..\Reusable.IOnymous.Mail.Smtp\Reusable.IOnymous.Mail.Smtp.csproj" />
     <ProjectReference Include="..\Reusable.IOnymous\Reusable.IOnymous.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog.Abstractions\Reusable.OmniLog.Abstractions.csproj" />
     <ProjectReference Include="..\Reusable.OneTo1\Reusable.OneTo1.csproj" />

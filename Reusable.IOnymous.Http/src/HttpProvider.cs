@@ -135,7 +135,7 @@ namespace Reusable.IOnymous
     }
 
     [UseType, UseMember]
-    [TrimEnd("I"), TrimStart("Meta")]
+    [TrimStart("I"), TrimEnd("Meta")]
     [PlainSelectorFormatter]
     public interface IHttpMeta : INamespace
     {

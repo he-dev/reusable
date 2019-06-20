@@ -15,7 +15,7 @@ namespace Reusable.IOnymous
 {
     public class SmtpProvider : MailProvider
     {
-        public SmtpProvider(ImmutableSession metadata = default) : base(metadata) { }
+        public SmtpProvider(IImmutableSession metadata = default) : base(metadata.ThisOrEmpty()) { }
 
         protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, IImmutableSession session)
         {
@@ -52,7 +52,7 @@ namespace Reusable.IOnymous
                 (
                     session.GetItemOrDefault(From<ISmtpMeta>.Select(x => x.Host)),
                     session.GetItemOrDefault(From<ISmtpMeta>.Select(x => x.Port)),
-                    session.GetItemOrDefault(From<ISmtpMeta>.Select(x => x.UseSsl))
+                    session.GetItemOrDefault(From<ISmtpMeta>.Select(x => x.UseSsl), false)
                 );
                 await smtpClient.SendAsync(message);
             }
@@ -61,10 +61,9 @@ namespace Reusable.IOnymous
         }
     }
 
-    [UseType]
-    [UseMember]
-    [TrimEnd("I")]
-    [TrimStart("Meta")]
+    [UseType, UseMember]
+    [TrimStart("I"), TrimEnd("Meta")]
+    [PlainSelectorFormatter]
     public interface ISmtpMeta : INamespace
     {
         string Host { get; }
