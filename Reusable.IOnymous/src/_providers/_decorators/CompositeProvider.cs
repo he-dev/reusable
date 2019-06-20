@@ -28,7 +28,7 @@ namespace Reusable.IOnymous
         private readonly SemaphoreSlim _cacheLock = new SemaphoreSlim(1, 1);
 
         public CompositeProvider([NotNull] IEnumerable<IResourceProvider> providers)
-            : base(new[] { DefaultScheme }, ImmutableSession.Empty)
+            : base(new[] { DefaultScheme }, ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.AllowRelativeUri), true))
         {
             if (providers == null) throw new ArgumentNullException(nameof(providers));
 

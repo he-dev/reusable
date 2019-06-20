@@ -70,6 +70,11 @@ namespace Reusable.IOnymous.Config
             return (T)await resources.ReadSettingAsync((Selector)selector);
         }
         
+        public static T ReadSetting<T>(this IResourceProvider resources, Selector<T> selector)
+        {
+            return (T)resources.ReadSettingAsync((Selector)selector).GetAwaiter().GetResult();
+        }
+        
         public static async Task<T> ReadSettingAsync<T>(this IResourceProvider resources, Expression<Func<T>> selector, string index = default)
         {
             return (T)await resources.ReadSettingAsync(CreateSelector<T>(selector, index));
