@@ -16,5 +16,7 @@ namespace Reusable.IOnymous
         public string Value { get; set; }
 
         public Encoding Encoding { get; set; } = Encoding.UTF8;
+
+        public static implicit operator EmailBody(string value) => new EmailBody { Value = value };
     }
 }
