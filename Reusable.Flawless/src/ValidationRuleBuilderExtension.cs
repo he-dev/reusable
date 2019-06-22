@@ -1,6 +1,7 @@
 using System;
 using System.Linq.Expressions;
 using Reusable.Extensions;
+using Reusable.Flawless.Helpers;
 
 namespace Reusable.Flawless
 {
@@ -32,11 +33,11 @@ namespace Reusable.Flawless
                     .Message(() => $"{typeof(T).ToPrettyString(false)} must be null.");
         }
 
-        public static ValidationRuleBuilder False<T>(this ValidationRuleBuilder builder, Expression<Func<bool>> expression)
+        public static ValidationRuleBuilder False(this ValidationRuleBuilder builder, Expression<Func<bool>> expression)
         {
             return
                 builder
-                    .Predicate(Negate<T>(expression))
+                    .Predicate(Negate(expression))
                     .Message(() => "The specified expression must be 'false'.");
         }
 
@@ -44,7 +45,7 @@ namespace Reusable.Flawless
         {
             return
                 builder
-                    .Predicate(Negate<TMember>(ReferenceEqualNull(expression)))
+                    .Predicate(Negate(ReferenceEqualNull(expression)))
                     .Message(() => $"{typeof(TMember).ToPrettyString(false)} must not be null.");
         }
 
@@ -52,7 +53,7 @@ namespace Reusable.Flawless
         {
             return
                 builder
-                    .Predicate(Negate<T>(ReferenceEqualNull<T>()))
+                    .Predicate(Negate(ReferenceEqualNull<T>()))
                     .Message(() => $"{typeof(T).ToPrettyString(false)} must not be null.");
         }
     }

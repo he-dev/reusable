@@ -7,9 +7,16 @@ using Xunit;
 
 namespace Reusable.Tests.Flawless
 {
-    public class Test
+    public class ValidationTest
     {
-        private static readonly Person Tester = new Person { FirstName = "John" };
+        private static readonly Person Tester = new Person
+        {
+            FirstName = "John",
+            Address = new Address
+            {
+                Street = "Sesame Street"
+            }
+        };
 
         [Fact]
         public void Can_validate_rules()
@@ -28,13 +35,21 @@ namespace Reusable.Tests.Flawless
                     .Add(x =>
                         ValidationRule
                             .Ensure
-                            .True(() => x.FirstName.Length > 3));
+                            .True(() => x.FirstName.Length > 3))
+                    .Add(x =>
+                        ValidationRule
+                            .Require
+                            .NotNull(() => x.Address))
+                    .Add(x =>
+                        ValidationRule
+                            .Ensure
+                            .False(() => x.Address.Street.Length > 100));
 
             var (person, results) = Tester.ValidateWith(rules);
-            
-            Assert.Equal(3, results[true].Count());
+
+            Assert.Equal(5, results[true].Count());
             Assert.Equal(0, results[false].Count());
-            
+
             Tester.ValidateWith(rules).ThrowIfValidationFailed();
         }
 
@@ -92,6 +107,13 @@ namespace Reusable.Tests.Flawless
             public string FirstName { get; set; }
 
             public string LastName { get; set; }
+
+            public Address Address { get; set; }
+        }
+
+        private class Address
+        {
+            public string Street { get; set; }
         }
     }
 }

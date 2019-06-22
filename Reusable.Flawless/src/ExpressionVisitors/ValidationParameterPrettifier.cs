@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 
-namespace Reusable.Flawless
+namespace Reusable.Flawless.ExpressionVisitors
 {
     // We don't want to show the exact same expression as the condition
     // because there are variables and closures that don't look pretty.

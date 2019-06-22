@@ -1,9 +1,11 @@
 using System.Linq.Expressions;
-using System.Reflection;
-using System.Runtime.CompilerServices;
+using Reusable.Flawless.Helpers;
 
-namespace Reusable.Flawless
+namespace Reusable.Flawless.ExpressionVisitors
 {
+    /// <summary>
+    /// Injects the specified parameter to replace the closure.
+    /// </summary>
     public class ValidationParameterInjector : ExpressionVisitor
     {
         private readonly ParameterExpression _parameter;
@@ -19,8 +21,7 @@ namespace Reusable.Flawless
         {
             var isClosure =
                 node.Type == _parameter.Type &&
-                node.Expression.Type.Name.StartsWith("<>c__DisplayClass") &&
-                node.Expression.Type.IsDefined(typeof(CompilerGeneratedAttribute));
+                node.Expression.Type.IsClosure();
 
             return
                 isClosure

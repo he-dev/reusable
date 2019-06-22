@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Reusable.Data;
+using Reusable.Flawless.ExpressionVisitors;
 
 namespace Reusable.Flawless
 {
