@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 
@@ -9,48 +11,94 @@ namespace Reusable.Flawless
 
     internal static class ValidationExpressionFactory
     {
-        public static Expression<Func<T, bool>> ReferenceEqualNull<T>()
+        public static LambdaExpression ReferenceEqualNull<T>()
         {
             return ReferenceEqualNull<T>(Expression.Parameter(typeof(T)));
         }
 
-        public static Expression<Func<T, bool>> ReferenceEqualNull<T>(ParameterExpression parameter)
+        public static LambdaExpression ReferenceEqualNull<T>(Expression<Func<T>> expression)
         {
-            // x => object.ReferenceEqual(x, null)
-            var equalNullExpression =
-                Expression.Lambda<Func<T, bool>>(
-                    Expression.ReferenceEqual(
-                        parameter,
-                        Expression.Constant(default(T))),
-                    parameter
-                );
+            // x => object.ReferenceEqual(x.Member, null)
 
-            return equalNullExpression;
-        }
+            var member = ParameterSearch.FindParameter(expression);
+            var parameter = Expression.Parameter(member.Type);
+            var expressionWithParameter = ValidationParameterInjector.InjectParameter(expression.Body, parameter);
+            return ReferenceEqualNull<T>(parameter, expressionWithParameter);
 
-        public static Expression<Func<bool>> ReferenceEqualNull<TMember>(Expression<Func<TMember>> memberExpression)
-        {
-            // T.Member == null
             var equalNullExpression =
                 Expression.Lambda<Func<bool>>(
                     Expression.ReferenceEqual(
-                        memberExpression.Body,
-                        Expression.Constant(default(TMember))
+                        expression.Body,
+                        Expression.Constant(default(T))
                     ),
-                    memberExpression.Parameters[0]
+                    expression.Parameters[0]
                 );
 
             return equalNullExpression;
         }
 
-        public static Expression<Func<T, bool>> Negate<T>(Expression<Func<T, bool>> expression)
+        private static LambdaExpression ReferenceEqualNull<T>(ParameterExpression parameter, Expression value = default)
         {
+            // x => object.ReferenceEqual(x, null)
+
+
+            var refEq = Expression.ReferenceEqual(
+                value ?? parameter,
+                Expression.Constant(default(T)));
+                
             return
-                Expression.Lambda<Func<T, bool>>
-                (
-                    Expression.Not(expression.Body),
-                    expression.Parameters[0]
+                Expression.Lambda(
+                    Expression.ReferenceEqual(
+                        value ?? parameter,
+                        Expression.Constant(default(T))),
+                    parameter
                 );
         }
+
+        public static LambdaExpression Negate<T>(LambdaExpression expression)
+        {
+            // !x
+            return Expression.Lambda(Expression.Not(expression.Body), expression.Parameters[0]);
+        }
+    }
+
+    internal class ParameterSearch : ExpressionVisitor
+    {
+        private MemberExpression _parameter;
+
+        public static MemberExpression FindParameter(Expression expression)
+        {
+            var parameterSearch = new ParameterSearch();
+            parameterSearch.Visit(expression);
+            return parameterSearch._parameter;
+        }
+
+        protected override Expression VisitMember(MemberExpression node)
+        {
+            var isClosure =
+                node.Expression.Type.Name.StartsWith("<>c__DisplayClass") &&
+                node.Expression.Type.IsDefined(typeof(CompilerGeneratedAttribute));
+
+            if (isClosure)
+            {
+                _parameter = node;
+            }
+
+            return base.VisitMember(node);
+        }
+
+//        protected override Expression VisitConstant(ConstantExpression node)
+//        {
+//            var isClosure =
+//                node.Type.Name.StartsWith("<>c__DisplayClass") &&
+//                node.Type.IsDefined(typeof(CompilerGeneratedAttribute));
+//
+//            if (isClosure)
+//            {
+//                _constant = node;
+//            }
+//
+//            return base.VisitConstant(node);
+//        }
     }
 }

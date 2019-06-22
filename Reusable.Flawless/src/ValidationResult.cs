@@ -3,18 +3,9 @@ using JetBrains.Annotations;
 
 namespace Reusable.Flawless
 {
-    // ReSharper disable once UnusedTypeParameter - We need the T to be able to chain extensions and pass the T to them.
-//    public interface IWeelidationRuleResult<T>
-//    {
-//        [NotNull]
-//        string Expression { get; }
-//
-//        bool Success { get; }
-//
-//        [CanBeNull]
-//        string Message { get; }
-//    }
-
+    using static ValidationResult;
+    
+    // ReSharper disable once UnusedTypeParameter - T is required for chaining extensions.
     public interface IValidationResult<T>
     {
         string Expression { get; }
@@ -23,18 +14,18 @@ namespace Reusable.Flawless
         
         string Message { get; }
     }
-    
-    
+
+    internal static class ValidationResult
+    {
+        public static readonly IDictionary<bool, string> Strings = new Dictionary<bool, string>
+        {
+            [true] = "Success",
+            [false] = "Failed"
+        };
+    }
 
     internal class ValidationResult<T> : IValidationResult<T>
     {
-        // ReSharper disable once StaticMemberInGenericType - this is ok because it's common to all instances.
-        private static readonly IDictionary<bool, string> ResultStrings = new Dictionary<bool, string>
-        {
-            [true] = "Passed",
-            [false] = "Failed"
-        };
-
         public ValidationResult([NotNull] string expression, bool success, [NotNull] string message)
         {
             Expression = expression;
@@ -48,7 +39,7 @@ namespace Reusable.Flawless
 
         public string Message { get; }        
 
-        public override string ToString() => $"{Expression} | {ResultStrings[Success]} ({Message ?? "N/A"})";
+        public override string ToString() => $"{Strings[Success]} | {Message} | {Expression}";
 
         public static implicit operator bool(ValidationResult<T> result) => result.Success;
     }

@@ -1,31 +1,29 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Custom;
+using System.Threading;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 
 namespace Reusable.Flawless
 {
-    public static class ExpressValidationResultLookupExtensions
+    public static class ValidationResultExtensions
     {
         /// <summary>
         /// Throws validation-exception when validation failed.
         /// </summary>
-        [CanBeNull]
-        public static T Assert<T>([NotNull] this ExpressValidationResultLookup<T> checkLookup)
+        public static T ThrowIfValidationFailed<T>(this (T Value, ILookup<bool, IValidationResult<T>> Results) lookup)
         {
-            if (checkLookup == null) throw new ArgumentNullException(nameof(checkLookup));
-
             return
-                checkLookup
-                    ? checkLookup
-                    : throw DynamicException.Create
+                lookup.Results[false].Any()
+                    ? throw DynamicException.Create
                     (
                         $"{typeof(T).ToPrettyString()}Validation",
                         $"Object does not meet one or more requirements.{Environment.NewLine}{Environment.NewLine}" +
-                        $"{checkLookup[false].Select(Func.ToString).Join(Environment.NewLine)}"
-                    );
+                        $"{lookup.Results[false].Select(Func.ToString).Join(Environment.NewLine)}"
+                    )
+                    : default(T);
         }
     }
 }

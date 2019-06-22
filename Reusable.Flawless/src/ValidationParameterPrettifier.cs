@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Reusable.Extensions;
@@ -42,12 +43,14 @@ namespace Reusable.Flawless
                     : base.VisitUnary(node);
         }
 
-        public static Expression Prettify<T>([NotNull] Expression<Func<T, bool>> expression)
+        public static Expression Prettify<T>([NotNull] LambdaExpression expression)
         {
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
-            var replacementParameter = CreatePrettyParameter<T>();
-            return new ValidationParameterPrettifier(expression.Parameters[0], replacementParameter).Visit(expression.Body);
+            return
+                expression
+                    .Parameters
+                    .Aggregate(expression.Body, (e, p) => new ValidationParameterPrettifier(expression.Parameters[0], CreatePrettyParameter<T>()).Visit(expression.Body));
         }
 
         public static ParameterExpression CreatePrettyParameter<T>()

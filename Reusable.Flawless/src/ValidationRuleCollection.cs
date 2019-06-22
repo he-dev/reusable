@@ -16,17 +16,30 @@ namespace Reusable.Flawless
 
     public static class ValidationRuleCollectionExtensions
     {
-        public static IImmutableList<IValidationRule<T, TContext>> Add<T, TContext>(this IImmutableList<IValidationRule<T, TContext>> rules, Func<T, TContext, ValidationRuleBuilder<T>> builder)
+        public static IImmutableList<IValidationRule<T, TContext>> Add<T, TContext>(this IImmutableList<IValidationRule<T, TContext>> rules, Func<T, TContext, ValidationRuleBuilder> builder)
         {
-            return rules.Add(builder(default, default).Build<TContext>());
+            return rules.Add(builder(default, default).Build<T, TContext>());
         }
         
-        public static ILookup<bool, IValidationResult<T>> ValidateWith<T, TContext>(this T obj, IImmutableList<IValidationRule<T, TContext>> rules, TContext context)
+        public static IImmutableList<IValidationRule<T, object>> Add<T>(this IImmutableList<IValidationRule<T, object>> rules, Func<T, ValidationRuleBuilder> builder)
+        {
+            return rules.Add(builder(default).Build<T, object>());
+        }
+
+        public static (T Value, ILookup<bool, IValidationResult<T>> Results) ValidateWith<T, TContext>(this T obj, IImmutableList<IValidationRule<T, TContext>> rules, TContext context)
         {
             return
+            (
+                obj,
                 rules
                     .Evaluate(obj, context)
-                    .ToLookup(r => r.Success);
+                    .ToLookup(r => r.Success)
+            );
+        }
+
+        public static (T Value, ILookup<bool, IValidationResult<T>> Results) ValidateWith<T>(this T obj, IImmutableList<IValidationRule<T, object>> rules)
+        {
+            return obj.ValidateWith(rules, default);
         }
 
         private static IEnumerable<IValidationResult<T>> Evaluate<T, TContext>(this IImmutableList<IValidationRule<T, TContext>> rules, T obj, TContext context)
