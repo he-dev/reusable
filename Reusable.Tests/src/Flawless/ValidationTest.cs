@@ -79,6 +79,23 @@ namespace Reusable.Tests.Flawless
             Assert.Equal(1, results[false].Count());
             Assert.ThrowsAny<DynamicException>(() => default(Person).ValidateWith(rules).ThrowIfValidationFailed());
         }
+        
+        [Fact]
+        public void Simplified()
+        {
+            var rules =
+                ValidationRuleCollection
+                    .For<Person>()
+                    .Require((b, x) => b.NotNull(() => x))
+                    .Ensure((b, x) => b.NotNull(() => x.FirstName))
+                    .Ensure((b, x) => b.NotNull(() => x.FirstName.Length > 3));
+
+            var (person, results) = default(Person).ValidateWith(rules);
+
+            Assert.Equal(0, results[true].Count());
+            Assert.Equal(1, results[false].Count());
+            Assert.ThrowsAny<DynamicException>(() => default(Person).ValidateWith(rules).ThrowIfValidationFailed());
+        }
 
 
         [Fact]

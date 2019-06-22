@@ -25,6 +25,18 @@ namespace Reusable.Flawless
         {
             return rules.Add(builder(default).Build<T, object>());
         }
+        
+        public static IImmutableList<IValidationRule<T, object>> Require<T>(this IImmutableList<IValidationRule<T, object>> rules, Func<ValidationRuleBuilder, T, ValidationRuleBuilder> builder)
+        {
+            
+            return rules.Add(builder(ValidationRule.Require, default).Build<T, object>());
+        }
+        
+        public static IImmutableList<IValidationRule<T, object>> Ensure<T>(this IImmutableList<IValidationRule<T, object>> rules, Func<ValidationRuleBuilder, T, ValidationRuleBuilder> builder)
+        {
+            
+            return rules.Add(builder(ValidationRule.Ensure, default).Build<T, object>());
+        }
 
         public static (T Value, ILookup<bool, IValidationResult<T>> Results) ValidateWith<T, TContext>(this T obj, IImmutableList<IValidationRule<T, TContext>> rules, TContext context)
         {
