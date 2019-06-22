@@ -11,7 +11,8 @@ namespace Reusable.Tests.Flawless
     {
         private static readonly Person Tester = new Person
         {
-            FirstName = "John",
+            FirstName = "Cookie",
+            LastName = "Monster",
             Address = new Address
             {
                 Street = "Sesame Street"

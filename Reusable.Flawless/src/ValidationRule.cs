@@ -19,19 +19,25 @@ namespace Reusable.Flawless
         IValidationResult<T> Evaluate([CanBeNull] T obj, TContext context);
     }
 
-    public class ValidationRuleOption : Option<ValidationRuleOption>
+//    public class ValidationRuleOption : Option<ValidationRuleOption>
+//    {
+//        public ValidationRuleOption(SoftString name, IImmutableSet<SoftString> values) : base(name, values) { }
+//
+//        /// <summary>
+//        /// Indicates that a validation is independent.
+//        /// </summary>
+//        public static readonly ValidationRuleOption Ensure = CreateWithCallerName();
+//
+//        /// <summary>
+//        /// Indicates that a validation must succeed before other validation can be evaluated.
+//        /// </summary>
+//        public static readonly ValidationRuleOption Require = CreateWithCallerName();
+//    }
+
+    public enum ValidationRuleOption
     {
-        public ValidationRuleOption(SoftString name, IImmutableSet<SoftString> values) : base(name, values) { }
-
-        /// <summary>
-        /// Indicates that a validation is independent.
-        /// </summary>
-        public static readonly ValidationRuleOption Ensure = CreateWithCallerName();
-
-        /// <summary>
-        /// Indicates that a validation must succeed before other validation can be evaluated.
-        /// </summary>
-        public static readonly ValidationRuleOption Require = CreateWithCallerName();
+        Ensure,
+        Require
     }
 
     internal class ValidationRule<T, TContext> : IValidationRule<T, TContext>
