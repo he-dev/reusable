@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using JetBrains.Annotations;
 
@@ -23,6 +24,8 @@ namespace Reusable.Flawless
             builder(rules);
             _rules = rules.Build();
         }
+        
+        public static IImmutableList<IExpressValidationRule<T>> Empty => ImmutableList<IExpressValidationRule<T>>.Empty;
 
         public ExpressValidationResultLookup<T> Validate(T value) => new ExpressValidationResultLookup<T>(value, Evaluate(value).ToLookup(t => t.Success));
 

@@ -9,8 +9,6 @@ namespace Reusable.Flawless
         ExpressValidationOptions Options { get; }
         
         ExpressValidationResult<T> Evaluate([CanBeNull] T obj);
-        
-        string GetMessage(T obj);
     }
 
     internal class ExpressValidationRule<T> : IExpressValidationRule<T>
@@ -31,9 +29,10 @@ namespace Reusable.Flawless
 
         public ExpressValidationOptions Options { get; }
 
-        public ExpressValidationResult<T> Evaluate(T obj) => new ExpressValidationResult<T>(ToString(), _predicate.Value(obj), _createMessage(obj));
-        
-        public string GetMessage(T obj) => _createMessage(obj);
+        public ExpressValidationResult<T> Evaluate(T obj)
+        {
+            return new ExpressValidationResult<T>(ToString(), _predicate.Value(obj), _createMessage(obj));
+        }
 
         public override string ToString() => _expressionString.Value;
 
