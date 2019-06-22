@@ -7,12 +7,12 @@ using Reusable.Data;
 
 namespace Reusable.Flawless
 {
+    public delegate bool ValidationPredicate<in T, in TContext>(T obj, TContext context);
+    
     public interface IValidationRule<T, in TContext>
     {
         ValidationRuleOption Option { get; }
         
-        
-
         IValidationResult<T> Evaluate([CanBeNull] T obj, TContext context);
     }
 
@@ -63,35 +63,5 @@ namespace Reusable.Flawless
     public interface IValidationRuleBuilder<T>
     {
         IValidationRule<T, TContext> Build<TContext>();
-    }
-
-    public class ValidationRuleBuilder<T> //: IValidationRuleBuilder<T>
-    {
-        private readonly ValidationRuleOption _option;
-
-        private Expression<Func<T, bool>> _predicate;
-
-        public ValidationRuleBuilder(ValidationRuleOption option)
-        {
-            _option = option;
-            _predicate = _ => true;
-        }
-
-        public ValidationRuleBuilder<T> Predicate(Expression<Func<T, bool>> expression)
-        {
-            _predicate = expression;
-            return this;
-        }
-
-        public ValidationRuleBuilder<T> Message(Expression<Func<string>> message)
-        {
-            return this;
-        }
-        
-        [NotNull]
-        public IValidationRule<T, TContext> Build<TContext>()
-        {
-            return new ValidationRule<T, TContext>(_predicate, default, _option);
-        }
     }
 }
