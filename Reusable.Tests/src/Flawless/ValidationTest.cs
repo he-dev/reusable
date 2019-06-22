@@ -88,7 +88,7 @@ namespace Reusable.Tests.Flawless
                     .For<Person>()
                     .Require((b, x) => b.NotNull(() => x))
                     .Ensure((b, x) => b.NotNull(() => x.FirstName))
-                    .Ensure((b, x) => b.NotNull(() => x.FirstName.Length > 3));
+                    .Ensure((b, x) => b.True(() => x.FirstName.Length > 3));
 
             var (person, results) = default(Person).ValidateWith(rules);
 
