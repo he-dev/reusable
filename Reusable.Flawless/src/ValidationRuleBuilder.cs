@@ -35,7 +35,7 @@ namespace Reusable.Flawless
             return this;
         }
 
-        public ValidationRuleBuilder<T, TContext> Message(Expression<Func<string>> message)
+        public ValidationRuleBuilder<T, TContext> Message(Expression<Func<T, TContext, string>> message)
         {
             _message = message;
             return this;

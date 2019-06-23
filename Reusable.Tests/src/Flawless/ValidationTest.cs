@@ -99,6 +99,20 @@ namespace Reusable.Tests.Flawless
             
             Assert.ThrowsAny<DynamicException>(() => default(Person).ValidateWith(rules).ThrowIfValidationFailed());
         }
+        
+        [Fact]
+        public void Can_check_string_for_null_or_empty()
+        {
+            var rules =
+                ValidationRuleCollection
+                    .For<Person>()
+                    .Add(b => b.NotNullOrEmpty(x => x.FirstName));
+
+            var results = Tester.ValidateWith(rules);
+
+            Assert.Equal(1, results.OfType<Information>().Count());
+            Assert.Equal(0, results.OfType<Error>().Count());
+        }
 
         private class Person
         {

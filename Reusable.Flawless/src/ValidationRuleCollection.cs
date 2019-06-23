@@ -8,6 +8,6 @@ namespace Reusable.Flawless
     {
         public static IImmutableList<IValidationRule<T, TContext>> For<T, TContext>() => ImmutableList<IValidationRule<T, TContext>>.Empty;
 
-        public static IImmutableList<IValidationRule<T, object>> For<T>() => ImmutableList<IValidationRule<T, object>>.Empty;
+        public static IImmutableList<IValidationRule<T, object>> For<T>() => For<T, object>();
     }
 }

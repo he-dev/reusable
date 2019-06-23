@@ -55,7 +55,7 @@ namespace Reusable.Flawless.ExpressionVisitors
 
         public static ParameterExpression CreatePrettyParameter<T>()
         {
-            return Expression.Parameter(typeof(T), $"<param:{typeof(T).ToPrettyString()}>");
+            return Expression.Parameter(typeof(T), $"<{typeof(T).ToPrettyString()}>");
         }
     }
 }

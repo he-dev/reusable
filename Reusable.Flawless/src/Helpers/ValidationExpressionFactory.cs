@@ -22,7 +22,7 @@ namespace Reusable.Flawless.Helpers
             var expressionWithParameter = ValidationParameterInjector.InjectParameter(expression.Body, parameter);
             return ReferenceEqualNull<T>(parameter, expressionWithParameter);
         }
-        
+
         public static LambdaExpression ReferenceEqualNull<T, TMember>(Expression<Func<T, TMember>> expression)
         {
             // x => object.ReferenceEqual(x.Member, null)
@@ -32,7 +32,7 @@ namespace Reusable.Flawless.Helpers
             //var member = ValidationClosureSearch.FindParameter(expression);
             //var parameter = Expression.Parameter(member.Type);
             //var expressionWithParameter = ValidationParameterInjector.InjectParameter(expression.Body, parameter);
-            
+
             // x => object.ReferenceEqual(x, null)
             return
                 Expression.Lambda(
@@ -54,7 +54,7 @@ namespace Reusable.Flawless.Helpers
                     parameter
                 );
         }
-        
+
         private static LambdaExpression ReferenceEqualNull<T, TMember>(ParameterExpression parameter, Expression value = default)
         {
             // x => object.ReferenceEqual(x, null)
@@ -67,7 +67,19 @@ namespace Reusable.Flawless.Helpers
                 );
         }
 
-        public static LambdaExpression Negate(LambdaExpression expression)
+        public static LambdaExpression NullOrEmpty<T>(Expression<Func<T, string>> expression)
+        {
+            var isNullOrEmptyMethod = typeof(string).GetMethod(nameof(string.IsNullOrEmpty));
+            return
+                Expression.Lambda(
+                    Expression.Call(
+                        isNullOrEmptyMethod,
+                        expression.Body),
+                    expression.Parameters
+                );
+        }
+
+        public static LambdaExpression Not(LambdaExpression expression)
         {
             // !x
             return

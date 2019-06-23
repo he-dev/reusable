@@ -77,15 +77,6 @@ namespace Reusable.Flawless
             [NotNull] Expression<MessageCallback<T, TContext>> message
         ) : base(predicate, message) { }
 
-        public static Hard<T, TContext> Create
-        (
-            [NotNull] Expression<ValidationPredicate<T, TContext>> predicate,
-            [NotNull] Expression<MessageCallback<T, TContext>> message
-        )
-        {
-            return new Hard<T, TContext>(predicate, message);
-        }
-
         protected override IValidationResult CreateResult(bool success, string expression, string message)
         {
             return
