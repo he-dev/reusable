@@ -29,6 +29,12 @@ namespace Reusable.Flawless
             return this;
         }
         
+        public ValidationRuleBuilder<T, TContext> Predicate(Func<LambdaExpression, LambdaExpression> expression)
+        {
+            _predicate = expression(_predicate);
+            return this;
+        }
+        
         public ValidationRuleBuilder<T, TContext> Require()
         {
             _createValidationRule = (predicate, message) => new Hard<T, TContext>(predicate, message);

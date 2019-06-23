@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 using Reusable.Flawless.ExpressionVisitors;
 
 namespace Reusable.Flawless.Helpers
@@ -75,6 +76,20 @@ namespace Reusable.Flawless.Helpers
                     Expression.Call(
                         isNullOrEmptyMethod,
                         expression.Body),
+                    expression.Parameters
+                );
+        }
+
+        public static LambdaExpression Match<T>(Expression<Func<T, string>> expression, string pattern, RegexOptions options)
+        {
+            var isMatch = typeof(Regex).GetMethod(nameof(Regex.IsMatch), new [] { typeof(string), typeof(string), typeof(RegexOptions) });
+            return
+                Expression.Lambda(
+                    Expression.Call(
+                        isMatch,
+                        expression.Body,
+                        Expression.Constant(pattern),
+                        Expression.Constant(options)),
                     expression.Parameters
                 );
         }

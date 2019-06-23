@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.Flawless;
@@ -112,6 +113,21 @@ namespace Reusable.Tests.Flawless
 
             Assert.Equal(1, results.OfType<Information>().Count());
             Assert.Equal(0, results.OfType<Error>().Count());
+        }
+        
+        [Fact]
+        public void Can_match_string_()
+        {
+            var rules =
+                ValidationRuleCollection
+                    .For<Person>()
+                    .Add(b => b.Match(x => x.FirstName, "^cookie", RegexOptions.IgnoreCase))
+                    .Add(b => b.Match(x => x.FirstName, "^cookie", RegexOptions.IgnoreCase).Negate().Require());
+
+            var results = Tester.ValidateWith(rules);
+
+            Assert.Equal(1, results.OfType<Information>().Count());
+            Assert.Equal(1, results.OfType<Error>().Count());
         }
 
         private class Person
