@@ -13,17 +13,17 @@ namespace Reusable.Flawless
         /// <summary>
         /// Throws validation-exception when validation failed.
         /// </summary>
-        public static T ThrowIfValidationFailed<T>(this (T Value, ILookup<bool, IValidationResult<T>> Results) lookup)
+        public static T ThrowIfValidationFailed<T>(this ValidationResultCollection<T> results)
         {
             return
-                lookup.Results[false].Any()
-                    ? throw DynamicException.Create
+                results.All(r => r is Information)
+                    ? results
+                    : throw DynamicException.Create
                     (
                         $"{typeof(T).ToPrettyString()}Validation",
                         $"Object does not meet one or more requirements.{Environment.NewLine}{Environment.NewLine}" +
-                        $"{lookup.Results[false].Select(Func.ToString).Join(Environment.NewLine)}"
-                    )
-                    : default(T);
+                        $"{results.Select(Func.ToString).Join(Environment.NewLine)}"
+                    );
         }
     }
 }

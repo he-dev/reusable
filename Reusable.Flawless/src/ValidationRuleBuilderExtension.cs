@@ -9,7 +9,7 @@ namespace Reusable.Flawless
 
     public static class ValidationRuleBuilderExtension
     {
-        public static ValidationRuleBuilder True(this ValidationRuleBuilder builder, Expression<Func<bool>> expression)
+        public static ValidationRuleBuilder<T, TContext> True<T, TContext>(this ValidationRuleBuilder<T, TContext> builder, Expression<Func<T, bool>> expression)
         {
             return
                 builder
@@ -17,7 +17,7 @@ namespace Reusable.Flawless
                     .Message(() => "The specified expression must be 'true'.");
         }
 
-        public static ValidationRuleBuilder Null<TMember>(this ValidationRuleBuilder builder, Expression<Func<TMember>> expression)
+        public static ValidationRuleBuilder<T, TContext> Null<T, TContext, TMember>(this ValidationRuleBuilder<T, TContext> builder, Expression<Func<TMember>> expression)
         {
             return
                 builder
@@ -25,7 +25,7 @@ namespace Reusable.Flawless
                     .Message(() => $"{typeof(TMember).ToPrettyString(false)} must be null.");
         }
 
-        public static ValidationRuleBuilder Null<T>(this ValidationRuleBuilder builder, T value)
+        public static ValidationRuleBuilder<T, TContext> Null<T, TContext>(this ValidationRuleBuilder<T, TContext> builder, T value)
         {
             return
                 builder
@@ -33,7 +33,7 @@ namespace Reusable.Flawless
                     .Message(() => $"{typeof(T).ToPrettyString(false)} must be null.");
         }
 
-        public static ValidationRuleBuilder False(this ValidationRuleBuilder builder, Expression<Func<bool>> expression)
+        public static ValidationRuleBuilder<T, TContext> False<T, TContext>(this ValidationRuleBuilder<T, TContext> builder, Expression<Func<bool>> expression)
         {
             return
                 builder
@@ -41,7 +41,7 @@ namespace Reusable.Flawless
                     .Message(() => "The specified expression must be 'false'.");
         }
 
-        public static ValidationRuleBuilder NotNull<TMember>(this ValidationRuleBuilder builder, Expression<Func<TMember>> expression)
+        public static ValidationRuleBuilder<T, TContext> NotNull<T, TContext, TMember>(this ValidationRuleBuilder<T, TContext> builder, Expression<Func<T, TMember>> expression)
         {
             return
                 builder
@@ -49,7 +49,7 @@ namespace Reusable.Flawless
                     .Message(() => $"{typeof(TMember).ToPrettyString(false)} must not be null.");
         }
 
-        public static ValidationRuleBuilder NotNull<T>(this ValidationRuleBuilder builder, T value)
+        public static ValidationRuleBuilder<T, TContext> NotNull<T, TContext>(this ValidationRuleBuilder<T, TContext> builder, T value)
         {
             return
                 builder

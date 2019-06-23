@@ -7,35 +7,45 @@ using Reusable.Flawless.ExpressionVisitors;
 
 namespace Reusable.Flawless
 {
-    public class ValidationRuleBuilder
+    public interface IValidationRuleBuilder<out TBuilder>
     {
-        private readonly ValidationRuleOption _option;
+        TBuilder Predicate(LambdaExpression expression);
+    }
 
+    public class ValidationRuleBuilder<T, TContext>
+    {
+        private CreateValidationRuleCallback<T, TContext> _createValidationRule;
         private LambdaExpression _predicate;
         private LambdaExpression _message;
 
-        public ValidationRuleBuilder(ValidationRuleOption option)
+        public ValidationRuleBuilder(CreateValidationRuleCallback<T, TContext> createValidationRule)
         {
-            _option = option;
+            _createValidationRule = createValidationRule;
         }
 
-        public ValidationRuleBuilder Predicate(LambdaExpression expression)
+        public ValidationRuleBuilder<T, TContext> Predicate(LambdaExpression expression)
         {
             _predicate = expression;
             return this;
         }
+        
+        public ValidationRuleBuilder<T, TContext> Require()
+        {
+            _createValidationRule = (predicate, message) => new Hard<T, TContext>(predicate, message);
+            return this;
+        }
 
-        public ValidationRuleBuilder Message(Expression<Func<string>> message)
+        public ValidationRuleBuilder<T, TContext> Message(Expression<Func<string>> message)
         {
             _message = message;
             return this;
         }
 
         [NotNull]
-        public IValidationRule<T, TContext> Build<T, TContext>()
+        public IValidationRule<T, TContext> Build()
         {
             if (_predicate is null || _message is null) throw new InvalidOperationException("Validation-rule requires you to set rule and message first.");
-            
+
             var parameters = new[]
             {
                 _predicate.Parameters.ElementAtOrDefault(0) ?? ValidationParameterPrettifier.CreatePrettyParameter<T>(),
@@ -48,7 +58,7 @@ namespace Reusable.Flawless
             var messageWithParameter = parameters.Aggregate(_message.Body, ValidationParameterInjector.InjectParameter);
             var message = Expression.Lambda<MessageCallback<T, TContext>>(messageWithParameter, parameters);
 
-            return new ValidationRule<T, TContext>(predicate, message, _option);
+            return _createValidationRule(predicate, message);
         }
     }
 }

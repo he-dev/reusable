@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Configuration;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Reusable.Data;
@@ -12,45 +13,27 @@ namespace Reusable.Flawless
 
     public delegate string MessageCallback<in T, in TContext>(T obj, TContext context);
 
-    public interface IValidationRule<T, in TContext>
-    {
-        ValidationRuleOption Option { get; }
+    public delegate IValidationRule<T, TContext> CreateValidationRuleCallback<T, TContext>
+    (
+        [NotNull] Expression<ValidationPredicate<T, TContext>> predicate,
+        [NotNull] Expression<MessageCallback<T, TContext>> message
+    );
 
-        IValidationResult<T> Evaluate([CanBeNull] T obj, TContext context);
+    public interface IValidationRule<in T, in TContext>
+    {
+        IValidationResult Evaluate([CanBeNull] T obj, TContext context);
     }
 
-//    public class ValidationRuleOption : Option<ValidationRuleOption>
-//    {
-//        public ValidationRuleOption(SoftString name, IImmutableSet<SoftString> values) : base(name, values) { }
-//
-//        /// <summary>
-//        /// Indicates that a validation is independent.
-//        /// </summary>
-//        public static readonly ValidationRuleOption Ensure = CreateWithCallerName();
-//
-//        /// <summary>
-//        /// Indicates that a validation must succeed before other validation can be evaluated.
-//        /// </summary>
-//        public static readonly ValidationRuleOption Require = CreateWithCallerName();
-//    }
-
-    public enum ValidationRuleOption
-    {
-        Ensure,
-        Require
-    }
-
-    internal class ValidationRule<T, TContext> : IValidationRule<T, TContext>
+    public abstract class ValidationRule<T, TContext> : IValidationRule<T, TContext>
     {
         private readonly ValidationPredicate<T, TContext> _predicate;
         private readonly MessageCallback<T, TContext> _message;
         private readonly string _expressionString;
 
-        public ValidationRule
+        protected ValidationRule
         (
             [NotNull] Expression<ValidationPredicate<T, TContext>> predicate,
-            [NotNull] Expression<MessageCallback<T, TContext>> message,
-            [NotNull] ValidationRuleOption option
+            [NotNull] Expression<MessageCallback<T, TContext>> message
         )
         {
             if (predicate == null) throw new ArgumentNullException(nameof(predicate));
@@ -58,25 +41,74 @@ namespace Reusable.Flawless
             _predicate = predicate.Compile();
             _message = message.Compile();
             _expressionString = ValidationParameterPrettifier.Prettify<T>(predicate).ToString();
-            Option = option;
         }
 
-        public ValidationRuleOption Option { get; }
-
-        public IValidationResult<T> Evaluate(T obj, TContext context)
+        public IValidationResult Evaluate(T obj, TContext context)
         {
-            return new ValidationResult<T>(ToString(), _predicate(obj, context), _message(obj, context));
+            return CreateResult(_predicate(obj, context), ToString(), _message(obj, context));
         }
+
+        protected abstract IValidationResult CreateResult(bool success, string expression, string message);
 
         public override string ToString() => _expressionString;
 
         public static implicit operator string(ValidationRule<T, TContext> rule) => rule?.ToString();
+
+        #region Factories
+
+        public static ValidationRuleBuilder<T, TContext> Ensure
+        {
+            get { return new ValidationRuleBuilder<T, TContext>((predicate, message) => new Soft<T, TContext>(predicate, message)); }
+        }
+
+        public static ValidationRuleBuilder<T, TContext> Require
+        {
+            get { return new ValidationRuleBuilder<T, TContext>((predicate, message) => new Hard<T, TContext>(predicate, message)); }
+        }
+
+        #endregion
     }
 
-    public static class ValidationRule
+    public class Hard<T, TContext> : ValidationRule<T, TContext>
     {
-        public static ValidationRuleBuilder Ensure => new ValidationRuleBuilder(ValidationRuleOption.Ensure);
+        public Hard
+        (
+            [NotNull] Expression<ValidationPredicate<T, TContext>> predicate,
+            [NotNull] Expression<MessageCallback<T, TContext>> message
+        ) : base(predicate, message) { }
 
-        public static ValidationRuleBuilder Require => new ValidationRuleBuilder(ValidationRuleOption.Require);
+        public static Hard<T, TContext> Create
+        (
+            [NotNull] Expression<ValidationPredicate<T, TContext>> predicate,
+            [NotNull] Expression<MessageCallback<T, TContext>> message
+        )
+        {
+            return new Hard<T, TContext>(predicate, message);
+        }
+
+        protected override IValidationResult CreateResult(bool success, string expression, string message)
+        {
+            return
+                success
+                    ? (IValidationResult)new Information(expression, message)
+                    : (IValidationResult)new Error(expression, message);
+        }
+    }
+
+    public class Soft<T, TContext> : ValidationRule<T, TContext>
+    {
+        public Soft
+        (
+            [NotNull] Expression<ValidationPredicate<T, TContext>> predicate,
+            [NotNull] Expression<MessageCallback<T, TContext>> message
+        ) : base(predicate, message) { }
+
+        protected override IValidationResult CreateResult(bool success, string expression, string message)
+        {
+            return
+                success
+                    ? (IValidationResult)new Information(expression, message)
+                    : (IValidationResult)new Warning(expression, message);
+        }
     }
 }
