@@ -18,26 +18,17 @@ namespace Reusable.Flawless
         private LambdaExpression _predicate;
         private LambdaExpression _message;
 
-        public ValidationRuleBuilder(CreateValidationRuleCallback<T, TContext> createValidationRule)
-        {
-            _createValidationRule = createValidationRule;
-        }
+        public static ValidationRuleBuilder<T, TContext> Empty => new ValidationRuleBuilder<T, TContext>();
 
-        public ValidationRuleBuilder<T, TContext> Predicate(LambdaExpression expression)
-        {
-            _predicate = expression;
-            return this;
-        }
-        
         public ValidationRuleBuilder<T, TContext> Predicate(Func<LambdaExpression, LambdaExpression> expression)
         {
             _predicate = expression(_predicate);
             return this;
         }
-        
-        public ValidationRuleBuilder<T, TContext> Require()
+
+        public ValidationRuleBuilder<T, TContext> Rule(CreateValidationRuleCallback<T, TContext> createValidationRuleCallback)
         {
-            _createValidationRule = (predicate, message) => new Hard<T, TContext>(predicate, message);
+            _createValidationRule = createValidationRuleCallback;
             return this;
         }
 
@@ -64,7 +55,7 @@ namespace Reusable.Flawless
             var messageWithParameter = parameters.Aggregate(_message.Body, ValidationParameterInjector.InjectParameter);
             var message = Expression.Lambda<MessageCallback<T, TContext>>(messageWithParameter, parameters);
 
-            return _createValidationRule(predicate, message);
+            return (_createValidationRule ?? ValidationRule<T, TContext>.Soft)(predicate, message);
         }
     }
 }

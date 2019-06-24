@@ -53,19 +53,13 @@ namespace Reusable.Flawless
         public override string ToString() => _expressionString;
 
         public static implicit operator string(ValidationRule<T, TContext> rule) => rule?.ToString();
-
+        
         #region Factories
 
-        public static ValidationRuleBuilder<T, TContext> Ensure
-        {
-            get { return new ValidationRuleBuilder<T, TContext>((predicate, message) => new Soft<T, TContext>(predicate, message)); }
-        }
-
-        public static ValidationRuleBuilder<T, TContext> Require
-        {
-            get { return new ValidationRuleBuilder<T, TContext>((predicate, message) => new Hard<T, TContext>(predicate, message)); }
-        }
-
+        internal static CreateValidationRuleCallback<T, TContext> Soft => (predicate, message) => new Soft<T, TContext>(predicate, message);
+        
+        internal static CreateValidationRuleCallback<T, TContext> Hard => (predicate, message) => new Hard<T, TContext>(predicate, message);
+        
         #endregion
     }
 

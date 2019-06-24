@@ -13,7 +13,7 @@ namespace Reusable.Flawless
             Func<ValidationRuleBuilder<T, TContext>, ValidationRuleBuilder<T, TContext>> builder
         )
         {
-            return rules.Add(builder(ValidationRule<T, TContext>.Ensure).Build());
+            return rules.Add(builder(ValidationRuleBuilder<T, TContext>.Empty).Build());
         }
 
         public static IImmutableList<IValidationRule<T, object>> Add<T>
@@ -22,45 +22,27 @@ namespace Reusable.Flawless
             Func<ValidationRuleBuilder<T, object>, ValidationRuleBuilder<T, object>> builder
         )
         {
-            return rules.Add(builder(ValidationRule<T, object>.Ensure).Build());
+            return rules.Add(builder(ValidationRuleBuilder<T, object>.Empty).Build());
         }
 
         #region Rule APIs
-
-        public static IImmutableList<IValidationRule<T, TContext>> Ensure<T, TContext>
-        (
-            this IImmutableList<IValidationRule<T, TContext>> rules,
-            Func<ValidationRuleBuilder<T, TContext>, ValidationRuleBuilder<T, TContext>> builder
-        )
-        {
-            return rules.Add(builder(ValidationRule<T, TContext>.Ensure).Build());
-        }
-
-        public static IImmutableList<IValidationRule<T, object>> Ensure<T>
+        
+        public static IImmutableList<IValidationRule<T, object>> Accept<T>
         (
             this IImmutableList<IValidationRule<T, object>> rules,
             Func<ValidationRuleBuilder<T, object>, ValidationRuleBuilder<T, object>> builder
         )
         {
-            return rules.Add(builder(ValidationRule<T, object>.Ensure).Build());
+            return rules.Add(builder(ValidationRuleBuilder<T, object>.Empty).Build());
         }
-
-        public static IImmutableList<IValidationRule<T, TContext>> Require<T, TContext>
-        (
-            this IImmutableList<IValidationRule<T, TContext>> rules,
-            Func<ValidationRuleBuilder<T, TContext>, ValidationRuleBuilder<T, TContext>> builder
-        )
-        {
-            return rules.Add(builder(ValidationRule<T, TContext>.Require).Build());
-        }
-
-        public static IImmutableList<IValidationRule<T, object>> Require<T>
+        
+        public static IImmutableList<IValidationRule<T, object>> Reject<T>
         (
             this IImmutableList<IValidationRule<T, object>> rules,
             Func<ValidationRuleBuilder<T, object>, ValidationRuleBuilder<T, object>> builder
         )
         {
-            return rules.Add(builder(ValidationRule<T, object>.Require).Build());
+            return rules.Add(builder(ValidationRuleBuilder<T, object>.Empty).Negate().Build());
         }
 
         #endregion
