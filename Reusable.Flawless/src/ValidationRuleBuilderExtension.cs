@@ -17,24 +17,21 @@ namespace Reusable.Flawless
         {
             return
                 builder
-                    .Predicate(_ => expression)
-                    .Message("The specified expression must be 'true'.");
+                    .Predicate(_ => expression);
         }
 
         public static ValidationRuleBuilder<T, TContext> Null<T, TContext, TMember>(this ValidationRuleBuilder<T, TContext> builder, Expression<Func<T, TMember>> expression)
         {
             return
                 builder
-                    .Predicate(_ => vef.ReferenceEqualNull(expression))
-                    .Message($"{typeof(TMember).ToPrettyString(false)} must be null.");
+                    .Predicate(_ => vef.ReferenceEqualNull(expression));
         }
 
         public static ValidationRuleBuilder<T, TContext> NullOrEmpty<T, TContext>(this ValidationRuleBuilder<T, TContext> builder, Expression<Func<T, string>> expression)
         {
             return
                 builder
-                    .Predicate(_ => vef.IsNullOrEmpty(expression))
-                    .Message($"'{ValidationParameterPrettifier.Prettify<T>(expression)}' must be null or empty.");
+                    .Predicate(_ => vef.IsNullOrEmpty(expression));
         }
 
         public static ValidationRuleBuilder<T, TContext> Like<T, TContext>
@@ -47,8 +44,7 @@ namespace Reusable.Flawless
         {
             return
                 builder
-                    .Predicate(_ => vef.IsMatch(expression, pattern, options))
-                    .Message($"'{ValidationParameterPrettifier.Prettify<T>(expression)}' must be null or empty.");
+                    .Predicate(_ => vef.IsMatch(expression, pattern, options));
         }
 
         public static ValidationRuleBuilder<T, TContext> Equal<T, TContext, TMember>
@@ -61,8 +57,7 @@ namespace Reusable.Flawless
         {
             return
                 builder
-                    .Predicate(_ => vef.Equal(expression, value, comparer ?? EqualityComparer<TMember>.Default))
-                    .Message($"'{ValidationParameterPrettifier.Prettify<T>(expression)}' must be null or empty.");
+                    .Predicate(_ => vef.Equal(expression, value, comparer ?? EqualityComparer<TMember>.Default));
         }
 
         internal static ValidationRuleBuilder<T, TContext> Negate<T, TContext>(this ValidationRuleBuilder<T, TContext> builder)

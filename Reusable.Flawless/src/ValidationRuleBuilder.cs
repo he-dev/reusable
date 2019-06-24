@@ -16,19 +16,19 @@ namespace Reusable.Flawless
     {
         private CreateValidationRuleCallback<T, TContext> _createValidationRule;
         private LambdaExpression _predicate;
-        private LambdaExpression _message;
+        private LambdaExpression _message = (Expression<Func<T, TContext, string>>)((x, c) => default);
 
         public static ValidationRuleBuilder<T, TContext> Empty => new ValidationRuleBuilder<T, TContext>();
-
-        public ValidationRuleBuilder<T, TContext> Predicate(Func<LambdaExpression, LambdaExpression> expression)
-        {
-            _predicate = expression(_predicate);
-            return this;
-        }
 
         public ValidationRuleBuilder<T, TContext> Rule(CreateValidationRuleCallback<T, TContext> createValidationRuleCallback)
         {
             _createValidationRule = createValidationRuleCallback;
+            return this;
+        }
+
+        public ValidationRuleBuilder<T, TContext> Predicate(Func<LambdaExpression, LambdaExpression> expression)
+        {
+            _predicate = expression(_predicate);
             return this;
         }
 
@@ -41,8 +41,8 @@ namespace Reusable.Flawless
         [NotNull]
         public IValidationRule<T, TContext> Build()
         {
-            if (_predicate is null || _message is null) throw new InvalidOperationException("Validation-rule requires you to set rule and message first.");
-
+            if (_predicate is null) throw new InvalidOperationException("Validation-rule requires you to set the rule first.");
+            
             var parameters = new[]
             {
                 _predicate.Parameters.ElementAtOrDefault(0) ?? ValidationParameterPrettifier.CreatePrettyParameter<T>(),

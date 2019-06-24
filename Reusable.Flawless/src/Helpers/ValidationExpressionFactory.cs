@@ -97,20 +97,35 @@ namespace Reusable.Flawless.Helpers
                 );
         }
 
-        public static LambdaExpression LessThan<T, TMember>(Expression<Func<T, TMember>> expression, TMember value)
-        {
-            // x => x.Member < value
-            return Binary(expression, value, Expression.LessThan);
-        }
-        
-        public static LambdaExpression LessThanOrEqual<T, TMember>(Expression<Func<T, TMember>> expression, TMember value)
-        {
-            // x => x.Member <= value
-            return Binary(expression, value, Expression.LessThanOrEqual);
-        }
+//        public static LambdaExpression LessThan<T, TMember>(Expression<Func<T, TMember>> expression, TMember value, IComparer<TMember> comparer)
+//        {
+//            // x => x.Member == value
+//            var compareMethod = ((Func<TMember, TMember, int>)comparer.Compare).Method;
+//            
+//            return
+//                Expression.Lambda(
+//                    Expression.Equal(
+//                        Expression.Call(
+//                            Expression.Constant(comparer),
+//                            compareMethod,
+//                            expression.Body,
+//                            Expression.Constant(value)),
+//                        Expression.Constant(0)),
+//                    expression.Parameters);
+//            
+//            // x => x.Member < value
+//            return Binary(expression, value, Expression.LessThan);
+//        }
+//        
+//        public static LambdaExpression LessThanOrEqual<T, TMember>(Expression<Func<T, TMember>> expression, TMember value)
+//        {
+//            // x => x.Member <= value
+//            return Binary(expression, value, Expression.LessThanOrEqual);
+//        }
 
         public static LambdaExpression Equal<T, TMember>(Expression<Func<T, TMember>> expression, TMember value, IEqualityComparer<TMember> comparer)
         {
+            // x => x.Member == value
             var equalsMethod = ((Func<TMember, TMember, bool>)comparer.Equals).Method;
             
             return
@@ -122,34 +137,31 @@ namespace Reusable.Flawless.Helpers
                         Expression.Constant(value)),
                     expression.Parameters
                 );
-            
-            // x => x.Member == value
-            return Binary(expression, value, Expression.Equal);
         }
         
-        public static LambdaExpression GreaterThanOrEqual<T, TMember>(Expression<Func<T, TMember>> expression, TMember value)
-        {
-            // x => x.Member >= value
-            return Binary(expression, value, Expression.GreaterThanOrEqual);
-        }
-        
-        public static LambdaExpression GreaterThan<T, TMember>(Expression<Func<T, TMember>> expression, TMember value)
-        {
-            // x => x.Member > value
-            return Binary(expression, value, Expression.GreaterThan);
-        }
-
-        private static LambdaExpression Binary<T, TMember>(Expression<Func<T, TMember>> expression, TMember value, Func<Expression, Expression, Expression> binary)
-        {
-            // x => x.Member == value
-            return
-                Expression.Lambda(
-                    binary(
-                        expression.Body,
-                        Expression.Constant(value)),
-                    expression.Parameters
-                );
-        }
+//        public static LambdaExpression GreaterThanOrEqual<T, TMember>(Expression<Func<T, TMember>> expression, TMember value)
+//        {
+//            // x => x.Member >= value
+//            return Binary(expression, value, Expression.GreaterThanOrEqual);
+//        }
+//        
+//        public static LambdaExpression GreaterThan<T, TMember>(Expression<Func<T, TMember>> expression, TMember value)
+//        {
+//            // x => x.Member > value
+//            return Binary(expression, value, Expression.GreaterThan);
+//        }
+//
+//        private static LambdaExpression Binary<T, TMember>(Expression<Func<T, TMember>> expression, TMember value, Func<Expression, Expression, Expression> binary)
+//        {
+//            // x => x.Member == value
+//            return
+//                Expression.Lambda(
+//                    binary(
+//                        expression.Body,
+//                        Expression.Constant(value)),
+//                    expression.Parameters
+//                );
+//        }
 
         internal static LambdaExpression Not(LambdaExpression expression)
         {
