@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using JetBrains.Annotations;
+using Reusable.Exceptionize;
 
 namespace Reusable.Flawless
 {
@@ -26,7 +28,7 @@ namespace Reusable.Flawless
         }
 
         #region Rule APIs
-        
+
         public static IImmutableList<IValidationRule<T, object>> Accept<T>
         (
             this IImmutableList<IValidationRule<T, object>> rules,
@@ -35,7 +37,7 @@ namespace Reusable.Flawless
         {
             return rules.Add(builder(ValidationRuleBuilder<T, object>.Empty).Build());
         }
-        
+
         public static IImmutableList<IValidationRule<T, object>> Reject<T>
         (
             this IImmutableList<IValidationRule<T, object>> rules,
@@ -47,11 +49,25 @@ namespace Reusable.Flawless
 
         #endregion
 
+        [NotNull]
         public static ValidationResultCollection<T> ValidateWith<T, TContext>(this T obj, IImmutableList<IValidationRule<T, TContext>> rules, TContext context)
         {
-            return new ValidationResultCollection<T>(obj, rules.Evaluate(obj, context).ToImmutableList());
+            try
+            {
+                return new ValidationResultCollection<T>(obj, rules.Evaluate(obj, context).ToImmutableList());
+            }
+            catch (Exception inner)
+            {
+                throw DynamicException.Create
+                (
+                    $"UnexpectedValidation",
+                    $"An unexpected error occured. See the inner exception for details.",
+                    inner
+                );
+            }
         }
 
+        [NotNull]
         public static ValidationResultCollection<T> ValidateWith<T, TContext>(this T obj, IImmutableList<IValidationRule<T, TContext>> rules)
         {
             return obj.ValidateWith(rules, default);

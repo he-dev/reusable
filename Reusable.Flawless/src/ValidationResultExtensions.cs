@@ -11,9 +11,9 @@ namespace Reusable.Flawless
     public static class ValidationResultExtensions
     {
         /// <summary>
-        /// Throws validation-exception when validation failed.
+        /// Throws a dynamic ValidationException when data is not valid or returns T.
         /// </summary>
-        public static T ThrowIfValidationFailed<T>(this ValidationResultCollection<T> results)
+        public static T ThrowIfNotValid<T>(this ValidationResultCollection<T> results)
         {
             return
                 results.All(r => r is Information)
@@ -21,7 +21,8 @@ namespace Reusable.Flawless
                     : throw DynamicException.Create
                     (
                         $"{typeof(T).ToPrettyString()}Validation",
-                        $"Object does not meet one or more requirements.{Environment.NewLine}{Environment.NewLine}" +
+                        $"Data does not meet one or more requirements." +
+                        $"{Environment.NewLine}{Environment.NewLine}" +
                         $"{results.Select(Func.ToString).Join(Environment.NewLine)}"
                     );
         }

@@ -37,7 +37,7 @@ namespace Reusable.Tests.Flawless
             Assert.Equal(1, results.OfType<Error>().Count());
 
             
-            Assert.ThrowsAny<DynamicException>(() => default(Person).ValidateWith(rules).ThrowIfValidationFailed());
+            Assert.ThrowsAny<DynamicException>(() => default(Person).ValidateWith(rules).ThrowIfNotValid());
         }
         
         [Fact]
