@@ -70,6 +70,7 @@ namespace Reusable.Flawless.Helpers
 
         public static LambdaExpression NullOrEmpty<T>(Expression<Func<T, string>> expression)
         {
+            // x => string.IsNullOrEmpty(x)
             var isNullOrEmptyMethod = typeof(string).GetMethod(nameof(string.IsNullOrEmpty));
             return
                 Expression.Lambda(
@@ -82,11 +83,12 @@ namespace Reusable.Flawless.Helpers
 
         public static LambdaExpression Match<T>(Expression<Func<T, string>> expression, string pattern, RegexOptions options)
         {
-            var isMatch = typeof(Regex).GetMethod(nameof(Regex.IsMatch), new [] { typeof(string), typeof(string), typeof(RegexOptions) });
+            // x => Regex.IsMatch(x, pattern, options)
+            var isMatchMethod = typeof(Regex).GetMethod(nameof(Regex.IsMatch), new [] { typeof(string), typeof(string), typeof(RegexOptions) });
             return
                 Expression.Lambda(
                     Expression.Call(
-                        isMatch,
+                        isMatchMethod,
                         expression.Body,
                         Expression.Constant(pattern),
                         Expression.Constant(options)),

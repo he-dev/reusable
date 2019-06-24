@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.MarkupBuilder</id>
-    <version>11.0.3</version>
+    <version>11.0.4</version>
     <title>Reusable.MarkupBuilder</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -16,7 +16,7 @@
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2019.1.1" />
-      <dependency id="Reusable.Core" version="11.0.3" />
+      <dependency id="Reusable.Core" version="11.0.4" />
     </dependencies>
   </metadata>
   <files>

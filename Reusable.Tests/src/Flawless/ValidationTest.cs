@@ -123,6 +123,9 @@ namespace Reusable.Tests.Flawless
                     .For<Person>()
                     .Add(b => b.Match(x => x.FirstName, "^cookie", RegexOptions.IgnoreCase))
                     .Add(b => b.Match(x => x.FirstName, "^cookie", RegexOptions.IgnoreCase).Negate().Require());
+            
+                //.Reject(b => b.NullOrEmpty(x => x.FirstName).Hard()) // <- on 'null' Hard by default?
+                //.Accept(b => b.Match(x => x.FirstName, "^cookie", RegexOptions.IgnoreCase))
 
             var results = Tester.ValidateWith(rules);
 
