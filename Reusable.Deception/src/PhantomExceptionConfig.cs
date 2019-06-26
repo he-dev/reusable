@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
-using Reusable.Deception.Abstractions;
 using Reusable.Utilities.JsonNet.Extensions;
 
 namespace Reusable.Deception

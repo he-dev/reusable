@@ -1,35 +1,26 @@
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Reusable.Deception.Abstractions;
 using Reusable.Diagnostics;
 
 namespace Reusable.Deception.Triggers
 {
     [UsedImplicitly]
-    public class CountedTrigger : PhantomExceptionTrigger
+    public class CountedTrigger : PhantomExceptionTrigger<int>
     {
         private int _counter;
 
-        public CountedTrigger(IEnumerable<int> sequence, int count = default) : base(sequence, count)
-        {
-        }
+        public CountedTrigger(IEnumerable<int> values) : base(values) { }
 
-        private string DebuggerDisplay => this.ToDebuggerDisplayString(b =>
-        {
-            b.DisplayValue(x => x._counter);
-            b.DisplayValue(x => x.Current);
-        });
+//        private string DebuggerDisplay => this.ToDebuggerDisplayString(b =>
+//        {
+//            //b.DisplayValue(x => x._counter);
+//            //b.DisplayValue(x => x.Current);
+//        });
 
-        protected override bool CanThrow()
-        {
-            if (++_counter == Current)
-            {
-                _counter = 0;
-                return true;
-            }
+        protected override bool CanThrow() => ++_counter == Current;
 
-            return false;
-        }
+        protected override void Reset() => _counter = 0;
 
         public override string ToString() => $"{nameof(CountedTrigger)}: {_counter}";
     }

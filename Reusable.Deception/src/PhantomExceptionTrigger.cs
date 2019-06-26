@@ -2,12 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using Reusable.Extensions;
 
-namespace Reusable.Deception.Abstractions
+namespace Reusable.Deception
 {
-    public interface IPhantomExceptionTrigger
+    public delegate bool TryMoveNext<T>(out T next);
+
+    public interface IPhantomExceptionTrigger : IDisposable
     {
         [CanBeNull]
         string Exception { get; }
@@ -15,27 +19,27 @@ namespace Reusable.Deception.Abstractions
         [CanBeNull]
         string Message { get; }
 
-        bool CanThrow(IEnumerable<StackFrameInfo> names);
+        bool CanThrow(string name);
     }
 
     [PublicAPI]
     [UsedImplicitly]
-    public abstract class PhantomExceptionTrigger : IPhantomExceptionTrigger, IDisposable
+    public abstract class PhantomExceptionTrigger<T> : IPhantomExceptionTrigger, IDisposable
     {
-        private readonly IEnumerator<int> _sequence;
+        private readonly IEnumerator<T> _values;
 
-        private bool _hasElements;
-
-        protected PhantomExceptionTrigger(IEnumerable<int> sequence, int count = 0)
+        protected PhantomExceptionTrigger(IEnumerable<T> values)
         {
-            _sequence = (count > 0 ? sequence.Take(count) : sequence).GetEnumerator();
-            _hasElements = _sequence.MoveNext();
+            _values = values.GetEnumerator();
+            if (!_values.MoveNext())
+            {
+                throw new ArgumentException("Counter cannot start.");
+            }
         }
 
-        protected int Current => _sequence.Current;
+        protected T Current => _values.Current;
 
-        [DefaultValue(true)]
-        public bool Enabled { get; set; } = true;
+        protected bool Eof { get; private set; }
 
         #region IExceptionTrigger
 
@@ -45,24 +49,28 @@ namespace Reusable.Deception.Abstractions
 
         #endregion
 
-        [JsonRequired]
-        public PhantomExceptionFilter Filter { get; set; }
+        [CanBeNull]
+        public Func<string, bool> Filter { get; set; }
 
-        public bool CanThrow(IEnumerable<StackFrameInfo> stackFrames)
+        public bool CanThrow(string name)
         {
-            if (Enabled && Filter.Matches(stackFrames) && _hasElements && CanThrow())
-            {
-                _hasElements = _sequence.MoveNext();
-                return true;
-            }
+            if (Eof) return false;
+            if (Filter?.Invoke(name) == false) return false;
+            if (CanThrow() == false) return false;
 
-            return false;
+            Reset();
+            Eof = !_values.MoveNext();
+            return true;
         }
 
         protected abstract bool CanThrow();
 
+        protected abstract void Reset();
+
+        protected bool MoveNext() => _values.MoveNext().Do(x => Eof = !x);
+
         public abstract override string ToString();
 
-        public void Dispose() => _sequence.Dispose();
+        public void Dispose() => _values.Dispose();
     }
 }

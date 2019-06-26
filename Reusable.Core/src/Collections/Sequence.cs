@@ -18,6 +18,7 @@ namespace Reusable.Collections
 
     public abstract class Sequence
     {
+        // Constant sequences are sequences for which all terms are the same.
         public static IEnumerable<T> Constant<T>(T value) => new ConstantSequence<T>(value);
 
         public static IEnumerable<int> Random(int min, int max) => new RandomSequence(min, max);

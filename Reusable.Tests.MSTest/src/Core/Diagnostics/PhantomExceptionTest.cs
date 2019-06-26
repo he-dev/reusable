@@ -1,7 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reusable.Collections.Generators;
 using Reusable.Deception;
-using Reusable.Deception.Abstractions;
 using Reusable.Deception.Triggers;
 using Reusable.Exceptionize;
 

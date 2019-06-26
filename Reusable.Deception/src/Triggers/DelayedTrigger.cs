@@ -2,33 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
-using Reusable.Deception.Abstractions;
 
 namespace Reusable.Deception.Triggers
 {
     [UsedImplicitly]
-    public class DelayedTrigger : PhantomExceptionTrigger
+    public class DelayedTrigger : PhantomExceptionTrigger<TimeSpan>
     {
         private Stopwatch _stopwatch;
 
-        public DelayedTrigger(IEnumerable<int> sequence, int count = default) : base(sequence, count)
-        {
-        }
+        public DelayedTrigger(IEnumerable<TimeSpan> values):base(values) { }
 
-        private TimeSpan Delay => TimeSpan.FromSeconds(Current);
+        protected override bool CanThrow() => _stopwatch.Elapsed >= Current;
 
-        protected override bool CanThrow()
-        {
-            _stopwatch = _stopwatch ?? Stopwatch.StartNew();
-            if (_stopwatch.Elapsed >= Delay)
-            {
-                _stopwatch.Restart();
-                return true;
-            }
+        protected override void Reset() => _stopwatch = Stopwatch.StartNew();
 
-            return false;
-        }
-
-        public override string ToString() => $"{nameof(DelayedTrigger)}: {Delay} ({_stopwatch.Elapsed})";
+        public override string ToString() => $"{nameof(DelayedTrigger)}: {Current} ({_stopwatch.Elapsed})";
     }
 }

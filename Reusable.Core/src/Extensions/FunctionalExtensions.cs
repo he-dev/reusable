@@ -26,10 +26,7 @@ namespace Reusable.Extensions
         [NotNull]
         public static T Do<T>([NotNull] this T obj, [NotNull] Action<T> next)
         {
-            if (next == null)
-            {
-                throw new ArgumentNullException(nameof(next));
-            }
+            if (next == null) throw new ArgumentNullException(nameof(next));
 
             next(obj);
             return obj;

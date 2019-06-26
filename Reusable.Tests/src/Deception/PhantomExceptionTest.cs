@@ -1,6 +1,7 @@
+using System;
+using Reusable.Collections;
 using Reusable.Collections.Generators;
 using Reusable.Deception;
-using Reusable.Deception.Abstractions;
 using Reusable.Deception.Triggers;
 using Reusable.Exceptionize;
 using Xunit;
@@ -11,13 +12,13 @@ namespace Reusable.Tests.Deception
     {
         private static readonly IPhantomException PhantomException = new PhantomException(new IPhantomExceptionTrigger[]
         {
-            new CountedTrigger(new ConstantSequence<int>(2))
+            new CountedTrigger(Sequence.Constant(2))
             {
-                Filter = (default, nameof(PhantomExceptionTest), default, "James")
+                Filter = name => name == "James"
             },
-            new CountedTrigger(new ConstantSequence<int>(3))
+            new CountedTrigger(Sequence.Constant(3))
             {
-                Filter = (default, default, nameof(Can_throw_by_member), default)
+                Filter = name => name == "Nobody" // (default, default, nameof(Can_throw_by_member), default)
             }
         });
 
@@ -49,7 +50,7 @@ namespace Reusable.Tests.Deception
             {
                 try
                 {
-                    PhantomException.Throw();
+                    PhantomException.Throw("Nobody");
                 }
                 catch (DynamicException ex) when (ex.NameMatches("^Phantom"))
                 {
