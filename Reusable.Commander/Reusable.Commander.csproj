@@ -39,6 +39,8 @@
   <ItemGroup>
     <Compile Remove="src\CommandLineMapper.cs" />
     <Compile Remove="src\CommandLineExtensions.cs" />
+    <Compile Remove="src\CommandArgumentInfo.cs" />
+    <Compile Remove="src\CommandArgumentProvider.cs" />
   </ItemGroup>
 
 </Project>

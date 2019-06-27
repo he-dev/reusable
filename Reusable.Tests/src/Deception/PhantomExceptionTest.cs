@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Reusable.Collections;
 using Reusable.Collections.Generators;
 using Reusable.Deception;
+using Reusable.Deception.Patterns;
 using Reusable.Deception.Triggers;
 using Reusable.Exceptionize;
 using Xunit;

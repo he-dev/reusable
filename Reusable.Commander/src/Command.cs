@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.SemanticExtensions;
 
@@ -16,12 +19,17 @@ namespace Reusable.Commander
     }
 
     [PublicAPI]
-    public abstract class Command<TCommandArgumentGroup, TContext> : ICommand where TCommandArgumentGroup : ICommandArgumentGroup
+    public abstract class Command<TCommandLine, TContext> : ICommand where TCommandLine : class, ICommandLine
     {
+        [NotNull] private readonly ConstructorInfo _commandLineCtor;
+
         protected Command([NotNull] ICommandServiceProvider serviceProvider, [CanBeNull] Identifier id = default)
         {
             Services = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             Id = id ?? serviceProvider.CommandId;
+            _commandLineCtor =
+                typeof(TCommandLine).GetConstructor(new[] { typeof(CommandLineDictionary) }) ??
+                throw new ArgumentException($"{typeof(TCommandLine).ToPrettyString()} must have the following constructor: ctor{nameof(CommandLineDictionary)}");
         }
 
         [NotNull]
@@ -34,15 +42,12 @@ namespace Reusable.Commander
 
         public virtual async Task ExecuteAsync(object argument, object context, CancellationToken cancellationToken)
         {
-            var commandLineReader =
-                argument is ICommandLine commandLine
-                    ? new CommandLineReader<TCommandArgumentGroup>(commandLine)
-                    : default(ICommandLineReader<TCommandArgumentGroup>);
+            var commandLine = CreateCommandLine(argument);
 
-            if (await CanExecuteAsync(commandLineReader, (TContext)context, cancellationToken))
+            if (await CanExecuteAsync(commandLine, (TContext)context, cancellationToken))
             {
                 Logger.Log(Abstraction.Layer.Service().Decision("Execute command.").Because("Can execute."));
-                await ExecuteAsync(commandLineReader, (TContext)context, cancellationToken);
+                await ExecuteAsync(commandLine, (TContext)context, cancellationToken);
             }
             else
             {
@@ -50,23 +55,36 @@ namespace Reusable.Commander
             }
         }
 
+        private TCommandLine CreateCommandLine(object argument)
+        {
+            if (argument is TCommandLine commandLine)
+            {
+                return commandLine;
+            }
+
+            return
+                argument is CommandLineDictionary arguments
+                    ? (TCommandLine)_commandLineCtor.Invoke(new object[] { arguments })
+                    : default;
+        }
+
         /// <summary>
         /// When overriden by a derived class indicates whether a command can be executed. The default implementation always returns 'true'.
         /// </summary>
-        protected virtual Task<bool> CanExecuteAsync(ICommandLineReader<TCommandArgumentGroup> parameter, TContext context, CancellationToken cancellationToken = default)
+        protected virtual Task<bool> CanExecuteAsync(TCommandLine parameter, TContext context, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(true);
         }
 
-        protected abstract Task ExecuteAsync(ICommandLineReader<TCommandArgumentGroup> parameter, TContext context, CancellationToken cancellationToken);
+        protected abstract Task ExecuteAsync(TCommandLine commandLine, TContext context, CancellationToken cancellationToken);
     }
 
-    public abstract class Command<TParameter> : Command<TParameter, object> where TParameter : ICommandArgumentGroup
+    public abstract class Command<TCommandLine> : Command<TCommandLine, object> where TCommandLine : class, ICommandLine
     {
         protected Command([NotNull] ICommandServiceProvider serviceProvider, [CanBeNull] Identifier id = default) : base(serviceProvider, id) { }
     }
 
-    public abstract class Command : Command<ICommandArgumentGroup, object>
+    public abstract class Command : Command<ICommandLine, object>
     {
         protected Command([NotNull] ICommandServiceProvider serviceProvider, Identifier id)
             : base(serviceProvider, id) { }

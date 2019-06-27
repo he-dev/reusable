@@ -41,7 +41,7 @@ namespace Reusable.Commander
         }
 
         public override string ToString() => string.Join(", ", this.Select(x => x.ToString()));
-        
+
         public static implicit operator Identifier(string name) => new Identifier((name, NameOption.CommandLine));
     }
 
@@ -69,8 +69,6 @@ namespace Reusable.Commander
         public override int GetHashCode() => AutoEquality<Name>.Comparer.GetHashCode(this);
 
         public static implicit operator Name((SoftString Name, NameOption Option) t) => new Name(t.Name, t.Option);
-        
-        
     }
 
     public class NameOption : Option<NameOption>

@@ -21,19 +21,19 @@ namespace Reusable.Commander
         {
             Property = member;
             Position = member.GetCustomAttribute<PositionAttribute>()?.Value;
-            Id =
+            Name =
                 Position.HasValue
                     ? Identifier.FromPosition(Position.Value)
                     : CommandHelper.GetCommandParameterId(member);
             Description = member.GetCustomAttribute<DescriptionAttribute>()?.Description;
             DefaultValue = member.GetCustomAttribute<DefaultValueAttribute>()?.Value;
-            Required = member.IsDefined(typeof(RequiredAttribute)) || Id.Default.Option.Contains(NameOption.Positional);
+            Required = member.IsDefined(typeof(RequiredAttribute)) || Name.Default.Option.Contains(NameOption.Positional);
             ConverterType = member.GetCustomAttribute<Reusable.OneTo1.TypeConverterAttribute>()?.ConverterType;
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(b =>
         {
-            b.DisplayValue(x => x.Id.Default.ToString());
+            b.DisplayValue(x => x.Name.Default.ToString());
             b.DisplayValue(x => x.Property.PropertyType.ToPrettyString(false));
             b.DisplayValue(x => x.Position);
         });
@@ -42,7 +42,7 @@ namespace Reusable.Commander
         public PropertyInfo Property { get; }
 
         [NotNull]
-        public Identifier Id { get; }
+        public Identifier Name { get; }
 
         [CanBeNull]
         public string Description { get; }

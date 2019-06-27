@@ -3,80 +3,59 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Custom;
+using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Reusable.Commander.Annotations;
 using Reusable.Diagnostics;
+using Reusable.Quickey;
 
 namespace Reusable.Commander
 {
     // foo -bar -baz qux
     public interface ICommandLine : IEnumerable<CommandArgument>
     {
-        [CanBeNull]
-        CommandArgument this[Identifier id] { get; }
+        string Name { get; }
+        
+        bool Async { get; }
     }
 
+    [UseMember]
+    [PlainSelectorFormatter]
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
-    public class CommandLine : ICommandLine
+    public abstract class CommandLine : ICommandLine
     {
-        private readonly IDictionary<Identifier, CommandArgument> _parameters = new Dictionary<Identifier, CommandArgument>();
-
-        internal CommandLine() { }
+        protected CommandLine(CommandLineDictionary arguments)
+        {
+            Reader = new CommandLineReader(arguments);
+        }
 
         private string DebuggerDisplay => ToString();
+        
+        private ICommandLineReader Reader { get; }
 
-        public CommandArgument this[Identifier id] => _parameters.TryGetValue(id, out var argument) ? argument : default;
+        protected T GetArgument<T>(Expression<Func<T>> selector) => Reader.GetItem(selector);
+
+        [Position(0)]
+        public string Name => GetArgument(() => Name);
+        
+        public bool Async => GetArgument(() => Async);
 
         #region IEnumerable
 
-        public IEnumerator<CommandArgument> GetEnumerator() => _parameters.Values.GetEnumerator();
+        public IEnumerator<CommandArgument> GetEnumerator() => Reader.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion
-
-        [ContractAnnotation("id: null => halt")]
-        public void Add([NotNull] Identifier id)
-        {
-            if (id == null) throw new ArgumentNullException(nameof(id));
-
-            _parameters.Add(id, new CommandArgument(id));
-        }
-
-        [ContractAnnotation("id: null => halt; value: null => halt")]
-        public void Add([NotNull] Identifier id, [NotNull] string value)
-        {
-            if (id == null) throw new ArgumentNullException(nameof(id));
-            if (value == null) throw new ArgumentNullException(nameof(value));
-
-            if (_parameters.TryGetValue(id, out var argument))
-            {
-                argument.Add(value);
-            }
-            else
-            {
-                _parameters.Add(id, new CommandArgument(id) { value });
-            }
-        }
-
-        [ContractAnnotation("name: null => halt")]
-        public void Add([NotNull] string name)
-        {
-            if (name == null) throw new ArgumentNullException(nameof(name));
-
-            Add(Identifier.FromName(name));
-        }
-
-        [ContractAnnotation("name: null => halt; value: null => halt")]
-        public void Add([NotNull] string name, [NotNull] string value)
-        {
-            if (name == null) throw new ArgumentNullException(nameof(name));
-            if (value == null) throw new ArgumentNullException(nameof(value));
-
-            Add(Identifier.FromName(name), value);
-        }
-
-        public override string ToString() => string.Join(" ", this.Select(argument => argument.ToString()));
+        
+        public override string ToString() => this.Join(" ");
 
         public static implicit operator string(CommandLine commandLine) => commandLine?.ToString();
+    }
+
+    internal class DefaultCommandLine : CommandLine
+    {
+        public DefaultCommandLine(CommandLineDictionary arguments) : base(arguments) { }
     }
 }

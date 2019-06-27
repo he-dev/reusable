@@ -7,13 +7,15 @@ using Reusable.Extensions;
 
 namespace Reusable.Commander
 {
+    public class CommandLineDictionary : Dictionary<Identifier, CommandArgument> { }
+
     public interface ICommandLineParser
     {
         [NotNull, ItemNotNull]
-        IEnumerable<ICommandLine> Parse([NotNull, ItemCanBeNull] IEnumerable<string> commandLine);
+        IEnumerable<CommandLineDictionary> Parse([NotNull, ItemCanBeNull] IEnumerable<string> commandLine);
 
         [NotNull, ItemNotNull]
-        IEnumerable<ICommandLine> Parse([NotNull] string commandLine);
+        IEnumerable<CommandLineDictionary> Parse([NotNull] string commandLine);
     }
 
     public class CommandLineParser : ICommandLineParser
@@ -30,13 +32,13 @@ namespace Reusable.Commander
 
         private const string CommandSeparator = "|";
 
-        public IEnumerable<ICommandLine> Parse(IEnumerable<string> tokens)
+        public IEnumerable<CommandLineDictionary> Parse(IEnumerable<string> tokens)
         {
             if (tokens == null) throw new ArgumentNullException(nameof(tokens));
 
-            var commandLine = new CommandLine();
             var position = 1;
-            var parameterId = Identifier.Command; // The first parameter is always a command.
+            var argumentName = Identifier.Command; // The first parameter is always a command.
+            var commandLine = NewCommandLineDictionary(argumentName);
 
             foreach (var token in tokens.Where(Conditional.IsNotNullOrEmpty))
             {
@@ -44,24 +46,25 @@ namespace Reusable.Commander
                 {
                     case CommandSeparator when commandLine.Any():
                         yield return commandLine;
-                        commandLine = new CommandLine();
                         position = 1;
-                        parameterId = Identifier.Command;
+                        argumentName = Identifier.Command;
+                        commandLine = NewCommandLineDictionary(argumentName);
                         break;
 
-                    case string value when IsParameterId(value):
-                        parameterId = Identifier.FromName(RemoveParameterPrefix(value));
-                        commandLine.Add(parameterId);
+                    case string value when IsArgumentName(value):
+                        argumentName = Identifier.FromName(RemoveParameterPrefix(value));
+                        commandLine.Add(argumentName, new CommandArgument(argumentName, Enumerable.Empty<string>()));
                         break;
 
                     default:
-                        commandLine.Add(parameterId, token);
-                        
+                        commandLine[argumentName].Add(token);
+
                         // Use positional parameter-ids until a named one is found.
-                        if (parameterId.Default.Option.Contains(NameOption.Positional))
+                        if (argumentName.Default.Option.Contains(NameOption.Positional))
                         {
-                            parameterId = Identifier.FromPosition(position++);
+                            argumentName = Identifier.FromPosition(position++);
                         }
+
                         break;
                 }
             }
@@ -71,16 +74,21 @@ namespace Reusable.Commander
                 yield return commandLine;
             }
 
-            bool IsParameterId(string value) => Regex.IsMatch(value, ParameterPrefix);
+            bool IsArgumentName(string value) => Regex.IsMatch(value, ParameterPrefix);
 
             string RemoveParameterPrefix(string value) => Regex.Replace(value, ParameterPrefix, string.Empty);
         }
 
-        public IEnumerable<ICommandLine> Parse(string commandLine)
+        public IEnumerable<CommandLineDictionary> Parse(string commandLine)
         {
             if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
 
             return Parse(_tokenizer.Tokenize(commandLine));
+        }
+
+        private static CommandLineDictionary NewCommandLineDictionary(Identifier commandName)
+        {
+            return new CommandLineDictionary { [commandName] = new CommandArgument(commandName, Enumerable.Empty<string>()) };
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -15,25 +16,23 @@ using Reusable.Reflection;
 
 namespace Reusable.Commander
 {
-    public interface ICommandLineReader<TParameter> where TParameter : ICommandArgumentGroup
+    public interface ICommandLineReader : IEnumerable<CommandArgument>
     {
         [CanBeNull]
-        TValue GetItem<TValue>(Expression<Func<TParameter, TValue>> selector);
+        TValue GetItem<TValue>(Expression<Func<TValue>> selector);
     }
 
     [UsedImplicitly]
-    internal class CommandLineReader<TParameter> : ICommandLineReader<TParameter> where TParameter : ICommandArgumentGroup
+    internal class CommandLineReader : ICommandLineReader
     {
-        private readonly IResourceProvider _arguments;
-
-        public CommandLineReader(IResourceProvider arguments)
+        private readonly IDictionary<Identifier, CommandArgument> _arguments;
+        
+        public CommandLineReader(IDictionary<Identifier, CommandArgument> arguments)
         {
             _arguments = arguments;
         }
 
-        public CommandLineReader(ICommandLine commandLine) : this(new CommandArgumentProvider(commandLine)) { }
-
-        public TValue GetItem<TValue>(Expression<Func<TParameter, TValue>> selector)
+        public TValue GetItem<TValue>(Expression<Func<TValue>> selector)
         {
             var property = selector.ToMemberExpression().Member as PropertyInfo ?? throw new ArgumentException($"{nameof(selector)} must select a property.");
             var argumentMetadata = CommandArgumentMetadata.Create(property);
@@ -45,19 +44,9 @@ namespace Reusable.Commander
                 converter = converter.Add((ITypeConverter)Activator.CreateInstance(argumentMetadata.ConverterType));
             }
             
-            var uri = UriStringHelper.CreateQuery
-            (
-                scheme: CommandArgumentProvider.DefaultScheme,
-                path: ImmutableList<string>.Empty.Add("arguments"),
-                query: ImmutableDictionary<string, string>.Empty.Add("name", argumentMetadata.Id.Default.ToString())
-            );
-            var metadata = ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), nameof(CommandArgumentProvider));
-            var argument = _arguments.GetAsync(uri, metadata).GetAwaiter().GetResult();
 
-            if (argument.Exists)
+            if (_arguments.TryGetValue(argumentMetadata.Name, out var values))
             {
-                var values = argument.DeserializeBinaryAsync<List<string>>().GetAwaiter().GetResult();
-
                 if (argumentMetadata.Property.PropertyType.IsList())
                 {
                     return converter.Convert<TValue>(values);
@@ -90,5 +79,13 @@ namespace Reusable.Commander
                         : default;
             }
         }
+        
+        #region IEnumerable
+
+        public IEnumerator<CommandArgument> GetEnumerator() => _arguments.Values.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        #endregion
     }
 }

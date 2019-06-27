@@ -28,6 +28,8 @@ namespace Reusable.Commander
     [UsedImplicitly]
     public class CommandExecutor : ICommandExecutor
     {
+        private const bool Async = true;
+        
         private readonly ILogger _logger;
         private readonly ICommandLineParser _commandLineParser;
         private readonly IIndex<Identifier, ICommand> _commands;
@@ -47,33 +49,38 @@ namespace Reusable.Commander
             _executeExceptionCallback = executeExceptionCallback;
         }
 
-        private async Task ExecuteAsync<TContext>(IEnumerable<ICommandLine> commandLines, TContext context, CancellationToken cancellationToken)
+        public async Task ExecuteAsync<TContext>(string commandLineString, TContext context, CancellationToken cancellationToken)
         {
-            var executables =
-                GetCommands(commandLines)
-                    .Select(t =>
-                    {
-                        var commandLineReader = new CommandLineReader<ICommandArgumentGroup>(t.CommandLine);
-                        return new Executable
-                        {
-                            Command = t.Command,
-                            CommandLine = t.CommandLine,
-                            Async = commandLineReader.GetItem(x => x.Async)
-                        };
-                    })
-                    .ToLookup(e => e.ExecutionType());
+            if (commandLineString.IsNullOrEmpty())
+            {
+                throw DynamicException.Create("CommandLineNullOrEmpty", "You need to specify at least one command.");
+            }
+
+            var commandLines = _commandLineParser.Parse(commandLineString);
+            await ExecuteAsync(commandLines, context, cancellationToken);
+        }
+
+        private async Task ExecuteAsync<TContext>(IEnumerable<CommandLineDictionary> commandLines, TContext context, CancellationToken cancellationToken)
+        {
+            var executables = GetCommands(commandLines).Select(t => new Executable
+                {
+                    Command = t.Command,
+                    CommandLine = t.CommandLine,
+                    Async = new DefaultCommandLine(t.CommandLine).Async
+                })
+                .ToLookup(e => e.Async);
 
             _logger.Log(Abstraction.Layer.Service().Counter(new
             {
                 CommandCount = executables.Count,
-                SequentialCommandCount = executables[CommandExecutionType.Sequential].Count(),
-                AsyncCommandCount = executables[CommandExecutionType.Asynchronous].Count()
+                SequentialCommandCount = executables[!Async].Count(),
+                AsyncCommandCount = executables[Async].Count()
             }));
 
             using (var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
             {
                 // Execute sequential commands first.
-                foreach (var executable in executables[CommandExecutionType.Sequential])
+                foreach (var executable in executables[!Async])
                 {
                     if (cancellationToken.IsCancellationRequested)
                     {
@@ -94,7 +101,7 @@ namespace Reusable.Commander
                     }
                 );
 
-                foreach (var executable in executables[CommandExecutionType.Asynchronous])
+                foreach (var executable in executables[Async])
                 {
                     actionBlock.Post(executable);
                 }
@@ -102,17 +109,6 @@ namespace Reusable.Commander
                 actionBlock.Complete();
                 await actionBlock.Completion;
             }
-        }
-
-        public async Task ExecuteAsync<TContext>(string commandLineString, TContext context, CancellationToken cancellationToken)
-        {
-            if (commandLineString.IsNullOrEmpty())
-            {
-                throw DynamicException.Create("CommandLineNullOrEmpty", "You need to specify at least one command.");
-            }
-
-            var commandLines = _commandLineParser.Parse(commandLineString);
-            await ExecuteAsync(commandLines, context, cancellationToken);
         }
 
         private async Task ExecuteAsync<TContext>(Executable executable, TContext context, CancellationTokenSource cancellationTokenSource)
@@ -145,38 +141,25 @@ namespace Reusable.Commander
 
         #region Helpers
 
-        private IEnumerable<(ICommand Command, ICommandLine CommandLine)> GetCommands(IEnumerable<ICommandLine> commandLines)
+        private IEnumerable<(ICommand Command, CommandLineDictionary CommandLine)> GetCommands(IEnumerable<CommandLineDictionary> commandLines)
         {
-            return commandLines.Select((commandLine, i) =>
+            foreach (var (commandLine, i) in commandLines.Select((x, i) => (x, i)))
             {
-                try
+                var commandNameArgument = commandLine[Identifier.Command];
+                var commandName = new Identifier((commandNameArgument.Single(), NameOption.CommandLine));
+                if (_commands.TryGetValue(commandName, out var command))
                 {
-                    var commandName = commandLine[Identifier.Command].Single();
-                    return (GetCommand(new Identifier((commandName, NameOption.CommandLine))), commandLine);
+                    yield return (command, commandLine);
                 }
-                catch (DynamicException inner)
+                else
                 {
                     throw DynamicException.Create
                     (
-                        $"CommandLine",
-                        $"Command line at {i} is invalid. See the inner-exception for details.",
-                        inner
+                        $"CommandNotFound",
+                        $"Could not find command '{commandName.Default?.ToString() ?? "Empty"}' at {i}."
                     );
                 }
-            });
-        }
-
-        [NotNull]
-        private ICommand GetCommand(Identifier id)
-        {
-            return
-                _commands.TryGetValue(id, out var command)
-                    ? command
-                    : throw DynamicException.Create
-                    (
-                        $"CommandNotFound",
-                        $"Could not find command '{id.Default?.ToString() ?? "Empty"}'."
-                    );
+            }
         }
 
         #endregion
@@ -184,9 +167,9 @@ namespace Reusable.Commander
 
     internal class Executable
     {
-        public ICommandLine CommandLine { get; set; }
-
         public ICommand Command { get; set; }
+
+        public CommandLineDictionary CommandLine { get; set; }
 
         public bool Async { get; set; }
     }

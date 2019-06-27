@@ -17,23 +17,22 @@ namespace Reusable.Commander
     {
         public const string DefaultFormat = "-:";
 
-        internal CommandArgument(Identifier key) => Id = key;
-
-        //internal CommandParameter() : this(Identifier.Empty) { }
+        internal CommandArgument(Identifier name, IEnumerable<string> values) : base(values)
+        {
+            Name = name;
+        }
 
         private string DebuggerDisplay => ToString();
 
-        public Identifier Id { get; }
-
-        //public static CommandParameter Empty { get; } = new CommandParameter();
+        public Identifier Name { get; }
 
         #region IEquatable
 
-        public bool Equals(CommandArgument other) => Id?.Equals(other.Id) == true;
+        public bool Equals(CommandArgument other) => Name?.Equals(other.Name) == true;
 
         public override bool Equals(object obj) => obj is CommandArgument parameter && Equals(parameter);
 
-        public override int GetHashCode() => Id.GetHashCode();
+        public override int GetHashCode() => Name.GetHashCode();
 
         #endregion
 
@@ -53,9 +52,9 @@ namespace Reusable.Commander
             var result = new StringBuilder();
 
             result.Append(
-                string.IsNullOrEmpty(Id.FirstOrDefault()?.ToString())
+                string.IsNullOrEmpty(Name.FirstOrDefault()?.ToString())
                     ? string.Empty
-                    : $"{argumentPrefix}{Id.FirstOrDefault()}");
+                    : $"{argumentPrefix}{Name.FirstOrDefault()}");
 
             result.Append(
                 result.Any() && this.Any()
@@ -73,4 +72,18 @@ namespace Reusable.Commander
 
         public static implicit operator string(CommandArgument commandArgument) => commandArgument?.ToString();
     }
+    
+//    public class CommandArgumentComparer : IComparer<CommandArgument>
+//    {
+//        public int Compare(CommandArgument x, CommandArgument y)
+//        {
+//            if (ReferenceEquals(x, y)) return 0;
+//            if (ReferenceEquals(x, null)) return -1;
+//            if (ReferenceEquals(y, null)) return 1;
+//
+//            if (x.Name.Default.Option == y.Name.Default.Option) return 0;
+//            if (x.Name.Default.Option == NameOption.CommandLine) return 1;
+//            if (y.Name.Default.Option == NameOption.CommandLine) return -1;
+//        }
+//    }
 }

@@ -29,7 +29,7 @@ namespace Reusable.Commander
         {
             var duplicateNames =
                 parameters
-                    .SelectMany(property => property.Id)
+                    .SelectMany(property => property.Name)
                     .GroupBy(propertyName => propertyName)
                     .Where(propertyNameGroup => propertyNameGroup.Count() > 1)
                     .Select(propertyNameGroupWithMultipleNames => propertyNameGroupWithMultipleNames.Key)
@@ -88,26 +88,26 @@ namespace Reusable.Commander
             }
         }
 
-        public static void ValidateCommandLine(ICommandLine commandLine, Type commandType)
-        {
-            var commandArguments =
-                commandType
-                    .GetCommandArgumentGroupType()
-                    .GetCommandArgumentMetadata()
-                    .Where(m => m.Required)
-                    .ToList();
-
-            foreach (var commandArgument in commandArguments)
-            {
-                if (commandLine[commandArgument.Id] is null)
-                {
-                    throw DynamicException.Create
-                    (
-                        $"CommandArgumentNotFound",
-                        $"Argument '{commandArgument.Id.Default.ToString()}' is required but is missing."
-                    );
-                }
-            }
-        }
+//        public static void ValidateCommandLine(ICommandLine commandLine, Type commandType)
+//        {
+//            var commandArguments =
+//                commandType
+//                    .GetCommandArgumentGroupType()
+//                    .GetCommandArgumentMetadata()
+//                    .Where(m => m.Required)
+//                    .ToList();
+//
+//            foreach (var commandArgument in commandArguments)
+//            {
+//                if (commandLine[commandArgument.Name] is null)
+//                {
+//                    throw DynamicException.Create
+//                    (
+//                        $"CommandArgumentNotFound",
+//                        $"Argument '{commandArgument.Name.Default.ToString()}' is required but is missing."
+//                    );
+//                }
+//            }
+//        }
     }
 }

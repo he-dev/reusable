@@ -45,17 +45,17 @@ namespace Reusable.Commander
         }
 
         [NotNull]
-        public static IImmutableList<CommandModule> Add<TParameter, TContext>
+        public static IImmutableList<CommandModule> Add<TCommandLine, TContext>
         (
             this IImmutableList<CommandModule> registrations,
             [NotNull] Identifier id,
-            [NotNull] ExecuteCallback<TParameter, TContext> execute,
+            [NotNull] ExecuteCallback<TCommandLine, TContext> execute,
             ConfigureRegistrationCallback configureRegistrationCallback = default
-        ) where TParameter : ICommandArgumentGroup
+        ) where TCommandLine : class, ICommandLine
         {
-            return registrations.Add(new CommandModule<TParameter, TContext>
+            return registrations.Add(new CommandModule<TCommandLine, TContext>
             (
-                typeof(Lambda<TParameter, TContext>),
+                typeof(Lambda<TCommandLine, TContext>),
                 id,
                 execute,
                 configureRegistrationCallback
@@ -75,7 +75,7 @@ namespace Reusable.Commander
         )
         {
             Validator.ValidateCommand(type, CommandArgumentConverter.Default);
-            
+
             Type = type;
             Id = id;
             ConfigureRegistrationCallback = configureRegistrationCallback;
@@ -104,19 +104,19 @@ namespace Reusable.Commander
 
     [UsedImplicitly]
     [PublicAPI]
-    public class CommandModule<TParameter, TContext> : CommandModule where TParameter : ICommandArgumentGroup
+    public class CommandModule<TCommandLine, TContext> : CommandModule where TCommandLine : ICommandLine
     {
         internal CommandModule
         (
             Type type,
             Identifier id,
-            ExecuteCallback<TParameter, TContext> executeCallback,
+            ExecuteCallback<TCommandLine, TContext> executeCallback,
             ConfigureRegistrationCallback configureRegistrationCallback = default
         ) : base(type, id, builder =>
         {
             builder
                 .WithParameter(new TypedParameter(typeof(Identifier), id))
-                .WithParameter(new TypedParameter(typeof(ExecuteCallback<TParameter, TContext>), executeCallback));
+                .WithParameter(new TypedParameter(typeof(ExecuteCallback<TCommandLine, TContext>), executeCallback));
 
             configureRegistrationCallback?.Invoke(builder);
         }) { }

@@ -26,7 +26,7 @@ namespace Reusable.Tests.Commander
             var commands =
                 ImmutableList<CommandModule>
                     .Empty
-                    .Add(new Identifier("a", "b"), ExecuteHelper.Count<ICommandArgumentGroup>(counters));
+                    .Add(new Identifier("a", "b"), ExecuteHelper.Count<TestCommandLine>(counters));
 
             using (var context = CreateContext(commands))
             {
@@ -45,8 +45,8 @@ namespace Reusable.Tests.Commander
             var commands =
                 ImmutableList<CommandModule>
                     .Empty
-                    .Add(new Identifier("a"), ExecuteHelper.Count<ICommandArgumentGroup>(counters))
-                    .Add(new Identifier("b"), ExecuteHelper.Count<ICommandArgumentGroup>(counters));
+                    .Add(new Identifier("a"), ExecuteHelper.Count<TestCommandLine>(counters))
+                    .Add(new Identifier("b"), ExecuteHelper.Count<TestCommandLine>(counters));
 
             using (var context = CreateContext(commands))
             {
@@ -124,15 +124,15 @@ namespace Reusable.Tests.Commander
         public async Task Uses_default_values_when_specified()
         {
             var values = new Dictionary<Identifier, object>();
-            var commands = ImmutableList<CommandModule>.Empty.Add(new Identifier("test"), new ExecuteCallback<ITestArgumentGroup, object>((id, reader, context, token) =>
+            var commands = ImmutableList<CommandModule>.Empty.Add(new Identifier("test"), new ExecuteCallback<TestCommandLine, object>((id, commandLine, context, token) =>
             {
-                values[nameof(ITestArgumentGroup.Bool)] = reader.GetItem(x => x.Bool);
-                values[nameof(ITestArgumentGroup.BoolWithDefaultValue)] = reader.GetItem(x => x.BoolWithDefaultValue);
-                values[nameof(ITestArgumentGroup.String)] = reader.GetItem(x => x.String);
-                values[nameof(ITestArgumentGroup.StringWithDefaultValue)] = reader.GetItem(x => x.StringWithDefaultValue);
-                values[nameof(ITestArgumentGroup.Int32)] = reader.GetItem(x => x.Int32);
-                values[nameof(ITestArgumentGroup.Int32WithDefaultValue)] = reader.GetItem(x => x.Int32WithDefaultValue);
-                values[nameof(ITestArgumentGroup.NullableInt32)] = reader.GetItem(x => x.NullableInt32);
+                values[nameof(TestCommandLine.Bool)] = commandLine.Bool;
+                values[nameof(TestCommandLine.BoolWithDefaultValue)] = commandLine.BoolWithDefaultValue;
+                values[nameof(TestCommandLine.String)] = commandLine.String;
+                values[nameof(TestCommandLine.StringWithDefaultValue)] = commandLine.StringWithDefaultValue;
+                values[nameof(TestCommandLine.Int32)] = commandLine.Int32;
+                values[nameof(TestCommandLine.Int32WithDefaultValue)] = commandLine.Int32WithDefaultValue;
+                values[nameof(TestCommandLine.NullableInt32)] = commandLine.NullableInt32;
                 return Task.CompletedTask;
             }));
 
@@ -140,13 +140,13 @@ namespace Reusable.Tests.Commander
             {
                 await context.Executor.ExecuteAsync<object>("test", default);
 
-                Assert.Equal(false, values[nameof(ITestArgumentGroup.Bool)]);
-                Assert.Equal(true, values[nameof(ITestArgumentGroup.BoolWithDefaultValue)]);
-                Assert.Equal(null, values[nameof(ITestArgumentGroup.String)]);
-                Assert.Equal("foo", values[nameof(ITestArgumentGroup.StringWithDefaultValue)]);
-                Assert.Equal(0, values[nameof(ITestArgumentGroup.Int32)]);
-                Assert.Equal(3, values[nameof(ITestArgumentGroup.Int32WithDefaultValue)]);
-                Assert.Equal(null, values[nameof(ITestArgumentGroup.NullableInt32)]);
+                Assert.Equal(false, values[nameof(TestCommandLine.Bool)]);
+                Assert.Equal(true, values[nameof(TestCommandLine.BoolWithDefaultValue)]);
+                Assert.Equal(null, values[nameof(TestCommandLine.String)]);
+                Assert.Equal("foo", values[nameof(TestCommandLine.StringWithDefaultValue)]);
+                Assert.Equal(0, values[nameof(TestCommandLine.Int32)]);
+                Assert.Equal(3, values[nameof(TestCommandLine.Int32WithDefaultValue)]);
+                Assert.Equal(null, values[nameof(TestCommandLine.NullableInt32)]);
             }
         }
 
@@ -154,13 +154,13 @@ namespace Reusable.Tests.Commander
         public async Task Can_parse_supported_types()
         {
             var values = new Dictionary<Identifier, object>();
-            var commands = ImmutableList<CommandModule>.Empty.Add(new Identifier("test"), new ExecuteCallback<ITestArgumentGroup, object>((id, reader, context, token) =>
+            var commands = ImmutableList<CommandModule>.Empty.Add(new Identifier("test"), new ExecuteCallback<TestCommandLine, object>((id, commandLine, context, token) =>
             {
-                values[nameof(ITestArgumentGroup.Bool)] = reader.GetItem(x => x.Bool);
-                values[nameof(ITestArgumentGroup.String)] = reader.GetItem(x => x.String);
-                values[nameof(ITestArgumentGroup.Int32)] = reader.GetItem(x => x.Int32);
-                values[nameof(ITestArgumentGroup.DateTime)] = reader.GetItem(x => x.DateTime);
-                values[nameof(ITestArgumentGroup.ListOfInt32)] = reader.GetItem(x => x.ListOfInt32);
+                values[nameof(TestCommandLine.Bool)] = commandLine.Bool;
+                values[nameof(TestCommandLine.String)] = commandLine.String;
+                values[nameof(TestCommandLine.Int32)] = commandLine.Int32;
+                values[nameof(TestCommandLine.DateTime)] = commandLine.DateTime;
+                values[nameof(TestCommandLine.ListOfInt32)] = commandLine.ListOfInt32;
                 return Task.CompletedTask;
             }));
 
@@ -168,11 +168,11 @@ namespace Reusable.Tests.Commander
             {
                 await context.Executor.ExecuteAsync<object>("test -bool -string bar -int32 123 -datetime \"2019-07-01\" -listofint32 1 2 3", default);
 
-                Assert.Equal(true, values[nameof(ITestArgumentGroup.Bool)]);
-                Assert.Equal("bar", values[nameof(ITestArgumentGroup.String)]);
-                Assert.Equal(123, values[nameof(ITestArgumentGroup.Int32)]);
-                Assert.Equal(new DateTime(2019, 7, 1), values[nameof(ITestArgumentGroup.DateTime)]);
-                Assert.Equal(new[] { 1, 2, 3 }, values[nameof(ITestArgumentGroup.ListOfInt32)]);
+                Assert.Equal(true, values[nameof(TestCommandLine.Bool)]);
+                Assert.Equal("bar", values[nameof(TestCommandLine.String)]);
+                Assert.Equal(123, values[nameof(TestCommandLine.Int32)]);
+                Assert.Equal(new DateTime(2019, 7, 1), values[nameof(TestCommandLine.DateTime)]);
+                Assert.Equal(new[] { 1, 2, 3 }, values[nameof(TestCommandLine.ListOfInt32)]);
             }
         }
 
@@ -262,33 +262,35 @@ namespace Reusable.Tests.Commander
         //     ExecuteAssert<Bag2>(bag => { Assert.Equal("baz", bag.Property04); });
         // }
 
-        internal interface ITestArgumentGroup : ICommandArgumentGroup
+        internal class TestCommandLine : CommandLine
         {
-            bool Bool { get; set; }
+            public TestCommandLine(CommandLineDictionary arguments) : base(arguments) { }
+
+            public bool Bool => GetArgument(() => Bool);
 
             [DefaultValue(true)]
-            bool BoolWithDefaultValue { get; set; }
+            public bool BoolWithDefaultValue => GetArgument(() => BoolWithDefaultValue);
 
-            string String { get; set; }
+            public string String => GetArgument(() => String);
 
             [DefaultValue("foo")]
-            string StringWithDefaultValue { get; set; }
+            public string StringWithDefaultValue => GetArgument(() => StringWithDefaultValue);
 
-            int Int32 { get; set; }
+            public int Int32 => GetArgument(() => Int32);
 
-            int? NullableInt32 { get; set; }
+            public int? NullableInt32 => GetArgument(() => NullableInt32);
 
             [DefaultValue(3)]
-            int Int32WithDefaultValue { get; set; }
+            public int Int32WithDefaultValue => GetArgument(() => Int32WithDefaultValue);
 
-            DateTime DateTime { get; set; }
+            public DateTime DateTime => GetArgument(() => DateTime);
 
-            DateTime? NullableDateTime { get; set; }
+            public DateTime? NullableDateTime => GetArgument(() => NullableDateTime);
 
             [DefaultValue("2018/01/01")]
-            DateTime DateTimeWithDefaultValue { get; set; }
+            public DateTime DateTimeWithDefaultValue => GetArgument(() => DateTimeWithDefaultValue);
 
-            IList<int> ListOfInt32 { get; set; }
+            public IList<int> ListOfInt32 => GetArgument(() => ListOfInt32);
         }
     }
 }

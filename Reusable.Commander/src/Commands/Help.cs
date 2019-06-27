@@ -17,19 +17,22 @@ using Reusable.OmniLog;
 namespace Reusable.Commander.Commands
 {
     [PublicAPI]
-    public interface IHelpArgumentGroup : ICommandArgumentGroup
+    public class HelpCommandLine : CommandLine
     {
+        public HelpCommandLine(CommandLineDictionary arguments) : base(arguments) { }
+
         [CanBeNull]
         [Description("Display command usage.")]
         [Tags("cmd")]
         [Position(1)]
-        string Command { get; set; }
+        public string Command => GetArgument(() => Command);
+
     }
 
     [PublicAPI]
     [Tags("h", "?")]
     [Description("Display help.")]
-    public class Help : Command<IHelpArgumentGroup>
+    public class Help : Command<HelpCommandLine>
     {
         private static readonly int IndentWidth = 4;
 
@@ -43,22 +46,22 @@ namespace Reusable.Commander.Commands
             _commandTypes = commands;
         }        
 
-        protected override Task ExecuteAsync(ICommandLineReader<IHelpArgumentGroup> parameter, object context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(HelpCommandLine commandLine, object context, CancellationToken cancellationToken)
         {
-            var commandSelected = parameter.GetItem(x => x.Command).IsNotNullOrEmpty();
+            var commandSelected = commandLine.Command.IsNotNullOrEmpty();
             if (commandSelected)
             {
-                RenderParameterList(parameter);
+                RenderParameterList(commandLine);
             }
             else
             {
-                RenderCommandList(parameter);
+                RenderCommandList(commandLine);
             }
 
             return Task.CompletedTask;
         }
 
-        protected virtual void RenderCommandList(ICommandLineReader<IHelpArgumentGroup> parameter)
+        protected virtual void RenderCommandList(HelpCommandLine parameter)
         {
             // Headers
             var captions = new[] { "NAME", "ABOUT" }.Pad(ColumnWidths);
@@ -85,16 +88,16 @@ namespace Reusable.Commander.Commands
             }
         }
 
-        protected virtual void RenderParameterList(ICommandLineReader<IHelpArgumentGroup> parameter)
+        protected virtual void RenderParameterList(HelpCommandLine commandLine)
         {
-            var commandId = new Identifier(new Name(parameter.GetItem(x => x.Command)));
+            var commandId = new Identifier(new Name(commandLine.Command));
             var commandType = _commandTypes.SingleOrDefault(t => CommandHelper.GetCommandId(t) == commandId);
             if (commandType is null)
             {
                 throw DynamicException.Create
                 (
                     $"CommandNotFound",
-                    $"Could not find a command with the name '{parameter.GetItem(x => x.Command)}'"
+                    $"Could not find a command with the name '{commandLine.Command}'"
                 );
             }
 
@@ -109,13 +112,13 @@ namespace Reusable.Commander.Commands
             var bagType = commandType.GetCommandArgumentGroupType();
             var commandArguments =
                 from commandArgument in bagType.GetCommandArgumentMetadata()
-                orderby commandArgument.Id.Default.Value
+                orderby commandArgument.Name.Default.Value
                 select commandArgument;
 
             foreach (var commandArgument in commandArguments)
             {
-                var defaultId = commandArgument.Id.Default.ToString();
-                var aliases = string.Join("|", commandArgument.Id.Aliases.Select(x => x.ToString()));
+                var defaultId = commandArgument.Name.Default.ToString();
+                var aliases = string.Join("|", commandArgument.Name.Aliases.Select(x => x.ToString()));
                 var description = commandArgument.Description ?? "N/A";
                 var row = new[] { $"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description }.Pad(ColumnWidths);
                 Logger.WriteLine(p => p.text(string.Join(string.Empty, row)));

@@ -21,7 +21,7 @@ namespace Reusable.Tests.Experimental
                 { "canBuild" },
             };
 
-            var cmdln = new CommandLineReader<ITestArgumentGroup>(commandLine);
+            var cmdln = new CommandLineReader(commandLine);
 
             var actualFiles = cmdln.GetItem(x => x.Files);
             var actualBuild = cmdln.GetItem(x => x.Build);

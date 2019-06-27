@@ -12,7 +12,7 @@ namespace Reusable.Commander.Annotations
 
         public PositionAttribute(int position)
         {
-            if (position < FirstArgumentIndex) throw new ArgumentOutOfRangeException($"{nameof(position)} must be > {CommandNameIndex}.");
+            //if (position < FirstArgumentIndex) throw new ArgumentOutOfRangeException($"{nameof(position)} must be > {CommandNameIndex}.");
             Value = position;
         }
 

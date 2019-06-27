@@ -96,7 +96,7 @@ namespace Reusable.Commander
         {
             if (commandType.BaseType == typeof(Command))
             {
-                return typeof(ICommandArgumentGroup);
+                return typeof(ICommandLine);
             }
 
             // ReSharper disable once PossibleNullReferenceException
@@ -105,7 +105,7 @@ namespace Reusable.Commander
                 commandType
                     .BaseType
                     .GetGenericArguments()
-                    .Single(t => typeof(ICommandArgumentGroup).IsAssignableFrom(t));
+                    .Single(t => typeof(ICommandLine).IsAssignableFrom(t));
         }
     }
 }

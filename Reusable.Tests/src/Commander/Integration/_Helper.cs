@@ -70,7 +70,7 @@ namespace Reusable.Tests.Commander.Integration
         //     };
         // }
 
-        internal static ExecuteCallback<TParameter, object> Count<TParameter>(ConcurrentDictionary<Identifier, int> counters) where TParameter : ICommandArgumentGroup
+        internal static ExecuteCallback<TCommandLine, object> Count<TCommandLine>(ConcurrentDictionary<Identifier, int> counters) where TCommandLine : ICommandLine
         {
             return (id, commandLine, context, cancellationToken) =>
             {
@@ -79,7 +79,7 @@ namespace Reusable.Tests.Commander.Integration
             };
         }
 
-        internal static ExecuteCallback<TParameter, object> Noop<TParameter>() where TParameter : ICommandArgumentGroup
+        internal static ExecuteCallback<TCommandLine, object> Noop<TCommandLine>() where TCommandLine : ICommandLine
         {
             return (name, commandLine, context, cancellationToken) => Task.CompletedTask;
         }
@@ -100,22 +100,22 @@ namespace Reusable.Tests.Commander.Integration
         public void Dispose() => _disposer.Dispose();
     }
 
-    internal class CommandParameterTracker
-    {
-        private readonly IDictionary<Identifier, ICommandArgumentGroup> _bags = new Dictionary<Identifier, ICommandArgumentGroup>();
-
-        public void Add(Identifier commandId, ICommandArgumentGroup bag) => _bags.Add(commandId, bag);
-
-        public void Assert<T>(Identifier commandId, Action<T> assert) where T : ICommandArgumentGroup, new()
-        {
-            if (_bags.TryGetValue(commandId, out var bag))
-            {
-                assert((T)bag);
-            }
-            else
-            {
-                False(true, $"There is no bag for '{commandId.Default.ToString()}'.");
-            }
-        }
-    }
+//    internal class CommandParameterTracker
+//    {
+//        private readonly IDictionary<Identifier, ICommandArgumentGroup> _bags = new Dictionary<Identifier, ICommandLine>();
+//
+//        public void Add(Identifier commandId, ICommandArgumentGroup bag) => _bags.Add(commandId, bag);
+//
+//        public void Assert<T>(Identifier commandId, Action<T> assert) where T : ICommandArgumentGroup, new()
+//        {
+//            if (_bags.TryGetValue(commandId, out var bag))
+//            {
+//                assert((T)bag);
+//            }
+//            else
+//            {
+//                False(true, $"There is no bag for '{commandId.Default.ToString()}'.");
+//            }
+//        }
+//    }
 }

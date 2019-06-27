@@ -1,9 +1,7 @@
-using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Reusable.Diagnostics;
 
-namespace Reusable.Deception.Triggers
+namespace Reusable.Deception.Patterns
 {
     [UsedImplicitly]
     public class CountPattern : PhantomExceptionPattern<int>
