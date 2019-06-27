@@ -8,7 +8,7 @@ namespace Reusable.Collections.Generators
 
         private static IEnumerable<T> Create(T start, T step)
         {
-            foreach (var _ in Sequence.Infinite<T>())
+            foreach (var _ in Sequence.InfiniteDefault<T>())
             {
                 yield return start;
                 start = BinaryOperation<T>.Add(start, step);

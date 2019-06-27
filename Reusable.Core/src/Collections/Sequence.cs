@@ -33,27 +33,39 @@ namespace Reusable.Collections
         public static IEnumerable<T> Fibonacci<T>(T one) => new FibonacciSequence<T>(one);
 
         public static IEnumerable<T> Monotonic<T>(T start, T step) => new MonotonicSequence<T>(start, step);
-        
-        [NotNull, ItemCanBeNull]
-        public static IEnumerable<T> Infinite<T>()
-        {
-            while (true)
-            {
-                yield return default;
-            }
 
-            // ReSharper disable once IteratorNeverReturns - this should be infinite
+        public static IEnumerable<T> InfiniteDefault<T>()
+        {
+            using (var e = new InfiniteDefaultEnumerator<T>())
+            {
+                while (e.MoveNext())
+                {
+                    yield return default;
+                }
+            }
         }
 
         public static IEnumerable<T> Custom<T>(T first, Func<T, T> next)
         {
             yield return first;
             var previous = first;
-            while (true)
+            foreach (var _ in InfiniteDefault<T>())
             {
                 yield return previous = next(previous);
             }
-            // ReSharper disable once IteratorNeverReturns - by design
         }
+    }
+
+    public class InfiniteDefaultEnumerator<T> : IEnumerator<T>
+    {
+        public T Current => default;
+
+        object IEnumerator.Current => Current;
+
+        public bool MoveNext() => true;
+
+        public void Reset() { }
+
+        public void Dispose() { }
     }
 }

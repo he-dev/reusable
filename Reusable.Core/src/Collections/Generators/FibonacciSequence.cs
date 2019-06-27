@@ -14,7 +14,7 @@ namespace Reusable.Collections.Generators
             var previous = one;
             var current = one;
 
-            foreach (var _ in Sequence.Infinite<T>())
+            foreach (var _ in Sequence.InfiniteDefault<T>())
             {
                 yield return current;
 

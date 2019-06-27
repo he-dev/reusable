@@ -7,7 +7,7 @@ namespace Reusable.Collections.Generators
     public class RandomSequence : Sequence<int>
     {
         public RandomSequence(int min, int max, Func<int, int, int> next)
-            : base(Sequence.Infinite<int>().Select(_ => next(min, max))) { }
+            : base(Sequence.InfiniteDefault<int>().Select(_ => next(min, max))) { }
 
         public RandomSequence(int min, int max)
             : this(min, max, CreateNextFunc((int)DateTime.UtcNow.Ticks)) { }
