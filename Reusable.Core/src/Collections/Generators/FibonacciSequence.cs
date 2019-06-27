@@ -1,24 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Reusable.Collections.Generators
 {
     public class FibonacciSequence<T> : Sequence<T>
     {
-        private readonly T _one;
+        public FibonacciSequence(T one) : base(Create(one)) { }
 
-        public FibonacciSequence(T one)
+        private static IEnumerable<T> Create(T one)
         {
-            _one = one;            
-        }
+            yield return one;
 
-        public override IEnumerator<T> GetEnumerator()
-        {
-            yield return _one;
+            var previous = one;
+            var current = one;
 
-            var previous = _one;
-            var current = _one;
-
-            while (true)
+            foreach (var _ in Sequence.Infinite<T>())
             {
                 yield return current;
 
@@ -26,7 +22,6 @@ namespace Reusable.Collections.Generators
                 previous = current;
                 current = newCurrent;
             }
-            // ReSharper disable once IteratorNeverReturns - this is by design
         }
-    }    
+    }
 }

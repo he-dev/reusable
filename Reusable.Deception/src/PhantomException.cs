@@ -6,47 +6,49 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Custom;
 using System.Runtime.CompilerServices;
+using System.Text;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
+using Reusable.Extensions;
 
 namespace Reusable.Deception
 {
     public interface IPhantomException
     {
-        void Throw(string name);
+        void Throw(string name, string message = default);
     }
 
     [UsedImplicitly]
-    public class PhantomException : IPhantomException
+    public class PhantomException : IPhantomException, IEnumerable<IPhantomExceptionPattern>
     {
-        private readonly IEnumerable<IPhantomExceptionTrigger> _triggers;
+        private readonly IList<IPhantomExceptionPattern> _patterns = new List<IPhantomExceptionPattern>();
 
-        public PhantomException(IEnumerable<IPhantomExceptionTrigger> triggers)
+        public void Throw(string name, string message = default)
         {
-            _triggers = triggers;
-        }
-        
-        // Prevent inlining just in case so that the stack-trace does not change.
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        public void Throw(string name)
-        {
-            foreach (var trigger in _triggers.Where(t => t.CanThrow(name)))
+            var matches = _patterns.Where(t => t.Matches(name)).Join(", ");
+            if (matches.Any())
             {
                 throw DynamicException.Create
                 (
-                    trigger.Exception ?? "Phantom",
-                    $"This is a phantom exception triggered by the '{trigger}' that matched []. {trigger.Message}"
+                    name ?? "Phantom",
+                    message ?? $"This phantom exception was thrown because it matches [{matches}]."
                 );
             }
         }
+
+        public void Add(IPhantomExceptionPattern pattern) => _patterns.Add(pattern);
+
+        public IEnumerator<IPhantomExceptionPattern> GetEnumerator() => _patterns.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_patterns).GetEnumerator();
     }
 
     /// <summary>
-    /// This implementation does nothing and support the null-object-pattern.
+    /// This implementation does nothing and supports the null-object-pattern.
     /// </summary>
     public class NullPhantomException : IPhantomException
     {
-        public void Throw(string name)
+        public void Throw(string name, string message = default)
         {
             // Does nothing.
         }

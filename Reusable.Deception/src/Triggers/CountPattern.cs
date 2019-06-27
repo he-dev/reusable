@@ -6,11 +6,11 @@ using Reusable.Diagnostics;
 namespace Reusable.Deception.Triggers
 {
     [UsedImplicitly]
-    public class CountedTrigger : PhantomExceptionTrigger<int>
+    public class CountPattern : PhantomExceptionPattern<int>
     {
         private int _counter;
 
-        public CountedTrigger(IEnumerable<int> values) : base(values) { }
+        public CountPattern(IEnumerable<int> values) : base(values) { }
 
 //        private string DebuggerDisplay => this.ToDebuggerDisplayString(b =>
 //        {
@@ -18,10 +18,10 @@ namespace Reusable.Deception.Triggers
 //            //b.DisplayValue(x => x.Current);
 //        });
 
-        protected override bool CanThrow() => ++_counter == Current;
+        protected override bool Matches() => ++_counter == Current;
 
         protected override void Reset() => _counter = 0;
 
-        public override string ToString() => $"{nameof(CountedTrigger)}: {_counter}";
+        public override string ToString() => $"{nameof(CountPattern)}: {_counter}";
     }
 }

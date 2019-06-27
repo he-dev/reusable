@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Reusable.Collections;
 using Reusable.Collections.Generators;
 using Reusable.Deception;
@@ -10,73 +13,60 @@ namespace Reusable.Tests.Deception
 {
     public class PhantomExceptionTest
     {
-        private static readonly IPhantomException PhantomException = new PhantomException(new IPhantomExceptionTrigger[]
-        {
-            new CountedTrigger(Sequence.Constant(2))
-            {
-                Filter = name => name == "James"
-            },
-            new CountedTrigger(Sequence.Constant(3))
-            {
-                Filter = name => name == "Nobody" // (default, default, nameof(Can_throw_by_member), default)
-            }
-        });
-
         [Fact]
-        public void Can_throw_by_type_and_id()
+        public void Can_throw_by_CountPattern()
         {
-            var exceptionCount = 0;
-            for (var i = 1; i < 10; i++)
+            var phantomException = new PhantomException
+            {
+                new CountPattern(Sequence.Constant(2))
+                {
+                    Predicate = name => name == "TooFast"
+                }
+            };
+
+            var counts = new List<int>();
+            foreach (var n in Sequence.Monotonic(0, 1).Take(10))
             {
                 try
                 {
-                    PhantomException.Throw("James");
+                    phantomException.Throw("TooFast");
                 }
-                catch (DynamicException ex) when (ex.NameMatches("^Phantom"))
+                catch (DynamicException ex) when (ex.NameMatches("^TooFast"))
                 {
-                    Assert.True(i % 2 == 0);
-                    exceptionCount++;
+                    counts.Add(n);
                 }
             }
 
-            Assert.Equal(4, exceptionCount);
+            Assert.Equal(Sequence.Monotonic(1, 2).Take(5), counts);
         }
 
         [Fact]
-        public void Can_throw_by_member()
+        public async Task Can_throw_by_IntervalPattern()
         {
-            var exceptionCount = 0;
-            for (var i = 1; i < 10; i++)
+            var phantomException = new PhantomException
             {
+                new IntervalPattern(Sequence.Constant(TimeSpan.FromSeconds(2)))
+                {
+                    //Predicate = // not using here
+                }
+            };
+            
+            var counts = new List<TimeSpan>();
+            foreach (var n in Sequence.Constant(TimeSpan.FromSeconds(2.5)).Take(2))
+            {
+                await Task.Delay(n);
+                
                 try
                 {
-                    PhantomException.Throw("Nobody");
+                    phantomException.Throw("TooFurious");
                 }
-                catch (DynamicException ex) when (ex.NameMatches("^Phantom"))
+                catch (DynamicException ex) when (ex.NameMatches("^TooFurious"))
                 {
-                    Assert.True(i % 3 == 0);
-                    exceptionCount++;
+                    counts.Add(n);
                 }
             }
 
-            Assert.Equal(3, exceptionCount);
+            Assert.Equal(2, counts.Count);
         }
     }
-
-    /*
-    public class AddressRepository
-    {
-        [CanBeNull]
-        public IExceptionTrap Trap { get; set; }
-
-        public IEnumerable<string> GetAddressesWithoutZip()
-        {
-            Trap?.Throw();
-
-            // do stuff...
-        }
-    }
-    */
-
-
 }

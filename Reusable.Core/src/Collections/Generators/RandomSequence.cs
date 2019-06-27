@@ -1,22 +1,21 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Reusable.Collections.Generators
 {
     public class RandomSequence : Sequence<int>
     {
-        private readonly Func<int> _next;
+        public RandomSequence(int min, int max, Func<int, int, int> next)
+            : base(Sequence.Infinite<int>().Select(_ => next(min, max))) { }
 
         public RandomSequence(int min, int max)
-        {
-            var random = new Random((int)DateTime.UtcNow.Ticks);
-            _next = () => random.Next(min, max);
-        }
+            : this(min, max, CreateNextFunc((int)DateTime.UtcNow.Ticks)) { }
 
-        public override IEnumerator<int> GetEnumerator()
+        private static Func<int, int, int> CreateNextFunc(int seed)
         {
-            while (true) yield return _next();
-            // ReSharper disable once IteratorNeverReturns - this is by design
+            var random = new Random(seed);
+            return (min, max) => random.Next(min, max);
         }
     }
 }
