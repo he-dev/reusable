@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Data;
+using Reusable.Extensions;
 using Reusable.Net.Http.Formatting;
 using Reusable.Quickey;
 
@@ -34,7 +35,7 @@ namespace Reusable.IOnymous
                     .SetItem(From<IHttpMeta>.Select(x => x.ContentType), "application/json")
                     //.SetItem(From<IAnyMeta>.Select(x => x.Schemes), ImmutableHashSet<SoftString>.Empty.Add("http").Add("https"))
                     // Bind this request to the mailr-provider.
-                    .SetItem(From<IProviderMeta>.Select(x => x.ProviderName), MailrProvider.Name);
+                    .SetItem(From<IProviderMeta>.Select(x => x.ProviderName), MailrProvider.Name.ToSoftString());
 
             using (var response = await resourceProvider.PostAsync(uri, () => ResourceHelper.SerializeAsJsonAsync(email, jsonSerializer), metadata))
             {

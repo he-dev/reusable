@@ -21,7 +21,7 @@ namespace Reusable.Tests.Beaver
         [Fact]
         public void Can_create_key_from_type_and_member()
         {
-            Assert.Equal("Demo.Greeting", From<IDemo>.Select(x => x.Greeting));
+            Assert.Equal("Demo.Greeting", From<IDemo>.Select(x => x.Greeting).ToString());
         }
 
         [Fact]
@@ -45,9 +45,9 @@ namespace Reusable.Tests.Beaver
 
             var bodyCounter = 0;
             var otherCounter = 0;
-            features.Execute(From<IDemo>.Select(x => x.Greeting), () => bodyCounter++, () => otherCounter++);
-            features.Execute(From<IDemo>.Select(x => x.ReadFile), () => bodyCounter++, () => otherCounter++);
-            features.Execute(From<IDatabase>.Select(x => x.Commit), () => bodyCounter++, () => otherCounter++);
+            features.Execute(From<IDemo>.Select(x => x.Greeting).ToString(), () => bodyCounter++, () => otherCounter++);
+            features.Execute(From<IDemo>.Select(x => x.ReadFile).ToString(), () => bodyCounter++, () => otherCounter++);
+            features.Execute(From<IDatabase>.Select(x => x.Commit).ToString(), () => bodyCounter++, () => otherCounter++);
 
             Assert.Equal(1, bodyCounter);
             Assert.Equal(2, otherCounter);
@@ -68,7 +68,7 @@ namespace Reusable.Tests.Beaver
 
             //_features.Configure(nameof(SayHallo), o => o.Reset(FeatureOption.Enable));
             //_features.Configure(Use<IDemo>.Namespace, x => x.Greeting, o => o ^ Enabled);
-            _features.Configure(From<IDemo>.Select(x => x.Greeting).Index("Morning"), o => o.Reset(FeatureOption.Enable));
+            _features.Configure(From<IDemo>.Select(x => x.Greeting).Index("Morning").ToString(), o => o.Reset(FeatureOption.Enable));
 
             SayHallo();
         }

@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.OneTo1</id>
-    <version>11.0.4</version>
+    <version>11.0.8</version>
     <title>Reusable.OneTo1</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -16,7 +16,7 @@
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2019.1.1" />
-      <dependency id="Reusable.Core" version="11.0.4" />
+      <dependency id="Reusable.Core" version="11.0.8" />
     </dependencies>
   </metadata>
   <files>

@@ -61,7 +61,7 @@ namespace Reusable.Flexo
             {
                 case PropertyInfo property: return property.GetValue(obj);
                 case FieldInfo field: return field.GetValue(obj);
-                default: return null; // this will never occur
+                default: return default; // this will never occur
             }
         }
     }
@@ -70,7 +70,7 @@ namespace Reusable.Flexo
     {
         public Item([NotNull] ILogger<Item> logger) : base(logger, nameof(Item))
         {
-            Path = From<IExpressionMeta>.Select(x => x.Item);
+            Path = From<IExpressionMeta>.Select(x => x.Item).ToString();
         }
 
         protected override Constant<object> InvokeCore()

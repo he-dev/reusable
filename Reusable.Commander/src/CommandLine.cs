@@ -20,6 +20,7 @@ namespace Reusable.Commander
         bool Async { get; }
     }
 
+    [UsedImplicitly]
     [UseMember]
     [PlainSelectorFormatter]
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
@@ -52,6 +53,11 @@ namespace Reusable.Commander
         public override string ToString() => this.Join(" ");
 
         public static implicit operator string(CommandLine commandLine) => commandLine?.ToString();
+    }
+
+    public static class CommandLineExtensions
+    {
+        public static bool ContainsArguments(this ICommandLine commandLine) => commandLine.Skip(1).Any();
     }
 
     internal class DefaultCommandLine : CommandLine

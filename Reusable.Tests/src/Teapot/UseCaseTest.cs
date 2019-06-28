@@ -10,9 +10,9 @@ namespace Reusable.Tests.Teapot
 {
     public class UseCaseTest : IClassFixture<TeapotFactoryFixture>
     {
-        private const string BaseUri = "http://localhost:1234";
+        private const string BaseUri = "http://localhost:2000/api";
 
-        private const string ApiUri = BaseUri + "/api";
+        //private const string ApiUri = BaseUri + "/api";
 
         private readonly TeapotServer _teapot;
 
@@ -20,8 +20,8 @@ namespace Reusable.Tests.Teapot
 
         public UseCaseTest(TeapotFactoryFixture teapotFactory)
         {
-            _teapot = teapotFactory.CreateTeapotServer(BaseUri);
-            _http = new HttpProvider(ApiUri, ImmutableSession.Empty);
+            _teapot = teapotFactory.CreateTeapotServer("http://localhost:20001/api");
+            _http = new HttpProvider("http://localhost:20001", ImmutableSession.Empty);
         }
 
         [Fact]
@@ -31,7 +31,7 @@ namespace Reusable.Tests.Teapot
             {
                 var test =
                     teacup
-                        .Mock("/api/test?param=true")
+                        .Mock("/test?param=true")
                         .ArrangePost((request, response) =>
                         {
                             request

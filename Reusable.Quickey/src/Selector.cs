@@ -112,11 +112,11 @@ namespace Reusable.Quickey
             return new Selector(Expression, Keys.Add(new Key(index) { Prefix = prefix, Suffix = suffix }));
         }
 
-        [NotNull]
-        public static implicit operator string(Selector selector) => selector.ToString();
+        //[NotNull]
+        //public static implicit operator string(Selector selector) => selector.ToString();
 
-        [NotNull]
-        public static implicit operator SoftString(Selector selector) => selector.ToString();
+        //[NotNull]
+        //public static implicit operator SoftString(Selector selector) => selector.ToString();
     }
 
     public class Selector<T> : Selector

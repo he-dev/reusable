@@ -105,9 +105,13 @@ namespace Reusable.IOnymous
         {
             get
             {
-                yield return GetType().ToPrettyString();
-                var customName = Metadata.GetItemOrDefault(From<IProviderMeta>.Select(m => m.ProviderName));
-                if (customName) yield return customName;
+                yield return GetType().ToPrettyString().ToSoftString();
+                if (Metadata.GetItemOrDefault(From<IProviderMeta>.Select(m => m.ProviderName)) is SoftString customName)
+                {
+                    yield return customName;
+                }
+
+                ;
             }
         }
 

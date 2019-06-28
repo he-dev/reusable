@@ -75,7 +75,7 @@ namespace Reusable.IOnymous
                 var resourceProviders = _providers.AsEnumerable();
 
                 // When provider-name is specified then filter them by name first.
-                if (metadata.GetItemOrDefault(From<IProviderMeta>.Select(x => x.ProviderName)) is var providerName && providerName)
+                if (metadata.GetItemOrDefault(From<IProviderMeta>.Select(x => x.ProviderName)) is SoftString providerName && providerName)
                 {
                     resourceProviders = resourceProviders.Where(p => p.Names.Contains(providerName));
                 }

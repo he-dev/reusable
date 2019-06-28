@@ -36,13 +36,26 @@ namespace Reusable.Data
             return false;
         }
 
-//        public static IImmutableSession SetItem<T>(this IImmutableSession session, Key<T> key, T value)
-//        {
-//            return session.SetItem(key, value);
-//        }
+        public static IImmutableSession SetItem<T>(this IImmutableSession session, Selector<T> key, T value)
+        {
+            return session.SetItem(key.ToString(), value);
+        }
+        
+        public static Func<IImmutableSession, IImmutableSession> MergeFunc(IImmutableSession other)
+        {
+            return current =>
+            {
+                foreach (var (key, value) in other)
+                {
+                    current = current.SetItem(key, value);
+                }
+
+                return current;
+            };
+        }
 
 //        [MustUseReturnValue]
-//        public static Metadata Union(this Metadata metadata, Metadata other)
+//        public static IImmutableSession Union(this IImmutableSession metadata, IImmutableSession other)
 //        {
 //            //return other.Aggregate(metadata, (current, i) => current.SetItem(i.Key, i.Value));
 //
@@ -50,10 +63,10 @@ namespace Reusable.Data
 //
 //            foreach (var item in other)
 //            {
-//                if (item.Value is Metadata otherScope)
+//                if (item.Value is IImmutableSession otherScope)
 //                {
 //                    // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
-//                    if (result.TryGetValue(item.Key, out Metadata currentScope))
+//                    if (result.TryGetValue(item.Key, out IImmutableSession currentScope))
 //                    {
 //                        result = result.SetItem(item.Key, currentScope.Aggregate(otherScope, (current, i) => current.SetItem(i.Key, i.Value)));
 //                    }

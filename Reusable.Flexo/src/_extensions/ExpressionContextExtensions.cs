@@ -72,7 +72,7 @@ namespace Reusable.Flexo
         {
             foreach (var current in scope.Enumerate())
             {
-                if (current.Context.TryGetValue(key, out var obj) && obj is TResult value)
+                if (current.Context.TryGetValue(key.ToString(), out var obj) && obj is TResult value)
                 {
                     return value;
                 }

@@ -38,7 +38,7 @@ namespace Reusable.Commander
 
             var position = 1;
             var argumentName = Identifier.Command; // The first parameter is always a command.
-            var commandLine = NewCommandLineDictionary(argumentName);
+            var commandLine = new CommandLineDictionary();
 
             foreach (var token in tokens.Where(Conditional.IsNotNullOrEmpty))
             {
@@ -48,21 +48,25 @@ namespace Reusable.Commander
                         yield return commandLine;
                         position = 1;
                         argumentName = Identifier.Command;
-                        commandLine = NewCommandLineDictionary(argumentName);
+                        commandLine = new CommandLineDictionary();
                         break;
 
                     case string value when IsArgumentName(value):
-                        argumentName = Identifier.FromName(RemoveParameterPrefix(value));
+                        argumentName = Identifier.FromName(RemoveArgumentPrefix(value));
                         commandLine.Add(argumentName, new CommandArgument(argumentName, Enumerable.Empty<string>()));
                         break;
 
                     default:
-                        commandLine[argumentName].Add(token);
-
+                        
                         // Use positional parameter-ids until a named one is found.
                         if (argumentName.Default.Option.Contains(NameOption.Positional))
                         {
+                            commandLine[argumentName] = new CommandArgument(argumentName, new List<string> { token });
                             argumentName = Identifier.FromPosition(position++);
+                        }
+                        else
+                        {
+                            commandLine[argumentName].Add(token);
                         }
 
                         break;
@@ -76,7 +80,7 @@ namespace Reusable.Commander
 
             bool IsArgumentName(string value) => Regex.IsMatch(value, ParameterPrefix);
 
-            string RemoveParameterPrefix(string value) => Regex.Replace(value, ParameterPrefix, string.Empty);
+            string RemoveArgumentPrefix(string value) => Regex.Replace(value, ParameterPrefix, string.Empty);
         }
 
         public IEnumerable<CommandLineDictionary> Parse(string commandLine)
@@ -84,11 +88,6 @@ namespace Reusable.Commander
             if (commandLine == null) throw new ArgumentNullException(nameof(commandLine));
 
             return Parse(_tokenizer.Tokenize(commandLine));
-        }
-
-        private static CommandLineDictionary NewCommandLineDictionary(Identifier commandName)
-        {
-            return new CommandLineDictionary { [commandName] = new CommandArgument(commandName, Enumerable.Empty<string>()) };
         }
     }
 }

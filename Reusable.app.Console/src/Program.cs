@@ -28,7 +28,7 @@ namespace Reusable.Apps
             var bar = foo.Append(2);
 
             //Demo.ConsoleColorizer();
-            Demo.SemanticExtensions();
+            //Demo.SemanticExtensions();
             //await Demo.SendEmailAsync_Smtp();
             await Demo.SendEmailAsync_Mailr();
 

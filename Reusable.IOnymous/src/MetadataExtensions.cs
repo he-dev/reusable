@@ -11,7 +11,7 @@ using Reusable.Quickey;
 namespace Reusable.IOnymous
 {
     [UseType, UseMember]
-    [TrimEnd("I"), TrimStart("Meta")]
+    [TrimStart("I"), TrimEnd("Meta")]
     [PlainSelectorFormatter]
     public interface IRequestMeta : INamespace
     {
@@ -23,7 +23,7 @@ namespace Reusable.IOnymous
     }
 
     [UseType, UseMember]
-    [TrimEnd("I"), TrimStart("Meta")]
+    [TrimStart("I"), TrimEnd("Meta")]
     [PlainSelectorFormatter]
     public interface IProviderMeta : INamespace
     {
@@ -33,7 +33,7 @@ namespace Reusable.IOnymous
     }
 
     [UseType, UseMember]
-    [TrimEnd("I"), TrimStart("Meta")]
+    [TrimStart("I"), TrimEnd("Meta")]
     [PlainSelectorFormatter]
     public interface IResourceMeta : INamespace
     {

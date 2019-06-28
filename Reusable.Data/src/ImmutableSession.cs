@@ -41,7 +41,7 @@ namespace Reusable.Data
         //IImmutableSession SetItem(SoftString key, object value);
         
         [NotNull]
-        IImmutableSession SetItem<T>(Selector<T> key, T value);
+        IImmutableSession SetItem<T>(SoftString key, T value);
     }
 
     // With a 'struct' we don't need any null-checks.
@@ -115,9 +115,9 @@ namespace Reusable.Data
         [DebuggerStepThrough]
         [MustUseReturnValue]
         //public IImmutableSession SetItem(SoftString key, object value) => new ImmutableSession(_data.Remove(key).SetItem(key, value));
-        public IImmutableSession SetItem<T>(Selector<T> key, T value)
+        public IImmutableSession SetItem<T>(SoftString key, T value)
         {
-            return new ImmutableSession(_data.Remove(key.ToString()).SetItem(key.ToString(), value));
+            return new ImmutableSession(_data.Remove(key).SetItem(key, value));
         }
 
         public IEnumerator<(SoftString Key, object Value)> GetEnumerator()

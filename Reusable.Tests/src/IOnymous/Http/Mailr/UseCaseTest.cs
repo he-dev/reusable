@@ -16,13 +16,15 @@ namespace Reusable.Tests.IOnymous.Http.Mailr
 
         public UseCaseTest(TeapotFactoryFixture teapotFactory)
         {
-            _teapot = teapotFactory.CreateTeapotServer("http://localhost:6000");
-            _http = new MailrProvider("http://localhost:6000/api");
+            _teapot = teapotFactory.CreateTeapotServer("http://localhost:6000/api");
+            _http = new MailrProvider("http://localhost:6000");
         }
 
         [Fact]
         public async Task Can_post_email_and_receive_html()
         {
+            await Task.Delay(1200);
+            
             using (var teacup = _teapot.BeginScope())
             {
                 var mailrMessagesTestMock =

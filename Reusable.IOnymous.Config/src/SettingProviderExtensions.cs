@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
+using Reusable.Extensions;
 using Reusable.IOnymous.Config.Annotations;
 using Reusable.Quickey;
 
@@ -45,7 +46,7 @@ namespace Reusable.IOnymous.Config
                 ImmutableSession
                     .Empty
                     .SetItem(From<IResourceMeta>.Select(x => x.Type), selector.MemberType)
-                    .SetItem(From<IProviderMeta>.Select(x => x.ProviderName), resource?.Provider)
+                    .SetItem(From<IProviderMeta>.Select(x => x.ProviderName), resource?.Provider.ToSoftString())
                     .SetItem(From<IResourceMeta>.Select(x => x.ActualName), $"[{selector.Keys.Join(x => x.ToString(), ", ")}]");
 
             return (uri, metadata);
