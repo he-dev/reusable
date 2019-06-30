@@ -25,14 +25,17 @@ namespace Reusable.Deception
 
         public void Throw(string name, string message = default)
         {
-            var matches = _patterns.Where(t => t.Matches(name)).Join(", ");
-            if (matches.Any())
+            lock (_patterns)
             {
-                throw DynamicException.Create
-                (
-                    name ?? "Phantom",
-                    message ?? $"This phantom exception was thrown because it matches [{matches}]."
-                );
+                var matches = _patterns.Where(t => t.Matches(name)).Join(", ");
+                if (matches.Any())
+                {
+                    throw DynamicException.Create
+                    (
+                        name ?? "Phantom",
+                        message ?? $"This phantom exception was thrown because it matches [{matches}]."
+                    );
+                }
             }
         }
 

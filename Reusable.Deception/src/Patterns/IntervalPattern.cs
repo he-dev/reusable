@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
 
-namespace Reusable.Deception.Triggers
+namespace Reusable.Deception.Patterns
 {
     [UsedImplicitly]
     public class IntervalPattern : PhantomExceptionPattern<TimeSpan>
