@@ -95,7 +95,8 @@ namespace Reusable.Commander
             var registration =
                 builder
                     .RegisterType(Type)
-                    .Keyed<ICommand>(Id)
+                    //.Keyed<ICommand>(Id)
+                    .SingleInstance()
                     .As<ICommand>();
 
             ConfigureRegistrationCallback?.Invoke(registration);

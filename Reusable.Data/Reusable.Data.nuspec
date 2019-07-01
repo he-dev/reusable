@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Data</id>
-    <version>11.0.8</version>
+    <version>11.0.14</version>
     <title>Reusable.Data</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -17,9 +17,9 @@
     <dependencies>
       <dependency id="Autofac" version="4.9.2" />
       <dependency id="JetBrains.Annotations" version="2019.1.1" />
-      <dependency id="Reusable.Core" version="11.0.8" />
-      <dependency id="Reusable.OneTo1" version="11.0.8" />
-      <dependency id="Reusable.Quickey" version="11.0.8" />
+      <dependency id="Reusable.Core" version="11.0.14" />
+      <dependency id="Reusable.OneTo1" version="11.0.14" />
+      <dependency id="Reusable.Quickey" version="11.0.14" />
     </dependencies>
   </metadata>
   <files>

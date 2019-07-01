@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Commander.Commands
 {
@@ -21,14 +22,18 @@ namespace Reusable.Commander.Commands
 
         public Lambda
         (
-            [NotNull] CommandServiceProvider<Lambda<TCommandLine, TContext>> serviceProvider,
+            ILogger<Lambda<TCommandLine, TContext>> logger,
             [NotNull] Identifier id,
             [NotNull] ExecuteCallback<TCommandLine, TContext> execute
         )
-            : base(serviceProvider, id)
+            : base(logger)
         {
+            Id = id;
             _execute = execute ?? throw new ArgumentNullException(nameof(execute));
         }
+
+        [NotNull]
+        public override Identifier Id { get; }
 
         protected override Task ExecuteAsync(TCommandLine commandLine, TContext context, CancellationToken cancellationToken)
         {

@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Reusable.Commander.Annotations;
 using Reusable.Diagnostics;
+using Reusable.Extensions;
 using Reusable.Quickey;
 
 namespace Reusable.Commander
@@ -16,7 +17,7 @@ namespace Reusable.Commander
     public interface ICommandLine : IEnumerable<CommandArgument>
     {
         string Name { get; }
-        
+
         bool Async { get; }
     }
 
@@ -32,15 +33,33 @@ namespace Reusable.Commander
         }
 
         private string DebuggerDisplay => ToString();
-        
+
         private ICommandLineReader Reader { get; }
 
         protected T GetArgument<T>(Expression<Func<T>> selector) => Reader.GetItem(selector);
 
         [Position(0)]
         public string Name => GetArgument(() => Name);
-        
+
         public bool Async => GetArgument(() => Async);
+
+        [DebuggerStepThrough]
+        public static TCommandLine Create<TCommandLine>(object argument)
+        {
+            if (argument is TCommandLine commandLine)
+            {
+                return commandLine;
+            }
+
+            var commandLineCtor =
+                typeof(TCommandLine).GetConstructor(new[] { typeof(CommandLineDictionary) }) ??
+                throw new ArgumentException($"{typeof(TCommandLine).ToPrettyString()} must have the following constructor: ctor{nameof(CommandLineDictionary)}");
+
+            return
+                argument is CommandLineDictionary arguments
+                    ? (TCommandLine)commandLineCtor.Invoke(new object[] { arguments })
+                    : default;
+        }
 
         #region IEnumerable
 
@@ -49,7 +68,7 @@ namespace Reusable.Commander
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion
-        
+
         public override string ToString() => this.Join(" ");
 
         public static implicit operator string(CommandLine commandLine) => commandLine?.ToString();

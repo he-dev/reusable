@@ -94,7 +94,7 @@ namespace Reusable.Commander
 
         public static Type GetCommandArgumentGroupType(this Type commandType)
         {
-            if (commandType.BaseType == typeof(Command))
+            if (commandType.BaseType == typeof(SimpleCommand))
             {
                 return typeof(ICommandLine);
             }

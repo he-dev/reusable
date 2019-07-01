@@ -1,4 +1,7 @@
-﻿using JetBrains.Annotations;
+﻿using System.Collections.Generic;
+using System.Linq.Custom;
+using JetBrains.Annotations;
+using Reusable.Exceptionize;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Commander
@@ -7,7 +10,7 @@ namespace Reusable.Commander
     {
         [NotNull]
         ILogger Logger { get; }
-        
+
         [NotNull]
         ICommandExecutor Executor { get; }
 
@@ -30,4 +33,6 @@ namespace Reusable.Commander
 
         public Identifier CommandId { get; }
     }
+
+    
 }

@@ -41,6 +41,7 @@
     <Compile Remove="src\CommandLineExtensions.cs" />
     <Compile Remove="src\CommandArgumentInfo.cs" />
     <Compile Remove="src\CommandArgumentProvider.cs" />
+    <Compile Remove="src\CommandServiceProvider.cs" />
   </ItemGroup>
 
 </Project>

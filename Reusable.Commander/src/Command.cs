@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,28 +22,22 @@ namespace Reusable.Commander
     [PublicAPI]
     public abstract class Command<TCommandLine, TContext> : ICommand where TCommandLine : class, ICommandLine
     {
-        [NotNull] private readonly ConstructorInfo _commandLineCtor;
-
-        protected Command([NotNull] ICommandServiceProvider serviceProvider, [CanBeNull] Identifier id = default)
+        protected Command([NotNull] ILogger logger)
         {
-            Services = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-            Id = id ?? serviceProvider.CommandId;
-            _commandLineCtor =
-                typeof(TCommandLine).GetConstructor(new[] { typeof(CommandLineDictionary) }) ??
-                throw new ArgumentException($"{typeof(TCommandLine).ToPrettyString()} must have the following constructor: ctor{nameof(CommandLineDictionary)}");
+            Logger = logger;
+            Id = CommandHelper.GetCommandId(GetType());
         }
 
+        // You set this to "protected internal" aka (public) so that the DecoratorCommand can access it when calling "base".
         [NotNull]
-        protected ICommandServiceProvider Services { get; }
+        protected internal ILogger Logger { get; }
 
-        [NotNull]
-        protected ILogger Logger => Services.Logger;
-
-        public Identifier Id { get; }
-
+        public virtual Identifier Id { get; }
+        
+        [DebuggerStepThrough]
         public virtual async Task ExecuteAsync(object argument, object context, CancellationToken cancellationToken)
         {
-            var commandLine = CreateCommandLine(argument);
+            var commandLine = CommandLine.Create<TCommandLine>(argument);
 
             if (await CanExecuteAsync(commandLine, (TContext)context, cancellationToken))
             {
@@ -53,19 +48,6 @@ namespace Reusable.Commander
             {
                 Logger.Log(Abstraction.Layer.Service().Decision("Don't execute command.").Because("Cannot execute."));
             }
-        }
-
-        private TCommandLine CreateCommandLine(object argument)
-        {
-            if (argument is TCommandLine commandLine)
-            {
-                return commandLine;
-            }
-
-            return
-                argument is CommandLineDictionary arguments
-                    ? (TCommandLine)_commandLineCtor.Invoke(new object[] { arguments })
-                    : default;
         }
 
         /// <summary>
@@ -81,12 +63,23 @@ namespace Reusable.Commander
 
     public abstract class Command<TCommandLine> : Command<TCommandLine, object> where TCommandLine : class, ICommandLine
     {
-        protected Command([NotNull] ICommandServiceProvider serviceProvider, [CanBeNull] Identifier id = default) : base(serviceProvider, id) { }
+        protected Command(ILogger logger) : base(logger) { }
     }
 
-    public abstract class Command : Command<ICommandLine, object>
+    public abstract class SimpleCommand : Command<ICommandLine, object>
     {
-        protected Command([NotNull] ICommandServiceProvider serviceProvider, Identifier id)
-            : base(serviceProvider, id) { }
+        protected SimpleCommand(ILogger logger) : base(logger) { }
+    }
+
+    [UsedImplicitly]
+    public abstract class DecoratorCommand : ICommand
+    {
+        protected DecoratorCommand(ICommand command) { Command = command; }
+
+        protected ICommand Command { get; }
+
+        public virtual Identifier Id => Command.Id;
+
+        public abstract Task ExecuteAsync(object argument, object context, CancellationToken cancellationToken);
     }
 }

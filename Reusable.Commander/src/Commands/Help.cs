@@ -13,6 +13,7 @@ using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
+using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Commander.Commands
 {
@@ -26,7 +27,6 @@ namespace Reusable.Commander.Commands
         [Tags("cmd")]
         [Position(1)]
         public string Command => GetArgument(() => Command);
-
     }
 
     [PublicAPI]
@@ -40,11 +40,11 @@ namespace Reusable.Commander.Commands
 
         private readonly IList<Type> _commandTypes;
 
-        public Help(CommandServiceProvider<Help> serviceProvider, TypeList<ICommand> commands)
-            : base(serviceProvider)
+        public Help(ILogger<Help> logger, TypeList<ICommand> commands)
+            : base(logger)
         {
             _commandTypes = commands;
-        }        
+        }
 
         protected override Task ExecuteAsync(HelpCommandLine commandLine, object context, CancellationToken cancellationToken)
         {

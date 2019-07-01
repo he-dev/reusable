@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Custom;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -16,11 +17,16 @@ namespace Reusable.Commander
 {
     public interface ICommandExecutor
     {
-        Task ExecuteAsync<TContext>([CanBeNull] string commandLineString, TContext context, CancellationToken cancellationToken = default);
+        //Task ExecuteAsync<TContext>([CanBeNull] string commandLineString, TContext context, CancellationToken cancellationToken = default);
 
-        //Task ExecuteAsync<TContext>([NotNull, ItemNotNull] IEnumerable<ICommandLine> commandLines, TContext context, CancellationToken cancellationToken = default);
-
-        //Task ExecuteAsync<TBag>([NotNull] Identifier identifier, [CanBeNull] TBag parameter = default, CancellationToken cancellationToken = default) where TBag : ICommandBag, new();
+        // You moved ICommandFactory from the the ctor to here because it causes a circular-dependency exception there.
+        Task ExecuteAsync<TContext>
+        (
+            [CanBeNull] string commandLineString,
+            [CanBeNull] TContext context,
+            [NotNull] ICommandFactory commandFactory,
+            CancellationToken cancellationToken = default
+        );
     }
 
     public delegate void ExecuteExceptionCallback(Exception exception);
@@ -29,27 +35,26 @@ namespace Reusable.Commander
     public class CommandExecutor : ICommandExecutor
     {
         private const bool Async = true;
-        
+
         private readonly ILogger _logger;
+
         private readonly ICommandLineParser _commandLineParser;
-        private readonly IIndex<Identifier, ICommand> _commands;
+
         private readonly ExecuteExceptionCallback _executeExceptionCallback;
 
         public CommandExecutor
         (
             [NotNull] ILogger<CommandExecutor> logger,
             [NotNull] ICommandLineParser commandLineParser,
-            [NotNull] IIndex<Identifier, ICommand> commands,
             [NotNull] ExecuteExceptionCallback executeExceptionCallback
         )
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _commandLineParser = commandLineParser ?? throw new ArgumentNullException(nameof(commandLineParser));
-            _commands = commands ?? throw new ArgumentNullException(nameof(commands));
             _executeExceptionCallback = executeExceptionCallback;
         }
 
-        public async Task ExecuteAsync<TContext>(string commandLineString, TContext context, CancellationToken cancellationToken)
+        public async Task ExecuteAsync<TContext>(string commandLineString, TContext context, ICommandFactory commandFactory, CancellationToken cancellationToken)
         {
             if (commandLineString.IsNullOrEmpty())
             {
@@ -57,12 +62,12 @@ namespace Reusable.Commander
             }
 
             var commandLines = _commandLineParser.Parse(commandLineString);
-            await ExecuteAsync(commandLines, context, cancellationToken);
+            await ExecuteAsync(commandLines, context, commandFactory, cancellationToken);
         }
 
-        private async Task ExecuteAsync<TContext>(IEnumerable<CommandLineDictionary> commandLines, TContext context, CancellationToken cancellationToken)
+        private async Task ExecuteAsync<TContext>(IEnumerable<CommandLineDictionary> commandLines, TContext context, ICommandFactory commandFactory, CancellationToken cancellationToken)
         {
-            var executables = GetCommands(commandLines).Select(t => new Executable
+            var executables = GetCommands(commandLines, commandFactory).Select(t => new Executable
                 {
                     Command = t.Command,
                     CommandLine = t.CommandLine,
@@ -141,24 +146,13 @@ namespace Reusable.Commander
 
         #region Helpers
 
-        private IEnumerable<(ICommand Command, CommandLineDictionary CommandLine)> GetCommands(IEnumerable<CommandLineDictionary> commandLines)
+        private IEnumerable<(ICommand Command, CommandLineDictionary CommandLine)> GetCommands(IEnumerable<CommandLineDictionary> commandLines, ICommandFactory commandFactory)
         {
             foreach (var (commandLine, i) in commandLines.Select((x, i) => (x, i)))
             {
                 var commandNameArgument = commandLine[Identifier.Command];
                 var commandName = new Identifier((commandNameArgument.Single(), NameOption.CommandLine));
-                if (_commands.TryGetValue(commandName, out var command))
-                {
-                    yield return (command, commandLine);
-                }
-                else
-                {
-                    throw DynamicException.Create
-                    (
-                        $"CommandNotFound",
-                        $"Could not find command '{commandName.Default?.ToString() ?? "Empty"}' at {i}."
-                    );
-                }
+                yield return (commandFactory.CreateCommand(commandName), commandLine);
             }
         }
 

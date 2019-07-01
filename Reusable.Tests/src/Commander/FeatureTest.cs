@@ -30,8 +30,8 @@ namespace Reusable.Tests.Commander
 
             using (var context = CreateContext(commands))
             {
-                await context.Executor.ExecuteAsync<object>("a", default);
-                await context.Executor.ExecuteAsync<object>("b", default);
+                await context.Executor.ExecuteAsync<object>("a", default, context.CommandFactory);
+                await context.Executor.ExecuteAsync<object>("b", default, context.CommandFactory);
 
                 Assert.Equal(2, counters[Identifier.FromName("a")]);
             }
@@ -50,7 +50,7 @@ namespace Reusable.Tests.Commander
 
             using (var context = CreateContext(commands))
             {
-                await context.Executor.ExecuteAsync<object>("a|b", default);
+                await context.Executor.ExecuteAsync<object>("a|b", default, context.CommandFactory);
 
                 Assert.Equal(1, counters[Identifier.FromName("a")]);
                 Assert.Equal(1, counters[Identifier.FromName("b")]);
@@ -138,7 +138,7 @@ namespace Reusable.Tests.Commander
 
             using (var context = CreateContext(commands))
             {
-                await context.Executor.ExecuteAsync<object>("test", default);
+                await context.Executor.ExecuteAsync<object>("test", default, context.CommandFactory);
 
                 Assert.Equal(false, values[nameof(TestCommandLine.Bool)]);
                 Assert.Equal(true, values[nameof(TestCommandLine.BoolWithDefaultValue)]);
@@ -166,7 +166,7 @@ namespace Reusable.Tests.Commander
 
             using (var context = CreateContext(commands))
             {
-                await context.Executor.ExecuteAsync<object>("test -bool -string bar -int32 123 -datetime \"2019-07-01\" -listofint32 1 2 3", default);
+                await context.Executor.ExecuteAsync<object>("test -bool -string bar -int32 123 -datetime \"2019-07-01\" -listofint32 1 2 3", default, context.CommandFactory);
 
                 Assert.Equal(true, values[nameof(TestCommandLine.Bool)]);
                 Assert.Equal("bar", values[nameof(TestCommandLine.String)]);

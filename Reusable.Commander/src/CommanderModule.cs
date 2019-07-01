@@ -30,11 +30,17 @@ namespace Reusable.Commander
                 .RegisterInstance((ExecuteExceptionCallback)(_ => { }));
 
             builder
+                .RegisterType<CommandFactory>()
+                .SingleInstance()
+                .As<ICommandFactory>();
+
+            builder
                 .RegisterType<CommandExecutor>()
                 .As<ICommandExecutor>();
 
-            builder
-                .RegisterGeneric(typeof(CommandServiceProvider<>));
+            // builder
+            //     .RegisterGeneric(typeof(CommandServiceProvider<>))
+            //     .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies);
 
             foreach (var commandModule in _commandModules)
             {
