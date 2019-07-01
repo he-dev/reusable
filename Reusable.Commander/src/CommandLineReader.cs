@@ -25,9 +25,9 @@ namespace Reusable.Commander
     [UsedImplicitly]
     internal class CommandLineReader : ICommandLineReader
     {
-        private readonly IDictionary<Identifier, CommandArgument> _arguments;
+        private readonly IDictionary<NameSet, CommandArgument> _arguments;
         
-        public CommandLineReader(IDictionary<Identifier, CommandArgument> arguments)
+        public CommandLineReader(IDictionary<NameSet, CommandArgument> arguments)
         {
             _arguments = arguments;
         }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Custom;
@@ -29,29 +30,24 @@ namespace Reusable.Commander
         );
     }
 
-    public delegate void ExecuteExceptionCallback(Exception exception);
-
     [UsedImplicitly]
     public class CommandExecutor : ICommandExecutor
     {
-        private const bool Async = true;
+        //private const bool Async = true;
 
         private readonly ILogger _logger;
 
         private readonly ICommandLineParser _commandLineParser;
 
-        private readonly ExecuteExceptionCallback _executeExceptionCallback;
 
         public CommandExecutor
         (
             [NotNull] ILogger<CommandExecutor> logger,
-            [NotNull] ICommandLineParser commandLineParser,
-            [NotNull] ExecuteExceptionCallback executeExceptionCallback
+            [NotNull] ICommandLineParser commandLineParser
         )
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _commandLineParser = commandLineParser ?? throw new ArgumentNullException(nameof(commandLineParser));
-            _executeExceptionCallback = executeExceptionCallback;
         }
 
         public async Task ExecuteAsync<TContext>(string commandLineString, TContext context, ICommandFactory commandFactory, CancellationToken cancellationToken)
@@ -62,43 +58,63 @@ namespace Reusable.Commander
             }
 
             var commandLines = _commandLineParser.Parse(commandLineString);
-            await ExecuteAsync(commandLines, context, commandFactory, cancellationToken);
-        }
 
-        private async Task ExecuteAsync<TContext>(IEnumerable<CommandLineDictionary> commandLines, TContext context, ICommandFactory commandFactory, CancellationToken cancellationToken)
-        {
-            var executables = GetCommands(commandLines, commandFactory).Select(t => new Executable
-                {
-                    Command = t.Command,
-                    CommandLine = t.CommandLine,
-                    Async = new DefaultCommandLine(t.CommandLine).Async
-                })
-                .ToLookup(e => e.Async);
+            var executables =
+                from t in commandLines.Select((commandLine, index) => (commandLine, index))
+                let commandNameArgument = t.commandLine[NameSet.Command]
+                let commandName = new NameSet((commandNameArgument.Single(), NameOption.CommandLine))
+                let command = commandFactory.CreateCommand(commandName)
+                select
+                (
+                    t.index,
+                    command,
+                    t.commandLine
+                );
 
-            _logger.Log(Abstraction.Layer.Service().Counter(new
-            {
-                CommandCount = executables.Count,
-                SequentialCommandCount = executables[!Async].Count(),
-                AsyncCommandCount = executables[Async].Count()
-            }));
+            var async = executables.ToLookup(e => new DefaultCommandLine(e.commandLine).Async);
+
+            _logger.Log(Abstraction.Layer.Service().Counter(new { CommandCount = async.Count, SequentialCommandCount = async[false].Count(), AsyncCommandCount = async[true].Count() }));
+
+            var exceptions = new ConcurrentBag<Exception>();
 
             using (var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
             {
                 // Execute sequential commands first.
-                foreach (var executable in executables[!Async])
+                foreach (var executable in async[false])
                 {
                     if (cancellationToken.IsCancellationRequested)
                     {
                         break;
                     }
 
-                    await ExecuteAsync(executable, context, cts);
-                }
+                    var task = executable.command.ExecuteAsync(executable.commandLine, context, cts.Token);
+                    var continuation = task.ContinueWith(t =>
+                    {
+                        exceptions.Add(t.Exception);
+                        cts.Cancel();
+                    }, TaskContinuationOptions.OnlyOnFaulted);
 
+                    if (!continuation.IsCanceled)
+                    {
+                        await continuation;
+                    }
+                }
+            }
+
+            using (var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+            {
                 // Now execute async commands.
-                var actionBlock = new ActionBlock<Executable>
+                var actionBlock = new ActionBlock<(int index, ICommand command, CommandLineDictionary commandLine)>
                 (
-                    async executable => await ExecuteAsync(executable, context, cts),
+                    async executable =>
+                    {
+                        var task = executable.command.ExecuteAsync(executable.commandLine, context, cts.Token);
+                        var continuation = task.ContinueWith(t => exceptions.Add(t.Exception), TaskContinuationOptions.OnlyOnFaulted);
+                        if (!continuation.IsCanceled)
+                        {
+                            await continuation;
+                        }
+                    },
                     new ExecutionDataflowBlockOptions
                     {
                         CancellationToken = cts.Token,
@@ -106,7 +122,7 @@ namespace Reusable.Commander
                     }
                 );
 
-                foreach (var executable in executables[Async])
+                foreach (var executable in async[true])
                 {
                     actionBlock.Post(executable);
                 }
@@ -114,57 +130,11 @@ namespace Reusable.Commander
                 actionBlock.Complete();
                 await actionBlock.Completion;
             }
-        }
 
-        private async Task ExecuteAsync<TContext>(Executable executable, TContext context, CancellationTokenSource cancellationTokenSource)
-        {
-            using (_logger.BeginScope().WithCorrelationHandle("Command").AttachElapsed())
+            if (exceptions.Any())
             {
-                _logger.Log(Abstraction.Layer.Service().Meta(new { CommandName = executable.Command.Id.Default.ToString() }));
-                try
-                {
-                    await executable.Command.ExecuteAsync(executable.CommandLine, context, cancellationTokenSource.Token);
-                    _logger.Log(Abstraction.Layer.Service().Routine(nameof(ICommand.ExecuteAsync)).Completed());
-                }
-                catch (OperationCanceledException)
-                {
-                    _logger.Log(Abstraction.Layer.Service().Routine(nameof(ICommand.ExecuteAsync)).Canceled(), "Cancelled by user.");
-                }
-                catch (Exception taskEx)
-                {
-                    _logger.Log(Abstraction.Layer.Service().Routine(nameof(ICommand.ExecuteAsync)).Faulted(), taskEx);
-
-                    if (!executable.Async)
-                    {
-                        cancellationTokenSource.Cancel();
-                    }
-
-                    _executeExceptionCallback(taskEx);
-                }
+                throw new AggregateException(exceptions);
             }
         }
-
-        #region Helpers
-
-        private IEnumerable<(ICommand Command, CommandLineDictionary CommandLine)> GetCommands(IEnumerable<CommandLineDictionary> commandLines, ICommandFactory commandFactory)
-        {
-            foreach (var (commandLine, i) in commandLines.Select((x, i) => (x, i)))
-            {
-                var commandNameArgument = commandLine[Identifier.Command];
-                var commandName = new Identifier((commandNameArgument.Single(), NameOption.CommandLine));
-                yield return (commandFactory.CreateCommand(commandName), commandLine);
-            }
-        }
-
-        #endregion
-    }
-
-    internal class Executable
-    {
-        public ICommand Command { get; set; }
-
-        public CommandLineDictionary CommandLine { get; set; }
-
-        public bool Async { get; set; }
     }
 }

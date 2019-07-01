@@ -90,7 +90,7 @@ namespace Reusable.Commander.Commands
 
         protected virtual void RenderParameterList(HelpCommandLine commandLine)
         {
-            var commandId = new Identifier(new Name(commandLine.Command));
+            var commandId = new NameSet(new Name(commandLine.Command));
             var commandType = _commandTypes.SingleOrDefault(t => CommandHelper.GetCommandId(t) == commandId);
             if (commandType is null)
             {

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Commander;
 using Reusable.Commander.Commands;
+using Reusable.Commander.DependencyInjection;
 using Reusable.Data.Annotations;
 using Reusable.Tests.Commander.Integration;
 using Xunit;
@@ -21,39 +22,39 @@ namespace Reusable.Tests.Commander
         [Fact]
         public async Task CanExecuteCommandByAnyName()
         {
-            var counters = new ConcurrentDictionary<Identifier, int>();
+            var counters = new ConcurrentDictionary<NameSet, int>();
 
             var commands =
                 ImmutableList<CommandModule>
                     .Empty
-                    .Add(new Identifier("a", "b"), ExecuteHelper.Count<TestCommandLine>(counters));
+                    .Add(new NameSet("a", "b"), ExecuteHelper.Count<TestCommandLine>(counters));
 
             using (var context = CreateContext(commands))
             {
                 await context.Executor.ExecuteAsync<object>("a", default, context.CommandFactory);
                 await context.Executor.ExecuteAsync<object>("b", default, context.CommandFactory);
 
-                Assert.Equal(2, counters[Identifier.FromName("a")]);
+                Assert.Equal(2, counters[NameSet.FromName("a")]);
             }
         }
 
         [Fact]
         public async Task CanExecuteMultipleCommands()
         {
-            var counters = new ConcurrentDictionary<Identifier, int>();
+            var counters = new ConcurrentDictionary<NameSet, int>();
 
             var commands =
                 ImmutableList<CommandModule>
                     .Empty
-                    .Add(new Identifier("a"), ExecuteHelper.Count<TestCommandLine>(counters))
-                    .Add(new Identifier("b"), ExecuteHelper.Count<TestCommandLine>(counters));
+                    .Add(new NameSet("a"), ExecuteHelper.Count<TestCommandLine>(counters))
+                    .Add(new NameSet("b"), ExecuteHelper.Count<TestCommandLine>(counters));
 
             using (var context = CreateContext(commands))
             {
                 await context.Executor.ExecuteAsync<object>("a|b", default, context.CommandFactory);
 
-                Assert.Equal(1, counters[Identifier.FromName("a")]);
-                Assert.Equal(1, counters[Identifier.FromName("b")]);
+                Assert.Equal(1, counters[NameSet.FromName("a")]);
+                Assert.Equal(1, counters[NameSet.FromName("b")]);
             }
         }
 
@@ -123,8 +124,8 @@ namespace Reusable.Tests.Commander
         [Fact]
         public async Task Uses_default_values_when_specified()
         {
-            var values = new Dictionary<Identifier, object>();
-            var commands = ImmutableList<CommandModule>.Empty.Add(new Identifier("test"), new ExecuteCallback<TestCommandLine, object>((id, commandLine, context, token) =>
+            var values = new Dictionary<NameSet, object>();
+            var commands = ImmutableList<CommandModule>.Empty.Add(new NameSet("test"), new ExecuteCallback<TestCommandLine, object>((id, commandLine, context, token) =>
             {
                 values[nameof(TestCommandLine.Bool)] = commandLine.Bool;
                 values[nameof(TestCommandLine.BoolWithDefaultValue)] = commandLine.BoolWithDefaultValue;
@@ -153,8 +154,8 @@ namespace Reusable.Tests.Commander
         [Fact]
         public async Task Can_parse_supported_types()
         {
-            var values = new Dictionary<Identifier, object>();
-            var commands = ImmutableList<CommandModule>.Empty.Add(new Identifier("test"), new ExecuteCallback<TestCommandLine, object>((id, commandLine, context, token) =>
+            var values = new Dictionary<NameSet, object>();
+            var commands = ImmutableList<CommandModule>.Empty.Add(new NameSet("test"), new ExecuteCallback<TestCommandLine, object>((id, commandLine, context, token) =>
             {
                 values[nameof(TestCommandLine.Bool)] = commandLine.Bool;
                 values[nameof(TestCommandLine.String)] = commandLine.String;
@@ -173,6 +174,18 @@ namespace Reusable.Tests.Commander
                 Assert.Equal(123, values[nameof(TestCommandLine.Int32)]);
                 Assert.Equal(new DateTime(2019, 7, 1), values[nameof(TestCommandLine.DateTime)]);
                 Assert.Equal(new[] { 1, 2, 3 }, values[nameof(TestCommandLine.ListOfInt32)]);
+            }
+        }
+
+        [Fact]
+        public async Task Throws_AggregateException_for_faulted_commands()
+        {
+            var values = new Dictionary<NameSet, object>();
+            var commands = ImmutableList<CommandModule>.Empty.Add(new NameSet("test"), new ExecuteCallback<TestCommandLine, object>((id, commandLine, context, token) => { throw new Exception("Blub!"); }));
+
+            using (var context = CreateContext(commands))
+            {
+                await Assert.ThrowsAsync<AggregateException>(async () => await context.Executor.ExecuteAsync<object>("test", default, context.CommandFactory));
             }
         }
 

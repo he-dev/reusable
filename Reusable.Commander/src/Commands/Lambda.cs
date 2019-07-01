@@ -8,7 +8,7 @@ namespace Reusable.Commander.Commands
 {
     public delegate Task ExecuteCallback<in TCommandLine, in TContext>
     (
-        Identifier commandId,
+        NameSet commandId,
         TCommandLine parameters,
         TContext context,
         CancellationToken cancellationToken = default
@@ -18,26 +18,26 @@ namespace Reusable.Commander.Commands
     {
         private readonly ExecuteCallback<TCommandLine, TContext> _execute;
 
-        public delegate Lambda<T, TContext> Factory<T>([NotNull] Identifier id, [NotNull] ExecuteCallback<TCommandLine, TContext> execute) where T : class, ICommandLine, new();
+        public delegate Lambda<T, TContext> Factory<T>([NotNull] NameSet id, [NotNull] ExecuteCallback<TCommandLine, TContext> execute) where T : class, ICommandLine, new();
 
         public Lambda
         (
             ILogger<Lambda<TCommandLine, TContext>> logger,
-            [NotNull] Identifier id,
+            [NotNull] NameSet id,
             [NotNull] ExecuteCallback<TCommandLine, TContext> execute
         )
             : base(logger)
         {
-            Id = id;
+            Name = id;
             _execute = execute ?? throw new ArgumentNullException(nameof(execute));
         }
 
         [NotNull]
-        public override Identifier Id { get; }
+        public override NameSet Name { get; }
 
         protected override Task ExecuteAsync(TCommandLine commandLine, TContext context, CancellationToken cancellationToken)
         {
-            return _execute(Id, commandLine, context, cancellationToken);
+            return _execute(Name, commandLine, context, cancellationToken);
         }
     }
 }

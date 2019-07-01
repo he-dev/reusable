@@ -43,7 +43,7 @@ namespace Reusable.Commander
 
         public bool Async => GetArgument(() => Async);
 
-        [DebuggerStepThrough]
+        [CanBeNull]
         public static TCommandLine Create<TCommandLine>(object argument)
         {
             if (argument is TCommandLine commandLine)

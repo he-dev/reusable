@@ -10,39 +10,39 @@ using Reusable.Data;
 
 namespace Reusable.Commander
 {
-    public class Identifier : ImmutableKeySet<Name>
+    public class NameSet : ImmutableKeySet<Name>
     {
-        public Identifier([NotNull] IEnumerable<Name> names) : base(names) { }
+        public NameSet([NotNull] IEnumerable<Name> names) : base(names) { }
 
-        public Identifier([NotNull] params Name[] names)
+        public NameSet([NotNull] params Name[] names)
             : this((IEnumerable<Name>)names)
         {
             if (names == null) throw new ArgumentNullException(nameof(names));
         }
 
-        public Identifier(params string[] names)
-            : this(new Identifier(names.Skip(1).Select(n => new Name(n, NameOption.Alias)).Prepend(new Name(names.First(), NameOption.Default)))) { }
+        public NameSet(params string[] names)
+            : this(new NameSet(names.Skip(1).Select(n => new Name(n, NameOption.Alias)).Prepend(new Name(names.First(), NameOption.Default)))) { }
 
-        public static Identifier Command { get; } = FromPosition(0);
+        public static NameSet Command { get; } = FromPosition(0);
 
         [NotNull]
         public Name Default => this.Single(n => n.Option.Contains(NameOption.Default | NameOption.CommandLine));
 
         public IEnumerable<Name> Aliases => this.Where(n => n.Option.Contains(NameOption.Alias));
 
-        public static Identifier FromPosition(int position)
+        public static NameSet FromPosition(int position)
         {
-            return new Identifier(new Name($"#{position}", NameOption.CommandLine | NameOption.Positional));
+            return new NameSet(new Name($"#{position}", NameOption.CommandLine | NameOption.Positional));
         }
 
-        public static Identifier FromName(string name)
+        public static NameSet FromName(string name)
         {
-            return new Identifier(new Name(name, NameOption.CommandLine));
+            return new NameSet(new Name(name, NameOption.CommandLine));
         }
 
         public override string ToString() => string.Join(", ", this.Select(x => x.ToString()));
 
-        public static implicit operator Identifier(string name) => new Identifier((name, NameOption.CommandLine));
+        public static implicit operator NameSet(string name) => new NameSet((name, NameOption.CommandLine));
     }
 
     public class Name : IEquatable<Name>

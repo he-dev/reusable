@@ -4,7 +4,7 @@ using Autofac;
 using JetBrains.Annotations;
 using Reusable.Commander.Utilities;
 
-namespace Reusable.Commander
+namespace Reusable.Commander.DependencyInjection
 {
     [PublicAPI]
     public class CommanderModule : Autofac.Module
@@ -27,9 +27,6 @@ namespace Reusable.Commander
                 .As<ICommandLineParser>();
 
             builder
-                .RegisterInstance((ExecuteExceptionCallback)(_ => { }));
-
-            builder
                 .RegisterType<CommandFactory>()
                 .SingleInstance()
                 .As<ICommandFactory>();
@@ -37,11 +34,7 @@ namespace Reusable.Commander
             builder
                 .RegisterType<CommandExecutor>()
                 .As<ICommandExecutor>();
-
-            // builder
-            //     .RegisterGeneric(typeof(CommandServiceProvider<>))
-            //     .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies);
-
+            
             foreach (var commandModule in _commandModules)
             {
                builder.RegisterModule(commandModule);

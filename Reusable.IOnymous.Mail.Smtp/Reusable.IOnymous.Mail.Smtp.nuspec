@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.IOnymous.Mail.Smtp</id>
-    <version>11.0.14</version>
+    <version>11.0.15</version>
     <title>Reusable.IOnymous.Mail.Smtp</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -17,9 +17,9 @@
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2019.1.1" />
       <dependency id="MailKit" version="2.2.0" />
-      <dependency id="Reusable.Core" version="11.0.14" />
-      <dependency id="Reusable.IOnymous.Mail" version="11.0.14" />
-      <dependency id="Reusable.IOnymous" version="11.0.14" />
+      <dependency id="Reusable.Core" version="11.0.15" />
+      <dependency id="Reusable.IOnymous.Mail" version="11.0.15" />
+      <dependency id="Reusable.IOnymous" version="11.0.15" />
     </dependencies>
   </metadata>
   <files>

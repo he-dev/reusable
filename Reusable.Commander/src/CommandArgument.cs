@@ -17,14 +17,14 @@ namespace Reusable.Commander
     {
         public const string DefaultFormat = "-:";
 
-        internal CommandArgument(Identifier name, IEnumerable<string> values) : base(values)
+        internal CommandArgument(NameSet name, IEnumerable<string> values) : base(values)
         {
             Name = name;
         }
 
         private string DebuggerDisplay => ToString();
 
-        public Identifier Name { get; }
+        public NameSet Name { get; }
 
         #region IEquatable
 

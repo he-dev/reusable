@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Autofac;
 using Reusable.Commander;
 using Reusable.Commander.Commands;
+using Reusable.Commander.DependencyInjection;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using IContainer = Autofac.IContainer;
@@ -16,9 +17,9 @@ namespace Reusable.Tests.Commander.Integration
 
     internal static class Helper
     {
-        public static TestContext CreateContext(IImmutableList<CommandModule> commandRegistrations, ExecuteExceptionCallback executeExceptionCallback = null)
+        public static TestContext CreateContext(IImmutableList<CommandModule> commandRegistrations)
         {
-            var container = InitializeContainer(commandRegistrations, executeExceptionCallback);
+            var container = InitializeContainer(commandRegistrations);
             var scope = container.BeginLifetimeScope();
 
             return new TestContext(scope.Resolve<ICommandExecutor>(), scope.Resolve<ICommandFactory>(), Disposable.Create(() =>
@@ -28,7 +29,7 @@ namespace Reusable.Tests.Commander.Integration
             }));
         }
 
-        private static IContainer InitializeContainer(IImmutableList<CommandModule> commandRegistrations, ExecuteExceptionCallback executeExceptionCallback = null)
+        private static IContainer InitializeContainer(IImmutableList<CommandModule> commandRegistrations)
         {
             var builder = new ContainerBuilder();
 
@@ -42,12 +43,6 @@ namespace Reusable.Tests.Commander.Integration
 
             builder
                 .RegisterModule(new CommanderModule(commandRegistrations));
-
-            if (!(executeExceptionCallback is null))
-            {
-                builder
-                    .RegisterInstance(executeExceptionCallback);
-            }
 
             //builder
             //    .RegisterInstance((ExecuteExceptionCallback)(ex =>
@@ -70,7 +65,7 @@ namespace Reusable.Tests.Commander.Integration
         //     };
         // }
 
-        internal static ExecuteCallback<TCommandLine, object> Count<TCommandLine>(ConcurrentDictionary<Identifier, int> counters) where TCommandLine : ICommandLine
+        internal static ExecuteCallback<TCommandLine, object> Count<TCommandLine>(ConcurrentDictionary<NameSet, int> counters) where TCommandLine : ICommandLine
         {
             return (id, commandLine, context, cancellationToken) =>
             {

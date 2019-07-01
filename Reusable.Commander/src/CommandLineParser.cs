@@ -7,7 +7,7 @@ using Reusable.Extensions;
 
 namespace Reusable.Commander
 {
-    public class CommandLineDictionary : Dictionary<Identifier, CommandArgument> { }
+    public class CommandLineDictionary : Dictionary<NameSet, CommandArgument> { }
 
     public interface ICommandLineParser
     {
@@ -37,7 +37,7 @@ namespace Reusable.Commander
             if (tokens == null) throw new ArgumentNullException(nameof(tokens));
 
             var position = 1;
-            var argumentName = Identifier.Command; // The first parameter is always a command.
+            var argumentName = NameSet.Command; // The first parameter is always a command.
             var commandLine = new CommandLineDictionary();
 
             foreach (var token in tokens.Where(Conditional.IsNotNullOrEmpty))
@@ -47,12 +47,12 @@ namespace Reusable.Commander
                     case CommandSeparator when commandLine.Any():
                         yield return commandLine;
                         position = 1;
-                        argumentName = Identifier.Command;
+                        argumentName = NameSet.Command;
                         commandLine = new CommandLineDictionary();
                         break;
 
                     case string value when IsArgumentName(value):
-                        argumentName = Identifier.FromName(RemoveArgumentPrefix(value));
+                        argumentName = NameSet.FromName(RemoveArgumentPrefix(value));
                         commandLine.Add(argumentName, new CommandArgument(argumentName, Enumerable.Empty<string>()));
                         break;
 
@@ -62,7 +62,7 @@ namespace Reusable.Commander
                         if (argumentName.Default.Option.Contains(NameOption.Positional))
                         {
                             commandLine[argumentName] = new CommandArgument(argumentName, new List<string> { token });
-                            argumentName = Identifier.FromPosition(position++);
+                            argumentName = NameSet.FromPosition(position++);
                         }
                         else
                         {

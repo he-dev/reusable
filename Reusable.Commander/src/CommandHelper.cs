@@ -15,12 +15,12 @@ namespace Reusable.Commander
 {
     public static class CommandHelper
     {
-        private static readonly ConcurrentDictionary<Type, Identifier> CommandNameCache = new ConcurrentDictionary<Type, Identifier>();
+        private static readonly ConcurrentDictionary<Type, NameSet> CommandNameCache = new ConcurrentDictionary<Type, NameSet>();
 
-        private static readonly ConcurrentDictionary<PropertyInfo, Identifier> ParameterNameCache = new ConcurrentDictionary<PropertyInfo, Identifier>();
+        private static readonly ConcurrentDictionary<PropertyInfo, NameSet> ParameterNameCache = new ConcurrentDictionary<PropertyInfo, NameSet>();
 
         [NotNull]
-        public static Identifier GetCommandId([NotNull] Type commandType)
+        public static NameSet GetCommandId([NotNull] Type commandType)
         {
             if (commandType == null) throw new ArgumentNullException(nameof(commandType));
 
@@ -35,7 +35,7 @@ namespace Reusable.Commander
             {
                 //var category = t.GetCustomAttribute<CategoryAttribute>()?.Category;
 
-                return new Identifier(GetCommandNames(t).Distinct());
+                return new NameSet(GetCommandNames(t).Distinct());
 
                 // return new Identifier(
                 //     category is null
@@ -60,14 +60,14 @@ namespace Reusable.Commander
         }
 
         [NotNull]
-        public static Identifier GetCommandParameterId([NotNull] PropertyInfo property)
+        public static NameSet GetCommandParameterId([NotNull] PropertyInfo property)
         {
             if (property == null) throw new ArgumentNullException(nameof(property));
 
             return ParameterNameCache.GetOrAdd(property, p =>
             {
                 var names = GetParameterNames(p);
-                return new Identifier(names);
+                return new NameSet(names);
             });
         }
 

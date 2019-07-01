@@ -23,7 +23,7 @@ namespace Reusable.Commander
             Position = member.GetCustomAttribute<PositionAttribute>()?.Value;
             Name =
                 Position.HasValue
-                    ? Identifier.FromPosition(Position.Value)
+                    ? NameSet.FromPosition(Position.Value)
                     : CommandHelper.GetCommandParameterId(member);
             Description = member.GetCustomAttribute<DescriptionAttribute>()?.Description;
             DefaultValue = member.GetCustomAttribute<DefaultValueAttribute>()?.Value;
@@ -42,7 +42,7 @@ namespace Reusable.Commander
         public PropertyInfo Property { get; }
 
         [NotNull]
-        public Identifier Name { get; }
+        public NameSet Name { get; }
 
         [CanBeNull]
         public string Description { get; }

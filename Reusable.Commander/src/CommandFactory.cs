@@ -6,7 +6,7 @@ namespace Reusable.Commander
 {
     public interface ICommandFactory
     {
-        ICommand CreateCommand(Identifier commandName);
+        ICommand CreateCommand(NameSet commandName);
     }
 
     internal class CommandFactory : ICommandFactory
@@ -20,11 +20,11 @@ namespace Reusable.Commander
             _commands = commands;
         }
 
-        public ICommand CreateCommand(Identifier commandName)
+        public ICommand CreateCommand(NameSet commandName)
         {
             return _commands.SingleOrThrow
             (
-                predicate: cmd => cmd.Id == commandName,
+                predicate: cmd => cmd.Name == commandName,
                 onEmpty: () => DynamicException.Create($"CommandNotFound", $"Could not find command '{commandName.Default}'.")
             );
         }
