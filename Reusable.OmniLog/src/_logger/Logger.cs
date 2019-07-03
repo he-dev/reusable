@@ -162,7 +162,15 @@ namespace Reusable.OmniLog
         }
     }
 
-    public class LoggerTransaction : ILogger
+
+    public interface ILoggerTransaction : ILogger
+    {
+        void Commit();
+        
+        void Rollback();
+    }
+
+    internal class LoggerTransaction : ILoggerTransaction
     {
         private readonly ILogger _logger;
         private readonly IList<ILog> _logs;
@@ -212,6 +220,11 @@ namespace Reusable.OmniLog
                 _logger.Log(log);
             }
 
+            Rollback();
+        }
+
+        public void Rollback()
+        {
             _logs.Clear();
         }
 

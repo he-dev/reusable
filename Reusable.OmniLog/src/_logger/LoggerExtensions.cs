@@ -170,7 +170,7 @@ namespace Reusable.OmniLog
 
         #endregion
 
-        public static LoggerTransaction BeginTransaction(this ILogger logger)
+        public static ILoggerTransaction BeginTransaction(this ILogger logger)
         {
             return new LoggerTransaction(logger);
         }

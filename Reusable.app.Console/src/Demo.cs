@@ -142,6 +142,7 @@ namespace Reusable.Apps
                 {
                     tran.Information("This message is delayed.");
                     tran.Information("This message is delayed too.");
+                    tran.Information("This message overrides the transaction as first.", l => l.OverrideTransaction());
                     tran.Commit();
                 }
             }
