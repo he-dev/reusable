@@ -15,9 +15,9 @@ namespace Reusable.IOnymous.Config
     {
         public override string Format(Selector selector)
         {
-            var plainKey = selector.Keys.Join(string.Empty);
+            var plainKey = selector.Join(string.Empty);
             var resources =
-                from m in selector.Member.AncestorTypesAndSelf()
+                from m in selector.Members()
                 where m.IsDefined(typeof(ResourceAttribute))
                 select m.GetCustomAttribute<ResourceAttribute>();
             var resource = resources.FirstOrDefault();

@@ -11,14 +11,14 @@ namespace Reusable.OmniLog
         {
             var html = paragraphAction(HtmlElement.Builder.span()).ToHtml(HtmlFormatting.Empty);
 
-            return logger.Log(LogLevel.Information, log => log.With(ColoredConsoleRx.TemplatePropertyName, html));
+            return logger.Log(log => log.With(LogProperties.Level, LogLevel.Information).With(ColoredConsoleRx.TemplatePropertyName, html));
         }
         
         public static ILogger WriteLine(this ILogger logger, Func<HtmlElement, HtmlElement> paragraphAction)
         {
             var html = paragraphAction(HtmlElement.Builder.p()).ToHtml(HtmlFormatting.Empty);
 
-            return logger.Log(LogLevel.Information, log => log.With(ColoredConsoleRx.TemplatePropertyName, html));
+            return logger.Log(log => log.With(LogProperties.Level, LogLevel.Information).With(ColoredConsoleRx.TemplatePropertyName, html));
         }       
     }
 }

@@ -5,8 +5,9 @@
     /// </summary>
     public static class LogProperties
     {
+        public static readonly SoftString Name = nameof(Name);
         public static readonly SoftString Category = nameof(Category);
-        public static readonly SoftString LogLevel = nameof(LogLevel);
+        public static readonly SoftString Level = nameof(Level);
         public static readonly SoftString Message = nameof(Message);
         public static readonly SoftString Exception = nameof(Exception);
         public static readonly SoftString Elapsed = nameof(Elapsed);
@@ -14,6 +15,7 @@
         public static readonly SoftString CallerMemberName = nameof(CallerMemberName);
         public static readonly SoftString CallerLineNumber = nameof(CallerLineNumber);
         public static readonly SoftString CallerFilePath = nameof(CallerFilePath);
+        public static readonly SoftString OverrideTransaction = nameof(OverrideTransaction);
 
         //public static readonly SoftString Scope = nameof(Scope);
         //public static readonly SoftString CorrelationId = nameof(CorrelationId);

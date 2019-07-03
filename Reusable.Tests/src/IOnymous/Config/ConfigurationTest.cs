@@ -277,7 +277,7 @@ namespace Reusable.Tests.IOnymous.Config
         public string Tree => Configuration.ReadSetting(() => Tree);
     }
 
-    [UseGlobal("day"), UseType, UseMember]
+    [UseScheme("day"), UseType, UseMember]
     [SettingSelectorFormatter]
     internal class Greeting : Nothing
     {
@@ -342,14 +342,14 @@ namespace Reusable.Tests.IOnymous.Config
         }
     }
 
-    [UseGlobal("root"), UseType, UseMember]
+    [UseScheme("root"), UseType, UseMember]
     [SettingSelectorFormatter]
     public interface IBaseConfig : INamespace
     {
         bool Enabled { get; }
     }
 
-    [UseGlobal("root"), UseType, UseMember]
+    [UseScheme("root"), UseType, UseMember]
     [SettingSelectorFormatter]
     [TrimStart("I"), TrimEnd("Config")]
     public interface ISubConfig : IBaseConfig

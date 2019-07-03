@@ -54,10 +54,13 @@ namespace Reusable.OmniLog
             if (logger == null) throw new ArgumentNullException(nameof(logger));
             if (logLevel == null) throw new ArgumentNullException(nameof(logLevel));
 
-            return logger.Log(logLevel, log =>
+            return logger.Log(log =>
             {
+                log.With(LogProperties.Level, logLevel);
                 log.Message(message);
                 log.Exception(exception);
+                logAction?.Invoke(log);
+                return log;
             });
         }
 
@@ -120,7 +123,11 @@ namespace Reusable.OmniLog
             if (messageFunc == null) throw new ArgumentNullException(nameof(messageFunc));
             if (logFunc == null) throw new ArgumentNullException(nameof(logFunc));
 
-            return logger.Log(logLevel, log => log.MessageFunc(messageFunc));
+            return logger.Log(log =>
+            {
+                log.With(LogProperties.Level, logLevel).MessageFunc(messageFunc);
+                return log;
+            });
         }
 
         #endregion
@@ -162,5 +169,10 @@ namespace Reusable.OmniLog
         }
 
         #endregion
+
+        public static LoggerTransaction BeginTransaction(this ILogger logger)
+        {
+            return new LoggerTransaction(logger);
+        }
     }
 }

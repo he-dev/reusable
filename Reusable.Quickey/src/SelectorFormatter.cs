@@ -20,7 +20,7 @@ namespace Reusable.Quickey
     {
         public override string Format(Selector selector)
         {
-            return selector.Keys.Join(string.Empty);
+            return selector.Join(string.Empty);
         }
     }
 }

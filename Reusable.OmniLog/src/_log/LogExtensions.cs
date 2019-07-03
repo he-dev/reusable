@@ -25,6 +25,8 @@ namespace Reusable.OmniLog
         public static MessageFunc MessageFunc(this ILog log, object value = default) => log.Property<MessageFunc>(value);
 
         public static Exception Exception(this ILog log, object value = default) => log.Property<Exception>(value);
+
+        public static ILog OverrideTransaction(this ILog log) => log.With((LogProperties.OverrideTransaction, true));
         
         [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")] // 'propertyName' is never null because it is set by the compiler.
         public static T Property<T>(this ILog log, object value = null, [CallerMemberName] string propertyName = null)

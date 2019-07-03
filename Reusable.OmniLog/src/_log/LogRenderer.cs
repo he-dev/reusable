@@ -7,7 +7,7 @@ namespace Reusable.OmniLog
 {
     public static class LogRenderer
     {
-        internal static Log Render(this Log log, IEnumerable<ILogAttachment> attachments)
+        internal static ILog Render(this ILog log, IEnumerable<ILogAttachment> attachments)
         {
             // Recreate the log with all properties and compute them.
 
@@ -25,7 +25,7 @@ namespace Reusable.OmniLog
             return log.Compute(log);
         }
 
-        private static Log Compute(this Log source, Log rawLog)
+        private static ILog Compute(this ILog source, ILog rawLog)
         {
             var log = new Log();
 

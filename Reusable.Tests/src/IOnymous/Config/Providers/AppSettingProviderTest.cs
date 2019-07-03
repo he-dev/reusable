@@ -44,7 +44,7 @@ namespace Reusable.Tests.IOnymous.Config.Providers
         
         //[ResourcePrefix("app")]
         //[ResourceName(Level = ResourceNameLevel.Member)]
-        [UseGlobal("app"), UseMember]
+        [UseScheme("app"), UseMember]
         [SettingSelectorFormatter]
         private interface IProgramConfig
         {

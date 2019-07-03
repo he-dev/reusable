@@ -37,7 +37,7 @@ namespace Reusable.IOnymous.Config
         {
             var uri = selector.ToString();
             var resources =
-                from t in selector.Member.AncestorTypesAndSelf()
+                from t in selector.Members()
                 where t.IsDefined(typeof(ResourceAttribute))
                 select t.GetCustomAttribute<ResourceAttribute>();
             var resource = resources.FirstOrDefault();
@@ -47,7 +47,7 @@ namespace Reusable.IOnymous.Config
                     .Empty
                     .SetItem(From<IResourceMeta>.Select(x => x.Type), selector.MemberType)
                     .SetItem(From<IProviderMeta>.Select(x => x.ProviderName), resource?.Provider.ToSoftString())
-                    .SetItem(From<IResourceMeta>.Select(x => x.ActualName), $"[{selector.Keys.Join(x => x.ToString(), ", ")}]");
+                    .SetItem(From<IResourceMeta>.Select(x => x.ActualName), $"[{selector.Join(x => x.ToString(), ", ")}]");
 
             return (uri, metadata);
         }

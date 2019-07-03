@@ -101,10 +101,12 @@ namespace Reusable.OmniLog.SemanticExtensions
 
             var values = _values;
 
+            var level = LogLevel;
             foreach (var snapshotItem in snapshotProperties)
             {
-                logger.Log(LogLevel, log =>
+                logger.Log(log =>
                 {
+                    log.With(LogProperties.Level, level);
                     log.With(AbstractionProperties.Layer, values[AbstractionProperties.Layer]);
                     log.With(AbstractionProperties.Category, values[AbstractionProperties.Category]);
                     log.With(AbstractionProperties.Identifier, snapshotItem.Key);
@@ -115,6 +117,8 @@ namespace Reusable.OmniLog.SemanticExtensions
                     }
 
                     configureLog?.Invoke(log);
+
+                    return log;
                 });
             }
         }

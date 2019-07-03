@@ -11,7 +11,7 @@ using Reusable.OmniLog.Abstractions;
 [assembly: DebuggerDisplay("{DebuggerDisplay(),nq}", Target = typeof(LoggerFactory))]
 
 namespace Reusable.OmniLog
-{    
+{
     [PublicAPI]
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class LoggerFactory : ILoggerFactory
@@ -26,7 +26,7 @@ namespace Reusable.OmniLog
         }
 
         public static LoggerFactory Empty => new LoggerFactory();
-        
+
         private string DebuggerDisplay() => this.ToDebuggerDisplayString(builder =>
         {
             builder.DisplayValue(x => x._cache.Count);
@@ -59,10 +59,18 @@ namespace Reusable.OmniLog
             }
 
             //var logger = new Logger(name, Configuration.LogPredicate, UnsubscribeLogger)
-            var logger = new Logger(name, _ => true, UnsubscribeLogger)
-            {
-                Attachments = Configuration.Attachments
-            };
+//            var logger = new Logger(name, _ => true, UnsubscribeLogger)
+//            {
+//                Attachments = Configuration.Attachments
+//            };
+
+            var logger = new Logger
+            (
+                initialize: log => log.With(("Name", name)),
+                attach: log => log.Render(Configuration.Attachments),
+                canLog: _ => true,
+                dispose: UnsubscribeLogger
+            );
 
             var subscriptions = Observers.Select(logger.Subscribe).ToList();
 
@@ -83,6 +91,7 @@ namespace Reusable.OmniLog
             {
                 item.Value.Logger.Dispose();
             }
+
             _cache.Clear();
 
             foreach (var attachement in Configuration.Attachments)

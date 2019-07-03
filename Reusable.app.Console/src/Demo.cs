@@ -75,6 +75,9 @@ namespace Reusable.Apps
             //.UseConfiguration(LoggerFactoryConfiguration.Load(fileProvider.GetFileInfo(@"cfg\omnilog.json").CreateReadStream()));
 
             var logger = loggerFactory.CreateLogger("Demo");
+            var logger2 = loggerFactory.CreateLogger("Demo");
+            
+            if (logger != logger2) throw new Exception();
 
             logger.Log(Abstraction.Layer.Infrastructure().Routine("SemLogTest").Running());
             logger.Log(Abstraction.Layer.Infrastructure().Meta(new { Null = (string)null }));
@@ -119,6 +122,27 @@ namespace Reusable.Apps
                     logger.Log(Abstraction.Layer.Infrastructure().Routine("DoSomething").Canceled().Because("No connection."));
                     logger.Log(Abstraction.Layer.Infrastructure().Routine("DoSomething").Faulted(), new DivideByZeroException("Cannot divide."));
                     logger.Log(Abstraction.Layer.Service().Decision("Don't do this.").Because("Disabled."));
+                }
+            }
+
+            using (logger.BeginScope().WithCorrelationHandle("Transaction").AttachElapsed())
+            {
+                using (var tran = logger.BeginTransaction())
+                {
+                    tran.Information("This message is not logged.");
+                }
+
+                using (var tran = logger.BeginTransaction())
+                {
+                    tran.Information("This message is not logged.");
+                    tran.Information("This message overrides the transaction.", l => l.OverrideTransaction());
+                }
+                
+                using (var tran = logger.BeginTransaction())
+                {
+                    tran.Information("This message is delayed.");
+                    tran.Information("This message is delayed too.");
+                    tran.Commit();
                 }
             }
         }

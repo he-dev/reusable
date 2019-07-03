@@ -5,27 +5,39 @@ using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
 using JetBrains.Annotations;
+using Reusable.Extensions;
 
 namespace Reusable.Quickey
 {
     public static class SelectorExtensions
     {
-        [NotNull, ItemNotNull]
-        internal static IEnumerable<Key> GetKeys(this Selector selector)
+        public static Selector Index(this Selector selector, string index, string prefix = "[", string suffix = "]")
         {
-            var keyEnumerators =
-                from m in selector.Member.AncestorTypesAndSelf()
-                where m.IsDefined(typeof(KeyEnumeratorAttribute))
-                select m.GetCustomAttribute<KeyEnumeratorAttribute>();
+            if(selector.LastOrDefault() is SelectorIndex) throw new InvalidOperationException($"'{selector.Expression}' already contains an index.");
+            return new Selector(selector.Expression, selector.Append(new SelectorName(index) { Prefix = prefix, Suffix = suffix }));
+        }
+        
+        [NotNull, ItemNotNull]
+        internal static IEnumerable<SelectorName> GetSelectorNames(this Selector selector)
+        {
+            var selectorNameEnumerators =
+                from m in selector.Members()
+                where m.IsDefined(typeof(SelectorNameEnumeratorAttribute))
+                select m.GetCustomAttribute<SelectorNameEnumeratorAttribute>();
 
-            var keyEnumerator = (keyEnumerators.FirstOrDefault() ?? new KeyEnumeratorAttribute());
+            // You want to take the nearest one to the member.
+            var selectorNameEnumerator = (selectorNameEnumerators.FirstOrDefault() ?? new SelectorNameEnumeratorAttribute());
             return
-                keyEnumerator
-                    .EnumerateKeys(selector)
+                selectorNameEnumerator
+                    .EnumerateSelectorNames(selector)
+                    // You want to take the nearest one to the member.
                     .FirstOrDefault()
-                ?? throw new InvalidOperationException($"'{selector}' is not decorated with any keys.");
+                ?? throw new InvalidOperationException($"Either the type '{selector.DeclaringType.ToPrettyString()}' or the member '{selector.Member.Name}' must be decorated with at least one 'UseXAttribute'.");
         }
 
+        /// <summary>
+        /// Adds selectors from T to a collection.
+        /// </summary>
         public static IImmutableList<Selector> AddFrom<T>(this IImmutableList<Selector> selectors)
         {
             var newSelectors =
@@ -35,6 +47,9 @@ namespace Reusable.Quickey
             return selectors.AddRange(newSelectors);
         }
 
+        /// <summary>
+        /// Filters selectors by tag names where T is an attribute that returns a collection of tags.
+        /// </summary>
         public static IEnumerable<Selector> Where<T>(this IEnumerable<Selector> selectors, params string[] names) where T : Attribute, IEnumerable<string>
         {
             if (!names.Any()) throw new ArgumentException("You need to specify at least one tag.");
@@ -56,11 +71,49 @@ namespace Reusable.Quickey
             return names.Distinct(SoftString.Comparer);
         }
 
+        /// <summary>
+        /// Formats multiple selectors.
+        /// </summary>
         public static IEnumerable<string> Format(this IEnumerable<Selector> selectors)
         {
             return
                 from s in selectors
                 select s.ToString();
+        }
+
+        /// <summary>
+        /// Enumerates selector members from last to first.
+        /// </summary>
+        public static IEnumerable<MemberInfo> Members([NotNull] this Selector selector)
+        {
+            if (selector == null) throw new ArgumentNullException(nameof(selector));
+            return selector.Member.AncestorTypesAndSelf();
+        }
+
+        private static IEnumerable<MemberInfo> AncestorTypesAndSelf(this MemberInfo member)
+        {
+            if (member == null) throw new ArgumentNullException(nameof(member));
+
+            var current = member;
+            do
+            {
+                yield return current;
+
+                if (current is Type type)
+                {
+                    if (type.IsInterface)
+                    {
+                        yield break;
+                    }
+
+                    if (type.GetProperty(member.Name) is PropertyInfo otherProperty)
+                    {
+                        yield return otherProperty;
+                    }
+                }
+
+                current = current.DeclaringType;
+            } while (!(current is null));
         }
     }
 }

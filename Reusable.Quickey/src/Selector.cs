@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Custom;
@@ -15,43 +17,45 @@ namespace Reusable.Quickey
     public interface INamespace { }
 
     [PublicAPI]
-    public class From<T> //where T : INamespace
+    public class From<T>
     {
+        /// <summary>
+        /// Gets the current From that can be used later for selection.
+        /// </summary>
         public static From<T> This => default;
         
         [NotNull]
         public static Selector<TMember> Select<TMember>([NotNull] Expression<Func<T, TMember>> selector)
         {
-            return new Selector<TMember>(selector);
+            return This.Select(selector);
         }
     }
 
     public static class FromExtensions
     {
         [NotNull]
-        public static Selector<TMember> Select<T, TMember>(this From<T> from, [NotNull] Expression<Func<T, TMember>> selector) //where T : INamespace
+        public static Selector<TMember> Select<T, TMember>(this From<T> from, [NotNull] Expression<Func<T, TMember>> selector)
         {
             return new Selector<TMember>(selector);
         }
     }
 
     [PublicAPI]
-    public class Selector
+    public class Selector : IEnumerable<SelectorName>
     {
-        private readonly bool _containsIndex;
-
+        private readonly IEnumerable<SelectorName> _selectorNames;
+        
         public Selector(LambdaExpression selector)
         {
             Expression = selector;
             (DeclaringType, Instance, Member) = MemberVisitor.GetMemberInfo(selector);
-            Keys = this.GetKeys().ToImmutableList();
-            if (Keys.Empty()) throw new ArgumentException($"'{selector}' does not specify which keys to use.");
+            _selectorNames = this.GetSelectorNames();
+            if (_selectorNames.Empty()) throw new ArgumentException($"'{selector}' does not specify which keys to use.");
         }
 
-        protected Selector(LambdaExpression selector, IImmutableList<Key> keys) : this(selector)
+        public Selector(LambdaExpression selector, IEnumerable<SelectorName> names) : this(selector)
         {
-            Keys = keys;
-            _containsIndex = true;
+            _selectorNames = names.ToImmutableList();
         }
 
         public LambdaExpression Expression { get; }
@@ -75,9 +79,6 @@ namespace Reusable.Quickey
             }
         }
 
-        [NotNull, ItemNotNull]
-        public IImmutableList<Key> Keys { get; }
-
         public static Selector FromProperty(Type declaringType, PropertyInfo property)
         {
             // () => x.Member
@@ -95,7 +96,7 @@ namespace Reusable.Quickey
         public override string ToString()
         {
             var formatters =
-                from m in Member.AncestorTypesAndSelf()
+                from m in this.Members()
                 where m.IsDefined(typeof(SelectorFormatterAttribute))
                 select m.GetCustomAttribute<SelectorFormatterAttribute>();
 
@@ -106,11 +107,9 @@ namespace Reusable.Quickey
                 ?? throw DynamicException.Create("SelectorFormatterNotFound", $"'{Expression.ToPrettyString()}' must specify a {nameof(SelectorFormatterAttribute)}");
         }
 
-        public Selector Index(string index, string prefix = "[", string suffix = "]")
-        {
-            if (_containsIndex) throw new InvalidOperationException($"'{Expression}' already contains an index.");
-            return new Selector(Expression, Keys.Add(new Key(index) { Prefix = prefix, Suffix = suffix }));
-        }
+        public IEnumerator<SelectorName> GetEnumerator() => _selectorNames.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_selectorNames).GetEnumerator();
 
         //[NotNull]
         //public static implicit operator string(Selector selector) => selector.ToString();
