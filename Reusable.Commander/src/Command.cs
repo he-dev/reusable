@@ -49,10 +49,10 @@ namespace Reusable.Commander
         protected Command(ILogger logger) : base(logger) { }
     }
 
-    public abstract class SimpleCommand : Command<ICommandLine, object>
-    {
-        protected SimpleCommand(ILogger logger) : base(logger) { }
-    }
+//    public abstract class SimpleCommand : Command<ICommandLine, object>
+//    {
+//        protected SimpleCommand(ILogger logger) : base(logger) { }
+//    }
 
     [UsedImplicitly]
     [PublicAPI]
@@ -82,7 +82,7 @@ namespace Reusable.Commander
 
         public override async Task ExecuteAsync(object argument, object context, CancellationToken cancellationToken)
         {
-            using (_logger.BeginScope().WithCorrelationHandle("Command").AttachElapsed())
+            using (_logger.BeginScope().CorrelationHandle("Command").AttachElapsed())
             {
                 _logger.Log(Abstraction.Layer.Service().Meta(new { CommandName = Command.Name.Default.ToString() }).Trace());
                 try

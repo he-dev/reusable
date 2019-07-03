@@ -26,28 +26,29 @@ namespace Reusable.OmniLog
         /// </summary>
         public static ILogScope AttachElapsed(this ILogScope scope)
         {
-            return scope.With(new ElapsedMilliseconds(nameof(Elapsed)));
+            var attachment = new ElapsedMilliseconds(nameof(Elapsed));
+            return scope.SetItem(attachment.Name, attachment);
         }
 
-        public static ILogScope WithCorrelationId(this ILogScope scope, object correlationId)
+        public static ILogScope CorrelationId(this ILogScope scope, object correlationId)
         {
-            return scope.With(nameof(WithCorrelationId), correlationId);
+            return scope.SetItem(nameof(CorrelationId), correlationId);
         }
 
-        public static ILogScope WithCorrelationId(this ILogScope scope, out object correlationId)
+        public static ILogScope CorrelationId(this ILogScope scope, out object correlationId)
         {
-            return scope.WithCorrelationId(correlationId = LogScope.NewCorrelationId());
+            return scope.CorrelationId(correlationId = LogScope.NewCorrelationId());
         }
 
         [Obsolete("Use WithCorrelationHandle and log this as Meta.")]
-        public static ILogScope WithCorrelationContext(this ILogScope scope, object correlationContext)
+        public static ILogScope CorrelationContext(this ILogScope scope, object correlationContext)
         {
-            return scope.With(nameof(WithCorrelationContext), correlationContext);
+            return scope.SetItem(nameof(CorrelationContext), correlationContext);
         }
 
         public static T CorrelationId<T>(this ILogScope scope)
         {
-            return scope.Property<T>();
+            return scope.GetItemOrDefault<T>(nameof(CorrelationId));
         }
 
         [NotNull]
@@ -60,21 +61,21 @@ namespace Reusable.OmniLog
         }
 
         [NotNull]
-        public static ILogScope WithCorrelationHandle(this ILogScope scope, [NotNull] object correlationHandle)
+        public static ILogScope CorrelationHandle(this ILogScope scope, [NotNull] object correlationHandle)
         {
             if (correlationHandle == null) throw new ArgumentNullException(nameof(correlationHandle));
 
-            return scope.With(nameof(WithCorrelationHandle), correlationHandle);
+            return scope.SetItem(nameof(CorrelationHandle), correlationHandle);
         }
         
-        public static ILogScope WithRoutine(this ILogScope scope, string identifier)
+        public static ILogScope Routine(this ILogScope scope, string identifier)
         {
-            return scope.With(nameof(WithRoutine), identifier);
+            return scope.SetItem(nameof(Routine), identifier);
         }
         
-        public static ILogScope WithCurrentRoutine(this ILogScope scope, [CallerMemberName] string identifier = null)
+        public static ILogScope CurrentRoutine(this ILogScope scope, [CallerMemberName] string identifier = null)
         {
-            return scope.WithRoutine(identifier);
+            return scope.Routine(identifier);
         }
     }
 }

@@ -94,10 +94,10 @@ namespace Reusable.Commander
 
         public static Type GetCommandArgumentGroupType(this Type commandType)
         {
-            if (commandType.BaseType == typeof(SimpleCommand))
-            {
-                return typeof(ICommandLine);
-            }
+//            if (commandType.BaseType == typeof(ICommand))
+//            {
+//                return typeof(ICommandLine);
+//            }
 
             // ReSharper disable once PossibleNullReferenceException
             // The validation makes sure that this is never null.                        

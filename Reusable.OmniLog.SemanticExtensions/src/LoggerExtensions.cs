@@ -17,7 +17,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         (
             this ILogger logger,
             TContext context,
-            Action<ILog> configureLog = null,
+            TransformCallback populate = null,
             [CallerMemberName] string callerMemberName = null,
             [CallerLineNumber] int callerLineNumber = 0,
             [CallerFilePath] string callerFilePath = null
@@ -25,10 +25,10 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             context.Log(logger, log =>
             {
-                log.Add(LogProperties.CallerMemberName, callerMemberName);
-                log.Add(LogProperties.CallerLineNumber, callerLineNumber);
-                log.Add(LogProperties.CallerFilePath, Path.GetFileName(callerFilePath));
-                configureLog?.Invoke(log);
+                log.SetItem(LogPropertyNames.CallerMemberName, callerMemberName);
+                log.SetItem(LogPropertyNames.CallerLineNumber, callerLineNumber);
+                log.SetItem(LogPropertyNames.CallerFilePath, Path.GetFileName(callerFilePath));
+                populate?.Invoke(log);
             });
         }
 
@@ -45,11 +45,7 @@ namespace Reusable.OmniLog.SemanticExtensions
             logger.Log
             (
                 context,
-                log =>
-                {
-                    log.Message(message);
-                    log.Exception(exception);
-                },
+                log => log.SetItem(LogPropertyNames.Message, message).SetItem(LogPropertyNames.Exception, exception),
                 callerMemberName,
                 callerLineNumber,
                 callerFilePath
@@ -68,7 +64,7 @@ namespace Reusable.OmniLog.SemanticExtensions
             logger.Log
             (
                 context,
-                log => { log.Message(message); },
+                log => log.SetItem(LogPropertyNames.Message, message),
                 callerMemberName,
                 callerLineNumber,
                 callerFilePath
@@ -87,7 +83,7 @@ namespace Reusable.OmniLog.SemanticExtensions
             logger.Log
             (
                 context,
-                log => { log.Exception(exception); },
+                log => log.SetItem(LogPropertyNames.Exception, exception),
                 callerMemberName,
                 callerLineNumber,
                 callerFilePath

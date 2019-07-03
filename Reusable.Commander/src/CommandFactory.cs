@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq.Custom;
+using Autofac;
 using Reusable.Exceptionize;
 
 namespace Reusable.Commander
@@ -11,18 +12,21 @@ namespace Reusable.Commander
 
     internal class CommandFactory : ICommandFactory
     {
-        private readonly IEnumerable<ICommand> _commands;
+        private readonly ILifetimeScope _scope;
+        //private readonly IEnumerable<ICommand> _commands;
 
         // You used IIndex<,> here before but it didn't work with decorated commands.
         // You tested it in LINQPad with "Autofac and decorators".
-        public CommandFactory(IEnumerable<ICommand> commands)
+        public CommandFactory(ILifetimeScope scope)
         {
-            _commands = commands;
+            _scope = scope;
+            //_commands = commands;
         }
 
         public ICommand CreateCommand(NameSet commandName)
         {
-            return _commands.SingleOrThrow
+            var commands = _scope.Resolve<IEnumerable<ICommand>>();
+            return commands.SingleOrThrow
             (
                 predicate: cmd => cmd.Name == commandName,
                 onEmpty: () => DynamicException.Create($"CommandNotFound", $"Could not find command '{commandName.Default}'.")

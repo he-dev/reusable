@@ -93,11 +93,13 @@ namespace Reusable.OmniLog
                         }
                     }), log =>
                     {
-                        log.Level(MapStatusCode(context.Response.StatusCode));
+                        log.SetItem(LogPropertyNames.Level, MapStatusCode(context.Response.StatusCode));
                         if (context.ResponseBodyLoggingEnabled())
                         {
                             log.Message(body);
                         }
+
+                        return log;
                     });
                 }
                 catch (Exception inner)

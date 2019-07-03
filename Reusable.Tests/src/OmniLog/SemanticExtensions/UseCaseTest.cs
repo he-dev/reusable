@@ -36,7 +36,7 @@ namespace Reusable.Tests.OmniLog.SemanticExtensions
         [Fact]
         public void Logs_semantic_extensions()
         {
-            using (_logger.BeginScope().WithRoutine("TestRoutine"))
+            using (_logger.BeginScope().Routine("TestRoutine"))
             {
                 _logger.Log(Abstraction.Layer.Infrastructure().Decision("Say hallo!").Because("Seen friend."));
 

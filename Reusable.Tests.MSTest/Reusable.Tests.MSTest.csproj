@@ -60,6 +60,8 @@
     <Compile Remove="src\SmartConfig\Reflection\SettingMetadataTest.cs" />
     <Compile Remove="src\SmartConfig\Data\SettingNameTest.cs" />
     <Compile Remove="src\Utilities\SqlClient\SqlSeederTest.cs" />
+    <Compile Remove="src\OmniLog\FeatureTest.cs" />
+    <Compile Remove="src\OmniLog\SemanticExtensions\FeatureTest.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -157,6 +159,7 @@
 
   <ItemGroup>
     <Folder Include="res\sdk\Mailr\Models" />
+    <Folder Include="src\OmniLog\SemanticExtensions" />
     <Folder Include="src\SmartConfig\Data" />
     <Folder Include="src\SmartConfig\Integration\" />
     <Folder Include="src\SmartConfig\Reflection" />

@@ -7,7 +7,7 @@ namespace Reusable.OmniLog.Attachments
     {
         public override object Compute(ILog log)
         {
-            return log.Property<Stopwatch>(null, nameof(Stopwatch)).Elapsed.TotalSeconds;
+            return log.GetItemOrDefault<Stopwatch>(nameof(Stopwatch)).Elapsed.TotalSeconds;
         }
     }
 }

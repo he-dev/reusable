@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Reusable.Extensions;
@@ -22,7 +23,7 @@ namespace Reusable.OmniLog
 
         protected override void Log(ILog log)
         {
-            GetLogger(log.Name()).Log(CreateLogEventInfo(log));
+            GetLogger(log.GetItemOrDefault<string>(LogPropertyNames.Name)).Log(CreateLogEventInfo(log));
         }
 
         private static NLog.LogEventInfo CreateLogEventInfo(ILog log)
@@ -30,11 +31,11 @@ namespace Reusable.OmniLog
             log = log.Flatten();
             var logEventInfo = new NLog.LogEventInfo
             {
-                Level = LogLevelMap[log.Level()],
-                LoggerName = log.Name().ToString(),
-                Message = log.Message(),
-                Exception = log.Exception(),
-                TimeStamp = log.Timestamp(),
+                Level = LogLevelMap[log.GetItemOrDefault<LogLevel>(LogPropertyNames.Level)],
+                LoggerName = log.GetItemOrDefault<string>(LogPropertyNames.Name),
+                Message = log.GetItemOrDefault<string>(LogPropertyNames.Message),
+                Exception = log.GetItemOrDefault<Exception>(LogPropertyNames.Exception),
+                TimeStamp = log.GetItemOrDefault<DateTime>(LogPropertyNames.Timestamp),
             };
 
             logEventInfo.Properties.AddRangeSafely(log.Select(x => ((object)x.Key.ToString(), x.Value)));

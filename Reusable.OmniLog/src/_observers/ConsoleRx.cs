@@ -21,7 +21,7 @@ namespace Reusable.OmniLog
         {
             using (Disposable.Create(Console.ResetColor))
             {
-                if (Colorful && DefaultColors.TryGetValue(log.Level(), out var consoleColor))
+                if (Colorful && DefaultColors.TryGetValue(log.GetItemOrDefault<LogLevel>(LogPropertyNames.Level), out var consoleColor))
                 {
                     Console.ForegroundColor = consoleColor;
                 }

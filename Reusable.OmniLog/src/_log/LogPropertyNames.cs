@@ -3,7 +3,7 @@
     /// <summary>
     /// This class provides default property names.
     /// </summary>
-    public static class LogProperties
+    public static class LogPropertyNames
     {
         public static readonly SoftString Name = nameof(Name);
         public static readonly SoftString Category = nameof(Category);
@@ -15,7 +15,7 @@
         public static readonly SoftString CallerMemberName = nameof(CallerMemberName);
         public static readonly SoftString CallerLineNumber = nameof(CallerLineNumber);
         public static readonly SoftString CallerFilePath = nameof(CallerFilePath);
-        public static readonly SoftString OverrideTransaction = nameof(OverrideTransaction);
+        public static readonly SoftString OverridesTransaction = nameof(OverridesTransaction);
 
         //public static readonly SoftString Scope = nameof(Scope);
         //public static readonly SoftString CorrelationId = nameof(CorrelationId);

@@ -149,12 +149,14 @@ namespace Reusable.Apps.Server
 
             if (!string.IsNullOrWhiteSpace(product))
             {
-                scope.With(new Lambda("Product", _ => product));
+                var attachment = new Lambda("Product", _ => product);
+                scope.SetItem(attachment.Name, attachment);
             }
 
             if (!string.IsNullOrWhiteSpace(environment))
             {
-                scope.With(new Lambda("Environment", _ => environment));
+                var attachment = new Lambda("Environment", _ => environment);
+                scope.SetItem(attachment.Name, attachment);
             }
 
             return scope;
@@ -166,7 +168,7 @@ namespace Reusable.Apps.Server
 
             if (!string.IsNullOrWhiteSpace(correlationId))
             {
-                scope.WithCorrelationId(correlationId);
+                scope.CorrelationId(correlationId);
             }
             return scope;
         }

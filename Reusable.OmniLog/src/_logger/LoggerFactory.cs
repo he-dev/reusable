@@ -58,15 +58,9 @@ namespace Reusable.OmniLog
                 }
             }
 
-            //var logger = new Logger(name, Configuration.LogPredicate, UnsubscribeLogger)
-//            var logger = new Logger(name, _ => true, UnsubscribeLogger)
-//            {
-//                Attachments = Configuration.Attachments
-//            };
-
             var logger = new Logger
             (
-                initialize: log => log.With(("Name", name)),
+                initialize: log => log.SetItem(LogPropertyNames.Name, name.ToString()),
                 attach: log => log.Render(Configuration.Attachments),
                 canLog: _ => true,
                 dispose: UnsubscribeLogger
@@ -94,9 +88,9 @@ namespace Reusable.OmniLog
 
             _cache.Clear();
 
-            foreach (var attachement in Configuration.Attachments)
+            foreach (var attachment in Configuration.Attachments)
             {
-                if (attachement is IDisposable disposable)
+                if (attachment is IDisposable disposable)
                 {
                     disposable.Dispose();
                 }

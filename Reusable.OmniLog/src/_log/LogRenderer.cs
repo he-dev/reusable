@@ -39,7 +39,7 @@ namespace Reusable.OmniLog
                     //		break;s
 
                     case MessageFunc messageFunc:
-                        log[LogProperties.Message] = messageFunc();
+                        log[LogPropertyNames.Message] = messageFunc();
                         break;
 
                     // It is allowed to set the value before the attachment is computed.

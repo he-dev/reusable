@@ -12,34 +12,34 @@ namespace Reusable.OmniLog
     {
         #region LogLevels
 
-        public static ILogger Trace(this ILogger logger, string message, Func<ILog, ILog> logAction = null)
+        public static ILogger Trace(this ILogger logger, string message, TransformCallback populate = null)
         {
-            return logger.Log(LogLevel.Trace, message, null, logAction);
+            return logger.Log(LogLevel.Trace, message, null, populate);
         }
 
-        public static ILogger Debug(this ILogger logger, string message, Func<ILog, ILog> logAction = null)
+        public static ILogger Debug(this ILogger logger, string message, TransformCallback populate = null)
         {
-            return logger.Log(LogLevel.Debug, message, null, logAction);
+            return logger.Log(LogLevel.Debug, message, null, populate);
         }
 
-        public static ILogger Warning(this ILogger logger, string message, Func<ILog, ILog> logAction = null)
+        public static ILogger Warning(this ILogger logger, string message, TransformCallback populate = null)
         {
-            return logger.Log(LogLevel.Warning, message, null, logAction);
+            return logger.Log(LogLevel.Warning, message, null, populate);
         }
 
-        public static ILogger Information(this ILogger logger, string message, Func<ILog, ILog> logAction = null)
+        public static ILogger Information(this ILogger logger, string message, TransformCallback populate = null)
         {
-            return logger.Log(LogLevel.Information, message, null, logAction);
+            return logger.Log(LogLevel.Information, message, null, populate);
         }
 
-        public static ILogger Error(this ILogger logger, string message, Exception exception = null, Func<ILog, ILog> logAction = null)
+        public static ILogger Error(this ILogger logger, string message, Exception exception = null, TransformCallback populate = null)
         {
-            return logger.Log(LogLevel.Error, message, exception, logAction);
+            return logger.Log(LogLevel.Error, message, exception, populate);
         }
 
-        public static ILogger Fatal(this ILogger logger, string message, Exception exception = null, Func<ILog, ILog> logAction = null)
+        public static ILogger Fatal(this ILogger logger, string message, Exception exception = null, TransformCallback populate = null)
         {
-            return logger.Log(LogLevel.Fatal, message, exception, logAction);
+            return logger.Log(LogLevel.Fatal, message, exception, populate);
         }
 
         private static ILogger Log
@@ -48,7 +48,7 @@ namespace Reusable.OmniLog
             [NotNull] LogLevel logLevel,
             [CanBeNull] string message,
             [CanBeNull] Exception exception,
-            [CanBeNull] Func<ILog, ILog> logAction
+            [CanBeNull] TransformCallback populate
         )
         {
             if (logger == null) throw new ArgumentNullException(nameof(logger));
@@ -56,11 +56,12 @@ namespace Reusable.OmniLog
 
             return logger.Log(log =>
             {
-                log.With(LogProperties.Level, logLevel);
-                log.Message(message);
-                log.Exception(exception);
-                logAction?.Invoke(log);
-                return log;
+                log =
+                    log
+                        .SetItem(LogPropertyNames.Level, logLevel)
+                        .SetItem(LogPropertyNames.Message, message)
+                        .SetItem(LogPropertyNames.Exception, exception);
+                return (populate ?? OmniLog.Log.EmptyTransform)(log);
             });
         }
 
@@ -68,67 +69,67 @@ namespace Reusable.OmniLog
 
         #region LogLevels lazy
 
-        public static ILogger Trace(this ILogger logger, MessageFunc messageFunc, Func<ILog, ILog> logFunc = null)
-        {
-            return logger.Log(LogLevel.Trace, messageFunc, logFunc ?? (_ => _));
-        }
+//        public static ILogger Trace(this ILogger logger, MessageFunc messageFunc, Func<ILog, ILog> logFunc = null)
+//        {
+//            return logger.Log(LogLevel.Trace, messageFunc, logFunc ?? (_ => _));
+//        }
+//
+//        public static ILogger Debug(this ILogger logger, MessageFunc messageFunc, Func<ILog, ILog> logFunc = null)
+//        {
+//            return logger.Log(LogLevel.Debug, messageFunc, logFunc ?? (_ => _));
+//        }
+//
+//        public static ILogger Information(this ILogger logger, MessageFunc messageFunc, Func<ILog, ILog> logFunc = null)
+//        {
+//            return logger.Log(LogLevel.Information, messageFunc, logFunc ?? (_ => _));
+//        }
+//
+//        public static ILogger Warning(this ILogger logger, MessageFunc messageFunc, Func<ILog, ILog> logFunc = null)
+//        {
+//            return logger.Log(LogLevel.Warning, messageFunc, logFunc ?? (_ => _));
+//        }
+//
+//        public static ILogger Error(this ILogger logger, MessageFunc messageFunc, Func<ILog, ILog> logFunc = null)
+//        {
+//            return logger.Log(LogLevel.Error, messageFunc, logFunc ?? (_ => _));
+//        }
+//
+//        public static ILogger Fatal(this ILogger logger, MessageFunc messageFunc, Func<ILog, ILog> logFunc = null)
+//        {
+//            return logger.Log(LogLevel.Fatal, messageFunc, logFunc ?? (_ => _));
+//        }
+//
+//        public static T TraceReturn<T>(this ILogger logger, T obj, Func<T, string> messageFunc, Func<ILog, ILog> logFunc = null)
+//        {
+//            logger.Log(LogLevel.Trace, () => messageFunc(obj), logFunc ?? (_ => _));
+//            return obj;
+//        }
+//
+//        public static T DebugReturn<T>(this ILogger logger, T obj, Func<T, string> messageFunc, Func<ILog, ILog> logFunc = null)
+//        {
+//            logger.Log(LogLevel.Debug, () => messageFunc(obj), logFunc ?? (_ => _));
+//            return obj;
+//        }
 
-        public static ILogger Debug(this ILogger logger, MessageFunc messageFunc, Func<ILog, ILog> logFunc = null)
-        {
-            return logger.Log(LogLevel.Debug, messageFunc, logFunc ?? (_ => _));
-        }
-
-        public static ILogger Information(this ILogger logger, MessageFunc messageFunc, Func<ILog, ILog> logFunc = null)
-        {
-            return logger.Log(LogLevel.Information, messageFunc, logFunc ?? (_ => _));
-        }
-
-        public static ILogger Warning(this ILogger logger, MessageFunc messageFunc, Func<ILog, ILog> logFunc = null)
-        {
-            return logger.Log(LogLevel.Warning, messageFunc, logFunc ?? (_ => _));
-        }
-
-        public static ILogger Error(this ILogger logger, MessageFunc messageFunc, Func<ILog, ILog> logFunc = null)
-        {
-            return logger.Log(LogLevel.Error, messageFunc, logFunc ?? (_ => _));
-        }
-
-        public static ILogger Fatal(this ILogger logger, MessageFunc messageFunc, Func<ILog, ILog> logFunc = null)
-        {
-            return logger.Log(LogLevel.Fatal, messageFunc, logFunc ?? (_ => _));
-        }
-
-        public static T TraceReturn<T>(this ILogger logger, T obj, Func<T, string> messageFunc, Func<ILog, ILog> logFunc = null)
-        {
-            logger.Log(LogLevel.Trace, () => messageFunc(obj), logFunc ?? (_ => _));
-            return obj;
-        }
-
-        public static T DebugReturn<T>(this ILogger logger, T obj, Func<T, string> messageFunc, Func<ILog, ILog> logFunc = null)
-        {
-            logger.Log(LogLevel.Debug, () => messageFunc(obj), logFunc ?? (_ => _));
-            return obj;
-        }
-
-        private static ILogger Log
-        (
-            [NotNull] this ILogger logger,
-            [NotNull] LogLevel logLevel,
-            [NotNull] MessageFunc messageFunc,
-            [NotNull] Func<ILog, ILog> logFunc
-        )
-        {
-            if (logger == null) throw new ArgumentNullException(nameof(logger));
-            if (logLevel == null) throw new ArgumentNullException(nameof(logLevel));
-            if (messageFunc == null) throw new ArgumentNullException(nameof(messageFunc));
-            if (logFunc == null) throw new ArgumentNullException(nameof(logFunc));
-
-            return logger.Log(log =>
-            {
-                log.With(LogProperties.Level, logLevel).MessageFunc(messageFunc);
-                return log;
-            });
-        }
+//        private static ILogger Log
+//        (
+//            [NotNull] this ILogger logger,
+//            [NotNull] LogLevel logLevel,
+//            [NotNull] MessageFunc messageFunc,
+//            [NotNull] Func<ILog, ILog> logFunc
+//        )
+//        {
+//            if (logger == null) throw new ArgumentNullException(nameof(logger));
+//            if (logLevel == null) throw new ArgumentNullException(nameof(logLevel));
+//            if (messageFunc == null) throw new ArgumentNullException(nameof(messageFunc));
+//            if (logFunc == null) throw new ArgumentNullException(nameof(logFunc));
+//
+//            return logger.Log(log =>
+//            {
+//                log.With(LogPropertyNames.Level, logLevel).MessageFunc(messageFunc);
+//                return log;
+//            });
+//        }
 
         #endregion
 
@@ -146,7 +147,7 @@ namespace Reusable.OmniLog
         public static ILogScope BeginScope(this ILogger logger, out object correlationId)
         {
             var scope = LogScope.Push();
-            scope.WithCorrelationId(out correlationId);
+            scope.CorrelationId(out correlationId);
             return scope;
         }
 

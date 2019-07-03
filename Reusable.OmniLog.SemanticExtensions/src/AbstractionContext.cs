@@ -106,12 +106,12 @@ namespace Reusable.OmniLog.SemanticExtensions
             {
                 logger.Log(log =>
                 {
-                    log.With(LogProperties.Level, level);
-                    log.With(AbstractionProperties.Layer, values[AbstractionProperties.Layer]);
-                    log.With(AbstractionProperties.Category, values[AbstractionProperties.Category]);
-                    log.With(AbstractionProperties.Identifier, snapshotItem.Key);
-                    log.With(Snapshot.BagKey, snapshotItem.Value);
-                    if (values.TryGetValue(AbstractionProperties.Message, out var message))
+                    log.SetItem(LogPropertyNames.Level, level);
+                    log.SetItem(AbstractionProperties.Layer, values[AbstractionProperties.Layer]);
+                    log.SetItem(AbstractionProperties.Category, values[AbstractionProperties.Category]);
+                    log.SetItem(AbstractionProperties.Identifier, snapshotItem.Key);
+                    log.SetItem(Snapshot.BagKey, snapshotItem.Value);
+                    if (values.TryGetValue(AbstractionProperties.Message, out var obj) && obj is string message)
                     {
                         log.Message(message);
                     }

@@ -84,7 +84,7 @@ namespace Reusable.Apps
 
 
             // Opening outer-transaction.
-            using (logger.BeginScope().WithCorrelationHandle("Blub").WithRoutine("MyRoutine").WithCorrelationContext(new { Name = "OuterScope", CustomerId = 123 }).AttachElapsed())
+            using (logger.BeginScope().CorrelationHandle("Blub").Routine("MyRoutine").CorrelationContext(new { Name = "OuterScope", CustomerId = 123 }).AttachElapsed())
             {
                 // Logging some single business variable and a message.
                 logger.Log(Abstraction.Layer.Business().Variable(new { foo = "bar" }), log => log.Message("Hallo variable!"));
@@ -92,7 +92,7 @@ namespace Reusable.Apps
                 logger.Log(Abstraction.Layer.Database().Decision("blub").Because("bluby"));
 
                 // Opening inner-transaction.
-                using (logger.BeginScope().WithCorrelationContext(new { Name = "InnerScope", ItemId = 456 }).AttachElapsed())
+                using (logger.BeginScope().CorrelationContext(new { Name = "InnerScope", ItemId = 456 }).AttachElapsed())
                 {
                     logger.Log(Abstraction.Layer.Infrastructure().RoutineFromScope().Running());
 
@@ -125,7 +125,7 @@ namespace Reusable.Apps
                 }
             }
 
-            using (logger.BeginScope().WithCorrelationHandle("Transaction").AttachElapsed())
+            using (logger.BeginScope().CorrelationHandle("Transaction").AttachElapsed())
             {
                 using (var tran = logger.BeginTransaction())
                 {

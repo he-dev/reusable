@@ -27,7 +27,7 @@ namespace Reusable.OmniLog
 
         protected override void Log(ILog log)
         {
-            var template = log.Property<string>(null, TemplatePropertyName);
+            var template = log.GetItemOrDefault<string>(TemplatePropertyName);
             if (template.IsNotNullOrEmpty())
             {
                 _renderer.Render(template);

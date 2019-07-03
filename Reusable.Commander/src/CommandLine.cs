@@ -25,9 +25,9 @@ namespace Reusable.Commander
     [UseMember]
     [PlainSelectorFormatter]
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
-    public abstract class CommandLine : ICommandLine
+    public class CommandLine : ICommandLine
     {
-        protected CommandLine(CommandLineDictionary arguments)
+        public CommandLine(CommandLineDictionary arguments)
         {
             Reader = new CommandLineReader(arguments);
         }
@@ -79,8 +79,8 @@ namespace Reusable.Commander
         public static bool ContainsArguments(this ICommandLine commandLine) => commandLine.Skip(1).Any();
     }
 
-    internal class DefaultCommandLine : CommandLine
-    {
-        public DefaultCommandLine(CommandLineDictionary arguments) : base(arguments) { }
-    }
+//    internal class DefaultCommandLine : CommandLine
+//    {
+//        public DefaultCommandLine(CommandLineDictionary arguments) : base(arguments) { }
+//    }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -30,11 +31,11 @@ namespace Reusable.OmniLog
                 log = log.Flatten();
                 var entry = new Log
                 {
-                    ["Level"] = log.Level(),
-                    ["Logger"] = log.Name().ToString(),
-                    ["Message"] = log.Message(),
-                    ["Exception"] = log.Exception(),
-                    ["TimeStamp"] = log.Timestamp()
+                    ["Level"] = log.GetItemOrDefault<LogLevel>(LogPropertyNames.Level),
+                    ["Logger"] = log.GetItemOrDefault<string>(LogPropertyNames.Name),
+                    ["Message"] = log.GetItemOrDefault<string>(LogPropertyNames.Message),
+                    ["Exception"] = log.GetItemOrDefault<Exception>(LogPropertyNames.Exception),
+                    ["TimeStamp"] = log.GetItemOrDefault<DateTime>(LogPropertyNames.Timestamp)
                 };
 
                 foreach (var item in log)

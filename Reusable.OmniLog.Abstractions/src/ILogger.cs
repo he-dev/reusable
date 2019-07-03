@@ -5,22 +5,22 @@ using Reusable.Collections;
 namespace Reusable.OmniLog.Abstractions
 {
     public delegate ILog TransformCallback(ILog log);
-    
+
     /// <inheritdoc />
     /// <summary>
     /// The base interface for all loggers. The disposable interface can be used to unsubscribe any observers from the logger. It doesn't use any resources so dispose is optional.
     /// </summary>
     public interface ILogger : IDisposable
     {
-        //[AutoEqualityProperty]
-        //SoftString Name { get; }
+        // You need customizeResult so that a decorator can intercept the result.
+        [NotNull]
+        ILogger Log(TransformCallback populate, TransformCallback customizeResult = default);
 
         [NotNull]
-        //ILogger Log([NotNull] ILogLevel logLevel, [NotNull] Action<ILog> logAction);
-        ILogger Log(TransformCallback populate, TransformCallback customizeResult = default);
-        
         ILogger Log([NotNull] ILog log);
     }
-    
+
+    // You need T here because you use it for dependency injection
+    // to automatically create a name for the logger from T. 
     public interface ILogger<T> : ILogger { }
 }

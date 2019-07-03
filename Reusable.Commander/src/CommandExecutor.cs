@@ -71,7 +71,7 @@ namespace Reusable.Commander
                     t.commandLine
                 );
 
-            var async = executables.ToLookup(e => new DefaultCommandLine(e.commandLine).Async);
+            var async = executables.ToLookup(e => new CommandLine(e.commandLine).Async);
 
             _logger.Log(Abstraction.Layer.Service().Counter(new { CommandCount = async.Count, SequentialCommandCount = async[false].Count(), AsyncCommandCount = async[true].Count() }));
 
@@ -94,9 +94,13 @@ namespace Reusable.Commander
                         cts.Cancel();
                     }, TaskContinuationOptions.OnlyOnFaulted);
 
-                    if (!continuation.IsCanceled)
+                    try
                     {
                         await continuation;
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        /* ignore this exception */
                     }
                 }
             }
@@ -110,9 +114,13 @@ namespace Reusable.Commander
                     {
                         var task = executable.command.ExecuteAsync(executable.commandLine, context, cts.Token);
                         var continuation = task.ContinueWith(t => exceptions.Add(t.Exception), TaskContinuationOptions.OnlyOnFaulted);
-                        if (!continuation.IsCanceled)
+                        try
                         {
                             await continuation;
+                        }
+                        catch (TaskCanceledException)
+                        {
+                            /* ignore this exception */
                         }
                     },
                     new ExecutionDataflowBlockOptions

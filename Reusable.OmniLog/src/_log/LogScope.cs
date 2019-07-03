@@ -71,8 +71,8 @@ namespace Reusable.OmniLog
 
         public int Depth
         {
-            get => this.Property<int>();
-            private set => this.Property<int>(value);
+            get => this.GetItemOrDefault(nameof(Depth), 0);
+            private set => this.SetItem(nameof(Depth), value);
         }
 
         #endregion

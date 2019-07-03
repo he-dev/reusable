@@ -64,7 +64,7 @@ namespace Reusable.Beaver
             var options = GetOptions(name);
             var defaultOptions = GetDefaultOptions(name);
 
-            using (_logger.BeginScope().WithCorrelationHandle("Feature").AttachElapsed())
+            using (_logger.BeginScope().CorrelationHandle("Feature").AttachElapsed())
             {
                 _logger.Log(Abstraction.Layer.Service().Meta(new { FeatureName = name }).Trace());
                 

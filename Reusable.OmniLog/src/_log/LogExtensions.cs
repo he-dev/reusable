@@ -12,44 +12,35 @@ namespace Reusable.OmniLog
     {
         #region Log properties
 
-        public static SoftString Name(this ILog log, object value = default) => log.Property<SoftString>(value);
-
-        public static DateTime Timestamp(this ILog log, object value = default) => log.Property<DateTime>(value);
-
-        public static TimeSpan Elapsed(this ILog log, object value = default) => log.Property<TimeSpan>(value);
-
-        public static LogLevel Level(this ILog log, object value = default) => log.Property<LogLevel>(value);
-
-        public static string Message(this ILog log, object value = default) => log.Property<string>(value);
-
-        public static MessageFunc MessageFunc(this ILog log, object value = default) => log.Property<MessageFunc>(value);
-
-        public static Exception Exception(this ILog log, object value = default) => log.Property<Exception>(value);
-
-        public static ILog OverrideTransaction(this ILog log) => log.With((LogProperties.OverrideTransaction, true));
+        public static ILog Name(this ILog log, string value) => log.SetItem(LogPropertyNames.Name, value);
         
-        [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")] // 'propertyName' is never null because it is set by the compiler.
-        public static T Property<T>(this ILog log, object value = null, [CallerMemberName] string propertyName = null)
+        public static ILog Timestamp(this ILog log, DateTime value) => log.SetItem(LogPropertyNames.Timestamp, value);
+        
+        public static ILog Level(this ILog log, LogLevel value) => log.SetItem(LogPropertyNames.Level, value);
+        
+        public static ILog Exception(this ILog log, Exception value) => log.SetItem(LogPropertyNames.Exception, value);
+        
+        public static ILog Message(this ILog log, string value) => log.SetItem(LogPropertyNames.Message, value);
+        
+        public static ILog OverrideTransaction(this ILog log) => log.SetItem(LogPropertyNames.OverridesTransaction, true);
+        
+        public static TLog SetItem<TLog>(this TLog log, SoftString name, object value) where TLog : ILog
         {
-            var isGetterMode = value == null;
-
-            if (isGetterMode)
+            if (value == LogPropertyNames.Unset)
             {
-                return log.TryGetValue(propertyName, out var obj) && obj is T result ? result : default;
+                log.Remove(name);
             }
             else
             {
-                if (value == LogProperties.Unset)
-                {
-                    log.Remove(propertyName);
-                }
-                else
-                {
-                    log[propertyName] = value;
-                }
-
-                return default;
+                log[name] = value;
             }
+
+            return log;
+        }
+
+        public static T GetItemOrDefault<T>(this ILog log, SoftString name, T defaultValue = default)
+        {
+            return log.TryGetValue(name, out var obj) && obj is T result ? result : defaultValue;
         }
 
         #endregion
@@ -64,30 +55,10 @@ namespace Reusable.OmniLog
             [CallerFilePath] string callerFilePath = null
         )
         {
-            log.Add(LogProperties.CallerMemberName, callerMemberName);
-            log.Add(LogProperties.CallerLineNumber, callerLineNumber);
-            log.Add(LogProperties.CallerFilePath, callerFilePath);
+            log.Add(LogPropertyNames.CallerMemberName, callerMemberName);
+            log.Add(LogPropertyNames.CallerLineNumber, callerLineNumber);
+            log.Add(LogPropertyNames.CallerFilePath, callerFilePath);
 
-            return log;
-        }
-
-        public static ILog With<T>(this ILog log, (SoftString Name, T Value) item)
-        {
-            return log.With(item.Name, item.Value);
-        }
-
-        public static TLog With<TLog, T>(this TLog log, SoftString name, T value) where TLog : ILog
-        {
-            name = Regex.Replace((string)name, "^With", string.Empty);
-            log[name] = value;
-            return log;
-        }
-
-        public static TLog With<TAttachment, TLog>(this TLog log, TAttachment attachment)
-            where TAttachment : ILogAttachment
-            where TLog : ILog
-        {
-            log[attachment.Name] = attachment;
             return log;
         }
 

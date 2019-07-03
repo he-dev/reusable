@@ -5,6 +5,8 @@ namespace Reusable.OmniLog
 {
     public class Log : Dictionary<SoftString, object>, ILog
     {
+        public static readonly TransformCallback EmptyTransform = l => l;
+        
         public static ILog Empty => new Log();
     }    
 }
