@@ -8,12 +8,12 @@ namespace Reusable.OmniLog
         void Commit();
 
         void Rollback();
-        
     }
+
     internal class LoggerTransaction : ILoggerTransaction
     {
         private readonly ILogger _logger;
-        
+
         private readonly IList<ILog> _logs;
 
         public LoggerTransaction(ILogger logger)
@@ -22,34 +22,37 @@ namespace Reusable.OmniLog
             _logs = new List<ILog>();
         }
 
-        public ILogger Log(TransformCallback populate, TransformCallback customizeResult = default)
+        public ILogger Log(TransformCallback request, TransformCallback response = default)
         {
-            return _logger.Log(populate, r =>
+            return _logger.Log(request, log =>
             {
-                if (r.GetItemOrDefault(LogPropertyNames.OverridesTransaction, false))
-                {
-                    return r;
-                }
-                else
-                {
-                    _logs.Add(r);
-                    return OmniLog.Log.Empty;
-                }
+                log = (response ?? OmniLog.Log.EmptyTransform)(log);
+                return TryCacheLog(log) ? OmniLog.Log.Empty : log;
             });
         }
 
         public ILogger Log(ILog log)
         {
-            if (log.GetItemOrDefault(LogPropertyNames.OverridesTransaction, false))
+            if (TryCacheLog(log))
             {
-                _logger.Log(log);
+                return this;
+            }
+
+            _logger.Log(log);
+            return this;
+        }
+
+        private bool TryCacheLog(ILog request)
+        {
+            if (request.GetItemOrDefault(LogPropertyNames.OverridesTransaction, false))
+            {
+                return false;
             }
             else
             {
-                _logs.Add(log);
+                _logs.Add(request);
+                return false;
             }
-
-            return this;
         }
 
         public void Commit()

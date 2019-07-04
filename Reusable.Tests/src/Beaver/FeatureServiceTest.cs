@@ -29,7 +29,7 @@ namespace Reusable.Tests.Beaver
         {
             var features = new FeatureToggle
             (
-                logger: Logger<FeatureToggle>.Null,
+                logger: Logger<FeatureToggle>.Empty,
                 defaultOptions: FeatureOption.Enable | FeatureOption.Warn | FeatureOption.Telemetry
             );
 
@@ -58,7 +58,7 @@ namespace Reusable.Tests.Beaver
     {
         private readonly FeatureToggle _features = new FeatureToggle
         (
-            logger: Logger<FeatureToggle>.Null,
+            logger: Logger<FeatureToggle>.Empty,
             defaultOptions: FeatureOption.Enable | FeatureOption.Warn | FeatureOption.Telemetry
         );
 

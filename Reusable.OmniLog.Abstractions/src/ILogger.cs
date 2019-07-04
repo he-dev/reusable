@@ -14,7 +14,7 @@ namespace Reusable.OmniLog.Abstractions
     {
         // You need customizeResult so that a decorator can intercept the result.
         [NotNull]
-        ILogger Log(TransformCallback populate, TransformCallback customizeResult = default);
+        ILogger Log(TransformCallback request, TransformCallback response = default);
 
         [NotNull]
         ILogger Log([NotNull] ILog log);

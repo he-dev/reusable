@@ -17,7 +17,7 @@ namespace Reusable.Data
     [PublicAPI]
     public abstract class Option
     {
-        protected const string Unknown = nameof(Unknown);
+        public const string Unknown = nameof(Unknown);
 
         public static readonly IImmutableList<SoftString> ReservedNames =
             ImmutableList<SoftString>

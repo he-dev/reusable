@@ -155,7 +155,7 @@ namespace Reusable.Flexo
             public SoftString Name { get; } = nameof(ZeroLogger);
 
             //public ILogger Log(ILogLevel logLevel, Action<ILog> logAction) => this;
-            public ILogger Log(TransformCallback populate, TransformCallback customizeResult = default) => this;
+            public ILogger Log(TransformCallback request, TransformCallback response = default) => this;
             
             public ILogger Log(ILog log) => this;
 

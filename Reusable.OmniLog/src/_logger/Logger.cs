@@ -22,7 +22,6 @@ namespace Reusable.OmniLog
 
         private bool _disposed;
 
-        //private readonly SoftString _name;
         private readonly CanLogCallback _canLog;
         private readonly Action _dispose;
         private readonly IList<IObserver<ILog>> _observers;
@@ -53,9 +52,9 @@ namespace Reusable.OmniLog
 
         #region ILogger
 
-        public ILogger Log(TransformCallback populate, TransformCallback customizeResult = default)
+        public ILogger Log(TransformCallback request, TransformCallback response = default)
         {
-            return Log((customizeResult ?? OmniLog.Log.EmptyTransform)(_attach(populate(_initialize(OmniLog.Log.Empty)))));
+            return Log((response ?? OmniLog.Log.EmptyTransform)(_attach(request(_initialize(OmniLog.Log.Empty)))));
         }
 
         public ILogger Log(ILog log)
@@ -107,15 +106,12 @@ namespace Reusable.OmniLog
             _logger = logger;
         }
 
-        public static ILogger<T> Null => new Logger<T>(Logger.Empty);
+        public static ILogger<T> Empty => new Logger<T>(Logger.Empty);
 
-        public ILogger Log(TransformCallback populate, TransformCallback customizeResult = default) => _logger.Log(populate);
+        public ILogger Log(TransformCallback request, TransformCallback response = default) => _logger.Log(request);
 
         public ILogger Log(ILog log) => _logger.Log(log);
 
         public void Dispose() => _logger.Dispose();
     }
-
-
-    
 }

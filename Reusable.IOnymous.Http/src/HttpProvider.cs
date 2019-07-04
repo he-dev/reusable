@@ -82,7 +82,7 @@ namespace Reusable.IOnymous
 
                     if (classOfStatusCode is null)
                     {
-                        return (responseContentCopy, MimeType.Create(response.Content.Headers.ContentType.MediaType, response.Content.Headers.ContentType.MediaType));
+                        return (responseContentCopy, MimeType.Create(Option.Unknown, response.Content.Headers.ContentType.MediaType));
                     }
 
                     using (var responseReader = new StreamReader(responseContentCopy.Rewind()))
