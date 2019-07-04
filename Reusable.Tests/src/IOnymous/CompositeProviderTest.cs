@@ -18,35 +18,35 @@ namespace Reusable.Tests.IOnymous
                     .Empty
                     .Add(new InMemoryProvider
                     {
-                        { "x/123", "blub1" }
+                        { "branch/dev", "hot" }
                     })
                     .Add(new InMemoryProvider
                     {
-                        { "x/123", "blub2" },
-                        { "x/123", "blub3" }
+                        { "branch/dev", "cold" },
+                        { "branch/dev", "snow" }
                     });
 
-            var resource = await resources.GetAnyAsync("blub:x/123");
+            var resource = await resources.GetAnyAsync("any-scheme:branch/dev");
 
             Assert.True(resource.Exists);
-            Assert.Equal("blub1", await resource.DeserializeTextAsync());
+            Assert.Equal("hot", await resource.DeserializeTextAsync());
         }
 
         [Fact]
         public async Task Can_get_resource_by_default_name()
         {
-            var composite = new CompositeProvider(new IResourceProvider[]
-            {
-                new InMemoryProvider
-                {
-                    { "x/123", "blub1" }
-                },
-                new InMemoryProvider
-                {
-                    //{ "x.123", "blub2" },
-                    { "x/123", "blub3" }
-                },
-            });
+            var composite =
+                CompositeProvider
+                    .Empty
+                    .Add(new InMemoryProvider
+                    {
+                        { "x/123", "blub1" }
+                    })
+                    .Add(new InMemoryProvider
+                    {
+                        //{ "x.123", "blub2" },
+                        { "x/123", "blub3" }
+                    });
 
             var resource = await composite.GetAsync("blub:x/123", ImmutableSession.Empty.SetName("InMemoryProvider"));
 
@@ -57,18 +57,18 @@ namespace Reusable.Tests.IOnymous
         [Fact]
         public async Task Can_get_resource_by_custom_name()
         {
-            var composite = new CompositeProvider(new IResourceProvider[]
-            {
-                new InMemoryProvider
-                {
-                    { "x/123", "blub1" }
-                },
-                new InMemoryProvider(ImmutableSession.Empty.SetScheme(ResourceSchemes.IOnymous).SetName("blub"))
-                {
-                    //{ "x.123", "blub2" },
-                    { "x/123", "blub3" }
-                },
-            });
+            var composite =
+                CompositeProvider
+                    .Empty
+                    .Add(new InMemoryProvider
+                    {
+                        { "x/123", "blub1" }
+                    })
+                    .Add(new InMemoryProvider(ImmutableSession.Empty.SetScheme(ResourceSchemes.IOnymous).SetName("blub"))
+                    {
+                        //{ "x.123", "blub2" },
+                        { "x/123", "blub3" }
+                    });
 
             var resource = await composite.GetAsync("blub:x/123", ImmutableSession.Empty.SetScheme(ResourceSchemes.IOnymous).SetName("blub"));
 
@@ -79,18 +79,18 @@ namespace Reusable.Tests.IOnymous
         [Fact]
         public async Task Throws_when_PUT_without_known_resource_provider()
         {
-            var composite = new CompositeProvider(new IResourceProvider[]
-            {
-                new InMemoryProvider
-                {
-                    { "blub:123", "blub1" }
-                },
-                new InMemoryProvider
-                {
-                    { "blub:123?providerName=blub", "blub2" },
-                    { "blub:123?providerName=blub", "blub3" }
-                },
-            });
+            var composite =
+                CompositeProvider
+                    .Empty
+                    .Add(new InMemoryProvider
+                    {
+                        { "blub:123", "blub1" }
+                    })
+                    .Add(new InMemoryProvider
+                    {
+                        { "blub:123?providerName=blub", "blub2" },
+                        { "blub:123?providerName=blub", "blub3" }
+                    });
 
             await Assert.ThrowsAnyAsync<DynamicException>(async () => await composite.PutAsync("blub:123", Stream.Null));
         }

@@ -40,7 +40,7 @@ namespace Reusable.Data
         {
             return session.SetItem(key.ToString(), value);
         }
-        
+
         public static Func<IImmutableSession, IImmutableSession> MergeFunc(IImmutableSession other)
         {
             return current =>
@@ -90,5 +90,13 @@ namespace Reusable.Data
         //        }
 
         #endregion
+
+        public static IImmutableSession SetWhen(this IImmutableSession session, Func<IImmutableSession, bool> canSet, Func<IImmutableSession, IImmutableSession> set)
+        {
+            return
+                canSet(session)
+                    ? set(session)
+                    : session;
+        }
     }
 }

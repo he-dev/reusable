@@ -56,14 +56,6 @@ namespace Reusable.IOnymous
         private static readonly Selector<IImmutableSet<SoftString>> Schemes = From<IProviderMeta>.Select(x => x.Schemes);
         private static readonly Selector<IImmutableSet<SoftString>> Names = From<IProviderMeta>.Select(x => x.Names);
 
-        public static IImmutableSession SetWhen(this IImmutableSession session, Func<IImmutableSession, bool> canSet, Func<IImmutableSession, IImmutableSession> set)
-        {
-            return
-                canSet(session)
-                    ? set(session)
-                    : session;
-        }
-
         public static IImmutableSession SetScheme(this IImmutableSession session, SoftString scheme)
         {
             if (scheme.IsNullOrEmpty())
