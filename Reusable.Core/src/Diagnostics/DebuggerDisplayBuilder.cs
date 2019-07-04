@@ -85,11 +85,11 @@ namespace Reusable.Diagnostics
             this DebuggerDisplayBuilder<T> builder,
             Expression<Func<T, IEnumerable<TProperty>>> memberSelector,
             Expression<Func<TProperty, TValue>> itemSelector,
-            string format,
+            string format = default,
             int max = DebuggerDisplayFormatter.DefaultCollectionLength
         )
         {
-            return builder.Collection(memberSelector, itemSelector, DebuggerDisplayFormatter.DefaultValueFormat, max);
+            return builder.Collection(memberSelector, itemSelector, format ?? DebuggerDisplayFormatter.DefaultValueFormat, max);
         }
 
         public static DebuggerDisplayBuilder<T> DisplayValues<T, TProperty>

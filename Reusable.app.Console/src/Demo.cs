@@ -32,12 +32,9 @@ namespace Reusable.Apps
                 {
                     new ColoredConsoleRx(),
                 },
-                Configuration = new LoggerFactoryConfiguration
+                Attachments =
                 {
-                    Attachments = new HashSet<ILogAttachment>
-                    {
-                        new Timestamp<DateTimeUtc>(),
-                    }
+                    new Timestamp<DateTimeUtc>(),
                 }
             };
 
@@ -76,7 +73,7 @@ namespace Reusable.Apps
 
             var logger = loggerFactory.CreateLogger("Demo");
             var logger2 = loggerFactory.CreateLogger("Demo");
-            
+
             if (logger != logger2) throw new Exception();
 
             logger.Log(Abstraction.Layer.Infrastructure().Routine("SemLogTest").Running());
@@ -135,14 +132,14 @@ namespace Reusable.Apps
                 using (var tran = logger.BeginTransaction())
                 {
                     tran.Information("This message is not logged.");
-                    tran.Information("This message overrides the transaction.", l => l.OverrideTransaction());
+                    tran.Information("This message overrides the transaction.", LoggerTransaction.Override);
                 }
-                
+
                 using (var tran = logger.BeginTransaction())
                 {
                     tran.Information("This message is delayed.");
                     tran.Information("This message is delayed too.");
-                    tran.Information("This message overrides the transaction as first.", l => l.OverrideTransaction());
+                    tran.Information("This message overrides the transaction as first.", LoggerTransaction.Override);
                     tran.Commit();
                 }
             }

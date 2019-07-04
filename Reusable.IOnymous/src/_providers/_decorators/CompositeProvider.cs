@@ -28,7 +28,10 @@ namespace Reusable.IOnymous
         private readonly SemaphoreSlim _cacheLock = new SemaphoreSlim(1, 1);
 
         public CompositeProvider([NotNull] IEnumerable<IResourceProvider> providers)
-            : base(new[] { DefaultScheme }, ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.AllowRelativeUri), true))
+            : base(ImmutableSession
+                .Empty
+                .SetScheme(ResourceSchemes.IOnymous)
+                .SetItem(From<IProviderMeta>.Select(x => x.AllowRelativeUri), true))
         {
             if (providers == null) throw new ArgumentNullException(nameof(providers));
 
@@ -75,16 +78,16 @@ namespace Reusable.IOnymous
                 var resourceProviders = _providers.AsEnumerable();
 
                 // When provider-name is specified then filter them by name first.
-                if (metadata.GetItemOrDefault(From<IProviderMeta>.Select(x => x.ProviderName)) is SoftString providerName && providerName)
+                if (metadata.GetNames().Any()) // this means there is a custom name
                 {
-                    resourceProviders = resourceProviders.Where(p => p.Names.Contains(providerName));
+                    resourceProviders = resourceProviders.Where(p => p.Metadata.GetNames().Overlaps(metadata.GetNames()));
                 }
 
                 // Check if there is a provider that matches the scheme of the absolute uri.
                 if (uri.IsAbsolute)
                 {
-                    var ignoreScheme = uri.Scheme == DefaultScheme;
-                    resourceProviders = resourceProviders.Where(p => ignoreScheme || p.Schemes.Contains(DefaultScheme) || p.Schemes.Contains(uri.Scheme));
+                    var ignoreScheme = uri.Scheme == ResourceSchemes.IOnymous;
+                    resourceProviders = resourceProviders.Where(p => ignoreScheme || p.Metadata.GetSchemes().Contains(ResourceSchemes.IOnymous) || p.Metadata.GetSchemes().Contains(uri.Scheme));
                 }
 
                 // GET can search multiple providers.

@@ -14,7 +14,7 @@ namespace Reusable.Tests.IOnymous
         [Fact]
         public void Can_be_created_from_collection_initializer()
         {
-            var inMemory = new InMemoryProvider(new UriStringPathToStringConverter(), new[] { ResourceProvider.DefaultScheme })
+            var inMemory = new InMemoryProvider
             {
                 { "foo:bar/baz", "qux" },
             };
@@ -37,7 +37,7 @@ namespace Reusable.Tests.IOnymous
         [Fact]
         public async Task Can_get_resource_by_uri()
         {
-            var inMemory = new InMemoryProvider(new UriStringPathToStringConverter(), new[] { ResourceProvider.DefaultScheme })
+            var inMemory = new InMemoryProvider
             {
                 { "bar/baz1", "quxx" },
                 { "bar/baz2", "quxy" },
@@ -56,7 +56,7 @@ namespace Reusable.Tests.IOnymous
         [Fact]
         public async Task Can_get_resource_by_ionymous_uri()
         {
-            var inMemory = new InMemoryProvider(new UriStringPathToStringConverter(), new[] { ResourceProvider.DefaultScheme })
+            var inMemory = new InMemoryProvider
             {
                 { "bar/baz", "quxx" },
                 //{ "bar.baz", "quxy" },

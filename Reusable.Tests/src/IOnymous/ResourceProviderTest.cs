@@ -37,14 +37,14 @@ namespace Reusable.Tests.IOnymous
 
         private class EmptyProvider : ResourceProvider
         {
-            public EmptyProvider() : base(new SoftString[] { "test" }, ImmutableSession.Empty) { }
+            public EmptyProvider() : base(ImmutableSession.Empty.SetScheme("test")) { }
             
             public static EmptyProvider Default => new EmptyProvider();
         }
 
         private class SimpleProvider : ResourceProvider
         {
-            public SimpleProvider() : base(new SoftString[] { "test" }, ImmutableSession.Empty) { }
+            public SimpleProvider() : base(ImmutableSession.Empty.SetScheme("test")) { }
             
             public static SimpleProvider Default => new SimpleProvider();
 

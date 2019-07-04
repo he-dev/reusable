@@ -20,7 +20,7 @@ namespace Reusable.OmniLog
 
         static LogScope()
         {
-            NewCorrelationId = DefaultCorrelationId.New;
+            NewCorrelationId = LogCorrelationId.NewGuid;
         }
 
         private LogScope(int depth)
@@ -92,8 +92,8 @@ namespace Reusable.OmniLog
         }
     }
 
-    public static class DefaultCorrelationId
+    public static class LogCorrelationId
     {
-        public static object New() => Guid.NewGuid().ToString("N");
+        public static object NewGuid() => Guid.NewGuid().ToString("N");
     }
 }

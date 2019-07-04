@@ -71,7 +71,7 @@ namespace Reusable.IOnymous
 
         public static Task<IResourceInfo> GetAnyAsync(this IResourceProvider resourceProvider, UriString uri, IImmutableSession metadata = default)
         {
-            return resourceProvider.GetAsync(uri.With(x => x.Scheme, ResourceProvider.DefaultScheme), metadata);
+            return resourceProvider.GetAsync(uri.With(x => x.Scheme, ResourceSchemes.IOnymous), metadata);
         }
 
         #endregion

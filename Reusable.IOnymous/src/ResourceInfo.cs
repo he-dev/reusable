@@ -42,7 +42,7 @@ namespace Reusable.IOnymous
             if (uri == null) throw new ArgumentNullException(nameof(uri));
             if (metadata == null) throw new ArgumentNullException(nameof(metadata));
 
-            Uri = uri.IsRelative ? new UriString($"{ResourceProvider.DefaultScheme}:{uri}") : uri;
+            Uri = uri.IsRelative ? new UriString($"{ResourceSchemes.IOnymous}:{uri}") : uri;
             Metadata = metadata;
         }
 

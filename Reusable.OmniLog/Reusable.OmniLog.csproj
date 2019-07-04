@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <Compile Remove="src\_log\LogFilter.cs" />
+    <Compile Remove="src\_logger\LoggerFactoryConfiguration.cs" />
   </ItemGroup>
 
   <ItemGroup>

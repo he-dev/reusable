@@ -13,7 +13,7 @@ namespace Reusable.IOnymous
     {
         public new static readonly string DefaultScheme = "mailto";
 
-        protected MailProvider(IImmutableSession metadata) : base(new SoftString[] { DefaultScheme }, metadata) { }
+        protected MailProvider(IImmutableSession metadata) : base(metadata.SetScheme(DefaultScheme)) { }
 
         protected async Task<string> ReadBodyAsync(Stream value, IImmutableSession metadata)
         {

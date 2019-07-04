@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Extensions;
 using Reusable.Quickey;
@@ -27,9 +28,13 @@ namespace Reusable.IOnymous
     [PlainSelectorFormatter]
     public interface IProviderMeta : INamespace
     {
-        bool AllowRelativeUri { get; }
+        [NotNull, ItemNotNull]
+        IImmutableSet<SoftString> Schemes { get; }
 
-        SoftString ProviderName { get; }
+        [NotNull, ItemNotNull]
+        IImmutableSet<SoftString> Names { get; }
+
+        bool AllowRelativeUri { get; }
     }
 
     [UseType, UseMember]
@@ -44,5 +49,57 @@ namespace Reusable.IOnymous
         Type Type { get; }
 
         string ActualName { get; }
+    }
+
+    public static class ImmutableSessionExtensions
+    {
+        private static readonly Selector<IImmutableSet<SoftString>> Schemes = From<IProviderMeta>.Select(x => x.Schemes);
+        private static readonly Selector<IImmutableSet<SoftString>> Names = From<IProviderMeta>.Select(x => x.Names);
+
+        public static IImmutableSession SetWhen(this IImmutableSession session, Func<IImmutableSession, bool> canSet, Func<IImmutableSession, IImmutableSession> set)
+        {
+            return
+                canSet(session)
+                    ? set(session)
+                    : session;
+        }
+
+        public static IImmutableSession SetScheme(this IImmutableSession session, SoftString scheme)
+        {
+            if (scheme.IsNullOrEmpty())
+            {
+                return session;
+            }
+            
+            return
+                session.SetItem(Schemes, session.TryGetItem(Schemes, out var schemes)
+                    ? schemes.Add(scheme)
+                    : ImmutableHashSet<SoftString>.Empty.Add(scheme));
+        }
+
+        public static IImmutableSet<SoftString> GetSchemes(this IImmutableSession session)
+        {
+            return session.GetItemOrDefault(Schemes, ImmutableHashSet<SoftString>.Empty);
+        }
+
+        public static IImmutableSession SetName(this IImmutableSession session, SoftString name)
+        {
+            if (name.IsNullOrEmpty())
+            {
+                return session;
+            }
+            
+            return
+                session.SetItem(
+                    Names,
+                    session.TryGetItem(Names, out var names)
+                        ? names.Add(name)
+                        : ImmutableHashSet<SoftString>.Empty.Add(name));
+        }
+
+        public static IImmutableSet<SoftString> GetNames(this IImmutableSession session)
+        {
+            return session.GetItemOrDefault(Names, ImmutableHashSet<SoftString>.Empty);
+        }
     }
 }

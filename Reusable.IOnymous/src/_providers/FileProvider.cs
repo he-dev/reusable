@@ -7,6 +7,6 @@ namespace Reusable.IOnymous
         public new static readonly string DefaultScheme = "file";
 
         protected FileProvider(IImmutableSession metadata)
-            : base(new SoftString[] { DefaultScheme }, metadata) { }
+            : base(metadata ?? ImmutableSession.Empty.SetScheme(DefaultScheme)) { }
     }
 }

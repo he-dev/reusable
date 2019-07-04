@@ -26,11 +26,6 @@ namespace Reusable.IOnymous
         [NotNull]
         IImmutableSession Metadata { get; }
 
-        IImmutableSet<SoftString> Schemes { get; }
-
-        [NotNull, ItemNotNull]
-        IEnumerable<SoftString> Names { get; }
-
         bool CanGet { get; }
 
         bool CanPost { get; }
@@ -55,17 +50,15 @@ namespace Reusable.IOnymous
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public abstract class ResourceProvider : IResourceProvider
     {
-        public static readonly SoftString DefaultScheme = "ionymous";
-
         // Because: $"{GetType().ToPrettyString()} cannot {ExtractMethodName(memberName).ToUpper()} '{uri}' because {reason}.";
         private static readonly IExpressValidator<Request> RequestValidator = ExpressValidator.For<Request>(builder =>
         {
-            builder.True
-            (x =>
-                x.Provider.Metadata.GetItemOrDefault(From<IProviderMeta>.Select(m => m.AllowRelativeUri), false) ||
-                x.Provider.Schemes.Contains(DefaultScheme) ||
-                x.Provider.Schemes.Contains(x.Uri.Scheme)
-            ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it supports only such schemes as [{x.Provider.Schemes.Join(", ")}].");
+//            builder.True
+//            (x =>
+//                x.Provider.Metadata.GetItemOrDefault(From<IProviderMeta>.Select(m => m.AllowRelativeUri), false) ||
+//                x.Provider.Schemes.Contains(ResourceSchemes.IOnymous) ||
+//                x.Provider.Schemes.Contains(x.Uri.Scheme)
+//            ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it supports only such schemes as [{x.Provider.Schemes.Join(", ")}].");
 
             builder.True
             (x =>
@@ -74,46 +67,31 @@ namespace Reusable.IOnymous
             ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it supports only absolute URIs.");
         });
 
-        protected ResourceProvider([NotNull] IEnumerable<SoftString> schemes, IImmutableSession metadata)
+        protected ResourceProvider([NotNull] IImmutableSession metadata)
         {
-            if (schemes == null) throw new ArgumentNullException(nameof(schemes));
+            if (metadata == null) throw new ArgumentNullException(nameof(metadata));
 
-            //var metadata = Metadata.Empty;
-
-            // If this is a decorator then the decorated resource-provider already has set this.
-//            if (!metadata.ContainsKey(From<IProviderMeta>.Select(x => x.DefaultName)))
-//            {
-//                metadata = metadata.SetItem(From<IProviderMeta>.Select(x => x.DefaultName), GetType().ToPrettyString());
-//            }
-
-            if ((Schemes = schemes.ToImmutableHashSet()).Empty())
+            if (!metadata.GetSchemes().Any())
             {
-                throw new ArgumentException(paramName: nameof(metadata), message: $"{nameof(schemes)} must not be empty.");
+                throw new ArgumentException
+                (
+                    paramName: nameof(metadata),
+                    message: $"{GetType().ToPrettyString().ToSoftString()} must specify at least one scheme."
+                );
             }
 
-            Metadata = metadata;
+            Metadata =
+                metadata
+                    .SetName(GetType().ToPrettyString().ToSoftString());
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
         {
-            //builder.DisplayCollection(p => p.ProviderNames());
-            builder.DisplayValues(p => Names);
-            builder.DisplayValue(x => x.Schemes);
+            builder.DisplayValues(p => p.Metadata.GetNames(), x => x.ToString());
+            builder.DisplayValues(p => p.Metadata.GetSchemes(), x => x.ToString());
+            //builder.DisplayValues(p => Names);
+            //builder.DisplayValue(x => x.Schemes);
         });
-
-        public IEnumerable<SoftString> Names
-        {
-            get
-            {
-                yield return GetType().ToPrettyString().ToSoftString();
-                if (Metadata.GetItemOrDefault(From<IProviderMeta>.Select(m => m.ProviderName)) is SoftString customName)
-                {
-                    yield return customName;
-                }
-
-                ;
-            }
-        }
 
         public bool CanGet => Implements(nameof(GetAsyncInternal));
 
@@ -130,8 +108,6 @@ namespace Reusable.IOnymous
         }
 
         public virtual IImmutableSession Metadata { get; }
-
-        public virtual IImmutableSet<SoftString> Schemes { get; }
 
         #region Wrappers
 
@@ -255,7 +231,7 @@ namespace Reusable.IOnymous
             return $"{GetType().ToPrettyString()} cannot {ExtractMethodName(memberName).ToUpper()} '{uri}' because {reason}.";
         }
 
-        protected static string ProviderInfo(IResourceProvider provider) => provider.Names.Select(n => n.ToString()).Join("/");
+        protected static string ProviderInfo(IResourceProvider provider) => provider.Metadata.GetNames().Select(n => n.ToString()).Join("/");
 
         #endregion
 

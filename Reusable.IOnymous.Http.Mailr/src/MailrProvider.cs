@@ -9,6 +9,6 @@ namespace Reusable.IOnymous
         public const string Name = "Mailr";
 
         public MailrProvider([NotNull] string baseUri, IImmutableSession metadata = default)
-            : base(baseUri, metadata.ThisOrEmpty().SetItem(From<IProviderMeta>.Select(x => x.ProviderName), Name)) { }
+            : base(baseUri, metadata.ThisOrEmpty().SetName(Name)) { }
     }
 }

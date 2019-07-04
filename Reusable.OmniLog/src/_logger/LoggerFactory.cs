@@ -30,14 +30,17 @@ namespace Reusable.OmniLog
         private string DebuggerDisplay() => this.ToDebuggerDisplayString(builder =>
         {
             builder.DisplayValue(x => x._cache.Count);
-            builder.DisplayValue(x => x.Configuration.Attachments.Count);
+            //builder.DisplayValue(x => x.Configuration.Attachments.Count);
         });
 
         [NotNull]
         public IList<ILogRx> Observers { get; set; } = new List<ILogRx>();
 
+        //[NotNull]
+        //public LoggerFactoryConfiguration Configuration { get; set; } = new LoggerFactoryConfiguration();
+        
         [NotNull]
-        public LoggerFactoryConfiguration Configuration { get; set; } = new LoggerFactoryConfiguration();
+        public HashSet<ILogAttachment> Attachments { get; set; } = new HashSet<ILogAttachment>();
 
         #region ILoggerFactory
 
@@ -61,7 +64,7 @@ namespace Reusable.OmniLog
             var logger = new Logger
             (
                 initialize: log => log.SetItem(LogPropertyNames.Name, name.ToString()),
-                attach: log => log.Render(Configuration.Attachments),
+                attach: log => log.Render(Attachments),
                 canLog: _ => true,
                 dispose: UnsubscribeLogger
             );
@@ -88,7 +91,7 @@ namespace Reusable.OmniLog
 
             _cache.Clear();
 
-            foreach (var attachment in Configuration.Attachments)
+            foreach (var attachment in Attachments)
             {
                 if (attachment is IDisposable disposable)
                 {

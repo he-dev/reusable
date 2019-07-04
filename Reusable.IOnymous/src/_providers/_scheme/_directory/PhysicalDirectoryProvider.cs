@@ -10,8 +10,8 @@ namespace Reusable.IOnymous
     [PublicAPI]
     public class PhysicalDirectoryProvider : ResourceProvider
     {
-        public PhysicalDirectoryProvider(ImmutableSession metadata = default)
-            : base(new SoftString[] { "directory" }, metadata) { }
+        public PhysicalDirectoryProvider(IImmutableSession metadata = default)
+            : base(metadata.ThisOrEmpty().SetScheme("directory")) { }
 
         protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
         {

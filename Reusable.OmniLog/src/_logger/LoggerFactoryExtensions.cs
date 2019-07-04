@@ -20,25 +20,25 @@ namespace Reusable.OmniLog
 
         public static LoggerFactory Attach(this LoggerFactory loggerFactory, string name, Func<ILog, object> action)
         {
-            loggerFactory.Configuration.Attachments.Add(new Lambda(name, action));
+            loggerFactory.Attachments.Add(new Lambda(name, action));
             return loggerFactory;
         }
 
         public static LoggerFactory Attach<T>(this LoggerFactory loggerFactory) where T : ILogAttachment, new()
         {
-            loggerFactory.Configuration.Attachments.Add(new T());
+            loggerFactory.Attachments.Add(new T());
             return loggerFactory;
         }
 
         public static LoggerFactory Attach<T>(this LoggerFactory loggerFactory, T attachment) where T : ILogAttachment
         {
-            loggerFactory.Configuration.Attachments.Add(attachment);
+            loggerFactory.Attachments.Add(attachment);
             return loggerFactory;
         }
 
         public static LoggerFactory AttachObject(this LoggerFactory loggerFactory, string name, object value)
         {
-            loggerFactory.Configuration.Attachments.Add(new Lambda(name, _ => value));
+            loggerFactory.Attachments.Add(new Lambda(name, _ => value));
             return loggerFactory;
         }
 
@@ -54,16 +54,16 @@ namespace Reusable.OmniLog
             return loggerFactory;
         }
 
-        public static LoggerFactory UseConfiguration(this LoggerFactory loggerFactory, LoggerFactoryConfiguration configuration)
-        {
-            loggerFactory.Configuration.LogPredicateExpression = configuration.LogPredicateExpression;
-            return loggerFactory;
-        }
+//        public static LoggerFactory UseConfiguration(this LoggerFactory loggerFactory, LoggerFactoryConfiguration configuration)
+//        {
+//            loggerFactory.Configuration.LogPredicateExpression = configuration.LogPredicateExpression;
+//            return loggerFactory;
+//        }
 
-        public static LoggerFactory UseConfiguration(this LoggerFactory loggerFactory, string fileName)
-        {
-            return loggerFactory.UseConfiguration(LoggerFactoryConfiguration.Load(fileName));
-        }
+//        public static LoggerFactory UseConfiguration(this LoggerFactory loggerFactory, string fileName)
+//        {
+//            return loggerFactory.UseConfiguration(LoggerFactoryConfiguration.Load(fileName));
+//        }
 
 //        public static LoggerFactory UseConfiguration(this LoggerFactory loggerFactory, Stream jsonStream)
 //        {

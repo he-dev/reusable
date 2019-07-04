@@ -23,7 +23,7 @@ namespace Reusable.IOnymous
         });
 
         public PhysicalFileProvider(IImmutableSession metadata = default)
-            : base(metadata.ThisOrEmpty()) { }
+            : base(metadata.ThisOrEmpty().SetScheme(ResourceSchemes.IOnymous)) { }
 
         protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
         {

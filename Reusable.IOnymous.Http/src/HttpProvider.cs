@@ -19,7 +19,12 @@ namespace Reusable.IOnymous
         private readonly HttpClient _client;
 
         public HttpProvider([NotNull] string baseUri, IImmutableSession metadata = default)
-            : base(new SoftString[] { "http", "https" }, metadata.ThisOrEmpty().SetItem(From<IProviderMeta>.Select(x => x.AllowRelativeUri), true))
+            : base(
+                metadata
+                    .ThisOrEmpty()
+                    .SetScheme("http")
+                    .SetScheme("https")
+                    .SetItem(From<IProviderMeta>.Select(x => x.AllowRelativeUri), true))
         {
             if (baseUri == null) throw new ArgumentNullException(nameof(baseUri));
 

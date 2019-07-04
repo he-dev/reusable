@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
@@ -20,11 +21,13 @@ namespace Reusable.IOnymous
 
         //public InMemoryProvider(Metadata metadata = default) : base(new[] { DefaultScheme }, metadata) { }
 
-        public InMemoryProvider([NotNull] ITypeConverter<UriString, string> uriConverter, IEnumerable<SoftString> schemes, IImmutableSession metadata = default)
-            : base(schemes, metadata ?? ImmutableSession.Empty)
+        public InMemoryProvider([NotNull] ITypeConverter<UriString, string> uriConverter, IImmutableSession metadata = default)
+            : base((metadata ?? ImmutableSession.Empty).SetWhen(x => !x.GetSchemes().Any(), x => x.SetScheme(ResourceSchemes.IOnymous)))
         {
             _uriConverter = uriConverter ?? throw new ArgumentNullException(nameof(uriConverter));
         }
+
+        public InMemoryProvider(IImmutableSession metadata = default) : this(new UriStringPathToStringConverter(), metadata) { }
 
         /// <summary>
         /// Gets or sets value converter.
@@ -116,7 +119,8 @@ namespace Reusable.IOnymous
 
     public class InMemoryResourceInfo : ResourceInfo
     {
-        [CanBeNull] private readonly Stream _data;
+        [CanBeNull]
+        private readonly Stream _data;
 
         public InMemoryResourceInfo(UriString uri, MimeType format, Stream data, IImmutableSession metadata = default)
             : base(uri, metadata ?? ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.Format), format))

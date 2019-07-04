@@ -30,7 +30,7 @@ namespace Reusable.Tests.OmniLog.SemanticExtensions
 
             _logger = _loggerFactory.CreateLogger<UseCaseTest2>();
 
-            LogScope.NewCorrelationId = DefaultCorrelationId.New;
+            LogScope.NewCorrelationId = LogCorrelationId.NewGuid;
         }
 
         [Fact]

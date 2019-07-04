@@ -12,7 +12,7 @@ namespace Reusable.IOnymous
         private readonly IResourceProvider _resourceProvider;
 
         public EnvironmentVariableProvider([NotNull] IResourceProvider resourceProvider)
-            : base(resourceProvider.Schemes, resourceProvider.Metadata.SetItem(From<IProviderMeta>.Select(x => x.AllowRelativeUri), true))
+            : base(resourceProvider.Metadata.SetItem(From<IProviderMeta>.Select(x => x.AllowRelativeUri), true))
         {
             _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
         }

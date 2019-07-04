@@ -14,7 +14,7 @@ namespace Reusable.IOnymous
         private readonly Assembly _assembly;
 
         public EmbeddedFileProvider([NotNull] Assembly assembly, IImmutableSession metadata = default)
-            : base((metadata ?? ImmutableSession.Empty).SetItem(From<IProviderMeta>.Select(x => x.AllowRelativeUri), true))
+            : base((metadata ?? ImmutableSession.Empty).SetScheme(ResourceSchemes.IOnymous).SetItem(From<IProviderMeta>.Select(x => x.AllowRelativeUri), true))
         {
             _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
             var assemblyName = _assembly.GetName().Name.Replace('.', '/');

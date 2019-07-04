@@ -46,8 +46,9 @@ namespace Reusable.IOnymous.Config
                 ImmutableSession
                     .Empty
                     .SetItem(From<IResourceMeta>.Select(x => x.Type), selector.MemberType)
-                    .SetItem(From<IProviderMeta>.Select(x => x.ProviderName), resource?.Provider.ToSoftString())
-                    .SetItem(From<IResourceMeta>.Select(x => x.ActualName), $"[{selector.Join(x => x.ToString(), ", ")}]");
+                    //.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), resource?.Provider.ToSoftString())
+                    .SetItem(From<IResourceMeta>.Select(x => x.ActualName), $"[{selector.Join(x => x.ToString(), ", ")}]")
+                    .SetName(resource?.Provider.ToSoftString());
 
             return (uri, metadata);
         }

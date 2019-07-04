@@ -23,11 +23,11 @@ namespace Reusable.Tests.IOnymous
 
             mockProvider
                 .Arrange(x => x.Metadata)
-                .Returns(ImmutableSession.Empty);
+                .Returns(ImmutableSession.Empty.SetScheme("blub"));
             
-            mockProvider
-                .Arrange(x => x.Schemes)
-                .Returns(new SoftString[] { "blub" }.ToImmutableHashSet());
+//            mockProvider
+//                .Arrange(x => x.Schemes)
+//                .Returns(new SoftString[] { "blub" }.ToImmutableHashSet());
 
             mockProvider
                 .Arrange(x => x.GetAsync(Telerik.JustMock.Arg.Matches<UriString>(uri => uri == new UriString("blub:base/relative")), Telerik.JustMock.Arg.IsAny<ImmutableSession>()))

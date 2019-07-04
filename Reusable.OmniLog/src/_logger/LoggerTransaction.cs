@@ -10,17 +10,19 @@ namespace Reusable.OmniLog
         void Rollback();
     }
 
-    internal class LoggerTransaction : ILoggerTransaction
+    public class LoggerTransaction : ILoggerTransaction
     {
         private readonly ILogger _logger;
 
         private readonly IList<ILog> _logs;
 
-        public LoggerTransaction(ILogger logger)
+        internal LoggerTransaction(ILogger logger)
         {
             _logger = logger;
             _logs = new List<ILog>();
         }
+
+        public static TransformCallback Override => log => log.OverrideTransaction();
 
         public ILogger Log(TransformCallback request, TransformCallback response = default)
         {

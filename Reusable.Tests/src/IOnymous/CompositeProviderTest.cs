@@ -13,20 +13,20 @@ namespace Reusable.Tests.IOnymous
         [Fact]
         public async Task Gets_first_matching_resource_by_default()
         {
-            var composite = new CompositeProvider(new IResourceProvider[]
-            {
-                new InMemoryProvider(new UriStringPathToStringConverter(), new[] { ResourceProvider.DefaultScheme })
-                {
-                    { "x/123", "blub1" }
-                },
-                new InMemoryProvider(new UriStringPathToStringConverter(), new[] { ResourceProvider.DefaultScheme })
-                {
-                    { "x/123", "blub2" },
-                    { "x/123", "blub3" }
-                },
-            });
+            var resources =
+                CompositeProvider
+                    .Empty
+                    .Add(new InMemoryProvider
+                    {
+                        { "x/123", "blub1" }
+                    })
+                    .Add(new InMemoryProvider
+                    {
+                        { "x/123", "blub2" },
+                        { "x/123", "blub3" }
+                    });
 
-            var resource = await composite.GetAnyAsync("blub:x/123");
+            var resource = await resources.GetAnyAsync("blub:x/123");
 
             Assert.True(resource.Exists);
             Assert.Equal("blub1", await resource.DeserializeTextAsync());
@@ -37,18 +37,18 @@ namespace Reusable.Tests.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider(new UriStringPathToStringConverter(), new[] { ResourceProvider.DefaultScheme })
+                new InMemoryProvider
                 {
                     { "x/123", "blub1" }
                 },
-                new InMemoryProvider(new UriStringPathToStringConverter(), new[] { ResourceProvider.DefaultScheme })
+                new InMemoryProvider
                 {
                     //{ "x.123", "blub2" },
                     { "x/123", "blub3" }
                 },
             });
 
-            var resource = await composite.GetAsync("blub:x/123", ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), "InMemoryProvider"));
+            var resource = await composite.GetAsync("blub:x/123", ImmutableSession.Empty.SetName("InMemoryProvider"));
 
             Assert.True(resource.Exists);
             Assert.Equal("blub1", await resource.DeserializeTextAsync());
@@ -59,18 +59,18 @@ namespace Reusable.Tests.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider(new UriStringPathToStringConverter(), new[] { ResourceProvider.DefaultScheme })
+                new InMemoryProvider
                 {
                     { "x/123", "blub1" }
                 },
-                new InMemoryProvider(new UriStringPathToStringConverter(), new[] { ResourceProvider.DefaultScheme }, ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), "blub"))
+                new InMemoryProvider(ImmutableSession.Empty.SetScheme(ResourceSchemes.IOnymous).SetName("blub"))
                 {
                     //{ "x.123", "blub2" },
                     { "x/123", "blub3" }
                 },
             });
 
-            var resource = await composite.GetAsync("blub:x/123", ImmutableSession.Empty.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), "blub"));
+            var resource = await composite.GetAsync("blub:x/123", ImmutableSession.Empty.SetScheme(ResourceSchemes.IOnymous).SetName("blub"));
 
             Assert.True(resource.Exists);
             Assert.Equal("blub3", await resource.DeserializeTextAsync());
@@ -81,11 +81,11 @@ namespace Reusable.Tests.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider(new UriStringPathToStringConverter(), new[] { ResourceProvider.DefaultScheme })
+                new InMemoryProvider
                 {
                     { "blub:123", "blub1" }
                 },
-                new InMemoryProvider(new UriStringPathToStringConverter(), new[] { ResourceProvider.DefaultScheme })
+                new InMemoryProvider
                 {
                     { "blub:123?providerName=blub", "blub2" },
                     { "blub:123?providerName=blub", "blub3" }
@@ -100,11 +100,11 @@ namespace Reusable.Tests.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider(new UriStringPathToStringConverter(), new SoftString[] { "bluba" })
+                new InMemoryProvider(ImmutableSession.Empty.SetScheme("bluba"))
                 {
                     { "x/123", "blub1" }
                 },
-                new InMemoryProvider(new UriStringPathToStringConverter(), new SoftString[] { "blub" })
+                new InMemoryProvider(ImmutableSession.Empty.SetScheme("blub"))
                 {
                     { "x/123", "blub2" },
                     { "x/125", "blub3" }
