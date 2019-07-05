@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
@@ -9,44 +10,32 @@ namespace Reusable.IOnymous
 {
     public class RelativeProvider : ResourceProvider
     {
-        private readonly IResourceProvider _resourceProvider;
 
         private readonly UriString _baseUri;
 
-        public RelativeProvider([NotNull] IResourceProvider resourceProvider, [NotNull] UriString baseUri)
-            : base(resourceProvider.Properties.SetItem(From<IProviderMeta>.Select(x => x.AllowRelativeUri), true))
+        public RelativeProvider([NotNull] UriString baseUri, [NotNull] IResourceProvider provider)
+            : base(provider.Properties.SetItem(PropertySelector.Select(x => x.AllowRelativeUri), true))
         {
-            _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
-            //if (baseUri.IsAbsolute) throw new ArgumentException($"'{nameof(baseUri)}' must be relative.");
             _baseUri = baseUri ?? throw new ArgumentNullException(nameof(baseUri));
+
+            Methods = provider.Methods.Aggregate(MethodDictionary.Empty, (current, next) =>
+            {
+                return current.Add(next.Key, request => next.Value(new ResourceRequest
+                {
+                    Uri = Prefix(request.Uri),
+                    Body = request.Body,
+                    Method = request.Method,
+                    Properties = request.Properties
+                }));
+            });
         }
-        
+
         public static Func<IResourceProvider, RelativeProvider> Factory(UriString baseUri)
         {
-            return decorable => new RelativeProvider(decorable, baseUri);
+            return decorable => new RelativeProvider(baseUri, decorable);
         }
 
-        protected override async Task<IResource> GetAsyncInternal(UriString uri, IImmutableSession metadata)
-        {
-            return await _resourceProvider.GetAsync(Combine(uri), metadata);
-        }
-
-        protected override Task<IResource> PostAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
-        {
-            return _resourceProvider.PostAsync(Combine(uri), value, metadata);
-        }
-        
-        protected override Task<IResource> PutAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
-        {
-            return _resourceProvider.PutAsync(Combine(uri), value, metadata);
-        }
-
-        protected override Task<IResource> DeleteAsyncInternal(UriString uri, IImmutableSession metadata)
-        {
-            return _resourceProvider.DeleteAsync(Combine(uri), metadata);
-        }
-
-        private UriString Combine(UriString uri)
+        private UriString Prefix(UriString uri)
         {
             return uri.IsRelative ? _baseUri + uri : uri;
         }

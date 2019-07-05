@@ -13,32 +13,41 @@ namespace Reusable.IOnymous
     {
         private readonly Assembly _assembly;
 
-        public EmbeddedFileProvider([NotNull] Assembly assembly, IImmutableSession metadata = default)
-            : base((metadata ?? ImmutableSession.Empty).SetScheme(ResourceSchemes.IOnymous).SetItem(From<IProviderMeta>.Select(x => x.AllowRelativeUri), true))
+        public EmbeddedFileProvider([NotNull] Assembly assembly, IImmutableSession properties = default)
+            : base((properties ?? ImmutableSession.Empty)
+                .SetScheme(ResourceSchemes.IOnymous)
+                .SetItem(PropertySelector.Select(x => x.AllowRelativeUri), true))
         {
             _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
             var assemblyName = _assembly.GetName().Name.Replace('.', '/');
             BaseUri = new UriString($"{DefaultScheme}:{assemblyName}");
+            Methods =
+                MethodDictionary
+                    .Empty
+                    .Add(ResourceRequestMethod.Get, GetAsync);
         }
 
         public UriString BaseUri { get; }
 
         #region ResourceProvider
 
-        protected override Task<IResource> GetAsyncInternal(UriString uri, IImmutableSession metadata)
+        private Task<IResource> GetAsync(ResourceRequest request)
         {
             //ValidateFormatNotNull(this, uri, metadata);
 
             // Embedded resource names are separated by '.' so replace the windows separator.
 
-            var fullUri = BaseUri + uri;
+            var fullUri = BaseUri + request.Uri;
             var fullName = fullUri.Path.Decoded.ToString().Replace('/', '.');
 
             // Embedded resource names are case sensitive so find the actual name of the resource.
             var actualName = _assembly.GetManifestResourceNames().FirstOrDefault(name => SoftString.Comparer.Equals(name, fullName));
             var getManifestResourceStream = actualName is null ? default(Func<Stream>) : () => _assembly.GetManifestResourceStream(actualName);
 
-            return Task.FromResult<IResource>(new EmbeddedFile(fullUri, metadata.GetItemOrDefault(From<IResourceMeta>.Select(y => y.Format)), getManifestResourceStream));
+            return Task.FromResult<IResource>(
+                new EmbeddedFile(
+                    fullUri,
+                    request.Properties.GetItemOrDefault(Resource.PropertySelector.Select(y => y.Format)), getManifestResourceStream));
         }
 
         #endregion
@@ -75,7 +84,6 @@ namespace Reusable.IOnymous
         public override DateTime? CreatedOn { get; }
 
         public override DateTime? ModifiedOn { get; }
-
 
         protected override async Task CopyToAsyncInternal(Stream stream)
         {

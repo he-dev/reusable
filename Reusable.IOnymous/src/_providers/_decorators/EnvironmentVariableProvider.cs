@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
@@ -9,12 +10,19 @@ namespace Reusable.IOnymous
 {
     public class EnvironmentVariableProvider : ResourceProvider
     {
-        private readonly IResourceProvider _resourceProvider;
-
-        public EnvironmentVariableProvider([NotNull] IResourceProvider resourceProvider)
-            : base(resourceProvider.Properties.SetItem(From<IProviderMeta>.Select(x => x.AllowRelativeUri), true))
+        public EnvironmentVariableProvider([NotNull] IResourceProvider provider)
+            : base(provider.Properties.SetItem(PropertySelector.Select(x => x.AllowRelativeUri), true))
         {
-            _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
+            Methods = provider.Methods.Aggregate(MethodDictionary.Empty, (current, next) =>
+            {
+                return current.Add(next.Key, request => next.Value(new ResourceRequest
+                {
+                    Uri = Resolve(request.Uri),
+                    Body = request.Body,
+                    Method = request.Method,
+                    Properties = request.Properties
+                }));
+            });
         }
 
         public static Func<IResourceProvider, EnvironmentVariableProvider> Factory()
@@ -22,27 +30,7 @@ namespace Reusable.IOnymous
             return decorable => new EnvironmentVariableProvider(decorable);
         }
 
-        protected override Task<IResource> GetAsyncInternal(UriString uri, IImmutableSession metadata)
-        {
-            return _resourceProvider.GetAsync(UpdatePath(uri), metadata);
-        }
-
-        protected override Task<IResource> PostAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
-        {
-            return _resourceProvider.PostAsync(UpdatePath(uri), value, metadata);
-        }
-        
-        protected override Task<IResource> PutAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
-        {
-            return _resourceProvider.PutAsync(UpdatePath(uri), value, metadata);
-        }
-
-        protected override Task<IResource> DeleteAsyncInternal(UriString uri, IImmutableSession metadata)
-        {
-            return _resourceProvider.DeleteAsync(UpdatePath(uri), metadata);
-        }
-
-        private UriString UpdatePath(UriString uri)
+        private UriString Resolve(UriString uri)
         {
             var expandedPath = Environment.ExpandEnvironmentVariables(uri.Path.Decoded.ToString());
             var normalizedPath = UriStringHelper.Normalize(expandedPath);

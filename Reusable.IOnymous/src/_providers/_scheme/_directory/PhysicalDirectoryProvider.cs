@@ -10,28 +10,36 @@ namespace Reusable.IOnymous
     [PublicAPI]
     public class PhysicalDirectoryProvider : ResourceProvider
     {
-        public PhysicalDirectoryProvider(IImmutableSession metadata = default)
-            : base(metadata.ThisOrEmpty().SetScheme("directory")) { }
-
-        protected override Task<IResource> GetAsyncInternal(UriString uri, IImmutableSession metadata)
+        public PhysicalDirectoryProvider(IImmutableSession properties = default)
+            : base(properties.ThisOrEmpty().SetScheme("directory"))
         {
-            return Task.FromResult<IResource>(new PhysicalDirectory(uri));
+            Methods =
+                MethodDictionary
+                    .Empty
+                    .Add(ResourceRequestMethod.Get, GetAsync)
+                    .Add(ResourceRequestMethod.Put, PutAsync)
+                    .Add(ResourceRequestMethod.Delete, DeleteAsync);
         }
 
-        protected override async Task<IResource> PutAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
+        private Task<IResource> GetAsync(ResourceRequest request)
         {
-            using (var streamReader = new StreamReader(value))
+            return Task.FromResult<IResource>(new PhysicalDirectory(request.Uri));
+        }
+
+        private async Task<IResource> PutAsync(ResourceRequest request)
+        {
+            using (var streamReader = new StreamReader(request.Body))
             {
-                var fullName = Path.Combine(uri.Path.Decoded.ToString(), await streamReader.ReadToEndAsync());
+                var fullName = Path.Combine(request.Uri.Path.Decoded.ToString(), await streamReader.ReadToEndAsync());
                 Directory.CreateDirectory(fullName);
-                return await GetAsync(fullName, metadata);
+                return await GetAsync(new ResourceRequest { Uri = fullName });
             }
         }
 
-        protected override async Task<IResource> DeleteAsyncInternal(UriString uri, IImmutableSession metadata)
+        private async Task<IResource> DeleteAsync(ResourceRequest request)
         {
-            Directory.Delete(uri.Path.Decoded.ToString(), true);
-            return await GetAsync(uri, metadata);
+            Directory.Delete(request.Uri.Path.Decoded.ToString(), true);
+            return await GetAsync(request);
         }
     }
 

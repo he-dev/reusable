@@ -37,34 +37,19 @@ namespace Reusable.IOnymous
 
             _providers = providers.ToImmutableList();
             _cache = new Dictionary<SoftString, IResourceProvider>();
+
+            Methods =
+                providers
+                    .SelectMany(x => x.Methods.Keys)
+                    .Distinct()
+                    .Aggregate(MethodDictionary.Empty, (current, next) => current.Add(next, InvokeAsync));
         }
 
         public static CompositeProvider Empty => new CompositeProvider(ImmutableList<IResourceProvider>.Empty);
 
-        protected override async Task<IResource> GetAsyncInternal(UriString uri, IImmutableSession metadata)
+        public override async Task<IResource> InvokeAsync(ResourceRequest request)
         {
-            return await DoAsync(uri, metadata, true, async resourceProvider => await resourceProvider.GetAsync(uri, metadata));
-        }
-
-        protected override async Task<IResource> PostAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
-        {
-            return await DoAsync(uri, metadata, false, async resourceProvider => (await resourceProvider.PostAsync(uri, value, metadata)));
-        }
-
-        protected override async Task<IResource> PutAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
-        {
-            return await DoAsync(uri, metadata, false, async resourceProvider => (await resourceProvider.PutAsync(uri, value, metadata)));
-        }
-
-        protected override async Task<IResource> DeleteAsyncInternal(UriString uri, IImmutableSession metadata)
-        {
-            return await DoAsync(uri, metadata, false, async resourceProvider => (await resourceProvider.DeleteAsync(uri, metadata)));
-        }
-
-        [ItemNotNull]
-        private async Task<IResource> DoAsync(UriString uri, IImmutableSession metadata, bool isGet, Func<IResourceProvider, Task<IResource>> doAsync)
-        {
-            var cacheKey = uri.ToString();
+            var cacheKey = request.Uri.ToString();
 
             await _cacheLock.WaitAsync();
             try
@@ -72,7 +57,7 @@ namespace Reusable.IOnymous
                 // Used cached provider if already resolved.
                 if (_cache.TryGetValue(cacheKey, out var cached))
                 {
-                    return await doAsync(cached);
+                    return await cached.InvokeAsync(request);
                 }
 
                 var resourceProviders = _providers.AsEnumerable();

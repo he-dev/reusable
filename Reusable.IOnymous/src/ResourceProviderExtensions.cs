@@ -69,11 +69,6 @@ namespace Reusable.IOnymous
             return resources.GetItemAsync<T>(uri, metadata).GetAwaiter().GetResult();
         }
 
-        public static Task<IResource> GetAnyAsync(this IResourceProvider resourceProvider, UriString uri, IImmutableSession metadata = default)
-        {
-            return resourceProvider.GetAsync(uri.With(x => x.Scheme, ResourceSchemes.IOnymous), metadata);
-        }
-
         #endregion
 
         #region PUT helpers
