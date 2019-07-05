@@ -63,7 +63,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public async Task Can_deserialize_single_expression()
         {
-            var jsonFile = await Flexo.GetFileAsync(@"ExpressionObject.json", MimeType.Json);
+            var jsonFile = await Flexo.ReadFileAsync(@"ExpressionObject.json", MimeType.Json);
             using (var jsonStream = await jsonFile.CopyToMemoryStreamAsync())
             {
                 var expression = await _helper.Serializer.DeserializeExpressionAsync(jsonStream.Rewind());

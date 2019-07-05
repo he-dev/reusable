@@ -47,7 +47,7 @@ namespace Reusable.IOnymous
 
         public static CompositeProvider Empty => new CompositeProvider(ImmutableList<IResourceProvider>.Empty);
 
-        public override async Task<IResource> InvokeAsync(ResourceRequest request)
+        public override async Task<IResource> InvokeAsync(Request request)
         {
             var cacheKey = request.Uri.ToString();
 
@@ -63,37 +63,37 @@ namespace Reusable.IOnymous
                 var resourceProviders = _providers.AsEnumerable();
 
                 // When provider-name is specified then filter them by name first.
-                if (metadata.GetNames().Any()) // this means there is a custom name
+                if (request.Properties.GetNames().Any()) // this means there is a custom name
                 {
-                    resourceProviders = resourceProviders.Where(p => p.Properties.GetNames().Overlaps(metadata.GetNames()));
+                    resourceProviders = resourceProviders.Where(p => p.Properties.GetNames().Overlaps(request.Properties.GetNames()));
                 }
 
                 // Check if there is a provider that matches the scheme of the absolute uri.
-                if (uri.IsAbsolute)
+                if (request.Uri.IsAbsolute)
                 {
-                    var ignoreScheme = uri.Scheme == ResourceSchemes.IOnymous;
-                    resourceProviders = resourceProviders.Where(p => ignoreScheme || p.Properties.GetSchemes().Contains(ResourceSchemes.IOnymous) || p.Properties.GetSchemes().Contains(uri.Scheme));
+                    var ignoreScheme = request.Uri.Scheme == ResourceSchemes.IOnymous;
+                    resourceProviders = resourceProviders.Where(p => ignoreScheme || p.Properties.GetSchemes().Contains(ResourceSchemes.IOnymous) || p.Properties.GetSchemes().Contains(request.Uri.Scheme));
                 }
 
                 // GET can search multiple providers.
-                if (isGet)
+                if (request.Method == RequestMethod.Get)
                 {
                     foreach (var resourceProvider in resourceProviders)
                     {
-                        if (await doAsync(resourceProvider) is var resource && resource.Exists)
+                        if (await resourceProvider.InvokeAsync(request) is var resource && resource.Exists)
                         {
                             _cache[cacheKey] = resourceProvider;
                             return resource;
                         }
                     }
 
-                    return new InMemoryResource(uri, metadata ?? ImmutableSession.Empty);
+                    return new InMemoryResource(request.Properties.Copy(Resource.PropertySelector), Stream.Null);
                 }
                 // Other methods are allowed to use only a single provider.
                 else
                 {
-                    var match = _cache[cacheKey] = resourceProviders.Single();
-                    return await doAsync(match);
+                    var match = _cache[cacheKey] = resourceProviders.SingleOrThrow();
+                    return await match.InvokeAsync(request);
                 }
             }
             finally

@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using Reusable.Data;
 using Reusable.IOnymous;
 using Reusable.IOnymous.Config;
 using Reusable.OneTo1;
@@ -43,8 +44,8 @@ namespace Reusable.Tests.IOnymous
                 { "bar/baz2", "quxy" },
             };
 
-            var value1 = await inMemory.GetAsync("foox:bar/baz1");
-            var value2 = await inMemory.GetAsync("fooy:bar/baz2");
+            var value1 = await inMemory.GetAsync("foox:bar/baz1", ImmutableSession.Empty);
+            var value2 = await inMemory.GetAsync("fooy:bar/baz2", ImmutableSession.Empty);
 
             Assert.True(value1.Exists);
             Assert.True(value2.Exists);
@@ -62,7 +63,7 @@ namespace Reusable.Tests.IOnymous
                 //{ "bar.baz", "quxy" },
             };
 
-            var value1 = await inMemory.GetAsync("ionymous:bar/baz");
+            var value1 = await inMemory.GetAsync("ionymous:bar/baz", ImmutableSession.Empty);
 
             Assert.True(value1.Exists);
 

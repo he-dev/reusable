@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Extensions;
+using Reusable.Flawless;
 using Reusable.OneTo1;
 using Reusable.OneTo1.Converters;
 using Reusable.Quickey;
@@ -14,30 +15,43 @@ namespace Reusable.IOnymous.Config
 {
     public class AppSettingProvider : SettingProvider
     {
-        public AppSettingProvider() : base(ImmutableSession.Empty) { }
+        public AppSettingProvider() : base(ImmutableSession.Empty)
+        {
+            Methods =
+                MethodDictionary
+                    .Empty
+                    .Add(RequestMethod.Get, GetAsync)
+                    .Add(RequestMethod.Put, PutAsync);
+        }
 
         [CanBeNull]
         public ITypeConverter UriConverter { get; set; } = DefaultUriStringConverter;
 
         public ITypeConverter ValueConverter { get; set; } = new NullConverter();
 
-        protected override Task<IResource> GetAsyncInternal(UriString uri, IImmutableSession metadata)
+        private Task<IResource> GetAsync(Request request)
         {
-            var settingIdentifier = UriConverter?.Convert<string>(uri) ?? uri;
+            var settingIdentifier = UriConverter?.Convert<string>(request.Uri) ?? request.Uri;
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
             var element = exeConfig.AppSettings.Settings[actualKey];
-            return Task.FromResult<IResource>(new AppSetting(uri, element?.Value, ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.ActualName), settingIdentifier)));
+            return Task.FromResult<IResource>(
+                new AppSetting(
+                    ImmutableSession
+                        .Empty
+                        .SetItem(Resource.PropertySelector.Select(x => x.ActualName), settingIdentifier)
+                        .Union(request.Properties.Copy(Resource.PropertySelector)),
+                    element?.Value));
         }
 
-        protected override async Task<IResource> PutAsyncInternal(UriString uri, Stream stream, IImmutableSession metadata)
+        private async Task<IResource> PutAsync(Request request)
         {
-            var settingIdentifier = UriConverter?.Convert<string>(uri) ?? uri;
+            var settingIdentifier = UriConverter?.Convert<string>(request.Uri) ?? request.Uri;
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
             var element = exeConfig.AppSettings.Settings[actualKey];
 
-            var value = await ResourceHelper.Deserialize<object>(stream, metadata);
+            var value = await ResourceHelper.Deserialize<object>(request.Body, request.Properties.Copy(Resource.PropertySelector));
             value = ValueConverter.Convert(value, typeof(string));
 
             if (element is null)
@@ -51,7 +65,7 @@ namespace Reusable.IOnymous.Config
 
             exeConfig.Save(ConfigurationSaveMode.Minimal);
 
-            return await GetAsync(uri);
+            return await GetAsync(request);
         }
 
         [CanBeNull]
@@ -68,24 +82,26 @@ namespace Reusable.IOnymous.Config
 
     internal class AppSetting : Resource
     {
-        [CanBeNull] private readonly string _value;
+        [CanBeNull]
+        private readonly string _value;
 
-        internal AppSetting([NotNull] UriString uri, [CanBeNull] string value, IImmutableSession metadata)
-            : base(uri, metadata.SetItem(From<IResourceMeta>.Select(x => x.Format), MimeType.Text))
+        // This is always Text
+        internal AppSetting(IImmutableSession properties, [CanBeNull] string value)
+            : base(properties
+                .SetItem(PropertySelector.Select(x => x.Format), MimeType.Text)
+                .SetItem(PropertySelector.Select(x => x.Exists), value.IsNotNullOrEmpty()))
         {
             _value = value;
         }
 
-        public override bool Exists => !(_value is null);
+        //public override bool Exists => !(_value is null);
 
-        public override long? Length => _value?.Length;
+        //public override long? Length => _value?.Length;
 
-        public override DateTime? CreatedOn { get; }
-
-        public override DateTime? ModifiedOn { get; }
-
-        protected override async Task CopyToAsyncInternal(Stream stream)
+        public override async Task CopyToAsync(Stream stream)
         {
+            //this.ValidateWith(Validations.Exists).ThrowIfNotValid();
+
             // ReSharper disable once AssignNullToNotNullAttribute - this isn't null here
             using (var valueStream = _value.ToStreamReader())
             {

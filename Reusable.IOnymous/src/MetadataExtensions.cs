@@ -54,7 +54,7 @@ namespace Reusable.IOnymous
         
         MimeType Format { get; }
 
-        Type Type { get; }
+        Type DataType { get; }
 
         string ActualName { get; }
     }
@@ -100,6 +100,35 @@ namespace Reusable.IOnymous
         public static IImmutableSet<SoftString> GetNames(this IImmutableSession session)
         {
             return session.GetItemOrDefault(Names, ImmutableHashSet<SoftString>.Empty);
+        }
+
+        #region Resource
+
+        public static IImmutableSession SetUri(this IImmutableSession session, UriString value) => session.SetItem(Resource.PropertySelector.Select(x => x.Uri), value);
+        public static IImmutableSession SetExists(this IImmutableSession session, bool value) => session.SetItem(Resource.PropertySelector.Select(x => x.Exists), value);
+        public static IImmutableSession SetFormat(this IImmutableSession session, MimeType value) => session.SetItem(Resource.PropertySelector.Select(x => x.Format), value);
+        public static IImmutableSession SetDataType(this IImmutableSession session, Type value) => session.SetItem(Resource.PropertySelector.Select(x => x.DataType), value);
+
+        public static UriString GetUri(this IImmutableSession session) => session.GetItemOrDefault(Resource.PropertySelector.Select(x => x.Uri));
+        public static bool GetExists(this IImmutableSession session) => session.GetItemOrDefault(Resource.PropertySelector.Select(x => x.Exists));
+        public static MimeType GetFormat(this IImmutableSession session) => session.GetItemOrDefault(Resource.PropertySelector.Select(x => x.Format), MimeType.None);
+        public static Type GetDataType(this IImmutableSession session) => session.GetItemOrDefault(Resource.PropertySelector.Select(x => x.DataType));
+        
+        #endregion
+
+        // Copies existing items from the specified session by T.
+        public static IImmutableSession Copy<T>(this IImmutableSession session, From<T> from)
+        {
+            var selectors =
+                from p in typeof(T).GetProperties()
+                select Selector.FromProperty(typeof(T), p);
+
+            var copyable =
+                from selector in selectors
+                where session.ContainsKey(selector.ToString())
+                select selector;
+
+            return copyable.Aggregate(ImmutableSession.Empty, (current, next) => current.SetItem(next.ToString(), session[next.ToString()]));
         }
     }
 }

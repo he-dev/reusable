@@ -53,21 +53,18 @@ namespace Reusable.IOnymous
     {
         private readonly Stream _response;
 
-        public MailResource([NotNull] UriString uri, Stream response, MimeType format)
-            : base(uri, ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.Format), format))
+        internal MailResource(IImmutableSession properties, Stream response = default)
+            : base(properties
+                .SetExists(!(response is null)))
         {
             _response = response;
         }
 
-        public override bool Exists => !(_response is null);
+        //public override bool Exists => !(_response is null);
 
-        public override long? Length => _response?.Length;
-
-        public override DateTime? CreatedOn { get; }
-
-        public override DateTime? ModifiedOn { get; }
-
-        protected override async Task CopyToAsyncInternal(Stream stream)
+        //public override long? Length => _response?.Length;
+        
+        public override async Task CopyToAsync(Stream stream)
         {
             await _response.Rewind().CopyToAsync(stream);
         }

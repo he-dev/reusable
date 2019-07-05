@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.IO;
 using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.IOnymous;
@@ -30,12 +31,12 @@ namespace Reusable.Tests.IOnymous
 //                .Returns(new SoftString[] { "blub" }.ToImmutableHashSet());
 
             mockProvider
-                .Arrange(x => x.GetAsync(Telerik.JustMock.Arg.Matches<UriString>(uri => uri == new UriString("blub:base/relative")), Telerik.JustMock.Arg.IsAny<ImmutableSession>()))
-                .Returns<UriString, ImmutableSession>((uri, metadata) => Task.FromResult<IResource>(new InMemoryResource(uri, ImmutableSession.Empty)));
+                .Arrange(x => x.GetAsync(Arg.Matches<UriString>(uri => uri == new UriString("blub:base/relative")), Arg.IsAny<ImmutableSession>()))
+                .Returns<UriString, ImmutableSession>((uri, metadata) => Task.FromResult<IResource>(new InMemoryResource(ImmutableSession.Empty.SetUri(uri), Stream.Null)));
 
 
             var relativeProvider = mockProvider.DecorateWith(RelativeProvider.Factory("blub:base"));
-            var resource = await relativeProvider.GetAsync("relative");
+            var resource = await relativeProvider.GetAsync("relative", ImmutableSession.Empty);
 
             Assert.False(resource.Exists);
             Assert.Equal("blub:base/relative", resource.Uri);

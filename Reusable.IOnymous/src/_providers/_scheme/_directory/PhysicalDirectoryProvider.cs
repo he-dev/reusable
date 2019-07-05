@@ -16,27 +16,31 @@ namespace Reusable.IOnymous
             Methods =
                 MethodDictionary
                     .Empty
-                    .Add(ResourceRequestMethod.Get, GetAsync)
-                    .Add(ResourceRequestMethod.Put, PutAsync)
-                    .Add(ResourceRequestMethod.Delete, DeleteAsync);
+                    .Add(RequestMethod.Get, GetAsync)
+                    .Add(RequestMethod.Put, PutAsync)
+                    .Add(RequestMethod.Delete, DeleteAsync);
         }
 
-        private Task<IResource> GetAsync(ResourceRequest request)
+        private Task<IResource> GetAsync(Request request)
         {
-            return Task.FromResult<IResource>(new PhysicalDirectory(request.Uri));
+            return Task.FromResult<IResource>(
+                new PhysicalDirectory(
+                    ImmutableSession
+                        .Empty
+                        .SetItem(Resource.PropertySelector.Select(x => x.Uri), request.Uri)));
         }
 
-        private async Task<IResource> PutAsync(ResourceRequest request)
+        private async Task<IResource> PutAsync(Request request)
         {
             using (var streamReader = new StreamReader(request.Body))
             {
                 var fullName = Path.Combine(request.Uri.Path.Decoded.ToString(), await streamReader.ReadToEndAsync());
                 Directory.CreateDirectory(fullName);
-                return await GetAsync(new ResourceRequest { Uri = fullName });
+                return await GetAsync(new Request { Uri = fullName });
             }
         }
 
-        private async Task<IResource> DeleteAsync(ResourceRequest request)
+        private async Task<IResource> DeleteAsync(Request request)
         {
             Directory.Delete(request.Uri.Path.Decoded.ToString(), true);
             return await GetAsync(request);
@@ -46,19 +50,18 @@ namespace Reusable.IOnymous
     [PublicAPI]
     internal class PhysicalDirectory : Resource
     {
-        public PhysicalDirectory([NotNull] UriString uri)
-            : base(uri, ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.Format), MimeType.None)) { }
+        public PhysicalDirectory(IImmutableSession properties)
+            : base(properties
+                .SetItem(PropertySelector.Select(x => x.Exists), Directory.Exists(properties.GetItemOrDefault(PropertySelector.Select(x => x.Uri)).Path.Decoded.ToString()))
+                .SetItem(PropertySelector.Select(x => x.Format), MimeType.None)
+                .SetItem(PropertySelector.Select(x => x.ModifiedOn), p =>
+                {
+                    return
+                        p.GetItemOrDefault(PropertySelector.Select(x => x.Exists))
+                            ? Directory.GetLastWriteTimeUtc(properties.GetItemOrDefault(PropertySelector.Select(x => x.Uri)).Path.Decoded.ToString())
+                            : DateTime.MinValue;
+                })) { }
 
-        public override UriString Uri { get; }
-
-        public override bool Exists => Directory.Exists(Uri.Path.Decoded.ToString());
-
-        public override long? Length { get; }
-
-        public override DateTime? CreatedOn { get; }
-
-        public override DateTime? ModifiedOn => Exists ? Directory.GetLastWriteTimeUtc(Uri.Path.Decoded.ToString()) : default;
-
-        protected override Task CopyToAsyncInternal(Stream stream) => throw new NotSupportedException();
+        public override Task CopyToAsync(Stream stream) => throw new NotSupportedException();
     }
 }

@@ -78,21 +78,19 @@ namespace Reusable.IOnymous
             }
         }
         
-        public static async Task<T> Deserialize<T>(Stream value, IImmutableSession metadata)
+        public static async Task<T> Deserialize<T>(Stream value, IImmutableSession properties)
         {
-            var format = metadata.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Format));
-            
-            if (format == MimeType.Text)
+            if (properties.GetFormat() == MimeType.Text)
             {
                 return (T)(object)await DeserializeTextAsync(value);
             }
             
-            if (format == MimeType.Binary)
+            if (properties.GetFormat() == MimeType.Binary)
             {
                 return (T)await DeserializeBinaryAsync<object>(value);
             }
             
-            throw DynamicException.Create("Format", $"Unsupported value format: '{format}'.");
+            throw DynamicException.Create("ResourceFormat", $"Unsupported resource format: '{properties.GetFormat()}'.");
         }
     }
 }

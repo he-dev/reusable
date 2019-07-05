@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Extensions;
-using Reusable.Flawless;
 using Reusable.Quickey;
 
 namespace Reusable.IOnymous
@@ -16,33 +15,22 @@ namespace Reusable.IOnymous
     [PublicAPI]
     public class PhysicalFileProvider : ResourceProvider
     {
-        // private static readonly IExpressValidator<Request> RequestValidator = ExpressValidator.For<Request>(builder =>
-        // {
-        //     builder.False
-        //     (x =>
-        //         x.Metadata.GetItemOrDefault(From<IResourceMeta>.Select(y => y.Format), MimeType.None).IsNull()
-        //     ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it requires resource format specified by the metadata.");
-        // });
-
         public PhysicalFileProvider(IImmutableSession properties = default) : base(properties.ThisOrEmpty().SetScheme("file"))
         {
             Methods =
                 MethodDictionary
                     .Empty
-                    .Add(ResourceRequestMethod.Get, GetAsync)
-                    .Add(ResourceRequestMethod.Put, PutAsync)
-                    .Add(ResourceRequestMethod.Delete, DeleteAsync);
-        }
-        
-        private Task<IResource> GetAsync(ResourceRequest request)
-        {
-            return Task.FromResult<IResource>(
-                new PhysicalFile(
-                    request.Uri,
-                    request.Properties.GetItemOrDefault(Resource.PropertySelector.Select(y => y.Format))));
+                    .Add(RequestMethod.Get, GetAsync)
+                    .Add(RequestMethod.Put, PutAsync)
+                    .Add(RequestMethod.Delete, DeleteAsync);
         }
 
-        private async Task<IResource> PutAsync(ResourceRequest request)
+        private Task<IResource> GetAsync(Request request)
+        {
+            return Task.FromResult<IResource>(new PhysicalFile(request.Properties.Copy(Resource.PropertySelector).SetUri(request.Uri)));
+        }
+
+        private async Task<IResource> PutAsync(Request request)
         {
             using (var fileStream = new FileStream(request.Uri.ToUnc(), FileMode.CreateNew, FileAccess.Write))
             {
@@ -53,34 +41,35 @@ namespace Reusable.IOnymous
             return await GetAsync(request);
         }
 
-        private Task<IResource> DeleteAsync(ResourceRequest request)
+        private Task<IResource> DeleteAsync(Request request)
         {
             File.Delete(request.Uri.ToUnc());
-            return Task.FromResult<IResource>(new PhysicalFile(request.Uri));
+            return Task.FromResult<IResource>(new PhysicalFile(request.Properties.Copy(Resource.PropertySelector).SetUri(request.Uri)));
         }
     }
 
     [PublicAPI]
     internal class PhysicalFile : Resource
     {
-        public PhysicalFile([NotNull] UriString uri, MimeType format)
-            : base(uri, ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.Format), format)) { }
+        public PhysicalFile(IImmutableSession properties)
+            : base(properties
+                    .SetItem(PropertySelector.Select(x => x.Exists), p => File.Exists(p.GetItemOrDefault(PropertySelector.Select(x => x.Uri)).ToUnc()))
+                    .SetItem(PropertySelector.Select(x => x.Length), p =>
+                        p.GetExists()
+                            ? new FileInfo(p.GetItemOrDefault(PropertySelector.Select(x => x.Uri)).ToUnc()).Length
+                            : -1)
+                //.SetItem(PropertySelector.Select(x => x.ModifiedOn), p => )
+            ) { }
 
-        public PhysicalFile([NotNull] UriString uri)
-            : this(uri, MimeType.None) { }
+        //public override bool Exists => File.Exists(Uri.ToUnc());
 
-        public PhysicalFile([NotNull] IImmutableSession properties)
-            : base(properties) { }
+        //public override long? Length => new FileInfo(Uri.ToUnc()).Length;
 
-        public override bool Exists => File.Exists(Uri.ToUnc());
+        //public override DateTime? CreatedOn => Exists ? File.GetCreationTimeUtc(Uri.ToUnc()) : default;
 
-        public override long? Length => new FileInfo(Uri.ToUnc()).Length;
+        //public override DateTime? ModifiedOn => Exists ? File.GetLastWriteTimeUtc(Uri.ToUnc()) : default;
 
-        public override DateTime? CreatedOn => Exists ? File.GetCreationTimeUtc(Uri.ToUnc()) : default;
-
-        public override DateTime? ModifiedOn => Exists ? File.GetLastWriteTimeUtc(Uri.ToUnc()) : default;
-
-        protected override async Task CopyToAsyncInternal(Stream stream)
+        public override async Task CopyToAsync(Stream stream)
         {
             using (var fileStream = File.OpenRead(Uri.ToUnc()))
             {

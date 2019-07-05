@@ -14,28 +14,35 @@ namespace Reusable.IOnymous.Config
 {
     public class ConnectionStringProvider : SettingProvider
     {
-        public ConnectionStringProvider() : base(ImmutableSession.Empty) { }
+        public ConnectionStringProvider() : base(ImmutableSession.Empty)
+        {
+            Methods =
+                MethodDictionary
+                    .Empty
+                    .Add(RequestMethod.Get, GetAsync)
+                    .Add(RequestMethod.Put, PutAsync);
+        }
 
         [CanBeNull]
         public ITypeConverter UriConverter { get; set; } = DefaultUriStringConverter;
 
         public ITypeConverter ValueConverter { get; set; } = new NullConverter();
 
-        protected override Task<IResource> GetAsyncInternal(UriString uri, IImmutableSession metadata)
+        private Task<IResource> GetAsync(Request request)
         {
-            var settingIdentifier = UriConverter?.Convert<string>(uri) ?? uri;
+            var settingIdentifier = UriConverter?.Convert<string>(request.Uri) ?? request.Uri;
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             var settings = FindConnectionStringSettings(exeConfig, settingIdentifier);
-            return Task.FromResult<IResource>(new ConnectionString(uri, settings?.ConnectionString));
+            return Task.FromResult<IResource>(new ConnectionString(request.Uri, settings?.ConnectionString));
         }
 
-        protected override async Task<IResource> PutAsyncInternal(UriString uri, Stream stream, IImmutableSession metadata)
+        private async Task<IResource> PutAsync(Request request)
         {
             using (var valueReader = new StreamReader(stream))
             {
                 var value = await valueReader.ReadToEndAsync();
 
-                var settingIdentifier = UriConverter?.Convert<string>(uri) ?? uri;
+                var settingIdentifier = UriConverter?.Convert<string>(request.Uri) ?? request.Uri;
                 var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
                 var settings = FindConnectionStringSettings(exeConfig, settingIdentifier);
 
@@ -50,7 +57,7 @@ namespace Reusable.IOnymous.Config
 
                 exeConfig.Save(ConfigurationSaveMode.Minimal);
 
-                return await GetAsync(uri);
+                return await GetAsync(request.Uri);
             }
         }
 
@@ -68,7 +75,8 @@ namespace Reusable.IOnymous.Config
 
     internal class ConnectionString : Resource
     {
-        [CanBeNull] private readonly string _value;
+        [CanBeNull]
+        private readonly string _value;
 
         internal ConnectionString([NotNull] UriString uri, [CanBeNull] string value)
             : base(uri, ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.Format), MimeType.Text))
@@ -76,15 +84,11 @@ namespace Reusable.IOnymous.Config
             _value = value;
         }
 
-        public override bool Exists => !(_value is null);
+        //public override bool Exists => !(_value is null);
 
-        public override long? Length => _value?.Length;
-
-        public override DateTime? CreatedOn { get; }
-
-        public override DateTime? ModifiedOn { get; }
-
-        protected override async Task CopyToAsyncInternal(Stream stream)
+        //public override long? Length => _value?.Length;
+        
+        public override async Task CopyToAsync(Stream stream)
         {
             // ReSharper disable once AssignNullToNotNullAttribute - this isn't null here
             using (var valueStream = _value.ToStreamReader())

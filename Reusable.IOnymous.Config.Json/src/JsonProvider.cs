@@ -21,49 +21,50 @@ namespace Reusable.IOnymous.Config
                     .SetBasePath(Directory.GetCurrentDirectory())
                     .AddJsonFile("appsettings.json")
                     .Build();
+            Methods =
+                MethodDictionary
+                    .Empty
+                    .Add(RequestMethod.Get, GetAsync);
         }
 
         public ITypeConverter UriConverter { get; set; } = DefaultUriStringConverter;
 
         public ITypeConverter ValueConverter { get; set; } = new JsonSettingConverter();
 
-        protected override Task<IResource> GetAsyncInternal(UriString uri, IImmutableSession metadata)
+        private Task<IResource> GetAsync(Request request)
         {
-            var settingIdentifier = UriConverter?.Convert<string>(uri) ?? uri;
+            var settingIdentifier = UriConverter?.Convert<string>(request.Uri) ?? request.Uri;
 
             var data = _configuration[settingIdentifier];
             if (data is null)
             {
-                return Task.FromResult<IResource>(new JsonResource(uri, default, metadata));
+                return Task.FromResult<IResource>(new JsonResource(request.Properties.Copy(Resource.PropertySelector)));
             }
             else
             {
-                var value = ValueConverter.Convert(data, metadata.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Type)));
-                metadata = ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.ActualName), settingIdentifier);
-                return Task.FromResult<IResource>(new JsonResource(uri, value, metadata));
+                var value = ValueConverter.Convert(data, request.Properties.GetType());
+                //metadata = ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.ActualName), settingIdentifier);
+                return Task.FromResult<IResource>(new JsonResource(request.Properties.Copy(Resource.PropertySelector), value));
             }
         }
     }
 
     internal class JsonResource : Resource
     {
-        [CanBeNull] private readonly object _value;
+        [CanBeNull]
+        private readonly object _value;
 
-        internal JsonResource([NotNull] UriString uri, [CanBeNull] object value, IImmutableSession metadata)
-            : base(uri, metadata.SetItem(From<IResourceMeta>.Select(x => x.Format), value is string ? MimeType.Text : MimeType.Binary))
+        internal JsonResource(IImmutableSession properties, object value = default)
+            : base(properties
+                .SetExists(!(value is null))
+                .SetFormat(value is string ? MimeType.Text : MimeType.Binary))
         {
             _value = value;
         }
 
-        public override bool Exists => !(_value is null);
+        //public override bool Exists => !(_value is null);
 
-        public override long? Length { get; }
-
-        public override DateTime? CreatedOn { get; }
-
-        public override DateTime? ModifiedOn { get; }
-
-        protected override async Task CopyToAsyncInternal(Stream stream)
+        public override async Task CopyToAsync(Stream stream)
         {
             var format = Properties.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Format));
             if (format == MimeType.Text)

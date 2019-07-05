@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
@@ -40,6 +41,11 @@ namespace Reusable.Data
         {
             return session.SetItem(key.ToString(), value);
         }
+        
+        public static IImmutableSession SetItem<T>(this IImmutableSession session, Selector<T> key, Func<IImmutableSession, T> value)
+        {
+            return session.SetItem(key.ToString(), value(session));
+        }
 
         public static Func<IImmutableSession, IImmutableSession> MergeFunc(IImmutableSession other)
         {
@@ -52,6 +58,11 @@ namespace Reusable.Data
 
                 return current;
             };
+        }
+
+        public static IImmutableSession Union(this IImmutableSession first, IImmutableSession second, bool overwrite = false)
+        {
+            return second.Aggregate(first, (current, next) => overwrite || !current.ContainsKey(next.Key) ? current.SetItem(next.Key, next.Value) : current);
         }
 
 //        [MustUseReturnValue]

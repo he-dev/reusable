@@ -25,6 +25,12 @@ namespace Reusable.IOnymous
             : base((metadata ?? ImmutableSession.Empty).SetWhen(x => !x.GetSchemes().Any(), x => x.SetScheme(ResourceSchemes.IOnymous)))
         {
             _uriConverter = uriConverter ?? throw new ArgumentNullException(nameof(uriConverter));
+
+            Methods =
+                MethodDictionary
+                    .Empty
+                    .Add(RequestMethod.Get, GetAsync)
+                    .Add(RequestMethod.Put, PutAsync);
         }
 
         public InMemoryProvider(IImmutableSession metadata = default) : this(new UriStringPathToStringConverter(), metadata) { }
@@ -34,34 +40,24 @@ namespace Reusable.IOnymous
         /// </summary>
         public ITypeConverter Converter { get; set; } = new NullConverter();
 
-        protected override async Task<IResource> GetAsyncInternal(UriString uri, IImmutableSession metadata)
+        private async Task<IResource> GetAsync(Request request)
         {
-            var name = _uriConverter.Convert<string>(uri);
+            var name = _uriConverter.Convert<string>(request.Uri);
             return
                 _items.TryGetValue(name, out var o)
                     ? o is string s
-                        ? new InMemoryResource(uri, MimeType.Text, await ResourceHelper.SerializeTextAsync(s))
-                        : new InMemoryResource(uri, MimeType.Binary, await ResourceHelper.SerializeBinaryAsync(o))
-                    : new InMemoryResource(uri, ImmutableSession.Empty);
+                        ? new InMemoryResource(ImmutableSession.Empty.SetUri(request.Uri).SetFormat(MimeType.Text), await ResourceHelper.SerializeTextAsync(s))
+                        : new InMemoryResource(ImmutableSession.Empty.SetUri(request.Uri).SetFormat(MimeType.Binary), await ResourceHelper.SerializeBinaryAsync(o))
+                    : new InMemoryResource(ImmutableSession.Empty.SetUri(request.Uri), Stream.Null);
         }
 
-        // protected override Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, ResourceMetadata metadata)
-        // {
-        //     ValidateFormatNotNull(this, uri, metadata);
-        //
-        //     //var resource = new InMemoryResourceInfo(uri, metadata.Format(), value);
-        //     //_items.Remove(resource);
-        //     //_items.Add(resource);
-        //     //return Task.FromResult<IResourceInfo>(resource);
-        // }
-
-        protected override async Task<IResource> PutAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
+        private async Task<IResource> PutAsync(Request request)
         {
             //ValidateFormatNotNull(this, uri, metadata);
 
-            var name = _uriConverter.Convert<string>(uri);
-            _items[name] = await ResourceHelper.Deserialize<object>(value, metadata);
-            return new InMemoryResource(uri, metadata.GetItemOrDefault(From<IResourceMeta>.Select(y => y.Format)), value);
+            var name = _uriConverter.Convert<string>(request.Uri);
+            _items[name] = await ResourceHelper.Deserialize<object>(request.Body, request.Properties);
+            return new InMemoryResource(ImmutableSession.Empty.SetUri(request.Uri).SetFormat(request.Properties.GetItemOrDefault(From<IResourceMeta>.Select(y => y.Format))), request.Body);
         }
 
         // protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata)
@@ -122,27 +118,22 @@ namespace Reusable.IOnymous
         [CanBeNull]
         private readonly Stream _data;
 
-        public InMemoryResource(UriString uri, MimeType format, Stream data, IImmutableSession metadata = default)
-            : base(uri, metadata ?? ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.Format), format))
+//        public InMemoryResource(UriString uri, MimeType format, Stream data)
+//            : base(ImmutableSession
+//                .Empty
+//                .SetItem(PropertySelector.Select(x => x.Uri), uri)
+//                .SetItem(From<IResourceMeta>.Select(x => x.Format), format))
+//        {
+//            _data = data ?? throw new ArgumentNullException(nameof(data));
+//        }
+
+        public InMemoryResource(IImmutableSession properties, Stream data)
+            : base(properties.SetExists(data != Stream.Null))
         {
-            _data = data ?? throw new ArgumentNullException(nameof(data));
+            _data = data;
         }
 
-        public InMemoryResource(UriString uri, IImmutableSession metadata)
-            : this(uri, MimeType.None, Stream.Null, metadata)
-        {
-            ModifiedOn = DateTime.UtcNow;
-        }
-
-        public override bool Exists => _data?.Length > 0;
-
-        public override long? Length => _data?.Length;
-
-        public override DateTime? CreatedOn { get; }
-
-        public override DateTime? ModifiedOn { get; }
-
-        protected override async Task CopyToAsyncInternal(Stream stream)
+        public override async Task CopyToAsync(Stream stream)
         {
             await _data.Rewind().CopyToAsync(stream);
         }

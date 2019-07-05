@@ -39,9 +39,9 @@ namespace Reusable.Data
         bool TryGetValue(SoftString key, out object value);
 
         //IImmutableSession SetItem(SoftString key, object value);
-        
+
         [NotNull]
-        IImmutableSession SetItem<T>(SoftString key, T value);
+        IImmutableSession SetItem<T>(SoftString key, T value, bool replace = true);
     }
 
     // With a 'struct' we don't need any null-checks.
@@ -115,9 +115,16 @@ namespace Reusable.Data
         [DebuggerStepThrough]
         [MustUseReturnValue]
         //public IImmutableSession SetItem(SoftString key, object value) => new ImmutableSession(_data.Remove(key).SetItem(key, value));
-        public IImmutableSession SetItem<T>(SoftString key, T value)
+        public IImmutableSession SetItem<T>(SoftString key, T value, bool replace = true)
         {
-            return new ImmutableSession(_data.Remove(key).SetItem(key, value));
+            if (replace)
+            {
+                return new ImmutableSession(_data.Remove(key).SetItem(key, value));
+            }
+            else
+            {
+                return _data.ContainsKey(key) ? this : new ImmutableSession(_data.SetItem(key, value));
+            }
         }
 
         public IEnumerator<(SoftString Key, object Value)> GetEnumerator()
@@ -127,4 +134,11 @@ namespace Reusable.Data
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_data).GetEnumerator();
     }
+
+//    public class SetItemMode : Option<SetItemMode>
+//    {
+//        public SetItemMode(SoftString name, IImmutableSet<SoftString> values) : base(name, values) { }
+//
+//        public static readonly SetItemMode Overwrite = CreateWithCallerName();
+//    }
 }

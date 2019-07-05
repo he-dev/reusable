@@ -9,62 +9,50 @@ namespace Reusable.Tests.IOnymous
 {
     public class ResourceProviderTest
     {
+
         [Fact]
         public async Task Throws_when_unsupported_scheme_requested()
         {
-            await Assert.ThrowsAnyAsync<DynamicException>(async () => await EmptyProvider.Default.GetAsync("noop"));            
+            var provider = new EmptyProvider();
+            await Assert.ThrowsAnyAsync<DynamicException>(async () => await provider.GetAsync("noop", ImmutableSession.Empty));
         }
-        
+
         [Fact]
         public async Task Throws_when_unsupported_method_requested()
         {
-            Assert.False(EmptyProvider.Default.CanGet);
-            Assert.False(EmptyProvider.Default.CanPut);
-            Assert.False(EmptyProvider.Default.CanPost);
-            Assert.False(EmptyProvider.Default.CanDelete);
-            await Assert.ThrowsAnyAsync<DynamicException>(async () => await EmptyProvider.Default.GetAsync("noop"));            
-            await Assert.ThrowsAnyAsync<DynamicException>(async () => await EmptyProvider.Default.PutAsync("noop", Stream.Null));            
-            await Assert.ThrowsAnyAsync<DynamicException>(async () => await EmptyProvider.Default.PostAsync("noop", Stream.Null));            
-            await Assert.ThrowsAnyAsync<DynamicException>(async () => await EmptyProvider.Default.DeleteAsync("noop"));            
+            var provider = new EmptyProvider();
+            
+            Assert.False(provider.Can(RequestMethod.Get));
+            Assert.False(provider.Can(RequestMethod.Put));
+            Assert.False(provider.Can(RequestMethod.Post));
+            Assert.False(provider.Can(RequestMethod.Delete));
+            await Assert.ThrowsAnyAsync<DynamicException>(async () => await provider.GetAsync("noop", ImmutableSession.Empty));
         }
 
         [Fact]
         public async Task Throws_when_resource_format_not_specified()
         {
-            Assert.True(SimpleProvider.Default.CanGet);
-            await SimpleProvider.Default.GetAsync("test:///noop");
+            var provider = new SimpleProvider();
+            Assert.True(provider.Can(RequestMethod.Get));
+            await provider.GetAsync("test:///noop", ImmutableSession.Empty);
         }
 
         private class EmptyProvider : ResourceProvider
         {
-            public EmptyProvider() : base(ImmutableSession.Empty.SetScheme("test")) { }
-            
-            public static EmptyProvider Default => new EmptyProvider();
+            public EmptyProvider() : base(ImmutableSession.Empty.SetScheme("test"))
+            {
+                Methods = MethodDictionary.Empty;
+            }
         }
 
         private class SimpleProvider : ResourceProvider
         {
-            public SimpleProvider() : base(ImmutableSession.Empty.SetScheme("test")) { }
-            
-            public static SimpleProvider Default => new SimpleProvider();
-
-            protected override Task<IResource> GetAsyncInternal(UriString uri, IImmutableSession metadata)
+            public SimpleProvider() : base(ImmutableSession.Empty.SetScheme("test"))
             {
-                return Task.FromResult(default(IResource));
-            }
-
-            protected override Task<IResource> PutAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
-            {
-                return Task.FromResult(default(IResource));
-            }
-
-            protected override Task<IResource> PostAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
-            {
-                return Task.FromResult(default(IResource));            }
-
-            protected override Task<IResource> DeleteAsyncInternal(UriString uri, IImmutableSession metadata)
-            {
-                return Task.FromResult(default(IResource));
+                Methods =
+                    MethodDictionary
+                        .Empty
+                        .Add(RequestMethod.Get, r => Task.FromResult<IResource>(new InMemoryResource(ImmutableSession.Empty, Stream.Null)));
             }
         }
     }

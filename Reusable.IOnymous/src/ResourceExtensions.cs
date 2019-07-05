@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq.Custom;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Data;
 using Reusable.Quickey;
@@ -45,11 +46,9 @@ namespace Reusable.IOnymous
 
         public static async Task<T> DeserializeBinaryAsync<T>(this IResource resource)
         {
-            var format = resource.Properties.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Format));
-
-            if (format != MimeType.Binary)
+            if (resource.Format != MimeType.Binary)
             {
-                throw new ArgumentException($"Resource must be '{MimeType.Binary}' but is '{format}'.");
+                throw new ArgumentException($"Resource must be '{MimeType.Binary}' but is '{resource.Format}'.");
             }
 
             var binaryFormatter = new BinaryFormatter();

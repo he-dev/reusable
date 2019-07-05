@@ -33,22 +33,28 @@ namespace Reusable.IOnymous
                 BaseAddress = new Uri(baseUri)
             };
             _client.DefaultRequestHeaders.Clear();
+            
+            Methods =
+                MethodDictionary
+                    .Empty
+                    .Add(RequestMethod.Get, GetAsync)
+                    .Add(RequestMethod.Put, PutAsync);
         }
 
         public string BaseUri => _client.BaseAddress.ToString();
 
-        protected override async Task<IResource> GetAsyncInternal(UriString uri, IImmutableSession metadata)
+        private async Task<IResource> GetAsync(Request request)
         {
-            uri = BaseUri + uri;
-            var (response, mediaType) = await InvokeAsync(uri, HttpMethod.Get, metadata);
-            return new HttpResource(uri, response, mediaType);
+            var uri = BaseUri + request.Uri;
+            var (response, mediaType) = await InvokeAsync(uri, HttpMethod.Get, request.Properties);
+            return new HttpResource(request.Properties.Copy(Resource.PropertySelector).SetFormat(mediaType), response);
         }
 
-        protected override async Task<IResource> PostAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
+        private async Task<IResource> PutAsync(Request request)
         {
-            uri = BaseUri + uri;
-            var (response, mediaType) = await InvokeAsync(uri, HttpMethod.Post, metadata.SetItem(From<IHttpMeta>.Select(x => x.Content), value));
-            return new HttpResource(uri, response, mediaType);
+            var uri = BaseUri + request.Uri;
+            var (response, mediaType) = await InvokeAsync(uri, HttpMethod.Post, request.Properties.SetItem(From<IHttpMeta>.Select(x => x.Content), request.Body));
+            return new HttpResource(request.Properties.Copy(Resource.PropertySelector).SetFormat(mediaType), response);
         }
 
         #region Helpers
@@ -114,21 +120,16 @@ namespace Reusable.IOnymous
     {
         private readonly Stream _response;
 
-        public HttpResource([NotNull] UriString uri, Stream response, MimeType format)
-            : base(uri, ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.Format), format))
+        internal HttpResource(IImmutableSession properties, Stream response = default)
+            : base(properties
+                .SetExists(!(response is null)))
         {
             _response = response;
         }
 
-        public override bool Exists => !(_response is null);
+        //public override long? Length => _response?.Length;
 
-        public override long? Length => _response?.Length;
-
-        public override DateTime? CreatedOn { get; }
-
-        public override DateTime? ModifiedOn { get; }
-
-        protected override async Task CopyToAsyncInternal(Stream stream)
+        public override async Task CopyToAsync(Stream stream)
         {
             await _response.Rewind().CopyToAsync(stream);
         }

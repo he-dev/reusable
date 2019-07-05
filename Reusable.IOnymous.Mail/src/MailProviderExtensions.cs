@@ -8,17 +8,16 @@ namespace Reusable.IOnymous
     {
         #region GET helpers
 
-        public static Task<IResource> GetHttpAsync(this IResourceProvider resourceProvider, string path, IImmutableSession metadata = default)
-        {
-            var uri = new UriString(path);
-            return resourceProvider.GetAsync
-            (
-                uri.IsAbsolute
-                    ? uri
-                    : new UriString(MailProvider.DefaultScheme, (string)uri.Path.Original),
-                metadata
-            );
-        }
+//        public static Task<IResource> GetHttpAsync(this IResourceProvider resourceProvider, string path, IImmutableSession properties = default)
+//        {
+//            var uri = new UriString(path);
+//            uri =
+//                uri.IsAbsolute
+//                    ? uri
+//                    : new UriString(MailProvider.DefaultScheme, (string)uri.Path.Original);
+//
+//            return resourceProvider.GetAsync(uri, properties);
+//        }
 
         #endregion
 

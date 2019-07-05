@@ -27,14 +27,14 @@ namespace Reusable.IOnymous
         [NotNull]
         IImmutableSession Properties { get; }
         
-        IImmutableDictionary<ResourceRequestMethod, RequestCallback> Methods { get; }
+        IImmutableDictionary<RequestMethod, RequestCallback> Methods { get; }
 
-        bool Can(ResourceRequestMethod method);
+        bool Can(RequestMethod method);
 
-        Task<IResource> InvokeAsync(ResourceRequest request);
+        Task<IResource> InvokeAsync(Request request);
     }
 
-    public delegate Task<IResource> RequestCallback(ResourceRequest request);
+    public delegate Task<IResource> RequestCallback(Request request);
 
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public abstract class ResourceProvider : IResourceProvider
@@ -84,17 +84,17 @@ namespace Reusable.IOnymous
 
         public virtual IImmutableSession Properties { get; }
 
-        public IImmutableDictionary<ResourceRequestMethod, RequestCallback> Methods { get; protected set; }
+        public IImmutableDictionary<RequestMethod, RequestCallback> Methods { get; protected set; }
 
-        public bool Can(ResourceRequestMethod method) => Methods.ContainsKey(method);
+        public bool Can(RequestMethod method) => Methods.ContainsKey(method);
 
-        public virtual async Task<IResource> InvokeAsync(ResourceRequest request)
+        public virtual async Task<IResource> InvokeAsync(Request request)
         {
             if (Methods.TryGetValue(request.Method, out var method))
             {
                 try
                 {
-                    return await method(request);
+                    return new ExceptionHandler(await method(request));
                 }
                 catch (Exception inner)
                 {
@@ -136,34 +136,36 @@ namespace Reusable.IOnymous
 
     public static class MethodDictionary
     {
-        public static IImmutableDictionary<ResourceRequestMethod, RequestCallback> Empty => ImmutableDictionary<ResourceRequestMethod, RequestCallback>.Empty;
+        public static IImmutableDictionary<RequestMethod, RequestCallback> Empty => ImmutableDictionary<RequestMethod, RequestCallback>.Empty;
     }
 
-    public class ResourceRequest
+    public class Request
     {
+        public static readonly From<IRequestMeta> PropertySelector = From<IRequestMeta>.This;
+        
+        [NotNull]
+        public UriString Uri { get; set; } = new UriString("ionymous:///");
+        
+        [NotNull]
+        public RequestMethod Method { get; set; } = RequestMethod.None;
+        
         [NotNull]
         public IImmutableSession Properties { get; set; } = ImmutableSession.Empty;
-
-        [NotNull]
-        public ResourceRequestMethod Method { get; set; } = ResourceRequestMethod.None;
-
-        [NotNull]
-        public UriString Uri { get; set; } = new UriString(string.Empty);
 
         [CanBeNull]
         public Stream Body { get; set; }
     }
 
-    public class ResourceRequestMethod : Option<ResourceRequestMethod>
+    public class RequestMethod : Option<RequestMethod>
     {
-        public ResourceRequestMethod(SoftString name, IImmutableSet<SoftString> values) : base(name, values) { }
+        public RequestMethod(SoftString name, IImmutableSet<SoftString> values) : base(name, values) { }
 
-        public static readonly ResourceRequestMethod Get = CreateWithCallerName();
+        public static readonly RequestMethod Get = CreateWithCallerName();
 
-        public static readonly ResourceRequestMethod Post = CreateWithCallerName();
+        public static readonly RequestMethod Post = CreateWithCallerName();
 
-        public static readonly ResourceRequestMethod Put = CreateWithCallerName();
+        public static readonly RequestMethod Put = CreateWithCallerName();
 
-        public static readonly ResourceRequestMethod Delete = CreateWithCallerName();
+        public static readonly RequestMethod Delete = CreateWithCallerName();
     }
 }

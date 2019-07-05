@@ -20,7 +20,7 @@ namespace Reusable.IOnymous
 
             Methods = provider.Methods.Aggregate(MethodDictionary.Empty, (current, next) =>
             {
-                return current.Add(next.Key, request => next.Value(new ResourceRequest
+                return current.Add(next.Key, request => next.Value(new Request
                 {
                     Uri = Prefix(request.Uri),
                     Body = request.Body,

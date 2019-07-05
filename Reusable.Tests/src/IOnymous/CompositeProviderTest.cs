@@ -26,7 +26,9 @@ namespace Reusable.Tests.IOnymous
                         { "branch/dev", "snow" }
                     });
 
-            var resource = await resources.GetAnyAsync("any-scheme:branch/dev");
+            // todo - fix that
+            //Assert.False(true);
+            var resource = await resources.GetAsync("any-scheme:branch/dev", ImmutableSession.Empty);
 
             Assert.True(resource.Exists);
             Assert.Equal("hot", await resource.DeserializeTextAsync());
@@ -77,7 +79,7 @@ namespace Reusable.Tests.IOnymous
         }
 
         [Fact]
-        public async Task Throws_when_PUT_without_known_resource_provider()
+        public async Task Throws_when_PUT_matches_multiple_resource_providers()
         {
             var composite =
                 CompositeProvider
@@ -111,7 +113,7 @@ namespace Reusable.Tests.IOnymous
                 },
             });
 
-            var resource = await composite.GetAsync("blub:x/123");
+            var resource = await composite.GetAsync("blub:x/123", ImmutableSession.Empty);
 
             Assert.True(resource.Exists);
             Assert.Equal("blub2", await resource.DeserializeTextAsync());

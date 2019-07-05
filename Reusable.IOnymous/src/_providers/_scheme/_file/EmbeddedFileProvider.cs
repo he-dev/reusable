@@ -24,14 +24,14 @@ namespace Reusable.IOnymous
             Methods =
                 MethodDictionary
                     .Empty
-                    .Add(ResourceRequestMethod.Get, GetAsync);
+                    .Add(RequestMethod.Get, GetAsync);
         }
 
         public UriString BaseUri { get; }
 
         #region ResourceProvider
 
-        private Task<IResource> GetAsync(ResourceRequest request)
+        private Task<IResource> GetAsync(Request request)
         {
             //ValidateFormatNotNull(this, uri, metadata);
 
@@ -44,10 +44,7 @@ namespace Reusable.IOnymous
             var actualName = _assembly.GetManifestResourceNames().FirstOrDefault(name => SoftString.Comparer.Equals(name, fullName));
             var getManifestResourceStream = actualName is null ? default(Func<Stream>) : () => _assembly.GetManifestResourceStream(actualName);
 
-            return Task.FromResult<IResource>(
-                new EmbeddedFile(
-                    fullUri,
-                    request.Properties.GetItemOrDefault(Resource.PropertySelector.Select(y => y.Format)), getManifestResourceStream));
+            return Task.FromResult<IResource>(new EmbeddedFile(request.Properties.Copy(Resource.PropertySelector).SetUri(fullUri), getManifestResourceStream));
         }
 
         #endregion
@@ -62,30 +59,25 @@ namespace Reusable.IOnymous
     {
         private readonly Func<Stream> _getManifestResourceStream;
 
-        public EmbeddedFile(string uri, MimeType format, Func<Stream> getManifestResourceStream)
-            : base(uri, ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.Format), format))
+        public EmbeddedFile(IImmutableSession properties, Func<Stream> getManifestResourceStream)
+            : base(properties.SetExists(!(getManifestResourceStream is null)))
         {
             _getManifestResourceStream = getManifestResourceStream;
         }
 
-        public override bool Exists => !(_getManifestResourceStream is null);
+//        public override long? Length
+//        {
+//            get
+//            {
+//                using (var stream = _getManifestResourceStream?.Invoke())
+//                {
+//                    return stream?.Length;
+//                }
+//            }
+//        }
 
-        public override long? Length
-        {
-            get
-            {
-                using (var stream = _getManifestResourceStream?.Invoke())
-                {
-                    return stream?.Length;
-                }
-            }
-        }
 
-        public override DateTime? CreatedOn { get; }
-
-        public override DateTime? ModifiedOn { get; }
-
-        protected override async Task CopyToAsyncInternal(Stream stream)
+        public override async Task CopyToAsync(Stream stream)
         {
             using (var resourceStream = _getManifestResourceStream())
             {

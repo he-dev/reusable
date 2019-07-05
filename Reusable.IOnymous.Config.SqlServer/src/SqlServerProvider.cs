@@ -24,6 +24,11 @@ namespace Reusable.IOnymous.Config
         {
             ConnectionString = ConnectionStringRepository.Default.GetConnectionString(nameOrConnectionString);
             TableName = (DefaultSchema, DefaultTable);
+            Methods =
+                MethodDictionary
+                    .Empty
+                    .Add(RequestMethod.Get, GetAsync)
+                    .Add(RequestMethod.Put, PutAsync);
         }
 
         [CanBeNull]
@@ -47,13 +52,13 @@ namespace Reusable.IOnymous.Config
 
         [CanBeNull]
         public IImmutableDictionary<string, object> Where { get; set; }
-        
+
         public (string Name, object Value) Fallback { get; set; }
 
-        protected override async Task<IResource> GetAsyncInternal(UriString uri, IImmutableSession metadata)
+        private async Task<IResource> GetAsync(Request request)
         {
-            var settingIdentifier = UriConverter?.Convert<string>(uri) ?? uri;
-            metadata = metadata.SetItem(From<IResourceMeta>.Select(x => x.ActualName), settingIdentifier);
+            var settingIdentifier = UriConverter?.Convert<string>(request.Uri) ?? request.Uri;
+            //metadata = metadata.SetItem(From<IResourceMeta>.Select(x => x.ActualName), settingIdentifier);
 
             return await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
             {
@@ -63,22 +68,22 @@ namespace Reusable.IOnymous.Config
                     if (await settingReader.ReadAsync(token))
                     {
                         var value = settingReader[ColumnMappings.MapOrDefault(SqlServerColumn.Value)];
-                        value = ValueConverter.Convert(value, metadata.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Type)));
-                        return new SqlServerResource(uri, value, metadata);
+                        value = ValueConverter.Convert(value, request.Properties.GetDataType());
+                        return new SqlServerResource(request.Properties.Copy(Resource.PropertySelector), value);
                     }
                     else
                     {
-                        return new SqlServerResource(uri, default, metadata);
+                        return new SqlServerResource(request.Properties.Copy(Resource.PropertySelector));
                     }
                 }
             }, CancellationToken.None);
         }
 
-        protected override async Task<IResource> PutAsyncInternal(UriString uri, Stream stream, IImmutableSession metadata)
+        private async Task<IResource> PutAsync(Request request)
         {
-            var settingIdentifier = UriConverter?.Convert<string>(uri) ?? uri;
+            var settingIdentifier = UriConverter?.Convert<string>(request.Uri) ?? request.Uri;
 
-            var value = await ResourceHelper.Deserialize<object>(stream, metadata);
+            var value = await ResourceHelper.Deserialize<object>(request.Body, request.Properties);
             value = ValueConverter.Convert(value, typeof(string));
 
             await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
@@ -87,34 +92,28 @@ namespace Reusable.IOnymous.Config
                 {
                     await cmd.ExecuteNonQueryAsync(token);
                 }
-            }, metadata.GetItemOrDefault(From<IRequestMeta>.Select(x => x.CancellationToken)));
+            }, request.Properties.GetItemOrDefault(Request.PropertySelector.Select(x => x.CancellationToken)));
 
-            return await GetAsync(uri, metadata);
+            return await GetAsync(request);
         }
     }
 
     internal class SqlServerResource : Resource
     {
-        [CanBeNull] private readonly object _value;
+        [CanBeNull]
+        private readonly object _value;
 
-        internal SqlServerResource([NotNull] UriString uri, [CanBeNull] object value, IImmutableSession metadata)
-            : base(uri, metadata.SetItem(From<IResourceMeta>.Select(x => x.Format), value is string ? MimeType.Text : MimeType.Binary))
+        internal SqlServerResource(IImmutableSession properties, object value = default)
+            : base(properties
+                .SetExists(!(value is null))
+                .SetFormat(value is string ? MimeType.Text : MimeType.Binary))
         {
             _value = value;
         }
 
-        public override bool Exists => !(_value is null);
-
-        public override long? Length { get; }
-
-        public override DateTime? CreatedOn { get; }
-
-        public override DateTime? ModifiedOn { get; }
-
-        protected override async Task CopyToAsyncInternal(Stream stream)
+        public override async Task CopyToAsync(Stream stream)
         {
-            var format = Properties.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Format));
-            if (format == MimeType.Text)
+            if (Properties.GetFormat() == MimeType.Text)
             {
                 using (var s = await ResourceHelper.SerializeTextAsync((string)_value))
                 {
@@ -122,7 +121,7 @@ namespace Reusable.IOnymous.Config
                 }
             }
 
-            if (format == MimeType.Binary)
+            if (Properties.GetFormat() == MimeType.Binary)
             {
                 using (var s = await ResourceHelper.SerializeBinaryAsync(_value))
                 {
