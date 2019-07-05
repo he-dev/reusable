@@ -49,11 +49,11 @@ namespace Reusable.IOnymous
         bool IsHighPriority { get; }
     }
 
-    internal class MailResourceInfo : ResourceInfo
+    internal class MailResource : Resource
     {
         private readonly Stream _response;
 
-        public MailResourceInfo([NotNull] UriString uri, Stream response, MimeType format)
+        public MailResource([NotNull] UriString uri, Stream response, MimeType format)
             : base(uri, ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.Format), format))
         {
             _response = response;

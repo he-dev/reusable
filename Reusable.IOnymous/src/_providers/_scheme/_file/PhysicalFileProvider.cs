@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Linq.Custom;
@@ -12,7 +13,7 @@ using Reusable.Quickey;
 namespace Reusable.IOnymous
 {
     [PublicAPI]
-    public class PhysicalFileProvider : FileProvider
+    public class PhysicalFileProvider : ResourceProvider
     {
         private static readonly IExpressValidator<Request> RequestValidator = ExpressValidator.For<Request>(builder =>
         {
@@ -22,17 +23,47 @@ namespace Reusable.IOnymous
             ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it requires resource format specified by the metadata.");
         });
 
-        public PhysicalFileProvider(IImmutableSession metadata = default)
-            : base(metadata.ThisOrEmpty().SetScheme(ResourceSchemes.IOnymous)) { }
+        public PhysicalFileProvider(IImmutableSession properties = default)
+            : base(properties.ThisOrEmpty().SetScheme("file"))
+        {
+            Methods.Add(ResourceRequestMethod.Get, GetAsync);
+            Methods.Add(ResourceRequestMethod.Get, PutAsync);
+            Methods.Add(ResourceRequestMethod.Get, DeleteAsync);
+        }
 
-        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
+        private Task<IResource> GetAsync(ResourceRequest request)
+        {
+            return Task.FromResult<IResource>(
+                new PhysicalFile(
+                    request.Uri,
+                    request.Headers.GetItemOrDefault(From<IResourceMeta>.Select(y => y.Format))));
+        }
+        
+        private async Task<IResource> PutAsync(ResourceRequest request)
+        {
+            using (var fileStream = new FileStream(request.Uri.ToUnc(), FileMode.CreateNew, FileAccess.Write))
+            {
+                await request.Body.Rewind().CopyToAsync(fileStream);
+                await fileStream.FlushAsync();
+            }
+
+            return await GetAsync(request);
+        }
+        
+        private Task<IResource> DeleteAsync(ResourceRequest request)
+        {
+            File.Delete(request.Uri.ToUnc());
+            return Task.FromResult<IResource>(new PhysicalFile(request.Uri));
+        }
+
+        protected override Task<IResource> GetAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             ValidateRequest(ExtractMethodName(nameof(GetAsync)), uri, metadata, Stream.Null, RequestValidator);
 
-            return Task.FromResult<IResourceInfo>(new PhysicalFileInfo(uri, metadata.GetItemOrDefault(From<IResourceMeta>.Select(y => y.Format))));
+            return Task.FromResult<IResource>(new PhysicalFile(uri, metadata.GetItemOrDefault(From<IResourceMeta>.Select(y => y.Format))));
         }
 
-        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
+        protected override async Task<IResource> PutAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
         {
             ValidateRequest(ExtractMethodName(nameof(PutAsync)), uri, metadata, Stream.Null, RequestValidator);
 
@@ -45,20 +76,20 @@ namespace Reusable.IOnymous
             return await GetAsync(uri, metadata);
         }
 
-        protected override Task<IResourceInfo> DeleteAsyncInternal(UriString uri, IImmutableSession metadata)
+        protected override Task<IResource> DeleteAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             File.Delete(uri.ToUnc());
-            return Task.FromResult<IResourceInfo>(new PhysicalFileInfo(uri));
+            return Task.FromResult<IResource>(new PhysicalFile(uri));
         }
     }
 
     [PublicAPI]
-    internal class PhysicalFileInfo : ResourceInfo
+    internal class PhysicalFile : Resource
     {
-        public PhysicalFileInfo([NotNull] UriString uri, MimeType format)
+        public PhysicalFile([NotNull] UriString uri, MimeType format)
             : base(uri, ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.Format), format)) { }
 
-        public PhysicalFileInfo([NotNull] UriString uri)
+        public PhysicalFile([NotNull] UriString uri)
             : this(uri, MimeType.None) { }
 
         public override bool Exists => File.Exists(Uri.ToUnc());

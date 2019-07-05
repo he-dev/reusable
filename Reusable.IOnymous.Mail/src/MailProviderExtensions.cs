@@ -8,7 +8,7 @@ namespace Reusable.IOnymous
     {
         #region GET helpers
 
-        public static Task<IResourceInfo> GetHttpAsync(this IResourceProvider resourceProvider, string path, IImmutableSession metadata = default)
+        public static Task<IResource> GetHttpAsync(this IResourceProvider resourceProvider, string path, IImmutableSession metadata = default)
         {
             var uri = new UriString(path);
             return resourceProvider.GetAsync
@@ -28,7 +28,7 @@ namespace Reusable.IOnymous
 
         #region POST helpers
 
-        public static async Task<IResourceInfo> SendEmailAsync
+        public static async Task<IResource> SendEmailAsync
         (
             this IResourceProvider resourceProvider,
             IEmail<IEmailSubject, IEmailBody> email,

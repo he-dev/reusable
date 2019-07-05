@@ -21,15 +21,15 @@ namespace Reusable.IOnymous.Config
 
         public ITypeConverter ValueConverter { get; set; } = new NullConverter();
 
-        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
+        protected override Task<IResource> GetAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             var settingIdentifier = UriConverter?.Convert<string>(uri) ?? uri;
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             var settings = FindConnectionStringSettings(exeConfig, settingIdentifier);
-            return Task.FromResult<IResourceInfo>(new ConnectionStringInfo(uri, settings?.ConnectionString));
+            return Task.FromResult<IResource>(new ConnectionString(uri, settings?.ConnectionString));
         }
 
-        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream stream, IImmutableSession metadata)
+        protected override async Task<IResource> PutAsyncInternal(UriString uri, Stream stream, IImmutableSession metadata)
         {
             using (var valueReader = new StreamReader(stream))
             {
@@ -66,11 +66,11 @@ namespace Reusable.IOnymous.Config
         }
     }
 
-    internal class ConnectionStringInfo : ResourceInfo
+    internal class ConnectionString : Resource
     {
         [CanBeNull] private readonly string _value;
 
-        internal ConnectionStringInfo([NotNull] UriString uri, [CanBeNull] string value)
+        internal ConnectionString([NotNull] UriString uri, [CanBeNull] string value)
             : base(uri, ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.Format), MimeType.Text))
         {
             _value = value;

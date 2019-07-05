@@ -69,7 +69,7 @@ namespace Reusable.IOnymous
             return resources.GetItemAsync<T>(uri, metadata).GetAwaiter().GetResult();
         }
 
-        public static Task<IResourceInfo> GetAnyAsync(this IResourceProvider resourceProvider, UriString uri, IImmutableSession metadata = default)
+        public static Task<IResource> GetAnyAsync(this IResourceProvider resourceProvider, UriString uri, IImmutableSession metadata = default)
         {
             return resourceProvider.GetAsync(uri.With(x => x.Scheme, ResourceSchemes.IOnymous), metadata);
         }
@@ -96,7 +96,7 @@ namespace Reusable.IOnymous
 
         #region POST helpers        
 
-        public static async Task<IResourceInfo> PostAsync
+        public static async Task<IResource> PostAsync
         (
             this IResourceProvider resourceProvider,
             UriString uri,
@@ -107,7 +107,7 @@ namespace Reusable.IOnymous
             return await ExecuteAsync(resourceProvider.PostAsync, uri, serializeAsync, metadata);
         }
 
-        public static async Task<IResourceInfo> PutAsync
+        public static async Task<IResource> PutAsync
         (
             this IResourceProvider resourceProvider,
             UriString uri,
@@ -118,9 +118,9 @@ namespace Reusable.IOnymous
             return await ExecuteAsync(resourceProvider.PutAsync, uri, serializeAsync, metadata);
         }
 
-        private static async Task<IResourceInfo> ExecuteAsync
+        private static async Task<IResource> ExecuteAsync
         (
-            Func<UriString, Stream, IImmutableSession, Task<IResourceInfo>> executeAsync,
+            Func<UriString, Stream, IImmutableSession, Task<IResource>> executeAsync,
             UriString uri,
             Func<Task<Stream>> serializeAsync,
             IImmutableSession metadata
@@ -145,5 +145,14 @@ namespace Reusable.IOnymous
         #region DELETE helpers
 
         #endregion
+
+        private static readonly Action<ResourceRequest> Pass = _ => { };
+
+        public static async Task<IResource> GetAsync(this IResourceProvider resources, UriString uri, Action<ResourceRequest> configure = default)
+        {
+            var request = new ResourceRequest { Method = ResourceRequestMethod.Get, Uri = uri };
+            (configure ?? Pass)(request);
+            return await resources.RequestAsync(request);
+        }
     }
 }

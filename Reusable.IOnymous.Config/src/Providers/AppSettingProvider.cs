@@ -21,16 +21,16 @@ namespace Reusable.IOnymous.Config
 
         public ITypeConverter ValueConverter { get; set; } = new NullConverter();
 
-        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
+        protected override Task<IResource> GetAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             var settingIdentifier = UriConverter?.Convert<string>(uri) ?? uri;
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
             var element = exeConfig.AppSettings.Settings[actualKey];
-            return Task.FromResult<IResourceInfo>(new AppSettingInfo(uri, element?.Value, ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.ActualName), settingIdentifier)));
+            return Task.FromResult<IResource>(new AppSetting(uri, element?.Value, ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.ActualName), settingIdentifier)));
         }
 
-        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream stream, IImmutableSession metadata)
+        protected override async Task<IResource> PutAsyncInternal(UriString uri, Stream stream, IImmutableSession metadata)
         {
             var settingIdentifier = UriConverter?.Convert<string>(uri) ?? uri;
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
@@ -66,11 +66,11 @@ namespace Reusable.IOnymous.Config
         }
     }
 
-    internal class AppSettingInfo : ResourceInfo
+    internal class AppSetting : Resource
     {
         [CanBeNull] private readonly string _value;
 
-        internal AppSettingInfo([NotNull] UriString uri, [CanBeNull] string value, IImmutableSession metadata)
+        internal AppSetting([NotNull] UriString uri, [CanBeNull] string value, IImmutableSession metadata)
             : base(uri, metadata.SetItem(From<IResourceMeta>.Select(x => x.Format), MimeType.Text))
         {
             _value = value;

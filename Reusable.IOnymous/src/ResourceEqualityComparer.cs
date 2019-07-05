@@ -5,16 +5,16 @@ using JetBrains.Annotations;
 
 namespace Reusable.IOnymous
 {
-    public class ResourceInfoEqualityComparer : IEqualityComparer<IResourceInfo>, IEqualityComparer<UriString>, IEqualityComparer<string>
+    public class ResourceEqualityComparer : IEqualityComparer<IResource>, IEqualityComparer<UriString>, IEqualityComparer<string>
     {
         private static readonly IEqualityComparer ResourceUriComparer = StringComparer.OrdinalIgnoreCase;
 
         [NotNull]
-        public static ResourceInfoEqualityComparer Default { get; } = new ResourceInfoEqualityComparer();
+        public static ResourceEqualityComparer Default { get; } = new ResourceEqualityComparer();
 
-        public bool Equals(IResourceInfo x, IResourceInfo y) => Equals(x?.Uri, y?.Uri);
+        public bool Equals(IResource x, IResource y) => Equals(x?.Uri, y?.Uri);
 
-        public int GetHashCode(IResourceInfo obj) => GetHashCode(obj.Uri);
+        public int GetHashCode(IResource obj) => GetHashCode(obj.Uri);
 
         public bool Equals(UriString x, UriString y) => ResourceUriComparer.Equals(x, y);
 

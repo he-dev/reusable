@@ -11,7 +11,7 @@ using Reusable.Quickey;
 namespace Reusable.IOnymous
 {
     [PublicAPI]
-    public interface IResourceInfo : IDisposable, IEquatable<IResourceInfo>, IEquatable<string>
+    public interface IResource : IDisposable, IEquatable<IResource>, IEquatable<string>
     {
         [NotNull]
         UriString Uri { get; }
@@ -31,9 +31,9 @@ namespace Reusable.IOnymous
 
     [PublicAPI]
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public abstract class ResourceInfo : IResourceInfo
+    public abstract class Resource : IResource
     {
-        protected ResourceInfo
+        protected Resource
         (
             [NotNull] UriString uri,
             [NotNull] IImmutableSession metadata
@@ -107,13 +107,13 @@ namespace Reusable.IOnymous
 
         #region IEquatable<IResourceInfo>
 
-        public override bool Equals(object obj) => obj is IResourceInfo resource && Equals(resource);
+        public override bool Equals(object obj) => obj is IResource resource && Equals(resource);
 
-        public bool Equals(IResourceInfo other) => ResourceInfoEqualityComparer.Default.Equals(other, this);
+        public bool Equals(IResource other) => ResourceEqualityComparer.Default.Equals(other, this);
 
-        public bool Equals(string other) => !string.IsNullOrWhiteSpace(other) && ResourceInfoEqualityComparer.Default.Equals((UriString)other, Uri);
+        public bool Equals(string other) => !string.IsNullOrWhiteSpace(other) && ResourceEqualityComparer.Default.Equals((UriString)other, Uri);
 
-        public override int GetHashCode() => ResourceInfoEqualityComparer.Default.GetHashCode(this);
+        public override int GetHashCode() => ResourceEqualityComparer.Default.GetHashCode(this);
 
         #endregion
 

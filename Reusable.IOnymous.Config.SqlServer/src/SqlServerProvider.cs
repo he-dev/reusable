@@ -50,7 +50,7 @@ namespace Reusable.IOnymous.Config
         
         public (string Name, object Value) Fallback { get; set; }
 
-        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
+        protected override async Task<IResource> GetAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             var settingIdentifier = UriConverter?.Convert<string>(uri) ?? uri;
             metadata = metadata.SetItem(From<IResourceMeta>.Select(x => x.ActualName), settingIdentifier);
@@ -64,17 +64,17 @@ namespace Reusable.IOnymous.Config
                     {
                         var value = settingReader[ColumnMappings.MapOrDefault(SqlServerColumn.Value)];
                         value = ValueConverter.Convert(value, metadata.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Type)));
-                        return new SqlServerResourceInfo(uri, value, metadata);
+                        return new SqlServerResource(uri, value, metadata);
                     }
                     else
                     {
-                        return new SqlServerResourceInfo(uri, default, metadata);
+                        return new SqlServerResource(uri, default, metadata);
                     }
                 }
             }, CancellationToken.None);
         }
 
-        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream stream, IImmutableSession metadata)
+        protected override async Task<IResource> PutAsyncInternal(UriString uri, Stream stream, IImmutableSession metadata)
         {
             var settingIdentifier = UriConverter?.Convert<string>(uri) ?? uri;
 
@@ -93,11 +93,11 @@ namespace Reusable.IOnymous.Config
         }
     }
 
-    internal class SqlServerResourceInfo : ResourceInfo
+    internal class SqlServerResource : Resource
     {
         [CanBeNull] private readonly object _value;
 
-        internal SqlServerResourceInfo([NotNull] UriString uri, [CanBeNull] object value, IImmutableSession metadata)
+        internal SqlServerResource([NotNull] UriString uri, [CanBeNull] object value, IImmutableSession metadata)
             : base(uri, metadata.SetItem(From<IResourceMeta>.Select(x => x.Format), value is string ? MimeType.Text : MimeType.Binary))
         {
             _value = value;

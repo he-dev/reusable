@@ -12,7 +12,7 @@ namespace Reusable.IOnymous
         private readonly IResourceProvider _resourceProvider;
 
         public EnvironmentVariableProvider([NotNull] IResourceProvider resourceProvider)
-            : base(resourceProvider.Metadata.SetItem(From<IProviderMeta>.Select(x => x.AllowRelativeUri), true))
+            : base(resourceProvider.Properties.SetItem(From<IProviderMeta>.Select(x => x.AllowRelativeUri), true))
         {
             _resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
         }
@@ -22,22 +22,22 @@ namespace Reusable.IOnymous
             return decorable => new EnvironmentVariableProvider(decorable);
         }
 
-        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
+        protected override Task<IResource> GetAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             return _resourceProvider.GetAsync(UpdatePath(uri), metadata);
         }
 
-        protected override Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
+        protected override Task<IResource> PostAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
         {
             return _resourceProvider.PostAsync(UpdatePath(uri), value, metadata);
         }
         
-        protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
+        protected override Task<IResource> PutAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
         {
             return _resourceProvider.PutAsync(UpdatePath(uri), value, metadata);
         }
 
-        protected override Task<IResourceInfo> DeleteAsyncInternal(UriString uri, IImmutableSession metadata)
+        protected override Task<IResource> DeleteAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             return _resourceProvider.DeleteAsync(UpdatePath(uri), metadata);
         }

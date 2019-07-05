@@ -48,23 +48,23 @@ namespace Reusable.Tests.IOnymous
             
             public static SimpleProvider Default => new SimpleProvider();
 
-            protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
+            protected override Task<IResource> GetAsyncInternal(UriString uri, IImmutableSession metadata)
             {
-                return Task.FromResult(default(IResourceInfo));
+                return Task.FromResult(default(IResource));
             }
 
-            protected override Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
+            protected override Task<IResource> PutAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
             {
-                return Task.FromResult(default(IResourceInfo));
+                return Task.FromResult(default(IResource));
             }
 
-            protected override Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
+            protected override Task<IResource> PostAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
             {
-                return Task.FromResult(default(IResourceInfo));            }
+                return Task.FromResult(default(IResource));            }
 
-            protected override Task<IResourceInfo> DeleteAsyncInternal(UriString uri, IImmutableSession metadata)
+            protected override Task<IResource> DeleteAsyncInternal(UriString uri, IImmutableSession metadata)
             {
-                return Task.FromResult(default(IResourceInfo));
+                return Task.FromResult(default(IResource));
             }
         }
     }

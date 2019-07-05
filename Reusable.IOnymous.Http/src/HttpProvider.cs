@@ -37,18 +37,18 @@ namespace Reusable.IOnymous
 
         public string BaseUri => _client.BaseAddress.ToString();
 
-        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
+        protected override async Task<IResource> GetAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             uri = BaseUri + uri;
             var (response, mediaType) = await InvokeAsync(uri, HttpMethod.Get, metadata);
-            return new HttpResourceInfo(uri, response, mediaType);
+            return new HttpResource(uri, response, mediaType);
         }
 
-        protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
+        protected override async Task<IResource> PostAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
         {
             uri = BaseUri + uri;
             var (response, mediaType) = await InvokeAsync(uri, HttpMethod.Post, metadata.SetItem(From<IHttpMeta>.Select(x => x.Content), value));
-            return new HttpResourceInfo(uri, response, mediaType);
+            return new HttpResource(uri, response, mediaType);
         }
 
         #region Helpers
@@ -64,7 +64,7 @@ namespace Reusable.IOnymous
                     request.Content.Headers.ContentType = new MediaTypeHeaderValue(metadata.GetItemOrDefault(From<IHttpMeta>.Select(m => m.ContentType)));
                 }
 
-                Metadata.GetItemOrDefault(From<IHttpMeta>.Select(m => m.ConfigureRequestHeaders), _ => { })(request.Headers);
+                Properties.GetItemOrDefault(From<IHttpMeta>.Select(m => m.ConfigureRequestHeaders), _ => { })(request.Headers);
                 metadata.GetItemOrDefault(From<IHttpMeta>.Select(m => m.ConfigureRequestHeaders))(request.Headers);
                 using (var response = await _client.SendAsync(request, HttpCompletionOption.ResponseContentRead, metadata.GetItemOrDefault(From<IRequestMeta>.Select(m => m.CancellationToken))))
                 {
@@ -110,11 +110,11 @@ namespace Reusable.IOnymous
         }
     }
 
-    internal class HttpResourceInfo : ResourceInfo
+    internal class HttpResource : Resource
     {
         private readonly Stream _response;
 
-        public HttpResourceInfo([NotNull] UriString uri, Stream response, MimeType format)
+        public HttpResource([NotNull] UriString uri, Stream response, MimeType format)
             : base(uri, ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.Format), format))
         {
             _response = response;

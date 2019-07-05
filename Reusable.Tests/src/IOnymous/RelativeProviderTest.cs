@@ -22,7 +22,7 @@ namespace Reusable.Tests.IOnymous
             var mockProvider = Mock.Create<IResourceProvider>();
 
             mockProvider
-                .Arrange(x => x.Metadata)
+                .Arrange(x => x.Properties)
                 .Returns(ImmutableSession.Empty.SetScheme("blub"));
             
 //            mockProvider
@@ -31,7 +31,7 @@ namespace Reusable.Tests.IOnymous
 
             mockProvider
                 .Arrange(x => x.GetAsync(Telerik.JustMock.Arg.Matches<UriString>(uri => uri == new UriString("blub:base/relative")), Telerik.JustMock.Arg.IsAny<ImmutableSession>()))
-                .Returns<UriString, ImmutableSession>((uri, metadata) => Task.FromResult<IResourceInfo>(new InMemoryResourceInfo(uri, ImmutableSession.Empty)));
+                .Returns<UriString, ImmutableSession>((uri, metadata) => Task.FromResult<IResource>(new InMemoryResource(uri, ImmutableSession.Empty)));
 
 
             var relativeProvider = mockProvider.DecorateWith(RelativeProvider.Factory("blub:base"));

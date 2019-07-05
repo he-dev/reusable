@@ -25,7 +25,7 @@ namespace Reusable.IOnymous
 
         #region ResourceProvider
 
-        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
+        protected override Task<IResource> GetAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             //ValidateFormatNotNull(this, uri, metadata);
 
@@ -38,7 +38,7 @@ namespace Reusable.IOnymous
             var actualName = _assembly.GetManifestResourceNames().FirstOrDefault(name => SoftString.Comparer.Equals(name, fullName));
             var getManifestResourceStream = actualName is null ? default(Func<Stream>) : () => _assembly.GetManifestResourceStream(actualName);
 
-            return Task.FromResult<IResourceInfo>(new EmbeddedFileInfo(fullUri, metadata.GetItemOrDefault(From<IResourceMeta>.Select(y => y.Format)), getManifestResourceStream));
+            return Task.FromResult<IResource>(new EmbeddedFile(fullUri, metadata.GetItemOrDefault(From<IResourceMeta>.Select(y => y.Format)), getManifestResourceStream));
         }
 
         #endregion
@@ -49,11 +49,11 @@ namespace Reusable.IOnymous
         public static IResourceProvider Default { get; } = new EmbeddedFileProvider(typeof(T).Assembly, ImmutableSession.Empty);
     }
 
-    internal class EmbeddedFileInfo : ResourceInfo
+    internal class EmbeddedFile : Resource
     {
         private readonly Func<Stream> _getManifestResourceStream;
 
-        public EmbeddedFileInfo(string uri, MimeType format, Func<Stream> getManifestResourceStream)
+        public EmbeddedFile(string uri, MimeType format, Func<Stream> getManifestResourceStream)
             : base(uri, ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.Format), format))
         {
             _getManifestResourceStream = getManifestResourceStream;

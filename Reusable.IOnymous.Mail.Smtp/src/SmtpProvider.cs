@@ -17,7 +17,7 @@ namespace Reusable.IOnymous
     {
         public SmtpProvider(IImmutableSession metadata = default) : base(metadata.ThisOrEmpty()) { }
 
-        protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, IImmutableSession session)
+        protected override async Task<IResource> PostAsyncInternal(UriString uri, Stream value, IImmutableSession session)
         {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(session.GetItemOrDefault(From<IMailMeta>.Select(x => x.From))));
@@ -57,7 +57,7 @@ namespace Reusable.IOnymous
                 await smtpClient.SendAsync(message);
             }
 
-            return new InMemoryResourceInfo(uri, session);
+            return new InMemoryResource(uri, session);
         }
     }
 

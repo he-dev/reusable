@@ -9,11 +9,11 @@ using Reusable.Quickey;
 
 namespace Reusable.IOnymous
 {
-    public static class ResourceInfoExtensions
+    public static class ResourceExtensions
     {
         #region Async
 
-        public static async Task<MemoryStream> CopyToMemoryStreamAsync(this IResourceInfo resource)
+        public static async Task<MemoryStream> CopyToMemoryStreamAsync(this IResource resource)
         {
             if (!resource.Exists) throw new InvalidOperationException($"Cannot deserialize a resource that does not exist: '{resource.Uri.ToString()}'");
 
@@ -22,7 +22,7 @@ namespace Reusable.IOnymous
             return memoryStream;
         }
 
-        public static async Task<string> DeserializeTextAsync(this IResourceInfo resource)
+        public static async Task<string> DeserializeTextAsync(this IResource resource)
         {
             if (!resource.Exists) throw new InvalidOperationException($"Cannot deserialize a resource that does not exist: '{resource.Uri.ToString()}'");
 
@@ -43,7 +43,7 @@ namespace Reusable.IOnymous
             }
         }
 
-        public static async Task<T> DeserializeBinaryAsync<T>(this IResourceInfo resource)
+        public static async Task<T> DeserializeBinaryAsync<T>(this IResource resource)
         {
             var format = resource.Metadata.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Format));
 
@@ -60,7 +60,7 @@ namespace Reusable.IOnymous
             }
         }
 
-        public static async Task<T> DeserializeJsonAsync<T>(this IResourceInfo resource, JsonSerializer jsonSerializer = null)
+        public static async Task<T> DeserializeJsonAsync<T>(this IResource resource, JsonSerializer jsonSerializer = null)
         {
             var format = resource.Metadata.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Format));
 

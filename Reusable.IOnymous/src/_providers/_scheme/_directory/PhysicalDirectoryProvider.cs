@@ -13,12 +13,12 @@ namespace Reusable.IOnymous
         public PhysicalDirectoryProvider(IImmutableSession metadata = default)
             : base(metadata.ThisOrEmpty().SetScheme("directory")) { }
 
-        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
+        protected override Task<IResource> GetAsyncInternal(UriString uri, IImmutableSession metadata)
         {
-            return Task.FromResult<IResourceInfo>(new PhysicalDirectoryInfo(uri));
+            return Task.FromResult<IResource>(new PhysicalDirectory(uri));
         }
 
-        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
+        protected override async Task<IResource> PutAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
         {
             using (var streamReader = new StreamReader(value))
             {
@@ -28,7 +28,7 @@ namespace Reusable.IOnymous
             }
         }
 
-        protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, IImmutableSession metadata)
+        protected override async Task<IResource> DeleteAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             Directory.Delete(uri.Path.Decoded.ToString(), true);
             return await GetAsync(uri, metadata);
@@ -36,9 +36,9 @@ namespace Reusable.IOnymous
     }
 
     [PublicAPI]
-    internal class PhysicalDirectoryInfo : ResourceInfo
+    internal class PhysicalDirectory : Resource
     {
-        public PhysicalDirectoryInfo([NotNull] UriString uri)
+        public PhysicalDirectory([NotNull] UriString uri)
             : base(uri, ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.Format), MimeType.None)) { }
 
         public override UriString Uri { get; }

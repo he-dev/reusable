@@ -27,29 +27,29 @@ namespace Reusable.IOnymous.Config
 
         public ITypeConverter ValueConverter { get; set; } = new JsonSettingConverter();
 
-        protected override Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
+        protected override Task<IResource> GetAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             var settingIdentifier = UriConverter?.Convert<string>(uri) ?? uri;
 
             var data = _configuration[settingIdentifier];
             if (data is null)
             {
-                return Task.FromResult<IResourceInfo>(new JsonResourceInfo(uri, default, metadata));
+                return Task.FromResult<IResource>(new JsonResource(uri, default, metadata));
             }
             else
             {
                 var value = ValueConverter.Convert(data, metadata.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Type)));
                 metadata = ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.ActualName), settingIdentifier);
-                return Task.FromResult<IResourceInfo>(new JsonResourceInfo(uri, value, metadata));
+                return Task.FromResult<IResource>(new JsonResource(uri, value, metadata));
             }
         }
     }
 
-    internal class JsonResourceInfo : ResourceInfo
+    internal class JsonResource : Resource
     {
         [CanBeNull] private readonly object _value;
 
-        internal JsonResourceInfo([NotNull] UriString uri, [CanBeNull] object value, IImmutableSession metadata)
+        internal JsonResource([NotNull] UriString uri, [CanBeNull] object value, IImmutableSession metadata)
             : base(uri, metadata.SetItem(From<IResourceMeta>.Select(x => x.Format), value is string ? MimeType.Text : MimeType.Binary))
         {
             _value = value;

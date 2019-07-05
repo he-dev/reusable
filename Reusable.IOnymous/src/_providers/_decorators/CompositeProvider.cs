@@ -41,28 +41,28 @@ namespace Reusable.IOnymous
 
         public static CompositeProvider Empty => new CompositeProvider(ImmutableList<IResourceProvider>.Empty);
 
-        protected override async Task<IResourceInfo> GetAsyncInternal(UriString uri, IImmutableSession metadata)
+        protected override async Task<IResource> GetAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             return await DoAsync(uri, metadata, true, async resourceProvider => await resourceProvider.GetAsync(uri, metadata));
         }
 
-        protected override async Task<IResourceInfo> PostAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
+        protected override async Task<IResource> PostAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
         {
             return await DoAsync(uri, metadata, false, async resourceProvider => (await resourceProvider.PostAsync(uri, value, metadata)));
         }
 
-        protected override async Task<IResourceInfo> PutAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
+        protected override async Task<IResource> PutAsyncInternal(UriString uri, Stream value, IImmutableSession metadata)
         {
             return await DoAsync(uri, metadata, false, async resourceProvider => (await resourceProvider.PutAsync(uri, value, metadata)));
         }
 
-        protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, IImmutableSession metadata)
+        protected override async Task<IResource> DeleteAsyncInternal(UriString uri, IImmutableSession metadata)
         {
             return await DoAsync(uri, metadata, false, async resourceProvider => (await resourceProvider.DeleteAsync(uri, metadata)));
         }
 
         [ItemNotNull]
-        private async Task<IResourceInfo> DoAsync(UriString uri, IImmutableSession metadata, bool isGet, Func<IResourceProvider, Task<IResourceInfo>> doAsync)
+        private async Task<IResource> DoAsync(UriString uri, IImmutableSession metadata, bool isGet, Func<IResourceProvider, Task<IResource>> doAsync)
         {
             var cacheKey = uri.ToString();
 
@@ -80,14 +80,14 @@ namespace Reusable.IOnymous
                 // When provider-name is specified then filter them by name first.
                 if (metadata.GetNames().Any()) // this means there is a custom name
                 {
-                    resourceProviders = resourceProviders.Where(p => p.Metadata.GetNames().Overlaps(metadata.GetNames()));
+                    resourceProviders = resourceProviders.Where(p => p.Properties.GetNames().Overlaps(metadata.GetNames()));
                 }
 
                 // Check if there is a provider that matches the scheme of the absolute uri.
                 if (uri.IsAbsolute)
                 {
                     var ignoreScheme = uri.Scheme == ResourceSchemes.IOnymous;
-                    resourceProviders = resourceProviders.Where(p => ignoreScheme || p.Metadata.GetSchemes().Contains(ResourceSchemes.IOnymous) || p.Metadata.GetSchemes().Contains(uri.Scheme));
+                    resourceProviders = resourceProviders.Where(p => ignoreScheme || p.Properties.GetSchemes().Contains(ResourceSchemes.IOnymous) || p.Properties.GetSchemes().Contains(uri.Scheme));
                 }
 
                 // GET can search multiple providers.
@@ -102,7 +102,7 @@ namespace Reusable.IOnymous
                         }
                     }
 
-                    return new InMemoryResourceInfo(uri, metadata ?? ImmutableSession.Empty);
+                    return new InMemoryResource(uri, metadata ?? ImmutableSession.Empty);
                 }
                 // Other methods are allowed to use only a single provider.
                 else
