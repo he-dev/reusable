@@ -20,7 +20,7 @@ namespace Reusable.IOnymous.Config
 
         private SqlFourPartName _tableName;
 
-        public SqlServerProvider(string nameOrConnectionString) : base(ImmutableSession.Empty)
+        public SqlServerProvider(string nameOrConnectionString) : base(ImmutableContainer.Empty)
         {
             ConnectionString = ConnectionStringRepository.Default.GetConnectionString(nameOrConnectionString);
             TableName = (DefaultSchema, DefaultTable);
@@ -103,7 +103,7 @@ namespace Reusable.IOnymous.Config
         [CanBeNull]
         private readonly object _value;
 
-        internal SqlServerResource(IImmutableSession properties, object value = default)
+        internal SqlServerResource(IImmutableContainer properties, object value = default)
             : base(properties
                 .SetExists(!(value is null))
                 .SetFormat(value is string ? MimeType.Text : MimeType.Binary))

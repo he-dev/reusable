@@ -7,17 +7,17 @@ namespace Reusable.Flexo
 {
     public interface IExpressionInvoker
     {
-        IList<(IConstant Result, IImmutableSession Context)> Invoke(IEnumerable<IExpression> expressions, Func<IImmutableSession, IImmutableSession> customizeContext);
+        IList<(IConstant Result, IImmutableContainer Context)> Invoke(IEnumerable<IExpression> expressions, Func<IImmutableContainer, IImmutableContainer> customizeContext);
 
-        (IConstant Result, IImmutableSession Context) Invoke(IExpression expression, Func<IImmutableSession, IImmutableSession> customizeContext = default);
+        (IConstant Result, IImmutableContainer Context) Invoke(IExpression expression, Func<IImmutableContainer, IImmutableContainer> customizeContext = default);
     }
 
     public class ExpressionInvoker : IExpressionInvoker
     {
-        public IList<(IConstant Result, IImmutableSession Context)> Invoke
+        public IList<(IConstant Result, IImmutableContainer Context)> Invoke
         (
             IEnumerable<IExpression> expressions,
-            Func<IImmutableSession, IImmutableSession> customizeContext = default
+            Func<IImmutableContainer, IImmutableContainer> customizeContext = default
         )
         {
             return expressions.Enabled().Select(e =>
@@ -36,10 +36,10 @@ namespace Reusable.Flexo
             }).ToList();
         }
 
-        public (IConstant Result, IImmutableSession Context) Invoke
+        public (IConstant Result, IImmutableContainer Context) Invoke
         (
             IExpression expression,
-            Func<IImmutableSession, IImmutableSession> customizeContext = default
+            Func<IImmutableContainer, IImmutableContainer> customizeContext = default
         )
         {
             return Invoke(new[] { expression }, customizeContext).Single();

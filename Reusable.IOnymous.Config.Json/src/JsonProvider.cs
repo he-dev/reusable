@@ -14,7 +14,7 @@ namespace Reusable.IOnymous.Config
     {
         private readonly IConfiguration _configuration;
 
-        public JsonProvider(string fileName) : base(ImmutableSession.Empty)
+        public JsonProvider(string fileName) : base(ImmutableContainer.Empty)
         {
             _configuration =
                 new ConfigurationBuilder()
@@ -54,7 +54,7 @@ namespace Reusable.IOnymous.Config
         [CanBeNull]
         private readonly object _value;
 
-        internal JsonResource(IImmutableSession properties, object value = default)
+        internal JsonResource(IImmutableContainer properties, object value = default)
             : base(properties
                 .SetExists(!(value is null))
                 .SetFormat(value is string ? MimeType.Text : MimeType.Binary))
@@ -66,7 +66,7 @@ namespace Reusable.IOnymous.Config
 
         public override async Task CopyToAsync(Stream stream)
         {
-            var format = Properties.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Format));
+            var format = Properties.GetItemOrDefault(From<IResourceProperties>.Select(x => x.Format));
             if (format == MimeType.Text)
             {
                 using (var s = await ResourceHelper.SerializeTextAsync((string)_value))

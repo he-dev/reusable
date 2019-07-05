@@ -25,8 +25,8 @@ namespace Reusable.IOnymous
     public interface IResourceProvider : IDisposable
     {
         [NotNull]
-        IImmutableSession Properties { get; }
-        
+        IImmutableContainer Properties { get; }
+
         IImmutableDictionary<RequestMethod, RequestCallback> Methods { get; }
 
         bool Can(RequestMethod method);
@@ -39,7 +39,7 @@ namespace Reusable.IOnymous
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public abstract class ResourceProvider : IResourceProvider
     {
-        public static readonly From<IProviderMeta> PropertySelector = From<IProviderMeta>.This;
+        public static readonly From<IProviderProperties> PropertySelector = From<IProviderProperties>.This;
 
         // Because: $"{GetType().ToPrettyString()} cannot {ExtractMethodName(memberName).ToUpper()} '{uri}' because {reason}.";
         // private static readonly IExpressValidator<Request> RequestValidator = ExpressValidator.For<Request>(builder =>
@@ -58,7 +58,7 @@ namespace Reusable.IOnymous
         //     ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it supports only absolute URIs.");
         // });
 
-        protected ResourceProvider([NotNull] IImmutableSession properties)
+        protected ResourceProvider([NotNull] IImmutableContainer properties)
         {
             if (properties == null) throw new ArgumentNullException(nameof(properties));
 
@@ -82,7 +82,7 @@ namespace Reusable.IOnymous
             //builder.DisplayValue(x => x.Schemes);
         });
 
-        public virtual IImmutableSession Properties { get; }
+        public virtual IImmutableContainer Properties { get; }
 
         public IImmutableDictionary<RequestMethod, RequestCallback> Methods { get; protected set; }
 
@@ -90,11 +90,16 @@ namespace Reusable.IOnymous
 
         public virtual async Task<IResource> InvokeAsync(Request request)
         {
+            if (request.Method == RequestMethod.None)
+            {
+                throw new ArgumentException(paramName: nameof(request), message: "You must set the request method.");
+            }
+
             if (Methods.TryGetValue(request.Method, out var method))
             {
                 try
                 {
-                    return new ExceptionHandler(await method(request));
+                    return new ResourceExceptionHandler(await method(request));
                 }
                 catch (Exception inner)
                 {
@@ -141,19 +146,28 @@ namespace Reusable.IOnymous
 
     public class Request
     {
-        public static readonly From<IRequestMeta> PropertySelector = From<IRequestMeta>.This;
-        
+        public static readonly From<IRequestProperties> PropertySelector = From<IRequestProperties>.This;
+
         [NotNull]
-        public UriString Uri { get; set; } = new UriString("ionymous:///");
-        
+        public UriString Uri { get; set; } = new UriString($"{ResourceSchemes.IOnymous}:///");
+
         [NotNull]
         public RequestMethod Method { get; set; } = RequestMethod.None;
-        
+
         [NotNull]
-        public IImmutableSession Properties { get; set; } = ImmutableSession.Empty;
+        public IImmutableContainer Properties { get; set; } = ImmutableContainer.Empty;
 
         [CanBeNull]
         public Stream Body { get; set; }
+
+        public class Get : Request
+        {
+            public Get(UriString uri)
+            {
+                Uri = uri;
+                Method = RequestMethod.Get;
+            }
+        }
     }
 
     public class RequestMethod : Option<RequestMethod>

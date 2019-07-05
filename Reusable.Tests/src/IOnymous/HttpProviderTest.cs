@@ -10,12 +10,12 @@ namespace Reusable.Tests.IOnymous
         //[Fact]
         public async Task Blub()
         {
-            var client = new HttpProvider("https://jsonplaceholder.typicode.com", ImmutableSession.Empty);
+            var client = new HttpProvider("https://jsonplaceholder.typicode.com", ImmutableContainer.Empty);
 
             var response = await client.GetAsync
             (
                 "posts/1",
-                ImmutableSession
+                ImmutableContainer
                     .Empty
                     .SetItem(From<IHttpMeta>.Select(x => x.ConfigureRequestHeaders), headers => headers.AcceptJson())
                 //.ResponseFormatters(ne())

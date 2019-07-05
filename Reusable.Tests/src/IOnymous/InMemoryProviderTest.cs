@@ -44,8 +44,8 @@ namespace Reusable.Tests.IOnymous
                 { "bar/baz2", "quxy" },
             };
 
-            var value1 = await inMemory.GetAsync("foox:bar/baz1", ImmutableSession.Empty);
-            var value2 = await inMemory.GetAsync("fooy:bar/baz2", ImmutableSession.Empty);
+            var value1 = await inMemory.GetAsync("foox:bar/baz1", ImmutableContainer.Empty);
+            var value2 = await inMemory.GetAsync("fooy:bar/baz2", ImmutableContainer.Empty);
 
             Assert.True(value1.Exists);
             Assert.True(value2.Exists);
@@ -63,7 +63,7 @@ namespace Reusable.Tests.IOnymous
                 //{ "bar.baz", "quxy" },
             };
 
-            var value1 = await inMemory.GetAsync("ionymous:bar/baz", ImmutableSession.Empty);
+            var value1 = await inMemory.GetAsync("ionymous:bar/baz", ImmutableContainer.Empty);
 
             Assert.True(value1.Exists);
 

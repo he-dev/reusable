@@ -10,11 +10,12 @@ namespace Reusable.IOnymous
 {
     public class RelativeProvider : ResourceProvider
     {
-
         private readonly UriString _baseUri;
 
         public RelativeProvider([NotNull] UriString baseUri, [NotNull] IResourceProvider provider)
-            : base(provider.Properties.SetItem(PropertySelector.Select(x => x.AllowRelativeUri), true))
+            : base(provider.Properties
+                .SetScheme(baseUri.Scheme)
+                .SetItem(PropertySelector.Select(x => x.AllowRelativeUri), true))
         {
             _baseUri = baseUri ?? throw new ArgumentNullException(nameof(baseUri));
 

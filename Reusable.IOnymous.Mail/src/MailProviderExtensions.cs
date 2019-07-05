@@ -31,7 +31,7 @@ namespace Reusable.IOnymous
         (
             this IResourceProvider resourceProvider,
             IEmail<IEmailSubject, IEmailBody> email,
-            IImmutableSession metadata = default
+            IImmutableContainer metadata = default
         )
         {
             metadata =

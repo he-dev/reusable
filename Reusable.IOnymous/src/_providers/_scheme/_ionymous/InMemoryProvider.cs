@@ -21,8 +21,8 @@ namespace Reusable.IOnymous
 
         //public InMemoryProvider(Metadata metadata = default) : base(new[] { DefaultScheme }, metadata) { }
 
-        public InMemoryProvider([NotNull] ITypeConverter<UriString, string> uriConverter, IImmutableSession metadata = default)
-            : base((metadata ?? ImmutableSession.Empty).SetWhen(x => !x.GetSchemes().Any(), x => x.SetScheme(ResourceSchemes.IOnymous)))
+        public InMemoryProvider([NotNull] ITypeConverter<UriString, string> uriConverter, IImmutableContainer metadata = default)
+            : base((metadata ?? ImmutableContainer.Empty).SetWhen(x => !x.GetSchemes().Any(), x => x.SetScheme(ResourceSchemes.IOnymous)))
         {
             _uriConverter = uriConverter ?? throw new ArgumentNullException(nameof(uriConverter));
 
@@ -33,7 +33,7 @@ namespace Reusable.IOnymous
                     .Add(RequestMethod.Put, PutAsync);
         }
 
-        public InMemoryProvider(IImmutableSession metadata = default) : this(new UriStringPathToStringConverter(), metadata) { }
+        public InMemoryProvider(IImmutableContainer metadata = default) : this(new UriStringPathToStringConverter(), metadata) { }
 
         /// <summary>
         /// Gets or sets value converter.
@@ -46,9 +46,9 @@ namespace Reusable.IOnymous
             return
                 _items.TryGetValue(name, out var o)
                     ? o is string s
-                        ? new InMemoryResource(ImmutableSession.Empty.SetUri(request.Uri).SetFormat(MimeType.Text), await ResourceHelper.SerializeTextAsync(s))
-                        : new InMemoryResource(ImmutableSession.Empty.SetUri(request.Uri).SetFormat(MimeType.Binary), await ResourceHelper.SerializeBinaryAsync(o))
-                    : new InMemoryResource(ImmutableSession.Empty.SetUri(request.Uri), Stream.Null);
+                        ? new InMemoryResource(ImmutableContainer.Empty.SetUri(request.Uri).SetFormat(MimeType.Text), await ResourceHelper.SerializeTextAsync(s))
+                        : new InMemoryResource(ImmutableContainer.Empty.SetUri(request.Uri).SetFormat(MimeType.Binary), await ResourceHelper.SerializeBinaryAsync(o))
+                    : new InMemoryResource(ImmutableContainer.Empty.SetUri(request.Uri), Stream.Null);
         }
 
         private async Task<IResource> PutAsync(Request request)
@@ -57,7 +57,7 @@ namespace Reusable.IOnymous
 
             var name = _uriConverter.Convert<string>(request.Uri);
             _items[name] = await ResourceHelper.Deserialize<object>(request.Body, request.Properties);
-            return new InMemoryResource(ImmutableSession.Empty.SetUri(request.Uri).SetFormat(request.Properties.GetItemOrDefault(From<IResourceMeta>.Select(y => y.Format))), request.Body);
+            return new InMemoryResource(ImmutableContainer.Empty.SetUri(request.Uri).SetFormat(request.Properties.GetItemOrDefault(From<IResourceProperties>.Select(y => y.Format))), request.Body);
         }
 
         // protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata)
@@ -127,7 +127,7 @@ namespace Reusable.IOnymous
 //            _data = data ?? throw new ArgumentNullException(nameof(data));
 //        }
 
-        public InMemoryResource(IImmutableSession properties, Stream data)
+        public InMemoryResource(IImmutableContainer properties, Stream data)
             : base(properties.SetExists(data != Stream.Null))
         {
             _data = data;

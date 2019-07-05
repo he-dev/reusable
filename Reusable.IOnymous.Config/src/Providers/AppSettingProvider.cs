@@ -15,7 +15,7 @@ namespace Reusable.IOnymous.Config
 {
     public class AppSettingProvider : SettingProvider
     {
-        public AppSettingProvider() : base(ImmutableSession.Empty)
+        public AppSettingProvider() : base(ImmutableContainer.Empty)
         {
             Methods =
                 MethodDictionary
@@ -37,7 +37,7 @@ namespace Reusable.IOnymous.Config
             var element = exeConfig.AppSettings.Settings[actualKey];
             return Task.FromResult<IResource>(
                 new AppSetting(
-                    ImmutableSession
+                    ImmutableContainer
                         .Empty
                         .SetItem(Resource.PropertySelector.Select(x => x.ActualName), settingIdentifier)
                         .Union(request.Properties.Copy(Resource.PropertySelector)),
@@ -69,7 +69,7 @@ namespace Reusable.IOnymous.Config
         }
 
         [CanBeNull]
-        private static string FindActualKey(System.Configuration.Configuration exeConfig, string key)
+        private static string FindActualKey(Configuration exeConfig, string key)
         {
             return
                 exeConfig
@@ -86,7 +86,7 @@ namespace Reusable.IOnymous.Config
         private readonly string _value;
 
         // This is always Text
-        internal AppSetting(IImmutableSession properties, [CanBeNull] string value)
+        internal AppSetting(IImmutableContainer properties, [CanBeNull] string value)
             : base(properties
                 .SetItem(PropertySelector.Select(x => x.Format), MimeType.Text)
                 .SetItem(PropertySelector.Select(x => x.Exists), value.IsNotNullOrEmpty()))

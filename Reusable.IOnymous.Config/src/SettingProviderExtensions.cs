@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.IOnymous.Config.Annotations;
 using Reusable.Quickey;
@@ -22,7 +23,31 @@ namespace Reusable.IOnymous.Config
         public static async Task<object> ReadSettingAsync(this IResourceProvider resources, Selector selector)
         {
             var request = await CreateRequestAsync(RequestMethod.Get, selector);
-            return await resources.ReadObjectAsync<object>(request);
+            //return await resources.ReadObjectAsync<object>(request);
+
+            using (var item = await resources.InvokeAsync(request))
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await item.CopyToAsync(memoryStream);
+
+                    if (item.Format == MimeType.Text)
+                    {
+                        return await ResourceHelper.DeserializeTextAsync(memoryStream.Rewind());
+                    }
+
+                    if (item.Format == MimeType.Binary)
+                    {
+                        return await ResourceHelper.DeserializeBinaryAsync<object>(memoryStream.Rewind());
+                    }
+                }
+
+                throw DynamicException.Create
+                (
+                    $"ItemFormat",
+                    $"Item's '{request.Uri}' format is '{item.Format}' but only '{MimeType.Binary}' and '{MimeType.Text}' are supported."
+                );
+            }
         }
 
         public static async Task WriteSettingAsync(this IResourceProvider resources, Selector selector, object newValue)
@@ -44,15 +69,15 @@ namespace Reusable.IOnymous.Config
             var resource = resources.FirstOrDefault();
 
             var properties =
-                ImmutableSession
+                ImmutableContainer
                     .Empty
-                    .SetItem(From<IResourceMeta>.Select(x => x.DataType), selector.MemberType)
+                    .SetItem(From<IResourceProperties>.Select(x => x.DataType), selector.MemberType)
                     // request.Properties.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Type)) == typeof(string)
                     //.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), resource?.Provider.ToSoftString())
-                    .SetItem(From<IResourceMeta>.Select(x => x.ActualName), $"[{selector.Join(x => x.ToString(), ", ")}]")
+                    .SetItem(From<IResourceProperties>.Select(x => x.ActualName), $"[{selector.Join(x => x.ToString(), ", ")}]")
                     .SetName(resource?.Provider.ToSoftString());
 
-            var request= new Request
+            var request = new Request
             {
                 Uri = uri,
                 Method = method,
@@ -66,7 +91,8 @@ namespace Reusable.IOnymous.Config
 
         private static async Task SerializeObjectAsync(Request request, object value)
         {
-            switch (value) {
+            switch (value)
+            {
                 case null:
                     return;
                 case string str:

@@ -14,12 +14,12 @@ namespace Reusable.Tests.Flexo.Helpers
     {
         private static readonly ITreeRenderer<string> DebugViewRenderer = new PlainTextTreeRenderer();
 
-        public static (IConstant Result, IImmutableSession Context) ExpressionEqual<TValue>
+        public static (IConstant Result, IImmutableContainer Context) ExpressionEqual<TValue>
         (
             this Assert assert,
             TValue expected,
             IExpression expression,
-            Func<IImmutableSession, IImmutableSession> customizeContext = null,
+            Func<IImmutableContainer, IImmutableContainer> customizeContext = null,
             ITestOutputHelper output = default,
             bool throws = false
         )

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Diagnostics;
-using Reusable.Exceptionize;
 using Reusable.Flawless;
 using Reusable.Quickey;
 
@@ -15,13 +14,15 @@ namespace Reusable.IOnymous
     [PublicAPI]
     public interface IResource : IDisposable, IEquatable<IResource>, IEquatable<string>
     {
-        IImmutableSession Properties { get; }
+        [NotNull]
+        IImmutableContainer Properties { get; }
 
         [NotNull]
         UriString Uri { get; }
 
         bool Exists { get; }
 
+        [NotNull]
         MimeType Format { get; }
 
         Task CopyToAsync(Stream stream);
@@ -39,9 +40,9 @@ namespace Reusable.IOnymous
                     .Accept(b => b.When(x => x.Exists).Message((x, _) => $"Resource '{x.Uri}' does not exist."));
         }
 
-        public static readonly From<IResourceMeta> PropertySelector = From<IResourceMeta>.This;
+        public static readonly From<IResourceProperties> PropertySelector = From<IResourceProperties>.This;
 
-        protected Resource([NotNull] IImmutableSession properties)
+        protected Resource([NotNull] IImmutableContainer properties)
         {
             // todo - why do I need this?
             //Uri = uri.IsRelative ? new UriString($"{ResourceSchemes.IOnymous}:{uri}") : uri;
@@ -57,19 +58,13 @@ namespace Reusable.IOnymous
 
         #region IResourceInfo
 
-        public virtual IImmutableSession Properties { get; }
-        
+        public virtual IImmutableContainer Properties { get; }
+
         public UriString Uri => Properties.GetItemOrDefault(PropertySelector.Select(x => x.Uri));
 
         public bool Exists => Properties.GetItemOrDefault(PropertySelector.Select(x => x.Exists));
 
         public virtual MimeType Format => Properties.GetItemOrDefault(PropertySelector.Select(x => x.Format));
-
-        #endregion
-
-        #region Wrappers
-
-        // These wrappers are to provide helpful exceptions.
 
         public abstract Task CopyToAsync(Stream stream);
 
@@ -87,49 +82,6 @@ namespace Reusable.IOnymous
 
         #endregion
 
-        #region Helpers
-
-        #endregion
-
         public virtual void Dispose() { }
-    }
-
-    public class ExceptionHandler : IResource
-    {
-        private readonly IResource _resource;
-
-        public ExceptionHandler(IResource resource) => _resource = resource;
-
-        public IImmutableSession Properties => _resource.Properties;
-
-        public UriString Uri => _resource.Uri;
-
-        public bool Exists => _resource.Exists;
-
-        public MimeType Format => _resource.Format;
-
-        public async Task CopyToAsync(Stream stream)
-        {
-            if (!Exists)
-            {
-                throw new InvalidOperationException($"Resource '{Uri}' does not exist.");
-            }
-
-            try
-            {
-                await _resource.CopyToAsync(stream);
-            }
-            catch (Exception inner)
-            {
-                throw DynamicException.Create("CopyTo", $"An error occured while trying to copy the '{Uri}'. See the inner exception for details.", inner);
-            }
-        }
-
-
-        public bool Equals(IResource other) => _resource.Equals(other);
-
-        public bool Equals(string other) => _resource.Equals(other);
-
-        public void Dispose() => _resource.Dispose();
     }
 }

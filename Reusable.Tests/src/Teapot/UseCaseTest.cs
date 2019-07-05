@@ -21,7 +21,7 @@ namespace Reusable.Tests.Teapot
         public UseCaseTest(TeapotFactoryFixture teapotFactory)
         {
             _teapot = teapotFactory.CreateTeapotServer("http://localhost:20001/api");
-            _http = new HttpProvider("http://localhost:20001", ImmutableSession.Empty);
+            _http = new HttpProvider("http://localhost:20001", ImmutableContainer.Empty);
         }
 
         [Fact]
@@ -53,7 +53,7 @@ namespace Reusable.Tests.Teapot
                     (
                         "test?param=true",
                         () => ResourceHelper.SerializeAsJsonAsync(new { Greeting = "Hallo" }),
-                        ImmutableSession
+                        ImmutableContainer
                             .Empty
                             .SetItem(From<IHttpMeta>.Select(x => x.ConfigureRequestHeaders), headers =>
                             {

@@ -15,7 +15,7 @@ namespace Reusable.IOnymous
     [PublicAPI]
     public class PhysicalFileProvider : ResourceProvider
     {
-        public PhysicalFileProvider(IImmutableSession properties = default) : base(properties.ThisOrEmpty().SetScheme("file"))
+        public PhysicalFileProvider(IImmutableContainer properties = default) : base(properties.ThisOrEmpty().SetScheme("file"))
         {
             Methods =
                 MethodDictionary
@@ -51,7 +51,7 @@ namespace Reusable.IOnymous
     [PublicAPI]
     internal class PhysicalFile : Resource
     {
-        public PhysicalFile(IImmutableSession properties)
+        public PhysicalFile(IImmutableContainer properties)
             : base(properties
                     .SetItem(PropertySelector.Select(x => x.Exists), p => File.Exists(p.GetItemOrDefault(PropertySelector.Select(x => x.Uri)).ToUnc()))
                     .SetItem(PropertySelector.Select(x => x.Length), p =>

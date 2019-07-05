@@ -19,7 +19,7 @@ namespace Reusable.IOnymous
             string productName,
             string productVersion,
             [CanBeNull] JsonSerializer jsonSerializer = null,
-            [CanBeNull] IImmutableSession metadata = default
+            [CanBeNull] IImmutableContainer metadata = default
         )
         {
             metadata =

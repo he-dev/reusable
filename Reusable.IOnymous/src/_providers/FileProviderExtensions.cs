@@ -11,9 +11,9 @@ namespace Reusable.IOnymous
     {
         #region GET helpers
 
-        public static async Task<IResource> ReadFileAsync(this IResourceProvider resourceProvider, string path, MimeType format, IImmutableSession properties = default)
+        public static async Task<IResource> ReadFileAsync(this IResourceProvider resourceProvider, string path, MimeType format, IImmutableContainer properties = default)
         {
-            return await resourceProvider.GetAsync(CreateUri(path), properties.ThisOrEmpty().SetItem(From<IResourceMeta>.Select(x => x.Format), format));
+            return await resourceProvider.GetAsync(CreateUri(path), properties.ThisOrEmpty().SetItem(From<IResourceProperties>.Select(x => x.Format), format));
         }
 
 //        public static IResource GetTextFile(this IResourceProvider resourceProvider, string path, IImmutableSession metadata = default)
@@ -21,7 +21,7 @@ namespace Reusable.IOnymous
 //            return resourceProvider.ReadFileAsync(path, MimeType.Text, metadata).GetAwaiter().GetResult();
 //        }
 
-        public static async Task<string> ReadTextFileAsync(this IResourceProvider resourceProvider, string path, IImmutableSession metadata = default)
+        public static async Task<string> ReadTextFileAsync(this IResourceProvider resourceProvider, string path, IImmutableContainer metadata = default)
         {
             using (var file = await resourceProvider.ReadFileAsync(path, MimeType.Text, metadata))
             {
@@ -29,7 +29,7 @@ namespace Reusable.IOnymous
             }
         }
 
-        public static string ReadTextFile(this IResourceProvider resourceProvider, string path, IImmutableSession metadata = default)
+        public static string ReadTextFile(this IResourceProvider resourceProvider, string path, IImmutableContainer metadata = default)
         {
             using (var file = resourceProvider.ReadFileAsync(path, MimeType.Text, metadata).GetAwaiter().GetResult())
             {
@@ -41,9 +41,9 @@ namespace Reusable.IOnymous
 
         #region PUT helpers
 
-        public static async Task<IResource> WriteTextFileAsync(this IResourceProvider resourceProvider, string path, string value, IImmutableSession properties = default)
+        public static async Task<IResource> WriteTextFileAsync(this IResourceProvider resourceProvider, string path, string value, IImmutableContainer properties = default)
         {
-            using (var stream = await ResourceHelper.SerializeTextAsync(value, properties.ThisOrEmpty().GetItemOrDefault(Request.PropertySelector.Select(x => x.Encoding), Encoding.UTF8)))
+            using (var stream = await ResourceHelper.SerializeTextAsync(value, properties.ThisOrEmpty().GetItemOrDefault(Resource.PropertySelector.Select(x => x.Encoding), Encoding.UTF8)))
             {
                 return await resourceProvider.InvokeAsync(new Request
                 {
@@ -55,7 +55,7 @@ namespace Reusable.IOnymous
             }
         }
 
-        public static async Task<IResource> WriteFileAsync(this IResourceProvider resourceProvider, string path, Stream stream, IImmutableSession properties = default)
+        public static async Task<IResource> WriteFileAsync(this IResourceProvider resourceProvider, string path, Stream stream, IImmutableContainer properties = default)
         {
             return await resourceProvider.InvokeAsync(new Request
             {
@@ -73,13 +73,13 @@ namespace Reusable.IOnymous
 
         #region DELETE helpers
 
-        public static async Task<IResource> DeleteFileAsync(this IResourceProvider resourceProvider, string path, IImmutableSession metadata = default)
+        public static async Task<IResource> DeleteFileAsync(this IResourceProvider resourceProvider, string path, IImmutableContainer metadata = default)
         {
             return await resourceProvider.InvokeAsync(new Request
             {
                 Uri = CreateUri(path),
                 Method = RequestMethod.Delete,
-                Properties = metadata.ThisOrEmpty().SetItem(From<IResourceMeta>.Select(x => x.Format), MimeType.Text)
+                Properties = metadata.ThisOrEmpty().SetItem(From<IResourceProperties>.Select(x => x.Format), MimeType.Text)
             });
         }
 

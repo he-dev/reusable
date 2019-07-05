@@ -24,22 +24,26 @@ namespace Reusable.Tests.IOnymous
 
             mockProvider
                 .Arrange(x => x.Properties)
-                .Returns(ImmutableSession.Empty.SetScheme("blub"));
+                .Returns(ImmutableContainer.Empty);
+            
+            mockProvider
+                .Arrange(x => x.Methods)
+                .Returns(MethodDictionary.Empty.Add(RequestMethod.Get, r => Task.FromResult<IResource>(new InMemoryResource(ImmutableContainer.Empty.SetUri(r.Uri), Stream.Null))));
             
 //            mockProvider
 //                .Arrange(x => x.Schemes)
 //                .Returns(new SoftString[] { "blub" }.ToImmutableHashSet());
 
             mockProvider
-                .Arrange(x => x.GetAsync(Arg.Matches<UriString>(uri => uri == new UriString("blub:base/relative")), Arg.IsAny<ImmutableSession>()))
-                .Returns<UriString, ImmutableSession>((uri, metadata) => Task.FromResult<IResource>(new InMemoryResource(ImmutableSession.Empty.SetUri(uri), Stream.Null)));
+                .Arrange(x => x.InvokeAsync(Arg.IsAny<Request>()));
+                //.Returns<Task<IResource>>(r => Task.FromResult<IResource>(new InMemoryResource(ImmutableContainer.Empty.SetUri(""), Stream.Null)));
 
 
-            var relativeProvider = mockProvider.DecorateWith(RelativeProvider.Factory("blub:base"));
-            var resource = await relativeProvider.GetAsync("relative", ImmutableSession.Empty);
+            var relativeProvider = mockProvider.DecorateWith(RelativeProvider.Factory("base:path"));
+            var resource = await relativeProvider.InvokeAsync(new Request.Get("relative"));
 
             Assert.False(resource.Exists);
-            Assert.Equal("blub:base/relative", resource.Uri);
+            Assert.Equal("base:path/relative", resource.Uri);
         }
     }
 }

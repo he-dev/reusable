@@ -21,38 +21,38 @@ namespace Reusable.IOnymous
 
         #region GET helpers
 
-        // todo - move to config
-        public static async Task<T> ReadObjectAsync<T>(this IResourceProvider resources, Request request)
-        {
-            using (var item = await resources.InvokeAsync(request))
-            {
-                using (var memoryStream = new MemoryStream())
-                {
-                    await item.CopyToAsync(memoryStream);
+//        // todo - move to config
+//        public static async Task<T> ReadObjectAsync<T>(this IResourceProvider resources, Request request)
+//        {
+//            using (var item = await resources.InvokeAsync(request))
+//            {
+//                using (var memoryStream = new MemoryStream())
+//                {
+//                    await item.CopyToAsync(memoryStream);
+//
+//                    if (item.Format == MimeType.Text)
+//                    {
+//                        return (T)(object)await ResourceHelper.DeserializeTextAsync(memoryStream.Rewind());
+//                    }
+//
+//                    if (item.Format == MimeType.Binary)
+//                    {
+//                        return (T)await ResourceHelper.DeserializeBinaryAsync<object>(memoryStream.Rewind());
+//                    }
+//                }
+//
+//                throw DynamicException.Create
+//                (
+//                    $"ItemFormat",
+//                    $"Item's '{request.Uri}' format is '{item.Format}' but only '{MimeType.Binary}' and '{MimeType.Text}' are supported."
+//                );
+//            }
+//        }
 
-                    if (item.Format == MimeType.Text)
-                    {
-                        return (T)(object)await ResourceHelper.DeserializeTextAsync(memoryStream.Rewind());
-                    }
-
-                    if (item.Format == MimeType.Binary)
-                    {
-                        return (T)await ResourceHelper.DeserializeBinaryAsync<object>(memoryStream.Rewind());
-                    }
-                }
-
-                throw DynamicException.Create
-                (
-                    $"ItemFormat",
-                    $"Item's '{request.Uri}' format is '{item.Format}' but only '{MimeType.Binary}' and '{MimeType.Text}' are supported."
-                );
-            }
-        }
-
-        public static T ReadObject<T>(this IResourceProvider resources, Request request)
-        {
-            return resources.ReadObjectAsync<T>(request).GetAwaiter().GetResult();
-        }
+//        public static T ReadObject<T>(this IResourceProvider resources, Request request)
+//        {
+//            return resources.ReadObjectAsync<T>(request).GetAwaiter().GetResult();
+//        }
 
         #endregion
 
@@ -67,7 +67,7 @@ namespace Reusable.IOnymous
             this IResourceProvider provider,
             UriString uri,
             Func<Task<Stream>> serializeAsync,
-            IImmutableSession properties = default
+            IImmutableContainer properties = default
         )
         {
             return await provider.InvokeAsync(uri, serializeAsync, properties);
@@ -78,7 +78,7 @@ namespace Reusable.IOnymous
             this IResourceProvider provider,
             UriString uri,
             Func<Task<Stream>> serializeAsync,
-            IImmutableSession metadata = default
+            IImmutableContainer metadata = default
         )
         {
             return await provider.InvokeAsync(uri, serializeAsync, metadata);
@@ -89,7 +89,7 @@ namespace Reusable.IOnymous
             this IResourceProvider provider,
             UriString uri,
             Func<Task<Stream>> serializeAsync,
-            IImmutableSession properties
+            IImmutableContainer properties
         )
         {
             var stream = await serializeAsync();
@@ -131,7 +131,7 @@ namespace Reusable.IOnymous
             return await resources.InvokeAsync(request);
         }
         
-        public static async Task<IResource> GetAsync(this IResourceProvider resources, UriString uri, IImmutableSession properties = default)
+        public static async Task<IResource> GetAsync(this IResourceProvider resources, UriString uri, IImmutableContainer properties = default)
         {
             var request = new Request
             {
@@ -142,7 +142,7 @@ namespace Reusable.IOnymous
             return await resources.InvokeAsync(request);
         }
         
-        public static async Task<IResource> PutAsync(this IResourceProvider resources, UriString uri, Stream body, IImmutableSession properties = default)
+        public static async Task<IResource> PutAsync(this IResourceProvider resources, UriString uri, Stream body, IImmutableContainer properties = default)
         {
             var request = new Request
             {

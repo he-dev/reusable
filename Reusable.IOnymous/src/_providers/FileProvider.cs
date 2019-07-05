@@ -6,7 +6,7 @@ namespace Reusable.IOnymous
     {
         public new static readonly string DefaultScheme = "file";
 
-        protected FileProvider(IImmutableSession metadata)
-            : base(metadata ?? ImmutableSession.Empty.SetScheme(DefaultScheme)) { }
+        protected FileProvider(IImmutableContainer metadata)
+            : base(metadata ?? ImmutableContainer.Empty.SetScheme(DefaultScheme)) { }
     }
 }

@@ -13,8 +13,8 @@ namespace Reusable.IOnymous
     {
         private readonly Assembly _assembly;
 
-        public EmbeddedFileProvider([NotNull] Assembly assembly, IImmutableSession properties = default)
-            : base((properties ?? ImmutableSession.Empty)
+        public EmbeddedFileProvider([NotNull] Assembly assembly, IImmutableContainer properties = default)
+            : base((properties ?? ImmutableContainer.Empty)
                 .SetScheme(ResourceSchemes.IOnymous)
                 .SetItem(PropertySelector.Select(x => x.AllowRelativeUri), true))
         {
@@ -52,14 +52,14 @@ namespace Reusable.IOnymous
 
     public static class EmbeddedFileProvider<T>
     {
-        public static IResourceProvider Default { get; } = new EmbeddedFileProvider(typeof(T).Assembly, ImmutableSession.Empty);
+        public static IResourceProvider Default { get; } = new EmbeddedFileProvider(typeof(T).Assembly, ImmutableContainer.Empty);
     }
 
     internal class EmbeddedFile : Resource
     {
         private readonly Func<Stream> _getManifestResourceStream;
 
-        public EmbeddedFile(IImmutableSession properties, Func<Stream> getManifestResourceStream)
+        public EmbeddedFile(IImmutableContainer properties, Func<Stream> getManifestResourceStream)
             : base(properties.SetExists(!(getManifestResourceStream is null)))
         {
             _getManifestResourceStream = getManifestResourceStream;

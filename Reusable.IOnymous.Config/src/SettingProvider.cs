@@ -10,7 +10,7 @@ namespace Reusable.IOnymous.Config
 
         //public static readonly IImmutableList<SoftString> DefaultSchemes = ImmutableList<SoftString>.Empty.Add("config");
         
-        protected SettingProvider(IImmutableSession metadata)
+        protected SettingProvider(IImmutableContainer metadata)
             : base(metadata.SetScheme("config")) { }
     }
 }

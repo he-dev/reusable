@@ -20,7 +20,7 @@ namespace Reusable.Flexo
     [PublicAPI]
     public static class ExpressionContextExtensions
     {
-        public static IImmutableSession WithComparer(this IImmutableSession context, string name, IEqualityComparer<object> comparer)
+        public static IImmutableContainer WithComparer(this IImmutableContainer context, string name, IEqualityComparer<object> comparer)
         {
             var comparers =
                 context
@@ -30,12 +30,12 @@ namespace Reusable.Flexo
             return context.SetItem(From<IExpressionMeta>.Select(m => m.Comparers), comparers);
         }
 
-        public static IImmutableSession WithDefaultComparer(this IImmutableSession context)
+        public static IImmutableContainer WithDefaultComparer(this IImmutableContainer context)
         {
             return context.WithComparer(GetComparerNameFromCaller(), EqualityComparer<object>.Default);
         }
 
-        public static IImmutableSession WithSoftStringComparer(this IImmutableSession context)
+        public static IImmutableContainer WithSoftStringComparer(this IImmutableContainer context)
         {
             return context.WithComparer(GetComparerNameFromCaller(), EqualityComparerFactory<object>.Create
             (
@@ -44,7 +44,7 @@ namespace Reusable.Flexo
             ));
         }
 
-        public static IImmutableSession WithRegexComparer(this IImmutableSession context)
+        public static IImmutableContainer WithRegexComparer(this IImmutableContainer context)
         {
             return context.WithComparer(GetComparerNameFromCaller(), EqualityComparerFactory<object>.Create
             (
@@ -59,7 +59,7 @@ namespace Reusable.Flexo
             return Regex.Match(comparerName, "^With(?<comparerName>[a-z0-9_]+)Comparer", RegexOptions.IgnoreCase).Groups["comparerName"].Value;
         }
 
-        public static IImmutableSession WithReferences(this IImmutableSession context, IEnumerable<IExpression> expressions)
+        public static IImmutableContainer WithReferences(this IImmutableContainer context, IEnumerable<IExpression> expressions)
         {
             var registrations =
                 context
@@ -89,17 +89,17 @@ namespace Reusable.Flexo
                     : throw DynamicException.Create("ComparerNotFound", $"There is no comparer with the name '{name}'.");
         }
 
-        public static TreeNode<ExpressionDebugView> DebugView(this IImmutableSession context)
+        public static TreeNode<ExpressionDebugView> DebugView(this IImmutableContainer context)
         {
             return context.GetItemOrDefault(From<IExpressionMeta>.Select(m => m.DebugView));
         }
 
-        public static IImmutableSession DebugView(this IImmutableSession context, TreeNode<ExpressionDebugView> debugView)
+        public static IImmutableContainer DebugView(this IImmutableContainer context, TreeNode<ExpressionDebugView> debugView)
         {
             return context.SetItem(From<IExpressionMeta>.Select(m => m.DebugView), debugView);
         }
 
-        public static (object Object, PropertyInfo Property, object Value) FindItem(this IImmutableSession context, string path)
+        public static (object Object, PropertyInfo Property, object Value) FindItem(this IImmutableContainer context, string path)
         {
             // Supported paths: sth.Property[index].Property
             var names =

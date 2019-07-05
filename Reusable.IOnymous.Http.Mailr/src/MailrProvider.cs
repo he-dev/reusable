@@ -8,7 +8,7 @@ namespace Reusable.IOnymous
     {
         public const string Name = "Mailr";
 
-        public MailrProvider([NotNull] string baseUri, IImmutableSession metadata = default)
+        public MailrProvider([NotNull] string baseUri, IImmutableContainer metadata = default)
             : base(baseUri, metadata.ThisOrEmpty().SetName(Name)) { }
     }
 }

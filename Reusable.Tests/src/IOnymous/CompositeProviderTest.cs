@@ -28,7 +28,7 @@ namespace Reusable.Tests.IOnymous
 
             // todo - fix that
             //Assert.False(true);
-            var resource = await resources.GetAsync("any-scheme:branch/dev", ImmutableSession.Empty);
+            var resource = await resources.GetAsync("any-scheme:branch/dev", ImmutableContainer.Empty);
 
             Assert.True(resource.Exists);
             Assert.Equal("hot", await resource.DeserializeTextAsync());
@@ -50,7 +50,7 @@ namespace Reusable.Tests.IOnymous
                         { "x/123", "blub3" }
                     });
 
-            var resource = await composite.GetAsync("blub:x/123", ImmutableSession.Empty.SetName("InMemoryProvider"));
+            var resource = await composite.GetAsync("blub:x/123", ImmutableContainer.Empty.SetName("InMemoryProvider"));
 
             Assert.True(resource.Exists);
             Assert.Equal("blub1", await resource.DeserializeTextAsync());
@@ -66,13 +66,13 @@ namespace Reusable.Tests.IOnymous
                     {
                         { "x/123", "blub1" }
                     })
-                    .Add(new InMemoryProvider(ImmutableSession.Empty.SetScheme(ResourceSchemes.IOnymous).SetName("blub"))
+                    .Add(new InMemoryProvider(ImmutableContainer.Empty.SetScheme(ResourceSchemes.IOnymous).SetName("blub"))
                     {
                         //{ "x.123", "blub2" },
                         { "x/123", "blub3" }
                     });
 
-            var resource = await composite.GetAsync("blub:x/123", ImmutableSession.Empty.SetScheme(ResourceSchemes.IOnymous).SetName("blub"));
+            var resource = await composite.GetAsync("blub:x/123", ImmutableContainer.Empty.SetScheme(ResourceSchemes.IOnymous).SetName("blub"));
 
             Assert.True(resource.Exists);
             Assert.Equal("blub3", await resource.DeserializeTextAsync());
@@ -102,18 +102,18 @@ namespace Reusable.Tests.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider(ImmutableSession.Empty.SetScheme("bluba"))
+                new InMemoryProvider(ImmutableContainer.Empty.SetScheme("bluba"))
                 {
                     { "x/123", "blub1" }
                 },
-                new InMemoryProvider(ImmutableSession.Empty.SetScheme("blub"))
+                new InMemoryProvider(ImmutableContainer.Empty.SetScheme("blub"))
                 {
                     { "x/123", "blub2" },
                     { "x/125", "blub3" }
                 },
             });
 
-            var resource = await composite.GetAsync("blub:x/123", ImmutableSession.Empty);
+            var resource = await composite.GetAsync("blub:x/123", ImmutableContainer.Empty);
 
             Assert.True(resource.Exists);
             Assert.Equal("blub2", await resource.DeserializeTextAsync());

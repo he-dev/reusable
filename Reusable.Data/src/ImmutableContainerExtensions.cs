@@ -8,23 +8,23 @@ using Reusable.Quickey;
 
 namespace Reusable.Data
 {
-    public static class ImmutableSessionExtensions
+    public static class ImmutableContainerExtensions
     {
         [NotNull]
-        public static IImmutableSession ThisOrEmpty(this IImmutableSession session) => session ?? ImmutableSession.Empty;
+        public static IImmutableContainer ThisOrEmpty(this IImmutableContainer container) => container ?? ImmutableContainer.Empty;
 
         #region Helpers
 
         [DebuggerStepThrough]
         [MustUseReturnValue]
-        public static T GetItemOrDefault<T>(this IImmutableSession session, Selector<T> key, T defaultValue = default)
+        public static T GetItemOrDefault<T>(this IImmutableContainer container, Selector<T> key, T defaultValue = default)
         {
-            return session.TryGetItem(key, out var item) ? item : defaultValue;
+            return container.TryGetItem(key, out var item) ? item : defaultValue;
         }
 
-        public static bool TryGetItem<T>(this IImmutableSession session, Selector<T> key, out T value)
+        public static bool TryGetItem<T>(this IImmutableContainer container, Selector<T> key, out T value)
         {
-            if (session.TryGetValue(key.ToString(), out var item))
+            if (container.TryGetValue(key.ToString(), out var item))
             {
                 if (item is T t)
                 {
@@ -37,17 +37,17 @@ namespace Reusable.Data
             return false;
         }
 
-        public static IImmutableSession SetItem<T>(this IImmutableSession session, Selector<T> key, T value)
+        public static IImmutableContainer SetItem<T>(this IImmutableContainer container, Selector<T> key, T value)
         {
-            return session.SetItem(key.ToString(), value);
+            return container.SetItem(key.ToString(), value);
         }
         
-        public static IImmutableSession SetItem<T>(this IImmutableSession session, Selector<T> key, Func<IImmutableSession, T> value)
+        public static IImmutableContainer SetItem<T>(this IImmutableContainer container, Selector<T> key, Func<IImmutableContainer, T> value)
         {
-            return session.SetItem(key.ToString(), value(session));
+            return container.SetItem(key.ToString(), value(container));
         }
 
-        public static Func<IImmutableSession, IImmutableSession> MergeFunc(IImmutableSession other)
+        public static Func<IImmutableContainer, IImmutableContainer> MergeFunc(IImmutableContainer other)
         {
             return current =>
             {
@@ -60,7 +60,7 @@ namespace Reusable.Data
             };
         }
 
-        public static IImmutableSession Union(this IImmutableSession first, IImmutableSession second, bool overwrite = false)
+        public static IImmutableContainer Union(this IImmutableContainer first, IImmutableContainer second, bool overwrite = false)
         {
             return second.Aggregate(first, (current, next) => overwrite || !current.ContainsKey(next.Key) ? current.SetItem(next.Key, next.Value) : current);
         }
@@ -102,12 +102,12 @@ namespace Reusable.Data
 
         #endregion
 
-        public static IImmutableSession SetWhen(this IImmutableSession session, Func<IImmutableSession, bool> canSet, Func<IImmutableSession, IImmutableSession> set)
+        public static IImmutableContainer SetWhen(this IImmutableContainer container, Func<IImmutableContainer, bool> canSet, Func<IImmutableContainer, IImmutableContainer> set)
         {
             return
-                canSet(session)
-                    ? set(session)
-                    : session;
+                canSet(container)
+                    ? set(container)
+                    : container;
         }
     }
 }

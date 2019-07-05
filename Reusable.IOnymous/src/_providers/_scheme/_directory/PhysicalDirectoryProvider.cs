@@ -10,7 +10,7 @@ namespace Reusable.IOnymous
     [PublicAPI]
     public class PhysicalDirectoryProvider : ResourceProvider
     {
-        public PhysicalDirectoryProvider(IImmutableSession properties = default)
+        public PhysicalDirectoryProvider(IImmutableContainer properties = default)
             : base(properties.ThisOrEmpty().SetScheme("directory"))
         {
             Methods =
@@ -25,7 +25,7 @@ namespace Reusable.IOnymous
         {
             return Task.FromResult<IResource>(
                 new PhysicalDirectory(
-                    ImmutableSession
+                    ImmutableContainer
                         .Empty
                         .SetItem(Resource.PropertySelector.Select(x => x.Uri), request.Uri)));
         }
@@ -50,7 +50,7 @@ namespace Reusable.IOnymous
     [PublicAPI]
     internal class PhysicalDirectory : Resource
     {
-        public PhysicalDirectory(IImmutableSession properties)
+        public PhysicalDirectory(IImmutableContainer properties)
             : base(properties
                 .SetItem(PropertySelector.Select(x => x.Exists), Directory.Exists(properties.GetItemOrDefault(PropertySelector.Select(x => x.Uri)).Path.Decoded.ToString()))
                 .SetItem(PropertySelector.Select(x => x.Format), MimeType.None)

@@ -79,7 +79,7 @@ namespace Reusable.Tests.IOnymous.Config
                 Configuration =
                     CompositeProvider
                         .Empty
-                        .Add(new InMemoryProvider(DefaultUriStringConverter, ImmutableSession.Empty.SetName("OtherOne"))
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, ImmutableContainer.Empty.SetName("OtherOne"))
                         {
                             { "Map.City", "Joe" }
                         })
@@ -87,7 +87,7 @@ namespace Reusable.Tests.IOnymous.Config
                         {
                             { "Map.City", "Tom" }
                         })
-                        .Add(new InMemoryProvider(DefaultUriStringConverter, ImmutableSession.Empty.SetName("ThisOne"))
+                        .Add(new InMemoryProvider(DefaultUriStringConverter, ImmutableContainer.Empty.SetName("ThisOne"))
                         {
                             { "Map.City", "Bob" }
                         })

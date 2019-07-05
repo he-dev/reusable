@@ -186,7 +186,7 @@ namespace Reusable.Apps
         public static async Task SendEmailAsync_Smtp()
         {
             var metadata =
-                ImmutableSession
+                ImmutableContainer
                     .Empty
                     .SetItem(From<ISmtpMeta>.Select(x => x.Host), "localhost")
                     .SetItem(From<ISmtpMeta>.Select(x => x.Port), 25);

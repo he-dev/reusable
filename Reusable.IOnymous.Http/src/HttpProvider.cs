@@ -18,13 +18,13 @@ namespace Reusable.IOnymous
 
         private readonly HttpClient _client;
 
-        public HttpProvider([NotNull] string baseUri, IImmutableSession metadata = default)
+        public HttpProvider([NotNull] string baseUri, IImmutableContainer metadata = default)
             : base(
                 metadata
                     .ThisOrEmpty()
                     .SetScheme("http")
                     .SetScheme("https")
-                    .SetItem(From<IProviderMeta>.Select(x => x.AllowRelativeUri), true))
+                    .SetItem(From<IProviderProperties>.Select(x => x.AllowRelativeUri), true))
         {
             if (baseUri == null) throw new ArgumentNullException(nameof(baseUri));
 
@@ -59,7 +59,7 @@ namespace Reusable.IOnymous
 
         #region Helpers
 
-        private async Task<(Stream Content, MimeType MimeType)> InvokeAsync(UriString uri, HttpMethod method, IImmutableSession metadata)
+        private async Task<(Stream Content, MimeType MimeType)> InvokeAsync(UriString uri, HttpMethod method, IImmutableContainer metadata)
         {
             using (var request = new HttpRequestMessage(method, uri))
             {
@@ -72,7 +72,7 @@ namespace Reusable.IOnymous
 
                 Properties.GetItemOrDefault(From<IHttpMeta>.Select(m => m.ConfigureRequestHeaders), _ => { })(request.Headers);
                 metadata.GetItemOrDefault(From<IHttpMeta>.Select(m => m.ConfigureRequestHeaders))(request.Headers);
-                using (var response = await _client.SendAsync(request, HttpCompletionOption.ResponseContentRead, metadata.GetItemOrDefault(From<IRequestMeta>.Select(m => m.CancellationToken))))
+                using (var response = await _client.SendAsync(request, HttpCompletionOption.ResponseContentRead, metadata.GetItemOrDefault(From<IRequestProperties>.Select(m => m.CancellationToken))))
                 {
                     var responseContentCopy = new MemoryStream();
 
@@ -120,7 +120,7 @@ namespace Reusable.IOnymous
     {
         private readonly Stream _response;
 
-        internal HttpResource(IImmutableSession properties, Stream response = default)
+        internal HttpResource(IImmutableContainer properties, Stream response = default)
             : base(properties
                 .SetExists(!(response is null)))
         {

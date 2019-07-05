@@ -13,9 +13,9 @@ namespace Reusable.IOnymous
     {
         public new static readonly string DefaultScheme = "mailto";
 
-        protected MailProvider(IImmutableSession metadata) : base(metadata.SetScheme(DefaultScheme)) { }
+        protected MailProvider(IImmutableContainer metadata) : base(metadata.SetScheme(DefaultScheme)) { }
 
-        protected async Task<string> ReadBodyAsync(Stream value, IImmutableSession metadata)
+        protected async Task<string> ReadBodyAsync(Stream value, IImmutableContainer metadata)
         {
             using (var bodyReader = new StreamReader(value, metadata.GetItemOrDefault(From<IMailMeta>.Select(x => x.BodyEncoding), Encoding.UTF8)))
             {
@@ -53,7 +53,7 @@ namespace Reusable.IOnymous
     {
         private readonly Stream _response;
 
-        internal MailResource(IImmutableSession properties, Stream response = default)
+        internal MailResource(IImmutableContainer properties, Stream response = default)
             : base(properties
                 .SetExists(!(response is null)))
         {

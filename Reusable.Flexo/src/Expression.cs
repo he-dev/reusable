@@ -44,8 +44,8 @@ namespace Reusable.Flexo
 
     public static class ExpressionContext
     {
-        public static IImmutableSession Default =>
-            ImmutableSession
+        public static IImmutableContainer Default =>
+            ImmutableContainer
                 .Empty
                 .SetItem(From<IExpressionMeta>.Select(m => m.Comparers), ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
                 .SetItem(From<IExpressionMeta>.Select(m => m.References), ImmutableDictionary<SoftString, IExpression>.Empty)
@@ -141,7 +141,7 @@ namespace Reusable.Flexo
 
         public abstract IConstant Invoke();
 
-        public static ExpressionScope BeginScope(Func<IImmutableSession, IImmutableSession> configureContext)
+        public static ExpressionScope BeginScope(Func<IImmutableContainer, IImmutableContainer> configureContext)
         {
             return ExpressionScope.Push(configureContext(ExpressionScope.Current?.Context ?? ExpressionContext.Default));
         }
@@ -197,9 +197,9 @@ namespace Reusable.Flexo
 
         public int Depth { get; }
 
-        public IImmutableSession Context { get; private set; }
+        public IImmutableContainer Context { get; private set; }
 
-        public static ExpressionScope Push(IImmutableSession context)
+        public static ExpressionScope Push(IImmutableContainer context)
         {
             var scope = Current = new ExpressionScope(Current?.Depth + 1 ?? 0)
             {

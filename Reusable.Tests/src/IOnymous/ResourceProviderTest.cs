@@ -14,7 +14,7 @@ namespace Reusable.Tests.IOnymous
         public async Task Throws_when_unsupported_scheme_requested()
         {
             var provider = new EmptyProvider();
-            await Assert.ThrowsAnyAsync<DynamicException>(async () => await provider.GetAsync("noop", ImmutableSession.Empty));
+            await Assert.ThrowsAnyAsync<DynamicException>(async () => await provider.GetAsync("noop", ImmutableContainer.Empty));
         }
 
         [Fact]
@@ -26,7 +26,7 @@ namespace Reusable.Tests.IOnymous
             Assert.False(provider.Can(RequestMethod.Put));
             Assert.False(provider.Can(RequestMethod.Post));
             Assert.False(provider.Can(RequestMethod.Delete));
-            await Assert.ThrowsAnyAsync<DynamicException>(async () => await provider.GetAsync("noop", ImmutableSession.Empty));
+            await Assert.ThrowsAnyAsync<DynamicException>(async () => await provider.GetAsync("noop", ImmutableContainer.Empty));
         }
 
         [Fact]
@@ -34,12 +34,12 @@ namespace Reusable.Tests.IOnymous
         {
             var provider = new SimpleProvider();
             Assert.True(provider.Can(RequestMethod.Get));
-            await provider.GetAsync("test:///noop", ImmutableSession.Empty);
+            await provider.GetAsync("test:///noop", ImmutableContainer.Empty);
         }
 
         private class EmptyProvider : ResourceProvider
         {
-            public EmptyProvider() : base(ImmutableSession.Empty.SetScheme("test"))
+            public EmptyProvider() : base(ImmutableContainer.Empty.SetScheme("test"))
             {
                 Methods = MethodDictionary.Empty;
             }
@@ -47,12 +47,12 @@ namespace Reusable.Tests.IOnymous
 
         private class SimpleProvider : ResourceProvider
         {
-            public SimpleProvider() : base(ImmutableSession.Empty.SetScheme("test"))
+            public SimpleProvider() : base(ImmutableContainer.Empty.SetScheme("test"))
             {
                 Methods =
                     MethodDictionary
                         .Empty
-                        .Add(RequestMethod.Get, r => Task.FromResult<IResource>(new InMemoryResource(ImmutableSession.Empty, Stream.Null)));
+                        .Add(RequestMethod.Get, r => Task.FromResult<IResource>(new InMemoryResource(ImmutableContainer.Empty, Stream.Null)));
             }
         }
     }

@@ -78,7 +78,7 @@ namespace Reusable.IOnymous
             }
         }
         
-        public static async Task<T> Deserialize<T>(Stream value, IImmutableSession properties)
+        public static async Task<T> Deserialize<T>(Stream value, IImmutableContainer properties)
         {
             if (properties.GetFormat() == MimeType.Text)
             {

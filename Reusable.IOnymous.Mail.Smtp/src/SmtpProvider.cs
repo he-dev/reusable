@@ -15,7 +15,7 @@ namespace Reusable.IOnymous
 {
     public class SmtpProvider : MailProvider
     {
-        public SmtpProvider(IImmutableSession properties = default) : base(properties.ThisOrEmpty())
+        public SmtpProvider(IImmutableContainer properties = default) : base(properties.ThisOrEmpty())
         {
             Methods =
                 MethodDictionary

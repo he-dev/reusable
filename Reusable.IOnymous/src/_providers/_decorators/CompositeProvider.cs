@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
@@ -20,7 +21,7 @@ namespace Reusable.IOnymous
         /// <summary>
         /// Resource provider cache.
         /// </summary>
-        private readonly IDictionary<SoftString, IResourceProvider> _cache;
+        private readonly ConcurrentDictionary<SoftString, IResourceProvider> _cache;
 
         /// <summary>
         /// Resource provider cache lock.
@@ -28,18 +29,18 @@ namespace Reusable.IOnymous
         private readonly SemaphoreSlim _cacheLock = new SemaphoreSlim(1, 1);
 
         public CompositeProvider([NotNull] IEnumerable<IResourceProvider> providers)
-            : base(ImmutableSession
+            : base(ImmutableContainer
                 .Empty
                 .SetScheme(ResourceSchemes.IOnymous)
-                .SetItem(From<IProviderMeta>.Select(x => x.AllowRelativeUri), true))
+                .SetItem(From<IProviderProperties>.Select(x => x.AllowRelativeUri), true))
         {
             if (providers == null) throw new ArgumentNullException(nameof(providers));
 
             _providers = providers.ToImmutableList();
-            _cache = new Dictionary<SoftString, IResourceProvider>();
+            _cache = new ConcurrentDictionary<SoftString, IResourceProvider>();
 
             Methods =
-                providers
+                _providers
                     .SelectMany(x => x.Methods.Keys)
                     .Distinct()
                     .Aggregate(MethodDictionary.Empty, (current, next) => current.Add(next, InvokeAsync));
@@ -69,10 +70,10 @@ namespace Reusable.IOnymous
                 }
 
                 // Check if there is a provider that matches the scheme of the absolute uri.
-                if (request.Uri.IsAbsolute)
+                if (request.Uri.IsAbsolute && !(request.Uri.Scheme == ResourceSchemes.IOnymous))
                 {
-                    var ignoreScheme = request.Uri.Scheme == ResourceSchemes.IOnymous;
-                    resourceProviders = resourceProviders.Where(p => ignoreScheme || p.Properties.GetSchemes().Contains(ResourceSchemes.IOnymous) || p.Properties.GetSchemes().Contains(request.Uri.Scheme));
+                    var schemes = new[] { ResourceSchemes.IOnymous, request.Uri.Scheme };
+                    resourceProviders = resourceProviders.Where(p => p.Properties.GetSchemes().Overlaps(schemes));
                 }
 
                 // GET can search multiple providers.
