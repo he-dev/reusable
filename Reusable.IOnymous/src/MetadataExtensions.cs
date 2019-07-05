@@ -42,8 +42,16 @@ namespace Reusable.IOnymous
     [PlainSelectorFormatter]
     public interface IResourceMeta : INamespace
     {
-        //SoftString Scheme { get; }
-
+        UriString Uri { get; }
+        
+        bool Exists { get; }
+        
+        long Length { get; }
+        
+        DateTime CreateOn { get; }
+        
+        DateTime ModifiedOn { get; }
+        
         MimeType Format { get; }
 
         Type Type { get; }

@@ -25,7 +25,7 @@ namespace Reusable.IOnymous
         {
             using (var item = await resources.GetAsync(uri, metadata))
             {
-                var itemFormat = item.Metadata.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Format));
+                var itemFormat = item.Properties.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Format));
 
                 if (item.Exists)
                 {
@@ -58,7 +58,7 @@ namespace Reusable.IOnymous
                     throw DynamicException.Create
                     (
                         $"ItemNotFound",
-                        $"Could not find '{uri}' that maps to '{item.Metadata.GetItemOrDefault(From<IResourceMeta>.Select(x => x.ActualName)) ?? "N/A"}'."
+                        $"Could not find '{uri}' that maps to '{item.Properties.GetItemOrDefault(From<IResourceMeta>.Select(x => x.ActualName)) ?? "N/A"}'."
                     );
                 }
             }
@@ -152,7 +152,7 @@ namespace Reusable.IOnymous
         {
             var request = new ResourceRequest { Method = ResourceRequestMethod.Get, Uri = uri };
             (configure ?? Pass)(request);
-            return await resources.RequestAsync(request);
+            return await resources.InvokeAsync(request);
         }
     }
 }

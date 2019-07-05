@@ -65,7 +65,7 @@ namespace Reusable.IOnymous.Config
 
         protected override async Task CopyToAsyncInternal(Stream stream)
         {
-            var format = Metadata.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Format));
+            var format = Properties.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Format));
             if (format == MimeType.Text)
             {
                 using (var s = await ResourceHelper.SerializeTextAsync((string)_value))

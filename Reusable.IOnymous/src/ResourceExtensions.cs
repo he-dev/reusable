@@ -26,7 +26,7 @@ namespace Reusable.IOnymous
         {
             if (!resource.Exists) throw new InvalidOperationException($"Cannot deserialize a resource that does not exist: '{resource.Uri.ToString()}'");
 
-            var format = resource.Metadata.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Format));
+            var format = resource.Properties.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Format));
 
             if (!format.Contains(MimeType.Text | MimeType.Html))
             {
@@ -45,7 +45,7 @@ namespace Reusable.IOnymous
 
         public static async Task<T> DeserializeBinaryAsync<T>(this IResource resource)
         {
-            var format = resource.Metadata.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Format));
+            var format = resource.Properties.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Format));
 
             if (format != MimeType.Binary)
             {
@@ -62,7 +62,7 @@ namespace Reusable.IOnymous
 
         public static async Task<T> DeserializeJsonAsync<T>(this IResource resource, JsonSerializer jsonSerializer = null)
         {
-            var format = resource.Metadata.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Format));
+            var format = resource.Properties.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Format));
 
             if (format != MimeType.Json)
             {

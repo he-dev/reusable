@@ -24,15 +24,17 @@ namespace Reusable.IOnymous
 
         DateTime? ModifiedOn { get; }
 
-        IImmutableSession Metadata { get; }
+        IImmutableSession Properties { get; }
 
         Task CopyToAsync(Stream stream);
     }
 
     [PublicAPI]
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
+    [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public abstract class Resource : IResource
     {
+        public static readonly From<IResourceMeta> PropertySelector = From<IResourceMeta>.This;
+        
         protected Resource
         (
             [NotNull] UriString uri,
@@ -42,8 +44,14 @@ namespace Reusable.IOnymous
             if (uri == null) throw new ArgumentNullException(nameof(uri));
             if (metadata == null) throw new ArgumentNullException(nameof(metadata));
 
+            // todo - why do I need this?
             Uri = uri.IsRelative ? new UriString($"{ResourceSchemes.IOnymous}:{uri}") : uri;
-            Metadata = metadata;
+            Properties = metadata;
+        }
+        
+        protected Resource([NotNull] IImmutableSession properties)
+        {
+            Properties = properties ?? throw new ArgumentNullException(nameof(properties));
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
@@ -65,9 +73,9 @@ namespace Reusable.IOnymous
 
         public abstract DateTime? ModifiedOn { get; }
 
-        public virtual MimeType Format => Metadata.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Format));
+        public virtual MimeType Format => Properties.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Format));
 
-        public virtual IImmutableSession Metadata { get; }
+        public virtual IImmutableSession Properties { get; }
 
         #endregion
 

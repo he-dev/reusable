@@ -37,7 +37,7 @@ namespace Reusable.IOnymous
 
         bool Can(ResourceRequestMethod method);
 
-        Task<IResource> RequestAsync(ResourceRequest request);
+        Task<IResource> InvokeAsync(ResourceRequest request);
 
         [ItemNotNull]
         Task<IResource> GetAsync([NotNull] UriString uri, [CanBeNull] IImmutableSession metadata = default);
@@ -58,7 +58,7 @@ namespace Reusable.IOnymous
     public abstract class ResourceProvider : IResourceProvider
     {
         private static readonly From<IProviderMeta> PropertySelector = From<IProviderMeta>.This;
-            
+
         // Because: $"{GetType().ToPrettyString()} cannot {ExtractMethodName(memberName).ToUpper()} '{uri}' because {reason}.";
         private static readonly IExpressValidator<Request> RequestValidator = ExpressValidator.For<Request>(builder =>
         {
@@ -76,22 +76,20 @@ namespace Reusable.IOnymous
             ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it supports only absolute URIs.");
         });
 
-        protected ResourceProvider([NotNull] IImmutableSession metadata)
+        protected ResourceProvider([NotNull] IImmutableSession properties)
         {
-            if (metadata == null) throw new ArgumentNullException(nameof(metadata));
+            if (properties == null) throw new ArgumentNullException(nameof(properties));
 
-            if (!metadata.GetSchemes().Any())
+            if (!properties.GetSchemes().Any())
             {
                 throw new ArgumentException
                 (
-                    paramName: nameof(metadata),
+                    paramName: nameof(properties),
                     message: $"{GetType().ToPrettyString().ToSoftString()} must specify at least one scheme."
                 );
             }
 
-            Properties =
-                metadata
-                    .SetName(GetType().ToPrettyString().ToSoftString());
+            Properties = properties.SetName(GetType().ToPrettyString().ToSoftString());
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
@@ -124,7 +122,7 @@ namespace Reusable.IOnymous
 
         public bool Can(ResourceRequestMethod method) => Methods.ContainsKey(method);
 
-        public async Task<IResource> RequestAsync(ResourceRequest request)
+        public async Task<IResource> InvokeAsync(ResourceRequest request)
         {
             if (Methods.TryGetValue(request.Method, out var method))
             {
@@ -154,6 +152,7 @@ namespace Reusable.IOnymous
             );
 
             string FormatProviderNames() => Properties.GetNames().Select(x => x.ToString()).Join("/");
+
             string FormatMethodName() => request.Method.Name.ToString().ToUpper();
         }
 
@@ -309,7 +308,7 @@ namespace Reusable.IOnymous
     public class ResourceRequest
     {
         [NotNull]
-        public IImmutableSession Headers { get; set; } = ImmutableSession.Empty;
+        public IImmutableSession Properties { get; set; } = ImmutableSession.Empty;
 
         [NotNull]
         public ResourceRequestMethod Method { get; set; } = ResourceRequestMethod.None;

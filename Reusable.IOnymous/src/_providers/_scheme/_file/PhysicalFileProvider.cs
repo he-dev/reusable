@@ -36,7 +36,7 @@ namespace Reusable.IOnymous
             return Task.FromResult<IResource>(
                 new PhysicalFile(
                     request.Uri,
-                    request.Headers.GetItemOrDefault(From<IResourceMeta>.Select(y => y.Format))));
+                    request.Properties.GetItemOrDefault(Resource.PropertySelector.Select(y => y.Format))));
         }
         
         private async Task<IResource> PutAsync(ResourceRequest request)
@@ -91,6 +91,9 @@ namespace Reusable.IOnymous
 
         public PhysicalFile([NotNull] UriString uri)
             : this(uri, MimeType.None) { }
+        
+        public PhysicalFile([NotNull] IImmutableSession properties)
+            : base(properties) { }
 
         public override bool Exists => File.Exists(Uri.ToUnc());
 
