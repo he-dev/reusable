@@ -27,7 +27,7 @@ namespace Reusable.IOnymous
                 new PhysicalDirectory(
                     ImmutableContainer
                         .Empty
-                        .SetItem(Resource.PropertySelector.Select(x => x.Uri), request.Uri)));
+                        .SetItem(Resource.Property.Uri, request.Uri)));
         }
 
         private async Task<IResource> PutAsync(Request request)
@@ -52,13 +52,13 @@ namespace Reusable.IOnymous
     {
         public PhysicalDirectory(IImmutableContainer properties)
             : base(properties
-                .SetItem(PropertySelector.Select(x => x.Exists), Directory.Exists(properties.GetItemOrDefault(PropertySelector.Select(x => x.Uri)).Path.Decoded.ToString()))
-                .SetItem(PropertySelector.Select(x => x.Format), MimeType.None)
-                .SetItem(PropertySelector.Select(x => x.ModifiedOn), p =>
+                .SetItem(Property.Exists, Directory.Exists(properties.GetItemOrDefault(Property.Uri).Path.Decoded.ToString()))
+                .SetItem(Property.Format, MimeType.None)
+                .SetItem(Property.ModifiedOn, p =>
                 {
                     return
-                        p.GetItemOrDefault(PropertySelector.Select(x => x.Exists))
-                            ? Directory.GetLastWriteTimeUtc(properties.GetItemOrDefault(PropertySelector.Select(x => x.Uri)).Path.Decoded.ToString())
+                        p.GetItemOrDefault(Property.Exists)
+                            ? Directory.GetLastWriteTimeUtc(properties.GetItemOrDefault(Property.Uri).Path.Decoded.ToString())
                             : DateTime.MinValue;
                 })) { }
 

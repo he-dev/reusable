@@ -31,8 +31,8 @@ namespace Reusable.IOnymous
         public CompositeProvider([NotNull] IEnumerable<IResourceProvider> providers)
             : base(ImmutableContainer
                 .Empty
-                .SetScheme(ResourceSchemes.IOnymous)
-                .SetItem(From<IProviderProperties>.Select(x => x.AllowRelativeUri), true))
+                .SetScheme(UriSchemes.Custom.IOnymous)
+                .SetItem(Property.AllowRelativeUri, true))
         {
             if (providers == null) throw new ArgumentNullException(nameof(providers));
 
@@ -70,9 +70,9 @@ namespace Reusable.IOnymous
                 }
 
                 // Check if there is a provider that matches the scheme of the absolute uri.
-                if (request.Uri.IsAbsolute && !(request.Uri.Scheme == ResourceSchemes.IOnymous))
+                if (request.Uri.IsAbsolute && !(request.Uri.Scheme == UriSchemes.Custom.IOnymous))
                 {
-                    var schemes = new[] { ResourceSchemes.IOnymous, request.Uri.Scheme };
+                    var schemes = new[] { UriSchemes.Custom.IOnymous, request.Uri.Scheme };
                     filteredProviders = filteredProviders.Where(p => p.Properties.GetSchemes().Overlaps(schemes));
                 }
 

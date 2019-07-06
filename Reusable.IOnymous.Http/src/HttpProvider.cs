@@ -16,17 +16,15 @@ namespace Reusable.IOnymous
     {
         public static readonly From<IHttpMeta> PropertySelector = From<IHttpMeta>.This;
 
-        public new static readonly string DefaultScheme = "http";
-
         private readonly HttpClient _client;
 
         public HttpProvider([NotNull] string baseUri, IImmutableContainer metadata = default)
             : base(
                 metadata
                     .ThisOrEmpty()
-                    .SetScheme("http")
-                    .SetScheme("https")
-                    .SetItem(From<IProviderProperties>.Select(x => x.AllowRelativeUri), true))
+                    .SetScheme(UriSchemes.Known.Http)
+                    .SetScheme(UriSchemes.Known.Https)
+                    .SetItem(Property.AllowRelativeUri, true))
         {
             if (baseUri == null) throw new ArgumentNullException(nameof(baseUri));
 
@@ -36,29 +34,29 @@ namespace Reusable.IOnymous
             };
             _client.DefaultRequestHeaders.Clear();
 
-            var invokeAsync = (Func<HttpMethod, RequestCallback>)(method =>
-            {
-                return async request =>
-                {
-                    var uri = BaseUri + request.Uri;
-                    using (var body = await request.CreateBodyStreamAsync())
-                    {
-                        var (response, mediaType) = await InvokeAsync(uri, method, request.Properties.SetItem(From<IHttpMeta>.Select(x => x.Content), body));
-                        return new HttpResource(request.Properties.CopyResourceProperties().SetFormat(mediaType), response);
-                    }
-                };
-            });
-
             Methods =
                 MethodDictionary
                     .Empty
-                    .Add(RequestMethod.Get, invokeAsync(HttpMethod.Get))
-                    .Add(RequestMethod.Post, invokeAsync(HttpMethod.Post))
-                    .Add(RequestMethod.Put, invokeAsync(HttpMethod.Put))
-                    .Add(RequestMethod.Delete, invokeAsync(HttpMethod.Delete));
+                    .Add(RequestMethod.Get, CreateRequestCallback(HttpMethod.Get))
+                    .Add(RequestMethod.Post, CreateRequestCallback(HttpMethod.Post))
+                    .Add(RequestMethod.Put, CreateRequestCallback(HttpMethod.Put))
+                    .Add(RequestMethod.Delete, CreateRequestCallback(HttpMethod.Delete));
         }
 
         public string BaseUri => _client.BaseAddress.ToString();
+
+        private RequestCallback CreateRequestCallback(HttpMethod httpMethod)
+        {
+            return async request =>
+            {
+                var uri = BaseUri + request.Uri;
+                using (var body = await request.CreateBodyStreamAsync())
+                {
+                    var (response, mediaType) = await InvokeAsync(uri, httpMethod, request.Properties.SetItem(From<IHttpMeta>.Select(x => x.Content), body));
+                    return new HttpResource(request.Properties.CopyResourceProperties().SetFormat(mediaType), response);
+                }
+            };
+        }
 
         private async Task<(Stream Content, MimeType MimeType)> InvokeAsync(UriString uri, HttpMethod method, IImmutableContainer metadata)
         {
@@ -73,7 +71,7 @@ namespace Reusable.IOnymous
 
                 Properties.GetItemOrDefault(From<IHttpMeta>.Select(m => m.ConfigureRequestHeaders), _ => { })(request.Headers);
                 metadata.GetItemOrDefault(From<IHttpMeta>.Select(m => m.ConfigureRequestHeaders))(request.Headers);
-                using (var response = await _client.SendAsync(request, HttpCompletionOption.ResponseContentRead, metadata.GetItemOrDefault(From<IRequestProperties>.Select(m => m.CancellationToken))))
+                using (var response = await _client.SendAsync(request, HttpCompletionOption.ResponseContentRead, metadata.GetItemOrDefault(Request.Property.CancellationToken)))
                 {
                     var responseContentCopy = new MemoryStream();
 

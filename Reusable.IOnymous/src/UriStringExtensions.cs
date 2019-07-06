@@ -2,7 +2,7 @@ namespace Reusable.IOnymous
 {
     public static class UriStringExtensions
     {
-        public static bool IsIOnymous(this UriString uri) => SoftString.Comparer.Equals(uri.Scheme, ResourceSchemes.IOnymous);
+        public static bool IsIOnymous(this UriString uri) => SoftString.Comparer.Equals(uri.Scheme, UriSchemes.Custom.IOnymous);
 
         /// <summary>
         /// Gets the Universal Naming Convention (UNC) path for Windows.

@@ -37,4 +37,10 @@
     <Reference Include="System.Runtime.Extensions" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="src\_properties\ProviderProperties.cs" />
+    <Compile Remove="src\_properties\RequestProperties.cs" />
+    <Compile Remove="src\_properties\ResourceProperties.cs" />
+  </ItemGroup>
+
 </Project>

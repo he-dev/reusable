@@ -69,11 +69,11 @@ namespace Reusable.IOnymous.Config
                     {
                         var value = settingReader[ColumnMappings.MapOrDefault(SqlServerColumn.Value)];
                         value = ValueConverter.Convert(value, request.Properties.GetDataType());
-                        return new SqlServerResource(request.Properties.Copy(Resource.PropertySelector), value);
+                        return new SqlServerResource(request.Properties.Copy(Resource.Property.This), value);
                     }
                     else
                     {
-                        return new SqlServerResource(request.Properties.Copy(Resource.PropertySelector));
+                        return new SqlServerResource(request.Properties.Copy(Resource.Property.This));
                     }
                 }
             }, CancellationToken.None);
@@ -94,7 +94,7 @@ namespace Reusable.IOnymous.Config
                     {
                         await cmd.ExecuteNonQueryAsync(token);
                     }
-                }, request.Properties.GetItemOrDefault(Request.PropertySelector.Select(x => x.CancellationToken)));
+                }, request.Properties.GetItemOrDefault(Request.Property.CancellationToken));
             }
 
             return await GetAsync(new Request.Get(request.Uri)

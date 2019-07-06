@@ -13,7 +13,7 @@ namespace Reusable.IOnymous
 
         public static async Task<IResource> ReadFileAsync(this IResourceProvider resourceProvider, string path, MimeType format, IImmutableContainer properties = default)
         {
-            return await resourceProvider.GetAsync(CreateUri(path), properties.ThisOrEmpty().SetItem(From<IResourceProperties>.Select(x => x.Format), format));
+            return await resourceProvider.GetAsync(CreateUri(path), properties.ThisOrEmpty().SetItem(Resource.Property.Format, format));
         }
 
 //        public static IResource GetTextFile(this IResourceProvider resourceProvider, string path, IImmutableSession metadata = default)
@@ -47,8 +47,8 @@ namespace Reusable.IOnymous
             {
                 Uri = CreateUri(path),
                 Method = RequestMethod.Put,
-                CreateBodyStreamFunc = () => ResourceHelper.SerializeTextAsync(value, properties.ThisOrEmpty().GetItemOrDefault(Resource.PropertySelector.Select(x => x.Encoding), Encoding.UTF8)),
-                Properties = properties.ThisOrEmpty().SetItem(Resource.PropertySelector.Select(x => x.Format), MimeType.Text)
+                CreateBodyStreamFunc = () => ResourceHelper.SerializeTextAsync(value, properties.ThisOrEmpty().GetItemOrDefault(Resource.Property.Encoding, Encoding.UTF8)),
+                Properties = properties.ThisOrEmpty().SetItem(Resource.Property.Format, MimeType.Text)
             });
         }
 
@@ -76,7 +76,7 @@ namespace Reusable.IOnymous
             {
                 Uri = CreateUri(path),
                 Method = RequestMethod.Delete,
-                Properties = metadata.ThisOrEmpty().SetItem(From<IResourceProperties>.Select(x => x.Format), MimeType.Text)
+                Properties = metadata.ThisOrEmpty().SetItem(Resource.Property.Format, MimeType.Text)
             });
         }
 

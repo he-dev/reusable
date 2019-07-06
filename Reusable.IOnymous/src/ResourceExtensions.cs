@@ -27,7 +27,7 @@ namespace Reusable.IOnymous
         {
             if (!resource.Exists) throw new InvalidOperationException($"Cannot deserialize a resource that does not exist: '{resource.Uri.ToString()}'");
 
-            var format = resource.Properties.GetItemOrDefault(From<IResourceProperties>.Select(x => x.Format));
+            var format = resource.Properties.GetItemOrDefault(Resource.Property.Format);
 
             if (!format.Contains(MimeType.Text | MimeType.Html))
             {
@@ -61,7 +61,7 @@ namespace Reusable.IOnymous
 
         public static async Task<T> DeserializeJsonAsync<T>(this IResource resource, JsonSerializer jsonSerializer = null)
         {
-            var format = resource.Properties.GetItemOrDefault(From<IResourceProperties>.Select(x => x.Format));
+            var format = resource.Properties.GetItemOrDefault(Resource.Property.Format);
 
             if (format != MimeType.Json)
             {

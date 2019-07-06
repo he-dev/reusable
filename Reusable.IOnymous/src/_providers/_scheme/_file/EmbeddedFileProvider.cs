@@ -9,18 +9,18 @@ using Reusable.Quickey;
 
 namespace Reusable.IOnymous
 {
-    public class EmbeddedFileProvider : FileProvider
+    public class EmbeddedFileProvider : ResourceProvider
     {
         private readonly Assembly _assembly;
 
         public EmbeddedFileProvider([NotNull] Assembly assembly, IImmutableContainer properties = default)
             : base((properties ?? ImmutableContainer.Empty)
-                .SetScheme(ResourceSchemes.IOnymous)
-                .SetItem(PropertySelector.Select(x => x.AllowRelativeUri), true))
+                .SetScheme(UriSchemes.Custom.IOnymous)
+                .SetItem(Property.AllowRelativeUri, true))
         {
             _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
             var assemblyName = _assembly.GetName().Name.Replace('.', '/');
-            BaseUri = new UriString($"{DefaultScheme}:{assemblyName}");
+            BaseUri = new UriString($"{UriSchemes.Known.File}:{assemblyName}");
             Methods =
                 MethodDictionary
                     .Empty
@@ -44,7 +44,7 @@ namespace Reusable.IOnymous
             var actualName = _assembly.GetManifestResourceNames().FirstOrDefault(name => SoftString.Comparer.Equals(name, fullName));
             var getManifestResourceStream = actualName is null ? default(Func<Stream>) : () => _assembly.GetManifestResourceStream(actualName);
 
-            return Task.FromResult<IResource>(new EmbeddedFile(request.Properties.Copy(Resource.PropertySelector).SetUri(fullUri), getManifestResourceStream));
+            return Task.FromResult<IResource>(new EmbeddedFile(request.Properties.Copy(Resource.Property.This).SetUri(fullUri), getManifestResourceStream));
         }
 
         #endregion

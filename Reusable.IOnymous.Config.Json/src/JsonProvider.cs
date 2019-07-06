@@ -38,13 +38,13 @@ namespace Reusable.IOnymous.Config
             var data = _configuration[settingIdentifier];
             if (data is null)
             {
-                return Task.FromResult<IResource>(new JsonResource(request.Properties.Copy(Resource.PropertySelector)));
+                return Task.FromResult<IResource>(new JsonResource(request.Properties.Copy(Resource.Property.This)));
             }
             else
             {
                 var value = ValueConverter.Convert(data, request.Properties.GetType());
                 //metadata = ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.ActualName), settingIdentifier);
-                return Task.FromResult<IResource>(new JsonResource(request.Properties.Copy(Resource.PropertySelector), value));
+                return Task.FromResult<IResource>(new JsonResource(request.Properties.Copy(Resource.Property.This), value));
             }
         }
     }
@@ -66,7 +66,7 @@ namespace Reusable.IOnymous.Config
 
         public override async Task CopyToAsync(Stream stream)
         {
-            var format = Properties.GetItemOrDefault(From<IResourceProperties>.Select(x => x.Format));
+            var format = Properties.GetItemOrDefault(Property.Format);
             if (format == MimeType.Text)
             {
                 using (var s = await ResourceHelper.SerializeTextAsync((string)_value))

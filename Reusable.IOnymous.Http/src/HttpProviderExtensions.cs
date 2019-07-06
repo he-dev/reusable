@@ -13,7 +13,7 @@ namespace Reusable.IOnymous
             uri =
                 uri.IsAbsolute
                     ? uri
-                    : new UriString(HttpProvider.DefaultScheme, (string)uri.Path.Original);
+                    : new UriString(UriSchemes.Known.Http, (string)uri.Path.Original);
 
             return resourceProvider.GetAsync(uri, r => r.Properties = r.Properties.Union(properties.ThisOrEmpty()));
         }

@@ -22,7 +22,7 @@ namespace Reusable.IOnymous
         //public InMemoryProvider(Metadata metadata = default) : base(new[] { DefaultScheme }, metadata) { }
 
         public InMemoryProvider([NotNull] ITypeConverter<UriString, string> uriConverter, IImmutableContainer metadata = default)
-            : base((metadata ?? ImmutableContainer.Empty).SetWhen(x => !x.GetSchemes().Any(), x => x.SetScheme(ResourceSchemes.IOnymous)))
+            : base((metadata ?? ImmutableContainer.Empty).SetWhen(x => !x.GetSchemes().Any(), x => x.SetScheme(UriSchemes.Custom.IOnymous)))
         {
             _uriConverter = uriConverter ?? throw new ArgumentNullException(nameof(uriConverter));
 

@@ -42,7 +42,7 @@ namespace Reusable.Quickey
         {
             var newSelectors =
                 from p in typeof(T).GetProperties()
-                select Selector.FromProperty(typeof(T), p);
+                select Selector.FromMember(typeof(T), p);
 
             return selectors.AddRange(newSelectors);
         }

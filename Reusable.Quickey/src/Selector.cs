@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
+using Reusable.Extensions;
 using Reusable.Reflection;
 using linq = System.Linq.Expressions;
 
@@ -23,7 +24,7 @@ namespace Reusable.Quickey
         /// Gets the current From that can be used later for selection.
         /// </summary>
         public static From<T> This => default;
-        
+
         [NotNull]
         public static Selector<TMember> Select<TMember>([NotNull] Expression<Func<T, TMember>> selector)
         {
@@ -38,12 +39,16 @@ namespace Reusable.Quickey
         {
             return new Selector<TMember>(selector);
         }
-        
+
         public static IEnumerable<Selector> Selectors<T>(this From<T> from)
         {
-            return 
-                from p in typeof(T).GetProperties()
-                select Selector.FromProperty(typeof(T), p);
+            var members =
+                typeof(PropertySelector<T>).IsAssignableFrom(typeof(T))
+                    ? typeof(T).GetFields().Cast<MemberInfo>()
+                    : typeof(T).GetProperties().Cast<MemberInfo>();
+            return
+                from p in members
+                select Selector.FromMember(typeof(T), p);
         }
     }
 
@@ -51,7 +56,7 @@ namespace Reusable.Quickey
     public class Selector : IEnumerable<SelectorName>
     {
         private readonly IEnumerable<SelectorName> _selectorNames;
-        
+
         public Selector(LambdaExpression selector)
         {
             Expression = selector;
@@ -86,16 +91,22 @@ namespace Reusable.Quickey
             }
         }
 
-        public static Selector FromProperty(Type declaringType, PropertyInfo property)
+        public static Selector FromMember(Type declaringType, MemberInfo member)
         {
+            var memberAccess = default(Expression);
+
+            if (member is PropertyInfo property)
+            {
+                memberAccess = linq.Expression.Property(linq.Expression.Constant(default, declaringType), property);
+            }
+
+            if (member is FieldInfo fieldInfo)
+            {
+                memberAccess = linq.Expression.Field(default, fieldInfo);
+            }
+
             // () => x.Member
-            var selector =
-                linq.Expression.Lambda(
-                    linq.Expression.Property(
-                        linq.Expression.Constant(default, declaringType),
-                        property.Name
-                    )
-                );
+            var selector = linq.Expression.Lambda(memberAccess);
 
             return new Selector(selector);
         }
@@ -129,15 +140,18 @@ namespace Reusable.Quickey
     {
         public Selector(LambdaExpression selector) : base(selector) { }
 
-        //private Selector(Selector<T> other, IImmutableList<Key> keys) : base(other, keys) { }
-
-        //        public override Selector<T> Index(string index)
-        //        {
-        //            if (Keys.OfType<IndexKey>().Any()) throw new InvalidOperationException("This selector already contains an index.");
-        //
-        //            return new Selector<T>(this, Keys.Add(new IndexKey(index)));
-        //        }
-
         public static implicit operator Selector<T>(Expression<Func<T>> selector) => new Selector<T>(selector);
+    }
+
+    [PublicAPI]
+    public abstract class PropertySelector<T>
+    {
+        public static readonly From<T> This = From<T>.This;
+
+        [NotNull]
+        public static Selector<TMember> Select<TMember>([NotNull] Expression<Func<Selector<TMember>>> selector)
+        {
+            return new Selector<TMember>(selector);
+        }
     }
 }

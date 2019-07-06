@@ -8,8 +8,8 @@ namespace Reusable.IOnymous
 {
     public static class ImmutableContainerExtensions
     {
-        private static readonly Selector<IImmutableSet<SoftString>> Schemes = From<IProviderProperties>.Select(x => x.Schemes);
-        private static readonly Selector<IImmutableSet<SoftString>> Names = From<IProviderProperties>.Select(x => x.Names);
+        //private static readonly Selector<IImmutableSet<SoftString>> Schemes = From<IProviderProperties>.Select(x => x.Schemes);
+        //private static readonly Selector<IImmutableSet<SoftString>> Names = From<IProviderProperties>.Select(x => x.Names);
 
         public static IImmutableContainer SetScheme(this IImmutableContainer container, SoftString scheme)
         {
@@ -19,14 +19,14 @@ namespace Reusable.IOnymous
             }
 
             return
-                container.SetItem(Schemes, container.TryGetItem(Schemes, out var schemes)
+                container.SetItem(ResourceProvider.Property.Schemes, container.TryGetItem(ResourceProvider.Property.Schemes, out var schemes)
                     ? schemes.Add(scheme)
                     : ImmutableHashSet<SoftString>.Empty.Add(scheme));
         }
 
         public static IImmutableSet<SoftString> GetSchemes(this IImmutableContainer container)
         {
-            return container.GetItemOrDefault(Schemes, ImmutableHashSet<SoftString>.Empty);
+            return container.GetItemOrDefault(ResourceProvider.Property.Schemes, ImmutableHashSet<SoftString>.Empty);
         }
 
         public static IImmutableContainer SetName(this IImmutableContainer container, SoftString name)
@@ -38,28 +38,29 @@ namespace Reusable.IOnymous
 
             return
                 container.SetItem(
-                    Names,
-                    container.TryGetItem(Names, out var names)
+                    ResourceProvider.Property.Names,
+                    container.TryGetItem(ResourceProvider.Property.Names, out var names)
                         ? names.Add(name)
                         : ImmutableHashSet<SoftString>.Empty.Add(name));
         }
 
         public static IImmutableSet<SoftString> GetNames(this IImmutableContainer container)
         {
-            return container.GetItemOrDefault(Names, ImmutableHashSet<SoftString>.Empty);
+            return container.GetItemOrDefault(ResourceProvider.Property.Names, ImmutableHashSet<SoftString>.Empty);
         }
 
         #region Resource
 
-        public static IImmutableContainer SetUri(this IImmutableContainer container, UriString value) => container.SetItem(Resource.PropertySelector.Select(x => x.Uri), value);
-        public static IImmutableContainer SetExists(this IImmutableContainer container, bool value) => container.SetItem(Resource.PropertySelector.Select(x => x.Exists), value);
-        public static IImmutableContainer SetFormat(this IImmutableContainer container, MimeType value) => container.SetItem(Resource.PropertySelector.Select(x => x.Format), value);
-        public static IImmutableContainer SetDataType(this IImmutableContainer container, Type value) => container.SetItem(Resource.PropertySelector.Select(x => x.DataType), value);
+        public static IImmutableContainer SetUri(this IImmutableContainer container, UriString value) => container.SetItem(Resource.Property.Uri, value);
+        public static IImmutableContainer SetExists(this IImmutableContainer container, bool value) => container.SetItem(Resource.Property.Exists, value);
+        public static IImmutableContainer SetFormat(this IImmutableContainer container, MimeType value) => container.SetItem(Resource.Property.Format, value);
+        
+        public static IImmutableContainer SetDataType(this IImmutableContainer container, Type value) => container.SetItem(Resource.Property.DataType, value);
 
-        public static UriString GetUri(this IImmutableContainer container) => container.GetItemOrDefault(Resource.PropertySelector.Select(x => x.Uri));
-        public static bool GetExists(this IImmutableContainer container) => container.GetItemOrDefault(Resource.PropertySelector.Select(x => x.Exists));
-        public static MimeType GetFormat(this IImmutableContainer container) => container.GetItemOrDefault(Resource.PropertySelector.Select(x => x.Format), MimeType.None);
-        public static Type GetDataType(this IImmutableContainer container) => container.GetItemOrDefault(Resource.PropertySelector.Select(x => x.DataType));
+        public static UriString GetUri(this IImmutableContainer container) => container.GetItemOrDefault(Resource.Property.Uri);
+        public static bool GetExists(this IImmutableContainer container) => container.GetItemOrDefault(Resource.Property.Exists);
+        public static MimeType GetFormat(this IImmutableContainer container) => container.GetItemOrDefault(Resource.Property.Format, MimeType.None);
+        public static Type GetDataType(this IImmutableContainer container) => container.GetItemOrDefault(Resource.Property.DataType);
 
         #endregion
 
@@ -76,12 +77,12 @@ namespace Reusable.IOnymous
 
         public static IImmutableContainer CopyRequestProperties(this IImmutableContainer container)
         {
-            return container.Copy(Request.PropertySelector);
+            return container.Copy(Request.Property.This);
         }
         
         public static IImmutableContainer CopyResourceProperties(this IImmutableContainer container)
         {
-            return container.Copy(Resource.PropertySelector);
+            return container.Copy(Resource.Property.This);
         }
     }
 }

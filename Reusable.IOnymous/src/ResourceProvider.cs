@@ -9,6 +9,7 @@ using System.Linq.Custom;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using JetBrains.Annotations;
@@ -39,7 +40,7 @@ namespace Reusable.IOnymous
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public abstract class ResourceProvider : IResourceProvider
     {
-        public static readonly From<IProviderProperties> PropertySelector = From<IProviderProperties>.This;
+        //public static readonly From<IProviderProperties> PropertySelector = From<IProviderProperties>.This;
 
         // Because: $"{GetType().ToPrettyString()} cannot {ExtractMethodName(memberName).ToUpper()} '{uri}' because {reason}.";
         // private static readonly IExpressValidator<Request> RequestValidator = ExpressValidator.For<Request>(builder =>
@@ -140,11 +141,24 @@ namespace Reusable.IOnymous
         }
 
         public static string CreateTag(string name) => $"#{name.Trim('#')}";
+
+        [UseType, UseMember]
+        [Rename(nameof(ResourceProvider))]
+        [PlainSelectorFormatter]
+        public class Property : PropertySelector<Property>
+        {
+            public static readonly Selector<IImmutableSet<SoftString>> Schemes = Select(() => Schemes);
+
+            public static readonly Selector<IImmutableSet<SoftString>> Names = Select(() => Names);
+
+            public static readonly Selector<bool> AllowRelativeUri = Select(() => AllowRelativeUri);
+        }
     }
 
     public class UseProvider : ResourceProvider
     {
         private readonly string _name;
+
         public UseProvider(IResourceProvider provider, string name) : base(provider.Properties)
         {
             _name = name;
@@ -163,10 +177,10 @@ namespace Reusable.IOnymous
 
     public class Request
     {
-        public static readonly From<IRequestProperties> PropertySelector = From<IRequestProperties>.This;
+        //public static readonly From<IRequestProperties> PropertySelector = From<IRequestProperties>.This;
 
         [NotNull]
-        public UriString Uri { get; set; } = new UriString($"{ResourceSchemes.IOnymous}:///");
+        public UriString Uri { get; set; } = new UriString($"{UriSchemes.Custom.IOnymous}:///");
 
         [NotNull]
         public RequestMethod Method { get; set; } = RequestMethod.None;
@@ -218,6 +232,14 @@ namespace Reusable.IOnymous
         }
 
         #endregion
+        
+        [UseType, UseMember]
+        [Rename(nameof(Request))]
+        [PlainSelectorFormatter]
+        public class Property : PropertySelector<Property>
+        {
+            public static readonly Selector<CancellationToken> CancellationToken = Select(() => CancellationToken);
+        }
     }
 
     public static class RequestExtensions
@@ -233,7 +255,7 @@ namespace Reusable.IOnymous
             request.CreateBodyStreamFunc = createBodyStream;
             return request;
         }
-        
+
         public static Task<Stream> CreateBodyStreamAsync(this Request request)
         {
             return request.CreateBodyStreamFunc?.Invoke() ?? throw new ArgumentNullException(

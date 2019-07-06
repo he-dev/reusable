@@ -66,13 +66,13 @@ namespace Reusable.Tests.IOnymous
                     {
                         { "x/123", "blub1" }
                     })
-                    .Add(new InMemoryProvider(ImmutableContainer.Empty.SetScheme(ResourceSchemes.IOnymous).SetName("blub"))
+                    .Add(new InMemoryProvider(ImmutableContainer.Empty.SetScheme(UriSchemes.Custom.IOnymous).SetName("blub"))
                     {
                         //{ "x.123", "blub2" },
                         { "x/123", "blub3" }
                     });
 
-            var resource = await composite.GetAsync("blub:x/123", ImmutableContainer.Empty.SetScheme(ResourceSchemes.IOnymous).SetName("blub"));
+            var resource = await composite.GetAsync("blub:x/123", ImmutableContainer.Empty.SetScheme(UriSchemes.Custom.IOnymous).SetName("blub"));
 
             Assert.True(resource.Exists);
             Assert.Equal("blub3", await resource.DeserializeTextAsync());

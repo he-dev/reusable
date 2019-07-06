@@ -47,12 +47,13 @@ namespace Reusable.IOnymous
                     .SetItem(From<IMailMeta>.Select(x => x.IsHighPriority), email.IsHighPriority);
 
             return
-                await provider.InvokeAsync(
-                    new Request.Post($"{MailProvider.Schemes.mailto}:ionymous@mailprovider.com")
-                        .SetCreateBodyStream(() => ResourceHelper.SerializeTextAsync(email.Body.Value, email.Body.Encoding))
-                        .SetProperties(p => p.Union(properties)));
-            
-            
+                await provider.InvokeAsync(new Request.Post($"{UriSchemes.Known.MailTo}:dummy@email.com")
+                {
+                    Properties = properties,
+                    CreateBodyStreamFunc = () => ResourceHelper.SerializeTextAsync(email.Body.Value, email.Body.Encoding)
+                });
+
+
 //            return await provider.PostAsync
 //            (
 //                $"{MailProvider.DefaultScheme}:ionymous@mailprovider.com",

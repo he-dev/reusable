@@ -71,10 +71,10 @@ namespace Reusable.IOnymous.Config
             var properties =
                 ImmutableContainer
                     .Empty
-                    .SetItem(From<IResourceProperties>.Select(x => x.DataType), selector.MemberType)
+                    .SetItem(Resource.Property.DataType, selector.MemberType)
                     // request.Properties.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Type)) == typeof(string)
                     //.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), resource?.Provider.ToSoftString())
-                    .SetItem(From<IResourceProperties>.Select(x => x.ActualName), $"[{selector.Join(x => x.ToString(), ", ")}]")
+                    .SetItem(Resource.Property.ActualName, $"[{selector.Join(x => x.ToString(), ", ")}]")
                     .SetName(resource?.Provider.ToSoftString());
 
             var request = new Request
@@ -97,11 +97,11 @@ namespace Reusable.IOnymous.Config
                     break;
                 case string str:
                     request.CreateBodyStreamFunc = () => ResourceHelper.SerializeTextAsync(str);
-                    request.SetProperties(p => p.SetItem(Resource.PropertySelector.Select(x => x.Format), MimeType.Text));
+                    request.SetProperties(p => p.SetItem(Resource.Property.Format, MimeType.Text));
                     break;
                 default:
                     request.CreateBodyStreamFunc = () => ResourceHelper.SerializeBinaryAsync(value);
-                    request.SetProperties(p => p.SetItem(Resource.PropertySelector.Select(x => x.Format), MimeType.Binary));
+                    request.SetProperties(p => p.SetItem(Resource.Property.Format, MimeType.Binary));
                     break;
             }
         }

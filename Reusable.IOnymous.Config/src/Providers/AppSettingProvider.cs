@@ -39,8 +39,8 @@ namespace Reusable.IOnymous.Config
                 new AppSetting(
                     ImmutableContainer
                         .Empty
-                        .SetItem(Resource.PropertySelector.Select(x => x.ActualName), settingIdentifier)
-                        .Union(request.Properties.Copy(Resource.PropertySelector)),
+                        .SetItem(Resource.Property.ActualName, settingIdentifier)
+                        .Union(request.Properties.Copy(Resource.Property.This)),
                     element?.Value));
         }
 
@@ -53,7 +53,7 @@ namespace Reusable.IOnymous.Config
 
             using (var body = await request.CreateBodyStreamAsync())
             {
-                var value = await ResourceHelper.Deserialize<object>(body, request.Properties.Copy(Resource.PropertySelector));
+                var value = await ResourceHelper.Deserialize<object>(body, request.Properties.Copy(Resource.Property.This));
                 value = ValueConverter.Convert(value, typeof(string));
 
                 if (element is null)
@@ -91,8 +91,8 @@ namespace Reusable.IOnymous.Config
         // This is always Text
         internal AppSetting(IImmutableContainer properties, [CanBeNull] string value)
             : base(properties
-                .SetItem(PropertySelector.Select(x => x.Format), MimeType.Text)
-                .SetItem(PropertySelector.Select(x => x.Exists), value.IsNotNullOrEmpty()))
+                .SetItem(Property.Format, MimeType.Text)
+                .SetItem(Property.Exists, value.IsNotNullOrEmpty()))
         {
             _value = value;
         }
