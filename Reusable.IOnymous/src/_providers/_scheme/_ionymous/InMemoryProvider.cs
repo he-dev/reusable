@@ -56,8 +56,12 @@ namespace Reusable.IOnymous
             //ValidateFormatNotNull(this, uri, metadata);
 
             var name = _uriConverter.Convert<string>(request.Uri);
-            _items[name] = await ResourceHelper.Deserialize<object>(request.Body, request.Properties);
-            return new InMemoryResource(ImmutableContainer.Empty.SetUri(request.Uri).SetFormat(request.Properties.GetItemOrDefault(From<IResourceProperties>.Select(y => y.Format))), request.Body);
+            using (var body = await request.CreateBodyStreamAsync())
+            {
+                _items[name] = await ResourceHelper.Deserialize<object>(body, request.Properties);
+            }
+
+            return await InvokeAsync(new Request.Get(request.Uri));
         }
 
         // protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata)
@@ -128,7 +132,7 @@ namespace Reusable.IOnymous
 //        }
 
         public InMemoryResource(IImmutableContainer properties, Stream data)
-            : base(properties.SetExists(data != Stream.Null))
+            : base(properties.CopyRequestProperties().Union(properties.CopyResourceProperties()).SetExists(data != Stream.Null))
         {
             _data = data;
         }
@@ -136,6 +140,16 @@ namespace Reusable.IOnymous
         public override async Task CopyToAsync(Stream stream)
         {
             await _data.Rewind().CopyToAsync(stream);
+        }
+
+        public class Empty : InMemoryResource
+        {
+            private Empty(IImmutableContainer properties) : base(properties, Stream.Null) { }
+
+            public static IResource From(Request request)
+            {
+                return new Empty(request.Properties.CopyRequestProperties());
+            }
         }
     }
 }

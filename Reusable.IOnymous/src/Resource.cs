@@ -32,14 +32,6 @@ namespace Reusable.IOnymous
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public abstract class Resource : IResource
     {
-        protected static class Validations
-        {
-            public static readonly IImmutableList<IValidationRule<IResource, object>> Exists =
-                ValidationRuleCollection
-                    .For<IResource>()
-                    .Accept(b => b.When(x => x.Exists).Message((x, _) => $"Resource '{x.Uri}' does not exist."));
-        }
-
         public static readonly From<IResourceProperties> PropertySelector = From<IResourceProperties>.This;
 
         protected Resource([NotNull] IImmutableContainer properties)

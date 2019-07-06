@@ -94,7 +94,7 @@ namespace Reusable.Tests.IOnymous
                         { "blub:123?providerName=blub", "blub3" }
                     });
 
-            await Assert.ThrowsAnyAsync<DynamicException>(async () => await composite.PutAsync("blub:123", Stream.Null));
+            await Assert.ThrowsAnyAsync<DynamicException>(async () => await composite.InvokeAsync(new Request.Put("blub:123")));
         }
 
         [Fact]

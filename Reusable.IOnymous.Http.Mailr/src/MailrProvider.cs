@@ -6,9 +6,9 @@ namespace Reusable.IOnymous
 {
     public class MailrProvider : HttpProvider
     {
-        public const string Name = "Mailr";
+        public static SoftString Tag = CreateTag("Mailr");
 
         public MailrProvider([NotNull] string baseUri, IImmutableContainer metadata = default)
-            : base(baseUri, metadata.ThisOrEmpty().SetName(Name)) { }
+            : base(baseUri, metadata.ThisOrEmpty().SetName(Tag)) { }
     }
 }

@@ -83,18 +83,24 @@ namespace Reusable.IOnymous.Config
         {
             var settingIdentifier = UriConverter?.Convert<string>(request.Uri) ?? request.Uri;
 
-            var value = await ResourceHelper.Deserialize<object>(request.Body, request.Properties);
-            value = ValueConverter.Convert(value, typeof(string));
-
-            await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
+            using (var body = await request.CreateBodyStreamAsync())
             {
-                using (var cmd = connection.CreateUpdateCommand(TableName, settingIdentifier, ColumnMappings, Where, value))
-                {
-                    await cmd.ExecuteNonQueryAsync(token);
-                }
-            }, request.Properties.GetItemOrDefault(Request.PropertySelector.Select(x => x.CancellationToken)));
+                var value = await ResourceHelper.Deserialize<object>(body, request.Properties);
+                value = ValueConverter.Convert(value, typeof(string));
 
-            return await GetAsync(request);
+                await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
+                {
+                    using (var cmd = connection.CreateUpdateCommand(TableName, settingIdentifier, ColumnMappings, Where, value))
+                    {
+                        await cmd.ExecuteNonQueryAsync(token);
+                    }
+                }, request.Properties.GetItemOrDefault(Request.PropertySelector.Select(x => x.CancellationToken)));
+            }
+
+            return await GetAsync(new Request.Get(request.Uri)
+            {
+                Properties = request.Properties.CopyResourceProperties()
+            });
         }
     }
 

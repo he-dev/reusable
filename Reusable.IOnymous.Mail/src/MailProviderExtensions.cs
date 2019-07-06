@@ -29,13 +29,13 @@ namespace Reusable.IOnymous
 
         public static async Task<IResource> SendEmailAsync
         (
-            this IResourceProvider resourceProvider,
+            this IResourceProvider provider,
             IEmail<IEmailSubject, IEmailBody> email,
-            IImmutableContainer metadata = default
+            IImmutableContainer properties = default
         )
         {
-            metadata =
-                metadata
+            properties =
+                properties
                     .ThisOrEmpty()
                     .SetItem(From<IMailMeta>.Select(x => x.From), email.From)
                     .SetItem(From<IMailMeta>.Select(x => x.To), email.To)
@@ -46,12 +46,19 @@ namespace Reusable.IOnymous
                     .SetItem(From<IMailMeta>.Select(x => x.IsHtml), email.IsHtml)
                     .SetItem(From<IMailMeta>.Select(x => x.IsHighPriority), email.IsHighPriority);
 
-            return await resourceProvider.PostAsync
-            (
-                $"{MailProvider.DefaultScheme}:ionymous@mailprovider.com",
-                () => ResourceHelper.SerializeTextAsync(email.Body.Value, email.Body.Encoding),
-                metadata
-            );
+            return
+                await provider.InvokeAsync(
+                    new Request.Post($"{MailProvider.Schemes.mailto}:ionymous@mailprovider.com")
+                        .SetCreateBodyStream(() => ResourceHelper.SerializeTextAsync(email.Body.Value, email.Body.Encoding))
+                        .SetProperties(p => p.Union(properties)));
+            
+            
+//            return await provider.PostAsync
+//            (
+//                $"{MailProvider.DefaultScheme}:ionymous@mailprovider.com",
+//                () => ResourceHelper.SerializeTextAsync(email.Body.Value, email.Body.Encoding),
+//                properties
+//            );
         }
 
         #endregion

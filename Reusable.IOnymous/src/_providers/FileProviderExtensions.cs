@@ -43,27 +43,24 @@ namespace Reusable.IOnymous
 
         public static async Task<IResource> WriteTextFileAsync(this IResourceProvider resourceProvider, string path, string value, IImmutableContainer properties = default)
         {
-            using (var stream = await ResourceHelper.SerializeTextAsync(value, properties.ThisOrEmpty().GetItemOrDefault(Resource.PropertySelector.Select(x => x.Encoding), Encoding.UTF8)))
-            {
-                return await resourceProvider.InvokeAsync(new Request
-                {
-                    Uri = CreateUri(path),
-                    Method = RequestMethod.Put,
-                    Body = stream,
-                    Properties = properties.ThisOrEmpty().SetItem(Resource.PropertySelector.Select(x => x.Format), MimeType.Text)
-                });
-            }
-        }
-
-        public static async Task<IResource> WriteFileAsync(this IResourceProvider resourceProvider, string path, Stream stream, IImmutableContainer properties = default)
-        {
             return await resourceProvider.InvokeAsync(new Request
             {
                 Uri = CreateUri(path),
-                Body = stream,
-                Properties = properties.ThisOrEmpty()
+                Method = RequestMethod.Put,
+                CreateBodyStreamFunc = () => ResourceHelper.SerializeTextAsync(value, properties.ThisOrEmpty().GetItemOrDefault(Resource.PropertySelector.Select(x => x.Encoding), Encoding.UTF8)),
+                Properties = properties.ThisOrEmpty().SetItem(Resource.PropertySelector.Select(x => x.Format), MimeType.Text)
             });
         }
+
+//        public static async Task<IResource> WriteFileAsync(this IResourceProvider resourceProvider, string path, Stream stream, IImmutableContainer properties = default)
+//        {
+//            return await resourceProvider.InvokeAsync(new Request
+//            {
+//                Uri = CreateUri(path),
+//                Body = stream,
+//                Properties = properties.ThisOrEmpty()
+//            });
+//        }
 
         #endregion
 

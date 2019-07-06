@@ -24,9 +24,9 @@ namespace Reusable.IOnymous
                 return current.Add(next.Key, request => next.Value(new Request
                 {
                     Uri = Prefix(request.Uri),
-                    Body = request.Body,
                     Method = request.Method,
-                    Properties = request.Properties
+                    Properties = request.Properties,
+                    CreateBodyStreamFunc = request.CreateBodyStreamFunc,
                 }));
             });
         }

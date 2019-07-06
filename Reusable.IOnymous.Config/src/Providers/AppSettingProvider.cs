@@ -51,16 +51,19 @@ namespace Reusable.IOnymous.Config
             var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
             var element = exeConfig.AppSettings.Settings[actualKey];
 
-            var value = await ResourceHelper.Deserialize<object>(request.Body, request.Properties.Copy(Resource.PropertySelector));
-            value = ValueConverter.Convert(value, typeof(string));
+            using (var body = await request.CreateBodyStreamAsync())
+            {
+                var value = await ResourceHelper.Deserialize<object>(body, request.Properties.Copy(Resource.PropertySelector));
+                value = ValueConverter.Convert(value, typeof(string));
 
-            if (element is null)
-            {
-                exeConfig.AppSettings.Settings.Add(settingIdentifier, (string)value);
-            }
-            else
-            {
-                exeConfig.AppSettings.Settings[actualKey].Value = (string)value;
+                if (element is null)
+                {
+                    exeConfig.AppSettings.Settings.Add(settingIdentifier, (string)value);
+                }
+                else
+                {
+                    exeConfig.AppSettings.Settings[actualKey].Value = (string)value;
+                }
             }
 
             exeConfig.Save(ConfigurationSaveMode.Minimal);

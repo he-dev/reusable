@@ -64,18 +64,24 @@ namespace Reusable.IOnymous
         #endregion
 
         // Copies existing items from the specified session by T.
-        public static IImmutableContainer Copy<T>(this IImmutableContainer container, From<T> from)
+        public static IImmutableContainer Copy<T>(this IImmutableContainer container, From<T> fromType)
         {
-            var selectors =
-                from p in typeof(T).GetProperties()
-                select Selector.FromProperty(typeof(T), p);
-
             var copyable =
-                from selector in selectors
+                from selector in fromType.Selectors()
                 where container.ContainsKey(selector.ToString())
                 select selector;
 
             return copyable.Aggregate(ImmutableContainer.Empty, (current, next) => current.SetItem(next.ToString(), container[next.ToString()]));
+        }
+
+        public static IImmutableContainer CopyRequestProperties(this IImmutableContainer container)
+        {
+            return container.Copy(Request.PropertySelector);
+        }
+        
+        public static IImmutableContainer CopyResourceProperties(this IImmutableContainer container)
+        {
+            return container.Copy(Resource.PropertySelector);
         }
     }
 }

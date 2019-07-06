@@ -33,8 +33,9 @@ namespace Reusable.IOnymous
         private async Task<IResource> PutAsync(Request request)
         {
             using (var fileStream = new FileStream(request.Uri.ToUnc(), FileMode.CreateNew, FileAccess.Write))
+            using (var body = await request.CreateBodyStreamAsync())
             {
-                await request.Body.Rewind().CopyToAsync(fileStream);
+                await body.Rewind().CopyToAsync(fileStream);
                 await fileStream.FlushAsync();
             }
 

@@ -62,55 +62,56 @@ namespace Reusable.IOnymous
 
         #region POST helpers        
 
-        public static async Task<IResource> PostAsync
-        (
-            this IResourceProvider provider,
-            UriString uri,
-            Func<Task<Stream>> serializeAsync,
-            IImmutableContainer properties = default
-        )
-        {
-            return await provider.InvokeAsync(uri, serializeAsync, properties);
-        }
+//        public static async Task<IResource> PostAsync
+//        (
+//            this IResourceProvider provider,
+//            UriString uri,
+//            Func<Task<Stream>> serializeBodyAsync,
+//            IImmutableContainer properties = default
+//        )
+//        {
+//            //return await provider.InvokeAsync(uri, serializeBodyAsync, properties);
+//            return await provider.InvokeAsync(new Request.Post(uri).SetProperties(_ => properties).SetBody(await serializeBodyAsync()));
+//        }
 
-        public static async Task<IResource> PutAsync
-        (
-            this IResourceProvider provider,
-            UriString uri,
-            Func<Task<Stream>> serializeAsync,
-            IImmutableContainer metadata = default
-        )
-        {
-            return await provider.InvokeAsync(uri, serializeAsync, metadata);
-        }
+//        public static async Task<IResource> PutAsync
+//        (
+//            this IResourceProvider provider,
+//            UriString uri,
+//            Func<Task<Stream>> serializeAsync,
+//            IImmutableContainer properties = default
+//        )
+//        {
+//            return await provider.InvokeAsync(uri, serializeAsync, properties);
+//        }
 
-        private static async Task<IResource> InvokeAsync
-        (
-            this IResourceProvider provider,
-            UriString uri,
-            Func<Task<Stream>> serializeAsync,
-            IImmutableContainer properties
-        )
-        {
-            var stream = await serializeAsync();
-            var post = provider.InvokeAsync(new Request
-            {
-                Uri = uri,
-                Method = RequestMethod.Post,
-                Properties = properties,
-                Body = stream
-            });
-            await post.ContinueWith(t =>
-            {
-                stream.Dispose();
-                if (t.IsFaulted && !(t.Exception is null))
-                {
-                    throw t.Exception;
-                }
-            });
-
-            return await post;
-        }
+//        private static async Task<IResource> InvokeAsync
+//        (
+//            this IResourceProvider provider,
+//            UriString uri,
+//            Func<Task<Stream>> serializeAsync,
+//            IImmutableContainer properties
+//        )
+//        {
+//            var stream = await serializeAsync();
+//            var invokeTask = provider.InvokeAsync(new Request
+//            {
+//                Uri = uri,
+//                Method = RequestMethod.Post,
+//                Properties = properties,
+//                Body = stream
+//            });
+//            await invokeTask.ContinueWith(t =>
+//            {
+//                stream.Dispose();
+//                if (t.IsFaulted && !(t.Exception is null))
+//                {
+//                    throw t.Exception;
+//                }
+//            });
+//
+//            return await invokeTask;
+//        }
 
         #endregion
 
@@ -141,17 +142,22 @@ namespace Reusable.IOnymous
             };
             return await resources.InvokeAsync(request);
         }
-        
-        public static async Task<IResource> PutAsync(this IResourceProvider resources, UriString uri, Stream body, IImmutableContainer properties = default)
+
+        public static IResourceProvider Use(this IResourceProvider provider, string name)
         {
-            var request = new Request
-            {
-                Uri = uri,
-                Method = RequestMethod.Put,
-                Properties = properties.ThisOrEmpty(),
-                Body = body
-            };
-            return await resources.InvokeAsync(request);
+            return new UseProvider(provider, name);
         }
+        
+//        public static async Task<IResource> PutAsync(this IResourceProvider resources, UriString uri, Stream body, IImmutableContainer properties = default)
+//        {
+//            var request = new Request
+//            {
+//                Uri = uri,
+//                Method = RequestMethod.Put,
+//                Properties = properties.ThisOrEmpty(),
+//                Body = body
+//            };
+//            return await resources.InvokeAsync(request);
+//        }
     }
 }

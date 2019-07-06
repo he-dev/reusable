@@ -11,9 +11,11 @@ namespace Reusable.IOnymous
 {
     public abstract class MailProvider : ResourceProvider
     {
-        public new static readonly string DefaultScheme = "mailto";
-
-        protected MailProvider(IImmutableContainer metadata) : base(metadata.SetScheme(DefaultScheme)) { }
+        public static class Schemes
+        {
+            public static readonly string mailto = "mailto";
+        }
+        protected MailProvider(IImmutableContainer metadata) : base(metadata.SetScheme(Schemes.mailto)) { }
 
         protected async Task<string> ReadBodyAsync(Stream value, IImmutableContainer metadata)
         {

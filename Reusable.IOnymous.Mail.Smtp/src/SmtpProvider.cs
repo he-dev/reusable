@@ -30,13 +30,21 @@ namespace Reusable.IOnymous
             message.To.AddRange(request.Properties.GetItemOrDefault(From<IMailMeta>.Select(x => x.To)).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
             message.Cc.AddRange(request.Properties.GetItemOrDefault(From<IMailMeta>.Select(x => x.CC), Enumerable.Empty<string>().ToList()).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
             message.Subject = request.Properties.GetItemOrDefault(From<IMailMeta>.Select(x => x.Subject));
-            var multipart = new Multipart("mixed")
+            var multipart = new Multipart("mixed");
+//            {
+//                new TextPart(request.Properties.GetItemOrDefault(From<IMailMeta>.Select(x => x.IsHtml)) ? TextFormat.Html : TextFormat.Plain)
+//                {
+//                    Text = await ReadBodyAsync(body, request.Properties)
+//                }
+//            };
+
+            using (var body = await request.CreateBodyStreamAsync())
             {
-                new TextPart(request.Properties.GetItemOrDefault(From<IMailMeta>.Select(x => x.IsHtml)) ? TextFormat.Html : TextFormat.Plain)
+                multipart.Add(new TextPart(request.Properties.GetItemOrDefault(From<IMailMeta>.Select(x => x.IsHtml)) ? TextFormat.Html : TextFormat.Plain)
                 {
-                    Text = await ReadBodyAsync(request.Body, request.Properties)
-                }
-            };
+                    Text = await ReadBodyAsync(body, request.Properties)
+                });
+            }
 
             foreach (var attachment in request.Properties.GetItemOrDefault(From<IMailMeta>.Select(x => x.Attachments), new Dictionary<string, byte[]>()).Where(i => i.Key.IsNotNullOrEmpty() && i.Value.IsNotNull()))
             {
@@ -63,7 +71,7 @@ namespace Reusable.IOnymous
                 await smtpClient.SendAsync(message);
             }
 
-            return new InMemoryResource(request.Properties.Copy(Request.PropertySelector), request.Body);
+            return InMemoryResource.Empty.From(request);
         }
     }
 

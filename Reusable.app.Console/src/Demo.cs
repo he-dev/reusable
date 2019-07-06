@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.Diagnostics;
 using Reusable.IOnymous;
+using Reusable.IOnymous.Http;
+using Reusable.IOnymous.Http.Mailr.Models;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
@@ -206,11 +208,12 @@ namespace Reusable.Apps
 
         public static async Task SendEmailAsync_Mailr()
         {
-            var mailrProvider = new MailrProvider("http://localhost:7000/api");
-            await mailrProvider.SendAsync
+            var mailrProvider = new HttpProvider("http://localhost:7000/api");
+            await mailrProvider.SendEmailAsync
             (
                 "v1.0/mailr/messages/plaintext",
-                new Email<string>
+                new UserAgent("Console", "v12"),
+                new Email.Html
                 {
                     From = "console@test.com",
                     To = { "me@test.com" },
@@ -219,9 +222,7 @@ namespace Reusable.Apps
                     Body = "<p>I'm great!</p>",
                     IsHtml = true,
                     Attachments = new Dictionary<string, byte[]>()
-                },
-                "Console",
-                "V11"
+                }
             );
         }
     }

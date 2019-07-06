@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Exceptionize;
 
@@ -8,9 +9,17 @@ namespace Reusable.IOnymous
 {
     public class ResourceExceptionHandler : IResource
     {
+//        protected static class Validations
+//        {
+//            public static readonly IImmutableList<IValidationRule<IResource, object>> Exists =
+//                ValidationRuleCollection
+//                    .For<IResource>()
+//                    .Accept(b => b.When(x => x.Exists).Message((x, _) => $"Resource '{x.Uri}' does not exist."));
+//        }
+        
         private readonly IResource _resource;
 
-        public ResourceExceptionHandler(IResource resource) => _resource = resource;
+        public ResourceExceptionHandler([NotNull] IResource resource) => _resource = resource ?? throw new ArgumentNullException(nameof(resource));
 
         public IImmutableContainer Properties => _resource.Properties;
 
@@ -24,7 +33,7 @@ namespace Reusable.IOnymous
         {
             if (!Exists)
             {
-                throw new InvalidOperationException($"Resource '{Uri}' does not exist.");
+                throw new InvalidOperationException($"Cannot copy resource '{Uri}' because it does not exist.");
             }
 
             try
@@ -33,7 +42,7 @@ namespace Reusable.IOnymous
             }
             catch (Exception inner)
             {
-                throw DynamicException.Create("CopyTo", $"An error occured while trying to copy the '{Uri}'. See the inner exception for details.", inner);
+                throw DynamicException.Create("CopyTo", $"An error occured while trying to copy the resource '{Uri}'. See the inner exception for details.", inner);
             }
         }
 

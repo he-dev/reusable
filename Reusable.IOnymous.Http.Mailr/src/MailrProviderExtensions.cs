@@ -4,6 +4,8 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Data;
 using Reusable.Extensions;
+using Reusable.IOnymous.Http;
+using Reusable.IOnymous.Http.Mailr.Models;
 using Reusable.Net.Http.Formatting;
 using Reusable.Quickey;
 
@@ -11,36 +13,59 @@ namespace Reusable.IOnymous
 {
     public static class MailrProviderExtensions
     {
-        public static async Task<string> SendAsync<TBody>
+        /// <summary>
+        /// Uses #Mailr
+        /// </summary>
+        public static IResourceProvider UseMailr(this IResourceProvider provider)
+        {
+            return provider.Use(ResourceProvider.CreateTag("Mailr"));
+        }
+
+        public static async Task<string> SendEmailAsync
         (
-            this IResourceProvider resourceProvider,
+            this IResourceProvider provider,
             UriString uri,
-            Email<TBody> email,
-            string productName,
-            string productVersion,
-            [CanBeNull] JsonSerializer jsonSerializer = null,
-            [CanBeNull] IImmutableContainer metadata = default
+            UserAgent userAgent,
+            Email email,
+            [CanBeNull] IImmutableContainer properties = default
         )
         {
-            metadata =
-                metadata
+            properties =
+                properties
                     .ThisOrEmpty()
                     .SetItem(From<IHttpMeta>.Select(x => x.ConfigureRequestHeaders), headers =>
                     {
                         headers
-                            .UserAgent(productName, productVersion)
+                            .UserAgent(userAgent.ProductName, userAgent.ProductVersion)
                             .AcceptHtml();
                     })
                     .SetItem(From<IHttpMeta>.Select(x => x.ResponseFormatters), new[] { new TextMediaTypeFormatter() })
-                    .SetItem(From<IHttpMeta>.Select(x => x.ContentType), "application/json")
-                    //.SetItem(From<IAnyMeta>.Select(x => x.Schemes), ImmutableHashSet<SoftString>.Empty.Add("http").Add("https"))
-                    // Bind this request to the mailr-provider.
-                    .SetName(MailrProvider.Name.ToSoftString());
+                    .SetItem(From<IHttpMeta>.Select(x => x.ContentType), "application/json");
 
-            using (var response = await resourceProvider.PostAsync(uri, () => ResourceHelper.SerializeAsJsonAsync(email, jsonSerializer), metadata))
+            var response = await provider.InvokeAsync(new Request.Post(uri)
+            {
+                Properties = properties,
+                CreateBodyStreamFunc = email.CreateSerializeStreamFunc
+            });
+
+            using (response)
             {
                 return await response.DeserializeTextAsync();
             }
+
+//            using (var response = await provider.PostAsync(uri, () => ResourceHelper.SerializeAsJsonAsync(email, jsonSerializer), properties))
+//            {
+//                return await response.DeserializeTextAsync();
+//            }
         }
+    }
+
+    public interface IMailrProperties
+    {
+        object Body { get; }
+
+        string ProductName { get; }
+
+        string ProductVersion { get; }
     }
 }

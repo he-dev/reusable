@@ -84,24 +84,24 @@ namespace Reusable.IOnymous.Config
                 Properties = properties,
             };
 
-            await SerializeObjectAsync(request, value);
+            AddBody(request, value);
 
             return request;
         }
 
-        private static async Task SerializeObjectAsync(Request request, object value)
+        private static void AddBody(Request request, object value)
         {
             switch (value)
             {
                 case null:
-                    return;
+                    break;
                 case string str:
-                    request.Body = await ResourceHelper.SerializeTextAsync(str);
-                    request.Properties = request.Properties.SetItem(Resource.PropertySelector.Select(x => x.Format), MimeType.Text);
+                    request.CreateBodyStreamFunc = () => ResourceHelper.SerializeTextAsync(str);
+                    request.SetProperties(p => p.SetItem(Resource.PropertySelector.Select(x => x.Format), MimeType.Text));
                     break;
                 default:
-                    request.Body = await ResourceHelper.SerializeBinaryAsync(value);
-                    request.Properties = request.Properties.SetItem(Resource.PropertySelector.Select(x => x.Format), MimeType.Binary);
+                    request.CreateBodyStreamFunc = () => ResourceHelper.SerializeBinaryAsync(value);
+                    request.SetProperties(p => p.SetItem(Resource.PropertySelector.Select(x => x.Format), MimeType.Binary));
                     break;
             }
         }

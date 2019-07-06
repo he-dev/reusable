@@ -32,9 +32,9 @@ namespace Reusable.IOnymous
 
         private async Task<IResource> PutAsync(Request request)
         {
-            using (var streamReader = new StreamReader(request.Body))
+            //using (var streamReader = new StreamReader(request.Body))
             {
-                var fullName = Path.Combine(request.Uri.Path.Decoded.ToString(), await streamReader.ReadToEndAsync());
+                var fullName = request.Uri.Path.Decoded.ToString(); //, await streamReader.ReadToEndAsync());
                 Directory.CreateDirectory(fullName);
                 return await GetAsync(new Request { Uri = fullName });
             }

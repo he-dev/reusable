@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Reusable.IOnymous;
-using Reusable.IOnymous.Models;
+using Reusable.IOnymous.Http.Mailr.Models;
 using Xunit;
 
 namespace Reusable.Tests.IOnymous.Http.Mailr.Models

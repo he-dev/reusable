@@ -90,9 +90,16 @@ namespace Reusable.IOnymous
 
         public virtual async Task<IResource> InvokeAsync(Request request)
         {
+            if (Methods is null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(Methods)} are not initialized. " +
+                    $"You must specify at least one method by initializing this property in the derived type.");
+            }
+
             if (request.Method == RequestMethod.None)
             {
-                throw new ArgumentException(paramName: nameof(request), message: "You must set the request method.");
+                throw new ArgumentException(paramName: nameof(request), message: $"You must specify a request method. '{RequestMethod.None}' is not one of them.");
             }
 
             if (Methods.TryGetValue(request.Method, out var method))
@@ -132,11 +139,21 @@ namespace Reusable.IOnymous
             // Can be overriden when derived.
         }
 
-        #region operators
+        public static string CreateTag(string name) => $"#{name.Trim('#')}";
+    }
 
-        //public static ResourceProvider operator +(ResourceProvider decorable, Func<ResourceProvider, ResourceProvider> decorator) => decorator(decorable);
+    public class UseProvider : ResourceProvider
+    {
+        private readonly string _name;
+        public UseProvider(IResourceProvider provider, string name) : base(provider.Properties)
+        {
+            _name = name;
+        }
 
-        #endregion
+        public override Task<IResource> InvokeAsync(Request request)
+        {
+            return base.InvokeAsync(request.SetProperties(p => p.SetName(_name)));
+        }
     }
 
     public static class MethodDictionary
@@ -157,8 +174,12 @@ namespace Reusable.IOnymous
         [NotNull]
         public IImmutableContainer Properties { get; set; } = ImmutableContainer.Empty;
 
+        //public Stream Body { get; set; }
+
         [CanBeNull]
-        public Stream Body { get; set; }
+        public Func<Task<Stream>> CreateBodyStreamFunc { get; set; }
+
+        #region Methods
 
         public class Get : Request
         {
@@ -167,6 +188,59 @@ namespace Reusable.IOnymous
                 Uri = uri;
                 Method = RequestMethod.Get;
             }
+        }
+
+        public class Post : Request
+        {
+            public Post(UriString uri)
+            {
+                Uri = uri;
+                Method = RequestMethod.Post;
+            }
+        }
+
+        public class Put : Request
+        {
+            public Put(UriString uri)
+            {
+                Uri = uri;
+                Method = RequestMethod.Put;
+            }
+        }
+
+        public class Delete : Request
+        {
+            public Delete(UriString uri)
+            {
+                Uri = uri;
+                Method = RequestMethod.Delete;
+            }
+        }
+
+        #endregion
+    }
+
+    public static class RequestExtensions
+    {
+        public static Request SetProperties(this Request request, Func<IImmutableContainer, IImmutableContainer> properties)
+        {
+            request.Properties = properties(request.Properties);
+            return request;
+        }
+
+        public static Request SetCreateBodyStream(this Request request, Func<Task<Stream>> createBodyStream)
+        {
+            request.CreateBodyStreamFunc = createBodyStream;
+            return request;
+        }
+        
+        public static Task<Stream> CreateBodyStreamAsync(this Request request)
+        {
+            return request.CreateBodyStreamFunc?.Invoke() ?? throw new ArgumentNullException(
+                       paramName: $"{nameof(request)}.{nameof(request.CreateBodyStreamFunc)}",
+                       message: $"{FormatMethodName()} request to '{request.Uri}' requires a body that is missing.");
+
+            string FormatMethodName() => request.Method.Name.ToString().ToUpper();
         }
     }
 

@@ -21,7 +21,7 @@ namespace Reusable.IOnymous
         /// <summary>
         /// Resource provider cache.
         /// </summary>
-        private readonly ConcurrentDictionary<SoftString, IResourceProvider> _cache;
+        private readonly ConcurrentDictionary<SoftString, IResourceProvider> _providerCache;
 
         /// <summary>
         /// Resource provider cache lock.
@@ -37,7 +37,7 @@ namespace Reusable.IOnymous
             if (providers == null) throw new ArgumentNullException(nameof(providers));
 
             _providers = providers.ToImmutableList();
-            _cache = new ConcurrentDictionary<SoftString, IResourceProvider>();
+            _providerCache = new ConcurrentDictionary<SoftString, IResourceProvider>();
 
             Methods =
                 _providers
@@ -50,50 +50,50 @@ namespace Reusable.IOnymous
 
         public override async Task<IResource> InvokeAsync(Request request)
         {
-            var cacheKey = request.Uri.ToString();
+            var providerKey = request.Uri.ToString();
 
             await _cacheLock.WaitAsync();
             try
             {
                 // Used cached provider if already resolved.
-                if (_cache.TryGetValue(cacheKey, out var cached))
+                if (_providerCache.TryGetValue(providerKey, out var cached))
                 {
                     return await cached.InvokeAsync(request);
                 }
 
-                var resourceProviders = _providers.AsEnumerable();
+                var filteredProviders = _providers.AsEnumerable();
 
                 // When provider-name is specified then filter them by name first.
                 if (request.Properties.GetNames().Any()) // this means there is a custom name
                 {
-                    resourceProviders = resourceProviders.Where(p => p.Properties.GetNames().Overlaps(request.Properties.GetNames()));
+                    filteredProviders = filteredProviders.Where(p => p.Properties.GetNames().Overlaps(request.Properties.GetNames()));
                 }
 
                 // Check if there is a provider that matches the scheme of the absolute uri.
                 if (request.Uri.IsAbsolute && !(request.Uri.Scheme == ResourceSchemes.IOnymous))
                 {
                     var schemes = new[] { ResourceSchemes.IOnymous, request.Uri.Scheme };
-                    resourceProviders = resourceProviders.Where(p => p.Properties.GetSchemes().Overlaps(schemes));
+                    filteredProviders = filteredProviders.Where(p => p.Properties.GetSchemes().Overlaps(schemes));
                 }
 
                 // GET can search multiple providers.
                 if (request.Method == RequestMethod.Get)
                 {
-                    foreach (var resourceProvider in resourceProviders)
+                    foreach (var provider in filteredProviders)
                     {
-                        if (await resourceProvider.InvokeAsync(request) is var resource && resource.Exists)
+                        if (await provider.InvokeAsync(request) is var resource && resource.Exists)
                         {
-                            _cache[cacheKey] = resourceProvider;
+                            _providerCache[providerKey] = provider;
                             return resource;
                         }
                     }
 
-                    return new InMemoryResource(request.Properties.Copy(Resource.PropertySelector), Stream.Null);
+                    return InMemoryResource.Empty.From(request);
                 }
                 // Other methods are allowed to use only a single provider.
                 else
                 {
-                    var match = _cache[cacheKey] = resourceProviders.SingleOrThrow();
+                    var match = _providerCache[providerKey] = filteredProviders.SingleOrThrow();
                     return await match.InvokeAsync(request);
                 }
             }

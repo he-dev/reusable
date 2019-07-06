@@ -14,6 +14,8 @@ namespace Reusable.IOnymous
 {
     public class HttpProvider : ResourceProvider
     {
+        public static readonly From<IHttpMeta> PropertySelector = From<IHttpMeta>.This;
+
         public new static readonly string DefaultScheme = "http";
 
         private readonly HttpClient _client;
@@ -33,31 +35,30 @@ namespace Reusable.IOnymous
                 BaseAddress = new Uri(baseUri)
             };
             _client.DefaultRequestHeaders.Clear();
-            
+
+            var invokeAsync = (Func<HttpMethod, RequestCallback>)(method =>
+            {
+                return async request =>
+                {
+                    var uri = BaseUri + request.Uri;
+                    using (var body = await request.CreateBodyStreamAsync())
+                    {
+                        var (response, mediaType) = await InvokeAsync(uri, method, request.Properties.SetItem(From<IHttpMeta>.Select(x => x.Content), body));
+                        return new HttpResource(request.Properties.CopyResourceProperties().SetFormat(mediaType), response);
+                    }
+                };
+            });
+
             Methods =
                 MethodDictionary
                     .Empty
-                    .Add(RequestMethod.Get, GetAsync)
-                    .Add(RequestMethod.Put, PutAsync);
+                    .Add(RequestMethod.Get, invokeAsync(HttpMethod.Get))
+                    .Add(RequestMethod.Post, invokeAsync(HttpMethod.Post))
+                    .Add(RequestMethod.Put, invokeAsync(HttpMethod.Put))
+                    .Add(RequestMethod.Delete, invokeAsync(HttpMethod.Delete));
         }
 
         public string BaseUri => _client.BaseAddress.ToString();
-
-        private async Task<IResource> GetAsync(Request request)
-        {
-            var uri = BaseUri + request.Uri;
-            var (response, mediaType) = await InvokeAsync(uri, HttpMethod.Get, request.Properties);
-            return new HttpResource(request.Properties.Copy(Resource.PropertySelector).SetFormat(mediaType), response);
-        }
-
-        private async Task<IResource> PutAsync(Request request)
-        {
-            var uri = BaseUri + request.Uri;
-            var (response, mediaType) = await InvokeAsync(uri, HttpMethod.Post, request.Properties.SetItem(From<IHttpMeta>.Select(x => x.Content), request.Body));
-            return new HttpResource(request.Properties.Copy(Resource.PropertySelector).SetFormat(mediaType), response);
-        }
-
-        #region Helpers
 
         private async Task<(Stream Content, MimeType MimeType)> InvokeAsync(UriString uri, HttpMethod method, IImmutableContainer metadata)
         {
@@ -108,8 +109,6 @@ namespace Reusable.IOnymous
             }
         }
 
-        #endregion
-
         public override void Dispose()
         {
             _client.Dispose();
@@ -143,7 +142,7 @@ namespace Reusable.IOnymous
     [UseType, UseMember]
     [TrimStart("I"), TrimEnd("Meta")]
     [PlainSelectorFormatter]
-    public interface IHttpMeta : INamespace
+    public interface IHttpMeta
     {
         Stream Content { get; }
 

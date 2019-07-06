@@ -38,6 +38,13 @@ namespace Reusable.Quickey
         {
             return new Selector<TMember>(selector);
         }
+        
+        public static IEnumerable<Selector> Selectors<T>(this From<T> from)
+        {
+            return 
+                from p in typeof(T).GetProperties()
+                select Selector.FromProperty(typeof(T), p);
+        }
     }
 
     [PublicAPI]

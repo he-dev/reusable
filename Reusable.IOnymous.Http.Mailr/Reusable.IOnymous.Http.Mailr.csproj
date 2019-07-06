@@ -35,4 +35,8 @@
     <Reference Include="System.Web" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="src\MailrProvider.cs" />
+  </ItemGroup>
+
 </Project>

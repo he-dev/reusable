@@ -2,6 +2,8 @@ using System;
 using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.IOnymous;
+using Reusable.IOnymous.Http;
+using Reusable.IOnymous.Http.Mailr.Models;
 using Reusable.Teapot;
 using Reusable.Utilities.XUnit.Fixtures;
 using Xunit;
@@ -16,15 +18,15 @@ namespace Reusable.Tests.IOnymous.Http.Mailr
 
         public UseCaseTest(TeapotFactoryFixture teapotFactory)
         {
-            _teapot = teapotFactory.CreateTeapotServer("http://localhost:6000/api");
-            _http = new MailrProvider("http://localhost:6000");
+            _teapot = teapotFactory.CreateTeapotServer("http://0.0.0.0:62001/api");
+            _http = new HttpProvider("http://0.0.0.0:62001");
         }
 
         [Fact]
         public async Task Can_post_email_and_receive_html()
         {
-            await Task.Delay(1200);
-            
+            //await Task.Delay(1200);
+
             using (var teacup = _teapot.BeginScope())
             {
                 var mailrMessagesTestMock =
@@ -49,8 +51,12 @@ namespace Reusable.Tests.IOnymous.Http.Mailr
                                 .Once(200, "OK!");
                         });
 
-                var email = Email.CreateHtml(new[] { "myemail@mail.com" }, "Testmail", new { Greeting = "Hallo Mailr!" });
-                var html = await _http.SendAsync("mailr/messages/test", email, "IOnymous", "1.0");
+                var email = new Email.Html(new[] { "myemail@mail.com" }, "Test-mail")
+                {
+                    Body = new { Greeting = "Hallo Mailr!" }
+                };
+                
+                var html = await _http.SendEmailAsync("mailr/messages/test", new UserAgent("IOnymous", "1.0"),  email);
 
                 Assert.Equal("OK!", html);
                 mailrMessagesTestMock.Assert();

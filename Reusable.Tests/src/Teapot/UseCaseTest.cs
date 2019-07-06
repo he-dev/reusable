@@ -49,11 +49,9 @@ namespace Reusable.Tests.Teapot
                 // conflicting 'response' variables
                 {
                     // Request made by the application somewhere deep down the rabbit hole
-                    var response = await _http.PostAsync
-                    (
-                        "test?param=true",
-                        () => ResourceHelper.SerializeAsJsonAsync(new { Greeting = "Hallo" }),
-                        ImmutableContainer
+                    var request = new Request.Post("test?param=true")
+                    {
+                        Properties = ImmutableContainer
                             .Empty
                             .SetItem(From<IHttpMeta>.Select(x => x.ConfigureRequestHeaders), headers =>
                             {
@@ -61,8 +59,11 @@ namespace Reusable.Tests.Teapot
                                 headers.UserAgent("Teapot", "1.0");
                                 headers.AcceptJson();
                             })
-                            .SetItem(From<IHttpMeta>.Select(x => x.ContentType), "application/json")
-                    );
+                            .SetItem(From<IHttpMeta>.Select(x => x.ContentType), "application/json"),
+                        CreateBodyStreamFunc = () => ResourceHelper.SerializeAsJsonAsync(new { Greeting = "Hallo" })
+                    };
+
+                    var response = await _http.InvokeAsync(request);
 
                     Assert.True(response.Exists);
                     var original = await response.DeserializeJsonAsync<object>();

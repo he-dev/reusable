@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore;
@@ -28,9 +29,17 @@ namespace Reusable.Teapot
                         services.AddSingleton((ResponseDelegate)GetResponseFactory);
                     })
                     .UseStartup<TeapotStartup>()
+                    //((.UseServer()
+                    //.UseIISIntegration()
+//                    .UseKestrel()
+//                    .ConfigureKestrel((context, options) =>
+//                    {
+//                        // Set properties and call methods on options
+//                        options.Listen(IPAddress.Any, 62001);
+//                    })
                     .Build();
-
-            Task = _host.RunAsync();
+            
+            Task = _host.StartAsync();
         }
 
         public Task Task { get; set; }
