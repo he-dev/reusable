@@ -24,7 +24,7 @@ namespace Reusable.IOnymous
                     .ThisOrEmpty()
                     .SetScheme(UriSchemes.Known.Http)
                     .SetScheme(UriSchemes.Known.Https)
-                    .SetItem(Property.AllowRelativeUri, true))
+                    .SetItem(ResourceProviderProperty.AllowRelativeUri, true))
         {
             if (baseUri == null) throw new ArgumentNullException(nameof(baseUri));
 
@@ -58,20 +58,20 @@ namespace Reusable.IOnymous
             };
         }
 
-        private async Task<(Stream Content, MimeType MimeType)> InvokeAsync(UriString uri, HttpMethod method, IImmutableContainer metadata)
+        private async Task<(Stream Content, MimeType MimeType)> InvokeAsync(UriString uri, HttpMethod method, IImmutableContainer properties)
         {
             using (var request = new HttpRequestMessage(method, uri))
             {
-                var content = metadata.GetItemOrDefault(From<IHttpMeta>.Select(m => m.Content));
+                var content = properties.GetItemOrDefault(From<IHttpMeta>.Select(m => m.Content));
                 if (content != null)
                 {
                     request.Content = new StreamContent(content.Rewind());
-                    request.Content.Headers.ContentType = new MediaTypeHeaderValue(metadata.GetItemOrDefault(From<IHttpMeta>.Select(m => m.ContentType)));
+                    request.Content.Headers.ContentType = new MediaTypeHeaderValue(properties.GetItemOrDefault(From<IHttpMeta>.Select(m => m.ContentType)));
                 }
 
                 Properties.GetItemOrDefault(From<IHttpMeta>.Select(m => m.ConfigureRequestHeaders), _ => { })(request.Headers);
-                metadata.GetItemOrDefault(From<IHttpMeta>.Select(m => m.ConfigureRequestHeaders))(request.Headers);
-                using (var response = await _client.SendAsync(request, HttpCompletionOption.ResponseContentRead, metadata.GetItemOrDefault(Request.Property.CancellationToken)))
+                properties.GetItemOrDefault(From<IHttpMeta>.Select(m => m.ConfigureRequestHeaders))(request.Headers);
+                using (var response = await _client.SendAsync(request, HttpCompletionOption.ResponseContentRead, properties.GetItemOrDefault(Request.Property.CancellationToken)))
                 {
                     var responseContentCopy = new MemoryStream();
 
@@ -111,6 +111,22 @@ namespace Reusable.IOnymous
         {
             _client.Dispose();
         }
+    }
+
+    [Rename(nameof(HttpProvider))]
+    public class HttpProviderProperty : SelectorBuilder<HttpProviderProperty>
+    {
+        public static Selector<Task<Stream>> CreateContentStream = Select(() => CreateContentStream);
+
+        public static Selector<Action<HttpRequestHeaders>> ConfigureRequestHeaders = Select(() => ConfigureRequestHeaders);
+
+        public static Selector<MediaTypeFormatter> RequestFormatter = Select(() => RequestFormatter);
+
+        public static Selector<IEnumerable<MediaTypeFormatter>> ResponseFormatters = Select(() => ResponseFormatters);
+
+        public static Selector<Type> ResponseType = Select(() => ResponseType);
+
+        public static Selector<string> ContentType = Select(() => ContentType);
     }
 
     internal class HttpResource : Resource

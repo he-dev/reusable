@@ -19,14 +19,14 @@ namespace Reusable.IOnymous
             }
 
             return
-                container.SetItem(ResourceProvider.Property.Schemes, container.TryGetItem(ResourceProvider.Property.Schemes, out var schemes)
+                container.SetItem(ResourceProviderProperty.Schemes, container.TryGetItem(ResourceProviderProperty.Schemes, out var schemes)
                     ? schemes.Add(scheme)
                     : ImmutableHashSet<SoftString>.Empty.Add(scheme));
         }
 
         public static IImmutableSet<SoftString> GetSchemes(this IImmutableContainer container)
         {
-            return container.GetItemOrDefault(ResourceProvider.Property.Schemes, ImmutableHashSet<SoftString>.Empty);
+            return container.GetItemOrDefault(ResourceProviderProperty.Schemes, ImmutableHashSet<SoftString>.Empty);
         }
 
         public static IImmutableContainer SetName(this IImmutableContainer container, SoftString name)
@@ -38,15 +38,15 @@ namespace Reusable.IOnymous
 
             return
                 container.SetItem(
-                    ResourceProvider.Property.Names,
-                    container.TryGetItem(ResourceProvider.Property.Names, out var names)
+                    ResourceProviderProperty.Names,
+                    container.TryGetItem(ResourceProviderProperty.Names, out var names)
                         ? names.Add(name)
-                        : ImmutableHashSet<SoftString>.Empty.Add(name));
+                        : ImmutableSortedSet.Create<SoftString>(new ResourceProviderNameComparer()).Add(name));
         }
 
         public static IImmutableSet<SoftString> GetNames(this IImmutableContainer container)
         {
-            return container.GetItemOrDefault(ResourceProvider.Property.Names, ImmutableHashSet<SoftString>.Empty);
+            return container.GetItemOrDefault(ResourceProviderProperty.Names, ImmutableHashSet<SoftString>.Empty);
         }
 
         #region Resource

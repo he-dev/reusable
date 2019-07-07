@@ -30,7 +30,7 @@ namespace Reusable.IOnymous
 
         IImmutableDictionary<RequestMethod, RequestCallback> Methods { get; }
 
-        bool Can(RequestMethod method);
+        //bool Can(RequestMethod method);
 
         Task<IResource> InvokeAsync(Request request);
     }
@@ -40,7 +40,7 @@ namespace Reusable.IOnymous
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public abstract class ResourceProvider : IResourceProvider
     {
-        //public static readonly From<IProviderProperties> PropertySelector = From<IProviderProperties>.This;
+        public static readonly string TagPrefix = "#";
 
         // Because: $"{GetType().ToPrettyString()} cannot {ExtractMethodName(memberName).ToUpper()} '{uri}' because {reason}.";
         // private static readonly IExpressValidator<Request> RequestValidator = ExpressValidator.For<Request>(builder =>
@@ -114,8 +114,8 @@ namespace Reusable.IOnymous
                     throw DynamicException.Create
                     (
                         $"Request",
-                        $"An error occured in {FormatProviderNames()} " +
-                        $"while trying to {FormatMethodName()} '{request.Uri}'. " +
+                        $"An error occured in {ResourceProviderHelper.FormatNames(this)} " +
+                        $"while trying to {RequestHelper.FormatMethodName(request)} '{request.Uri}'. " +
                         $"See the inner exception for details.",
                         inner
                     );
@@ -125,14 +125,10 @@ namespace Reusable.IOnymous
             throw DynamicException.Create
             (
                 $"MethodNotSupported",
-                $"{FormatProviderNames()} " +
-                $"cannot {FormatMethodName()} '{request.Uri}' " +
+                $"{ResourceProviderHelper.FormatNames(this)} " +
+                $"cannot {RequestHelper.FormatMethodName(request)} '{request.Uri}' " +
                 $"because it doesn't support this method."
             );
-
-            string FormatProviderNames() => Properties.GetNames().Select(x => x.ToString()).Join("/");
-
-            string FormatMethodName() => request.Method.Name.ToString().ToUpper();
         }
 
         public virtual void Dispose()
@@ -140,45 +136,64 @@ namespace Reusable.IOnymous
             // Can be overriden when derived.
         }
 
-        public static string CreateTag(string name) => $"#{name.Trim('#')}";
+        public static string CreateTag(string name) => $"{TagPrefix}{name.Trim('#')}";
 
-        [UseType, UseMember]
-        [Rename(nameof(ResourceProvider))]
-        [PlainSelectorFormatter]
-        public class Property : PropertySelector<Property>
+        
+
+        public class Decorator : IResourceProvider
         {
-            public static readonly Selector<IImmutableSet<SoftString>> Schemes = Select(() => Schemes);
+            public Decorator(IResourceProvider provider)
+            {
+                Provider = provider;
+            }
 
-            public static readonly Selector<IImmutableSet<SoftString>> Names = Select(() => Names);
+            protected IResourceProvider Provider { get; }
 
-            public static readonly Selector<bool> AllowRelativeUri = Select(() => AllowRelativeUri);
+            public virtual IImmutableContainer Properties => Provider.Properties;
+
+            public virtual IImmutableDictionary<RequestMethod, RequestCallback> Methods => Provider.Methods;
+
+            public virtual Task<IResource> InvokeAsync(Request request) => Provider.InvokeAsync(request);
+
+            public virtual void Dispose() { }
         }
     }
+    
+    //[UseType, UseMember]
+    [Rename(nameof(ResourceProvider))]
+    //[PlainSelectorFormatter]
+    public class ResourceProviderProperty : SelectorBuilder<ResourceProviderProperty>
+    {
+        public static readonly Selector<IImmutableSet<SoftString>> Schemes = Select(() => Schemes);
 
-    public class UseProvider : ResourceProvider
+        public static readonly Selector<IImmutableSet<SoftString>> Names = Select(() => Names);
+
+        public static readonly Selector<bool> AllowRelativeUri = Select(() => AllowRelativeUri);
+    }
+
+    public class UseProvider : ResourceProvider.Decorator
     {
         private readonly string _name;
 
-        public UseProvider(IResourceProvider provider, string name) : base(provider.Properties)
+        public UseProvider(IResourceProvider provider, string name) : base(provider)
         {
             _name = name;
         }
 
         public override Task<IResource> InvokeAsync(Request request)
         {
-            return base.InvokeAsync(request.SetProperties(p => p.SetName(_name)));
+            request.Properties = request.Properties.SetName(_name);
+            return base.InvokeAsync(request);
         }
     }
 
     public static class MethodDictionary
     {
-        public static IImmutableDictionary<RequestMethod, RequestCallback> Empty => ImmutableDictionary<RequestMethod, RequestCallback>.Empty;
+        public static IImmutableDictionary<RequestMethod, RequestCallback> Empty { get; } = ImmutableDictionary<RequestMethod, RequestCallback>.Empty;
     }
 
     public class Request
     {
-        //public static readonly From<IRequestProperties> PropertySelector = From<IRequestProperties>.This;
-
         [NotNull]
         public UriString Uri { get; set; } = new UriString($"{UriSchemes.Custom.IOnymous}:///");
 
@@ -187,8 +202,6 @@ namespace Reusable.IOnymous
 
         [NotNull]
         public IImmutableContainer Properties { get; set; } = ImmutableContainer.Empty;
-
-        //public Stream Body { get; set; }
 
         [CanBeNull]
         public Func<Task<Stream>> CreateBodyStreamFunc { get; set; }
@@ -232,11 +245,11 @@ namespace Reusable.IOnymous
         }
 
         #endregion
-        
-        [UseType, UseMember]
+
+        //[UseType, UseMember]
         [Rename(nameof(Request))]
-        [PlainSelectorFormatter]
-        public class Property : PropertySelector<Property>
+        //[PlainSelectorFormatter]
+        public class Property : SelectorBuilder<Property>
         {
             public static readonly Selector<CancellationToken> CancellationToken = Select(() => CancellationToken);
         }
@@ -258,9 +271,14 @@ namespace Reusable.IOnymous
 
         public static Task<Stream> CreateBodyStreamAsync(this Request request)
         {
-            return request.CreateBodyStreamFunc?.Invoke() ?? throw new ArgumentNullException(
-                       paramName: $"{nameof(request)}.{nameof(request.CreateBodyStreamFunc)}",
-                       message: $"{FormatMethodName()} request to '{request.Uri}' requires a body that is missing.");
+            if (request.CreateBodyStreamFunc is null)
+            {
+                throw new ArgumentNullException(
+                    paramName: $"{nameof(request)}.{nameof(request.CreateBodyStreamFunc)}",
+                    message: $"{FormatMethodName()} request to '{request.Uri}' requires a body that is missing.");
+            }
+
+            return request.CreateBodyStreamFunc();
 
             string FormatMethodName() => request.Method.Name.ToString().ToUpper();
         }
@@ -277,5 +295,76 @@ namespace Reusable.IOnymous
         public static readonly RequestMethod Put = CreateWithCallerName();
 
         public static readonly RequestMethod Delete = CreateWithCallerName();
+    }
+
+    public static class ResourceProviderHelper
+    {
+        public static string FormatNames(IResourceProvider provider)
+        {
+            var name = provider.Properties.GetNames().Take(1).Select(x => x.ToString());
+            var tags = provider.Properties.GetNames().Skip(1).Select(x => x.ToString());
+
+            return $"{name} [{tags.Join(", ")}]";
+        }
+    }
+
+    public static class RequestHelper
+    {
+        public static string FormatMethodName(Request request) => request.Method.Name.ToString().ToUpper();
+    }
+
+    public static class ElementOrder
+    {
+        public const int Preserve = -1; // Less than zero - x is less than y.
+        public const int Same = 0; // Zero - x equals y.
+        public const int Reorder = 1; // Greater than zero - x is greater than y.
+    }
+
+    public static class ComparerHelper
+    {
+        public static bool TryCompareReference<T>(T x, T y, out int referenceOrder)
+        {
+            if (ReferenceEquals(x, y))
+            {
+                referenceOrder = ElementOrder.Same;
+                return true;
+            }
+
+            if (ReferenceEquals(x, null))
+            {
+                referenceOrder = ElementOrder.Preserve;
+                return true;
+            }
+
+            if (ReferenceEquals(y, null))
+            {
+                referenceOrder = ElementOrder.Reorder;
+                return true;
+            }
+
+            referenceOrder = ElementOrder.Same;
+            return false;
+        }
+    }
+
+    public class ResourceProviderNameComparer : IComparer<SoftString>
+    {
+        public int Compare(SoftString x, SoftString y)
+        {
+            if (ComparerHelper.TryCompareReference(x, y, out var referenceOrder))
+            {
+                return referenceOrder;
+            }
+
+            if (IsTag(x) ^ IsTag(y))
+            {
+                if (IsTag(x)) return ElementOrder.Reorder;
+                if (IsTag(y)) return ElementOrder.Preserve;
+            }
+
+            return SoftString.Comparer.Compare(x, y);
+        }
+
+        private static bool IsTag(SoftString name) => name.StartsWith(ResourceProvider.TagPrefix);
     }
 }

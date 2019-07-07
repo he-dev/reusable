@@ -405,6 +405,52 @@ namespace System.Linq.Custom
                     ? dictionary.Add(key, value)
                     : dictionary;
         }
+        
+//        public static IEnumerable<T> Take<T>(this IEnumerable<T> source, int count)
+//        {
+//            if (source == null) throw new ArgumentNullException(nameof(source));
+//            if (count <= 0) return source;
+//
+//            if (count >= 0)
+//            {
+//                return Enumerable.Take(source, count);
+//            }
+//
+//            if (source is ICollection<T> collection)
+//            {
+//                return Enumerable.Take(collection, collection.Count - count);
+//            }
+//
+//            return Skipper();
+//
+//            IEnumerable<T> Skipper()
+//            {
+//                using (var e = source.GetEnumerator())
+//                {
+//                    if (!e.MoveNext())
+//                    {
+//                        yield break;
+//                    }
+//
+//                    var queue = new T[count];
+//                    queue[0] = e.Current;
+//                    var index = 1;
+//
+//                    while (index < count && e.MoveNext())
+//                    {
+//                        queue[index++] = e.Current;
+//                    }
+//
+//                    index = -1;
+//                    while (e.MoveNext())
+//                    {
+//                        index = (index + 1) % count;
+//                        yield return queue[index];
+//                        queue[index] = e.Current;
+//                    }
+//                }
+//            }
+//        }
     }
 
     public class EmptySequenceException : Exception

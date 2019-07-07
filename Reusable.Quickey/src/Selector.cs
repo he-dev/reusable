@@ -43,7 +43,7 @@ namespace Reusable.Quickey
         public static IEnumerable<Selector> Selectors<T>(this From<T> from)
         {
             var members =
-                typeof(PropertySelector<T>).IsAssignableFrom(typeof(T))
+                typeof(SelectorBuilder<T>).IsAssignableFrom(typeof(T))
                     ? typeof(T).GetFields().Cast<MemberInfo>()
                     : typeof(T).GetProperties().Cast<MemberInfo>();
             return
@@ -93,6 +93,8 @@ namespace Reusable.Quickey
 
         public static Selector FromMember(Type declaringType, MemberInfo member)
         {
+            // todo - this might require improved static/instance handling
+            
             var memberAccess = default(Expression);
 
             if (member is PropertyInfo property)
@@ -144,12 +146,14 @@ namespace Reusable.Quickey
     }
 
     [PublicAPI]
-    public abstract class PropertySelector<T>
+    [UseType, UseMember]
+    [PlainSelectorFormatter]
+    public abstract class SelectorBuilder<T>
     {
         public static readonly From<T> This = From<T>.This;
 
         [NotNull]
-        public static Selector<TMember> Select<TMember>([NotNull] Expression<Func<Selector<TMember>>> selector)
+        protected static Selector<TMember> Select<TMember>([NotNull] Expression<Func<Selector<TMember>>> selector)
         {
             return new Selector<TMember>(selector);
         }

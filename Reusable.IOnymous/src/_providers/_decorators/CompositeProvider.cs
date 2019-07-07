@@ -32,7 +32,7 @@ namespace Reusable.IOnymous
             : base(ImmutableContainer
                 .Empty
                 .SetScheme(UriSchemes.Custom.IOnymous)
-                .SetItem(Property.AllowRelativeUri, true))
+                .SetItem(ResourceProviderProperty.AllowRelativeUri, true))
         {
             if (providers == null) throw new ArgumentNullException(nameof(providers));
 

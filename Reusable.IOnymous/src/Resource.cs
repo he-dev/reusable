@@ -33,8 +33,6 @@ namespace Reusable.IOnymous
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public abstract class Resource : IResource
     {
-        //public static readonly From<IResourceProperties> PropertySelector = From<IResourceProperties>.This;
-
         protected Resource([NotNull] IImmutableContainer properties)
         {
             // todo - why do I need this?
@@ -80,7 +78,7 @@ namespace Reusable.IOnymous
         [UseType, UseMember]
         [Rename(nameof(Resource))]
         [PlainSelectorFormatter]
-        public class Property : PropertySelector<Property>
+        public class Property : SelectorBuilder<Property>
         {
             public static readonly Selector<UriString> Uri = Select(() => Uri);
 

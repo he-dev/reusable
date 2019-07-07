@@ -16,7 +16,7 @@ namespace Reusable.IOnymous
         public EmbeddedFileProvider([NotNull] Assembly assembly, IImmutableContainer properties = default)
             : base((properties ?? ImmutableContainer.Empty)
                 .SetScheme(UriSchemes.Custom.IOnymous)
-                .SetItem(Property.AllowRelativeUri, true))
+                .SetItem(ResourceProviderProperty.AllowRelativeUri, true))
         {
             _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
             var assemblyName = _assembly.GetName().Name.Replace('.', '/');

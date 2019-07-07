@@ -97,11 +97,11 @@ namespace Reusable.IOnymous.Config
                     break;
                 case string str:
                     request.CreateBodyStreamFunc = () => ResourceHelper.SerializeTextAsync(str);
-                    request.SetProperties(p => p.SetItem(Resource.Property.Format, MimeType.Text));
+                    request.Properties = request.Properties.SetItem(Resource.Property.Format, MimeType.Text);
                     break;
                 default:
                     request.CreateBodyStreamFunc = () => ResourceHelper.SerializeBinaryAsync(value);
-                    request.SetProperties(p => p.SetItem(Resource.Property.Format, MimeType.Binary));
+                    request.Properties = request.Properties.SetItem(Resource.Property.Format, MimeType.Binary);
                     break;
             }
         }

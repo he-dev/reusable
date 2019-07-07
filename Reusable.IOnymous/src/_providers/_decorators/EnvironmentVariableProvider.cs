@@ -11,7 +11,7 @@ namespace Reusable.IOnymous
     public class EnvironmentVariableProvider : ResourceProvider
     {
         public EnvironmentVariableProvider([NotNull] IResourceProvider provider)
-            : base(provider.Properties.SetItem(Property.AllowRelativeUri, true))
+            : base(provider.Properties.SetItem(ResourceProviderProperty.AllowRelativeUri, true))
         {
             Methods = provider.Methods.Aggregate(MethodDictionary.Empty, (current, next) =>
             {

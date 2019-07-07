@@ -15,7 +15,7 @@ namespace Reusable.IOnymous
         public RelativeProvider([NotNull] UriString baseUri, [NotNull] IResourceProvider provider)
             : base(provider.Properties
                 .SetScheme(baseUri.Scheme)
-                .SetItem(Property.AllowRelativeUri, true))
+                .SetItem(ResourceProviderProperty.AllowRelativeUri, true))
         {
             _baseUri = baseUri ?? throw new ArgumentNullException(nameof(baseUri));
 
