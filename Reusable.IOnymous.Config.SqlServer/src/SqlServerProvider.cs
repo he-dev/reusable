@@ -68,12 +68,12 @@ namespace Reusable.IOnymous.Config
                     if (await settingReader.ReadAsync(token))
                     {
                         var value = settingReader[ColumnMappings.MapOrDefault(SqlServerColumn.Value)];
-                        value = ValueConverter.Convert(value, request.Properties.GetDataType());
-                        return new SqlServerResource(request.Properties.Copy(Resource.Property.This), value);
+                        value = ValueConverter.Convert(value, request.Extensions.GetDataType());
+                        return new SqlServerResource(request.Extensions.Copy(Resource.Property.This), value);
                     }
                     else
                     {
-                        return new SqlServerResource(request.Properties.Copy(Resource.Property.This));
+                        return new SqlServerResource(request.Extensions.Copy(Resource.Property.This));
                     }
                 }
             }, CancellationToken.None);
@@ -85,7 +85,7 @@ namespace Reusable.IOnymous.Config
 
             using (var body = await request.CreateBodyStreamAsync())
             {
-                var value = await ResourceHelper.Deserialize<object>(body, request.Properties);
+                var value = await ResourceHelper.Deserialize<object>(body, request.Extensions);
                 value = ValueConverter.Convert(value, typeof(string));
 
                 await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
@@ -94,12 +94,12 @@ namespace Reusable.IOnymous.Config
                     {
                         await cmd.ExecuteNonQueryAsync(token);
                     }
-                }, request.Properties.GetItemOrDefault(Request.Property.CancellationToken));
+                }, request.Extensions.GetItemOrDefault(Request.Property.CancellationToken));
             }
 
             return await GetAsync(new Request.Get(request.Uri)
             {
-                Properties = request.Properties.CopyResourceProperties()
+                Extensions = request.Extensions.CopyResourceProperties()
             });
         }
     }

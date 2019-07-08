@@ -19,7 +19,7 @@ namespace Reusable.IOnymous
                 {
                     Uri = Resolve(request.Uri),
                     Method = request.Method,
-                    Properties = request.Properties,
+                    Extensions = request.Extensions,
                     CreateBodyStreamFunc = request.CreateBodyStreamFunc,
                 }));
             });

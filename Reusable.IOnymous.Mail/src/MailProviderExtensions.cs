@@ -49,7 +49,7 @@ namespace Reusable.IOnymous
             return
                 await provider.InvokeAsync(new Request.Post($"{UriSchemes.Known.MailTo}:dummy@email.com")
                 {
-                    Properties = properties,
+                    Extensions = properties,
                     CreateBodyStreamFunc = () => ResourceHelper.SerializeTextAsync(email.Body.Value, email.Body.Encoding)
                 });
 

@@ -26,10 +26,10 @@ namespace Reusable.IOnymous
         private async Task<IResource> PostAsync(Request request)
         {
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(request.Properties.GetItemOrDefault(From<IMailMeta>.Select(x => x.From))));
-            message.To.AddRange(request.Properties.GetItemOrDefault(From<IMailMeta>.Select(x => x.To)).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
-            message.Cc.AddRange(request.Properties.GetItemOrDefault(From<IMailMeta>.Select(x => x.CC), Enumerable.Empty<string>().ToList()).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
-            message.Subject = request.Properties.GetItemOrDefault(From<IMailMeta>.Select(x => x.Subject));
+            message.From.Add(new MailboxAddress(request.Extensions.GetItemOrDefault(From<IMailMeta>.Select(x => x.From))));
+            message.To.AddRange(request.Extensions.GetItemOrDefault(From<IMailMeta>.Select(x => x.To)).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
+            message.Cc.AddRange(request.Extensions.GetItemOrDefault(From<IMailMeta>.Select(x => x.CC), Enumerable.Empty<string>().ToList()).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
+            message.Subject = request.Extensions.GetItemOrDefault(From<IMailMeta>.Select(x => x.Subject));
             var multipart = new Multipart("mixed");
 //            {
 //                new TextPart(request.Properties.GetItemOrDefault(From<IMailMeta>.Select(x => x.IsHtml)) ? TextFormat.Html : TextFormat.Plain)
@@ -40,13 +40,13 @@ namespace Reusable.IOnymous
 
             using (var body = await request.CreateBodyStreamAsync())
             {
-                multipart.Add(new TextPart(request.Properties.GetItemOrDefault(From<IMailMeta>.Select(x => x.IsHtml)) ? TextFormat.Html : TextFormat.Plain)
+                multipart.Add(new TextPart(request.Extensions.GetItemOrDefault(From<IMailMeta>.Select(x => x.IsHtml)) ? TextFormat.Html : TextFormat.Plain)
                 {
-                    Text = await ReadBodyAsync(body, request.Properties)
+                    Text = await ReadBodyAsync(body, request.Extensions)
                 });
             }
 
-            foreach (var attachment in request.Properties.GetItemOrDefault(From<IMailMeta>.Select(x => x.Attachments), new Dictionary<string, byte[]>()).Where(i => i.Key.IsNotNullOrEmpty() && i.Value.IsNotNull()))
+            foreach (var attachment in request.Extensions.GetItemOrDefault(From<IMailMeta>.Select(x => x.Attachments), new Dictionary<string, byte[]>()).Where(i => i.Key.IsNotNullOrEmpty() && i.Value.IsNotNull()))
             {
                 var attachmentPart = new MimePart(MediaTypeNames.Application.Octet)
                 {
@@ -64,9 +64,9 @@ namespace Reusable.IOnymous
             {
                 await smtpClient.ConnectAsync
                 (
-                    request.Properties.GetItemOrDefault(From<ISmtpMeta>.Select(x => x.Host)),
-                    request.Properties.GetItemOrDefault(From<ISmtpMeta>.Select(x => x.Port)),
-                    request.Properties.GetItemOrDefault(From<ISmtpMeta>.Select(x => x.UseSsl), false)
+                    request.Extensions.GetItemOrDefault(From<ISmtpMeta>.Select(x => x.Host)),
+                    request.Extensions.GetItemOrDefault(From<ISmtpMeta>.Select(x => x.Port)),
+                    request.Extensions.GetItemOrDefault(From<ISmtpMeta>.Select(x => x.UseSsl), false)
                 );
                 await smtpClient.SendAsync(message);
             }

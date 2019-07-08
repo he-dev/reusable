@@ -138,7 +138,7 @@ namespace Reusable.IOnymous
             {
                 Uri = uri,
                 Method = RequestMethod.Get,
-                Properties = properties.ThisOrEmpty()
+                Extensions = properties.ThisOrEmpty()
             };
             return await resources.InvokeAsync(request);
         }
