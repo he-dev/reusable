@@ -116,7 +116,7 @@ namespace Reusable.IOnymous
     [Rename(nameof(HttpProvider))]
     public class HttpProviderProperty : SelectorBuilder<HttpProviderProperty>
     {
-        public static Selector<Task<Stream>> CreateContentStream = Select(() => CreateContentStream);
+        //public static Selector<Task<Stream>> CreateContentStream = Select(() => CreateContentStream);
 
         public static Selector<Action<HttpRequestHeaders>> ConfigureRequestHeaders = Select(() => ConfigureRequestHeaders);
 

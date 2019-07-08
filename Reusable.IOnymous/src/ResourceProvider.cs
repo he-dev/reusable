@@ -42,23 +42,6 @@ namespace Reusable.IOnymous
     {
         public static readonly string TagPrefix = "#";
 
-        // Because: $"{GetType().ToPrettyString()} cannot {ExtractMethodName(memberName).ToUpper()} '{uri}' because {reason}.";
-        // private static readonly IExpressValidator<Request> RequestValidator = ExpressValidator.For<Request>(builder =>
-        // {
-        //     //            builder.True
-        //     //            (x =>
-        //     //                x.Provider.Metadata.GetItemOrDefault(From<IProviderMeta>.Select(m => m.AllowRelativeUri), false) ||
-        //     //                x.Provider.Schemes.Contains(ResourceSchemes.IOnymous) ||
-        //     //                x.Provider.Schemes.Contains(x.Uri.Scheme)
-        //     //            ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it supports only such schemes as [{x.Provider.Schemes.Join(", ")}].");
-        //
-        //     builder.True
-        //     (x =>
-        //         x.Provider.Properties.GetItemOrDefault(PropertySelector.Select(m => m.AllowRelativeUri), false) ||
-        //         x.Uri.Scheme
-        //     ).WithMessage(x => $"{ProviderInfo(x.Provider)} cannot {x.Method.ToUpper()} '{x.Uri}' because it supports only absolute URIs.");
-        // });
-
         protected ResourceProvider([NotNull] IImmutableContainer properties)
         {
             if (properties == null) throw new ArgumentNullException(nameof(properties));
