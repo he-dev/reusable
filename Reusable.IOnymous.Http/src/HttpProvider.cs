@@ -52,8 +52,8 @@ namespace Reusable.IOnymous
                 var uri = BaseUri + request.Uri;
                 using (var body = await request.CreateBodyStreamAsync())
                 {
-                    var (response, mediaType) = await InvokeAsync(uri, httpMethod, request.Properties.SetItem(From<IHttpMeta>.Select(x => x.Content), body));
-                    return new HttpResource(request.Properties.CopyResourceProperties().SetFormat(mediaType), response);
+                    var (response, mediaType) = await InvokeAsync(uri, httpMethod, request.Extensions.SetItem(From<IHttpMeta>.Select(x => x.Content), body));
+                    return new HttpResource(request.Extensions.CopyResourceProperties().SetFormat(mediaType), response);
                 }
             };
         }
@@ -114,7 +114,7 @@ namespace Reusable.IOnymous
     }
 
     [Rename(nameof(HttpProvider))]
-    public class HttpProviderProperty : SelectorBuilder<HttpProviderProperty>
+    public class HttpRequestExtension : SelectorBuilder<HttpRequestExtension>
     {
         //public static Selector<Task<Stream>> CreateContentStream = Select(() => CreateContentStream);
 

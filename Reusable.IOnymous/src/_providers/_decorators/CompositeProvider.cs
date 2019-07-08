@@ -64,9 +64,9 @@ namespace Reusable.IOnymous
                 var filteredProviders = _providers.AsEnumerable();
 
                 // When provider-name is specified then filter them by name first.
-                if (request.Properties.GetNames().Any()) // this means there is a custom name
+                if (request.Extensions.GetNames().Any()) // this means there is a custom name
                 {
-                    filteredProviders = filteredProviders.Where(p => p.Properties.GetNames().Overlaps(request.Properties.GetNames()));
+                    filteredProviders = filteredProviders.Where(p => p.Properties.GetNames().Overlaps(request.Extensions.GetNames()));
                 }
 
                 // Check if there is a provider that matches the scheme of the absolute uri.

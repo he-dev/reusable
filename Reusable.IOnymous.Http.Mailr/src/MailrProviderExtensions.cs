@@ -44,7 +44,7 @@ namespace Reusable.IOnymous
 
             var response = await provider.InvokeAsync(new Request.Post(uri)
             {
-                Properties = properties,
+                Extensions = properties,
                 CreateBodyStreamFunc = email.CreateSerializeStreamFunc
             });
 

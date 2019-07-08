@@ -165,7 +165,7 @@ namespace Reusable.IOnymous
 
         public override Task<IResource> InvokeAsync(Request request)
         {
-            request.Properties = request.Properties.SetName(_name);
+            request.Extensions = request.Extensions.SetName(_name);
             return base.InvokeAsync(request);
         }
     }
@@ -184,7 +184,7 @@ namespace Reusable.IOnymous
         public RequestMethod Method { get; set; } = RequestMethod.None;
 
         [NotNull]
-        public IImmutableContainer Properties { get; set; } = ImmutableContainer.Empty;
+        public IImmutableContainer Extensions { get; set; } = ImmutableContainer.Empty;
 
         [CanBeNull]
         public Func<Task<Stream>> CreateBodyStreamFunc { get; set; }
@@ -242,7 +242,7 @@ namespace Reusable.IOnymous
     {
         public static Request SetProperties(this Request request, Func<IImmutableContainer, IImmutableContainer> properties)
         {
-            request.Properties = properties(request.Properties);
+            request.Extensions = properties(request.Extensions);
             return request;
         }
 
@@ -299,7 +299,7 @@ namespace Reusable.IOnymous
     public static class ElementOrder
     {
         public const int Preserve = -1; // Less than zero - x is less than y.
-        public const int Same = 0; // Zero - x equals y.
+        public const int Ignore = 0; // Zero - x equals y.
         public const int Reorder = 1; // Greater than zero - x is greater than y.
     }
 
@@ -309,7 +309,7 @@ namespace Reusable.IOnymous
         {
             if (ReferenceEquals(x, y))
             {
-                referenceOrder = ElementOrder.Same;
+                referenceOrder = ElementOrder.Ignore;
                 return true;
             }
 
@@ -325,7 +325,7 @@ namespace Reusable.IOnymous
                 return true;
             }
 
-            referenceOrder = ElementOrder.Same;
+            referenceOrder = ElementOrder.Ignore;
             return false;
         }
     }

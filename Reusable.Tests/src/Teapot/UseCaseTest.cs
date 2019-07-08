@@ -51,7 +51,7 @@ namespace Reusable.Tests.Teapot
                     // Request made by the application somewhere deep down the rabbit hole
                     var request = new Request.Post("test?param=true")
                     {
-                        Properties = ImmutableContainer
+                        Extensions = ImmutableContainer
                             .Empty
                             .SetItem(From<IHttpMeta>.Select(x => x.ConfigureRequestHeaders), headers =>
                             {
