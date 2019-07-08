@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.IOnymous;
+using Reusable.IOnymous.Http;
 using Reusable.Quickey;
 
 namespace Reusable.Tests.IOnymous
@@ -17,7 +18,7 @@ namespace Reusable.Tests.IOnymous
                 "posts/1",
                 ImmutableContainer
                     .Empty
-                    .SetItem(From<IHttpMeta>.Select(x => x.ConfigureRequestHeaders), headers => headers.AcceptJson())
+                    .SetItem(HttpRequestContext.ConfigureHeaders, headers => headers.AcceptJson())
                 //.ResponseFormatters(ne())
                 //.ResponseType(typeof(string))
             );

@@ -1,13 +1,11 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Quickey;
 
-namespace Reusable.IOnymous
+namespace Reusable.IOnymous.Mail
 {
     public abstract class MailProvider : ResourceProvider
     {
@@ -15,45 +13,39 @@ namespace Reusable.IOnymous
 
         protected async Task<string> ReadBodyAsync(Stream value, IImmutableContainer metadata)
         {
-            using (var bodyReader = new StreamReader(value, metadata.GetItemOrDefault(From<IMailMeta>.Select(x => x.BodyEncoding), Encoding.UTF8)))
+            using (var bodyReader = new StreamReader(value, metadata.GetItemOrDefault(MailRequestContext.BodyEncoding, Encoding.UTF8)))
             {
                 return await bodyReader.ReadToEndAsync();
             }
         }
     }
-
-    [UseType, UseMember]
-    [TrimStart("I"), TrimEnd("Meta")]
-    [PlainSelectorFormatter]
-    public interface IMailMeta : INamespace
+    
+    [Rename(nameof(MailRequestContext))]
+    public class MailRequestContext : SelectorBuilder<MailRequestContext>
     {
-        string From { get; }
+        public static Selector<string> From = Select(() => From);
 
-        IList<string> To { get; }
+        public static Selector<IList<string>> To = Select(() => To);
 
-        [CanBeNull]
-        // ReSharper disable once InconsistentNaming - We want to keep this particular name as is.
-        IList<string> CC { get; }
+        public static Selector<IList<string>> CC = Select(() => CC);
 
-        string Subject { get; }
+        public static Selector<string> Subject = Select(() => Subject);
 
-        [CanBeNull]
-        IDictionary<string, byte[]> Attachments { get; }
+        public static Selector<IDictionary<string, byte[]>> Attachments = Select(() => Attachments);
 
-        Encoding BodyEncoding { get; }
+        public static Selector<Encoding> BodyEncoding = Select(() => BodyEncoding);
 
-        bool IsHtml { get; }
+        public static Selector<bool> IsHtml = Select(() => IsHtml);
 
-        bool IsHighPriority { get; }
+        public static Selector<bool> IsHighPriority = Select(() => IsHighPriority);
     }
 
     internal class MailResource : Resource
     {
         private readonly Stream _response;
 
-        internal MailResource(IImmutableContainer properties, Stream response = default)
-            : base(properties
-                .SetExists(!(response is null)))
+        internal MailResource(IImmutableContainer properties, Stream response)
+            : base(properties.SetExists(response != Stream.Null))
         {
             _response = response;
         }

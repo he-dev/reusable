@@ -6,7 +6,10 @@ using Reusable.Data;
 using Reusable.Diagnostics;
 using Reusable.IOnymous;
 using Reusable.IOnymous.Http;
+using Reusable.IOnymous.Http.Mailr;
 using Reusable.IOnymous.Http.Mailr.Models;
+using Reusable.IOnymous.Mail;
+using Reusable.IOnymous.Mail.Smtp;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
@@ -190,8 +193,8 @@ namespace Reusable.Apps
             var metadata =
                 ImmutableContainer
                     .Empty
-                    .SetItem(From<ISmtpMeta>.Select(x => x.Host), "localhost")
-                    .SetItem(From<ISmtpMeta>.Select(x => x.Port), 25);
+                    .SetItem(SmtpRequestContext.Host, "localhost")
+                    .SetItem(SmtpRequestContext.Port, 25);
 
             var mailrProvider = new SmtpProvider();
             await mailrProvider.SendEmailAsync(new Email<EmailSubject, EmailBody>

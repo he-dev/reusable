@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.IOnymous;
 using Reusable.IOnymous.Http;
+using Reusable.IOnymous.Http.Mailr;
 using Reusable.IOnymous.Http.Mailr.Models;
 using Reusable.Teapot;
 using Reusable.Utilities.XUnit.Fixtures;

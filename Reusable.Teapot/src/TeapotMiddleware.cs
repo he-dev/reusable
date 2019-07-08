@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Reusable.Exceptionize;
 using Reusable.IOnymous;
+using HttpContext = Microsoft.AspNetCore.Http.HttpContext;
 
 namespace Reusable.Teapot
 {

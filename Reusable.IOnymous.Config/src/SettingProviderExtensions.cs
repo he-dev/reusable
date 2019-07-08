@@ -81,7 +81,7 @@ namespace Reusable.IOnymous.Config
             {
                 Uri = uri,
                 Method = method,
-                Extensions = properties,
+                Context = properties,
             };
 
             AddBody(request, value);
@@ -96,12 +96,12 @@ namespace Reusable.IOnymous.Config
                 case null:
                     break;
                 case string str:
-                    request.CreateBodyStreamFunc = () => ResourceHelper.SerializeTextAsync(str);
-                    request.Extensions = request.Extensions.SetItem(Resource.Property.Format, MimeType.Text);
+                    request.CreateBodyStreamCallback = () => ResourceHelper.SerializeTextAsync(str);
+                    request.Context = request.Context.SetItem(Resource.Property.Format, MimeType.Text);
                     break;
                 default:
-                    request.CreateBodyStreamFunc = () => ResourceHelper.SerializeBinaryAsync(value);
-                    request.Extensions = request.Extensions.SetItem(Resource.Property.Format, MimeType.Binary);
+                    request.CreateBodyStreamCallback = () => ResourceHelper.SerializeBinaryAsync(value);
+                    request.Context = request.Context.SetItem(Resource.Property.Format, MimeType.Binary);
                     break;
             }
         }

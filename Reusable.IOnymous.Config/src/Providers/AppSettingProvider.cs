@@ -40,7 +40,7 @@ namespace Reusable.IOnymous.Config
                     ImmutableContainer
                         .Empty
                         .SetItem(Resource.Property.ActualName, settingIdentifier)
-                        .Union(request.Extensions.Copy(Resource.Property.This)),
+                        .Union(request.Context.Copy(Resource.Property.This)),
                     element?.Value));
         }
 
@@ -53,7 +53,7 @@ namespace Reusable.IOnymous.Config
 
             using (var body = await request.CreateBodyStreamAsync())
             {
-                var value = await ResourceHelper.Deserialize<object>(body, request.Extensions.Copy(Resource.Property.This));
+                var value = await ResourceHelper.Deserialize<object>(body, request.Context.Copy(Resource.Property.This));
                 value = ValueConverter.Convert(value, typeof(string));
 
                 if (element is null)

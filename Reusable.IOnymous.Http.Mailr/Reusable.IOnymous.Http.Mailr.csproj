@@ -4,7 +4,6 @@
     <!--<TargetFramework>net47</TargetFramework>-->
     <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>
     <LangVersion>latest</LangVersion>
-    <RootNamespace>Reusable.IOnymous</RootNamespace>
     <Configurations>Debug;Release;Debug.csproj</Configurations>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>

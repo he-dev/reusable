@@ -121,8 +121,6 @@ namespace Reusable.IOnymous
 
         public static string CreateTag(string name) => $"{TagPrefix}{name.Trim('#')}";
 
-        
-
         public class Decorator : IResourceProvider
         {
             public Decorator(IResourceProvider provider)
@@ -141,7 +139,7 @@ namespace Reusable.IOnymous
             public virtual void Dispose() { }
         }
     }
-    
+
     //[UseType, UseMember]
     [Rename(nameof(ResourceProvider))]
     //[PlainSelectorFormatter]
@@ -165,7 +163,7 @@ namespace Reusable.IOnymous
 
         public override Task<IResource> InvokeAsync(Request request)
         {
-            request.Extensions = request.Extensions.SetName(_name);
+            request.Context = request.Context.SetName(_name);
             return base.InvokeAsync(request);
         }
     }
@@ -174,6 +172,8 @@ namespace Reusable.IOnymous
     {
         public static IImmutableDictionary<RequestMethod, RequestCallback> Empty { get; } = ImmutableDictionary<RequestMethod, RequestCallback>.Empty;
     }
+
+    public delegate Task<Stream> CreateBodyStreamCallback();
 
     public class Request
     {
@@ -184,10 +184,10 @@ namespace Reusable.IOnymous
         public RequestMethod Method { get; set; } = RequestMethod.None;
 
         [NotNull]
-        public IImmutableContainer Extensions { get; set; } = ImmutableContainer.Empty;
+        public IImmutableContainer Context { get; set; } = ImmutableContainer.Empty;
 
         [CanBeNull]
-        public Func<Task<Stream>> CreateBodyStreamFunc { get; set; }
+        public CreateBodyStreamCallback CreateBodyStreamCallback { get; set; }
 
         #region Methods
 
@@ -228,40 +228,38 @@ namespace Reusable.IOnymous
         }
 
         #endregion
+    }
 
-        //[UseType, UseMember]
-        [Rename(nameof(Request))]
-        //[PlainSelectorFormatter]
-        public class Property : SelectorBuilder<Property>
-        {
-            public static readonly Selector<CancellationToken> CancellationToken = Select(() => CancellationToken);
-        }
+    [Rename(nameof(AnyRequestContext))]
+    public class AnyRequestContext : SelectorBuilder<AnyRequestContext>
+    {
+        public static readonly Selector<CancellationToken> CancellationToken = Select(() => CancellationToken);
     }
 
     public static class RequestExtensions
     {
         public static Request SetProperties(this Request request, Func<IImmutableContainer, IImmutableContainer> properties)
         {
-            request.Extensions = properties(request.Extensions);
+            request.Context = properties(request.Context);
             return request;
         }
 
-        public static Request SetCreateBodyStream(this Request request, Func<Task<Stream>> createBodyStream)
+        public static Request SetCreateBodyStream(this Request request, CreateBodyStreamCallback createBodyStream)
         {
-            request.CreateBodyStreamFunc = createBodyStream;
+            request.CreateBodyStreamCallback = createBodyStream;
             return request;
         }
 
         public static Task<Stream> CreateBodyStreamAsync(this Request request)
         {
-            if (request.CreateBodyStreamFunc is null)
+            if (request.CreateBodyStreamCallback is null)
             {
                 throw new ArgumentNullException(
-                    paramName: $"{nameof(request)}.{nameof(request.CreateBodyStreamFunc)}",
+                    paramName: $"{nameof(request)}.{nameof(request.CreateBodyStreamCallback)}",
                     message: $"{FormatMethodName()} request to '{request.Uri}' requires a body that is missing.");
             }
 
-            return request.CreateBodyStreamFunc();
+            return request.CreateBodyStreamCallback();
 
             string FormatMethodName() => request.Method.Name.ToString().ToUpper();
         }

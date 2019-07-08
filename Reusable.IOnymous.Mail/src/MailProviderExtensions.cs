@@ -1,8 +1,7 @@
 using System.Threading.Tasks;
 using Reusable.Data;
-using Reusable.Quickey;
 
-namespace Reusable.IOnymous
+namespace Reusable.IOnymous.Mail
 {
     public static class MailProviderExtensions
     {
@@ -37,20 +36,20 @@ namespace Reusable.IOnymous
             properties =
                 properties
                     .ThisOrEmpty()
-                    .SetItem(From<IMailMeta>.Select(x => x.From), email.From)
-                    .SetItem(From<IMailMeta>.Select(x => x.To), email.To)
-                    .SetItem(From<IMailMeta>.Select(x => x.CC), email.CC)
-                    .SetItem(From<IMailMeta>.Select(x => x.Subject), email.Subject.Value)
-                    .SetItem(From<IMailMeta>.Select(x => x.Attachments), email.Attachments)
-                    .SetItem(From<IMailMeta>.Select(x => x.From), email.From)
-                    .SetItem(From<IMailMeta>.Select(x => x.IsHtml), email.IsHtml)
-                    .SetItem(From<IMailMeta>.Select(x => x.IsHighPriority), email.IsHighPriority);
+                    .SetItem(MailRequestContext.From, email.From)
+                    .SetItem(MailRequestContext.To, email.To)
+                    .SetItem(MailRequestContext.CC, email.CC)
+                    .SetItem(MailRequestContext.Subject, email.Subject.Value)
+                    .SetItem(MailRequestContext.Attachments, email.Attachments)
+                    .SetItem(MailRequestContext.From, email.From)
+                    .SetItem(MailRequestContext.IsHtml, email.IsHtml)
+                    .SetItem(MailRequestContext.IsHighPriority, email.IsHighPriority);
 
             return
                 await provider.InvokeAsync(new Request.Post($"{UriSchemes.Known.MailTo}:dummy@email.com")
                 {
-                    Extensions = properties,
-                    CreateBodyStreamFunc = () => ResourceHelper.SerializeTextAsync(email.Body.Value, email.Body.Encoding)
+                    Context = properties,
+                    CreateBodyStreamCallback = () => ResourceHelper.SerializeTextAsync(email.Body.Value, email.Body.Encoding)
                 });
 
 

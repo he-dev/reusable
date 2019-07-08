@@ -58,7 +58,7 @@ namespace Reusable.IOnymous
             var name = _uriConverter.Convert<string>(request.Uri);
             using (var body = await request.CreateBodyStreamAsync())
             {
-                _items[name] = await ResourceHelper.Deserialize<object>(body, request.Extensions);
+                _items[name] = await ResourceHelper.Deserialize<object>(body, request.Context);
             }
 
             return await InvokeAsync(new Request.Get(request.Uri));
@@ -148,7 +148,7 @@ namespace Reusable.IOnymous
 
             public static IResource From(Request request)
             {
-                return new Empty(request.Extensions.CopyRequestProperties());
+                return new Empty(request.Context.CopyRequestProperties());
             }
         }
     }

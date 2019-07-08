@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.IOnymous;
+using Reusable.IOnymous.Http;
 using Reusable.Quickey;
 using Reusable.Teapot;
 using Reusable.Utilities.XUnit.Fixtures;
@@ -51,16 +52,16 @@ namespace Reusable.Tests.Teapot
                     // Request made by the application somewhere deep down the rabbit hole
                     var request = new Request.Post("test?param=true")
                     {
-                        Extensions = ImmutableContainer
+                        Context = ImmutableContainer
                             .Empty
-                            .SetItem(From<IHttpMeta>.Select(x => x.ConfigureRequestHeaders), headers =>
+                            .SetItem(HttpRequestContext.ConfigureHeaders, headers =>
                             {
                                 headers.ApiVersion("1.0");
                                 headers.UserAgent("Teapot", "1.0");
                                 headers.AcceptJson();
                             })
-                            .SetItem(From<IHttpMeta>.Select(x => x.ContentType), "application/json"),
-                        CreateBodyStreamFunc = () => ResourceHelper.SerializeAsJsonAsync(new { Greeting = "Hallo" })
+                            .SetItem(HttpResponseContext.ContentType, "application/json"),
+                        CreateBodyStreamCallback = () => ResourceHelper.SerializeAsJsonAsync(new { Greeting = "Hallo" })
                     };
 
                     var response = await _http.InvokeAsync(request);

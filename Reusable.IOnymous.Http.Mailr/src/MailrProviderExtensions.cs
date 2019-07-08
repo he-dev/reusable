@@ -1,15 +1,10 @@
-﻿using System.Collections.Immutable;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Newtonsoft.Json;
 using Reusable.Data;
-using Reusable.Extensions;
-using Reusable.IOnymous.Http;
+using Reusable.IOnymous.Http.Formatting;
 using Reusable.IOnymous.Http.Mailr.Models;
-using Reusable.Net.Http.Formatting;
-using Reusable.Quickey;
 
-namespace Reusable.IOnymous
+namespace Reusable.IOnymous.Http.Mailr
 {
     public static class MailrProviderExtensions
     {
@@ -33,19 +28,19 @@ namespace Reusable.IOnymous
             properties =
                 properties
                     .ThisOrEmpty()
-                    .SetItem(From<IHttpMeta>.Select(x => x.ConfigureRequestHeaders), headers =>
+                    .SetItem(HttpRequestContext.ConfigureHeaders, headers =>
                     {
                         headers
                             .UserAgent(userAgent.ProductName, userAgent.ProductVersion)
                             .AcceptHtml();
                     })
-                    .SetItem(From<IHttpMeta>.Select(x => x.ResponseFormatters), new[] { new TextMediaTypeFormatter() })
-                    .SetItem(From<IHttpMeta>.Select(x => x.ContentType), "application/json");
+                    .SetItem(HttpResponseContext.Formatters, new[] { new TextMediaTypeFormatter() })
+                    .SetItem(HttpResponseContext.ContentType, "application/json");
 
             var response = await provider.InvokeAsync(new Request.Post(uri)
             {
-                Extensions = properties,
-                CreateBodyStreamFunc = email.CreateSerializeStreamFunc
+                Context = properties,
+                CreateBodyStreamCallback = email.CreateSerializeStreamCallback
             });
 
             using (response)

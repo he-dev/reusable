@@ -1,7 +1,7 @@
 using System.Text;
 using JetBrains.Annotations;
 
-namespace Reusable.IOnymous
+namespace Reusable.IOnymous.Mail
 {
     [PublicAPI]
     public interface IEmailSubject

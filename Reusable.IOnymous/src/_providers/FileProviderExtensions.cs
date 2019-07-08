@@ -47,8 +47,8 @@ namespace Reusable.IOnymous
             {
                 Uri = CreateUri(path),
                 Method = RequestMethod.Put,
-                CreateBodyStreamFunc = () => ResourceHelper.SerializeTextAsync(value, properties.ThisOrEmpty().GetItemOrDefault(Resource.Property.Encoding, Encoding.UTF8)),
-                Extensions = properties.ThisOrEmpty().SetItem(Resource.Property.Format, MimeType.Text)
+                CreateBodyStreamCallback = () => ResourceHelper.SerializeTextAsync(value, properties.ThisOrEmpty().GetItemOrDefault(Resource.Property.Encoding, Encoding.UTF8)),
+                Context = properties.ThisOrEmpty().SetItem(Resource.Property.Format, MimeType.Text)
             });
         }
 
@@ -76,7 +76,7 @@ namespace Reusable.IOnymous
             {
                 Uri = CreateUri(path),
                 Method = RequestMethod.Delete,
-                Extensions = metadata.ThisOrEmpty().SetItem(Resource.Property.Format, MimeType.Text)
+                Context = metadata.ThisOrEmpty().SetItem(Resource.Property.Format, MimeType.Text)
             });
         }
 

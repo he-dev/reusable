@@ -77,7 +77,7 @@ namespace Reusable.IOnymous
 
         public static IImmutableContainer CopyRequestProperties(this IImmutableContainer container)
         {
-            return container.Copy(Request.Property.This);
+            return container.Copy(AnyRequestContext.This);
         }
         
         public static IImmutableContainer CopyResourceProperties(this IImmutableContainer container)

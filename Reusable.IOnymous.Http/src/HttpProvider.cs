@@ -10,11 +10,11 @@ using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Quickey;
 
-namespace Reusable.IOnymous
+namespace Reusable.IOnymous.Http
 {
     public class HttpProvider : ResourceProvider
     {
-        public static readonly From<IHttpMeta> PropertySelector = From<IHttpMeta>.This;
+        //public static readonly From<IHttpMeta> PropertySelector = From<IHttpMeta>.This;
 
         private readonly HttpClient _client;
 
@@ -50,28 +50,25 @@ namespace Reusable.IOnymous
             return async request =>
             {
                 var uri = BaseUri + request.Uri;
-                using (var body = await request.CreateBodyStreamAsync())
-                {
-                    var (response, mediaType) = await InvokeAsync(uri, httpMethod, request.Extensions.SetItem(From<IHttpMeta>.Select(x => x.Content), body));
-                    return new HttpResource(request.Extensions.CopyResourceProperties().SetFormat(mediaType), response);
-                }
+                var (response, mediaType) = await InvokeAsync(uri, httpMethod, request.CreateBodyStreamCallback, ImmutableContainer.Empty);
+                return new HttpResource(request.Context.CopyResourceProperties().SetFormat(mediaType), response);
             };
         }
 
-        private async Task<(Stream Content, MimeType MimeType)> InvokeAsync(UriString uri, HttpMethod method, IImmutableContainer properties)
+        private async Task<(Stream Content, MimeType MimeType)> InvokeAsync(UriString uri, HttpMethod method, CreateBodyStreamCallback createBodyStream, IImmutableContainer context)
         {
             using (var request = new HttpRequestMessage(method, uri))
+            using (var content = await (createBodyStream?.Invoke() ?? Task.FromResult(Stream.Null)))
             {
-                var content = properties.GetItemOrDefault(From<IHttpMeta>.Select(m => m.Content));
-                if (content != null)
+                if (content != Stream.Null)
                 {
                     request.Content = new StreamContent(content.Rewind());
-                    request.Content.Headers.ContentType = new MediaTypeHeaderValue(properties.GetItemOrDefault(From<IHttpMeta>.Select(m => m.ContentType)));
+                    request.Content.Headers.ContentType = new MediaTypeHeaderValue(context.GetItemOrDefault(HttpRequestContext.ContentType));
                 }
 
-                Properties.GetItemOrDefault(From<IHttpMeta>.Select(m => m.ConfigureRequestHeaders), _ => { })(request.Headers);
-                properties.GetItemOrDefault(From<IHttpMeta>.Select(m => m.ConfigureRequestHeaders))(request.Headers);
-                using (var response = await _client.SendAsync(request, HttpCompletionOption.ResponseContentRead, properties.GetItemOrDefault(Request.Property.CancellationToken)))
+                Properties.GetItemOrDefault(HttpRequestContext.ConfigureHeaders, _ => { })(request.Headers);
+                context.GetItemOrDefault(HttpRequestContext.ConfigureHeaders)(request.Headers);
+                using (var response = await _client.SendAsync(request, HttpCompletionOption.ResponseContentRead, context.GetItemOrDefault(AnyRequestContext.CancellationToken)))
                 {
                     var responseContentCopy = new MemoryStream();
 
@@ -113,16 +110,20 @@ namespace Reusable.IOnymous
         }
     }
 
-    [Rename(nameof(HttpProvider))]
-    public class HttpRequestExtension : SelectorBuilder<HttpRequestExtension>
+    [Rename(nameof(HttpRequestContext))]
+    public class HttpRequestContext : SelectorBuilder<HttpRequestContext>
     {
-        //public static Selector<Task<Stream>> CreateContentStream = Select(() => CreateContentStream);
-
-        public static Selector<Action<HttpRequestHeaders>> ConfigureRequestHeaders = Select(() => ConfigureRequestHeaders);
+        public static Selector<Action<HttpRequestHeaders>> ConfigureHeaders = Select(() => ConfigureHeaders);
 
         public static Selector<MediaTypeFormatter> RequestFormatter = Select(() => RequestFormatter);
 
-        public static Selector<IEnumerable<MediaTypeFormatter>> ResponseFormatters = Select(() => ResponseFormatters);
+        public static Selector<string> ContentType = Select(() => ContentType);
+    }
+    
+    [Rename(nameof(HttpResponseContext))]
+    public class HttpResponseContext : SelectorBuilder<HttpRequestContext>
+    {
+        public static Selector<IEnumerable<MediaTypeFormatter>> Formatters = Select(() => Formatters);
 
         public static Selector<Type> ResponseType = Select(() => ResponseType);
 
@@ -153,21 +154,21 @@ namespace Reusable.IOnymous
         }
     }
 
-    [UseType, UseMember]
-    [TrimStart("I"), TrimEnd("Meta")]
-    [PlainSelectorFormatter]
-    public interface IHttpMeta
-    {
-        Stream Content { get; }
-
-        Action<HttpRequestHeaders> ConfigureRequestHeaders { get; }
-
-        MediaTypeFormatter RequestFormatter { get; }
-
-        IEnumerable<MediaTypeFormatter> ResponseFormatters { get; }
-
-        Type ResponseType { get; }
-
-        string ContentType { get; }
-    }
+//    [UseType, UseMember]
+//    [TrimStart("I"), TrimEnd("Meta")]
+//    [PlainSelectorFormatter]
+//    public interface IHttpMeta
+//    {
+//        Stream Content { get; }
+//
+//        Action<HttpRequestHeaders> ConfigureRequestHeaders { get; }
+//
+//        MediaTypeFormatter RequestFormatter { get; }
+//
+//        IEnumerable<MediaTypeFormatter> ResponseFormatters { get; }
+//
+//        Type ResponseType { get; }
+//
+//        string ContentType { get; }
+//    }
 }

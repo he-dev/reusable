@@ -11,7 +11,7 @@ using Reusable.Extensions;
 using Reusable.Quickey;
 using ContentDisposition = MimeKit.ContentDisposition;
 
-namespace Reusable.IOnymous
+namespace Reusable.IOnymous.Mail.Smtp
 {
     public class SmtpProvider : MailProvider
     {
@@ -26,10 +26,10 @@ namespace Reusable.IOnymous
         private async Task<IResource> PostAsync(Request request)
         {
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(request.Extensions.GetItemOrDefault(From<IMailMeta>.Select(x => x.From))));
-            message.To.AddRange(request.Extensions.GetItemOrDefault(From<IMailMeta>.Select(x => x.To)).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
-            message.Cc.AddRange(request.Extensions.GetItemOrDefault(From<IMailMeta>.Select(x => x.CC), Enumerable.Empty<string>().ToList()).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
-            message.Subject = request.Extensions.GetItemOrDefault(From<IMailMeta>.Select(x => x.Subject));
+            message.From.Add(new MailboxAddress(request.Context.GetItemOrDefault(MailRequestContext.From)));
+            message.To.AddRange(request.Context.GetItemOrDefault(MailRequestContext.To).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
+            message.Cc.AddRange(request.Context.GetItemOrDefault(MailRequestContext.CC, Enumerable.Empty<string>().ToList()).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
+            message.Subject = request.Context.GetItemOrDefault(MailRequestContext.Subject);
             var multipart = new Multipart("mixed");
 //            {
 //                new TextPart(request.Properties.GetItemOrDefault(From<IMailMeta>.Select(x => x.IsHtml)) ? TextFormat.Html : TextFormat.Plain)
@@ -40,13 +40,13 @@ namespace Reusable.IOnymous
 
             using (var body = await request.CreateBodyStreamAsync())
             {
-                multipart.Add(new TextPart(request.Extensions.GetItemOrDefault(From<IMailMeta>.Select(x => x.IsHtml)) ? TextFormat.Html : TextFormat.Plain)
+                multipart.Add(new TextPart(request.Context.GetItemOrDefault(MailRequestContext.IsHtml) ? TextFormat.Html : TextFormat.Plain)
                 {
-                    Text = await ReadBodyAsync(body, request.Extensions)
+                    Text = await ReadBodyAsync(body, request.Context)
                 });
             }
 
-            foreach (var attachment in request.Extensions.GetItemOrDefault(From<IMailMeta>.Select(x => x.Attachments), new Dictionary<string, byte[]>()).Where(i => i.Key.IsNotNullOrEmpty() && i.Value.IsNotNull()))
+            foreach (var attachment in request.Context.GetItemOrDefault(MailRequestContext.Attachments, new Dictionary<string, byte[]>()).Where(i => i.Key.IsNotNullOrEmpty() && i.Value.IsNotNull()))
             {
                 var attachmentPart = new MimePart(MediaTypeNames.Application.Octet)
                 {
@@ -64,9 +64,9 @@ namespace Reusable.IOnymous
             {
                 await smtpClient.ConnectAsync
                 (
-                    request.Extensions.GetItemOrDefault(From<ISmtpMeta>.Select(x => x.Host)),
-                    request.Extensions.GetItemOrDefault(From<ISmtpMeta>.Select(x => x.Port)),
-                    request.Extensions.GetItemOrDefault(From<ISmtpMeta>.Select(x => x.UseSsl), false)
+                    request.Context.GetItemOrDefault(SmtpRequestContext.Host),
+                    request.Context.GetItemOrDefault(SmtpRequestContext.Port),
+                    request.Context.GetItemOrDefault(SmtpRequestContext.UseSsl, false)
                 );
                 await smtpClient.SendAsync(message);
             }
@@ -74,26 +74,36 @@ namespace Reusable.IOnymous
             return InMemoryResource.Empty.From(request);
         }
     }
-
-    [UseType, UseMember]
-    [TrimStart("I"), TrimEnd("Meta")]
-    [PlainSelectorFormatter]
-    public interface ISmtpMeta : INamespace
+    
+    [Rename(nameof(SmtpRequestContext))]
+    public class SmtpRequestContext : SelectorBuilder<SmtpRequestContext>
     {
-        string Host { get; }
+        public static Selector<string> Host = Select(() => Host);
 
-        int Port { get; }
+        public static Selector<int> Port = Select(() => Port);
 
-        //int Timeout { get; }
-
-        //ServicePoint ServicePoint { get; }
-
-        //ICredentialsByHost Credentials { get; }
-
-        bool UseSsl { get; }
-
-        //X509CertificateCollection ClientCertificates { get; }
-
-        //string TargetName { get; }
+        public static Selector<bool> UseSsl = Select(() => UseSsl);
     }
+
+//    [UseType, UseMember]
+//    [TrimStart("I"), TrimEnd("Meta")]
+//    [PlainSelectorFormatter]
+//    public interface ISmtpMeta : INamespace
+//    {
+//        string Host { get; }
+//
+//        int Port { get; }
+//
+//        //int Timeout { get; }
+//
+//        //ServicePoint ServicePoint { get; }
+//
+//        //ICredentialsByHost Credentials { get; }
+//
+//        bool UseSsl { get; }
+//
+//        //X509CertificateCollection ClientCertificates { get; }
+//
+//        //string TargetName { get; }
+//    }
 }

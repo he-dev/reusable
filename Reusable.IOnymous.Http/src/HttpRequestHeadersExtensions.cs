@@ -1,6 +1,6 @@
 ﻿using System.Net.Http.Headers;
 
-namespace Reusable.IOnymous
+namespace Reusable.IOnymous.Http
 {
     public static class HttpRequestHeadersExtensions
     {

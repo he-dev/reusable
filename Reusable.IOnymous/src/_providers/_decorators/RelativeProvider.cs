@@ -25,8 +25,8 @@ namespace Reusable.IOnymous
                 {
                     Uri = Prefix(request.Uri),
                     Method = request.Method,
-                    Extensions = request.Extensions,
-                    CreateBodyStreamFunc = request.CreateBodyStreamFunc,
+                    Context = request.Context,
+                    CreateBodyStreamCallback = request.CreateBodyStreamCallback,
                 }));
             });
         }
