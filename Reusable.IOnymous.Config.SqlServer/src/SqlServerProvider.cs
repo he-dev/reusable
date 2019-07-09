@@ -69,11 +69,11 @@ namespace Reusable.IOnymous.Config
                     {
                         var value = settingReader[ColumnMappings.MapOrDefault(SqlServerColumn.Value)];
                         value = ValueConverter.Convert(value, request.Context.GetDataType());
-                        return new SqlServerResource(request.Context.Copy(Resource.Property.This), value);
+                        return new SqlServerResource(request.Context.Copy(Resource.Property.Selectors), value);
                     }
                     else
                     {
-                        return new SqlServerResource(request.Context.Copy(Resource.Property.This));
+                        return new SqlServerResource(request.Context.Copy(Resource.Property.Selectors));
                     }
                 }
             }, CancellationToken.None);

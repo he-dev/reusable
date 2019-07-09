@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net.Mime;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.IOnymous.Http.Formatting;
@@ -34,6 +35,7 @@ namespace Reusable.IOnymous.Http.Mailr
                             .UserAgent(userAgent.ProductName, userAgent.ProductVersion)
                             .AcceptHtml();
                     })
+                    .SetItem(HttpRequestContext.ContentType, "application/json")
                     .SetItem(HttpResponseContext.Formatters, new[] { new TextMediaTypeFormatter() })
                     .SetItem(HttpResponseContext.ContentType, "application/json");
 

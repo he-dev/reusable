@@ -32,7 +32,7 @@ namespace Reusable.Quickey
         public static implicit operator SoftString(SelectorName selectorName) => (string)selectorName;
     }
 
-    public class SelectorIndex:SelectorName
+    public class SelectorIndex : SelectorName
     {
         public SelectorIndex(string value) : base(value) { }
     }

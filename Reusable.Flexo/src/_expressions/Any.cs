@@ -22,7 +22,7 @@ namespace Reusable.Flexo
             foreach (var item in @this)
             {
                 var current = item.Invoke();
-                using (BeginScope(ctx => ctx.SetItem(From<IExpressionMeta>.Select(m => m.This), current)))
+                using (BeginScope(ctx => ctx.SetItem(ExpressionContext.This, current)))
                 {
                     var predicate = (Predicate ?? Constant.True);
                     if (predicate is IConstant)

@@ -50,7 +50,7 @@ namespace Reusable.IOnymous.Http
             return async request =>
             {
                 var uri = BaseUri + request.Uri;
-                var (response, mediaType) = await InvokeAsync(uri, httpMethod, request.CreateBodyStreamCallback, ImmutableContainer.Empty);
+                var (response, mediaType) = await InvokeAsync(uri, httpMethod, request.CreateBodyStreamCallback, request.Context);
                 return new HttpResource(request.Context.CopyResourceProperties().SetFormat(mediaType), response);
             };
         }
@@ -110,6 +110,8 @@ namespace Reusable.IOnymous.Http
         }
     }
 
+    [UseType, UseMember]
+    [PlainSelectorFormatter]
     [Rename(nameof(HttpRequestContext))]
     public class HttpRequestContext : SelectorBuilder<HttpRequestContext>
     {
@@ -120,6 +122,8 @@ namespace Reusable.IOnymous.Http
         public static Selector<string> ContentType = Select(() => ContentType);
     }
     
+    [UseType, UseMember]
+    [PlainSelectorFormatter]
     [Rename(nameof(HttpResponseContext))]
     public class HttpResponseContext : SelectorBuilder<HttpRequestContext>
     {

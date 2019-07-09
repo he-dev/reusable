@@ -16,24 +16,6 @@ namespace Reusable.Quickey
             if(selector.LastOrDefault() is SelectorIndex) throw new InvalidOperationException($"'{selector.Expression}' already contains an index.");
             return new Selector(selector.Expression, selector.Append(new SelectorName(index) { Prefix = prefix, Suffix = suffix }));
         }
-        
-        [NotNull, ItemNotNull]
-        internal static IEnumerable<SelectorName> GetSelectorNames(this Selector selector)
-        {
-            var selectorNameEnumerators =
-                from m in selector.Members()
-                where m.IsDefined(typeof(SelectorNameEnumeratorAttribute))
-                select m.GetCustomAttribute<SelectorNameEnumeratorAttribute>();
-
-            // You want to take the nearest one to the member.
-            var selectorNameEnumerator = (selectorNameEnumerators.FirstOrDefault() ?? new SelectorNameEnumeratorAttribute());
-            return
-                selectorNameEnumerator
-                    .EnumerateSelectorNames(selector)
-                    // You want to take the nearest one to the member.
-                    .FirstOrDefault()
-                ?? throw new InvalidOperationException($"Either the type '{selector.DeclaringType.ToPrettyString()}' or the member '{selector.Member.Name}' must be decorated with at least one 'UseXAttribute'.");
-        }
 
         /// <summary>
         /// Adds selectors from T to a collection.

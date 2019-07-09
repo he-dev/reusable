@@ -23,7 +23,7 @@ namespace Reusable.Flexo
         {
             var result = @this.Where(item =>
             {
-                using (BeginScope(ctx => ctx.SetItem(From<IExpressionMeta>.Select(m => m.This), item)))
+                using (BeginScope(ctx => ctx.SetItem(ExpressionContext.This, item)))
                 {
                     return Predicate.Invoke().Value<bool>();
                 }

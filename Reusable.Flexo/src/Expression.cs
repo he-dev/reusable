@@ -202,43 +202,60 @@ namespace Reusable.Flexo
         }
     }
 
-    [Rename(nameof(ExpressionContext))]
+    [UseMember]
+    [PlainSelectorFormatter]
     public class ExpressionContext : SelectorBuilder<ExpressionContext>
     {
         public static IImmutableContainer Default =>
             ImmutableContainer
                 .Empty
-                .SetItem(From<IExpressionMeta>.Select(m => m.Comparers), ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
-                .SetItem(From<IExpressionMeta>.Select(m => m.References), ImmutableDictionary<SoftString, IExpression>.Empty)
-                .SetItem(From<IExpressionMeta>.Select(m => m.DebugView), TreeNode.Create(ExpressionDebugView.Root))
+                .SetItem(Comparers, ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
+                .SetItem(References, ImmutableDictionary<SoftString, IExpression>.Empty)
+                .SetItem(DebugView, TreeNode.Create(ExpressionDebugView.Root))
                 .WithDefaultComparer()
                 .WithSoftStringComparer()
                 .WithRegexComparer();
-
-        public static readonly Selector<CancellationToken> CancellationToken = Select(() => CancellationToken);
-    }
-
-    [UseMember]
-    [TrimStart("I"), TrimEnd("Meta")]
-    [PlainSelectorFormatter]
-    public interface IExpressionMeta : INamespace
-    {
+        
         /// <summary>
         /// Gets or sets extension value.
         /// </summary>
-        object This { get; }
+        public static readonly Selector<object> This = Select(() => This);
 
         /// <summary>
         /// Gets or sets collection item.
         /// </summary>
-        object Item { get; }
+        public static readonly Selector<object> Item = Select(() => Item);
 
-        IImmutableDictionary<SoftString, IEqualityComparer<object>> Comparers { get; }
+        public static readonly Selector<IImmutableDictionary<SoftString, IEqualityComparer<object>>> Comparers = Select(() => Comparers);
 
-        IImmutableDictionary<SoftString, IExpression> References { get; }
+        public static readonly Selector<IImmutableDictionary<SoftString, IExpression>> References = Select(() => References);
 
-        TreeNode<ExpressionDebugView> DebugView { get; }
+        public static readonly Selector<TreeNode<ExpressionDebugView>> DebugView = Select(() => DebugView);
+
+        public static readonly Selector<CancellationToken> CancellationToken = Select(() => CancellationToken);
     }
+
+//    [UseMember]
+//    [TrimStart("I"), TrimEnd("Meta")]
+//    [PlainSelectorFormatter]
+//    public interface IExpressionMeta : INamespace
+//    {
+//        /// <summary>
+//        /// Gets or sets extension value.
+//        /// </summary>
+//        object This { get; }
+//
+//        /// <summary>
+//        /// Gets or sets collection item.
+//        /// </summary>
+//        object Item { get; }
+//
+//        IImmutableDictionary<SoftString, IEqualityComparer<object>> Comparers { get; }
+//
+//        IImmutableDictionary<SoftString, IExpression> References { get; }
+//
+//        TreeNode<ExpressionDebugView> DebugView { get; }
+//    }
 
     [PublicAPI]
     public static class ExpressionScopeExtensions

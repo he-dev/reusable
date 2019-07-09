@@ -27,7 +27,7 @@ namespace Reusable.Flexo
 
         public override IConstant Invoke()
         {
-            var parentView = Scope.Context.GetItemOrDefault(From<IExpressionMeta>.Select(m => m.DebugView));
+            var parentView = Scope.Context.GetItemOrDefault(ExpressionContext.DebugView);
             var thisView = parentView.Add(CreateDebugView(this));
 
             // Take a shortcut when this is a constant without an extension. This helps to avoid another debug-view.
@@ -41,11 +41,11 @@ namespace Reusable.Flexo
 
             var thisScope = BeginScope(ctx =>
             {
-                ctx = ctx.SetItem(From<IExpressionMeta>.Select(m => m.DebugView), thisView);
+                ctx = ctx.SetItem(ExpressionContext.DebugView, thisView);
                 return
                     @this is null
                         ? ctx
-                        : ctx.SetItem(From<IExpressionMeta>.Select(m => m.This), @this);
+                        : ctx.SetItem(ExpressionContext.This, @this);
             });
 
             using (thisScope)
@@ -89,7 +89,7 @@ namespace Reusable.Flexo
                     }
                 }
 
-                using (BeginScope(ctx => ctx.SetItem(From<IExpressionMeta>.Select(m => m.DebugView), thisView).SetItem(From<IExpressionMeta>.Select(m => m.This), @this)))
+                using (BeginScope(ctx => ctx.SetItem(ExpressionContext.DebugView, thisView).SetItem(ExpressionContext.This, @this)))
                 {
                     return extension.Invoke();
                 }
@@ -157,7 +157,7 @@ namespace Reusable.Flexo
 
         protected override Constant<TResult> InvokeCore()
         {
-            var obj = Scope.Context.GetItemOrDefault(From<IExpressionMeta>.Select(m => m.This));
+            var obj = Scope.Context.GetItemOrDefault(ExpressionContext.This);
             var @this =
                 obj is IExpression expression
                     ? expression
@@ -177,7 +177,7 @@ namespace Reusable.Flexo
 
         protected override Constant<TResult> InvokeCore()
         {
-            var obj = Scope.Context.GetItemOrDefault(From<IExpressionMeta>.Select(m => m.This));
+            var obj = Scope.Context.GetItemOrDefault(ExpressionContext.This);
             if (obj is IConstant constant)
             {
                 obj = constant.Value;

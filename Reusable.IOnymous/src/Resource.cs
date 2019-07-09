@@ -76,8 +76,8 @@ namespace Reusable.IOnymous
         public virtual void Dispose() { }
 
         [UseType, UseMember]
-        [Rename(nameof(Resource))]
         [PlainSelectorFormatter]
+        [Rename(nameof(Resource))]
         public class Property : SelectorBuilder<Property>
         {
             public static readonly Selector<UriString> Uri = Select(() => Uri);

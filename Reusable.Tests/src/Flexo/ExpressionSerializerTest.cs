@@ -117,7 +117,7 @@ namespace Reusable.Tests.Flexo
         [UseMember]
         [PlainSelectorFormatter]
         [TrimStart("I"), TrimEnd("Meta")]
-        private interface ITestMeta : INamespace
+        private interface ITestMeta
         {
             [UseMember]
             Something Sth { get; }

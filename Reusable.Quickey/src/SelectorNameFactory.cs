@@ -41,7 +41,7 @@ namespace Reusable.Quickey
         {
             return
                 member
-                    .GetCustomAttributes<SelectorNameTransformAttribute>()
+                    .GetCustomAttributes<SelectorNameTransformAttribute>(false) // Get only own factories and not inherited ones.
                     .Aggregate(name, (current, fix) => fix.Apply(current));
         }
     }

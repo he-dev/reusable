@@ -70,7 +70,7 @@ namespace Reusable.Flexo
     {
         public Item([NotNull] ILogger<Item> logger) : base(logger, nameof(Item))
         {
-            Path = From<IExpressionMeta>.Select(x => x.Item).ToString();
+            Path = ExpressionContext.Item.ToString();
         }
 
         protected override Constant<object> InvokeCore()
@@ -85,7 +85,7 @@ namespace Reusable.Flexo
 
         protected override Constant<IExpression> InvokeCore()
         {
-            var expressions = Scope.Context.GetItemOrDefault(From<IExpressionMeta>.Select(m => m.References));
+            var expressions = Scope.Context.GetItemOrDefault(ExpressionContext.References);
             var path = Path.StartsWith("R.", StringComparison.OrdinalIgnoreCase) ? Path : $"R.{Path}";
 
             return

@@ -20,7 +20,7 @@ namespace Reusable.Flexo
         {
             foreach (var item in @this)
             {
-                using (BeginScope(ctx => ctx.SetItem(From<IExpressionMeta>.Select(m => m.Item), item)))
+                using (BeginScope(ctx => ctx.SetItem(ExpressionContext.Item, item)))
                 {
                     foreach (var expression in Body)
                     {

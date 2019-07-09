@@ -20,6 +20,8 @@ namespace Reusable.IOnymous.Mail
         }
     }
     
+    [UseType, UseMember]
+    [PlainSelectorFormatter]
     [Rename(nameof(MailRequestContext))]
     public class MailRequestContext : SelectorBuilder<MailRequestContext>
     {

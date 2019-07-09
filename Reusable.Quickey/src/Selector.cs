@@ -14,9 +14,6 @@ using linq = System.Linq.Expressions;
 
 namespace Reusable.Quickey
 {
-    // Protects the user form using an unsupported interface by mistake.
-    public interface INamespace { }
-
     [PublicAPI]
     public class From<T>
     {
@@ -39,17 +36,6 @@ namespace Reusable.Quickey
         {
             return new Selector<TMember>(selector);
         }
-
-        public static IEnumerable<Selector> Selectors<T>(this From<T> from)
-        {
-            var members =
-                typeof(SelectorBuilder<T>).IsAssignableFrom(typeof(T))
-                    ? typeof(T).GetFields().Cast<MemberInfo>()
-                    : typeof(T).GetProperties().Cast<MemberInfo>();
-            return
-                from p in members
-                select Selector.FromMember(typeof(T), p);
-        }
     }
 
     [PublicAPI]
@@ -61,7 +47,7 @@ namespace Reusable.Quickey
         {
             Expression = selector;
             (DeclaringType, Instance, Member) = MemberVisitor.GetMemberInfo(selector);
-            _selectorNames = this.GetSelectorNames();
+            _selectorNames = GetSelectorNames(this);
             if (_selectorNames.Empty()) throw new ArgumentException($"'{selector}' does not specify which keys to use.");
         }
 
@@ -94,7 +80,7 @@ namespace Reusable.Quickey
         public static Selector FromMember(Type declaringType, MemberInfo member)
         {
             // todo - this might require improved static/instance handling
-            
+
             var memberAccess = default(Expression);
 
             if (member is PropertyInfo property)
@@ -111,6 +97,28 @@ namespace Reusable.Quickey
             var selector = linq.Expression.Lambda(memberAccess);
 
             return new Selector(selector);
+        }
+
+        [NotNull, ItemNotNull]
+        private static IEnumerable<SelectorName> GetSelectorNames(Selector selector)
+        {
+            var selectorNameEnumerators =
+                from m in selector.Members()
+                where m.IsDefined(typeof(SelectorNameEnumeratorAttribute))
+                select m.GetCustomAttribute<SelectorNameEnumeratorAttribute>();
+
+            // You want to take the nearest one to the member.
+            var selectorNameEnumerator = (selectorNameEnumerators.FirstOrDefault() ?? SelectorNameEnumeratorAttribute.Default);
+
+            return
+                selectorNameEnumerator
+                    .EnumerateSelectorNames(selector)
+                    .FirstOrDefault() // You want to take the nearest one to the member.
+                ?? throw new InvalidOperationException
+                (
+                    $"Either the type '{selector.DeclaringType.ToPrettyString()}' " +
+                    $"or the member '{selector.Member.Name}' must be decorated with at least one 'UseXAttribute'."
+                );
         }
 
         public override string ToString()
@@ -146,18 +154,26 @@ namespace Reusable.Quickey
     }
 
     [PublicAPI]
-    [UseType, UseMember]
-    [PlainSelectorFormatter]
     public abstract class SelectorBuilder<T>
     {
-        public static readonly From<T> This = From<T>.This;
+        public static IEnumerable<Selector> Selectors
+        {
+            get
+            {
+                var members =
+                    typeof(SelectorBuilder<T>).IsAssignableFrom(typeof(T))
+                        ? typeof(T).GetFields().Cast<MemberInfo>()
+                        : typeof(T).GetProperties().Cast<MemberInfo>();
+                return
+                    from p in members
+                    select Selector.FromMember(typeof(T), p);
+            }
+        }
 
         [NotNull]
         protected static Selector<TMember> Select<TMember>([NotNull] Expression<Func<Selector<TMember>>> selector)
         {
             return new Selector<TMember>(selector);
         }
-        
-        //public static implicit operator From<T>(SelectorBuilder<T> builder) => From<T>.This;
     }
 }

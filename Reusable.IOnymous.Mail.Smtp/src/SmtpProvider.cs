@@ -75,6 +75,8 @@ namespace Reusable.IOnymous.Mail.Smtp
         }
     }
     
+    [UseType, UseMember]
+    [PlainSelectorFormatter]
     [Rename(nameof(SmtpRequestContext))]
     public class SmtpRequestContext : SelectorBuilder<SmtpRequestContext>
     {

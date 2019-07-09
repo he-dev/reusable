@@ -38,13 +38,13 @@ namespace Reusable.IOnymous.Config
             var data = _configuration[settingIdentifier];
             if (data is null)
             {
-                return Task.FromResult<IResource>(new JsonResource(request.Context.Copy(Resource.Property.This)));
+                return Task.FromResult<IResource>(new JsonResource(request.Context.Copy(Resource.Property.Selectors)));
             }
             else
             {
                 var value = ValueConverter.Convert(data, request.Context.GetType());
                 //metadata = ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.ActualName), settingIdentifier);
-                return Task.FromResult<IResource>(new JsonResource(request.Context.Copy(Resource.Property.This), value));
+                return Task.FromResult<IResource>(new JsonResource(request.Context.Copy(Resource.Property.Selectors), value));
             }
         }
     }

@@ -30,11 +30,11 @@ namespace Reusable.IOnymous.Mail
         (
             this IResourceProvider provider,
             IEmail<IEmailSubject, IEmailBody> email,
-            IImmutableContainer properties = default
+            IImmutableContainer context = default
         )
         {
-            properties =
-                properties
+            context =
+                context
                     .ThisOrEmpty()
                     .SetItem(MailRequestContext.From, email.From)
                     .SetItem(MailRequestContext.To, email.To)
@@ -48,7 +48,7 @@ namespace Reusable.IOnymous.Mail
             return
                 await provider.InvokeAsync(new Request.Post($"{UriSchemes.Known.MailTo}:dummy@email.com")
                 {
-                    Context = properties,
+                    Context = context,
                     CreateBodyStreamCallback = () => ResourceHelper.SerializeTextAsync(email.Body.Value, email.Body.Encoding)
                 });
 

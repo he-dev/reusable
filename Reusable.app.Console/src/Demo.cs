@@ -190,14 +190,14 @@ namespace Reusable.Apps
 
         public static async Task SendEmailAsync_Smtp()
         {
-            var metadata =
+            var context =
                 ImmutableContainer
                     .Empty
                     .SetItem(SmtpRequestContext.Host, "localhost")
                     .SetItem(SmtpRequestContext.Port, 25);
 
-            var mailrProvider = new SmtpProvider();
-            await mailrProvider.SendEmailAsync(new Email<EmailSubject, EmailBody>
+            var smtp = new SmtpProvider();
+            await smtp.SendEmailAsync(new Email<EmailSubject, EmailBody>
             {
                 From = "console@test.com",
                 To = { "me@test.com" },
@@ -206,13 +206,13 @@ namespace Reusable.Apps
                 Body = new EmailBody { Value = "<p>I'm fine!</p>" },
                 IsHtml = true,
                 Attachments = new Dictionary<string, byte[]>()
-            }, metadata);
+            }, context);
         }
 
         public static async Task SendEmailAsync_Mailr()
         {
-            var mailrProvider = new HttpProvider("http://localhost:7000/api");
-            await mailrProvider.SendEmailAsync
+            var http = new HttpProvider("http://localhost:7000/api");
+            await http.SendEmailAsync
             (
                 "v1.0/mailr/messages/plaintext",
                 new UserAgent("Console", "v12"),

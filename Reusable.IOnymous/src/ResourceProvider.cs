@@ -140,9 +140,9 @@ namespace Reusable.IOnymous
         }
     }
 
-    //[UseType, UseMember]
+    [UseType, UseMember]
+    [PlainSelectorFormatter]
     [Rename(nameof(ResourceProvider))]
-    //[PlainSelectorFormatter]
     public class ResourceProviderProperty : SelectorBuilder<ResourceProviderProperty>
     {
         public static readonly Selector<IImmutableSet<SoftString>> Schemes = Select(() => Schemes);
@@ -230,6 +230,8 @@ namespace Reusable.IOnymous
         #endregion
     }
 
+    [UseType, UseMember]
+    [PlainSelectorFormatter]
     [Rename(nameof(AnyRequestContext))]
     public class AnyRequestContext : SelectorBuilder<AnyRequestContext>
     {

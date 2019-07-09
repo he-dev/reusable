@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Reusable.Data;
@@ -65,10 +66,10 @@ namespace Reusable.IOnymous
         #endregion
 
         // Copies existing items from the specified session by T.
-        public static IImmutableContainer Copy<T>(this IImmutableContainer container, From<T> fromType)
+        public static IImmutableContainer Copy(this IImmutableContainer container, IEnumerable<Selector> selectors)
         {
             var copyable =
-                from selector in fromType.Selectors()
+                from selector in selectors
                 where container.ContainsKey(selector.ToString())
                 select selector;
 
@@ -77,12 +78,12 @@ namespace Reusable.IOnymous
 
         public static IImmutableContainer CopyRequestProperties(this IImmutableContainer container)
         {
-            return container.Copy(AnyRequestContext.This);
+            return container.Copy(AnyRequestContext.Selectors);
         }
         
         public static IImmutableContainer CopyResourceProperties(this IImmutableContainer container)
         {
-            return container.Copy(Resource.Property.This);
+            return container.Copy(Resource.Property.Selectors);
         }
     }
 }

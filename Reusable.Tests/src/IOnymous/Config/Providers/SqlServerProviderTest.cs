@@ -91,7 +91,7 @@ namespace Reusable.Tests.IOnymous.Config.Providers
     [UseType, UseMember]
     [TrimStart("I"), TrimEnd("Config")]
     [SettingSelectorFormatter]
-    public interface IBuildingConfig : INamespace
+    public interface IBuildingConfig
     {
         string Description { get; }
         bool IsMonument { get; }
@@ -106,7 +106,7 @@ namespace Reusable.Tests.IOnymous.Config.Providers
     [UseType, UseMember]
     [TrimStart("I"), TrimEnd("Config")]
     [SettingSelectorFormatter]
-    public interface ICarConfig : INamespace
+    public interface ICarConfig
     {
         string Speed { get; }
     }

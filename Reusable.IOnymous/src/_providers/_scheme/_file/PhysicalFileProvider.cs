@@ -27,7 +27,7 @@ namespace Reusable.IOnymous
 
         private Task<IResource> GetAsync(Request request)
         {
-            return Task.FromResult<IResource>(new PhysicalFile(request.Context.Copy(Resource.Property.This).SetUri(request.Uri)));
+            return Task.FromResult<IResource>(new PhysicalFile(request.Context.Copy(Resource.Property.Selectors).SetUri(request.Uri)));
         }
 
         private async Task<IResource> PutAsync(Request request)
@@ -45,7 +45,7 @@ namespace Reusable.IOnymous
         private Task<IResource> DeleteAsync(Request request)
         {
             File.Delete(request.Uri.ToUnc());
-            return Task.FromResult<IResource>(new PhysicalFile(request.Context.Copy(Resource.Property.This).SetUri(request.Uri)));
+            return Task.FromResult<IResource>(new PhysicalFile(request.Context.Copy(Resource.Property.Selectors).SetUri(request.Uri)));
         }
     }
 

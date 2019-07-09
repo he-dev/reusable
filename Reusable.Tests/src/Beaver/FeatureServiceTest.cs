@@ -96,7 +96,7 @@ namespace Reusable.Tests.Beaver
         [UseType, UseMember]
         [TrimStart("I")]
         [PlainSelectorFormatter]
-        public interface IDemo : INamespace
+        public interface IDemo
         {
             object Greeting { get; }
 
@@ -107,7 +107,7 @@ namespace Reusable.Tests.Beaver
         [UseType, UseMember]
         [TrimStart("I")]
         [PlainSelectorFormatter] // todo - comment out to trigger selector-formatter-not-found-exception
-        public interface IDatabase : INamespace
+        public interface IDatabase
         {
             [Tags("io")]
             object Commit { get; }

@@ -31,7 +31,7 @@ namespace Reusable.Flexo
         {
             var result = @this.Select(item =>
             {
-                using (BeginScope(ctx => ctx.SetItem(From<IExpressionMeta>.Select(m => m.Item), item)))
+                using (BeginScope(ctx => ctx.SetItem(ExpressionContext.Item, item)))
                 {
                     return (Selector ?? item).Invoke();
                 }

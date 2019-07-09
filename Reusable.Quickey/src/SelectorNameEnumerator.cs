@@ -20,6 +20,8 @@ namespace Reusable.Quickey
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property)]
     public class SelectorNameEnumeratorAttribute : Attribute, ISelectorNameEnumerator
     {
+        public static ISelectorNameEnumerator Default { get; } = new SelectorNameEnumeratorAttribute();
+        
         public IEnumerable<IImmutableList<SelectorName>> EnumerateSelectorNames(Selector selector)
         {
             if (selector == null) throw new ArgumentNullException(nameof(selector));
@@ -27,7 +29,8 @@ namespace Reusable.Quickey
             return
                 from m in selector.Members()
                 where m.IsDefined(typeof(SelectorNameFactoryAttribute))
-                let selectorNames = m.GetCustomAttributes<SelectorNameFactoryAttribute>().Select(f => f.CreateSelectorName(selector)).ToImmutableList()
+                let selectorNameFactories = m.GetCustomAttributes<SelectorNameFactoryAttribute>(false) // Get only own attributes, no inherited ones.
+                let selectorNames = selectorNameFactories.Select(f => f.CreateSelectorName(selector)).ToImmutableList()
                 where selectorNames.Any()
                 select selectorNames;
         }

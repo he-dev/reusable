@@ -32,7 +32,7 @@ namespace Reusable.Flexo
 
             foreach (var switchCase in (Cases ?? Enumerable.Empty<SwitchCase>()).Where(c => c.Enabled))
             {
-                using (BeginScope(ctx => ctx.SetItem(From<IExpressionMeta>.Select(m => m.This), value)))
+                using (BeginScope(ctx => ctx.SetItem(ExpressionContext.This, value)))
                 {
                     switch (switchCase.When)
                     {

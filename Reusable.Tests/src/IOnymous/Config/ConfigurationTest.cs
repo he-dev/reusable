@@ -256,7 +256,7 @@ namespace Reusable.Tests.IOnymous.Config
     [UseType, UseMember]
     [SettingSelectorFormatter]
 // tests defaults
-    internal class User : Nothing, INamespace
+    internal class User : Nothing
     {
         public string Name => Configuration.ReadSetting(() => Name);
     }
@@ -344,7 +344,7 @@ namespace Reusable.Tests.IOnymous.Config
 
     [UseScheme("root"), UseType, UseMember]
     [SettingSelectorFormatter]
-    public interface IBaseConfig : INamespace
+    public interface IBaseConfig
     {
         bool Enabled { get; }
     }

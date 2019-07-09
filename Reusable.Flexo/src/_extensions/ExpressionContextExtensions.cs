@@ -24,10 +24,10 @@ namespace Reusable.Flexo
         {
             var comparers =
                 context
-                    .GetItemOrDefault(From<IExpressionMeta>.Select(m => m.Comparers), ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
+                    .GetItemOrDefault(ExpressionContext.Comparers, ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
                     .SetItem(name, comparer);
 
-            return context.SetItem(From<IExpressionMeta>.Select(m => m.Comparers), comparers);
+            return context.SetItem(ExpressionContext.Comparers, comparers);
         }
 
         public static IImmutableContainer WithDefaultComparer(this IImmutableContainer context)
@@ -63,9 +63,9 @@ namespace Reusable.Flexo
         {
             var registrations =
                 context
-                    .GetItemOrDefault(From<IExpressionMeta>.Select(m => m.References), ImmutableDictionary<SoftString, IExpression>.Empty)
+                    .GetItemOrDefault(ExpressionContext.References, ImmutableDictionary<SoftString, IExpression>.Empty)
                     .SetItems(expressions.Select(e => new KeyValuePair<SoftString, IExpression>($"R.{e.Name.ToString()}", e)));
-            return context.SetItem(From<IExpressionMeta>.Select(m => m.References), registrations);
+            return context.SetItem(ExpressionContext.References, registrations);
         }
 
         public static TResult Find<TResult>(this ExpressionScope scope, Selector<TResult> key)
@@ -84,19 +84,19 @@ namespace Reusable.Flexo
         public static IEqualityComparer<object> GetComparerOrDefault(this ExpressionScope scope, [CanBeNull] string name)
         {
             return
-                scope.Find(From<IExpressionMeta>.Select(m => m.Comparers)).TryGetValue(name ?? "Default", out var comparer)
+                scope.Find(ExpressionContext.Comparers).TryGetValue(name ?? "Default", out var comparer)
                     ? comparer
                     : throw DynamicException.Create("ComparerNotFound", $"There is no comparer with the name '{name}'.");
         }
 
         public static TreeNode<ExpressionDebugView> DebugView(this IImmutableContainer context)
         {
-            return context.GetItemOrDefault(From<IExpressionMeta>.Select(m => m.DebugView));
+            return context.GetItemOrDefault(ExpressionContext.DebugView);
         }
 
         public static IImmutableContainer DebugView(this IImmutableContainer context, TreeNode<ExpressionDebugView> debugView)
         {
-            return context.SetItem(From<IExpressionMeta>.Select(m => m.DebugView), debugView);
+            return context.SetItem(ExpressionContext.DebugView, debugView);
         }
 
         public static (object Object, PropertyInfo Property, object Value) FindItem(this IImmutableContainer context, string path)
@@ -118,7 +118,7 @@ namespace Reusable.Flexo
             var first = names.First();
             var obj =
                 first.Name == "this"
-                    ? context.GetItemOrDefault(From<IExpressionMeta>.Select(m => m.This))
+                    ? context.GetItemOrDefault(ExpressionContext.This)
                     : context.TryGetValue(first.Name, out var item)
                         ? item
                         : throw DynamicException.Create("InitialObjectNotFound", $"Could not find an item with the key '{path}'.");
@@ -135,7 +135,7 @@ namespace Reusable.Flexo
                         return (current.Object, property, value);
                     }
 
-                    var index = context.GetItemOrDefault(From<IExpressionMeta>.Select(m => m.This));
+                    var index = context.GetItemOrDefault(ExpressionContext.This);
                     var element = ((IEnumerable<object>)value).Single(x => x.Equals(index));
                     return (element, default, default);
                 }
