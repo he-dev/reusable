@@ -42,19 +42,6 @@ namespace Reusable.Flexo
         T This { get; }
     }
 
-    public static class ExpressionContext
-    {
-        public static IImmutableContainer Default =>
-            ImmutableContainer
-                .Empty
-                .SetItem(From<IExpressionMeta>.Select(m => m.Comparers), ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
-                .SetItem(From<IExpressionMeta>.Select(m => m.References), ImmutableDictionary<SoftString, IExpression>.Empty)
-                .SetItem(From<IExpressionMeta>.Select(m => m.DebugView), TreeNode.Create(ExpressionDebugView.Root))
-                .WithDefaultComparer()
-                .WithSoftStringComparer()
-                .WithRegexComparer();
-    }
-
     public abstract class Expression : IExpression
     {
         // ReSharper disable RedundantNameQualifier - Use full namespace to avoid conflicts with other types.
@@ -156,7 +143,7 @@ namespace Reusable.Flexo
 
             //public ILogger Log(ILogLevel logLevel, Action<ILog> logAction) => this;
             public ILogger Log(TransformCallback request, TransformCallback response = default) => this;
-            
+
             public ILogger Log(ILog log) => this;
 
             public void Dispose() { }
@@ -213,6 +200,22 @@ namespace Reusable.Flexo
         {
             Current = Current?.Parent;
         }
+    }
+
+    [Rename(nameof(ExpressionContext))]
+    public class ExpressionContext : SelectorBuilder<ExpressionContext>
+    {
+        public static IImmutableContainer Default =>
+            ImmutableContainer
+                .Empty
+                .SetItem(From<IExpressionMeta>.Select(m => m.Comparers), ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
+                .SetItem(From<IExpressionMeta>.Select(m => m.References), ImmutableDictionary<SoftString, IExpression>.Empty)
+                .SetItem(From<IExpressionMeta>.Select(m => m.DebugView), TreeNode.Create(ExpressionDebugView.Root))
+                .WithDefaultComparer()
+                .WithSoftStringComparer()
+                .WithRegexComparer();
+
+        public static readonly Selector<CancellationToken> CancellationToken = Select(() => CancellationToken);
     }
 
     [UseMember]

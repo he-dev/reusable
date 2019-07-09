@@ -157,5 +157,7 @@ namespace Reusable.Quickey
         {
             return new Selector<TMember>(selector);
         }
+        
+        //public static implicit operator From<T>(SelectorBuilder<T> builder) => From<T>.This;
     }
 }
