@@ -14,7 +14,7 @@ namespace Reusable.IOnymous.Http.Mailr.Models
     {
         public Email()
         {
-            CreateSerializeStreamCallback = () => ResourceHelper.SerializeAsJsonAsync(this);
+            SerializeCallback = e => ResourceHelper.SerializeAsJsonAsync(e);
         }
 
         public string From { get; set; }
@@ -37,8 +37,12 @@ namespace Reusable.IOnymous.Http.Mailr.Models
 
         public bool CanSend { get; set; } = true;
 
+        //public CreateStreamCallback SerializeCallback { get; set; }
+
         [JsonIgnore]
-        public CreateBodyStreamCallback CreateSerializeStreamCallback { get; set; }
+        public Func<Email, Task<Stream>> SerializeCallback { get; set; }
+
+        public Task<Stream> Serialize() => SerializeCallback(this);
 
         public class Html : Email
         {

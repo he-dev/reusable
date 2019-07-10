@@ -9,7 +9,12 @@ using Reusable.Exceptionize;
 
 namespace Reusable.Extensions
 {
-    public delegate bool TryGetArgCallback(string name, out object value);
+    public delegate bool TryGetValueCallback(string name, out object value);
+
+//    public interface IKeyedValueProvider<in TKey, TValue>
+//    {
+//        bool TryGetValue(TKey key, out TValue value);
+//    }
 
     [PublicAPI]
     public static class StringInterpolation
@@ -27,11 +32,11 @@ namespace Reusable.Extensions
 
         [Pure]
         [CanBeNull]
-        [ContractAnnotation("text: null => null; text: notnull => notnull; tryGetArg: null => stop")]
-        public static string Format(this string text, TryGetArgCallback tryGetArg, IFormatProvider formatProvider)
+        [ContractAnnotation("text: null => null; text: notnull => notnull; tryGetValue: null => stop")]
+        public static string Format(this string text, TryGetValueCallback tryGetValue, IFormatProvider formatProvider)
         {
             if (string.IsNullOrEmpty(text)) { return text; }
-            if (tryGetArg == null) { throw new ArgumentNullException(nameof(tryGetArg)); }
+            if (tryGetValue == null) { throw new ArgumentNullException(nameof(tryGetValue)); }
             if (formatProvider == null) { throw new ArgumentNullException(nameof(formatProvider)); }
 
             var result = Regex.Replace(text, ExpressionPattern, match =>
@@ -41,9 +46,9 @@ namespace Reusable.Extensions
                 var formatString = match.Group(Groups.FormatString, x => $":{x}");
 
                 return
-                    tryGetArg(name, out var value)
+                    tryGetValue(name, out var value)
                         // Recursively apply formatting.
-                        ? string.Format(formatProvider, CreateCompositeFormatString(), value).Format(tryGetArg, formatProvider)
+                        ? string.Format(formatProvider, CreateCompositeFormatString(), value).Format(tryGetValue, formatProvider)
                         // Reconstruct the composite format string.
                         : CreateCompositeFormatString(name);
 
@@ -56,10 +61,10 @@ namespace Reusable.Extensions
         }
 
         [Pure]
-        [ContractAnnotation("text: notnull => notnull; text: null => null; tryGetArg: null => halt")]
-        public static string Format(this string text, TryGetArgCallback tryGetArg)
+        [ContractAnnotation("text: notnull => notnull; text: null => null; tryGetValue: null => halt")]
+        public static string Format(this string text, TryGetValueCallback tryGetValue)
         {
-            return text.Format(tryGetArg, CultureInfo.InvariantCulture);
+            return text.Format(tryGetValue, CultureInfo.InvariantCulture);
         }
 
         [Pure]
@@ -89,6 +94,12 @@ namespace Reusable.Extensions
             if (args == null) throw new ArgumentNullException(nameof(args));
             return Format(text, (string name, out object value) => args.TryGetValue(name, out value));
         }
+        
+//        public static string Format(this string text, [NotNull] IKeyedValueProvider<SoftString, object> args)
+//        {
+//            if (args == null) throw new ArgumentNullException(nameof(args));
+//            return Format(text, (string name, out object value) => args.TryGetValue(name, out value));
+//        }
 
         [Pure]
         [CanBeNull, ContractAnnotation("text: null => null; args: null => stop")]

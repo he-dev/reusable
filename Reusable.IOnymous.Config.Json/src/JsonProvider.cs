@@ -42,7 +42,7 @@ namespace Reusable.IOnymous.Config
             }
             else
             {
-                var value = ValueConverter.Convert(data, request.Context.GetType());
+                var value = ValueConverter.Convert(data, request.Context.GetDataType());
                 //metadata = ImmutableSession.Empty.SetItem(From<IResourceMeta>.Select(x => x.ActualName), settingIdentifier);
                 return Task.FromResult<IResource>(new JsonResource(request.Context.Copy(Resource.Property.Selectors), value));
             }

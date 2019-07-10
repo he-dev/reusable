@@ -173,7 +173,7 @@ namespace Reusable.IOnymous
         public static IImmutableDictionary<RequestMethod, RequestCallback> Empty { get; } = ImmutableDictionary<RequestMethod, RequestCallback>.Empty;
     }
 
-    public delegate Task<Stream> CreateBodyStreamCallback();
+    public delegate Task<Stream> CreateStreamCallback();
 
     public class Request
     {
@@ -187,7 +187,7 @@ namespace Reusable.IOnymous
         public IImmutableContainer Context { get; set; } = ImmutableContainer.Empty;
 
         [CanBeNull]
-        public CreateBodyStreamCallback CreateBodyStreamCallback { get; set; }
+        public CreateStreamCallback CreateBodyStreamCallback { get; set; }
 
         #region Methods
 
@@ -246,7 +246,7 @@ namespace Reusable.IOnymous
             return request;
         }
 
-        public static Request SetCreateBodyStream(this Request request, CreateBodyStreamCallback createBodyStream)
+        public static Request SetCreateBodyStream(this Request request, CreateStreamCallback createBodyStream)
         {
             request.CreateBodyStreamCallback = createBodyStream;
             return request;

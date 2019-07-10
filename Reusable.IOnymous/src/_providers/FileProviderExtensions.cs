@@ -11,7 +11,12 @@ namespace Reusable.IOnymous
     {
         #region GET helpers
 
-        public static async Task<IResource> ReadFileAsync(this IResourceProvider resourceProvider, string path, MimeType format, IImmutableContainer properties = default)
+//        public static async Task<IResource> GetFileAsync(this IResourceProvider provider, string path, MimeType format, IImmutableContainer context = default)
+//        {
+//            
+//        }
+        
+        public static async Task<IResource> GetFileAsync(this IResourceProvider resourceProvider, string path, MimeType format, IImmutableContainer properties = default)
         {
             return await resourceProvider.GetAsync(CreateUri(path), properties.ThisOrEmpty().SetItem(Resource.Property.Format, format));
         }
@@ -23,7 +28,7 @@ namespace Reusable.IOnymous
 
         public static async Task<string> ReadTextFileAsync(this IResourceProvider resourceProvider, string path, IImmutableContainer metadata = default)
         {
-            using (var file = await resourceProvider.ReadFileAsync(path, MimeType.Text, metadata))
+            using (var file = await resourceProvider.GetFileAsync(path, MimeType.Text, metadata))
             {
                 return await file.DeserializeTextAsync();
             }
@@ -31,7 +36,7 @@ namespace Reusable.IOnymous
 
         public static string ReadTextFile(this IResourceProvider resourceProvider, string path, IImmutableContainer metadata = default)
         {
-            using (var file = resourceProvider.ReadFileAsync(path, MimeType.Text, metadata).GetAwaiter().GetResult())
+            using (var file = resourceProvider.GetFileAsync(path, MimeType.Text, metadata).GetAwaiter().GetResult())
             {
                 return file.DeserializeTextAsync().GetAwaiter().GetResult();
             }

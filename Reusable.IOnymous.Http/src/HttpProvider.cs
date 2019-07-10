@@ -55,7 +55,7 @@ namespace Reusable.IOnymous.Http
             };
         }
 
-        private async Task<(Stream Content, MimeType MimeType)> InvokeAsync(UriString uri, HttpMethod method, CreateBodyStreamCallback createBodyStream, IImmutableContainer context)
+        private async Task<(Stream Content, MimeType MimeType)> InvokeAsync(UriString uri, HttpMethod method, CreateStreamCallback createBodyStream, IImmutableContainer context)
         {
             using (var request = new HttpRequestMessage(method, uri))
             using (var content = await (createBodyStream?.Invoke() ?? Task.FromResult(Stream.Null)))
