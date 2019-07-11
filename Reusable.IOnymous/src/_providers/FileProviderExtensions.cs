@@ -57,15 +57,15 @@ namespace Reusable.IOnymous
             });
         }
 
-//        public static async Task<IResource> WriteFileAsync(this IResourceProvider resourceProvider, string path, Stream stream, IImmutableContainer properties = default)
-//        {
-//            return await resourceProvider.InvokeAsync(new Request
-//            {
-//                Uri = CreateUri(path),
-//                Body = stream,
-//                Properties = properties.ThisOrEmpty()
-//            });
-//        }
+        public static async Task<IResource> WriteFileAsync(this IResourceProvider resourceProvider, string path, CreateStreamCallback createStream, IImmutableContainer context = default)
+        {
+            return await resourceProvider.InvokeAsync(new Request
+            {
+                Uri = CreateUri(path),
+                CreateBodyStreamCallback = createStream,
+                Context = context.ThisOrEmpty()
+            });
+        }
 
         #endregion
 
