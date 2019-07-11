@@ -405,7 +405,7 @@ namespace System.Linq.Custom
                     ? dictionary.Add(key, value)
                     : dictionary;
         }
-        
+
 //        public static IEnumerable<T> Take<T>(this IEnumerable<T> source, int count)
 //        {
 //            if (source == null) throw new ArgumentNullException(nameof(source));

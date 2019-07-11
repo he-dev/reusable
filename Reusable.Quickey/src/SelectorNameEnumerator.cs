@@ -29,10 +29,20 @@ namespace Reusable.Quickey
             return
                 from m in selector.Members()
                 where m.IsDefined(typeof(SelectorNameFactoryAttribute))
-                let selectorNameFactories = m.GetCustomAttributes<SelectorNameFactoryAttribute>(false) // Get only own attributes, no inherited ones.
+                let selectorNameFactories = GetSelectorNameFactories(m) 
                 let selectorNames = selectorNameFactories.Select(f => f.CreateSelectorName(selector)).ToImmutableList()
                 where selectorNames.Any()
                 select selectorNames;
+
+            // Get own attributes or inherited.
+            IEnumerable<SelectorNameFactoryAttribute> GetSelectorNameFactories(MemberInfo m)
+            {
+                var result = m.GetCustomAttributes<SelectorNameFactoryAttribute>(false);
+                return
+                    result.Any()
+                        ? result
+                        : m.GetCustomAttributes<SelectorNameFactoryAttribute>();
+            }
         }
     }
 }
