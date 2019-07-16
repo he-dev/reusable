@@ -11,20 +11,20 @@ namespace Reusable.IOnymous
     {
         #region GET helpers
 
-//        public static async Task<IResource> GetFileAsync(this IResourceProvider provider, string path, MimeType format, IImmutableContainer context = default)
-//        {
-//            
-//        }
-        
+        //        public static async Task<IResource> GetFileAsync(this IResourceProvider provider, string path, MimeType format, IImmutableContainer context = default)
+        //        {
+        //            
+        //        }
+
         public static async Task<IResource> GetFileAsync(this IResourceProvider resourceProvider, string path, MimeType format, IImmutableContainer properties = default)
         {
             return await resourceProvider.GetAsync(CreateUri(path), properties.ThisOrEmpty().SetItem(Resource.Property.Format, format));
         }
 
-//        public static IResource GetTextFile(this IResourceProvider resourceProvider, string path, IImmutableSession metadata = default)
-//        {
-//            return resourceProvider.ReadFileAsync(path, MimeType.Text, metadata).GetAwaiter().GetResult();
-//        }
+        //        public static IResource GetTextFile(this IResourceProvider resourceProvider, string path, IImmutableSession metadata = default)
+        //        {
+        //            return resourceProvider.ReadFileAsync(path, MimeType.Text, metadata).GetAwaiter().GetResult();
+        //        }
 
         public static async Task<string> ReadTextFileAsync(this IResourceProvider resourceProvider, string path, IImmutableContainer metadata = default)
         {
@@ -48,10 +48,8 @@ namespace Reusable.IOnymous
 
         public static async Task<IResource> WriteTextFileAsync(this IResourceProvider resourceProvider, string path, string value, IImmutableContainer properties = default)
         {
-            return await resourceProvider.InvokeAsync(new Request
+            return await resourceProvider.InvokeAsync(new Request.Put(CreateUri(path))
             {
-                Uri = CreateUri(path),
-                Method = RequestMethod.Put,
                 CreateBodyStreamCallback = () => ResourceHelper.SerializeTextAsync(value, properties.ThisOrEmpty().GetItemOrDefault(Resource.Property.Encoding, Encoding.UTF8)),
                 Context = properties.ThisOrEmpty().SetItem(Resource.Property.Format, MimeType.Text)
             });
@@ -59,9 +57,8 @@ namespace Reusable.IOnymous
 
         public static async Task<IResource> WriteFileAsync(this IResourceProvider resourceProvider, string path, CreateStreamCallback createStream, IImmutableContainer context = default)
         {
-            return await resourceProvider.InvokeAsync(new Request
+            return await resourceProvider.InvokeAsync(new Request.Put(CreateUri(path))
             {
-                Uri = CreateUri(path),
                 CreateBodyStreamCallback = createStream,
                 Context = context.ThisOrEmpty()
             });
@@ -77,10 +74,8 @@ namespace Reusable.IOnymous
 
         public static async Task<IResource> DeleteFileAsync(this IResourceProvider resourceProvider, string path, IImmutableContainer metadata = default)
         {
-            return await resourceProvider.InvokeAsync(new Request
+            return await resourceProvider.InvokeAsync(new Request.Delete(CreateUri(path))
             {
-                Uri = CreateUri(path),
-                Method = RequestMethod.Delete,
                 Context = metadata.ThisOrEmpty().SetItem(Resource.Property.Format, MimeType.Text)
             });
         }
