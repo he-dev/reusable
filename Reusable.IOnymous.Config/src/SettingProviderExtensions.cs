@@ -71,7 +71,7 @@ namespace Reusable.IOnymous.Config
             var properties =
                 ImmutableContainer
                     .Empty
-                    .SetItem(Resource.Property.DataType, selector.MemberType)
+                    .SetItem(Resource.Property.DataType, selector.DataType)
                     // request.Properties.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Type)) == typeof(string)
                     //.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), resource?.Provider.ToSoftString())
                     .SetItem(Resource.Property.ActualName, $"[{selector.Join(x => x.ToString(), ", ")}]")

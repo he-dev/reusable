@@ -11,7 +11,7 @@ namespace Reusable.Tests.IOnymous
         //[Fact]
         public async Task Blub()
         {
-            var client = new HttpProvider("https://jsonplaceholder.typicode.com", ImmutableContainer.Empty);
+            var client = HttpProvider.FromBaseUri("https://jsonplaceholder.typicode.com");
 
             var response = await client.GetAsync
             (

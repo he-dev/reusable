@@ -14,12 +14,12 @@ namespace Reusable.IOnymous.Config
     {
         private readonly IConfiguration _configuration;
 
-        public JsonProvider(string fileName) : base(ImmutableContainer.Empty)
+        public JsonProvider(string basePath, string fileName) : base(ImmutableContainer.Empty)
         {
             _configuration =
                 new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("appsettings.json")
+                    .SetBasePath(basePath)
+                    .AddJsonFile(fileName)
                     .Build();
             Methods =
                 MethodDictionary
@@ -27,7 +27,7 @@ namespace Reusable.IOnymous.Config
                     .Add(RequestMethod.Get, GetAsync);
         }
 
-        public ITypeConverter UriConverter { get; set; } = DefaultUriStringConverter;
+        public ITypeConverter UriConverter { get; set; } = UriStringQueryToStringConverter.Default;
 
         public ITypeConverter ValueConverter { get; set; } = new JsonSettingConverter();
 

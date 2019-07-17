@@ -22,7 +22,7 @@ namespace Reusable.Tests.Teapot
         public UseCaseTest(TeapotFactoryFixture teapotFactory)
         {
             _teapot = teapotFactory.CreateTeapotServer("http://localhost:20001/api");
-            _http = new HttpProvider("http://localhost:20001", ImmutableContainer.Empty);
+            _http = HttpProvider.FromBaseUri("http://localhost:20001");
         }
 
         [Fact]

@@ -12,17 +12,13 @@ using Reusable.Quickey;
 
 namespace Reusable.IOnymous
 {
-    public class InMemoryProvider : ResourceProvider, IEnumerable<KeyValuePair<SoftString, object>>
+    public class InMemoryProvider : ResourceProvider, IEnumerable<(SoftString Name, object Value)>
     {
         private readonly ITypeConverter<UriString, string> _uriConverter;
         private readonly IDictionary<SoftString, object> _items = new Dictionary<SoftString, object>();
 
-        //public InMemoryProvider(IEnumerable<SoftString> schemes, Metadata metadata = default) : base(schemes, metadata) { }
-
-        //public InMemoryProvider(Metadata metadata = default) : base(new[] { DefaultScheme }, metadata) { }
-
-        public InMemoryProvider([NotNull] ITypeConverter<UriString, string> uriConverter, IImmutableContainer metadata = default)
-            : base((metadata ?? ImmutableContainer.Empty).SetWhen(x => !x.GetSchemes().Any(), x => x.SetScheme(UriSchemes.Custom.IOnymous)))
+        public InMemoryProvider([NotNull] ITypeConverter<UriString, string> uriConverter, IImmutableContainer properties = default)
+            : base(properties.ThisOrEmpty().SetWhen(x => !x.GetSchemes().Any(), x => x.SetScheme(UriSchemes.Custom.IOnymous)))
         {
             _uriConverter = uriConverter ?? throw new ArgumentNullException(nameof(uriConverter));
 
@@ -33,12 +29,8 @@ namespace Reusable.IOnymous
                     .Add(RequestMethod.Put, PutAsync);
         }
 
-        public InMemoryProvider(IImmutableContainer metadata = default) : this(new UriStringPathToStringConverter(), metadata) { }
-
-        /// <summary>
-        /// Gets or sets value converter.
-        /// </summary>
-        public ITypeConverter Converter { get; set; } = new NullConverter();
+        public InMemoryProvider(IImmutableContainer properties = default)
+            : this(new UriStringPathToStringConverter(), properties) { }
 
         private async Task<IResource> GetAsync(Request request)
         {
@@ -53,8 +45,6 @@ namespace Reusable.IOnymous
 
         private async Task<IResource> PutAsync(Request request)
         {
-            //ValidateFormatNotNull(this, uri, metadata);
-
             var name = _uriConverter.Convert<string>(request.Uri);
             using (var body = await request.CreateBodyStreamAsync())
             {
@@ -73,16 +63,17 @@ namespace Reusable.IOnymous
 
         #region Collection initilizers
 
-        //public void Add(IResourceInfo item) => _items.Add(item);
+        public InMemoryProvider Add((string Name, object Value) item) => Add(item.Name, item.Value);
 
-        public void Add(string name, object value)
+        public InMemoryProvider Add(string name, object value)
         {
             _items[name] = value;
+            return this;
         }
 
         #endregion
 
-        public IEnumerator<KeyValuePair<SoftString, object>> GetEnumerator() => _items.GetEnumerator();
+        public IEnumerator<(SoftString Name, object Value)> GetEnumerator() => _items.Select(x => (x.Key, x.Value)).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_items).GetEnumerator();
     }
@@ -93,26 +84,26 @@ namespace Reusable.IOnymous
 
         //public void Add(IResourceInfo item) => _items.Add(item);
 
-//        public static InMemoryProvider Add(this InMemoryProvider inMemory, string uri, object value)
-//        {
-//            switch (value)
-//            {
-//                case string str:
-//                {
-//                    using (var stream = ResourceHelper.SerializeTextAsync(str).GetAwaiter().GetResult())
-//                    using (inMemory.PutAsync(uri, stream, Metadata.Empty.Resource().Format(MimeType.Text)).GetAwaiter().GetResult()) { }
-//                }
-//                    break;
-//                default:
-//                {
-//                    using (var stream = ResourceHelper.SerializeBinaryAsync(value).GetAwaiter().GetResult())
-//                    using (inMemory.PutAsync(uri, stream, Metadata.Empty.Resource().Format(MimeType.Binary)).GetAwaiter().GetResult()) { }
-//                }
-//                    break;
-//            }
-//
-//            return inMemory;
-//        }
+        //        public static InMemoryProvider Add(this InMemoryProvider inMemory, string uri, object value)
+        //        {
+        //            switch (value)
+        //            {
+        //                case string str:
+        //                {
+        //                    using (var stream = ResourceHelper.SerializeTextAsync(str).GetAwaiter().GetResult())
+        //                    using (inMemory.PutAsync(uri, stream, Metadata.Empty.Resource().Format(MimeType.Text)).GetAwaiter().GetResult()) { }
+        //                }
+        //                    break;
+        //                default:
+        //                {
+        //                    using (var stream = ResourceHelper.SerializeBinaryAsync(value).GetAwaiter().GetResult())
+        //                    using (inMemory.PutAsync(uri, stream, Metadata.Empty.Resource().Format(MimeType.Binary)).GetAwaiter().GetResult()) { }
+        //                }
+        //                    break;
+        //            }
+        //
+        //            return inMemory;
+        //        }
 
         #endregion
     }
@@ -122,14 +113,14 @@ namespace Reusable.IOnymous
         [CanBeNull]
         private readonly Stream _data;
 
-//        public InMemoryResource(UriString uri, MimeType format, Stream data)
-//            : base(ImmutableSession
-//                .Empty
-//                .SetItem(PropertySelector.Select(x => x.Uri), uri)
-//                .SetItem(From<IResourceMeta>.Select(x => x.Format), format))
-//        {
-//            _data = data ?? throw new ArgumentNullException(nameof(data));
-//        }
+        //        public InMemoryResource(UriString uri, MimeType format, Stream data)
+        //            : base(ImmutableSession
+        //                .Empty
+        //                .SetItem(PropertySelector.Select(x => x.Uri), uri)
+        //                .SetItem(From<IResourceMeta>.Select(x => x.Format), format))
+        //        {
+        //            _data = data ?? throw new ArgumentNullException(nameof(data));
+        //        }
 
         public InMemoryResource(IImmutableContainer properties, Stream data)
             : base(properties.CopyRequestProperties().Union(properties.CopyResourceProperties()).SetExists(data != Stream.Null))

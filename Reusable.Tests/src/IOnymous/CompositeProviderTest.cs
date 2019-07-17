@@ -13,7 +13,7 @@ namespace Reusable.Tests.IOnymous
         [Fact]
         public async Task Gets_first_matching_resource_by_default()
         {
-            var resources =
+            var provider =
                 CompositeProvider
                     .Empty
                     .Add(new InMemoryProvider
@@ -26,56 +26,53 @@ namespace Reusable.Tests.IOnymous
                         { "branch/dev", "snow" }
                     });
 
-            // todo - fix that
-            //Assert.False(true);
-            var resource = await resources.GetAsync("any-scheme:branch/dev", ImmutableContainer.Empty);
+            var resource = await provider.GetAsync("test:branch/dev");
 
             Assert.True(resource.Exists);
             Assert.Equal("hot", await resource.DeserializeTextAsync());
         }
 
         [Fact]
-        public async Task Can_get_resource_by_default_name()
+        public async Task Gets_first_matching_resource_by_default_provider_name()
         {
-            var composite =
+            var provider =
                 CompositeProvider
                     .Empty
                     .Add(new InMemoryProvider
                     {
-                        { "x/123", "blub1" }
+                        { "branch/dev", "hot" }
                     })
                     .Add(new InMemoryProvider
                     {
-                        //{ "x.123", "blub2" },
-                        { "x/123", "blub3" }
+                        { "branch/dev", "cold" },
+                        { "branch/dev", "snow" }
                     });
 
-            var resource = await composite.GetAsync("blub:x/123", ImmutableContainer.Empty.SetName("InMemoryProvider"));
+            var resource = await provider.GetAsync("test:branch/dev", ImmutableContainer.Empty.SetName(nameof(InMemoryProvider)));
 
             Assert.True(resource.Exists);
-            Assert.Equal("blub1", await resource.DeserializeTextAsync());
+            Assert.Equal("hot", await resource.DeserializeTextAsync());
         }
 
         [Fact]
-        public async Task Can_get_resource_by_custom_name()
+        public async Task Can_get_resource_by_custom_provider_name()
         {
             var composite =
                 CompositeProvider
                     .Empty
                     .Add(new InMemoryProvider
                     {
-                        { "x/123", "blub1" }
+                        { "branch/dev", "cold" }
                     })
-                    .Add(new InMemoryProvider(ImmutableContainer.Empty.SetScheme(UriSchemes.Custom.IOnymous).SetName("blub"))
+                    .Add(new InMemoryProvider(ImmutableContainer.Empty.SetName("use-this"))
                     {
-                        //{ "x.123", "blub2" },
-                        { "x/123", "blub3" }
+                        { "branch/dev", "hot" },
                     });
 
-            var resource = await composite.GetAsync("blub:x/123", ImmutableContainer.Empty.SetScheme(UriSchemes.Custom.IOnymous).SetName("blub"));
+            var resource = await composite.GetAsync("test:branch/dev", ImmutableContainer.Empty.SetScheme(UriSchemes.Custom.IOnymous).SetName("use-this"));
 
             Assert.True(resource.Exists);
-            Assert.Equal("blub3", await resource.DeserializeTextAsync());
+            Assert.Equal("hot", await resource.DeserializeTextAsync());
         }
 
         [Fact]
@@ -86,15 +83,14 @@ namespace Reusable.Tests.IOnymous
                     .Empty
                     .Add(new InMemoryProvider
                     {
-                        { "blub:123", "blub1" }
+                        { "branch/dev", "cold" }
                     })
                     .Add(new InMemoryProvider
                     {
-                        { "blub:123?providerName=blub", "blub2" },
-                        { "blub:123?providerName=blub", "blub3" }
+                        { "branch/dev", "cold" }
                     });
 
-            await Assert.ThrowsAnyAsync<DynamicException>(async () => await composite.InvokeAsync(new Request.Put("blub:123")));
+            await Assert.ThrowsAnyAsync<DynamicException>(async () => await composite.InvokeAsync(new Request.Put("branch/dev")));
         }
 
         [Fact]
@@ -102,21 +98,20 @@ namespace Reusable.Tests.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider(ImmutableContainer.Empty.SetScheme("bluba"))
+                new InMemoryProvider(ImmutableContainer.Empty.SetScheme("other-one"))
                 {
-                    { "x/123", "blub1" }
+                    { "branch/dev", "cold" }
                 },
-                new InMemoryProvider(ImmutableContainer.Empty.SetScheme("blub"))
+                new InMemoryProvider(ImmutableContainer.Empty.SetScheme("this-one"))
                 {
-                    { "x/123", "blub2" },
-                    { "x/125", "blub3" }
+                    { "branch/dev", "hot" }
                 },
             });
 
-            var resource = await composite.GetAsync("blub:x/123", ImmutableContainer.Empty);
+            var resource = await composite.GetAsync("this-one:branch/dev", ImmutableContainer.Empty);
 
             Assert.True(resource.Exists);
-            Assert.Equal("blub2", await resource.DeserializeTextAsync());
+            Assert.Equal("hot", await resource.DeserializeTextAsync());
         }
     }
 }

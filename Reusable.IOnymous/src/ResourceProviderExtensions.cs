@@ -119,22 +119,21 @@ namespace Reusable.IOnymous
 
         #endregion
 
-        private static readonly Action<Request> Pass = _ => { };
+        //private static readonly Action<Request> Pass = _ => { };
 
-        public static async Task<IResource> GetAsync(this IResourceProvider resources, UriString uri, Action<Request> configure = default)
-        {
-            var request = new Request.Get(uri);
-            (configure ?? Pass)(request);
-            return await resources.InvokeAsync(request);
-        }
+        // public static async Task<IResource> GetAsync(this IResourceProvider resources, UriString uri, Action<Request> configure = default)
+        // {
+        //     var request = new Request.Get(uri);
+        //     (configure ?? Pass)(request);
+        //     return await resources.InvokeAsync(request);
+        // }
 
         public static async Task<IResource> GetAsync(this IResourceProvider resources, UriString uri, IImmutableContainer properties = default)
         {
-            var request = new Request.Get(uri)
+            return await resources.InvokeAsync(new Request.Get(uri)
             {
                 Context = properties.ThisOrEmpty()
-            };
-            return await resources.InvokeAsync(request);
+            });
         }
 
         public static IResourceProvider Use(this IResourceProvider provider, string name)

@@ -18,7 +18,7 @@ namespace Reusable.IOnymous.Http
 
         private readonly HttpClient _client;
 
-        public HttpProvider([NotNull] string baseUri, IImmutableContainer metadata = default)
+        public HttpProvider(HttpClient httpClient, IImmutableContainer metadata = default)
             : base(
                 metadata
                     .ThisOrEmpty()
@@ -26,12 +26,7 @@ namespace Reusable.IOnymous.Http
                     .SetScheme(UriSchemes.Known.Https)
                     .SetItem(ResourceProviderProperty.AllowRelativeUri, true))
         {
-            if (baseUri == null) throw new ArgumentNullException(nameof(baseUri));
-
-            _client = new HttpClient
-            {
-                BaseAddress = new Uri(baseUri)
-            };
+            _client = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _client.DefaultRequestHeaders.Clear();
 
             Methods =
@@ -44,6 +39,17 @@ namespace Reusable.IOnymous.Http
         }
 
         public string BaseUri => _client.BaseAddress.ToString();
+
+        /// <summary>
+        /// Create a HttpProvider that doesn't use a proxy for requests.
+        /// </summary>
+        public static HttpProvider FromBaseUri(string baseUri, IImmutableContainer properties = default)
+        {
+            return new HttpProvider(new HttpClient(new HttpClientHandler { UseProxy = false })
+            {
+                BaseAddress = new Uri(baseUri)
+            });
+        }
 
         private RequestCallback CreateRequestCallback(HttpMethod httpMethod)
         {
@@ -121,7 +127,7 @@ namespace Reusable.IOnymous.Http
 
         public static Selector<string> ContentType = Select(() => ContentType);
     }
-    
+
     [UseType, UseMember]
     [PlainSelectorFormatter]
     [Rename(nameof(HttpResponseContext))]
@@ -158,21 +164,21 @@ namespace Reusable.IOnymous.Http
         }
     }
 
-//    [UseType, UseMember]
-//    [TrimStart("I"), TrimEnd("Meta")]
-//    [PlainSelectorFormatter]
-//    public interface IHttpMeta
-//    {
-//        Stream Content { get; }
-//
-//        Action<HttpRequestHeaders> ConfigureRequestHeaders { get; }
-//
-//        MediaTypeFormatter RequestFormatter { get; }
-//
-//        IEnumerable<MediaTypeFormatter> ResponseFormatters { get; }
-//
-//        Type ResponseType { get; }
-//
-//        string ContentType { get; }
-//    }
+    //    [UseType, UseMember]
+    //    [TrimStart("I"), TrimEnd("Meta")]
+    //    [PlainSelectorFormatter]
+    //    public interface IHttpMeta
+    //    {
+    //        Stream Content { get; }
+    //
+    //        Action<HttpRequestHeaders> ConfigureRequestHeaders { get; }
+    //
+    //        MediaTypeFormatter RequestFormatter { get; }
+    //
+    //        IEnumerable<MediaTypeFormatter> ResponseFormatters { get; }
+    //
+    //        Type ResponseType { get; }
+    //
+    //        string ContentType { get; }
+    //    }
 }

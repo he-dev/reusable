@@ -32,7 +32,7 @@ namespace Reusable.IOnymous.Config
         }
 
         [CanBeNull]
-        public ITypeConverter UriConverter { get; set; } = DefaultUriStringConverter;
+        public ITypeConverter UriConverter { get; set; } = UriStringQueryToStringConverter.Default;
 
         public ITypeConverter ValueConverter { get; set; } = new JsonSettingConverter();
 

@@ -6,11 +6,7 @@ namespace Reusable.IOnymous.Config
 {
     public abstract class SettingProvider : ResourceProvider
     {
-        public static readonly ITypeConverter<UriString, string> DefaultUriStringConverter = new UriStringQueryNameToStringConverter();
-
-        //public static readonly IImmutableList<SoftString> DefaultSchemes = ImmutableList<SoftString>.Empty.Add("config");
-        
-        protected SettingProvider(IImmutableContainer metadata)
-            : base(metadata.SetScheme("config")) { }
+        protected SettingProvider(IImmutableContainer properties)
+            : base(properties.SetScheme("config")) { }
     }
 }

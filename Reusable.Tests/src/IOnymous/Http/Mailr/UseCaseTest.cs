@@ -20,7 +20,7 @@ namespace Reusable.Tests.IOnymous.Http.Mailr
         public UseCaseTest(TeapotFactoryFixture teapotFactory)
         {
             _teapot = teapotFactory.CreateTeapotServer("http://0.0.0.0:62001/api");
-            _http = new HttpProvider("http://0.0.0.0:62001");
+            _http = HttpProvider.FromBaseUri("http://0.0.0.0:62001");
         }
 
         [Fact]

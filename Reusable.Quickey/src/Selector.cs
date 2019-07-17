@@ -77,6 +77,8 @@ namespace Reusable.Quickey
             }
         }
 
+        public Type DataType => typeof(Selector).IsAssignableFrom(MemberType) ? MemberType.GetGenericArguments().Single() : MemberType; 
+
         public static Selector FromMember(Type declaringType, MemberInfo member)
         {
             // todo - this might require improved static/instance handling

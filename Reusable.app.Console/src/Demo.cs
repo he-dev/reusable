@@ -211,7 +211,7 @@ namespace Reusable.Apps
 
         public static async Task SendEmailAsync_Mailr()
         {
-            var http = new HttpProvider("http://localhost:7000/api");
+            var http = HttpProvider.FromBaseUri("http://localhost:7000/api");
             await http.SendEmailAsync
             (
                 "v1.0/mailr/messages/plaintext",

@@ -103,6 +103,17 @@ namespace Reusable.OneTo1
         public bool Equals(ITypeConverter other) => AutoEquality<ITypeConverter>.Comparer.Equals(this, other);
 
         #endregion
+        
+        private class NullConverter : TypeConverter
+        {
+            public override Type FromType => typeof(object);
+
+            public override Type ToType => typeof(object);
+
+            protected override bool CanConvertCore(Type fromType, Type toType) => true;
+
+            protected override object ConvertCore(IConversionContext<object> context) => context.Value;
+        }
     }
 
     public interface ITypeConverter<TValue, TResult> : ITypeConverter { }
