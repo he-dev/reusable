@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Reusable.Utilities.JsonNet;
+using Reusable.Utilities.JsonNet.Converters;
 
 namespace Reusable.Flexo
 {
@@ -56,6 +57,7 @@ namespace Reusable.Flexo
                 Converters =
                 {
                     //new ExpressionConverter(),
+                    new SoftStringConverter(),
                     new ExpressionConverter()
                 }
             };

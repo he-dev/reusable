@@ -414,5 +414,14 @@
         }
       ]
     }
+  },
+  {
+    "$f": "Double",
+    "Name": "DoubleWithTags",
+    "Value": 3.0,
+    "Tags": [
+      "tag-1",
+      "tag-2"
+    ]
   }
 ]

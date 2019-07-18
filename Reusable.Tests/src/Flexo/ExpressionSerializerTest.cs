@@ -39,11 +39,19 @@ namespace Reusable.Tests.Flexo
 
         [Theory]
         [SmartMemberData(nameof(GetData))]
-        public void Can_evaluate_supported_expressions(string useCaseName, object expected, bool throws)
+        public void Can_evaluate_supported_expressions(string useCaseName, object expected, bool throws, ISet<SoftString> tags)
         {
             var useCase = _helper.GetExpressions().Single(e => e.Name == useCaseName);
             var sth = new Something();
-            Assert.That.ExpressionEqual(expected, useCase, ctx => ctx.WithReferences(_helper.GetReferences()).SetItem(From<ITestMeta>.Select(x => x.Sth), sth), _output, throws);
+            Assert.That.ExpressionEqual
+            (
+                expected,
+                useCase,
+                ctx => ctx.WithReferences(_helper.GetReferences()).SetItem(From<ITestMeta>.Select(x => x.Sth), sth),
+                _output,
+                throws,
+                tags
+            );
 
             switch (useCaseName)
             {
@@ -71,47 +79,47 @@ namespace Reusable.Tests.Flexo
             }
         }
 
-        private static IEnumerable<object> GetData() => new (string UseCaseName, object Expected, bool Throws)[]
+        private static IEnumerable<object> GetData() => new (string UseCaseName, object Expected, bool Throws, ISet<SoftString> Tags)[]
         {
-            ("Any", true, false),
-            ("Any.ToDouble", 1.0, false),
-            ("Any{Predicate=false}", true, false),
-            ("All{Predicate=true}", false, false),
-            ("All.ToDouble", 0.0, false),
-            ("Sum", 3.0, false),
-            ("ToDouble", 1.0, false),
-            ("Matches", true, false),
-            ("True.Not", false, false),
-            ("True.ToDouble", 1.0, false),
-            ("True.All-overrides-this", false, false),
-            ("Double.ToDouble", 1.0, true),
-            ("Double.IsEqual", true, false),
-            ("Double.ref_IsLessThan3", true, false),
-            ("CollectionOfDouble", new double[] { 1, 2, 3 }, false),
-            ("CollectionOfDouble-2", new double[] { 1, 2, 3 }, false),
-            ("Collection.Sum", 3.0, false),
-            ("Collection.Max", 4.0, false),
-            ("Collection.Contains{Comparer=Regex}", true, false),
-            ("Collection.Contains{Comparer=Regex}", true, false),
-            ("Collection.Any{Predicate=Matches}", true, false),
-            ("Collection.Contains", true, false),
-            ("Collection.All", true, false),
-            ("Collection.Overlaps{Comparer=SoftString}", true, false),
-            ("Collection.Select.ToString", new[] { "1", "True" }, false),
-            ("String.In", true, false),
-            ("Collection.Where.IsGreaterThan", new[] { 3.0, 4.0 }, false),
-            ("GetSingle", "Hallo!", false),
-            ("GetMany", new[] { "Joe", "Bob" }, false),
-            ("GetMany.Contains", true, false),
-            ("Concat", new[] { "Joe", "Bob", "Tom" }, false),
-            ("Union", new[] { "Joe", "Bob", "Tom" }, false),
-            ("GetMany.Block.Contains", true, false),
-            ("String.IsNullOrEmpty-false", false, false),
-            ("String.IsNullOrEmpty-true", true, false),
-            ("SetSingle", null, false),
-            ("SetMany", null, false),
-        }.Select(uc => new { uc.UseCaseName, uc.Expected, uc.Throws });
-
+            ("Any", true, false, default),
+            ("Any.ToDouble", 1.0, false, default),
+            ("Any{Predicate=false}", true, false, default),
+            ("All{Predicate=true}", false, false, default),
+            ("All.ToDouble", 0.0, false, default),
+            ("Sum", 3.0, false, default),
+            ("ToDouble", 1.0, false, default),
+            ("Matches", true, false, default),
+            ("True.Not", false, false, default),
+            ("True.ToDouble", 1.0, false, default),
+            ("True.All-overrides-this", false, false, default),
+            ("Double.ToDouble", 1.0, true, default),
+            ("Double.IsEqual", true, false, default),
+            ("Double.ref_IsLessThan3", true, false, default),
+            ("CollectionOfDouble", new double[] { 1, 2, 3 }, false, default),
+            ("CollectionOfDouble-2", new double[] { 1, 2, 3 }, false, default),
+            ("Collection.Sum", 3.0, false, default),
+            ("Collection.Max", 4.0, false, default),
+            ("Collection.Contains{Comparer=Regex}", true, false, default),
+            ("Collection.Contains{Comparer=Regex}", true, false, default),
+            ("Collection.Any{Predicate=Matches}", true, false, default),
+            ("Collection.Contains", true, false, default),
+            ("Collection.All", true, false, default),
+            ("Collection.Overlaps{Comparer=SoftString}", true, false, default),
+            ("Collection.Select.ToString", new[] { "1", "True" }, false, default),
+            ("String.In", true, false, default),
+            ("Collection.Where.IsGreaterThan", new[] { 3.0, 4.0 }, false, default),
+            ("GetSingle", "Hallo!", false, default),
+            ("GetMany", new[] { "Joe", "Bob" }, false, default),
+            ("GetMany.Contains", true, false, default),
+            ("Concat", new[] { "Joe", "Bob", "Tom" }, false, default),
+            ("Union", new[] { "Joe", "Bob", "Tom" }, false, default),
+            ("GetMany.Block.Contains", true, false, default),
+            ("String.IsNullOrEmpty-false", false, false, default),
+            ("String.IsNullOrEmpty-true", true, false, default),
+            ("SetSingle", null, false, default),
+            ("SetMany", null, false, default),
+            ("DoubleWithTags", 3.0, false, new HashSet<SoftString> { "tag-1,", "tag-2" }),
+        }.Select(uc => new { uc.UseCaseName, uc.Expected, uc.Throws, uc.Tags });
 
         //[TypeNameFactory]
         [UseMember]
@@ -122,7 +130,7 @@ namespace Reusable.Tests.Flexo
             [UseMember]
             Something Sth { get; }
         }
-        
+
         private class Something
         {
             public string Greeting { get; set; } = "Hallo!";

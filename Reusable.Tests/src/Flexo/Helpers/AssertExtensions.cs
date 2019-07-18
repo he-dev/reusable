@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Reusable.Data;
+using Reusable.Extensions;
 using Reusable.Flexo;
 using Xunit;
 using Xunit.Abstractions;
@@ -21,7 +22,8 @@ namespace Reusable.Tests.Flexo.Helpers
             IExpression expression,
             Func<IImmutableContainer, IImmutableContainer> customizeContext = null,
             ITestOutputHelper output = default,
-            bool throws = false
+            bool throws = false,
+            ISet<SoftString> tags = default
         )
         {
             var expressionInvoker = new ExpressionInvoker();
@@ -45,6 +47,10 @@ namespace Reusable.Tests.Flexo.Helpers
                         case IEnumerable collection when !(expected is string):
                             Assert.IsAssignableFrom<IEnumerable>(actual.Value);
                             Assert.Equal(collection.Cast<object>(), actual.Value<IEnumerable<IConstant>>().Values<object>());
+                            if (tags.IsNotNull())
+                            {
+                                Assert.True(actual.Tags.SetEquals(tags));
+                            }
                             break;
                         default:
                             Assert.Equal(expected, actual.Value);

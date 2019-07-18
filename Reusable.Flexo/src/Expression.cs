@@ -29,6 +29,8 @@ namespace Reusable.Flexo
 
         [CanBeNull]
         string Description { get; }
+        
+        ISet<SoftString> Tags { get; }
 
         [CanBeNull]
         IExpression Extension { get; }
@@ -111,8 +113,6 @@ namespace Reusable.Flexo
             ExpressionScope.Current
             ?? throw new InvalidOperationException("Expressions must be invoked within a valid scope. Use 'BeginScope' to introduce one.");
 
-        //public static INamespace<IExpressionMeta> Namespace => Use<IExpressionMeta>.Namespace;
-
         public virtual SoftString Name
         {
             get => _name;
@@ -120,6 +120,8 @@ namespace Reusable.Flexo
         }
 
         public string Description { get; set; }
+        
+        public ISet<SoftString> Tags { get; set; }
 
         public bool Enabled { get; set; } = true;
 
