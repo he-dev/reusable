@@ -14,40 +14,46 @@ namespace Reusable.IOnymous.Config
     [PublicAPI]
     public class JsonSettingConverter : ITypeConverter
     {
+        public static JsonSerializerSettings DefaultSerializerSettings => new JsonSerializerSettings
+        {
+            Formatting = Formatting.Indented,
+            TypeNameHandling = TypeNameHandling.Auto,
+            Converters =
+            {
+                new StringEnumConverter(),
+                new ColorConverter()
+            }
+        };
+
+        public static IImmutableSet<Type> DefaultStringTypes
+        {
+            get
+            {
+                return
+                    ImmutableHashSet<Type>
+                        .Empty
+                        .Add(typeof(string))
+                        .Add(typeof(Enum))
+                        .Add(typeof(TimeSpan))
+                        .Add(typeof(DateTime))
+                        .Add(typeof(Color));
+            }
+        }
+
         private readonly JsonSerializerSettings _settings;
 
         private readonly IImmutableSet<Type> _stringTypes;
 
         private ITypeConverter _internalConverter;
 
-        public JsonSettingConverter(JsonSerializerSettings settings, IEnumerable<Type> stringTypes)
+        public JsonSettingConverter(Func<JsonSerializerSettings, JsonSerializerSettings> configureSerializerSettings, IEnumerable<Type> stringTypes)
         {
-            _settings = settings;
+            _settings = configureSerializerSettings(DefaultSerializerSettings);
             _stringTypes = stringTypes.ToImmutableHashSet();
             _internalConverter = TypeConverter.Empty;
         }
 
-        public JsonSettingConverter()
-            : this
-            (
-                new JsonSerializerSettings
-                {
-                    Formatting = Formatting.Indented,
-                    TypeNameHandling = TypeNameHandling.Auto,
-                    Converters =
-                    {
-                        new StringEnumConverter(),
-                        new ColorConverter()
-                    }
-                }, new[]
-                {
-                    typeof(string),
-                    typeof(Enum),
-                    typeof(TimeSpan),
-                    typeof(DateTime),
-                    typeof(Color)
-                }
-            ) { }
+        public JsonSettingConverter() : this(x => x, DefaultStringTypes) { }
 
         public Type FromType => throw new NotSupportedException();
 
