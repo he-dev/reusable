@@ -37,7 +37,7 @@ namespace Reusable.Quickey
             // Get own attributes or inherited.
             IEnumerable<SelectorNameFactoryAttribute> GetSelectorNameFactories(MemberInfo m)
             {
-                var result = m.GetCustomAttributes<SelectorNameFactoryAttribute>(false);
+                var result = m.GetCustomAttributes<SelectorNameFactoryAttribute>(false).ToList();
                 return
                     result.Any()
                         ? result

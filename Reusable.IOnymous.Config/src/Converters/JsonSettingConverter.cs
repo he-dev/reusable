@@ -52,6 +52,14 @@ namespace Reusable.IOnymous.Config
             _stringTypes = stringTypes.ToImmutableHashSet();
             _internalConverter = TypeConverter.Empty;
         }
+        
+        public JsonSettingConverter(Action<JsonSerializerSettings> configureSerializerSettings, IEnumerable<Type> stringTypes)
+        {
+            _settings = DefaultSerializerSettings;
+            configureSerializerSettings?.Invoke(_settings);
+            _stringTypes = stringTypes.ToImmutableHashSet();
+            _internalConverter = TypeConverter.Empty;
+        }
 
         public JsonSettingConverter() : this(x => x, DefaultStringTypes) { }
 

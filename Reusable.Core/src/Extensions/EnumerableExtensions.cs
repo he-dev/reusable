@@ -368,7 +368,7 @@ namespace System.Linq.Custom
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
 
-            random = random ?? new Random();
+            random = random ?? new Random((int)DateTime.UtcNow.Ticks);
 
             // https://stackoverflow.com/a/1287572/235671
             // https://stackoverflow.com/a/1665080/235671
