@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.OmniLog</id>
-    <version>12.1.0</version>
+    <version>12.2.0</version>
     <title>Reusable.OmniLog</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -17,10 +17,10 @@
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2019.1.1" />
       <dependency id="System.Reactive" version="4.1.5" />
-      <dependency id="Reusable.Core" version="12.1.0" />
-      <dependency id="Reusable.Flexo" version="12.1.0" />
-      <dependency id="Reusable.IOnymous" version="12.1.0" />
-      <dependency id="Reusable.OmniLog.Abstractions" version="12.1.0" />
+      <dependency id="Reusable.Core" version="12.2.0" />
+      <dependency id="Reusable.Flexo" version="12.2.0" />
+      <dependency id="Reusable.IOnymous" version="12.2.0" />
+      <dependency id="Reusable.OmniLog.Abstractions" version="12.2.0" />
     </dependencies>
   </metadata>
   <files>
