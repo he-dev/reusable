@@ -2,6 +2,7 @@ using System;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
@@ -27,7 +28,7 @@ namespace Reusable.IOnymous.Config
         [CanBeNull]
         public ITypeConverter UriConverter { get; set; } = UriStringQueryToStringConverter.Default;
 
-        public ITypeConverter ValueConverter { get; set; } = new NullConverter();
+        public ITypeConverter ResourceConverter { get; set; } = new NullConverter();
 
         private Task<IResource> GetAsync(Request request)
         {
@@ -35,13 +36,21 @@ namespace Reusable.IOnymous.Config
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
             var element = exeConfig.AppSettings.Settings[actualKey];
-            return Task.FromResult<IResource>(
-                new AppSetting(
-                    ImmutableContainer
-                        .Empty
-                        .SetItem(Resource.Property.ActualName, settingIdentifier)
-                        .Union(request.Context.Copy(Resource.Property.Selectors)),
-                    element?.Value));
+
+            var result =
+                element is null
+                    ? Resource.DoesNotExist.FromRequest(request)
+                    : new PlainResource
+                    (
+                        element.Value,
+                        request
+                            .Context
+                            .CopyResourceProperties()
+                            .SetItem(SettingProperty.Converter, ResourceConverter)
+                            .SetItem(ResourceProperty.ActualName, settingIdentifier)
+                    );
+
+            return result.ToTask();
         }
 
         private async Task<IResource> PutAsync(Request request)
@@ -50,20 +59,15 @@ namespace Reusable.IOnymous.Config
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
             var element = exeConfig.AppSettings.Settings[actualKey];
+            var value = ResourceConverter.Convert(request.Body, typeof(string));
 
-            using (var body = await request.CreateBodyStreamAsync())
+            if (element is null)
             {
-                var value = await ResourceHelper.Deserialize<object>(body, request.Context.Copy(Resource.Property.Selectors));
-                value = ValueConverter.Convert(value, typeof(string));
-
-                if (element is null)
-                {
-                    exeConfig.AppSettings.Settings.Add(settingIdentifier, (string)value);
-                }
-                else
-                {
-                    exeConfig.AppSettings.Settings[actualKey].Value = (string)value;
-                }
+                exeConfig.AppSettings.Settings.Add(settingIdentifier, (string)value);
+            }
+            else
+            {
+                exeConfig.AppSettings.Settings[actualKey].Value = (string)value;
             }
 
             exeConfig.Save(ConfigurationSaveMode.Minimal);
@@ -80,36 +84,6 @@ namespace Reusable.IOnymous.Config
                     .Settings
                     .AllKeys
                     .FirstOrDefault(k => SoftString.Comparer.Equals(k, key));
-        }
-    }
-
-    internal class AppSetting : Resource
-    {
-        [CanBeNull]
-        private readonly string _value;
-
-        // This is always Text
-        internal AppSetting(IImmutableContainer properties, [CanBeNull] string value)
-            : base(properties
-                .SetItem(Property.Format, MimeType.Text)
-                .SetItem(Property.Exists, value.IsNotNullOrEmpty()))
-        {
-            _value = value;
-        }
-
-        //public override bool Exists => !(_value is null);
-
-        //public override long? Length => _value?.Length;
-
-        public override async Task CopyToAsync(Stream stream)
-        {
-            //this.ValidateWith(Validations.Exists).ThrowIfNotValid();
-
-            // ReSharper disable once AssignNullToNotNullAttribute - this isn't null here
-            using (var valueStream = _value.ToStreamReader())
-            {
-                await valueStream.BaseStream.CopyToAsync(stream);
-            }
         }
     }
 }

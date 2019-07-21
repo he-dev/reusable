@@ -14,7 +14,7 @@ namespace Reusable.Tests.IOnymous
             var tempFileName = GetTempFileName();
             
             var provider = new PhysicalFileProvider();
-            var file = await provider.GetFileAsync(tempFileName, MimeType.Text);
+            var file = await provider.GetFileAsync(tempFileName, MimeType.Plain);
             
             Assert.False(file.Exists);
 
@@ -37,7 +37,7 @@ namespace Reusable.Tests.IOnymous
             var tempFileName = "//auth/name";
             
             var provider = new PhysicalFileProvider();
-            var file = await provider.GetFileAsync(tempFileName, MimeType.Text);
+            var file = await provider.GetFileAsync(tempFileName, MimeType.Plain);
             
             Assert.False(file.Exists);            
         }

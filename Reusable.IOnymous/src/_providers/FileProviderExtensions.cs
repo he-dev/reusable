@@ -18,7 +18,7 @@ namespace Reusable.IOnymous
 
         public static async Task<IResource> GetFileAsync(this IResourceProvider resourceProvider, string path, MimeType format, IImmutableContainer properties = default)
         {
-            return await resourceProvider.GetAsync(CreateUri(path), properties.ThisOrEmpty().SetItem(Resource.Property.Format, format));
+            return await resourceProvider.GetAsync(CreateUri(path), properties.ThisOrEmpty().SetItem(ResourceProperty.Format, format));
         }
 
         //        public static IResource GetTextFile(this IResourceProvider resourceProvider, string path, IImmutableSession metadata = default)
@@ -28,7 +28,7 @@ namespace Reusable.IOnymous
 
         public static async Task<string> ReadTextFileAsync(this IResourceProvider resourceProvider, string path, IImmutableContainer metadata = default)
         {
-            using (var file = await resourceProvider.GetFileAsync(path, MimeType.Text, metadata))
+            using (var file = await resourceProvider.GetFileAsync(path, MimeType.Plain, metadata))
             {
                 return await file.DeserializeTextAsync();
             }
@@ -36,7 +36,7 @@ namespace Reusable.IOnymous
 
         public static string ReadTextFile(this IResourceProvider resourceProvider, string path, IImmutableContainer metadata = default)
         {
-            using (var file = resourceProvider.GetFileAsync(path, MimeType.Text, metadata).GetAwaiter().GetResult())
+            using (var file = resourceProvider.GetFileAsync(path, MimeType.Plain, metadata).GetAwaiter().GetResult())
             {
                 return file.DeserializeTextAsync().GetAwaiter().GetResult();
             }
@@ -50,8 +50,9 @@ namespace Reusable.IOnymous
         {
             return await resourceProvider.InvokeAsync(new Request.Put(CreateUri(path))
             {
-                CreateBodyStreamCallback = () => ResourceHelper.SerializeTextAsync(value, properties.ThisOrEmpty().GetItemOrDefault(Resource.Property.Encoding, Encoding.UTF8)),
-                Context = properties.ThisOrEmpty().SetItem(Resource.Property.Format, MimeType.Text)
+                Body = value,
+                CreateBodyStreamCallback = body => ResourceHelper.SerializeTextAsync((string)body, properties.ThisOrEmpty().GetItemOrDefault(ResourceProperty.Encoding, Encoding.UTF8)),
+                Context = properties.ThisOrEmpty().SetItem(ResourceProperty.Format, MimeType.Plain)
             });
         }
 
@@ -76,7 +77,7 @@ namespace Reusable.IOnymous
         {
             return await resourceProvider.InvokeAsync(new Request.Delete(CreateUri(path))
             {
-                Context = metadata.ThisOrEmpty().SetItem(Resource.Property.Format, MimeType.Text)
+                Context = metadata.ThisOrEmpty().SetItem(ResourceProperty.Format, MimeType.Plain)
             });
         }
 

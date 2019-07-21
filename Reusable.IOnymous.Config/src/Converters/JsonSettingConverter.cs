@@ -44,13 +44,13 @@ namespace Reusable.IOnymous.Config
 
         private readonly IImmutableSet<Type> _stringTypes;
 
-        private ITypeConverter _internalConverter;
+        private ITypeConverter _converter;
 
         public JsonSettingConverter(Func<JsonSerializerSettings, JsonSerializerSettings> configureSerializerSettings, IEnumerable<Type> stringTypes)
         {
             _settings = configureSerializerSettings(DefaultSerializerSettings);
             _stringTypes = stringTypes.ToImmutableHashSet();
-            _internalConverter = TypeConverter.Empty;
+            _converter = TypeConverter.Empty;
         }
         
         public JsonSettingConverter(Action<JsonSerializerSettings> configureSerializerSettings, IEnumerable<Type> stringTypes)
@@ -58,7 +58,7 @@ namespace Reusable.IOnymous.Config
             _settings = DefaultSerializerSettings;
             configureSerializerSettings?.Invoke(_settings);
             _stringTypes = stringTypes.ToImmutableHashSet();
-            _internalConverter = TypeConverter.Empty;
+            _converter = TypeConverter.Empty;
         }
 
         public JsonSettingConverter() : this(x => x, DefaultStringTypes) { }
@@ -71,7 +71,7 @@ namespace Reusable.IOnymous.Config
 
         public bool CanConvert(Type fromType, Type toType)
         {
-            return _internalConverter.CanConvert(fromType, toType);
+            return _converter.CanConvert(fromType, toType);
         }
 
         public object Convert(IConversionContext<object> context)
@@ -83,20 +83,20 @@ namespace Reusable.IOnymous.Config
 
             if (CanConvert(context.FromType, context.ToType))
             {
-                return _internalConverter.Convert(context);
+                return _converter.Convert(context);
             }
             else
             {
-                var newConverterType = GetJsonConverterType(context);
+                var newConverterType = CreateJsonConverterType(context);
                 var newConverter = (ITypeConverter)Activator.CreateInstance(newConverterType, _settings, _stringTypes);
-                _internalConverter = _internalConverter.Add(newConverter);
+                _converter = _converter.Add(newConverter);
                 return Convert(context);
             }
         }
 
         public bool Equals(ITypeConverter other) => throw new NotSupportedException();
 
-        private Type GetJsonConverterType(IConversionContext<object> context)
+        private Type CreateJsonConverterType(IConversionContext<object> context)
         {
             if (context.FromType == typeof(string))
             {

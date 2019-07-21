@@ -35,21 +35,28 @@ namespace Reusable.IOnymous
         private async Task<IResource> GetAsync(Request request)
         {
             var name = _uriConverter.Convert<string>(request.Uri);
-            return
-                _items.TryGetValue(name, out var o)
-                    ? o is string s
-                        ? new InMemoryResource(ImmutableContainer.Empty.SetUri(request.Uri).SetFormat(MimeType.Text), await ResourceHelper.SerializeTextAsync(s))
-                        : new InMemoryResource(ImmutableContainer.Empty.SetUri(request.Uri).SetFormat(MimeType.Binary), await ResourceHelper.SerializeBinaryAsync(o))
-                    : new InMemoryResource(ImmutableContainer.Empty.SetUri(request.Uri), Stream.Null);
+
+            if (_items.TryGetValue(name, out var obj))
+            {
+                switch (obj)
+                {
+                    case string str:
+                        return new PlainResource(str, request.Context.CopyResourceProperties());
+
+                    default:
+                        return new ObjectResource(obj, request.Context.CopyResourceProperties());
+                }
+            }
+            else
+            {
+                return Resource.DoesNotExist.FromRequest(request);
+            }
         }
 
         private async Task<IResource> PutAsync(Request request)
         {
             var name = _uriConverter.Convert<string>(request.Uri);
-            using (var body = await request.CreateBodyStreamAsync())
-            {
-                _items[name] = await ResourceHelper.Deserialize<object>(body, request.Context);
-            }
+            _items[name] = request.Body;
 
             return await InvokeAsync(new Request.Get(request.Uri));
         }
@@ -76,71 +83,5 @@ namespace Reusable.IOnymous
         public IEnumerator<(SoftString Name, object Value)> GetEnumerator() => _items.Select(x => (x.Key, x.Value)).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_items).GetEnumerator();
-    }
-
-    public static class InMemoryProviderExtensions
-    {
-        #region Collection initilizers
-
-        //public void Add(IResourceInfo item) => _items.Add(item);
-
-        //        public static InMemoryProvider Add(this InMemoryProvider inMemory, string uri, object value)
-        //        {
-        //            switch (value)
-        //            {
-        //                case string str:
-        //                {
-        //                    using (var stream = ResourceHelper.SerializeTextAsync(str).GetAwaiter().GetResult())
-        //                    using (inMemory.PutAsync(uri, stream, Metadata.Empty.Resource().Format(MimeType.Text)).GetAwaiter().GetResult()) { }
-        //                }
-        //                    break;
-        //                default:
-        //                {
-        //                    using (var stream = ResourceHelper.SerializeBinaryAsync(value).GetAwaiter().GetResult())
-        //                    using (inMemory.PutAsync(uri, stream, Metadata.Empty.Resource().Format(MimeType.Binary)).GetAwaiter().GetResult()) { }
-        //                }
-        //                    break;
-        //            }
-        //
-        //            return inMemory;
-        //        }
-
-        #endregion
-    }
-
-    public class InMemoryResource : Resource
-    {
-        [CanBeNull]
-        private readonly Stream _data;
-
-        //        public InMemoryResource(UriString uri, MimeType format, Stream data)
-        //            : base(ImmutableSession
-        //                .Empty
-        //                .SetItem(PropertySelector.Select(x => x.Uri), uri)
-        //                .SetItem(From<IResourceMeta>.Select(x => x.Format), format))
-        //        {
-        //            _data = data ?? throw new ArgumentNullException(nameof(data));
-        //        }
-
-        public InMemoryResource(IImmutableContainer properties, Stream data)
-            : base(properties.CopyRequestProperties().Union(properties.CopyResourceProperties()).SetExists(data != Stream.Null))
-        {
-            _data = data;
-        }
-
-        public override async Task CopyToAsync(Stream stream)
-        {
-            await _data.Rewind().CopyToAsync(stream);
-        }
-
-        public class Empty : InMemoryResource
-        {
-            private Empty(IImmutableContainer properties) : base(properties, Stream.Null) { }
-
-            public static IResource From(Request request)
-            {
-                return new Empty(request.Context.CopyRequestProperties());
-            }
-        }
     }
 }

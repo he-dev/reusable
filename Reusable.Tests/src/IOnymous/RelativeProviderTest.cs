@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Threading.Tasks;
 using Reusable.Data;
+using Reusable.Extensions;
 using Reusable.IOnymous;
 using Telerik.JustMock;
 using Telerik.JustMock.Helpers;
@@ -28,7 +29,7 @@ namespace Reusable.Tests.IOnymous
             
             mockProvider
                 .Arrange(x => x.Methods)
-                .Returns(MethodDictionary.Empty.Add(RequestMethod.Get, r => Task.FromResult<IResource>(new InMemoryResource(ImmutableContainer.Empty.SetUri(r.Uri), Stream.Null))));
+                .Returns(MethodDictionary.Empty.Add(RequestMethod.Get, r => Resource.DoesNotExist.FromRequest(r).ToTask()));
             
 //            mockProvider
 //                .Arrange(x => x.Schemes)

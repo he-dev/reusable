@@ -52,16 +52,16 @@ namespace Reusable.IOnymous
 
         #region Resource
 
-        public static IImmutableContainer SetUri(this IImmutableContainer container, UriString value) => container.SetItem(Resource.Property.Uri, value);
-        public static IImmutableContainer SetExists(this IImmutableContainer container, bool value) => container.SetItem(Resource.Property.Exists, value);
-        public static IImmutableContainer SetFormat(this IImmutableContainer container, MimeType value) => container.SetItem(Resource.Property.Format, value);
+        public static IImmutableContainer SetUri(this IImmutableContainer container, UriString value) => container.SetItem(ResourceProperty.Uri, value);
+        public static IImmutableContainer SetExists(this IImmutableContainer container, bool value) => container.SetItem(ResourceProperty.Exists, value);
+        public static IImmutableContainer SetFormat(this IImmutableContainer container, MimeType value) => container.SetItem(ResourceProperty.Format, value);
         
-        public static IImmutableContainer SetDataType(this IImmutableContainer container, Type value) => container.SetItem(Resource.Property.DataType, value);
+        public static IImmutableContainer SetDataType(this IImmutableContainer container, Type value) => container.SetItem(ResourceProperty.DataType, value);
 
-        public static UriString GetUri(this IImmutableContainer container) => container.GetItemOrDefault(Resource.Property.Uri);
-        public static bool GetExists(this IImmutableContainer container) => container.GetItemOrDefault(Resource.Property.Exists);
-        public static MimeType GetFormat(this IImmutableContainer container) => container.GetItemOrDefault(Resource.Property.Format, MimeType.None);
-        public static Type GetDataType(this IImmutableContainer container) => container.GetItemOrDefault(Resource.Property.DataType);
+        public static UriString GetUri(this IImmutableContainer container) => container.GetItemOrDefault(ResourceProperty.Uri);
+        public static bool GetExists(this IImmutableContainer container) => container.GetItemOrDefault(ResourceProperty.Exists);
+        public static MimeType GetFormat(this IImmutableContainer container) => container.GetItemOrDefault(ResourceProperty.Format, MimeType.None);
+        public static Type GetDataType(this IImmutableContainer container) => container.GetItemOrDefault(ResourceProperty.DataType);
 
         #endregion
 
@@ -78,12 +78,12 @@ namespace Reusable.IOnymous
 
         public static IImmutableContainer CopyRequestProperties(this IImmutableContainer container)
         {
-            return container.Copy(AnyRequestContext.Selectors);
+            return container.Copy(RequestProperty.Selectors);
         }
         
         public static IImmutableContainer CopyResourceProperties(this IImmutableContainer container)
         {
-            return container.Copy(Resource.Property.Selectors);
+            return container.Copy(ResourceProperty.Selectors);
         }
     }
 }

@@ -2,6 +2,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.Exceptionize;
+using Reusable.Extensions;
 using Reusable.IOnymous;
 using Xunit;
 
@@ -52,7 +53,7 @@ namespace Reusable.Tests.IOnymous
                 Methods =
                     MethodDictionary
                         .Empty
-                        .Add(RequestMethod.Get, r => Task.FromResult<IResource>(new InMemoryResource(ImmutableContainer.Empty, Stream.Null)));
+                        .Add(RequestMethod.Get, r => Resource.DoesNotExist.FromRequest(r).ToTask());
             }
         }
     }

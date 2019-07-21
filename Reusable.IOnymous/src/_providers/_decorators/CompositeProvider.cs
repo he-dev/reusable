@@ -88,7 +88,7 @@ namespace Reusable.IOnymous
                         }
                     }
 
-                    return InMemoryResource.Empty.From(request);
+                    return Resource.DoesNotExist.FromRequest(request);
                 }
                 // Other methods are allowed to use only a single provider.
                 else

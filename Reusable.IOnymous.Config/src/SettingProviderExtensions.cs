@@ -12,6 +12,7 @@ using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.IOnymous.Config.Annotations;
+using Reusable.OneTo1;
 using Reusable.Quickey;
 
 namespace Reusable.IOnymous.Config
@@ -20,90 +21,47 @@ namespace Reusable.IOnymous.Config
     [UsedImplicitly]
     public static class SettingProviderExtensions
     {
-        public static async Task<object> ReadSettingAsync(this IResourceProvider resources, Selector selector)
+        public static async Task<object> ReadSettingAsync(this IResourceProvider resourceProvider, Selector selector)
         {
-            var request = await CreateRequestAsync(RequestMethod.Get, selector);
-            //return await resources.ReadObjectAsync<object>(request);
-
-            using (var item = await resources.InvokeAsync(request))
+            var request = CreateRequest(RequestMethod.Get, selector);
+            using (var resource = await resourceProvider.InvokeAsync(request))
             {
-                using (var memoryStream = new MemoryStream())
-                {
-                    await item.CopyToAsync(memoryStream);
-
-                    if (item.Format == MimeType.Text)
-                    {
-                        return await ResourceHelper.DeserializeTextAsync(memoryStream.Rewind());
-                    }
-
-                    if (item.Format == MimeType.Binary)
-                    {
-                        return await ResourceHelper.DeserializeBinaryAsync<object>(memoryStream.Rewind());
-                    }
-                }
-
-                throw DynamicException.Create
-                (
-                    $"ItemFormat",
-                    $"Item's '{request.Uri}' format is '{item.Format}' but only '{MimeType.Binary}' and '{MimeType.Text}' are supported."
-                );
+                var value = await resource.DeserializeAsync();
+                var converter = resource.Properties.GetItemOrDefault(SettingProperty.Converter);
+                return converter?.Convert(value, resource.Properties.GetDataType()) ?? value;
             }
         }
 
         public static async Task WriteSettingAsync(this IResourceProvider resources, Selector selector, object newValue)
         {
-            var request = await CreateRequestAsync(RequestMethod.Put, selector, newValue);
-            //Validate(newValue, settingMetadata.Validations, uri);
+            var request = CreateRequest(RequestMethod.Put, selector, newValue);
             await resources.InvokeAsync(request);
         }
 
         #region Helpers
 
-        private static async Task<Request> CreateRequestAsync(RequestMethod method, Selector selector, object value = default)
+        private static Request CreateRequest(RequestMethod method, Selector selector, object value = default)
         {
-            var uri = selector.ToString();
-            var resources =
+            var resourceAttributes =
                 from t in selector.Members()
                 where t.IsDefined(typeof(ResourceAttribute))
                 select t.GetCustomAttribute<ResourceAttribute>();
-            var resource = resources.FirstOrDefault();
-
-            var properties =
-                ImmutableContainer
-                    .Empty
-                    .SetItem(Resource.Property.DataType, selector.DataType)
-                    // request.Properties.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Type)) == typeof(string)
-                    //.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), resource?.Provider.ToSoftString())
-                    .SetItem(Resource.Property.ActualName, $"[{selector.Join(x => x.ToString(), ", ")}]")
-                    .SetName(resource?.Provider.ToSoftString());
-
-            var request = new Request
+            var resourceAttribute = resourceAttributes.FirstOrDefault();
+            
+            return new Request
             {
-                Uri = uri,
+                Uri = selector.ToString(),
                 Method = method,
-                Context = properties,
+                Context =
+                    ImmutableContainer
+                        .Empty
+                        .SetItem(ResourceProperty.DataType, selector.DataType)
+                        // request.Properties.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Type)) == typeof(string)
+                        //.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), resource?.Provider.ToSoftString())
+                        .SetItem(ResourceProperty.ActualName, $"[{selector.Join(x => x.ToString(), ", ")}]")
+                        .SetName(resourceAttribute?.Provider.ToSoftString()),
+                Body = value
             };
-
-            AddBody(request, value);
-
-            return request;
-        }
-
-        private static void AddBody(Request request, object value)
-        {
-            switch (value)
-            {
-                case null:
-                    break;
-                case string str:
-                    request.CreateBodyStreamCallback = () => ResourceHelper.SerializeTextAsync(str);
-                    request.Context = request.Context.SetItem(Resource.Property.Format, MimeType.Text);
-                    break;
-                default:
-                    request.CreateBodyStreamCallback = () => ResourceHelper.SerializeBinaryAsync(value);
-                    request.Context = request.Context.SetItem(Resource.Property.Format, MimeType.Binary);
-                    break;
-            }
         }
 
         private static object Validate(object value, IEnumerable<ValidationAttribute> validations, UriString uri)
@@ -120,9 +78,9 @@ namespace Reusable.IOnymous.Config
 
         #region Getters
 
-        public static async Task<T> ReadSettingAsync<T>(this IResourceProvider resources, Selector<T> selector)
+        public static async Task<T> ReadSettingAsync<T>(this IResourceProvider resourceProvider, Selector<T> selector)
         {
-            return (T)await resources.ReadSettingAsync((Selector)selector);
+            return (T)await resourceProvider.ReadSettingAsync((Selector)selector);
         }
 
         public static T ReadSetting<T>(this IResourceProvider resources, Selector<T> selector)
@@ -130,9 +88,9 @@ namespace Reusable.IOnymous.Config
             return (T)resources.ReadSettingAsync((Selector)selector).GetAwaiter().GetResult();
         }
 
-        public static async Task<T> ReadSettingAsync<T>(this IResourceProvider resources, Expression<Func<T>> selector, string index = default)
+        public static async Task<T> ReadSettingAsync<T>(this IResourceProvider resourceProvider, Expression<Func<T>> selector, string index = default)
         {
-            return (T)await resources.ReadSettingAsync(CreateSelector<T>(selector, index));
+            return (T)await resourceProvider.ReadSettingAsync(CreateSelector<T>(selector, index));
         }
 
         public static T ReadSetting<T>(this IResourceProvider resources, [NotNull] Expression<Func<T>> selector, string index = default)

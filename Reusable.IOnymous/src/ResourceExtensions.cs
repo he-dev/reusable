@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Data;
+using Reusable.Extensions;
 using Reusable.Quickey;
 
 namespace Reusable.IOnymous
@@ -27,11 +28,11 @@ namespace Reusable.IOnymous
         {
             if (!resource.Exists) throw new InvalidOperationException($"Cannot deserialize a resource that does not exist: '{resource.Uri.ToString()}'");
 
-            var format = resource.Properties.GetItemOrDefault(Resource.Property.Format);
+            var format = resource.Properties.GetItemOrDefault(ResourceProperty.Format);
 
-            if (!format.Contains(MimeType.Text | MimeType.Html))
+            if (!format.Contains(MimeType.Plain | MimeType.Html))
             {
-                throw new ArgumentException($"Resource must be '{MimeType.Text}' but is '{format}'.");
+                throw new ArgumentException($"Resource must be '{MimeType.Plain}' but is '{format}'.");
             }
 
             using (var memoryStream = new MemoryStream())
@@ -61,8 +62,7 @@ namespace Reusable.IOnymous
 
         public static async Task<T> DeserializeJsonAsync<T>(this IResource resource, JsonSerializer jsonSerializer = null)
         {
-            var format = resource.Properties.GetItemOrDefault(Resource.Property.Format);
-
+            var format = resource.Properties.GetItemOrDefault(ResourceProperty.Format);
             if (format != MimeType.Json)
             {
                 throw new ArgumentException($"Resource must be '{MimeType.Json}' but is '{format}'.");
@@ -80,19 +80,15 @@ namespace Reusable.IOnymous
             }
         }
 
-        #endregion
-    }
-
-    public static class StreamExtensions
-    {
-        public static T Rewind<T>(this T stream) where T : Stream
+        public static async Task<object> DeserializeAsync(this IResource resource)
         {
-            if (stream.CanSeek)
+            using (var memoryStream = new MemoryStream())
             {
-                stream.Seek(0, SeekOrigin.Begin);
+                await resource.CopyToAsync(memoryStream);
+                return await resource.Properties.GetItemOrDefault(ResourceProperty.DeserializeAsync)(memoryStream);
             }
-
-            return stream;
         }
+
+        #endregion
     }
 }

@@ -6,9 +6,12 @@ using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 using Reusable.Data;
 using Reusable.Exceptionize;
+using Reusable.Extensions;
 using Reusable.Quickey;
+using Reusable.Utilities.JsonNet.Extensions;
 
 namespace Reusable.IOnymous.Http
 {
@@ -39,6 +42,8 @@ namespace Reusable.IOnymous.Http
         }
 
         public string BaseUri => _client.BaseAddress.ToString();
+        
+        public JsonSerializer Serializer { get; set; } = new JsonSerializer();
 
         /// <summary>
         /// Create a HttpProvider that doesn't use a proxy for requests.
@@ -56,15 +61,15 @@ namespace Reusable.IOnymous.Http
             return async request =>
             {
                 var uri = BaseUri + request.Uri;
-                var (response, mediaType) = await InvokeAsync(uri, httpMethod, request.CreateBodyStreamCallback, request.Context);
+                var (response, mediaType) = await InvokeAsync(uri, httpMethod, request.Body, request.Context);
                 return new HttpResource(request.Context.CopyResourceProperties().SetFormat(mediaType), response);
             };
         }
 
-        private async Task<(Stream Content, MimeType MimeType)> InvokeAsync(UriString uri, HttpMethod method, CreateStreamCallback createBodyStream, IImmutableContainer context)
+        private async Task<(Stream Content, MimeType MimeType)> InvokeAsync(UriString uri, HttpMethod method, object body, IImmutableContainer context)
         {
             using (var request = new HttpRequestMessage(method, uri))
-            using (var content = await (createBodyStream?.Invoke() ?? Task.FromResult(Stream.Null)))
+            using (var content = (body is null ? Stream.Null : Serializer.Serialize(body)))
             {
                 if (content != Stream.Null)
                 {
@@ -74,7 +79,7 @@ namespace Reusable.IOnymous.Http
 
                 Properties.GetItemOrDefault(HttpRequestContext.ConfigureHeaders, _ => { })(request.Headers);
                 context.GetItemOrDefault(HttpRequestContext.ConfigureHeaders)(request.Headers);
-                using (var response = await _client.SendAsync(request, HttpCompletionOption.ResponseContentRead, context.GetItemOrDefault(AnyRequestContext.CancellationToken)))
+                using (var response = await _client.SendAsync(request, HttpCompletionOption.ResponseContentRead, context.GetItemOrDefault(RequestProperty.CancellationToken)))
                 {
                     var responseContentCopy = new MemoryStream();
 

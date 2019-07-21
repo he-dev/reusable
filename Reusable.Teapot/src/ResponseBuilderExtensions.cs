@@ -1,5 +1,6 @@
 using System.IO;
 using JetBrains.Annotations;
+using Reusable.Extensions;
 using Reusable.IOnymous;
 
 namespace Reusable.Teapot

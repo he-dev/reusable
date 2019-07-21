@@ -49,7 +49,8 @@ namespace Reusable.IOnymous.Mail
                 await provider.InvokeAsync(new Request.Post($"{UriSchemes.Known.MailTo}:dummy@email.com")
                 {
                     Context = context,
-                    CreateBodyStreamCallback = () => ResourceHelper.SerializeTextAsync(email.Body.Value, email.Body.Encoding)
+                    Body = email.Body.Value,
+                    CreateBodyStreamCallback = body => ResourceHelper.SerializeTextAsync((string)body, email.Body.Encoding)
                 });
 
 

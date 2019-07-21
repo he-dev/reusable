@@ -61,7 +61,8 @@ namespace Reusable.Tests.Teapot
                                 headers.AcceptJson();
                             })
                             .SetItem(HttpResponseContext.ContentType, "application/json"),
-                        CreateBodyStreamCallback = () => ResourceHelper.SerializeAsJsonAsync(new { Greeting = "Hallo" })
+                        Body = new { Greeting = "Hallo" },
+                        //CreateBodyStreamCallback = b => ResourceHelper.SerializeAsJsonAsync(b)
                     };
 
                     var response = await _http.InvokeAsync(request);

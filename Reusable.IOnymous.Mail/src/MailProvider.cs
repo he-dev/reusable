@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Reusable.Data;
+using Reusable.Extensions;
 using Reusable.Quickey;
 
 namespace Reusable.IOnymous.Mail

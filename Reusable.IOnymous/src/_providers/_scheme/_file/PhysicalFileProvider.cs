@@ -27,7 +27,7 @@ namespace Reusable.IOnymous
 
         private Task<IResource> GetAsync(Request request)
         {
-            return Task.FromResult<IResource>(new PhysicalFile(request.Context.Copy(Resource.Property.Selectors).SetUri(request.Uri)));
+            return Task.FromResult<IResource>(new PhysicalFile(request.Context.Copy(ResourceProperty.Selectors).SetUri(request.Uri)));
         }
 
         private async Task<IResource> PutAsync(Request request)
@@ -45,7 +45,7 @@ namespace Reusable.IOnymous
         private Task<IResource> DeleteAsync(Request request)
         {
             File.Delete(request.Uri.ToUnc());
-            return Task.FromResult<IResource>(new PhysicalFile(request.Context.Copy(Resource.Property.Selectors).SetUri(request.Uri)));
+            return Task.FromResult<IResource>(new PhysicalFile(request.Context.Copy(ResourceProperty.Selectors).SetUri(request.Uri)));
         }
     }
 
@@ -54,10 +54,10 @@ namespace Reusable.IOnymous
     {
         public PhysicalFile(IImmutableContainer properties)
             : base(properties
-                    .SetItem(Property.Exists, p => File.Exists(p.GetItemOrDefault(Property.Uri).ToUnc()))
-                    .SetItem(Property.Length, p =>
+                    .SetItem(ResourceProperty.Exists, p => File.Exists(p.GetItemOrDefault(ResourceProperty.Uri).ToUnc()))
+                    .SetItem(ResourceProperty.Length, p =>
                         p.GetExists()
-                            ? new FileInfo(p.GetItemOrDefault(Property.Uri).ToUnc()).Length
+                            ? new FileInfo(p.GetItemOrDefault(ResourceProperty.Uri).ToUnc()).Length
                             : -1)
                 //.SetItem(PropertySelector.Select(x => x.ModifiedOn), p => )
             ) { }

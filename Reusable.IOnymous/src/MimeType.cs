@@ -15,7 +15,7 @@ namespace Reusable.IOnymous
         /// <summary>
         /// Any document that contains text and is theoretically human readable
         /// </summary>
-        public static readonly MimeType Text = CreateWithCallerName("text/plain");
+        public static readonly MimeType Plain = CreateWithCallerName("text/plain");
         
         public static readonly MimeType Html = CreateWithCallerName("text/html");
 

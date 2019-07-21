@@ -71,7 +71,7 @@ namespace Reusable.IOnymous.Mail.Smtp
                 await smtpClient.SendAsync(message);
             }
 
-            return InMemoryResource.Empty.From(request);
+            return Resource.DoesNotExist.FromRequest(request);
         }
     }
     

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -34,7 +35,7 @@ namespace Reusable.IOnymous.Config
         [CanBeNull]
         public ITypeConverter UriConverter { get; set; } = UriStringQueryToStringConverter.Default;
 
-        public ITypeConverter ValueConverter { get; set; } = new JsonSettingConverter();
+        public ITypeConverter ResourceConverter { get; set; } = new JsonSettingConverter();
 
         [NotNull]
         public string ConnectionString { get; }
@@ -58,7 +59,6 @@ namespace Reusable.IOnymous.Config
         private async Task<IResource> GetAsync(Request request)
         {
             var settingIdentifier = UriConverter?.Convert<string>(request.Uri) ?? request.Uri;
-            //metadata = metadata.SetItem(From<IResourceMeta>.Select(x => x.ActualName), settingIdentifier);
 
             return await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
             {
@@ -68,72 +68,39 @@ namespace Reusable.IOnymous.Config
                     if (await settingReader.ReadAsync(token))
                     {
                         var value = settingReader[ColumnMappings.MapOrDefault(SqlServerColumn.Value)];
-                        value = ValueConverter.Convert(value, request.Context.GetDataType());
-                        return new SqlServerResource(request.Context.Copy(Resource.Property.Selectors), value);
+                        return new JsonResource
+                        (
+                            (string)value,
+                            request
+                                .Context
+                                .CopyResourceProperties()
+                                .SetItem(SettingProperty.Converter, ResourceConverter)
+                        );
                     }
                     else
                     {
-                        return new SqlServerResource(request.Context.Copy(Resource.Property.Selectors));
+                        return Resource.DoesNotExist.FromRequest(request);
                     }
                 }
-            }, CancellationToken.None);
+            }, request.Context.GetItemOrDefault(RequestProperty.CancellationToken));
         }
 
         private async Task<IResource> PutAsync(Request request)
         {
             var settingIdentifier = UriConverter?.Convert<string>(request.Uri) ?? request.Uri;
-
-            using (var body = await request.CreateBodyStreamAsync())
+            var value = ResourceConverter.Convert(request.Body, typeof(string));
+            await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
             {
-                var value = await ResourceHelper.Deserialize<object>(body, request.Context);
-                value = ValueConverter.Convert(value, typeof(string));
-
-                await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
+                using (var cmd = connection.CreateUpdateCommand(TableName, settingIdentifier, ColumnMappings, Where, value))
                 {
-                    using (var cmd = connection.CreateUpdateCommand(TableName, settingIdentifier, ColumnMappings, Where, value))
-                    {
-                        await cmd.ExecuteNonQueryAsync(token);
-                    }
-                }, request.Context.GetItemOrDefault(AnyRequestContext.CancellationToken));
-            }
+                    await cmd.ExecuteNonQueryAsync(token);
+                }
+            }, request.Context.GetItemOrDefault(RequestProperty.CancellationToken));
 
             return await GetAsync(new Request.Get(request.Uri)
             {
                 Context = request.Context.CopyResourceProperties()
             });
-        }
-    }
-
-    internal class SqlServerResource : Resource
-    {
-        [CanBeNull]
-        private readonly object _value;
-
-        internal SqlServerResource(IImmutableContainer properties, object value = default)
-            : base(properties
-                .SetExists(!(value is null))
-                .SetFormat(value is string ? MimeType.Text : MimeType.Binary))
-        {
-            _value = value;
-        }
-
-        public override async Task CopyToAsync(Stream stream)
-        {
-            if (Properties.GetFormat() == MimeType.Text)
-            {
-                using (var s = await ResourceHelper.SerializeTextAsync((string)_value))
-                {
-                    await s.Rewind().CopyToAsync(stream);
-                }
-            }
-
-            if (Properties.GetFormat() == MimeType.Binary)
-            {
-                using (var s = await ResourceHelper.SerializeBinaryAsync(_value))
-                {
-                    await s.Rewind().CopyToAsync(stream);
-                }
-            }
         }
     }
 }

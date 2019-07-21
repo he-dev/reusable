@@ -173,7 +173,7 @@ namespace Reusable.IOnymous
         public static IImmutableDictionary<RequestMethod, RequestCallback> Empty { get; } = ImmutableDictionary<RequestMethod, RequestCallback>.Empty;
     }
 
-    public delegate Task<Stream> CreateStreamCallback();
+    public delegate Task<Stream> CreateStreamCallback(object body);
 
     public class Request
     {
@@ -188,6 +188,16 @@ namespace Reusable.IOnymous
 
         [CanBeNull]
         public CreateStreamCallback CreateBodyStreamCallback { get; set; }
+        
+        public object Body { get; set; }
+
+        public Task<Stream> CreateBodyStreamAsync()
+        {
+            if (Body is null) throw new InvalidOperationException($"Cannot create stream for a null {nameof(Body)}.");
+            if (CreateBodyStreamCallback is null) throw new InvalidOperationException($"Cannot create stream without a {nameof(CreateBodyStreamCallback)}.");
+            
+            return CreateBodyStreamCallback(Body);
+        }
 
         #region Methods
 
@@ -232,8 +242,8 @@ namespace Reusable.IOnymous
 
     [UseType, UseMember]
     [PlainSelectorFormatter]
-    [Rename(nameof(AnyRequestContext))]
-    public class AnyRequestContext : SelectorBuilder<AnyRequestContext>
+    [Rename(nameof(RequestProperty))]
+    public class RequestProperty : SelectorBuilder<RequestProperty>
     {
         public static readonly Selector<CancellationToken> CancellationToken = Select(() => CancellationToken);
     }
@@ -252,19 +262,19 @@ namespace Reusable.IOnymous
             return request;
         }
 
-        public static Task<Stream> CreateBodyStreamAsync(this Request request)
-        {
-            if (request.CreateBodyStreamCallback is null)
-            {
-                throw new ArgumentNullException(
-                    paramName: $"{nameof(request)}.{nameof(request.CreateBodyStreamCallback)}",
-                    message: $"{FormatMethodName()} request to '{request.Uri}' requires a body that is missing.");
-            }
-
-            return request.CreateBodyStreamCallback();
-
-            string FormatMethodName() => request.Method.Name.ToString().ToUpper();
-        }
+//        public static async Task<Stream> CreateBodyStreamAsync(this Request request)
+//        {
+//            if (request.CreateBodyStreamCallback is null)
+//            {
+//                throw new ArgumentNullException(
+//                    paramName: $"{nameof(request)}.{nameof(request.CreateBodyStreamCallback)}",
+//                    message: $"{FormatMethodName()} request to '{request.Uri}' requires a body that is missing.");
+//            }
+//
+//            return await request.CreateBodyStreamAsync();
+//
+//            string FormatMethodName() => request.Method.Name.ToString().ToUpper();
+//        }
     }
 
     public class RequestMethod : Option<RequestMethod>

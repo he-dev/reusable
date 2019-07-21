@@ -54,10 +54,10 @@ namespace Reusable.IOnymous
             }
         }
 
-        public static Task<T> DeserializeBinaryAsync<T>(Stream stream)
+        public static Task<object> DeserializeBinaryAsync(Stream stream)
         {
             var binaryFormatter = new BinaryFormatter();
-            return Task.FromResult((T)binaryFormatter.Deserialize(stream.Rewind()));
+            return binaryFormatter.Deserialize(stream.Rewind()).ToTask();
         }
 
         public static async Task<Stream> SerializeAsJsonAsync(object value, JsonSerializer jsonSerializer = null)
@@ -80,14 +80,14 @@ namespace Reusable.IOnymous
         
         public static async Task<T> Deserialize<T>(Stream value, IImmutableContainer properties)
         {
-            if (properties.GetFormat() == MimeType.Text)
+            if (properties.GetFormat() == MimeType.Plain)
             {
                 return (T)(object)await DeserializeTextAsync(value);
             }
             
             if (properties.GetFormat() == MimeType.Binary)
             {
-                return (T)await DeserializeBinaryAsync<object>(value);
+                return (T)await DeserializeBinaryAsync(value);
             }
             
             throw DynamicException.Create("ResourceFormat", $"Unsupported resource format: '{properties.GetFormat()}'.");

@@ -26,7 +26,7 @@ namespace Reusable.Tests.IOnymous.Config.Providers
             _config = new SqlServerProvider("name=TestDb")
             {
                 TableName = ("reusable", "TestConfig"),
-                ValueConverter = new JsonSettingConverter(),
+                ResourceConverter = new JsonSettingConverter(),
                 ColumnMappings =
                     ImmutableDictionary<SqlServerColumn, SoftString>
                         .Empty

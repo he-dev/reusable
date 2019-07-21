@@ -42,7 +42,7 @@ namespace Reusable.IOnymous.Http.Mailr
             var response = await provider.InvokeAsync(new Request.Post(uri)
             {
                 Context = properties,
-                CreateBodyStreamCallback = email.Serialize
+                Body = email
             });
 
             using (response)

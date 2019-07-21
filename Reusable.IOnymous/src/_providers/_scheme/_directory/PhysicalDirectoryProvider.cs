@@ -27,7 +27,7 @@ namespace Reusable.IOnymous
                 new PhysicalDirectory(
                     ImmutableContainer
                         .Empty
-                        .SetItem(Resource.Property.Uri, request.Uri)));
+                        .SetItem(ResourceProperty.Uri, request.Uri)));
         }
 
         private async Task<IResource> PutAsync(Request request)
@@ -52,13 +52,13 @@ namespace Reusable.IOnymous
     {
         public PhysicalDirectory(IImmutableContainer properties)
             : base(properties
-                .SetItem(Property.Exists, Directory.Exists(properties.GetItemOrDefault(Property.Uri).Path.Decoded.ToString()))
-                .SetItem(Property.Format, MimeType.None)
-                .SetItem(Property.ModifiedOn, p =>
+                .SetItem(ResourceProperty.Exists, Directory.Exists(properties.GetItemOrDefault(ResourceProperty.Uri).Path.Decoded.ToString()))
+                .SetItem(ResourceProperty.Format, MimeType.None)
+                .SetItem(ResourceProperty.ModifiedOn, p =>
                 {
                     return
-                        p.GetItemOrDefault(Property.Exists)
-                            ? Directory.GetLastWriteTimeUtc(properties.GetItemOrDefault(Property.Uri).Path.Decoded.ToString())
+                        p.GetItemOrDefault(ResourceProperty.Exists)
+                            ? Directory.GetLastWriteTimeUtc(properties.GetItemOrDefault(ResourceProperty.Uri).Path.Decoded.ToString())
                             : DateTime.MinValue;
                 })) { }
 
