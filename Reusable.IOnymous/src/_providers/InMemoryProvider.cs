@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
+using Reusable.Extensions;
 using Reusable.OneTo1;
 using Reusable.OneTo1.Converters;
 using Reusable.Quickey;
@@ -32,7 +33,7 @@ namespace Reusable.IOnymous
         public InMemoryProvider(IImmutableContainer properties = default)
             : this(new UriStringPathToStringConverter(), properties) { }
 
-        private async Task<IResource> GetAsync(Request request)
+        private Task<IResource> GetAsync(Request request)
         {
             var name = _uriConverter.Convert<string>(request.Uri);
 
@@ -41,15 +42,15 @@ namespace Reusable.IOnymous
                 switch (obj)
                 {
                     case string str:
-                        return new PlainResource(str, request.Context.CopyResourceProperties());
+                        return new PlainResource(str, request.Context.CopyResourceProperties()).ToTask<IResource>();
 
                     default:
-                        return new ObjectResource(obj, request.Context.CopyResourceProperties());
+                        return new ObjectResource(obj, request.Context.CopyResourceProperties()).ToTask<IResource>();
                 }
             }
             else
             {
-                return Resource.DoesNotExist.FromRequest(request);
+                return DoesNotExist(request).ToTask<IResource>();
             }
         }
 

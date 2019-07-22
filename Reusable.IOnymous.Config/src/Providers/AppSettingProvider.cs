@@ -39,7 +39,7 @@ namespace Reusable.IOnymous.Config
 
             var result =
                 element is null
-                    ? Resource.DoesNotExist.FromRequest(request)
+                    ? DoesNotExist(request)
                     : new PlainResource
                     (
                         element.Value,

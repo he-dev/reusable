@@ -38,7 +38,7 @@ namespace Reusable.IOnymous.Config
             var data = _configuration[settingIdentifier];
             var result =
                 data is null
-                    ? Resource.DoesNotExist.FromRequest(request)
+                    ? DoesNotExist(request)
                     : new JsonResource
                     (
                         data,

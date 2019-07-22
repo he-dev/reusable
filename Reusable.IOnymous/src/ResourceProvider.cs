@@ -113,6 +113,8 @@ namespace Reusable.IOnymous
                 $"because it doesn't support this method."
             );
         }
+        
+        protected IResource DoesNotExist(Request request) => Resource.DoesNotExist.FromRequest(request);
 
         public virtual void Dispose()
         {

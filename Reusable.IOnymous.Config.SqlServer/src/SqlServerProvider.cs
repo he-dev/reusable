@@ -79,7 +79,7 @@ namespace Reusable.IOnymous.Config
                     }
                     else
                     {
-                        return Resource.DoesNotExist.FromRequest(request);
+                        return DoesNotExist(request);
                     }
                 }
             }, request.Context.GetItemOrDefault(RequestProperty.CancellationToken));
