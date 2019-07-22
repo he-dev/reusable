@@ -207,6 +207,8 @@ namespace Reusable.IOnymous
         {
             return await resourceProvider.InvokeAsync(new Request.Put(CreateUri(path))
             {
+                // Body must not be null.
+                Body = new object(),
                 CreateBodyStreamCallback = createStream,
                 Context = context.ThisOrEmpty()
             });

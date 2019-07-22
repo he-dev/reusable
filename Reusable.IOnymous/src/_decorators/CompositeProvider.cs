@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -14,7 +15,9 @@ using Reusable.Quickey;
 
 namespace Reusable.IOnymous
 {
-    public class CompositeProvider : ResourceProvider //, IEnumerable<IResourceProvider>
+    public interface ICompositeProvider : IResourceProvider, IEnumerable<IResourceProvider> { }
+
+    public class CompositeProvider : ResourceProvider, ICompositeProvider
     {
         private readonly IImmutableList<IResourceProvider> _providers;
 
@@ -88,7 +91,7 @@ namespace Reusable.IOnymous
                         }
                     }
 
-                    return Resource.DoesNotExist.FromRequest(request);
+                    return DoesNotExist(request);
                 }
                 // Other methods are allowed to use only a single provider.
                 else
@@ -114,9 +117,9 @@ namespace Reusable.IOnymous
 
         #region IEnumerable
 
-        //public IEnumerator<IResourceProvider> GetEnumerator() => _resourceProviders.GetEnumerator();
+        public IEnumerator<IResourceProvider> GetEnumerator() => _providers.GetEnumerator();
 
-        //IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_resourceProviders).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_providers).GetEnumerator();
 
         #endregion
     }

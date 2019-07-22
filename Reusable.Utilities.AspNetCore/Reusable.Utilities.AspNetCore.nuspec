@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Utilities.AspNetCore</id>
-    <version>12.2.0</version>
+    <version>12.3.1</version>
     <title>Reusable.Utilities.AspNetCore</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -17,9 +17,9 @@
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2019.1.1" />
       <dependency id="Microsoft.AspNetCore.Mvc" version="2.2.0" />
-      <dependency id="Reusable.Core" version="12.2.0" />
-      <dependency id="Reusable.OmniLog.SemanticExtensions" version="12.2.0" />
-      <dependency id="Reusable.OmniLog" version="12.2.0" />
+      <dependency id="Reusable.Core" version="12.3.1" />
+      <dependency id="Reusable.OmniLog.SemanticExtensions" version="12.3.1" />
+      <dependency id="Reusable.OmniLog" version="12.3.1" />
     </dependencies>
   </metadata>
   <files>
