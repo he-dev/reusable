@@ -176,7 +176,7 @@ namespace Reusable.IOnymous
     }
 
     public delegate Task<Stream> CreateStreamCallback(object body);
-
+    
     public class Request
     {
         [NotNull]
@@ -240,6 +240,11 @@ namespace Reusable.IOnymous
         }
 
         #endregion
+    }
+
+    public static class Body
+    {
+        public static readonly object Null = new object();
     }
 
     [UseType, UseMember]
