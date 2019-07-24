@@ -20,6 +20,7 @@ namespace Reusable.IOnymous
                     Uri = Resolve(request.Uri),
                     Method = request.Method,
                     Context = request.Context,
+                    Body = request.Body,
                     CreateBodyStreamCallback = request.CreateBodyStreamCallback,
                 }));
             });
