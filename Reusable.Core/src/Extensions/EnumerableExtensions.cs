@@ -307,6 +307,24 @@ namespace System.Linq.Custom
             return result;
         }
 
+        [CanBeNull]
+        private static T SingleOrThrow__<T>([NotNull] this IEnumerable<T> source, Func<T, bool> predicate, Func<Exception> onEmpty = null, Func<Exception> onMultiple = null)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+
+            var items = source.Where(predicate).Take(2).ToList();
+
+            onEmpty = onEmpty ?? (() => DynamicException.Create($"{source.GetType().ToPrettyString()}Empty", $"There is no element that match the specified predicate."));
+            onMultiple = onMultiple ?? (() => DynamicException.Create($"{source.GetType().ToPrettyString()}ContainsMoreThanOneElement", $"There is more than one element that matches the specified predicate."));
+
+            switch (items.Count)
+            {
+                case 0: throw onEmpty();
+                case 1: return items.Single();
+                default: throw onMultiple();
+            }
+        }
+
         public static int CalcHashCode<T>([NotNull, ItemCanBeNull] this IEnumerable<T> values)
         {
             if (values == null) throw new ArgumentNullException(nameof(values));
