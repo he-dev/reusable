@@ -26,6 +26,7 @@ namespace Reusable.IOnymous
                     Uri = Prefix(request.Uri),
                     Method = request.Method,
                     Context = request.Context,
+                    Body = request.Body,
                     CreateBodyStreamCallback = request.CreateBodyStreamCallback,
                 }));
             });
