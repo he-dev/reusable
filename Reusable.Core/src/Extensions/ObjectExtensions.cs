@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace Reusable.Extensions
 {
@@ -29,5 +31,13 @@ namespace Reusable.Extensions
 //        }
 
         public static Task<T> ToTask<T>(this T obj) => Task.FromResult<T>(obj);
+
+        [Pure]
+        [NotNull]
+        [MustUseReturnValue]
+        public static T DecorateWith<T>(this T decorable, Func<T, T> createDecorator)
+        {
+            return createDecorator(decorable);
+        }
     }
 }

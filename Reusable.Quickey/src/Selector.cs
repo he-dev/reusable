@@ -155,6 +155,13 @@ namespace Reusable.Quickey
         public static implicit operator Selector<T>(Expression<Func<T>> selector) => new Selector<T>(selector);
     }
 
+    public class StringSelector<T> : Selector<T>
+    {
+        public StringSelector(Selector selector) : base(selector.Expression) { }
+
+        public static implicit operator string(StringSelector<T> stringSelector) => stringSelector.ToString();
+    }
+
     [PublicAPI]
     public abstract class SelectorBuilder<T>
     {

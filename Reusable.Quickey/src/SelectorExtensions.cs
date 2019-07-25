@@ -24,7 +24,10 @@ namespace Reusable.Quickey
         {
             var newSelectors =
                 from p in typeof(T).GetProperties()
-                select Selector.FromMember(typeof(T), p);
+                select 
+                    typeof(Selector).IsAssignableFrom(p.PropertyType) 
+                        ? (Selector)p.GetValue(default) 
+                        : (Selector)Selector.FromMember(typeof(T), p);
 
             return selectors.AddRange(newSelectors);
         }
@@ -97,5 +100,7 @@ namespace Reusable.Quickey
                 current = current.DeclaringType;
             } while (!(current is null));
         }
+        
+        public static StringSelector<T> AsString<T>(this Selector<T> selector) => new StringSelector<T>(selector);
     }
 }

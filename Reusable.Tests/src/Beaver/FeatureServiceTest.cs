@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
+using Autofac;
 using Reusable.Beaver;
 using Reusable.Data.Annotations;
+using Reusable.Extensions;
 using Reusable.OmniLog;
 using Reusable.Quickey;
 using Reusable.Tests.Beaver.Features;
@@ -10,47 +12,40 @@ using Xunit;
 
 namespace Reusable.Tests.Beaver
 {
-    public static class Tags
-    {
-        public const string Database = nameof(Database);
-        public const string SaveChanges = nameof(SaveChanges);
-    }
-
     public class FeatureServiceTest
     {
         [Fact]
         public void Can_create_key_from_type_and_member()
         {
-            Assert.Equal("Demo.Greeting", From<IDemo>.Select(x => x.Greeting).ToString());
+            Assert.Equal("DemoFeatures.Greeting", DemoFeatures.Greeting);
         }
 
         [Fact]
         public void Can_configure_features_by_tags()
         {
-            var features = new FeatureToggle
-            (
-                logger: Logger<FeatureToggle>.Empty,
-                defaultOptions: FeatureOption.Enable | FeatureOption.Warn | FeatureOption.Telemetry
-            );
+            var builder = new ContainerBuilder();
+
+            builder.RegisterType<FeatureOptionRepository>().As<IFeatureOptionRepository>();
+            builder.RegisterDecorator<IFeatureOptionRepository>((context, parameters, instance) => new FeatureOptionFallback(instance, FeatureOption.Enable | FeatureOption.Warn | FeatureOption.Telemetry));
+
+            var container = builder.Build();
+            var options = container.Resolve<IFeatureOptionRepository>();
+
+            var features = new FeatureToggle(options);
 
             var names =
                 ImmutableList<Selector>
                     .Empty
-                    .AddFrom<IDemo>()
-                    .AddFrom<IDatabase>()
+                    .AddFrom<DemoFeatures>()
+                    .AddFrom<DatabaseFeatures>()
                     .Where<TagsAttribute>("io")
                     .Format();
 
-            features.Configure(names, o => o.Reset(FeatureOption.Enable));
+            features.Options.Batch(names, FeatureOption.Enable, BatchOption.Remove);
 
-            var bodyCounter = 0;
-            var otherCounter = 0;
-            features.Execute(From<IDemo>.Select(x => x.Greeting).ToString(), () => bodyCounter++, () => otherCounter++);
-            features.Execute(From<IDemo>.Select(x => x.ReadFile).ToString(), () => bodyCounter++, () => otherCounter++);
-            features.Execute(From<IDatabase>.Select(x => x.Commit).ToString(), () => bodyCounter++, () => otherCounter++);
-
-            Assert.Equal(1, bodyCounter);
-            Assert.Equal(2, otherCounter);
+            Assert.True(features.Switch(DemoFeatures.Greeting, true, false));
+            Assert.True(features.Switch(DemoFeatures.ReadFile, false, true));
+            Assert.True(features.Switch(DatabaseFeatures.Commit, false, true));
         }
     }
 
@@ -58,8 +53,8 @@ namespace Reusable.Tests.Beaver
     {
         private readonly FeatureToggle _features = new FeatureToggle
         (
-            logger: Logger<FeatureToggle>.Empty,
-            defaultOptions: FeatureOption.Enable | FeatureOption.Warn | FeatureOption.Telemetry
+            new FeatureOptionRepository()
+                .DecorateWith<IFeatureOptionRepository>(instance => new FeatureOptionFallback(instance, FeatureOption.Enable | FeatureOption.Warn | FeatureOption.Telemetry))
         );
 
         public async Task Start()
@@ -68,7 +63,7 @@ namespace Reusable.Tests.Beaver
 
             //_features.Configure(nameof(SayHallo), o => o.Reset(FeatureOption.Enable));
             //_features.Configure(Use<IDemo>.Namespace, x => x.Greeting, o => o ^ Enabled);
-            _features.Configure(From<IDemo>.Select(x => x.Greeting).Index("Morning").ToString(), o => o.Reset(FeatureOption.Enable));
+            //_features.Options.UpdateOption(DemoFeatures.Greeting.Index("Morning").ToString(), o => o.RemoveFlag(FeatureOption.Enable));
 
             SayHallo();
         }
@@ -79,38 +74,24 @@ namespace Reusable.Tests.Beaver
         }
     }
 
-    /*
-     Example settings:
-     
-     {
-        "Service.Feature1": "Enabled, LogWhenEnabled, LogWhenDisabled"
-        "Service.Feature2": {
-            "Options": "Enabled, LogWhenEnabled, LogWhenDisabled",
-        }
-     }
-     
-     */
-
     namespace Features
     {
         [UseType, UseMember]
-        [TrimStart("I")]
         [PlainSelectorFormatter]
-        public interface IDemo
+        public class DemoFeatures : SelectorBuilder<DemoFeatures>
         {
-            object Greeting { get; }
+            public static StringSelector<object> Greeting { get; } = Select(() => Greeting).AsString();
 
             [Tags("io")]
-            object ReadFile { get; }
+            public static StringSelector<object> ReadFile { get; } = Select(() => ReadFile).AsString();
         }
 
         [UseType, UseMember]
-        [TrimStart("I")]
         [PlainSelectorFormatter] // todo - comment out to trigger selector-formatter-not-found-exception
-        public interface IDatabase
+        public class DatabaseFeatures : SelectorBuilder<DatabaseFeatures>
         {
             [Tags("io")]
-            object Commit { get; }
+            public static StringSelector<object> Commit { get; } = Select(() => Commit).AsString();
         }
     }
 }

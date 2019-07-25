@@ -24,7 +24,7 @@ namespace Reusable.Flawless
                     (
                         $"{typeof(T).ToPrettyString()}Validation",
                         $"Object does not meet one or more requirements.{Environment.NewLine}{Environment.NewLine}" +
-                        $"{checkLookup[false].Select(Func.ToString).Join(Environment.NewLine)}"
+                        $"{checkLookup[false].Select(Functions.ToString).Join(Environment.NewLine)}"
                     );
         }
     }

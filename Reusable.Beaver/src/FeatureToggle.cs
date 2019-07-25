@@ -1,116 +1,165 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Data;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.SemanticExtensions;
 
 namespace Reusable.Beaver
 {
+    public interface IFeatureOptionRepository
+    {
+        [NotNull]
+        FeatureOption this[string name] { get; set; }
+
+        bool IsDirty(string name);
+
+        void CommitDefaults();
+    }
+
+    public class FeatureOptionRepository : IFeatureOptionRepository
+    {
+        private readonly IDictionary<string, FeatureOption> _options;
+        private readonly IDictionary<string, bool> _dirty;
+
+        public FeatureOptionRepository(IEqualityComparer<string> comparer = default)
+        {
+            _options = new Dictionary<string, FeatureOption>(comparer ?? SoftString.Comparer);
+            _dirty = new Dictionary<string, bool>(comparer ?? SoftString.Comparer);
+        }
+
+        public FeatureOption this[string name]
+        {
+            get => _options.TryGetValue(name, out var option) ? option : FeatureOption.None;
+            set
+            {
+                if (value == FeatureOption.None)
+                {
+                    // Don't store empty options.
+                    _options.Remove(name);
+                }
+                else
+                {
+                    _options[name] = value;
+                }
+
+                _dirty[name] = true;
+            }
+        }
+
+        public bool IsDirty(string name) => _dirty.TryGetValue(name, out var isDirty) && isDirty;
+
+        public void CommitDefaults() => _dirty.Clear();
+    }
+
+    public class FeatureOptionFallback : IFeatureOptionRepository
+    {
+        private readonly IFeatureOptionRepository _options;
+        private readonly FeatureOption _defaultOption;
+
+        public FeatureOptionFallback(IFeatureOptionRepository options, FeatureOption defaultOption)
+        {
+            _options = options;
+            _defaultOption = defaultOption;
+        }
+
+        public FeatureOption this[string name]
+        {
+            get => _options[name] is var option && option == FeatureOption.None ? _defaultOption : option;
+            set => _options[name] = value;
+        }
+
+        public bool IsDirty(string name) => _options.IsDirty(name);
+
+        public void CommitDefaults() => _options.CommitDefaults();
+    }
+
+    public class FeatureOptionLock : IFeatureOptionRepository
+    {
+        private readonly IFeatureOptionRepository _options;
+        private readonly IImmutableSet<string> _lockedFeatures;
+
+        public FeatureOptionLock(IFeatureOptionRepository options, IEnumerable<string> lockedFeatures, IEqualityComparer<string> comparer = default)
+        {
+            _options = options;
+            _lockedFeatures = lockedFeatures.ToImmutableHashSet(comparer ?? SoftString.Comparer);
+        }
+
+        public FeatureOption this[string name]
+        {
+            get => _options[name];
+            set
+            {
+                if (_lockedFeatures.Contains(name))
+                {
+                    throw new InvalidOperationException($"Cannot set feature '{name}' option because it's locked.");
+                }
+
+                _options[name] = value;
+            }
+        }
+
+        public bool IsDirty(string name) => _options.IsDirty(name);
+
+        public void CommitDefaults() => _options.CommitDefaults();
+    }
+
     [PublicAPI]
     public interface IFeatureToggle
     {
-        bool CanExecute(string name);
-
-        [NotNull]
-        FeatureOption GetOptions(string name);
+        IFeatureOptionRepository Options { get; }
 
         Task<T> ExecuteAsync<T>(string name, Func<Task<T>> body, Func<Task<T>> fallback);
-
-        [NotNull]
-        IFeatureToggle Configure(string name, Func<FeatureOption, FeatureOption> configure);
     }
 
     public class FeatureToggle : IFeatureToggle
     {
-        private readonly FeatureOption _defaultOptions;
-        private readonly ILogger _logger;
-        private readonly IDictionary<string, FeatureOption> _options = new Dictionary<string, FeatureOption>();
-
-        public FeatureToggle(ILogger<FeatureToggle> logger, FeatureOption defaultOptions)
+        public FeatureToggle(IFeatureOptionRepository options)
         {
-            _logger = logger;
-            _defaultOptions = defaultOptions;
+            Options = options;
         }
 
-        [CanBeNull]
-        public Func<FeatureOption, bool> CanExecuteCallback { get; set; }
-        
-        [CanBeNull]
-        public Func<string, FeatureOption> GetDefaultOptionsCallback { get; set; }
-
-        public bool CanExecute(string name)
-        {
-            var options = GetOptions(name);
-            return options.Contains(FeatureOption.Enable) && (CanExecuteCallback?.Invoke(options) ?? true);
-        }
-
-        public FeatureOption GetOptions(string name)
-        {
-            return
-                _options.TryGetValue(name, out var customOptions)
-                    ? customOptions
-                    : GetDefaultOptions(name);
-        }
-
-        private FeatureOption GetDefaultOptions(string name)
-        {
-            return GetDefaultOptionsCallback?.Invoke(name) ?? _defaultOptions;
-        }
+        public IFeatureOptionRepository Options { get; }
 
         public async Task<T> ExecuteAsync<T>(string name, Func<Task<T>> body, Func<Task<T>> fallback)
         {
-            var options = GetOptions(name);
-            var defaultOptions = GetDefaultOptions(name);
+            // Not catching exceptions because the caller should handle them.
+            return
+                this.IsEnabled(name)
+                    ? await body().ConfigureAwait(false)
+                    : await fallback().ConfigureAwait(false);
+        }
+    }
 
+    public class FeatureTelemetry : IFeatureToggle
+    {
+        private readonly ILogger _logger;
+        private readonly IFeatureToggle _featureToggle;
+
+        public FeatureTelemetry(ILogger<FeatureTelemetry> logger, IFeatureToggle featureToggle)
+        {
+            _logger = logger;
+            _featureToggle = featureToggle;
+        }
+
+        public IFeatureOptionRepository Options => _featureToggle.Options;
+
+        public async Task<T> ExecuteAsync<T>(string name, Func<Task<T>> body, Func<Task<T>> fallback)
+        {
             using (_logger.BeginScope().CorrelationHandle("Feature").AttachElapsed())
             {
                 _logger.Log(Abstraction.Layer.Service().Meta(new { FeatureName = name }).Trace());
-                
-                // Not catching exceptions because the caller should handle them.
-                try
+
+                if (_featureToggle.Options.IsDirty(name))
                 {
-                    if (CanExecute(name))
-                    {
-                        if (options.Contains(FeatureOption.Warn) && !defaultOptions.Contains(FeatureOption.Enable))
-                        {
-                            _logger.Log(Abstraction.Layer.Service().Decision($"Using feature '{name}'").Because("Enabled").Warning());
-                        }
-
-                        return await body();
-                    }
-                    else
-                    {
-                        if (options.Contains(FeatureOption.Warn) && defaultOptions.Contains(FeatureOption.Enable))
-                        {
-                            _logger.Log(Abstraction.Layer.Service().Decision($"Not using feature '{name}'").Because("Disabled").Warning());
-                        }
-
-                        return await fallback();
-                    }
+                    _logger.Log(Abstraction.Layer.Service().Decision("Using custom feature options.").Because("Customized by user.").Meta(new { Options = _featureToggle.Options[name] }));
                 }
-                finally
-                {
-                    _logger.Log(Abstraction.Layer.Service().Routine(name).Completed());
-                }
-            }
-        }
 
-        public IFeatureToggle Configure(string name, Func<FeatureOption, FeatureOption> configure)
-        {
-            var newOptions = configure(GetOptions(name));
-            if (newOptions == GetDefaultOptions(name))
-            {
-                // Don't store default options.
-                _options.Remove(name);
+                return await _featureToggle.ExecuteAsync(name, body, fallback);
             }
-            else
-            {
-                _options[name] = newOptions;
-            }
-
-            return this;
         }
     }
 }

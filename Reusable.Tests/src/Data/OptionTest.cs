@@ -60,7 +60,7 @@ namespace Reusable.Tests.Data
         [Fact]
         public void Can_reset_flags()
         {
-            var actual = TestOption.One.Reset(TestOption.One);
+            var actual = TestOption.One.RemoveFlag(TestOption.One);
             Assert.False(actual.Contains(TestOption.One));
             Assert.Equal(TestOption.None, actual);
         }

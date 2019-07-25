@@ -1,6 +1,6 @@
 ﻿namespace Reusable
 {
-    public static class Func
+    public static class Functions
     {
         public static string ToString<T>(T value) => value?.ToString();
     }

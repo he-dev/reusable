@@ -180,9 +180,9 @@ namespace Reusable.Data
 
         #endregion
 
-        public T Set(Option<T> option) => this | option;
+        public T SetFlag(Option<T> option) => this | option;
 
-        public T Reset(Option<T> option) => this ^ option;
+        public T RemoveFlag(Option<T> option) => this ^ option;
 
         [DebuggerStepThrough]
         public string ToString(string format, IFormatProvider formatProvider)

@@ -23,7 +23,7 @@ namespace Reusable.Flawless
                         $"{typeof(T).ToPrettyString()}Validation",
                         $"Data does not meet one or more requirements." +
                         $"{Environment.NewLine}{Environment.NewLine}" +
-                        $"{results.Select(Func.ToString).Join(Environment.NewLine)}"
+                        $"{results.Select(Functions.ToString).Join(Environment.NewLine)}"
                     );
         }
     }
