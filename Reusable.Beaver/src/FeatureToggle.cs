@@ -17,7 +17,7 @@ namespace Reusable.Beaver
 
         bool IsDirty(string name);
 
-        void CommitDefaults();
+        void SaveAsDefaults();
     }
 
     public class FeatureOptionRepository : IFeatureOptionRepository
@@ -52,7 +52,7 @@ namespace Reusable.Beaver
 
         public bool IsDirty(string name) => _dirty.TryGetValue(name, out var isDirty) && isDirty;
 
-        public void CommitDefaults() => _dirty.Clear();
+        public void SaveAsDefaults() => _dirty.Clear();
     }
 
     public class FeatureOptionFallback : IFeatureOptionRepository
@@ -74,7 +74,7 @@ namespace Reusable.Beaver
 
         public bool IsDirty(string name) => _options.IsDirty(name);
 
-        public void CommitDefaults() => _options.CommitDefaults();
+        public void SaveAsDefaults() => _options.SaveAsDefaults();
     }
 
     public class FeatureOptionLock : IFeatureOptionRepository
@@ -104,7 +104,7 @@ namespace Reusable.Beaver
 
         public bool IsDirty(string name) => _options.IsDirty(name);
 
-        public void CommitDefaults() => _options.CommitDefaults();
+        public void SaveAsDefaults() => _options.SaveAsDefaults();
     }
 
     [PublicAPI]

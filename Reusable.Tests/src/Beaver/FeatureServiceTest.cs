@@ -49,31 +49,6 @@ namespace Reusable.Tests.Beaver
         }
     }
 
-    public class FeatureServiceDemo
-    {
-        private readonly FeatureToggle _features = new FeatureToggle
-        (
-            new FeatureOptionRepository()
-                .DecorateWith<IFeatureOptionRepository>(instance => new FeatureOptionFallback(instance, FeatureOption.Enable | FeatureOption.Warn | FeatureOption.Telemetry))
-        );
-
-        public async Task Start()
-        {
-            SayHallo();
-
-            //_features.Configure(nameof(SayHallo), o => o.Reset(FeatureOption.Enable));
-            //_features.Configure(Use<IDemo>.Namespace, x => x.Greeting, o => o ^ Enabled);
-            //_features.Options.UpdateOption(DemoFeatures.Greeting.Index("Morning").ToString(), o => o.RemoveFlag(FeatureOption.Enable));
-
-            SayHallo();
-        }
-
-        private void SayHallo()
-        {
-            _features.Execute(nameof(SayHallo), () => Console.WriteLine("Hallo"), () => Console.WriteLine("You've disabled it!"));
-        }
-    }
-
     namespace Features
     {
         [UseType, UseMember]
