@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Cryptography</id>
-    <version>12.3.3</version>
+    <version>12.3.4</version>
     <title>Reusable.Cryptography</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -16,7 +16,8 @@
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2019.1.1" />
-      <dependency id="Reusable.Core" version="12.3.3" />
+      <dependency id="Reusable.Core" version="12.3.4" />
+      <dependency id="Reusable.Flawless" version="12.3.4" />
     </dependencies>
   </metadata>
   <files>

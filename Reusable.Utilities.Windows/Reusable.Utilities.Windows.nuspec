@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Utilities.Windows</id>
-    <version>12.3.3</version>
+    <version>12.3.4</version>
     <title>Reusable.Utilities.Windows</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -18,7 +18,7 @@
       <dependency id="Autofac" version="4.9.2" />
       <dependency id="JetBrains.Annotations" version="2019.1.1" />
       <dependency id="Newtonsoft.Json" version="12.0.2" />
-      <dependency id="Reusable.Core" version="12.3.3" />
+      <dependency id="Reusable.Core" version="12.3.4" />
     </dependencies>
   </metadata>
   <files>

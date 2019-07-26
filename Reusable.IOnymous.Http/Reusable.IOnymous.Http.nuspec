@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.IOnymous.Http</id>
-    <version>12.3.3</version>
+    <version>12.3.4</version>
     <title>Reusable.IOnymous.Http</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -17,8 +17,8 @@
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2019.1.1" />
       <dependency id="Microsoft.AspNet.WebApi.Client" version="5.2.7" />
-      <dependency id="Reusable.Core" version="12.3.3" />
-      <dependency id="Reusable.IOnymous" version="12.3.3" />
+      <dependency id="Reusable.Core" version="12.3.4" />
+      <dependency id="Reusable.IOnymous" version="12.3.4" />
     </dependencies>
   </metadata>
   <files>
