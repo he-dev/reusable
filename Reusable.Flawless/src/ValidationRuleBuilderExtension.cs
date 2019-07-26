@@ -15,23 +15,17 @@ namespace Reusable.Flawless
     {
         public static ValidationRuleBuilder<T, TContext> When<T, TContext>(this ValidationRuleBuilder<T, TContext> builder, Expression<Func<T, bool>> expression)
         {
-            return
-                builder
-                    .Predicate(_ => expression);
+            return builder.Predicate(_ => expression);
         }
 
         public static ValidationRuleBuilder<T, TContext> Null<T, TContext, TMember>(this ValidationRuleBuilder<T, TContext> builder, Expression<Func<T, TMember>> expression)
         {
-            return
-                builder
-                    .Predicate(_ => vef.ReferenceEqualNull(expression));
+            return builder.Predicate(_ => vef.ReferenceEqualNull(expression));
         }
 
         public static ValidationRuleBuilder<T, TContext> NullOrEmpty<T, TContext>(this ValidationRuleBuilder<T, TContext> builder, Expression<Func<T, string>> expression)
         {
-            return
-                builder
-                    .Predicate(_ => vef.IsNullOrEmpty(expression));
+            return builder.Predicate(_ => vef.IsNullOrEmpty(expression));
         }
 
         public static ValidationRuleBuilder<T, TContext> Like<T, TContext>
@@ -42,9 +36,7 @@ namespace Reusable.Flawless
             RegexOptions options = RegexOptions.None
         )
         {
-            return
-                builder
-                    .Predicate(_ => vef.IsMatch(expression, pattern, options));
+            return builder.Predicate(_ => vef.IsMatch(expression, pattern, options));
         }
 
         public static ValidationRuleBuilder<T, TContext> Equal<T, TContext, TMember>
@@ -55,30 +47,22 @@ namespace Reusable.Flawless
             IEqualityComparer<TMember> comparer = default
         )
         {
-            return
-                builder
-                    .Predicate(_ => vef.Equal(expression, value, comparer ?? EqualityComparer<TMember>.Default));
+            return builder.Predicate(_ => vef.Equal(expression, value, comparer ?? EqualityComparer<TMember>.Default));
         }
 
         internal static ValidationRuleBuilder<T, TContext> Negate<T, TContext>(this ValidationRuleBuilder<T, TContext> builder)
         {
-            return
-                builder
-                    .Predicate(vef.Not);
+            return builder.Predicate(vef.Not);
         }
 
         public static ValidationRuleBuilder<T, TContext> Message<T, TContext>(this ValidationRuleBuilder<T, TContext> builder, string message)
         {
-            return
-                builder
-                    .Message((x, c) => message);
+            return builder.Message((x, c) => message);
         }
 
-        public static ValidationRuleBuilder<T, TContext> Hard<T, TContext>(this ValidationRuleBuilder<T, TContext> builder)
+        public static ValidationRuleBuilder<T, TContext> Required<T, TContext>(this ValidationRuleBuilder<T, TContext> builder)
         {
-            return
-                builder
-                    .Rule(ValidationRule<T, TContext>.Hard);
+            return builder.Severity(ValidationFailureFactory.CreateError);
         }
     }
 }

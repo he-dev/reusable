@@ -104,5 +104,13 @@ namespace Reusable
                     .TrimEnd(Environment.NewLine)
                     .ToString();
         }
+
+        public static string ConcatIfNotEmpty(this string str, string value, string separator = " ")
+        {
+            return
+                value.IsNullOrEmpty()
+                    ? str
+                    : str + separator + value;
+        }
     }
 }

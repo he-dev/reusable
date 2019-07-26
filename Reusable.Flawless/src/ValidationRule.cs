@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Configuration;
+using System.Linq;
+using System.Linq.Custom;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Reusable.Data;
@@ -15,98 +17,59 @@ namespace Reusable.Flawless
     [CanBeNull]
     public delegate string MessageCallback<in T, in TContext>(T obj, TContext context);
 
-    public delegate IValidationRule<T, TContext> CreateValidationRuleCallback<T, TContext>
-    (
-        [NotNull] Expression<ValidationPredicate<T, TContext>> predicate,
-        [NotNull] Expression<MessageCallback<T, TContext>> message
-    );
-
     public interface IValidationRule<in T, in TContext>
     {
+        IImmutableSet<string> Tags { get; }
+
+        [NotNull]
         IValidationResult Evaluate([CanBeNull] T obj, TContext context);
     }
 
-    public abstract class ValidationRule<T, TContext> : IValidationRule<T, TContext>
+    public class ValidationRule<T, TContext> : IValidationRule<T, TContext>
     {
-        private readonly ValidationPredicate<T, TContext> _predicate;
-        private readonly MessageCallback<T, TContext> _message;
+        [NotNull]
+        private readonly CreateValidationFailureCallback _createValidationFailure;
+
+        private readonly ValidationPredicate<T, TContext> _evaluate;
+        private readonly MessageCallback<T, TContext> _createMessage;
         private readonly string _expressionString;
 
-        protected ValidationRule
+        public ValidationRule
         (
+            [NotNull] IImmutableSet<string> tags,
             [NotNull] Expression<ValidationPredicate<T, TContext>> predicate,
-            [NotNull] Expression<MessageCallback<T, TContext>> message
+            [NotNull] Expression<MessageCallback<T, TContext>> message,
+            [NotNull] CreateValidationFailureCallback createValidationFailure
         )
         {
+            if (tags == null) throw new ArgumentNullException(nameof(tags));
             if (predicate == null) throw new ArgumentNullException(nameof(predicate));
+            if (message == null) throw new ArgumentNullException(nameof(message));
+            if (createValidationFailure == null) throw new ArgumentNullException(nameof(createValidationFailure));
 
-            _predicate = predicate.Compile();
-            _message = message.Compile();
+            Tags = tags;
+            _evaluate = predicate.Compile();
+            _createMessage = message.Compile();
             _expressionString = ValidationParameterPrettifier.Prettify<T>(predicate).ToString();
+            _createValidationFailure = createValidationFailure;
         }
-        
-        protected abstract string Name { get; }
+
+        public IImmutableSet<string> Tags { get; }
 
         public IValidationResult Evaluate(T obj, TContext context)
         {
-            return CreateResult
-            (
-                _predicate(obj, context) is var result && result,
-                _expressionString,
-                _message(obj, context) ?? $"<{typeof(T).ToPrettyString()}> {(result ? "meets" : "does not meet")} this {Name} rule."
-            );
+            if (_evaluate(obj, context) is var success && success)
+            {
+                return new ValidationSuccess(_expressionString, Tags, _createMessage(obj, context));
+            }
+            else
+            {
+                return _createValidationFailure(_expressionString, Tags, _createMessage(obj, context));
+            }
         }
-
-        protected abstract IValidationResult CreateResult(bool success, string expression, string message);
 
         public override string ToString() => _expressionString;
 
         public static implicit operator string(ValidationRule<T, TContext> rule) => rule?.ToString();
-
-        #region Factories
-
-        internal static CreateValidationRuleCallback<T, TContext> Soft => (predicate, message) => new Soft<T, TContext>(predicate, message);
-
-        internal static CreateValidationRuleCallback<T, TContext> Hard => (predicate, message) => new Hard<T, TContext>(predicate, message);
-
-        #endregion
-    }
-
-    public class Hard<T, TContext> : ValidationRule<T, TContext>
-    {
-        public Hard
-        (
-            [NotNull] Expression<ValidationPredicate<T, TContext>> predicate,
-            [NotNull] Expression<MessageCallback<T, TContext>> message
-        ) : base(predicate, message) { }
-
-        protected override string Name => nameof(Hard<T, TContext>);
-
-        protected override IValidationResult CreateResult(bool success, string expression, string message)
-        {
-            return
-                success
-                    ? (IValidationResult)new ValidationSuccess(expression, message)
-                    : (IValidationResult)new ValidationError(expression, message);
-        }
-    }
-
-    public class Soft<T, TContext> : ValidationRule<T, TContext>
-    {
-        public Soft
-        (
-            [NotNull] Expression<ValidationPredicate<T, TContext>> predicate,
-            [NotNull] Expression<MessageCallback<T, TContext>> message
-        ) : base(predicate, message) { }
-
-        protected override string Name => nameof(Soft<T, TContext>);
-        
-        protected override IValidationResult CreateResult(bool success, string expression, string message)
-        {
-            return
-                success
-                    ? (IValidationResult)new ValidationSuccess(expression, message)
-                    : (IValidationResult)new ValidationWarning(expression, message);
-        }
     }
 }

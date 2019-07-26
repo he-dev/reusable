@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
@@ -14,15 +15,22 @@ namespace Reusable.Flawless
 
     public class ValidationRuleBuilder<T, TContext>
     {
-        private CreateValidationRuleCallback<T, TContext> _createValidationRule;
+        private CreateValidationFailureCallback _createValidationFailureCallback;
         private LambdaExpression _predicate;
         private LambdaExpression _message = (Expression<Func<T, TContext, string>>)((x, c) => default);
+        private IImmutableSet<string> _tags;
+
+        public ValidationRuleBuilder()
+        {
+            Severity(ValidationFailureFactory.CreateWarning);
+            _tags = ImmutableHashSet<string>.Empty;
+        }
 
         public static ValidationRuleBuilder<T, TContext> Empty => new ValidationRuleBuilder<T, TContext>();
 
-        public ValidationRuleBuilder<T, TContext> Rule(CreateValidationRuleCallback<T, TContext> createValidationRuleCallback)
+        public ValidationRuleBuilder<T, TContext> Severity(CreateValidationFailureCallback createValidationFailureCallback)
         {
-            _createValidationRule = createValidationRuleCallback;
+            _createValidationFailureCallback = createValidationFailureCallback;
             return this;
         }
 
@@ -38,11 +46,17 @@ namespace Reusable.Flawless
             return this;
         }
 
+        public ValidationRuleBuilder<T, TContext> Tags(params string[] tags)
+        {
+            _tags = tags.ToImmutableHashSet(SoftString.Comparer);
+            return this;
+        }
+
         [NotNull]
         public IValidationRule<T, TContext> Build()
         {
             if (_predicate is null) throw new InvalidOperationException("Validation-rule requires you to set the rule first.");
-            
+
             var parameters = new[]
             {
                 _predicate.Parameters.ElementAtOrDefault(0) ?? ValidationParameterPrettifier.CreatePrettyParameter<T>(),
@@ -55,7 +69,7 @@ namespace Reusable.Flawless
             var messageWithParameter = parameters.Aggregate(_message.Body, ValidationParameterInjector.InjectParameter);
             var message = Expression.Lambda<MessageCallback<T, TContext>>(messageWithParameter, parameters);
 
-            return (_createValidationRule ?? ValidationRule<T, TContext>.Soft)(predicate, message);
+            return new ValidationRule<T, TContext>(_tags, predicate, message, _createValidationFailureCallback);
         }
     }
 }

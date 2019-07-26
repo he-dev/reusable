@@ -27,14 +27,14 @@ namespace Reusable.Tests.Flawless
             var rules =
                 ValidationRuleCollection
                     .For<Person>()
-                    .Reject(b => b.Null(x => x).Hard())
+                    .Reject(b => b.Null(x => x).Required())
                     .Reject(b => b.Null(x => x.FirstName))
                     .Accept(b => b.When(x => x.FirstName.Length > 3));
 
             var results = default(Person).ValidateWith(rules);
 
-            Assert.Equal(0, results.OfType<ValidationSuccess>().Count());
-            Assert.Equal(1, results.OfType<ValidationError>().Count());
+            Assert.Equal(0, results.Successful().Count());
+            Assert.Equal(1, results.Errors().Count());
 
             
             Assert.ThrowsAny<DynamicException>(() => default(Person).ValidateWith(rules).ThrowOnFailure());
@@ -46,13 +46,13 @@ namespace Reusable.Tests.Flawless
             var rules =
                 ValidationRuleCollection
                     .For<Person>()
-                    .Reject(b => b.NullOrEmpty(x => x.FirstName).Hard())
+                    .Reject(b => b.NullOrEmpty(x => x.FirstName).Required())
                     .Accept(b => b.Equal(x => x.FirstName, "cookie", StringComparer.OrdinalIgnoreCase));
 
             var results = Tester.ValidateWith(rules);
 
-            Assert.Equal(2, results.OfType<ValidationSuccess>().Count());
-            Assert.Equal(0, results.OfType<ValidationError>().Count());
+            Assert.Equal(2, results.Successful().Count());
+            Assert.Equal(0, results.Errors().Count());
         }
         
         [Fact]
@@ -62,12 +62,14 @@ namespace Reusable.Tests.Flawless
                 ValidationRuleCollection
                     .For<Person>()
                     .Accept(b => b.Like(x => x.FirstName, "^cookie", RegexOptions.IgnoreCase))
-                    .Reject(b => b.Like(x => x.FirstName, "^cookie", RegexOptions.IgnoreCase).Hard());
+                    .Reject(b => b.Like(x => x.FirstName, "^cookie", RegexOptions.IgnoreCase).Required());
 
             var results = Tester.ValidateWith(rules);
 
             Assert.Equal(1, results.OfType<ValidationSuccess>().Count());
             Assert.Equal(1, results.OfType<ValidationError>().Count());
+
+            var ex = Assert.ThrowsAny<DynamicException>(() => results.ThrowOnFailure());
         }
 
         private class Person

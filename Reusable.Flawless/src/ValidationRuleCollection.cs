@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 
 namespace Reusable.Flawless
 {
+    [PublicAPI]
     public static class ValidationRuleCollection
     {
         public static ValidationRuleCollection<T, TContext> For<T, TContext>()
@@ -18,13 +19,14 @@ namespace Reusable.Flawless
         }
     }
 
+    [PublicAPI]
     public class ValidationRuleCollection<T, TContext> : IEnumerable<IValidationRule<T, TContext>>
     {
         private readonly IImmutableList<IValidationRule<T, TContext>> _rules;
 
         public ValidationRuleCollection(IImmutableList<IValidationRule<T, TContext>> rules)
         {
-            _rules = rules.ToImmutableList();
+            _rules = rules;
         }
         
         public static ValidationRuleCollection<T, TContext> Empty { get; } = new ValidationRuleCollection<T, TContext>(ImmutableList<IValidationRule<T, TContext>>.Empty);
@@ -34,15 +36,9 @@ namespace Reusable.Flawless
             return new ValidationRuleCollection<T, TContext>(_rules.Add(rule));
         }
 
-        public IEnumerator<IValidationRule<T, TContext>> GetEnumerator()
-        {
-            return _rules.GetEnumerator();
-        }
+        public IEnumerator<IValidationRule<T, TContext>> GetEnumerator() => _rules.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable)_rules).GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_rules).GetEnumerator();
     }
 
     public class ValidationRuleCollection<T> : ValidationRuleCollection<T, object>

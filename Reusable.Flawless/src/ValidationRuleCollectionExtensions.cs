@@ -7,42 +7,29 @@ using Reusable.Exceptionize;
 
 namespace Reusable.Flawless
 {
+    public delegate ValidationRuleBuilder<T, TContext> BuildRuleCallback<T, TContext>(ValidationRuleBuilder<T, TContext> builder);
+
+    [PublicAPI]
     public static class ValidationRuleCollectionExtensions
     {
-        public static ValidationRuleCollection<T, TContext> Add<T, TContext>
-        (
-            this ValidationRuleCollection<T, TContext> rules,
-            Func<ValidationRuleBuilder<T, TContext>, ValidationRuleBuilder<T, TContext>> builder
-        )
+        #region Rule APIs
+
+        public static ValidationRuleCollection<T, TContext> Accept<T, TContext>(this ValidationRuleCollection<T, TContext> rules, BuildRuleCallback<T, TContext> builder)
         {
             return rules.Add(builder(ValidationRuleBuilder<T, TContext>.Empty).Build());
         }
 
-        public static ValidationRuleCollection<T, object> Add<T>
-        (
-            this ValidationRuleCollection<T, object> rules,
-            Func<ValidationRuleBuilder<T, object>, ValidationRuleBuilder<T, object>> builder
-        )
+        public static ValidationRuleCollection<T, object> Accept<T>(this ValidationRuleCollection<T, object> rules, BuildRuleCallback<T, object> builder)
         {
             return rules.Add(builder(ValidationRuleBuilder<T, object>.Empty).Build());
         }
 
-        #region Rule APIs
-
-        public static ValidationRuleCollection<T, object> Accept<T>
-        (
-            this ValidationRuleCollection<T, object> rules,
-            Func<ValidationRuleBuilder<T, object>, ValidationRuleBuilder<T, object>> builder
-        )
+        public static ValidationRuleCollection<T, TContext> Reject<T, TContext>(this ValidationRuleCollection<T, TContext> rules, BuildRuleCallback<T, TContext> builder)
         {
-            return rules.Add(builder(ValidationRuleBuilder<T, object>.Empty).Build());
+            return rules.Add(builder(ValidationRuleBuilder<T, TContext>.Empty).Negate().Build());
         }
 
-        public static ValidationRuleCollection<T, object> Reject<T>
-        (
-            this ValidationRuleCollection<T, object> rules,
-            Func<ValidationRuleBuilder<T, object>, ValidationRuleBuilder<T, object>> builder
-        )
+        public static ValidationRuleCollection<T, object> Reject<T>(this ValidationRuleCollection<T, object> rules, BuildRuleCallback<T, object> builder)
         {
             return rules.Add(builder(ValidationRuleBuilder<T, object>.Empty).Negate().Build());
         }
@@ -75,15 +62,13 @@ namespace Reusable.Flawless
 
         private static IEnumerable<IValidationResult> Evaluate<T, TContext>(this ValidationRuleCollection<T, TContext> rules, T obj, TContext context)
         {
-            foreach (var rule in rules)
+            foreach (var result in rules.Select(r => r.Evaluate(obj, context)))
             {
-                if (rule.Evaluate(obj, context) is var result && result is ValidationError)
+                yield return result;
+
+                if (result is ValidationError)
                 {
                     yield break;
-                }
-                else
-                {
-                    yield return result;
                 }
             }
         }
