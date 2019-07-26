@@ -8,6 +8,8 @@ namespace Reusable.Flawless
 
         string Message { get; }
     }
+    
+    public interface IValidationFailure { }
 
     public abstract class ValidationResult : IValidationResult
     {
@@ -23,24 +25,24 @@ namespace Reusable.Flawless
 
         public override string ToString() => $"{GetType().Name} | {Message} | {Expression}";
 
-        public static implicit operator bool(ValidationResult result) => result is Information;
+        public static implicit operator bool(ValidationResult result) => result is ValidationSuccess;
     }
 
-    public class Information : ValidationResult
+    public class ValidationSuccess : ValidationResult
     {
-        public Information([NotNull] string expression, [NotNull] string message)
+        public ValidationSuccess([NotNull] string expression, [NotNull] string message)
             : base(expression, message) { }
     }
 
-    public class Warning : ValidationResult
+    public class ValidationWarning : ValidationResult, IValidationFailure
     {
-        public Warning([NotNull] string expression, [NotNull] string message)
+        public ValidationWarning([NotNull] string expression, [NotNull] string message)
             : base(expression, message) { }
     }
 
-    public class Error : ValidationResult
+    public class ValidationError : ValidationResult, IValidationFailure
     {
-        public Error([NotNull] string expression, [NotNull] string message)
+        public ValidationError([NotNull] string expression, [NotNull] string message)
             : base(expression, message) { }
     }
 }

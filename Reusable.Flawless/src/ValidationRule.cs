@@ -86,8 +86,8 @@ namespace Reusable.Flawless
         {
             return
                 success
-                    ? (IValidationResult)new Information(expression, message)
-                    : (IValidationResult)new Error(expression, message);
+                    ? (IValidationResult)new ValidationSuccess(expression, message)
+                    : (IValidationResult)new ValidationError(expression, message);
         }
     }
 
@@ -105,8 +105,8 @@ namespace Reusable.Flawless
         {
             return
                 success
-                    ? (IValidationResult)new Information(expression, message)
-                    : (IValidationResult)new Warning(expression, message);
+                    ? (IValidationResult)new ValidationSuccess(expression, message)
+                    : (IValidationResult)new ValidationWarning(expression, message);
         }
     }
 }

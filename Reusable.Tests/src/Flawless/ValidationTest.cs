@@ -33,11 +33,11 @@ namespace Reusable.Tests.Flawless
 
             var results = default(Person).ValidateWith(rules);
 
-            Assert.Equal(0, results.OfType<Information>().Count());
-            Assert.Equal(1, results.OfType<Error>().Count());
+            Assert.Equal(0, results.OfType<ValidationSuccess>().Count());
+            Assert.Equal(1, results.OfType<ValidationError>().Count());
 
             
-            Assert.ThrowsAny<DynamicException>(() => default(Person).ValidateWith(rules).ThrowIfNotValid());
+            Assert.ThrowsAny<DynamicException>(() => default(Person).ValidateWith(rules).ThrowOnFailure());
         }
         
         [Fact]
@@ -51,8 +51,8 @@ namespace Reusable.Tests.Flawless
 
             var results = Tester.ValidateWith(rules);
 
-            Assert.Equal(2, results.OfType<Information>().Count());
-            Assert.Equal(0, results.OfType<Error>().Count());
+            Assert.Equal(2, results.OfType<ValidationSuccess>().Count());
+            Assert.Equal(0, results.OfType<ValidationError>().Count());
         }
         
         [Fact]
@@ -66,8 +66,8 @@ namespace Reusable.Tests.Flawless
 
             var results = Tester.ValidateWith(rules);
 
-            Assert.Equal(1, results.OfType<Information>().Count());
-            Assert.Equal(1, results.OfType<Error>().Count());
+            Assert.Equal(1, results.OfType<ValidationSuccess>().Count());
+            Assert.Equal(1, results.OfType<ValidationError>().Count());
         }
 
         private class Person

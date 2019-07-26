@@ -3,7 +3,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Reusable.Extensions;
-using Reusable.Flawless;
 
 namespace Reusable
 {

@@ -16,23 +16,22 @@ namespace Reusable.Cryptography
     [PublicAPI]
     public class FingerprintBuilder<T>
     {
-        private static readonly IExpressValidator<FingerprintBuilder<T>> FingerprintBuilderValidator = ExpressValidator.For<FingerprintBuilder<T>>(builder =>
-        {
-            builder.True(x => x._valueSelectors.Any()).WithMessage($"{nameof(FingerprintBuilder<T>)} requires at least one value-selector.");
-        });
+        private static readonly ValidationRuleCollection<FingerprintBuilder<T>, object> FingerprintBuilderValidator =
+            ValidationRuleCollection
+                .For<FingerprintBuilder<T>>()
+                .Accept(b => b.When(x => x._valueSelectors.Any()).Message($"{nameof(FingerprintBuilder<T>)} requires at least one value-selector."));
 
         private readonly SortedDictionary<string, Func<T, object>> _valueSelectors;
 
         public FingerprintBuilder([NotNull] IComparer<string> propertyComparer)
         {
             if (propertyComparer == null) throw new ArgumentNullException(nameof(propertyComparer));
-            
+
             _valueSelectors = new SortedDictionary<string, Func<T, object>>(StringComparer.OrdinalIgnoreCase);
         }
 
         public FingerprintBuilder()
-            : this(StringComparer.OrdinalIgnoreCase)
-        { }
+            : this(StringComparer.OrdinalIgnoreCase) { }
 
         public FingerprintBuilder<T> Add<TInput, TOutput>([NotNull] Expression<Func<T, TInput>> getMemberExpression, [NotNull] Expression<Func<TInput, TOutput>> transformValueExpression)
         {
@@ -55,13 +54,13 @@ namespace Reusable.Cryptography
             _valueSelectors[memberExpression.Member.Name] = obj => transform(getValue(obj));
 
             return this;
-        }       
+        }
 
         public ComputeFingerprintCallback<T> Build([NotNull] ComputeHashCallback computeHashCallback)
         {
             if (computeHashCallback == null) throw new ArgumentNullException(nameof(computeHashCallback));
-            
-            FingerprintBuilderValidator.Validate(this).Assert();
+
+            this.ValidateWith(FingerprintBuilderValidator).ThrowOnFailure();
 
             var binaryFormatter = new BinaryFormatter();
 
@@ -90,5 +89,4 @@ namespace Reusable.Cryptography
 
         public static FingerprintBuilder<T> For<T>(T obj) => For<T>();
     }
-
 }

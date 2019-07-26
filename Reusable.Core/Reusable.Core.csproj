@@ -35,6 +35,15 @@
 
   <ItemGroup>
     <Compile Remove="src\Option.cs" />
+    <Compile Remove="src\Flawless\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="src\Flawless\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="src\Flawless\**" />
   </ItemGroup>
 
 </Project>

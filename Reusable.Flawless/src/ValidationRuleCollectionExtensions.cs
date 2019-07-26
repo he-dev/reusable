@@ -9,18 +9,18 @@ namespace Reusable.Flawless
 {
     public static class ValidationRuleCollectionExtensions
     {
-        public static IImmutableList<IValidationRule<T, TContext>> Add<T, TContext>
+        public static ValidationRuleCollection<T, TContext> Add<T, TContext>
         (
-            this IImmutableList<IValidationRule<T, TContext>> rules,
+            this ValidationRuleCollection<T, TContext> rules,
             Func<ValidationRuleBuilder<T, TContext>, ValidationRuleBuilder<T, TContext>> builder
         )
         {
             return rules.Add(builder(ValidationRuleBuilder<T, TContext>.Empty).Build());
         }
 
-        public static IImmutableList<IValidationRule<T, object>> Add<T>
+        public static ValidationRuleCollection<T, object> Add<T>
         (
-            this IImmutableList<IValidationRule<T, object>> rules,
+            this ValidationRuleCollection<T, object> rules,
             Func<ValidationRuleBuilder<T, object>, ValidationRuleBuilder<T, object>> builder
         )
         {
@@ -29,18 +29,18 @@ namespace Reusable.Flawless
 
         #region Rule APIs
 
-        public static IImmutableList<IValidationRule<T, object>> Accept<T>
+        public static ValidationRuleCollection<T, object> Accept<T>
         (
-            this IImmutableList<IValidationRule<T, object>> rules,
+            this ValidationRuleCollection<T, object> rules,
             Func<ValidationRuleBuilder<T, object>, ValidationRuleBuilder<T, object>> builder
         )
         {
             return rules.Add(builder(ValidationRuleBuilder<T, object>.Empty).Build());
         }
 
-        public static IImmutableList<IValidationRule<T, object>> Reject<T>
+        public static ValidationRuleCollection<T, object> Reject<T>
         (
-            this IImmutableList<IValidationRule<T, object>> rules,
+            this ValidationRuleCollection<T, object> rules,
             Func<ValidationRuleBuilder<T, object>, ValidationRuleBuilder<T, object>> builder
         )
         {
@@ -50,7 +50,7 @@ namespace Reusable.Flawless
         #endregion
 
         [NotNull]
-        public static ValidationResultCollection<T> ValidateWith<T, TContext>(this T obj, IImmutableList<IValidationRule<T, TContext>> rules, TContext context)
+        public static ValidationResultCollection<T> ValidateWith<T, TContext>(this T obj, ValidationRuleCollection<T, TContext> rules, TContext context)
         {
             try
             {
@@ -68,18 +68,23 @@ namespace Reusable.Flawless
         }
 
         [NotNull]
-        public static ValidationResultCollection<T> ValidateWith<T, TContext>(this T obj, IImmutableList<IValidationRule<T, TContext>> rules)
+        public static ValidationResultCollection<T> ValidateWith<T, TContext>(this T obj, ValidationRuleCollection<T, TContext> rules)
         {
             return obj.ValidateWith(rules, default);
         }
 
-        private static IEnumerable<IValidationResult> Evaluate<T, TContext>(this IImmutableList<IValidationRule<T, TContext>> rules, T obj, TContext context)
+        private static IEnumerable<IValidationResult> Evaluate<T, TContext>(this ValidationRuleCollection<T, TContext> rules, T obj, TContext context)
         {
-            var result = default(IValidationResult);
             foreach (var rule in rules)
             {
-                yield return result = rule.Evaluate(obj, context);
-                if (result is Error) yield break;
+                if (rule.Evaluate(obj, context) is var result && result is ValidationError)
+                {
+                    yield break;
+                }
+                else
+                {
+                    yield return result;
+                }
             }
         }
     }
