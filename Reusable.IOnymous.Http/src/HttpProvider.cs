@@ -74,7 +74,7 @@ namespace Reusable.IOnymous.Http
                 if (content != Stream.Null)
                 {
                     request.Content = new StreamContent(content.Rewind());
-                    request.Content.Headers.ContentType = new MediaTypeHeaderValue(context.GetItemOrDefault(HttpRequestContext.ContentType));
+                    request.Content.Headers.ContentType = new MediaTypeHeaderValue(context.GetItem(HttpRequestContext.ContentType));
                 }
 
                 Properties.GetItemOrDefault(HttpRequestContext.ConfigureHeaders, _ => { })(request.Headers);

@@ -81,40 +81,28 @@ namespace Reusable.Teapot
                 new ConfigurationBuilder()
                     //.SetBasePath(contentRootPath)
                     //.AddJsonFile("hosting.json", optional: true, reloadOnChange: true)
-                    //.SetBasePath(url)
-                    //.AddConfiguration(new asdf())
-                    //.AddConfiguration()
+                    //.AddJsonFile("appSettings.json", optional: true, reloadOnChange: true)
                     .AddInMemoryCollection(new Dictionary<string, string>
                     {
                         ["urls"] = url //"http://localhost:30002"
                     })
-                    //.AddJsonFile("appSettings.json", optional: true, reloadOnChange: true)
                     .Build();
 
             _host =
                 new WebHostBuilder()
                     .UseKestrel()
                     .UseConfiguration(configuration)
-                    //.UseUrls(url)
                     .ConfigureServices(services =>
                     {
                         services.AddSingleton((RequestAssertDelegate)Assert);
                         services.AddSingleton((ResponseDelegate)GetResponseFactory);
                     })
-//                    .ConfigureAppConfiguration((context, builder) =>
-//                    {
-//                        
-//                    })
-                    //.Configure(app => { app.UsePathBase(url); })
-                    .UseStartup<TeapotStartup>()
-                    //.UseServer()
-                    //.UseIISIntegration()
-//                    .UseKestrel()
-//                    .ConfigureKestrel((context, options) =>
-//                    {
-//                        // Set properties and call methods on options
-//                        options.Listen(IPAddress.Any, 62001);
-//                    })
+                    .Configure(app =>
+                    {
+                        //app.UsePathBase(url);
+                        app.UseMiddleware<TeapotMiddleware>();
+                    })
+                    //.UseStartup<TeapotStartup>()
                     .Build();
 
             Task = _host.StartAsync();

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using Reusable.Exceptionize;
 using Reusable.Quickey;
 
 namespace Reusable.Data
@@ -17,14 +18,21 @@ namespace Reusable.Data
 
         [DebuggerStepThrough]
         [MustUseReturnValue]
-        public static T GetItemOrDefault<T>(this IImmutableContainer container, Selector<T> key, T defaultValue = default)
+        public static T GetItem<T>(this IImmutableContainer container, Selector<T> selector)
         {
-            return container.TryGetItem(key, out var item) ? item : defaultValue;
+            return container.TryGetItem(selector, out var item) ? item : throw DynamicException.Create("ItemNotFound", $"Item '{selector}' is required.");
+
+        }
+        [DebuggerStepThrough]
+        [MustUseReturnValue]
+        public static T GetItemOrDefault<T>(this IImmutableContainer container, Selector<T> selector, T defaultValue = default)
+        {
+            return container.TryGetItem(selector, out var item) ? item : defaultValue;
         }
 
-        public static bool TryGetItem<T>(this IImmutableContainer container, Selector<T> key, out T value)
+        public static bool TryGetItem<T>(this IImmutableContainer container, Selector<T> selector, out T value)
         {
-            if (container.TryGetValue(key.ToString(), out var item))
+            if (container.TryGetValue(selector.ToString(), out var item))
             {
                 if (item is T t)
                 {
