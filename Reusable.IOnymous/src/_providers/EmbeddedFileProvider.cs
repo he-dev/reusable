@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -24,7 +23,7 @@ namespace Reusable.IOnymous
             var assemblyName = _assembly.GetName().Name.Replace('.', '/');
             BaseUri = new UriString($"{UriSchemes.Known.File}:{assemblyName}");
             Methods =
-                MethodDictionary
+                MethodCollection
                     .Empty
                     .Add(RequestMethod.Get, GetAsync);
         }

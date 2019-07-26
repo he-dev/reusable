@@ -24,7 +24,7 @@ namespace Reusable.IOnymous
             _uriConverter = uriConverter ?? throw new ArgumentNullException(nameof(uriConverter));
 
             Methods =
-                MethodDictionary
+                MethodCollection
                     .Empty
                     .Add(RequestMethod.Get, GetAsync)
                     .Add(RequestMethod.Put, PutAsync);

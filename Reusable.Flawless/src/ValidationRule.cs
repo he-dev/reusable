@@ -29,7 +29,6 @@ namespace Reusable.Flawless
     {
         [NotNull]
         private readonly CreateValidationFailureCallback _createValidationFailure;
-
         private readonly ValidationPredicate<T, TContext> _evaluate;
         private readonly MessageCallback<T, TContext> _createMessage;
         private readonly string _expressionString;

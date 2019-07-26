@@ -26,7 +26,7 @@ namespace Reusable.IOnymous.Config
             ConnectionString = ConnectionStringRepository.Default.GetConnectionString(nameOrConnectionString);
             TableName = (DefaultSchema, DefaultTable);
             Methods =
-                MethodDictionary
+                MethodCollection
                     .Empty
                     .Add(RequestMethod.Get, GetAsync)
                     .Add(RequestMethod.Put, PutAsync);

@@ -28,14 +28,14 @@ namespace Reusable.IOnymous
         [NotNull]
         IImmutableContainer Properties { get; }
 
-        IImmutableDictionary<RequestMethod, RequestCallback> Methods { get; }
+        MethodCollection Methods { get; }
 
         //bool Can(RequestMethod method);
 
         Task<IResource> InvokeAsync(Request request);
     }
 
-    public delegate Task<IResource> RequestCallback(Request request);
+    public delegate Task<IResource> InvokeCallback(Request request);
 
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public abstract class ResourceProvider : IResourceProvider
@@ -68,9 +68,9 @@ namespace Reusable.IOnymous
 
         public virtual IImmutableContainer Properties { get; }
 
-        public IImmutableDictionary<RequestMethod, RequestCallback> Methods { get; protected set; }
+        public MethodCollection Methods { get; protected set; }
 
-        public bool Can(RequestMethod method) => Methods.ContainsKey(method);
+        //public bool Can(RequestMethod method) => Methods.ContainsKey(method);
 
         public virtual async Task<IResource> InvokeAsync(Request request)
         {
@@ -86,7 +86,7 @@ namespace Reusable.IOnymous
                 throw new ArgumentException(paramName: nameof(request), message: $"You must specify a request method. '{RequestMethod.None}' is not one of them.");
             }
 
-            if (Methods.TryGetValue(request.Method, out var method))
+            if (Methods.TryGetMethod(request.Method, out var method))
             {
                 try
                 {
@@ -113,7 +113,7 @@ namespace Reusable.IOnymous
                 $"because it doesn't support this method."
             );
         }
-        
+
         protected IResource DoesNotExist(Request request) => Resource.DoesNotExist.FromRequest(request);
 
         public virtual void Dispose()
@@ -134,7 +134,7 @@ namespace Reusable.IOnymous
 
             public virtual IImmutableContainer Properties => Provider.Properties;
 
-            public virtual IImmutableDictionary<RequestMethod, RequestCallback> Methods => Provider.Methods;
+            public virtual MethodCollection Methods => Provider.Methods;
 
             public virtual Task<IResource> InvokeAsync(Request request) => Provider.InvokeAsync(request);
 
@@ -170,13 +170,40 @@ namespace Reusable.IOnymous
         }
     }
 
-    public static class MethodDictionary
+    public class MethodCollection : IEnumerable<(RequestMethod Method, InvokeCallback InvokeCallback)>
     {
-        public static IImmutableDictionary<RequestMethod, RequestCallback> Empty { get; } = ImmutableDictionary<RequestMethod, RequestCallback>.Empty;
+        private readonly IImmutableDictionary<RequestMethod, InvokeCallback> _requests;
+
+        private MethodCollection(IImmutableDictionary<RequestMethod, InvokeCallback> requests)
+        {
+            _requests = requests;
+        }
+
+        public static MethodCollection Empty { get; } = new MethodCollection(ImmutableDictionary<RequestMethod, InvokeCallback>.Empty);
+
+        public MethodCollection Add(RequestMethod method, InvokeCallback invokeCallback)
+        {
+            return new MethodCollection(_requests.Add(method, invokeCallback));
+        }
+
+        public bool TryGetMethod(RequestMethod method, out InvokeCallback invokeCallback)
+        {
+            return _requests.TryGetValue(method, out invokeCallback);
+        }
+
+        public IEnumerator<(RequestMethod Method, InvokeCallback InvokeCallback)> GetEnumerator()
+        {
+            return _requests.Select(x => (x.Key, x.Value)).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
     }
 
     public delegate Task<Stream> CreateStreamCallback(object body);
-    
+
     public class Request
     {
         [NotNull]
@@ -190,14 +217,14 @@ namespace Reusable.IOnymous
 
         [CanBeNull]
         public CreateStreamCallback CreateBodyStreamCallback { get; set; }
-        
+
         public object Body { get; set; }
 
         public Task<Stream> CreateBodyStreamAsync()
         {
             if (Body is null) throw new InvalidOperationException($"Cannot create stream for a null {nameof(Body)}.");
             if (CreateBodyStreamCallback is null) throw new InvalidOperationException($"Cannot create stream without a {nameof(CreateBodyStreamCallback)}.");
-            
+
             return CreateBodyStreamCallback(Body);
         }
 

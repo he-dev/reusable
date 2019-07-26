@@ -23,7 +23,7 @@ namespace Reusable.IOnymous.Config
                     .AddJsonFile(fileName)
                     .Build();
             Methods =
-                MethodDictionary
+                MethodCollection
                     .Empty
                     .Add(RequestMethod.Get, GetAsync);
         }

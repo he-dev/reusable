@@ -11,13 +11,12 @@ using Xunit.Abstractions;
 // ReSharper disable once CheckNamespace
 namespace Reusable.Tests.Flexo.Helpers
 {
-    internal static class AssertExtensions
+    internal static class ExpressionAssert
     {
         private static readonly ITreeRenderer<string> DebugViewRenderer = new PlainTextTreeRenderer();
 
         public static (IConstant Result, IImmutableContainer Context) ExpressionEqual<TValue>
         (
-            this Assert assert,
             TValue expected,
             IExpression expression,
             Func<IImmutableContainer, IImmutableContainer> customizeContext = null,

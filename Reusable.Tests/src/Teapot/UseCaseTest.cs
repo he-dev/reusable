@@ -21,8 +21,8 @@ namespace Reusable.Tests.Teapot
 
         public UseCaseTest(TeapotFactoryFixture teapotFactory)
         {
-            _teapot = teapotFactory.CreateTeapotServer("http://localhost:20001/api");
-            _http = HttpProvider.FromBaseUri("http://localhost:20001");
+            _teapot = teapotFactory.CreateTeapotServer("http://localhost:30001");
+            _http = HttpProvider.FromBaseUri("http://localhost:30001/api");
         }
 
         [Fact]
@@ -32,7 +32,7 @@ namespace Reusable.Tests.Teapot
             {
                 var test =
                     teacup
-                        .Mock("/test?param=true")
+                        .Mock("api/test?param=true")
                         .ArrangePost((request, response) =>
                         {
                             request
@@ -60,6 +60,7 @@ namespace Reusable.Tests.Teapot
                                 headers.UserAgent("Teapot", "1.0");
                                 headers.AcceptJson();
                             })
+                            .SetItem(HttpRequestContext.ContentType, "application/json")
                             .SetItem(HttpResponseContext.ContentType, "application/json"),
                         Body = new { Greeting = "Hallo" },
                         //CreateBodyStreamCallback = b => ResourceHelper.SerializeAsJsonAsync(b)

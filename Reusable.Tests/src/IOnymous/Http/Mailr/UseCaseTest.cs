@@ -19,8 +19,8 @@ namespace Reusable.Tests.IOnymous.Http.Mailr
 
         public UseCaseTest(TeapotFactoryFixture teapotFactory)
         {
-            _teapot = teapotFactory.CreateTeapotServer("http://0.0.0.0:62001/api");
-            _http = HttpProvider.FromBaseUri("http://0.0.0.0:62001");
+            _teapot = teapotFactory.CreateTeapotServer("http://localhost:30002");
+            _http = HttpProvider.FromBaseUri("http://localhost:30002/api");
         }
 
         [Fact]

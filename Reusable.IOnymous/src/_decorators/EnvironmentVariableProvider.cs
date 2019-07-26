@@ -13,17 +13,7 @@ namespace Reusable.IOnymous
         public EnvironmentVariableProvider([NotNull] IResourceProvider provider)
             : base(provider.Properties.SetItem(ResourceProviderProperty.AllowRelativeUri, true))
         {
-            Methods = provider.Methods.Aggregate(MethodDictionary.Empty, (current, next) =>
-            {
-                return current.Add(next.Key, request => next.Value(new Request
-                {
-                    Uri = Resolve(request.Uri),
-                    Method = request.Method,
-                    Context = request.Context,
-                    Body = request.Body,
-                    CreateBodyStreamCallback = request.CreateBodyStreamCallback,
-                }));
-            });
+            Methods = provider.Methods.Aggregate(MethodCollection.Empty, (current, next) => current.Add(next.Method, request => next.InvokeCallback(request.Copy(c => c.Uri = Resolve(c.Uri)))));
         }
 
         public static Func<IResourceProvider, EnvironmentVariableProvider> Factory()

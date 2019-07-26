@@ -19,7 +19,7 @@ namespace Reusable.IOnymous.Config
         public AppSettingProvider() : base(ImmutableContainer.Empty)
         {
             Methods =
-                MethodDictionary
+                MethodCollection
                     .Empty
                     .Add(RequestMethod.Get, GetAsync)
                     .Add(RequestMethod.Put, PutAsync);

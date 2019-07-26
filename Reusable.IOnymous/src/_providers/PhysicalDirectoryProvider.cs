@@ -14,7 +14,7 @@ namespace Reusable.IOnymous
             : base(properties.ThisOrEmpty().SetScheme("directory"))
         {
             Methods =
-                MethodDictionary
+                MethodCollection
                     .Empty
                     .Add(RequestMethod.Get, GetAsync)
                     .Add(RequestMethod.Put, PutAsync)

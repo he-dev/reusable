@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.IO;
+using Microsoft.AspNetCore.Builder;
 
 namespace Reusable.Teapot
 {
@@ -6,6 +7,7 @@ namespace Reusable.Teapot
     {
         public void Configure(IApplicationBuilder app)
         {
+            //app.UsePathBase(Path.GetDirectoryName(typeof(TeapotStartup).Assembly.Location));
             app.UseMiddleware<TeapotMiddleware>();
         }
     }

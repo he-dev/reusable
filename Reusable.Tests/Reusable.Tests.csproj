@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>
+<!--        <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>-->
+        <TargetFramework>netcoreapp2.2</TargetFramework>
         <RootNamespace>Reusable.Tests</RootNamespace>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -22,6 +23,9 @@
         <EmbeddedResource Include="res\IOnymous\Http\Mailr\HtmlTable.json" />
         <EmbeddedResource Include="res\IOnymous\test.txt" />
         <None Remove="sql\SmartConfig\seed-test-data.sql" />
+        <None Update="hosting.json">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Autofac" Version="4.9.2" />
@@ -30,9 +34,11 @@
         <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
         <PackageReference Include="Dapper" Version="1.60.6" />
-<!--        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.1.1" />-->
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
-        <PackageReference Include="xunit.extensibility.execution" Version="2.4.1" />
+        <PackageReference Include="xunit" Version="2.4.1" />
+<!--        <PackageReference Include="System.Memory" Version="4.5.3" />-->
+<!--        <PackageReference Include="xunit.extensibility.execution" Version="2.4.1" />-->
         <!--<PackageReference Include="xunit.assert" Version="2.4.1" />-->
     </ItemGroup>
     <ItemGroup>
@@ -68,4 +74,5 @@
         <Compile Remove="src\OmniLog\UseCaseTest.cs" />
         <Compile Remove="src\Flexo\ExpressionContextTest.cs" />
     </ItemGroup>
+    
 </Project>

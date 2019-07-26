@@ -18,7 +18,7 @@ namespace Reusable.IOnymous.Mail.Smtp
         public SmtpProvider(IImmutableContainer properties = default) : base(properties.ThisOrEmpty())
         {
             Methods =
-                MethodDictionary
+                MethodCollection
                     .Empty
                     .Add(RequestMethod.Post, PostAsync);
         }

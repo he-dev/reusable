@@ -18,7 +18,7 @@ namespace Reusable.IOnymous
         public PhysicalFileProvider(IImmutableContainer properties = default) : base(properties.ThisOrEmpty().SetScheme("file"))
         {
             Methods =
-                MethodDictionary
+                MethodCollection
                     .Empty
                     .Add(RequestMethod.Get, GetAsync)
                     .Add(RequestMethod.Put, PutAsync)

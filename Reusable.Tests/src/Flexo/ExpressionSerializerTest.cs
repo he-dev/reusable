@@ -44,7 +44,7 @@ namespace Reusable.Tests.Flexo
         {
             var useCase = _helper.GetExpressions().Single(e => e.Name == useCaseName);
             var sth = new Something();
-            Assert.That.ExpressionEqual
+            ExpressionAssert.ExpressionEqual
             (
                 expected,
                 useCase,

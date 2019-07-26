@@ -13,13 +13,16 @@ namespace Reusable.Flawless
     public static class ValidationResultExtensions
     {
         /// <summary>
-        /// Throws a dynamic ValidationException when data is not valid or returns T.
+        /// Throws a dynamic ValidationException when data contains either errors or warnings, otherwise it returns T.
         /// </summary>
         public static T ThrowOnFailure<T>(this ValidationResultCollection<T> results)
         {
             return results.Failures().Any() ? throw results.CreateValidationException() : results;
         }
 
+        /// <summary>
+        /// Throws a dynamic ValidationException when data contains errors, otherwise it returns T.
+        /// </summary>
         public static T ThrowOnError<T>(this ValidationResultCollection<T> results)
         {
             return results.Errors().Any() ? throw results.CreateValidationException() : results;

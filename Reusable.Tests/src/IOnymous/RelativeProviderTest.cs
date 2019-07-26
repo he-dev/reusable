@@ -29,7 +29,7 @@ namespace Reusable.Tests.IOnymous
             
             mockProvider
                 .Arrange(x => x.Methods)
-                .Returns(MethodDictionary.Empty.Add(RequestMethod.Get, r => Resource.DoesNotExist.FromRequest(r).ToTask()));
+                .Returns(MethodCollection.Empty.Add(RequestMethod.Get, r => Resource.DoesNotExist.FromRequest(r).ToTask()));
             
 //            mockProvider
 //                .Arrange(x => x.Schemes)

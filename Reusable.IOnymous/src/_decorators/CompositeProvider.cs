@@ -44,9 +44,9 @@ namespace Reusable.IOnymous
 
             Methods =
                 _providers
-                    .SelectMany(x => x.Methods.Keys)
+                    .SelectMany(x => x.Methods.Select(y => y.Method))
                     .Distinct()
-                    .Aggregate(MethodDictionary.Empty, (current, next) => current.Add(next, InvokeAsync));
+                    .Aggregate(MethodCollection.Empty, (current, next) => current.Add(next, InvokeAsync));
         }
 
         public static CompositeProvider Empty => new CompositeProvider(ImmutableList<IResourceProvider>.Empty);

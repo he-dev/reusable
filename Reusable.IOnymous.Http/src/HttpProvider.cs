@@ -33,7 +33,7 @@ namespace Reusable.IOnymous.Http
             _client.DefaultRequestHeaders.Clear();
 
             Methods =
-                MethodDictionary
+                MethodCollection
                     .Empty
                     .Add(RequestMethod.Get, CreateRequestCallback(HttpMethod.Get))
                     .Add(RequestMethod.Post, CreateRequestCallback(HttpMethod.Post))
@@ -56,7 +56,7 @@ namespace Reusable.IOnymous.Http
             });
         }
 
-        private RequestCallback CreateRequestCallback(HttpMethod httpMethod)
+        private InvokeCallback CreateRequestCallback(HttpMethod httpMethod)
         {
             return async request =>
             {
@@ -79,7 +79,7 @@ namespace Reusable.IOnymous.Http
 
                 Properties.GetItemOrDefault(HttpRequestContext.ConfigureHeaders, _ => { })(request.Headers);
                 context.GetItemOrDefault(HttpRequestContext.ConfigureHeaders)(request.Headers);
-                using (var response = await _client.SendAsync(request, HttpCompletionOption.ResponseContentRead, context.GetItemOrDefault(RequestProperty.CancellationToken)))
+                using (var response = await _client.SendAsync(request, HttpCompletionOption.ResponseContentRead, context.GetItemOrDefault(RequestProperty.CancellationToken)).ConfigureAwait(false))
                 {
                     var responseContentCopy = new MemoryStream();
 
