@@ -15,13 +15,13 @@ namespace Reusable.Teapot
 
         public static IResponseBuilder Always(this IResponseBuilder response, int statusCode, object content)
         {
-            return response.Enqueue(request => new ResponseInfo(statusCode, content));
+            return response.Enqueue(request => new ResponseMock(statusCode, content));
         }
 
         public static IResponseBuilder Exactly(this IResponseBuilder response, int statusCode, object content, int count)
         {
             var counter = 0;
-            return response.Enqueue(request => counter++ < count ? new ResponseInfo(statusCode, content) : default);
+            return response.Enqueue(request => counter++ < count ? new ResponseMock(statusCode, content) : default);
         }
 
         public static IResponseBuilder Echo(this IResponseBuilder response)
@@ -30,7 +30,7 @@ namespace Reusable.Teapot
             {
                 var requestCopy = new MemoryStream();
                 request.Body.Rewind().CopyTo(requestCopy);
-                return new ResponseInfo(200, requestCopy);
+                return new ResponseMock(200, requestCopy);
             });
         }
     }

@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.IOnymous;
@@ -32,10 +33,10 @@ namespace Reusable.Tests.IOnymous.Http.Mailr
             {
                 var mailrMessagesTestMock =
                     teacup
-                        .Mock("/api/mailr/messages/test")
-                        .ArrangePost((request, response) =>
+                        .MockApi(HttpMethod.Post, "/api/mailr/messages/test")
+                        .ArrangeRequest(builder =>
                         {
-                            request
+                            builder
                                 .AcceptsHtml()
                                 .AsUserAgent("IOnymous", "1.0")
                                 //.WithApiVersion("1.0")
@@ -47,8 +48,10 @@ namespace Reusable.Tests.IOnymous.Http.Mailr
                                         //.HasProperty("$.From") // Boom! This property does not exist.
                                         .HasProperty("$.Body.Greeting");
                                 });
-
-                            response
+                        })
+                        .ArrangeResponse(builder =>
+                        {
+                            builder
                                 .Once(200, "OK!");
                         });
 
@@ -56,8 +59,8 @@ namespace Reusable.Tests.IOnymous.Http.Mailr
                 {
                     Body = new { Greeting = "Hallo Mailr!" }
                 };
-                
-                var html = await _http.SendEmailAsync("mailr/messages/test", new UserAgent("IOnymous", "1.0"),  email);
+
+                var html = await _http.SendEmailAsync("mailr/messages/test", new UserAgent("IOnymous", "1.0"), email);
 
                 Assert.Equal("OK!", html);
                 mailrMessagesTestMock.Assert();

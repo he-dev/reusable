@@ -1,15 +1,16 @@
 ﻿using System;
 using System.IO;
+using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using Reusable.IOnymous;
 
 namespace Reusable.Teapot
 {
-    public class RequestInfo : IDisposable
+    public class TeacupRequest : IDisposable
     {
         public UriString Uri { get; set; }
 
-        public SoftString Method { get; set; }
+        public HttpMethod Method { get; set; }
 
         public IHeaderDictionary Headers { get; set; }
 

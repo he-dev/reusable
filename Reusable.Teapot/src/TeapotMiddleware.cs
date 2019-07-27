@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
@@ -12,23 +13,23 @@ using HttpContext = Microsoft.AspNetCore.Http.HttpContext;
 
 namespace Reusable.Teapot
 {
-    public delegate void RequestAssertDelegate(RequestInfo request);
+    public delegate void RequestAssertDelegate(TeacupRequest teacupRequest);
 
     [CanBeNull]
-    public delegate Func<HttpRequest, ResponseInfo> ResponseDelegate(UriString path, SoftString method);
+    public delegate Func<HttpRequest, ResponseMock> CreateResponseMockDelegate(HttpMethod method, UriString path);
 
     [UsedImplicitly]
     internal class TeapotMiddleware
     {
         private readonly RequestDelegate _next;
         private readonly RequestAssertDelegate _requestAssert;
-        private readonly ResponseDelegate _nextResponse;
+        private readonly CreateResponseMockDelegate _nextCreateResponseMock;
 
-        public TeapotMiddleware(RequestDelegate next, RequestAssertDelegate requestAssert, ResponseDelegate nextResponse)
+        public TeapotMiddleware(RequestDelegate next, RequestAssertDelegate requestAssert, CreateResponseMockDelegate nextCreateResponseMock)
         {
             _next = next;
             _requestAssert = requestAssert;
-            _nextResponse = nextResponse;
+            _nextCreateResponseMock = nextCreateResponseMock;
         }
 
         public async Task Invoke(HttpContext context)
@@ -47,10 +48,10 @@ namespace Reusable.Teapot
 
                 var uri = context.Request.Path + context.Request.QueryString;
 
-                var request = new RequestInfo
+                var request = new TeacupRequest
                 {
                     Uri = uri,
-                    Method = context.Request.Method,
+                    Method = new HttpMethod(context.Request.Method),
                     // There is no copy-constructor.
                     Headers = new HeaderDictionary(context.Request.Headers.ToDictionary(x => x.Key, x => x.Value)),
                     ContentLength = context.Request.ContentLength,
@@ -64,7 +65,7 @@ namespace Reusable.Teapot
 
                 await _next(context);
 
-                var responseFactory = _nextResponse(uri, context.Request.Method);
+                var responseFactory = _nextCreateResponseMock(new HttpMethod(context.Request.Method), uri);
                 if (responseFactory is null)
                 {
                     context.Response.StatusCode = StatusCodes.Status404NotFound;

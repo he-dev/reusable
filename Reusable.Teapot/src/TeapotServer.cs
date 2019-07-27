@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore;
@@ -21,7 +24,7 @@ namespace Reusable.Teapot
         private readonly IDictionary<string, string> _data;
 
         private readonly IConfigurationSection UrlConfigurationSection;
-        
+
         public asdf()
         {
             _data = new Dictionary<string, string>
@@ -72,8 +75,7 @@ namespace Reusable.Teapot
     {
         private readonly IWebHost _host;
 
-        [CanBeNull]
-        private TeacupScope _teacup;
+        private readonly ConcurrentDictionary<Guid, IApiMockCollection> _teacups = new ConcurrentDictionary<Guid, IApiMockCollection>();
 
         public TeapotServer(string url)
         {
@@ -95,7 +97,7 @@ namespace Reusable.Teapot
                     .ConfigureServices(services =>
                     {
                         services.AddSingleton((RequestAssertDelegate)Assert);
-                        services.AddSingleton((ResponseDelegate)GetResponseFactory);
+                        services.AddSingleton((CreateResponseMockDelegate)GetResponseFactory);
                     })
                     .Configure(app =>
                     {
@@ -113,26 +115,48 @@ namespace Reusable.Teapot
 
         public Task Task { get; set; }
 
-        public ITeacupScope BeginScope() => (_teacup = new TeacupScope(Disposable.Create(() => _teacup = null)));
-
-        private void Assert(RequestInfo request)
+        public IApiMockCollection BeginScope()
         {
-            if (_teacup is null) throw new InvalidOperationException($"Cannot get response without scope. Call '{nameof(BeginScope)}' first.");
-
-            _teacup.Assert(request);
+            return _teacups.GetOrAdd(Guid.NewGuid(), id =>
+            {
+                return new ApiMockCollection(Disposable.Create(() =>
+                {
+                    if (_teacups.TryRemove(id, out var teacup))
+                    {
+                        teacup.Dispose();
+                    }
+                }));
+            });
         }
 
-        private Func<HttpRequest, ResponseInfo> GetResponseFactory(UriString path, SoftString method)
+        private void Assert(TeacupRequest request)
         {
-            if (_teacup is null) throw new InvalidOperationException($"Cannot get response without scope. Call '{nameof(BeginScope)}' first.");
+            FindApiMock(request.Method, request.Uri)?.Assert(request);
+        }
 
-            return _teacup.GetResponseFactory(path, method);
+        private Func<HttpRequest, ResponseMock> GetResponseFactory(HttpMethod method, UriString uri)
+        {
+            return FindApiMock(method, uri)?.GetResponseFactory();
+        }
+
+        [CanBeNull]
+        private ApiMock FindApiMock(HttpMethod method, UriString uri)
+        {
+            if (_teacups.IsEmpty) throw new InvalidOperationException($"Cannot get response without scope. Call '{nameof(BeginScope)}' first.");
+            
+            var mocks =
+                from tc in _teacups.Values
+                from rm in tc
+                where rm.Method == method && rm.Uri == uri
+                select rm;
+            
+          return  mocks.FirstOrDefault();
         }
 
         public void Dispose()
         {
             _host.Dispose();
-            _teacup?.Dispose();
+            //_teacup?.Dispose();
         }
     }
 }

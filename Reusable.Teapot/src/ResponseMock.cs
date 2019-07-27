@@ -3,9 +3,9 @@ using JetBrains.Annotations;
 
 namespace Reusable.Teapot
 {
-    public class ResponseInfo : IDisposable
+    public class ResponseMock : IDisposable
     {
-        public ResponseInfo(int statusCode, object content)
+        public ResponseMock(int statusCode, object content)
         {
             StatusCode = statusCode;
             Content = content;
