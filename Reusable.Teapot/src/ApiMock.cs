@@ -10,6 +10,7 @@ using Reusable.IOnymous;
 
 namespace Reusable.Teapot
 {
+    // Represents a single api-mock.
     public class ApiMock
     {
         private readonly IRequestBuilder _request;
@@ -28,23 +29,26 @@ namespace Reusable.Teapot
 
         public UriString Uri { get; }
 
+        // Allows to configure request asserts.
         public ApiMock ArrangeRequest(Action<IRequestBuilder> configure)
         {
             configure(_request);
             return this;
         }
 
+        // Allows to configure responses.
         public ApiMock ArrangeResponse(Action<IResponseBuilder> configure)
         {
             configure(_response.Clear());
             return this;
         }
 
-        public void Assert(TeacupRequest request = default)
+        // Validates the request either as it arrives (not-null) or afterwards (null).
+        public void Assert(RequestCopy requestCopy = default)
         {
             try
             {
-                _request.Assert(request);
+                _request.Assert(requestCopy);
             }
             catch (Exception inner)
             {
@@ -52,6 +56,7 @@ namespace Reusable.Teapot
             }
         }
 
+        // Tries to get the nest response.
         public Func<HttpRequest, ResponseMock> GetResponseFactory()
         {
             return request => _response?.Next(request);

@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using System.Text.RegularExpressions;
+using System.Linq.Custom;
 using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
 using Reusable.Exceptionize;
@@ -15,47 +15,49 @@ namespace Reusable.Teapot
             var counter = 0;
             return builder.Add(request =>
             {
-                if (request is null)
+                if (request.CanShortCircuit())
                 {
-                    if (counter != exactly)
+                    if (++counter > exactly)
                     {
                         throw DynamicException.Create(nameof(Occurs), $"Api was called {counter} time(s) but expected {exactly}.");
                     }
                 }
                 else
                 {
-                    if (++counter > exactly)
+                    if (counter != exactly)
                     {
-                        throw DynamicException.Create(nameof(Occurs), $"Api called {counter} time(s) but expected {exactly}.");
+                        throw DynamicException.Create(nameof(Occurs), $"Api was called {counter} time(s) but expected {exactly}.");
                     }
                 }
             }, true);
         }
 
-        public static IRequestBuilder WithHeader(this IRequestBuilder builder, string header, params string[] expectedValue)
+        public static IRequestBuilder WithHeader(this IRequestBuilder builder, string header, params string[] expectedValues)
         {
-            //var expectedHeader = Regex.Replace(header, @"\-", string.Empty);
-
             return builder.Add(request =>
             {
-                if (request.Headers.TryGetValue(header, out var values))
+                if (request.CanShortCircuit())
                 {
-                    if (values.Intersect(expectedValue).Count() != expectedValue.Count())
+                    if (request.Headers.TryGetValue(header, out var actualValues))
+                    {
+                        if (actualValues.Intersect(expectedValues).Count() != expectedValues.Count())
+                        {
+                            throw DynamicException.Create
+                            (
+                                "DifferentHeader",
+                                $"Expected: [{expectedValues.Join(", ")}]{Environment.NewLine}" +
+                                $"Actual:   [{actualValues.Join(", ")}]"
+                            );
+                        }
+                    }
+                    else
                     {
                         throw DynamicException.Create
                         (
-                            "DifferentHeaderValue",
-                            $"Header '{header}' has different values."
+                            "HeaderNotFound",
+                            $"Header '{header}' is missing."
                         );
                     }
-                }
-                else
-                {
-                    throw DynamicException.Create
-                    (
-                        "HeaderNotFound",
-                        $"Header '{header}' is missing."
-                    );
                 }
             }, false);
         }
@@ -64,14 +66,12 @@ namespace Reusable.Teapot
 
         public static IRequestBuilder WithContentType(this IRequestBuilder builder, string mediaType) => builder.WithHeader("Content-Type", mediaType);
 
-        public static IRequestBuilder WithContentTypeJson(this IRequestBuilder builder, Action<IContentAssert<JToken>> contentAssert)
+        public static IRequestBuilder WithContentTypeJson(this IRequestBuilder builder, Action<ContentSection<JToken>> contentAssert)
         {
-            //assert.WithHeader("Content-Type", "application/json; charset=utf-8");
-
             return builder.Add(request =>
             {
                 var content = request.DeserializeAsJToken();
-                contentAssert(new ContentAssert<JToken>(content));
+                contentAssert(ContentSection.FromJToken(content));
             }, false);
         }
 
@@ -84,87 +84,5 @@ namespace Reusable.Teapot
         public static IRequestBuilder AcceptsHtml(this IRequestBuilder builder) => builder.Accepts("text/html");
     }
 
-    public interface IContentAssert<out TContent>
-    {
-        [CanBeNull]
-        TContent Value { get; }
-
-        string Path { get; }
-    }
-
-    internal class ContentAssert<TContent> : IContentAssert<TContent>
-    {
-        public ContentAssert(TContent value) => Value = value;
-
-        public TContent Value { get; }
-
-        public string Path { get; set; }
-    }
-
-
-    public static class ContentAssertExtensions
-    {
-        #region JToken 
-
-        [NotNull]
-        public static IContentAssert<JValue> Value(this IContentAssert<JToken> content, string jsonPath)
-        {
-            if (content.Value is null)
-            {
-                throw DynamicException.Create("ContentNull", "There is no content.");
-            }
-
-            return
-                content.Value.SelectToken(jsonPath) is JValue value
-                    ? new ContentAssert<JValue>(value) { Path = jsonPath }
-                    : throw DynamicException.Create("ContentPropertyNotFound", $"There is no such property as '{jsonPath}'");
-        }
-        
-        [NotNull]
-        public static IContentAssert<JToken> HasProperty(this IContentAssert<JToken> content, string jsonPath)
-        {
-            if (content.Value is null)
-            {
-                throw DynamicException.Create("ContentNull", "There is no content.");
-            }
-
-            return
-                content.Value.SelectToken(jsonPath) != null
-                    ? content
-                    : throw DynamicException.Create("ContentPropertyNotFound", $"There is no such property as '{jsonPath}'");
-        }
-
-        #endregion
-
-        #region JValue
-
-        [NotNull]
-        public static IContentAssert<JValue> IsNotNull(this IContentAssert<JValue> content)
-        {
-            return
-                content.Value is null
-                    ? throw DynamicException.Create("ValueNull", $"Selected property value at '{content.Path}' is null.")
-                    : content;
-        }
-
-        [NotNull]
-        public static IContentAssert<JValue> IsEqual(this IContentAssert<JValue> content, object expected)
-        {
-            return
-                content.Value?.Equals(new JValue(expected)) == true
-                    ? content
-                    : throw DynamicException.Create("ValueNotEqual", $"Selected property value at '{content.Path}' is '{content.Value}' but should be '{expected}'.");
-        }
-
-        [NotNull]
-        public static IContentAssert<JValue> IsLike(this IContentAssert<JValue> content, [RegexPattern] string pattern, RegexOptions options = RegexOptions.IgnoreCase)
-        {
-            return
-                Regex.IsMatch(content.Value?.Value<string>() ?? string.Empty, pattern, options)
-                    ? content
-                    : throw DynamicException.Create("ValueNotLike", $"Selected property value at '{content.Path}' is '{content.Value}' but should be like '{pattern}'.");
-        }
-
-        #endregion        
-    }
+    
 }

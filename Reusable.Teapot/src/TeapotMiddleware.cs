@@ -13,7 +13,7 @@ using HttpContext = Microsoft.AspNetCore.Http.HttpContext;
 
 namespace Reusable.Teapot
 {
-    public delegate void RequestAssertDelegate(TeacupRequest teacupRequest);
+    public delegate void RequestAssertDelegate(RequestCopy requestCopy);
 
     [CanBeNull]
     public delegate Func<HttpRequest, ResponseMock> ResponseMockDelegate(HttpMethod method, UriString path);
@@ -42,26 +42,26 @@ namespace Reusable.Teapot
             try
             {
                 var uri = context.Request.Path + context.Request.QueryString;
-                
-                // We'll need this later to restore the body so don't dispose.
+
+                // You need this later to restore the body so don't dispose it.
                 var bodyBackup = new MemoryStream();
 
-                // It needs to be copied because the original stream does not support seeking.
+                // You copy it because the original stream does not support seeking.
                 await context.Request.Body.CopyToAsync(bodyBackup);
 
-                // Each log gets it's own request copy. It's easier to dispose them later.
+                // You copy the request because otherwise it won't pass the "barrier" between the middleware and the assert.
                 using (var bodyCopy = new MemoryStream())
                 {
                     await bodyBackup.Rewind().CopyToAsync(bodyCopy);
-                    
-                    var request = new TeacupRequest
+
+                    var request = new RequestCopy
                     {
                         Uri = uri,
                         Method = new HttpMethod(context.Request.Method),
                         // There is no copy-constructor.
                         Headers = new HeaderDictionary(context.Request.Headers.ToDictionary(x => x.Key, x => x.Value)),
                         ContentLength = context.Request.ContentLength,
-                        ContentCopy = bodyCopy
+                        Content = bodyCopy
                     };
 
                     _requestAssert(request);
@@ -84,6 +84,8 @@ namespace Reusable.Teapot
                         context.Response.StatusCode = response.StatusCode;
                         context.Response.ContentType = response.ContentType;
 
+                        // Let's see what kind of content we got and handle it appropriately...
+
                         if (response.ContentType == MimeType.Plain)
                         {
                             await context.Response.WriteAsync((string)response.Content);
@@ -101,17 +103,20 @@ namespace Reusable.Teapot
                     }
                 }
             }
-            catch (DynamicException clientEx)
+            catch (Exception ex)
             {
-                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                if (ex is DynamicException dex && dex.NameMatches("AssertException"))
+                {
+                    // "Response status code does not indicate success: 418 (I'm a teapot)."
+                    context.Response.StatusCode = StatusCodes.Status418ImATeapot; // <-- I find this one funny. 
+                }
+                else
+                {
+                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                }
+
                 context.Response.ContentType = MimeType.Plain;
-                await context.Response.WriteAsync(clientEx.ToString());
-            }
-            catch (Exception serverEx)
-            {
-                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                context.Response.ContentType = MimeType.Plain;
-                await context.Response.WriteAsync(serverEx.ToString());
+                await context.Response.WriteAsync(ex.ToString()); // <-- dump the exception to the response stream.
             }
         }
     }

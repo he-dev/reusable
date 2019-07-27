@@ -7,7 +7,7 @@ using Reusable.IOnymous.Http.Mailr.Models;
 
 namespace Reusable.IOnymous.Http.Mailr
 {
-    public static class MailrProviderExtensions
+    public static class HttpProviderExtensions
     {
         /// <summary>
         /// Uses #Mailr
@@ -49,20 +49,6 @@ namespace Reusable.IOnymous.Http.Mailr
             {
                 return await response.DeserializeTextAsync();
             }
-
-//            using (var response = await provider.PostAsync(uri, () => ResourceHelper.SerializeAsJsonAsync(email, jsonSerializer), properties))
-//            {
-//                return await response.DeserializeTextAsync();
-//            }
         }
-    }
-
-    public interface IMailrProperties
-    {
-        object Body { get; }
-
-        string ProductName { get; }
-
-        string ProductVersion { get; }
     }
 }

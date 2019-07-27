@@ -30,12 +30,10 @@ namespace Reusable.Teapot
         {
             var configuration =
                 new ConfigurationBuilder()
-                    //.SetBasePath(contentRootPath)
-                    //.AddJsonFile("hosting.json", optional: true, reloadOnChange: true)
-                    //.AddJsonFile("appSettings.json", optional: true, reloadOnChange: true)
+                    // Tests can use their own urls so let's not use hosting.json but in-memory-collection
                     .AddInMemoryCollection(new Dictionary<string, string>
                     {
-                        ["urls"] = url //"http://localhost:30002"
+                        ["urls"] = url // <-- this is the only way that works with Kestrel
                     })
                     .Build();
 
@@ -45,33 +43,31 @@ namespace Reusable.Teapot
                     .UseConfiguration(configuration)
                     .ConfigureServices(services =>
                     {
+                        // Allows to validate requests as they arrive.
                         services.AddSingleton((RequestAssertDelegate)Assert);
+                        // Allows to provide custom responses for each request.
                         services.AddSingleton((ResponseMockDelegate)GetResponseFactory);
                     })
                     .Configure(app =>
                     {
-                        //app.UsePathBase(url);
                         app.UseMiddleware<TeapotMiddleware>();
                     })
-                    //.UseStartup<TeapotStartup>()
                     .Build();
 
-            Task = _host.StartAsync();
-            //_host.RunAsync();//.GetAwaiter().GetResult();
-            //_host.StartAsync().GetAwaiter().GetResult();
-            //_host.StartAsync().GetAwaiter().GetResult();
+            _host.StartAsync().GetAwaiter().GetResult(); // <-- asp.net-core TestServer is doing this too.
         }
 
-        public Task Task { get; set; }
+        //public Task Task { get; set; } // <-- I think I don't need this anymore...
 
+        // Creates a new server-context that separates api-mocks.
         public ITeapotServerContext BeginScope()
         {
             return _serverContexts.GetOrAdd(Guid.NewGuid(), id => new TeapotServerContext(Disposable.Create(() => _serverContexts.TryRemove(id, out _))));
         }
 
-        private void Assert(TeacupRequest request)
+        private void Assert(RequestCopy requestCopy)
         {
-            FindApiMock(request.Method, request.Uri)?.Assert(request);
+            FindApiMock(requestCopy.Method, requestCopy.Uri)?.Assert(requestCopy);
         }
 
         private Func<HttpRequest, ResponseMock> GetResponseFactory(HttpMethod method, UriString uri)
@@ -79,10 +75,11 @@ namespace Reusable.Teapot
             return FindApiMock(method, uri)?.GetResponseFactory();
         }
 
+        // Finds an api-mock that should handle the current request.
         [CanBeNull]
         private ApiMock FindApiMock(HttpMethod method, UriString uri)
         {
-            if (_serverContexts.IsEmpty) throw new InvalidOperationException($"Cannot get response without scope. Call '{nameof(BeginScope)}' first.");
+            if (_serverContexts.IsEmpty) throw new InvalidOperationException($"Cannot get response without a server-context. Call '{nameof(BeginScope)}' first.");
 
             var mocks =
                 from tc in _serverContexts.Values
@@ -97,7 +94,6 @@ namespace Reusable.Teapot
         {
             _host.StopAsync().GetAwaiter().GetResult();
             _host.Dispose();
-            //_teacup?.Dispose();
         }
     }
 }

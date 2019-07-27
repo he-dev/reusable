@@ -12,28 +12,27 @@ using Xunit;
 
 namespace Reusable.Tests.IOnymous.Http.Mailr
 {
-    public class UseCaseTest : IDisposable, IClassFixture<TeapotServerFixture>
+    public class HttpProviderExtensionsTest : IDisposable, IClassFixture<TeapotServerFixture>
     {
         private readonly ITeapotServerContext _serverContext;
 
         private readonly IResourceProvider _http;
 
-        public UseCaseTest(TeapotServerFixture teapotServerFixture)
+        public HttpProviderExtensionsTest(TeapotServerFixture teapotServerFixture)
         {
             _serverContext = teapotServerFixture.GetServer("http://localhost:30002").BeginScope();
             _http = HttpProvider.FromBaseUri("http://localhost:30002/api");
         }
 
         [Fact]
-        public async Task Can_post_email_and_receive_html()
+        public async Task Can_send_email_and_receive_html()
         {
             _serverContext
-                .MockApi(HttpMethod.Post, "/api/mailr/messages/test")
-                .ArrangeRequest(builder =>
+                .MockPost("/api/mailr/messages/test", request =>
                 {
-                    builder
+                    request
                         .AcceptsHtml()
-                        .AsUserAgent("IOnymous", "1.0")
+                        .AsUserAgent("xunit", "1.0")
                         //.WithApiVersion("1.0")
                         .WithContentTypeJson(content =>
                         {
@@ -55,23 +54,11 @@ namespace Reusable.Tests.IOnymous.Http.Mailr
                 Body = new { Greeting = "Hallo Mailr!" }
             };
 
-            var html = await _http.SendEmailAsync("mailr/messages/test", new UserAgent("IOnymous", "1.0"), email);
+            var html = await _http.SendEmailAsync("mailr/messages/test", new UserAgent("xunit", "1.0"), email);
 
             Assert.Equal("OK!", html);
             _serverContext.Assert();
         }
-
-//        [Fact]
-//        public async Task SendAsync_ToSelf_GotEmail()
-//        {
-////            var content = Email.CreateHtml("...@gmail.com", "Testmail", new { Greeting = "Hallo Mailr!" }, email => email.CanSend = false);
-////            var response = await _http.SendAsync
-////            (
-////                "mailr/messages/test",
-////                content,
-////                metadata: ResourceMetadata.Empty.ConfigureRequestHeaders(headers => headers.UserAgent("MailrNET.Tests", "3.0"))
-////            );
-//        }
 
         public void Dispose()
         {

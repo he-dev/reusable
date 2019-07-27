@@ -13,7 +13,7 @@ namespace Reusable.Teapot
 
         void Assert();
     }
-    
+
     internal class TeapotServerContext : List<ApiMock>, ITeapotServerContext
     {
         private readonly IDisposable _disposer;
@@ -46,6 +46,25 @@ namespace Reusable.Teapot
         public void Dispose()
         {
             _disposer.Dispose();
+        }
+    }
+
+    public static class TeapotServerContextExtensions
+    {
+        public static ApiMock MockGet(this ITeapotServerContext context, string uri, Action<IRequestBuilder> configureRequest)
+        {
+            return
+                context
+                    .MockApi(HttpMethod.Get, uri)
+                    .ArrangeRequest(configureRequest);
+        }
+        
+        public static ApiMock MockPost(this ITeapotServerContext context, string uri, Action<IRequestBuilder> configureRequest)
+        {
+            return
+                context
+                    .MockApi(HttpMethod.Post, uri)
+                    .ArrangeRequest(configureRequest);
         }
     }
 }
