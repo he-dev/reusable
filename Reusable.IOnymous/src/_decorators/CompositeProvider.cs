@@ -51,6 +51,12 @@ namespace Reusable.IOnymous
 
         public static CompositeProvider Empty => new CompositeProvider(ImmutableList<IResourceProvider>.Empty);
 
+        public IEnumerable<ResourceProviderFilterCallback> Filters { get; set; } = new ResourceProviderFilterCallback[]
+        {
+            ResourceProviderFilters.FilterByName,
+            ResourceProviderFilters.FilterByScheme
+        };
+
         public override async Task<IResource> InvokeAsync(Request request)
         {
             var providerKey = request.Uri.ToString();
@@ -64,25 +70,12 @@ namespace Reusable.IOnymous
                     return await cached.InvokeAsync(request);
                 }
 
-                var filteredProviders = _providers.AsEnumerable();
-
-                // When provider-name is specified then filter them by name first.
-                if (request.Context.GetNames().Any()) // this means there is a custom name
-                {
-                    filteredProviders = filteredProviders.Where(p => p.Properties.GetNames().Overlaps(request.Context.GetNames()));
-                }
-
-                // Check if there is a provider that matches the scheme of the absolute uri.
-                if (request.Uri.IsAbsolute && !(request.Uri.Scheme == UriSchemes.Custom.IOnymous))
-                {
-                    var schemes = new[] { UriSchemes.Custom.IOnymous, request.Uri.Scheme };
-                    filteredProviders = filteredProviders.Where(p => p.Properties.GetSchemes().Overlaps(schemes));
-                }
+                var filtered = Filters.Aggregate(_providers.AsEnumerable(), (providers, filter) => filter(providers, request));
 
                 // GET can search multiple providers.
                 if (request.Method == RequestMethod.Get)
                 {
-                    foreach (var provider in filteredProviders)
+                    foreach (var provider in filtered)
                     {
                         if (await provider.InvokeAsync(request) is var resource && resource.Exists)
                         {
@@ -96,7 +89,7 @@ namespace Reusable.IOnymous
                 // Other methods are allowed to use only a single provider.
                 else
                 {
-                    var match = _providerCache[providerKey] = filteredProviders.SingleOrThrow();
+                    var match = _providerCache[providerKey] = filtered.SingleOrThrow();
                     return await match.InvokeAsync(request);
                 }
             }
@@ -123,4 +116,6 @@ namespace Reusable.IOnymous
 
         #endregion
     }
+
+    
 }

@@ -70,8 +70,6 @@ namespace Reusable.IOnymous
 
         public MethodCollection Methods { get; protected set; }
 
-        //public bool Can(RequestMethod method) => Methods.ContainsKey(method);
-
         public virtual async Task<IResource> InvokeAsync(Request request)
         {
             if (Methods is null)
@@ -125,18 +123,18 @@ namespace Reusable.IOnymous
 
         public class Decorator : IResourceProvider
         {
-            public Decorator(IResourceProvider provider)
+            public Decorator(IResourceProvider instance)
             {
-                Provider = provider;
+                Instance = instance;
             }
 
-            protected IResourceProvider Provider { get; }
+            protected IResourceProvider Instance { get; }
 
-            public virtual IImmutableContainer Properties => Provider.Properties;
+            public virtual IImmutableContainer Properties => Instance.Properties;
 
-            public virtual MethodCollection Methods => Provider.Methods;
+            public virtual MethodCollection Methods => Instance.Methods;
 
-            public virtual Task<IResource> InvokeAsync(Request request) => Provider.InvokeAsync(request);
+            public virtual Task<IResource> InvokeAsync(Request request) => Instance.InvokeAsync(request);
 
             public virtual void Dispose() { }
         }
@@ -158,7 +156,7 @@ namespace Reusable.IOnymous
     {
         private readonly string _name;
 
-        public UseProvider(IResourceProvider provider, string name) : base(provider)
+        public UseProvider(IResourceProvider instance, string name) : base(instance)
         {
             _name = name;
         }

@@ -55,42 +55,54 @@ namespace Reusable.Beaver
         public void SaveAsDefaults() => _dirty.Clear();
     }
 
-    public class FeatureOptionFallback : IFeatureOptionRepository
+    public abstract class FeatureOptionRepositoryDecorator : IFeatureOptionRepository
     {
-        private readonly IFeatureOptionRepository _options;
+        protected FeatureOptionRepositoryDecorator(IFeatureOptionRepository instance)
+        {
+            Instance = instance;
+        }
+
+        protected IFeatureOptionRepository Instance { get; }
+
+        public virtual FeatureOption this[string name]
+        {
+            get => Instance[name];
+            set => Instance[name] = value;
+        }
+
+        public virtual bool IsDirty(string name) => Instance.IsDirty(name);
+
+        public virtual void SaveAsDefaults() => Instance.SaveAsDefaults();
+    }
+
+    public class FeatureOptionFallback : FeatureOptionRepositoryDecorator
+    {
         private readonly FeatureOption _defaultOption;
 
-        public FeatureOptionFallback(IFeatureOptionRepository options, FeatureOption defaultOption)
+        public FeatureOptionFallback(IFeatureOptionRepository options, FeatureOption defaultOption) : base(options)
         {
-            _options = options;
             _defaultOption = defaultOption;
         }
 
-        public FeatureOption this[string name]
+        public override FeatureOption this[string name]
         {
-            get => _options[name] is var option && option == FeatureOption.None ? _defaultOption : option;
-            set => _options[name] = value;
+            get => Instance[name] is var option && option == FeatureOption.None ? _defaultOption : option;
+            set => Instance[name] = value;
         }
-
-        public bool IsDirty(string name) => _options.IsDirty(name);
-
-        public void SaveAsDefaults() => _options.SaveAsDefaults();
     }
 
-    public class FeatureOptionLock : IFeatureOptionRepository
+    public class FeatureOptionLock : FeatureOptionRepositoryDecorator
     {
-        private readonly IFeatureOptionRepository _options;
         private readonly IImmutableSet<string> _lockedFeatures;
 
-        public FeatureOptionLock(IFeatureOptionRepository options, IEnumerable<string> lockedFeatures, IEqualityComparer<string> comparer = default)
+        public FeatureOptionLock(IFeatureOptionRepository options, IEnumerable<string> lockedFeatures, IEqualityComparer<string> comparer = default) : base(options)
         {
-            _options = options;
             _lockedFeatures = lockedFeatures.ToImmutableHashSet(comparer ?? SoftString.Comparer);
         }
 
-        public FeatureOption this[string name]
+        public override FeatureOption this[string name]
         {
-            get => _options[name];
+            get => Instance[name];
             set
             {
                 if (_lockedFeatures.Contains(name))
@@ -98,13 +110,9 @@ namespace Reusable.Beaver
                     throw new InvalidOperationException($"Cannot set feature '{name}' option because it's locked.");
                 }
 
-                _options[name] = value;
+                Instance[name] = value;
             }
         }
-
-        public bool IsDirty(string name) => _options.IsDirty(name);
-
-        public void SaveAsDefaults() => _options.SaveAsDefaults();
     }
 
     [PublicAPI]

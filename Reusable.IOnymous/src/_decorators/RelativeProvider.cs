@@ -19,7 +19,11 @@ namespace Reusable.IOnymous
         {
             _baseUri = baseUri ?? throw new ArgumentNullException(nameof(baseUri));
 
-            Methods = provider.Methods.Aggregate(MethodCollection.Empty, (current, next) => current.Add(next.Method, request => next.InvokeCallback(request.Copy(c => c.Uri = Prefix(c.Uri)))));
+            Methods = provider.Methods.Aggregate
+            (
+                MethodCollection.Empty,
+                (current, next) => current.Add(next.Method, request => next.InvokeCallback(request.Copy(c => c.Uri = Prefix(c.Uri))))
+            );
         }
 
         public static Func<IResourceProvider, RelativeProvider> Factory(UriString baseUri)
