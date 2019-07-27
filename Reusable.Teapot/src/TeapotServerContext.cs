@@ -7,20 +7,20 @@ using Reusable.IOnymous;
 
 namespace Reusable.Teapot
 {
-    public interface IApiMockCollection : IEnumerable<ApiMock>, IDisposable
+    public interface ITeapotServerContext : IEnumerable<ApiMock>, IDisposable
     {
         ApiMock MockApi(HttpMethod method, UriString uri);
 
         void Assert();
     }
     
-    internal class ApiMockCollection : List<ApiMock>, IApiMockCollection
+    internal class TeapotServerContext : List<ApiMock>, ITeapotServerContext
     {
-        private readonly IDisposable _disposable;
+        private readonly IDisposable _disposer;
 
-        public ApiMockCollection(IDisposable disposable)
+        public TeapotServerContext(IDisposable disposer)
         {
-            _disposable = disposable;
+            _disposer = disposer;
         }
 
         public ApiMock MockApi(HttpMethod method, UriString uri)
@@ -29,14 +29,6 @@ namespace Reusable.Teapot
             Add(mock);
             return mock;
         }
-
-//        public void Assert(TeacupRequest teacupRequest)
-//        {
-//            foreach (var mock in _mocks.Where(m => m.Uri == teacupRequest.Uri))
-//            {
-//                mock.Assert(teacupRequest);
-//            }
-//        }
 
         public void Assert()
         {
@@ -53,12 +45,7 @@ namespace Reusable.Teapot
 
         public void Dispose()
         {
-            _disposable.Dispose();
-
-            foreach (var mock in this)
-            {
-                //mock.Dispose();
-            }
+            _disposer.Dispose();
         }
     }
 }

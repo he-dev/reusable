@@ -5,6 +5,7 @@ using System.Linq.Custom;
 using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
+using Reusable.Exceptionize;
 using Reusable.IOnymous;
 
 namespace Reusable.Teapot
@@ -19,8 +20,8 @@ namespace Reusable.Teapot
             Method = method;
             Uri = uri;
 
-            _request = new RequestBuilder(method, uri);
-            _response = new ResponseBuilder(method, uri).Always(200, new { Message = "OK" });
+            _request = new RequestBuilder();
+            _response = new ResponseBuilder().Always(200, new { Message = "OK" }, MimeType.Json);
         }
 
         public HttpMethod Method { get; }
@@ -39,33 +40,21 @@ namespace Reusable.Teapot
             return this;
         }
 
-        public void Assert(TeacupRequest request)
+        public void Assert(TeacupRequest request = default)
         {
-            _request.Assert(request);
-        }
-
-        public void Assert()
-        {
-            _request.Assert(default);
-            //_response.Assert(default);
+            try
+            {
+                _request.Assert(request);
+            }
+            catch (Exception inner)
+            {
+                throw DynamicException.Create("Assert", $"{Method} {Uri}", inner);
+            }
         }
 
         public Func<HttpRequest, ResponseMock> GetResponseFactory()
         {
             return request => _response?.Next(request);
         }
-    }
-
-    public static class RequestMockExtensions
-    {
-//        public static RequestMock ArrangeRequest(this RequestMock requestMock, Action<IRequestBuilder> configure)
-//        {
-//            return requestMock.Arrange("GET", configure);
-//        }
-//        
-//        public static RequestMock ArrangeResponse(this RequestMock requestMock, Action<IResponseBuilder> configure)
-//        {
-//            return requestMock.Arrange("GET", configure);
-//        }
     }
 }

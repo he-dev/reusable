@@ -5,16 +5,19 @@ namespace Reusable.Teapot
 {
     public class ResponseMock : IDisposable
     {
-        public ResponseMock(int statusCode, object content)
+        public ResponseMock(int statusCode, object content, string contentType)
         {
             StatusCode = statusCode;
             Content = content;
+            ContentType = contentType;
         }
 
         public int StatusCode { get; }
 
         [CanBeNull]
         public object Content { get; }
+
+        public string ContentType { get; }
 
         public void Dispose()
         {

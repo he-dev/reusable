@@ -19,63 +19,12 @@ using Reusable.IOnymous;
 
 namespace Reusable.Teapot
 {
-    class asdf : IConfiguration
-    {
-        private readonly IDictionary<string, string> _data;
-
-        private readonly IConfigurationSection UrlConfigurationSection;
-
-        public asdf()
-        {
-            _data = new Dictionary<string, string>
-            {
-                ["urls"] = "http://localhost:30002"
-            };
-
-            UrlConfigurationSection = new ConfigurationSection(new ConfigurationRoot(new List<IConfigurationProvider>
-            {
-                new MemoryConfigurationProvider(new MemoryConfigurationSource()
-                {
-                    InitialData = _data
-                })
-            }), "urls");
-        }
-
-
-        public IConfigurationSection GetSection(string key)
-        {
-            return UrlConfigurationSection;
-        }
-
-        public IEnumerable<IConfigurationSection> GetChildren()
-        {
-            yield return new ConfigurationSection(new ConfigurationRoot(new List<IConfigurationProvider>
-            {
-                new MemoryConfigurationProvider(new MemoryConfigurationSource()
-                {
-                    InitialData = _data
-                })
-            }), "urls");
-        }
-
-        public IChangeToken GetReloadToken()
-        {
-            return NullChangeToken.Singleton;
-        }
-
-        public string this[string key]
-        {
-            get => _data[key];
-            set => throw new NotImplementedException();
-        }
-    }
-
     [PublicAPI]
     public class TeapotServer : IDisposable
     {
         private readonly IWebHost _host;
 
-        private readonly ConcurrentDictionary<Guid, IApiMockCollection> _teacups = new ConcurrentDictionary<Guid, IApiMockCollection>();
+        private readonly ConcurrentDictionary<Guid, ITeapotServerContext> _serverContexts = new ConcurrentDictionary<Guid, ITeapotServerContext>();
 
         public TeapotServer(string url)
         {
@@ -97,7 +46,7 @@ namespace Reusable.Teapot
                     .ConfigureServices(services =>
                     {
                         services.AddSingleton((RequestAssertDelegate)Assert);
-                        services.AddSingleton((CreateResponseMockDelegate)GetResponseFactory);
+                        services.AddSingleton((ResponseMockDelegate)GetResponseFactory);
                     })
                     .Configure(app =>
                     {
@@ -115,18 +64,9 @@ namespace Reusable.Teapot
 
         public Task Task { get; set; }
 
-        public IApiMockCollection BeginScope()
+        public ITeapotServerContext BeginScope()
         {
-            return _teacups.GetOrAdd(Guid.NewGuid(), id =>
-            {
-                return new ApiMockCollection(Disposable.Create(() =>
-                {
-                    if (_teacups.TryRemove(id, out var teacup))
-                    {
-                        teacup.Dispose();
-                    }
-                }));
-            });
+            return _serverContexts.GetOrAdd(Guid.NewGuid(), id => new TeapotServerContext(Disposable.Create(() => _serverContexts.TryRemove(id, out _))));
         }
 
         private void Assert(TeacupRequest request)
@@ -142,19 +82,20 @@ namespace Reusable.Teapot
         [CanBeNull]
         private ApiMock FindApiMock(HttpMethod method, UriString uri)
         {
-            if (_teacups.IsEmpty) throw new InvalidOperationException($"Cannot get response without scope. Call '{nameof(BeginScope)}' first.");
-            
+            if (_serverContexts.IsEmpty) throw new InvalidOperationException($"Cannot get response without scope. Call '{nameof(BeginScope)}' first.");
+
             var mocks =
-                from tc in _teacups.Values
+                from tc in _serverContexts.Values
                 from rm in tc
                 where rm.Method == method && rm.Uri == uri
                 select rm;
-            
-          return  mocks.FirstOrDefault();
+
+            return mocks.FirstOrDefault();
         }
 
         public void Dispose()
         {
+            _host.StopAsync().GetAwaiter().GetResult();
             _host.Dispose();
             //_teacup?.Dispose();
         }

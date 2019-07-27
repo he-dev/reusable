@@ -19,14 +19,14 @@ namespace Reusable.Teapot
                 {
                     if (counter != exactly)
                     {
-                        throw DynamicException.Create(nameof(Occurs), $"Resource {builder.Uri} was requested {counter} time(s) but expected {exactly}.");
+                        throw DynamicException.Create(nameof(Occurs), $"Api was called {counter} time(s) but expected {exactly}.");
                     }
                 }
                 else
                 {
                     if (++counter > exactly)
                     {
-                        throw DynamicException.Create(nameof(Occurs), $"Resource {builder.Uri} was requested {counter} time(s) but expected {exactly}.");
+                        throw DynamicException.Create(nameof(Occurs), $"Api called {counter} time(s) but expected {exactly}.");
                     }
                 }
             }, true);

@@ -8,20 +8,20 @@ namespace Reusable.Teapot
     [PublicAPI]
     public static class ResponseBuilderExtensions
     {
-        public static IResponseBuilder Once(this IResponseBuilder response, int statusCode, object content)
+        public static IResponseBuilder Once(this IResponseBuilder response, int statusCode, object content, string contentType = default)
         {
-            return response.Exactly(statusCode, content, 1);
+            return response.Exactly(statusCode, content, content.DetermineContentType(contentType), 1);
         }
 
-        public static IResponseBuilder Always(this IResponseBuilder response, int statusCode, object content)
+        public static IResponseBuilder Always(this IResponseBuilder response, int statusCode, object content, string contentType = default)
         {
-            return response.Enqueue(request => new ResponseMock(statusCode, content));
+            return response.Enqueue(request => new ResponseMock(statusCode, content, content.DetermineContentType(contentType)));
         }
 
-        public static IResponseBuilder Exactly(this IResponseBuilder response, int statusCode, object content, int count)
+        public static IResponseBuilder Exactly(this IResponseBuilder response, int statusCode, object content, string contentType, int count)
         {
             var counter = 0;
-            return response.Enqueue(request => counter++ < count ? new ResponseMock(statusCode, content) : default);
+            return response.Enqueue(request => counter++ < count ? new ResponseMock(statusCode, content, contentType) : default);
         }
 
         public static IResponseBuilder Echo(this IResponseBuilder response)
@@ -30,8 +30,13 @@ namespace Reusable.Teapot
             {
                 var requestCopy = new MemoryStream();
                 request.Body.Rewind().CopyTo(requestCopy);
-                return new ResponseMock(200, requestCopy);
+                return new ResponseMock(200, requestCopy, MimeType.Binary);
             });
+        }
+
+        private static string DetermineContentType(this object content, string contentType)
+        {
+            return contentType ?? (content is string ? MimeType.Plain : MimeType.Json);
         }
     }
 }

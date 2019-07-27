@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Reusable.Tests.Teapot
 {
-    public class UseCaseTest : IClassFixture<TeapotFactoryFixture>
+    public class UseCaseTest : IClassFixture<TeapotServerFixture>
     {
         private const string BaseUri = "http://localhost:30001";
 
@@ -19,9 +19,9 @@ namespace Reusable.Tests.Teapot
 
         private readonly IResourceProvider _http;
 
-        public UseCaseTest(TeapotFactoryFixture teapotFactory)
+        public UseCaseTest(TeapotServerFixture teapotServer)
         {
-            _teapot = teapotFactory.CreateTeapotServer(BaseUri);
+            _teapot = teapotServer.GetServer(BaseUri);
             _http = HttpProvider.FromBaseUri($"{BaseUri}/api");
         }
 

@@ -12,12 +12,6 @@ namespace Reusable.Teapot
     public interface IResponseBuilder
     {
         [NotNull]
-        HttpMethod Method { get; }
-
-        [NotNull]
-        UriString Uri { get; }
-
-        [NotNull]
         ResponseBuilder Enqueue(Func<HttpRequest, ResponseMock> next);
 
         ResponseBuilder Clear();
@@ -29,17 +23,7 @@ namespace Reusable.Teapot
     public class ResponseBuilder : IResponseBuilder
     {
         private readonly Queue<Func<HttpRequest, ResponseMock>> _responses = new Queue<Func<HttpRequest, ResponseMock>>();
-
-        public ResponseBuilder(HttpMethod method, UriString uri)
-        {
-            Uri = uri;
-            Method = method;
-        }
-
-        public UriString Uri { get; }
-
-        public HttpMethod Method { get; }
-
+        
         public ResponseBuilder Enqueue(Func<HttpRequest, ResponseMock> next)
         {
             _responses.Enqueue(next);

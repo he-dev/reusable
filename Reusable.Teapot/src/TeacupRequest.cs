@@ -6,7 +6,7 @@ using Reusable.IOnymous;
 
 namespace Reusable.Teapot
 {
-    public class TeacupRequest : IDisposable
+    public class TeacupRequest
     {
         public UriString Uri { get; set; }
 
@@ -16,11 +16,6 @@ namespace Reusable.Teapot
 
         public long? ContentLength { get; set; }
 
-        public MemoryStream ContentCopy { get; set; }
-
-        public void Dispose()
-        {
-            ContentCopy?.Dispose();
-        }
+        public Stream ContentCopy { get; set; }
     }
 }

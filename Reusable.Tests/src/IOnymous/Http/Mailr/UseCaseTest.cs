@@ -12,59 +12,53 @@ using Xunit;
 
 namespace Reusable.Tests.IOnymous.Http.Mailr
 {
-    public class UseCaseTest : IDisposable, IClassFixture<TeapotFactoryFixture>
+    public class UseCaseTest : IDisposable, IClassFixture<TeapotServerFixture>
     {
-        private readonly TeapotServer _teapot;
+        private readonly ITeapotServerContext _serverContext;
 
         private readonly IResourceProvider _http;
 
-        public UseCaseTest(TeapotFactoryFixture teapotFactory)
+        public UseCaseTest(TeapotServerFixture teapotServerFixture)
         {
-            _teapot = teapotFactory.CreateTeapotServer("http://localhost:30002");
+            _serverContext = teapotServerFixture.GetServer("http://localhost:30002").BeginScope();
             _http = HttpProvider.FromBaseUri("http://localhost:30002/api");
         }
 
         [Fact]
         public async Task Can_post_email_and_receive_html()
         {
-            //await Task.Delay(1200);
-
-            using (var teacup = _teapot.BeginScope())
-            {
-                var mailrMessagesTestMock =
-                    teacup
-                        .MockApi(HttpMethod.Post, "/api/mailr/messages/test")
-                        .ArrangeRequest(builder =>
-                        {
-                            builder
-                                .AcceptsHtml()
-                                .AsUserAgent("IOnymous", "1.0")
-                                //.WithApiVersion("1.0")
-                                .WithContentTypeJson(json =>
-                                {
-                                    json
-                                        .HasProperty("$.To")
-                                        .HasProperty("$.Subject")
-                                        //.HasProperty("$.From") // Boom! This property does not exist.
-                                        .HasProperty("$.Body.Greeting");
-                                });
-                        })
-                        .ArrangeResponse(builder =>
-                        {
-                            builder
-                                .Once(200, "OK!");
-                        });
-
-                var email = new Email.Html(new[] { "myemail@mail.com" }, "Test-mail")
+            _serverContext
+                .MockApi(HttpMethod.Post, "/api/mailr/messages/test")
+                .ArrangeRequest(builder =>
                 {
-                    Body = new { Greeting = "Hallo Mailr!" }
-                };
+                    builder
+                        .AcceptsHtml()
+                        .AsUserAgent("IOnymous", "1.0")
+                        //.WithApiVersion("1.0")
+                        .WithContentTypeJson(content =>
+                        {
+                            content
+                                .HasProperty("$.To")
+                                .HasProperty("$.Subject")
+                                //.HasProperty("$.From") // Boom! This property does not exist.
+                                .HasProperty("$.Body.Greeting");
+                        });
+                })
+                .ArrangeResponse(builder =>
+                {
+                    builder
+                        .Once(200, "OK!");
+                });
 
-                var html = await _http.SendEmailAsync("mailr/messages/test", new UserAgent("IOnymous", "1.0"), email);
+            var email = new Email.Html(new[] { "myemail@mail.com" }, "Test-mail")
+            {
+                Body = new { Greeting = "Hallo Mailr!" }
+            };
 
-                Assert.Equal("OK!", html);
-                mailrMessagesTestMock.Assert();
-            }
+            var html = await _http.SendEmailAsync("mailr/messages/test", new UserAgent("IOnymous", "1.0"), email);
+
+            Assert.Equal("OK!", html);
+            _serverContext.Assert();
         }
 
 //        [Fact]
@@ -81,8 +75,8 @@ namespace Reusable.Tests.IOnymous.Http.Mailr
 
         public void Dispose()
         {
+            _serverContext.Dispose();
             _http.Dispose();
-            _teapot.Dispose();
         }
     }
 

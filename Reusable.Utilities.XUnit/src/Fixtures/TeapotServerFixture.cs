@@ -6,16 +6,16 @@ using Reusable.Teapot;
 namespace Reusable.Utilities.XUnit.Fixtures
 {
     [UsedImplicitly]
-    public class TeapotFactoryFixture : IDisposable
+    public class TeapotServerFixture : IDisposable
     {
         private readonly ConcurrentDictionary<string, TeapotServer> _servers;
 
-        public TeapotFactoryFixture()
+        public TeapotServerFixture()
         {
             _servers = new ConcurrentDictionary<string, TeapotServer>();
         }
 
-        public TeapotServer CreateTeapotServer([NotNull] string url)
+        public TeapotServer GetServer([NotNull] string url)
         {
             if (url == null) throw new ArgumentNullException(nameof(url));
             
@@ -24,9 +24,9 @@ namespace Reusable.Utilities.XUnit.Fixtures
 
         public void Dispose()
         {
-            foreach (var teapotServer in _servers.Values)
+            foreach (var server in _servers.Values)
             {
-                teapotServer.Dispose();
+                server.Dispose();
             }
         }
     }
