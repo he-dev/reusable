@@ -33,7 +33,6 @@ namespace Reusable.Tests.IOnymous.Http.Mailr
                     request
                         .AcceptsHtml()
                         .AsUserAgent("xunit", "1.0")
-                        //.WithApiVersion("1.0")
                         .WithContentTypeJson(content =>
                         {
                             content
@@ -54,10 +53,10 @@ namespace Reusable.Tests.IOnymous.Http.Mailr
                 Body = new { Greeting = "Hallo Mailr!" }
             };
 
-            var html = await _http.SendEmailAsync("mailr/messages/test", new UserAgent("xunit", "1.0"), email);
+            var response = await _http.SendEmailAsync("mailr/messages/test", new UserAgent("xunit", "1.0"), email);
 
-            Assert.Equal("OK!", html);
             _serverContext.Assert();
+            Assert.Equal("OK!", response);
         }
 
         public void Dispose()

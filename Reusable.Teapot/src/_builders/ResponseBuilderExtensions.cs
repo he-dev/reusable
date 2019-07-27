@@ -24,6 +24,7 @@ namespace Reusable.Teapot
             return response.Enqueue(request => counter++ < count ? new ResponseMock(statusCode, content, contentType) : default);
         }
 
+        // Forwards request to response.
         public static IResponseBuilder Echo(this IResponseBuilder response)
         {
             return response.Enqueue(request =>

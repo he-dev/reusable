@@ -23,7 +23,7 @@ namespace Reusable.Teapot
     public class ResponseBuilder : IResponseBuilder
     {
         private readonly Queue<Func<HttpRequest, ResponseMock>> _responses = new Queue<Func<HttpRequest, ResponseMock>>();
-        
+
         public ResponseBuilder Enqueue(Func<HttpRequest, ResponseMock> next)
         {
             _responses.Enqueue(next);
@@ -36,23 +36,26 @@ namespace Reusable.Teapot
             return this;
         }
 
+        // Gets the next response or throws when there are none.
         public ResponseMock Next(HttpRequest request)
         {
             while (_responses.Any())
             {
-                var next = _responses.Peek();
-                var response = next(request);
+                var createResponse = _responses.Peek();
+                var response = createResponse(request);
+
+                // This response factory is empty.
                 if (response is null)
                 {
+                    // Remove it from the queue an try again.
                     _responses.Dequeue();
+                    continue;
                 }
-                else
-                {
-                    return response;
-                }
+
+                return response;
             }
 
-            throw DynamicException.Create("OutOfResponses", "There are not more responses");
+            throw DynamicException.Create("OutOfResponses", "There are no more responses");
         }
     }
 }

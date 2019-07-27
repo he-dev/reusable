@@ -66,5 +66,21 @@ namespace Reusable.Teapot
                     .MockApi(HttpMethod.Post, uri)
                     .ArrangeRequest(configureRequest);
         }
+        
+        public static ApiMock MockPut(this ITeapotServerContext context, string uri, Action<IRequestBuilder> configureRequest)
+        {
+            return
+                context
+                    .MockApi(HttpMethod.Put, uri)
+                    .ArrangeRequest(configureRequest);
+        }
+        
+        public static ApiMock MockDelete(this ITeapotServerContext context, string uri, Action<IRequestBuilder> configureRequest)
+        {
+            return
+                context
+                    .MockApi(HttpMethod.Delete, uri)
+                    .ArrangeRequest(configureRequest);
+        }
     }
 }

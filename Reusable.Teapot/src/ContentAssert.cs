@@ -6,8 +6,6 @@ using Reusable.Exceptionize;
 
 namespace Reusable.Teapot
 {
-    
-
     public static class ContentAssert
     {
         // Use this the same pattern for each assert: condition ? throw : content
