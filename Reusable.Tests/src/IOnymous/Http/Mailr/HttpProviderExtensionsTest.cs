@@ -40,7 +40,8 @@ namespace Reusable.Tests.IOnymous.Http.Mailr
                                 .HasProperty("$.Subject")
                                 //.HasProperty("$.From") // Boom! This property does not exist.
                                 .HasProperty("$.Body.Greeting");
-                        });
+                        })
+                        .Occurs(1);
                 })
                 .ArrangeResponse(builder =>
                 {
