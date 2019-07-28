@@ -52,14 +52,14 @@ namespace Reusable.Tests.Beaver
         [Fact]
         public void Can_undo_feature_toggle()
         {
-            var featureToggle = new FeatureToggle(new FeatureOptionRepository()).DecorateWith<IFeatureToggle>(instance => new FeatureToggler(instance));
-            Assert.False(featureToggle.IsEnabled("test")); // it disabled by default
-            featureToggle.EnableToggler("test"); // activate feature-toggler
-            Assert.True(featureToggle.Switch("test", false, true)); // it's still disabled and will now switch
-            Assert.True(featureToggle.IsEnabled("test")); // now it should be enabled
-            Assert.True(featureToggle.Switch("test", true, false)); 
-            Assert.True(featureToggle.Switch("test", true, false)); 
-            Assert.True(featureToggle.IsEnabled("test")); // now it should be still be enabled because it was a one-time-switch
+            var features = new FeatureToggle(new FeatureOptionRepository()).DecorateWith<IFeatureToggle>(instance => new FeatureToggler(instance));
+            Assert.False(features.IsEnabled("test")); // it disabled by default
+            features.With("test", f => f.EnableToggler()); // activate feature-toggler
+            Assert.True(features.Switch("test", false, true)); // it's still disabled and will now switch
+            Assert.True(features.IsEnabled("test")); // now it should be enabled
+            Assert.True(features.Switch("test", true, false)); 
+            Assert.True(features.Switch("test", true, false)); 
+            Assert.True(features.IsEnabled("test")); // now it should be still be enabled because it was a one-time-switch
         }
     }
 

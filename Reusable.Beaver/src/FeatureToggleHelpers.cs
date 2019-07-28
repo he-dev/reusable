@@ -12,6 +12,44 @@ namespace Reusable.Beaver
     [PublicAPI]
     public static class FeatureServiceHelpers
     {
+        #region With
+
+        public static IFeatureToggle With(this IFeatureToggle featureToggle, FeatureIdentifier name, Action<FeatureSelection> action)
+        {
+            action(new FeatureSelection(featureToggle, name));
+            return featureToggle;
+        }
+
+        public static FeatureSelection Enable(this FeatureSelection feature)
+        {
+            feature.Options = feature.Options.SetFlag(FeatureOption.Enabled);
+            return feature;
+        }
+
+        public static FeatureSelection Disable(this FeatureSelection feature)
+        {
+            feature.Options = feature.Options.RemoveFlag(FeatureOption.Enabled);
+            return feature;
+        }
+
+        public static FeatureSelection EnableToggler(this FeatureSelection feature, bool once = true)
+        {
+            feature.Options =
+                feature.Options
+                    .SetFlag(FeatureOption.Toggle)
+                    .SetFlag(once ? FeatureOption.ToggleOnce : FeatureOption.None);
+
+            return feature;
+        }
+
+        #endregion
+
+
+        public static bool IsEnabled(this FeatureSelection selection)
+        {
+            return selection.Options.Contains(FeatureOption.Enabled);
+        }
+
         public static bool IsEnabled(this IFeatureToggle toggle, FeatureIdentifier name)
         {
             return toggle.Options[name].Contains(FeatureOption.Enabled);
@@ -29,6 +67,11 @@ namespace Reusable.Beaver
         }
 
         #region Execute
+
+        public static async Task<T> ExecuteAsync<T>(this IFeatureToggle features, FeatureIdentifier name, Func<Task<T>> body)
+        {
+            return await features.ExecuteAsync<T>(name, body, () => default(T).ToTask());
+        }
 
         public static async Task ExecuteAsync(this IFeatureToggle features, FeatureIdentifier name, Func<Task> body, Func<Task> fallback)
         {
@@ -50,7 +93,7 @@ namespace Reusable.Beaver
 
         public static async Task ExecuteAsync(this IFeatureToggle features, FeatureIdentifier name, Func<Task> body)
         {
-            await features.ExecuteAsync(name, body, () => Task.FromResult<object>(default));
+            await features.ExecuteAsync(name, body, () => Task.FromResult<object>(new object()));
         }
 
         public static T Execute<T>(this IFeatureToggle featureToggle, FeatureIdentifier name, Func<T> body, Func<T> fallback)
@@ -134,14 +177,26 @@ namespace Reusable.Beaver
             return options;
         }
 
-        public static IFeatureToggle EnableToggler(this IFeatureToggle featureToggle, FeatureIdentifier name, bool once = true)
+        public static IFeatureToggle Enable(this IFeatureToggle features, FeatureIdentifier name)
         {
-            featureToggle.Options[name] =
-                featureToggle.Options[name]
+            features.Options[name] = features.Options[name].SetFlag(FeatureOption.Enabled);
+            return features;
+        }
+
+        public static IFeatureToggle Disable(this IFeatureToggle features, FeatureIdentifier name)
+        {
+            features.Options[name] = features.Options[name].RemoveFlag(FeatureOption.Enabled);
+            return features;
+        }
+
+        public static IFeatureToggle EnableToggler(this IFeatureToggle features, FeatureIdentifier name, bool once = true)
+        {
+            features.Options[name] =
+                features.Options[name]
                     .SetFlag(FeatureOption.Toggle)
                     .SetFlag(once ? FeatureOption.ToggleOnce : FeatureOption.None);
 
-            return featureToggle;
+            return features;
         }
     }
 

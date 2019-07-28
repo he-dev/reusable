@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Collections;
@@ -14,6 +15,7 @@ using Reusable.Quickey;
 
 namespace Reusable.Beaver
 {
+    [PublicAPI]
     public interface IFeatureOptionRepository
     {
         // Gets or sets feature options.
@@ -26,7 +28,8 @@ namespace Reusable.Beaver
 
     public class FeatureOptionRepository : IFeatureOptionRepository
     {
-        private readonly IDictionary<FeatureIdentifier, FeatureOption> _options;
+        private readonly Dictionary<FeatureIdentifier, FeatureOption> _options;
+        private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
 
         public FeatureOptionRepository()
         {
@@ -35,20 +38,50 @@ namespace Reusable.Beaver
 
         public FeatureOption this[FeatureIdentifier name]
         {
-            get => _options.TryGetValue(name, out var option) ? option : FeatureOption.None;
-            set => _options[name] = value.RemoveFlag(FeatureOption.Saved).SetFlag(FeatureOption.Dirty);
+            get
+            {
+                _lock.EnterReadLock();
+                try
+                {
+                    return _options.TryGetValue(name, out var option) ? option : FeatureOption.None;
+                }
+                finally
+                {
+                    _lock.ExitReadLock();
+                }
+            }
+            set
+            {
+                _lock.EnterWriteLock();
+                try
+                {
+                    _options[name] = value.RemoveFlag(FeatureOption.Saved).SetFlag(FeatureOption.Dirty);
+                }
+                finally
+                {
+                    _lock.ExitWriteLock();
+                }
+            }
         }
 
         public void SaveChanges(FeatureIdentifier name = default)
         {
-            var names =
-                name is null
-                    ? _options.Keys.ToList() // <-- prevents collection-modified-exception 
-                    : new List<FeatureIdentifier> { name };
-
-            foreach (var n in names)
+            _lock.EnterWriteLock();
+            try
             {
-                _options[n] = _options[n].RemoveFlag(FeatureOption.Dirty).SetFlag(FeatureOption.Saved);
+                var names =
+                    name is null
+                        ? _options.Keys.ToList() // <-- prevents collection-modified-exception 
+                        : new List<FeatureIdentifier> { name };
+
+                foreach (var n in names)
+                {
+                    _options[n] = _options[n].RemoveFlag(FeatureOption.Dirty).SetFlag(FeatureOption.Saved);
+                }
+            }
+            finally
+            {
+                _lock.ExitWriteLock();
             }
         }
     }
@@ -114,6 +147,7 @@ namespace Reusable.Beaver
         }
     }
 
+    [PublicAPI]
     public class FeatureIdentifier : IEquatable<FeatureIdentifier>, IEquatable<string>
     {
         public FeatureIdentifier([NotNull] string name)
@@ -141,6 +175,30 @@ namespace Reusable.Beaver
         public static implicit operator FeatureIdentifier(Selector selector) => new FeatureIdentifier(selector.ToString());
 
         public static implicit operator string(FeatureIdentifier featureIdentifier) => featureIdentifier.ToString();
+    }
+
+    [PublicAPI]
+    public class FeatureSelection
+    {
+        public FeatureSelection(IFeatureToggle features, FeatureIdentifier name)
+        {
+            Features = features;
+            Name = name;
+        }
+
+        private IFeatureToggle Features { get; }
+
+        private FeatureIdentifier Name { get; }
+
+        public FeatureOption Options
+        {
+            get => Features.Options[Name];
+            set => Features.Options[Name] = value;
+        }
+
+        public void SaveChanges() => Features.Options.SaveChanges(Name);
+
+        //public static implicit operator FeatureIdentifier(FeatureSelection selection) => selection.Name;
     }
 
     [PublicAPI]
