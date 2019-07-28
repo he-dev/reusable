@@ -177,28 +177,36 @@ namespace Reusable.Beaver
         public static implicit operator string(FeatureIdentifier featureIdentifier) => featureIdentifier.ToString();
     }
 
+    // Provides an API that does not require the name
     [PublicAPI]
     public class FeatureSelection
     {
-        public FeatureSelection(IFeatureToggle features, FeatureIdentifier name)
+        private readonly IFeatureOptionRepository _options;
+        private readonly FeatureIdentifier _name;
+
+        public FeatureSelection(IFeatureOptionRepository options, FeatureIdentifier name)
         {
-            Features = features;
-            Name = name;
+            _options = options;
+            _name = name;
         }
-
-        private IFeatureToggle Features { get; }
-
-        private FeatureIdentifier Name { get; }
 
         public FeatureOption Options
         {
-            get => Features.Options[Name];
-            set => Features.Options[Name] = value;
+            get => _options[_name];
+            set => _options[_name] = value;
         }
 
-        public void SaveChanges() => Features.Options.SaveChanges(Name);
+        public FeatureSelection Update(Func<FeatureOption, FeatureOption> update)
+        {
+            _options.Update(_name, update);
+            return this;
+        }
 
-        //public static implicit operator FeatureIdentifier(FeatureSelection selection) => selection.Name;
+        public FeatureSelection SaveChanges()
+        {
+            _options.SaveChanges(_name);
+            return this;
+        }
     }
 
     [PublicAPI]
@@ -247,10 +255,10 @@ namespace Reusable.Beaver
             {
                 if (Options[name].Contains(FeatureOption.Toggle))
                 {
-                    Options.Toggle(name);
+                    this.With(name, f => f.Toggle());
                     if (Options[name].Contains(FeatureOption.ToggleOnce))
                     {
-                        Options[name] = Options[name].RemoveFlag(FeatureOption.Toggle | FeatureOption.ToggleOnce);
+                        Options.Update(name, o => o.RemoveFlag(FeatureOption.Toggle | FeatureOption.ToggleOnce));
                         Options.SaveChanges(name);
                     }
                 }

@@ -16,39 +16,37 @@ namespace Reusable.Beaver
 
         public static IFeatureToggle With(this IFeatureToggle featureToggle, FeatureIdentifier name, Action<FeatureSelection> action)
         {
-            action(new FeatureSelection(featureToggle, name));
+            action(new FeatureSelection(featureToggle.Options, name));
             return featureToggle;
         }
 
         public static FeatureSelection Enable(this FeatureSelection feature)
         {
-            feature.Options = feature.Options.SetFlag(FeatureOption.Enabled);
-            return feature;
+            return feature.Update(o => o.SetFlag(FeatureOption.Enabled));
         }
 
         public static FeatureSelection Disable(this FeatureSelection feature)
         {
-            feature.Options = feature.Options.RemoveFlag(FeatureOption.Enabled);
-            return feature;
+            return feature.Update(o => o.RemoveFlag(FeatureOption.Enabled));
+        }
+
+        public static FeatureSelection Toggle(this FeatureSelection feature)
+        {
+            return feature.Update(o =>
+                o.Contains(FeatureOption.Enabled)
+                    ? o.RemoveFlag(FeatureOption.Enabled)
+                    : o.SetFlag(FeatureOption.Enabled));
         }
 
         public static FeatureSelection EnableToggler(this FeatureSelection feature, bool once = true)
         {
-            feature.Options =
-                feature.Options
-                    .SetFlag(FeatureOption.Toggle)
-                    .SetFlag(once ? FeatureOption.ToggleOnce : FeatureOption.None);
-
-            return feature;
+            return feature.Update(o => o
+                .SetFlag(FeatureOption.Toggle)
+                .SetFlag(once ? FeatureOption.ToggleOnce : FeatureOption.None));
         }
 
         #endregion
 
-
-        public static bool IsEnabled(this FeatureSelection selection)
-        {
-            return selection.Options.Contains(FeatureOption.Enabled);
-        }
 
         public static bool IsEnabled(this IFeatureToggle toggle, FeatureIdentifier name)
         {
@@ -143,6 +141,12 @@ namespace Reusable.Beaver
 
         #endregion
 
+        public static IFeatureOptionRepository Update(this IFeatureOptionRepository options, string name, Func<FeatureOption, FeatureOption> update)
+        {
+            options[name] = update(options[name]);
+            return options;
+        }
+
         public static IFeatureOptionRepository Batch(this IFeatureOptionRepository options, IEnumerable<string> names, FeatureOption featureOption, BatchOption batchOption)
         {
             foreach (var name in names)
@@ -161,43 +165,43 @@ namespace Reusable.Beaver
             return options;
         }
 
-        public static IFeatureToggle Toggle(this IFeatureToggle featureToggle, FeatureIdentifier name)
-        {
-            featureToggle.Options.Toggle(name);
-            return featureToggle;
-        }
+//        public static IFeatureToggle Toggle(this IFeatureToggle featureToggle, FeatureIdentifier name)
+//        {
+//            featureToggle.Options.Toggle(name);
+//            return featureToggle;
+//        }
+//
+//        public static IFeatureOptionRepository Toggle(this IFeatureOptionRepository options, FeatureIdentifier name)
+//        {
+//            options[name] =
+//                options[name].Contains(FeatureOption.Enabled)
+//                    ? options[name].RemoveFlag(FeatureOption.Enabled)
+//                    : options[name].SetFlag(FeatureOption.Enabled);
+//
+//            return options;
+//        }
 
-        public static IFeatureOptionRepository Toggle(this IFeatureOptionRepository options, FeatureIdentifier name)
-        {
-            options[name] =
-                options[name].Contains(FeatureOption.Enabled)
-                    ? options[name].RemoveFlag(FeatureOption.Enabled)
-                    : options[name].SetFlag(FeatureOption.Enabled);
-
-            return options;
-        }
-
-        public static IFeatureToggle Enable(this IFeatureToggle features, FeatureIdentifier name)
-        {
-            features.Options[name] = features.Options[name].SetFlag(FeatureOption.Enabled);
-            return features;
-        }
-
-        public static IFeatureToggle Disable(this IFeatureToggle features, FeatureIdentifier name)
-        {
-            features.Options[name] = features.Options[name].RemoveFlag(FeatureOption.Enabled);
-            return features;
-        }
-
-        public static IFeatureToggle EnableToggler(this IFeatureToggle features, FeatureIdentifier name, bool once = true)
-        {
-            features.Options[name] =
-                features.Options[name]
-                    .SetFlag(FeatureOption.Toggle)
-                    .SetFlag(once ? FeatureOption.ToggleOnce : FeatureOption.None);
-
-            return features;
-        }
+//        public static IFeatureToggle Enable(this IFeatureToggle features, FeatureIdentifier name)
+//        {
+//            features.Options[name] = features.Options[name].SetFlag(FeatureOption.Enabled);
+//            return features;
+//        }
+//
+//        public static IFeatureToggle Disable(this IFeatureToggle features, FeatureIdentifier name)
+//        {
+//            features.Options[name] = features.Options[name].RemoveFlag(FeatureOption.Enabled);
+//            return features;
+//        }
+//
+//        public static IFeatureToggle EnableToggler(this IFeatureToggle features, FeatureIdentifier name, bool once = true)
+//        {
+//            features.Options[name] =
+//                features.Options[name]
+//                    .SetFlag(FeatureOption.Toggle)
+//                    .SetFlag(once ? FeatureOption.ToggleOnce : FeatureOption.None);
+//
+//            return features;
+//        }
     }
 
     public class BatchOption : Option<BatchOption>
