@@ -1,58 +1,56 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Collections;
 using Reusable.Data;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.SemanticExtensions;
+using Reusable.Quickey;
 
 namespace Reusable.Beaver
 {
     public interface IFeatureOptionRepository
     {
+        // Gets or sets feature options.
         [NotNull]
-        FeatureOption this[string name] { get; set; }
+        FeatureOption this[FeatureIdentifier name] { get; set; }
 
-        bool IsDirty(string name);
-
-        void SaveAsDefaults();
+        // Saves current options as default.
+        void SaveChanges(FeatureIdentifier name = default);
     }
 
     public class FeatureOptionRepository : IFeatureOptionRepository
     {
-        private readonly IDictionary<string, FeatureOption> _options;
-        private readonly IDictionary<string, bool> _dirty;
+        private readonly IDictionary<FeatureIdentifier, FeatureOption> _options;
 
-        public FeatureOptionRepository(IEqualityComparer<string> comparer = default)
+        public FeatureOptionRepository()
         {
-            _options = new Dictionary<string, FeatureOption>(comparer ?? SoftString.Comparer);
-            _dirty = new Dictionary<string, bool>(comparer ?? SoftString.Comparer);
+            _options = new Dictionary<FeatureIdentifier, FeatureOption>();
         }
 
-        public FeatureOption this[string name]
+        public FeatureOption this[FeatureIdentifier name]
         {
             get => _options.TryGetValue(name, out var option) ? option : FeatureOption.None;
-            set
-            {
-                if (value == FeatureOption.None)
-                {
-                    // Don't store empty options.
-                    _options.Remove(name);
-                }
-                else
-                {
-                    _options[name] = value;
-                }
-
-                _dirty[name] = true;
-            }
+            set => _options[name] = value.RemoveFlag(FeatureOption.Saved).SetFlag(FeatureOption.Dirty);
         }
 
-        public bool IsDirty(string name) => _dirty.TryGetValue(name, out var isDirty) && isDirty;
+        public void SaveChanges(FeatureIdentifier name = default)
+        {
+            var names =
+                name is null
+                    ? _options.Keys.ToList() // <-- prevents collection-modified-exception 
+                    : new List<FeatureIdentifier> { name };
 
-        public void SaveAsDefaults() => _dirty.Clear();
+            foreach (var n in names)
+            {
+                _options[n] = _options[n].RemoveFlag(FeatureOption.Dirty).SetFlag(FeatureOption.Saved);
+            }
+        }
     }
 
     public abstract class FeatureOptionRepositoryDecorator : IFeatureOptionRepository
@@ -64,17 +62,16 @@ namespace Reusable.Beaver
 
         protected IFeatureOptionRepository Instance { get; }
 
-        public virtual FeatureOption this[string name]
+        public virtual FeatureOption this[FeatureIdentifier name]
         {
             get => Instance[name];
             set => Instance[name] = value;
         }
 
-        public virtual bool IsDirty(string name) => Instance.IsDirty(name);
-
-        public virtual void SaveAsDefaults() => Instance.SaveAsDefaults();
+        public virtual void SaveChanges(FeatureIdentifier name = default) => Instance.SaveChanges();
     }
 
+    // Provides default feature-options if not already configured. 
     public class FeatureOptionFallback : FeatureOptionRepositoryDecorator
     {
         private readonly FeatureOption _defaultOption;
@@ -84,30 +81,32 @@ namespace Reusable.Beaver
             _defaultOption = defaultOption;
         }
 
-        public override FeatureOption this[string name]
+        public override FeatureOption this[FeatureIdentifier name]
         {
             get => Instance[name] is var option && option == FeatureOption.None ? _defaultOption : option;
             set => Instance[name] = value;
         }
+
+        public class Enabled : FeatureOptionFallback
+        {
+            public Enabled(IFeatureOptionRepository options, FeatureOption other = default)
+                : base(options, FeatureOption.Enabled | (other ?? FeatureOption.None)) { }
+        }
     }
 
+    // Locks feature option setter.
     public class FeatureOptionLock : FeatureOptionRepositoryDecorator
     {
-        private readonly IImmutableSet<string> _lockedFeatures;
+        public FeatureOptionLock(IFeatureOptionRepository options) : base(options) { }
 
-        public FeatureOptionLock(IFeatureOptionRepository options, IEnumerable<string> lockedFeatures, IEqualityComparer<string> comparer = default) : base(options)
-        {
-            _lockedFeatures = lockedFeatures.ToImmutableHashSet(comparer ?? SoftString.Comparer);
-        }
-
-        public override FeatureOption this[string name]
+        public override FeatureOption this[FeatureIdentifier name]
         {
             get => Instance[name];
             set
             {
-                if (_lockedFeatures.Contains(name))
+                if (Instance[name].Contains(FeatureOption.Locked))
                 {
-                    throw new InvalidOperationException($"Cannot set feature '{name}' option because it's locked.");
+                    throw new InvalidOperationException($"Cannot set options for feature '{name}' because it's locked.");
                 }
 
                 Instance[name] = value;
@@ -115,12 +114,41 @@ namespace Reusable.Beaver
         }
     }
 
+    public class FeatureIdentifier : IEquatable<FeatureIdentifier>, IEquatable<string>
+    {
+        public FeatureIdentifier([NotNull] string name)
+        {
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+        }
+
+        [AutoEqualityProperty]
+        public string Name { get; }
+
+        public string Description { get; set; }
+
+        public override string ToString() => Name;
+
+        public override int GetHashCode() => AutoEquality<FeatureIdentifier>.Comparer.GetHashCode(this);
+
+        public override bool Equals(object obj) => obj is FeatureIdentifier fn && Equals(fn);
+
+        public bool Equals(FeatureIdentifier featureIdentifier) => AutoEquality<FeatureIdentifier>.Comparer.Equals(this, featureIdentifier);
+
+        public bool Equals(string name) => Equals(this, new FeatureIdentifier(name));
+
+        public static implicit operator FeatureIdentifier(string name) => new FeatureIdentifier(name);
+
+        public static implicit operator FeatureIdentifier(Selector selector) => new FeatureIdentifier(selector.ToString());
+
+        public static implicit operator string(FeatureIdentifier featureIdentifier) => featureIdentifier.ToString();
+    }
+
     [PublicAPI]
     public interface IFeatureToggle
     {
         IFeatureOptionRepository Options { get; }
 
-        Task<T> ExecuteAsync<T>(string name, Func<Task<T>> body, Func<Task<T>> fallback);
+        Task<T> ExecuteAsync<T>(FeatureIdentifier name, Func<Task<T>> body, Func<Task<T>> fallback);
     }
 
     public class FeatureToggle : IFeatureToggle
@@ -132,13 +160,43 @@ namespace Reusable.Beaver
 
         public IFeatureOptionRepository Options { get; }
 
-        public async Task<T> ExecuteAsync<T>(string name, Func<Task<T>> body, Func<Task<T>> fallback)
+        public async Task<T> ExecuteAsync<T>(FeatureIdentifier name, Func<Task<T>> body, Func<Task<T>> fallback)
         {
             // Not catching exceptions because the caller should handle them.
-            return
-                this.IsEnabled(name)
-                    ? await body().ConfigureAwait(false)
-                    : await fallback().ConfigureAwait(false);
+
+            return await (this.IsEnabled(name) ? body : fallback)().ConfigureAwait(false);
+        }
+    }
+
+    public class FeatureToggler : IFeatureToggle
+    {
+        private readonly IFeatureToggle _featureToggle;
+
+        public FeatureToggler(IFeatureToggle featureToggle)
+        {
+            _featureToggle = featureToggle;
+        }
+
+        public IFeatureOptionRepository Options => _featureToggle.Options;
+
+        public Task<T> ExecuteAsync<T>(FeatureIdentifier name, Func<Task<T>> body, Func<Task<T>> fallback)
+        {
+            try
+            {
+                return _featureToggle.ExecuteAsync(name, body, fallback);
+            }
+            finally
+            {
+                if (Options[name].Contains(FeatureOption.Toggle))
+                {
+                    Options.Toggle(name);
+                    if (Options[name].Contains(FeatureOption.ToggleOnce))
+                    {
+                        Options[name] = Options[name].RemoveFlag(FeatureOption.Toggle | FeatureOption.ToggleOnce);
+                        Options.SaveChanges(name);
+                    }
+                }
+            }
         }
     }
 
@@ -155,17 +213,24 @@ namespace Reusable.Beaver
 
         public IFeatureOptionRepository Options => _featureToggle.Options;
 
-        public async Task<T> ExecuteAsync<T>(string name, Func<Task<T>> body, Func<Task<T>> fallback)
+        public async Task<T> ExecuteAsync<T>(FeatureIdentifier name, Func<Task<T>> body, Func<Task<T>> fallback)
         {
-            using (_logger.BeginScope().CorrelationHandle("Feature").AttachElapsed())
+            if (Options[name].Contains(FeatureOption.Telemetry))
             {
-                _logger.Log(Abstraction.Layer.Service().Meta(new { FeatureName = name }).Trace());
-
-                if (_featureToggle.Options.IsDirty(name))
+                using (_logger.BeginScope().CorrelationHandle(nameof(FeatureTelemetry)).AttachElapsed())
                 {
-                    _logger.Log(Abstraction.Layer.Service().Decision("Using custom feature options.").Because("Customized by user.").Meta(new { Options = _featureToggle.Options[name] }));
-                }
+                    _logger.Log(Abstraction.Layer.Service().Meta(new { FeatureName = name }).Trace());
 
+                    if (_featureToggle.IsDirty(name))
+                    {
+                        _logger.Log(Abstraction.Layer.Service().Meta(new { CustomFeatureOptions = _featureToggle.Options[name] }));
+                    }
+
+                    return await _featureToggle.ExecuteAsync(name, body, fallback);
+                }
+            }
+            else
+            {
                 return await _featureToggle.ExecuteAsync(name, body, fallback);
             }
         }

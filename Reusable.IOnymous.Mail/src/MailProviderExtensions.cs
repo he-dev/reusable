@@ -7,17 +7,6 @@ namespace Reusable.IOnymous.Mail
     {
         #region GET helpers
 
-//        public static Task<IResource> GetHttpAsync(this IResourceProvider resourceProvider, string path, IImmutableSession properties = default)
-//        {
-//            var uri = new UriString(path);
-//            uri =
-//                uri.IsAbsolute
-//                    ? uri
-//                    : new UriString(MailProvider.DefaultScheme, (string)uri.Path.Original);
-//
-//            return resourceProvider.GetAsync(uri, properties);
-//        }
-
         #endregion
 
         #region PUT helpers
@@ -52,14 +41,6 @@ namespace Reusable.IOnymous.Mail
                     Body = email.Body.Value,
                     CreateBodyStreamCallback = body => ResourceHelper.SerializeTextAsync((string)body, email.Body.Encoding)
                 });
-
-
-//            return await provider.PostAsync
-//            (
-//                $"{MailProvider.DefaultScheme}:ionymous@mailprovider.com",
-//                () => ResourceHelper.SerializeTextAsync(email.Body.Value, email.Body.Encoding),
-//                properties
-//            );
         }
 
         #endregion

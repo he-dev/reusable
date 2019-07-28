@@ -9,14 +9,6 @@ namespace Reusable.IOnymous
 {
     public class ResourceExceptionHandler : IResource
     {
-//        protected static class Validations
-//        {
-//            public static readonly IImmutableList<IValidationRule<IResource, object>> Exists =
-//                ValidationRuleCollection
-//                    .For<IResource>()
-//                    .Accept(b => b.When(x => x.Exists).Message((x, _) => $"Resource '{x.Uri}' does not exist."));
-//        }
-        
         private readonly IResource _resource;
 
         public ResourceExceptionHandler([NotNull] IResource resource) => _resource = resource ?? throw new ArgumentNullException(nameof(resource));
@@ -45,7 +37,6 @@ namespace Reusable.IOnymous
                 throw DynamicException.Create("CopyTo", $"An error occured while trying to copy the resource '{Uri}'. See the inner exception for details.", inner);
             }
         }
-
 
         public bool Equals(IResource other) => _resource.Equals(other);
 

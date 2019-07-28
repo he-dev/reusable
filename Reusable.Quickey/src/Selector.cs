@@ -153,6 +153,7 @@ namespace Reusable.Quickey
         public Selector(LambdaExpression selector) : base(selector) { }
 
         public static implicit operator Selector<T>(Expression<Func<T>> selector) => new Selector<T>(selector);
+        
     }
 
     public class StringSelector<T> : Selector<T>
@@ -160,6 +161,8 @@ namespace Reusable.Quickey
         public StringSelector(Selector selector) : base(selector.Expression) { }
 
         public static implicit operator string(StringSelector<T> stringSelector) => stringSelector.ToString();
+        
+        //public static implicit operator StringSelector<T>(Selector<T> selector) => selector.AsString();
     }
 
     [PublicAPI]

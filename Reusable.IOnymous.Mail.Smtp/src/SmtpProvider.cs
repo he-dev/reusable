@@ -86,26 +86,4 @@ namespace Reusable.IOnymous.Mail.Smtp
 
         public static Selector<bool> UseSsl = Select(() => UseSsl);
     }
-
-//    [UseType, UseMember]
-//    [TrimStart("I"), TrimEnd("Meta")]
-//    [PlainSelectorFormatter]
-//    public interface ISmtpMeta : INamespace
-//    {
-//        string Host { get; }
-//
-//        int Port { get; }
-//
-//        //int Timeout { get; }
-//
-//        //ServicePoint ServicePoint { get; }
-//
-//        //ICredentialsByHost Credentials { get; }
-//
-//        bool UseSsl { get; }
-//
-//        //X509CertificateCollection ClientCertificates { get; }
-//
-//        //string TargetName { get; }
-//    }
 }

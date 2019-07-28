@@ -5,20 +5,32 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Extensions;
+using Reusable.Quickey;
 
 namespace Reusable.Beaver
 {
     [PublicAPI]
     public static class FeatureServiceHelpers
     {
-        public static bool IsEnabled(this IFeatureToggle toggle, string name)
+        public static bool IsEnabled(this IFeatureToggle toggle, FeatureIdentifier name)
         {
-            return toggle.Options[name].Contains(FeatureOption.Enable);
+            return toggle.Options[name].Contains(FeatureOption.Enabled);
+        }
+
+        public static bool IsLocked(this IFeatureToggle toggle, FeatureIdentifier name)
+        {
+            return toggle.Options[name].Contains(FeatureOption.Locked);
+        }
+
+        // Returns True if options are different from default.
+        public static bool IsDirty(this IFeatureToggle toggle, FeatureIdentifier name)
+        {
+            return toggle.Options[name].Contains(FeatureOption.Dirty);
         }
 
         #region Execute
 
-        public static async Task ExecuteAsync(this IFeatureToggle features, string name, Func<Task> body, Func<Task> fallback)
+        public static async Task ExecuteAsync(this IFeatureToggle features, FeatureIdentifier name, Func<Task> body, Func<Task> fallback)
         {
             await features.ExecuteAsync<object>
             (
@@ -36,12 +48,12 @@ namespace Reusable.Beaver
             );
         }
 
-        public static async Task ExecuteAsync(this IFeatureToggle features, string name, Func<Task> body)
+        public static async Task ExecuteAsync(this IFeatureToggle features, FeatureIdentifier name, Func<Task> body)
         {
             await features.ExecuteAsync(name, body, () => Task.FromResult<object>(default));
         }
 
-        public static T Execute<T>(this IFeatureToggle featureToggle, string name, Func<T> body, Func<T> fallback)
+        public static T Execute<T>(this IFeatureToggle featureToggle, FeatureIdentifier name, Func<T> body, Func<T> fallback)
         {
             return
                 featureToggle
@@ -55,7 +67,7 @@ namespace Reusable.Beaver
                     .GetResult();
         }
 
-        public static void Execute(this IFeatureToggle featureToggle, string name, Action body, Action fallback)
+        public static void Execute(this IFeatureToggle featureToggle, FeatureIdentifier name, Action body, Action fallback)
         {
             featureToggle
                 .ExecuteAsync<object>
@@ -76,12 +88,12 @@ namespace Reusable.Beaver
                 .GetResult();
         }
 
-        public static void Execute(this IFeatureToggle featureToggle, string name, Action body)
+        public static void Execute(this IFeatureToggle featureToggle, FeatureIdentifier name, Action body)
         {
             featureToggle.Execute(name, body, () => { });
         }
 
-        public static T Switch<T>(this IFeatureToggle featureToggle, string name, T value, T fallback)
+        public static T Switch<T>(this IFeatureToggle featureToggle, FeatureIdentifier name, T value, T fallback)
         {
             return featureToggle.Execute(name, () => value, () => fallback);
         }
@@ -104,6 +116,32 @@ namespace Reusable.Beaver
             }
 
             return options;
+        }
+
+        public static IFeatureToggle Toggle(this IFeatureToggle featureToggle, FeatureIdentifier name)
+        {
+            featureToggle.Options.Toggle(name);
+            return featureToggle;
+        }
+
+        public static IFeatureOptionRepository Toggle(this IFeatureOptionRepository options, FeatureIdentifier name)
+        {
+            options[name] =
+                options[name].Contains(FeatureOption.Enabled)
+                    ? options[name].RemoveFlag(FeatureOption.Enabled)
+                    : options[name].SetFlag(FeatureOption.Enabled);
+
+            return options;
+        }
+
+        public static IFeatureToggle EnableToggler(this IFeatureToggle featureToggle, FeatureIdentifier name, bool once = true)
+        {
+            featureToggle.Options[name] =
+                featureToggle.Options[name]
+                    .SetFlag(FeatureOption.Toggle)
+                    .SetFlag(once ? FeatureOption.ToggleOnce : FeatureOption.None);
+
+            return featureToggle;
         }
     }
 

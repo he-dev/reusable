@@ -31,7 +31,7 @@ namespace Reusable.Tests.Deception
                 {
                     phantomException.Throw("TooFast");
                 }
-                catch (DynamicException ex) when (ex.NameMatches("^TooFast"))
+                catch (DynamicException ex) when (ex.NameStartsWith("TooFast"))
                 {
                     counts.Add(n);
                 }
@@ -60,7 +60,7 @@ namespace Reusable.Tests.Deception
                 {
                     phantomException.Throw("TooFurious");
                 }
-                catch (DynamicException ex) when (ex.NameMatches("^TooFurious"))
+                catch (DynamicException ex) when (ex.NameStartsWith("TooFurious"))
                 {
                     counts.Add(n);
                 }

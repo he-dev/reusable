@@ -106,7 +106,7 @@ namespace Reusable.Teapot
             catch (Exception ex)
             {
                 // It looks like the client sent an invalid request.
-                if (ex is DynamicException dex && dex.NameMatches("AssertException"))
+                if (ex is DynamicException dex && dex.NameStartsWith("Assert"))
                 {
                     // "Response status code does not indicate success: 418 (I'm a teapot)."
                     context.Response.StatusCode = StatusCodes.Status418ImATeapot; // <-- I find this one funny. 

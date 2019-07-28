@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
+using Reusable.Extensions;
 using Reusable.Quickey;
 
 namespace Reusable.IOnymous
@@ -34,8 +35,6 @@ namespace Reusable.IOnymous
 
         private Task<IResource> GetAsync(Request request)
         {
-            //ValidateFormatNotNull(this, uri, metadata);
-
             // Embedded resource names are separated by '.' so replace the windows separator.
 
             var fullUri = BaseUri + request.Uri;
@@ -43,9 +42,11 @@ namespace Reusable.IOnymous
 
             // Embedded resource names are case sensitive so find the actual name of the resource.
             var actualName = _assembly.GetManifestResourceNames().FirstOrDefault(name => SoftString.Comparer.Equals(name, fullName));
-            var getManifestResourceStream = actualName is null ? default(Func<Stream>) : () => _assembly.GetManifestResourceStream(actualName);
 
-            return Task.FromResult<IResource>(new EmbeddedFile(request.Context.Copy(ResourceProperty.Selectors).SetUri(fullUri), getManifestResourceStream));
+            return
+                actualName is null
+                    ? DoesNotExist(request).ToTask()
+                    : new EmbeddedFile(request.Context.CopyResourceProperties().SetUri(fullUri), () => _assembly.GetManifestResourceStream(actualName)).ToTask<IResource>();
         }
 
         #endregion
@@ -60,23 +61,11 @@ namespace Reusable.IOnymous
     {
         private readonly Func<Stream> _getManifestResourceStream;
 
-        public EmbeddedFile(IImmutableContainer properties, Func<Stream> getManifestResourceStream)
-            : base(properties.SetExists(!(getManifestResourceStream is null)))
+        public EmbeddedFile(IImmutableContainer properties, [NotNull] Func<Stream> getManifestResourceStream)
+            : base(properties.SetExists(true))
         {
-            _getManifestResourceStream = getManifestResourceStream;
+            _getManifestResourceStream = getManifestResourceStream ?? throw new ArgumentNullException(nameof(getManifestResourceStream));
         }
-
-//        public override long? Length
-//        {
-//            get
-//            {
-//                using (var stream = _getManifestResourceStream?.Invoke())
-//                {
-//                    return stream?.Length;
-//                }
-//            }
-//        }
-
 
         public override async Task CopyToAsync(Stream stream)
         {

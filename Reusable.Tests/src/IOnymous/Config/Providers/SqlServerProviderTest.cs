@@ -14,6 +14,8 @@ namespace Reusable.Tests.IOnymous.Config.Providers
 {
     public class SqlServerProviderTest : IAsyncLifetime
     {
+        private static readonly string ConnectionString = "Data Source=(local);Initial Catalog=TestDb;Integrated Security=SSPI;";
+        
         private static readonly IResourceProvider Sql =
             EmbeddedFileProvider<SqlServerProviderTest>
                 .Default
@@ -23,7 +25,7 @@ namespace Reusable.Tests.IOnymous.Config.Providers
 
         public SqlServerProviderTest()
         {
-            _config = new SqlServerProvider("name=TestDb")
+            _config = new SqlServerProvider(ConnectionString)
             {
                 TableName = ("reusable", "TestConfig"),
                 ResourceConverter = new JsonSettingConverter(),
@@ -43,7 +45,7 @@ namespace Reusable.Tests.IOnymous.Config.Providers
 
         public async Task InitializeAsync()
         {
-            var connectionString = ConnectionStringRepository.Default.GetConnectionString("name=TestDb");
+            var connectionString = ConnectionStringRepository.Default.GetConnectionString(ConnectionString);
             using (var conn = new SqlConnection(connectionString))
             {
                 await conn.ExecuteAsync(Sql.ReadTextFile("seed-test-data.sql"));

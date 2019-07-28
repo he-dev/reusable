@@ -74,9 +74,11 @@ namespace Reusable.IOnymous
         {
             if (Methods is null)
             {
-                throw new InvalidOperationException(
-                    $"{nameof(Methods)} are not initialized. " +
-                    $"You must specify at least one method by initializing this property in the derived type.");
+                throw new InvalidOperationException
+                (
+                    $"{nameof(Methods)} property is not initialized. " +
+                    $"You must specify at least one method by initializing this property in the derived type."
+                );
             }
 
             if (request.Method == RequestMethod.None)
@@ -96,8 +98,7 @@ namespace Reusable.IOnymous
                     (
                         $"Request",
                         $"An error occured in {ResourceProviderHelper.FormatNames(this)} " +
-                        $"while trying to {RequestHelper.FormatMethodName(request)} '{request.Uri}'. " +
-                        $"See the inner exception for details.",
+                        $"while trying to {RequestHelper.FormatMethodName(request)} '{request.Uri}'. See the inner exception for details.",
                         inner
                     );
                 }
@@ -107,8 +108,7 @@ namespace Reusable.IOnymous
             (
                 $"MethodNotSupported",
                 $"{ResourceProviderHelper.FormatNames(this)} " +
-                $"cannot {RequestHelper.FormatMethodName(request)} '{request.Uri}' " +
-                $"because it doesn't support this method."
+                $"cannot {RequestHelper.FormatMethodName(request)} '{request.Uri}' because it doesn't support it."
             );
         }
 

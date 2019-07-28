@@ -183,11 +183,6 @@ namespace System.Linq.Custom
         /// <summary>
         /// Determines if the first collection starts with the second collection.
         /// </summary>
-        /// <typeparam name="TSource"></typeparam>
-        /// <param name="first"></param>
-        /// <param name="second"></param>
-        /// <param name="comparer"></param>
-        /// <returns></returns>
         public static bool StartsWith<TSource>(this IEnumerable<TSource> first, IEnumerable<TSource> second, [NotNull] IEqualityComparer<TSource> comparer)
         {
             if (first == null) throw new ArgumentNullException(nameof(first));
@@ -236,31 +231,6 @@ namespace System.Linq.Custom
             return x => filters.Any(f => f(x));
         }
 
-        /// <summary>
-        /// Unlike the original Single this method throws two different exceptions: EmptySequenceException or MoreThanOneElementException.
-        /// </summary>
-        [CanBeNull]
-        public static T Single2<T>([NotNull] this IEnumerable<T> source)
-        {
-            if (source == null) throw new ArgumentNullException(nameof(source));
-
-            using (var enumerator = source.GetEnumerator())
-            {
-                if (enumerator.MoveNext() == false)
-                {
-                    throw new EmptySequenceException();
-                }
-
-                var single = enumerator.Current;
-                if (enumerator.MoveNext())
-                {
-                    throw new MoreThanOneElementException();
-                }
-
-                return single;
-            }
-        }
-
         [CanBeNull]
         public static T SingleOrThrow<T>([NotNull] this IEnumerable<T> source, Func<Exception> onEmpty = null, Func<Exception> onMultiple = null)
         {
@@ -268,60 +238,20 @@ namespace System.Linq.Custom
         }
 
         [CanBeNull]
-        public static T SingleOrThrow<T>([NotNull] this IEnumerable<T> source, Func<T, bool> predicate, Func<Exception> onEmpty = null, Func<Exception> onMultiple = null)
-        {
-            if (source == null) throw new ArgumentNullException(nameof(source));
-
-            var result = default(T);
-            var count = 0;
-
-            using (var enumerator = source.GetEnumerator())
-            {
-                while (enumerator.MoveNext())
-                {
-                    if (predicate(enumerator.Current))
-                    {
-                        if (++count > 1)
-                        {
-                            throw onMultiple?.Invoke() ?? DynamicException.Create
-                                  (
-                                      $"{source.GetType().ToPrettyString()}ContainsMoreThanOneElement",
-                                      $"There is more than one element that matches the specified predicate."
-                                  );
-                        }
-
-                        result = enumerator.Current;
-                    }
-                }
-            }
-
-            if (count == 0)
-            {
-                throw onEmpty?.Invoke() ?? DynamicException.Create
-                      (
-                          $"{source.GetType().ToPrettyString()}Empty",
-                          $"There is no element that match the specified predicate."
-                      );
-            }
-
-            return result;
-        }
-
-        [CanBeNull]
-        private static T SingleOrThrow__<T>([NotNull] this IEnumerable<T> source, Func<T, bool> predicate, Func<Exception> onEmpty = null, Func<Exception> onMultiple = null)
+        public static T SingleOrThrow<T>([NotNull] this IEnumerable<T> source, Func<T, bool> predicate, Func<Exception> onEmpty = null, Func<Exception> onMany = null)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
 
             var items = source.Where(predicate).Take(2).ToList();
 
-            onEmpty = onEmpty ?? (() => DynamicException.Create($"{source.GetType().ToPrettyString()}Empty", $"There is no element that match the specified predicate."));
-            onMultiple = onMultiple ?? (() => DynamicException.Create($"{source.GetType().ToPrettyString()}ContainsMoreThanOneElement", $"There is more than one element that matches the specified predicate."));
+            onEmpty = onEmpty ?? (() => DynamicException.Create("Empty", $"{source.GetType().ToPrettyString()} does not contain any elements that match the specified predicate."));
+            onMany = onMany ?? (() => DynamicException.Create("Many", $"{source.GetType().ToPrettyString()} contains more than one element that matches the specified predicate."));
 
             switch (items.Count)
             {
                 case 0: throw onEmpty();
-                case 1: return items.Single();
-                default: throw onMultiple();
+                case 1: return items[0];
+                default: throw onMany();
             }
         }
 
@@ -469,15 +399,5 @@ namespace System.Linq.Custom
 //                }
 //            }
 //        }
-    }
-
-    public class EmptySequenceException : Exception
-    {
-        public EmptySequenceException() : base("Sequence does not contain any elements.") { }
-    }
-
-    public class MoreThanOneElementException : Exception
-    {
-        public MoreThanOneElementException() : base("Sequence contains more then one element.") { }
     }
 }

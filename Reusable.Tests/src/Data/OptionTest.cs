@@ -19,14 +19,14 @@ namespace Reusable.Tests.Data
 //                FeatureOption.Telemetry
 //            }.Select(o => o.Flag));
 
-            Assert.Equal(FeatureOption.Enable, FeatureOption.Enable);
-            Assert.NotEqual(FeatureOption.Enable, FeatureOption.Telemetry);
+            Assert.Equal(FeatureOption.Enabled, FeatureOption.Enabled);
+            Assert.NotEqual(FeatureOption.Enabled, FeatureOption.Telemetry);
 
             var fromName = FeatureOption.FromName("Warn");
-            Assert.Equal(FeatureOption.Warn, fromName);
+            Assert.Equal(FeatureOption.WarnIfDirty, fromName);
 
             //var fromValue = FeatureOption.FromValue(3);
-            var enableWarn = FeatureOption.Enable | FeatureOption.Warn;
+            var enableWarn = FeatureOption.Enabled | FeatureOption.WarnIfDirty;
             //Assert.Equal(enableWarn, fromValue);
 
             var names = $"{enableWarn:names}";

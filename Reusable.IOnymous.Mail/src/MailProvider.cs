@@ -52,10 +52,6 @@ namespace Reusable.IOnymous.Mail
         {
             _response = response;
         }
-
-        //public override bool Exists => !(_response is null);
-
-        //public override long? Length => _response?.Length;
         
         public override async Task CopyToAsync(Stream stream)
         {

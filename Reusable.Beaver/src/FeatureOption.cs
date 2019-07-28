@@ -8,20 +8,44 @@ namespace Reusable.Beaver
         public FeatureOption(SoftString name, IImmutableSet<SoftString> values) : base(name, values) { }
 
         /// <summary>
-        /// When set a feature is enabled.
+        /// Indicates that a feature is enabled.
         /// </summary>
-        public static readonly FeatureOption Enable = CreateWithCallerName();
+        public static readonly FeatureOption Enabled = CreateWithCallerName();
 
         /// <summary>
-        /// When set a warning is logged when a feature is toggled.
+        /// Indicates that a warning should be logged when a feature is dirty.
         /// </summary>
-        public static readonly FeatureOption Warn = CreateWithCallerName();
+        public static readonly FeatureOption WarnIfDirty = CreateWithCallerName();
 
         /// <summary>
-        /// When set feature usage statistics are logged.
+        /// Indicates that feature telemetry should be logged.
         /// </summary>
         public static readonly FeatureOption Telemetry = CreateWithCallerName();
-
-        public static readonly FeatureOption Default = CreateWithCallerName(Enable | Warn);
+        
+        /// <summary>
+        /// Indicates that a feature should be toggled after each execution.
+        /// </summary>
+        public static readonly FeatureOption Toggle = CreateWithCallerName();
+        
+        /// <summary>
+        /// Indicates that a feature should be toggled only once.
+        /// </summary>
+        public static readonly FeatureOption ToggleOnce = CreateWithCallerName();
+        
+        /// <summary>
+        /// Indicates that feature-options must not be changed.
+        /// </summary>
+        public static readonly FeatureOption Locked = CreateWithCallerName();
+        
+        /// <summary>
+        /// Indicates that feature-options have been changed.
+        /// </summary>
+        public static readonly FeatureOption Dirty = CreateWithCallerName();
+        
+        // You use this to distinguish between FeatureOption.None which results in default-options.
+        /// <summary>
+        /// Indicates that feature-options have been saved.
+        /// </summary>
+        public static readonly FeatureOption Saved = CreateWithCallerName();
     }
 }
