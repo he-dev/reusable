@@ -33,6 +33,11 @@ namespace Reusable.Beaver
         public static readonly FeatureOption ToggleOnce = CreateWithCallerName();
         
         /// <summary>
+        /// Indicates that feature-options should be reset.
+        /// </summary>
+        public static readonly FeatureOption ToggleReset = CreateWithCallerName();
+        
+        /// <summary>
         /// Indicates that feature-options must not be changed.
         /// </summary>
         public static readonly FeatureOption Locked = CreateWithCallerName();
@@ -47,5 +52,6 @@ namespace Reusable.Beaver
         /// Indicates that feature-options have been saved.
         /// </summary>
         public static readonly FeatureOption Saved = CreateWithCallerName();
+        
     }
 }

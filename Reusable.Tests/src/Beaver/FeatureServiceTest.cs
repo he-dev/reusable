@@ -50,11 +50,11 @@ namespace Reusable.Tests.Beaver
         }
 
         [Fact]
-        public void Can_undo_feature_toggle()
+        public void Can_toggle_feature()
         {
             var features = new FeatureToggle(new FeatureOptionRepository()).DecorateWith<IFeatureToggle>(instance => new FeatureToggler(instance));
             Assert.False(features.IsEnabled("test")); // it disabled by default
-            features.With("test", f => f.EnableToggler()); // activate feature-toggler
+            features.With("test", f => f.Set(FeatureOption.Toggle).Set(FeatureOption.ToggleOnce)); // activate feature-toggler
             Assert.True(features.Switch("test", false, true)); // it's still disabled and will now switch
             Assert.True(features.IsEnabled("test")); // now it should be enabled
             Assert.True(features.Switch("test", true, false)); 

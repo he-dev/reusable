@@ -20,31 +20,6 @@ namespace Reusable.Beaver
             return featureToggle;
         }
 
-        public static FeatureSelection Enable(this FeatureSelection feature)
-        {
-            return feature.Update(o => o.SetFlag(FeatureOption.Enabled));
-        }
-
-        public static FeatureSelection Disable(this FeatureSelection feature)
-        {
-            return feature.Update(o => o.RemoveFlag(FeatureOption.Enabled));
-        }
-
-        public static FeatureSelection Toggle(this FeatureSelection feature)
-        {
-            return feature.Update(o =>
-                o.Contains(FeatureOption.Enabled)
-                    ? o.RemoveFlag(FeatureOption.Enabled)
-                    : o.SetFlag(FeatureOption.Enabled));
-        }
-
-        public static FeatureSelection EnableToggler(this FeatureSelection feature, bool once = true)
-        {
-            return feature.Update(o => o
-                .SetFlag(FeatureOption.Toggle)
-                .SetFlag(once ? FeatureOption.ToggleOnce : FeatureOption.None));
-        }
-
         #endregion
 
 
