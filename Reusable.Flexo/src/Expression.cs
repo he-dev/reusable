@@ -47,7 +47,7 @@ namespace Reusable.Flexo
     public abstract class Expression : IExpression
     {
         // ReSharper disable RedundantNameQualifier - Use full namespace to avoid conflicts with other types.
-        public static readonly Type[] Types =
+        public static readonly Type[] BuiltInTypes =
         {
             typeof(Reusable.Flexo.IsEqual),
             typeof(Reusable.Flexo.IsNull),

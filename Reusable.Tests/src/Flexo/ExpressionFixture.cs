@@ -29,7 +29,7 @@ namespace Reusable.Tests.Flexo
 
             builder.RegisterModule<JsonContractResolverModule>();
             builder.RegisterModule(new LoggerModule(new LoggerFactory()));
-            builder.RegisterModule(new ExpressionSerializerModule(Expression.Types));
+            builder.RegisterModule(new ExpressionSerializerModule(Expression.BuiltInTypes));
 
             var container = builder.Build();
             _scope = container.BeginLifetimeScope();
@@ -39,7 +39,7 @@ namespace Reusable.Tests.Flexo
                 container.Dispose();
             });
 
-            Serializer = _scope.Resolve<ExpressionSerializer.Factory>()(TypeDictionary.From(Expression.Types));
+            Serializer = _scope.Resolve<ExpressionSerializer.Factory>()(TypeDictionary.From(Expression.BuiltInTypes));
         }
 
         public IExpressionSerializer Serializer { get; }
