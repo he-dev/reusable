@@ -9,6 +9,7 @@ using System.Linq.Custom;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Extensions.Caching.Memory;
 using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Quickey;
@@ -24,12 +25,8 @@ namespace Reusable.IOnymous
         /// <summary>
         /// Resource provider cache.
         /// </summary>
-        private readonly ConcurrentDictionary<SoftString, IResourceProvider> _providerCache;
-
-        /// <summary>
-        /// Resource provider cache lock.
-        /// </summary>
-        private readonly SemaphoreSlim _cacheLock = new SemaphoreSlim(1, 1);
+        //private readonly ConcurrentDictionary<SoftString, IResourceProvider> _providerCache;
+        private readonly IMemoryCache _cache;
 
         public CompositeProvider([NotNull] IEnumerable<IResourceProvider> providers)
             : base(ImmutableContainer
@@ -40,7 +37,7 @@ namespace Reusable.IOnymous
             if (providers == null) throw new ArgumentNullException(nameof(providers));
 
             _providers = providers.ToImmutableList();
-            _providerCache = new ConcurrentDictionary<SoftString, IResourceProvider>();
+            _cache = new MemoryCache(new MemoryCacheOptions { });
 
             Methods =
                 _providers
@@ -61,41 +58,32 @@ namespace Reusable.IOnymous
         {
             var providerKey = request.Uri.ToString();
 
-            await _cacheLock.WaitAsync();
-            try
+            // Used cached provider if already resolved.
+            if (_cache.TryGetValue<IResourceProvider>(providerKey, out var entry))
             {
-                // Used cached provider if already resolved.
-                if (_providerCache.TryGetValue(providerKey, out var cached))
-                {
-                    return await cached.InvokeAsync(request);
-                }
-
-                var filtered = Filters.Aggregate(_providers.AsEnumerable(), (providers, filter) => filter(providers, request));
-
-                // GET can search multiple providers.
-                if (request.Method == RequestMethod.Get)
-                {
-                    foreach (var provider in filtered)
-                    {
-                        if (await provider.InvokeAsync(request) is var resource && resource.Exists)
-                        {
-                            _providerCache[providerKey] = provider;
-                            return resource;
-                        }
-                    }
-
-                    return DoesNotExist(request);
-                }
-                // Other methods are allowed to use only a single provider.
-                else
-                {
-                    var match = _providerCache[providerKey] = filtered.SingleOrThrow();
-                    return await match.InvokeAsync(request);
-                }
+                return await entry.InvokeAsync(request);
             }
-            finally
+
+            var filtered = Filters.Aggregate(_providers.AsEnumerable(), (providers, filter) => filter(providers, request));
+
+            // GET can search multiple providers.
+            if (request.Method == RequestMethod.Get)
             {
-                _cacheLock.Release();
+                foreach (var provider in filtered)
+                {
+                    if (await provider.InvokeAsync(request) is var resource && resource.Exists)
+                    {
+                        _cache.Set(providerKey, provider);
+                        return resource;
+                    }
+                }
+
+                return DoesNotExist(request);
+            }
+            // Other methods are allowed to use only a single provider.
+            else
+            {
+                return await _cache.Set(providerKey, filtered.SingleOrThrow()).InvokeAsync(request);
             }
         }
 
@@ -115,7 +103,11 @@ namespace Reusable.IOnymous
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_providers).GetEnumerator();
 
         #endregion
-    }
 
-    
+        public override void Dispose()
+        {
+            _cache.Dispose();
+            base.Dispose();
+        }
+    }
 }

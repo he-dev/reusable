@@ -9,7 +9,7 @@ namespace Reusable.OmniLog
     {
         void Render([NotNull] string template);
     }
-    
+
     public class ConsoleRenderer : IConsoleRenderer
     {
         private readonly object _syncLock = new object();
@@ -30,7 +30,7 @@ namespace Reusable.OmniLog
                 var isParagraph = xTemplate.Name.LocalName.Equals("p");
                 if (isParagraph)
                 {
-                    Console.WriteLine();
+                    System.Console.WriteLine();
                 }
             }
         }
@@ -61,7 +61,7 @@ namespace Reusable.OmniLog
 
         private static void Render(XText xText)
         {
-            Console.Write(xText.Value);
+            System.Console.Write(xText.Value);
         }
     }
 }

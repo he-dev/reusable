@@ -16,16 +16,40 @@ namespace Reusable.MarkupBuilder.Html
             return element.ToString(default, new HtmlFormatProvider(new HtmlRenderer(formatting)));
         }
 
+        public static string ToHtml<T>(this T element) where T : IHtmlElement
+        {
+            return element.ToString(default, new HtmlFormatProvider(new HtmlRenderer(HtmlFormatting.Empty)));
+        }
+
         #region Html tags
 
-        public static T p<T>(this T element) where T : class, IHtmlElement
+        public static T p<T>(this T element, params Func<T, object>[] content) where T : class, IHtmlElement
         {
-            return element.Element("p");
+            //return element.Element("p");
+            
+            return element.Element
+            (
+                name: "p",
+                local: new
+                {
+                    content
+                },
+                body: (span, local) =>
+                {
+                    // Exclude console template because they have already been added.
+                    var items = local.content.Select(factory => factory(span)).Skip(item => item is IHtmlElement);
+                    foreach (var item in items)
+                    {
+                        span.Add(item);
+                    }
+                }
+            );
         }
 
         public static T span<T>(this T element, params Func<T, object>[] content) where T : class, IHtmlElement
         {
-            return element.Element(
+            return element.Element
+            (
                 name: "span",
                 local: new
                 {
@@ -39,7 +63,8 @@ namespace Reusable.MarkupBuilder.Html
                     {
                         span.Add(item);
                     }
-                });
+                }
+            );
         }
 
         #endregion

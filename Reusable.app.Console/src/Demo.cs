@@ -72,7 +72,8 @@ namespace Reusable.Apps
                     .AttachSnapshot(SimpleJsonConverter<Person>.Create(x => new { x.FirstName, x.LastName }))
                     .Attach<Timestamp<DateTimeUtc>>()
                     .AttachElapsedMilliseconds()
-                    .AddObserver<NLogRx>();
+                    //.AddObserver<NLogRx>()
+                    .AddObserver<ColoredConsoleRx>();
             // UseConverter<Something>(x => x.ToString());
             //.UseConfiguration(LoggerFactoryConfiguration.Load(fileProvider.GetFileInfo(@"cfg\omnilog.json").CreateReadStream()));
 
@@ -81,8 +82,8 @@ namespace Reusable.Apps
 
             if (logger != logger2) throw new Exception();
 
-            logger.Log(Abstraction.Layer.Infrastructure().Routine("SemLogTest").Running());
-            logger.Log(Abstraction.Layer.Infrastructure().Meta(new { Null = (string)null }));
+            logger.Log(Abstraction.Layer.Service().Routine("SemLogTest").Running());
+            logger.Log(Abstraction.Layer.Service().Meta(new { Null = (string)null }));
 
 
             // Opening outer-transaction.
@@ -96,7 +97,7 @@ namespace Reusable.Apps
                 // Opening inner-transaction.
                 using (logger.BeginScope().CorrelationContext(new { Name = "InnerScope", ItemId = 456 }).AttachElapsed())
                 {
-                    logger.Log(Abstraction.Layer.Infrastructure().RoutineFromScope().Running());
+                    logger.Log(Abstraction.Layer.Service().RoutineFromScope().Running());
 
                     var correlationIds = logger.Scopes().CorrelationIds<string>().ToList();
 
@@ -117,12 +118,12 @@ namespace Reusable.Apps
                     var baz = 123;
                     var qux = "quux";
 
-                    logger.Log(Abstraction.Layer.Infrastructure().Composite(new { multiple = new { baz, qux } }));
+                    logger.Log(Abstraction.Layer.Service().Composite(new { multiple = new { baz, qux } }));
 
                     // Logging action results.
-                    logger.Log(Abstraction.Layer.Infrastructure().Routine("DoSomething").Running());
-                    logger.Log(Abstraction.Layer.Infrastructure().Routine("DoSomething").Canceled().Because("No connection."));
-                    logger.Log(Abstraction.Layer.Infrastructure().Routine("DoSomething").Faulted(), new DivideByZeroException("Cannot divide."));
+                    logger.Log(Abstraction.Layer.Service().Routine("DoSomething").Running());
+                    logger.Log(Abstraction.Layer.Service().Routine("DoSomething").Canceled().Because("No connection."));
+                    logger.Log(Abstraction.Layer.Service().Routine("DoSomething").Faulted(), new DivideByZeroException("Cannot divide."));
                     logger.Log(Abstraction.Layer.Service().Decision("Don't do this.").Because("Disabled."));
                 }
             }

@@ -114,6 +114,7 @@ namespace Reusable.Extensions
                 args
                     .GetType()
                     .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                    //.Where(p => p.IsDefined(typeof(IgnoreAttribute))) // todo - add ignore attribute
                     .ToDictionary(p => p.Name, p => p, comparer);
 
             return Format(text, (string name, out object value) =>
@@ -131,10 +132,10 @@ namespace Reusable.Extensions
             }, formatProvider);
         }
 
-        [CanBeNull, ContractAnnotation("text: null => null; args: null => stop")]
+        [ContractAnnotation("text: null => notnull; args: null => stop")]
         public static string Format(this string text, object args)
         {
-            return text.Format(args, StringComparer.OrdinalIgnoreCase, CultureInfo.InvariantCulture);
+            return text.Format(args, StringComparer.OrdinalIgnoreCase, CultureInfo.InvariantCulture) ?? string.Empty;
         }
 
         [Pure]

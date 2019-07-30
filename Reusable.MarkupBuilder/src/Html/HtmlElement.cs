@@ -18,5 +18,7 @@ namespace Reusable.MarkupBuilder.Html
         public static HtmlElement Builder => default;
 
         public static IMarkupElement Create(string name) => new HtmlElement(name);
+
+        public static implicit operator string(HtmlElement htmlElement) => htmlElement.ToHtml();
     }
 }
