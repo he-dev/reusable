@@ -1,18 +1,17 @@
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 
 namespace Reusable.MarkupBuilder.Html
 {
     // Marker interface for HtmlElement extensions.
-    public interface IHtmlElement : IMarkupElement
-    {
-    }
+    public interface IHtmlElement : IMarkupElement { }
 
     public class HtmlElement : MarkupElement, IHtmlElement
     {
-        public HtmlElement([NotNull] string name) : base(name, StringComparer.OrdinalIgnoreCase)
-        {
-        }
+        public HtmlElement([NotNull] string name) : base(name, StringComparer.OrdinalIgnoreCase) { }
+
+        public HtmlElement(string name, IList<object> content) : base(name, content) { }
 
         [CanBeNull]
         public static HtmlElement Builder => default;

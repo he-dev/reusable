@@ -8,7 +8,7 @@ namespace Reusable.MarkupBuilder
 {
     public interface IMarkupElement : ICollection<object>, IFormattable
     {
-        IEqualityComparer<string> Comparer { get; }
+        //IEqualityComparer<string> Comparer { get; }
         string Name { get; }
         IDictionary<string, string> Attributes { get; }
         IMarkupElement Parent { get; }
@@ -21,15 +21,22 @@ namespace Reusable.MarkupBuilder
         protected MarkupElement([NotNull] string name, [NotNull] IEqualityComparer<string> comparer)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
-            Comparer = comparer ?? throw new ArgumentNullException(nameof(comparer));
+            //Comparer = comparer ?? throw new ArgumentNullException(nameof(comparer));
             Attributes = new Dictionary<string, string>(comparer);
+        }
+        
+        protected MarkupElement([NotNull] string name, IList<object> content) : base(content)
+        {
+            Name = name;
+            //Comparer = SoftString.Comparer;
+            Attributes = new Dictionary<string, string>(SoftString.Comparer);
         }
 
         private string DebuggerDisplay => $"<{Name} attribute-count=\"{Attributes?.Count ?? 0}\" children-count=\"{Count}\">";
 
         #region IMarkupElement
 
-        public IEqualityComparer<string> Comparer { get; }
+        //public IEqualityComparer<string> Comparer { get; }
 
         public string Name { get; }
 

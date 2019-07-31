@@ -65,11 +65,11 @@ namespace Reusable.Commander.Commands
         {
             // Headers
             var captions = new[] { "NAME", "ABOUT" }.Pad(ColumnWidths);
-            Logger.WriteLine(p => p.text(string.Join(string.Empty, captions)));
+            //Logger.WriteLine(p => p.text(string.Join(string.Empty, captions)));
 
             // Separators
             var separators = captions.Select(c => new string('-', c.Trim().Length)).Pad(ColumnWidths);
-            Logger.WriteLine(p => p.text(string.Join(string.Empty, separators)));
+            //Logger.WriteLine(p => p.text(string.Join(string.Empty, separators)));
 
             // Commands
             var userExecutableCommands =
@@ -84,7 +84,7 @@ namespace Reusable.Commander.Commands
                 var aliases = string.Join("|", CommandHelper.GetCommandId(commandType).Aliases.Select(x => x.ToString()));
                 var description = commandType.GetCustomAttribute<DescriptionAttribute>()?.Description ?? "N/A";
                 var row = new[] { $"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description }.Pad(ColumnWidths);
-                Logger.WriteLine(p => p.text(string.Join(string.Empty, row)));
+                //Logger.WriteLine(p => p.text(string.Join(string.Empty, row)));
             }
         }
 
@@ -103,11 +103,11 @@ namespace Reusable.Commander.Commands
 
             // Headers
             var captions = new[] { "NAME", "ABOUT" }.Pad(ColumnWidths);
-            Logger.WriteLine(p => p.text(string.Join(string.Empty, captions)));
+            //Logger.WriteLine(p => p.text(string.Join(string.Empty, captions)));
 
             // Separators
             var separators = captions.Select(c => new string('-', c.Trim().Length)).Pad(ColumnWidths);
-            Logger.WriteLine(p => p.text(string.Join(string.Empty, separators)));
+            //Logger.WriteLine(p => p.text(string.Join(string.Empty, separators)));
 
             var bagType = commandType.GetCommandArgumentGroupType();
             var commandArguments =
@@ -121,7 +121,7 @@ namespace Reusable.Commander.Commands
                 var aliases = string.Join("|", commandArgument.Name.Aliases.Select(x => x.ToString()));
                 var description = commandArgument.Description ?? "N/A";
                 var row = new[] { $"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description }.Pad(ColumnWidths);
-                Logger.WriteLine(p => p.text(string.Join(string.Empty, row)));
+                //Logger.WriteLine(p => p.text(string.Join(string.Empty, row)));
             }
         }
     }
