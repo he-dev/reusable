@@ -45,17 +45,17 @@ namespace Reusable.Apps
 
             var consoleLogger = loggerFactory.CreateLogger("ConsoleTemplateTest");
 
-            consoleLogger.WriteLine(m => m
-                .text(">")
-                .span(s => s.text("foo").color(ConsoleColor.Red))
-                .text(" bar ")
-                .span(s => s
-                    .text("foo ")
-                    .span(ss => ss.text("bar").backgroundColor(ConsoleColor.Gray))
-                    .text(" baz")
-                    .backgroundColor(ConsoleColor.DarkYellow)
-                )
-            );
+//            consoleLogger.WriteLine(m => m
+//                .text(">")
+//                .span(s => s.text("foo").color(ConsoleColor.Red))
+//                .text(" bar ")
+//                .span(s => s
+//                    .text("foo ")
+//                    .span(ss => ss.text("bar").backgroundColor(ConsoleColor.Gray))
+//                    .text(" baz")
+//                    .backgroundColor(ConsoleColor.DarkYellow)
+//                )
+//            );
         }
 
         public static void SemanticExtensions()
