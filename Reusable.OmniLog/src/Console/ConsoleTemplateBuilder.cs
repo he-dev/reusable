@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Reusable.MarkupBuilder;
@@ -6,9 +7,13 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.Console
 {
+    public delegate HtmlElement BuildConsoleTemplateFunc(HtmlElement builder, ILog log);
+    
     public abstract class ConsoleTemplateBuilder
     {
         public abstract HtmlElement Build(ILog log);
+
+        public virtual BuildConsoleTemplateFunc Build() => default;
 
         public static ConsoleTemplateBuilder Null { get; } = default;
     }
