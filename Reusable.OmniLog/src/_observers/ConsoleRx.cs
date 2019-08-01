@@ -7,17 +7,18 @@ using Reusable.OmniLog.Console;
 // ReSharper disable once CheckNamespace
 namespace Reusable.OmniLog
 {
+    [PublicAPI]
     public class ConsoleRx : LogRx
     {
-        public static readonly IReadOnlyDictionary<LogLevel, ConsoleColor> DefaultColors = new Dictionary<LogLevel, ConsoleColor>
-        {
-            [LogLevel.Trace] = ConsoleColor.DarkGray,
-            [LogLevel.Debug] = ConsoleColor.DarkGray,
-            [LogLevel.Information] = ConsoleColor.White,
-            [LogLevel.Warning] = ConsoleColor.Yellow,
-            [LogLevel.Error] = ConsoleColor.Red,
-            [LogLevel.Fatal] = ConsoleColor.Red,
-        };
+//        public static readonly IReadOnlyDictionary<LogLevel, ConsoleColor> DefaultColors = new Dictionary<LogLevel, ConsoleColor>
+//        {
+//            [LogLevel.Trace] = ConsoleColor.DarkGray,
+//            [LogLevel.Debug] = ConsoleColor.DarkGray,
+//            [LogLevel.Information] = ConsoleColor.White,
+//            [LogLevel.Warning] = ConsoleColor.Yellow,
+//            [LogLevel.Error] = ConsoleColor.Red,
+//            [LogLevel.Fatal] = ConsoleColor.Red,
+//        };
 
         public static readonly ConsoleStyle DefaultStyle = new ConsoleStyle(ConsoleColor.Black, ConsoleColor.Gray);
 
@@ -63,38 +64,11 @@ namespace Reusable.OmniLog
 //            }
         }
 
-        public bool Colorful { get; set; }
+        //public bool Colorful { get; set; }
 
-        public static IObserver<Log> Create(bool colorful = true)
-        {
-            return new ConsoleRx { Colorful = colorful };
-        }
+//        public static IObserver<Log> Create(bool colorful = true)
+//        {
+//            return new ConsoleRx { Colorful = colorful };
+//        }
     }
-
-//    [UsedImplicitly]
-//    public class ColoredConsoleRx : LogRx
-//    {
-//        private readonly IConsoleRenderer _renderer;
-//
-//        public ColoredConsoleRx(IConsoleRenderer renderer)
-//        {
-//            _renderer = renderer;
-//        }
-//
-//        public ColoredConsoleRx()
-//            : this(new ConsoleRenderer()) { }
-//
-//        public static ColoredConsoleRx Create(IConsoleRenderer renderer)
-//        {
-//            return new ColoredConsoleRx(renderer);
-//        }
-//
-//        protected override void Log(ILog log)
-//        {
-//            if (log.ConsoleTemplateBuilder() is var builder && !(builder is null))
-//            {
-//                _renderer.Render(builder.Build(log));
-//            }
-//        }
-//    }
 }

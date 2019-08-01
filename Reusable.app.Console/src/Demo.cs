@@ -35,7 +35,7 @@ namespace Reusable.Apps
             {
                 Observers =
                 {
-                    new ColoredConsoleRx(),
+                    new ConsoleRx(),
                 },
                 Attachments =
                 {
@@ -73,7 +73,7 @@ namespace Reusable.Apps
                     .Attach<Timestamp<DateTimeUtc>>()
                     .AttachElapsedMilliseconds()
                     //.AddObserver<NLogRx>()
-                    .AddObserver<ColoredConsoleRx>();
+                    .AddObserver<ConsoleRx>();
             // UseConverter<Something>(x => x.ToString());
             //.UseConfiguration(LoggerFactoryConfiguration.Load(fileProvider.GetFileInfo(@"cfg\omnilog.json").CreateReadStream()));
 

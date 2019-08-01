@@ -59,7 +59,7 @@ namespace Reusable.Flexo
                     return thisResult;
                 }
 
-                var extension = GetExtension();
+                var extension = ResolveExtension(Extension);
 
                 // Block is transparent so skip any special extension handling.
                 if (!(extension is Block))
@@ -67,13 +67,13 @@ namespace Reusable.Flexo
                     // Validate @this only when this is used as an extension.
                     if (GetThisOrDefault(extension) is var t && t is null)
                     {
-                        var extensionType = extension.GetType().GetInterface(typeof(IExtension<>).Name)?.GetGenericArguments().Single();
+                        var extensionType = ((IExtension)extension).Type;
                         var thisType =
                             thisResult.Value is IEnumerable<IExpression> collection
                                 ? collection.GetType()
                                 : @this.GetType();
 
-                        if (extensionType?.IsAssignableFrom(thisType) == false)
+                        if (extensionType.IsAssignableFrom(thisType) == false)
                         {
                             throw DynamicException.Create
                             (
@@ -99,11 +99,9 @@ namespace Reusable.Flexo
         [CanBeNull]
         private static object GetThisOrDefault(IExpression expression)
         {
-            var isExtension = !(expression.GetType().GetInterface(typeof(IExtension<>).Name) is null);
-
             var thisValue =
-                isExtension
-                    ? expression.GetType().GetProperty(nameof(IExtension<object>.This)).GetValue(expression)
+                expression is IExtension extension
+                    ? extension.This
                     : default;
 
             switch (thisValue)
@@ -122,17 +120,16 @@ namespace Reusable.Flexo
             }
         }
 
-        private IExpression GetExtension()
+        [NotNull]
+        private static IExpression ResolveExtension(IExpression expression)
         {
-            var extension = Extension;
-
             // Resolve the actual expression.
-            while (extension is Ref @ref)
+            while (expression is Ref @ref)
             {
-                extension = @ref.Invoke().Value<IExpression>();
+                expression = @ref.Invoke().Value<IExpression>();
             }
 
-            return extension;
+            return expression;
         }
 
         protected abstract Constant<TResult> InvokeCore();
@@ -148,46 +145,51 @@ namespace Reusable.Flexo
         }
     }
 
-    public abstract class ValueExtension<TResult> : Expression<TResult>, IExtension<IExpression> //where TResult : IConstant
+    public abstract class ValueExtension<TResult> : Expression<TResult>, IExtension<IExpression>, IExtension //where TResult : IConstant
     {
         protected ValueExtension([NotNull] ILogger logger, SoftString name) : base(logger, name) { }
+
+        object IExtension.This => This;
 
         // This property needs to be abstract because it might be renamed so the JsonPropertyAttribute is necessary.
         public abstract IExpression This { get; set; }
 
+        public Type Type { get; } = typeof(IExpression);
+
         protected override Constant<TResult> InvokeCore()
         {
-            var obj = Scope.Context.GetItemOrDefault(ExpressionContext.This);
-            var @this =
-                obj is IExpression expression
-                    ? expression
-                    : throw DynamicException.Create("InvalidThisType", "Expected expression.");
-            return InvokeCore(@this);
+            return
+                Scope.Context.GetItemOrDefault(ExpressionContext.This) is IExpression @this
+                    ? InvokeCore(@this)
+                    : throw DynamicException.Create("InvalidExtensionType", $"'{nameof(This)}' must be an '{nameof(IExpression)}'.");
         }
 
         protected abstract Constant<TResult> InvokeCore(IExpression @this);
     }
 
-    public abstract class CollectionExtension<TResult> : Expression<TResult>, IExtension<IEnumerable<IExpression>>
+    public abstract class CollectionExtension<TResult> : Expression<TResult>, IExtension<IEnumerable<IExpression>>, IExtension
     {
         protected CollectionExtension([NotNull] ILogger logger, SoftString name) : base(logger, name) { }
+
+        object IExtension.This => This;
 
         // This property needs to be abstract because it might be renamed and needs to be decorated with the JsonPropertyAttribute.
         public abstract IEnumerable<IExpression> This { get; set; }
 
+        public Type Type { get; } = typeof(IEnumerable<IExpression>);
+
         protected override Constant<TResult> InvokeCore()
         {
-            var obj = Scope.Context.GetItemOrDefault(ExpressionContext.This);
-            if (obj is IConstant constant)
+            var @this = Scope.Context.GetItemOrDefault(ExpressionContext.This);
+            if (@this is IConstant constant)
             {
-                obj = constant.Value;
+                @this = constant.Value;
             }
 
-            var @this =
-                obj is IEnumerable<IExpression> collection
-                    ? collection
-                    : throw DynamicException.Create("InvalidThisType", "Expected collection.");
-            return InvokeCore(@this.Enabled());
+            return
+                @this is IEnumerable<IExpression> collection
+                    ? InvokeCore(collection.Enabled())
+                    : throw DynamicException.Create("InvalidExtensionType", $"'{nameof(This)}' must be an '{nameof(IEnumerable<IExpression>)}'.");
         }
 
         protected abstract Constant<TResult> InvokeCore(IEnumerable<IExpression> @this);

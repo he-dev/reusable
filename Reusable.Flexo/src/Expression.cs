@@ -1,16 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Threading;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Data;
-using Reusable.Diagnostics;
 using Reusable.Exceptionize;
 using Reusable.OmniLog.Abstractions;
-using Reusable.Quickey;
 
 namespace Reusable.Flexo
 {
@@ -29,7 +24,7 @@ namespace Reusable.Flexo
 
         [CanBeNull]
         string Description { get; }
-        
+
         ISet<SoftString> Tags { get; }
 
         [CanBeNull]
@@ -39,6 +34,17 @@ namespace Reusable.Flexo
         IConstant Invoke();
     }
 
+    public interface IExtension
+    {
+        object This { get; }
+        
+        Type Type { get; }
+    }
+
+    /// <summary>
+    /// Extension marker interface.
+    /// </summary>
+    /// <typeparam name="T">Type being extended.</typeparam>
     public interface IExtension<out T>
     {
         T This { get; }
@@ -109,9 +115,7 @@ namespace Reusable.Flexo
         protected ILogger Logger { get; }
 
         [NotNull]
-        public static ExpressionScope Scope =>
-            ExpressionScope.Current
-            ?? throw new InvalidOperationException("Expressions must be invoked within a valid scope. Use 'BeginScope' to introduce one.");
+        public static ExpressionScope Scope => ExpressionScope.Current ?? throw new InvalidOperationException("Expressions must be invoked within a valid scope. Use 'BeginScope' to introduce one.");
 
         public virtual SoftString Name
         {
@@ -120,7 +124,7 @@ namespace Reusable.Flexo
         }
 
         public string Description { get; set; }
-        
+
         public ISet<SoftString> Tags { get; set; }
 
         public bool Enabled { get; set; } = true;
@@ -149,127 +153,6 @@ namespace Reusable.Flexo
             public ILogger Log(ILog log) => this;
 
             public void Dispose() { }
-        }
-    }
-
-    [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
-    public class ExpressionScope : IDisposable
-    {
-        // ReSharper disable once InconsistentNaming - This cannot be renamed because it'd conflict with the property that has the same name.
-        private static readonly AsyncLocal<ExpressionScope> _current = new AsyncLocal<ExpressionScope>();
-
-        static ExpressionScope() { }
-
-        private ExpressionScope(int depth)
-        {
-            Depth = depth;
-        }
-
-        private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
-        {
-            //builder.Property(x => x.CorrelationId);
-            //builder.Property(x => x.CorrelationContext);
-            builder.DisplayValue(x => x.Depth);
-        });
-
-        public ExpressionScope Parent { get; private set; }
-
-        /// <summary>
-        /// Gets the current log-scope which is the deepest one.
-        /// </summary>
-        [CanBeNull]
-        public static ExpressionScope Current
-        {
-            get => _current.Value;
-            private set => _current.Value = value;
-        }
-
-        public int Depth { get; }
-
-        public IImmutableContainer Context { get; private set; }
-
-        public static ExpressionScope Push(IImmutableContainer context)
-        {
-            var scope = Current = new ExpressionScope(Current?.Depth + 1 ?? 0)
-            {
-                Parent = Current,
-                Context = context
-            };
-            return scope;
-        }
-
-        public void Dispose()
-        {
-            Current = Current?.Parent;
-        }
-    }
-
-    [UseMember]
-    [PlainSelectorFormatter]
-    public class ExpressionContext : SelectorBuilder<ExpressionContext>
-    {
-        public static IImmutableContainer Default =>
-            ImmutableContainer
-                .Empty
-                .SetItem(Comparers, ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
-                .SetItem(References, ImmutableDictionary<SoftString, IExpression>.Empty)
-                .SetItem(DebugView, TreeNode.Create(ExpressionDebugView.Root))
-                .WithDefaultComparer()
-                .WithSoftStringComparer()
-                .WithRegexComparer();
-        
-        /// <summary>
-        /// Gets or sets extension value.
-        /// </summary>
-        public static readonly Selector<object> This = Select(() => This);
-
-        /// <summary>
-        /// Gets or sets collection item.
-        /// </summary>
-        public static readonly Selector<object> Item = Select(() => Item);
-
-        public static readonly Selector<IImmutableDictionary<SoftString, IEqualityComparer<object>>> Comparers = Select(() => Comparers);
-
-        public static readonly Selector<IImmutableDictionary<SoftString, IExpression>> References = Select(() => References);
-
-        public static readonly Selector<TreeNode<ExpressionDebugView>> DebugView = Select(() => DebugView);
-
-        public static readonly Selector<CancellationToken> CancellationToken = Select(() => CancellationToken);
-    }
-
-//    [UseMember]
-//    [TrimStart("I"), TrimEnd("Meta")]
-//    [PlainSelectorFormatter]
-//    public interface IExpressionMeta : INamespace
-//    {
-//        /// <summary>
-//        /// Gets or sets extension value.
-//        /// </summary>
-//        object This { get; }
-//
-//        /// <summary>
-//        /// Gets or sets collection item.
-//        /// </summary>
-//        object Item { get; }
-//
-//        IImmutableDictionary<SoftString, IEqualityComparer<object>> Comparers { get; }
-//
-//        IImmutableDictionary<SoftString, IExpression> References { get; }
-//
-//        TreeNode<ExpressionDebugView> DebugView { get; }
-//    }
-
-    [PublicAPI]
-    public static class ExpressionScopeExtensions
-    {
-        public static IEnumerable<ExpressionScope> Enumerate(this ExpressionScope scope)
-        {
-            var current = scope;
-            while (current != null)
-            {
-                yield return current;
-                current = current.Parent;
-            }
         }
     }
 }
