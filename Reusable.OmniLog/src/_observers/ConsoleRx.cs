@@ -19,6 +19,8 @@ namespace Reusable.OmniLog
             [LogLevel.Fatal] = ConsoleColor.Red,
         };
 
+        public static readonly ConsoleStyle DefaultStyle = new ConsoleStyle(ConsoleColor.Black, ConsoleColor.Gray);
+
         private readonly IConsoleRenderer _renderer;
 
         public ConsoleRx(IConsoleRenderer renderer)
@@ -28,24 +30,37 @@ namespace Reusable.OmniLog
 
         public ConsoleRx() : this(new ConsoleRenderer()) { }
 
+        public ConsoleStyle Style { get; set; } = DefaultStyle;
+
+        [CanBeNull]
+        public ConsoleTemplateBuilder TemplateBuilder { get; set; }
+
         protected override void Log(ILog log)
         {
-            if (log.ConsoleTemplateBuilder() is var builder && !(builder is null))
+            if ((log.ConsoleTemplateBuilder() ?? TemplateBuilder) is var templateBuilder && templateBuilder is null)
             {
-                _renderer.Render(builder.Build(log));
+                return;
             }
-            else
-            {
-                using (Disposable.Create(System.Console.ResetColor))
-                {
-                    if (Colorful && DefaultColors.TryGetValue(log.GetItemOrDefault<LogLevel>(LogPropertyNames.Level), out var consoleColor))
-                    {
-                        System.Console.ForegroundColor = consoleColor;
-                    }
 
-                    System.Console.WriteLine(log);
-                }
+            if (!log.ConsoleStyle().HasValue)
+            {
+                log.ConsoleStyle(Style);
             }
+
+            _renderer.Render(templateBuilder.Build(log));
+            
+//            else
+//            {
+//                using (Disposable.Create(System.Console.ResetColor))
+//                {
+//                    if (Colorful && DefaultColors.TryGetValue(log.GetItemOrDefault<LogLevel>(LogPropertyNames.Level), out var consoleColor))
+//                    {
+//                        System.Console.ForegroundColor = consoleColor;
+//                    }
+//
+//                    System.Console.WriteLine(log);
+//                }
+//            }
         }
 
         public bool Colorful { get; set; }
@@ -56,30 +71,30 @@ namespace Reusable.OmniLog
         }
     }
 
-    [UsedImplicitly]
-    public class ColoredConsoleRx : LogRx
-    {
-        private readonly IConsoleRenderer _renderer;
-
-        public ColoredConsoleRx(IConsoleRenderer renderer)
-        {
-            _renderer = renderer;
-        }
-
-        public ColoredConsoleRx()
-            : this(new ConsoleRenderer()) { }
-
-        public static ColoredConsoleRx Create(IConsoleRenderer renderer)
-        {
-            return new ColoredConsoleRx(renderer);
-        }
-
-        protected override void Log(ILog log)
-        {
-            if (log.ConsoleTemplateBuilder() is var builder && !(builder is null))
-            {
-                _renderer.Render(builder.Build(log));
-            }
-        }
-    }
+//    [UsedImplicitly]
+//    public class ColoredConsoleRx : LogRx
+//    {
+//        private readonly IConsoleRenderer _renderer;
+//
+//        public ColoredConsoleRx(IConsoleRenderer renderer)
+//        {
+//            _renderer = renderer;
+//        }
+//
+//        public ColoredConsoleRx()
+//            : this(new ConsoleRenderer()) { }
+//
+//        public static ColoredConsoleRx Create(IConsoleRenderer renderer)
+//        {
+//            return new ColoredConsoleRx(renderer);
+//        }
+//
+//        protected override void Log(ILog log)
+//        {
+//            if (log.ConsoleTemplateBuilder() is var builder && !(builder is null))
+//            {
+//                _renderer.Render(builder.Build(log));
+//            }
+//        }
+//    }
 }

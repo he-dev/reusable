@@ -14,6 +14,8 @@ namespace Reusable.Flexo
 
     public class ExpressionInvoker : IExpressionInvoker
     {
+        public static IExpressionInvoker Default { get; } = new ExpressionInvoker();
+
         public IList<(IConstant Result, IImmutableContainer Context)> Invoke
         (
             IEnumerable<IExpression> expressions,
@@ -30,7 +32,7 @@ namespace Reusable.Flexo
                     }
                     catch (Exception inner)
                     {
-                        return (Constant.Create("Error", inner), Expression.Scope.Context);
+                        return (Constant.FromValue(inner.GetType().Name, inner), Expression.Scope.Context);
                     }
                 }
             }).ToList();

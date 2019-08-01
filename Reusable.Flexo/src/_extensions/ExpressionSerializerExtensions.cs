@@ -3,7 +3,8 @@ using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-namespace Reusable.Flexo {
+namespace Reusable.Flexo
+{
     public static class ExpressionSerializerExtensions
     {
         [ItemNotNull]

@@ -21,7 +21,7 @@ using Reusable.Utilities.JsonNet.Annotations;
 namespace Reusable.Flexo
 {
     [Namespace("Flexo", Alias = "F")]
-    public abstract class Expression<TResult> : Expression
+    public abstract class Expression<TResult> : Expression //where TResult : IConstant
     {
         protected Expression([NotNull] ILogger logger, SoftString name) : base(logger, name) { }
 
@@ -148,7 +148,7 @@ namespace Reusable.Flexo
         }
     }
 
-    public abstract class ValueExtension<TResult> : Expression<TResult>, IExtension<IExpression>
+    public abstract class ValueExtension<TResult> : Expression<TResult>, IExtension<IExpression> //where TResult : IConstant
     {
         protected ValueExtension([NotNull] ILogger logger, SoftString name) : base(logger, name) { }
 

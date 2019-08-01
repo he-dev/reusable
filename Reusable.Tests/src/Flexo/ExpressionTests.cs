@@ -87,9 +87,9 @@ namespace Reusable.Tests.Flexo
         {
             ExpressionAssert.ExpressionEqual("foo", _helper.Resolve<IIf>(e =>
             {
-                e.This = Constant.Create(true);
-                e.True = Constant.Create("foo");
-                e.False = Constant.Create("bar");
+                e.This = Constant.FromValue(true);
+                e.True = Constant.FromValue("foo");
+                e.False = Constant.FromValue("bar");
             }));
         }
 
@@ -98,16 +98,16 @@ namespace Reusable.Tests.Flexo
         {
             ExpressionAssert.ExpressionEqual("bar", _helper.Resolve<IIf>(e =>
             {
-                e.This = Constant.Create(false);
-                e.True = Constant.Create("foo");
-                e.False = Constant.Create("bar");
+                e.This = Constant.FromValue(false);
+                e.True = Constant.FromValue("foo");
+                e.False = Constant.FromValue("bar");
             }));
         }
 
         [Fact]
         public void IIf_throws_when_no_result_specified()
         {
-            Assert.Throws<InvalidOperationException>(() => _helper.Resolve<IIf>(e => e.This = Constant.Create(false)).Invoke());
+            Assert.Throws<InvalidOperationException>(() => _helper.Resolve<IIf>(e => e.This = Constant.FromValue(false)).Invoke());
         }
 
         [Fact]
@@ -181,8 +181,8 @@ namespace Reusable.Tests.Flexo
         {
             ExpressionAssert.ExpressionEqual(true, _helper.Resolve<IsEqual>(e =>
             {
-                e.This = Constant.Create("foo");
-                e.Value = Constant.Create("foo");
+                e.This = Constant.FromValue("foo");
+                e.Value = Constant.FromValue("foo");
             }));
         }
 
@@ -191,8 +191,8 @@ namespace Reusable.Tests.Flexo
         {
             ExpressionAssert.ExpressionEqual(false, _helper.Resolve<IsEqual>(e =>
             {
-                e.This = Constant.Create("bar");
-                e.Value = Constant.Create("foo");
+                e.This = Constant.FromValue("bar");
+                e.Value = Constant.FromValue("foo");
             }));
         }
 
@@ -201,8 +201,8 @@ namespace Reusable.Tests.Flexo
         {
             ExpressionAssert.ExpressionEqual(true, _helper.Resolve<IsGreaterThan>(e =>
             {
-                e.This = Constant.Create(3.0);
-                e.Right = Constant.Create(2.0);
+                e.This = Constant.FromValue(3.0);
+                e.Right = Constant.FromValue(2.0);
             }));
         }
 
@@ -211,8 +211,8 @@ namespace Reusable.Tests.Flexo
         {
             ExpressionAssert.ExpressionEqual(false, _helper.Resolve<IsGreaterThan>(e =>
             {
-                e.This = Constant.Create(2.0);
-                e.Right = Constant.Create(3.0);
+                e.This = Constant.FromValue(2.0);
+                e.Right = Constant.FromValue(3.0);
             }));
         }
 
@@ -221,8 +221,8 @@ namespace Reusable.Tests.Flexo
         {
             ExpressionAssert.ExpressionEqual(false, _helper.Resolve<IsGreaterThan>(e =>
             {
-                e.This = Constant.Create(2.0);
-                e.Right = Constant.Create(2.0);
+                e.This = Constant.FromValue(2.0);
+                e.Right = Constant.FromValue(2.0);
             }));
         }
 
@@ -231,8 +231,8 @@ namespace Reusable.Tests.Flexo
         {
             ExpressionAssert.ExpressionEqual(true, _helper.Resolve<IsGreaterThanOrEqual>(e =>
             {
-                e.This = Constant.Create(3.0);
-                e.Right = Constant.Create(2.0);
+                e.This = Constant.FromValue(3.0);
+                e.Right = Constant.FromValue(2.0);
             }));
         }
 
@@ -241,8 +241,8 @@ namespace Reusable.Tests.Flexo
         {
             ExpressionAssert.ExpressionEqual(true, _helper.Resolve<IsGreaterThanOrEqual>(e =>
             {
-                e.This = Constant.Create(3.0);
-                e.Right = Constant.Create(3.0);
+                e.This = Constant.FromValue(3.0);
+                e.Right = Constant.FromValue(3.0);
             }));
         }
 
@@ -251,8 +251,8 @@ namespace Reusable.Tests.Flexo
         {
             ExpressionAssert.ExpressionEqual(false, _helper.Resolve<IsGreaterThanOrEqual>(e =>
             {
-                e.This = Constant.Create(2.0);
-                e.Right = Constant.Create(3.0);
+                e.This = Constant.FromValue(2.0);
+                e.Right = Constant.FromValue(3.0);
             }));
         }
 
@@ -261,8 +261,8 @@ namespace Reusable.Tests.Flexo
         {
             ExpressionAssert.ExpressionEqual(true, _helper.Resolve<IsLessThan>(e =>
             {
-                e.This = Constant.Create(2.0);
-                e.Right = Constant.Create(3.0);
+                e.This = Constant.FromValue(2.0);
+                e.Right = Constant.FromValue(3.0);
             }));
         }
 
@@ -271,8 +271,8 @@ namespace Reusable.Tests.Flexo
         {
             ExpressionAssert.ExpressionEqual(false, _helper.Resolve<IsLessThan>(e =>
             {
-                e.This = Constant.Create(3.0);
-                e.Right = Constant.Create(3.0);
+                e.This = Constant.FromValue(3.0);
+                e.Right = Constant.FromValue(3.0);
             }));
         }
 
@@ -281,8 +281,8 @@ namespace Reusable.Tests.Flexo
         {
             ExpressionAssert.ExpressionEqual(false, _helper.Resolve<IsLessThan>(e =>
             {
-                e.This = Constant.Create(3.0);
-                e.Right = Constant.Create(2.0);
+                e.This = Constant.FromValue(3.0);
+                e.Right = Constant.FromValue(2.0);
             }));
         }
 
@@ -291,8 +291,8 @@ namespace Reusable.Tests.Flexo
         {
             ExpressionAssert.ExpressionEqual(true, _helper.Resolve<IsLessThanOrEqual>(e =>
             {
-                e.This = Constant.Create(2.0);
-                e.Right = Constant.Create(3.0);
+                e.This = Constant.FromValue(2.0);
+                e.Right = Constant.FromValue(3.0);
             }));
         }
 
@@ -301,8 +301,8 @@ namespace Reusable.Tests.Flexo
         {
             ExpressionAssert.ExpressionEqual(true, _helper.Resolve<IsLessThanOrEqual>(e =>
             {
-                e.This = Constant.Create(3.0);
-                e.Right = Constant.Create(3.0);
+                e.This = Constant.FromValue(3.0);
+                e.Right = Constant.FromValue(3.0);
             }));
         }
 
@@ -311,8 +311,8 @@ namespace Reusable.Tests.Flexo
         {
             ExpressionAssert.ExpressionEqual(false, _helper.Resolve<IsLessThanOrEqual>(e =>
             {
-                e.This = Constant.Create(3.0);
-                e.Right = Constant.Create(2.0);
+                e.This = Constant.FromValue(3.0);
+                e.Right = Constant.FromValue(2.0);
             }));
         }
 
@@ -343,7 +343,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public void ToString_converts_Input_to_string()
         {
-            ExpressionAssert.ExpressionEqual("1", _helper.Resolve<ToString>(e => e.This = Constant.Create(1.0)));
+            ExpressionAssert.ExpressionEqual("1", _helper.Resolve<ToString>(e => e.This = Constant.FromValue(1.0)));
         }
 
         [Fact]
@@ -351,8 +351,8 @@ namespace Reusable.Tests.Flexo
         {
             ExpressionAssert.ExpressionEqual("1.00", _helper.Resolve<ToString>(e =>
             {
-                e.This = Constant.Create(1.0);
-                e.Format = Constant.Create("{0:F2}");
+                e.This = Constant.FromValue(1.0);
+                e.Format = Constant.FromValue("{0:F2}");
             }));
         }
 
@@ -394,7 +394,7 @@ namespace Reusable.Tests.Flexo
 //        {
 //            var s = _helper.Resolve<Switch>(e =>
 //            {
-//                e.This = Constant.Create("Test", "bar");
+//                e.This = Constant.FromValue("Test", "bar");
 //                e.Cases = new List<SwitchCase>
 //                {
 //                    new SwitchCase
@@ -422,7 +422,7 @@ namespace Reusable.Tests.Flexo
         {
             var s = _helper.Resolve<Switch>(e =>
             {
-                e.This = Constant.Create("Test", "bar");
+                e.This = Constant.FromValue("Test", "bar");
                 e.Cases = new List<SwitchCase>
                 {
                     new SwitchCase
@@ -448,7 +448,7 @@ namespace Reusable.Tests.Flexo
             ExpressionAssert.ExpressionEqual(true, _helper.Resolve<Contains>(e =>
             {
                 e.This = Constant.CreateMany("foo", "bar").ToList();
-                e.Value = Constant.Create("blub", "bar");
+                e.Value = Constant.FromValue("blub", "bar");
             }));
         }
 
@@ -458,7 +458,7 @@ namespace Reusable.Tests.Flexo
             ExpressionAssert.ExpressionEqual(true, _helper.Resolve<Contains>(e =>
             {
                 e.This = Constant.CreateMany("foo", "BAR").ToList();
-                e.Value = Constant.Create("Value", "bar");
+                e.Value = Constant.FromValue("Value", "bar");
                 e.Comparer = "SoftString";
             }));
         }
@@ -469,8 +469,8 @@ namespace Reusable.Tests.Flexo
             ExpressionAssert.ExpressionEqual(true, _helper.Resolve<Matches>(e =>
             {
                 e.IgnoreCase = true;
-                e.This = Constant.Create("Value", "Hallo");
-                e.Pattern = Constant.Create("Pattern", "hallo");
+                e.This = Constant.FromValue("Value", "Hallo");
+                e.Pattern = Constant.FromValue("Pattern", "hallo");
             }));
         }
 

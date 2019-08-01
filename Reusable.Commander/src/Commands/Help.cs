@@ -14,6 +14,8 @@ using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Console;
+using t = Reusable.Commander.ConsoleTemplates;
 
 namespace Reusable.Commander.Commands
 {
@@ -64,12 +66,12 @@ namespace Reusable.Commander.Commands
         protected virtual void RenderCommandList(HelpCommandLine parameter)
         {
             // Headers
-            var captions = new[] { "NAME", "ABOUT" }.Pad(ColumnWidths);
-            //Logger.WriteLine(p => p.text(string.Join(string.Empty, captions)));
+            var captions = new[] { "Command", "Description" }.Pad(ColumnWidths);
+            Logger.WriteLine(default, new t.Indent(1), new t.Help.TableRow { Cells = captions });
 
             // Separators
             var separators = captions.Select(c => new string('-', c.Trim().Length)).Pad(ColumnWidths);
-            //Logger.WriteLine(p => p.text(string.Join(string.Empty, separators)));
+            Logger.WriteLine(default, new t.Indent(1), new t.Help.TableRow { Cells = separators });
 
             // Commands
             var userExecutableCommands =
@@ -84,7 +86,7 @@ namespace Reusable.Commander.Commands
                 var aliases = string.Join("|", CommandHelper.GetCommandId(commandType).Aliases.Select(x => x.ToString()));
                 var description = commandType.GetCustomAttribute<DescriptionAttribute>()?.Description ?? "N/A";
                 var row = new[] { $"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description }.Pad(ColumnWidths);
-                //Logger.WriteLine(p => p.text(string.Join(string.Empty, row)));
+                Logger.WriteLine(default, new t.Indent(1), new t.Help.TableRow { Cells = row });
             }
         }
 
@@ -102,12 +104,12 @@ namespace Reusable.Commander.Commands
             }
 
             // Headers
-            var captions = new[] { "NAME", "ABOUT" }.Pad(ColumnWidths);
-            //Logger.WriteLine(p => p.text(string.Join(string.Empty, captions)));
+            var captions = new[] { "Option", "Description" }.Pad(ColumnWidths);
+            Logger.WriteLine(default, new t.Indent(1), new t.Help.TableRow { Cells = captions });
 
             // Separators
             var separators = captions.Select(c => new string('-', c.Trim().Length)).Pad(ColumnWidths);
-            //Logger.WriteLine(p => p.text(string.Join(string.Empty, separators)));
+            Logger.WriteLine(default, new t.Indent(1), new t.Help.TableRow { Cells = separators });
 
             var bagType = commandType.GetCommandArgumentGroupType();
             var commandArguments =
@@ -121,7 +123,7 @@ namespace Reusable.Commander.Commands
                 var aliases = string.Join("|", commandArgument.Name.Aliases.Select(x => x.ToString()));
                 var description = commandArgument.Description ?? "N/A";
                 var row = new[] { $"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description }.Pad(ColumnWidths);
-                //Logger.WriteLine(p => p.text(string.Join(string.Empty, row)));
+                Logger.WriteLine(default, new t.Indent(1), new t.Help.TableRow { Cells = row });
             }
         }
     }

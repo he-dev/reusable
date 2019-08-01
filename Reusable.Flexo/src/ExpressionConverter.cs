@@ -37,7 +37,7 @@ namespace Reusable.Flexo
             else
             {
                 var name = GetParentName(((JTokenReader)reader).CurrentToken.Parent);
-                return Constant.Create(name, reader.Value);
+                return Constant.FromValue(name, reader.Value);
             }
         }
 

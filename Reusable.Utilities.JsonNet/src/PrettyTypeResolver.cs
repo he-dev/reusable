@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Linq.Custom;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
@@ -39,7 +41,11 @@ namespace Reusable.Utilities.JsonNet
                     .OnFailure(_ => new ArgumentException($"Invalid type alias: '{prettyType}'."));
 
             var generic = GetGenericsInfo(match.Groups["genericArguments"]);
-            var type = ResolveType($"{match.Groups["type"].Value}{generic.Placeholder}");
+            var typeName = match.Groups["type"].Value;
+            var type = 
+                ResolveType($"{typeName}{generic.Placeholder}")
+                    .Where(Conditional.IsNotNull)
+                    .SingleOrThrow(onEmpty: () => throw DynamicException.Create("TypeNotFound", $"Could not resolve '{typeName}'."));
             return $"{type.FullName}{generic.Signature}, {type.Assembly.GetName().Name}";
         }
 
@@ -57,7 +63,10 @@ namespace Reusable.Utilities.JsonNet
                 var genericArgumentFullNames =
                 (
                     from name in genericArgumentNames
-                    let genericType = ResolveType(name)
+                    let genericType = 
+                        ResolveType(name)
+                            .Where(Conditional.IsNotNull)
+                            .SingleOrThrow(onEmpty: () => throw DynamicException.Create("TypeNotFound", $"Could not resolve '{name}'."))
                     select $"[{genericType.FullName}, {genericType.Assembly.GetName().Name}]"
                 );
 
@@ -72,17 +81,11 @@ namespace Reusable.Utilities.JsonNet
             }
         }
 
-        [NotNull]
-        private Type ResolveType(string typeName)
+        [NotNull, ItemCanBeNull]
+        private IEnumerable<Type> ResolveType(string typeName)
         {
-            try
-            {
-                return _resolveType(typeName) ?? Type.GetType(typeName, ignoreCase: true, throwOnError: false);
-            }
-            catch (Exception inner)
-            {
-                throw DynamicException.Create("TypeNotFound", $"Could not resolve '{typeName}'.", inner);
-            }
+            yield return _resolveType(typeName);
+            yield return Type.GetType(typeName, ignoreCase: true, throwOnError: false);
         }
     }
 }

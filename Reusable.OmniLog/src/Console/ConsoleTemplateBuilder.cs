@@ -22,17 +22,16 @@ namespace Reusable.OmniLog.Console
     {
         public bool IsParagraph { get; set; }
 
-        public ConsoleStyle Style { get; set; }
-
         public IEnumerable<ConsoleTemplateBuilder> Builders { get; set; }
 
         public override HtmlElement Build(ILog log)
         {
             var elements = Builders.Select(b => b.Build(log));
+            var style = log.ConsoleStyle() ?? throw new InvalidOperationException($"You need to set {nameof(ConsoleStyle)} first.");
             return
                 IsParagraph
-                    ? HtmlElement.Builder.p(x => x.Append(elements).ConsoleStyle(Style))
-                    : HtmlElement.Builder.span(x => x.Append(elements).ConsoleStyle(Style));
+                    ? HtmlElement.Builder.p(x => x.Append(elements).ConsoleStyle(style))
+                    : HtmlElement.Builder.span(x => x.Append(elements).ConsoleStyle(style));
         }
     }
     

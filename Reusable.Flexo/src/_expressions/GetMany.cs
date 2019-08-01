@@ -11,7 +11,8 @@ namespace Reusable.Flexo
 
         protected override Constant<IEnumerable<IExpression>> InvokeCore()
         {
-            return (Path, ((IEnumerable<object>)FindItem()).Select((x, i) => Constant.Create<object>($"Item[{i}]", x)).ToList());
+            var items = (IEnumerable<object>)FindItem();
+            return Constant.FromEnumerable(Path, items); // items.Select((x, i) => Constant.FromValue<object>($"Item[{i}]", x)).ToList());
         }
     }
 }

@@ -79,6 +79,24 @@ namespace Reusable.Flexo
         #endregion
     }
 
+    public class EnumerableConstant<T> : Constant<IEnumerable<IExpression>>
+    {
+        public EnumerableConstant
+        (
+            SoftString name,
+            IEnumerable<T> values,
+            IImmutableContainer context = default
+        )
+            : base
+            (
+                name,
+                values
+                    .Select((x, i) => Constant.FromValue($"{name.ToString()}.Items[{i}]", context))
+                    .ToList(),
+                context
+            ) { }
+    }
+
     /// <summary>
     /// This class provides factory methods.
     /// </summary>
@@ -87,27 +105,32 @@ namespace Reusable.Flexo
         private static volatile int _counter;
 
         [NotNull]
-        public static Constant<TValue> Create<TValue>(SoftString name, TValue value)
+        public static Constant<TValue> FromValue<TValue>(SoftString name, TValue value)
         {
             return new Constant<TValue>(name, value);
         }
 
         [NotNull]
-        internal static Constant<TValue> Create<TValue>(TValue value)
+        internal static Constant<TValue> FromValue<TValue>(TValue value)
         {
-            return Create($"{typeof(Constant<TValue>).ToPrettyString()}-{_counter++}", value);
+            return FromValue($"{typeof(Constant<TValue>).ToPrettyString()}-{_counter++}", value);
         }
 
         [NotNull, ItemNotNull]
         internal static IEnumerable<IExpression> CreateMany<TValue>(string name, params TValue[] values)
         {
-            return values.Select(value => Create(name, value));
+            return values.Select(value => FromValue(name, value));
         }
 
         [NotNull, ItemNotNull]
         internal static IEnumerable<IExpression> CreateMany<TValue>(params TValue[] values)
         {
-            return values.Select(Create);
+            return values.Select(FromValue);
+        }
+
+        public static Constant<IEnumerable<IExpression>> FromEnumerable(SoftString name, IEnumerable<object> values, IImmutableContainer context = default)
+        {
+            return FromValue(name, values.Select((x, i) => x is IConstant constant ? constant : FromValue($"{name.ToString()}.Items[{i}]", x)).ToList().Cast<IExpression>());
         }
 
         #region Predefined
@@ -116,13 +139,17 @@ namespace Reusable.Flexo
 
         //[NotNull] public static readonly IExpression One = new One(nameof(One));
 
-        [NotNull] public static readonly IExpression True = Create(nameof(True), true);
+        [NotNull]
+        public static readonly IExpression True = FromValue(nameof(True), true);
 
-        [NotNull] public static readonly IExpression False = Create(nameof(False), false);
+        [NotNull]
+        public static readonly IExpression False = FromValue(nameof(False), false);
 
-        [NotNull] public static readonly IExpression EmptyString = Create(nameof(EmptyString), string.Empty);
+        [NotNull]
+        public static readonly IExpression EmptyString = FromValue(nameof(EmptyString), string.Empty);
 
-        [NotNull] public static readonly IExpression Null = Create(nameof(Null), default(object));
+        [NotNull]
+        public static readonly IExpression Null = FromValue(nameof(Null), default(object));
 
         #endregion
     }

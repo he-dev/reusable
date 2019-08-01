@@ -67,7 +67,7 @@ namespace Reusable.Flexo
                 (Default ?? new Throw
                     {
                         Name = "SwitchValueOutOfRange",
-                        Message = Constant.Create("Message", "Default value not specified.")
+                        Message = Constant.FromValue("Message", "Default value not specified.")
                     }
                 ).Invoke()
             );

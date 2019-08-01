@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using Autofac;
 using JetBrains.Annotations;
 using Reusable.Flexo;
@@ -29,7 +30,7 @@ namespace Reusable.Tests.Flexo
 
             builder.RegisterModule<JsonContractResolverModule>();
             builder.RegisterModule(new LoggerModule(new LoggerFactory()));
-            builder.RegisterModule(new ExpressionSerializerModule(Expression.BuiltInTypes));
+            builder.RegisterModule(new ExpressionSerializerModule(Enumerable.Empty<Type>()));
 
             var container = builder.Build();
             _scope = container.BeginLifetimeScope();
@@ -39,7 +40,7 @@ namespace Reusable.Tests.Flexo
                 container.Dispose();
             });
 
-            Serializer = _scope.Resolve<ExpressionSerializer.Factory>()(TypeDictionary.From(Expression.BuiltInTypes));
+            Serializer = _scope.Resolve<ExpressionSerializer>();
         }
 
         public IExpressionSerializer Serializer { get; }

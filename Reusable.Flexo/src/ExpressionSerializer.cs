@@ -22,15 +22,18 @@ namespace Reusable.Flexo
     [PublicAPI]
     public class ExpressionSerializer : IExpressionSerializer
     {
+        [NotNull]
+        private readonly IContractResolver _contractResolver;
+
         private readonly IJsonVisitor _transform;
 
         private readonly JsonSerializer _jsonSerializer;
 
-        public delegate IExpressionSerializer Factory
-        (
-            [NotNull] IImmutableDictionary<SoftString, Type> expressionTypes,
-            [CanBeNull] Action<JsonSerializer> configureSerializer = null
-        );
+//        public delegate IExpressionSerializer Factory
+//        (
+//            [NotNull] IImmutableDictionary<SoftString, Type> expressionTypes,
+//            [CanBeNull] Action<JsonSerializer> configureSerializer = null
+//        );
 
         public ExpressionSerializer
         (
@@ -40,13 +43,13 @@ namespace Reusable.Flexo
         )
         {
             if (expressionTypes == null) throw new ArgumentNullException(nameof(expressionTypes));
-            var types = TypeDictionary.BuiltInTypes.AddRange(expressionTypes);
+            _contractResolver = contractResolver ?? throw new ArgumentNullException(paramName: nameof(contractResolver), message: $"You need to register na {nameof(IContractResolver)}.");
 
             _transform =
                 CompositeJsonVisitor
                     .Empty
                     .Add(new TrimPropertyNameVisitor())
-                    .Add(new RewritePrettyTypeVisitor(types));
+                    .Add(new RewritePrettyTypeVisitor(expressionTypes));
 
             _jsonSerializer = new JsonSerializer
             {
@@ -64,37 +67,10 @@ namespace Reusable.Flexo
 
             configureSerializer?.Invoke(_jsonSerializer);
         }
-
-//        public ExpressionSerializer([NotNull] IEnumerable<Type> customTypes, [CanBeNull] Action<JsonSerializer> configureSerializer = null)       
-//        {
-//            if (customTypes == null) throw new ArgumentNullException(nameof(customTypes));
-//            var types =
-//                TypeDictionary
-//                    .BuiltInTypes
-//                    .AddRange(TypeDictionary.From(Expression.Types))
-//                    .AddRange(TypeDictionary.From(customTypes));
-//
-//            _transform =
-//                CompositeJsonVisitor
-//                    .Empty
-//                    .Add(new TrimPropertyNameVisitor())
-//                    .Add(new RewritePrettyTypeVisitor(types));
-//
-//            _jsonSerializer = new JsonSerializer
-//            {
-//                NullValueHandling = NullValueHandling.Ignore,
-//                TypeNameHandling = TypeNameHandling.Auto,
-//                //DefaultValueHandling = DefaultValueHandling.Ignore,
-//                //ContractResolver = contractResolver,
-//                Converters =
-//                {
-//                    //new ExpressionConverter(),
-//                    new ExpressionConverter()
-//                }
-//            };
-//
-//            configureSerializer?.Invoke(_jsonSerializer);
-//        }
+        
+        public IJsonVisitor Transform { get; set; }
+        
+        public JsonSerializer JsonSerializer { get; set; }
 
         [ContractAnnotation("jsonStream: null => halt")]
         public async Task<T> DeserializeAsync<T>(Stream jsonStream)

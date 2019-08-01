@@ -15,7 +15,7 @@ namespace Reusable.Flexo
 
         protected override Constant<IEnumerable<IExpression>> InvokeCore()
         {
-            return (Name, Values.Enabled().Select((e, i) => Constant.Create($"Item[{i}]", e.Invoke().Value)).ToList());
+            return (Name, Values.Enabled().Select((e, i) => Constant.FromValue($"Item[{i}]", e.Invoke().Value)).ToList());
         }
     }
 }

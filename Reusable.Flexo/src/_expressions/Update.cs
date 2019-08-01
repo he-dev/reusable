@@ -28,7 +28,7 @@ namespace Reusable.Flexo
 
             property.SetValue(obj, list);
 
-            return (Name, ((IEnumerable<object>)list).Select((x, i) => Constant.Create($"Item-[{i}]", x)).ToList());
+            return (Name, ((IEnumerable<object>)list).Select((x, i) => Constant.FromValue($"Item-[{i}]", x)).ToList());
         }
 
         protected abstract IEnumerable<object> InvokeMethod(object obj, PropertyInfo property, object value, IEqualityComparer<object> comparer);
