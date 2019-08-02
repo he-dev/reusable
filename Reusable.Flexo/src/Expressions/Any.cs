@@ -8,7 +8,7 @@ using Reusable.Quickey;
 
 namespace Reusable.Flexo
 {
-    public class Any : CollectionExpressionExtension<bool>
+    public class Any : CollectionExtension<bool>
     {
         public Any(ILogger<Any> logger) : base(logger, nameof(Any)) { }
 
@@ -21,7 +21,7 @@ namespace Reusable.Flexo
             foreach (var item in Values)
             {
                 var current = item.Invoke();
-                using (BeginScope(ctx => ctx.SetItem(ExpressionContext.This, current)))
+                using (BeginScope(ctx => ctx.SetItem(ExpressionContext.ThisOuter, current)))
                 {
                     var predicate = (Predicate ?? Constant.True);
                     if (predicate is IConstant)

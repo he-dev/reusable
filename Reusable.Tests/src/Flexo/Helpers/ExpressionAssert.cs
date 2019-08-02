@@ -15,7 +15,7 @@ namespace Reusable.Tests.Flexo.Helpers
     {
         private static readonly ITreeRenderer<string> DebugViewRenderer = new PlainTextTreeRenderer();
 
-        public static (IConstant Result, IImmutableContainer Context) ExpressionEqual<TValue>
+        public static (IConstant Result, IList<IImmutableContainer> Contexts) ExpressionEqual<TValue>
         (
             TValue expected,
             IExpression expression,
@@ -25,18 +25,15 @@ namespace Reusable.Tests.Flexo.Helpers
             ISet<SoftString> tags = default
         )
         {
-            var expressionInvoker = new ExpressionInvoker();
-
             if (throws)
             {
-                var (actual, context) = expressionInvoker.Invoke(expression, customizeContext);
-                Assert.IsAssignableFrom<Exception>(actual.Value);
-                return (actual, context);
+                var ex = Assert.Throws<ExpressionException>(() => expression.Invoke(customizeContext));
+                return (default, ex.Contexts);
             }
             else
             {
-                var (actual, context) = expressionInvoker.Invoke(expression, customizeContext);
-                var debugViewString = DebugViewRenderer.Render(context.DebugView(), ExpressionDebugView.DefaultRender);
+                var (actual, contexts) = expression.Invoke(customizeContext);
+                var debugViewString = DebugViewRenderer.Render(contexts.First().DebugView(), ExpressionDebugView.DefaultRender);
 
                 try
                 {
@@ -50,6 +47,7 @@ namespace Reusable.Tests.Flexo.Helpers
                             {
                                 Assert.True(actual.Tags.SetEquals(tags));
                             }
+
                             break;
                         default:
                             Assert.Equal(expected, actual.Value);
@@ -62,7 +60,7 @@ namespace Reusable.Tests.Flexo.Helpers
                     throw;
                 }
 
-                return (actual, context);
+                return (actual, contexts);
             }
         }
     }

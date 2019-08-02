@@ -9,7 +9,7 @@ namespace Reusable.Flexo
     /// <summary>
     /// Converts Input to string. Uses InvariantCulture by default.
     /// </summary>
-    public class ToString : ValueExpressionExtension<string>
+    public class ToString : ValueExtension<string>
     {
         public ToString(ILogger<ToString> logger) : base(logger, nameof(ToString)) { }
 

@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Reusable.Extensions;
 using Reusable.IOnymous;
 using Xunit;
 

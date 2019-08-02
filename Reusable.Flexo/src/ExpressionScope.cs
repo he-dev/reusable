@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using JetBrains.Annotations;
@@ -57,20 +56,6 @@ namespace Reusable.Flexo
         public void Dispose()
         {
             Current = Current?.Parent;
-        }
-    }
-    
-    [PublicAPI]
-    public static class ExpressionScopeExtensions
-    {
-        public static IEnumerable<ExpressionScope> Enumerate(this ExpressionScope scope)
-        {
-            var current = scope;
-            while (current != null)
-            {
-                yield return current;
-                current = current.Parent;
-            }
         }
     }
 }

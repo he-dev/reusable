@@ -7,7 +7,7 @@ using Reusable.Utilities.JsonNet.Annotations;
 namespace Reusable.Flexo
 {
     //[Alias("!")]
-    public class Not : ValueExpressionExtension<bool>
+    public class Not : ValueExtension<bool>
     {
         public Not(ILogger<Not> logger) : base(logger, nameof(Not)) { }
         

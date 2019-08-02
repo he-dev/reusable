@@ -9,7 +9,7 @@ using Reusable.OmniLog.Abstractions;
 namespace Reusable.Flexo
 {
     [PublicAPI]
-    public abstract class Aggregate : CollectionExpressionExtension<double>
+    public abstract class Aggregate : CollectionExtension<double>
     {
         private readonly Func<IEnumerable<double>, double> _aggregate;
 

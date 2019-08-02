@@ -118,7 +118,7 @@ namespace Reusable.Flexo
             var first = names.First();
             var obj =
                 first.Name == "this"
-                    ? context.GetItemOrDefault(ExpressionContext.This)
+                    ? context.GetItemOrDefault(ExpressionContext.ThisOuter)
                     : context.TryGetValue(first.Name, out var item)
                         ? item
                         : throw DynamicException.Create("InitialObjectNotFound", $"Could not find an item with the key '{path}'.");
@@ -135,7 +135,7 @@ namespace Reusable.Flexo
                         return (current.Object, property, value);
                     }
 
-                    var index = context.GetItemOrDefault(ExpressionContext.This);
+                    var index = context.GetItemOrDefault(ExpressionContext.ThisOuter);
                     var element = ((IEnumerable<object>)value).Single(x => x.Equals(index));
                     return (element, default, default);
                 }

@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Dapper;
 using Reusable.Data.Repositories;
+using Reusable.Extensions;
 using Reusable.IOnymous;
 using Reusable.IOnymous.Config;
 using Reusable.Quickey;

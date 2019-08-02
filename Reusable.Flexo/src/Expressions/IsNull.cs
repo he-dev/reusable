@@ -3,7 +3,7 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
-    public class IsNull : ValueExpressionExtension<bool>
+    public class IsNull : ValueExtension<bool>
     {
         public IsNull(ILogger<IsNull> logger) : base(logger, nameof(IsNull)) { }
         

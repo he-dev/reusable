@@ -23,19 +23,16 @@ namespace Reusable.Flexo
 
     public class Constant<TValue> : Expression<TValue>, IConstant, IConstant<TValue>, IEquatable<Constant<TValue>>
     {
-        public Constant(SoftString name, TValue value, IImmutableContainer context = default)
+        public Constant(SoftString name, TValue value)
             : base(LoggerDummy.Instance, name ?? value.GetType().ToPrettyString())
         {
             Value = value;
-            Context = context ?? ImmutableContainer.Empty;
         }
 
         object IConstant.Value => Value;
 
         [AutoEqualityProperty]
         public TValue Value { get; set; }
-
-        public IImmutableContainer Context { get; }
 
         protected override Constant<TValue> InvokeCore()
         {
@@ -50,9 +47,9 @@ namespace Reusable.Flexo
 
         public override string ToString() => $"{Name.ToString()}: '{Value}'";
 
-        public static implicit operator Constant<TValue>((SoftString Name, TValue Value) t) => new Constant<TValue>(t.Name, t.Value, ImmutableContainer.Empty);
+        public static implicit operator Constant<TValue>((SoftString Name, TValue Value) t) => new Constant<TValue>(t.Name, t.Value);
 
-        public static implicit operator Constant<TValue>((SoftString Name, TValue Value, IImmutableContainer Context) t) => new Constant<TValue>(t.Name, t.Value, t.Context);
+        public static implicit operator Constant<TValue>((SoftString Name, TValue Value, IImmutableContainer Context) t) => new Constant<TValue>(t.Name, t.Value);
 
         //public static implicit operator Constant<ExpressionResult<TValue>>((string Name, ExpressionResult<TValue> Result) t) => new Constant<ExpressionResult<TValue>>(t.Name, t.Result);
 
@@ -84,16 +81,14 @@ namespace Reusable.Flexo
         public EnumerableConstant
         (
             SoftString name,
-            IEnumerable<T> values,
-            IImmutableContainer context = default
+            IEnumerable<T> values
         )
             : base
             (
                 name,
                 values
-                    .Select((x, i) => Constant.FromValue($"{name.ToString()}.Items[{i}]", context))
-                    .ToList(),
-                context
+                    .Select((x, i) => Constant.FromValue($"{name.ToString()}.Items[{i}]"))
+                    .ToList()
             ) { }
     }
 

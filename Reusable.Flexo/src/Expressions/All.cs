@@ -8,7 +8,7 @@ using Reusable.OmniLog.Abstractions;
 namespace Reusable.Flexo
 {
     [PublicAPI]
-    public class All : CollectionExpressionExtension<bool>
+    public class All : CollectionExtension<bool>
     {
         public All(ILogger<All> logger) : base(logger, nameof(All)) { }
 

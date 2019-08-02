@@ -8,7 +8,8 @@ using Reusable.Extensions;
 
 namespace Reusable.Flexo
 {
-    public static class ExpressionExtensions
+    // There is already an ExpressionExtension so you use Helpers to easier tell them apart. 
+    public static class ExpressionHelpers
     {
         /// <summary>
         /// Gets only enabled expressions.
@@ -84,7 +85,7 @@ namespace Reusable.Flexo
 
             return expression;
         }
-        
+
         internal static TreeNode<ExpressionDebugView> CreateDebugView(this IExpression expression)
         {
             return TreeNode.Create(new ExpressionDebugView
@@ -94,7 +95,7 @@ namespace Reusable.Flexo
                 Description = expression.Description ?? new ExpressionDebugView().Description,
             });
         }
-        
+
         internal static object ThisOuterOrDefault(this IExpression expression)
         {
             var thisOuterValue =
@@ -118,5 +119,25 @@ namespace Reusable.Flexo
                     );
             }
         }
+
+        public static (IConstant, IList<IImmutableContainer> Contexts) Invoke(this IExpression expression, Func<IImmutableContainer, IImmutableContainer> configureContext)
+        {
+            using (Expression.BeginScope(configureContext ?? (_ => _)))
+            {
+                try
+                {
+                    return (expression.Invoke(), DumpContexts());
+                }
+                catch (Exception inner)
+                {
+                    throw new ExpressionException(inner)
+                    {
+                        Contexts = DumpContexts()
+                    };
+                }
+            }
+        }
+
+        private static IList<IImmutableContainer> DumpContexts() => Expression.Scope.Enumerate().Select(scope => scope.Context).ToList();
     }
 }

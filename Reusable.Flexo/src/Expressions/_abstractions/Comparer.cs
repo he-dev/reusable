@@ -8,7 +8,7 @@ using Reusable.OmniLog.Abstractions;
 namespace Reusable.Flexo
 {
     [PublicAPI]
-    public abstract class Comparer : ValueExpressionExtension<bool>
+    public abstract class Comparer : ValueExtension<bool>
     {
         private readonly Func<int, bool> _predicate;
 

@@ -73,8 +73,8 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.ToString),
             typeof(Reusable.Flexo.GetSingle),
             typeof(Reusable.Flexo.GetMany),
-            typeof(Reusable.Flexo.SetSingle),
-            typeof(Reusable.Flexo.SetMany),
+            //typeof(Reusable.Flexo.SetSingle),
+            //typeof(Reusable.Flexo.SetMany),
             typeof(Reusable.Flexo.Ref),
             typeof(Reusable.Flexo.Contains),
             typeof(Reusable.Flexo.In),
@@ -97,13 +97,15 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.Select),
             typeof(Reusable.Flexo.Throw),
             typeof(Reusable.Flexo.Where),
-            typeof(Reusable.Flexo.Concat),
-            typeof(Reusable.Flexo.Union),
+            //typeof(Reusable.Flexo.Concat),
+            //typeof(Reusable.Flexo.Union),
             typeof(Reusable.Flexo.Block),
             typeof(Reusable.Flexo.ForEach),
             typeof(Reusable.Flexo.Item),
         };
         // ReSharper restore RedundantNameQualifier
+        
+        //public static readonly Func<IImmutableContainer, IImmutableContainer> 
 
         private SoftString _name;
 
@@ -149,6 +151,7 @@ namespace Reusable.Flexo
 
         public static ExpressionScope BeginScope(Func<IImmutableContainer, IImmutableContainer> configureContext)
         {
+            // Use either current context or the default one.
             return ExpressionScope.Push(configureContext(ExpressionScope.Current?.Context ?? ExpressionContext.Default));
         }
 

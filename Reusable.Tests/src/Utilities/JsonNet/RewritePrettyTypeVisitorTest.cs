@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Exceptionize;
+using Reusable.Extensions;
 using Reusable.IOnymous;
 using Reusable.Utilities.JsonNet;
 using Reusable.Utilities.JsonNet.Annotations;

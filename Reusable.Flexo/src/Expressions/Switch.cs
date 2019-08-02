@@ -13,7 +13,7 @@ namespace Reusable.Flexo
 {
     [UsedImplicitly]
     [PublicAPI]
-    public class Switch : ValueExpressionExtension<object>
+    public class Switch : ValueExtension<object>
     {
         public Switch(ILogger<Switch> logger) : this(logger, nameof(Switch)) { }
 
@@ -31,7 +31,7 @@ namespace Reusable.Flexo
 
             foreach (var switchCase in (Cases ?? Enumerable.Empty<SwitchCase>()).Where(c => c.Enabled))
             {
-                using (BeginScope(ctx => ctx.SetItem(ExpressionContext.This, value)))
+                using (BeginScope(ctx => ctx.SetItem(ExpressionContext.ThisOuter, value)))
                 {
                     switch (switchCase.When)
                     {

@@ -6,7 +6,7 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
-    public class Matches : ValueExpressionExtension<bool>
+    public class Matches : ValueExtension<bool>
     {
         public Matches(ILogger<Matches> logger) : base(logger, nameof(Matches)) { }
 

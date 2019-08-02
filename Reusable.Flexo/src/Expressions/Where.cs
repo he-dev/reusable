@@ -8,7 +8,7 @@ using Reusable.Quickey;
 
 namespace Reusable.Flexo
 {
-    public class Where : CollectionExpressionExtension<IEnumerable<IExpression>>
+    public class Where : CollectionExtension<IEnumerable<IExpression>>
     {
         public Where([NotNull] ILogger<Where> logger) : base(logger, nameof(Where)) { }
 
@@ -20,7 +20,7 @@ namespace Reusable.Flexo
         {
             var result = Values.Where(item =>
             {
-                using (BeginScope(ctx => ctx.SetItem(ExpressionContext.This, item)))
+                using (BeginScope(ctx => ctx.SetItem(ExpressionContext.ThisOuter, item)))
                 {
                     return Predicate.Invoke().Value<bool>();
                 }

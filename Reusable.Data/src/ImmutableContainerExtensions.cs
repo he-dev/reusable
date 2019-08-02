@@ -50,10 +50,10 @@ namespace Reusable.Data
             return container.SetItem(key.ToString(), value);
         }
 
-        public static IImmutableContainer SetItemWhen<T>(this IImmutableContainer container, Selector<T> key, T value, Func<IImmutableContainer, T, bool> canSet)
+        public static IImmutableContainer SetItem<T>(this IImmutableContainer container, Selector<T> key, T value, Func<IImmutableContainer, T, bool> predicate)
         {
             return
-                canSet(container, value)
+                predicate(container, value)
                     ? container.SetItem(key.ToString(), value)
                     : container;
         }

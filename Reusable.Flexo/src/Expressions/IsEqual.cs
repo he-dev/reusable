@@ -5,7 +5,7 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
-    public class IsEqual : ValueExpressionExtension<bool>
+    public class IsEqual : ValueExtension<bool>
     {
         public IsEqual(ILogger<IsEqual> logger) : base(logger, nameof(IsEqual)) { }
 

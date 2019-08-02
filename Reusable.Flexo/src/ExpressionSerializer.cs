@@ -29,12 +29,6 @@ namespace Reusable.Flexo
 
         private readonly JsonSerializer _jsonSerializer;
 
-//        public delegate IExpressionSerializer Factory
-//        (
-//            [NotNull] IImmutableDictionary<SoftString, Type> expressionTypes,
-//            [CanBeNull] Action<JsonSerializer> configureSerializer = null
-//        );
-
         public ExpressionSerializer
         (
             [NotNull] IImmutableDictionary<SoftString, Type> expressionTypes,
@@ -55,7 +49,6 @@ namespace Reusable.Flexo
             {
                 NullValueHandling = NullValueHandling.Ignore,
                 TypeNameHandling = TypeNameHandling.Auto,
-                //DefaultValueHandling = DefaultValueHandling.Include,
                 ContractResolver = contractResolver,
                 Converters =
                 {

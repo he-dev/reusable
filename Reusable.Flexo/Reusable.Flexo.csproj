@@ -26,4 +26,8 @@
   <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="src\EnumerableExtensions.cs" />
+    <Compile Remove="src\Expressions\Update.cs" />
+  </ItemGroup>
 </Project>

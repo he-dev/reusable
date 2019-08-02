@@ -6,7 +6,7 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
-    public class Overlaps : CollectionExpressionExtension<bool>
+    public class Overlaps : CollectionExtension<bool>
     {
         public Overlaps(ILogger<Overlaps> logger) : base(logger, nameof(Overlaps)) { }
         

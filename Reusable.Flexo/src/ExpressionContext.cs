@@ -23,7 +23,7 @@ namespace Reusable.Flexo
         /// <summary>
         /// Gets or sets extension value.
         /// </summary>
-        public static readonly Selector<object> This = Select(() => This);
+        public static readonly Selector<object> ThisOuter = Select(() => ThisOuter);
 
         /// <summary>
         /// Gets or sets collection item.

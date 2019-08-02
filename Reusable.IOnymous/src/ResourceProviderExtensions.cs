@@ -11,14 +11,14 @@ namespace Reusable.IOnymous
 {
     public static class ResourceProviderExtensions
     {
-        [Pure]
-        [NotNull]
-        public static TDecorator DecorateWith<TDecorable, TDecorator>(this TDecorable decorable, Func<TDecorable, TDecorator> decoratorFactory)
-            where TDecorable : IResourceProvider
-            where TDecorator : IResourceProvider
-        {
-            return decoratorFactory(decorable);
-        }
+//        [Pure]
+//        [NotNull]
+//        public static TDecorator DecorateWith<TDecorable, TDecorator>(this TDecorable decorable, Func<TDecorable, TDecorator> decoratorFactory)
+//            where TDecorable : IResourceProvider
+//            where TDecorator : IResourceProvider
+//        {
+//            return decoratorFactory(decorable);
+//        }
 
         #region GET helpers
 

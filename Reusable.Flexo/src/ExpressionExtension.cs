@@ -27,26 +27,26 @@ namespace Reusable.Flexo
         protected abstract TExtension ThisOuterCore();
     }
 
-    public abstract class ValueExpressionExtension<TResult> : ExpressionExtension<IExpression, TResult>
+    public abstract class ValueExtension<TResult> : ExpressionExtension<IExpression, TResult>
     {
-        protected ValueExpressionExtension([NotNull] ILogger logger, SoftString name) : base(logger, name) { }
+        protected ValueExtension([NotNull] ILogger logger, SoftString name) : base(logger, name) { }
 
         protected override IExpression ThisOuterCore()
         {
             return
-                Scope.Context.GetItemOrDefault(ExpressionContext.This) is IExpression @this
+                Scope.Context.GetItemOrDefault(ExpressionContext.ThisOuter) is IExpression @this
                     ? @this
                     : default;
         }
     }
 
-    public abstract class CollectionExpressionExtension<TResult> : ExpressionExtension<IEnumerable<IExpression>, TResult>
+    public abstract class CollectionExtension<TResult> : ExpressionExtension<IEnumerable<IExpression>, TResult>
     {
-        protected CollectionExpressionExtension([NotNull] ILogger logger, SoftString name) : base(logger, name) { }
+        protected CollectionExtension([NotNull] ILogger logger, SoftString name) : base(logger, name) { }
 
         protected override IEnumerable<IExpression> ThisOuterCore()
         {
-            var @this = Scope.Context.GetItemOrDefault(ExpressionContext.This) is var obj && obj is IConstant constant ? constant.Value : obj;
+            var @this = Scope.Context.GetItemOrDefault(ExpressionContext.ThisOuter) is var obj && obj is IConstant constant ? constant.Value : obj;
 
             return
                 @this is IEnumerable<IExpression> collection

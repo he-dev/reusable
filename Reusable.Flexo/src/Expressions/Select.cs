@@ -16,7 +16,7 @@ namespace Reusable.Flexo
     /// </summary>
     [UsedImplicitly]
     [PublicAPI]
-    public class Select : CollectionExpressionExtension<IEnumerable<IExpression>>
+    public class Select : CollectionExtension<IEnumerable<IExpression>>
     {
         public Select(ILogger<Select> logger) : base(logger, nameof(Select)) { }
 

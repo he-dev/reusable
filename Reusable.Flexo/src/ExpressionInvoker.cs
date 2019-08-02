@@ -5,6 +5,7 @@ using Reusable.Data;
 
 namespace Reusable.Flexo
 {
+    [Obsolete("Use Invoke(context) extension.")]
     public interface IExpressionInvoker
     {
         IList<(IConstant Result, IImmutableContainer Context)> Invoke(IEnumerable<IExpression> expressions, Func<IImmutableContainer, IImmutableContainer> customizeContext);

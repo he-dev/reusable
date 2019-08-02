@@ -7,7 +7,7 @@ using Reusable.Quickey;
 
 namespace Reusable.Flexo
 {
-    public class ForEach : CollectionExpressionExtension<object>
+    public class ForEach : CollectionExtension<object>
     {
         public ForEach([NotNull] ILogger<ForEach> logger) : base(logger, nameof(ForEach)) { }
 

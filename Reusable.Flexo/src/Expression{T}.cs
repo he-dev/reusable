@@ -38,7 +38,7 @@ namespace Reusable.Flexo
 
             using (BeginScope(ctx => ctx
                 .SetItem(ExpressionContext.DebugView, thisView)
-                .SetItemWhen(ExpressionContext.This, this.ThisOuterOrDefault(), (_, value) => value.IsNotNull()))
+                .SetItem(ExpressionContext.ThisOuter, this.ThisOuterOrDefault(), (_, value) => value.IsNotNull()))
             )
             {
                 var thisResult = InvokeCore();
@@ -64,7 +64,7 @@ namespace Reusable.Flexo
                         {
                             throw DynamicException.Create
                             (
-                                $"ExtensionTypeMismatch",
+                                $"PipeTypeMismatch",
                                 $"Extension '{ext.GetType().ToPrettyString()}<{ext.ExtensionType.ToPrettyString()}>' does not match the expression it is extending: '{thisResult.Value.GetType().ToPrettyString()}'."
                             );
                         }
@@ -72,7 +72,7 @@ namespace Reusable.Flexo
 
                     using (BeginScope(ctx => ctx
                         .SetItem(ExpressionContext.DebugView, thisView)
-                        .SetItem(ExpressionContext.This, thisResult)))
+                        .SetItem(ExpressionContext.ThisOuter, thisResult)))
                     {
                         return extension.Invoke();
                     }

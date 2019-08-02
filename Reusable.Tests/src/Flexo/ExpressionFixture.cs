@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Autofac;
 using JetBrains.Annotations;
+using Reusable.Extensions;
 using Reusable.Flexo;
 using Reusable.IOnymous;
 using Reusable.OmniLog;
@@ -15,10 +16,10 @@ namespace Reusable.Tests.Flexo
     [UsedImplicitly]
     public class ExpressionFixture : IDisposable
     {
-        private static readonly IResourceProvider Flexo =
+        private static readonly IResourceProvider Flexo = 
             EmbeddedFileProvider<ExpressionSerializerTest>
                 .Default
-                .DecorateWith(RelativeProvider.Factory(@"res\Flexo"));
+                .DecorateWith(instance => new RelativeProvider(@"res\Flexo", instance));
 
         private readonly ILifetimeScope _scope;
         private readonly IDisposable _disposer;
@@ -52,16 +53,9 @@ namespace Reusable.Tests.Flexo
             return t;
         }
 
-        public IList<IExpression> GetReferences()
-        {
-            return _expressions.GetOrAdd("ExpressionReferences.json", ReadExpressionFile());
-        }
+        public IList<IExpression> References => _expressions.GetOrAdd("ExpressionReferences.json", ReadExpressionFile());
 
-
-        public IList<IExpression> GetExpressions()
-        {
-            return _expressions.GetOrAdd("ExpressionCollection.json", ReadExpressionFile());
-        }
+        public IList<IExpression> Expressions => _expressions.GetOrAdd("ExpressionCollection.json", ReadExpressionFile());
 
         private Func<string, IList<IExpression>> ReadExpressionFile()
         {

@@ -6,7 +6,7 @@ using Reusable.OmniLog.Abstractions;
 namespace Reusable.Flexo
 {
     // ReSharper disable once InconsistentNaming - we want this name!
-    public class IIf : ValueExpressionExtension<object>
+    public class IIf : ValueExtension<object>
     {
         public IIf(ILogger<IIf> logger) : base(logger, nameof(IIf)) { }
         
