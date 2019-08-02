@@ -77,7 +77,7 @@ namespace Reusable.Apps.Server
                     .AttachSnapshot()
                     .Attach<Timestamp<DateTimeUtc>>()
                     //.AttachElapsedMilliseconds()
-                    .AddObserver<NLogRx>()
+                    .Subscribe<NLogRx>()
             );
 
             services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));

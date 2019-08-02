@@ -163,7 +163,7 @@ namespace Reusable.Flexo
 
             public SoftString Name { get; } = nameof(LoggerDummy);
 
-            public ILogger Log(TransformCallback request, TransformCallback response = default) => this;
+            public ILogger Log(Func<ILog, ILog> request, Func<ILog, ILog> response = default) => this;
 
             public ILogger Log(ILog log) => this;
 

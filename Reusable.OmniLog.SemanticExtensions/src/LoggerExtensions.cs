@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Reusable.OmniLog.Abstractions;
 
-// ReSharper disable ExplicitCallerInfoArgument - yes, we want to explicity set it via overloads.
+// ReSharper disable ExplicitCallerInfoArgument - yes, we want to explicitly set it via overloads.
 
 namespace Reusable.OmniLog.SemanticExtensions
 {
@@ -13,15 +13,15 @@ namespace Reusable.OmniLog.SemanticExtensions
     {
         // We use context as the name and not abstractionContext because it otherwise interferes with intellisense.
         // The name abstractionContext appears first on the list and you need to scroll to get the Abstraction.
-        public static void Log<TContext>
+        public static void Log//<TContext>
         (
             this ILogger logger,
-            TContext context,
-            TransformCallback populate = null,
+            IAbstractionContext context,
+            Func<ILog, ILog> populate = null,
             [CallerMemberName] string callerMemberName = null,
             [CallerLineNumber] int callerLineNumber = 0,
             [CallerFilePath] string callerFilePath = null
-        ) where TContext : IAbstractionContext
+        ) //where TContext : IAbstractionContext
         {
             context.Log(logger, log =>
             {

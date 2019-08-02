@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
+using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog
 {
-    public interface ILoggerTransaction : ILogger
+    public interface ILoggerTransaction : ILogger, IDisposable
     {
         void Commit();
 
@@ -22,13 +24,13 @@ namespace Reusable.OmniLog
             _logs = new List<ILog>();
         }
 
-        public static TransformCallback Override => log => log.OverrideTransaction();
+        public static Func<ILog, ILog> Override => log => log.OverrideTransaction();
 
-        public ILogger Log(TransformCallback request, TransformCallback response = default)
+        public ILogger Log(Func<ILog, ILog> request, Func<ILog, ILog> response = default)
         {
             return _logger.Log(request, log =>
             {
-                log = (response ?? OmniLog.Log.EmptyTransform)(log);
+                log = (response ?? Functional.Echo)(log);
                 return TryCacheLog(log) ? OmniLog.Log.Empty : log;
             });
         }
@@ -64,7 +66,7 @@ namespace Reusable.OmniLog
                 _logger.Log(log);
             }
 
-            Rollback();
+            _logs.Clear();
         }
 
         public void Rollback()
@@ -74,8 +76,6 @@ namespace Reusable.OmniLog
 
         public void Dispose()
         {
-            // You don't want to dispose it here because it'll unwire all listeners.
-            // _logger.Dispose();
             _logs.Clear();
         }
     }

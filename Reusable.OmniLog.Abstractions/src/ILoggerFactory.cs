@@ -2,7 +2,7 @@ using System;
 
 namespace Reusable.OmniLog.Abstractions
 {
-    public interface ILoggerFactory : IDisposable
+    public interface ILoggerFactory : IObservable<ILog>, IDisposable
     {
         ILogger CreateLogger(SoftString name);
     }

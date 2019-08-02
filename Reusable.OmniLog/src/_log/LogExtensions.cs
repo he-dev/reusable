@@ -24,7 +24,7 @@ namespace Reusable.OmniLog
         
         public static ILog OverrideTransaction(this ILog log) => log.SetItem(LogPropertyNames.OverridesTransaction, true);
 
-        public static ILog Transform(this ILog log, TransformCallback transform) => transform(log);
+        public static ILog Transform(this ILog log, Func<ILog, ILog> transform) => transform(log);
         
         public static TLog SetItem<TLog>(this TLog log, SoftString name, object value) where TLog : ILog
         {

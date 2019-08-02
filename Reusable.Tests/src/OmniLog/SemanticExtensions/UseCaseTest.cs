@@ -18,6 +18,7 @@ namespace Reusable.Tests.OmniLog.SemanticExtensions
 
         public UseCaseTest2()
         {
+            _memoryLog = new MemoryRx();
             _loggerFactory =
                 new LoggerFactory()
                     .AttachObject("Environment", "Test")
@@ -26,7 +27,7 @@ namespace Reusable.Tests.OmniLog.SemanticExtensions
                     .AttachSnapshot()
                     .Attach<Timestamp<DateTimeUtc>>()
                     .AttachElapsedMilliseconds()
-                    .AddObserver(_memoryLog = new MemoryRx());
+                    .Subscribe(_memoryLog, f => f);
 
             _logger = _loggerFactory.CreateLogger<UseCaseTest2>();
 

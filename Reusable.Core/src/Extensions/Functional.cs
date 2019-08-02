@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 
 namespace Reusable.Extensions
 {
-    public static class FunctionalExtensions
+    public static class Functional
     {
         [ContractAnnotation("obj: null => null; obj: notnull => notnull")]
         public static T Next<T>([CanBeNull] this T obj, [NotNull] Action<T> next)
@@ -31,5 +31,9 @@ namespace Reusable.Extensions
             next(obj);
             return obj;
         }
+
+        public static TOut Pipe<TIn, TOut>(this TIn input, Func<TIn, TOut> pipe) => pipe(input);
+
+        public static T Echo<T>(this T value) => value;
     }
 }

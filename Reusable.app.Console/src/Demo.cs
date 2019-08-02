@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.Diagnostics;
@@ -31,19 +32,19 @@ namespace Reusable.Apps
         {
             SmartPropertiesLayoutRenderer.Register();
 
-            var loggerFactory = new LoggerFactory
-            {
-                Observers =
-                {
-                    new ConsoleRx(),
-                },
-                Attachments =
-                {
-                    new Timestamp<DateTimeUtc>(),
-                }
-            };
+//            var loggerFactory = new LoggerFactory
+//            {
+//                Observers =
+//                {
+//                    new ConsoleRx(),
+//                },
+//                Attachments =
+//                {
+//                    new Timestamp<DateTimeUtc>(),
+//                }
+//            };
 
-            var consoleLogger = loggerFactory.CreateLogger("ConsoleTemplateTest");
+            //var consoleLogger = loggerFactory.CreateLogger("ConsoleTemplateTest");
 
 //            consoleLogger.WriteLine(m => m
 //                .text(">")
@@ -72,8 +73,13 @@ namespace Reusable.Apps
                     .AttachSnapshot(SimpleJsonConverter<Person>.Create(x => new { x.FirstName, x.LastName }))
                     .Attach<Timestamp<DateTimeUtc>>()
                     .AttachElapsedMilliseconds()
-                    //.AddObserver<NLogRx>()
-                    .AddObserver<ConsoleRx>();
+                    .Subscribe<NLogRx>();
+            //.AddObserver<NLogRx>()
+            //.AddObserver<ConsoleRx>();
+
+
+            //var u = loggerFactory.Where(l => true);
+
             // UseConverter<Something>(x => x.ToString());
             //.UseConfiguration(LoggerFactoryConfiguration.Load(fileProvider.GetFileInfo(@"cfg\omnilog.json").CreateReadStream()));
 

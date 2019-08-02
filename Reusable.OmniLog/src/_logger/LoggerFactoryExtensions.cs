@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Reactive;
 using JetBrains.Annotations;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Attachments;
@@ -42,16 +44,21 @@ namespace Reusable.OmniLog
             return loggerFactory;
         }
 
-        public static LoggerFactory AddObserver(this LoggerFactory loggerFactory, [NotNull] ILogRx rx)
-        {
-            loggerFactory.Observers.Add(rx ?? throw new ArgumentNullException(nameof(rx)));
-            return loggerFactory;
-        }
+//        public static LoggerFactory AddObserver(this LoggerFactory loggerFactory, [NotNull] ILogRx rx)
+//        {
+//            loggerFactory.Observers.Add(rx ?? throw new ArgumentNullException(nameof(rx)));
+//            return loggerFactory;
+//        }
+//
+//        public static LoggerFactory AddObserver<TRx>(this LoggerFactory loggerFactory) where TRx : ILogRx, new()
+//        {
+//            loggerFactory.Observers.Add(new TRx());
+//            return loggerFactory;
+//        }
 
-        public static LoggerFactory AddObserver<TRx>(this LoggerFactory loggerFactory) where TRx : ILogRx, new()
+        public static LoggerFactory Subscribe<TRx>(this LoggerFactory loggerFactory, Func<IObservable<ILog>, IObservable<ILog>> configure = default) where TRx : ILogRx, new()
         {
-            loggerFactory.Observers.Add(new TRx());
-            return loggerFactory;
+            return loggerFactory.Subscribe(new TRx(), configure ?? (f => f));
         }
 
 //        public static LoggerFactory UseConfiguration(this LoggerFactory loggerFactory, LoggerFactoryConfiguration configuration)

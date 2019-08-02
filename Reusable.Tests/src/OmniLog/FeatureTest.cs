@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Linq;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Attachments;
@@ -6,35 +9,31 @@ using Xunit;
 
 namespace Reusable.Tests.OmniLog
 {
-    public class FeatureTest: IDisposable
+    public class FeatureTest
     {
-        private readonly ILoggerFactory _loggerFactory;
-
-        private readonly ILogger _logger;
-
-        private readonly MemoryRx _memoryLog;
-
-        public FeatureTest()
+        [Fact]
+        public void Can_log_message()
         {
-            _loggerFactory =
-                new LoggerFactory()
-                    .AttachObject("Environment", "Test")
-                    .AttachObject("Product", "Reusable.OmniLog")
-                    .Attach<Timestamp<DateTimeUtc>>()
-                    .AddObserver(_memoryLog = new MemoryRx());
-
-            _logger = _loggerFactory.CreateLogger<FeatureTest>();
+            var rx = new MemoryRx();
+            using (var lf = new LoggerFactory().Subscribe(rx, o => o))
+            {
+                var l = lf.CreateLogger("test");
+                l.Information("Hallo!");
+                Assert.Equal(1, rx.Count());
+                Assert.Equal("Hallo!", rx.First()["Message"]);
+            }
         }
 
         [Fact]
-        public void asdf()
+        public void Does_not_log_filter_False()
         {
-            
-        }
-        
-        public void Dispose()
-        {
-            _loggerFactory.Dispose();
+            var rx = new MemoryRx();
+            using (var lf = new LoggerFactory().Subscribe(rx, f => f.Where(l => false)))
+            {
+                var l = lf.CreateLogger("test");
+                l.Information("Hallo!");
+                Assert.Equal(0, rx.Count());
+            }
         }
     }
 }

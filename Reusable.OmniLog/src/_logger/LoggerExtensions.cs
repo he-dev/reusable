@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog
@@ -12,32 +13,32 @@ namespace Reusable.OmniLog
     {
         #region LogLevels
 
-        public static ILogger Trace(this ILogger logger, string message, TransformCallback populate = null)
+        public static ILogger Trace(this ILogger logger, string message, Func<ILog, ILog> populate = null)
         {
             return logger.Log(LogLevel.Trace, message, null, populate);
         }
 
-        public static ILogger Debug(this ILogger logger, string message, TransformCallback populate = null)
+        public static ILogger Debug(this ILogger logger, string message, Func<ILog, ILog> populate = null)
         {
             return logger.Log(LogLevel.Debug, message, null, populate);
         }
 
-        public static ILogger Warning(this ILogger logger, string message, TransformCallback populate = null)
+        public static ILogger Warning(this ILogger logger, string message, Func<ILog, ILog> populate = null)
         {
             return logger.Log(LogLevel.Warning, message, null, populate);
         }
 
-        public static ILogger Information(this ILogger logger, string message, TransformCallback populate = null)
+        public static ILogger Information(this ILogger logger, string message, Func<ILog, ILog> populate = null)
         {
             return logger.Log(LogLevel.Information, message, null, populate);
         }
 
-        public static ILogger Error(this ILogger logger, string message, Exception exception = null, TransformCallback populate = null)
+        public static ILogger Error(this ILogger logger, string message, Exception exception = null, Func<ILog, ILog> populate = null)
         {
             return logger.Log(LogLevel.Error, message, exception, populate);
         }
 
-        public static ILogger Fatal(this ILogger logger, string message, Exception exception = null, TransformCallback populate = null)
+        public static ILogger Fatal(this ILogger logger, string message, Exception exception = null, Func<ILog, ILog> populate = null)
         {
             return logger.Log(LogLevel.Fatal, message, exception, populate);
         }
@@ -48,7 +49,7 @@ namespace Reusable.OmniLog
             [NotNull] LogLevel logLevel,
             [CanBeNull] string message,
             [CanBeNull] Exception exception,
-            [CanBeNull] TransformCallback populate
+            [CanBeNull] Func<ILog, ILog> populate
         )
         {
             if (logger == null) throw new ArgumentNullException(nameof(logger));
@@ -58,7 +59,7 @@ namespace Reusable.OmniLog
                 .SetItem(LogPropertyNames.Level, logLevel)
                 .SetItem(LogPropertyNames.Message, message)
                 .SetItem(LogPropertyNames.Exception, exception)
-                .Transform(populate ?? OmniLog.Log.EmptyTransform));
+                .Transform(populate ?? Functional.Echo));
         }
 
         #endregion
