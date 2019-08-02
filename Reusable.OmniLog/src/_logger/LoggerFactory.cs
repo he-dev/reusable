@@ -44,14 +44,14 @@ namespace Reusable.OmniLog
 
         #region ILoggerFactory
 
-        public IDisposable Subscribe(IObserver<ILog> observer) => _subject.Subscribe(observer);
+        public IDisposable Subscribe(IObserver<ILog> observer) => _subject.Where(Any).Subscribe(observer);
 
         /// <summary>
         /// Allows to subscribe to this factory so that it maintains the subscription.
         /// </summary>
         public LoggerFactory Subscribe(IObserver<ILog> observer, Func<IObservable<ILog>, IObservable<ILog>> configure)
         {
-            _subscriptions.Add(configure(this).Subscribe(observer));
+            _subscriptions.Add(configure(_subject).Where(Any).Subscribe(observer));
             return this;
         }
 
@@ -79,5 +79,7 @@ namespace Reusable.OmniLog
         }
 
         #endregion
+
+        private static Func<ILog, bool> Any => l => l.Any();
     }
 }

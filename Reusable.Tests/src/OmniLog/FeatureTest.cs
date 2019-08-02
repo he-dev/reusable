@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
+using Reusable.Extensions;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Attachments;
@@ -15,7 +16,7 @@ namespace Reusable.Tests.OmniLog
         public void Can_log_message()
         {
             var rx = new MemoryRx();
-            using (var lf = new LoggerFactory().Subscribe(rx, o => o))
+            using (var lf = new LoggerFactory().Subscribe(rx, Functional.Echo))
             {
                 var l = lf.CreateLogger("test");
                 l.Information("Hallo!");

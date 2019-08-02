@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Reusable.Extensions;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Attachments;
@@ -27,7 +28,7 @@ namespace Reusable.Tests.OmniLog.SemanticExtensions
                     .AttachSnapshot()
                     .Attach<Timestamp<DateTimeUtc>>()
                     .AttachElapsedMilliseconds()
-                    .Subscribe(_memoryLog, f => f);
+                    .Subscribe(_memoryLog, Functional.Echo);
 
             _logger = _loggerFactory.CreateLogger<UseCaseTest2>();
 

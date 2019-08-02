@@ -32,8 +32,19 @@ namespace Reusable.Extensions
             return obj;
         }
 
+        /// <summary>
+        /// Allows to chain unrelated functions.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="pipe"></param>
+        /// <typeparam name="TIn"></typeparam>
+        /// <typeparam name="TOut"></typeparam>
+        /// <returns></returns>
         public static TOut Pipe<TIn, TOut>(this TIn input, Func<TIn, TOut> pipe) => pipe(input);
 
+        /// <summary>
+        /// Returns the same value.
+        /// </summary>
         public static T Echo<T>(this T value) => value;
     }
 }
