@@ -24,7 +24,7 @@ namespace Reusable.Flexo
     public class Constant<TValue> : Expression<TValue>, IConstant, IConstant<TValue>, IEquatable<Constant<TValue>>
     {
         public Constant(SoftString name, TValue value, IImmutableContainer context = default)
-            : base(ZeroLogger.Default, name ?? value.GetType().ToPrettyString())
+            : base(LoggerDummy.Instance, name ?? value.GetType().ToPrettyString())
         {
             Value = value;
             Context = context ?? ImmutableContainer.Empty;

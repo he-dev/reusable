@@ -36,18 +36,20 @@ namespace Reusable.Flexo
 
     public interface IExtension
     {
-        object This { get; }
-        
-        Type Type { get; }
-    }
+        /// <summary>
+        /// Gets the value passed to this extension from outer context.
+        /// </summary>
+        object ThisOuter { get; }
 
-    /// <summary>
-    /// Extension marker interface.
-    /// </summary>
-    /// <typeparam name="T">Type being extended.</typeparam>
-    public interface IExtension<out T>
-    {
-        T This { get; }
+        /// <summary>
+        /// Indicates whether the extension is used as such or overrides it with its native value.
+        /// </summary>
+        bool IsInExtensionMode { get; }
+
+        /// <summary>
+        /// Gets the type the extension extends.
+        /// </summary>
+        Type ExtensionType { get; }
     }
 
     public abstract class Expression : IExpression
@@ -129,8 +131,19 @@ namespace Reusable.Flexo
 
         public bool Enabled { get; set; } = true;
 
-        [JsonProperty("This")]
+        [JsonIgnore]
         public IExpression Extension { get; set; }
+
+        #region Extension aliases
+
+        [Obsolete("Use Pipe")]
+        [JsonProperty("This")]
+        public IExpression ExtensionThis { get => Extension; set => Extension = value; }
+
+        [JsonProperty("Pipe")]
+        public IExpression ExtensionPipe { get => Extension; set => Extension = value; }
+
+        #endregion
 
         public abstract IConstant Invoke();
 
@@ -139,15 +152,14 @@ namespace Reusable.Flexo
             return ExpressionScope.Push(configureContext(ExpressionScope.Current?.Context ?? ExpressionContext.Default));
         }
 
-        protected class ZeroLogger : ILogger
+        protected class LoggerDummy : ILogger
         {
-            private ZeroLogger() { }
+            private LoggerDummy() { }
 
-            public static ILogger Default => new ZeroLogger();
+            public static ILogger Instance { get; } = new LoggerDummy();
 
-            public SoftString Name { get; } = nameof(ZeroLogger);
+            public SoftString Name { get; } = nameof(LoggerDummy);
 
-            //public ILogger Log(ILogLevel logLevel, Action<ILog> logAction) => this;
             public ILogger Log(TransformCallback request, TransformCallback response = default) => this;
 
             public ILogger Log(ILog log) => this;

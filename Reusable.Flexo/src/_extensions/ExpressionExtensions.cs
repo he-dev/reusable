@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
@@ -12,7 +13,7 @@ namespace Reusable.Flexo
         /// <summary>
         /// Gets only enabled expressions.
         /// </summary>
-        public static IEnumerable<IExpression> Enabled(this IEnumerable<IExpression> expressions)
+        public static IEnumerable<T> Enabled<T>(this IEnumerable<T> expressions) where T : ISwitchable
         {
             return
                 from expression in expressions
@@ -70,6 +71,52 @@ namespace Reusable.Flexo
                 expression is IConstant constant
                     ? constant.Value
                     : default;
+        }
+
+        // Resolves the actual expression in case it's Ref
+        [NotNull]
+        public static IExpression Resolve(this IExpression expression)
+        {
+            while (expression is Ref @ref)
+            {
+                expression = @ref.Invoke().Value<IExpression>();
+            }
+
+            return expression;
+        }
+        
+        internal static TreeNode<ExpressionDebugView> CreateDebugView(this IExpression expression)
+        {
+            return TreeNode.Create(new ExpressionDebugView
+            {
+                Type = expression.GetType().ToPrettyString(),
+                Name = expression.Name.ToString(),
+                Description = expression.Description ?? new ExpressionDebugView().Description,
+            });
+        }
+        
+        internal static object ThisOuterOrDefault(this IExpression expression)
+        {
+            var thisOuterValue =
+                expression is IExtension extension
+                    ? extension.ThisOuter
+                    : default;
+
+            switch (thisOuterValue)
+            {
+                case null: return default;
+                case IExpression e: return e;
+                case IEnumerable<IExpression> c: return c;
+                default:
+                    throw new ArgumentOutOfRangeException
+                    (
+                        paramName: nameof(IExtension.ThisOuter),
+                        message:
+                        $"'This' value is of type '{thisOuterValue.GetType().ToPrettyString()}' " +
+                        $"but it must be either an '{typeof(IExpression).ToPrettyString()}' " +
+                        $"or an '{typeof(IEnumerable<IExpression>).ToPrettyString()}'"
+                    );
+            }
         }
     }
 }

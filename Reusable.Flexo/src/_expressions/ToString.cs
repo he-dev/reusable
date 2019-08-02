@@ -9,21 +9,20 @@ namespace Reusable.Flexo
     /// <summary>
     /// Converts Input to string. Uses InvariantCulture by default.
     /// </summary>
-    public class ToString : ValueExtension<string>
+    public class ToString : ValueExpressionExtension<string>
     {
         public ToString(ILogger<ToString> logger) : base(logger, nameof(ToString)) { }
 
-        [JsonProperty("Value")]
-        public override IExpression This { get; set; }
+        public IExpression Value { get => ThisInner ?? ThisOuter; set => ThisInner = value; }
 
         public IExpression Format { get; set; }
 
-        protected override Constant<string> InvokeCore(IExpression @this)
+        protected override Constant<string> InvokeCore()
         {
             // Scope.This
             // Scope.Find("in") --> global object
             var format = Format?.Invoke().ValueOrDefault<string>() ?? "{0}";
-            return (Name, string.Format(CultureInfo.InvariantCulture, format, @this.Invoke().Value));
+            return (Name, string.Format(CultureInfo.InvariantCulture, format, Value.Invoke().Value));
         }
     }
 }

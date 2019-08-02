@@ -8,14 +8,14 @@ namespace Reusable.Flexo
     public class Collection : Expression<IEnumerable<IExpression>>
     {
         [JsonConstructor]
-        public Collection(SoftString name) : base(ZeroLogger.Default, name ?? nameof(Collection)) { }
+        public Collection(SoftString name) : base(LoggerDummy.Instance, name ?? nameof(Collection)) { }
 
         [JsonRequired]
         public IEnumerable<IExpression> Values { get; set; }
 
         protected override Constant<IEnumerable<IExpression>> InvokeCore()
         {
-            return (Name, Values.Enabled().Select((e, i) => Constant.FromValue($"Item[{i}]", e.Invoke().Value)).ToList());
+            return (Name, Values.Enabled().Select((e, i) => Constant.FromValue($"{Name.ToString()}.Items[{i}]", e.Invoke().Value)).ToList());
         }
     }
 }

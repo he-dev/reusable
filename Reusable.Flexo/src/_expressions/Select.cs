@@ -16,20 +16,18 @@ namespace Reusable.Flexo
     /// </summary>
     [UsedImplicitly]
     [PublicAPI]
-    public class Select : CollectionExtension<IEnumerable<IExpression>>
+    public class Select : CollectionExpressionExtension<IEnumerable<IExpression>>
     {
         public Select(ILogger<Select> logger) : base(logger, nameof(Select)) { }
 
-        //protected override bool SuppressDebugView => true;
-
-        [JsonProperty("Values")]
-        public override IEnumerable<IExpression> This { get; set; }
+        
+        public  IEnumerable<IExpression> Values { get => ThisInner ?? ThisOuter; set => ThisInner = value; }
 
         public IExpression Selector { get; set; }
 
-        protected override Constant<IEnumerable<IExpression>> InvokeCore(IEnumerable<IExpression> @this)
+        protected override Constant<IEnumerable<IExpression>> InvokeCore()
         {
-            var result = @this.Select(item =>
+            var result = Values.Select(item =>
             {
                 using (BeginScope(ctx => ctx.SetItem(ExpressionContext.Item, item)))
                 {

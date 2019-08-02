@@ -9,19 +9,18 @@ using Reusable.OmniLog.Abstractions;
 namespace Reusable.Flexo
 {
     [PublicAPI]
-    public abstract class Aggregate : CollectionExtension<double>
+    public abstract class Aggregate : CollectionExpressionExtension<double>
     {
         private readonly Func<IEnumerable<double>, double> _aggregate;
 
         protected Aggregate(ILogger logger, string name, [NotNull] Func<IEnumerable<double>, double> aggregate)
             : base(logger, name) => _aggregate = aggregate;
+        
+        public IEnumerable<IExpression> Values { get => ThisInner ?? ThisOuter; set => ThisInner = value; }
 
-        [JsonProperty("Values")]
-        public override IEnumerable<IExpression> This { get; set; }
-
-        protected override Constant<double> InvokeCore(IEnumerable<IExpression> @this)
+        protected override Constant<double> InvokeCore()
         {
-            var values = @this.Select(e => e.Invoke()).Values<object>().Cast<double>();
+            var values = Values.Select(e => e.Invoke()).Values<object>().Cast<double>();
             var result = _aggregate(values);
             return (Name, result);
         }

@@ -8,18 +8,17 @@ using Reusable.Quickey;
 
 namespace Reusable.Flexo
 {
-    public class Any : CollectionExtension<bool>
+    public class Any : CollectionExpressionExtension<bool>
     {
         public Any(ILogger<Any> logger) : base(logger, nameof(Any)) { }
 
-        [JsonProperty("Values")]
-        public override IEnumerable<IExpression> This { get; set; }
+        public IEnumerable<IExpression> Values { get => ThisInner ?? ThisOuter; set => ThisInner = value; }
 
         public IExpression Predicate { get; set; }
 
-        protected override Constant<bool> InvokeCore(IEnumerable<IExpression> @this)
+        protected override Constant<bool> InvokeCore()
         {
-            foreach (var item in @this)
+            foreach (var item in Values)
             {
                 var current = item.Invoke();
                 using (BeginScope(ctx => ctx.SetItem(ExpressionContext.This, current)))

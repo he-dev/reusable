@@ -7,7 +7,7 @@ namespace Reusable.Flexo
     {
         private readonly Func<TResult> _invoke;
 
-        public LambdaExpression(string name, Func<TResult> invoke) : base(ZeroLogger.Default, name)
+        public LambdaExpression(string name, Func<TResult> invoke) : base(LoggerDummy.Instance, name)
         {
             _invoke = invoke;
         }

@@ -7,18 +7,17 @@ using Reusable.Quickey;
 
 namespace Reusable.Flexo
 {
-    public class ForEach : CollectionExtension<object>
+    public class ForEach : CollectionExpressionExtension<object>
     {
         public ForEach([NotNull] ILogger<ForEach> logger) : base(logger, nameof(ForEach)) { }
 
-        [JsonProperty("Values")]
-        public override IEnumerable<IExpression> This { get; set; }
+        public IEnumerable<IExpression> Values { get => ThisInner ?? ThisOuter; set => ThisInner = value; }
 
         public IEnumerable<IExpression> Body { get; set; }
 
-        protected override Constant<object> InvokeCore(IEnumerable<IExpression> @this)
+        protected override Constant<object> InvokeCore()
         {
-            foreach (var item in @this)
+            foreach (var item in Values)
             {
                 using (BeginScope(ctx => ctx.SetItem(ExpressionContext.Item, item)))
                 {

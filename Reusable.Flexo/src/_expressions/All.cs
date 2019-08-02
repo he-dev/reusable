@@ -8,19 +8,18 @@ using Reusable.OmniLog.Abstractions;
 namespace Reusable.Flexo
 {
     [PublicAPI]
-    public class All : CollectionExtension<bool>
+    public class All : CollectionExpressionExtension<bool>
     {
         public All(ILogger<All> logger) : base(logger, nameof(All)) { }
 
-        [JsonProperty("Values")]
-        public override IEnumerable<IExpression> This { get; set; }
+        public IEnumerable<IExpression> Values { get => ThisInner ?? ThisOuter; set => ThisInner = value; }
 
         public IExpression Predicate { get; set; }
 
-        protected override Constant<bool> InvokeCore(IEnumerable<IExpression> @this)
+        protected override Constant<bool> InvokeCore()
         {
             var predicate = (Predicate ?? Constant.True).Invoke();
-            foreach (var item in @this)
+            foreach (var item in Values)
             {
                 var current = item.Invoke();
                 if (!EqualityComparer<bool>.Default.Equals(current.Value<bool>(), predicate.Value<bool>()))

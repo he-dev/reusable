@@ -7,16 +7,15 @@ using Reusable.Utilities.JsonNet.Annotations;
 namespace Reusable.Flexo
 {
     //[Alias("!")]
-    public class Not : ValueExtension<bool>
+    public class Not : ValueExpressionExtension<bool>
     {
         public Not(ILogger<Not> logger) : base(logger, nameof(Not)) { }
+        
+        public IExpression Value { get => ThisInner ?? ThisOuter; set => ThisInner = value; }
 
-        [JsonProperty("Value")]
-        public override IExpression This { get; set; }
-
-        protected override Constant<bool> InvokeCore(IExpression @this)
+        protected override Constant<bool> InvokeCore()
         {
-            return (Name, !@this.Invoke().Value<bool>());            
+            return (Name, !Value.Invoke().Value<bool>());            
         }
     }
 }

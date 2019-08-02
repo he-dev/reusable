@@ -3,16 +3,15 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
-    public class IsNull : ValueExtension<bool>
+    public class IsNull : ValueExpressionExtension<bool>
     {
         public IsNull(ILogger<IsNull> logger) : base(logger, nameof(IsNull)) { }
+        
+        public IExpression Left { get => ThisInner ?? ThisOuter; set => ThisInner = value; }
 
-        [JsonProperty("Left")]
-        public override IExpression This { get; set; }
-
-        protected override Constant<bool> InvokeCore(IExpression @this)
+        protected override Constant<bool> InvokeCore()
         {
-            var value = @this.Invoke().Value;
+            var value = Left.Invoke().Value;
             return (Name, value is null);
         }
     }

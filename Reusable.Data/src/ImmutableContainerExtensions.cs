@@ -21,8 +21,8 @@ namespace Reusable.Data
         public static T GetItem<T>(this IImmutableContainer container, Selector<T> selector)
         {
             return container.TryGetItem(selector, out var item) ? item : throw DynamicException.Create("ItemNotFound", $"Item '{selector}' is required.");
-
         }
+
         [DebuggerStepThrough]
         [MustUseReturnValue]
         public static T GetItemOrDefault<T>(this IImmutableContainer container, Selector<T> selector, T defaultValue = default)
@@ -49,7 +49,15 @@ namespace Reusable.Data
         {
             return container.SetItem(key.ToString(), value);
         }
-        
+
+        public static IImmutableContainer SetItemWhen<T>(this IImmutableContainer container, Selector<T> key, T value, Func<IImmutableContainer, T, bool> canSet)
+        {
+            return
+                canSet(container, value)
+                    ? container.SetItem(key.ToString(), value)
+                    : container;
+        }
+
         public static IImmutableContainer SetItem<T>(this IImmutableContainer container, Selector<T> key, Func<IImmutableContainer, T> value)
         {
             return container.SetItem(key.ToString(), value(container));
@@ -73,35 +81,35 @@ namespace Reusable.Data
             return second.Aggregate(first, (current, next) => overwrite || !current.ContainsKey(next.Key) ? current.SetItem(next.Key, next.Value) : current);
         }
 
-//        [MustUseReturnValue]
-//        public static IImmutableSession Union(this IImmutableSession metadata, IImmutableSession other)
-//        {
-//            //return other.Aggregate(metadata, (current, i) => current.SetItem(i.Key, i.Value));
-//
-//            var result = metadata;
-//
-//            foreach (var item in other)
-//            {
-//                if (item.Value is IImmutableSession otherScope)
-//                {
-//                    // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
-//                    if (result.TryGetValue(item.Key, out IImmutableSession currentScope))
-//                    {
-//                        result = result.SetItem(item.Key, currentScope.Aggregate(otherScope, (current, i) => current.SetItem(i.Key, i.Value)));
-//                    }
-//                    else
-//                    {
-//                        result = result.SetItem(item.Key, otherScope);
-//                    }
-//                }
-//                else
-//                {
-//                    result = result.SetItem(item.Key, item.Value);
-//                }
-//            }
-//
-//            return result;
-//        }
+        //        [MustUseReturnValue]
+        //        public static IImmutableSession Union(this IImmutableSession metadata, IImmutableSession other)
+        //        {
+        //            //return other.Aggregate(metadata, (current, i) => current.SetItem(i.Key, i.Value));
+        //
+        //            var result = metadata;
+        //
+        //            foreach (var item in other)
+        //            {
+        //                if (item.Value is IImmutableSession otherScope)
+        //                {
+        //                    // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
+        //                    if (result.TryGetValue(item.Key, out IImmutableSession currentScope))
+        //                    {
+        //                        result = result.SetItem(item.Key, currentScope.Aggregate(otherScope, (current, i) => current.SetItem(i.Key, i.Value)));
+        //                    }
+        //                    else
+        //                    {
+        //                        result = result.SetItem(item.Key, otherScope);
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    result = result.SetItem(item.Key, item.Value);
+        //                }
+        //            }
+        //
+        //            return result;
+        //        }
 
         //        public static MetadataScope<T> Union<T>(this MetadataScope<T> scope, Metadata other)
         //        {

@@ -13,22 +13,21 @@ namespace Reusable.Flexo
 {
     [UsedImplicitly]
     [PublicAPI]
-    public class Switch : ValueExtension<object>
+    public class Switch : ValueExpressionExtension<object>
     {
         public Switch(ILogger<Switch> logger) : this(logger, nameof(Switch)) { }
-        
+
         protected Switch(ILogger logger, SoftString name) : base(logger, name) { }
 
-        [JsonProperty("Value")]
-        public override IExpression This { get; set; }
+        public IExpression Value { get => ThisInner ?? ThisOuter; set => ThisInner = value; }
 
         public IEnumerable<SwitchCase> Cases { get; set; }
 
         public IExpression Default { get; set; }
 
-        protected override Constant<object> InvokeCore(IExpression @this)
+        protected override Constant<object> InvokeCore()
         {
-            var value = @this.Invoke();
+            var value = Value.Invoke();
 
             foreach (var switchCase in (Cases ?? Enumerable.Empty<SwitchCase>()).Where(c => c.Enabled))
             {
@@ -86,12 +85,12 @@ namespace Reusable.Flexo
         public IExpression Body { get; set; }
     }
 
-//    [UseType]
-//    [UseMember]
-//    [TrimEnd("I")]
-//    [TrimStart("Meta")]
-//    public interface ISwitchMeta : INamespace
-//    {
-//        object Value { get; }
-//    }
+    //    [UseType]
+    //    [UseMember]
+    //    [TrimEnd("I")]
+    //    [TrimStart("Meta")]
+    //    public interface ISwitchMeta : INamespace
+    //    {
+    //        object Value { get; }
+    //    }
 }

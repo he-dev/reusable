@@ -8,20 +8,17 @@ using Reusable.Quickey;
 
 namespace Reusable.Flexo
 {
-    public class Where : CollectionExtension<IEnumerable<IExpression>>
+    public class Where : CollectionExpressionExtension<IEnumerable<IExpression>>
     {
         public Where([NotNull] ILogger<Where> logger) : base(logger, nameof(Where)) { }
 
-        //protected override bool SuppressDebugView => true;
-        
-        [JsonProperty("Values")]
-        public override IEnumerable<IExpression> This { get; set; }
+        public IEnumerable<IExpression> Values { get => ThisInner ?? ThisOuter; set => ThisInner = value; }
 
         public IExpression Predicate { get; set; }
 
-        protected override Constant<IEnumerable<IExpression>> InvokeCore(IEnumerable<IExpression> @this)
+        protected override Constant<IEnumerable<IExpression>> InvokeCore()
         {
-            var result = @this.Where(item =>
+            var result = Values.Where(item =>
             {
                 using (BeginScope(ctx => ctx.SetItem(ExpressionContext.This, item)))
                 {

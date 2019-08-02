@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
@@ -21,14 +20,14 @@ using Reusable.Utilities.JsonNet.Annotations;
 namespace Reusable.Flexo
 {
     [Namespace("Flexo", Alias = "F")]
-    public abstract class Expression<TResult> : Expression //where TResult : IConstant
+    public abstract class Expression<TResult> : Expression
     {
         protected Expression([NotNull] ILogger logger, SoftString name) : base(logger, name) { }
 
         public override IConstant Invoke()
         {
             var parentView = Scope.Context.GetItemOrDefault(ExpressionContext.DebugView);
-            var thisView = parentView.Add(CreateDebugView(this));
+            var thisView = parentView.Add(this.CreateDebugView());
 
             // Take a shortcut when this is a constant without an extension. This helps to avoid another debug-view.
             if (this is IConstant constant && Extension is null)
@@ -37,161 +36,50 @@ namespace Reusable.Flexo
                 return constant;
             }
 
-            var @this = GetThisOrDefault(this);
-
-            var thisScope = BeginScope(ctx =>
-            {
-                ctx = ctx.SetItem(ExpressionContext.DebugView, thisView);
-                return
-                    @this is null
-                        ? ctx
-                        : ctx.SetItem(ExpressionContext.This, @this);
-            });
-
-            using (thisScope)
+            using (BeginScope(ctx => ctx
+                .SetItem(ExpressionContext.DebugView, thisView)
+                .SetItemWhen(ExpressionContext.This, this.ThisOuterOrDefault(), (_, value) => value.IsNotNull()))
+            )
             {
                 var thisResult = InvokeCore();
                 thisView.Value.Result = thisResult.Value;
-                @this = thisResult;
 
                 if (Extension is null)
                 {
                     return thisResult;
                 }
-
-                var extension = ResolveExtension(Extension);
-
-                // Block is transparent so skip any special extension handling.
-                if (!(extension is Block))
+                else
                 {
-                    // Validate @this only when this is used as an extension.
-                    if (GetThisOrDefault(extension) is var t && t is null)
+                    var extension = Extension.Resolve();
+
+                    // Check whether result and extension match; do it only for extension expressions.
+                    if (extension is IExtension ext && ext.IsInExtensionMode)
                     {
-                        var extensionType = ((IExtension)extension).Type;
                         var thisType =
                             thisResult.Value is IEnumerable<IExpression> collection
                                 ? collection.GetType()
-                                : @this.GetType();
+                                : thisResult.GetType();
 
-                        if (extensionType.IsAssignableFrom(thisType) == false)
+                        if (!ext.ExtensionType.IsAssignableFrom(thisType))
                         {
                             throw DynamicException.Create
                             (
                                 $"ExtensionTypeMismatch",
-                                $"Extension's '{extension.GetType().ToPrettyString()}' type '{extensionType.ToPrettyString()}' does not match the expression it is extending which is '{GetType().ToPrettyString()}'."
+                                $"Extension '{ext.GetType().ToPrettyString()}<{ext.ExtensionType.ToPrettyString()}>' does not match the expression it is extending: '{thisResult.Value.GetType().ToPrettyString()}'."
                             );
                         }
                     }
-                    // @this is overriden an this is not used as an extension.
-                    else
+
+                    using (BeginScope(ctx => ctx
+                        .SetItem(ExpressionContext.DebugView, thisView)
+                        .SetItem(ExpressionContext.This, thisResult)))
                     {
-                        @this = t;
+                        return extension.Invoke();
                     }
                 }
-
-                using (BeginScope(ctx => ctx.SetItem(ExpressionContext.DebugView, thisView).SetItem(ExpressionContext.This, @this)))
-                {
-                    return extension.Invoke();
-                }
             }
-        }
-
-        [CanBeNull]
-        private static object GetThisOrDefault(IExpression expression)
-        {
-            var thisValue =
-                expression is IExtension extension
-                    ? extension.This
-                    : default;
-
-            switch (thisValue)
-            {
-                case null: return default;
-                case IExpression e: return e;
-                case IEnumerable<IExpression> c: return c;
-                default:
-                    throw new ArgumentOutOfRangeException
-                    (
-                        paramName: nameof(IExtension<object>.This),
-                        message: $"'This' value is of type '{thisValue.GetType().ToPrettyString()}' " +
-                                 $"but it must be either an '{typeof(IExpression).ToPrettyString()}' " +
-                                 $"or an '{typeof(IEnumerable<IExpression>).ToPrettyString()}'"
-                    );
-            }
-        }
-
-        [NotNull]
-        private static IExpression ResolveExtension(IExpression expression)
-        {
-            // Resolve the actual expression.
-            while (expression is Ref @ref)
-            {
-                expression = @ref.Invoke().Value<IExpression>();
-            }
-
-            return expression;
         }
 
         protected abstract Constant<TResult> InvokeCore();
-
-        private static TreeNode<ExpressionDebugView> CreateDebugView(IExpression expression)
-        {
-            return TreeNode.Create(new ExpressionDebugView
-            {
-                Type = expression.GetType().ToPrettyString(),
-                Name = expression.Name.ToString(),
-                Description = expression.Description ?? new ExpressionDebugView().Description,
-            });
-        }
-    }
-
-    public abstract class ValueExtension<TResult> : Expression<TResult>, IExtension<IExpression>, IExtension //where TResult : IConstant
-    {
-        protected ValueExtension([NotNull] ILogger logger, SoftString name) : base(logger, name) { }
-
-        object IExtension.This => This;
-
-        // This property needs to be abstract because it might be renamed so the JsonPropertyAttribute is necessary.
-        public abstract IExpression This { get; set; }
-
-        public Type Type { get; } = typeof(IExpression);
-
-        protected override Constant<TResult> InvokeCore()
-        {
-            return
-                Scope.Context.GetItemOrDefault(ExpressionContext.This) is IExpression @this
-                    ? InvokeCore(@this)
-                    : throw DynamicException.Create("InvalidExtensionType", $"'{nameof(This)}' must be an '{nameof(IExpression)}'.");
-        }
-
-        protected abstract Constant<TResult> InvokeCore(IExpression @this);
-    }
-
-    public abstract class CollectionExtension<TResult> : Expression<TResult>, IExtension<IEnumerable<IExpression>>, IExtension
-    {
-        protected CollectionExtension([NotNull] ILogger logger, SoftString name) : base(logger, name) { }
-
-        object IExtension.This => This;
-
-        // This property needs to be abstract because it might be renamed and needs to be decorated with the JsonPropertyAttribute.
-        public abstract IEnumerable<IExpression> This { get; set; }
-
-        public Type Type { get; } = typeof(IEnumerable<IExpression>);
-
-        protected override Constant<TResult> InvokeCore()
-        {
-            var @this = Scope.Context.GetItemOrDefault(ExpressionContext.This);
-            if (@this is IConstant constant)
-            {
-                @this = constant.Value;
-            }
-
-            return
-                @this is IEnumerable<IExpression> collection
-                    ? InvokeCore(collection.Enabled())
-                    : throw DynamicException.Create("InvalidExtensionType", $"'{nameof(This)}' must be an '{nameof(IEnumerable<IExpression>)}'.");
-        }
-
-        protected abstract Constant<TResult> InvokeCore(IEnumerable<IExpression> @this);
     }
 }
