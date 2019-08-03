@@ -21,7 +21,7 @@ namespace Reusable.OmniLog
             [LogLevel.Fatal] = NLog.LogLevel.Fatal,
         };
 
-        protected override void Log(ILog log)
+        public override void Log(ILog log)
         {
             GetLogger(log.GetItemOrDefault<string>(LogPropertyNames.Name)).Log(CreateLogEventInfo(log));
         }

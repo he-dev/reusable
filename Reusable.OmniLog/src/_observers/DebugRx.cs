@@ -8,7 +8,7 @@ namespace Reusable.OmniLog
     {
         private DebugRx() { }
 
-        protected override void Log(ILog log)
+        public override void Log(ILog log)
         {
             Debug.WriteLine(log);
         }

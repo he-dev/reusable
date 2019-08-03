@@ -36,7 +36,7 @@ namespace Reusable.OmniLog
         [CanBeNull]
         public ConsoleTemplateBuilder TemplateBuilder { get; set; }
 
-        protected override void Log(ILog log)
+        public override void Log(ILog log)
         {
             if ((log.ConsoleTemplateBuilder() ?? TemplateBuilder) is var templateBuilder && templateBuilder is null)
             {

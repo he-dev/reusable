@@ -24,7 +24,7 @@ namespace Reusable.OmniLog
         [NotNull]
         public ILog this[int index] => this.ElementAtOrDefault(index) ?? throw DynamicException.Create("LogIndexOutOfRange", $"There is no log at {index}.");
 
-        protected override void Log(ILog log)
+        public override void Log(ILog log)
         {
             lock (_logs)
             {

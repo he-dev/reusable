@@ -38,3 +38,24 @@ namespace Reusable.Tests.OmniLog
         }
     }
 }
+
+namespace Reusable.OmniLog.Experimental
+{
+    //using Reusable.OmniLog.Experimental;
+
+    public class FeatureTest
+    {
+        [Fact]
+        public void Can_log_message()
+        {
+            var rx = new MemoryRx();
+            using (var lf = new LoggerFactory { Receivers = { rx } })
+            {
+                var logger = lf.CreateLogger("test");
+                logger.Log(l => l.Message("Hallo!"));
+                Assert.Equal(1, rx.Count());
+                Assert.Equal("Hallo!", rx.First()["Message"]);
+            }
+        }
+    }
+}

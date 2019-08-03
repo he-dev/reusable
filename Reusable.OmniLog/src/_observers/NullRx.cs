@@ -4,6 +4,6 @@ namespace Reusable.OmniLog
 {
     public class NullRx : LogRx
     {
-        protected override void Log(ILog log) { }
+        public override void Log(ILog log) { }
     }
 }

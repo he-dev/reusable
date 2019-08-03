@@ -5,7 +5,10 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog
 {
-    public interface ILogRx : IObserver<ILog> { }
+    public interface ILogRx : IObserver<ILog>
+    {
+        void Log(ILog log);
+    }
 
     public abstract class LogRx : ILogRx
     {
@@ -19,7 +22,7 @@ namespace Reusable.OmniLog
 
         public SoftString Name { get; }
 
-        protected abstract void Log(ILog log);
+        public abstract void Log(ILog log);
 
         public virtual void OnNext(ILog value) => _log.OnNext(value);
 
