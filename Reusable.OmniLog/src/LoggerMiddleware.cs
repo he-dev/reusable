@@ -64,7 +64,7 @@ namespace Reusable.OmniLog.Experimental
 
         public List<ILogRx> Receivers { get; set; } = new List<ILogRx>();
 
-        public IEnumerable<LoggerMiddleware> Middleware { get; set; }
+        public List<LoggerMiddleware> Middleware { get; set; } = new List<LoggerMiddleware>();
 
         #region ILoggerFactory
 
@@ -76,7 +76,7 @@ namespace Reusable.OmniLog.Experimental
                 new Logger(
                     new LoggerPropertySetter(("Logger", name))
                         .InsertNext(new LoggerAttachment(Attachments))
-                        .Pipe(m => Middleware?.Aggregate((LoggerMiddleware)m, (current, next) => current.InsertNext(next)) ?? m)
+                        .Pipe(m => Middleware.Aggregate((LoggerMiddleware)m, (current, next) => current.InsertNext(next)))
                         .InsertNext(new LoggerEcho(Receivers)))
             );
         }
@@ -100,7 +100,9 @@ namespace Reusable.OmniLog.Experimental
 
     public interface ILogger
     {
-        T Use<T>(T next) where T : LoggerMiddleware;
+        T UseLast<T>(T next) where T : LoggerMiddleware;
+
+        T UseFirst<T>(T next) where T : LoggerMiddleware;
 
         void Log(Log log);
     }
@@ -115,10 +117,16 @@ namespace Reusable.OmniLog.Experimental
             _middleware = middleware.First();
         }
 
-        public T Use<T>(T next) where T : LoggerMiddleware
+        public T UseLast<T>(T next) where T : LoggerMiddleware
         {
             // The last middleware is Echo so put the new one before.
             return _middleware.Last().Previous.InsertNext(next);
+        }
+
+        public T UseFirst<T>(T next) where T : LoggerMiddleware
+        {
+            // The last middleware is Echo so put the new one before.
+            return _middleware.First().Next.InsertNext(next);
         }
 
         public void Log(Log log)
@@ -303,17 +311,23 @@ namespace Reusable.OmniLog.Experimental
 
     public class LoggerScope : LoggerMiddleware
     {
-        private static readonly AsyncLocal<Stack<object>> _current = new AsyncLocal<Stack<object>>
+        private static readonly AsyncLocal<Stack<LoggerScope>> _current = new AsyncLocal<Stack<LoggerScope>>
         {
-            Value = new Stack<object>()
+            Value = new Stack<LoggerScope>()
         };
 
-        public LoggerScope()
+        public LoggerScope(object correlationId, object correlationHandle)
         {
-            Current.Push(new { CorrelationId = Guid.NewGuid() });
+            CorrelationId = correlationId ?? Guid.NewGuid().ToString("N");
+            correlationHandle = correlationHandle;
+            Current.Push(this);
         }
 
-        private static Stack<object> Current
+        public object CorrelationId { get; }
+
+        public object CorrelationHandle { get; }
+
+        private static Stack<LoggerScope> Current
         {
             get => _current.Value;
             set => _current.Value = value;
@@ -327,10 +341,12 @@ namespace Reusable.OmniLog.Experimental
 
         public override void Dispose()
         {
-            //if (Current.Any())
+            if (!Current.Any())
             {
-                Current.Pop();
+                throw new InvalidOperationException("This should not have occured. The scope seems to be disposed too many times");
             }
+
+            Current.Pop();
 
             base.Dispose();
         }
@@ -402,7 +418,7 @@ namespace Reusable.OmniLog.Experimental
     {
         public static LoggerStopwatch UseStopwatch(this ILogger logger)
         {
-            return logger.Use(new LoggerStopwatch());
+            return logger.UseLast(new LoggerStopwatch());
         }
     }
 
@@ -411,31 +427,31 @@ namespace Reusable.OmniLog.Experimental
     {
         public static LoggerLambda UseLambda(this ILogger logger, Action<Log> transform)
         {
-            return logger.Use(new LoggerLambda(transform));
+            return logger.UseFirst(new LoggerLambda(transform));
         }
     }
 
     public static class LoggerTransactionHelper
     {
-        public static LoggerTransaction UseTransaction(this Logger logger)
+        public static LoggerTransaction UseTransaction(this ILogger logger)
         {
-            return logger.Use(new LoggerTransaction());
+            return logger.UseLast(new LoggerTransaction());
         }
     }
 
     public static class LoggerFilterHelper
     {
-        public static LoggerFilter UseFilter(this Logger logger, Func<Log, bool> canLog)
+        public static LoggerFilter UseFilter(this ILogger logger, Func<Log, bool> canLog)
         {
-            return logger.Use(new LoggerFilter { CanLog = canLog });
+            return logger.UseLast(new LoggerFilter { CanLog = canLog });
         }
     }
 
     public static class LoggerScopeHelper
     {
-        public static LoggerScope UseScope(this Logger logger)
+        public static LoggerScope UseScope(this ILogger logger, object correlationId = default, object correlationHandle = default)
         {
-            return logger.Use(new LoggerScope());
+            return logger.UseLast(new LoggerScope(correlationId, correlationHandle));
         }
     }
 
