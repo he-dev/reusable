@@ -223,7 +223,7 @@ namespace Reusable.OmniLog.SemanticExtensions.v2
         /// </summary>
         public static IAbstractionContext Because(this IAbstractionContext category, string reason)
         {
-            return category.SetItem(AbstractionProperties.Message, reason);
+            return category.SetItem(AbstractionProperties.Because, reason);
         }
     }
 

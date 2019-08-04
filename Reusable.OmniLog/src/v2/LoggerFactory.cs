@@ -30,18 +30,18 @@ namespace Reusable.OmniLog.v2
         public List<LoggerMiddleware> Middleware { get; set; } = new List<LoggerMiddleware>();
 
 
-        public List<Type> MiddlewareOrder { get; set; } = new List<Type>
-        {
-            typeof(v2.Middleware.LoggerProperty),
-            typeof(v2.Middleware.LoggerStopwatch),
-            typeof(v2.Middleware.LoggerAttachment),
-            typeof(v2.Middleware.LoggerLambda),
-            typeof(v2.Middleware.LoggerCorrelation),
-            typeof(v2.Middleware.LoggerSerializer),
-            typeof(v2.Middleware.LoggerFilter),
-            typeof(v2.Middleware.LoggerTransaction),
-            typeof(v2.Middleware.LoggerEcho),
-        };
+//        public List<Type> MiddlewareOrder { get; set; } = new List<Type>
+//        {
+//            typeof(v2.Middleware.LoggerProperty),
+//            typeof(v2.Middleware.LoggerStopwatch),
+//            typeof(v2.Middleware.LoggerAttachment),
+//            typeof(v2.Middleware.LoggerLambda),
+//            typeof(v2.Middleware.LoggerCorrelation),
+//            typeof(v2.Middleware.LoggerSerializer),
+//            typeof(v2.Middleware.LoggerFilter),
+//            typeof(v2.Middleware.LoggerTransaction),
+//            typeof(v2.Middleware.LoggerEcho),
+//        };
 
         #region ILoggerFactory
 
@@ -51,14 +51,17 @@ namespace Reusable.OmniLog.v2
 
             return _loggers.GetOrAdd(name, n =>
             {
-                var positions = MiddlewareOrder.Select((m, i) => (m, i)).ToDictionary(t => t.m, t => t.i);
-                var baseMiddleware = new LoggerProperty((LogPropertyNames.Logger.ToString(), n.ToString())).InsertNext(new LoggerEcho(Receivers));
-                foreach (var middleware in Middleware)
+                //var positions = MiddlewareOrder.Select((m, i) => (m, i)).ToDictionary(t => t.m, t => t.i);
+                //var baseMiddleware = new LoggerProperty((LogPropertyNames.Logger.ToString(), n.ToString())).InsertNext(new LoggerEcho(Receivers));
+                var middleware = (LoggerMiddleware)new LoggerProperty((LogPropertyNames.Logger.ToString(), n.ToString()));
+                foreach (var current in Middleware)
                 {
-                    baseMiddleware.InsertRelative(middleware, positions);
+                   middleware = middleware.InsertNext(current);
                 }
 
-                return new Logger(baseMiddleware, positions);
+                middleware = middleware.InsertNext(new LoggerEcho(Receivers));
+
+                return new Logger(middleware.First(), default);
             });
         }
 
@@ -67,5 +70,20 @@ namespace Reusable.OmniLog.v2
         #endregion
 
         private static Func<ILog, bool> Any => l => l.Any();
+    }
+    
+    public static class LoggerFactoryExtensions
+    {
+        public static LoggerFactory Use<T>(this LoggerFactory loggerFactory, T middleware) where T : LoggerMiddleware
+        {
+            //var current = default(LoggerMiddleware);
+            loggerFactory.Middleware.Add(middleware);
+            return loggerFactory;
+        }
+        
+        public static LoggerFactory Use<T>(this LoggerFactory loggerFactory) where T : LoggerMiddleware, new()
+        {
+            return loggerFactory.Use(new T());
+        }
     }
 }

@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 
 namespace Reusable.OmniLog.SemanticExtensions.v2
 {
+    using Reusable.OmniLog.v2;
     using v1 = Reusable.OmniLog.Abstractions;
     using v2 = Reusable.OmniLog.Abstractions.v2;
 
@@ -19,19 +20,20 @@ namespace Reusable.OmniLog.SemanticExtensions.v2
         (
             this v2.ILogger logger,
             IAbstractionContext context,
-            Func<v1.ILog, v1.ILog> populate = null,
+            Action<v1.ILog> transform = null,
             // These properties are for free so let's just log them too.
             [CallerMemberName] string callerMemberName = null,
             [CallerLineNumber] int callerLineNumber = 0,
             [CallerFilePath] string callerFilePath = null
         )
         {
-            context.Log(logger, log =>
+            logger.Log(log =>
             {
+                log.SetItem(nameof(SemanticExtensions.AbstractionContext), context);
                 log.SetItem(LogPropertyNames.CallerMemberName, callerMemberName);
                 log.SetItem(LogPropertyNames.CallerLineNumber, callerLineNumber);
                 log.SetItem(LogPropertyNames.CallerFilePath, Path.GetFileName(callerFilePath));
-                populate?.Invoke(log);
+                transform?.Invoke(log);
             });
         }
 

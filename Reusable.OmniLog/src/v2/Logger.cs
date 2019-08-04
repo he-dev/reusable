@@ -28,7 +28,7 @@ namespace Reusable.OmniLog.v2
         public Logger(LoggerMiddleware middleware, IDictionary<Type, int> middlewarePositions)
         {
             // Always start with the first middleware.
-            _middleware = middleware.First();
+            _middleware = middleware;
             _middlewarePositions = middlewarePositions;
         }
 

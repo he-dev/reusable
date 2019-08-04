@@ -15,10 +15,12 @@ namespace Reusable.OmniLog.SemanticExtensions.v2
 
     public interface IAbstractionContext : IAbstractionLayer, IAbstractionCategory
     {
-        /// <summary>
-        /// Logs this context. This method supports the Framework infrastructure and is not intended to be used directly in your code.
-        /// </summary>
-        void Log(v2.ILogger logger, Action<v1.ILog> transform);
+        IImmutableDictionary<string, object> Values { get; }
+        
+//        /// <summary>
+//        /// Logs this context. This method supports the Framework infrastructure and is not intended to be used directly in your code.
+//        /// </summary>
+        //void Log(v2.ILogger logger, Action<v1.ILog> transform);
     }
 
     public static class AbstractionProperties
@@ -31,7 +33,7 @@ namespace Reusable.OmniLog.SemanticExtensions.v2
         public const string Identifier = nameof(Identifier);
         public const string Snapshot = nameof(Snapshot);
         public const string Routine = nameof(Routine);
-        public const string Message = nameof(Message);
+        public const string Because = nameof(Because);
     }
 
     [PublicAPI]
@@ -57,11 +59,11 @@ namespace Reusable.OmniLog.SemanticExtensions.v2
             [nameof(AbstractionLayerExtensions.Argument)] = LogLevel.Trace,
         };
 
-        private readonly IImmutableDictionary<string, object> _values;
+        public IImmutableDictionary<string, object> Values { get; }
 
         public AbstractionContext(IImmutableDictionary<string, object> values)
         {
-            _values = values;
+            Values = values;
         }
 
         public AbstractionContext(IImmutableDictionary<string, object> values, string property, [CallerMemberName] string name = null)
@@ -76,20 +78,20 @@ namespace Reusable.OmniLog.SemanticExtensions.v2
         {
             get
             {
-                if (_values.TryGetValue(AbstractionProperties.LogLevel, out var logLevel)) return (LogLevel)logLevel;
-                if (CategoryLogLevel.TryGetValue((string)_values[AbstractionProperties.Category], out var logLevelByCategory)) return logLevelByCategory;
-                if (LayerLogLevel.TryGetValue((string)_values[AbstractionProperties.Layer], out var logLevelByLayer)) return logLevelByLayer;
+                if (Values.TryGetValue(AbstractionProperties.LogLevel, out var logLevel)) return (LogLevel)logLevel;
+                if (CategoryLogLevel.TryGetValue((string)Values[AbstractionProperties.Category], out var logLevelByCategory)) return logLevelByCategory;
+                if (LayerLogLevel.TryGetValue((string)Values[AbstractionProperties.Layer], out var logLevelByLayer)) return logLevelByLayer;
                 throw DynamicException.Create
                 (
                     "LogLevelNotFound",
-                    $"Neither category '{_values[AbstractionProperties.Category]}' nor layer '{_values[AbstractionProperties.Layer]}' map to a valid log-level."
+                    $"Neither category '{Values[AbstractionProperties.Category]}' nor layer '{Values[AbstractionProperties.Layer]}' map to a valid log-level."
                 );
             }
         }
 
         public object GetItem(string name)
         {
-            return _values[name];
+            return Values[name];
         }
 
         public IAbstractionContext SetItem(string name, object value)
@@ -97,37 +99,39 @@ namespace Reusable.OmniLog.SemanticExtensions.v2
             if (name == null) throw new ArgumentNullException(nameof(name));
             if (value == null) throw new ArgumentNullException(nameof(value));
             
-            return new AbstractionContext((_values ?? ImmutableDictionary<string, object>.Empty).Add(name, value));
+            return new AbstractionContext((Values ?? ImmutableDictionary<string, object>.Empty).Add(name, value));
         }
 
-        public void Log(v2.ILogger logger, Action<v1.ILog> transform)
-        {
-            var snapshotProperties =
-                _values.TryGetValue(AbstractionProperties.Snapshot, out var snapshot)
-                    ? snapshot.EnumerateProperties()
-                    : Enumerable.Empty<(string, object)>();
-            
-            var values = _values; // <-- cannot access _values because of struct
-            var level = LogLevel;
-            
-            foreach (var (name, value) in snapshotProperties)
-            {
-                logger.Log(log =>
-                {
-                    log.SetItem(LogPropertyNames.Level, level);
-                    log.SetItem(AbstractionProperties.Layer, values[AbstractionProperties.Layer]);
-                    log.SetItem(AbstractionProperties.Category, values[AbstractionProperties.Category]);
-                    log.SetItem(AbstractionProperties.Identifier, name);
-                    log.AttachSerializable(AbstractionProperties.Snapshot, value);
-                    if (values.TryGetValue(AbstractionProperties.Message, out var obj) && obj is string message)
-                    {
-                        log.Message(message);
-                    }
-
-                    transform?.Invoke(log);
-                });
-            }
-        }
+//        public void Log(v2.ILogger logger, Action<v1.ILog> transform)
+//        {
+//            var snapshotProperties =
+//                Values.TryGetValue(AbstractionProperties.Snapshot, out var snapshot)
+//                    ? snapshot.EnumerateProperties()
+//                    : Enumerable.Empty<(string, object)>();
+//            
+//            var values = Values; // <-- cannot access _values because of struct
+//            var level = LogLevel;
+//            
+//            // todo - moved to logger-snapshot
+//            foreach (var (name, value) in snapshotProperties)
+//            {
+//                logger.Log(log =>
+//                {
+//                    // todo - move to logger-abstraction
+//                    log.SetItem(LogPropertyNames.Level, level);
+//                    log.SetItem(AbstractionProperties.Layer, values[AbstractionProperties.Layer]);
+//                    log.SetItem(AbstractionProperties.Category, values[AbstractionProperties.Category]);
+//                    log.SetItem(AbstractionProperties.Identifier, name);
+//                    log.AttachSerializable(AbstractionProperties.Snapshot, value);
+////                    if (values.TryGetValue(AbstractionProperties.Message, out var obj) && obj is string message)
+////                    {
+////                        log.Message(message);
+////                    }
+//
+//                    transform?.Invoke(log);
+//                });
+//            }
+//        }
     }
 
     public static class ObjectExtensions
@@ -139,7 +143,7 @@ namespace Reusable.OmniLog.SemanticExtensions.v2
                     ? dictionary.Select(item => (item.Key, item.Value))
                     : obj
                         .GetType()
-                        .ValidateIsAnonymous()
+                        //.ValidateIsAnonymous()
                         .GetProperties(BindingFlags.Public | BindingFlags.Instance)
                         .Select(property => (property.Name, property.GetValue(obj)));
         }
@@ -151,7 +155,7 @@ namespace Reusable.OmniLog.SemanticExtensions.v2
             return
                 isAnonymous
                     ? type
-                    : throw DynamicException.Create("Snapshot", "Snapshot must be either an anonymous type of a dictionary");
+                    : throw DynamicException.Create("Snapshot", "Snapshot must be either an anonymous type or a dictionary");
         }
     }
 }
