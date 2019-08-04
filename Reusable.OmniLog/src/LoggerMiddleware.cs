@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using Reusable.Diagnostics;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
+using Reusable.Quickey;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.OmniLog.Experimental
@@ -55,17 +56,16 @@ namespace Reusable.OmniLog.Experimental
             if (name == null) throw new ArgumentNullException(nameof(name));
 
             return _loggers.GetOrAdd(name, n =>
+            {
+                var positions = MiddlewareOrder.Select((m, i) => (m, i)).ToDictionary(t => t.m, t => t.i);
+                var baseMiddleware = new LoggerPropertySetter(("Logger", n)).InsertNext(new LoggerEcho(Receivers));
+                foreach (var middleware in Middleware)
                 {
-                    var positions = MiddlewareOrder.Select((m, i) => (m, i)).ToDictionary(t => t.m, t => t.i);
-                    var baseSetup = new LoggerPropertySetter(("Logger", name)).InsertNext(new LoggerEcho(Receivers));
-                    foreach (var middleware in Middleware)
-                    {
-                        baseSetup.InsertRelative(middleware, positions);
-                    }
-
-                    return new Logger(baseSetup, positions);
+                    baseMiddleware.InsertRelative(middleware, positions);
                 }
-            );
+
+                return new Logger(baseMiddleware, positions);
+            });
         }
 
         public void Dispose()
@@ -106,7 +106,7 @@ namespace Reusable.OmniLog.Experimental
 
         public T Use<T>(T next) where T : LoggerMiddleware
         {
-            return _middleware.InsertRelative(next, _middlewarePositions);
+            return (T)_middleware.InsertRelative(next, _middlewarePositions);
         }
 
         public void Log(Log log)
@@ -115,8 +115,18 @@ namespace Reusable.OmniLog.Experimental
         }
     }
 
+    public interface ILinkedListNode<T>
+    {
+        T Previous { get; }
 
-    public abstract class LoggerMiddleware : IDisposable
+        T Next { get; }
+
+        T InsertNext(T next);
+
+        void Remove();
+    }
+
+    public abstract class LoggerMiddleware : ILinkedListNode<LoggerMiddleware>, IDisposable
     {
         [JsonIgnore]
         public LoggerMiddleware Previous { get; private set; }
@@ -125,10 +135,23 @@ namespace Reusable.OmniLog.Experimental
         public LoggerMiddleware Next { get; private set; }
 
         // Inserts a new middleware after this one and returns the new one.
-        public T InsertNext<T>(T next) where T : LoggerMiddleware
+        public LoggerMiddleware InsertNext(LoggerMiddleware next)
         {
             (next.Previous, next.Next, Next) = (this, Next, next);
             return next;
+        }
+
+        public void Remove()
+        {
+            if (!(Previous is null))
+            {
+                (Previous.Next, Previous) = (Next, null);
+            }
+
+            if (!(Next is null))
+            {
+                (Next.Previous, Next) = (Previous, null);
+            }
         }
 
         public virtual void Invoke(Log request) => Next?.Invoke(request);
@@ -136,12 +159,7 @@ namespace Reusable.OmniLog.Experimental
         // Removes itself from the middleware chain.
         public virtual void Dispose()
         {
-            if (Previous is null)
-            {
-                return;
-            }
-
-            (Previous.Next, Previous, Next) = (Next, null, null);
+            Remove();
         }
     }
 
@@ -166,7 +184,7 @@ namespace Reusable.OmniLog.Experimental
                 request[property.Name] = property.Value;
             }
 
-            Next?.Invoke(request);
+            base.Invoke(request);
         }
     }
 
@@ -187,7 +205,7 @@ namespace Reusable.OmniLog.Experimental
         public override void Invoke(Log request)
         {
             request[_propertyName] = _stopwatch.Elapsed;
-            Next?.Invoke(request);
+            base.Invoke(request);
         }
     }
 
@@ -250,7 +268,6 @@ namespace Reusable.OmniLog.Experimental
     public class LoggerAttachment : LoggerMiddleware, IEnumerable<ILogAttachment>
     {
         private readonly IList<ILogAttachment> _attachments = new List<ILogAttachment>();
-
 
         public override void Invoke(Log request)
         {
@@ -373,13 +390,11 @@ namespace Reusable.OmniLog.Experimental
 
     // Helpers
 
-    public static class LoggerMiddlewareExtensions
+    public static class LinkedListExtensions
     {
-        public static T2 InsertRelative<T1, T2>(this T1 middleware, T2 insert, IDictionary<Type, int> order)
-            where T1 : LoggerMiddleware
-            where T2 : LoggerMiddleware
+        public static T InsertRelative<T>(this T middleware, T insert, IDictionary<Type, int> order) where T : ILinkedListNode<T>
         {
-            if (middleware.Previous is null && middleware.Next is null)
+            if (middleware.Previous == null && middleware.Next == null)
             {
                 throw new ArgumentException("There need to be at least two middlewares.");
             }
@@ -401,22 +416,23 @@ namespace Reusable.OmniLog.Experimental
             return default; // This should not never be reached.
         }
 
-        public static LoggerMiddleware First(this LoggerMiddleware middleware)
+        public static T First<T>(this T middleware) where T : ILinkedListNode<T>
         {
             return middleware.Enumerate(m => m.Previous).Last();
         }
 
-        public static LoggerMiddleware Last(this LoggerMiddleware middleware)
+        public static T Last<T>(this T middleware) where T : ILinkedListNode<T>
         {
             return middleware.Enumerate(m => m.Next).Last();
         }
 
-        private static IEnumerable<LoggerMiddleware> Enumerate(this LoggerMiddleware middleware, Func<LoggerMiddleware, LoggerMiddleware> direction)
+        private static IEnumerable<T> Enumerate<T>(this T middleware, Func<T, T> direction)
+            where T : ILinkedListNode<T>
         {
             do
             {
                 yield return middleware;
-            } while (!((middleware = direction(middleware)) is null));
+            } while ((middleware = direction(middleware)) != null);
         }
     }
 
