@@ -61,7 +61,7 @@ namespace Reusable.OmniLog
 
             return _loggers.GetOrAdd(name, n => new Logger
             (
-                initialize: log => log.SetItem(LogPropertyNames.Name, n.ToString()),
+                initialize: log => log.SetItem(LogPropertyNames.Logger, n.ToString()),
                 attach: log => log.Render(Attachments),
                 observer: _subject
             ));

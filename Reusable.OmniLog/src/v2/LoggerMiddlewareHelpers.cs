@@ -1,10 +1,13 @@
 using System;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.v2.Middleware;
 
 namespace Reusable.OmniLog.v2
 {
+    using Reusable.OmniLog.Abstractions.v2;
+    using Reusable.OmniLog.v2;
+    using Reusable.OmniLog.v2.Middleware;
+
     public static class LoggerStopwatchHelper
     {
         public static LoggerStopwatch.Scope UseStopwatch(this ILogger logger)

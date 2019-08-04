@@ -32,7 +32,7 @@ namespace Reusable.OmniLog
                 var entry = new Log
                 {
                     ["Level"] = log.GetItemOrDefault<LogLevel>(LogPropertyNames.Level),
-                    ["Logger"] = log.GetItemOrDefault<string>(LogPropertyNames.Name),
+                    ["Logger"] = log.GetItemOrDefault<string>(LogPropertyNames.Logger),
                     ["Message"] = log.GetItemOrDefault<string>(LogPropertyNames.Message),
                     ["Exception"] = log.GetItemOrDefault<Exception>(LogPropertyNames.Exception),
                     ["TimeStamp"] = log.GetItemOrDefault<DateTime>(LogPropertyNames.Timestamp)

@@ -4,16 +4,16 @@ using Reusable.OmniLog.Abstractions.v2;
 
 namespace Reusable.OmniLog.v2.Middleware
 {
-    public class LoggerPropertySetter : LoggerMiddleware
+    public class LoggerProperty : LoggerMiddleware
     {
         private readonly IEnumerable<(string Name, object Value)> _properties;
 
-        public LoggerPropertySetter(IEnumerable<(string Name, object Value)> properties) : base(true)
+        public LoggerProperty(IEnumerable<(string Name, object Value)> properties) : base(true)
         {
             _properties = properties;
         }
 
-        public LoggerPropertySetter(params (string Name, object Value)[] properties) : base(true)
+        public LoggerProperty(params (string Name, object Value)[] properties) : base(true)
         {
             _properties = properties;
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
@@ -23,6 +24,8 @@ namespace Reusable.OmniLog.SemanticExtensions.v2
     // Base interface for the first tier "layer"
     public interface IAbstraction
     {
+        object GetItem([NotNull] string name);
+        
         IAbstractionContext SetItem([NotNull] string name, [NotNull] object value);
     }
 
@@ -154,7 +157,7 @@ namespace Reusable.OmniLog.SemanticExtensions.v2
             return
                 layer
                     .SetItem(AbstractionProperties.Category, nameof(Routine))
-                    .SetItem(AbstractionProperties.Identifier, identifier);
+                    .SetItem(AbstractionProperties.Routine, identifier);
         }
 
         public static IAbstractionCategory RoutineFromScope(this IAbstractionLayer layer)
@@ -191,18 +194,37 @@ namespace Reusable.OmniLog.SemanticExtensions.v2
 
     public static class AbstractionCategoryExtensions
     {
-        public static IAbstractionContext Running(this IAbstractionCategory category) => category.SetItem(AbstractionProperties.Snapshot, nameof(Running));
+        public static IAbstractionContext Running(this IAbstractionCategory category)
+        {
+            var identifier = (string)category.GetItem(AbstractionProperties.Routine);
+            return category.SetItem(AbstractionProperties.Snapshot, new Dictionary<string, object> { [identifier] = nameof(Running) });
+        }
 
-        public static IAbstractionContext Completed(this IAbstractionCategory category) => category.SetItem(AbstractionProperties.Snapshot, nameof(Completed));
+        public static IAbstractionContext Completed(this IAbstractionCategory category)
+        {
+            var identifier = (string)category.GetItem(AbstractionProperties.Routine);
+            return category.SetItem(AbstractionProperties.Snapshot, new Dictionary<string, object> { [identifier] = nameof(Completed) });
+        }
 
-        public static IAbstractionContext Canceled(this IAbstractionCategory category) => category.SetItem(AbstractionProperties.Snapshot, nameof(Canceled)).Warning();
+        public static IAbstractionContext Canceled(this IAbstractionCategory category)
+        {
+            var identifier = (string)category.GetItem(AbstractionProperties.Routine);
+            return category.SetItem(AbstractionProperties.Snapshot, new Dictionary<string, object> { [identifier] = nameof(Canceled) }).Warning();
+        }
 
-        public static IAbstractionContext Faulted(this IAbstractionCategory category) => category.SetItem(AbstractionProperties.Snapshot, nameof(Faulted)).Error();
+        public static IAbstractionContext Faulted(this IAbstractionCategory category)
+        {
+            var identifier = (string)category.GetItem(AbstractionProperties.Routine);
+            return category.SetItem(AbstractionProperties.Snapshot, new Dictionary<string, object> { [identifier] = nameof(Faulted) }).Error();
+        }
 
         /// <summary>
         /// Sets a message that explains why something happened like Canceled a Routine or a Decision.
         /// </summary>
-        public static IAbstractionContext Because(this IAbstractionContext category, string reason) => category.SetItem(AbstractionProperties.Message, reason);
+        public static IAbstractionContext Because(this IAbstractionContext category, string reason)
+        {
+            return category.SetItem(AbstractionProperties.Message, reason);
+        }
     }
 
     #endregion

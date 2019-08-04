@@ -5,7 +5,7 @@
     /// </summary>
     public static class LogPropertyNames
     {
-        public static readonly SoftString Name = nameof(Name);
+        public static readonly SoftString Logger = nameof(Logger);
         public static readonly SoftString Category = nameof(Category);
         public static readonly SoftString Level = nameof(Level);
         public static readonly SoftString Message = nameof(Message);

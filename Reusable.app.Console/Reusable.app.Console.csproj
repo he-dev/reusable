@@ -21,13 +21,11 @@
     <Compile Remove="src\Demos\RestClientDemo.cs" />
     <Compile Remove="src\AssertServerExperiment.cs" />
     <Compile Remove="src\ExceptionVisualizerExperiment.cs" />
-    <Compile Remove="src\Examples\OmniLog.v2.cs" />
+<!--    <Compile Remove="src\Examples\OmniLog.v2.cs" />-->
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -40,15 +38,14 @@
     <ProjectReference Include="..\Reusable.IOnymous.Http\Reusable.IOnymous.Http.csproj" />
     <ProjectReference Include="..\Reusable.IOnymous.Mail.Smtp\Reusable.IOnymous.Mail.Smtp.csproj" />
     <ProjectReference Include="..\Reusable.IOnymous\Reusable.IOnymous.csproj" />
-    <ProjectReference Include="..\Reusable.OmniLog.Abstractions\Reusable.OmniLog.Abstractions.csproj" />
     <ProjectReference Include="..\Reusable.OneTo1\Reusable.OneTo1.csproj" />
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
     <ProjectReference Include="..\Reusable.Cryptography\Reusable.Cryptography.csproj" />
     <ProjectReference Include="..\Reusable.MarkupBuilder\Reusable.MarkupBuilder.csproj" />
-    <ProjectReference Include="..\Reusable.OmniLog.ColoredConsoleRx\Reusable.OmniLog.ColoredConsoleRx.csproj" />
+    <ProjectReference Include="..\Reusable.OmniLog.Abstractions\Reusable.OmniLog.Abstractions.csproj" />
+    <ProjectReference Include="..\Reusable.OmniLog\Reusable.OmniLog.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog.NLogRx\Reusable.OmniLog.NLogRx.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog.SemanticExtensions\Reusable.OmniLog.SemanticExtensions.csproj" />
-    <ProjectReference Include="..\Reusable.OmniLog\Reusable.OmniLog.csproj" />
     <ProjectReference Include="..\Reusable.Quickey\Reusable.Quickey.csproj" />
     <ProjectReference Include="..\Reusable.SemanticVersion\Reusable.SemanticVersion.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
@@ -56,16 +53,16 @@
     <ProjectReference Include="..\Reusable.Utilities.SqlClient\Reusable.Utilities.SqlClient.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="Microsoft.VisualStudio.DebuggerVisualizers">
-      <HintPath>..\..\..\..\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\ReferenceAssemblies\v2.0\Microsoft.VisualStudio.DebuggerVisualizers.dll</HintPath>
-    </Reference>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xaml" />
-    <Reference Include="WindowsBase" />
-  </ItemGroup>
+<!--  <ItemGroup>-->
+<!--    <Reference Include="Microsoft.VisualStudio.DebuggerVisualizers">-->
+<!--      <HintPath>..\..\..\..\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\ReferenceAssemblies\v2.0\Microsoft.VisualStudio.DebuggerVisualizers.dll</HintPath>-->
+<!--    </Reference>-->
+<!--    <Reference Include="PresentationCore" />-->
+<!--    <Reference Include="PresentationFramework" />-->
+<!--    <Reference Include="System.Core" />-->
+<!--    <Reference Include="System.Xaml" />-->
+<!--    <Reference Include="WindowsBase" />-->
+<!--  </ItemGroup>-->
 
   <ItemGroup>
     <None Update="NLog.config">
@@ -80,8 +77,9 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-  </ItemGroup>
+<!--  <ItemGroup>-->
+<!--    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />-->
+<!--  </ItemGroup>-->
+  
 
 </Project>

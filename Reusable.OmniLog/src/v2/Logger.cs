@@ -1,21 +1,24 @@
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
+using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.v2;
 
 namespace Reusable.OmniLog.v2
 {
-    public interface ILogger
-    {
-        /// <summary>
-        /// Gets middleware root.
-        /// </summary>
-        LoggerMiddleware Middleware { get; }
+    using Reusable.OmniLog.Abstractions.v2;
 
-        T Use<T>(T next) where T : LoggerMiddleware;
-
-        void Log(ILog log);
-    }
+//    public interface ILogger
+//    {
+//        /// <summary>
+//        /// Gets middleware root.
+//        /// </summary>
+//        LoggerMiddleware Middleware { get; }
+//
+//        T Use<T>(T next) where T : LoggerMiddleware;
+//
+//        void Log(ILog log);
+//    }
 
     public class Logger : ILogger
     {
@@ -49,5 +52,62 @@ namespace Reusable.OmniLog.v2
             logger.UseLambda(transform);
             logger.Log(new Log());
         }
+        
+        #region LogLevels
+
+        public static ILogger Trace(this ILogger logger, string message, Func<ILog, ILog> populate = null)
+        {
+            return logger.Log(LogLevel.Trace, message, null, populate);
+        }
+
+        public static ILogger Debug(this ILogger logger, string message, Func<ILog, ILog> populate = null)
+        {
+            return logger.Log(LogLevel.Debug, message, null, populate);
+        }
+
+        public static ILogger Warning(this ILogger logger, string message, Func<ILog, ILog> populate = null)
+        {
+            return logger.Log(LogLevel.Warning, message, null, populate);
+        }
+
+        public static ILogger Information(this ILogger logger, string message, Func<ILog, ILog> populate = null)
+        {
+            return logger.Log(LogLevel.Information, message, null, populate);
+        }
+
+        public static ILogger Error(this ILogger logger, string message, Exception exception = null, Func<ILog, ILog> populate = null)
+        {
+            return logger.Log(LogLevel.Error, message, exception, populate);
+        }
+
+        public static ILogger Fatal(this ILogger logger, string message, Exception exception = null, Func<ILog, ILog> populate = null)
+        {
+            return logger.Log(LogLevel.Fatal, message, exception, populate);
+        }
+
+        private static ILogger Log
+        (
+            [NotNull] this ILogger logger,
+            [NotNull] LogLevel logLevel,
+            [CanBeNull] string message,
+            [CanBeNull] Exception exception,
+            [CanBeNull] Func<ILog, ILog> populate
+        )
+        {
+            if (logger == null) throw new ArgumentNullException(nameof(logger));
+            if (logLevel == null) throw new ArgumentNullException(nameof(logLevel));
+
+            logger.Log(log =>
+            {
+                log.SetItem(LogPropertyNames.Level, logLevel);
+                log.SetItem(LogPropertyNames.Message, message);
+                log.SetItem(LogPropertyNames.Exception, exception);
+                //log.Transform(populate ?? Functional.Echo));
+            });
+
+            return logger;
+        }
+
+        #endregion
     }
 }

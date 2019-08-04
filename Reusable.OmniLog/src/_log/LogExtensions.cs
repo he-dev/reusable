@@ -12,7 +12,7 @@ namespace Reusable.OmniLog
     {
         #region Log properties
 
-        public static ILog Name(this ILog log, string value) => log.SetItem(LogPropertyNames.Name, value);
+        public static ILog Name(this ILog log, string value) => log.SetItem(LogPropertyNames.Logger, value);
         
         public static ILog Timestamp(this ILog log, DateTime value) => log.SetItem(LogPropertyNames.Timestamp, value);
         

@@ -23,7 +23,7 @@ namespace Reusable.OmniLog
 
         public override void Log(ILog log)
         {
-            GetLogger(log.GetItemOrDefault<string>(LogPropertyNames.Name)).Log(CreateLogEventInfo(log));
+            GetLogger(log.GetItemOrDefault<string>(LogPropertyNames.Logger)).Log(CreateLogEventInfo(log));
         }
 
         private static NLog.LogEventInfo CreateLogEventInfo(ILog log)
@@ -32,7 +32,7 @@ namespace Reusable.OmniLog
             var logEventInfo = new NLog.LogEventInfo
             {
                 Level = LogLevelMap[log.GetItemOrDefault<LogLevel>(LogPropertyNames.Level)],
-                LoggerName = log.GetItemOrDefault<string>(LogPropertyNames.Name),
+                LoggerName = log.GetItemOrDefault<string>(LogPropertyNames.Logger),
                 Message = log.GetItemOrDefault<string>(LogPropertyNames.Message),
                 Exception = log.GetItemOrDefault<Exception>(LogPropertyNames.Exception),
                 TimeStamp = log.GetItemOrDefault<DateTime>(LogPropertyNames.Timestamp),
@@ -43,9 +43,9 @@ namespace Reusable.OmniLog
             return logEventInfo;
         }
 
-        private NLog.ILogger GetLogger(SoftString name)
+        private NLog.ILogger GetLogger(string name)
         {
-            return _cache.GetOrAdd(name, n => NLog.LogManager.GetLogger(name.ToString()));
+            return _cache.GetOrAdd(name, n => NLog.LogManager.GetLogger(name));
         }
 
         public static NLogRx Create() => new NLogRx();

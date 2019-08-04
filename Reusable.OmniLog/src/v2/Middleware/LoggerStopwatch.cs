@@ -33,7 +33,7 @@ namespace Reusable.OmniLog.v2.Middleware
 
         protected override void InvokeCore(ILog request)
         {
-            request[_propertyName] = GetValue(LoggerScope<Scope>.Current.Value.Elapsed);
+            request[_propertyName] = (long)GetValue(LoggerScope<Scope>.Current.Value.Elapsed);
             Next?.Invoke(request);
         }
 

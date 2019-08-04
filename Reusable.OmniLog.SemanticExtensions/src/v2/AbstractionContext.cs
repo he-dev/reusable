@@ -6,28 +6,31 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
-using Reusable.OmniLog.SemanticExtensions.Attachments;
 
 namespace Reusable.OmniLog.SemanticExtensions.v2
 {
+    using Reusable.OmniLog.v2;
     using v1 = Reusable.OmniLog.Abstractions;
     using v2 = Reusable.OmniLog.Abstractions.v2;
-    
+
     public interface IAbstractionContext : IAbstractionLayer, IAbstractionCategory
     {
         /// <summary>
         /// Logs this context. This method supports the Framework infrastructure and is not intended to be used directly in your code.
         /// </summary>
-        void Log(v2.ILogger logger, Action<v1.ILog> configureLog);
+        void Log(v2.ILogger logger, Action<v1.ILog> transform);
     }
 
     public static class AbstractionProperties
     {
         public const string Layer = nameof(Layer);
         public const string LogLevel = nameof(LogLevel);
+
         public const string Category = nameof(Category);
+
         public const string Identifier = nameof(Identifier);
         public const string Snapshot = nameof(Snapshot);
+        public const string Routine = nameof(Routine);
         public const string Message = nameof(Message);
     }
 
@@ -84,62 +87,61 @@ namespace Reusable.OmniLog.SemanticExtensions.v2
             }
         }
 
+        public object GetItem(string name)
+        {
+            return _values[name];
+        }
+
         public IAbstractionContext SetItem(string name, object value)
         {
             if (name == null) throw new ArgumentNullException(nameof(name));
             if (value == null) throw new ArgumentNullException(nameof(value));
+            
             return new AbstractionContext((_values ?? ImmutableDictionary<string, object>.Empty).Add(name, value));
         }
 
-        public void Log(v2.ILogger logger, Action<v1.ILog> configureLog)
+        public void Log(v2.ILogger logger, Action<v1.ILog> transform)
         {
-            // In some cases Snapshot can already have an Identifier. If this is the case then use this one instead of enumerating its properties.
             var snapshotProperties =
                 _values.TryGetValue(AbstractionProperties.Snapshot, out var snapshot)
-                    ? _values.TryGetValue(AbstractionProperties.Identifier, out var identifier)
-                        ? new[] { new KeyValuePair<string, object>((string)identifier, snapshot) }
-                        : snapshot.EnumerateProperties()
-                    : Enumerable.Empty<KeyValuePair<string, object>>();
-
-            var values = _values;
-
+                    ? snapshot.EnumerateProperties()
+                    : Enumerable.Empty<(string, object)>();
+            
+            var values = _values; // <-- cannot access _values because of struct
             var level = LogLevel;
-            foreach (var snapshotItem in snapshotProperties)
+            
+            foreach (var (name, value) in snapshotProperties)
             {
-                // todo - fix this
-                
-//                logger.Log(log =>
-//                {
-//                    log.SetItem(LogPropertyNames.Level, level);
-//                    log.SetItem(AbstractionProperties.Layer, values[AbstractionProperties.Layer]);
-//                    log.SetItem(AbstractionProperties.Category, values[AbstractionProperties.Category]);
-//                    log.SetItem(AbstractionProperties.Identifier, snapshotItem.Key);
-//                    log.SetItem(Snapshot.BagKey, snapshotItem.Value);
-//                    if (values.TryGetValue(AbstractionProperties.Message, out var obj) && obj is string message)
-//                    {
-//                        log.Message(message);
-//                    }
-//
-//                    configureLog?.Invoke(log);
-//
-//                    return log;
-//                });
+                logger.Log(log =>
+                {
+                    log.SetItem(LogPropertyNames.Level, level);
+                    log.SetItem(AbstractionProperties.Layer, values[AbstractionProperties.Layer]);
+                    log.SetItem(AbstractionProperties.Category, values[AbstractionProperties.Category]);
+                    log.SetItem(AbstractionProperties.Identifier, name);
+                    log.AttachSerializable(AbstractionProperties.Snapshot, value);
+                    if (values.TryGetValue(AbstractionProperties.Message, out var obj) && obj is string message)
+                    {
+                        log.Message(message);
+                    }
+
+                    transform?.Invoke(log);
+                });
             }
         }
     }
 
     public static class ObjectExtensions
     {
-        public static IEnumerable<KeyValuePair<string, object>> EnumerateProperties<T>(this T obj)
+        public static IEnumerable<(string Name, object Value)> EnumerateProperties<T>(this T obj)
         {
             return
                 obj is IDictionary<string, object> dictionary
-                    ? dictionary
+                    ? dictionary.Select(item => (item.Key, item.Value))
                     : obj
                         .GetType()
                         .ValidateIsAnonymous()
                         .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                        .Select(property => new KeyValuePair<string, object>(property.Name, property.GetValue(obj)));
+                        .Select(property => (property.Name, property.GetValue(obj)));
         }
 
         private static Type ValidateIsAnonymous(this Type type)
