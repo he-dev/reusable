@@ -16,49 +16,11 @@ namespace Reusable.OmniLog.SemanticExtensions.v2
     public interface IAbstractionContext : IAbstractionLayer, IAbstractionCategory
     {
         IImmutableDictionary<string, object> Values { get; }
-        
-//        /// <summary>
-//        /// Logs this context. This method supports the Framework infrastructure and is not intended to be used directly in your code.
-//        /// </summary>
-        //void Log(v2.ILogger logger, Action<v1.ILog> transform);
     }
-
-    public static class AbstractionProperties
-    {
-        public const string Layer = nameof(Layer);
-        public const string LogLevel = nameof(LogLevel);
-
-        public const string Category = nameof(Category);
-
-        public const string Identifier = nameof(Identifier);
-        public const string Snapshot = nameof(Snapshot);
-        public const string Routine = nameof(Routine);
-        public const string Because = nameof(Because);
-    }
-
+    
     [PublicAPI]
     public readonly struct AbstractionContext : IAbstractionContext
     {
-        public static IDictionary<string, LogLevel> LayerLogLevel = new Dictionary<string, LogLevel>
-        {
-            [nameof(AbstractionExtensions.Business)] = LogLevel.Information,
-            [nameof(AbstractionExtensions.Infrastructure)] = LogLevel.Debug,
-            [nameof(AbstractionExtensions.Service)] = LogLevel.Debug,
-            [nameof(AbstractionExtensions.Presentation)] = LogLevel.Trace,
-            [nameof(AbstractionExtensions.IO)] = LogLevel.Trace,
-            [nameof(AbstractionExtensions.Database)] = LogLevel.Trace,
-            [nameof(AbstractionExtensions.Network)] = LogLevel.Trace,
-        };
-
-        public static IDictionary<string, LogLevel> CategoryLogLevel = new Dictionary<string, LogLevel>
-        {
-            [nameof(AbstractionLayerExtensions.Counter)] = LogLevel.Information,
-            [nameof(AbstractionLayerExtensions.Meta)] = LogLevel.Debug,
-            [nameof(AbstractionLayerExtensions.Variable)] = LogLevel.Trace,
-            [nameof(AbstractionLayerExtensions.Property)] = LogLevel.Trace,
-            [nameof(AbstractionLayerExtensions.Argument)] = LogLevel.Trace,
-        };
-
         public IImmutableDictionary<string, object> Values { get; }
 
         public AbstractionContext(IImmutableDictionary<string, object> values)
@@ -74,21 +36,6 @@ namespace Reusable.OmniLog.SemanticExtensions.v2
 
         public static IAbstractionContext Empty => new AbstractionContext();
 
-        private LogLevel LogLevel
-        {
-            get
-            {
-                if (Values.TryGetValue(AbstractionProperties.LogLevel, out var logLevel)) return (LogLevel)logLevel;
-                if (CategoryLogLevel.TryGetValue((string)Values[AbstractionProperties.Category], out var logLevelByCategory)) return logLevelByCategory;
-                if (LayerLogLevel.TryGetValue((string)Values[AbstractionProperties.Layer], out var logLevelByLayer)) return logLevelByLayer;
-                throw DynamicException.Create
-                (
-                    "LogLevelNotFound",
-                    $"Neither category '{Values[AbstractionProperties.Category]}' nor layer '{Values[AbstractionProperties.Layer]}' map to a valid log-level."
-                );
-            }
-        }
-
         public object GetItem(string name)
         {
             return Values[name];
@@ -98,40 +45,20 @@ namespace Reusable.OmniLog.SemanticExtensions.v2
         {
             if (name == null) throw new ArgumentNullException(nameof(name));
             if (value == null) throw new ArgumentNullException(nameof(value));
-            
+
             return new AbstractionContext((Values ?? ImmutableDictionary<string, object>.Empty).Add(name, value));
         }
 
-//        public void Log(v2.ILogger logger, Action<v1.ILog> transform)
-//        {
-//            var snapshotProperties =
-//                Values.TryGetValue(AbstractionProperties.Snapshot, out var snapshot)
-//                    ? snapshot.EnumerateProperties()
-//                    : Enumerable.Empty<(string, object)>();
-//            
-//            var values = Values; // <-- cannot access _values because of struct
-//            var level = LogLevel;
-//            
-//            // todo - moved to logger-snapshot
-//            foreach (var (name, value) in snapshotProperties)
-//            {
-//                logger.Log(log =>
-//                {
-//                    // todo - move to logger-abstraction
-//                    log.SetItem(LogPropertyNames.Level, level);
-//                    log.SetItem(AbstractionProperties.Layer, values[AbstractionProperties.Layer]);
-//                    log.SetItem(AbstractionProperties.Category, values[AbstractionProperties.Category]);
-//                    log.SetItem(AbstractionProperties.Identifier, name);
-//                    log.AttachSerializable(AbstractionProperties.Snapshot, value);
-////                    if (values.TryGetValue(AbstractionProperties.Message, out var obj) && obj is string message)
-////                    {
-////                        log.Message(message);
-////                    }
-//
-//                    transform?.Invoke(log);
-//                });
-//            }
-//        }
+        public static class PropertyNames
+        {
+            public const string Layer = nameof(Layer);
+            public const string Level = nameof(Level);
+            public const string Category = nameof(Category);
+            public const string Identifier = nameof(Identifier);
+            public const string Snapshot = nameof(Snapshot);
+            public const string Routine = nameof(Routine);
+            public const string Because = nameof(Because);
+        }
     }
 
     public static class ObjectExtensions

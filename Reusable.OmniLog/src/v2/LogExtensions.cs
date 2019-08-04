@@ -24,7 +24,7 @@ namespace Reusable.OmniLog.v2
 
         public static TLog SetItem<TLog>(this TLog log, SoftString name, object value) where TLog : ILog
         {
-            if (value == LogPropertyNames.Unset)
+            if (value == Reusable.OmniLog.Log.PropertyNames.Unset)
             {
                 log.Remove(name);
             }

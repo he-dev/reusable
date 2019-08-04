@@ -12,23 +12,23 @@ namespace Reusable.OmniLog
     {
         #region Log properties
 
-        public static ILog Name(this ILog log, string value) => log.SetItem(LogPropertyNames.Logger, value);
+        public static ILog Name(this ILog log, string value) => log.SetItem(Log.PropertyNames.Logger, value);
         
-        public static ILog Timestamp(this ILog log, DateTime value) => log.SetItem(LogPropertyNames.Timestamp, value);
+        public static ILog Timestamp(this ILog log, DateTime value) => log.SetItem(Log.PropertyNames.Timestamp, value);
         
-        public static ILog Level(this ILog log, LogLevel value) => log.SetItem(LogPropertyNames.Level, value);
+        public static ILog Level(this ILog log, LogLevel value) => log.SetItem(Log.PropertyNames.Level, value);
         
-        public static ILog Exception(this ILog log, Exception value) => log.SetItem(LogPropertyNames.Exception, value);
+        public static ILog Exception(this ILog log, Exception value) => log.SetItem(Log.PropertyNames.Exception, value);
         
-        public static ILog Message(this ILog log, string value) => log.SetItem(LogPropertyNames.Message, value);
+        public static ILog Message(this ILog log, string value) => log.SetItem(Log.PropertyNames.Message, value);
         
-        public static ILog OverrideTransaction(this ILog log) => log.SetItem(LogPropertyNames.OverridesTransaction, true);
+        public static ILog OverrideTransaction(this ILog log) => log.SetItem(Log.PropertyNames.OverridesTransaction, true);
 
         public static ILog Transform(this ILog log, Func<ILog, ILog> transform) => transform(log);
         
         public static TLog SetItem<TLog>(this TLog log, SoftString name, object value) where TLog : ILog
         {
-            if (value == LogPropertyNames.Unset)
+            if (value == Log.PropertyNames.Unset)
             {
                 log.Remove(name);
             }
@@ -57,9 +57,9 @@ namespace Reusable.OmniLog
             [CallerFilePath] string callerFilePath = null
         )
         {
-            log.Add(LogPropertyNames.CallerMemberName, callerMemberName);
-            log.Add(LogPropertyNames.CallerLineNumber, callerLineNumber);
-            log.Add(LogPropertyNames.CallerFilePath, callerFilePath);
+            log.Add(Log.PropertyNames.CallerMemberName, callerMemberName);
+            log.Add(Log.PropertyNames.CallerLineNumber, callerLineNumber);
+            log.Add(Log.PropertyNames.CallerFilePath, callerFilePath);
 
             return log;
         }

@@ -28,7 +28,7 @@ namespace Reusable.OmniLog.v2
                     new LoggerAttachment(),
                     new LoggerLambda(),
                     new LoggerCorrelation(),
-                    new LoggerSerializer(new JsonSerializer()),
+                    new LoggerSerializer(),
                     //new LoggerFilter()
                     new LoggerTransaction()
                 }
@@ -56,7 +56,7 @@ namespace Reusable.OmniLog.v2
                     new LoggerAttachment(),
                     new LoggerLambda(),
                     new LoggerCorrelation(),
-                    new LoggerSerializer(new JsonSerializer()),
+                    new LoggerSerializer(),
                     //new LoggerFilter()
                     new LoggerTransaction()
                 }
@@ -99,7 +99,7 @@ namespace Reusable.OmniLog.v2
                     new LoggerAttachment(),
                     new LoggerLambda(),
                     new LoggerCorrelation(),
-                    new LoggerSerializer(new JsonSerializer()),
+                    new LoggerSerializer(),
                     //new LoggerFilter()
                     new LoggerTransaction()
                 }

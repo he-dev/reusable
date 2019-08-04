@@ -31,11 +31,11 @@ namespace Reusable.OmniLog
                 log = log.Flatten();
                 var entry = new Log
                 {
-                    ["Level"] = log.GetItemOrDefault<LogLevel>(LogPropertyNames.Level),
-                    ["Logger"] = log.GetItemOrDefault<string>(LogPropertyNames.Logger),
-                    ["Message"] = log.GetItemOrDefault<string>(LogPropertyNames.Message),
-                    ["Exception"] = log.GetItemOrDefault<Exception>(LogPropertyNames.Exception),
-                    ["TimeStamp"] = log.GetItemOrDefault<DateTime>(LogPropertyNames.Timestamp)
+                    ["Level"] = log.GetItemOrDefault<LogLevel>(Reusable.OmniLog.Log.PropertyNames.Level),
+                    ["Logger"] = log.GetItemOrDefault<string>(Reusable.OmniLog.Log.PropertyNames.Logger),
+                    ["Message"] = log.GetItemOrDefault<string>(Reusable.OmniLog.Log.PropertyNames.Message),
+                    ["Exception"] = log.GetItemOrDefault<Exception>(Reusable.OmniLog.Log.PropertyNames.Exception),
+                    ["TimeStamp"] = log.GetItemOrDefault<DateTime>(Reusable.OmniLog.Log.PropertyNames.Timestamp)
                 };
 
                 foreach (var item in log)

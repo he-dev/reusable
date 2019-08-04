@@ -23,7 +23,7 @@ namespace Reusable.OmniLog
 
         public override void Log(ILog log)
         {
-            GetLogger(log.GetItemOrDefault<string>(LogPropertyNames.Logger)).Log(CreateLogEventInfo(log));
+            GetLogger(log.GetItemOrDefault<string>(Reusable.OmniLog.Log.PropertyNames.Logger)).Log(CreateLogEventInfo(log));
         }
 
         private static NLog.LogEventInfo CreateLogEventInfo(ILog log)
@@ -31,11 +31,11 @@ namespace Reusable.OmniLog
             log = log.Flatten();
             var logEventInfo = new NLog.LogEventInfo
             {
-                Level = LogLevelMap[log.GetItemOrDefault<LogLevel>(LogPropertyNames.Level)],
-                LoggerName = log.GetItemOrDefault<string>(LogPropertyNames.Logger),
-                Message = log.GetItemOrDefault<string>(LogPropertyNames.Message),
-                Exception = log.GetItemOrDefault<Exception>(LogPropertyNames.Exception),
-                TimeStamp = log.GetItemOrDefault<DateTime>(LogPropertyNames.Timestamp),
+                Level = LogLevelMap[log.GetItemOrDefault<LogLevel>(Reusable.OmniLog.Log.PropertyNames.Level)],
+                LoggerName = log.GetItemOrDefault<string>(Reusable.OmniLog.Log.PropertyNames.Logger),
+                Message = log.GetItemOrDefault<string>(Reusable.OmniLog.Log.PropertyNames.Message),
+                Exception = log.GetItemOrDefault<Exception>(Reusable.OmniLog.Log.PropertyNames.Exception),
+                TimeStamp = log.GetItemOrDefault<DateTime>(Reusable.OmniLog.Log.PropertyNames.Timestamp),
             };
 
             logEventInfo.Properties.AddRangeSafely(log.Select(x => ((object)x.Key.ToString(), x.Value)));

@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Reusable.OmniLog.Attachments;
 using Reusable.OmniLog.SemanticExtensions.Attachments;
+using JsonSerializer = Reusable.OmniLog.Utilities.JsonSerializer;
 
 namespace Reusable.OmniLog.SemanticExtensions
 {

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.v2;
+using Reusable.OmniLog.Utilities;
 
 namespace Reusable.OmniLog.v2.Middleware
 {
@@ -10,30 +11,38 @@ namespace Reusable.OmniLog.v2.Middleware
     {
         public static readonly string SerializableSuffix = ".Serializable";
 
-        private readonly ISerializer _serializer;
-        private readonly IList<string> _propertyNames;
+        private static readonly Regex SerializableSuffixRegex = new Regex($"{Regex.Escape(SerializableSuffix)}$", RegexOptions.Compiled);
 
-        public LoggerSerializer(ISerializer serializer, params string[] propertyNames) : base(true)
+        private readonly ISerializer _serializer;
+
+        public LoggerSerializer(ISerializer serializer) : base(true)
         {
             _serializer = serializer;
-            _propertyNames = propertyNames;
         }
+
+        public LoggerSerializer() : this(new JsonSerializer()) { }
+
+        /// <summary>
+        /// Gets or sets serializable properties. If empty then all keys are scanned.
+        /// </summary>
+        public HashSet<string> SerializableProperties { get; set; } = new HashSet<string>(SoftString.Comparer);
 
         protected override void InvokeCore(ILog request)
         {
-            var propertyNames = _propertyNames.Any() ? _propertyNames : request.Keys.Select(k => k.ToString()).ToList();
+            var propertyNames =
+                SerializableProperties.Any()
+                    ? SerializableProperties.AsEnumerable().Select(CreateDataKey)
+                    : request.Keys.Where(k => k.EndsWith(SerializableSuffix)).Select(k => k.ToString());
 
             foreach (var propertyName in propertyNames)
             {
-                var dataKey = propertyName.EndsWith(SerializableSuffix) ? propertyName : CreateDataKey(propertyName);
-                if (request.TryGetValue(dataKey, out var obj))
+                if (request.TryGetValue(propertyName, out var obj))
                 {
-                    var actualPropertyName = Regex.Replace(propertyName, $"{Regex.Escape(SerializableSuffix)}$", string.Empty);
-                    request[actualPropertyName] = _serializer.Serialize(obj);
-                    request.Remove(dataKey); // Make sure we won't try to do it again
+                    var actualPropertyName = SerializableSuffixRegex.Replace(propertyName, string.Empty); // Remove the suffix.
+                    request.SetItem(actualPropertyName, _serializer.Serialize(obj));
+                    request.Remove(propertyName); // Clean-up the old property.
                 }
             }
-
 
             Next?.Invoke(request);
         }

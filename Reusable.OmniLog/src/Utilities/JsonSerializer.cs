@@ -1,9 +1,10 @@
 ﻿using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Reusable.OmniLog.Abstractions;
 using Reusable.Utilities.JsonNet.Converters;
 
-namespace Reusable.OmniLog.SemanticExtensions
+namespace Reusable.OmniLog.Utilities
 {
     public class JsonSerializer : ISerializer
     {

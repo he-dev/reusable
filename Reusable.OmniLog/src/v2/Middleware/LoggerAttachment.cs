@@ -5,6 +5,9 @@ using Reusable.OmniLog.Abstractions.v2;
 
 namespace Reusable.OmniLog.v2.Middleware
 {
+    /// <summary>
+    /// Adds calculated properties to the log.
+    /// </summary>
     public class LoggerAttachment : LoggerMiddleware, IEnumerable<ILogAttachment>
     {
         private readonly IList<ILogAttachment> _attachments = new List<ILogAttachment>();
@@ -15,7 +18,7 @@ namespace Reusable.OmniLog.v2.Middleware
         {
             foreach (var attachment in _attachments)
             {
-                request[attachment.Name] = attachment.Compute(request);
+                request.SetItem(attachment.Name, attachment.Compute(request));
             }
 
             Next?.Invoke(request);

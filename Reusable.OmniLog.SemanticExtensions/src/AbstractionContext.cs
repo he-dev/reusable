@@ -106,7 +106,7 @@ namespace Reusable.OmniLog.SemanticExtensions
             {
                 logger.Log(log =>
                 {
-                    log.SetItem(LogPropertyNames.Level, level);
+                    log.SetItem(Reusable.OmniLog.Log.PropertyNames.Level, level);
                     log.SetItem(AbstractionProperties.Layer, values[AbstractionProperties.Layer]);
                     log.SetItem(AbstractionProperties.Category, values[AbstractionProperties.Category]);
                     log.SetItem(AbstractionProperties.Identifier, snapshotItem.Key);

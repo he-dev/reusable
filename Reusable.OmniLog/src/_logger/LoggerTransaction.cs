@@ -48,7 +48,7 @@ namespace Reusable.OmniLog
 
         private bool TryCacheLog(ILog request)
         {
-            if (request.GetItemOrDefault(LogPropertyNames.OverridesTransaction, false))
+            if (request.GetItemOrDefault(Reusable.OmniLog.Log.PropertyNames.OverridesTransaction, false))
             {
                 return false;
             }

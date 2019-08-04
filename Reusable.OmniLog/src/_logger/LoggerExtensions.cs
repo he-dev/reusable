@@ -56,9 +56,9 @@ namespace Reusable.OmniLog
             if (logLevel == null) throw new ArgumentNullException(nameof(logLevel));
 
             return logger.Log(log => log
-                .SetItem(LogPropertyNames.Level, logLevel)
-                .SetItem(LogPropertyNames.Message, message)
-                .SetItem(LogPropertyNames.Exception, exception)
+                .SetItem(Reusable.OmniLog.Log.PropertyNames.Level, logLevel)
+                .SetItem(Reusable.OmniLog.Log.PropertyNames.Message, message)
+                .SetItem(Reusable.OmniLog.Log.PropertyNames.Exception, exception)
                 .Transform(populate ?? Functional.Echo));
         }
 

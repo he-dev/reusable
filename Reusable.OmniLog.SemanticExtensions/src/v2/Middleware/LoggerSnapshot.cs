@@ -10,9 +10,11 @@ using Reusable.OmniLog.v2.Middleware;
 
 namespace Reusable.OmniLog.SemanticExtensions.v2.Middleware
 {
+    using acpn = AbstractionContext.PropertyNames;
+    
     public class LoggerSnapshot : LoggerMiddleware, IEnumerable<(Type Type, Func<object, object> Map)>
     {
-        private static readonly string DataKey = LoggerSerializer.CreateDataKey(AbstractionProperties.Snapshot);
+        private static readonly string SnapshotKey = LoggerSerializer.CreateDataKey(AbstractionProperties.Snapshot);
 
         private readonly IDictionary<Type, Func<object, object>> _mappings = new Dictionary<Type, Func<object, object>>();
 
@@ -40,36 +42,40 @@ namespace Reusable.OmniLog.SemanticExtensions.v2.Middleware
 
         protected override void InvokeCore(ILog request)
         {
-            if (request.TryGetValue(DataKey, out var snapshot))
+            // Do we have a snapshot?
+            if (request.TryGetValue(SnapshotKey, out var snapshot))
             {
+                // Do we have a custom mapping for the snapshot?
                 if (_mappings.TryGetValue(snapshot.GetType(), out var map))
                 {
                     var obj = map(snapshot);
-                    request[DataKey] = obj;
+                    request.AttachSerializable(acpn.Snapshot, obj);
                     Next?.Invoke(request);
                 }
+                // No? Then enumerate all its properties.
                 else
                 {
-                    var empty = true;
+                    var propertiesEnumerated = false;
                     foreach (var (name, value) in snapshot.EnumerateProperties())
                     {
                         var copy = new Log(request);
 
-                        copy.SetItem(AbstractionProperties.Identifier, name);
-                        copy.AttachSerializable(AbstractionProperties.Snapshot, value);
+                        copy.SetItem(acpn.Identifier, name);
+                        copy.AttachSerializable(acpn.Snapshot, value);
 
                         Next?.Invoke(copy);
 
-                        empty = false;
+                        propertiesEnumerated = true;
                     }
 
-                    // Call next as usual when the snapshot was empty.
-                    if (empty)
+                    // Call 'Next' as usual when the snapshot was empty.
+                    if (!propertiesEnumerated)
                     {
                         Next?.Invoke(request);
                     }
                 }
             }
+            // No snapshot? Just do the usual.
             else
             {
                 Next?.Invoke(request);

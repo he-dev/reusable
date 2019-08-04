@@ -53,7 +53,7 @@ namespace Reusable.OmniLog.v2
             {
                 //var positions = MiddlewareOrder.Select((m, i) => (m, i)).ToDictionary(t => t.m, t => t.i);
                 //var baseMiddleware = new LoggerProperty((LogPropertyNames.Logger.ToString(), n.ToString())).InsertNext(new LoggerEcho(Receivers));
-                var middleware = (LoggerMiddleware)new LoggerProperty((LogPropertyNames.Logger.ToString(), n.ToString()));
+                var middleware = (LoggerMiddleware)new LoggerProperty((Reusable.OmniLog.Log.PropertyNames.Logger.ToString(), n.ToString()));
                 foreach (var current in Middleware)
                 {
                    middleware = middleware.InsertNext(current);

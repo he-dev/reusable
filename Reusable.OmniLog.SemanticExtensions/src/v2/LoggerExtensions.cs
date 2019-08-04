@@ -30,9 +30,9 @@ namespace Reusable.OmniLog.SemanticExtensions.v2
             logger.Log(log =>
             {
                 log.SetItem(nameof(SemanticExtensions.AbstractionContext), context);
-                log.SetItem(LogPropertyNames.CallerMemberName, callerMemberName);
-                log.SetItem(LogPropertyNames.CallerLineNumber, callerLineNumber);
-                log.SetItem(LogPropertyNames.CallerFilePath, Path.GetFileName(callerFilePath));
+                log.SetItem(Reusable.OmniLog.Log.PropertyNames.CallerMemberName, callerMemberName);
+                log.SetItem(Reusable.OmniLog.Log.PropertyNames.CallerLineNumber, callerLineNumber);
+                log.SetItem(Reusable.OmniLog.Log.PropertyNames.CallerFilePath, Path.GetFileName(callerFilePath));
                 transform?.Invoke(log);
             });
         }
@@ -50,7 +50,7 @@ namespace Reusable.OmniLog.SemanticExtensions.v2
             logger.Log
             (
                 context,
-                log => log.SetItem(LogPropertyNames.Message, message).SetItem(LogPropertyNames.Exception, exception),
+                log => log.Message(message).Exception(exception),
                 callerMemberName,
                 callerLineNumber,
                 callerFilePath
@@ -69,7 +69,7 @@ namespace Reusable.OmniLog.SemanticExtensions.v2
             logger.Log
             (
                 context,
-                log => log.SetItem(LogPropertyNames.Message, message),
+                log => log.Message(message),
                 callerMemberName,
                 callerLineNumber,
                 callerFilePath
@@ -88,7 +88,7 @@ namespace Reusable.OmniLog.SemanticExtensions.v2
             logger.Log
             (
                 context,
-                log => log.SetItem(LogPropertyNames.Exception, exception),
+                log => log.Exception(exception),
                 callerMemberName,
                 callerLineNumber,
                 callerFilePath

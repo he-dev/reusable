@@ -45,7 +45,7 @@ namespace Reusable.Apps.Examples.OmniLog.v2
                     },
                     new LoggerLambda(),
                     new LoggerCorrelation(),
-                    new LoggerSerializer(new Reusable.OmniLog.SemanticExtensions.JsonSerializer()),
+                    new LoggerSerializer(),
                     //new LoggerFilter()
                     new LoggerTransaction(),
                 }

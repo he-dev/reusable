@@ -25,9 +25,9 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             context.Log(logger, log =>
             {
-                log.SetItem(LogPropertyNames.CallerMemberName, callerMemberName);
-                log.SetItem(LogPropertyNames.CallerLineNumber, callerLineNumber);
-                log.SetItem(LogPropertyNames.CallerFilePath, Path.GetFileName(callerFilePath));
+                log.SetItem(Reusable.OmniLog.Log.PropertyNames.CallerMemberName, callerMemberName);
+                log.SetItem(Reusable.OmniLog.Log.PropertyNames.CallerLineNumber, callerLineNumber);
+                log.SetItem(Reusable.OmniLog.Log.PropertyNames.CallerFilePath, Path.GetFileName(callerFilePath));
                 populate?.Invoke(log);
             });
         }
@@ -45,7 +45,7 @@ namespace Reusable.OmniLog.SemanticExtensions
             logger.Log
             (
                 context,
-                log => log.SetItem(LogPropertyNames.Message, message).SetItem(LogPropertyNames.Exception, exception),
+                log => log.SetItem(Reusable.OmniLog.Log.PropertyNames.Message, message).SetItem(Reusable.OmniLog.Log.PropertyNames.Exception, exception),
                 callerMemberName,
                 callerLineNumber,
                 callerFilePath
@@ -64,7 +64,7 @@ namespace Reusable.OmniLog.SemanticExtensions
             logger.Log
             (
                 context,
-                log => log.SetItem(LogPropertyNames.Message, message),
+                log => log.SetItem(Reusable.OmniLog.Log.PropertyNames.Message, message),
                 callerMemberName,
                 callerLineNumber,
                 callerFilePath
@@ -83,7 +83,7 @@ namespace Reusable.OmniLog.SemanticExtensions
             logger.Log
             (
                 context,
-                log => log.SetItem(LogPropertyNames.Exception, exception),
+                log => log.SetItem(Reusable.OmniLog.Log.PropertyNames.Exception, exception),
                 callerMemberName,
                 callerLineNumber,
                 callerFilePath

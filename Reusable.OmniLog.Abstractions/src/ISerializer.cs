@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace Reusable.OmniLog
+namespace Reusable.OmniLog.Abstractions
 {
     [PublicAPI]
     public interface ISerializer

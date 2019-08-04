@@ -94,7 +94,7 @@ namespace Reusable.OmniLog
                         }
                     }), log =>
                     {
-                        log.SetItem(LogPropertyNames.Level, MapStatusCode(context.Response.StatusCode));
+                        log.SetItem(Reusable.OmniLog.Log.PropertyNames.Level, MapStatusCode(context.Response.StatusCode));
                         if (context.ResponseBodyLoggingEnabled())
                         {
                             log.Message(body);

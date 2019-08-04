@@ -99,9 +99,9 @@ namespace Reusable.OmniLog.v2
 
             logger.Log(log =>
             {
-                log.SetItem(LogPropertyNames.Level, logLevel);
-                log.SetItem(LogPropertyNames.Message, message);
-                log.SetItem(LogPropertyNames.Exception, exception);
+                log.SetItem(Reusable.OmniLog.Log.PropertyNames.Level, logLevel);
+                log.SetItem(Reusable.OmniLog.Log.PropertyNames.Message, message);
+                log.SetItem(Reusable.OmniLog.Log.PropertyNames.Exception, exception);
                 //log.Transform(populate ?? Functional.Echo));
             });
 
