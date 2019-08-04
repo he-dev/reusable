@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 //using Reusable.OmniLog.Attachments;
 using Reusable.OmniLog.SemanticExtensions;
+using Reusable.OmniLog.SemanticExtensions.v2.Middleware;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
@@ -44,7 +45,7 @@ namespace Reusable.OmniLog.v2
         public void Can_log_scope()
         {
             ExecutionContext.SuppressFlow();
-            
+
             var rx = new MemoryRx();
             var lf = new v2.LoggerFactory
             {
@@ -141,6 +142,57 @@ namespace Reusable.OmniLog.v2
             Assert.Equal(1, rx.Count());
             Assert.Equal("Hallo!", rx.First()["Message"]);
             Assert.Equal(timestamp, rx.First()["Timestamp"]);
+        }
+
+        [Fact]
+        public void Can_map_snapshot()
+        {
+            var timestamp = DateTime.Parse("2019-05-01");
+
+            var rx = new MemoryRx();
+            var lf = new v2.LoggerFactory
+            {
+                Receivers = { rx },
+                Middleware =
+                {
+                    new LoggerAttachment
+                    {
+                        new Reusable.OmniLog.Attachments.Timestamp(new[] { timestamp })
+                    },
+                    new LoggerLambda(),
+                    new LoggerSnapshot()
+                        .Map<Person>(p => new { FullName = p.LastName + ", " + p.FirstName })
+                },
+                MiddlewareOrder = new List<Type>
+                {
+                    typeof(LoggerProperty),
+                    typeof(LoggerStopwatch),
+                    typeof(LoggerAttachment),
+                    typeof(LoggerLambda),
+                    typeof(LoggerCorrelation),
+                    typeof(LoggerSnapshot),
+                    typeof(LoggerSerializer),
+                    typeof(LoggerFilter),
+                    typeof(LoggerTransaction),
+                    typeof(LoggerEcho),
+                }
+            };
+            using (lf)
+            {
+                var logger = lf.CreateLogger("test");
+                logger.Log(l => l.AttachSerializable("Snapshot", new Person { FirstName = "John", LastName = "Doe" }));
+            }
+
+            Assert.Equal(1, rx.Count());
+            Assert.Equal("Hallo!", rx.First()["Message"]);
+            Assert.Equal(timestamp, rx.First()["Timestamp"]);
+        }
+
+        private class Person
+        {
+            public string FirstName { get; set; }
+
+            public string LastName { get; set; }
         }
     }
 }
