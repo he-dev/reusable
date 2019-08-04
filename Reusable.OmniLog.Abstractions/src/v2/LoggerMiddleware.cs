@@ -6,6 +6,11 @@ namespace Reusable.OmniLog.Abstractions.v2
 {
     public abstract class LoggerMiddleware : ILinkedListNode<LoggerMiddleware>, IDisposable
     {
+        public LoggerMiddleware(bool isActive)
+        {
+            IsActive = isActive;
+        }
+        
         public virtual bool IsActive { get; set; } = true;
 
         #region ILinkeListNode
@@ -70,10 +75,8 @@ namespace Reusable.OmniLog.Abstractions.v2
         TScope Push(TParameter parameter);
     }
     
-    public interface ILoggerQueue<TItem>
+    public interface ILoggerQueue<in TItem>
     {
-        void Enqueue(TItem value);
-        
-        TItem Dequeue();
+        void Enqueue(TItem item);
     }
 }

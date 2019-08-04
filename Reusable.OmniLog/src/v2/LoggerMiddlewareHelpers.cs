@@ -7,9 +7,9 @@ namespace Reusable.OmniLog.v2
 {
     public static class LoggerStopwatchHelper
     {
-        public static LoggerStopwatchScope UseStopwatch(this ILogger logger)
+        public static LoggerStopwatch.Scope UseStopwatch(this ILogger logger)
         {
-            return 
+            return
                 logger
                     .Middleware
                     .Enumerate(m => m.Next)
@@ -21,9 +21,9 @@ namespace Reusable.OmniLog.v2
 
     public static class LoggerLambdaHelper
     {
-        public static LoggerLambda UseLambda(this ILogger logger, Action<ILog> transform)
+        public static void UseLambda(this ILogger logger, Action<ILog> transform)
         {
-            return logger.Use(new LoggerLambda(transform));
+            LoggerLambda.Push(new LoggerLambda.Item { Transform = transform });
         }
     }
 
@@ -35,19 +35,19 @@ namespace Reusable.OmniLog.v2
         }
     }
 
-    public static class LoggerFilterHelper
-    {
-        public static LoggerFilter UseFilter(this ILogger logger, Func<ILog, bool> canLog)
-        {
-            return logger.Use(new LoggerFilter(canLog));
-        }
-    }
+//    public static class LoggerFilterHelper
+//    {
+//        public static LoggerFilter UseFilter(this ILogger logger, Func<ILog, bool> canLog)
+//        {
+//            return logger.Use(new LoggerFilter(canLog));
+//        }
+//    }
 
     public static class LoggerScopeHelper
     {
-        public static LoggerCorrelationScope UseScope(this ILogger logger, object correlationId = default, object correlationHandle = default)
+        public static LoggerCorrelation.Scope UseScope(this ILogger logger, object correlationId = default, object correlationHandle = default)
         {
-            return 
+            return
                 logger
                     .Middleware
                     .Enumerate(m => m.Next)

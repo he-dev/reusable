@@ -2,12 +2,13 @@ using System.Collections.Generic;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.v2;
 
-namespace Reusable.OmniLog.v2.Middleware {
+namespace Reusable.OmniLog.v2.Middleware
+{
     public class LoggerEcho : LoggerMiddleware
     {
         private readonly IEnumerable<ILogRx> _receivers;
 
-        public LoggerEcho(IEnumerable<ILogRx> receivers)
+        public LoggerEcho(IEnumerable<ILogRx> receivers) : base(true)
         {
             _receivers = receivers;
         }

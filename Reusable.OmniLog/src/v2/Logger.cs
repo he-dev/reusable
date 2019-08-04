@@ -11,12 +11,12 @@ namespace Reusable.OmniLog.v2
         /// Gets middleware root.
         /// </summary>
         LoggerMiddleware Middleware { get; }
-        
+
         T Use<T>(T next) where T : LoggerMiddleware;
 
         void Log(ILog log);
     }
-    
+
     public class Logger : ILogger
     {
         private readonly LoggerMiddleware _middleware;
@@ -41,15 +41,13 @@ namespace Reusable.OmniLog.v2
             _middleware.Invoke(log);
         }
     }
-    
+
     public static class LoggerExtensions
     {
         public static void Log(this ILogger logger, Action<ILog> transform)
         {
-            using (logger.UseLambda(transform))
-            {
-                logger.Log(new Log());
-            }
+            logger.UseLambda(transform);
+            logger.Log(new Log());
         }
     }
 }

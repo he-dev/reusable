@@ -8,37 +8,40 @@ using Reusable.OmniLog.Abstractions.v2;
 
 namespace Reusable.OmniLog.v2.Middleware
 {
-    public class LoggerCorrelation : LoggerMiddleware, ILoggerScope<LoggerCorrelationScope, (object CorrelationId, object CorrelationHandle)>
+    public class LoggerCorrelation : LoggerMiddleware, ILoggerScope<LoggerCorrelation.Scope, (object CorrelationId, object CorrelationHandle)>
     {
+        public LoggerCorrelation() : base(false) { }
+
         /// <summary>
         /// Gets or sets the factory for the default correlation-id. By default it's a Guid.
         /// </summary>
         public Func<object> NextCorrelationId { get; set; } = () => Guid.NewGuid().ToString("N");
 
-        public override bool IsActive => LoggerScope<LoggerCorrelationScope>.Current.Any();
+        public override bool IsActive => !(LoggerScope<Scope>.Current is null);
 
-        public LoggerCorrelationScope Push((object CorrelationId, object CorrelationHandle) parameter)
+        public Scope Push((object CorrelationId, object CorrelationHandle) parameter)
         {
-            return LoggerScope<LoggerCorrelationScope>.Push(new LoggerCorrelationScope
+            return LoggerScope<Scope>.Push(new Scope
             {
-                CorrelationId = parameter.CorrelationId ?? NextCorrelationId()
-            });
+                CorrelationId = parameter.CorrelationId ?? NextCorrelationId(),
+                CorrelationHandle = parameter.CorrelationHandle
+            }).Value;
         }
 
 
         protected override void InvokeCore(ILog request)
         {
-            request.AttachSerializable("Scope", LoggerScope<LoggerCorrelationScope>.Peek());
+            request.AttachSerializable("Scope", LoggerScope<Scope>.Current.Value);
             Next?.Invoke(request);
         }
-    }
 
-    public class LoggerCorrelationScope : IDisposable
-    {
-        public object CorrelationId { get; set; }
+        public class Scope : IDisposable
+        {
+            public object CorrelationId { get; set; }
 
-        public object CorrelationHandle { get; set; }
+            public object CorrelationHandle { get; set; }
 
-        public void Dispose() => LoggerScope<LoggerCorrelationScope>.Pop();
+            public void Dispose() => LoggerScope<Scope>.Current.Dispose();
+        }
     }
 }

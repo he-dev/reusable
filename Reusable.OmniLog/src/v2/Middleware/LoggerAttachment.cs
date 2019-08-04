@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.v2;
 
-namespace Reusable.OmniLog.v2.Middleware {
+namespace Reusable.OmniLog.v2.Middleware
+{
     public class LoggerAttachment : LoggerMiddleware, IEnumerable<ILogAttachment>
     {
         private readonly IList<ILogAttachment> _attachments = new List<ILogAttachment>();
+
+        public LoggerAttachment() : base(true) { }
 
         protected override void InvokeCore(ILog request)
         {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 //using Reusable.OmniLog.Attachments;
 using Reusable.OmniLog.SemanticExtensions;
 using Xunit;
@@ -24,7 +25,7 @@ namespace Reusable.OmniLog.v2
                 {
                     new LoggerStopwatch(),
                     new LoggerAttachment(),
-                    //new LoggerLambda()
+                    new LoggerLambda(),
                     new LoggerCorrelation(),
                     new LoggerSerializer(new JsonSerializer()),
                     //new LoggerFilter()
@@ -42,6 +43,8 @@ namespace Reusable.OmniLog.v2
         [Fact]
         public void Can_log_scope()
         {
+            ExecutionContext.SuppressFlow();
+            
             var rx = new MemoryRx();
             var lf = new v2.LoggerFactory
             {
@@ -50,7 +53,7 @@ namespace Reusable.OmniLog.v2
                 {
                     new LoggerStopwatch(),
                     new LoggerAttachment(),
-                    //new LoggerLambda()
+                    new LoggerLambda(),
                     new LoggerCorrelation(),
                     new LoggerSerializer(new JsonSerializer()),
                     //new LoggerFilter()
@@ -89,7 +92,16 @@ namespace Reusable.OmniLog.v2
             var lf = new v2.LoggerFactory
             {
                 Receivers = { rx },
-                Middleware = { new LoggerSerializer(new JsonSerializer()) }
+                Middleware =
+                {
+                    new LoggerStopwatch(),
+                    new LoggerAttachment(),
+                    new LoggerLambda(),
+                    new LoggerCorrelation(),
+                    new LoggerSerializer(new JsonSerializer()),
+                    //new LoggerFilter()
+                    new LoggerTransaction()
+                }
             };
             using (lf)
             {
@@ -116,7 +128,8 @@ namespace Reusable.OmniLog.v2
                     new LoggerAttachment
                     {
                         new Reusable.OmniLog.Attachments.Timestamp(new[] { timestamp })
-                    }
+                    },
+                    new LoggerLambda()
                 }
             };
             using (lf)

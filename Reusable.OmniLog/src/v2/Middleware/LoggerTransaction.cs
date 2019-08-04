@@ -9,11 +9,8 @@ namespace Reusable.OmniLog.v2.Middleware
     {
         private readonly Queue<ILog> _buffer = new Queue<ILog>();
 
-        public LoggerTransaction()
-        {
-            IsActive = false;
-        }
-        
+        public LoggerTransaction() : base(false) { }
+
         protected override void InvokeCore(ILog request)
         {
             _buffer.Enqueue(request);

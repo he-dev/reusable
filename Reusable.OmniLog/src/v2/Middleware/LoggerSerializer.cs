@@ -13,7 +13,7 @@ namespace Reusable.OmniLog.v2.Middleware
         private readonly ISerializer _serializer;
         private readonly IList<string> _propertyNames;
 
-        public LoggerSerializer(ISerializer serializer, params string[] propertyNames)
+        public LoggerSerializer(ISerializer serializer, params string[] propertyNames) : base(true)
         {
             _serializer = serializer;
             _propertyNames = propertyNames;
