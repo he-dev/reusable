@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Reusable.OmniLog.Attachments;
 using Reusable.OmniLog.SemanticExtensions;
 using Xunit;
 
@@ -25,7 +27,12 @@ namespace Reusable.OmniLog.Experimental
         public void Can_log_scope()
         {
             var rx = new MemoryRx();
-            using (var lf = new LoggerFactory { Receivers = { rx } })
+            var lf = new LoggerFactory
+            {
+                Receivers = { rx },
+                Middleware = { new LoggerSerializer(new JsonSerializer()) }
+            };
+            using (lf)
             {
                 var logger = lf.CreateLogger("test");
                 var outerCorrelationId = "test-id-1";
@@ -33,14 +40,14 @@ namespace Reusable.OmniLog.Experimental
                 {
                     logger.Log(l => l.Message("Hallo!"));
                     Assert.Same(outerCorrelationId, scope1.CorrelationId);
-                    Assert.Equal(1, ((IEnumerable<LoggerScope>)rx[0]["Scope"]).Count());
+                    Assert.NotNull(rx[0]["Scope"]);
 
                     var innerCorrelationId = "test-id-2";
                     using (var scope2 = logger.UseScope(innerCorrelationId))
                     {
                         logger.Log(l => l.Message("Hi!"));
                         Assert.Same(innerCorrelationId, scope2.CorrelationId);
-                        Assert.Equal(2, ((IEnumerable<LoggerScope>)rx[1]["Scope"]).Count());
+                        Assert.NotNull(rx[1]["Scope"]);
                     }
                 }
 
@@ -57,7 +64,7 @@ namespace Reusable.OmniLog.Experimental
             var lf = new LoggerFactory
             {
                 Receivers = { rx },
-                Middleware = { new LoggerSerializer(new JsonSerializer(), "Snapshot") }
+                Middleware = { new LoggerSerializer(new JsonSerializer()) }
             };
             using (lf)
             {
@@ -68,6 +75,34 @@ namespace Reusable.OmniLog.Experimental
             Assert.Equal(1, rx.Count());
             Assert.Equal("Hallo!", rx.First()["Message"]);
             Assert.Equal("{\"Greeting\":\"Hi!\"}", rx.First()["Snapshot"]);
+        }
+
+        [Fact]
+        public void Can_attach_timestamp()
+        {
+            var timestamp = DateTime.Parse("2019-05-01");
+
+            var rx = new MemoryRx();
+            var lf = new LoggerFactory
+            {
+                Receivers = { rx },
+                Middleware =
+                {
+                    new LoggerAttachment
+                    {
+                        new Timestamp(new[] { timestamp })
+                    }
+                }
+            };
+            using (lf)
+            {
+                var logger = lf.CreateLogger("test");
+                logger.Log(l => l.Message("Hallo!"));
+            }
+
+            Assert.Equal(1, rx.Count());
+            Assert.Equal("Hallo!", rx.First()["Message"]);
+            Assert.Equal(timestamp, rx.First()["Timestamp"]);
         }
     }
 }

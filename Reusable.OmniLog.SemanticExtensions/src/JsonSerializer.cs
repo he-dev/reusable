@@ -11,7 +11,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             Settings = new JsonSerializerSettings
             {
-                NullValueHandling = NullValueHandling.Include,
+                NullValueHandling = NullValueHandling.Ignore,
                 Formatting = Formatting.None,
                 Converters =
                 {

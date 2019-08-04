@@ -37,8 +37,3 @@ namespace Reusable.Tests.OmniLog
         }
     }
 }
-
-namespace Reusable.OmniLog.Experimental
-{
-    //using Reusable.OmniLog.Experimental;
-}

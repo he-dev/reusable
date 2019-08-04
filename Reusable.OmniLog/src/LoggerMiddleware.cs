@@ -1,11 +1,14 @@
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 using Reusable.Diagnostics;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
@@ -13,36 +16,13 @@ using Reusable.OmniLog.Abstractions;
 // ReSharper disable once CheckNamespace
 namespace Reusable.OmniLog.Experimental
 {
-    public static class Demo
+    public interface ILoggerFactory : IDisposable
     {
-        public static void Main()
-        {
-            var logger = new Logger(new LoggerPropertySetter(("logger", "demo")).InsertNext(new LoggerEcho(Enumerable.Empty<ILogRx>())));
-            // Include to filter certain messages out.
-            //logger.UseFilter(l => !l["message"].Equals("tran-2-commit"));
-
-            logger.Log(l => l.Message("begin"));
-
-            using (var tran = logger.UseTransaction())
-            using (logger.UseStopwatch())
-            {
-                logger.Log(l => l.Message("tran-1-commit"));
-                logger.Log(l => l.Message("tran-2-commit"));
-                tran.Commit();
-            }
-
-            using (var tran = logger.UseTransaction())
-            {
-                logger.Log(l => l.Message("tran-1-rollback"));
-                logger.Log(l => l.Message("tran-2-rollback"));
-                tran.Rollback();
-            }
-
-            logger.Log(l => l.Message("end"));
-        }
+        [NotNull]
+        ILogger CreateLogger([NotNull] SoftString name);
     }
 
-    public class LoggerFactory : IDisposable
+    public class LoggerFactory : ILoggerFactory
     {
         private readonly ConcurrentDictionary<SoftString, ILogger> _loggers;
 
@@ -51,45 +31,52 @@ namespace Reusable.OmniLog.Experimental
             _loggers = new ConcurrentDictionary<SoftString, ILogger>();
         }
 
-        //public static LoggerFactory Empty => new LoggerFactory();
-
-        private string DebuggerDisplay() => this.ToDebuggerDisplayString(builder =>
-        {
-            builder.DisplayValue(x => x._loggers.Count);
-            //builder.DisplayValue(x => x.Configuration.Attachments.Count);
-        });
-
-        [NotNull]
-        public HashSet<ILogAttachment> Attachments { get; set; } = new HashSet<ILogAttachment>();
-
         public List<ILogRx> Receivers { get; set; } = new List<ILogRx>();
 
         public List<LoggerMiddleware> Middleware { get; set; } = new List<LoggerMiddleware>();
 
+        public List<Type> MiddlewareOrder { get; set; } = new List<Type>
+        {
+            typeof(LoggerPropertySetter),
+            typeof(LoggerStopwatch),
+            typeof(LoggerAttachment),
+            typeof(LoggerLambda),
+            typeof(LoggerScope),
+            typeof(LoggerSerializer),
+            typeof(LoggerFilter),
+            typeof(LoggerTransaction),
+            typeof(LoggerEcho),
+        };
+
         #region ILoggerFactory
 
-        public ILogger CreateLogger([NotNull] SoftString name)
+        public ILogger CreateLogger(SoftString name)
         {
             if (name == null) throw new ArgumentNullException(nameof(name));
 
             return _loggers.GetOrAdd(name, n =>
-                new Logger(
-                    new LoggerPropertySetter(("Logger", name))
-                        .InsertNext(new LoggerAttachment(Attachments))
-                        .Pipe(m => Middleware.Aggregate((LoggerMiddleware)m, (current, next) => current.InsertNext(next)))
-                        .InsertNext(new LoggerEcho(Receivers)))
+                {
+                    var positions = MiddlewareOrder.Select((m, i) => (m, i)).ToDictionary(t => t.m, t => t.i);
+                    var baseSetup = new LoggerPropertySetter(("Logger", name)).InsertNext(new LoggerEcho(Receivers));
+                    foreach (var middleware in Middleware)
+                    {
+                        baseSetup.InsertRelative(middleware, positions);
+                    }
+
+                    return new Logger(baseSetup, positions);
+                }
             );
         }
 
         public void Dispose()
         {
-            foreach (var attachment in Attachments)
-            {
-                if (attachment is IDisposable disposable)
-                {
-                    disposable.Dispose();
-                }
-            }
+//            foreach (var attachment in Attachments)
+//            {
+//                if (attachment is IDisposable disposable)
+//                {
+//                    disposable.Dispose();
+//                }
+//            }
         }
 
         #endregion
@@ -100,9 +87,7 @@ namespace Reusable.OmniLog.Experimental
 
     public interface ILogger
     {
-        T UseLast<T>(T next) where T : LoggerMiddleware;
-
-        T UseFirst<T>(T next) where T : LoggerMiddleware;
+        T Use<T>(T next) where T : LoggerMiddleware;
 
         void Log(Log log);
     }
@@ -110,23 +95,18 @@ namespace Reusable.OmniLog.Experimental
     public class Logger : ILogger
     {
         private readonly LoggerMiddleware _middleware;
+        private readonly IDictionary<Type, int> _middlewarePositions;
 
-        public Logger(LoggerMiddleware middleware)
+        public Logger(LoggerMiddleware middleware, IDictionary<Type, int> middlewarePositions)
         {
-            // Start with the first middleware in case this is already a chain.
+            // Always start with the first middleware.
             _middleware = middleware.First();
+            _middlewarePositions = middlewarePositions;
         }
 
-        public T UseLast<T>(T next) where T : LoggerMiddleware
+        public T Use<T>(T next) where T : LoggerMiddleware
         {
-            // The last middleware is Echo so put the new one before.
-            return _middleware.Last().Previous.InsertNext(next);
-        }
-
-        public T UseFirst<T>(T next) where T : LoggerMiddleware
-        {
-            // The last middleware is Echo so put the new one before.
-            return _middleware.First().Next.InsertNext(next);
+            return _middleware.InsertRelative(next, _middlewarePositions);
         }
 
         public void Log(Log log)
@@ -138,8 +118,10 @@ namespace Reusable.OmniLog.Experimental
 
     public abstract class LoggerMiddleware : IDisposable
     {
+        [JsonIgnore]
         public LoggerMiddleware Previous { get; private set; }
 
+        [JsonIgnore]
         public LoggerMiddleware Next { get; private set; }
 
         // Inserts a new middleware after this one and returns the new one.
@@ -191,10 +173,12 @@ namespace Reusable.OmniLog.Experimental
 
     public class LoggerStopwatch : LoggerMiddleware
     {
+        private readonly string _propertyName;
         private readonly Stopwatch _stopwatch;
 
-        public LoggerStopwatch()
+        public LoggerStopwatch(string propertyName = nameof(Stopwatch.Elapsed))
         {
+            _propertyName = propertyName;
             _stopwatch = Stopwatch.StartNew();
         }
 
@@ -202,7 +186,7 @@ namespace Reusable.OmniLog.Experimental
 
         public override void Invoke(Log request)
         {
-            request["elapsed"] = _stopwatch.Elapsed;
+            request[_propertyName] = _stopwatch.Elapsed;
             Next?.Invoke(request);
         }
     }
@@ -220,7 +204,7 @@ namespace Reusable.OmniLog.Experimental
         public override void Invoke(Log request)
         {
             _transform(request);
-            Next?.Invoke(request);
+            base.Invoke(request);
         }
     }
 
@@ -232,14 +216,14 @@ namespace Reusable.OmniLog.Experimental
         public override void Invoke(Log request)
         {
             _buffer.Enqueue(request);
-            //Next?.Invoke(request); // <-- don't call Next until Commit
+            // Don't call Next until Commit.
         }
 
         public void Commit()
         {
             while (_buffer.Any())
             {
-                Next?.Invoke(_buffer.Dequeue());
+                base.Invoke(_buffer.Dequeue());
             }
         }
 
@@ -258,19 +242,15 @@ namespace Reusable.OmniLog.Experimental
         {
             if (CanLog(request))
             {
-                Next?.Invoke(request);
+                base.Invoke(request);
             }
         }
     }
 
-    public class LoggerAttachment : LoggerMiddleware
+    public class LoggerAttachment : LoggerMiddleware, IEnumerable<ILogAttachment>
     {
-        private readonly IEnumerable<ILogAttachment> _attachments;
+        private readonly IList<ILogAttachment> _attachments = new List<ILogAttachment>();
 
-        public LoggerAttachment(IEnumerable<ILogAttachment> attachments)
-        {
-            _attachments = attachments;
-        }
 
         public override void Invoke(Log request)
         {
@@ -281,32 +261,47 @@ namespace Reusable.OmniLog.Experimental
 
             base.Invoke(request);
         }
+
+        public void Add(ILogAttachment attachment) => _attachments.Add(attachment);
+
+        public IEnumerator<ILogAttachment> GetEnumerator() => _attachments.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_attachments).GetEnumerator();
     }
 
     public class LoggerSerializer : LoggerMiddleware
     {
-        private readonly ISerializer _serializer;
-        private readonly string _propertyName;
+        public static readonly string SerializableSuffix = ".Serializable";
 
-        public LoggerSerializer(ISerializer serializer, string propertyName)
+        private readonly ISerializer _serializer;
+        private readonly IList<string> _propertyNames;
+
+        public LoggerSerializer(ISerializer serializer, params string[] propertyNames)
         {
             _serializer = serializer;
-            _propertyName = propertyName;
+            _propertyNames = propertyNames;
         }
 
         public override void Invoke(Log request)
         {
-            var dataKey = CreateDataKey(_propertyName);
-            if (request.TryGetValue(dataKey, out var obj))
+            var propertyNames = _propertyNames.Any() ? _propertyNames : request.Keys.Select(k => k.ToString()).ToList();
+
+            foreach (var propertyName in propertyNames)
             {
-                request[_propertyName] = _serializer.Serialize(obj);
-                request.Remove(dataKey); // Make sure we won't try to do it again
+                var dataKey = propertyName.EndsWith(SerializableSuffix) ? propertyName : CreateDataKey(propertyName);
+                if (request.TryGetValue(dataKey, out var obj))
+                {
+                    var actualPropertyName = Regex.Replace(propertyName, $"{Regex.Escape(SerializableSuffix)}$", string.Empty);
+                    request[actualPropertyName] = _serializer.Serialize(obj);
+                    request.Remove(dataKey); // Make sure we won't try to do it again
+                }
             }
+
 
             base.Invoke(request);
         }
 
-        public static string CreateDataKey(string propertyName) => $"{propertyName}.Serializable";
+        public static string CreateDataKey(string propertyName) => $"{propertyName}{SerializableSuffix}";
     }
 
     public class LoggerScope : LoggerMiddleware
@@ -318,7 +313,7 @@ namespace Reusable.OmniLog.Experimental
 
         public LoggerScope(object correlationId, object correlationHandle)
         {
-            CorrelationId = correlationId ?? Guid.NewGuid().ToString("N");
+            CorrelationId = correlationId ?? NextCorrelationId();
             correlationHandle = correlationHandle;
             Current.Push(this);
         }
@@ -326,6 +321,11 @@ namespace Reusable.OmniLog.Experimental
         public object CorrelationId { get; }
 
         public object CorrelationHandle { get; }
+
+        /// <summary>
+        /// Gets or sets the factory for the default correlation-id. By default it's a Guid.
+        /// </summary>
+        public static Func<object> NextCorrelationId { get; set; } = () => Guid.NewGuid().ToString("N");
 
         private static Stack<LoggerScope> Current
         {
@@ -335,8 +335,8 @@ namespace Reusable.OmniLog.Experimental
 
         public override void Invoke(Log request)
         {
-            request["Scope"] = Current;
-            Next?.Invoke(request);
+            request.AttachSerializable("Scope", Current);
+            base.Invoke(request);
         }
 
         public override void Dispose()
@@ -375,6 +375,32 @@ namespace Reusable.OmniLog.Experimental
 
     public static class LoggerMiddlewareExtensions
     {
+        public static T2 InsertRelative<T1, T2>(this T1 middleware, T2 insert, IDictionary<Type, int> order)
+            where T1 : LoggerMiddleware
+            where T2 : LoggerMiddleware
+        {
+            if (middleware.Previous is null && middleware.Next is null)
+            {
+                throw new ArgumentException("There need to be at least two middlewares.");
+            }
+
+            var first = middleware.First();
+            var zip = first.Enumerate(m => m.Next).Zip(first.Enumerate(m => m.Next).Skip(1), (current, next) => (current, next));
+
+            foreach (var (current, next) in zip)
+            {
+                var canInsert =
+                    order[insert.GetType()] >= order[current.GetType()] &&
+                    order[insert.GetType()] <= order[next.GetType()];
+                if (canInsert)
+                {
+                    return current.InsertNext(insert);
+                }
+            }
+
+            return default; // This should not never be reached.
+        }
+
         public static LoggerMiddleware First(this LoggerMiddleware middleware)
         {
             return middleware.Enumerate(m => m.Previous).Last();
@@ -396,11 +422,7 @@ namespace Reusable.OmniLog.Experimental
 
     public static class LogExtensions
     {
-        public static Log Message(this Log log, string message)
-        {
-            log["message"] = message;
-            return log;
-        }
+        public static ILog Message(this ILog log, string message) => log.SetItem(nameof(Message), message);
     }
 
     public static class LoggerExtensions
@@ -418,7 +440,7 @@ namespace Reusable.OmniLog.Experimental
     {
         public static LoggerStopwatch UseStopwatch(this ILogger logger)
         {
-            return logger.UseLast(new LoggerStopwatch());
+            return logger.Use(new LoggerStopwatch());
         }
     }
 
@@ -427,7 +449,7 @@ namespace Reusable.OmniLog.Experimental
     {
         public static LoggerLambda UseLambda(this ILogger logger, Action<Log> transform)
         {
-            return logger.UseFirst(new LoggerLambda(transform));
+            return logger.Use(new LoggerLambda(transform));
         }
     }
 
@@ -435,7 +457,7 @@ namespace Reusable.OmniLog.Experimental
     {
         public static LoggerTransaction UseTransaction(this ILogger logger)
         {
-            return logger.UseLast(new LoggerTransaction());
+            return logger.Use(new LoggerTransaction());
         }
     }
 
@@ -443,7 +465,7 @@ namespace Reusable.OmniLog.Experimental
     {
         public static LoggerFilter UseFilter(this ILogger logger, Func<Log, bool> canLog)
         {
-            return logger.UseLast(new LoggerFilter { CanLog = canLog });
+            return logger.Use(new LoggerFilter { CanLog = canLog });
         }
     }
 
@@ -451,7 +473,7 @@ namespace Reusable.OmniLog.Experimental
     {
         public static LoggerScope UseScope(this ILogger logger, object correlationId = default, object correlationHandle = default)
         {
-            return logger.UseLast(new LoggerScope(correlationId, correlationHandle));
+            return logger.Use(new LoggerScope(correlationId, correlationHandle));
         }
     }
 
