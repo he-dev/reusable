@@ -1,20 +1,36 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Reusable.OmniLog.Attachments;
+//using Reusable.OmniLog.Attachments;
 using Reusable.OmniLog.SemanticExtensions;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
-namespace Reusable.OmniLog.Experimental
+namespace Reusable.OmniLog.v2
 {
+    using Reusable.OmniLog.v2;
+    using Reusable.OmniLog.v2.Middleware;
+
     public class LoggerMiddlewareTest
     {
         [Fact]
         public void Can_log_message()
         {
             var rx = new MemoryRx();
-            using (var lf = new LoggerFactory { Receivers = { rx } })
+            using (var lf = new v2.LoggerFactory
+            {
+                Receivers = { rx },
+                Middleware =
+                {
+                    new LoggerStopwatch(),
+                    new LoggerAttachment(),
+                    //new LoggerLambda()
+                    new LoggerCorrelation(),
+                    new LoggerSerializer(new JsonSerializer()),
+                    //new LoggerFilter()
+                    new LoggerTransaction()
+                }
+            })
             {
                 var logger = lf.CreateLogger("test");
                 logger.Log(l => l.Message("Hallo!"));
@@ -27,10 +43,19 @@ namespace Reusable.OmniLog.Experimental
         public void Can_log_scope()
         {
             var rx = new MemoryRx();
-            var lf = new LoggerFactory
+            var lf = new v2.LoggerFactory
             {
                 Receivers = { rx },
-                Middleware = { new LoggerSerializer(new JsonSerializer()) }
+                Middleware =
+                {
+                    new LoggerStopwatch(),
+                    new LoggerAttachment(),
+                    //new LoggerLambda()
+                    new LoggerCorrelation(),
+                    new LoggerSerializer(new JsonSerializer()),
+                    //new LoggerFilter()
+                    new LoggerTransaction()
+                }
             };
             using (lf)
             {
@@ -61,7 +86,7 @@ namespace Reusable.OmniLog.Experimental
         public void Can_serialize_data()
         {
             var rx = new MemoryRx();
-            var lf = new LoggerFactory
+            var lf = new v2.LoggerFactory
             {
                 Receivers = { rx },
                 Middleware = { new LoggerSerializer(new JsonSerializer()) }
@@ -83,14 +108,14 @@ namespace Reusable.OmniLog.Experimental
             var timestamp = DateTime.Parse("2019-05-01");
 
             var rx = new MemoryRx();
-            var lf = new LoggerFactory
+            var lf = new v2.LoggerFactory
             {
                 Receivers = { rx },
                 Middleware =
                 {
                     new LoggerAttachment
                     {
-                        new Timestamp(new[] { timestamp })
+                        new Reusable.OmniLog.Attachments.Timestamp(new[] { timestamp })
                     }
                 }
             };

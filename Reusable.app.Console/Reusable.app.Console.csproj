@@ -21,6 +21,7 @@
     <Compile Remove="src\Demos\RestClientDemo.cs" />
     <Compile Remove="src\AssertServerExperiment.cs" />
     <Compile Remove="src\ExceptionVisualizerExperiment.cs" />
+    <Compile Remove="src\Examples\OmniLog.v2.cs" />
   </ItemGroup>
 
   <ItemGroup>
