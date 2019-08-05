@@ -7,6 +7,7 @@ using Reusable.Collections;
 using Reusable.Data;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Middleware;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.Quickey;
 
@@ -149,6 +150,7 @@ namespace Reusable.Beaver
                         {
                             Options.Remove(name);
                         }
+
                         Options.SaveChanges(name);
                     }
                 }
@@ -173,7 +175,8 @@ namespace Reusable.Beaver
         {
             if (Options[name].Contains(FeatureOption.Telemetry))
             {
-                using (_logger.BeginScope().CorrelationHandle(nameof(FeatureTelemetry)).AttachElapsed())
+                using (_logger.UseScope(correlationHandle: nameof(FeatureTelemetry)))
+                using (_logger.UseStopwatch())
                 {
                     _logger.Log(Abstraction.Layer.Service().Meta(new { FeatureName = name }).Trace());
 

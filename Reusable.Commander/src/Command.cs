@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Middleware;
 using Reusable.OmniLog.SemanticExtensions;
 
 namespace Reusable.Commander
@@ -82,7 +83,8 @@ namespace Reusable.Commander
 
         public override async Task ExecuteAsync(object argument, object context, CancellationToken cancellationToken)
         {
-            using (_logger.BeginScope().CorrelationHandle("Command").AttachElapsed())
+            using (_logger.UseScope(correlationHandle: "Command"))
+            using (_logger.UseStopwatch())
             {
                 _logger.Log(Abstraction.Layer.Service().Meta(new { CommandName = Command.Name.Default.ToString() }).Trace());
                 try

@@ -1,9 +1,9 @@
 using System;
 using System.Diagnostics;
-using System.Linq;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Abstractions.Data;
 
-namespace Reusable.OmniLog.v2.Middleware
+namespace Reusable.OmniLog.Middleware
 {
     /// <summary>
     /// Adds 'Elapsed' milliseconds to the log.
@@ -30,9 +30,9 @@ namespace Reusable.OmniLog.v2.Middleware
 
         public Func<TimeSpan, double> GetValue { get; set; } = ts => ts.TotalMilliseconds;
 
-        protected override void InvokeCore(Abstractions.v2.Log request)
+        protected override void InvokeCore(Log request)
         {
-            request[_propertyName] = (long)GetValue(LoggerScope<Scope>.Current.Value.Elapsed);
+            request.SetItem((_propertyName, default), (long)GetValue(LoggerScope<Scope>.Current.Value.Elapsed));
             Next?.Invoke(request);
         }
 

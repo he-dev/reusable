@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Attachments
 {
@@ -14,7 +15,7 @@ namespace Reusable.OmniLog.Attachments
             _key = key;
         }
 
-        public override object Compute(ILog log)
+        public override object Compute(Log log)
         {
             return ConfigurationManager.AppSettings[_key];
         }

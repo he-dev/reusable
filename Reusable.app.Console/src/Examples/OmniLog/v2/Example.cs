@@ -4,14 +4,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.Diagnostics;
+using Reusable.OmniLog;
+using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Middleware;
+using Reusable.OmniLog.SemanticExtensions;
+using Reusable.OmniLog.SemanticExtensions.Middleware;
 //using Reusable.OmniLog.Attachments;
 using Reusable.Utilities.NLog.LayoutRenderers;
 
 namespace Reusable.Apps.Examples.OmniLog.v2
 {
     using Reusable.OmniLog.v2;
-    using Reusable.OmniLog.v2.Middleware;
-    using Reusable.OmniLog.SemanticExtensions.v2;
 
     //using v1 = Reusable.OmniLog;
     //using LoggerTransaction = Reusable.OmniLog.LoggerTransaction;
@@ -25,7 +28,7 @@ namespace Reusable.Apps.Examples.OmniLog.v2
 
             //var fileProvider = new RelativeResourceProvider(new PhysicalFileProvider(), typeof(Demo).Assembly.Location);
 
-            var loggerFactory = new Reusable.OmniLog.v2.LoggerFactory
+            var loggerFactory = new LoggerFactory
             {
                 Receivers =
                 {
@@ -45,7 +48,9 @@ namespace Reusable.Apps.Examples.OmniLog.v2
                     },
                     new LoggerLambda(),
                     new LoggerCorrelation(),
+                    new LoggerDump(),
                     new LoggerSerializer(),
+                    new LoggerAbstraction(),
                     //new LoggerFilter()
                     new LoggerTransaction(),
                 }
@@ -61,7 +66,7 @@ namespace Reusable.Apps.Examples.OmniLog.v2
             logger.Log(Abstraction.Layer.Service().Routine("SemLogTest").Running());
             logger.Log(Abstraction.Layer.Service().Meta(new { Null = (string)null }));
 
-            // Opening outer-transaction.
+            // Opening outer-scope.
             //using (logger.UseScope(correlationHandle: "Blub").Routine("MyRoutine").CorrelationContext(new { Name = "OuterScope", CustomerId = 123 }).AttachElapsed())
             using (logger.UseScope(correlationHandle: "Blub"))
             using (logger.UseStopwatch())
@@ -71,12 +76,11 @@ namespace Reusable.Apps.Examples.OmniLog.v2
                 logger.Log(Abstraction.Layer.Database().Counter(new { RowCount = 7 }));
                 logger.Log(Abstraction.Layer.Database().Decision("blub").Because("bluby"));
 
-                // Opening inner-transaction.
+                // Opening inner-scope.
                 using (logger.UseScope())
-                using (logger.UseStopwatch()) { }
-
+                using (logger.UseStopwatch())
                 {
-                    logger.Log(Abstraction.Layer.Service().RoutineFromScope().Running());
+                    //logger.Log(Abstraction.Layer.Service().().Running());
 
                     //var correlationIds = logger.Scopes().CorrelationIds<string>().ToList();
 

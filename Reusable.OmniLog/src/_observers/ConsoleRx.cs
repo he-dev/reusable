@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Console;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.OmniLog
 {
     [PublicAPI]
-    public class ConsoleRx : LogRx
+    public class ConsoleRx : ILogRx
     {
 //        public static readonly IReadOnlyDictionary<LogLevel, ConsoleColor> DefaultColors = new Dictionary<LogLevel, ConsoleColor>
 //        {
@@ -36,7 +37,7 @@ namespace Reusable.OmniLog
         [CanBeNull]
         public ConsoleTemplateBuilder TemplateBuilder { get; set; }
 
-        public override void Log(ILog log)
+        public void Log(Log log)
         {
             if ((log.ConsoleTemplateBuilder() ?? TemplateBuilder) is var templateBuilder && templateBuilder is null)
             {

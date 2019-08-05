@@ -2,16 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Reusable.OmniLog.Middleware;
 //using Reusable.OmniLog.Attachments;
 using Reusable.OmniLog.SemanticExtensions;
-using Reusable.OmniLog.SemanticExtensions.v2.Middleware;
+using Reusable.OmniLog.SemanticExtensions.Middleware;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.OmniLog.v2
 {
     using Reusable.OmniLog.v2;
-    using Reusable.OmniLog.v2.Middleware;
 
     public class LoggerMiddlewareTest
     {
@@ -19,7 +19,7 @@ namespace Reusable.OmniLog.v2
         public void Can_log_message()
         {
             var rx = new MemoryRx();
-            using (var lf = new v2.LoggerFactory
+            using (var lf = new LoggerFactory
             {
                 Receivers = { rx },
                 Middleware =
@@ -47,7 +47,7 @@ namespace Reusable.OmniLog.v2
             ExecutionContext.SuppressFlow();
 
             var rx = new MemoryRx();
-            var lf = new v2.LoggerFactory
+            var lf = new LoggerFactory
             {
                 Receivers = { rx },
                 Middleware =
@@ -90,7 +90,7 @@ namespace Reusable.OmniLog.v2
         public void Can_serialize_data()
         {
             var rx = new MemoryRx();
-            var lf = new v2.LoggerFactory
+            var lf = new LoggerFactory
             {
                 Receivers = { rx },
                 Middleware =
@@ -99,6 +99,7 @@ namespace Reusable.OmniLog.v2
                     new LoggerAttachment(),
                     new LoggerLambda(),
                     new LoggerCorrelation(),
+                    new LoggerDump(),
                     new LoggerSerializer(),
                     //new LoggerFilter()
                     new LoggerTransaction()
@@ -107,12 +108,14 @@ namespace Reusable.OmniLog.v2
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
-                logger.Log(l => l.Message("Hallo!").AttachSerializable("Snapshot", new { Greeting = "Hi!" }));
+                logger.Log(l => l.Message("Hallo!").Snapshot(new { Greeting = "Hi!" }));
             }
 
             Assert.Equal(1, rx.Count());
             Assert.Equal("Hallo!", rx.First()["Message"]);
-            Assert.Equal("{\"Greeting\":\"Hi!\"}", rx.First()["Snapshot"]);
+            Assert.Equal("Greeting", rx.First()["Identifier"]);
+            Assert.Equal("\"Hi!\"", rx.First()["Snapshot"]);
+            //Assert.Equal("{\"Greeting\":\"Hi!\"}", rx.First()["Snapshot"]);
         }
 
         [Fact]
@@ -121,7 +124,7 @@ namespace Reusable.OmniLog.v2
             var timestamp = DateTime.Parse("2019-05-01");
 
             var rx = new MemoryRx();
-            var lf = new v2.LoggerFactory
+            var lf = new LoggerFactory
             {
                 Receivers = { rx },
                 Middleware =
@@ -150,7 +153,7 @@ namespace Reusable.OmniLog.v2
             var timestamp = DateTime.Parse("2019-05-01");
 
             var rx = new MemoryRx();
-            var lf = new v2.LoggerFactory
+            var lf = new LoggerFactory
             {
                 Receivers = { rx },
                 Middleware =
@@ -160,43 +163,30 @@ namespace Reusable.OmniLog.v2
                         new Reusable.OmniLog.Attachments.Timestamp(new[] { timestamp })
                     },
                     new LoggerLambda(),
-                    new LoggerSnapshot()
+                    new LoggerDump()
                 },
-//                MiddlewareOrder = new List<Type>
-//                {
-//                    typeof(LoggerProperty),
-//                    typeof(LoggerStopwatch),
-//                    typeof(LoggerAttachment),
-//                    typeof(LoggerLambda),
-//                    typeof(LoggerCorrelation),
-//                    typeof(LoggerSnapshot),
-//                    typeof(LoggerSerializer),
-//                    typeof(LoggerFilter),
-//                    typeof(LoggerTransaction),
-//                    typeof(LoggerEcho),
-//                }
             };
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
-                logger.Log(l => l.AttachSerializable("Snapshot", new Person { FirstName = "John", LastName = "Doe" }));
+                logger.Log(l => l.Snapshot(new Person { FirstName = "John", LastName = "Doe" }));
             }
 
             Assert.Equal(2, rx.Count());
             Assert.Equal("FirstName", rx[0]["Identifier"]);
-            Assert.Equal("John", rx[0]["Snapshot.Serializable"]);
+            Assert.Equal("John", rx[0][("Snapshot", LoggerSerializer.LogItemTag)]);
             Assert.Equal("LastName", rx[1]["Identifier"]);
-            Assert.Equal("Doe", rx[1]["Snapshot.Serializable"]);
+            Assert.Equal("Doe", rx[1][("Snapshot", LoggerSerializer.LogItemTag)]);
             //Assert.Equal(timestamp, rx.First()["Timestamp"]);
         }
-        
+
         [Fact]
         public void Can_map_snapshot()
         {
             var timestamp = DateTime.Parse("2019-05-01");
 
             var rx = new MemoryRx();
-            var lf = new v2.LoggerFactory
+            var lf = new LoggerFactory
             {
                 Receivers = { rx },
                 Middleware =
@@ -206,27 +196,17 @@ namespace Reusable.OmniLog.v2
                         new Reusable.OmniLog.Attachments.Timestamp(new[] { timestamp })
                     },
                     new LoggerLambda(),
-                    new LoggerSnapshot()
-                        .Map<Person>(p => new { FullName = p.LastName + ", " + p.FirstName })
+                    new LoggerDump
+                    {
+                        LoggerDump.Mapping.Map<Person>(p => new { FullName = p.LastName + ", " + p.FirstName })
+                    }
+                    //.Map<Person>(p => new { FullName = p.LastName + ", " + p.FirstName })
                 },
-//                MiddlewareOrder = new List<Type>
-//                {
-//                    typeof(LoggerProperty),
-//                    typeof(LoggerStopwatch),
-//                    typeof(LoggerAttachment),
-//                    typeof(LoggerLambda),
-//                    typeof(LoggerCorrelation),
-//                    typeof(LoggerSnapshot),
-//                    typeof(LoggerSerializer),
-//                    typeof(LoggerFilter),
-//                    typeof(LoggerTransaction),
-//                    typeof(LoggerEcho),
-//                }
             };
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
-                logger.Log(l => l.AttachSerializable("Snapshot", new Person { FirstName = "John", LastName = "Doe" }));
+                logger.Log(l => l.Snapshot(new Person { FirstName = "John", LastName = "Doe" }));
             }
 
             Assert.Equal(1, rx.Count());

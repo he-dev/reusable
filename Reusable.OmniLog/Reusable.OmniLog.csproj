@@ -17,11 +17,23 @@
 
   <ItemGroup>
     <Compile Remove="src\Expressions.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <Compile Remove="src\_log\Log.cs" />
     <Compile Remove="src\_log\LogFilter.cs" />
+    <Compile Remove="src\_log\LogRenderer.cs" />
+    <Compile Remove="src\_log\LogRx.cs" />
+    <Compile Remove="src\_log\LogScope.cs" />
+    <Compile Remove="src\_log\LogScopeExtensions.cs" />
+    <Compile Remove="src\_logger\Logger.cs" />
+    <Compile Remove="src\_logger\LoggerFactory.cs" />
+    <Compile Remove="src\_logger\LoggerFactoryExtensions.cs" />
+    <Compile Remove="src\_logger\LoggerTransaction.cs" />
     <Compile Remove="src\_logger\LoggerFactoryConfiguration.cs" />
+    <Compile Remove="src\Attachments\AppSetting.cs" />
+    <Compile Remove="src\Attachments\Elapsed.cs" />
+    <Compile Remove="src\Attachments\ElapsedMilliseconds.cs" />
+    <Compile Remove="src\Attachments\ElapsedSeconds.cs" />
+    <Compile Remove="src\Attachments\Scope.cs" />
+    <Compile Remove="src\Attachments\ThreadId.cs" />
   </ItemGroup>
 
   <ItemGroup>

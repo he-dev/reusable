@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Http;
 using Reusable.Extensions;
 using Reusable.IOnymous;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Middleware;
 using Reusable.OmniLog.SemanticExtensions;
 
 namespace Reusable.OmniLog
@@ -17,24 +19,27 @@ namespace Reusable.OmniLog
     {
         private readonly ILogger _logger;
         private readonly RequestDelegate _next;
-        private readonly LoggerMiddlewareConfiguration _configuration;
+        private readonly Func<HttpContext, object> _getCorrelationId;
 
-        public LoggerMiddleware(
+        public LoggerMiddleware
+        (
             ILoggerFactory loggerFactory,
             RequestDelegate next,
-            Action<LoggerMiddlewareConfiguration> configure)
+            Func<HttpContext, object> getCorrelationId
+        )
         {
             _next = next;
             _logger = loggerFactory.CreateLogger<LoggerMiddleware>();
-            _configuration = new LoggerMiddlewareConfiguration();
-            configure(_configuration);
+            getCorrelationId = getCorrelationId;
         }
 
         public async Task Invoke(HttpContext context)
         {
-            using (var scope = _logger.BeginScope().AttachElapsed())
+            using (var stopwatch = _logger.UseStopwatch())
+            using (var scope = _logger.UseScope(correlationId: _getCorrelationId(context)))
             {
-                _configuration?.ConfigureScope(scope, context);
+                // todo - what do I need this for?
+                //_configuration?.ConfigureScope(scope, context);
 
                 _logger.Log(Abstraction.Layer.Network().Argument(new
                 {
@@ -94,13 +99,11 @@ namespace Reusable.OmniLog
                         }
                     }), log =>
                     {
-                        log.SetItem(Reusable.OmniLog.Log.PropertyNames.Level, MapStatusCode(context.Response.StatusCode));
+                        log.Level(MapStatusCode(context.Response.StatusCode));
                         if (context.ResponseBodyLoggingEnabled())
                         {
                             log.Message(body);
                         }
-
-                        return log;
                     });
                 }
                 catch (Exception inner)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Attachments
 {
@@ -19,7 +20,7 @@ namespace Reusable.OmniLog.Attachments
             _timestamps = timestamps.GetEnumerator();
         }
 
-        public override object Compute(ILog log)
+        public override object Compute(Log log)
         {
             if (_timestamps.MoveNext())
             {

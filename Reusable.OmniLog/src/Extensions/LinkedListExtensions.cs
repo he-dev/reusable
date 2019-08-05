@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Reusable.OmniLog.v2;
 
-namespace Reusable.OmniLog.v2
+namespace Reusable.OmniLog.Extensions
 {
     public static class LinkedListExtensions
     {

@@ -1,10 +1,11 @@
-﻿using System;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
 namespace Reusable.OmniLog.SemanticExtensions
 {
+    using acpn = AbstractionContext.PropertyNames;
+    
     #region Abstractions
 
     /*
@@ -23,6 +24,8 @@ namespace Reusable.OmniLog.SemanticExtensions
     // Base interface for the first tier "layer"
     public interface IAbstraction
     {
+        object GetItem([NotNull] string name);
+        
         IAbstractionContext SetItem([NotNull] string name, [NotNull] object value);
     }
 
@@ -50,9 +53,6 @@ namespace Reusable.OmniLog.SemanticExtensions
     {
         public static IAbstractionLayer Business(this IAbstraction abstraction) => AbstractionFactory.CreateWithCallerName();
 
-        [Obsolete("Use Service instead.")]
-        public static IAbstractionLayer Infrastructure(this IAbstraction abstraction) => AbstractionFactory.CreateWithCallerName();
-
         public static IAbstractionLayer Service(this IAbstraction abstraction) => AbstractionFactory.CreateWithCallerName();
 
         public static IAbstractionLayer Presentation(this IAbstraction abstraction) => AbstractionFactory.CreateWithCallerName();
@@ -70,7 +70,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         public static IAbstractionLayer CreateWithCallerName([CallerMemberName] string name = null)
         {
             // ReSharper disable once AssignNullToNotNullAttribute - The compiler takes care of it.
-            return AbstractionContext.Empty.SetItem(AbstractionProperties.Layer, name);
+            return AbstractionContext.Empty.SetItem(acpn.Layer, name);
         }
     }
 
@@ -87,8 +87,8 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             return
                 layer
-                    .SetItem(AbstractionProperties.Category, nameof(Variable))
-                    .SetItem(AbstractionProperties.Snapshot, snapshot);
+                    .SetItem(acpn.Category, nameof(Variable))
+                    .SetItem(acpn.Snapshot, snapshot);
         }
 
         /// <summary>
@@ -98,8 +98,8 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             return
                 layer
-                    .SetItem(AbstractionProperties.Category, nameof(Property))
-                    .SetItem(AbstractionProperties.Snapshot, snapshot);
+                    .SetItem(acpn.Category, nameof(Property))
+                    .SetItem(acpn.Snapshot, snapshot);
         }
 
         /// <summary>
@@ -109,8 +109,8 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             return
                 layer
-                    .SetItem(AbstractionProperties.Category, nameof(Argument))
-                    .SetItem(AbstractionProperties.Snapshot, snapshot);
+                    .SetItem(acpn.Category, nameof(Argument))
+                    .SetItem(acpn.Snapshot, snapshot);
         }
 
         /// <summary>
@@ -120,8 +120,8 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             return
                 layer
-                    .SetItem(AbstractionProperties.Category, nameof(Meta))
-                    .SetItem(AbstractionProperties.Snapshot, snapshot);
+                    .SetItem(acpn.Category, nameof(Meta))
+                    .SetItem(acpn.Snapshot, snapshot);
         }
 
         /// <summary>
@@ -131,8 +131,8 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             return
                 layer
-                    .SetItem(AbstractionProperties.Category, nameof(Composite))
-                    .SetItem(AbstractionProperties.Snapshot, snapshot);
+                    .SetItem(acpn.Category, nameof(Composite))
+                    .SetItem(acpn.Snapshot, snapshot);
         }
 
         /// <summary>
@@ -142,8 +142,8 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             return
                 layer
-                    .SetItem(AbstractionProperties.Category, nameof(Counter))
-                    .SetItem(AbstractionProperties.Snapshot, snapshot);
+                    .SetItem(acpn.Category, nameof(Counter))
+                    .SetItem(acpn.Snapshot, snapshot);
         }
 
         /// <summary>
@@ -153,35 +153,35 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             return
                 layer
-                    .SetItem(AbstractionProperties.Category, nameof(Routine))
-                    .SetItem(AbstractionProperties.Identifier, identifier);
+                    .SetItem(acpn.Category, nameof(Routine))
+                    .SetItem(acpn.Routine, identifier);
         }
 
-        public static IAbstractionCategory RoutineFromScope(this IAbstractionLayer layer)
-        {
-            if (LogScope.Current is null)
-            {
-                return layer.Routine($"#'{nameof(RoutineFromScope)}' used outside of a scope.");
-            }
-
-            // Try to find routine-identifier in the scope hierarchy.
-            var scope =
-                LogScope
-                    .Current
-                    .Flatten()
-                    .FirstOrDefault(s => s.ContainsKey(nameof(Routine)));
-            return
-                scope is null
-                    ? layer.Routine("#Scope does not contain routine identifier.")
-                    : layer.Routine((string)scope[nameof(Routine)]);
-        }
+//        public static IAbstractionCategory RoutineFromScope(this IAbstractionLayer layer)
+//        {
+//            if (LogScope.Current is null)
+//            {
+//                return layer.Routine($"#'{nameof(RoutineFromScope)}' used outside of a scope.");
+//            }
+//
+//            // Try to find routine-identifier in the scope hierarchy.
+//            var scope =
+//                LogScope
+//                    .Current
+//                    .Flatten()
+//                    .FirstOrDefault(s => s.ContainsKey(nameof(Routine)));
+//            return
+//                scope is null
+//                    ? layer.Routine("#Scope does not contain routine identifier.")
+//                    : layer.Routine((string)scope[nameof(Routine)]);
+//        }
 
         public static IAbstractionContext Decision(this IAbstractionLayer layer, object description)
         {
             return
                 layer
-                    .SetItem(AbstractionProperties.Category, "Flow")
-                    .SetItem(AbstractionProperties.Snapshot, new { Decision = description });
+                    .SetItem(acpn.Category, "Flow")
+                    .SetItem(acpn.Snapshot, new { Decision = description });
         }
     }
 
@@ -191,34 +191,53 @@ namespace Reusable.OmniLog.SemanticExtensions
 
     public static class AbstractionCategoryExtensions
     {
-        public static IAbstractionContext Running(this IAbstractionCategory category) => category.SetItem(AbstractionProperties.Snapshot, nameof(Running));
+        public static IAbstractionContext Running(this IAbstractionCategory category)
+        {
+            var identifier = (string)category.GetItem(acpn.Routine);
+            return category.SetItem(acpn.Snapshot, new Dictionary<string, object> { [identifier] = nameof(Running) });
+        }
 
-        public static IAbstractionContext Completed(this IAbstractionCategory category) => category.SetItem(AbstractionProperties.Snapshot, nameof(Completed));
+        public static IAbstractionContext Completed(this IAbstractionCategory category)
+        {
+            var identifier = (string)category.GetItem(acpn.Routine);
+            return category.SetItem(acpn.Snapshot, new Dictionary<string, object> { [identifier] = nameof(Completed) });
+        }
 
-        public static IAbstractionContext Canceled(this IAbstractionCategory category) => category.SetItem(AbstractionProperties.Snapshot, nameof(Canceled)).Warning();
+        public static IAbstractionContext Canceled(this IAbstractionCategory category)
+        {
+            var identifier = (string)category.GetItem(acpn.Routine);
+            return category.SetItem(acpn.Snapshot, new Dictionary<string, object> { [identifier] = nameof(Canceled) }).Warning();
+        }
 
-        public static IAbstractionContext Faulted(this IAbstractionCategory category) => category.SetItem(AbstractionProperties.Snapshot, nameof(Faulted)).Error();
+        public static IAbstractionContext Faulted(this IAbstractionCategory category)
+        {
+            var identifier = (string)category.GetItem(acpn.Routine);
+            return category.SetItem(acpn.Snapshot, new Dictionary<string, object> { [identifier] = nameof(Faulted) }).Error();
+        }
 
         /// <summary>
         /// Sets a message that explains why something happened like Canceled a Routine or a Decision.
         /// </summary>
-        public static IAbstractionContext Because(this IAbstractionContext category, string reason) => category.SetItem(AbstractionProperties.Message, reason);
+        public static IAbstractionContext Because(this IAbstractionContext category, string reason)
+        {
+            return category.SetItem(acpn.Because, reason);
+        }
     }
 
     #endregion
 
     public static class AbstractionContextExtensions
     {
-        public static IAbstractionContext Trace(this IAbstractionContext context) => context.SetItem(AbstractionProperties.LogLevel, LogLevel.Trace);
+        public static IAbstractionContext Trace(this IAbstractionContext context) => context.SetItem(acpn.Level, LogLevel.Trace);
 
-        public static IAbstractionContext Debug(this IAbstractionContext context) => context.SetItem(AbstractionProperties.LogLevel, LogLevel.Debug);
+        public static IAbstractionContext Debug(this IAbstractionContext context) => context.SetItem(acpn.Level, LogLevel.Debug);
 
-        public static IAbstractionContext Warning(this IAbstractionContext context) => context.SetItem(AbstractionProperties.LogLevel, LogLevel.Warning);
+        public static IAbstractionContext Warning(this IAbstractionContext context) => context.SetItem(acpn.Level, LogLevel.Warning);
 
-        public static IAbstractionContext Information(this IAbstractionContext context) => context.SetItem(AbstractionProperties.LogLevel, LogLevel.Information);
+        public static IAbstractionContext Information(this IAbstractionContext context) => context.SetItem(acpn.Level, LogLevel.Information);
 
-        public static IAbstractionContext Error(this IAbstractionContext context) => context.SetItem(AbstractionProperties.LogLevel, LogLevel.Error);
+        public static IAbstractionContext Error(this IAbstractionContext context) => context.SetItem(acpn.Level, LogLevel.Error);
 
-        public static IAbstractionContext Fatal(this IAbstractionContext context) => context.SetItem(AbstractionProperties.LogLevel, LogLevel.Fatal);
+        public static IAbstractionContext Fatal(this IAbstractionContext context) => context.SetItem(acpn.Level, LogLevel.Fatal);
     }
 }

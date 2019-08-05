@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <Compile Remove="src\LoggerFactorySetup.cs" />
+    <Compile Remove="src\Attachments\**" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,4 +1,5 @@
 ﻿using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Attachments
 {
@@ -13,7 +14,7 @@ namespace Reusable.OmniLog.Attachments
             _dateTime = new T();
         }
 
-        public override object Compute(ILog log)
+        public override object Compute(Log log)
         {
             return _dateTime.Now();
         }

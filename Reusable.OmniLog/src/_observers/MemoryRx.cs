@@ -5,14 +5,15 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog
 {
-    public class MemoryRx : LogRx, IEnumerable<ILog>
+    public class MemoryRx : ILogRx, IEnumerable<Log>
     {
         public const int DefaultCapacity = 1_000;
 
-        private readonly LinkedList<ILog> _logs = new LinkedList<ILog>();
+        private readonly LinkedList<Log> _logs = new LinkedList<Log>();
 
         public MemoryRx(int capacity = DefaultCapacity)
         {
@@ -22,31 +23,13 @@ namespace Reusable.OmniLog
         public int Capacity { get; }
 
         [NotNull]
-        public ILog this[int index] => this.ElementAtOrDefault(index) ?? throw DynamicException.Create("LogIndexOutOfRange", $"There is no log at {index}.");
+        public Log this[int index] => this.ElementAtOrDefault(index) ?? throw DynamicException.Create("LogIndexOutOfRange", $"There is no log at {index}.");
 
-        public override void Log(ILog log)
+        public void Log(Log log)
         {
             lock (_logs)
             {
-                log = log.Flatten();
-                var entry = new Log
-                {
-                    ["Level"] = log.GetItemOrDefault<LogLevel>(Reusable.OmniLog.Log.PropertyNames.Level),
-                    ["Logger"] = log.GetItemOrDefault<string>(Reusable.OmniLog.Log.PropertyNames.Logger),
-                    ["Message"] = log.GetItemOrDefault<string>(Reusable.OmniLog.Log.PropertyNames.Message),
-                    ["Exception"] = log.GetItemOrDefault<Exception>(Reusable.OmniLog.Log.PropertyNames.Exception),
-                    ["TimeStamp"] = log.GetItemOrDefault<DateTime>(Reusable.OmniLog.Log.PropertyNames.Timestamp)
-                };
-
-                foreach (var item in log)
-                {
-                    if (!entry.ContainsKey(item.Key.ToString()))
-                    {
-                        entry[item.Key.ToString()] = item.Value;
-                    }
-                }
-                
-                _logs.AddLast(entry);
+                _logs.AddLast(log);
                 if (_logs.Count > Capacity)
                 {
                     _logs.RemoveFirst();
@@ -56,7 +39,7 @@ namespace Reusable.OmniLog
 
         public static MemoryRx Create(int capacity = DefaultCapacity) => new MemoryRx(capacity);
 
-        public IEnumerator<ILog> GetEnumerator()
+        public IEnumerator<Log> GetEnumerator()
         {
             lock (_logs)
             {

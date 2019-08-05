@@ -1,18 +1,19 @@
 using System;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Abstractions.Data;
 
-namespace Reusable.OmniLog.v2.Middleware
+namespace Reusable.OmniLog.Middleware
 {
     public class LoggerFilter : LoggerMiddleware
     {
-        private readonly Func<ILog, bool> _canLog;
+        private readonly Func<Log, bool> _canLog;
 
-        public LoggerFilter(Func<ILog, bool> canLog) : base(true)
+        public LoggerFilter(Func<Log, bool> canLog) : base(true)
         {
             _canLog = canLog;
         }
 
-        protected override void InvokeCore(Abstractions.v2.Log request)
+        protected override void InvokeCore(Log request)
         {
             if (_canLog(request))
             {

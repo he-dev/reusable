@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Abstractions.Data;
 
-namespace Reusable.OmniLog.v2.Middleware
+namespace Reusable.OmniLog.Middleware
 {
     public class LoggerProperty : LoggerMiddleware
     {
@@ -17,11 +18,11 @@ namespace Reusable.OmniLog.v2.Middleware
             _properties = properties;
         }
 
-        protected override void InvokeCore(Abstractions.v2.Log request)
+        protected override void InvokeCore(Log request)
         {
             foreach (var (name, value) in _properties)
             {
-                request[name] = value;
+                request.SetItem((name, default),  value);
             }
 
             Next?.Invoke(request);

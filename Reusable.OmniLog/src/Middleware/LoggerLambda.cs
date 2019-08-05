@@ -1,9 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Abstractions.Data;
 
-namespace Reusable.OmniLog.v2.Middleware
+namespace Reusable.OmniLog.Middleware
 {
     public delegate void AlterLog(Log log);
     

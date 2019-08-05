@@ -3,63 +3,72 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Middleware;
+using Reusable.OmniLog.v2;
 
 namespace Reusable.OmniLog
 {
-    public delegate string MessageFunc();
-
     [PublicAPI]
     public static class LoggerExtensions
     {
         #region LogLevels
 
-        public static ILogger Trace(this ILogger logger, string message, Func<ILog, ILog> populate = null)
+        public static void Trace(this ILogger logger, string message, AlterLog alter = null)
         {
-            return logger.Log(LogLevel.Trace, message, null, populate);
+             logger.Log(LogLevel.Trace, message, null, alter);
         }
 
-        public static ILogger Debug(this ILogger logger, string message, Func<ILog, ILog> populate = null)
+        public static void Debug(this ILogger logger, string message, AlterLog alter = null)
         {
-            return logger.Log(LogLevel.Debug, message, null, populate);
+             logger.Log(LogLevel.Debug, message, null, alter);
         }
 
-        public static ILogger Warning(this ILogger logger, string message, Func<ILog, ILog> populate = null)
+        public static void Warning(this ILogger logger, string message, AlterLog alter = null)
         {
-            return logger.Log(LogLevel.Warning, message, null, populate);
+             logger.Log(LogLevel.Warning, message, null, alter);
         }
 
-        public static ILogger Information(this ILogger logger, string message, Func<ILog, ILog> populate = null)
+        public static void Information(this ILogger logger, string message, AlterLog alter = null)
         {
-            return logger.Log(LogLevel.Information, message, null, populate);
+             logger.Log(LogLevel.Information, message, null, alter);
         }
 
-        public static ILogger Error(this ILogger logger, string message, Exception exception = null, Func<ILog, ILog> populate = null)
+        public static void Error(this ILogger logger, string message, Exception exception = null, AlterLog alter = null)
         {
-            return logger.Log(LogLevel.Error, message, exception, populate);
+             logger.Log(LogLevel.Error, message, exception, alter);
         }
 
-        public static ILogger Fatal(this ILogger logger, string message, Exception exception = null, Func<ILog, ILog> populate = null)
+        public static void Fatal(this ILogger logger, string message, Exception exception = null, AlterLog alter = null)
         {
-            return logger.Log(LogLevel.Fatal, message, exception, populate);
+             logger.Log(LogLevel.Fatal, message, exception, alter);
+        }
+        
+        public static void Log(this ILogger logger, AlterLog alter)
+        {
+            logger.UseLambda(alter);
+            logger.Log(new Log());
         }
 
-        private static ILogger Log
+        private static void Log
         (
             [NotNull] this ILogger logger,
-            [NotNull] LogLevel logLevel,
+            [NotNull] LogLevel level,
             [CanBeNull] string message,
             [CanBeNull] Exception exception,
-            [CanBeNull] Func<ILog, ILog> populate
+            [CanBeNull] AlterLog alter
         )
         {
             if (logger == null) throw new ArgumentNullException(nameof(logger));
-            if (logLevel == null) throw new ArgumentNullException(nameof(logLevel));
+            if (level == null) throw new ArgumentNullException(nameof(level));
 
-            return logger.Log(log => log
-                .SetItem(Reusable.OmniLog.Log.PropertyNames.Level, logLevel)
-                .SetItem(Reusable.OmniLog.Log.PropertyNames.Message, message)
-                .SetItem(Reusable.OmniLog.Log.PropertyNames.Exception, exception)
-                .Transform(populate ?? Functional.Echo));
+            logger.Log(log =>
+            {
+                log.Level(level);
+                log.Message(message);
+                log.Exception(exception);
+                alter?.Invoke(log);
+            });
         }
 
         #endregion
@@ -72,39 +81,5 @@ namespace Reusable.OmniLog
         }
 
         #endregion
-
-        #region BeginScope	
-
-        public static ILogScope BeginScope(this ILogger logger, out object correlationId)
-        {
-            var scope = LogScope.Push();
-            scope.CorrelationId(out correlationId);
-            return scope;
-        }
-
-        public static ILogScope BeginScope(this ILogger logger)
-        {
-            return logger.BeginScope(out _);
-        }
-
-        /// <summary>
-        /// Gets log scopes ordered by depths ascending.
-        /// </summary>
-        [NotNull]
-        [ItemNotNull]
-        public static IEnumerable<ILogScope> Scopes(this ILogger logger)
-        {
-            return
-                LogScope
-                    .Current
-                    .Flatten();
-        }
-
-        #endregion
-
-        public static ILoggerTransaction BeginTransaction(this ILogger logger)
-        {
-            return new LoggerTransaction(logger);
-        }
     }
 }

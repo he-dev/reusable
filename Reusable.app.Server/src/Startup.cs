@@ -42,7 +42,6 @@ namespace Reusable.Apps.Server
         }
 
 
-
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
@@ -51,15 +50,9 @@ namespace Reusable.Apps.Server
             // Add framework services.
             services
                 .AddMvc()
-                .AddJsonOptions(options =>
-                {
-                    options.SerializerSettings.Converters.Add(new JsonStringConverter());
-                });
+                .AddJsonOptions(options => { options.SerializerSettings.Converters.Add(new JsonStringConverter()); });
 
-            services.Configure<RazorViewEngineOptions>(options =>
-            {
-                options.ViewLocationExpanders.Add(new RelativeViewLocationExpander("src"));
-            });
+            services.Configure<RazorViewEngineOptions>(options => { options.ViewLocationExpanders.Add(new RelativeViewLocationExpander("src")); });
 
             services.AddSingleton(_hostingEnvironment.ContentRootFileProvider);
 
@@ -69,16 +62,18 @@ namespace Reusable.Apps.Server
             //});;
 
             services.AddSingleton<IConfiguration>(_configuration);
-            services.AddSingleton<ILoggerFactory>(
-                new LoggerFactory()
-                    .AttachObject("Environment", _hostingEnvironment.EnvironmentName)
-                    .AttachObject("Product", "Reusable.Apps.Server")
-                    .AttachScope()
-                    .AttachSnapshot()
-                    .Attach<Timestamp<DateTimeUtc>>()
-                    //.AttachElapsedMilliseconds()
-                    .Subscribe<NLogRx>()
-            );
+            
+            // todo - fix this factory setup
+//            services.AddSingleton<ILoggerFactory>(
+//                new LoggerFactory()
+//                    .AttachObject("Environment", _hostingEnvironment.EnvironmentName)
+//                    .AttachObject("Product", "Reusable.Apps.Server")
+//                    .AttachScope()
+//                    .AttachSnapshot()
+//                    .Attach<Timestamp<DateTimeUtc>>()
+//                    //.AttachElapsedMilliseconds()
+//                    .Subscribe<NLogRx>()
+//            );
 
             services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
 
@@ -94,10 +89,7 @@ namespace Reusable.Apps.Server
             //loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             //loggerFactory.AddDebug();      
 
-            app.UseSemanticLogger(config =>
-            {
-                config.ConfigureScope = (scope, context) => scope.AttachClientCorrelationId(context).AttachClientInfo(context);
-            });
+            app.UseSemanticLogger(httpContext => httpContext.GetClientCorrelationIdOrDefault());
 
             //app.UseWhen(
             //    httpContext => !httpContext.Request.Method.In(new[] { "GET" }, StringComparer.OrdinalIgnoreCase),
@@ -142,35 +134,30 @@ namespace Reusable.Apps.Server
 
     internal static class HttpContextExtensions
     {
-        public static T AttachClientInfo<T>(this T scope, HttpContext context) where T : ILogScope
+//        public static T AttachClientInfo<T>(this T scope, HttpContext context) where T : ILogScope
+//        {
+//            var product = context.Request.Headers["X-Product"].ElementAtOrDefault(0);
+//            var environment = context.Request.Headers["X-Environment"].ElementAtOrDefault(0);
+//
+//            if (!string.IsNullOrWhiteSpace(product))
+//            {
+//                var attachment = new Lambda("Product", _ => product);
+//                scope.SetItem(attachment.Name, attachment);
+//            }
+//
+//            if (!string.IsNullOrWhiteSpace(environment))
+//            {
+//                var attachment = new Lambda("Environment", _ => environment);
+//                scope.SetItem(attachment.Name, attachment);
+//            }
+//
+//            return scope;
+//        }
+
+        [NotNull]
+        public static object GetClientCorrelationIdOrDefault(this HttpContext context, string header = "X-Correlation-ID")
         {
-            var product = context.Request.Headers["X-Product"].ElementAtOrDefault(0);
-            var environment = context.Request.Headers["X-Environment"].ElementAtOrDefault(0);
-
-            if (!string.IsNullOrWhiteSpace(product))
-            {
-                var attachment = new Lambda("Product", _ => product);
-                scope.SetItem(attachment.Name, attachment);
-            }
-
-            if (!string.IsNullOrWhiteSpace(environment))
-            {
-                var attachment = new Lambda("Environment", _ => environment);
-                scope.SetItem(attachment.Name, attachment);
-            }
-
-            return scope;
-        }
-
-        public static T AttachClientCorrelationId<T>(this T scope, HttpContext context) where T : ILogScope
-        {
-            var correlationId = context.Request.Headers["X-Correlation-ID"].SingleOrDefault() ?? context.TraceIdentifier;
-
-            if (!string.IsNullOrWhiteSpace(correlationId))
-            {
-                scope.CorrelationId(correlationId);
-            }
-            return scope;
+            return context.Request.Headers[header].SingleOrDefault() ?? context.TraceIdentifier;
         }
     }
 }

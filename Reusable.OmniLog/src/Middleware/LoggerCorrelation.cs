@@ -1,11 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Extensions;
 
-namespace Reusable.OmniLog.v2.Middleware
+namespace Reusable.OmniLog.Middleware
 {
     public class LoggerCorrelation : LoggerMiddleware, ILoggerScope<LoggerCorrelation.Scope, (object CorrelationId, object CorrelationHandle)>
     {
@@ -28,9 +27,9 @@ namespace Reusable.OmniLog.v2.Middleware
         }
 
 
-        protected override void InvokeCore(Abstractions.v2.Log request)
+        protected override void InvokeCore(Log request)
         {
-            request.AttachSerializable("Scope", LoggerScope<Scope>.Current.Value);
+            request.Serializable("Scope", LoggerScope<Scope>.Current.Value);
             Next?.Invoke(request);
         }
 
@@ -41,6 +40,20 @@ namespace Reusable.OmniLog.v2.Middleware
             public object CorrelationHandle { get; set; }
 
             public void Dispose() => LoggerScope<Scope>.Current.Dispose();
+        }
+    }
+    
+    public static class LoggerCorrelationHelper
+    {
+        public static LoggerCorrelation.Scope UseScope(this ILogger logger, object correlationId = default, object correlationHandle = default)
+        {
+            return
+                logger
+                    .Middleware
+                    .Enumerate(m => m.Next)
+                    .OfType<LoggerCorrelation>()
+                    .Single()
+                    .Push((correlationId, correlationHandle));
         }
     }
 }

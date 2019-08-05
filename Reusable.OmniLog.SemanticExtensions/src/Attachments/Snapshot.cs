@@ -1,4 +1,5 @@
 ﻿using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Utilities;
 
 namespace Reusable.OmniLog.SemanticExtensions.Attachments
@@ -17,7 +18,7 @@ namespace Reusable.OmniLog.SemanticExtensions.Attachments
             _serializer = serializer ?? new JsonSerializer();
         }
 
-        public override object Compute(ILog log)
+        public override object Compute(Log log)
         {
             return
                 log.TryGetValue(BagKey, out var snapshot) 

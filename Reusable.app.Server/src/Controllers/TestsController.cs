@@ -20,7 +20,7 @@ namespace Reusable.Apps.Server.Controllers
         [HttpGet]
         public IActionResult Get(string message)
         {
-            _logger.Log(Abstraction.Layer.Infrastructure().Meta(new { TestMeta = 123 }));
+            _logger.Log(Abstraction.Layer.Service().Meta(new { TestMeta = 123 }));
             return Ok("Hallo GET!");
         }
 

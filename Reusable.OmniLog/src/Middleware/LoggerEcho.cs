@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Abstractions.Data;
 
-namespace Reusable.OmniLog.v2.Middleware
+namespace Reusable.OmniLog.Middleware
 {
     public class LoggerEcho : LoggerMiddleware
     {
@@ -12,13 +13,13 @@ namespace Reusable.OmniLog.v2.Middleware
             _receivers = receivers;
         }
 
-        protected override void InvokeCore(Abstractions.v2.Log request)
+        protected override void InvokeCore(Log request)
         {
             // todo - this isn't probably the best place for it
-            if (!request.ContainsKey("Level"))
-            {
-                request.SetItem("Level", LogLevel.Information);
-            }
+//            if (!request.ContainsKey("Level"))
+//            {
+//                request.SetItem("Level", LogLevel.Information);
+//            }
             
             foreach (var rx in _receivers)
             {

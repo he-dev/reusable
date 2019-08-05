@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.v2.Middleware;
+using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Extensions;
+using Reusable.OmniLog.Middleware;
 
-namespace Reusable.OmniLog.v2
+namespace Reusable.OmniLog
 {
     public class LoggerFactory : ILoggerFactory
     {
@@ -43,9 +45,10 @@ namespace Reusable.OmniLog.v2
 
             return _loggers.GetOrAdd(name, n =>
             {
+                // todo - hardcoded property name
                 //var positions = MiddlewareOrder.Select((m, i) => (m, i)).ToDictionary(t => t.m, t => t.i);
                 //var baseMiddleware = new LoggerProperty((LogPropertyNames.Logger.ToString(), n.ToString())).InsertNext(new LoggerEcho(Receivers));
-                var middleware = (LoggerMiddleware)new LoggerProperty((Reusable.OmniLog.Log.PropertyNames.Logger.ToString(), n.ToString()));
+                var middleware = (LoggerMiddleware)new LoggerProperty(("Logger", n.ToString()));
                 foreach (var current in Middleware)
                 {
                    middleware = middleware.InsertNext(current);
@@ -61,11 +64,19 @@ namespace Reusable.OmniLog.v2
 
         #endregion
 
-        private static Func<ILog, bool> Any => l => l.Any();
+        private static Func<Log, bool> Any => l => l.Any();
     }
     
     public static class LoggerFactoryExtensions
     {
+        [NotNull]
+        public static ILogger<T> CreateLogger<T>([NotNull] this ILoggerFactory loggerFactory, bool includeNamespace = false)
+        {
+            if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
+
+            return new Logger<T>(loggerFactory);
+        }
+        
         public static LoggerFactory Use<T>(this LoggerFactory loggerFactory, T middleware) where T : LoggerMiddleware
         {
             //var current = default(LoggerMiddleware);

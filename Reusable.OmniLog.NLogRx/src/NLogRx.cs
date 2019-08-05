@@ -4,10 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog
 {
-    public class NLogRx : LogRx
+    using data = Reusable.OmniLog.Abstractions.Data;
+
+    public class NLogRx : ILogRx
     {
         private readonly ConcurrentDictionary<SoftString, NLog.Logger> _cache = new ConcurrentDictionary<SoftString, NLog.Logger>();
 
@@ -21,21 +24,22 @@ namespace Reusable.OmniLog
             [LogLevel.Fatal] = NLog.LogLevel.Fatal,
         };
 
-        public override void Log(ILog log)
+        public void Log(Log log)
         {
-            GetLogger(log.GetItemOrDefault<string>(Reusable.OmniLog.Log.PropertyNames.Logger)).Log(CreateLogEventInfo(log));
+            var loggerName = log.GetItemOrDefault<string>((data.Log.PropertyNames.Logger, default));
+            var logger = GetLogger(loggerName);
+            logger.Log(CreateLogEventInfo(log));
         }
 
-        private static NLog.LogEventInfo CreateLogEventInfo(ILog log)
+        private static NLog.LogEventInfo CreateLogEventInfo(Log log)
         {
-            log = log.Flatten();
             var logEventInfo = new NLog.LogEventInfo
             {
-                Level = LogLevelMap[log.GetItemOrDefault<LogLevel>(Reusable.OmniLog.Log.PropertyNames.Level)],
-                LoggerName = log.GetItemOrDefault<string>(Reusable.OmniLog.Log.PropertyNames.Logger),
-                Message = log.GetItemOrDefault<string>(Reusable.OmniLog.Log.PropertyNames.Message),
-                Exception = log.GetItemOrDefault<Exception>(Reusable.OmniLog.Log.PropertyNames.Exception),
-                TimeStamp = log.GetItemOrDefault<DateTime>(Reusable.OmniLog.Log.PropertyNames.Timestamp),
+                Level = LogLevelMap[log.GetItemOrDefault<LogLevel>((data.Log.PropertyNames.Level, default))],
+                LoggerName = log.GetItemOrDefault<string>((data.Log.PropertyNames.Logger, default)),
+                Message = log.GetItemOrDefault<string>((data.Log.PropertyNames.Message, default)),
+                Exception = log.GetItemOrDefault<Exception>((data.Log.PropertyNames.Exception, default)),
+                TimeStamp = log.GetItemOrDefault<DateTime>((data.Log.PropertyNames.Timestamp, default)),
             };
 
             logEventInfo.Properties.AddRangeSafely(log.Select(x => ((object)x.Key.ToString(), x.Value)));

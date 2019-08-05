@@ -4,28 +4,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.v2;
-using Reusable.OmniLog.v2.Middleware;
+using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Middleware;
 
-namespace Reusable.OmniLog.SemanticExtensions.v2.Middleware
+namespace Reusable.OmniLog.SemanticExtensions.Middleware
 {
     using acpn = AbstractionContext.PropertyNames;
-    
-    public class LoggerSnapshot : LoggerMiddleware, IEnumerable<(Type Type, Func<object, object> Map)>
+
+    public class LoggerDump : LoggerMiddleware, IEnumerable<(Type Type, Func<object, object> Map)>
     {
-        private static readonly string SnapshotKey = LoggerSerializer.CreateDataKey(AbstractionProperties.Snapshot);
+        public static readonly string LogItemTag = "Dump";
 
         private readonly IDictionary<Type, Func<object, object>> _mappings = new Dictionary<Type, Func<object, object>>();
 
-        public LoggerSnapshot() : base(true) { }
+        public LoggerDump() : base(true) { }
 
-        public LoggerSnapshot Map<T>(Func<T, object> map)
+        public LoggerDump Map<T>(Func<T, object> map)
         {
             // We can store only Func<object, object> but the call should be able
             // to use T so we need to cast the parameter from 'object' to T.
 
             // Compile: map((T)obj)
-            var parameter = Expression.Parameter(typeof(object), "Snapshot");
+            var parameter = Expression.Parameter(typeof(object), nameof(LoggerSnapshotHelper.Snapshot));
             var mapFunc =
                 Expression.Lambda<Func<object, object>>(
                         Expression.Call(
@@ -39,16 +39,18 @@ namespace Reusable.OmniLog.SemanticExtensions.v2.Middleware
             return this;
         }
 
-        protected override void InvokeCore(Abstractions.v2.Log request)
+        public void Add((Type Type, Func<object, object> Map) mapping) => _mappings.Add(mapping.Type, mapping.Map);
+
+        protected override void InvokeCore(Log request)
         {
             // Do we have a snapshot?
-            if (request.TryGetValue(SnapshotKey, out var snapshot))
+            if (request.TryGetItem<object>((nameof(LoggerSnapshotHelper.Snapshot), LogItemTag), out var snapshot))
             {
                 // Do we have a custom mapping for the snapshot?
                 if (_mappings.TryGetValue(snapshot.GetType(), out var map))
                 {
                     var obj = map(snapshot);
-                    request.AttachSerializable(acpn.Snapshot, obj);
+                    request.Serializable(acpn.Snapshot, obj);
                     Next?.Invoke(request);
                 }
                 // No? Then enumerate all its properties.
@@ -57,10 +59,10 @@ namespace Reusable.OmniLog.SemanticExtensions.v2.Middleware
                     var propertiesEnumerated = false;
                     foreach (var (name, value) in snapshot.EnumerateProperties())
                     {
-                        var copy = new Log(request);
+                        var copy = request.Clone();
 
-                        copy.SetItem(acpn.Identifier, name);
-                        copy.AttachSerializable(acpn.Snapshot, value);
+                        copy.SetItem((acpn.Identifier, default), name);
+                        copy.Serializable(acpn.Snapshot, value);
 
                         Next?.Invoke(copy);
 
@@ -84,5 +86,34 @@ namespace Reusable.OmniLog.SemanticExtensions.v2.Middleware
         public IEnumerator<(Type Type, Func<object, object> Map)> GetEnumerator() => _mappings.Select(x => (x.Key, x.Value)).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public class Mapping
+        {
+            public static (Type Type, Func<object, object> Map) Map<T>(Func<T, object> map)
+            {
+                // We can store only Func<object, object> but the call should be able
+                // to use T so we need to cast the parameter from 'object' to T.
+
+                // Compile: map((T)obj)
+                var parameter = Expression.Parameter(typeof(object), nameof(LoggerSnapshotHelper.Snapshot));
+                var mapFunc =
+                    Expression.Lambda<Func<object, object>>(
+                            Expression.Call(
+                                Expression.Constant(map.Target),
+                                map.Method,
+                                Expression.Convert(parameter, typeof(T))),
+                            parameter)
+                        .Compile();
+                return (typeof(T), mapFunc);
+            }
+        }
+    }
+
+    public static class LoggerSnapshotHelper
+    {
+        public static Log Snapshot(this Log log, object obj)
+        {
+            return log.SetItem((nameof(Snapshot), LoggerDump.LogItemTag), obj);
+        }
     }
 }

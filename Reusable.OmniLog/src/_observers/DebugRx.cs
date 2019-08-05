@@ -1,14 +1,15 @@
 ﻿using System.Diagnostics;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Abstractions.Data;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.OmniLog
 {
-    public class DebugRx : LogRx
+    public class DebugRx : ILogRx
     {
         private DebugRx() { }
 
-        public override void Log(ILog log)
+        public void Log(Log log)
         {
             Debug.WriteLine(log);
         }

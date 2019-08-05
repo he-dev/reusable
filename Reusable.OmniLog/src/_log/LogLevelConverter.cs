@@ -15,7 +15,7 @@ namespace Reusable.OmniLog
         {
             var jToken = JToken.Load(reader);
             var logLevelString = jToken.Value<string>();
-            return LogLevel.Parse(logLevelString);
+            return LogLevel.FromName(logLevelString);
         }
     }
 }

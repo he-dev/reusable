@@ -1,28 +1,29 @@
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Console
 {
     public static class LogExtensions
     {
-        public static ILog ConsoleTemplateBuilder(this ILog log, ConsoleTemplateBuilder consoleTemplateBuilder)
+        public static Log ConsoleTemplateBuilder(this Log log, ConsoleTemplateBuilder consoleTemplateBuilder)
         {
-            return log.SetItem(nameof(ConsoleTemplateBuilder), consoleTemplateBuilder);
+            return log.SetItem((Log.PropertyNames.Message, nameof(ConsoleTemplateBuilder)), consoleTemplateBuilder);
         }
 
-        public static ConsoleTemplateBuilder ConsoleTemplateBuilder(this ILog log)
+        public static ConsoleTemplateBuilder ConsoleTemplateBuilder(this Log log)
         {
-            return log.GetItemOrDefault<ConsoleTemplateBuilder>(nameof(ConsoleTemplateBuilder));
-        }
-        
-        public static ILog ConsoleStyle(this ILog log, ConsoleStyle? consoleStyle)
-        {
-            return log.SetItem(nameof(ConsoleStyle), consoleStyle);
+            return log.GetItemOrDefault<ConsoleTemplateBuilder>((Log.PropertyNames.Message, nameof(ConsoleTemplateBuilder)));
         }
 
-        public static ConsoleStyle? ConsoleStyle(this ILog log)
+        public static Log ConsoleStyle(this Log log, ConsoleStyle? consoleStyle)
         {
-            return log.GetItemOrDefault(nameof(ConsoleStyle), default(ConsoleStyle?));
+            return log.SetItem((Log.PropertyNames.Message, nameof(ConsoleStyle)), consoleStyle);
+        }
+
+        public static ConsoleStyle? ConsoleStyle(this Log log)
+        {
+            return log.GetItemOrDefault((Log.PropertyNames.Message, nameof(ConsoleStyle)), default(ConsoleStyle?));
         }
     }
 }

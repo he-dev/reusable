@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Abstractions.Data;
 
-namespace Reusable.OmniLog.v2.Middleware
+namespace Reusable.OmniLog.Middleware
 {
     /// <summary>
     /// Adds calculated properties to the log.
@@ -15,11 +16,11 @@ namespace Reusable.OmniLog.v2.Middleware
 
         public LoggerAttachment() : base(true) { }
 
-        protected override void InvokeCore(Abstractions.v2.Log request)
+        protected override void InvokeCore(Log request)
         {
             foreach (var attachment in _attachments)
             {
-                request.SetItem((attachment.Name, LogItemTag), attachment.Compute(request));
+                request.SetItem((attachment.Name.ToString(), default), attachment.Compute(request));
             }
 
             Next?.Invoke(request);

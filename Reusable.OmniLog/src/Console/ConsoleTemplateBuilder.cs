@@ -4,14 +4,17 @@ using System.Linq;
 using Reusable.MarkupBuilder;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Console
 {
-    public delegate HtmlElement BuildConsoleTemplateFunc(HtmlElement builder, ILog log);
+    public delegate HtmlElement BuildConsoleTemplateFunc(HtmlElement builder, Log log);
     
     public abstract class ConsoleTemplateBuilder
     {
-        public abstract HtmlElement Build(ILog log);
+        public static readonly string LogItemTag = nameof(ConsoleTemplateBuilder);
+        
+        public abstract HtmlElement Build(Log log);
 
         public virtual BuildConsoleTemplateFunc Build() => default;
 
@@ -24,7 +27,7 @@ namespace Reusable.OmniLog.Console
 
         public IEnumerable<ConsoleTemplateBuilder> Builders { get; set; }
 
-        public override HtmlElement Build(ILog log)
+        public override HtmlElement Build(Log log)
         {
             var elements = Builders.Select(b => b.Build(log));
             var style = log.ConsoleStyle() ?? throw new InvalidOperationException($"You need to set {nameof(ConsoleStyle)} first.");

@@ -1,9 +1,10 @@
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog
 {
-    public class NullRx : LogRx
+    public class NullRx : ILogRx
     {
-        public override void Log(ILog log) { }
+        public void Log(Log log) { }
     }
 }

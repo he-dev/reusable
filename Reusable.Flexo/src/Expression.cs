@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.Flexo
 {
@@ -104,7 +105,7 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.Item),
         };
         // ReSharper restore RedundantNameQualifier
-        
+
         //public static readonly Func<IImmutableContainer, IImmutableContainer> 
 
         private SoftString _name;
@@ -140,10 +141,18 @@ namespace Reusable.Flexo
 
         [Obsolete("Use Pipe")]
         [JsonProperty("This")]
-        public IExpression ExtensionThis { get => Extension; set => Extension = value; }
+        public IExpression ExtensionThis
+        {
+            get => Extension;
+            set => Extension = value;
+        }
 
         [JsonProperty("Pipe")]
-        public IExpression ExtensionPipe { get => Extension; set => Extension = value; }
+        public IExpression ExtensionPipe
+        {
+            get => Extension;
+            set => Extension = value;
+        }
 
         #endregion
 
@@ -157,17 +166,16 @@ namespace Reusable.Flexo
 
         protected class LoggerDummy : ILogger
         {
-            private LoggerDummy() { }
+            public static LoggerDummy Instance { get; } = new LoggerDummy();
+            
+            public LoggerMiddleware Middleware { get; }
 
-            public static ILogger Instance { get; } = new LoggerDummy();
+            public T Use<T>(T next) where T : LoggerMiddleware
+            {
+                return default;
+            }
 
-            public SoftString Name { get; } = nameof(LoggerDummy);
-
-            public ILogger Log(Func<ILog, ILog> request, Func<ILog, ILog> response = default) => this;
-
-            public ILogger Log(ILog log) => this;
-
-            public void Dispose() { }
+            public void Log(Log log) { }
         }
     }
 }
