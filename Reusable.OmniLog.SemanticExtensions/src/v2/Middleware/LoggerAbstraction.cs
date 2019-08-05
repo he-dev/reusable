@@ -10,6 +10,8 @@ namespace Reusable.OmniLog.SemanticExtensions.v2.Middleware
 
     public class LoggerAbstraction : LoggerMiddleware
     {
+        public static readonly string LogItemTag = nameof(AbstractionContext);
+        
         public LoggerAbstraction() : base(true) { }
 
         public IDictionary<string, LogLevel> LayerLevel { get; set; } = new Dictionary<string, LogLevel>

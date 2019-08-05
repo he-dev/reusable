@@ -9,6 +9,8 @@ namespace Reusable.OmniLog.v2.Middleware
 {
     public class LoggerSerializer : LoggerMiddleware
     {
+        public static readonly string LogItemTag = "Serializable";
+        
         public static readonly string SerializableSuffix = ".Serializable";
 
         private static readonly Regex SerializableSuffixRegex = new Regex($"{Regex.Escape(SerializableSuffix)}$", RegexOptions.Compiled);
