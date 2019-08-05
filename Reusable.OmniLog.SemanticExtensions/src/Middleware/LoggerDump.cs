@@ -13,33 +13,19 @@ namespace Reusable.OmniLog.SemanticExtensions.Middleware
     {
         public static readonly string LogItemTag = "Dump";
 
+        private const string Identifier = nameof(Identifier);
+        private const string Dump = nameof(Dump);
+
         private readonly IDictionary<Type, Func<object, object>> _mappings = new Dictionary<Type, Func<object, object>>();
 
         public LoggerDump() : base(true) { }
 
-        public string IdentifierPropertyName { get; set; } = "Identifier";
-        public string DumpPropertyName { get; set; } = "Snapshot";
-
-        public LoggerDump Map<T>(Func<T, object> map)
+        public IDictionary<string, string> LogPropertyNames { get; set; } = new Dictionary<string, string>
         {
-            // We can store only Func<object, object> but the call should be able
-            // to use T so we need to cast the parameter from 'object' to T.
-
-            // Compile: map((T)obj)
-            var parameter = Expression.Parameter(typeof(object), nameof(LoggerSnapshotHelper.Snapshot));
-            var mapFunc =
-                Expression.Lambda<Func<object, object>>(
-                        Expression.Call(
-                            Expression.Constant(map.Target),
-                            map.Method,
-                            Expression.Convert(parameter, typeof(T))),
-                        parameter)
-                    .Compile();
-            _mappings.Add(typeof(T), mapFunc);
-
-            return this;
-        }
-
+            ["Identifier"] = "Identifier",
+            ["Dump"] = "Snapshot"
+        };
+        
         public void Add((Type Type, Func<object, object> Map) mapping) => _mappings.Add(mapping.Type, mapping.Map);
 
         protected override void InvokeCore(Log request)
@@ -53,7 +39,7 @@ namespace Reusable.OmniLog.SemanticExtensions.Middleware
                 if (_mappings.TryGetValue(snapshot.GetType(), out var map))
                 {
                     var obj = map(snapshot);
-                    request.Serializable(DumpPropertyName, obj);
+                    request.Serializable(LogPropertyNames[Dump], obj);
                     Next?.Invoke(request);
                 }
                 // No? Then enumerate all its properties.
@@ -64,8 +50,8 @@ namespace Reusable.OmniLog.SemanticExtensions.Middleware
                     {
                         var copy = request.Clone();
 
-                        copy.SetItem((IdentifierPropertyName, default), name);
-                        copy.Serializable(DumpPropertyName, value);
+                        copy.SetItem((LogPropertyNames[Identifier], default), name);
+                        copy.Serializable(LogPropertyNames[Dump], value);
 
                         Next?.Invoke(copy);
 
@@ -90,7 +76,7 @@ namespace Reusable.OmniLog.SemanticExtensions.Middleware
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public class Mapping
+        public static class Mapping
         {
             public static (Type Type, Func<object, object> Map) Map<T>(Func<T, object> map)
             {
