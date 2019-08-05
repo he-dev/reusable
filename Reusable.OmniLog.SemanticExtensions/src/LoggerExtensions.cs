@@ -17,10 +17,10 @@ namespace Reusable.OmniLog.SemanticExtensions
     {
         // We use context as the name and not abstractionContext because it otherwise interferes with intellisense.
         // The name abstractionContext appears first on the list and you need to scroll to get the Abstraction.
-        public static void Log
+        public static void Log<T>
         (
             this ILogger logger,
-            IAbstractionContext context,
+            IAbstractionBuilder<T> context,
             AlterLog alter = null,
             // These properties are for free so let's just log them too.
             [CallerMemberName] string callerMemberName = null,
@@ -30,7 +30,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             logger.Log(log =>
             {
-                log.SetItem((data.Log.PropertyNames.Metadata, LoggerAbstraction.LogItemTag), context);
+                log.SetItem((LoggerAbstraction.LogPropertyName, data.Log.ItemTags.Metadata), context);
                 log.SetItem((data.Log.PropertyNames.CallerMemberName, default), callerMemberName);
                 log.SetItem((data.Log.PropertyNames.CallerLineNumber, default), callerLineNumber);
                 log.SetItem((data.Log.PropertyNames.CallerFilePath, default), Path.GetFileName(callerFilePath));
@@ -38,10 +38,10 @@ namespace Reusable.OmniLog.SemanticExtensions
             });
         }
 
-        public static void Log
+        public static void Log<T>
         (
             this ILogger logger,
-            IAbstractionContext context,
+            IAbstractionBuilder<T> context,
             string message,
             Exception exception,
             [CallerMemberName] string callerMemberName = null,
@@ -58,10 +58,10 @@ namespace Reusable.OmniLog.SemanticExtensions
             );
         }
 
-        public static void Log
+        public static void Log<T>
         (
             this ILogger logger,
-            IAbstractionContext context,
+            IAbstractionBuilder<T> context,
             string message,
             [CallerMemberName] string callerMemberName = null,
             [CallerLineNumber] int callerLineNumber = 0,
@@ -77,10 +77,10 @@ namespace Reusable.OmniLog.SemanticExtensions
             );
         }
 
-        public static void Log
+        public static void Log<T>
         (
             this ILogger logger,
-            IAbstractionContext context,
+            IAbstractionBuilder<T> context,
             Exception exception,
             [CallerMemberName] string callerMemberName = null,
             [CallerLineNumber] int callerLineNumber = 0,

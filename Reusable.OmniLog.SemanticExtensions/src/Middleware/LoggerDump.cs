@@ -9,8 +9,6 @@ using Reusable.OmniLog.Middleware;
 
 namespace Reusable.OmniLog.SemanticExtensions.Middleware
 {
-    using acpn = AbstractionContext.PropertyNames;
-
     public class LoggerDump : LoggerMiddleware, IEnumerable<(Type Type, Func<object, object> Map)>
     {
         public static readonly string LogItemTag = "Dump";
@@ -18,6 +16,9 @@ namespace Reusable.OmniLog.SemanticExtensions.Middleware
         private readonly IDictionary<Type, Func<object, object>> _mappings = new Dictionary<Type, Func<object, object>>();
 
         public LoggerDump() : base(true) { }
+
+        public string IdentifierPropertyName { get; set; } = "Identifier";
+        public string DumpPropertyName { get; set; } = "Snapshot";
 
         public LoggerDump Map<T>(Func<T, object> map)
         {
@@ -43,6 +44,8 @@ namespace Reusable.OmniLog.SemanticExtensions.Middleware
 
         protected override void InvokeCore(Log request)
         {
+            // todo - use key-name as identifier when snapshot is a string, e.g. decision
+            
             // Do we have a snapshot?
             if (request.TryGetItem<object>((nameof(LoggerSnapshotHelper.Snapshot), LogItemTag), out var snapshot))
             {
@@ -50,7 +53,7 @@ namespace Reusable.OmniLog.SemanticExtensions.Middleware
                 if (_mappings.TryGetValue(snapshot.GetType(), out var map))
                 {
                     var obj = map(snapshot);
-                    request.Serializable(acpn.Snapshot, obj);
+                    request.Serializable(DumpPropertyName, obj);
                     Next?.Invoke(request);
                 }
                 // No? Then enumerate all its properties.
@@ -61,8 +64,8 @@ namespace Reusable.OmniLog.SemanticExtensions.Middleware
                     {
                         var copy = request.Clone();
 
-                        copy.SetItem((acpn.Identifier, default), name);
-                        copy.Serializable(acpn.Snapshot, value);
+                        copy.SetItem((IdentifierPropertyName, default), name);
+                        copy.Serializable(DumpPropertyName, value);
 
                         Next?.Invoke(copy);
 

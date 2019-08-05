@@ -101,7 +101,7 @@ namespace Reusable.Apps.Examples.OmniLog.v2
                     var baz = 123;
                     var qux = "quux";
 
-                    logger.Log(Abstraction.Layer.Service().Composite(new { multiple = new { baz, qux } }));
+                    //logger.Log(Abstraction.Layer.Service().Composite(new { multiple = new { baz, qux } }));
 
                     // Logging action results.
                     logger.Log(Abstraction.Layer.Service().Routine("DoSomething").Running());

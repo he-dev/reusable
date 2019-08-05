@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.SemanticExtensions;
-using Abstraction = Reusable.OmniLog.SemanticExtensions.Abstraction;
 
 
 namespace Reusable.Apps.Server.Controllers

@@ -6,56 +6,89 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
+using Reusable.Extensions;
+using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Middleware;
 
 namespace Reusable.OmniLog.SemanticExtensions
 {
-    public interface IAbstractionContext : IAbstractionLayer, IAbstractionCategory
+    #region Abstractions
+
+    /*
+     
+     Abstraction
+        > Layer (Business | Infrastructure | ...) 
+        > Category (Data | Action) 
+        > Snapshot (Object | Property | ...)
+     
+    logger.Log(Abstraction.Layer.Business().Data().Object(new { customer }));
+    logger.Log(Abstraction.Layer.Infrastructure().Data().Variable(new { customer }));
+    logger.Log(Abstraction.Layer.Infrastructure().Action().Faulted(nameof(Main), ex));
+
+     */
+
+    public interface IAbstractionBuilder
     {
-        IImmutableDictionary<string, object> Values { get; }
+        Log Build();
     }
-    
-    [PublicAPI]
-    public readonly struct AbstractionContext : IAbstractionContext
+
+    // Base interface for the first tier "layer"
+    public interface IAbstractionBuilder<T> : IAbstractionBuilder
     {
-        public IImmutableDictionary<string, object> Values { get; }
+        IAbstractionBuilder<T> Update(AlterLog alterLog);
+    }
 
-        public AbstractionContext(IImmutableDictionary<string, object> values)
+    [AttributeUsage(AttributeTargets.Interface)]
+    public class AbstractionPropertyAttribute : Attribute
+    {
+        private readonly string _name;
+
+        public AbstractionPropertyAttribute(string name) => _name = name;
+
+        public override string ToString() => _name;
+    }
+
+    [AbstractionProperty("Layer")]
+    public interface IAbstractionLayer : IAbstractionBuilder<IAbstractionLayer> { }
+
+    [AbstractionProperty("Category")]
+    public interface IAbstractionCategory : IAbstractionBuilder<IAbstractionCategory> { }
+
+//    public interface IAbstractionContext : IAbstractionLayer, IAbstractionCategory
+//    {
+//        Log Log { get; }
+//    }
+
+    public abstract class Abstraction
+    {
+        /// <summary>
+        /// Provides the starting point for all semantic extensions.
+        /// </summary>
+        public static IAbstractionBuilder<object> Layer => default;
+    }
+
+    public readonly struct AbstractionBuilder<T> : IAbstractionBuilder<T>
+    {
+        private readonly Log _log;
+
+        public AbstractionBuilder(Log log) => _log = log;
+
+        public IAbstractionBuilder<T> Update(AlterLog alterLog) => this.Do(self => alterLog(self._log));
+
+        public Log Build() => _log ?? Log.Empty();
+    }
+
+    public static class AbstractionLayerBuilder
+    {
+        public static IAbstractionBuilder<IAbstractionLayer> CreateLayerWithCallerName(this IAbstractionBuilder<object> builder, [CallerMemberName] string name = null)
         {
-            Values = values;
-        }
-
-        public AbstractionContext(IImmutableDictionary<string, object> values, string property, [CallerMemberName] string name = null)
-            : this(values.Add(property, name)) { }
-
-        public AbstractionContext(string property, [CallerMemberName] string name = null)
-            : this(ImmutableDictionary<string, object>.Empty.Add(property, name)) { }
-
-        public static IAbstractionContext Empty => new AbstractionContext();
-
-        public object GetItem(string name)
-        {
-            return Values[name];
-        }
-
-        public IAbstractionContext SetItem(string name, object value)
-        {
-            if (name == null) throw new ArgumentNullException(nameof(name));
-            if (value == null) throw new ArgumentNullException(nameof(value));
-
-            return new AbstractionContext((Values ?? ImmutableDictionary<string, object>.Empty).Add(name, value));
-        }
-
-        public static class PropertyNames
-        {
-            public const string Layer = nameof(Layer);
-            public const string Level = nameof(Level);
-            public const string Category = nameof(Category);
-            public const string Identifier = nameof(Identifier);
-            public const string Snapshot = nameof(Snapshot);
-            public const string Routine = nameof(Routine);
-            public const string Because = nameof(Because);
+            var abstractionProperty = typeof(IAbstractionLayer).GetCustomAttribute<AbstractionPropertyAttribute>().ToString();
+            return new AbstractionBuilder<IAbstractionLayer>(Log.Empty()).Update(l => l.SetItem((abstractionProperty, default), name));
         }
     }
+
+    #endregion
+
 
     public static class ObjectExtensions
     {

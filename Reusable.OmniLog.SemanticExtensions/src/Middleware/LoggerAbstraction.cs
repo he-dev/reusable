@@ -1,56 +1,49 @@
 using System.Collections.Generic;
+using System.Linq;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.SemanticExtensions.Middleware
 {
-    using acpn = AbstractionContext.PropertyNames;
-
     public class LoggerAbstraction : LoggerMiddleware
     {
-        public static readonly string LogItemTag = nameof(AbstractionContext);
-        
+        //public static readonly string LogItemTag = nameof(AbstractionBuilder<object>);
+
+        public static readonly string LogPropertyName = nameof(AbstractionBuilder<object>);
+
         public LoggerAbstraction() : base(true) { }
 
         public IDictionary<string, LogLevel> LayerLevel { get; set; } = new Dictionary<string, LogLevel>
         {
-            [nameof(AbstractionExtensions.Business)] = LogLevel.Information,
-            [nameof(AbstractionExtensions.Service)] = LogLevel.Debug,
-            [nameof(AbstractionExtensions.Presentation)] = LogLevel.Trace,
-            [nameof(AbstractionExtensions.IO)] = LogLevel.Trace,
-            [nameof(AbstractionExtensions.Database)] = LogLevel.Trace,
-            [nameof(AbstractionExtensions.Network)] = LogLevel.Trace,
+            [nameof(AbstractionLayers.Business)] = LogLevel.Information,
+            [nameof(AbstractionLayers.Service)] = LogLevel.Debug,
+            [nameof(AbstractionLayers.Presentation)] = LogLevel.Trace,
+            [nameof(AbstractionLayers.IO)] = LogLevel.Trace,
+            [nameof(AbstractionLayers.Database)] = LogLevel.Trace,
+            [nameof(AbstractionLayers.Network)] = LogLevel.Trace,
         };
 
         protected override void InvokeCore(Log request)
         {
             // Do we have an abstraction-context?
-            if (request.TryGetItem<IAbstractionContext>((Log.PropertyNames.Metadata, LogItemTag), out var context))
+            if (request.TryGetItem<IAbstractionBuilder>((LogPropertyName, Log.ItemTags.Metadata), out var builder))
             {
-                // Use other level only if it's not already set.
-                if (!request.TryGetItem<LogLevel>((acpn.Level, default), out _))
+                var log = builder.Build();
+
+                // Copy all properties.
+                foreach (var (key, value) in log.Where(x => x.Key.Tag.Equals(Log.DefaultItemTag)))
                 {
-                    // Context's level overrides layer level.
-                    if (context.Values.TryGetValue(acpn.Level, out var contextLevel))
-                    {
-                        request.SetItem((acpn.Level, default), contextLevel);
-                    }
-                    else
-                    {
-                        // Use layer-level as fallback.
-                        if (LayerLevel.TryGetValue(context.Values[acpn.Layer].ToString(), out var layerLevel))
-                        {
-                            request.SetItem((acpn.Level, default), layerLevel);
-                        }
-                    }
+                    request.SetItem((key.Name.ToString(), key.Tag.ToString()), value);
                 }
 
-                request.SetItem((acpn.Layer, default), context.Values[acpn.Layer]);
-                request.SetItem((acpn.Category, default), context.Values[acpn.Category]);
-
-                if (context.Values.TryGetValue(acpn.Because, out var because) && because is string message)
+                // Use other level only if it's not already set.
+                if (!request.TryGetItem<LogLevel>((Log.PropertyNames.Level, default), out _))
                 {
-                    request.Message(message);
+                    // Use layer-level as fallback.
+                    if (LayerLevel.TryGetValue(log["Layer"].ToString(), out var layerLevel))
+                    {
+                        request.Level(layerLevel);
+                    }
                 }
             }
 

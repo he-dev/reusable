@@ -101,7 +101,6 @@ namespace Reusable.OmniLog.Abstractions.Data
             public static readonly string CallerMemberName = nameof(CallerMemberName);
             public static readonly string CallerLineNumber = nameof(CallerLineNumber);
             public static readonly string CallerFilePath = nameof(CallerFilePath);
-            public static readonly string Metadata = nameof(Metadata);
 
             //public static readonly SoftString Scope = nameof(Scope);
             //public static readonly SoftString CorrelationId = nameof(CorrelationId);
@@ -109,6 +108,11 @@ namespace Reusable.OmniLog.Abstractions.Data
 
             // This field can be used to remove a property from log.
             public static readonly object Unset = new object();
+        }
+
+        public static class ItemTags
+        {
+            public static readonly string Metadata = nameof(Metadata);
         }
     }
 

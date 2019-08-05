@@ -42,7 +42,10 @@ namespace Reusable.OmniLog
                 TimeStamp = log.GetItemOrDefault<DateTime>((data.Log.PropertyNames.Timestamp, default)),
             };
 
-            logEventInfo.Properties.AddRangeSafely(log.Select(x => ((object)x.Key.ToString(), x.Value)));
+            foreach (var (key, value) in log.Where(x => x.Key.Tag.Equals(data.Log.DefaultItemTag)))
+            {
+                logEventInfo.Properties.Add(key.Name.ToString(), value);
+            }
 
             return logEventInfo;
         }
