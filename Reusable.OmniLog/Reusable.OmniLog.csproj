@@ -17,7 +17,6 @@
 
   <ItemGroup>
     <Compile Remove="src\Expressions.cs" />
-    <Compile Include="src\Utilities\JsonSerializer.cs" />
   </ItemGroup>
 
   <ItemGroup>

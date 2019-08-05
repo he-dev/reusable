@@ -57,24 +57,24 @@ namespace Reusable.OmniLog
         }
     }
 
-    public class Log2 : IEnumerable<(ItemKey<LogItemType> Key, object Value)>
+    public class Log2 : IEnumerable<(ItemKey<LogItemTag> Key, object Value)>
     {
-        private readonly IDictionary<ItemKey<LogItemType>, object> _data = new Dictionary<ItemKey<LogItemType>, object>();
+        private readonly IDictionary<ItemKey<LogItemTag>, object> _data = new Dictionary<ItemKey<LogItemTag>, object>();
 
         public static Log2 Empty => new Log2();
         
-        public Log2 SetItem(ItemKey<LogItemType> key, object value)
+        public Log2 SetItem(ItemKey<LogItemTag> key, object value)
         {
             _data[key] = value;
             return this;
         }
 
-        public T GetItemOrDefault<T>(ItemKey<LogItemType> key, T defaultValue = default)
+        public T GetItemOrDefault<T>(ItemKey<LogItemTag> key, T defaultValue = default)
         {
             return _data.TryGetValue(key, out var obj) && obj is T value ? value : defaultValue;
         }
 
-        public bool TryGetValue<T>(ItemKey<LogItemType> key, out T value)
+        public bool TryGetValue<T>(ItemKey<LogItemTag> key, out T value)
         {
             if (_data.TryGetValue(key, out var obj) && obj is T result)
             {
@@ -88,9 +88,9 @@ namespace Reusable.OmniLog
             }
         }
 
-        public bool RemoveItem(ItemKey<LogItemType> key) => _data.Remove(key);
+        public bool RemoveItem(ItemKey<LogItemTag> key) => _data.Remove(key);
 
-        public IEnumerator<(ItemKey<LogItemType> Key, object Value)> GetEnumerator()
+        public IEnumerator<(ItemKey<LogItemTag> Key, object Value)> GetEnumerator()
         {
             return _data.Select(x => (x.Key, x.Value)).GetEnumerator();
         }
@@ -100,45 +100,45 @@ namespace Reusable.OmniLog
 
     public static class Log2Extensions
     {
-        public static Log2 SetItem(this Log2 log, string name, object value, LogItemType type)
+        public static Log2 SetItem(this Log2 log, string name, object value, LogItemTag tag)
         {
-            return log.SetItem(new ItemKey<LogItemType>(name, type), value);
+            return log.SetItem(new ItemKey<LogItemTag>(name, tag), value);
         }
 
         public static Log2 SetProperty(this Log2 log, string name, object value)
         {
-            return log.SetItem(name, value, LogItemType.Property);
+            return log.SetItem(name, value, LogItemTag.Property);
         }
 
         public static Log2 SetMetadata(this Log2 log, string name, object value)
         {
-            return log.SetItem(name, value, LogItemType.Metadata);
+            return log.SetItem(name, value, LogItemTag.Metadata);
         }
 
         public static bool TryGetProperty<T>(this Log2 log, string name, out T value)
         {
-            return log.TryGetValue(new ItemKey<LogItemType>(name, LogItemType.Property), out value);
+            return log.TryGetValue(new ItemKey<LogItemTag>(name, LogItemTag.Property), out value);
         }
         
         public static bool TryGetMetadata<T>(this Log2 log, string name, out T value)
         {
-            return log.TryGetValue(new ItemKey<LogItemType>(name, LogItemType.Metadata), out value);
+            return log.TryGetValue(new ItemKey<LogItemTag>(name, LogItemTag.Metadata), out value);
         }
     }
 
     public readonly struct ItemKey<T> : IEquatable<ItemKey<T>>
     {
-        public ItemKey(SoftString name, T type)
+        public ItemKey(SoftString name, T tag)
         {
             Name = name;
-            Type = type;
+            Tag = tag;
         }
 
         [AutoEqualityProperty]
         public SoftString Name { get; }
 
         [AutoEqualityProperty]
-        public T Type { get; }
+        public T Tag { get; }
 
         public override int GetHashCode() => AutoEquality<ItemKey<T>>.Comparer.GetHashCode(this);
 
@@ -147,7 +147,7 @@ namespace Reusable.OmniLog
         public bool Equals(ItemKey<T> other) => AutoEquality<ItemKey<T>>.Comparer.Equals(this, other);
     }
 
-    public enum LogItemType
+    public enum LogItemTag
     {
         Property,
         Metadata
