@@ -1,6 +1,7 @@
 using System;
 using JetBrains.Annotations;
 using Reusable.Collections;
+using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Abstractions
 {
@@ -10,6 +11,6 @@ namespace Reusable.OmniLog.Abstractions
         SoftString Name { get; }
 
         [CanBeNull]
-        object Compute([NotNull] ILog log);
+        object Compute([NotNull] Log log);
     }
 }

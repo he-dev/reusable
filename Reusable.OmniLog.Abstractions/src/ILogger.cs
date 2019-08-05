@@ -1,25 +1,18 @@
-using System;
-using JetBrains.Annotations;
-using Reusable.Collections;
+using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Abstractions
 {
-    //public delegate ILog TransformCallback(ILog log);
-
-    /// <summary>
-    /// The base interface for all loggers. The disposable interface can be used to unsubscribe any observers from the logger. It doesn't use any resources so dispose is optional.
-    /// </summary>
-    public interface ILogger //: IDisposable
+    public interface ILogger
     {
-        // You need customizeResult so that a decorator can intercept the result.
-        [NotNull]
-        ILogger Log(Func<ILog, ILog> request, Func<ILog, ILog> response = default);
+        /// <summary>
+        /// Gets middleware root.
+        /// </summary>
+        LoggerMiddleware Middleware { get; }
 
-        [NotNull]
-        ILogger Log([NotNull] ILog log);
+        T Use<T>(T next) where T : LoggerMiddleware;
+
+        void Log(Log log);
     }
 
-    // You need T here because you use it for dependency injection
-    // to automatically create a name for the logger from T. 
     public interface ILogger<T> : ILogger { }
 }

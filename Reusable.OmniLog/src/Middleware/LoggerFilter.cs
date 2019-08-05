@@ -1,6 +1,5 @@
 using System;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.v2;
 
 namespace Reusable.OmniLog.v2.Middleware
 {
@@ -13,7 +12,7 @@ namespace Reusable.OmniLog.v2.Middleware
             _canLog = canLog;
         }
 
-        protected override void InvokeCore(ILog request)
+        protected override void InvokeCore(Abstractions.v2.Log request)
         {
             if (_canLog(request))
             {

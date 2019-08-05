@@ -4,7 +4,6 @@ using Reusable.OmniLog.v2;
 
 namespace Reusable.OmniLog.SemanticExtensions.v2.Middleware
 {
-    using Reusable.OmniLog.Abstractions.v2;
     using Reusable.OmniLog.SemanticExtensions.v2;
     using acpn = AbstractionContext.PropertyNames;
 
@@ -24,7 +23,7 @@ namespace Reusable.OmniLog.SemanticExtensions.v2.Middleware
             [nameof(AbstractionExtensions.Network)] = LogLevel.Trace,
         };
 
-        protected override void InvokeCore(ILog request)
+        protected override void InvokeCore(Log request)
         {
             // Do we have an abstraction-context?
             if (request.TryGetValue(nameof(AbstractionContext), out var obj) && obj is IAbstractionContext context)

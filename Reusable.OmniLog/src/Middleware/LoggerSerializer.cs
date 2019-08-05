@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.v2;
 using Reusable.OmniLog.Utilities;
 
 namespace Reusable.OmniLog.v2.Middleware
@@ -29,7 +28,7 @@ namespace Reusable.OmniLog.v2.Middleware
         /// </summary>
         public HashSet<string> SerializableProperties { get; set; } = new HashSet<string>(SoftString.Comparer);
 
-        protected override void InvokeCore(ILog request)
+        protected override void InvokeCore(Abstractions.v2.Log request)
         {
             var propertyNames =
                 SerializableProperties.Any()

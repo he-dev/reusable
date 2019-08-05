@@ -4,21 +4,6 @@ using System.Linq;
 
 namespace Reusable.OmniLog.v2
 {
-    public interface ILinkedListNode<T>
-    {
-        T Previous { get; }
-
-        T Next { get; }
-
-        T InsertNext(T next);
-
-        /// <summary>
-        /// Removes this node from the chain an returns the Previous item or Next if Previous is null.
-        /// </summary>
-        /// <returns></returns>
-        T Remove();
-    }
-
     public static class LinkedListExtensions
     {
         public static T InsertRelative<T>(this T middleware, T insert, IDictionary<Type, int> order) where T : ILinkedListNode<T>
@@ -60,7 +45,8 @@ namespace Reusable.OmniLog.v2
             do
             {
                 yield return middleware;
-            } while ((middleware = direction(middleware)) != null);
+            }
+            while ((middleware = direction(middleware)) != null);
         }
     }
 }

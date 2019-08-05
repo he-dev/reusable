@@ -11,7 +11,6 @@ namespace Reusable.OmniLog.SemanticExtensions.v2
 {
     using Reusable.OmniLog.v2;
     using v1 = Reusable.OmniLog.Abstractions;
-    using v2 = Reusable.OmniLog.Abstractions.v2;
 
     public interface IAbstractionContext : IAbstractionLayer, IAbstractionCategory
     {

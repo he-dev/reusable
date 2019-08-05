@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.v2;
 
 namespace Reusable.OmniLog.v2.Middleware
 {
@@ -11,7 +10,7 @@ namespace Reusable.OmniLog.v2.Middleware
 
         public LoggerTransaction() : base(false) { }
 
-        protected override void InvokeCore(ILog request)
+        protected override void InvokeCore(Abstractions.v2.Log request)
         {
             _buffer.Enqueue(request);
             // Don't call Next until Commit.

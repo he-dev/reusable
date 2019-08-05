@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.v2;
 
 namespace Reusable.OmniLog.v2.Middleware
 {
@@ -18,7 +17,7 @@ namespace Reusable.OmniLog.v2.Middleware
             _properties = properties;
         }
 
-        protected override void InvokeCore(ILog request)
+        protected override void InvokeCore(Abstractions.v2.Log request)
         {
             foreach (var (name, value) in _properties)
             {

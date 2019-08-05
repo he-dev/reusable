@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.v2;
 using Reusable.OmniLog.v2;
 using Reusable.OmniLog.v2.Middleware;
 
@@ -40,7 +39,7 @@ namespace Reusable.OmniLog.SemanticExtensions.v2.Middleware
             return this;
         }
 
-        protected override void InvokeCore(ILog request)
+        protected override void InvokeCore(Abstractions.v2.Log request)
         {
             // Do we have a snapshot?
             if (request.TryGetValue(SnapshotKey, out var snapshot))

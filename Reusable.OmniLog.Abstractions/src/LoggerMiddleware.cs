@@ -1,8 +1,9 @@
 using System;
 using Newtonsoft.Json;
+using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.v2;
 
-namespace Reusable.OmniLog.Abstractions.v2
+namespace Reusable.OmniLog.Abstractions
 {
     public abstract class LoggerMiddleware : ILinkedListNode<LoggerMiddleware>, IDisposable
     {
@@ -49,7 +50,7 @@ namespace Reusable.OmniLog.Abstractions.v2
             return result;
         }
 
-        public void Invoke(ILog request)
+        public void Invoke(Log request)
         {
             if (IsActive)
             {
@@ -61,7 +62,7 @@ namespace Reusable.OmniLog.Abstractions.v2
             }
         }
 
-        protected abstract void InvokeCore(ILog request);
+        protected abstract void InvokeCore(Log request);
 
         // Removes itself from the middleware chain.
         public virtual void Dispose()
@@ -70,11 +71,6 @@ namespace Reusable.OmniLog.Abstractions.v2
         }
     }
 
-    public interface ILoggerScope<out TScope, in TParameter> where TScope : IDisposable
-    {
-        TScope Push(TParameter parameter);
-    }
-    
     public interface ILoggerQueue<in TItem>
     {
         void Enqueue(TItem item);

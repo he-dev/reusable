@@ -4,7 +4,6 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.v2
 {
-    using Reusable.OmniLog.Abstractions.v2;
     using Reusable.OmniLog.v2;
     using Reusable.OmniLog.v2.Middleware;
 
@@ -26,7 +25,7 @@ namespace Reusable.OmniLog.v2
     {
         public static void UseLambda(this ILogger logger, Action<ILog> transform)
         {
-            LoggerLambda.Push(new LoggerLambda.Item { Transform = transform });
+            LoggerLambda.Push(new LoggerLambda.Item { Alter = transform });
         }
     }
 

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.v2;
 
 namespace Reusable.OmniLog.v2.Middleware
 {
@@ -13,7 +12,7 @@ namespace Reusable.OmniLog.v2.Middleware
             _receivers = receivers;
         }
 
-        protected override void InvokeCore(ILog request)
+        protected override void InvokeCore(Abstractions.v2.Log request)
         {
             // todo - this isn't probably the best place for it
             if (!request.ContainsKey("Level"))

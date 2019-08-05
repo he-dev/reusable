@@ -8,14 +8,6 @@ using Reusable.OmniLog.v2.Middleware;
 
 namespace Reusable.OmniLog.v2
 {
-    using Reusable.OmniLog.Abstractions.v2;
-
-    public interface ILoggerFactory : IDisposable
-    {
-        [NotNull]
-        ILogger CreateLogger([NotNull] string name);
-    }
-
     public class LoggerFactory : ILoggerFactory
     {
         private readonly ConcurrentDictionary<SoftString, ILogger> _loggers;

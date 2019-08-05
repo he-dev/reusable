@@ -6,8 +6,6 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.v2
 {
-    using Reusable.OmniLog.Abstractions.v2;
-
     public class Logger : ILogger
     {
         public static readonly string LogItemTag = "Property";
@@ -45,32 +43,32 @@ namespace Reusable.OmniLog.v2
         
         #region LogLevels
 
-        public static ILogger Trace(this ILogger logger, string message, Func<ILog, ILog> populate = null)
+        public static ILogger Trace(this ILogger logger, string message, Func<Log, Log> populate = null)
         {
             return logger.Log(LogLevel.Trace, message, null, populate);
         }
 
-        public static ILogger Debug(this ILogger logger, string message, Func<ILog, ILog> populate = null)
+        public static ILogger Debug(this ILogger logger, string message, Func<Log, Log> populate = null)
         {
             return logger.Log(LogLevel.Debug, message, null, populate);
         }
 
-        public static ILogger Warning(this ILogger logger, string message, Func<ILog, ILog> populate = null)
+        public static ILogger Warning(this ILogger logger, string message, Func<Log, Log> populate = null)
         {
             return logger.Log(LogLevel.Warning, message, null, populate);
         }
 
-        public static ILogger Information(this ILogger logger, string message, Func<ILog, ILog> populate = null)
+        public static ILogger Information(this ILogger logger, string message, Func<Log, Log> populate = null)
         {
             return logger.Log(LogLevel.Information, message, null, populate);
         }
 
-        public static ILogger Error(this ILogger logger, string message, Exception exception = null, Func<ILog, ILog> populate = null)
+        public static ILogger Error(this ILogger logger, string message, Exception exception = null, Func<Log, Log> populate = null)
         {
             return logger.Log(LogLevel.Error, message, exception, populate);
         }
 
-        public static ILogger Fatal(this ILogger logger, string message, Exception exception = null, Func<ILog, ILog> populate = null)
+        public static ILogger Fatal(this ILogger logger, string message, Exception exception = null, Func<Log, Log> populate = null)
         {
             return logger.Log(LogLevel.Fatal, message, exception, populate);
         }
@@ -81,7 +79,7 @@ namespace Reusable.OmniLog.v2
             [NotNull] LogLevel logLevel,
             [CanBeNull] string message,
             [CanBeNull] Exception exception,
-            [CanBeNull] Func<ILog, ILog> populate
+            [CanBeNull] Func<Log, Log> populate
         )
         {
             if (logger == null) throw new ArgumentNullException(nameof(logger));

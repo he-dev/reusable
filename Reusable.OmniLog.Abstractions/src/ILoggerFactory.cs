@@ -1,9 +1,11 @@
 using System;
+using JetBrains.Annotations;
 
 namespace Reusable.OmniLog.Abstractions
 {
-    public interface ILoggerFactory : IObservable<ILog>, IDisposable
+    public interface ILoggerFactory : IDisposable
     {
-        ILogger CreateLogger(SoftString name);
+        [NotNull]
+        ILogger CreateLogger([NotNull] string name);
     }
 }

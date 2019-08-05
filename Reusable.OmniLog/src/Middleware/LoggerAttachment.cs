@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.v2;
 
 namespace Reusable.OmniLog.v2.Middleware
 {
@@ -10,15 +9,17 @@ namespace Reusable.OmniLog.v2.Middleware
     /// </summary>
     public class LoggerAttachment : LoggerMiddleware, IEnumerable<ILogAttachment>
     {
+        public static readonly string LogItemTag = "Attachment";
+        
         private readonly IList<ILogAttachment> _attachments = new List<ILogAttachment>();
 
         public LoggerAttachment() : base(true) { }
 
-        protected override void InvokeCore(ILog request)
+        protected override void InvokeCore(Abstractions.v2.Log request)
         {
             foreach (var attachment in _attachments)
             {
-                request.SetItem(attachment.Name, attachment.Compute(request));
+                request.SetItem((attachment.Name, LogItemTag), attachment.Compute(request));
             }
 
             Next?.Invoke(request);

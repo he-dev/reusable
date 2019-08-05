@@ -7,7 +7,7 @@ using Reusable.Collections;
 using Reusable.Data;
 using Reusable.OmniLog.Abstractions;
 
-namespace Reusable.OmniLog.v2.Experimental
+namespace Reusable.OmniLog.Abstractions.Data
 {
     public class Log : IEnumerable<(ItemKey<SoftString> Key, object Value)>
     {

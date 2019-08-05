@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.v2;
 
 namespace Reusable.OmniLog.v2.Middleware
 {
@@ -29,7 +28,7 @@ namespace Reusable.OmniLog.v2.Middleware
         }
 
 
-        protected override void InvokeCore(ILog request)
+        protected override void InvokeCore(Abstractions.v2.Log request)
         {
             request.AttachSerializable("Scope", LoggerScope<Scope>.Current.Value);
             Next?.Invoke(request);

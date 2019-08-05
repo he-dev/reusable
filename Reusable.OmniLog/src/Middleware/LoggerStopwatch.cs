@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.v2;
 
 namespace Reusable.OmniLog.v2.Middleware
 {
@@ -31,7 +30,7 @@ namespace Reusable.OmniLog.v2.Middleware
 
         public Func<TimeSpan, double> GetValue { get; set; } = ts => ts.TotalMilliseconds;
 
-        protected override void InvokeCore(ILog request)
+        protected override void InvokeCore(Abstractions.v2.Log request)
         {
             request[_propertyName] = (long)GetValue(LoggerScope<Scope>.Current.Value.Elapsed);
             Next?.Invoke(request);

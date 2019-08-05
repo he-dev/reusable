@@ -2,11 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.v2;
 
 namespace Reusable.OmniLog.v2.Middleware
 {
-    public class LoggerLambda : LoggerMiddleware //, ILoggerQueue<LoggerLambda.Item>
+    public delegate void AlterLog(Log log);
+    
+    public class LoggerLambda : LoggerMiddleware
     {
         public LoggerLambda() : base(false) { }
         
@@ -14,13 +15,13 @@ namespace Reusable.OmniLog.v2.Middleware
 
         public static void Push(Item item) => LoggerScope<Item>.Push(item);
 
-        protected override void InvokeCore(ILog request)
+        protected override void InvokeCore(Log request)
         {
             while (IsActive)
             {
                 using (var item = LoggerScope<Item>.Current.Value)
                 {
-                    item.Transform(request);
+                    item.Alter(request);
                 }
             }
 
@@ -29,7 +30,7 @@ namespace Reusable.OmniLog.v2.Middleware
 
         public class Item : IDisposable
         {
-            public Action<ILog> Transform { get; set; }
+            public AlterLog Alter { get; set; }
 
             public void Dispose() => LoggerScope<Item>.Current.Dispose();
         }
