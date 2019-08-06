@@ -39,7 +39,6 @@ namespace Reusable.OmniLog
                     .OfType<TransactionNode>()
                     .Single()
                     .Push(default);
-            //return logger.Use(new Middleware.LoggerTransaction());
         }
     }
 
