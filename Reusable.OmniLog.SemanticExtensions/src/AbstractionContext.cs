@@ -83,35 +83,12 @@ namespace Reusable.OmniLog.SemanticExtensions
         public static IAbstractionBuilder<IAbstractionLayer> CreateLayerWithCallerName(this IAbstractionBuilder<object> builder, [CallerMemberName] string name = null)
         {
             var abstractionProperty = typeof(IAbstractionLayer).GetCustomAttribute<AbstractionPropertyAttribute>().ToString();
-            return new AbstractionBuilder<IAbstractionLayer>(Log.Empty()).Update(l => l.SetItem((abstractionProperty, default), name));
+            return new AbstractionBuilder<IAbstractionLayer>(Log.Empty()).Update(l => l.SetItem(abstractionProperty, default, name));
         }
     }
 
     #endregion
 
 
-    public static class ObjectExtensions
-    {
-        public static IEnumerable<(string Name, object Value)> EnumerateProperties<T>(this T obj)
-        {
-            return
-                obj is IDictionary<string, object> dictionary
-                    ? dictionary.Select(item => (item.Key, item.Value))
-                    : obj
-                        .GetType()
-                        //.ValidateIsAnonymous()
-                        .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                        .Select(property => (property.Name, property.GetValue(obj)));
-        }
-
-        private static Type ValidateIsAnonymous(this Type type)
-        {
-            var isAnonymous = type.Name.StartsWith("<>f__AnonymousType");
-
-            return
-                isAnonymous
-                    ? type
-                    : throw DynamicException.Create("Snapshot", "Snapshot must be either an anonymous type or a dictionary");
-        }
-    }
+    
 }

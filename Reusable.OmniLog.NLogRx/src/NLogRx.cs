@@ -26,7 +26,7 @@ namespace Reusable.OmniLog
 
         public void Log(Log log)
         {
-            var loggerName = log.GetItemOrDefault<string>((data.Log.PropertyNames.Logger, default));
+            var loggerName = log.GetItemOrDefault<string>(data.Log.PropertyNames.Logger, default);
             var logger = GetLogger(loggerName);
             logger.Log(CreateLogEventInfo(log));
         }
@@ -35,16 +35,16 @@ namespace Reusable.OmniLog
         {
             var logEventInfo = new NLog.LogEventInfo
             {
-                Level = LogLevelMap[log.GetItemOrDefault<LogLevel>((data.Log.PropertyNames.Level, default))],
-                LoggerName = log.GetItemOrDefault<string>((data.Log.PropertyNames.Logger, default)),
-                Message = log.GetItemOrDefault<string>((data.Log.PropertyNames.Message, default)),
-                Exception = log.GetItemOrDefault<Exception>((data.Log.PropertyNames.Exception, default)),
-                TimeStamp = log.GetItemOrDefault<DateTime>((data.Log.PropertyNames.Timestamp, default)),
+                Level = LogLevelMap[log.GetItemOrDefault<LogLevel>(data.Log.PropertyNames.Level, default)],
+                LoggerName = log.GetItemOrDefault<string>(data.Log.PropertyNames.Logger, default),
+                Message = log.GetItemOrDefault<string>(data.Log.PropertyNames.Message, default),
+                Exception = log.GetItemOrDefault<Exception>(data.Log.PropertyNames.Exception, default),
+                TimeStamp = log.GetItemOrDefault<DateTime>(data.Log.PropertyNames.Timestamp, default),
             };
 
-            foreach (var (key, value) in log.Where(x => x.Key.Tag.Equals(data.Log.DefaultItemTag)))
+            foreach (var item in log.Where(x => x.Key.Tag.Equals(data.Log.DefaultItemTag)))
             {
-                logEventInfo.Properties.Add(key.Name.ToString(), value);
+                logEventInfo.Properties.Add(item.Key.Name.ToString(), item.Value);
             }
 
             return logEventInfo;

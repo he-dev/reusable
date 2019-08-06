@@ -49,7 +49,7 @@ namespace Reusable.Apps.Examples.OmniLog.v2
                     new LoggerLambda(),
                     new LoggerCorrelation(),
                     new LoggerDump(),
-                    new LoggerSerializer(),
+                    new LoggerSerialization(),
                     new LoggerAbstraction(),
                     //new LoggerFilter()
                     new LoggerTransaction(),

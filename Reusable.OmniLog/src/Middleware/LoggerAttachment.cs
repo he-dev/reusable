@@ -20,7 +20,7 @@ namespace Reusable.OmniLog.Middleware
         {
             foreach (var attachment in _attachments)
             {
-                request.SetItem((attachment.Name.ToString(), default), attachment.Compute(request));
+                request.SetItem(attachment.Name.ToString(), default, attachment.Compute(request));
             }
 
             Next?.Invoke(request);

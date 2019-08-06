@@ -28,7 +28,7 @@ namespace Reusable.OmniLog.v2
                     new LoggerAttachment(),
                     new LoggerLambda(),
                     new LoggerCorrelation(),
-                    new LoggerSerializer(),
+                    new LoggerSerialization(),
                     //new LoggerFilter()
                     new LoggerTransaction()
                 }
@@ -56,7 +56,7 @@ namespace Reusable.OmniLog.v2
                     new LoggerAttachment(),
                     new LoggerLambda(),
                     new LoggerCorrelation(),
-                    new LoggerSerializer(),
+                    new LoggerSerialization(),
                     //new LoggerFilter()
                     new LoggerTransaction()
                 }
@@ -100,7 +100,7 @@ namespace Reusable.OmniLog.v2
                     new LoggerLambda(),
                     new LoggerCorrelation(),
                     new LoggerDump(),
-                    new LoggerSerializer(),
+                    new LoggerSerialization(),
                     //new LoggerFilter()
                     new LoggerTransaction()
                 }
@@ -174,9 +174,9 @@ namespace Reusable.OmniLog.v2
 
             Assert.Equal(2, rx.Count());
             Assert.Equal("FirstName", rx[0]["Identifier"]);
-            Assert.Equal("John", rx[0][("Snapshot", LoggerSerializer.LogItemTag)]);
+            Assert.Equal("John", rx[0]["Snapshot", LoggerSerialization.LogItemTag]);
             Assert.Equal("LastName", rx[1]["Identifier"]);
-            Assert.Equal("Doe", rx[1][("Snapshot", LoggerSerializer.LogItemTag)]);
+            Assert.Equal("Doe", rx[1]["Snapshot", LoggerSerialization.LogItemTag]);
             //Assert.Equal(timestamp, rx.First()["Timestamp"]);
         }
 

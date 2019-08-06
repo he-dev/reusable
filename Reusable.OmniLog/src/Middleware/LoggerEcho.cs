@@ -16,11 +16,11 @@ namespace Reusable.OmniLog.Middleware
         protected override void InvokeCore(Log request)
         {
             // todo - this isn't probably the best place for it
-//            if (!request.ContainsKey("Level"))
-//            {
-//                request.SetItem("Level", LogLevel.Information);
-//            }
-            
+            //            if (!request.ContainsKey("Level"))
+            //            {
+            //                request.SetItem("Level", LogLevel.Information);
+            //            }
+
             foreach (var rx in _receivers)
             {
                 rx.Log(request);

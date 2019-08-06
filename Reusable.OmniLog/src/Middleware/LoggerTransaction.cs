@@ -13,6 +13,8 @@ namespace Reusable.OmniLog.Middleware
 
         public LoggerTransaction() : base(false) { }
 
+        public override bool IsActive => !(LoggerScope<Scope>.Current is null);
+
         protected override void InvokeCore(Log request)
         {
             _buffer.Enqueue(request);

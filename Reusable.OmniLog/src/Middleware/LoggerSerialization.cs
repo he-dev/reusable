@@ -7,7 +7,7 @@ using Reusable.OmniLog.Utilities;
 
 namespace Reusable.OmniLog.Middleware
 {
-    public class LoggerSerializer : LoggerMiddleware
+    public class LoggerSerialization : LoggerMiddleware
     {
         public static readonly string LogItemTag = "Serializable";
         
@@ -15,12 +15,12 @@ namespace Reusable.OmniLog.Middleware
 
         private readonly ISerializer _serializer;
 
-        public LoggerSerializer(ISerializer serializer) : base(true)
+        public LoggerSerialization(ISerializer serializer) : base(true)
         {
             _serializer = serializer;
         }
 
-        public LoggerSerializer() : this(new JsonSerializer()) { }
+        public LoggerSerialization() : this(new JsonSerializer()) { }
 
         /// <summary>
         /// Gets or sets serializable properties. If empty then all keys are scanned.
@@ -36,9 +36,9 @@ namespace Reusable.OmniLog.Middleware
 
             foreach (var (name, tag) in keys.ToList())
             {
-                if (request.TryGetItem<object>((name, tag.ToString()), out var obj))
+                if (request.TryGetItem<object>(name, tag, out var obj))
                 {
-                    request.SetItem((name, default), _serializer.Serialize(obj));
+                    request.SetItem(name, default, _serializer.Serialize(obj));
                     request.RemoveItem((name, tag.ToString())); // Clean-up the old property.
                 }
             }
@@ -53,7 +53,7 @@ namespace Reusable.OmniLog.Middleware
     {
         public static Log Serializable(this Log log, string propertyName, object obj)
         {
-            return log.SetItem((propertyName, LoggerSerializer.LogItemTag), obj);
+            return log.SetItem(propertyName, LoggerSerialization.LogItemTag, obj);
         }
     }
 }

@@ -30,10 +30,10 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             logger.Log(log =>
             {
-                log.SetItem((LoggerAbstraction.LogPropertyName, data.Log.ItemTags.Metadata), context);
-                log.SetItem((data.Log.PropertyNames.CallerMemberName, default), callerMemberName);
-                log.SetItem((data.Log.PropertyNames.CallerLineNumber, default), callerLineNumber);
-                log.SetItem((data.Log.PropertyNames.CallerFilePath, default), Path.GetFileName(callerFilePath));
+                log.SetItem(LoggerAbstraction.LogPropertyName, data.Log.ItemTags.Metadata, context);
+                log.SetItem(data.Log.PropertyNames.CallerMemberName, default, callerMemberName);
+                log.SetItem(data.Log.PropertyNames.CallerLineNumber, default, callerLineNumber);
+                log.SetItem(data.Log.PropertyNames.CallerFilePath, default, Path.GetFileName(callerFilePath));
                 alter?.Invoke(log);
             });
         }

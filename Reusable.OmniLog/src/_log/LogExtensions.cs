@@ -13,15 +13,15 @@ namespace Reusable.OmniLog
     {
         #region Log properties
 
-        public static Log Logger(this Log log, string value) => log.SetItem((nameof(Logger), default), value);
+        public static Log Logger(this Log log, string value) => log.SetItem(nameof(Logger), default, value);
         
-        public static Log Timestamp(this Log log, DateTime value) => log.SetItem((nameof(Timestamp), default), value);
+        public static Log Timestamp(this Log log, DateTime value) => log.SetItem(nameof(Timestamp), default, value);
         
-        public static Log Level(this Log log, LogLevel value) => log.SetItem((nameof(Level), default), value);
+        public static Log Level(this Log log, LogLevel value) => log.SetItem(nameof(Level), default, value);
         
-        public static Log Exception(this Log log, Exception value) => log.SetItem((nameof(Exception), default), value);
+        public static Log Exception(this Log log, Exception value) => log.SetItem(nameof(Exception), default, value);
         
-        public static Log Message(this Log log, string value) => log.SetItem((nameof(Message), default), value);
+        public static Log Message(this Log log, string value) => log.SetItem(nameof(Message), default, value);
 
         //public static Log Transform(this Log log, Func<Log, Log> transform) => transform(log);
 

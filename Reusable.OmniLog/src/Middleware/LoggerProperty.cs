@@ -22,7 +22,7 @@ namespace Reusable.OmniLog.Middleware
         {
             foreach (var (name, value) in _properties)
             {
-                request.SetItem((name, default),  value);
+                request.SetItem(name, default,  value);
             }
 
             Next?.Invoke(request);

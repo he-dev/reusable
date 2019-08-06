@@ -7,9 +7,7 @@ namespace Reusable.OmniLog.SemanticExtensions.Middleware
 {
     public class LoggerAbstraction : LoggerMiddleware
     {
-        //public static readonly string LogItemTag = nameof(AbstractionBuilder<object>);
-
-        public static readonly string LogPropertyName = nameof(AbstractionBuilder<object>);
+        public static readonly string LogPropertyName = nameof(Abstraction);
 
         public LoggerAbstraction() : base(true) { }
 
@@ -26,18 +24,18 @@ namespace Reusable.OmniLog.SemanticExtensions.Middleware
         protected override void InvokeCore(Log request)
         {
             // Do we have an abstraction-context?
-            if (request.TryGetItem<IAbstractionBuilder>((LogPropertyName, Log.ItemTags.Metadata), out var builder))
+            if (request.TryGetItem<IAbstractionBuilder>(LogPropertyName, Log.ItemTags.Metadata, out var builder))
             {
                 var log = builder.Build();
 
-                // Copy all properties.
-                foreach (var (key, value) in log.Where(x => x.Key.Tag.Equals(Log.DefaultItemTag)))
+                // Copy all items.
+                foreach (var item in log) //.Where(x => x.Key.Tag.Equals(Log.DefaultItemTag)))
                 {
-                    request.SetItem((key.Name.ToString(), key.Tag.ToString()), value);
+                    request.SetItem(item.Key.Name, item.Key.Tag, item.Value);
                 }
 
                 // Use other level only if it's not already set.
-                if (!request.TryGetItem<LogLevel>((Log.PropertyNames.Level, default), out _))
+                if (!request.TryGetItem<LogLevel>(Log.PropertyNames.Level, default, out _))
                 {
                     // Use layer-level as fallback.
                     if (LayerLevel.TryGetValue(log["Layer"].ToString(), out var layerLevel))

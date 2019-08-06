@@ -3,43 +3,42 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
+using Reusable.Exceptionize;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
-using Reusable.OmniLog.Middleware;
 
-namespace Reusable.OmniLog.SemanticExtensions.Middleware
+namespace Reusable.OmniLog.Middleware
 {
+    // when #Dump is Dictionary --> call Next() for each pair where Key: Identifier and Value: #Serializable
+    // when #Dump is object --> call Next() for each property and its value where PropertyName: Identifier and Value: #Serializable
+    // when #Dump is string --> call Next() once where Key.Name: Identifier and Value: #Dump as #Serializable
     public class LoggerDump : LoggerMiddleware, IEnumerable<(Type Type, Func<object, object> Map)>
     {
         public static readonly string LogItemTag = "Dump";
-
-        private const string Identifier = nameof(Identifier);
-        private const string Dump = nameof(Dump);
 
         private readonly IDictionary<Type, Func<object, object>> _mappings = new Dictionary<Type, Func<object, object>>();
 
         public LoggerDump() : base(true) { }
 
-        public IDictionary<string, string> LogPropertyNames { get; set; } = new Dictionary<string, string>
-        {
-            ["Identifier"] = "Identifier",
-            ["Dump"] = "Snapshot"
-        };
+        public Property Variable { get; set; } = new Property.Variable();
         
+        public Property Dump { get; set; } = new Property.Dump();
+
         public void Add((Type Type, Func<object, object> Map) mapping) => _mappings.Add(mapping.Type, mapping.Map);
 
         protected override void InvokeCore(Log request)
         {
             // todo - use key-name as identifier when snapshot is a string, e.g. decision
-            
+
             // Do we have a snapshot?
-            if (request.TryGetItem<object>((nameof(LoggerSnapshotHelper.Snapshot), LogItemTag), out var snapshot))
+            if (request.TryGetItem<object>(nameof(LoggerSnapshotHelper.Snapshot), LogItemTag, out var snapshot))
             {
                 // Do we have a custom mapping for the snapshot?
                 if (_mappings.TryGetValue(snapshot.GetType(), out var map))
                 {
                     var obj = map(snapshot);
-                    request.Serializable(LogPropertyNames[Dump], obj);
+                    request.Serializable(Dump, obj);
                     Next?.Invoke(request);
                 }
                 // No? Then enumerate all its properties.
@@ -50,8 +49,8 @@ namespace Reusable.OmniLog.SemanticExtensions.Middleware
                     {
                         var copy = request.Clone();
 
-                        copy.SetItem((LogPropertyNames[Identifier], default), name);
-                        copy.Serializable(LogPropertyNames[Dump], value);
+                        copy.SetItem(Variable, default, name);
+                        copy.Serializable(Dump, value);
 
                         Next?.Invoke(copy);
 
@@ -96,13 +95,59 @@ namespace Reusable.OmniLog.SemanticExtensions.Middleware
                 return (typeof(T), mapFunc);
             }
         }
+
+        public abstract class Property
+        {
+            public string Name { get; }
+
+            protected Property(string name) => Name = name;
+
+            public static implicit operator string(Property property) => property.Name;
+            
+            public static implicit operator SoftString(Property property) => property.Name;
+
+            public class Variable : Property
+            {
+                public Variable(string name = default) : base(name ?? nameof(Variable)) { }
+            }
+
+            public class Dump : Property
+            {
+                public Dump(string name = default) : base(name ?? nameof(Dump)) { }
+            }
+        }
     }
 
     public static class LoggerSnapshotHelper
     {
         public static Log Snapshot(this Log log, object obj)
         {
-            return log.SetItem((nameof(Snapshot), LoggerDump.LogItemTag), obj);
+            return log.SetItem(nameof(Snapshot), LoggerDump.LogItemTag, obj);
+        }
+    }
+
+    internal static class ObjectExtensions
+    {
+        public static IEnumerable<(string Name, object Value)> EnumerateProperties<T>(this T obj)
+        {
+            return
+                obj is IDictionary<string, object> dictionary
+                    ? dictionary.Select(item => (item.Key, item.Value))
+                    : obj
+                        .GetType()
+                        //.ValidateIsAnonymous()
+                        .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                        .Select(property => (property.Name, property.GetValue(obj)));
+        }
+
+        private static Type ValidateIsAnonymous(this Type type)
+        {
+            var isAnonymous = type.Name.StartsWith("<>f__AnonymousType");
+
+            return
+                isAnonymous
+                    ? type
+                    : throw DynamicException.Create("Snapshot", "Snapshot must be either an anonymous type or a dictionary");
         }
     }
 }

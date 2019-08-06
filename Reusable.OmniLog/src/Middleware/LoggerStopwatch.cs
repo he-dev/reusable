@@ -32,7 +32,7 @@ namespace Reusable.OmniLog.Middleware
 
         protected override void InvokeCore(Log request)
         {
-            request.SetItem((_propertyName, default), (long)GetValue(LoggerScope<Scope>.Current.Value.Elapsed));
+            request.SetItem(_propertyName, default, (long)GetValue(LoggerScope<Scope>.Current.Value.Elapsed));
             Next?.Invoke(request);
         }
 
