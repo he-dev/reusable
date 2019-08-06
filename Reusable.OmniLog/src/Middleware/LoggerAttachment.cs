@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 
@@ -10,17 +12,29 @@ namespace Reusable.OmniLog.Middleware
     /// </summary>
     public class LoggerAttachment : LoggerMiddleware, IEnumerable<ILogAttachment>
     {
-        public static readonly string LogItemTag = "Attachment";
-        
-        private readonly IList<ILogAttachment> _attachments = new List<ILogAttachment>();
+        private readonly ISet<ILogAttachment> _attachments = new HashSet<ILogAttachment>();
+        private readonly ISet<ILogAttachment> _disabled = new HashSet<ILogAttachment>();
 
         public LoggerAttachment() : base(true) { }
 
+        public override bool IsActive => base.IsActive && _attachments.Any();
+
         protected override void InvokeCore(LogEntry request)
         {
-            foreach (var attachment in _attachments)
+            foreach (var attachment in _attachments.Except(_disabled))
             {
-                request.SetItem(attachment.Name.ToString(), default, attachment.Compute(request));
+                try
+                {
+                    request.SetItem(attachment.Name, default, attachment.Compute(request));
+                }
+                catch (Exception ex)
+                {
+                #if DEBUG
+                    throw;
+                #else
+                    _disabled.Add(attachment);
+                #endif
+                }
             }
 
             Next?.Invoke(request);

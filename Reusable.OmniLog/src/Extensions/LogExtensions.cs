@@ -23,8 +23,6 @@ namespace Reusable.OmniLog
         
         public static LogEntry Message(this LogEntry logEntry, string value) => logEntry.SetItem(nameof(Message), default, value);
 
-        //public static Log Transform(this Log log, Func<Log, Log> transform) => transform(log);
-
         #endregion
 
 //        #region With

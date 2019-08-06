@@ -8,28 +8,23 @@ namespace Reusable.OmniLog.Utilities
 {
     public class JsonSerializer : ISerializer
     {
-        public JsonSerializer()
-        {
-            Settings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                Formatting = Formatting.None,
-                Converters =
-                {
-                    new StringEnumConverter(),
-                    new SoftStringConverter(),
-                    new KeyValuePairConverter<SoftString, object>()
-                }
-            };
-        }
-
         [NotNull]
-        public JsonSerializerSettings Settings { get; set; }
+        public JsonSerializerSettings Settings { get; set; } = new JsonSerializerSettings
+        {
+            NullValueHandling = NullValueHandling.Ignore,
+            Formatting = Formatting.None,
+            Converters =
+            {
+                new StringEnumConverter(),
+                new SoftStringConverter(),
+                new KeyValuePairConverter<SoftString, object>()
+            }
+        };
 
         public object Serialize(object obj)
         {
             //return obj is string ? obj : JsonConvert.SerializeObject(obj, Settings);
-            return  JsonConvert.SerializeObject(obj, Settings);
+            return JsonConvert.SerializeObject(obj, Settings);
         }
     }
 }

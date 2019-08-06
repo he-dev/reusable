@@ -8,8 +8,6 @@ using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog
 {
-    using data = Reusable.OmniLog.Abstractions.Data;
-
     public class NLogRx : ILogRx
     {
         private readonly ConcurrentDictionary<SoftString, NLog.Logger> _cache = new ConcurrentDictionary<SoftString, NLog.Logger>();
