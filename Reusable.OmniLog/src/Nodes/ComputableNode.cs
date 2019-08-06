@@ -23,19 +23,22 @@ namespace Reusable.OmniLog.Nodes
         {
             foreach (var computable in _computables.Except(_disabled))
             {
-                try
-                {
-                    request.SetItem(computable.Name, default, computable.Compute(request));
-                }
-// Don't use this item when it failed to prevent further exceptions.
-                catch (Exception ex)
-                {
-#if DEBUG
-                    throw;
-#else
-                    _disabled.Add(attachment);
-#endif
-                }
+                request.SetItem(computable.Name, default, computable.Compute(request));
+
+                // todo - to catch or not to catch?
+
+//                try
+//                {
+//                }
+//// Don't use this item when it failed to prevent further exceptions.
+//                catch (Exception ex)
+//                {
+//#if DEBUG
+//                    throw;
+//#else
+//                    _disabled.Add(attachment);
+//#endif
+//                }
             }
 
             Next?.Invoke(request);

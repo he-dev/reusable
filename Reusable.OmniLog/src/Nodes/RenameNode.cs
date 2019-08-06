@@ -5,15 +5,15 @@ using Reusable.OmniLog.Abstractions.Data;
 namespace Reusable.OmniLog.Nodes
 {
     // Reroutes items from one property to the other: Meta#Dump --> Snapshot#Dump 
-    public class RouteNode : LoggerNode
+    public class RenameNode : LoggerNode
     {
-        public RouteNode() : base(true) { }
+        public RenameNode() : base(true) { }
 
-        public IDictionary<string, string> Routes { get; set; } = new Dictionary<string, string>();
+        public IDictionary<string, string> Changes { get; set; } = new Dictionary<string, string>();
 
         protected override void InvokeCore(LogEntry request)
         {
-            foreach (var route in Routes)
+            foreach (var route in Changes)
             {
                 if (request.TryGetItem<object>(route.Key, default, out var item))
                 {

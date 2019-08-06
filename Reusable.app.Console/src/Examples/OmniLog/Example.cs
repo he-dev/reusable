@@ -34,33 +34,36 @@ namespace Reusable.Apps.Examples.OmniLog
             {
                 Nodes =
                 {
-                    new ConstantNode
+                    new ConstantNode // Adds constant values to each log-entry
                     {
                         { "Environment", "Demo" },
                         { "Product", "Reusable.Apps.Console" }
                     },
-                    new StopwatchNode(),
+                    new StopwatchNode // --> when activated, adds Elapsed to each logEntry
+                    {
+                        GetValue = elapsed => elapsed.TotalMilliseconds // This is the default and used here for demonstration purposes
+                    }, 
                     new ComputableNode
                     {
-                        new Reusable.OmniLog.Computables.Timestamp<DateTimeUtc>()
+                        new Reusable.OmniLog.Computables.Timestamp<DateTimeUtc>() // --> adds Timestamp to each logEntry
                     },
-                    new LambdaNode(),
-                    new CorrelationNode(),
-                    new SemanticNode(),
-                    new DumpNode(),
-                    new SerializationNode(),
-                    //new LoggerFilter()
-                    new RouteNode
+                    new LambdaNode(), // --> adds support for logger.Log(log => log...) overload
+                    new CorrelationNode(), // --> adds Correlation object to logEntry
+                    new SemanticNode(), // --> copies everything from AbstractionBuilder to logEntry; adds #Dump items for objects
+                    new DumpNode(), // --> adds Variable & Dump to logEntry for every main property or KeyValuePair with the #Serializable
+                    new SerializationNode(), // --> serializes every #Serializable item in logEntry and adds it as #Property
+                    new FilterNode(logEntry => true), // Filters log-entries and short-circuits the pipeline when False
+                    new RenameNode // --> changes the name of the property
                     {
-                        Routes =
+                        Changes =
                         {
                             {"Correlation", "Scope"},
                             {"Variable", "Identifier"},
                             {"Dump", "Snapshot"},
                         }
                     },
-                    new TransactionNode(),
-                    new EchoNode
+                    new TransactionNode(), // When activated, buffers logEntry until committed
+                    new EchoNode // The final node that sends log-entry to the receivers
                     {
                         Rx =
                         {
