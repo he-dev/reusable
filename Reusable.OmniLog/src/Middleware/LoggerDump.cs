@@ -1,10 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Reusable.Exceptionize;
+using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 
@@ -15,7 +17,7 @@ namespace Reusable.OmniLog.Middleware
     // when #Dump is string --> call Next() once where Key.Name: Identifier and Value: #Dump as #Serializable
     public class LoggerDump : LoggerMiddleware, IEnumerable<(Type Type, Func<object, object> Map)>
     {
-        public static readonly string LogItemTag = "Dump";
+        public static readonly string LogItemTag = "Object";
 
         private readonly IDictionary<Type, Func<object, object>> _mappings = new Dictionary<Type, Func<object, object>>();
 
@@ -29,45 +31,55 @@ namespace Reusable.OmniLog.Middleware
 
         protected override void InvokeCore(LogEntry request)
         {
-            // todo - use key-name as identifier when snapshot is a string, e.g. decision
+            var nextInvokeCount = 0;
 
-            // Do we have a snapshot?
-            if (request.TryGetItem<object>(nameof(LoggerSnapshotHelper.Snapshot), LogItemTag, out var snapshot))
+            // Process only #Object items.
+            foreach (var item in request.Where(x => x.Key.Tag.Equals(LogItemTag)).ToList())
             {
-                // Do we have a custom mapping for the snapshot?
-                if (_mappings.TryGetValue(snapshot.GetType(), out var map))
+                var dump = item.Value;
+
+                switch (dump)
                 {
-                    var obj = map(snapshot);
-                    request.Serializable(Dump, obj);
-                    Next?.Invoke(request);
-                }
-                // No? Then enumerate all its properties.
-                else
-                {
-                    var propertiesEnumerated = false;
-                    foreach (var (name, value) in snapshot.EnumerateProperties())
-                    {
-                        var copy = request.Clone();
+                    case string str:
+                        // There is nothing more to do. Just save it as a normal property.
+                        request.SetItem(Variable, default, item.Key.Name);
+                        request.SetItem(Dump, default, str);
+                        InvokeNext(request);
+                        break;
 
-                        copy.SetItem(Variable, default, name);
-                        copy.Serializable(Dump, value);
-
-                        Next?.Invoke(copy);
-
-                        propertiesEnumerated = true;
-                    }
-
-                    // Call 'Next' as usual when the snapshot was empty.
-                    if (!propertiesEnumerated)
-                    {
-                        Next?.Invoke(request);
-                    }
+                    default:
+                        // Do we have a custom mapping for the dump?
+                        if (_mappings.TryGetValue(dump.GetType(), out var map))
+                        {
+                            dump = map(dump);
+                            request.SetItem(Variable, default, item.Key.Name);
+                            request.Serializable(Dump, dump);
+                            InvokeNext(request);
+                        }
+                        // No? Then enumerate all its properties.
+                        else
+                        {
+                            foreach (var (name, value) in dump.EnumerateProperties())
+                            {
+                                var copy = request.Clone();
+                                copy.SetItem(Variable, default, name);
+                                copy.Serializable(Dump, value);
+                                InvokeNext(copy);
+                            }
+                        }
+                        break;
                 }
             }
-            // No snapshot? Just do the usual.
-            else
+
+            if (nextInvokeCount == 0)
             {
-                Next?.Invoke(request);
+                InvokeNext(request);
+            }
+
+            void InvokeNext(LogEntry logEntry)
+            {
+                nextInvokeCount++;
+                Next?.Invoke(logEntry);
             }
         }
 
@@ -83,7 +95,7 @@ namespace Reusable.OmniLog.Middleware
                 // to use T so we need to cast the parameter from 'object' to T.
 
                 // Compile: map((T)obj)
-                var parameter = Expression.Parameter(typeof(object), nameof(LoggerSnapshotHelper.Snapshot));
+                var parameter = Expression.Parameter(typeof(object), nameof(Property.Dump));
                 var mapFunc =
                     Expression.Lambda<Func<object, object>>(
                             Expression.Call(
@@ -99,18 +111,18 @@ namespace Reusable.OmniLog.Middleware
         public abstract class Property
         {
             public string Name { get; }
-
+        
             protected Property(string name) => Name = name;
-
+        
             public static implicit operator string(Property property) => property.Name;
-            
+        
             public static implicit operator SoftString(Property property) => property.Name;
-
+        
             public class Variable : Property
             {
                 public Variable(string name = default) : base(name ?? nameof(Variable)) { }
             }
-
+        
             public class Dump : Property
             {
                 public Dump(string name = default) : base(name ?? nameof(Dump)) { }
@@ -118,11 +130,11 @@ namespace Reusable.OmniLog.Middleware
         }
     }
 
-    public static class LoggerSnapshotHelper
+    public static class LoggerDumpHelper
     {
-        public static LogEntry Snapshot(this LogEntry logEntry, object obj)
+        public static LogEntry Dump(this LogEntry logEntry, object obj)
         {
-            return logEntry.SetItem(nameof(Snapshot), LoggerDump.LogItemTag, obj);
+            return logEntry.SetItem(nameof(Dump), LoggerDump.LogItemTag, obj);
         }
     }
 

@@ -87,7 +87,7 @@ namespace Reusable.OmniLog.Abstractions.Data
             }
         }
 
-        public bool RemoveItem((string Name, string Tag) key) => _data.Remove((key.Name, key.Tag ?? DefaultItemTag));
+        public bool RemoveItem(SoftString name, SoftString tag) => _data.Remove((name, tag ?? DefaultItemTag));
 
         public IEnumerator<KeyValuePair<ItemKey<SoftString>, object>> GetEnumerator()
         {

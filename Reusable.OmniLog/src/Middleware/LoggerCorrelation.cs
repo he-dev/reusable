@@ -15,7 +15,9 @@ namespace Reusable.OmniLog.Middleware
         /// </summary>
         public Func<object> NextCorrelationId { get; set; } = () => Guid.NewGuid().ToString("N");
 
-        public override bool IsActive => !(LoggerScope<Scope>.Current is null);
+        public override bool IsActive => !LoggerScope<Scope>.IsEmpty;
+
+        public string PropertyName { get; set; } = "Scope";
 
         public Scope Push((object CorrelationId, object CorrelationHandle) parameter)
         {
@@ -29,7 +31,7 @@ namespace Reusable.OmniLog.Middleware
 
         protected override void InvokeCore(LogEntry request)
         {
-            request.Serializable("Scope", LoggerScope<Scope>.Current.Value);
+            request.Serializable(PropertyName, LoggerScope<Scope>.Current.Value);
             Next?.Invoke(request);
         }
 

@@ -11,8 +11,6 @@ using Xunit;
 // ReSharper disable once CheckNamespace
 namespace Reusable.OmniLog.v2
 {
-    using Reusable.OmniLog.v2;
-
     public class LoggerMiddlewareTest
     {
         [Fact]
@@ -117,13 +115,13 @@ namespace Reusable.OmniLog.v2
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
-                logger.Log(l => l.Message("Hallo!").Snapshot(new { Greeting = "Hi!" }));
+                logger.Log(l => l.Message("Hallo!").Dump(new { Greeting = "Hi!" }));
             }
 
             Assert.Equal(1, rx.Count());
             Assert.Equal("Hallo!", rx.First()["Message"]);
-            Assert.Equal("Greeting", rx.First()["Identifier"]);
-            Assert.Equal("\"Hi!\"", rx.First()["Snapshot"]);
+            Assert.Equal("Greeting", rx.First()["Variable"]);
+            Assert.Equal("Hi!", rx.First()["Dump", LoggerSerialization.LogItemTag]);
             //Assert.Equal("{\"Greeting\":\"Hi!\"}", rx.First()["Snapshot"]);
         }
 
@@ -160,7 +158,7 @@ namespace Reusable.OmniLog.v2
         }
 
         [Fact]
-        public void Can_explode_snapshot()
+        public void Can_enumerate_dump()
         {
             var timestamp = DateTime.Parse("2019-05-01");
 
@@ -175,6 +173,14 @@ namespace Reusable.OmniLog.v2
                     },
                     new LoggerLambda(),
                     new LoggerDump(),
+                    // new LoggerForward
+                    // {
+                    //     Routes =
+                    //     {
+                    //         ["Variable"] = "Identifier",
+                    //         ["Dump"] = "Snapshot"
+                    //     }
+                    // },
                     new LoggerEcho
                     {
                         Receivers = { rx },
@@ -184,14 +190,14 @@ namespace Reusable.OmniLog.v2
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
-                logger.Log(l => l.Snapshot(new Person { FirstName = "John", LastName = "Doe" }));
+                logger.Log(l => l.Dump(new Person { FirstName = "John", LastName = "Doe" }));
             }
 
             Assert.Equal(2, rx.Count());
-            Assert.Equal("FirstName", rx[0]["Identifier"]);
-            Assert.Equal("John", rx[0]["Snapshot", LoggerSerialization.LogItemTag]);
-            Assert.Equal("LastName", rx[1]["Identifier"]);
-            Assert.Equal("Doe", rx[1]["Snapshot", LoggerSerialization.LogItemTag]);
+            Assert.Equal("FirstName", rx[0]["Variable"]);
+            Assert.Equal("John", rx[0]["Dump", LoggerSerialization.LogItemTag]);
+            Assert.Equal("LastName", rx[1]["Variable"]);
+            Assert.Equal("Doe", rx[1]["Dump", LoggerSerialization.LogItemTag]);
             //Assert.Equal(timestamp, rx.First()["Timestamp"]);
         }
 
@@ -224,7 +230,7 @@ namespace Reusable.OmniLog.v2
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
-                logger.Log(l => l.Snapshot(new Person { FirstName = "John", LastName = "Doe" }));
+                logger.Log(l => l.Dump(new Person { FirstName = "John", LastName = "Doe" }));
             }
 
             Assert.Equal(1, rx.Count());

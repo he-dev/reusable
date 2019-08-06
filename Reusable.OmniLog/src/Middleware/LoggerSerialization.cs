@@ -29,9 +29,10 @@ namespace Reusable.OmniLog.Middleware
 
         protected override void InvokeCore(LogEntry request)
         {
+            // Process only selected #Serializable properties or all.
             var keys =
                 SerializableProperties.Any()
-                    ? SerializableProperties.AsEnumerable().Select(CreateItemKey)
+                    ? SerializableProperties.Select(CreateItemKey)
                     : request.Where(l => l.Key.Tag.Equals(LogItemTag)).Select(l => l.Key);
 
             foreach (var (name, tag) in keys.ToList())
@@ -39,7 +40,7 @@ namespace Reusable.OmniLog.Middleware
                 if (request.TryGetItem<object>(name, tag, out var obj))
                 {
                     request.SetItem(name, default, _serializer.Serialize(obj));
-                    request.RemoveItem((name, tag.ToString())); // Clean-up the old property.
+                    //request.RemoveItem((name, tag.ToString())); // Clean-up the old property.
                 }
             }
 

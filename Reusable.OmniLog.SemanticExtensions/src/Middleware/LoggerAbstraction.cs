@@ -11,6 +11,8 @@ namespace Reusable.OmniLog.SemanticExtensions.Middleware
 
         public LoggerAbstraction() : base(true) { }
 
+        //public override bool IsActive => !(Next is null) || base.IsActive;
+
         public IDictionary<string, LogLevel> LayerLevel { get; set; } = new Dictionary<string, LogLevel>
         {
             [nameof(AbstractionLayers.Business)] = LogLevel.Information,
@@ -23,13 +25,13 @@ namespace Reusable.OmniLog.SemanticExtensions.Middleware
 
         protected override void InvokeCore(LogEntry request)
         {
-            // Do we have an abstraction-context?
+            // Do we have an abstraction-builder?
             if (request.TryGetItem<IAbstractionBuilder>(LogPropertyName, LogEntry.ItemTags.Metadata, out var builder))
             {
-                var log = builder.Build();
+                var logEntry = builder.Build();
 
-                // Copy all items.
-                foreach (var item in log) //.Where(x => x.Key.Tag.Equals(Log.DefaultItemTag)))
+                // Copy all items to the main log.
+                foreach (var item in logEntry)
                 {
                     request.SetItem(item.Key.Name, item.Key.Tag, item.Value);
                 }
@@ -38,7 +40,7 @@ namespace Reusable.OmniLog.SemanticExtensions.Middleware
                 if (!request.TryGetItem<LogLevel>(LogEntry.BasicPropertyNames.Level, default, out _))
                 {
                     // Use layer-level as fallback.
-                    if (LayerLevel.TryGetValue(log["Layer"].ToString(), out var layerLevel))
+                    if (LayerLevel.TryGetValue(logEntry["Layer"].ToString(), out var layerLevel))
                     {
                         request.Level(layerLevel);
                     }
