@@ -15,7 +15,7 @@ namespace Reusable.OmniLog.Rx
     [PublicAPI]
     public class ConsoleRx : ILogRx
     {
-        private IConsoleRenderer Renderer { get; set; } = new SimpleConsoleRenderer();
+        public IConsoleRenderer Renderer { get; set; } = new SimpleConsoleRenderer();
 
         public void Log(LogEntry logEntry)
         {

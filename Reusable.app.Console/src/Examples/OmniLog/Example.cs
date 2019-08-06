@@ -9,6 +9,7 @@ using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Rx;
+using Reusable.OmniLog.Rx.ConsoleRenderers;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.OmniLog.SemanticExtensions.Nodes;
 //using Reusable.OmniLog.Attachments;
@@ -85,8 +86,16 @@ namespace Reusable.Apps.Examples.OmniLog
                     {
                         Rx =
                         {
-                            new NLogRx(),
-                            new ConsoleRx()
+                            new NLogRx(), // Use NLog.
+                            new ConsoleRx // Use console
+                            {
+                                // Use simple console renderer with color per line. This is the default.
+                                Renderer = new SimpleConsoleRenderer
+                                {
+                                    // Render output with this template. This is the default.
+                                    Template = @"[{Timestamp:HH:mm:ss:fff}] [{Logger:u}] {Message}"
+                                }
+                            }
                         },
                     }
                 }
