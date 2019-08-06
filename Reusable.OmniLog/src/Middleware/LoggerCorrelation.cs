@@ -8,6 +8,8 @@ namespace Reusable.OmniLog.Middleware
 {
     public class LoggerCorrelation : LoggerMiddleware, ILoggerScope<LoggerCorrelation.Scope, (object CorrelationId, object CorrelationHandle)>
     {
+        public static readonly string DefaultPropertyName = "Correlation";
+        
         public LoggerCorrelation() : base(false) { }
 
         /// <summary>
@@ -17,7 +19,7 @@ namespace Reusable.OmniLog.Middleware
 
         public override bool IsActive => !LoggerScope<Scope>.IsEmpty;
 
-        public string PropertyName { get; set; } = "Scope";
+        public string PropertyName { get; set; } = DefaultPropertyName;
 
         public Scope Push((object CorrelationId, object CorrelationHandle) parameter)
         {
