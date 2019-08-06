@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Extensions;
 
 namespace Reusable.OmniLog.SemanticExtensions.Middleware
 {
@@ -11,9 +12,9 @@ namespace Reusable.OmniLog.SemanticExtensions.Middleware
 
         public LoggerAbstraction() : base(true) { }
 
-        //public override bool IsActive => !(Next is null) || base.IsActive;
+        //public override bool IsActive => base.IsActive && !(Next is null);
 
-        public IDictionary<string, LogLevel> LayerLevel { get; set; } = new Dictionary<string, LogLevel>
+        public IDictionary<string, LogLevel> LayerLevel { get; set; } = new Dictionary<string, LogLevel>(SoftString.Comparer)
         {
             [nameof(AbstractionLayers.Business)] = LogLevel.Information,
             [nameof(AbstractionLayers.Service)] = LogLevel.Debug,

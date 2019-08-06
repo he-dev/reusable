@@ -54,8 +54,8 @@
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.OmniLog.SemanticMiddleware\Reusable.OmniLog.SemanticMiddleware.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog.NLogRx\Reusable.OmniLog.NLogRx.csproj" />
+    <ProjectReference Include="..\Reusable.OmniLog.SemanticExtensions.AspNetCore\Reusable.OmniLog.SemanticExtensions.AspNetCore.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog.SemanticExtensions\Reusable.OmniLog.SemanticExtensions.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog\Reusable.OmniLog.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.AspNetCore\Reusable.Utilities.AspNetCore.csproj" />

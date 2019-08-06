@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -7,7 +6,7 @@ using Reusable.Exceptionize;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 
-namespace Reusable.OmniLog
+namespace Reusable.OmniLog.Rx
 {
     public class MemoryRx : ILogRx, IEnumerable<LogEntry>
     {

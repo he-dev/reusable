@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.OmniLog.SemanticMiddleware</id>
+    <id>Reusable.OmniLog.SemanticExtensions.AspNetCore</id>
     <version>12.3.4</version>
-    <title>Reusable.OmniLog.SemanticMiddleware</title>
+    <title>Reusable.OmniLog.SemanticExtensions.AspNetCore</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <license type="expression">MIT</license>
@@ -28,9 +28,9 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\net47\Reusable.OmniLog.SemanticMiddleware.dll" target="lib\net47" />
-    <file src="bin\Release\net47\Reusable.OmniLog.SemanticMiddleware.pdb" target="lib\net47" />
-    <file src="bin\Release\netcoreapp2.2\Reusable.OmniLog.SemanticMiddleware.dll" target="lib\netcoreapp2.2" />
-    <file src="bin\Release\netcoreapp2.2\Reusable.OmniLog.SemanticMiddleware.pdb" target="lib\netcoreapp2.2" />
+    <file src="bin\Release\net47\Reusable.OmniLog.SemanticExtensions.AspNetCore.dll" target="lib\net47" />
+    <file src="bin\Release\net47\Reusable.OmniLog.SemanticExtensions.AspNetCore.pdb" target="lib\net47" />
+    <file src="bin\Release\netcoreapp2.2\Reusable.OmniLog.SemanticExtensions.AspNetCore.dll" target="lib\netcoreapp2.2" />
+    <file src="bin\Release\netcoreapp2.2\Reusable.OmniLog.SemanticExtensions.AspNetCore.pdb" target="lib\netcoreapp2.2" />
   </files>
 </package>

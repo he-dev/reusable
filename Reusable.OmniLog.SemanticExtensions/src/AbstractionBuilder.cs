@@ -12,8 +12,6 @@ using Reusable.OmniLog.Middleware;
 
 namespace Reusable.OmniLog.SemanticExtensions
 {
-    #region Abstractions
-
     /*
      
      Abstraction
@@ -47,21 +45,7 @@ namespace Reusable.OmniLog.SemanticExtensions
 
         public override string ToString() => _name;
     }
-
-    [AbstractionProperty("Layer")]
-    public interface IAbstractionLayer : IAbstractionBuilder<IAbstractionLayer> { }
-
-    [AbstractionProperty("Category")]
-    public interface IAbstractionCategory : IAbstractionBuilder<IAbstractionCategory> { }
-
-    public abstract class Abstraction
-    {
-        /// <summary>
-        /// Provides the starting point for all semantic extensions.
-        /// </summary>
-        public static IAbstractionBuilder<object> Layer => default;
-    }
-
+    
     public readonly struct AbstractionBuilder<T> : IAbstractionBuilder<T>
     {
         private readonly LogEntry _logEntry;
@@ -73,17 +57,11 @@ namespace Reusable.OmniLog.SemanticExtensions
         public LogEntry Build() => _logEntry ?? LogEntry.Empty();
     }
 
-    public static class AbstractionLayerBuilder
+    public abstract class Abstraction
     {
-        public static IAbstractionBuilder<IAbstractionLayer> CreateLayerWithCallerName(this IAbstractionBuilder<object> builder, [CallerMemberName] string name = null)
-        {
-            var abstractionProperty = typeof(IAbstractionLayer).GetCustomAttribute<AbstractionPropertyAttribute>().ToString();
-            return new AbstractionBuilder<IAbstractionLayer>(LogEntry.Empty()).Update(l => l.SetItem(abstractionProperty, default, name));
-        }
+        /// <summary>
+        /// Provides the starting point for all semantic extensions.
+        /// </summary>
+        public static IAbstractionBuilder<object> Layer => default;
     }
-
-    #endregion
-
-
-    
 }

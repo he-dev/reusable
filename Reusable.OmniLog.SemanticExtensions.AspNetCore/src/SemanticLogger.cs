@@ -5,23 +5,21 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Reusable.Extensions;
-using Reusable.IOnymous;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Middleware;
-using Reusable.OmniLog.SemanticExtensions;
 
-namespace Reusable.OmniLog
+namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
 {
     [UsedImplicitly]
     [PublicAPI]
-    public class LoggerMiddleware
+    public class SemanticLogger
     {
         private readonly ILogger _logger;
         private readonly RequestDelegate _next;
         private readonly Func<HttpContext, object> _getCorrelationId;
 
-        public LoggerMiddleware
+        public SemanticLogger
         (
             ILoggerFactory loggerFactory,
             RequestDelegate next,
@@ -29,14 +27,14 @@ namespace Reusable.OmniLog
         )
         {
             _next = next;
-            _logger = loggerFactory.CreateLogger<LoggerMiddleware>();
-            getCorrelationId = getCorrelationId;
+            _logger = loggerFactory.CreateLogger<SemanticLogger>();
+            _getCorrelationId = getCorrelationId;
         }
 
         public async Task Invoke(HttpContext context)
         {
-            using (var stopwatch = _logger.UseStopwatch())
-            using (var scope = _logger.UseScope(correlationId: _getCorrelationId(context)))
+            using (_logger.UseStopwatch())
+            using (_logger.UseScope(correlationId: _getCorrelationId(context)))
             {
                 // todo - what do I need this for?
                 //_configuration?.ConfigureScope(scope, context);

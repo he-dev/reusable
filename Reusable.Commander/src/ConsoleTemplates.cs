@@ -4,7 +4,7 @@ using System.Linq.Custom;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
-using Reusable.OmniLog.Console;
+using Reusable.OmniLog.Rx.ConsoleRenderers;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.Commander.ConsoleTemplates
@@ -21,7 +21,7 @@ namespace Reusable.Commander.ConsoleTemplates
 //                .span(span => span.text($"[{Timestamp:yyyy-MM-dd HH:mm:ss}]>"));
 //    }
 
-    public class Indent : ConsoleTemplateBuilder
+    public class Indent : HtmlConsoleTemplateBuilder
     {
         private readonly int _depth;
 
@@ -40,7 +40,7 @@ namespace Reusable.Commander.ConsoleTemplates
 
     namespace Help
     {
-        public class TableRow : ConsoleTemplateBuilder
+        public class TableRow : HtmlConsoleTemplateBuilder
         {
             public IEnumerable<string> Cells { get; set; }
 
@@ -53,7 +53,7 @@ namespace Reusable.Commander.ConsoleTemplates
     }
 
 
-    public class Error : ConsoleTemplateBuilder
+    public class Error : HtmlConsoleTemplateBuilder
     {
         public string Text { get; set; }
 

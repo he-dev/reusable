@@ -6,7 +6,9 @@ using Reusable.Data;
 using Reusable.Diagnostics;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Middleware;
+using Reusable.OmniLog.Rx;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.OmniLog.SemanticExtensions.Middleware;
 //using Reusable.OmniLog.Attachments;
@@ -51,7 +53,11 @@ namespace Reusable.Apps.Examples.OmniLog.v2
                     new LoggerTransaction(),
                     new LoggerEcho
                     {
-                        Receivers = { new Reusable.OmniLog.NLogRx() },
+                        Rx =
+                        {
+                            new NLogRx(),
+                            new ConsoleRx()
+                        },
                     }
                 }
             };

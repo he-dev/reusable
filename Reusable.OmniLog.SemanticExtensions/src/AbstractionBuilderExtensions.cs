@@ -1,14 +1,22 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Middleware;
 using Reusable.OmniLog.SemanticExtensions.Middleware;
 
 namespace Reusable.OmniLog.SemanticExtensions
 {
     #region Layers
+    
+    [AbstractionProperty("Layer")]
+    public interface IAbstractionLayer : IAbstractionBuilder<IAbstractionLayer> { }
 
+
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public static class AbstractionLayers
     {
         public static IAbstractionBuilder<IAbstractionLayer> Business(this IAbstractionBuilder<object> builder) => builder.CreateLayerWithCallerName();
@@ -17,7 +25,6 @@ namespace Reusable.OmniLog.SemanticExtensions
 
         public static IAbstractionBuilder<IAbstractionLayer> Presentation(this IAbstractionBuilder<object> builder) => builder.CreateLayerWithCallerName();
 
-        // ReSharper disable once InconsistentNaming
         public static IAbstractionBuilder<IAbstractionLayer> IO(this IAbstractionBuilder<object> builder) => builder.CreateLayerWithCallerName();
 
         public static IAbstractionBuilder<IAbstractionLayer> Database(this IAbstractionBuilder<object> builder) => builder.CreateLayerWithCallerName();
@@ -25,21 +32,22 @@ namespace Reusable.OmniLog.SemanticExtensions
         public static IAbstractionBuilder<IAbstractionLayer> Network(this IAbstractionBuilder<object> builder) => builder.CreateLayerWithCallerName();
     }
 
+    public static class AbstractionLayerBuilder
+    {
+        public static IAbstractionBuilder<IAbstractionLayer> CreateLayerWithCallerName(this IAbstractionBuilder<object> builder, [CallerMemberName] string name = null)
+        {
+            var abstractionProperty = typeof(IAbstractionLayer).GetCustomAttribute<AbstractionPropertyAttribute>().ToString();
+            return new AbstractionBuilder<IAbstractionLayer>(LogEntry.Empty()).Update(l => l.SetItem(abstractionProperty, default, name));
+        }
+    }
+
     #endregion
 
     #region Categories
+    
+    [AbstractionProperty("Category")]
+    public interface IAbstractionCategory : IAbstractionBuilder<IAbstractionCategory> { }
 
-    public static class AbstractionCategoryBuilder
-    {
-        /// <summary>
-        /// Logs variables. The dump must be an anonymous type with at least one property: new { foo[, bar] }
-        /// </summary>
-        public static IAbstractionBuilder<IAbstractionCategory> CreateCategoryWithCallerName(this IAbstractionBuilder<IAbstractionLayer> layer, [CallerMemberName] string name = null)
-        {
-            var abstractionProperty = typeof(IAbstractionCategory).GetCustomAttribute<AbstractionPropertyAttribute>().ToString();
-            return new AbstractionBuilder<IAbstractionCategory>(layer.Build()).Update(l => l.SetItem(abstractionProperty, default, name));
-        }
-    }
 
     public static class AbstractionCategories
     {
@@ -95,25 +103,18 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Decision), LoggerDump.LogItemTag, description));
         }
+    }
 
-        //        public static IAbstractionCategory RoutineFromScope(this IAbstractionLayer layer)
-        //        {
-        //            if (LogScope.Current is null)
-        //            {
-        //                return layer.Routine($"#'{nameof(RoutineFromScope)}' used outside of a scope.");
-        //            }
-        //
-        //            // Try to find routine-identifier in the scope hierarchy.
-        //            var scope =
-        //                LogScope
-        //                    .Current
-        //                    .Flatten()
-        //                    .FirstOrDefault(s => s.ContainsKey(nameof(Routine)));
-        //            return
-        //                scope is null
-        //                    ? layer.Routine("#Scope does not contain routine identifier.")
-        //                    : layer.Routine((string)scope[nameof(Routine)]);
-        //        }
+    public static class AbstractionCategoryBuilder
+    {
+        /// <summary>
+        /// Logs variables. The dump must be an anonymous type with at least one property: new { foo[, bar] }
+        /// </summary>
+        public static IAbstractionBuilder<IAbstractionCategory> CreateCategoryWithCallerName(this IAbstractionBuilder<IAbstractionLayer> layer, [CallerMemberName] string name = null)
+        {
+            var abstractionProperty = typeof(IAbstractionCategory).GetCustomAttribute<AbstractionPropertyAttribute>().ToString();
+            return new AbstractionBuilder<IAbstractionCategory>(layer.Build()).Update(l => l.SetItem(abstractionProperty, default, name));
+        }
     }
 
     #endregion

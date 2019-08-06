@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Middleware;
 using Reusable.OmniLog.SemanticExtensions.Middleware;
 

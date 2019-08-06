@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Middleware;
+using Reusable.OmniLog.Rx;
 //using Reusable.OmniLog.Attachments;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.OmniLog.SemanticExtensions.Middleware;
@@ -30,7 +32,7 @@ namespace Reusable.OmniLog.v2
                     new LoggerTransaction(),
                     new LoggerEcho
                     {
-                        Receivers = { rx },
+                        Rx = { rx },
                     }
                 }
             })
@@ -61,7 +63,7 @@ namespace Reusable.OmniLog.v2
                     new LoggerTransaction(),
                     new LoggerEcho
                     {
-                        Receivers = { rx },
+                        Rx = { rx },
                     }
                 }
             };
@@ -108,7 +110,7 @@ namespace Reusable.OmniLog.v2
                     new LoggerTransaction(),
                     new LoggerEcho
                     {
-                        Receivers = { rx },
+                        Rx = { rx },
                     }
                 }
             };
@@ -142,7 +144,7 @@ namespace Reusable.OmniLog.v2
                     new LoggerLambda(),
                     new LoggerEcho
                     {
-                        Receivers = { rx },
+                        Rx = { rx },
                     }
                 }
             };
@@ -183,7 +185,7 @@ namespace Reusable.OmniLog.v2
                     // },
                     new LoggerEcho
                     {
-                        Receivers = { rx },
+                        Rx = { rx },
                     }
                 },
             };
@@ -222,7 +224,7 @@ namespace Reusable.OmniLog.v2
                     },
                     new LoggerEcho
                     {
-                        Receivers = { rx },
+                        Rx = { rx },
                     }
                     
                 },

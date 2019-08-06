@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using JetBrains.Annotations;
-using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Middleware;
-using Reusable.OmniLog.v2;
+using Reusable.OmniLog.Rx.ConsoleRenderers;
+using Reusable.OmniLog.Utilities;
 
-namespace Reusable.OmniLog
+namespace Reusable.OmniLog.Extensions
 {
     [PublicAPI]
     public static class LoggerExtensions
@@ -78,6 +77,47 @@ namespace Reusable.OmniLog
         public static T Return<T>(this ILogger logger, T obj)
         {
             return obj;
+        }
+
+        #endregion
+
+        #region HtmlConsole
+
+        /// <summary>
+        /// Writes to console without line breaks.
+        /// </summary>
+        /// <param name="console">The logger to log.</param>
+        /// <param name="style">Overrides the default console style.</param>
+        /// <param name="builders">Console template builders used to render the output.</param>
+        public static void Write(this ILogger console, ConsoleStyle? style, params HtmlConsoleTemplateBuilder[] builders)
+        {
+            console.Log(log => log.ConsoleTemplateBuilder(new CompositeHtmlConsoleTemplateBuilder
+            {
+                IsParagraph = false,
+                Builders = builders,
+                Style = style
+            }));
+        }
+
+        /// <summary>
+        /// Writes to console line breaks.
+        /// </summary>
+        /// <param name="console">The logger to log.</param>
+        /// <param name="style">Overrides the default console style.</param>
+        /// <param name="builders">Console template builders used to render the output.</param>
+        public static void WriteLine(this ILogger console, ConsoleStyle? style, params HtmlConsoleTemplateBuilder[] builders)
+        {
+            console.Log(log => log.ConsoleTemplateBuilder(new CompositeHtmlConsoleTemplateBuilder
+            {
+                IsParagraph = true,
+                Builders = builders,
+                Style = style
+            }));
+        }
+        
+        private static LogEntry ConsoleTemplateBuilder(this LogEntry logEntry, HtmlConsoleTemplateBuilder htmlConsoleTemplateBuilder)
+        {
+            return logEntry.SetItem(LogEntry.BasicPropertyNames.Message, nameof(HtmlConsoleTemplateBuilder), htmlConsoleTemplateBuilder);
         }
 
         #endregion

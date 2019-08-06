@@ -3,8 +3,6 @@
   <PropertyGroup>
     <!--<TargetFramework>net47</TargetFramework>-->
     <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>
-    <AssemblyName>Reusable.OmniLog.SemanticMiddleware</AssemblyName>
-    <RootNamespace>Reusable.OmniLog</RootNamespace>
     <Platforms>AnyCPU;x64</Platforms>
     <Configurations>Debug;Release;Debug.csproj</Configurations>
   </PropertyGroup>

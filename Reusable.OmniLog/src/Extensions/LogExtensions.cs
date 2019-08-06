@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
-using Reusable.Extensions;
-using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 
-namespace Reusable.OmniLog
+namespace Reusable.OmniLog.Extensions
 {
     public static class LogExtensions
     {

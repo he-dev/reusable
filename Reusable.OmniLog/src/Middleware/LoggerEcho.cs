@@ -10,9 +10,9 @@ namespace Reusable.OmniLog.Middleware
     {
         public LoggerEcho() : base(true) { }
 
-        public override bool IsActive => Receivers?.Any() == true; 
+        public override bool IsActive => Rx?.Any() == true; 
 
-        public List<ILogRx> Receivers { get; set; } = new List<ILogRx>();
+        public List<ILogRx> Rx { get; set; } = new List<ILogRx>();
 
         protected override void InvokeCore(LogEntry request)
         {
@@ -22,7 +22,7 @@ namespace Reusable.OmniLog.Middleware
             //                request.SetItem("Level", LogLevel.Information);
             //            }
 
-            foreach (var rx in Receivers)
+            foreach (var rx in Rx)
             {
                 rx.Log(request);
             }

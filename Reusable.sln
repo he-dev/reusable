@@ -31,7 +31,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.app.Console", "Reu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.app.Server", "Reusable.app.Server\Reusable.app.Server.csproj", "{1CA8ADE8-04FE-45C4-9D78-A74CF6E111EC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.OmniLog.SemanticMiddleware", "Reusable.OmniLog.SemanticMiddleware\Reusable.OmniLog.SemanticMiddleware.csproj", "{645BDDA4-873B-4B20-9696-B442E85BD270}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.OmniLog.SemanticExtensions.AspNetCore", "Reusable.OmniLog.SemanticExtensions.AspNetCore\Reusable.OmniLog.SemanticExtensions.AspNetCore.csproj", "{645BDDA4-873B-4B20-9696-B442E85BD270}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Utilities.AspNetCore", "Reusable.Utilities.AspNetCore\Reusable.Utilities.AspNetCore.csproj", "{37A5FD78-1DCF-4B31-AC03-81DC493BD0BB}"
 EndProject
