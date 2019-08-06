@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Reusable.OmniLog.v2;
+using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.Extensions
 {

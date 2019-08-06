@@ -1,7 +1,6 @@
 using System;
 using Newtonsoft.Json;
 using Reusable.OmniLog.Abstractions.Data;
-using Reusable.OmniLog.v2;
 
 namespace Reusable.OmniLog.Abstractions
 {

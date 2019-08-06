@@ -12,17 +12,10 @@ using Reusable.OmniLog.Rx;
 using Reusable.OmniLog.Rx.ConsoleRenderers;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.OmniLog.SemanticExtensions.Nodes;
-//using Reusable.OmniLog.Attachments;
 using Reusable.Utilities.NLog.LayoutRenderers;
 
 namespace Reusable.Apps.Examples.OmniLog
 {
-    using Reusable.OmniLog.v2;
-
-    //using v1 = Reusable.OmniLog;
-    //using LoggerTransaction = Reusable.OmniLog.LoggerTransaction;
-    //using v2 = Reusable.OmniLog.v2;
-
     public static class Example
     {
         public static void Run()

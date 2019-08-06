@@ -1,4 +1,4 @@
-namespace Reusable.OmniLog.v2
+namespace Reusable.OmniLog.Abstractions
 {
     public interface ILinkedListNode<T>
     {
