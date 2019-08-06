@@ -28,8 +28,6 @@ namespace Reusable.Apps.Examples.OmniLog
         {
             SmartPropertiesLayoutRenderer.Register();
 
-            //var fileProvider = new RelativeResourceProvider(new PhysicalFileProvider(), typeof(Demo).Assembly.Location);
-
             var loggerFactory = new LoggerFactory
             {
                 Nodes =
@@ -39,31 +37,50 @@ namespace Reusable.Apps.Examples.OmniLog
                         { "Environment", "Demo" },
                         { "Product", "Reusable.Apps.Console" }
                     },
-                    new StopwatchNode // --> when activated, adds Elapsed to each logEntry
+                    // When activated by using(logger.UseStopwatch()) {}, adds Elapsed to each logEntry
+                    new StopwatchNode
                     {
-                        GetValue = elapsed => elapsed.TotalMilliseconds // This is the default and used here for demonstration purposes
-                    }, 
+                        // Selects milliseconds to be logged. This is the default.
+                        GetValue = elapsed => elapsed.TotalMilliseconds
+                    },
+                    // Adds computed properties to each log-entry.
                     new ComputableNode
                     {
-                        new Reusable.OmniLog.Computables.Timestamp<DateTimeUtc>() // --> adds Timestamp to each logEntry
+                        // Adds utc timestamp to each log-entry.
+                        new Reusable.OmniLog.Computables.Timestamp<DateTimeUtc>()
                     },
-                    new LambdaNode(), // --> adds support for logger.Log(log => log...) overload
-                    new CorrelationNode(), // --> adds Correlation object to logEntry
-                    new SemanticNode(), // --> copies everything from AbstractionBuilder to logEntry; adds #Dump items for objects
-                    new DumpNode(), // --> adds Variable & Dump to logEntry for every main property or KeyValuePair with the #Serializable
-                    new SerializationNode(), // --> serializes every #Serializable item in logEntry and adds it as #Property
-                    new FilterNode(logEntry => true), // Filters log-entries and short-circuits the pipeline when False
-                    new RenameNode // --> changes the name of the property
+                    // Adds support for logger.Log(log => ..) overload.
+                    new LambdaNode(),
+                    // Adds Correlation object to each log-entry.
+                    new CorrelationNode(),
+                    // Copies everything from AbstractionBuilder to each log-entry.
+                    // Contains properties Layer and Category and Meta#Dump.
+                    new SemanticNode(),
+                    // Converts #Dump items. Objects and dictionaries are treated as collections of KeyValuePairs.
+                    // They are added as Variable & #Serializable to each log-entry. Strings are added without processing.
+                    new DumpNode
+                    {
+                        // Maps Person to a different type.
+                        DumpNode.Mapping.Map<Person>(x => new { FullName = $"{x.LastName}, {x.FirstName}".ToUpper() })
+                    },
+                    // Serializes every #Serializable item in the log-entry and adds it as #Property.
+                    new SerializationNode(),
+                    // Filters log-entries and short-circuits the pipeline when False.
+                    new FilterNode(logEntry => true),
+                    // Renames properties.
+                    new RenameNode
                     {
                         Changes =
                         {
-                            {"Correlation", "Scope"},
-                            {"Variable", "Identifier"},
-                            {"Dump", "Snapshot"},
+                            { "Correlation", "Scope" },
+                            { "Variable", "Identifier" },
+                            { "Dump", "Snapshot" },
                         }
                     },
-                    new TransactionNode(), // When activated, buffers logEntry until committed
-                    new EchoNode // The final node that sends log-entry to the receivers
+                    // When activated, buffers log-entries until committed.
+                    new TransactionNode(),
+                    // The final node that sends log-entries to the receivers.
+                    new EchoNode
                     {
                         Rx =
                         {
@@ -75,56 +92,43 @@ namespace Reusable.Apps.Examples.OmniLog
             };
 
             var logger = loggerFactory.CreateLogger("Demo");
-            var logger2 = loggerFactory.CreateLogger("Demo");
 
-            if (logger != logger2) throw new Exception();
+            logger.Information("Hallo omni-log!");
 
-            var meta = Abstraction.Layer.Service().Meta(new { asdf = 2 });
-
-            logger.Log(Abstraction.Layer.Service().Routine("SemLogTest").Running());
-            logger.Log(Abstraction.Layer.Service().Meta(new { Null = (string)null }));
+            logger.Log(Abstraction.Layer.Service().Routine(nameof(Run)).Running());
+            logger.Log(Abstraction.Layer.Service().Meta(new { Greeting = "Hallo omni-log!" }));
+            logger.Log(Abstraction.Layer.Service().Meta(new { Null = (string)default }));
 
             // Opening outer-scope.
-            //using (logger.UseScope(correlationHandle: "Blub").Routine("MyRoutine").CorrelationContext(new { Name = "OuterScope", CustomerId = 123 }).AttachElapsed())
-            using (logger.UseScope(correlationHandle: "Blub"))
+            using (logger.UseScope(correlationHandle: "my-handle"))
             using (logger.UseStopwatch())
             {
+                var variable = new { John = "Doe" };
                 // Logging some single business variable and a message.
-                logger.Log(Abstraction.Layer.Business().Variable(new { foo = "bar" }), log => log.Message("Hallo variable!"));
-                logger.Log(Abstraction.Layer.Database().Counter(new { RowCount = 7 }));
-                logger.Log(Abstraction.Layer.Database().Decision("blub").Because("bluby"));
+                logger.Log(Abstraction.Layer.Business().Variable(variable), log => log.Message("I'm a variable!"));
+                logger.Log(Abstraction.Layer.Database().Counter(new { Prime = 7 }));
+                logger.Log(Abstraction.Layer.Database().Decision("Log something.").Because("Logger works!"));
 
                 // Opening inner-scope.
                 using (logger.UseScope())
                 using (logger.UseStopwatch())
                 {
-                    //logger.Log(Abstraction.Layer.Service().().Running());
-
-                    //var correlationIds = logger.Scopes().CorrelationIds<string>().ToList();
-
                     // Logging an entire object in a single line.
-                    //var customer = new { FirstName = "John", LastName = "Doe" };
                     var customer = new Person
                     {
                         FirstName = "John",
-                        LastName = null,
+                        LastName = "Doe",
                         Age = 123.456,
                         DBNullTest = DBNull.Value,
                         GraduationYears = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 },
                         Nicknames = { "Johny", "Doe" }
                     };
-                    logger.Log(Abstraction.Layer.Business().Variable(new { customer }));
-
-                    // Logging multiple variables in a single line.
-                    var baz = 123;
-                    var qux = "quux";
-
-                    //logger.Log(Abstraction.Layer.Service().Composite(new { multiple = new { baz, qux } }));
+                    logger.Log(Abstraction.Layer.Business().Meta(new { customer }));
 
                     // Logging action results.
-                    logger.Log(Abstraction.Layer.Service().Routine("DoSomething").Running());
-                    logger.Log(Abstraction.Layer.Service().Routine("DoSomething").Canceled().Because("No connection."));
-                    logger.Log(Abstraction.Layer.Service().Routine("DoSomething").Faulted(), new DivideByZeroException("Cannot divide."));
+                    logger.Log(Abstraction.Layer.Service().Routine(nameof(Run)).Running());
+                    logger.Log(Abstraction.Layer.Service().Routine(nameof(Run)).Canceled().Because("No connection."));
+                    logger.Log(Abstraction.Layer.Service().Routine(nameof(Run)).Faulted(), new DivideByZeroException("Cannot divide."));
                     logger.Log(Abstraction.Layer.Service().Decision("Don't do this.").Because("Disabled."));
                 }
             }

@@ -59,10 +59,21 @@ namespace Reusable.OmniLog.Nodes
                         {
                             foreach (var (name, value) in dump.EnumerateProperties())
                             {
-                                var copy = request.Clone();
-                                copy.SetItem(Variable, default, name);
-                                copy.Serializable(Dump, value);
-                                InvokeNext(copy);
+                                // todo - not dry
+                                if (!(value is null) && _mappings.TryGetValue(value.GetType(), out map))
+                                {
+                                    dump = map(value);
+                                    request.SetItem(Variable, default, item.Key.Name);
+                                    request.Serializable(Dump, dump);
+                                    InvokeNext(request);
+                                }
+                                else
+                                {
+                                    var copy = request.Clone();
+                                    copy.SetItem(Variable, default, name);
+                                    copy.Serializable(Dump, value);
+                                    InvokeNext(copy);
+                                }
                             }
                         }
                         break;

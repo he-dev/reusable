@@ -100,7 +100,8 @@ namespace Reusable.OmniLog.SemanticExtensions
 
         public static IAbstractionBuilder<IAbstractionCategory> Decision(this IAbstractionBuilder<IAbstractionLayer> layer, string description)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Decision), DumpNode.LogItemTag, description));
+            // todo - hardcoded category name
+            return layer.CreateCategoryWithCallerName("Flow").Update(l => l.SetItem(nameof(Decision), DumpNode.LogItemTag, description));
         }
     }
 
