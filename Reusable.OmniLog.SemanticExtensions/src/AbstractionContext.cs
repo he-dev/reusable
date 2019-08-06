@@ -29,13 +29,13 @@ namespace Reusable.OmniLog.SemanticExtensions
 
     public interface IAbstractionBuilder
     {
-        Log Build();
+        LogEntry Build();
     }
 
     // Base interface for the first tier "layer"
     public interface IAbstractionBuilder<T> : IAbstractionBuilder
     {
-        IAbstractionBuilder<T> Update(AlterLog alterLog);
+        IAbstractionBuilder<T> Update(AlterLogEntryCallback alterLogEntry);
     }
 
     [AttributeUsage(AttributeTargets.Interface)]
@@ -54,11 +54,6 @@ namespace Reusable.OmniLog.SemanticExtensions
     [AbstractionProperty("Category")]
     public interface IAbstractionCategory : IAbstractionBuilder<IAbstractionCategory> { }
 
-//    public interface IAbstractionContext : IAbstractionLayer, IAbstractionCategory
-//    {
-//        Log Log { get; }
-//    }
-
     public abstract class Abstraction
     {
         /// <summary>
@@ -69,13 +64,13 @@ namespace Reusable.OmniLog.SemanticExtensions
 
     public readonly struct AbstractionBuilder<T> : IAbstractionBuilder<T>
     {
-        private readonly Log _log;
+        private readonly LogEntry _logEntry;
 
-        public AbstractionBuilder(Log log) => _log = log;
+        public AbstractionBuilder(LogEntry logEntry) => _logEntry = logEntry;
 
-        public IAbstractionBuilder<T> Update(AlterLog alterLog) => this.Do(self => alterLog(self._log));
+        public IAbstractionBuilder<T> Update(AlterLogEntryCallback alterLogEntry) => this.Do(self => alterLogEntry(self._logEntry));
 
-        public Log Build() => _log ?? Log.Empty();
+        public LogEntry Build() => _logEntry ?? LogEntry.Empty();
     }
 
     public static class AbstractionLayerBuilder
@@ -83,7 +78,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         public static IAbstractionBuilder<IAbstractionLayer> CreateLayerWithCallerName(this IAbstractionBuilder<object> builder, [CallerMemberName] string name = null)
         {
             var abstractionProperty = typeof(IAbstractionLayer).GetCustomAttribute<AbstractionPropertyAttribute>().ToString();
-            return new AbstractionBuilder<IAbstractionLayer>(Log.Empty()).Update(l => l.SetItem(abstractionProperty, default, name));
+            return new AbstractionBuilder<IAbstractionLayer>(LogEntry.Empty()).Update(l => l.SetItem(abstractionProperty, default, name));
         }
     }
 

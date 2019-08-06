@@ -11,7 +11,7 @@ namespace Reusable.OmniLog.Abstractions
 
         T Use<T>(T next) where T : LoggerMiddleware;
 
-        void Log(Log log);
+        void Log(LogEntry logEntry);
     }
 
     public interface ILogger<T> : ILogger { }

@@ -7,13 +7,13 @@ namespace Reusable.OmniLog.Attachments
 {
     public class Lambda : LogAttachment
     {
-        private readonly Func<Log, object> _compute;
+        private readonly Func<LogEntry, object> _compute;
 
-        public Lambda([NotNull] string name, [NotNull] Func<Log, object> compute) : base(name)
+        public Lambda([NotNull] string name, [NotNull] Func<LogEntry, object> compute) : base(name)
         {
             _compute = compute ?? throw new ArgumentNullException(nameof(compute));
         }
 
-        public override object Compute(Log log) => _compute(log);
+        public override object Compute(LogEntry logEntry) => _compute(logEntry);
     }
 }

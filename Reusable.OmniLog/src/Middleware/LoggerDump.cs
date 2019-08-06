@@ -27,7 +27,7 @@ namespace Reusable.OmniLog.Middleware
 
         public void Add((Type Type, Func<object, object> Map) mapping) => _mappings.Add(mapping.Type, mapping.Map);
 
-        protected override void InvokeCore(Log request)
+        protected override void InvokeCore(LogEntry request)
         {
             // todo - use key-name as identifier when snapshot is a string, e.g. decision
 
@@ -120,9 +120,9 @@ namespace Reusable.OmniLog.Middleware
 
     public static class LoggerSnapshotHelper
     {
-        public static Log Snapshot(this Log log, object obj)
+        public static LogEntry Snapshot(this LogEntry logEntry, object obj)
         {
-            return log.SetItem(nameof(Snapshot), LoggerDump.LogItemTag, obj);
+            return logEntry.SetItem(nameof(Snapshot), LoggerDump.LogItemTag, obj);
         }
     }
 

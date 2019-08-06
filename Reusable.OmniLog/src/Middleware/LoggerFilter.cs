@@ -6,14 +6,14 @@ namespace Reusable.OmniLog.Middleware
 {
     public class LoggerFilter : LoggerMiddleware
     {
-        private readonly Func<Log, bool> _canLog;
+        private readonly Func<LogEntry, bool> _canLog;
 
-        public LoggerFilter(Func<Log, bool> canLog) : base(true)
+        public LoggerFilter(Func<LogEntry, bool> canLog) : base(true)
         {
             _canLog = canLog;
         }
 
-        protected override void InvokeCore(Log request)
+        protected override void InvokeCore(LogEntry request)
         {
             if (_canLog(request))
             {

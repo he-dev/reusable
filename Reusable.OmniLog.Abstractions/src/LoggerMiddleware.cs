@@ -50,7 +50,7 @@ namespace Reusable.OmniLog.Abstractions
             return result;
         }
 
-        public void Invoke(Log request)
+        public void Invoke(LogEntry request)
         {
             if (IsActive)
             {
@@ -62,7 +62,7 @@ namespace Reusable.OmniLog.Abstractions
             }
         }
 
-        protected abstract void InvokeCore(Log request);
+        protected abstract void InvokeCore(LogEntry request);
 
         // Removes itself from the middleware chain.
         public virtual void Dispose()

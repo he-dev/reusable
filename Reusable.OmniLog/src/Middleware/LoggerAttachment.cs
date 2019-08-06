@@ -16,7 +16,7 @@ namespace Reusable.OmniLog.Middleware
 
         public LoggerAttachment() : base(true) { }
 
-        protected override void InvokeCore(Log request)
+        protected override void InvokeCore(LogEntry request)
         {
             foreach (var attachment in _attachments)
             {

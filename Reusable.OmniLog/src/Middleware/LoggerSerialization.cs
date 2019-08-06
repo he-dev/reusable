@@ -27,7 +27,7 @@ namespace Reusable.OmniLog.Middleware
         /// </summary>
         public HashSet<string> SerializableProperties { get; set; } = new HashSet<string>(SoftString.Comparer);
 
-        protected override void InvokeCore(Log request)
+        protected override void InvokeCore(LogEntry request)
         {
             var keys =
                 SerializableProperties.Any()
@@ -51,9 +51,9 @@ namespace Reusable.OmniLog.Middleware
     
     public static class LoggerSerializerHelper
     {
-        public static Log Serializable(this Log log, string propertyName, object obj)
+        public static LogEntry Serializable(this LogEntry logEntry, string propertyName, object obj)
         {
-            return log.SetItem(propertyName, LoggerSerialization.LogItemTag, obj);
+            return logEntry.SetItem(propertyName, LoggerSerialization.LogItemTag, obj);
         }
     }
 }

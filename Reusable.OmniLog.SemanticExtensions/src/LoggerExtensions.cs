@@ -3,6 +3,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Middleware;
 using Reusable.OmniLog.SemanticExtensions.Middleware;
 
@@ -10,8 +11,6 @@ using Reusable.OmniLog.SemanticExtensions.Middleware;
 
 namespace Reusable.OmniLog.SemanticExtensions
 {
-    using data = Reusable.OmniLog.Abstractions.Data;
-
     [PublicAPI]
     public static class LoggerExtensions
     {
@@ -21,7 +20,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         (
             this ILogger logger,
             IAbstractionBuilder<T> context,
-            AlterLog alter = null,
+            AlterLogEntryCallback alter = null,
             // These properties are for free so let's just log them too.
             [CallerMemberName] string callerMemberName = null,
             [CallerLineNumber] int callerLineNumber = 0,
@@ -30,10 +29,10 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             logger.Log(log =>
             {
-                log.SetItem(LoggerAbstraction.LogPropertyName, data.Log.ItemTags.Metadata, context);
-                log.SetItem(data.Log.PropertyNames.CallerMemberName, default, callerMemberName);
-                log.SetItem(data.Log.PropertyNames.CallerLineNumber, default, callerLineNumber);
-                log.SetItem(data.Log.PropertyNames.CallerFilePath, default, Path.GetFileName(callerFilePath));
+                log.SetItem(LoggerAbstraction.LogPropertyName, LogEntry.ItemTags.Metadata, context);
+                log.SetItem(LogEntry.BasicPropertyNames.CallerMemberName, default, callerMemberName);
+                log.SetItem(LogEntry.BasicPropertyNames.CallerLineNumber, default, callerLineNumber);
+                log.SetItem(LogEntry.BasicPropertyNames.CallerFilePath, default, Path.GetFileName(callerFilePath));
                 alter?.Invoke(log);
             });
         }

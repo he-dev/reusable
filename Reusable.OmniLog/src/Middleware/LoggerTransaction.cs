@@ -9,13 +9,13 @@ namespace Reusable.OmniLog.Middleware
 {
     public class LoggerTransaction : LoggerMiddleware, ILoggerScope<LoggerTransaction.Scope, object>
     {
-        private readonly Queue<Log> _buffer = new Queue<Log>();
+        private readonly Queue<LogEntry> _buffer = new Queue<LogEntry>();
 
         public LoggerTransaction() : base(false) { }
 
         public override bool IsActive => !(LoggerScope<Scope>.Current is null);
 
-        protected override void InvokeCore(Log request)
+        protected override void InvokeCore(LogEntry request)
         {
             _buffer.Enqueue(request);
             // Don't call Next until Commit.
@@ -28,7 +28,7 @@ namespace Reusable.OmniLog.Middleware
 
         public class Scope : IDisposable
         {
-            private readonly Queue<Log> _buffer = new Queue<Log>();
+            private readonly Queue<LogEntry> _buffer = new Queue<LogEntry>();
 
             internal LoggerMiddleware Next { get; set; }
 

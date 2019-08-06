@@ -30,10 +30,6 @@ namespace Reusable.Apps.Examples.OmniLog.v2
 
             var loggerFactory = new LoggerFactory
             {
-                Receivers =
-                {
-                    new Reusable.OmniLog.NLogRx()
-                },
                 Middleware =
                 {
                     new LoggerProperty
@@ -53,6 +49,10 @@ namespace Reusable.Apps.Examples.OmniLog.v2
                     new LoggerAbstraction(),
                     //new LoggerFilter()
                     new LoggerTransaction(),
+                    new LoggerEcho
+                    {
+                        Receivers = { new Reusable.OmniLog.NLogRx() },
+                    }
                 }
             };
 

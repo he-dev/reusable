@@ -32,7 +32,7 @@ namespace Reusable.Commander.ConsoleTemplates
 
         public int Width { get; set; } = 1;
 
-        public override HtmlElement Build(Log log) =>
+        public override HtmlElement Build(LogEntry logEntry) =>
             HtmlElement
                 .Builder
                 .span(x => x.text(new string(' ', Width * _depth)));
@@ -44,7 +44,7 @@ namespace Reusable.Commander.ConsoleTemplates
         {
             public IEnumerable<string> Cells { get; set; }
 
-            public override HtmlElement Build(Log log) =>
+            public override HtmlElement Build(LogEntry logEntry) =>
                 HtmlElement
                     .Builder
                     .span(x => x
@@ -57,7 +57,7 @@ namespace Reusable.Commander.ConsoleTemplates
     {
         public string Text { get; set; }
 
-        public override HtmlElement Build(Log log) =>
+        public override HtmlElement Build(LogEntry logEntry) =>
             HtmlElement
                 .Builder
                 .span(x => x

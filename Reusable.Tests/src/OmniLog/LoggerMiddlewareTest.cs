@@ -21,7 +21,6 @@ namespace Reusable.OmniLog.v2
             var rx = new MemoryRx();
             using (var lf = new LoggerFactory
             {
-                Receivers = { rx },
                 Middleware =
                 {
                     new LoggerStopwatch(),
@@ -30,7 +29,11 @@ namespace Reusable.OmniLog.v2
                     new LoggerCorrelation(),
                     new LoggerSerialization(),
                     //new LoggerFilter()
-                    new LoggerTransaction()
+                    new LoggerTransaction(),
+                    new LoggerEcho
+                    {
+                        Receivers = { rx },
+                    }
                 }
             })
             {
@@ -49,7 +52,6 @@ namespace Reusable.OmniLog.v2
             var rx = new MemoryRx();
             var lf = new LoggerFactory
             {
-                Receivers = { rx },
                 Middleware =
                 {
                     new LoggerStopwatch(),
@@ -58,7 +60,11 @@ namespace Reusable.OmniLog.v2
                     new LoggerCorrelation(),
                     new LoggerSerialization(),
                     //new LoggerFilter()
-                    new LoggerTransaction()
+                    new LoggerTransaction(),
+                    new LoggerEcho
+                    {
+                        Receivers = { rx },
+                    }
                 }
             };
             using (lf)
@@ -92,7 +98,6 @@ namespace Reusable.OmniLog.v2
             var rx = new MemoryRx();
             var lf = new LoggerFactory
             {
-                Receivers = { rx },
                 Middleware =
                 {
                     new LoggerStopwatch(),
@@ -102,7 +107,11 @@ namespace Reusable.OmniLog.v2
                     new LoggerDump(),
                     new LoggerSerialization(),
                     //new LoggerFilter()
-                    new LoggerTransaction()
+                    new LoggerTransaction(),
+                    new LoggerEcho
+                    {
+                        Receivers = { rx },
+                    }
                 }
             };
             using (lf)
@@ -126,14 +135,17 @@ namespace Reusable.OmniLog.v2
             var rx = new MemoryRx();
             var lf = new LoggerFactory
             {
-                Receivers = { rx },
                 Middleware =
                 {
                     new LoggerAttachment
                     {
                         new Reusable.OmniLog.Attachments.Timestamp(new[] { timestamp })
                     },
-                    new LoggerLambda()
+                    new LoggerLambda(),
+                    new LoggerEcho
+                    {
+                        Receivers = { rx },
+                    }
                 }
             };
             using (lf)
@@ -155,7 +167,6 @@ namespace Reusable.OmniLog.v2
             var rx = new MemoryRx();
             var lf = new LoggerFactory
             {
-                Receivers = { rx },
                 Middleware =
                 {
                     new LoggerAttachment
@@ -163,7 +174,11 @@ namespace Reusable.OmniLog.v2
                         new Reusable.OmniLog.Attachments.Timestamp(new[] { timestamp })
                     },
                     new LoggerLambda(),
-                    new LoggerDump()
+                    new LoggerDump(),
+                    new LoggerEcho
+                    {
+                        Receivers = { rx },
+                    }
                 },
             };
             using (lf)
@@ -188,7 +203,6 @@ namespace Reusable.OmniLog.v2
             var rx = new MemoryRx();
             var lf = new LoggerFactory
             {
-                Receivers = { rx },
                 Middleware =
                 {
                     new LoggerAttachment
@@ -199,8 +213,12 @@ namespace Reusable.OmniLog.v2
                     new LoggerDump
                     {
                         LoggerDump.Mapping.Map<Person>(p => new { FullName = p.LastName + ", " + p.FirstName })
+                    },
+                    new LoggerEcho
+                    {
+                        Receivers = { rx },
                     }
-                    //.Map<Person>(p => new { FullName = p.LastName + ", " + p.FirstName })
+                    
                 },
             };
             using (lf)

@@ -18,7 +18,7 @@ namespace Reusable.OmniLog.Middleware
             _properties = properties;
         }
 
-        protected override void InvokeCore(Log request)
+        protected override void InvokeCore(LogEntry request)
         {
             foreach (var (name, value) in _properties)
             {

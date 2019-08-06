@@ -26,9 +26,9 @@ namespace Reusable.OmniLog
             return (T)_middleware.InsertRelative(next, _middlewarePositions);
         }
 
-        public void Log(Log log)
+        public void Log(LogEntry logEntry)
         {
-            _middleware.Invoke(log);
+            _middleware.Invoke(logEntry);
         }
     }
 
@@ -48,9 +48,9 @@ namespace Reusable.OmniLog
             return _logger.Use(next);
         }
 
-        public void Log(Log log)
+        public void Log(LogEntry logEntry)
         {
-            _logger.Log(log);
+            _logger.Log(logEntry);
         }
     }
 }

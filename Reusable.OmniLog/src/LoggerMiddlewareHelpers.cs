@@ -22,9 +22,9 @@ namespace Reusable.OmniLog
 
     public static class LoggerLambdaHelper
     {
-        public static void UseLambda(this ILogger logger, AlterLog alter)
+        public static void UseLambda(this ILogger logger, AlterLogEntryCallback alter)
         {
-            LoggerLambda.Push(new LoggerLambda.Item { Alter = alter });
+            LoggerLambda.Push(new LoggerLambda.Item { AlterLogEntry = alter });
         }
     }
 

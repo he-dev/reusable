@@ -21,10 +21,10 @@ namespace Reusable.OmniLog.SemanticExtensions.Middleware
             [nameof(AbstractionLayers.Network)] = LogLevel.Trace,
         };
 
-        protected override void InvokeCore(Log request)
+        protected override void InvokeCore(LogEntry request)
         {
             // Do we have an abstraction-context?
-            if (request.TryGetItem<IAbstractionBuilder>(LogPropertyName, Log.ItemTags.Metadata, out var builder))
+            if (request.TryGetItem<IAbstractionBuilder>(LogPropertyName, LogEntry.ItemTags.Metadata, out var builder))
             {
                 var log = builder.Build();
 
@@ -35,7 +35,7 @@ namespace Reusable.OmniLog.SemanticExtensions.Middleware
                 }
 
                 // Use other level only if it's not already set.
-                if (!request.TryGetItem<LogLevel>(Log.PropertyNames.Level, default, out _))
+                if (!request.TryGetItem<LogLevel>(LogEntry.BasicPropertyNames.Level, default, out _))
                 {
                     // Use layer-level as fallback.
                     if (LayerLevel.TryGetValue(log["Layer"].ToString(), out var layerLevel))

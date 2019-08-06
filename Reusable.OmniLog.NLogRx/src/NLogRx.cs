@@ -14,7 +14,7 @@ namespace Reusable.OmniLog
     {
         private readonly ConcurrentDictionary<SoftString, NLog.Logger> _cache = new ConcurrentDictionary<SoftString, NLog.Logger>();
 
-        private static readonly IDictionary<LogLevel, NLog.LogLevel> LogLevelMap = new Dictionary<LogLevel, NLog.LogLevel>
+        private static readonly IDictionary<LogLevel, NLog.LogLevel> LogLevels = new Dictionary<LogLevel, NLog.LogLevel>
         {
             [LogLevel.Trace] = NLog.LogLevel.Trace,
             [LogLevel.Debug] = NLog.LogLevel.Debug,
@@ -24,25 +24,24 @@ namespace Reusable.OmniLog
             [LogLevel.Fatal] = NLog.LogLevel.Fatal,
         };
 
-        public void Log(Log log)
+        public void Log(LogEntry logEntry)
         {
-            var loggerName = log.GetItemOrDefault<string>(data.Log.PropertyNames.Logger, default);
-            var logger = GetLogger(loggerName);
-            logger.Log(CreateLogEventInfo(log));
+            var loggerName = logEntry.GetItemOrDefault<string>(LogEntry.BasicPropertyNames.Logger, default);
+            GetLogger(loggerName).Log(CreateLogEventInfo(logEntry));
         }
 
-        private static NLog.LogEventInfo CreateLogEventInfo(Log log)
+        private static NLog.LogEventInfo CreateLogEventInfo(LogEntry logEntry)
         {
             var logEventInfo = new NLog.LogEventInfo
             {
-                Level = LogLevelMap[log.GetItemOrDefault<LogLevel>(data.Log.PropertyNames.Level, default)],
-                LoggerName = log.GetItemOrDefault<string>(data.Log.PropertyNames.Logger, default),
-                Message = log.GetItemOrDefault<string>(data.Log.PropertyNames.Message, default),
-                Exception = log.GetItemOrDefault<Exception>(data.Log.PropertyNames.Exception, default),
-                TimeStamp = log.GetItemOrDefault<DateTime>(data.Log.PropertyNames.Timestamp, default),
+                Level = LogLevels[logEntry.GetItemOrDefault<LogLevel>(LogEntry.BasicPropertyNames.Level, default)],
+                LoggerName = logEntry.GetItemOrDefault<string>(LogEntry.BasicPropertyNames.Logger, default),
+                Message = logEntry.GetItemOrDefault<string>(LogEntry.BasicPropertyNames.Message, default),
+                Exception = logEntry.GetItemOrDefault<Exception>(LogEntry.BasicPropertyNames.Exception, default),
+                TimeStamp = logEntry.GetItemOrDefault<DateTime>(LogEntry.BasicPropertyNames.Timestamp, default),
             };
 
-            foreach (var item in log.Where(x => x.Key.Tag.Equals(data.Log.DefaultItemTag)))
+            foreach (var item in logEntry.Where(x => x.Key.Tag.Equals(LogEntry.DefaultItemTag)))
             {
                 logEventInfo.Properties.Add(item.Key.Name.ToString(), item.Value);
             }

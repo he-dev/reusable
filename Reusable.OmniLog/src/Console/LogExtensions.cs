@@ -6,24 +6,24 @@ namespace Reusable.OmniLog.Console
 {
     public static class LogExtensions
     {
-        public static Log ConsoleTemplateBuilder(this Log log, ConsoleTemplateBuilder consoleTemplateBuilder)
+        public static LogEntry ConsoleTemplateBuilder(this LogEntry logEntry, ConsoleTemplateBuilder consoleTemplateBuilder)
         {
-            return log.SetItem(Log.PropertyNames.Message, nameof(ConsoleTemplateBuilder), consoleTemplateBuilder);
+            return logEntry.SetItem(LogEntry.BasicPropertyNames.Message, nameof(ConsoleTemplateBuilder), consoleTemplateBuilder);
         }
 
-        public static ConsoleTemplateBuilder ConsoleTemplateBuilder(this Log log)
+        public static ConsoleTemplateBuilder ConsoleTemplateBuilder(this LogEntry logEntry)
         {
-            return log.GetItemOrDefault<ConsoleTemplateBuilder>(Log.PropertyNames.Message, nameof(ConsoleTemplateBuilder));
+            return logEntry.GetItemOrDefault<ConsoleTemplateBuilder>(LogEntry.BasicPropertyNames.Message, nameof(ConsoleTemplateBuilder));
         }
 
-        public static Log ConsoleStyle(this Log log, ConsoleStyle? consoleStyle)
+        public static LogEntry ConsoleStyle(this LogEntry logEntry, ConsoleStyle? consoleStyle)
         {
-            return log.SetItem(Log.PropertyNames.Message, nameof(ConsoleStyle), consoleStyle);
+            return logEntry.SetItem(LogEntry.BasicPropertyNames.Message, nameof(ConsoleStyle), consoleStyle);
         }
 
-        public static ConsoleStyle? ConsoleStyle(this Log log)
+        public static ConsoleStyle? ConsoleStyle(this LogEntry logEntry)
         {
-            return log.GetItemOrDefault(Log.PropertyNames.Message, nameof(ConsoleStyle), default(ConsoleStyle?));
+            return logEntry.GetItemOrDefault(LogEntry.BasicPropertyNames.Message, nameof(ConsoleStyle), default(ConsoleStyle?));
         }
     }
 }

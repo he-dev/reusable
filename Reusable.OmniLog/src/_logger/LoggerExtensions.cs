@@ -14,40 +14,40 @@ namespace Reusable.OmniLog
     {
         #region LogLevels
 
-        public static void Trace(this ILogger logger, string message, AlterLog alter = null)
+        public static void Trace(this ILogger logger, string message, AlterLogEntryCallback alter = null)
         {
              logger.Log(LogLevel.Trace, message, null, alter);
         }
 
-        public static void Debug(this ILogger logger, string message, AlterLog alter = null)
+        public static void Debug(this ILogger logger, string message, AlterLogEntryCallback alter = null)
         {
              logger.Log(LogLevel.Debug, message, null, alter);
         }
 
-        public static void Warning(this ILogger logger, string message, AlterLog alter = null)
+        public static void Warning(this ILogger logger, string message, AlterLogEntryCallback alter = null)
         {
              logger.Log(LogLevel.Warning, message, null, alter);
         }
 
-        public static void Information(this ILogger logger, string message, AlterLog alter = null)
+        public static void Information(this ILogger logger, string message, AlterLogEntryCallback alter = null)
         {
              logger.Log(LogLevel.Information, message, null, alter);
         }
 
-        public static void Error(this ILogger logger, string message, Exception exception = null, AlterLog alter = null)
+        public static void Error(this ILogger logger, string message, Exception exception = null, AlterLogEntryCallback alter = null)
         {
              logger.Log(LogLevel.Error, message, exception, alter);
         }
 
-        public static void Fatal(this ILogger logger, string message, Exception exception = null, AlterLog alter = null)
+        public static void Fatal(this ILogger logger, string message, Exception exception = null, AlterLogEntryCallback alter = null)
         {
              logger.Log(LogLevel.Fatal, message, exception, alter);
         }
         
-        public static void Log(this ILogger logger, AlterLog alter)
+        public static void Log(this ILogger logger, AlterLogEntryCallback alter)
         {
             logger.UseLambda(alter);
-            logger.Log(new Log());
+            logger.Log(new LogEntry());
         }
 
         private static void Log
@@ -56,7 +56,7 @@ namespace Reusable.OmniLog
             [NotNull] LogLevel level,
             [CanBeNull] string message,
             [CanBeNull] Exception exception,
-            [CanBeNull] AlterLog alter
+            [CanBeNull] AlterLogEntryCallback alter
         )
         {
             if (logger == null) throw new ArgumentNullException(nameof(logger));

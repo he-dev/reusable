@@ -27,7 +27,7 @@ namespace Reusable.OmniLog.Middleware
         }
 
 
-        protected override void InvokeCore(Log request)
+        protected override void InvokeCore(LogEntry request)
         {
             request.Serializable("Scope", LoggerScope<Scope>.Current.Value);
             Next?.Invoke(request);

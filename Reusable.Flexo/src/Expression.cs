@@ -175,7 +175,7 @@ namespace Reusable.Flexo
                 return default;
             }
 
-            public void Log(Log log) { }
+            public void Log(LogEntry logEntry) { }
         }
     }
 }

@@ -8,7 +8,7 @@ namespace Reusable.OmniLog.Middleware
     {
         public LoggerForward() : base(true) { }
 
-        protected override void InvokeCore(Log request)
+        protected override void InvokeCore(LogEntry request)
         {
             Next?.Invoke(request);
         }

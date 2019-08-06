@@ -37,19 +37,19 @@ namespace Reusable.OmniLog
         [CanBeNull]
         public ConsoleTemplateBuilder TemplateBuilder { get; set; }
 
-        public void Log(Log log)
+        public void Log(LogEntry logEntry)
         {
-            if ((log.ConsoleTemplateBuilder() ?? TemplateBuilder) is var templateBuilder && templateBuilder is null)
+            if ((logEntry.ConsoleTemplateBuilder() ?? TemplateBuilder) is var templateBuilder && templateBuilder is null)
             {
                 return;
             }
 
-            if (!log.ConsoleStyle().HasValue)
+            if (!logEntry.ConsoleStyle().HasValue)
             {
-                log.ConsoleStyle(Style);
+                logEntry.ConsoleStyle(Style);
             }
 
-            _renderer.Render(templateBuilder.Build(log));
+            _renderer.Render(templateBuilder.Build(logEntry));
             
 //            else
 //            {

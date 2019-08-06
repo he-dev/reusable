@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Reusable.Collections;
 using Reusable.Data;
@@ -11,23 +12,23 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.Abstractions.Data
 {
-    public class Log : IEnumerable<KeyValuePair<ItemKey<SoftString>, object>>
+    public class LogEntry : IEnumerable<KeyValuePair<ItemKey<SoftString>, object>>
     {
         public static readonly string DefaultItemTag = "Property";
 
         private readonly IDictionary<ItemKey<SoftString>, object> _data;
 
-        public Log()
+        public LogEntry()
         {
             _data = new Dictionary<ItemKey<SoftString>, object>();
         }
 
-        private Log(IDictionary<ItemKey<SoftString>, object> data)
+        private LogEntry(IDictionary<ItemKey<SoftString>, object> data)
         {
             _data = new Dictionary<ItemKey<SoftString>, object>(data);
         }
 
-        public static Log Empty() => new Log();
+        public static LogEntry Empty() => new LogEntry();
 
         public object this[ItemKey<SoftString> key]
         {
@@ -47,9 +48,9 @@ namespace Reusable.OmniLog.Abstractions.Data
             set => _data[(name, tag)] = value;
         }
 
-        public Log Clone() => new Log(_data);
+        public LogEntry Clone() => new LogEntry(_data);
 
-        public Log SetItem(SoftString name, SoftString tag, object value)
+        public LogEntry SetItem(SoftString name, SoftString tag, object value)
         {
             this[name, tag ?? DefaultItemTag] = value;
             return this;
@@ -95,14 +96,13 @@ namespace Reusable.OmniLog.Abstractions.Data
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public static class PropertyNames
+        [SuppressMessage("ReSharper", "ConvertToConstant.Global")]
+        public static class BasicPropertyNames
         {
             public static readonly string Logger = nameof(Logger);
-            public static readonly string Category = nameof(Category);
             public static readonly string Level = nameof(Level);
             public static readonly string Message = nameof(Message);
             public static readonly string Exception = nameof(Exception);
-            public static readonly string Elapsed = nameof(Elapsed);
             public static readonly string Timestamp = nameof(Timestamp);
             public static readonly string CallerMemberName = nameof(CallerMemberName);
             public static readonly string CallerLineNumber = nameof(CallerLineNumber);
@@ -117,14 +117,14 @@ namespace Reusable.OmniLog.Abstractions.Data
 
     public static class LogExtensions
     {
-        public static Log SetProperty(this Log log, SoftString name, object value)
+        public static LogEntry SetProperty(this LogEntry logEntry, SoftString name, object value)
         {
-            return log.SetItem(name, default, value);
+            return logEntry.SetItem(name, default, value);
         }
 
-        public static bool TryGetProperty<T>(this Log log, SoftString name, out T value)
+        public static bool TryGetProperty<T>(this LogEntry logEntry, SoftString name, out T value)
         {
-            return log.TryGetItem(name, default, out value);
+            return logEntry.TryGetItem(name, default, out value);
         }
     }
 

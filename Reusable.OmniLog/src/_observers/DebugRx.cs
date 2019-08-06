@@ -9,9 +9,9 @@ namespace Reusable.OmniLog
     {
         private DebugRx() { }
 
-        public void Log(Log log)
+        public void Log(LogEntry logEntry)
         {
-            Debug.WriteLine(log);
+            Debug.WriteLine(logEntry);
         }
 
         public static ILogRx Create()

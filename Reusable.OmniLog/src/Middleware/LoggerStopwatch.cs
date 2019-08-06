@@ -30,7 +30,7 @@ namespace Reusable.OmniLog.Middleware
 
         public Func<TimeSpan, double> GetValue { get; set; } = ts => ts.TotalMilliseconds;
 
-        protected override void InvokeCore(Log request)
+        protected override void InvokeCore(LogEntry request)
         {
             request.SetItem(_propertyName, default, (long)GetValue(LoggerScope<Scope>.Current.Value.Elapsed));
             Next?.Invoke(request);

@@ -21,6 +21,8 @@ namespace Reusable.OmniLog
             private set => State.Value = value;
         }
 
+        public static bool IsEmpty => Current is null;
+
         public static LoggerScope<T> Push(T value)
         {
             return Current = new LoggerScope<T>(value) { Parent = Current };

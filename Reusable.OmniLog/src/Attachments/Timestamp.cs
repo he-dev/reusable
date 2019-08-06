@@ -20,7 +20,7 @@ namespace Reusable.OmniLog.Attachments
             _timestamps = timestamps.GetEnumerator();
         }
 
-        public override object Compute(Log log)
+        public override object Compute(LogEntry logEntry)
         {
             if (_timestamps.MoveNext())
             {

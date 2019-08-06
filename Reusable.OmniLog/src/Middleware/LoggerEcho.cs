@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 
@@ -6,14 +8,13 @@ namespace Reusable.OmniLog.Middleware
 {
     public class LoggerEcho : LoggerMiddleware
     {
-        private readonly IEnumerable<ILogRx> _receivers;
+        public LoggerEcho() : base(true) { }
 
-        public LoggerEcho(IEnumerable<ILogRx> receivers) : base(true)
-        {
-            _receivers = receivers;
-        }
+        public override bool IsActive => Receivers?.Any() == true; 
 
-        protected override void InvokeCore(Log request)
+        public List<ILogRx> Receivers { get; set; } = new List<ILogRx>();
+
+        protected override void InvokeCore(LogEntry request)
         {
             // todo - this isn't probably the best place for it
             //            if (!request.ContainsKey("Level"))
@@ -21,7 +22,7 @@ namespace Reusable.OmniLog.Middleware
             //                request.SetItem("Level", LogLevel.Information);
             //            }
 
-            foreach (var rx in _receivers)
+            foreach (var rx in Receivers)
             {
                 rx.Log(request);
             }

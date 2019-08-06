@@ -12,7 +12,7 @@ namespace Reusable.OmniLog.Abstractions
         SoftString Name { get; }
 
         [CanBeNull]
-        object Compute([NotNull] Log log);
+        object Compute([NotNull] LogEntry logEntry);
     }
     
     public abstract class LogAttachment : ILogAttachment
@@ -31,7 +31,7 @@ namespace Reusable.OmniLog.Abstractions
 
         public SoftString Name { get; }
 
-        public abstract object Compute(Log log);
+        public abstract object Compute(LogEntry logEntry);
 
         #region IEquatable
 

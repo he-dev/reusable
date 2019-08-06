@@ -8,13 +8,13 @@ using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Console
 {
-    public delegate HtmlElement BuildConsoleTemplateFunc(HtmlElement builder, Log log);
+    public delegate HtmlElement BuildConsoleTemplateFunc(HtmlElement builder, LogEntry logEntry);
     
     public abstract class ConsoleTemplateBuilder
     {
         public static readonly string LogItemTag = nameof(ConsoleTemplateBuilder);
         
-        public abstract HtmlElement Build(Log log);
+        public abstract HtmlElement Build(LogEntry logEntry);
 
         public virtual BuildConsoleTemplateFunc Build() => default;
 
@@ -27,10 +27,10 @@ namespace Reusable.OmniLog.Console
 
         public IEnumerable<ConsoleTemplateBuilder> Builders { get; set; }
 
-        public override HtmlElement Build(Log log)
+        public override HtmlElement Build(LogEntry logEntry)
         {
-            var elements = Builders.Select(b => b.Build(log));
-            var style = log.ConsoleStyle() ?? throw new InvalidOperationException($"You need to set {nameof(ConsoleStyle)} first.");
+            var elements = Builders.Select(b => b.Build(logEntry));
+            var style = logEntry.ConsoleStyle() ?? throw new InvalidOperationException($"You need to set {nameof(ConsoleStyle)} first.");
             return
                 IsParagraph
                     ? HtmlElement.Builder.p(x => x.Append(elements).ConsoleStyle(style))

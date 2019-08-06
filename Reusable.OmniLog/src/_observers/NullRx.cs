@@ -5,6 +5,6 @@ namespace Reusable.OmniLog
 {
     public class NullRx : ILogRx
     {
-        public void Log(Log log) { }
+        public void Log(LogEntry logEntry) { }
     }
 }

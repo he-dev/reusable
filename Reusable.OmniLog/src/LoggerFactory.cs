@@ -19,23 +19,20 @@ namespace Reusable.OmniLog
             _loggers = new ConcurrentDictionary<SoftString, ILogger>();
         }
 
-        public List<ILogRx> Receivers { get; set; } = new List<ILogRx>();
-
         public List<LoggerMiddleware> Middleware { get; set; } = new List<LoggerMiddleware>();
 
-
-//        public List<Type> MiddlewareOrder { get; set; } = new List<Type>
-//        {
-//            typeof(v2.Middleware.LoggerProperty),
-//            typeof(v2.Middleware.LoggerStopwatch),
-//            typeof(v2.Middleware.LoggerAttachment),
-//            typeof(v2.Middleware.LoggerLambda),
-//            typeof(v2.Middleware.LoggerCorrelation),
-//            typeof(v2.Middleware.LoggerSerializer),
-//            typeof(v2.Middleware.LoggerFilter),
-//            typeof(v2.Middleware.LoggerTransaction),
-//            typeof(v2.Middleware.LoggerEcho),
-//        };
+        //        public List<Type> MiddlewareOrder { get; set; } = new List<Type>
+        //        {
+        //            typeof(v2.Middleware.LoggerProperty),
+        //            typeof(v2.Middleware.LoggerStopwatch),
+        //            typeof(v2.Middleware.LoggerAttachment),
+        //            typeof(v2.Middleware.LoggerLambda),
+        //            typeof(v2.Middleware.LoggerCorrelation),
+        //            typeof(v2.Middleware.LoggerSerializer),
+        //            typeof(v2.Middleware.LoggerFilter),
+        //            typeof(v2.Middleware.LoggerTransaction),
+        //            typeof(v2.Middleware.LoggerEcho),
+        //        };
 
         #region ILoggerFactory
 
@@ -51,10 +48,8 @@ namespace Reusable.OmniLog
                 var middleware = (LoggerMiddleware)new LoggerProperty(("Logger", n.ToString()));
                 foreach (var current in Middleware)
                 {
-                   middleware = middleware.InsertNext(current);
+                    middleware = middleware.InsertNext(current);
                 }
-
-                middleware = middleware.InsertNext(new LoggerEcho(Receivers));
 
                 return new Logger(middleware.First(), default);
             });
@@ -64,9 +59,9 @@ namespace Reusable.OmniLog
 
         #endregion
 
-        private static Func<Log, bool> Any => l => l.Any();
+        private static Func<LogEntry, bool> Any => l => l.Any();
     }
-    
+
     public static class LoggerFactoryExtensions
     {
         [NotNull]
@@ -76,14 +71,14 @@ namespace Reusable.OmniLog
 
             return new Logger<T>(loggerFactory);
         }
-        
+
         public static LoggerFactory Use<T>(this LoggerFactory loggerFactory, T middleware) where T : LoggerMiddleware
         {
             //var current = default(LoggerMiddleware);
             loggerFactory.Middleware.Add(middleware);
             return loggerFactory;
         }
-        
+
         public static LoggerFactory Use<T>(this LoggerFactory loggerFactory) where T : LoggerMiddleware, new()
         {
             return loggerFactory.Use(new T());
