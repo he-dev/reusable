@@ -32,10 +32,11 @@ namespace Reusable.Apps.Examples.OmniLog
             {
                 Nodes =
                 {
-                    new ConstantNode // Adds constant values to each log-entry
+                    // Adds constant values to each log-entry.
+                    new ConstantNode
                     {
                         { "Environment", "Demo" },
-                        { "Product", "Reusable.Apps.Console" }
+                        { "Product", "Reusable.app.Console" }
                     },
                     // When activated by using(logger.UseStopwatch()) {}, adds Elapsed to each logEntry
                     new StopwatchNode
