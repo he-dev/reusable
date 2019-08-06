@@ -9,26 +9,24 @@ namespace Reusable.OmniLog
 {
     public class Logger : ILogger
     {
-        private readonly LoggerMiddleware _middleware;
-        private readonly IDictionary<Type, int> _middlewarePositions;
+        private readonly LoggerNode _node;
 
-        public Logger(LoggerMiddleware middleware, IDictionary<Type, int> middlewarePositions)
+        public Logger(LoggerNode node)
         {
             // Always start with the first middleware.
-            _middleware = middleware;
-            _middlewarePositions = middlewarePositions;
+            _node = node;
         }
 
-        public LoggerMiddleware Middleware => _middleware;
+        public LoggerNode Node => _node;
 
-        public T Use<T>(T next) where T : LoggerMiddleware
-        {
-            return (T)_middleware.InsertRelative(next, _middlewarePositions);
-        }
+//        public T Use<T>(T next) where T : LoggerNode
+//        {
+//            return (T)_node.InsertRelative(next, _middlewarePositions);
+//        }
 
         public void Log(LogEntry logEntry)
         {
-            _middleware.Invoke(logEntry);
+            _node.Invoke(logEntry);
         }
     }
 
@@ -41,12 +39,12 @@ namespace Reusable.OmniLog
             _logger = loggerFactory.CreateLogger(typeof(T).ToPrettyString());
         }
 
-        public LoggerMiddleware Middleware => _logger.Middleware;
+        public LoggerNode Node => _logger.Node;
         
-        public T1 Use<T1>(T1 next) where T1 : LoggerMiddleware
-        {
-            return _logger.Use(next);
-        }
+//        public T1 Use<T1>(T1 next) where T1 : LoggerNode
+//        {
+//            return _logger.Use(next);
+//        }
 
         public void Log(LogEntry logEntry)
         {

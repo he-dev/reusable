@@ -5,8 +5,8 @@ using JetBrains.Annotations;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Extensions;
-using Reusable.OmniLog.Middleware;
-using Reusable.OmniLog.SemanticExtensions.Middleware;
+using Reusable.OmniLog.Nodes;
+using Reusable.OmniLog.SemanticExtensions.Nodes;
 
 // ReSharper disable ExplicitCallerInfoArgument - yes, we want to explicitly set it via overloads.
 
@@ -30,7 +30,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             logger.Log(log =>
             {
-                log.SetItem(LoggerAbstraction.LogPropertyName, LogEntry.ItemTags.Metadata, context);
+                log.SetItem(SemanticNode.LogPropertyName, LogEntry.ItemTags.Metadata, context);
                 log.SetItem(LogEntry.BasicPropertyNames.CallerMemberName, default, callerMemberName);
                 log.SetItem(LogEntry.BasicPropertyNames.CallerLineNumber, default, callerLineNumber);
                 log.SetItem(LogEntry.BasicPropertyNames.CallerFilePath, default, Path.GetFileName(callerFilePath));

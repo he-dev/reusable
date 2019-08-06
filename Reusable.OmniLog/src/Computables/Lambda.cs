@@ -3,9 +3,9 @@ using JetBrains.Annotations;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 
-namespace Reusable.OmniLog.Attachments
+namespace Reusable.OmniLog.Computables
 {
-    public class Lambda : LogAttachment
+    public class Lambda : Computable
     {
         private readonly Func<LogEntry, object> _compute;
 

@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Middleware;
+using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.SemanticExtensions;
 
 namespace Reusable.Commander

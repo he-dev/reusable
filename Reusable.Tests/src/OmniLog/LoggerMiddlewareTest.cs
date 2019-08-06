@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Reusable.OmniLog.Extensions;
-using Reusable.OmniLog.Middleware;
+using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Rx;
 //using Reusable.OmniLog.Attachments;
 using Reusable.OmniLog.SemanticExtensions;
-using Reusable.OmniLog.SemanticExtensions.Middleware;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
@@ -21,16 +20,16 @@ namespace Reusable.OmniLog.v2
             var rx = new MemoryRx();
             using (var lf = new LoggerFactory
             {
-                Middleware =
+                Nodes =
                 {
-                    new LoggerStopwatch(),
-                    new LoggerAttachment(),
-                    new LoggerLambda(),
-                    new LoggerCorrelation(),
-                    new LoggerSerialization(),
+                    new StopwatchNode(),
+                    new ComputableNode(),
+                    new LambdaNode(),
+                    new CorrelationNode(),
+                    new SerializationNode(),
                     //new LoggerFilter()
-                    new LoggerTransaction(),
-                    new LoggerEcho
+                    new TransactionNode(),
+                    new EchoNode
                     {
                         Rx = { rx },
                     }
@@ -52,16 +51,16 @@ namespace Reusable.OmniLog.v2
             var rx = new MemoryRx();
             var lf = new LoggerFactory
             {
-                Middleware =
+                Nodes =
                 {
-                    new LoggerStopwatch(),
-                    new LoggerAttachment(),
-                    new LoggerLambda(),
-                    new LoggerCorrelation(),
-                    new LoggerSerialization(),
+                    new StopwatchNode(),
+                    new ComputableNode(),
+                    new LambdaNode(),
+                    new CorrelationNode(),
+                    new SerializationNode(),
                     //new LoggerFilter()
-                    new LoggerTransaction(),
-                    new LoggerEcho
+                    new TransactionNode(),
+                    new EchoNode
                     {
                         Rx = { rx },
                     }
@@ -75,14 +74,14 @@ namespace Reusable.OmniLog.v2
                 {
                     logger.Log(l => l.Message("Hallo!"));
                     Assert.Same(outerCorrelationId, scope1.CorrelationId);
-                    Assert.NotNull(rx[0][LoggerCorrelation.DefaultPropertyName]);
+                    Assert.NotNull(rx[0][CorrelationNode.DefaultPropertyName]);
 
                     var innerCorrelationId = "test-id-2";
                     using (var scope2 = logger.UseScope(innerCorrelationId))
                     {
                         logger.Log(l => l.Message("Hi!"));
                         Assert.Same(innerCorrelationId, scope2.CorrelationId);
-                        Assert.NotNull(rx[1][LoggerCorrelation.DefaultPropertyName]);
+                        Assert.NotNull(rx[1][CorrelationNode.DefaultPropertyName]);
                     }
                 }
 
@@ -98,17 +97,17 @@ namespace Reusable.OmniLog.v2
             var rx = new MemoryRx();
             var lf = new LoggerFactory
             {
-                Middleware =
+                Nodes =
                 {
-                    new LoggerStopwatch(),
-                    new LoggerAttachment(),
-                    new LoggerLambda(),
-                    new LoggerCorrelation(),
-                    new LoggerDump(),
-                    new LoggerSerialization(),
+                    new StopwatchNode(),
+                    new ComputableNode(),
+                    new LambdaNode(),
+                    new CorrelationNode(),
+                    new DumpNode(),
+                    new SerializationNode(),
                     //new LoggerFilter()
-                    new LoggerTransaction(),
-                    new LoggerEcho
+                    new TransactionNode(),
+                    new EchoNode
                     {
                         Rx = { rx },
                     }
@@ -123,7 +122,7 @@ namespace Reusable.OmniLog.v2
             Assert.Equal(1, rx.Count());
             Assert.Equal("Hallo!", rx.First()["Message"]);
             Assert.Equal("Greeting", rx.First()["Variable"]);
-            Assert.Equal("Hi!", rx.First()["Dump", LoggerSerialization.LogItemTag]);
+            Assert.Equal("Hi!", rx.First()["Dump", SerializationNode.LogItemTag]);
             //Assert.Equal("{\"Greeting\":\"Hi!\"}", rx.First()["Snapshot"]);
         }
 
@@ -135,14 +134,14 @@ namespace Reusable.OmniLog.v2
             var rx = new MemoryRx();
             var lf = new LoggerFactory
             {
-                Middleware =
+                Nodes =
                 {
-                    new LoggerAttachment
+                    new ComputableNode
                     {
-                        new Reusable.OmniLog.Attachments.Timestamp(new[] { timestamp })
+                        new Reusable.OmniLog.Computables.Timestamp(new[] { timestamp })
                     },
-                    new LoggerLambda(),
-                    new LoggerEcho
+                    new LambdaNode(),
+                    new EchoNode
                     {
                         Rx = { rx },
                     }
@@ -167,14 +166,14 @@ namespace Reusable.OmniLog.v2
             var rx = new MemoryRx();
             var lf = new LoggerFactory
             {
-                Middleware =
+                Nodes =
                 {
-                    new LoggerAttachment
+                    new ComputableNode
                     {
-                        new Reusable.OmniLog.Attachments.Timestamp(new[] { timestamp })
+                        new Reusable.OmniLog.Computables.Timestamp(new[] { timestamp })
                     },
-                    new LoggerLambda(),
-                    new LoggerDump(),
+                    new LambdaNode(),
+                    new DumpNode(),
                     // new LoggerForward
                     // {
                     //     Routes =
@@ -183,7 +182,7 @@ namespace Reusable.OmniLog.v2
                     //         ["Dump"] = "Snapshot"
                     //     }
                     // },
-                    new LoggerEcho
+                    new EchoNode
                     {
                         Rx = { rx },
                     }
@@ -197,9 +196,9 @@ namespace Reusable.OmniLog.v2
 
             Assert.Equal(2, rx.Count());
             Assert.Equal("FirstName", rx[0]["Variable"]);
-            Assert.Equal("John", rx[0]["Dump", LoggerSerialization.LogItemTag]);
+            Assert.Equal("John", rx[0]["Dump", SerializationNode.LogItemTag]);
             Assert.Equal("LastName", rx[1]["Variable"]);
-            Assert.Equal("Doe", rx[1]["Dump", LoggerSerialization.LogItemTag]);
+            Assert.Equal("Doe", rx[1]["Dump", SerializationNode.LogItemTag]);
             //Assert.Equal(timestamp, rx.First()["Timestamp"]);
         }
 
@@ -211,18 +210,18 @@ namespace Reusable.OmniLog.v2
             var rx = new MemoryRx();
             var lf = new LoggerFactory
             {
-                Middleware =
+                Nodes =
                 {
-                    new LoggerAttachment
+                    new ComputableNode
                     {
-                        new Reusable.OmniLog.Attachments.Timestamp(new[] { timestamp })
+                        new Reusable.OmniLog.Computables.Timestamp(new[] { timestamp })
                     },
-                    new LoggerLambda(),
-                    new LoggerDump
+                    new LambdaNode(),
+                    new DumpNode
                     {
-                        LoggerDump.Mapping.Map<Person>(p => new { FullName = p.LastName + ", " + p.FirstName })
+                        DumpNode.Mapping.Map<Person>(p => new { FullName = p.LastName + ", " + p.FirstName })
                     },
-                    new LoggerEcho
+                    new EchoNode
                     {
                         Rx = { rx },
                     }

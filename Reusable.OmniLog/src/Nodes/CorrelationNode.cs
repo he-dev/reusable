@@ -4,13 +4,13 @@ using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Extensions;
 
-namespace Reusable.OmniLog.Middleware
+namespace Reusable.OmniLog.Nodes
 {
-    public class LoggerCorrelation : LoggerMiddleware, ILoggerScope<LoggerCorrelation.Scope, (object CorrelationId, object CorrelationHandle)>
+    public class CorrelationNode : LoggerNode, ILoggerScope<CorrelationNode.Scope, (object CorrelationId, object CorrelationHandle)>
     {
         public static readonly string DefaultPropertyName = "Correlation";
         
-        public LoggerCorrelation() : base(false) { }
+        public CorrelationNode() : base(false) { }
 
         /// <summary>
         /// Gets or sets the factory for the default correlation-id. By default it's a Guid.
@@ -49,13 +49,13 @@ namespace Reusable.OmniLog.Middleware
     
     public static class LoggerCorrelationHelper
     {
-        public static LoggerCorrelation.Scope UseScope(this ILogger logger, object correlationId = default, object correlationHandle = default)
+        public static CorrelationNode.Scope UseScope(this ILogger logger, object correlationId = default, object correlationHandle = default)
         {
             return
                 logger
-                    .Middleware
+                    .Node
                     .Enumerate(m => m.Next)
-                    .OfType<LoggerCorrelation>()
+                    .OfType<CorrelationNode>()
                     .Single()
                     .Push((correlationId, correlationHandle));
         }

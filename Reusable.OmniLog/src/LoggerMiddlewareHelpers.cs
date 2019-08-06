@@ -2,19 +2,19 @@ using System.Linq;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Extensions;
-using Reusable.OmniLog.Middleware;
+using Reusable.OmniLog.Nodes;
 
 namespace Reusable.OmniLog
 {
     public static class LoggerStopwatchHelper
     {
-        public static LoggerStopwatch.Scope UseStopwatch(this ILogger logger)
+        public static StopwatchNode.Scope UseStopwatch(this ILogger logger)
         {
             return
                 logger
-                    .Middleware
+                    .Node
                     .Enumerate(m => m.Next)
-                    .OfType<LoggerStopwatch>()
+                    .OfType<StopwatchNode>()
                     .Single()
                     .Push(default);
         }
@@ -24,19 +24,19 @@ namespace Reusable.OmniLog
     {
         public static void UseLambda(this ILogger logger, AlterLogEntryCallback alter)
         {
-            LoggerLambda.Push(new LoggerLambda.Item { AlterLogEntry = alter });
+            LambdaNode.Push(new LambdaNode.Item { AlterLogEntry = alter });
         }
     }
 
     public static class LoggerTransactionHelper
     {
-        public static Middleware.LoggerTransaction.Scope UseTransaction(this ILogger logger)
+        public static TransactionNode.Scope UseTransaction(this ILogger logger)
         {
             return
                 logger
-                    .Middleware
+                    .Node
                     .Enumerate(m => m.Next)
-                    .OfType<LoggerTransaction>()
+                    .OfType<TransactionNode>()
                     .Single()
                     .Push(default);
             //return logger.Use(new Middleware.LoggerTransaction());

@@ -1,14 +1,13 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 
-namespace Reusable.OmniLog.Middleware
+namespace Reusable.OmniLog.Nodes
 {
-    public class LoggerEcho : LoggerMiddleware
+    public class EchoNode : LoggerNode
     {
-        public LoggerEcho() : base(true) { }
+        public EchoNode() : base(true) { }
 
         public override bool IsActive => Rx?.Any() == true; 
 

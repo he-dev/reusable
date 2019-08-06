@@ -1,16 +1,15 @@
 using System.Collections.Generic;
-using System.Linq;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Extensions;
 
-namespace Reusable.OmniLog.SemanticExtensions.Middleware
+namespace Reusable.OmniLog.SemanticExtensions.Nodes
 {
-    public class LoggerAbstraction : LoggerMiddleware
+    public class SemanticNode : LoggerNode
     {
         public static readonly string LogPropertyName = nameof(Abstraction);
 
-        public LoggerAbstraction() : base(true) { }
+        public SemanticNode() : base(true) { }
 
         //public override bool IsActive => base.IsActive && !(Next is null);
 

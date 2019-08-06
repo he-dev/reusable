@@ -5,8 +5,7 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Extensions;
-using Reusable.OmniLog.Middleware;
-using Reusable.OmniLog.SemanticExtensions.Middleware;
+using Reusable.OmniLog.Nodes;
 
 namespace Reusable.OmniLog.SemanticExtensions
 {
@@ -56,7 +55,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// </summary>
         public static IAbstractionBuilder<IAbstractionCategory> Variable(this IAbstractionBuilder<IAbstractionLayer> layer, object snapshot)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Variable), LoggerDump.LogItemTag, snapshot));
+            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Variable), DumpNode.LogItemTag, snapshot));
         }
 
         /// <summary>
@@ -64,7 +63,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// </summary>
         public static IAbstractionBuilder<IAbstractionCategory> Property(this IAbstractionBuilder<IAbstractionLayer> layer, object snapshot)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Property), LoggerDump.LogItemTag, snapshot));
+            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Property), DumpNode.LogItemTag, snapshot));
         }
 
         /// <summary>
@@ -72,7 +71,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// </summary>
         public static IAbstractionBuilder<IAbstractionCategory> Argument(this IAbstractionBuilder<IAbstractionLayer> layer, object snapshot)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Argument), LoggerDump.LogItemTag, snapshot));
+            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Argument), DumpNode.LogItemTag, snapshot));
         }
 
         /// <summary>
@@ -80,7 +79,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// </summary>
         public static IAbstractionBuilder<IAbstractionCategory> Meta(this IAbstractionBuilder<IAbstractionLayer> layer, object snapshot)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Meta), LoggerDump.LogItemTag, snapshot));
+            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Meta), DumpNode.LogItemTag, snapshot));
         }
 
         /// <summary>
@@ -88,7 +87,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// </summary>
         public static IAbstractionBuilder<IAbstractionCategory> Counter(this IAbstractionBuilder<IAbstractionLayer> layer, object snapshot)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Counter), LoggerDump.LogItemTag, snapshot));
+            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Counter), DumpNode.LogItemTag, snapshot));
         }
 
         /// <summary>
@@ -96,12 +95,12 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// </summary>
         public static IAbstractionBuilder<IAbstractionCategory> Routine(this IAbstractionBuilder<IAbstractionLayer> layer, string identifier)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Routine), LoggerDump.LogItemTag, identifier));
+            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Routine), DumpNode.LogItemTag, identifier));
         }
 
         public static IAbstractionBuilder<IAbstractionCategory> Decision(this IAbstractionBuilder<IAbstractionLayer> layer, string description)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Decision), LoggerDump.LogItemTag, description));
+            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Decision), DumpNode.LogItemTag, description));
         }
     }
 
@@ -124,7 +123,7 @@ namespace Reusable.OmniLog.SemanticExtensions
     public static class AbstractionCategoryExtensions
     {
         private static readonly string Category = nameof(AbstractionCategories.Routine);
-        private static readonly string Tag = LoggerDump.LogItemTag;
+        private static readonly string Tag = DumpNode.LogItemTag;
 
         public static IAbstractionBuilder<IAbstractionCategory> Running(this IAbstractionBuilder<IAbstractionCategory> category)
         {

@@ -14,7 +14,7 @@ using Reusable.IOnymous.Mail.Smtp;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Attachments;
+using Reusable.OmniLog.Computables;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.OneTo1;
 using Reusable.OneTo1.Converters;

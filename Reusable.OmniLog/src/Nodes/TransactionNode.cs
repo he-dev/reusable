@@ -1,17 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 
-namespace Reusable.OmniLog.Middleware
+namespace Reusable.OmniLog.Nodes
 {
-    public class LoggerTransaction : LoggerMiddleware, ILoggerScope<LoggerTransaction.Scope, object>
+    public class TransactionNode : LoggerNode, ILoggerScope<TransactionNode.Scope, object>
     {
         private readonly Queue<LogEntry> _buffer = new Queue<LogEntry>();
 
-        public LoggerTransaction() : base(false) { }
+        public TransactionNode() : base(false) { }
 
         public override bool IsActive => !(LoggerScope<Scope>.Current is null);
 
@@ -30,7 +29,7 @@ namespace Reusable.OmniLog.Middleware
         {
             private readonly Queue<LogEntry> _buffer = new Queue<LogEntry>();
 
-            internal LoggerMiddleware Next { get; set; }
+            internal LoggerNode Next { get; set; }
 
             public void Commit()
             {

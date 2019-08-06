@@ -5,9 +5,9 @@ using Reusable.OmniLog.v2;
 
 namespace Reusable.OmniLog.Abstractions
 {
-    public abstract class LoggerMiddleware : ILinkedListNode<LoggerMiddleware>, IDisposable
+    public abstract class LoggerNode : ILinkedListNode<LoggerNode>, IDisposable
     {
-        public LoggerMiddleware(bool isActive)
+        public LoggerNode(bool isActive)
         {
             IsActive = isActive;
         }
@@ -17,23 +17,23 @@ namespace Reusable.OmniLog.Abstractions
         #region ILinkeListNode
 
         [JsonIgnore]
-        public LoggerMiddleware Previous { get; private set; }
+        public LoggerNode Previous { get; private set; }
 
         [JsonIgnore]
-        public LoggerMiddleware Next { get; private set; }
+        public LoggerNode Next { get; private set; }
 
         #endregion
 
         // Inserts a new middleware after this one and returns the new one.
-        public LoggerMiddleware InsertNext(LoggerMiddleware next)
+        public LoggerNode InsertNext(LoggerNode next)
         {
             (next.Previous, next.Next, Next) = (this, Next, next);
             return next;
         }
 
-        public LoggerMiddleware Remove()
+        public LoggerNode Remove()
         {
-            var result = default(LoggerMiddleware);
+            var result = default(LoggerNode);
 
             if (!(Previous is null))
             {

@@ -168,9 +168,9 @@ namespace Reusable.Flexo
         {
             public static LoggerDummy Instance { get; } = new LoggerDummy();
             
-            public LoggerMiddleware Middleware { get; }
+            public LoggerNode Node { get; }
 
-            public T Use<T>(T next) where T : LoggerMiddleware
+            public T Use<T>(T next) where T : LoggerNode
             {
                 return default;
             }

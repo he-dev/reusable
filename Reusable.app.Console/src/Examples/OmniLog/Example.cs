@@ -7,14 +7,14 @@ using Reusable.Diagnostics;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Extensions;
-using Reusable.OmniLog.Middleware;
+using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Rx;
 using Reusable.OmniLog.SemanticExtensions;
-using Reusable.OmniLog.SemanticExtensions.Middleware;
+using Reusable.OmniLog.SemanticExtensions.Nodes;
 //using Reusable.OmniLog.Attachments;
 using Reusable.Utilities.NLog.LayoutRenderers;
 
-namespace Reusable.Apps.Examples.OmniLog.v2
+namespace Reusable.Apps.Examples.OmniLog
 {
     using Reusable.OmniLog.v2;
 
@@ -32,26 +32,26 @@ namespace Reusable.Apps.Examples.OmniLog.v2
 
             var loggerFactory = new LoggerFactory
             {
-                Middleware =
+                Nodes =
                 {
-                    new LoggerProperty
-                    (
-                        ("Environment", "Demo"),
-                        ("Product", "Reusable.Apps.Console")
-                    ),
-                    new LoggerStopwatch(),
-                    new LoggerAttachment
+                    new ConstantNode
                     {
-                        new Reusable.OmniLog.Attachments.Timestamp<DateTimeUtc>()
+                        { "Environment", "Demo" },
+                        { "Product", "Reusable.Apps.Console" }
                     },
-                    new LoggerLambda(),
-                    new LoggerCorrelation(),
-                    new LoggerDump(),
-                    new LoggerSerialization(),
-                    new LoggerAbstraction(),
+                    new StopwatchNode(),
+                    new ComputableNode
+                    {
+                        new Reusable.OmniLog.Computables.Timestamp<DateTimeUtc>()
+                    },
+                    new LambdaNode(),
+                    new CorrelationNode(),
+                    new DumpNode(),
+                    new SerializationNode(),
+                    new SemanticNode(),
                     //new LoggerFilter()
-                    new LoggerTransaction(),
-                    new LoggerEcho
+                    new TransactionNode(),
+                    new EchoNode
                     {
                         Rx =
                         {

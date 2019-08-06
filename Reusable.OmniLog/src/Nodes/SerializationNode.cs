@@ -1,13 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Utilities;
 
-namespace Reusable.OmniLog.Middleware
+namespace Reusable.OmniLog.Nodes
 {
-    public class LoggerSerialization : LoggerMiddleware
+    public class SerializationNode : LoggerNode
     {
         public static readonly string LogItemTag = "Serializable";
         
@@ -15,12 +14,12 @@ namespace Reusable.OmniLog.Middleware
 
         private readonly ISerializer _serializer;
 
-        public LoggerSerialization(ISerializer serializer) : base(true)
+        public SerializationNode(ISerializer serializer) : base(true)
         {
             _serializer = serializer;
         }
 
-        public LoggerSerialization() : this(new JsonSerializer()) { }
+        public SerializationNode() : this(new JsonSerializer()) { }
 
         /// <summary>
         /// Gets or sets serializable properties. If empty then all keys are scanned.
@@ -54,7 +53,7 @@ namespace Reusable.OmniLog.Middleware
     {
         public static LogEntry Serializable(this LogEntry logEntry, string propertyName, object obj)
         {
-            return logEntry.SetItem(propertyName, LoggerSerialization.LogItemTag, obj);
+            return logEntry.SetItem(propertyName, SerializationNode.LogItemTag, obj);
         }
     }
 }

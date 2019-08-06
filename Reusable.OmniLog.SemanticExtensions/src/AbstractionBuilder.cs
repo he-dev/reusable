@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions.Data;
-using Reusable.OmniLog.Middleware;
+using Reusable.OmniLog.Nodes;
 
 namespace Reusable.OmniLog.SemanticExtensions
 {

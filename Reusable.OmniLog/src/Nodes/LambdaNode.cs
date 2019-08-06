@@ -2,14 +2,12 @@ using System;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 
-namespace Reusable.OmniLog.Middleware
+namespace Reusable.OmniLog.Nodes
 {
-    public delegate void AlterLogEntryCallback(LogEntry logEntry);
-    
-    public class LoggerLambda : LoggerMiddleware
+    public class LambdaNode : LoggerNode
     {
-        public LoggerLambda() : base(false) { }
-        
+        public LambdaNode() : base(false) { }
+
         public override bool IsActive => !LoggerScope<Item>.IsEmpty;
 
         public static void Push(Item item) => LoggerScope<Item>.Push(item);
@@ -34,4 +32,6 @@ namespace Reusable.OmniLog.Middleware
             public void Dispose() => LoggerScope<Item>.Current.Dispose();
         }
     }
+
+    public delegate void AlterLogEntryCallback(LogEntry logEntry);
 }

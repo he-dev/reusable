@@ -1,14 +1,13 @@
-using System.Collections;
 using System.Collections.Generic;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 
-namespace Reusable.OmniLog.Middleware
+namespace Reusable.OmniLog.Nodes
 {
     // Reroutes items from one property to the other: Meta#Dump --> Snapshot#Dump 
-    public class LoggerForward : LoggerMiddleware
+    public class RouteNode : LoggerNode
     {
-        public LoggerForward() : base(true) { }
+        public RouteNode() : base(true) { }
 
         public IDictionary<string, string> Routes { get; set; } = new Dictionary<string, string>();
 

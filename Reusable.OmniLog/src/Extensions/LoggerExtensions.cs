@@ -2,7 +2,7 @@
 using JetBrains.Annotations;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
-using Reusable.OmniLog.Middleware;
+using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Rx.ConsoleRenderers;
 using Reusable.OmniLog.Utilities;
 

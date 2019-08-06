@@ -3,16 +3,16 @@ using System.Diagnostics;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 
-namespace Reusable.OmniLog.Middleware
+namespace Reusable.OmniLog.Nodes
 {
     /// <summary>
     /// Adds 'Elapsed' milliseconds to the log.
     /// </summary>
-    public class LoggerStopwatch : LoggerMiddleware, ILoggerScope<LoggerStopwatch.Scope, object>
+    public class StopwatchNode : LoggerNode, ILoggerScope<StopwatchNode.Scope, object>
     {
         private readonly string _propertyName;
 
-        public LoggerStopwatch(string propertyName = nameof(Stopwatch.Elapsed)) : base(false)
+        public StopwatchNode(string propertyName = nameof(Stopwatch.Elapsed)) : base(false)
         {
             _propertyName = propertyName;
         }

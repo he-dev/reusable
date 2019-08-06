@@ -2,13 +2,13 @@ using System;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 
-namespace Reusable.OmniLog.Middleware
+namespace Reusable.OmniLog.Nodes
 {
-    public class LoggerFilter : LoggerMiddleware
+    public class FilterNode : LoggerNode
     {
         private readonly Func<LogEntry, bool> _canLog;
 
-        public LoggerFilter(Func<LogEntry, bool> canLog) : base(true)
+        public FilterNode(Func<LogEntry, bool> canLog) : base(true)
         {
             _canLog = canLog;
         }

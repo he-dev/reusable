@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Extensions;
-using Reusable.OmniLog.Middleware;
+using Reusable.OmniLog.Nodes;
 
 namespace Reusable.OmniLog
 {
@@ -19,7 +19,7 @@ namespace Reusable.OmniLog
             _loggers = new ConcurrentDictionary<SoftString, ILogger>();
         }
 
-        public List<LoggerMiddleware> Middleware { get; set; } = new List<LoggerMiddleware>();
+        public List<LoggerNode> Nodes { get; set; } = new List<LoggerNode>();
 
         //        public List<Type> MiddlewareOrder { get; set; } = new List<Type>
         //        {
@@ -40,26 +40,17 @@ namespace Reusable.OmniLog
         {
             if (name == null) throw new ArgumentNullException(nameof(name));
 
-            return _loggers.GetOrAdd(name, n =>
-            {
-                // todo - hardcoded property name
-                //var positions = MiddlewareOrder.Select((m, i) => (m, i)).ToDictionary(t => t.m, t => t.i);
-                //var baseMiddleware = new LoggerProperty((LogPropertyNames.Logger.ToString(), n.ToString())).InsertNext(new LoggerEcho(Receivers));
-                var middleware = (LoggerMiddleware)new LoggerProperty(("Logger", n.ToString()));
-                foreach (var current in Middleware)
-                {
-                    middleware = middleware.InsertNext(current);
-                }
+            return _loggers.GetOrAdd(name, n => new Logger(CreatePipeline(n.ToString())));
+        }
 
-                return new Logger(middleware.First(), default);
-            });
+        private LoggerNode CreatePipeline(string logger)
+        {
+            return Nodes.Aggregate<LoggerNode, LoggerNode>(new ConstantNode { { "Logger", logger } }, (current, next) => current.InsertNext(next)).First();
         }
 
         public void Dispose() { }
 
         #endregion
-
-        private static Func<LogEntry, bool> Any => l => l.Any();
     }
 
     public static class LoggerFactoryExtensions
@@ -72,16 +63,16 @@ namespace Reusable.OmniLog
             return new Logger<T>(loggerFactory);
         }
 
-        public static LoggerFactory Use<T>(this LoggerFactory loggerFactory, T middleware) where T : LoggerMiddleware
-        {
-            //var current = default(LoggerMiddleware);
-            loggerFactory.Middleware.Add(middleware);
-            return loggerFactory;
-        }
-
-        public static LoggerFactory Use<T>(this LoggerFactory loggerFactory) where T : LoggerMiddleware, new()
-        {
-            return loggerFactory.Use(new T());
-        }
+//        public static LoggerFactory Use<T>(this LoggerFactory loggerFactory, T middleware) where T : LoggerNode
+//        {
+//            //var current = default(LoggerMiddleware);
+//            loggerFactory.Nodes.Add(middleware);
+//            return loggerFactory;
+//        }
+//
+//        public static LoggerFactory Use<T>(this LoggerFactory loggerFactory) where T : LoggerNode, new()
+//        {
+//            return loggerFactory.Use(new T());
+//        }
     }
 }

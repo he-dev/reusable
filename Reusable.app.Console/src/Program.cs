@@ -31,7 +31,7 @@ namespace Reusable.Apps
             //Demo.SemanticExtensions();
             
             
-            Examples.OmniLog.v2.Example.Run();
+            Examples.OmniLog.Example.Run();
             
             
             

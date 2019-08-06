@@ -6,7 +6,7 @@ using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Abstractions
 {
-    public interface ILogAttachment : IEquatable<ILogAttachment>
+    public interface IComputable : IEquatable<IComputable>
     {
         [AutoEqualityProperty]
         SoftString Name { get; }
@@ -15,14 +15,14 @@ namespace Reusable.OmniLog.Abstractions
         object Compute([NotNull] LogEntry logEntry);
     }
     
-    public abstract class LogAttachment : ILogAttachment
+    public abstract class Computable : IComputable
     {
-        protected LogAttachment([NotNull] string name)
+        protected Computable([NotNull] string name)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
         }
 
-        protected LogAttachment()
+        protected Computable()
         {
             Name = GetType().Name;
         }
@@ -35,11 +35,11 @@ namespace Reusable.OmniLog.Abstractions
 
         #region IEquatable
 
-        public bool Equals(ILogAttachment other) => AutoEquality<ILogAttachment>.Comparer.Equals(this, other);
+        public bool Equals(IComputable other) => AutoEquality<IComputable>.Comparer.Equals(this, other);
 
-        public override bool Equals(object obj) => Equals(obj as ILogAttachment);
+        public override bool Equals(object obj) => Equals(obj as IComputable);
 
-        public override int GetHashCode() => AutoEquality<ILogAttachment>.Comparer.GetHashCode(this);
+        public override int GetHashCode() => AutoEquality<IComputable>.Comparer.GetHashCode(this);
 
         #endregion
     }

@@ -1,27 +1,25 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Reusable.Exceptionize;
-using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 
-namespace Reusable.OmniLog.Middleware
+namespace Reusable.OmniLog.Nodes
 {
     // when #Dump is Dictionary --> call Next() for each pair where Key: Identifier and Value: #Serializable
     // when #Dump is object --> call Next() for each property and its value where PropertyName: Identifier and Value: #Serializable
     // when #Dump is string --> call Next() once where Key.Name: Identifier and Value: #Dump as #Serializable
-    public class LoggerDump : LoggerMiddleware, IEnumerable<(Type Type, Func<object, object> Map)>
+    public class DumpNode : LoggerNode, IEnumerable<(Type Type, Func<object, object> Map)>
     {
         public static readonly string LogItemTag = "Object";
 
         private readonly IDictionary<Type, Func<object, object>> _mappings = new Dictionary<Type, Func<object, object>>();
 
-        public LoggerDump() : base(true) { }
+        public DumpNode() : base(true) { }
 
         public Property Variable { get; set; } = new Property.Variable();
         
@@ -134,7 +132,7 @@ namespace Reusable.OmniLog.Middleware
     {
         public static LogEntry Dump(this LogEntry logEntry, object obj)
         {
-            return logEntry.SetItem(nameof(Dump), LoggerDump.LogItemTag, obj);
+            return logEntry.SetItem(nameof(Dump), DumpNode.LogItemTag, obj);
         }
     }
 

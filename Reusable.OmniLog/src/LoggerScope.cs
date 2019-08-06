@@ -13,7 +13,7 @@ namespace Reusable.OmniLog
 
         public T Value { get; }
 
-        public LoggerScope<T> Parent { get; private set; }
+        private LoggerScope<T> Parent { get; set; }
 
         public static LoggerScope<T> Current
         {

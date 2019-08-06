@@ -1,9 +1,9 @@
 ﻿using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 
-namespace Reusable.OmniLog.Attachments
+namespace Reusable.OmniLog.Computables
 {
-    public class Timestamp<T> : LogAttachment where T : IDateTime, new()
+    public class Timestamp<T> : Computable where T : IDateTime, new()
     {
         private readonly IDateTime _dateTime;
 

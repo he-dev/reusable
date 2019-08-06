@@ -7,9 +7,9 @@ namespace Reusable.OmniLog.Abstractions
         /// <summary>
         /// Gets middleware root.
         /// </summary>
-        LoggerMiddleware Middleware { get; }
+        LoggerNode Node { get; }
 
-        T Use<T>(T next) where T : LoggerMiddleware;
+        //T Use<T>(T next) where T : LoggerNode;
 
         void Log(LogEntry logEntry);
     }
