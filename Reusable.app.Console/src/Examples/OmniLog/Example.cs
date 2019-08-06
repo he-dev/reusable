@@ -46,10 +46,19 @@ namespace Reusable.Apps.Examples.OmniLog
                     },
                     new LambdaNode(),
                     new CorrelationNode(),
+                    new SemanticNode(),
                     new DumpNode(),
                     new SerializationNode(),
-                    new SemanticNode(),
                     //new LoggerFilter()
+                    new RouteNode
+                    {
+                        Routes =
+                        {
+                            {"Correlation", "Scope"},
+                            {"Variable", "Identifier"},
+                            {"Dump", "Snapshot"},
+                        }
+                    },
                     new TransactionNode(),
                     new EchoNode
                     {

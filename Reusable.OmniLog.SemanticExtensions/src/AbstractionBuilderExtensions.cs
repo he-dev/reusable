@@ -127,22 +127,22 @@ namespace Reusable.OmniLog.SemanticExtensions
 
         public static IAbstractionBuilder<IAbstractionCategory> Running(this IAbstractionBuilder<IAbstractionCategory> category)
         {
-            return category.Update(l => l.SetItem(Category, Tag, new Dictionary<object, object> { [l[Category, Tag]] = nameof(Running) }));
+            return category.Update(l => l.SetItem(Category, Tag, new Dictionary<string, object> { [l[Category, Tag].ToString()] = nameof(Running) }));
         }
 
         public static IAbstractionBuilder<IAbstractionCategory> Completed(this IAbstractionBuilder<IAbstractionCategory> category)
         {
-            return category.Update(l => l.SetItem(Category, Tag, new Dictionary<object, object> { [l[Category, Tag]] = nameof(Completed) }));
+            return category.Update(l => l.SetItem(Category, Tag, new Dictionary<string, object> { [l[Category, Tag].ToString()] = nameof(Completed) }));
         }
 
         public static IAbstractionBuilder<IAbstractionCategory> Canceled(this IAbstractionBuilder<IAbstractionCategory> category)
         {
-            return category.Update(l => l.SetItem(Category, Tag, new Dictionary<object, object> { [l[Category, Tag]] = nameof(Canceled) })).Warning();
+            return category.Update(l => l.SetItem(Category, Tag, new Dictionary<string, object> { [l[Category, Tag].ToString()] = nameof(Canceled) })).Warning();
         }
 
         public static IAbstractionBuilder<IAbstractionCategory> Faulted(this IAbstractionBuilder<IAbstractionCategory> category)
         {
-            return category.Update(l => l.SetItem(Category, Tag, new Dictionary<object, object> { [l[Category, Tag]] = nameof(Faulted) })).Error();
+            return category.Update(l => l.SetItem(Category, Tag, new Dictionary<string, object> { [l[Category, Tag].ToString()] = nameof(Faulted) })).Error();
         }
 
         /// <summary>
