@@ -8,6 +8,7 @@ using System.Linq;
 using Reusable.Collections;
 using Reusable.Data;
 using Reusable.Diagnostics;
+using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.Abstractions.Data
@@ -35,7 +36,7 @@ namespace Reusable.OmniLog.Abstractions.Data
             get => _data[key];
             set => _data[key] = value;
         }
-        
+
         public object this[SoftString name]
         {
             get => this[name, DefaultItemTag];
@@ -89,12 +90,15 @@ namespace Reusable.OmniLog.Abstractions.Data
 
         public bool RemoveItem(SoftString name, SoftString tag) => _data.Remove((name, tag ?? DefaultItemTag));
 
-        public IEnumerator<KeyValuePair<ItemKey<SoftString>, object>> GetEnumerator()
+        public override string ToString()
         {
-            return _data.GetEnumerator();
+            return @"[{Timestamp:HH:mm:ss:fff}] [{Logger:u}] {Message}".Format(this);
         }
 
+        public IEnumerator<KeyValuePair<ItemKey<SoftString>, object>> GetEnumerator() => _data.GetEnumerator();
+
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
 
         [SuppressMessage("ReSharper", "ConvertToConstant.Global")]
         public static class BasicPropertyNames

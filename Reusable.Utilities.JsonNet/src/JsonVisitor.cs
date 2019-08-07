@@ -87,6 +87,11 @@ namespace Reusable.Utilities.JsonNet
         }
     }
 
+    public static class JsonVisitorExtensions
+    {
+        public static JToken Visit(this IEnumerable<IJsonVisitor> visitors, JToken token) => visitors.Aggregate(token, (current, visitor) => visitor.Visit(current));
+    }
+
     /// <summary>
     /// This is an immutable visitor that executes specified visitor in the order they were added.
     /// </summary>
@@ -114,17 +119,18 @@ namespace Reusable.Utilities.JsonNet
     [PublicAPI]
     public class RewriteTypeVisitor : JsonVisitor
     {
-        [CanBeNull] private readonly string _typePropertyName;
+        [CanBeNull]
+        private readonly string _typePropertyName;
 
-        [NotNull] private readonly ITypeResolver _typeResolver;
+        [NotNull]
+        private readonly ITypeResolver _typeResolver;
 
-        public const string TypePropertyDefaultName = "$type";
+        public const string DefaultTypePropertyName = "$type";
 
-        public const string TypePropertyShortName = "$t";
+        //public const string TypePropertyShortName = "$t";
 
-        public RewriteTypeVisitor([NotNull] ITypeResolver typeResolver, [CanBeNull] string typePropertyName = default)
+        public RewriteTypeVisitor([NotNull] ITypeResolver typeResolver)
         {
-            _typePropertyName = typePropertyName;
             _typeResolver = typeResolver;
         }
 
@@ -142,7 +148,7 @@ namespace Reusable.Utilities.JsonNet
                         shortName = $"{ns.Groups["ns"].Value}.{shortName}";
                     }
 
-                    return new JProperty(TypePropertyDefaultName, _typeResolver.Resolve(shortName));
+                    return new JProperty(DefaultTypePropertyName, _typeResolver.Resolve(shortName));
                 }
                 else
                 {
@@ -153,17 +159,10 @@ namespace Reusable.Utilities.JsonNet
             {
                 return
                     SoftString.Comparer.Equals(property.Name, _typePropertyName)
-                        ? new JProperty(TypePropertyDefaultName, _typeResolver.Resolve(property.Value.Value<string>()))
+                        ? new JProperty(DefaultTypePropertyName, _typeResolver.Resolve(property.Value.Value<string>()))
                         : base.VisitProperty(property);
             }
         }
-    }
-
-    [PublicAPI]
-    public class RewritePrettyTypeVisitor : RewriteTypeVisitor
-    {
-        public RewritePrettyTypeVisitor(IImmutableDictionary<SoftString, Type> types, [CanBeNull] string typePropertyName = default)
-            : base(new PrettyTypeResolver(types), typePropertyName) { }
     }
 
     public class PropertyNameValidator : JsonVisitor

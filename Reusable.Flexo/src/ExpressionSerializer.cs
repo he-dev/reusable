@@ -43,7 +43,7 @@ namespace Reusable.Flexo
                 CompositeJsonVisitor
                     .Empty
                     .Add(new TrimPropertyNameVisitor())
-                    .Add(new RewritePrettyTypeVisitor(expressionTypes));
+                    .Add(new RewriteTypeVisitor(new PrettyTypeResolver(expressionTypes)));
 
             _jsonSerializer = new JsonSerializer
             {
@@ -60,9 +60,9 @@ namespace Reusable.Flexo
 
             configureSerializer?.Invoke(_jsonSerializer);
         }
-        
+
         public IJsonVisitor Transform { get; set; }
-        
+
         public JsonSerializer JsonSerializer { get; set; }
 
         [ContractAnnotation("jsonStream: null => halt")]

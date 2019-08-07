@@ -17,14 +17,15 @@ namespace Reusable.Utilities.JsonNet
         };
 
         private static readonly IJsonVisitor RewritePrettyTypeVisitor =
-            new RewritePrettyTypeVisitor(
-                TypeDictionary
-                    .BuiltInTypes
-                    .AddRange(TypeDictionary.From(
-                        typeof(JsonTestClass0),
-                        typeof(JsonTestClass1<>),
-                        typeof(JsonTestClass2<,>)
-                    )));
+            new RewriteTypeVisitor(
+                new PrettyTypeResolver(
+                    TypeDictionary
+                        .BuiltInTypes
+                        .AddRange(TypeDictionary.From(
+                            typeof(JsonTestClass0),
+                            typeof(JsonTestClass1<>),
+                            typeof(JsonTestClass2<,>)
+                        ))));
 
         private static readonly IResourceProvider Files =
             EmbeddedFileProvider<RewritePrettyTypeVisitorTest>
@@ -34,7 +35,7 @@ namespace Reusable.Utilities.JsonNet
         [Fact]
         public void Disallows_types_with_explicit_generic_arguments()
         {
-            Assert.ThrowsAny<DynamicException>(() => new RewritePrettyTypeVisitor(TypeDictionary.From(typeof(List<int>))));
+            Assert.ThrowsAny<DynamicException>(() => new RewriteTypeVisitor(new PrettyTypeResolver(TypeDictionary.From(typeof(List<int>)))));
         }
 
         [Fact]

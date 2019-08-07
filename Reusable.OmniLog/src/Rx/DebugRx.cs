@@ -10,7 +10,7 @@ namespace Reusable.OmniLog.Rx
     {
         private DebugRx() { }
 
-        public string Template { get; set; } = "{Message}";
+        public string Template { get; set; } = @"[{Timestamp:HH:mm:ss:fff}] [{Logger:u}] {Message}";
 
         public void Log(LogEntry logEntry)
         {

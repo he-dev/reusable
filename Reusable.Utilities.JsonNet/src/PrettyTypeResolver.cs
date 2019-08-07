@@ -25,10 +25,29 @@ namespace Reusable.Utilities.JsonNet
 
         private readonly Func<string, Type> _resolveType;
 
-        public PrettyTypeResolver([NotNull] IImmutableDictionary<SoftString, Type> types)
+        public PrettyTypeResolver([NotNull] IImmutableDictionary<SoftString, Type> knownTypes)
         {
-            if (types == null) throw new ArgumentNullException(nameof(types));
-            _resolveType = prettyName => types.TryGetValue(prettyName, out var type) ? type : default;
+            if (knownTypes == null) throw new ArgumentNullException(nameof(knownTypes));
+
+            _resolveType =
+                typeName =>
+                    (knownTypes.TryGetValue(typeName, out var type)
+                        ? type
+                        : Type.GetType(typeName, ignoreCase: true, throwOnError: false)) ?? throw DynamicException.Create("TypeNotFound", $"Could not resolve '{typeName}'.");
+        }
+
+        private PrettyTypeResolver(Func<string, Type> resolveType)
+        {
+            _resolveType = resolveType ?? throw new ArgumentNullException(nameof(resolveType));
+        }
+
+        public static ITypeResolver FromDictionary(IImmutableDictionary<SoftString, Type> knownTypes)
+        {
+            return new PrettyTypeResolver(
+                typeName =>
+                    (knownTypes.TryGetValue(typeName, out var type)
+                        ? type
+                        : Type.GetType(typeName, ignoreCase: true, throwOnError: false)) ?? throw DynamicException.Create("TypeNotFound", $"Could not resolve '{typeName}'."));
         }
 
         public string Resolve(string prettyType)
@@ -42,10 +61,7 @@ namespace Reusable.Utilities.JsonNet
 
             var generic = GetGenericsInfo(match.Groups["genericArguments"]);
             var typeName = match.Groups["type"].Value;
-            var type = 
-                ResolveType($"{typeName}{generic.Placeholder}")
-                    .Where(Conditional.IsNotNull)
-                    .SingleOrThrow(onEmpty: () => throw DynamicException.Create("TypeNotFound", $"Could not resolve '{typeName}'."));
+            var type = _resolveType($"{typeName}{generic.Placeholder}");
             return $"{type.FullName}{generic.Signature}, {type.Assembly.GetName().Name}";
         }
 
@@ -63,10 +79,7 @@ namespace Reusable.Utilities.JsonNet
                 var genericArgumentFullNames =
                 (
                     from name in genericArgumentNames
-                    let genericType = 
-                        ResolveType(name)
-                            .Where(Conditional.IsNotNull)
-                            .SingleOrThrow(onEmpty: () => throw DynamicException.Create("TypeNotFound", $"Could not resolve '{name}'."))
+                    let genericType = _resolveType(name)
                     select $"[{genericType.FullName}, {genericType.Assembly.GetName().Name}]"
                 );
 
@@ -79,13 +92,6 @@ namespace Reusable.Utilities.JsonNet
             {
                 return (default, default);
             }
-        }
-
-        [NotNull, ItemCanBeNull]
-        private IEnumerable<Type> ResolveType(string typeName)
-        {
-            yield return _resolveType(typeName);
-            yield return Type.GetType(typeName, ignoreCase: true, throwOnError: false);
         }
     }
 }
