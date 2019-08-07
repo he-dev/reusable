@@ -43,7 +43,7 @@ namespace Reusable.IOnymous.Config.Providers
         //[ResourcePrefix("app")]
         //[ResourceName(Level = ResourceNameLevel.Member)]
         [UseScheme("app"), UseMember]
-        [SettingSelectorFormatter]
+        [PlainSelectorFormatter]
         private interface IProgramConfig
         {
             string Environment { get; }

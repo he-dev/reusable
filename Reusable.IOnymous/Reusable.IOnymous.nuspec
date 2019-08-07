@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.IOnymous</id>
-    <version>12.3.4</version>
+    <version>13.0.0</version>
     <title>Reusable.IOnymous</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -16,14 +16,15 @@
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2019.1.1" />
+      <dependency id="Microsoft.Extensions.Caching.Memory" version="2.2.0" />
       <dependency id="Newtonsoft.Json" version="12.0.2" />
       <dependency id="System.Collections.Immutable" version="1.5.0" />
-      <dependency id="Reusable.Core" version="12.3.4" />
-      <dependency id="Reusable.Data" version="12.3.4" />
-      <dependency id="Reusable.Flawless" version="12.3.4" />
-      <dependency id="Reusable.OneTo1" version="12.3.4" />
-      <dependency id="Reusable.Quickey" version="12.3.4" />
-      <dependency id="Reusable.Utilities.JsonNet" version="12.3.4" />
+      <dependency id="Reusable.Core" version="13.0.0" />
+      <dependency id="Reusable.Data" version="13.0.0" />
+      <dependency id="Reusable.Flawless" version="13.0.0" />
+      <dependency id="Reusable.OneTo1" version="13.0.0" />
+      <dependency id="Reusable.Quickey" version="13.0.0" />
+      <dependency id="Reusable.Utilities.JsonNet" version="13.0.0" />
     </dependencies>
   </metadata>
   <files>

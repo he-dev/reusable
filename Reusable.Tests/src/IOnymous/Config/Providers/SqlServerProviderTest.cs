@@ -14,17 +14,14 @@ namespace Reusable.IOnymous.Config.Providers
     public class SqlServerProviderTest : IAsyncLifetime
     {
         private static readonly string ConnectionString = "Data Source=(local);Initial Catalog=TestDb;Integrated Security=SSPI;";
-        
-        private static readonly IResourceProvider Sql =
-            EmbeddedFileProvider<SqlServerProviderTest>
-                .Default
-                .DecorateWith(RelativeProvider.Factory(@"sql\IOnymous\Config"));
 
-        private readonly IResourceProvider _config;
+        private static readonly IResourceProvider Sql = new EmbeddedFileProvider(typeof(SqlServerProviderTest).Assembly, "Reusable").DecorateWith(RelativeProvider.Factory(@"sql\IOnymous\Config"));
+
+        private readonly IResourceProvider _configuration;
 
         public SqlServerProviderTest()
         {
-            _config = new SqlServerProvider(ConnectionString)
+            _configuration = new SqlServerProvider(ConnectionString)
             {
                 TableName = ("reusable", "TestConfig"),
                 ResourceConverter = new JsonSettingConverter(),
@@ -52,35 +49,27 @@ namespace Reusable.IOnymous.Config.Providers
         }
 
         [Fact]
-        public async Task Can_deserialize_various_types()
+        public void Can_deserialize_various_types()
         {
-            var building = From<IBuildingConfig>.This;
+            var testDto = new TestDto(_configuration);
 
-            Assert.Equal("Tower Bridge", await _config.ReadSettingAsync(building.Select(x => x.Description)));
-            Assert.Equal(true, await _config.ReadSettingAsync(building.Select(x => x.IsMonument)));
-            Assert.Equal(65, await _config.ReadSettingAsync(building.Select(x => x.Height)));
-            Assert.Equal(2.25, await _config.ReadSettingAsync(building.Select(x => x.AverageVisitorCount)));
-            Assert.Equal(new DateTime(1894, 6, 30), await _config.ReadSettingAsync(building.Select(x => x.OpenedOn)));
-            Assert.Equal(new[] { 11, 12 }, await _config.ReadSettingAsync(building.Select(x => x.Showtimes)));
-            Assert.Equal(TimeSpan.Parse("01:15:00"), await _config.ReadSettingAsync(building.Select(x => x.AverageVisit)));
-        }
-        
-        [Fact]
-        public async Task Can_get_fallback_item()
-        {
-            var building = From<IBuildingConfig>.This;
-
-            Assert.Equal("200kmh", await _config.ReadSettingAsync(From<ICarConfig>.Select(x => x.Speed)));
+            Assert.Equal("Tower Bridge", testDto.String);
+            Assert.Equal(true, testDto.Boolean);
+            Assert.Equal(65, testDto.Int32);
+            Assert.Equal(2.25, testDto.Double);
+            Assert.Equal(10.3m, testDto.Decimal);
+            Assert.Equal(new DateTime(1894, 6, 30), testDto.DateTime);
+            Assert.Equal(TimeSpan.Parse("01:15:00"), testDto.TimeSpan);
+            Assert.Equal(new[] { 11, 12 }, testDto.ListOfInt32); // fallback
         }
 
         [Fact]
-        public async Task Can_save_setting()
+        public void Can_save_setting()
         {
-            Assert.Equal("Tower Bridge", await _config.ReadSettingAsync(From<IBuildingConfig>.Select(x => x.Description)));
-
-            await _config.WriteSettingAsync(From<IBuildingConfig>.Select(x => x.Description), "Tower Bridge new");
-
-            Assert.Equal("Tower Bridge new", await _config.ReadSettingAsync(From<IBuildingConfig>.Select(x => x.Description)));
+            var testDto = new TestDto(_configuration);
+            Assert.Equal("Tower Bridge", testDto.String);
+            testDto.String = "Tower Bridge new";
+            Assert.Equal("Tower Bridge new", testDto.String);
         }
 
         public Task DisposeAsync()
@@ -89,26 +78,26 @@ namespace Reusable.IOnymous.Config.Providers
         }
     }
 
+
     [UseType, UseMember]
-    [TrimStart("I"), TrimEnd("Config")]
-    [SettingSelectorFormatter]
-    public interface IBuildingConfig
+    [PlainSelectorFormatter]
+    public class TestDto
     {
-        string Description { get; }
-        bool IsMonument { get; }
-        int Height { get; }
-        double AverageVisitorCount { get; }
-        decimal Cost { get; }
-        DateTime OpenedOn { get; }
-        TimeSpan AverageVisit { get; }
-        List<int> Showtimes { get; }
-    }
-    
-    [UseType, UseMember]
-    [TrimStart("I"), TrimEnd("Config")]
-    [SettingSelectorFormatter]
-    public interface ICarConfig
-    {
-        string Speed { get; }
+        private readonly IResourceProvider _configuration;
+        public TestDto(IResourceProvider configuration) => _configuration = configuration;
+
+        public string String
+        {
+            get => _configuration.ReadSetting(() => String);
+            set => _configuration.WriteSetting(() => String, value);
+        }
+
+        public bool Boolean => _configuration.ReadSetting(() => Boolean);
+        public int Int32 => _configuration.ReadSetting(() => Int32);
+        public double Double => _configuration.ReadSetting(() => Double);
+        public decimal Decimal => _configuration.ReadSetting(() => Decimal);
+        public DateTime DateTime => _configuration.ReadSetting(() => DateTime);
+        public TimeSpan TimeSpan => _configuration.ReadSetting(() => TimeSpan);
+        public List<int> ListOfInt32 => _configuration.ReadSetting(() => ListOfInt32);
     }
 }

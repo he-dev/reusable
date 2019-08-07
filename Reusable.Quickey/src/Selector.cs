@@ -47,8 +47,23 @@ namespace Reusable.Quickey
         {
             Expression = selector;
             (DeclaringType, Instance, Member) = MemberVisitor.GetMemberInfo(selector);
+
+            // The first one is the closest one to the member.
             _selectorNames = GetSelectorNames(this);
-            if (_selectorNames.Empty()) throw new ArgumentException($"'{selector}' does not specify which keys to use.");
+            if (_selectorNames is null || _selectorNames.Empty())
+            {
+                throw new ArgumentException(paramName: nameof(selector), message: $"'{selector.ToPrettyString()}' does not specify any selectors.");
+            }
+
+            if (_selectorNames.GroupBy(sn => sn.Type).Any(g => g.Count() > 1))
+            {
+                throw new ArgumentException(paramName: nameof(selector), message: $"'{selector.ToPrettyString()}' may specify each selector only once.");
+            }
+
+            if (_selectorNames.All(sn => sn.Type != typeof(UseMemberAttribute)))
+            {
+                throw new ArgumentException(paramName: nameof(selector), message: $"'{selector.ToPrettyString()}' must specify '{nameof(UseMemberAttribute)}'.");
+            }
         }
 
         public Selector(LambdaExpression selector, IEnumerable<SelectorName> names) : this(selector)
@@ -77,7 +92,7 @@ namespace Reusable.Quickey
             }
         }
 
-        public Type DataType => typeof(Selector).IsAssignableFrom(MemberType) ? MemberType.GetGenericArguments().Single() : MemberType; 
+        public Type DataType => typeof(Selector).IsAssignableFrom(MemberType) ? MemberType.GetGenericArguments().Single() : MemberType;
 
         public static Selector FromMember(Type declaringType, MemberInfo member)
         {
@@ -101,26 +116,17 @@ namespace Reusable.Quickey
             return new Selector(selector);
         }
 
-        [NotNull, ItemNotNull]
-        private static IEnumerable<SelectorName> GetSelectorNames(Selector selector)
+        [CanBeNull, ItemNotNull]
+        private static IImmutableList<SelectorName> GetSelectorNames(Selector selector)
         {
             var selectorNameEnumerators =
                 from m in selector.Members()
                 where m.IsDefined(typeof(SelectorNameEnumeratorAttribute))
                 select m.GetCustomAttribute<SelectorNameEnumeratorAttribute>();
 
-            // You want to take the nearest one to the member.
-            var selectorNameEnumerator = (selectorNameEnumerators.FirstOrDefault() ?? SelectorNameEnumeratorAttribute.Default);
-
-            return
-                selectorNameEnumerator
-                    .EnumerateSelectorNames(selector)
-                    .FirstOrDefault() // You want to take the nearest one to the member.
-                ?? throw new InvalidOperationException
-                (
-                    $"Either the type '{selector.DeclaringType.ToPrettyString()}' " +
-                    $"or the member '{selector.Member.Name}' must be decorated with at least one 'UseXAttribute'."
-                );
+            // The first enumerator is the closest one to the member.
+            // The first selector-group is the closest one to the member.
+            return (selectorNameEnumerators.FirstOrDefault() ?? SelectorNameEnumeratorAttribute.Default).EnumerateSelectorNames(selector).FirstOrDefault();
         }
 
         public override string ToString()
@@ -130,11 +136,8 @@ namespace Reusable.Quickey
                 where m.IsDefined(typeof(SelectorFormatterAttribute))
                 select m.GetCustomAttribute<SelectorFormatterAttribute>();
 
-            return
-                formatters
-                    .FirstOrDefault()?
-                    .Format(this)
-                ?? throw DynamicException.Create("SelectorFormatterNotFound", $"'{Expression.ToPrettyString()}' must specify a {nameof(SelectorFormatterAttribute)}");
+            // Use the plain-formatter as fallback.
+            return (formatters.FirstOrDefault() ?? new PlainSelectorFormatterAttribute()).Format(this);
         }
 
         public IEnumerator<SelectorName> GetEnumerator() => _selectorNames.GetEnumerator();
@@ -153,7 +156,6 @@ namespace Reusable.Quickey
         public Selector(LambdaExpression selector) : base(selector) { }
 
         public static implicit operator Selector<T>(Expression<Func<T>> selector) => new Selector<T>(selector);
-        
     }
 
     public class StringSelector<T> : Selector<T>
@@ -161,7 +163,7 @@ namespace Reusable.Quickey
         public StringSelector(Selector selector) : base(selector.Expression) { }
 
         public static implicit operator string(StringSelector<T> stringSelector) => stringSelector.ToString();
-        
+
         //public static implicit operator StringSelector<T>(Selector<T> selector) => selector.AsString();
     }
 

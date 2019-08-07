@@ -32,37 +32,18 @@ truncate table [reusable].[TestConfig]
 
 --DECLARE @CRLF nvarchar(10) = char(13)+char(10);
 
---
 insert into [reusable].[TestConfig]([_id], [_name], [_value], [_env], [_ver])
 select [_id], [_name], [_value], [_env], [_ver]
 from
     (values
-     --(1, 'Car.Speed', '100kmh', 'test', '1'),
-     (2, 'Car.Speed', '200kmh', 'else', '1'),
-     (3, 'Car.Speed', '300kmh', 'nope', '1')
-    ) v ([_id], [_name], [_value], [_env], [_ver]);
-
-insert into [reusable].[TestConfig]([_id], [_name], [_value], [_env], [_ver])
-select [_id], [_name], [_value], [_env], [_ver]
-from
-    (values
-     --(4, 'Car.Speed', '110kmh', 'test', '2'),
-     (5, 'Car.Speed', '210kmh', 'else', '2'),
-     (6, 'Car.Speed', '310kmh', 'nope', '2')
-    ) v ([_id], [_name], [_value], [_env], [_ver]);
-
-
-insert into [reusable].[TestConfig]([_id], [_name], [_value], [_env], [_ver])
-select [_id], [_name], [_value], [_env], [_ver]
-from
-    (values
-     (10, 'Building.Description', 'Tower Bridge', 'test', '1'),
-     (11, 'Building.IsMonument', 'true', 'test', '1'),
-     (13, 'Building.Height', '65', 'test', '1'),
-     (14, 'Building.AverageVisitorCount', '2.25', 'test', '1'),
-     (15, 'Building.OpenedOn', '1894-06-30', 'test', '1'),
-     (16, 'Building.Showtimes', '[11, 12]', 'test', '1'),
-     (17, 'Building.AverageVisit', '01:15:00', 'test', '1')
+     (10, 'TestDto.String', 'Tower Bridge', 'test', '1'),
+     (11, 'TestDto.Boolean', 'true', 'test', '1'),
+     (13, 'TestDto.Int32', '65', 'test', '1'),
+     (14, 'TestDto.Double', '2.25', 'test', '1'),
+     (15, 'TestDto.Decimal', '10.3', 'test', '1'),
+     (16, 'TestDto.DateTime', '1894-06-30', 'test', '1'),
+     (17, 'TestDto.TimeSpan', '01:15:00', 'test', '1'),
+     (18, 'TestDto.ListOfInt32', '[11, 12]', 'else', '1')
     ) v ([_id], [_name], [_value], [_env], [_ver]);
 
 -- -- insert new data

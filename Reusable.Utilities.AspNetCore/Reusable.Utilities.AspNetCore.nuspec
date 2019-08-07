@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Utilities.AspNetCore</id>
-    <version>12.3.4</version>
+    <version>13.0.0</version>
     <title>Reusable.Utilities.AspNetCore</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -15,11 +15,13 @@
     <copyright>Copyright 2016 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
+      <dependency id="Autofac" version="4.9.2" />
+      <dependency id="Autofac.Extensions.DependencyInjection" version="4.4.0" />
       <dependency id="JetBrains.Annotations" version="2019.1.1" />
       <dependency id="Microsoft.AspNetCore.Mvc" version="2.2.0" />
-      <dependency id="Reusable.Core" version="12.3.4" />
-      <dependency id="Reusable.OmniLog.SemanticExtensions" version="12.3.4" />
-      <dependency id="Reusable.OmniLog" version="12.3.4" />
+      <dependency id="Reusable.Core" version="13.0.0" />
+      <dependency id="Reusable.OmniLog.SemanticExtensions" version="13.0.0" />
+      <dependency id="Reusable.OmniLog" version="13.0.0" />
     </dependencies>
   </metadata>
   <files>

@@ -36,7 +36,7 @@ namespace Reusable.Quickey
         public string Suffix { get; set; }
 
         public abstract SelectorName CreateSelectorName(Selector selector);
-        
+
         protected string Transform(string name, MemberInfo member)
         {
             return
@@ -58,7 +58,7 @@ namespace Reusable.Quickey
 
         public override SelectorName CreateSelectorName(Selector selector)
         {
-            return new SelectorName(_prefix) { Suffix = Suffix };
+            return new SelectorName(_prefix) { Suffix = Suffix, Type = typeof(UseSchemeAttribute) };
         }
     }
 
@@ -72,7 +72,7 @@ namespace Reusable.Quickey
         public override SelectorName CreateSelectorName(Selector selector)
         {
             var type = selector.DeclaringType;
-            return new SelectorName(type.Namespace) { Suffix = Suffix };
+            return new SelectorName(type.Namespace) { Suffix = Suffix, Type = typeof(UseNamespaceAttribute) };
         }
     }
 
@@ -92,7 +92,7 @@ namespace Reusable.Quickey
                     ? rename
                     : Transform(type.ToPrettyString(), type);
 
-            return new SelectorName(typeName) { Suffix = Suffix };
+            return new SelectorName(typeName) { Suffix = Suffix, Type = typeof(UseTypeAttribute) };
         }
     }
 
@@ -105,7 +105,7 @@ namespace Reusable.Quickey
                     ? rename
                     : Transform(selector.Member.Name, selector.Member);
 
-            return new SelectorName(memberName);
+            return new SelectorName(memberName) { Type = typeof(UseMemberAttribute) };
         }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
@@ -42,15 +43,23 @@ namespace Reusable.IOnymous.Config
 
         private static Request CreateRequest(RequestMethod method, Selector selector, object value = default)
         {
-            var resourceAttributes =
-                from t in selector.Members()
-                where t.IsDefined(typeof(ResourceAttribute))
-                select t.GetCustomAttribute<ResourceAttribute>();
-            var resourceAttribute = resourceAttributes.FirstOrDefault();
+            var resources =
+                from m in selector.Members()
+                where m.IsDefined(typeof(ResourceAttribute))
+                select m.GetCustomAttribute<ResourceAttribute>();
+
+            var resource = resources.FirstOrDefault();
+
+            var uri = UriStringHelper.CreateQuery
+            (
+                scheme: resource?.Scheme ?? "config",
+                path: ImmutableList<string>.Empty.Add("settings"),
+                query: ImmutableDictionary<string, string>.Empty.Add("name", selector.ToString())
+            );
             
             return new Request
             {
-                Uri = selector.ToString(),
+                Uri = uri,
                 Method = method,
                 Context =
                     ImmutableContainer
@@ -59,7 +68,7 @@ namespace Reusable.IOnymous.Config
                         // request.Properties.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Type)) == typeof(string)
                         //.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), resource?.Provider.ToSoftString())
                         .SetItem(ResourceProperty.ActualName, $"[{selector.Join(x => x.ToString(), ", ")}]")
-                        .SetName(resourceAttribute?.Provider.ToSoftString()),
+                        .SetName(resource?.Provider.ToSoftString()),
                 Body = value
             };
         }

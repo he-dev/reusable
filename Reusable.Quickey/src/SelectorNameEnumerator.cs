@@ -21,7 +21,7 @@ namespace Reusable.Quickey
     public class SelectorNameEnumeratorAttribute : Attribute, ISelectorNameEnumerator
     {
         public static ISelectorNameEnumerator Default { get; } = new SelectorNameEnumeratorAttribute();
-        
+
         public IEnumerable<IImmutableList<SelectorName>> EnumerateSelectorNames(Selector selector)
         {
             if (selector == null) throw new ArgumentNullException(nameof(selector));
@@ -29,19 +29,20 @@ namespace Reusable.Quickey
             return
                 from m in selector.Members()
                 where m.IsDefined(typeof(SelectorNameFactoryAttribute))
-                let selectorNameFactories = GetSelectorNameFactories(m) 
+                let selectorNameFactories = GetSelectorNameFactories(m)
                 let selectorNames = selectorNameFactories.Select(f => f.CreateSelectorName(selector)).ToImmutableList()
                 where selectorNames.Any()
                 select selectorNames;
 
             // Get own attributes or inherited.
-            IEnumerable<SelectorNameFactoryAttribute> GetSelectorNameFactories(MemberInfo m)
+            IList<SelectorNameFactoryAttribute> GetSelectorNameFactories(MemberInfo m)
             {
-                var result = m.GetCustomAttributes<SelectorNameFactoryAttribute>(false).ToList();
-                return
-                    result.Any()
-                        ? result
-                        : m.GetCustomAttributes<SelectorNameFactoryAttribute>();
+                if (m.GetCustomAttributes<SelectorNameFactoryAttribute>(false).ToList() is var factory && factory.Any())
+                {
+                    return factory;
+                }
+
+                return m.GetCustomAttributes<SelectorNameFactoryAttribute>().ToList();
             }
         }
     }

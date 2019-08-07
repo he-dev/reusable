@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
@@ -16,6 +17,8 @@ namespace Reusable.Quickey
         public SelectorName(string value) => Value = value;
 
         private string DebuggerDisplay => ToString();
+
+        public Type Type { get; set; }
 
         public string Prefix { get; set; }
 

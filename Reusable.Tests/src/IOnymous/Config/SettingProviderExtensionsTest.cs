@@ -1,9 +1,12 @@
 using System;
 using System.Threading.Tasks;
 using Reusable.Data;
+using Reusable.Extensions;
 using Reusable.IOnymous.Config.Annotations;
 using Reusable.OneTo1;
 using Reusable.Quickey;
+using Telerik.JustMock;
+using Telerik.JustMock.Helpers;
 using Xunit;
 
 /*
@@ -25,7 +28,25 @@ namespace Reusable.IOnymous.Config
     public class SettingProviderExtensionsTest
     {
         private static readonly ITypeConverter<UriString, string> UriConverter = UriStringQueryToStringConverter.Default;
-        
+
+        [Fact]
+        public void test()
+        {
+            // todo - test ReadSetting request
+
+            var provider = Mock.Create<IResourceProvider>();
+
+            var request = default(Request);
+            provider
+                .Arrange(x => x.InvokeAsync(Arg.IsAny<Request>()))
+                .DoInstead((Request r) => request = r)
+                .Returns((Request r) => new PlainResource("John", r.Context).ToTask<IResource>())
+                .OccursOnce(); 
+
+            var name = provider.ReadSetting(From<User>.Select(x => x.Name));
+        }
+
+
         [Fact]
         public void Can_get_setting_by_name()
         {
@@ -131,7 +152,7 @@ namespace Reusable.IOnymous.Config
                         })
                         .Add(new InMemoryProvider(UriConverter)
                         {
-                            { "Reusable.Tests.IOnymous.Config+Key.Location", "Tom" }
+                            { "Reusable.IOnymous.Config+Key.Location", "Tom" }
                         })
                         .Add(new InMemoryProvider(UriConverter)
                         {
@@ -238,7 +259,7 @@ namespace Reusable.IOnymous.Config
     }
 
     [UseType, UseMember]
-    [SettingSelectorFormatter]
+    [PlainSelectorFormatter]
     internal class Nothing
     {
         public IResourceProvider Configuration { get; set; }
@@ -247,7 +268,7 @@ namespace Reusable.IOnymous.Config
     }
 
     [UseType, UseMember]
-    [SettingSelectorFormatter]
+    [PlainSelectorFormatter]
 // tests defaults
     internal class User : Nothing
     {
@@ -255,7 +276,7 @@ namespace Reusable.IOnymous.Config
     }
 
     [UseType, UseMember]
-    [SettingSelectorFormatter]
+    [PlainSelectorFormatter]
     internal class Admin : User
     {
         public string Skill => Configuration.ReadSetting(() => Skill);
@@ -263,7 +284,7 @@ namespace Reusable.IOnymous.Config
 
     [UseType, UseMember]
     [Rename("Amazon")]
-    [SettingSelectorFormatter]
+    [PlainSelectorFormatter]
     internal class Forest : Nothing
     {
         [Rename("Timber")]
@@ -271,7 +292,7 @@ namespace Reusable.IOnymous.Config
     }
 
     [UseScheme("day"), UseType, UseMember]
-    [SettingSelectorFormatter]
+    [PlainSelectorFormatter]
     internal class Greeting : Nothing
     {
         public string Morning => Configuration.ReadSetting(() => Morning);
@@ -279,14 +300,14 @@ namespace Reusable.IOnymous.Config
 
     [UseType, UseMember]
     [Resource(Provider = "ThisOne")]
-    [SettingSelectorFormatter]
+    [PlainSelectorFormatter]
     internal class Map : Nothing
     {
         public string City => Configuration.ReadSetting(() => City);
     }
 
     [UseNamespace, UseType, UseMember]
-    [SettingSelectorFormatter]
+    [PlainSelectorFormatter]
     internal class Key : Nothing
     {
         public string Location => Configuration.ReadSetting(() => Location);
@@ -303,7 +324,7 @@ namespace Reusable.IOnymous.Config
     public class ConfigurationTestGeneric
     {
         private static readonly ITypeConverter<UriString, string> UriConverter = UriStringQueryToStringConverter.Default;
-        
+
         [Fact]
         public async Task Can_find_setting_on_base_type()
         {
@@ -329,20 +350,18 @@ namespace Reusable.IOnymous.Config
     }
 
     [UseScheme("root"), UseType, UseMember]
-    [SettingSelectorFormatter]
+    [PlainSelectorFormatter]
     public interface IBaseConfig
     {
         bool Enabled { get; }
     }
 
     [UseScheme("root"), UseType, UseMember]
-    [SettingSelectorFormatter]
+    [PlainSelectorFormatter]
     [TrimStart("I"), TrimEnd("Config")]
     public interface ISubConfig : IBaseConfig
     {
         [UseType, UseMember]
         string Name { get; }
     }
-
-    
 }
