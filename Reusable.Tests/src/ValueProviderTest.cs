@@ -1,7 +1,7 @@
 ﻿using Reusable.IOnymous;
 using Xunit;
 
-namespace Reusable.Tests
+namespace Reusable
 {
     public class ValueProviderTest
     {

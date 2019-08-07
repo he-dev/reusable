@@ -1,9 +1,8 @@
 ﻿using System.Linq;
 using System.Linq.Custom;
-using Reusable.Commander;
 using Xunit;
 
-namespace Reusable.Tests.Commander
+namespace Reusable.Commander
 {
     public class CommandLineParserTest
     {

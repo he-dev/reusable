@@ -1,8 +1,7 @@
 using System.Threading.Tasks;
-using Reusable.IOnymous;
 using Xunit;
 
-namespace Reusable.Tests.IOnymous
+namespace Reusable.IOnymous
 {
     public class EmbeddedFileProviderTest
     {

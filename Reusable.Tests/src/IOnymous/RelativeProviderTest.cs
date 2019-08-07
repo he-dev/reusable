@@ -1,14 +1,11 @@
-using System.Collections.Immutable;
-using System.IO;
 using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.Extensions;
-using Reusable.IOnymous;
 using Telerik.JustMock;
 using Telerik.JustMock.Helpers;
 using Xunit;
 
-namespace Reusable.Tests.IOnymous
+namespace Reusable.IOnymous
 {
     public class RelativeProviderTest
     {

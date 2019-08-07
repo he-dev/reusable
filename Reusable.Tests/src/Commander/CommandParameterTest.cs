@@ -1,7 +1,4 @@
-﻿using Reusable.Commander;
-using Xunit;
-
-namespace Reusable.Tests.Commander
+﻿namespace Reusable.Commander
 {
     public class CommandParameterTest
     {

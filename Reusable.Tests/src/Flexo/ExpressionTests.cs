@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Reusable.Data;
-using Reusable.Flexo;
-using Reusable.Tests.Flexo.Helpers;
+using Reusable.Flexo.Helpers;
 using Xunit;
-using Double = Reusable.Flexo.Double;
 
 // ReSharper disable once CheckNamespace
-namespace Reusable.Tests.Flexo
+namespace Reusable.Flexo
 {
-    using static ExpressionAssert;
-
     public class ExpressionTest : IClassFixture<ExpressionFixture> //, IDisposable
     {
         private readonly ExpressionFixture _helper;

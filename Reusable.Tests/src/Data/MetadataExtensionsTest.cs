@@ -1,9 +1,6 @@
-using System.Linq;
-using Reusable.Data;
-using Reusable.IOnymous;
 using Xunit;
 
-namespace Reusable.Tests.Data
+namespace Reusable.Data
 {
     public class MetadataExtensionsTest
     {

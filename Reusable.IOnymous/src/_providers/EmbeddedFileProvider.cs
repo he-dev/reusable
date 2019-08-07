@@ -15,19 +15,21 @@ namespace Reusable.IOnymous
     {
         private readonly Assembly _assembly;
 
-        public EmbeddedFileProvider([NotNull] Assembly assembly, IImmutableContainer properties = default)
+        public EmbeddedFileProvider([NotNull] Assembly assembly, string basePath, IImmutableContainer properties = default)
             : base((properties ?? ImmutableContainer.Empty)
                 .SetScheme(UriSchemes.Custom.IOnymous)
                 .SetItem(ResourceProviderProperty.AllowRelativeUri, true))
         {
             _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
-            var assemblyName = _assembly.GetName().Name.Replace('.', '/');
-            BaseUri = new UriString($"{UriSchemes.Known.File}:{assemblyName}");
+            BaseUri = new UriString($"{UriSchemes.Known.File}:{basePath.Replace('.', '/')}");
             Methods =
                 MethodCollection
                     .Empty
                     .Add(RequestMethod.Get, GetAsync);
         }
+
+        public EmbeddedFileProvider([NotNull] Assembly assembly, IImmutableContainer properties = default)
+            : this(assembly, assembly.GetName().Name.Replace('.', '/'), properties) { }
 
         public UriString BaseUri { get; }
 

@@ -1,20 +1,16 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Autofac;
-using Reusable.Commander;
 using Reusable.Commander.Commands;
 using Reusable.Commander.DependencyInjection;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using IContainer = Autofac.IContainer;
 
-namespace Reusable.Tests.Commander.Integration
+namespace Reusable.Commander.Integration
 {
-    using static Xunit.Assert;
-
     internal static class Helper
     {
         public static TestContext CreateContext(IImmutableList<CommandModule> commandRegistrations)

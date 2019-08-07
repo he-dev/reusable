@@ -4,11 +4,10 @@ using Newtonsoft.Json;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.IOnymous;
-using Reusable.Utilities.JsonNet;
 using Reusable.Utilities.JsonNet.Annotations;
 using Xunit;
 
-namespace Reusable.Tests.Utilities.JsonNet
+namespace Reusable.Utilities.JsonNet
 {
     public class RewritePrettyTypeVisitorTest
     {

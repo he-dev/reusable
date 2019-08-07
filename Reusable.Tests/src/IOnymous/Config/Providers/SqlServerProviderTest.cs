@@ -6,12 +6,10 @@ using System.Threading.Tasks;
 using Dapper;
 using Reusable.Data.Repositories;
 using Reusable.Extensions;
-using Reusable.IOnymous;
-using Reusable.IOnymous.Config;
 using Reusable.Quickey;
 using Xunit;
 
-namespace Reusable.Tests.IOnymous.Config.Providers
+namespace Reusable.IOnymous.Config.Providers
 {
     public class SqlServerProviderTest : IAsyncLifetime
     {

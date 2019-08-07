@@ -1,9 +1,8 @@
 ﻿using System;
-using Reusable.Collections;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
-namespace Reusable.Tests.Collections
+namespace Reusable.Collections
 {
     public class AutoEqualityTest
     {

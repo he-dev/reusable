@@ -1,16 +1,14 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Rx;
-//using Reusable.OmniLog.Attachments;
-using Reusable.OmniLog.SemanticExtensions;
 using Xunit;
+//using Reusable.OmniLog.Attachments;
 
 // ReSharper disable once CheckNamespace
-namespace Reusable.OmniLog.v2
+namespace Reusable.OmniLog
 {
     public class LoggerMiddlewareTest
     {

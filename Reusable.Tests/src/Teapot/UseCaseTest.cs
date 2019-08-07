@@ -3,13 +3,10 @@ using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.IOnymous;
 using Reusable.IOnymous.Http;
-using Reusable.Quickey;
-using Reusable.Teapot;
 using Reusable.Utilities.XUnit.Fixtures;
-using Telerik.JustMock.Helpers;
 using Xunit;
 
-namespace Reusable.Tests.Teapot
+namespace Reusable.Teapot
 {
     public class UseCaseTest : IClassFixture<TeapotServerFixture>
     {

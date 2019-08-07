@@ -1,16 +1,11 @@
 using System;
-using System.Net.Http;
 using System.Threading.Tasks;
-using Reusable.Data;
-using Reusable.IOnymous;
-using Reusable.IOnymous.Http;
-using Reusable.IOnymous.Http.Mailr;
 using Reusable.IOnymous.Http.Mailr.Models;
 using Reusable.Teapot;
 using Reusable.Utilities.XUnit.Fixtures;
 using Xunit;
 
-namespace Reusable.Tests.IOnymous.Http.Mailr
+namespace Reusable.IOnymous.Http.Mailr
 {
     public class HttpProviderExtensionsTest : IDisposable, IClassFixture<TeapotServerFixture>
     {

@@ -1,12 +1,10 @@
-using System.IO;
 using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
-using Reusable.IOnymous;
 using Xunit;
 
-namespace Reusable.Tests.IOnymous
+namespace Reusable.IOnymous
 {
     public class ResourceProviderTest
     {

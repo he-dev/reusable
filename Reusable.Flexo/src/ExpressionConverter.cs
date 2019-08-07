@@ -18,10 +18,14 @@ namespace Reusable.Flexo
             throw new NotSupportedException($"{nameof(ExpressionConverter)} does not support writing.");
         }
 
+        private bool _isArray = false;
+        private int _index = 0;
+
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             if (reader.Value is null && reader.TokenType == JsonToken.StartObject)
             {
+                _index = 0;
                 var jToken = JObject.Load(reader);
                 var typeName = (string)jToken.SelectToken("$.$type");
 
@@ -36,7 +40,12 @@ namespace Reusable.Flexo
             }
             else
             {
-                var name = GetParentName(((JTokenReader)reader).CurrentToken.Parent);
+                var jTokenReader = (JTokenReader)reader;
+                var name =
+                    jTokenReader.CurrentToken.Parent is JArray
+                        ? $"Item[{_index++}]"
+                        : GetParentName(jTokenReader.CurrentToken.Parent);
+
                 return Constant.FromValue(name, reader.Value);
             }
         }

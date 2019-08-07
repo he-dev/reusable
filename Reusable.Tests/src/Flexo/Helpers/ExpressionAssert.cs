@@ -4,22 +4,19 @@ using System.Collections.Generic;
 using System.Linq;
 using Reusable.Data;
 using Reusable.Extensions;
-using Reusable.Flexo;
 using Xunit;
 using Xunit.Abstractions;
 
 // ReSharper disable once CheckNamespace
-namespace Reusable.Tests.Flexo.Helpers
+namespace Reusable.Flexo.Helpers
 {
     internal static class ExpressionAssert
     {
-        private static readonly ITreeRenderer<string> DebugViewRenderer = new PlainTreeRenderer();
-
-        public static (IConstant Result, IList<IImmutableContainer> Contexts) ExpressionEqual<TValue>
+        public static ExpressionInvokeResult ExpressionEqual<TValue>
         (
             TValue expected,
             IExpression expression,
-            Func<IImmutableContainer, IImmutableContainer> customizeContext = null,
+            Func<IImmutableContainer, IImmutableContainer> alterContext = null,
             ITestOutputHelper output = default,
             bool throws = false,
             ISet<SoftString> tags = default
@@ -27,13 +24,13 @@ namespace Reusable.Tests.Flexo.Helpers
         {
             if (throws)
             {
-                var ex = Assert.Throws<ExpressionException>(() => expression.Invoke(customizeContext));
-                return (default, ex.Contexts);
+                var ex = Assert.Throws<ExpressionException>(() => expression.Invoke(alterContext));
+                return new ExpressionInvokeResult { Contexts = ex.Contexts };
             }
             else
             {
-                var (actual, contexts) = expression.Invoke(customizeContext);
-                var debugViewString = DebugViewRenderer.Render(contexts.First().DebugView(), ExpressionDebugView.DefaultRenderTreeNode);
+                var result = expression.Invoke(alterContext);
+                var debugViewString = result.DebugViewToString(ExpressionDebugView.Templates.Compact);
 
                 try
                 {
@@ -41,16 +38,16 @@ namespace Reusable.Tests.Flexo.Helpers
                     {
                         case null: break;
                         case IEnumerable collection when !(expected is string):
-                            Assert.IsAssignableFrom<IEnumerable>(actual.Value);
-                            Assert.Equal(collection.Cast<object>(), actual.Value<IEnumerable<IConstant>>().Values<object>());
+                            Assert.IsAssignableFrom<IEnumerable>(result.Constant.Value);
+                            Assert.Equal(collection.Cast<object>(), result.Constant.Value<IEnumerable<IConstant>>().Values<object>());
                             if (tags.IsNotNull())
                             {
-                                Assert.True(actual.Tags.SetEquals(tags));
+                                Assert.True(result.Constant.Tags.SetEquals(tags));
                             }
 
                             break;
                         default:
-                            Assert.Equal(expected, actual.Value);
+                            Assert.Equal(expected, result.Constant.Value);
                             break;
                     }
                 }
@@ -60,7 +57,7 @@ namespace Reusable.Tests.Flexo.Helpers
                     throw;
                 }
 
-                return (actual, contexts);
+                return result;
             }
         }
     }

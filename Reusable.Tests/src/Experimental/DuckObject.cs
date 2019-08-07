@@ -4,7 +4,7 @@ using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 
-namespace Reusable.Tests.Experimental {
+namespace Reusable.Experimental {
     public class DuckObject<T> : DynamicObject
     {
         private static readonly DuckObject<T> Duck = new DuckObject<T>();

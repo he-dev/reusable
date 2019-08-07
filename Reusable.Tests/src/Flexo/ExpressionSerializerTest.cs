@@ -8,10 +8,10 @@ using Autofac;
 using Reusable.Data;
 using Reusable.Extensions;
 using Reusable.Flexo;
+using Reusable.Flexo.Helpers;
 using Reusable.IOnymous;
 using Reusable.OmniLog;
 using Reusable.Quickey;
-using Reusable.Tests.Flexo.Helpers;
 using Reusable.Utilities.JsonNet;
 using Reusable.Utilities.JsonNet.DependencyInjection;
 using Reusable.Utilities.XUnit.Annotations;
@@ -21,15 +21,13 @@ using Double = Reusable.Flexo.Double;
 using ExpressionSerializer = Reusable.Flexo.ExpressionSerializer;
 
 // ReSharper disable once CheckNamespace
-namespace Reusable.Tests.Flexo
+namespace Reusable.Flexo
 {
     public class ExpressionSerializerTest : IClassFixture<ExpressionFixture>
     {
         private readonly ExpressionFixture _helper;
         private readonly ITestOutputHelper _output;
-
-        private static readonly IResourceProvider Flexo = EmbeddedFileProvider<ExpressionSerializerTest>.Default.DecorateWith(RelativeProvider.Factory(@"res\Flexo"));
-
+        
         public ExpressionSerializerTest(ExpressionFixture helper, ITestOutputHelper output)
         {
             _helper = helper;
@@ -72,7 +70,7 @@ namespace Reusable.Tests.Flexo
         [Fact]
         public async Task Can_deserialize_single_expression()
         {
-            var jsonFile = await Flexo.GetFileAsync(@"ExpressionObject.json", MimeType.Json);
+            var jsonFile = await Helper.Flexo.GetFileAsync(@"ExpressionObject.json", MimeType.Json);
             using (var jsonStream = await jsonFile.CopyToMemoryStreamAsync())
             {
                 var expression = await _helper.Serializer.DeserializeExpressionAsync(jsonStream.Rewind());

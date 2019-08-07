@@ -2,7 +2,7 @@
     <PropertyGroup>
 <!--        <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>-->
         <TargetFramework>netcoreapp2.2</TargetFramework>
-        <RootNamespace>Reusable.Tests</RootNamespace>
+        <RootNamespace>Reusable</RootNamespace>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
         <DefineConstants>TRACE;RELEASE;NET47;JETBRAINS_ANNOTATIONS</DefineConstants>

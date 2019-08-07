@@ -1,9 +1,8 @@
 using System.Collections;
-using Reusable.Cryptography;
 using Reusable.Exceptionize;
 using Xunit;
 
-namespace Reusable.Tests.Cryptography
+namespace Reusable.Cryptography
 {
     public class FingerprintBuilderTest
     {

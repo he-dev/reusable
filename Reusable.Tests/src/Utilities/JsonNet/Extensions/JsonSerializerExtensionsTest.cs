@@ -1,9 +1,8 @@
 ﻿using System.IO;
 using Newtonsoft.Json;
-using Reusable.Utilities.JsonNet.Extensions;
 using Xunit;
 
-namespace Reusable.Tests.Utilities.JsonNet.Extensions
+namespace Reusable.Utilities.JsonNet.Extensions
 {
     public class JsonSerializerExtensionsTest
     {

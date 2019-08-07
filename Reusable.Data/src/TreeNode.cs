@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Custom;
 using JetBrains.Annotations;
 using Reusable.Diagnostics;
 
@@ -46,18 +47,6 @@ namespace Reusable.Data
         public static TreeNode<T> Create<T>(T value) => new TreeNode<T>(value);
     }
 
-    //    public class TreeNode : TreeNode<object>
-    //    {
-    //        public TreeNode(object obj) : base(obj) { }
-    //
-    //        public new static TreeNode Empty => new TreeNode(default);
-    //
-    //        public override TreeNode<object> Add(object obj)
-    //        {
-    //            return base.Add(obj is TreeNode<object> tn ? tn : new TreeNode<object>(obj));
-    //        }        
-    //    }
-
     public static class TreeNodeExtensions
     {
         public static (TreeNode<T> Parent, TreeNode<T> Child) Add<T>(this TreeNode<T> parent, T value)
@@ -66,45 +55,66 @@ namespace Reusable.Data
             parent.Add(child);
             return (parent, child);
         }
-    }
 
-    public delegate string RenderTreeNodeValueCallback<in T>(T value, int depth);
-
-    [PublicAPI]
-    public interface ITreeRenderer<out TResult>
-    {
-        TResult Render<TValue>(TreeNode<TValue> root, RenderTreeNodeValueCallback<TValue> renderTreeNodeValue);
-    }
-
-    public abstract class TreeRenderer<TResult> : ITreeRenderer<TResult>
-    {
-        public abstract TResult Render<TValue>(TreeNode<TValue> root, RenderTreeNodeValueCallback<TValue> renderTreeNodeValue);
-    }
-
-    public class PlainTreeRenderer : ITreeRenderer<string>
-    {
-        public int IndentWidth { get; set; } = 3;
-
-        public string Render<TValue>(TreeNode<TValue> root, RenderTreeNodeValueCallback<TValue> renderTreeNodeValue)
+        public static IEnumerable<TView> Views<T, TView>(this TreeNode<T> root, RenderTreeNodeValueCallback<T, TView> renderTreeNodeValue) where TView : ITreeNodeView
         {
-            var nodeViews = Render(root, 0, renderTreeNodeValue);
-            var indentedNodeViews = nodeViews.Select(nv => nv.Text.IndentLines(IndentWidth * nv.Depth));
-            return string.Join(Environment.NewLine, indentedNodeViews);
+            return Views(root, 0, renderTreeNodeValue);
         }
 
-        private static IEnumerable<(string Text, int Depth)> Render<T>(TreeNode<T> root, int depth, RenderTreeNodeValueCallback<T> renderTreeNodeValue)
+        private static IEnumerable<TView> Views<T, TView>(TreeNode<T> root, int depth, RenderTreeNodeValueCallback<T, TView> renderTreeNodeValue) where TView : ITreeNodeView
         {
-            yield return (renderTreeNodeValue(root, depth), depth);
+            yield return renderTreeNodeValue(root, depth);
 
             var views =
                 from node in root
-                from view in Render(node, depth + 1, renderTreeNodeValue)
+                from view in Views(node, depth + 1, renderTreeNodeValue)
                 select view;
 
             foreach (var view in views)
             {
                 yield return view;
             }
+        }
+
+        public static string Render(this IEnumerable<TreeNodePlainView> views, int indentWidth = 3)
+        {
+            return
+                views
+                    .Select(nv => nv.Text.IndentLines(indentWidth * nv.Depth))
+                    .Join(Environment.NewLine);
+        }
+    }
+
+    public interface ITreeNodeView
+    {
+        int Depth { get; }
+    }
+
+    public class TreeNodePlainView : ITreeNodeView
+    {
+        public string Text { get; set; }
+
+        public int Depth { get; set; }
+    }
+
+    public delegate TView RenderTreeNodeValueCallback<in T, out TView>(T value, int depth) where TView : ITreeNodeView;
+
+    [PublicAPI]
+    public interface ITreeRenderer<out TResult, in TView> where TView : ITreeNodeView
+    {
+        TResult Render<TValue>(TreeNode<TValue> root, RenderTreeNodeValueCallback<TValue, TView> renderTreeNodeValue);
+    }
+
+    public class PlainTreeRenderer : ITreeRenderer<string, TreeNodePlainView>
+    {
+        public int IndentWidth { get; set; } = 3;
+
+        public string Render<TValue>(TreeNode<TValue> root, RenderTreeNodeValueCallback<TValue, TreeNodePlainView> renderTreeNodeValue)
+        {
+            return 
+                root
+                    .Views(renderTreeNodeValue)
+                    .Render(IndentWidth);
         }
     }
 }

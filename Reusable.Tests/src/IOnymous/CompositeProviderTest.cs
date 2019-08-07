@@ -1,12 +1,9 @@
-using System.IO;
 using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.Exceptionize;
-using Reusable.IOnymous;
-using Reusable.Quickey;
 using Xunit;
 
-namespace Reusable.Tests.IOnymous
+namespace Reusable.IOnymous
 {
     public class CompositeProviderTest
     {

@@ -1,16 +1,12 @@
-using System;
 using System.Collections.Immutable;
-using System.Threading.Tasks;
 using Autofac;
-using Reusable.Beaver;
+using Reusable.Beaver.Features;
 using Reusable.Data.Annotations;
 using Reusable.Extensions;
-using Reusable.OmniLog;
 using Reusable.Quickey;
-using Reusable.Tests.Beaver.Features;
 using Xunit;
 
-namespace Reusable.Tests.Beaver
+namespace Reusable.Beaver
 {
     public class FeatureServiceTest
     {

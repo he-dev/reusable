@@ -1,15 +1,10 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Reusable.Data;
-using Reusable.IOnymous;
-using Reusable.IOnymous.Config;
-using Reusable.OneTo1;
 using Xunit;
 
-namespace Reusable.Tests.IOnymous
+namespace Reusable.IOnymous
 {
-    using static SettingProvider;
-    
     public class InMemoryProviderTest
     {
         [Fact]

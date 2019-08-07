@@ -5,7 +5,7 @@ using Reusable.Utilities.JsonNet.Converters;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
-namespace Reusable.Tests.Utilities.JsonNet
+namespace Reusable.Utilities.JsonNet
 {
     public class JsonStringConverterTest
     {

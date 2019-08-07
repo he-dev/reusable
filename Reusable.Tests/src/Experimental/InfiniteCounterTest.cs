@@ -1,7 +1,7 @@
 using System.Linq;
 using Xunit;
 
-namespace Reusable.Tests.Experimental
+namespace Reusable.Experimental
 {
     public class InfiniteCounterTest
     {

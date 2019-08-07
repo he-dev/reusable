@@ -1,9 +1,10 @@
 ﻿using System;
 using Xunit;
+
 //using Reusable.Utilities.Xunit.Extensions;
 
 // ReSharper disable once CheckNamespace
-namespace Reusable.Tests
+namespace Reusable
 {
     public class RangeTest
     {

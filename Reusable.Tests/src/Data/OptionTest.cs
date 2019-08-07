@@ -1,10 +1,8 @@
-using System;
 using System.Collections.Immutable;
 using Reusable.Beaver;
-using Reusable.Data;
 using Xunit;
 
-namespace Reusable.Tests.Data
+namespace Reusable.Data
 {
     public class OptionTest
     {

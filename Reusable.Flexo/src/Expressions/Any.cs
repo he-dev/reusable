@@ -18,12 +18,14 @@ namespace Reusable.Flexo
 
         protected override Constant<bool> InvokeCore()
         {
+            var predicate = (Predicate ?? Constant.FromValue(nameof(Predicate), true));//.Invoke();
+            
             foreach (var item in Values)
             {
                 var current = item.Invoke();
                 using (BeginScope(ctx => ctx.SetItem(ExpressionContext.ThisOuter, current)))
                 {
-                    var predicate = (Predicate ?? Constant.True);
+                    //var predicate = (Predicate ?? Constant.True);
                     if (predicate is IConstant)
                     {
                         if (EqualityComparer<bool>.Default.Equals(current.Value<bool>(), predicate.Invoke().Value<bool>()))

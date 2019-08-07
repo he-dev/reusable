@@ -3,20 +3,14 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
-using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
-using Reusable.Commander;
 using Reusable.Commander.Commands;
 using Reusable.Commander.DependencyInjection;
-using Reusable.Data.Annotations;
-using Reusable.Tests.Commander.Integration;
+using Reusable.Commander.Integration;
 using Xunit;
 
-namespace Reusable.Tests.Commander
+namespace Reusable.Commander
 {
-    using static Helper;
-
     public class FeatureTest
     {
         [Fact]
@@ -29,7 +23,7 @@ namespace Reusable.Tests.Commander
                     .Empty
                     .Add(new NameSet("a", "b"), ExecuteHelper.Count<TestCommandLine>(counters));
 
-            using (var context = CreateContext(commands))
+            using (var context = Helper.CreateContext(commands))
             {
                 await context.Executor.ExecuteAsync<object>("a", default, context.CommandFactory);
                 await context.Executor.ExecuteAsync<object>("b", default, context.CommandFactory);
@@ -49,7 +43,7 @@ namespace Reusable.Tests.Commander
                     .Add(new NameSet("a"), ExecuteHelper.Count<TestCommandLine>(counters))
                     .Add(new NameSet("b"), ExecuteHelper.Count<TestCommandLine>(counters));
 
-            using (var context = CreateContext(commands))
+            using (var context = Helper.CreateContext(commands))
             {
                 await context.Executor.ExecuteAsync<object>("a|b", default, context.CommandFactory);
 
@@ -137,7 +131,7 @@ namespace Reusable.Tests.Commander
                 return Task.CompletedTask;
             }));
 
-            using (var context = CreateContext(commands))
+            using (var context = Helper.CreateContext(commands))
             {
                 await context.Executor.ExecuteAsync<object>("test", default, context.CommandFactory);
 
@@ -165,7 +159,7 @@ namespace Reusable.Tests.Commander
                 return Task.CompletedTask;
             }));
 
-            using (var context = CreateContext(commands))
+            using (var context = Helper.CreateContext(commands))
             {
                 await context.Executor.ExecuteAsync<object>("test -bool -string bar -int32 123 -datetime \"2019-07-01\" -listofint32 1 2 3", default, context.CommandFactory);
 
@@ -183,7 +177,7 @@ namespace Reusable.Tests.Commander
             var values = new Dictionary<NameSet, object>();
             var commands = ImmutableList<CommandModule>.Empty.Add(new NameSet("test"), new ExecuteCallback<TestCommandLine, object>((id, commandLine, context, token) => { throw new Exception("Blub!"); }));
 
-            using (var context = CreateContext(commands))
+            using (var context = Helper.CreateContext(commands))
             {
                 await Assert.ThrowsAsync<AggregateException>(async () => await context.Executor.ExecuteAsync<object>("test", default, context.CommandFactory));
             }

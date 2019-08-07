@@ -5,22 +5,15 @@ using System.Linq;
 using Autofac;
 using JetBrains.Annotations;
 using Reusable.Extensions;
-using Reusable.Flexo;
 using Reusable.IOnymous;
 using Reusable.OmniLog;
-using Reusable.Utilities.JsonNet;
 using Reusable.Utilities.JsonNet.DependencyInjection;
 
-namespace Reusable.Tests.Flexo
+namespace Reusable.Flexo
 {
     [UsedImplicitly]
     public class ExpressionFixture : IDisposable
     {
-        private static readonly IResourceProvider Flexo = 
-            EmbeddedFileProvider<ExpressionSerializerTest>
-                .Default
-                .DecorateWith(instance => new RelativeProvider(@"res\Flexo", instance));
-
         private readonly ILifetimeScope _scope;
         private readonly IDisposable _disposer;
         private readonly ConcurrentDictionary<string, IList<IExpression>> _expressions = new ConcurrentDictionary<string, IList<IExpression>>();
@@ -61,7 +54,7 @@ namespace Reusable.Tests.Flexo
         {
             return n =>
             {
-                var json = Flexo.ReadTextFile(n);
+                var json = Helper.Flexo.ReadTextFile(n);
                 return Serializer.Deserialize<IList<IExpression>>(json);
             };
         }

@@ -1,9 +1,7 @@
 ﻿using Newtonsoft.Json;
-using Reusable.IOnymous;
-using Reusable.IOnymous.Http.Mailr.Models;
 using Xunit;
 
-namespace Reusable.Tests.IOnymous.Http.Mailr.Models
+namespace Reusable.IOnymous.Http.Mailr.Models
 {
     public class HtmlTableTest
     {
@@ -18,7 +16,7 @@ namespace Reusable.Tests.IOnymous.Http.Mailr.Models
             row[1].Styles.Add("empty");
             var actual = JsonConvert.SerializeObject(table, new JsonSerializerSettings
             {
-                Formatting = Formatting.None,
+                Formatting = Newtonsoft.Json.Formatting.None,
                 
             });
 

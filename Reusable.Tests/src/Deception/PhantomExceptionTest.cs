@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Reusable.Collections;
-using Reusable.Collections.Generators;
-using Reusable.Deception;
 using Reusable.Deception.Patterns;
 using Reusable.Exceptionize;
 using Xunit;
 
-namespace Reusable.Tests.Deception
+namespace Reusable.Deception
 {
     public class PhantomExceptionTest
     {

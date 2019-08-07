@@ -90,7 +90,7 @@ namespace Reusable.Flexo
         {
             return TreeNode.Create(new ExpressionDebugView
             {
-                Type = expression.GetType().ToPrettyString(),
+                ExpressionType = expression.GetType().ToPrettyString(),
                 Name = expression.Name.ToString(),
                 Description = expression.Description ?? new ExpressionDebugView().Description,
             });
@@ -120,13 +120,17 @@ namespace Reusable.Flexo
             }
         }
 
-        public static (IConstant, IList<IImmutableContainer> Contexts) Invoke(this IExpression expression, Func<IImmutableContainer, IImmutableContainer> configureContext)
+        public static ExpressionInvokeResult Invoke(this IExpression expression, Func<IImmutableContainer, IImmutableContainer> alterContext)
         {
-            using (Expression.BeginScope(configureContext ?? (_ => _)))
+            using (Expression.BeginScope(alterContext ?? (_ => _)))
             {
                 try
                 {
-                    return (expression.Invoke(), DumpContexts());
+                    return new ExpressionInvokeResult
+                    {
+                        Constant = expression.Invoke(), 
+                        Contexts = DumpContexts()
+                    };
                 }
                 catch (Exception inner)
                 {
@@ -139,5 +143,26 @@ namespace Reusable.Flexo
         }
 
         private static IList<IImmutableContainer> DumpContexts() => Expression.Scope.Enumerate().Select(scope => scope.Context).ToList();
+    }
+
+    public class ExpressionInvokeResult
+    {
+        public IConstant Constant { get; set; }
+
+        public IList<IImmutableContainer> Contexts { get; set; }
+    }
+
+    public static class ExpressionInvokeResultExtensions
+    {
+        public static string DebugViewToString(this ExpressionInvokeResult result, RenderTreeNodeValueCallback<ExpressionDebugView, TreeNodePlainView> template)
+        {
+            return
+                result
+                    .Contexts
+                    .First()
+                    .DebugView()
+                    .Views(template)
+                    .Render();
+        }
     }
 }

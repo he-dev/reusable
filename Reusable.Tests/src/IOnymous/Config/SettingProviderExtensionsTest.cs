@@ -1,10 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Reusable.Data;
-using Reusable.Extensions;
-using Reusable.IOnymous;
-using Reusable.IOnymous.Config;
 using Reusable.IOnymous.Config.Annotations;
 using Reusable.OneTo1;
 using Reusable.Quickey;
@@ -24,7 +20,7 @@ using Xunit;
   - can find setting for base type
   
  */
-namespace Reusable.Tests.IOnymous.Config
+namespace Reusable.IOnymous.Config
 {
     public class SettingProviderExtensionsTest
     {

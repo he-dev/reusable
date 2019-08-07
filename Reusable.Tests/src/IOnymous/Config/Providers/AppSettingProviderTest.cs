@@ -1,10 +1,8 @@
 using System.Threading.Tasks;
-using Reusable.IOnymous;
-using Reusable.IOnymous.Config;
 using Reusable.Quickey;
 using Xunit;
 
-namespace Reusable.Tests.IOnymous.Config.Providers
+namespace Reusable.IOnymous.Config.Providers
 {
     public class AppSettingProviderTest
     {

@@ -1,13 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Reusable.Exceptionize;
-using Reusable.Extensions;
-using Reusable.Flawless;
 using Xunit;
 
-namespace Reusable.Tests.Flawless
+namespace Reusable.Flawless
 {
     public class ValidationTest
     {

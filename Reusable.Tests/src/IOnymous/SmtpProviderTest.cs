@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Reusable.IOnymous;
 using Reusable.IOnymous.Mail;
 using Reusable.IOnymous.Mail.Smtp;
 
-namespace Reusable.Tests.IOnymous
+namespace Reusable.IOnymous
 {
     public class SmtpProviderTest
     {

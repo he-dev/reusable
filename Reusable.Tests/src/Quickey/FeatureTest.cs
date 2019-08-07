@@ -1,8 +1,7 @@
 using System;
-using Reusable.Quickey;
 using Xunit;
 
-namespace Reusable.Tests.Quickey
+namespace Reusable.Quickey
 {
     public class FeatureTest
     {
