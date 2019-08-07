@@ -22,10 +22,10 @@ namespace Reusable.Flexo
         public static ExpressionDebugView Root => new ExpressionDebugView
         {
             Name = "Root",
-            Description = "This is the root node of the expression debug-view."
+            Description = $"This is the root node of the {nameof(ExpressionDebugView)}."
         };
 
-        public static RenderValueCallback<ExpressionDebugView> DefaultRender
+        public static RenderTreeNodeValueCallback<ExpressionDebugView> DefaultRenderTreeNode
         {
             get { return (dv, d) => $"[{dv.Type}] as [{dv.Name}]: '{FormatResult(dv.Result)}' ({dv.Description})"; }
         }

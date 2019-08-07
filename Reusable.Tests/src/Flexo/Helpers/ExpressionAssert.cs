@@ -13,7 +13,7 @@ namespace Reusable.Tests.Flexo.Helpers
 {
     internal static class ExpressionAssert
     {
-        private static readonly ITreeRenderer<string> DebugViewRenderer = new PlainTextTreeRenderer();
+        private static readonly ITreeRenderer<string> DebugViewRenderer = new PlainTreeRenderer();
 
         public static (IConstant Result, IList<IImmutableContainer> Contexts) ExpressionEqual<TValue>
         (
@@ -33,7 +33,7 @@ namespace Reusable.Tests.Flexo.Helpers
             else
             {
                 var (actual, contexts) = expression.Invoke(customizeContext);
-                var debugViewString = DebugViewRenderer.Render(contexts.First().DebugView(), ExpressionDebugView.DefaultRender);
+                var debugViewString = DebugViewRenderer.Render(contexts.First().DebugView(), ExpressionDebugView.DefaultRenderTreeNode);
 
                 try
                 {

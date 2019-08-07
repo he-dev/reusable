@@ -11,14 +11,12 @@ namespace Reusable.Data
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public class TreeNode<T> : List<TreeNode<T>>
     {
-        public TreeNode(T value, IEnumerable<TreeNode<T>> children)
-            : base(children)
+        public TreeNode(T value, IEnumerable<TreeNode<T>> children) : base(children)
         {
             Value = value;
         }
 
-        public TreeNode(T value)
-            : this(value, Enumerable.Empty<TreeNode<T>>()) { }
+        public TreeNode(T value) : this(value, Enumerable.Empty<TreeNode<T>>()) { }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(b =>
         {
@@ -48,17 +46,17 @@ namespace Reusable.Data
         public static TreeNode<T> Create<T>(T value) => new TreeNode<T>(value);
     }
 
-//    public class TreeNode : TreeNode<object>
-//    {
-//        public TreeNode(object obj) : base(obj) { }
-//
-//        public new static TreeNode Empty => new TreeNode(default);
-//
-//        public override TreeNode<object> Add(object obj)
-//        {
-//            return base.Add(obj is TreeNode<object> tn ? tn : new TreeNode<object>(obj));
-//        }        
-//    }
+    //    public class TreeNode : TreeNode<object>
+    //    {
+    //        public TreeNode(object obj) : base(obj) { }
+    //
+    //        public new static TreeNode Empty => new TreeNode(default);
+    //
+    //        public override TreeNode<object> Add(object obj)
+    //        {
+    //            return base.Add(obj is TreeNode<object> tn ? tn : new TreeNode<object>(obj));
+    //        }        
+    //    }
 
     public static class TreeNodeExtensions
     {
@@ -70,37 +68,37 @@ namespace Reusable.Data
         }
     }
 
-    public delegate string RenderValueCallback<in T>(T value, int depth);
+    public delegate string RenderTreeNodeValueCallback<in T>(T value, int depth);
 
     [PublicAPI]
     public interface ITreeRenderer<out TResult>
     {
-        TResult Render<TValue>(TreeNode<TValue> root, RenderValueCallback<TValue> renderValue);
+        TResult Render<TValue>(TreeNode<TValue> root, RenderTreeNodeValueCallback<TValue> renderTreeNodeValue);
     }
 
     public abstract class TreeRenderer<TResult> : ITreeRenderer<TResult>
     {
-        public abstract TResult Render<TValue>(TreeNode<TValue> root, RenderValueCallback<TValue> renderValue);
+        public abstract TResult Render<TValue>(TreeNode<TValue> root, RenderTreeNodeValueCallback<TValue> renderTreeNodeValue);
     }
 
-    public class PlainTextTreeRenderer : ITreeRenderer<string>
+    public class PlainTreeRenderer : ITreeRenderer<string>
     {
         public int IndentWidth { get; set; } = 3;
 
-        public string Render<TValue>(TreeNode<TValue> root, RenderValueCallback<TValue> renderValue)
+        public string Render<TValue>(TreeNode<TValue> root, RenderTreeNodeValueCallback<TValue> renderTreeNodeValue)
         {
-            var nodeViews = Render(root, 0, renderValue);
-            var indentedNodeViews = nodeViews.Select(nv => nv.Value.IndentLines(IndentWidth * nv.Depth));
+            var nodeViews = Render(root, 0, renderTreeNodeValue);
+            var indentedNodeViews = nodeViews.Select(nv => nv.Text.IndentLines(IndentWidth * nv.Depth));
             return string.Join(Environment.NewLine, indentedNodeViews);
         }
 
-        private static IEnumerable<(string Value, int Depth)> Render<T>(TreeNode<T> root, int depth, RenderValueCallback<T> renderValue)
+        private static IEnumerable<(string Text, int Depth)> Render<T>(TreeNode<T> root, int depth, RenderTreeNodeValueCallback<T> renderTreeNodeValue)
         {
-            yield return (renderValue(root, depth), depth);
+            yield return (renderTreeNodeValue(root, depth), depth);
 
             var views =
                 from node in root
-                from view in Render(node, depth + 1, renderValue)
+                from view in Render(node, depth + 1, renderTreeNodeValue)
                 select view;
 
             foreach (var view in views)
