@@ -8,6 +8,8 @@ namespace Reusable.OmniLog.Abstractions
 {
     public interface IComputable : IEquatable<IComputable>
     {
+        bool Enabled { get; }
+        
         [AutoEqualityProperty]
         SoftString Name { get; }
 
@@ -27,8 +29,10 @@ namespace Reusable.OmniLog.Abstractions
             Name = GetType().Name;
         }
 
-        private string DebuggerDisplay() => this.ToDebuggerDisplayString(builder => { builder.DisplayValue(x => x.Name); });
+        private string DebuggerDisplay() => this.ToDebuggerDisplayString(b => { b.DisplayScalar(x => x.Name); });
 
+        public bool Enabled { get; set; } = true;
+        
         public SoftString Name { get; }
 
         public abstract object Compute(LogEntry logEntry);

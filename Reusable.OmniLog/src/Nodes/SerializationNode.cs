@@ -8,9 +8,10 @@ namespace Reusable.OmniLog.Nodes
 {
     public class SerializationNode : LoggerNode
     {
-        public static readonly string LogItemTag = "Serializable";
-        
-        //private static readonly Regex SerializableSuffixRegex = new Regex($"{Regex.Escape(SerializableSuffix)}$", RegexOptions.Compiled);
+        public static class LogEntryItemTags
+        {
+            public static readonly string Request = "Serializable";
+        }
 
         private readonly ISerializer _serializer;
 
@@ -32,7 +33,7 @@ namespace Reusable.OmniLog.Nodes
             var keys =
                 SerializableProperties.Any()
                     ? SerializableProperties.Select(CreateItemKey)
-                    : request.Where(l => l.Key.Tag.Equals(LogItemTag)).Select(l => l.Key);
+                    : request.Where(l => l.Key.Tag.Equals(LogEntryItemTags.Request)).Select(l => l.Key);
 
             foreach (var (name, tag) in keys.ToList())
             {
@@ -46,14 +47,14 @@ namespace Reusable.OmniLog.Nodes
             Next?.Invoke(request);
         }
 
-        public static ItemKey<SoftString> CreateItemKey(string propertyName) => (propertyName, LogItemTag);
+        public static ItemKey<SoftString> CreateItemKey(string propertyName) => (propertyName, LogEntryItemTags.Request);
     }
-    
+
     public static class LoggerSerializerHelper
     {
-        public static LogEntry Serializable(this LogEntry logEntry, string propertyName, object obj)
-        {
-            return logEntry.SetItem(propertyName, SerializationNode.LogItemTag, obj);
-        }
+        // public static LogEntry Serializable(this LogEntry logEntry, string propertyName, object obj)
+        // {
+        //     return logEntry.SetItem(propertyName, SerializationNode.LogItemTag, obj);
+        // }
     }
 }

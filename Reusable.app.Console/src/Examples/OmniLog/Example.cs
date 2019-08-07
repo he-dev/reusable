@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Reusable.Data;
-using Reusable.Diagnostics;
+using Reusable.Apps;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Extensions;
@@ -14,7 +10,7 @@ using Reusable.OmniLog.SemanticExtensions;
 using Reusable.OmniLog.SemanticExtensions.Nodes;
 using Reusable.Utilities.NLog.LayoutRenderers;
 
-namespace Reusable.Apps.Examples.OmniLog
+namespace Reusable.Examples.OmniLog
 {
     public static class Example
     {
@@ -32,7 +28,7 @@ namespace Reusable.Apps.Examples.OmniLog
                         { "Environment", "Demo" },
                         { "Product", "Reusable.app.Console" }
                     },
-                    // When activated by using(logger.UseStopwatch()) {}, adds Elapsed to each logEntry
+                    // Adds elapsed time to each log-entry. Can be enabled with logger.UseStopwatch(). Dispose to disable.
                     new StopwatchNode
                     {
                         // Selects milliseconds to be logged. This is the default.
@@ -41,8 +37,11 @@ namespace Reusable.Apps.Examples.OmniLog
                     // Adds computed properties to each log-entry.
                     new ComputableNode
                     {
-                        // Adds utc timestamp to each log-entry.
-                        new Reusable.OmniLog.Computables.Timestamp<DateTimeUtc>()
+                        Computables =
+                        {
+                            // Adds utc timestamp to each log-entry.
+                            new Reusable.OmniLog.Computables.Timestamp<DateTimeUtc>()
+                        }
                     },
                     // Adds support for logger.Log(log => ..) overload.
                     new LambdaNode(),
@@ -56,7 +55,10 @@ namespace Reusable.Apps.Examples.OmniLog
                     new DumpNode
                     {
                         // Maps Person to a different type.
-                        DumpNode.Mapping.Map<Person>(x => new { FullName = $"{x.LastName}, {x.FirstName}".ToUpper() })
+                        Mappings =
+                        {
+                            DumpNode.Mapping.For<Person>(x => new { FullName = $"{x.LastName}, {x.FirstName}".ToUpper() })
+                        }
                     },
                     // Serializes every #Serializable item in the log-entry and adds it as #Property.
                     new SerializationNode(),
@@ -67,12 +69,20 @@ namespace Reusable.Apps.Examples.OmniLog
                     {
                         Changes =
                         {
-                            { "Correlation", "Scope" },
-                            { "Variable", "Identifier" },
-                            { "Dump", "Snapshot" },
+                            { CorrelationNode.DefaultLogEntryItemNames.Scope, "Scope" },
+                            { DumpNode.DefaultLogEntryItemNames.Variable, "Identifier" },
+                            { DumpNode.DefaultLogEntryItemNames.Dump, "Snapshot" },
                         }
                     },
-                    // When activated, buffers log-entries until committed.
+                    // Sets default values for the specified keys when they are not set already. 
+                    new FallbackNode
+                    {
+                        Defaults =
+                        {
+                            [LogEntry.BasicPropertyNames.Level] = LogLevel.Information
+                        }
+                    },
+                    // When activated, buffers log-entries until committed. Can be enabled with logger.UseTransaction(). Dispose to disable.
                     new TransactionNode(),
                     // The final node that sends log-entries to the receivers.
                     new EchoNode
@@ -80,7 +90,7 @@ namespace Reusable.Apps.Examples.OmniLog
                         Rx =
                         {
                             new NLogRx(), // Use NLog.
-                            new ConsoleRx // Use console
+                            new ConsoleRx // Use console.
                             {
                                 // Use simple console renderer with color per line. This is the default.
                                 Renderer = new SimpleConsoleRenderer

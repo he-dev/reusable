@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Nodes
@@ -17,7 +18,7 @@ namespace Reusable.OmniLog.Nodes
             _propertyName = propertyName;
         }
 
-        public override bool IsActive => !(LoggerScope<Scope>.Current is null);
+        public override bool Enabled => !(LoggerScope<Scope>.Current is null);
 
         #region IScope
 
@@ -50,6 +51,17 @@ namespace Reusable.OmniLog.Nodes
             public void Reset() => _stopwatch.Reset();
 
             public void Dispose() => LoggerScope<Scope>.Current.Dispose();
+        }
+    }
+
+    public static class LoggerStopwatchHelper
+    {
+        public static StopwatchNode.Scope UseStopwatch(this ILogger logger)
+        {
+            return
+                logger
+                    .Node<StopwatchNode>()
+                    .Push(default);
         }
     }
 }

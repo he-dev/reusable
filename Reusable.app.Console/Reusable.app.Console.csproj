@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <RootNamespace>Reusable.Apps</RootNamespace>
+    <RootNamespace>Reusable</RootNamespace>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 

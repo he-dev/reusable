@@ -16,44 +16,45 @@ namespace Reusable.Diagnostics
             _members = new List<(string MemberName, Func<T, object> GetValue)>();
         }
 
-        public DebuggerDisplayBuilder<T> Property<TProperty>
+        public DebuggerDisplayBuilder<T> DisplayScalar<TSource>
         (
-            [NotNull] Expression<Func<T, TProperty>> memberSelector,
-            [NotNull] string format
+            [NotNull] Expression<Func<T, TSource>> sourceSelector,
+            [NotNull] string formatString = DebuggerDisplayFormatter.DefaultFormatString
         )
         {
-            if (memberSelector == null) throw new ArgumentNullException(nameof(memberSelector));
-            if (format == null) throw new ArgumentNullException(nameof(format));
+            if (sourceSelector == null) throw new ArgumentNullException(nameof(sourceSelector));
+            if (formatString == null) throw new ArgumentNullException(nameof(formatString));
 
-            var memberExpressions = DebuggerDisplayVisitor.EnumerateMembers(memberSelector);
-            var getProperty = memberSelector.Compile();
+            var memberExpressions = DebuggerDisplayVisitor.EnumerateMembers(sourceSelector);
+            var getProperty = sourceSelector.Compile();
 
             return Add
             (
                 memberName: memberExpressions.FormatMemberName(),
-                getValue: obj => obj == null ? null : getProperty(obj).FormatValue(format)
+                getValue: obj => obj == null ? null : getProperty(obj).FormatValue(formatString)
             );
         }
 
-        public DebuggerDisplayBuilder<T> Collection<TProperty, TValue>
+        public DebuggerDisplayBuilder<T> DisplayEnumerable<TSource, TItem>
         (
-            [NotNull] Expression<Func<T, IEnumerable<TProperty>>> memberSelector,
-            [NotNull] Expression<Func<TProperty, TValue>> itemSelector,
-            [NotNull] string format,
-            int max
+            [NotNull] Expression<Func<T, IEnumerable<TSource>>> sourceSelector,
+            [NotNull] Expression<Func<TSource, TItem>> itemSelector,
+            [NotNull] string formatString = DebuggerDisplayFormatter.DefaultFormatString,
+            int max = DebuggerDisplayFormatter.DefaultEnumerableTake
         )
         {
-            if (memberSelector == null) throw new ArgumentNullException(nameof(memberSelector));
+            if (sourceSelector == null) throw new ArgumentNullException(nameof(sourceSelector));
             if (itemSelector == null) throw new ArgumentNullException(nameof(itemSelector));
-            if (format == null) throw new ArgumentNullException(nameof(format));
+            if (formatString == null) throw new ArgumentNullException(nameof(formatString));
 
-            var memberExpressions = DebuggerDisplayVisitor.EnumerateMembers(memberSelector);
-            var getProperty = memberSelector.Compile();
+            var memberExpressions = DebuggerDisplayVisitor.EnumerateMembers(sourceSelector);
+            var getProperty = sourceSelector.Compile();
             var getValue = itemSelector.Compile();
 
-            return Add(
+            return Add
+            (
                 memberName: memberExpressions.FormatMemberName(),
-                getValue: obj => obj == null ? null : getProperty(obj).Select(getValue).FormatCollection(format, max)
+                getValue: obj => obj == null ? null : getProperty(obj).Select(getValue).FormatCollection(formatString, max)
             );
         }
 
@@ -71,34 +72,38 @@ namespace Reusable.Diagnostics
 
     public static class DebuggerDisplayBuilder
     {
-        public static DebuggerDisplayBuilder<T> DisplayValue<T, TProperty>
-        (
-            this DebuggerDisplayBuilder<T> builder,
-            Expression<Func<T, TProperty>> memberSelector
-        )
-        {
-            return builder.Property(memberSelector, DebuggerDisplayFormatter.DefaultValueFormat);
-        }
+        // public static DebuggerDisplayBuilder<T> DisplayScalar<T, TProperty>
+        // (
+        //     this DebuggerDisplayBuilder<T> builder,
+        //     Expression<Func<T, TProperty>> sourceSelector,
+        //     [NotNull] string formatString = DebuggerDisplayFormatter.DefaultFormatString,
+        //     int max = DebuggerDisplayFormatter.DefaultEnumerableTake
+        // )
+        // {
+        //     return builder.DisplayScalar<TProperty>(sourceSelector, x => x, formatString, max);
+        // }
 
-        public static DebuggerDisplayBuilder<T> DisplayValues<T, TProperty, TValue>
-        (
-            this DebuggerDisplayBuilder<T> builder,
-            Expression<Func<T, IEnumerable<TProperty>>> memberSelector,
-            Expression<Func<TProperty, TValue>> itemSelector,
-            string format = default,
-            int max = DebuggerDisplayFormatter.DefaultCollectionLength
-        )
-        {
-            return builder.Collection(memberSelector, itemSelector, format ?? DebuggerDisplayFormatter.DefaultValueFormat, max);
-        }
+        // public static DebuggerDisplayBuilder<T> DisplayEnumerable<T, TProperty, TValue>
+        // (
+        //     this DebuggerDisplayBuilder<T> builder,
+        //     Expression<Func<T, IEnumerable<TProperty>>> memberSelector,
+        //     Expression<Func<TProperty, TValue>> itemSelector,
+        //     string format = DebuggerDisplayFormatter.DefaultFormatString,
+        //     int max = DebuggerDisplayFormatter.DefaultEnumerableTake
+        // )
+        // {
+        //     return builder.DisplayEnumerable(memberSelector, itemSelector, format ?? DebuggerDisplayFormatter.DefaultFormatString, max);
+        // }
 
-        public static DebuggerDisplayBuilder<T> DisplayValues<T, TProperty>
+        public static DebuggerDisplayBuilder<T> DisplayEnumerable<T, TProperty>
         (
             this DebuggerDisplayBuilder<T> builder,
-            Expression<Func<T, IEnumerable<TProperty>>> memberSelector
+            Expression<Func<T, IEnumerable<TProperty>>> sourceSelector,
+            [NotNull] string formatString = DebuggerDisplayFormatter.DefaultFormatString,
+            int max = DebuggerDisplayFormatter.DefaultEnumerableTake
         )
         {
-            return builder.Collection(memberSelector, x => x, DebuggerDisplayFormatter.DefaultValueFormat, DebuggerDisplayFormatter.DefaultCollectionLength);
+            return builder.DisplayEnumerable(sourceSelector, x => x, formatString, max);
         }
     }
 }

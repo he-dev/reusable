@@ -100,8 +100,8 @@ namespace Reusable.Data
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
         {
-            builder.DisplayValue(x => x.Count);
-            builder.DisplayValues(x => x.Select(y => y.Key));
+            builder.DisplayScalar(x => x.Count);
+            builder.DisplayEnumerable(x => x.Select(y => y.Key));
         });
 
         public object this[string key] => _data[key];

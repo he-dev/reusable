@@ -9,9 +9,9 @@ namespace Reusable.Diagnostics
 {
     internal static class DebuggerDisplayFormatter
     {
-        public const string DefaultValueFormat = "{0}";
+        public const string DefaultFormatString = "{0}";
 
-        public const int DefaultCollectionLength = 10;
+        public const int DefaultEnumerableTake = 10;
 
         public static string FormatValue<TValue>([CanBeNull] this TValue value, [NotNull] string format)
         {
@@ -30,7 +30,7 @@ namespace Reusable.Diagnostics
 
         public static string FormatValue<TValue>([CanBeNull] this TValue value)
         {
-            return value.FormatValue(DefaultValueFormat);
+            return value.FormatValue(DefaultFormatString);
         }
 
         public static string FormatCollection<TValue>([CanBeNull] this IEnumerable<TValue> values, [NotNull] string format, int max)

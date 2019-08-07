@@ -8,8 +8,11 @@ namespace Reusable.OmniLog.Nodes
 {
     public class CorrelationNode : LoggerNode, ILoggerScope<CorrelationNode.Scope, (object CorrelationId, object CorrelationHandle)>
     {
-        public static readonly string DefaultPropertyName = "Correlation";
-        
+        public static class DefaultLogEntryItemNames
+        {
+            public static readonly string Scope = nameof(Scope);
+        }
+
         public CorrelationNode() : base(false) { }
 
         /// <summary>
@@ -17,9 +20,9 @@ namespace Reusable.OmniLog.Nodes
         /// </summary>
         public Func<object> NextCorrelationId { get; set; } = () => Guid.NewGuid().ToString("N");
 
-        public override bool IsActive => !LoggerScope<Scope>.IsEmpty;
+        public override bool Enabled => LoggerScope<Scope>.Any;
 
-        public string PropertyName { get; set; } = DefaultPropertyName;
+        public string ScopeName { get; set; } = DefaultLogEntryItemNames.Scope;
 
         public Scope Push((object CorrelationId, object CorrelationHandle) parameter)
         {
@@ -30,10 +33,9 @@ namespace Reusable.OmniLog.Nodes
             }).Value;
         }
 
-
         protected override void InvokeCore(LogEntry request)
         {
-            request.Serializable(PropertyName, LoggerScope<Scope>.Current.Value);
+            request.SetItem(ScopeName, SerializationNode.LogEntryItemTags.Request, LoggerScope<Scope>.Current.Value);
             Next?.Invoke(request);
         }
 
@@ -46,17 +48,14 @@ namespace Reusable.OmniLog.Nodes
             public void Dispose() => LoggerScope<Scope>.Current.Dispose();
         }
     }
-    
+
     public static class LoggerCorrelationHelper
     {
         public static CorrelationNode.Scope UseScope(this ILogger logger, object correlationId = default, object correlationHandle = default)
         {
             return
                 logger
-                    .Node
-                    .Enumerate(m => m.Next)
-                    .OfType<CorrelationNode>()
-                    .Single()
+                    .Node<CorrelationNode>()
                     .Push((correlationId, correlationHandle));
         }
     }

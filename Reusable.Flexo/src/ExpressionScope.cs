@@ -24,7 +24,7 @@ namespace Reusable.Flexo
         {
             //builder.Property(x => x.CorrelationId);
             //builder.Property(x => x.CorrelationContext);
-            builder.DisplayValue(x => x.Depth);
+            builder.DisplayScalar(x => x.Depth);
         });
 
         public ExpressionScope Parent { get; private set; }

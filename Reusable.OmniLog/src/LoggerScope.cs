@@ -21,7 +21,10 @@ namespace Reusable.OmniLog
             private set => State.Value = value;
         }
 
-        public static bool IsEmpty => Current is null;
+        /// <summary>
+        /// Gets a value indicating whether there are any states on the stack.
+        /// </summary>
+        public static bool Any => !(Current is null);
 
         public static LoggerScope<T> Push(T value)
         {
@@ -32,6 +35,8 @@ namespace Reusable.OmniLog
         {
             Current = Current?.Parent;
         }
+
+        public static implicit operator T(LoggerScope<T> scope) => scope.Value;
     }
 
     // -------------- these didn't work ---------------

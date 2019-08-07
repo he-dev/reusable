@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Extensions;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -10,7 +11,7 @@ namespace Reusable.OmniLog.Nodes
     {
         public TransactionNode() : base(false) { }
 
-        public override bool IsActive => !LoggerScope<Scope>.IsEmpty;
+        public override bool Enabled => LoggerScope<Scope>.Any;
 
         protected override void InvokeCore(LogEntry request)
         {
@@ -42,12 +43,22 @@ namespace Reusable.OmniLog.Nodes
                 Buffer.Clear();
             }
 
-
             public void Dispose()
             {
                 Buffer.Clear();
                 LoggerScope<Scope>.Current.Dispose();
             }
+        }
+    }
+
+    public static class TransactionNodeHelper
+    {
+        public static TransactionNode.Scope UseTransaction(this ILogger logger)
+        {
+            return
+                logger
+                    .Node<TransactionNode>()
+                    .Push(default);
         }
     }
 }

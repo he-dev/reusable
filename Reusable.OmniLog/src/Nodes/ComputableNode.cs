@@ -10,44 +10,23 @@ namespace Reusable.OmniLog.Nodes
     /// <summary>
     /// Adds computed properties to the log.
     /// </summary>
-    public class ComputableNode : LoggerNode, IEnumerable<IComputable>
+    public class ComputableNode : LoggerNode
     {
-        private readonly ISet<IComputable> _computables = new HashSet<IComputable>();
-        private readonly ISet<IComputable> _disabled = new HashSet<IComputable>();
-
         public ComputableNode() : base(true) { }
 
-        public override bool IsActive => base.IsActive && _computables.Any();
+        public override bool Enabled => base.Enabled && Computables.Any();
+
+        public List<IComputable> Computables { get; set; } = new List<IComputable>();
 
         protected override void InvokeCore(LogEntry request)
         {
-            foreach (var computable in _computables.Except(_disabled))
+            foreach (var computable in Computables.Where(x => x.Enabled))
             {
-                request.SetItem(computable.Name, default, computable.Compute(request));
-
                 // todo - to catch or not to catch?
-
-//                try
-//                {
-//                }
-//// Don't use this item when it failed to prevent further exceptions.
-//                catch (Exception ex)
-//                {
-//#if DEBUG
-//                    throw;
-//#else
-//                    _disabled.Add(attachment);
-//#endif
-//                }
+                request.SetItem(computable.Name, default, computable.Compute(request));
             }
 
             Next?.Invoke(request);
         }
-
-        public void Add(IComputable computable) => _computables.Add(computable);
-
-        public IEnumerator<IComputable> GetEnumerator() => _computables.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_computables).GetEnumerator();
     }
 }

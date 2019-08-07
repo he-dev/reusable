@@ -32,130 +32,130 @@ namespace Reusable.Apps
         {
             SmartPropertiesLayoutRenderer.Register();
 
-//            var loggerFactory = new LoggerFactory
-//            {
-//                Observers =
-//                {
-//                    new ConsoleRx(),
-//                },
-//                Attachments =
-//                {
-//                    new Timestamp<DateTimeUtc>(),
-//                }
-//            };
+            //            var loggerFactory = new LoggerFactory
+            //            {
+            //                Observers =
+            //                {
+            //                    new ConsoleRx(),
+            //                },
+            //                Attachments =
+            //                {
+            //                    new Timestamp<DateTimeUtc>(),
+            //                }
+            //            };
 
             //var consoleLogger = loggerFactory.CreateLogger("ConsoleTemplateTest");
 
-//            consoleLogger.WriteLine(m => m
-//                .text(">")
-//                .span(s => s.text("foo").color(ConsoleColor.Red))
-//                .text(" bar ")
-//                .span(s => s
-//                    .text("foo ")
-//                    .span(ss => ss.text("bar").backgroundColor(ConsoleColor.Gray))
-//                    .text(" baz")
-//                    .backgroundColor(ConsoleColor.DarkYellow)
-//                )
-//            );
+            //            consoleLogger.WriteLine(m => m
+            //                .text(">")
+            //                .span(s => s.text("foo").color(ConsoleColor.Red))
+            //                .text(" bar ")
+            //                .span(s => s
+            //                    .text("foo ")
+            //                    .span(ss => ss.text("bar").backgroundColor(ConsoleColor.Gray))
+            //                    .text(" baz")
+            //                    .backgroundColor(ConsoleColor.DarkYellow)
+            //                )
+            //            );
         }
 
-//        public static void SemanticExtensions()
-//        {
-//            SmartPropertiesLayoutRenderer.Register();
-//
-//            //var fileProvider = new RelativeResourceProvider(new PhysicalFileProvider(), typeof(Demo).Assembly.Location);
-//
-//            var loggerFactory =
-//                new LoggerFactory()
-//                    .AttachObject("Environment", "Demo")
-//                    .AttachObject("Product", "Reusable.Apps.Console")
-//                    .AttachScope()
-//                    .AttachSnapshot(SimpleJsonConverter<Person>.Create(x => new { x.FirstName, x.LastName }))
-//                    .Attach<Timestamp<DateTimeUtc>>()
-//                    .AttachElapsedMilliseconds()
-//                    .Subscribe<NLogRx>();
-//            //.AddObserver<NLogRx>()
-//            //.AddObserver<ConsoleRx>();
-//
-//
-//            //var u = loggerFactory.Where(l => true);
-//
-//            // UseConverter<Something>(x => x.ToString());
-//            //.UseConfiguration(LoggerFactoryConfiguration.Load(fileProvider.GetFileInfo(@"cfg\omnilog.json").CreateReadStream()));
-//
-//            var logger = loggerFactory.CreateLogger("Demo");
-//            var logger2 = loggerFactory.CreateLogger("Demo");
-//
-//            if (logger != logger2) throw new Exception();
-//
-//            logger.Log(Abstraction.Layer.Service().Routine("SemLogTest").Running());
-//            logger.Log(Abstraction.Layer.Service().Meta(new { Null = (string)null }));
-//
-//
-//            // Opening outer-transaction.
-//            using (logger.BeginScope().CorrelationHandle("Blub").Routine("MyRoutine").CorrelationContext(new { Name = "OuterScope", CustomerId = 123 }).AttachElapsed())
-//            {
-//                // Logging some single business variable and a message.
-//                logger.Log(Abstraction.Layer.Business().Variable(new { foo = "bar" }), log => log.Message("Hallo variable!"));
-//                logger.Log(Abstraction.Layer.Database().Counter(new { RowCount = 7 }));
-//                logger.Log(Abstraction.Layer.Database().Decision("blub").Because("bluby"));
-//
-//                // Opening inner-transaction.
-//                using (logger.BeginScope().CorrelationContext(new { Name = "InnerScope", ItemId = 456 }).AttachElapsed())
-//                {
-//                    logger.Log(Abstraction.Layer.Service().RoutineFromScope().Running());
-//
-//                    var correlationIds = logger.Scopes().CorrelationIds<string>().ToList();
-//
-//                    // Logging an entire object in a single line.
-//                    //var customer = new { FirstName = "John", LastName = "Doe" };
-//                    var customer = new Person
-//                    {
-//                        FirstName = "John",
-//                        LastName = null,
-//                        Age = 123.456,
-//                        DBNullTest = DBNull.Value,
-//                        GraduationYears = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 },
-//                        Nicknames = { "Johny", "Doe" }
-//                    };
-//                    logger.Log(Abstraction.Layer.Business().Variable(new { customer }));
-//
-//                    // Logging multiple variables in a single line.
-//                    var baz = 123;
-//                    var qux = "quux";
-//
-//                    logger.Log(Abstraction.Layer.Service().Composite(new { multiple = new { baz, qux } }));
-//
-//                    // Logging action results.
-//                    logger.Log(Abstraction.Layer.Service().Routine("DoSomething").Running());
-//                    logger.Log(Abstraction.Layer.Service().Routine("DoSomething").Canceled().Because("No connection."));
-//                    logger.Log(Abstraction.Layer.Service().Routine("DoSomething").Faulted(), new DivideByZeroException("Cannot divide."));
-//                    logger.Log(Abstraction.Layer.Service().Decision("Don't do this.").Because("Disabled."));
-//                }
-//            }
-//
-//            using (logger.BeginScope().CorrelationHandle("Transaction").AttachElapsed())
-//            {
-//                using (var tran = logger.BeginTransaction())
-//                {
-//                    tran.Information("This message is not logged.");
-//                }
-//
-//                using (var tran = logger.BeginTransaction())
-//                {
-//                    tran.Information("This message is not logged.");
-//                    tran.Information("This message overrides the transaction.", LoggerTransaction.Override);
-//                }
-//
-//                using (var tran = logger.BeginTransaction())
-//                {
-//                    tran.Information("This message is delayed.");
-//                    tran.Information("This message is delayed too.");
-//                    tran.Information("This message overrides the transaction as first.", LoggerTransaction.Override);
-//                    tran.Commit();
-//                }
-//            }
-//        }
+        //        public static void SemanticExtensions()
+        //        {
+        //            SmartPropertiesLayoutRenderer.Register();
+        //
+        //            //var fileProvider = new RelativeResourceProvider(new PhysicalFileProvider(), typeof(Demo).Assembly.Location);
+        //
+        //            var loggerFactory =
+        //                new LoggerFactory()
+        //                    .AttachObject("Environment", "Demo")
+        //                    .AttachObject("Product", "Reusable.Apps.Console")
+        //                    .AttachScope()
+        //                    .AttachSnapshot(SimpleJsonConverter<Person>.Create(x => new { x.FirstName, x.LastName }))
+        //                    .Attach<Timestamp<DateTimeUtc>>()
+        //                    .AttachElapsedMilliseconds()
+        //                    .Subscribe<NLogRx>();
+        //            //.AddObserver<NLogRx>()
+        //            //.AddObserver<ConsoleRx>();
+        //
+        //
+        //            //var u = loggerFactory.Where(l => true);
+        //
+        //            // UseConverter<Something>(x => x.ToString());
+        //            //.UseConfiguration(LoggerFactoryConfiguration.Load(fileProvider.GetFileInfo(@"cfg\omnilog.json").CreateReadStream()));
+        //
+        //            var logger = loggerFactory.CreateLogger("Demo");
+        //            var logger2 = loggerFactory.CreateLogger("Demo");
+        //
+        //            if (logger != logger2) throw new Exception();
+        //
+        //            logger.Log(Abstraction.Layer.Service().Routine("SemLogTest").Running());
+        //            logger.Log(Abstraction.Layer.Service().Meta(new { Null = (string)null }));
+        //
+        //
+        //            // Opening outer-transaction.
+        //            using (logger.BeginScope().CorrelationHandle("Blub").Routine("MyRoutine").CorrelationContext(new { Name = "OuterScope", CustomerId = 123 }).AttachElapsed())
+        //            {
+        //                // Logging some single business variable and a message.
+        //                logger.Log(Abstraction.Layer.Business().Variable(new { foo = "bar" }), log => log.Message("Hallo variable!"));
+        //                logger.Log(Abstraction.Layer.Database().Counter(new { RowCount = 7 }));
+        //                logger.Log(Abstraction.Layer.Database().Decision("blub").Because("bluby"));
+        //
+        //                // Opening inner-transaction.
+        //                using (logger.BeginScope().CorrelationContext(new { Name = "InnerScope", ItemId = 456 }).AttachElapsed())
+        //                {
+        //                    logger.Log(Abstraction.Layer.Service().RoutineFromScope().Running());
+        //
+        //                    var correlationIds = logger.Scopes().CorrelationIds<string>().ToList();
+        //
+        //                    // Logging an entire object in a single line.
+        //                    //var customer = new { FirstName = "John", LastName = "Doe" };
+        //                    var customer = new Person
+        //                    {
+        //                        FirstName = "John",
+        //                        LastName = null,
+        //                        Age = 123.456,
+        //                        DBNullTest = DBNull.Value,
+        //                        GraduationYears = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 },
+        //                        Nicknames = { "Johny", "Doe" }
+        //                    };
+        //                    logger.Log(Abstraction.Layer.Business().Variable(new { customer }));
+        //
+        //                    // Logging multiple variables in a single line.
+        //                    var baz = 123;
+        //                    var qux = "quux";
+        //
+        //                    logger.Log(Abstraction.Layer.Service().Composite(new { multiple = new { baz, qux } }));
+        //
+        //                    // Logging action results.
+        //                    logger.Log(Abstraction.Layer.Service().Routine("DoSomething").Running());
+        //                    logger.Log(Abstraction.Layer.Service().Routine("DoSomething").Canceled().Because("No connection."));
+        //                    logger.Log(Abstraction.Layer.Service().Routine("DoSomething").Faulted(), new DivideByZeroException("Cannot divide."));
+        //                    logger.Log(Abstraction.Layer.Service().Decision("Don't do this.").Because("Disabled."));
+        //                }
+        //            }
+        //
+        //            using (logger.BeginScope().CorrelationHandle("Transaction").AttachElapsed())
+        //            {
+        //                using (var tran = logger.BeginTransaction())
+        //                {
+        //                    tran.Information("This message is not logged.");
+        //                }
+        //
+        //                using (var tran = logger.BeginTransaction())
+        //                {
+        //                    tran.Information("This message is not logged.");
+        //                    tran.Information("This message overrides the transaction.", LoggerTransaction.Override);
+        //                }
+        //
+        //                using (var tran = logger.BeginTransaction())
+        //                {
+        //                    tran.Information("This message is delayed.");
+        //                    tran.Information("This message is delayed too.");
+        //                    tran.Information("This message overrides the transaction as first.", LoggerTransaction.Override);
+        //                    tran.Commit();
+        //                }
+        //            }
+        //        }
 
         public static void Converters()
         {
@@ -183,15 +183,15 @@ namespace Reusable.Apps
 
             var toString = person.ToDebuggerDisplayString(builder =>
             {
-                builder.Property(x => x.FirstName, "{0,8}");
-                builder.DisplayValue(x => x.LastName);
-                builder.DisplayValue(x => x.DBNullTest);
-                builder.DisplayValue(x => x.GraduationYears.Sum());
-                builder.Property(x => x.Age, "{0:F2}");
-                builder.DisplayValue(x => x.GraduationYears.Count);
-                builder.DisplayValues(x => x.GraduationYears);
-                builder.DisplayValues(x => x.GraduationYears, x => x, "{0:X2}");
-                builder.DisplayValues(x => x.Nicknames);
+                builder.DisplayScalar(x => x.FirstName, "{0,8}");
+                builder.DisplayScalar(x => x.LastName);
+                builder.DisplayScalar(x => x.DBNullTest);
+                builder.DisplayScalar(x => x.GraduationYears.Sum());
+                builder.DisplayScalar(x => x.Age, "{0:F2}");
+                builder.DisplayScalar(x => x.GraduationYears.Count);
+                builder.DisplayEnumerable(x => x.GraduationYears, x => x);
+                builder.DisplayEnumerable(x => x.GraduationYears, x => x, "{0:X2}");
+                builder.DisplayEnumerable(x => x.Nicknames, x => x);
             });
         }
 
@@ -255,16 +255,16 @@ namespace Reusable.Apps
 
         private string DebuggerDisplay() => this.ToDebuggerDisplayString(builder =>
         {
-            builder.DisplayValue(x => x.FirstName);
-            builder.DisplayValue(x => x.LastName);
-            builder.DisplayValue(x => x._testField);
-            builder.DisplayValue(x => x.DBNullTest);
-            builder.DisplayValue(x => x.Age.ToString("F2"));
-            builder.Property(x => x.Age, "{0:F2}");
-            builder.DisplayValue(x => x.GraduationYears.Count);
-            builder.DisplayValues(x => x.GraduationYears);
-            builder.DisplayValues(x => x.GraduationYears, x => x, "{0:X2}");
-            builder.DisplayValues(x => x.Nicknames);
+            builder.DisplayScalar(x => x.FirstName);
+            builder.DisplayScalar(x => x.LastName);
+            builder.DisplayScalar(x => x._testField);
+            builder.DisplayScalar(x => x.DBNullTest);
+            builder.DisplayScalar(x => x.Age.ToString("F2"));
+            builder.DisplayScalar(x => x.Age, "{0:F2}");
+            builder.DisplayScalar(x => x.GraduationYears.Count);
+            builder.DisplayEnumerable(x => x.GraduationYears, x => x);
+            builder.DisplayEnumerable(x => x.GraduationYears, x => x, "{0:X2}");
+            builder.DisplayEnumerable(x => x.Nicknames, x => x);
         });
     }
 }

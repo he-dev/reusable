@@ -43,9 +43,9 @@ namespace Reusable.IOnymous
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
         {
-            builder.DisplayValue(x => x.Uri);
-            builder.DisplayValue(x => x.Exists);
-            builder.DisplayValue(x => x.Format);
+            builder.DisplayScalar(x => x.Uri);
+            builder.DisplayScalar(x => x.Exists);
+            builder.DisplayScalar(x => x.Format);
         });
 
         #region IResourceInfo

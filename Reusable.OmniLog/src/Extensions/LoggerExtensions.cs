@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Linq;
+using System.Linq.Custom;
 using JetBrains.Annotations;
+using Reusable.Exceptionize;
+using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Nodes;
@@ -15,34 +19,34 @@ namespace Reusable.OmniLog.Extensions
 
         public static void Trace(this ILogger logger, string message, AlterLogEntryCallback alter = null)
         {
-             logger.Log(LogLevel.Trace, message, null, alter);
+            logger.Log(LogLevel.Trace, message, null, alter);
         }
 
         public static void Debug(this ILogger logger, string message, AlterLogEntryCallback alter = null)
         {
-             logger.Log(LogLevel.Debug, message, null, alter);
+            logger.Log(LogLevel.Debug, message, null, alter);
         }
 
         public static void Warning(this ILogger logger, string message, AlterLogEntryCallback alter = null)
         {
-             logger.Log(LogLevel.Warning, message, null, alter);
+            logger.Log(LogLevel.Warning, message, null, alter);
         }
 
         public static void Information(this ILogger logger, string message, AlterLogEntryCallback alter = null)
         {
-             logger.Log(LogLevel.Information, message, null, alter);
+            logger.Log(LogLevel.Information, message, null, alter);
         }
 
         public static void Error(this ILogger logger, string message, Exception exception = null, AlterLogEntryCallback alter = null)
         {
-             logger.Log(LogLevel.Error, message, exception, alter);
+            logger.Log(LogLevel.Error, message, exception, alter);
         }
 
         public static void Fatal(this ILogger logger, string message, Exception exception = null, AlterLogEntryCallback alter = null)
         {
-             logger.Log(LogLevel.Fatal, message, exception, alter);
+            logger.Log(LogLevel.Fatal, message, exception, alter);
         }
-        
+
         public static void Log(this ILogger logger, AlterLogEntryCallback alter)
         {
             logger.UseLambda(alter);
@@ -114,12 +118,22 @@ namespace Reusable.OmniLog.Extensions
                 Style = style
             }));
         }
-        
+
         private static LogEntry ConsoleTemplateBuilder(this LogEntry logEntry, HtmlConsoleTemplateBuilder htmlConsoleTemplateBuilder)
         {
             return logEntry.SetItem(LogEntry.BasicPropertyNames.Message, nameof(HtmlConsoleTemplateBuilder), htmlConsoleTemplateBuilder);
         }
 
         #endregion
+
+        public static T Node<T>(this ILogger logger) where T : LoggerNode
+        {
+            return
+                logger
+                    .Node
+                    .Enumerate(m => m.Next)
+                    .OfType<T>()
+                    .SingleOrThrow(onEmpty: () => DynamicException.Create($"{nameof(LoggerNode)}NotFound", $"There was no {typeof(T).ToPrettyString()}."));
+        }
     }
 }

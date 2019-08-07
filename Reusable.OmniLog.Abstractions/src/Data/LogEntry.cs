@@ -137,10 +137,10 @@ namespace Reusable.OmniLog.Abstractions.Data
             Tag = tag;
         }
 
-        private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
+        private string DebuggerDisplay => this.ToDebuggerDisplayString(b =>
         {
-            builder.DisplayValue(x => x.Name.ToString());
-            builder.DisplayValue(x => x.Tag.ToString());
+            b.DisplayScalar(x => x.Name.ToString());
+            b.DisplayScalar(x => x.Tag.ToString());
         });
 
         [AutoEqualityProperty]

@@ -6,12 +6,12 @@ namespace Reusable.OmniLog.Abstractions
 {
     public abstract class LoggerNode : ILinkedListNode<LoggerNode>, IDisposable
     {
-        public LoggerNode(bool isActive)
+        public LoggerNode(bool enabled)
         {
-            IsActive = isActive;
+            Enabled = enabled;
         }
         
-        public virtual bool IsActive { get; set; } = true;
+        public virtual bool Enabled { get; set; } = true;
 
         #region ILinkeListNode
 
@@ -51,7 +51,7 @@ namespace Reusable.OmniLog.Abstractions
 
         public void Invoke(LogEntry request)
         {
-            if (IsActive)
+            if (Enabled)
             {
                 InvokeCore(request);
             }

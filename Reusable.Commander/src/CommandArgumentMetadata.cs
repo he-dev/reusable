@@ -33,9 +33,9 @@ namespace Reusable.Commander
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(b =>
         {
-            b.DisplayValue(x => x.Name.Default.ToString());
-            b.DisplayValue(x => x.Property.PropertyType.ToPrettyString(false));
-            b.DisplayValue(x => x.Position);
+            b.DisplayScalar(x => x.Name.Default.ToString());
+            b.DisplayScalar(x => x.Property.PropertyType.ToPrettyString(false));
+            b.DisplayScalar(x => x.Position);
         });
 
         [NotNull]

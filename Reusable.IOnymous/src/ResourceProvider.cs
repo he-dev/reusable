@@ -60,8 +60,8 @@ namespace Reusable.IOnymous
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
         {
-            builder.DisplayValues(p => p.Properties.GetNames(), x => x.ToString());
-            builder.DisplayValues(p => p.Properties.GetSchemes(), x => x.ToString());
+            builder.DisplayEnumerable(p => p.Properties.GetNames(), x => x.ToString());
+            builder.DisplayEnumerable(p => p.Properties.GetSchemes(), x => x.ToString());
             //builder.DisplayValues(p => Names);
             //builder.DisplayValue(x => x.Schemes);
         });

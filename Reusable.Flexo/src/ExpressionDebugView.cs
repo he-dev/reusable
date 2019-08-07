@@ -14,9 +14,9 @@ namespace Reusable.Flexo
     {
         private string DebuggerDisplay => this.ToDebuggerDisplayString(b =>
         {
-            b.DisplayValue(x => x.Name);
-            b.DisplayValue(x => x.Result);
-            b.DisplayValue(x => x.Description);
+            b.DisplayScalar(x => x.Name);
+            b.DisplayScalar(x => x.Result);
+            b.DisplayScalar(x => x.Description);
         });
 
         public static ExpressionDebugView Root => new ExpressionDebugView

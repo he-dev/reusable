@@ -8,13 +8,13 @@ namespace Reusable.OmniLog.Nodes
     {
         public LambdaNode() : base(false) { }
 
-        public override bool IsActive => !LoggerScope<Item>.IsEmpty;
+        public override bool Enabled => LoggerScope<Item>.Any;
 
         public static void Push(Item item) => LoggerScope<Item>.Push(item);
 
         protected override void InvokeCore(LogEntry request)
         {
-            while (IsActive)
+            while (Enabled)
             {
                 using (var item = LoggerScope<Item>.Current.Value)
                 {
@@ -34,4 +34,12 @@ namespace Reusable.OmniLog.Nodes
     }
 
     public delegate void AlterLogEntryCallback(LogEntry logEntry);
+    
+    public static class LoggerLambdaHelper
+    {
+        public static void UseLambda(this ILogger logger, AlterLogEntryCallback alter)
+        {
+            LambdaNode.Push(new LambdaNode.Item { AlterLogEntry = alter });
+        }
+    }
 }

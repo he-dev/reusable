@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
@@ -9,7 +10,7 @@ namespace Reusable.OmniLog.Nodes
     {
         public EchoNode() : base(true) { }
 
-        public override bool IsActive => Rx?.Any() == true; 
+        public override bool Enabled => Rx?.Any() == true; 
 
         public List<ILogRx> Rx { get; set; } = new List<ILogRx>();
 
