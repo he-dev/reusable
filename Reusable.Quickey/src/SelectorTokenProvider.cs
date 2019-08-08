@@ -15,7 +15,7 @@ namespace Reusable.Quickey
         [NotNull, ItemNotNull]
         IEnumerable<IImmutableList<SelectorToken>> GetSelectorTokens(MemberInfo member);
 
-        IEnumerable<IImmutableList<ISelectorTokenFactory>> GetSelectorTokenFactories(MemberInfo member);
+        IEnumerable<IImmutableList<T>> GetSelectorTokenFactories<T>(MemberInfo member) where T : ISelectorTokenFactory;
     }
 
     [PublicAPI]
@@ -29,20 +29,20 @@ namespace Reusable.Quickey
             if (member == null) throw new ArgumentNullException(nameof(member));
 
             return
-                from selectorTokenFactories in GetSelectorTokenFactories(member)
+                from selectorTokenFactories in GetSelectorTokenFactories<IConstantSelectorTokenFactory>(member)
                 where selectorTokenFactories.Any()
-                let selectorTokens = selectorTokenFactories.Select(f => f.CreateSelectorToken(member, default)).ToImmutableList()
+                let selectorTokens = selectorTokenFactories.Select(f => f.CreateSelectorToken(member)).ToImmutableList()
                 where selectorTokens.Any()
                 select selectorTokens;
         }
 
         // Get own attributes or inherited.
-        public IEnumerable<IImmutableList<ISelectorTokenFactory>> GetSelectorTokenFactories(MemberInfo member)
+        public IEnumerable<IImmutableList<T>> GetSelectorTokenFactories<T>(MemberInfo member) where T : ISelectorTokenFactory
         {
             return
                 from m in member.Path()
                 where m.IsDefined(typeof(SelectorTokenFactoryAttribute))
-                select m.GetCustomAttributes<SelectorTokenFactoryAttribute>().Cast<ISelectorTokenFactory>().ToImmutableList();
+                select m.GetCustomAttributes<SelectorTokenFactoryAttribute>(inherit: false).OfType<T>().ToImmutableList();
         }
     }
 }

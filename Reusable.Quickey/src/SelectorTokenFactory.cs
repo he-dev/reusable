@@ -40,7 +40,15 @@ namespace Reusable.Quickey
     public interface ISelectorTokenFactory
     {
         SelectorTokenType TokenType { get; }
-        
+    }
+
+    public interface IConstantSelectorTokenFactory : ISelectorTokenFactory
+    {
+        SelectorToken CreateSelectorToken(MemberInfo member);
+    }
+    
+    public interface IVariableSelectorTokenFactory : ISelectorTokenFactory
+    {
         SelectorToken CreateSelectorToken(MemberInfo member, string parameter);
     }
 
@@ -57,7 +65,7 @@ namespace Reusable.Quickey
 
     [PublicAPI]
     [UsedImplicitly]
-    [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property, Inherited = false)]
     public abstract class SelectorTokenFactoryAttribute : Attribute, ISelectorTokenFactory
     {
         public abstract SelectorTokenType TokenType { get; }
@@ -66,20 +74,18 @@ namespace Reusable.Quickey
 
         public string Suffix { get; set; }
 
-        public abstract SelectorToken CreateSelectorToken(MemberInfo member, string parameter);
-
         protected string Transform(string name, MemberInfo member)
         {
             return
                 member
-                    .GetCustomAttributes<SelectorNameTransformAttribute>(false) // Get only own factories and not inherited ones.
+                    .GetCustomAttributes<SelectorTokenFilterAttribute>(false) // Get only own factories and not inherited ones.
                     .Aggregate(name, (current, fix) => fix.Apply(current));
         }
 
         protected SelectorToken CreateSelectorToken(string member) => new SelectorToken($"{Prefix}{member}{Suffix}", TokenType);
     }
 
-    public class UseSchemeAttribute : SelectorTokenFactoryAttribute
+    public class UseSchemeAttribute : SelectorTokenFactoryAttribute, IConstantSelectorTokenFactory
     {
         private readonly string _name;
 
@@ -91,13 +97,13 @@ namespace Reusable.Quickey
 
         public override SelectorTokenType TokenType => Scheme;
 
-        public override SelectorToken CreateSelectorToken(MemberInfo member, string parameter)
+        public SelectorToken CreateSelectorToken(MemberInfo member)
         {
             return CreateSelectorToken(_name);
         }
     }
 
-    public class UseNamespaceAttribute : SelectorTokenFactoryAttribute
+    public class UseNamespaceAttribute : SelectorTokenFactoryAttribute, IConstantSelectorTokenFactory
     {
         private readonly string _name;
 
@@ -109,13 +115,13 @@ namespace Reusable.Quickey
         
         public override SelectorTokenType TokenType => Namespace;
 
-        public override SelectorToken CreateSelectorToken(MemberInfo member, string parameter)
+        public SelectorToken CreateSelectorToken(MemberInfo member)
         {
             return CreateSelectorToken(_name ?? member.DeclaringType.Namespace);
         }
     }
 
-    public class UseTypeAttribute : SelectorTokenFactoryAttribute
+    public class UseTypeAttribute : SelectorTokenFactoryAttribute, IConstantSelectorTokenFactory
     {
         public UseTypeAttribute()
         {
@@ -124,9 +130,9 @@ namespace Reusable.Quickey
         
         public override SelectorTokenType TokenType => Type;
 
-        public override SelectorToken CreateSelectorToken(MemberInfo member, string parameter)
+        public SelectorToken CreateSelectorToken(MemberInfo member)
         {
-            var type = member.DeclaringType;
+            var type = member.ReflectedType;
 
             var typeName =
                 type.GetCustomAttribute<RenameAttribute>()?.ToString() is string rename
@@ -137,11 +143,11 @@ namespace Reusable.Quickey
         }
     }
 
-    public class UseMemberAttribute : SelectorTokenFactoryAttribute
+    public class UseMemberAttribute : SelectorTokenFactoryAttribute, IConstantSelectorTokenFactory
     {
         public override SelectorTokenType TokenType => Member;
         
-        public override SelectorToken CreateSelectorToken(MemberInfo member, string parameter)
+        public SelectorToken CreateSelectorToken(MemberInfo member)
         {
             var memberName =
                 member.GetCustomAttribute<RenameAttribute>()?.ToString() is string rename
@@ -152,7 +158,7 @@ namespace Reusable.Quickey
         }
     }
 
-    public class UseIndexAttribute : SelectorTokenFactoryAttribute
+    public class UseIndexAttribute : SelectorTokenFactoryAttribute, IVariableSelectorTokenFactory
     {
         public UseIndexAttribute()
         {
@@ -162,7 +168,7 @@ namespace Reusable.Quickey
         
         public override SelectorTokenType TokenType => Index;
 
-        public override SelectorToken CreateSelectorToken(MemberInfo member, string parameter)
+        public SelectorToken CreateSelectorToken(MemberInfo member, string parameter)
         {
             return CreateSelectorToken(parameter);
         }

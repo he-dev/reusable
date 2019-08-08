@@ -50,7 +50,7 @@ namespace Reusable.Quickey
             (DeclaringType, Instance, Member) = MemberVisitor.GetMemberInfo(selector);
 
             // The first one is the closest one to the member.
-            _selectorTokens = Member.NearestSelectorTokens(includeIndex: false);
+            _selectorTokens = Member.NearestSelectorTokens();
             if (_selectorTokens is null || _selectorTokens.Empty())
             {
                 throw new ArgumentException(paramName: nameof(selector), message: $"'{selector.ToPrettyString()}' does not specify any selectors.");
@@ -124,19 +124,6 @@ namespace Reusable.Quickey
 
             return new Selector(selector);
         }
-
-        // [CanBeNull]
-        // private static IImmutableList<SelectorToken> GetSelectorTokens(Selector selector)
-        // {
-        //     var selectorNameEnumerators =
-        //         from m in selector.Path()
-        //         where m.IsDefined(typeof(SelectorTokenProviderAttribute))
-        //         select m.GetCustomAttribute<SelectorTokenProviderAttribute>();
-        //
-        //     // The first enumerator is the closest one to the member.
-        //     // The first selector-group is the closest one to the member.
-        //     return (selectorNameEnumerators.FirstOrDefault() ?? SelectorTokenProviderAttribute.Default).GetSelectorTokens(selector).FirstOrDefault();
-        // }
 
         public override string ToString() => _formatter.Format(this);
 

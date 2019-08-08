@@ -9,7 +9,7 @@ namespace Reusable.Quickey
         [Fact]
         public void Throws_when_attributes_missing()
         {
-            var ex = Assert.Throws<ArgumentException>(() => From<NoAttributes>.Select(x => x.P1));
+            var ex = Assert.Throws<InvalidOperationException>(() => From<NoAttributes>.Select(x => x.P1));
             //Assert.Equal("'x => x.Text' does not specify any selectors.", ex.Message);
         }
 
@@ -40,7 +40,7 @@ namespace Reusable.Quickey
             var selector = From<NamespaceTypeMemberPlain>.Select(x => x.P1).ToString();
             Assert.Equal("Reusable.Quickey+NamespaceTypeMemberPlain.P1", selector);
         }
-        
+
         [Fact]
         public void Can_rename_type_or_member_plain()
         {
@@ -60,6 +60,28 @@ namespace Reusable.Quickey
         {
             var selector = From<MemberPlain>.Select(x => x.P1).Index("test").ToString();
             Assert.Equal("P1[test]", selector);
+        }
+
+        [Fact]
+        public void Can_format_type_member_by_base()
+        {
+            var selectorP1 = From<DerivedTypeMemberPlain>.Select(x => x.P1);
+            Assert.Equal("DerivedTypeMemberPlain.P1", selectorP1.ToString());
+            
+            var selectorP2 = From<DerivedTypeMemberPlain>.Select(x => x.P2);
+            Assert.Equal("DerivedTypeMemberPlain.P2", selectorP2.ToString());
+            
+        }
+        
+        [Fact]
+        public void Can_override_base_format()
+        {
+            var selectorP1 = From<DerivedMemberPlain>.Select(x => x.P1);
+            Assert.Equal("P1", selectorP1.ToString());
+            
+            var selectorP2 = From<DerivedMemberPlain>.Select(x => x.P2);
+            Assert.Equal("P2", selectorP2.ToString());
+            
         }
 
         private class NoAttributes
@@ -105,6 +127,24 @@ namespace Reusable.Quickey
         private class SchemeTypeMemberPlain
         {
             public string P1 { get; set; }
+        }
+
+        [UseType, UseMember]
+        [PlainSelectorFormatter]
+        private class BaseTypeMemberPlain
+        {
+            public string P1 { get; set; }
+        }
+
+        private class DerivedTypeMemberPlain : BaseTypeMemberPlain
+        {
+            public string P2 { get; set; }
+        }
+        
+        [UseMember]
+        private class DerivedMemberPlain : BaseTypeMemberPlain
+        {
+            public string P2 { get; set; }
         }
     }
 }

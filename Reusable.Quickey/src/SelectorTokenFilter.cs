@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 
 namespace Reusable.Quickey
 {
-    public interface ISelectorNameTransform
+    public interface ISelectorTokenFilter
     {
         [NotNull]
         string Apply(string name);
@@ -14,12 +14,12 @@ namespace Reusable.Quickey
 
     [UsedImplicitly]
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class)]
-    public abstract class SelectorNameTransformAttribute : Attribute, ISelectorNameTransform
+    public abstract class SelectorTokenFilterAttribute : Attribute, ISelectorTokenFilter
     {
         public abstract string Apply(string name);
     }
 
-    public class RemoveAttribute : SelectorNameTransformAttribute
+    public class RemoveAttribute : SelectorTokenFilterAttribute
     {
         private readonly IEnumerable<string> _patterns;
 

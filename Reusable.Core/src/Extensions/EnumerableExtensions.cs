@@ -231,13 +231,21 @@ namespace System.Linq.Custom
             return x => filters.Any(f => f(x));
         }
 
-        [CanBeNull]
         public static T SingleOrThrow<T>([NotNull] this IEnumerable<T> source, Func<Exception> onEmpty = null, Func<Exception> onMultiple = null)
         {
             return source.SingleOrThrow(_ => true, onEmpty, onMultiple);
         }
 
-        [CanBeNull]
+//        public static T SingleOrThrow<T>([NotNull] this IEnumerable<T> source, (string Name, string Message)? onEmpty = null, (string Name, string Message)? onMany = null)
+//        {
+//            return source.SingleOrThrow
+//            (
+//                _ => true,
+//                onEmpty: onEmpty is null ? default(Func<Exception>) : () => DynamicException.Create(onEmpty.Value.Name, onEmpty.Value.Message),
+//                onMany: onMany is null ? default(Func<Exception>) : () => DynamicException.Create(onMany.Value.Name, onMany.Value.Message)
+//            );
+//        }
+
         public static T SingleOrThrow<T>([NotNull] this IEnumerable<T> source, Func<T, bool> predicate, Func<Exception> onEmpty = null, Func<Exception> onMany = null)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));

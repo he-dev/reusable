@@ -17,9 +17,9 @@ namespace Reusable.Quickey
             var nearestTokenProvider = selector.Member.TokenProviders().First();
             var indexToken =
                 nearestTokenProvider
-                    .GetSelectorTokenFactories(selector.Member)
+                    .GetSelectorTokenFactories<IVariableSelectorTokenFactory>(selector.Member)
                     .First()
-                    .Where(stf => stf is UseIndexAttribute)
+                    .Where(stf => stf.TokenType == SelectorTokenType.Index)
                     .SingleOrThrow(onEmpty: () => DynamicException.Create($"{nameof(UseIndexAttribute)}NotFound", $"'{selector}' must be decorated with {nameof(UseIndexAttribute)}."));
 
             return new Selector(selector.Expression, selector.Append(indexToken.CreateSelectorToken(selector.Member, index)));
@@ -92,22 +92,35 @@ namespace Reusable.Quickey
             {
                 yield return current;
 
-                if (current is Type type)
+                switch (current)
                 {
-                    if (type.IsInterface)
-                    {
-                        yield break;
-                    }
+                    case PropertyInfo property:
+                        current = property.ReflectedType;
 
-                    if (type.GetProperty(member.Name) is PropertyInfo otherProperty)
-                    {
-                        yield return otherProperty;
-                    }
+                        break;
+
+                    case Type type:
+                        if (type.IsInterface)
+                        {
+                            yield break;
+                        }
+
+                        type = type.BaseType;
+
+                        if (type is null)
+                        {
+                            yield break;
+                        }
+
+                        if (type.GetProperty(member.Name) is PropertyInfo otherProperty)
+                        {
+                            yield return otherProperty;
+                        }
+
+                        current = type;
+                        break;
                 }
-
-                current = current.DeclaringType;
-            }
-            while (!(current is null));
+            } while (!(current is null));
         }
 
         public static StringSelector<T> AsString<T>(this Selector<T> selector) => new StringSelector<T>(selector);
@@ -123,11 +136,11 @@ namespace Reusable.Quickey
             return tokenProviders.Append(SelectorTokenProviderAttribute.Default);
         }
 
-        public static IImmutableList<SelectorToken> NearestSelectorTokens(this MemberInfo member, bool includeIndex = true)
+        public static IImmutableList<SelectorToken> NearestSelectorTokens(this MemberInfo member)
         {
             var tokenProvider = member.TokenProviders().First();
             var nearestSelectorTokens = tokenProvider.GetSelectorTokens(member).First();
-            return nearestSelectorTokens.Where(st => includeIndex || st.Type != SelectorTokenType.Index).ToImmutableList();
+            return nearestSelectorTokens;
         }
     }
 }
