@@ -44,7 +44,7 @@ namespace Reusable.IOnymous.Config
         private static Request CreateRequest(RequestMethod method, Selector selector, object value = default)
         {
             var resources =
-                from m in selector.Members()
+                from m in selector.Member.Path()
                 where m.IsDefined(typeof(ResourceAttribute))
                 select m.GetCustomAttribute<ResourceAttribute>();
 

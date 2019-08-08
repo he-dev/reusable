@@ -7,43 +7,42 @@ using JetBrains.Annotations;
 
 namespace Reusable.Quickey
 {
-    public interface ISelectorNameEnumerator
+    public interface ISelectorTokenProvider
     {
         /// <summary>
         /// Enumerates selector-names for each member from last to first.
         /// </summary>
         [NotNull, ItemNotNull]
-        IEnumerable<IImmutableList<SelectorName>> EnumerateSelectorNames(Selector selector);
+        IEnumerable<IImmutableList<SelectorToken>> GetSelectorTokens(MemberInfo member);
+
+        IEnumerable<IImmutableList<ISelectorTokenFactory>> GetSelectorTokenFactories(MemberInfo member);
     }
 
     [PublicAPI]
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property)]
-    public class SelectorNameEnumeratorAttribute : Attribute, ISelectorNameEnumerator
+    public class SelectorTokenProviderAttribute : Attribute, ISelectorTokenProvider
     {
-        public static ISelectorNameEnumerator Default { get; } = new SelectorNameEnumeratorAttribute();
+        public static ISelectorTokenProvider Default { get; } = new SelectorTokenProviderAttribute();
 
-        public IEnumerable<IImmutableList<SelectorName>> EnumerateSelectorNames(Selector selector)
+        public IEnumerable<IImmutableList<SelectorToken>> GetSelectorTokens(MemberInfo member)
         {
-            if (selector == null) throw new ArgumentNullException(nameof(selector));
+            if (member == null) throw new ArgumentNullException(nameof(member));
 
             return
-                from m in selector.Members()
-                where m.IsDefined(typeof(SelectorNameFactoryAttribute))
-                let selectorNameFactories = GetSelectorNameFactories(m)
-                let selectorNames = selectorNameFactories.Select(f => f.CreateSelectorName(selector)).ToImmutableList()
-                where selectorNames.Any()
-                select selectorNames;
+                from selectorTokenFactories in GetSelectorTokenFactories(member)
+                where selectorTokenFactories.Any()
+                let selectorTokens = selectorTokenFactories.Select(f => f.CreateSelectorToken(member, default)).ToImmutableList()
+                where selectorTokens.Any()
+                select selectorTokens;
+        }
 
-            // Get own attributes or inherited.
-            IList<SelectorNameFactoryAttribute> GetSelectorNameFactories(MemberInfo m)
-            {
-                if (m.GetCustomAttributes<SelectorNameFactoryAttribute>(false).ToList() is var factory && factory.Any())
-                {
-                    return factory;
-                }
-
-                return m.GetCustomAttributes<SelectorNameFactoryAttribute>().ToList();
-            }
+        // Get own attributes or inherited.
+        public IEnumerable<IImmutableList<ISelectorTokenFactory>> GetSelectorTokenFactories(MemberInfo member)
+        {
+            return
+                from m in member.Path()
+                where m.IsDefined(typeof(SelectorTokenFactoryAttribute))
+                select m.GetCustomAttributes<SelectorTokenFactoryAttribute>().Cast<ISelectorTokenFactory>().ToImmutableList();
         }
     }
 }

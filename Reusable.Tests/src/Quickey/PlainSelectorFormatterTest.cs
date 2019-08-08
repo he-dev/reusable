@@ -67,7 +67,7 @@ namespace Reusable.Quickey
             public string P1 { get; set; }
         }
 
-        [UseMember]
+        [UseMember, UseIndex]
         [PlainSelectorFormatter]
         private class MemberPlain
         {

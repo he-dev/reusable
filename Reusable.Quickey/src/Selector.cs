@@ -39,9 +39,10 @@ namespace Reusable.Quickey
     }
 
     [PublicAPI]
-    public class Selector : IEnumerable<SelectorName>
+    public class Selector : IEnumerable<SelectorToken>
     {
-        private readonly IEnumerable<SelectorName> _selectorNames;
+        private readonly IEnumerable<SelectorToken> _selectorTokens;
+        private readonly ISelectorFormatter _formatter;
 
         public Selector(LambdaExpression selector)
         {
@@ -49,26 +50,34 @@ namespace Reusable.Quickey
             (DeclaringType, Instance, Member) = MemberVisitor.GetMemberInfo(selector);
 
             // The first one is the closest one to the member.
-            _selectorNames = GetSelectorNames(this);
-            if (_selectorNames is null || _selectorNames.Empty())
+            _selectorTokens = Member.NearestSelectorTokens(includeIndex: false);
+            if (_selectorTokens is null || _selectorTokens.Empty())
             {
                 throw new ArgumentException(paramName: nameof(selector), message: $"'{selector.ToPrettyString()}' does not specify any selectors.");
             }
 
-            if (_selectorNames.GroupBy(sn => sn.Type).Any(g => g.Count() > 1))
+            if (_selectorTokens.GroupBy(t => t.Type).Any(g => g.Count() > 1))
             {
                 throw new ArgumentException(paramName: nameof(selector), message: $"'{selector.ToPrettyString()}' may specify each selector only once.");
             }
 
-            if (_selectorNames.All(sn => sn.Type != typeof(UseMemberAttribute)))
+            if (_selectorTokens.All(t => t.Type != SelectorTokenType.Member))
             {
                 throw new ArgumentException(paramName: nameof(selector), message: $"'{selector.ToPrettyString()}' must specify '{nameof(UseMemberAttribute)}'.");
             }
+            
+            var formatters =
+                from m in Member.Path()
+                where m.IsDefined(typeof(SelectorFormatterAttribute))
+                select m.GetCustomAttribute<SelectorFormatterAttribute>();
+
+            // Use the plain-formatter as fallback.
+            _formatter = formatters.Append(new PlainSelectorFormatterAttribute()).First();
         }
 
-        public Selector(LambdaExpression selector, IEnumerable<SelectorName> names) : this(selector)
+        public Selector(LambdaExpression selector, IEnumerable<SelectorToken> tokens) : this(selector)
         {
-            _selectorNames = names.ToImmutableList();
+            _selectorTokens = tokens.ToImmutableList();
         }
 
         public LambdaExpression Expression { get; }
@@ -116,33 +125,24 @@ namespace Reusable.Quickey
             return new Selector(selector);
         }
 
-        [CanBeNull, ItemNotNull]
-        private static IImmutableList<SelectorName> GetSelectorNames(Selector selector)
-        {
-            var selectorNameEnumerators =
-                from m in selector.Members()
-                where m.IsDefined(typeof(SelectorNameEnumeratorAttribute))
-                select m.GetCustomAttribute<SelectorNameEnumeratorAttribute>();
+        // [CanBeNull]
+        // private static IImmutableList<SelectorToken> GetSelectorTokens(Selector selector)
+        // {
+        //     var selectorNameEnumerators =
+        //         from m in selector.Path()
+        //         where m.IsDefined(typeof(SelectorTokenProviderAttribute))
+        //         select m.GetCustomAttribute<SelectorTokenProviderAttribute>();
+        //
+        //     // The first enumerator is the closest one to the member.
+        //     // The first selector-group is the closest one to the member.
+        //     return (selectorNameEnumerators.FirstOrDefault() ?? SelectorTokenProviderAttribute.Default).GetSelectorTokens(selector).FirstOrDefault();
+        // }
 
-            // The first enumerator is the closest one to the member.
-            // The first selector-group is the closest one to the member.
-            return (selectorNameEnumerators.FirstOrDefault() ?? SelectorNameEnumeratorAttribute.Default).EnumerateSelectorNames(selector).FirstOrDefault();
-        }
+        public override string ToString() => _formatter.Format(this);
 
-        public override string ToString()
-        {
-            var formatters =
-                from m in this.Members()
-                where m.IsDefined(typeof(SelectorFormatterAttribute))
-                select m.GetCustomAttribute<SelectorFormatterAttribute>();
+        public IEnumerator<SelectorToken> GetEnumerator() => _selectorTokens.GetEnumerator();
 
-            // Use the plain-formatter as fallback.
-            return (formatters.FirstOrDefault() ?? new PlainSelectorFormatterAttribute()).Format(this);
-        }
-
-        public IEnumerator<SelectorName> GetEnumerator() => _selectorNames.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_selectorNames).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_selectorTokens).GetEnumerator();
 
         //[NotNull]
         //public static implicit operator string(Selector selector) => selector.ToString();

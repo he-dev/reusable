@@ -22,4 +22,7 @@
   <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="src\SelectorName.cs" />
+  </ItemGroup>
 </Project>

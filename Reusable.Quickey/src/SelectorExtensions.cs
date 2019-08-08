@@ -5,16 +5,24 @@ using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
 using JetBrains.Annotations;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 
 namespace Reusable.Quickey
 {
     public static class SelectorExtensions
     {
-        public static Selector Index(this Selector selector, string index, string prefix = "[", string suffix = "]")
+        public static Selector Index(this Selector selector, string index)
         {
-            if(selector.LastOrDefault() is SelectorIndex) throw new InvalidOperationException($"'{selector.Expression}' already contains an index.");
-            return new Selector(selector.Expression, selector.Append(new SelectorName(index) { Prefix = prefix, Suffix = suffix }));
+            var nearestTokenProvider = selector.Member.TokenProviders().First();
+            var indexToken =
+                nearestTokenProvider
+                    .GetSelectorTokenFactories(selector.Member)
+                    .First()
+                    .Where(stf => stf is UseIndexAttribute)
+                    .SingleOrThrow(onEmpty: () => DynamicException.Create($"{nameof(UseIndexAttribute)}NotFound", $"'{selector}' must be decorated with {nameof(UseIndexAttribute)}."));
+
+            return new Selector(selector.Expression, selector.Append(indexToken.CreateSelectorToken(selector.Member, index)));
         }
 
         /// <summary>
@@ -24,9 +32,9 @@ namespace Reusable.Quickey
         {
             var newSelectors =
                 from p in typeof(T).GetProperties()
-                select 
-                    typeof(Selector).IsAssignableFrom(p.PropertyType) 
-                        ? (Selector)p.GetValue(default) 
+                select
+                    typeof(Selector).IsAssignableFrom(p.PropertyType)
+                        ? (Selector)p.GetValue(default)
                         : (Selector)Selector.FromMember(typeof(T), p);
 
             return selectors.AddRange(newSelectors);
@@ -67,12 +75,12 @@ namespace Reusable.Quickey
         }
 
         /// <summary>
-        /// Enumerates selector members from last to first.
+        /// Enumerates selector path in the class hierarchy from member to parent.
         /// </summary>
-        public static IEnumerable<MemberInfo> Members([NotNull] this Selector selector)
+        public static IEnumerable<MemberInfo> Path([NotNull] this MemberInfo member)
         {
-            if (selector == null) throw new ArgumentNullException(nameof(selector));
-            return selector.Member.AncestorTypesAndSelf();
+            if (member == null) throw new ArgumentNullException(nameof(member));
+            return member.AncestorTypesAndSelf();
         }
 
         private static IEnumerable<MemberInfo> AncestorTypesAndSelf(this MemberInfo member)
@@ -98,9 +106,28 @@ namespace Reusable.Quickey
                 }
 
                 current = current.DeclaringType;
-            } while (!(current is null));
+            }
+            while (!(current is null));
         }
-        
+
         public static StringSelector<T> AsString<T>(this Selector<T> selector) => new StringSelector<T>(selector);
+
+        [NotNull, ItemNotNull]
+        public static IEnumerable<ISelectorTokenProvider> TokenProviders(this MemberInfo member)
+        {
+            var tokenProviders =
+                from m in member.Path()
+                where m.IsDefined(typeof(SelectorTokenProviderAttribute))
+                select m.GetCustomAttribute<SelectorTokenProviderAttribute>();
+
+            return tokenProviders.Append(SelectorTokenProviderAttribute.Default);
+        }
+
+        public static IImmutableList<SelectorToken> NearestSelectorTokens(this MemberInfo member, bool includeIndex = true)
+        {
+            var tokenProvider = member.TokenProviders().First();
+            var nearestSelectorTokens = tokenProvider.GetSelectorTokens(member).First();
+            return nearestSelectorTokens.Where(st => includeIndex || st.Type != SelectorTokenType.Index).ToImmutableList();
+        }
     }
 }
