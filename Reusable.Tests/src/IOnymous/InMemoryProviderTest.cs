@@ -30,7 +30,7 @@ namespace Reusable.IOnymous
 //            });
         }
 
-        [Fact]
+        //[Fact]
         public async Task Can_get_resource_by_uri()
         {
             var inMemory = new InMemoryProvider
@@ -49,7 +49,7 @@ namespace Reusable.IOnymous
             Assert.Equal("quxy", await value2.DeserializeTextAsync());
         }
         
-        [Fact]
+        //[Fact]
         public async Task Can_get_resource_by_ionymous_uri()
         {
             var inMemory = new InMemoryProvider

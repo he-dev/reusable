@@ -15,40 +15,18 @@ namespace Reusable.IOnymous
                     .Empty
                     .Add(new InMemoryProvider
                     {
-                        { "branch/dev", "hot" }
+                        { "t:a/b", "x" }
                     })
                     .Add(new InMemoryProvider
                     {
-                        { "branch/dev", "cold" },
-                        { "branch/dev", "snow" }
+                        { "t:a/b", "y" },
+                        { "t:a/b", "z" }
                     });
 
-            var resource = await provider.GetAsync("test:branch/dev");
+            var resource = await provider.GetAsync("t:a/b");
 
             Assert.True(resource.Exists);
-            Assert.Equal("hot", await resource.DeserializeTextAsync());
-        }
-
-        [Fact]
-        public async Task Gets_first_matching_resource_by_default_provider_name()
-        {
-            var provider =
-                CompositeProvider
-                    .Empty
-                    .Add(new InMemoryProvider
-                    {
-                        { "branch/dev", "hot" }
-                    })
-                    .Add(new InMemoryProvider
-                    {
-                        { "branch/dev", "cold" },
-                        { "branch/dev", "snow" }
-                    });
-
-            var resource = await provider.GetAsync("test:branch/dev", ImmutableContainer.Empty.SetName(nameof(InMemoryProvider)));
-
-            Assert.True(resource.Exists);
-            Assert.Equal("hot", await resource.DeserializeTextAsync());
+            Assert.Equal("x", await resource.DeserializeTextAsync());
         }
 
         [Fact]
@@ -59,17 +37,17 @@ namespace Reusable.IOnymous
                     .Empty
                     .Add(new InMemoryProvider
                     {
-                        { "branch/dev", "cold" }
+                        { "t:a/b", "x" }
                     })
-                    .Add(new InMemoryProvider(ImmutableContainer.Empty.SetName("use-this"))
+                    .Add(new InMemoryProvider(ImmutableContainer.Empty.SetName("c"))
                     {
-                        { "branch/dev", "hot" },
+                        { "t:a/b", "y" },
                     });
 
-            var resource = await composite.GetAsync("test:branch/dev", ImmutableContainer.Empty.SetScheme(UriSchemes.Custom.IOnymous).SetName("use-this"));
+            var resource = await composite.GetAsync("t:a/b", ImmutableContainer.Empty.SetScheme(UriSchemes.Custom.IOnymous).SetName("c"));
 
             Assert.True(resource.Exists);
-            Assert.Equal("hot", await resource.DeserializeTextAsync());
+            Assert.Equal("y", await resource.DeserializeTextAsync());
         }
 
         [Fact]
@@ -80,14 +58,14 @@ namespace Reusable.IOnymous
                     .Empty
                     .Add(new InMemoryProvider
                     {
-                        { "branch/dev", "cold" }
+                        { "t:a/b", "x" }
                     })
                     .Add(new InMemoryProvider
                     {
-                        { "branch/dev", "cold" }
+                        { "t:a/b", "y" }
                     });
 
-            await Assert.ThrowsAnyAsync<DynamicException>(async () => await composite.InvokeAsync(new Request.Put("branch/dev")));
+            await Assert.ThrowsAnyAsync<DynamicException>(async () => await composite.InvokeAsync(new Request.Put("t:a/b")));
         }
 
         [Fact]
@@ -95,20 +73,20 @@ namespace Reusable.IOnymous
         {
             var composite = new CompositeProvider(new IResourceProvider[]
             {
-                new InMemoryProvider(ImmutableContainer.Empty.SetScheme("other-one"))
+                new InMemoryProvider(ImmutableContainer.Empty.SetScheme("s-x"))
                 {
-                    { "branch/dev", "cold" }
+                    { "s-x:a/b", "x" }
                 },
-                new InMemoryProvider(ImmutableContainer.Empty.SetScheme("this-one"))
+                new InMemoryProvider(ImmutableContainer.Empty.SetScheme("s-y"))
                 {
-                    { "branch/dev", "hot" }
+                    { "s-y:a/b", "y" }
                 },
             });
 
-            var resource = await composite.GetAsync("this-one:branch/dev", ImmutableContainer.Empty);
+            var resource = await composite.GetAsync("s-y:a/b", ImmutableContainer.Empty);
 
             Assert.True(resource.Exists);
-            Assert.Equal("hot", await resource.DeserializeTextAsync());
+            Assert.Equal("y", await resource.DeserializeTextAsync());
         }
     }
 }
