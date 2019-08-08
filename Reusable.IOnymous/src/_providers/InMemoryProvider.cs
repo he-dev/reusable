@@ -15,14 +15,11 @@ namespace Reusable.IOnymous
 {
     public class InMemoryProvider : ResourceProvider, IEnumerable<(SoftString Name, object Value)>
     {
-        private readonly ITypeConverter<UriString, string> _uriConverter;
         private readonly IDictionary<SoftString, object> _items = new Dictionary<SoftString, object>();
 
-        public InMemoryProvider([NotNull] ITypeConverter<UriString, string> uriConverter, IImmutableContainer properties = default)
+        public InMemoryProvider(IImmutableContainer properties = default)
             : base(properties.ThisOrEmpty().SetWhen(x => !x.GetSchemes().Any(), x => x.SetScheme(UriSchemes.Custom.IOnymous)))
         {
-            _uriConverter = uriConverter ?? throw new ArgumentNullException(nameof(uriConverter));
-
             Methods =
                 MethodCollection
                     .Empty
@@ -30,14 +27,9 @@ namespace Reusable.IOnymous
                     .Add(RequestMethod.Put, PutAsync);
         }
 
-        public InMemoryProvider(IImmutableContainer properties = default)
-            : this(new UriStringPathToStringConverter(), properties) { }
-
         private Task<IResource> GetAsync(Request request)
         {
-            var name = _uriConverter.Convert<string>(request.Uri);
-
-            if (_items.TryGetValue(name, out var obj))
+            if (_items.TryGetValue(request.Uri.ToString(), out var obj))
             {
                 switch (obj)
                 {
@@ -56,8 +48,7 @@ namespace Reusable.IOnymous
 
         private async Task<IResource> PutAsync(Request request)
         {
-            var name = _uriConverter.Convert<string>(request.Uri);
-            _items[name] = request.Body;
+            _items[request.Uri.ToString()] = request.Body;
 
             return await InvokeAsync(new Request.Get(request.Uri));
         }

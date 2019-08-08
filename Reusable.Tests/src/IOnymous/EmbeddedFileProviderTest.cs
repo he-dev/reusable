@@ -8,9 +8,9 @@ namespace Reusable.IOnymous
         [Fact]
         public async Task Can_get_embedded_file()
         {
-            var provider = new EmbeddedFileProvider(typeof(EmbeddedFileProviderTest).Assembly);
+            //var provider = new EmbeddedFileProvider(typeof(EmbeddedFileProviderTest).Assembly, "Reusable");
 
-            var file = await provider.GetFileAsync("res/ionymous/test.txt", MimeType.Plain);
+            var file = await TestHelper.Resources.GetFileAsync(@"ionymous\test.txt", MimeType.Plain);
 
             Assert.True(file.Exists);
             Assert.Equal("Hallo!", await file.DeserializeTextAsync());

@@ -24,7 +24,7 @@ namespace Reusable.IOnymous.Config
     {
         public static async Task<object> ReadSettingAsync(this IResourceProvider resourceProvider, Selector selector)
         {
-            var request = CreateRequest(RequestMethod.Get, selector);
+            var request = SettingRequestBuilder.CreateRequest(RequestMethod.Get, selector);
             using (var resource = await resourceProvider.InvokeAsync(request))
             {
                 var value = await resource.DeserializeAsync();
@@ -35,43 +35,11 @@ namespace Reusable.IOnymous.Config
 
         public static async Task WriteSettingAsync(this IResourceProvider resources, Selector selector, object newValue)
         {
-            var request = CreateRequest(RequestMethod.Put, selector, newValue);
+            var request = SettingRequestBuilder.CreateRequest(RequestMethod.Put, selector, newValue);
             await resources.InvokeAsync(request);
         }
 
         #region Helpers
-
-        private static Request CreateRequest(RequestMethod method, Selector selector, object value = default)
-        {
-            var resources =
-                from m in selector.Member.Path()
-                where m.IsDefined(typeof(ResourceAttribute))
-                select m.GetCustomAttribute<ResourceAttribute>();
-
-            var resource = resources.FirstOrDefault();
-
-            var uri = UriStringHelper.CreateQuery
-            (
-                scheme: resource?.Scheme ?? "config",
-                path: ImmutableList<string>.Empty.Add("settings"),
-                query: ImmutableDictionary<string, string>.Empty.Add("name", selector.ToString())
-            );
-            
-            return new Request
-            {
-                Uri = uri,
-                Method = method,
-                Context =
-                    ImmutableContainer
-                        .Empty
-                        .SetItem(ResourceProperty.DataType, selector.DataType)
-                        // request.Properties.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Type)) == typeof(string)
-                        //.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), resource?.Provider.ToSoftString())
-                        .SetItem(ResourceProperty.ActualName, $"[{selector.Join(x => x.ToString(), ", ")}]")
-                        .SetName(resource?.Provider.ToSoftString()),
-                Body = value
-            };
-        }
 
         private static object Validate(object value, IEnumerable<ValidationAttribute> validations, UriString uri)
         {

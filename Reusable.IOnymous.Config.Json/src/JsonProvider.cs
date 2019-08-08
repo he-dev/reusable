@@ -28,13 +28,11 @@ namespace Reusable.IOnymous.Config
                     .Add(RequestMethod.Get, GetAsync);
         }
 
-        public ITypeConverter UriConverter { get; set; } = UriStringQueryToStringConverter.Default;
-
         public ITypeConverter ResourceConverter { get; set; } = new JsonSettingConverter();
 
         private Task<IResource> GetAsync(Request request)
         {
-            var settingIdentifier = UriConverter?.Convert<string>(request.Uri) ?? request.Uri;
+            var settingIdentifier = GetResourceName(request.Uri);
             var data = _configuration[settingIdentifier];
             var result =
                 data is null

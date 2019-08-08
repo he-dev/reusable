@@ -19,7 +19,7 @@ namespace Reusable.IOnymous.Config
             [NotNull] string name,
             [CanBeNull] IImmutableDictionary<SqlServerColumn, SoftString> columnMappings,
             [CanBeNull] IImmutableDictionary<string, object> where,
-            (string Name, object Value) fallback)
+            (SoftString Name, object Value) fallback)
         {
             where = where ?? ImmutableDictionary<string, object>.Empty;
 
@@ -37,17 +37,16 @@ namespace Reusable.IOnymous.Config
              */
 
             var nameCondition = $"[{columnMappings.MapOrDefault(SqlServerColumn.Name)}] = @{columnMappings.MapOrDefault(SqlServerColumn.Name)}";
-            //var fallback = (Name: "env", Value: "prod");
 
             sql.Append($"select *").AppendLine();
             sql.Append($"from {table}").AppendLine();
             sql.Append(where.Aggregate($"where {nameCondition}", (current, next) =>
             {
-                var column = connection.CreateIdentifier(next.Key);
-                var defaultParam = next.Key;
-                var fallbackParam = next.Key + "_fallback";
-                if (next.Key == fallback.Name)
+                if (fallback.Name.Equals(next.Key))
                 {
+                    var column = connection.CreateIdentifier(next.Key);
+                    var defaultParam = next.Key;
+                    var fallbackParam = next.Key + "_fallback";
                     var fallbackCondition = where.Aggregate($"where {nameCondition}", (c, n) => $"{c} and {connection.CreateIdentifier(n.Key)} = @{n.Key}");
                     return $"{current} and ({column} = @{defaultParam} or ({column} = @{fallbackParam} and not exists (select 1 from {table} {fallbackCondition})))";
                 }

@@ -25,14 +25,11 @@ namespace Reusable.IOnymous.Config
                     .Add(RequestMethod.Put, PutAsync);
         }
 
-        [CanBeNull]
-        public ITypeConverter UriConverter { get; set; } = UriStringQueryToStringConverter.Default;
-
         public ITypeConverter ResourceConverter { get; set; } = new NullConverter();
 
         private Task<IResource> GetAsync(Request request)
         {
-            var settingIdentifier = UriConverter?.Convert<string>(request.Uri) ?? request.Uri;
+            var settingIdentifier = GetResourceName(request.Uri);
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
             var element = exeConfig.AppSettings.Settings[actualKey];
@@ -55,7 +52,7 @@ namespace Reusable.IOnymous.Config
 
         private async Task<IResource> PutAsync(Request request)
         {
-            var settingIdentifier = UriConverter?.Convert<string>(request.Uri) ?? request.Uri;
+            var settingIdentifier = GetResourceName(request.Uri);
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
             var element = exeConfig.AppSettings.Settings[actualKey];

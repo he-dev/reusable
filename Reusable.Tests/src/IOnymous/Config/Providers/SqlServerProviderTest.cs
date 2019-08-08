@@ -64,7 +64,7 @@ namespace Reusable.IOnymous.Config.Providers
         }
 
         [Fact]
-        public void Can_save_setting()
+        public void Can_update_setting()
         {
             var testDto = new TestDto(_configuration);
             Assert.Equal("Tower Bridge", testDto.String);
@@ -84,6 +84,7 @@ namespace Reusable.IOnymous.Config.Providers
     public class TestDto
     {
         private readonly IResourceProvider _configuration;
+        
         public TestDto(IResourceProvider configuration) => _configuration = configuration;
 
         public string String

@@ -14,6 +14,12 @@ namespace Reusable.IOnymous.Config
     {
         protected SettingProvider(IImmutableContainer properties)
             : base(properties.SetScheme("config")) { }
+
+        protected string GetResourceName(UriString uriString)
+        {
+            // config:settings?name=ESCAPED
+            return Uri.UnescapeDataString(uriString.Query[SettingRequestBuilder.NameKey].ToString());
+        }
     }
 
     [UseType, UseMember]

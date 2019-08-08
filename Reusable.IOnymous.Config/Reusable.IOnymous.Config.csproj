@@ -39,5 +39,6 @@
     <Compile Remove="src\ConfigurationExtensions.cs" />
     <Compile Remove="src\Converters\UriStringToSettingIdentifierConverter.cs" />
     <Compile Remove="src\Providers\ConnectionStringProvider.cs" />
+    <Compile Remove="src\Converters\UriStringQueryToStringConverter.cs" />
   </ItemGroup>
 </Project>

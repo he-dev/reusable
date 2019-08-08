@@ -27,10 +27,7 @@ namespace Reusable.Utilities.JsonNet
                             typeof(JsonTestClass2<,>)
                         ))));
 
-        private static readonly IResourceProvider Files =
-            EmbeddedFileProvider<RewritePrettyTypeVisitorTest>
-                .Default
-                .DecorateWith(RelativeProvider.Factory(@"res\Utilities\JsonNet"));
+        private static readonly IResourceProvider Files = TestHelper.Resources.DecorateWith(RelativeProvider.Factory(@"Utilities\JsonNet"));
 
         [Fact]
         public void Disallows_types_with_explicit_generic_arguments()

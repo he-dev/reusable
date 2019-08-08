@@ -94,9 +94,12 @@ namespace Reusable.Quickey
 
                 switch (current)
                 {
+                    case FieldInfo field:
+                        current = field.ReflectedType;
+                        break;
+
                     case PropertyInfo property:
                         current = property.ReflectedType;
-
                         break;
 
                     case Type type:
@@ -107,7 +110,7 @@ namespace Reusable.Quickey
 
                         type = type.BaseType;
 
-                        if (type is null)
+                        if (type is null || type == typeof(object))
                         {
                             yield break;
                         }

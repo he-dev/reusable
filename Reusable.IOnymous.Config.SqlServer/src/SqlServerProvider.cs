@@ -32,9 +32,6 @@ namespace Reusable.IOnymous.Config
                     .Add(RequestMethod.Put, PutAsync);
         }
 
-        [CanBeNull]
-        public ITypeConverter UriConverter { get; set; } = UriStringQueryToStringConverter.Default;
-
         public ITypeConverter ResourceConverter { get; set; } = new JsonSettingConverter();
 
         [NotNull]
@@ -54,11 +51,11 @@ namespace Reusable.IOnymous.Config
         [CanBeNull]
         public IImmutableDictionary<string, object> Where { get; set; }
 
-        public (string Name, object Value) Fallback { get; set; }
+        public (SoftString Name, object Value) Fallback { get; set; }
 
         private async Task<IResource> GetAsync(Request request)
         {
-            var settingIdentifier = UriConverter?.Convert<string>(request.Uri) ?? request.Uri;
+            var settingIdentifier = GetResourceName(request.Uri);
 
             return await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
             {
@@ -87,7 +84,7 @@ namespace Reusable.IOnymous.Config
 
         private async Task<IResource> PutAsync(Request request)
         {
-            var settingIdentifier = UriConverter?.Convert<string>(request.Uri) ?? request.Uri;
+            var settingIdentifier = GetResourceName(request.Uri);
             var value = ResourceConverter.Convert(request.Body, typeof(string));
             await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
             {

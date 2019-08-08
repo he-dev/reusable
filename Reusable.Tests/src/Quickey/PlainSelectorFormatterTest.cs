@@ -1,6 +1,8 @@
 using System;
-using Reusable.Data;
 using Xunit;
+
+// ReSharper disable ClassNeverInstantiated.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Local
 
 namespace Reusable.Quickey
 {
@@ -83,6 +85,8 @@ namespace Reusable.Quickey
             Assert.Equal("P2", selectorP2.ToString());
             
         }
+        
+        // todo - add tests with interfaces
 
         private class NoAttributes
         {
