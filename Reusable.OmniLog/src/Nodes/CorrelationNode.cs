@@ -35,7 +35,7 @@ namespace Reusable.OmniLog.Nodes
 
         protected override void InvokeCore(LogEntry request)
         {
-            request.SetItem(ScopeName, SerializationNode.LogEntryItemTags.Request, LoggerScope<Scope>.Current.Value);
+            request.SetItem(ScopeName, SerializationNode.LogEntryItemTags.Request, LoggerScope<Scope>.Current.Enumerate().Select(x => x.Value).ToList());
             Next?.Invoke(request);
         }
 

@@ -16,16 +16,11 @@ namespace Reusable.OmniLog.Nodes
 
         protected override void InvokeCore(LogEntry request)
         {
-            // todo - this isn't probably the best place for it
-            //            if (!request.ContainsKey("Level"))
-            //            {
-            //                request.SetItem("Level", LogLevel.Information);
-            //            }
-
             foreach (var rx in Rx)
             {
                 rx.Log(request);
             }
+            Next?.Invoke(request);
         }
     }
 }

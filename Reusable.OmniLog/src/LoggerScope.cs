@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading;
 
 namespace Reusable.OmniLog
@@ -13,7 +14,7 @@ namespace Reusable.OmniLog
 
         public T Value { get; }
 
-        private LoggerScope<T> Parent { get; set; }
+        public LoggerScope<T> Parent { get; private set; }
 
         public static LoggerScope<T> Current
         {
@@ -37,6 +38,19 @@ namespace Reusable.OmniLog
         }
 
         public static implicit operator T(LoggerScope<T> scope) => scope.Value;
+    }
+
+    public static class LoggerScopeExtensions
+    {
+        public static IEnumerable<LoggerScope<T>> Enumerate<T>(this LoggerScope<T> scope)
+        {
+            var current = scope;
+            while (current != null)
+            {
+                yield return current;
+                current = current.Parent;
+            }
+        }
     }
 
     // -------------- these didn't work ---------------

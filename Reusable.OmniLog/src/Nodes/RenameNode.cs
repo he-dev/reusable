@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 
@@ -13,12 +14,12 @@ namespace Reusable.OmniLog.Nodes
 
         protected override void InvokeCore(LogEntry request)
         {
-            foreach (var route in Changes)
+            foreach (var route in Changes.Where(x => !SoftString.Comparer.Equals(x.Key, x.Value)))
             {
                 if (request.TryGetItem<object>(route.Key, default, out var item))
                 {
-                    request.SetItem(route.Value, default, item);
                     request.RemoveItem(route.Key, default);
+                    request.SetItem(route.Value, default, item);
                 }
             }
             Next?.Invoke(request);

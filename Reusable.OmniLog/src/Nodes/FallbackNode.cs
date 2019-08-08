@@ -22,6 +22,7 @@ namespace Reusable.OmniLog.Nodes
                     request.SetItem(item.Key, default, item.Value);
                 }
             }
+            Next?.Invoke(request);
         }
     }
 }
