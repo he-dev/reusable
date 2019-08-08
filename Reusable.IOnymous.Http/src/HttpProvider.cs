@@ -7,10 +7,12 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.Quickey;
+using Reusable.Utilities.JsonNet.Converters;
 using Reusable.Utilities.JsonNet.Extensions;
 
 namespace Reusable.IOnymous.Http
@@ -43,7 +45,15 @@ namespace Reusable.IOnymous.Http
 
         public string BaseUri => _client.BaseAddress.ToString();
         
-        public JsonSerializer Serializer { get; set; } = new JsonSerializer();
+        public JsonSerializer Serializer { get; set; } = new JsonSerializer
+        {
+            Converters =
+            {
+                //new JsonStringConverter(typeof(SoftString)),
+                new SoftStringConverter(),
+                new StringEnumConverter()
+            }
+        };
 
         /// <summary>
         /// Create a HttpProvider that doesn't use a proxy for requests.
