@@ -15,7 +15,7 @@ namespace Reusable.Deception
 {
     public interface IPhantomException
     {
-        void Throw(string name, string message = default);
+        void Throw(string name, params string[] tags);
     }
 
     [UsedImplicitly]
@@ -23,37 +23,42 @@ namespace Reusable.Deception
     {
         private readonly IList<IPhantomExceptionPattern> _patterns = new List<IPhantomExceptionPattern>();
 
-        public void Throw(string name, string message = default)
+        public void Throw(string name, params string[] tags)
         {
             lock (_patterns)
             {
-                var matches = _patterns.Where(t => t.Matches(name)).Join(", ");
+                var matches = _patterns.Where(t => t.Matches(name)).ToList();
                 if (matches.Any())
                 {
-                    throw DynamicException.Create
-                    (
-                        name ?? "Phantom",
-                        message ?? $"This phantom exception was thrown because it matches [{matches}]."
-                    );
+                    var patternStrings = matches.Select(m => $"- {m}").Join(Environment.NewLine);
+                    throw DynamicException.Create(name, $"This phantom exception was thrown because it matches:{Environment.NewLine}{patternStrings}.");
                 }
             }
         }
 
-        public void Add(IPhantomExceptionPattern pattern) => _patterns.Add(pattern);
+        public void Add(IPhantomExceptionPattern pattern)
+        {
+            _patterns.Add(pattern);
+        }
 
         public IEnumerator<IPhantomExceptionPattern> GetEnumerator() => _patterns.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_patterns).GetEnumerator();
+
+        /// <summary>
+        /// This implementation does nothing and supports the null-object-pattern.
+        /// </summary>
+        public class Null : IPhantomException
+        {
+            public void Throw(string name, params string[] tags)
+            {
+                // Does nothing.
+            }
+        }
     }
 
-    /// <summary>
-    /// This implementation does nothing and supports the null-object-pattern.
-    /// </summary>
-    public class NullPhantomException : IPhantomException
+    public interface IPhantomExceptionPattern : IDisposable
     {
-        public void Throw(string name, string message = default)
-        {
-            // Does nothing.
-        }
+        bool Matches(string name, params string[] tags);
     }
 }

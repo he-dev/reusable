@@ -110,8 +110,7 @@ namespace Reusable.Quickey
             public string P2 { get; set; }
         }
 
-        [UseType, UseMember]
-        [Rename("TypeMemberPlain")]
+        [UseType("TypeMemberPlain"), UseMember]
         [PlainSelectorFormatter]
         private class TypeMemberPlainRename
         {

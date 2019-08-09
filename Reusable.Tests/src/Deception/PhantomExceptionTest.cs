@@ -17,9 +17,6 @@ namespace Reusable.Deception
             var phantomException = new PhantomException
             {
                 new CountPattern(Sequence.Constant(2))
-                {
-                    Predicate = name => name == "TooFast"
-                }
             };
 
             var counts = new List<int>();

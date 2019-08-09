@@ -13,10 +13,24 @@ namespace Reusable.Quickey
     }
 
     [UsedImplicitly]
-    [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class, Inherited = false)]
     public abstract class SelectorTokenFilterAttribute : Attribute, ISelectorTokenFilter
     {
         public abstract string Apply(string name);
+    }
+    
+    [UsedImplicitly]
+    [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property)]
+    public class RenameAttribute : SelectorTokenFilterAttribute
+    {
+        private readonly string _name;
+
+        public RenameAttribute(string name) => _name = name;
+
+        public override string Apply(string name)
+        {
+            return _name;
+        }
     }
 
     public class RemoveAttribute : SelectorTokenFilterAttribute

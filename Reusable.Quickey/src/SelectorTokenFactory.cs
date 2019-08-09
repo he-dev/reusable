@@ -2,12 +2,13 @@ using System;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Reusable.Collections;
 using Reusable.Extensions;
 
 namespace Reusable.Quickey
 {
     using static SelectorTokenType;
-    
+
     // [Prefix:][Name.space+][Type.]Member[[Index]]
     // [UsePrefix("blub"), UseNamespace, UseType, UseMember, UseIndex?]
 
@@ -20,7 +21,7 @@ namespace Reusable.Quickey
         Index
     }
 
-    public readonly struct SelectorToken
+    public readonly struct SelectorToken : IEquatable<SelectorToken>
     {
         public SelectorToken(string name, SelectorTokenType tokenType)
         {
@@ -34,6 +35,18 @@ namespace Reusable.Quickey
 
         public override string ToString() => Name;
 
+        public override int GetHashCode() => AutoEquality<SelectorToken>.Comparer.GetHashCode(this);
+
+        public override bool Equals(object obj) => obj is SelectorToken st && Equals(st);
+
+        public bool Equals(SelectorToken obj) => AutoEquality<SelectorToken>.Comparer.Equals(this, obj);
+
+        #region Factories
+
+        public static SelectorToken Scheme(string name) => new SelectorToken(name, SelectorTokenType.Scheme);
+
+        #endregion
+
         public static implicit operator string(SelectorToken token) => token.ToString();
     }
 
@@ -46,21 +59,10 @@ namespace Reusable.Quickey
     {
         SelectorToken CreateSelectorToken(MemberInfo member);
     }
-    
+
     public interface IVariableSelectorTokenFactory : ISelectorTokenFactory
     {
         SelectorToken CreateSelectorToken(MemberInfo member, string parameter);
-    }
-
-    [UsedImplicitly]
-    [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property)]
-    public class RenameAttribute : Attribute
-    {
-        private readonly string _name;
-
-        public RenameAttribute(string name) => _name = name;
-
-        public override string ToString() => _name;
     }
 
     [PublicAPI]
@@ -69,17 +71,17 @@ namespace Reusable.Quickey
     public abstract class SelectorTokenFactoryAttribute : Attribute, ISelectorTokenFactory
     {
         public abstract SelectorTokenType TokenType { get; }
-        
+
         public string Prefix { get; set; }
 
         public string Suffix { get; set; }
 
-        protected string Transform(string name, MemberInfo member)
+        protected string Filter(string name, MemberInfo member)
         {
             return
                 member
-                    .GetCustomAttributes<SelectorTokenFilterAttribute>(false) // Get only own factories and not inherited ones.
-                    .Aggregate(name, (current, fix) => fix.Apply(current));
+                    .GetCustomAttributes<SelectorTokenFilterAttribute>(inherit: false) // Get only own filters and not inherited ones.
+                    .Aggregate(name, (current, filter) => filter.Apply(current));
         }
 
         protected SelectorToken CreateSelectorToken(string member) => new SelectorToken($"{Prefix}{member}{Suffix}", TokenType);
@@ -112,49 +114,48 @@ namespace Reusable.Quickey
             _name = name;
             Suffix = "+";
         }
-        
+
         public override SelectorTokenType TokenType => Namespace;
 
         public SelectorToken CreateSelectorToken(MemberInfo member)
         {
-            return CreateSelectorToken(_name ?? member.DeclaringType.Namespace);
+            return CreateSelectorToken(_name ?? member.ReflectedType.Namespace);
         }
     }
 
     public class UseTypeAttribute : SelectorTokenFactoryAttribute, IConstantSelectorTokenFactory
     {
-        public UseTypeAttribute()
+        private readonly string _name;
+
+        public UseTypeAttribute(string name = default)
         {
+            _name = name;
             Suffix = ".";
         }
-        
+
         public override SelectorTokenType TokenType => Type;
 
         public SelectorToken CreateSelectorToken(MemberInfo member)
         {
-            var type = member.ReflectedType;
-
-            var typeName =
-                type.GetCustomAttribute<RenameAttribute>()?.ToString() is string rename
-                    ? rename
-                    : Transform(type.ToPrettyString(), type);
-
-            return CreateSelectorToken(typeName);
+            member = member.ReflectedType;
+            return CreateSelectorToken(Filter(_name ?? ((Type)member).ToPrettyString(), member));
         }
     }
 
     public class UseMemberAttribute : SelectorTokenFactoryAttribute, IConstantSelectorTokenFactory
     {
+        private readonly string _name;
+
+        public UseMemberAttribute(string name = default)
+        {
+            _name = name;
+        }
+
         public override SelectorTokenType TokenType => Member;
-        
+
         public SelectorToken CreateSelectorToken(MemberInfo member)
         {
-            var memberName =
-                member.GetCustomAttribute<RenameAttribute>()?.ToString() is string rename
-                    ? rename
-                    : Transform(member.Name, member);
-
-            return CreateSelectorToken(memberName);
+            return CreateSelectorToken(Filter(_name ?? member.Name, member));
         }
     }
 
@@ -165,7 +166,7 @@ namespace Reusable.Quickey
             Prefix = "[";
             Suffix = "]";
         }
-        
+
         public override SelectorTokenType TokenType => Index;
 
         public SelectorToken CreateSelectorToken(MemberInfo member, string parameter)

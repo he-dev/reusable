@@ -47,7 +47,7 @@ namespace Reusable.Quickey
         public Selector(LambdaExpression selector)
         {
             Expression = selector;
-            (DeclaringType, Instance, Member) = MemberVisitor.GetMemberInfo(selector);
+            (ReflectedType, Instance, Member) = MemberVisitor.GetMemberInfo(selector);
 
             // The first one is the closest one to the member.
             _selectorTokens = Member.NearestSelectorTokens();
@@ -63,7 +63,7 @@ namespace Reusable.Quickey
 
             if (_selectorTokens.All(t => t.Type != SelectorTokenType.Member))
             {
-                throw new ArgumentException(paramName: nameof(selector), message: $"'{selector.ToPrettyString()}' must specify '{nameof(UseMemberAttribute)}'.");
+                throw new ArgumentException(paramName: nameof(selector), message: $"'{selector.ToPrettyString()}' must specify at least the '{nameof(UseMemberAttribute)}'.");
             }
             
             var formatters =
@@ -82,7 +82,7 @@ namespace Reusable.Quickey
 
         public LambdaExpression Expression { get; }
 
-        public Type DeclaringType { get; }
+        public Type ReflectedType { get; }
 
         public object Instance { get; }
 

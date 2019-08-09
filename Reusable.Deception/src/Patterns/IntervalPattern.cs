@@ -6,16 +6,19 @@ using JetBrains.Annotations;
 namespace Reusable.Deception.Patterns
 {
     [UsedImplicitly]
-    public class IntervalPattern : PhantomExceptionPattern<TimeSpan>
+    public class IntervalPattern : IterativePattern<TimeSpan>
     {
-        private Stopwatch _stopwatch;
+        private readonly Stopwatch _stopwatch;
 
-        public IntervalPattern(IEnumerable<TimeSpan> values) : base(values) { }
+        public IntervalPattern(IEnumerable<TimeSpan> values) : base(values)
+        {
+            _stopwatch = Stopwatch.StartNew();
+        }
 
         protected override bool Matches() => _stopwatch.Elapsed >= Current;
 
-        protected override void Reset() => _stopwatch = Stopwatch.StartNew();
+        protected override void Reset() => _stopwatch.Restart();
 
-        public override string ToString() => $"{nameof(IntervalPattern)}: {Current} at ({_stopwatch.Elapsed})";
+        public override string ToString() => $"{nameof(IntervalPattern)}: '{Current}'.";
     }
 }
