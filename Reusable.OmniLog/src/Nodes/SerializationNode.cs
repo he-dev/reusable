@@ -26,6 +26,8 @@ namespace Reusable.OmniLog.Nodes
         /// Gets or sets serializable properties. If empty then all keys are scanned.
         /// </summary>
         public HashSet<string> SerializableProperties { get; set; } = new HashSet<string>(SoftString.Comparer);
+        
+        public static ItemKey<SoftString> CreateRequestItemKey(SoftString name) => new ItemKey<SoftString>(name, LogEntryItemTags.Serializable);
 
         protected override void InvokeCore(LogEntry request)
         {

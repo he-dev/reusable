@@ -22,18 +22,18 @@ namespace Reusable.OmniLog.Nodes
 
         public static class DefaultLogEntryItemNames
         {
-            public static readonly string Variable = nameof(Variable);
+            public static readonly string DumpName = nameof(DumpName);
 
-            public static readonly string Dump = nameof(Dump);
+            public static readonly string DumpValue = nameof(DumpValue);
         }
 
         public DumpNode() : base(true) { }
 
         public MappingCollection Mappings { get; set; } = new MappingCollection();
 
-        public string VariableName { get; set; } = DefaultLogEntryItemNames.Variable;
+        public string DumpNameItem { get; set; } = DefaultLogEntryItemNames.DumpName;
 
-        public string DumpName { get; set; } = DefaultLogEntryItemNames.Dump;
+        public string DumpValueItem { get; set; } = DefaultLogEntryItemNames.DumpValue;
 
         protected override void InvokeCore(LogEntry request)
         {
@@ -48,8 +48,8 @@ namespace Reusable.OmniLog.Nodes
                 {
                     case string str:
                         // There is nothing more to do. Just save it as a normal property.
-                        request.SetItem(VariableName, default, item.Key.Name);
-                        request.SetItem(DumpName, default, str);
+                        request.SetItem(DumpNameItem, default, item.Key.Name);
+                        request.SetItem(DumpValueItem, default, str);
                         InvokeNext(request);
                         break;
 
@@ -58,36 +58,38 @@ namespace Reusable.OmniLog.Nodes
                         if (Mappings.TryGetMapping(dump.GetType(), out var map))
                         {
                             dump = map(dump);
-                            request.SetItem(VariableName, default, item.Key.Name);
-                            request.SetItem(DumpName, SerializationNode.LogEntryItemTags.Serializable, dump);
+                            request.SetItem(DumpNameItem, default, item.Key.Name);
+                            request.SetItem(SerializationNode.CreateRequestItemKey(DumpValueItem), dump);
                             InvokeNext(request);
                         }
                         // No? Then enumerate all its properties.
                         else
                         {
-                            foreach (var (name, value) in dump.EnumerateProperties())
+                            foreach (var (name, value) in dump.EnumerateProperties().Where(x => !(x.Value is null)))
                             {
-                                // todo - not dry
-                                if (!(value is null) && Mappings.TryGetMapping(value.GetType(), out map))
+                                var copy = request.Clone();
+                                
+                                if (Mappings.TryGetMapping(value.GetType(), out map))
                                 {
                                     dump = map(value);
-                                    request.SetItem(VariableName, default, item.Key.Name);
-                                    request.SetItem(DumpName, SerializationNode.LogEntryItemTags.Serializable, dump);
-                                    InvokeNext(request);
+                                    copy.SetItem(DumpNameItem, default, item.Key.Name);
+                                    copy.SetItem(SerializationNode.CreateRequestItemKey(DumpValueItem), dump);
                                 }
                                 else
                                 {
-                                    var copy = request.Clone();
-                                    copy.SetItem(VariableName, default, name);
-                                    copy.SetItem(DumpName, SerializationNode.LogEntryItemTags.Serializable, value);
-                                    InvokeNext(copy);
+                                    copy.SetItem(DumpNameItem, default, name);
+                                    copy.SetItem(SerializationNode.CreateRequestItemKey(DumpValueItem), value);
                                 }
+
+                                InvokeNext(copy);
                             }
                         }
+
                         break;
                 }
             }
-
+            
+            // There wasn't anything to dump.
             if (nextInvokeCount == 0)
             {
                 InvokeNext(request);
@@ -100,6 +102,8 @@ namespace Reusable.OmniLog.Nodes
             }
         }
 
+        public static ItemKey<SoftString> CreateRequestItemKey(SoftString name) => new ItemKey<SoftString>(name, LogEntryItemTags.Object);
+
         public static class Mapping
         {
             public static (Type Type, Func<object, object> Map) For<T>(Func<T, object> map)
@@ -108,7 +112,7 @@ namespace Reusable.OmniLog.Nodes
                 // to use T so we need to cast the parameter from 'object' to T.
 
                 // Compile: map((T)obj)
-                var parameter = Expression.Parameter(typeof(object), DefaultLogEntryItemNames.Dump);
+                var parameter = Expression.Parameter(typeof(object), DefaultLogEntryItemNames.DumpValue);
                 var mapFunc =
                     Expression.Lambda<Func<object, object>>(
                             Expression.Call(

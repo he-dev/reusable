@@ -68,8 +68,8 @@ namespace Reusable.Examples.OmniLog
                         Changes =
                         {
                             { CorrelationNode.DefaultLogEntryItemNames.Scope, "Scope" },
-                            { DumpNode.DefaultLogEntryItemNames.Variable, "Identifier" },
-                            { DumpNode.DefaultLogEntryItemNames.Dump, "Snapshot" },
+                            { DumpNode.DefaultLogEntryItemNames.DumpName, "Identifier" },
+                            { DumpNode.DefaultLogEntryItemNames.DumpValue, "Snapshot" },
                         }
                     },
                     // Sets default values for the specified keys when they are not set already. 

@@ -19,6 +19,7 @@ namespace Reusable.OmniLog.Abstractions.Data
 
         private readonly IDictionary<ItemKey<SoftString>, object> _data;
 
+        [DebuggerStepThrough]
         public LogEntry()
         {
             _data = new Dictionary<ItemKey<SoftString>, object>();

@@ -49,7 +49,8 @@ namespace Reusable.OmniLog.Abstractions
             return result;
         }
 
-        public void Invoke(LogEntry request)
+        // It's easier to mock this with 'virtual'. 
+        public virtual void Invoke(LogEntry request)
         {
             if (Enabled)
             {

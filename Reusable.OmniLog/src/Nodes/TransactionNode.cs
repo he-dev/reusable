@@ -23,6 +23,8 @@ namespace Reusable.OmniLog.Nodes
             return LoggerScope<Scope>.Push(new Scope { Next = Next }).Value;
         }
 
+        public Scope Push() => Push(default);
+
         public class Scope : IDisposable
         {
             internal Queue<LogEntry> Buffer { get; } = new Queue<LogEntry>();
