@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Nodes

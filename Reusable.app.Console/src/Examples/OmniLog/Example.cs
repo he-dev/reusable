@@ -2,12 +2,10 @@
 using Reusable.Apps;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions.Data;
-using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Rx;
 using Reusable.OmniLog.Rx.ConsoleRenderers;
 using Reusable.OmniLog.SemanticExtensions;
-using Reusable.OmniLog.SemanticExtensions.Nodes;
 using Reusable.Utilities.NLog.LayoutRenderers;
 
 namespace Reusable.Examples.OmniLog
@@ -49,7 +47,7 @@ namespace Reusable.Examples.OmniLog
                     new CorrelationNode(),
                     // Copies everything from AbstractionBuilder to each log-entry.
                     // Contains properties Layer and Category and Meta#Dump.
-                    new SemanticNode(),
+                    new BuilderNode(),
                     // Converts #Dump items. Objects and dictionaries are treated as collections of KeyValuePairs.
                     // They are added as Variable & #Serializable to each log-entry. Strings are added without processing.
                     new DumpNode
@@ -120,7 +118,7 @@ namespace Reusable.Examples.OmniLog
                 // Logging some single business variable and a message.
                 logger.Log(Abstraction.Layer.Business().Variable(variable), log => log.Message("I'm a variable!"));
                 logger.Log(Abstraction.Layer.Database().Counter(new { Prime = 7 }));
-                logger.Log(Abstraction.Layer.Database().Decision("Log something.").Because("Logger works!"));
+                logger.Log(Abstraction.Layer.Database().Flow().Decision("Log something.").Because("Logger works!"));
 
                 // Opening inner-scope.
                 using (logger.UseScope())
@@ -142,7 +140,7 @@ namespace Reusable.Examples.OmniLog
                     logger.Log(Abstraction.Layer.Service().Routine(nameof(Run)).Running());
                     logger.Log(Abstraction.Layer.Service().Routine(nameof(Run)).Canceled().Because("No connection."));
                     logger.Log(Abstraction.Layer.Service().Routine(nameof(Run)).Faulted(), new DivideByZeroException("Cannot divide."));
-                    logger.Log(Abstraction.Layer.Service().Decision("Don't do this.").Because("Disabled."));
+                    logger.Log(Abstraction.Layer.Service().Flow().Decision("Don't do this.").Because("Disabled."));
                 }
             }
 

@@ -2,18 +2,22 @@ using System;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
-using Reusable.OmniLog.Extensions;
 
 namespace Reusable.OmniLog.Nodes
 {
     public class CorrelationNode : LoggerNode, ILoggerScope<CorrelationNode.Scope, (object CorrelationId, object CorrelationHandle)>
     {
+        public const string DefaultName = "Scope";
+
         public static class DefaultLogEntryItemNames
         {
             public static readonly string Scope = nameof(Scope);
         }
 
-        public CorrelationNode() : base(false) { }
+        public CorrelationNode(string name = DefaultName) : base(false)
+        {
+            Key = new ItemKey<SoftString>(name, SerializationNode.LogEntryItemTags.Serializable);
+        }
 
         /// <summary>
         /// Gets or sets the factory for the default correlation-id. By default it's a Guid.
@@ -23,6 +27,8 @@ namespace Reusable.OmniLog.Nodes
         public override bool Enabled => LoggerScope<Scope>.Any;
 
         public string ScopeName { get; set; } = DefaultLogEntryItemNames.Scope;
+        
+        public ItemKey<SoftString> Key { get; }
 
         public Scope Push((object CorrelationId, object CorrelationHandle) parameter)
         {
@@ -35,7 +41,7 @@ namespace Reusable.OmniLog.Nodes
 
         protected override void InvokeCore(LogEntry request)
         {
-            request.SetItem(ScopeName, SerializationNode.LogEntryItemTags.Request, LoggerScope<Scope>.Current.Enumerate().Select(x => x.Value).ToList());
+            request.SetItem(Key, LoggerScope<Scope>.Current.Enumerate().Select(x => x.Value).ToList());
             Next?.Invoke(request);
         }
 

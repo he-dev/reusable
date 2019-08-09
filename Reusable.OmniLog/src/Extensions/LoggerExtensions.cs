@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Linq.Custom;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
@@ -10,7 +12,9 @@ using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Rx.ConsoleRenderers;
 using Reusable.OmniLog.Utilities;
 
-namespace Reusable.OmniLog.Extensions
+// ReSharper disable ExplicitCallerInfoArgument - yes, we want to explicitly set it via overloads.
+
+namespace Reusable.OmniLog
 {
     [PublicAPI]
     public static class LoggerExtensions
@@ -135,5 +139,90 @@ namespace Reusable.OmniLog.Extensions
                     .OfType<T>()
                     .SingleOrThrow(onEmpty: () => DynamicException.Create($"{nameof(LoggerNode)}NotFound", $"There was no {typeof(T).ToPrettyString()}."));
         }
+
+        #region LoggerExtensions for LogEntryBuilder
+
+        // We use context as the name and not abstractionContext because it otherwise interferes with intellisense.
+        // The name abstractionContext appears first on the list and you need to scroll to get the Abstraction.
+        public static void Log<T>
+        (
+            this ILogger logger,
+            ILogEntryBuilder<T> context,
+            AlterLogEntryCallback alter = null,
+            // These properties are for free so let's just log them too.
+            [CallerMemberName] string callerMemberName = null,
+            [CallerLineNumber] int callerLineNumber = 0,
+            [CallerFilePath] string callerFilePath = null
+        )
+        {
+            logger.Log(log =>
+            {
+                log.SetItem(context.Name, BuilderNode.LogEntryItemTags.Builder, context);
+                log.SetItem(LogEntry.BasicPropertyNames.CallerMemberName, default, callerMemberName);
+                log.SetItem(LogEntry.BasicPropertyNames.CallerLineNumber, default, callerLineNumber);
+                log.SetItem(LogEntry.BasicPropertyNames.CallerFilePath, default, Path.GetFileName(callerFilePath));
+                alter?.Invoke(log);
+            });
+        }
+
+        public static void Log<T>
+        (
+            this ILogger logger,
+            ILogEntryBuilder<T> context,
+            string message,
+            Exception exception,
+            [CallerMemberName] string callerMemberName = null,
+            [CallerLineNumber] int callerLineNumber = 0,
+            [CallerFilePath] string callerFilePath = null)
+        {
+            logger.Log
+            (
+                context,
+                log => log.Message(message).Exception(exception),
+                callerMemberName,
+                callerLineNumber,
+                callerFilePath
+            );
+        }
+
+        public static void Log<T>
+        (
+            this ILogger logger,
+            ILogEntryBuilder<T> context,
+            string message,
+            [CallerMemberName] string callerMemberName = null,
+            [CallerLineNumber] int callerLineNumber = 0,
+            [CallerFilePath] string callerFilePath = null)
+        {
+            logger.Log
+            (
+                context,
+                log => log.Message(message),
+                callerMemberName,
+                callerLineNumber,
+                callerFilePath
+            );
+        }
+
+        public static void Log<T>
+        (
+            this ILogger logger,
+            ILogEntryBuilder<T> context,
+            Exception exception,
+            [CallerMemberName] string callerMemberName = null,
+            [CallerLineNumber] int callerLineNumber = 0,
+            [CallerFilePath] string callerFilePath = null)
+        {
+            logger.Log
+            (
+                context,
+                log => log.Exception(exception),
+                callerMemberName,
+                callerLineNumber,
+                callerFilePath
+            );
+        }
+
+        #endregion
     }
 }

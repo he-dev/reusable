@@ -51,6 +51,12 @@ namespace Reusable.OmniLog.Abstractions.Data
 
         public LogEntry Clone() => new LogEntry(_data);
 
+        public LogEntry SetItem(ItemKey<SoftString> key, object value)
+        {
+            this[key] = value;
+            return this;
+        }
+        
         public LogEntry SetItem(SoftString name, SoftString tag, object value)
         {
             this[name, tag ?? DefaultItemTag] = value;
@@ -62,9 +68,9 @@ namespace Reusable.OmniLog.Abstractions.Data
             return _data.TryGetValue((name, tag ?? DefaultItemTag), out var obj) && obj is T value ? value : defaultValue;
         }
 
-        public bool TryGetItem<T>(SoftString name, SoftString tag, out T value)
+        public bool TryGetItem<T>(ItemKey<SoftString> key, out T value)
         {
-            if (_data.TryGetValue((name, tag ?? DefaultItemTag), out var obj))
+            if (_data.TryGetValue(key, out var obj))
             {
                 switch (obj)
                 {
@@ -86,6 +92,11 @@ namespace Reusable.OmniLog.Abstractions.Data
                 value = default;
                 return false;
             }
+        }
+        
+        public bool TryGetItem<T>(SoftString name, SoftString tag, out T value)
+        {
+            return TryGetItem((name, tag ?? DefaultItemTag), out value);
         }
 
         public bool RemoveItem(SoftString name, SoftString tag) => _data.Remove((name, tag ?? DefaultItemTag));

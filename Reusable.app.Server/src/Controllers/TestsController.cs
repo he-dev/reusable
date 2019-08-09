@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.SemanticExtensions;
 
