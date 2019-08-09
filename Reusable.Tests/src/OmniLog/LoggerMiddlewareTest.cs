@@ -119,7 +119,7 @@ namespace Reusable.OmniLog
             Assert.Equal(1, rx.Count());
             Assert.Equal("Hallo!", rx.First()["Message"]);
             Assert.Equal("Greeting", rx.First()["Variable"]);
-            Assert.Equal("Hi!", rx.First()["Dump", SerializationNode.LogEntryItemTags.Request]);
+            Assert.Equal("Hi!", rx.First()["Dump", SerializationNode.LogEntryItemTags.Serializable]);
             //Assert.Equal("{\"Greeting\":\"Hi!\"}", rx.First()["Snapshot"]);
         }
 
@@ -199,9 +199,9 @@ namespace Reusable.OmniLog
 
             Assert.Equal(2, rx.Count());
             Assert.Equal("FirstName", rx[0]["Variable"]);
-            Assert.Equal("John", rx[0]["Dump", DumpNode.LogEntryItemTags.Response]);
+            Assert.Equal("John", rx[0]["Dump", SerializationNode.LogEntryItemTags.Serializable]);
             Assert.Equal("LastName", rx[1]["Variable"]);
-            Assert.Equal("Doe", rx[1]["Dump", DumpNode.LogEntryItemTags.Response]);
+            Assert.Equal("Doe", rx[1]["Dump", SerializationNode.LogEntryItemTags.Serializable]);
             //Assert.Equal(timestamp, rx.First()["Timestamp"]);
         }
 

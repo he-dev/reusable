@@ -17,8 +17,7 @@ namespace Reusable.OmniLog.Nodes
     {
         public static class LogEntryItemTags
         {
-            public static readonly string Request = nameof(Object);
-            public static readonly string Response = SerializationNode.LogEntryItemTags.Request;
+            public static readonly string Object = nameof(Object);
         }
 
         public static class DefaultLogEntryItemNames
@@ -41,7 +40,7 @@ namespace Reusable.OmniLog.Nodes
             var nextInvokeCount = 0;
 
             // Process only #Object items.
-            foreach (var item in request.Where(x => x.Key.Tag.Equals(LogEntryItemTags.Request)).ToList())
+            foreach (var item in request.Where(x => x.Key.Tag.Equals(LogEntryItemTags.Object)).ToList())
             {
                 var dump = item.Value;
 
@@ -60,7 +59,7 @@ namespace Reusable.OmniLog.Nodes
                         {
                             dump = map(dump);
                             request.SetItem(VariableName, default, item.Key.Name);
-                            request.SetItem(DumpName, LogEntryItemTags.Response, dump);
+                            request.SetItem(DumpName, SerializationNode.LogEntryItemTags.Serializable, dump);
                             InvokeNext(request);
                         }
                         // No? Then enumerate all its properties.
@@ -73,14 +72,14 @@ namespace Reusable.OmniLog.Nodes
                                 {
                                     dump = map(value);
                                     request.SetItem(VariableName, default, item.Key.Name);
-                                    request.SetItem(DumpName, LogEntryItemTags.Response, dump);
+                                    request.SetItem(DumpName, SerializationNode.LogEntryItemTags.Serializable, dump);
                                     InvokeNext(request);
                                 }
                                 else
                                 {
                                     var copy = request.Clone();
                                     copy.SetItem(VariableName, default, name);
-                                    copy.SetItem(DumpName, LogEntryItemTags.Response, value);
+                                    copy.SetItem(DumpName, SerializationNode.LogEntryItemTags.Serializable, value);
                                     InvokeNext(copy);
                                 }
                             }
@@ -141,7 +140,7 @@ namespace Reusable.OmniLog.Nodes
     {
         public static LogEntry Dump(this LogEntry logEntry, object obj)
         {
-            return logEntry.SetItem(nameof(Dump), DumpNode.LogEntryItemTags.Request, obj);
+            return logEntry.SetItem(nameof(Dump), DumpNode.LogEntryItemTags.Object, obj);
         }
     }
 

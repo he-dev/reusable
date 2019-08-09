@@ -95,7 +95,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// </summary>
         public static ILogEntryBuilder<ILogEntryCategory> Variable(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Variable), DumpNode.LogEntryItemTags.Request, snapshot));
+            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Variable), DumpNode.LogEntryItemTags.Object, snapshot));
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// </summary>
         public static ILogEntryBuilder<ILogEntryCategory> Property(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Property), DumpNode.LogEntryItemTags.Request, snapshot));
+            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Property), DumpNode.LogEntryItemTags.Object, snapshot));
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// </summary>
         public static ILogEntryBuilder<ILogEntryCategory> Argument(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Argument), DumpNode.LogEntryItemTags.Request, snapshot));
+            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Argument), DumpNode.LogEntryItemTags.Object, snapshot));
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// </summary>
         public static ILogEntryBuilder<ILogEntryCategory> Meta(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Meta), DumpNode.LogEntryItemTags.Request, snapshot));
+            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Meta), DumpNode.LogEntryItemTags.Object, snapshot));
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// </summary>
         public static ILogEntryBuilder<ILogEntryCategory> Counter(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Counter), DumpNode.LogEntryItemTags.Request, snapshot));
+            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Counter), DumpNode.LogEntryItemTags.Object, snapshot));
         }
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// </summary>
         public static ILogEntryBuilder<ILogEntryCategory> Routine(this ILogEntryBuilder<ILogEntryLayer> layer, string identifier)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Routine), DumpNode.LogEntryItemTags.Request, identifier));
+            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Routine), DumpNode.LogEntryItemTags.Object, identifier));
         }
 
         public static ILogEntryBuilder<ILogEntryCategory> Flow(this ILogEntryBuilder<ILogEntryLayer> layer)
@@ -163,7 +163,7 @@ namespace Reusable.OmniLog.SemanticExtensions
     public static class AbstractionCategoryExtensions
     {
         private static readonly string Category = nameof(AbstractionCategories.Routine);
-        private static readonly string Tag = DumpNode.LogEntryItemTags.Request;
+        private static readonly string Tag = DumpNode.LogEntryItemTags.Object;
 
         public static ILogEntryBuilder<ILogEntryCategory> Running(this ILogEntryBuilder<ILogEntryCategory> category)
         {
@@ -187,7 +187,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         
         public static ILogEntryBuilder<ILogEntryCategory> Decision(this ILogEntryBuilder<ILogEntryCategory> category, string decision)
         {
-            return category.Update(l => l.SetItem(nameof(Decision), DumpNode.LogEntryItemTags.Request, decision));
+            return category.Update(l => l.SetItem(nameof(Decision), DumpNode.LogEntryItemTags.Object, decision));
         }
 
         /// <summary>

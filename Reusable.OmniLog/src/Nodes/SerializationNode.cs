@@ -10,7 +10,7 @@ namespace Reusable.OmniLog.Nodes
     {
         public static class LogEntryItemTags
         {
-            public static readonly string Request = "Serializable";
+            public static readonly string Serializable = nameof(Serializable);
         }
 
         private readonly ISerializer _serializer;
@@ -33,7 +33,7 @@ namespace Reusable.OmniLog.Nodes
             var keys =
                 SerializableProperties.Any()
                     ? SerializableProperties.Select(CreateItemKey)
-                    : request.Where(l => l.Key.Tag.Equals(LogEntryItemTags.Request)).Select(l => l.Key);
+                    : request.Where(l => l.Key.Tag.Equals(LogEntryItemTags.Serializable)).Select(l => l.Key);
 
             foreach (var (name, tag) in keys.ToList())
             {
@@ -47,7 +47,7 @@ namespace Reusable.OmniLog.Nodes
             Next?.Invoke(request);
         }
 
-        public static ItemKey<SoftString> CreateItemKey(string propertyName) => (propertyName, LogEntryItemTags.Request);
+        public static ItemKey<SoftString> CreateItemKey(string propertyName) => (propertyName, LogEntryItemTags.Serializable);
     }
 
     public static class LoggerSerializerHelper
