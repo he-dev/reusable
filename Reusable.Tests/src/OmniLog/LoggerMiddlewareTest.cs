@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Threading;
-using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Rx;
 using Xunit;

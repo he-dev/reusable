@@ -6,7 +6,6 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Nodes;
 
 namespace Reusable.OmniLog.SemanticExtensions.AspNetCore

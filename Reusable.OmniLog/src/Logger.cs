@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
-using Reusable.OmniLog.Extensions;
 
 namespace Reusable.OmniLog
 {

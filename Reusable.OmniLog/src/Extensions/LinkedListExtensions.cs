@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
 
-namespace Reusable.OmniLog.Extensions
+namespace Reusable.OmniLog
 {
     public static class LinkedListExtensions
     {

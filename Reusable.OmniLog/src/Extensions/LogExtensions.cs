@@ -1,7 +1,7 @@
 ﻿using System;
 using Reusable.OmniLog.Abstractions.Data;
 
-namespace Reusable.OmniLog.Extensions
+namespace Reusable.OmniLog
 {
     public static class LogExtensions
     {

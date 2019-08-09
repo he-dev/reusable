@@ -14,7 +14,6 @@ using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Utilities;
 using t = Reusable.Commander.ConsoleTemplates;
 

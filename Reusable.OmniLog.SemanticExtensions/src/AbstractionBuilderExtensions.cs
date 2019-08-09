@@ -1,59 +1,99 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Reusable.OmniLog.Abstractions.Data;
-using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Nodes;
 
 namespace Reusable.OmniLog.SemanticExtensions
 {
-    #region Layers
-    
-    [AbstractionProperty("Layer")]
-    public interface IAbstractionLayer : IAbstractionBuilder<IAbstractionLayer> { }
+    /*
+     
+     Abstraction
+        > Layer (Business | Infrastructure | ...) 
+        > Category (Data | Action) 
+        > Snapshot (Object | Property | ...)
+     
+    logger.Log(Abstraction.Layer.Business().Data().Object(new { customer }));
+    logger.Log(Abstraction.Layer.Infrastructure().Data().Variable(new { customer }));
+    logger.Log(Abstraction.Layer.Infrastructure().Action().Faulted(nameof(Main), ex));
 
+     */
+
+    [AttributeUsage(AttributeTargets.Interface)]
+    public class AbstractionPropertyAttribute : Attribute
+    {
+        private readonly string _name;
+
+        public AbstractionPropertyAttribute(string name) => _name = name;
+
+        public override string ToString() => _name;
+    }
+
+    public abstract class Abstraction
+    {
+        /// <summary>
+        /// Provides the starting point for all semantic extensions.
+        /// </summary>
+        public static ILogEntryBuilder<Abstraction> Layer => default;
+    }
+
+    #region Layers
+
+    [AbstractionProperty("Layer")]
+    public interface ILogEntryLayer : ILogEntryBuilder<ILogEntryLayer> { }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public static class AbstractionLayers
     {
-        public static IAbstractionBuilder<IAbstractionLayer> Business(this IAbstractionBuilder<object> builder) => builder.CreateLayerWithCallerName();
+        public static IDictionary<string, LogLevel> Levels { get; set; } = new Dictionary<string, LogLevel>(SoftString.Comparer)
+        {
+            [nameof(Business)] = LogLevel.Information,
+            [nameof(Service)] = LogLevel.Debug,
+            [nameof(Presentation)] = LogLevel.Trace,
+            [nameof(IO)] = LogLevel.Trace,
+            [nameof(Database)] = LogLevel.Trace,
+            [nameof(Network)] = LogLevel.Trace,
+        };
 
-        public static IAbstractionBuilder<IAbstractionLayer> Service(this IAbstractionBuilder<object> builder) => builder.CreateLayerWithCallerName();
+        public static ILogEntryBuilder<ILogEntryLayer> Business(this ILogEntryBuilder<Abstraction> builder) => builder.CreateLayerWithCallerName();
 
-        public static IAbstractionBuilder<IAbstractionLayer> Presentation(this IAbstractionBuilder<object> builder) => builder.CreateLayerWithCallerName();
+        public static ILogEntryBuilder<ILogEntryLayer> Service(this ILogEntryBuilder<Abstraction> builder) => builder.CreateLayerWithCallerName();
 
-        public static IAbstractionBuilder<IAbstractionLayer> IO(this IAbstractionBuilder<object> builder) => builder.CreateLayerWithCallerName();
+        public static ILogEntryBuilder<ILogEntryLayer> Presentation(this ILogEntryBuilder<Abstraction> builder) => builder.CreateLayerWithCallerName();
 
-        public static IAbstractionBuilder<IAbstractionLayer> Database(this IAbstractionBuilder<object> builder) => builder.CreateLayerWithCallerName();
+        public static ILogEntryBuilder<ILogEntryLayer> IO(this ILogEntryBuilder<Abstraction> builder) => builder.CreateLayerWithCallerName();
 
-        public static IAbstractionBuilder<IAbstractionLayer> Network(this IAbstractionBuilder<object> builder) => builder.CreateLayerWithCallerName();
+        public static ILogEntryBuilder<ILogEntryLayer> Database(this ILogEntryBuilder<Abstraction> builder) => builder.CreateLayerWithCallerName();
+
+        public static ILogEntryBuilder<ILogEntryLayer> Network(this ILogEntryBuilder<Abstraction> builder) => builder.CreateLayerWithCallerName();
     }
 
     public static class AbstractionLayerBuilder
     {
-        public static IAbstractionBuilder<IAbstractionLayer> CreateLayerWithCallerName(this IAbstractionBuilder<object> builder, [CallerMemberName] string name = null)
+        public static ILogEntryBuilder<ILogEntryLayer> CreateLayerWithCallerName(this ILogEntryBuilder<Abstraction> builder, [CallerMemberName] string name = null)
         {
-            var abstractionProperty = typeof(IAbstractionLayer).GetCustomAttribute<AbstractionPropertyAttribute>().ToString();
-            return new AbstractionBuilder<IAbstractionLayer>(LogEntry.Empty()).Update(l => l.SetItem(abstractionProperty, default, name));
+            var abstractionProperty = typeof(ILogEntryLayer).GetCustomAttribute<AbstractionPropertyAttribute>().ToString();
+            var abstractionLevel = AbstractionLayers.Levels[name];
+            return new LogEntryBuilder<ILogEntryLayer>(LogEntry.Empty(), nameof(Abstraction)).Update(l => l.SetItem(abstractionProperty, default, name).Level(abstractionLevel));
         }
     }
 
     #endregion
 
     #region Categories
-    
-    [AbstractionProperty("Category")]
-    public interface IAbstractionCategory : IAbstractionBuilder<IAbstractionCategory> { }
 
+    [AbstractionProperty("Category")]
+    public interface ILogEntryCategory : ILogEntryBuilder<ILogEntryCategory> { }
 
     public static class AbstractionCategories
     {
         /// <summary>
         /// Logs variables. The dump must be an anonymous type with at least one property: new { foo[, bar] }
         /// </summary>
-        public static IAbstractionBuilder<IAbstractionCategory> Variable(this IAbstractionBuilder<IAbstractionLayer> layer, object snapshot)
+        public static ILogEntryBuilder<ILogEntryCategory> Variable(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot)
         {
             return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Variable), DumpNode.LogEntryItemTags.Request, snapshot));
         }
@@ -61,7 +101,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// <summary>
         /// Logs properties. The dump must be an anonymous type with at least one property: new { foo[, bar] }
         /// </summary>
-        public static IAbstractionBuilder<IAbstractionCategory> Property(this IAbstractionBuilder<IAbstractionLayer> layer, object snapshot)
+        public static ILogEntryBuilder<ILogEntryCategory> Property(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot)
         {
             return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Property), DumpNode.LogEntryItemTags.Request, snapshot));
         }
@@ -69,7 +109,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// <summary>
         /// Logs arguments. The dump must be an anonymous type with at leas one property: new { foo[, bar] }
         /// </summary>
-        public static IAbstractionBuilder<IAbstractionCategory> Argument(this IAbstractionBuilder<IAbstractionLayer> layer, object snapshot)
+        public static ILogEntryBuilder<ILogEntryCategory> Argument(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot)
         {
             return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Argument), DumpNode.LogEntryItemTags.Request, snapshot));
         }
@@ -77,7 +117,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// <summary>
         /// Logs metadata. The dump must be an anonymous type with at leas one property: new { foo[, bar] }
         /// </summary>
-        public static IAbstractionBuilder<IAbstractionCategory> Meta(this IAbstractionBuilder<IAbstractionLayer> layer, object snapshot)
+        public static ILogEntryBuilder<ILogEntryCategory> Meta(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot)
         {
             return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Meta), DumpNode.LogEntryItemTags.Request, snapshot));
         }
@@ -85,7 +125,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// <summary>
         /// Logs performance counters. The dump must be an anonymous type with at leas one property: new { foo[, bar] }
         /// </summary>
-        public static IAbstractionBuilder<IAbstractionCategory> Counter(this IAbstractionBuilder<IAbstractionLayer> layer, object snapshot)
+        public static ILogEntryBuilder<ILogEntryCategory> Counter(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot)
         {
             return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Counter), DumpNode.LogEntryItemTags.Request, snapshot));
         }
@@ -93,15 +133,14 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// <summary>
         /// Initializes Routine category.
         /// </summary>
-        public static IAbstractionBuilder<IAbstractionCategory> Routine(this IAbstractionBuilder<IAbstractionLayer> layer, string identifier)
+        public static ILogEntryBuilder<ILogEntryCategory> Routine(this ILogEntryBuilder<ILogEntryLayer> layer, string identifier)
         {
             return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Routine), DumpNode.LogEntryItemTags.Request, identifier));
         }
 
-        public static IAbstractionBuilder<IAbstractionCategory> Decision(this IAbstractionBuilder<IAbstractionLayer> layer, string description)
+        public static ILogEntryBuilder<ILogEntryCategory> Flow(this ILogEntryBuilder<ILogEntryLayer> layer)
         {
-            // todo - hardcoded category name
-            return layer.CreateCategoryWithCallerName("Flow").Update(l => l.SetItem(nameof(Decision), DumpNode.LogEntryItemTags.Request, description));
+            return layer.CreateCategoryWithCallerName();//.Update(l => l.SetItem(nameof(Flow), DumpNode.LogEntryItemTags.Request, description));
         }
     }
 
@@ -110,10 +149,10 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// <summary>
         /// Logs variables. The dump must be an anonymous type with at least one property: new { foo[, bar] }
         /// </summary>
-        public static IAbstractionBuilder<IAbstractionCategory> CreateCategoryWithCallerName(this IAbstractionBuilder<IAbstractionLayer> layer, [CallerMemberName] string name = null)
+        public static ILogEntryBuilder<ILogEntryCategory> CreateCategoryWithCallerName(this ILogEntryBuilder<ILogEntryLayer> layer, [CallerMemberName] string name = null)
         {
-            var abstractionProperty = typeof(IAbstractionCategory).GetCustomAttribute<AbstractionPropertyAttribute>().ToString();
-            return new AbstractionBuilder<IAbstractionCategory>(layer.Build()).Update(l => l.SetItem(abstractionProperty, default, name));
+            var abstractionProperty = typeof(ILogEntryCategory).GetCustomAttribute<AbstractionPropertyAttribute>().ToString();
+            return new LogEntryBuilder<ILogEntryCategory>(layer).Update(l => l.SetItem(abstractionProperty, default, name));
         }
     }
 
@@ -126,30 +165,35 @@ namespace Reusable.OmniLog.SemanticExtensions
         private static readonly string Category = nameof(AbstractionCategories.Routine);
         private static readonly string Tag = DumpNode.LogEntryItemTags.Request;
 
-        public static IAbstractionBuilder<IAbstractionCategory> Running(this IAbstractionBuilder<IAbstractionCategory> category)
+        public static ILogEntryBuilder<ILogEntryCategory> Running(this ILogEntryBuilder<ILogEntryCategory> category)
         {
             return category.Update(l => l.SetItem(Category, Tag, new Dictionary<string, object> { [l[Category, Tag].ToString()] = nameof(Running) }));
         }
 
-        public static IAbstractionBuilder<IAbstractionCategory> Completed(this IAbstractionBuilder<IAbstractionCategory> category)
+        public static ILogEntryBuilder<ILogEntryCategory> Completed(this ILogEntryBuilder<ILogEntryCategory> category)
         {
             return category.Update(l => l.SetItem(Category, Tag, new Dictionary<string, object> { [l[Category, Tag].ToString()] = nameof(Completed) }));
         }
 
-        public static IAbstractionBuilder<IAbstractionCategory> Canceled(this IAbstractionBuilder<IAbstractionCategory> category)
+        public static ILogEntryBuilder<ILogEntryCategory> Canceled(this ILogEntryBuilder<ILogEntryCategory> category)
         {
             return category.Update(l => l.SetItem(Category, Tag, new Dictionary<string, object> { [l[Category, Tag].ToString()] = nameof(Canceled) })).Warning();
         }
 
-        public static IAbstractionBuilder<IAbstractionCategory> Faulted(this IAbstractionBuilder<IAbstractionCategory> category)
+        public static ILogEntryBuilder<ILogEntryCategory> Faulted(this ILogEntryBuilder<ILogEntryCategory> category)
         {
             return category.Update(l => l.SetItem(Category, Tag, new Dictionary<string, object> { [l[Category, Tag].ToString()] = nameof(Faulted) })).Error();
+        }
+        
+        public static ILogEntryBuilder<ILogEntryCategory> Decision(this ILogEntryBuilder<ILogEntryCategory> category, string decision)
+        {
+            return category.Update(l => l.SetItem(nameof(Decision), DumpNode.LogEntryItemTags.Request, decision));
         }
 
         /// <summary>
         /// Sets a message that explains why something happened like Canceled a Routine or a Decision.
         /// </summary>
-        public static IAbstractionBuilder<IAbstractionCategory> Because(this IAbstractionBuilder<IAbstractionCategory> category, string reason)
+        public static ILogEntryBuilder<ILogEntryCategory> Because(this ILogEntryBuilder<ILogEntryCategory> category, string reason)
         {
             return category.Update(l => l.Message(reason));
         }
@@ -159,16 +203,16 @@ namespace Reusable.OmniLog.SemanticExtensions
 
     public static class AbstractionContextExtensions
     {
-        public static IAbstractionBuilder<T> Trace<T>(this IAbstractionBuilder<T> builder) => builder.Update(l => l.Level(LogLevel.Trace));
+        public static ILogEntryBuilder<T> Trace<T>(this ILogEntryBuilder<T> builder) => builder.Update(l => l.Level(LogLevel.Trace));
 
-        public static IAbstractionBuilder<T> Debug<T>(this IAbstractionBuilder<T> builder) => builder.Update(l => l.Level(LogLevel.Debug));
+        public static ILogEntryBuilder<T> Debug<T>(this ILogEntryBuilder<T> builder) => builder.Update(l => l.Level(LogLevel.Debug));
 
-        public static IAbstractionBuilder<T> Warning<T>(this IAbstractionBuilder<T> builder) => builder.Update(l => l.Level(LogLevel.Warning));
+        public static ILogEntryBuilder<T> Warning<T>(this ILogEntryBuilder<T> builder) => builder.Update(l => l.Level(LogLevel.Warning));
 
-        public static IAbstractionBuilder<T> Information<T>(this IAbstractionBuilder<T> builder) => builder.Update(l => l.Level(LogLevel.Information));
+        public static ILogEntryBuilder<T> Information<T>(this ILogEntryBuilder<T> builder) => builder.Update(l => l.Level(LogLevel.Information));
 
-        public static IAbstractionBuilder<T> Error<T>(this IAbstractionBuilder<T> builder) => builder.Update(l => l.Level(LogLevel.Error));
+        public static ILogEntryBuilder<T> Error<T>(this ILogEntryBuilder<T> builder) => builder.Update(l => l.Level(LogLevel.Error));
 
-        public static IAbstractionBuilder<T> Fatal<T>(this IAbstractionBuilder<T> builder) => builder.Update(l => l.Level(LogLevel.Fatal));
+        public static ILogEntryBuilder<T> Fatal<T>(this ILogEntryBuilder<T> builder) => builder.Update(l => l.Level(LogLevel.Fatal));
     }
 }
