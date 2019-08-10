@@ -8,21 +8,20 @@ using Reusable.OmniLog.Abstractions.Data;
 namespace Reusable.OmniLog.Nodes
 {
     /// <summary>
-    /// Adds computed properties to the log.
+    /// Computes a single value and adds to the log.
     /// </summary>
-    public class ComputableNode : LoggerNode
+    public class ScalarNode : LoggerNode
     {
-        public ComputableNode() : base(true) { }
+        public ScalarNode() : base(true) { }
 
-        public override bool Enabled => base.Enabled && Computables.Any();
+        public override bool Enabled => base.Enabled && Functions.Any();
 
-        public List<IComputable> Computables { get; set; } = new List<IComputable>();
+        public List<IScalar> Functions { get; set; } = new List<IScalar>();
 
         protected override void InvokeCore(LogEntry request)
         {
-            foreach (var computable in Computables.Where(x => x.Enabled))
+            foreach (var computable in Functions.Where(x => x.Enabled))
             {
-                // todo - to catch or not to catch?
                 request.SetItem(computable.Name, default, computable.Compute(request));
             }
 

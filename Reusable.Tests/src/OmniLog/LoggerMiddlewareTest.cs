@@ -4,6 +4,7 @@ using System.Threading;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Rx;
+using Reusable.OmniLog.Scalars;
 using Xunit;
 
 //using Reusable.OmniLog.Attachments;
@@ -22,7 +23,7 @@ namespace Reusable.OmniLog
                 Nodes =
                 {
                     new StopwatchNode(),
-                    new ComputableNode(),
+                    new ScalarNode(),
                     new LambdaNode(),
                     new CorrelationNode(),
                     new SerializerNode(),
@@ -53,7 +54,7 @@ namespace Reusable.OmniLog
                 Nodes =
                 {
                     new StopwatchNode(),
-                    new ComputableNode(),
+                    new ScalarNode(),
                     new LambdaNode(),
                     new CorrelationNode(),
                     new SerializerNode(),
@@ -99,7 +100,7 @@ namespace Reusable.OmniLog
                 Nodes =
                 {
                     new StopwatchNode(),
-                    new ComputableNode(),
+                    new ScalarNode(),
                     new LambdaNode(),
                     new CorrelationNode(),
                     new OneToManyNode(),
@@ -135,11 +136,11 @@ namespace Reusable.OmniLog
             {
                 Nodes =
                 {
-                    new ComputableNode
+                    new ScalarNode
                     {
-                        Computables =
+                        Functions =
                         {
-                            new Reusable.OmniLog.Computables.Timestamp(new[] { timestamp })
+                            new Timestamp(new[] { timestamp })
                         }
                     },
                     new LambdaNode(),
@@ -170,11 +171,11 @@ namespace Reusable.OmniLog
             {
                 Nodes =
                 {
-                    new ComputableNode
+                    new ScalarNode
                     {
-                        Computables =
+                        Functions =
                         {
-                            new Reusable.OmniLog.Computables.Timestamp(new[] { timestamp })
+                            new Timestamp(new[] { timestamp })
                         }
                     },
                     new LambdaNode(),
@@ -217,11 +218,11 @@ namespace Reusable.OmniLog
             {
                 Nodes =
                 {
-                    new ComputableNode
+                    new ScalarNode
                     {
-                        Computables =
+                        Functions =
                         {
-                            new Reusable.OmniLog.Computables.Timestamp(new[] { timestamp })
+                            new Timestamp(new[] { timestamp })
                         }
                     },
                     new LambdaNode(),

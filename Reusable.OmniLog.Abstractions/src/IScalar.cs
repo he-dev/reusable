@@ -6,7 +6,7 @@ using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Abstractions
 {
-    public interface IComputable : IEquatable<IComputable>
+    public interface IScalar : IEquatable<IScalar>
     {
         bool Enabled { get; }
         
@@ -17,14 +17,14 @@ namespace Reusable.OmniLog.Abstractions
         object Compute([NotNull] LogEntry logEntry);
     }
     
-    public abstract class Computable : IComputable
+    public abstract class Scalar : IScalar
     {
-        protected Computable([NotNull] string name)
+        protected Scalar([NotNull] string name)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
         }
 
-        protected Computable()
+        protected Scalar()
         {
             Name = GetType().Name;
         }
@@ -39,11 +39,11 @@ namespace Reusable.OmniLog.Abstractions
 
         #region IEquatable
 
-        public bool Equals(IComputable other) => AutoEquality<IComputable>.Comparer.Equals(this, other);
+        public bool Equals(IScalar other) => AutoEquality<IScalar>.Comparer.Equals(this, other);
 
-        public override bool Equals(object obj) => Equals(obj as IComputable);
+        public override bool Equals(object obj) => Equals(obj as IScalar);
 
-        public override int GetHashCode() => AutoEquality<IComputable>.Comparer.GetHashCode(this);
+        public override int GetHashCode() => AutoEquality<IScalar>.Comparer.GetHashCode(this);
 
         #endregion
     }

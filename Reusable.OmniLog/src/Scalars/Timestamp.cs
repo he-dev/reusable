@@ -4,9 +4,9 @@ using JetBrains.Annotations;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 
-namespace Reusable.OmniLog.Computables
+namespace Reusable.OmniLog.Scalars
 {
-    public class Timestamp : Computable, IDisposable
+    public class Timestamp : Scalar, IDisposable
     {
         private int _timestampCount;
 

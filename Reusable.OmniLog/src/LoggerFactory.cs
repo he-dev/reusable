@@ -20,18 +20,7 @@ namespace Reusable.OmniLog
 
         public List<LoggerNode> Nodes { get; set; } = new List<LoggerNode>();
 
-        //        public List<Type> MiddlewareOrder { get; set; } = new List<Type>
-        //        {
-        //            typeof(v2.Middleware.LoggerProperty),
-        //            typeof(v2.Middleware.LoggerStopwatch),
-        //            typeof(v2.Middleware.LoggerAttachment),
-        //            typeof(v2.Middleware.LoggerLambda),
-        //            typeof(v2.Middleware.LoggerCorrelation),
-        //            typeof(v2.Middleware.LoggerSerializer),
-        //            typeof(v2.Middleware.LoggerFilter),
-        //            typeof(v2.Middleware.LoggerTransaction),
-        //            typeof(v2.Middleware.LoggerEcho),
-        //        };
+        public LoggerNode Root { get; set; }
 
         #region ILoggerFactory
 
@@ -44,7 +33,7 @@ namespace Reusable.OmniLog
 
         private LoggerNode CreatePipeline(string logger)
         {
-            return Nodes.Aggregate<LoggerNode, LoggerNode>(new ConstantNode { { "Logger", logger } }, (current, next) => current.InsertNext(next)).First();
+            return Nodes.Aggregate<LoggerNode, LoggerNode>(new ConstantNode { Constants = { ["Logger"] = logger } }, (current, next) => current.InsertNext(next)).First();
         }
 
         public void Dispose() { }
@@ -62,12 +51,14 @@ namespace Reusable.OmniLog
             return new Logger<T>(loggerFactory);
         }
 
-//        public static LoggerFactory Use<T>(this LoggerFactory loggerFactory, T middleware) where T : LoggerNode
+//        public static LoggerFactory Use<T>(this LoggerFactory loggerFactory, Action<T> configureNode = default) where T : LoggerNode, new()
 //        {
-//            //var current = default(LoggerMiddleware);
-//            loggerFactory.Nodes.Add(middleware);
+//            var node = new T();
+//            configureNode?.Invoke(node);
+//            loggerFactory.Root = loggerFactory.Root.Last().InsertNext(node).First();
 //            return loggerFactory;
 //        }
+
 //
 //        public static LoggerFactory Use<T>(this LoggerFactory loggerFactory) where T : LoggerNode, new()
 //        {

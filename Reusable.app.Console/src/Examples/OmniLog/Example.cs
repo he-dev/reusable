@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using Reusable.Apps;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Rx;
 using Reusable.OmniLog.Rx.ConsoleRenderers;
+using Reusable.OmniLog.Scalars;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.Utilities.NLog.LayoutRenderers;
 
@@ -15,7 +17,7 @@ namespace Reusable.Examples.OmniLog
         public static void Run()
         {
             SmartPropertiesLayoutRenderer.Register();
-
+            
             var loggerFactory = new LoggerFactory
             {
                 Nodes =
@@ -23,8 +25,11 @@ namespace Reusable.Examples.OmniLog
                     // Adds constant values to each log-entry.
                     new ConstantNode
                     {
-                        { "Environment", "Demo" },
-                        { "Product", "Reusable.app.Console" }
+                        Constants =
+                        {
+                            { "Environment", "Demo" },
+                            { "Product", "Reusable.app.Console" }
+                        }
                     },
                     // Adds elapsed time to each log-entry. Can be enabled with logger.UseStopwatch(). Dispose to disable.
                     new StopwatchNode
@@ -33,12 +38,12 @@ namespace Reusable.Examples.OmniLog
                         GetValue = elapsed => elapsed.TotalMilliseconds
                     },
                     // Adds computed properties to each log-entry.
-                    new ComputableNode
+                    new ScalarNode
                     {
-                        Computables =
+                        Functions =
                         {
                             // Adds utc timestamp to each log-entry.
-                            new Reusable.OmniLog.Computables.Timestamp<DateTimeUtc>()
+                            new Timestamp<DateTimeUtc>()
                         }
                     },
                     // Adds support for logger.Log(log => ..) overload.
@@ -49,7 +54,7 @@ namespace Reusable.Examples.OmniLog
                     // Contains properties Layer and Category and Meta#Dump.
                     new BuilderNode
                     {
-                        BuilderItems =
+                        Names =
                         {
                             nameof(Abstraction)
                         }

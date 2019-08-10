@@ -3,9 +3,9 @@ using JetBrains.Annotations;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 
-namespace Reusable.OmniLog.Computables
+namespace Reusable.OmniLog.Scalars
 {
-    public class Lambda : Computable
+    public class Lambda : Scalar
     {
         private readonly Func<LogEntry, object> _compute;
 

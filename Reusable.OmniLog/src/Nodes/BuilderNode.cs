@@ -9,33 +9,41 @@ namespace Reusable.OmniLog.Nodes
     {
         public BuilderNode() : base(true) { }
 
-        public HashSet<string> BuilderItems { get; set; } = new HashSet<string>(SoftString.Comparer);
+        /// <summary>
+        /// Gets or sets the names of the builders to copy to the log or all if empty.
+        /// </summary>
+        public HashSet<string> Names { get; set; } = new HashSet<string>(SoftString.Comparer);
 
         protected override void InvokeCore(LogEntry request)
         {
-            var builders = 
+            var builders =
                 request
                     .Keys()
                     .Where(k => k.Tag.Equals(LogEntry.Tags.Copyable))
                     .Select(x => request[x])
                     .Cast<ILogEntryBuilder>();
 
-            if (BuilderItems.Any())
+            // Use only specific names.
+            if (Names.Any())
             {
-                builders = 
-                    BuilderItems
+                builders =
+                    Names
                         .Where(builderName => request.ContainsKey(builderName, LogEntry.Tags.Copyable))
                         .Select(builderName => request[builderName, LogEntry.Tags.Copyable])
                         .Cast<ILogEntryBuilder>();
             }
 
-            // Do we have any log-entry-builders?
-            foreach (var builder in builders.ToList())
+            builders = builders.ToList();
+
+            if (builders.Any())
             {
-                var logEntry = builder.Build();
+                var logEntries =
+                    from b in builders
+                    from l in b.Build()
+                    select l;
 
                 // Copy all items to the main log.
-                foreach (var item in logEntry)
+                foreach (var item in logEntries)
                 {
                     request.SetItem(item.Key.Name, item.Key.Tag, item.Value);
                 }

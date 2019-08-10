@@ -9,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Reusable.Apps.Server.Json;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Computables;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.OmniLog.SemanticExtensions.AspNetCore;
 using Reusable.Utilities.AspNetCore;
