@@ -128,6 +128,8 @@ namespace Reusable.OmniLog.Abstractions.Data
             
             public static readonly string Object = nameof(Object);
             public static readonly string Snapshot = nameof(Snapshot);
+            
+            public static readonly string Scope = nameof(Scope);
         }
 
         public static class Tags

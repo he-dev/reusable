@@ -54,9 +54,10 @@ namespace Reusable.Examples.OmniLog
                             nameof(Abstraction)
                         }
                     },
-                    // Converts #Dump items. Objects and dictionaries are treated as collections of KeyValuePairs.
-                    // They are added as Variable & #Serializable to each log-entry. Strings are added without processing.
+                    // Explodes objects and dictionaries into multiple log-entries. One per each property/item.
                     new OneToManyNode(),
+                    // Converts #Serializable items. Objects and dictionaries are treated as collections of KeyValuePairs.
+                    // They are added as Variable & #Serializable to each log-entry.
                     new MapperNode
                     {
                         // Maps Person to a different type.
@@ -74,7 +75,7 @@ namespace Reusable.Examples.OmniLog
                     {
                         Changes =
                         {
-                            { CorrelationNode.LogEntryName, "Scope" },
+                            { LogEntry.Names.Scope, "Scope" },
                             { LogEntry.Names.Object, "Identifier" },
                             { LogEntry.Names.Snapshot, "Snapshot" },
                         }

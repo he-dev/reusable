@@ -7,16 +7,9 @@ namespace Reusable.OmniLog.Nodes
 {
     public class CorrelationNode : LoggerNode, ILoggerScope<CorrelationNode.Scope, (object CorrelationId, object CorrelationHandle)>
     {
-        public const string LogEntryName = "Scope";
-
-//        public static class DefaultLogEntryItemNames
-//        {
-//            public static readonly string Scope = nameof(Scope);
-//        }
-
-        public CorrelationNode(string name = LogEntryName) : base(false)
+        public CorrelationNode(string name = default) : base(false)
         {
-            Key = new ItemKey<SoftString>(name, LogEntry.Tags.Serializable);
+            Key = new ItemKey<SoftString>(name ?? LogEntry.Names.Scope, LogEntry.Tags.Serializable);
         }
 
         /// <summary>

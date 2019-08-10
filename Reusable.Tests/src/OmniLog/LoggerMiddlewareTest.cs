@@ -73,14 +73,14 @@ namespace Reusable.OmniLog
                 {
                     logger.Log(l => l.Message("Hallo!"));
                     Assert.Same(outerCorrelationId, scope1.CorrelationId);
-                    Assert.NotNull(rx[0][CorrelationNode.LogEntryName]);
+                    Assert.NotNull(rx[0][LogEntry.Names.Scope]);
 
                     var innerCorrelationId = "test-id-2";
                     using (var scope2 = logger.UseScope(innerCorrelationId))
                     {
                         logger.Log(l => l.Message("Hi!"));
                         Assert.Same(innerCorrelationId, scope2.CorrelationId);
-                        Assert.NotNull(rx[1][CorrelationNode.LogEntryName]);
+                        Assert.NotNull(rx[1][LogEntry.Names.Scope]);
                     }
                 }
 
