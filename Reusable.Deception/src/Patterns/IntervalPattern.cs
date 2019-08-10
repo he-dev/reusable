@@ -15,10 +15,15 @@ namespace Reusable.Deception.Patterns
             _stopwatch = Stopwatch.StartNew();
         }
 
-        protected override bool Matches() => _stopwatch.Elapsed >= Current;
+        protected override bool Matches()
+        {
+            if (_stopwatch.Elapsed >= Current)
+            {
+                _stopwatch.Restart();
+                return true;
+            }
 
-        protected override void Reset() => _stopwatch.Restart();
-
-        public override string ToString() => $"{nameof(IntervalPattern)}: '{Current}'.";
+            return false;
+        }
     }
 }

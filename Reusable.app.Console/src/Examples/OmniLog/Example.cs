@@ -47,19 +47,26 @@ namespace Reusable.Examples.OmniLog
                     new CorrelationNode(),
                     // Copies everything from AbstractionBuilder to each log-entry.
                     // Contains properties Layer and Category and Meta#Dump.
-                    new BuilderNode(),
+                    new BuilderNode
+                    {
+                        BuilderItems =
+                        {
+                            nameof(Abstraction)
+                        }
+                    },
                     // Converts #Dump items. Objects and dictionaries are treated as collections of KeyValuePairs.
                     // They are added as Variable & #Serializable to each log-entry. Strings are added without processing.
-                    new DumpNode
+                    new OneToManyNode(),
+                    new MapperNode
                     {
                         // Maps Person to a different type.
                         Mappings =
                         {
-                            DumpNode.Mapping.For<Person>(x => new { FullName = $"{x.LastName}, {x.FirstName}".ToUpper() })
+                            MapperNode.Mapping.For<Person>(x => new { FullName = $"{x.LastName}, {x.FirstName}".ToUpper() })
                         }
                     },
                     // Serializes every #Serializable item in the log-entry and adds it as #Property.
-                    new SerializationNode(),
+                    new SerializerNode(),
                     // Filters log-entries and short-circuits the pipeline when False.
                     new FilterNode(logEntry => true),
                     // Renames properties.
@@ -67,9 +74,9 @@ namespace Reusable.Examples.OmniLog
                     {
                         Changes =
                         {
-                            { CorrelationNode.DefaultLogEntryItemNames.Scope, "Scope" },
-                            { DumpNode.DefaultLogEntryItemNames.DumpName, "Identifier" },
-                            { DumpNode.DefaultLogEntryItemNames.DumpValue, "Snapshot" },
+                            { CorrelationNode.LogEntryName, "Scope" },
+                            { LogEntry.Names.Object, "Identifier" },
+                            { LogEntry.Names.Snapshot, "Snapshot" },
                         }
                     },
                     // Sets default values for the specified keys when they are not set already. 
@@ -77,11 +84,11 @@ namespace Reusable.Examples.OmniLog
                     {
                         Defaults =
                         {
-                            [LogEntry.BasicPropertyNames.Level] = LogLevel.Information
+                            [LogEntry.Names.Level] = LogLevel.Information
                         }
                     },
                     // When activated, buffers log-entries until committed. Can be enabled with logger.UseTransaction(). Dispose to disable.
-                    new TransactionNode(),
+                    new BufferNode(),
                     // The final node that sends log-entries to the receivers.
                     new EchoNode
                     {
@@ -147,23 +154,23 @@ namespace Reusable.Examples.OmniLog
             using (logger.UseScope(correlationHandle: "Transaction"))
             using (logger.UseStopwatch())
             {
-                using (var tran = logger.UseTransaction())
+                using (var tran = logger.UseBuffer())
                 {
                     logger.Information("This message is not logged.");
                 }
 
-                using (var tran = logger.UseTransaction())
+                using (var tran = logger.UseBuffer())
                 {
                     logger.Information("This message is not logged.");
                     //logger.Information("This message overrides the transaction.", LoggerTransaction.Override);
                 }
 
-                using (var tran = logger.UseTransaction())
+                using (var tran = logger.UseBuffer())
                 {
                     logger.Information("This message is delayed.");
                     logger.Information("This message is delayed too.");
                     //logger.Information("This message overrides the transaction as first.", LoggerTransaction.Override);
-                    tran.Commit();
+                    tran.Flush();
                 }
             }
         }

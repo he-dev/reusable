@@ -26,7 +26,7 @@ namespace Reusable.OmniLog.Rx.ConsoleRenderers
         {
             lock (_syncLock)
             {
-                if (logEntry.GetItemOrDefault(LogEntry.BasicPropertyNames.Message, nameof(HtmlConsoleTemplateBuilder), TemplateBuilder) is var builder && builder is null)
+                if (logEntry.GetItemOrDefault(LogEntry.Names.Message, nameof(HtmlConsoleTemplateBuilder), TemplateBuilder) is var builder && builder is null)
                 {
                     return;
                 }

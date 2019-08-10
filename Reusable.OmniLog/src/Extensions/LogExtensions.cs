@@ -8,14 +8,19 @@ namespace Reusable.OmniLog
         #region Log properties
 
         public static LogEntry Logger(this LogEntry logEntry, string value) => logEntry.SetItem(nameof(Logger), default, value);
-        
+
         public static LogEntry Timestamp(this LogEntry logEntry, DateTime value) => logEntry.SetItem(nameof(Timestamp), default, value);
-        
+
         public static LogEntry Level(this LogEntry logEntry, LogLevel value) => logEntry.SetItem(nameof(Level), default, value);
-        
+
         public static LogEntry Exception(this LogEntry logEntry, Exception value) => logEntry.SetItem(nameof(Exception), default, value);
-        
+
         public static LogEntry Message(this LogEntry logEntry, string value) => logEntry.SetItem(nameof(Message), default, value);
+
+        public static LogEntry Snapshot(this LogEntry logEntry, object value, bool explodable = true)
+        {
+            return logEntry.SetItem(nameof(Snapshot), explodable ? LogEntry.Tags.Explodable : LogEntry.Tags.Serializable, value);
+        }
 
         #endregion
 

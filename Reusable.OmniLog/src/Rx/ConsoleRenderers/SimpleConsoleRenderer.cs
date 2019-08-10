@@ -20,7 +20,7 @@ namespace Reusable.OmniLog.Rx.ConsoleRenderers
         {
             using (Disposable.Create(Console.ResetColor))
             {
-                var logLevel = logEntry.GetItemOrDefault(LogEntry.BasicPropertyNames.Level, default, LogLevel.Information);
+                var logLevel = logEntry.GetItemOrDefault(LogEntry.Names.Level, default, LogLevel.Information);
                 if (LogLevelColor.TryGetValue(logLevel, out var consoleColor))
                 {
                     Console.ForegroundColor = consoleColor;

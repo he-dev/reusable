@@ -125,7 +125,7 @@ namespace Reusable.OmniLog
 
         private static LogEntry ConsoleTemplateBuilder(this LogEntry logEntry, HtmlConsoleTemplateBuilder htmlConsoleTemplateBuilder)
         {
-            return logEntry.SetItem(LogEntry.BasicPropertyNames.Message, nameof(HtmlConsoleTemplateBuilder), htmlConsoleTemplateBuilder);
+            return logEntry.SetItem(LogEntry.Names.Message, nameof(HtmlConsoleTemplateBuilder), htmlConsoleTemplateBuilder);
         }
 
         #endregion
@@ -157,10 +157,10 @@ namespace Reusable.OmniLog
         {
             logger.Log(log =>
             {
-                log.SetItem(context.Name, BuilderNode.LogEntryItemTags.Builder, context);
-                log.SetItem(LogEntry.BasicPropertyNames.CallerMemberName, default, callerMemberName);
-                log.SetItem(LogEntry.BasicPropertyNames.CallerLineNumber, default, callerLineNumber);
-                log.SetItem(LogEntry.BasicPropertyNames.CallerFilePath, default, Path.GetFileName(callerFilePath));
+                log.SetItem(context.Name, LogEntry.Tags.Copyable, context);
+                log.SetItem(LogEntry.Names.CallerMemberName, default, callerMemberName);
+                log.SetItem(LogEntry.Names.CallerLineNumber, default, callerLineNumber);
+                log.SetItem(LogEntry.Names.CallerFilePath, default, Path.GetFileName(callerFilePath));
                 alter?.Invoke(log);
             });
         }

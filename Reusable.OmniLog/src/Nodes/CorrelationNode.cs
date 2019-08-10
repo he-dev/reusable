@@ -7,16 +7,16 @@ namespace Reusable.OmniLog.Nodes
 {
     public class CorrelationNode : LoggerNode, ILoggerScope<CorrelationNode.Scope, (object CorrelationId, object CorrelationHandle)>
     {
-        public const string DefaultName = "Scope";
+        public const string LogEntryName = "Scope";
 
-        public static class DefaultLogEntryItemNames
-        {
-            public static readonly string Scope = nameof(Scope);
-        }
+//        public static class DefaultLogEntryItemNames
+//        {
+//            public static readonly string Scope = nameof(Scope);
+//        }
 
-        public CorrelationNode(string name = DefaultName) : base(false)
+        public CorrelationNode(string name = LogEntryName) : base(false)
         {
-            Key = new ItemKey<SoftString>(name, SerializationNode.LogEntryItemTags.Serializable);
+            Key = new ItemKey<SoftString>(name, LogEntry.Tags.Serializable);
         }
 
         /// <summary>
@@ -26,8 +26,6 @@ namespace Reusable.OmniLog.Nodes
 
         public override bool Enabled => LoggerScope<Scope>.Any;
 
-        public string ScopeName { get; set; } = DefaultLogEntryItemNames.Scope;
-        
         public ItemKey<SoftString> Key { get; }
 
         public Scope Push((object CorrelationId, object CorrelationHandle) parameter)

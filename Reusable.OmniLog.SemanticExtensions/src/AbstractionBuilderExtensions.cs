@@ -93,41 +93,41 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// <summary>
         /// Logs variables. The dump must be an anonymous type with at least one property: new { foo[, bar] }
         /// </summary>
-        public static ILogEntryBuilder<ILogEntryCategory> Variable(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot)
+        public static ILogEntryBuilder<ILogEntryCategory> Variable(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, bool explodable = true)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Variable), DumpNode.LogEntryItemTags.Object, snapshot));
+            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Variable), explodable.Tag(), snapshot));
         }
 
         /// <summary>
         /// Logs properties. The dump must be an anonymous type with at least one property: new { foo[, bar] }
         /// </summary>
-        public static ILogEntryBuilder<ILogEntryCategory> Property(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot)
+        public static ILogEntryBuilder<ILogEntryCategory> Property(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, bool explodable = true)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Property), DumpNode.LogEntryItemTags.Object, snapshot));
+            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Property), explodable.Tag(), snapshot));
         }
 
         /// <summary>
         /// Logs arguments. The dump must be an anonymous type with at leas one property: new { foo[, bar] }
         /// </summary>
-        public static ILogEntryBuilder<ILogEntryCategory> Argument(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot)
+        public static ILogEntryBuilder<ILogEntryCategory> Argument(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, bool explodable = true)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Argument), DumpNode.LogEntryItemTags.Object, snapshot));
+            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Argument), explodable.Tag(), snapshot));
         }
 
         /// <summary>
         /// Logs metadata. The dump must be an anonymous type with at leas one property: new { foo[, bar] }
         /// </summary>
-        public static ILogEntryBuilder<ILogEntryCategory> Meta(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot)
+        public static ILogEntryBuilder<ILogEntryCategory> Meta(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, bool explodable = true)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Meta), DumpNode.LogEntryItemTags.Object, snapshot));
+            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Meta), explodable.Tag(), snapshot));
         }
 
         /// <summary>
         /// Logs performance counters. The dump must be an anonymous type with at leas one property: new { foo[, bar] }
         /// </summary>
-        public static ILogEntryBuilder<ILogEntryCategory> Counter(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot)
+        public static ILogEntryBuilder<ILogEntryCategory> Counter(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, bool explodable = true)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Counter), DumpNode.LogEntryItemTags.Object, snapshot));
+            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Counter), explodable.Tag(), snapshot));
         }
 
         /// <summary>
@@ -135,12 +135,20 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// </summary>
         public static ILogEntryBuilder<ILogEntryCategory> Routine(this ILogEntryBuilder<ILogEntryLayer> layer, string identifier)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Routine), DumpNode.LogEntryItemTags.Object, identifier));
+            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Routine), LogEntry.Tags.Explodable, identifier));
         }
 
         public static ILogEntryBuilder<ILogEntryCategory> Flow(this ILogEntryBuilder<ILogEntryLayer> layer)
         {
-            return layer.CreateCategoryWithCallerName();//.Update(l => l.SetItem(nameof(Flow), DumpNode.LogEntryItemTags.Request, description));
+            return layer.CreateCategoryWithCallerName(); //.Update(l => l.SetItem(nameof(Flow), DumpNode.LogEntryItemTags.Request, description));
+        }
+
+        private static SoftString Tag(this bool explodable)
+        {
+            return
+                explodable
+                    ? LogEntry.Tags.Explodable
+                    : LogEntry.Tags.Serializable;
         }
     }
 
@@ -162,32 +170,32 @@ namespace Reusable.OmniLog.SemanticExtensions
 
     public static class AbstractionCategoryExtensions
     {
-        private static readonly string Category = nameof(AbstractionCategories.Routine);
-        private static readonly string Tag = DumpNode.LogEntryItemTags.Object;
+        private static readonly string Routine = nameof(AbstractionCategories.Routine);
+        private static readonly string Tag = LogEntry.Tags.Explodable;
 
         public static ILogEntryBuilder<ILogEntryCategory> Running(this ILogEntryBuilder<ILogEntryCategory> category)
         {
-            return category.Update(l => l.SetItem(Category, Tag, new Dictionary<string, object> { [l[Category, Tag].ToString()] = nameof(Running) }));
+            return category.Update(l => l.SetItem(Routine, Tag, new Dictionary<string, object> { [l[Routine, Tag].ToString()] = nameof(Running) }));
         }
 
         public static ILogEntryBuilder<ILogEntryCategory> Completed(this ILogEntryBuilder<ILogEntryCategory> category)
         {
-            return category.Update(l => l.SetItem(Category, Tag, new Dictionary<string, object> { [l[Category, Tag].ToString()] = nameof(Completed) }));
+            return category.Update(l => l.SetItem(Routine, Tag, new Dictionary<string, object> { [l[Routine, Tag].ToString()] = nameof(Completed) }));
         }
 
         public static ILogEntryBuilder<ILogEntryCategory> Canceled(this ILogEntryBuilder<ILogEntryCategory> category)
         {
-            return category.Update(l => l.SetItem(Category, Tag, new Dictionary<string, object> { [l[Category, Tag].ToString()] = nameof(Canceled) })).Warning();
+            return category.Update(l => l.SetItem(Routine, Tag, new Dictionary<string, object> { [l[Routine, Tag].ToString()] = nameof(Canceled) })).Warning();
         }
 
         public static ILogEntryBuilder<ILogEntryCategory> Faulted(this ILogEntryBuilder<ILogEntryCategory> category)
         {
-            return category.Update(l => l.SetItem(Category, Tag, new Dictionary<string, object> { [l[Category, Tag].ToString()] = nameof(Faulted) })).Error();
+            return category.Update(l => l.SetItem(Routine, Tag, new Dictionary<string, object> { [l[Routine, Tag].ToString()] = nameof(Faulted) })).Error();
         }
-        
+
         public static ILogEntryBuilder<ILogEntryCategory> Decision(this ILogEntryBuilder<ILogEntryCategory> category, string decision)
         {
-            return category.Update(l => l.SetItem(nameof(Decision), DumpNode.LogEntryItemTags.Object, decision));
+            return category.Update(l => l.SetItem(nameof(Decision), LogEntry.Tags.Loggable, decision));
         }
 
         /// <summary>

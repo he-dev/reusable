@@ -6,36 +6,31 @@ using Reusable.OmniLog.Utilities;
 
 namespace Reusable.OmniLog.Nodes
 {
-    public class SerializationNode : LoggerNode
+    public class SerializerNode : LoggerNode
     {
-        public static class LogEntryItemTags
-        {
-            public static readonly string Serializable = nameof(Serializable);
-        }
-
         private readonly ISerializer _serializer;
 
-        public SerializationNode(ISerializer serializer) : base(true)
+        public SerializerNode(ISerializer serializer) : base(true)
         {
             _serializer = serializer;
         }
 
-        public SerializationNode() : this(new JsonSerializer()) { }
+        public SerializerNode() : this(new JsonSerializer()) { }
 
         /// <summary>
-        /// Gets or sets serializable properties. If empty then all keys are scanned.
+        /// Gets or sets serializable properties. If empty then all items are scanned.
         /// </summary>
-        public HashSet<string> SerializableProperties { get; set; } = new HashSet<string>(SoftString.Comparer);
+        public HashSet<string> SerializableItems { get; set; } = new HashSet<string>(SoftString.Comparer);
         
-        public static ItemKey<SoftString> CreateRequestItemKey(SoftString name) => new ItemKey<SoftString>(name, LogEntryItemTags.Serializable);
+        public static ItemKey<SoftString> CreateRequestItemKey(SoftString name) => new ItemKey<SoftString>(name, LogEntry.Tags.Serializable);
 
         protected override void InvokeCore(LogEntry request)
         {
             // Process only selected #Serializable properties or all.
             var keys =
-                SerializableProperties.Any()
-                    ? SerializableProperties.Select(CreateItemKey)
-                    : request.Where(l => l.Key.Tag.Equals(LogEntryItemTags.Serializable)).Select(l => l.Key);
+                SerializableItems.Any()
+                    ? SerializableItems.Select(name => new ItemKey<SoftString>(name, LogEntry.Tags.Serializable))
+                    : request.Keys().Where(k => k.Tag.Equals(LogEntry.Tags.Serializable));
 
             foreach (var (name, tag) in keys.ToList())
             {
@@ -49,7 +44,7 @@ namespace Reusable.OmniLog.Nodes
             Next?.Invoke(request);
         }
 
-        public static ItemKey<SoftString> CreateItemKey(string propertyName) => (propertyName, LogEntryItemTags.Serializable);
+        //public static ItemKey<SoftString> CreateItemKey(string propertyName) => (propertyName, LogEntryItemTags.Object);
     }
 
     public static class LoggerSerializerHelper

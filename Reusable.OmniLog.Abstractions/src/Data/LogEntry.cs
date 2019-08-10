@@ -15,7 +15,7 @@ namespace Reusable.OmniLog.Abstractions.Data
 {
     public class LogEntry : IEnumerable<KeyValuePair<ItemKey<SoftString>, object>>
     {
-        public static readonly string DefaultItemTag = "Property";
+        public static readonly string DefaultItemTag = Tags.Loggable;
 
         private readonly IDictionary<ItemKey<SoftString>, object> _data;
 
@@ -52,12 +52,14 @@ namespace Reusable.OmniLog.Abstractions.Data
 
         public LogEntry Clone() => new LogEntry(_data);
 
+        public bool ContainsKey(SoftString name, SoftString tag) => _data.ContainsKey((name, tag ?? DefaultItemTag));
+
         public LogEntry SetItem(ItemKey<SoftString> key, object value)
         {
             this[key] = value;
             return this;
         }
-        
+
         public LogEntry SetItem(SoftString name, SoftString tag, object value)
         {
             this[name, tag ?? DefaultItemTag] = value;
@@ -94,7 +96,7 @@ namespace Reusable.OmniLog.Abstractions.Data
                 return false;
             }
         }
-        
+
         public bool TryGetItem<T>(SoftString name, SoftString tag, out T value)
         {
             return TryGetItem((name, tag ?? DefaultItemTag), out value);
@@ -113,35 +115,47 @@ namespace Reusable.OmniLog.Abstractions.Data
 
 
         [SuppressMessage("ReSharper", "ConvertToConstant.Global")]
-        public static class BasicPropertyNames
+        public static class Names
         {
+            public static readonly string Timestamp = nameof(Timestamp);
             public static readonly string Logger = nameof(Logger);
             public static readonly string Level = nameof(Level);
             public static readonly string Message = nameof(Message);
             public static readonly string Exception = nameof(Exception);
-            public static readonly string Timestamp = nameof(Timestamp);
             public static readonly string CallerMemberName = nameof(CallerMemberName);
             public static readonly string CallerLineNumber = nameof(CallerLineNumber);
             public static readonly string CallerFilePath = nameof(CallerFilePath);
+            
+            public static readonly string Object = nameof(Object);
+            public static readonly string Snapshot = nameof(Snapshot);
         }
 
-        public static class ItemTags
+        public static class Tags
         {
-            public static readonly string Metadata = nameof(Metadata);
+            /// <summary>
+            /// Item is suitable for logging.
+            /// </summary>
+            public static readonly string Loggable = nameof(Loggable);
+
+            //public static readonly string Metadata = nameof(Metadata);
+
+            /// <summary>
+            /// Item needs to be exploded.
+            /// </summary>
+            public static readonly string Explodable = nameof(Explodable);
+            
+            /// <summary>
+            /// Item needs to be mapped or serialized.
+            /// </summary>
+            public static readonly string Serializable = nameof(Serializable);
+
+            public static readonly string Copyable = nameof(Copyable);
         }
     }
 
-    public static class LogExtensions
+    public static class LogEntryExtensions
     {
-        public static LogEntry SetProperty(this LogEntry logEntry, SoftString name, object value)
-        {
-            return logEntry.SetItem(name, default, value);
-        }
-
-        public static bool TryGetProperty<T>(this LogEntry logEntry, SoftString name, out T value)
-        {
-            return logEntry.TryGetItem(name, default, out value);
-        }
+        public static IEnumerable<ItemKey<SoftString>> Keys(this LogEntry logEntry) => logEntry.Select(le => le.Key);
     }
 
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]

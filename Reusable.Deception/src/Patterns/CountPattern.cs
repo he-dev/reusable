@@ -10,10 +10,15 @@ namespace Reusable.Deception.Patterns
 
         public CountPattern(IEnumerable<int> values) : base(values) { }
 
-        protected override bool Matches() => ++_counter == Current;
+        protected override bool Matches()
+        {
+            if (++_counter == Current)
+            {
+                _counter = 0;
+                return true;
+            }
 
-        protected override void Reset() => _counter = 0;
-
-        public override string ToString() => $"{nameof(CountPattern)}: '{_counter}'.";
+            return false;
+        }
     }
 }

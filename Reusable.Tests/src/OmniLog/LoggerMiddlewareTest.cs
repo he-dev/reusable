@@ -1,9 +1,11 @@
 using System;
 using System.Linq;
 using System.Threading;
+using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Rx;
 using Xunit;
+
 //using Reusable.OmniLog.Attachments;
 
 // ReSharper disable once CheckNamespace
@@ -23,9 +25,9 @@ namespace Reusable.OmniLog
                     new ComputableNode(),
                     new LambdaNode(),
                     new CorrelationNode(),
-                    new SerializationNode(),
+                    new SerializerNode(),
                     //new LoggerFilter()
-                    new TransactionNode(),
+                    new BufferNode(),
                     new EchoNode
                     {
                         Rx = { rx },
@@ -54,9 +56,9 @@ namespace Reusable.OmniLog
                     new ComputableNode(),
                     new LambdaNode(),
                     new CorrelationNode(),
-                    new SerializationNode(),
+                    new SerializerNode(),
                     //new LoggerFilter()
-                    new TransactionNode(),
+                    new BufferNode(),
                     new EchoNode
                     {
                         Rx = { rx },
@@ -71,14 +73,14 @@ namespace Reusable.OmniLog
                 {
                     logger.Log(l => l.Message("Hallo!"));
                     Assert.Same(outerCorrelationId, scope1.CorrelationId);
-                    Assert.NotNull(rx[0][CorrelationNode.DefaultLogEntryItemNames.Scope]);
+                    Assert.NotNull(rx[0][CorrelationNode.LogEntryName]);
 
                     var innerCorrelationId = "test-id-2";
                     using (var scope2 = logger.UseScope(innerCorrelationId))
                     {
                         logger.Log(l => l.Message("Hi!"));
                         Assert.Same(innerCorrelationId, scope2.CorrelationId);
-                        Assert.NotNull(rx[1][CorrelationNode.DefaultLogEntryItemNames.Scope]);
+                        Assert.NotNull(rx[1][CorrelationNode.LogEntryName]);
                     }
                 }
 
@@ -100,10 +102,10 @@ namespace Reusable.OmniLog
                     new ComputableNode(),
                     new LambdaNode(),
                     new CorrelationNode(),
-                    new DumpNode(),
-                    new SerializationNode(),
+                    new OneToManyNode(),
+                    new SerializerNode(),
                     //new LoggerFilter()
-                    new TransactionNode(),
+                    new BufferNode(),
                     new EchoNode
                     {
                         Rx = { rx },
@@ -113,13 +115,13 @@ namespace Reusable.OmniLog
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
-                logger.Log(l => l.Message("Hallo!").Dump(new { Greeting = "Hi!" }));
+                logger.Log(l => l.Message("Hallo!").Snapshot(new { Greeting = "Hi!" }));
             }
 
             Assert.Equal(1, rx.Count());
             Assert.Equal("Hallo!", rx.First()["Message"]);
-            Assert.Equal("Greeting", rx.First()["Variable"]);
-            Assert.Equal("Hi!", rx.First()["Dump", SerializationNode.LogEntryItemTags.Serializable]);
+            Assert.Equal("Greeting", rx.First()[LogEntry.Names.Object]);
+            Assert.Equal("Hi!", rx.First()[LogEntry.Names.Snapshot, LogEntry.Tags.Serializable]);
             //Assert.Equal("{\"Greeting\":\"Hi!\"}", rx.First()["Snapshot"]);
         }
 
@@ -176,7 +178,7 @@ namespace Reusable.OmniLog
                         }
                     },
                     new LambdaNode(),
-                    new DumpNode(),
+                    new OneToManyNode(),
                     // new LoggerForward
                     // {
                     //     Routes =
@@ -194,14 +196,14 @@ namespace Reusable.OmniLog
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
-                logger.Log(l => l.Dump(new Person { FirstName = "John", LastName = "Doe" }));
+                logger.Log(l => l.Snapshot(new Person { FirstName = "John", LastName = "Doe" }));
             }
 
             Assert.Equal(2, rx.Count());
-            Assert.Equal("FirstName", rx[0]["Variable"]);
-            Assert.Equal("John", rx[0]["Dump", SerializationNode.LogEntryItemTags.Serializable]);
-            Assert.Equal("LastName", rx[1]["Variable"]);
-            Assert.Equal("Doe", rx[1]["Dump", SerializationNode.LogEntryItemTags.Serializable]);
+            Assert.Equal("FirstName", rx[0][LogEntry.Names.Object]);
+            Assert.Equal("John", rx[0][LogEntry.Names.Snapshot, LogEntry.Tags.Serializable]);
+            Assert.Equal("LastName", rx[1][LogEntry.Names.Object]);
+            Assert.Equal("Doe", rx[1][LogEntry.Names.Snapshot, LogEntry.Tags.Serializable]);
             //Assert.Equal(timestamp, rx.First()["Timestamp"]);
         }
 
@@ -223,11 +225,12 @@ namespace Reusable.OmniLog
                         }
                     },
                     new LambdaNode(),
-                    new DumpNode
+                    new OneToManyNode(),
+                    new MapperNode
                     {
                         Mappings =
                         {
-                            DumpNode.Mapping.For<Person>(p => new { FullName = p.LastName + ", " + p.FirstName })
+                            MapperNode.Mapping.For<Person>(p => new { FullName = p.LastName + ", " + p.FirstName })
                         }
                     },
                     new EchoNode
@@ -239,7 +242,7 @@ namespace Reusable.OmniLog
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
-                logger.Log(l => l.Dump(new Person { FirstName = "John", LastName = "Doe" }));
+                logger.Log(l => l.Snapshot(new Person { FirstName = "John", LastName = "Doe" }, explodable: false));
             }
 
             Assert.Equal(1, rx.Count());

@@ -31,7 +31,7 @@ namespace Reusable.Deception
                 if (matches.Any())
                 {
                     var patternStrings = matches.Select(m => $"- {m}").Join(Environment.NewLine);
-                    throw DynamicException.Create(name, $"This phantom exception was thrown because it matches:{Environment.NewLine}{patternStrings}.");
+                    throw DynamicException.Create(name, $"This phantom exception was thrown because it matches: {Environment.NewLine}{patternStrings}.");
                 }
             }
         }

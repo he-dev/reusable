@@ -37,8 +37,6 @@ namespace Reusable.Deception
         {
             if (Eof || !Matches()) return false;
 
-            Reset();
-
             if (!_values.MoveNext())
             {
                 _values.Dispose();
@@ -49,10 +47,8 @@ namespace Reusable.Deception
         }
 
         protected abstract bool Matches();
-
-        protected abstract void Reset();
-
-        public abstract override string ToString();
+        
+        public override string ToString()=> $"{GetType().ToPrettyString()}: '{Current}'.";
 
         public void Dispose() => _values?.Dispose();
     }

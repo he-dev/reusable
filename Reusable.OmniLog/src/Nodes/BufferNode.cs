@@ -6,9 +6,12 @@ using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Nodes
 {
-    public class TransactionNode : LoggerNode, ILoggerScope<TransactionNode.Scope, object>
+    /// <summary>
+    /// Temporarily holding log-entries while it's waiting to be transferred to another location. 
+    /// </summary>
+    public class BufferNode : LoggerNode, ILoggerScope<BufferNode.Scope, object>
     {
-        public TransactionNode() : base(false) { }
+        public BufferNode() : base(false) { }
 
         public override bool Enabled => LoggerScope<Scope>.Any;
 
@@ -31,7 +34,7 @@ namespace Reusable.OmniLog.Nodes
 
             internal LoggerNode Next { get; set; }
 
-            public void Commit()
+            public void Flush()
             {
                 while (Buffer.Any())
                 {
@@ -39,7 +42,7 @@ namespace Reusable.OmniLog.Nodes
                 }
             }
 
-            public void Rollback()
+            public void Clear()
             {
                 Buffer.Clear();
             }
@@ -52,13 +55,13 @@ namespace Reusable.OmniLog.Nodes
         }
     }
 
-    public static class TransactionNodeHelper
+    public static class BufferNodeHelper
     {
-        public static TransactionNode.Scope UseTransaction(this ILogger logger)
+        public static BufferNode.Scope UseBuffer(this ILogger logger)
         {
             return
                 logger
-                    .Node<TransactionNode>()
+                    .Node<BufferNode>()
                     .Push(default);
         }
     }

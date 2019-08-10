@@ -69,12 +69,12 @@ namespace Reusable.OmniLog
             }
         }
 
-        public class DumpNodeTest
+        public class OneToManyNodeTest
         {
             [Fact]
             public void Can_enumerate_dictionary()
             {
-                var node = new DumpNode();
+                var node = new OneToManyNode();
 
                 var logs = new List<LogEntry>();
                 var next = Mock.Create<LoggerNode>();
@@ -84,7 +84,7 @@ namespace Reusable.OmniLog
                     .Occurs(2);
                 node.InsertNext(next);
 
-                var requestKey = DumpNode.CreateRequestItemKey("test");
+                var requestKey = new ItemKey<SoftString>("test", LogEntry.Tags.Explodable);
                 node.Invoke(new LogEntry().SetItem(requestKey, new Dictionary<string, object>
                 {
                     ["a"] = "aa",
@@ -92,10 +92,10 @@ namespace Reusable.OmniLog
                 }));
 
                 Assert.Equal(2, logs.Count);
-                Assert.Equal("a", logs[0][node.DumpNameItem]);
-                Assert.Equal("aa", logs[0][SerializationNode.CreateRequestItemKey(node.DumpValueItem)]);
-                Assert.Equal("b", logs[1][node.DumpNameItem]);
-                Assert.Equal("bb", logs[1][SerializationNode.CreateRequestItemKey(node.DumpValueItem)]);
+                Assert.Equal("a", logs[0][LogEntry.Names.Object]);
+                Assert.Equal("aa", logs[0][LogEntry.Names.Snapshot, LogEntry.Tags.Serializable]);
+                Assert.Equal("b", logs[1][LogEntry.Names.Object]);
+                Assert.Equal("bb", logs[1][LogEntry.Names.Snapshot, LogEntry.Tags.Serializable]);
 
                 next.Assert();
             }
@@ -103,7 +103,7 @@ namespace Reusable.OmniLog
             [Fact]
             public void Can_enumerate_object_properties()
             {
-                var node = new DumpNode();
+                var node = new OneToManyNode();
 
                 var logs = new List<LogEntry>();
                 var next = Mock.Create<LoggerNode>();
@@ -113,7 +113,7 @@ namespace Reusable.OmniLog
                     .Occurs(2);
                 node.InsertNext(next);
 
-                var requestKey = DumpNode.CreateRequestItemKey("test");
+                var requestKey = new ItemKey<SoftString>("test", LogEntry.Tags.Explodable);
                 node.Invoke(new LogEntry().SetItem(requestKey, new
                 {
                     a = "aaa",
@@ -121,10 +121,10 @@ namespace Reusable.OmniLog
                 }));
 
                 Assert.Equal(2, logs.Count);
-                Assert.Equal("a", logs[0][node.DumpNameItem]);
-                Assert.Equal("aaa", logs[0][SerializationNode.CreateRequestItemKey(node.DumpValueItem)]);
-                Assert.Equal("b", logs[1][node.DumpNameItem]);
-                Assert.Equal("bbb", logs[1][SerializationNode.CreateRequestItemKey(node.DumpValueItem)]);
+                Assert.Equal("a", logs[0][LogEntry.Names.Object]);
+                Assert.Equal("aaa", logs[0][LogEntry.Names.Snapshot, LogEntry.Tags.Serializable]);
+                Assert.Equal("b", logs[1][LogEntry.Names.Object]);
+                Assert.Equal("bbb", logs[1][LogEntry.Names.Snapshot, LogEntry.Tags.Serializable]);
 
                 next.Assert();
             }
@@ -132,7 +132,7 @@ namespace Reusable.OmniLog
             [Fact]
             public void Does_nothing_to_string()
             {
-                var node = new DumpNode();
+                var node = new OneToManyNode();
 
                 var logs = new List<LogEntry>();
                 var next = Mock.Create<LoggerNode>();
@@ -142,23 +142,23 @@ namespace Reusable.OmniLog
                     .Occurs(1);
                 node.InsertNext(next);
 
-                var requestKey = DumpNode.CreateRequestItemKey("test");
+                var requestKey = new ItemKey<SoftString>("test", LogEntry.Tags.Loggable);
                 node.Invoke(new LogEntry().SetItem(requestKey, "abc"));
 
                 Assert.Equal(1, logs.Count);
-                Assert.Equal("test", logs[0][node.DumpNameItem]);
-                Assert.Equal("abc", logs[0][node.DumpValueItem]);
+                //Assert.Equal("test", logs[0][LogEntry.Names.Object]);
+                Assert.Equal("abc", logs[0][requestKey]);
 
                 next.Assert();
             }
         }
 
-        public class SerializationNodeTest
+        public class SerializerNodeTest
         {
             [Fact]
             public void Can_serialize_object()
             {
-                var node = new SerializationNode();
+                var node = new SerializerNode();
 
                 var logs = new List<LogEntry>();
                 var next = Mock.Create<LoggerNode>();
@@ -168,7 +168,7 @@ namespace Reusable.OmniLog
                     .Occurs(1);
                 node.InsertNext(next);
 
-                node.Invoke(new LogEntry().SetItem(SerializationNode.CreateRequestItemKey("test"), new { a = "2a" }));
+                node.Invoke(new LogEntry().SetItem(SerializerNode.CreateRequestItemKey("test"), new { a = "2a" }));
 
                 Assert.Equal(1, logs.Count);
                 Assert.Equal(@"{""a"":""2a""}", logs[0]["test"]);
@@ -177,12 +177,12 @@ namespace Reusable.OmniLog
             }
         }
 
-        public class TransactionNodeTest
+        public class BufferNodeTest
         {
             [Fact]
             public void Can_push_an_pop_scope()
             {
-                var node = new TransactionNode();
+                var node = new BufferNode();
 
                 var next = Mock.Create<LoggerNode>();
                 next.Arrange(x => x.Invoke(Arg.IsAny<LogEntry>())).Occurs(3);
@@ -210,7 +210,7 @@ namespace Reusable.OmniLog
                             Assert.Equal(2, tran2.Buffer.Count);
                             Assert.Equal(3, tran3.Buffer.Count);
 
-                            tran3.Commit();
+                            tran3.Flush();
 
                             Assert.Equal(1, tran1.Buffer.Count);
                             Assert.Equal(2, tran2.Buffer.Count);

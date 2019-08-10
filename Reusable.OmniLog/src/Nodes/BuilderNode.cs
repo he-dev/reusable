@@ -7,22 +7,30 @@ namespace Reusable.OmniLog.Nodes
 {
     public class BuilderNode : LoggerNode
     {
-        public static class DefaultLogEntryItemNames
-        {
-            public static readonly string Builder = nameof(Builder);
-        }
-
-        public static class LogEntryItemTags
-        {
-            public static readonly string Builder = nameof(Builder);
-        }
-
         public BuilderNode() : base(true) { }
+
+        public HashSet<string> BuilderItems { get; set; } = new HashSet<string>(SoftString.Comparer);
 
         protected override void InvokeCore(LogEntry request)
         {
+            var builders = 
+                request
+                    .Keys()
+                    .Where(k => k.Tag.Equals(LogEntry.Tags.Copyable))
+                    .Select(x => request[x])
+                    .Cast<ILogEntryBuilder>();
+
+            if (BuilderItems.Any())
+            {
+                builders = 
+                    BuilderItems
+                        .Where(builderName => request.ContainsKey(builderName, LogEntry.Tags.Copyable))
+                        .Select(builderName => request[builderName, LogEntry.Tags.Copyable])
+                        .Cast<ILogEntryBuilder>();
+            }
+
             // Do we have any log-entry-builders?
-            foreach (var (key, builder) in request.Where(le => le.Key.Tag.Equals(LogEntryItemTags.Builder)).Select(x => (x.Key, (ILogEntryBuilder)x.Value)))
+            foreach (var builder in builders.ToList())
             {
                 var logEntry = builder.Build();
 
