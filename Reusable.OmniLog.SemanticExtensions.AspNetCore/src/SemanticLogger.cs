@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Linq.Custom;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -37,6 +38,13 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
             {
                 // todo - what do I need this for?
                 //_configuration?.ConfigureScope(scope, context);
+                _logger.Log(Abstraction.Layer.Service().Meta(new
+                {
+                    UserAgent = 
+                        context.Request.Headers.TryGetValue("User-Agent", out var userAgent)
+                        ? userAgent.First()
+                        : "Unknown"
+                }));
 
                 _logger.Log(Abstraction.Layer.Network().Argument(new
                 {

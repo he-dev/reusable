@@ -7,10 +7,7 @@ namespace Reusable.OmniLog.Nodes
 {
     public class CorrelationNode : LoggerNode, ILoggerScope<CorrelationNode.Scope, (object CorrelationId, object CorrelationHandle)>
     {
-        public CorrelationNode(string name = default) : base(false)
-        {
-            Key = new ItemKey<SoftString>(name ?? LogEntry.Names.Scope, LogEntry.Tags.Serializable);
-        }
+        public CorrelationNode() : base(false) { }
 
         /// <summary>
         /// Gets or sets the factory for the default correlation-id. By default it's a Guid.
@@ -18,8 +15,6 @@ namespace Reusable.OmniLog.Nodes
         public Func<object> NextCorrelationId { get; set; } = () => Guid.NewGuid().ToString("N");
 
         public override bool Enabled => LoggerScope<Scope>.Any;
-
-        public ItemKey<SoftString> Key { get; }
 
         public Scope Push((object CorrelationId, object CorrelationHandle) parameter)
         {
@@ -32,7 +27,7 @@ namespace Reusable.OmniLog.Nodes
 
         protected override void InvokeCore(LogEntry request)
         {
-            request.SetItem(Key, LoggerScope<Scope>.Current.Enumerate().Select(x => x.Value).ToList());
+            request.SetItem(LogEntry.Names.Scope, LogEntry.Tags.Serializable, LoggerScope<Scope>.Current.Enumerate().Select(x => x.Value).ToList());
             Next?.Invoke(request);
         }
 

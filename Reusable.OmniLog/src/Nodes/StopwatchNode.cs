@@ -10,12 +10,7 @@ namespace Reusable.OmniLog.Nodes
     /// </summary>
     public class StopwatchNode : LoggerNode, ILoggerScope<StopwatchNode.Scope, object>
     {
-        private readonly string _propertyName;
-
-        public StopwatchNode(string propertyName = nameof(Stopwatch.Elapsed)) : base(false)
-        {
-            _propertyName = propertyName;
-        }
+        public StopwatchNode() : base(false) { }
 
         public override bool Enabled => !(LoggerScope<Scope>.Current is null);
 
@@ -32,7 +27,7 @@ namespace Reusable.OmniLog.Nodes
 
         protected override void InvokeCore(LogEntry request)
         {
-            request.SetItem(_propertyName, default, (long)GetValue(LoggerScope<Scope>.Current.Value.Elapsed));
+            request.SetItem(LogEntry.Names.Elapsed, default, (long)GetValue(LoggerScope<Scope>.Current.Value.Elapsed));
             Next?.Invoke(request);
         }
 

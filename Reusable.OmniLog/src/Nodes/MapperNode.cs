@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Reusable.Exceptionize;
+using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 
@@ -39,9 +40,13 @@ namespace Reusable.OmniLog.Nodes
             Next?.Invoke(request);
         }
 
-        public static class Mapping
+        public class Mapping
         {
-            public static (Type Type, Func<object, object> Map) For<T>(Func<T, object> map)
+            public Type Type { get; private set; }
+
+            public Func<object, object> Map { get; private set; }
+
+            public static Mapping For<T>(Func<T, object> map)
             {
                 // We can store only Func<object, object> but the call should be able
                 // to use T so we need to cast the parameter from 'object' to T.
@@ -57,7 +62,7 @@ namespace Reusable.OmniLog.Nodes
                             parameter)
                         .Compile();
 
-                return (typeof(T), mapFunc);
+                return new Mapping { Type = typeof(T), Map = mapFunc };
             }
         }
 
@@ -65,7 +70,15 @@ namespace Reusable.OmniLog.Nodes
         {
             private readonly IDictionary<Type, Func<object, object>> _mappings = new Dictionary<Type, Func<object, object>>();
 
-            public void Add((Type Type, Func<object, object> Map) mapping) => _mappings.Add(mapping.Type, mapping.Map);
+            public void Add(Mapping mapping) => _mappings.Add(mapping.Type, mapping.Map);
+
+            public void AddRange(IEnumerable<Mapping> mappings)
+            {
+                foreach (var mapping in mappings)
+                {
+                    Add(mapping);
+                }
+            }
 
             public bool TryGetMapping(Type type, out Func<object, object> map) => _mappings.TryGetValue(type, out map);
 

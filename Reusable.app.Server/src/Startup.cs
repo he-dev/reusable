@@ -89,7 +89,8 @@ namespace Reusable.Apps.Server
             //loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             //loggerFactory.AddDebug();      
 
-            app.UseSemanticLogger(httpContext => httpContext.GetClientCorrelationIdOrDefault());
+            
+            app.UseOmniLog(httpContext => httpContext.GetClientCorrelationIdOrDefault());
 
             //app.UseWhen(
             //    httpContext => !httpContext.Request.Method.In(new[] { "GET" }, StringComparer.OrdinalIgnoreCase),

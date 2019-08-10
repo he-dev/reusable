@@ -6,7 +6,7 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
 {
     public static class LoggerMiddlewareExtensions
     {
-        public static IApplicationBuilder UseSemanticLogger(this IApplicationBuilder builder, Func<HttpContext, object> getCorrelationId)
+        public static IApplicationBuilder UseOmniLog(this IApplicationBuilder builder, Func<HttpContext, object> getCorrelationId)
         {
             return builder.UseMiddleware<SemanticLogger>(getCorrelationId);
         }

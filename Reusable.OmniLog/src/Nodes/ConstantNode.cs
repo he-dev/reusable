@@ -13,9 +13,9 @@ namespace Reusable.OmniLog.Nodes
 
         protected override void InvokeCore(LogEntry request)
         {
-            foreach (var (name, value) in Constants)
+            foreach (var item in Constants)
             {
-                request.SetItem(name, default, value);
+                request.SetItem(item.Key, default, item.Value);
             }
 
             Next?.Invoke(request);

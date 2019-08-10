@@ -78,7 +78,7 @@ namespace Reusable.Examples.OmniLog
                     // Renames properties.
                     new RenameNode
                     {
-                        Changes =
+                        Mappings =
                         {
                             { LogEntry.Names.Scope, "Scope" },
                             { LogEntry.Names.Object, "Identifier" },

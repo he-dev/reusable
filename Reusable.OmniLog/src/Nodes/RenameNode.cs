@@ -10,11 +10,11 @@ namespace Reusable.OmniLog.Nodes
     {
         public RenameNode() : base(true) { }
 
-        public IDictionary<string, string> Changes { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> Mappings { get; set; } = new Dictionary<string, string>();
 
         protected override void InvokeCore(LogEntry request)
         {
-            foreach (var route in Changes.Where(x => !SoftString.Comparer.Equals(x.Key, x.Value)))
+            foreach (var route in Mappings.Where(x => !SoftString.Comparer.Equals(x.Key, x.Value)))
             {
                 if (request.TryGetItem<object>(route.Key, default, out var item))
                 {

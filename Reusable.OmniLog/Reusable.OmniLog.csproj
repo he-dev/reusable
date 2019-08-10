@@ -38,7 +38,7 @@
 
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />
-    <PackageReference Include="System.Reactive" Version="4.1.5" />
+<!--    <PackageReference Include="System.Reactive" Version="4.1.5" />-->
   </ItemGroup>
 
   <ItemGroup>
@@ -46,7 +46,6 @@
     <ProjectReference Include="..\Reusable.Flexo\Reusable.Flexo.csproj" />
     <ProjectReference Include="..\Reusable.IOnymous\Reusable.IOnymous.csproj" />
     <ProjectReference Include="..\Reusable.MarkupBuilder\Reusable.MarkupBuilder.csproj" />
-    <ProjectReference Include="..\Reusable.OmniLog.Abstractions\Reusable.OmniLog.Abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>

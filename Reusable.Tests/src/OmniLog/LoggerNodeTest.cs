@@ -20,15 +20,17 @@ namespace Reusable.OmniLog
             {
                 var node = new CorrelationNode();
                 var logEntry = new LogEntry();
+                
+                var key = new ItemKey<SoftString>(LogEntry.Names.Scope, LogEntry.Tags.Serializable);
 
-                Assert.False(logEntry.TryGetItem<List<CorrelationNode.Scope>>(node.Key, out var scope));
+                Assert.False(logEntry.TryGetItem<List<CorrelationNode.Scope>>(key, out var scope));
 
 
                 using (node.Push((CorrelationId: "scope-1", CorrelationHandle: "handle-1")))
                 {
                     node.Invoke(logEntry = new LogEntry());
 
-                    Assert.True(logEntry.TryGetItem(node.Key, out scope));
+                    Assert.True(logEntry.TryGetItem(key, out scope));
                     Assert.Equal(1, scope.Count);
                     Assert.Equal(new[] { "scope-1" }, scope.Select(x => x.CorrelationId));
 
@@ -36,7 +38,7 @@ namespace Reusable.OmniLog
                     {
                         node.Invoke(logEntry = new LogEntry());
 
-                        Assert.True(logEntry.TryGetItem(node.Key, out scope));
+                        Assert.True(logEntry.TryGetItem(key, out scope));
                         Assert.Equal(2, scope.Count);
                         Assert.Equal(new[] { "scope-2", "scope-1" }, scope.Select(x => x.CorrelationId));
 
@@ -44,28 +46,28 @@ namespace Reusable.OmniLog
                         {
                             node.Invoke(logEntry = new LogEntry());
 
-                            Assert.True(logEntry.TryGetItem(node.Key, out scope));
+                            Assert.True(logEntry.TryGetItem(key, out scope));
                             Assert.Equal(3, scope.Count);
                             Assert.Equal(new[] { "scope-3", "scope-2", "scope-1" }, scope.Select(x => x.CorrelationId));
                         }
 
                         node.Invoke(logEntry = new LogEntry());
 
-                        Assert.True(logEntry.TryGetItem(node.Key, out scope));
+                        Assert.True(logEntry.TryGetItem(key, out scope));
                         Assert.Equal(2, scope.Count);
                         Assert.Equal(new[] { "scope-2", "scope-1" }, scope.Select(x => x.CorrelationId));
                     }
 
                     node.Invoke(logEntry = new LogEntry());
 
-                    Assert.True(logEntry.TryGetItem(node.Key, out scope));
+                    Assert.True(logEntry.TryGetItem(key, out scope));
                     Assert.Equal(1, scope.Count);
                     Assert.Equal(new[] { "scope-1" }, scope.Select(x => x.CorrelationId));
                 }
 
                 node.Invoke(logEntry = new LogEntry());
 
-                Assert.False(logEntry.TryGetItem(node.Key, out scope));
+                Assert.False(logEntry.TryGetItem(key, out scope));
             }
         }
 

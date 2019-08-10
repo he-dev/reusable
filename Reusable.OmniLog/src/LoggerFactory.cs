@@ -20,8 +20,6 @@ namespace Reusable.OmniLog
 
         public List<LoggerNode> Nodes { get; set; } = new List<LoggerNode>();
 
-        public LoggerNode Root { get; set; }
-
         #region ILoggerFactory
 
         public ILogger CreateLogger(string name)
@@ -33,7 +31,7 @@ namespace Reusable.OmniLog
 
         private LoggerNode CreatePipeline(string logger)
         {
-            return Nodes.Aggregate<LoggerNode, LoggerNode>(new ConstantNode { Constants = { ["Logger"] = logger } }, (current, next) => current.InsertNext(next)).First();
+            return Nodes.Aggregate<LoggerNode, LoggerNode>(new ConstantNode { Constants = { [nameof(Logger)] = logger } }, (current, next) => current.InsertNext(next)).First();
         }
 
         public void Dispose() { }
@@ -51,18 +49,18 @@ namespace Reusable.OmniLog
             return new Logger<T>(loggerFactory);
         }
 
-//        public static LoggerFactory Use<T>(this LoggerFactory loggerFactory, Action<T> configureNode = default) where T : LoggerNode, new()
-//        {
-//            var node = new T();
-//            configureNode?.Invoke(node);
-//            loggerFactory.Root = loggerFactory.Root.Last().InsertNext(node).First();
-//            return loggerFactory;
-//        }
+        public static LoggerFactory Use<T>(this LoggerFactory loggerFactory, Action<T> configure = default) where T : LoggerNode, new()
+        {
+            var node = new T();
+            configure?.Invoke(node);
+            return loggerFactory.Use(node);
+        }
 
-//
-//        public static LoggerFactory Use<T>(this LoggerFactory loggerFactory) where T : LoggerNode, new()
-//        {
-//            return loggerFactory.Use(new T());
-//        }
+
+        public static LoggerFactory Use<T>(this LoggerFactory loggerFactory, T node) where T : LoggerNode
+        {
+            loggerFactory.Nodes.Add(node);
+            return loggerFactory;
+        }
     }
 }

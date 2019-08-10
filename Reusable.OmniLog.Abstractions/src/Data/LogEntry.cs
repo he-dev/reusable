@@ -130,6 +130,7 @@ namespace Reusable.OmniLog.Abstractions.Data
             public static readonly string Snapshot = nameof(Snapshot);
             
             public static readonly string Scope = nameof(Scope);
+            public static readonly string Elapsed = nameof(Stopwatch.Elapsed);
         }
 
         public static class Tags
