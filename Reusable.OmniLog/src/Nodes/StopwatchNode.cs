@@ -16,6 +16,8 @@ namespace Reusable.OmniLog.Nodes
 
         #region IScope
 
+        public Scope Current => LoggerScope<Scope>.Current?.Value;
+
         public Scope Push(object parameter)
         {
             return LoggerScope<Scope>.Push(new Scope()).Value;
@@ -50,12 +52,26 @@ namespace Reusable.OmniLog.Nodes
 
     public static class LoggerStopwatchHelper
     {
+        /// <summary>
+        /// Activates a new stopwatch and returns it.
+        /// </summary>
         public static StopwatchNode.Scope UseStopwatch(this ILogger logger)
         {
             return
                 logger
                     .Node<StopwatchNode>()
                     .Push(default);
+        }
+        
+        /// <summary>
+        /// Gets the stopwatch in current scope.
+        /// </summary>
+        public static StopwatchNode.Scope Stopwatch(this ILogger logger)
+        {
+            return
+                logger
+                    .Node<StopwatchNode>()
+                    .Current;
         }
     }
 }

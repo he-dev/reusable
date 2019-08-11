@@ -16,6 +16,8 @@ namespace Reusable.OmniLog.Nodes
 
         public override bool Enabled => LoggerScope<Scope>.Any;
 
+        public Scope Current => LoggerScope<Scope>.Current?.Value;
+        
         public Scope Push((object CorrelationId, object CorrelationHandle) parameter)
         {
             return LoggerScope<Scope>.Push(new Scope
@@ -49,6 +51,17 @@ namespace Reusable.OmniLog.Nodes
                 logger
                     .Node<CorrelationNode>()
                     .Push((correlationId, correlationHandle));
+        }
+        
+        /// <summary>
+        /// Gets the current correlation scope.
+        /// </summary>
+        public static CorrelationNode.Scope Scope(this ILogger logger)
+        {
+            return
+                logger
+                    .Node<CorrelationNode>()
+                    .Current;
         }
     }
 }

@@ -213,7 +213,10 @@ namespace Reusable.OmniLog.SemanticExtensions
 
         public static ILogEntryBuilder<ILogEntryCategory> Decision(this ILogEntryBuilder<ILogEntryCategory> category, string decision)
         {
-            return category.Update(l => l.SetItem(nameof(Decision), LogEntry.Tags.Loggable, decision));
+            return category.Update(l => l
+                .SetItem(LogEntry.Names.Object, LogEntry.Tags.Loggable, nameof(Decision))
+                .SetItem(LogEntry.Names.Snapshot, LogEntry.Tags.Loggable, decision)
+            );
         }
 
         /// <summary>

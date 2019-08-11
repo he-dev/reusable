@@ -20,6 +20,8 @@ namespace Reusable.OmniLog.Nodes
             LoggerScope<Scope>.Current.Value.Buffer.Enqueue(request);
             // Don't call Next until Commit.
         }
+        
+        public Scope Current => LoggerScope<Scope>.Current?.Value;
 
         public Scope Push(object parameter)
         {
