@@ -35,9 +35,9 @@ namespace Reusable.Extensions
         [ContractAnnotation("text: null => null; text: notnull => notnull; tryGetValue: null => stop")]
         public static string Format(this string text, TryGetValueCallback tryGetValue, IFormatProvider formatProvider)
         {
-            if (string.IsNullOrEmpty(text)) { return text; }
-            if (tryGetValue == null) { throw new ArgumentNullException(nameof(tryGetValue)); }
-            if (formatProvider == null) { throw new ArgumentNullException(nameof(formatProvider)); }
+            if (string.IsNullOrEmpty(text)) return text;
+            if (tryGetValue == null) throw new ArgumentNullException(nameof(tryGetValue));
+            if (formatProvider == null) throw new ArgumentNullException(nameof(formatProvider));
 
             var result = Regex.Replace(text, ExpressionPattern, match =>
             {
@@ -48,16 +48,18 @@ namespace Reusable.Extensions
                 return
                     tryGetValue(name, out var value)
                         // Recursively apply formatting.
-                        ? string.Format(formatProvider, CreateCompositeFormatString(), value).Format(tryGetValue, formatProvider)
+                        ? string
+                            .Format(formatProvider, CreateCompositeFormatString(), value)
+                            .Format(tryGetValue, formatProvider)
                         // Reconstruct the composite format string.
                         : CreateCompositeFormatString(name);
 
-                string CreateCompositeFormatString(string nameOrDefault = default) => $"{{{nameOrDefault ?? "0"}{alignment}{formatString}}}";
-            });
+                string CreateCompositeFormatString(string nameOrDefault = "0") => $"{{{nameOrDefault}{alignment}{formatString}}}";
+            }, RegexOptions.Compiled);
 
             // https://regex101.com/r/zG6tF7/3
             // Format escaped expressions, e.g. "{{over}}" -> "{over}"
-            return Regex.Replace(result, "{{(?<contents>.+?)}}", match => $"{{{match.Groups["contents"].Value}}}");
+            return Regex.Replace(result, "{{(?<contents>.+?)}}", match => $"{{{match.Groups["contents"].Value}}}", RegexOptions.Compiled);
         }
 
         [Pure]
@@ -71,7 +73,10 @@ namespace Reusable.Extensions
         [ContractAnnotation("text: notnull => notnull; text: null => null; args: null => halt")]
         public static string Format(this string text, IDictionary<string, object> args, IFormatProvider formatProvider)
         {
-            if (args == null) { throw new ArgumentNullException(nameof(args)); }
+            if (args == null)
+            {
+                throw new ArgumentNullException(nameof(args));
+            }
 
             return Format(text, args.ValidateNames().TryGetValue, formatProvider);
         }
@@ -84,7 +89,7 @@ namespace Reusable.Extensions
         {
             return Format(text, args.ValidateNames().TryGetValue);
         }
-        
+
         /// <param name="text"></param>
         /// <param name="args">A dictionary that contains zero or more objects to format.</param>
         [Pure]
@@ -94,7 +99,7 @@ namespace Reusable.Extensions
             if (args == null) throw new ArgumentNullException(nameof(args));
             return Format(text, (string name, out object value) => args.TryGetValue(name, out value));
         }
-        
+
 //        public static string Format(this string text, [NotNull] IKeyedValueProvider<SoftString, object> args)
 //        {
 //            if (args == null) throw new ArgumentNullException(nameof(args));
@@ -105,12 +110,20 @@ namespace Reusable.Extensions
         [CanBeNull, ContractAnnotation("text: null => null; args: null => stop")]
         public static string Format(this string text, [NotNull] object args, [NotNull] IEqualityComparer<string> comparer, [NotNull] IFormatProvider formatProvider)
         {
-            if (string.IsNullOrWhiteSpace(text)) { return text; }
-            if (args == null) { throw new ArgumentNullException(nameof(args)); }
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return text;
+            }
+
+            if (args == null)
+            {
+                throw new ArgumentNullException(nameof(args));
+            }
+
             if (comparer == null) throw new ArgumentNullException(nameof(comparer));
             if (formatProvider == null) throw new ArgumentNullException(nameof(formatProvider));
 
-            var properties = 
+            var properties =
                 args
                     .GetType()
                     .GetProperties(BindingFlags.Public | BindingFlags.Instance)

@@ -135,7 +135,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// </summary>
         public static ILogEntryBuilder<ILogEntryCategory> Routine(this ILogEntryBuilder<ILogEntryLayer> layer, string identifier)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Routine), LogEntry.Tags.Explodable, identifier));
+            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(LogEntry.Names.Object, LogEntry.Tags.Loggable, identifier));
         }
 
         public static ILogEntryBuilder<ILogEntryCategory> Flow(this ILogEntryBuilder<ILogEntryLayer> layer)
@@ -170,27 +170,31 @@ namespace Reusable.OmniLog.SemanticExtensions
 
     public static class AbstractionCategoryExtensions
     {
-        private static readonly string Routine = nameof(AbstractionCategories.Routine);
-        private static readonly string Tag = LogEntry.Tags.Explodable;
-
         public static ILogEntryBuilder<ILogEntryCategory> Running(this ILogEntryBuilder<ILogEntryCategory> category)
         {
-            return category.Update(l => l.SetItem(Routine, Tag, new Dictionary<string, object> { [l[Routine, Tag].ToString()] = nameof(Running) }));
+            return category.Update(l => l.SetItem(LogEntry.Names.Snapshot, LogEntry.Tags.Loggable, nameof(Running)));
         }
 
         public static ILogEntryBuilder<ILogEntryCategory> Completed(this ILogEntryBuilder<ILogEntryCategory> category)
         {
-            return category.Update(l => l.SetItem(Routine, Tag, new Dictionary<string, object> { [l[Routine, Tag].ToString()] = nameof(Completed) }));
+            return category.Update(l => l.SetItem(LogEntry.Names.Snapshot, LogEntry.Tags.Loggable, nameof(Completed)));
         }
 
         public static ILogEntryBuilder<ILogEntryCategory> Canceled(this ILogEntryBuilder<ILogEntryCategory> category)
         {
-            return category.Update(l => l.SetItem(Routine, Tag, new Dictionary<string, object> { [l[Routine, Tag].ToString()] = nameof(Canceled) })).Warning();
+            return category.Update(l => l.SetItem(LogEntry.Names.Snapshot, LogEntry.Tags.Loggable, nameof(Canceled))).Warning();
         }
 
-        public static ILogEntryBuilder<ILogEntryCategory> Faulted(this ILogEntryBuilder<ILogEntryCategory> category)
+        public static ILogEntryBuilder<ILogEntryCategory> Faulted(this ILogEntryBuilder<ILogEntryCategory> category, Exception exception = default)
         {
-            return category.Update(l => l.SetItem(Routine, Tag, new Dictionary<string, object> { [l[Routine, Tag].ToString()] = nameof(Faulted) })).Error();
+            return category.Update(l =>
+            {
+                l.SetItem(LogEntry.Names.Snapshot, LogEntry.Tags.Loggable, nameof(Running));
+                if (!(exception is null))
+                {
+                    l.Exception(exception);
+                }
+            }).Error();
         }
 
         public static ILogEntryBuilder<ILogEntryCategory> Decision(this ILogEntryBuilder<ILogEntryCategory> category, string decision)

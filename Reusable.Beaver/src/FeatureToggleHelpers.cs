@@ -14,9 +14,9 @@ namespace Reusable.Beaver
     {
         #region With
 
-        public static IFeatureToggle With(this IFeatureToggle featureToggle, FeatureIdentifier name, Action<FeatureSelection> action)
+        public static IFeatureToggle Update(this IFeatureToggle featureToggle, FeatureIdentifier name, Action<FeatureSelection> update)
         {
-            action(new FeatureSelection(featureToggle.Options, name));
+            update(new FeatureSelection(featureToggle.Options, name));
             return featureToggle;
         }
 
@@ -35,7 +35,7 @@ namespace Reusable.Beaver
         // Returns True if options are different from default.
         public static bool IsDirty(this IFeatureToggle toggle, FeatureIdentifier name)
         {
-            return toggle.Options[name].Contains(FeatureOption.Dirty);
+            return toggle.Options.IsDirty(name);
         }
 
         #region Execute

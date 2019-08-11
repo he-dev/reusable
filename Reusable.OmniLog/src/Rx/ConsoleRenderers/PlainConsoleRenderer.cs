@@ -1,14 +1,16 @@
 using System;
 using System.Linq;
+using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.FormatProviders;
 using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Rx.ConsoleRenderers
 {
+    [PublicAPI]
     public class PlainConsoleRenderer : IConsoleRenderer
     {
-        public string Template { get; set; } = @"[{Timestamp:HH:mm:ss:fff}] [{Logger:u}] {Message}";
+        public string Template { get; set; } = @"[{Timestamp:HH:mm:ss:fff}] [{Level:u}] {Logger}: {Message}";
 
         public IFormatProvider FormatProvider { get; set; } = new CompositeFormatProvider
         {

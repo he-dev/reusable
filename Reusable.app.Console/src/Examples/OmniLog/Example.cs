@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Reusable.Apps;
+using Reusable.Exceptionize;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Nodes;
@@ -107,7 +108,7 @@ namespace Reusable.Examples.OmniLog
                                 Renderer = new SimpleConsoleRenderer
                                 {
                                     // Render output with this template. This is the default.
-                                    Template = @"[{Timestamp:HH:mm:ss:fff}] [{Logger:u}] {Message}"
+                                    Template = @"[{Timestamp:HH:mm:ss:fff}] [{Level:u}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}"
                                 }
                             }
                         },
@@ -152,7 +153,7 @@ namespace Reusable.Examples.OmniLog
                     // Logging action results.
                     logger.Log(Abstraction.Layer.Service().Routine(nameof(Run)).Running());
                     logger.Log(Abstraction.Layer.Service().Routine(nameof(Run)).Canceled().Because("No connection."));
-                    logger.Log(Abstraction.Layer.Service().Routine(nameof(Run)).Faulted(), new DivideByZeroException("Cannot divide."));
+                    logger.Log(Abstraction.Layer.Service().Routine(nameof(Run)).Faulted(DynamicException.Create("Test", "This is only a test.")));
                     logger.Log(Abstraction.Layer.Service().Flow().Decision("Don't do this.").Because("Disabled."));
                 }
             }

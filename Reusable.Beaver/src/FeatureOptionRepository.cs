@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using JetBrains.Annotations;
+using Reusable.Exceptionize;
 
 namespace Reusable.Beaver
 {
@@ -13,6 +14,10 @@ namespace Reusable.Beaver
         [NotNull]
         FeatureOption this[FeatureIdentifier name] { get; set; }
 
+        bool IsDirty(FeatureIdentifier name);
+
+        bool TryGetOption(FeatureIdentifier name, out FeatureOption option);
+
         bool Remove(FeatureIdentifier name);
 
         // Saves current options as default.
@@ -22,73 +27,99 @@ namespace Reusable.Beaver
     public class FeatureOptionRepository : IFeatureOptionRepository
     {
         private readonly Dictionary<FeatureIdentifier, FeatureOption> _options;
-        private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
+        private readonly HashSet<FeatureIdentifier> _dirty;
+        private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
         public FeatureOptionRepository()
         {
             _options = new Dictionary<FeatureIdentifier, FeatureOption>();
+            _dirty = new HashSet<FeatureIdentifier>();
         }
 
         public FeatureOption this[FeatureIdentifier name]
         {
             get
             {
-                _lock.EnterReadLock();
-                try
+                using (_lock.Reader())
                 {
-                    return _options.TryGetValue(name, out var option) ? option : FeatureOption.None;
-                }
-                finally
-                {
-                    _lock.ExitReadLock();
+                    return
+                        _options.TryGetValue(name, out var option)
+                            ? option
+                            : throw new KeyNotFoundException($"Feature '{name}' is not configured.");
                 }
             }
             set
             {
-                _lock.EnterWriteLock();
-                try
+                using (_lock.Writer())
                 {
-                    _options[name] = value.RemoveFlag(FeatureOption.Saved).SetFlag(FeatureOption.Dirty);
+                    _options[name] = value;
+                    _dirty.Add(name);
                 }
-                finally
-                {
-                    _lock.ExitWriteLock();
-                }
+            }
+        }
+
+        public bool IsDirty(FeatureIdentifier name)
+        {
+            using (_lock.Reader())
+            {
+                return _dirty.Contains(name);
+            }
+        }
+
+        public bool TryGetOption(FeatureIdentifier name, out FeatureOption option)
+        {
+            using (_lock.Reader())
+            {
+                return _options.TryGetValue(name, out option);
             }
         }
 
         public bool Remove(FeatureIdentifier name)
         {
-            _lock.EnterWriteLock();
-            try
+            using (_lock.Writer())
             {
+                _dirty.Remove(name);
                 return _options.Remove(name);
-            }
-            finally
-            {
-                _lock.ExitWriteLock();
             }
         }
 
         public void SaveChanges(FeatureIdentifier name = default)
         {
-            _lock.EnterWriteLock();
-            try
+            using (_lock.Writer())
             {
-                var names =
-                    name is null
-                        ? _options.Keys.ToList() // <-- prevents collection-modified-exception 
-                        : new List<FeatureIdentifier> { name };
-
-                foreach (var n in names)
+                if (name is null)
                 {
-                    _options[n] = _options[n].RemoveFlag(FeatureOption.Dirty).SetFlag(FeatureOption.Saved);
+                    _dirty.Clear();
+                }
+                else
+                {
+                    _dirty.Remove(name);
                 }
             }
-            finally
+        }
+
+        private class Locker
+        {
+            public static IDisposable EnterWriteLock(ReaderWriterLockSlim lockSlim)
             {
-                _lock.ExitWriteLock();
+                lockSlim.EnterWriteLock();
+                return Disposable.Create(lockSlim.ExitWriteLock);
             }
+        }
+    }
+
+    public static class ReaderWriterLockSlimExtensions
+    {
+        public static IDisposable Reader(this ReaderWriterLockSlim lockSlim)
+        {
+            lockSlim.EnterReadLock();
+            return Disposable.Create(lockSlim.ExitReadLock);
+        }
+
+        public static IDisposable Writer(this ReaderWriterLockSlim lockSlim)
+        {
+            lockSlim.EnterWriteLock();
+            return Disposable.Create(lockSlim.ExitWriteLock);
         }
     }
 
@@ -107,8 +138,12 @@ namespace Reusable.Beaver
             set => Instance[name] = value;
         }
 
+        public bool IsDirty(FeatureIdentifier name) => Instance.IsDirty(name);
+
+        public bool TryGetOption(FeatureIdentifier name, out FeatureOption option) => Instance.TryGetOption(name, out option);
+
         public bool Remove(FeatureIdentifier name) => Instance.Remove(name);
-        
+
         public virtual void SaveChanges(FeatureIdentifier name = default) => Instance.SaveChanges();
     }
 
@@ -124,7 +159,7 @@ namespace Reusable.Beaver
 
         public override FeatureOption this[FeatureIdentifier name]
         {
-            get => Instance[name] is var option && option == FeatureOption.None ? _defaultOption : option;
+            get => TryGetOption(name, out var option) ? option : _defaultOption;
             set => Instance[name] = value;
         }
 

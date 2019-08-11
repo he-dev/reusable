@@ -57,10 +57,12 @@ namespace Reusable.Beaver
             {
                 if (Options[name].Contains(FeatureOption.Toggle))
                 {
-                    this.With(name, f => f.Toggle(FeatureOption.Enabled));
+                    this.Update(name, f => f.Toggle(FeatureOption.Enabled));
+
                     if (Options[name].Contains(FeatureOption.ToggleOnce))
                     {
-                        this.With(name, f => f.Remove(FeatureOption.Toggle).Remove(FeatureOption.ToggleOnce));
+                        this.Update(name, f => f.Remove(FeatureOption.Toggle).Remove(FeatureOption.ToggleOnce));
+
                         if (Options[name].Contains(FeatureOption.ToggleReset))
                         {
                             Options.Remove(name);
@@ -93,11 +95,11 @@ namespace Reusable.Beaver
                 using (_logger.UseScope(correlationHandle: nameof(FeatureTelemetry)))
                 using (_logger.UseStopwatch())
                 {
-                    _logger.Log(Abstraction.Layer.Service().Meta(new { FeatureName = name }).Trace());
+                    _logger.Log(Abstraction.Layer.Service().Meta(new {FeatureName = name}).Trace());
 
                     if (_featureToggle.IsDirty(name))
                     {
-                        _logger.Log(Abstraction.Layer.Service().Meta(new { CustomFeatureOptions = _featureToggle.Options[name] }));
+                        _logger.Log(Abstraction.Layer.Service().Meta(new {CustomFeatureOptions = _featureToggle.Options[name]}));
                     }
 
                     return await _featureToggle.ExecuteAsync(name, body, fallback);

@@ -39,7 +39,7 @@ namespace Reusable.Data
 
     [PublicAPI]
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
-    public abstract class Option<T> : Option, IEquatable<Option<T>>, IFormattable where T : Option
+    public abstract class Option<T> : Option, IEquatable<Option<T>> where T : Option
     {
         // Values are what matters for equality.
         private static readonly IEqualityComparer<Option<T>> Comparer = EqualityComparerFactory<Option<T>>.Create
@@ -185,22 +185,14 @@ namespace Reusable.Data
         public T RemoveFlag(Option<T> option) => this ^ option;
 
         [DebuggerStepThrough]
-        public string ToString(string format, IFormatProvider formatProvider)
+        public override string ToString()
         {
-            if (format.In(new[] { "asc", null }, SoftString.Comparer))
-            {
-                return Values.OrderBy(x => x).Select(x => $"{x.ToString()}").Join(", ");
-            }
-
-            if (format.In(new[] { "desc" }, SoftString.Comparer))
-            {
-                return Values.OrderByDescending(x => x).Select(x => $"{x.ToString()}").Join(", ");
-            }
-
-            return ToString();
+            return 
+                Values
+                    .OrderByDescending(x => x)
+                    .Select(x => $"{x.ToString()}")
+                    .Join(", ");
         }
-
-        public override string ToString() => $"{this:asc}";
 
         public bool Contains(T option) => Values.Overlaps(option.Values);
 

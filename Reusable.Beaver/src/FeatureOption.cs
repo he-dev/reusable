@@ -42,16 +42,16 @@ namespace Reusable.Beaver
         /// </summary>
         public static readonly FeatureOption Locked = CreateWithCallerName();
         
-        /// <summary>
-        /// Indicates that feature-options have been changed.
-        /// </summary>
-        public static readonly FeatureOption Dirty = CreateWithCallerName();
+//        /// <summary>
+//        /// Indicates that feature-options have been changed.
+//        /// </summary>
+//        public static readonly FeatureOption Dirty = CreateWithCallerName();
         
-        // You use this to distinguish between FeatureOption.None which results in default-options.
-        /// <summary>
-        /// Indicates that feature-options have been saved.
-        /// </summary>
-        public static readonly FeatureOption Saved = CreateWithCallerName();
+//        // You use this to distinguish between FeatureOption.None which results in default-options.
+//        /// <summary>
+//        /// Indicates that feature-options have been saved.
+//        /// </summary>
+//        public static readonly FeatureOption Saved = CreateWithCallerName();
         
     }
 }

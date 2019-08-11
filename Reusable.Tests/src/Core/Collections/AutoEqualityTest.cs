@@ -1,4 +1,5 @@
 ﻿using System;
+using Reusable.Beaver;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
@@ -90,6 +91,13 @@ namespace Reusable.Collections
             Assert.Equal(e1, e2, AutoEquality<IEntity>.Comparer);
         }
 
+        [Fact]
+        public void Can_GetHashCode()
+        {
+            var featureIdentifier = new FeatureIdentifier("test");
+            Assert.True(featureIdentifier.GetHashCode() > 0);
+        }
+
         #region Test data
 
         public partial class Person
@@ -119,6 +127,8 @@ namespace Reusable.Collections
 
             public bool Equals(Person other) => AutoEquality<Person>.Comparer.Equals(this, other);
         }
+        
+        
 
         public interface IIdentifiable
         {
