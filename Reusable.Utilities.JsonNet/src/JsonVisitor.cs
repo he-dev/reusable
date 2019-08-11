@@ -89,7 +89,10 @@ namespace Reusable.Utilities.JsonNet
 
     public static class JsonVisitorExtensions
     {
-        public static JToken Visit(this IEnumerable<IJsonVisitor> visitors, JToken token) => visitors.Aggregate(token, (current, visitor) => visitor.Visit(current));
+        public static JToken Visit(this IEnumerable<IJsonVisitor> visitors, JToken token)
+        {
+            return visitors.Aggregate(token, (current, visitor) => visitor.Visit(current));
+        }
     }
 
     /// <summary>

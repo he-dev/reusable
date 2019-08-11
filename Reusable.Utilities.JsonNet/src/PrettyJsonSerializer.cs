@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using Reusable.Utilities.JsonNet.Converters;
 
@@ -53,7 +54,7 @@ namespace Reusable.Utilities.JsonNet
                     .Empty
                     .Add(new TrimPropertyNameVisitor())
                     .Add(new RewriteTypeVisitor(PrettyTypeResolver.FromDictionary(knownTypes)))
-                    .Visit(json)
+                    .Visit(JToken.Parse(json))
                     .ToObject<T>(_jsonSerializer);
         }
     }
