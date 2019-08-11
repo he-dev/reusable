@@ -90,45 +90,66 @@ namespace Reusable.OmniLog.SemanticExtensions
 
     public static class AbstractionCategories
     {
+        #region Snapshots
+
         /// <summary>
         /// Logs variables. The dump must be an anonymous type with at least one property: new { foo[, bar] }
         /// </summary>
-        public static ILogEntryBuilder<ILogEntryCategory> Variable(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, bool explodable = true)
+        public static ILogEntryBuilder<ILogEntryCategory> Variable(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, string identifier = default)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Variable), explodable.Tag(), snapshot));
+            return layer.CreateCategoryWithCallerName().Update(l => l.Snapshot(snapshot, identifier));
         }
 
         /// <summary>
         /// Logs properties. The dump must be an anonymous type with at least one property: new { foo[, bar] }
         /// </summary>
-        public static ILogEntryBuilder<ILogEntryCategory> Property(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, bool explodable = true)
+        public static ILogEntryBuilder<ILogEntryCategory> Property(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, string identifier = default)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Property), explodable.Tag(), snapshot));
+            return layer.CreateCategoryWithCallerName().Update(l => l.Snapshot(snapshot, identifier));
         }
 
         /// <summary>
         /// Logs arguments. The dump must be an anonymous type with at leas one property: new { foo[, bar] }
         /// </summary>
-        public static ILogEntryBuilder<ILogEntryCategory> Argument(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, bool explodable = true)
+        public static ILogEntryBuilder<ILogEntryCategory> Argument(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, string identifier = default)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Argument), explodable.Tag(), snapshot));
+            return layer.CreateCategoryWithCallerName().Update(l => l.Snapshot(snapshot, identifier));
         }
 
         /// <summary>
         /// Logs metadata. The dump must be an anonymous type with at leas one property: new { foo[, bar] }
         /// </summary>
-        public static ILogEntryBuilder<ILogEntryCategory> Meta(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, bool explodable = true)
+        public static ILogEntryBuilder<ILogEntryCategory> Meta(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, string identifier = default)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Meta), explodable.Tag(), snapshot));
+            return layer.CreateCategoryWithCallerName().Update(l => l.Snapshot(snapshot, identifier));
         }
 
         /// <summary>
         /// Logs performance counters. The dump must be an anonymous type with at leas one property: new { foo[, bar] }
         /// </summary>
-        public static ILogEntryBuilder<ILogEntryCategory> Counter(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, bool explodable = true)
+        public static ILogEntryBuilder<ILogEntryCategory> Counter(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, string identifier = default)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(nameof(Counter), explodable.Tag(), snapshot));
+            return layer.CreateCategoryWithCallerName().Update(l => l.Snapshot(snapshot, identifier));
         }
+
+        private static LogEntry Snapshot(this LogEntry logEntry, object snapshot, string identifier = default)
+        {
+            if (identifier is null)
+            {
+                return
+                    logEntry
+                        .SetItem(LogEntry.Names.Snapshot, LogEntry.Tags.Explodable, snapshot);
+            }
+            else
+            {
+                return
+                    logEntry
+                        .SetItem(LogEntry.Names.Object, LogEntry.Tags.Loggable, identifier)
+                        .SetItem(LogEntry.Names.Snapshot, LogEntry.Tags.Serializable, snapshot);
+            }
+        }
+
+        #endregion
 
         /// <summary>
         /// Initializes Routine category.
@@ -138,17 +159,10 @@ namespace Reusable.OmniLog.SemanticExtensions
             return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(LogEntry.Names.Object, LogEntry.Tags.Loggable, identifier));
         }
 
+
         public static ILogEntryBuilder<ILogEntryCategory> Flow(this ILogEntryBuilder<ILogEntryLayer> layer)
         {
-            return layer.CreateCategoryWithCallerName(); //.Update(l => l.SetItem(nameof(Flow), DumpNode.LogEntryItemTags.Request, description));
-        }
-
-        private static SoftString Tag(this bool explodable)
-        {
-            return
-                explodable
-                    ? LogEntry.Tags.Explodable
-                    : LogEntry.Tags.Serializable;
+            return layer.CreateCategoryWithCallerName();
         }
     }
 

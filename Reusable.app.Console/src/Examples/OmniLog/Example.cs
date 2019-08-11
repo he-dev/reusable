@@ -172,12 +172,12 @@ namespace Reusable.Examples.OmniLog
                     //logger.Information("This message overrides the transaction.", LoggerTransaction.Override);
                 }
 
-                using (var tran = logger.UseBuffer())
+                using (var buffer = logger.UseBuffer())
                 {
                     logger.Information("This message is delayed.");
                     logger.Information("This message is delayed too.");
                     //logger.Information("This message overrides the transaction as first.", LoggerTransaction.Override);
-                    tran.Flush();
+                    buffer.Flush();
                 }
             }
         }

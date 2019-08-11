@@ -95,12 +95,12 @@ namespace Reusable.Beaver
                 using (_logger.UseScope(correlationHandle: nameof(FeatureTelemetry)))
                 using (_logger.UseStopwatch())
                 {
-                    _logger.Log(Abstraction.Layer.Service().Meta(new {FeatureName = name}).Trace());
-
-                    if (_featureToggle.IsDirty(name))
+                    _logger.Log(Abstraction.Layer.Service().Meta(new
                     {
-                        _logger.Log(Abstraction.Layer.Service().Meta(new {CustomFeatureOptions = _featureToggle.Options[name]}));
-                    }
+                        Name = name.ToString(), 
+                        Options = _featureToggle.Options[name].ToString(),
+                        IsDirty = _featureToggle.IsDirty(name)
+                    }, nameof(FeatureTelemetry)).Trace());
 
                     return await _featureToggle.ExecuteAsync(name, body, fallback);
                 }
