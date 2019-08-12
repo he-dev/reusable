@@ -36,8 +36,6 @@ namespace Reusable.IOnymous
     {
         protected Resource([NotNull] IImmutableContainer properties)
         {
-            // todo - why do I need this?
-            //Uri = uri.IsRelative ? new UriString($"{ResourceSchemes.IOnymous}:{uri}") : uri;
             Properties = properties;
         }
 

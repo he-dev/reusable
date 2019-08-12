@@ -1,68 +1,110 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Linq.Custom;
+using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Reusable.IOnymous
 {
-    public delegate Task RequestCallback(IOContext context);
-
-    // todo - works similar to composite-provider
-    public class ResourceProxy
+    public class ResourceRepository
     {
-        public List<IAsyncMiddleware<IOContext>> Middleware { get; set; } = new List<IAsyncMiddleware<IOContext>>();
-
-        public IResource InvokeAsync(Request request)
+        private static readonly IEnumerable<ResourceProviderFilterCallback> Filters = new ResourceProviderFilterCallback[]
         {
-            //var middleware = Middleware.Aggregate((current, next) => current.InsertNext(next));
-            var ioContext = new IOContext
+            ResourceProviderFilters.FilterByName,
+            ResourceProviderFilters.FilterByScheme
+        };
+
+        private readonly IImmutableList<IResourceProvider> _providers;
+        private readonly RequestCallback<ResourceContext> _requestCallback;
+        private readonly IMemoryCache _cache;
+
+        public ResourceRepository(IEnumerable<IResourceProvider> providers, RequestCallback<ResourceContext> requestCallback)
+        {
+            _providers = providers.ToImmutableList();
+            _requestCallback = requestCallback;
+            _cache = new MemoryCache(new MemoryCacheOptions { });
+        }
+
+        public async Task<IResource> InvokeAsync(Request request)
+        {
+            var resourceContext = new ResourceContext
             {
                 Request = request
             };
 
-            var middlewareTypes = new Type[0];
+            await _requestCallback(resourceContext);
 
-            var previousMiddleware = default(object);
-            for (var i = middlewareTypes.Length - 1; i >= 0; i--)
+            var providerKey = request.Uri.ToString();
+
+            // Used cached provider if already resolved.
+            if (_cache.TryGetValue<IResourceProvider>(providerKey, out var entry))
             {
-                var middlewareType = middlewareTypes[i];
+                return await InvokeAsync(entry, request);
+            }
 
-                var next = (RequestCallback)(context => Task.CompletedTask);
-                if (!(previousMiddleware is null))
+            var filtered = Filters.Aggregate(_providers.AsEnumerable(), (providers, filter) => filter(providers, request));
+
+            // GET can search multiple providers.
+            if (request.Method == RequestMethod.Get)
+            {
+                foreach (var provider in filtered)
                 {
-                    var nextInvoke = previousMiddleware.GetType().GetMethod("Invoke");
-                    
+                    if (await InvokeAsync(provider, request) is var resource && resource.Exists)
+                    {
+                        _cache.Set(providerKey, provider);
+                        return resource;
+                    }
                 }
 
-                previousMiddleware = Activator.CreateInstance(middlewareType, new object[] { (RequestCallback)(context => Task.CompletedTask) });
+                return Resource.DoesNotExist.FromRequest(request);
             }
-
-            foreach (var middleware in Middleware)
+            // Other methods are allowed to use only a single provider.
+            else
             {
-                var invoke = middleware.GetType().GetMethod("Invoke");
-                invoke.Invoke(middleware, new[] { request });
+                return await InvokeAsync(_cache.Set(providerKey, filtered.SingleOrThrow()), request);
             }
-
-            var m = Middleware.First();
-
-            //middleware.InvokeAsync(ioContext);
-
-            return ioContext.Response;
         }
 
-        private Task Invoke(IOContext context)
+        private Task<IResource> InvokeAsync(IResourceProvider provider, Request request)
         {
-            // todo - call next here
+            var method =
+                provider
+                    .GetType()
+                    .GetMethods(BindingFlags.Instance | BindingFlags.Public)
+                    .SingleOrDefault(m => m.GetCustomAttribute<ResourceActionAttribute>()?.Method == request.Method);
 
-            return Task.CompletedTask;
+            return (Task<IResource>)method.Invoke(provider, new object[] { request });
         }
+
+        // crud
     }
 
-    public class MiddlewareInvoker
+    public static class ResourceRepositoryExtensions
     {
-        public MiddlewareInvoker() { }
+        public static IResource CreateAsync(Request request)
+        {
+            return default;
+        }
+
+        public static IResource ReadAsync(Request request)
+        {
+            return default;
+        }
+
+        public static IResource UpdateAsync(Request request)
+        {
+            return default;
+        }
+
+        public static IResource DeleteAsync(Request request)
+        {
+            return default;
+        }
     }
 
     public abstract class ResourceActionAttribute : Attribute
@@ -92,81 +134,29 @@ namespace Reusable.IOnymous
         public ResourceDeleteAttribute() : base(RequestMethod.Delete) { }
     }
 
-    public interface IAsyncMiddleware<TContext> : IDisposable
-    {
-        bool Enabled { get; }
-
-        IAsyncMiddleware<TContext> Previous { get; set; }
-
-        IAsyncMiddleware<TContext> Next { get; set; }
-
-        Task InvokeAsync(TContext context);
-    }
-
-    public static class MiddlewareHelper
-    {
-        public static IAsyncMiddleware<TContext> InsertNext<TContext>(this IAsyncMiddleware<TContext> current, IAsyncMiddleware<TContext> next)
-        {
-            (next.Previous, next.Next, current.Next) = (current, current.Next, next);
-            return next;
-        }
-
-        public static IAsyncMiddleware<TContext> Remove<TContext>(this IAsyncMiddleware<TContext> current)
-        {
-            var result = default(IAsyncMiddleware<TContext>);
-
-            if (!(current.Previous is null))
-            {
-                result = current.Previous;
-                (current.Previous.Next, current.Previous) = (current.Next, null);
-            }
-
-            if (!(current.Next is null))
-            {
-                result = result ?? current.Next;
-                (current.Next.Previous, current.Next) = (current.Previous, null);
-            }
-
-            return result;
-        }
-    }
-
-    public class IOContext
+    public class ResourceContext
     {
         public Request Request { get; set; }
 
         public IResource Response { get; set; }
     }
 
-    // Support the null-pattern.
-    public class TerminatorMiddleware
-    {
-        public bool Enabled { get; } = false;
-
-        public IAsyncMiddleware<IOContext> Previous { get; set; }
-
-        public IAsyncMiddleware<IOContext> Next { get; set; }
-
-        public Task InvokeAsync(IOContext context)
-        {
-            return Task.CompletedTask;
-        }
-    }
-
     public class EnvironmentVariableMiddleware
     {
-        private readonly RequestCallback _next;
+        private readonly RequestCallback<ResourceContext> _next;
 
-        public EnvironmentVariableMiddleware(RequestCallback next)
+        public EnvironmentVariableMiddleware(RequestCallback<ResourceContext> next)
         {
             _next = next;
         }
 
-        public bool Enabled { get; } = true;
-
-        public async Task InvokeAsync(IOContext context)
+        public async Task InvokeAsync(ResourceContext context)
         {
-            context.Request.Uri = Resolve(context.Request.Uri);
+            if (context.Request.Uri.Scheme.Equals("file"))
+            {
+                context.Request.Uri = Resolve(context.Request.Uri);
+            }
+
             await _next(context);
         }
 
@@ -181,6 +171,28 @@ namespace Reusable.IOnymous
             }
 
             return uri;
+        }
+    }
+    
+    public class RelativeMiddleware
+    {
+        private readonly UriString _baseUri;
+        private readonly RequestCallback<ResourceContext> _next;
+
+        public RelativeMiddleware(RequestCallback<ResourceContext> next, UriString baseUri)
+        {
+            _next = next;
+            _baseUri = baseUri ?? throw new ArgumentNullException(nameof(baseUri));
+        }
+
+        public async Task InvokeAsync(ResourceContext context)
+        {
+            if (context.Request.Uri.Scheme.Equals("file") && !Path.IsPathRooted(context.Request.Uri.Path.Decoded.ToString()))
+            {
+                context.Request.Uri = _baseUri + context.Request.Uri;
+            }            
+            
+            await _next(context);
         }
     }
 }

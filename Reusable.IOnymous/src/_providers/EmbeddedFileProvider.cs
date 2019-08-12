@@ -17,7 +17,7 @@ namespace Reusable.IOnymous
 
         public EmbeddedFileProvider([NotNull] Assembly assembly, string basePath, IImmutableContainer properties = default)
             : base((properties ?? ImmutableContainer.Empty)
-                .SetScheme(UriSchemes.Custom.IOnymous)
+                .SetScheme(UriSchemes.Known.File)
                 .SetItem(ResourceProviderProperty.AllowRelativeUri, true))
         {
             _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
@@ -34,6 +34,22 @@ namespace Reusable.IOnymous
         public UriString BaseUri { get; }
 
         #region ResourceProvider
+        
+        [ResourceGet]
+        public Task<IResource> GetFileAsync(Request request)
+        {
+            // Embedded resource names are separated by '.' so replace the windows separator.
+
+            var fullName = request.Uri.Path.Decoded.ToString().Replace('/', '.');
+
+            // Embedded resource names are case sensitive so find the actual name of the resource.
+            var actualName = _assembly.GetManifestResourceNames().FirstOrDefault(name => SoftString.Comparer.Equals(name, fullName));
+
+            return
+                actualName is null
+                    ? DoesNotExist(request).ToTask()
+                    : new EmbeddedFile(request.Context.CopyResourceProperties().SetUri(request.Uri), () => _assembly.GetManifestResourceStream(actualName)).ToTask<IResource>();
+        }
 
         private Task<IResource> GetAsync(Request request)
         {
