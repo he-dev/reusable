@@ -30,8 +30,6 @@ namespace Reusable.IOnymous
 
         MethodCollection Methods { get; }
 
-        //bool Can(RequestMethod method);
-
         Task<IResource> InvokeAsync(Request request);
     }
 
@@ -72,11 +70,6 @@ namespace Reusable.IOnymous
 
         public virtual async Task<IResource> InvokeAsync(Request request)
         {
-            // var method =
-            //     GetType()
-            //         .GetMethods(BindingFlags.Instance | BindingFlags.Public)
-            //         .SingleOrDefault(m => m.GetCustomAttribute<ResourceActionAttribute>()?.Method == request.Method);
-
             if (Methods is null)
             {
                 throw new InvalidOperationException

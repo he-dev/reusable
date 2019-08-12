@@ -15,6 +15,8 @@ namespace Reusable.IOnymous
     [PublicAPI]
     public class PhysicalFileProvider : ResourceProvider
     {
+        private readonly UriString _baseUri;
+
         public PhysicalFileProvider(IImmutableContainer properties = default) : base(properties.ThisOrEmpty().SetScheme("file"))
         {
             Methods =
@@ -24,11 +26,16 @@ namespace Reusable.IOnymous
                     .Add(RequestMethod.Put, PutAsync)
                     .Add(RequestMethod.Delete, DeleteAsync);
         }
-        
+
+        public PhysicalFileProvider(string basePath, IImmutableContainer properties = default) : base(properties.ThisOrEmpty().SetScheme("file"))
+        {
+            _baseUri = basePath;
+        }
+
         [ResourceGet]
         public Task<IResource> GetFileAsync(Request request)
         {
-            return Task.FromResult<IResource>(new PhysicalFile(request.Context.Copy(ResourceProperty.Selectors).SetUri(request.Uri)));
+            return new PhysicalFile(request.Context.Copy(ResourceProperty.Selectors).SetUri(CreateUri(request.Uri))).ToTask<IResource>();
         }
 
         private Task<IResource> GetAsync(Request request)
@@ -52,6 +59,16 @@ namespace Reusable.IOnymous
         {
             File.Delete(request.Uri.ToUnc());
             return Task.FromResult<IResource>(new PhysicalFile(request.Context.Copy(ResourceProperty.Selectors).SetUri(request.Uri)));
+        }
+
+        private UriString CreateUri(UriString uri)
+        {
+            return
+                _baseUri is null
+                    ? uri
+                    : Path.IsPathRooted(uri.Path.Decoded.ToString())
+                        ? uri
+                        : _baseUri + uri.Path.Decoded.ToString();
         }
     }
 

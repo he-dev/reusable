@@ -10,30 +10,34 @@ namespace Reusable
 {
     public delegate Task RequestCallback<in TContext>(TContext context);
 
-    public class PipelineBuilder
+    public class MiddlewareBuilder
     {
-        private readonly Stack<Type> _middlewareTypes = new Stack<Type>();
-        private readonly ILifetimeScope _lifetimeScope;
+        private readonly Stack<(Type MiddlewareType, object[] Parameters)> _middleware = new Stack<(Type MiddlewareType, object[] Parameters)>();
 
-        public PipelineBuilder(ILifetimeScope lifetimeScope)
+        public MiddlewareBuilder Add<T>(params object[] parameters)
         {
-            _lifetimeScope = lifetimeScope;
-        }
-
-        public PipelineBuilder Add<T>()
-        {
-            _middlewareTypes.Push(typeof(T));
+            _middleware.Push((typeof(T), parameters));
             return this;
         }
 
         public RequestCallback<TContext> Build<TContext>()
         {
             var previous = default(object);
-            while (_middlewareTypes.Any())
+            while (_middleware.Any())
             {
-                var middlewareType = _middlewareTypes.Pop();
+                var current = _middleware.Pop();
                 var next = CreateNext<TContext>(previous);
-                previous = _lifetimeScope.Resolve(middlewareType, new TypedParameter(typeof(RequestCallback<TContext>), next));
+                var parameters = new object[] { next };
+                if (current.Parameters.Any())
+                {
+                    parameters = parameters.Concat(current.Parameters).ToArray();
+                    var ctor = current.MiddlewareType.GetConstructor(parameters.Select(p => p.GetType()).ToArray());
+                    previous = ctor.Invoke(parameters);
+                }
+                else
+                {
+                    previous = current.MiddlewareType.GetConstructor(parameters.Select(p => p.GetType()).ToArray()).Invoke(parameters);
+                }
             }
 
             return CreateNext<TContext>(previous);

@@ -34,13 +34,14 @@ namespace Reusable.IOnymous
         public UriString BaseUri { get; }
 
         #region ResourceProvider
-        
+
         [ResourceGet]
         public Task<IResource> GetFileAsync(Request request)
         {
             // Embedded resource names are separated by '.' so replace the windows separator.
 
-            var fullName = request.Uri.Path.Decoded.ToString().Replace('/', '.');
+            var fullUri = BaseUri + request.Uri;
+            var fullName = fullUri.Path.Decoded.ToString().Replace('/', '.');
 
             // Embedded resource names are case sensitive so find the actual name of the resource.
             var actualName = _assembly.GetManifestResourceNames().FirstOrDefault(name => SoftString.Comparer.Equals(name, fullName));
@@ -48,7 +49,7 @@ namespace Reusable.IOnymous
             return
                 actualName is null
                     ? DoesNotExist(request).ToTask()
-                    : new EmbeddedFile(request.Context.CopyResourceProperties().SetUri(request.Uri), () => _assembly.GetManifestResourceStream(actualName)).ToTask<IResource>();
+                    : new EmbeddedFile(request.Context.CopyResourceProperties().SetUri(fullUri), () => _assembly.GetManifestResourceStream(actualName)).ToTask<IResource>();
         }
 
         private Task<IResource> GetAsync(Request request)

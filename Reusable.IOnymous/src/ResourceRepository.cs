@@ -173,13 +173,14 @@ namespace Reusable.IOnymous
             return uri;
         }
     }
-    
-    public class RelativeMiddleware
+
+    [UsedImplicitly]
+    public class BaseUriMiddleware
     {
         private readonly UriString _baseUri;
         private readonly RequestCallback<ResourceContext> _next;
 
-        public RelativeMiddleware(RequestCallback<ResourceContext> next, UriString baseUri)
+        public BaseUriMiddleware(RequestCallback<ResourceContext> next, UriString baseUri)
         {
             _next = next;
             _baseUri = baseUri ?? throw new ArgumentNullException(nameof(baseUri));
@@ -190,9 +191,40 @@ namespace Reusable.IOnymous
             if (context.Request.Uri.Scheme.Equals("file") && !Path.IsPathRooted(context.Request.Uri.Path.Decoded.ToString()))
             {
                 context.Request.Uri = _baseUri + context.Request.Uri;
-            }            
-            
+            }
+
             await _next(context);
+        }
+    }
+
+    [UsedImplicitly]
+    public class LambdaMiddleware
+    {
+        private readonly RequestCallback<ResourceContext> _next;
+        private readonly Func<ResourceContext, RequestCallback<ResourceContext>, Task> _lambda;
+
+        public LambdaMiddleware(RequestCallback<ResourceContext> next, Func<ResourceContext, RequestCallback<ResourceContext>, Task> lambda)
+        {
+            _next = next;
+            _lambda = lambda;
+        }
+
+        public Task InvokeAsync(ResourceContext context)
+        {
+            return _lambda(context, _next);
+        }
+    }
+
+    public static class MiddlewareBuilderExtensions
+    {
+        public static MiddlewareBuilder Use<T>(this MiddlewareBuilder builder, params object[] parameters)
+        {
+            return builder.Add<T>(parameters);
+        }
+
+        public static MiddlewareBuilder Use(this MiddlewareBuilder builder, Func<ResourceContext, RequestCallback<ResourceContext>, Task> lambda)
+        {
+            return builder.Add<LambdaMiddleware>(lambda);
         }
     }
 }
