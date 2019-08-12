@@ -24,6 +24,12 @@ namespace Reusable.IOnymous
                     .Add(RequestMethod.Put, PutAsync)
                     .Add(RequestMethod.Delete, DeleteAsync);
         }
+        
+        [ResourceGet]
+        public Task<IResource> GetFileAsync(Request request)
+        {
+            return Task.FromResult<IResource>(new PhysicalFile(request.Context.Copy(ResourceProperty.Selectors).SetUri(request.Uri)));
+        }
 
         private Task<IResource> GetAsync(Request request)
         {

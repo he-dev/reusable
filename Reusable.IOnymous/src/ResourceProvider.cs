@@ -72,6 +72,11 @@ namespace Reusable.IOnymous
 
         public virtual async Task<IResource> InvokeAsync(Request request)
         {
+            // var method =
+            //     GetType()
+            //         .GetMethods(BindingFlags.Instance | BindingFlags.Public)
+            //         .SingleOrDefault(m => m.GetCustomAttribute<ResourceActionAttribute>()?.Method == request.Method);
+
             if (Methods is null)
             {
                 throw new InvalidOperationException
@@ -294,19 +299,19 @@ namespace Reusable.IOnymous
             return request;
         }
 
-//        public static async Task<Stream> CreateBodyStreamAsync(this Request request)
-//        {
-//            if (request.CreateBodyStreamCallback is null)
-//            {
-//                throw new ArgumentNullException(
-//                    paramName: $"{nameof(request)}.{nameof(request.CreateBodyStreamCallback)}",
-//                    message: $"{FormatMethodName()} request to '{request.Uri}' requires a body that is missing.");
-//            }
-//
-//            return await request.CreateBodyStreamAsync();
-//
-//            string FormatMethodName() => request.Method.Name.ToString().ToUpper();
-//        }
+        //        public static async Task<Stream> CreateBodyStreamAsync(this Request request)
+        //        {
+        //            if (request.CreateBodyStreamCallback is null)
+        //            {
+        //                throw new ArgumentNullException(
+        //                    paramName: $"{nameof(request)}.{nameof(request.CreateBodyStreamCallback)}",
+        //                    message: $"{FormatMethodName()} request to '{request.Uri}' requires a body that is missing.");
+        //            }
+        //
+        //            return await request.CreateBodyStreamAsync();
+        //
+        //            string FormatMethodName() => request.Method.Name.ToString().ToUpper();
+        //        }
     }
 
     public class RequestMethod : Option<RequestMethod>

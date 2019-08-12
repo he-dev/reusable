@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 
 namespace Reusable.IOnymous
 {
+    public delegate Task RequestCallback(IOContext context);
+
     // todo - works similar to composite-provider
     public class ResourceProxy
     {
@@ -14,26 +16,81 @@ namespace Reusable.IOnymous
 
         public IResource InvokeAsync(Request request)
         {
-            var middleware = Middleware.Aggregate((current, next) => current.InsertNext(next));
+            //var middleware = Middleware.Aggregate((current, next) => current.InsertNext(next));
             var ioContext = new IOContext
             {
                 Request = request
             };
-            middleware.InvokeAsync(ioContext);
+
+            var middlewareTypes = new Type[0];
+
+            var previousMiddleware = default(object);
+            for (var i = middlewareTypes.Length - 1; i >= 0; i--)
+            {
+                var middlewareType = middlewareTypes[i];
+
+                var next = (RequestCallback)(context => Task.CompletedTask);
+                if (!(previousMiddleware is null))
+                {
+                    var nextInvoke = previousMiddleware.GetType().GetMethod("Invoke");
+                    
+                }
+
+                previousMiddleware = Activator.CreateInstance(middlewareType, new object[] { (RequestCallback)(context => Task.CompletedTask) });
+            }
+
+            foreach (var middleware in Middleware)
+            {
+                var invoke = middleware.GetType().GetMethod("Invoke");
+                invoke.Invoke(middleware, new[] { request });
+            }
+
+            var m = Middleware.First();
+
+            //middleware.InvokeAsync(ioContext);
 
             return ioContext.Response;
         }
+
+        private Task Invoke(IOContext context)
+        {
+            // todo - call next here
+
+            return Task.CompletedTask;
+        }
     }
 
-    public class ResourceActionAttribute : Attribute { }
+    public class MiddlewareInvoker
+    {
+        public MiddlewareInvoker() { }
+    }
 
-    public class ResourceGetAttribute : ResourceActionAttribute { }
+    public abstract class ResourceActionAttribute : Attribute
+    {
+        protected ResourceActionAttribute(RequestMethod method) => Method = method;
 
-    public class ResourcePostAttribute : ResourceActionAttribute { }
+        public RequestMethod Method { get; }
+    }
 
-    public class ResourcePutAttribute : ResourceActionAttribute { }
+    public class ResourceGetAttribute : ResourceActionAttribute
+    {
+        public ResourceGetAttribute() : base(RequestMethod.Get) { }
+    }
 
-    public class ResourceDeleteAttribute : ResourceActionAttribute { }
+    public class ResourcePostAttribute : ResourceActionAttribute
+    {
+        public ResourcePostAttribute() : base(RequestMethod.Post) { }
+    }
+
+    public class ResourcePutAttribute : ResourceActionAttribute
+    {
+        public ResourcePutAttribute() : base(RequestMethod.Put) { }
+    }
+
+    public class ResourceDeleteAttribute : ResourceActionAttribute
+    {
+        public ResourceDeleteAttribute() : base(RequestMethod.Delete) { }
+    }
 
     public interface IAsyncMiddleware<TContext> : IDisposable
     {
@@ -81,11 +138,10 @@ namespace Reusable.IOnymous
         public IResource Response { get; set; }
     }
 
-    public class EnvironmentVariableMiddleware : IAsyncMiddleware<IOContext>
+    // Support the null-pattern.
+    public class TerminatorMiddleware
     {
-        public EnvironmentVariableMiddleware() { }
-
-        public bool Enabled { get; } = true;
+        public bool Enabled { get; } = false;
 
         public IAsyncMiddleware<IOContext> Previous { get; set; }
 
@@ -93,9 +149,25 @@ namespace Reusable.IOnymous
 
         public Task InvokeAsync(IOContext context)
         {
-            context.Request.Uri = Resolve(context.Request.Uri);
-            Next?.InvokeAsync(context);
             return Task.CompletedTask;
+        }
+    }
+
+    public class EnvironmentVariableMiddleware
+    {
+        private readonly RequestCallback _next;
+
+        public EnvironmentVariableMiddleware(RequestCallback next)
+        {
+            _next = next;
+        }
+
+        public bool Enabled { get; } = true;
+
+        public async Task InvokeAsync(IOContext context)
+        {
+            context.Request.Uri = Resolve(context.Request.Uri);
+            await _next(context);
         }
 
         private static UriString Resolve(UriString uri)
@@ -110,7 +182,5 @@ namespace Reusable.IOnymous
 
             return uri;
         }
-
-        public void Dispose() => this.Remove();
     }
 }
