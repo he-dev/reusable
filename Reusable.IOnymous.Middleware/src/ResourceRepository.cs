@@ -67,8 +67,6 @@ namespace Reusable.IOnymous
         }
     }
 
-    
-
     public class ResourceContext
     {
         public Request Request { get; set; }
@@ -164,10 +162,20 @@ namespace Reusable.IOnymous
 
         public async Task InvokeAsync(ResourceContext context)
         {
-            using (_logger.UseStopwatch())
+            var stopwatch = _logger.UseStopwatch();
+            try
             {
                 await _next(context);
-                _logger.Log(Abstraction.Layer.IO().Routine(nameof(InvokeAsync)).Completed());
+                _logger.Log(Abstraction.Layer.IO().Routine("ResourceRequest").Completed(), l => l.Message(context.Request.Uri.ToString()));
+            }
+            catch (Exception inner)
+            {
+                _logger.Log(Abstraction.Layer.IO().Routine("ResourceRequest").Faulted(inner), l => l.Message(context.Request.Uri.ToString()));
+                throw;
+            }
+            finally
+            {
+                stopwatch.Dispose();
             }
         }
     }
@@ -200,31 +208,33 @@ namespace Reusable.IOnymous
             if (_cache.TryGetValue<IResourceProvider>(providerKey, out var entry))
             {
                 context.Response = await InvokeAsync(entry, context.Request);
-                return;
             }
-
-            var filtered = Filters.Aggregate(_providers.AsEnumerable(), (providers, filter) => filter(providers, context.Request));
-
-            // GET can search multiple providers.
-            if (context.Request.Method == RequestMethod.Get)
-            {
-                foreach (var provider in filtered)
-                {
-                    if (await InvokeAsync(provider, context.Request) is var resource && resource.Exists)
-                    {
-                        _cache.Set(providerKey, provider);
-                        context.Response = resource;
-                        return;
-                    }
-                }
-
-                context.Response = Resource.DoesNotExist.FromRequest(context.Request);
-            }
-            // Other methods are allowed to use only a single provider.
             else
             {
-                context.Response = await InvokeAsync(_cache.Set(providerKey, filtered.SingleOrThrow()), context.Request);
+                var filtered = Filters.Aggregate(_providers.AsEnumerable(), (providers, filter) => filter(providers, context.Request));
+
+                // GET can search multiple providers.
+                if (context.Request.Method == RequestMethod.Get)
+                {
+                    context.Response = Resource.DoesNotExist.FromRequest(context.Request);
+                    foreach (var provider in filtered)
+                    {
+                        if (await InvokeAsync(provider, context.Request) is var resource && resource.Exists)
+                        {
+                            _cache.Set(providerKey, provider);
+                            context.Response = resource;
+                            break;
+                        }
+                    }
+                }
+                // Other methods are allowed to use only a single provider.
+                else
+                {
+                    context.Response = await InvokeAsync(_cache.Set(providerKey, filtered.SingleOrThrow()), context.Request);
+                }
             }
+
+            await _next(context);
         }
 
         private Task<IResource> InvokeAsync(IResourceProvider provider, Request request)

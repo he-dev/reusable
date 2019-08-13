@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Custom;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using Reusable.Exceptionize;
@@ -13,6 +15,8 @@ namespace Reusable
     public class MiddlewareBuilder
     {
         private readonly Stack<(Type MiddlewareType, object[] Parameters)> _middleware = new Stack<(Type MiddlewareType, object[] Parameters)>();
+
+        public Func<Type, object> ResolveType { get; set; }
 
         public MiddlewareBuilder Add<T>(params object[] parameters)
         {
@@ -55,7 +59,6 @@ namespace Reusable
             // Doing it here to avoid reflection next time.
             var invokeAsyncMethod = middleware.GetType().GetMethod("InvokeAsync");
             var invokeMethod = middleware.GetType().GetMethod("Invoke");
-            
 
             if (invokeAsyncMethod is null && invokeMethod is null)
             {
@@ -69,12 +72,28 @@ namespace Reusable
 
             var next = invokeAsyncMethod ?? invokeMethod;
 
-            //return context => (Task)next.Invoke(previous, new object[] { context });
-            return next.CreateDelegate<RequestCallback<TContext>>(middleware);
+            var parameters = next.GetParameters();
+
+            if (parameters.First().ParameterType != typeof(TContext))
+            {
+                throw DynamicException.Create("InvokeSignature", $"{middleware.GetType().ToPrettyString()} Invoke(Async)'s first parameters must be of type '{typeof(RequestCallback<TContext>).ToPrettyString()}'.");
+            }
+
+            return context =>
+            {
+                var parameterValues =
+                    parameters
+                        .Skip(1) // TContext is always there.
+                        .Select(parameter => ResolveType(parameter.ParameterType))
+                        .Prepend(context);
+                
+                return (Task)next.Invoke(middleware, parameterValues.ToArray());
+            };
+            //return next.CreateDelegate<RequestCallback<TContext>>(middleware);
         }
     }
 
-    internal static class MethodInfoExtensions
+    public static class MethodInfoExtensions
     {
         public static T CreateDelegate<T>(this MethodInfo method, object target) where T : Delegate
         {
