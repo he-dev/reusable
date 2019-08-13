@@ -15,8 +15,6 @@ namespace Reusable.IOnymous
     [PublicAPI]
     public class PhysicalFileProvider : ResourceProvider
     {
-        private readonly UriString _baseUri;
-
         public PhysicalFileProvider(IImmutableContainer properties = default) : base(properties.ThisOrEmpty().SetScheme("file"))
         {
             Methods =
@@ -27,15 +25,30 @@ namespace Reusable.IOnymous
                     .Add(RequestMethod.Delete, DeleteAsync);
         }
 
-        public PhysicalFileProvider(string basePath, IImmutableContainer properties = default) : base(properties.ThisOrEmpty().SetScheme("file"))
-        {
-            _baseUri = basePath;
-        }
-
         [ResourceGet]
         public Task<IResource> GetFileAsync(Request request)
         {
             return new PhysicalFile(request.Context.Copy(ResourceProperty.Selectors).SetUri(CreateUri(request.Uri))).ToTask<IResource>();
+        }
+
+        [ResourcePut]
+        public async Task<IResource> CreateFileAsync(Request request)
+        {
+            using (var fileStream = new FileStream(request.Uri.ToUnc(), FileMode.CreateNew, FileAccess.Write))
+            using (var body = await request.CreateBodyStreamAsync())
+            {
+                await body.Rewind().CopyToAsync(fileStream);
+                await fileStream.FlushAsync();
+            }
+
+            return await GetAsync(request);
+        }
+
+        [ResourceDelete]
+        public Task<IResource> DeleteFileAsync(Request request)
+        {
+            File.Delete(request.Uri.ToUnc());
+            return Task.FromResult<IResource>(new PhysicalFile(request.Context.Copy(ResourceProperty.Selectors).SetUri(request.Uri)));
         }
 
         private Task<IResource> GetAsync(Request request)
@@ -64,11 +77,16 @@ namespace Reusable.IOnymous
         private UriString CreateUri(UriString uri)
         {
             return
-                _baseUri is null
+                Path.IsPathRooted(uri.Path.Decoded.ToString())
                     ? uri
-                    : Path.IsPathRooted(uri.Path.Decoded.ToString())
-                        ? uri
-                        : _baseUri + uri.Path.Decoded.ToString();
+                    : Properties.TryGetItem(PropertySelectors.BaseUri, out var baseUri)
+                        ? baseUri + uri.Path.Decoded.ToString()
+                        : uri;
+        }
+
+        public class PropertySelectors : SelectorBuilder<PropertySelectors>
+        {
+            public static Selector<UriString> BaseUri { get; } = Select(() => BaseUri);
         }
     }
 

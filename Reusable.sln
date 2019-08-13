@@ -84,7 +84,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.IOnymous.Config.Js
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Flawless", "Reusable.Flawless\Reusable.Flawless.csproj", "{ECC130BE-E48E-4D9B-B34B-7EF184D0EC56}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.IOnymous.Middleware", "Reusable.IOnymous.Middleware\Reusable.IOnymous.Middleware.csproj", "{734D5514-ABF1-4769-AF1A-1462A9A6B51C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.IOnymous.Translucent", "Reusable.IOnymous.Translucent\Reusable.IOnymous.Translucent.csproj", "{734D5514-ABF1-4769-AF1A-1462A9A6B51C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

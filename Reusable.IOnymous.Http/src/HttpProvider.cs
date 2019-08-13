@@ -28,8 +28,7 @@ namespace Reusable.IOnymous.Http
                 metadata
                     .ThisOrEmpty()
                     .SetScheme(UriSchemes.Known.Http)
-                    .SetScheme(UriSchemes.Known.Https)
-                    .SetItem(ResourceProviderProperty.AllowRelativeUri, true))
+                    .SetScheme(UriSchemes.Known.Https))
         {
             _client = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _client.DefaultRequestHeaders.Clear();

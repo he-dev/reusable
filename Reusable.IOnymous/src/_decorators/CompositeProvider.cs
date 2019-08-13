@@ -31,8 +31,7 @@ namespace Reusable.IOnymous
         public CompositeProvider([NotNull] IEnumerable<IResourceProvider> providers)
             : base(ImmutableContainer
                 .Empty
-                .SetScheme(UriSchemes.Custom.IOnymous)
-                .SetItem(ResourceProviderProperty.AllowRelativeUri, true))
+                .SetScheme(UriSchemes.Custom.IOnymous))
         {
             if (providers == null) throw new ArgumentNullException(nameof(providers));
 

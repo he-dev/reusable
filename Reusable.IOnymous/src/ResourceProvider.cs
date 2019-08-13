@@ -147,7 +147,7 @@ namespace Reusable.IOnymous
 
         public static readonly Selector<IImmutableSet<SoftString>> Names = Select(() => Names);
 
-        public static readonly Selector<bool> AllowRelativeUri = Select(() => AllowRelativeUri);
+        //public static readonly Selector<bool> AllowRelativeUri = Select(() => AllowRelativeUri);
     }
 
     public class UseProvider : ResourceProvider.Decorator

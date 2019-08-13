@@ -17,8 +17,7 @@ namespace Reusable.IOnymous
 
         public EmbeddedFileProvider([NotNull] Assembly assembly, string basePath, IImmutableContainer properties = default)
             : base((properties ?? ImmutableContainer.Empty)
-                .SetScheme(UriSchemes.Known.File)
-                .SetItem(ResourceProviderProperty.AllowRelativeUri, true))
+                .SetScheme(UriSchemes.Known.File))
         {
             _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
             BaseUri = new UriString($"{UriSchemes.Known.File}:{basePath.Replace('.', '/')}");
