@@ -54,6 +54,7 @@
         <ProjectReference Include="..\Reusable.IOnymous.Http\Reusable.IOnymous.Http.csproj" />
         <ProjectReference Include="..\Reusable.IOnymous.Mail.Smtp\Reusable.IOnymous.Mail.Smtp.csproj" />
         <ProjectReference Include="..\Reusable.IOnymous.Mail\Reusable.IOnymous.Mail.csproj" />
+        <ProjectReference Include="..\Reusable.IOnymous.Middleware\Reusable.IOnymous.Middleware.csproj" />
         <ProjectReference Include="..\Reusable.OmniLog\Reusable.OmniLog.csproj" />
         <ProjectReference Include="..\Reusable.Teapot\Reusable.Teapot.csproj" />
         <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />

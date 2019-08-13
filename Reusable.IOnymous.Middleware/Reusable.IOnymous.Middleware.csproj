@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!--<TargetFramework>net47</TargetFramework>-->
+    <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>
+    <RootNamespace>Reusable.IOnymous</RootNamespace>
+    <Configurations>Debug;Release;Debug.csproj</Configurations>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.2.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <PackageReference Include="System.Collections.Immutable" Version="1.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
+    <ProjectReference Include="..\Reusable.Data\Reusable.Data.csproj" />
+    <ProjectReference Include="..\Reusable.Flawless\Reusable.Flawless.csproj" />
+    <ProjectReference Include="..\Reusable.OmniLog.Abstractions\Reusable.OmniLog.Abstractions.csproj" />
+    <ProjectReference Include="..\Reusable.OmniLog.SemanticExtensions\Reusable.OmniLog.SemanticExtensions.csproj" />
+    <ProjectReference Include="..\Reusable.OmniLog\Reusable.OmniLog.csproj" />
+    <ProjectReference Include="..\Reusable.OneTo1\Reusable.OneTo1.csproj" />
+    <ProjectReference Include="..\Reusable.Quickey\Reusable.Quickey.csproj" />
+    <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Runtime.Extensions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="src\_properties\ProviderProperties.cs" />
+    <Compile Remove="src\_properties\RequestProperties.cs" />
+    <Compile Remove="src\_properties\ResourceProperties.cs" />
+  </ItemGroup>
+
+</Project>

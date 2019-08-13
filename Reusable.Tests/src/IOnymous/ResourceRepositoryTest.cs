@@ -16,8 +16,9 @@ namespace Reusable.IOnymous
 
             var middlewareBuilder = new MiddlewareBuilder();
             //middlewareBuilder.Use<BaseUriMiddleware>(new UriString(@"file:///Reusable/res/IOnymous"));
-            var next = middlewareBuilder.Build<ResourceContext>();
-            var resource = new ResourceRepository(new IResourceProvider[] { new EmbeddedFileProvider(typeof(ResourceRepositoryTest).Assembly, @"Reusable/res/IOnymous") }, next);
+            middlewareBuilder.UseResources(new IResourceProvider[] { new EmbeddedFileProvider<ResourceRepositoryTest>(@"Reusable/res/IOnymous") });
+            var middleware = middlewareBuilder.Build<ResourceContext>();
+            var resource = new ResourceRepository(middleware);
 
             var file = await resource.InvokeAsync(new Request.Get("file:///test.txt"));
             

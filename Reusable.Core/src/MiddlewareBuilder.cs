@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
-using Autofac;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 
@@ -44,31 +44,41 @@ namespace Reusable
         }
 
         // Using this helper to "catch" the "previous" middleware before it goes out of scope and is overwritten by the loop.
-        private RequestCallback<TContext> CreateNext<TContext>(object previous)
+        private RequestCallback<TContext> CreateNext<TContext>(object middleware)
         {
             // This is the last last middleware. There is nowhere to go from here.
-            if (previous is null)
+            if (middleware is null)
             {
                 return _ => Task.CompletedTask;
             }
 
             // Doing it here to avoid reflection next time.
-            var nextInvokeAsync = previous.GetType().GetMethod("InvokeAsync");
-            var nextInvoke = previous.GetType().GetMethod("Invoke");
+            var invokeAsyncMethod = middleware.GetType().GetMethod("InvokeAsync");
+            var invokeMethod = middleware.GetType().GetMethod("Invoke");
+            
 
-            if (nextInvokeAsync is null && nextInvoke is null)
+            if (invokeAsyncMethod is null && invokeMethod is null)
             {
-                throw DynamicException.Create("InvokeNotFound", $"{previous.GetType().ToPrettyString()} must implement either 'InvokeAsync' or 'Invoke'.");
+                throw DynamicException.Create("InvokeNotFound", $"{middleware.GetType().ToPrettyString()} must implement either 'InvokeAsync' or 'Invoke'.");
             }
 
-            if (!(nextInvokeAsync is null) && !(nextInvoke is null))
+            if (!(invokeAsyncMethod is null) && !(invokeMethod is null))
             {
-                throw DynamicException.Create("AmbiguousInvoke", $"{previous.GetType().ToPrettyString()} must implement either 'InvokeAsync' or 'Invoke' but not both.");
+                throw DynamicException.Create("AmbiguousInvoke", $"{middleware.GetType().ToPrettyString()} must implement either 'InvokeAsync' or 'Invoke' but not both.");
             }
 
-            var next = nextInvokeAsync ?? nextInvoke;
+            var next = invokeAsyncMethod ?? invokeMethod;
 
-            return context => (Task)next.Invoke(previous, new object[] { context });
+            //return context => (Task)next.Invoke(previous, new object[] { context });
+            return next.CreateDelegate<RequestCallback<TContext>>(middleware);
+        }
+    }
+
+    internal static class MethodInfoExtensions
+    {
+        public static T CreateDelegate<T>(this MethodInfo method, object target) where T : Delegate
+        {
+            return (T)method.CreateDelegate(typeof(T), target);
         }
     }
 }

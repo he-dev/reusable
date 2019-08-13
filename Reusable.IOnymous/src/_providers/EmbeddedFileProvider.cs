@@ -71,9 +71,13 @@ namespace Reusable.IOnymous
         #endregion
     }
 
-    public static class EmbeddedFileProvider<T>
+    public class EmbeddedFileProvider<T> : EmbeddedFileProvider
     {
         public static IResourceProvider Default { get; } = new EmbeddedFileProvider(typeof(T).Assembly, ImmutableContainer.Empty);
+
+        public static IResourceProvider Create(string basePath) => new EmbeddedFileProvider(typeof(T).Assembly, basePath);
+
+        public EmbeddedFileProvider(string basePath, IImmutableContainer properties = default) : base(typeof(T).Assembly, basePath, properties) { }
     }
 
     internal class EmbeddedFile : Resource
