@@ -18,16 +18,10 @@ namespace Reusable.IOnymous
         private readonly IDictionary<SoftString, object> _items = new Dictionary<SoftString, object>();
 
         public InMemoryProvider(IImmutableContainer properties = default)
-            : base(properties.ThisOrEmpty().SetWhen(x => !x.GetSchemes().Any(), x => x.SetScheme(UriSchemes.Custom.IOnymous)))
-        {
-            Methods =
-                MethodCollection
-                    .Empty
-                    .Add(RequestMethod.Get, GetAsync)
-                    .Add(RequestMethod.Put, PutAsync);
-        }
+            : base(properties.ThisOrEmpty().SetWhen(x => !x.GetSchemes().Any(), x => x.SetScheme(UriSchemes.Custom.IOnymous))) { }
 
-        private Task<IResource> GetAsync(Request request)
+        [ResourceGet]
+        public Task<IResource> GetAsync(Request request)
         {
             if (_items.TryGetValue(request.Uri.ToString(), out var obj))
             {
@@ -46,11 +40,12 @@ namespace Reusable.IOnymous
             }
         }
 
-        private async Task<IResource> PutAsync(Request request)
+        [ResourcePut]
+        public async Task<IResource> AddAsync(Request request)
         {
             _items[request.Uri.ToString()] = request.Body;
 
-            return await InvokeAsync(new Request.Get(request.Uri));
+            return await GetAsync(new Request.Get(request.Uri));
         }
 
         // protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata)

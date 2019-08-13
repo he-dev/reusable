@@ -19,8 +19,6 @@ namespace Reusable.IOnymous.Http
 {
     public class HttpProvider : ResourceProvider
     {
-        //public static readonly From<IHttpMeta> PropertySelector = From<IHttpMeta>.This;
-
         private readonly HttpClient _client;
 
         public HttpProvider(HttpClient httpClient, IImmutableContainer metadata = default)
@@ -28,22 +26,15 @@ namespace Reusable.IOnymous.Http
                 metadata
                     .ThisOrEmpty()
                     .SetScheme(UriSchemes.Known.Http)
-                    .SetScheme(UriSchemes.Known.Https))
+                    .SetScheme(UriSchemes.Known.Https)
+                    .SetItem(ResourceProviderProperty.SupportsRelativeUri, true))
         {
             _client = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _client.DefaultRequestHeaders.Clear();
-
-            Methods =
-                MethodCollection
-                    .Empty
-                    .Add(RequestMethod.Get, CreateRequestCallback(HttpMethod.Get))
-                    .Add(RequestMethod.Post, CreateRequestCallback(HttpMethod.Post))
-                    .Add(RequestMethod.Put, CreateRequestCallback(HttpMethod.Put))
-                    .Add(RequestMethod.Delete, CreateRequestCallback(HttpMethod.Delete));
         }
 
         public string BaseUri => _client.BaseAddress.ToString();
-        
+
         public JsonSerializer Serializer { get; set; } = new JsonSerializer
         {
             Converters =
@@ -62,10 +53,22 @@ namespace Reusable.IOnymous.Http
             return new HttpProvider(new HttpClient(new HttpClientHandler { UseProxy = false })
             {
                 BaseAddress = new Uri(baseUri)
-            });
+            }, properties);
         }
 
-        private InvokeCallback CreateRequestCallback(HttpMethod httpMethod)
+        [ResourceGet]
+        public async Task<IResource> GetAsync(Request request) => await CreateRequestCallback(HttpMethod.Get)(request);
+
+        [ResourcePut]
+        public async Task<IResource> PutAsync(Request request) => await CreateRequestCallback(HttpMethod.Put)(request);
+
+        [ResourcePost]
+        public async Task<IResource> PostAsync(Request request) => await CreateRequestCallback(HttpMethod.Post)(request);
+
+        [ResourceDelete]
+        public async Task<IResource> DeleteAsync(Request request) => await CreateRequestCallback(HttpMethod.Delete)(request);
+
+        public InvokeCallback CreateRequestCallback(HttpMethod httpMethod)
         {
             return async request =>
             {

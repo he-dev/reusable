@@ -1,5 +1,7 @@
 using System;
 using System.Threading.Tasks;
+using Reusable.Data;
+using Reusable.IOnymous;
 using Reusable.IOnymous.Http.Mailr.Models;
 using Reusable.Teapot;
 using Reusable.Utilities.XUnit.Fixtures;
@@ -11,12 +13,12 @@ namespace Reusable.IOnymous.Http.Mailr
     {
         private readonly ITeapotServerContext _serverContext;
 
-        private readonly IResourceProvider _http;
+        private readonly IResourceRepository _resources;
 
         public HttpProviderExtensionsTest(TeapotServerFixture teapotServerFixture)
         {
             _serverContext = teapotServerFixture.GetServer("http://localhost:30002").BeginScope();
-            _http = HttpProvider.FromBaseUri("http://localhost:30002/api");
+            _resources = new ResourceRepository(b => b.UseResources(HttpProvider.FromBaseUri("http://localhost:30002/api", ImmutableContainer.Empty.AddTag("Mailr"))));
         }
 
         [Fact]
@@ -49,7 +51,7 @@ namespace Reusable.IOnymous.Http.Mailr
                 Body = new { Greeting = "Hallo Mailr!" }
             };
 
-            var response = await _http.SendEmailAsync("mailr/messages/test", new UserAgent("xunit", "1.0"), email);
+            var response = await _resources.SendEmailAsync("mailr/messages/test", new UserAgent("xunit", "1.0"), email, "Mailr");
 
             _serverContext.Assert();
             Assert.Equal("OK!", response);
@@ -58,7 +60,7 @@ namespace Reusable.IOnymous.Http.Mailr
         public void Dispose()
         {
             _serverContext.Dispose();
-            _http.Dispose();
+            _resources.Dispose();
         }
     }
 

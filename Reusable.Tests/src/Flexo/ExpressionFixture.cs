@@ -54,7 +54,7 @@ namespace Reusable.Flexo
         {
             return n =>
             {
-                var json = Helper.Flexo.ReadTextFile(n);
+                var json = TestHelper.Resources.ReadTextFile(n);
                 return Serializer.Deserialize<IList<IExpression>>(json);
             };
         }

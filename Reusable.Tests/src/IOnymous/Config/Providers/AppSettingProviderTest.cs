@@ -34,8 +34,7 @@ namespace Reusable.IOnymous.Config.Providers
         [Fact]
         public async Task Can_get_setting()
         {
-            var c = CompositeProvider.Empty.Add(new AppSettingProvider());
-            var env = await c.ReadSettingAsync(From<IProgramConfig>.Select(x => x.Environment));
+            var env = await TestHelper.Resources.ReadSettingAsync(From<IProgramConfig>.Select(x => x.Environment));
             
             Assert.Equal("test", env);
         }

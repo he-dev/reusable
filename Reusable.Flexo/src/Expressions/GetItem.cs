@@ -34,7 +34,7 @@ namespace Reusable.Flexo
             var names = Path.Split('.');
             var key = names.First();
             return
-                Scope.Context.TryGetValue(key, out var item)
+                Scope.Context.TryGetItem(key, out var item)
                     ? names.Skip(1).Aggregate(item, GetValue)
                     : throw DynamicException.Create("ContextItemNotFound", $"Could not find an item with the key '{key}' from '{Path}'.");
         }

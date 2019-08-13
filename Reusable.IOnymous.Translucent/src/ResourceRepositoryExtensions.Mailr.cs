@@ -1,34 +1,38 @@
-﻿using System.Net.Mime;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.IO;
+using System.Linq.Expressions;
+using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
+using Reusable.Extensions;
+using Reusable.IOnymous.Config;
+using Reusable.IOnymous.Http;
 using Reusable.IOnymous.Http.Formatting;
 using Reusable.IOnymous.Http.Mailr.Models;
+using Reusable.OneTo1;
+using Reusable.Quickey;
 
-namespace Reusable.IOnymous.Http.Mailr
+namespace Reusable.IOnymous
 {
-    public static class HttpProviderExtensions
+    // Provides CRUD APIs.
+    public static partial class ResourceRepositoryExtensions
     {
-        /// <summary>
-        /// Uses #Mailr
-        /// </summary>
-        public static IResourceProvider UseMailr(this IResourceProvider provider)
-        {
-            return provider.Use(ResourceProvider.CreateTag("Mailr"));
-        }
-
         public static async Task<string> SendEmailAsync
         (
-            this IResourceProvider provider,
+            this IResourceRepository resourceRepository,
             UriString uri,
             UserAgent userAgent,
             Email email,
-            [CanBeNull] IImmutableContainer properties = default
+            string providerName
+            //[CanBeNull] IImmutableContainer properties = default
         )
         {
-            properties =
-                properties
-                    .ThisOrEmpty()
+            var properties =
+                ImmutableContainer
+                    .Empty
                     .SetItem(HttpRequestContext.ConfigureHeaders, headers =>
                     {
                         headers
@@ -37,9 +41,10 @@ namespace Reusable.IOnymous.Http.Mailr
                     })
                     .SetItem(HttpRequestContext.ContentType, "application/json")
                     .SetItem(HttpResponseContext.Formatters, new[] { new TextMediaTypeFormatter() })
-                    .SetItem(HttpResponseContext.ContentType, "application/json");
+                    .SetItem(HttpResponseContext.ContentType, "application/json")
+                    .AddTag(providerName.ToSoftString());
 
-            var response = await provider.InvokeAsync(new Request.Post(uri)
+            var response = await resourceRepository.InvokeAsync(new Request.Post(uri)
             {
                 Context = properties,
                 Body = email

@@ -20,7 +20,9 @@ namespace Reusable.Utilities.SqlClient.SqlSchemas
         static SqlSchemaReader()
         {
             var fileProvider = new EmbeddedFileProvider(typeof(SqlSchemaReader).Assembly);
-            GetIdentityColumnSchemasQuery  = fileProvider.ReadTextFile($"sql\\{nameof(GetIdentityColumnSchemas)}.sql");
+            // todo - this needs to be fixed
+#warning this needs to be fixed
+            //GetIdentityColumnSchemasQuery  = fileProvider.ReadTextFile($"sql\\{nameof(GetIdentityColumnSchemas)}.sql");
         }
 
         public static IList<SqlTableSchema> GetTableSchemas(this SqlConnection sqlConnection, SqlTableSchema schemaRestriction)
@@ -85,12 +87,12 @@ namespace Reusable.Utilities.SqlClient.SqlSchemas
             if (table == null) throw new ArgumentNullException(nameof(table));
 
             return connection.GetColumnSchemas(new SqlColumnSchema
-            {
-                TableSchema = schema,
-                TableName = table
-            })
-            .Select((column, ordinal) => (column.ColumnName.ToSoftString(), column.FrameworkType))
-            .ToList();
+                {
+                    TableSchema = schema,
+                    TableName = table
+                })
+                .Select((column, ordinal) => (column.ColumnName.ToSoftString(), column.FrameworkType))
+                .ToList();
         }
     }
 }

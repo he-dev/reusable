@@ -27,8 +27,6 @@ namespace Reusable.Utilities.JsonNet
                             typeof(JsonTestClass2<,>)
                         ))));
 
-        private static readonly IResourceProvider Files = TestHelper.Resources.DecorateWith(RelativeProvider.Factory(@"Utilities\JsonNet"));
-
         [Fact]
         public void Disallows_types_with_explicit_generic_arguments()
         {
@@ -38,7 +36,7 @@ namespace Reusable.Utilities.JsonNet
         [Fact]
         public void Can_rewrite_non_generic_type()
         {
-            var json = Files.ReadTextFile("PrettyType0.json");
+            var json = TestHelper.Resources.ReadTextFile("PrettyType0.json");
             var testClass = RewritePrettyTypeVisitor.Visit(json).ToObject<JsonTestClass>(JsonSerializer);
 
             Assert.NotNull(testClass);
@@ -50,7 +48,7 @@ namespace Reusable.Utilities.JsonNet
         [Fact]
         public void Can_rewrite_generic_type_with_one_argument()
         {
-            var json = Files.ReadTextFile("PrettyType1.json");
+            var json = TestHelper.Resources.ReadTextFile("PrettyType1.json");
             var testClass = RewritePrettyTypeVisitor.Visit(json).ToObject<JsonTestClass>(JsonSerializer);
 
             Assert.NotNull(testClass);
@@ -62,7 +60,7 @@ namespace Reusable.Utilities.JsonNet
         [Fact]
         public void Can_rewrite_generic_type_with_two_arguments()
         {
-            var json = Files.ReadTextFile("PrettyType2.json");
+            var json = TestHelper.Resources.ReadTextFile("PrettyType2.json");
             var testClass = RewritePrettyTypeVisitor.Visit(json).ToObject<JsonTestClass>(JsonSerializer);
 
             Assert.NotNull(testClass);

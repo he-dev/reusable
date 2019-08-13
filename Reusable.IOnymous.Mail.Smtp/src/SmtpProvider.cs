@@ -15,15 +15,10 @@ namespace Reusable.IOnymous.Mail.Smtp
 {
     public class SmtpProvider : MailProvider
     {
-        public SmtpProvider(IImmutableContainer properties = default) : base(properties.ThisOrEmpty())
-        {
-            Methods =
-                MethodCollection
-                    .Empty
-                    .Add(RequestMethod.Post, PostAsync);
-        }
+        public SmtpProvider(IImmutableContainer properties = default) : base(properties.ThisOrEmpty()) { }
 
-        private async Task<IResource> PostAsync(Request request)
+        [ResourcePost]
+        public async Task<IResource> SendEmailAsync(Request request)
         {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(request.Context.GetItemOrDefault(MailRequestContext.From)));
@@ -74,7 +69,7 @@ namespace Reusable.IOnymous.Mail.Smtp
             return Resource.DoesNotExist.FromRequest(request);
         }
     }
-    
+
     [UseType, UseMember]
     [PlainSelectorFormatter]
     [Rename(nameof(SmtpRequestContext))]

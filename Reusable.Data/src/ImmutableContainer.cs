@@ -78,16 +78,16 @@ namespace Reusable.Data
 
         int Count { get; }
 
+        [NotNull]
+        IImmutableContainer SetItem(string key, object value);
+
         bool ContainsKey(string key);
 
-        bool TryGetValue(string key, out object value);
-
-        //IImmutableSession SetItem(SoftString key, object value);
+        bool TryGetItem(string key, out object value);
 
         [NotNull]
-        IImmutableContainer SetItem<T>(string key, T value, bool replace = true);
+        IImmutableContainer RemoveItem(string key);
     }
-
 
     [PublicAPI]
     public class ImmutableContainer : IImmutableContainer
@@ -96,6 +96,7 @@ namespace Reusable.Data
 
         public ImmutableContainer([NotNull] IImmutableDictionary<string, object> data) => _data = data ?? throw new ArgumentNullException(nameof(data));
 
+        [NotNull]
         public static IImmutableContainer Empty => new ImmutableContainer(ImmutableDictionary.Create<string, object>(SoftString.Comparer));
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
@@ -112,35 +113,16 @@ namespace Reusable.Data
         public bool ContainsKey(string key) => _data.ContainsKey(key);
 
         [DebuggerStepThrough]
-        public bool TryGetValue(string key, out object value) => _data.TryGetValue(key, out value);
+        public bool TryGetItem(string key, out object value) => _data.TryGetValue(key, out value);
 
         [DebuggerStepThrough]
         [MustUseReturnValue]
-        //public IImmutableSession SetItem(SoftString key, object value) => new ImmutableSession(_data.Remove(key).SetItem(key, value));
-        public IImmutableContainer SetItem<T>(string key, T value, bool replace = true)
-        {
-            if (replace)
-            {
-                return new ImmutableContainer(_data.Remove(key).SetItem(key, value));
-            }
-            else
-            {
-                return _data.ContainsKey(key) ? this : new ImmutableContainer(_data.SetItem(key, value));
-            }
-        }
+        public IImmutableContainer SetItem(string key, object value) => _data.ContainsKey(key) ? this : new ImmutableContainer(_data.SetItem(key, value));
 
-        public IEnumerator<(string Key, object Value)> GetEnumerator()
-        {
-            return _data.Select(x => (x.Key, x.Value)).GetEnumerator();
-        }
+        public IImmutableContainer RemoveItem(string key) => new ImmutableContainer(_data.Remove(key));
+
+        public IEnumerator<(string Key, object Value)> GetEnumerator() => _data.Select(x => (x.Key, x.Value)).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_data).GetEnumerator();
     }
-
-//    public class SetItemMode : Option<SetItemMode>
-//    {
-//        public SetItemMode(SoftString name, IImmutableSet<SoftString> values) : base(name, values) { }
-//
-//        public static readonly SetItemMode Overwrite = CreateWithCallerName();
-//    }
 }

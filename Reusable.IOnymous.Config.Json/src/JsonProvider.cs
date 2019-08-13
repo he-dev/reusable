@@ -22,15 +22,12 @@ namespace Reusable.IOnymous.Config
                     .SetBasePath(basePath)
                     .AddJsonFile(fileName)
                     .Build();
-            Methods =
-                MethodCollection
-                    .Empty
-                    .Add(RequestMethod.Get, GetAsync);
         }
 
         public ITypeConverter ResourceConverter { get; set; } = new JsonSettingConverter();
 
-        private Task<IResource> GetAsync(Request request)
+        [ResourceGet]
+        public Task<IResource> GetSettingAsync(Request request)
         {
             var settingIdentifier = GetResourceName(request.Uri);
             var data = _configuration[settingIdentifier];

@@ -72,7 +72,7 @@ namespace Reusable.Flexo
         {
             foreach (var current in scope.Enumerate())
             {
-                if (current.Context.TryGetValue(key.ToString(), out var obj) && obj is TResult value)
+                if (current.Context.TryGetItem(key.ToString(), out var obj) && obj is TResult value)
                 {
                     return value;
                 }
@@ -119,7 +119,7 @@ namespace Reusable.Flexo
             var obj =
                 first.Name == "this"
                     ? context.GetItemOrDefault(ExpressionContext.ThisOuter)
-                    : context.TryGetValue(first.Name, out var item)
+                    : context.TryGetItem(first.Name, out var item)
                         ? item
                         : throw DynamicException.Create("InitialObjectNotFound", $"Could not find an item with the key '{path}'.");
 

@@ -11,15 +11,7 @@ namespace Reusable.IOnymous
     public class PhysicalDirectoryProvider : ResourceProvider
     {
         public PhysicalDirectoryProvider(IImmutableContainer properties = default)
-            : base(properties.ThisOrEmpty().SetScheme("directory"))
-        {
-            Methods =
-                MethodCollection
-                    .Empty
-                    .Add(RequestMethod.Get, GetAsync)
-                    .Add(RequestMethod.Put, PutAsync)
-                    .Add(RequestMethod.Delete, DeleteAsync);
-        }
+            : base(properties.ThisOrEmpty().SetScheme("directory")) { }
 
         private Task<IResource> GetAsync(Request request)
         {

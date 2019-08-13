@@ -14,12 +14,14 @@ namespace Reusable.Teapot
 
         private readonly TeapotServer _teapot;
 
-        private readonly IResourceProvider _http;
+        //private readonly IResourceProvider _http;
+        private readonly IResourceRepository _resources;
 
         public UseCaseTest(TeapotServerFixture teapotServer)
         {
             _teapot = teapotServer.GetServer(BaseUri);
-            _http = HttpProvider.FromBaseUri($"{BaseUri}/api");
+            //_http = HttpProvider.FromBaseUri($"{BaseUri}/api");
+            _resources = new ResourceRepository(b => b.UseResources(HttpProvider.FromBaseUri($"{BaseUri}/api")));
         }
 
         [Fact]
@@ -64,7 +66,7 @@ namespace Reusable.Teapot
                     //CreateBodyStreamCallback = b => ResourceHelper.SerializeAsJsonAsync(b)
                 };
 
-                var response = await _http.InvokeAsync(request);
+                var response = await _resources.InvokeAsync(request);
 
                 Assert.True(response.Exists);
                 var original = await response.DeserializeJsonAsync<object>();

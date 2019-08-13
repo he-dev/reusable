@@ -189,7 +189,7 @@ namespace Reusable.Data
         {
             return 
                 Values
-                    .OrderByDescending(x => x)
+                    .OrderBy(x => x)
                     .Select(x => $"{x.ToString()}")
                     .Join(", ");
         }

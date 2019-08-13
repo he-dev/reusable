@@ -30,24 +30,49 @@ namespace Reusable.IOnymous
             return container.GetItemOrDefault(ResourceProviderProperty.Schemes, ImmutableHashSet<SoftString>.Empty);
         }
 
-        public static IImmutableContainer SetName(this IImmutableContainer container, SoftString name)
+//        public static IImmutableContainer SetName(this IImmutableContainer container, SoftString name)
+//        {
+//            if (name.IsNullOrEmpty())
+//            {
+//                return container;
+//            }
+//
+//
+//            if (container.TryGetItem(ResourceProviderProperty.Tags, out var names))
+//            {
+//                names = names.Add(name);
+//            }
+//            else
+//            {
+//                names = ImmutableSortedSet.Create<SoftString>(new ResourceProviderNameComparer()).Add(name);
+//            }
+//
+//            return container.SetItem(ResourceProviderProperty.Tags, names);
+//        }
+        
+        public static IImmutableContainer AddTag(this IImmutableContainer container, SoftString tag)
         {
-            if (name.IsNullOrEmpty())
+            if (tag.IsNullOrEmpty())
             {
                 return container;
             }
 
-            return
-                container.SetItem(
-                    ResourceProviderProperty.Names,
-                    container.TryGetItem(ResourceProviderProperty.Names, out var names)
-                        ? names.Add(name)
-                        : ImmutableSortedSet.Create<SoftString>(new ResourceProviderNameComparer()).Add(name));
+
+            if (container.TryGetItem(ResourceProviderProperty.Tags, out var tags))
+            {
+                tags = tags.Add(tag);
+            }
+            else
+            {
+                tags = ImmutableSortedSet<SoftString>.Empty.Add(tag);
+            }
+
+            return container.SetItem(ResourceProviderProperty.Tags, tags);
         }
 
-        public static IImmutableSet<SoftString> GetNames(this IImmutableContainer container)
+        public static IImmutableSet<SoftString> Tags(this IImmutableContainer container)
         {
-            return container.GetItemOrDefault(ResourceProviderProperty.Names, ImmutableHashSet<SoftString>.Empty);
+            return container.GetItemOrDefault(ResourceProviderProperty.Tags, ImmutableHashSet<SoftString>.Empty);
         }
 
         #region Resource
@@ -55,7 +80,7 @@ namespace Reusable.IOnymous
         public static IImmutableContainer SetUri(this IImmutableContainer container, UriString value) => container.SetItem(ResourceProperty.Uri, value);
         public static IImmutableContainer SetExists(this IImmutableContainer container, bool value) => container.SetItem(ResourceProperty.Exists, value);
         public static IImmutableContainer SetFormat(this IImmutableContainer container, MimeType value) => container.SetItem(ResourceProperty.Format, value);
-        
+
         public static IImmutableContainer SetDataType(this IImmutableContainer container, Type value) => container.SetItem(ResourceProperty.DataType, value);
 
         public static UriString GetUri(this IImmutableContainer container) => container.GetItemOrDefault(ResourceProperty.Uri);
@@ -80,7 +105,7 @@ namespace Reusable.IOnymous
         {
             return container.Copy(RequestProperty.Selectors);
         }
-        
+
         public static IImmutableContainer CopyResourceProperties(this IImmutableContainer container)
         {
             return container.Copy(ResourceProperty.Selectors);

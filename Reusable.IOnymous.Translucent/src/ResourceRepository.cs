@@ -1,8 +1,14 @@
+using System;
 using System.Threading.Tasks;
 
 namespace Reusable.IOnymous
 {
-    public class ResourceRepository
+    public interface IResourceRepository : IDisposable
+    {
+        Task<IResource> InvokeAsync(Request request);
+    }
+
+    public class ResourceRepository : IResourceRepository
     {
         private readonly RequestCallback<ResourceContext> _requestCallback;
 
@@ -10,6 +16,15 @@ namespace Reusable.IOnymous
         {
             _requestCallback = requestCallback;
         }
+
+        public ResourceRepository(Action<MiddlewareBuilder> middleware)
+            : this(new Func<RequestCallback<ResourceContext>>(() =>
+            {
+                var builder = new MiddlewareBuilder();
+                middleware(builder);
+                return builder.Build<ResourceContext>();
+            })()) { }
+
 
         public async Task<IResource> InvokeAsync(Request request)
         {
@@ -21,6 +36,11 @@ namespace Reusable.IOnymous
             await _requestCallback(context);
 
             return context.Response;
+        }
+
+        public void Dispose()
+        {
+            
         }
     }
 

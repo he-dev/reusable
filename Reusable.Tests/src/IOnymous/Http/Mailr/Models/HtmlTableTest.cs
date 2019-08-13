@@ -8,7 +8,7 @@ namespace Reusable.IOnymous.Http.Mailr.Models
         [Fact]
         public void CanBeSerializedToJson()
         {
-            var expected = new EmbeddedFileProvider(typeof(HtmlTableTest).Assembly, "Reusable").ReadTextFile(@"res\IOnymous\Http\Mailr\HtmlTable.json");
+            var expected = TestHelper.Resources.ReadTextFile(@"Http\Mailr\HtmlTable.json");
 
             var table = new HtmlTable(HtmlTableColumn.Create(("Name", typeof(string)), ("Age", typeof(int))));
             var row = table.Body.NewRow();

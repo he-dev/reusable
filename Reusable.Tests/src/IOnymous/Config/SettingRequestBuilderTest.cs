@@ -18,7 +18,7 @@ namespace Reusable.IOnymous.Config
             Assert.Equal(new UriString("config:settings?name=Map.City"), request.Uri.ToString());
             Assert.Same(body, request.Body);
             Assert.Equal(typeof(string), request.Context.GetItem(ResourceProperty.DataType));
-            Assert.Equal(new[] { "ThisOne" }, request.Context.GetItem(ResourceProviderProperty.Names).Select(x => x.ToString()));
+            Assert.Equal(new[] { "ThisOne" }, request.Context.GetItem(ResourceProviderProperty.Tags).Select(x => x.ToString()));
         }
 
         [UseType, UseMember]

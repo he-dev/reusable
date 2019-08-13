@@ -27,10 +27,6 @@ namespace Reusable.IOnymous
     {
         [NotNull]
         IImmutableContainer Properties { get; }
-
-        MethodCollection Methods { get; }
-
-        Task<IResource> InvokeAsync(Request request);
     }
 
     public delegate Task<IResource> InvokeCallback(Request request);
@@ -38,12 +34,10 @@ namespace Reusable.IOnymous
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public abstract class ResourceProvider : IResourceProvider
     {
-        public static readonly string TagPrefix = "#";
-
         protected ResourceProvider([NotNull] IImmutableContainer properties)
         {
             if (properties == null) throw new ArgumentNullException(nameof(properties));
-
+            
             if (!properties.GetSchemes().Any())
             {
                 throw new ArgumentException
@@ -53,12 +47,12 @@ namespace Reusable.IOnymous
                 );
             }
 
-            Properties = properties.SetName(GetType().ToPrettyString().ToSoftString());
+            Properties = properties.AddTag(GetType().ToPrettyString().ToSoftString());
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
         {
-            builder.DisplayEnumerable(p => p.Properties.GetNames(), x => x.ToString());
+            builder.DisplayEnumerable(p => p.Properties.Tags(), x => x.ToString());
             builder.DisplayEnumerable(p => p.Properties.GetSchemes(), x => x.ToString());
             //builder.DisplayValues(p => Names);
             //builder.DisplayValue(x => x.Schemes);
@@ -66,75 +60,17 @@ namespace Reusable.IOnymous
 
         public virtual IImmutableContainer Properties { get; }
 
-        public MethodCollection Methods { get; protected set; }
-
-        public virtual async Task<IResource> InvokeAsync(Request request)
-        {
-            if (Methods is null)
-            {
-                throw new InvalidOperationException
-                (
-                    $"{nameof(Methods)} property is not initialized. " +
-                    $"You must specify at least one method by initializing this property in the derived type."
-                );
-            }
-
-            if (request.Method == RequestMethod.None)
-            {
-                throw new ArgumentException(paramName: nameof(request), message: $"You must specify a request method. '{RequestMethod.None}' is not one of them.");
-            }
-
-            if (Methods.TryGetMethod(request.Method, out var method))
-            {
-                try
-                {
-                    return new ResourceExceptionHandler(await method(request));
-                }
-                catch (Exception inner)
-                {
-                    throw DynamicException.Create
-                    (
-                        $"Request",
-                        $"An error occured in {ResourceProviderHelper.FormatNames(this)} " +
-                        $"while trying to {RequestHelper.FormatMethodName(request)} '{request.Uri}'. See the inner exception for details.",
-                        inner
-                    );
-                }
-            }
-
-            throw DynamicException.Create
-            (
-                $"MethodNotSupported",
-                $"{ResourceProviderHelper.FormatNames(this)} " +
-                $"cannot {RequestHelper.FormatMethodName(request)} '{request.Uri}' because it doesn't support it."
-            );
-        }
-
         protected IResource DoesNotExist(Request request) => Resource.DoesNotExist.FromRequest(request);
 
-        public virtual void Dispose()
+        // Can be overriden when derived.
+        public virtual void Dispose() { }
+    }
+
+    public static class ResourceProviderExtensions
+    {
+        public static bool SupportsRelativeUri(this IResourceProvider resourceProvider)
         {
-            // Can be overriden when derived.
-        }
-
-        public static string CreateTag(string name) => $"{TagPrefix}{name.Trim('#')}";
-
-        public class Decorator : IResourceProvider
-        {
-            public Decorator(IResourceProvider instance)
-            {
-                Instance = instance;
-            }
-
-            protected IResourceProvider Instance { get; }
-
-            public virtual IImmutableContainer Properties => Instance.Properties;
-
-            public virtual MethodCollection Methods => Instance.Methods;
-
-            public virtual Task<IResource> InvokeAsync(Request request) => Instance.InvokeAsync(request);
-
-            public virtual void Dispose() { }
+            return resourceProvider.Properties.GetItemOrDefault(ResourceProviderProperty.SupportsRelativeUri);
         }
     }
 
@@ -145,57 +81,9 @@ namespace Reusable.IOnymous
     {
         public static readonly Selector<IImmutableSet<SoftString>> Schemes = Select(() => Schemes);
 
-        public static readonly Selector<IImmutableSet<SoftString>> Names = Select(() => Names);
+        public static readonly Selector<IImmutableSet<SoftString>> Tags = Select(() => Tags);
 
-        //public static readonly Selector<bool> AllowRelativeUri = Select(() => AllowRelativeUri);
-    }
-
-    public class UseProvider : ResourceProvider.Decorator
-    {
-        private readonly string _name;
-
-        public UseProvider(IResourceProvider instance, string name) : base(instance)
-        {
-            _name = name;
-        }
-
-        public override Task<IResource> InvokeAsync(Request request)
-        {
-            request.Context = request.Context.SetName(_name);
-            return base.InvokeAsync(request);
-        }
-    }
-
-    public class MethodCollection : IEnumerable<(RequestMethod Method, InvokeCallback InvokeCallback)>
-    {
-        private readonly IImmutableDictionary<RequestMethod, InvokeCallback> _requests;
-
-        private MethodCollection(IImmutableDictionary<RequestMethod, InvokeCallback> requests)
-        {
-            _requests = requests;
-        }
-
-        public static MethodCollection Empty { get; } = new MethodCollection(ImmutableDictionary<RequestMethod, InvokeCallback>.Empty);
-
-        public MethodCollection Add(RequestMethod method, InvokeCallback invokeCallback)
-        {
-            return new MethodCollection(_requests.Add(method, invokeCallback));
-        }
-
-        public bool TryGetMethod(RequestMethod method, out InvokeCallback invokeCallback)
-        {
-            return _requests.TryGetValue(method, out invokeCallback);
-        }
-
-        public IEnumerator<(RequestMethod Method, InvokeCallback InvokeCallback)> GetEnumerator()
-        {
-            return _requests.Select(x => (x.Key, x.Value)).GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        public static readonly Selector<bool> SupportsRelativeUri = Select(() => SupportsRelativeUri);
     }
 
     public delegate Task<Stream> CreateStreamCallback(object body);
@@ -291,20 +179,6 @@ namespace Reusable.IOnymous
             request.CreateBodyStreamCallback = createBodyStream;
             return request;
         }
-
-        //        public static async Task<Stream> CreateBodyStreamAsync(this Request request)
-        //        {
-        //            if (request.CreateBodyStreamCallback is null)
-        //            {
-        //                throw new ArgumentNullException(
-        //                    paramName: $"{nameof(request)}.{nameof(request.CreateBodyStreamCallback)}",
-        //                    message: $"{FormatMethodName()} request to '{request.Uri}' requires a body that is missing.");
-        //            }
-        //
-        //            return await request.CreateBodyStreamAsync();
-        //
-        //            string FormatMethodName() => request.Method.Name.ToString().ToUpper();
-        //        }
     }
 
     public class RequestMethod : Option<RequestMethod>
@@ -318,17 +192,6 @@ namespace Reusable.IOnymous
         public static readonly RequestMethod Put = CreateWithCallerName();
 
         public static readonly RequestMethod Delete = CreateWithCallerName();
-    }
-
-    public static class ResourceProviderHelper
-    {
-        public static string FormatNames(IResourceProvider provider)
-        {
-            var name = provider.Properties.GetNames().Take(1).Select(x => x.ToString());
-            var tags = provider.Properties.GetNames().Skip(1).Select(x => x.ToString());
-
-            return $"{name} [{tags.Join(", ")}]";
-        }
     }
 
     public static class RequestHelper
@@ -370,27 +233,6 @@ namespace Reusable.IOnymous
         }
     }
 
-    public class ResourceProviderNameComparer : IComparer<SoftString>
-    {
-        public int Compare(SoftString x, SoftString y)
-        {
-            if (ComparerHelper.TryCompareReference(x, y, out var referenceOrder))
-            {
-                return referenceOrder;
-            }
-
-            if (IsTag(x) ^ IsTag(y))
-            {
-                if (IsTag(x)) return ElementOrder.Reorder;
-                if (IsTag(y)) return ElementOrder.Preserve;
-            }
-
-            return SoftString.Comparer.Compare(x, y);
-        }
-
-        private static bool IsTag(SoftString name) => name.StartsWith(ResourceProvider.TagPrefix);
-    }
-    
     public abstract class ResourceActionAttribute : Attribute
     {
         protected ResourceActionAttribute(RequestMethod method) => Method = method;

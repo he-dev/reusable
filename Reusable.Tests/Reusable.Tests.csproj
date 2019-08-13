@@ -74,6 +74,15 @@
         <Compile Remove="src\Commander\CommandLineTest.cs" />
         <Compile Remove="src\OmniLog\UseCaseTest.cs" />
         <Compile Remove="src\Flexo\ExpressionContextTest.cs" />
+        <Compile Remove="src\IOnymous\CompositeProviderTest.cs" />
+        <Compile Remove="src\IOnymous\EmbeddedFileProviderTest.cs" />
+        <Compile Remove="src\IOnymous\EnvironmentVariableProviderTest.cs" />
+        <Compile Remove="src\IOnymous\HttpProviderTest.cs" />
+        <Compile Remove="src\IOnymous\InMemoryProviderTest.cs" />
+        <Compile Remove="src\IOnymous\PhysicalFileProviderTest.cs" />
+        <Compile Remove="src\IOnymous\RelativeProviderTest.cs" />
+        <Compile Remove="src\IOnymous\ResourceProviderTest.cs" />
+        <Compile Remove="src\IOnymous\SmtpProviderTest.cs" />
     </ItemGroup>
     
 </Project>

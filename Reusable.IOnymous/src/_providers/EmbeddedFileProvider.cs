@@ -15,31 +15,27 @@ namespace Reusable.IOnymous
     {
         private readonly Assembly _assembly;
 
-        public EmbeddedFileProvider([NotNull] Assembly assembly, string basePath, IImmutableContainer properties = default)
-            : base((properties ?? ImmutableContainer.Empty)
-                .SetScheme(UriSchemes.Known.File))
+        public EmbeddedFileProvider([NotNull] Assembly assembly, IImmutableContainer properties = default)
+            : base(
+                properties
+                    .ThisOrEmpty()
+                    .SetScheme(UriSchemes.Known.File)
+                    .SetItem(ResourceProviderProperty.SupportsRelativeUri, true)
+            )
+
         {
             _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
-            BaseUri = new UriString($"{UriSchemes.Known.File}:{basePath.Replace('.', '/')}");
-            Methods =
-                MethodCollection
-                    .Empty
-                    .Add(RequestMethod.Get, GetAsync);
         }
 
-        public EmbeddedFileProvider([NotNull] Assembly assembly, IImmutableContainer properties = default)
-            : this(assembly, assembly.GetName().Name.Replace('.', '/'), properties) { }
-
-        public UriString BaseUri { get; }
-
-        #region ResourceProvider
 
         [ResourceGet]
         public Task<IResource> GetFileAsync(Request request)
         {
             // Embedded resource names are separated by '.' so replace the windows separator.
 
-            var fullUri = BaseUri + request.Uri;
+            var baseUri = Properties.GetItemOrDefault(PropertySelectors.BaseUri);
+
+            var fullUri = baseUri is null ? request.Uri : baseUri + request.Uri.Path;
             var fullName = fullUri.Path.Decoded.ToString().Replace('/', '.');
 
             // Embedded resource names are case sensitive so find the actual name of the resource.
@@ -51,32 +47,24 @@ namespace Reusable.IOnymous
                     : new EmbeddedFile(request.Context.CopyResourceProperties().SetUri(fullUri), () => _assembly.GetManifestResourceStream(actualName)).ToTask<IResource>();
         }
 
-        private Task<IResource> GetAsync(Request request)
+        [UseType, UseMember]
+        [PlainSelectorFormatter]
+        public class PropertySelectors : SelectorBuilder<PropertySelectors>
         {
-            // Embedded resource names are separated by '.' so replace the windows separator.
-
-            var fullUri = BaseUri + request.Uri;
-            var fullName = fullUri.Path.Decoded.ToString().Replace('/', '.');
-
-            // Embedded resource names are case sensitive so find the actual name of the resource.
-            var actualName = _assembly.GetManifestResourceNames().FirstOrDefault(name => SoftString.Comparer.Equals(name, fullName));
-
-            return
-                actualName is null
-                    ? DoesNotExist(request).ToTask()
-                    : new EmbeddedFile(request.Context.CopyResourceProperties().SetUri(fullUri), () => _assembly.GetManifestResourceStream(actualName)).ToTask<IResource>();
+            public static Selector<UriString> BaseUri { get; } = Select(() => BaseUri);
         }
-
-        #endregion
     }
 
     public class EmbeddedFileProvider<T> : EmbeddedFileProvider
     {
         public static IResourceProvider Default { get; } = new EmbeddedFileProvider(typeof(T).Assembly, ImmutableContainer.Empty);
 
-        public static IResourceProvider Create(string basePath) => new EmbeddedFileProvider(typeof(T).Assembly, basePath);
+        public static IResourceProvider Create(string basePath) => new EmbeddedFileProvider(typeof(T).Assembly, ImmutableContainer.Empty.SetItem(PropertySelectors.BaseUri, basePath));
 
-        public EmbeddedFileProvider(string basePath, IImmutableContainer properties = default) : base(typeof(T).Assembly, basePath, properties) { }
+        public EmbeddedFileProvider(IImmutableContainer properties = default) : base(typeof(T).Assembly, properties) { }
+
+        public EmbeddedFileProvider(string baseUri)
+            : base(typeof(T).Assembly, ImmutableContainer.Empty.SetItem(PropertySelectors.BaseUri, baseUri)) { }
     }
 
     internal class EmbeddedFile : Resource

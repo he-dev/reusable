@@ -25,11 +25,6 @@ namespace Reusable.IOnymous.Config
         {
             ConnectionString = ConnectionStringRepository.Default.GetConnectionString(nameOrConnectionString);
             TableName = (DefaultSchema, DefaultTable);
-            Methods =
-                MethodCollection
-                    .Empty
-                    .Add(RequestMethod.Get, GetAsync)
-                    .Add(RequestMethod.Put, PutAsync);
         }
 
         public ITypeConverter ResourceConverter { get; set; } = new JsonSettingConverter();
@@ -53,7 +48,8 @@ namespace Reusable.IOnymous.Config
 
         public (SoftString Name, object Value) Fallback { get; set; }
 
-        private async Task<IResource> GetAsync(Request request)
+        [ResourceGet]
+        public async Task<IResource> GetSettingAsync(Request request)
         {
             var settingIdentifier = GetResourceName(request.Uri);
 
@@ -82,7 +78,8 @@ namespace Reusable.IOnymous.Config
             }, request.Context.GetItemOrDefault(RequestProperty.CancellationToken));
         }
 
-        private async Task<IResource> PutAsync(Request request)
+        [ResourcePut]
+        public async Task<IResource> SetSettingAsync(Request request)
         {
             var settingIdentifier = GetResourceName(request.Uri);
             var value = ResourceConverter.Convert(request.Body, typeof(string));
@@ -94,7 +91,7 @@ namespace Reusable.IOnymous.Config
                 }
             }, request.Context.GetItemOrDefault(RequestProperty.CancellationToken));
 
-            return await GetAsync(new Request.Get(request.Uri)
+            return await GetSettingAsync(new Request.Get(request.Uri)
             {
                 Context = request.Context.CopyResourceProperties()
             });

@@ -20,7 +20,7 @@ namespace Reusable.Data
         [MustUseReturnValue]
         public static T GetItem<T>(this IImmutableContainer container, Selector<T> selector)
         {
-            return container.TryGetItem(selector, out var item) ? item : throw DynamicException.Create("ItemNotFound", $"Item '{selector}' is required.");
+            return container.TryGetItem(selector, out var item) ? item : throw DynamicException.Create("ItemNotFound", $"There is no item with the key '{selector}'.");
         }
 
         [DebuggerStepThrough]
@@ -32,7 +32,7 @@ namespace Reusable.Data
 
         public static bool TryGetItem<T>(this IImmutableContainer container, Selector<T> selector, out T value)
         {
-            if (container.TryGetValue(selector.ToString(), out var item))
+            if (container.TryGetItem(selector.ToString(), out var item))
             {
                 if (item is T t)
                 {
@@ -63,58 +63,10 @@ namespace Reusable.Data
             return container.SetItem(key.ToString(), value(container));
         }
 
-        public static Func<IImmutableContainer, IImmutableContainer> MergeFunc(IImmutableContainer other)
+        public static IImmutableContainer Union(this IImmutableContainer first, IImmutableContainer second)
         {
-            return current =>
-            {
-                foreach (var (key, value) in other)
-                {
-                    current = current.SetItem(key, value);
-                }
-
-                return current;
-            };
+            return second.Aggregate(first, (current, next) => current.SetItem(next.Key, next.Value));
         }
-
-        public static IImmutableContainer Union(this IImmutableContainer first, IImmutableContainer second, bool overwrite = false)
-        {
-            return second.Aggregate(first, (current, next) => overwrite || !current.ContainsKey(next.Key) ? current.SetItem(next.Key, next.Value) : current);
-        }
-
-        //        [MustUseReturnValue]
-        //        public static IImmutableSession Union(this IImmutableSession metadata, IImmutableSession other)
-        //        {
-        //            //return other.Aggregate(metadata, (current, i) => current.SetItem(i.Key, i.Value));
-        //
-        //            var result = metadata;
-        //
-        //            foreach (var item in other)
-        //            {
-        //                if (item.Value is IImmutableSession otherScope)
-        //                {
-        //                    // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
-        //                    if (result.TryGetValue(item.Key, out IImmutableSession currentScope))
-        //                    {
-        //                        result = result.SetItem(item.Key, currentScope.Aggregate(otherScope, (current, i) => current.SetItem(i.Key, i.Value)));
-        //                    }
-        //                    else
-        //                    {
-        //                        result = result.SetItem(item.Key, otherScope);
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    result = result.SetItem(item.Key, item.Value);
-        //                }
-        //            }
-        //
-        //            return result;
-        //        }
-
-        //        public static MetadataScope<T> Union<T>(this MetadataScope<T> scope, Metadata other)
-        //        {
-        //            return scope.Metadata.Union(other);
-        //        }
 
         #endregion
 

@@ -13,45 +13,19 @@ namespace Reusable.IOnymous.Config.Providers
 {
     public class SqlServerProviderTest : IAsyncLifetime
     {
-        private static readonly string ConnectionString = "Data Source=(local);Initial Catalog=TestDb;Integrated Security=SSPI;";
-
-        private static readonly IResourceProvider Sql = new EmbeddedFileProvider(typeof(SqlServerProviderTest).Assembly, "Reusable").DecorateWith(RelativeProvider.Factory(@"sql\IOnymous\Config"));
-
-        private readonly IResourceProvider _configuration;
-
-        public SqlServerProviderTest()
-        {
-            _configuration = new SqlServerProvider(ConnectionString)
-            {
-                TableName = ("reusable", "TestConfig"),
-                ResourceConverter = new JsonSettingConverter(),
-                ColumnMappings =
-                    ImmutableDictionary<SqlServerColumn, SoftString>
-                        .Empty
-                        .Add(SqlServerColumn.Name, "_name")
-                        .Add(SqlServerColumn.Value, "_value"),
-                Where =
-                    ImmutableDictionary<string, object>
-                        .Empty
-                        .Add("_env", "test")
-                        .Add("_ver", "1"),
-                Fallback = ("_env", "else")
-            };
-        }
-
         public async Task InitializeAsync()
         {
-            var connectionString = ConnectionStringRepository.Default.GetConnectionString(ConnectionString);
+            var connectionString = ConnectionStringRepository.Default.GetConnectionString(TestHelper.ConnectionString);
             using (var conn = new SqlConnection(connectionString))
             {
-                await conn.ExecuteAsync(Sql.ReadTextFile("seed-test-data.sql"));
+                await conn.ExecuteAsync(TestHelper.Resources.ReadTextFile(@"IOnymous/Config/seed-test-data.sql"));
             }
         }
 
         [Fact]
         public void Can_deserialize_various_types()
         {
-            var testDto = new TestDto(_configuration);
+            var testDto = new TestDto(TestHelper.Resources);
 
             Assert.Equal("Tower Bridge", testDto.String);
             Assert.Equal(true, testDto.Boolean);
@@ -66,7 +40,7 @@ namespace Reusable.IOnymous.Config.Providers
         [Fact]
         public void Can_update_setting()
         {
-            var testDto = new TestDto(_configuration);
+            var testDto = new TestDto(TestHelper.Resources);
             Assert.Equal("Tower Bridge", testDto.String);
             testDto.String = "Tower Bridge new";
             Assert.Equal("Tower Bridge new", testDto.String);
@@ -83,22 +57,22 @@ namespace Reusable.IOnymous.Config.Providers
     [PlainSelectorFormatter]
     public class TestDto
     {
-        private readonly IResourceProvider _configuration;
-        
-        public TestDto(IResourceProvider configuration) => _configuration = configuration;
+        private readonly IResourceRepository _resources;
+
+        public TestDto(IResourceRepository resources) => _resources = resources;
 
         public string String
         {
-            get => _configuration.ReadSetting(() => String);
-            set => _configuration.WriteSetting(() => String, value);
+            get => _resources.ReadSetting(() => String);
+            set => _resources.WriteSetting(() => String, value);
         }
 
-        public bool Boolean => _configuration.ReadSetting(() => Boolean);
-        public int Int32 => _configuration.ReadSetting(() => Int32);
-        public double Double => _configuration.ReadSetting(() => Double);
-        public decimal Decimal => _configuration.ReadSetting(() => Decimal);
-        public DateTime DateTime => _configuration.ReadSetting(() => DateTime);
-        public TimeSpan TimeSpan => _configuration.ReadSetting(() => TimeSpan);
-        public List<int> ListOfInt32 => _configuration.ReadSetting(() => ListOfInt32);
+        public bool Boolean => _resources.ReadSetting(() => Boolean);
+        public int Int32 => _resources.ReadSetting(() => Int32);
+        public double Double => _resources.ReadSetting(() => Double);
+        public decimal Decimal => _resources.ReadSetting(() => Decimal);
+        public DateTime DateTime => _resources.ReadSetting(() => DateTime);
+        public TimeSpan TimeSpan => _resources.ReadSetting(() => TimeSpan);
+        public List<int> ListOfInt32 => _resources.ReadSetting(() => ListOfInt32);
     }
 }

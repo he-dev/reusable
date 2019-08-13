@@ -16,18 +16,12 @@ namespace Reusable.IOnymous.Config
 {
     public class AppSettingProvider : SettingProvider
     {
-        public AppSettingProvider() : base(ImmutableContainer.Empty)
-        {
-            Methods =
-                MethodCollection
-                    .Empty
-                    .Add(RequestMethod.Get, GetAsync)
-                    .Add(RequestMethod.Put, PutAsync);
-        }
+        public AppSettingProvider() : base(ImmutableContainer.Empty) { }
 
         public ITypeConverter ResourceConverter { get; set; } = new NullConverter();
 
-        private Task<IResource> GetAsync(Request request)
+        [ResourceGet]
+        public Task<IResource> GetSettingAsync(Request request)
         {
             var settingIdentifier = GetResourceName(request.Uri);
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
@@ -50,7 +44,8 @@ namespace Reusable.IOnymous.Config
             return result.ToTask();
         }
 
-        private async Task<IResource> PutAsync(Request request)
+        [ResourcePut]
+        public async Task<IResource> SetSettingAsync(Request request)
         {
             var settingIdentifier = GetResourceName(request.Uri);
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
@@ -69,7 +64,7 @@ namespace Reusable.IOnymous.Config
 
             exeConfig.Save(ConfigurationSaveMode.Minimal);
 
-            return await GetAsync(request);
+            return await GetSettingAsync(request);
         }
 
         [CanBeNull]

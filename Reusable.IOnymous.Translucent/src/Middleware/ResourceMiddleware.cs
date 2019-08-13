@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Caching.Memory;
+using Reusable.Exceptionize;
 
 namespace Reusable.IOnymous.Middleware
 {
@@ -14,8 +15,9 @@ namespace Reusable.IOnymous.Middleware
     {
         private static readonly IEnumerable<ResourceProviderFilterCallback> Filters = new ResourceProviderFilterCallback[]
         {
-            ResourceProviderFilters.FilterByName,
-            ResourceProviderFilters.FilterByScheme
+            ResourceProviderFilters.FilterByUriScheme,
+            ResourceProviderFilters.FilterByUriPath,
+            ResourceProviderFilters.FilterByProviderTags,
         };
 
         private readonly IImmutableList<IResourceProvider> _providers;
@@ -59,7 +61,12 @@ namespace Reusable.IOnymous.Middleware
                 // Other methods are allowed to use only a single provider.
                 else
                 {
-                    context.Response = await InvokeAsync(_cache.Set(providerKey, filtered.SingleOrThrow()), context.Request);
+                    var resourceProvider =
+                        _cache.Set(
+                            providerKey,
+                            filtered.SingleOrThrow(
+                                onEmpty: () => DynamicException.Create("ResourceProviderNotFound", $"Could not get resource '{context.Request.Uri.ToString()}'.")));
+                    context.Response = await InvokeAsync(resourceProvider, context.Request);
                 }
             }
 
@@ -77,6 +84,48 @@ namespace Reusable.IOnymous.Middleware
             return (Task<IResource>)method.Invoke(provider, new object[] { request });
         }
 
+
         // crud
     }
+
+//    {
+//    if (Methods is null)
+//    {
+//        throw new InvalidOperationException
+//        (
+//            $"{nameof(Methods)} property is not initialized. " +
+//            $"You must specify at least one method by initializing this property in the derived type."
+//        );
+//    }
+//
+//    if (request.Method == RequestMethod.None)
+//    {
+//        throw new ArgumentException(paramName: nameof(request), message: $"You must specify a request method. '{RequestMethod.None}' is not one of them.");
+//    }
+//
+//    if (Methods.TryGetMethod(request.Method, out var method))
+//    {
+//        try
+//        {
+//            return new ResourceExceptionHandler(await method(request));
+//        }
+//        catch (Exception inner)
+//        {
+//            throw DynamicException.Create
+//            (
+//                $"Request",
+//                $"An error occured in {ResourceProviderHelper.FormatNames(this)} " +
+//                $"while trying to {RequestHelper.FormatMethodName(request)} '{request.Uri}'. See the inner exception for details.",
+//                inner
+//            );
+//        }
+//    }
+//
+//    throw DynamicException.Create
+//    (
+//    $"MethodNotSupported",
+//    $"{ResourceProviderHelper.FormatNames(this)} " +
+//    $"cannot {RequestHelper.FormatMethodName(request)} '{request.Uri}' because it doesn't support it."
+//    );
+//    }
 }

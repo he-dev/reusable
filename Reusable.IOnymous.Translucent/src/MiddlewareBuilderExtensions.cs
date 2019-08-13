@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Reusable.IOnymous.Config;
 using Reusable.IOnymous.Middleware;
 
 namespace Reusable.IOnymous
@@ -21,10 +23,25 @@ namespace Reusable.IOnymous
         {
             return builder.Add<ResourceMiddleware>(providers);
         }
+        
+        public static MiddlewareBuilder UseResources(this MiddlewareBuilder builder, params IResourceProvider[] providers)
+        {
+            return builder.UseResources(providers.AsEnumerable());
+        }
 
         public static MiddlewareBuilder UseTelemetry(this MiddlewareBuilder builder)
         {
             return builder.Add<TelemetryMiddleware>();
         }
+        
+//        public static MiddlewareBuilder UseAppSetting(this MiddlewareBuilder builder)
+//        {
+//            return builder.Add<AppSettingProvider>();
+//        }
+        
+//        public static MiddlewareBuilder UseResourceProvider(this MiddlewareBuilder builder, IResourceProvider resourceProvider)
+//        {
+//            return builder.Add<AppSettingProvider>();
+//        }
     }
 }
