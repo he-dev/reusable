@@ -3,28 +3,31 @@ using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.IOnymous;
 using Reusable.IOnymous.Controllers;
-using Reusable.IOnymous.Http.Mailr.Models;
 using Reusable.Teapot;
+using Reusable.Utilities.Mailr;
+using Reusable.Utilities.Mailr.Models;
 using Reusable.Utilities.XUnit.Fixtures;
 using Xunit;
 
 namespace Reusable.IOnymous.Http.Mailr
 {
-    public class HttpProviderExtensionsTest : IDisposable, IClassFixture<TeapotServerFixture>
+    public class HttpControllerTest : IDisposable, IClassFixture<TeapotServerFixture>
     {
         private readonly ITeapotServerContext _serverContext;
 
         private readonly IResourceSquid _resources;
 
-        public HttpProviderExtensionsTest(TeapotServerFixture teapotServerFixture)
+        public HttpControllerTest(TeapotServerFixture teapotServerFixture)
         {
             _serverContext = teapotServerFixture.GetServer("http://localhost:30002").BeginScope();
 
             _resources =
                 ResourceSquid
                     .Builder
-                    .AddController(HttpController.FromBaseUri("http://localhost:30002/api",
-                        ImmutableContainer.Empty.UpdateItem(ResourceControllerProperties.Tags, tags => tags.Add("Mailr"))))
+                    .AddController(
+                        HttpController.FromBaseUri(
+                            "http://localhost:30002/api",
+                            ImmutableContainer.Empty.UpdateItem(ResourceControllerProperties.Tags, tags => tags.Add("Mailr"))))
                     .Build();
         }
 

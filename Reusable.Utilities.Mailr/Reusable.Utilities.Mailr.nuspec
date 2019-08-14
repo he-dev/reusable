@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.IOnymous.Http.Mailr</id>
+    <id>Reusable.Utilities.Mailr</id>
     <version>13.0.0</version>
-    <title>Reusable.IOnymous.Http.Mailr</title>
+    <title>Reusable.Utilities.Mailr</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <license type="expression">MIT</license>
@@ -22,9 +22,9 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\net47\Reusable.IOnymous.Http.Mailr.dll" target="lib\net47" />
-    <file src="bin\Release\net47\Reusable.IOnymous.Http.Mailr.pdb" target="lib\net47" />
-    <file src="bin\Release\netcoreapp2.2\Reusable.IOnymous.Http.Mailr.dll" target="lib\netcoreapp2.2" />
-    <file src="bin\Release\netcoreapp2.2\Reusable.IOnymous.Http.Mailr.pdb" target="lib\netcoreapp2.2" />
+    <file src="bin\Release\net47\Reusable.Utilities.Mailr.dll" target="lib\net47" />
+    <file src="bin\Release\net47\Reusable.Utilities.Mailr.pdb" target="lib\net47" />
+    <file src="bin\Release\netcoreapp2.2\Reusable.Utilities.Mailr.dll" target="lib\netcoreapp2.2" />
+    <file src="bin\Release\netcoreapp2.2\Reusable.Utilities.Mailr.pdb" target="lib\netcoreapp2.2" />
   </files>
 </package>

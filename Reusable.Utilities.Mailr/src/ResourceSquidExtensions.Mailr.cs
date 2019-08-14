@@ -8,18 +8,18 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Extensions;
-using Reusable.IOnymous.Config;
+using Reusable.IOnymous;
+using Reusable.Utilities.Mailr.Models;
 using Reusable.IOnymous.Controllers;
 using Reusable.IOnymous.Http;
 using Reusable.IOnymous.Http.Formatting;
-using Reusable.IOnymous.Http.Mailr.Models;
 using Reusable.OneTo1;
 using Reusable.Quickey;
 
-namespace Reusable.IOnymous
+namespace Reusable.Utilities.Mailr
 {
     // Provides CRUD APIs.
-    public static partial class ResourceSquidExtensions
+    public static class ResourceSquidExtensions
     {
         public static async Task<string> SendEmailAsync
         (
@@ -28,21 +28,20 @@ namespace Reusable.IOnymous
             UserAgent userAgent,
             Email email,
             string providerName
-            //[CanBeNull] IImmutableContainer properties = default
         )
         {
             var properties =
                 ImmutableContainer
                     .Empty
-                    .SetItem(HttpRequestContext.ConfigureHeaders, headers =>
+                    .SetItem(HttpRequestMetadata.ConfigureHeaders, headers =>
                     {
                         headers
                             .UserAgent(userAgent.ProductName, userAgent.ProductVersion)
                             .AcceptHtml();
                     })
-                    .SetItem(HttpRequestContext.ContentType, "application/json")
-                    .SetItem(HttpResponseContext.Formatters, new[] { new TextMediaTypeFormatter() })
-                    .SetItem(HttpResponseContext.ContentType, "application/json")
+                    .SetItem(HttpRequestMetadata.ContentType, "application/json")
+                    .SetItem(HttpResponseMetadata.Formatters, new[] { new TextMediaTypeFormatter() })
+                    .SetItem(HttpResponseMetadata.ContentType, "application/json")
                     .UpdateItem(ResourceControllerProperties.Tags, tags => tags.Add(providerName.ToSoftString()));
 
             var response = await resourceSquid.InvokeAsync(new Request.Post(uri)

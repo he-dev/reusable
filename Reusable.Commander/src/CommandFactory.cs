@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Custom;
 using Autofac;
 using Reusable.Exceptionize;
@@ -26,9 +27,8 @@ namespace Reusable.Commander
         public ICommand CreateCommand(NameSet commandName)
         {
             var commands = _scope.Resolve<IEnumerable<ICommand>>();
-            return commands.SingleOrThrow
+            return commands.Where(cmd => cmd.Name == commandName).SingleOrThrow
             (
-                predicate: cmd => cmd.Name == commandName,
                 onEmpty: () => DynamicException.Create($"CommandNotFound", $"Could not find command '{commandName.Default}'.")
             );
         }

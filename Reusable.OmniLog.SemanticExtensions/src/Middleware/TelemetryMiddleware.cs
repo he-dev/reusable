@@ -4,8 +4,10 @@ using JetBrains.Annotations;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
+//using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.SemanticExtensions;
 
+// ReSharper disable once CheckNamespace
 namespace Reusable.IOnymous.Middleware
 {
     [UsedImplicitly]
@@ -37,6 +39,14 @@ namespace Reusable.IOnymous.Middleware
             {
                 stopwatch.Dispose();
             }
+        }
+    }
+
+    public static class TelemetryMiddlewareHelper
+    {
+        public static MiddlewareBuilder UseTelemetry(this MiddlewareBuilder builder)
+        {
+            return builder.Add<TelemetryMiddleware>();
         }
     }
 }

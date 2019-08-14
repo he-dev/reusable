@@ -10,12 +10,11 @@ namespace Reusable.IOnymous.Controllers
     [PublicAPI]
     public class PhysicalFileController : ResourceController
     {
-        public PhysicalFileController(IImmutableContainer properties = default) 
+        public PhysicalFileController(IImmutableContainer properties = default)
             : base(properties.ThisOrEmpty()
                 .UpdateItem(ResourceControllerProperties.Schemes, s => s.Add(UriSchemes.Known.File))
                 .SetItem(ResourceControllerProperties.SupportsRelativeUri, true)
-            ) 
-        { }
+            ) { }
 
         [ResourceGet]
         public Task<IResource> GetFileAsync(Request request)
@@ -48,17 +47,17 @@ namespace Reusable.IOnymous.Controllers
             return
                 Path.IsPathRooted(uri.Path.Decoded.ToString())
                     ? uri
-                    : Properties.TryGetItem(PropertySelectors.BaseUri, out var baseUri)
+                    : Properties.TryGetItem(PhysicalFileControllerProperties.BaseUri, out var baseUri)
                         ? baseUri + uri.Path.Decoded.ToString()
                         : uri;
         }
+    }
 
-        [UseType, UseMember]
-        [PlainSelectorFormatter]
-        public class PropertySelectors : SelectorBuilder<PropertySelectors>
-        {
-            public static Selector<UriString> BaseUri { get; } = Select(() => BaseUri);
-        }
+    [UseType, UseMember]
+    [PlainSelectorFormatter]
+    public class PhysicalFileControllerProperties : SelectorBuilder<PhysicalFileControllerProperties>
+    {
+        public static Selector<UriString> BaseUri { get; } = Select(() => BaseUri);
     }
 
     [PublicAPI]

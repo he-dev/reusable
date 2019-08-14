@@ -88,11 +88,11 @@ namespace Reusable.IOnymous.Controllers
                 if (content != Stream.Null)
                 {
                     request.Content = new StreamContent(content.Rewind());
-                    request.Content.Headers.ContentType = new MediaTypeHeaderValue(context.GetItem(HttpRequestContext.ContentType));
+                    request.Content.Headers.ContentType = new MediaTypeHeaderValue(context.GetItem(HttpRequestMetadata.ContentType));
                 }
 
-                Properties.GetItemOrDefault(HttpRequestContext.ConfigureHeaders, _ => { })(request.Headers);
-                context.GetItemOrDefault(HttpRequestContext.ConfigureHeaders)(request.Headers);
+                Properties.GetItemOrDefault(HttpRequestMetadata.ConfigureHeaders, _ => { })(request.Headers);
+                context.GetItemOrDefault(HttpRequestMetadata.ConfigureHeaders)(request.Headers);
                 using (var response = await _client.SendAsync(request, HttpCompletionOption.ResponseContentRead, context.GetItemOrDefault(RequestProperty.CancellationToken)).ConfigureAwait(false))
                 {
                     var responseContentCopy = new MemoryStream();
@@ -137,8 +137,8 @@ namespace Reusable.IOnymous.Controllers
 
     [UseType, UseMember]
     [PlainSelectorFormatter]
-    [Rename(nameof(HttpRequestContext))]
-    public class HttpRequestContext : SelectorBuilder<HttpRequestContext>
+    [Rename(nameof(HttpRequestMetadata))]
+    public class HttpRequestMetadata : SelectorBuilder<HttpRequestMetadata>
     {
         public static Selector<Action<HttpRequestHeaders>> ConfigureHeaders = Select(() => ConfigureHeaders);
 
@@ -149,8 +149,8 @@ namespace Reusable.IOnymous.Controllers
 
     [UseType, UseMember]
     [PlainSelectorFormatter]
-    [Rename(nameof(HttpResponseContext))]
-    public class HttpResponseContext : SelectorBuilder<HttpRequestContext>
+    [Rename(nameof(HttpResponseMetadata))]
+    public class HttpResponseMetadata : SelectorBuilder<HttpRequestMetadata>
     {
         public static Selector<IEnumerable<MediaTypeFormatter>> Formatters = Select(() => Formatters);
 

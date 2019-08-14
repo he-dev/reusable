@@ -35,10 +35,8 @@
     <ProjectReference Include="..\Reusable.Data\Reusable.Data.csproj" />
     <ProjectReference Include="..\Reusable.Flexo\Reusable.Flexo.csproj" />
     <ProjectReference Include="..\Reusable.IOnymous.Config\Reusable.IOnymous.Config.csproj" />
-    <ProjectReference Include="..\Reusable.IOnymous.Http.Mailr\Reusable.IOnymous.Http.Mailr.csproj" />
     <ProjectReference Include="..\Reusable.IOnymous.Http\Reusable.IOnymous.Http.csproj" />
     <ProjectReference Include="..\Reusable.IOnymous.Mail.Smtp\Reusable.IOnymous.Mail.Smtp.csproj" />
-    <ProjectReference Include="..\Reusable.IOnymous.Translucent\Reusable.IOnymous.Translucent.csproj" />
     <ProjectReference Include="..\Reusable.IOnymous\Reusable.IOnymous.csproj" />
     <ProjectReference Include="..\Reusable.OneTo1\Reusable.OneTo1.csproj" />
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
@@ -51,6 +49,7 @@
     <ProjectReference Include="..\Reusable.Quickey\Reusable.Quickey.csproj" />
     <ProjectReference Include="..\Reusable.SemanticVersion\Reusable.SemanticVersion.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
+    <ProjectReference Include="..\Reusable.Utilities.Mailr\Reusable.Utilities.Mailr.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.NLog\Reusable.Utilities.NLog.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.SqlClient\Reusable.Utilities.SqlClient.csproj" />
   </ItemGroup>
@@ -77,6 +76,48 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>NLog.config</LastGenOutput>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <_UnmanagedRegistrationCache Remove="obj\Reusable.app.Console.csproj.UnmanagedRegistration.cache" />
+    <_UnmanagedRegistrationCache Remove="obj\Reusable.app.Console.csproj.UnmanagedRegistration.cache" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ResolveComReferenceCache Remove="obj\Debug\netcoreapp2.2\Reusable.app.Console.csproj.ResolveComReference.cache" />
+    <_ResolveComReferenceCache Remove="obj\Debug\netcoreapp2.2\Reusable.app.Console.csproj.ResolveComReference.cache" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <IntermediateAssembly Remove="obj\Debug\netcoreapp2.2\Reusable.app.Console.dll" />
+    <IntermediateAssembly Remove="obj\Debug\netcoreapp2.2\Reusable.app.Console.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_DebugSymbolsIntermediatePath Remove="obj\Debug\netcoreapp2.2\Reusable.app.Console.pdb" />
+    <_DebugSymbolsIntermediatePath Remove="obj\Debug\netcoreapp2.2\Reusable.app.Console.pdb" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_DeploymentManifestEntryPoint Remove="obj\Debug\netcoreapp2.2\Reusable.app.Console.dll" />
+    <_DeploymentManifestEntryPoint Remove="obj\Debug\netcoreapp2.2\Reusable.app.Console.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ApplicationManifest Remove="obj\Debug\netcoreapp2.2\Reusable.app.Console.dll.manifest" />
+    <ApplicationManifest Remove="obj\Debug\netcoreapp2.2\Reusable.app.Console.dll.manifest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <DeployManifest Remove="obj\Debug\netcoreapp2.2\Reusable.app.Console.application" />
+    <DeployManifest Remove="obj\Debug\netcoreapp2.2\Reusable.app.Console.application" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Clean Remove="obj\Debug\netcoreapp2.2\\TempCA\Reusable.app.Console.pdb" />
+    <Clean Remove="obj\Debug\netcoreapp2.2\\TempCA\Reusable.app.Console.dll" />
+    <Clean Remove="obj\Debug\netcoreapp2.2\\TempCA\Reusable.app.Console.pdb" />
+    <Clean Remove="obj\Debug\netcoreapp2.2\\TempCA\Reusable.app.Console.dll" />
   </ItemGroup>
   
 <!--  <ItemGroup>-->

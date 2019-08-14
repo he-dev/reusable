@@ -32,7 +32,7 @@ namespace Reusable.IOnymous.Controllers
         {
             // Embedded resource names are separated by '.' so replace the windows separator.
 
-            var baseUri = Properties.GetItemOrDefault(PropertySelectors.BaseUri);
+            var baseUri = Properties.GetItemOrDefault(EmbeddedFileControllerProperties.BaseUri);
 
             var fullUri = baseUri is null ? request.Uri : baseUri + request.Uri.Path;
             var fullName = fullUri.Path.Decoded.ToString().Replace('/', '.');
@@ -45,25 +45,25 @@ namespace Reusable.IOnymous.Controllers
                     ? DoesNotExist(request).ToTask()
                     : new EmbeddedFile(request.Metadata.Copy<ResourceProperties>().SetItem(ResourceProperties.Uri, fullUri), () => _assembly.GetManifestResourceStream(actualName)).ToTask<IResource>();
         }
+    }
 
-        [UseType, UseMember]
-        [PlainSelectorFormatter]
-        public class PropertySelectors : SelectorBuilder<PropertySelectors>
-        {
-            public static Selector<UriString> BaseUri { get; } = Select(() => BaseUri);
-        }
+    [UseType, UseMember]
+    [PlainSelectorFormatter]
+    public class EmbeddedFileControllerProperties : SelectorBuilder<EmbeddedFileControllerProperties>
+    {
+        public static Selector<UriString> BaseUri { get; } = Select(() => BaseUri);
     }
 
     public class EmbeddedFileController<T> : EmbeddedFileController
     {
         public static IResourceController Default { get; } = new EmbeddedFileController(typeof(T).Assembly, ImmutableContainer.Empty);
 
-        public static IResourceController Create(string basePath) => new EmbeddedFileController(typeof(T).Assembly, ImmutableContainer.Empty.SetItem(PropertySelectors.BaseUri, basePath));
+        public static IResourceController Create(string basePath) => new EmbeddedFileController(typeof(T).Assembly, ImmutableContainer.Empty.SetItem(EmbeddedFileControllerProperties.BaseUri, basePath));
 
         public EmbeddedFileController(IImmutableContainer properties = default) : base(typeof(T).Assembly, properties) { }
 
         public EmbeddedFileController(string baseUri)
-            : base(typeof(T).Assembly, ImmutableContainer.Empty.SetItem(PropertySelectors.BaseUri, baseUri)) { }
+            : base(typeof(T).Assembly, ImmutableContainer.Empty.SetItem(EmbeddedFileControllerProperties.BaseUri, baseUri)) { }
     }
 
     internal class EmbeddedFile : Resource

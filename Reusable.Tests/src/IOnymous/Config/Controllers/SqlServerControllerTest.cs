@@ -1,17 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Dapper;
 using Reusable.Data.Repositories;
-using Reusable.Extensions;
 using Reusable.Quickey;
 using Xunit;
 
-namespace Reusable.IOnymous.Config.Providers
+namespace Reusable.IOnymous.Config.Controllers
 {
-    public class SqlServerProviderTest : IAsyncLifetime
+    public class SqlServerControllerTest : IAsyncLifetime
     {
         public async Task InitializeAsync()
         {

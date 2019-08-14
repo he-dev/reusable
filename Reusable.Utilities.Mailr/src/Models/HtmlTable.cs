@@ -5,8 +5,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 
-// ReSharper disable once CheckNamespace
-namespace Reusable.IOnymous.Http.Mailr.Models
+namespace Reusable.Utilities.Mailr.Models
 {
     public class HtmlTable
     {

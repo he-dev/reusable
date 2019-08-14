@@ -69,7 +69,7 @@ namespace Reusable.IOnymous.Controllers
                             request
                                 .Metadata
                                 .Copy<ResourceProperties>()
-                                .SetItem(SettingProperty.Converter, ResourceConverter)
+                                .SetItem(SettingControllerProperties.Converter, ResourceConverter)
                         );
                     }
                     else

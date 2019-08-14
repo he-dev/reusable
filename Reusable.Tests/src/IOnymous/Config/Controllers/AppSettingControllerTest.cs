@@ -2,11 +2,11 @@ using System.Threading.Tasks;
 using Reusable.Quickey;
 using Xunit;
 
-namespace Reusable.IOnymous.Config.Providers
+namespace Reusable.IOnymous.Config.Controllers
 {
-    public class AppSettingProviderTest
+    public class AppSettingControllerTest
     {
-        public AppSettingProviderTest()
+        public AppSettingControllerTest()
         {
             SeedAppSettings();
         }

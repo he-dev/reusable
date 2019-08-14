@@ -1,18 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.IO;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
-using Reusable.IOnymous.Config;
 using Reusable.IOnymous.Controllers;
 using Reusable.OneTo1;
 using Reusable.Quickey;
 
-namespace Reusable.IOnymous
+namespace Reusable.IOnymous.Config
 {
     // Provides CRUD APIs.
     public static partial class ResourceSquidExtensions
@@ -23,7 +20,7 @@ namespace Reusable.IOnymous
             using (var resource = await resourceSquid.InvokeAsync(request))
             {
                 var value = await resource.DeserializeAsync();
-                var converter = resource.Properties.GetItemOrDefault(SettingProperty.Converter);
+                var converter = resource.Properties.GetItemOrDefault(SettingControllerProperties.Converter);
                 return converter?.Convert(value, resource.Properties.GetItem(ResourceProperties.DataType)) ?? value;
             }
         }

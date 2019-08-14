@@ -22,10 +22,10 @@ namespace Reusable.IOnymous.Controllers
         public async Task<IResource> SendEmailAsync(Request request)
         {
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(request.Metadata.GetItemOrDefault(MailRequestContext.From)));
-            message.To.AddRange(request.Metadata.GetItemOrDefault(MailRequestContext.To).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
-            message.Cc.AddRange(request.Metadata.GetItemOrDefault(MailRequestContext.CC, Enumerable.Empty<string>().ToList()).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
-            message.Subject = request.Metadata.GetItemOrDefault(MailRequestContext.Subject);
+            message.From.Add(new MailboxAddress(request.Metadata.GetItemOrDefault(MailRequestMetadata.From)));
+            message.To.AddRange(request.Metadata.GetItemOrDefault(MailRequestMetadata.To).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
+            message.Cc.AddRange(request.Metadata.GetItemOrDefault(MailRequestMetadata.CC, Enumerable.Empty<string>().ToList()).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
+            message.Subject = request.Metadata.GetItemOrDefault(MailRequestMetadata.Subject);
             var multipart = new Multipart("mixed");
 //            {
 //                new TextPart(request.Properties.GetItemOrDefault(From<IMailMeta>.Select(x => x.IsHtml)) ? TextFormat.Html : TextFormat.Plain)
@@ -36,13 +36,13 @@ namespace Reusable.IOnymous.Controllers
 
             using (var body = await request.CreateBodyStreamAsync())
             {
-                multipart.Add(new TextPart(request.Metadata.GetItemOrDefault(MailRequestContext.IsHtml) ? TextFormat.Html : TextFormat.Plain)
+                multipart.Add(new TextPart(request.Metadata.GetItemOrDefault(MailRequestMetadata.IsHtml) ? TextFormat.Html : TextFormat.Plain)
                 {
                     Text = await ReadBodyAsync(body, request.Metadata)
                 });
             }
 
-            foreach (var attachment in request.Metadata.GetItemOrDefault(MailRequestContext.Attachments, new Dictionary<string, byte[]>()).Where(i => i.Key.IsNotNullOrEmpty() && i.Value.IsNotNull()))
+            foreach (var attachment in request.Metadata.GetItemOrDefault(MailRequestMetadata.Attachments, new Dictionary<string, byte[]>()).Where(i => i.Key.IsNotNullOrEmpty() && i.Value.IsNotNull()))
             {
                 var attachmentPart = new MimePart(MediaTypeNames.Application.Octet)
                 {
@@ -60,9 +60,9 @@ namespace Reusable.IOnymous.Controllers
             {
                 await smtpClient.ConnectAsync
                 (
-                    request.Metadata.GetItemOrDefault(SmtpRequestContext.Host),
-                    request.Metadata.GetItemOrDefault(SmtpRequestContext.Port),
-                    request.Metadata.GetItemOrDefault(SmtpRequestContext.UseSsl, false)
+                    request.Metadata.GetItemOrDefault(SmtpRequestMetadata.Host),
+                    request.Metadata.GetItemOrDefault(SmtpRequestMetadata.Port),
+                    request.Metadata.GetItemOrDefault(SmtpRequestMetadata.UseSsl, false)
                 );
                 await smtpClient.SendAsync(message);
             }
@@ -73,8 +73,8 @@ namespace Reusable.IOnymous.Controllers
 
     [UseType, UseMember]
     [PlainSelectorFormatter]
-    [Rename(nameof(SmtpRequestContext))]
-    public class SmtpRequestContext : SelectorBuilder<SmtpRequestContext>
+    [Rename(nameof(SmtpRequestMetadata))]
+    public class SmtpRequestMetadata : SelectorBuilder<SmtpRequestMetadata>
     {
         public static Selector<string> Host = Select(() => Host);
 

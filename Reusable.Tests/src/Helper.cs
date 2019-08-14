@@ -5,19 +5,17 @@ using Reusable.IOnymous.Controllers;
 
 namespace Reusable
 {
-    internal class Dummy { }
-
-    public static class TestHelper
+    public abstract class TestHelper
     {
         public static readonly string ConnectionString = "Data Source=(local);Initial Catalog=TestDb;Integrated Security=SSPI;";
 
         public static readonly IResourceSquid Resources =
             ResourceSquid
                 .Builder
-                .AddController(new EmbeddedFileController<Dummy>(@"Reusable/res/IOnymous"))
-                .AddController(new EmbeddedFileController<Dummy>(@"Reusable/res/Flexo"))
-                .AddController(new EmbeddedFileController<Dummy>(@"Reusable/res/Utilities/JsonNet"))
-                .AddController(new EmbeddedFileController<Dummy>(@"Reusable/sql"))
+                .AddController(new EmbeddedFileController<TestHelper>(@"Reusable/res/IOnymous"))
+                .AddController(new EmbeddedFileController<TestHelper>(@"Reusable/res/Flexo"))
+                .AddController(new EmbeddedFileController<TestHelper>(@"Reusable/res/Utilities/JsonNet"))
+                .AddController(new EmbeddedFileController<TestHelper>(@"Reusable/sql"))
                 .AddController(new AppSettingController())
                 .AddController(new SqlServerController(ConnectionString)
                 {

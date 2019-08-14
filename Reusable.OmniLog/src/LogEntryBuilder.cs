@@ -1,22 +1,10 @@
 using Reusable.Extensions;
+using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Nodes;
 
 namespace Reusable.OmniLog
 {
-    public interface ILogEntryBuilder
-    {
-        string Name { get; }
-        
-        LogEntry Build();
-    }
-
-    // Base interface for the first tier "layer"
-    public interface ILogEntryBuilder<T> : ILogEntryBuilder
-    {
-        ILogEntryBuilder<T> Update(AlterLogEntryCallback alterLogEntry);
-    }
-    
     public readonly struct LogEntryBuilder<T> : ILogEntryBuilder<T>
     {
         private readonly LogEntry _logEntry;
@@ -26,7 +14,7 @@ namespace Reusable.OmniLog
             _logEntry = logEntry;
             Name = name;
         }
-        
+
         public LogEntryBuilder(ILogEntryBuilder other)
         {
             _logEntry = other.Build();

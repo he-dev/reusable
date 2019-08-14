@@ -28,13 +28,11 @@
     <ProjectReference Include="..\Reusable.Data\Reusable.Data.csproj" />
     <ProjectReference Include="..\Reusable.Flawless\Reusable.Flawless.csproj" />
     <ProjectReference Include="..\Reusable.IOnymous.Config\Reusable.IOnymous.Config.csproj" />
-    <ProjectReference Include="..\Reusable.IOnymous.Http.Mailr\Reusable.IOnymous.Http.Mailr.csproj" />
     <ProjectReference Include="..\Reusable.IOnymous.Http\Reusable.IOnymous.Http.csproj" />
     <ProjectReference Include="..\Reusable.IOnymous.Mail.Smtp\Reusable.IOnymous.Mail.Smtp.csproj" />
     <ProjectReference Include="..\Reusable.IOnymous.Mail\Reusable.IOnymous.Mail.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog.Abstractions\Reusable.OmniLog.Abstractions.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog.SemanticExtensions\Reusable.OmniLog.SemanticExtensions.csproj" />
-    <ProjectReference Include="..\Reusable.OmniLog\Reusable.OmniLog.csproj" />
     <ProjectReference Include="..\Reusable.OneTo1\Reusable.OneTo1.csproj" />
     <ProjectReference Include="..\Reusable.Quickey\Reusable.Quickey.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
@@ -51,6 +49,10 @@
     <Compile Remove="src\_properties\ProviderProperties.cs" />
     <Compile Remove="src\_properties\RequestProperties.cs" />
     <Compile Remove="src\_properties\ResourceProperties.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="src" />
   </ItemGroup>
 
 </Project>

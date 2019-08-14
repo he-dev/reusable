@@ -43,7 +43,7 @@ namespace Reusable.IOnymous.Controllers
                             .Metadata
                             .Copy<ResourceProperties>()
                             .SetItem(ResourceProperties.Uri, request.Uri)
-                            .SetItem(SettingProperty.Converter, ResourceConverter)
+                            .SetItem(SettingControllerProperties.Converter, ResourceConverter)
                     );
             return result.ToTask();
         }

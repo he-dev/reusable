@@ -54,7 +54,7 @@ namespace Reusable.Flexo
                     .SingleOrThrow
                     (
                         onEmpty: () => DynamicException.Create("MemberNotFound", $"Type '{type.ToPrettyString()}' does not have any members with the name '{memberName}'."),
-                        onMultiple: () => DynamicException.Create("MultipleMembersFound", $"Type '{type.ToPrettyString()}' has more than one member with the name '{memberName}'.")
+                        onMany: () => DynamicException.Create("MultipleMembersFound", $"Type '{type.ToPrettyString()}' has more than one member with the name '{memberName}'.")
                     );
 
             switch (member)

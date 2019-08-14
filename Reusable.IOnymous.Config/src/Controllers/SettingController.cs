@@ -21,7 +21,7 @@ namespace Reusable.IOnymous.Controllers
 
     [UseType, UseMember]
     [PlainSelectorFormatter]
-    public class SettingProperty : SelectorBuilder<SettingProperty>
+    public class SettingControllerProperties : SelectorBuilder<SettingControllerProperties>
     {
         public static Selector<ITypeConverter> Converter { get; } = Select(() => Converter);
     }

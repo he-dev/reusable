@@ -231,9 +231,23 @@ namespace System.Linq.Custom
             return x => filters.Any(f => f(x));
         }
 
-        public static T SingleOrThrow<T>([NotNull] this IEnumerable<T> source, Func<Exception> onEmpty = null, Func<Exception> onMultiple = null)
+        public static T SingleOrThrow<T>([NotNull] this IEnumerable<T> source, Func<Exception> onEmpty = null, Func<Exception> onMany = null)
         {
-            return source.SingleOrThrow(_ => true, onEmpty, onMultiple);
+            //return source.SingleOrThrow(_ => true, onEmpty, onMultiple);
+            
+            if (source == null) throw new ArgumentNullException(nameof(source));
+
+            var items = source.Take(2).ToList();
+
+            onEmpty = onEmpty ?? (() => DynamicException.Create("Empty", $"{source.GetType().ToPrettyString()} does not contain any elements that match the specified predicate."));
+            onMany = onMany ?? (() => DynamicException.Create("Many", $"{source.GetType().ToPrettyString()} contains more than one element that matches the specified predicate."));
+
+            switch (items.Count)
+            {
+                case 0: throw onEmpty();
+                case 1: return items[0];
+                default: throw onMany();
+            }
         }
 
 //        public static T SingleOrThrow<T>([NotNull] this IEnumerable<T> source, (string Name, string Message)? onEmpty = null, (string Name, string Message)? onMany = null)
@@ -246,22 +260,22 @@ namespace System.Linq.Custom
 //            );
 //        }
 
-        public static T SingleOrThrow<T>([NotNull] this IEnumerable<T> source, Func<T, bool> predicate, Func<Exception> onEmpty = null, Func<Exception> onMany = null)
-        {
-            if (source == null) throw new ArgumentNullException(nameof(source));
-
-            var items = source.Where(predicate).Take(2).ToList();
-
-            onEmpty = onEmpty ?? (() => DynamicException.Create("Empty", $"{source.GetType().ToPrettyString()} does not contain any elements that match the specified predicate."));
-            onMany = onMany ?? (() => DynamicException.Create("Many", $"{source.GetType().ToPrettyString()} contains more than one element that matches the specified predicate."));
-
-            switch (items.Count)
-            {
-                case 0: throw onEmpty();
-                case 1: return items[0];
-                default: throw onMany();
-            }
-        }
+//        public static T SingleOrThrow<T>([NotNull] this IEnumerable<T> source, Func<T, bool> predicate, Func<Exception> onEmpty = null, Func<Exception> onMany = null)
+//        {
+//            if (source == null) throw new ArgumentNullException(nameof(source));
+//
+//            var items = source.Where(predicate).Take(2).ToList();
+//
+//            onEmpty = onEmpty ?? (() => DynamicException.Create("Empty", $"{source.GetType().ToPrettyString()} does not contain any elements that match the specified predicate."));
+//            onMany = onMany ?? (() => DynamicException.Create("Many", $"{source.GetType().ToPrettyString()} contains more than one element that matches the specified predicate."));
+//
+//            switch (items.Count)
+//            {
+//                case 0: throw onEmpty();
+//                case 1: return items[0];
+//                default: throw onMany();
+//            }
+//        }
 
         public static int CalcHashCode<T>([NotNull, ItemCanBeNull] this IEnumerable<T> values)
         {

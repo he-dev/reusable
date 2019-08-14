@@ -33,7 +33,7 @@ namespace Reusable.OmniLog.Nodes
         }
     }
 
-    public delegate void AlterLogEntryCallback(LogEntry logEntry);
+    
     
     public static class LoggerLambdaHelper
     {

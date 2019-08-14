@@ -7,8 +7,6 @@ using Reusable.Diagnostics;
 using Reusable.IOnymous;
 using Reusable.IOnymous.Controllers;
 using Reusable.IOnymous.Http;
-using Reusable.IOnymous.Http.Mailr;
-using Reusable.IOnymous.Http.Mailr.Models;
 using Reusable.IOnymous.Mail;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
@@ -18,6 +16,8 @@ using Reusable.OneTo1;
 using Reusable.OneTo1.Converters;
 using Reusable.Quickey;
 using Reusable.Utilities.JsonNet.Converters;
+using Reusable.Utilities.Mailr;
+using Reusable.Utilities.Mailr.Models;
 using Reusable.Utilities.NLog.LayoutRenderers;
 
 //[assembly: DebuggerDisplay("{DebuggerDisplay(),nq}", Target = typeof(Person))]
@@ -37,8 +37,8 @@ namespace Reusable
             var context =
                 ImmutableContainer
                     .Empty
-                    .SetItem(SmtpRequestContext.Host, "localhost")
-                    .SetItem(SmtpRequestContext.Port, 25);
+                    .SetItem(SmtpRequestMetadata.Host, "localhost")
+                    .SetItem(SmtpRequestMetadata.Port, 25);
 
             await resources.SendEmailAsync(new Email<EmailSubject, EmailBody>
             {

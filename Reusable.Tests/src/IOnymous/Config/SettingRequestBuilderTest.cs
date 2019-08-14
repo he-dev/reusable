@@ -12,7 +12,7 @@ namespace Reusable.IOnymous.Config
         [Fact]
         public void Can_create_request()
         {
-            var body = new Object();
+            var body = new object();
             var request = SettingRequestBuilder.CreateRequest(RequestMethod.Get, From<Map>.Select(x => x.City), body);
             Assert.Equal(RequestMethod.Get, request.Method);
             Assert.Equal(new UriString("config:settings?name=Map.City"), request.Uri.ToString());

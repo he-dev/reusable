@@ -1,7 +1,8 @@
 ﻿using Newtonsoft.Json;
+using Reusable.IOnymous;
 using Xunit;
 
-namespace Reusable.IOnymous.Http.Mailr.Models
+namespace Reusable.Utilities.Mailr.Models
 {
     public class HtmlTableTest
     {

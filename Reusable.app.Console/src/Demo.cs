@@ -6,8 +6,6 @@ using Reusable.Data;
 using Reusable.Diagnostics;
 using Reusable.IOnymous;
 using Reusable.IOnymous.Http;
-using Reusable.IOnymous.Http.Mailr;
-using Reusable.IOnymous.Http.Mailr.Models;
 using Reusable.IOnymous.Mail;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;

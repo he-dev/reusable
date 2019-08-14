@@ -1,13 +1,8 @@
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Newtonsoft.Json;
 
-// ReSharper disable once CheckNamespace
-namespace Reusable.IOnymous.Http.Mailr.Models
+namespace Reusable.Utilities.Mailr.Models
 {
     [PublicAPI]
     public class Email

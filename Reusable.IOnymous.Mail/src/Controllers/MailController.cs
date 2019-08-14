@@ -16,7 +16,7 @@ namespace Reusable.IOnymous.Controllers
 
         protected async Task<string> ReadBodyAsync(Stream value, IImmutableContainer metadata)
         {
-            using (var bodyReader = new StreamReader(value, metadata.GetItemOrDefault(MailRequestContext.BodyEncoding, Encoding.UTF8)))
+            using (var bodyReader = new StreamReader(value, metadata.GetItemOrDefault(MailRequestMetadata.BodyEncoding, Encoding.UTF8)))
             {
                 return await bodyReader.ReadToEndAsync();
             }
@@ -25,8 +25,8 @@ namespace Reusable.IOnymous.Controllers
 
     [UseType, UseMember]
     [PlainSelectorFormatter]
-    [Rename(nameof(MailRequestContext))]
-    public class MailRequestContext : SelectorBuilder<MailRequestContext>
+    [Rename(nameof(MailRequestMetadata))]
+    public class MailRequestMetadata : SelectorBuilder<MailRequestMetadata>
     {
         public static Selector<string> From = Select(() => From);
 
