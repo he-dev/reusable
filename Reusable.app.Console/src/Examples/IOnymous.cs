@@ -31,7 +31,7 @@ namespace Reusable
             var resources =
                 ResourceRepository
                     .Builder
-                    .AddResourceProvider(new SmtpProvider())
+                    .Resources(new SmtpProvider())
                     .Build();
             
             var context =
@@ -57,7 +57,7 @@ namespace Reusable
             var resources =
                 ResourceRepository
                     .Builder
-                    .AddResourceProvider(HttpProvider.FromBaseUri("http://localhost:7000/api"))
+                    .Resources(HttpProvider.FromBaseUri("http://localhost:7000/api"))
                     
                     .Build();
             await resources.SendEmailAsync

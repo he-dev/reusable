@@ -1,9 +1,7 @@
 using System.Threading.Tasks;
-using Autofac;
-using Reusable.Data;
 using Xunit;
 
-namespace Reusable.IOnymous
+namespace Reusable.IOnymous.Translucent
 {
     public class ResourceRepositoryTest
     {
