@@ -10,10 +10,10 @@ using Reusable.Utilities.JsonNet.Extensions;
 
 namespace Reusable.IOnymous.Config
 {
-    public abstract class SettingProvider : ResourceProvider
+    public abstract class SettingController : ResourceController
     {
-        protected SettingProvider(IImmutableContainer properties)
-            : base(properties.UpdateItem(ResourceProviderProperties.Schemes, s => s.Add("config"))) { }
+        protected SettingController(IImmutableContainer properties)
+            : base(properties.UpdateItem(ResourceControllerProperties.Schemes, s => s.Add("config"))) { }
 
         protected string GetResourceName(UriString uriString)
         {

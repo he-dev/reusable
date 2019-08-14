@@ -8,7 +8,7 @@ namespace Reusable.IOnymous.Translucent
         [Fact]
         public async Task test()
         {
-            var resources = new ResourceRepository(builder => { builder.UseResources(new EmbeddedFileProvider<ResourceRepositoryTest>(@"Reusable/res/IOnymous")); });
+            var resources = ResourceSquid.Builder.AddController(new EmbeddedFileController<ResourceRepositoryTest>(@"Reusable/res/IOnymous")).Build();
 
             var file = await resources.InvokeAsync(new Request.Get("file:///test.txt"));
 

@@ -8,10 +8,10 @@ using Reusable.Quickey;
 
 namespace Reusable.IOnymous.Mail
 {
-    public abstract class MailProvider : ResourceProvider
+    public abstract class MailController : ResourceController
     {
-        protected MailProvider(IImmutableContainer metadata)
-            : base(metadata.UpdateItem(ResourceProviderProperties.Schemes, s => s.Add(UriSchemes.Known.MailTo))) { }
+        protected MailController(IImmutableContainer metadata)
+            : base(metadata.UpdateItem(ResourceControllerProperties.Schemes, s => s.Add(UriSchemes.Known.MailTo))) { }
 
         protected async Task<string> ReadBodyAsync(Stream value, IImmutableContainer metadata)
         {

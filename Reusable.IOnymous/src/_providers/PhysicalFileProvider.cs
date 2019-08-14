@@ -13,12 +13,12 @@ using Reusable.Quickey;
 namespace Reusable.IOnymous
 {
     [PublicAPI]
-    public class PhysicalFileProvider : ResourceProvider
+    public class PhysicalFileController : ResourceController
     {
-        public PhysicalFileProvider(IImmutableContainer properties = default) 
+        public PhysicalFileController(IImmutableContainer properties = default) 
             : base(properties.ThisOrEmpty()
-                .UpdateItem(ResourceProviderProperties.Schemes, s => s.Add(UriSchemes.Known.File))
-                .SetItem(ResourceProviderProperties.SupportsRelativeUri, true)
+                .UpdateItem(ResourceControllerProperties.Schemes, s => s.Add(UriSchemes.Known.File))
+                .SetItem(ResourceControllerProperties.SupportsRelativeUri, true)
             ) 
         { }
 

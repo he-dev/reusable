@@ -8,13 +8,13 @@ using Reusable.Quickey;
 namespace Reusable.IOnymous
 {
     [PublicAPI]
-    public class PhysicalDirectoryProvider : ResourceProvider
+    public class PhysicalDirectoryController : ResourceController
     {
-        public PhysicalDirectoryProvider(IImmutableContainer properties = default)
+        public PhysicalDirectoryController(IImmutableContainer properties = default)
             : base(
                 properties
                     .ThisOrEmpty()
-                    .UpdateItem(ResourceProviderProperties.Schemes, s => s.Add("directory"))
+                    .UpdateItem(ResourceControllerProperties.Schemes, s => s.Add("directory"))
                 ) { }
 
         private Task<IResource> GetAsync(Request request)

@@ -4,30 +4,22 @@ using System.Threading.Tasks;
 
 namespace Reusable.IOnymous
 {
-    public interface IResourceRepository : IDisposable
+    public interface IResourceSquid : IDisposable
     {
         Task<IResource> InvokeAsync(Request request);
     }
 
-    public class ResourceRepository : IResourceRepository
+    public class ResourceSquid : IResourceSquid
     {
         private readonly RequestCallback<ResourceContext> _requestCallback;
 
-        public ResourceRepository(RequestCallback<ResourceContext> requestCallback)
+        public ResourceSquid(RequestCallback<ResourceContext> requestCallback)
         {
             _requestCallback = requestCallback;
         }
 
-        public ResourceRepository(Action<MiddlewareBuilder> middleware)
-            : this(new Func<RequestCallback<ResourceContext>>(() =>
-            {
-                var builder = new MiddlewareBuilder();
-                middleware(builder);
-                return builder.Build<ResourceContext>();
-            })()) { }
+        public static ResourceSquidBuilder Builder => new ResourceSquidBuilder();
 
-        public static ResourceRepositoryBuilder Builder => new ResourceRepositoryBuilder();
-        
         public async Task<IResource> InvokeAsync(Request request)
         {
             var context = new ResourceContext

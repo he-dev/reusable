@@ -13,16 +13,18 @@ namespace Reusable.IOnymous.Http.Mailr
     {
         private readonly ITeapotServerContext _serverContext;
 
-        private readonly IResourceRepository _resources;
+        private readonly IResourceSquid _resources;
 
         public HttpProviderExtensionsTest(TeapotServerFixture teapotServerFixture)
         {
             _serverContext = teapotServerFixture.GetServer("http://localhost:30002").BeginScope();
 
-            _resources = new ResourceRepository(builder =>
-                builder.UseResources(
-                    HttpProvider.FromBaseUri("http://localhost:30002/api", 
-                        ImmutableContainer.Empty.UpdateItem(ResourceProviderProperties.Tags, tags => tags.Add("Mailr")))));
+            _resources =
+                ResourceSquid
+                    .Builder
+                    .AddController(HttpController.FromBaseUri("http://localhost:30002/api",
+                        ImmutableContainer.Empty.UpdateItem(ResourceControllerProperties.Tags, tags => tags.Add("Mailr"))))
+                    .Build();
         }
 
         [Fact]

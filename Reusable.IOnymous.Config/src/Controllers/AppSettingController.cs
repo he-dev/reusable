@@ -14,9 +14,9 @@ using Reusable.Quickey;
 
 namespace Reusable.IOnymous.Config
 {
-    public class AppSettingProvider : SettingProvider
+    public class AppSettingController : SettingController
     {
-        public AppSettingProvider() : base(ImmutableContainer.Empty) { }
+        public AppSettingController() : base(ImmutableContainer.Empty) { }
 
         public ITypeConverter ResourceConverter { get; set; } = new NullConverter();
 

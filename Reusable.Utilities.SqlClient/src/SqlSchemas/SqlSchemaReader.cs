@@ -19,7 +19,7 @@ namespace Reusable.Utilities.SqlClient.SqlSchemas
 
         static SqlSchemaReader()
         {
-            var fileProvider = new EmbeddedFileProvider(typeof(SqlSchemaReader).Assembly);
+            var fileProvider = new EmbeddedFileController(typeof(SqlSchemaReader).Assembly);
             // todo - this needs to be fixed
 #warning this needs to be fixed
             //GetIdentityColumnSchemasQuery  = fileProvider.ReadTextFile($"sql\\{nameof(GetIdentityColumnSchemas)}.sql");

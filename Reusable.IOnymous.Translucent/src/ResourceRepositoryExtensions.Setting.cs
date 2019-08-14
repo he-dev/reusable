@@ -16,10 +16,10 @@ namespace Reusable.IOnymous
     // Provides CRUD APIs.
     public static partial class ResourceRepositoryExtensions
     {
-        public static async Task<object> ReadSettingAsync(this IResourceRepository resourceRepository, Selector selector)
+        public static async Task<object> ReadSettingAsync(this IResourceSquid resourceSquid, Selector selector)
         {
             var request = SettingRequestBuilder.CreateRequest(RequestMethod.Get, selector);
-            using (var resource = await resourceRepository.InvokeAsync(request))
+            using (var resource = await resourceSquid.InvokeAsync(request))
             {
                 var value = await resource.DeserializeAsync();
                 var converter = resource.Properties.GetItemOrDefault(SettingProperty.Converter);
@@ -27,10 +27,10 @@ namespace Reusable.IOnymous
             }
         }
 
-        public static async Task WriteSettingAsync(this IResourceRepository resourceRepository, Selector selector, object newValue)
+        public static async Task WriteSettingAsync(this IResourceSquid resourceSquid, Selector selector, object newValue)
         {
             var request = SettingRequestBuilder.CreateRequest(RequestMethod.Put, selector, newValue);
-            await resourceRepository.InvokeAsync(request);
+            await resourceSquid.InvokeAsync(request);
         }
 
         #region Helpers
@@ -49,38 +49,38 @@ namespace Reusable.IOnymous
 
         #region Getters
 
-        public static async Task<T> ReadSettingAsync<T>(this IResourceRepository resourceRepository, Selector<T> selector)
+        public static async Task<T> ReadSettingAsync<T>(this IResourceSquid resourceSquid, Selector<T> selector)
         {
-            return (T)await resourceRepository.ReadSettingAsync((Selector)selector);
+            return (T)await resourceSquid.ReadSettingAsync((Selector)selector);
         }
 
-        public static T ReadSetting<T>(this IResourceRepository resourceRepository, Selector<T> selector)
+        public static T ReadSetting<T>(this IResourceSquid resourceSquid, Selector<T> selector)
         {
-            return (T)resourceRepository.ReadSettingAsync((Selector)selector).GetAwaiter().GetResult();
+            return (T)resourceSquid.ReadSettingAsync((Selector)selector).GetAwaiter().GetResult();
         }
 
-        public static async Task<T> ReadSettingAsync<T>(this IResourceRepository resourceRepository, Expression<Func<T>> selector, string index = default)
+        public static async Task<T> ReadSettingAsync<T>(this IResourceSquid resourceSquid, Expression<Func<T>> selector, string index = default)
         {
-            return (T)await resourceRepository.ReadSettingAsync(CreateSelector<T>(selector, index));
+            return (T)await resourceSquid.ReadSettingAsync(CreateSelector<T>(selector, index));
         }
 
-        public static T ReadSetting<T>(this IResourceRepository resourceRepository, [NotNull] Expression<Func<T>> selector, string index = default)
+        public static T ReadSetting<T>(this IResourceSquid resourceSquid, [NotNull] Expression<Func<T>> selector, string index = default)
         {
-            return ReadSettingAsync(resourceRepository, selector, index).GetAwaiter().GetResult();
+            return ReadSettingAsync(resourceSquid, selector, index).GetAwaiter().GetResult();
         }
 
         #endregion
 
         #region Setters
 
-        public static async Task WriteSettingAsync<TValue>(this IResourceRepository resourceRepository, Expression<Func<TValue>> selector, TValue newValue, string index = default)
+        public static async Task WriteSettingAsync<TValue>(this IResourceSquid resourceSquid, Expression<Func<TValue>> selector, TValue newValue, string index = default)
         {
-            await resourceRepository.WriteSettingAsync(CreateSelector<TValue>(selector, index), newValue);
+            await resourceSquid.WriteSettingAsync(CreateSelector<TValue>(selector, index), newValue);
         }
 
-        public static void WriteSetting<T>(this IResourceRepository resourceRepository, [NotNull] Expression<Func<T>> selector, [CanBeNull] T newValue, string index = default)
+        public static void WriteSetting<T>(this IResourceSquid resourceSquid, [NotNull] Expression<Func<T>> selector, [CanBeNull] T newValue, string index = default)
         {
-            resourceRepository.WriteSettingAsync(selector, newValue, index).GetAwaiter().GetResult();
+            resourceSquid.WriteSettingAsync(selector, newValue, index).GetAwaiter().GetResult();
         }
 
         #endregion

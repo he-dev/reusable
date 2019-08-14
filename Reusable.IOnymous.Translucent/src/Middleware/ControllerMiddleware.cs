@@ -11,23 +11,23 @@ using Reusable.Exceptionize;
 namespace Reusable.IOnymous.Middleware
 {
     [UsedImplicitly]
-    public class ResourceMiddleware
+    public class ControllerMiddleware
     {
         private static readonly IEnumerable<ResourceProviderFilterCallback> Filters = new ResourceProviderFilterCallback[]
         {
-            ResourceProviderFilters.FilterByUriScheme,
-            ResourceProviderFilters.FilterByUriPath,
-            ResourceProviderFilters.FilterByProviderTags,
+            ResourceControllerFilters.FilterByUriScheme,
+            ResourceControllerFilters.FilterByUriPath,
+            ResourceControllerFilters.FilterByProviderTags,
         };
 
-        private readonly IImmutableList<IResourceProvider> _providers;
+        private readonly IImmutableList<IResourceController> _controllers;
         private readonly RequestCallback<ResourceContext> _next;
         private readonly IMemoryCache _cache;
 
-        public ResourceMiddleware(RequestCallback<ResourceContext> next, IEnumerable<IResourceProvider> providers)
+        public ControllerMiddleware(RequestCallback<ResourceContext> next, IEnumerable<IResourceController> controllers)
         {
             _next = next;
-            _providers = providers.ToImmutableList();
+            _controllers = controllers.ToImmutableList();
             _cache = new MemoryCache(new MemoryCacheOptions { });
         }
 
@@ -36,13 +36,13 @@ namespace Reusable.IOnymous.Middleware
             var providerKey = context.Request.Uri.ToString();
 
             // Used cached provider if already resolved.
-            if (_cache.TryGetValue<IResourceProvider>(providerKey, out var entry))
+            if (_cache.TryGetValue<IResourceController>(providerKey, out var entry))
             {
                 context.Response = await InvokeAsync(entry, context.Request);
             }
             else
             {
-                var filtered = Filters.Aggregate(_providers.AsEnumerable(), (providers, filter) => filter(providers, context.Request));
+                var filtered = Filters.Aggregate(_controllers.AsEnumerable(), (providers, filter) => filter(providers, context.Request));
 
                 // GET can search multiple providers.
                 if (context.Request.Method == RequestMethod.Get)
@@ -73,15 +73,15 @@ namespace Reusable.IOnymous.Middleware
             await _next(context);
         }
 
-        private Task<IResource> InvokeAsync(IResourceProvider provider, Request request)
+        private Task<IResource> InvokeAsync(IResourceController controller, Request request)
         {
             var method =
-                provider
+                controller
                     .GetType()
                     .GetMethods(BindingFlags.Instance | BindingFlags.Public)
                     .SingleOrDefault(m => m.GetCustomAttribute<ResourceActionAttribute>()?.Method == request.Method);
 
-            return (Task<IResource>)method.Invoke(provider, new object[] { request });
+            return (Task<IResource>)method.Invoke(controller, new object[] { request });
         }
 
 

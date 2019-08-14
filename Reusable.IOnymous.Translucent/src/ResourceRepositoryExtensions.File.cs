@@ -10,33 +10,33 @@ namespace Reusable.IOnymous
     {
         // file:///
 
-        public static async Task<IResource> GetFileAsync(this IResourceRepository resourceRepository, string path, MimeType format, IImmutableContainer properties = default)
+        public static async Task<IResource> GetFileAsync(this IResourceSquid resourceSquid, string path, MimeType format, IImmutableContainer properties = default)
         {
-            return await resourceRepository.InvokeAsync(new Request.Get(CreateUri(path))
+            return await resourceSquid.InvokeAsync(new Request.Get(CreateUri(path))
             {
                 Context = properties.ThisOrEmpty().SetItem(ResourceProperties.Format, format)
             });
         }
         
-        public static async Task<string> ReadTextFileAsync(this IResourceRepository resourceRepository, string path, IImmutableContainer metadata = default)
+        public static async Task<string> ReadTextFileAsync(this IResourceSquid resourceSquid, string path, IImmutableContainer metadata = default)
         {
-            using (var file = await resourceRepository.GetFileAsync(path, MimeType.Plain, metadata))
+            using (var file = await resourceSquid.GetFileAsync(path, MimeType.Plain, metadata))
             {
                 return await file.DeserializeTextAsync();
             }
         }
 
-        public static string ReadTextFile(this IResourceRepository resourceRepository, string path, IImmutableContainer metadata = default)
+        public static string ReadTextFile(this IResourceSquid resourceSquid, string path, IImmutableContainer metadata = default)
         {
-            using (var file = resourceRepository.GetFileAsync(path, MimeType.Plain, metadata).GetAwaiter().GetResult())
+            using (var file = resourceSquid.GetFileAsync(path, MimeType.Plain, metadata).GetAwaiter().GetResult())
             {
                 return file.DeserializeTextAsync().GetAwaiter().GetResult();
             }
         }
 
-        public static async Task<IResource> WriteTextFileAsync(this IResourceRepository resourceRepository, string path, string value, IImmutableContainer properties = default)
+        public static async Task<IResource> WriteTextFileAsync(this IResourceSquid resourceSquid, string path, string value, IImmutableContainer properties = default)
         {
-            return await resourceRepository.InvokeAsync(new Request.Put(CreateUri(path))
+            return await resourceSquid.InvokeAsync(new Request.Put(CreateUri(path))
             {
                 Body = value,
                 CreateBodyStreamCallback = body => ResourceHelper.SerializeTextAsync((string)body, properties.ThisOrEmpty().GetItemOrDefault(ResourceProperties.Encoding, Encoding.UTF8)),
@@ -44,9 +44,9 @@ namespace Reusable.IOnymous
             });
         }
 
-        public static async Task<IResource> WriteFileAsync(this IResourceRepository resourceRepository, string path, CreateStreamCallback createStream, IImmutableContainer context = default)
+        public static async Task<IResource> WriteFileAsync(this IResourceSquid resourceSquid, string path, CreateStreamCallback createStream, IImmutableContainer context = default)
         {
-            return await resourceRepository.InvokeAsync(new Request.Put(CreateUri(path))
+            return await resourceSquid.InvokeAsync(new Request.Put(CreateUri(path))
             {
                 // Body must not be null.
                 Body = Body.Null,
@@ -55,9 +55,9 @@ namespace Reusable.IOnymous
             });
         }
 
-        public static async Task<IResource> DeleteFileAsync(this IResourceRepository resourceRepository, string path, IImmutableContainer metadata = default)
+        public static async Task<IResource> DeleteFileAsync(this IResourceSquid resourceSquid, string path, IImmutableContainer metadata = default)
         {
-            return await resourceRepository.InvokeAsync(new Request.Delete(CreateUri(path))
+            return await resourceSquid.InvokeAsync(new Request.Delete(CreateUri(path))
             {
                 Context = metadata.ThisOrEmpty().SetItem(ResourceProperties.Format, MimeType.Plain)
             });

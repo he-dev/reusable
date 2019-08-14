@@ -23,7 +23,7 @@ namespace Reusable.IOnymous
     {
         public static async Task<IResource> SendEmailAsync
         (
-            this IResourceRepository resourceRepository,
+            this IResourceSquid resourceSquid,
             IEmail<IEmailSubject, IEmailBody> email,
             IImmutableContainer context = default
         )
@@ -41,7 +41,7 @@ namespace Reusable.IOnymous
                     .SetItem(MailRequestContext.IsHighPriority, email.IsHighPriority);
 
             return
-                await resourceRepository.InvokeAsync(new Request.Post($"{UriSchemes.Known.MailTo}:dummy@email.com")
+                await resourceSquid.InvokeAsync(new Request.Post($"{UriSchemes.Known.MailTo}:dummy@email.com")
                 {
                     Context = context,
                     Body = email.Body.Value,

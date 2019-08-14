@@ -57,9 +57,9 @@ namespace Reusable.IOnymous.Config.Providers
     [PlainSelectorFormatter]
     public class TestDto
     {
-        private readonly IResourceRepository _resources;
+        private readonly IResourceSquid _resources;
 
-        public TestDto(IResourceRepository resources) => _resources = resources;
+        public TestDto(IResourceSquid resources) => _resources = resources;
 
         public string String
         {

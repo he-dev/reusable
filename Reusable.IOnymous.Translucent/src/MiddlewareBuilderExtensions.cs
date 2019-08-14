@@ -19,14 +19,14 @@ namespace Reusable.IOnymous
             return builder.Add<LambdaMiddleware>(lambda);
         }
 
-        public static MiddlewareBuilder UseResources(this MiddlewareBuilder builder, IEnumerable<IResourceProvider> providers)
+        public static MiddlewareBuilder UseControllers(this MiddlewareBuilder builder, IEnumerable<IResourceController> providers)
         {
-            return builder.Add<ResourceMiddleware>(providers);
+            return builder.Add<ControllerMiddleware>(providers);
         }
         
-        public static MiddlewareBuilder UseResources(this MiddlewareBuilder builder, params IResourceProvider[] providers)
+        public static MiddlewareBuilder UseControllers(this MiddlewareBuilder builder, params IResourceController[] providers)
         {
-            return builder.UseResources(providers.AsEnumerable());
+            return builder.UseControllers(providers.AsEnumerable());
         }
 
         public static MiddlewareBuilder UseTelemetry(this MiddlewareBuilder builder)

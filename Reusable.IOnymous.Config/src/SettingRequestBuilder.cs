@@ -40,7 +40,7 @@ namespace Reusable.IOnymous.Config
                         // request.Properties.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Type)) == typeof(string)
                         //.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), resource?.Provider.ToSoftString())
                         //.SetItem(ResourceProperty.ActualName, $"[{selector.Join(x => x.ToString(), ", ")}]")
-                        .SetItemWhen(ResourceProviderProperties.Tags, ImmutableHashSet<SoftString>.Empty.Add(resource.Provider.ToSoftString()), _ => resource != null),
+                        .SetItemWhen(ResourceControllerProperties.Tags, ImmutableHashSet<SoftString>.Empty.Add(resource.Provider.ToSoftString()), _ => resource != null),
                         //.AddTag(resource?.Provider.ToSoftString()),
                 Body = value
             };

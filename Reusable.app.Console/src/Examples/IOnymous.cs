@@ -29,17 +29,17 @@ namespace Reusable
         public static async Task SendEmailAsync_Smtp()
         {
             var resources =
-                ResourceRepository
+                ResourceSquid
                     .Builder
-                    .Resources(new SmtpProvider())
+                    .AddController(new SmtpController())
                     .Build();
-            
+
             var context =
                 ImmutableContainer
                     .Empty
                     .SetItem(SmtpRequestContext.Host, "localhost")
                     .SetItem(SmtpRequestContext.Port, 25);
-            
+
             await resources.SendEmailAsync(new Email<EmailSubject, EmailBody>
             {
                 From = "console@test.com",
@@ -55,10 +55,9 @@ namespace Reusable
         public static async Task SendEmailAsync_Mailr()
         {
             var resources =
-                ResourceRepository
+                ResourceSquid
                     .Builder
-                    .Resources(HttpProvider.FromBaseUri("http://localhost:7000/api"))
-                    
+                    .AddController(HttpController.FromBaseUri("http://localhost:7000/api"))
                     .Build();
             await resources.SendEmailAsync
             (

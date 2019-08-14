@@ -13,9 +13,9 @@ using ContentDisposition = MimeKit.ContentDisposition;
 
 namespace Reusable.IOnymous.Mail.Smtp
 {
-    public class SmtpProvider : MailProvider
+    public class SmtpController : MailController
     {
-        public SmtpProvider(IImmutableContainer properties = default) : base(properties.ThisOrEmpty()) { }
+        public SmtpController(IImmutableContainer properties = default) : base(properties.ThisOrEmpty()) { }
 
         [ResourcePost]
         public async Task<IResource> SendEmailAsync(Request request)

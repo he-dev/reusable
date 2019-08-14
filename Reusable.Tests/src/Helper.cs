@@ -10,16 +10,15 @@ namespace Reusable
     {
         public static readonly string ConnectionString = "Data Source=(local);Initial Catalog=TestDb;Integrated Security=SSPI;";
 
-        public static readonly IResourceRepository Resources = new ResourceRepository(builder =>
-        {
-            builder.UseResources
-            (
-                new EmbeddedFileProvider<Dummy>(@"Reusable/res/IOnymous"),
-                new EmbeddedFileProvider<Dummy>(@"Reusable/res/Flexo"),
-                new EmbeddedFileProvider<Dummy>(@"Reusable/res/Utilities/JsonNet"),
-                new EmbeddedFileProvider<Dummy>(@"Reusable/sql"),
-                new AppSettingProvider(),
-                new SqlServerProvider(ConnectionString)
+        public static readonly IResourceSquid Resources =
+            ResourceSquid
+                .Builder
+                .AddController(new EmbeddedFileController<Dummy>(@"Reusable/res/IOnymous"))
+                .AddController(new EmbeddedFileController<Dummy>(@"Reusable/res/Flexo"))
+                .AddController(new EmbeddedFileController<Dummy>(@"Reusable/res/Utilities/JsonNet"))
+                .AddController(new EmbeddedFileController<Dummy>(@"Reusable/sql"))
+                .AddController(new AppSettingController())
+                .AddController(new SqlServerController(ConnectionString)
                 {
                     TableName = ("reusable", "TestConfig"),
                     ResourceConverter = new JsonSettingConverter(),
@@ -34,8 +33,7 @@ namespace Reusable
                             .Add("_env", "test")
                             .Add("_ver", "1"),
                     Fallback = ("_env", "else")
-                }
-            );
-        });
+                })
+                .Build();
     }
 }

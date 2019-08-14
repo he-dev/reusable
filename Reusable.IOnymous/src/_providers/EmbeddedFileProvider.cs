@@ -11,16 +11,16 @@ using Reusable.Quickey;
 
 namespace Reusable.IOnymous
 {
-    public class EmbeddedFileProvider : ResourceProvider
+    public class EmbeddedFileController : ResourceController
     {
         private readonly Assembly _assembly;
 
-        public EmbeddedFileProvider([NotNull] Assembly assembly, IImmutableContainer properties = default)
+        public EmbeddedFileController([NotNull] Assembly assembly, IImmutableContainer properties = default)
             : base(
                 properties
                     .ThisOrEmpty()
-                    .UpdateItem(ResourceProviderProperties.Schemes, s => s.Add(UriSchemes.Known.File))
-                    .SetItem(ResourceProviderProperties.SupportsRelativeUri, true)
+                    .UpdateItem(ResourceControllerProperties.Schemes, s => s.Add(UriSchemes.Known.File))
+                    .SetItem(ResourceControllerProperties.SupportsRelativeUri, true)
             )
 
         {
@@ -55,15 +55,15 @@ namespace Reusable.IOnymous
         }
     }
 
-    public class EmbeddedFileProvider<T> : EmbeddedFileProvider
+    public class EmbeddedFileController<T> : EmbeddedFileController
     {
-        public static IResourceProvider Default { get; } = new EmbeddedFileProvider(typeof(T).Assembly, ImmutableContainer.Empty);
+        public static IResourceController Default { get; } = new EmbeddedFileController(typeof(T).Assembly, ImmutableContainer.Empty);
 
-        public static IResourceProvider Create(string basePath) => new EmbeddedFileProvider(typeof(T).Assembly, ImmutableContainer.Empty.SetItem(PropertySelectors.BaseUri, basePath));
+        public static IResourceController Create(string basePath) => new EmbeddedFileController(typeof(T).Assembly, ImmutableContainer.Empty.SetItem(PropertySelectors.BaseUri, basePath));
 
-        public EmbeddedFileProvider(IImmutableContainer properties = default) : base(typeof(T).Assembly, properties) { }
+        public EmbeddedFileController(IImmutableContainer properties = default) : base(typeof(T).Assembly, properties) { }
 
-        public EmbeddedFileProvider(string baseUri)
+        public EmbeddedFileController(string baseUri)
             : base(typeof(T).Assembly, ImmutableContainer.Empty.SetItem(PropertySelectors.BaseUri, baseUri)) { }
     }
 

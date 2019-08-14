@@ -17,18 +17,18 @@ using Reusable.Utilities.JsonNet.Extensions;
 
 namespace Reusable.IOnymous.Http
 {
-    public class HttpProvider : ResourceProvider
+    public class HttpController : ResourceController
     {
         private readonly HttpClient _client;
 
-        public HttpProvider(HttpClient httpClient, IImmutableContainer metadata = default)
+        public HttpController(HttpClient httpClient, IImmutableContainer metadata = default)
             : base(
                 metadata
                     .ThisOrEmpty()
-                    .UpdateItem(ResourceProviderProperties.Schemes, s => s
+                    .UpdateItem(ResourceControllerProperties.Schemes, s => s
                         .Add(UriSchemes.Known.Http)
                         .Add(UriSchemes.Known.Https))
-                    .SetItem(ResourceProviderProperties.SupportsRelativeUri, true))
+                    .SetItem(ResourceControllerProperties.SupportsRelativeUri, true))
         {
             _client = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _client.DefaultRequestHeaders.Clear();
@@ -49,9 +49,9 @@ namespace Reusable.IOnymous.Http
         /// <summary>
         /// Create a HttpProvider that doesn't use a proxy for requests.
         /// </summary>
-        public static HttpProvider FromBaseUri(string baseUri, IImmutableContainer properties = default)
+        public static HttpController FromBaseUri(string baseUri, IImmutableContainer properties = default)
         {
-            return new HttpProvider(new HttpClient(new HttpClientHandler { UseProxy = false })
+            return new HttpController(new HttpClient(new HttpClientHandler { UseProxy = false })
             {
                 BaseAddress = new Uri(baseUri)
             }, properties);

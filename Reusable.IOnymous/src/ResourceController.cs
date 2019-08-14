@@ -23,7 +23,7 @@ using Reusable.Quickey;
 namespace Reusable.IOnymous
 {
     [PublicAPI]
-    public interface IResourceProvider : IDisposable
+    public interface IResourceController : IDisposable
     {
         [NotNull]
         IImmutableContainer Properties { get; }
@@ -32,13 +32,13 @@ namespace Reusable.IOnymous
     public delegate Task<IResource> InvokeCallback(Request request);
 
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
-    public abstract class ResourceProvider : IResourceProvider
+    public abstract class ResourceController : IResourceController
     {
-        protected ResourceProvider([NotNull] IImmutableContainer properties)
+        protected ResourceController([NotNull] IImmutableContainer properties)
         {
             if (properties == null) throw new ArgumentNullException(nameof(properties));
 
-            if (properties.GetItemOrDefault(ResourceProviderProperties.Schemes) is var schemes && (schemes is null || !schemes.Any()))
+            if (properties.GetItemOrDefault(ResourceControllerProperties.Schemes) is var schemes && (schemes is null || !schemes.Any()))
             {
                 throw new ArgumentException
                 (
@@ -47,7 +47,7 @@ namespace Reusable.IOnymous
                 );
             }
 
-            Properties = properties.UpdateItem(ResourceProviderProperties.Tags, tags => tags.Add(GetType().ToPrettyString().ToSoftString()));
+            Properties = properties.UpdateItem(ResourceControllerProperties.Tags, tags => tags.Add(GetType().ToPrettyString().ToSoftString()));
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
@@ -68,16 +68,16 @@ namespace Reusable.IOnymous
 
     public static class ResourceProviderExtensions
     {
-        public static bool SupportsRelativeUri(this IResourceProvider resourceProvider)
+        public static bool SupportsRelativeUri(this IResourceController resourceController)
         {
-            return resourceProvider.Properties.GetItemOrDefault(ResourceProviderProperties.SupportsRelativeUri);
+            return resourceController.Properties.GetItemOrDefault(ResourceControllerProperties.SupportsRelativeUri);
         }
     }
 
     [UseType, UseMember]
     [PlainSelectorFormatter]
-    [Rename(nameof(ResourceProvider))]
-    public class ResourceProviderProperties : SelectorBuilder<ResourceProviderProperties>
+    [Rename(nameof(ResourceController))]
+    public class ResourceControllerProperties : SelectorBuilder<ResourceControllerProperties>
     {
         public static readonly Selector<IImmutableSet<SoftString>> Schemes = Select(() => Schemes);
 

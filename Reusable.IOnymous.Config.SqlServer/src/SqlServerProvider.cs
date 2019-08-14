@@ -13,7 +13,7 @@ using Reusable.Utilities.SqlClient;
 
 namespace Reusable.IOnymous.Config
 {
-    public class SqlServerProvider : SettingProvider
+    public class SqlServerController : SettingController
     {
         public const string DefaultSchema = "dbo";
 
@@ -21,7 +21,7 @@ namespace Reusable.IOnymous.Config
 
         private SqlFourPartName _tableName;
 
-        public SqlServerProvider(string nameOrConnectionString) : base(ImmutableContainer.Empty)
+        public SqlServerController(string nameOrConnectionString) : base(ImmutableContainer.Empty)
         {
             ConnectionString = ConnectionStringRepository.Default.GetConnectionString(nameOrConnectionString);
             TableName = (DefaultSchema, DefaultTable);

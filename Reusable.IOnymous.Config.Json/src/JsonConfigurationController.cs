@@ -11,11 +11,11 @@ using Reusable.Quickey;
 
 namespace Reusable.IOnymous.Config
 {
-    public class JsonProvider : SettingProvider
+    public class JsonConfigurationController : SettingController
     {
         private readonly IConfiguration _configuration;
 
-        public JsonProvider(string basePath, string fileName) : base(ImmutableContainer.Empty)
+        public JsonConfigurationController(string basePath, string fileName) : base(ImmutableContainer.Empty)
         {
             _configuration =
                 new ConfigurationBuilder()

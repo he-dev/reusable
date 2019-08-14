@@ -13,15 +13,15 @@ using Reusable.Quickey;
 
 namespace Reusable.IOnymous
 {
-    public class InMemoryProvider : ResourceProvider, IEnumerable<(SoftString Name, object Value)>
+    public class InMemoryController : ResourceController, IEnumerable<(SoftString Name, object Value)>
     {
         private readonly IDictionary<SoftString, object> _items = new Dictionary<SoftString, object>();
 
-        public InMemoryProvider(IImmutableContainer properties = default)
+        public InMemoryController(IImmutableContainer properties = default)
             : base(
                 properties
                     .ThisOrEmpty()
-                    .UpdateItem(ResourceProviderProperties.Schemes, s => s.Any() ? s : s.Add(UriSchemes.Custom.IOnymous))
+                    .UpdateItem(ResourceControllerProperties.Schemes, s => s.Any() ? s : s.Add(UriSchemes.Custom.IOnymous))
                 ) { }
 
         [ResourceGet]
@@ -61,9 +61,9 @@ namespace Reusable.IOnymous
 
         #region Collection initilizers
 
-        public InMemoryProvider Add((string Name, object Value) item) => Add(item.Name, item.Value);
+        public InMemoryController Add((string Name, object Value) item) => Add(item.Name, item.Value);
 
-        public InMemoryProvider Add(string name, object value)
+        public InMemoryController Add(string name, object value)
         {
             _items[name] = value;
             return this;
