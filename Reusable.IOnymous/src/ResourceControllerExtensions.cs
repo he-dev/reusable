@@ -18,5 +18,10 @@ namespace Reusable.IOnymous
         {
             return builder.UseControllers(providers.AsEnumerable());
         }
+        
+        public static MiddlewareBuilder UseEnvironmentVariable(this MiddlewareBuilder builder)
+        {
+            return builder.Use<EnvironmentVariableMiddleware>();
+        }
     }
 }
