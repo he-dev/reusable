@@ -3,9 +3,8 @@ using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
-using Reusable.Quickey;
 
-namespace Reusable.IOnymous
+namespace Reusable.IOnymous.Controllers
 {
     [PublicAPI]
     public class PhysicalDirectoryController : ResourceController

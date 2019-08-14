@@ -15,7 +15,8 @@ using Reusable.Quickey;
 using Reusable.Utilities.JsonNet.Converters;
 using Reusable.Utilities.JsonNet.Extensions;
 
-namespace Reusable.IOnymous.Http
+// ReSharper disable once CheckNamespace
+namespace Reusable.IOnymous.Controllers
 {
     public class HttpController : ResourceController
     {
@@ -74,8 +75,8 @@ namespace Reusable.IOnymous.Http
             return async request =>
             {
                 var uri = BaseUri + request.Uri;
-                var (response, mediaType) = await InvokeAsync(uri, httpMethod, request.Body, request.Context);
-                return new HttpResource(request.Context.Copy<ResourceProperties>().SetItem(ResourceProperties.Format, mediaType), response);
+                var (response, mediaType) = await InvokeAsync(uri, httpMethod, request.Body, request.Metadata);
+                return new HttpResource(request.Metadata.Copy<ResourceProperties>().SetItem(ResourceProperties.Format, mediaType), response);
             };
         }
 

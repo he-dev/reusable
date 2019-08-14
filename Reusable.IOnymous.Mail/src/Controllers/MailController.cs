@@ -6,7 +6,8 @@ using Reusable.Data;
 using Reusable.Extensions;
 using Reusable.Quickey;
 
-namespace Reusable.IOnymous.Mail
+// ReSharper disable once CheckNamespace
+namespace Reusable.IOnymous.Controllers
 {
     public abstract class MailController : ResourceController
     {

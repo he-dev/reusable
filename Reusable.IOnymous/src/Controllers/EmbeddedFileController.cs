@@ -2,14 +2,13 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Extensions;
 using Reusable.Quickey;
 
-namespace Reusable.IOnymous
+namespace Reusable.IOnymous.Controllers
 {
     public class EmbeddedFileController : ResourceController
     {
@@ -44,7 +43,7 @@ namespace Reusable.IOnymous
             return
                 actualName is null
                     ? DoesNotExist(request).ToTask()
-                    : new EmbeddedFile(request.Context.Copy<ResourceProperties>().SetItem(ResourceProperties.Uri, fullUri), () => _assembly.GetManifestResourceStream(actualName)).ToTask<IResource>();
+                    : new EmbeddedFile(request.Metadata.Copy<ResourceProperties>().SetItem(ResourceProperties.Uri, fullUri), () => _assembly.GetManifestResourceStream(actualName)).ToTask<IResource>();
         }
 
         [UseType, UseMember]

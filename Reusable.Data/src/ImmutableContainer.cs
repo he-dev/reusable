@@ -117,7 +117,8 @@ namespace Reusable.Data
 
         [DebuggerStepThrough]
         [MustUseReturnValue]
-        public IImmutableContainer SetItem(string key, object value) => _data.ContainsKey(key) ? this : new ImmutableContainer(_data.SetItem(key, value));
+        public IImmutableContainer SetItem(string key, object value) => new ImmutableContainer(_data.SetItem(key, value));
+        //public IImmutableContainer SetItem(string key, object value) => _data.ContainsKey(key) ? this : new ImmutableContainer(_data.SetItem(key, value));
 
         public IImmutableContainer RemoveItem(string key) => new ImmutableContainer(_data.Remove(key));
 

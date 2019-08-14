@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
-using System.Linq.Custom;
+﻿using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Extensions;
 using Reusable.Quickey;
 
-namespace Reusable.IOnymous
+namespace Reusable.IOnymous.Controllers
 {
     [PublicAPI]
     public class PhysicalFileController : ResourceController
@@ -25,7 +20,7 @@ namespace Reusable.IOnymous
         [ResourceGet]
         public Task<IResource> GetFileAsync(Request request)
         {
-            return new PhysicalFile(request.Context.Copy(ResourceProperties.Selectors).SetItem(ResourceProperties.Uri, CreateUri(request.Uri))).ToTask<IResource>();
+            return new PhysicalFile(request.Metadata.Copy(ResourceProperties.Selectors).SetItem(ResourceProperties.Uri, CreateUri(request.Uri))).ToTask<IResource>();
         }
 
         [ResourcePut]
@@ -45,7 +40,7 @@ namespace Reusable.IOnymous
         public Task<IResource> DeleteFileAsync(Request request)
         {
             File.Delete(request.Uri.ToUnc());
-            return new PhysicalFile(request.Context.Copy(ResourceProperties.Selectors).SetItem(ResourceProperties.Uri, request.Uri)).ToTask<IResource>();
+            return new PhysicalFile(request.Metadata.Copy(ResourceProperties.Selectors).SetItem(ResourceProperties.Uri, request.Uri)).ToTask<IResource>();
         }
 
         private UriString CreateUri(UriString uri)

@@ -6,10 +6,12 @@ using JetBrains.Annotations;
 using Microsoft.Extensions.Configuration;
 using Reusable.Data;
 using Reusable.Extensions;
+using Reusable.IOnymous.Config;
 using Reusable.OneTo1;
 using Reusable.Quickey;
 
-namespace Reusable.IOnymous.Config
+// ReSharper disable once CheckNamespace
+namespace Reusable.IOnymous.Controllers
 {
     public class JsonConfigurationController : SettingController
     {
@@ -38,7 +40,7 @@ namespace Reusable.IOnymous.Config
                     (
                         data,
                         request
-                            .Context
+                            .Metadata
                             .Copy<ResourceProperties>()
                             .SetItem(ResourceProperties.Uri, request.Uri)
                             .SetItem(SettingProperty.Converter, ResourceConverter)

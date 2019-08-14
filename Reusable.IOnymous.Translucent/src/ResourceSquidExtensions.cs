@@ -6,14 +6,14 @@ using Reusable.Data;
 namespace Reusable.IOnymous
 {
     // Provides CRUD APIs.
-    public static partial class ResourceRepositoryExtensions
+    public static partial class ResourceSquidExtensions
     {
         public static Task<IResource> CreateAsync(this IResourceSquid resourceSquid, UriString uri, object body, CreateStreamCallback createBodyStreamCallback, IImmutableContainer context = default)
         {
             return resourceSquid.InvokeAsync(new Request.Get(uri)
             {
                 Body = body,
-                Context = context.ThisOrEmpty(),
+                Metadata = context.ThisOrEmpty(),
                 CreateBodyStreamCallback = createBodyStreamCallback
             });
         }

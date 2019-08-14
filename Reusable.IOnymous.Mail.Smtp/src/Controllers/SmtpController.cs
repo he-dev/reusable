@@ -11,7 +11,8 @@ using Reusable.Extensions;
 using Reusable.Quickey;
 using ContentDisposition = MimeKit.ContentDisposition;
 
-namespace Reusable.IOnymous.Mail.Smtp
+// ReSharper disable once CheckNamespace
+namespace Reusable.IOnymous.Controllers
 {
     public class SmtpController : MailController
     {
@@ -21,10 +22,10 @@ namespace Reusable.IOnymous.Mail.Smtp
         public async Task<IResource> SendEmailAsync(Request request)
         {
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(request.Context.GetItemOrDefault(MailRequestContext.From)));
-            message.To.AddRange(request.Context.GetItemOrDefault(MailRequestContext.To).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
-            message.Cc.AddRange(request.Context.GetItemOrDefault(MailRequestContext.CC, Enumerable.Empty<string>().ToList()).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
-            message.Subject = request.Context.GetItemOrDefault(MailRequestContext.Subject);
+            message.From.Add(new MailboxAddress(request.Metadata.GetItemOrDefault(MailRequestContext.From)));
+            message.To.AddRange(request.Metadata.GetItemOrDefault(MailRequestContext.To).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
+            message.Cc.AddRange(request.Metadata.GetItemOrDefault(MailRequestContext.CC, Enumerable.Empty<string>().ToList()).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
+            message.Subject = request.Metadata.GetItemOrDefault(MailRequestContext.Subject);
             var multipart = new Multipart("mixed");
 //            {
 //                new TextPart(request.Properties.GetItemOrDefault(From<IMailMeta>.Select(x => x.IsHtml)) ? TextFormat.Html : TextFormat.Plain)
@@ -35,13 +36,13 @@ namespace Reusable.IOnymous.Mail.Smtp
 
             using (var body = await request.CreateBodyStreamAsync())
             {
-                multipart.Add(new TextPart(request.Context.GetItemOrDefault(MailRequestContext.IsHtml) ? TextFormat.Html : TextFormat.Plain)
+                multipart.Add(new TextPart(request.Metadata.GetItemOrDefault(MailRequestContext.IsHtml) ? TextFormat.Html : TextFormat.Plain)
                 {
-                    Text = await ReadBodyAsync(body, request.Context)
+                    Text = await ReadBodyAsync(body, request.Metadata)
                 });
             }
 
-            foreach (var attachment in request.Context.GetItemOrDefault(MailRequestContext.Attachments, new Dictionary<string, byte[]>()).Where(i => i.Key.IsNotNullOrEmpty() && i.Value.IsNotNull()))
+            foreach (var attachment in request.Metadata.GetItemOrDefault(MailRequestContext.Attachments, new Dictionary<string, byte[]>()).Where(i => i.Key.IsNotNullOrEmpty() && i.Value.IsNotNull()))
             {
                 var attachmentPart = new MimePart(MediaTypeNames.Application.Octet)
                 {
@@ -59,9 +60,9 @@ namespace Reusable.IOnymous.Mail.Smtp
             {
                 await smtpClient.ConnectAsync
                 (
-                    request.Context.GetItemOrDefault(SmtpRequestContext.Host),
-                    request.Context.GetItemOrDefault(SmtpRequestContext.Port),
-                    request.Context.GetItemOrDefault(SmtpRequestContext.UseSsl, false)
+                    request.Metadata.GetItemOrDefault(SmtpRequestContext.Host),
+                    request.Metadata.GetItemOrDefault(SmtpRequestContext.Port),
+                    request.Metadata.GetItemOrDefault(SmtpRequestContext.UseSsl, false)
                 );
                 await smtpClient.SendAsync(message);
             }

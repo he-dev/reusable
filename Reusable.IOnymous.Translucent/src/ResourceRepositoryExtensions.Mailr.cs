@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Extensions;
 using Reusable.IOnymous.Config;
+using Reusable.IOnymous.Controllers;
 using Reusable.IOnymous.Http;
 using Reusable.IOnymous.Http.Formatting;
 using Reusable.IOnymous.Http.Mailr.Models;
@@ -18,7 +19,7 @@ using Reusable.Quickey;
 namespace Reusable.IOnymous
 {
     // Provides CRUD APIs.
-    public static partial class ResourceRepositoryExtensions
+    public static partial class ResourceSquidExtensions
     {
         public static async Task<string> SendEmailAsync
         (
@@ -46,7 +47,7 @@ namespace Reusable.IOnymous
 
             var response = await resourceSquid.InvokeAsync(new Request.Post(uri)
             {
-                Context = properties,
+                Metadata = properties,
                 Body = email
             });
 

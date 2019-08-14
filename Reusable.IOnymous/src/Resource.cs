@@ -80,7 +80,7 @@ namespace Reusable.IOnymous
 
             public static IResource FromRequest(Request request)
             {
-                return new DoesNotExist(request.Context.Copy<ResourceProperties>().SetItem(ResourceProperties.Uri, request.Uri));
+                return new DoesNotExist(request.Metadata.Copy<ResourceProperties>().SetItem(ResourceProperties.Uri, request.Uri));
             }
 
             public override Task CopyToAsync(Stream stream)

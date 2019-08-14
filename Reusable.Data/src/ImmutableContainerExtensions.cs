@@ -87,10 +87,10 @@ namespace Reusable.Data
 
         #endregion
 
-        public static IImmutableContainer UpdateItem<T>(this IImmutableContainer container, Selector<T> key, Func<T, T> update)
-        {
-            return container.SetItem(key, update(container.GetItemOrDefault(key)));
-        }
+        // public static IImmutableContainer UpdateItem<T>(this IImmutableContainer container, Selector<T> key, Func<T, T> update)
+        // {
+        //     return container.SetItem(key, update(container.GetItemOrDefault(key)));
+        // }
 
         public static IImmutableContainer UpdateItem<T>(this IImmutableContainer container, Selector<IImmutableList<T>> key, Func<IImmutableList<T>, IImmutableList<T>> update)
         {
@@ -138,7 +138,7 @@ namespace Reusable.Data
         public static IImmutableContainer Copy<T>(this IImmutableContainer container) where T : SelectorBuilder<T>
         {
             // ReSharper disable once PossibleNullReferenceException - This is definitely not-null.
-            var selectors = (IEnumerable<Selector>)typeof(T).GetProperty(nameof(SelectorBuilder<T>.Selectors), BindingFlags.Public | BindingFlags.Static).GetValue(null);
+            var selectors = (IEnumerable<Selector>)typeof(SelectorBuilder<T>).GetProperty(nameof(SelectorBuilder<T>.Selectors), BindingFlags.Public | BindingFlags.Static).GetValue(null);
             return container.Copy(selectors);
         }
     }

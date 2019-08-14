@@ -1,14 +1,11 @@
 using System;
-using System.Collections.Immutable;
-using System.IO;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
 using Reusable.Data;
+using Reusable.IOnymous.Config;
 using Reusable.OneTo1;
 using Reusable.Quickey;
-using Reusable.Utilities.JsonNet.Extensions;
 
-namespace Reusable.IOnymous.Config
+// ReSharper disable once CheckNamespace
+namespace Reusable.IOnymous.Controllers
 {
     public abstract class SettingController : ResourceController
     {

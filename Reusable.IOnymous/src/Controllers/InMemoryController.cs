@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Extensions;
-using Reusable.OneTo1;
-using Reusable.OneTo1.Converters;
-using Reusable.Quickey;
 
-namespace Reusable.IOnymous
+namespace Reusable.IOnymous.Controllers
 {
     public class InMemoryController : ResourceController, IEnumerable<(SoftString Name, object Value)>
     {
@@ -32,10 +26,10 @@ namespace Reusable.IOnymous
                 switch (obj)
                 {
                     case string str:
-                        return new PlainResource(str, request.Context.Copy<ResourceProperties>()).ToTask<IResource>();
+                        return new PlainResource(str, request.Metadata.Copy<ResourceProperties>()).ToTask<IResource>();
 
                     default:
-                        return new ObjectResource(obj, request.Context.Copy<ResourceProperties>()).ToTask<IResource>();
+                        return new ObjectResource(obj, request.Metadata.Copy<ResourceProperties>()).ToTask<IResource>();
                 }
             }
             else

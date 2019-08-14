@@ -7,11 +7,13 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Data.Repositories;
+using Reusable.IOnymous.Config;
 using Reusable.OneTo1;
 using Reusable.Quickey;
 using Reusable.Utilities.SqlClient;
 
-namespace Reusable.IOnymous.Config
+// ReSharper disable once CheckNamespace
+namespace Reusable.IOnymous.Controllers
 {
     public class SqlServerController : SettingController
     {
@@ -65,7 +67,7 @@ namespace Reusable.IOnymous.Config
                         (
                             (string)value,
                             request
-                                .Context
+                                .Metadata
                                 .Copy<ResourceProperties>()
                                 .SetItem(SettingProperty.Converter, ResourceConverter)
                         );
@@ -75,7 +77,7 @@ namespace Reusable.IOnymous.Config
                         return DoesNotExist(request);
                     }
                 }
-            }, request.Context.GetItemOrDefault(RequestProperty.CancellationToken));
+            }, request.Metadata.GetItemOrDefault(RequestProperty.CancellationToken));
         }
 
         [ResourcePut]
@@ -89,11 +91,11 @@ namespace Reusable.IOnymous.Config
                 {
                     await cmd.ExecuteNonQueryAsync(token);
                 }
-            }, request.Context.GetItemOrDefault(RequestProperty.CancellationToken));
+            }, request.Metadata.GetItemOrDefault(RequestProperty.CancellationToken));
 
             return await GetSettingAsync(new Request.Get(request.Uri)
             {
-                Context = request.Context.Copy<ResourceProperties>()
+                Metadata = request.Metadata.Copy<ResourceProperties>()
             });
         }
     }

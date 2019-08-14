@@ -8,13 +8,14 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.IOnymous.Config;
+using Reusable.IOnymous.Controllers;
 using Reusable.OneTo1;
 using Reusable.Quickey;
 
 namespace Reusable.IOnymous
 {
     // Provides CRUD APIs.
-    public static partial class ResourceRepositoryExtensions
+    public static partial class ResourceSquidExtensions
     {
         public static async Task<object> ReadSettingAsync(this IResourceSquid resourceSquid, Selector selector)
         {

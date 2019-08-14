@@ -97,7 +97,7 @@ namespace Reusable.IOnymous
         public RequestMethod Method { get; set; } = RequestMethod.None;
 
         [NotNull]
-        public IImmutableContainer Context { get; set; } = ImmutableContainer.Empty;
+        public IImmutableContainer Metadata { get; set; } = ImmutableContainer.Empty;
 
         [CanBeNull]
         public CreateStreamCallback CreateBodyStreamCallback { get; set; }
@@ -170,7 +170,7 @@ namespace Reusable.IOnymous
     {
         public static Request SetProperties(this Request request, Func<IImmutableContainer, IImmutableContainer> properties)
         {
-            request.Context = properties(request.Context);
+            request.Metadata = properties(request.Metadata);
             return request;
         }
 

@@ -33,14 +33,14 @@ namespace Reusable.IOnymous.Config
             {
                 Uri = uri,
                 Method = method,
-                Context =
+                Metadata =
                     ImmutableContainer
                         .Empty
                         .SetItem(ResourceProperties.DataType, selector.DataType)
                         // request.Properties.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Type)) == typeof(string)
                         //.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), resource?.Provider.ToSoftString())
                         //.SetItem(ResourceProperty.ActualName, $"[{selector.Join(x => x.ToString(), ", ")}]")
-                        .SetItemWhen(ResourceControllerProperties.Tags, ImmutableHashSet<SoftString>.Empty.Add(resource.Provider.ToSoftString()), _ => resource != null),
+                        .SetItemWhen(ResourceControllerProperties.Tags, ImmutableHashSet<SoftString>.Empty.Add(resource?.Provider.ToSoftString()), _ => resource != null),
                         //.AddTag(resource?.Provider.ToSoftString()),
                 Body = value
             };

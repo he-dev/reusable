@@ -1,18 +1,14 @@
-using System;
 using System.Configuration;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Extensions;
-using Reusable.Flawless;
 using Reusable.OneTo1;
 using Reusable.OneTo1.Converters;
-using Reusable.Quickey;
 
-namespace Reusable.IOnymous.Config
+// ReSharper disable once CheckNamespace
+namespace Reusable.IOnymous.Controllers
 {
     public class AppSettingController : SettingController
     {
@@ -35,7 +31,7 @@ namespace Reusable.IOnymous.Config
                     (
                         element.Value,
                         request
-                            .Context
+                            .Metadata
                             .Copy<ResourceProperties>()
                             .SetItem(SettingProperty.Converter, ResourceConverter)
                             .SetItem(ResourceProperties.ActualName, settingIdentifier)

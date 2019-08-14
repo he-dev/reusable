@@ -40,5 +40,6 @@
     <Compile Remove="src\Converters\UriStringToSettingIdentifierConverter.cs" />
     <Compile Remove="src\Providers\ConnectionStringProvider.cs" />
     <Compile Remove="src\Converters\UriStringQueryToStringConverter.cs" />
+    <Compile Remove="src\Controllers\ConnectionStringProvider.cs" />
   </ItemGroup>
 </Project>

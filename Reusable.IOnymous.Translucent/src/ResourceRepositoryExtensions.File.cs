@@ -6,7 +6,7 @@ using Reusable.Data;
 namespace Reusable.IOnymous
 {
     // Provides CRUD APIs.
-    public static partial class ResourceRepositoryExtensions
+    public static partial class ResourceSquidExtensions
     {
         // file:///
 
@@ -14,7 +14,7 @@ namespace Reusable.IOnymous
         {
             return await resourceSquid.InvokeAsync(new Request.Get(CreateUri(path))
             {
-                Context = properties.ThisOrEmpty().SetItem(ResourceProperties.Format, format)
+                Metadata = properties.ThisOrEmpty().SetItem(ResourceProperties.Format, format)
             });
         }
         
@@ -40,7 +40,7 @@ namespace Reusable.IOnymous
             {
                 Body = value,
                 CreateBodyStreamCallback = body => ResourceHelper.SerializeTextAsync((string)body, properties.ThisOrEmpty().GetItemOrDefault(ResourceProperties.Encoding, Encoding.UTF8)),
-                Context = properties.ThisOrEmpty().SetItem(ResourceProperties.Format, MimeType.Plain)
+                Metadata = properties.ThisOrEmpty().SetItem(ResourceProperties.Format, MimeType.Plain)
             });
         }
 
@@ -51,7 +51,7 @@ namespace Reusable.IOnymous
                 // Body must not be null.
                 Body = Body.Null,
                 CreateBodyStreamCallback = createStream,
-                Context = context.ThisOrEmpty()
+                Metadata = context.ThisOrEmpty()
             });
         }
 
@@ -59,7 +59,7 @@ namespace Reusable.IOnymous
         {
             return await resourceSquid.InvokeAsync(new Request.Delete(CreateUri(path))
             {
-                Context = metadata.ThisOrEmpty().SetItem(ResourceProperties.Format, MimeType.Plain)
+                Metadata = metadata.ThisOrEmpty().SetItem(ResourceProperties.Format, MimeType.Plain)
             });
         }
 

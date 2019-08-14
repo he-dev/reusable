@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.IOnymous;
+using Reusable.IOnymous.Controllers;
 using Reusable.IOnymous.Http;
 using Reusable.Utilities.XUnit.Fixtures;
 using Xunit;
@@ -52,7 +53,7 @@ namespace Reusable.Teapot
                 // Request made by the application somewhere deep down the rabbit hole
                 var request = new Request.Post("test?param=true")
                 {
-                    Context = ImmutableContainer
+                    Metadata = ImmutableContainer
                         .Empty
                         .SetItem(HttpRequestContext.ConfigureHeaders, headers =>
                         {

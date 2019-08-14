@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using Reusable.IOnymous;
 using Reusable.IOnymous.Config;
+using Reusable.IOnymous.Controllers;
 
 namespace Reusable
 {

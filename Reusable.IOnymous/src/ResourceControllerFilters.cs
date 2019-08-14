@@ -10,7 +10,7 @@ namespace Reusable.IOnymous
     {
         public static IEnumerable<IResourceController> FilterByProviderTags(this IEnumerable<IResourceController> providers, Request request)
         {
-            if (!request.Context.GetItemOrDefault(ResourceControllerProperties.Tags).Any())
+            if (!request.Metadata.GetItemOrDefault(ResourceControllerProperties.Tags).Any())
             {
                 return providers;
             }
@@ -18,7 +18,7 @@ namespace Reusable.IOnymous
             return
                 from p in providers
                 let providerTags = p.Properties.GetItemOrDefault(ResourceControllerProperties.Tags)
-                where providerTags.Overlaps(request.Context.GetItemOrDefault(ResourceControllerProperties.Tags))
+                where providerTags.Overlaps(request.Metadata.GetItemOrDefault(ResourceControllerProperties.Tags))
                 select p;
         }
 

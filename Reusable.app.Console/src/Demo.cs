@@ -9,7 +9,6 @@ using Reusable.IOnymous.Http;
 using Reusable.IOnymous.Http.Mailr;
 using Reusable.IOnymous.Http.Mailr.Models;
 using Reusable.IOnymous.Mail;
-using Reusable.IOnymous.Mail.Smtp;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
