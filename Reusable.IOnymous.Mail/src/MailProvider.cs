@@ -10,7 +10,8 @@ namespace Reusable.IOnymous.Mail
 {
     public abstract class MailProvider : ResourceProvider
     {
-        protected MailProvider(IImmutableContainer metadata) : base(metadata.SetScheme(UriSchemes.Known.MailTo)) { }
+        protected MailProvider(IImmutableContainer metadata)
+            : base(metadata.UpdateItem(ResourceProviderProperties.Schemes, s => s.Add(UriSchemes.Known.MailTo))) { }
 
         protected async Task<string> ReadBodyAsync(Stream value, IImmutableContainer metadata)
         {
@@ -20,7 +21,7 @@ namespace Reusable.IOnymous.Mail
             }
         }
     }
-    
+
     [UseType, UseMember]
     [PlainSelectorFormatter]
     [Rename(nameof(MailRequestContext))]
@@ -48,11 +49,11 @@ namespace Reusable.IOnymous.Mail
         private readonly Stream _response;
 
         internal MailResource(IImmutableContainer properties, Stream response)
-            : base(properties.SetExists(response != Stream.Null))
+            : base(properties.SetItem(ResourceProperties.Exists, response != Stream.Null))
         {
             _response = response;
         }
-        
+
         public override async Task CopyToAsync(Stream stream)
         {
             await _response.Rewind().CopyToAsync(stream);

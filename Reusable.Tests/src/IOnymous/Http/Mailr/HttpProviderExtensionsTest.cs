@@ -18,7 +18,11 @@ namespace Reusable.IOnymous.Http.Mailr
         public HttpProviderExtensionsTest(TeapotServerFixture teapotServerFixture)
         {
             _serverContext = teapotServerFixture.GetServer("http://localhost:30002").BeginScope();
-            _resources = new ResourceRepository(b => b.UseResources(HttpProvider.FromBaseUri("http://localhost:30002/api", ImmutableContainer.Empty.AddTag("Mailr"))));
+
+            _resources = new ResourceRepository(builder =>
+                builder.UseResources(
+                    HttpProvider.FromBaseUri("http://localhost:30002/api", 
+                        ImmutableContainer.Empty.UpdateItem(ResourceProviderProperties.Tags, tags => tags.Add("Mailr")))));
         }
 
         [Fact]

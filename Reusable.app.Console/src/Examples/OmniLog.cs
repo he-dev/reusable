@@ -11,11 +11,11 @@ using Reusable.OmniLog.Scalars;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.Utilities.NLog.LayoutRenderers;
 
-namespace Reusable.Examples.OmniLog
+namespace Reusable
 {
-    public static class Example
+    public static partial class Examples
     {
-        public static void Run()
+        public static void Log()
         {
             SmartPropertiesLayoutRenderer.Register();
             
@@ -120,7 +120,7 @@ namespace Reusable.Examples.OmniLog
 
             logger.Information("Hallo omni-log!");
 
-            logger.Log(Abstraction.Layer.Service().Routine(nameof(Run)).Running());
+            logger.Log(Abstraction.Layer.Service().Routine(nameof(Log)).Running());
             logger.Log(Abstraction.Layer.Service().Meta(new { Greeting = "Hallo omni-log!" }));
             logger.Log(Abstraction.Layer.Service().Meta(new { Null = (string)default }));
 
@@ -151,9 +151,9 @@ namespace Reusable.Examples.OmniLog
                     logger.Log(Abstraction.Layer.Business().Meta(new { customer }));
 
                     // Logging action results.
-                    logger.Log(Abstraction.Layer.Service().Routine(nameof(Run)).Running());
-                    logger.Log(Abstraction.Layer.Service().Routine(nameof(Run)).Canceled().Because("No connection."));
-                    logger.Log(Abstraction.Layer.Service().Routine(nameof(Run)).Faulted(DynamicException.Create("Test", "This is only a test.")));
+                    logger.Log(Abstraction.Layer.Service().Routine(nameof(Log)).Running());
+                    logger.Log(Abstraction.Layer.Service().Routine(nameof(Log)).Canceled().Because("No connection."));
+                    logger.Log(Abstraction.Layer.Service().Routine(nameof(Log)).Faulted(DynamicException.Create("Test", "This is only a test.")));
                     logger.Log(Abstraction.Layer.Service().Flow().Decision("Don't do this.").Because("Disabled."));
                 }
             }

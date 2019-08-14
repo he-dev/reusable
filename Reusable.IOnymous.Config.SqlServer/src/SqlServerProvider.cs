@@ -66,7 +66,7 @@ namespace Reusable.IOnymous.Config
                             (string)value,
                             request
                                 .Context
-                                .CopyResourceProperties()
+                                .Copy<ResourceProperties>()
                                 .SetItem(SettingProperty.Converter, ResourceConverter)
                         );
                     }
@@ -93,7 +93,7 @@ namespace Reusable.IOnymous.Config
 
             return await GetSettingAsync(new Request.Get(request.Uri)
             {
-                Context = request.Context.CopyResourceProperties()
+                Context = request.Context.Copy<ResourceProperties>()
             });
         }
     }

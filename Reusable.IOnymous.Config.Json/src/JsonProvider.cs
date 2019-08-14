@@ -39,8 +39,8 @@ namespace Reusable.IOnymous.Config
                         data,
                         request
                             .Context
-                            .CopyResourceProperties()
-                            .SetUri(request.Uri)
+                            .Copy<ResourceProperties>()
+                            .SetItem(ResourceProperties.Uri, request.Uri)
                             .SetItem(SettingProperty.Converter, ResourceConverter)
                     );
             return result.ToTask();

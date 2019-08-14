@@ -37,8 +37,8 @@ namespace Reusable.IOnymous
         protected ResourceProvider([NotNull] IImmutableContainer properties)
         {
             if (properties == null) throw new ArgumentNullException(nameof(properties));
-            
-            if (!properties.GetSchemes().Any())
+
+            if (properties.GetItemOrDefault(ResourceProviderProperties.Schemes) is var schemes && (schemes is null || !schemes.Any()))
             {
                 throw new ArgumentException
                 (
@@ -47,13 +47,13 @@ namespace Reusable.IOnymous
                 );
             }
 
-            Properties = properties.AddTag(GetType().ToPrettyString().ToSoftString());
+            Properties = properties.UpdateItem(ResourceProviderProperties.Tags, tags => tags.Add(GetType().ToPrettyString().ToSoftString()));
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
         {
-            builder.DisplayEnumerable(p => p.Properties.Tags(), x => x.ToString());
-            builder.DisplayEnumerable(p => p.Properties.GetSchemes(), x => x.ToString());
+            //builder.DisplayEnumerable(p => p.Properties.Tags(), x => x.ToString());
+            //builder.DisplayEnumerable(p => p.Properties.GetSchemes(), x => x.ToString());
             //builder.DisplayValues(p => Names);
             //builder.DisplayValue(x => x.Schemes);
         });
@@ -70,14 +70,14 @@ namespace Reusable.IOnymous
     {
         public static bool SupportsRelativeUri(this IResourceProvider resourceProvider)
         {
-            return resourceProvider.Properties.GetItemOrDefault(ResourceProviderProperty.SupportsRelativeUri);
+            return resourceProvider.Properties.GetItemOrDefault(ResourceProviderProperties.SupportsRelativeUri);
         }
     }
 
     [UseType, UseMember]
     [PlainSelectorFormatter]
     [Rename(nameof(ResourceProvider))]
-    public class ResourceProviderProperty : SelectorBuilder<ResourceProviderProperty>
+    public class ResourceProviderProperties : SelectorBuilder<ResourceProviderProperties>
     {
         public static readonly Selector<IImmutableSet<SoftString>> Schemes = Select(() => Schemes);
 

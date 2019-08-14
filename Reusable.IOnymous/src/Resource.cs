@@ -50,11 +50,11 @@ namespace Reusable.IOnymous
 
         public virtual IImmutableContainer Properties { get; }
 
-        public UriString Uri => Properties.GetItemOrDefault(ResourceProperty.Uri);
+        public UriString Uri => Properties.GetItemOrDefault(ResourceProperties.Uri);
 
-        public bool Exists => Properties.GetItemOrDefault(ResourceProperty.Exists);
+        public bool Exists => Properties.GetItemOrDefault(ResourceProperties.Exists);
 
-        public virtual MimeType Format => Properties.GetItemOrDefault(ResourceProperty.Format);
+        public virtual MimeType Format => Properties.GetItemOrDefault(ResourceProperties.Format);
 
         public abstract Task CopyToAsync(Stream stream);
 
@@ -80,7 +80,7 @@ namespace Reusable.IOnymous
 
             public static IResource FromRequest(Request request)
             {
-                return new DoesNotExist(request.Context.CopyResourceProperties().SetUri(request.Uri));
+                return new DoesNotExist(request.Context.Copy<ResourceProperties>().SetItem(ResourceProperties.Uri, request.Uri));
             }
 
             public override Task CopyToAsync(Stream stream)
@@ -90,10 +90,9 @@ namespace Reusable.IOnymous
         }
     }
 
-    [UseType, UseMember]
+    [UseType(nameof(Resource)), UseMember]
     [PlainSelectorFormatter]
-    [Rename(nameof(Resource))]
-    public class ResourceProperty : SelectorBuilder<ResourceProperty>
+    public abstract class ResourceProperties : SelectorBuilder<ResourceProperties>
     {
         public static readonly Selector<UriString> Uri = Select(() => Uri);
 
@@ -113,7 +112,7 @@ namespace Reusable.IOnymous
 
         public static readonly Selector<string> ActualName = Select(() => ActualName);
 
-        public static Selector<Func<Stream, Task<object>>> DeserializeAsync { get; } = Select(() => DeserializeAsync);
+        public static readonly Selector<Func<Stream, Task<object>>> DeserializeAsync = Select(() => DeserializeAsync);
     }
 
     public class PlainResource : Resource
@@ -123,9 +122,9 @@ namespace Reusable.IOnymous
 
         public PlainResource(string value, IImmutableContainer properties)
             : base(properties
-                .SetExists(!(value is null))
-                .SetFormat(MimeType.Plain)
-                .SetItem(ResourceProperty.DeserializeAsync, async stream => await ResourceHelper.DeserializeTextAsync(stream, Encoding.UTF8)))
+                .SetItem(ResourceProperties.Exists, !(value is null))
+                .SetItem(ResourceProperties.Format, MimeType.Plain)
+                .SetItem(ResourceProperties.DeserializeAsync, async stream => await ResourceHelper.DeserializeTextAsync(stream, Encoding.UTF8)))
         {
             _value = value;
         }
@@ -146,9 +145,9 @@ namespace Reusable.IOnymous
 
         public JsonResource(string value, IImmutableContainer properties)
             : base(properties
-                .SetExists(!(value is null))
-                .SetFormat(MimeType.Json)
-                .SetItem(ResourceProperty.DeserializeAsync, async stream => await ResourceHelper.DeserializeTextAsync(stream, Encoding.UTF8)))
+                .SetItem(ResourceProperties.Exists, !(value is null))
+                .SetItem(ResourceProperties.Format, MimeType.Json)
+                .SetItem(ResourceProperties.DeserializeAsync, async stream => await ResourceHelper.DeserializeTextAsync(stream, Encoding.UTF8)))
         {
             _value = value;
         }
@@ -169,9 +168,9 @@ namespace Reusable.IOnymous
 
         public ObjectResource(object value, IImmutableContainer properties)
             : base(properties
-                .SetExists(!(value is null))
-                .SetFormat(MimeType.Binary)
-                .SetItem(ResourceProperty.DeserializeAsync, async stream => await ResourceHelper.DeserializeBinaryAsync(stream)))
+                .SetItem(ResourceProperties.Exists, !(value is null))
+                .SetItem(ResourceProperties.Format, MimeType.Binary)
+                .SetItem(ResourceProperties.DeserializeAsync, async stream => await ResourceHelper.DeserializeBinaryAsync(stream)))
         {
             _value = value;
         }
@@ -192,8 +191,8 @@ namespace Reusable.IOnymous
 
         internal StreamResource(Stream value, IImmutableContainer properties)
             : base(properties
-                .SetExists(value != null && value != Stream.Null)
-                .SetFormat(MimeType.Binary))
+                .SetItem(ResourceProperties.Exists, value != null && value != Stream.Null)
+                .SetItem(ResourceProperties.Format, MimeType.Binary))
         {
             _value = value;
         }

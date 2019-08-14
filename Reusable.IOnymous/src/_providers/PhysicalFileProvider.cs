@@ -17,15 +17,15 @@ namespace Reusable.IOnymous
     {
         public PhysicalFileProvider(IImmutableContainer properties = default) 
             : base(properties.ThisOrEmpty()
-                .SetScheme(UriSchemes.Known.File)
-                .SetItem(ResourceProviderProperty.SupportsRelativeUri, true)
+                .UpdateItem(ResourceProviderProperties.Schemes, s => s.Add(UriSchemes.Known.File))
+                .SetItem(ResourceProviderProperties.SupportsRelativeUri, true)
             ) 
         { }
 
         [ResourceGet]
         public Task<IResource> GetFileAsync(Request request)
         {
-            return new PhysicalFile(request.Context.Copy(ResourceProperty.Selectors).SetUri(CreateUri(request.Uri))).ToTask<IResource>();
+            return new PhysicalFile(request.Context.Copy(ResourceProperties.Selectors).SetItem(ResourceProperties.Uri, CreateUri(request.Uri))).ToTask<IResource>();
         }
 
         [ResourcePut]
@@ -45,7 +45,7 @@ namespace Reusable.IOnymous
         public Task<IResource> DeleteFileAsync(Request request)
         {
             File.Delete(request.Uri.ToUnc());
-            return new PhysicalFile(request.Context.Copy(ResourceProperty.Selectors).SetUri(request.Uri)).ToTask<IResource>();
+            return new PhysicalFile(request.Context.Copy(ResourceProperties.Selectors).SetItem(ResourceProperties.Uri, request.Uri)).ToTask<IResource>();
         }
 
         private UriString CreateUri(UriString uri)
@@ -71,10 +71,10 @@ namespace Reusable.IOnymous
     {
         public PhysicalFile(IImmutableContainer properties)
             : base(properties
-                    .SetItem(ResourceProperty.Exists, p => File.Exists(p.GetItemOrDefault(ResourceProperty.Uri).ToUnc()))
-                    .SetItem(ResourceProperty.Length, p =>
-                        p.GetExists()
-                            ? new FileInfo(p.GetItemOrDefault(ResourceProperty.Uri).ToUnc()).Length
+                    .SetItem(ResourceProperties.Exists, p => File.Exists(p.GetItemOrDefault(ResourceProperties.Uri).ToUnc()))
+                    .SetItem(ResourceProperties.Length, p =>
+                        p.GetItem(ResourceProperties.Exists)
+                            ? new FileInfo(p.GetItemOrDefault(ResourceProperties.Uri).ToUnc()).Length
                             : -1)
                 //.SetItem(PropertySelector.Select(x => x.ModifiedOn), p => )
             ) { }

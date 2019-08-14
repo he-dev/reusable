@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Linq.Custom;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Text;
@@ -12,7 +11,7 @@ using System.Threading.Tasks;
 // Unreachable code detected - this is for testing so we don't care about it.
 #pragma warning disable CS0162 
 
-namespace Reusable.Apps
+namespace Reusable
 {
     internal static class Program
     {
@@ -31,10 +30,12 @@ namespace Reusable.Apps
             //Demo.SemanticExtensions();
             
             
-            Examples.OmniLog.Example.Run();
-            
-            
-            
+            //Examples.Log();
+            //await Examples.SendEmailAsync_Mailr();
+            //await Examples.SendEmailAsync_Smtp();
+
+
+
             //await Demo.SendEmailAsync_Smtp();
             //await Demo.SendEmailAsync_Mailr();
 

@@ -18,7 +18,11 @@ namespace Reusable.IOnymous
         private readonly IDictionary<SoftString, object> _items = new Dictionary<SoftString, object>();
 
         public InMemoryProvider(IImmutableContainer properties = default)
-            : base(properties.ThisOrEmpty().SetWhen(x => !x.GetSchemes().Any(), x => x.SetScheme(UriSchemes.Custom.IOnymous))) { }
+            : base(
+                properties
+                    .ThisOrEmpty()
+                    .UpdateItem(ResourceProviderProperties.Schemes, s => s.Any() ? s : s.Add(UriSchemes.Custom.IOnymous))
+                ) { }
 
         [ResourceGet]
         public Task<IResource> GetAsync(Request request)
@@ -28,10 +32,10 @@ namespace Reusable.IOnymous
                 switch (obj)
                 {
                     case string str:
-                        return new PlainResource(str, request.Context.CopyResourceProperties()).ToTask<IResource>();
+                        return new PlainResource(str, request.Context.Copy<ResourceProperties>()).ToTask<IResource>();
 
                     default:
-                        return new ObjectResource(obj, request.Context.CopyResourceProperties()).ToTask<IResource>();
+                        return new ObjectResource(obj, request.Context.Copy<ResourceProperties>()).ToTask<IResource>();
                 }
             }
             else

@@ -10,7 +10,7 @@ namespace Reusable.IOnymous
     {
         public MimeType(SoftString name, IImmutableSet<SoftString> values) : base(name, values) { }
 
-        public static readonly MimeType Empty = CreateWithCallerName();
+        //public static readonly MimeType Empty = CreateWithCallerName();
 
         /// <summary>
         /// Any document that contains text and is theoretically human readable

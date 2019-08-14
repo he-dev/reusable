@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Reusable.Data;
 
 namespace Reusable.IOnymous
 {
@@ -9,14 +10,15 @@ namespace Reusable.IOnymous
     {
         public static IEnumerable<IResourceProvider> FilterByProviderTags(this IEnumerable<IResourceProvider> providers, Request request)
         {
-            if (!request.Context.Tags().Any())
+            if (!request.Context.GetItemOrDefault(ResourceProviderProperties.Tags).Any())
             {
                 return providers;
             }
             
             return
                 from p in providers
-                where p.Properties.Tags().Overlaps(request.Context.Tags())
+                let providerTags = p.Properties.GetItemOrDefault(ResourceProviderProperties.Tags)
+                where providerTags.Overlaps(request.Context.GetItemOrDefault(ResourceProviderProperties.Tags))
                 select p;
         }
 
@@ -25,7 +27,8 @@ namespace Reusable.IOnymous
             var canFilter = !(request.Uri.IsRelative || (request.Uri.IsAbsolute && request.Uri.Scheme == UriSchemes.Custom.IOnymous));
             return
                 from p in providers
-                where !canFilter || p.Properties.GetSchemes().Overlaps(new[] { UriSchemes.Custom.IOnymous, request.Uri.Scheme })
+                let schemes = p.Properties.GetItem(ResourceProviderProperties.Schemes)
+                where !canFilter || schemes.Overlaps(new[] { UriSchemes.Custom.IOnymous, request.Uri.Scheme })
                 select p;
         }
 

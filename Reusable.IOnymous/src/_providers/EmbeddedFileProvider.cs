@@ -19,8 +19,8 @@ namespace Reusable.IOnymous
             : base(
                 properties
                     .ThisOrEmpty()
-                    .SetScheme(UriSchemes.Known.File)
-                    .SetItem(ResourceProviderProperty.SupportsRelativeUri, true)
+                    .UpdateItem(ResourceProviderProperties.Schemes, s => s.Add(UriSchemes.Known.File))
+                    .SetItem(ResourceProviderProperties.SupportsRelativeUri, true)
             )
 
         {
@@ -44,7 +44,7 @@ namespace Reusable.IOnymous
             return
                 actualName is null
                     ? DoesNotExist(request).ToTask()
-                    : new EmbeddedFile(request.Context.CopyResourceProperties().SetUri(fullUri), () => _assembly.GetManifestResourceStream(actualName)).ToTask<IResource>();
+                    : new EmbeddedFile(request.Context.Copy<ResourceProperties>().SetItem(ResourceProperties.Uri, fullUri), () => _assembly.GetManifestResourceStream(actualName)).ToTask<IResource>();
         }
 
         [UseType, UseMember]
@@ -72,7 +72,7 @@ namespace Reusable.IOnymous
         private readonly Func<Stream> _getManifestResourceStream;
 
         public EmbeddedFile(IImmutableContainer properties, [NotNull] Func<Stream> getManifestResourceStream)
-            : base(properties.SetExists(true))
+            : base(properties.SetItem(ResourceProperties.Exists, true))
         {
             _getManifestResourceStream = getManifestResourceStream ?? throw new ArgumentNullException(nameof(getManifestResourceStream));
         }

@@ -28,7 +28,7 @@ namespace Reusable.IOnymous
         {
             if (!resource.Exists) throw new InvalidOperationException($"Cannot deserialize a resource that does not exist: '{resource.Uri.ToString()}'");
 
-            var format = resource.Properties.GetItemOrDefault(ResourceProperty.Format);
+            var format = resource.Properties.GetItemOrDefault(ResourceProperties.Format);
 
             if (!format.Contains(MimeType.Plain | MimeType.Html))
             {
@@ -62,7 +62,7 @@ namespace Reusable.IOnymous
 
         public static async Task<T> DeserializeJsonAsync<T>(this IResource resource, JsonSerializer jsonSerializer = null)
         {
-            var format = resource.Properties.GetItemOrDefault(ResourceProperty.Format);
+            var format = resource.Properties.GetItemOrDefault(ResourceProperties.Format);
             if (format != MimeType.Json)
             {
                 throw new ArgumentException($"Resource must be '{MimeType.Json}' but is '{format}'.");
@@ -85,7 +85,7 @@ namespace Reusable.IOnymous
             using (var memoryStream = new MemoryStream())
             {
                 await resource.CopyToAsync(memoryStream);
-                return await resource.Properties.GetItemOrDefault(ResourceProperty.DeserializeAsync)(memoryStream);
+                return await resource.Properties.GetItemOrDefault(ResourceProperties.DeserializeAsync)(memoryStream);
             }
         }
 

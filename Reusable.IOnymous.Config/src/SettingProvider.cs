@@ -13,7 +13,7 @@ namespace Reusable.IOnymous.Config
     public abstract class SettingProvider : ResourceProvider
     {
         protected SettingProvider(IImmutableContainer properties)
-            : base(properties.SetScheme("config")) { }
+            : base(properties.UpdateItem(ResourceProviderProperties.Schemes, s => s.Add("config"))) { }
 
         protected string GetResourceName(UriString uriString)
         {

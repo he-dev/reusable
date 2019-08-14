@@ -96,47 +96,6 @@ namespace Reusable.Apps
                 builder.DisplayEnumerable(x => x.Nicknames, x => x);
             });
         }
-
-        public static async Task SendEmailAsync_Smtp()
-        {
-            var context =
-                ImmutableContainer
-                    .Empty
-                    .SetItem(SmtpRequestContext.Host, "localhost")
-                    .SetItem(SmtpRequestContext.Port, 25);
-
-            var smtp = new SmtpProvider();
-            await smtp.SendEmailAsync(new Email<EmailSubject, EmailBody>
-            {
-                From = "console@test.com",
-                To = { "me@test.com" },
-                CC = { "you@test.com" },
-                Subject = new EmailSubject { Value = "How are you?" },
-                Body = new EmailBody { Value = "<p>I'm fine!</p>" },
-                IsHtml = true,
-                Attachments = new Dictionary<string, byte[]>()
-            }, context);
-        }
-
-        public static async Task SendEmailAsync_Mailr()
-        {
-            var http = HttpProvider.FromBaseUri("http://localhost:7000/api");
-            await http.SendEmailAsync
-            (
-                "v1.0/mailr/messages/plaintext",
-                new UserAgent("Console", "v12"),
-                new Email.Html
-                {
-                    From = "console@test.com",
-                    To = { "me@test.com" },
-                    CC = { "you@test.com" },
-                    Subject = "How are you Mailr?",
-                    Body = "<p>I'm great!</p>",
-                    IsHtml = true,
-                    Attachments = new Dictionary<string, byte[]>()
-                }
-            );
-        }
     }
 
     public class Person

@@ -36,9 +36,9 @@ namespace Reusable.IOnymous.Config
                         element.Value,
                         request
                             .Context
-                            .CopyResourceProperties()
+                            .Copy<ResourceProperties>()
                             .SetItem(SettingProperty.Converter, ResourceConverter)
-                            .SetItem(ResourceProperty.ActualName, settingIdentifier)
+                            .SetItem(ResourceProperties.ActualName, settingIdentifier)
                     );
 
             return result.ToTask();

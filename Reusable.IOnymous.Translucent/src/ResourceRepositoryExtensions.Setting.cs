@@ -23,7 +23,7 @@ namespace Reusable.IOnymous
             {
                 var value = await resource.DeserializeAsync();
                 var converter = resource.Properties.GetItemOrDefault(SettingProperty.Converter);
-                return converter?.Convert(value, resource.Properties.GetDataType()) ?? value;
+                return converter?.Convert(value, resource.Properties.GetItem(ResourceProperties.DataType)) ?? value;
             }
         }
 

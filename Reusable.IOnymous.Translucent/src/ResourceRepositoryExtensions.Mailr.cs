@@ -42,7 +42,7 @@ namespace Reusable.IOnymous
                     .SetItem(HttpRequestContext.ContentType, "application/json")
                     .SetItem(HttpResponseContext.Formatters, new[] { new TextMediaTypeFormatter() })
                     .SetItem(HttpResponseContext.ContentType, "application/json")
-                    .AddTag(providerName.ToSoftString());
+                    .UpdateItem(ResourceProviderProperties.Tags, tags => tags.Add(providerName.ToSoftString()));
 
             var response = await resourceRepository.InvokeAsync(new Request.Post(uri)
             {

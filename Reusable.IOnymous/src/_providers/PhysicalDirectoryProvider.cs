@@ -11,7 +11,11 @@ namespace Reusable.IOnymous
     public class PhysicalDirectoryProvider : ResourceProvider
     {
         public PhysicalDirectoryProvider(IImmutableContainer properties = default)
-            : base(properties.ThisOrEmpty().SetScheme("directory")) { }
+            : base(
+                properties
+                    .ThisOrEmpty()
+                    .UpdateItem(ResourceProviderProperties.Schemes, s => s.Add("directory"))
+                ) { }
 
         private Task<IResource> GetAsync(Request request)
         {
@@ -19,7 +23,7 @@ namespace Reusable.IOnymous
                 new PhysicalDirectory(
                     ImmutableContainer
                         .Empty
-                        .SetItem(ResourceProperty.Uri, request.Uri)));
+                        .SetItem(ResourceProperties.Uri, request.Uri)));
         }
 
         private async Task<IResource> PutAsync(Request request)
@@ -44,13 +48,13 @@ namespace Reusable.IOnymous
     {
         public PhysicalDirectory(IImmutableContainer properties)
             : base(properties
-                .SetItem(ResourceProperty.Exists, Directory.Exists(properties.GetItemOrDefault(ResourceProperty.Uri).Path.Decoded.ToString()))
-                .SetItem(ResourceProperty.Format, MimeType.None)
-                .SetItem(ResourceProperty.ModifiedOn, p =>
+                .SetItem(ResourceProperties.Exists, Directory.Exists(properties.GetItemOrDefault(ResourceProperties.Uri).Path.Decoded.ToString()))
+                .SetItem(ResourceProperties.Format, MimeType.None)
+                .SetItem(ResourceProperties.ModifiedOn, p =>
                 {
                     return
-                        p.GetItemOrDefault(ResourceProperty.Exists)
-                            ? Directory.GetLastWriteTimeUtc(properties.GetItemOrDefault(ResourceProperty.Uri).Path.Decoded.ToString())
+                        p.GetItemOrDefault(ResourceProperties.Exists)
+                            ? Directory.GetLastWriteTimeUtc(properties.GetItemOrDefault(ResourceProperties.Uri).Path.Decoded.ToString())
                             : DateTime.MinValue;
                 })) { }
 

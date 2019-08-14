@@ -80,17 +80,18 @@ namespace Reusable.IOnymous
         
         public static async Task<T> Deserialize<T>(Stream value, IImmutableContainer properties)
         {
-            if (properties.GetFormat() == MimeType.Plain)
+            
+            if (properties.GetItemOrDefault(ResourceProperties.Format, MimeType.None) == MimeType.Plain)
             {
                 return (T)(object)await DeserializeTextAsync(value);
             }
             
-            if (properties.GetFormat() == MimeType.Binary)
+            if (properties.GetItemOrDefault(ResourceProperties.Format, MimeType.None) == MimeType.Binary)
             {
                 return (T)await DeserializeBinaryAsync(value);
             }
             
-            throw DynamicException.Create("ResourceFormat", $"Unsupported resource format: '{properties.GetFormat()}'.");
+            throw DynamicException.Create("ResourceFormat", $"Unsupported resource format: '{properties.GetItemOrDefault(ResourceProperties.Format, MimeType.None)}'.");
         }
     }
 }

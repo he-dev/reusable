@@ -14,7 +14,7 @@ namespace Reusable.IOnymous
         {
             return await resourceRepository.InvokeAsync(new Request.Get(CreateUri(path))
             {
-                Context = properties.ThisOrEmpty().SetItem(ResourceProperty.Format, format)
+                Context = properties.ThisOrEmpty().SetItem(ResourceProperties.Format, format)
             });
         }
         
@@ -39,8 +39,8 @@ namespace Reusable.IOnymous
             return await resourceRepository.InvokeAsync(new Request.Put(CreateUri(path))
             {
                 Body = value,
-                CreateBodyStreamCallback = body => ResourceHelper.SerializeTextAsync((string)body, properties.ThisOrEmpty().GetItemOrDefault(ResourceProperty.Encoding, Encoding.UTF8)),
-                Context = properties.ThisOrEmpty().SetItem(ResourceProperty.Format, MimeType.Plain)
+                CreateBodyStreamCallback = body => ResourceHelper.SerializeTextAsync((string)body, properties.ThisOrEmpty().GetItemOrDefault(ResourceProperties.Encoding, Encoding.UTF8)),
+                Context = properties.ThisOrEmpty().SetItem(ResourceProperties.Format, MimeType.Plain)
             });
         }
 
@@ -59,7 +59,7 @@ namespace Reusable.IOnymous
         {
             return await resourceRepository.InvokeAsync(new Request.Delete(CreateUri(path))
             {
-                Context = metadata.ThisOrEmpty().SetItem(ResourceProperty.Format, MimeType.Plain)
+                Context = metadata.ThisOrEmpty().SetItem(ResourceProperties.Format, MimeType.Plain)
             });
         }
 

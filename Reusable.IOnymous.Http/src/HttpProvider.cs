@@ -25,9 +25,10 @@ namespace Reusable.IOnymous.Http
             : base(
                 metadata
                     .ThisOrEmpty()
-                    .SetScheme(UriSchemes.Known.Http)
-                    .SetScheme(UriSchemes.Known.Https)
-                    .SetItem(ResourceProviderProperty.SupportsRelativeUri, true))
+                    .UpdateItem(ResourceProviderProperties.Schemes, s => s
+                        .Add(UriSchemes.Known.Http)
+                        .Add(UriSchemes.Known.Https))
+                    .SetItem(ResourceProviderProperties.SupportsRelativeUri, true))
         {
             _client = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _client.DefaultRequestHeaders.Clear();
@@ -74,7 +75,7 @@ namespace Reusable.IOnymous.Http
             {
                 var uri = BaseUri + request.Uri;
                 var (response, mediaType) = await InvokeAsync(uri, httpMethod, request.Body, request.Context);
-                return new HttpResource(request.Context.CopyResourceProperties().SetFormat(mediaType), response);
+                return new HttpResource(request.Context.Copy<ResourceProperties>().SetItem(ResourceProperties.Format, mediaType), response);
             };
         }
 
@@ -163,7 +164,7 @@ namespace Reusable.IOnymous.Http
 
         internal HttpResource(IImmutableContainer properties, Stream response = default)
             : base(properties
-                .SetExists(!(response is null)))
+                .SetItem(ResourceProperties.Exists, !(response is null)))
         {
             _response = response;
         }
