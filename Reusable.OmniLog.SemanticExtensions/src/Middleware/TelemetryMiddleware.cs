@@ -24,29 +24,30 @@ namespace Reusable.IOnymous.Middleware
 
         public async Task InvokeAsync(ResourceContext context)
         {
-            var stopwatch = _logger.UseStopwatch();
-            try
+            using (_logger.UseScope(correlationHandle: "ResourceTelemetry"))
+            using (_logger.UseStopwatch())
             {
-                await _next(context);
-                _logger.Log(Abstraction.Layer.IO().Routine("ResourceRequest").Completed(), l => l.Message(context.Request.Uri.ToString()));
-            }
-            catch (Exception inner)
-            {
-                _logger.Log(Abstraction.Layer.IO().Routine("ResourceRequest").Faulted(inner), l => l.Message(context.Request.Uri.ToString()));
-                throw;
-            }
-            finally
-            {
-                stopwatch.Dispose();
+                var requestUri = context.Request.Uri.ToString();
+                try
+                {
+                    await _next(context);
+                    var responseUri = context.Response?.Uri?.ToString();
+                    _logger.Log(Abstraction.Layer.IO().Meta(new { requestUri, responseUri, exists = context.Response?.Exists }, "Resource"));
+                }
+                catch (Exception inner)
+                {
+                    _logger.Log(Abstraction.Layer.IO().Routine("ResourceRequest").Faulted(inner), l => l.Message(requestUri));
+                    throw;
+                }
             }
         }
     }
 
     public static class TelemetryMiddlewareHelper
     {
-        public static MiddlewareBuilder UseTelemetry(this MiddlewareBuilder builder)
+        public static MiddlewareBuilder UseTelemetry(this MiddlewareBuilder builder, ILogger<TelemetryMiddleware> logger)
         {
-            return builder.Add<TelemetryMiddleware>();
+            return builder.Add<TelemetryMiddleware>(logger);
         }
     }
 }

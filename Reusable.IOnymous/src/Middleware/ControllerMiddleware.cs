@@ -71,6 +71,7 @@ namespace Reusable.IOnymous.Middleware
             }
 
             await _next(context);
+            //context.Response.Uri = 
         }
 
         private Task<IResource> InvokeAsync(IResourceController controller, Request request)
