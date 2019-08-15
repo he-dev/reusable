@@ -38,7 +38,7 @@ namespace Reusable.Translucent
             return await resourceSquid.InvokeAsync(new Request.Put(CreateUri(path))
             {
                 Body = value,
-                CreateBodyStreamCallback = body => ResourceHelper.SerializeTextAsync((string)body, properties.ThisOrEmpty().GetItemOrDefault(ResponseProperties.Encoding, Encoding.UTF8)),
+                CreateBodyStreamCallback = body => ResourceHelper.SerializeTextAsync((string)body, properties.ThisOrEmpty().GetItemOrDefault(ResourceProperties.Encoding, Encoding.UTF8)),
                 ContentType = MimeType.Plain
             });
         }

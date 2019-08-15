@@ -46,9 +46,9 @@ namespace Reusable.Translucent
         NotFound
     }
 
-    [UseType(nameof(Response)), UseMember]
+    [UseType("Resource"), UseMember]
     [PlainSelectorFormatter]
-    public abstract class ResponseProperties : SelectorBuilder<ResponseProperties>
+    public abstract class ResourceProperties : SelectorBuilder<ResourceProperties>
     {
         //public static readonly Selector<UriString> Uri = Select(() => Uri);
 
