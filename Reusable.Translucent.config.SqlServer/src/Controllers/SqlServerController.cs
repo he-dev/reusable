@@ -61,7 +61,7 @@ namespace Reusable.Translucent.Controllers
                         var value = settingReader[ColumnMappings.MapOrDefault(SqlServerColumn.Value)];
                         return new Response.OK
                         {
-                            Body = ((string)value).ToStream(),
+                            Body = value,
                             ContentType = MimeType.Json,
                             Metadata =
                                 request

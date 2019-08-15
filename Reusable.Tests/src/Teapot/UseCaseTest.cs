@@ -69,7 +69,7 @@ namespace Reusable.Teapot
                 var response = await _resources.InvokeAsync(request);
 
                 Assert.True(response.Exists());
-                var original = await response.DeserializeJsonAsync<object>();
+                //var original = await response.DeserializeJsonAsync<object>();
                 //}
 
                 //apiMocks.Assert();

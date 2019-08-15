@@ -5,8 +5,7 @@ using Reusable.Translucent.Models;
 
 namespace Reusable.Translucent
 {
-    // Provides CRUD APIs.
-    public static partial class ResourceSquidExtensions
+    public static class ResourceSquidExtensions
     {
         public static async Task<Response> SendEmailAsync
         (
@@ -18,21 +17,21 @@ namespace Reusable.Translucent
             context =
                 context
                     .ThisOrEmpty()
-                    .SetItem(MailRequestMetadata.From, email.From)
-                    .SetItem(MailRequestMetadata.To, email.To)
-                    .SetItem(MailRequestMetadata.CC, email.CC)
-                    .SetItem(MailRequestMetadata.Subject, email.Subject.Value)
-                    .SetItem(MailRequestMetadata.Attachments, email.Attachments)
-                    .SetItem(MailRequestMetadata.From, email.From)
-                    .SetItem(MailRequestMetadata.IsHtml, email.IsHtml)
-                    .SetItem(MailRequestMetadata.IsHighPriority, email.IsHighPriority);
+                    .SetItem(MailController.From, email.From)
+                    .SetItem(MailController.To, email.To)
+                    .SetItem(MailController.CC, email.CC)
+                    .SetItem(MailController.Subject, email.Subject.Value)
+                    .SetItem(MailController.Attachments, email.Attachments)
+                    .SetItem(MailController.From, email.From)
+                    .SetItem(MailController.IsHtml, email.IsHtml)
+                    .SetItem(MailController.IsHighPriority, email.IsHighPriority);
 
             return
                 await resourceSquid.InvokeAsync(new Request.Post($"{UriSchemes.Known.MailTo}:dummy@email.com")
                 {
-                    Metadata = context,
                     Body = email.Body.Value,
-                    CreateBodyStreamCallback = body => ResourceHelper.SerializeTextAsync((string)body, email.Body.Encoding)
+                    Metadata = context,
+                    //CreateBodyStreamCallback = () => ResourceHelper.SerializeTextAsync(email.Body.Value, email.Body.Encoding)
                 });
         }
     }

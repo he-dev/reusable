@@ -16,7 +16,7 @@ namespace Reusable.Translucent.config
             Assert.Equal(RequestMethod.Get, request.Method);
             Assert.Equal(new UriString("config:settings?name=Map.City"), request.Uri.ToString());
             Assert.Same(body, request.Body);
-            Assert.Equal(typeof(string), request.Metadata.GetItem(ResourceProperties.DataType));
+            //Assert.Equal(typeof(string), request.Metadata.GetItem(ResourceProperties.DataType));
             Assert.Equal(new[] { "ThisOne" }, request.Metadata.GetItem(ResourceController.Tags).Select(x => x.ToString()));
         }
 

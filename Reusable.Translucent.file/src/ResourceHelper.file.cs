@@ -5,22 +5,22 @@ using Reusable.Data;
 
 namespace Reusable.Translucent
 {
-    public static class ResourceSquidExtensions
+    public static class FileResourceHelper
     {
         // file:///
 
-        public static async Task<Response> GetFileAsync(this IResourceSquid resourceSquid, string path, MimeType format, IImmutableContainer properties = default)
+        public static async Task<Response> GetFileAsync(this IResourceSquid resourceSquid, string path, IImmutableContainer properties = default)
         {
             return await resourceSquid.InvokeAsync(new Request.Get(CreateUri(path))
             {
                 //ContentType = format
-                Metadata = properties.ThisOrEmpty().SetItem(ResourceProperties.Accept, format)
+                //Metadata = properties.ThisOrEmpty().SetItem(Request.Accept, format)
             });
         }
-        
+
         public static async Task<string> ReadTextFileAsync(this IResourceSquid resourceSquid, string path, IImmutableContainer metadata = default)
         {
-            using (var file = await resourceSquid.GetFileAsync(path, MimeType.Plain, metadata))
+            using (var file = await resourceSquid.GetFileAsync(path, metadata))
             {
                 return await file.DeserializeTextAsync();
             }
@@ -28,36 +28,33 @@ namespace Reusable.Translucent
 
         public static string ReadTextFile(this IResourceSquid resourceSquid, string path, IImmutableContainer metadata = default)
         {
-            using (var file = resourceSquid.GetFileAsync(path, MimeType.Plain, metadata).GetAwaiter().GetResult())
+            using (var file = resourceSquid.GetFileAsync(path, metadata).GetAwaiter().GetResult())
             {
                 return file.DeserializeTextAsync().GetAwaiter().GetResult();
             }
         }
 
-        public static async Task<Response> WriteTextFileAsync(this IResourceSquid resourceSquid, string path, string value, IImmutableContainer properties = default)
+        public static async Task WriteTextFileAsync(this IResourceSquid resourceSquid, string path, string value, IImmutableContainer properties = default)
         {
-            return await resourceSquid.InvokeAsync(new Request.Put(CreateUri(path))
+            using (await resourceSquid.InvokeAsync(new Request.Put(CreateUri(path))
             {
                 Body = value,
-                CreateBodyStreamCallback = body => ResourceHelper.SerializeTextAsync((string)body, properties.ThisOrEmpty().GetItemOrDefault(ResourceProperties.Encoding, Encoding.UTF8)),
                 ContentType = MimeType.Plain
-            });
+            })) { }
         }
 
-        public static async Task<Response> WriteFileAsync(this IResourceSquid resourceSquid, string path, CreateStreamCallback createStream, IImmutableContainer context = default)
+        public static async Task WriteFileAsync(this IResourceSquid resourceSquid, string path, CreateStreamCallback createStream, IImmutableContainer context = default)
         {
-            return await resourceSquid.InvokeAsync(new Request.Put(CreateUri(path))
+            using (await resourceSquid.InvokeAsync(new Request.Put(CreateUri(path))
             {
-                // Body must not be null.
-                Body = Body.Null,
                 CreateBodyStreamCallback = createStream,
                 Metadata = context.ThisOrEmpty()
-            });
+            })) { }
         }
 
-        public static async Task<Response> DeleteFileAsync(this IResourceSquid resourceSquid, string path, IImmutableContainer metadata = default)
+        public static async Task DeleteFileAsync(this IResourceSquid resourceSquid, string path, IImmutableContainer metadata = default)
         {
-            return await resourceSquid.InvokeAsync(new Request.Delete(CreateUri(path))
+            await resourceSquid.InvokeAsync(new Request.Delete(CreateUri(path))
             {
                 ContentType = MimeType.Plain
             });
@@ -73,6 +70,5 @@ namespace Reusable.Translucent
 
         // https://www.pcmag.com/encyclopedia/term/53398/unc
         private static bool IsUnc(string value) => value.StartsWith("//");
-
     }
 }

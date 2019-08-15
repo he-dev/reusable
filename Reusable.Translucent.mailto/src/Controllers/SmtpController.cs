@@ -22,10 +22,10 @@ namespace Reusable.Translucent.Controllers
         public async Task<Response> SendEmailAsync(Request request)
         {
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(request.Metadata.GetItemOrDefault(MailRequestMetadata.From)));
-            message.To.AddRange(request.Metadata.GetItemOrDefault(MailRequestMetadata.To).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
-            message.Cc.AddRange(request.Metadata.GetItemOrDefault(MailRequestMetadata.CC, Enumerable.Empty<string>().ToList()).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
-            message.Subject = request.Metadata.GetItemOrDefault(MailRequestMetadata.Subject);
+            message.From.Add(new MailboxAddress(request.Metadata.GetItemOrDefault(From)));
+            message.To.AddRange(request.Metadata.GetItemOrDefault(To).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
+            message.Cc.AddRange(request.Metadata.GetItemOrDefault(CC, Enumerable.Empty<string>().ToList()).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
+            message.Subject = request.Metadata.GetItemOrDefault(Subject);
             var multipart = new Multipart("mixed");
 //            {
 //                new TextPart(request.Properties.GetItemOrDefault(From<IMailMeta>.Select(x => x.IsHtml)) ? TextFormat.Html : TextFormat.Plain)
@@ -36,13 +36,13 @@ namespace Reusable.Translucent.Controllers
 
             using (var body = await request.CreateBodyStreamAsync())
             {
-                multipart.Add(new TextPart(request.Metadata.GetItemOrDefault(MailRequestMetadata.IsHtml) ? TextFormat.Html : TextFormat.Plain)
+                multipart.Add(new TextPart(request.Metadata.GetItemOrDefault(IsHtml) ? TextFormat.Html : TextFormat.Plain)
                 {
                     Text = await ReadBodyAsync(body, request.Metadata)
                 });
             }
 
-            foreach (var attachment in request.Metadata.GetItemOrDefault(MailRequestMetadata.Attachments, new Dictionary<string, byte[]>()).Where(i => i.Key.IsNotNullOrEmpty() && i.Value.IsNotNull()))
+            foreach (var attachment in request.Metadata.GetItemOrDefault(Attachments, new Dictionary<string, byte[]>()).Where(i => i.Key.IsNotNullOrEmpty() && i.Value.IsNotNull()))
             {
                 var attachmentPart = new MimePart(MediaTypeNames.Application.Octet)
                 {

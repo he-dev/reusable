@@ -35,7 +35,7 @@ namespace Reusable.Translucent
                 Metadata =
                     ImmutableContainer
                         .Empty
-                        .SetItem(ResourceProperties.DataType, selector.DataType)
+                        //.SetItem(ResourceProperties.DataType, selector.DataType)
                         // request.Properties.GetItemOrDefault(From<IResourceMeta>.Select(x => x.Type)) == typeof(string)
                         //.SetItem(From<IProviderMeta>.Select(x => x.ProviderName), resource?.Provider.ToSoftString())
                         //.SetItem(ResourceProperty.ActualName, $"[{selector.Join(x => x.ToString(), ", ")}]")

@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -60,6 +61,14 @@ namespace Reusable.Translucent
             ContentType = contentType,
             Metadata = metadata
         };
+        
+        protected Response OK(Stream body, IImmutableContainer metadata = default) => new Response.OK
+        {
+            Body = body,
+            Metadata = metadata
+        };
+
+        protected Response OK() => new Response.OK();
 
         protected Response NotFound() => new Response.NotFound();
 
@@ -87,20 +96,10 @@ namespace Reusable.Translucent
         }
     }
 
-//    [UseType, UseMember]
-//    [PlainSelectorFormatter]
-//    [Rename(nameof(ResourceController))]
-//    public class ResourceControllerProperties : SelectorBuilder<ResourceControllerProperties>
-//    {
-//        public static readonly Selector<IImmutableSet<SoftString>> Schemes = Select(() => Schemes);
-//
-//        public static readonly Selector<IImmutableSet<SoftString>> Tags = Select(() => Tags);
-//
-//        public static readonly Selector<bool> SupportsRelativeUri = Select(() => SupportsRelativeUri);
-//    }
+    public delegate Task<Stream> CreateStreamCallback();
 
-    public delegate Task<Stream> CreateStreamCallback(object body);
-
+    [UseType, UseMember]
+    [PlainSelectorFormatter]
     public class Request
     {
         [NotNull]
@@ -113,19 +112,12 @@ namespace Reusable.Translucent
         public IImmutableContainer Metadata { get; set; } = ImmutableContainer.Empty;
 
         [CanBeNull]
-        public CreateStreamCallback CreateBodyStreamCallback { get; set; }
-
         public object Body { get; set; }
 
+        [CanBeNull]
+        public CreateStreamCallback CreateBodyStreamCallback { get; set; }
+
         public MimeType ContentType { get; set; }
-
-        public Task<Stream> CreateBodyStreamAsync()
-        {
-            if (Body is null) throw new InvalidOperationException($"Cannot create stream for a null {nameof(Body)}.");
-            if (CreateBodyStreamCallback is null) throw new InvalidOperationException($"Cannot create stream without a {nameof(CreateBodyStreamCallback)}.");
-
-            return CreateBodyStreamCallback(Body);
-        }
 
         #region Methods
 
@@ -166,6 +158,16 @@ namespace Reusable.Translucent
         }
 
         #endregion
+
+        #region Properties
+
+        private static readonly From<Request> This;
+
+        public static readonly Selector<MimeType> Accept = This.Select(() => Accept);
+
+        public static readonly Selector<Encoding> Encoding = This.Select(() => Encoding);
+
+        #endregion
     }
 
     public static class Body
@@ -183,10 +185,16 @@ namespace Reusable.Translucent
 
     public static class RequestExtensions
     {
-        public static Request SetProperties(this Request request, Func<IImmutableContainer, IImmutableContainer> properties)
+        public static Task<Stream> CreateBodyStreamAsync(this Request request)
         {
-            request.Metadata = properties(request.Metadata);
-            return request;
+            switch (request.Body)
+            {
+                case Stream stream: return stream.ToTask();
+                case string str: return str.ToStream().ToTask();
+                default:
+                    return request.CreateBodyStreamCallback?.Invoke() ??
+                           throw new InvalidOperationException($"Cannot create body stream because {nameof(Request.CreateBodyStreamCallback)} is not set.");
+            }
         }
 
         public static Request SetCreateBodyStream(this Request request, CreateStreamCallback createBodyStream)

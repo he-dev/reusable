@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
+using Reusable.Exceptionize;
 using Reusable.OneTo1;
 using Reusable.Quickey;
 using Reusable.Translucent.Controllers;
@@ -16,11 +17,18 @@ namespace Reusable.Translucent
         public static async Task<object> ReadSettingAsync(this IResourceSquid resourceSquid, Selector selector)
         {
             var request = SettingRequestBuilder.CreateRequest(RequestMethod.Get, selector);
-            using (var resource = await resourceSquid.InvokeAsync(request))
+            using (var response = await resourceSquid.InvokeAsync(request))
             {
-                var value = await resource.DeserializeTextAsync(); //().DeserializeAsync();
-                var converter = resource.Metadata.GetItemOrDefault(SettingControllerProperties.Converter);
-                return converter?.Convert(value, resource.Metadata.GetItem(ResourceProperties.DataType)) ?? value;
+                if (response.Exists() && response.Body is string body)
+                {
+                    //var value = await response.DeserializeTextAsync(); //().DeserializeAsync();
+                    var converter = response.Metadata.GetItemOrDefault(SettingControllerProperties.Converter);
+                    return converter?.Convert(body, selector.DataType);
+                }
+                else
+                {
+                    throw DynamicException.Create("SettingNotFount", $"Could not find '{selector}'.");
+                }
             }
         }
 

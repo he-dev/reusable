@@ -28,14 +28,14 @@ namespace Reusable.Translucent.Controllers
                     ? new Response.NotFound().ToTask<Response>()
                     : new Response.OK
                     {
-                        Body = element.Value.ToStream(),
+                        Body = element.Value,
                         ContentType = MimeType.Json,
                         Metadata =
                             request
                                 .Metadata
                                 .Copy<ResourceProperties>()
                                 .SetItem(SettingControllerProperties.Converter, ResourceConverter)
-                                .SetItem(ResourceProperties.ActualName, settingIdentifier)
+                                .SetItem(Response.ActualName, settingIdentifier)
                     }.ToTask<Response>();
         }
 

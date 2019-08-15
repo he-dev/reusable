@@ -70,9 +70,9 @@ namespace Reusable.Flexo
         [Fact]
         public async Task Can_deserialize_single_expression()
         {
-            using (var jsonFile = await TestHelper.Resources.GetFileAsync(@"ExpressionObject.json", MimeType.Json))
+            using (var jsonFile = await TestHelper.Resources.GetFileAsync(@"ExpressionObject.json"))
             {
-                var expression = await _helper.Serializer.DeserializeExpressionAsync(jsonFile.Body.Rewind());
+                var expression = await _helper.Serializer.DeserializeExpressionAsync((await jsonFile.CreateBodyStreamAsync()).Rewind());
                 Assert.NotNull(expression);
             }
         }

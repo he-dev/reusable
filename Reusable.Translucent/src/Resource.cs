@@ -11,17 +11,25 @@ using Reusable.Quickey;
 
 namespace Reusable.Translucent
 {
+    [UseType, UseMember]
+    [PlainSelectorFormatter]
     public class Response : IDisposable
     {
         public ResourceStatusCode StatusCode { get; set; }
 
-        public Stream Body { get; set; }
+        public object Body { get; set; }
 
         public MimeType ContentType { get; set; }
 
         public IImmutableContainer Metadata { get; set; }
 
-        public void Dispose() => Body?.Dispose();
+        public void Dispose()
+        {
+            if (Body is Stream stream)
+            {
+                stream.Dispose();
+            }
+        }
 
         public class OK : Response
         {
@@ -38,6 +46,18 @@ namespace Reusable.Translucent
                 StatusCode = ResourceStatusCode.NotFound;
             }
         }
+        
+        #region Properties
+        
+        private static readonly From<Response> This;
+        
+        public static readonly Selector<DateTime> CreateOn = This.Select(() => CreateOn);
+
+        public static readonly Selector<DateTime> ModifiedOn = This.Select(() => ModifiedOn);
+
+        public static readonly Selector<string> ActualName = This.Select(() => ActualName);
+        
+        #endregion
     }
 
     public enum ResourceStatusCode
@@ -56,19 +76,17 @@ namespace Reusable.Translucent
 
         //public static readonly Selector<long> Length = Select(() => Length);
 
-        public static readonly Selector<MimeType> Accept = Select(() => Accept);
         
-        public static readonly Selector<DateTime> CreateOn = Select(() => CreateOn);
-
-        public static readonly Selector<DateTime> ModifiedOn = Select(() => ModifiedOn);
+        
+        
 
         //public static readonly Selector<MimeType> Format = Select(() => Format);
 
-        public static readonly Selector<Type> DataType = Select(() => DataType);
+        //public static readonly Selector<Type> DataType = Select(() => DataType);
 
-        public static readonly Selector<Encoding> Encoding = Select(() => Encoding);
+        //
 
-        public static readonly Selector<string> ActualName = Select(() => ActualName);
+        
 
         //public static readonly Selector<Func<Stream, Task<object>>> DeserializeAsync = Select(() => DeserializeAsync);
     }

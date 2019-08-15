@@ -9,10 +9,12 @@ namespace Reusable.Translucent
         /// </summary>
         public static string ToUnc(this UriString uri)
         {
+            var path = uri.Path.Decoded.ToString();
+            
             return
                 uri.Authority
-                    ? $"//{(string)uri.Authority}/{((string)uri.Path.Decoded).TrimStart('/')}"
-                    : (string)uri.Path.Decoded;
+                    ? $"//{(string)uri.Authority}/{path.TrimStart('/')}"
+                    : path;
         }
     }
 }

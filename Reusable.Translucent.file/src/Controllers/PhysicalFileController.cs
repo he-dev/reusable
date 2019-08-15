@@ -11,12 +11,12 @@ namespace Reusable.Translucent.Controllers
     public class PhysicalFileController : ResourceController
     {
         public PhysicalFileController()
-            : base(ImmutableContainer.Empty
+            : this(ImmutableContainer.Empty
                 .SetItem(SupportsRelativeUri, false)
             ) { }
 
         public PhysicalFileController(string basePath)
-            : base(ImmutableContainer.Empty
+            : this(ImmutableContainer.Empty
                 .SetItem(SupportsRelativeUri, true)
                 .SetItem(BasePath, basePath)
             ) { }
@@ -31,14 +31,16 @@ namespace Reusable.Translucent.Controllers
 
             return
                 File.Exists(path)
-                    ? OK(File.OpenRead(path), request.Metadata.GetItem(ResourceProperties.Accept)).ToTask()
+                    ? OK(File.OpenRead(path)).ToTask()
                     : NotFound().ToTask();
         }
 
         [ResourcePut]
         public async Task<Response> CreateFileAsync(Request request)
         {
-            using (var fileStream = new FileStream(request.Uri.ToUnc(), FileMode.CreateNew, FileAccess.Write))
+            var path = CreatePath(request.Uri);
+            
+            using (var fileStream = new FileStream(path, FileMode.CreateNew, FileAccess.Write))
             using (var body = await request.CreateBodyStreamAsync())
             {
                 await body.Rewind().CopyToAsync(fileStream);
@@ -48,16 +50,17 @@ namespace Reusable.Translucent.Controllers
             return new Response.OK();
         }
 
-        // [ResourceDelete]
-        // public Task<Response> DeleteFileAsync(Request request)
-        // {
-        //     System.IO.File.Delete(request.Uri.ToUnc());
-        //     return new PhysicalFile(request.Metadata.Copy(ResourceProperties.Selectors).SetItem(ResourceProperties.Uri, request.Uri)).ToTask<IResource>();
-        // }
+        [ResourceDelete]
+        public Task<Response> DeleteFileAsync(Request request)
+        {
+            var path = CreatePath(request.Uri);
+            File.Delete(path);
+            return OK().ToTask();
+        }
 
         private string CreatePath(UriString uri)
         {
-            var path = uri.Path.Decoded.ToString();
+            var path = uri.ToUnc();
 
             return
                 Path.IsPathRooted(path)

@@ -44,7 +44,7 @@ namespace Reusable.Translucent.Controllers
                     : new Response.OK
                     {
                         Body = _assembly.GetManifestResourceStream(actualName),
-                        ContentType = request.Metadata.GetItem(ResourceProperties.Accept)
+                        //ContentType = request.Metadata.GetItem(Request.Accept)
                     }.ToTask<Response>();
         }
     }

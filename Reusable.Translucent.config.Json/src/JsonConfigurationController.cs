@@ -41,7 +41,7 @@ namespace Reusable.IOnymous.Controllers
                     ? new Response.NotFound().ToTask<Response>()
                     : new Response.OK()
                     {
-                        Body = data.ToStream(),
+                        Body = data,
                         ContentType = MimeType.Json,
                         Metadata = request
                             .Metadata
