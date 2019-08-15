@@ -1,15 +1,14 @@
 using System;
 using System.Threading.Tasks;
 using Reusable.Data;
-using Reusable.IOnymous;
-using Reusable.IOnymous.Controllers;
 using Reusable.Teapot;
+using Reusable.Translucent.Controllers;
 using Reusable.Utilities.Mailr;
 using Reusable.Utilities.Mailr.Models;
 using Reusable.Utilities.XUnit.Fixtures;
 using Xunit;
 
-namespace Reusable.IOnymous.Http.Mailr
+namespace Reusable.Translucent.http
 {
     public class HttpControllerTest : IDisposable, IClassFixture<TeapotServerFixture>
     {
@@ -24,7 +23,7 @@ namespace Reusable.IOnymous.Http.Mailr
             _resources =
                 ResourceSquid
                     .Builder
-                    .AddController(
+                    .UseController(
                         HttpController.FromBaseUri(
                             "http://localhost:30002/api",
                             ImmutableContainer.Empty.UpdateItem(ResourceControllerProperties.Tags, tags => tags.Add("Mailr"))))

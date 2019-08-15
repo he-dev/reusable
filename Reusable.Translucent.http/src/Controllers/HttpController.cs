@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Reusable.Data;
@@ -15,8 +14,7 @@ using Reusable.Quickey;
 using Reusable.Utilities.JsonNet.Converters;
 using Reusable.Utilities.JsonNet.Extensions;
 
-// ReSharper disable once CheckNamespace
-namespace Reusable.IOnymous.Controllers
+namespace Reusable.Translucent.Controllers
 {
     public class HttpController : ResourceController
     {
@@ -59,16 +57,16 @@ namespace Reusable.IOnymous.Controllers
         }
 
         [ResourceGet]
-        public async Task<IResource> GetAsync(Request request) => await CreateRequestCallback(HttpMethod.Get)(request);
+        public async Task<Response> GetAsync(Request request) => await CreateRequestCallback(HttpMethod.Get)(request);
 
         [ResourcePut]
-        public async Task<IResource> PutAsync(Request request) => await CreateRequestCallback(HttpMethod.Put)(request);
+        public async Task<Response> PutAsync(Request request) => await CreateRequestCallback(HttpMethod.Put)(request);
 
         [ResourcePost]
-        public async Task<IResource> PostAsync(Request request) => await CreateRequestCallback(HttpMethod.Post)(request);
+        public async Task<Response> PostAsync(Request request) => await CreateRequestCallback(HttpMethod.Post)(request);
 
         [ResourceDelete]
-        public async Task<IResource> DeleteAsync(Request request) => await CreateRequestCallback(HttpMethod.Delete)(request);
+        public async Task<Response> DeleteAsync(Request request) => await CreateRequestCallback(HttpMethod.Delete)(request);
 
         public InvokeCallback CreateRequestCallback(HttpMethod httpMethod)
         {
@@ -76,7 +74,12 @@ namespace Reusable.IOnymous.Controllers
             {
                 var uri = BaseUri + request.Uri;
                 var (response, mediaType) = await InvokeAsync(uri, httpMethod, request.Body, request.Metadata);
-                return new HttpResource(request.Metadata.Copy<ResourceProperties>().SetItem(ResourceProperties.Format, mediaType), response);
+                return new Response.OK
+                {
+                    Body = response,
+                    ContentType = mediaType,
+                    Metadata = request.Metadata.Copy<ResourceProperties>()
+                };
             };
         }
 
@@ -158,46 +161,4 @@ namespace Reusable.IOnymous.Controllers
 
         public static Selector<string> ContentType = Select(() => ContentType);
     }
-
-    internal class HttpResource : Resource
-    {
-        private readonly Stream _response;
-
-        internal HttpResource(IImmutableContainer properties, Stream response = default)
-            : base(properties
-                .SetItem(ResourceProperties.Exists, !(response is null)))
-        {
-            _response = response;
-        }
-
-        //public override long? Length => _response?.Length;
-
-        public override async Task CopyToAsync(Stream stream)
-        {
-            await _response.Rewind().CopyToAsync(stream);
-        }
-
-        public override void Dispose()
-        {
-            _response.Dispose();
-        }
-    }
-
-    //    [UseType, UseMember]
-    //    [TrimStart("I"), TrimEnd("Meta")]
-    //    [PlainSelectorFormatter]
-    //    public interface IHttpMeta
-    //    {
-    //        Stream Content { get; }
-    //
-    //        Action<HttpRequestHeaders> ConfigureRequestHeaders { get; }
-    //
-    //        MediaTypeFormatter RequestFormatter { get; }
-    //
-    //        IEnumerable<MediaTypeFormatter> ResponseFormatters { get; }
-    //
-    //        Type ResponseType { get; }
-    //
-    //        string ContentType { get; }
-    //    }
 }

@@ -9,9 +9,9 @@ using Reusable.Data;
 using Reusable.Extensions;
 using Reusable.Flexo;
 using Reusable.Flexo.Helpers;
-using Reusable.IOnymous;
 using Reusable.OmniLog;
 using Reusable.Quickey;
+using Reusable.Translucent;
 using Reusable.Utilities.JsonNet;
 using Reusable.Utilities.JsonNet.DependencyInjection;
 using Reusable.Utilities.XUnit.Annotations;
@@ -27,7 +27,7 @@ namespace Reusable.Flexo
     {
         private readonly ExpressionFixture _helper;
         private readonly ITestOutputHelper _output;
-        
+
         public ExpressionSerializerTest(ExpressionFixture helper, ITestOutputHelper output)
         {
             _helper = helper;
@@ -70,10 +70,9 @@ namespace Reusable.Flexo
         [Fact]
         public async Task Can_deserialize_single_expression()
         {
-            var jsonFile = await TestHelper.Resources.GetFileAsync(@"ExpressionObject.json", MimeType.Json);
-            using (var jsonStream = await jsonFile.CopyToMemoryStreamAsync())
+            using (var jsonFile = await TestHelper.Resources.GetFileAsync(@"ExpressionObject.json", MimeType.Json))
             {
-                var expression = await _helper.Serializer.DeserializeExpressionAsync(jsonStream.Rewind());
+                var expression = await _helper.Serializer.DeserializeExpressionAsync(jsonFile.Body.Rewind());
                 Assert.NotNull(expression);
             }
         }

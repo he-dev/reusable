@@ -8,13 +8,12 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Extensions;
-using Reusable.IOnymous;
 using Reusable.Utilities.Mailr.Models;
-using Reusable.IOnymous.Controllers;
-using Reusable.IOnymous.Http;
-using Reusable.IOnymous.Http.Formatting;
 using Reusable.OneTo1;
 using Reusable.Quickey;
+using Reusable.Translucent;
+using Reusable.Translucent.Controllers;
+using Reusable.Translucent.Formatting;
 
 namespace Reusable.Utilities.Mailr
 {

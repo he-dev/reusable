@@ -13,7 +13,8 @@ namespace Reusable.Translucent
         {
             return await resourceSquid.InvokeAsync(new Request.Get(CreateUri(path))
             {
-                ContentType = format
+                //ContentType = format
+                Metadata = properties.ThisOrEmpty().SetItem(ResourceProperties.Accept, format)
             });
         }
         

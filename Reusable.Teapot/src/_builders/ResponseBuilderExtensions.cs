@@ -1,7 +1,7 @@
 using System.IO;
 using JetBrains.Annotations;
 using Reusable.Extensions;
-using Reusable.IOnymous;
+using Reusable.Translucent;
 
 namespace Reusable.Teapot
 {

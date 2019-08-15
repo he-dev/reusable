@@ -4,10 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.Diagnostics;
-using Reusable.IOnymous;
-using Reusable.IOnymous.Controllers;
-using Reusable.IOnymous.Http;
-using Reusable.IOnymous.Mail;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
@@ -15,6 +11,9 @@ using Reusable.OmniLog.SemanticExtensions;
 using Reusable.OneTo1;
 using Reusable.OneTo1.Converters;
 using Reusable.Quickey;
+using Reusable.Translucent;
+using Reusable.Translucent.Controllers;
+using Reusable.Translucent.Models;
 using Reusable.Utilities.JsonNet.Converters;
 using Reusable.Utilities.Mailr;
 using Reusable.Utilities.Mailr.Models;
@@ -31,7 +30,7 @@ namespace Reusable
             var resources =
                 ResourceSquid
                     .Builder
-                    .AddController(new SmtpController())
+                    .UseController(new SmtpController())
                     .Build();
 
             var context =
@@ -57,7 +56,7 @@ namespace Reusable
             var resources =
                 ResourceSquid
                     .Builder
-                    .AddController(HttpController.FromBaseUri("http://localhost:7000/api"))
+                    .UseController(HttpController.FromBaseUri("http://localhost:7000/api"))
                     .Build();
             await resources.SendEmailAsync
             (

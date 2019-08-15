@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
-using Reusable.IOnymous;
-using Reusable.IOnymous.Config;
-using Reusable.IOnymous.Controllers;
+using Reusable.Translucent;
+using Reusable.Translucent.Controllers;
+using Reusable.Translucent.Converters;
 
 namespace Reusable
 {
@@ -12,12 +12,12 @@ namespace Reusable
         public static readonly IResourceSquid Resources =
             ResourceSquid
                 .Builder
-                .AddController(new EmbeddedFileController<TestHelper>(@"Reusable/res/IOnymous"))
-                .AddController(new EmbeddedFileController<TestHelper>(@"Reusable/res/Flexo"))
-                .AddController(new EmbeddedFileController<TestHelper>(@"Reusable/res/Utilities/JsonNet"))
-                .AddController(new EmbeddedFileController<TestHelper>(@"Reusable/sql"))
-                .AddController(new AppSettingController())
-                .AddController(new SqlServerController(ConnectionString)
+                .UseController(new EmbeddedFileController<TestHelper>(@"Reusable/res/IOnymous"))
+                .UseController(new EmbeddedFileController<TestHelper>(@"Reusable/res/Flexo"))
+                .UseController(new EmbeddedFileController<TestHelper>(@"Reusable/res/Utilities/JsonNet"))
+                .UseController(new EmbeddedFileController<TestHelper>(@"Reusable/sql"))
+                .UseController(new AppSettingController())
+                .UseController(new SqlServerController(ConnectionString)
                 {
                     TableName = ("reusable", "TestConfig"),
                     ResourceConverter = new JsonSettingConverter(),

@@ -1,7 +1,7 @@
 using System.Text;
 using JetBrains.Annotations;
 
-namespace Reusable.IOnymous.Mail
+namespace Reusable.Translucent.Models
 {
     [PublicAPI]
     public interface IEmailSubject

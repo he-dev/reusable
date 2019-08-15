@@ -34,10 +34,6 @@
     <ProjectReference Include="..\Reusable.Commander\Reusable.Commander.csproj" />
     <ProjectReference Include="..\Reusable.Data\Reusable.Data.csproj" />
     <ProjectReference Include="..\Reusable.Flexo\Reusable.Flexo.csproj" />
-    <ProjectReference Include="..\Reusable.IOnymous.Config\Reusable.IOnymous.Config.csproj" />
-    <ProjectReference Include="..\Reusable.IOnymous.Http\Reusable.IOnymous.Http.csproj" />
-    <ProjectReference Include="..\Reusable.IOnymous.Mail.Smtp\Reusable.IOnymous.Mail.Smtp.csproj" />
-    <ProjectReference Include="..\Reusable.IOnymous\Reusable.IOnymous.csproj" />
     <ProjectReference Include="..\Reusable.OneTo1\Reusable.OneTo1.csproj" />
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
     <ProjectReference Include="..\Reusable.Cryptography\Reusable.Cryptography.csproj" />
@@ -52,6 +48,14 @@
     <ProjectReference Include="..\Reusable.Utilities.Mailr\Reusable.Utilities.Mailr.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.NLog\Reusable.Utilities.NLog.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.SqlClient\Reusable.Utilities.SqlClient.csproj" />
+    <ProjectReference Include="..\Reusable.Translucent\Reusable.Translucent.csproj" />
+    <ProjectReference Include="..\Reusable.Translucent.config\Reusable.Translucent.config.csproj" />
+    <ProjectReference Include="..\Reusable.Translucent.config.AppConfig\Reusable.Translucent.config.AppConfig.csproj" />
+    <ProjectReference Include="..\Reusable.Translucent.config.Json\Reusable.Translucent.config.Json.csproj" />
+    <ProjectReference Include="..\Reusable.Translucent.config.SqlServer\Reusable.Translucent.config.SqlServer.csproj" />
+    <ProjectReference Include="..\Reusable.Translucent.file\Reusable.Translucent.file.csproj" />
+    <ProjectReference Include="..\Reusable.Translucent.http\Reusable.Translucent.http.csproj" />
+    <ProjectReference Include="..\Reusable.Translucent.mailto\Reusable.Translucent.mailto.csproj" />
   </ItemGroup>
 
 <!--  <ItemGroup>-->

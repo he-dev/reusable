@@ -1,20 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Reusable.Data;
 using Reusable.Diagnostics;
-using Reusable.IOnymous;
-using Reusable.IOnymous.Http;
-using Reusable.IOnymous.Mail;
-using Reusable.MarkupBuilder.Html;
-using Reusable.OmniLog;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.SemanticExtensions;
 using Reusable.OneTo1;
 using Reusable.OneTo1.Converters;
-using Reusable.Quickey;
-using Reusable.Utilities.JsonNet.Converters;
 using Reusable.Utilities.NLog.LayoutRenderers;
 
 //[assembly: DebuggerDisplay("{DebuggerDisplay(),nq}", Target = typeof(Person))]

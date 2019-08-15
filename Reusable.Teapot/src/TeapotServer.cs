@@ -15,7 +15,7 @@ using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
-using Reusable.IOnymous;
+using Reusable.Translucent;
 
 namespace Reusable.Teapot
 {

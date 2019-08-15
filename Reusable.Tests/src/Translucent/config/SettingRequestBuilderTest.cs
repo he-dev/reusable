@@ -1,11 +1,10 @@
-using System;
 using System.Linq;
 using Reusable.Data;
-using Reusable.IOnymous.Config.Annotations;
 using Reusable.Quickey;
+using Reusable.Translucent.Annotations;
 using Xunit;
 
-namespace Reusable.IOnymous.Config
+namespace Reusable.Translucent.config
 {
     public class SettingRequestBuilderTest
     {

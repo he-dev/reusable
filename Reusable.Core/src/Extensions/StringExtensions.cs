@@ -89,5 +89,13 @@ namespace Reusable.Extensions
 
             return value.ToStreamReader(Encoding.UTF8);
         }
+        
+        [NotNull, ContractAnnotation("value: null => halt; value: notnull => notnull")]
+        public static Stream ToStream([NotNull] this string value, Encoding encoding = default)
+        {
+            if (value == null) throw new ArgumentNullException(nameof(value));
+
+            return new MemoryStream((encoding ?? Encoding.UTF8).GetBytes(value));
+        }
     }
 }

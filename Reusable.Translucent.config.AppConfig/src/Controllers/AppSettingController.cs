@@ -6,11 +6,8 @@ using Reusable.Data;
 using Reusable.Extensions;
 using Reusable.OneTo1;
 using Reusable.OneTo1.Converters;
-using Reusable.Translucent;
-using Reusable.Translucent.Controllers;
 
-// ReSharper disable once CheckNamespace
-namespace Reusable.IOnymous.Controllers
+namespace Reusable.Translucent.Controllers
 {
     public class AppSettingController : SettingController
     {
@@ -24,26 +21,26 @@ namespace Reusable.IOnymous.Controllers
             var settingIdentifier = GetResourceName(request.Uri);
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
-            var element = exeConfig.AppSettings.Settings[actualKey];            
+            var element = exeConfig.AppSettings.Settings[actualKey];
 
-            var result =
+            return
                 element is null
-                    ? new Response.NotFound()
+                    ? new Response.NotFound().ToTask<Response>()
                     : new Response.OK
                     {
-                        Body = element.Value.to,
-                        request
-                            .Metadata
-                            .Copy<ResourceProperties>()
-                            .SetItem(SettingControllerProperties.Converter, ResourceConverter)
-                            .SetItem(ResourceProperties.ActualName, settingIdentifier)
-                    };
-
-            return result.ToTask();
+                        Body = element.Value.ToStream(),
+                        ContentType = MimeType.Json,
+                        Metadata =
+                            request
+                                .Metadata
+                                .Copy<ResourceProperties>()
+                                .SetItem(SettingControllerProperties.Converter, ResourceConverter)
+                                .SetItem(ResourceProperties.ActualName, settingIdentifier)
+                    }.ToTask<Response>();
         }
 
         [ResourcePut]
-        public async Task<IResource> SetSettingAsync(Request request)
+        public Task<Response> SetSettingAsync(Request request)
         {
             var settingIdentifier = GetResourceName(request.Uri);
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
@@ -62,7 +59,9 @@ namespace Reusable.IOnymous.Controllers
 
             exeConfig.Save(ConfigurationSaveMode.Minimal);
 
-            return await GetSettingAsync(request);
+            //return await GetSettingAsync(request);
+            
+            return new Response.OK().ToTask<Response>();
         }
 
         [CanBeNull]

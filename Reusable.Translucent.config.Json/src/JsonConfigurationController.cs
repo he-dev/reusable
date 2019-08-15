@@ -8,7 +8,9 @@ using Reusable.Data;
 using Reusable.Extensions;
 using Reusable.OneTo1;
 using Reusable.Quickey;
+using Reusable.Translucent;
 using Reusable.Translucent.Controllers;
+using Reusable.Translucent.Converters;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.IOnymous.Controllers
@@ -29,23 +31,24 @@ namespace Reusable.IOnymous.Controllers
         public ITypeConverter ResourceConverter { get; set; } = new JsonSettingConverter();
 
         [ResourceGet]
-        public Task<IResource> GetSettingAsync(Request request)
+        public Task<Response> GetSettingAsync(Request request)
         {
             var settingIdentifier = GetResourceName(request.Uri);
             var data = _configuration[settingIdentifier];
-            var result =
+
+            return
                 data is null
-                    ? DoesNotExist(request)
-                    : new JsonResource
-                    (
-                        data,
-                        request
+                    ? new Response.NotFound().ToTask<Response>()
+                    : new Response.OK()
+                    {
+                        Body = data.ToStream(),
+                        ContentType = MimeType.Json,
+                        Metadata = request
                             .Metadata
                             .Copy<ResourceProperties>()
-                            .SetItem(ResourceProperties.Uri, request.Uri)
+                            //.SetItem(ResourceProperties.Uri, request.Uri)
                             .SetItem(SettingControllerProperties.Converter, ResourceConverter)
-                    );
-            return result.ToTask();
+                    }.ToTask<Response>();
         }
     }
 }

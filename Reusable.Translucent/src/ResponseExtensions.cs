@@ -27,7 +27,7 @@ namespace Reusable.Translucent
         {
             //if (!response.Exists()) throw new InvalidOperationException($"Cannot deserialize a resource that does not exist: '{response.Uri.ToString()}'");
 
-            if (!response.ContentType.Contains(MimeType.Plain | MimeType.Html))
+            if (!response.ContentType.Contains(MimeType.Plain | MimeType.Json | MimeType.Html))
             {
                 throw new ArgumentException($"Resource must be '{MimeType.Plain}' but is '{response.ContentType}'.");
             }

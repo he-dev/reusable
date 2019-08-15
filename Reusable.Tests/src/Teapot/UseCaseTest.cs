@@ -1,9 +1,8 @@
 ﻿using System.Net.Http;
 using System.Threading.Tasks;
 using Reusable.Data;
-using Reusable.IOnymous;
-using Reusable.IOnymous.Controllers;
-using Reusable.IOnymous.Http;
+using Reusable.Translucent;
+using Reusable.Translucent.Controllers;
 using Reusable.Utilities.XUnit.Fixtures;
 using Xunit;
 
@@ -22,7 +21,7 @@ namespace Reusable.Teapot
         {
             _teapot = teapotServer.GetServer(BaseUri);
             //_http = HttpProvider.FromBaseUri($"{BaseUri}/api");
-            _resources = ResourceSquid.Builder.AddController(HttpController.FromBaseUri($"{BaseUri}/api")).Build();
+            _resources = ResourceSquid.Builder.UseController(HttpController.FromBaseUri($"{BaseUri}/api")).Build();
         }
 
         [Fact]
@@ -69,7 +68,7 @@ namespace Reusable.Teapot
 
                 var response = await _resources.InvokeAsync(request);
 
-                Assert.True(response.Exists);
+                Assert.True(response.Exists());
                 var original = await response.DeserializeJsonAsync<object>();
                 //}
 

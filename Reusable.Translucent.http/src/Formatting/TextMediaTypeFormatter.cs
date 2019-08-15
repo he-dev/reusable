@@ -6,8 +6,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
-// ReSharper disable once CheckNamespace - this is correct
-namespace Reusable.IOnymous.Http.Formatting
+namespace Reusable.Translucent.Formatting
 {
     public class TextMediaTypeFormatter : MediaTypeFormatter
     {

@@ -5,8 +5,8 @@ using System.Linq;
 using Autofac;
 using JetBrains.Annotations;
 using Reusable.Extensions;
-using Reusable.IOnymous;
 using Reusable.OmniLog;
+using Reusable.Translucent;
 using Reusable.Utilities.JsonNet.DependencyInjection;
 
 namespace Reusable.Flexo

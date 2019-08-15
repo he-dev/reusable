@@ -1,13 +1,14 @@
 using System.Threading.Tasks;
 using Reusable.Data;
-using Reusable.IOnymous.Controllers;
+using Reusable.Translucent.Controllers;
+using Reusable.Translucent.Models;
 
-namespace Reusable.IOnymous.Mail
+namespace Reusable.Translucent
 {
     // Provides CRUD APIs.
     public static partial class ResourceSquidExtensions
     {
-        public static async Task<IResource> SendEmailAsync
+        public static async Task<Response> SendEmailAsync
         (
             this IResourceSquid resourceSquid,
             IEmail<IEmailSubject, IEmailBody> email,

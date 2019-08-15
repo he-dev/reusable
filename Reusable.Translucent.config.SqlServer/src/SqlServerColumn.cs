@@ -1,4 +1,4 @@
-namespace Reusable.IOnymous.Config
+namespace Reusable.Translucent
 {
     public class SqlServerColumn
     {

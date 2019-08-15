@@ -7,7 +7,7 @@ using Reusable.Data.Repositories;
 using Reusable.Quickey;
 using Xunit;
 
-namespace Reusable.IOnymous.Config.Controllers
+namespace Reusable.Translucent.config.Controllers
 {
     public class SqlServerControllerTest : IAsyncLifetime
     {

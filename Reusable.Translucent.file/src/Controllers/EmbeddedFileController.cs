@@ -41,7 +41,11 @@ namespace Reusable.Translucent.Controllers
             return
                 actualName is null
                     ? new Response.NotFound().ToTask<Response>()
-                    : new Response.OK { Body = _assembly.GetManifestResourceStream(actualName) }.ToTask<Response>();
+                    : new Response.OK
+                    {
+                        Body = _assembly.GetManifestResourceStream(actualName),
+                        ContentType = request.Metadata.GetItem(ResourceProperties.Accept)
+                    }.ToTask<Response>();
         }
     }
 

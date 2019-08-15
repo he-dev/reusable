@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using JetBrains.Annotations;
 
-namespace Reusable.IOnymous.Config
+namespace Reusable.Translucent
 {
     public static class SqlServerColumnExtensions
     {

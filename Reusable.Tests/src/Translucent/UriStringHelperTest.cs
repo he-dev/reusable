@@ -1,6 +1,6 @@
 using Xunit;
 
-namespace Reusable.IOnymous
+namespace Reusable.Translucent
 {
     public class UriStringHelperTest
     {

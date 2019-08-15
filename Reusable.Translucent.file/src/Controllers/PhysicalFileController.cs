@@ -22,8 +22,8 @@ namespace Reusable.Translucent.Controllers
             var path = CreateUri(request.Uri).Path.Decoded.ToString();
 
             return
-                System.IO.File.Exists(path)
-                    ? new Response.OK { Body = System.IO.File.OpenRead(path) }.ToTask<Response>()
+                File.Exists(path)
+                    ? new Response.OK { Body = File.OpenRead(path) }.ToTask<Response>()
                     : new Response.NotFound().ToTask<Response>();
         }
 
@@ -37,7 +37,7 @@ namespace Reusable.Translucent.Controllers
                 await fileStream.FlushAsync();
             }
 
-            return await GetFileAsync(request);
+            return new Response.OK();
         }
 
         // [ResourceDelete]

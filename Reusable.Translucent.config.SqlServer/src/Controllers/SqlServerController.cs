@@ -1,21 +1,15 @@
 ﻿using System;
 using System.Collections.Immutable;
-using System.IO;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Data.Repositories;
-using Reusable.IOnymous.Config;
+using Reusable.Extensions;
 using Reusable.OneTo1;
-using Reusable.Quickey;
-using Reusable.Translucent.Controllers;
 using Reusable.Translucent.Converters;
 using Reusable.Utilities.SqlClient;
 
-// ReSharper disable once CheckNamespace
-namespace Reusable.IOnymous.Controllers
+namespace Reusable.Translucent.Controllers
 {
     public class SqlServerController : SettingController
     {
@@ -53,7 +47,7 @@ namespace Reusable.IOnymous.Controllers
         public (SoftString Name, object Value) Fallback { get; set; }
 
         [ResourceGet]
-        public async Task<IResource> GetSettingAsync(Request request)
+        public async Task<Response> GetSettingAsync(Request request)
         {
             var settingIdentifier = GetResourceName(request.Uri);
 
@@ -65,25 +59,27 @@ namespace Reusable.IOnymous.Controllers
                     if (await settingReader.ReadAsync(token))
                     {
                         var value = settingReader[ColumnMappings.MapOrDefault(SqlServerColumn.Value)];
-                        return new JsonResource
-                        (
-                            (string)value,
-                            request
-                                .Metadata
-                                .Copy<ResourceProperties>()
-                                .SetItem(SettingControllerProperties.Converter, ResourceConverter)
-                        );
+                        return new Response.OK
+                        {
+                            Body = ((string)value).ToStream(),
+                            ContentType = MimeType.Json,
+                            Metadata =
+                                request
+                                    .Metadata
+                                    .Copy<ResourceProperties>()
+                                    .SetItem(SettingControllerProperties.Converter, ResourceConverter)
+                        };
                     }
                     else
                     {
-                        return DoesNotExist(request);
+                        return (Response)new Response.NotFound();
                     }
                 }
             }, request.Metadata.GetItemOrDefault(RequestProperty.CancellationToken));
         }
 
         [ResourcePut]
-        public async Task<IResource> SetSettingAsync(Request request)
+        public async Task<Response> SetSettingAsync(Request request)
         {
             var settingIdentifier = GetResourceName(request.Uri);
             var value = ResourceConverter.Convert(request.Body, typeof(string));
@@ -95,10 +91,12 @@ namespace Reusable.IOnymous.Controllers
                 }
             }, request.Metadata.GetItemOrDefault(RequestProperty.CancellationToken));
 
-            return await GetSettingAsync(new Request.Get(request.Uri)
-            {
-                Metadata = request.Metadata.Copy<ResourceProperties>()
-            });
+//            return await GetSettingAsync(new Request.Get(request.Uri)
+//            {
+//                Metadata = request.Metadata.Copy<IOnymous.ResourceProperties>()
+//            });
+
+            return new Response.OK();
         }
     }
 }

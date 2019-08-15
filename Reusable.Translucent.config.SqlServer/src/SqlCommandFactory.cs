@@ -5,10 +5,9 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
-using Reusable.Extensions;
 using Reusable.Utilities.SqlClient;
 
-namespace Reusable.IOnymous.Config
+namespace Reusable.Translucent
 {
     internal static class SqlCommandFactory
     {

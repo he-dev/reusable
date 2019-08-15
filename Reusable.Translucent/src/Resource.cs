@@ -14,7 +14,7 @@ namespace Reusable.Translucent
     public class Response : IDisposable
     {
         public ResourceStatusCode StatusCode { get; set; }
-        
+
         public Stream Body { get; set; }
 
         public MimeType ContentType { get; set; }
@@ -30,7 +30,7 @@ namespace Reusable.Translucent
                 StatusCode = ResourceStatusCode.OK;
             }
         }
-        
+
         public class NotFound : Response
         {
             public NotFound()
@@ -56,6 +56,8 @@ namespace Reusable.Translucent
 
         //public static readonly Selector<long> Length = Select(() => Length);
 
+        public static readonly Selector<MimeType> Accept = Select(() => Accept);
+        
         public static readonly Selector<DateTime> CreateOn = Select(() => CreateOn);
 
         public static readonly Selector<DateTime> ModifiedOn = Select(() => ModifiedOn);

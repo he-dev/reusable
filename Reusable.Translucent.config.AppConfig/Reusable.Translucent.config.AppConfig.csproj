@@ -32,4 +32,7 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="src\Controllers\ConnectionStringProvider.cs" />
+  </ItemGroup>
 </Project>

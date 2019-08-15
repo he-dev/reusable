@@ -6,8 +6,7 @@ using Reusable.Data;
 using Reusable.Extensions;
 using Reusable.Quickey;
 
-// ReSharper disable once CheckNamespace
-namespace Reusable.IOnymous.Controllers
+namespace Reusable.Translucent.Controllers
 {
     public abstract class MailController : ResourceController
     {
@@ -43,26 +42,5 @@ namespace Reusable.IOnymous.Controllers
         public static Selector<bool> IsHtml = Select(() => IsHtml);
 
         public static Selector<bool> IsHighPriority = Select(() => IsHighPriority);
-    }
-
-    internal class MailResource : Resource
-    {
-        private readonly Stream _response;
-
-        internal MailResource(IImmutableContainer properties, Stream response)
-            : base(properties.SetItem(ResourceProperties.Exists, response != Stream.Null))
-        {
-            _response = response;
-        }
-
-        public override async Task CopyToAsync(Stream stream)
-        {
-            await _response.Rewind().CopyToAsync(stream);
-        }
-
-        public override void Dispose()
-        {
-            _response.Dispose();
-        }
     }
 }

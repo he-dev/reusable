@@ -1,4 +1,4 @@
-﻿using Reusable.IOnymous;
+﻿using Reusable.Translucent;
 using Xunit;
 
 namespace Reusable

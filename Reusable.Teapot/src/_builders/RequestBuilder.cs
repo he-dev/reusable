@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using JetBrains.Annotations;
-using Reusable.IOnymous;
 
 namespace Reusable.Teapot
 {

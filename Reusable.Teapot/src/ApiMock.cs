@@ -6,7 +6,7 @@ using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using Reusable.Exceptionize;
-using Reusable.IOnymous;
+using Reusable.Translucent;
 
 namespace Reusable.Teapot
 {

@@ -11,15 +11,15 @@ using Reusable.Extensions;
 using Reusable.Quickey;
 using ContentDisposition = MimeKit.ContentDisposition;
 
-// ReSharper disable once CheckNamespace
-namespace Reusable.IOnymous.Controllers
+
+namespace Reusable.Translucent.Controllers
 {
     public class SmtpController : MailController
     {
         public SmtpController(IImmutableContainer properties = default) : base(properties.ThisOrEmpty()) { }
 
         [ResourcePost]
-        public async Task<IResource> SendEmailAsync(Request request)
+        public async Task<Response> SendEmailAsync(Request request)
         {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(request.Metadata.GetItemOrDefault(MailRequestMetadata.From)));
@@ -67,7 +67,7 @@ namespace Reusable.IOnymous.Controllers
                 await smtpClient.SendAsync(message);
             }
 
-            return Resource.DoesNotExist.FromRequest(request);
+            return new Response.OK();
         }
     }
 

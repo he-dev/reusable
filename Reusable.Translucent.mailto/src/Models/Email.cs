@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Reusable.IOnymous.Mail
+namespace Reusable.Translucent.Models
 {
     [PublicAPI]
     public interface IEmail<out TSubject, out TBody>

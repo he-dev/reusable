@@ -1,4 +1,4 @@
-namespace Reusable.IOnymous.Http
+namespace Reusable.Translucent
 {
     public class UserAgent
     {

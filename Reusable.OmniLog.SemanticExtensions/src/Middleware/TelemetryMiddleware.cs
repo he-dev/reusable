@@ -8,7 +8,7 @@ using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.SemanticExtensions;
 
 // ReSharper disable once CheckNamespace
-namespace Reusable.IOnymous.Middleware
+namespace Reusable.Translucent.Middleware
 {
     [UsedImplicitly]
     public class TelemetryMiddleware
@@ -31,8 +31,8 @@ namespace Reusable.IOnymous.Middleware
                 try
                 {
                     await _next(context);
-                    var responseUri = context.Response?.Uri?.ToString();
-                    _logger.Log(Abstraction.Layer.IO().Meta(new { requestUri, responseUri, exists = context.Response?.Exists }, "Resource"));
+                    //var responseUri = context.Response?.Uri?.ToString();
+                    _logger.Log(Abstraction.Layer.IO().Meta(new { requestUri, exists = context.Response?.Exists() }, "Resource"));
                 }
                 catch (Exception inner)
                 {
