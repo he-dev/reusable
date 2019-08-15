@@ -10,15 +10,15 @@ namespace Reusable.Translucent
     {
         public static IEnumerable<IResourceController> FilterByControllerTags(this IEnumerable<IResourceController> providers, Request request)
         {
-            if (!request.Metadata.GetItemOrDefault(ResourceControllerProperties.Tags).Any())
+            if (!request.Metadata.GetItemOrDefault(ResourceController.Tags).Any())
             {
                 return providers;
             }
             
             return
                 from p in providers
-                let providerTags = p.Properties.GetItemOrDefault(ResourceControllerProperties.Tags)
-                where providerTags.Overlaps(request.Metadata.GetItemOrDefault(ResourceControllerProperties.Tags))
+                let providerTags = p.Properties.GetItemOrDefault(ResourceController.Tags)
+                where providerTags.Overlaps(request.Metadata.GetItemOrDefault(ResourceController.Tags))
                 select p;
         }
 
@@ -27,7 +27,7 @@ namespace Reusable.Translucent
             var canFilter = !(request.Uri.IsRelative || (request.Uri.IsAbsolute && request.Uri.Scheme == UriSchemes.Custom.IOnymous));
             return
                 from p in providers
-                let schemes = p.Properties.GetItem(ResourceControllerProperties.Schemes)
+                let schemes = p.Properties.GetItem(ResourceController.Schemes)
                 where !canFilter || schemes.Overlaps(new[] { UriSchemes.Custom.IOnymous, request.Uri.Scheme })
                 select p;
         }

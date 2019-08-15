@@ -41,7 +41,7 @@ namespace Reusable.Utilities.Mailr
                     .SetItem(HttpRequestMetadata.ContentType, "application/json")
                     .SetItem(HttpResponseMetadata.Formatters, new[] { new TextMediaTypeFormatter() })
                     .SetItem(HttpResponseMetadata.ContentType, "application/json")
-                    .UpdateItem(ResourceControllerProperties.Tags, tags => tags.Add(providerName.ToSoftString()));
+                    .UpdateItem(ResourceController.Tags, tags => tags.Add(providerName.ToSoftString()));
 
             var response = await resourceSquid.InvokeAsync(new Request.Post(uri)
             {

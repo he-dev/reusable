@@ -132,9 +132,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Commander\Reusable.Commander.csproj" />
-    <ProjectReference Include="..\Reusable.IOnymous.Config.SqlServer\Reusable.IOnymous.Config.SqlServer.csproj" />
-    <ProjectReference Include="..\Reusable.IOnymous.Config\Reusable.IOnymous.Config.csproj" />
-    <ProjectReference Include="..\Reusable.IOnymous.Http.Mailr\Reusable.IOnymous.Http.Mailr.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog.Abstractions\Reusable.OmniLog.Abstractions.csproj" />
     <ProjectReference Include="..\Reusable.OneTo1\Reusable.OneTo1.csproj" />
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />

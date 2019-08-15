@@ -36,6 +36,12 @@ namespace Reusable.Quickey
         {
             return new Selector<TMember>(selector);
         }
+        
+        [NotNull]
+        public static Selector<TMember> Select<T, TMember>(this From<T> from, [NotNull] Expression<Func<Selector<TMember>>> selector)
+        {
+            return new Selector<TMember>(selector);
+        }
     }
 
     [PublicAPI]
@@ -172,7 +178,7 @@ namespace Reusable.Quickey
         }
 
         [NotNull]
-        protected static Selector<TMember> Select<TMember>([NotNull] Expression<Func<Selector<TMember>>> selector)
+        public static Selector<TMember> Select<TMember>([NotNull] Expression<Func<Selector<TMember>>> selector)
         {
             return new Selector<TMember>(selector);
         }

@@ -24,10 +24,10 @@ namespace Reusable.Translucent.Controllers
             : base(
                 metadata
                     .ThisOrEmpty()
-                    .UpdateItem(ResourceControllerProperties.Schemes, s => s
+                    .UpdateItem(Schemes, s => s
                         .Add(UriSchemes.Known.Http)
                         .Add(UriSchemes.Known.Https))
-                    .SetItem(ResourceControllerProperties.SupportsRelativeUri, true))
+                    .SetItem(SupportsRelativeUri, true))
         {
             _client = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _client.DefaultRequestHeaders.Clear();

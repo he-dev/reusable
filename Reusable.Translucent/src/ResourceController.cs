@@ -22,6 +22,8 @@ namespace Reusable.Translucent
 
     public delegate Task<Response> InvokeCallback(Request request);
 
+    [UseType, UseMember]
+    [PlainSelectorFormatter]
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public abstract class ResourceController : IResourceController
     {
@@ -29,7 +31,7 @@ namespace Reusable.Translucent
         {
             if (properties == null) throw new ArgumentNullException(nameof(properties));
 
-            if (properties.GetItemOrDefault(ResourceControllerProperties.Schemes) is var schemes && (schemes is null || !schemes.Any()))
+            if (properties.GetItemOrDefault(Schemes) is var schemes && (schemes is null || !schemes.Any()))
             {
                 throw new ArgumentException
                 (
@@ -38,7 +40,7 @@ namespace Reusable.Translucent
                 );
             }
 
-            Properties = properties.UpdateItem(ResourceControllerProperties.Tags, tags => tags.Add(GetType().ToPrettyString().ToSoftString()));
+            Properties = properties.UpdateItem(Tags, tags => tags.Add(GetType().ToPrettyString().ToSoftString()));
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
@@ -51,31 +53,51 @@ namespace Reusable.Translucent
 
         public virtual IImmutableContainer Properties { get; }
 
-        protected Response DoesNotExist(Request request) => new Response.NotFound();
+
+        protected Response OK(Stream body, MimeType contentType, IImmutableContainer metadata = default) => new Response.OK
+        {
+            Body = body,
+            ContentType = contentType,
+            Metadata = metadata
+        };
+
+        protected Response NotFound() => new Response.NotFound();
 
         // Can be overriden when derived.
         public virtual void Dispose() { }
+
+        #region Properties
+
+        private static readonly From<ResourceController> This;
+
+        public static readonly Selector<IImmutableSet<SoftString>> Schemes = This.Select(() => Schemes);
+
+        public static readonly Selector<IImmutableSet<SoftString>> Tags = This.Select(() => Tags);
+
+        public static readonly Selector<bool> SupportsRelativeUri = This.Select(() => SupportsRelativeUri);
+
+        #endregion
     }
 
     public static class ResourceProviderExtensions
     {
         public static bool SupportsRelativeUri(this IResourceController resourceController)
         {
-            return resourceController.Properties.GetItemOrDefault(ResourceControllerProperties.SupportsRelativeUri);
+            return resourceController.Properties.GetItemOrDefault(ResourceController.SupportsRelativeUri);
         }
     }
 
-    [UseType, UseMember]
-    [PlainSelectorFormatter]
-    [Rename(nameof(ResourceController))]
-    public class ResourceControllerProperties : SelectorBuilder<ResourceControllerProperties>
-    {
-        public static readonly Selector<IImmutableSet<SoftString>> Schemes = Select(() => Schemes);
-
-        public static readonly Selector<IImmutableSet<SoftString>> Tags = Select(() => Tags);
-
-        public static readonly Selector<bool> SupportsRelativeUri = Select(() => SupportsRelativeUri);
-    }
+//    [UseType, UseMember]
+//    [PlainSelectorFormatter]
+//    [Rename(nameof(ResourceController))]
+//    public class ResourceControllerProperties : SelectorBuilder<ResourceControllerProperties>
+//    {
+//        public static readonly Selector<IImmutableSet<SoftString>> Schemes = Select(() => Schemes);
+//
+//        public static readonly Selector<IImmutableSet<SoftString>> Tags = Select(() => Tags);
+//
+//        public static readonly Selector<bool> SupportsRelativeUri = Select(() => SupportsRelativeUri);
+//    }
 
     public delegate Task<Stream> CreateStreamCallback(object body);
 

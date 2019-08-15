@@ -10,21 +10,29 @@ namespace Reusable.Translucent.Controllers
     [PublicAPI]
     public class PhysicalFileController : ResourceController
     {
-        public PhysicalFileController(IImmutableContainer properties = default)
-            : base(properties.ThisOrEmpty()
-                .UpdateItem(ResourceControllerProperties.Schemes, s => s.Add(UriSchemes.Known.File))
-                .SetItem(ResourceControllerProperties.SupportsRelativeUri, true)
+        public PhysicalFileController()
+            : base(ImmutableContainer.Empty
+                .SetItem(SupportsRelativeUri, false)
             ) { }
+
+        public PhysicalFileController(string basePath)
+            : base(ImmutableContainer.Empty
+                .SetItem(SupportsRelativeUri, true)
+                .SetItem(BasePath, basePath)
+            ) { }
+
+        private PhysicalFileController(IImmutableContainer properties)
+            : base(properties.UpdateItem(Schemes, s => s.Add(UriSchemes.Known.File))) { }
 
         [ResourceGet]
         public Task<Response> GetFileAsync(Request request)
         {
-            var path = CreateUri(request.Uri).Path.Decoded.ToString();
+            var path = CreatePath(request.Uri);
 
             return
                 File.Exists(path)
-                    ? new Response.OK { Body = File.OpenRead(path) }.ToTask<Response>()
-                    : new Response.NotFound().ToTask<Response>();
+                    ? OK(File.OpenRead(path), request.Metadata.GetItem(ResourceProperties.Accept)).ToTask()
+                    : NotFound().ToTask();
         }
 
         [ResourcePut]
@@ -47,21 +55,28 @@ namespace Reusable.Translucent.Controllers
         //     return new PhysicalFile(request.Metadata.Copy(ResourceProperties.Selectors).SetItem(ResourceProperties.Uri, request.Uri)).ToTask<IResource>();
         // }
 
-        private UriString CreateUri(UriString uri)
+        private string CreatePath(UriString uri)
         {
+            var path = uri.Path.Decoded.ToString();
+
             return
-                Path.IsPathRooted(uri.Path.Decoded.ToString())
-                    ? uri
-                    : Properties.TryGetItem(PhysicalFileControllerProperties.BaseUri, out var baseUri)
-                        ? baseUri + uri.Path.Decoded.ToString()
-                        : uri;
+                Path.IsPathRooted(path)
+                    ? path
+                    : Properties.TryGetItem(BasePath, out var basePath)
+                        ? Path.Combine(basePath, path)
+                        : path;
         }
+
+        #region Properties
+
+        private static readonly From<PhysicalFileController> This;
+
+        public static Selector<string> BasePath { get; } = This.Select(() => BasePath);
+
+        #endregion
     }
 
-    [UseType, UseMember]
-    [PlainSelectorFormatter]
-    public class PhysicalFileControllerProperties : SelectorBuilder<PhysicalFileControllerProperties>
-    {
-        public static Selector<UriString> BaseUri { get; } = Select(() => BaseUri);
-    }
+    //[UseType, UseMember]
+    //[PlainSelectorFormatter]
+    //public class PhysicalFileControllerProperties : SelectorBuilder<PhysicalFileControllerProperties> { }
 }

@@ -17,8 +17,8 @@ namespace Reusable.Translucent.Controllers
             : base(
                 properties
                     .ThisOrEmpty()
-                    .UpdateItem(ResourceControllerProperties.Schemes, s => s.Add(UriSchemes.Known.File))
-                    .SetItem(ResourceControllerProperties.SupportsRelativeUri, true)
+                    .UpdateItem(Schemes, s => s.Add(UriSchemes.Known.File))
+                    .SetItem(SupportsRelativeUri, true)
             )
 
         {

@@ -33,6 +33,8 @@ namespace Reusable.Translucent.Middleware
 
         public async Task InvokeAsync(ResourceContext context)
         {
+            await _next(context);
+
             var providerKey = context.Request.Uri.ToString();
 
             // Used cached provider if already resolved.
@@ -50,7 +52,7 @@ namespace Reusable.Translucent.Middleware
                     context.Response = new Response.NotFound();
                     foreach (var provider in filtered)
                     {
-                        if (await InvokeAsync(provider, context.Request) is var response && response.StatusCode == ResourceStatusCode.OK)
+                        if (await InvokeAsync(provider, context.Request) is var response && response.Exists())
                         {
                             _cache.Set(providerKey, provider);
                             context.Response = response;
@@ -69,9 +71,6 @@ namespace Reusable.Translucent.Middleware
                     context.Response = await InvokeAsync(resourceProvider, context.Request);
                 }
             }
-
-            await _next(context);
-            //context.Response.Uri = 
         }
 
         private Task<Response> InvokeAsync(IResourceController controller, Request request)

@@ -28,7 +28,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
-    <ProjectReference Include="..\Reusable.IOnymous\Reusable.IOnymous.csproj" />
   </ItemGroup>
 
   <ItemGroup>

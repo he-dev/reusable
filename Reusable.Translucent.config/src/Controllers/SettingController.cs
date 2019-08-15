@@ -8,7 +8,7 @@ namespace Reusable.Translucent.Controllers
     public abstract class SettingController : ResourceController
     {
         protected SettingController(IImmutableContainer properties)
-            : base(properties.UpdateItem(ResourceControllerProperties.Schemes, s => s.Add("config"))) { }
+            : base(properties.UpdateItem(Schemes, s => s.Add("config"))) { }
 
         protected string GetResourceName(UriString uriString)
         {

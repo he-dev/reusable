@@ -14,7 +14,7 @@ namespace Reusable.Translucent.Controllers
             : base(
                 properties
                     .ThisOrEmpty()
-                    .UpdateItem(ResourceControllerProperties.Schemes, s => s.Any() ? s : s.Add(UriSchemes.Custom.IOnymous))
+                    .UpdateItem(Schemes, s => s.Any() ? s : s.Add(UriSchemes.Custom.IOnymous))
                 ) { }
 
         [ResourceGet]

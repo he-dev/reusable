@@ -11,7 +11,7 @@ namespace Reusable.Translucent.Controllers
     public abstract class MailController : ResourceController
     {
         protected MailController(IImmutableContainer metadata)
-            : base(metadata.UpdateItem(ResourceControllerProperties.Schemes, s => s.Add(UriSchemes.Known.MailTo))) { }
+            : base(metadata.UpdateItem(Schemes, s => s.Add(UriSchemes.Known.MailTo))) { }
 
         protected async Task<string> ReadBodyAsync(Stream value, IImmutableContainer metadata)
         {

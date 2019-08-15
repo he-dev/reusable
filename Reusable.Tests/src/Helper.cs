@@ -12,26 +12,29 @@ namespace Reusable
         public static readonly IResourceSquid Resources =
             ResourceSquid
                 .Builder
-                .UseController(new EmbeddedFileController<TestHelper>(@"Reusable/res/IOnymous"))
-                .UseController(new EmbeddedFileController<TestHelper>(@"Reusable/res/Flexo"))
-                .UseController(new EmbeddedFileController<TestHelper>(@"Reusable/res/Utilities/JsonNet"))
-                .UseController(new EmbeddedFileController<TestHelper>(@"Reusable/sql"))
-                .UseController(new AppSettingController())
-                .UseController(new SqlServerController(ConnectionString)
+                .UseEmbeddedFiles<TestHelper>
+                (
+                    @"Reusable/res/IOnymous",
+                    @"Reusable/res/Flexo",
+                    @"Reusable/res/Utilities/JsonNet",
+                    @"Reusable/sql"
+                )
+                .UseAppConfig()
+                .UseSqlServer(ConnectionString, server =>
                 {
-                    TableName = ("reusable", "TestConfig"),
-                    ResourceConverter = new JsonSettingConverter(),
-                    ColumnMappings =
+                    server.TableName = ("reusable", "TestConfig");
+                    server.ResourceConverter = new JsonSettingConverter();
+                    server.ColumnMappings =
                         ImmutableDictionary<SqlServerColumn, SoftString>
                             .Empty
                             .Add(SqlServerColumn.Name, "_name")
-                            .Add(SqlServerColumn.Value, "_value"),
-                    Where =
+                            .Add(SqlServerColumn.Value, "_value");
+                    server.Where =
                         ImmutableDictionary<string, object>
                             .Empty
                             .Add("_env", "test")
-                            .Add("_ver", "1"),
-                    Fallback = ("_env", "else")
+                            .Add("_ver", "1");
+                    server.Fallback = ("_env", "else");
                 })
                 .Build();
     }

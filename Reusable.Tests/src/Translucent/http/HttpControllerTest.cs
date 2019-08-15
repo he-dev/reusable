@@ -26,7 +26,7 @@ namespace Reusable.Translucent.http
                     .UseController(
                         HttpController.FromBaseUri(
                             "http://localhost:30002/api",
-                            ImmutableContainer.Empty.UpdateItem(ResourceControllerProperties.Tags, tags => tags.Add("Mailr"))))
+                            ImmutableContainer.Empty.UpdateItem(ResourceController.Tags, tags => tags.Add("Mailr"))))
                     .Build();
         }
 
