@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Exceptionize;
+using Reusable.Extensions;
 using Reusable.OneTo1;
 using Reusable.Quickey;
 using Reusable.Translucent.Controllers;
@@ -16,26 +17,23 @@ namespace Reusable.Translucent
     {
         public static async Task<object> ReadSettingAsync(this IResourceSquid resourceSquid, Selector selector)
         {
-            var request = SettingRequestBuilder.CreateRequest(RequestMethod.Get, selector);
+            var request = ConfigRequestBuilder.CreateRequest(RequestMethod.Get, selector);
             using (var response = await resourceSquid.InvokeAsync(request))
             {
-                if (response.Exists() && response.Body is string body)
-                {
-                    //var value = await response.DeserializeTextAsync(); //().DeserializeAsync();
-                    var converter = response.Metadata.GetItemOrDefault(SettingControllerProperties.Converter);
-                    return converter?.Convert(body, selector.DataType);
-                }
-                else
-                {
-                    throw DynamicException.Create("SettingNotFount", $"Could not find '{selector}'.");
-                }
+                return
+                    response
+                        .Metadata
+                        .GetItem(ConfigController.Converter)
+                        .Convert(response.Body, selector.DataType);
             }
         }
 
         public static async Task WriteSettingAsync(this IResourceSquid resourceSquid, Selector selector, object newValue)
         {
-            var request = SettingRequestBuilder.CreateRequest(RequestMethod.Put, selector, newValue);
-            await resourceSquid.InvokeAsync(request);
+            using (var request = ConfigRequestBuilder.CreateRequest(RequestMethod.Put, selector, newValue))
+            {
+                await resourceSquid.InvokeAsync(request);
+            }
         }
 
         #region Helpers

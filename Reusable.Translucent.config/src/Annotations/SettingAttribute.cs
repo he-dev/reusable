@@ -5,10 +5,10 @@ namespace Reusable.Translucent.Annotations
 {
     [UsedImplicitly]
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Property)]
-    public class ResourceAttribute : Attribute
+    public class SettingAttribute : Attribute
     {
         public string Scheme { get; set; }
 
-        public string Provider { get; set; }
+        public string Controller { get; set; }
     }
 }

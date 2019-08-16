@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
@@ -48,7 +49,7 @@ namespace Reusable.Translucent
         /// </summary>
         public static string Normalize(string uri) => Regex.Replace(uri, @"\\", "/");
 
-        public static UriString CreateQuery(string scheme, IImmutableList<string> path, IImmutableDictionary<string, string> query)
+        public static UriString CreateQuery(string scheme, IEnumerable<string> path, IEnumerable<(string Key, string Value)> query)
         {
             if (path.Empty()) throw new ArgumentException($"{nameof(path)} must have at least one name.");
             if (query.Empty()) throw new ArgumentException($"{nameof(path)} must contain at least one name.");

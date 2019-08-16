@@ -11,7 +11,7 @@ using Reusable.Utilities.SqlClient;
 
 namespace Reusable.Translucent.Controllers
 {
-    public class SqlServerController : SettingController
+    public class SqlServerController : ConfigController
     {
         public const string DefaultSchema = "dbo";
 
@@ -19,13 +19,12 @@ namespace Reusable.Translucent.Controllers
 
         private SqlFourPartName _tableName;
 
-        public SqlServerController(string nameOrConnectionString) : base(ImmutableContainer.Empty)
+        public SqlServerController(string nameOrConnectionString) 
+            : base(ImmutableContainer.Empty.SetItem(Converter, new JsonSettingConverter()))
         {
             ConnectionString = ConnectionStringRepository.Default.GetConnectionString(nameOrConnectionString);
             TableName = (DefaultSchema, DefaultTable);
         }
-
-        public ITypeConverter ResourceConverter { get; set; } = new JsonSettingConverter();
 
         [NotNull]
         public string ConnectionString { get; }
@@ -59,16 +58,7 @@ namespace Reusable.Translucent.Controllers
                     if (await settingReader.ReadAsync(token))
                     {
                         var value = settingReader[ColumnMappings.MapOrDefault(SqlServerColumn.Value)];
-                        return new Response.OK
-                        {
-                            Body = value,
-                            //ContentType = MimeType.Json,
-                            Metadata =
-                                request
-                                    .Metadata
-                                    .Copy<ResourceProperties>()
-                                    .SetItem(SettingControllerProperties.Converter, ResourceConverter)
-                        };
+                        return OK(request, (string)value, settingIdentifier);
                     }
                     else
                     {
@@ -82,7 +72,7 @@ namespace Reusable.Translucent.Controllers
         public async Task<Response> SetSettingAsync(Request request)
         {
             var settingIdentifier = GetResourceName(request.Uri);
-            var value = ResourceConverter.Convert(request.Body, typeof(string));
+            var value = Properties.GetItem(Converter).Convert(request.Body, typeof(string));
             await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
             {
                 using (var cmd = connection.CreateUpdateCommand(TableName, settingIdentifier, ColumnMappings, Where, value))

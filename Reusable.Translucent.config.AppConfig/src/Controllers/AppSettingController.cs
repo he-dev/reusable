@@ -9,11 +9,9 @@ using Reusable.OneTo1.Converters;
 
 namespace Reusable.Translucent.Controllers
 {
-    public class AppSettingController : SettingController
+    public class AppSettingController : ConfigController
     {
-        public AppSettingController() : base(ImmutableContainer.Empty) { }
-
-        public ITypeConverter ResourceConverter { get; set; } = new NullConverter();
+        public AppSettingController() : base(ImmutableContainer.Empty.SetItem(Converter, new EchoConverter())) { }
 
         [ResourceGet]
         public Task<Response> GetSettingAsync(Request request)
@@ -26,17 +24,7 @@ namespace Reusable.Translucent.Controllers
             return
                 element is null
                     ? new Response.NotFound().ToTask<Response>()
-                    : new Response.OK
-                    {
-                        Body = element.Value,
-                        //ContentType = MimeType.Json,
-                        Metadata =
-                            request
-                                .Metadata
-                                .Copy<ResourceProperties>()
-                                .SetItem(SettingControllerProperties.Converter, ResourceConverter)
-                                .SetItem(Response.ActualName, settingIdentifier)
-                    }.ToTask<Response>();
+                    : OK(request, element.Value, settingIdentifier).ToTask();
         }
 
         [ResourcePut]
@@ -46,7 +34,7 @@ namespace Reusable.Translucent.Controllers
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
             var element = exeConfig.AppSettings.Settings[actualKey];
-            var value = ResourceConverter.Convert(request.Body, typeof(string));
+            var value = Properties.GetItem(Converter).Convert(request.Body, typeof(string));
 
             if (element is null)
             {
@@ -59,8 +47,6 @@ namespace Reusable.Translucent.Controllers
 
             exeConfig.Save(ConfigurationSaveMode.Minimal);
 
-            //return await GetSettingAsync(request);
-            
             return new Response.OK().ToTask<Response>();
         }
 
@@ -74,5 +60,11 @@ namespace Reusable.Translucent.Controllers
                     .AllKeys
                     .FirstOrDefault(k => SoftString.Comparer.Equals(k, key));
         }
+
+        #region Properties
+
+        
+
+        #endregion
     }
 }

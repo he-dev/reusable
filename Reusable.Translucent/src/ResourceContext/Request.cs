@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using System.Threading;
 using JetBrains.Annotations;
@@ -9,7 +10,7 @@ namespace Reusable.Translucent
 {
     [UseType, UseMember]
     [PlainSelectorFormatter]
-    public class Request
+    public class Request : IDisposable
     {
         [NotNull]
         public UriString Uri { get; set; } // = new UriString($"{UriSchemes.Custom.IOnymous}:///");
@@ -22,6 +23,11 @@ namespace Reusable.Translucent
 
         [CanBeNull]
         public object Body { get; set; }
+
+        public void Dispose()
+        {
+            (Body as IDisposable)?.Dispose();
+        }
 
         #region Methods
 
@@ -68,6 +74,12 @@ namespace Reusable.Translucent
         private static readonly From<Request> This;
 
         //public static readonly Selector<MimeType> Accept = This.Select(() => Accept);
+        
+        public static readonly Selector<bool> IsCacheable = This.Select(() => IsCacheable);
+        
+        public static readonly Selector<TimeSpan> CacheTimeout = This.Select(() => CacheTimeout);
+        
+        public static readonly Selector<bool> IsExternallyOwned = This.Select(() => IsExternallyOwned);
 
         public static readonly Selector<Encoding> Encoding = This.Select(() => Encoding);
         

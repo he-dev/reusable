@@ -1,3 +1,5 @@
+using System;
+using Reusable.Data;
 using Reusable.Translucent.Controllers;
 
 namespace Reusable.Translucent
@@ -9,6 +11,16 @@ namespace Reusable.Translucent
             foreach (var basePath in basePaths)
             {
                 builder.UseController(new EmbeddedFileController<T>(basePath));
+            }
+
+            return builder;
+        }
+        
+        public static ResourceSquidBuilder UseEmbeddedFiles(this ResourceSquidBuilder builder, Type assemblyProvider, params string[] basePaths)
+        {
+            foreach (var basePath in basePaths)
+            {
+                builder.UseController(new EmbeddedFileController(assemblyProvider.Assembly, ImmutableContainer.Empty.SetItem(EmbeddedFileControllerProperties.BaseUri, basePath)));
             }
 
             return builder;

@@ -28,6 +28,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
+    <ProjectReference Include="..\Reusable.Translucent.file\Reusable.Translucent.file.csproj" />
+    <ProjectReference Include="..\Reusable.Translucent\Reusable.Translucent.csproj" />
   </ItemGroup>
 
   <ItemGroup>

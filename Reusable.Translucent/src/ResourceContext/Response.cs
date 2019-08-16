@@ -25,7 +25,7 @@ namespace Reusable.Translucent
 
         public void Dispose()
         {
-            if (Body is Stream stream)
+            if (Body is Stream stream && !Metadata.GetItemOrDefault(Request.IsExternallyOwned))
             {
                 stream.Dispose();
             }

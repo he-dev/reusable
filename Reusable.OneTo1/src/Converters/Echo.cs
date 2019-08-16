@@ -5,7 +5,7 @@ namespace Reusable.OneTo1.Converters
     /// <summary>
     /// Passes the value to be converted through without doing anything.
     /// </summary>
-    public class NullConverter : TypeConverter
+    public class EchoConverter : TypeConverter
     {
         public override Type FromType => typeof(object);
 

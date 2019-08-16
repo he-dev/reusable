@@ -15,11 +15,12 @@ using Reusable.Translucent.Converters;
 // ReSharper disable once CheckNamespace
 namespace Reusable.IOnymous.Controllers
 {
-    public class JsonConfigurationController : SettingController
+    public class JsonConfigurationController : ConfigController
     {
         private readonly IConfiguration _configuration;
 
-        public JsonConfigurationController(string basePath, string fileName) : base(ImmutableContainer.Empty)
+        public JsonConfigurationController(string basePath, string fileName) 
+            : base(ImmutableContainer.Empty.SetItem(Converter, new JsonSettingConverter()))
         {
             _configuration =
                 new ConfigurationBuilder()
@@ -27,9 +28,7 @@ namespace Reusable.IOnymous.Controllers
                     .AddJsonFile(fileName)
                     .Build();
         }
-
-        public ITypeConverter ResourceConverter { get; set; } = new JsonSettingConverter();
-
+        
         [ResourceGet]
         public Task<Response> GetSettingAsync(Request request)
         {
@@ -39,16 +38,7 @@ namespace Reusable.IOnymous.Controllers
             return
                 data is null
                     ? new Response.NotFound().ToTask<Response>()
-                    : new Response.OK()
-                    {
-                        Body = data,
-                        //ContentType = MimeType.Json,
-                        Metadata = request
-                            .Metadata
-                            .Copy<ResourceProperties>()
-                            //.SetItem(ResourceProperties.Uri, request.Uri)
-                            .SetItem(SettingControllerProperties.Converter, ResourceConverter)
-                    }.ToTask<Response>();
+                    : OK(request, data, settingIdentifier).ToTask();
         }
     }
 }

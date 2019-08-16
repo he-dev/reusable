@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using Reusable.Translucent;
 using Reusable.Translucent.Controllers;
 using Reusable.Translucent.Converters;
+using Reusable.Translucent.Middleware;
 
 namespace Reusable
 {
@@ -12,6 +13,11 @@ namespace Reusable
         public static readonly IResourceSquid Resources =
             ResourceSquid
                 .Builder
+                .ConfigureMiddleware(builder =>
+                {
+                    builder.UseMiddleware<SettingFormatValidationMiddleware>();
+                    builder.UseMiddleware<SettingExistsValidationMiddleware>();
+                })
                 .UseEmbeddedFiles<TestHelper>
                 (
                     @"Reusable/res/IOnymous",
@@ -23,7 +29,6 @@ namespace Reusable
                 .UseSqlServer(ConnectionString, server =>
                 {
                     server.TableName = ("reusable", "TestConfig");
-                    server.ResourceConverter = new JsonSettingConverter();
                     server.ColumnMappings =
                         ImmutableDictionary<SqlServerColumn, SoftString>
                             .Empty

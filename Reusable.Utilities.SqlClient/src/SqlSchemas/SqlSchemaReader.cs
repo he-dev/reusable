@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Extensions;
+using Reusable.Translucent;
 
 namespace Reusable.Utilities.SqlClient.SqlSchemas
 {
@@ -18,10 +19,8 @@ namespace Reusable.Utilities.SqlClient.SqlSchemas
 
         static SqlSchemaReader()
         {
-            //var fileProvider = new EmbeddedFileController(typeof(SqlSchemaReader).Assembly);
-            // todo - this needs to be fixed
-#warning this needs to be fixed
-            //GetIdentityColumnSchemasQuery  = fileProvider.ReadTextFile($"sql\\{nameof(GetIdentityColumnSchemas)}.sql");
+            var resources = ResourceSquid.Builder.UseEmbeddedFiles(typeof(SqlSchemaReader), @"Reusable\Utilities\SqlClient\sql").Build();
+            GetIdentityColumnSchemasQuery = resources.ReadTextFile($"sql\\{nameof(GetIdentityColumnSchemas)}.sql");
         }
 
         public static IList<SqlTableSchema> GetTableSchemas(this SqlConnection sqlConnection, SqlTableSchema schemaRestriction)
