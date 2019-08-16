@@ -2,6 +2,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Reusable.Data;
+using Reusable.Translucent.Controllers;
 
 namespace Reusable.Translucent
 {
@@ -39,15 +40,14 @@ namespace Reusable.Translucent
             using (await resourceSquid.InvokeAsync(new Request.Put(CreateUri(path))
             {
                 Body = value,
-                ContentType = MimeType.Plain
             })) { }
         }
 
-        public static async Task WriteFileAsync(this IResourceSquid resourceSquid, string path, CreateStreamCallback createStream, IImmutableContainer context = default)
+        public static async Task WriteFileAsync(this IResourceSquid resourceSquid, string path, CreateBodyStreamDelegate createBodyStream, IImmutableContainer context = default)
         {
             using (await resourceSquid.InvokeAsync(new Request.Put(CreateUri(path))
             {
-                CreateBodyStreamCallback = createStream,
+                Body = createBodyStream,
                 Metadata = context.ThisOrEmpty()
             })) { }
         }
@@ -56,7 +56,7 @@ namespace Reusable.Translucent
         {
             await resourceSquid.InvokeAsync(new Request.Delete(CreateUri(path))
             {
-                ContentType = MimeType.Plain
+                //ContentType = MimeType.Plain
             });
         }
 

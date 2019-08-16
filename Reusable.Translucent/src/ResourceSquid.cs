@@ -10,11 +10,11 @@ namespace Reusable.Translucent
 
     public class ResourceSquid : IResourceSquid
     {
-        private readonly RequestCallback<ResourceContext> _requestCallback;
+        private readonly RequestDelegate<ResourceContext> _requestDelegate;
 
-        public ResourceSquid(RequestCallback<ResourceContext> requestCallback)
+        public ResourceSquid(RequestDelegate<ResourceContext> requestDelegate)
         {
-            _requestCallback = requestCallback;
+            _requestDelegate = requestDelegate;
         }
 
         public static ResourceSquidBuilder Builder => new ResourceSquidBuilder();
@@ -26,7 +26,7 @@ namespace Reusable.Translucent
                 Request = request
             };
 
-            await _requestCallback(context);
+            await _requestDelegate(context);
 
             return context.Response;
         }

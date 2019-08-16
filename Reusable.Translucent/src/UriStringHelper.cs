@@ -42,6 +42,7 @@ namespace Reusable.Translucent
             string DecodeCharacter(string hex) => ((char)int.Parse(hex, NumberStyles.HexNumber)).ToString();
         }
 
+        // https://stackoverflow.com/a/1589958/235671
         /// <summary>
         /// Replaces all '\' with '/' 
         /// </summary>

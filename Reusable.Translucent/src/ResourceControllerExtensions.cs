@@ -1,24 +1,20 @@
 using System.Collections.Generic;
 using System.Linq;
+using Reusable.Translucent.Controllers;
 using Reusable.Translucent.Middleware;
 
 namespace Reusable.Translucent
 {
     public static class ResourceControllerExtensions
     {
-        public static RequestCallbackBuilder UseControllers(this RequestCallbackBuilder builder, IEnumerable<IResourceController> providers)
+        public static RequestDelegateBuilder UseControllers(this RequestDelegateBuilder builder, IEnumerable<IResourceController> controllers)
         {
-            return builder.UseMiddleware<ControllerMiddleware>(providers);
+            return builder.UseMiddleware<ControllerMiddleware>(controllers);
         }
 
-        public static RequestCallbackBuilder UseControllers(this RequestCallbackBuilder builder, params IResourceController[] providers)
+        public static RequestDelegateBuilder UseControllers(this RequestDelegateBuilder builder, params IResourceController[] controllers)
         {
-            return builder.UseControllers(providers.AsEnumerable());
+            return builder.UseControllers(controllers.AsEnumerable());
         }
-        
-        // public static MiddlewareBuilder UseEnvironmentVariable(this MiddlewareBuilder builder)
-        // {
-        //     return builder.Use<EnvironmentVariableMiddleware>();
-        // }
     }
 }

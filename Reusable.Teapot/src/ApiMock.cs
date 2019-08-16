@@ -5,6 +5,7 @@ using System.Linq.Custom;
 using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
+using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Translucent;
 

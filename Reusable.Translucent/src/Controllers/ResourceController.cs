@@ -3,8 +3,6 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
@@ -12,7 +10,7 @@ using Reusable.Diagnostics;
 using Reusable.Extensions;
 using Reusable.Quickey;
 
-namespace Reusable.Translucent
+namespace Reusable.Translucent.Controllers
 {
     [PublicAPI]
     public interface IResourceController : IDisposable
@@ -54,20 +52,14 @@ namespace Reusable.Translucent
 
         public virtual IImmutableContainer Properties { get; }
 
-
-        protected Response OK(Stream body, MimeType contentType, IImmutableContainer metadata = default) => new Response.OK
-        {
-            Body = body,
-            ContentType = contentType,
-            Metadata = metadata
-        };
-        
-        protected Response OK(Stream body, IImmutableContainer metadata = default) => new Response.OK
+        // ReSharper disable once InconsistentNaming
+        protected Response OK(object body, IImmutableContainer metadata = default) => new Response.OK
         {
             Body = body,
             Metadata = metadata
         };
 
+        // ReSharper disable once InconsistentNaming
         protected Response OK() => new Response.OK();
 
         protected Response NotFound() => new Response.NotFound();
@@ -88,7 +80,7 @@ namespace Reusable.Translucent
         #endregion
     }
 
-    public static class ResourceProviderExtensions
+    public static class ResourceControllerExtensions
     {
         public static bool SupportsRelativeUri(this IResourceController resourceController)
         {
@@ -96,131 +88,7 @@ namespace Reusable.Translucent
         }
     }
 
-    public delegate Task<Stream> CreateStreamCallback();
-
-    [UseType, UseMember]
-    [PlainSelectorFormatter]
-    public class Request
-    {
-        [NotNull]
-        public UriString Uri { get; set; } = new UriString($"{UriSchemes.Custom.IOnymous}:///");
-
-        [NotNull]
-        public RequestMethod Method { get; set; } = RequestMethod.None;
-
-        [NotNull]
-        public IImmutableContainer Metadata { get; set; } = ImmutableContainer.Empty;
-
-        [CanBeNull]
-        public object Body { get; set; }
-
-        [CanBeNull]
-        public CreateStreamCallback CreateBodyStreamCallback { get; set; }
-
-        public MimeType ContentType { get; set; }
-
-        #region Methods
-
-        public class Get : Request
-        {
-            public Get(UriString uri)
-            {
-                Uri = uri;
-                Method = RequestMethod.Get;
-            }
-        }
-
-        public class Post : Request
-        {
-            public Post(UriString uri)
-            {
-                Uri = uri;
-                Method = RequestMethod.Post;
-            }
-        }
-
-        public class Put : Request
-        {
-            public Put(UriString uri)
-            {
-                Uri = uri;
-                Method = RequestMethod.Put;
-            }
-        }
-
-        public class Delete : Request
-        {
-            public Delete(UriString uri)
-            {
-                Uri = uri;
-                Method = RequestMethod.Delete;
-            }
-        }
-
-        #endregion
-
-        #region Properties
-
-        private static readonly From<Request> This;
-
-        public static readonly Selector<MimeType> Accept = This.Select(() => Accept);
-
-        public static readonly Selector<Encoding> Encoding = This.Select(() => Encoding);
-
-        #endregion
-    }
-
-    public static class Body
-    {
-        public static readonly object Null = new object();
-    }
-
-    [UseType, UseMember]
-    [PlainSelectorFormatter]
-    [Rename(nameof(RequestProperty))]
-    public class RequestProperty : SelectorBuilder<RequestProperty>
-    {
-        public static readonly Selector<CancellationToken> CancellationToken = Select(() => CancellationToken);
-    }
-
-    public static class RequestExtensions
-    {
-        public static Task<Stream> CreateBodyStreamAsync(this Request request)
-        {
-            switch (request.Body)
-            {
-                case Stream stream: return stream.ToTask();
-                case string str: return str.ToStream().ToTask();
-                default:
-                    return request.CreateBodyStreamCallback?.Invoke() ??
-                           throw new InvalidOperationException($"Cannot create body stream because {nameof(Request.CreateBodyStreamCallback)} is not set.");
-            }
-        }
-
-        public static Request SetCreateBodyStream(this Request request, CreateStreamCallback createBodyStream)
-        {
-            request.CreateBodyStreamCallback = createBodyStream;
-            return request;
-        }
-    }
-
-    public class RequestMethod : Option<RequestMethod>
-    {
-        public RequestMethod(SoftString name, IImmutableSet<SoftString> values) : base(name, values) { }
-
-        public static readonly RequestMethod Get = CreateWithCallerName();
-
-        public static readonly RequestMethod Post = CreateWithCallerName();
-
-        public static readonly RequestMethod Put = CreateWithCallerName();
-
-        public static readonly RequestMethod Delete = CreateWithCallerName();
-    }
-
-    public static class RequestHelper
-    {
-        public static string FormatMethodName(Request request) => request.Method.Name.ToString().ToUpper();
-    }
+    
 
     public static class ElementOrder
     {

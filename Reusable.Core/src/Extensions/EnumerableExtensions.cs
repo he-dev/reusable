@@ -82,7 +82,7 @@ namespace System.Linq.Custom
         }
 #endif
 
-        public static string Join<T>([NotNull] this IEnumerable<T> values, string separator)
+        public static string Join<T>([NotNull] this IEnumerable<T> values, string separator = "")
         {
             if (values == null) throw new ArgumentNullException(nameof(values));
             return string.Join(separator, values);

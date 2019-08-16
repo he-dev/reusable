@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Caching.Memory;
 using Reusable.Exceptionize;
+using Reusable.Translucent.Controllers;
 
 namespace Reusable.Translucent.Middleware
 {
@@ -21,10 +22,10 @@ namespace Reusable.Translucent.Middleware
         };
 
         private readonly IImmutableList<IResourceController> _controllers;
-        private readonly RequestCallback<ResourceContext> _next;
+        private readonly RequestDelegate<ResourceContext> _next;
         private readonly IMemoryCache _cache;
 
-        public ControllerMiddleware(RequestCallback<ResourceContext> next, IEnumerable<IResourceController> controllers)
+        public ControllerMiddleware(RequestDelegate<ResourceContext> next, IEnumerable<IResourceController> controllers)
         {
             _next = next;
             _controllers = controllers.ToImmutableList();

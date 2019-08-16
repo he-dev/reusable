@@ -29,7 +29,7 @@ namespace Reusable.Translucent.Controllers
                     : new Response.OK
                     {
                         Body = element.Value,
-                        ContentType = MimeType.Json,
+                        //ContentType = MimeType.Json,
                         Metadata =
                             request
                                 .Metadata

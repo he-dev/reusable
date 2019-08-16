@@ -10,21 +10,21 @@ using Reusable.Extensions;
 
 namespace Reusable.Translucent
 {
-    public delegate Task RequestCallback<in TContext>(TContext context);
+    public delegate Task RequestDelegate<in TContext>(TContext context);
 
-    public class RequestCallbackBuilder
+    public class RequestDelegateBuilder
     {
         private readonly Stack<(Type MiddlewareType, object[] Parameters)> _middleware = new Stack<(Type MiddlewareType, object[] Parameters)>();
 
         public Func<Type, object> Resolve { get; set; } = _ => throw new InvalidOperationException("No service for resolving middleware dependencies has been registered.");
 
-        public RequestCallbackBuilder UseMiddleware<T>(params object[] args)
+        public RequestDelegateBuilder UseMiddleware<T>(params object[] args)
         {
             _middleware.Push((typeof(T), args));
             return this;
         }
 
-        public RequestCallback<TContext> Build<TContext>()
+        public RequestDelegate<TContext> Build<TContext>()
         {
             var previous = default(object);
             while (_middleware.Any())
@@ -55,7 +55,7 @@ namespace Reusable.Translucent
 
 
         // Using this helper to "catch" the "previous" middleware before it goes out of scope and is overwritten by the loop.
-        private RequestCallback<TContext> CreateNext<TContext>(object middleware)
+        private RequestDelegate<TContext> CreateNext<TContext>(object middleware)
         {
             // This is the last last middleware and there is nowhere to go from here.
             if (middleware is null)
@@ -82,7 +82,7 @@ namespace Reusable.Translucent
                 throw DynamicException.Create
                 (
                     "InvokeSignature",
-                    $"{middleware.GetType().ToPrettyString()} Invoke(Async)'s first parameters must be of type '{typeof(RequestCallback<TContext>).ToPrettyString()}'."
+                    $"{middleware.GetType().ToPrettyString()} Invoke(Async)'s first parameters must be of type '{typeof(RequestDelegate<TContext>).ToPrettyString()}'."
                 );
             }
 
@@ -101,9 +101,9 @@ namespace Reusable.Translucent
         }
     }
 
-    public class RequestCallbackBuilderWithAutofac : RequestCallbackBuilder
+    public class RequestDelegateBuilderWithAutofac : RequestDelegateBuilder
     {
-        public RequestCallbackBuilderWithAutofac(IComponentContext componentContext)
+        public RequestDelegateBuilderWithAutofac(IComponentContext componentContext)
         {
             Resolve =
                 type =>

@@ -62,7 +62,7 @@ namespace Reusable.Translucent.Controllers
                         return new Response.OK
                         {
                             Body = value,
-                            ContentType = MimeType.Json,
+                            //ContentType = MimeType.Json,
                             Metadata =
                                 request
                                     .Metadata
@@ -75,7 +75,7 @@ namespace Reusable.Translucent.Controllers
                         return (Response)new Response.NotFound();
                     }
                 }
-            }, request.Metadata.GetItemOrDefault(RequestProperty.CancellationToken));
+            }, request.Metadata.GetItemOrDefault(Request.CancellationToken));
         }
 
         [ResourcePut]
@@ -89,7 +89,7 @@ namespace Reusable.Translucent.Controllers
                 {
                     await cmd.ExecuteNonQueryAsync(token);
                 }
-            }, request.Metadata.GetItemOrDefault(RequestProperty.CancellationToken));
+            }, request.Metadata.GetItemOrDefault(Request.CancellationToken));
 
 //            return await GetSettingAsync(new Request.Get(request.Uri)
 //            {

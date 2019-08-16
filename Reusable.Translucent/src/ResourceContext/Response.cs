@@ -19,7 +19,7 @@ namespace Reusable.Translucent
 
         public object Body { get; set; }
 
-        public MimeType ContentType { get; set; }
+        //public MimeType ContentType { get; set; }
 
         public IImmutableContainer Metadata { get; set; }
 

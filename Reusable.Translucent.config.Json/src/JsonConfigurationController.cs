@@ -42,7 +42,7 @@ namespace Reusable.IOnymous.Controllers
                     : new Response.OK()
                     {
                         Body = data,
-                        ContentType = MimeType.Json,
+                        //ContentType = MimeType.Json,
                         Metadata = request
                             .Metadata
                             .Copy<ResourceProperties>()

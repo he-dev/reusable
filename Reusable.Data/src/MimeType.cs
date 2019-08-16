@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
-using Reusable.Data;
 
-namespace Reusable.Translucent
+namespace Reusable.Data
 {
     public class MimeType : Option<MimeType>
     {

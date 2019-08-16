@@ -1,18 +1,17 @@
 using System.Threading.Tasks;
 using Reusable.Data;
+using Reusable.Translucent.Controllers;
 
 namespace Reusable.Translucent
 {
-    // Provides CRUD APIs.
-    public static partial class ResourceSquidExtensions
+    public static class ResourceSquidExtensions
     {
-        public static Task<Response> CreateAsync(this IResourceSquid resourceSquid, UriString uri, object body, CreateStreamCallback createBodyStreamCallback, IImmutableContainer context = default)
+        public static Task<Response> CreateAsync(this IResourceSquid resourceSquid, UriString uri, object body, IImmutableContainer context = default)
         {
             return resourceSquid.InvokeAsync(new Request.Get(uri)
             {
                 Body = body,
                 Metadata = context.ThisOrEmpty(),
-                CreateBodyStreamCallback = createBodyStreamCallback
             });
         }
 

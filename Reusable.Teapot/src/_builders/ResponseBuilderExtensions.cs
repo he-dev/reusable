@@ -1,5 +1,6 @@
 using System.IO;
 using JetBrains.Annotations;
+using Reusable.Data;
 using Reusable.Extensions;
 using Reusable.Translucent;
 

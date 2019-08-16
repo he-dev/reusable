@@ -77,7 +77,7 @@ namespace Reusable.Translucent.Controllers
                 return new Response.OK
                 {
                     Body = response,
-                    ContentType = mediaType,
+                    //ContentType = mediaType,
                     Metadata = request.Metadata.Copy<ResourceProperties>()
                 };
             };
@@ -96,7 +96,7 @@ namespace Reusable.Translucent.Controllers
 
                 Properties.GetItemOrDefault(HttpRequestMetadata.ConfigureHeaders, _ => { })(request.Headers);
                 context.GetItemOrDefault(HttpRequestMetadata.ConfigureHeaders)(request.Headers);
-                using (var response = await _client.SendAsync(request, HttpCompletionOption.ResponseContentRead, context.GetItemOrDefault(RequestProperty.CancellationToken)).ConfigureAwait(false))
+                using (var response = await _client.SendAsync(request, HttpCompletionOption.ResponseContentRead, context.GetItemOrDefault(Request.CancellationToken)).ConfigureAwait(false))
                 {
                     var responseContentCopy = new MemoryStream();
 

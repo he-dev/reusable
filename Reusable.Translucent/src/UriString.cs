@@ -2,40 +2,55 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Collections;
 
 namespace Reusable.Translucent
 {
+    using System.Linq.Custom;
+
+    internal class PatternAttribute : Attribute
+    {
+        private readonly string _pattern;
+
+        public PatternAttribute([RegexPattern] string pattern) => _pattern = pattern;
+
+        public override string ToString() => _pattern;
+    }
+
     [PublicAPI]
     public class UriString : IEquatable<UriString>, IEquatable<string>
     {
-        // https://regex101.com/r/sd288W/1
-        // using 'new[]' for _nicer_ syntax
-        private static readonly string UriPattern = string.Join(string.Empty, new[]
-        {
-            /* language=regexp */ @"^(?:(?<scheme>[a-z0-9\+\.\-]+):)?",
-            /* language=regexp */ @"(?:\/\/(?<authority>[a-z0-9\.\-_:]+))?",
-            /* language=regexp */ @"(?:\/?(?<path>[a-z0-9\/:\.\-\%_@]+))",
-            /* language=regexp */ @"(?:\?(?<query>[a-z0-9=&\%\.]+))?",
-            /* language=regexp */ @"(?:#(?<fragment>[a-z0-9]+))?"
-        });
-
         public static readonly IEqualityComparer<UriString> Comparer = EqualityComparerFactory<UriString>.Create
         (
-            @equals: (x, y) =>
+            equals: (x, y) =>
             {
-                var ignoreScheme = x.IsIOnymous() || y.IsIOnymous();
-                var xUri = ignoreScheme ? x.ToString(string.Empty) : x.ToString();
-                var yUri = ignoreScheme ? y.ToString(string.Empty) : y.ToString();
-                return SoftString.Comparer.Equals(xUri, yUri);
+                var equals = (Func<SoftString, SoftString, bool>)SoftString.Comparer.Equals;
+
+                return
+                    equals(x.Scheme, y.Scheme) &&
+                    equals(x.Authority, y.Authority) &&
+                    equals(x.Path.Decoded, y.Path.Decoded) &&
+                    x.Query.Count == y.Query.Count && !x.Query.RemoveRange(y.Query.Keys).Any() &&
+                    equals(x.Fragment, y.Fragment);
             },
-            getHashCode: (obj) =>
-            {
-                var ignoreScheme = obj.IsIOnymous();
-                return SoftString.Comparer.GetHashCode(ignoreScheme ? obj.ToString(string.Empty) : obj.ToString());
-            });
+            getHashCode: (obj) => SoftString.Comparer.GetHashCode(obj.ToString()));
+
+        private static readonly Regex Regex;
+
+        static UriString()
+        {
+            // https://regex101.com/r/sd288W/1
+
+            var patterns =
+                from p in typeof(UriString).GetProperties()
+                where p.IsDefined(typeof(PatternAttribute))
+                select p.GetCustomAttribute<PatternAttribute>();
+
+            Regex = new Regex(patterns.Join(), RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
+        }
 
         public UriString([NotNull] string uri)
         {
@@ -43,12 +58,7 @@ namespace Reusable.Translucent
 
             uri = UriStringHelper.Normalize(uri);
 
-            var uriMatch = Regex.Match
-            (
-                uri,
-                UriPattern,
-                RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture
-            );
+            var uriMatch = Regex.Match(uri);
 
             if (!uriMatch.Success)
             {
@@ -100,14 +110,19 @@ namespace Reusable.Translucent
             update.Bind(this);
         }
 
+        [Pattern(@"^(?:(?<scheme>[a-z0-9\+\.\-]+):)?")]
         public SoftString Scheme { get; }
 
+        [Pattern(@"(?:\/\/(?<authority>[a-z0-9\.\-_:]+))?")]
         public SoftString Authority { get; }
 
+        [Pattern(@"(?:\/?(?<path>[a-z0-9\/:\.\-\%_@]+))")]
         public UriStringComponent Path { get; }
 
+        [Pattern(@"(?:\?(?<query>[a-z0-9=&\%\.]+))?")]
         public IImmutableDictionary<SoftString, SoftString> Query { get; }
 
+        [Pattern(@"(?:#(?<fragment>[a-z0-9]+))?")]
         public SoftString Fragment { get; }
 
         public bool IsAbsolute => Scheme;

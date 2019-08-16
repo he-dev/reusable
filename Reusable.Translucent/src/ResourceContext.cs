@@ -1,3 +1,6 @@
+using System.IO;
+using System.Threading.Tasks;
+
 namespace Reusable.Translucent
 {
     public class ResourceContext
@@ -6,4 +9,6 @@ namespace Reusable.Translucent
 
         public Response Response { get; set; }
     }
+
+    public delegate Task<Stream> CreateBodyStreamDelegate();
 }

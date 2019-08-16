@@ -13,10 +13,10 @@ namespace Reusable.Translucent.Middleware
     [UsedImplicitly]
     public class TelemetryMiddleware
     {
-        private readonly RequestCallback<ResourceContext> _next;
+        private readonly RequestDelegate<ResourceContext> _next;
         private readonly ILogger<TelemetryMiddleware> _logger;
 
-        public TelemetryMiddleware(RequestCallback<ResourceContext> next, ILogger<TelemetryMiddleware> logger)
+        public TelemetryMiddleware(RequestDelegate<ResourceContext> next, ILogger<TelemetryMiddleware> logger)
         {
             _next = next;
             _logger = logger;

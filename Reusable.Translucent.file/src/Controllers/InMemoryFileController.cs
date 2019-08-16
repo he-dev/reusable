@@ -1,58 +1,44 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Reusable.Data;
+using Reusable.Extensions;
 
 namespace Reusable.Translucent.Controllers
 {
-    public class InMemoryFileController : ResourceController, IEnumerable<(SoftString Name, object Value)>
+    public class InMemoryFileController : ResourceController, IEnumerable<KeyValuePair<UriString, object>>
     {
-        private readonly IDictionary<SoftString, object> _items = new Dictionary<SoftString, object>();
+        private readonly IDictionary<UriString, object> _items = new Dictionary<UriString, object>();
 
-        public InMemoryFileController(IImmutableContainer properties = default)
-            : base(
-                properties
-                    .ThisOrEmpty()
-                    .UpdateItem(Schemes, s => s.Any() ? s : s.Add(UriSchemes.Custom.IOnymous))
-                ) { }
+        public InMemoryFileController(IImmutableContainer properties = default) : base(properties.ThisOrEmpty().UpdateItem(Schemes, x => x.Add(UriSchemes.Known.File))) { }
 
         [ResourceGet]
         public Task<Response> GetAsync(Request request)
         {
-            if (_items.TryGetValue(request.Uri.ToString(), out var obj))
-            {
-                // switch (obj)
-                // {
-                //     case string str:
-                //         return new PlainResource(str, request.Metadata.Copy<ResourceProperties>()).ToTask<IResource>();
-                //
-                //     default:
-                //         return new ObjectResource(obj, request.Metadata.Copy<ResourceProperties>()).ToTask<IResource>();
-                // }
-            }
-            else
-            {
-                //return DoesNotExist(request).ToTask<IResource>();
-            }
-
-            return default;
+            return
+                _items.TryGetValue(request.Uri, out var obj)
+                    ? OK(obj).ToTask()
+                    : NotFound().ToTask();
         }
 
         [ResourcePut]
-        public async Task<Response> AddAsync(Request request)
+        public Task<Response> AddAsync(Request request)
         {
             _items[request.Uri.ToString()] = request.Body;
 
-            return await GetAsync(new Request.Get(request.Uri));
+            return OK().ToTask();
         }
 
-        // protected override async Task<IResourceInfo> DeleteAsyncInternal(UriString uri, ResourceMetadata metadata)
-        // {
-        //     var resourceToDelete = await GetAsync(uri, metadata);
-        //     _items.Remove(resourceToDelete);
-        //     return await GetAsync(uri, metadata);
-        // }
+        [ResourceDelete]
+        public Task<Response> DeleteAsync(Request request)
+        {
+            return
+                _items.Remove(request.Uri)
+                    ? OK().ToTask()
+                    : NotFound().ToTask();
+        }
 
         #region Collection initilizers
 
@@ -66,8 +52,16 @@ namespace Reusable.Translucent.Controllers
 
         #endregion
 
-        public IEnumerator<(SoftString Name, object Value)> GetEnumerator() => _items.Select(x => (x.Key, x.Value)).GetEnumerator();
+        public IEnumerator<KeyValuePair<UriString, object>> GetEnumerator() => _items.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_items).GetEnumerator();
+
+        public override void Dispose()
+        {
+            foreach (var item in _items)
+            {
+                (item.Value as IDisposable)?.Dispose();
+            }
+        }
     }
 }
