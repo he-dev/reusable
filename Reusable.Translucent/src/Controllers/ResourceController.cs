@@ -19,7 +19,7 @@ namespace Reusable.Translucent.Controllers
         IImmutableContainer Properties { get; }
     }
 
-    public delegate Task<Response> InvokeCallback(Request request);
+    public delegate Task<Response> InvokeDelegate(Request request);
 
     [UseType, UseMember]
     [PlainSelectorFormatter]
@@ -80,15 +80,6 @@ namespace Reusable.Translucent.Controllers
         #endregion
     }
 
-    public static class ResourceControllerExtensions
-    {
-        public static bool SupportsRelativeUri(this IResourceController resourceController)
-        {
-            return resourceController.Properties.GetItemOrDefault(ResourceController.SupportsRelativeUri);
-        }
-    }
-
-    
 
     public static class ElementOrder
     {
@@ -122,32 +113,5 @@ namespace Reusable.Translucent.Controllers
             referenceOrder = ElementOrder.Ignore;
             return false;
         }
-    }
-
-    public abstract class ResourceActionAttribute : Attribute
-    {
-        protected ResourceActionAttribute(RequestMethod method) => Method = method;
-
-        public RequestMethod Method { get; }
-    }
-
-    public class ResourceGetAttribute : ResourceActionAttribute
-    {
-        public ResourceGetAttribute() : base(RequestMethod.Get) { }
-    }
-
-    public class ResourcePostAttribute : ResourceActionAttribute
-    {
-        public ResourcePostAttribute() : base(RequestMethod.Post) { }
-    }
-
-    public class ResourcePutAttribute : ResourceActionAttribute
-    {
-        public ResourcePutAttribute() : base(RequestMethod.Put) { }
-    }
-
-    public class ResourceDeleteAttribute : ResourceActionAttribute
-    {
-        public ResourceDeleteAttribute() : base(RequestMethod.Delete) { }
     }
 }

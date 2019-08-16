@@ -54,14 +54,14 @@ namespace Reusable.Teapot
                 {
                     Metadata = ImmutableContainer
                         .Empty
-                        .SetItem(HttpRequestMetadata.ConfigureHeaders, headers =>
+                        .SetItem(HttpRequest.ConfigureHeaders, headers =>
                         {
                             headers.ApiVersion("1.0");
                             headers.UserAgent("Teapot", "1.0");
                             headers.AcceptJson();
                         })
-                        .SetItem(HttpRequestMetadata.ContentType, "application/json")
-                        .SetItem(HttpResponseMetadata.ContentType, "application/json"),
+                        .SetItem(HttpRequest.ContentType, "application/json")
+                        .SetItem(HttpResponse.ContentType, "application/json"),
                     Body = new { Greeting = "Hallo" },
                     //CreateBodyStreamCallback = b => ResourceHelper.SerializeAsJsonAsync(b)
                 };

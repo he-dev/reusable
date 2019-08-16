@@ -11,7 +11,6 @@ using Reusable.Extensions;
 using Reusable.Quickey;
 using ContentDisposition = MimeKit.ContentDisposition;
 
-
 namespace Reusable.Translucent.Controllers
 {
     public class SmtpController : MailController
@@ -27,12 +26,12 @@ namespace Reusable.Translucent.Controllers
             message.Cc.AddRange(request.Metadata.GetItemOrDefault(CC, Enumerable.Empty<string>().ToList()).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
             message.Subject = request.Metadata.GetItemOrDefault(Subject);
             var multipart = new Multipart("mixed");
-//            {
-//                new TextPart(request.Properties.GetItemOrDefault(From<IMailMeta>.Select(x => x.IsHtml)) ? TextFormat.Html : TextFormat.Plain)
-//                {
-//                    Text = await ReadBodyAsync(body, request.Properties)
-//                }
-//            };
+            //            {
+            //                new TextPart(request.Properties.GetItemOrDefault(From<IMailMeta>.Select(x => x.IsHtml)) ? TextFormat.Html : TextFormat.Plain)
+            //                {
+            //                    Text = await ReadBodyAsync(body, request.Properties)
+            //                }
+            //            };
 
             using (var body = await request.CreateBodyStreamAsync())
             {
@@ -60,9 +59,9 @@ namespace Reusable.Translucent.Controllers
             {
                 await smtpClient.ConnectAsync
                 (
-                    request.Metadata.GetItemOrDefault(SmtpRequestMetadata.Host),
-                    request.Metadata.GetItemOrDefault(SmtpRequestMetadata.Port),
-                    request.Metadata.GetItemOrDefault(SmtpRequestMetadata.UseSsl, false)
+                    request.Metadata.GetItemOrDefault(SmtpRequest.Host),
+                    request.Metadata.GetItemOrDefault(SmtpRequest.Port),
+                    request.Metadata.GetItemOrDefault(SmtpRequest.UseSsl, false)
                 );
                 await smtpClient.SendAsync(message);
             }
@@ -71,15 +70,18 @@ namespace Reusable.Translucent.Controllers
         }
     }
 
-    [UseType, UseMember]
-    [PlainSelectorFormatter]
-    [Rename(nameof(SmtpRequestMetadata))]
-    public class SmtpRequestMetadata : SelectorBuilder<SmtpRequestMetadata>
+    public class SmtpRequest : Request
     {
-        public static Selector<string> Host = Select(() => Host);
+        #region Properties
 
-        public static Selector<int> Port = Select(() => Port);
+        private static readonly From<ResourceController> This;
 
-        public static Selector<bool> UseSsl = Select(() => UseSsl);
+        public static Selector<string> Host { get; } = This.Select(() => Host);
+
+        public static Selector<int> Port { get; } = This.Select(() => Port);
+
+        public static Selector<bool> UseSsl { get; } = This.Select(() => UseSsl);
+
+        #endregion
     }
 }

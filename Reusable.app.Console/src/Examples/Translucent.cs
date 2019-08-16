@@ -25,19 +25,19 @@ namespace Reusable
 {
     public static partial class Examples
     {
-        public static async Task SendEmailAsync_Smtp()
+        public static async Task SendEmailViaSmtp()
         {
             var resources =
                 ResourceSquid
                     .Builder
-                    .UseController(new SmtpController())
+                    .UseSmtp()
                     .Build();
 
             var context =
                 ImmutableContainer
                     .Empty
-                    .SetItem(SmtpRequestMetadata.Host, "localhost")
-                    .SetItem(SmtpRequestMetadata.Port, 25);
+                    .SetItem(SmtpRequest.Host, "localhost")
+                    .SetItem(SmtpRequest.Port, 25);
 
             await resources.SendEmailAsync(new Email<EmailSubject, EmailBody>
             {
@@ -51,13 +51,14 @@ namespace Reusable
             }, context);
         }
 
-        public static async Task SendEmailAsync_Mailr()
+        public static async Task SendEmailViaMailr()
         {
             var resources =
                 ResourceSquid
                     .Builder
-                    .UseController(HttpController.FromBaseUri("http://localhost:7000/api"))
+                    .UseHttp("http://localhost:7000/api", ImmutableContainer.Empty.UpdateItem(ResourceController.Tags, x => x.Add("Mailr")))
                     .Build();
+            
             await resources.SendEmailAsync
             (
                 "v1.0/mailr/messages/plaintext",
@@ -71,8 +72,7 @@ namespace Reusable
                     Body = "<p>I'm great!</p>",
                     IsHtml = true,
                     Attachments = new Dictionary<string, byte[]>()
-                },
-                "providerName"
+                }
             );
         }
     }

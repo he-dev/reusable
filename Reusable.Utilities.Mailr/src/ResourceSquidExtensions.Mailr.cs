@@ -17,7 +17,6 @@ using Reusable.Translucent.Formatting;
 
 namespace Reusable.Utilities.Mailr
 {
-    // Provides CRUD APIs.
     public static class ResourceSquidExtensions
     {
         public static async Task<string> SendEmailAsync
@@ -26,22 +25,22 @@ namespace Reusable.Utilities.Mailr
             UriString uri,
             UserAgent userAgent,
             Email email,
-            string providerName
+            string controllerTag = "Mailr"
         )
         {
             var properties =
                 ImmutableContainer
                     .Empty
-                    .SetItem(HttpRequestMetadata.ConfigureHeaders, headers =>
+                    .SetItem(HttpRequest.ConfigureHeaders, headers =>
                     {
                         headers
                             .UserAgent(userAgent.ProductName, userAgent.ProductVersion)
                             .AcceptHtml();
                     })
-                    .SetItem(HttpRequestMetadata.ContentType, "application/json")
-                    .SetItem(HttpResponseMetadata.Formatters, new[] { new TextMediaTypeFormatter() })
-                    .SetItem(HttpResponseMetadata.ContentType, "application/json")
-                    .UpdateItem(ResourceController.Tags, tags => tags.Add(providerName.ToSoftString()));
+                    .SetItem(HttpRequest.ContentType, "application/json")
+                    .SetItem(HttpResponse.Formatters, new[] { new TextMediaTypeFormatter() })
+                    .SetItem(HttpResponse.ContentType, "application/json")
+                    .UpdateItem(ResourceController.Tags, tags => tags.Add(controllerTag.ToSoftString()));
 
             var response = await resourceSquid.InvokeAsync(new Request.Post(uri)
             {

@@ -48,7 +48,7 @@ namespace Reusable.Translucent
 
             return
                 from p in controllers
-                where p.SupportsRelativeUri()
+                where p.Properties.GetItemOrDefault(ResourceController.SupportsRelativeUri)
                 select p;
         }
     }

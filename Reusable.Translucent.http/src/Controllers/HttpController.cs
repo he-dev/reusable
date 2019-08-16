@@ -68,22 +68,25 @@ namespace Reusable.Translucent.Controllers
         [ResourceDelete]
         public async Task<Response> DeleteAsync(Request request) => await CreateRequestCallback(HttpMethod.Delete)(request);
 
-        public InvokeCallback CreateRequestCallback(HttpMethod httpMethod)
+        public InvokeDelegate CreateRequestCallback(HttpMethod httpMethod)
         {
             return async request =>
             {
                 var uri = BaseUri + request.Uri;
-                var (response, mediaType) = await InvokeAsync(uri, httpMethod, request.Body, request.Metadata);
+                var (response, contentType) = await InvokeAsync(uri, httpMethod, request.Body, request.Metadata);
                 return new Response.OK
                 {
                     Body = response,
-                    //ContentType = mediaType,
-                    Metadata = request.Metadata.Copy<ResourceProperties>()
+                    Metadata = 
+                        request
+                            .Metadata
+                            .SetItem(HttpRequest.ContentType, contentType)
+                            .Copy<ResourceProperties>()
                 };
             };
         }
 
-        private async Task<(Stream Content, MimeType MimeType)> InvokeAsync(UriString uri, HttpMethod method, object body, IImmutableContainer context)
+        private async Task<(Stream Content, string ContentType)> InvokeAsync(UriString uri, HttpMethod method, object body, IImmutableContainer context)
         {
             using (var request = new HttpRequestMessage(method, uri))
             using (var content = (body is null ? Stream.Null : Serializer.Serialize(body)))
@@ -91,11 +94,11 @@ namespace Reusable.Translucent.Controllers
                 if (content != Stream.Null)
                 {
                     request.Content = new StreamContent(content.Rewind());
-                    request.Content.Headers.ContentType = new MediaTypeHeaderValue(context.GetItem(HttpRequestMetadata.ContentType));
+                    request.Content.Headers.ContentType = new MediaTypeHeaderValue(context.GetItem(HttpRequest.ContentType));
                 }
 
-                Properties.GetItemOrDefault(HttpRequestMetadata.ConfigureHeaders, _ => { })(request.Headers);
-                context.GetItemOrDefault(HttpRequestMetadata.ConfigureHeaders)(request.Headers);
+                Properties.GetItemOrDefault(HttpRequest.ConfigureHeaders, _ => { })(request.Headers);
+                context.GetItemOrDefault(HttpRequest.ConfigureHeaders)(request.Headers);
                 using (var response = await _client.SendAsync(request, HttpCompletionOption.ResponseContentRead, context.GetItemOrDefault(Request.CancellationToken)).ConfigureAwait(false))
                 {
                     var responseContentCopy = new MemoryStream();
@@ -117,7 +120,7 @@ namespace Reusable.Translucent.Controllers
 
                     if (classOfStatusCode is null)
                     {
-                        return (responseContentCopy, MimeType.Create(Option.Unknown, response.Content.Headers.ContentType.MediaType));
+                        return (responseContentCopy, response.Content.Headers.ContentType.MediaType);
                     }
 
                     using (var responseReader = new StreamReader(responseContentCopy.Rewind()))
@@ -138,27 +141,37 @@ namespace Reusable.Translucent.Controllers
         }
     }
 
-    [UseType, UseMember]
-    [PlainSelectorFormatter]
-    [Rename(nameof(HttpRequestMetadata))]
-    public class HttpRequestMetadata : SelectorBuilder<HttpRequestMetadata>
+    // [UseType, UseMember]
+    // [PlainSelectorFormatter]
+    public class HttpRequest : Request // SelectorBuilder<HttpRequestMetadata>
     {
-        public static Selector<Action<HttpRequestHeaders>> ConfigureHeaders = Select(() => ConfigureHeaders);
+        #region Properties
 
-        public static Selector<MediaTypeFormatter> RequestFormatter = Select(() => RequestFormatter);
+        private static readonly From<HttpRequest> This;
 
-        public static Selector<string> ContentType = Select(() => ContentType);
+        public static Selector<Action<HttpRequestHeaders>> ConfigureHeaders { get; } = This.Select(() => ConfigureHeaders);
+
+        public static Selector<MediaTypeFormatter> RequestFormatter { get; } = This.Select(() => RequestFormatter);
+
+        public static Selector<string> ContentType { get; } = This.Select(() => ContentType);
+
+        #endregion
     }
 
-    [UseType, UseMember]
-    [PlainSelectorFormatter]
-    [Rename(nameof(HttpResponseMetadata))]
-    public class HttpResponseMetadata : SelectorBuilder<HttpRequestMetadata>
+    // [UseType, UseMember]
+    // [PlainSelectorFormatter]
+    public class HttpResponse : Response // SelectorBuilder<HttpRequestMetadata>
     {
-        public static Selector<IEnumerable<MediaTypeFormatter>> Formatters = Select(() => Formatters);
+        #region Properties
 
-        public static Selector<Type> ResponseType = Select(() => ResponseType);
+        private static readonly From<HttpResponse> This;
 
-        public static Selector<string> ContentType = Select(() => ContentType);
+        public static Selector<IEnumerable<MediaTypeFormatter>> Formatters { get; } = This.Select(() => Formatters);
+
+        public static Selector<Type> ResponseType { get; } = This.Select(() => ResponseType);
+
+        public static Selector<string> ContentType { get; } = This.Select(() => ContentType);
+
+        #endregion
     }
 }
