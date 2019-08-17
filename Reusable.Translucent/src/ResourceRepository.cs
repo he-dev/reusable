@@ -25,19 +25,23 @@ namespace Reusable.Translucent
             var resourceControllerBuilder = new ResourceControllerBuilder(services);
             var resourceRepositoryBuilder = new ResourceRepositoryBuilder(services);
 
-            InvokeMethod<IResourceControllerBuilder>(setup, nameof(ResourceRepository.QuickSetup.ConfigureServices), resourceControllerBuilder, services);
-            InvokeMethod<IResourceRepositoryBuilder>(setup, nameof(ResourceRepository.QuickSetup.Configure), resourceRepositoryBuilder, services);
+            InvokeMethod<IResourceControllerBuilder>(setup, nameof(ResourceRepository.QuickSetup.ConfigureServices), false, resourceControllerBuilder, services);
+            InvokeMethod<IResourceRepositoryBuilder>(setup, nameof(ResourceRepository.QuickSetup.Configure), true, resourceRepositoryBuilder, services);
 
             resourceRepositoryBuilder.UseMiddleware<ControllerMiddleware>(new object[] { resourceControllerBuilder.Controllers.AsEnumerable() });
 
             _requestDelegate = resourceRepositoryBuilder.Build<ResourceContext>();
         }
 
-        private static void InvokeMethod<T>(TSetup setup, string methodName, T defaultParameter, IServiceProvider services)
+        private static void InvokeMethod<T>(TSetup setup, string methodName, bool isOptional, T defaultParameter, IServiceProvider services)
         {
             var configure = typeof(TSetup).GetMethod(methodName);
             if (configure is null)
             {
+                if (isOptional)
+                {
+                    return;
+                }
                 throw DynamicException.Create($"{methodName}MethodNotFound", $"'{typeof(TSetup).ToPrettyString()}' does not specify the '{methodName}' method;");
             }
 
@@ -46,12 +50,12 @@ namespace Reusable.Translucent
             var defaultParameterInfo = parameterInfos.FirstOrDefault();
             if (defaultParameterInfo is null || defaultParameterInfo.ParameterType != typeof(T))
             {
-                throw DynamicException.Create("DefaultParameterNotFound", $"'{methodName}' method's first parameter must be '{typeof(T).ToPrettyString()}'.");
+                throw DynamicException.Create("DefaultParameterNotFound", $"'{typeof(TSetup).ToPrettyString()}.{methodName}' method's first parameter must be '{typeof(T).ToPrettyString()}'.");
             }
 
             var parameterValues =
                 parameterInfos
-                    .Skip(1)
+                    .Skip(1) // Default parameter.
                     .Aggregate(
                         new object[] { defaultParameter }.AsEnumerable(),
                         (current, next) => current.Append(services.Resolve(next.ParameterType)))

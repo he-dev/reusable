@@ -45,33 +45,6 @@ namespace Reusable
             {
                 repository.UseMiddleware<SettingFormatValidationMiddleware>();
                 repository.UseMiddleware<SettingExistsValidationMiddleware>();
-//                repository.UseResources(resources =>
-//                {
-//                    resources
-//                        .AddEmbeddedFiles<TestHelper>
-//                        (
-//                            @"Reusable/res/IOnymous",
-//                            @"Reusable/res/Flexo",
-//                            @"Reusable/res/Utilities/JsonNet",
-//                            @"Reusable/sql"
-//                        )
-//                        .UseAppConfig()
-//                        .UseSqlServer(ConnectionString, server =>
-//                        {
-//                            server.TableName = ("reusable", "TestConfig");
-//                            server.ColumnMappings =
-//                                ImmutableDictionary<SqlServerColumn, SoftString>
-//                                    .Empty
-//                                    .Add(SqlServerColumn.Name, "_name")
-//                                    .Add(SqlServerColumn.Value, "_value");
-//                            server.Where =
-//                                ImmutableDictionary<string, object>
-//                                    .Empty
-//                                    .Add("_env", "test")
-//                                    .Add("_ver", "1");
-//                            server.Fallback = ("_env", "else");
-//                        });
-//                });
             }
         }
     }
