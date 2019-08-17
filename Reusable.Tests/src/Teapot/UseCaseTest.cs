@@ -15,13 +15,13 @@ namespace Reusable.Teapot
         private readonly TeapotServer _teapot;
 
         //private readonly IResourceProvider _http;
-        private readonly IResourceSquid _resources;
+        private readonly IResourceRepository _resources;
 
         public UseCaseTest(TeapotServerFixture teapotServer)
         {
             _teapot = teapotServer.GetServer(BaseUri);
             //_http = HttpProvider.FromBaseUri($"{BaseUri}/api");
-            _resources = ResourceSquid.Builder.UseController(HttpController.FromBaseUri($"{BaseUri}/api")).Build();
+            _resources = ResourceRepository.Create(c => c.AddHttp($"{BaseUri}/api"));
         }
 
         [Fact]

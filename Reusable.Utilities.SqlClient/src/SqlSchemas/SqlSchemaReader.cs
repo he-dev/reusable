@@ -19,7 +19,7 @@ namespace Reusable.Utilities.SqlClient.SqlSchemas
 
         static SqlSchemaReader()
         {
-            var resources = ResourceSquid.Builder.UseEmbeddedFiles(typeof(SqlSchemaReader), @"Reusable\Utilities\SqlClient\sql").Build();
+            var resources = ResourceRepository.Create(c => c.AddEmbeddedFiles(typeof(SqlSchemaReader), @"Reusable\Utilities\SqlClient\sql"));
             GetIdentityColumnSchemasQuery = resources.ReadTextFile($"sql\\{nameof(GetIdentityColumnSchemas)}.sql");
         }
 

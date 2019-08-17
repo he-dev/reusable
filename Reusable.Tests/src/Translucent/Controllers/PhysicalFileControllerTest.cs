@@ -7,7 +7,7 @@ namespace Reusable.Translucent.config.Controllers
 {
     public class PhysicalFileControllerTest
     {
-        private static readonly IResourceSquid Resources = ResourceSquid.Builder.UsePhysicalFiles().Build();
+        private static readonly IResourceRepository Resources = ResourceRepository.Create(c => c.AddPhysicalFiles());
 
         [Fact]
         public async Task Can_read_and_write_text_file()

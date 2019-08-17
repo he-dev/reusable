@@ -14,20 +14,13 @@ namespace Reusable.Translucent.http
     {
         private readonly ITeapotServerContext _serverContext;
 
-        private readonly IResourceSquid _resources;
+        private readonly IResourceRepository _resources;
 
         public HttpControllerTest(TeapotServerFixture teapotServerFixture)
         {
             _serverContext = teapotServerFixture.GetServer("http://localhost:30002").BeginScope();
 
-            _resources =
-                ResourceSquid
-                    .Builder
-                    .UseController(
-                        HttpController.FromBaseUri(
-                            "http://localhost:30002/api",
-                            ImmutableContainer.Empty.UpdateItem(ResourceController.Tags, tags => tags.Add("Mailr"))))
-                    .Build();
+            _resources = ResourceRepository.Create(c => c.AddHttp("http://localhost:30002/api", ImmutableContainer.Empty.UpdateItem(ResourceController.Tags, tags => tags.Add("Mailr"))));
         }
 
         [Fact]

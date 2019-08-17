@@ -55,9 +55,9 @@ namespace Reusable.Translucent.config.Controllers
     [PlainSelectorFormatter]
     public class TestDto
     {
-        private readonly IResourceSquid _resources;
+        private readonly IResourceRepository _resources;
 
-        public TestDto(IResourceSquid resources) => _resources = resources;
+        public TestDto(IResourceRepository resources) => _resources = resources;
 
         public string String
         {

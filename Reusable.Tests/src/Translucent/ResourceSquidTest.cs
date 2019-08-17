@@ -9,11 +9,11 @@ namespace Reusable.Translucent
         [Fact]
         public async Task test()
         {
-            var resources = ResourceSquid.Builder.UseController(new EmbeddedFileController<ResourceSquidTest>(@"Reusable/res/IOnymous")).Build();
+            //var resources = ResourceRepository<>.Builder.UseController(new EmbeddedFileController<ResourceSquidTest>(@"Reusable/res/IOnymous")).Build();
 
-            var file = await resources.InvokeAsync(new Request.Get("file:///test.txt"));
+            //var file = await resources.InvokeAsync(new Request.Get("file:///test.txt"));
 
-            Assert.True(file.Exists());
+            //Assert.True(file.Exists());
         }
     }
 }

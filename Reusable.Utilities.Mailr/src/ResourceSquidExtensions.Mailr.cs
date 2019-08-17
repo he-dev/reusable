@@ -21,7 +21,7 @@ namespace Reusable.Utilities.Mailr
     {
         public static async Task<string> SendEmailAsync
         (
-            this IResourceSquid resourceSquid,
+            this IResourceRepository resourceRepository,
             UriString uri,
             UserAgent userAgent,
             Email email,
@@ -42,7 +42,7 @@ namespace Reusable.Utilities.Mailr
                     .SetItem(HttpResponse.ContentType, "application/json")
                     .UpdateItem(ResourceController.Tags, tags => tags.Add(controllerTag.ToSoftString()));
 
-            var response = await resourceSquid.InvokeAsync(new Request.Post(uri)
+            var response = await resourceRepository.InvokeAsync(new Request.Post(uri)
             {
                 Metadata = properties,
                 Body = email

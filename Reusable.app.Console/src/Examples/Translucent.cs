@@ -27,11 +27,7 @@ namespace Reusable
     {
         public static async Task SendEmailViaSmtp()
         {
-            var resources =
-                ResourceSquid
-                    .Builder
-                    .UseSmtp()
-                    .Build();
+            var resources = ResourceRepository.Create(c => c.AddSmtp());
 
             var context =
                 ImmutableContainer
@@ -53,12 +49,8 @@ namespace Reusable
 
         public static async Task SendEmailViaMailr()
         {
-            var resources =
-                ResourceSquid
-                    .Builder
-                    .UseHttp("http://localhost:7000/api", ImmutableContainer.Empty.UpdateItem(ResourceController.Tags, x => x.Add("Mailr")))
-                    .Build();
-            
+            var resources = ResourceRepository.Create(c => c.AddHttp("http://localhost:7000/api", ImmutableContainer.Empty.UpdateItem(ResourceController.Tags, x => x.Add("Mailr"))));
+
             await resources.SendEmailAsync
             (
                 "v1.0/mailr/messages/plaintext",

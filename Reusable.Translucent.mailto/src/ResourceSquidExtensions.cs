@@ -9,7 +9,7 @@ namespace Reusable.Translucent
     {
         public static async Task<Response> SendEmailAsync
         (
-            this IResourceSquid resourceSquid,
+            this IResourceRepository resourceRepository,
             IEmail<IEmailSubject, IEmailBody> email,
             IImmutableContainer context = default
         )
@@ -27,7 +27,7 @@ namespace Reusable.Translucent
                     .SetItem(MailController.IsHighPriority, email.IsHighPriority);
 
             return
-                await resourceSquid.InvokeAsync(new Request.Post($"{UriSchemes.Known.MailTo}:dummy@email.com")
+                await resourceRepository.InvokeAsync(new Request.Post($"{UriSchemes.Known.MailTo}:dummy@email.com")
                 {
                     Body = email.Body.Value,
                     Metadata = context,

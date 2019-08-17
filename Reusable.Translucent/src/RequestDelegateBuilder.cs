@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 using Autofac;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
+using Reusable.Translucent.Controllers;
 
 namespace Reusable.Translucent
 {
@@ -14,9 +16,14 @@ namespace Reusable.Translucent
 
     public class RequestDelegateBuilder
     {
+        private readonly IServiceProvider _services;
+
         private readonly Stack<(Type MiddlewareType, object[] Parameters)> _middleware = new Stack<(Type MiddlewareType, object[] Parameters)>();
 
-        public Func<Type, object> Resolve { get; set; } = _ => throw new InvalidOperationException("No service for resolving middleware dependencies has been registered.");
+        public RequestDelegateBuilder(IServiceProvider services)
+        {
+            _services = services;
+        }
 
         public RequestDelegateBuilder UseMiddleware<T>(params object[] args)
         {
@@ -26,6 +33,11 @@ namespace Reusable.Translucent
 
         public RequestDelegate<TContext> Build<TContext>()
         {
+            if (!_middleware.Any())
+            {
+                throw new InvalidOperationException($"Cannot build {nameof(RequestDelegate<TContext>)} because there are no middleware.");
+            }
+
             var previous = default(object);
             while (_middleware.Any())
             {
@@ -52,7 +64,6 @@ namespace Reusable.Translucent
 
             return CreateNext<TContext>(previous);
         }
-
 
         // Using this helper to "catch" the "previous" middleware before it goes out of scope and is overwritten by the loop.
         private RequestDelegate<TContext> CreateNext<TContext>(object middleware)
@@ -91,7 +102,7 @@ namespace Reusable.Translucent
                 var parameterValues =
                     parameters
                         .Skip(1) // TContext is always there.
-                        .Select(parameter => Resolve(parameter.ParameterType)) // Resolve other Invoke(Async) parameters.
+                        .Select(parameter => _services.Resolve(parameter.ParameterType)) // Resolve other Invoke(Async) parameters.
                         .Prepend(context);
 
                 // Call the actual invoke with its parameters.
@@ -101,16 +112,47 @@ namespace Reusable.Translucent
         }
     }
 
-    public class RequestDelegateBuilderWithAutofac : RequestDelegateBuilder
+    public interface IServiceProvider
     {
-        public RequestDelegateBuilderWithAutofac(IComponentContext componentContext)
+        bool IsRegistered(Type type);
+
+        object Resolve(Type type);
+    }
+
+    public class LambdaServiceProvider : IServiceProvider
+    {
+        private readonly IImmutableDictionary<Type, object> _services;
+
+        public LambdaServiceProvider(Action<IDictionary<Type, object>> configure)
         {
-            Resolve =
-                type =>
-                    componentContext.IsRegistered(type)
-                        ? componentContext.Resolve(type)
-                        : throw DynamicException.Create("TypeNotFound", $"Could not resolve '{type.ToPrettyString()}'.");
+            var services = new Dictionary<Type, object>();
+            configure(services);
+            _services = services.ToImmutableDictionary();
         }
+
+        public bool IsRegistered(Type type) => _services.ContainsKey(type);
+
+        public object Resolve(Type type)
+        {
+            return
+                _services.TryGetValue(type, out var service)
+                    ? service
+                    : throw DynamicException.Create("ServiceNotFound", $"There is no service of type '{type.ToPrettyString()}'.");
+        }
+    }
+
+    public class AutofacServiceProvider : IServiceProvider
+    {
+        private readonly IComponentContext _componentContext;
+
+        public AutofacServiceProvider(IComponentContext componentContext)
+        {
+            _componentContext = componentContext;
+        }
+
+        public bool IsRegistered(Type type) => _componentContext.IsRegistered(type);
+
+        public object Resolve(Type type) => _componentContext.Resolve(type);
     }
 
     public static class MethodInfoExtensions
