@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.IOnymous.Config</id>
+    <id>Reusable.Translucent.Config</id>
     <version>13.0.0</version>
-    <title>Reusable.IOnymous.Config</title>
+    <title>Reusable.Translucent.Config</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <license type="expression">MIT</license>
@@ -19,13 +19,13 @@
       <dependency id="System.Memory" version="4.5.3" />
       <dependency id="System.ValueTuple" version="4.5.0" />
       <dependency id="Reusable.Core" version="13.0.0" />
-      <dependency id="Reusable.IOnymous" version="13.0.0" />
+      <dependency id="Reusable.Translucent" version="13.0.0" />
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\net47\Reusable.IOnymous.Config.dll" target="lib\net47" />
-    <file src="bin\Release\net47\Reusable.IOnymous.Config.pdb" target="lib\net47" />
-    <file src="bin\Release\netcoreapp2.2\Reusable.IOnymous.Config.dll" target="lib\netcoreapp2.2" />
-    <file src="bin\Release\netcoreapp2.2\Reusable.IOnymous.Config.pdb" target="lib\netcoreapp2.2" />
+    <file src="bin\Release\net47\Reusable.Translucent.Config.dll" target="lib\net47" />
+    <file src="bin\Release\net47\Reusable.Translucent.Config.pdb" target="lib\net47" />
+    <file src="bin\Release\netcoreapp2.2\Reusable.Translucent.Config.dll" target="lib\netcoreapp2.2" />
+    <file src="bin\Release\netcoreapp2.2\Reusable.Translucent.Config.pdb" target="lib\netcoreapp2.2" />
   </files>
 </package>

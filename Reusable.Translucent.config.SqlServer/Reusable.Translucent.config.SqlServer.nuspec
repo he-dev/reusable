@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.IOnymous.Config.SqlServer</id>
+    <id>Reusable.Translucent.config.SqlServer</id>
     <version>13.0.0</version>
-    <title>Reusable.IOnymous.Config.SqlServer</title>
+    <title>Reusable.Translucent.config.SqlServer</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <license type="expression">MIT</license>
@@ -24,9 +24,9 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\net47\Reusable.IOnymous.Config.SqlServer.dll" target="lib\net47" />
-    <file src="bin\Release\net47\Reusable.IOnymous.Config.SqlServer.pdb" target="lib\net47" />
-    <file src="bin\Release\netcoreapp2.2\Reusable.IOnymous.Config.SqlServer.dll" target="lib\netcoreapp2.2" />
-    <file src="bin\Release\netcoreapp2.2\Reusable.IOnymous.Config.SqlServer.pdb" target="lib\netcoreapp2.2" />
+    <file src="bin\Release\net47\Reusable.Translucent.config.SqlServer.dll" target="lib\net47" />
+    <file src="bin\Release\net47\Reusable.Translucent.config.SqlServer.pdb" target="lib\net47" />
+    <file src="bin\Release\netcoreapp2.2\Reusable.Translucent.config.SqlServer.dll" target="lib\netcoreapp2.2" />
+    <file src="bin\Release\netcoreapp2.2\Reusable.Translucent.config.SqlServer.pdb" target="lib\netcoreapp2.2" />
   </files>
 </package>

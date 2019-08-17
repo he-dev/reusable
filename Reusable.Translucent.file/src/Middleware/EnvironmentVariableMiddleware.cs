@@ -1,14 +1,16 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace Reusable.Translucent.Middleware
 {
+    [UsedImplicitly]
     public class EnvironmentVariableMiddleware
     {
-        private readonly Reusable.RequestCallback<ResourceContext> _next;
+        private readonly RequestDelegate<ResourceContext> _next;
 
-        public EnvironmentVariableMiddleware(Reusable.RequestCallback<ResourceContext> next)
+        public EnvironmentVariableMiddleware(RequestDelegate<ResourceContext> next)
         {
             _next = next;
         }
@@ -34,6 +36,14 @@ namespace Reusable.Translucent.Middleware
             }
 
             return uri;
+        }
+    }
+
+    public static class EnvironmentVariableMiddlewareHelper
+    {
+        public static IResourceRepositoryBuilder UseEnvironmentVariables(this IResourceRepositoryBuilder builder)
+        {
+            return builder.UseMiddleware<EnvironmentVariableMiddleware>();
         }
     }
 }

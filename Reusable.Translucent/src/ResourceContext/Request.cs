@@ -75,6 +75,8 @@ namespace Reusable.Translucent
 
         //public static readonly Selector<MimeType> Accept = This.Select(() => Accept);
         
+        public static readonly Selector<bool> IsOptional = This.Select(() => IsOptional);
+        
         public static readonly Selector<bool> IsCacheable = This.Select(() => IsCacheable);
         
         public static readonly Selector<TimeSpan> CacheTimeout = This.Select(() => CacheTimeout);

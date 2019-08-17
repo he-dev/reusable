@@ -42,11 +42,11 @@ namespace Reusable.Translucent
         [Fact]
         public void Can_add_absolute_and_relative_paths()
         {
-            var absolute = new UriString("blub:c:/temp");
+            var absolute = new UriString("blub:///c:/temp");
             var relative = new UriString("more-temp/file.txt");
             var newAbsolute = absolute + relative.Path;
 
-            Assert.Equal("blub:c:/temp/more-temp/file.txt", (string)newAbsolute);
+            Assert.Equal("blub:///c:/temp/more-temp/file.txt", (string)newAbsolute);
         }
 
         [Fact]
@@ -60,7 +60,7 @@ namespace Reusable.Translucent
         }
 
         [Fact]
-        public void Considers_query_with_same_keys_and_values_equal_regardles_or_their_order()
+        public void Considers_query_with_same_keys_and_values_equal_regardless_of_their_order()
         {
             var uri1 = new UriString("scheme://autho.rity/p/a/t/h?f=b&q=a#fragment");
             var uri2 = new UriString("scheme://autho.rity/p/a/t/h?q=a&f=b#fragment");
@@ -69,7 +69,7 @@ namespace Reusable.Translucent
         }
 
         [Fact]
-        public void Considers_query_with_different_keys_and_values_not_equal_regardles_or_their_order()
+        public void Considers_query_with_different_keys_and_values_not_equal_regardless_of_their_order()
         {
             var uri1 = new UriString("scheme://autho.rity/p/a/t/h?f=b&q=b#fragment");
             var uri2 = new UriString("scheme://autho.rity/p/a/t/h?q=a&f=b#fragment");

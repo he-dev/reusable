@@ -20,6 +20,9 @@ namespace Reusable.Translucent
         public override string ToString() => _pattern;
     }
 
+    /// <summary>
+    /// Represents: scheme:[//authority]path[?query][#fragment]
+    /// </summary>
     [PublicAPI]
     public class UriString : IEquatable<UriString>, IEquatable<string>
     {
@@ -140,12 +143,11 @@ namespace Reusable.Translucent
                 yield return $"{scheme.ToString()}:";
             }
 
-            if (Authority)
-            {
-                yield return $"//{Authority.ToString()}{(Path.Original ? "/" : string.Empty)}";
-            }
+            //yield return $"//{Authority.ToString()}{(Path.Original ? "/" : string.Empty)}";
 
-            yield return Path.Original;
+            yield return $"//{(Authority ? Authority.ToString() : string.Empty)}";
+
+            yield return $"/{Path.Original}";
 
             if (Query.Any())
             {

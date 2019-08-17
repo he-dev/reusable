@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.IOnymous</id>
+    <id>Reusable.Translucent.file</id>
     <version>13.0.0</version>
-    <title>Reusable.IOnymous</title>
+    <title>Reusable.Translucent.file</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <license type="expression">MIT</license>
@@ -28,9 +28,9 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\net47\Reusable.IOnymous.dll" target="lib\net47" />
-    <file src="bin\Release\net47\Reusable.IOnymous.pdb" target="lib\net47" />
-    <file src="bin\Release\netcoreapp2.2\Reusable.IOnymous.dll" target="lib\netcoreapp2.2" />
-    <file src="bin\Release\netcoreapp2.2\Reusable.IOnymous.pdb" target="lib\netcoreapp2.2" />
+    <file src="bin\Release\net47\Reusable.Translucent.file.dll" target="lib\net47" />
+    <file src="bin\Release\net47\Reusable.Translucent.file.pdb" target="lib\net47" />
+    <file src="bin\Release\netcoreapp2.2\Reusable.Translucent.file.dll" target="lib\netcoreapp2.2" />
+    <file src="bin\Release\netcoreapp2.2\Reusable.Translucent.file.pdb" target="lib\netcoreapp2.2" />
   </files>
 </package>

@@ -47,7 +47,7 @@ namespace Reusable.Translucent
 
         private static readonly From<ConfigRequest> This;
 
-        public static readonly Selector<bool> IsOptional = This.Select(() => IsOptional);
+        
 
         #endregion
     }

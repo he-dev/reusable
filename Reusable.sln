@@ -86,6 +86,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Translucent.mailto
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Translucent", "Reusable.Translucent\Reusable.Translucent.csproj", "{7B321958-0430-471F-856B-CFE6EDE30C95}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Utilities.Autofac", "Reusable.Utilities.Autofac\Reusable.Utilities.Autofac.csproj", "{ABD286A8-9CDC-42C3-AC8F-3646E70755AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -372,6 +374,14 @@ Global
 		{7B321958-0430-471F-856B-CFE6EDE30C95}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7B321958-0430-471F-856B-CFE6EDE30C95}.Release|x64.ActiveCfg = Release|x64
 		{7B321958-0430-471F-856B-CFE6EDE30C95}.Release|x64.Build.0 = Release|x64
+		{ABD286A8-9CDC-42C3-AC8F-3646E70755AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABD286A8-9CDC-42C3-AC8F-3646E70755AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABD286A8-9CDC-42C3-AC8F-3646E70755AA}.Debug|x64.ActiveCfg = Debug|x64
+		{ABD286A8-9CDC-42C3-AC8F-3646E70755AA}.Debug|x64.Build.0 = Debug|x64
+		{ABD286A8-9CDC-42C3-AC8F-3646E70755AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABD286A8-9CDC-42C3-AC8F-3646E70755AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABD286A8-9CDC-42C3-AC8F-3646E70755AA}.Release|x64.ActiveCfg = Release|x64
+		{ABD286A8-9CDC-42C3-AC8F-3646E70755AA}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -413,6 +423,7 @@ Global
 		{93FEB82C-BD1C-4B44-83E1-D1E3362D6E13} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 		{133D9FD1-FF61-4720-9395-8499C17BBB16} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 		{7B321958-0430-471F-856B-CFE6EDE30C95} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
+		{ABD286A8-9CDC-42C3-AC8F-3646E70755AA} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2FA54731-890C-4550-BACA-E19B564CE1E3}

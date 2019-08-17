@@ -12,7 +12,9 @@ using Reusable.Extensions;
 
 namespace Reusable
 {
-    public delegate Task RequestCallback<in TContext>(TContext context);
+    //public delegate Task RequestCallback<in TContext>(TContext context);
+    
+    public delegate Task RequestDelegate<in TContext>(TContext context);
 
     public class MiddlewareBuilder
     {
@@ -26,7 +28,7 @@ namespace Reusable
             return this;
         }
 
-        public RequestCallback<TContext> Build<TContext>()
+        public RequestDelegate<TContext> Build<TContext>()
         {
             var previous = default(object);
             while (_middleware.Any())
@@ -57,7 +59,7 @@ namespace Reusable
 
 
         // Using this helper to "catch" the "previous" middleware before it goes out of scope and is overwritten by the loop.
-        private RequestCallback<TContext> CreateNext<TContext>(object middleware)
+        private RequestDelegate<TContext> CreateNext<TContext>(object middleware)
         {
             // This is the last last middleware and there is nowhere to go from here.
             if (middleware is null)
@@ -84,7 +86,7 @@ namespace Reusable
                 throw DynamicException.Create
                 (
                     "InvokeSignature",
-                    $"{middleware.GetType().ToPrettyString()} Invoke(Async)'s first parameters must be of type '{typeof(RequestCallback<TContext>).ToPrettyString()}'."
+                    $"{middleware.GetType().ToPrettyString()} Invoke(Async)'s first parameters must be of type '{typeof(RequestDelegate<TContext>).ToPrettyString()}'."
                 );
             }
 

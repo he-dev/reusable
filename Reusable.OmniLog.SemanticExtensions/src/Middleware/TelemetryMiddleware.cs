@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Data;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
@@ -31,8 +32,13 @@ namespace Reusable.Translucent.Middleware
                 try
                 {
                     await _next(context);
-                    //var responseUri = context.Response?.Uri?.ToString();
-                    _logger.Log(Abstraction.Layer.IO().Meta(new { requestUri, exists = context.Response?.Exists() }, "Resource"));
+                    _logger.Log(Abstraction.Layer.IO().Meta(new
+                    {
+                        requestUri,
+                        statusCode = context.Response.StatusCode,
+                        isOptional = context.Request.Metadata.GetItemOrDefault(Request.IsOptional),
+                        //exists = context.Response?.Exists()
+                    }, "Resource"));
                 }
                 catch (Exception inner)
                 {
@@ -45,9 +51,9 @@ namespace Reusable.Translucent.Middleware
 
     public static class TelemetryMiddlewareHelper
     {
-        public static MiddlewareBuilder UseTelemetry(this MiddlewareBuilder builder, ILogger<TelemetryMiddleware> logger)
+        public static IResourceRepositoryBuilder UseTelemetry(this IResourceRepositoryBuilder builder, ILogger<TelemetryMiddleware> logger)
         {
-            return builder.Add<TelemetryMiddleware>(logger);
+            return builder.UseMiddleware<TelemetryMiddleware>(logger);
         }
     }
 }

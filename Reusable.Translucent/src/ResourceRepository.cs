@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Custom;
 using System.Threading.Tasks;
@@ -42,6 +43,7 @@ namespace Reusable.Translucent
                 {
                     return;
                 }
+
                 throw DynamicException.Create($"{methodName}MethodNotFound", $"'{typeof(TSetup).ToPrettyString()}' does not specify the '{methodName}' method;");
             }
 
@@ -83,13 +85,14 @@ namespace Reusable.Translucent
     {
         public static IResourceRepository Create(Action<IResourceControllerBuilder> controller, Action<IResourceRepositoryBuilder> repository = default)
         {
-            return new ResourceRepository<QuickSetup>(new LambdaServiceProvider(services =>
-            {
-                services.Add(typeof(Action<IResourceControllerBuilder>), controller);
-                services.Add(typeof(Action<IResourceRepositoryBuilder>), repository ?? (_ => { }));
-            }));
+            return new ResourceRepository<QuickSetup>(
+                ImmutableServiceProvider
+                    .Empty
+                    .Add(controller)
+                    .Add(repository ?? (_ => { })));
         }
 
+        [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
         internal class QuickSetup
         {
             public void ConfigureServices(IResourceControllerBuilder controller, Action<IResourceControllerBuilder> configure)

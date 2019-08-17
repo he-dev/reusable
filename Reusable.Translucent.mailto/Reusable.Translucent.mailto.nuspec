@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.IOnymous.Mail.Smtp</id>
+    <id>Reusable.Translucent.mailto</id>
     <version>13.0.0</version>
-    <title>Reusable.IOnymous.Mail.Smtp</title>
+    <title>Reusable.Translucent.mailto</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <license type="expression">MIT</license>
@@ -23,9 +23,9 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\net47\Reusable.IOnymous.Mail.Smtp.dll" target="lib\net47" />
-    <file src="bin\Release\net47\Reusable.IOnymous.Mail.Smtp.pdb" target="lib\net47" />
-    <file src="bin\Release\netcoreapp2.2\Reusable.IOnymous.Mail.Smtp.dll" target="lib\netcoreapp2.2" />
-    <file src="bin\Release\netcoreapp2.2\Reusable.IOnymous.Mail.Smtp.pdb" target="lib\netcoreapp2.2" />
+    <file src="bin\Release\net47\Reusable.Translucent.mailto.dll" target="lib\net47" />
+    <file src="bin\Release\net47\Reusable.Translucent.mailto.pdb" target="lib\net47" />
+    <file src="bin\Release\netcoreapp2.2\Reusable.Translucent.mailto.dll" target="lib\netcoreapp2.2" />
+    <file src="bin\Release\netcoreapp2.2\Reusable.Translucent.mailto.pdb" target="lib\netcoreapp2.2" />
   </files>
 </package>

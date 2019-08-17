@@ -27,6 +27,7 @@
     <ProjectReference Include="..\Reusable.Data\Reusable.Data.csproj" />
     <ProjectReference Include="..\Reusable.Flawless\Reusable.Flawless.csproj" />
     <ProjectReference Include="..\Reusable.Quickey\Reusable.Quickey.csproj" />
+    <ProjectReference Include="..\Reusable.Utilities.Autofac\Reusable.Utilities.Autofac.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
   </ItemGroup>
 

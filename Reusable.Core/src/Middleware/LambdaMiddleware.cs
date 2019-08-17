@@ -7,10 +7,10 @@ namespace Reusable.Middleware
     [UsedImplicitly]
     public class LambdaMiddleware<TContext>
     {
-        private readonly RequestCallback<TContext> _next;
-        private readonly Func<TContext, RequestCallback<TContext>, Task> _lambda;
+        private readonly RequestDelegate<TContext> _next;
+        private readonly Func<TContext, RequestDelegate<TContext>, Task> _lambda;
 
-        public LambdaMiddleware(RequestCallback<TContext> next, Func<TContext, RequestCallback<TContext>, Task> lambda)
+        public LambdaMiddleware(RequestDelegate<TContext> next, Func<TContext, RequestDelegate<TContext>, Task> lambda)
         {
             _next = next;
             _lambda = lambda;

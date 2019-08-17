@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using Reusable.Translucent;
 using Reusable.Translucent.Controllers;
@@ -23,7 +24,7 @@ namespace Reusable
                     @"Reusable/res/Utilities/JsonNet",
                     @"Reusable/sql"
                 );
-                controller.UseAppConfig();
+                controller.AddAppConfig();
                 controller.UseSqlServer(ConnectionString, server =>
                 {
                     server.TableName = ("reusable", "TestConfig");

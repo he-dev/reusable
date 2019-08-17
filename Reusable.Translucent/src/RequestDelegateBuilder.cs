@@ -1,19 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
 using System.Threading.Tasks;
-using Autofac;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.Translucent.Controllers;
 
 namespace Reusable.Translucent
 {
-    public delegate Task RequestDelegate<in TContext>(TContext context);
-
     public class RequestDelegateBuilder
     {
         private readonly IServiceProvider _services;
@@ -110,49 +106,6 @@ namespace Reusable.Translucent
             };
             //return next.CreateDelegate<RequestCallback<TContext>>(middleware);
         }
-    }
-
-    public interface IServiceProvider
-    {
-        bool IsRegistered(Type type);
-
-        object Resolve(Type type);
-    }
-
-    public class LambdaServiceProvider : IServiceProvider
-    {
-        private readonly IImmutableDictionary<Type, object> _services;
-
-        public LambdaServiceProvider(Action<IDictionary<Type, object>> configure)
-        {
-            var services = new Dictionary<Type, object>();
-            configure(services);
-            _services = services.ToImmutableDictionary();
-        }
-
-        public bool IsRegistered(Type type) => _services.ContainsKey(type);
-
-        public object Resolve(Type type)
-        {
-            return
-                _services.TryGetValue(type, out var service)
-                    ? service
-                    : throw DynamicException.Create("ServiceNotFound", $"There is no service of type '{type.ToPrettyString()}'.");
-        }
-    }
-
-    public class AutofacServiceProvider : IServiceProvider
-    {
-        private readonly IComponentContext _componentContext;
-
-        public AutofacServiceProvider(IComponentContext componentContext)
-        {
-            _componentContext = componentContext;
-        }
-
-        public bool IsRegistered(Type type) => _componentContext.IsRegistered(type);
-
-        public object Resolve(Type type) => _componentContext.Resolve(type);
     }
 
     public static class MethodInfoExtensions

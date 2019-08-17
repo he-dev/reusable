@@ -11,7 +11,7 @@ namespace Reusable
             return builder.Add<T>(parameters);
         }
 
-        public static MiddlewareBuilder Use<TContext>(this MiddlewareBuilder builder, Func<TContext, RequestCallback<TContext>, Task> lambda)
+        public static MiddlewareBuilder Use<TContext>(this MiddlewareBuilder builder, Func<TContext, RequestDelegate<TContext>, Task> lambda)
         {
             return builder.Add<LambdaMiddleware<TContext>>(lambda);
         }

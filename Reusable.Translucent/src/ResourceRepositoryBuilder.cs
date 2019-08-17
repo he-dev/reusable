@@ -1,3 +1,5 @@
+using System;
+
 namespace Reusable.Translucent
 {
     public interface IResourceRepositoryBuilder
