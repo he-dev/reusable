@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Core</id>
-    <version>13.0.0</version>
+    <version>14.0.0</version>
     <title>Reusable.Core</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -16,6 +16,7 @@
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2019.1.1" />
+      <dependency id="Autofac" version="4.9.2" />
       <dependency id="Newtonsoft.Json" version="12.0.2" />
       <dependency id="System.CodeDom" version="4.5.0" />
       <dependency id="System.Collections.Immutable" version="1.5.0" />

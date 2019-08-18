@@ -25,9 +25,10 @@ namespace Reusable.Commander
     [UseMember]
     [PlainSelectorFormatter]
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
-    public class CommandLine : ICommandLine
+    // Using 'Base' suffix here so that implementers can use 'CommandLine'.
+    public class CommandLineBase : ICommandLine
     {
-        public CommandLine(CommandLineDictionary arguments)
+        public CommandLineBase(CommandLineDictionary arguments)
         {
             Reader = new CommandLineReader(arguments);
         }
@@ -71,7 +72,7 @@ namespace Reusable.Commander
 
         public override string ToString() => this.Join(" ");
 
-        public static implicit operator string(CommandLine commandLine) => commandLine?.ToString();
+        public static implicit operator string(CommandLineBase commandLine) => commandLine?.ToString();
     }
 
     public static class CommandLineExtensions

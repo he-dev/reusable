@@ -269,7 +269,7 @@ namespace Reusable.Commander
         //     ExecuteAssert<Bag2>(bag => { Assert.Equal("baz", bag.Property04); });
         // }
 
-        internal class TestCommandLine : CommandLine
+        internal class TestCommandLine : CommandLineBase
         {
             public TestCommandLine(CommandLineDictionary arguments) : base(arguments) { }
 

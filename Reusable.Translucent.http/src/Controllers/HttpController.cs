@@ -120,7 +120,7 @@ namespace Reusable.Translucent.Controllers
 
                     if (classOfStatusCode is null)
                     {
-                        return (responseContentCopy, response.Content.Headers.ContentType.MediaType);
+                        return (responseContentCopy, response.Content.Headers.ContentType?.MediaType);
                     }
 
                     using (var responseReader = new StreamReader(responseContentCopy.Rewind()))

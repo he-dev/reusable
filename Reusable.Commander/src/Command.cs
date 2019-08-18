@@ -38,7 +38,7 @@ namespace Reusable.Commander
 
         public virtual async Task ExecuteAsync(object argument, object context, CancellationToken cancellationToken)
         {
-            var commandLine = CommandLine.Create<TCommandLine>(argument);
+            var commandLine = CommandLineBase.Create<TCommandLine>(argument);
             await ExecuteAsync(commandLine, (TContext)context, cancellationToken);
         }
 
@@ -49,11 +49,6 @@ namespace Reusable.Commander
     {
         protected Command(ILogger logger) : base(logger) { }
     }
-
-//    public abstract class SimpleCommand : Command<ICommandLine, object>
-//    {
-//        protected SimpleCommand(ILogger logger) : base(logger) { }
-//    }
 
     [UsedImplicitly]
     [PublicAPI]

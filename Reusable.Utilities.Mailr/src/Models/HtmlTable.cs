@@ -120,13 +120,18 @@ namespace Reusable.Utilities.Mailr.Models
         [JsonIgnore]
         public HtmlTableColumn Column { get; }
 
-        public IList<string> Styles { get; } = new List<string>();
+        [Obsolete("Use 'Tags'.")]
+        public ISet<string> Styles { get; } = new HashSet<string>(SoftString.Comparer);
+        
+        public ISet<string> Tags { get; } = new HashSet<string>(SoftString.Comparer);
 
         public object Value { get; set; }
 
         #region JsonNet extensions
 
         public bool ShouldSerializeStyles() => Styles.Any();
+        
+        public bool ShouldSerializeTags() => Tags.Any();
 
         #endregion
     }
@@ -162,12 +167,13 @@ namespace Reusable.Utilities.Mailr.Models
         public static T ValueOrDefault<T>(this HtmlTableRow row, int ordinal) => row[ordinal] is T value ? value : default;
 
         [NotNull]
-        public static HtmlTableRow Update(this HtmlTableRow row, string column, object value, params string[] styles)
+        public static HtmlTableRow Update(this HtmlTableRow row, string column, object value, params string[] tags)
         {
             row[column].Value = value;
-            foreach (var style in styles ?? Enumerable.Empty<string>())
+            foreach (var tag in tags ?? Enumerable.Empty<string>())
             {
-                row[column].Styles.Add(style);
+                //row[column].Styles.Add(style);
+                row[column].Tags.Add(tag);
             }
 
             return row;

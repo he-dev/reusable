@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Utilities.Mailr</id>
-    <version>13.0.0</version>
+    <version>14.0.0</version>
     <title>Reusable.Utilities.Mailr</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -17,8 +17,7 @@
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2019.1.1" />
       <dependency id="Microsoft.AspNet.WebApi.Client" version="5.2.7" />
-      <dependency id="Reusable.IOnymous.Http" version="13.0.0" />
-      <dependency id="Reusable.IOnymous.Mail" version="13.0.0" />
+      <dependency id="Reusable.Translucent.http" version="14.0.0" />
     </dependencies>
   </metadata>
   <files>

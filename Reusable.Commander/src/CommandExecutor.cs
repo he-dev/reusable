@@ -71,7 +71,7 @@ namespace Reusable.Commander
                     t.commandLine
                 );
 
-            var async = executables.ToLookup(e => new CommandLine(e.commandLine).Async);
+            var async = executables.ToLookup(e => new CommandLineBase(e.commandLine).Async);
 
             _logger.Log(Abstraction.Layer.Service().Counter(new { CommandCount = async.Count, SequentialCommandCount = async[false].Count(), AsyncCommandCount = async[true].Count() }));
 

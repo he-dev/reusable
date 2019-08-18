@@ -20,7 +20,7 @@ using t = Reusable.Commander.ConsoleTemplates;
 namespace Reusable.Commander.Commands
 {
     [PublicAPI]
-    public class HelpCommandLine : CommandLine
+    public class HelpCommandLine : CommandLineBase
     {
         public HelpCommandLine(CommandLineDictionary arguments) : base(arguments) { }
 

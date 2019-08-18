@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.OmniLog.SemanticExtensions.AspNetCore</id>
-    <version>13.0.0</version>
+    <version>14.0.0</version>
     <title>Reusable.OmniLog.SemanticExtensions.AspNetCore</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -23,8 +23,9 @@
       <dependency id="System.Threading.Tasks.Dataflow" version="4.9.0" />
       <dependency id="System.ValueTuple" version="4.5.0" />
       <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.2.0" />
-      <dependency id="Reusable.OmniLog.SemanticExtensions" version="13.0.0" />
-      <dependency id="Reusable.OmniLog" version="13.0.0" />
+      <dependency id="Reusable.Beaver" version="14.0.0" />
+      <dependency id="Reusable.OmniLog.SemanticExtensions" version="14.0.0" />
+      <dependency id="Reusable.OmniLog" version="14.0.0" />
     </dependencies>
   </metadata>
   <files>
