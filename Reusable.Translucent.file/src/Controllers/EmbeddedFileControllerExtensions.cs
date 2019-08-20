@@ -40,6 +40,12 @@ namespace Reusable.Translucent
             return builder;
         }
 
+        public static IResourceControllerBuilder AddPhysicalFiles(this IResourceControllerBuilder builder, IImmutableContainer properties)
+        {
+            builder.Controllers.Add(new PhysicalFileController(properties));
+            return builder;
+        }
+
         public static IResourceControllerBuilder UseInMemoryFiles<T>(this IResourceControllerBuilder builder, params string[] basePaths)
         {
             foreach (var basePath in basePaths)

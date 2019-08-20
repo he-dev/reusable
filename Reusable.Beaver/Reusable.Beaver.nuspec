@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Beaver</id>
-    <version>14.0.0</version>
+    <version>14.0.8</version>
     <title>Reusable.Beaver</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -17,9 +17,9 @@
     <dependencies>
       <dependency id="Autofac" version="4.9.2" />
       <dependency id="JetBrains.Annotations" version="2019.1.1" />
-      <dependency id="Reusable.Core" version="14.0.0" />
-      <dependency id="Reusable.OmniLog.SemanticExtensions" version="14.0.0" />
-      <dependency id="Reusable.Utilities.JsonNet" version="14.0.0" />
+      <dependency id="Reusable.Core" version="14.0.8" />
+      <dependency id="Reusable.OmniLog.SemanticExtensions" version="14.0.8" />
+      <dependency id="Reusable.Utilities.JsonNet" version="14.0.8" />
     </dependencies>
   </metadata>
   <files>

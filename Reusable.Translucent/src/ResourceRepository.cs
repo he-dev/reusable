@@ -83,7 +83,7 @@ namespace Reusable.Translucent
 
     public static class ResourceRepository
     {
-        public static IResourceRepository Create(Action<IResourceControllerBuilder> controller, Action<IResourceRepositoryBuilder> repository = default)
+        public static IResourceRepository Create(ConfigureServicesDelegate controller, ConfigureDelegate repository = default)
         {
             return new ResourceRepository<QuickSetup>(
                 ImmutableServiceProvider
@@ -93,17 +93,21 @@ namespace Reusable.Translucent
         }
 
         [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
-        internal class QuickSetup
+        public class QuickSetup
         {
-            public void ConfigureServices(IResourceControllerBuilder controller, Action<IResourceControllerBuilder> configure)
+            public void ConfigureServices(IResourceControllerBuilder controller, ConfigureServicesDelegate configure)
             {
                 configure(controller);
             }
 
-            public void Configure(IResourceRepositoryBuilder repository, Action<IResourceRepositoryBuilder> configure)
+            public void Configure(IResourceRepositoryBuilder repository, ConfigureDelegate configure)
             {
                 configure(repository);
             }
         }
     }
+
+    public delegate void ConfigureServicesDelegate(IResourceControllerBuilder resourceController);
+
+    public delegate void ConfigureDelegate(IResourceRepositoryBuilder resourceRepositoryController);
 }

@@ -25,7 +25,7 @@ namespace Reusable
                     @"Reusable/sql"
                 );
                 controller.AddAppConfig();
-                controller.UseSqlServer(ConnectionString, server =>
+                controller.AddSqlServer(ConnectionString, server =>
                 {
                     server.TableName = ("reusable", "TestConfig");
                     server.ColumnMappings =

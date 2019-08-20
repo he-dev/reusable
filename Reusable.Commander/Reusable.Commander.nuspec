@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Commander</id>
-    <version>14.0.0</version>
+    <version>14.0.8</version>
     <title>Reusable.Commander</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -19,13 +19,13 @@
       <dependency id="JetBrains.Annotations" version="2019.1.1" />
       <dependency id="System.Threading.Tasks.Dataflow" version="4.9.0" />
       <dependency id="System.Collections.Immutable" version="1.5.0" />
-      <dependency id="Reusable.Translucent" version="14.0.0" />
-      <dependency id="Reusable.OmniLog.Abstractions" version="14.0.0" />
-      <dependency id="Reusable.OneTo1" version="14.0.0" />
-      <dependency id="Reusable.Core" version="14.0.0" />
-      <dependency id="Reusable.MarkupBuilder" version="14.0.0" />
-      <dependency id="Reusable.OmniLog.SemanticExtensions" version="14.0.0" />
-      <dependency id="Reusable.OmniLog" version="14.0.0" />
+      <dependency id="Reusable.Translucent" version="14.0.8" />
+      <dependency id="Reusable.OmniLog.Abstractions" version="14.0.8" />
+      <dependency id="Reusable.OneTo1" version="14.0.8" />
+      <dependency id="Reusable.Core" version="14.0.8" />
+      <dependency id="Reusable.MarkupBuilder" version="14.0.8" />
+      <dependency id="Reusable.OmniLog.SemanticExtensions" version="14.0.8" />
+      <dependency id="Reusable.OmniLog" version="14.0.8" />
     </dependencies>
   </metadata>
   <files>

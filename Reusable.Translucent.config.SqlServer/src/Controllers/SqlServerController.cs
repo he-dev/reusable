@@ -6,6 +6,7 @@ using Reusable.Data;
 using Reusable.Data.Repositories;
 using Reusable.Extensions;
 using Reusable.OneTo1;
+using Reusable.Quickey;
 using Reusable.Translucent.Converters;
 using Reusable.Utilities.SqlClient;
 
@@ -19,15 +20,16 @@ namespace Reusable.Translucent.Controllers
 
         private SqlFourPartName _tableName;
 
-        public SqlServerController(string nameOrConnectionString) 
-            : base(ImmutableContainer.Empty.SetItem(Converter, new JsonSettingConverter()))
+        public SqlServerController(IImmutableContainer properties) : base(properties)
         {
-            ConnectionString = ConnectionStringRepository.Default.GetConnectionString(nameOrConnectionString);
             TableName = (DefaultSchema, DefaultTable);
         }
 
-        [NotNull]
-        public string ConnectionString { get; }
+        public SqlServerController(string connectionString)
+            : base(ImmutableContainer.Empty.SetItem(ConnectionString, connectionString).SetItem(Converter, new JsonSettingConverter()))
+        {
+            //ConnectionString = ConnectionStringRepository.Default.GetConnectionString(nameOrConnectionString);
+        }
 
         [NotNull]
         public SqlFourPartName TableName
@@ -50,7 +52,8 @@ namespace Reusable.Translucent.Controllers
         {
             var settingIdentifier = GetResourceName(request.Uri);
 
-            return await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
+            var connectionString = Properties.GetItem(ConnectionString);
+            return await SqlHelper.ExecuteAsync(connectionString, async (connection, token) =>
             {
                 using (var command = connection.CreateSelectCommand(TableName, settingIdentifier, ColumnMappings, Where, Fallback))
                 using (var settingReader = command.ExecuteReader())
@@ -73,7 +76,9 @@ namespace Reusable.Translucent.Controllers
         {
             var settingIdentifier = GetResourceName(request.Uri);
             var value = Properties.GetItem(Converter).Convert(request.Body, typeof(string));
-            await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
+            
+            var connectionString = Properties.GetItem(ConnectionString);
+            await SqlHelper.ExecuteAsync(connectionString, async (connection, token) =>
             {
                 using (var cmd = connection.CreateUpdateCommand(TableName, settingIdentifier, ColumnMappings, Where, value))
                 {
@@ -81,12 +86,20 @@ namespace Reusable.Translucent.Controllers
                 }
             }, request.Metadata.GetItemOrDefault(Request.CancellationToken));
 
-//            return await GetSettingAsync(new Request.Get(request.Uri)
-//            {
-//                Metadata = request.Metadata.Copy<IOnymous.ResourceProperties>()
-//            });
+            //            return await GetSettingAsync(new Request.Get(request.Uri)
+            //            {
+            //                Metadata = request.Metadata.Copy<IOnymous.ResourceProperties>()
+            //            });
 
             return new Response.OK();
         }
+
+        #region Properties
+
+        private static readonly From<SqlServerController> This;
+
+        public static Selector<string> ConnectionString { get; } = This.Select(() => ConnectionString);
+
+        #endregion
     }
 }

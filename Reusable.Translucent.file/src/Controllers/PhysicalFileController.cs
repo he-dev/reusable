@@ -21,7 +21,7 @@ namespace Reusable.Translucent.Controllers
                 .SetItem(BasePath, basePath)
             ) { }
 
-        private PhysicalFileController(IImmutableContainer properties)
+        public PhysicalFileController(IImmutableContainer properties)
             : base(properties.UpdateItem(Schemes, s => s.Add(UriSchemes.Known.File))) { }
 
         [ResourceGet]
