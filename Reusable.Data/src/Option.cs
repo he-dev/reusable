@@ -37,6 +37,14 @@ namespace Reusable.Data
         public abstract bool IsFlag { get; }
     }
 
+//    public interface IOption : IEnumerable<SoftString>
+//    {
+//        [NotNull]
+//        SoftString Name { get; }
+//    }
+//
+//    public interface IOption<T> : IOption { }
+
     [PublicAPI]
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public abstract class Option<T> : Option, IEquatable<Option<T>> where T : Option
@@ -44,7 +52,7 @@ namespace Reusable.Data
         // Values are what matters for equality.
         private static readonly IEqualityComparer<Option<T>> Comparer = EqualityComparerFactory<Option<T>>.Create
         (
-            @equals: (left, right) => left.Values.SetEquals(right.Values),
+            equals: (left, right) => left.Values.SetEquals(right.Values),
             getHashCode: (obj) => obj.Values.GetHashCode()
         );
 
@@ -90,7 +98,11 @@ namespace Reusable.Data
 
         #region Option
 
-        public override SoftString Name { [DebuggerStepThrough] get; }
+        public override SoftString Name
+        {
+            [DebuggerStepThrough]
+            get;
+        }
 
         public override IImmutableSet<SoftString> Values { get; }
 
@@ -163,9 +175,10 @@ namespace Reusable.Data
         {
             if (values.Count == 0)
             {
-               option = None;
-               return true;
+                option = None;
+                return true;
             }
+
             if (Known.SingleOrDefault(o => o.Values.SetEquals(values)) is var knownOption && !(knownOption is null))
             {
                 option = knownOption;
@@ -187,7 +200,7 @@ namespace Reusable.Data
         [DebuggerStepThrough]
         public override string ToString()
         {
-            return 
+            return
                 Values
                     .OrderBy(x => x)
                     .Select(x => $"{x.ToString()}")

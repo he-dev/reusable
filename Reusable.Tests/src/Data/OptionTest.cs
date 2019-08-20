@@ -44,7 +44,7 @@ namespace Reusable.Data
 
         private class TestOptions
         {
-            public static readonly TestOptions A = Option<TestOptions>.CreateWithCallerName();
+            //public static readonly TestOptions A = Option<TestOptions>.CreateWithCallerName();
         }
     }
 }
