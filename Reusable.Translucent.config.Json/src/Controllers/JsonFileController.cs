@@ -28,7 +28,7 @@ namespace Reusable.Translucent.Controllers
 
             return
                 data is null
-                    ? new Response.NotFound().ToTask<Response>()
+                    ? NotFound().ToTask()
                     : OK(request, data, settingIdentifier).ToTask();
         }
     }

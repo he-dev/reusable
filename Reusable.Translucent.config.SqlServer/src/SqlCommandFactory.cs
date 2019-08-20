@@ -18,7 +18,7 @@ namespace Reusable.Translucent
             [NotNull] string name,
             [CanBeNull] IImmutableDictionary<SqlServerColumn, SoftString> columnMappings,
             [CanBeNull] IImmutableDictionary<string, object> where,
-            (SoftString Name, object Value) fallback)
+            [CanBeNull] IImmutableDictionary<string, object> fallback)
         {
             where = where ?? ImmutableDictionary<string, object>.Empty;
 
@@ -41,7 +41,7 @@ namespace Reusable.Translucent
             sql.Append($"from {table}").AppendLine();
             sql.Append(where.Aggregate($"where {nameCondition}", (current, next) =>
             {
-                if (fallback.Name.Equals(next.Key))
+                if (fallback?.ContainsKey(next.Key) == true)
                 {
                     var column = connection.CreateIdentifier(next.Key);
                     var defaultParam = next.Key;
@@ -61,9 +61,9 @@ namespace Reusable.Translucent
             // --- add parameters & values
 
             command.AddParameters(where.Add(columnMappings.MapOrDefault(SqlServerColumn.Name), name));
-            if (fallback.Name.IsNotNullOrEmpty())
+            foreach (var item in fallback ?? ImmutableDictionary<string, object>.Empty)
             {
-                command.Parameters.AddWithValue($"@{fallback.Name}_fallback", fallback.Value);
+                command.Parameters.AddWithValue($"@{item.Key}_fallback", item.Value);
             }
 
             return command;

@@ -7,18 +7,9 @@ namespace Reusable.Translucent
 {
     public static class SqlServerControllerExtensions
     {
-        public static IResourceControllerBuilder AddSqlServer(this IResourceControllerBuilder builder, string connectionString, Action<SqlServerController> configure)
+        public static IResourceControllerBuilder AddSqlServer(this IResourceControllerBuilder builder, string connectionString, IImmutableContainer properties = default)
         {
-            var sqlServer = new SqlServerController(connectionString);
-            configure?.Invoke(sqlServer);
-            return builder.AddController(sqlServer);
-        }
-        
-        public static IResourceControllerBuilder AddSqlServer(this IResourceControllerBuilder builder, IImmutableContainer properties, Action<SqlServerController> configure)
-        {
-            var sqlServer = new SqlServerController(properties);
-            configure?.Invoke(sqlServer);
-            return builder.AddController(sqlServer);
+            return builder.AddController(new SqlServerController(connectionString, properties.ThisOrEmpty()));
         }
     }
 }

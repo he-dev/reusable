@@ -19,9 +19,11 @@ namespace Reusable.Translucent
 
         public object Body { get; set; }
 
-        //public MimeType ContentType { get; set; }
-
         public IImmutableContainer Metadata { get; set; }
+
+        public static Response OK() => new Response { StatusCode = ResourceStatusCode.OK };
+        
+        public static Response NotFound() => new Response { StatusCode = ResourceStatusCode.NotFound };
 
         public void Dispose()
         {
@@ -31,32 +33,32 @@ namespace Reusable.Translucent
             }
         }
 
-        public class OK : Response
-        {
-            public OK()
-            {
-                StatusCode = ResourceStatusCode.OK;
-            }
-        }
+//        public class OK : Response
+//        {
+//            public OK()
+//            {
+//                StatusCode = ResourceStatusCode.OK;
+//            }
+//        }
+//
+//        public class NotFound : Response
+//        {
+//            public NotFound()
+//            {
+//                StatusCode = ResourceStatusCode.NotFound;
+//            }
+//        }
 
-        public class NotFound : Response
-        {
-            public NotFound()
-            {
-                StatusCode = ResourceStatusCode.NotFound;
-            }
-        }
-        
         #region Properties
-        
+
         private static readonly From<Response> This;
-        
+
         public static readonly Selector<DateTime> CreateOn = This.Select(() => CreateOn);
 
         public static readonly Selector<DateTime> ModifiedOn = This.Select(() => ModifiedOn);
 
         public static readonly Selector<string> ActualName = This.Select(() => ActualName);
-        
+
         #endregion
     }
 
@@ -76,9 +78,6 @@ namespace Reusable.Translucent
 
         //public static readonly Selector<long> Length = Select(() => Length);
 
-        
-        
-        
 
         //public static readonly Selector<MimeType> Format = Select(() => Format);
 
@@ -86,7 +85,6 @@ namespace Reusable.Translucent
 
         //
 
-        
 
         //public static readonly Selector<Func<Stream, Task<object>>> DeserializeAsync = Select(() => DeserializeAsync);
     }

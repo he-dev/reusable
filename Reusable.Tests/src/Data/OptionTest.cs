@@ -20,10 +20,10 @@ namespace Reusable.Data
             Assert.True(actual.Contains(TestOption.A));
             Assert.True(actual.Contains(TestOption.B));
             Assert.True(actual.Contains(TestOption.C));
-            
+
             Assert.Equal("A, B, C", actual.ToString());
         }
-        
+
         [Fact]
         public void Can_reset_flags()
         {
@@ -40,6 +40,11 @@ namespace Reusable.Data
             public static readonly TestOption B = CreateWithCallerName();
             public static readonly TestOption C = CreateWithCallerName();
             public static readonly TestOption D = Create("2D");
+        }
+
+        private class TestOptions
+        {
+            public static readonly TestOptions A = Option<TestOptions>.CreateWithCallerName();
         }
     }
 }

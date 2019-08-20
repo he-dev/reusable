@@ -26,8 +26,8 @@ namespace Reusable.Translucent
             var resourceControllerBuilder = new ResourceControllerBuilder(services);
             var resourceRepositoryBuilder = new ResourceRepositoryBuilder(services);
 
-            InvokeMethod<IResourceControllerBuilder>(setup, nameof(ResourceRepository.QuickSetup.ConfigureServices), false, resourceControllerBuilder, services);
-            InvokeMethod<IResourceRepositoryBuilder>(setup, nameof(ResourceRepository.QuickSetup.Configure), true, resourceRepositoryBuilder, services);
+            InvokeMethod<IResourceControllerBuilder>(setup, nameof(QuickSetup.ConfigureServices), false, resourceControllerBuilder, services);
+            InvokeMethod<IResourceRepositoryBuilder>(setup, nameof(QuickSetup.Configure), true, resourceRepositoryBuilder, services);
 
             resourceRepositoryBuilder.UseMiddleware<ControllerMiddleware>(new object[] { resourceControllerBuilder.Controllers.AsEnumerable() });
 
@@ -91,19 +91,19 @@ namespace Reusable.Translucent
                     .Add(controller)
                     .Add(repository ?? (_ => { })));
         }
+    }
 
-        [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
-        public class QuickSetup
+    [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
+    public class QuickSetup
+    {
+        public void ConfigureServices(IResourceControllerBuilder controller, ConfigureServicesDelegate configure)
         {
-            public void ConfigureServices(IResourceControllerBuilder controller, ConfigureServicesDelegate configure)
-            {
-                configure(controller);
-            }
+            configure(controller);
+        }
 
-            public void Configure(IResourceRepositoryBuilder repository, ConfigureDelegate configure)
-            {
-                configure(repository);
-            }
+        public void Configure(IResourceRepositoryBuilder repository, ConfigureDelegate configure)
+        {
+            configure(repository);
         }
     }
 

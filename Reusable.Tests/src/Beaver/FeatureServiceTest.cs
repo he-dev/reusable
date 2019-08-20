@@ -10,12 +10,6 @@ namespace Reusable.Beaver
 {
     public class FeatureServiceTest
     {
-//        [Fact]
-//        public void Can_create_key_from_type_and_member()
-//        {
-//            Assert.Equal("DemoFeatures.Greeting", DemoFeatures.Greeting);
-//        }
-
         [Fact]
         public void Can_configure_features_by_tags()
         {

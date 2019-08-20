@@ -50,7 +50,7 @@ namespace Reusable.Translucent.Middleware
                 // GET can search multiple providers.
                 if (context.Request.Method == RequestMethod.Get)
                 {
-                    context.Response = new Response.NotFound();
+                    context.Response = Response.NotFound();
                     foreach (var provider in filtered)
                     {
                         if (await InvokeAsync(provider, context.Request) is var response && response.Exists())

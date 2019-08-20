@@ -110,6 +110,14 @@ namespace Reusable.Data
                     : container;
         }
 
+        public static IImmutableContainer SetItemWhenNotExists<T>(this IImmutableContainer container, Selector<T> key, T value)
+        {
+            return
+                container.ContainsKey(key.ToString())
+                    ? container
+                    : container.SetItem(key, value);
+        }
+
         public static IImmutableContainer SetItemWhen<T>
         (
             this IImmutableContainer container,

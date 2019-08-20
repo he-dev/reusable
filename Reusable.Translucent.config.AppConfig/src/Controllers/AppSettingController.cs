@@ -23,7 +23,7 @@ namespace Reusable.Translucent.Controllers
 
             return
                 element is null
-                    ? new Response.NotFound().ToTask<Response>()
+                    ? NotFound().ToTask()
                     : OK(request, element.Value, settingIdentifier).ToTask();
         }
 
@@ -47,7 +47,7 @@ namespace Reusable.Translucent.Controllers
 
             exeConfig.Save(ConfigurationSaveMode.Minimal);
 
-            return new Response.OK().ToTask<Response>();
+            return OK().ToTask();
         }
 
         [CanBeNull]

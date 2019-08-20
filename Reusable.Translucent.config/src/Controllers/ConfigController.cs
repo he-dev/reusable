@@ -23,8 +23,9 @@ namespace Reusable.Translucent.Controllers
         // ReSharper disable once InconsistentNaming
         protected Response OK(Request request, string body, string actualName)
         {
-            return new Response.OK
+            return new Response
             {
+                StatusCode = ResourceStatusCode.OK,
                 Body = body,
                 Metadata =
                     ImmutableContainer

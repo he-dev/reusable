@@ -47,7 +47,7 @@ namespace Reusable.Translucent.Controllers
                 await fileStream.FlushAsync();
             }
 
-            return new Response.OK();
+            return OK();
         }
 
         [ResourceDelete]

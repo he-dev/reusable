@@ -66,7 +66,7 @@ namespace Reusable.Translucent.Controllers
                 await smtpClient.SendAsync(message);
             }
 
-            return new Response.OK();
+            return OK();
         }
     }
 
