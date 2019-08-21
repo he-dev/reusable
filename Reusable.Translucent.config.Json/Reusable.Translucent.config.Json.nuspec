@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Translucent.config.Json</id>
-    <version>14.0.8</version>
+    <version>14.0.9</version>
     <title>Reusable.Translucent.config.Json</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -20,9 +20,9 @@
       <dependency id="System.ValueTuple" version="4.5.0" />
       <dependency id="Microsoft.Extensions.Configuration" version="2.2.0.0" />
       <dependency id="Microsoft.Extensions.Configuration.Json" version="2.1.1" />
-      <dependency id="Reusable.Core" version="14.0.8" />
-      <dependency id="Reusable.Translucent" version="14.0.8" />
-      <dependency id="Reusable.Translucent.config" version="14.0.8" />
+      <dependency id="Reusable.Core" version="14.0.9" />
+      <dependency id="Reusable.Translucent" version="14.0.9" />
+      <dependency id="Reusable.Translucent.config" version="14.0.9" />
     </dependencies>
   </metadata>
   <files>

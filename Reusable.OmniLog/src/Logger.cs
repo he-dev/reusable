@@ -37,6 +37,8 @@ namespace Reusable.OmniLog
         {
             _logger = loggerFactory.CreateLogger(typeof(T).ToPrettyString());
         }
+        
+        public static ILogger<T> Empty { get; } = new EmptyLogger();
 
         public LoggerNode Node => _logger.Node;
 
@@ -50,7 +52,7 @@ namespace Reusable.OmniLog
             _logger.Log(logEntry);
         }
 
-        public class Empty : ILogger<T>
+        private class EmptyLogger : ILogger<T>
         {
             public LoggerNode Node { get; }
 
