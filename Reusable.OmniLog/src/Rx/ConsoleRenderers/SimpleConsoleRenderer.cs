@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using Reusable.Data;
 using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Rx.ConsoleRenderers
 {
     public class SimpleConsoleRenderer : PlainConsoleRenderer
     {
-        public IReadOnlyDictionary<LogLevel, ConsoleColor> LogLevelColor { get; set; } = new Dictionary<LogLevel, ConsoleColor>
+        public IReadOnlyDictionary<Option<LogLevel>, ConsoleColor> LogLevelColor { get; set; } = new Dictionary<Option<LogLevel>, ConsoleColor>
         {
             [LogLevel.Trace] = ConsoleColor.DarkGray,
             [LogLevel.Debug] = ConsoleColor.DarkGray,

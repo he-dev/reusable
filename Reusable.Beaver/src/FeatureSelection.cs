@@ -1,5 +1,6 @@
 using System;
 using JetBrains.Annotations;
+using Reusable.Data;
 
 namespace Reusable.Beaver
 {
@@ -16,13 +17,13 @@ namespace Reusable.Beaver
             _name = name;
         }
 
-        public FeatureOption Options
+        public Option<Feature> Options
         {
             get => _options[_name];
             set => _options[_name] = value;
         }
 
-        public FeatureSelection Update(Func<FeatureOption, FeatureOption> update)
+        public FeatureSelection Update(Func<Option<Feature>, Option<Feature>> update)
         {
             _options.Update(_name, update);
             return this;
@@ -37,17 +38,17 @@ namespace Reusable.Beaver
 
     public static class FeatureSelectionExtensions
     {
-        public static FeatureSelection Set(this FeatureSelection feature, FeatureOption option)
+        public static FeatureSelection Set(this FeatureSelection feature, Option<Feature> option)
         {
             return feature.Update(o => o.SetFlag(option));
         }
 
-        public static FeatureSelection Remove(this FeatureSelection feature, FeatureOption option)
+        public static FeatureSelection Remove(this FeatureSelection feature, Option<Feature> option)
         {
             return feature.Update(o => o.RemoveFlag(option));
         }
 
-        public static FeatureSelection Toggle(this FeatureSelection feature, FeatureOption option)
+        public static FeatureSelection Toggle(this FeatureSelection feature, Option<Feature> option)
         {
             return feature.Update(o =>
                 o.Contains(option)

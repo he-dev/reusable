@@ -27,7 +27,7 @@ namespace Reusable.Commander
                     : CommandHelper.GetCommandParameterId(member);
             Description = member.GetCustomAttribute<DescriptionAttribute>()?.Description;
             DefaultValue = member.GetCustomAttribute<DefaultValueAttribute>()?.Value;
-            Required = member.IsDefined(typeof(RequiredAttribute)) || Name.Default.Option.Contains(NameOption.Positional);
+            Required = member.IsDefined(typeof(RequiredAttribute)) || Name.Default.Option.Contains(Reusable.Commander.Name.Options.Positional);
             ConverterType = member.GetCustomAttribute<Reusable.OneTo1.TypeConverterAttribute>()?.ConverterType;
         }
 

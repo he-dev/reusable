@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -6,6 +8,7 @@ using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Diagnostics;
@@ -15,199 +18,150 @@ using Reusable.Extensions;
 namespace Reusable.Data
 {
     [PublicAPI]
-    public abstract class Option
+    [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
+    public class Option<T> : IEnumerable<SoftString>, IEquatable<Option<T>>
     {
         public const string Unknown = nameof(Unknown);
 
         public static readonly IImmutableList<SoftString> ReservedNames =
             ImmutableList<SoftString>
                 .Empty
-                .Add(nameof(Option<Option>.None))
-                .Add(nameof(Option<Option>.Known));
+                .Add(nameof(None));
 
-        // Disallow anyone else to use this class.
-        // This way we can guarantee that it is used only by the Option<T>.
-        private protected Option() { }
-
-        [NotNull]
-        public abstract SoftString Name { get; }
-
-        public abstract IImmutableSet<SoftString> Values { get; }
-
-        public abstract bool IsFlag { get; }
-    }
-
-//    public interface IOption : IEnumerable<SoftString>
-//    {
-//        [NotNull]
-//        SoftString Name { get; }
-//    }
-//
-//    public interface IOption<T> : IOption { }
-
-    [PublicAPI]
-    [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
-    public abstract class Option<T> : Option, IEquatable<Option<T>> where T : Option
-    {
         // Values are what matters for equality.
         private static readonly IEqualityComparer<Option<T>> Comparer = EqualityComparerFactory<Option<T>>.Create
         (
-            equals: (left, right) => left.Values.SetEquals(right.Values),
-            getHashCode: (obj) => obj.Values.GetHashCode()
+            equals: (left, right) => left._values.SetEquals(right._values),
+            getHashCode: (obj) => obj._values.GetHashCode()
         );
 
-        // ReSharper disable once StaticMemberInGenericType - this is correct
-        private static readonly ConstructorInfo Constructor;
+        private static readonly ConcurrentDictionary<SoftString, Option<T>> Options;
 
         static Option()
         {
-            Constructor =
-                typeof(T).GetConstructor(new[] { typeof(SoftString), typeof(IImmutableSet<SoftString>) })
-                ?? throw DynamicException.Create
-                (
-                    "ConstructorNotFound",
-                    $"{typeof(T).ToPrettyString()} must provide a constructor with the following signature: " +
-                    $"ctor({typeof(SoftString).ToPrettyString()}, {typeof(int).ToPrettyString()})"
-                );
-
-            // Always initialize "None".
-            var none = New(nameof(None), ImmutableHashSet<SoftString>.Empty.Add(nameof(None)));
-            Known = ImmutableHashSet<T>.Empty.Add(none);
+            Options = new ConcurrentDictionary<SoftString, Option<T>>
+            {
+                [nameof(None)] = new Option<T>(nameof(None), ImmutableHashSet<SoftString>.Empty.Add(nameof(None)))
+            };
         }
 
-        protected Option(SoftString name, IImmutableSet<SoftString> values)
+        private IImmutableSet<SoftString> _values;
+
+        private Option(SoftString name, IEnumerable<SoftString> values)
         {
             Name = name;
-            Values = values;
+            _values = values.ToImmutableSortedSet();
         }
 
+        private string DebuggerDisplay => ToString(); // this.ToDebuggerDisplayString(b => b.DisplayScalar(x => x.))
+
         [NotNull]
-        public static T None => Known.Single(o => o.Name == nameof(None));
+        public static Option<T> None => Options[nameof(None)];
 
         /// <summary>
         /// Gets all known options ever created for this type.
         /// </summary>
         [NotNull]
-        public static IImmutableSet<T> Known { get; private set; }
+        public static IEnumerable<Option<T>> Known => Options.Values;
 
         /// <summary>
         /// Gets options that have only a single value.
         /// </summary>
         [NotNull, ItemNotNull]
-        public static IEnumerable<T> Bits => Known.Where(o => o.IsFlag);
+        public static IEnumerable<Option<T>> Bits => Options.Values.Where(o => o.IsFlag);
 
-        #region Option
+        #region IOption<T>
 
-        public override SoftString Name
+        public SoftString Name
         {
             [DebuggerStepThrough]
             get;
         }
 
-        public override IImmutableSet<SoftString> Values { get; }
-
         /// <summary>
         /// Gets value indicating whether this option has only a single value.
         /// </summary>
-        public override bool IsFlag => Values.Count == 1;
+        public bool IsFlag => _values.Count == 1;
 
         #endregion
 
         #region Factories
 
-        public static T Create(SoftString name, params SoftString[] values)
-        {
-            return Create(name, values.ToImmutableHashSet());
-        }
-
         [NotNull]
-        public static T Create(SoftString name, IImmutableSet<SoftString> values)
+        public static Option<T> Create(SoftString name, IEnumerable<SoftString> values)
         {
             if (name.In(ReservedNames))
             {
-                throw DynamicException.Create("ReservedOption", $"The option '{name}' is reserved and must not be created by the user.");
+                throw DynamicException.Create("ReservedOption", $"The option '{name}' is reserved and must not be created.");
             }
 
-            if (name.In(Known.Select(o => o.Name)))
+            if (Options.ContainsKey(name))
             {
                 throw DynamicException.Create("DuplicateOption", $"The option '{name}' is already defined.");
             }
 
-            var newOption = New(name, values);
-
-            if (name == Unknown)
-            {
-                return newOption;
-            }
-
-            Known = Known.Add(newOption);
-            return newOption;
+            return Options[name] = new Option<T>(name, values);
         }
 
-        private static T New(SoftString name, IImmutableSet<SoftString> values)
+        public static Option<T> Create(SoftString name, params SoftString[] values)
         {
-            return (T)Constructor.Invoke(new object[]
-            {
-                name,
-                values.Any()
-                    ? values
-                    : ImmutableHashSet<SoftString>.Empty.Add(name)
-            });
+            return Create(name, values.AsEnumerable());
         }
 
         [NotNull]
-        public static T CreateWithCallerName([CanBeNull] string value = default, [CallerMemberName] string name = default)
+        public static Option<T> CreateWithCallerName([CanBeNull] string value = default, [CallerMemberName] string name = default)
         {
             return Create(name, value ?? name);
         }
 
-        [NotNull]
-        public static T FromName([NotNull] string name)
+        public static bool TryParse(string option, out Option<T> knownOption)
         {
-            if (name == null) throw new ArgumentNullException(nameof(name));
-
-            return
-                Known.FirstOrDefault(o => o.Name == name)
-                ?? throw DynamicException.Create("OptionOutOfRange", $"There is no such option as '{name}'.");
-        }
-
-        private static bool TryGetKnownOption(IImmutableSet<SoftString> values, out T option)
-        {
-            if (values.Count == 0)
+            if (option == null)
             {
-                option = None;
-                return true;
-            }
-
-            if (Known.SingleOrDefault(o => o.Values.SetEquals(values)) is var knownOption && !(knownOption is null))
-            {
-                option = knownOption;
-                return true;
-            }
-            else
-            {
-                option = default;
+                knownOption = default;
                 return false;
             }
+
+            var values =
+                Regex
+                    .Matches(option, @"[a-z0-9_]+", RegexOptions.IgnoreCase)
+                    .Cast<Match>()
+                    .Select(m => m.Value.ToSoftString())
+                    .ToImmutableHashSet(SoftString.Comparer);
+
+            knownOption = Options.Values.SingleOrDefault(o => values.SetEquals(o));
+
+            return !(knownOption is null);
+        }
+
+        [NotNull]
+        public static Option<T> Parse([NotNull] string option)
+        {
+            if (option == null) throw new ArgumentNullException(nameof(option));
+
+            return
+                TryParse(option, out var knownOption)
+                    ? knownOption
+                    : throw DynamicException.Create("OptionOutOfRange", $"There is no such option as '{option}'.");
         }
 
         #endregion
 
-        public T SetFlag(Option<T> option) => this | option;
+        public Option<T> SetFlag(Option<T> option) => this | option;
 
-        public T RemoveFlag(Option<T> option) => this ^ option;
+        public Option<T> RemoveFlag(Option<T> option) => this ^ option;
+
 
         [DebuggerStepThrough]
         public override string ToString()
         {
             return
-                Values
-                    .OrderBy(x => x)
+                _values
                     .Select(x => $"{x.ToString()}")
                     .Join(", ");
         }
 
-        public bool Contains(T option) => Values.Overlaps(option.Values);
+        public bool Contains(Option<T> option) => _values.Overlaps(option);
 
         #region IEquatable
 
@@ -219,6 +173,10 @@ namespace Reusable.Data
 
         #endregion
 
+        public IEnumerator<SoftString> GetEnumerator() => _values.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_values).GetEnumerator();
+
         #region Operators
 
         public static implicit operator string(Option<T> option) => option?.ToString() ?? throw new ArgumentNullException(nameof(option));
@@ -228,25 +186,25 @@ namespace Reusable.Data
         public static bool operator !=(Option<T> left, Option<T> right) => !(left == right);
 
         [NotNull]
-        public static T operator |(Option<T> left, Option<T> right)
+        public static Option<T> operator |(Option<T> left, Option<T> right)
         {
-            var values = left.Values.Concat(right.Values).ToImmutableHashSet();
+            var values = left._values.Concat(right._values).ToImmutableHashSet();
             return GetKnownOrCreate(values);
         }
 
         [NotNull]
-        public static T operator ^(Option<T> left, Option<T> right)
+        public static Option<T> operator ^(Option<T> left, Option<T> right)
         {
-            var values = left.Values.Except(right.Values).ToImmutableHashSet();
-            return GetKnownOrCreate(values);
+            var values = left._values.Except(right._values).ToImmutableHashSet();
+            return
+                values.Any()
+                    ? GetKnownOrCreate(values)
+                    : None;
         }
 
-        private static T GetKnownOrCreate(IImmutableSet<SoftString> values)
+        private static Option<T> GetKnownOrCreate(IImmutableSet<SoftString> values)
         {
-            return
-                TryGetKnownOption(values, out var knownOption)
-                    ? knownOption
-                    : Create(Unknown, values);
+            return Options.Values.SingleOrDefault(values.SetEquals) ?? new Option<T>(Unknown, values);
         }
 
         #endregion

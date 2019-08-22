@@ -62,7 +62,7 @@ namespace Reusable.Commander
             var executables =
                 from t in commandLines.Select((commandLine, index) => (commandLine, index))
                 let commandNameArgument = t.commandLine[NameSet.Command]
-                let commandName = new NameSet((commandNameArgument.Single(), NameOption.CommandLine))
+                let commandName = new NameSet((commandNameArgument.Single(), Name.Options.CommandLine))
                 let command = commandFactory.CreateCommand(commandName)
                 select
                 (

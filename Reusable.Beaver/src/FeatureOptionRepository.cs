@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using JetBrains.Annotations;
+using Reusable.Data;
 using Reusable.Exceptionize;
 
 namespace Reusable.Beaver
@@ -12,11 +13,11 @@ namespace Reusable.Beaver
     {
         // Gets or sets feature options.
         [NotNull]
-        FeatureOption this[FeatureIdentifier name] { get; set; }
+        Option<Feature> this[FeatureIdentifier name] { get; set; }
 
         bool IsDirty(FeatureIdentifier name);
 
-        bool TryGetOption(FeatureIdentifier name, out FeatureOption option);
+        bool TryGetOption(FeatureIdentifier name, out Option<Feature> option);
 
         bool Remove(FeatureIdentifier name);
 
@@ -26,17 +27,17 @@ namespace Reusable.Beaver
 
     public class FeatureOptionRepository : IFeatureOptionRepository
     {
-        private readonly Dictionary<FeatureIdentifier, FeatureOption> _options;
+        private readonly Dictionary<FeatureIdentifier, Option<Feature>> _options;
         private readonly HashSet<FeatureIdentifier> _dirty;
         private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
         public FeatureOptionRepository()
         {
-            _options = new Dictionary<FeatureIdentifier, FeatureOption>();
+            _options = new Dictionary<FeatureIdentifier, Option<Feature>>();
             _dirty = new HashSet<FeatureIdentifier>();
         }
 
-        public FeatureOption this[FeatureIdentifier name]
+        public Option<Feature> this[FeatureIdentifier name]
         {
             get
             {
@@ -66,7 +67,7 @@ namespace Reusable.Beaver
             }
         }
 
-        public bool TryGetOption(FeatureIdentifier name, out FeatureOption option)
+        public bool TryGetOption(FeatureIdentifier name, out Option<Feature> option)
         {
             using (_lock.Reader())
             {
@@ -132,7 +133,7 @@ namespace Reusable.Beaver
 
         protected IFeatureOptionRepository Instance { get; }
 
-        public virtual FeatureOption this[FeatureIdentifier name]
+        public virtual Option<Feature> this[FeatureIdentifier name]
         {
             get => Instance[name];
             set => Instance[name] = value;
@@ -140,7 +141,7 @@ namespace Reusable.Beaver
 
         public bool IsDirty(FeatureIdentifier name) => Instance.IsDirty(name);
 
-        public bool TryGetOption(FeatureIdentifier name, out FeatureOption option) => Instance.TryGetOption(name, out option);
+        public bool TryGetOption(FeatureIdentifier name, out Option<Feature> option) => Instance.TryGetOption(name, out option);
 
         public bool Remove(FeatureIdentifier name) => Instance.Remove(name);
 
@@ -150,14 +151,14 @@ namespace Reusable.Beaver
     // Provides default feature-options if not already configured. 
     public class FeatureOptionFallback : FeatureOptionRepositoryDecorator
     {
-        private readonly FeatureOption _defaultOption;
+        private readonly Option<Feature> _defaultOption;
 
-        public FeatureOptionFallback(IFeatureOptionRepository options, FeatureOption defaultOption) : base(options)
+        public FeatureOptionFallback(IFeatureOptionRepository options, Option<Feature> defaultOption) : base(options)
         {
             _defaultOption = defaultOption;
         }
 
-        public override FeatureOption this[FeatureIdentifier name]
+        public override Option<Feature> this[FeatureIdentifier name]
         {
             get => TryGetOption(name, out var option) ? option : _defaultOption;
             set => Instance[name] = value;
@@ -165,8 +166,8 @@ namespace Reusable.Beaver
 
         public class Enabled : FeatureOptionFallback
         {
-            public Enabled(IFeatureOptionRepository options, FeatureOption other = default)
-                : base(options, FeatureOption.Enabled | (other ?? FeatureOption.None)) { }
+            public Enabled(IFeatureOptionRepository options, Option<Feature> other = default)
+                : base(options, Feature.Options.Enabled | (other ?? Option<Feature>.None)) { }
         }
     }
 
@@ -175,12 +176,12 @@ namespace Reusable.Beaver
     {
         public FeatureOptionLock(IFeatureOptionRepository options) : base(options) { }
 
-        public override FeatureOption this[FeatureIdentifier name]
+        public override Option<Feature> this[FeatureIdentifier name]
         {
             get => Instance[name];
             set
             {
-                if (Instance[name].Contains(FeatureOption.Locked))
+                if (Instance[name].Contains(Feature.Options.Locked))
                 {
                     throw new InvalidOperationException($"Cannot set options for feature '{name}' because it's locked.");
                 }

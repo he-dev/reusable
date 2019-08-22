@@ -13,15 +13,13 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog
 {
-    public class LogLevel : Option<LogLevel>
+    public abstract class LogLevel
     {
-        public LogLevel(SoftString name, IImmutableSet<SoftString> values) : base(name, values) { }
-
-        public static LogLevel Trace { get; } = CreateWithCallerName();
-        public static LogLevel Debug { get; } = CreateWithCallerName();
-        public static LogLevel Information { get; } = CreateWithCallerName();
-        public static LogLevel Warning { get; } = CreateWithCallerName();
-        public static LogLevel Error { get; } = CreateWithCallerName();
-        public static LogLevel Fatal { get; } = CreateWithCallerName();
+        public static Option<LogLevel> Trace { get; } = Option<LogLevel>.CreateWithCallerName();
+        public static Option<LogLevel> Debug { get; } = Option<LogLevel>.CreateWithCallerName();
+        public static Option<LogLevel> Information { get; } = Option<LogLevel>.CreateWithCallerName();
+        public static Option<LogLevel> Warning { get; } = Option<LogLevel>.CreateWithCallerName();
+        public static Option<LogLevel> Error { get; } = Option<LogLevel>.CreateWithCallerName();
+        public static Option<LogLevel> Fatal { get; } = Option<LogLevel>.CreateWithCallerName();
     }
 }

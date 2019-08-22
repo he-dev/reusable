@@ -59,7 +59,7 @@ namespace Reusable.Commander
                     default:
                         
                         // Use positional parameter-ids until a named one is found.
-                        if (argumentName.Default.Option.Contains(NameOption.Positional))
+                        if (argumentName.Default.Option.Contains(Name.Options.Positional))
                         {
                             commandLine[argumentName] = new CommandArgument(argumentName, new List<string> { token });
                             argumentName = NameSet.FromPosition(position++);

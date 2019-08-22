@@ -24,12 +24,12 @@ namespace Reusable.Beaver
 
         public static bool IsEnabled(this IFeatureToggle toggle, FeatureIdentifier name)
         {
-            return toggle.Options[name].Contains(FeatureOption.Enabled);
+            return toggle.Options[name].Contains(Feature.Options.Enabled);
         }
 
         public static bool IsLocked(this IFeatureToggle toggle, FeatureIdentifier name)
         {
-            return toggle.Options[name].Contains(FeatureOption.Locked);
+            return toggle.Options[name].Contains(Feature.Options.Locked);
         }
 
         // Returns True if options are different from default.
@@ -115,22 +115,22 @@ namespace Reusable.Beaver
 
         #endregion
 
-        public static IFeatureOptionRepository Update(this IFeatureOptionRepository options, string name, Func<FeatureOption, FeatureOption> update)
+        public static IFeatureOptionRepository Update(this IFeatureOptionRepository options, string name, Func<Option<Feature>, Option<Feature>> update)
         {
             options[name] = update(options[name]);
             return options;
         }
 
-        public static IFeatureOptionRepository Batch(this IFeatureOptionRepository options, IEnumerable<string> names, FeatureOption featureOption, BatchOption batchOption)
+        public static IFeatureOptionRepository Batch(this IFeatureOptionRepository options, IEnumerable<string> names, Option<Feature> featureOption, Option<Batch> batchOption)
         {
             foreach (var name in names)
             {
-                if (batchOption == BatchOption.Set)
+                if (batchOption == Reusable.Beaver.Batch.Options.Set)
                 {
                     options[name] = options[name].SetFlag(featureOption);
                 }
 
-                if (batchOption == BatchOption.Remove)
+                if (batchOption == Reusable.Beaver.Batch.Options.Remove)
                 {
                     options[name] = options[name].RemoveFlag(featureOption);
                 }
@@ -140,12 +140,12 @@ namespace Reusable.Beaver
         }
     }
 
-    public class BatchOption : Option<BatchOption>
+    public class Batch
     {
-        public BatchOption(SoftString name, IImmutableSet<SoftString> values) : base(name, values) { }
-
-        public static readonly BatchOption Set = CreateWithCallerName();
-
-        public static readonly BatchOption Remove = CreateWithCallerName();
+        public static class Options
+        {
+            public static readonly Option<Batch> Set = Option<Batch>.CreateWithCallerName();
+            public static readonly Option<Batch> Remove = Option<Batch>.CreateWithCallerName();
+        }
     }
 }

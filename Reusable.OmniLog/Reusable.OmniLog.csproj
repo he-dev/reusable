@@ -33,5 +33,9 @@
   <ItemGroup>
     <Reference Include="System.Configuration" />
   </ItemGroup>
+  
+  <ItemGroup>
+<!--    <Compile Remove="src\LogLevel.cs"/>-->
+  </ItemGroup>
 
 </Project>

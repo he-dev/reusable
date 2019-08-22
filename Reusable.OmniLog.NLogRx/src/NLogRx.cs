@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Reusable.Data;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
@@ -12,7 +13,7 @@ namespace Reusable.OmniLog
     {
         private readonly ConcurrentDictionary<SoftString, NLog.Logger> _cache = new ConcurrentDictionary<SoftString, NLog.Logger>();
 
-        private static readonly IDictionary<LogLevel, NLog.LogLevel> LogLevels = new Dictionary<LogLevel, NLog.LogLevel>
+        private static readonly IDictionary<Option<LogLevel>, NLog.LogLevel> LogLevels = new Dictionary<Option<LogLevel>, NLog.LogLevel>
         {
             [LogLevel.Trace] = NLog.LogLevel.Trace,
             [LogLevel.Debug] = NLog.LogLevel.Debug,
@@ -32,7 +33,7 @@ namespace Reusable.OmniLog
         {
             var logEventInfo = new NLog.LogEventInfo
             {
-                Level = LogLevels[logEntry.GetItemOrDefault<LogLevel>(LogEntry.Names.Level, default)],
+                Level = LogLevels[logEntry.GetItemOrDefault<Option<LogLevel>>(LogEntry.Names.Level, default)],
                 LoggerName = logEntry.GetItemOrDefault<string>(LogEntry.Names.Logger, default),
                 Message = logEntry.GetItemOrDefault<string>(LogEntry.Names.Message, default),
                 Exception = logEntry.GetItemOrDefault<Exception>(LogEntry.Names.Exception, default),

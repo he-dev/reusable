@@ -16,7 +16,7 @@ namespace Reusable.Translucent
         public UriString Uri { get; set; } // = new UriString($"{UriSchemes.Custom.IOnymous}:///");
 
         [NotNull]
-        public RequestMethod Method { get; set; } = RequestMethod.None;
+        public Option<RequestMethod> Method { get; set; } = RequestMethod.None;
 
         [NotNull]
         public IImmutableContainer Metadata { get; set; } = ImmutableContainer.Empty;

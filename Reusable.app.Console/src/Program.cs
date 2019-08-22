@@ -30,7 +30,7 @@ namespace Reusable
             //Demo.SemanticExtensions();
             
             
-            //Examples.Log();
+            Examples.Log();
             //await Examples.SendEmailAsync_Mailr();
             //await Examples.SendEmailAsync_Smtp();
 

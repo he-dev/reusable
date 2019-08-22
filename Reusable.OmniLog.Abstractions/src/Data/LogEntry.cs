@@ -125,10 +125,10 @@ namespace Reusable.OmniLog.Abstractions.Data
             public static readonly string CallerMemberName = nameof(CallerMemberName);
             public static readonly string CallerLineNumber = nameof(CallerLineNumber);
             public static readonly string CallerFilePath = nameof(CallerFilePath);
-            
+
             public static readonly string Object = nameof(Object);
             public static readonly string Snapshot = nameof(Snapshot);
-            
+
             public static readonly string Scope = nameof(Scope);
             public static readonly string Elapsed = nameof(Stopwatch.Elapsed);
         }
@@ -146,7 +146,7 @@ namespace Reusable.OmniLog.Abstractions.Data
             /// Item needs to be exploded.
             /// </summary>
             public static readonly string Explodable = nameof(Explodable);
-            
+
             /// <summary>
             /// Item needs to be mapped or serialized.
             /// </summary>
@@ -154,6 +154,9 @@ namespace Reusable.OmniLog.Abstractions.Data
 
             public static readonly string Copyable = nameof(Copyable);
         }
+
+
+        
     }
 
     public static class LogEntryExtensions

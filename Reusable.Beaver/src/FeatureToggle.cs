@@ -55,15 +55,15 @@ namespace Reusable.Beaver
             }
             finally
             {
-                if (Options[name].Contains(FeatureOption.Toggle))
+                if (Options[name].Contains(Feature.Options.Toggle))
                 {
-                    this.Update(name, f => f.Toggle(FeatureOption.Enabled));
+                    this.Update(name, f => f.Toggle(Feature.Options.Enabled));
 
-                    if (Options[name].Contains(FeatureOption.ToggleOnce))
+                    if (Options[name].Contains(Feature.Options.ToggleOnce))
                     {
-                        this.Update(name, f => f.Remove(FeatureOption.Toggle).Remove(FeatureOption.ToggleOnce));
+                        this.Update(name, f => f.Remove(Feature.Options.Toggle).Remove(Feature.Options.ToggleOnce));
 
-                        if (Options[name].Contains(FeatureOption.ToggleReset))
+                        if (Options[name].Contains(Feature.Options.ToggleReset))
                         {
                             Options.Remove(name);
                         }
@@ -90,7 +90,7 @@ namespace Reusable.Beaver
 
         public async Task<T> ExecuteAsync<T>(FeatureIdentifier name, Func<Task<T>> body, Func<Task<T>> fallback)
         {
-            if (Options[name].Contains(FeatureOption.Telemetry))
+            if (Options[name].Contains(Feature.Options.Telemetry))
             {
                 using (_logger.UseScope(correlationHandle: nameof(FeatureTelemetry)))
                 using (_logger.UseStopwatch())

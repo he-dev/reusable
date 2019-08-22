@@ -1,12 +1,13 @@
 using System;
+using Reusable.Data;
 
 namespace Reusable.Translucent
 {
     public abstract class ResourceActionAttribute : Attribute
     {
-        protected ResourceActionAttribute(RequestMethod method) => Method = method;
+        protected ResourceActionAttribute(Option<RequestMethod> method) => Method = method;
 
-        public RequestMethod Method { get; }
+        public Option<RequestMethod> Method { get; }
     }
 
     public class ResourceGetAttribute : ResourceActionAttribute

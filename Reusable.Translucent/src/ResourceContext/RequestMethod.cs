@@ -3,16 +3,12 @@ using Reusable.Data;
 
 namespace Reusable.Translucent
 {
-    public class RequestMethod : Option<RequestMethod>
+    public abstract class RequestMethod
     {
-        public RequestMethod(SoftString name, IImmutableSet<SoftString> values) : base(name, values) { }
-
-        public static readonly RequestMethod Get = CreateWithCallerName();
-
-        public static readonly RequestMethod Post = CreateWithCallerName();
-
-        public static readonly RequestMethod Put = CreateWithCallerName();
-
-        public static readonly RequestMethod Delete = CreateWithCallerName();
+        public static readonly Option<RequestMethod> None = Option<RequestMethod>.None;
+        public static readonly Option<RequestMethod> Get = Option<RequestMethod>.CreateWithCallerName();
+        public static readonly Option<RequestMethod> Post = Option<RequestMethod>.CreateWithCallerName();
+        public static readonly Option<RequestMethod> Put = Option<RequestMethod>.CreateWithCallerName();
+        public static readonly Option<RequestMethod> Delete = Option<RequestMethod>.CreateWithCallerName();
     }
 }

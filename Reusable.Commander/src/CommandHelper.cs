@@ -47,10 +47,10 @@ namespace Reusable.Commander
 
         private static IEnumerable<Name> GetCommandNames(Type commandType)
         {
-            yield return new Name(GetDefaultCommandName(commandType), NameOption.Default);
+            yield return new Name(GetDefaultCommandName(commandType), Name.Options.Default);
             foreach (var name in commandType.GetCustomAttribute<TagsAttribute>() ?? Enumerable.Empty<string>())
             {
-                yield return new Name(name, NameOption.Alias);
+                yield return new Name(name, Name.Options.Tag);
             }
         }
 
@@ -74,12 +74,12 @@ namespace Reusable.Commander
         public static IEnumerable<Name> GetParameterNames(MemberInfo property)
         {
             // Always use the property name as default.
-            yield return new Name(property.Name, NameOption.Default);
+            yield return new Name(property.Name, Name.Options.Default);
 
             // Then get alias if any.
             foreach (var alias in property.GetCustomAttribute<TagsAttribute>() ?? Enumerable.Empty<string>())
             {
-                yield return new Name(alias, NameOption.Alias);
+                yield return new Name(alias, Name.Options.Tag);
             }
         }
 

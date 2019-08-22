@@ -12,7 +12,7 @@ namespace Reusable.Translucent
 {
     public static class ConfigRequestBuilder
     {
-        public static Request CreateRequest(RequestMethod method, Selector selector, object value = default)
+        public static Request CreateRequest(Option<RequestMethod> method, Selector selector, object value = default)
         {
             var resources =
                 from m in selector.Member.Path()

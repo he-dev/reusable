@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Reusable.Beaver;
+using Reusable.Data;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
@@ -114,7 +115,7 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
             }
         }
 
-        private static LogLevel MapStatusCode(int statusCode)
+        private static Option<LogLevel> MapStatusCode(int statusCode)
         {
             if (statusCode >= 500)
             {

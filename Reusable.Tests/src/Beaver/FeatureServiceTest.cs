@@ -31,7 +31,7 @@ namespace Reusable.Beaver
                     .Where<TagsAttribute>("io")
                     .Format();
 
-            features.Options.Batch(names, FeatureOption.Enabled, BatchOption.Remove);
+            features.Options.Batch(names, Feature.Options.Enabled, Batch.Options.Remove);
             features.Options.SaveChanges();
 
             Assert.True(features.Switch(DemoFeatures.Greeting, true, false));
@@ -44,7 +44,7 @@ namespace Reusable.Beaver
         {
             var features = new FeatureToggle(new FeatureOptionRepository()).DecorateWith<IFeatureToggle>(instance => new FeatureToggler(instance));
             Assert.False(features.IsEnabled("test")); // it disabled by default
-            features.Update("test", f => f.Set(FeatureOption.Toggle).Set(FeatureOption.ToggleOnce)); // activate feature-toggler
+            features.Update("test", f => f.Set(Feature.Options.Toggle).Set(Feature.Options.ToggleOnce)); // activate feature-toggler
             Assert.True(features.Switch("test", false, true)); // it's still disabled and will now switch
             Assert.True(features.IsEnabled("test")); // now it should be enabled
             Assert.True(features.Switch("test", true, false)); 

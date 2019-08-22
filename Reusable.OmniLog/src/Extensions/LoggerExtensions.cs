@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Custom;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
@@ -60,7 +61,7 @@ namespace Reusable.OmniLog
         private static void Log
         (
             [NotNull] this ILogger logger,
-            [NotNull] LogLevel level,
+            [NotNull] Option<LogLevel> level,
             [CanBeNull] string message,
             [CanBeNull] Exception exception,
             [CanBeNull] AlterLogEntryCallback alter

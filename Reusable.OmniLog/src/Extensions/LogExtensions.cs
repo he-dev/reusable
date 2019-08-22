@@ -1,4 +1,5 @@
 ﻿using System;
+using Reusable.Data;
 using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog
@@ -11,7 +12,7 @@ namespace Reusable.OmniLog
 
         public static LogEntry Timestamp(this LogEntry logEntry, DateTime value) => logEntry.SetItem(nameof(Timestamp), default, value);
 
-        public static LogEntry Level(this LogEntry logEntry, LogLevel value) => logEntry.SetItem(nameof(Level), default, value);
+        public static LogEntry Level(this LogEntry logEntry, Option<LogLevel> value) => logEntry.SetItem(nameof(Level), default, value);
 
         public static LogEntry Exception(this LogEntry logEntry, Exception value) => logEntry.SetItem(nameof(Exception), default, value);
 

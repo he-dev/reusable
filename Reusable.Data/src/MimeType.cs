@@ -2,24 +2,21 @@ using System.Collections.Immutable;
 
 namespace Reusable.Data
 {
-    public class MimeType : Option<MimeType>
+    public abstract class MimeType 
     {
-        public MimeType(SoftString name, IImmutableSet<SoftString> values) : base(name, values) { }
-
-        //public static readonly MimeType Empty = CreateWithCallerName();
-
+        
         /// <summary>
         /// Any document that contains text and is theoretically human readable
         /// </summary>
-        public static readonly MimeType Plain = CreateWithCallerName("text/plain");
+        public static readonly Option<MimeType> Plain = Option<MimeType>.CreateWithCallerName("text/plain");
         
-        public static readonly MimeType Html = CreateWithCallerName("text/html");
+        public static readonly Option<MimeType> Html = Option<MimeType>.CreateWithCallerName("text/html");
 
-        public static readonly MimeType Json = CreateWithCallerName("application/json");
+        public static readonly Option<MimeType> Json = Option<MimeType>.CreateWithCallerName("application/json");
 
         /// <summary>
         /// Any kind of binary data, especially data that will be executed or interpreted somehow.
         /// </summary>
-        public static readonly MimeType Binary = CreateWithCallerName("application/octet-stream");
+        public static readonly Option<MimeType> Binary = Option<MimeType>.CreateWithCallerName("application/octet-stream");
     }
 }

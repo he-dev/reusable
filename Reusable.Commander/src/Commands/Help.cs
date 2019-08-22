@@ -85,7 +85,7 @@ namespace Reusable.Commander.Commands
             foreach (var commandType in userExecutableCommands)
             {
                 var defaultId = CommandHelper.GetCommandId(commandType).Default.ToString();
-                var aliases = string.Join("|", CommandHelper.GetCommandId(commandType).Aliases.Select(x => x.ToString()));
+                var aliases = string.Join("|", CommandHelper.GetCommandId(commandType).Tags.Select(x => x.ToString()));
                 var description = commandType.GetCustomAttribute<DescriptionAttribute>()?.Description ?? "N/A";
                 var row = new[] { $"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description }.Pad(ColumnWidths);
                 Logger.WriteLine(Style, new t.Indent(1), new t.Help.TableRow { Cells = row });
@@ -122,7 +122,7 @@ namespace Reusable.Commander.Commands
             foreach (var commandArgument in commandArguments)
             {
                 var defaultId = commandArgument.Name.Default.ToString();
-                var aliases = string.Join("|", commandArgument.Name.Aliases.Select(x => x.ToString()));
+                var aliases = string.Join("|", commandArgument.Name.Tags.Select(x => x.ToString()));
                 var description = commandArgument.Description ?? "N/A";
                 var row = new[] { $"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description }.Pad(ColumnWidths);
                 Logger.WriteLine(Style, new t.Indent(1), new t.Help.TableRow { Cells = row });
