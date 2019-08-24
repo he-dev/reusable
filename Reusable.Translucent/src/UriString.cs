@@ -54,6 +54,8 @@ namespace Reusable.Translucent
 
             Regex = new Regex(patterns.Join(), RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
         }
+        
+        public UriString(SoftString scheme, SoftString authority, string path, IImmutableDictionary<SoftString, SoftString> query, SoftString fragment){}
 
         public UriString([NotNull] string uri)
         {

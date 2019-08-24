@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -28,12 +30,11 @@ namespace Reusable
 
             //Demo.ConsoleColorizer();
             //Demo.SemanticExtensions();
-            
-            
+
+
             Examples.Log();
             //await Examples.SendEmailAsync_Mailr();
             //await Examples.SendEmailAsync_Smtp();
-
 
 
             //await Demo.SendEmailAsync_Smtp();
@@ -67,10 +68,7 @@ namespace Reusable
 
     internal class Commands
     {
-        public static void Test()
-        {
-
-        }
+        public static void Test() { }
     }
 
     internal class Input
@@ -83,6 +81,7 @@ namespace Reusable
                 {
                     observer.OnNext(Console.ReadKey(intercept: true));
                 }
+
                 return Disposable.Empty;
             });
         }
@@ -125,6 +124,7 @@ namespace Reusable
                             buffer.Clear();
                             activeEntryIndex = unselected;
                         }
+
                         break;
                     case ConsoleKey.LeftArrow:
                         break;
@@ -142,14 +142,14 @@ namespace Reusable
                         break;
                     default:
                         // todo show autocomplete
-                        {
-                            Console.Write(console.KeyChar);
-                            position =
-                                buffer.Length == 0
-                                    ? (Console.CursorTop, Console.CursorLeft)
-                                    : position;
-                            buffer.Append(console.KeyChar);
-                        }
+                    {
+                        Console.Write(console.KeyChar);
+                        position =
+                            buffer.Length == 0
+                                ? (Console.CursorTop, Console.CursorLeft)
+                                : position;
+                        buffer.Append(console.KeyChar);
+                    }
                         break;
                 }
 
@@ -223,8 +223,10 @@ namespace Reusable
                         {
                             Console.ForegroundColor = ConsoleColor.Green;
                         }
+
                         Console.WriteLine(entry);
                     }
+
                     autocompletePosition.CursorTop++;
                 }
             }
@@ -269,6 +271,106 @@ namespace Reusable
             }
 
             return stringBuilder;
+        }
+    }
+}
+
+namespace blub
+{
+    public static class DtoBuilder
+    {
+        public static DtoBuilder<T> For<T>() => new DtoBuilder<T>(default);
+
+        public static DtoBuilder<T> Update<T>(this T obj) => new DtoBuilder<T>(obj);
+    }
+
+    public class DtoBuilder<T>
+    {
+        private readonly T _obj;
+
+        private readonly IList<(MemberInfo Member, object Value)> _updates = new List<(MemberInfo Member, object Value)>();
+
+        public DtoBuilder(T obj) => _obj = obj;
+
+        public DtoBuilder<T> With<TProperty>(Expression<Func<T, TProperty>> update, TProperty value)
+        {
+            _updates.Add((((MemberExpression)update.Body).Member, value));
+            return this;
+        }
+
+        public T Commit()
+        {
+            // Find the ctor that matches the most properties.
+            var ctors =
+                from ctor in typeof(T).GetConstructors()
+                from parameter in ctor.GetParameters()
+                join member in typeof(T).GetMembers(BindingFlags.Public | BindingFlags.Instance).Where(m => m is PropertyInfo || m is FieldInfo)
+                    on
+                    new
+                    {
+                        Name = (IgnoreCase)parameter.Name,
+                        Type = parameter.ParameterType
+                    }
+                    equals
+                    new
+                    {
+                        Name = (IgnoreCase)member.Name,
+                        Type = member is PropertyInfo p ? p.PropertyType : ((FieldInfo)member).FieldType
+                    }
+                orderby ctor.GetParameters().Count() descending
+                select ctor;
+
+            var theOne = ctors.First();
+
+            var optionalParameters = theOne.GetParameters().ToLookup(p => p.IsOptional);
+
+            // Join parameters and values by parameter order.
+            // The ctor requires them sorted but they might be initialized in any order.
+            var requiredParameterValues =
+                from parameter in optionalParameters[false]
+                join update in _updates on (IgnoreCase)parameter.Name equals (IgnoreCase)update.Member.Name into x
+                from update in x.DefaultIfEmpty()
+                select
+                    _obj == null
+                        ? update.Value
+                        : update.Value is null
+                            ? GetMemberValue(update.Member.Name)
+                            : update.Value;
+
+            //requiredParameterValues.Dump();
+            // Get optional parameters if any.
+            var optionalParameterValues =
+                from parameter in optionalParameters[true]
+                join update in _updates on (IgnoreCase)parameter.Name equals (IgnoreCase)update.Member.Name into s
+                from update in s.DefaultIfEmpty()
+                select
+                    _obj == null
+                        ? update.Value
+                        : update.Value is null
+                            ? GetMemberValue(update.Member.Name)
+                            : update.Value;
+
+            return (T)theOne.Invoke(requiredParameterValues.Concat(optionalParameterValues).ToArray());
+        }
+
+        private object GetMemberValue(string memberName)
+        {
+            // There is for sure only one member with that name.
+            switch (typeof(T).GetMember(memberName).Single())
+            {
+                case PropertyInfo p: return p.GetValue(_obj);
+                case FieldInfo f: return f.GetValue(_obj);
+                default: return default; // Makes the compiler very happy.
+            }
+        }
+
+        internal class IgnoreCase : IEquatable<string>
+        {
+            public string Value { get; set; }
+            public bool Equals(string other) => StringComparer.OrdinalIgnoreCase.Equals(Value, other);
+            public override bool Equals(object obj) => obj is IgnoreCase ic && Equals(ic.Value);
+            public override int GetHashCode() => StringComparer.OrdinalIgnoreCase.GetHashCode(Value);
+            public static explicit operator IgnoreCase(string value) => new IgnoreCase { Value = value };
         }
     }
 }
