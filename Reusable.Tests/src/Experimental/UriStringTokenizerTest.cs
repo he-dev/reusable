@@ -13,18 +13,6 @@ namespace Reusable.Experimental
     
     public class UriStringParserTest
     {
-        public static class Patterns
-        {
-            // language=regex
-            public const string Scheme = "[a-z]";
-
-            // language=regex
-            public const string SchemeSuffix = ":";
-
-            // language=regex
-            public const string Path = "[a-z]";
-        }
-
         [Fact]
         public void Can_tokenize_full_URI()
         {
