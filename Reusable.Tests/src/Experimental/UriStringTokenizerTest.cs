@@ -10,7 +10,8 @@ using Xunit;
 namespace Reusable.Experimental
 {
     using static UriToken;
-    
+    using static HtmlToken;
+
     public class UriStringParserTest
     {
         [Fact]
@@ -23,46 +24,57 @@ namespace Reusable.Experimental
             var expectedTokens = new[]
             {
                 Scheme,
-                SchemeSuffix,
+                //SchemeSuffix,
                 AuthorityPrefix,
                 UserInfo,
-                UserInfoSuffix,
+                //UserInfoSuffix,
                 Host,
-                PortPrefix,
+                //PortPrefix,
                 Port,
                 PathPrefix,
                 Path,
-                KeyPrefix,
+                //KeyPrefix,
                 Key,
-                ValuePrefix,
+                //ValuePrefix,
                 Value,
-                KeyPrefix,
+                //KeyPrefix,
                 Key,
-                ValuePrefix,
+                //ValuePrefix,
                 Value,
-                FragmentPrefix,
+                //FragmentPrefix,
                 Fragment
             };
 
             Assert.Equal(expectedTokens, tokens.Select(t => t.Type).ToArray());
 
-            var actual = string.Join("", tokens.Select(t => t.Text));
+            //var actual = string.Join("", tokens.Select(t => t.Text));
 
-            Assert.Equal(uri, actual);
+            Assert.Equal(new[] { "s", "//", "u", "h", "1", "/", "p", "k", "v", "k", "v", "f" }, tokens.Select(t => t.Text).ToArray());
         }
 
         [Theory]
-        [InlineData("s://u@h:1/p?k=v&k=v#f")]
-        [InlineData("s://u@h:1/p?k=v&k=v")]
-        [InlineData("s://u@h:1/p?k=v")]
-        [InlineData("s://u@h:1/p")]
-        [InlineData("s:///p")]
-        public void Can_tokenize_partial_URI(string uri)
+        [InlineData("s://u@h:1/p?k=v&k=v#f", "s//uh1/pkvkvf")]
+        [InlineData("s://u@h:1/p?k=v&k=v", "s//uh1/pkvkv")]
+        [InlineData("s://u@h:1/p?k=v", "s//uh1/pkv")]
+        [InlineData("s://u@h:1/p", "s//uh1/p")]
+        [InlineData("s:///p", "s///p")]
+        public void Can_tokenize_partial_URI(string uri, string expected)
         {
             // Using single letters for faster debugging.
             var tokens = UriStringTokenizer.Tokenize(uri).ToList();
             var actual = string.Join("", tokens.Select(t => t.Text));
-            Assert.Equal(uri, actual);
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void Can_tokenize_authority_and_path()
+        {
+            var uri = "s:///p";
+            var tokens = UriStringTokenizer.Tokenize(uri).ToList();
+            //Assert.Equal(4, tokens.Count);
+            //var actual = string.Join("", tokens.Select(t => t.Text));
+            //Assert.Equal(uri, actual);
+            Assert.Equal(new[] { "s", "//", "/", "p" }, tokens.Select(t => t.Text).ToArray());
         }
 
         [Fact]
@@ -77,81 +89,238 @@ namespace Reusable.Experimental
         }
     }
 
-    public static class Tokenizer
+    public class HtmlStringTokenizerTest
+    {
+        [Fact]
+        public void Can_tokenize_html()
+        {
+            // Using single letters for faster debugging.
+            var uri = "<p>t</p>";
+            var tokens = HtmlStringTokenizer.Tokenize(uri).ToList();
+
+//            var expectedTokens = new[]
+//            {
+//                Scheme,
+//                SchemeSuffix,
+//                AuthorityPrefix,
+//                UserInfo,
+//                UserInfoSuffix,
+//                Host,
+//                PortPrefix,
+//                Port,
+//                PathPrefix,
+//                Path,
+//                KeyPrefix,
+//                Key,
+//                ValuePrefix,
+//                Value,
+//                KeyPrefix,
+//                Key,
+//                ValuePrefix,
+//                Value,
+//                FragmentPrefix,
+//                Fragment
+//            };
+
+            //Assert.Equal(expectedTokens, tokens.Select(t => t.Type).ToArray());
+
+            var actual = string.Join("", tokens.Select(t => t.Text));
+
+            Assert.Equal(uri, actual);
+        }
+    }
+
+//    public static class Tokenizer
+//    {
+//        public static IEnumerable<Token<TToken>> Tokenize<TToken>(string value, IEnumerable<State<TToken>> states, Func<Token<TToken>> createToken)
+//        {
+//            states = states.ToList(); // Materialize states.
+//
+//            var state = states.First();
+//            var token = createToken();
+//            token.Type = state.Next;
+//
+//            foreach (var (oneChar, index) in value.Select((c, i) => (c.ToString(), i)))
+//            {
+//                // The state matches itself.
+//                if (state.IsMatch(oneChar) is var m && m.Success && !m.IsPartial)
+//                {
+//                    token.Text.Append(oneChar);
+//                }
+//                else
+//                {
+//                    yield return token;
+//                    var isMatch = false;
+//                    // Find states where the current one is `Prev`.
+//                    foreach (var next in states.Where(s => s.Prev.Equals(token.Type)))
+//                    {
+//                        // There is a match. Use this state from now on.
+//                        if ((isMatch = next.IsMatch(oneChar, out _)))
+//                        {
+//                            // Initialize the new token.
+//                            token = createToken();
+//                            token.StartIndex = index;
+//                            token.Type = next.Next;
+//                            token.Text.Append(oneChar);
+//                            state = next;
+//                            // Got to the next character.
+//                            break;
+//                        }
+//                    }
+//
+//                    // There was no match. This means the current char is invalid.
+//                    if (!isMatch)
+//                    {
+//                        throw new ArgumentException($"Invalid character at: {index}.");
+//                    }
+//                }
+//            }
+//
+//            // Yield the last token.
+//            if (token.Text.Length > 0)
+//            {
+//                yield return token;
+//            }
+//        }
+//    }
+
+    public static class Tokenizer2
     {
         public static IEnumerable<Token<TToken>> Tokenize<TToken>(string value, IEnumerable<State<TToken>> states, Func<Token<TToken>> createToken)
         {
             states = states.ToList(); // Materialize states.
 
-            var state = states.First();
-            var token = createToken();
-            token.Type = state.Next;
+            var current = states.Take(1).ToList();
 
-            foreach (var (oneChar, index) in value.Select((c, i) => (c.ToString(), i)))
+            var startIndex = 0;
+            var token = new StringBuilder();
+
+            for (var i = 0; i < value.Length; i++)
             {
                 // The state matches itself.
-                if (state.IsMatch(oneChar))
+                token.Append(value[i]);
+
+                if (current.Any(s => s.Matcher.IsMatch(token.ToString())))
                 {
-                    token.Text.Append(oneChar);
+                    continue;
                 }
                 else
                 {
-                    yield return token;
-                    var isMatch = false;
-                    // Find states where the current one is `Prev`.
-                    foreach (var next in states.Where(s => s.Prev.Equals(token.Type)))
-                    {
-                        // There is a match. Use this state from now on.
-                        if ((isMatch = next.IsMatch(oneChar)))
-                        {
-                            // Initialize the new token.
-                            token = createToken();
-                            token.StartIndex = index;
-                            token.Type = next.Next;
-                            token.Text.Append(oneChar);
-                            state = next;
-                            // Got to the next character.
-                            break;
-                        }
-                    }
+                    // Backtrack. Undo the last character.
+                    token.Length--;
 
-                    // There was no match. This means the current char is invalid.
-                    if (!isMatch)
+                    var match = current.Single(s => s.Matcher.IsMatch(token.ToString()));
+
+                    // Yield the current token.
+                    var t = createToken();
+                    t.StartIndex = startIndex;
+                    t.Text = match.Matcher.GetValue(token.ToString());
+                    t.Type = match.Next;
+                    yield return t;
+
+                    // Initialize a new token.
+                    startIndex = i;
+                    token = new StringBuilder().Append(value[i]);
+
+                    // Find states where the current one is `Prev`.
+                    var next = states.Where(s => (!s.IsToSelf || s.Matcher.AllowConsecutive) && s.Prev.Equals(match.Next) && s.Matcher.IsMatch(token.ToString())).ToList();
+                    if (next.Any())
                     {
-                        throw new ArgumentException($"Invalid character at: {index}.");
+                        // Got to the next character.
+                        current = next;
+                    }
+                    else
+                    {
+                        throw new ArgumentException($"Invalid character at: {i}.");
                     }
                 }
             }
-            
+
             // Yield the last token.
-            if (token.Text.Length > 0)
+            if (token.Length > 0)
             {
-                yield return token;
+                var match = current.Single(s => s.Matcher.IsMatch(token.ToString()));
+
+                var t = createToken();
+                t.StartIndex = startIndex;
+                t.Text = match.Matcher.GetValue(token.ToString());
+                t.Type = match.Next;
+                yield return t;
             }
         }
     }
 
-    public class PatternAttribute : Attribute
+    public abstract class MatcherAttribute : Attribute
+    {
+        public bool AllowConsecutive { get; set; }
+
+        public abstract bool IsMatch(string value);
+
+        public abstract string GetValue(string value);
+    }
+
+    public class PatternAttribute : MatcherAttribute
     {
         private readonly string _pattern;
-        public PatternAttribute([RegexPattern] string pattern) => _pattern = pattern;
-        public bool IsMatch(string value) => Regex.IsMatch(value, _pattern);
+        public PatternAttribute([RegexPattern] string pattern) => _pattern = $"^{pattern}$";
+
+        public override bool IsMatch(string value)
+        {
+            return Regex.IsMatch(value, _pattern);
+        }
+
+        public override string GetValue(string value)
+        {
+            return Regex.Match(value, _pattern).Groups[1].Value;
+        }
+    }
+
+    public class ExactAttribute : MatcherAttribute
+    {
+        private readonly string _pattern;
+        public ExactAttribute(string pattern) => _pattern = pattern;
+
+        public override bool IsMatch(string value)
+        {
+            if (value.Length > _pattern.Length) return false;
+
+            var matchCount = 0;
+
+            for (var i = 0; i < value.Length; i++)
+            {
+                if (!value[i].Equals(_pattern[i]))
+                {
+                    break;
+                }
+
+                matchCount++;
+            }
+
+            return matchCount > 0;
+        }
+
+        public override string GetValue(string value)
+        {
+            return _pattern;
+        }
     }
 
     public class State<TToken>
     {
+        public State(TToken prev, TToken next)
+        {
+            Prev = prev;
+            Next = next;
+            Matcher = typeof(TToken).GetField(Next.ToString()).GetCustomAttribute<MatcherAttribute>();
+        }
+
         public TToken Prev { get; set; }
 
         public TToken Next { get; set; }
 
-        public bool IsMatch(string value)
-        {
-            return
-                typeof(TToken)
-                    .GetField(Next.ToString())
-                    .GetCustomAttribute<PatternAttribute>()
-                    .IsMatch(value);
-        }
+        public bool IsToSelf => Prev.Equals(Next);
+
+        public MatcherAttribute Matcher { get; }
 
         public override string ToString() => $"<-- {Prev} | {Next} -->";
     }
@@ -160,7 +329,7 @@ namespace Reusable.Experimental
     {
         public int StartIndex { get; set; }
 
-        public StringBuilder Text { get; set; } = new StringBuilder();
+        public string Text { get; set; }
 
         public TToken Type { get; set; }
 
@@ -197,86 +366,163 @@ namespace Reusable.Experimental
 
             // transitions
 
-            (Scheme, SchemeSuffix),
-            (SchemeSuffix, Path),
-            (SchemeSuffix, AuthorityPrefix),
+            //(Scheme, SchemeSuffix),
+            //(SchemeSuffix, Path),
+            //(SchemeSuffix, AuthorityPrefix),
             (AuthorityPrefix, UserInfo),
             (AuthorityPrefix, Host),
-            (UserInfo, UserInfoSuffix),
-            (UserInfoSuffix, Host),
+            (AuthorityPrefix, PathPrefix),
+            //(UserInfo, UserInfoSuffix),
+            //(UserInfoSuffix, Host),
             (Host, PathPrefix),
-            (Host, PortPrefix),
-            (PortPrefix, Port),
+            //(Host, PortPrefix),
+            //(PortPrefix, Port),
             (Port, PathPrefix),
             (PathPrefix, Path),
-            (Path, KeyPrefix),
-            (KeyPrefix, Key),
-            (Key, ValuePrefix),
-            (ValuePrefix, Value),
-            (Value, KeyPrefix),
-            (Key, FragmentPrefix),
-            (Value, FragmentPrefix),
-            (FragmentPrefix, Fragment)
+            //(Path, KeyPrefix),
+            //(KeyPrefix, Key),
+            //(Key, ValuePrefix),
+            //(ValuePrefix, Value),
+            //(Value, KeyPrefix),
+            //(Key, FragmentPrefix),
+            //(Value, FragmentPrefix),
+            //(FragmentPrefix, Fragment)
+
+            (UserInfo, Host),
+            (Host, Port),
+            (Scheme, AuthorityPrefix),
+            (Path, Key),
+            (Key, Value),
+            (Value, Key),
+            (Path, Fragment),
+            (Key, Fragment),
+            (Value, Fragment),
 
             // --
-        }.Select(t => new State<UriToken> { Prev = t.Prev, Next = t.Next, }).ToList();
+        }.Select(t => new State<UriToken>(t.Prev, t.Next)).ToList();
 
         public static IEnumerable<Token<UriToken>> Tokenize(string value)
         {
-            return Tokenizer.Tokenize(value, States, () => new Token<UriToken>());
+            return Tokenizer2.Tokenize(value, States, () => new Token<UriToken>());
         }
     }
 
     public enum UriToken
     {
-        [Pattern(@"[a-z]")]
+        [Pattern(@"([a-z]+):?")]
         Scheme,
 
-        [Pattern(@":")]
-        SchemeSuffix,
+//        [Pattern(@":")]
+//        SchemeSuffix,
 
-        [Pattern(@"\/")]
+        //[Pattern(@"\/")]
+        [Exact("//")]
         AuthorityPrefix,
 
-        [Pattern(@"[a-z]")]
+        [Pattern(@"([a-z]+)@?")]
         UserInfo,
 
-        [Pattern(@"@")]
-        UserInfoSuffix,
+//        [Exact(@"@")]
+//        UserInfoSuffix,
 
-        [Pattern(@"[a-z]")]
+        [Pattern(@"([a-z]+)")]
         Host,
 
-        [Pattern(@":")]
-        PortPrefix,
+//        [Exact(@":")]
+//        PortPrefix,
 
-        [Pattern(@"[0-9]")]
+        [Pattern(@":([0-9]*)")]
         Port,
 
-        [Pattern(@"\/")]
+        [Exact(@"/")]
         PathPrefix,
 
-        [Pattern(@"[a-z]")]
+        [Pattern(@"([a-z]+)")]
         Path,
 
         //QueryPrefix,
 
-        [Pattern(@"[\?\&]")]
-        KeyPrefix,
+//        [Pattern(@"[\?\&]")]
+//        KeyPrefix,
 
-        [Pattern(@"[a-z]")]
+        [Pattern(@"[\?\&]([a-z]*)", AllowConsecutive = true)]
         Key,
 
-        [Pattern(@"=")]
-        ValuePrefix,
+//        [Exact(@"=")]
+//        ValuePrefix,
 
-        [Pattern(@"[a-z]")]
+        [Pattern(@"=([a-z]*)")]
         Value,
 
-        [Pattern(@"#")]
-        FragmentPrefix,
+//        [Exact(@"#")]
+//        FragmentPrefix,
 
-        [Pattern(@"[a-z]")]
+        [Pattern(@"#([a-z]*)")]
         Fragment,
+    }
+
+    public static class HtmlStringTokenizer
+    {
+        /*
+         
+         scheme:[//[userinfo@]host[:port]]path[?key=value&key=value][#fragment]
+                [ ----- authority ----- ]     [ ----- query ------ ]
+          
+         scheme: ------------------------- path -------------------------  --------- UriString
+                \                         /    \                         /\         /
+                 // --------- host ---- '/'     ?key ------ &key ------ /  #fragment
+                   \         /    \     /           \      /    \      /
+                    userinfo@      :port             =value      =value             
+          
+        */
+
+        public static readonly ICollection<State<HtmlToken>> States = new (HtmlToken Prev, HtmlToken Next)[]
+        {
+            // self
+
+            (TagOpen, TagOpen),
+            (TagClose, TagClose),
+            (ClosingTagOpen, ClosingTagOpen),
+            (TagName, TagName),
+            (Text, Text),
+
+
+            // transitions
+
+            (TagOpen, TagName),
+            (TagName, TagClose),
+            (TagName, ClosingTagOpen),
+            (TagClose, Text),
+            (Text, TagOpen),
+            (Text, ClosingTagOpen),
+            (ClosingTagOpen, Text),
+            (Text, TagClose),
+
+
+            // --
+        }.Select(t => new State<HtmlToken>(t.Prev, t.Next)).ToList();
+
+        public static IEnumerable<Token<HtmlToken>> Tokenize(string value)
+        {
+            return Tokenizer2.Tokenize(value, States, () => new Token<HtmlToken>());
+        }
+    }
+
+    public enum HtmlToken
+    {
+        [Exact(@"<")]
+        TagOpen,
+
+        [Exact(@">")]
+        TagClose,
+
+        [Exact(@"</")]
+        ClosingTagOpen,
+
+        [Pattern(@"([a-z]+)")]
+        TagName,
+
+        [Pattern(@"([a-z]+)")]
+        Text,
     }
 }
