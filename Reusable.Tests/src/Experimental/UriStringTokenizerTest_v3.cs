@@ -144,8 +144,6 @@ namespace Reusable.Experimental.TokenizerV3
 
         private (bool Success, string Token, int Length) MatchQuoted(string value, int offset)
         {
-            if (value[offset] == '"') { }
-
             var token = new StringBuilder();
             var escapeSequence = false;
             var quote = false;
@@ -325,8 +323,8 @@ namespace Reusable.Experimental.TokenizerV3.UriString
             new State<UriToken>(Host, Port, Path),
             new State<UriToken>(Port, Path),
             new State<UriToken>(Path, Key, Fragment),
-            new State<UriToken>(Key, UriToken.Value, Fragment),
-            new State<UriToken>(UriToken.Value, Key, Fragment),
+            new State<UriToken>(Key, Value, Fragment),
+            new State<UriToken>(Value, Key, Fragment),
             new State<UriToken>(Fragment, Fragment),
         };
 
