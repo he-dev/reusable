@@ -6,78 +6,41 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using Reusable.Extensions;
 using Xunit;
 
 namespace Reusable.Experimental.TokenizerV3
 {
     using static UriToken;
+    using static CommandLineToken;
     using static HtmlToken;
 
     public class UriStringParserTest
     {
-        [Fact]
-        public void Can_tokenize_full_URI()
-        {
-            // Using single letters for faster debugging.
-            var uri = "s://u@h:1/p?k=v&k=v#f";
-            var tokens = UriStringTokenizer.Tokenize(uri).ToList();
-
-            var expectedTokens = new[]
-            {
-                Scheme,
-                AuthorityPrefix,
-                UserInfo,
-                Host,
-                Port,
-                Path,
-                Key,
-                Value,
-                Key,
-                Value,
-                Fragment
-            };
-
-            Assert.Equal(expectedTokens, tokens.Select(t => t.Type).ToArray());
-
-            //var actual = string.Join("", tokens.Select(t => t.Text));
-
-            Assert.Equal("s//uh1/pkvkvf", string.Join("", tokens.Select(t => t.Text)));
-        }
+        private static readonly ITokenizer<UriToken> Tokenizer = new UriStringTokenizer();
 
         [Theory]
         [InlineData(
-            "scheme://user@host:123/pa/th?key-1=val-1&key-2=val-2#f", 
+            "scheme://user@host:123/pa/th?key-1=val-1&key-2=val-2#f",
             "scheme //user host 123/pa/th key-1 val-1 key-2 val-2 f")]
         [InlineData(
-            "scheme://user@host:123/pa/th?key-1=val-1&key-2=val-2", 
+            "scheme://user@host:123/pa/th?key-1=val-1&key-2=val-2",
             "scheme //user host 123/pa/th key-1 val-1 key-2 val-2")]
         [InlineData(
-            "scheme://user@host:123/pa/th?key-1=val-1", 
+            "scheme://user@host:123/pa/th?key-1=val-1",
             "scheme //user host 123/pa/th key-1 val-1")]
         [InlineData(
-            "scheme://user@host:123/pa/th", 
+            "scheme://user@host:123/pa/th",
             "scheme //user host 123/pa/th")]
         [InlineData(
             "scheme:///pa/th",
             "scheme ///pa/th"
-            )]
-        public void Can_tokenize_partial_URI(string uri, string expected)
+        )]
+        public void Can_tokenize_URIs(string uri, string expected)
         {
-            // Using single letters for faster debugging.
-            var tokens = UriStringTokenizer.Tokenize(uri).ToList();
+            var tokens = Tokenizer.Tokenize(uri).ToList();
             var actual = string.Join("", tokens.Select(t => t.Text));
             Assert.Equal(expected.Replace(" ", string.Empty), actual);
-        }
-
-        [Fact]
-        public void Can_tokenize_authority_and_path()
-        {
-            var uri = "s:///p";
-            var tokens = UriStringTokenizer.Tokenize(uri).ToList();
-            //Assert.Equal(4, tokens.Count);
-            //var actual = string.Join("", tokens.Select(t => t.Text));
-            //Assert.Equal(uri, actual);
-            Assert.Equal(new[] { "s", "//", "/p" }, tokens.Select(t => t.Text).ToArray());
         }
 
         [Fact]
@@ -87,9 +50,54 @@ namespace Reusable.Experimental.TokenizerV3
             var uri = "s://:u@h:1/p?k=v&k=v#f";
             //             ^ - invalid character
 
-            var ex = Assert.Throws<ArgumentException>(() => UriStringTokenizer.Tokenize(uri).ToList());
+            var ex = Assert.Throws<ArgumentException>(() => Tokenizer.Tokenize(uri).ToList());
             Assert.Equal("Invalid character ':' at 4.", ex.Message);
         }
+    }
+
+    public class CommandLineTokenizerTest
+    {
+        private static readonly ITokenizer<CommandLineToken> Tokenizer = new CommandLineTokenizer();
+
+        [Theory]
+        [InlineData(
+            "command -argument value -argument",
+            "command  argument value argument")]
+        [InlineData(
+            "command -argument value value",
+            "command  argument value value")]
+        [InlineData(
+            "command -argument:value,value",
+            "command  argument value value")]
+        [InlineData(
+            "command -argument=value",
+            "command  argument value")]
+        [InlineData(
+            "command -argument:value,value",
+            "command  argument value value")]
+        [InlineData(
+            @"command -argument=""foo--bar"",value -argument value",
+            @"command  argument   foo--bar   value  argument value")]
+        [InlineData(
+            @"command -argument=""foo--\""bar"",value -argument value",
+            @"command  argument   foo-- ""bar   value  argument value")]
+        public void Can_tokenize_command_lines(string uri, string expected)
+        {
+            var tokens = Tokenizer.Tokenize(uri).ToList();
+            var actual = string.Join("", tokens.Select(t => t.Text));
+            Assert.Equal(expected.Replace(" ", string.Empty), actual);
+        }
+
+//        [Fact]
+//        public void Throws_when_invalid_character()
+//        {
+//            // Using single letters for faster debugging.
+//            var uri = "s://:u@h:1/p?k=v&k=v#f";
+//            //             ^ - invalid character
+//
+//            var ex = Assert.Throws<ArgumentException>(() => Tokenizer.Tokenize(uri).ToList());
+//            Assert.Equal("Invalid character ':' at 4.", ex.Message);
+//        }
     }
 
     public class HtmlStringTokenizerTest
@@ -97,24 +105,50 @@ namespace Reusable.Experimental.TokenizerV3
         [Fact]
         public void Can_tokenize_html()
         {
-            // Using single letters for faster debugging.
-            var html = "<p>before<!-- comment -->after</p>";
-            var tokens = HtmlStringTokenizer.Tokenize(html).ToList();
-
-            Assert.Equal(11, tokens.Count);
-            var actual = string.Join("", tokens.Select(t => t.Text));
-
-            Assert.Equal(html, actual);
+//            // Using single letters for faster debugging.
+//            var html = "<p>before<!-- comment -->after</p>";
+//            var tokens = HtmlStringTokenizer.Tokenize(html).ToList();
+//
+//            Assert.Equal(11, tokens.Count);
+//            var actual = string.Join("", tokens.Select(t => t.Text));
+//
+//            Assert.Equal(html, actual);
         }
     }
 
-    public static class Tokenizer
+    public static class StateTransitionMapper
     {
-        public static IEnumerable<Token<TToken>> Tokenize<TToken>(string value, IEnumerable<State<TToken>> states)
+        public static IImmutableDictionary<TToken, IImmutableList<State<TToken>>> CreateTransitionMap<TToken>(IImmutableList<State<TToken>> states) where TToken : Enum
         {
-            states = states.ToList(); // Materialize states.
+            return states.Aggregate(ImmutableDictionary<TToken, IImmutableList<State<TToken>>>.Empty, (mappings, state) =>
+            {
+                var nextStates =
+                    from n in state.Next
+                    join s in states on n equals s.Token
+                    select s;
 
-            var current = states.Take(1).ToList();
+                return mappings.Add(state.Token, nextStates.ToImmutableList());
+            });
+        }
+    }
+
+    public interface ITokenizer<TToken> where TToken : Enum
+    {
+        IEnumerable<Token<TToken>> Tokenize(string value);
+    }
+
+    public class Tokenizer<TToken> : ITokenizer<TToken> where TToken : Enum
+    {
+        private readonly IImmutableDictionary<TToken, IImmutableList<State<TToken>>> _transitions;
+
+        public Tokenizer(IImmutableList<State<TToken>> states)
+        {
+            _transitions = StateTransitionMapper.CreateTransitionMap(states);
+        }
+
+        public IEnumerable<Token<TToken>> Tokenize(string value)
+        {
+            var current = _transitions[default];
 
             for (var i = 0; i < value.Length;)
             {
@@ -125,30 +159,25 @@ namespace Reusable.Experimental.TokenizerV3
                     where token.Length > 0
                     select (state, token);
 
-                matches = matches.ToList(); // just for debugging
-
                 if (matches.FirstOrDefault() is var match && match.token is null)
                 {
                     throw new ArgumentException($"Invalid character '{value[i]}' at {i}.");
                 }
                 else
                 {
-                    yield return match.token;
+                    if (match.state.IsToken)
+                    {
+                        yield return match.token;
+                    }
 
-                    // Advance by token's length.
                     i += match.token.Length;
-
-                    // Get states that follow.
-                    var nextStates =
-                        from next in match.state.Next
-                        join state in states on next equals state.Token
-                        select state;
-
-                    current = nextStates.ToList();
+                    current = _transitions[match.state.Token];
                 }
             }
         }
     }
+
+    public delegate (bool Success, string Token, int Length) MatchDelegate(string value, int offset);
 
     public abstract class MatcherAttribute : Attribute
     {
@@ -186,52 +215,131 @@ namespace Reusable.Experimental.TokenizerV3
         }
     }
 
-    public class State<TToken>
+    // "foo \"bar\" baz"
+    // ^ starts here   ^ ends here
+    public class QTextAttribute : RegexAttribute
     {
+        public static readonly IImmutableSet<char> Escapables = new[] { '\\', '"' }.ToImmutableHashSet();
+
+        public QTextAttribute([RegexPattern] string pattern) : base(pattern) { }
+
+        public override (bool Success, string Token, int Length) Match(string value, int offset)
+        {
+            return
+                value[offset] == '"'
+                    ? MatchQuoted(value, offset)
+                    : base.Match(value, offset);
+        }
+
+        private (bool Success, string Token, int Length) MatchQuoted(string value, int offset)
+        {
+            if (value[offset] == '"') { }
+
+            var token = new StringBuilder();
+            var escapeSequence = false;
+            var quote = false;
+
+            for (var i = offset; i < value.Length; i++)
+            {
+                var c = value[i];
+
+                switch (c)
+                {
+                    case '"' when !escapeSequence:
+
+                        switch (i == offset)
+                        {
+                            // Entering quoted text.
+                            case true:
+                                quote = !quote;
+                                continue; // Don't eat quotes.
+
+                            // End of quoted text.
+                            case false:
+                                return (true, token.ToString(), i - offset + 1);
+                        }
+
+                        break; // Makes the compiler happy.
+
+                    case '\\' when !escapeSequence:
+                        escapeSequence = true;
+                        break;
+
+                    default:
+
+                        switch (escapeSequence)
+                        {
+                            case true:
+                                switch (Escapables.Contains(c))
+                                {
+                                    case true:
+                                        // Remove escape char.
+                                        token.Length--;
+                                        break;
+                                }
+
+                                // Eat current char.
+                                //token.Append(c);
+                                escapeSequence = false;
+                                break;
+
+                            case false:
+                                //token.Append(c);
+                                break;
+                        }
+
+                        break;
+                }
+
+                token.Append(c);
+            }
+
+            return (false, token.ToString(), 0);
+        }
+    }
+
+    public class State<TToken> where TToken : Enum
+    {
+        private readonly MatchDelegate _match;
+
         public State(TToken token, params TToken[] next)
         {
             Token = token;
-            // Always add self-transition.
-            Next = next.Prepend(token).ToList();
-            Matcher = 
+            Next = next;
+            _match =
                 typeof(TToken)
                     .GetField(token.ToString())
-                    .GetCustomAttribute<MatcherAttribute>();
+                    .GetCustomAttribute<MatcherAttribute>() is MatcherAttribute matcher
+                    ? (MatchDelegate)(matcher.Match)
+                    : (MatchDelegate)((value, offset) => (false, string.Empty, 0));
         }
 
-        public TToken Token { get; set; }
+        public bool IsToken { get; set; } = true;
 
-        public IEnumerable<TToken> Next { get; set; }
+        public TToken Token { get; }
 
-        public MatcherAttribute Matcher { get; }
+        public IEnumerable<TToken> Next { get; }
 
         public Token<TToken> Consume(string value, int offset)
         {
-            var (success, text, length) = Matcher.Match(value, offset);
-
-            return
-                success
-                    ? new Token<TToken>
-                    {
-                        Type = Token,
-                        Index = offset,
-                        Length = length,
-                        Text = text
-                    }
-                    : new Token<TToken>
-                    {
-                        Type = Token,
-                        Index = offset,
-                        Length = 0,
-                        Text = string.Empty
-                    };
+            return new Token<TToken>(_match(value, offset))
+            {
+                Type = Token,
+                Index = offset
+            };
         }
 
         public override string ToString() => $"{Token} --> [{string.Join(", ", Next)}]";
     }
 
-    public class Token<TToken>
+    public class Token<TToken> where TToken : Enum
     {
+        public Token((bool Success, string Token, int Length) match)
+        {
+            Length = match.Success ? match.Length : 0;
+            Text = match.Success ? match.Token : string.Empty;
+        }
+
         public int Index { get; set; }
 
         public int Length { get; set; }
@@ -243,7 +351,7 @@ namespace Reusable.Experimental.TokenizerV3
         public override string ToString() => $"{Index}: {Text} ({Type})";
     }
 
-    public static class UriStringTokenizer
+    public class UriStringTokenizer : Tokenizer<UriToken>
     {
         /*
          
@@ -258,34 +366,34 @@ namespace Reusable.Experimental.TokenizerV3
           
         */
 
-        public static readonly ICollection<State<UriToken>> States = new[]
+        private static readonly State<UriToken>[] States =
         {
+            new State<UriToken>(default, Scheme),
             new State<UriToken>(Scheme, AuthorityPrefix, Path),
             new State<UriToken>(AuthorityPrefix, UserInfo, Host, Path),
             new State<UriToken>(UserInfo, Host),
             new State<UriToken>(Host, Port, Path),
             new State<UriToken>(Port, Path),
             new State<UriToken>(Path, Key, Fragment),
-            new State<UriToken>(Key, Value, Fragment),
-            new State<UriToken>(Value, Key, Fragment),
+            new State<UriToken>(Key, UriToken.Value, Fragment),
+            new State<UriToken>(UriToken.Value, Key, Fragment),
             new State<UriToken>(Fragment, Fragment),
         };
 
-        public static IEnumerable<Token<UriToken>> Tokenize(string value)
-        {
-            return Tokenizer.Tokenize(value, States);
-        }
+        public UriStringTokenizer() : base(States.ToImmutableList()) { }
     }
 
     public enum UriToken
     {
+        Start = 0,
+
         [Regex(@"([a-z0-9\+\.\-]+):")]
         Scheme,
 
         [Const("//")]
         AuthorityPrefix,
 
-        [Regex(@"([a-z0-9\.\-_:]+)@")]
+        [Regex(@"([a-z0-9_][a-z0-9\.\-_:]+)@")]
         UserInfo,
 
         [Regex(@"([a-z0-9\.\-_]+)")]
@@ -293,8 +401,8 @@ namespace Reusable.Experimental.TokenizerV3
 
         [Regex(@":([0-9]*)")]
         Port,
-        
-        [Regex(@"(\/?[a-z0-9\/:\.\-\%_@]+)")]
+
+        [Regex(@"(\/?[a-z_][a-z0-9\/:\.\-\%_@]+)")]
         Path,
 
         [Regex(@"[\?\&\;]([a-z0-9\-]*)")]
@@ -307,6 +415,52 @@ namespace Reusable.Experimental.TokenizerV3
         Fragment,
     }
 
+    public enum CommandLineToken
+    {
+        Start = 0,
+
+        [Regex(@"\s*(\?|[a-z0-9][a-z0-9\-_]*)")]
+        Command,
+
+        [Regex(@"\s*[\-\.\/]([a-z0-9][a-z\-_]*)")]
+        Argument,
+
+        [Regex(@"[\=\:\,\s]")]
+        ValueBegin,
+
+        [QText(@"([a-z0-9\.\;\-]*)")]
+        Value,
+    }
+
+    public class CommandLineTokenizer : Tokenizer<CommandLineToken>
+    {
+        /*
+ 
+         command [-argument][=value][,value]
+         
+         command --------------------------- CommandLine
+                \                           /
+                 -argument ------   ------ /    
+                          \      / \      /
+                           =value   ,value
+                    
+        */
+
+        private static readonly State<CommandLineToken>[] States =
+        {
+            new State<CommandLineToken>(default, Command),
+            new State<CommandLineToken>(Command, Argument),
+            new State<CommandLineToken>(Argument, Argument, ValueBegin),
+            new State<CommandLineToken>(ValueBegin, CommandLineToken.Value) { IsToken = false },
+            new State<CommandLineToken>(CommandLineToken.Value, Argument, ValueBegin),
+            //new State<CommandLineToken>(ValueQuotedBegin, ValueQuoted),
+            //new State<CommandLineToken>(ValueQuoted, ValueQuotedEnd),
+            //new State<CommandLineToken>(ValueQuoted, Argument, ValuePlain, ValueQuotedBegin),
+        };
+
+        public CommandLineTokenizer() : base(States.ToImmutableList()) { }
+    }
+
     public static class HtmlStringTokenizer
     {
         public static readonly ICollection<State<HtmlToken>> States = new[]
@@ -317,10 +471,10 @@ namespace Reusable.Experimental.TokenizerV3
             new State<HtmlToken>(Text, TagOpen),
         };
 
-        public static IEnumerable<Token<HtmlToken>> Tokenize(string value)
-        {
-            return Tokenizer.Tokenize(value, States);
-        }
+//        public static IEnumerable<Token<HtmlToken>> Tokenize(string value)
+//        {
+//            return Tokenizer.Tokenize(value, States);
+//        }
     }
 
     public enum HtmlToken
