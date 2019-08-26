@@ -11,95 +11,6 @@ using Xunit;
 
 namespace Reusable.Experimental.TokenizerV3
 {
-    using static UriToken;
-    using static CommandLineToken;
-    using static HtmlToken;
-
-    public class UriStringParserTest
-    {
-        private static readonly ITokenizer<UriToken> Tokenizer = new UriStringTokenizer();
-
-        [Theory]
-        [InlineData(
-            "scheme://user@host:123/pa/th?key-1=val-1&key-2=val-2#f",
-            "scheme //user host 123/pa/th key-1 val-1 key-2 val-2 f")]
-        [InlineData(
-            "scheme://user@host:123/pa/th?key-1=val-1&key-2=val-2",
-            "scheme //user host 123/pa/th key-1 val-1 key-2 val-2")]
-        [InlineData(
-            "scheme://user@host:123/pa/th?key-1=val-1",
-            "scheme //user host 123/pa/th key-1 val-1")]
-        [InlineData(
-            "scheme://user@host:123/pa/th",
-            "scheme //user host 123/pa/th")]
-        [InlineData(
-            "scheme:///pa/th",
-            "scheme ///pa/th"
-        )]
-        public void Can_tokenize_URIs(string uri, string expected)
-        {
-            var tokens = Tokenizer.Tokenize(uri).ToList();
-            var actual = string.Join("", tokens.Select(t => t.Text));
-            Assert.Equal(expected.Replace(" ", string.Empty), actual);
-        }
-
-        [Fact]
-        public void Throws_when_invalid_character()
-        {
-            // Using single letters for faster debugging.
-            var uri = "s://:u@h:1/p?k=v&k=v#f";
-            //             ^ - invalid character
-
-            var ex = Assert.Throws<ArgumentException>(() => Tokenizer.Tokenize(uri).ToList());
-            Assert.Equal("Invalid character ':' at 4.", ex.Message);
-        }
-    }
-
-    public class CommandLineTokenizerTest
-    {
-        private static readonly ITokenizer<CommandLineToken> Tokenizer = new CommandLineTokenizer();
-
-        [Theory]
-        [InlineData(
-            "command -argument value -argument",
-            "command  argument value argument")]
-        [InlineData(
-            "command -argument value value",
-            "command  argument value value")]
-        [InlineData(
-            "command -argument:value,value",
-            "command  argument value value")]
-        [InlineData(
-            "command -argument=value",
-            "command  argument value")]
-        [InlineData(
-            "command -argument:value,value",
-            "command  argument value value")]
-        [InlineData(
-            @"command -argument=""foo--bar"",value -argument value",
-            @"command  argument   foo--bar   value  argument value")]
-        [InlineData(
-            @"command -argument=""foo--\""bar"",value -argument value",
-            @"command  argument   foo-- ""bar   value  argument value")]
-        public void Can_tokenize_command_lines(string uri, string expected)
-        {
-            var tokens = Tokenizer.Tokenize(uri).ToList();
-            var actual = string.Join("", tokens.Select(t => t.Text));
-            Assert.Equal(expected.Replace(" ", string.Empty), actual);
-        }
-
-//        [Fact]
-//        public void Throws_when_invalid_character()
-//        {
-//            // Using single letters for faster debugging.
-//            var uri = "s://:u@h:1/p?k=v&k=v#f";
-//            //             ^ - invalid character
-//
-//            var ex = Assert.Throws<ArgumentException>(() => Tokenizer.Tokenize(uri).ToList());
-//            Assert.Equal("Invalid character ':' at 4.", ex.Message);
-//        }
-    }
-
     public class HtmlStringTokenizerTest
     {
         [Fact]
@@ -278,13 +189,7 @@ namespace Reusable.Experimental.TokenizerV3
                                         break;
                                 }
 
-                                // Eat current char.
-                                //token.Append(c);
                                 escapeSequence = false;
-                                break;
-
-                            case false:
-                                //token.Append(c);
                                 break;
                         }
 
@@ -350,6 +255,51 @@ namespace Reusable.Experimental.TokenizerV3
 
         public override string ToString() => $"{Index}: {Text} ({Type})";
     }
+}
+
+namespace Reusable.Experimental.TokenizerV3.UriString
+{
+    using static UriToken;
+
+    public class UriStringParserTest
+    {
+        private static readonly ITokenizer<UriToken> Tokenizer = new UriStringTokenizer();
+
+        [Theory]
+        [InlineData(
+            "scheme://user@host:123/pa/th?key-1=val-1&key-2=val-2#f",
+            "scheme //user host 123/pa/th key-1 val-1 key-2 val-2 f")]
+        [InlineData(
+            "scheme://user@host:123/pa/th?key-1=val-1&key-2=val-2",
+            "scheme //user host 123/pa/th key-1 val-1 key-2 val-2")]
+        [InlineData(
+            "scheme://user@host:123/pa/th?key-1=val-1",
+            "scheme //user host 123/pa/th key-1 val-1")]
+        [InlineData(
+            "scheme://user@host:123/pa/th",
+            "scheme //user host 123/pa/th")]
+        [InlineData(
+            "scheme:///pa/th",
+            "scheme ///pa/th"
+        )]
+        public void Can_tokenize_URIs(string uri, string expected)
+        {
+            var tokens = Tokenizer.Tokenize(uri).ToList();
+            var actual = string.Join("", tokens.Select(t => t.Text));
+            Assert.Equal(expected.Replace(" ", string.Empty), actual);
+        }
+
+        [Fact]
+        public void Throws_when_invalid_character()
+        {
+            // Using single letters for faster debugging.
+            var uri = "s://:u@h:1/p?k=v&k=v#f";
+            //             ^ - invalid character
+
+            var ex = Assert.Throws<ArgumentException>(() => Tokenizer.Tokenize(uri).ToList());
+            Assert.Equal("Invalid character ':' at 4.", ex.Message);
+        }
+    }
 
     public class UriStringTokenizer : Tokenizer<UriToken>
     {
@@ -414,6 +364,56 @@ namespace Reusable.Experimental.TokenizerV3
         [Regex(@"#([a-z]*)")]
         Fragment,
     }
+}
+
+namespace Reusable.Experimental.TokenizerV3.CommandLine
+{
+    using static CommandLineToken;
+
+    public class CommandLineTokenizerTest
+    {
+        private static readonly ITokenizer<CommandLineToken> Tokenizer = new CommandLineTokenizer();
+
+        [Theory]
+        [InlineData(
+            "command -argument value -argument",
+            "command  argument value argument")]
+        [InlineData(
+            "command -argument value value",
+            "command  argument value value")]
+        [InlineData(
+            "command -argument:value,value",
+            "command  argument value value")]
+        [InlineData(
+            "command -argument=value",
+            "command  argument value")]
+        [InlineData(
+            "command -argument:value,value",
+            "command  argument value value")]
+        [InlineData(
+            @"command -argument=""foo--bar"",value -argument value",
+            @"command  argument   foo--bar   value  argument value")]
+        [InlineData(
+            @"command -argument=""foo--\""bar"",value -argument value",
+            @"command  argument   foo-- ""bar   value  argument value")]
+        public void Can_tokenize_command_lines(string uri, string expected)
+        {
+            var tokens = Tokenizer.Tokenize(uri).ToList();
+            var actual = string.Join("", tokens.Select(t => t.Text));
+            Assert.Equal(expected.Replace(" ", string.Empty), actual);
+        }
+
+//        [Fact]
+//        public void Throws_when_invalid_character()
+//        {
+//            // Using single letters for faster debugging.
+//            var uri = "s://:u@h:1/p?k=v&k=v#f";
+//            //             ^ - invalid character
+//
+//            var ex = Assert.Throws<ArgumentException>(() => Tokenizer.Tokenize(uri).ToList());
+//            Assert.Equal("Invalid character ':' at 4.", ex.Message);
+//        }
+    }
 
     public enum CommandLineToken
     {
@@ -451,44 +451,44 @@ namespace Reusable.Experimental.TokenizerV3
             new State<CommandLineToken>(default, Command),
             new State<CommandLineToken>(Command, Argument),
             new State<CommandLineToken>(Argument, Argument, ValueBegin),
-            new State<CommandLineToken>(ValueBegin, CommandLineToken.Value) { IsToken = false },
-            new State<CommandLineToken>(CommandLineToken.Value, Argument, ValueBegin),
-            //new State<CommandLineToken>(ValueQuotedBegin, ValueQuoted),
-            //new State<CommandLineToken>(ValueQuoted, ValueQuotedEnd),
-            //new State<CommandLineToken>(ValueQuoted, Argument, ValuePlain, ValueQuotedBegin),
+            new State<CommandLineToken>(ValueBegin, Value) { IsToken = false },
+            new State<CommandLineToken>(Value, Argument, ValueBegin),
         };
 
         public CommandLineTokenizer() : base(States.ToImmutableList()) { }
     }
+}
 
-    public static class HtmlStringTokenizer
-    {
-        public static readonly ICollection<State<HtmlToken>> States = new[]
-        {
-            new State<HtmlToken>(TagOpen, TagClose),
-            //new State<HtmlToken>(TagName, TagClose),
-            new State<HtmlToken>(TagClose, Text, TagOpen),
-            new State<HtmlToken>(Text, TagOpen),
-        };
-
-//        public static IEnumerable<Token<HtmlToken>> Tokenize(string value)
+namespace Reusable.Experimental.TokenizerV3.Html
+{
+    //    public enum HtmlToken
+//    {
+//        [Regex(@"(<(?:[a-z]+|!--|\/)?)")]
+//        TagOpen,
+//
+//        [Regex(@"((?:\/|--)?>)")]
+//        TagClose,
+//
+//        //[Regex(@"([a-z]+)")]
+//        //TagName,
+//
+//        [Regex(@"([a-z\s]+)")]
+//        Text,
+//    }
+//
+//    public static class HtmlStringTokenizer
+//    {
+//        public static readonly ICollection<State<HtmlToken>> States = new[]
 //        {
-//            return Tokenizer.Tokenize(value, States);
-//        }
-    }
-
-    public enum HtmlToken
-    {
-        [Regex(@"(<(?:[a-z]+|!--|\/)?)")]
-        TagOpen,
-
-        [Regex(@"((?:\/|--)?>)")]
-        TagClose,
-
-        //[Regex(@"([a-z]+)")]
-        //TagName,
-
-        [Regex(@"([a-z\s]+)")]
-        Text,
-    }
+//            new State<HtmlToken>(TagOpen, TagClose),
+//            //new State<HtmlToken>(TagName, TagClose),
+//            new State<HtmlToken>(TagClose, Text, TagOpen),
+//            new State<HtmlToken>(Text, TagOpen),
+//        };
+//
+////        public static IEnumerable<Token<HtmlToken>> Tokenize(string value)
+////        {
+////            return Tokenizer.Tokenize(value, States);
+////        }
+//    }
 }
