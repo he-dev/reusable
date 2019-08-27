@@ -119,16 +119,16 @@ namespace Reusable.Experimental.TokenizerV4
 
     public class RegexAttribute : MatcherAttribute
     {
-        private readonly Regex _regex;
-
         public RegexAttribute([RegexPattern] string pattern)
         {
-            _regex = new Regex(pattern);
+            Regex = new Regex(pattern);
         }
+
+        protected Regex Regex { get; }
 
         public override MatchResult<TToken> Match<TToken>(string value, int offset, TToken tokenType)
         {
-            var match = _regex.Match(value, offset);
+            var match = Regex.Match(value, offset);
             return
                 // Make sure the match was at the offset.
                 match.Success && match.Index == offset
@@ -164,6 +164,9 @@ namespace Reusable.Experimental.TokenizerV4
 
         public override MatchResult<TToken> Match<TToken>(string value, int offset, TToken tokenType)
         {
+            var match = Regex.Match(value, offset);
+            
+            
             return
                 value[offset] == '"'
                     ? MatchQuoted(value, offset, tokenType)
@@ -260,8 +263,6 @@ namespace Reusable.Experimental.TokenizerV4
                     .GetCustomAttribute<MatcherProviderAttribute>()
                     .GetMatcher(token);
         }
-
-        public bool IsToken { get; set; } = true;
 
         public TToken Token { get; }
 
@@ -466,10 +467,10 @@ namespace Reusable.Experimental.TokenizerV4.CommandLine
         [Regex(@"\s*[\-\.\/]([a-z0-9][a-z\-_]*)")]
         Argument,
 
-        [Regex(@"[\=\:\,\s]")]
-        ValueBegin,
+        //[Regex(@"[\=\:\,\s]")]
+        //ValueBegin,
 
-        [QText(@"([a-z0-9\.\;\-]*)")]
+        [QText(@"(?<prefix>[\=\:\,\s])(?<token>[a-z0-9\.\;\-]*)?")]
         Value,
     }
 
@@ -491,9 +492,8 @@ namespace Reusable.Experimental.TokenizerV4.CommandLine
         {
             new State<CommandLineToken>(default, Command),
             new State<CommandLineToken>(Command, Argument),
-            new State<CommandLineToken>(Argument, Argument, ValueBegin),
-            new State<CommandLineToken>(ValueBegin, Value) { IsToken = false },
-            new State<CommandLineToken>(Value, Argument, ValueBegin),
+            new State<CommandLineToken>(Argument, Argument, Value),
+            new State<CommandLineToken>(Value, Argument, Value),
         };
 
         public CommandLineTokenizer() : base(States.ToImmutableList()) { }
