@@ -63,11 +63,11 @@ namespace Reusable.Experimental.TokenizerV4
 
             var offset = 0;
 
-            for (var i = 0; i < value.Length;)
+            while (offset < value.Length - 1)
             {
                 var matches =
                     from state in current
-                    let result = state.Match(value, i)
+                    let result = state.Match(value, offset)
                     // Consider only non-empty tokens.
                     where result.Success
                     select result;
@@ -75,10 +75,10 @@ namespace Reusable.Experimental.TokenizerV4
                 switch (matches.FirstOrDefault())
                 {
                     case null:
-                        throw new ArgumentException($"Invalid character '{value[i]}' at {i}.");
+                        throw new ArgumentException($"Invalid character '{value[offset]}' at {offset}.");
                     case MatchResult<TToken> match:
                         yield return new Token<TToken>(match.Token, match.Length, offset, match.TokenType);
-                        i += match.Length;
+                        offset += match.Length;
                         current = _transitions[match.TokenType];
                         break;
                 }
@@ -121,7 +121,7 @@ namespace Reusable.Experimental.TokenizerV4
     {
         public RegexAttribute([RegexPattern] string pattern)
         {
-            Regex = new Regex(pattern);
+            Regex = new Regex(@"\G" + pattern);
         }
 
         protected Regex Regex { get; }
@@ -131,7 +131,7 @@ namespace Reusable.Experimental.TokenizerV4
             var match = Regex.Match(value, offset);
             return
                 // Make sure the match was at the offset.
-                match.Success && match.Index == offset
+                match.Success// && match.Index == offset
                     ? new MatchResult<TToken>(match.Groups[1].Value, match.Length, tokenType)
                     : MatchResult<TToken>.Failure;
         }
@@ -165,12 +165,17 @@ namespace Reusable.Experimental.TokenizerV4
         public override MatchResult<TToken> Match<TToken>(string value, int offset, TToken tokenType)
         {
             var match = Regex.Match(value, offset);
-            
-            
-            return
-                value[offset] == '"'
-                    ? MatchQuoted(value, offset, tokenType)
-                    : base.Match(value, offset, tokenType);
+            if (match.Success)
+            {
+                return
+                    match.Groups[1].Value[0] == '"'
+                        ? MatchQuoted(value, offset + match.Length - 1, tokenType)
+                        : new MatchResult<TToken>(match.Groups[1].Value, match.Groups[1].Length, tokenType);
+            }
+            else
+            {
+                return MatchResult<TToken>.Failure;
+            }
         }
 
         private MatchResult<TToken> MatchQuoted<TToken>(string value, int offset, TToken tokenType)
@@ -196,7 +201,7 @@ namespace Reusable.Experimental.TokenizerV4
 
                             // End of quoted text.
                             case false:
-                                return new MatchResult<TToken>(token.ToString(), i - offset + 1, tokenType);
+                                return new MatchResult<TToken>(token.ToString(), token.Length + 1, tokenType);
                         }
 
                         break; // Makes the compiler happy.
@@ -470,7 +475,7 @@ namespace Reusable.Experimental.TokenizerV4.CommandLine
         //[Regex(@"[\=\:\,\s]")]
         //ValueBegin,
 
-        [QText(@"(?<prefix>[\=\:\,\s])(?<token>[a-z0-9\.\;\-]*)?")]
+        [QText(@"[\=\:\,\s]([a-z0-9\.\;\-]+|"")")]
         Value,
     }
 
