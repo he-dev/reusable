@@ -229,6 +229,24 @@ namespace Reusable.Experimental.TokenizerV4
         }
     }
 
+    public abstract class MatcherProviderAttribute : Attribute
+    {
+        public abstract IMatcher GetMatcher<TToken>(TToken token);
+    }
+
+    public class EnumMatcherProviderAttribute : MatcherProviderAttribute
+    {
+        public override IMatcher GetMatcher<TToken>(TToken token)
+        {
+            if (!typeof(TToken).IsEnum) throw new ArgumentException($"Token must by of Enum type.");
+
+            return
+                typeof(TToken)
+                    .GetField(token.ToString())
+                    .GetCustomAttribute<MatcherAttribute>();
+        }
+    }
+
     public class State<TToken> where TToken : Enum
     {
         private readonly IMatcher _matcher;
@@ -239,8 +257,8 @@ namespace Reusable.Experimental.TokenizerV4
             Next = next;
             _matcher =
                 typeof(TToken)
-                    .GetField(token.ToString())
-                    .GetCustomAttribute<MatcherAttribute>();
+                    .GetCustomAttribute<MatcherProviderAttribute>()
+                    .GetMatcher(token);
         }
 
         public bool IsToken { get; set; } = true;
@@ -437,6 +455,7 @@ namespace Reusable.Experimental.TokenizerV4.CommandLine
         //        }
     }
 
+    [EnumMatcherProvider]
     public enum CommandLineToken
     {
         Start = 0,
