@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Linq.Custom;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -27,21 +28,7 @@ namespace Reusable.Experimental.TokenizerV4
         }
     }
 
-    public static class StateTransitionMapper
-    {
-        public static IImmutableDictionary<TToken, IImmutableList<State<TToken>>> CreateTransitionMap<TToken>(IImmutableList<State<TToken>> states) where TToken : Enum
-        {
-            return states.Aggregate(ImmutableDictionary<TToken, IImmutableList<State<TToken>>>.Empty, (mappings, state) =>
-            {
-                var nextStates =
-                    from n in state.Next
-                    join s in states on n equals s.Token
-                    select s;
 
-                return mappings.Add(state.Token, nextStates.ToImmutableList());
-            });
-        }
-    }
 
     public interface ITokenizer<TToken> where TToken : Enum
     {
@@ -59,30 +46,44 @@ namespace Reusable.Experimental.TokenizerV4
 
         public IEnumerable<Token<TToken>> Tokenize(string value)
         {
-            var current = _transitions[default];
-
+            var state = _transitions[default];
             var offset = 0;
 
-            while (offset < value.Length - 1)
+            while (Any())
             {
-                var matches =
-                    from state in current
-                    let result = state.Match(value, offset)
-                    // Consider only non-empty tokens.
-                    where result.Success
-                    select result;
-
-                switch (matches.FirstOrDefault())
+                // Using a switch because it looks good here. 
+                switch (state.Select(s => s.Match(value, offset)).FirstOrDefault(m => m.Success))
                 {
                     case null:
                         throw new ArgumentException($"Invalid character '{value[offset]}' at {offset}.");
+
                     case MatchResult<TToken> match:
                         yield return new Token<TToken>(match.Token, match.Length, offset, match.TokenType);
                         offset += match.Length;
-                        current = _transitions[match.TokenType];
+                        state = _transitions[match.TokenType];
                         break;
                 }
             }
+
+            // Let's hide this ugly expression behind this nice helper.
+            bool Any() => offset < value.Length - 1;
+        }
+    }
+    
+    public static class StateTransitionMapper
+    {
+        // Turns the adjacency-list of states into a dictionary for faster lookup.
+        public static IImmutableDictionary<TToken, IImmutableList<State<TToken>>> CreateTransitionMap<TToken>(IImmutableList<State<TToken>> states) where TToken : Enum
+        {
+            return states.Aggregate(ImmutableDictionary<TToken, IImmutableList<State<TToken>>>.Empty, (mappings, state) =>
+            {
+                var nextStates =
+                    from n in state.Next
+                    join s in states on n equals s.Token
+                    select s;
+
+                return mappings.Add(state.Token, nextStates.ToImmutableList());
+            });
         }
     }
 
@@ -96,7 +97,7 @@ namespace Reusable.Experimental.TokenizerV4
             TokenType = tokenType;
         }
 
-        public static MatchResult<TToken> Failure { get; } = new MatchResult<TToken>(string.Empty, 0, default) { Success = false };
+        public static MatchResult<TToken> Failure(TToken tokenType) => new MatchResult<TToken>(string.Empty, 0, tokenType) { Success = false };
 
         public bool Success { get; private set; }
 
@@ -117,26 +118,27 @@ namespace Reusable.Experimental.TokenizerV4
         public abstract MatchResult<TToken> Match<TToken>(string value, int offset, TToken tokenType);
     }
 
+    // Can recognize regexable patterns.
+    // The pattern requires one group that is the token to return. 
     public class RegexAttribute : MatcherAttribute
     {
-        public RegexAttribute([RegexPattern] string pattern)
-        {
-            Regex = new Regex(@"\G" + pattern);
-        }
+        private readonly Regex _regex;
 
-        protected Regex Regex { get; }
+        public RegexAttribute([RegexPattern] string prefixPattern)
+        {
+            _regex = new Regex($@"\G{prefixPattern}");
+        }
 
         public override MatchResult<TToken> Match<TToken>(string value, int offset, TToken tokenType)
         {
-            var match = Regex.Match(value, offset);
             return
-                // Make sure the match was at the offset.
-                match.Success// && match.Index == offset
+                _regex.Match(value, offset) is var match && match.Success
                     ? new MatchResult<TToken>(match.Groups[1].Value, match.Length, tokenType)
-                    : MatchResult<TToken>.Failure;
+                    : MatchResult<TToken>.Failure(tokenType);
         }
     }
 
+    // Can recognize constant patterns.
     public class ConstAttribute : MatcherAttribute
     {
         private readonly string _pattern;
@@ -145,95 +147,155 @@ namespace Reusable.Experimental.TokenizerV4
 
         public override MatchResult<TToken> Match<TToken>(string value, int offset, TToken tokenType)
         {
-            var matchCount = _pattern.TakeWhile((t, i) => value[offset + i].Equals(t)).Count();
             return
                 // All characters have to be matched.
-                matchCount == _pattern.Length
-                    ? new MatchResult<TToken>(_pattern, matchCount, tokenType)
-                    : MatchResult<TToken>.Failure;
+                MatchLength() == _pattern.Length
+                    ? new MatchResult<TToken>(_pattern, _pattern.Length, tokenType)
+                    : MatchResult<TToken>.Failure(tokenType);
+
+            int MatchLength() => _pattern.TakeWhile((t, i) => value[offset + i].Equals(t)).Count();
         }
     }
 
-    // "foo \"bar\" baz"
-    // ^ starts here   ^ ends here
-    public class QTextAttribute : RegexAttribute
+    // Assists regex in tokenizing quoted strings because regex has no memory of what it has seen.
+    // Requires two patterns:
+    // - one for the separator because it has to know where the value begins
+    // - the other for an unquoted value if it's not already quoted
+    public class QTextAttribute : MatcherAttribute
     {
-        public static readonly IImmutableSet<char> Escapables = new[] { '\\', '"' }.ToImmutableHashSet();
+        public static readonly IImmutableSet<char> Escapables = new[] { '\\', '"', '\'' }.ToImmutableHashSet();
 
-        public QTextAttribute([RegexPattern] string pattern) : base(pattern) { }
+        private readonly Regex _prefixRegex;
+        private readonly Regex _unquotedValuePattern;
+
+        public QTextAttribute([RegexPattern] string separatorPattern, [RegexPattern] string unquotedValuePattern)
+        {
+            _prefixRegex = new Regex($@"\G{separatorPattern}");
+            _unquotedValuePattern = new Regex($@"\G{unquotedValuePattern}");
+        }
 
         public override MatchResult<TToken> Match<TToken>(string value, int offset, TToken tokenType)
         {
-            var match = Regex.Match(value, offset);
-            if (match.Success)
+            if (_prefixRegex.Match(value, offset) is var prefixMatch && prefixMatch.Success)
             {
-                return
-                    match.Groups[1].Value[0] == '"'
-                        ? MatchQuoted(value, offset + match.Length - 1, tokenType)
-                        : new MatchResult<TToken>(match.Groups[1].Value, match.Groups[1].Length, tokenType);
+                if (MatchQuoted(value, offset + prefixMatch.Length, tokenType) is var matchQuoted && matchQuoted.Success)
+                {
+                    return matchQuoted;
+                }
+                else
+                {
+                    if (_unquotedValuePattern.Match(value, offset + prefixMatch.Length) is var valueMatch && valueMatch.Groups[1].Success)
+                    {
+                        return new MatchResult<TToken>(valueMatch.Groups[1].Value, prefixMatch.Length + valueMatch.Length, tokenType);
+                    }
+                }
             }
-            else
-            {
-                return MatchResult<TToken>.Failure;
-            }
+
+            return MatchResult<TToken>.Failure(tokenType);
         }
 
-        private MatchResult<TToken> MatchQuoted<TToken>(string value, int offset, TToken tokenType)
+        // "foo \"bar\" baz"
+        // ^ start         ^ end
+        private static MatchResult<TToken> MatchQuoted<TToken>(string value, int offset, TToken tokenType)
         {
             var token = new StringBuilder();
             var escapeSequence = false;
-            var quote = false;
+            var quote = '\0'; // Opening/closing quote.
 
-            for (var i = offset; i < value.Length; i++)
+            foreach (var (c, i) in value.SkipFastOrDefault(offset).SelectIndexed())
             {
-                var c = value[i];
-
-                switch (c)
+                if (i == 0)
                 {
-                    case '"' when !escapeSequence:
-
-                        switch (i == offset)
-                        {
-                            // Entering quoted text.
-                            case true:
-                                quote = !quote;
-                                continue; // Don't eat quotes.
-
-                            // End of quoted text.
-                            case false:
-                                return new MatchResult<TToken>(token.ToString(), token.Length + 1, tokenType);
-                        }
-
-                        break; // Makes the compiler happy.
-
-                    case '\\' when !escapeSequence:
-                        escapeSequence = true;
-                        break;
-
-                    default:
-
-                        switch (escapeSequence)
-                        {
-                            case true:
-                                switch (Escapables.Contains(c))
-                                {
-                                    case true:
-                                        // Remove escape char.
-                                        token.Length--;
-                                        break;
-                                }
-
-                                escapeSequence = false;
-                                break;
-                        }
-
-                        break;
+                    if (@"'""".Contains(c))
+                    {
+                        quote = c;
+                    }
+                    else
+                    {
+                        // It doesn't start with a quote. This is unacceptable. Either an empty value or an unquoted one.
+                        return MatchResult<TToken>.Failure(tokenType);
+                    }
                 }
+                else
+                {
+                    if (c == '\\' && !escapeSequence)
+                    {
+                        escapeSequence = true;
+                    }
+                    else
+                    {
+                        if (escapeSequence)
+                        {
+                            if (Escapables.Contains(c))
+                            {
+                                // Remove escape char. We don't need them in the result.
+                                token.Length--;
+                            }
 
-                token.Append(c);
+                            escapeSequence = false;
+                        }
+                        else
+                        {
+                            if (c == quote)
+                            {
+                                // +2 because there were two quotes.
+                                return new MatchResult<TToken>(token.ToString(), i + 2, tokenType);
+                            }
+                        }
+                    }
+
+                    token.Append(c);
+                }
             }
 
-            return MatchResult<TToken>.Failure;
+            return MatchResult<TToken>.Failure(tokenType);
+        }
+    }
+
+    public static class StringExtensions
+    {
+        // Doesn't enumerate the string from the beginning for skipping.
+        public static IEnumerable<char> SkipFastOrDefault(this string source, int offset)
+        {
+            // Who uses for-loop these days? Let's hide it here so nobody can see this monster.
+            for (var i = offset; i < source.Length; i++)
+            {
+                yield return source[i];
+            }
+        }
+
+        // Doesn't enumerate a collection from the beginning if it implements `IList<T>`.
+        // Falls back to the default `Skip`.
+        public static IEnumerable<T> SkipFastOrDefault<T>(this IEnumerable<T> source, int offset)
+        {
+            // Even more for-loops to hide.
+            switch (source)
+            {
+                case IList<T> list:
+                    for (var i = offset; i < list.Count; i++)
+                    {
+                        yield return list[i];
+                    }
+
+                    break;
+
+                default:
+                    foreach (var item in source.Skip(offset))
+                    {
+                        yield return item;
+                    }
+
+                    break;
+            }
+        }
+    }
+
+    public static class EnumerableExtensions
+    {
+        // This is so common that it deserves its own extension.
+        public static IEnumerable<(T Item, int Index)> SelectIndexed<T>(this IEnumerable<T> source)
+        {
+            return source.Select((c, i) => (c, i));
         }
     }
 
@@ -273,10 +335,7 @@ namespace Reusable.Experimental.TokenizerV4
 
         public IEnumerable<TToken> Next { get; }
 
-        public MatchResult<TToken> Match(string value, int offset)
-        {
-            return _matcher.Match(value, offset, Token);
-        }
+        public MatchResult<TToken> Match(string value, int offset) => _matcher.Match(value, offset, Token);
 
         public override string ToString() => $"{Token} --> [{string.Join(", ", Next)}]";
     }
@@ -338,10 +397,9 @@ namespace Reusable.Experimental.TokenizerV4.UriString
         [Fact]
         public void Throws_when_invalid_character()
         {
-            // Using single letters for faster debugging.
+// Using single letters for faster debugging.
             var uri = "s://:u@h:1/p?k=v&k=v#f";
-            //             ^ - invalid character
-
+//             ^ - invalid character
             var ex = Assert.Throws<ArgumentException>(() => Tokenizer.Tokenize(uri).ToList());
             Assert.Equal("Invalid character ':' at 4.", ex.Message);
         }
@@ -349,19 +407,18 @@ namespace Reusable.Experimental.TokenizerV4.UriString
 
     public class UriStringTokenizer : Tokenizer<UriToken>
     {
-        /*
-         
-         scheme:[//[userinfo@]host[:port]]path[?key=value&key=value][#fragment]
-                [ ----- authority ----- ]     [ ----- query ------ ]
-          
-         scheme: ------------------------ '/'path -------------------------  --------- UriString
-                \                         /      \                         /\         /
-                 // --------- host ----- /        ?key ------ &key ------ /  #fragment
-                   \         /    \     /             \      /    \      /
-                    userinfo@      :port               =value      =value             
-          
-        */
-
+/*
+ 
+ scheme:[//[userinfo@]host[:port]]path[?key=value&key=value][#fragment]
+        [ ----- authority ----- ]     [ ----- query ------ ]
+  
+ scheme: ------------------------ '/'path -------------------------  --------- UriString
+        \                         /      \                         /\         /
+         // --------- host ----- /        ?key ------ &key ------ /  #fragment
+           \         /    \     /             \      /    \      /
+            userinfo@      :port               =value      =value             
+  
+*/
         private static readonly State<UriToken>[] States =
         {
             new State<UriToken>(default, Scheme),
@@ -379,6 +436,7 @@ namespace Reusable.Experimental.TokenizerV4.UriString
         public UriStringTokenizer() : base(States.ToImmutableList()) { }
     }
 
+    [EnumMatcherProvider]
     public enum UriToken
     {
         Start = 0,
@@ -449,16 +507,16 @@ namespace Reusable.Experimental.TokenizerV4.CommandLine
             Assert.Equal(expected.Replace(" ", string.Empty), actual);
         }
 
-        //        [Fact]
-        //        public void Throws_when_invalid_character()
-        //        {
-        //            // Using single letters for faster debugging.
-        //            var uri = "s://:u@h:1/p?k=v&k=v#f";
-        //            //             ^ - invalid character
-        //
-        //            var ex = Assert.Throws<ArgumentException>(() => Tokenizer.Tokenize(uri).ToList());
-        //            Assert.Equal("Invalid character ':' at 4.", ex.Message);
-        //        }
+//        [Fact]
+//        public void Throws_when_invalid_character()
+//        {
+//            // Using single letters for faster debugging.
+//            var uri = "s://:u@h:1/p?k=v&k=v#f";
+//            //             ^ - invalid character
+//
+//            var ex = Assert.Throws<ArgumentException>(() => Tokenizer.Tokenize(uri).ToList());
+//            Assert.Equal("Invalid character ':' at 4.", ex.Message);
+//        }
     }
 
     [EnumMatcherProvider]
@@ -472,17 +530,14 @@ namespace Reusable.Experimental.TokenizerV4.CommandLine
         [Regex(@"\s*[\-\.\/]([a-z0-9][a-z\-_]*)")]
         Argument,
 
-        //[Regex(@"[\=\:\,\s]")]
-        //ValueBegin,
-
-        [QText(@"[\=\:\,\s]([a-z0-9\.\;\-]+|"")")]
+        [QText(@"([\=\:\,]|\,?\s*)", @"([a-z0-9\.\;\-]+)")]
         Value,
     }
 
     public class CommandLineTokenizer : Tokenizer<CommandLineToken>
     {
         /*
- 
+
          command [-argument][=value][,value]
          
          command --------------------------- CommandLine
@@ -492,7 +547,6 @@ namespace Reusable.Experimental.TokenizerV4.CommandLine
                            =value   ,value
                     
         */
-
         private static readonly State<CommandLineToken>[] States =
         {
             new State<CommandLineToken>(default, Command),
@@ -503,38 +557,4 @@ namespace Reusable.Experimental.TokenizerV4.CommandLine
 
         public CommandLineTokenizer() : base(States.ToImmutableList()) { }
     }
-}
-
-namespace Reusable.Experimental.TokenizerV3.Html
-{
-    //    public enum HtmlToken
-    //    {
-    //        [Regex(@"(<(?:[a-z]+|!--|\/)?)")]
-    //        TagOpen,
-    //
-    //        [Regex(@"((?:\/|--)?>)")]
-    //        TagClose,
-    //
-    //        //[Regex(@"([a-z]+)")]
-    //        //TagName,
-    //
-    //        [Regex(@"([a-z\s]+)")]
-    //        Text,
-    //    }
-    //
-    //    public static class HtmlStringTokenizer
-    //    {
-    //        public static readonly ICollection<State<HtmlToken>> States = new[]
-    //        {
-    //            new State<HtmlToken>(TagOpen, TagClose),
-    //            //new State<HtmlToken>(TagName, TagClose),
-    //            new State<HtmlToken>(TagClose, Text, TagOpen),
-    //            new State<HtmlToken>(Text, TagOpen),
-    //        };
-    //
-    ////        public static IEnumerable<Token<HtmlToken>> Tokenize(string value)
-    ////        {
-    ////            return Tokenizer.Tokenize(value, States);
-    ////        }
-    //    }
 }
