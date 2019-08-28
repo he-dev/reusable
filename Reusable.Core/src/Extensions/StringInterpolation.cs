@@ -176,6 +176,7 @@ namespace Reusable.Extensions
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed - TopologicalSort will throw if the graph has a cycle.
             var sorted =
                 placeholders
+                    .Select(x => (x.Key, x.Value))
                     .ToDirectedGraph()
                     .TopologicalSort(StringComparer.OrdinalIgnoreCase)
                     .ToList();

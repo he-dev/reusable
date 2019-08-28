@@ -6,20 +6,32 @@ namespace Reusable
 {
     public static class Graph
     {
-        public static IEnumerable<(T U, T V)> ToDirectedGraph<T>(this IEnumerable<KeyValuePair<T, IEnumerable<T>>> source)
+        public static IEnumerable<(T U, T V)> ToDirectedGraph<T>(this IEnumerable<(T Node, IEnumerable<T> OutgoingNodes)> source)
         {
             // Convert dictionary into directed graph.
-            return source.SelectMany(x => x.Value.Select(y => (x.Key, y)));
+            return 
+                from item in source
+                from outgoingNode in item.OutgoingNodes
+                select (item.Node, outgoingNode);
         }
 
         public static IEnumerable<T> TopologicalSort<T>(this IEnumerable<(T U, T V)> source, IEqualityComparer<T> comparer)
         {
-            var edges = new HashSet<(T u, T v)>(source);
+            var edges = new HashSet<(T u, T v)>(source);	
 
-            // First, find a list of "start nodes" which have no incoming edges;
+            // Find a list of "start nodes". These nodes have no incoming edges;
             // at least one such node must exist in a non-empty acyclic graph.
-            var startNodes = edges.Select(e => e.u).Where(u => edges.Select(e => e.v).All(v => !comparer.Equals(u, v)));
-            var topLevelNodes = new Stack<T>(startNodes);
+            
+            var startNodes =
+                from x in edges
+                let incomingNodes =
+                    from y in edges
+                    where comparer.Equals(x.u, y.v)
+                    select y
+                where !incomingNodes.Any()
+                select x.u;
+			
+            var topLevelNodes = new Stack<T>(startNodes.Distinct());
 
             while (topLevelNodes.Any())
             {
@@ -30,13 +42,13 @@ namespace Reusable
                 foreach (var edge in outgoingEdges)
                 {
                     edges.Remove(edge);
-
-                    var hasIncomingEdges = edges.Any(e => comparer.Equals(e.v, edge.v));
-                    if (!hasIncomingEdges)
+				
+                    var incomingEdges = edges.Where(e => comparer.Equals(e.v, edge.v));
+                    if (!incomingEdges.Any())
                     {
                         topLevelNodes.Push(edge.v);
                     }
-                }
+                }			
             }
 
             if (edges.Any())
