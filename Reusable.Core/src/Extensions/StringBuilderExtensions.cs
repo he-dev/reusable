@@ -40,6 +40,8 @@ namespace Reusable.Extensions
             if (stringBuilder == null) throw new ArgumentNullException(nameof(stringBuilder));
             if (value == null) throw new ArgumentNullException(nameof(value));
 
+            if (stringBuilder.Length < value.Length) return stringBuilder;
+
             var startIndex = stringBuilder.Length - value.Length;
             for (int i = startIndex, j = 0; j < value.Length; i++, j++)
             {

@@ -15,7 +15,7 @@ namespace Reusable.Flexo
                 .Empty
                 .SetItem(Comparers, ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
                 .SetItem(References, ImmutableDictionary<SoftString, IExpression>.Empty)
-                .SetItem(DebugView, TreeNode.Create(ExpressionDebugView.Root))
+                .SetItem(DebugView, Node.Create(ExpressionDebugView.Root))
                 .WithDefaultComparer()
                 .WithSoftStringComparer()
                 .WithRegexComparer();
@@ -34,7 +34,7 @@ namespace Reusable.Flexo
 
         public static readonly Selector<IImmutableDictionary<SoftString, IExpression>> References = Select(() => References);
 
-        public static readonly Selector<TreeNode<ExpressionDebugView>> DebugView = Select(() => DebugView);
+        public static readonly Selector<Node<ExpressionDebugView>> DebugView = Select(() => DebugView);
 
         public static readonly Selector<CancellationToken> CancellationToken = Select(() => CancellationToken);
     }

@@ -29,11 +29,11 @@ namespace Reusable.Flexo
             Description = $"This is the root node of the {nameof(ExpressionDebugView)}."
         };
 
-        public static RenderTreeNodeValueCallback<ExpressionDebugView, TreeNodePlainView> DefaultRenderTreeNode
+        public static RenderTreeNodeValueCallback<ExpressionDebugView, NodePlainView> DefaultRenderTreeNode
         {
             get
             {
-                return (debugView, depth) => new TreeNodePlainView
+                return (debugView, depth) => new NodePlainView
                 {
                     Text = $"[{debugView.ExpressionType}] as [{debugView.Name}]: '{FormatResult(debugView.Result)}' ({debugView.Description})",
                     Depth = depth
@@ -66,11 +66,11 @@ namespace Reusable.Flexo
 
         public static class Templates
         {
-            public static RenderTreeNodeValueCallback<ExpressionDebugView, TreeNodePlainView> Compact
+            public static RenderTreeNodeValueCallback<ExpressionDebugView, NodePlainView> Compact
             {
                 get
                 {
-                    return (debugView, depth) => new TreeNodePlainView
+                    return (debugView, depth) => new NodePlainView
                     {
                         Text = $"{debugView.Name ?? debugView.ExpressionType}: {FormatResult(debugView.Result)}{(debugView.Tags?.Any() == true ? $" {debugView.Tags.Join(" ")}" : string.Empty)}",
                         Depth = depth

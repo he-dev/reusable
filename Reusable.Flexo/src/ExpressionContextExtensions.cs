@@ -89,12 +89,12 @@ namespace Reusable.Flexo
                     : throw DynamicException.Create("ComparerNotFound", $"There is no comparer with the name '{name}'.");
         }
 
-        public static TreeNode<ExpressionDebugView> DebugView(this IImmutableContainer context)
+        public static Node<ExpressionDebugView> DebugView(this IImmutableContainer context)
         {
             return context.GetItemOrDefault(ExpressionContext.DebugView);
         }
 
-        public static IImmutableContainer DebugView(this IImmutableContainer context, TreeNode<ExpressionDebugView> debugView)
+        public static IImmutableContainer DebugView(this IImmutableContainer context, Node<ExpressionDebugView> debugView)
         {
             return context.SetItem(ExpressionContext.DebugView, debugView);
         }

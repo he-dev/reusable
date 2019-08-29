@@ -86,9 +86,9 @@ namespace Reusable.Flexo
             return expression;
         }
 
-        internal static TreeNode<ExpressionDebugView> CreateDebugView(this IExpression expression)
+        internal static Node<ExpressionDebugView> CreateDebugView(this IExpression expression)
         {
-            return TreeNode.Create(new ExpressionDebugView
+            return Node.Create(new ExpressionDebugView
             {
                 ExpressionType = expression.GetType().ToPrettyString(),
                 Name = expression.Name.ToString(),
@@ -154,7 +154,7 @@ namespace Reusable.Flexo
 
     public static class ExpressionInvokeResultExtensions
     {
-        public static string DebugViewToString(this ExpressionInvokeResult result, RenderTreeNodeValueCallback<ExpressionDebugView, TreeNodePlainView> template)
+        public static string DebugViewToString(this ExpressionInvokeResult result, RenderTreeNodeValueCallback<ExpressionDebugView, NodePlainView> template)
         {
             return
                 result
