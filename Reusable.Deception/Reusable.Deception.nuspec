@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Deception</id>
-    <version>14.0.9</version>
+    <version>14.0.11</version>
     <title>Reusable.Deception</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -16,8 +16,8 @@
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2019.1.1" />
-      <dependency id="Reusable.Core" version="14.0.9" />
-      <dependency id="Reusable.Utilities.JsonNet" version="14.0.9" />
+      <dependency id="Reusable.Core" version="14.0.11" />
+      <dependency id="Reusable.Utilities.JsonNet" version="14.0.11" />
     </dependencies>
   </metadata>
   <files>
