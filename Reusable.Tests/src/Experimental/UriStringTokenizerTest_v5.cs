@@ -16,7 +16,7 @@ namespace Reusable.Experimental.TokenizerV5
 {
     public interface ITokenizer<TToken> where TToken : Enum
     {
-        Node<Token<TToken>> Tokenize(string value);
+        IEnumerable<Token<TToken>> Tokenize(string value);
     }
 
     public class Tokenizer<TToken> : ITokenizer<TToken> where TToken : Enum
@@ -28,23 +28,35 @@ namespace Reusable.Experimental.TokenizerV5
             _transitions = StateTransitionMapper.CreateTransitionMap(states);
         }
 
-        public Node<Token<TToken>> Tokenize(string value)
+        public IEnumerable<Token<TToken>> Tokenize(string value)
         {
-            var state = _transitions[default].Single();
-            var offset = 0;
-
-            var root = new Node<Token<TToken>>(new Token<TToken>(string.Empty, default, default, default));
-            state.Match(new TokenizerContext<TToken>
+            var context = new StateContext<TToken>
             {
                 Value = value,
-                Next = tokenType => _transitions[tokenType]
-            }, new TokenContext<TToken>
-            {
-                Node = root,
-                Offset = 0
-            });
+                TokenType = default,
+                Offset = 0,
+            };
 
-            return root;
+
+            while (Any())
+            {
+                var current = _transitions[context.TokenType];
+                foreach (var next in current)
+                {
+                    if (next.Match(context) is var match && match)
+                    {
+                        yield return new Token<TToken>(match.Token, match.Length, context.Offset, next.TokenType);
+                        context = new StateContext<TToken>
+                        {
+                            Value = value,
+                            TokenType = next.TokenType,
+                            Offset = context.Offset + match.Length,
+                        };
+                    }
+                }
+            }
+
+            bool Any() => context.Offset < value.Length - 1;
         }
     }
 
@@ -57,25 +69,24 @@ namespace Reusable.Experimental.TokenizerV5
             {
                 var nextStates =
                     from n in state.Next
-                    join s in states on n equals s.Token
+                    join s in states on n equals s.TokenType
                     select s;
 
-                return mappings.Add(state.Token, nextStates.ToImmutableList());
+                return mappings.Add(state.TokenType, nextStates.ToImmutableList());
             });
         }
     }
 
-    public class MatchResult<TToken>
+    public class MatchResult
     {
-        public MatchResult(string token, int length, TToken tokenType)
+        public MatchResult(string token, int length)
         {
             Success = true;
             Token = token;
             Length = length;
-            TokenType = tokenType;
         }
 
-        public static MatchResult<TToken> Failure(TToken tokenType) => new MatchResult<TToken>(string.Empty, 0, tokenType) { Success = false };
+        public static MatchResult Failure => new MatchResult(string.Empty, 0) { Success = false };
 
         public bool Success { get; private set; }
 
@@ -83,21 +94,19 @@ namespace Reusable.Experimental.TokenizerV5
 
         public int Length { get; }
 
-        public TToken TokenType { get; }
+        public override string ToString() => $"{Success} -> '{Token}', Length: {Length}";
 
-        public override string ToString() => $"{TokenType}: {Success} -> '{Token}', Length: {Length}";
-
-        public static implicit operator bool(MatchResult<TToken> result) => result.Success;
+        public static implicit operator bool(MatchResult result) => result.Success;
     }
 
     public interface IMatcher
     {
-        MatchResult<TToken> Match<TToken>(string value, int offset, TToken tokenType);
+        MatchResult Match(string value, int offset);
     }
 
     public abstract class MatcherAttribute : Attribute, IMatcher
     {
-        public abstract MatchResult<TToken> Match<TToken>(string value, int offset, TToken tokenType);
+        public abstract MatchResult Match(string value, int offset);
     }
 
     // Can recognize regexable patterns.
@@ -111,12 +120,12 @@ namespace Reusable.Experimental.TokenizerV5
             _regex = new Regex($@"\G{prefixPattern}");
         }
 
-        public override MatchResult<TToken> Match<TToken>(string value, int offset, TToken tokenType)
+        public override MatchResult Match(string value, int offset)
         {
             return
                 _regex.Match(value, offset) is var match && match.Success
-                    ? new MatchResult<TToken>(match.Groups[1].Value, match.Length, tokenType)
-                    : MatchResult<TToken>.Failure(tokenType);
+                    ? new MatchResult(match.Groups[1].Value, match.Length)
+                    : MatchResult.Failure;
         }
     }
 
@@ -127,13 +136,13 @@ namespace Reusable.Experimental.TokenizerV5
 
         public ConstAttribute(string pattern) => _pattern = pattern;
 
-        public override MatchResult<TToken> Match<TToken>(string value, int offset, TToken tokenType)
+        public override MatchResult Match(string value, int offset)
         {
             return
                 // All characters have to be matched.
                 MatchLength() == _pattern.Length
-                    ? new MatchResult<TToken>(_pattern, _pattern.Length, tokenType)
-                    : MatchResult<TToken>.Failure(tokenType);
+                    ? new MatchResult(_pattern, _pattern.Length)
+                    : MatchResult.Failure;
 
             int MatchLength() => _pattern.TakeWhile((t, i) => value[offset + i].Equals(t)).Count();
         }
@@ -162,26 +171,26 @@ namespace Reusable.Experimental.TokenizerV5
             _unquotedValuePattern = new Regex($@"\G{unquotedValuePattern}");
         }
 
-        public override MatchResult<TToken> Match<TToken>(string value, int offset, TToken tokenType)
+        public override MatchResult Match(string value, int offset)
         {
             if (_unquotedValuePattern.Match(value, offset) is var valueMatch && valueMatch.Groups[1].Success)
             {
-                return new MatchResult<TToken>(valueMatch.Groups[1].Value, valueMatch.Length, tokenType);
+                return new MatchResult(valueMatch.Groups[1].Value, valueMatch.Length);
             }
             else
             {
-                if (MatchQuoted(value, offset, tokenType) is var matchQuoted && matchQuoted.Success)
+                if (MatchQuoted(value, offset) is var matchQuoted && matchQuoted.Success)
                 {
                     return matchQuoted;
                 }
             }
 
-            return MatchResult<TToken>.Failure(tokenType);
+            return MatchResult.Failure;
         }
 
         // "foo \"bar\" baz"
         // ^ start         ^ end
-        private static MatchResult<TToken> MatchQuoted<TToken>(string value, int offset, TToken tokenType)
+        private static MatchResult MatchQuoted(string value, int offset)
         {
             var token = new StringBuilder();
             var escapeSequence = false;
@@ -198,7 +207,7 @@ namespace Reusable.Experimental.TokenizerV5
                     else
                     {
                         // It doesn't start with a quote. This is unacceptable. Either an empty value or an unquoted one.
-                        return MatchResult<TToken>.Failure(tokenType);
+                        return MatchResult.Failure;
                     }
                 }
                 else
@@ -224,7 +233,7 @@ namespace Reusable.Experimental.TokenizerV5
                             if (c == quote)
                             {
                                 // +2 because there were two quotes.
-                                return new MatchResult<TToken>(token.ToString(), i + 2, tokenType);
+                                return new MatchResult(token.ToString(), i + 2);
                             }
                         }
                     }
@@ -233,7 +242,7 @@ namespace Reusable.Experimental.TokenizerV5
                 }
             }
 
-            return MatchResult<TToken>.Failure(tokenType);
+            return MatchResult.Failure;
         }
     }
 
@@ -313,103 +322,61 @@ namespace Reusable.Experimental.TokenizerV5
     {
         private readonly IMatcher _matcher;
 
-        public State(TToken token, params TToken[] next)
+        public State(TToken tokenType, params TToken[] next)
         {
-            Token = token;
+            TokenType = tokenType;
             Next = next;
             _matcher =
                 typeof(TToken)
                     .GetCustomAttribute<TokenInfoAttribute>()
-                    .GetMatcher(token);
+                    .GetMatcher(tokenType);
         }
 
-        public TToken Token { get; }
+        public TToken TokenType { get; }
 
         public IEnumerable<TToken> Next { get; }
 
-        public object Context { get; set; }
+        //public object Context { get; set; }
+        //public object Context { get; set; }
 
-        public bool Match(TokenizerContext<TToken> tokenizerContext, TokenContext<TToken> tokenContext)
+        public MatchResult Match(StateContext<TToken> stateContext)
         {
-            if (tokenizerContext.Current?.Equals(tokenContext.Value) == false)
-            {
-                //return false;
-            }
-
-            if (_matcher.Match(tokenizerContext.Value, tokenContext.Offset, Token) is var match && !match)
-            {
-                return false;
-            }
-
-            var token = new Token<TToken>(match.Token, match.Length, tokenContext.Offset, match.TokenType);
-            var node = new Node<Token<TToken>>(token);
-            tokenContext.Node.Add(node);
-
-            if (tokenContext.Offset + match.Length is var offset && offset > tokenizerContext.Value.Length - 1)
-            {
-                return false;
-            }
-
-            foreach (var state in tokenizerContext.Next(match.TokenType))
-            {
-                tokenContext = new TokenContext<TToken>
-                {
-                    Value = state.Context ?? tokenizerContext.Current,
-                    Node = state.Context is null ? tokenContext.Node : node,
-                    Offset = offset,
-                };
-                using (tokenizerContext.Push(Context))
-                {
-                    if (state.Match(tokenizerContext, tokenContext))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
+            return _matcher.Match(stateContext.Value, stateContext.Offset);
         }
 
-        public override string ToString() => $"State: '{Token}', Next: [{string.Join(", ", Next)}]";
+        public override string ToString() => $"State: '{TokenType}', Next: [{string.Join(", ", Next)}]";
     }
 
-    public class TokenizerContext<TToken> : IEnumerable<object>
+//    [Flags]
+//    public enum ContextOptions
+//    {
+//        None = 0,
+//        Push = 1,
+//        Pop = 2,
+//    }
+//
+//    public static class StateExtensions
+//    {
+//        public static State<TToken> Push<TToken>(this State<TToken> state, object context)
+//        {
+//            state.Context = context;
+//            return state;
+//        }
+//        
+//        public static State<TToken> Pop<TToken>(this State<TToken> state)
+//        {
+//            state.Context |= ContextOptions.Pop;
+//            return state;
+//        }
+//    }
+
+    public class StateContext<TToken>
     {
-        private readonly Stack<object> _contexts;
-
-        public TokenizerContext()
-        {
-            _contexts = new Stack<object>();
-        }
-
         public string Value { get; set; }
-
-        public Func<TToken, IEnumerable<State<TToken>>> Next { get; set; }
-
-        public object Current => _contexts.Any() ? _contexts.Peek() : null;
-
-        public IDisposable Push(object context)
-        {
-            if (context is null) return Disposable.Empty;
-
-            _contexts.Push(context);
-            return Disposable.Create(() => _contexts.Pop());
-        }
-
-        public override string ToString() => $"Value: '{Value}', Context: '{Current}'";
-
-        public IEnumerator<object> GetEnumerator() => _contexts.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_contexts).GetEnumerator();
-    }
-
-    public class TokenContext<TToken>
-    {
-        public object Value { get; set; }
-        public Node<Token<TToken>> Node { get; set; }
+        public TToken TokenType { get; set; }
         public int Offset { get; set; }
 
-        public override string ToString() => $"{nameof(Offset)}={Offset}, Context: '{Value}'";
+        public override string ToString() => $"{nameof(Offset)}={Offset}, {nameof(TokenType)}={TokenType}";
     }
 
     public class Token<TToken>
@@ -586,10 +553,10 @@ namespace Reusable.Experimental.TokenizerV5.CommandLine
             @"command  argument   foo-- ""bar   value  argument value")]
         public void Can_tokenize_command_lines(string value, string expected)
         {
-            var tokens = Tokenizer.Tokenize(value);
-            var views = tokens.Views((t, depth) => new NodePlainView { Text = t?.Text ?? "blub", Depth = depth });
-            var rendered = views.Render();
-            var text = string.Join("", views.Select(v => v.Text)).Trim();
+            var tokens = Tokenizer.Tokenize(value).ToList();
+            //var views = tokens.Views((t, depth) => new NodePlainView { Text = t?.Text ?? "blub", Depth = depth });
+            //var rendered = views.Render();
+            var text = string.Join("", tokens.Select(v => v.Text)).Trim();
             //var actual = string.Join("", tokens.Select(t => t.Text));
             Assert.Equal(value, text);
         }
@@ -627,7 +594,8 @@ namespace Reusable.Experimental.TokenizerV5.CommandLine
         ValueSeparator,
 
         [Context("Value")]
-        [QText(@"([a-z0-9][a-z0-9\-_]*)")]
+        //[QText(@"([a-z0-9][a-z0-9\-_]*)")]
+        [Regex(@"([a-z0-9][a-z0-9\-_]*|"".*(?<!\\)"")")]
         Value,
     }
 
@@ -646,11 +614,11 @@ namespace Reusable.Experimental.TokenizerV5.CommandLine
         */
         private static readonly State<CommandLineToken>[] States =
         {
-            new State<CommandLineToken>(default, Command) { Context = "Command" },
-            new State<CommandLineToken>(Command, ArgumentSeparator) { },
-            new State<CommandLineToken>(ArgumentSeparator, Argument) { Context = "Argument" },
+            new State<CommandLineToken>(default, Command),
+            new State<CommandLineToken>(Command, ArgumentSeparator),
+            new State<CommandLineToken>(ArgumentSeparator, Argument),
             new State<CommandLineToken>(Argument, ArgumentSeparator, ValueSeparator),
-            new State<CommandLineToken>(ValueSeparator, Value) { Context = "Value" },
+            new State<CommandLineToken>(ValueSeparator, Value),
             new State<CommandLineToken>(Value, ArgumentSeparator, ValueSeparator),
         };
 
