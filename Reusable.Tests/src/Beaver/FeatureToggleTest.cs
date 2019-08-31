@@ -1,6 +1,8 @@
 using System.Collections.Immutable;
+using System.Threading.Tasks;
 using Autofac;
 using Reusable.Beaver.Features;
+using Reusable.Data;
 using Reusable.Data.Annotations;
 using Reusable.Extensions;
 using Reusable.Quickey;
@@ -8,8 +10,69 @@ using Xunit;
 
 namespace Reusable.Beaver
 {
-    public class FeatureServiceTest
+    public class FeatureToggleTest
     {
+        [Fact]
+        public async Task Can_execute_feature_body()
+        {
+            var featureToggle = new FeatureToggle(new FeatureOptionRepository());
+            featureToggle.Options[TestFeatures.Greeting] = Feature.Options.Enabled;
+
+            Assert.True(await featureToggle.ExecuteAsync(TestFeatures.Greeting, () => true.ToTask(), () => false.ToTask()));
+            Assert.True(await featureToggle.ExecuteAsync(TestFeatures.Greeting, () => true.ToTask()));
+
+            Assert.True(featureToggle.Execute(TestFeatures.Greeting, () => true, () => false));
+            Assert.True(featureToggle.Execute(TestFeatures.Greeting, () => true));
+
+
+            var executed = false;
+
+            await featureToggle.ExecuteAsync(TestFeatures.Greeting, () =>
+            {
+                executed = true;
+                return Task.CompletedTask;
+            });
+
+            Assert.True(executed);
+
+            executed = false;
+
+            featureToggle.Execute(TestFeatures.Greeting, () => { executed = true; });
+
+            Assert.True(executed);
+        }
+
+        [Fact]
+        public async Task Can_execute_feature_fallback()
+        {
+            var featureToggle = new FeatureToggle(new FeatureOptionRepository());
+            featureToggle.Options[TestFeatures.Greeting] = Option<Feature>.None;
+
+            Assert.True(await featureToggle.ExecuteAsync(TestFeatures.Greeting, () => false.ToTask(), () => true.ToTask()));
+
+            Assert.True(featureToggle.Execute(TestFeatures.Greeting, () => false, () => true));
+
+            var executed = false;
+
+            await featureToggle.ExecuteAsync(TestFeatures.Greeting, () =>
+            {
+                executed = false;
+                return Task.CompletedTask;
+            }, () =>
+            {
+                executed = true;
+                return Task.CompletedTask;
+            });
+
+            Assert.True(executed);
+
+            executed = false;
+
+            featureToggle.Execute(TestFeatures.Greeting, () => { executed = false; }, () => { executed = true; });
+
+            Assert.True(executed);
+        }
+
         [Fact]
         public void Can_configure_features_by_tags()
         {
@@ -47,11 +110,19 @@ namespace Reusable.Beaver
             features.Update("test", f => f.Set(Feature.Options.Toggle).Set(Feature.Options.ToggleOnce)); // activate feature-toggler
             Assert.True(features.Switch("test", false, true)); // it's still disabled and will now switch
             Assert.True(features.IsEnabled("test")); // now it should be enabled
-            Assert.True(features.Switch("test", true, false)); 
-            Assert.True(features.Switch("test", true, false)); 
+            Assert.True(features.Switch("test", true, false));
+            Assert.True(features.Switch("test", true, false));
             Assert.True(features.IsEnabled("test")); // now it should be still be enabled because it was a one-time-switch
         }
+
+        [UseType, UseMember]
+        [PlainSelectorFormatter]
+        private abstract class TestFeatures
+        {
+            public static Selector<object> Greeting { get; } = From<TestFeatures>.This.Select(() => Greeting);
+        }
     }
+
 
     namespace Features
     {

@@ -28,11 +28,11 @@ namespace Reusable.Beaver
 
         public IFeatureOptionRepository Options { get; }
 
-        public async Task<T> ExecuteAsync<T>(FeatureIdentifier name, Func<Task<T>> body, Func<Task<T>> fallback)
+        public Task<T> ExecuteAsync<T>(FeatureIdentifier name, Func<Task<T>> body, Func<Task<T>> fallback)
         {
             // Not catching exceptions because the caller should handle them.
 
-            return await (this.IsEnabled(name) ? body : fallback)().ConfigureAwait(false);
+            return (this.IsEnabled(name) ? body : fallback)();//.ConfigureAwait(false);
         }
     }
 

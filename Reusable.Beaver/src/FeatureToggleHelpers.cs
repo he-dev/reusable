@@ -38,7 +38,7 @@ namespace Reusable.Beaver
             return toggle.Options.IsDirty(name);
         }
 
-        #region Execute
+        #region Execute helpers
 
         public static async Task<T> ExecuteAsync<T>(this IFeatureToggle features, FeatureIdentifier name, Func<Task<T>> body)
         {
@@ -50,14 +50,14 @@ namespace Reusable.Beaver
             await features.ExecuteAsync<object>
             (
                 name,
-                () =>
+                async () =>
                 {
-                    body();
+                    await body();
                     return default;
                 },
-                () =>
+                async () =>
                 {
-                    fallback();
+                    await fallback();
                     return default;
                 }
             );
@@ -65,7 +65,7 @@ namespace Reusable.Beaver
 
         public static async Task ExecuteAsync(this IFeatureToggle features, FeatureIdentifier name, Func<Task> body)
         {
-            await features.ExecuteAsync(name, body, () => Task.FromResult<object>(new object()));
+            await features.ExecuteAsync(name, body, () => default(object).ToTask());
         }
 
         public static T Execute<T>(this IFeatureToggle featureToggle, FeatureIdentifier name, Func<T> body, Func<T> fallback)
@@ -82,6 +82,20 @@ namespace Reusable.Beaver
                     .GetResult();
         }
 
+        public static T Execute<T>(this IFeatureToggle featureToggle, FeatureIdentifier name, Func<T> body)
+        {
+            return
+                featureToggle
+                    .ExecuteAsync
+                    (
+                        name,
+                        () => body().ToTask(),
+                        () => default(T).ToTask()
+                    )
+                    .GetAwaiter()
+                    .GetResult();
+        }
+
         public static void Execute(this IFeatureToggle featureToggle, FeatureIdentifier name, Action body, Action fallback)
         {
             featureToggle
@@ -91,12 +105,12 @@ namespace Reusable.Beaver
                     () =>
                     {
                         body();
-                        return default;
+                        return default(object).ToTask();
                     },
                     () =>
                     {
                         fallback();
-                        return default;
+                        return default(object).ToTask();
                     }
                 )
                 .GetAwaiter()
