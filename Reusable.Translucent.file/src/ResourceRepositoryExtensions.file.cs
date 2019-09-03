@@ -15,7 +15,7 @@ namespace Reusable.Translucent
             return await resourceRepository.InvokeAsync(new Request.Get(CreateUri(path))
             {
                 //ContentType = format
-                //Metadata = properties.ThisOrEmpty().SetItem(Request.Accept, format)
+                Metadata = properties.ThisOrEmpty()
             });
         }
 
@@ -40,6 +40,7 @@ namespace Reusable.Translucent
             using (await resourceRepository.InvokeAsync(new Request.Put(CreateUri(path))
             {
                 Body = value,
+                Metadata = properties.ThisOrEmpty()
             })) { }
         }
 
@@ -57,6 +58,7 @@ namespace Reusable.Translucent
             await resourceRepository.InvokeAsync(new Request.Delete(CreateUri(path))
             {
                 //ContentType = MimeType.Plain
+                Metadata = metadata.ThisOrEmpty()
             });
         }
 
