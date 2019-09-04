@@ -81,6 +81,19 @@ namespace Reusable.Translucent.Controllers
         #endregion
     }
 
+    public static class ImmutableContainerExtensions
+    {
+        public static IImmutableContainer AddScheme(this IImmutableContainer container, SoftString scheme)
+        {
+            return container.UpdateItem(ResourceController.Schemes, x => x.Add(scheme));
+        }
+        
+        public static IImmutableContainer AddTag(this IImmutableContainer container, SoftString tag)
+        {
+            return container.UpdateItem(ResourceController.Tags, x => x.Add(tag));
+        }
+    }
+
 
     public static class ElementOrder
     {

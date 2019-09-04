@@ -14,7 +14,6 @@ namespace Reusable.Translucent
         {
             return await resourceRepository.InvokeAsync(new Request.Get(CreateUri(path))
             {
-                //ContentType = format
                 Metadata = properties.ThisOrEmpty()
             });
         }
@@ -29,6 +28,8 @@ namespace Reusable.Translucent
 
         public static string ReadTextFile(this IResourceRepository resourceRepository, string path, IImmutableContainer metadata = default)
         {
+            //return resourceRepository.ReadTextFileAsync(path, metadata).GetAwaiter().GetResult();
+            
             using (var file = resourceRepository.GetFileAsync(path, metadata).GetAwaiter().GetResult())
             {
                 return file.DeserializeTextAsync().GetAwaiter().GetResult();

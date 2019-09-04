@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using Reusable.Quickey;
 using Xunit;
 
-namespace Reusable.Translucent.config.Controllers
+namespace Reusable.Translucent.Controllers
 {
     public class AppSettingControllerTest
     {

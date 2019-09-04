@@ -3,14 +3,14 @@ using System.IO;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Reusable.Translucent.config.Controllers
+namespace Reusable.Translucent.Controllers
 {
     public class PhysicalFileControllerTest
     {
         private static readonly IResourceRepository Resources = ResourceRepository.Create(c => c.AddPhysicalFiles());
 
         [Fact]
-        public async Task Can_read_and_write_text_file()
+        public async Task Can_handle_file_methods()
         {
             var tempFileName = GetTempFileName();
 
