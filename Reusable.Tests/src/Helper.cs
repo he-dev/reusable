@@ -12,7 +12,7 @@ namespace Reusable
     {
         public static readonly string ConnectionString = "Data Source=(local);Initial Catalog=TestDb;Integrated Security=SSPI;";
 
-        public static readonly IResourceRepository Resources = new ResourceRepository<TestResourceSetup>(default(IServiceProvider));
+        public static readonly IResourceRepository Resources = new ResourceRepository<TestResourceSetup>(default);
 
         private class TestResourceSetup
         {

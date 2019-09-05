@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive;
@@ -372,6 +373,215 @@ namespace blub
             public override bool Equals(object obj) => obj is IgnoreCase ic && Equals(ic.Value);
             public override int GetHashCode() => StringComparer.OrdinalIgnoreCase.GetHashCode(Value);
             public static explicit operator IgnoreCase(string value) => new IgnoreCase { Value = value };
+        }
+    }
+
+    /// <summary>
+    /// Provides utilities to manage streams.
+    /// </summary>
+    public static class StreamUtils
+    {
+        private const int DefaultBufferSize = 1024;
+
+        /// <summary>
+        /// Enumerate buffers from a specified stream.
+        /// </summary>
+        /// <param name="stream">The stream to read.</param>
+        /// <param name="bufferSize">The size of each buffer.</param>
+        /// <param name="count">How many bytes to read. Negative values mean read to end.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="IOException"></exception>
+        /// <exception cref="NotSupportedException"></exception>
+        /// <exception cref="ObjectDisposedException"></exception>
+        public static IEnumerable<byte[]> EnumerateBuffers(this Stream stream, int bufferSize = DefaultBufferSize, long count = -1)
+        {
+            byte[] buffer = new byte[bufferSize];
+            do
+            {
+                long read = stream.Read(buffer, 0, bufferSize);
+                if (read < 1)
+                    break;
+                if (count > -1)
+                {
+                    count -= read;
+                    if (count < 0)
+                        read += count;
+                }
+
+                if (read == bufferSize)
+                    yield return buffer;
+                else
+                {
+                    byte[] newBuffer = new byte[read];
+                    Buffer.BlockCopy(buffer, 0, newBuffer, 0, (int)read);
+                    yield return newBuffer;
+                    break;
+                }
+            } while (true);
+        }
+
+        /// <summary>
+        /// Enumerate substrings from a specified stream.
+        /// </summary>
+        /// <param name="stream">The stream to read.</param>
+        /// <param name="bufferSize">The length of each substring.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="IOException"></exception>
+        /// <exception cref="DecoderFallbackException"></exception>
+        /// <exception cref="NotSupportedException"></exception>
+        /// <exception cref="ObjectDisposedException"></exception>
+        public static IEnumerable<string> EnumerateSubstrings(this Stream stream, int bufferSize = DefaultBufferSize)
+        {
+            return stream.EnumerateSubstrings(Encoding.Default, bufferSize);
+        }
+
+        /// <summary>
+        /// Enumerate substrings from a specified stream.
+        /// </summary>
+        /// <param name="stream">The stream to read.</param>
+        /// <param name="encoding">The encoding to use.</param>
+        /// <param name="bufferSize">The length of each substring.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="IOException"></exception>
+        /// <exception cref="DecoderFallbackException"></exception>
+        /// <exception cref="NotSupportedException"></exception>
+        /// <exception cref="ObjectDisposedException"></exception>
+        public static IEnumerable<string> EnumerateSubstrings(this Stream stream, Encoding encoding, int bufferSize = DefaultBufferSize)
+        {
+            return from byte[] buffer in stream.EnumerateBuffers(bufferSize) select encoding.GetString(buffer);
+        }
+
+        /// <summary>
+        /// Read the current stream until a specified string is encountered.
+        /// </summary>
+        /// <param name="stream">The source stream.</param>
+        /// <param name="separator">The string that marks the end.</param>
+        /// <param name="bufferSize">The size of the buffers.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="IOException"></exception>
+        /// <exception cref="DecoderFallbackException"></exception>
+        /// <exception cref="NotSupportedException"></exception>
+        /// <exception cref="ObjectDisposedException"></exception>
+        public static string ReadTo(this Stream stream, string separator, int bufferSize = DefaultBufferSize)
+        {
+            return stream.ReadTo(separator, Encoding.Default, bufferSize);
+        }
+
+        /// <summary>
+        /// Read the current stream until a specified string is encountered.
+        /// </summary>
+        /// <param name="stream">The source stream.</param>
+        /// <param name="separator">The string that marks the end.</param>
+        /// <param name="encoding">The encoding to use.</param>
+        /// <param name="bufferSize">The size of the buffers.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="IOException"></exception>
+        /// <exception cref="DecoderFallbackException"></exception>
+        /// <exception cref="NotSupportedException"></exception>
+        /// <exception cref="ObjectDisposedException"></exception>
+        public static string ReadTo(this Stream stream, string separator, Encoding encoding, int bufferSize = DefaultBufferSize)
+        {
+            // This method requires seeking, so ensure that the specified stream supports it.
+            if (!stream.CanSeek)
+                throw new NotSupportedException();
+            // This StringBuilder will build the resulting text. Using this to avoid too many string reallocations.
+            var text = new StringBuilder();
+            var hasSuffix = false;
+            string endingSeparator = null;
+            // Retrieve how many bytes is the specified separator long. This will be necessary to handle some seekings on the stream.
+            var separatorByteLength = encoding.GetByteCount(separator);
+            // Iterate through each substring in the stream. Each one is a buffer converted to a string using a specified encoding.
+            foreach (var substring in stream.EnumerateSubstrings(encoding, bufferSize))
+            {
+                // Retrieve how many bytes is the current substring long. Again, useful for seekings.
+                var substringByteLength = encoding.GetByteCount(substring);
+                // Check out whether the previous substring had a suffix.
+                if (hasSuffix)
+                {
+                    // If it had, then verify whether the current substring starts with the remaining part of the separator.
+                    if (substring.StartsWith(separator.Substring(endingSeparator.Length)))
+                    {
+                        // In that case, seek till before the separator and break the loop.
+                        stream.Seek(substringByteLength - encoding.GetByteCount(endingSeparator), SeekOrigin.Current);
+                        break;
+                    }
+
+                    // If the code reached here, then the previous suffix were not part of a separator, as the whole of the separator cannot be found.
+                    hasSuffix = false;
+                    text.Append(endingSeparator);
+                }
+
+                // If the current substring starts with the separator, just skip it and break the loop, so the StringBuilder will only contain previous substrings.
+                if (substring.StartsWith(separator))
+                {
+                    break;
+                }
+
+                {
+                    // Check out whether the current substring contains the separator.
+                    var separatorIndex = substring.IndexOf(separator);
+                    if (separatorIndex != -1)
+                    {
+                        // If that's the case, take this substring till the previously found index, ...
+                        var newSubstring = substring.Remove(separatorIndex);
+                        // ...then seek the current stream before the separator, ...
+                        stream.Seek(encoding.GetByteCount(newSubstring) - substringByteLength, SeekOrigin.Current);
+                        // ...and finally append the new substring (the one before the separator) to the StringBuilder.
+                        text.Append(newSubstring);
+                        break;
+                    }
+                }
+                // Check out whether the current substring ends with the specified separator.
+                if (substring.EndsWith(separator))
+                {
+                    // If it does, go back as many bytes as the separator is long within the stream.
+                    stream.Seek(-separatorByteLength, SeekOrigin.Current);
+                    // Then, append this substring till before the specified separator to the StringBuilder.
+                    text.Append(substring.Remove(substring.Length - separator.Length));
+                    break;
+                }
+
+                // Sometimes, it might happen that the separator is divided between the current substring and the next one.
+                // So, see whether the current substring ends with just one part (even one only character) of the separator.
+                endingSeparator = separator;
+                do
+                {
+                    // Remove the last character from the 'ending separator'.
+                    endingSeparator = endingSeparator.Remove(endingSeparator.Length - 1);
+                }
+                // If the ending separator isn't empty yet and the current substring doesn't end with it,
+                // continue the loop.
+                while (!(endingSeparator.Length == 0 || substring.EndsWith(endingSeparator)));
+                // At this time, the ending separator will be an initial part of the specified separator,
+                // which is a 'suffix' of the current substring.
+                // Push the length of the suffix on the stack, so I'll avoid to call the Length getter accessor multiple times.
+                var suffixLength = endingSeparator.Length;
+                // If the suffix is empty, that means the current string doesn't end with even just a part of the separator.
+                // Therefore, just append the current string to the StringBuilder.
+                if (suffixLength == 0)
+                {
+                    text.Append(substring);
+                }
+                else
+                {
+                    // If rather the suffix isn't empty, then mark this with the boolean hasSuffix and
+                    // append the current substring only till before the suffix.
+                    hasSuffix = true;
+                    text.Append(substring.Remove(substring.Length - suffixLength));
+                }
+            }
+
+            return text.ToString();
         }
     }
 }

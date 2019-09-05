@@ -2,13 +2,12 @@ using System;
 using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.Teapot;
-using Reusable.Translucent.Controllers;
 using Reusable.Utilities.Mailr;
 using Reusable.Utilities.Mailr.Models;
 using Reusable.Utilities.XUnit.Fixtures;
 using Xunit;
 
-namespace Reusable.Translucent.http
+namespace Reusable.Translucent.Controllers
 {
     public class HttpControllerTest : IDisposable, IClassFixture<TeapotServerFixture>
     {
