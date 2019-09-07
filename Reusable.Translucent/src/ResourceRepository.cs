@@ -29,7 +29,7 @@ namespace Reusable.Translucent
             InvokeMethod<IResourceControllerBuilder>(setup, nameof(QuickSetup.ConfigureServices), false, resourceControllerBuilder, services);
             InvokeMethod<IResourceRepositoryBuilder>(setup, nameof(QuickSetup.Configure), true, resourceRepositoryBuilder, services);
 
-            resourceRepositoryBuilder.UseMiddleware<ControllerMiddleware>(new object[] { resourceControllerBuilder.Controllers.AsEnumerable() });
+            resourceRepositoryBuilder.UseMiddleware<ResourceMiddleware>(new object[] { resourceControllerBuilder.Controllers.AsEnumerable() });
 
             _requestDelegate = resourceRepositoryBuilder.Build<ResourceContext>();
         }

@@ -9,60 +9,80 @@ using Reusable.Flawless.Helpers;
 
 namespace Reusable.Flawless
 {
-    using vef = ValidationExpressionFactory;
+    using exprfac = ValidationExpressionFactory;
 
+    public abstract class When
+    {
+        public static When Value = default;
+    }
+    
     public static class ValidationRuleBuilderExtension
     {
-        public static ValidationRuleBuilder<T, TContext> When<T, TContext>(this ValidationRuleBuilder<T, TContext> builder, Expression<Func<T, bool>> expression)
+        
+        public static ValidationRuleBuilder<TValue> Required<TValue>(this TValue value) where TValue : class
+        {
+            return default;// expression => ValidationRule<T, TContext>.Builder.Predicate(_ => vef.ReferenceEqualNull(expression));
+        }
+        
+//        public static ValidationRuleBuilder<TValue, object> Not<TValue>(this ValidationRuleBuilder<TValue, object> builder)
+//        {
+//            return default;// expression => ValidationRule<T, TContext>.Builder.Predicate(_ => vef.ReferenceEqualNull(expression));
+//        }
+        
+        public static ValidationRuleBuilder<string> NullOrEmpty(this string value)
+        {
+            return default;// expression => ValidationRule<T, TContext>.Builder.Predicate(_ => vef.ReferenceEqualNull(expression));
+        }
+        
+        
+        // --------------
+        
+        public static ValidationRuleBuilder<T> When<T>(this ValidationRuleBuilder<T> builder, Expression<Func<T, bool>> expression)
         {
             return builder.Predicate(_ => expression);
         }
 
-        public static ValidationRuleBuilder<T, TContext> Null<T, TContext, TMember>(this ValidationRuleBuilder<T, TContext> builder, Expression<Func<T, TMember>> expression)
+        public static ValidationRuleBuilder<T> Null<T>(this ValidationRuleBuilder<T> builder)
         {
-            return builder.Predicate(_ => vef.ReferenceEqualNull(expression));
+            return builder.Predicate(exprfac.ReferenceEqualNull);
+        }
+        
+
+        public static ValidationRuleBuilder<T> NullOrEmpty<T, TContext>(this ValidationRuleBuilder<T> builder, Expression<Func<T, string>> expression)
+        {
+            return builder.Predicate(_ => exprfac.IsNullOrEmpty(expression));
         }
 
-        public static ValidationRuleBuilder<T, TContext> NullOrEmpty<T, TContext>(this ValidationRuleBuilder<T, TContext> builder, Expression<Func<T, string>> expression)
-        {
-            return builder.Predicate(_ => vef.IsNullOrEmpty(expression));
-        }
-
-        public static ValidationRuleBuilder<T, TContext> Like<T, TContext>
+        public static ValidationRuleBuilder<T> Like<T>
         (
-            this ValidationRuleBuilder<T, TContext> builder,
+            this ValidationRuleBuilder<T> builder,
             Expression<Func<T, string>> expression,
             [RegexPattern] string pattern,
             RegexOptions options = RegexOptions.None
         )
         {
-            return builder.Predicate(_ => vef.IsMatch(expression, pattern, options));
+            return builder.Predicate(_ => exprfac.IsMatch(expression, pattern, options));
         }
 
-        public static ValidationRuleBuilder<T, TContext> Equal<T, TContext, TMember>
+        public static ValidationRuleBuilder<T> Equal<T, TContext, TMember>
         (
-            this ValidationRuleBuilder<T, TContext> builder,
+            this ValidationRuleBuilder<T> builder,
             Expression<Func<T, TMember>> expression,
             TMember value,
             IEqualityComparer<TMember> comparer = default
         )
         {
-            return builder.Predicate(_ => vef.Equal(expression, value, comparer ?? EqualityComparer<TMember>.Default));
+            return builder.Predicate(_ => exprfac.Equal(expression, value, comparer ?? EqualityComparer<TMember>.Default));
         }
 
-        internal static ValidationRuleBuilder<T, TContext> Negate<T, TContext>(this ValidationRuleBuilder<T, TContext> builder)
+        internal static ValidationRuleBuilder<T> Negate<T>(this ValidationRuleBuilder<T> builder)
         {
-            return builder.Predicate(vef.Not);
+            return builder.Predicate(exprfac.Not);
         }
 
-        public static ValidationRuleBuilder<T, TContext> Message<T, TContext>(this ValidationRuleBuilder<T, TContext> builder, string message)
+        public static ValidationRuleBuilder<T> Message<T>(this ValidationRuleBuilder<T> builder, string message)
         {
-            return builder.Message((x, c) => message);
-        }
-
-        public static ValidationRuleBuilder<T, TContext> Required<T, TContext>(this ValidationRuleBuilder<T, TContext> builder)
-        {
-            return builder.Severity(ValidationFailureFactory.CreateError);
+            return builder.Message(x => message);
         }
     }
 }

@@ -44,6 +44,26 @@ namespace Reusable.Flawless.Helpers
                     expression.Parameters
                 );
         }
+        
+        public static LambdaExpression ReferenceEqualNull(LambdaExpression expression)
+        {
+            // x => object.ReferenceEqual(x.Member, null)
+
+            // This is tricky because the original expression is () => (<>c__DisplayClass).x.y.z
+            // We first need to the closure and inject out parameter there.
+            //var member = ValidationClosureSearch.FindParameter(expression);
+            //var parameter = Expression.Parameter(member.Type);
+            //var expressionWithParameter = ValidationParameterInjector.InjectParameter(expression.Body, parameter);
+
+            // x => object.ReferenceEqual(x, null)
+            return
+                Expression.Lambda(
+                    Expression.ReferenceEqual(
+                        expression.Body,
+                        Expression.Constant(null)),
+                    expression.Parameters
+                );
+        }
 
         private static LambdaExpression ReferenceEqualNull<T>(ParameterExpression parameter, Expression value = default)
         {

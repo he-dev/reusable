@@ -9,7 +9,7 @@ namespace Reusable.Translucent
     {
         public static RequestDelegateBuilder UseControllers(this RequestDelegateBuilder builder, IEnumerable<IResourceController> controllers)
         {
-            return builder.UseMiddleware<ControllerMiddleware>(controllers);
+            return builder.UseMiddleware<ResourceMiddleware>(controllers);
         }
 
         public static RequestDelegateBuilder UseControllers(this RequestDelegateBuilder builder, params IResourceController[] controllers)

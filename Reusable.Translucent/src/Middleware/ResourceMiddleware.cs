@@ -12,7 +12,7 @@ using Reusable.Translucent.Controllers;
 namespace Reusable.Translucent.Middleware
 {
     [UsedImplicitly]
-    public class ControllerMiddleware
+    public class ResourceMiddleware
     {
         private static readonly IEnumerable<ResourceControllerFilterCallback> Filters = new ResourceControllerFilterCallback[]
         {
@@ -25,7 +25,7 @@ namespace Reusable.Translucent.Middleware
         private readonly RequestDelegate<ResourceContext> _next;
         private readonly IMemoryCache _cache;
 
-        public ControllerMiddleware(RequestDelegate<ResourceContext> next, IEnumerable<IResourceController> controllers)
+        public ResourceMiddleware(RequestDelegate<ResourceContext> next, IEnumerable<IResourceController> controllers)
         {
             _next = next;
             _controllers = controllers.ToImmutableList();

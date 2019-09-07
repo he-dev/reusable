@@ -16,10 +16,10 @@ namespace Reusable.Cryptography
     [PublicAPI]
     public class FingerprintBuilder<T>
     {
-        private static readonly ValidationRuleCollection<FingerprintBuilder<T>, object> FingerprintBuilderValidator =
-            ValidationRuleCollection
-                .For<FingerprintBuilder<T>>()
-                .Accept(b => b.When(x => x._valueSelectors.Any()).Message($"{nameof(FingerprintBuilder<T>)} requires at least one value-selector."));
+//        private static readonly Validator<FingerprintBuilder<T>, object> FingerprintBuilderValidator =
+//            Validator
+//                .For<FingerprintBuilder<T>>()
+//                .Accept(b => b.When(x => x._valueSelectors.Any()).Message($"{nameof(FingerprintBuilder<T>)} requires at least one value-selector."));
 
         private readonly SortedDictionary<string, Func<T, object>> _valueSelectors;
 
@@ -60,7 +60,7 @@ namespace Reusable.Cryptography
         {
             if (computeHashCallback == null) throw new ArgumentNullException(nameof(computeHashCallback));
 
-            this.ValidateWith(FingerprintBuilderValidator).ThrowOnFailure();
+            //this.ValidateWith(FingerprintBuilderValidator).ThrowOnFailure();
 
             var binaryFormatter = new BinaryFormatter();
 

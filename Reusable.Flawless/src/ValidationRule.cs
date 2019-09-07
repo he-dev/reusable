@@ -12,32 +12,32 @@ using Reusable.Flawless.ExpressionVisitors;
 
 namespace Reusable.Flawless
 {
-    public delegate bool ValidationPredicate<in T, in TContext>(T obj, TContext context);
+    public delegate bool ValidationPredicate<in T>(T obj, IImmutableContainer context);
 
     [CanBeNull]
-    public delegate string MessageCallback<in T, in TContext>(T obj, TContext context);
+    public delegate string MessageCallback<in T>(T obj, IImmutableContainer context);
 
-    public interface IValidationRule<in T, in TContext>
+    public interface IValidationRule<in T>
     {
         IImmutableSet<string> Tags { get; }
 
         [NotNull]
-        IValidationResult Evaluate([CanBeNull] T obj, TContext context);
+        IValidationResult Evaluate([CanBeNull] T obj, IImmutableContainer context);
     }
 
-    public class ValidationRule<T, TContext> : IValidationRule<T, TContext>
+    public class ValidationRule<T> : IValidationRule<T>
     {
         [NotNull]
         private readonly CreateValidationFailureCallback _createValidationFailure;
-        private readonly ValidationPredicate<T, TContext> _evaluate;
-        private readonly MessageCallback<T, TContext> _createMessage;
+        private readonly ValidationPredicate<T> _evaluate;
+        private readonly MessageCallback<T> _createMessage;
         private readonly string _expressionString;
 
         public ValidationRule
         (
             [NotNull] IImmutableSet<string> tags,
-            [NotNull] Expression<ValidationPredicate<T, TContext>> predicate,
-            [NotNull] Expression<MessageCallback<T, TContext>> message,
+            [NotNull] Expression<ValidationPredicate<T>> predicate,
+            [NotNull] Expression<MessageCallback<T>> message,
             [NotNull] CreateValidationFailureCallback createValidationFailure
         )
         {
@@ -52,10 +52,12 @@ namespace Reusable.Flawless
             _expressionString = ValidationParameterPrettifier.Prettify<T>(predicate).ToString();
             _createValidationFailure = createValidationFailure;
         }
+        
+        //public static ValidationRuleBuilder<T, TContext> Builder => new ValidationRuleBuilder<T, TContext>();
 
         public IImmutableSet<string> Tags { get; }
 
-        public IValidationResult Evaluate(T obj, TContext context)
+        public IValidationResult Evaluate(T obj, IImmutableContainer context)
         {
             if (_evaluate(obj, context) is var success && success)
             {
@@ -69,6 +71,6 @@ namespace Reusable.Flawless
 
         public override string ToString() => _expressionString;
 
-        public static implicit operator string(ValidationRule<T, TContext> rule) => rule?.ToString();
+        public static implicit operator string(ValidationRule<T> rule) => rule?.ToString();
     }
 }

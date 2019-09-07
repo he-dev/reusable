@@ -21,7 +21,9 @@ namespace Reusable.Translucent.Middleware
 
             //var text = resources.ReadTextFile("path", ImmutableContainer.Empty.UpdateItem());
 
-            var text = resources.WhereTags("app").ReadTextFile("path");
+            var text1 = resources.WhereTags("app").ReadTextFile("path");
+            var text2 = resources.ReadTextFile("path", WhereTags.Are("app"));
+            //var text2 = resources.ReadTextFile("path", ResourceTags.Are("app"));
         }
 
         [Fact]
@@ -36,7 +38,7 @@ namespace Reusable.Translucent.Middleware
             Mock.Arrange(() => c2.Properties).Returns(ImmutableContainer.Empty.AddScheme("s").AddTag("b"));
             Mock.Arrange(() => c2.Get(Arg.IsAny<Request>())).OccursOnce();
 
-            var middleware = new ControllerMiddleware(c => Task.CompletedTask, new[] { c1, c2 });
+            var middleware = new ResourceMiddleware(c => Task.CompletedTask, new[] { c1, c2 });
 
             middleware.InvokeAsync(new ResourceContext
             {
@@ -48,6 +50,14 @@ namespace Reusable.Translucent.Middleware
 
             c1.Assert();
             c2.Assert();
+        }
+    }
+
+    public static class WhereTags
+    {
+        public static IImmutableContainer Are(params SoftString[] tags)
+        {
+            return ImmutableContainer.Empty.SetItem(ResourceController.Tags, tags.ToImmutableHashSet());
         }
     }
 

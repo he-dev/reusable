@@ -16,7 +16,7 @@ namespace Reusable.Translucent
             };
             configure(resourceBuilder);
 
-            return builder.UseMiddleware<ControllerMiddleware>(new object[] { resourceBuilder.Controllers.AsEnumerable() });
+            return builder.UseMiddleware<ResourceMiddleware>(new object[] { resourceBuilder.Controllers.AsEnumerable() });
         }
     }
 
