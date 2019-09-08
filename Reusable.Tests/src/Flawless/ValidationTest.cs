@@ -62,8 +62,8 @@ namespace Reusable.Flawless
                     //firstName.Required();
                     //firstName.Not().NullOrEmpty();
                     firstName.Validate(y => y.Length).GreaterThan(0);
-                    //firstName.Equal("John");
-                    //inner.ValidateSelf().Like(@"^[a-z]+");
+                    firstName.When(x => x.StartsWith("S")).Equal("Sam");
+                    firstName.Like(@"^[a-z]+");
                 });
 
                 person.Validate(x => x.Address, address =>

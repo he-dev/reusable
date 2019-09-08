@@ -15,79 +15,69 @@ namespace Reusable.Flawless
     {
         public static When Value = default;
     }
-    
+
     public static class ValidationRuleBuilderExtension
     {
-        
         public static ValidationRuleBuilder<TValue> Required<TValue>(this ValidationRuleBuilder<TValue> builder) where TValue : class
         {
             return builder.Not().Null().Error();
         }
-        
+
 //        public static ValidationRuleBuilder<TValue, object> Not<TValue>(this ValidationRuleBuilder<TValue, object> builder)
 //        {
 //            return default;// expression => ValidationRule<T, TContext>.Builder.Predicate(_ => vef.ReferenceEqualNull(expression));
 //        }
-        
+
         public static ValidationRuleBuilder<string> NullOrEmpty(this string value)
         {
-            return default;// expression => ValidationRule<T, TContext>.Builder.Predicate(_ => vef.ReferenceEqualNull(expression));
+            return default; // expression => ValidationRule<T, TContext>.Builder.Predicate(_ => vef.ReferenceEqualNull(expression));
         }
-        
-        
+
+
         // --------------
-        
+
         public static ValidationRuleBuilder<T> When<T>(this ValidationRuleBuilder<T> builder, Expression<Func<T, bool>> expression)
         {
-            return builder.Predicate(_ => expression);
+            var validate = expression.AddContextParameterIfNotExists<T, bool>();
+            var injected = ObjectInjector.Inject(validate, builder.ValueExpression.Body);
+            var lambda = Expression.Lambda(injected, builder.ValueExpression.Parameters);
+            return builder.When(lambda);
         }
 
         public static ValidationRuleBuilder<T> Null<T>(this ValidationRuleBuilder<T> builder)
         {
             return builder.Predicate(exprfac.ReferenceEqualNull);
         }
-        
 
         public static ValidationRuleBuilder<T> NullOrEmpty<T>(this ValidationRuleBuilder<T> builder)
         {
             return builder.Predicate(exprfac.IsNullOrEmpty);
         }
-        
+
         public static ValidationRuleBuilder<T> GreaterThan<T>(this ValidationRuleBuilder<T> builder, T value)
         {
             return builder.Predicate(expression => exprfac.GreaterThan(expression, value));
         }
 
-        public static ValidationRuleBuilder<T> Like<T>
-        (
-            this ValidationRuleBuilder<T> builder,
-            Expression<Func<T, string>> expression,
-            [RegexPattern] string pattern,
-            RegexOptions options = RegexOptions.None
-        )
+        public static ValidationRuleBuilder<T> Like<T>(this ValidationRuleBuilder<T> builder, [RegexPattern] string pattern, RegexOptions options = RegexOptions.None)
         {
-            return builder.Predicate(_ => exprfac.IsMatch(expression, pattern, options));
+            return builder.Predicate(expression => exprfac.IsMatch(expression, pattern, options));
         }
 
-        public static ValidationRuleBuilder<T> Equal<T>
-        (
-            this ValidationRuleBuilder<T> builder,
-            //Expression<Func<T, TMember>> expression,
-            T value,
-            IEqualityComparer<T> comparer = default
-        )
+        public static ValidationRuleBuilder<T> Equal<T>(this ValidationRuleBuilder<T> builder, T value, IEqualityComparer<T> comparer = default)
         {
             return builder.Predicate(expression => exprfac.Equal(expression, value, comparer ?? EqualityComparer<T>.Default));
         }
 
-        internal static ValidationRuleBuilder<T> Negate<T>(this ValidationRuleBuilder<T> builder)
-        {
-            return builder.Predicate(exprfac.Not);
-        }
+//        internal static ValidationRuleBuilder<T> Negate<T>(this ValidationRuleBuilder<T> builder)
+//        {
+//            return builder.Predicate(exprfac.Not);
+//        }
 
         public static ValidationRuleBuilder<T> Message<T>(this ValidationRuleBuilder<T> builder, string message)
         {
-            return builder.Message(x => message);
+            //return builder.Message(x => message);
+            return builder;
         }
     }
 }

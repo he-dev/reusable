@@ -21,11 +21,11 @@ namespace Reusable.Flawless
 
     public class ValidationRuleBuilder<TValue> : List<IValidationRuleBuilder>, IValidationRuleBuilder
     {
+        private LambdaExpression _when;
         private bool _negate;
         private readonly IList<Item> _items;
         private readonly IValidationRuleBuilder _parent;
 
-        // expression: (value, context) => expr
         public ValidationRuleBuilder(IValidationRuleBuilder parent, LambdaExpression expression)
         {
             _parent = parent;
@@ -43,28 +43,36 @@ namespace Reusable.Flawless
             return this;
         }
 
+        public ValidationRuleBuilder<TValue> When(LambdaExpression when)
+        {
+            _when = when;
+            return this;
+        }
+
         public ValidationRuleBuilder<TValue> Predicate(Func<LambdaExpression, LambdaExpression> createPredicate)
         {
             var predicate = createPredicate(ValueExpression);
 
             _items.Add(new Item
             {
+                When = _when ?? ((Expression<Func<TValue, IImmutableContainer, bool>>)((x, ctx) => true)),
                 Predicate = _negate ? exprfac.Not(predicate) : predicate,
                 Message = (Expression<Func<TValue, IImmutableContainer, string>>)((x, c) => default)
             });
 
             _negate = false;
+            _when = null;
 
             return this;
         }
 
         public ValidationRuleBuilder<TValue> Error()
         {
-            _items.Last().CreateValidationFailureCallback = ValidationFailureFactory.CreateError;
+            _items.Last().Required = true;
             return this;
         }
 
-        public ValidationRuleBuilder<TValue> Message(Expression<Func<TValue, string>> message)
+        public ValidationRuleBuilder<TValue> Message(LambdaExpression message)
         {
             //_rules.Last().Message = message;
             //_message = message;
@@ -82,50 +90,42 @@ namespace Reusable.Flawless
         {
             // (x, ctx) => x.FirstName -->
             var rules =
-                from x in _items
-//                let parameters = new[]
-//                {
-//                    _parent is null ?  x.Predicate.Parameters[0] : _parent.ValueExpression.Parameters[0], // ?? ValidationParameterPrettifier.CreatePrettyParameter<T>(),
-//                    _parent is null ?  x.Predicate.Parameters[1] : _parent.ValueExpression.Parameters[1]  // ?? ValidationParameterPrettifier.CreatePrettyParameter<IImmutableContainer>()
-//                }
-                let expressionWithParameter = x.Predicate.Parameters.Aggregate(x.Predicate.Body, ValidationParameterInjector.InjectParameter)
-                //let predicate = Expression.Lambda<ValidateDelegate<TValue>>(expressionWithParameter, x.Predicate.Parameters)
-                let predicate = Expression.Lambda<ValidateDelegate<T>>(expressionWithParameter, x.Predicate.Parameters)
-                //let predicate = Expression.Lambda(expressionWithParameter, x.Predicate.Parameters)
-                let messageWithParameter = x.Predicate.Parameters.Aggregate(x.Message.Body, ValidationParameterInjector.InjectParameter)
-                let message = Expression.Lambda<MessageCallback<T>>(messageWithParameter, x.Predicate.Parameters)
-                select (IValidator<T>)new ValidationRule<T>(ImmutableHashSet<string>.Empty, predicate, message, x.CreateValidationFailureCallback);
+                from item in _items
+                // Need to recreate all expressions so that they use the same parameters.
+                let parameters = item.Predicate.Parameters
+                let when = Expression.Lambda<EvaluateDelegate<T, bool>>(item.When.Body, parameters)
+                let predicate = Expression.Lambda<EvaluateDelegate<T, bool>>(item.Predicate.Body, parameters)
+                let message = Expression.Lambda<EvaluateDelegate<T, string>>(item.Message.Body, parameters)
+                select (IValidator<T>)new ValidationRule<T>(when, predicate, message, item.Required, ImmutableHashSet<string>.Empty);
 
-            rules = rules.ToList();
-
-            var sub = this.SelectMany(b => b.Build<T>());
-
-            foreach (var rule in rules.Concat(sub))
+            foreach (var rule in rules.Concat(this.SelectMany(b => b.Build<T>())))
             {
-                yield return rule; //();
+                yield return rule;
             }
         }
 
         private class Item
         {
+            public LambdaExpression When { get; set; }
+
             public LambdaExpression Predicate { get; set; }
 
             public LambdaExpression Message { get; set; }
 
             public IEnumerable<string> Tags { get; set; } = Enumerable.Empty<string>();
 
-            public CreateValidationFailureCallback CreateValidationFailureCallback { get; set; } = ValidationFailureFactory.CreateWarning;
+            public bool Required { get; set; }
         }
     }
 
     public static class ValidatorBuilderExtensions
     {
-        public static ValidationRuleBuilder<TValue> Validate<T, TValue>(this ValidationRuleBuilder<T> parent, Expression<Func<T, TValue>> expression)
+        public static ValidationRuleBuilder<TValue> Validate<T, TValue>(this ValidationRuleBuilder<T> builder, Expression<Func<T, TValue>> expression)
         {
             var validate = expression.AddContextParameterIfNotExists<T, TValue>();
-            var injected = ObjectInjector.Inject(validate, parent.ValueExpression.Body);
-            var lambda = Expression.Lambda(injected, parent.ValueExpression.Parameters);
-            return new ValidationRuleBuilder<TValue>(parent, lambda);
+            var injected = ObjectInjector.Inject(validate, builder.ValueExpression.Body);
+            var lambda = Expression.Lambda(injected, builder.ValueExpression.Parameters);
+            return new ValidationRuleBuilder<TValue>(builder, lambda);
         }
 
 //        public static ValidationRuleBuilder<TValue> ValidateSelf<TValue>(this ValidationRuleBuilder<TValue> rules)
@@ -133,16 +133,16 @@ namespace Reusable.Flawless
 //            return rules.Validate(x => x);
 //        }
 
-        public static void Validate<T, TValue>(this ValidationRuleBuilder<T> parent, Expression<Func<T, TValue>> expression, Action<ValidationRuleBuilder<TValue>> configureBuilder)
+        public static void Validate<T, TValue>(this ValidationRuleBuilder<T> builder, Expression<Func<T, TValue>> expression, Action<ValidationRuleBuilder<TValue>> configureBuilder)
         {
             var validate = expression.AddContextParameterIfNotExists<T, TValue>();
-            var injected = ObjectInjector.Inject(validate, parent.ValueExpression.Body);
-            var lambda = Expression.Lambda(injected, parent.ValueExpression.Parameters);
-            
-            configureBuilder(new ValidationRuleBuilder<TValue>(parent, lambda));
+            var injected = ObjectInjector.Inject(validate, builder.ValueExpression.Body);
+            var lambda = Expression.Lambda(injected, builder.ValueExpression.Parameters);
+
+            configureBuilder(new ValidationRuleBuilder<TValue>(builder, lambda));
         }
 
-        private static LambdaExpression AddContextParameterIfNotExists<T, TValue>(this LambdaExpression expression)
+        public static LambdaExpression AddContextParameterIfNotExists<T, TValue>(this LambdaExpression expression)
         {
             return
                 expression.Parameters.Count == 2
@@ -177,6 +177,14 @@ namespace Reusable.Flawless
                 node.Expression == _firstParameter
                     ? Expression.MakeMemberAccess(_inject, node.Member)
                     : base.VisitMember(node);
+        }
+
+        protected override Expression VisitMethodCall(MethodCallExpression node)
+        {
+            return
+                node.Object == _firstParameter
+                    ? Expression.Call(_inject, node.Method, node.Arguments)
+                    : base.VisitMethodCall(node);
         }
     }
 }

@@ -12,26 +12,24 @@ using Reusable.Flawless.ExpressionVisitors;
 
 namespace Reusable.Flawless
 {
-    public delegate bool ValidateDelegate<in T>(T obj, IImmutableContainer context);
-
-    [CanBeNull]
-    public delegate string MessageCallback<in T>(T obj, IImmutableContainer context);
+    public delegate TResult EvaluateDelegate<in T, out TResult>(T obj, IImmutableContainer context);
 
     public class ValidationRule<T> : IValidator<T>
     {
-        [NotNull]
-        private readonly CreateValidationFailureCallback _createValidationFailure;
-
-        private readonly ValidateDelegate<T> _evaluate;
-        private readonly MessageCallback<T> _createMessage;
-        private readonly string _expressionString;
+        private readonly bool _required;
+        private readonly EvaluateDelegate<T, bool> _when;
+        private readonly EvaluateDelegate<T, bool> _validate;
+        private readonly EvaluateDelegate<T, string> _createMessage;
+        private readonly string _whenString;
+        private readonly string _validateString;
 
         public ValidationRule
         (
-            [NotNull] IImmutableSet<string> tags,
-            [NotNull] Expression<ValidateDelegate<T>> predicate,
-            [NotNull] Expression<MessageCallback<T>> message,
-            [NotNull] CreateValidationFailureCallback createValidationFailure
+            Expression<EvaluateDelegate<T, bool>> when,
+            Expression<EvaluateDelegate<T, bool>> validate,
+            Expression<EvaluateDelegate<T, string>> message,
+            bool required,
+            IImmutableSet<string> tags
         )
         {
 //            if (tags == null) throw new ArgumentNullException(nameof(tags));
@@ -40,27 +38,43 @@ namespace Reusable.Flawless
 //            if (createValidationFailure == null) throw new ArgumentNullException(nameof(createValidationFailure));
 
             Tags = tags;
-            _evaluate = predicate.Compile();
+            _when = when.Compile();
+            _validate = validate.Compile();
             _createMessage = message.Compile();
-            _expressionString = ValidationParameterPrettifier.Prettify<T>(predicate).ToString();
-            _createValidationFailure = createValidationFailure;
+            _whenString = ValidationParameterPrettifier.Prettify<T>(when).ToString();
+            _validateString = ValidationParameterPrettifier.Prettify<T>(validate).ToString();
+            _required = required;
         }
 
         public IImmutableSet<string> Tags { get; }
 
         public IEnumerable<IValidationResult> Validate(T obj, IImmutableContainer context)
         {
-            if (_evaluate(obj, context) is var success && success)
+            if (_when(obj, context))
             {
-                yield return new ValidationSuccess(_expressionString, Tags, _createMessage(obj, context));
+                if (_validate(obj, context) is var success && success)
+                {
+                    yield return ValidationResultFactory.Create<ValidationSuccess>(_validateString, Tags, _createMessage(obj, context));
+                }
+                else
+                {
+                    if (_required)
+                    {
+                        yield return ValidationResultFactory.Create<ValidationError>(_validateString, Tags, _createMessage(obj, context));
+                    }
+                    else
+                    {
+                        yield return ValidationResultFactory.Create<ValidationWarning>(_validateString, Tags, _createMessage(obj, context));
+                    }
+                }
             }
             else
             {
-                yield return _createValidationFailure(_expressionString, Tags, _createMessage(obj, context));
+                yield return ValidationResultFactory.Create<ValidationInconclusive>(_validateString, Tags, _createMessage(obj, context));
             }
         }
 
-        public override string ToString() => _expressionString;
+        public override string ToString() => $"When: {_whenString}{Environment.NewLine}Validate: {_validateString}";
 
         public static implicit operator string(ValidationRule<T> rule) => rule?.ToString();
     }

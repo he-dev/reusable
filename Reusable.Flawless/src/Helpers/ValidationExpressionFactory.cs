@@ -102,7 +102,7 @@ namespace Reusable.Flawless.Helpers
                 );
         }
 
-        public static LambdaExpression IsMatch<T>(Expression<Func<T, string>> expression, string pattern, RegexOptions options)
+        public static LambdaExpression IsMatch(LambdaExpression expression, string pattern, RegexOptions options)
         {
             // x => Regex.IsMatch(x, pattern, options)
             var isMatchMethod = typeof(Regex).GetMethod(nameof(Regex.IsMatch), new[] { typeof(string), typeof(string), typeof(RegexOptions) });

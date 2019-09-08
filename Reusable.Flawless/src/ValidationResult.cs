@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Custom;
 using System.Text.RegularExpressions;
@@ -42,27 +43,35 @@ namespace Reusable.Flawless
         public static implicit operator bool(ValidationResult result) => result is ValidationSuccess;
     }
 
+    public static class ValidationResultFactory
+    {
+        public static IValidationResult Create<T>(string expression, IEnumerable<string> tags, string message) where T : IValidationResult
+        {
+            return (T)Activator.CreateInstance(typeof(T), expression, tags, message);
+        }
+    }
+
+    [UsedImplicitly]
     public class ValidationSuccess : ValidationResult
     {
         public ValidationSuccess(string expression, IEnumerable<string> tags, string message) : base(expression, tags, message) { }
     }
 
+    [UsedImplicitly]
+    public class ValidationInconclusive : ValidationResult
+    {
+        public ValidationInconclusive(string expression, IEnumerable<string> tags, string message) : base(expression, tags, message) { }
+    }
+
+    [UsedImplicitly]
     public class ValidationWarning : ValidationResult, IValidationFailure
     {
         public ValidationWarning(string expression, IEnumerable<string> tags, string message) : base(expression, tags, message) { }
     }
 
+    [UsedImplicitly]
     public class ValidationError : ValidationResult, IValidationFailure
     {
         public ValidationError(string expression, IEnumerable<string> tags, string message) : base(expression, tags, message) { }
-    }
-
-    public delegate IValidationFailure CreateValidationFailureCallback(string expression, IEnumerable<string> tags, string message);
-
-    public static class ValidationFailureFactory
-    {
-        public static IValidationFailure CreateWarning(string expression, IEnumerable<string> tags, string message) => new ValidationWarning(expression, tags, message);
-
-        public static IValidationFailure CreateError(string expression, IEnumerable<string> tags, string message) => new ValidationError(expression, tags, message);
     }
 }
