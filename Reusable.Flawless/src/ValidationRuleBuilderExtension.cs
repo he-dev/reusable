@@ -11,23 +11,13 @@ namespace Reusable.Flawless
 {
     using exprfac = ValidationExpressionFactory;
 
-    public abstract class When
-    {
-        public static When Value = default;
-    }
-
     public static class ValidationRuleBuilderExtension
     {
         public static ValidationRuleBuilder<TValue> Required<TValue>(this ValidationRuleBuilder<TValue> builder) where TValue : class
         {
             return builder.Not().Null().Error();
         }
-
-//        public static ValidationRuleBuilder<TValue, object> Not<TValue>(this ValidationRuleBuilder<TValue, object> builder)
-//        {
-//            return default;// expression => ValidationRule<T, TContext>.Builder.Predicate(_ => vef.ReferenceEqualNull(expression));
-//        }
-
+        
         public static ValidationRuleBuilder<string> NullOrEmpty(this string value)
         {
             return default; // expression => ValidationRule<T, TContext>.Builder.Predicate(_ => vef.ReferenceEqualNull(expression));
@@ -69,15 +59,9 @@ namespace Reusable.Flawless
             return builder.Predicate(expression => exprfac.Equal(expression, value, comparer ?? EqualityComparer<T>.Default));
         }
 
-//        internal static ValidationRuleBuilder<T> Negate<T>(this ValidationRuleBuilder<T> builder)
-//        {
-//            return builder.Predicate(exprfac.Not);
-//        }
-
         public static ValidationRuleBuilder<T> Message<T>(this ValidationRuleBuilder<T> builder, string message)
         {
-            //return builder.Message(x => message);
-            return builder;
+            return builder.Message(Expression.Lambda(Expression.Constant(message), builder.ValueExpression.Parameters));
         }
     }
 }

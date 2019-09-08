@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Reusable
 {
-    public class SoftStringComparer : IEqualityComparer<SoftString>, IEqualityComparer<string>, IComparer<SoftString>
+    public class SoftStringComparer : IEqualityComparer<SoftString>, IEqualityComparer<string>, IComparer<SoftString>, IComparer<string>
     {
         private static readonly StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
 
@@ -27,6 +27,11 @@ namespace Reusable
         public int Compare(SoftString x, SoftString y)
         {
             return Comparer.Compare(x?.ToString(), y?.ToString());
+        }
+        
+        public int Compare(string x, string y)
+        {
+            return Comparer.Compare((SoftString)x, (SoftString)y);
         }
     }
 }

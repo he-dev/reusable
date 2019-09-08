@@ -14,6 +14,9 @@ namespace Reusable.Flawless
 
     public interface IValidationRuleBuilder : ICollection<IValidationRuleBuilder>
     {
+        /// <summary>
+        /// Gets the value to validate.
+        /// </summary>
         LambdaExpression ValueExpression { get; }
 
         IEnumerable<IValidator<T>> Build<T>();
@@ -26,13 +29,16 @@ namespace Reusable.Flawless
         private readonly IList<Item> _items;
         private readonly IValidationRuleBuilder _parent;
 
-        public ValidationRuleBuilder(IValidationRuleBuilder parent, LambdaExpression expression)
+        private ValidationRuleBuilder()
+        {
+            _items = new List<Item>();
+        }
+
+        public ValidationRuleBuilder(IValidationRuleBuilder parent, LambdaExpression expression) : this()
         {
             _parent = parent;
+            _parent?.Add(this);
             ValueExpression = expression;
-            _items = new List<Item>();
-            parent?.Add(this);
-            //_tags = ImmutableHashSet<string>.Empty;
         }
 
         public LambdaExpression ValueExpression { get; }
@@ -55,9 +61,9 @@ namespace Reusable.Flawless
 
             _items.Add(new Item
             {
-                When = _when ?? ((Expression<Func<TValue, IImmutableContainer, bool>>)((x, ctx) => true)),
+                When = _when ?? ((Expression<EvaluateDelegate<TValue, bool>>)((x, ctx) => true)),
                 Predicate = _negate ? exprfac.Not(predicate) : predicate,
-                Message = (Expression<Func<TValue, IImmutableContainer, string>>)((x, c) => default)
+                Message = (Expression<EvaluateDelegate<TValue, string>>)((x, c) => default)
             });
 
             _negate = false;
@@ -74,14 +80,13 @@ namespace Reusable.Flawless
 
         public ValidationRuleBuilder<TValue> Message(LambdaExpression message)
         {
-            //_rules.Last().Message = message;
-            //_message = message;
+            _items.Last().Message = message;
             return this;
         }
 
         public ValidationRuleBuilder<TValue> Tags(params string[] tags)
         {
-            _items.Last().Tags = tags.ToImmutableHashSet(SoftString.Comparer);
+            _items.Last().Tags = tags.ToImmutableSortedSet(SoftString.Comparer);
             return this;
         }
 

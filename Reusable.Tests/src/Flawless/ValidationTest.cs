@@ -62,7 +62,7 @@ namespace Reusable.Flawless
                     //firstName.Required();
                     //firstName.Not().NullOrEmpty();
                     firstName.Validate(y => y.Length).GreaterThan(0);
-                    firstName.When(x => x.StartsWith("S")).Equal("Sam");
+                    firstName.When(x => x.StartsWith("S")).Equal("Sam").Message("It must be Sam.");
                     firstName.Like(@"^[a-z]+");
                 });
 
@@ -71,7 +71,7 @@ namespace Reusable.Flawless
                     address.Required();
                     address.Validate(x => x.Street, street =>
                     {
-                        street.Required();
+                        street.Required().Message("You need to specify the Street.");
                     });
                 });
             });
