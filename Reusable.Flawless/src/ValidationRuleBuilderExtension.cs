@@ -48,9 +48,14 @@ namespace Reusable.Flawless
         }
         
 
-        public static ValidationRuleBuilder<T> NullOrEmpty<T, TContext>(this ValidationRuleBuilder<T> builder, Expression<Func<T, string>> expression)
+        public static ValidationRuleBuilder<T> NullOrEmpty<T>(this ValidationRuleBuilder<T> builder)
         {
-            return builder.Predicate(_ => exprfac.IsNullOrEmpty(expression));
+            return builder.Predicate(exprfac.IsNullOrEmpty);
+        }
+        
+        public static ValidationRuleBuilder<T> GreaterThan<T>(this ValidationRuleBuilder<T> builder, T value)
+        {
+            return builder.Predicate(expression => exprfac.GreaterThan(expression, value));
         }
 
         public static ValidationRuleBuilder<T> Like<T>

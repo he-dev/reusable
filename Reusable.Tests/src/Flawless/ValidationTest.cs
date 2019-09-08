@@ -53,15 +53,16 @@ namespace Reusable.Flawless
             {
                 //person.Not().Null().Error();
                 // or
-                person.Required();
+                //person.Required();
 
-                person.Validate(x => x.FirstName).Required();
+                //person.Validate(x => x.FirstName).Required();
                 //person.Validate(x => x.FirstName).Not().Null().Required().Like(@"^[a-z]+");
                 person.Validate(x => x.FirstName, firstName =>
                 {
-                    firstName.Required();
-                    //firstName.Validate(x => x.Length).GreaterThan(0);
-                    firstName.Equal("John");
+                    //firstName.Required();
+                    //firstName.Not().NullOrEmpty();
+                    firstName.Validate(y => y.Length).GreaterThan(0);
+                    //firstName.Equal("John");
                     //inner.ValidateSelf().Like(@"^[a-z]+");
                 });
             });

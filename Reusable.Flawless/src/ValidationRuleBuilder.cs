@@ -15,7 +15,7 @@ namespace Reusable.Flawless
     public interface IValidationRuleBuilder : ICollection<IValidationRuleBuilder>
     {
         LambdaExpression ValueExpression { get; }
-        
+
         IEnumerable<IValidator<T>> Build<T>();
     }
 
@@ -34,7 +34,7 @@ namespace Reusable.Flawless
             parent?.Add(this);
             //_tags = ImmutableHashSet<string>.Empty;
         }
-        
+
         public LambdaExpression ValueExpression { get; }
 
         public ValidationRuleBuilder<TValue> Not()
@@ -106,27 +106,6 @@ namespace Reusable.Flawless
             {
                 yield return rule; //();
             }
-
-            //if (_predicate is null) throw new InvalidOperationException("Validation-rule requires you to set the rule first.");
-
-//            var rules =
-//                from x in _items
-//                let parameters = new[]
-//                {
-//                    x.Predicate.Parameters.ElementAtOrDefault(0) ?? ValidationParameterPrettifier.CreatePrettyParameter<T>(),
-//                    x.Predicate.Parameters.ElementAtOrDefault(1) ?? ValidationParameterPrettifier.CreatePrettyParameter<IImmutableContainer>()
-//                };
-//                
-//
-//
-//            var expressionWithParameter = parameters.Aggregate(_predicate.Body, ValidationParameterInjector.InjectParameter);
-//            var predicate = Expression.Lambda<ValidationPredicate<T>>(expressionWithParameter, parameters);
-//
-//            var messageWithParameter = parameters.Aggregate(_message.Body, ValidationParameterInjector.InjectParameter);
-//            var message = Expression.Lambda<MessageCallback<T>>(messageWithParameter, parameters);
-//
-//            return new ValidationRule<T>(_tags, predicate, message, _createValidationFailureCallback);
-
         }
 
         private class Item
@@ -145,13 +124,19 @@ namespace Reusable.Flawless
     {
         public static ValidationRuleBuilder<TValue> Validate<T, TValue>(this ValidationRuleBuilder<T> builder, Expression<Func<T, TValue>> expression)
         {
-            return new ValidationRuleBuilder<TValue>(builder, expression.AddContextParameterIfNotExists<T, TValue>());
+            var injected = ObjectInjector.Inject(expression, builder.ValueExpression.Body);
+
+            var lambda =
+                Expression.Lambda(
+                    injected,
+                    builder.ValueExpression.Parameters);
+            return new ValidationRuleBuilder<TValue>(builder, lambda);
         }
 
-        public static ValidationRuleBuilder<TValue> ValidateSelf<TValue>(this ValidationRuleBuilder<TValue> rules)
-        {
-            return rules.Validate(x => x);
-        }
+//        public static ValidationRuleBuilder<TValue> ValidateSelf<TValue>(this ValidationRuleBuilder<TValue> rules)
+//        {
+//            return rules.Validate(x => x);
+//        }
 
         public static void Validate<T, TValue>(this ValidationRuleBuilder<T> parent, Expression<Func<T, TValue>> expression, Action<ValidationRuleBuilder<TValue>> configureBuilder)
         {
@@ -167,6 +152,31 @@ namespace Reusable.Flawless
                         expression.Body,
                         expression.Parameters.Single(),
                         Expression.Parameter(typeof(IImmutableContainer), "context"));
+        }
+    }
+
+    public class ObjectInjector : ExpressionVisitor
+    {
+        private readonly Expression _firstParameter;
+        private readonly Expression _inject;
+
+        private ObjectInjector(Expression firstParameter, Expression inject)
+        {
+            _firstParameter = firstParameter;
+            _inject = inject;
+        }
+
+        public static Expression Inject(LambdaExpression lambda, Expression inject)
+        {
+            return new ObjectInjector(lambda.Parameters[0], inject).Visit(lambda.Body);
+        }
+
+        protected override Expression VisitMember(MemberExpression node)
+        {
+            return
+                node.Expression == _firstParameter
+                    ? Expression.MakeMemberAccess(_inject, node.Member)
+                    : base.VisitMember(node);
         }
     }
 }

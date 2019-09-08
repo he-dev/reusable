@@ -89,7 +89,7 @@ namespace Reusable.Flawless.Helpers
                 );
         }
 
-        public static LambdaExpression IsNullOrEmpty<T>(Expression<Func<T, string>> expression)
+        public static LambdaExpression IsNullOrEmpty(LambdaExpression expression)
         {
             // x => string.IsNullOrEmpty(x)
             var isNullOrEmptyMethod = typeof(string).GetMethod(nameof(string.IsNullOrEmpty));
@@ -181,23 +181,29 @@ namespace Reusable.Flawless.Helpers
 //            return Binary(expression, value, Expression.GreaterThanOrEqual);
 //        }
 //        
-//        public static LambdaExpression GreaterThan<T, TMember>(Expression<Func<T, TMember>> expression, TMember value)
-//        {
-//            // x => x.Member > value
-//            return Binary(expression, value, Expression.GreaterThan);
-//        }
-//
-//        private static LambdaExpression Binary<T, TMember>(Expression<Func<T, TMember>> expression, TMember value, Func<Expression, Expression, Expression> binary)
-//        {
-//            // x => x.Member == value
-//            return
-//                Expression.Lambda(
-//                    binary(
-//                        expression.Body,
-//                        Expression.Constant(value)),
-//                    expression.Parameters
-//                );
-//        }
+        public static LambdaExpression GreaterThan<T, TMember>(Expression<Func<T, TMember>> expression, TMember value)
+        {
+            // x => x.Member > value
+            return Binary(expression, value, Expression.GreaterThan);
+        }
+        
+        public static LambdaExpression GreaterThan<TValue>(LambdaExpression expression, TValue value)
+        {
+            // x => x.Member > value
+            return Binary(expression, value, Expression.GreaterThan);
+        }
+
+        private static LambdaExpression Binary<TValue>(LambdaExpression expression, TValue value, Func<Expression, Expression, Expression> binary)
+        {
+            // x => x.Member == value
+            return
+                Expression.Lambda(
+                    binary(
+                        expression.Body,
+                        Expression.Constant(value)),
+                    expression.Parameters
+                );
+        }
 
         internal static LambdaExpression Not(LambdaExpression expression)
         {
