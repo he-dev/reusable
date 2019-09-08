@@ -22,8 +22,7 @@ namespace Reusable.Flawless
         {
             return default; // expression => ValidationRule<T, TContext>.Builder.Predicate(_ => vef.ReferenceEqualNull(expression));
         }
-
-
+        
         // --------------
 
         public static ValidationRuleBuilder<T> When<T>(this ValidationRuleBuilder<T> builder, Expression<Func<T, bool>> expression)

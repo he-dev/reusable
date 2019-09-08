@@ -146,6 +146,18 @@ namespace Reusable.Flawless
 
             configureBuilder(new ValidationRuleBuilder<TValue>(builder, lambda));
         }
+        
+        public static ValidationRuleBuilder<IEnumerable<TValue>> ValidateItems<T, TValue>(this ValidationRuleBuilder<T> builder, Expression<Func<T, IEnumerable<TValue>>> expression)
+        {
+            var validate = expression.AddContextParameterIfNotExists<T, TValue>();
+            var injected = ObjectInjector.Inject(validate, builder.ValueExpression.Body);
+            var lambda = Expression.Lambda(injected, builder.ValueExpression.Parameters);
+
+            //configureBuilder(new ValidationRuleBuilder<IEnumerable<TValue>>(builder, lambda));
+            return new ValidationRuleBuilder<IEnumerable<TValue>>(builder, lambda);
+        }
+        
+        
 
         public static LambdaExpression AddContextParameterIfNotExists<T, TValue>(this LambdaExpression expression)
         {

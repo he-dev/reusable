@@ -42,13 +42,6 @@ namespace Reusable.Flawless
         [Fact]
         public void Simplified_2()
         {
-//            var personValidator =
-//                Validator<Person>
-//                    .Empty
-//                    .For(x => x, r => r.Not().Null().Required())
-//                    .For(x => x.FirstName, r => r.Not().Null().Required()); // --> ValidationRuleBuilder<T, TContext>
-//            
-
             var personValidator = Validator.Validate<Person>(person =>
             {
                 //person.Not().Null().Error();
@@ -57,6 +50,8 @@ namespace Reusable.Flawless
 
                 //person.Validate(x => x.FirstName).Required();
                 //person.Validate(x => x.FirstName).Not().Null().Required().Like(@"^[a-z]+");
+                person.ValidateItems(x => x.Emails);
+                
                 person.Validate(x => x.FirstName, firstName =>
                 {
                     //firstName.Required();
