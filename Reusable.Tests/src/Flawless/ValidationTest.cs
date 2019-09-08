@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Reusable.Collections;
@@ -37,20 +38,38 @@ namespace Reusable.Flawless
 //            
 //            Assert.ThrowsAny<DynamicException>(() => default(Person).ValidateWith(rules).ThrowOnFailure());
 //        }
-        
+
         [Fact]
         public void Simplified_2()
         {
-            var personValidator =
-                Validator<Person>
-                    .Empty
-                    .For(x => x, r => r.Not().Null().Required())
-                    .For(x => x.FirstName, r => r.Not().Null().Required()); // --> ValidationRuleBuilder<T, TContext>
+//            var personValidator =
+//                Validator<Person>
+//                    .Empty
+//                    .For(x => x, r => r.Not().Null().Required())
+//                    .For(x => x.FirstName, r => r.Not().Null().Required()); // --> ValidationRuleBuilder<T, TContext>
+//            
+
+            var personValidator = Validator.Validate<Person>(person =>
+            {
+                //person.Not().Null().Error();
+                // or
+                person.Required();
+
+                person.Validate(x => x.FirstName).Required();
+                //person.Validate(x => x.FirstName).Not().Null().Required().Like(@"^[a-z]+");
+                person.Validate(x => x.FirstName, firstName =>
+                {
+                    firstName.Required();
+                    //firstName.Validate(x => x.Length).GreaterThan(0);
+                    firstName.Equal("John");
+                    //inner.ValidateSelf().Like(@"^[a-z]+");
+                });
+            });
 
             //validator.When(x => x.LastName).Null().Required();
 
 
-            var results = default(Person).ValidateWith(personValidator);
+            var results = new Person { FirstName = "Joe" }.ValidateWith(personValidator).ToList();
 //
 //            Assert.Equal(0, results.Successful().Count());
 //            Assert.Equal(1, results.Errors().Count());
@@ -60,7 +79,7 @@ namespace Reusable.Flawless
 //            
 //            Assert.ThrowsAny<DynamicException>(() => default(Person).ValidateWith(personValidator).ThrowOnFailure());
         }
-        
+
 //        [Fact]
 //        public void Can_check_string_for_null_or_empty()
 //        {
@@ -100,6 +119,8 @@ namespace Reusable.Flawless
             public string LastName { get; set; }
 
             public Address Address { get; set; }
+
+            public IEnumerable<string> Emails { get; set; }
         }
 
         private class Address

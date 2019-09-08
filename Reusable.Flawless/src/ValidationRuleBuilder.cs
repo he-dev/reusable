@@ -12,79 +12,100 @@ namespace Reusable.Flawless
 {
     using exprfac = ValidationExpressionFactory;
 
-    public class ValidationRuleBuilder<T>
+    public interface IValidationRuleBuilder : ICollection<IValidationRuleBuilder>
     {
+        LambdaExpression ValueExpression { get; }
+        
+        IEnumerable<IValidator<T>> Build<T>();
+    }
+
+    public class ValidationRuleBuilder<TValue> : List<IValidationRuleBuilder>, IValidationRuleBuilder
+    {
+        private bool _negate;
         private readonly IList<Item> _items;
-        private bool _not;
+        private readonly IValidationRuleBuilder _parent;
 
-        private readonly LambdaExpression _expression;
-        //private LambdaExpression _message = (Expression<Func<T, TContext, string>>)((x, c) => default);
-        //private IImmutableSet<string> _tags;
-
-        public ValidationRuleBuilder(LambdaExpression expression)
+        // expression: (value, context) => expr
+        public ValidationRuleBuilder(IValidationRuleBuilder parent, LambdaExpression expression)
         {
-            _expression = expression;
-            //Severity(ValidationFailureFactory.CreateWarning);
+            _parent = parent;
+            ValueExpression = expression;
             _items = new List<Item>();
+            parent?.Add(this);
             //_tags = ImmutableHashSet<string>.Empty;
         }
+        
+        public LambdaExpression ValueExpression { get; }
 
-        public ValidationRuleBuilder<T> Not()
+        public ValidationRuleBuilder<TValue> Not()
         {
-            _not = true;
+            _negate = true;
             return this;
         }
 
-        public ValidationRuleBuilder<T> Predicate(Func<LambdaExpression, LambdaExpression> createPredicate)
+        public ValidationRuleBuilder<TValue> Predicate(Func<LambdaExpression, LambdaExpression> createPredicate)
         {
-            var predicate = createPredicate(_expression);
-            if (_not)
+            var predicate = createPredicate(ValueExpression);
+
+            _items.Add(new Item
             {
-                predicate = exprfac.Not(predicate);
-                _not = false;
-            }
+                Predicate = _negate ? exprfac.Not(predicate) : predicate,
+                Message = (Expression<Func<TValue, IImmutableContainer, string>>)((x, c) => default)
+            });
 
-            _items.Add(new Item { Predicate = predicate, Message = (Expression<Func<T, IImmutableContainer, string>>)((x, c) => default) });
+            _negate = false;
 
             return this;
         }
 
-        public ValidationRuleBuilder<T> Required()
+        public ValidationRuleBuilder<TValue> Error()
         {
             _items.Last().CreateValidationFailureCallback = ValidationFailureFactory.CreateError;
             return this;
         }
 
-        public ValidationRuleBuilder<T> Message(Expression<Func<T, string>> message)
+        public ValidationRuleBuilder<TValue> Message(Expression<Func<TValue, string>> message)
         {
             //_rules.Last().Message = message;
             //_message = message;
             return this;
         }
 
-        public ValidationRuleBuilder<T> Tags(params string[] tags)
+        public ValidationRuleBuilder<TValue> Tags(params string[] tags)
         {
             _items.Last().Tags = tags.ToImmutableHashSet(SoftString.Comparer);
             return this;
         }
 
         [NotNull]
-        public IList<IValidationRule<T>> Build()
+        public IEnumerable<IValidator<T>> Build<T>()
         {
+            //ValidationParameterInjector.InjectParameter(_expression, Expression.Parameter())
+
+            // (x, ctx) => x.FirstName -->
             var rules =
                 from x in _items
 //                let parameters = new[]
 //                {
-//                    x.Predicate.Parameters.ElementAtOrDefault(0) ?? ValidationParameterPrettifier.CreatePrettyParameter<T>(),
-//                    x.Predicate.Parameters.ElementAtOrDefault(1) ?? ValidationParameterPrettifier.CreatePrettyParameter<IImmutableContainer>()
+//                    _parent is null ?  x.Predicate.Parameters[0] : _parent.ValueExpression.Parameters[0], // ?? ValidationParameterPrettifier.CreatePrettyParameter<T>(),
+//                    _parent is null ?  x.Predicate.Parameters[1] : _parent.ValueExpression.Parameters[1]  // ?? ValidationParameterPrettifier.CreatePrettyParameter<IImmutableContainer>()
 //                }
                 let expressionWithParameter = x.Predicate.Parameters.Aggregate(x.Predicate.Body, ValidationParameterInjector.InjectParameter)
-                let predicate = Expression.Lambda<ValidationPredicate<T>>(expressionWithParameter, x.Predicate.Parameters)
+                //let predicate = Expression.Lambda<ValidateDelegate<TValue>>(expressionWithParameter, x.Predicate.Parameters)
+                let predicate = Expression.Lambda<ValidateDelegate<T>>(expressionWithParameter, x.Predicate.Parameters)
+                //let predicate = Expression.Lambda(expressionWithParameter, x.Predicate.Parameters)
                 let messageWithParameter = x.Predicate.Parameters.Aggregate(x.Message.Body, ValidationParameterInjector.InjectParameter)
                 let message = Expression.Lambda<MessageCallback<T>>(messageWithParameter, x.Predicate.Parameters)
-                select new ValidationRule<T>(ImmutableHashSet<string>.Empty, predicate, message, x.CreateValidationFailureCallback);
+                select (IValidator<T>)new ValidationRule<T>(ImmutableHashSet<string>.Empty, predicate, message, x.CreateValidationFailureCallback);
 
-            return rules.Cast<IValidationRule<T>>().ToList();
+            rules = rules.ToList();
+
+            var sub = this.SelectMany(b => b.Build<T>());
+
+            foreach (var rule in rules.Concat(sub))
+            {
+                yield return rule; //();
+            }
 
             //if (_predicate is null) throw new InvalidOperationException("Validation-rule requires you to set the rule first.");
 
@@ -106,7 +127,6 @@ namespace Reusable.Flawless
 //
 //            return new ValidationRule<T>(_tags, predicate, message, _createValidationFailureCallback);
 
-            return default;
         }
 
         private class Item
@@ -118,6 +138,35 @@ namespace Reusable.Flawless
             public IEnumerable<string> Tags { get; set; } = Enumerable.Empty<string>();
 
             public CreateValidationFailureCallback CreateValidationFailureCallback { get; set; } = ValidationFailureFactory.CreateWarning;
+        }
+    }
+
+    public static class ValidatorBuilderExtensions
+    {
+        public static ValidationRuleBuilder<TValue> Validate<T, TValue>(this ValidationRuleBuilder<T> builder, Expression<Func<T, TValue>> expression)
+        {
+            return new ValidationRuleBuilder<TValue>(builder, expression.AddContextParameterIfNotExists<T, TValue>());
+        }
+
+        public static ValidationRuleBuilder<TValue> ValidateSelf<TValue>(this ValidationRuleBuilder<TValue> rules)
+        {
+            return rules.Validate(x => x);
+        }
+
+        public static void Validate<T, TValue>(this ValidationRuleBuilder<T> parent, Expression<Func<T, TValue>> expression, Action<ValidationRuleBuilder<TValue>> configureBuilder)
+        {
+            configureBuilder(new ValidationRuleBuilder<TValue>(parent, expression.AddContextParameterIfNotExists<T, TValue>()));
+        }
+
+        private static LambdaExpression AddContextParameterIfNotExists<T, TValue>(this LambdaExpression expression)
+        {
+            return
+                expression.Parameters.Count == 2
+                    ? expression
+                    : Expression.Lambda<Func<T, IImmutableContainer, TValue>>(
+                        expression.Body,
+                        expression.Parameters.Single(),
+                        Expression.Parameter(typeof(IImmutableContainer), "context"));
         }
     }
 }

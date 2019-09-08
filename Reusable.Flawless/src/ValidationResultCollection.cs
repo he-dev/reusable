@@ -8,10 +8,10 @@ namespace Reusable.Flawless
     {
         private readonly IImmutableList<IValidationResult> _results;
 
-        public ValidationResultCollection(T value, IImmutableList<IValidationResult> results)
+        public ValidationResultCollection(T value, IEnumerable<IValidationResult> results)
         {
             Value = value;
-            _results = results;
+            _results = results.ToImmutableList();
         }
 
         public T Value { get; }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -562,6 +563,7 @@ namespace blub
                 // If the ending separator isn't empty yet and the current substring doesn't end with it,
                 // continue the loop.
                 while (!(endingSeparator.Length == 0 || substring.EndsWith(endingSeparator)));
+
                 // At this time, the ending separator will be an initial part of the specified separator,
                 // which is a 'suffix' of the current substring.
                 // Push the length of the suffix on the stack, so I'll avoid to call the Length getter accessor multiple times.
@@ -582,6 +584,128 @@ namespace blub
             }
 
             return text.ToString();
+        }
+    }
+}
+
+namespace blub2
+{
+    public interface IReadOnlyKeyedSet<TKey, TElement> : ILookup<TKey, TElement>
+    {
+        IEqualityComparer<TKey> KeyComparer { get; }
+        IEqualityComparer<TElement> ElementComparer { get; }
+        bool ContainsValue(TElement value);
+        bool TryGetValues(TKey key, out IEnumerable<TElement> values);
+        bool TryGetKey(TElement value, out TKey key);
+    }
+
+    public class ImmutableGroupLookup<TKey, TElement> : IReadOnlyKeyedSet<TKey, TElement>
+    {
+        private readonly Dictionary<TKey, Bucket> _buckets;
+        private readonly Dictionary<TElement, TKey> _elements;
+
+        public ImmutableGroupLookup
+        (
+            IEnumerable<KeyValuePair<TKey, IEnumerable<TElement>>> keyedSets,
+            IEqualityComparer<TKey> keyComparer = null,
+            IEqualityComparer<TElement> elementComparer = null
+        )
+        {
+            KeyComparer = keyComparer ?? EqualityComparer<TKey>.Default;
+            ElementComparer = elementComparer ?? EqualityComparer<TElement>.Default;
+            _buckets = new Dictionary<TKey, Bucket>(KeyComparer);
+            _elements = new Dictionary<TElement, TKey>(ElementComparer);
+
+            var valueGroups =
+                from x in keyedSets
+                from y in x.Value
+                group x.Key by y into g
+                select g;
+
+            foreach (var valueGroup in valueGroups)
+            {
+                var key = valueGroup.Single();
+                if (_buckets.TryGetValue(key, out var bucket))
+                {
+                    bucket.Add(valueGroup.Key);
+                }
+                else
+                {
+                    _buckets[key] = new Bucket(key) { valueGroup.Key };
+                }
+
+                _elements.Add(valueGroup.Key, key);
+            }
+        }
+
+        public IEqualityComparer<TKey> KeyComparer { get; }
+
+        public IEqualityComparer<TElement> ElementComparer { get; }
+
+        public IEnumerable<TElement> this[TKey key] => _buckets[key];
+
+        public int Count => _buckets.Count;
+
+        public bool Contains(TKey key) => _buckets.ContainsKey(key);
+
+        public bool ContainsValue(TElement value) => _elements.ContainsKey(value);
+
+        public IEnumerator<IGrouping<TKey, TElement>> GetEnumerator() => _buckets.Values.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public bool TryGetValues(TKey key, out IEnumerable<TElement> values)
+        {
+            if (TryGetBucketByKey(key, out var bucket))
+            {
+                values = bucket;
+                return true;
+            }
+
+            values = default;
+            return false;
+        }
+
+        public bool TryGetKey(TElement value, out TKey key)
+        {
+            if (TryGetBucketByValue(value, out var bucket))
+            {
+                key = bucket.Key;
+                return true;
+            }
+
+            key = default;
+            return false;
+        }
+
+        private bool TryGetBucketByValue(TElement value, out Bucket bucket)
+        {
+            if (_elements.TryGetValue(value, out var key))
+            {
+                bucket = _buckets[key];
+                return true;
+            }
+
+            bucket = default;
+            return false;
+        }
+
+        private bool TryGetBucketByKey(TKey key, out Bucket bucket)
+        {
+            if (_buckets.TryGetValue(key, out bucket))
+            {
+                return true;
+            }
+
+            bucket = default;
+            return false;
+        }
+
+        private class Bucket : List<TElement>, IGrouping<TKey, TElement>
+        {
+            public TKey Key { get; }
+
+            internal Bucket(TKey key) => Key = key;
         }
     }
 }

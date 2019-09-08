@@ -3,53 +3,52 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Exceptionize;
 
 namespace Reusable.Flawless
 {
-//    [PublicAPI]
-//    public static class Validator
-//    {
-//        public static Validator<T, TContext> For<T, TContext>()
-//        {
-//            return Validator<T, TContext>.Empty;
-//        }
-//
-//        public static Validator<T, object> For<T>()
-//        {
-//            return For<T, object>();
-//        }
-//    }
-
-    public interface IValidator<T> 
+    public interface IValidator<in T>
     {
-        ValidationResultCollection<T> Validate(T obj, IImmutableContainer context);
+        IEnumerable<IValidationResult> Validate(T obj, IImmutableContainer context);
+    }
+
+    public static class Validator
+    {
+        public static Validator<T> Validate<T>(Action<ValidationRuleBuilder<T>> configureBuilder)
+        {
+            var builder = new ValidationRuleBuilder<T>(default, (Expression<Func<T, IImmutableContainer, T>>)((x, ctx) => x));
+            configureBuilder(builder);
+            return new Validator<T>(builder.Build<T>());
+        }
+        
     }
 
     [PublicAPI]
-    public class Validator<T> : IValidator<T>, IEnumerable<IValidationRule<T>>
+    public class Validator<T> : IValidator<T>, IEnumerable<IValidator<T>>
     {
-        private readonly IImmutableList<IValidationRule<T>> _rules;
+        private readonly IImmutableList<IValidator<T>> _validators;
 
-        public Validator(IImmutableList<IValidationRule<T>> rules)
+        public Validator(IEnumerable<IValidator<T>> validators)
         {
-            _rules = rules;
+            _validators = validators.ToImmutableList();
         }
 
-        public static Validator<T> Empty { get; } = new Validator<T>(ImmutableList<IValidationRule<T>>.Empty);
 
-        public Validator<T> Add(IValidationRule<T> rule)
+        public static Validator<T> Empty { get; } = new Validator<T>(ImmutableList<IValidator<T>>.Empty);
+
+        public Validator<T> Add(IValidator<T> rule)
         {
-            return new Validator<T>(_rules.Add(rule));
+            return new Validator<T>(_validators.Add(rule));
         }
 
-        public ValidationResultCollection<T> Validate(T obj, IImmutableContainer context)
+        public IEnumerable<IValidationResult> Validate(T obj, IImmutableContainer context)
         {
             try
             {
-                return new ValidationResultCollection<T>(obj, Evaluate(this, obj, context).ToImmutableList());
+                return ValidationResultEnumerator(obj, context);
             }
             catch (Exception inner)
             {
@@ -62,9 +61,14 @@ namespace Reusable.Flawless
             }
         }
 
-        private static IEnumerable<IValidationResult> Evaluate(Validator<T> rules, T obj, IImmutableContainer context)
+        private IEnumerable<IValidationResult> ValidationResultEnumerator(T obj, IImmutableContainer context)
         {
-            foreach (var result in rules.Select(r => r.Evaluate(obj, context)))
+            var results =
+                from validator in this
+                from result in validator.Validate(obj, context)
+                select result;
+            
+            foreach (var result in results)
             {
                 yield return result;
 
@@ -75,11 +79,11 @@ namespace Reusable.Flawless
             }
         }
 
-        public IEnumerator<IValidationRule<T>> GetEnumerator() => _rules.GetEnumerator();
+        public IEnumerator<IValidator<T>> GetEnumerator() => _validators.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_rules).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_validators).GetEnumerator();
     }
-    
+
 
     public interface IValidatorModule
     {

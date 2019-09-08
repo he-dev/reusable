@@ -11,49 +11,13 @@ using Reusable.Extensions;
 
 namespace Reusable.Flawless
 {
-    public delegate ValidationRuleBuilder<T> BuildRuleCallback<T, TContext>(ValidationRuleBuilder<T> builder);
+    //public delegate ValidationRuleBuilder<T> BuildRuleCallback<T, TContext>(ValidationRuleBuilder<T> builder);
 
-    public delegate ValidationRuleBuilder<T> BuilderCallback<T, TContext, TValue>(Expression<Func<T, TValue>> expression);
+    //public delegate ValidationRuleBuilder<T> BuilderCallback<T, TContext, TValue>(Expression<Func<T, TValue>> expression);
 
     [PublicAPI]
     public static class ValidatorExtensions
     {
-        #region When
-
-        public static Validator<T> For<T, TValue>
-        (
-            this Validator<T> validator,
-            Expression<Func<T, IImmutableContainer, TValue>> expression,
-            Action<ValidationRuleBuilder<T>> builderAction
-        )
-        {
-            var builder = new ValidationRuleBuilder<T>(expression);
-            builderAction(builder);
-
-            var validations = builder.Build();
-            return validations.Aggregate(validator, (v, r) => v.Add(r));
-        }
-        
-        public static Validator<T> For<T, TValue>
-        (
-            this Validator<T> validator,
-            Expression<Func<T, TValue>> expression,
-            Action<ValidationRuleBuilder<T>> builderAction
-        )
-        {
-            var parameters = new[]
-            {
-                expression.Parameters.Single(),
-                Expression.Parameter(typeof(IImmutableContainer), $"<{typeof(IImmutableContainer).ToPrettyString()}>")
-            };
-
-            var expr = Expression.Lambda<Func<T, IImmutableContainer, TValue>>(expression.Body, parameters);
-
-            return validator.For(expr, builderAction);
-        }
-
-        #endregion
-
         #region Rule APIs
 
         // --- Accept
@@ -93,40 +57,15 @@ namespace Reusable.Flawless
         #endregion
 
         [NotNull]
-        public static ValidationResultCollection<T> ValidateWith<T>(this T obj, Validator<T> rules, IImmutableContainer context)
+        public static IEnumerable<IValidationResult> ValidateWith<T>(this T obj, Validator<T> validator, IImmutableContainer context)
         {
-            try
-            {
-                return new ValidationResultCollection<T>(obj, rules.Evaluate(obj, context).ToImmutableList());
-            }
-            catch (Exception inner)
-            {
-                throw DynamicException.Create
-                (
-                    $"UnexpectedValidation",
-                    $"An unexpected error occured. See the inner exception for details.",
-                    inner
-                );
-            }
+            return validator.Validate(obj, context);
         }
 
         [NotNull]
-        public static ValidationResultCollection<T> ValidateWith<T>(this T obj, Validator<T> rules)
+        public static IEnumerable<IValidationResult> ValidateWith<T>(this T obj, Validator<T> validator)
         {
-            return obj.ValidateWith(rules, ImmutableContainer.Empty);
-        }
-
-        private static IEnumerable<IValidationResult> Evaluate<T>(this Validator<T> rules, T obj, IImmutableContainer context)
-        {
-            foreach (var result in rules.Select(r => r.Evaluate(obj, context)))
-            {
-                yield return result;
-
-                if (result is ValidationError)
-                {
-                    yield break;
-                }
-            }
+            return obj.ValidateWith(validator, ImmutableContainer.Empty);
         }
     }
 }

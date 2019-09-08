@@ -19,9 +19,9 @@ namespace Reusable.Flawless
     public static class ValidationRuleBuilderExtension
     {
         
-        public static ValidationRuleBuilder<TValue> Required<TValue>(this TValue value) where TValue : class
+        public static ValidationRuleBuilder<TValue> Required<TValue>(this ValidationRuleBuilder<TValue> builder) where TValue : class
         {
-            return default;// expression => ValidationRule<T, TContext>.Builder.Predicate(_ => vef.ReferenceEqualNull(expression));
+            return builder.Not().Null().Error();
         }
         
 //        public static ValidationRuleBuilder<TValue, object> Not<TValue>(this ValidationRuleBuilder<TValue, object> builder)
@@ -64,15 +64,15 @@ namespace Reusable.Flawless
             return builder.Predicate(_ => exprfac.IsMatch(expression, pattern, options));
         }
 
-        public static ValidationRuleBuilder<T> Equal<T, TContext, TMember>
+        public static ValidationRuleBuilder<T> Equal<T>
         (
             this ValidationRuleBuilder<T> builder,
-            Expression<Func<T, TMember>> expression,
-            TMember value,
-            IEqualityComparer<TMember> comparer = default
+            //Expression<Func<T, TMember>> expression,
+            T value,
+            IEqualityComparer<T> comparer = default
         )
         {
-            return builder.Predicate(_ => exprfac.Equal(expression, value, comparer ?? EqualityComparer<TMember>.Default));
+            return builder.Predicate(expression => exprfac.Equal(expression, value, comparer ?? EqualityComparer<T>.Default));
         }
 
         internal static ValidationRuleBuilder<T> Negate<T>(this ValidationRuleBuilder<T> builder)

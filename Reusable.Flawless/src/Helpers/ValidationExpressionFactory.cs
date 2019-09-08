@@ -159,6 +159,22 @@ namespace Reusable.Flawless.Helpers
                 );
         }
         
+        public static LambdaExpression Equal<T>(LambdaExpression expression, T value, IEqualityComparer<T> comparer)
+        {
+            // x => x.Member == value
+            var equalsMethod = ((Func<T, T, bool>)comparer.Equals).Method;
+            
+            return
+                Expression.Lambda(
+                    Expression.Call(
+                        Expression.Constant(comparer),
+                        equalsMethod,
+                        expression.Body,
+                        Expression.Constant(value)),
+                    expression.Parameters
+                );
+        }
+        
 //        public static LambdaExpression GreaterThanOrEqual<T, TMember>(Expression<Func<T, TMember>> expression, TMember value)
 //        {
 //            // x => x.Member >= value
