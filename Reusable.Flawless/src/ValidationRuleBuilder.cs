@@ -80,8 +80,6 @@ namespace Reusable.Flawless
         [NotNull]
         public IEnumerable<IValidator<T>> Build<T>()
         {
-            //ValidationParameterInjector.InjectParameter(_expression, Expression.Parameter())
-
             // (x, ctx) => x.FirstName -->
             var rules =
                 from x in _items
@@ -122,15 +120,12 @@ namespace Reusable.Flawless
 
     public static class ValidatorBuilderExtensions
     {
-        public static ValidationRuleBuilder<TValue> Validate<T, TValue>(this ValidationRuleBuilder<T> builder, Expression<Func<T, TValue>> expression)
+        public static ValidationRuleBuilder<TValue> Validate<T, TValue>(this ValidationRuleBuilder<T> parent, Expression<Func<T, TValue>> expression)
         {
-            var injected = ObjectInjector.Inject(expression, builder.ValueExpression.Body);
-
-            var lambda =
-                Expression.Lambda(
-                    injected,
-                    builder.ValueExpression.Parameters);
-            return new ValidationRuleBuilder<TValue>(builder, lambda);
+            var validate = expression.AddContextParameterIfNotExists<T, TValue>();
+            var injected = ObjectInjector.Inject(validate, parent.ValueExpression.Body);
+            var lambda = Expression.Lambda(injected, parent.ValueExpression.Parameters);
+            return new ValidationRuleBuilder<TValue>(parent, lambda);
         }
 
 //        public static ValidationRuleBuilder<TValue> ValidateSelf<TValue>(this ValidationRuleBuilder<TValue> rules)
@@ -140,7 +135,11 @@ namespace Reusable.Flawless
 
         public static void Validate<T, TValue>(this ValidationRuleBuilder<T> parent, Expression<Func<T, TValue>> expression, Action<ValidationRuleBuilder<TValue>> configureBuilder)
         {
-            configureBuilder(new ValidationRuleBuilder<TValue>(parent, expression.AddContextParameterIfNotExists<T, TValue>()));
+            var validate = expression.AddContextParameterIfNotExists<T, TValue>();
+            var injected = ObjectInjector.Inject(validate, parent.ValueExpression.Body);
+            var lambda = Expression.Lambda(injected, parent.ValueExpression.Parameters);
+            
+            configureBuilder(new ValidationRuleBuilder<TValue>(parent, lambda));
         }
 
         private static LambdaExpression AddContextParameterIfNotExists<T, TValue>(this LambdaExpression expression)
@@ -155,6 +154,7 @@ namespace Reusable.Flawless
         }
     }
 
+    // y => y.Member --> x => x.Member.Member
     public class ObjectInjector : ExpressionVisitor
     {
         private readonly Expression _firstParameter;

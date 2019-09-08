@@ -65,12 +65,21 @@ namespace Reusable.Flawless
                     //firstName.Equal("John");
                     //inner.ValidateSelf().Like(@"^[a-z]+");
                 });
+
+                person.Validate(x => x.Address, address =>
+                {
+                    address.Required();
+                    address.Validate(x => x.Street, street =>
+                    {
+                        street.Required();
+                    });
+                });
             });
 
             //validator.When(x => x.LastName).Null().Required();
 
 
-            var results = new Person { FirstName = "Joe" }.ValidateWith(personValidator).ToList();
+            var results = new Person { FirstName = "Joe", Address = new Address() }.ValidateWith(personValidator).ToList();
 //
 //            Assert.Equal(0, results.Successful().Count());
 //            Assert.Equal(1, results.Errors().Count());
