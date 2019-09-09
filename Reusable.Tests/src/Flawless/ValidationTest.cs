@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Reusable.Collections;
+using Reusable.Data;
 using Reusable.Exceptionize;
 using Xunit;
 
@@ -50,7 +51,9 @@ namespace Reusable.Flawless
 
                 //person.Validate(x => x.FirstName).Required();
                 //person.Validate(x => x.FirstName).Not().Null().Required().Like(@"^[a-z]+");
-                person.ValidateItems(x => x.Emails);
+                var rule = person.Validate(x => x.Emails, Enumerable.All).NullOrEmpty().Build<Person>();
+
+                var results2 = rule.First().Validate(new Person { Emails = new List<string> { "blub" } }, ImmutableContainer.Empty).ToList();
                 
                 person.Validate(x => x.FirstName, firstName =>
                 {

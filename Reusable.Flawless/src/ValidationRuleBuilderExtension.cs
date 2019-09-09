@@ -38,7 +38,7 @@ namespace Reusable.Flawless
             return builder.Predicate(exprfac.ReferenceEqualNull);
         }
 
-        public static ValidationRuleBuilder<T> NullOrEmpty<T>(this ValidationRuleBuilder<T> builder)
+        public static IValidationRuleBuilder<T> NullOrEmpty<T>(this IValidationRuleBuilder<T> builder)
         {
             return builder.Predicate(exprfac.IsNullOrEmpty);
         }
