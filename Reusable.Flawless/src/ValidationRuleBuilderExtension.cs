@@ -28,8 +28,8 @@ namespace Reusable.Flawless
         public static ValidationRuleBuilder<T> When<T>(this ValidationRuleBuilder<T> builder, Expression<Func<T, bool>> expression)
         {
             var validate = expression.AddContextParameterIfNotExists<T, bool>();
-            var injected = ObjectInjector.Inject(validate, builder.ValueExpression.Body);
-            var lambda = Expression.Lambda(injected, builder.ValueExpression.Parameters);
+            var injected = ObjectInjector.Inject(validate, builder.ValueSelector.Body);
+            var lambda = Expression.Lambda(injected, builder.ValueSelector.Parameters);
             return builder.When(lambda);
         }
 
@@ -60,7 +60,7 @@ namespace Reusable.Flawless
 
         public static ValidationRuleBuilder<T> Message<T>(this ValidationRuleBuilder<T> builder, string message)
         {
-            return builder.Message(Expression.Lambda(Expression.Constant(message), builder.ValueExpression.Parameters));
+            return builder.Message(Expression.Lambda(Expression.Constant(message), builder.ValueSelector.Parameters));
         }
     }
 }
