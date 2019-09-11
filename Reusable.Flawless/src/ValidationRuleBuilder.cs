@@ -13,63 +13,79 @@ namespace Reusable.Flawless
 {
     using exprfac = ValidationExpressionFactory;
 
-    public interface IValidationRuleBuilder : ICollection<IValidationRuleBuilder>
-    {
-        /// <summary>
-        /// Gets the value to validate.
-        /// </summary>
-        LambdaExpression ValueSelector { get; }
+    public delegate Expression<ValidationFunc<T, bool>> CreatePredicateFunc<T, TValue>(Expression<ValidationFunc<T, TValue>> selector);
 
-        IEnumerable<IValidator<T>> Build<T>();
+    public interface IValidationRuleBuilder<T> : ICollection<IValidationRuleBuilder<T>>
+    {
+        LambdaExpression Selector { get; }
+
+        IEnumerable<IValidator<T>> Build();
     }
 
-    public interface IValidationRuleBuilder<T> : IValidationRuleBuilder
+    public interface IValidationRuleBuilder<T, TValue> : IValidationRuleBuilder<T>
     {
-        IValidationRuleBuilder<T> Predicate(Func<LambdaExpression, LambdaExpression> createPredicate);
+        IValidationRuleBuilder<T, TValue> Predicate(CreatePredicateFunc<T, TValue> createPredicate);
     }
 
-    public class ValidationRuleBuilder<TValue> : List<IValidationRuleBuilder>, IValidationRuleBuilder //, IValidationRuleBuilder<TValue>
+    public class ValidationRuleBuilder<T, TValue> : List<IValidationRuleBuilder<T>>, IValidationRuleBuilder<T> //, IValidationRuleBuilder<TValue>
     {
-        private LambdaExpression _when;
+        private readonly IValidationRuleBuilder<T> _parent;
+        private readonly Expression<ValidationFunc<T, TValue>> _selector;
+        private Expression<ValidationFunc<T, bool>> _when;
         private bool _negate;
         private readonly IList<Item> _items;
-        private readonly IValidationRuleBuilder _parent;
 
         private ValidationRuleBuilder()
         {
             _items = new List<Item>();
         }
 
-        public ValidationRuleBuilder(IValidationRuleBuilder parent, LambdaExpression expression) : this()
+        public ValidationRuleBuilder(IValidationRuleBuilder<T> parent, Expression<ValidationFunc<T, TValue>> selector) : this()
         {
             _parent = parent;
             _parent?.Add(this);
-            ValueSelector = expression;
+
+            //var validate = selector.AddContextParameterIfNotExists<T, TValue>();
+            //var injected = ObjectInjector.Inject(validate, parent.Selector.Body);
+            //_selector = Expression.Lambda<ValidationFunc<T, TValue>>(injected, parent.Selector.Parameters);
+            _selector = selector;
         }
 
-        public LambdaExpression ValueSelector { get; }
+        public static ValidationRuleBuilder<T, TNext> Create<TNext>(IValidationRuleBuilder<T> parent, Expression<Func<TValue, TNext>> selector)
+        {
+            var validate = selector.AddContextParameterIfNotExists<T, TNext>();
+            var injected = ObjectInjector.Inject(validate, parent.Selector.Body);
+            return new ValidationRuleBuilder<T, TNext>(parent, Expression.Lambda<ValidationFunc<T, TNext>>(injected, parent.Selector.Parameters));
+        }
 
-        public ValidationRuleBuilder<TValue> Not()
+        public LambdaExpression Selector => _selector;
+
+        public ValidationRuleBuilder<T, TValue> Not()
         {
             _negate = true;
             return this;
         }
 
-        public ValidationRuleBuilder<TValue> When(LambdaExpression when)
+        public ValidationRuleBuilder<T, TValue> When(Expression<Func<T, bool>> when)
         {
-            _when = when;
+            //_when = when;
+
+            var validate = when.AddContextParameterIfNotExists<T, bool>();
+            var injected = ObjectInjector.Inject(validate, _selector.Body);
+            _when = Expression.Lambda<ValidationFunc<T, bool>>(injected, _selector.Parameters);
+
             return this;
         }
 
-        public ValidationRuleBuilder<TValue> Predicate(Func<LambdaExpression, LambdaExpression> createPredicate)
+        public ValidationRuleBuilder<T, TValue> Predicate(CreatePredicateFunc<T, TValue> createPredicate)
         {
-            var predicate = createPredicate(ValueSelector);
+            var predicate = createPredicate(_selector);
 
             _items.Add(new Item
             {
-                When = _when ?? ((Expression<EvaluateDelegate<TValue, bool>>)((x, ctx) => true)),
+                //When = _when ?? ((Expression<ValidationFunc<TValue, bool>>)((x, ctx) => true)),
                 Predicate = _negate ? exprfac.Not(predicate) : predicate,
-                Message = (Expression<EvaluateDelegate<TValue, string>>)((x, c) => default)
+                Message = (Expression<ValidationFunc<TValue, string>>)((x, c) => default)
             });
 
             _negate = false;
@@ -78,55 +94,41 @@ namespace Reusable.Flawless
             return this;
         }
 
-        public ValidationRuleBuilder<TValue> Error()
+        public ValidationRuleBuilder<T, TValue> Error()
         {
             _items.Last().Required = true;
             return this;
         }
 
-        public ValidationRuleBuilder<TValue> Message(LambdaExpression message)
+        public ValidationRuleBuilder<T, TValue> Message(LambdaExpression message)
         {
             _items.Last().Message = message;
             return this;
         }
 
-        public ValidationRuleBuilder<TValue> Tags(params string[] tags)
+        public ValidationRuleBuilder<T, TValue> Tags(params string[] tags)
         {
             _items.Last().Tags = tags.ToImmutableSortedSet(SoftString.Comparer);
             return this;
         }
 
         [NotNull]
-        public IEnumerable<IValidator<T>> Build<T>()
+        public IEnumerable<IValidator<T>> Build()
         {
             // (x, ctx) => x.FirstName -->
             var rules =
                 from item in _items
                 // Need to recreate all expressions so that they use the same parameters.
                 let parameters = item.Predicate.Parameters
-                let when = Expression.Lambda<EvaluateDelegate<T, bool>>(item.When.Body, parameters)
-                let predicate = Expression.Lambda<EvaluateDelegate<T, bool>>(item.Predicate.Body, parameters)
-                let message = Expression.Lambda<EvaluateDelegate<T, string>>(item.Message.Body, parameters)
+                let when = Expression.Lambda<ValidationFunc<T, bool>>(item.When.Body, parameters)
+                let predicate = Expression.Lambda<ValidationFunc<T, bool>>(item.Predicate.Body, parameters)
+                let message = Expression.Lambda<ValidationFunc<T, string>>(item.Message.Body, parameters)
                 select (IValidator<T>)new ValidationRule<T>(when, predicate, message, item.Required, ImmutableHashSet<string>.Empty);
 
-            foreach (var rule in rules.Concat(this.SelectMany(b => b.Build<T>())))
+            foreach (var rule in rules.Concat(this.SelectMany(b => b.Build())))
             {
                 yield return rule;
             }
-        }
-
-        private Expression<EvaluateDelegate<TValue, bool>> ValidateCollectionExpression(Func<IEnumerable<TValue>, Func<TValue, bool>, bool> func)
-        {
-            return default;
-        }
-
-        private EvaluateDelegate<T, bool> ValidateCollection<T>(IEnumerable<TValue> source, Func<IEnumerable<TValue>, Func<TValue, bool>, bool> func)
-        {
-            return (obj, context) =>
-            {
-                //return func(source, x => predicate());
-                return default;
-            };
         }
 
         private class Item
@@ -145,24 +147,29 @@ namespace Reusable.Flawless
 
     public delegate TResult AggregateDelegate<TElement, TResult>(IEnumerable<TElement> source, Func<TElement, TResult> selector);
 
-    public class CollectionValidationRuleBuilder<TValue> : List<IValidationRuleBuilder>, IValidationRuleBuilder, IValidationRuleBuilder<TValue>
+    public class CollectionValidationRuleBuilder<T, TValue> : List<IValidationRuleBuilder<T>>, IValidationRuleBuilder<T>
     {
+        private readonly Expression<ValidationFunc<T, IEnumerable<TValue>>> _selector;
+        private readonly Expression<ValidationFunc<TValue, TValue>> _itemSelector;
         private LambdaExpression _when;
         private bool _negate;
         private readonly IList<Item> _items;
-        private readonly IValidationRuleBuilder _parent;
-        private readonly LambdaExpression _collectionSelector;
+        private readonly IValidationRuleBuilder<T> _parent;
 
         private CollectionValidationRuleBuilder()
         {
             _items = new List<Item>();
         }
 
-        public CollectionValidationRuleBuilder(IValidationRuleBuilder parent, LambdaExpression collectionCollectionSelector) : this()
+        public CollectionValidationRuleBuilder(IValidationRuleBuilder<T> parent, Expression<ValidationFunc<T, IEnumerable<TValue>>> selector) : this()
         {
             _parent = parent;
             _parent?.Add(this);
-            _collectionSelector = collectionCollectionSelector;
+
+            //var collectionSelectorWithContext = selector.AddContextParameterIfNotExists<T, IEnumerable<TValue>>();
+            //var collectionSelectorFull = ObjectInjector.Inject(collectionSelectorWithContext, parent.Selector.Body);
+            _selector = selector; // Expression.Lambda<ValidationFunc<T, IEnumerable<TValue>>>(collectionSelectorFull, parent.Selector.Parameters);
+
 
 //            var member = ((collectionCollectionSelector.Body as MemberExpression).Member as PropertyInfo).PropertyType;
 //            var interfaces =
@@ -174,7 +181,7 @@ namespace Reusable.Flawless
 //
 //            var itemType = interfaces.Single().GenericTypeArguments.Single();
 
-            var method = ((EvaluateDelegate<TValue, TValue>)((x, _) => x));
+            var method = ((ValidationFunc<TValue, TValue>)((x, _) => x));
             var parameters = new[]
             {
                 Expression.Parameter(typeof(TValue), "x"),
@@ -183,8 +190,8 @@ namespace Reusable.Flawless
 
             // We need a value selector for a single value not the entire collection so let's create one:
             // (x, ctx) => x
-            ValueSelector =
-                Expression.Lambda<EvaluateDelegate<TValue, TValue>>(
+            _itemSelector =
+                Expression.Lambda<ValidationFunc<TValue, TValue>>(
                     Expression.Call(
                         Expression.Constant(method.Target),
                         method.Method,
@@ -192,29 +199,40 @@ namespace Reusable.Flawless
                     parameters);
         }
 
-        public LambdaExpression ValueSelector { get; }
+        public LambdaExpression Selector => _selector;
+        
+        public static CollectionValidationRuleBuilder<T, TNext> Create<TNext>(IValidationRuleBuilder<T> parent, Expression<Func<TValue, IEnumerable<TNext>>> selector)
+        {
+            //var validate = selector.AddContextParameterIfNotExists<T, TNext>();
+            //var injected = ObjectInjector.Inject(validate, parent.Selector.Body);
+            var collectionSelectorWithContext = selector.AddContextParameterIfNotExists<T, IEnumerable<TNext>>();
+            var collectionSelectorFull = ObjectInjector.Inject(collectionSelectorWithContext, parent.Selector.Body);
+            var lambda = Expression.Lambda<ValidationFunc<T, IEnumerable<TNext>>>(collectionSelectorFull, parent.Selector.Parameters);
+            
+            return new CollectionValidationRuleBuilder<T, TNext>(parent, lambda);
+        }
 
-        public CollectionValidationRuleBuilder<TValue> Not()
+        public CollectionValidationRuleBuilder<T, TValue> Not()
         {
             _negate = true;
             return this;
         }
 
-        public CollectionValidationRuleBuilder<TValue> When(LambdaExpression when)
+        public CollectionValidationRuleBuilder<T, TValue> When(LambdaExpression when)
         {
             _when = when;
             return this;
         }
 
-        public IValidationRuleBuilder<TValue> Predicate(Func<LambdaExpression, LambdaExpression> createPredicate)
+        public IValidationRuleBuilder<T> Predicate(CreatePredicateFunc<T, IEnumerable<TValue>> createPredicate)
         {
-            var predicate = createPredicate(ValueSelector);
+            var predicate = createPredicate(_selector);
 
             _items.Add(new Item
             {
-                When = _when ?? ((Expression<EvaluateDelegate<TValue, bool>>)((x, ctx) => true)),
+                When = _when ?? ((Expression<ValidationFunc<TValue, bool>>)((x, ctx) => true)),
                 Predicate = _negate ? exprfac.Not(predicate) : predicate,
-                Message = (Expression<EvaluateDelegate<TValue, string>>)((x, c) => default)
+                Message = (Expression<ValidationFunc<TValue, string>>)((x, c) => default)
             });
 
             _negate = false;
@@ -223,69 +241,61 @@ namespace Reusable.Flawless
             return this;
         }
 
-        public CollectionValidationRuleBuilder<TValue> Error()
+        public CollectionValidationRuleBuilder<T, TValue> Error()
         {
             _items.Last().Required = true;
             return this;
         }
 
-        public CollectionValidationRuleBuilder<TValue> Message(LambdaExpression message)
+        public CollectionValidationRuleBuilder<T, TValue> Message(LambdaExpression message)
         {
             _items.Last().Message = message;
             return this;
         }
 
-        public CollectionValidationRuleBuilder<TValue> Tags(params string[] tags)
+        public CollectionValidationRuleBuilder<T, TValue> Tags(params string[] tags)
         {
             _items.Last().Tags = tags.ToImmutableSortedSet(SoftString.Comparer);
             return this;
         }
 
         [NotNull]
-        public IEnumerable<IValidator<T>> Build<T>()
+        public IEnumerable<IValidator<T>> Build()
         {
-            var getCollection = (EvaluateDelegate<T, IEnumerable<TValue>>)_collectionSelector.Compile();
-
-            var firstItem = _items.First();
-            var predi = ReplaceLambda<TValue, bool>.Invoke(firstItem.Predicate);
-            var itemPredicate = (EvaluateDelegate<TValue, bool>)predi.Compile();
-            var evalDelegate = ValidateCollection(getCollection, Enumerable.All, itemPredicate);
-            var predicateResult =
-                Expression.Lambda<EvaluateDelegate<T, bool>>(
-                    Expression.Call(
-                        Expression.Constant(evalDelegate.Target),
-                        evalDelegate.Method,
-                        _collectionSelector.Parameters),
-                    _collectionSelector.Parameters);
-
-            yield return (IValidator<T>)new ValidationRule<T>((x, _) => true, predicateResult, (x, _) => "asdf", firstItem.Required, ImmutableHashSet<string>.Empty);
+            var getCollection = _selector.Compile();
 
             // (x, ctx) => x.FirstName -->
             var rules =
                 from item in _items
                 // Need to recreate all expressions so that they use the same parameters.
                 let parameters = item.Predicate.Parameters
-                let when = Expression.Lambda<EvaluateDelegate<T, bool>>(item.When.Body, parameters)
-                let predicate = Expression.Lambda<EvaluateDelegate<T, bool>>(item.Predicate.Body, parameters)
-                let message = Expression.Lambda<EvaluateDelegate<T, string>>(item.Message.Body, parameters)
-                select (IValidator<T>)new ValidationRule<T>(when, predicate, message, item.Required, ImmutableHashSet<string>.Empty);
+                let validateItemDelegate = ReplaceLambda<TValue, bool>.Invoke(item.Predicate).Compile()
+                let validateCollectionDelegate = CreateValidateCollectionDelegate(getCollection, Enumerable.All, validateItemDelegate)
+                let validateCollectionLambda =
+                    Expression.Lambda<ValidationFunc<T, bool>>(
+                        Expression.Call(
+                            Expression.Constant(validateCollectionDelegate.Target),
+                            validateCollectionDelegate.Method,
+                            _selector.Parameters),
+                        _selector.Parameters)
+                let when = Expression.Lambda<ValidationFunc<T, bool>>(item.When.Body, _selector.Parameters)
+                let message = Expression.Lambda<ValidationFunc<T, string>>(item.Message.Body, _selector.Parameters)
+                select (IValidator<T>)new ValidationRule<T>(when, validateCollectionLambda, message, item.Required, ImmutableHashSet<string>.Empty);
 
-            foreach (var rule in rules.Concat(this.SelectMany(b => b.Build<T>())))
+            foreach (var rule in rules.Concat(this.SelectMany(b => b.Build())))
             {
                 yield return rule;
             }
         }
 
 
-        private static EvaluateDelegate<T, bool> ValidateCollection<T>
+        private static ValidationFunc<T, bool> CreateValidateCollectionDelegate<T>
         (
-            EvaluateDelegate<T, IEnumerable<TValue>> getCollection,
+            ValidationFunc<T, IEnumerable<TValue>> getCollection,
             AggregateDelegate<TValue, bool> aggregate,
-            EvaluateDelegate<TValue, bool> predicate
+            ValidationFunc<TValue, bool> predicate
         )
         {
-            //var predicate = (Func<TValue, IImmutableContainer, bool>)item.Predicate.Compile();
-
             return (obj, context) =>
             {
                 var collection = getCollection(obj, context);
@@ -309,12 +319,9 @@ namespace Reusable.Flawless
 
     public static class ValidatorBuilderExtensions
     {
-        public static ValidationRuleBuilder<TValue> Validate<T, TValue>(this ValidationRuleBuilder<T> builder, Expression<Func<T, TValue>> expression)
+        public static ValidationRuleBuilder<T, TNext> Validate<T, TCurrent, TNext>(this ValidationRuleBuilder<T, TCurrent> builder, Expression<Func<TCurrent, TNext>> selector)
         {
-            var validate = expression.AddContextParameterIfNotExists<T, TValue>();
-            var injected = ObjectInjector.Inject(validate, builder.ValueSelector.Body);
-            var lambda = Expression.Lambda(injected, builder.ValueSelector.Parameters);
-            return new ValidationRuleBuilder<TValue>(builder, lambda);
+            return ValidationRuleBuilder<T, TCurrent>.Create(builder, selector);
         }
 
 //        public static ValidationRuleBuilder<TValue> ValidateSelf<TValue>(this ValidationRuleBuilder<TValue> rules)
@@ -322,38 +329,38 @@ namespace Reusable.Flawless
 //            return rules.Validate(x => x);
 //        }
 
-        public static void Validate<T, TValue>(this ValidationRuleBuilder<T> builder, Expression<Func<T, TValue>> expression, Action<ValidationRuleBuilder<TValue>> configureBuilder)
+        public static void Validate<T, TCurrent, TNext>(this ValidationRuleBuilder<T, TCurrent> builder, Expression<Func<TCurrent, TNext>> selector, Action<ValidationRuleBuilder<T, TNext>> configureBuilder)
         {
-            var validate = expression.AddContextParameterIfNotExists<T, TValue>();
-            var injected = ObjectInjector.Inject(validate, builder.ValueSelector.Body);
-            var lambda = Expression.Lambda(injected, builder.ValueSelector.Parameters);
+            //var validate = expression.AddContextParameterIfNotExists<T, TValue>();
+            //var injected = ObjectInjector.Inject(validate, builder.ValueSelector.Body);
+            //var lambda = Expression.Lambda<ValidationFunc<T, TValue>>(injected, builder.ValueSelector.Parameters);
 
-            configureBuilder(new ValidationRuleBuilder<TValue>(builder, lambda));
+            configureBuilder(ValidationRuleBuilder<T, TCurrent>.Create(builder, selector));
         }
 
-        public static ValidationRuleBuilder<IEnumerable<TValue>> ValidateItems<T, TValue>(this ValidationRuleBuilder<T> builder, Expression<Func<T, IEnumerable<TValue>>> collectionSelector)
-        {
-            var validate = collectionSelector.AddContextParameterIfNotExists<T, TValue>();
-            var injected = ObjectInjector.Inject(validate, builder.ValueSelector.Body);
-            var lambda = Expression.Lambda(injected, builder.ValueSelector.Parameters);
+//        public static ValidationRuleBuilder<T, IEnumerable<TValue>> ValidateItems<T, TValue>(this ValidationRuleBuilder<T, TValue> builder, Expression<Func<T, IEnumerable<TValue>>> collectionSelector)
+//        {
+//            //var validate = collectionSelector.AddContextParameterIfNotExists<T, TValue>();
+//            //var injected = ObjectInjector.Inject(validate, builder.ValueSelector.Body);
+//            //var lambda = Expression.Lambda<ValidationFunc<T, IEnumerable<TValue>>>(injected, builder.ValueSelector.Parameters);
+//
+//            //configureBuilder(new ValidationRuleBuilder<IEnumerable<TValue>>(builder, lambda));
+//            return new ValidationRuleBuilder<T, IEnumerable<TValue>>(builder, lambda);
+//        }
 
-            //configureBuilder(new ValidationRuleBuilder<IEnumerable<TValue>>(builder, lambda));
-            return new ValidationRuleBuilder<IEnumerable<TValue>>(builder, lambda);
-        }
-
-        public static CollectionValidationRuleBuilder<TValue> Validate<T, TValue>
+        public static CollectionValidationRuleBuilder<T, TNext> Validate<T, TCurrent, TNext>
         (
-            this ValidationRuleBuilder<T> builder,
-            Expression<Func<T, IEnumerable<TValue>>> collectionSelector,
-            Func<IEnumerable<TValue>, Func<TValue, bool>, bool> func
+            this ValidationRuleBuilder<T, TCurrent> builder,
+            Expression<Func<TCurrent, IEnumerable<TNext>>> selector,
+            Func<IEnumerable<TNext>, Func<TNext, bool>, bool> func
         )
         {
-            var collectionSelectorWithContext = collectionSelector.AddContextParameterIfNotExists<T, IEnumerable<TValue>>();
-            var collectionSelectorFull = ObjectInjector.Inject(collectionSelectorWithContext, builder.ValueSelector.Body);
-            var lambda = Expression.Lambda<EvaluateDelegate<T, IEnumerable<TValue>>>(collectionSelectorFull, builder.ValueSelector.Parameters);
+            //var collectionSelectorWithContext = selector.AddContextParameterIfNotExists<T, IEnumerable<TValue>>();
+            //var collectionSelectorFull = ObjectInjector.Inject(collectionSelectorWithContext, builder.ValueSelector.Body);
+            //var lambda = Expression.Lambda<ValidationFunc<T, IEnumerable<TValue>>>(collectionSelectorFull, builder.ValueSelector.Parameters);
 
             //configureBuilder(new ValidationRuleBuilder<IEnumerable<TValue>>(builder, lambda));
-            return new CollectionValidationRuleBuilder<TValue>(builder, lambda);
+            return CollectionValidationRuleBuilder<T, TCurrent>.Create(builder, selector);
         }
 
 
@@ -362,7 +369,7 @@ namespace Reusable.Flawless
             return
                 expression.Parameters.Count == 2
                     ? expression
-                    : Expression.Lambda<EvaluateDelegate<T, TValue>>(
+                    : Expression.Lambda<ValidationFunc<T, TValue>>(
                         expression.Body,
                         expression.Parameters.Single(),
                         Expression.Parameter(typeof(IImmutableContainer), "ctx"));
@@ -405,14 +412,14 @@ namespace Reusable.Flawless
 
     public class ReplaceLambda<T, TValue> : ExpressionVisitor
     {
-        public static LambdaExpression Invoke(LambdaExpression lambda)
+        public static Expression<ValidationFunc<T, TValue>> Invoke(LambdaExpression lambda)
         {
-            return (LambdaExpression)new ReplaceLambda<T, TValue>().Visit(lambda);
+            return (Expression<ValidationFunc<T, TValue>>)new ReplaceLambda<T, TValue>().Visit(lambda);
         }
 
         protected override Expression VisitLambda<TCurrent>(Expression<TCurrent> node)
         {
-            return Expression.Lambda<EvaluateDelegate<T, TValue>>(Visit(node.Body), node.Parameters);
+            return Expression.Lambda<ValidationFunc<T, TValue>>(Visit(node.Body), node.Parameters);
         }
     }
 }

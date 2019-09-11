@@ -49,9 +49,9 @@ namespace Reusable.Flawless
                 // or
                 //person.Required();
 
-                //person.Validate(x => x.FirstName).Required();
+                person.Validate(x => x.FirstName).Required();
                 //person.Validate(x => x.FirstName).Not().Null().Required().Like(@"^[a-z]+");
-                var rule = person.Validate(x => x.Emails, Enumerable.All).NullOrEmpty().Build<Person>();
+                var rule = person.Validate(x => x.Emails, Enumerable.All).NullOrEmpty().Build();
 
                 var results2 = rule.First().Validate(new Person { Emails = new List<string> { "blub" } }, ImmutableContainer.Empty).ToList();
                 
@@ -60,7 +60,7 @@ namespace Reusable.Flawless
                     //firstName.Required();
                     //firstName.Not().NullOrEmpty();
                     firstName.Validate(y => y.Length).GreaterThan(0);
-                    firstName.When(x => x.StartsWith("S")).Equal("Sam").Message("It must be Sam.");
+                    firstName.When(x => x.StartsWith("S")).Equal("Sam");//.Message("It must be Sam.");
                     firstName.Like(@"^[a-z]+");
                 });
 

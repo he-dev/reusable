@@ -12,22 +12,22 @@ using Reusable.Flawless.ExpressionVisitors;
 
 namespace Reusable.Flawless
 {
-    public delegate TResult EvaluateDelegate<in T, out TResult>(T obj, IImmutableContainer context);
+    public delegate TResult ValidationFunc<in T, out TResult>(T obj, IImmutableContainer context);
 
     public class ValidationRule<T> : IValidator<T>
     {
         private readonly bool _required;
-        private readonly EvaluateDelegate<T, bool> _when;
-        private readonly EvaluateDelegate<T, bool> _validate;
-        private readonly EvaluateDelegate<T, string> _createMessage;
+        private readonly ValidationFunc<T, bool> _when;
+        private readonly ValidationFunc<T, bool> _validate;
+        private readonly ValidationFunc<T, string> _createMessage;
         private readonly string _whenString;
         private readonly string _validateString;
 
         public ValidationRule
         (
-            Expression<EvaluateDelegate<T, bool>> when,
-            Expression<EvaluateDelegate<T, bool>> validate,
-            Expression<EvaluateDelegate<T, string>> message,
+            Expression<ValidationFunc<T, bool>> when,
+            Expression<ValidationFunc<T, bool>> validate,
+            Expression<ValidationFunc<T, string>> message,
             bool required,
             IImmutableSet<string> tags
         )

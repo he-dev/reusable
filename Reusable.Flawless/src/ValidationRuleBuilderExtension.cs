@@ -13,54 +13,54 @@ namespace Reusable.Flawless
 
     public static class ValidationRuleBuilderExtension
     {
-        public static ValidationRuleBuilder<TValue> Required<TValue>(this ValidationRuleBuilder<TValue> builder) where TValue : class
+        public static ValidationRuleBuilder<T, TValue> Required<T, TValue>(this ValidationRuleBuilder<T, TValue> builder) where TValue : class
         {
             return builder.Not().Null().Error();
         }
         
-        public static ValidationRuleBuilder<string> NullOrEmpty(this string value)
-        {
-            return default; // expression => ValidationRule<T, TContext>.Builder.Predicate(_ => vef.ReferenceEqualNull(expression));
-        }
+//        public static ValidationRuleBuilder<string> NullOrEmpty(this string value)
+//        {
+//            return default; // expression => ValidationRule<T, TContext>.Builder.Predicate(_ => vef.ReferenceEqualNull(expression));
+//        }
         
         // --------------
 
-        public static ValidationRuleBuilder<T> When<T>(this ValidationRuleBuilder<T> builder, Expression<Func<T, bool>> expression)
+        public static ValidationRuleBuilder<T, TValue> When<T, TValue>(this ValidationRuleBuilder<T, TValue> builder, Expression<Func<TValue, bool>> when)
         {
-            var validate = expression.AddContextParameterIfNotExists<T, bool>();
-            var injected = ObjectInjector.Inject(validate, builder.ValueSelector.Body);
-            var lambda = Expression.Lambda(injected, builder.ValueSelector.Parameters);
-            return builder.When(lambda);
+//            var validate = when.AddContextParameterIfNotExists<T, bool>();
+//            var injected = ObjectInjector.Inject(validate, builder.ValueSelector.Body);
+//            var lambda = Expression.Lambda(injected, builder.ValueSelector.Parameters);
+            return builder.When(when);
         }
 
-        public static ValidationRuleBuilder<T> Null<T>(this ValidationRuleBuilder<T> builder)
+        public static ValidationRuleBuilder<T, TValue> Null<T, TValue>(this ValidationRuleBuilder<T, TValue> builder)
         {
             return builder.Predicate(exprfac.ReferenceEqualNull);
         }
 
         public static IValidationRuleBuilder<T> NullOrEmpty<T>(this IValidationRuleBuilder<T> builder)
         {
-            return builder.Predicate(exprfac.IsNullOrEmpty);
+            return default;// builder.Predicate(exprfac.IsNullOrEmpty);
         }
 
-        public static ValidationRuleBuilder<T> GreaterThan<T>(this ValidationRuleBuilder<T> builder, T value)
+        public static ValidationRuleBuilder<T, TValue> GreaterThan<T, TValue>(this ValidationRuleBuilder<T, TValue> builder, TValue value)
         {
-            return builder.Predicate(expression => exprfac.GreaterThan(expression, value));
+            return default;// builder.Predicate(expression => exprfac.GreaterThan(expression, value));
         }
 
-        public static ValidationRuleBuilder<T> Like<T>(this ValidationRuleBuilder<T> builder, [RegexPattern] string pattern, RegexOptions options = RegexOptions.None)
+        public static ValidationRuleBuilder<T, TValue> Like<T, TValue>(this ValidationRuleBuilder<T, TValue> builder, [RegexPattern] string pattern, RegexOptions options = RegexOptions.None)
         {
-            return builder.Predicate(expression => exprfac.IsMatch(expression, pattern, options));
+            return default;// builder.Predicate(expression => exprfac.IsMatch(expression, pattern, options));
         }
 
-        public static ValidationRuleBuilder<T> Equal<T>(this ValidationRuleBuilder<T> builder, T value, IEqualityComparer<T> comparer = default)
+        public static ValidationRuleBuilder<T, TValue> Equal<T, TValue>(this ValidationRuleBuilder<T, TValue> builder, TValue value, IEqualityComparer<TValue> comparer = default)
         {
-            return builder.Predicate(expression => exprfac.Equal(expression, value, comparer ?? EqualityComparer<T>.Default));
+            return default;// builder.Predicate(expression => exprfac.Equal(expression, value, comparer ?? EqualityComparer<T>.Default));
         }
 
-        public static ValidationRuleBuilder<T> Message<T>(this ValidationRuleBuilder<T> builder, string message)
+        public static ValidationRuleBuilder<T, TValue> Message<T, TValue>(this ValidationRuleBuilder<T, TValue> builder, string message)
         {
-            return builder.Message(Expression.Lambda(Expression.Constant(message), builder.ValueSelector.Parameters));
+            return default;// builder.Message(Expression.Lambda(Expression.Constant(message), builder.ValueSelector.Parameters));
         }
     }
 }
