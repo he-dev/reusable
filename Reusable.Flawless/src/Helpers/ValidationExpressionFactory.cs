@@ -101,6 +101,19 @@ namespace Reusable.Flawless.Helpers
                     expression.Parameters
                 );
         }
+        
+        public static Expression<Func<string, bool>> IsNullOrEmpty(Expression<Func<string>> getValue)
+        {
+            // x => string.IsNullOrEmpty(x)
+            var isNullOrEmptyMethod = typeof(string).GetMethod(nameof(string.IsNullOrEmpty));
+            return
+                Expression.Lambda<Func<string, bool>>(
+                    Expression.Call(
+                        isNullOrEmptyMethod,
+                        getValue.Body),
+                    getValue.Parameters
+                );
+        }
 
         public static LambdaExpression IsMatch(LambdaExpression expression, string pattern, RegexOptions options)
         {

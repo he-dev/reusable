@@ -12,7 +12,7 @@ using Reusable.Flawless.ExpressionVisitors;
 
 namespace Reusable.Flawless
 {
-    public delegate TResult ValidationFunc<in T, out TResult>(T obj, IImmutableContainer context);
+    
 
     public class ValidationRule<T> : IValidator<T>
     {
