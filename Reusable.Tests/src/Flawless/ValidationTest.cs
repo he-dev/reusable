@@ -93,6 +93,49 @@ namespace Reusable.Flawless
 //            Assert.ThrowsAny<DynamicException>(() => default(Person).ValidateWith(personValidator).ThrowOnFailure());
         }
 
+        [Fact]
+        public void Can_validate_collections_1()
+        {
+            var personValidator = Validator.Validate<Person>(p =>
+            {
+                p.Validate(x => x.Emails).Required();
+                p.ValidateAll(x => x.Emails).Not().Null();
+            });
+
+            var person = new Person
+            {
+                Emails = new List<string> { "a", "b" }
+                
+            };
+
+            var results = person.ValidateWith(personValidator);
+            
+            Assert.Equal(2, results.Count);
+            Assert.Equal(2, results.OfType<ValidationSuccess>().Count());
+        }
+        
+        [Fact]
+        public void Can_validate_collections_2()
+        {
+            var personValidator = Validator.Validate<Person>(p =>
+            {
+                p.Validate(x => x.Emails).Required();
+                p.ValidateAll(x => x.Emails).Not().Null();
+            });
+
+            var person = new Person
+            {
+                Emails = new List<string> { "a", null }
+                
+            };
+
+            var results = person.ValidateWith(personValidator);
+            
+            Assert.Equal(2, results.Count);
+            Assert.Equal(1, results.OfType<ValidationSuccess>().Count());
+            Assert.Equal(1, results.OfType<ValidationWarning>().Count());
+        }
+
 //        [Fact]
 //        public void Can_check_string_for_null_or_empty()
 //        {

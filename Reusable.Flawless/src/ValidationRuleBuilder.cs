@@ -127,7 +127,7 @@ namespace Reusable.Flawless
 
         public static ScalarValidationRuleBuilder<T, TNext> Create<TNext>(IValidationRuleBuilder<T> parent, Expression<Func<TValue, TNext>> selector)
         {
-            var validate = selector.AddContextParameterIfNotExists<TValue, TNext>();
+            var validate = selector.AddContextParameter<TValue, TNext>();
             var injected = ObjectInjector.Inject(validate, parent.Selector.Body);
             return new ScalarValidationRuleBuilder<T, TNext>(parent, Expression.Lambda<ValidationFunc<T, TNext>>(injected, parent.Selector.Parameters));
         }
@@ -187,11 +187,11 @@ namespace Reusable.Flawless
                 Expression.Parameter(typeof(IEnumerable<TValue>), "source"),
                 Expression.Parameter(typeof(Func<TValue, bool>), "predicate")
             };
-            _aggregate = 
+            _aggregate =
                 Expression.Lambda<AggregateDelegate<TValue, bool>>(
                     Expression.Call(
-                        aggregateDelegate.Method, 
-                        aggregateParameters.Cast<Expression>()), 
+                        aggregateDelegate.Method,
+                        aggregateParameters.Cast<Expression>()),
                     aggregateParameters);
         }
 
@@ -202,7 +202,7 @@ namespace Reusable.Flawless
             AggregateDelegate<TNext, bool> aggregateDelegate
         )
         {
-            var collectionSelectorWithContext = selector.AddContextParameterIfNotExists<T, IEnumerable<TNext>>();
+            var collectionSelectorWithContext = selector.AddContextParameter();
             var collectionSelectorFull = ObjectInjector.Inject(collectionSelectorWithContext, parent.Selector.Body);
             var lambda = Expression.Lambda<ValidationFunc<T, IEnumerable<TNext>>>(collectionSelectorFull, parent.Selector.Parameters);
 
@@ -280,15 +280,14 @@ namespace Reusable.Flawless
             return builder.Validate(selector, Enumerable.Any);
         }
 
-        public static Expression<ValidationFunc<T, TValue>> AddContextParameterIfNotExists<T, TValue>(this LambdaExpression expression)
+        public static Expression<ValidationFunc<T, TValue>> AddContextParameter<T, TValue>(this Expression<Func<T, TValue>> expression)
         {
+            // x => x.Member --> (x, context) => x.Member
             return
-                expression.Parameters.Count == 2
-                    ? (Expression<ValidationFunc<T, TValue>>)expression
-                    : Expression.Lambda<ValidationFunc<T, TValue>>(
-                        expression.Body,
-                        expression.Parameters.Single(),
-                        Expression.Parameter(typeof(IImmutableContainer), "context"));
+                Expression.Lambda<ValidationFunc<T, TValue>>(
+                    expression.Body,
+                    expression.Parameters.Single(),
+                    Expression.Parameter(typeof(IImmutableContainer), "context"));
         }
     }
 
