@@ -17,9 +17,9 @@ namespace Reusable.Flawless
 
     public static class Validator
     {
-        public static Validator<T> Validate<T>(Action<ValidationRuleBuilder<T, T>> configureBuilder)
+        public static Validator<T> Validate<T>(Action<ScalarValidationRuleBuilder<T, T>> configureBuilder)
         {
-            var builder = new ValidationRuleBuilder<T, T>(default, (x, ctx) => x);
+            var builder = new ScalarValidationRuleBuilder<T, T>(default, (x, ctx) => x);
             configureBuilder(builder);
             return new Validator<T>(builder.Build());
         }

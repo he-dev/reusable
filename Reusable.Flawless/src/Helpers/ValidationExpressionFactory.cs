@@ -215,7 +215,7 @@ namespace Reusable.Flawless.Helpers
                     binary(
                         left.Body,
                         Expression.Constant(right)),
-                    left.Parameters
+                    Expression.Parameter(typeof(TValue))
                 );
         }
 

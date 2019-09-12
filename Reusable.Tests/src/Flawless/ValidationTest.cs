@@ -60,7 +60,7 @@ namespace Reusable.Flawless
                     //firstName.Required();
                     //firstName.Not().NullOrEmpty();
                     firstName.Validate(y => y.Length).GreaterThan(0);
-                    firstName.When(x => x.StartsWith("S")).Equal("Sam");//.Message("It must be Sam.");
+                    firstName.When(x => x.LastName.StartsWith("S")).Equal("Sam");//.Message("It must be Sam.");
                     firstName.Like(@"^[a-z]+");
                 });
 
