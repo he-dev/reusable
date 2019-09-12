@@ -14,14 +14,19 @@ namespace Reusable.Flawless
     [PublicAPI]
     public static class ValidatorExtensions
     {
-        [NotNull]
-        public static IImmutableList<IValidationResult> ValidateWith<T>(this T obj, Validator<T> validator, IImmutableContainer context)
+        public static IEnumerable<IValidationResult> Validate<T>(this IValidator<T> validator, T obj)
         {
-            return validator.Validate(obj, context).ToImmutableList();
+            return validator.Validate(obj, ImmutableContainer.Empty);
+        }
+        
+        [NotNull]
+        public static IEnumerable<IValidationResult> ValidateWith<T>(this T obj, Validator<T> validator, IImmutableContainer context)
+        {
+            return validator.Validate(obj, context);
         }
 
         [NotNull]
-        public static IImmutableList<IValidationResult> ValidateWith<T>(this T obj, Validator<T> validator)
+        public static IEnumerable<IValidationResult> ValidateWith<T>(this T obj, Validator<T> validator)
         {
             return obj.ValidateWith(validator, ImmutableContainer.Empty);
         }

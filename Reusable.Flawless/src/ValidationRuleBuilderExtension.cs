@@ -11,6 +11,14 @@ namespace Reusable.Flawless
 {
     using exprfac = ValidationExpressionFactory;
 
+    public static class ComparerHelper
+    {
+        public static bool GreaterThan<T>(this T left, T right, IComparer<T> comparer = default)
+        {
+            return (comparer ?? Comparer<T>.Default).Compare(left, right) > 0;
+        }
+    }
+
     public static class ValidationRuleBuilderExtension
     {
         public static IValidationRuleBuilder<T, TValue> When<T, TValue>(this IValidationRuleBuilder<T, TValue> builder, Expression<Func<T, bool>> when)
@@ -28,9 +36,14 @@ namespace Reusable.Flawless
             return builder.Predicate(x => string.IsNullOrEmpty(x));
         }
 
-        public static IValidationRuleBuilder<T, TValue> GreaterThan<T, TValue>(this IValidationRuleBuilder<T, TValue> builder, TValue value)
+        public static IValidationRuleBuilder<T, TValue> GreaterThan<T, TValue>(this IValidationRuleBuilder<T, TValue> builder, TValue value, IComparer<TValue> comparer = default)
         {
-            return builder.Predicate(x => exprfac.GreaterThan(() => x, value).Compile()(x));
+            return builder.Predicate(x => x.GreaterThan(value, comparer));
+        }
+        
+        public static IValidationRuleBuilder<T, TValue> GreaterThanOrEqual<T, TValue>(this IValidationRuleBuilder<T, TValue> builder, TValue value)
+        {
+            return builder.Predicate(x => exprfac.Binary(() => x, value, Expression.GreaterThanOrEqual).Compile()(x));
         }
 
         public static IValidationRuleBuilder<T, string> Like<T>(this IValidationRuleBuilder<T, string> builder, [RegexPattern] string pattern, RegexOptions options = RegexOptions.None)

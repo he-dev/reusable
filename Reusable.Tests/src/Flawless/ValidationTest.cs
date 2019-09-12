@@ -54,35 +54,33 @@ namespace Reusable.Flawless
                 var rule = person.ValidateAll(x => x.Emails).Not().NullOrEmpty().Build().ToList();
 
                 var results2 = rule.First().Validate(new Person { Emails = new List<string> { "blub" } }, ImmutableContainer.Empty).ToList();
-                
+
                 person.Validate(x => x.FirstName, firstName =>
                 {
                     //firstName.Required();
                     //firstName.Not().NullOrEmpty();
                     firstName.Validate(y => y.Length).GreaterThan(0);
-                    firstName.When(x => x.LastName.StartsWith("S")).Equal("Sam");//.Message("It must be Sam.");
+                    firstName.When(x => x.LastName != null && x.LastName.StartsWith("S")).Equal("Sam"); //.Message("It must be Sam.");
                     firstName.Like(@"^[a-z]+");
                 });
 
                 person.Validate(x => x.Address, address =>
                 {
                     address.Required();
-                    address.Validate(x => x.Street, street =>
-                    {
-                        street.Required().Message("You need to specify the Street.");
-                    });
+                    address.Validate(x => x.Street, street => { street.Required().Message("You need to specify the Street."); });
                 });
             });
 
-            //validator.When(x => x.LastName).Null().Required();
 
-
-            var results = new Person
+            var dto = new Person
             {
-                FirstName = "Joe", 
+                FirstName = "Joe",
                 Address = new Address(),
                 Emails = new List<string> { "blub" }
-            }.ValidateWith(personValidator).ToList();
+            };
+            
+            var results = personValidator.Validate(dto).ToList();
+            
 //
 //            Assert.Equal(0, results.Successful().Count());
 //            Assert.Equal(1, results.Errors().Count());
@@ -105,15 +103,14 @@ namespace Reusable.Flawless
             var person = new Person
             {
                 Emails = new List<string> { "a", "b" }
-                
             };
 
-            var results = person.ValidateWith(personValidator);
-            
+            var results = person.ValidateWith(personValidator).ToList();
+
             Assert.Equal(2, results.Count);
             Assert.Equal(2, results.OfType<ValidationSuccess>().Count());
         }
-        
+
         [Fact]
         public void Can_validate_collections_2()
         {
@@ -126,11 +123,10 @@ namespace Reusable.Flawless
             var person = new Person
             {
                 Emails = new List<string> { "a", null }
-                
             };
 
-            var results = person.ValidateWith(personValidator);
-            
+            var results = person.ValidateWith(personValidator).ToList();
+
             Assert.Equal(2, results.Count);
             Assert.Equal(1, results.OfType<ValidationSuccess>().Count());
             Assert.Equal(1, results.OfType<ValidationWarning>().Count());

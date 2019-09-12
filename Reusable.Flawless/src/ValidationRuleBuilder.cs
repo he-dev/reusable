@@ -127,7 +127,7 @@ namespace Reusable.Flawless
 
         public static ScalarValidationRuleBuilder<T, TNext> Create<TNext>(IValidationRuleBuilder<T> parent, Expression<Func<TValue, TNext>> selector)
         {
-            var validate = selector.AddContextParameter<TValue, TNext>();
+            var validate = selector.AddContextParameter();
             var injected = ObjectInjector.Inject(validate, parent.Selector.Body);
             return new ScalarValidationRuleBuilder<T, TNext>(parent, Expression.Lambda<ValidationFunc<T, TNext>>(injected, parent.Selector.Parameters));
         }
@@ -151,7 +151,7 @@ namespace Reusable.Flawless
             var rules =
                 from item in ValidationRuleTemplates
                 // Need to recreate all expressions so that they use the same parameters the Selector uses.
-                let when = Expression.Lambda<ValidationFunc<T, bool>>(item.When.Body, Selector.Parameters)
+                //let when = Expression.Lambda<ValidationFunc<T, bool>>(item.When.Body, Selector.Parameters)
                 // predicate(selector(obj, context))
                 let predicate =
                     Expression.Lambda<ValidationFunc<T, bool>>(
@@ -159,7 +159,7 @@ namespace Reusable.Flawless
                             Expression.Invoke(Selector, Selector.Parameters)),
                         Selector.Parameters)
                 let message = Expression.Lambda<ValidationFunc<T, string>>(item.Message.Body, Selector.Parameters)
-                select (IValidator<T>)new ValidationRule<T>(when, predicate, message, item.Required, ImmutableHashSet<string>.Empty);
+                select (IValidator<T>)new ValidationRule<T>(item.When, predicate, message, item.Required, ImmutableHashSet<string>.Empty);
 
             //rules = rules.ToList();
 
@@ -235,9 +235,9 @@ namespace Reusable.Flawless
                             _aggregate,
                             Expression.Invoke(Selector, Selector.Parameters), item.Predicate),
                         Selector.Parameters)
-                let when = Expression.Lambda<ValidationFunc<T, bool>>(item.When.Body, Selector.Parameters)
+                //let when = Expression.Lambda<ValidationFunc<T, bool>>(item.When.Body, Selector.Parameters)
                 let message = Expression.Lambda<ValidationFunc<T, string>>(item.Message.Body, Selector.Parameters)
-                select (IValidator<T>)new ValidationRule<T>(when, predicate, message, item.Required, ImmutableHashSet<string>.Empty);
+                select (IValidator<T>)new ValidationRule<T>(item.When, predicate, message, item.Required, ImmutableHashSet<string>.Empty);
 
             //rules = rules.ToList();
 
