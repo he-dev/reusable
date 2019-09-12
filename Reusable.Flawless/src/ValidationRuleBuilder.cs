@@ -115,7 +115,7 @@ namespace Reusable.Flawless
 
             public Expression<ValidationFunc<T, string>> Message { get; set; }
 
-            public IEnumerable<string> Tags { get; set; } = Enumerable.Empty<string>();
+            public IImmutableSet<string> Tags { get; set; } = ImmutableHashSet<string>.Empty;
 
             public bool Required { get; set; }
         }
@@ -159,7 +159,7 @@ namespace Reusable.Flawless
                             Expression.Invoke(Selector, Selector.Parameters)),
                         Selector.Parameters)
                 let message = Expression.Lambda<ValidationFunc<T, string>>(item.Message.Body, Selector.Parameters)
-                select (IValidator<T>)new ValidationRule<T>(item.When, predicate, message, item.Required, ImmutableHashSet<string>.Empty);
+                select (IValidator<T>)new ValidationRule<T>(item.When, predicate, message, item.Required, item.Tags);
 
             //rules = rules.ToList();
 
@@ -237,7 +237,7 @@ namespace Reusable.Flawless
                         Selector.Parameters)
                 //let when = Expression.Lambda<ValidationFunc<T, bool>>(item.When.Body, Selector.Parameters)
                 let message = Expression.Lambda<ValidationFunc<T, string>>(item.Message.Body, Selector.Parameters)
-                select (IValidator<T>)new ValidationRule<T>(item.When, predicate, message, item.Required, ImmutableHashSet<string>.Empty);
+                select (IValidator<T>)new ValidationRule<T>(item.When, predicate, message, item.Required, item.Tags);
 
             //rules = rules.ToList();
 

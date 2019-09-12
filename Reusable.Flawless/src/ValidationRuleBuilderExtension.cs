@@ -15,8 +15,30 @@ namespace Reusable.Flawless
     {
         public static bool GreaterThan<T>(this T left, T right, IComparer<T> comparer = default)
         {
-            return (comparer ?? Comparer<T>.Default).Compare(left, right) > 0;
+            return comparer.OrDefault().Compare(left, right) > 0;
         }
+        
+        public static bool GreaterThanOrEqual<T>(this T left, T right, IComparer<T> comparer = default)
+        {
+            return comparer.OrDefault().Compare(left, right) >= 0;
+        }
+        
+        public static bool Equal<T>(this T left, T right, IComparer<T> comparer = default)
+        {
+            return comparer.OrDefault().Compare(left, right) == 0;
+        }
+        
+        public static bool LessThan<T>(this T left, T right, IComparer<T> comparer = default)
+        {
+            return comparer.OrDefault().Compare(left, right) < 0;
+        }
+        
+        public static bool LessThanOrEqual<T>(this T left, T right, IComparer<T> comparer = default)
+        {
+            return comparer.OrDefault().Compare(left, right) <= 0;
+        }
+
+        private static IComparer<T> OrDefault<T>(this IComparer<T> comparer) => comparer ?? Comparer<T>.Default;
     }
 
     public static class ValidationRuleBuilderExtension
