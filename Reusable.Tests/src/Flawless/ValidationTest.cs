@@ -78,9 +78,9 @@ namespace Reusable.Flawless
                 Address = new Address(),
                 Emails = new List<string> { "blub" }
             };
-            
+
             var results = personValidator.Validate(dto).ToList();
-            
+
 //
 //            Assert.Equal(0, results.Successful().Count());
 //            Assert.Equal(1, results.Errors().Count());
@@ -163,21 +163,29 @@ namespace Reusable.Flawless
 //
 //            var ex = Assert.ThrowsAny<DynamicException>(() => results.ThrowOnFailure());
 //        }
+    }
 
-        private class Person
+    internal class Person
+    {
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
+
+        public Address Address { get; set; }
+
+        public IEnumerable<string> Emails { get; set; }
+    }
+
+    internal class Address
+    {
+        public string Street { get; set; }
+    }
+
+    internal class AddressValidatorModule : IValidatorModule<Address>
+    {
+        public void Build(IValidationRuleBuilder<Address> builder)
         {
-            public string FirstName { get; set; }
-
-            public string LastName { get; set; }
-
-            public Address Address { get; set; }
-
-            public IEnumerable<string> Emails { get; set; }
-        }
-
-        private class Address
-        {
-            public string Street { get; set; }
+            throw new NotImplementedException();
         }
     }
 }

@@ -26,8 +26,9 @@ namespace Reusable.Flawless
         protected ValidationResult(string expression, IEnumerable<string> tags, string message)
         {
             Expression = expression;
-            Tags = tags.Prepend(Name).Select(t => $"#{t.Trim('#').ToLower()}");
             Message = message;
+            Name = Regex.Replace(GetType().Name, "^Validation", string.Empty);
+            Tags = tags.Prepend(Name).Select(t => t.ToLower()).ToList();
         }
 
         public string Expression { get; }
@@ -36,9 +37,9 @@ namespace Reusable.Flawless
 
         public string Message { get; }
 
-        private string Name => Regex.Replace(GetType().Name, "^Validation", string.Empty);
+        private string Name { get; }
 
-        public override string ToString() => $"[{Tags.Join(" ")}] {Expression}".ConcatIfNotEmpty(Message, separator: " | ");
+        public override string ToString() => $"[{Tags.Join(", ")}] {Expression}".ConcatIfNotEmpty(Message, separator: " | ");
 
         public static implicit operator bool(ValidationResult result) => result is ValidationSuccess;
     }

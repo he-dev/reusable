@@ -248,6 +248,11 @@ namespace Reusable.Flawless
         }
     }
 
+    public interface IValidatorModule<T>
+    {
+        void Build(IValidationRuleBuilder<T> builder);
+    }
+
     public static class ValidatorBuilderExtensions
     {
         public static ScalarValidationRuleBuilder<T, TNext> Validate<T, TCurrent, TNext>(this ScalarValidationRuleBuilder<T, TCurrent> builder, Expression<Func<TCurrent, TNext>> selector)
