@@ -51,7 +51,7 @@ namespace Reusable.Flawless
 
                 person.Validate(x => x.FirstName).Required();
                 //person.Validate(x => x.FirstName).Not().Null().Required().Like(@"^[a-z]+");
-                var rule = person.ValidateAll(x => x.Emails).NullOrEmpty().Build();
+                var rule = person.ValidateAll(x => x.Emails).Not().NullOrEmpty().Build().ToList();
 
                 var results2 = rule.First().Validate(new Person { Emails = new List<string> { "blub" } }, ImmutableContainer.Empty).ToList();
                 

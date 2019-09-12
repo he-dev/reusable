@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using System.Xml.Xsl;
 using Reusable.Flawless.ExpressionVisitors;
 
 namespace Reusable.Flawless.Helpers
@@ -44,7 +45,7 @@ namespace Reusable.Flawless.Helpers
                     expression.Parameters
                 );
         }
-        
+
         public static LambdaExpression ReferenceEqualNull(LambdaExpression expression)
         {
             // x => object.ReferenceEqual(x.Member, null)
@@ -101,7 +102,7 @@ namespace Reusable.Flawless.Helpers
                     expression.Parameters
                 );
         }
-        
+
         public static Expression<Func<string, bool>> IsNullOrEmpty(Expression<Func<string>> getValue)
         {
             // x => string.IsNullOrEmpty(x)
@@ -130,37 +131,37 @@ namespace Reusable.Flawless.Helpers
                 );
         }
 
-//        public static LambdaExpression LessThan<T, TMember>(Expression<Func<T, TMember>> expression, TMember value, IComparer<TMember> comparer)
-//        {
-//            // x => x.Member == value
-//            var compareMethod = ((Func<TMember, TMember, int>)comparer.Compare).Method;
-//            
-//            return
-//                Expression.Lambda(
-//                    Expression.Equal(
-//                        Expression.Call(
-//                            Expression.Constant(comparer),
-//                            compareMethod,
-//                            expression.Body,
-//                            Expression.Constant(value)),
-//                        Expression.Constant(0)),
-//                    expression.Parameters);
-//            
-//            // x => x.Member < value
-//            return Binary(expression, value, Expression.LessThan);
-//        }
-//        
-//        public static LambdaExpression LessThanOrEqual<T, TMember>(Expression<Func<T, TMember>> expression, TMember value)
-//        {
-//            // x => x.Member <= value
-//            return Binary(expression, value, Expression.LessThanOrEqual);
-//        }
+        //        public static LambdaExpression LessThan<T, TMember>(Expression<Func<T, TMember>> expression, TMember value, IComparer<TMember> comparer)
+        //        {
+        //            // x => x.Member == value
+        //            var compareMethod = ((Func<TMember, TMember, int>)comparer.Compare).Method;
+        //            
+        //            return
+        //                Expression.Lambda(
+        //                    Expression.Equal(
+        //                        Expression.Call(
+        //                            Expression.Constant(comparer),
+        //                            compareMethod,
+        //                            expression.Body,
+        //                            Expression.Constant(value)),
+        //                        Expression.Constant(0)),
+        //                    expression.Parameters);
+        //            
+        //            // x => x.Member < value
+        //            return Binary(expression, value, Expression.LessThan);
+        //        }
+        //        
+        //        public static LambdaExpression LessThanOrEqual<T, TMember>(Expression<Func<T, TMember>> expression, TMember value)
+        //        {
+        //            // x => x.Member <= value
+        //            return Binary(expression, value, Expression.LessThanOrEqual);
+        //        }
 
         public static LambdaExpression Equal<T, TMember>(Expression<Func<T, TMember>> expression, TMember value, IEqualityComparer<TMember> comparer)
         {
             // x => x.Member == value
             var equalsMethod = ((Func<TMember, TMember, bool>)comparer.Equals).Method;
-            
+
             return
                 Expression.Lambda(
                     Expression.Call(
@@ -171,12 +172,12 @@ namespace Reusable.Flawless.Helpers
                     expression.Parameters
                 );
         }
-        
+
         public static LambdaExpression Equal<T>(LambdaExpression expression, T value, IEqualityComparer<T> comparer)
         {
             // x => x.Member == value
             var equalsMethod = ((Func<T, T, bool>)comparer.Equals).Method;
-            
+
             return
                 Expression.Lambda(
                     Expression.Call(
@@ -187,34 +188,34 @@ namespace Reusable.Flawless.Helpers
                     expression.Parameters
                 );
         }
-        
-//        public static LambdaExpression GreaterThanOrEqual<T, TMember>(Expression<Func<T, TMember>> expression, TMember value)
-//        {
-//            // x => x.Member >= value
-//            return Binary(expression, value, Expression.GreaterThanOrEqual);
-//        }
-//        
-        public static LambdaExpression GreaterThan<T, TMember>(Expression<Func<T, TMember>> expression, TMember value)
+
+        //        public static LambdaExpression GreaterThanOrEqual<T, TMember>(Expression<Func<T, TMember>> expression, TMember value)
+        //        {
+        //            // x => x.Member >= value
+        //            return Binary(expression, value, Expression.GreaterThanOrEqual);
+        //        }
+        //        
+        // public static LambdaExpression GreaterThan<T, TMember>(Expression<Func<T, TMember>> expression, TMember value)
+        // {
+        //     // x => x.Member > value
+        //     return Binary(expression, value, Expression.GreaterThan);
+        // }
+
+        public static Expression<Func<TValue, bool>> GreaterThan<TValue>(Expression<Func<TValue>> left, TValue right)
         {
             // x => x.Member > value
-            return Binary(expression, value, Expression.GreaterThan);
-        }
-        
-        public static LambdaExpression GreaterThan<TValue>(LambdaExpression expression, TValue value)
-        {
-            // x => x.Member > value
-            return Binary(expression, value, Expression.GreaterThan);
+            return Binary(left, right, Expression.GreaterThan);
         }
 
-        private static LambdaExpression Binary<TValue>(LambdaExpression expression, TValue value, Func<Expression, Expression, Expression> binary)
+        private static Expression<Func<TValue, bool>> Binary<TValue>(Expression<Func<TValue>> left, TValue right, Func<Expression, Expression, Expression> binary)
         {
             // x => x.Member == value
             return
-                Expression.Lambda(
+                Expression.Lambda<Func<TValue, bool>>(
                     binary(
-                        expression.Body,
-                        Expression.Constant(value)),
-                    expression.Parameters
+                        left.Body,
+                        Expression.Constant(right)),
+                    left.Parameters
                 );
         }
 
@@ -223,6 +224,16 @@ namespace Reusable.Flawless.Helpers
             // !x
             return
                 Expression.Lambda(
+                    Expression.Not(expression.Body),
+                    expression.Parameters
+                );
+        }
+
+        internal static Expression<Func<TValue, bool>> Not<TValue>(Expression<Func<TValue, bool>> expression)
+        {
+            // !x
+            return
+                Expression.Lambda<Func<TValue, bool>>(
                     Expression.Not(expression.Body),
                     expression.Parameters
                 );
