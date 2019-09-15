@@ -20,13 +20,13 @@ namespace Reusable.Flawless
         }
         
         [NotNull]
-        public static IEnumerable<IValidationResult> ValidateWith<T>(this T obj, Validator<T> validator, IImmutableContainer context)
+        public static IEnumerable<IValidationResult> ValidateWith<T>(this T obj, Validator validator, IImmutableContainer context)
         {
             return validator.Validate(obj, context);
         }
 
         [NotNull]
-        public static IEnumerable<IValidationResult> ValidateWith<T>(this T obj, Validator<T> validator)
+        public static IEnumerable<IValidationResult> ValidateWith<T>(this T obj, Validator validator)
         {
             return obj.ValidateWith(validator, ImmutableContainer.Empty);
         }

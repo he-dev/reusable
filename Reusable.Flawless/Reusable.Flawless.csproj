@@ -23,4 +23,7 @@
   <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="src\ValidationRuleBuilder - Copy.cs" />
+  </ItemGroup>
 </Project>

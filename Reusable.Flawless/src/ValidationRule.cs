@@ -12,20 +12,16 @@ using Reusable.Flawless.ExpressionVisitors;
 
 namespace Reusable.Flawless
 {
-    
-
-    public class ValidationRule<T> : IValidator<T>
+    internal class ValidationRule<T> : IValidator<T>
     {
-        private readonly bool _required;
-        private readonly ValidationFunc<T, bool> _when;
         private readonly ValidationFunc<T, bool> _validate;
         private readonly ValidationFunc<T, string> _createMessage;
-        private readonly string _whenString;
+        //private readonly string _whenString;
         private readonly string _validateString;
+        private readonly bool _required;
 
         public ValidationRule
         (
-            Expression<ValidationFunc<T, bool>> when,
             Expression<ValidationFunc<T, bool>> validate,
             Expression<ValidationFunc<T, string>> message,
             bool required,
@@ -38,11 +34,12 @@ namespace Reusable.Flawless
 //            if (createValidationFailure == null) throw new ArgumentNullException(nameof(createValidationFailure));
 
             Tags = tags;
-            _when = when.Compile();
             _validate = validate.Compile();
             _createMessage = message.Compile();
-            _whenString = ValidationParameterPrettifier.Prettify<T>(when).ToString();
+            //_whenString = ValidationParameterPrettifier.Prettify<T>(when).ToString();
             _validateString = ValidationParameterPrettifier.Prettify<T>(validate).ToString();
+            //_selector = selector;
+            //_select = selector.Compile();
             _required = required;
         }
 
@@ -50,31 +47,25 @@ namespace Reusable.Flawless
 
         public IEnumerable<IValidationResult> Validate(T obj, IImmutableContainer context)
         {
-            if (_when(obj, context))
+            if (_validate(obj, context))
             {
-                if (_validate(obj, context) is var success && success)
-                {
-                    yield return ValidationResultFactory.Create<ValidationSuccess>(_validateString, Tags, _createMessage(obj, context));
-                }
-                else
-                {
-                    if (_required)
-                    {
-                        yield return ValidationResultFactory.Create<ValidationError>(_validateString, Tags, _createMessage(obj, context));
-                    }
-                    else
-                    {
-                        yield return ValidationResultFactory.Create<ValidationWarning>(_validateString, Tags, _createMessage(obj, context));
-                    }
-                }
+                yield return ValidationResultFactory.Create<ValidationSuccess>(_validateString, Tags, _createMessage(obj, context));
             }
             else
             {
-                yield return ValidationResultFactory.Create<ValidationInconclusive>(_validateString, Tags, _createMessage(obj, context));
+                if (_required)
+                {
+                    yield return ValidationResultFactory.Create<ValidationError>(_validateString, Tags, _createMessage(obj, context));
+                }
+                else
+                {
+                    yield return ValidationResultFactory.Create<ValidationWarning>(_validateString, Tags, _createMessage(obj, context));
+                }
             }
         }
 
-        public override string ToString() => $"When: {_whenString}{Environment.NewLine}Validate: {_validateString}";
+        //public override string ToString() => $"When: {_whenString}{Environment.NewLine}Validate: {_validateString}";
+        public override string ToString() => $"Validate: {_validateString}";
 
         public static implicit operator string(ValidationRule<T> rule) => rule?.ToString();
     }

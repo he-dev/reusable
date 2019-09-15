@@ -17,140 +17,103 @@ namespace Reusable.Flawless
 
     public delegate TResult AggregateDelegate<TElement, TResult>(IEnumerable<TElement> source, Func<TElement, TResult> selector);
 
-    public interface IValidatorBuilder<T> : ICollection<IValidator<T>>
+    public interface IValidationRuleBuilder<T> : ICollection<IValidationRuleBuilder<T>>
     {
-        //IValidationRuleBuilder<T, TElement> When(Expression<ValidationFunc<TElement, bool>> when);
-        IValidatorBuilder<T> Not();
-        IValidatorBuilder<T> Predicate(Expression<Func<T, bool>> predicate);
-        IValidatorBuilder<T> Error();
-        IValidatorBuilder<T> Message(Expression<ValidationFunc<T, string>> message);
-        IValidatorBuilder<T> Tags(params string[] tags);
+        LambdaExpression Selector { get; }
+
         IValidator<T> Build();
     }
 
-    public interface IValidatorBuilder<T, TSource, TElement> : IValidatorBuilder<TElement>
+    public interface IValidationRuleBuilder<T, TValue> : IValidationRuleBuilder<T>
     {
-        //IValidatorBuilder<TElement> Predicate(Expression<Func<TElement, bool>> predicate);
-        //IValidator<T> Build();
+        IValidationRuleBuilder<T, TValue> When(Expression<ValidationFunc<T, bool>> when);
+        IValidationRuleBuilder<T, TValue> Not();
+        IValidationRuleBuilder<T, TValue> Predicate(Expression<Func<TValue, bool>> predicate);
+        IValidationRuleBuilder<T, TValue> Error();
+        IValidationRuleBuilder<T, TValue> Message(Expression<ValidationFunc<T, string>> message);
+        IValidationRuleBuilder<T, TValue> Tags(params string[] tags);
     }
 
-    public class ValidatorBuilder<T, TSource, TElement> : List<IValidator<TElement>>, IValidatorBuilder<T, TSource, TElement>
+    public abstract class ValidationRuleBuilder<T, TValue> : List<IValidationRuleBuilder<T>>, IValidationRuleBuilder<T, TValue>
     {
-        private readonly Func<IEnumerable<IValidator<TElement>>, IValidator<T>> _validatorFactory;
-
-        //private static readonly Expression<ValidationFunc<TRight, bool>> DefaultWhen = (x, ctx) => true;
-        private static readonly Expression<ValidationFunc<TElement, string>> DefaultMessage = (x, ctx) => default;
-
+        private static readonly Expression<ValidationFunc<T, bool>> DefaultWhen = (x, ctx) => true;
+        private static readonly Expression<ValidationFunc<T, string>> DefaultMessage = (x, ctx) => default;
         private readonly IList<ValidationRuleTemplate> _validationRuleTemplates;
-
-        //private Expression<ValidationFunc<TRight, bool>> _when;
+        private Expression<ValidationFunc<T, bool>> _when;
         private bool _negate;
 
-        public ValidatorBuilder
-        (
-            Func<IEnumerable<IValidator<TElement>>, IValidator<T>> validatorFactory
-        )
+        private ValidationRuleBuilder()
         {
-            _validatorFactory = validatorFactory;
             _validationRuleTemplates = new List<ValidationRuleTemplate>();
-            //_when = DefaultWhen;
+            _when = DefaultWhen;
             _negate = false;
         }
 
+        protected ValidationRuleBuilder(IValidationRuleBuilder<T> parent, LambdaExpression selector) : this()
+        {
+            parent?.Add(this);
+            Selector = selector;
+        }
+
+        public LambdaExpression Selector { get; }
+
         protected IEnumerable<ValidationRuleTemplate> ValidationRuleTemplates => _validationRuleTemplates;
 
-//        public IValidationRuleBuilder<T, TElement> When(Expression<ValidationFunc<TElement, bool>> when)
-//        {
-//            _when = when;
-//            return this;
-//        }
+        public IValidationRuleBuilder<T, TValue> When(Expression<ValidationFunc<T, bool>> when)
+        {
+            _when = when;
+            return this;
+        }
 
-        public IValidatorBuilder<TElement> Not()
+        public IValidationRuleBuilder<T, TValue> Not()
         {
             _negate = true;
             return this;
         }
 
-        public IValidatorBuilder<TElement> Predicate(Expression<Func<TElement, bool>> predicate)
+        public IValidationRuleBuilder<T, TValue> Predicate(Expression<Func<TValue, bool>> predicate)
         {
             _validationRuleTemplates.Add(new ValidationRuleTemplate
             {
-                //When = _when,
+                When = _when,
                 Predicate = _negate ? exprfac.Not(predicate) : predicate,
                 Message = DefaultMessage,
             });
 
             _negate = false;
-            // _when = DefaultWhen;
+            _when = DefaultWhen;
 
             return this;
         }
 
-        public IValidatorBuilder<TElement> Error()
+        public IValidationRuleBuilder<T, TValue> Error()
         {
             _validationRuleTemplates.Last().Required = true;
             return this;
         }
 
-        public IValidatorBuilder<TElement> Message(Expression<ValidationFunc<TElement, string>> message)
+        public IValidationRuleBuilder<T, TValue> Message(Expression<ValidationFunc<T, string>> message)
         {
-            //_validationRuleTemplates.Last().Message = message;
+            _validationRuleTemplates.Last().Message = message;
             return this;
         }
 
-        public IValidatorBuilder<TElement> Tags(params string[] tags)
+        public IValidationRuleBuilder<T, TValue> Tags(params string[] tags)
         {
             _validationRuleTemplates.Last().Tags = tags.ToImmutableSortedSet(SoftString.Comparer);
             return this;
         }
 
         [NotNull]
-        public IValidator<TElement> Build()
-        {
-            /*
-             
-             There are two expressions:
-                 selector: (x, ctx) => x.FirstName
-                 predicate: x => bool;
-             
-             that need to be called in chain like that:
-                 var value = selector(obj, context); 
-                 var result = predicate(value);
-             
-             so I build this expression:
-                 return predicate(selector(obj, context));
-                 
-             */
-//            var rules =
-//                from item in ValidationRuleTemplates
-//                // Need to recreate all expressions so that they use the same parameters the Selector uses.
-//                //let when = Expression.Lambda<ValidationFunc<T, bool>>(item.When.Body, Selector.Parameters)
-//                // predicate(selector(obj, context))
-//                let predicate =
-//                    Expression.Lambda<ValidationFunc<TLeft, bool>>(
-//                        Expression.Invoke(item.Predicate,
-//                            Expression.Invoke(Selector, Selector.Parameters)),
-//                        Selector.Parameters)
-//                let message = Expression.Lambda<ValidationFunc<TLeft, string>>(item.Message.Body, Selector.Parameters)
-//                select (IValidator<TLeft>)new ValidationRule<TLeft, TValue>(_selector, item.When, predicate, message, item.Required, item.Tags);
-
-            //rules = rules.ToList();
-
-//            foreach (var rule in rules.Concat(this.SelectMany(b => b.Build())))
-//            {
-//                yield return rule;
-//            }
-
-            return _validatorFactory(Enumerable.Empty<IValidator<TElement>>());
-        }
+        public abstract IValidator<T> Build();
 
         protected class ValidationRuleTemplate
         {
-            //public Expression<ValidationFunc<TElement, bool>> When { get; set; }
+            public Expression<ValidationFunc<T, bool>> When { get; set; }
 
-            public Expression<Func<TElement, bool>> Predicate { get; set; }
+            public Expression<Func<TValue, bool>> Predicate { get; set; }
 
-            public Expression<ValidationFunc<TElement, string>> Message { get; set; }
+            public Expression<ValidationFunc<T, string>> Message { get; set; }
 
             public IImmutableSet<string> Tags { get; set; } = ImmutableHashSet<string>.Empty;
 
@@ -158,20 +121,20 @@ namespace Reusable.Flawless
         }
     }
 
-    public class ScalarValidatorBuilder<T, TValue> : ValidatorBuilder<,,>
+    public class ScalarValidationRuleBuilder<T, TValue> : ValidationRuleBuilder<T, TValue>
     {
         private readonly Expression<ValidationFunc<T, TValue>> _selector;
 
-        public ScalarValidatorBuilder(IValidatorBuilder<T> parent, Expression<ValidationFunc<T, TValue>> selector) : base(parent, selector)
+        public ScalarValidationRuleBuilder(IValidationRuleBuilder<T> parent, Expression<ValidationFunc<T, TValue>> selector) : base(parent, selector)
         {
             _selector = selector;
         }
 
-        public static ScalarValidatorBuilder<T, TNext> Create<TNext>(IValidatorBuilder<T> parent, Expression<Func<TValue, TNext>> selector)
+        public static ScalarValidationRuleBuilder<T, TNext> Create<TNext>(IValidationRuleBuilder<T> parent, Expression<Func<TValue, TNext>> selector)
         {
             var validate = selector.AddContextParameter();
             var injected = ObjectInjector.Inject(validate, parent.Selector.Body);
-            return new ScalarValidatorBuilder<T, TNext>(parent, Expression.Lambda<ValidationFunc<T, TNext>>(injected, parent.Selector.Parameters));
+            return new ScalarValidationRuleBuilder<T, TNext>(parent, Expression.Lambda<ValidationFunc<T, TNext>>(injected, parent.Selector.Parameters));
         }
 
         public override IValidator<T> Build()
@@ -212,21 +175,21 @@ namespace Reusable.Flawless
         }
     }
 
-    public class CollectionValidatorBuilder<T, TValue> : ValidatorBuilder<,,>
+    public class CollectionValidationRuleBuilder<T, TValue> : ValidationRuleBuilder<T, TValue>
     {
         private readonly Expression<ValidationFunc<T, IEnumerable<TValue>>> _selector;
-
+        
         private readonly Expression<AggregateDelegate<TValue, bool>> _aggregate;
 
-        public CollectionValidatorBuilder
+        public CollectionValidationRuleBuilder
         (
-            IValidatorBuilder<T> parent,
+            IValidationRuleBuilder<T> parent,
             Expression<ValidationFunc<T, IEnumerable<TValue>>> selector,
             AggregateDelegate<TValue, bool> aggregateDelegate
         ) : base(parent, selector)
         {
             _selector = selector;
-
+            
             // The aggregateDelegate needs to be converted into a lambda-expression.
             var aggregateParameters = new[]
             {
@@ -241,9 +204,9 @@ namespace Reusable.Flawless
                     aggregateParameters);
         }
 
-        public static IValidatorBuilder<> Create<TNext>
+        public static IValidationRuleBuilder<T, TNext> Create<TNext>
         (
-            IValidatorBuilder<T> parent,
+            IValidationRuleBuilder<T> parent,
             Expression<Func<TValue, IEnumerable<TNext>>> selector,
             AggregateDelegate<TNext, bool> aggregateDelegate
         )
@@ -252,7 +215,7 @@ namespace Reusable.Flawless
             var collectionSelectorFull = ObjectInjector.Inject(collectionSelectorWithContext, parent.Selector.Body);
             var lambda = Expression.Lambda<ValidationFunc<T, IEnumerable<TNext>>>(collectionSelectorFull, parent.Selector.Parameters);
 
-            return new CollectionValidatorBuilder<T, TNext>(parent, lambda, aggregateDelegate);
+            return new CollectionValidationRuleBuilder<T, TNext>(parent, lambda, aggregateDelegate);
         }
 
         public override IValidator<T> Build()
@@ -296,61 +259,37 @@ namespace Reusable.Flawless
 
     public interface IValidatorModule<T>
     {
-        void Build(IValidatorBuilder<T> builder);
+        void Build(IValidationRuleBuilder<T> builder);
     }
 
     public static class ValidatorBuilderExtensions
     {
-        public static IValidatorBuilder<TElement, TNextSource, TNextSource> Validate<T, TSource, TElement, TNextSource>
-        (
-            this IValidatorBuilder<T, TSource, TElement> builder,
-            Expression<Func<TElement, TNextSource>> sourceSelector
-        )
+        public static ScalarValidationRuleBuilder<T, TNext> Validate<T, TCurrent, TNext>(this IValidationRuleBuilder<T, TCurrent> builder, Expression<Func<TCurrent, TNext>> selector)
         {
-            var validatorFactory = Validator<TElement, TNextSource, TNextSource>.CreateFactory(x => new[] { x }, x => x, (x, ctx) => true);
-            return new ValidatorBuilder<TElement, TNextSource, TNextSource>(validators => validatorFactory(validators));
-            // todo - convert selector to enumerable
-            return default;
+            return ScalarValidationRuleBuilder<T, TCurrent>.Create(builder, selector);
         }
 
-        public static IValidatorBuilder<TElement, TNextSource, TNextElement> Validate___<T, TSource, TElement, TNextSource, TNextElement>
-        (
-            this IValidatorBuilder<T, TSource, TElement> builder,
-            Expression<Func<TElement, IEnumerable<TNextSource>>> sourceSelector,
-            Expression<Func<TNextSource, TNextElement>> elementSelector
-        )
+        public static void Validate<T, TCurrent, TNext>(this IValidationRuleBuilder<T, TCurrent> builder, Expression<Func<TCurrent, TNext>> selector, Action<IValidationRuleBuilder<T, TNext>> configureBuilder)
         {
-            //new ValidationRuleCollection<TCurrent, TNext, TNext>(selector, x => x, (x, ctx) => true, );
-            var validatorFactory = Validator<TElement, TNextSource, TNextElement>.CreateFactory(sourceSelector, elementSelector, (x, ctx) => true);
-            var next = new ValidatorBuilder<TElement, TNextSource, TNextElement>(validators => validatorFactory(validators));
-            //builder.Add(next);
-            return next;
-
-            //var rules = new ValidationRuleCollection<TCurrent, TNext, TNext>(selector, x => x, (x, ctx) => true, default);
-            //return new ValidationRuleBuilder<TNext>();
+            configureBuilder(ScalarValidationRuleBuilder<T, TCurrent>.Create(builder, selector));
         }
 
-        public static void Validate<T, TCurrent, TNext>(this IValidatorBuilder<> builder, Expression<Func<TCurrent, TNext>> selector, Action<IValidatorBuilder<>> configureBuilder)
-        {
-            configureBuilder(ScalarValidatorBuilder<T, TCurrent>.Create(builder, selector));
-        }
-
-        public static IValidatorBuilder<> Validate<T, TCurrent, TNext>
+        public static IValidationRuleBuilder<T, TNext> Validate<T, TCurrent, TNext>
         (
-            this IValidatorBuilder<T> builder,
+            this IValidationRuleBuilder<T> builder,
             Expression<Func<TCurrent, IEnumerable<TNext>>> selector,
             AggregateDelegate<TNext, bool> aggregateDelegate
         )
         {
-            return CollectionValidatorBuilder<T, TCurrent>.Create(builder, selector, aggregateDelegate);
+            return CollectionValidationRuleBuilder<T, TCurrent>.Create(builder, selector, aggregateDelegate);
         }
 
-        public static IValidatorBuilder<> ValidateAll<T, TCurrent, TNext>(this IValidatorBuilder<> builder, Expression<Func<TCurrent, IEnumerable<TNext>>> selector)
+        public static IValidationRuleBuilder<T, TNext> ValidateAll<T, TCurrent, TNext>(this IValidationRuleBuilder<T, TCurrent> builder, Expression<Func<TCurrent, IEnumerable<TNext>>> selector)
         {
             return builder.Validate(selector, Enumerable.All);
         }
 
-        public static IValidatorBuilder<> ValidateAny<T, TCurrent, TNext>(this IValidatorBuilder<> builder, Expression<Func<TCurrent, IEnumerable<TNext>>> selector)
+        public static IValidationRuleBuilder<T, TNext> ValidateAny<T, TCurrent, TNext>(this IValidationRuleBuilder<T, TCurrent> builder, Expression<Func<TCurrent, IEnumerable<TNext>>> selector)
         {
             return builder.Validate(selector, Enumerable.Any);
         }

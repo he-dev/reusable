@@ -12,36 +12,61 @@ namespace Reusable.Flawless
 {
     public interface IValidator<in T>
     {
+        IImmutableSet<string> Tags { get; }
+
         IEnumerable<IValidationResult> Validate(T obj, IImmutableContainer context);
     }
 
     public static class Validator
     {
-        public static Validator<T> Validate<T>(Action<ScalarValidationRuleBuilder<T, T>> configureBuilder)
+        public static IValidator<T> Validate<T>(Action<IValidatorBuilder<T, T, T>> configureRules)
         {
-            var builder = new ScalarValidationRuleBuilder<T, T>(default, (x, ctx) => x);
-            configureBuilder(builder);
-            return new Validator<T>(builder.Build());
+            var builder = new ValidatorBuilder<T, T, T>(default);
+            configureRules(builder);
+            return new Validator<T, T, T>(x => new[] { x }, x => x, (x, ctx) => true, builder.Build());
         }
-        
     }
 
-    [PublicAPI]
-    public class Validator<T> : IValidator<T>, IEnumerable<IValidator<T>>
-    {
-        private readonly IImmutableList<IValidator<T>> _validators;
+    // Treat everything as collections then it's easier to handle with linq.
 
-        public Validator(IEnumerable<IValidator<T>> validators)
+    [PublicAPI]
+    internal class Validator<T, TSource, TElement> : List<IValidator<TElement>>, IValidator<T>
+    {
+        private readonly Expression<Func<T, IEnumerable<TSource>>> _sourceSelector;
+        private readonly Expression<Func<TSource, TElement>> _elementSelector;
+        private readonly Expression<ValidationFunc<T, bool>> _condition;
+
+        private readonly Func<T, IEnumerable<TSource>> _selectSource;
+        private readonly Func<TSource, TElement> _selectElement;
+        private readonly ValidationFunc<T, bool> _when;
+
+        public Validator
+        (
+            Expression<Func<T, IEnumerable<TSource>>> sourceSelector,
+            Expression<Func<TSource, TElement>> elementSelector,
+            Expression<ValidationFunc<T, bool>> condition,
+            IEnumerable<IValidator<TElement>> validators
+        ) : base(validators)
         {
-            _validators = validators.ToImmutableList();
+            _sourceSelector = sourceSelector;
+            _elementSelector = elementSelector;
+            _condition = condition;
+
+            _selectSource = sourceSelector.Compile();
+            _selectElement = elementSelector?.Compile();
+            _when = condition.Compile();
         }
 
+        public IImmutableSet<string> Tags { get; }
 
-        public static Validator<T> Empty { get; } = new Validator<T>(ImmutableList<IValidator<T>>.Empty);
-
-        public Validator<T> Add(IValidator<T> rule)
+        public static Func<IEnumerable<IValidator<TElement>>, IValidator<T>> CreateFactory
+        (
+            Expression<Func<T, IEnumerable<TSource>>> sourceSelector,
+            Expression<Func<TSource, TElement>> elementSelector,
+            Expression<ValidationFunc<T, bool>> filter
+        )
         {
-            return new Validator<T>(_validators.Add(rule));
+            return validators => new Validator<T, TSource, TElement>(sourceSelector, elementSelector, filter, validators);
         }
 
         public IEnumerable<IValidationResult> Validate(T obj, IImmutableContainer context)
@@ -63,25 +88,32 @@ namespace Reusable.Flawless
 
         private IEnumerable<IValidationResult> ValidationResultEnumerator(T obj, IImmutableContainer context)
         {
-            var results =
-                from validator in this
-                from result in validator.Validate(obj, context)
-                select result;
-            
-            foreach (var result in results)
+            if (_when(obj, context))
             {
-                yield return result;
+                var source = _selectSource(obj);
 
-                if (result is ValidationError)
+                var results =
+                    from element in source.Select(_selectElement)
+                    from validator in this
+                    from result in validator.Validate(element, context)
+                    select result;
+
+                foreach (var result in results)
                 {
-                    yield break;
+                    yield return result;
+
+                    if (result is ValidationError)
+                    {
+                        yield break;
+                    }
                 }
             }
+            else
+            {
+                //yield return ValidationResultFactory.Create<ValidationInconclusive>(_validateString, Tags, _createMessage(obj, context));
+                yield return ValidationResultFactory.Create<ValidationInconclusive>(default, Tags, default);
+            }
         }
-
-        public IEnumerator<IValidator<T>> GetEnumerator() => _validators.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_validators).GetEnumerator();
     }
 
 

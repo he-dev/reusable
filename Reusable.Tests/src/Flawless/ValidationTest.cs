@@ -43,17 +43,21 @@ namespace Reusable.Flawless
         [Fact]
         public void Simplified_2()
         {
-            var personValidator = Validator.Validate<Person>(person =>
+            // selector: x => x
+            var personValidator = Validator.Validate<Person>(person => // <-- ValidationRuleCollection<Person>
             {
                 //person.Not().Null().Error();
                 // or
-                //person.Required();
+                //person.Required(); // <-- ValidationRule<T, T>
 
+                // selector: x => x.FirstName
+                person.Validate(x => x.FirstName);
+                person.Validate___(x => new[] { x.FirstName }, x => int.Parse(x)).GreaterThan(0);
                 person.Validate(x => x.FirstName).Required();
                 //person.Validate(x => x.FirstName).Not().Null().Required().Like(@"^[a-z]+");
-                var rule = person.ValidateAll(x => x.Emails).Not().NullOrEmpty().Build().ToList();
+                var rule = person.ValidateAll(x => x.Emails).Not().NullOrEmpty().Build();
 
-                var results2 = rule.First().Validate(new Person { Emails = new List<string> { "blub" } }, ImmutableContainer.Empty).ToList();
+                var results2 = rule.Validate(new Person { Emails = new List<string> { "blub" } }, ImmutableContainer.Empty).ToList();
 
                 person.Validate(x => x.FirstName, firstName =>
                 {
@@ -183,7 +187,7 @@ namespace Reusable.Flawless
 
     internal class AddressValidatorModule : IValidatorModule<Address>
     {
-        public void Build(IValidationRuleBuilder<Address> builder)
+        public void Build(IValidatorBuilder<Address> builder)
         {
             throw new NotImplementedException();
         }
