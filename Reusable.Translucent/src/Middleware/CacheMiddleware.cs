@@ -1,10 +1,12 @@
 using System;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Caching.Memory;
 using Reusable.Data;
 
 namespace Reusable.Translucent.Middleware
 {
+    [UsedImplicitly]
     public class CacheMiddleware
     {
         private readonly RequestDelegate<ResourceContext> _next;
