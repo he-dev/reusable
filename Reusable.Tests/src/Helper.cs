@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Immutable;
+using Microsoft.Extensions.Caching.Memory;
 using Reusable.Data;
 using Reusable.Translucent;
 using Reusable.Translucent.Controllers;
@@ -12,7 +13,7 @@ namespace Reusable
     {
         public static readonly string ConnectionString = "Data Source=(local);Initial Catalog=TestDb;Integrated Security=SSPI;";
 
-        public static readonly IResourceRepository Resources = new ResourceRepository<TestResourceSetup>(default);
+        public static readonly IResourceRepository Resources = new ResourceRepository<TestResourceSetup>(ImmutableServiceProvider.Empty.Add<IMemoryCache>(new MemoryCache(new MemoryCacheOptions())));
 
         private class TestResourceSetup
         {
@@ -54,8 +55,10 @@ namespace Reusable
 
             public void Configure(IResourceRepositoryBuilder repository)
             {
-                repository.UseMiddleware<SettingFormatValidationMiddleware>();
+                //repository.UseMiddleware<SettingFormatValidationMiddleware>();
+                repository.UseMiddleware<CacheMiddleware>();
                 repository.UseMiddleware<SettingExistsValidationMiddleware>();
+                repository.UseMiddleware<SettingConverterMiddleware>();
             }
         }
     }

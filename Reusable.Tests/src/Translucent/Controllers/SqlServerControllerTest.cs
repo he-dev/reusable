@@ -32,7 +32,10 @@ namespace Reusable.Translucent.Controllers
             Assert.Equal(10.3m, testDto.Decimal);
             Assert.Equal(new DateTime(1894, 6, 30), testDto.DateTime);
             Assert.Equal(TimeSpan.Parse("01:15:00"), testDto.TimeSpan);
-            Assert.Equal(new[] { 11, 12 }, testDto.ListOfInt32); // fallback
+            var listOfInt32a = testDto.ListOfInt32; // fallback
+            var listOfInt32b = testDto.ListOfInt32; // fallback
+            Assert.Equal(new[] { 11, 12 }, listOfInt32a); // fallback
+            Assert.Same(listOfInt32a, listOfInt32b);
         }
 
         [Fact]
@@ -71,6 +74,6 @@ namespace Reusable.Translucent.Controllers
         public decimal Decimal => _resources.ReadSetting(() => Decimal);
         public DateTime DateTime => _resources.ReadSetting(() => DateTime);
         public TimeSpan TimeSpan => _resources.ReadSetting(() => TimeSpan);
-        public List<int> ListOfInt32 => _resources.ReadSetting(() => ListOfInt32);
+        public List<int> ListOfInt32 => _resources.ReadSetting(() => ListOfInt32, maxAge: TimeSpan.FromSeconds(7));
     }
 }

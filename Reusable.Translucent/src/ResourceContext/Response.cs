@@ -19,7 +19,7 @@ namespace Reusable.Translucent
 
         public object Body { get; set; }
 
-        public IImmutableContainer Metadata { get; set; }
+        public IImmutableContainer Metadata { get; set; } = ImmutableContainer.Empty;
 
         public static Response OK() => new Response { StatusCode = ResourceStatusCode.OK };
         
@@ -27,27 +27,11 @@ namespace Reusable.Translucent
 
         public void Dispose()
         {
-            if (Body is Stream stream && !(Metadata is null) && Metadata.GetItemOrDefault(Request.IsExternallyOwned))
+            if (Body is Stream stream && Metadata?.GetItemOrDefault(Resource.MaxAge, TimeSpan.Zero) is var maxAge && maxAge == TimeSpan.Zero)
             {
                 stream.Dispose();
             }
         }
-
-//        public class OK : Response
-//        {
-//            public OK()
-//            {
-//                StatusCode = ResourceStatusCode.OK;
-//            }
-//        }
-//
-//        public class NotFound : Response
-//        {
-//            public NotFound()
-//            {
-//                StatusCode = ResourceStatusCode.NotFound;
-//            }
-//        }
 
         #region Properties
 
@@ -66,26 +50,5 @@ namespace Reusable.Translucent
     {
         OK,
         NotFound
-    }
-
-    [UseType("Resource"), UseMember]
-    [PlainSelectorFormatter]
-    public abstract class ResourceProperties : SelectorBuilder<ResourceProperties>
-    {
-        //public static readonly Selector<UriString> Uri = Select(() => Uri);
-
-        //public static readonly Selector<bool> Exists = Select(() => Exists);
-
-        //public static readonly Selector<long> Length = Select(() => Length);
-
-
-        //public static readonly Selector<MimeType> Format = Select(() => Format);
-
-        //public static readonly Selector<Type> DataType = Select(() => DataType);
-
-        //
-
-
-        //public static readonly Selector<Func<Stream, Task<object>>> DeserializeAsync = Select(() => DeserializeAsync);
     }
 }

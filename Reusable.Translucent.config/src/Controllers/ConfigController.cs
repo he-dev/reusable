@@ -5,6 +5,7 @@ using Reusable.Quickey;
 
 namespace Reusable.Translucent.Controllers
 {
+    // Uses "Config" as name because controllers are named after their scheme. 
     public abstract class ConfigController : ResourceController
     {
         public static readonly string Scheme = "config";
@@ -30,18 +31,16 @@ namespace Reusable.Translucent.Controllers
                 Metadata =
                     ImmutableContainer
                         .Empty
-                        .Union(request.Metadata.Copy<ResourceProperties>())
-                        .SetItem(Converter, Properties.GetItem(Converter))
+                        .SetItem(Resource.Converter, Properties.GetItem(Resource.Converter))
                         .SetItem(Response.ActualName, actualName)
+                        .Union(request.Metadata.Copy<Resource>())
             };
         }
 
         #region Properties
 
         private static readonly From<ConfigController> This;
-
-        public static Selector<ITypeConverter> Converter { get; } = This.Select(() => Converter);
-
+        
         #endregion
     }
 }

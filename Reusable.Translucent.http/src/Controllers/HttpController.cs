@@ -74,7 +74,7 @@ namespace Reusable.Translucent.Controllers
             {
                 var uri = BaseUri + request.Uri;
                 var (response, contentType) = await InvokeAsync(uri, httpMethod, request.Body, request.Metadata);
-                return OK(response, request.Metadata.SetItem(HttpRequest.ContentType, contentType).Copy<ResourceProperties>());
+                return OK(response, request.Metadata.SetItem(HttpRequest.ContentType, contentType));
             };
         }
 

@@ -36,7 +36,7 @@ namespace Reusable.Quickey
         {
             return new Selector<TMember>(selector);
         }
-        
+
         [NotNull]
         public static Selector<TMember> Select<T, TMember>(this From<T> from, [NotNull] Expression<Func<Selector<TMember>>> selector)
         {
@@ -71,7 +71,7 @@ namespace Reusable.Quickey
             {
                 throw new ArgumentException(paramName: nameof(selector), message: $"'{selector.ToPrettyString()}' must specify at least the '{nameof(UseMemberAttribute)}'.");
             }
-            
+
             var formatters =
                 from m in Member.Path()
                 where m.IsDefined(typeof(SelectorFormatterAttribute))
@@ -117,12 +117,18 @@ namespace Reusable.Quickey
 
             if (member is PropertyInfo property)
             {
-                memberAccess = linq.Expression.Property(linq.Expression.Constant(default, declaringType), property);
+                memberAccess =
+                    property.GetGetMethod().IsStatic
+                        ? linq.Expression.Property(default, property)
+                        : linq.Expression.Property(linq.Expression.Constant(default, declaringType), property);
             }
 
-            if (member is FieldInfo fieldInfo)
+            if (member is FieldInfo field)
             {
-                memberAccess = linq.Expression.Field(default, fieldInfo);
+                memberAccess =
+                    field.IsStatic
+                        ? linq.Expression.Field(default, field)
+                        : linq.Expression.Field(linq.Expression.Constant(default, declaringType), field);
             }
 
             // () => x.Member
@@ -167,13 +173,11 @@ namespace Reusable.Quickey
         {
             get
             {
-                var members =
-                    typeof(SelectorBuilder<T>).IsAssignableFrom(typeof(T))
-                        ? typeof(T).GetFields().Cast<MemberInfo>()
-                        : typeof(T).GetProperties().Cast<MemberInfo>();
+                var members = typeof(T).GetMembers(BindingFlags.Public | BindingFlags.Instance).Concat(typeof(T).GetMembers(BindingFlags.Public | BindingFlags.Static));
                 return
-                    from p in members
-                    select Selector.FromMember(typeof(T), p);
+                    from m in members
+                    where m is PropertyInfo || m is FieldInfo
+                    select Selector.FromMember(typeof(T), m);
             }
         }
 

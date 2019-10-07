@@ -11,7 +11,7 @@ namespace Reusable.Translucent.Controllers
         private readonly IConfiguration _configuration;
 
         public JsonFileController(string basePath, string fileName) 
-            : base(ImmutableContainer.Empty.SetItem(Converter, new JsonSettingConverter()))
+            : base(ImmutableContainer.Empty.SetItem(Resource.Converter, new JsonSettingConverter()))
         {
             _configuration =
                 new ConfigurationBuilder()

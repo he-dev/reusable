@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
+using Reusable.Quickey;
 using Reusable.Translucent.Controllers;
 
 namespace Reusable.Translucent
@@ -39,23 +40,37 @@ namespace Reusable.Translucent
             {
                 var current = _middleware.Pop();
                 var nextCallback = CreateNext<TContext>(previous);
-                var parameters = new object[] { nextCallback };
-                if (current.Parameters.Any())
-                {
-                    parameters = parameters.Concat(current.Parameters).ToArray();
-                }
 
-                var middlewareCtor = current.MiddlewareType.GetConstructor(parameters.Select(p => p.GetType()).ToArray());
-                if (middlewareCtor is null)
-                {
-                    throw DynamicException.Create
+                var middlewareCtors =
+                    from ctor in current.MiddlewareType.GetConstructors()
+                    where ctor.GetParameters().FirstOrDefault()?.ParameterType == nextCallback.GetType()
+                    select ctor;
+
+                var middlewareCtor = middlewareCtors.SingleOrThrow
+                (
+                    onEmpty: () => throw DynamicException.Create
                     (
                         "ConstructorNotFound",
-                        $"Type '{current.MiddlewareType.ToPrettyString()}' does not have a constructor with these parameters: [{parameters.Select(p => p.GetType().ToPrettyString()).Join(", ")}]"
-                    );
-                }
+                        $"Type '{current.MiddlewareType.ToPrettyString()}' does not have a constructor with the first parameter '{nextCallback.GetType().ToPrettyString()}'."
+                    ),
+                    onMany: () => throw DynamicException.Create
+                    (
+                        "MultipleConstructorsFound",
+                        $"Type '{current.MiddlewareType.ToPrettyString()}' has more than one constructor with the first parameter '{nextCallback.GetType().ToPrettyString()}'."
+                    )
+                );
 
-                previous = middlewareCtor.Invoke(parameters);
+                var parameters = middlewareCtor.GetParameters(); // new object[] { nextCallback };
+
+                var parameterValues =
+                    current.Parameters.Any()
+                        ? current.Parameters
+                        // TContext is always there so we can skip it.
+                        : parameters.Skip(1).Select(parameter => _services.Resolve(parameter.ParameterType));
+
+                parameterValues = parameterValues.Prepend(nextCallback);
+
+                previous = middlewareCtor.Invoke(parameterValues.ToArray());
             }
 
             return CreateNext<TContext>(previous);

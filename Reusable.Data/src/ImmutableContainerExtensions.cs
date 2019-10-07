@@ -150,6 +150,4 @@ namespace Reusable.Data
             return container.Copy(selectors);
         }
     }
-
-    
 }

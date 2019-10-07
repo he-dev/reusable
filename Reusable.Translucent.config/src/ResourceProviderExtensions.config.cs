@@ -15,16 +15,18 @@ namespace Reusable.Translucent
 {
     public static class ResourceProviderExtensions
     {
-        public static async Task<object> ReadSettingAsync(this IResourceRepository resourceRepository, Selector selector)
+        public static async Task<object> ReadSettingAsync(this IResourceRepository resourceRepository, Selector selector, TimeSpan maxAge = default)
         {
-            var request = ConfigRequestBuilder.CreateRequest(RequestMethod.Get, selector);
+            var metadata =
+                ImmutableContainer
+                    .Empty
+                    .SetItem(Resource.MaxAge, maxAge)
+                    .SetItem(Resource.Type, selector.DataType);
+
+            using (var request = ConfigRequestBuilder.CreateRequest(RequestMethod.Get, selector, metadata: metadata))
             using (var response = await resourceRepository.InvokeAsync(request))
             {
-                return
-                    response
-                        .Metadata
-                        .GetItem(ConfigController.Converter)
-                        .Convert(response.Body, selector.DataType);
+                return response.Body;
             }
         }
 
@@ -52,24 +54,24 @@ namespace Reusable.Translucent
 
         #region Getters
 
-        public static async Task<T> ReadSettingAsync<T>(this IResourceRepository resourceRepository, Selector<T> selector)
+        public static async Task<T> ReadSettingAsync<T>(this IResourceRepository resourceRepository, Selector<T> selector, TimeSpan maxAge = default)
         {
-            return (T)await resourceRepository.ReadSettingAsync((Selector)selector);
+            return (T)await resourceRepository.ReadSettingAsync((Selector)selector, maxAge);
         }
 
-        public static T ReadSetting<T>(this IResourceRepository resourceRepository, Selector<T> selector)
+        public static T ReadSetting<T>(this IResourceRepository resourceRepository, Selector<T> selector, TimeSpan maxAge = default)
         {
-            return (T)resourceRepository.ReadSettingAsync((Selector)selector).GetAwaiter().GetResult();
+            return (T)resourceRepository.ReadSettingAsync((Selector)selector, maxAge).GetAwaiter().GetResult();
         }
 
-        public static async Task<T> ReadSettingAsync<T>(this IResourceRepository resourceRepository, Expression<Func<T>> selector, string index = default)
+        public static async Task<T> ReadSettingAsync<T>(this IResourceRepository resourceRepository, Expression<Func<T>> selector, string index = default, TimeSpan maxAge = default)
         {
-            return (T)await resourceRepository.ReadSettingAsync(CreateSelector<T>(selector, index));
+            return (T)await resourceRepository.ReadSettingAsync(CreateSelector<T>(selector, index), maxAge);
         }
 
-        public static T ReadSetting<T>(this IResourceRepository resourceRepository, [NotNull] Expression<Func<T>> selector, string index = default)
+        public static T ReadSetting<T>(this IResourceRepository resourceRepository, [NotNull] Expression<Func<T>> selector, string index = default, TimeSpan maxAge = default)
         {
-            return ReadSettingAsync(resourceRepository, selector, index).GetAwaiter().GetResult();
+            return ReadSettingAsync(resourceRepository, selector, index, maxAge).GetAwaiter().GetResult();
         }
 
         #endregion

@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Exceptionize;
+using Reusable.Translucent.Controllers;
 
 namespace Reusable.Translucent.Middleware
 {
@@ -19,7 +20,7 @@ namespace Reusable.Translucent.Middleware
         {
             await _next(context);
 
-            if (context.Request.Uri.Scheme.Equals("config"))
+            if (context.Request.Uri.Scheme.Equals(ConfigController.Scheme))
             {
                 if (!context.Request.Metadata.GetItemOrDefault(ConfigRequest.IsOptional) && !context.Response.Exists())
                 {

@@ -18,20 +18,28 @@ namespace Reusable.Translucent.Middleware
 
         public async Task InvokeAsync(ResourceContext context)
         {
-            if (context.Request.Metadata.GetItemOrDefault(Request.IsCacheable))
+            if (!context.Request.Method.Equals(RequestMethod.Get))
             {
-                var key = context.Request.Uri.ToString();
-                if (_memoryCache.TryGetValue(key, out var cached))
-                {
-                    context.Response = (Response)cached;
-                }
-                else
-                {
-                    await _next(context);
+                await _next(context);
+                return;
+            }
 
-                    _memoryCache.Set(key, context.Response, context.Request.Metadata.GetItemOrDefault(Request.CacheTimeout, TimeSpan.Zero));
-                    context.Response.Metadata = context.Response.Metadata.SetItem(Request.IsExternallyOwned, true);
-                }
+            // Only requests with non-zero MaxAge are cacheable.
+            if (context.Request.Metadata.GetItemOrDefault(Resource.MaxAge, TimeSpan.Zero) is var maxAge && maxAge == TimeSpan.Zero)
+            {
+                await _next(context);
+                return;
+            }
+
+            var key = context.Request.Uri.ToString();
+            if (_memoryCache.TryGetValue<Response>(key, out var cached))
+            {
+                context.Response = cached;
+            }
+            else
+            {
+                await _next(context);
+                _memoryCache.Set(key, context.Response, maxAge);
             }
         }
     }

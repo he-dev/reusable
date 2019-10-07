@@ -23,7 +23,7 @@ namespace Reusable.Translucent.Controllers
                 properties
                     .ThisOrEmpty()
                     .SetItem(ConnectionString, connectionString)
-                    .SetItemWhenNotExists(Converter, new JsonSettingConverter())
+                    .SetItemWhenNotExists(Resource.Converter, new JsonSettingConverter())
                     .SetItemWhenNotExists(TableName, (DefaultSchema, DefaultTable))
             ) { }
 
@@ -61,7 +61,7 @@ namespace Reusable.Translucent.Controllers
         public async Task<Response> SetSettingAsync(Request request)
         {
             var settingIdentifier = GetResourceName(request.Uri);
-            var value = Properties.GetItem(Converter).Convert(request.Body, typeof(string));
+            var value = Properties.GetItem(Resource.Converter).Convert(request.Body, typeof(string));
 
             var connectionString = Properties.GetItem(ConnectionString);
             await SqlHelper.ExecuteAsync(connectionString, async (connection, token) =>

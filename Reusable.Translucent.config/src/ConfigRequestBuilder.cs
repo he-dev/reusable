@@ -12,7 +12,7 @@ namespace Reusable.Translucent
 {
     public static class ConfigRequestBuilder
     {
-        public static Request CreateRequest(Option<RequestMethod> method, Selector selector, object value = default)
+        public static Request CreateRequest(Option<RequestMethod> method, Selector selector, object value = default, IImmutableContainer metadata = default)
         {
             var resources =
                 from m in selector.Member.Path()
@@ -35,7 +35,8 @@ namespace Reusable.Translucent
                 Metadata =
                     ImmutableContainer
                         .Empty
-                        .UpdateItem(ResourceController.Tags, x => resource is null ? x : x.Add(resource.Controller.ToSoftString())),
+                        .UpdateItem(ResourceController.Tags, x => resource is null ? x : x.Add(resource.Controller.ToSoftString()))
+                        .Union(metadata ?? ImmutableContainer.Empty),
                 Body = value
             };
         }
