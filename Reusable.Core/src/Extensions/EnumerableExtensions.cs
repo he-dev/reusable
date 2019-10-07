@@ -234,7 +234,7 @@ namespace System.Linq.Custom
         public static T SingleOrThrow<T>([NotNull] this IEnumerable<T> source, Func<Exception> onEmpty = null, Func<Exception> onMany = null)
         {
             //return source.SingleOrThrow(_ => true, onEmpty, onMultiple);
-            
+
             if (source == null) throw new ArgumentNullException(nameof(source));
 
             var items = source.Take(2).ToList();
@@ -281,10 +281,7 @@ namespace System.Linq.Custom
         {
             if (values == null) throw new ArgumentNullException(nameof(values));
 
-            unchecked
-            {
-                return values.Aggregate(0, (current, next) => (current * 397) ^ next?.GetHashCode() ?? 0);
-            }
+            return values.Aggregate(0, (current, next) => unchecked((current * 397) ^ next?.GetHashCode() ?? 0));
         }
 
         [NotNull, ItemCanBeNull]
