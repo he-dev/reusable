@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace Reusable.Translucent
 {
     public static class ConfigRequestBuilder
     {
-        public static Request CreateRequest(Option<RequestMethod> method, Selector selector, object value = default, IImmutableContainer metadata = default)
+        public static Request CreateRequest(Option<RequestMethod> method, Selector selector, object value = default, IImmutableContainer metadata = default, TimeSpan maxAge = default)
         {
             var resources =
                 from m in selector.Member.Path()
@@ -35,6 +36,8 @@ namespace Reusable.Translucent
                 Metadata =
                     ImmutableContainer
                         .Empty
+                        .SetItem(Resource.Type, selector.DataType)
+                        .SetItem(Resource.MaxAge, maxAge)
                         .UpdateItem(ResourceController.Tags, x => resource is null ? x : x.Add(resource.Controller.ToSoftString()))
                         .Union(metadata ?? ImmutableContainer.Empty),
                 Body = value
@@ -47,8 +50,6 @@ namespace Reusable.Translucent
         #region Properties
 
         private static readonly From<ConfigRequest> This;
-
-        
 
         #endregion
     }
