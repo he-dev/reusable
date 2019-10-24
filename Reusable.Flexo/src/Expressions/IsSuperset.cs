@@ -7,7 +7,7 @@ namespace Reusable.Flexo
 {
     public class IsSuperset : CollectionExtension<bool>
     {
-        public IsSuperset(ILogger<Overlaps> logger) : base(logger, nameof(Overlaps)) { }
+        public IsSuperset(ILogger<IsSuperset> logger) : base(logger, nameof(IsSuperset)) { }
 
         public IEnumerable<IExpression> Values
         {
